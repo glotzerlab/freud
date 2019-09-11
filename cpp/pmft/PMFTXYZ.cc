@@ -59,13 +59,13 @@ PMFTXYZ::PMFTXYZ(float x_max, float y_max, float z_max, unsigned int n_x, unsign
     m_z_array = precomputeAxisBinCenter(m_n_z, m_dz, m_z_max);
 
     // create and populate the pcf_array
-    m_pcf_array = util::makeEmptyArray<float>(m_n_x * m_n_y * m_n_z);
-    m_bin_counts = util::makeEmptyArray<unsigned int>(m_n_x * m_n_y * m_n_z);
+    m_pcf_array.prepare({m_n_x, m_n_y, m_n_z});
+    m_bin_counts.prepare({m_n_x, m_n_y, m_n_z});
 
-    // Set r_cut
-    m_r_cut = sqrtf(m_x_max * m_x_max + m_y_max * m_y_max + m_z_max * m_z_max);
+    // Set r_max
+    m_r_max = sqrtf(m_x_max * m_x_max + m_y_max * m_y_max + m_z_max * m_z_max);
 
-    m_local_bin_counts.resize(m_n_x * m_n_y * m_n_z);
+    m_local_bin_counts.resize({m_n_x, m_n_y, m_n_z});
 }
 
 //! \internal
@@ -98,7 +98,6 @@ void PMFTXYZ::accumulate(const locality::NeighborQuery* neighbor_query,
     float dy_inv = 1.0f / m_dy;
     float dz_inv = 1.0f / m_dz;
 
-    Index3D b_i = Index3D(m_n_x, m_n_y, m_n_z);
     Index2D q_i = Index2D(n_faces, n_query_points);
 
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
@@ -141,7 +140,7 @@ void PMFTXYZ::accumulate(const locality::NeighborQuery* neighbor_query,
             // increment the bin
             if ((ibinx < m_n_x) && (ibiny < m_n_y) && (ibinz < m_n_z))
             {
-                ++m_local_bin_counts.local()[b_i(ibinx, ibiny, ibinz)];
+                ++m_local_bin_counts.local()(ibinx, ibiny, ibinz);
             }
         }
     });

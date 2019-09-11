@@ -15,11 +15,8 @@ class TestRDF(unittest.TestCase):
             nbins = int((r_max - r_min) / dr)
 
             # make sure the radius for each bin is generated correctly
-            r_list = np.zeros(nbins, dtype=np.float32)
-            for i in range(nbins):
-                r1 = i * dr + r_min
-                r2 = r1 + dr
-                r_list[i] = 2.0/3.0 * (r2**3.0 - r1**3.0) / (r2**2.0 - r1**2.0)
+            r_list = np.array([r_min + dr*(i+1/2) for i in range(nbins) if
+                               r_min + dr*(i+1/2) < r_max])
             rdf = freud.density.RDF(r_max, dr, r_min=r_min)
             npt.assert_allclose(rdf.R, r_list, rtol=1e-4, atol=1e-4)
 
@@ -81,14 +78,9 @@ class TestRDF(unittest.TestCase):
         tolerance = 0.1
         box_size = r_max*3.1
 
-        def ig_sphere(x, y, j):
-            return 4/3*np.pi*np.trapz(y[:j]*(x[:j]+dr/2)**2, x[:j])
-
         for i, r_min in enumerate([0, 0.05, 0.1, 1.0, 3.0]):
             nbins = int((r_max - r_min) / dr)
             box, points = util.make_box_and_random_points(box_size, num_points)
-            points.flags['WRITEABLE'] = False
-            box = freud.box.Box.cube(box_size)
             test_set = util.make_raw_query_nlist_test_set(
                 box, points, points, "ball", r_max, 0, True)
             for ts in test_set:
@@ -100,19 +92,19 @@ class TestRDF(unittest.TestCase):
                     rdf.compute(box, ts[0], nlist=ts[1])
                 self.assertTrue(rdf.box == box)
                 correct = np.ones(nbins, dtype=np.float32)
-                correct[0] = 0.0
                 npt.assert_allclose(rdf.RDF, correct, atol=tolerance)
 
                 # Numerical integration to compute the running coordination
                 # number will be highly inaccurate, so we can only test up to
                 # a limited precision. Also, since dealing with nonzero r_min
                 # values requires extrapolation, we only test when r_min=0.
-                if r_min == 0:
-                    correct_cumulative = np.array(
-                        [ig_sphere(rdf.R, rdf.RDF, j)
-                            for j in range(1, nbins+1)])
-                    npt.assert_allclose(rdf.n_r, correct_cumulative,
-                                        rtol=tolerance*5)
+                ndens = points.shape[0]/box.volume
+                bin_boundaries = np.array([r_min + dr*i for i in range(nbins+1)
+                                           if r_min + dr*i <= r_max])
+                bin_volumes = 4/3*np.pi*np.diff(bin_boundaries**3)
+                avg_counts = rdf.RDF*ndens*bin_volumes
+                npt.assert_allclose(rdf.n_r, np.cumsum(avg_counts),
+                                    rtol=tolerance)
 
     def test_repr(self):
         rdf = freud.density.RDF(10, 0.1, r_min=0.5)
@@ -156,7 +148,7 @@ class TestRDF(unittest.TestCase):
                 query_points.append([r * np.cos(2*np.pi*k/N),
                                      r * np.sin(2*np.pi*k/N), 0])
             supposed_RDF.append(supposed_RDF[-1] + N)
-        supposed_RDF = np.array(supposed_RDF[:-1])
+        supposed_RDF = np.array(supposed_RDF[1:])
 
         test_set = util.make_raw_query_nlist_test_set(
             box, points, query_points, "ball", r_max, 0, False)

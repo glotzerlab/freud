@@ -71,13 +71,14 @@ cdef class InterfaceMeasure(Compute):
             query_points, shape=(None, 3))
 
         if nlist is None:
-            lc = freud.locality.LinkCell(b, self.r_max)
-            nlist = lc.compute(b, points, query_points).nlist
+            lc = freud.locality.LinkCell(b, self.r_max, points)
+            nlist = lc.query(query_points,
+                             dict(r_max=self.r_max)).toNeighborList()
         else:
-            nlist = nlist.copy().filter_r(b, points, query_points, self.r_max)
+            nlist = nlist.copy().filter_r(self.r_max)
 
-        self._point_ids = np.unique(nlist.index_j).astype(np.uint32)
-        self._query_point_ids = np.unique(nlist.index_i).astype(np.uint32)
+        self._point_ids = np.unique(nlist.point_indices)
+        self._query_point_ids = np.unique(nlist.query_point_indices)
         return self
 
     @Compute._computed_property()
@@ -99,6 +100,3 @@ cdef class InterfaceMeasure(Compute):
     def __repr__(self):
         return "freud.interface.{cls}(r_max={r_max})".format(
             cls=type(self).__name__, r_max=self.r_max)
-
-    def __str__(self):
-        return repr(self)

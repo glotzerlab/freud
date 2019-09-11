@@ -70,8 +70,8 @@ void Voronoi::compute(const box::Box &box, const vec3<double>* vertices,
                 float weight = 0;
 
                 // compute distances bewteen two points
-                vec3<double> rij(expanded_points[j] - expanded_points[i]);
-                float distance = sqrtf(dot(rij, rij));
+                vec3<double> r_ij(expanded_points[j] - expanded_points[i]);
+                float distance = sqrtf(dot(r_ij, r_ij));
 
                 // Reject bonds between two image particles
                 if (i >= N && j >= N)
@@ -106,8 +106,8 @@ void Voronoi::compute(const box::Box &box, const vec3<double>* vertices,
                         vec3<double> v1 = current_ridge_vertex[0];
                         vec3<double> v2 = current_ridge_vertex[1];
                         // not necessary to have double precision in weight calculation
-                        vec3<float> rij(box.wrap(v1 - v2));
-                        weight = sqrtf(dot(rij, rij));
+                        vec3<float> r_ij(box.wrap(v1 - v2));
+                        weight = sqrtf(dot(r_ij, r_ij));
                     }
                     else
                     {
@@ -181,16 +181,14 @@ void Voronoi::compute(const box::Box &box, const vec3<double>* vertices,
 
         m_neighbor_list.resize(num_bonds);
         m_neighbor_list.setNumBonds(num_bonds, N, N);
-        size_t *neighbor_array(m_neighbor_list.getNeighbors());
-        float *neighbor_weights(m_neighbor_list.getWeights());
 
         parallel_for(tbb::blocked_range<size_t>(0, num_bonds),
             [&] (const tbb::blocked_range<size_t> &r) {
             for (size_t bond(r.begin()); bond < r.end(); ++bond)
             {
-                neighbor_array[2*bond] = linear_bonds[bond].id;
-                neighbor_array[2*bond+1] = linear_bonds[bond].ref_id;
-                neighbor_weights[bond] = linear_bonds[bond].weight;
+                m_neighbor_list.getNeighbors()(bond, 0) = linear_bonds[bond].id;
+                m_neighbor_list.getNeighbors()(bond, 1) = linear_bonds[bond].ref_id;
+                m_neighbor_list.getWeights()[bond] = linear_bonds[bond].weight;
             }
         });
     }

@@ -7,9 +7,9 @@
 #include <memory>
 
 #include "Box.h"
-#include "Index1D.h"
 #include "ThreadStorage.h"
 #include "VectorMath.h"
+#include "ManagedArray.h"
 
 /*! \file GaussianDensity.h
     \brief Routines for computing Gaussian smeared densities from points.
@@ -26,9 +26,7 @@ class GaussianDensity
 {
 public:
     //! Constructor
-    GaussianDensity(unsigned int width, float r_cut, float sigma);
-    GaussianDensity(unsigned int width_x, unsigned int width_y, unsigned int width_z, float r_cut,
-                    float sigma);
+    GaussianDensity(vec3<unsigned int> width, float r_max, float sigma);
 
     // Destructor
     ~GaussianDensity() {}
@@ -39,34 +37,35 @@ public:
         return m_box;
     }
 
+    //! Get the width of the gaussian distributions.
+    float getSigma() const
+    {
+        return m_sigma;
+    }
+
     //! Reset the gaussian array to all zeros
     void reset();
 
     //! \internal
     //! helper function to reduce the thread specific arrays into one array
-    void reduceDensity();
+    void reduce();
 
     //! Compute the Density
     void compute(const box::Box& box, const vec3<float>* points, unsigned int n_points);
 
     //! Get a reference to the last computed Density
-    std::shared_ptr<float> getDensity();
+    const util::ManagedArray<float> &getDensity();
 
-    unsigned int getWidthX();
-
-    unsigned int getWidthY();
-
-    unsigned int getWidthZ();
+    vec3<unsigned int> getWidth();
 
 private:
     box::Box m_box;                               //!< Simulation box where the particles belong
-    unsigned int m_width_x, m_width_y, m_width_z; //!< Num of bins on one side of the cube
-    float m_rcut;                                 //!< Max r at which to compute density
+    vec3<unsigned int> m_width;                   //!< Num of bins on each side of the cube
+    float m_r_max;                                 //!< Max r at which to compute density
     float m_sigma;                                //!< Variance
-    Index3D m_bi;                                 //!< Bin indexer
     bool m_reduce;                                //!< Whether arrays need to be reduced across threads
 
-    std::shared_ptr<float> m_density_array; //! computed density array
+    util::ManagedArray<float> m_density_array; //! computed density array
     util::ThreadStorage<float> m_local_bin_counts;
 };
 

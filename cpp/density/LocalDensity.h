@@ -11,6 +11,7 @@
 #include "NeighborList.h"
 #include "NeighborQuery.h"
 #include "VectorMath.h"
+#include "ManagedArray.h"
 
 /*! \file LocalDensity.h
     \brief Routines for computing local density around a point.
@@ -25,7 +26,7 @@ class LocalDensity
 {
 public:
     //! Constructor
-    LocalDensity(float r_cut, float volume, float diameter);
+    LocalDensity(float r_max, float volume, float diameter);
 
     //! Destructor
     ~LocalDensity();
@@ -45,20 +46,20 @@ public:
     unsigned int getNPoints();
 
     //! Get a reference to the last computed density
-    std::shared_ptr<float> getDensity();
+    const util::ManagedArray<float> &getDensity();
 
     //! Get a reference to the last computed number of neighbors
-    std::shared_ptr<float> getNumNeighbors();
+    const util::ManagedArray<float> &getNumNeighbors();
 
 private:
     box::Box m_box;       //!< Simulation box where the particles belong
-    float m_rcut;         //!< Maximum neighbor distance
+    float m_r_max;         //!< Maximum neighbor distance
     float m_volume;       //!< Volume (area in 2d) of a single particle
     float m_diameter;     //!< Diameter of the particles
     unsigned int m_n_points; //!< Last number of points computed
 
-    std::shared_ptr<float> m_density_array;       //!< density array computed
-    std::shared_ptr<float> m_num_neighbors_array; //!< number of neighbors array computed
+    util::ManagedArray<float> m_density_array;       //!< density array computed
+    util::ManagedArray<float> m_num_neighbors_array; //!< number of neighbors array computed
 };
 
 }; }; // end namespace freud::density

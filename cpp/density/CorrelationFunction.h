@@ -11,6 +11,7 @@
 #include "NeighborQuery.h"
 #include "ThreadStorage.h"
 #include "VectorMath.h"
+#include "ManagedArray.h"
 
 /*! \file CorrelationFunction.h
     \brief Generic pairwise correlation functions.
@@ -26,7 +27,7 @@ namespace freud { namespace density {
     radial distance.
 
     The values of r at which to compute the correlation function are
-    controlled by the rmax and dr parameters to the constructor. rmax
+    controlled by the r_max and dr parameters to the constructor. r_max
     determines the maximum r at which to compute the correlation
     function and dr is the step size for each bin.
 
@@ -47,7 +48,7 @@ template<typename T> class CorrelationFunction
 {
 public:
     //! Constructor
-    CorrelationFunction(float rmax, float dr);
+    CorrelationFunction(float r_max, float dr);
 
     //! Destructor
     ~CorrelationFunction() {}
@@ -72,17 +73,17 @@ public:
     void reduceCorrelationFunction();
 
     //! Get a reference to the last computed rdf
-    std::shared_ptr<T> getRDF();
+    const util::ManagedArray<T> &getRDF();
 
     //! Get a reference to the bin counts array
-    std::shared_ptr<unsigned int> getCounts()
+    const util::ManagedArray<unsigned int> &getCounts()
     {
         reduceCorrelationFunction();
         return m_bin_counts;
     }
 
     //! Get a reference to the r array
-    std::shared_ptr<float> getR()
+    const util::ManagedArray<float> &getR()
     {
         return m_r_array;
     }
@@ -94,7 +95,7 @@ public:
 
 private:
     box::Box m_box;               //!< Simulation box where the particles belong
-    float m_rmax;                 //!< Maximum r at which to compute g(r)
+    float m_r_max;                 //!< Maximum r at which to compute g(r)
     float m_dr;                   //!< Step size for r in the computation
     unsigned int m_nbins;         //!< Number of r bins to compute g(r) over
     unsigned int m_n_ref;         //!< number of reference particles
@@ -102,9 +103,9 @@ private:
     unsigned int m_frame_counter; //!< number of frames calc'd
     bool m_reduce;                //!< Whether arrays need to be reduced across threads
 
-    std::shared_ptr<T> m_rdf_array;             //!< rdf array computed
-    std::shared_ptr<unsigned int> m_bin_counts; //!< bin counts that go into computing the rdf array
-    std::shared_ptr<float> m_r_array;           //!< array of r values where the rdf is computed
+    util::ManagedArray<T> m_rdf_array;             //!< rdf array computed
+    util::ManagedArray<unsigned int> m_bin_counts; //!< bin counts that go into computing the rdf array
+    util::ManagedArray<float> m_r_array;           //!< array of r values where the rdf is computed
     util::ThreadStorage<unsigned int> m_local_bin_counts;
     util::ThreadStorage<T> m_local_rdf_array;
 };

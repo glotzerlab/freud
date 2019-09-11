@@ -13,18 +13,23 @@ import warnings
 import numpy as np
 
 from cython.operator cimport dereference
-from freud.common cimport Compute
+from freud.common cimport Compute, PairCompute, SpatialHistogram
 from freud.util cimport vec3
+
+from collections.abc import Sequence
 
 cimport freud._density
 cimport freud.box, freud.locality
 cimport numpy as np
+cimport freud.util
 
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
 np.import_array()
 
-cdef class FloatCF(Compute):
+ctypedef unsigned int uint
+
+cdef class FloatCF(SpatialHistogram):
     R"""Computes the real pairwise correlation function.
 
     The correlation function is given by
@@ -72,7 +77,6 @@ cdef class FloatCF(Compute):
             The centers of each bin.
     """  # noqa E501
     cdef freud._density.CorrelationFunction[double] * thisptr
-    cdef r_max
     cdef dr
 
     def __cinit__(self, float r_max, float dr):
@@ -88,7 +92,7 @@ cdef class FloatCF(Compute):
 
     @Compute._compute()
     def accumulate(self, box, points, values, query_points=None,
-                   query_values=None, nlist=None, query_args={}):
+                   query_values=None, nlist=None, query_args=None):
         R"""Calculates the correlation function and adds to the current
         histogram.
 
@@ -111,59 +115,44 @@ cdef class FloatCF(Compute):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         """  # noqa E501
-        exclude_ii = query_points is None
+        cdef:
+            freud.box.Box b
+            freud.locality.NeighborQuery nq
+            freud.locality.NlistptrWrapper nlistptr
+            freud.locality._QueryArgs qargs
+            const float[:, ::1] l_query_points
+            unsigned int num_query_points
 
-        cdef freud.box.Box b = freud.common.convert_box(box)
+        b, nq, nlistptr, qargs, l_query_points, num_query_points = \
+            self.preprocess_arguments(box, points, query_points, nlist,
+                                      query_args)
 
-        nq_nlist = freud.locality.make_nq_nlist(b, points, nlist)
-        cdef freud.locality.NeighborQuery nq = nq_nlist[0]
-        cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
-
-        cdef freud.locality._QueryArgs def_qargs = freud.locality._QueryArgs(
-            mode="ball", r_max=self.r_max, exclude_ii=exclude_ii)
-        def_qargs.update(query_args)
-        points = nq.points
-
-        if query_points is None:
-            query_points = points
+        values = freud.common.convert_array(
+            values, shape=(nq.points.shape[0], ), dtype=np.float64)
         if query_values is None:
             query_values = values
-        query_points = freud.common.convert_array(
-            query_points, shape=(None, 3))
-        values = freud.common.convert_array(
-            values, shape=(points.shape[0], ), dtype=np.float64)
-        query_values = freud.common.convert_array(
-            query_values, shape=(query_points.shape[0], ), dtype=np.float64)
-        cdef const float[:, ::1] l_points = points
-        cdef const float[:, ::1] l_query_points
-        if points is query_points:
-            l_query_points = l_points
         else:
-            l_query_points = query_points
-        cdef const double[::1] l_values = values
-        cdef const double[::1] l_query_values
-        if query_values is values:
-            l_query_values = l_values
-        else:
-            l_query_values = query_values
+            query_values = freud.common.convert_array(
+                query_values, shape=(l_query_points.shape[0], ),
+                dtype=np.float64)
 
-        cdef unsigned int n_p = l_query_points.shape[0]
-        with nogil:
-            self.thisptr.accumulate(
-                nq.get_ptr(),
-                <double*> &l_values[0],
-                <vec3[float]*> &l_query_points[0, 0],
-                <double*> &l_query_values[0],
-                n_p, nlistptr.get_ptr(),
-                dereference(def_qargs.thisptr))
+        cdef const double[::1] l_values = values
+        cdef const double[::1] l_query_values = query_values
+
+        self.thisptr.accumulate(
+            nq.get_ptr(),
+            <double*> &l_values[0],
+            <vec3[float]*> &l_query_points[0, 0],
+            <double*> &l_query_values[0],
+            num_query_points, nlistptr.get_ptr(),
+            dereference(qargs.thisptr))
         return self
 
     @Compute._computed_property()
     def RDF(self):
-        cdef unsigned int n_bins = self.thisptr.getNBins()
-        cdef const double[::1] RDF = \
-            <double[:n_bins]> self.thisptr.getRDF().get()
-        return np.asarray(RDF)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getRDF(),
+            freud.util.arr_type_t.DOUBLE)
 
     @Compute._computed_property()
     def box(self):
@@ -178,7 +167,7 @@ cdef class FloatCF(Compute):
 
     @Compute._compute()
     def compute(self, box, points, values, query_points=None,
-                query_values=None, nlist=None, query_args={}):
+                query_values=None, nlist=None, query_args=None):
         R"""Calculates the correlation function for the given points. Will
         overwrite the current histogram.
 
@@ -208,26 +197,20 @@ cdef class FloatCF(Compute):
 
     @Compute._computed_property()
     def counts(self):
-        cdef unsigned int n_bins = self.thisptr.getNBins()
-        cdef const unsigned int[::1] counts = \
-            <unsigned int[:n_bins]> self.thisptr.getCounts().get()
-        return np.asarray(counts, dtype=np.uint32)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getCounts(),
+            freud.util.arr_type_t.UNSIGNED_INT)
 
     @property
     def R(self):
-        cdef unsigned int n_bins = self.thisptr.getNBins()
-        cdef const float[::1] R = \
-            <float[:n_bins]> self.thisptr.getR().get()
-        return np.asarray(R)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getR(),
+            freud.util.arr_type_t.FLOAT)
 
     def __repr__(self):
         return ("freud.density.{cls}(r_max={r_max}, dr={dr})").format(
             cls=type(self).__name__, r_max=self.r_max, dr=self.dr)
 
-    def __str__(self):
-        return repr(self)
-
-    @Compute._computed_method()
     def plot(self, ax=None):
         """Plot correlation function.
 
@@ -239,22 +222,22 @@ cdef class FloatCF(Compute):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import plot
-        return plot.line_plot(self.R, self.RDF,
-                              title="Correlation Function",
-                              xlabel=r"$r$",
-                              ylabel=r"$C(r)$",
-                              ax=ax)
+        import freud.plot
+        return freud.plot.line_plot(self.R, self.RDF,
+                                    title="Correlation Function",
+                                    xlabel=r"$r$",
+                                    ylabel=r"$C(r)$",
+                                    ax=ax)
 
     def _repr_png_(self):
-        import plot
+        import freud.plot
         try:
-            return plot.ax_to_bytes(self.plot())
+            return freud.plot.ax_to_bytes(self.plot())
         except AttributeError:
             return None
 
 
-cdef class ComplexCF(Compute):
+cdef class ComplexCF(SpatialHistogram):
     R"""Computes the complex pairwise correlation function.
 
     The correlation function is given by
@@ -302,7 +285,6 @@ cdef class ComplexCF(Compute):
             The centers of each bin.
     """  # noqa E501
     cdef freud._density.CorrelationFunction[np.complex128_t] * thisptr
-    cdef r_max
     cdef dr
 
     def __cinit__(self, float r_max, float dr):
@@ -318,7 +300,7 @@ cdef class ComplexCF(Compute):
 
     @Compute._compute()
     def accumulate(self, box, points, values, query_points=None,
-                   query_values=None, nlist=None, query_args={}):
+                   query_values=None, nlist=None, query_args=None):
         R"""Calculates the correlation function and adds to the current
         histogram.
 
@@ -341,59 +323,44 @@ cdef class ComplexCF(Compute):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         """  # noqa E501
-        exclude_ii = query_points is None
+        cdef:
+            freud.box.Box b
+            freud.locality.NeighborQuery nq
+            freud.locality.NlistptrWrapper nlistptr
+            freud.locality._QueryArgs qargs
+            const float[:, ::1] l_query_points
+            unsigned int num_query_points
 
-        cdef freud.box.Box b = freud.common.convert_box(box)
+        b, nq, nlistptr, qargs, l_query_points, num_query_points = \
+            self.preprocess_arguments(box, points, query_points, nlist,
+                                      query_args)
 
-        nq_nlist = freud.locality.make_nq_nlist(b, points, nlist)
-        cdef freud.locality.NeighborQuery nq = nq_nlist[0]
-        cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
-
-        cdef freud.locality._QueryArgs def_qargs = freud.locality._QueryArgs(
-            mode="ball", r_max=self.r_max, exclude_ii=exclude_ii)
-        def_qargs.update(query_args)
-        points = nq.points
-
-        if query_points is None:
-            query_points = points
+        values = freud.common.convert_array(
+            values, shape=(nq.points.shape[0], ), dtype=np.complex128)
         if query_values is None:
             query_values = values
-        query_points = freud.common.convert_array(
-            query_points, shape=(None, 3))
-        values = freud.common.convert_array(
-            values, shape=(points.shape[0], ), dtype=np.complex128)
-        query_values = freud.common.convert_array(
-            query_values, shape=(query_points.shape[0], ), dtype=np.complex128)
-        cdef const float[:, ::1] l_points = points
-        cdef const float[:, ::1] l_query_points
-        if points is query_points:
-            l_query_points = l_points
         else:
-            l_query_points = query_points
-        cdef np.complex128_t[::1] l_values = values
-        cdef np.complex128_t[::1] l_query_values
-        if query_values is values:
-            l_query_values = l_values
-        else:
-            l_query_values = query_values
+            query_values = freud.common.convert_array(
+                query_values, shape=(l_query_points.shape[0], ),
+                dtype=np.complex128)
 
-        cdef unsigned int n_p = l_query_points.shape[0]
-        with nogil:
-            self.thisptr.accumulate(
-                nq.get_ptr(),
-                <np.complex128_t*> &l_values[0],
-                <vec3[float]*> &l_query_points[0, 0],
-                <np.complex128_t*> &l_query_values[0],
-                n_p, nlistptr.get_ptr(),
-                dereference(def_qargs.thisptr))
+        cdef np.complex128_t[::1] l_values = values
+        cdef np.complex128_t[::1] l_query_values = query_values
+
+        self.thisptr.accumulate(
+            nq.get_ptr(),
+            <np.complex128_t*> &l_values[0],
+            <vec3[float]*> &l_query_points[0, 0],
+            <np.complex128_t*> &l_query_values[0],
+            num_query_points, nlistptr.get_ptr(),
+            dereference(qargs.thisptr))
         return self
 
     @Compute._computed_property()
     def RDF(self):
-        cdef unsigned int n_bins = self.thisptr.getNBins()
-        cdef np.complex128_t[::1] RDF = \
-            <np.complex128_t[:n_bins]> self.thisptr.getRDF().get()
-        return np.asarray(RDF)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getRDF(),
+            freud.util.arr_type_t.COMPLEX_DOUBLE)
 
     @Compute._computed_property()
     def box(self):
@@ -408,7 +375,7 @@ cdef class ComplexCF(Compute):
 
     @Compute._compute()
     def compute(self, box, points, values, query_points=None,
-                query_values=None, nlist=None, query_args={}):
+                query_values=None, nlist=None, query_args=None):
         R"""Calculates the correlation function for the given points. Will
         overwrite the current histogram.
 
@@ -438,26 +405,20 @@ cdef class ComplexCF(Compute):
 
     @Compute._computed_property()
     def counts(self):
-        cdef unsigned int n_bins = self.thisptr.getNBins()
-        cdef const unsigned int[::1] counts = \
-            <unsigned int[:n_bins]> self.thisptr.getCounts().get()
-        return np.asarray(counts, dtype=np.uint32)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getCounts(),
+            freud.util.arr_type_t.UNSIGNED_INT)
 
     @property
     def R(self):
-        cdef unsigned int n_bins = self.thisptr.getNBins()
-        cdef const float[::1] R = \
-            <float[:n_bins]> self.thisptr.getR().get()
-        return np.asarray(R)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getR(),
+            freud.util.arr_type_t.FLOAT)
 
     def __repr__(self):
         return ("freud.density.{cls}(r_max={r_max}, dr={dr})").format(
             cls=type(self).__name__, r_max=self.r_max, dr=self.dr)
 
-    def __str__(self):
-        return repr(self)
-
-    @Compute._computed_method()
     def plot(self, ax=None):
         """Plot complex correlation function.
 
@@ -469,17 +430,17 @@ cdef class ComplexCF(Compute):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import plot
-        return plot.line_plot(self.R, np.real(self.RDF),
-                              title="Correlation Function",
-                              xlabel=r"$r$",
-                              ylabel=r"$\operatorname{Re}(C(r))$",
-                              ax=ax)
+        import freud.plot
+        return freud.plot.line_plot(self.R, np.real(self.RDF),
+                                    title="Correlation Function",
+                                    xlabel=r"$r$",
+                                    ylabel=r"$\operatorname{Re}(C(r))$",
+                                    ax=ax)
 
     def _repr_png_(self):
-        import plot
+        import freud.plot
         try:
-            return plot.ax_to_bytes(self.plot())
+            return freud.plot.ax_to_bytes(self.plot())
         except AttributeError:
             return None
 
@@ -495,27 +456,12 @@ cdef class GaussianDensity(Compute):
     dimensions of the image (grid) are set in the constructor, and can either
     be set equally for all dimensions or for each dimension independently.
 
-    - Constructor Calls:
-
-        Initialize with all dimensions identical::
-
-            freud.density.GaussianDensity(width, r_max, sigma)
-
-        Initialize with each dimension specified::
-
-            freud.density.GaussianDensity(width_x, width_y, width_z, r_max, sigma)
-
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 
     Args:
-        width (unsigned int):
-            Number of pixels to make the image.
-        width_x (unsigned int):
-            Number of pixels to make the image in x.
-        width_y (unsigned int):
-            Number of pixels to make the image in y.
-        width_z (unsigned int):
-            Number of pixels to make the image in z.
+        width (int or list or tuple):
+            The number of bins to make the image in each direction (identical
+            in all dimensions if a single integer value is provided).
         r_max (float):
             Distance over which to blur.
         sigma (float):
@@ -528,19 +474,24 @@ cdef class GaussianDensity(Compute):
             The image grid with the Gaussian density.
     """  # noqa: E501
     cdef freud._density.GaussianDensity * thisptr
-    cdef arglist
+    cdef float r_max
 
-    def __cinit__(self, *args):
-        if len(args) == 3:
-            self.thisptr = new freud._density.GaussianDensity(
-                args[0], args[1], args[2])
-            self.arglist = [args[0], args[1], args[2]]
-        elif len(args) == 5:
-            self.thisptr = new freud._density.GaussianDensity(
-                args[0], args[1], args[2], args[3], args[4])
-            self.arglist = [args[0], args[1], args[2], args[3], args[4]]
+    def __cinit__(self, width, r_max, sigma):
+        cdef vec3[uint] width_vector
+        if isinstance(width, int):
+            width_vector = vec3[uint](width, width, width)
+        elif isinstance(width, Sequence) and len(width) == 2:
+            width_vector = vec3[uint](width[0], width[1], 1)
+        elif isinstance(width, Sequence) and len(width) == 3:
+            width_vector = vec3[uint](width[0], width[1], width[2])
         else:
-            raise TypeError('GaussianDensity takes exactly 3 or 5 arguments')
+            raise ValueError("The width must be either a number of bins or a "
+                             "sequence indicating the widths in each spatial "
+                             "dimension (length 2 in 2D, length 3 in 3D).")
+
+        self.r_max = r_max
+        self.thisptr = new freud._density.GaussianDensity(
+            width_vector, r_max, sigma)
 
     def __dealloc__(self):
         del self.thisptr
@@ -564,48 +515,34 @@ cdef class GaussianDensity(Compute):
         points = freud.common.convert_array(points, shape=(None, 3))
         cdef const float[:, ::1] l_points = points
         cdef unsigned int n_p = points.shape[0]
-        with nogil:
-            self.thisptr.compute(dereference(b.thisptr),
-                                 <vec3[float]*> &l_points[0, 0], n_p)
+        self.thisptr.compute(dereference(b.thisptr),
+                             <vec3[float]*> &l_points[0, 0], n_p)
         return self
 
     @Compute._computed_property()
     def gaussian_density(self):
-        cdef unsigned int width_x = self.thisptr.getWidthX()
-        cdef unsigned int width_y = self.thisptr.getWidthY()
-        cdef unsigned int width_z = self.thisptr.getWidthZ()
-        cdef unsigned int array_size = width_x * width_y
-        cdef freud.box.Box box = self.box
-        if not box.is2D():
-            array_size *= width_z
-        cdef const float[::1] density = \
-            <float[:array_size]> self.thisptr.getDensity().get()
-        if box.is2D():
-            array_shape = (width_y, width_x)
+        if self.box.is2D():
+            return np.squeeze(freud.util.make_managed_numpy_array(
+                &self.thisptr.getDensity(), freud.util.arr_type_t.FLOAT))
         else:
-            array_shape = (width_z, width_y, width_x)
-        return np.reshape(np.asarray(density), array_shape)
+            return freud.util.make_managed_numpy_array(
+                &self.thisptr.getDensity(), freud.util.arr_type_t.FLOAT)
+
+    @property
+    def sigma(self):
+        return self.thisptr.getSigma()
+
+    @property
+    def width(self):
+        cdef vec3[uint] width = self.thisptr.getWidth()
+        return (width.x, width.y, width.z)
 
     def __repr__(self):
-        if len(self.arglist) == 3:
-            return ("freud.density.{cls}({width}, "
-                    "{r_max}, {sigma})").format(cls=type(self).__name__,
-                                                width=self.arglist[0],
-                                                r_max=self.arglist[1],
-                                                sigma=self.arglist[2])
-        elif len(self.arglist) == 5:
-            return ("freud.density.{cls}({width_x}, {width_y}, {width_z}, "
-                    "{r_max}, {sigma})").format(cls=type(self).__name__,
-                                                width_x=self.arglist[0],
-                                                width_y=self.arglist[1],
-                                                width_z=self.arglist[2],
-                                                r_max=self.arglist[3],
-                                                sigma=self.arglist[4])
-        else:
-            raise TypeError('GaussianDensity takes exactly 3 or 5 arguments')
-
-    def __str__(self):
-        return repr(self)
+        return ("freud.density.{cls}({width}, "
+                "{r_max}, {sigma})").format(cls=type(self).__name__,
+                                            width=self.width,
+                                            r_max=self.r_max,
+                                            sigma=self.sigma)
 
     @Compute._computed_method()
     def plot(self, ax=None):
@@ -619,20 +556,20 @@ cdef class GaussianDensity(Compute):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import plot
+        import freud.plot
         if not self.box.is2D():
             return None
-        return plot.density_plot(self.gaussian_density, self.box, ax=ax)
+        return freud.plot.density_plot(self.gaussian_density, self.box, ax=ax)
 
     def _repr_png_(self):
-        import plot
+        import freud.plot
         try:
-            return plot.ax_to_bytes(self.plot())
+            return freud.plot.ax_to_bytes(self.plot())
         except AttributeError:
             return None
 
 
-cdef class LocalDensity(Compute):
+cdef class LocalDensity(PairCompute):
     R"""Computes the local density around a particle.
 
     The density of the local environment is computed and averaged for a given
@@ -709,7 +646,7 @@ cdef class LocalDensity(Compute):
 
     @Compute._compute()
     def compute(self, box, points, query_points=None, nlist=None,
-                query_args={}):
+                query_args=None):
         R"""Calculates the local density for the specified points. Does not
         accumulate (will overwrite current data).
 
@@ -726,54 +663,40 @@ cdef class LocalDensity(Compute):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         """  # noqa E501
-        exclude_ii = query_points is None
+        cdef:
+            freud.box.Box b
+            freud.locality.NeighborQuery nq
+            freud.locality.NlistptrWrapper nlistptr
+            freud.locality._QueryArgs qargs
+            const float[:, ::1] l_query_points
+            unsigned int num_query_points
 
-        cdef freud.box.Box b = freud.common.convert_box(box)
-
-        nq_nlist = freud.locality.make_nq_nlist(b, points, nlist)
-        cdef freud.locality.NeighborQuery nq = nq_nlist[0]
-        cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
-
-        cdef freud.locality._QueryArgs def_qargs = freud.locality._QueryArgs(
-            mode="ball", r_max=self.r_max + 0.5*self.diameter,
-            exclude_ii=exclude_ii)
-        def_qargs.update(query_args)
-        points = nq.points
-
-        if query_points is None:
-            query_points = points
-
-        points = freud.common.convert_array(points, shape=(None, 3))
-        query_points = freud.common.convert_array(
-            query_points, shape=(None, 3))
-        cdef const float[:, ::1] l_points = points
-        cdef const float[:, ::1] l_query_points = query_points
-        cdef unsigned int n_p = l_query_points.shape[0]
-
-        # local density of each particle includes itself (cutoff
-        # distance is r_max + diam/2 because of smoothing)
-
-        with nogil:
-            self.thisptr.compute(
-                nq.get_ptr(),
-                <vec3[float]*> &l_query_points[0, 0],
-                n_p, nlistptr.get_ptr(),
-                dereference(def_qargs.thisptr))
+        b, nq, nlistptr, qargs, l_query_points, num_query_points = \
+            self.preprocess_arguments(box, points, query_points, nlist,
+                                      query_args)
+        self.thisptr.compute(
+            nq.get_ptr(),
+            <vec3[float]*> &l_query_points[0, 0],
+            num_query_points, nlistptr.get_ptr(),
+            dereference(qargs.thisptr))
         return self
+
+    @property
+    def default_query_args(self):
+        return dict(mode="ball",
+                    r_max=self.r_max + 0.5*self.diameter)
 
     @Compute._computed_property()
     def density(self):
-        cdef unsigned int n_ref = self.thisptr.getNPoints()
-        cdef const float[::1] density = \
-            <float[:n_ref]> self.thisptr.getDensity().get()
-        return np.asarray(density)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getDensity(),
+            freud.util.arr_type_t.FLOAT)
 
     @Compute._computed_property()
     def num_neighbors(self):
-        cdef unsigned int n_ref = self.thisptr.getNPoints()
-        cdef const float[::1] num_neighbors = \
-            <float[:n_ref]> self.thisptr.getNumNeighbors().get()
-        return np.asarray(num_neighbors)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getNumNeighbors(),
+            freud.util.arr_type_t.FLOAT)
 
     def __repr__(self):
         return ("freud.density.{cls}(r_max={r_max}, volume={volume}, "
@@ -782,11 +705,8 @@ cdef class LocalDensity(Compute):
                                                volume=self.volume,
                                                diameter=self.diameter)
 
-    def __str__(self):
-        return repr(self)
 
-
-cdef class RDF(Compute):
+cdef class RDF(SpatialHistogram):
     R"""Computes RDF for supplied data.
 
     The RDF (:math:`g \left( r \right)`) is computed and averaged for a given
@@ -796,9 +716,9 @@ cdef class RDF(Compute):
     :code:`R` array.
 
     The values of :math:`r` to compute the RDF are set by the values of
-    :code:`rmin`, :code:`r_max`, :code:`dr` in the constructor. :code:`r_max`
+    :code:`r_min`, :code:`r_max`, :code:`dr` in the constructor. :code:`r_max`
     sets the maximum distance at which to calculate the
-    :math:`g \left( r \right)`, :code:`rmin` sets the minimum distance at
+    :math:`g \left( r \right)`, :code:`r_min` sets the minimum distance at
     which to calculate the :math:`g \left( r \right)`, and :code:`dr`
     determines the step size for each bin.
 
@@ -826,13 +746,13 @@ cdef class RDF(Compute):
         R ((:math:`N_{bins}`) :class:`numpy.ndarray`):
             The centers of each bin.
         n_r ((:math:`N_{bins}`,) :class:`numpy.ndarray`):
-            Histogram of cumulative RDF values (*i.e.* the integrated RDF).
-
-    .. versionchanged:: 0.7.0
-       Added optional `r_min` argument.
+            Histogram of cumulative bin_counts values. More precisely,
+            :code:`n_r[i]` is the average number of points contained within a
+            ball of radius :code:`R[i]+dr/2` centered at a given
+            :code:`query_point` averaged over all :code:`query_points` in the
+            last call to :meth:`~.compute` (or :meth:`~.accumulate`).
     """
     cdef freud._density.RDF * thisptr
-    cdef r_max
     cdef dr
     cdef r_min
 
@@ -857,7 +777,7 @@ cdef class RDF(Compute):
 
     @Compute._compute()
     def accumulate(self, box, points, query_points=None, nlist=None,
-                   query_args={}):
+                   query_args=None):
         R"""Calculates the RDF and adds to the current RDF histogram.
 
         Args:
@@ -872,35 +792,27 @@ cdef class RDF(Compute):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         """  # noqa E501
-        exclude_ii = query_points is None
-        cdef freud.box.Box b = freud.common.convert_box(box)
+        cdef:
+            freud.box.Box b
+            freud.locality.NeighborQuery nq
+            freud.locality.NlistptrWrapper nlistptr
+            freud.locality._QueryArgs qargs
+            const float[:, ::1] l_query_points
+            unsigned int num_query_points
+        b, nq, nlistptr, qargs, l_query_points, num_query_points = \
+            self.preprocess_arguments(box, points, query_points, nlist,
+                                      query_args)
 
-        nq_nlist = freud.locality.make_nq_nlist(b, points, nlist)
-        cdef freud.locality.NeighborQuery nq = nq_nlist[0]
-        cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
-
-        cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
-            mode="ball", r_max=self.r_max, exclude_ii=exclude_ii)
-        qargs.update(query_args)
-        points = nq.points
-
-        if query_points is None:
-            query_points = points
-        query_points = freud.common.convert_array(
-            query_points, shape=(None, 3))
-        cdef const float[:, ::1] l_query_points = query_points
-        cdef unsigned int n_p = l_query_points.shape[0]
-
-        with nogil:
-            self.thisptr.accumulate(
-                nq.get_ptr(),
-                <vec3[float]*> &l_query_points[0, 0],
-                n_p, nlistptr.get_ptr(), dereference(qargs.thisptr))
+        self.thisptr.accumulate(
+            nq.get_ptr(),
+            <vec3[float]*> &l_query_points[0, 0],
+            num_query_points, nlistptr.get_ptr(),
+            dereference(qargs.thisptr))
         return self
 
     @Compute._compute()
     def compute(self, box, points, query_points=None, nlist=None,
-                query_args={}):
+                query_args=None):
         R"""Calculates the RDF for the specified points. Will overwrite the current
         histogram.
 
@@ -927,23 +839,21 @@ cdef class RDF(Compute):
 
     @Compute._computed_property()
     def RDF(self):
-        cdef unsigned int n_bins = self.thisptr.getNBins()
-        cdef const float[::1] RDF = \
-            <float[:n_bins]> self.thisptr.getRDF().get()
-        return np.asarray(RDF)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getRDF(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def R(self):
-        cdef unsigned int n_bins = self.thisptr.getNBins()
-        cdef const float[::1] R = \
-            <float[:n_bins]> self.thisptr.getR().get()
-        return np.asarray(R)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getR(),
+            freud.util.arr_type_t.FLOAT)
 
     @Compute._computed_property()
     def n_r(self):
-        cdef unsigned int n_bins = self.thisptr.getNBins()
-        cdef const float[::1] n_r = <float[:n_bins]> self.thisptr.getNr().get()
-        return np.asarray(n_r)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getNr(),
+            freud.util.arr_type_t.FLOAT)
 
     def __repr__(self):
         return ("freud.density.{cls}(r_max={r_max}, dr={dr}, "
@@ -951,9 +861,6 @@ cdef class RDF(Compute):
                                          r_max=self.r_max,
                                          dr=self.dr,
                                          r_min=self.r_min)
-
-    def __str__(self):
-        return repr(self)
 
     @Compute._computed_method()
     def plot(self, ax=None):
@@ -967,16 +874,16 @@ cdef class RDF(Compute):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import plot
-        return plot.line_plot(self.R, self.RDF,
-                              title="RDF",
-                              xlabel=r"$r$",
-                              ylabel=r"$g(r)$",
-                              ax=ax)
+        import freud.plot
+        return freud.plot.line_plot(self.R, self.RDF,
+                                    title="RDF",
+                                    xlabel=r"$r$",
+                                    ylabel=r"$g(r)$",
+                                    ax=ax)
 
     def _repr_png_(self):
-        import plot
+        import freud.plot
         try:
-            return plot.ax_to_bytes(self.plot())
+            return freud.plot.ax_to_bytes(self.plot())
         except AttributeError:
             return None

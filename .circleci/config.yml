@@ -184,7 +184,7 @@ references:
             cd ~/
 
             # Build wheels
-            for PYBIN in /opt/python/*/bin; do
+            for PYBIN in /opt/python/cp3*/bin; do
               # Split the echo command and the version since python2
               # --version doesn't return the value, just prints it.
               echo "Building for "
@@ -213,6 +213,7 @@ references:
             # Install from and test all wheels
             for PYBIN in /opt/python/*/bin/; do
               "${PYBIN}/python" -m pip install freud_analysis --no-deps --no-index -f ~/ci/freud/wheelhouse
+              "${PYBIN}/python" -m pip install rowan sympy
               cd ~/ci/freud/tests
               "${PYBIN}/python" -m unittest discover . -v
             done
@@ -240,7 +241,7 @@ references:
             # Get pyenv
             brew install pyenv
             eval "$(pyenv init -)"
-            PY_VERSIONS=(2.7.15 3.5.6 3.6.6 3.7.0)
+            PY_VERSIONS=(3.5.6 3.6.6 3.7.0)
 
             # Build TBB
             git clone https://github.com/01org/tbb.git
@@ -286,6 +287,7 @@ references:
             for VERSION in ${PY_VERSIONS[@]}; do
               pyenv global ${VERSION}
               pip install freud_analysis --no-deps --no-index -f ~/ci/freud/wheelhouse
+              pip install rowan sympy
               cd ~/ci/freud/tests
               python -m unittest discover . -v
             done
@@ -306,12 +308,6 @@ jobs:
     environment:
       PYVER: "3.6"
     <<: *build_and_test_with_cov
-
-  test-py27:
-    <<: *test_container_config_ubuntu
-    environment:
-      PYVER: "2.7"
-    <<: *build_and_test
 
   pypi-osx-wheels:
     <<: *container_osx
@@ -338,12 +334,10 @@ workflows:
       - test-py36:
           requires:
             - check-style
-      - test-py27:
-          requires:
-            - check-style
-      - benchmarks:
-          requires:
-            - test-py36
+# Disabled benchmarks on CI - currently broken
+#     - benchmarks:
+#         requires:
+#           - test-py36
   deploy:
     jobs:
       - pypi-osx-wheels:

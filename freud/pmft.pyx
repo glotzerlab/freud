@@ -43,7 +43,7 @@ import freud.common
 import freud.locality
 import warnings
 
-from freud.common cimport Compute
+from freud.common cimport Compute, SpatialHistogram
 from freud.util cimport vec3, quat
 from cython.operator cimport dereference
 
@@ -58,7 +58,7 @@ cimport numpy as np
 # _always_ do that, or you will have segfaults
 np.import_array()
 
-cdef class _PMFT(Compute):
+cdef class _PMFT(SpatialHistogram):
     R"""Compute the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ for a
     given set of points.
 
@@ -70,7 +70,6 @@ cdef class _PMFT(Compute):
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
     """
     cdef freud._pmft.PMFT * pmftptr
-    cdef float r_max
 
     def __cinit__(self):
         pass
@@ -95,9 +94,21 @@ cdef class _PMFT(Compute):
             result = -np.log(np.copy(self.PCF))
         return result
 
+    @Compute._computed_property()
+    def bin_counts(self):
+        return freud.util.make_managed_numpy_array(
+            &self.pmftptr.getBinCounts(),
+            freud.util.arr_type_t.UNSIGNED_INT)
+
+    @Compute._computed_property()
+    def PCF(self):
+        return freud.util.make_managed_numpy_array(
+            &self.pmftptr.getPCF(),
+            freud.util.arr_type_t.FLOAT)
+
     @property
-    def r_cut(self):
-        return self.pmftptr.getRCut()
+    def r_max(self):
+        return self.pmftptr.getRMax()
 
 
 cdef class PMFTR12(_PMFT):
@@ -125,13 +136,13 @@ cdef class PMFTR12(_PMFT):
     Attributes:
         box (:class:`freud.box.Box`):
             Box used in the calculation.
-        bin_counts (:math:`\left(N_{r}, N_{\theta2}, N_{\theta1}\right)`):
+        bin_counts (:math:`\left(N_{r}, N_{\theta1}, N_{\theta2}\right)`):
             Bin counts.
-        PCF (:math:`\left(N_{r}, N_{\theta2}, N_{\theta1}\right)`):
+        PCF (:math:`\left(N_{r}, N_{\theta1}, N_{\theta2}\right)`):
             The positional correlation function.
-        PMFT (:math:`\left(N_{r}, N_{\theta2}, N_{\theta1}\right)`):
+        PMFT (:math:`\left(N_{r}, N_{\theta1}, N_{\theta2}\right)`):
             The potential of mean force and torque.
-        r_cut (float):
+        r_max (float):
             The cutoff used in the cell list.
         R (:math:`\left(N_{r}\right)` :class:`numpy.ndarray`):
             The array of :math:`r`-values for the PCF histogram.
@@ -139,7 +150,7 @@ cdef class PMFTR12(_PMFT):
             The array of :math:`\theta_1`-values for the PCF histogram.
         T2 (:math:`\left(N_{\theta2}\right)` :class:`numpy.ndarray`):
             The array of :math:`\theta_2`-values for the PCF histogram.
-        inverse_jacobian (:math:`\left(N_{r}, N_{\theta2}, N_{\theta1}\right)`):
+        inverse_jacobian (:math:`\left(N_{r}, N_{\theta1}, N_{\theta2}\right)`):
             The inverse Jacobian used in the PMFT.
         n_bins_R (unsigned int):
             The number of bins in the :math:`r`-dimension of the histogram.
@@ -164,7 +175,7 @@ cdef class PMFTR12(_PMFT):
 
     @Compute._compute()
     def accumulate(self, box, points, orientations, query_points=None,
-                   query_orientations=None, nlist=None, query_args={}):
+                   query_orientations=None, nlist=None, query_args=None):
         R"""Calculates the positional correlation function and adds to the
         current histogram.
 
@@ -186,53 +197,41 @@ cdef class PMFTR12(_PMFT):
                 NeighborList used to find bonds (Default value =
                 :code:`None`).
         """  # noqa: E501
-        cdef freud.box.Box b = freud.common.convert_box(box)
-        exclude_ii = query_points is None
+        cdef:
+            freud.box.Box b
+            freud.locality.NeighborQuery nq
+            freud.locality.NlistptrWrapper nlistptr
+            freud.locality._QueryArgs qargs
+            const float[:, ::1] l_query_points
+            unsigned int num_query_points
 
-        nq_nlist = freud.locality.make_nq_nlist(b, points, nlist)
-        cdef freud.locality.NeighborQuery nq = nq_nlist[0]
-        cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
-        points = nq.points
-
-        cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
-            mode="ball", r_max=self.r_max, exclude_ii=exclude_ii)
-        qargs.update(query_args)
-
-        if not b.dimensions == 2:
-            raise ValueError("Your box must be 2-dimensional!")
-
-        if query_points is None:
-            query_points = points
-        if query_orientations is None:
-            query_orientations = orientations
+        b, nq, nlistptr, qargs, l_query_points, num_query_points = \
+            self.preprocess_arguments(box, points, query_points, nlist,
+                                      query_args, dimensions=2)
 
         orientations = freud.common.convert_array(
             np.atleast_1d(orientations.squeeze()),
-            shape=(points.shape[0], ))
-
-        query_points = freud.common.convert_array(
-            query_points, shape=(None, 3))
-
-        query_orientations = freud.common.convert_array(
-            np.atleast_1d(query_orientations.squeeze()),
-            shape=(query_points.shape[0], ))
-
-        cdef const float[:, ::1] l_query_points = query_points
+            shape=(nq.points.shape[0], ))
+        if query_orientations is None:
+            query_orientations = orientations
+        else:
+            query_orientations = freud.common.convert_array(
+                np.atleast_1d(query_orientations.squeeze()),
+                shape=(l_query_points.shape[0], ))
         cdef const float[::1] l_orientations = orientations
         cdef const float[::1] l_query_orientations = query_orientations
-        cdef unsigned int n_query_points = l_query_points.shape[0]
-        with nogil:
-            self.pmftr12ptr.accumulate(nq.get_ptr(),
-                                       <float*> &l_orientations[0],
-                                       <vec3[float]*> &l_query_points[0, 0],
-                                       <float*> &l_query_orientations[0],
-                                       n_query_points, nlistptr.get_ptr(),
-                                       dereference(qargs.thisptr))
+
+        self.pmftr12ptr.accumulate(nq.get_ptr(),
+                                   <float*> &l_orientations[0],
+                                   <vec3[float]*> &l_query_points[0, 0],
+                                   <float*> &l_query_orientations[0],
+                                   num_query_points, nlistptr.get_ptr(),
+                                   dereference(qargs.thisptr))
         return self
 
     @Compute._compute()
     def compute(self, box, points, orientations, query_points=None,
-                query_orientations=None, nlist=None, query_args={}):
+                query_orientations=None, nlist=None, query_args=None):
         R"""Calculates the positional correlation function for the given points.
         Will overwrite the current histogram.
 
@@ -259,56 +258,29 @@ cdef class PMFTR12(_PMFT):
                         query_points, query_orientations, nlist, query_args)
         return self
 
-    @Compute._computed_property()
-    def bin_counts(self):
-        cdef unsigned int n_bins_R = self.pmftr12ptr.getNBinsR()
-        cdef unsigned int n_bins_T2 = self.pmftr12ptr.getNBinsT2()
-        cdef unsigned int n_bins_T1 = self.pmftr12ptr.getNBinsT1()
-        cdef const unsigned int[:, :, ::1] bin_counts = \
-            <unsigned int[:n_bins_R, :n_bins_T2, :n_bins_T1]> \
-            self.pmftr12ptr.getBinCounts().get()
-        return np.asarray(bin_counts, dtype=np.uint32)
-
-    @Compute._computed_property()
-    def PCF(self):
-        cdef unsigned int n_bins_R = self.pmftr12ptr.getNBinsR()
-        cdef unsigned int n_bins_T2 = self.pmftr12ptr.getNBinsT2()
-        cdef unsigned int n_bins_T1 = self.pmftr12ptr.getNBinsT1()
-        cdef const float[:, :, ::1] PCF = \
-            <float[:n_bins_R, :n_bins_T2, :n_bins_T1]> \
-            self.pmftr12ptr.getPCF().get()
-        return np.asarray(PCF)
-
     @property
     def R(self):
-        cdef unsigned int n_bins_R = self.pmftr12ptr.getNBinsR()
-        cdef const float[::1] R = \
-            <float[:n_bins_R]> self.pmftr12ptr.getR().get()
-        return np.asarray(R)
+        return freud.util.make_managed_numpy_array(
+            &self.pmftr12ptr.getR(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def T1(self):
-        cdef unsigned int n_bins_T1 = self.pmftr12ptr.getNBinsT1()
-        cdef const float[::1] T1 = \
-            <float[:n_bins_T1]> self.pmftr12ptr.getT1().get()
-        return np.asarray(T1)
+        return freud.util.make_managed_numpy_array(
+            &self.pmftr12ptr.getT1(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def T2(self):
-        cdef unsigned int n_bins_T2 = self.pmftr12ptr.getNBinsT2()
-        cdef const float[::1] T2 = \
-            <float[:n_bins_T2]> self.pmftr12ptr.getT2().get()
-        return np.asarray(T2)
+        return freud.util.make_managed_numpy_array(
+            &self.pmftr12ptr.getT2(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def inverse_jacobian(self):
-        cdef unsigned int n_bins_R = self.pmftr12ptr.getNBinsR()
-        cdef unsigned int n_bins_T2 = self.pmftr12ptr.getNBinsT2()
-        cdef unsigned int n_bins_T1 = self.pmftr12ptr.getNBinsT1()
-        cdef const float[:, :, ::1] inverse_jacobian = \
-            <float[:n_bins_R, :n_bins_T2, :n_bins_T1]> \
-            self.pmftr12ptr.getInverseJacobian().get()
-        return np.asarray(inverse_jacobian)
+        return freud.util.make_managed_numpy_array(
+            &self.pmftr12ptr.getInverseJacobian(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def n_bins_R(self):
@@ -329,9 +301,6 @@ cdef class PMFTR12(_PMFT):
                                        n_r=self.n_bins_R,
                                        n_t1=self.n_bins_T1,
                                        n_t2=self.n_bins_T2)
-
-    def __str__(self):
-        return repr(self)
 
 
 cdef class PMFTXYT(_PMFT):
@@ -371,13 +340,13 @@ cdef class PMFTXYT(_PMFT):
     Attributes:
         box (:class:`freud.box.Box`):
             Box used in the calculation.
-        bin_counts (:math:`\left(N_{\theta}, N_{y}, N_{x}\right)` :class:`numpy.ndarray`):
+        bin_counts (:math:`\left(N_{x}, N_{y}, N_{\theta}\right)` :class:`numpy.ndarray`):
             Bin counts.
-        PCF (:math:`\left(N_{\theta}, N_{y}, N_{x}\right)` :class:`numpy.ndarray`):
+        PCF (:math:`\left(N_{x}, N_{y}, N_{\theta}\right)` :class:`numpy.ndarray`):
             The positional correlation function.
-        PMFT (:math:`\left(N_{\theta}, N_{y}, N_{x}\right)` :class:`numpy.ndarray`):
+        PMFT (:math:`\left(N_{x}, N_{y}, N_{\theta}\right)` :class:`numpy.ndarray`):
             The potential of mean force and torque.
-        r_cut (float):
+        r_max (float):
             The cutoff used in the cell list.
         X (:math:`\left(N_{x}\right)` :class:`numpy.ndarray`):
             The array of :math:`x`-values for the PCF histogram.
@@ -413,7 +382,7 @@ cdef class PMFTXYT(_PMFT):
 
     @Compute._compute()
     def accumulate(self, box, points, orientations, query_points=None,
-                   query_orientations=None, nlist=None, query_args={}):
+                   query_orientations=None, nlist=None, query_args=None):
         R"""Calculates the positional correlation function and adds to the
         current histogram.
 
@@ -435,54 +404,41 @@ cdef class PMFTXYT(_PMFT):
                 NeighborList used to find bonds (Default value =
                 :code:`None`).
         """  # noqa: E501
-        cdef freud.box.Box b = freud.common.convert_box(box)
+        cdef:
+            freud.box.Box b
+            freud.locality.NeighborQuery nq
+            freud.locality.NlistptrWrapper nlistptr
+            freud.locality._QueryArgs qargs
+            const float[:, ::1] l_query_points
+            unsigned int num_query_points
 
-        exclude_ii = query_points is None
-
-        nq_nlist = freud.locality.make_nq_nlist(b, points, nlist)
-        cdef freud.locality.NeighborQuery nq = nq_nlist[0]
-        cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
-        points = nq.points
-
-        cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
-            mode="ball", r_max=self.r_max, exclude_ii=exclude_ii)
-        qargs.update(query_args)
-
-        if not b.dimensions == 2:
-            raise ValueError("Your box must be 2-dimensional!")
-
-        if query_points is None:
-            query_points = points
-        if query_orientations is None:
-            query_orientations = orientations
+        b, nq, nlistptr, qargs, l_query_points, num_query_points = \
+            self.preprocess_arguments(box, points, query_points, nlist,
+                                      query_args, dimensions=2)
 
         orientations = freud.common.convert_array(
             np.atleast_1d(orientations.squeeze()),
-            shape=(points.shape[0], ))
-
-        query_points = freud.common.convert_array(
-            query_points, shape=(None, 3))
-
-        query_orientations = freud.common.convert_array(
-            np.atleast_1d(query_orientations.squeeze()),
-            shape=(query_points.shape[0], ))
-
-        cdef const float[:, ::1] l_query_points = query_points
+            shape=(nq.points.shape[0], ))
+        if query_orientations is None:
+            query_orientations = orientations
+        else:
+            query_orientations = freud.common.convert_array(
+                np.atleast_1d(query_orientations.squeeze()),
+                shape=(query_points.shape[0], ))
         cdef const float[::1] l_orientations = orientations
         cdef const float[::1] l_query_orientations = query_orientations
-        cdef unsigned int n_query_points = l_query_points.shape[0]
-        with nogil:
-            self.pmftxytptr.accumulate(nq.get_ptr(),
-                                       <float*> &l_orientations[0],
-                                       <vec3[float]*> &l_query_points[0, 0],
-                                       <float*> &l_query_orientations[0],
-                                       n_query_points, nlistptr.get_ptr(),
-                                       dereference(qargs.thisptr))
+
+        self.pmftxytptr.accumulate(nq.get_ptr(),
+                                   <float*> &l_orientations[0],
+                                   <vec3[float]*> &l_query_points[0, 0],
+                                   <float*> &l_query_orientations[0],
+                                   num_query_points, nlistptr.get_ptr(),
+                                   dereference(qargs.thisptr))
         return self
 
     @Compute._compute()
     def compute(self, box, points, orientations, query_points=None,
-                query_orientations=None, nlist=None, query_args={}):
+                query_orientations=None, nlist=None, query_args=None):
         R"""Calculates the positional correlation function for the given points.
         Will overwrite the current histogram.
 
@@ -506,49 +462,26 @@ cdef class PMFTXYT(_PMFT):
         """  # noqa: E501
         self.reset()
         self.accumulate(box, points, orientations,
-                        query_points, query_orientations, nlist, query_args={})
+                        query_points, query_orientations, nlist, query_args)
         return self
-
-    @Compute._computed_property()
-    def bin_counts(self):
-        cdef unsigned int n_bins_T = self.pmftxytptr.getNBinsT()
-        cdef unsigned int n_bins_Y = self.pmftxytptr.getNBinsY()
-        cdef unsigned int n_bins_X = self.pmftxytptr.getNBinsX()
-        cdef const unsigned int[:, :, ::1] bin_counts = \
-            <unsigned int[:n_bins_T, :n_bins_Y, :n_bins_X]> \
-            self.pmftxytptr.getBinCounts().get()
-        return np.asarray(bin_counts, dtype=np.uint32)
-
-    @Compute._computed_property()
-    def PCF(self):
-        cdef unsigned int n_bins_T = self.pmftxytptr.getNBinsT()
-        cdef unsigned int n_bins_Y = self.pmftxytptr.getNBinsY()
-        cdef unsigned int n_bins_X = self.pmftxytptr.getNBinsX()
-        cdef const float[:, :, ::1] PCF = \
-            <float[:n_bins_T, :n_bins_Y, :n_bins_X]> \
-            self.pmftxytptr.getPCF().get()
-        return np.asarray(PCF)
 
     @property
     def X(self):
-        cdef unsigned int n_bins_X = self.pmftxytptr.getNBinsX()
-        cdef const float[::1] X = \
-            <float[:n_bins_X]> self.pmftxytptr.getX().get()
-        return np.asarray(X)
+        return freud.util.make_managed_numpy_array(
+            &self.pmftxytptr.getX(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def Y(self):
-        cdef unsigned int n_bins_Y = self.pmftxytptr.getNBinsY()
-        cdef const float[::1] Y = \
-            <float[:n_bins_Y]> self.pmftxytptr.getY().get()
-        return np.asarray(Y)
+        return freud.util.make_managed_numpy_array(
+            &self.pmftxytptr.getY(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def T(self):
-        cdef unsigned int n_bins_T = self.pmftxytptr.getNBinsT()
-        cdef const float[::1] T = \
-            <float[:n_bins_T]> self.pmftxytptr.getT().get()
-        return np.asarray(T)
+        return freud.util.make_managed_numpy_array(
+            &self.pmftxytptr.getT(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def jacobian(self):
@@ -574,9 +507,6 @@ cdef class PMFTXYT(_PMFT):
                                                 n_x=self.n_bins_X,
                                                 n_y=self.n_bins_Y,
                                                 n_t=self.n_bins_T)
-
-    def __str__(self):
-        return repr(self)
 
 
 cdef class PMFTXY2D(_PMFT):
@@ -610,13 +540,13 @@ cdef class PMFTXY2D(_PMFT):
     Attributes:
         box (:class:`freud.box.Box`):
             Box used in the calculation.
-        bin_counts (:math:`\left(N_{y}, N_{x}\right)` :class:`numpy.ndarray`):
+        bin_counts (:math:`\left(N_{x}, N_{y}\right)` :class:`numpy.ndarray`):
             Bin counts.
-        PCF (:math:`\left(N_{y}, N_{x}\right)` :class:`numpy.ndarray`):
+        PCF (:math:`\left(N_{x}, N_{y}\right)` :class:`numpy.ndarray`):
             The positional correlation function.
-        PMFT (:math:`\left(N_{y}, N_{x}\right)` :class:`numpy.ndarray`):
+        PMFT (:math:`\left(N_{x}, N_{y}\right)` :class:`numpy.ndarray`):
             The potential of mean force and torque.
-        r_cut (float):
+        r_max (float):
             The cutoff used in the cell list.
         X (:math:`\left(N_{x}\right)` :class:`numpy.ndarray`):
             The array of :math:`x`-values for the PCF histogram.
@@ -647,7 +577,7 @@ cdef class PMFTXY2D(_PMFT):
 
     @Compute._compute()
     def accumulate(self, box, points, orientations, query_points=None,
-                   query_orientations=None, nlist=None, query_args={}):
+                   nlist=None, query_args=None):
         R"""Calculates the positional correlation function and adds to the
         current histogram.
 
@@ -661,62 +591,37 @@ cdef class PMFTXY2D(_PMFT):
             query_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
                 Points used in computation. Uses :code:`points` if not
                 provided or :code:`None`. (Default value = :code:`None`).
-            query_orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
-                Orientations as angles used in computation. Uses
-                :code:`orientations` if not provided or :code:`None`.
-                (Default value = :code:`None`).
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList used to find bonds (Default value =
                 :code:`None`).
         """  # noqa: E501
-        cdef freud.box.Box b = freud.common.convert_box(box)
+        cdef:
+            freud.box.Box b
+            freud.locality.NeighborQuery nq
+            freud.locality.NlistptrWrapper nlistptr
+            freud.locality._QueryArgs qargs
+            const float[:, ::1] l_query_points
+            unsigned int num_query_points
 
-        exclude_ii = query_points is None
-
-        nq_nlist = freud.locality.make_nq_nlist(b, points, nlist)
-        cdef freud.locality.NeighborQuery nq = nq_nlist[0]
-        cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
-        points = nq.points
-
-        cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
-            mode="ball", r_max=self.r_max, exclude_ii=exclude_ii)
-        qargs.update(query_args)
-
-        if not b.dimensions == 2:
-            raise ValueError("Your box must be 2-dimensional!")
-
-        if query_points is None:
-            query_points = points
-        if query_orientations is None:
-            query_orientations = orientations
+        b, nq, nlistptr, qargs, l_query_points, num_query_points = \
+            self.preprocess_arguments(box, points, query_points, nlist,
+                                      query_args, dimensions=2)
 
         orientations = freud.common.convert_array(
             np.atleast_1d(orientations.squeeze()),
-            shape=(points.shape[0], ))
-
-        query_points = freud.common.convert_array(
-            query_points, shape=(None, 3))
-
-        query_orientations = freud.common.convert_array(
-            np.atleast_1d(query_orientations.squeeze()),
-            shape=(query_points.shape[0], ))
-
-        cdef const float[:, ::1] l_query_points = query_points
+            shape=(nq.points.shape[0], ))
         cdef const float[::1] l_orientations = orientations
-        cdef const float[::1] l_query_orientations = query_orientations
-        cdef unsigned int n_query_points = l_query_points.shape[0]
-        with nogil:
-            self.pmftxy2dptr.accumulate(nq.get_ptr(),
-                                        <float*> &l_orientations[0],
-                                        <vec3[float]*> &l_query_points[0, 0],
-                                        <float*> &l_query_orientations[0],
-                                        n_query_points, nlistptr.get_ptr(),
-                                        dereference(qargs.thisptr))
+
+        self.pmftxy2dptr.accumulate(nq.get_ptr(),
+                                    <float*> &l_orientations[0],
+                                    <vec3[float]*> &l_query_points[0, 0],
+                                    num_query_points, nlistptr.get_ptr(),
+                                    dereference(qargs.thisptr))
         return self
 
     @Compute._compute()
     def compute(self, box, points, orientations, query_points=None,
-                query_orientations=None, nlist=None, query_args={}):
+                nlist=None, query_args=None):
         R"""Calculates the positional correlation function for the given points.
         Will overwrite the current histogram.
 
@@ -730,50 +635,40 @@ cdef class PMFTXY2D(_PMFT):
             query_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
                 Points used in computation. Uses :code:`points` if not
                 provided or :code:`None`. (Default value = :code:`None`).
-            query_orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
-                Orientations as angles used in computation. Uses
-                :code:`orientations` if not provided or :code:`None`.
-                (Default value = :code:`None`).
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList used to find bonds (Default value =
                 :code:`None`).
         """  # noqa: E501
         self.reset()
         self.accumulate(box, points, orientations,
-                        query_points, query_orientations, nlist, query_args)
+                        query_points, nlist, query_args)
         return self
 
     @Compute._computed_property()
     def bin_counts(self):
-        cdef unsigned int n_bins_Y = self.pmftxy2dptr.getNBinsY()
-        cdef unsigned int n_bins_X = self.pmftxy2dptr.getNBinsX()
-        cdef const unsigned int[:, ::1] bin_counts = \
-            <unsigned int[:n_bins_Y, :n_bins_X]> \
-            self.pmftxy2dptr.getBinCounts().get()
-        return np.asarray(bin_counts, dtype=np.uint32)
+        # Currently this returns a 3D array that must be squeezed due to the
+        # internal choices in the histogramming; this will be fixed in future
+        # changes.
+        return np.squeeze(super(PMFTXY2D, self).bin_counts)
 
     @Compute._computed_property()
     def PCF(self):
-        cdef unsigned int n_bins_Y = self.pmftxy2dptr.getNBinsY()
-        cdef unsigned int n_bins_X = self.pmftxy2dptr.getNBinsX()
-        cdef const float[:, ::1] PCF = \
-            <float[:n_bins_Y, :n_bins_X]> \
-            self.pmftxy2dptr.getPCF().get()
-        return np.asarray(PCF)
+        # Currently this returns a 3D array that must be squeezed due to the
+        # internal choices in the histogramming; this will be fixed in future
+        # changes.
+        return np.squeeze(super(PMFTXY2D, self).PCF)
 
     @property
     def X(self):
-        cdef unsigned int n_bins_X = self.pmftxy2dptr.getNBinsX()
-        cdef const float[::1] X = \
-            <float[:n_bins_X]> self.pmftxy2dptr.getX().get()
-        return np.asarray(X)
+        return freud.util.make_managed_numpy_array(
+            &self.pmftxy2dptr.getX(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def Y(self):
-        cdef unsigned int n_bins_Y = self.pmftxy2dptr.getNBinsY()
-        cdef const float[::1] Y = \
-            <float[:n_bins_Y]> self.pmftxy2dptr.getY().get()
-        return np.asarray(Y)
+        return freud.util.make_managed_numpy_array(
+            &self.pmftxy2dptr.getY(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def n_bins_X(self):
@@ -795,13 +690,10 @@ cdef class PMFTXY2D(_PMFT):
                                      n_x=self.n_bins_X,
                                      n_y=self.n_bins_Y)
 
-    def __str__(self):
-        return repr(self)
-
     def _repr_png_(self):
-        import plot
+        import freud.plot
         try:
-            return plot.ax_to_bytes(self.plot())
+            return freud.plot.ax_to_bytes(self.plot())
         except AttributeError:
             return None
 
@@ -817,8 +709,8 @@ cdef class PMFTXY2D(_PMFT):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import plot
-        return plot.pmft_plot(self, ax)
+        import freud.plot
+        return freud.plot.pmft_plot(self, ax)
 
 
 cdef class PMFTXYZ(_PMFT):
@@ -858,13 +750,13 @@ cdef class PMFTXYZ(_PMFT):
     Attributes:
         box (:class:`freud.box.Box`):
             Box used in the calculation.
-        bin_counts (:math:`\left(N_{z}, N_{y}, N_{x}\right)` :class:`numpy.ndarray`):
+        bin_counts (:math:`\left(N_{x}, N_{y}, N_{z}\right)` :class:`numpy.ndarray`):
             Bin counts.
-        PCF (:math:`\left(N_{z}, N_{y}, N_{x}\right)` :class:`numpy.ndarray`):
+        PCF (:math:`\left(N_{x}, N_{y}, N_{z}\right)` :class:`numpy.ndarray`):
             The positional correlation function.
-        PMFT (:math:`\left(N_{z}, N_{y}, N_{x}\right)` :class:`numpy.ndarray`):
+        PMFT (:math:`\left(N_{x}, N_{y}, N_{z}\right)` :class:`numpy.ndarray`):
             The potential of mean force and torque.
-        r_cut (float):
+        r_max (float):
             The cutoff used in the cell list.
         X (:math:`\left(N_{x}\right)` :class:`numpy.ndarray`):
             The array of :math:`x`-values for the PCF histogram.
@@ -907,8 +799,7 @@ cdef class PMFTXYZ(_PMFT):
 
     @Compute._compute()
     def accumulate(self, box, points, orientations, query_points=None,
-                   face_orientations=None, nlist=None,
-                   query_args={}):
+                   face_orientations=None, nlist=None, query_args=None):
         R"""Calculates the positional correlation function and adds to the
         current histogram.
 
@@ -933,38 +824,30 @@ cdef class PMFTXYZ(_PMFT):
                 NeighborList used to find bonds (Default value =
                 :code:`None`).
         """  # noqa: E501
-        cdef freud.box.Box b = freud.common.convert_box(box)
+        cdef:
+            freud.box.Box b
+            freud.locality.NeighborQuery nq
+            freud.locality.NlistptrWrapper nlistptr
+            freud.locality._QueryArgs qargs
+            const float[:, ::1] l_query_points
+            unsigned int num_query_points
 
-        exclude_ii = query_points is None
-
-        nq_nlist = freud.locality.make_nq_nlist(b, points, nlist)
-        cdef freud.locality.NeighborQuery nq = nq_nlist[0]
-        cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
-        points = nq.points
-
-        cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
-            mode="ball", r_max=self.r_max, exclude_ii=exclude_ii)
-        qargs.update(query_args)
-
-        if not b.dimensions == 3:
-            raise ValueError("Your box must be 3-dimensional!")
-
-        if query_points is None:
-            query_points = points
+        b, nq, nlistptr, qargs, l_query_points, num_query_points = \
+            self.preprocess_arguments(box, points, query_points, nlist,
+                                      query_args, dimensions=3)
+        l_query_points = l_query_points - self.shiftvec.reshape(1, 3)
 
         orientations = freud.common.convert_array(
             np.atleast_1d(orientations),
-            shape=(points.shape[0], 4))
+            shape=(nq.points.shape[0], 4))
 
-        query_points = freud.common.convert_array(
-            query_points, shape=(None, 3))
-        query_points = query_points - self.shiftvec.reshape(1, 3)
+        cdef const float[:, ::1] l_orientations = orientations
 
         # handle multiple ways to input
         if face_orientations is None:
             # set to unit quaternion, q = [1, 0, 0, 0]
             face_orientations = np.zeros(
-                shape=(points.shape[0], 1, 4), dtype=np.float32)
+                shape=(nq.points.shape[0], 1, 4), dtype=np.float32)
             face_orientations[:, :, 0] = 1.0
         else:
             if face_orientations.ndim < 2 or face_orientations.ndim > 3:
@@ -977,7 +860,7 @@ cdef class PMFTXYZ(_PMFT):
                         "w, x, y, z")
                 # need to broadcast into new array
                 tmp_face_orientations = np.zeros(
-                    shape=(points.shape[0],
+                    shape=(nq.points.shape[0],
                            face_orientations.shape[0],
                            face_orientations.shape[1]),
                     dtype=np.float32)
@@ -991,34 +874,30 @@ cdef class PMFTXYZ(_PMFT):
                         "2nd dimension for orientations must have 4 values:"
                         "w, x, y, z")
                 elif face_orientations.shape[0] not in (
-                        1, points.shape[0]):
+                        1, nq.points.shape[0]):
                     raise ValueError(
                         "If provided as a 3D array, the first dimension of "
                         "the face_orientations array must be either of "
                         "size 1 or N_particles")
                 elif face_orientations.shape[0] == 1:
                     face_orientations = np.repeat(
-                        face_orientations, points.shape[0], axis=0)
+                        face_orientations, nq.points.shape[0], axis=0)
 
-        cdef const float[:, ::1] l_query_points = query_points
-        cdef const float[:, ::1] l_orientations = orientations
         cdef const float[:, :, ::1] l_face_orientations = face_orientations
-        cdef unsigned int n_query_points = l_query_points.shape[0]
-        cdef unsigned int nFaces = l_face_orientations.shape[1]
-        with nogil:
-            self.pmftxyzptr.accumulate(
-                nq.get_ptr(),
-                <quat[float]*> &l_orientations[0, 0],
-                <vec3[float]*> &l_query_points[0, 0],
-                n_query_points,
-                <quat[float]*> &l_face_orientations[0, 0, 0],
-                nFaces, nlistptr.get_ptr(), dereference(qargs.thisptr))
+        cdef unsigned int num_faces = l_face_orientations.shape[1]
+        self.pmftxyzptr.accumulate(
+            nq.get_ptr(),
+            <quat[float]*> &l_orientations[0, 0],
+            <vec3[float]*> &l_query_points[0, 0],
+            num_query_points,
+            <quat[float]*> &l_face_orientations[0, 0, 0],
+            num_faces, nlistptr.get_ptr(), dereference(qargs.thisptr))
         return self
 
     @Compute._compute()
     def compute(self, box, points, orientations, query_points=None,
                 face_orientations=None, nlist=None,
-                query_args={}):
+                query_args=None):
         R"""Calculates the positional correlation function for the given points.
         Will overwrite the current histogram.
 
@@ -1049,46 +928,23 @@ cdef class PMFTXYZ(_PMFT):
                         nlist, query_args)
         return self
 
-    @Compute._computed_property()
-    def bin_counts(self):
-        cdef unsigned int n_bins_Z = self.pmftxyzptr.getNBinsZ()
-        cdef unsigned int n_bins_Y = self.pmftxyzptr.getNBinsY()
-        cdef unsigned int n_bins_X = self.pmftxyzptr.getNBinsX()
-        cdef const unsigned int[:, :, ::1] bin_counts = \
-            <unsigned int[:n_bins_Z, :n_bins_Y, :n_bins_X]> \
-            self.pmftxyzptr.getBinCounts().get()
-        return np.asarray(bin_counts, dtype=np.uint32)
-
-    @Compute._computed_property()
-    def PCF(self):
-        cdef unsigned int n_bins_Z = self.pmftxyzptr.getNBinsZ()
-        cdef unsigned int n_bins_Y = self.pmftxyzptr.getNBinsY()
-        cdef unsigned int n_bins_X = self.pmftxyzptr.getNBinsX()
-        cdef const float[:, :, ::1] PCF = \
-            <float[:n_bins_Z, :n_bins_Y, :n_bins_X]> \
-            self.pmftxyzptr.getPCF().get()
-        return np.asarray(PCF)
-
     @property
     def X(self):
-        cdef unsigned int n_bins_X = self.pmftxyzptr.getNBinsX()
-        cdef const float[::1] X = \
-            <float[:n_bins_X]> self.pmftxyzptr.getX().get()
-        return np.asarray(X) + self.shiftvec[0]
+        return freud.util.make_managed_numpy_array(
+            &self.pmftxyzptr.getX(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def Y(self):
-        cdef unsigned int n_bins_Y = self.pmftxyzptr.getNBinsY()
-        cdef const float[::1] Y = \
-            <float[:n_bins_Y]> self.pmftxyzptr.getY().get()
-        return np.asarray(Y) + self.shiftvec[1]
+        return freud.util.make_managed_numpy_array(
+            &self.pmftxyzptr.getY(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def Z(self):
-        cdef unsigned int n_bins_Z = self.pmftxyzptr.getNBinsZ()
-        cdef const float[::1] Z = \
-            <float[:n_bins_Z]> self.pmftxyzptr.getZ().get()
-        return np.asarray(Z) + self.shiftvec[2]
+        return freud.util.make_managed_numpy_array(
+            &self.pmftxyzptr.getZ(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def n_bins_X(self):
@@ -1118,6 +974,3 @@ cdef class PMFTXYZ(_PMFT):
                     n_y=self.n_bins_Y,
                     n_z=self.n_bins_Z,
                     shiftvec=self.shiftvec.tolist())
-
-    def __str__(self):
-        return repr(self)

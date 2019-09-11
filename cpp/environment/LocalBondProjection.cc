@@ -58,7 +58,7 @@ float computeMaxProjection(const vec3<float> proj_vec, const vec3<float> local_b
     return max_proj;
 }
 
-void LocalBondProjection::compute(box::Box& box, 
+void LocalBondProjection::compute(box::Box& box,
     const vec3<float>* proj_vecs,  unsigned int n_proj,
     const vec3<float>* points, const quat<float>* orientations, unsigned int n_points,
     const vec3<float>* query_points, unsigned int n_query_points,
@@ -76,7 +76,7 @@ void LocalBondProjection::compute(box::Box& box,
     assert(n_proj > 0);
 
     nlist->validate(n_query_points, n_points);
-    const size_t* neighbor_list(nlist->getNeighbors());
+
     // Get the maximum total number of bonds in the neighbor list
     const size_t tot_num_neigh = nlist->getNumBonds();
 
@@ -94,10 +94,9 @@ void LocalBondProjection::compute(box::Box& box,
         size_t bond(nlist->find_first_index(r.begin()));
         for (size_t i = r.begin(); i != r.end(); ++i)
         {
-            
-            for (; bond < tot_num_neigh && neighbor_list[2 * bond] == i; ++bond)
+            for (; bond < tot_num_neigh && nlist->getNeighbors()(bond, 0) == i; ++bond)
             {
-                const size_t j(neighbor_list[2 * bond + 1]);
+                const size_t j(nlist->getNeighbors()(bond, 1));
 
                 // compute bond vector between the two particles
                 vec3<float> delta = box.wrap(query_points[i] - points[j]);

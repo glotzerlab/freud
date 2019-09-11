@@ -57,22 +57,12 @@ class Steinhardt
 public:
     //! Steinhardt Class Constructor
     /*! Constructor for Steinhardt analysis class.
-     *  \param rmax Cutoff radius for running the local order parameter.
-     *              Values near first minima of the rdf are recommended.
      *  \param l Spherical harmonic number l.
      *           Must be a positive number.
-     *  \param rmin (optional) Lower bound for computing the local order parameter.
-     *                         Allows looking at, for instance, only the second shell,
-     *                         or some other arbitrary rdf region.
      */
-    Steinhardt(float rmax, unsigned int l, float rmin = 0, bool average = false, bool Wl = false)
-        : m_Np(0), m_rmax(rmax), m_l(l), m_rmin(rmin), m_average(average), m_Wl(Wl), m_Qlm_local(2 * l + 1)
+    Steinhardt(unsigned int l, bool average = false, bool Wl = false, bool weighted = false)
+        : m_Np(0), m_l(l), m_average(average), m_Wl(Wl), m_weighted(weighted), m_Qlm_local(2 * l + 1)
     {
-        // Error Checking
-        if (m_rmax < 0.0f || m_rmin < 0.0f)
-            throw std::invalid_argument("Steinhardt requires rmin and rmax must be positive.");
-        if (m_rmin >= m_rmax)
-            throw std::invalid_argument("Steinhardt requires rmin must be less than rmax.");
         if (m_l < 2)
             throw std::invalid_argument("Steinhardt requires l must be two or greater.");
     }
@@ -122,6 +112,24 @@ public:
         return m_norm;
     }
 
+    //!< Whether to take a second shell average
+    bool isAverage()
+    {
+        return m_average;
+    }
+
+    //!< Whether to use the third-order invariant Wl
+    bool isWl()
+    {
+        return m_Wl;
+    }
+
+    //!< Whether to use neighbor weights in computing Qlmi
+    bool isWeighted()
+    {
+        return m_weighted;
+    }
+
     //! Compute the order parameter
     virtual void compute(const freud::locality::NeighborList* nlist,
                                   const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
@@ -160,13 +168,12 @@ private:
 
     // Member variables used for compute
     unsigned int m_Np; //!< Last number of points computed
-    float m_rmax;      //!< Maximum r at which to determine neighbors
     unsigned int m_l;  //!< Spherical harmonic l value.
-    float m_rmin;      //!< Minimum r at which to determine neighbors (default 0)
 
     // Flags
     bool m_average; //!< Whether to take a second shell average (default false)
     bool m_Wl;      //!< Whether to use the third-order invariant Wl (default false)
+    bool m_weighted;      //!< Whether to use neighbor weights in computing Qlmi (default false)
 
     std::shared_ptr<std::complex<float>> m_Qlmi; //!< Qlm for each particle i
     std::shared_ptr<std::complex<float>> m_Qlm;  //!< Normalized Qlm(Ave) for the whole system

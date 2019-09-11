@@ -3,22 +3,96 @@ import numpy.testing as npt
 import freud
 import sys
 import unittest
+from functools import lru_cache
+from sympy.physics.wigner import wigner_3j
+
 from util import (make_box_and_random_points, make_sc, make_bcc, make_fcc,
                   skipIfMissing)
+
+
+def get_Ql(p, descriptors, nlist, weighted=False):
+    """Given a set of points and a LocalDescriptors object (and the
+    underlying neighborlist), compute the per-particle Steinhardt Ql
+    order parameter for all :math:`l` values up to the maximum quantum
+    number used in the computation of the descriptors."""
+    Qbar_lm = np.zeros((p.shape[0], descriptors.sph.shape[1]),
+                       dtype=np.complex128)
+    for i in range(p.shape[0]):
+        indices = nlist.query_point_indices == i
+        Ylms = descriptors.sph[indices, :]
+        if weighted:
+            weights = nlist.weights[indices, np.newaxis]
+            weights /= np.sum(weights)
+            num_neighbors = 1
+        else:
+            weights = np.ones_like(Ylms)
+            num_neighbors = descriptors.sph.shape[0]/p.shape[0]
+        Qbar_lm[i, :] = np.sum(Ylms * weights, axis=0)/num_neighbors
+
+    Ql = np.zeros((Qbar_lm.shape[0], descriptors.l_max+1))
+    for i in range(Ql.shape[0]):
+        for l in range(Ql.shape[1]):
+            for k in range(l**2, (l+1)**2):
+                Ql[i, l] += np.absolute(Qbar_lm[i, k])**2
+            Ql[i, l] = np.sqrt(4*np.pi/(2*l + 1) * Ql[i, l])
+
+    return Ql
+
+
+def lm_index(l, m):
+    return l**2 + (m if m >= 0 else l - m)
+
+
+@lru_cache(maxsize=None)
+def get_wigner3j(l, m1, m2, m3):
+    return float(wigner_3j(l, l, l, m1, m2, m3))
+
+
+def get_Wl(p, descriptors, nlist):
+    """Given a set of points and a LocalDescriptors object (and the
+    underlying neighborlist), compute the per-particle Steinhardt Wl
+    order parameter for all :math:`l` values up to the maximum quantum
+    number used in the computation of the descriptors."""
+    Qbar_lm = np.zeros((p.shape[0], descriptors.sph.shape[1]),
+                       dtype=np.complex128)
+
+    num_neighbors = descriptors.sph.shape[0]/p.shape[0]
+    for i in range(p.shape[0]):
+        indices = nlist.query_point_indices == i
+        Qbar_lm[i, :] = np.sum(descriptors.sph[indices, :],
+                               axis=0)/num_neighbors
+
+    Wl = np.zeros((Qbar_lm.shape[0], descriptors.l_max+1), dtype=np.complex128)
+    for i in range(Wl.shape[0]):
+        for l in range(Wl.shape[1]):
+            for m1 in range(-l, l+1):
+                for m2 in range(max(-l-m1, -l), min(l-m1, l)+1):
+                    m3 = -m1 - m2
+                    # Manually add Condon-Shortley phase
+                    phase = 1
+                    for m in m1, m2, m3:
+                        if m > 0 and m % 2 == 1:
+                            phase *= -1
+                    Wl[i, l] += phase * get_wigner3j(l, m1, m2, m3) * \
+                        Qbar_lm[i, lm_index(l, m1)] * \
+                        Qbar_lm[i, lm_index(l, m2)] * \
+                        Qbar_lm[i, lm_index(l, m3)]
+    return Wl
 
 
 class TestLocalDescriptors(unittest.TestCase):
     def test_shape(self):
         N = 1000
-        Nneigh = 4
-        lmax = 8
-        rmax = 0.5
+        num_neighbors = 4
+        l_max = 8
+        r_max = 0.5
         L = 10
 
         box, positions = make_box_and_random_points(L, N)
         positions.flags['WRITEABLE'] = False
 
-        comp = freud.environment.LocalDescriptors(Nneigh, lmax, rmax, True)
+        comp = freud.environment.LocalDescriptors(
+            num_neighbors, l_max, r_max, True)
 
         # Test access
         with self.assertRaises(AttributeError):
@@ -26,42 +100,43 @@ class TestLocalDescriptors(unittest.TestCase):
         with self.assertRaises(AttributeError):
             comp.num_particles
         with self.assertRaises(AttributeError):
-            comp.num_neighbors
+            comp.num_sphs
 
-        comp.compute(box, Nneigh, positions)
+        comp.compute(box, num_neighbors, positions)
 
         # Test access
         comp.sph
         comp.num_particles
-        comp.num_neighbors
+        comp.num_sphs
 
-        self.assertEqual(comp.sph.shape[0], N*Nneigh)
+        self.assertEqual(comp.sph.shape[0], N*num_neighbors)
 
         self.assertEqual(comp.num_particles, positions.shape[0])
 
-        self.assertEqual(comp.num_neighbors/comp.num_particles, Nneigh)
+        self.assertEqual(comp.num_sphs/comp.num_particles, num_neighbors)
 
-        self.assertEqual(comp.l_max, lmax)
+        self.assertEqual(comp.l_max, l_max)
 
     def test_global(self):
         N = 1000
-        Nneigh = 4
-        lmax = 8
+        num_neighbors = 4
+        l_max = 8
         L = 10
 
         box, positions = make_box_and_random_points(L, N)
 
-        comp = freud.environment.LocalDescriptors(Nneigh, lmax, .5, True)
-        comp.compute(box, Nneigh, positions, mode='global')
+        comp = freud.environment.LocalDescriptors(
+            num_neighbors, l_max, .5, True)
+        comp.compute(box, num_neighbors, positions, mode='global')
 
         sphs = comp.sph
 
-        self.assertEqual(sphs.shape[0], N*Nneigh)
+        self.assertEqual(sphs.shape[0], N*num_neighbors)
 
     def test_particle_local(self):
         N = 1000
-        Nneigh = 4
-        lmax = 8
+        num_neighbors = 4
+        l_max = 8
         L = 10
 
         box, positions = make_box_and_random_points(L, N)
@@ -69,45 +144,49 @@ class TestLocalDescriptors(unittest.TestCase):
         orientations /= np.sqrt(np.sum(orientations**2,
                                        axis=-1))[:, np.newaxis]
 
-        comp = freud.environment.LocalDescriptors(Nneigh, lmax, .5, True)
+        comp = freud.environment.LocalDescriptors(
+            num_neighbors, l_max, .5, True)
 
         with self.assertRaises(RuntimeError):
-            comp.compute(box, Nneigh, positions, mode='particle_local')
+            comp.compute(box, num_neighbors, positions, mode='particle_local')
 
-        comp.compute(box, Nneigh, positions,
+        comp.compute(box, num_neighbors, positions,
                      orientations=orientations, mode='particle_local')
 
         sphs = comp.sph
 
-        self.assertEqual(sphs.shape[0], N*Nneigh)
+        self.assertEqual(sphs.shape[0], N*num_neighbors)
 
     def test_unknown_modes(self):
         N = 1000
-        Nneigh = 4
-        lmax = 8
+        num_neighbors = 4
+        l_max = 8
         L = 10
 
         box, positions = make_box_and_random_points(L, N)
 
-        comp = freud.environment.LocalDescriptors(Nneigh, lmax, .5, True)
+        comp = freud.environment.LocalDescriptors(
+            num_neighbors, l_max, .5, True)
 
         with self.assertRaises(RuntimeError):
-            comp.compute(box, Nneigh, positions, mode='particle_local_wrong')
+            comp.compute(box, num_neighbors, positions,
+                         mode='particle_local_wrong')
 
     def test_shape_twosets(self):
         N = 1000
-        Nneigh = 4
-        lmax = 8
+        num_neighbors = 4
+        l_max = 8
         L = 10
 
         box, positions = make_box_and_random_points(L, N)
         positions2 = np.random.uniform(-L/2, L/2,
                                        size=(N//3, 3)).astype(np.float32)
 
-        comp = freud.environment.LocalDescriptors(Nneigh, lmax, .5, True)
-        comp.compute(box, Nneigh, positions, positions2)
+        comp = freud.environment.LocalDescriptors(
+            num_neighbors, l_max, .5, True)
+        comp.compute(box, num_neighbors, positions, positions2)
         sphs = comp.sph
-        self.assertEqual(sphs.shape[0], N//3*Nneigh)
+        self.assertEqual(sphs.shape[0], N//3*num_neighbors)
 
     def test_repr(self):
         comp = freud.environment.LocalDescriptors(4, 8, 0.5, True)
@@ -115,28 +194,6 @@ class TestLocalDescriptors(unittest.TestCase):
 
     def test_ql(self):
         """Check if we can reproduce Steinhardt Ql."""
-        def get_Ql(p, descriptors, nlist):
-            """Given a set of points and a LocalDescriptors object (and the
-            underlying neighborlist), compute the per-particle Steinhardt Ql
-            order parameter for all :math:`l` values up to the maximum quantum
-            number used in the computation of the descriptors."""
-            Qbar_lm = np.zeros((p.shape[0], descriptors.sph.shape[1]),
-                               dtype=np.complex128)
-            num_neighbors = descriptors.sph.shape[0]/p.shape[0]
-            for i in range(p.shape[0]):
-                indices = nlist.index_i == i
-                Qbar_lm[i, :] = np.sum(descriptors.sph[indices, :],
-                                       axis=0)/num_neighbors
-
-            Ql = np.zeros((Qbar_lm.shape[0], descriptors.l_max+1))
-            for i in range(Ql.shape[0]):
-                for l in range(Ql.shape[1]):
-                    for k in range(l**2, (l+1)**2):
-                        Ql[i, l] += np.absolute(Qbar_lm[i, k])**2
-                    Ql[i, l] = np.sqrt(4*np.pi/(2*l + 1) * Ql[i, l])
-
-            return Ql
-
         # These exact parameter values aren't important; they won't necessarily
         # give useful outputs for some of the structures, but that's fine since
         # we just want to check that LocalDescriptors is consistent with
@@ -150,8 +207,10 @@ class TestLocalDescriptors(unittest.TestCase):
 
             # In order to be able to access information on which particles are
             # bonded to which ones, we precompute the neighborlist
-            nn = freud.locality.NearestNeighbors(r_max, num_neighbors)
-            nl = nn.compute(box, points).nlist
+            lc = freud.locality.AABBQuery(box, points)
+            nl = lc.query(points,
+                          dict(exclude_ii=True,
+                               num_neighbors=num_neighbors)).toNeighborList()
             ld = freud.environment.LocalDescriptors(
                 num_neighbors, l_max, r_max)
             ld.compute(box, num_neighbors, points, mode='global', nlist=nl)
@@ -160,56 +219,21 @@ class TestLocalDescriptors(unittest.TestCase):
 
             # Test all allowable values of l.
             for L in range(2, l_max+1):
-                steinhardt = freud.order.Steinhardt(r_max*2, L)
+                steinhardt = freud.order.Steinhardt(L)
                 steinhardt.compute(box, points, nlist=nl)
-                npt.assert_array_almost_equal(steinhardt.order, Ql[:, L])
+                # Some of the calculations done for Steinhardt can be imprecise
+                # in cases where there is no symmetry. Since simple cubic
+                # should have a 0 Ql value in many cases, we need to set high
+                # tolerances for those specific cases.
+                npt.assert_allclose(
+                    steinhardt.order, Ql[:, L],
+                    atol=1e-3 if struct_func == make_sc else 1e-6,
+                    err_msg="Failed for {}, L = {}".format(
+                        struct_func.__name__, L))
 
-    @unittest.skipIf(sys.version_info < (3, 2),
-                     "functools.lru_cache only supported on Python 3.2+")
-    @skipIfMissing('sympy.physics.wigner')
-    def test_wl(self):
-        """Check if we can reproduce Steinhardt Wl."""
-        from functools import lru_cache
-        from sympy.physics.wigner import wigner_3j
-
-        def lm_index(l, m):
-            return l**2 + (m if m >= 0 else l - m)
-
-        @lru_cache(maxsize=None)
-        def get_wigner3j(l, m1, m2, m3):
-            return float(wigner_3j(l, l, l, m1, m2, m3))
-
-        def get_Wl(p, descriptors, nlist):
-            """Given a set of points and a LocalDescriptors object (and the
-            underlying neighborlist), compute the per-particle Steinhardt Wl
-            order parameter for all :math:`l` values up to the maximum quantum
-            number used in the computation of the descriptors."""
-            Qbar_lm = np.zeros((p.shape[0], descriptors.sph.shape[1]),
-                               dtype=np.complex128)
-
-            num_neighbors = descriptors.sph.shape[0]/p.shape[0]
-            for i in range(p.shape[0]):
-                indices = nlist.index_i == i
-                Qbar_lm[i, :] = np.sum(descriptors.sph[indices, :],
-                                       axis=0)/num_neighbors
-
-            Wl = np.zeros((Qbar_lm.shape[0], descriptors.l_max+1),
-                          dtype=np.complex128)
-            for i in range(Wl.shape[0]):
-                for l in range(Wl.shape[1]):
-                    for m1 in range(-l, l+1):
-                        for m2 in range(max(-l-m1, -l), min(l-m1, l)+1):
-                            m3 = -m1 - m2
-                            # Manually add Condon-Shortley phase
-                            phase = 1
-                            for m in m1, m2, m3:
-                                if m > 0 and m % 2 == 1:
-                                    phase *= -1
-                            Wl[i, l] += phase * get_wigner3j(l, m1, m2, m3) * \
-                                Qbar_lm[i, lm_index(l, m1)] * \
-                                Qbar_lm[i, lm_index(l, m2)] * \
-                                Qbar_lm[i, lm_index(l, m3)]
-            return Wl
+    def test_ql_weighted(self):
+        """Check if we can reproduce Steinhardt Ql with bond weights."""
+        np.random.seed(0)
 
         # These exact parameter values aren't important; they won't necessarily
         # give useful outputs for some of the structures, but that's fine since
@@ -224,8 +248,59 @@ class TestLocalDescriptors(unittest.TestCase):
 
             # In order to be able to access information on which particles are
             # bonded to which ones, we precompute the neighborlist
-            nn = freud.locality.NearestNeighbors(r_max, num_neighbors)
-            nl = nn.compute(box, points).nlist
+            lc = freud.locality.AABBQuery(box, points)
+            nl = lc.query(points,
+                          dict(exclude_ii=True,
+                               num_neighbors=num_neighbors)).toNeighborList()
+            ld = freud.environment.LocalDescriptors(
+                num_neighbors, l_max, r_max)
+            ld.compute(box, num_neighbors, points, mode='global', nlist=nl)
+
+            # Generate random weights for each bond
+            nl = freud.locality.NeighborList.from_arrays(
+                len(points), len(points),
+                nl.query_point_indices, nl.point_indices,
+                nl.distances, np.random.rand(len(nl.weights)))
+
+            Ql = get_Ql(points, ld, nl, True)
+
+            # Test all allowable values of l.
+            for L in range(2, l_max+1):
+                steinhardt = freud.order.Steinhardt(L, weighted=True)
+                steinhardt.compute(box, points, nlist=nl)
+                # Some of the calculations done for Steinhardt can be imprecise
+                # in cases where there is no symmetry. Since simple cubic
+                # should have a 0 Ql value in many cases, we need to set high
+                # tolerances for those specific cases.
+                npt.assert_allclose(
+                    steinhardt.order,
+                    Ql[:, L],
+                    atol=1e-3 if struct_func == make_sc else 1e-6,
+                    err_msg="Failed for {}, L = {}".format(
+                        struct_func.__name__, L))
+
+    @unittest.skipIf(sys.version_info < (3, 2),
+                     "functools.lru_cache only supported on Python 3.2+")
+    @skipIfMissing('sympy.physics.wigner')
+    def test_wl(self):
+        """Check if we can reproduce Steinhardt Wl."""
+        # These exact parameter values aren't important; they won't necessarily
+        # give useful outputs for some of the structures, but that's fine since
+        # we just want to check that LocalDescriptors is consistent with
+        # Steinhardt.
+        num_neighbors = 6
+        l_max = 12
+        r_max = 2
+
+        for struct_func in [make_sc, make_bcc, make_fcc]:
+            box, points = struct_func(5, 5, 5)
+
+            # In order to be able to access information on which particles are
+            # bonded to which ones, we precompute the neighborlist
+            lc = freud.locality.AABBQuery(box, points)
+            nl = lc.query(points,
+                          dict(exclude_ii=True,
+                               num_neighbors=num_neighbors)).toNeighborList()
             ld = freud.environment.LocalDescriptors(
                 num_neighbors, l_max, r_max)
             ld.compute(box, num_neighbors, points, mode='global', nlist=nl)
@@ -234,7 +309,7 @@ class TestLocalDescriptors(unittest.TestCase):
 
             # Test all allowable values of l.
             for L in range(2, l_max+1):
-                steinhardt = freud.order.Steinhardt(r_max*2, L, Wl=True)
+                steinhardt = freud.order.Steinhardt(L, Wl=True)
                 steinhardt.compute(box, points, nlist=nl)
                 npt.assert_array_almost_equal(steinhardt.order, Wl[:, L])
 
@@ -254,8 +329,10 @@ class TestLocalDescriptors(unittest.TestCase):
 
         # We want to provide the NeighborList ourselves since we need to use it
         # again later anyway.
-        nn = freud.locality.NearestNeighbors(r_max, num_neighbors)
-        nl = nn.compute(box, points).nlist
+        lc = freud.locality.AABBQuery(box, points)
+        nl = lc.query(points,
+                      dict(exclude_ii=True,
+                           num_neighbors=num_neighbors)).toNeighborList()
 
         ld = freud.environment.LocalDescriptors(
             num_neighbors, l_max, r_max)
@@ -315,8 +392,10 @@ class TestLocalDescriptors(unittest.TestCase):
 
         # We want to provide the NeighborList ourselves since we need to use it
         # again later anyway.
-        nn = freud.locality.NearestNeighbors(r_max, num_neighbors)
-        nl = nn.compute(box, ref_points, points).nlist
+        lc = freud.locality.AABBQuery(box, points)
+        nl = lc.query(points,
+                      dict(exclude_ii=True,
+                           num_neighbors=num_neighbors)).toNeighborList()
 
         ld = freud.environment.LocalDescriptors(
             num_neighbors, l_max, r_max)

@@ -16,76 +16,43 @@ using namespace tbb;
 
 namespace freud { namespace density {
 
-GaussianDensity::GaussianDensity(unsigned int width, float r_cut, float sigma)
-    : m_box(box::Box()), m_width_x(width), m_width_y(width), m_width_z(width), m_rcut(r_cut), m_sigma(sigma)
+GaussianDensity::GaussianDensity(vec3<unsigned int> width, float r_max, float sigma)
+    : m_box(box::Box()), m_width(width), m_r_max(r_max), m_sigma(sigma)
 {
-    if (width <= 0)
-        throw invalid_argument("GaussianDensity requires width to be a positive integer.");
-    if (r_cut <= 0.0f)
-        throw invalid_argument("GaussianDensity requires r_cut to be positive.");
+    if (r_max <= 0.0f)
+        throw invalid_argument("GaussianDensity requires r_max to be positive.");
 }
 
-GaussianDensity::GaussianDensity(unsigned int width_x, unsigned int width_y, unsigned int width_z,
-                                 float r_cut, float sigma)
-    : m_box(box::Box()), m_width_x(width_x), m_width_y(width_y), m_width_z(width_z), m_rcut(r_cut),
-      m_sigma(sigma)
+void GaussianDensity::reduce()
 {
-    if (width_x <= 0 || width_y <= 0 || width_z <= 0)
-        throw invalid_argument("GaussianDensity requires width to be a positive integer.");
-    if (r_cut <= 0.0f)
-        throw invalid_argument("GaussianDensity requires r_cut to be positive.");
-}
-
-void GaussianDensity::reduceDensity()
-{
-    memset((void*) m_density_array.get(), 0, sizeof(float) * m_bi.getNumElements());
     // combine arrays
-    parallel_for(blocked_range<size_t>(0, m_bi.getNumElements()), [=](const blocked_range<size_t>& r) {
+    parallel_for(blocked_range<size_t>(0, m_density_array.size()), [=](const blocked_range<size_t>& r) {
         for (size_t i = r.begin(); i != r.end(); i++)
         {
             for (util::ThreadStorage<float>::const_iterator local_bins = m_local_bin_counts.begin();
                  local_bins != m_local_bin_counts.end(); ++local_bins)
             {
-                m_density_array.get()[i] += (*local_bins)[i];
+                m_density_array[i] += (*local_bins)[i];
             }
         }
     });
 }
 
 //! Get a reference to the last computed Density
-std::shared_ptr<float> GaussianDensity::getDensity()
+const util::ManagedArray<float> &GaussianDensity::getDensity()
 {
     if (m_reduce == true)
     {
-        reduceDensity();
+        reduce();
     }
     m_reduce = false;
     return m_density_array;
 }
 
-//! Get x width
-unsigned int GaussianDensity::getWidthX()
+//! Get width.
+vec3<unsigned int> GaussianDensity::getWidth()
 {
-    return m_width_x;
-}
-
-//! Get y width
-unsigned int GaussianDensity::getWidthY()
-{
-    return m_width_y;
-}
-
-//! Get z width
-unsigned int GaussianDensity::getWidthZ()
-{
-    if (!m_box.is2D())
-    {
-        return m_width_z;
-    }
-    else
-    {
-        return 0;
-    }
+    return m_width;
 }
 
 //! \internal
@@ -104,19 +71,14 @@ void GaussianDensity::compute(const box::Box& box, const vec3<float>* points, un
 {
     reset();
     m_box = box;
-    if (m_box.is2D())
-    {
-        m_bi = Index3D(m_width_x, m_width_y, 1);
-    }
-    else
-    {
-        m_bi = Index3D(m_width_x, m_width_y, m_width_z);
-    }
 
-    // this does not agree with rest of freud
-    m_density_array
-        = std::shared_ptr<float>(new float[m_bi.getNumElements()], std::default_delete<float[]>());
-    m_local_bin_counts.resize(m_bi.getNumElements());
+    vec3<unsigned int> width(m_width);
+    if (box.is2D())
+    {
+        width.z = 1;
+    }
+    m_density_array.prepare({width.x, width.y, width.z});
+    m_local_bin_counts.resize({width.x, width.y, width.z});
     parallel_for(blocked_range<size_t>(0, n_points), [=](const blocked_range<size_t>& r) {
         assert(points);
         assert(n_points > 0);
@@ -126,9 +88,9 @@ void GaussianDensity::compute(const box::Box& box, const vec3<float>* points, un
         float ly = m_box.getLy();
         float lz = m_box.getLz();
 
-        float grid_size_x = lx / m_width_x;
-        float grid_size_y = ly / m_width_y;
-        float grid_size_z = lz / m_width_z;
+        float grid_size_x = lx / m_width.x;
+        float grid_size_y = ly / m_width.y;
+        float grid_size_z = lz / m_width.z;
 
         float sigmasq = m_sigma * m_sigma;
         float A = sqrt(1.0f / (2.0f * M_PI * sigmasq));
@@ -143,10 +105,10 @@ void GaussianDensity::compute(const box::Box& box, const vec3<float>* points, un
             int bin_y = int((points[idx].y + ly / 2.0f) / grid_size_y);
             int bin_z = int((points[idx].z + lz / 2.0f) / grid_size_z);
 
-            // Find the number of bins within r_cut
-            int bin_cut_x = int(m_rcut / grid_size_x);
-            int bin_cut_y = int(m_rcut / grid_size_y);
-            int bin_cut_z = int(m_rcut / grid_size_z);
+            // Find the number of bins within r_max
+            int bin_cut_x = int(m_r_max / grid_size_x);
+            int bin_cut_y = int(m_r_max / grid_size_y);
+            int bin_cut_z = int(m_r_max / grid_size_z);
 
             // in 2D, only loop over the 0 z plane
             if (m_box.is2D())
@@ -171,11 +133,11 @@ void GaussianDensity::compute(const box::Box& box, const vec3<float>* points, un
                         float dx = float((grid_size_x * i + grid_size_x / 2.0f) - points[idx].x - lx / 2.0f);
                         vec3<float> delta = m_box.wrap(vec3<float>(dx, dy, dz));
 
-                        float rsq = dot(delta, delta);
-                        float rsqrt = sqrtf(rsq);
+                        float r_sq = dot(delta, delta);
+                        float r_sqrt = sqrtf(r_sq);
 
-                        // Check to see if this distance is within the specified r_cut
-                        if (rsqrt < m_rcut)
+                        // Check to see if this distance is within the specified r_max
+                        if (r_sqrt < m_r_max)
                         {
                             // Evaluate the gaussian ...
                             float x_gaussian = A * exp((-1.0f) * (delta.x * delta.x) / (2.0f * sigmasq));
@@ -184,14 +146,13 @@ void GaussianDensity::compute(const box::Box& box, const vec3<float>* points, un
 
                             // Assure that out of range indices are corrected for storage
                             // in the array i.e. bin -1 is actually bin 29 for nbins = 30
-                            unsigned int ni = (i + m_width_x) % m_width_x;
-                            unsigned int nj = (j + m_width_y) % m_width_y;
-                            unsigned int nk = (k + m_width_z) % m_width_z;
+                            unsigned int ni = (i + m_width.x) % m_width.x;
+                            unsigned int nj = (j + m_width.y) % m_width.y;
+                            unsigned int nk = (k + m_width.z) % m_width.z;
 
                             // store the product of these values in an array - n[i, j, k]
                             // = gx*gy*gz
-                            m_local_bin_counts.local()[m_bi(ni, nj, nk)]
-                                += x_gaussian * y_gaussian * z_gaussian;
+                            m_local_bin_counts.local()(ni, nj, nk) += x_gaussian * y_gaussian * z_gaussian;
                         }
                     }
                 }

@@ -23,7 +23,7 @@ class RDF : public util::NdHistogram
 {
 public:
     //! Constructor
-    RDF(float rmax, float dr, float rmin = 0);
+    RDF(float r_max, float dr, float r_min = 0);
 
     //! Destructor
     ~RDF() {};
@@ -47,16 +47,20 @@ public:
     }
 
     //! Get a reference to the PCF array
-    std::shared_ptr<float> getRDF()
+    const util::ManagedArray<float> &getRDF()
     {
         return getPCF();
     }
 
     //! Get a reference to the r array
-    std::shared_ptr<float> getR();
+    const util::ManagedArray<float> &getR();
 
-    //! Get a reference to the N_r array
-    std::shared_ptr<float> getNr()
+    //! Get a reference to the N_r array.
+    /*! Mathematically, m_N_r_array[i] is the average number of points
+     * contained within a ball of radius m_r_array[i]+dr/2 centered at a given
+     * query_point, averaged over all query_points.
+     */
+    const util::ManagedArray<float> &getNr()
     {
         return reduceAndReturn(m_N_r_array);
     }
@@ -64,17 +68,17 @@ public:
     unsigned int getNBins();
 
 private:
-    float m_rmax;         //!< Maximum r at which to compute g(r)
-    float m_rmin;         //!< Minimum r at which to compute g(r)
+    float m_r_max;         //!< Maximum r at which to compute g(r)
+    float m_r_min;         //!< Minimum r at which to compute g(r)
     float m_dr;           //!< Step size for r in the computation
     unsigned int m_nbins; //!< Number of r bins to compute g(r) over
 
-    std::shared_ptr<float> m_avg_counts;  //!< Bin counts that go into computing the RDF array
-    std::shared_ptr<float> m_N_r_array;   //!< Cumulative bin sum N(r)
-    std::shared_ptr<float> m_r_array;     //!< Array of r values that the RDF is computed at
-    std::shared_ptr<float> m_vol_array;   //!< Array of volumes for each slice of r
-    std::shared_ptr<float> m_vol_array2D; //!< Array of volumes for each slice of r
-    std::shared_ptr<float> m_vol_array3D; //!< Array of volumes for each slice of r
+    util::ManagedArray<float> m_avg_counts;  //!< Bin counts that go into computing the RDF array
+    util::ManagedArray<float> m_N_r_array;   //!< Cumulative bin sum N(r)
+    util::ManagedArray<float> m_r_array;     //!< Array of r values that the RDF is computed at
+    util::ManagedArray<float> m_vol_array;   //!< Array of volumes for each slice of r
+    util::ManagedArray<float> m_vol_array2D; //!< Array of volumes for each slice of r
+    util::ManagedArray<float> m_vol_array3D; //!< Array of volumes for each slice of r
 };
 
 }; }; // end namespace freud::density

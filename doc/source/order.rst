@@ -11,10 +11,6 @@ Order Module
     freud.order.NematicOrderParameter
     freud.order.HexOrderParameter
     freud.order.TransOrderParameter
-    freud.order.LocalQl
-    freud.order.LocalQlNear
-    freud.order.LocalWl
-    freud.order.LocalWlNear
     freud.order.Steinhardt
     freud.order.SolLiq
     freud.order.SolLiqNear
@@ -49,29 +45,11 @@ Translational Order Parameter
 .. autoclass:: freud.order.TransOrderParameter(r_max, k=6.0, num_neighbors=0)
     :members: compute
 
-Steinhardt :math:`Q_l` Order Parameter
-======================================
-
-.. autoclass:: freud.order.LocalQl(box, r_max, l, r_min=0)
-    :members: compute, computeAve, computeAveNorm, computeNorm, setBox, plot
-
-.. autoclass:: freud.order.LocalQlNear(box, r_max, l, num_neighbors=12)
-    :members: compute, computeAve, computeAveNorm, computeNorm, setBox, plot
-
-Steinhardt :math:`W_l` Order Parameter
-======================================
-
-.. autoclass:: freud.order.LocalWl(box, r_max, l, r_min=0)
-    :members: compute, computeAve, computeAveNorm, computeNorm, setBox, plot
-
-.. autoclass:: freud.order.LocalWlNear(box, r_max, l, num_neighbors=12)
-    :members: compute, computeAve, computeAveNorm, computeNorm, setBox, plot
-
-Steinhardt
-==========
+Steinhardt Order Parameters
+===========================
 
 .. autoclass:: freud.order.Steinhardt(l, r_min, r_max, average=False, norm=False, Wl=False, num_neighbors=0)
-    :members: compute
+    :members: compute, plot
 
 Solid-Liquid Order Parameter
 ============================

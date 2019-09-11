@@ -16,8 +16,8 @@ using namespace tbb;
 
 namespace freud { namespace density {
 
-LocalDensity::LocalDensity(float rcut, float volume, float diameter)
-    : m_box(box::Box()), m_rcut(rcut), m_volume(volume), m_diameter(diameter), m_n_points(0)
+LocalDensity::LocalDensity(float r_max, float volume, float diameter)
+    : m_box(box::Box()), m_r_max(r_max), m_volume(volume), m_diameter(diameter), m_n_points(0)
 {}
 
 LocalDensity::~LocalDensity() {}
@@ -30,45 +30,41 @@ void LocalDensity::compute(const freud::locality::NeighborQuery* neighbor_query,
 
     unsigned int n_points = neighbor_query->getNPoints();
 
-    // reallocate the output array if it is not the right size
-    if (n_points != m_n_points)
-    {
-        m_density_array = std::shared_ptr<float>(new float[n_points], std::default_delete<float[]>());
-        m_num_neighbors_array = std::shared_ptr<float>(new float[n_points], std::default_delete<float[]>());
-    }
+    m_density_array.prepare(n_points);
+    m_num_neighbors_array.prepare(n_points);
 
-    float area = M_PI * m_rcut * m_rcut;
-    float volume = 4.0f/3.0f * M_PI * m_rcut * m_rcut * m_rcut;
+    float area = M_PI * m_r_max * m_r_max;
+    float volume = 4.0f/3.0f * M_PI * m_r_max * m_r_max * m_r_max;
     // compute the local density
-    freud::locality::loopOverNeighborsIterator(neighbor_query, query_points, n_query_points, qargs, nlist, 
-    [=](size_t i, std::shared_ptr<freud::locality::NeighborIterator::PerPointIterator> ppiter)
+    freud::locality::loopOverNeighborsIterator(neighbor_query, query_points, n_query_points, qargs, nlist,
+    [=](size_t i, std::shared_ptr<freud::locality::NeighborPerPointIterator> ppiter)
     {
         float num_neighbors = 0;
         for(freud::locality::NeighborBond nb = ppiter->next(); !ppiter->end(); nb = ppiter->next())
             {
-            // count particles that are fully in the rcut sphere
-            if (nb.distance < (m_rcut - m_diameter/2.0f))
+            // count particles that are fully in the r_max sphere
+            if (nb.distance < (m_r_max - m_diameter/2.0f))
             {
               num_neighbors += 1.0f;
             }
             else
             {
-              // partially count particles that intersect the rcut sphere
+              // partially count particles that intersect the r_max sphere
               // this is not particularly accurate for a single particle, but works well on average for
               // lots of them. It smooths out the neighbor count distributions and avoids noisy spikes
               // that obscure data
-              num_neighbors += 1.0f + (m_rcut - (nb.distance + m_diameter/2.0f)) / m_diameter;
+              num_neighbors += 1.0f + (m_r_max - (nb.distance + m_diameter/2.0f)) / m_diameter;
             }
-            m_num_neighbors_array.get()[i] = num_neighbors;
+            m_num_neighbors_array[i] = num_neighbors;
             if (m_box.is2D())
               {
               // local density is area of particles divided by the area of the circle
-              m_density_array.get()[i] = (m_volume * m_num_neighbors_array.get()[i]) / area;
+              m_density_array[i] = (m_volume * m_num_neighbors_array[i]) / area;
               }
             else
               {
               // local density is volume of particles divided by the volume of the sphere
-              m_density_array.get()[i] = (m_volume * m_num_neighbors_array.get()[i]) / volume;
+              m_density_array[i] = (m_volume * m_num_neighbors_array[i]) / volume;
             }
         }
     });
@@ -81,13 +77,13 @@ unsigned int LocalDensity::getNPoints()
 }
 
 //! Get a reference to the last computed density
-std::shared_ptr<float> LocalDensity::getDensity()
+const util::ManagedArray<float> &LocalDensity::getDensity()
 {
     return m_density_array;
 }
 
 //! Get a reference to the last computed number of neighbors
-std::shared_ptr<float> LocalDensity::getNumNeighbors()
+const util::ManagedArray<float> &LocalDensity::getNumNeighbors()
 {
     return m_num_neighbors_array;
 }

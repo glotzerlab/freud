@@ -137,8 +137,6 @@ cdef class MSD(Compute):
 
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
 
-    .. versionadded:: 1.0
-
     Args:
         box (:class:`freud.box.Box`, optional):
             If not provided, the class will assume that all positions provided
@@ -270,9 +268,6 @@ cdef class MSD(Compute):
     def __repr__(self):
         return "freud.msd.{cls}(box={box}, mode={mode})".format(
             cls=type(self).__name__, box=self._box, mode=repr(self.mode))
-
-    def __str__(self):
-        return repr(self)
 
     @Compute._computed_method()
     def plot(self, ax=None):

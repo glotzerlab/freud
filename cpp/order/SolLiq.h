@@ -31,7 +31,7 @@ public:
      *  compute to calculate solid-like clusters. Use accessor functions
      *  to retrieve data.
      *  \param box A freud box for the trajectory.
-     *  \param rmax Cutoff radius for cell list and clustering algorithm.
+     *  \param r_max Cutoff radius for cell list and clustering algorithm.
           Values near first minima of the rdf are recommended.
      *  \param Qthreshold Value of dot product threshold when evaluating
            \f$Q_{lm}^*(i) Q_{lm}(j)\f$ to determine if a neighbor pair is
@@ -42,7 +42,7 @@ public:
            l=6, 6-8 generally good for FCC or BCC structures)
      *  \param l Choose spherical harmonic Ql. Must be positive and even.
     **/
-    SolLiq(const box::Box& box, float rmax, float Qthreshold, unsigned int Sthreshold, unsigned int l);
+    SolLiq(const box::Box& box, float r_max, float Qthreshold, unsigned int Sthreshold, unsigned int l);
 
     //! Get the simulation box
     const box::Box& getBox()
@@ -57,15 +57,15 @@ public:
     }
 
     //! Reset the simulation box size
-    void setClusteringRadius(float rcut_cluster)
+    void setClusteringRadius(float r_max_cluster)
     {
-        if (rcut_cluster < m_rmax)
+        if (r_max_cluster < m_r_max)
             throw std::invalid_argument(
-                "SolLiq requires that rcut_cluster must be greater than rcut (for local env).");
-        // May not be necessary if std::max(m_rmax, m_rmax_cluster) is used to rebuild cell list here, and in
+                "SolLiq requires that r_max_cluster must be greater than r_max (for local env).");
+        // May not be necessary if std::max(m_r_max, m_r_max_cluster) is used to rebuild cell list here, and in
         // setBox.
 
-        m_rmax_cluster = rcut_cluster;
+        m_r_max_cluster = r_max_cluster;
     }
 
     //! Compute the Solid-Liquid Order Parameter
@@ -150,8 +150,8 @@ private:
     void reduceNumberOfConnections(unsigned int Np);
 
     box::Box m_box;       //!< Simulation box where the particles belong
-    float m_rmax;         //!< Maximum cutoff radius at which to determine local environment
-    float m_rmax_cluster; //!< Maximum radius at which to cluster solid-like particles;
+    float m_r_max;         //!< Maximum cutoff radius at which to determine local environment
+    float m_r_max_cluster; //!< Maximum radius at which to cluster solid-like particles;
 
     unsigned int m_Np;                                 //!< Last number of points computed
     std::shared_ptr<std::complex<float>> m_Qlmi_array; //!< Stores Qlm for each particle i

@@ -3,8 +3,10 @@
 
 from freud.util cimport vec3
 from libcpp.memory cimport shared_ptr
+from libcpp.complex cimport complex
 cimport freud._box
 cimport freud._locality
+cimport freud.util
 
 cdef extern from "CorrelationFunction.h" namespace "freud::density":
     cdef cppclass CorrelationFunction[T]:
@@ -15,30 +17,24 @@ cdef extern from "CorrelationFunction.h" namespace "freud::density":
                         const vec3[float]*,
                         const T*,
                         unsigned int, const freud._locality.NeighborList*,
-                        freud._locality.QueryArgs,) nogil except +
-        shared_ptr[T] getRDF()
-        shared_ptr[unsigned int] getCounts()
-        shared_ptr[float] getR()
+                        freud._locality.QueryArgs) except +
+        const freud.util.ManagedArray[T] &getRDF()
+        const freud.util.ManagedArray[unsigned int] &getCounts()
+        const freud.util.ManagedArray[float] &getR()
         unsigned int getNBins() const
 
 cdef extern from "GaussianDensity.h" namespace "freud::density":
     cdef cppclass GaussianDensity:
-        GaussianDensity(unsigned int, float, float) except +
-        GaussianDensity(unsigned int,
-                        unsigned int,
-                        unsigned int,
-                        float,
-                        float) except +
+        GaussianDensity(vec3[unsigned int], float, float) except +
         const freud._box.Box & getBox() const
         void reset()
         void compute(
             const freud._box.Box &,
             const vec3[float]*,
-            unsigned int) nogil except +
-        shared_ptr[float] getDensity()
-        unsigned int getWidthX()
-        unsigned int getWidthY()
-        unsigned int getWidthZ()
+            unsigned int) except +
+        const freud.util.ManagedArray[float] &getDensity()
+        vec3[unsigned int] getWidth()
+        float getSigma()
 
 cdef extern from "LocalDensity.h" namespace "freud::density":
     cdef cppclass LocalDensity:
@@ -48,10 +44,10 @@ cdef extern from "LocalDensity.h" namespace "freud::density":
             const freud._locality.NeighborQuery*,
             const vec3[float]*,
             unsigned int, const freud._locality.NeighborList *,
-            freud._locality.QueryArgs) nogil except +
+            freud._locality.QueryArgs) except +
         unsigned int getNPoints()
-        shared_ptr[float] getDensity()
-        shared_ptr[float] getNumNeighbors()
+        const freud.util.ManagedArray[float] &getDensity()
+        const freud.util.ManagedArray[float] &getNumNeighbors()
 
 cdef extern from "RDF.h" namespace "freud::density":
     cdef cppclass RDF:
@@ -62,8 +58,8 @@ cdef extern from "RDF.h" namespace "freud::density":
                         const vec3[float]*,
                         unsigned int,
                         const freud._locality.NeighborList*,
-                        freud._locality.QueryArgs) nogil except +
-        shared_ptr[float] getRDF()
-        shared_ptr[float] getR()
-        shared_ptr[float] getNr()
+                        freud._locality.QueryArgs) except +
+        const freud.util.ManagedArray[float] &getRDF()
+        const freud.util.ManagedArray[float] &getR()
+        const freud.util.ManagedArray[float] &getNr()
         unsigned int getNBins()

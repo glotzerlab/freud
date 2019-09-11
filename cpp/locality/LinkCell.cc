@@ -3,7 +3,6 @@
 
 #include <algorithm>
 #include <cmath>
-#include <iostream>
 #include <stdexcept>
 #include <tbb/tbb.h>
 #include <tuple>
@@ -26,74 +25,37 @@ namespace freud { namespace locality {
 
 // Default constructor
 LinkCell::LinkCell()
-    : NeighborQuery(), m_box(box::Box()), m_n_points(0), m_cell_width(0), m_celldim(0, 0, 0), m_neighbor_list()
+    : NeighborQuery(), m_n_points(0), m_cell_width(0), m_celldim(0, 0, 0), m_neighbor_list()
 {}
 
-LinkCell::LinkCell(const box::Box& box, float cell_width)
-    : NeighborQuery(), m_box(box), m_n_points(0), m_cell_width(0), m_celldim(0, 0, 0), m_neighbor_list()
-{
-    // The initializer list above sets the cell width and cell dimensions to 0
-    // so that we can farm out the work to the setCellWidth function.
-    updateInternal(box, cell_width);
-}
-
 LinkCell::LinkCell(const box::Box& box, float cell_width, const vec3<float>* points, unsigned int n_points)
-    : NeighborQuery(box, points, n_points), m_box(box), m_n_points(0), m_cell_width(0), m_celldim(0, 0, 0),
+    : NeighborQuery(box, points, n_points), m_n_points(0), m_cell_width(cell_width), m_celldim(0, 0, 0),
       m_neighbor_list()
 {
-    // The initializer list above sets the cell width and cell dimensions to 0
-    // so that we can farm out the work to the updateInternal function.
-    updateInternal(box, cell_width);
+    vec3<unsigned int> celldim = computeDimensions(box, m_cell_width);
 
-    computeCellList(box, points, n_points);
-}
-
-void LinkCell::updateInternal(const box::Box& box, float cell_width)
-{
-    if (cell_width != m_cell_width || box != m_box)
+    // Check if box is too small!
+    vec3<float> nearest_plane_distance = box.getNearestPlaneDistance();
+    if ((m_cell_width * 2.0 > nearest_plane_distance.x) || (m_cell_width * 2.0 > nearest_plane_distance.y)
+        || (!box.is2D() && m_cell_width * 2.0 > nearest_plane_distance.z))
     {
-        vec3<unsigned int> celldim = computeDimensions(box, cell_width);
-        // Check if the box is non-null
-        if (box != box::Box())
-        {
-            // Check if box is too small!
-            vec3<float> nearest_plane_distance = box.getNearestPlaneDistance();
-            if ((cell_width * 2.0 > nearest_plane_distance.x) || (cell_width * 2.0 > nearest_plane_distance.y)
-                || (!box.is2D() && cell_width * 2.0 > nearest_plane_distance.z))
-            {
-                throw runtime_error(
-                    "Cannot generate a cell list where cell_width is larger than half the box.");
-            }
-            // Only 1 cell deep in 2D
-            if (box.is2D())
-            {
-                celldim.z = 1;
-            }
-        }
-
-        // Check if the dims changed
-        m_box = box;
-        if (!((celldim.x == m_celldim.x) && (celldim.y == m_celldim.y) && (celldim.z == m_celldim.z)))
-        {
-            m_cell_index = Index3D(celldim.x, celldim.y, celldim.z);
-            if (m_cell_index.getNumElements() < 1)
-            {
-                throw runtime_error("At least one cell must be present.");
-            }
-            m_celldim = celldim;
-        }
-        m_cell_width = cell_width;
+        throw runtime_error(
+            "Cannot generate a cell list where cell_width is larger than half the box.");
     }
-}
+    // Only 1 cell deep in 2D
+    if (box.is2D())
+    {
+        celldim.z = 1;
+    }
 
-void LinkCell::setCellWidth(float cell_width)
-{
-    updateInternal(m_box, cell_width);
-}
+    m_cell_index = Index3D(celldim.x, celldim.y, celldim.z);
+    if (m_cell_index.getNumElements() < 1)
+    {
+        throw runtime_error("At least one cell must be present.");
+    }
+    m_celldim = celldim;
 
-void LinkCell::updateBox(const box::Box& box)
-{
-    updateInternal(box, m_cell_width);
+    computeCellList(points, n_points);
 }
 
 const vec3<unsigned int> LinkCell::computeDimensions(const box::Box& box, float cell_width) const
@@ -128,10 +90,8 @@ const vec3<unsigned int> LinkCell::computeDimensions(const box::Box& box, float 
     return dim;
 }
 
-void LinkCell::computeCellList(const box::Box& box, const vec3<float>* points, unsigned int n_points)
+void LinkCell::computeCellList(const vec3<float>* points, unsigned int n_points)
 {
-    updateBox(box);
-
     if (n_points == 0)
     {
         throw runtime_error("Cannot generate a cell list of 0 particles.");
@@ -163,93 +123,6 @@ void LinkCell::computeCellList(const box::Box& box, const vec3<float>* points, u
         m_cell_list.get()[i] = m_cell_list.get()[n_points + cell];
         m_cell_list.get()[n_points + cell] = i;
     }
-}
-
-void LinkCell::compute(const box::Box& box, const vec3<float>* points, unsigned int n_points,
-                       const vec3<float>* query_points, unsigned int n_query_points, bool exclude_ii)
-{
-    // Store points ("j" particles in (i, j) bonds) in the cell list
-    // for quick access later (not points)
-    computeCellList(box, points, n_points);
-
-    typedef std::vector<NeighborBond> BondVector;
-    typedef std::vector<BondVector> BondVectorVector;
-    typedef tbb::enumerable_thread_specific<BondVectorVector> ThreadBondVector;
-    ThreadBondVector bond_vectors;
-
-    // Find (i, j) neighbor pairs
-    parallel_for(blocked_range<size_t>(0, n_query_points), [=, &bond_vectors](const blocked_range<size_t>& r) {
-        ThreadBondVector::reference bond_vector_vectors(bond_vectors.local());
-        bond_vector_vectors.emplace_back();
-        BondVector& bond_vector(bond_vector_vectors.back());
-
-        for (size_t i(r.begin()); i != r.end(); ++i)
-        {
-            // get the cell the point is in
-            const vec3<float> point(query_points[i]);
-            const unsigned int point_cell(getCell(point));
-
-            // loop over all neighboring cells
-            const std::vector<unsigned int>& neigh_cells = getCellNeighbors(point_cell);
-            for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
-            {
-                const unsigned int neigh_cell = neigh_cells[neigh_idx];
-
-                // iterate over the particles in that cell
-                locality::LinkCell::iteratorcell it = itercell(neigh_cell);
-                for (unsigned int j = it.next(); !it.atEnd(); j = it.next())
-                {
-                    if (exclude_ii && i == j)
-                        continue;
-
-                    const vec3<float> rij(m_box.wrap(points[j] - point));
-                    const float rsq(dot(rij, rij));
-
-                    if (rsq < m_cell_width * m_cell_width)
-                    {
-                        bond_vector.emplace_back(i, j, sqrt(rsq));
-                    }
-                }
-            }
-        }
-    });
-
-    // Sort neighbors by particle i index
-    tbb::flattened2d<ThreadBondVector> flat_bond_vector_groups = tbb::flatten2d(bond_vectors);
-    BondVectorVector bond_vector_groups(flat_bond_vector_groups.begin(), flat_bond_vector_groups.end());
-    tbb::parallel_sort(bond_vector_groups.begin(), bond_vector_groups.end(), compareFirstNeighborPairs);
-
-    unsigned int num_bonds(0);
-    for (BondVectorVector::const_iterator iter(bond_vector_groups.begin()); iter != bond_vector_groups.end();
-         ++iter)
-        num_bonds += iter->size();
-
-    m_neighbor_list.resize(num_bonds);
-    m_neighbor_list.setNumBonds(num_bonds, n_query_points, n_points);
-
-    size_t* neighbor_array(m_neighbor_list.getNeighbors());
-    float* neighbor_weights(m_neighbor_list.getWeights());
-    float* neighbor_distances(m_neighbor_list.getDistances());
-
-    // build nlist structure
-    parallel_for(blocked_range<size_t>(0, bond_vector_groups.size()),
-                 [=, &bond_vector_groups](const blocked_range<size_t>& r) {
-                     size_t bond(0);
-                     for (size_t group(0); group < r.begin(); ++group)
-                         bond += bond_vector_groups[group].size();
-
-                     for (size_t group(r.begin()); group < r.end(); ++group)
-                     {
-                         const BondVector& vec(bond_vector_groups[group]);
-                         for (BondVector::const_iterator iter(vec.begin()); iter != vec.end(); ++iter, ++bond)
-                         {
-                            neighbor_array[2 * bond] = iter->id;
-                            neighbor_array[2 * bond + 1] = iter->ref_id;
-                            neighbor_weights[bond] = iter->weight;
-                            neighbor_distances[bond] = iter->distance;
-                         }
-                     }
-                 });
 }
 
 const std::vector<unsigned int>& LinkCell::computeCellNeighbors(unsigned int cur_cell)
@@ -339,99 +212,87 @@ const std::vector<unsigned int>& LinkCell::computeCellNeighbors(unsigned int cur
     return a->second;
 }
 
-//! Given a set of points, find the num_neighbors elements of this data structure
-//  that are the nearest neighbors for each point.
-std::shared_ptr<NeighborQueryIterator> LinkCell::query(const vec3<float>* query_points, unsigned int n_query_points,
-                                                       unsigned int num_neighbors, bool exclude_ii) const
+std::shared_ptr<NeighborQueryPerPointIterator> LinkCell::querySingle(const vec3<float> query_point, unsigned int query_point_idx,
+                                                             QueryArgs args) const
 {
-    return std::make_shared<LinkCellQueryIterator>(this, query_points, n_query_points, num_neighbors, exclude_ii);
-}
-
-//! Given a set of points, find all elements of this data structure
-//  that are within a certain distance r_max.
-std::shared_ptr<NeighborQueryIterator> LinkCell::queryBall(const vec3<float>* query_points, unsigned int n_query_points, float r_max,
-                                                           bool exclude_ii) const
-{
-    return std::make_shared<LinkCellQueryBallIterator>(this, query_points, n_query_points, r_max, exclude_ii);
+    this->validateQueryArgs(args);
+    if (args.mode == QueryArgs::ball)
+    {
+        return std::make_shared<LinkCellQueryBallIterator>(this, query_point, query_point_idx, args.r_max, args.exclude_ii);
+    }
+    else if (args.mode == QueryArgs::nearest)
+    {
+        return std::make_shared<LinkCellQueryIterator>(this, query_point, query_point_idx, args.num_neighbors, args.r_max, args.exclude_ii);
+    }
+    else
+    {
+        throw std::runtime_error("Invalid query mode provided to generic query function.");
+    }
 }
 
 NeighborBond LinkCellQueryBallIterator::next()
 {
-    float r_cutsq = m_r * m_r;
+    float r_max_sq = m_r_max * m_r_max;
 
+    vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_query_point));
+    const unsigned int point_cell_index = m_linkcell->getCellIndex(
+            vec3<int>(point_cell.x, point_cell.y, point_cell.z) + (*m_neigh_cell_iter));
+    m_searched_cells.insert(point_cell_index);
+
+    // Loop over cell list neighbor shells relative to this point's cell.
     while (true)
     {
-        vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_query_points[cur_p]));
-        const unsigned int point_cell_index = m_linkcell->getCellIndex(
-                vec3<int>(point_cell.x, point_cell.y, point_cell.z) + (*m_neigh_cell_iter));
-        m_searched_cells.insert(point_cell_index);
+        // Iterate over the particles in that cell. Using a local counter
+        // variable is safe, because the IteratorLinkCell object is keeping
+        // track between calls to next.
+        for (unsigned int j = m_cell_iter.next(); !m_cell_iter.atEnd(); j = m_cell_iter.next())
+        {
+            const vec3<float> r_ij(m_neighbor_query->getBox().wrap((*m_linkcell)[j] - m_query_point));
+            const float r_sq(dot(r_ij, r_ij));
 
-        // Loop over cell list neighbor shells relative to this point's cell.
+            if (r_sq < r_max_sq && (!m_exclude_ii || m_query_point_idx != j))
+            {
+                return NeighborBond(m_query_point_idx, j, sqrt(r_sq));
+            }
+        }
+
+        bool out_of_range = false;
+
         while (true)
         {
-            // Iterate over the particles in that cell. Using a local counter
-            // variable is safe, because the IteratorLinkCell object is keeping
-            // track between calls to next.
-            for (unsigned int j = m_cell_iter.next(); !m_cell_iter.atEnd(); j = m_cell_iter.next())
-            {
-                const vec3<float> rij(m_neighbor_query->getBox().wrap((*m_linkcell)[j] - m_query_points[cur_p]));
-                const float rsq(dot(rij, rij));
+            // Determine the next neighbor cell to consider. We're done if we
+            // reach a new shell and the closest point of approach to the new
+            // shell is greater than our rcut.
+            ++m_neigh_cell_iter;
 
-                if (rsq < r_cutsq && (!m_exclude_ii || cur_p != j))
-                {
-                    return NeighborBond(cur_p, j, sqrt(rsq));
-                }
+            if ((m_neigh_cell_iter.getRange() - m_extra_search_width) * m_linkcell->getCellWidth() > m_r_max)
+            {
+                out_of_range = true;
+                break;
             }
 
-            bool out_of_range = false;
-
-            while (true)
+            const unsigned int neighbor_cell_index = m_linkcell->getCellIndex(
+                    vec3<int>(point_cell.x, point_cell.y, point_cell.z) + (*m_neigh_cell_iter));
+            // Insertion to an unordered set returns a pair, the second
+            // element indicates insertion success or failure (if it
+            // already exists)
+            if (m_searched_cells.insert(neighbor_cell_index).second)
             {
-                // Determine the next neighbor cell to consider. We're done if we
-                // reach a new shell and the closest point of approach to the new
-                // shell is greater than our rcut.
-                ++m_neigh_cell_iter;
-
-                if ((m_neigh_cell_iter.getRange() - m_extra_search_width) * m_linkcell->getCellWidth() > m_r)
-                {
-                    out_of_range = true;
-                    break;
-                }
-
-                const unsigned int neighbor_cell_index = m_linkcell->getCellIndex(
-                        vec3<int>(point_cell.x, point_cell.y, point_cell.z) + (*m_neigh_cell_iter));
-                // Insertion to an unordered set returns a pair, the second
-                // element indicates insertion success or failure (if it
-                // already exists)
-                if (m_searched_cells.insert(neighbor_cell_index).second)
-                {
-                    // This cell has not been searched yet, so we will iterate
-                    // over its contents. Otherwise, we loop back, increment
-                    // the cell shell iterator, and try the next one.
-                    m_cell_iter = m_linkcell->itercell(neighbor_cell_index);
-                    break;
-                }
-            }
-            if (out_of_range)
-            {
+                // This cell has not been searched yet, so we will iterate
+                // over its contents. Otherwise, we loop back, increment
+                // the cell shell iterator, and try the next one.
+                m_cell_iter = m_linkcell->itercell(neighbor_cell_index);
                 break;
             }
         }
-        cur_p++;
-        if (cur_p >= m_n_query_points)
+        if (out_of_range)
+        {
             break;
-        m_neigh_cell_iter = IteratorCellShell(0, m_neighbor_query->getBox().is2D());
-        m_cell_iter = m_linkcell->itercell(m_linkcell->getCell(m_query_points[cur_p]));
-        m_searched_cells.clear();
+        }
     }
 
     m_finished = true;
     return NeighborQueryIterator::ITERATOR_TERMINATOR;
-}
-
-std::shared_ptr<NeighborQueryIterator> LinkCellQueryBallIterator::query(unsigned int idx)
-{
-    return this->m_linkcell->queryBall(&m_query_points[idx], 1, m_r);
 }
 
 NeighborBond LinkCellQueryIterator::next()
@@ -444,100 +305,90 @@ NeighborBond LinkCellQueryIterator::next()
     }
     unsigned int max_range = ceil(min_plane_distance / (2 * m_linkcell->getCellWidth())) + 1;
 
-    while (true)
+    vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_query_point));
+    const unsigned int point_cell_index = m_linkcell->getCellIndex(
+            vec3<int>(point_cell.x, point_cell.y, point_cell.z) + (*m_neigh_cell_iter));
+    m_searched_cells.insert(point_cell_index);
+
+    // Loop over cell list neighbor shells relative to this point's cell.
+    if (!m_current_neighbors.size())
     {
-        vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_query_points[cur_p]));
-        const unsigned int point_cell_index = m_linkcell->getCellIndex(
-                vec3<int>(point_cell.x, point_cell.y, point_cell.z) + (*m_neigh_cell_iter));
-        m_searched_cells.insert(point_cell_index);
-
-        // Loop over cell list neighbor shells relative to this point's cell.
-        if (!m_current_neighbors.size())
+        // Expand search cell radius until termination conditions are met.
+        while (m_neigh_cell_iter != IteratorCellShell(max_range, m_neighbor_query->getBox().is2D()))
         {
-            // Expand search cell radius until termination conditions are met.
-            while (m_neigh_cell_iter != IteratorCellShell(max_range, m_neighbor_query->getBox().is2D()))
+            // Iterate over the particles in that cell. Using a local counter
+            // variable is safe, because the IteratorLinkCell object is keeping
+            // track between calls to next. However, we have to add an extra
+            // check outside to proof ourselves against returning after
+            // previous calls to next that have not yet reset the iterator.
+            if (!m_cell_iter.atEnd())
             {
-                // Iterate over the particles in that cell. Using a local counter
-                // variable is safe, because the IteratorLinkCell object is keeping
-                // track between calls to next. However, we have to add an extra
-                // check outside to proof ourselves against returning after
-                // previous calls to next that have not yet reset the iterator.
-                if (!m_cell_iter.atEnd())
+                for (unsigned int j = m_cell_iter.next(); !m_cell_iter.atEnd(); j = m_cell_iter.next())
                 {
-                    for (unsigned int j = m_cell_iter.next(); !m_cell_iter.atEnd(); j = m_cell_iter.next())
+                    // Skip ii matches immediately if requested.
+                    if (m_exclude_ii && m_query_point_idx == j)
                     {
-                        // Skip ii matches immediately if requested.
-                        if (m_exclude_ii && cur_p == j)
-                        {
-                            continue;
-                        }
-                        const vec3<float> rij(
-                            m_neighbor_query->getBox().wrap((*m_linkcell)[j] - m_query_points[cur_p]));
-                        const float rsq(dot(rij, rij));
-                        m_current_neighbors.emplace_back(cur_p, j, sqrt(rsq));
+                        continue;
                     }
+                    const vec3<float> r_ij(
+                        m_neighbor_query->getBox().wrap((*m_linkcell)[j] - m_query_point));
+                    const float r_sq(dot(r_ij, r_ij));
+                    if (r_sq < m_r_max*m_r_max)
+                        m_current_neighbors.emplace_back(m_query_point_idx, j, sqrt(r_sq));
+                }
+            }
+
+            while (true)
+            {
+                ++m_neigh_cell_iter;
+
+                if (m_neigh_cell_iter == IteratorCellShell(max_range, m_neighbor_query->getBox().is2D()))
+                {
+                    break;
                 }
 
-                while (true)
+                const unsigned int neighbor_cell_index = m_linkcell->getCellIndex(
+                        vec3<int>(point_cell.x, point_cell.y, point_cell.z) + (*m_neigh_cell_iter));
+                // Insertion to an unordered set returns a pair, the second
+                // element indicates insertion success or failure (if it
+                // already exists)
+                if (m_searched_cells.insert(neighbor_cell_index).second)
                 {
-                    ++m_neigh_cell_iter;
-
-                    if (m_neigh_cell_iter == IteratorCellShell(max_range, m_neighbor_query->getBox().is2D()))
-                    {
-                        break;
-                    }
-
-                    const unsigned int neighbor_cell_index = m_linkcell->getCellIndex(
-                            vec3<int>(point_cell.x, point_cell.y, point_cell.z) + (*m_neigh_cell_iter));
-                    // Insertion to an unordered set returns a pair, the second
-                    // element indicates insertion success or failure (if it
-                    // already exists)
-                    if (m_searched_cells.insert(neighbor_cell_index).second)
-                    {
-                        // This cell has not been searched yet, so we will
-                        // iterate over its contents. Otherwise, we loop back,
-                        // increment the cell shell iterator, and try the next
-                        // one.
-                        m_cell_iter = m_linkcell->itercell(neighbor_cell_index);
-                        break;
-                    }
-                }
-
-                // We can terminate early if we determine when we reach a shell
-                // such that we already have k neighbors closer than the
-                // closest possible neighbor in the new shell.
-                if ((m_current_neighbors.size() >= m_k)
-                    && (m_current_neighbors[m_k - 1].distance
-                        < (m_neigh_cell_iter.getRange() - 1) * m_linkcell->getCellWidth()))
-                {
-                    std::sort(m_current_neighbors.begin(), m_current_neighbors.end());
+                    // This cell has not been searched yet, so we will
+                    // iterate over its contents. Otherwise, we loop back,
+                    // increment the cell shell iterator, and try the next
+                    // one.
+                    m_cell_iter = m_linkcell->itercell(neighbor_cell_index);
                     break;
                 }
             }
-        }
 
-        while ((m_count < m_k) && (m_count < m_current_neighbors.size()))
-        {
-            m_count++;
-            return m_current_neighbors[m_count - 1];
+            // We can terminate early if we determine when we reach a shell
+            // such that we already have k neighbors closer than the
+            // closest possible neighbor in the new shell.
+            std::sort(m_current_neighbors.begin(), m_current_neighbors.end());
+            if ((m_current_neighbors.size() >= m_num_neighbors)
+                && (m_current_neighbors[m_num_neighbors - 1].distance
+                    < (m_neigh_cell_iter.getRange() - 1) * m_linkcell->getCellWidth()))
+            {
+                break;
+            }
         }
-        cur_p++;
-        if (cur_p >= m_n_query_points)
-            break;
-        m_count = 0;
-        m_current_neighbors.clear();
-        m_neigh_cell_iter = IteratorCellShell(0, m_neighbor_query->getBox().is2D());
-        m_cell_iter = m_linkcell->itercell(m_linkcell->getCell(m_query_points[cur_p]));
-        m_searched_cells.clear();
+    }
+
+    while ((m_count < m_num_neighbors) && (m_count < m_current_neighbors.size()))
+    {
+        m_count++;
+        if (m_current_neighbors[m_count - 1].distance > m_r_max)
+        {
+            m_finished = true;
+            return NeighborQueryIterator::ITERATOR_TERMINATOR;
+        }
+        return m_current_neighbors[m_count - 1];
     }
 
     m_finished = true;
     return NeighborQueryIterator::ITERATOR_TERMINATOR;
-}
-
-std::shared_ptr<NeighborQueryIterator> LinkCellQueryIterator::query(unsigned int idx)
-{
-    return this->m_linkcell->query(&m_query_points[idx], 1, m_k);
 }
 
 }; }; // end namespace freud::locality

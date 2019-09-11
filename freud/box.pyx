@@ -40,9 +40,6 @@ cdef class Box:
     .. moduleauthor:: Carl Simon Adorf <csadorf@umich.edu>
     .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
 
-    .. versionchanged:: 0.7.0
-       Added box periodicity interface
-
     The Box class is defined according to the conventions of the
     HOOMD-blue simulation software.
     For more information, please see:
@@ -236,8 +233,7 @@ cdef class Box:
 
         cdef const float[:, ::1] l_points = fractions
         cdef unsigned int Np = l_points.shape[0]
-        with nogil:
-            self.thisptr.makeCoordinates(<vec3[float]*> &l_points[0, 0], Np)
+        self.thisptr.makeCoordinates(<vec3[float]*> &l_points[0, 0], Np)
 
         return np.squeeze(fractions) if flatten else fractions
 
@@ -259,15 +255,12 @@ cdef class Box:
 
         cdef const float[:, ::1] l_points = vecs
         cdef unsigned int Np = l_points.shape[0]
-        with nogil:
-            self.thisptr.makeFraction(<vec3[float]*> &l_points[0, 0], Np)
+        self.thisptr.makeFraction(<vec3[float]*> &l_points[0, 0], Np)
 
         return np.squeeze(vecs) if flatten else vecs
 
     def getImage(self, vecs):
         R"""Returns the image corresponding to a wrapped vector.
-
-        .. versionadded:: 0.8
 
         Args:
             vecs (:math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
@@ -286,9 +279,8 @@ cdef class Box:
         cdef const float[:, ::1] l_points = vecs
         cdef const int[:, ::1] l_result = images
         cdef unsigned int Np = l_points.shape[0]
-        with nogil:
-            self.thisptr.getImage(<vec3[float]*> &l_points[0, 0], Np,
-                                  <vec3[int]*> &l_result[0, 0])
+        self.thisptr.getImage(<vec3[float]*> &l_points[0, 0], Np,
+                              <vec3[int]*> &l_result[0, 0])
 
         return np.squeeze(images) if flatten else images
 
@@ -332,8 +324,7 @@ cdef class Box:
 
         cdef const float[:, ::1] l_points = vecs
         cdef unsigned int Np = l_points.shape[0]
-        with nogil:
-            self.thisptr.wrap(<vec3[float]*> &l_points[0, 0], Np)
+        self.thisptr.wrap(<vec3[float]*> &l_points[0, 0], Np)
 
         return np.squeeze(vecs) if flatten else vecs
 
@@ -364,9 +355,8 @@ cdef class Box:
         cdef const float[:, ::1] l_points = vecs
         cdef const int[:, ::1] l_imgs = imgs
         cdef unsigned int Np = l_points.shape[0]
-        with nogil:
-            self.thisptr.unwrap(<vec3[float]*> &l_points[0, 0],
-                                <vec3[int]*> &l_imgs[0, 0], Np)
+        self.thisptr.unwrap(<vec3[float]*> &l_points[0, 0],
+                            <vec3[int]*> &l_imgs[0, 0], Np)
 
         return np.squeeze(vecs) if flatten else vecs
 
@@ -660,8 +650,6 @@ cdef class ParticleBuffer:
 
     .. moduleauthor:: Ben Schultz <baschult@umich.edu>
     .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
-
-    .. versionadded:: 0.11
 
     Args:
         box (:py:class:`freud.box.Box`): Simulation box.

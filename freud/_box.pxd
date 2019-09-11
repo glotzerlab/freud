@@ -34,13 +34,13 @@ cdef extern from "Box.h" namespace "freud::box":
         float getTiltFactorYZ() const
 
         float getVolume() const
-        void makeCoordinates(vec3[float]*, unsigned int) nogil except +
-        void makeFraction(vec3[float]*, unsigned int) nogil except +
-        void getImage(vec3[float]*, unsigned int, vec3[int]*) nogil except +
+        void makeCoordinates(vec3[float]*, unsigned int) except +
+        void makeFraction(vec3[float]*, unsigned int) except +
+        void getImage(vec3[float]*, unsigned int, vec3[int]*) except +
         vec3[float] getLatticeVector(unsigned int i) except +
-        void wrap(vec3[float]* vs, unsigned int Nv) nogil except +
+        void wrap(vec3[float]* vs, unsigned int Nv) except +
         void unwrap(vec3[float]*, const vec3[int]*,
-                    unsigned int) nogil except +
+                    unsigned int) except +
 
         vec3[bool_t] getPeriodic() const
         bool_t getPeriodicX() const
@@ -61,6 +61,6 @@ cdef extern from "ParticleBuffer.h" namespace "freud::box":
             const vec3[float]*,
             const unsigned int,
             const vec3[float],
-            const bool_t) nogil except +
+            const bool_t) except +
         shared_ptr[vector[vec3[float]]] getBufferParticles()
         shared_ptr[vector[uint]] getBufferIds()

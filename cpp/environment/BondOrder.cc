@@ -22,21 +22,21 @@ using namespace tbb;
 
 namespace freud { namespace environment {
 
-BondOrder::BondOrder(float rmax, unsigned int n, unsigned int nbins_t, unsigned int nbins_p)
-    : m_box(box::Box()), m_nbins_t(nbins_t), m_nbins_p(nbins_p), m_frame_counter(0),
-      m_reduce(true), m_local_bin_counts(nbins_t * nbins_p)
+BondOrder::BondOrder(unsigned int n_bins_theta, unsigned int n_bins_phi)
+    : m_box(box::Box()), m_n_bins_theta(n_bins_theta), m_n_bins_phi(n_bins_phi), m_frame_counter(0),
+      m_reduce(true), m_local_bin_counts(n_bins_theta * n_bins_phi)
 {
     // sanity checks, but this is actually kinda dumb if these values are 1
-    if (nbins_t < 2)
+    if (m_n_bins_theta < 2)
         throw invalid_argument("BondOrder requires at least 2 bins in theta.");
-    if (nbins_p < 2)
+    if (m_n_bins_phi < 2)
         throw invalid_argument("BondOrder requires at least 2 bins in phi.");
     // calculate dt, dp
     /*
     0 < \theta < 2PI; 0 < \phi < PI
     */
-    m_dt = 2.0 * M_PI / float(m_nbins_t);
-    m_dp = M_PI / float(m_nbins_p);
+    m_dt = 2.0 * M_PI / float(m_n_bins_theta);
+    m_dp = M_PI / float(m_n_bins_phi);
     // this shouldn't be able to happen, but it's always better to check
     if (m_dt > 2.0 * M_PI)
         throw invalid_argument("2PI must be greater than dt");
@@ -44,8 +44,8 @@ BondOrder::BondOrder(float rmax, unsigned int n, unsigned int nbins_t, unsigned 
         throw invalid_argument("PI must be greater than dp");
 
     // precompute the bin center positions for t
-    m_theta_array = std::shared_ptr<float>(new float[m_nbins_t], std::default_delete<float[]>());
-    for (unsigned int i = 0; i < m_nbins_t; i++)
+    m_theta_array = std::shared_ptr<float>(new float[m_n_bins_theta], std::default_delete<float[]>());
+    for (unsigned int i = 0; i < m_n_bins_theta; i++)
     {
         float t = float(i) * m_dt;
         float nextt = float(i + 1) * m_dt;
@@ -53,8 +53,8 @@ BondOrder::BondOrder(float rmax, unsigned int n, unsigned int nbins_t, unsigned 
     }
 
     // precompute the bin center positions for p
-    m_phi_array = std::shared_ptr<float>(new float[m_nbins_p], std::default_delete<float[]>());
-    for (unsigned int i = 0; i < m_nbins_p; i++)
+    m_phi_array = std::shared_ptr<float>(new float[m_n_bins_phi], std::default_delete<float[]>());
+    for (unsigned int i = 0; i < m_n_bins_phi; i++)
     {
         float p = float(i) * m_dp;
         float nextp = float(i + 1) * m_dp;
@@ -62,12 +62,12 @@ BondOrder::BondOrder(float rmax, unsigned int n, unsigned int nbins_t, unsigned 
     }
 
     // precompute the surface area array
-    m_sa_array = std::shared_ptr<float>(new float[m_nbins_t * m_nbins_p], std::default_delete<float[]>());
-    memset((void*) m_sa_array.get(), 0, sizeof(float) * m_nbins_t * m_nbins_p);
-    Index2D sa_i = Index2D(m_nbins_t, m_nbins_p);
-    for (unsigned int i = 0; i < m_nbins_t; i++)
+    m_sa_array = std::shared_ptr<float>(new float[m_n_bins_theta * m_n_bins_phi], std::default_delete<float[]>());
+    memset((void*) m_sa_array.get(), 0, sizeof(float) * m_n_bins_theta * m_n_bins_phi);
+    Index2D sa_i = Index2D(m_n_bins_theta, m_n_bins_phi);
+    for (unsigned int i = 0; i < m_n_bins_theta; i++)
     {
-        for (unsigned int j = 0; j < m_nbins_p; j++)
+        for (unsigned int j = 0; j < m_n_bins_phi; j++)
         {
             float phi = (float) j * m_dp;
             float sa = m_dt * (cos(phi) - cos(phi + m_dp));
@@ -76,24 +76,24 @@ BondOrder::BondOrder(float rmax, unsigned int n, unsigned int nbins_t, unsigned 
     }
 
     // initialize the bin counts
-    m_bin_counts = std::shared_ptr<unsigned int>(new unsigned int[m_nbins_t * m_nbins_p],
+    m_bin_counts = std::shared_ptr<unsigned int>(new unsigned int[m_n_bins_theta * m_n_bins_phi],
                                                  std::default_delete<unsigned int[]>());
-    memset((void*) m_bin_counts.get(), 0, sizeof(unsigned int) * m_nbins_t * m_nbins_p);
+    memset((void*) m_bin_counts.get(), 0, sizeof(unsigned int) * m_n_bins_theta * m_n_bins_phi);
 
     // initialize the bond order array
-    m_bo_array = std::shared_ptr<float>(new float[m_nbins_t * m_nbins_p], std::default_delete<float[]>());
-    memset((void*) m_bin_counts.get(), 0, sizeof(float) * m_nbins_t * m_nbins_p);
+    m_bo_array = std::shared_ptr<float>(new float[m_n_bins_theta * m_n_bins_phi], std::default_delete<float[]>());
+    memset((void*) m_bin_counts.get(), 0, sizeof(float) * m_n_bins_theta * m_n_bins_phi);
 }
 
 void BondOrder::reduceBondOrder()
 {
-    memset((void*) m_bo_array.get(), 0, sizeof(float) * m_nbins_t * m_nbins_p);
-    memset((void*) m_bin_counts.get(), 0, sizeof(unsigned int) * m_nbins_t * m_nbins_p);
-    parallel_for(blocked_range<size_t>(0, m_nbins_t), [=](const blocked_range<size_t>& r) {
-        Index2D sa_i = Index2D(m_nbins_t, m_nbins_p);
+    memset((void*) m_bo_array.get(), 0, sizeof(float) * m_n_bins_theta * m_n_bins_phi);
+    memset((void*) m_bin_counts.get(), 0, sizeof(unsigned int) * m_n_bins_theta * m_n_bins_phi);
+    parallel_for(blocked_range<size_t>(0, m_n_bins_theta), [=](const blocked_range<size_t>& r) {
+        Index2D sa_i = Index2D(m_n_bins_theta, m_n_bins_phi);
         for (size_t i = r.begin(); i != r.end(); i++)
         {
-            for (size_t j = 0; j < m_nbins_p; j++)
+            for (size_t j = 0; j < m_n_bins_phi; j++)
             {
                 for (util::ThreadStorage<unsigned int>::const_iterator local_bins
                      = m_local_bin_counts.begin();
@@ -106,10 +106,10 @@ void BondOrder::reduceBondOrder()
             }
         }
     });
-    Index2D sa_i = Index2D(m_nbins_t, m_nbins_p);
-    for (unsigned int i = 0; i < m_nbins_t; i++)
+    Index2D sa_i = Index2D(m_n_bins_theta, m_n_bins_phi);
+    for (unsigned int i = 0; i < m_n_bins_theta; i++)
     {
-        for (unsigned int j = 0; j < m_nbins_p; j++)
+        for (unsigned int j = 0; j < m_n_bins_phi; j++)
         {
             m_bin_counts.get()[sa_i((int) i, (int) j)]
                 = m_bin_counts.get()[sa_i((int) i, (int) j)] / (float) m_frame_counter;
@@ -153,15 +153,14 @@ void BondOrder::accumulate(
 
     float dt_inv = 1.0f / m_dt;
     float dp_inv = 1.0f / m_dp;
-    Index2D sa_i = Index2D(m_nbins_t, m_nbins_p);
+    Index2D sa_i = Index2D(m_n_bins_theta, m_n_bins_phi);
 
-    freud::locality::loopOverNeighbors(neighbor_query, query_points, n_query_points, qargs, nlist, 
+    freud::locality::loopOverNeighbors(neighbor_query, query_points, n_query_points, qargs, nlist,
     [=] (const freud::locality::NeighborBond& neighbor_bond)
     {
         vec3<float> ref_pos = neighbor_query->getPoints()[neighbor_bond.ref_id];
         quat<float>& ref_q = orientations[neighbor_bond.ref_id];
         vec3<float> v = m_box.wrap(query_points[neighbor_bond.id] - ref_pos);
-
         quat<float>& q = query_orientations[neighbor_bond.id];
         if (b_mode == obcd)
         {
@@ -204,24 +203,23 @@ void BondOrder::accumulate(
         float phi = acos(v.z / sqrt(v.x * v.x + v.y * v.y + v.z * v.z)); // 0..Pi
 
         // bin the point
-        float bint = floorf(theta * dt_inv);
-        float binp = floorf(phi * dp_inv);
+        float bin_theta = floorf(theta * dt_inv);
+        float bin_phi = floorf(phi * dp_inv);
 // fast float to int conversion with truncation
 #ifdef __SSE2__
-        unsigned int ibint = _mm_cvtt_ss2si(_mm_load_ss(&bint));
-        unsigned int ibinp = _mm_cvtt_ss2si(_mm_load_ss(&binp));
+        unsigned int ibin_theta = _mm_cvtt_ss2si(_mm_load_ss(&bin_theta));
+        unsigned int ibin_phi = _mm_cvtt_ss2si(_mm_load_ss(&bin_phi));
 #else
-            unsigned int ibint = (unsigned int)(bint);
-            unsigned int ibinp = (unsigned int)(binp);
+            unsigned int ibin_theta = (unsigned int)(bin_theta);
+            unsigned int ibin_phi = (unsigned int)(bin_phi);
 #endif
 
         // increment the bin
-        if ((ibint < m_nbins_t) && (ibinp < m_nbins_p))
+        if ((ibin_theta < m_n_bins_theta) && (ibin_phi < m_n_bins_phi))
         {
-            ++m_local_bin_counts.local()[sa_i(ibint, ibinp)];
+            ++m_local_bin_counts.local()[sa_i(ibin_theta, ibin_phi)];
         }
-    }
-    );
+    });
 
     // save the last computed number of particles
     m_frame_counter++;
