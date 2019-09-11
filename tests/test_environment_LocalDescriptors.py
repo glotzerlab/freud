@@ -259,13 +259,22 @@ class TestLocalDescriptors(unittest.TestCase):
             # Generate random weights for each bond
             nl.weights[:] = np.random.rand(len(nl.weights))
 
-            Ql = get_Ql(points, ld, nl)
+            Ql = get_Ql(points, ld, nl, True)
 
             # Test all allowable values of l.
             for L in range(2, l_max+1):
                 steinhardt = freud.order.Steinhardt(L, weighted=True)
                 steinhardt.compute(box, points, nlist=nl)
-                npt.assert_array_almost_equal(steinhardt.order, Ql[:, L])
+                # Some of the calculations done for Steinhardt can be imprecise
+                # in cases where there is no symmetry. Since simple cubic
+                # should have a 0 Ql value in many cases, we need to set high
+                # tolerances for those specific cases.
+                npt.assert_allclose(
+                    steinhardt.order,
+                    Ql[:, L],
+                    atol=1e-3 if struct_func == make_sc else 1e-6,
+                    err_msg="Failed for {}, L = {}".format(
+                        struct_func.__name__, L))
 
     @unittest.skipIf(sys.version_info < (3, 2),
                      "functools.lru_cache only supported on Python 3.2+")
