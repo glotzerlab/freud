@@ -61,13 +61,6 @@ cdef class IteratorLinkCell:
 cdef class LinkCell(NeighborQuery):
     cdef freud._locality.LinkCell * thisptr
 
-cdef class NearestNeighbors:
-    cdef freud._locality.NearestNeighbors * thisptr
-    cdef NeighborList _nlist
-    cdef _cached_points
-    cdef _cached_query_points
-    cdef _cached_box
-
 cdef class AABBQuery(NeighborQuery):
     cdef freud._locality.AABBQuery * thisptr
 

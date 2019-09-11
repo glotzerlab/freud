@@ -356,20 +356,8 @@ public:
     //! New constructor
     LinkCell(const box::Box& box, float cell_width, const vec3<float>* points, unsigned int n_points);
 
-    //! Update cell_width
-    void setCellWidth(float cell_width);
-
-    //! Update box used in linkCell
-    void updateBox(const box::Box& box);
-
     //! Compute LinkCell dimensions
     const vec3<unsigned int> computeDimensions(const box::Box& box, float cell_width) const;
-
-    //! Get the simulation box
-    const box::Box& getBox() const
-    {
-        return m_box;
-    }
 
     //! Get the cell indexer
     const Index3D& getCellIndexer() const
@@ -452,7 +440,7 @@ public:
     }
 
     //! Compute the cell list
-    void computeCellList(const box::Box& box, const vec3<float>* points, unsigned int n_points);
+    void computeCellList(const vec3<float>* points, unsigned int n_points);
 
     NeighborList* getNeighborList()
     {
@@ -471,13 +459,9 @@ private:
     //! Rounding helper function.
     static unsigned int roundDown(unsigned int v, unsigned int m);
 
-    //! Helper function for updating when the box or cell width change.
-    void updateInternal(const box::Box& box, float cell_width);
-
     //! Helper function to compute cell neighbors
     const std::vector<unsigned int>& computeCellNeighbors(unsigned int cell);
 
-    box::Box m_box;               //!< Simulation box where the particles belong
     Index3D m_cell_index;         //!< Indexer to compute cell indices
     unsigned int m_n_points;      //!< Number of particles last placed into the cell list
     unsigned int m_Nc;            //!< Number of cells last used
@@ -524,8 +508,8 @@ class LinkCellQueryIterator : public LinkCellIterator
 public:
     //! Constructor
     LinkCellQueryIterator(const LinkCell* neighbor_query, const vec3<float> query_point, unsigned int query_point_idx,
-                          unsigned int num_neighbors, bool exclude_ii)
-        : LinkCellIterator(neighbor_query, query_point, query_point_idx, exclude_ii), m_count(0), m_num_neighbors(num_neighbors)
+                          unsigned int num_neighbors, float r_max, bool exclude_ii)
+        : LinkCellIterator(neighbor_query, query_point, query_point_idx, exclude_ii), m_count(0), m_r_max(r_max), m_num_neighbors(num_neighbors)
     {}
 
     //! Empty Destructor
@@ -536,6 +520,7 @@ public:
 
 protected:
     unsigned int m_count;                           //!< Number of neighbors returned for the current point.
+    float m_r_max;  //!< Hard cutoff beyond which neighbors should not be included.
     unsigned int m_num_neighbors;                               //!< Number of nearest neighbors to find
     std::vector<NeighborBond> m_current_neighbors; //!< The current set of found neighbors.
 };
