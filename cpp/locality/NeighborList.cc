@@ -6,19 +6,21 @@
 namespace freud { namespace locality {
 
 NeighborList::NeighborList()
-    : m_num_query_points(0), m_num_points(0), m_neighbors({0, 2})
+    : m_num_query_points(0), m_num_points(0), m_neighbors({0, 2}),
+    m_distances({0}), m_weights({0}), m_segments_counts_updated(false)
 {
 }
 
 NeighborList::NeighborList(unsigned int num_bonds)
     : m_num_query_points(0), m_num_points(0), m_neighbors({num_bonds, 2}),
-    m_distances({num_bonds}), m_weights({num_bonds})
+    m_distances({num_bonds}), m_weights({num_bonds}), m_segments_counts_updated(false)
 {
 }
 
 NeighborList::NeighborList(const NeighborList& other)
     : m_num_query_points(other.m_num_query_points), m_num_points(other.m_num_points),
-    m_neighbors(other.m_neighbors), m_distances(other.m_distances), m_weights(other.m_weights)
+    m_neighbors(other.m_neighbors), m_distances(other.m_distances),
+    m_weights(other.m_weights), m_segments_counts_updated(false)
 {
 }
 
@@ -26,7 +28,8 @@ NeighborList::NeighborList(unsigned int num_bonds, const unsigned int* query_poi
                  unsigned int num_query_points, const unsigned int* point_index,
                  unsigned int num_points, const float* distances, const float* weights)
     : m_num_query_points(num_query_points), m_num_points(num_points),
-    m_neighbors({num_bonds, 2}), m_distances({num_bonds}), m_weights({num_bonds})
+    m_neighbors({num_bonds, 2}), m_distances({num_bonds}),
+    m_weights({num_bonds}), m_segments_counts_updated(false)
 {
     unsigned int last_index(0);
     unsigned int index(0);
@@ -176,6 +179,7 @@ void NeighborList::copy(const NeighborList& other)
     m_neighbors = other.m_neighbors;
     m_weights = other.m_weights;
     m_distances = other.m_distances;
+    m_segments_counts_updated = false;
 }
 
 void NeighborList::validate(unsigned int num_query_points, unsigned int num_points) const
