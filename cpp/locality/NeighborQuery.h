@@ -176,6 +176,10 @@ protected:
                 args.r_max = std::numeric_limits<float>::infinity();
             }
         }
+        else
+        {
+            throw std::runtime_error("Unknown mode");
+        }
     }
 
     //! Try to determine the query mode if one is not specified.
@@ -222,8 +226,8 @@ public:
 
     //! Constructor
     NeighborQueryPerPointIterator(const NeighborQuery* neighbor_query, const vec3<float> query_point, unsigned int query_point_idx,
-                          bool exclude_ii)
-        : NeighborPerPointIterator(query_point_idx), m_neighbor_query(neighbor_query), m_query_point(query_point), m_finished(false), m_exclude_ii(exclude_ii) {}
+                          float r_max, bool exclude_ii)
+        : NeighborPerPointIterator(query_point_idx), m_neighbor_query(neighbor_query), m_query_point(query_point), m_finished(false), m_r_max(r_max), m_exclude_ii(exclude_ii) {}
 
     //! Empty Destructor
     virtual ~NeighborQueryPerPointIterator() {}
@@ -243,6 +247,7 @@ protected:
     const NeighborQuery* m_neighbor_query;     //!< Link to the NeighborQuery object.
     const vec3<float> m_query_point;           //!< Coordinates of the query point.
     bool m_finished;                           //!< Flag to indicate that iteration is complete (must be set by next() on termination).
+    float m_r_max;                             //!< Cutoff distance for neighbors.
     bool m_exclude_ii;                         //!< Flag to indicate whether or not to include self bonds.
 };
 
