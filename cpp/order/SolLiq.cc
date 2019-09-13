@@ -96,7 +96,6 @@ void SolLiq::computeSolLiqNoNorm(const locality::NeighborList* nlist, const vec3
 void SolLiq::computeClustersQ(const locality::NeighborList* nlist, const vec3<float>* points, unsigned int Np)
 {
     nlist->validate(Np, Np);
-    const size_t* neighbor_list(nlist->getNeighbors());
 
     float r_max_sq = m_r_max * m_r_max;
     if (m_Np != Np)
@@ -118,9 +117,9 @@ void SolLiq::computeClustersQ(const locality::NeighborList* nlist, const vec3<fl
         {
             // Get cell point is in
             vec3<float> ref = points[i];
-            for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)
+            for (; bond < nlist->getNumBonds() && nlist->getNeighbors()(bond, 0) == i; ++bond)
             {
-                const size_t j(neighbor_list[2 * bond + 1]);
+                const size_t j(nlist->getNeighbors()(bond, 1));
                 {
                     vec3<float> delta = m_box.wrap(points[j] - ref);
                     float r_sq = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
@@ -156,7 +155,6 @@ void SolLiq::computeClustersQdot(const locality::NeighborList* nlist, const vec3
                                  unsigned int Np)
 {
     nlist->validate(Np, Np);
-    const size_t* neighbor_list(nlist->getNeighbors());
 
     m_qldot_ij.clear(); // Stores all the q dot products between all particles i,j
     m_qldot_ij.resize(nlist->getNumBonds());
@@ -182,9 +180,9 @@ void SolLiq::computeClustersQdot(const locality::NeighborList* nlist, const vec3
         {
             vec3<float> p = points[i];
 
-            for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)
+            for (; bond < nlist->getNumBonds() && nlist->getNeighbors()(bond, 0) == i; ++bond)
             {
-                const size_t j(neighbor_list[2 * bond + 1]);
+                const size_t j(nlist->getNeighbors()(bond, 1));
                 {
                     if (i < j)
                     {
@@ -231,7 +229,6 @@ void SolLiq::computeClustersQdotNoNorm(const locality::NeighborList* nlist, cons
                                        unsigned int Np)
 {
     nlist->validate(Np, Np);
-    const size_t* neighbor_list(nlist->getNeighbors());
 
     m_qldot_ij.clear();
     m_qldot_ij.resize(nlist->getNumBonds());
@@ -257,9 +254,9 @@ void SolLiq::computeClustersQdotNoNorm(const locality::NeighborList* nlist, cons
         {
             vec3<float> p = points[i];
 
-            for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)
+            for (; bond < nlist->getNumBonds() && nlist->getNeighbors()(bond, 0) == i; ++bond)
             {
-                const size_t j(neighbor_list[2 * bond + 1]);
+                const size_t j(nlist->getNeighbors()(bond, 1));
                 {
                     if (i < j)
                     {
@@ -314,7 +311,6 @@ void SolLiq::computeClustersQS(const locality::NeighborList* nlist, const vec3<f
                                unsigned int Np)
 {
     nlist->validate(Np, Np);
-    const size_t* neighbor_list(nlist->getNeighbors());
 
     if (m_Np != Np)
     {
@@ -332,9 +328,9 @@ void SolLiq::computeClustersQS(const locality::NeighborList* nlist, const vec3<f
     {
         vec3<float> p = points[i];
 
-        for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)
+        for (; bond < nlist->getNumBonds() && nlist->getNeighbors()(bond, 0) == i; ++bond)
         {
-            const size_t j(neighbor_list[2 * bond + 1]);
+            const size_t j(nlist->getNeighbors()(bond, 1));
             {
                 // compute r between the two particles
                 vec3<float> delta = m_box.wrap(p - points[j]);
@@ -445,7 +441,6 @@ void SolLiq::computeListOfSolidLikeNeighbors(const locality::NeighborList* nlist
     SolidlikeNeighborlist.resize(Np);
 
     nlist->validate(Np, Np);
-    const size_t* neighbor_list(nlist->getNeighbors());
 
     // reallocate the cluster_idx array if the size doesn't match the last one
 
@@ -467,9 +462,9 @@ void SolLiq::computeListOfSolidLikeNeighbors(const locality::NeighborList* nlist
         // Empty list
         SolidlikeNeighborlist[i].resize(0);
 
-        for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)
+        for (; bond < nlist->getNumBonds() && nlist->getNeighbors()(bond, 0) == i; ++bond)
         {
-            const size_t j(neighbor_list[2 * bond + 1]);
+            const size_t j(nlist->getNeighbors()(bond, 1));
             {
                 // compute r between the two particles
                 vec3<float> delta = m_box.wrap(p - points[j]);
@@ -518,7 +513,6 @@ void SolLiq::computeClustersSharedNeighbors(const locality::NeighborList* nlist,
                                             const vector<vector<unsigned int>>& SolidlikeNeighborlist)
 {
     nlist->validate(Np, Np);
-    const size_t* neighbor_list(nlist->getNeighbors());
 
     m_cluster_idx
         = std::shared_ptr<unsigned int>(new unsigned int[Np], std::default_delete<unsigned int[]>());
@@ -534,9 +528,9 @@ void SolLiq::computeClustersSharedNeighbors(const locality::NeighborList* nlist,
     {
         vec3<float> p = points[i];
 
-        for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)
+        for (; bond < nlist->getNumBonds() && nlist->getNeighbors()(bond, 0) == i; ++bond)
         {
-            const size_t j(neighbor_list[2 * bond + 1]);
+            const size_t j(nlist->getNeighbors()(bond, 1));
             {
                 if (i < j)
                 {

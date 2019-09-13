@@ -313,24 +313,23 @@ cdef class NeighborQuery:
 
 
 cdef class NeighborList:
-    R"""Class representing a certain number of "bonds" between
-    particles. Computation methods will iterate over these bonds when
-    searching for neighboring particles.
+    R"""Class representing bonds between two sets of points.
 
-    NeighborList objects are constructed for two sets of position
-    arrays A (alternatively *reference points*; of length :math:`n_A`)
-    and B (alternatively *target points*; of length :math:`n_B`) and
-    hold a set of :math:`\left(i, j\right): i < n_A, j < n_B` index
-    pairs corresponding to near-neighbor points in A and B,
-    respectively.
+    Compute classes contain a set of bonds between two sets of position
+    arrays ("query points" and "points") and hold a list of index pairs
+    :math:`\left(i, j\right)` where
+    :math:`i < N_{query\_points}, j < N_{points}` corresponding to neighbor
+    pairs between the two sets.
 
-    For efficiency, all bonds for a particular reference particle :math:`i`
-    are contiguous and bonds are stored in order based on reference
-    particle index :math:`i`. The first bond index corresponding to a given
-    particle can be found in :math:`\log(n_{bonds})` time using
-    :meth:`find_first_index`.
+    For efficiency, all bonds must be sorted by the query point index, from
+    least to greatest. Bonds have an query point index :math:`i` and a point
+    index :math:`j`. The first bond index corresponding to a given query point
+    can be found in :math:`\log(N_{bonds})` time using
+    :meth:`find_first_index`, because bonds are ordered by the query point
+    index.
 
     .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
+    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
 
     .. note::
 
@@ -338,112 +337,96 @@ cdef class NeighborList:
        In most cases, users should manipulate
        :class:`freud.locality.NeighborList` objects received from a
        neighbor search algorithm, such as :class:`freud.locality.LinkCell`,
-       :class:`freud.locality.NearestNeighbors`, or
-       :class:`freud.voronoi.Voronoi`.
+       :class:`freud.locality.AABBQuery`, or :class:`freud.locality.Voronoi`.
 
     Attributes:
-        index_i (:class:`np.ndarray`):
-            The reference point indices from the last set of points this object
-            was evaluated with. This array is read-only to prevent breakage of
-            :meth:`~.find_first_index()`.
-        index_j (:class:`np.ndarray`):
-            The reference point indices from the last set of points this object
-            was evaluated with. This array is read-only to prevent breakage of
-            :meth:`~.find_first_index()`.
+        query_point_indices ((:math:`N_{bonds}`) :class:`np.ndarray`):
+            The query point indices for each bond. This array is read-only to
+            prevent breakage of :meth:`~.find_first_index()`. Equivalent to
+            indexing with :code:`[:, 0]`.
+        point_indices ((:math:`N_{bonds}`) :class:`np.ndarray`):
+            The point indices for each bond. This array is read-only to
+            prevent breakage of :meth:`~.find_first_index()`. Equivalent to
+            indexing with :code:`[:, 1]`.
         weights ((:math:`N_{bonds}`) :class:`np.ndarray`):
-            The per-bond weights from the last set of points this object was
-            evaluated with.
-        segments ((:math:`N_{points}`) :class:`np.ndarray`):
-            A segment array, which is an array of length :math:`N_{ref}`
-            indicating the first bond index for each reference particle from
-            the last set of points this object was evaluated with.
-        neighbor_counts ((:math:`N_{points}`) :class:`np.ndarray`):
-            A neighbor count array, which is an array of length
-            :math:`N_{ref}` indicating the number of neighbors for each
-            reference particle from the last set of points this object was
-            evaluated with.
+            The weights for each bond. By default, bonds have a weight of 1.
+        distances ((:math:`N_{bonds}`) :class:`np.ndarray`):
+            The distances for each bond.
+        segments ((:math:`N_{query\_points}`) :class:`np.ndarray`):
+            A segment array indicating the first bond index for each query
+            point.
+        neighbor_counts ((:math:`N_{query\_points}`) :class:`np.ndarray`):
+            A neighbor count array indicating the number of neighbors for each
+            query point.
 
     Example::
 
        # Assume we have position as Nx3 array
-       lc = LinkCell(box, 1.5).compute(box, positions)
-       nlist = lc.nlist
+       aq = freud.locality.AABBQuery(box, positions)
+       nlist = aq.query(positions, {'r_max': 3}).toNeighborList()
 
        # Get all vectors from central particles to their neighbors
-       rijs = positions[nlist.index_j] - positions[nlist.index_i]
-       box.wrap(rijs)
+       rijs = (positions[nlist.point_indices] -
+              positions[nlist.query_point_indices])
+       rijs = box.wrap(rijs)
 
     The NeighborList can be indexed to access bond particle indices. Example::
 
-       for i, j in lc.nlist[:]:
+       for i, j in nlist[:]:
            print(i, j)
     """
 
     @classmethod
-    def from_arrays(cls, Nref, Ntarget, index_i, index_j, weights=None):
+    def from_arrays(cls, num_query_points, num_points, query_point_indices,
+                    point_indices, distances, weights=None):
         R"""Create a NeighborList from a set of bond information arrays.
 
         Args:
-            Nref (int):
-                Number of reference points (corresponding to :code:`index_i`).
-            Ntarget (int):
-                Number of target points (corresponding to :code:`index_j`).
-            index_i (:class:`np.ndarray`):
+            num_query_points (int):
+                Number of query points (corresponding to
+                :code:`query_point_indices`).
+            num_points (int):
+                Number of points (corresponding to :code:`point_indices`).
+            query_point_indices (:class:`np.ndarray`):
                 Array of integers corresponding to indices in the set of
-                reference points.
-            index_j (:class:`np.ndarray`):
+                query points.
+            point_indices (:class:`np.ndarray`):
                 Array of integers corresponding to indices in the set of
-                target points.
+                points.
+            distances (:class:`np.ndarray`):
+                Array of distances between corresponding query points and
+                points.
             weights (:class:`np.ndarray`, optional):
                 Array of per-bond weights (if :code:`None` is given, use a
                 value of 1 for each weight) (Default value = :code:`None`).
         """
-        index_i = freud.common.convert_array(
-            index_i, shape=(None,), dtype=np.uint64)
-        index_j = freud.common.convert_array(
-            index_j, shape=index_i.shape, dtype=np.uint64)
+        query_point_indices = freud.common.convert_array(
+            query_point_indices, shape=(None,), dtype=np.uint32)
+        point_indices = freud.common.convert_array(
+            point_indices, shape=query_point_indices.shape, dtype=np.uint32)
+
+        distances = freud.common.convert_array(
+            distances, shape=query_point_indices.shape)
 
         if weights is None:
-            weights = np.ones(index_i.shape, dtype=np.float32)
-        else:
-            weights = freud.common.convert_array(weights, shape=index_i.shape)
+            weights = np.ones(query_point_indices.shape, dtype=np.float32)
+        weights = freud.common.convert_array(
+            weights, shape=query_point_indices.shape)
 
-        cdef const size_t[::1] c_index_i = index_i
-        cdef const size_t[::1] c_index_j = index_j
-        cdef const float[::1] c_weights = weights
-        cdef size_t n_bonds = c_index_i.shape[0]
-        cdef size_t c_Nref = Nref
-        cdef size_t c_Ntarget = Ntarget
+        cdef const unsigned int[::1] l_query_point_indices = \
+            query_point_indices
+        cdef const unsigned int[::1] l_point_indices = point_indices
+        cdef const float[::1] l_distances = distances
+        cdef const float[::1] l_weights = weights
+        cdef unsigned int l_num_bonds = l_query_point_indices.shape[0]
+        cdef unsigned int l_num_query_points = num_query_points
+        cdef unsigned int l_num_points = num_points
 
-        cdef size_t bond
-        cdef size_t last_i
-        cdef size_t i
-        if n_bonds > 0:
-            last_i = c_index_i[0]
-            for bond in range(n_bonds):
-                i = c_index_i[bond]
-                if i < last_i:
-                    raise RuntimeError('index_i is not sorted')
-                if c_Nref <= i:
-                    raise RuntimeError(
-                        'Nref is too small for a value found in index_i')
-                if c_Ntarget <= c_index_j[bond]:
-                    raise RuntimeError(
-                        'Ntarget is too small for a value found in index_j')
-                last_i = i
-
+        cdef NeighborList result
         result = cls()
-        cdef NeighborList c_result = result
-        c_result.thisptr.resize(n_bonds)
-        cdef size_t * c_neighbors_ptr = c_result.thisptr.getNeighbors()
-        cdef float * c_weights_ptr = c_result.thisptr.getWeights()
-
-        for bond in range(n_bonds):
-            c_neighbors_ptr[2*bond] = c_index_i[bond]
-            c_neighbors_ptr[2*bond + 1] = c_index_j[bond]
-            c_weights_ptr[bond] = c_weights[bond]
-
-        c_result.thisptr.setNumBonds(n_bonds, c_Ntarget, c_Nref)
+        result.thisptr = new freud._locality.NeighborList(
+            l_num_bonds, &l_query_point_indices[0], l_num_query_points,
+            &l_point_indices[0], l_num_points, &l_distances[0], &l_weights[0])
 
         return result
 
@@ -492,94 +475,48 @@ cdef class NeighborList:
 
     def __getitem__(self, key):
         R"""Access the bond array by index or slice."""
-        cdef size_t n_bonds = self.thisptr.getNumBonds()
-        cdef size_t[:, ::1] neighbors
-        if not n_bonds:
-            result = np.empty(shape=(0, 2), dtype=np.uint64)
-        else:
-            neighbors = <size_t[:n_bonds, :2]> self.thisptr.getNeighbors()
-            result = np.asarray(neighbors[:, :], dtype=np.uint64)
-        result.flags.writeable = False
-        return result[key]
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getNeighbors(),
+            freud.util.arr_type_t.UNSIGNED_INT)[key]
 
     @property
-    def index_i(self):
+    def query_point_indices(self):
         return self[:, 0]
 
     @property
-    def index_j(self):
+    def point_indices(self):
         return self[:, 1]
 
     @property
     def weights(self):
-        cdef size_t n_bonds = self.thisptr.getNumBonds()
-        if not n_bonds:
-            return np.asarray([], dtype=np.float32)
-        cdef const float[::1] weights = \
-            <float[:n_bonds]> self.thisptr.getWeights()
-        return np.asarray(weights)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getWeights(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def distances(self):
-        cdef size_t n_bonds = self.thisptr.getNumBonds()
-        if not n_bonds:
-            return np.asarray([], dtype=np.float32)
-        cdef const float[::1] distances = \
-            <float[:n_bonds]> self.thisptr.getDistances()
-        return np.asarray(distances)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getDistances(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def segments(self):
-        cdef np.ndarray[np.int64_t, ndim=1] result = np.zeros(
-            (self.thisptr.getNumI(),), dtype=np.int64)
-        cdef size_t n_bonds = self.thisptr.getNumBonds()
-        if not n_bonds:
-            return result
-        cdef const size_t[:, ::1] neighbors = \
-            <size_t[:n_bonds, :2]> self.thisptr.getNeighbors()
-        cdef int last_i = -1
-        cdef int i = -1
-        cdef size_t bond
-        for bond in range(n_bonds):
-            i = neighbors[bond, 0]
-            if i != last_i:
-                result[i] = bond
-            last_i = i
-        return result
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getSegments(),
+            freud.util.arr_type_t.UNSIGNED_INT)
 
     @property
     def neighbor_counts(self):
-        cdef np.ndarray[np.int64_t, ndim=1] result = np.zeros(
-            (self.thisptr.getNumI(),), dtype=np.int64)
-        cdef size_t n_bonds = self.thisptr.getNumBonds()
-        if not n_bonds:
-            return result
-        cdef const size_t[:, ::1] neighbors = \
-            <size_t[:n_bonds, :2]> self.thisptr.getNeighbors()
-        cdef int last_i = -1
-        cdef int i = -1
-        cdef size_t n = 0
-        cdef size_t bond
-        for bond in range(n_bonds):
-            i = neighbors[bond, 0]
-            if i != last_i and i > 0:
-                if last_i >= 0:
-                    result[last_i] = n
-                n = 0
-            last_i = i
-            n += 1
-
-        if last_i >= 0:
-            result[last_i] = n
-
-        return result
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getCounts(),
+            freud.util.arr_type_t.UNSIGNED_INT)
 
     def __len__(self):
         R"""Returns the number of bonds stored in this object."""
         return self.thisptr.getNumBonds()
 
     def find_first_index(self, unsigned int i):
-        R"""Returns the lowest bond index corresponding to a reference particle
+        R"""Returns the lowest bond index corresponding to a query particle
         with an index :math:`\geq i`.
 
         Args:
@@ -600,48 +537,25 @@ cdef class NeighborList:
         Example::
 
             # Keep only the bonds between particles of type A and type B
-            nlist.filter(types[nlist.index_i] != types[nlist.index_j])
-        """
+            nlist.filter(types[nlist.query_point_indices] != types[nlist.point_indices])
+        """  # noqa E501
         filt = np.ascontiguousarray(filt, dtype=np.bool)
         cdef np.ndarray[np.uint8_t, ndim=1, cast=True] filt_c = filt
         cdef cbool * filt_ptr = <cbool*> filt_c.data
         self.thisptr.filter(filt_ptr)
         return self
 
-    def filter_r(self, box, points, query_points, float r_max, float r_min=0):
+    def filter_r(self, float r_max, float r_min=0):
         R"""Removes bonds that are outside of a given radius range.
 
         Args:
-            box (:class:`freud.box.Box`):
-                Simulation box.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to use for filtering.
-            query_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Query points to use for filtering.
             r_max (float):
                 Maximum bond distance in the resulting neighbor list.
             r_min (float, optional):
                 Minimum bond distance in the resulting neighbor list
                 (Default value = :code:`0`).
         """
-        cdef freud.box.Box b = freud.common.convert_box(box)
-        points = freud.common.convert_array(points, shape=(None, 3))
-
-        query_points = freud.common.convert_array(
-            query_points, shape=(None, 3))
-
-        cdef const float[:, ::1] l_points = points
-        cdef const float[:, ::1] l_query_points = query_points
-        cdef size_t nRef = points.shape[0]
-        cdef size_t nP = query_points.shape[0]
-
-        self.thisptr.validate(nP, nRef)
-        self.thisptr.filter_r(
-            dereference(b.thisptr),
-            <vec3[float]*> &l_points[0, 0],
-            <vec3[float]*> &l_query_points[0, 0],
-            r_max,
-            r_min)
+        self.thisptr.filter_r(r_max, r_min)
         return self
 
 
@@ -704,9 +618,9 @@ def make_default_nlist(box, points, query_points, r_max, nlist=None,
         box (:class:`freud.box.Box`):
             Simulation box.
         points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-            Reference points for the neighborlist.
+            Points for the neighborlist.
         query_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-            Points to construct the neighborlist.
+            Query points to construct the neighborlist.
         r_max (float):
             The radius within which to find neighbors.
         nlist (:class:`freud.locality.NeighborList`, optional):

@@ -181,16 +181,14 @@ void Voronoi::compute(const box::Box &box, const vec3<double>* vertices,
 
         m_neighbor_list.resize(num_bonds);
         m_neighbor_list.setNumBonds(num_bonds, N, N);
-        size_t *neighbor_array(m_neighbor_list.getNeighbors());
-        float *neighbor_weights(m_neighbor_list.getWeights());
 
         parallel_for(tbb::blocked_range<size_t>(0, num_bonds),
             [&] (const tbb::blocked_range<size_t> &r) {
             for (size_t bond(r.begin()); bond < r.end(); ++bond)
             {
-                neighbor_array[2*bond] = linear_bonds[bond].id;
-                neighbor_array[2*bond+1] = linear_bonds[bond].ref_id;
-                neighbor_weights[bond] = linear_bonds[bond].weight;
+                m_neighbor_list.getNeighbors()(bond, 0) = linear_bonds[bond].id;
+                m_neighbor_list.getNeighbors()(bond, 1) = linear_bonds[bond].ref_id;
+                m_neighbor_list.getWeights()[bond] = linear_bonds[bond].weight;
             }
         });
     }

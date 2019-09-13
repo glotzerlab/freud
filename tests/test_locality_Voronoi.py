@@ -89,10 +89,8 @@ class TestVoronoi(unittest.TestCase):
         # Drop the tiny facets that come from numerical imprecision
         nlist = nlist.filter(nlist.weights > 1e-7)
 
-        unique_indices, counts = np.unique(nlist.index_i, return_counts=True)
-
         # Every particle should have six neighbors
-        npt.assert_equal(counts, np.full(len(unique_indices), 6))
+        npt.assert_equal(nlist.neighbor_counts, np.full(len(positions), 6))
 
     def test_voronoi_weights_fcc(self):
         # Test that voronoi neighbor weights are computed properly for 3D FCC
@@ -108,15 +106,14 @@ class TestVoronoi(unittest.TestCase):
         # Drop the tiny facets that come from numerical imprecision
         nlist = nlist.filter(nlist.weights > 1e-5)
 
-        unique_indices, counts = np.unique(nlist.index_i, return_counts=True)
-
         # Every FCC particle should have 12 neighbors
-        npt.assert_equal(counts, np.full(len(unique_indices), 12))
+        npt.assert_equal(nlist.neighbor_counts, np.full(len(positions), 12))
 
         # Every facet area should be sqrt(2)/2
         npt.assert_allclose(nlist.weights,
                             np.full(len(nlist.weights), 0.5*np.sqrt(2)),
                             atol=1e-5)
+
         # Every cell should have volume 2
         vor.compute(box, positions)
         npt.assert_allclose(vor.compute(box, positions, rbuf, False).volumes,
@@ -135,13 +132,8 @@ class TestVoronoi(unittest.TestCase):
             box=box, positions=points, buffer=rbuf, images=False)
         nlist = vor.nlist
 
-        ijs = set(zip(nlist.index_i, nlist.index_j))
-        jis = set(zip(nlist.index_j, nlist.index_i))
-
-        # we shouldn't have duplicate (i, j) pairs in the
-        # resulting neighbor list
-        # npt.assert_equal(len(ijs), len(nlist))
-        # npt.assert_equal(len(ijs), len(jis))
+        ijs = set(zip(nlist.query_point_indices, nlist.point_indices))
+        jis = set(zip(nlist.point_indices, nlist.query_point_indices))
 
         # every (i, j) pair should have a corresponding (j, i) pair
         self.assertTrue(all((j, i) in jis for (i, j) in ijs))

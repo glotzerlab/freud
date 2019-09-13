@@ -1,4 +1,5 @@
 import numpy as np
+import numpy.testing as npt
 import freud.locality
 import unittest
 from util import make_box_and_random_points
@@ -22,43 +23,97 @@ class TestNeighborList(unittest.TestCase):
                                    self.query_args).toNeighborList()
 
     def test_writable(self):
-        # index_i shouldn't be writable in general or users may break
-        # the ordered property of the neighbor list
+        # query_point_indices shouldn't be writable in general or users may
+        # break the ordered property of the neighbor list
         with self.assertRaises(ValueError):
-            self.nlist.index_i[:] = 0
+            self.nlist.query_point_indices[:] = 0
 
-        # if index_i isn't writable, index_j probably also shouldn't be
+        # if query_point_indices isn't writable, point_indices shouldn't be
         with self.assertRaises(ValueError):
-            self.nlist.index_j[:] = 0
+            self.nlist.point_indices[:] = 0
 
         # the weights array may be useful to write to, though
-        self.nlist.weights[18] = 3
-        self.assertEqual(self.nlist.weights[18], 3)
+        # TODO: weights aren't writable since changing to ManagedArray
+        with self.assertRaises(ValueError):
+            self.nlist.weights[18] = 3
 
-    def test_validation(self):
+    def test_filter_r_max(self):
         points2 = self.nq.points[:self.N//2]
+        filter_max_distance = 2.5
 
-        # should fail in validation when we give inconsistent sized arrays
-        with self.assertRaises(RuntimeError):
-            self.nlist.filter_r(self.nq.box, self.nq.points, points2, 2.5)
+        self.nlist = self.nq.query(points2, self.query_args).toNeighborList()
+        old_size = len(self.nlist)
 
-        # filter_r should work fine after recomputing using both sets of points
-        nlist = self.nq.query(points2, self.query_args).toNeighborList()
-        nlist.filter_r(self.nq.box, self.nq.points, points2, 2.5)
+        # Make sure weights are 1
+        npt.assert_equal(self.nlist.weights, 1)
+
+        # Compute neighbor pairs that we expect to be kept after the filter
+        kept_neighbors = self.nlist[
+            self.nlist.distances < filter_max_distance]
+
+        self.nlist.filter_r(filter_max_distance)
+        new_size = len(self.nlist)
+
+        self.assertGreater(old_size, 0)
+        self.assertGreater(new_size, 0)
+        self.assertLessEqual(new_size, old_size)
+
+        # Make sure weights are still 1 after resize
+        npt.assert_equal(self.nlist.weights, 1)
+
+        # Make sure distances are filtered
+        npt.assert_array_less(self.nlist.distances,
+                              np.full(new_size, filter_max_distance))
+
+        npt.assert_equal(kept_neighbors, self.nlist)
+
+    def test_filter_r_max_min(self):
+        points2 = self.nq.points[:self.N//2]
+        filter_min_distance = 1.5
+        filter_max_distance = 2.5
+
+        self.nlist = self.nq.query(points2, self.query_args).toNeighborList()
+        old_size = len(self.nlist)
+
+        # Make sure weights are 1
+        npt.assert_equal(self.nlist.weights, 1)
+
+        # Compute neighbor pairs that we expect to be kept after the filter
+        kept_neighbors = self.nlist[np.logical_and(
+            self.nlist.distances < filter_max_distance,
+            self.nlist.distances >= filter_min_distance)]
+
+        self.nlist.filter_r(filter_max_distance, filter_min_distance)
+        new_size = len(self.nlist)
+
+        self.assertGreater(old_size, 0)
+        self.assertGreater(new_size, 0)
+        self.assertLessEqual(new_size, old_size)
+
+        # Make sure weights are still 1 after resize
+        npt.assert_equal(self.nlist.weights, 1)
+
+        # Make sure distances are filtered
+        npt.assert_array_less(self.nlist.distances,
+                              np.full(new_size, filter_max_distance))
+        npt.assert_array_less(np.full(new_size, filter_min_distance),
+                              self.nlist.distances)
+
+        npt.assert_equal(kept_neighbors, self.nlist)
 
     def test_filter(self):
         old_size = len(self.nlist)
-        filt = (self.nlist.index_j.astype(np.int32) -
-                self.nlist.index_i.astype(np.int32)) % 2 == 0
+        filt = (self.nlist.point_indices.astype(np.int32) -
+                self.nlist.query_point_indices.astype(np.int32)) % 2 == 0
         self.nlist.filter(filt)
         self.assertLessEqual(len(self.nlist), old_size)
 
         # should be able to further filter
-        self.nlist.filter_r(self.nq.box, self.nq.points, self.nq.points, 2.5)
+        self.nlist.filter_r(2.5)
 
     def test_find_first_index(self):
         nlist = self.nlist
-        for (idx, i) in enumerate(nlist.index_i):
+        for (idx, i) in enumerate(nlist.query_point_indices):
             self.assertLessEqual(nlist.find_first_index(i), idx)
 
     def test_segments(self):
@@ -68,63 +123,85 @@ class TestNeighborList(unittest.TestCase):
         self.assertTrue(np.allclose(self.nlist.neighbor_counts, 6))
 
     def test_from_arrays(self):
-        index_i = [0, 0, 1, 2, 3]
-        index_j = [1, 2, 3, 0, 0]
+        query_point_indices = [0, 0, 1, 2, 3]
+        point_indices = [1, 2, 3, 0, 0]
+        distances = np.ones(len(query_point_indices))
 
         # implicit weights
-        nlist = freud.locality.NeighborList.from_arrays(4, 4, index_i, index_j)
+        nlist = freud.locality.NeighborList.from_arrays(
+            4, 4, query_point_indices, point_indices, distances)
         self.assertTrue(np.allclose(nlist.weights, 1))
 
         # explicit weights
-        weights = np.ones((len(index_i),))*4.
+        weights = np.ones(len(query_point_indices))*4.
         nlist = freud.locality.NeighborList.from_arrays(
-            4, 4, index_i, index_j, weights)
+            4, 4, query_point_indices, point_indices, distances, weights)
         self.assertTrue(np.allclose(nlist.weights, 4))
+
+        # copy of existing nlist by arrays
+        weights = np.random.rand(len(query_point_indices))
+        nlist = freud.locality.NeighborList.from_arrays(
+            4, 4, query_point_indices, point_indices, distances, weights)
+        nlist2 = freud.locality.NeighborList.from_arrays(
+            4, 4, nlist.query_point_indices, nlist.point_indices,
+            nlist.distances, nlist.weights)
+        npt.assert_equal(nlist.query_point_indices, nlist2.query_point_indices)
+        npt.assert_equal(nlist.point_indices, nlist2.point_indices)
+        npt.assert_equal(nlist.distances, nlist2.distances)
+        npt.assert_equal(nlist.weights, nlist2.weights)
+        npt.assert_equal(nlist.neighbor_counts, nlist2.neighbor_counts)
+        npt.assert_equal(nlist.segments, nlist2.segments)
 
         # too few reference particles
         with self.assertRaises(RuntimeError):
             nlist = freud.locality.NeighborList.from_arrays(
-                3, 4, index_i, index_j)
+                3, 4, query_point_indices, point_indices, distances)
 
         # too few target particles
         with self.assertRaises(RuntimeError):
             nlist = freud.locality.NeighborList.from_arrays(
-                4, 3, index_i, index_j)
+                4, 3, query_point_indices, point_indices, distances)
 
-        # reference particles not sorted
+        # query particles not sorted
         with self.assertRaises(RuntimeError):
             nlist = freud.locality.NeighborList.from_arrays(
-                4, 4, index_j, index_i)
+                4, 4, point_indices, query_point_indices, distances)
 
         # mismatched array sizes
         with self.assertRaises(ValueError):
             nlist = freud.locality.NeighborList.from_arrays(
-                4, 4, index_i[:-1], index_j)
+                4, 4, query_point_indices[:-1], point_indices, distances)
         with self.assertRaises(ValueError):
             nlist = freud.locality.NeighborList.from_arrays(
-                4, 4, index_i, index_j[:-1])
+                4, 4, query_point_indices, point_indices[:-1], distances)
         with self.assertRaises(ValueError):
-            weights = np.ones((len(index_i) - 1,))
             nlist = freud.locality.NeighborList.from_arrays(
-                4, 4, index_i, index_j, weights)
+                4, 4, query_point_indices, point_indices, distances[:-1])
+        with self.assertRaises(ValueError):
+            weights = np.ones((len(query_point_indices) - 1,))
+            nlist = freud.locality.NeighborList.from_arrays(
+                4, 4, query_point_indices, point_indices, distances, weights)
 
-    def test_indexing(self):
+    def test_indexing_empty(self):
         # Ensure that empty NeighborLists have the right shape
         nlist = self.nq.query(np.empty((0, 3)),
                               self.query_args).toNeighborList()
         self.assertEqual(nlist[:].shape, (0, 2))
 
+    def test_indexing_arrays(self):
         # Make sure indexing the NeighborList is the same as indexing arrays
         for i, (idx_i, idx_j) in enumerate(self.nlist):
-            self.assertEqual(idx_i, self.nlist.index_i[i])
-            self.assertEqual(idx_j, self.nlist.index_j[i])
+            self.assertEqual(idx_i, self.nlist.query_point_indices[i])
+            self.assertEqual(idx_j, self.nlist.point_indices[i])
 
         for i, j in self.nlist:
             self.assertNotEqual(i, j)
 
     def test_nl_size(self):
-        self.assertEqual(len(self.nlist), len(self.nlist.index_i))
-        self.assertEqual(len(self.nlist), len(self.nlist.index_j))
+        self.assertEqual(len(self.nlist),
+                         len(self.nlist.query_point_indices))
+        self.assertEqual(len(self.nlist),
+                         len(self.nlist.point_indices))
 
     def test_index_error(self):
         with self.assertRaises(IndexError):
@@ -143,6 +220,15 @@ class TestNeighborList(unittest.TestCase):
 
         with self.assertRaises(TypeError):
             self.nlist[0, 0] = 0
+
+    def test_copy(self):
+        nlist = self.nlist
+        nlist2 = nlist.copy()
+        npt.assert_equal(nlist[:], nlist2[:])
+        npt.assert_equal(nlist.distances, nlist2.distances)
+        npt.assert_equal(nlist.weights, nlist2.weights)
+        npt.assert_equal(nlist.segments, nlist2.segments)
+        npt.assert_equal(nlist.neighbor_counts, nlist2.neighbor_counts)
 
 
 if __name__ == '__main__':

@@ -100,7 +100,7 @@ public:
     //! Construct and return a local environment surrounding the particle indexed by i. Set the environment
     //! index to env_ind. if hard_r is true, add all particles that fall within the threshold of m_r_max_sq to
     //! the environment
-    Environment buildEnv(const size_t* neighbor_list, size_t num_bonds, size_t& bond,
+    Environment buildEnv(const freud::locality::NeighborList* nlist, size_t num_bonds, size_t& bond,
                          const vec3<float>* points, unsigned int i, unsigned int env_ind, bool hard_r);
 
     //! Determine clusters of particles with matching environments

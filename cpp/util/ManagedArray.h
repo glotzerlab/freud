@@ -157,7 +157,7 @@ public:
     // indices, we provide overloads of the indexing operator. For convenience,
     // all calls eventually funnel through the simplest function interface, a
     // std::vector of indices. However, the more convenient approach is enabled
-    // using variadic template arguments. 
+    // using variadic template arguments.
     //*************************************************************************
 
     //! Implementation of variadic indexing function.

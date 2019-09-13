@@ -32,7 +32,6 @@ void LocalDescriptors::compute(const box::Box& box,
                                const freud::locality::NeighborList* nlist)
 {
     nlist->validate(n_query_points, n_points);
-    const size_t* neighbor_list(nlist->getNeighbors());
 
     // reallocate the output array if it is not the right size
     if (m_nSphs < nlist->getNumBonds())
@@ -62,10 +61,10 @@ void LocalDescriptors::compute(const box::Box& box,
                         inertiaTensor[a_i(ii, jj)] = 0;
 
                 for (size_t bond_copy(bond); bond_copy < nlist->getNumBonds()
-                     && neighbor_list[2 * bond_copy] == i && bond_copy < bond + num_neighbors;
+                     && nlist->getNeighbors()(bond_copy, 0) == i && bond_copy < bond + num_neighbors;
                      ++bond_copy)
                 {
-                    const size_t j(neighbor_list[2 * bond_copy + 1]);
+                    const size_t j(nlist->getNeighbors()(bond_copy, 1));
                     const vec3<float> r_j(query_points[j]);
                     const vec3<float> r_ij(box.wrap(r_j - r_i));
                     const float r_sq(dot(r_ij, r_ij));
@@ -117,11 +116,11 @@ void LocalDescriptors::compute(const box::Box& box,
             }
 
             for (unsigned int count(0);
-                 bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i && count < num_neighbors;
+                 bond < nlist->getNumBonds() && nlist->getNeighbors()(bond, 0) == i && count < num_neighbors;
                  ++bond, ++count)
             {
                 const unsigned int sphCount(bond * getSphWidth());
-                const size_t j(neighbor_list[2 * bond + 1]);
+                const size_t j(nlist->getNeighbors()(bond, 1));
                 const vec3<float> r_j(query_points[j]);
                 const vec3<float> r_ij(box.wrap(r_j - r_i));
                 const float r_sq(dot(r_ij, r_ij));
