@@ -29,11 +29,11 @@ std::shared_ptr<NeighborQueryPerPointIterator> AABBQuery::querySingle(const vec3
     this->validateQueryArgs(args);
     if (args.mode == QueryArgs::ball)
     {
-        return std::make_shared<AABBQueryBallIterator>(this, query_point, query_point_idx, args.r_max, args.exclude_ii);
+        return std::make_shared<AABBQueryBallIterator>(this, query_point, query_point_idx, args.r_max, args.r_min, args.exclude_ii);
     }
     else if (args.mode == QueryArgs::nearest)
     {
-        return std::make_shared<AABBQueryIterator>(this, query_point, query_point_idx, args.num_neighbors, args.r_guess, args.r_max, args.scale, args.exclude_ii);
+        return std::make_shared<AABBQueryIterator>(this, query_point, query_point_idx, args.num_neighbors, args.r_guess, args.r_max, args.r_min, args.scale, args.exclude_ii);
     }
     else
     {
@@ -132,6 +132,7 @@ void AABBIterator::updateImageVectors(float r_max, bool _check_r_max)
 NeighborBond AABBQueryBallIterator::next()
 {
     float r_max_sq = m_r_max * m_r_max;
+    float r_min_sq = m_r_min * m_r_min;
 
     // Read in the position of current point
     vec3<float> pos_i(m_query_point);
@@ -159,6 +160,14 @@ NeighborBond AABBQueryBallIterator::next()
                         // Neighbor j
                         const unsigned int j
                             = m_aabb_query->m_aabb_tree.getNodeParticleTag(cur_node_idx, cur_ref_p);
+                        // Increment before possible return.
+                        cur_ref_p++;
+
+                        // Skip ii matches immediately if requested.
+                        if (m_exclude_ii && m_query_point_idx == j)
+                        {
+                            continue;
+                        }
 
                         // Read in the position of j
                         vec3<float> pos_j((*m_neighbor_query)[j]);
@@ -171,10 +180,8 @@ NeighborBond AABBQueryBallIterator::next()
                         const vec3<float> r_ij = pos_j - pos_i_image;
                         const float r_sq = dot(r_ij, r_ij);
 
-                        // Increment before possible return.
-                        cur_ref_p++;
                         // Check ii exclusion before including the pair.
-                        if (r_sq < r_max_sq && (!m_exclude_ii || m_query_point_idx != j))
+                        if (r_sq < r_max_sq && r_sq >= r_min_sq)
                         {
                             return NeighborBond(m_query_point_idx, j, sqrt(r_sq));
                         }
@@ -224,7 +231,7 @@ NeighborBond AABBQueryIterator::next()
             // the compiler.
             m_current_neighbors.clear();
             std::shared_ptr<NeighborQueryPerPointIterator> ball_it
-                = std::make_shared<AABBQueryBallIterator>(static_cast<const AABBQuery*>(m_neighbor_query), m_query_point, m_query_point_idx, m_r_cur, m_exclude_ii, false);
+                = std::make_shared<AABBQueryBallIterator>(static_cast<const AABBQuery*>(m_neighbor_query), m_query_point, m_query_point_idx, std::min(m_r_cur, m_r_max), m_r_min, m_exclude_ii, false);
             while (!ball_it->end())
             {
                 NeighborBond np = ball_it->next();

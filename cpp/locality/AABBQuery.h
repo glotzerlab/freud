@@ -117,8 +117,8 @@ class AABBIterator : public NeighborQueryPerPointIterator
 {
 public:
     //! Constructor
-    AABBIterator(const AABBQuery* neighbor_query, const vec3<float> query_point, unsigned int query_point_idx, float r_max, bool exclude_ii)
-        : NeighborQueryPerPointIterator(neighbor_query, query_point, query_point_idx, r_max, exclude_ii), m_aabb_query(neighbor_query)
+    AABBIterator(const AABBQuery* neighbor_query, const vec3<float> query_point, unsigned int query_point_idx, float r_max, float r_min, bool exclude_ii)
+        : NeighborQueryPerPointIterator(neighbor_query, query_point, query_point_idx, r_max, r_min, exclude_ii), m_aabb_query(neighbor_query)
     {}
 
     //! Empty Destructor
@@ -139,8 +139,8 @@ class AABBQueryIterator : public AABBIterator
 public:
     //! Constructor
     AABBQueryIterator(const AABBQuery* neighbor_query, const vec3<float> query_point, unsigned int query_point_idx,
-                      unsigned int num_neighbors, float r_guess, float r_max, float scale, bool exclude_ii)
-        : AABBIterator(neighbor_query, query_point, query_point_idx, r_max, exclude_ii), m_count(0), m_num_neighbors(num_neighbors), m_search_extended(false), m_r_cur(r_guess),
+                      unsigned int num_neighbors, float r_guess, float r_max, float r_min, float scale, bool exclude_ii)
+        : AABBIterator(neighbor_query, query_point, query_point_idx, r_max, r_min, exclude_ii), m_count(0), m_num_neighbors(num_neighbors), m_search_extended(false), m_r_cur(r_guess),
           m_scale(scale), m_all_distances()
     {
         updateImageVectors(0);
@@ -170,9 +170,9 @@ class AABBQueryBallIterator : public AABBIterator
 {
 public:
     //! Constructor
-    AABBQueryBallIterator(const AABBQuery* neighbor_query, const vec3<float> query_point, unsigned int query_point_idx, float r_max,
+    AABBQueryBallIterator(const AABBQuery* neighbor_query, const vec3<float> query_point, unsigned int query_point_idx, float r_max, float r_min, 
                           bool exclude_ii, bool _check_r_max = true)
-        : AABBIterator(neighbor_query, query_point, query_point_idx, r_max, exclude_ii), cur_image(0), cur_node_idx(0),
+        : AABBIterator(neighbor_query, query_point, query_point_idx, r_max, r_min, exclude_ii), cur_image(0), cur_node_idx(0),
           cur_ref_p(0)
     {
         updateImageVectors(m_r_max, _check_r_max);
