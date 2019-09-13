@@ -20,7 +20,8 @@ using namespace tbb;
 
 namespace freud { namespace density {
 
-RDF::RDF(float r_max, float dr, float r_min) : util::NdHistogram(), m_r_max(r_max), m_r_min(r_min), m_dr(dr)
+RDF::RDF(float r_max, float dr, float r_min) : m_box(box::Box()), m_frame_counter(0), m_n_points(0),
+    m_n_query_points(0), m_reduce(true), m_r_max(r_max), m_r_min(r_min), m_dr(dr)
 {
     if (dr <= 0.0f)
         throw invalid_argument("RDF requires dr to be positive.");
@@ -35,10 +36,8 @@ RDF::RDF(float r_max, float dr, float r_min) : util::NdHistogram(), m_r_max(r_ma
 
     m_nbins = int(floorf((m_r_max - m_r_min) / m_dr));
     assert(m_nbins > 0);
-    m_pcf_array.prepare(m_nbins);
     m_bin_counts.prepare(m_nbins);
     m_avg_counts.prepare(m_nbins);
-    m_N_r_array.prepare(m_nbins);
 
     // precompute the bin center positions and cell volumes
     m_r_array.prepare(m_nbins);
@@ -61,8 +60,11 @@ RDF::RDF(float r_max, float dr, float r_min) : util::NdHistogram(), m_r_max(r_ma
 //! helper function to reduce the thread specific arrays into one array
 void RDF::reduceRDF()
 {
+    m_pcf_array.prepare(m_nbins);
     m_bin_counts.prepare(m_nbins);
     m_avg_counts.prepare(m_nbins);
+    m_N_r_array.prepare(m_nbins);
+
     // now compute the rdf
     float ndens = float(m_n_query_points) / m_box.getVolume();
     if (m_box.is2D())
@@ -113,7 +115,9 @@ unsigned int RDF::getNBins()
  */
 void RDF::reset()
 {
-    resetGeneral(m_nbins);
+    m_local_bin_counts.reset();
+    this->m_frame_counter = 0;
+    this->m_reduce = true;
 }
 
 //! \internal
