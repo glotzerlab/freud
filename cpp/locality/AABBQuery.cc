@@ -236,30 +236,30 @@ NeighborBond AABBQueryIterator::next()
                 = std::make_shared<AABBQueryBallIterator>(static_cast<const AABBQuery*>(m_neighbor_query), m_query_point, m_query_point_idx, std::min(m_r_cur, m_r_max), 0, m_exclude_ii, false);
             while (!ball_it->end())
             {
-                NeighborBond np = ball_it->next();
-                if (np == NeighborQueryIterator::ITERATOR_TERMINATOR)
+                NeighborBond nb = ball_it->next();
+                if (nb == NeighborQueryIterator::ITERATOR_TERMINATOR)
                     continue;
 
-                if (!m_exclude_ii || m_query_point_idx != np.ref_id)
+                if (!m_exclude_ii || m_query_point_idx != nb.ref_id)
                 {
-                    np.id = m_query_point_idx;
+                    nb.id = m_query_point_idx;
                     // If we've expanded our search radius beyond safe
                     // distance, use the map instead of the vector.
                     if (m_search_extended)
                     {
-                        if (!m_all_distances.count(np.ref_id) || m_all_distances[np.ref_id] > np.distance)
+                        if (!m_all_distances.count(nb.ref_id) || m_all_distances[nb.ref_id] > nb.distance)
                         {
-                            m_all_distances[np.ref_id] = np.distance;
-                            if (np.distance < m_r_min)
+                            m_all_distances[nb.ref_id] = nb.distance;
+                            if (nb.distance < m_r_min)
                             {
-                                m_query_points_below_r_min.insert(np.ref_id);
+                                m_query_points_below_r_min.insert(nb.ref_id);
                             }
                         }
                     }
                     else
                     {
-                        if (np.distance >= m_r_min)
-                            m_current_neighbors.emplace_back(np);
+                        if (nb.distance >= m_r_min)
+                            m_current_neighbors.emplace_back(nb);
                     }
                 }
             }
