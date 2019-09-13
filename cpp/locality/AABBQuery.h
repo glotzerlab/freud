@@ -9,13 +9,14 @@
 #include <vector>
 #include <limits>
 #include <cmath>
+#include <unordered_set>
 
 #include "AABBTree.h"
 #include "Box.h"
 #include "NeighborQuery.h"
 
 /*! \file AABBQuery.h
-    \brief Build an AABB tree from points and query it for neighbors.
+ *  \brief Build an AABB tree from points and query it for neighbors.
  * A bounding volume hierarchy (BVH) tree is a binary search tree. It is
  * constructed from axis-aligned bounding boxes (AABBs). The AABB for a node in
  * the tree encloses all child AABBs. A leaf AABB holds multiple particles. The
@@ -141,7 +142,7 @@ public:
     AABBQueryIterator(const AABBQuery* neighbor_query, const vec3<float> query_point, unsigned int query_point_idx,
                       unsigned int num_neighbors, float r_guess, float r_max, float r_min, float scale, bool exclude_ii)
         : AABBIterator(neighbor_query, query_point, query_point_idx, r_max, r_min, exclude_ii), m_count(0), m_num_neighbors(num_neighbors), m_search_extended(false), m_r_cur(r_guess),
-          m_scale(scale), m_all_distances()
+          m_scale(scale), m_all_distances(), m_query_points_below_r_min()
     {
         updateImageVectors(0);
     }
@@ -163,6 +164,7 @@ protected:
     float m_scale; //!< The amount to scale m_r by when the current ball is too small.
     std::map<unsigned int, float> m_all_distances; //!< Hash map of minimum distances found for a given point,
                                                    //!< used when searching beyond maximum safe AABB distance.
+    std::unordered_set<unsigned int> m_query_points_below_r_min; //!< The number below r_min.
 };
 
 //! Iterator that gets neighbors in a ball of size r_max using AABB tree structures.

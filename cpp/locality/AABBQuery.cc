@@ -215,23 +215,23 @@ NeighborBond AABBQueryIterator::next()
         max_plane_distance = std::max(max_plane_distance, plane_distance.z);
     }
 
-    // Only try to add new neighbors if there are no neighbors currently cached to return.
+    // This iterator is not truly lazy; because it needs to get possible
+    // neighbors and sort them to find the actual ones, it computes and caches
+    // them and then returns them one-by-one. This check ensures that we only
+    // search for new neighbors the first time next is called.
     if (!m_current_neighbors.size())
     {
         // Continually perform ball queries until the termination conditions are met.
         while (true)
         {
-            // Perform a ball query to get neighbors. Since we are doing
-            // this on a per-point basis, we don't pass the exclude_ii
-            // parameter through because the indexes won't match. Instead,
-            // we have to filter the ii matches after the fact. We also
-            // need to do some extra magic to ensure that we allow ball
-            // queries to exceed their normal boundaries, which requires
-            // the cast performed below to expose the appropriate method to
-            // the compiler.
+            // Perform a ball query to get neighbors. To ensure that we allow
+            // ball queries to exceed their normal boundaries, we pass false as
+            // the _check_r_max. We also can't depend on the ball query for
+            // r_min filtering because we're querying beyond the normally safe
+            // bounds, so we have to do it in this class.
             m_current_neighbors.clear();
             std::shared_ptr<NeighborQueryPerPointIterator> ball_it
-                = std::make_shared<AABBQueryBallIterator>(static_cast<const AABBQuery*>(m_neighbor_query), m_query_point, m_query_point_idx, std::min(m_r_cur, m_r_max), m_r_min, m_exclude_ii, false);
+                = std::make_shared<AABBQueryBallIterator>(static_cast<const AABBQuery*>(m_neighbor_query), m_query_point, m_query_point_idx, std::min(m_r_cur, m_r_max), 0, m_exclude_ii, false);
             while (!ball_it->end())
             {
                 NeighborBond np = ball_it->next();
@@ -248,11 +248,16 @@ NeighborBond AABBQueryIterator::next()
                         if (!m_all_distances.count(np.ref_id) || m_all_distances[np.ref_id] > np.distance)
                         {
                             m_all_distances[np.ref_id] = np.distance;
+                            if (np.distance < m_r_min)
+                            {
+                                m_query_points_below_r_min.insert(np.ref_id);
+                            }
                         }
                     }
                     else
                     {
-                        m_current_neighbors.emplace_back(np);
+                        if (np.distance >= m_r_min)
+                            m_current_neighbors.emplace_back(np);
                     }
                 }
             }
@@ -266,7 +271,7 @@ NeighborBond AABBQueryIterator::next()
                 std::sort(m_current_neighbors.begin(), m_current_neighbors.end());
                 break;
             }
-            else if ((m_r_cur > m_r_max) || (m_r_cur >= max_plane_distance) || (m_all_distances.size() >= m_num_neighbors))
+            else if ((m_r_cur > m_r_max) || (m_r_cur >= max_plane_distance) || ((m_all_distances.size() - m_query_points_below_r_min.size()) >= m_num_neighbors))
             {
                 // Once this condition is reached, either we found enough
                 // neighbors beyond the normal min_plane_distance
@@ -275,7 +280,10 @@ NeighborBond AABBQueryIterator::next()
                 for (std::map<unsigned int, float>::const_iterator it(m_all_distances.begin());
                      it != m_all_distances.end(); it++)
                 {
-                    m_current_neighbors.emplace_back(m_query_point_idx, it->first, it->second);
+                    if (it->second >= m_r_min)
+                    {
+                        m_current_neighbors.emplace_back(m_query_point_idx, it->first, it->second);
+                    }
                 }
                 std::sort(m_current_neighbors.begin(), m_current_neighbors.end());
                 break;
