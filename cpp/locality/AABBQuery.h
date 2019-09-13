@@ -164,7 +164,7 @@ protected:
     float m_scale; //!< The amount to scale m_r by when the current ball is too small.
     std::map<unsigned int, float> m_all_distances; //!< Hash map of minimum distances found for a given point,
                                                    //!< used when searching beyond maximum safe AABB distance.
-    std::unordered_set<unsigned int> m_query_points_below_r_min; //!< The number below r_min.
+    std::unordered_set<unsigned int> m_query_points_below_r_min; //!< The set of query_points that were too close based on the r_min threshold.
 };
 
 //! Iterator that gets neighbors in a ball of size r_max using AABB tree structures.
