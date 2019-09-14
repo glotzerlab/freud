@@ -143,7 +143,7 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
             // Normalize!
             for (unsigned int k = 0; k < (2 * m_l + 1); ++k)
             {
-                const unsigned int index = (2 * m_l + 1) * i + k;
+                const unsigned int index = m_Qlmi.getIndex({static_cast<unsigned int>(i), k});
                 m_Qlmi[index] /= total_weight;
                 // Add the norm, which is the (complex) squared magnitude
                 m_Qli[i] += norm(m_Qlmi[index]);
@@ -200,7 +200,7 @@ void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
             // Normalize!
             for (unsigned int k = 0; k < (2 * m_l + 1); ++k)
             {
-                const unsigned int index = (2 * m_l + 1) * i + k;
+                const unsigned int index = m_Qlmi.getIndex({static_cast<unsigned int>(i), k});
                 // Adding the Qlm of the particle i itself
                 m_QlmiAve[index] += m_Qlmi[index];
                 m_QlmiAve[index] /= neighborcount;
