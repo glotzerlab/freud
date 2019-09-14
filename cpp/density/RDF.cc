@@ -57,26 +57,25 @@ void RDF::reduce()
 {
     m_pcf_array.prepare(m_bins);
     m_histogram.reset();
-    m_avg_counts.prepare(m_bins);
     m_N_r_array.prepare(m_bins);
 
     // now compute the rdf
     float ndens = float(m_n_query_points) / m_box.getVolume();
+    float np = static_cast<float>(m_n_points);
     if (m_box.is2D())
         m_vol_array = m_vol_array2D;
     else
         m_vol_array = m_vol_array3D;
     // now compute the rdf
     m_histogram.reduceOverThreadsPerParticle(m_local_histograms,
-            [this, &ndens] (size_t i) {
-            m_avg_counts[i] = static_cast<float>(m_histogram[i]) / m_n_points;
-            m_pcf_array[i] = m_avg_counts[i] / m_vol_array[i] / ndens;
+            [this, &ndens, &np] (size_t i) {
+            m_pcf_array[i] = m_histogram[i] / np / m_vol_array[i] / ndens;
             });
 
-    m_N_r_array.get()[0] = m_avg_counts.get()[0];
+    m_N_r_array.get()[0] = m_histogram[0] / np;
     for (unsigned int i = 1; i < m_bins; i++)
     {
-        m_N_r_array.get()[i] = m_N_r_array.get()[i-1] + m_avg_counts.get()[i];
+        m_N_r_array.get()[i] = m_N_r_array.get()[i-1] + m_histogram[i] / np;
     }
 
     for (unsigned int i = 0; i < m_bins; i++)
