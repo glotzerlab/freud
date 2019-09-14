@@ -23,7 +23,7 @@ class RDF
 {
 public:
     //! Constructor
-    RDF(float r_max, float dr, float r_min = 0);
+    RDF(unsigned int bins, float r_max, float r_min = 0);
 
     //! Destructor
     ~RDF() {};
@@ -114,8 +114,6 @@ public:
         return reduceAndReturn(m_N_r_array);
     }
 
-    unsigned int getNBins();
-
     float getRMax() const
     {
         return m_r_max;
@@ -126,9 +124,9 @@ public:
         return m_r_min;
     }
 
-    float getDr() const
+    float getBins() const
     {
-        return m_dr;
+        return m_bins;
     }
 
 private:
@@ -140,8 +138,7 @@ private:
 
     float m_r_max;         //!< Maximum r at which to compute g(r)
     float m_r_min;         //!< Minimum r at which to compute g(r)
-    float m_dr;           //!< Step size for r in the computation
-    unsigned int m_nbins; //!< Number of r bins to compute g(r) over
+    unsigned int m_bins;   //!< Number of r bins to compute g(r) over
 
     util::ManagedArray<float> m_pcf_array;         //!< Array of computed pair correlation function.
     util::Histogram m_histogram;            //!< Counts for each bin.

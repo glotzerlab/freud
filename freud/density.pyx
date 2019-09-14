@@ -754,14 +754,9 @@ cdef class RDF(SpatialHistogram):
     """
     cdef freud._density.RDF * thisptr
 
-    def __cinit__(self, float dr, float r_max, float r_min=0):
-        if r_max <= 0:
-            raise ValueError("r_max must be > 0")
-        if r_max <= r_min:
-            raise ValueError("r_max must be > r_min")
-        if dr <= 0.0:
-            raise ValueError("dr must be > 0")
-        self.thisptr = new freud._density.RDF(r_max, dr, r_min)
+    def __cinit__(self, unsigned int bins, float r_max, float r_min=0):
+        self.thisptr = new freud._density.RDF(bins, r_max, r_min)
+
         # r_max is left as an attribute rather than a property for now since
         # that change needs to happen at the SpatialHistogram level for
         # multiple classes.
@@ -861,10 +856,10 @@ cdef class RDF(SpatialHistogram):
             freud.util.arr_type_t.FLOAT)
 
     def __repr__(self):
-        return ("freud.density.{cls}(r_max={r_max}, dr={dr}, "
+        return ("freud.density.{cls}(bins={bins}, r_max={r_max}, "
                 "r_min={r_min})").format(cls=type(self).__name__,
+                                         bins=self.bins,
                                          r_max=self.r_max,
-                                         dr=self.dr,
                                          r_min=self.r_min)
 
     @property
@@ -872,8 +867,8 @@ cdef class RDF(SpatialHistogram):
         return self.thisptr.getRMin()
 
     @property
-    def dr(self):
-        return self.thisptr.getDr()
+    def bins(self):
+        return self.thisptr.getBins()
 
     @Compute._computed_method()
     def plot(self, ax=None):

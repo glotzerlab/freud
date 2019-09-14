@@ -20,36 +20,32 @@ using namespace tbb;
 
 namespace freud { namespace density {
 
-RDF::RDF(float r_max, float dr, float r_min) : m_box(box::Box()), m_frame_counter(0), m_n_points(0),
-    m_n_query_points(0), m_reduce(true), m_r_max(r_max), m_r_min(r_min), m_dr(dr)
+RDF::RDF(unsigned int bins, float r_max, float r_min) : m_box(box::Box()), m_frame_counter(0), m_n_points(0),
+    m_n_query_points(0), m_reduce(true), m_r_max(r_max), m_r_min(r_min), m_bins(bins)
 {
-    if (dr <= 0.0f)
-        throw invalid_argument("RDF requires dr to be positive.");
+    if (bins <= 0)
+        throw invalid_argument("RDF requires a positive number of bins.");
     if (r_max <= 0.0f)
         throw invalid_argument("RDF requires r_max to be positive.");
-    if (dr > r_max)
-        throw invalid_argument("RDF requires dr must be less than or equal to r_max.");
     if (r_max <= r_min)
         throw invalid_argument("RDF requires that r_max must be greater than r_min.");
-    if (r_max - r_min < dr)
-        throw invalid_argument("RDF requires that the range (r_max-r_min) must be greater than dr.");
 
-    m_nbins = int(floorf((m_r_max - m_r_min) / m_dr));
-    assert(m_nbins > 0);
+    assert(m_bins > 0);
     util::Histogram::Axes axes;
-    axes.push_back(std::make_shared<util::RegularAxis>(m_nbins, m_r_min, m_r_max));
+    axes.push_back(std::make_shared<util::RegularAxis>(m_bins, m_r_min, m_r_max));
     m_histogram = util::Histogram(axes);
 
     // precompute the bin center positions and cell volumes
-    m_r_array.prepare(m_nbins);
-    m_vol_array.prepare(m_nbins);
-    m_vol_array2D.prepare(m_nbins);
-    m_vol_array3D.prepare(m_nbins);
+    m_r_array.prepare(m_bins);
+    m_vol_array.prepare(m_bins);
+    m_vol_array2D.prepare(m_bins);
+    m_vol_array3D.prepare(m_bins);
 
-    for (unsigned int i = 0; i < m_nbins; i++)
+    float dr = (m_r_max - m_r_min)/static_cast<float>(m_bins);
+    for (unsigned int i = 0; i < m_bins; i++)
     {
-        float r = float(i) * m_dr + m_r_min;
-        float nextr = float(i + 1) * m_dr + m_r_min;
+        float r = float(i) * dr + m_r_min;
+        float nextr = float(i + 1) * dr + m_r_min;
         m_r_array.get()[i] = (r + nextr)/2;
         m_vol_array2D.get()[i] = M_PI * (nextr * nextr - r * r);
         m_vol_array3D.get()[i] = 4.0f / 3.0f * M_PI * (nextr * nextr * nextr - r * r * r);
@@ -61,10 +57,10 @@ RDF::RDF(float r_max, float dr, float r_min) : m_box(box::Box()), m_frame_counte
 //! helper function to reduce the thread specific arrays into one array
 void RDF::reduce()
 {
-    m_pcf_array.prepare(m_nbins);
+    m_pcf_array.prepare(m_bins);
     m_histogram.reset();
-    m_avg_counts.prepare(m_nbins);
-    m_N_r_array.prepare(m_nbins);
+    m_avg_counts.prepare(m_bins);
+    m_N_r_array.prepare(m_bins);
 
     // now compute the rdf
     float ndens = float(m_n_query_points) / m_box.getVolume();
@@ -80,12 +76,12 @@ void RDF::reduce()
             });
 
     m_N_r_array.get()[0] = m_avg_counts.get()[0];
-    for (unsigned int i = 1; i < m_nbins; i++)
+    for (unsigned int i = 1; i < m_bins; i++)
     {
         m_N_r_array.get()[i] = m_N_r_array.get()[i-1] + m_avg_counts.get()[i];
     }
 
-    for (unsigned int i = 0; i < m_nbins; i++)
+    for (unsigned int i = 0; i < m_bins; i++)
     {
         m_pcf_array[i] /= m_frame_counter;
         m_N_r_array.get()[i] /= m_frame_counter;
@@ -96,12 +92,6 @@ void RDF::reduce()
 const util::ManagedArray<float> &RDF::getR()
 {
     return m_r_array;
-}
-
-//! Get number of bins
-unsigned int RDF::getNBins()
-{
-    return m_nbins;
 }
 
 //! \internal

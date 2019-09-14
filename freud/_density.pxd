@@ -68,4 +68,4 @@ cdef extern from "RDF.h" namespace "freud::density":
         const freud.util.ManagedArray[float] &getR()
         const freud.util.ManagedArray[float] &getNr()
         const freud.util.ManagedArray[uint] &getBinCounts()
-        unsigned int getNBins()
+        unsigned int getBins()
