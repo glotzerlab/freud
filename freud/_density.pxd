@@ -55,6 +55,9 @@ cdef extern from "RDF.h" namespace "freud::density":
     cdef cppclass RDF:
         RDF(float, float, float) except +
         const freud._box.Box & getBox() const
+        float getRMax() const
+        float getRMin() const
+        float getDr() const
         void reset()
         void accumulate(const freud._locality.NeighborQuery*,
                         const vec3[float]*,

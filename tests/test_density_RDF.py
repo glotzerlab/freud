@@ -17,7 +17,7 @@ class TestRDF(unittest.TestCase):
             # make sure the radius for each bin is generated correctly
             r_list = np.array([r_min + dr*(i+1/2) for i in range(nbins) if
                                r_min + dr*(i+1/2) < r_max])
-            rdf = freud.density.RDF(r_max, dr, r_min=r_min)
+            rdf = freud.density.RDF(dr, r_max, r_min=r_min)
             npt.assert_allclose(rdf.R, r_list, rtol=1e-4, atol=1e-4)
 
     def test_attribute_access(self):
@@ -27,7 +27,7 @@ class TestRDF(unittest.TestCase):
         box_size = r_max*3.1
         box, points = util.make_box_and_random_points(
             box_size, num_points, True)
-        rdf = freud.density.RDF(r_max, dr)
+        rdf = freud.density.RDF(r_max=r_max, dr=dr)
 
         # Test protected attribute access
         with self.assertRaises(AttributeError):
@@ -84,7 +84,7 @@ class TestRDF(unittest.TestCase):
             test_set = util.make_raw_query_nlist_test_set(
                 box, points, points, "ball", r_max, 0, True)
             for ts in test_set:
-                rdf = freud.density.RDF(r_max, dr, r_min=r_min)
+                rdf = freud.density.RDF(dr, r_max, r_min)
 
                 if i < 3:
                     rdf.accumulate(box, ts[0], nlist=ts[1])
@@ -107,7 +107,7 @@ class TestRDF(unittest.TestCase):
                                     rtol=tolerance)
 
     def test_repr(self):
-        rdf = freud.density.RDF(10, 0.1, r_min=0.5)
+        rdf = freud.density.RDF(r_max=10, dr=0.1, r_min=0.5)
         self.assertEqual(str(rdf), str(eval(repr(rdf))))
 
     def test_repr_png(self):
@@ -116,7 +116,7 @@ class TestRDF(unittest.TestCase):
         num_points = 10
         box_size = r_max*3.1
         box, points = util.make_box_and_random_points(box_size, num_points)
-        rdf = freud.density.RDF(r_max, dr)
+        rdf = freud.density.RDF(dr, r_max)
 
         with self.assertRaises(AttributeError):
             rdf.plot()
@@ -131,7 +131,7 @@ class TestRDF(unittest.TestCase):
         box_size = r_max*5
         box = freud.box.Box.square(box_size)
 
-        rdf = freud.density.RDF(r_max, dr)
+        rdf = freud.density.RDF(dr, r_max)
 
         query_points = []
         supposed_RDF = [0]
@@ -153,7 +153,7 @@ class TestRDF(unittest.TestCase):
         test_set = util.make_raw_query_nlist_test_set(
             box, points, query_points, "ball", r_max, 0, False)
         for ts in test_set:
-            rdf = freud.density.RDF(r_max, dr)
+            rdf = freud.density.RDF(dr, r_max)
             rdf.compute(box, ts[0], query_points, nlist=ts[1])
 
             npt.assert_allclose(rdf.n_r, supposed_RDF, atol=1e-6)

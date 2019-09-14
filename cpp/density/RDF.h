@@ -116,6 +116,21 @@ public:
 
     unsigned int getNBins();
 
+    float getRMax() const
+    {
+        return m_r_max;
+    }
+
+    float getRMin() const
+    {
+        return m_r_min;
+    }
+
+    float getDr() const
+    {
+        return m_dr;
+    }
+
 private:
     box::Box m_box;
     unsigned int m_frame_counter;    //!< Number of frames calculated.

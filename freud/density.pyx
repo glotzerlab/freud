@@ -753,10 +753,8 @@ cdef class RDF(SpatialHistogram):
             last call to :meth:`~.compute` (or :meth:`~.accumulate`).
     """
     cdef freud._density.RDF * thisptr
-    cdef dr
-    cdef r_min
 
-    def __cinit__(self, float r_max, float dr, float r_min=0):
+    def __cinit__(self, float dr, float r_max, float r_min=0):
         if r_max <= 0:
             raise ValueError("r_max must be > 0")
         if r_max <= r_min:
@@ -764,9 +762,10 @@ cdef class RDF(SpatialHistogram):
         if dr <= 0.0:
             raise ValueError("dr must be > 0")
         self.thisptr = new freud._density.RDF(r_max, dr, r_min)
+        # r_max is left as an attribute rather than a property for now since
+        # that change needs to happen at the SpatialHistogram level for
+        # multiple classes.
         self.r_max = r_max
-        self.dr = dr
-        self.r_min = r_min
 
     def __dealloc__(self):
         del self.thisptr
@@ -867,6 +866,14 @@ cdef class RDF(SpatialHistogram):
                                          r_max=self.r_max,
                                          dr=self.dr,
                                          r_min=self.r_min)
+
+    @property
+    def r_min(self):
+        return self.thisptr.getRMin()
+
+    @property
+    def dr(self):
+        return self.thisptr.getDr()
 
     @Compute._computed_method()
     def plot(self, ax=None):
