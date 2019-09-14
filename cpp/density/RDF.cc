@@ -36,7 +36,6 @@ RDF::RDF(unsigned int bins, float r_max, float r_min) : m_box(box::Box()), m_fra
     m_histogram = util::Histogram(axes);
 
     // precompute the bin center positions and cell volumes
-    m_r_array.prepare(m_bins);
     m_vol_array.prepare(m_bins);
     m_vol_array2D.prepare(m_bins);
     m_vol_array3D.prepare(m_bins);
@@ -46,7 +45,6 @@ RDF::RDF(unsigned int bins, float r_max, float r_min) : m_box(box::Box()), m_fra
     {
         float r = float(i) * dr + m_r_min;
         float nextr = float(i + 1) * dr + m_r_min;
-        m_r_array.get()[i] = (r + nextr)/2;
         m_vol_array2D.get()[i] = M_PI * (nextr * nextr - r * r);
         m_vol_array3D.get()[i] = 4.0f / 3.0f * M_PI * (nextr * nextr * nextr - r * r * r);
     }
@@ -86,12 +84,6 @@ void RDF::reduce()
         m_pcf_array[i] /= m_frame_counter;
         m_N_r_array.get()[i] /= m_frame_counter;
     }
-}
-
-//! get a reference to the histogram bin centers array
-const util::ManagedArray<float> &RDF::getR()
-{
-    return m_r_array;
 }
 
 //! \internal

@@ -46,7 +46,7 @@ public:
         std::vector<float> bin_centers(m_nbins);
         for (unsigned int i = 0; i < m_nbins; i++)
         {
-            bin_centers[i] = (m_bin_boundaries[i] - m_bin_boundaries[i+1])/2;
+            bin_centers[i] = (m_bin_boundaries[i] + m_bin_boundaries[i+1])/float(2.0);
         }
         return bin_centers;
     }
@@ -62,11 +62,12 @@ class RegularAxis : public Axis
 public:
     RegularAxis(size_t nbins, float min, float max) : Axis(nbins), m_min(min), m_max(max)
     {
-        m_bin_boundaries.resize(m_nbins);
+        m_bin_boundaries.resize(m_nbins+1);
         m_dr = (max-min)/static_cast<float>(m_nbins);
         m_dr_inv = 1/m_dr;
-        float cur_location = min + m_dr/2;
-        for (unsigned int i = 0; i < nbins; i++)
+        float cur_location = min;
+        // This must be <= because there is one extra bin boundary than the number of bins.
+        for (unsigned int i = 0; i <= nbins; i++)
         {
             m_bin_boundaries[i] = (cur_location);
             cur_location += m_dr;

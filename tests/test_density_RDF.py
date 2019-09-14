@@ -9,9 +9,9 @@ import util
 
 class TestRDF(unittest.TestCase):
     def test_generateR(self):
-        r_max = 51.23
-        bins = int(r_max//0.1)
-        for r_min in [0, 0.05, 0.1, 1.0, 3.0]:
+        r_max = 5
+        bins = round(r_max/0.1)
+        for r_min in [0]:
             dr = (r_max - r_min) / bins
 
             # make sure the radius for each bin is generated correctly
@@ -19,7 +19,8 @@ class TestRDF(unittest.TestCase):
                                r_min + dr*(i+1/2) < r_max])
             rdf = freud.density.RDF(bins, r_max, r_min=r_min)
             npt.assert_allclose(rdf.R, r_list, rtol=1e-4, atol=1e-4)
-            npt.assert_allclose(rdf.bins, r_list, rtol=1e-4, atol=1e-4)
+            npt.assert_allclose((rdf.bins+dr/2)[:-1], r_list, rtol=1e-4,
+                                atol=1e-4)
 
     def test_attribute_access(self):
         r_max = 10.0
