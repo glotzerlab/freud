@@ -48,37 +48,18 @@ template<typename T> std::shared_ptr<T> Steinhardt::makeArray(size_t size)
 
 void Steinhardt::reallocateArrays(unsigned int Np)
 {
+    m_Np = Np;
     m_Qlmi.prepare((2 * m_l + 1)*Np);
     m_Qlm.prepare(2 * m_l + 1);
+    m_Qli.prepare(Np);
     if (m_average)
     {
         m_QlmiAve.prepare((2 * m_l + 1)*Np);
-    }
-    // Allocate new memory when required
-    if (Np != m_Np)
-    {
-        m_Np = Np;
-        m_Qli = makeArray<float>(Np);
-
-        if (m_average)
-        {
-            m_QliAve = makeArray<float>(Np);
-        }
-
-        if (m_Wl)
-        {
-            m_Wli = makeArray<float>(Np);
-        }
-    }
-    // Set arrays to zero
-    memset((void*) m_Qli.get(), 0, sizeof(float) * m_Np);
-    if (m_average)
-    {
-        memset((void*) m_QliAve.get(), 0, sizeof(float) * m_Np);
+        m_QliAve.prepare(Np);
     }
     if (m_Wl)
     {
-        memset((void*) m_Wli.get(), 0, sizeof(float) * m_Np);
+        m_Wli.prepare(Np);
     }
 }
 
@@ -254,7 +235,7 @@ float Steinhardt::normalize()
     }
 }
 
-void Steinhardt::aggregateWl(std::shared_ptr<float> target, util::ManagedArray<complex<float>> source)
+void Steinhardt::aggregateWl(util::ManagedArray<float> &target, util::ManagedArray<complex<float> > &source)
 {
     auto wigner3jvalues = getWigner3j(m_l);
     parallel_for(tbb::blocked_range<size_t>(0, m_Np), [=](const tbb::blocked_range<size_t>& r) {

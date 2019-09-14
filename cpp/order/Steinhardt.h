@@ -71,13 +71,13 @@ public:
     virtual ~Steinhardt() {};
 
     //! Get the number of particles used in the last compute
-    unsigned int getNP()
+    unsigned int getNP() const
     {
         return m_Np;
     }
 
     //! Get the last calculated order parameter
-    std::shared_ptr<float> getOrder()
+    const util::ManagedArray<float> &getOrder() const
     {
         if (m_Wl)
         {
@@ -90,7 +90,7 @@ public:
     }
 
     //! Get the last calculated Ql
-    std::shared_ptr<float> getQl()
+    const util::ManagedArray<float> &getQl() const
     {
         if (m_average)
         {
@@ -103,25 +103,25 @@ public:
     }
 
     //! Get norm
-    float getNorm()
+    float getNorm() const
     {
         return m_norm;
     }
 
     //!< Whether to take a second shell average
-    bool isAverage()
+    bool isAverage() const
     {
         return m_average;
     }
 
     //!< Whether to use the third-order invariant Wl
-    bool isWl()
+    bool isWl() const
     {
         return m_Wl;
     }
 
     //!< Whether to use neighbor weights in computing Qlmi
-    bool isWeighted()
+    bool isWeighted() const
     {
         return m_weighted;
     }
@@ -159,8 +159,8 @@ private:
 
     //! Sum over Wigner 3j coefficients to compute third-order invariants
     //  Wl from second-order invariants Ql
-    void aggregateWl(std::shared_ptr<float> target,
-                     util::ManagedArray<std::complex<float>> source);
+    void aggregateWl(util::ManagedArray<float> &target,
+                     util::ManagedArray<std::complex<float>> &source);
 
     // Member variables used for compute
     unsigned int m_Np; //!< Last number of points computed
@@ -174,12 +174,12 @@ private:
     util::ManagedArray<std::complex<float>> m_Qlmi; //!< Qlm for each particle i
     util::ManagedArray<std::complex<float>> m_Qlm;  //!< Normalized Qlm(Ave) for the whole system
     util::ThreadStorage<std::complex<float>> m_Qlm_local; //!< Thread-specific m_Qlm(Ave)
-    std::shared_ptr<float> m_Qli;              //!< Ql locally invariant order parameter for each particle i
-    std::shared_ptr<float> m_QliAve;           //!< Averaged Ql with 2nd neighbor shell for each particle i
+    util::ManagedArray<float> m_Qli;              //!< Ql locally invariant order parameter for each particle i
+    util::ManagedArray<float> m_QliAve;           //!< Averaged Ql with 2nd neighbor shell for each particle i
     util::ManagedArray<complex<float>> m_QlmiAve; //!< Averaged Qlm with 2nd neighbor shell for each particle i
     util::ManagedArray<std::complex<float>> m_QlmAve;   //!< Normalized QlmiAve for the whole system
     float m_norm;                                    //!< System normalized order parameter
-    std::shared_ptr<float> m_Wli; //!< Wl order parameter for each particle i, also used for Wl averaged data
+    util::ManagedArray<float> m_Wli; //!< Wl order parameter for each particle i, also used for Wl averaged data
 };
 
 }; };  // end namespace freud::order

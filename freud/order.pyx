@@ -570,17 +570,15 @@ cdef class Steinhardt(PairCompute):
 
     @Compute._computed_property()
     def order(self):
-        cdef unsigned int n_particles = self.stptr.getNP()
-        cdef const float[::1] op = \
-            <float[:n_particles]> self.stptr.getOrder().get()
-        return np.asarray(op)
+        return freud.util.make_managed_numpy_array(
+            &self.stptr.getOrder(),
+            freud.util.arr_type_t.FLOAT)
 
     @Compute._computed_property()
     def Ql(self):
-        cdef unsigned int n_particles = self.stptr.getNP()
-        cdef const float[::1] op = \
-            <float[:n_particles]> self.stptr.getQl().get()
-        return np.asarray(op)
+        return freud.util.make_managed_numpy_array(
+            &self.stptr.getQl(),
+            freud.util.arr_type_t.FLOAT)
 
     @Compute._compute()
     def compute(self, box, points, nlist=None, query_args=None):
