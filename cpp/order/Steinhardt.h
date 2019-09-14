@@ -4,10 +4,10 @@
 #ifndef STEINHARDT_H
 #define STEINHARDT_H
 
-#include <ThreadStorage.h>
 #include <complex>
 #include <memory>
 #include <tbb/tbb.h>
+#include <ManagedArray.h>
 
 #include "Box.h"
 #include "NeighborList.h"
@@ -83,13 +83,9 @@ public:
         {
             return m_Wli;
         }
-        else if (m_average)
-        {
-            return m_QliAve;
-        }
         else
         {
-            return m_Qli;
+            return getQl();
         }
     }
 
@@ -164,7 +160,7 @@ private:
     //! Sum over Wigner 3j coefficients to compute third-order invariants
     //  Wl from second-order invariants Ql
     void aggregateWl(std::shared_ptr<float> target,
-                     std::shared_ptr<std::complex<float>> source);
+                     util::ManagedArray<std::complex<float>> source);
 
     // Member variables used for compute
     unsigned int m_Np; //!< Last number of points computed
@@ -175,13 +171,13 @@ private:
     bool m_Wl;      //!< Whether to use the third-order invariant Wl (default false)
     bool m_weighted;      //!< Whether to use neighbor weights in computing Qlmi (default false)
 
-    std::shared_ptr<std::complex<float>> m_Qlmi; //!< Qlm for each particle i
-    std::shared_ptr<std::complex<float>> m_Qlm;  //!< Normalized Qlm(Ave) for the whole system
+    util::ManagedArray<std::complex<float>> m_Qlmi; //!< Qlm for each particle i
+    util::ManagedArray<std::complex<float>> m_Qlm;  //!< Normalized Qlm(Ave) for the whole system
     util::ThreadStorage<std::complex<float>> m_Qlm_local; //!< Thread-specific m_Qlm(Ave)
     std::shared_ptr<float> m_Qli;              //!< Ql locally invariant order parameter for each particle i
     std::shared_ptr<float> m_QliAve;           //!< Averaged Ql with 2nd neighbor shell for each particle i
-    std::shared_ptr<complex<float>> m_QlmiAve; //!< Averaged Qlm with 2nd neighbor shell for each particle i
-    std::shared_ptr<std::complex<float>> m_QlmAve;   //!< Normalized QlmiAve for the whole system
+    util::ManagedArray<complex<float>> m_QlmiAve; //!< Averaged Qlm with 2nd neighbor shell for each particle i
+    util::ManagedArray<std::complex<float>> m_QlmAve;   //!< Normalized QlmiAve for the whole system
     float m_norm;                                    //!< System normalized order parameter
     std::shared_ptr<float> m_Wli; //!< Wl order parameter for each particle i, also used for Wl averaged data
 };
