@@ -4,6 +4,7 @@
 from freud.util cimport vec3
 from libcpp.memory cimport shared_ptr
 from libcpp.complex cimport complex
+from libcpp.vector cimport vector
 cimport freud._box
 cimport freud._locality
 cimport freud.util
@@ -68,4 +69,4 @@ cdef extern from "RDF.h" namespace "freud::density":
         const freud.util.ManagedArray[float] &getR()
         const freud.util.ManagedArray[float] &getNr()
         const freud.util.ManagedArray[uint] &getBinCounts()
-        unsigned int getBins()
+        vector[float] getBins()

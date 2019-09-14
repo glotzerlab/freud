@@ -858,7 +858,7 @@ cdef class RDF(SpatialHistogram):
     def __repr__(self):
         return ("freud.density.{cls}(bins={bins}, r_max={r_max}, "
                 "r_min={r_min})").format(cls=type(self).__name__,
-                                         bins=self.bins,
+                                         bins=len(self.bins),
                                          r_max=self.r_max,
                                          r_min=self.r_min)
 

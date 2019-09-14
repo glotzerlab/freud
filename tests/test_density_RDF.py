@@ -19,6 +19,7 @@ class TestRDF(unittest.TestCase):
                                r_min + dr*(i+1/2) < r_max])
             rdf = freud.density.RDF(bins, r_max, r_min=r_min)
             npt.assert_allclose(rdf.R, r_list, rtol=1e-4, atol=1e-4)
+            npt.assert_allclose(rdf.bins, r_list, rtol=1e-4, atol=1e-4)
 
     def test_attribute_access(self):
         r_max = 10.0

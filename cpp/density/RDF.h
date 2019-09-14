@@ -124,9 +124,11 @@ public:
         return m_r_min;
     }
 
-    float getBins() const
+    //! Return the bins.
+    std::vector<float> getBins() const
     {
-        return m_bins;
+        // RDFs are always 1D histograms, so we return the first element.
+        return m_histogram.getBins()[0];
     }
 
 private:
