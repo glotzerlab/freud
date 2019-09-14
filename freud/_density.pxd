@@ -8,6 +8,8 @@ cimport freud._box
 cimport freud._locality
 cimport freud.util
 
+ctypedef unsigned int uint
+
 cdef extern from "CorrelationFunction.h" namespace "freud::density":
     cdef cppclass CorrelationFunction[T]:
         CorrelationFunction(float, float) except +
@@ -62,4 +64,5 @@ cdef extern from "RDF.h" namespace "freud::density":
         const freud.util.ManagedArray[float] &getRDF()
         const freud.util.ManagedArray[float] &getR()
         const freud.util.ManagedArray[float] &getNr()
+        const freud.util.ManagedArray[uint] &getBinCounts()
         unsigned int getNBins()

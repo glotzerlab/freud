@@ -843,6 +843,12 @@ cdef class RDF(SpatialHistogram):
             &self.thisptr.getRDF(),
             freud.util.arr_type_t.FLOAT)
 
+    @Compute._computed_property()
+    def bin_counts(self):
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getBinCounts(),
+            freud.util.arr_type_t.UNSIGNED_INT)
+
     @property
     def R(self):
         return freud.util.make_managed_numpy_array(

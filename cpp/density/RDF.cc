@@ -36,8 +36,9 @@ RDF::RDF(float r_max, float dr, float r_min) : m_box(box::Box()), m_frame_counte
 
     m_nbins = int(floorf((m_r_max - m_r_min) / m_dr));
     assert(m_nbins > 0);
-    m_bin_counts.prepare(m_nbins);
-    m_avg_counts.prepare(m_nbins);
+    util::Histogram::Axes axes;
+    axes.push_back(std::make_shared<util::RegularAxis>(m_nbins, m_r_min, m_r_max));
+    m_histogram = util::Histogram(axes);
 
     // precompute the bin center positions and cell volumes
     m_r_array.prepare(m_nbins);
@@ -53,15 +54,15 @@ RDF::RDF(float r_max, float dr, float r_min) : m_box(box::Box()), m_frame_counte
         m_vol_array2D.get()[i] = M_PI * (nextr * nextr - r * r);
         m_vol_array3D.get()[i] = 4.0f / 3.0f * M_PI * (nextr * nextr * nextr - r * r * r);
     }
-    m_local_bin_counts.resize(m_nbins);
+    m_local_histograms = util::Histogram::ThreadLocalHistogram(m_histogram);
 } // end RDF::RDF
 
 //! \internal
 //! helper function to reduce the thread specific arrays into one array
-void RDF::reduceRDF()
+void RDF::reduce()
 {
     m_pcf_array.prepare(m_nbins);
-    m_bin_counts.prepare(m_nbins);
+    m_histogram.reset();
     m_avg_counts.prepare(m_nbins);
     m_N_r_array.prepare(m_nbins);
 
@@ -72,18 +73,11 @@ void RDF::reduceRDF()
     else
         m_vol_array = m_vol_array3D;
     // now compute the rdf
-    parallel_for(blocked_range<size_t>(0, m_nbins), [=](const blocked_range<size_t>& r) {
-        for (size_t i = r.begin(); i != r.end(); i++)
-        {
-            for (util::ThreadStorage<unsigned int>::const_iterator local_bins = m_local_bin_counts.begin();
-                 local_bins != m_local_bin_counts.end(); ++local_bins)
-            {
-                m_bin_counts[i] += (*local_bins)[i];
-            }
-            m_avg_counts[i] = (float) m_bin_counts[i] / m_n_points;
+    m_histogram.reduceOverThreadsPerParticle(m_local_histograms,
+            [this, &ndens] (size_t i) {
+            m_avg_counts[i] = static_cast<float>(m_histogram[i]) / m_n_points;
             m_pcf_array[i] = m_avg_counts[i] / m_vol_array[i] / ndens;
-        }
-    });
+            });
 
     m_N_r_array.get()[0] = m_avg_counts.get()[0];
     for (unsigned int i = 1; i < m_nbins; i++)
@@ -115,7 +109,7 @@ unsigned int RDF::getNBins()
  */
 void RDF::reset()
 {
-    m_local_bin_counts.reset();
+    m_local_histograms.reset();
     this->m_frame_counter = 0;
     this->m_reduce = true;
 }
@@ -135,26 +129,11 @@ void RDF::accumulate(const freud::locality::NeighborQuery* neighbor_query,
     assert(m_n_points > 0);
     assert(n_query_points > 0);
 
-    float dr_inv = 1.0f / m_dr;
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
         [=](const freud::locality::NeighborBond& neighbor_bond) {
         if (neighbor_bond.distance < m_r_max && neighbor_bond.distance > m_r_min)
         {
-            // bin that r
-            float binr = (neighbor_bond.distance - m_r_min) * dr_inv;
-            // fast float to int conversion with truncation
-#ifdef __SSE2__
-            unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));
-#else
-                unsigned int bin = (unsigned int)(binr);
-#endif
-            // There may be a case where r_sq < r_max_sq but
-            // (r - m_r_min) * dr_inv rounds up to m_nbins.
-            // This additional check prevents a seg fault.
-            if (bin < m_nbins)
-            {
-                ++m_local_bin_counts.local()[bin];
-            }
+            m_local_histograms(neighbor_bond.distance);
         }
     });
 }

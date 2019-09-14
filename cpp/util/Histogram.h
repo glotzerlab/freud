@@ -38,8 +38,9 @@ class RegularAxis : public Axis
 public:
     RegularAxis(size_t nbins, float min, float max) : Axis(), m_min(min), m_max(max)
     {
-        this->m_nbins = nbins;
+        m_nbins = nbins;
         m_dr = (max-min)/nbins;
+        m_dr_inv = 1/m_dr;
         float cur_location = min + m_dr/2;
         for (unsigned int i = 0; i < nbins; i++)
         {
@@ -50,7 +51,7 @@ public:
 
     virtual size_t getBin(const float &value) const
     {
-        float val = (value - m_min)/m_dr;
+        float val = (value - m_min) * m_dr_inv;
         // fast float to int conversion with truncation
 #ifdef __SSE2__
         unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&val));
@@ -72,6 +73,7 @@ protected:
     float m_min; //!< Lowest value allowed.
     float m_max; //!< Highest value allowed.
     float m_dr; //!< Gap between bins
+    float m_dr_inv; //!< Inverse gap between bins
 };
 
 
@@ -128,6 +130,13 @@ public:
             {
                 hist->reset();
             }
+        }
+
+        //! Dispatch to thread local histogram.
+        template <typename ... Floats>
+        void operator()(Floats ... values)
+        {
+            m_local_histograms.local()(values ...);
         }
 
     protected:
@@ -195,8 +204,6 @@ public:
         m_bin_counts.reset();
     }
 
-    ManagedArray<unsigned int> m_bin_counts; //!< Counts for each bin
-
     //!< Compute this histogram by reducing over a set of thread-local copies.
     void reduceOverThreads(ThreadLocalHistogram &local_histograms)
     {
@@ -230,8 +237,21 @@ public:
         });
     }
 
+    //! Writeable index into array.
+    unsigned int &operator[](unsigned int i)
+    {
+        return m_bin_counts[i];
+    }
+
+    //! Writeable index into array.
+    const unsigned int &operator[](unsigned int i) const
+    {
+        return m_bin_counts[i];
+    }
+
 protected:
     std::vector<std::shared_ptr<Axis > > m_axes; //!< The axes.
+    ManagedArray<unsigned int> m_bin_counts; //!< Counts for each bin
 
     std::vector<float> getValueVector(float value)
     {

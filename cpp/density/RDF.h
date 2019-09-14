@@ -12,6 +12,7 @@
 #include "PMFT.h"
 #include "ThreadStorage.h"
 #include "VectorMath.h"
+#include "Histogram.h"
 
 /*! \file RDF.h
     \brief Routines for computing radial density functions.
@@ -35,15 +36,9 @@ public:
                     const vec3<float>* query_points, unsigned int n_query_points,
                     const freud::locality::NeighborList* nlist, freud::locality::QueryArgs qargs);
 
-    //! \internal
-    //! helper function to reduce the thread specific arrays into one array
-    void reduceRDF();
-
     //! Implementing pure virtual function from parent class.
-    virtual void reduce()
-    {
-        reduceRDF();
-    }
+    virtual void reduce();
+
     //
     //! Return :code:`thing_to_return` after reducing.
     template<typename T>
@@ -100,6 +95,12 @@ public:
         return getPCF();
     }
 
+    //! Get a reference to the PCF array
+    const util::ManagedArray<unsigned int> &getBinCounts()
+    {
+        return m_histogram.getBinCounts();
+    }
+
     //! Get a reference to the r array
     const util::ManagedArray<float> &getR();
 
@@ -128,7 +129,7 @@ private:
     unsigned int m_nbins; //!< Number of r bins to compute g(r) over
 
     util::ManagedArray<float> m_pcf_array;         //!< Array of computed pair correlation function.
-    util::ManagedArray<unsigned int> m_bin_counts; //!< Counts for each bin.
+    util::Histogram m_histogram;            //!< Counts for each bin.
     util::ManagedArray<float> m_avg_counts;  //!< Bin counts that go into computing the RDF array
     util::ManagedArray<float> m_N_r_array;   //!< Cumulative bin sum N(r)
     util::ManagedArray<float> m_r_array;     //!< Array of r values that the RDF is computed at
@@ -136,7 +137,7 @@ private:
     util::ManagedArray<float> m_vol_array2D; //!< Array of volumes for each slice of r
     util::ManagedArray<float> m_vol_array3D; //!< Array of volumes for each slice of r
 
-    util::ThreadStorage<unsigned int> m_local_bin_counts;   //!< Thread local bin counts for TBB parallelism
+    util::Histogram::ThreadLocalHistogram m_local_histograms;   //!< Thread local bin counts for TBB parallelism
 };
 
 }; }; // end namespace freud::density
