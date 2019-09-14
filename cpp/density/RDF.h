@@ -7,11 +7,8 @@
 #include <memory>
 
 #include "Box.h"
-#include "NeighborList.h"
 #include "NeighborQuery.h"
-#include "PMFT.h"
-#include "ThreadStorage.h"
-#include "VectorMath.h"
+#include "NeighborComputeFunctional.h"
 #include "Histogram.h"
 
 /*! \file RDF.h
@@ -32,14 +29,17 @@ public:
     void reset();
 
     //! Compute the RDF
+    /*! Accumulate the given points to the histogram. Accumulation is performed
+     * in parallel on thread-local copies of the data, which are reduced into
+     * the primary data arrays when the user requests outputs.
+     */
     void accumulate(const freud::locality::NeighborQuery* neighbor_query,
                     const vec3<float>* query_points, unsigned int n_query_points,
                     const freud::locality::NeighborList* nlist, freud::locality::QueryArgs qargs);
 
-    //! Implementing pure virtual function from parent class.
+    //! Reduce thread-local arrays onto the primary data arrays.
     virtual void reduce();
 
-    //
     //! Return :code:`thing_to_return` after reducing.
     template<typename T>
     T &reduceAndReturn(T &thing_to_return)
@@ -52,43 +52,19 @@ public:
         return thing_to_return;
     }
 
-    //! \internal
-    // Wrapper to do accumulation.
-    /*! \param neighbor_query NeighborQuery object to iterate over
-        \param query_points Points
-        \param n_query_points Number of query_points
-        \param nlist Neighbor List. If not NULL, loop over it. Otherwise, use neighbor_query
-           appropriately with given qargs.
-        \param qargs Query arguments
-        \param cf An object with operator(NeighborBond) as input.
-    */
-    template<typename Func>
-    void accumulateGeneral(const locality::NeighborQuery* neighbor_query,
-                           const vec3<float>* query_points, unsigned int n_query_points,
-                           const locality::NeighborList* nlist,
-                           freud::locality::QueryArgs qargs,
-                           Func cf)
-    {
-        m_box = neighbor_query->getBox();
-        locality::loopOverNeighbors(neighbor_query, query_points, n_query_points, qargs, nlist, cf);
-        m_frame_counter++;
-        m_n_points = neighbor_query->getNPoints();
-        m_n_query_points = n_query_points;
-        m_reduce = true;
-    }
-
     //! Get the simulation box
     const box::Box& getBox() const
     {
         return m_box;
     }
 
+    //! Get the positional correlation function.
     const util::ManagedArray<float> &getRDF()
     {
         return reduceAndReturn(m_pcf);
     }
 
-    //! Get a reference to the PCF array
+    //! Get the histogram of bin distances.
     const util::ManagedArray<unsigned int> &getBinCounts()
     {
         return m_histogram.getBinCounts();
@@ -96,8 +72,8 @@ public:
 
     //! Get a reference to the N_r array.
     /*! Mathematically, m_N_r[i] is the average number of points
-     *  contained within a ball of radius getBins()[i+1] centered at a given
-     *  query_point, averaged over all query_points.
+     * contained within a ball of radius getBins()[i+1] centered at a given
+     * query_point, averaged over all query_points.
      */
     const util::ManagedArray<float> &getNr()
     {
@@ -117,6 +93,7 @@ public:
     //! Get bin centers.
     std::vector<float> getR()
     {
+        // RDFs are always 1D histograms, so we just return the first element.
         return m_histogram.getBinCenters()[0];
     }
 

@@ -13,8 +13,11 @@
 
 namespace freud { namespace util {
 
-// Class defining an axis of an array (used in histogram).
-// T is the data type of the axis
+//! Class defining an axis of a histogram.
+/*! An Axis is defined by a specified number of bins and the boundaries
+ * defining them. Given a value along the Axis, the Axis can compute the bin
+ * within which this value falls.
+ */
 class Axis
 {
 public:
@@ -31,6 +34,10 @@ public:
     //! Find the bin of a value along this axis.
     /*! This method must be implemented by specific types of axes and is used
      * by the Histogram to bin along each axis independently.
+     *
+     * \param value The value to bin
+     *
+     * \return The index of the bin the value falls into.
      */
     virtual size_t bin(const float &value) const = 0;
 
@@ -56,7 +63,13 @@ protected:
     std::vector<float> m_bin_boundaries;   //!< The edges of bins.
 };
 
-// A regularly spaced axis
+//! A regularly spaced axis.
+/*! A RegularAxis is the most common type of axis, representing a series of
+ * linearly spaced bins between two boundaries. These axes can be specified a
+ * relatively small set of parameter and are very efficient to bin with
+ * defining them. Given a value along the Axis, the Axis can compute the bin
+ * within which this value falls.
+ */
 class RegularAxis : public Axis
 {
 public:
@@ -75,6 +88,15 @@ public:
     }
 
     //! Find the bin of a value along this axis.
+    /*! The linear spacing allows the binning process to be computed especially
+     * efficiently since it simply reduces to scaling the value into the range
+     * of the axis and looking at just the integral component of the resulting
+     * value.
+     *
+     * \param value The value to bin
+     *
+     * \return The index of the bin the value falls into.
+     */
     virtual size_t bin(const float &value) const
     {
         float val = (value - m_min) * m_dr_inv;
@@ -102,17 +124,30 @@ protected:
 };
 
 
-//! Data structure and methods for computing histograms
-/*! 
-*/
+//! An n-dimensional histogram class.
+/*! The Histogram is designed to simplify the most common use of histograms in
+ * C++ code, which is looping over a series of values and then binning them. To
+ * facilitate this use-case, the class provides an overriden operator() that
+ * accepts a set of D values (for a histogram of dimensionality D), computes
+ * the bin that value falls into, and then increments the count. Client code
+ * can also directly request to know what bin a value would occupy if they wish
+ * to operate on the histogram directly. The underlying data is handled using a
+ * ManagedArray, allowing dispatch of the multi-dimensional indexing.
+ */
 class Histogram
 {
 public:
     //! A container for thread-local copies of a provided histogram.
-    /*! To simplify the implementation and avoid unnecessary copies, the thread
-    *  local copies all share the same axes. This should cause no problems, but
-    *  can be refactored if needed.
-    */
+    /*! This container implements the simplest method of enabling parallel-safe
+     * accumulation, namely the creation of separate instances on each thread.
+     * Thread local histograms can be accumulated later using the
+     * reduceOverThreads functions in the Histogram class.
+     *
+     * To simplify the implementation and avoid unnecessary copies, the thread
+     * local copies all share the same axes (because the axes are stored as
+     * arrays of shared_ptrs in the Histogram class). This should cause no
+     * problems, but can be refactored if needed.
+     */
     class ThreadLocalHistogram
     {
     public:
@@ -200,7 +235,7 @@ public:
      *  are then combined into a single linear index using the underlying
      *  ManagedArray.
      */
-    size_t bin(std::vector<float> values)
+    size_t bin(std::vector<float> values) const
     {
         if (values.size() != m_axes.size())
         {
@@ -258,22 +293,14 @@ public:
         return bins;
     }
 
-    //!< Compute this histogram by reducing over a set of thread-local copies.
-    void reduceOverThreads(ThreadLocalHistogram &local_histograms)
-    {
-        tbb::parallel_for(tbb::blocked_range<size_t>(0, m_bin_counts.size()), [=](const tbb::blocked_range<size_t>& r) {
-            for (size_t i = r.begin(); i != r.end(); i++)
-            {
-                for (ThreadLocalHistogram::const_iterator local_bins = local_histograms.begin();
-                    local_bins != local_histograms.end(); ++local_bins)
-                {
-                    m_bin_counts[i] += (*local_bins).m_bin_counts[i];
-                }
-            }
-        });
-    }
-
-    //!< Compute this histogram by reducing over a set of thread-local copies, performing any post-processing as specified per bin as specified by the ComputeFunction cf.
+    //!< Aggregate a set of thread-local histograms into this one and apply a function.
+    /*! This function can be used whenever reduction over a set of
+     * ThreadLocalHistograms requires additional post-processing, such as some
+     * sort of normalization per bin.
+     *
+     * \param local_histograms The set of local histograms to reduce into this one.
+     * \param cf The function to apply to each bin, must have signature (size_t i) {...}
+     */
     template <typename ComputeFunction>
     void reduceOverThreadsPerBin(ThreadLocalHistogram &local_histograms, const ComputeFunction &cf)
     {
@@ -289,6 +316,21 @@ public:
                 cf(i);
             }
         });
+    }
+
+    //!< Aggregate a set of thread-local histograms into this one.
+    /*! This function is the standard method for parallel aggregation of a
+     * histogram. The simplest way to achieve parallel-safe accumulation is to
+     * create a ThreadLocalHistogram object, which holds a local copy of a
+     * histogram on each thread. This function then accumulates the results
+     * into this object.
+     *
+     * \param local_histograms The set of local histograms to reduce into this one.
+     */
+    void reduceOverThreads(ThreadLocalHistogram &local_histograms)
+    {
+        // Simply call the per-bin function with a nullary function.
+        reduceOverThreadsPerBin(local_histograms, [](size_t i) {});
     }
 
     //! Writeable index into array.
@@ -307,13 +349,19 @@ protected:
     std::vector<std::shared_ptr<Axis > > m_axes; //!< The axes.
     ManagedArray<unsigned int> m_bin_counts; //!< Counts for each bin
 
-    std::vector<float> getValueVector(float value)
+    //! The base case for constructing a vector of values provided to operator().
+    /*! This function and the accompanying recursive function below employ
+     * variadic templating to accept an arbitrary set of float values and
+     * construct a vector out of them.
+     */
+    std::vector<float> getValueVector(float value) const
     {
         return {value};
     }
 
+    //! The recursive case for constructing a vector of values (see base-case function docs).
     template <typename ... Floats>
-    std::vector<float> getValueVector(float value, Floats ... values)
+    std::vector<float> getValueVector(float value, Floats ... values) const
     {
         std::vector<float> tmp = getValueVector(values...);
         tmp.insert(tmp.begin(), value);
