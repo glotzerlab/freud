@@ -275,7 +275,7 @@ public:
 
     //!< Compute this histogram by reducing over a set of thread-local copies, performing any post-processing as specified per bin as specified by the ComputeFunction cf.
     template <typename ComputeFunction>
-    void reduceOverThreadsPerParticle(ThreadLocalHistogram &local_histograms, const ComputeFunction &cf)
+    void reduceOverThreadsPerBin(ThreadLocalHistogram &local_histograms, const ComputeFunction &cf)
     {
         tbb::parallel_for(tbb::blocked_range<size_t>(0, m_bin_counts.size()), [=](const tbb::blocked_range<size_t>& r) {
             for (size_t i = r.begin(); i != r.end(); i++)

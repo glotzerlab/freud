@@ -30,53 +30,56 @@ RDF::RDF(unsigned int bins, float r_max, float r_min) : m_box(box::Box()), m_fra
     if (r_max <= r_min)
         throw invalid_argument("RDF requires that r_max must be greater than r_min.");
 
-    assert(m_bins > 0);
     util::Histogram::Axes axes;
     axes.push_back(std::make_shared<util::RegularAxis>(m_bins, m_r_min, m_r_max));
     m_histogram = util::Histogram(axes);
+    m_local_histograms = util::Histogram::ThreadLocalHistogram(m_histogram);
 
-    // precompute the bin center positions and cell volumes
+    // Precompute the cell volumes to speed up later calculations.
     m_vol_array2D.prepare(m_bins);
     m_vol_array3D.prepare(m_bins);
 
-    float dr = (m_r_max - m_r_min)/static_cast<float>(m_bins);
+    float volume_prefactor = (float(4.0)/float(3.0))*M_PI;
+    std::vector<float> bin_boundaries = getBins();
+
     for (unsigned int i = 0; i < m_bins; i++)
     {
-        float r = float(i) * dr + m_r_min;
-        float nextr = float(i + 1) * dr + m_r_min;
-        m_vol_array2D.get()[i] = M_PI * (nextr * nextr - r * r);
-        m_vol_array3D.get()[i] = 4.0f / 3.0f * M_PI * (nextr * nextr * nextr - r * r * r);
+        float r = bin_boundaries[i];
+        float nextr = bin_boundaries[i+1];
+        m_vol_array2D[i] = M_PI * (nextr * nextr - r * r);
+        m_vol_array3D[i] = volume_prefactor * (nextr * nextr * nextr - r * r * r);
     }
-    m_local_histograms = util::Histogram::ThreadLocalHistogram(m_histogram);
-} // end RDF::RDF
+}
 
 //! \internal
 //! helper function to reduce the thread specific arrays into one array
 void RDF::reduce()
 {
-    m_pcf_array.prepare(m_bins);
+    m_pcf.prepare(m_bins);
     m_histogram.reset();
-    m_N_r_array.prepare(m_bins);
+    m_N_r.prepare(m_bins);
 
+    // Define convenient prefactors with appropriate factors for convenient
+    // operations later on.
     float ndens = float(m_n_query_points) / m_box.getVolume();
     float np = static_cast<float>(m_n_points);
+    float prefactor = float(1.0)/(np*ndens*m_frame_counter);
 
     util::ManagedArray<float> vol_array = m_box.is2D() ? m_vol_array2D : m_vol_array3D;
-    m_histogram.reduceOverThreadsPerParticle(m_local_histograms,
-            [this, &ndens, &np, vol_array] (size_t i) {
-            m_pcf_array[i] = m_histogram[i] / np / vol_array[i] / ndens;
+    m_histogram.reduceOverThreadsPerBin(m_local_histograms,
+            [this, &prefactor, &vol_array] (size_t i) {
+            m_pcf[i] = m_histogram[i] * prefactor / vol_array[i];
             });
 
-    m_N_r_array.get()[0] = m_histogram[0] / np;
+    m_N_r[0] = m_histogram[0] / np;
     for (unsigned int i = 1; i < m_bins; i++)
     {
-        m_N_r_array.get()[i] = m_N_r_array.get()[i-1] + m_histogram[i] / np;
+        m_N_r[i] = m_N_r[i-1] + m_histogram[i] / np;
     }
 
     for (unsigned int i = 0; i < m_bins; i++)
     {
-        m_pcf_array[i] /= m_frame_counter;
-        m_N_r_array.get()[i] /= m_frame_counter;
+        m_N_r[i] /= m_frame_counter;
     }
 }
 
@@ -97,9 +100,6 @@ void RDF::accumulate(const freud::locality::NeighborQuery* neighbor_query,
                     const vec3<float>* query_points, unsigned int n_query_points,
                     const freud::locality::NeighborList* nlist, freud::locality::QueryArgs qargs)
 {
-    m_n_query_points = n_query_points;
-    m_n_points = neighbor_query->getNPoints();
-
     assert(neighbor_query);
     assert(query_points);
     assert(m_n_points > 0);

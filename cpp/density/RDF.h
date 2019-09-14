@@ -74,7 +74,6 @@ public:
         m_frame_counter++;
         m_n_points = neighbor_query->getNPoints();
         m_n_query_points = n_query_points;
-        // flag to reduce
         m_reduce = true;
     }
 
@@ -84,15 +83,9 @@ public:
         return m_box;
     }
 
-    const util::ManagedArray<float> &getPCF()
-    {
-        return reduceAndReturn(m_pcf_array);
-    }
-
-    //! Get a reference to the PCF array
     const util::ManagedArray<float> &getRDF()
     {
-        return getPCF();
+        return reduceAndReturn(m_pcf);
     }
 
     //! Get a reference to the PCF array
@@ -102,13 +95,13 @@ public:
     }
 
     //! Get a reference to the N_r array.
-    /*! Mathematically, m_N_r_array[i] is the average number of points
+    /*! Mathematically, m_N_r[i] is the average number of points
      *  contained within a ball of radius getBins()[i+1] centered at a given
      *  query_point, averaged over all query_points.
      */
     const util::ManagedArray<float> &getNr()
     {
-        return reduceAndReturn(m_N_r_array);
+        return reduceAndReturn(m_N_r);
     }
 
     float getRMax() const
@@ -130,26 +123,26 @@ public:
     //! Return the bin boundaries.
     std::vector<float> getBins() const
     {
-        // RDFs are always 1D histograms, so we return the first element.
+        // RDFs are always 1D histograms, so we just return the first element.
         return m_histogram.getBinBoundaries()[0];
     }
 
 private:
     box::Box m_box;
-    unsigned int m_frame_counter;    //!< Number of frames calculated.
-    unsigned int m_n_points;         //!< The number of points.
-    unsigned int m_n_query_points;   //!< The number of query points.
-    bool m_reduce;                   //!< Whether or not the histogram needs to be reduced.
+    unsigned int m_frame_counter;            //!< Number of frames calculated.
+    unsigned int m_n_points;                 //!< The number of points.
+    unsigned int m_n_query_points;           //!< The number of query points.
+    bool m_reduce;                           //!< Whether or not the histogram needs to be reduced.
 
-    float m_r_max;         //!< Maximum r at which to compute g(r)
-    float m_r_min;         //!< Minimum r at which to compute g(r)
-    unsigned int m_bins;   //!< Number of r bins to compute g(r) over
+    float m_r_max;                           //!< Maximum r at which to compute g(r)
+    float m_r_min;                           //!< Minimum r at which to compute g(r)
+    unsigned int m_bins;                     //!< Number of r bins to compute g(r) over
 
-    util::ManagedArray<float> m_pcf_array;         //!< Array of computed pair correlation function.
-    util::Histogram m_histogram;            //!< Counts for each bin.
-    util::ManagedArray<float> m_N_r_array;   //!< Cumulative bin sum N(r)
-    util::ManagedArray<float> m_vol_array2D; //!< Array of volumes for each slice of r
-    util::ManagedArray<float> m_vol_array3D; //!< Array of volumes for each slice of r
+    util::ManagedArray<float> m_pcf;         //!< The computed pair correlation function.
+    util::Histogram m_histogram;             //!< Histogram of interparticle distances (bond lengths).
+    util::ManagedArray<float> m_N_r;         //!< Cumulative bin sum N(r) (the average number of points in a ball of radius r).
+    util::ManagedArray<float> m_vol_array2D; //!< Areas of concentric rings corresponding to the histogram bins in 2D.
+    util::ManagedArray<float> m_vol_array3D; //!< Areas of concentric spherical shells corresponding to the histogram bins in 3D.
 
     util::Histogram::ThreadLocalHistogram m_local_histograms;   //!< Thread local bin counts for TBB parallelism
 };
