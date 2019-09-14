@@ -49,12 +49,12 @@ template<typename T> std::shared_ptr<T> Steinhardt::makeArray(size_t size)
 void Steinhardt::reallocateArrays(unsigned int Np)
 {
     m_Np = Np;
-    m_Qlmi.prepare((2 * m_l + 1)*Np);
+    m_Qlmi.prepare({Np, 2 * m_l + 1});
     m_Qlm.prepare(2 * m_l + 1);
     m_Qli.prepare(Np);
     if (m_average)
     {
-        m_QlmiAve.prepare((2 * m_l + 1)*Np);
+        m_QlmiAve.prepare({Np, 2 * m_l + 1});
         m_QliAve.prepare(Np);
     }
     if (m_Wl)
@@ -146,15 +146,15 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
                 const unsigned int index = (2 * m_l + 1) * i + k;
                 m_Qlmi[index] /= total_weight;
                 // Add the norm, which is the (complex) squared magnitude
-                m_Qli.get()[i] += norm(m_Qlmi[index]);
+                m_Qli[i] += norm(m_Qlmi[index]);
                 // This array gets populated by computeAve in the averaging case.
                 if (!m_average)
                 {
                     m_Qlm_local.local()[k] += m_Qlmi[index] / float(m_Np);
                 }
             }
-            m_Qli.get()[i] *= normalizationfactor;
-            m_Qli.get()[i] = sqrt(m_Qli.get()[i]);
+            m_Qli[i] *= normalizationfactor;
+            m_Qli[i] = sqrt(m_Qli[i]);
         });
 }
 
@@ -206,10 +206,10 @@ void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
                 m_QlmiAve[index] /= neighborcount;
                 m_Qlm_local.local()[k] += m_QlmiAve[index] / float(m_Np);
                 // Add the norm, which is the complex squared magnitude
-                m_QliAve.get()[i] += norm(m_QlmiAve[index]);
+                m_QliAve[i] += norm(m_QlmiAve[index]);
             }
-            m_QliAve.get()[i] *= normalizationfactor;
-            m_QliAve.get()[i] = sqrt(m_QliAve.get()[i]);
+            m_QliAve[i] *= normalizationfactor;
+            m_QliAve[i] = sqrt(m_QliAve[i]);
         });
 }
 
@@ -238,12 +238,12 @@ float Steinhardt::normalize()
 void Steinhardt::aggregateWl(util::ManagedArray<float> &target, util::ManagedArray<complex<float> > &source)
 {
     auto wigner3jvalues = getWigner3j(m_l);
-    parallel_for(tbb::blocked_range<size_t>(0, m_Np), [=](const tbb::blocked_range<size_t>& r) {
+    parallel_for(tbb::blocked_range<size_t>(0, m_Np), [&](const tbb::blocked_range<size_t>& r) {
         for (size_t i = r.begin(); i != r.end(); i++)
         {
             const unsigned int particle_index = (2 * m_l + 1) * i;
             //TODO Change this from using a pointer
-            target.get()[i] = reduceWigner3j(&(source.get()[particle_index]), m_l, wigner3jvalues);
+            target[i] = reduceWigner3j(&(source[particle_index]), m_l, wigner3jvalues);
         }
     });
 }
