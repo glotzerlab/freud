@@ -148,7 +148,6 @@ private:
     util::ManagedArray<float> m_pcf_array;         //!< Array of computed pair correlation function.
     util::Histogram m_histogram;            //!< Counts for each bin.
     util::ManagedArray<float> m_N_r_array;   //!< Cumulative bin sum N(r)
-    util::ManagedArray<float> m_vol_array;   //!< Array of volumes for each slice of r
     util::ManagedArray<float> m_vol_array2D; //!< Array of volumes for each slice of r
     util::ManagedArray<float> m_vol_array3D; //!< Array of volumes for each slice of r
 

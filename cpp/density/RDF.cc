@@ -36,7 +36,6 @@ RDF::RDF(unsigned int bins, float r_max, float r_min) : m_box(box::Box()), m_fra
     m_histogram = util::Histogram(axes);
 
     // precompute the bin center positions and cell volumes
-    m_vol_array.prepare(m_bins);
     m_vol_array2D.prepare(m_bins);
     m_vol_array3D.prepare(m_bins);
 
@@ -59,17 +58,13 @@ void RDF::reduce()
     m_histogram.reset();
     m_N_r_array.prepare(m_bins);
 
-    // now compute the rdf
     float ndens = float(m_n_query_points) / m_box.getVolume();
     float np = static_cast<float>(m_n_points);
-    if (m_box.is2D())
-        m_vol_array = m_vol_array2D;
-    else
-        m_vol_array = m_vol_array3D;
-    // now compute the rdf
+
+    util::ManagedArray<float> vol_array = m_box.is2D() ? m_vol_array2D : m_vol_array3D;
     m_histogram.reduceOverThreadsPerParticle(m_local_histograms,
-            [this, &ndens, &np] (size_t i) {
-            m_pcf_array[i] = m_histogram[i] / np / m_vol_array[i] / ndens;
+            [this, &ndens, &np, vol_array] (size_t i) {
+            m_pcf_array[i] = m_histogram[i] / np / vol_array[i] / ndens;
             });
 
     m_N_r_array.get()[0] = m_histogram[0] / np;
