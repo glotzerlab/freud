@@ -61,7 +61,7 @@ public:
      *           Must be a positive number.
      */
     Steinhardt(unsigned int l, bool average = false, bool Wl = false, bool weighted = false)
-        : m_Np(0), m_l(l), m_average(average), m_Wl(Wl), m_weighted(weighted), m_Qlm_local(2 * l + 1)
+        : m_Np(0), m_l(l), m_num_ms(2*l+1), m_average(average), m_Wl(Wl), m_weighted(weighted), m_Qlm_local(2 * l + 1)
     {
         if (m_l < 2)
             throw std::invalid_argument("Steinhardt requires l must be two or greater.");
@@ -165,6 +165,7 @@ private:
     // Member variables used for compute
     unsigned int m_Np; //!< Last number of points computed
     unsigned int m_l;  //!< Spherical harmonic l value.
+    unsigned int m_num_ms; //!< The number of magnetic quantum numbers (2*m_l+1).
 
     // Flags
     bool m_average; //!< Whether to take a second shell average (default false)
