@@ -34,13 +34,24 @@ The freud library uses single-precision `NumPy arrays <https://www.numpy.org/>`_
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents
+   :caption: Getting Started
 
    installation
    examples
+
+.. toctree::
+   :maxdepth: 2
+   :caption: API
+
    modules
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Reference
+
    development
-   citations
+   citing
+   references
    license
    credits
 
