@@ -24,7 +24,7 @@ class NdHistogram
 {
 public:
     //! Constructor
-    NdHistogram();
+    NdHistogram() : m_box(box::Box()), m_frame_counter(0), m_n_points(0), m_n_query_points(0), m_reduce(true) {}
 
     //! Destructor
     virtual ~NdHistogram() {};
@@ -65,7 +65,12 @@ public:
 
     //! \internal
     //! Reset m_local_bin_counts
-    void resetGeneral(unsigned int bin_size);
+    void resetGeneral(unsigned int bin_size)
+    {
+        m_local_bin_counts.reset();
+        this->m_frame_counter = 0;
+        this->m_reduce = true;
+    }
 
     //! \internal
     // Wrapper to do accumulation.
