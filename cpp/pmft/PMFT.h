@@ -108,46 +108,6 @@ public:
         return arr;
     }
 
-    ////! Helper function to reduce two dimensionally with appropriate Jaocobian.
-    //template<typename JacobFactor>
-    //void reduce2D(unsigned int first_dim, unsigned int second_dim, JacobFactor jf)
-    //{
-        //reduce3D(1, first_dim, second_dim, jf);
-    //}
-
-    ////! Helper function to reduce three dimensionally with appropriate Jaocobian.
-    //template<typename JacobFactor>
-    //void reduce3D(unsigned int n_r, unsigned int first_dim, unsigned int second_dim, JacobFactor jf)
-    //{
-        //unsigned int local_bin_counts_size = n_r * first_dim * second_dim;
-        //m_bin_counts.prepare({first_dim, second_dim, n_r});
-        //m_pcf_array.prepare({first_dim, second_dim, n_r});
-        //parallel_for(tbb::blocked_range<size_t>(0, local_bin_counts_size),
-                     //[=](const tbb::blocked_range<size_t>& r) {
-                         //for (size_t i = r.begin(); i != r.end(); i++)
-                         //{
-                             //for (util::ThreadStorage<unsigned int>::const_iterator local_bins
-                                  //= m_local_bin_counts.begin();
-                                  //local_bins != m_local_bin_counts.end(); ++local_bins)
-                             //{
-                                 //m_bin_counts[i] += (*local_bins)[i];
-                             //}
-                         //}
-                     //});
-        //float inv_num_dens = m_box.getVolume() / (float) m_n_query_points;
-        //float norm_factor = (float) 1.0 / ((float) m_frame_counter * (float) m_n_points);
-        //// normalize pcf_array
-        //// avoid need to unravel b/c arrays are in the same index order
-        //parallel_for(tbb::blocked_range<size_t>(0, n_r * first_dim * second_dim),
-                     //[=](const tbb::blocked_range<size_t>& r) {
-                         //for (size_t i = r.begin(); i != r.end(); i++)
-                         //{
-                             //m_pcf_array[i]
-                                 //= (float) m_bin_counts[i] * norm_factor * jf(i) * inv_num_dens;
-                         //}
-                     //});
-    //}
-
     //! Helper function to reduce three dimensionally with appropriate Jaocobian.
     template<typename JacobFactor>
     void reduce(JacobFactor jf)

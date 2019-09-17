@@ -329,7 +329,7 @@ public:
                 for (ThreadLocalHistogram::const_iterator local_bins = local_histograms.begin();
                     local_bins != local_histograms.end(); ++local_bins)
                 {
-                    m_bin_counts.get()[i] += (*local_bins).m_bin_counts[i];
+                    m_bin_counts[i] += (*local_bins).m_bin_counts[i];
                 }
                 
                 cf(i);

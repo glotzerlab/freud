@@ -48,7 +48,7 @@ PMFTR12::PMFTR12(float r_max, unsigned int n_r, unsigned int n_t1, unsigned int 
     m_inv_jacobian_array.prepare({m_n_r, m_n_t1, m_n_t2});
     for (unsigned int i = 0; i < m_n_r; i++)
     {
-        float r = m_r_array.get()[i];
+        float r = m_r_array[i];
         for (unsigned int j = 0; j < m_n_t1; j++)
         {
             for (unsigned int k = 0; k < m_n_t2; k++)
@@ -80,7 +80,7 @@ PMFTR12::PMFTR12(float r_max, unsigned int n_r, unsigned int n_t1, unsigned int 
 //! helper function to reduce the thread specific arrays into one array
 void PMFTR12::reducePCF()
 {
-    reduce([this](size_t i) { return m_inv_jacobian_array.get()[i]; });
+    reduce([this](size_t i) { return m_inv_jacobian_array[i]; });
 }
 
 void PMFTR12::accumulate(const locality::NeighborQuery* neighbor_query,

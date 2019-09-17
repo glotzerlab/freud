@@ -30,7 +30,7 @@ public:
 
     //! \internal
     //! helper function to reduce the thread specific arrays into one array
-    virtual void reducePCF();
+    virtual void reduce();
 
     //! Get a reference to the x array
     const util::ManagedArray<float> &getX()
