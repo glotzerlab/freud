@@ -58,6 +58,8 @@ public:
         return bin_centers;
     }
 
+    static const size_t OVERFLOW_BIN = 0xffffffff;
+
 protected:
     size_t m_nbins; //!< Number of bins
     std::vector<float> m_bin_boundaries;   //!< The edges of bins.
@@ -106,12 +108,11 @@ public:
 #else
         unsigned int bin = (unsigned int)(val);
 #endif
-        // There may be a case where rsq < rmaxsq but
-        // (r - m_rmin) * dr_inv rounds up to m_nbins.
-        // This additional check prevents a seg fault.
-        if (bin == m_nbins)
+        // Don't allow overflow. Since bin is unsigned, we don't need to check
+        // for underflow.
+        if (bin >= m_nbins)
         {
-            --bin;
+            return OVERFLOW_BIN;
         }
         return bin;
     }
@@ -227,7 +228,9 @@ public:
     {
         std::vector<float> value_vector = getValueVector(values ...);
         size_t value_bin = bin(value_vector);
-        m_bin_counts[value_bin]++; // TODO: Will want to replace this with custom accumulation at some point.
+        // Check for sentinel to avoid overflow.
+        if (value_bin != Axis::OVERFLOW_BIN)
+            m_bin_counts[value_bin]++; // TODO: Will want to replace this with custom accumulation at some point.
     }
 
     //! Find the bin of a value.
@@ -247,7 +250,11 @@ public:
         std::vector<unsigned int> ax_bins;
         for (unsigned int ax_idx = 0; ax_idx < m_axes.size(); ax_idx++)
         {
-            ax_bins.push_back(m_axes[ax_idx]->bin(values[ax_idx]));
+            unsigned int bin_i = m_axes[ax_idx]->bin(values[ax_idx]);
+            // Immediately return sentinel if any bin is out of bounds.
+            if (bin_i == Axis::OVERFLOW_BIN)
+                return Axis::OVERFLOW_BIN;
+            ax_bins.push_back(bin_i);
         }
 
         return m_bin_counts.getIndex(ax_bins);
