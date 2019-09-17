@@ -133,7 +133,7 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
                 std::vector<std::complex<float>> Ylm(m_num_ms);
                 this->computeYlm(theta, phi, Ylm); // Fill up Ylm
 
-                for (unsigned int k = 0; k < Ylm.size(); ++k)
+                for (unsigned int k = 0; k < m_num_ms; ++k)
                 {
                     m_Qlmi({static_cast<unsigned int>(i), k}) += weight * Ylm[k];
                 }
@@ -256,8 +256,7 @@ void Steinhardt::reduce()
     parallel_for(tbb::blocked_range<size_t>(0, m_num_ms), [=](const tbb::blocked_range<size_t>& r) {
         for (size_t i = r.begin(); i != r.end(); i++)
         {
-            for (util::ThreadStorage<complex<float>>::const_iterator Ql_local = m_Qlm_local.begin();
-                 Ql_local != m_Qlm_local.end(); Ql_local++)
+            for (auto = m_Qlm_local.begin(); Ql_local != m_Qlm_local.end(); Ql_local++)
             {
                 m_Qlm[i] += (*Ql_local)[i];
             }
