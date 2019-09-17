@@ -13,6 +13,7 @@ and this project adheres to
 * New internal array object that allows data persistence and improves indexing in C++.
 * Internal threaded storage uses the standard ManagedArray object.
 * Upper bound r\_max option for number of neighbors queries.
+* Lower bound r\_min option for all queries.
 
 ### Changed
 * All compute objects that perform neighbor computations now use NeighborQuery internally.

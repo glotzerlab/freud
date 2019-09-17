@@ -29,6 +29,7 @@ cdef extern from "NeighborQuery.h" namespace "freud::locality":
         QueryType mode
         int num_neighbors
         float r_max
+        float r_min
         float r_guess
         float scale
         bool exclude_ii
