@@ -32,7 +32,7 @@ class PMFT : public util::NdHistogram
 {
 public:
     //! Constructor
-    PMFT();
+    PMFT() : util::NdHistogram() {}
 
     //! Destructor
     virtual ~PMFT() {};
@@ -57,7 +57,10 @@ public:
     }
 
     //! Helper function to precompute axis bin center,
-    util::ManagedArray<float> precomputeAxisBinCenter(unsigned int size, float d, float max);
+    util::ManagedArray<float> precomputeAxisBinCenter(unsigned int size, float d, float max)
+    {
+        return precomputeArrayGeneral(size, d, [=](float T, float nextT) { return -max + ((T + nextT) / 2.0); });
+    }
 
     //! Helper function to precompute array with the following logic.
     //! :code:`Func cf` should be some sort of (float)(float, float).
