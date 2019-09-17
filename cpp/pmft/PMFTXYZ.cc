@@ -77,14 +77,6 @@ void PMFTXYZ::reducePCF()
 }
 
 //! \internal
-/*! \brief Function to reset the pcf array if needed e.g. calculating between new particle types
- */
-void PMFTXYZ::reset()
-{
-    resetGeneral(m_n_x * m_n_y * m_n_z);
-}
-
-//! \internal
 /*! \brief Helper function to direct the calculation to the correct helper class
  */
 void PMFTXYZ::accumulate(const locality::NeighborQuery* neighbor_query,

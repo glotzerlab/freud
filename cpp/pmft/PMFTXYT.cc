@@ -71,11 +71,6 @@ void PMFTXYT::reducePCF()
     reduce3D(m_n_t, m_n_x, m_n_y, [jacobian_factor](size_t i) { return jacobian_factor; });
 }
 
-void PMFTXYT::reset()
-{
-    resetGeneral(m_n_x * m_n_y * m_n_t);
-}
-
 void PMFTXYT::accumulate(const locality::NeighborQuery* neighbor_query,
                          float* orientations, vec3<float>* query_points,
                          float* query_orientations, unsigned int n_query_points,

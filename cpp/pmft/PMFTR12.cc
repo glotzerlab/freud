@@ -83,11 +83,6 @@ void PMFTR12::reducePCF()
     reduce3D(m_n_t2, m_n_r, m_n_t1, [this](size_t i) { return m_inv_jacobian_array.get()[i]; });
 }
 
-void PMFTR12::reset()
-{
-    resetGeneral(m_n_r * m_n_t1 * m_n_t2);
-}
-
 void PMFTR12::accumulate(const locality::NeighborQuery* neighbor_query,
                          float* orientations, vec3<float>* query_points,
                          float* query_orientations, unsigned int n_p,

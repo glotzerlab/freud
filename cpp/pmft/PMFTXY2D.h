@@ -23,9 +23,6 @@ public:
     //! Constructor
     PMFTXY2D(float x_max, float y_max, unsigned int n_x, unsigned int n_y);
 
-    //! Reset the PCF array to all zeros
-    virtual void reset();
-
     /*! Compute the PCF for the passed in set of points. The result will
      *  be added to previous values of the PCF.
      */

@@ -65,15 +65,6 @@ void PMFTXY2D::reducePCF()
 }
 
 //! \internal
-/*! \brief Function to reset the pcf array if needed e.g. calculating between new particle types
- */
-
-void PMFTXY2D::reset()
-{
-    resetGeneral(m_n_x * m_n_y);
-}
-
-//! \internal
 /*! \brief Helper functionto direct the calculation to the correct helper class
  */
 void PMFTXY2D::accumulate(const locality::NeighborQuery* neighbor_query,

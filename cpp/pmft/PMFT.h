@@ -10,9 +10,12 @@
 
 #include "Box.h"
 #include "Index1D.h"
-#include "NdHistogram.h"
 #include "NeighborList.h"
 #include "VectorMath.h"
+#include "ThreadStorage.h"
+#include "ManagedArray.h"
+#include "NeighborQuery.h"
+#include "NeighborComputeFunctional.h"
 
 /*! \internal
     \file PMFT.h
@@ -21,6 +24,13 @@
 
 namespace freud { namespace pmft {
 
+template<typename T> std::shared_ptr<T> makeEmptyArray(unsigned int size)
+{
+    auto new_arr = std::shared_ptr<T>(new T[size], std::default_delete<T[]>());
+    memset((void*) new_arr.get(), 0, sizeof(T) * size);
+    return new_arr;
+}
+
 //! Computes the PMFT for a given set of points
 /*! The PMFT class is an abstract class providing the basis for all classes calculating PMFTs for specific
  *  dimensional cases. The PMFT class defines some of the key interfaces required for all PMFT classes, such
@@ -28,17 +38,22 @@ namespace freud { namespace pmft {
  *  subclasses that account for the proper set of dimensions.The required functions are implemented as pure
  *  virtual functions here to enforce this.
  */
-class PMFT : public util::NdHistogram
+class PMFT
 {
 public:
     //! Constructor
-    PMFT() : util::NdHistogram() {}
+    PMFT() : m_box(box::Box()), m_frame_counter(0), m_n_points(0) , m_n_query_points(0), m_reduce(true), m_r_max(0) {}
 
     //! Destructor
     virtual ~PMFT() {};
 
     //! Reset the PCF array to all zeros
-    virtual void reset() = 0;
+    void reset()
+    {
+        m_local_bin_counts.reset();
+        this->m_frame_counter = 0;
+        this->m_reduce = true;
+    }
 
     //! \internal
     //! helper function to reduce the thread specific arrays into one array
@@ -54,6 +69,32 @@ public:
     float getRMax()
     {
         return m_r_max;
+    }
+
+    //! \internal
+    // Wrapper to do accumulation.
+    /*! \param neighbor_query NeighborQuery object to iterate over
+        \param query_points Points
+        \param n_query_points Number of query_points
+        \param nlist Neighbor List. If not NULL, loop over it. Otherwise, use neighbor_query
+           appropriately with given qargs.
+        \param qargs Query arguments
+        \param cf An object with operator(NeighborBond) as input.
+    */
+    template<typename Func>
+    void accumulateGeneral(const locality::NeighborQuery* neighbor_query, 
+                           const vec3<float>* query_points, unsigned int n_query_points,
+                           const locality::NeighborList* nlist,
+                           freud::locality::QueryArgs qargs,
+                           Func cf)
+    {
+        m_box = neighbor_query->getBox();
+        locality::loopOverNeighbors(neighbor_query, query_points, n_query_points, qargs, nlist, cf);
+        m_frame_counter++;
+        m_n_points = neighbor_query->getNPoints();
+        m_n_query_points = n_query_points;
+        // flag to reduce
+        m_reduce = true;
     }
 
     //! Helper function to precompute axis bin center,
@@ -117,8 +158,47 @@ public:
                      });
     }
 
+    //! Get a reference to the PCF array
+    const util::ManagedArray<float> &getPCF()
+    {
+        return reduceAndReturn(m_pcf_array);
+    }
+
+    //! Get a reference to the bin counts array
+    const util::ManagedArray<unsigned int> &getBinCounts()
+    {
+        return reduceAndReturn(m_bin_counts);
+    }
+
+    //! Return :code:`thing_to_return` after reducing.
+    template<typename T>
+    T &reduceAndReturn(T &thing_to_return)
+    {
+        if (m_reduce == true)
+        {
+            reduce();
+        }
+        m_reduce = false;
+        return thing_to_return;
+    }
+
+    //! Get the simulation box
+    const box::Box& getBox() const
+    {
+        return m_box;
+    }
+
 protected:
+    box::Box m_box;
+    unsigned int m_frame_counter;    //!< Number of frames calculated.
+    unsigned int m_n_points;         //!< The number of points.
+    unsigned int m_n_query_points;   //!< The number of query points.
+    bool m_reduce;                   //!< Whether or not the histogram needs to be reduced.
     float m_r_max; //!< r_max used in cell list construction
+
+    util::ManagedArray<float> m_pcf_array;         //!< Array of computed pair correlation function.
+    util::ManagedArray<unsigned int> m_bin_counts; //!< Counts for each bin.
+    util::ThreadStorage<unsigned int> m_local_bin_counts;   //!< Thread local bin counts for TBB parallelism
 };
 
 }; }; // end namespace freud::pmft

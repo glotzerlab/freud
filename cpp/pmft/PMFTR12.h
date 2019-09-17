@@ -23,9 +23,6 @@ public:
     //! Constructor
     PMFTR12(float r_max, unsigned int n_r, unsigned int n_t1, unsigned int n_t2);
 
-    //! Reset the PCF array to all zeros
-    virtual void reset();
-
     /*! Compute the PCF for the passed in set of points. The function will be added to previous values
         of the PCF
     */
