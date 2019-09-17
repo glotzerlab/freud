@@ -8,7 +8,6 @@
 #include <emmintrin.h>
 #endif
 #include <sstream>
-#include <iostream>
 #include <tbb/tbb.h>
 
 namespace freud { namespace util {
@@ -101,6 +100,13 @@ public:
      */
     virtual size_t bin(const float &value) const
     {
+        // Since we're using an unsigned int cast for truncation, we must
+        // ensure that we will be working with a positive number or we will
+        // fail to detect underflow.
+        if (value < m_min)
+        {
+            return OVERFLOW_BIN;
+        }
         float val = (value - m_min) * m_dr_inv;
         // fast float to int conversion with truncation
 #ifdef __SSE2__
@@ -230,7 +236,9 @@ public:
         size_t value_bin = bin(value_vector);
         // Check for sentinel to avoid overflow.
         if (value_bin != Axis::OVERFLOW_BIN)
+        {
             m_bin_counts[value_bin]++; // TODO: Will want to replace this with custom accumulation at some point.
+        }
     }
 
     //! Find the bin of a value.
@@ -253,7 +261,9 @@ public:
             unsigned int bin_i = m_axes[ax_idx]->bin(values[ax_idx]);
             // Immediately return sentinel if any bin is out of bounds.
             if (bin_i == Axis::OVERFLOW_BIN)
+            {
                 return Axis::OVERFLOW_BIN;
+            }
             ax_bins.push_back(bin_i);
         }
 
