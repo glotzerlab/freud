@@ -60,7 +60,7 @@ PMFTXYT::PMFTXYT(float x_max, float y_max, unsigned int n_x, unsigned int n_y, u
     util::Histogram::Axes axes;
     axes.push_back(std::make_shared<util::RegularAxis>(n_x, -m_x_max, m_x_max));
     axes.push_back(std::make_shared<util::RegularAxis>(n_y, -m_y_max, m_y_max));
-    axes.push_back(std::make_shared<util::RegularAxis>(n_t, -m_t_max, m_t_max));
+    axes.push_back(std::make_shared<util::RegularAxis>(n_t, 0, m_t_max));
     m_histogram = util::Histogram(axes);
     m_local_histograms = util::Histogram::ThreadLocalHistogram(m_histogram);
 
@@ -85,6 +85,9 @@ void PMFTXYT::accumulate(const locality::NeighborQuery* neighbor_query,
         [=](const freud::locality::NeighborBond& neighbor_bond) {
         vec3<float> ref = neighbor_query->getPoints()[neighbor_bond.ref_id];
         vec3<float> delta = m_box.wrap(query_points[neighbor_bond.id] - ref);
+        //std::cout << "Ref: " << ref.x << ", " << ref.y << ", " << ref.z << std::endl;
+        //std::cout << "Query: " << query_points[neighbor_bond.id].x << ", " << query_points[neighbor_bond.id].y << ", " << query_points[neighbor_bond.id].z << std::endl;
+        //std::cout << "Delta: " << delta.x << ", " << delta.y << ", " << delta.z << std::endl;
 
         // rotate interparticle vector
         vec2<float> myVec(delta.x, delta.y);
@@ -93,6 +96,7 @@ void PMFTXYT::accumulate(const locality::NeighborQuery* neighbor_query,
         // calculate angle
         float d_theta = atan2(-delta.y, -delta.x);
         float t = query_orientations[neighbor_bond.id] - d_theta;
+        //std::cout << "The angle: " << t << std::endl;
         // make sure that t is bounded between 0 and 2PI
         t = fmod(t, 2 * M_PI);
         if (t < 0)

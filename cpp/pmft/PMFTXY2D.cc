@@ -80,24 +80,12 @@ void PMFTXY2D::accumulate(const locality::NeighborQuery* neighbor_query,
         [=](const freud::locality::NeighborBond& neighbor_bond) {
         vec3<float> ref = neighbor_query->getPoints()[neighbor_bond.ref_id];
         vec3<float> delta = this->m_box.wrap(query_points[neighbor_bond.id] - ref);
-        std::cout << "Ref: " << ref.x << ", " << ref.y << ", " << ref.z << std::endl;
-        std::cout << "Query: " << query_points[neighbor_bond.id].x << ", " << query_points[neighbor_bond.id].y << ", " << query_points[neighbor_bond.id].z << std::endl;
-        std::cout << "Delta: " << delta.x << ", " << delta.y << ", " << delta.z << std::endl;
 
         // rotate interparticle vector
         vec2<float> myVec(delta.x, delta.y);
         rotmat2<float> myMat = rotmat2<float>::fromAngle(-orientations[neighbor_bond.ref_id]);
         vec2<float> rotVec = myMat * myVec;
 
-        std::cout << "rotVec: " << rotVec.x << ", " << rotVec.y << std::endl;
-        std::vector<float> tmp = {rotVec.x,rotVec.y};
-        unsigned int i = 0;
-        for (auto it = m_histogram.m_axes.begin(); it != m_histogram.m_axes.end(); ++it)
-        {
-            std::cout << "Dim " << i << " bin: " << (*it)->bin(tmp[i]) << std::endl;
-            ++i;
-        }
-        std::cout << "bin: " << m_histogram.bin({rotVec.x, rotVec.y}) << std::endl;
         m_local_histograms(rotVec.x, rotVec.y);
     });
 }
