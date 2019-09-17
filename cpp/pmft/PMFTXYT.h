@@ -4,11 +4,6 @@
 #ifndef PMFTXYT_H
 #define PMFTXYT_H
 
-#include <memory>
-#include <ostream>
-#include <tbb/tbb.h>
-
-#include "NeighborList.h"
 #include "PMFT.h"
 
 /*! \file PMFTXYT.h

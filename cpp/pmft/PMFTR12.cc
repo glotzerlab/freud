@@ -71,16 +71,21 @@ PMFTR12::PMFTR12(float r_max, unsigned int n_r, unsigned int n_t1, unsigned int 
 
     // create and populate the pcf_array
     m_pcf_array.prepare({m_n_r, m_n_t1, m_n_t2});
-    m_bin_counts.prepare({m_n_r, m_n_t1, m_n_t2});
 
-    m_local_bin_counts.resize({m_n_r, m_n_t1, m_n_t2});
+    // Construct the Histogram object that will be used to keep track of counts of bond distances found.
+    util::Histogram::Axes axes;
+    axes.push_back(std::make_shared<util::RegularAxis>(n_r, 0, m_r_max));
+    axes.push_back(std::make_shared<util::RegularAxis>(n_t1, 0, m_t1_max));
+    axes.push_back(std::make_shared<util::RegularAxis>(n_t2, 0, m_t2_max));
+    m_histogram = util::Histogram(axes);
+    m_local_histograms = util::Histogram::ThreadLocalHistogram(m_histogram);
 }
 
 //! \internal
 //! helper function to reduce the thread specific arrays into one array
 void PMFTR12::reducePCF()
 {
-    reduce3D(m_n_t2, m_n_r, m_n_t1, [this](size_t i) { return m_inv_jacobian_array.get()[i]; });
+    reduce([this](size_t i) { return m_inv_jacobian_array.get()[i]; });
 }
 
 void PMFTR12::accumulate(const locality::NeighborQuery* neighbor_query,
@@ -88,10 +93,6 @@ void PMFTR12::accumulate(const locality::NeighborQuery* neighbor_query,
                          float* query_orientations, unsigned int n_p,
                          const locality::NeighborList* nlist, freud::locality::QueryArgs qargs)
 {
-    float dr_inv = 1.0f / m_dr;
-    float dt1_inv = 1.0f / m_dt1;
-    float dt2_inv = 1.0f / m_dt2;
-
     accumulateGeneral(neighbor_query, query_points, n_p, nlist, qargs,
         [=](const freud::locality::NeighborBond& neighbor_bond) {
         vec3<float> ref = neighbor_query->getPoints()[neighbor_bond.ref_id];
@@ -114,26 +115,7 @@ void PMFTR12::accumulate(const locality::NeighborQuery* neighbor_query,
             {
                 t2 += 2 * M_PI;
             }
-            // bin that point
-            float bin_r = neighbor_bond.distance * dr_inv;
-            float bin_t1 = floorf(t1 * dt1_inv);
-            float bin_t2 = floorf(t2 * dt2_inv);
-
-            // fast float to int conversion with truncation
-#ifdef __SSE2__
-            unsigned int ibin_r = _mm_cvtt_ss2si(_mm_load_ss(&bin_r));
-            unsigned int ibin_t1 = _mm_cvtt_ss2si(_mm_load_ss(&bin_t1));
-            unsigned int ibin_t2 = _mm_cvtt_ss2si(_mm_load_ss(&bin_t2));
-#else
-            unsigned int ibin_r = (unsigned int)(bin_r);
-            unsigned int ibin_t1 = (unsigned int)(bin_t1);
-            unsigned int ibin_t2 = (unsigned int)(bin_t2);
-#endif
-
-            if ((ibin_r < m_n_r) && (ibin_t1 < m_n_t1) && (ibin_t2 < m_n_t2))
-            {
-                ++m_local_bin_counts.local()(ibin_r, ibin_t1, ibin_t2);
-            }
+            m_local_histograms(neighbor_bond.distance, t1, t2);
         }
     });
 }

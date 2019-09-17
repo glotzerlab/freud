@@ -4,11 +4,6 @@
 #ifndef PMFTXY2D_H
 #define PMFTXY2D_H
 
-#include <memory>
-#include <ostream>
-#include <tbb/tbb.h>
-
-#include "NeighborList.h"
 #include "PMFT.h"
 
 /*! \file PMFTXY2D.h

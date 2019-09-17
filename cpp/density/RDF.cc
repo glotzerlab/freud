@@ -48,6 +48,7 @@ RDF::RDF(unsigned int bins, float r_max, float r_min) : m_box(box::Box()), m_fra
 void RDF::reduce()
 {
     m_pcf.prepare(m_bins);
+    // MAKE SURE THIS REDUCTION SHOULD ACTUALLY BE HAPPENING
     m_histogram.reset();
     m_N_r.prepare(m_bins);
 

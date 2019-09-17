@@ -4,11 +4,6 @@
 #ifndef PMFTR12_H
 #define PMFTR12_H
 
-#include <memory>
-#include <ostream>
-#include <tbb/tbb.h>
-
-#include "NeighborList.h"
 #include "PMFT.h"
 
 /*! \file PMFTR12.h

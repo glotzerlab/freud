@@ -254,13 +254,15 @@ public:
     }
 
     //! Get the computed histogram.
-    /*! Like the ManagedArray's get function, this method is only part of the
-     *  public API to support the Python API of freud. It should never be used
-     *  in C++ code using the Histogram class.
-     */
     const ManagedArray<unsigned int> &getBinCounts()
     {
         return m_bin_counts;
+    }
+
+    //! Get the shape of the computed histogram.
+    std::vector<unsigned int> shape() const
+    {
+        return m_bin_counts.shape();
     }
 
     //! Reset the histogram.

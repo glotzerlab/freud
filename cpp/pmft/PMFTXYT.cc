@@ -55,12 +55,17 @@ PMFTXYT::PMFTXYT(float x_max, float y_max, unsigned int n_x, unsigned int n_y, u
 
     // create and populate the pcf_array
     m_pcf_array.prepare({m_n_x, m_n_y, m_n_t});
-    m_bin_counts.prepare({m_n_x, m_n_y, m_n_t});
+
+    // Construct the Histogram object that will be used to keep track of counts of bond distances found.
+    util::Histogram::Axes axes;
+    axes.push_back(std::make_shared<util::RegularAxis>(n_x, -m_x_max, m_x_max));
+    axes.push_back(std::make_shared<util::RegularAxis>(n_y, -m_y_max, m_y_max));
+    axes.push_back(std::make_shared<util::RegularAxis>(n_t, -m_t_max, m_t_max));
+    m_histogram = util::Histogram(axes);
+    m_local_histograms = util::Histogram::ThreadLocalHistogram(m_histogram);
 
     // Set r_max
     m_r_max = sqrtf(m_x_max * m_x_max + m_y_max * m_y_max);
-
-    m_local_bin_counts.resize({m_n_x, m_n_y, m_n_t});
 }
 
 //! \internal
@@ -68,7 +73,7 @@ PMFTXYT::PMFTXYT(float x_max, float y_max, unsigned int n_x, unsigned int n_y, u
 void PMFTXYT::reducePCF()
 {
     float jacobian_factor = (float) 1.0 / m_jacobian;
-    reduce3D(m_n_t, m_n_x, m_n_y, [jacobian_factor](size_t i) { return jacobian_factor; });
+    reduce([jacobian_factor](size_t i) { return jacobian_factor; });
 }
 
 void PMFTXYT::accumulate(const locality::NeighborQuery* neighbor_query,
@@ -76,11 +81,6 @@ void PMFTXYT::accumulate(const locality::NeighborQuery* neighbor_query,
                          float* query_orientations, unsigned int n_query_points,
                          const locality::NeighborList* nlist, freud::locality::QueryArgs qargs)
 {
-    // precalc some values for faster computation within the loop
-    float dx_inv = 1.0f / m_dx;
-    float dy_inv = 1.0f / m_dy;
-    float dt_inv = 1.0f / m_dt;
-
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
         [=](const freud::locality::NeighborBond& neighbor_bond) {
         vec3<float> ref = neighbor_query->getPoints()[neighbor_bond.ref_id];
@@ -90,8 +90,6 @@ void PMFTXYT::accumulate(const locality::NeighborQuery* neighbor_query,
         vec2<float> myVec(delta.x, delta.y);
         rotmat2<float> myMat = rotmat2<float>::fromAngle(-orientations[neighbor_bond.ref_id]);
         vec2<float> rotVec = myMat * myVec;
-        float x = rotVec.x + m_x_max;
-        float y = rotVec.y + m_y_max;
         // calculate angle
         float d_theta = atan2(-delta.y, -delta.x);
         float t = query_orientations[neighbor_bond.id] - d_theta;
@@ -101,24 +99,7 @@ void PMFTXYT::accumulate(const locality::NeighborQuery* neighbor_query,
         {
             t += 2 * M_PI;
         }
-        // bin that point
-        float bin_x = floorf(x * dx_inv);
-        float bin_y = floorf(y * dy_inv);
-        float bin_t = floorf(t * dt_inv);
-// fast float to int conversion with truncation
-#ifdef __SSE2__
-        unsigned int ibin_x = _mm_cvtt_ss2si(_mm_load_ss(&bin_x));
-        unsigned int ibin_y = _mm_cvtt_ss2si(_mm_load_ss(&bin_y));
-        unsigned int ibin_t = _mm_cvtt_ss2si(_mm_load_ss(&bin_t));
-#else
-                unsigned int ibin_x = (unsigned int)(bin_x);
-                unsigned int ibin_y = (unsigned int)(bin_y);
-                unsigned int ibin_t = (unsigned int)(bin_t);
-#endif
-        if ((ibin_x < m_n_x) && (ibin_y < m_n_y) && (ibin_t < m_n_t))
-        {
-            ++m_local_bin_counts.local()(ibin_x, ibin_y, ibin_t);
-        }
+        m_local_histograms(rotVec.x, rotVec.y, t);
     });
 }
 }; }; // end namespace freud::pmft

@@ -46,14 +46,18 @@ PMFTXY2D::PMFTXY2D(float x_max, float y_max, unsigned int n_x, unsigned int n_y)
     // precompute the bin center positions for y
     m_y_array = precomputeAxisBinCenter(m_n_y, m_dy, m_y_max);
 
-    // create and populate the pcf_array
+    // create the pcf_array
     m_pcf_array.prepare({m_n_x, m_n_y});
-    m_bin_counts.prepare({m_n_x, m_n_y});
+
+    // Construct the Histogram object that will be used to keep track of counts of bond distances found.
+    util::Histogram::Axes axes;
+    axes.push_back(std::make_shared<util::RegularAxis>(n_x, -m_x_max, m_x_max));
+    axes.push_back(std::make_shared<util::RegularAxis>(n_y, -m_y_max, m_y_max));
+    m_histogram = util::Histogram(axes);
+    m_local_histograms = util::Histogram::ThreadLocalHistogram(m_histogram);
 
     // Set r_max
     m_r_max = sqrtf(m_x_max * m_x_max + m_y_max * m_y_max);
-
-    m_local_bin_counts.resize({m_n_x, m_n_y});
 }
 
 //! \internal
@@ -61,7 +65,7 @@ PMFTXY2D::PMFTXY2D(float x_max, float y_max, unsigned int n_x, unsigned int n_y)
 void PMFTXY2D::reducePCF()
 {
     float jacobian_factor = (float) 1.0 / m_jacobian;
-    reduce2D(m_n_x, m_n_y, [jacobian_factor](size_t i) { return jacobian_factor; });
+    reduce([jacobian_factor](size_t i) { return jacobian_factor; });
 }
 
 //! \internal
@@ -72,40 +76,29 @@ void PMFTXY2D::accumulate(const locality::NeighborQuery* neighbor_query,
                           unsigned int n_query_points,
                           const locality::NeighborList* nlist, freud::locality::QueryArgs qargs)
 {
-    // precalc some values for faster computation within the loop
-    float dx_inv = 1.0f / m_dx;
-    float dy_inv = 1.0f / m_dy;
-
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
         [=](const freud::locality::NeighborBond& neighbor_bond) {
         vec3<float> ref = neighbor_query->getPoints()[neighbor_bond.ref_id];
         vec3<float> delta = this->m_box.wrap(query_points[neighbor_bond.id] - ref);
+        std::cout << "Ref: " << ref.x << ", " << ref.y << ", " << ref.z << std::endl;
+        std::cout << "Query: " << query_points[neighbor_bond.id].x << ", " << query_points[neighbor_bond.id].y << ", " << query_points[neighbor_bond.id].z << std::endl;
+        std::cout << "Delta: " << delta.x << ", " << delta.y << ", " << delta.z << std::endl;
 
         // rotate interparticle vector
         vec2<float> myVec(delta.x, delta.y);
         rotmat2<float> myMat = rotmat2<float>::fromAngle(-orientations[neighbor_bond.ref_id]);
         vec2<float> rotVec = myMat * myVec;
-        float x = rotVec.x + m_x_max;
-        float y = rotVec.y + m_y_max;
 
-        // find the bin to increment
-        float binx = floorf(x * dx_inv);
-        float biny = floorf(y * dy_inv);
-
-// fast float to int conversion with truncation
-#ifdef __SSE2__
-        unsigned int ibinx = _mm_cvtt_ss2si(_mm_load_ss(&binx));
-        unsigned int ibiny = _mm_cvtt_ss2si(_mm_load_ss(&biny));
-#else
-            unsigned int ibinx = (unsigned int)(binx);
-            unsigned int ibiny = (unsigned int)(biny);
-#endif
-
-        // increment the bin
-        if ((ibinx < m_n_x) && (ibiny < m_n_y))
+        std::cout << "rotVec: " << rotVec.x << ", " << rotVec.y << std::endl;
+        std::vector<float> tmp = {rotVec.x,rotVec.y};
+        unsigned int i = 0;
+        for (auto it = m_histogram.m_axes.begin(); it != m_histogram.m_axes.end(); ++it)
         {
-            ++m_local_bin_counts.local()(ibinx, ibiny);
+            std::cout << "Dim " << i << " bin: " << (*it)->bin(tmp[i]) << std::endl;
+            ++i;
         }
+        std::cout << "bin: " << m_histogram.bin({rotVec.x, rotVec.y}) << std::endl;
+        m_local_histograms(rotVec.x, rotVec.y);
     });
 }
 
