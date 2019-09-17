@@ -1,13 +1,8 @@
 // Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#include <cassert>
 #include <stdexcept>
-#ifdef __SSE2__
-#include <emmintrin.h>
-#endif
 
-#include "Index1D.h"
 #include "PMFTXY2D.h"
 
 using namespace std;

@@ -10,10 +10,8 @@
 
 #include "Box.h"
 #include "Histogram.h"
-#include "Index1D.h"
 #include "ManagedArray.h"
 #include "NeighborComputeFunctional.h"
-#include "ThreadStorage.h"
 #include "VectorMath.h"
 
 /*! \internal
