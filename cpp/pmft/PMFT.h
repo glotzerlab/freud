@@ -24,13 +24,6 @@
 
 namespace freud { namespace pmft {
 
-template<typename T> std::shared_ptr<T> makeEmptyArray(unsigned int size)
-{
-    auto new_arr = std::shared_ptr<T>(new T[size], std::default_delete<T[]>());
-    memset((void*) new_arr.get(), 0, sizeof(T) * size);
-    return new_arr;
-}
-
 //! Computes the PMFT for a given set of points
 /*! The PMFT class is an abstract class providing the basis for all classes calculating PMFTs for specific
  *  dimensional cases. The PMFT class defines some of the key interfaces required for all PMFT classes, such
