@@ -11,6 +11,7 @@
 #include "Box.h"
 #include "NeighborList.h"
 #include "VectorMath.h"
+#include "ManagedArray.h"
 
 /*! \file LocalBondProjection.h
     \brief Compute the projection of nearest neighbor bonds for each particle onto some
@@ -42,13 +43,13 @@ public:
         const freud::locality::NeighborList* nlist);
 
     //! Get a reference to the last computed maximal local bond projection array
-    std::shared_ptr<float> getProjections()
+    const util::ManagedArray<float> &getProjections()
     {
         return m_local_bond_proj;
     }
 
     //! Get a reference to the last computed normalized maximal local bond projection array
-    std::shared_ptr<float> getNormedProjections()
+    const util::ManagedArray<float> &getNormedProjections()
     {
         return m_local_bond_proj_norm;
     }
@@ -81,8 +82,8 @@ private:
     unsigned int m_n_equiv_orientations;        //!< Last number of equivalent reference orientations used for computation
     unsigned int m_tot_num_neigh; //!< Last number of total bonds used for computation
 
-    std::shared_ptr<float> m_local_bond_proj;      //!< Local bond projection array computed
-    std::shared_ptr<float> m_local_bond_proj_norm; //!< Normalized local bond projection array computed
+    util::ManagedArray<float> m_local_bond_proj;      //!< Local bond projection array computed
+    util::ManagedArray<float> m_local_bond_proj_norm; //!< Normalized local bond projection array computed
 };
 
 }; }; // end namespace freud::environment

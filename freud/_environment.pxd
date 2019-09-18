@@ -127,8 +127,8 @@ cdef extern from "LocalBondProjection.h" namespace "freud::environment":
                      quat[float]*, unsigned int,
                      const freud._locality.NeighborList*) except +
 
-        shared_ptr[float] getProjections()
-        shared_ptr[float] getNormedProjections()
+        const freud.util.ManagedArray[float] &getProjections()
+        const freud.util.ManagedArray[float] &getNormedProjections()
         unsigned int getNPoints()
         unsigned int getNQueryPoints()
         unsigned int getNproj()

@@ -1179,24 +1179,15 @@ cdef class LocalBondProjection(Compute):
 
     @Compute._computed_property()
     def projections(self):
-        cdef unsigned int n_bond_projections = \
-            len(self.nlist) * self.thisptr.getNproj()
-        if not n_bond_projections:
-            return np.asarray([], dtype=np.float32)
-        cdef const float[::1] projections = \
-            <float[:n_bond_projections]> self.thisptr.getProjections().get()
-        return np.asarray(projections)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getProjections(),
+            freud.util.arr_type_t.FLOAT)
 
     @Compute._computed_property()
     def normed_projections(self):
-        cdef unsigned int n_bond_projections = \
-            len(self.nlist) * self.thisptr.getNproj()
-        if not n_bond_projections:
-            return np.asarray([], dtype=np.float32)
-        cdef const float[::1] normed_projections = \
-            <float[:n_bond_projections]> \
-            self.thisptr.getNormedProjections().get()
-        return np.asarray(normed_projections)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getNormedProjections(),
+            freud.util.arr_type_t.FLOAT)
 
     @Compute._computed_property()
     def num_points(self):

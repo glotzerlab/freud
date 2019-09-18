@@ -49,7 +49,7 @@ BondOrder::BondOrder(unsigned int n_bins_theta, unsigned int n_bins_phi)
     {
         float t = float(i) * m_dt;
         float nextt = float(i + 1) * m_dt;
-        m_theta_array.get()[i] = ((t + nextt) / 2.0);
+        m_theta_array[i] = ((t + nextt) / 2.0);
     }
 
     // precompute the bin center positions for p
@@ -58,7 +58,7 @@ BondOrder::BondOrder(unsigned int n_bins_theta, unsigned int n_bins_phi)
     {
         float p = float(i) * m_dp;
         float nextp = float(i + 1) * m_dp;
-        m_phi_array.get()[i] = ((p + nextp) / 2.0);
+        m_phi_array[i] = ((p + nextp) / 2.0);
     }
 
     // precompute the surface area array
