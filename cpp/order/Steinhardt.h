@@ -10,6 +10,7 @@
 #include <tbb/tbb.h>
 
 #include "Box.h"
+#include "ManagedArray.h"
 #include "NeighborList.h"
 #include "NeighborQuery.h"
 #include "VectorMath.h"

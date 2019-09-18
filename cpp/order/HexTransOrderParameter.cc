@@ -8,22 +8,20 @@ template<typename Func>
 void HexTransOrderParameter<T>::computeGeneral(Func func, const freud::locality::NeighborList* nlist,
                               const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs)
 {
-    // Compute the cell list
-    m_box = points->getBox();
-    unsigned int Np = points->getNPoints();
+    const auto box = points->getBox();
+    const unsigned int Np = points->getNPoints();
 
     m_psi_array.prepare(Np);
 
-    freud::locality::loopOverNeighborsIterator(points, points->getPoints(), Np, qargs, nlist, 
+    freud::locality::loopOverNeighborsIterator(points, points->getPoints(), Np, qargs, nlist,
     [=] (size_t i, std::shared_ptr<freud::locality::NeighborPerPointIterator> ppiter)
     {
-        m_psi_array[i] = 0;
-        vec3<float> ref = (*points)[i];
+        const vec3<float> ref = (*points)[i];
 
         for(freud::locality::NeighborBond nb = ppiter->next(); !ppiter->end(); nb = ppiter->next())
         {
-            // Compute r between the two particles
-            vec3<float> delta = m_box.wrap((*points)[nb.ref_id] - ref);
+            // Compute vector between the two particles
+            const vec3<float> delta = box.wrap((*points)[nb.ref_id] - ref);
 
             // Compute psi for neighboring particle
             // (only constructed for 2d)
@@ -32,8 +30,6 @@ void HexTransOrderParameter<T>::computeGeneral(Func func, const freud::locality:
 
         m_psi_array[i] /= std::complex<float>(m_k);
     });
-    // Save the last computed number of particles
-    m_Np = Np;
 }
 
 HexOrderParameter::HexOrderParameter(unsigned int k)
@@ -46,15 +42,15 @@ void HexOrderParameter::compute(const freud::locality::NeighborList* nlist,
                                 freud::locality::QueryArgs qargs)
 {
     computeGeneral(
-    [this] (vec3<float> &delta)
+    [this] (const vec3<float> &delta)
     {
-        float psi_ij = atan2f(delta.y, delta.x); 
+        const float psi_ij = atan2f(delta.y, delta.x);
         return exp(std::complex<float>(0, m_k * psi_ij));
-    }, 
+    },
     nlist, points, qargs);
 }
 
-TransOrderParameter::TransOrderParameter(float k) 
+TransOrderParameter::TransOrderParameter(float k)
     : HexTransOrderParameter<float>(k) {}
 
 TransOrderParameter::~TransOrderParameter() {}
@@ -64,10 +60,10 @@ void TransOrderParameter::compute(const freud::locality::NeighborList* nlist,
                                   freud::locality::QueryArgs qargs)
 {
     computeGeneral(
-    [] (vec3<float> &delta)
+    [] (const vec3<float> &delta)
     {
         return std::complex<float>(delta.x, delta.y);
-    }, 
+    },
     nlist, points, qargs);
 }
 

@@ -54,7 +54,6 @@ cdef extern from "HexTransOrderParameter.h" namespace "freud::order":
                      const freud._locality.NeighborQuery*,
                      freud._locality.QueryArgs) except +
         const freud.util.ManagedArray[float complex] &getOrder()
-        unsigned int getNP()
         unsigned int getK()
 
     cdef cppclass TransOrderParameter:
@@ -64,7 +63,6 @@ cdef extern from "HexTransOrderParameter.h" namespace "freud::order":
                      const freud._locality.NeighborQuery*,
                      freud._locality.QueryArgs) except +
         const freud.util.ManagedArray[float complex] &getOrder()
-        unsigned int getNP()
         float getK()
 
 

@@ -297,8 +297,6 @@ cdef class HexOrderParameter(PairCompute):
             Order parameter.
         box (:class:`freud.box.Box`):
             Box used in the calculation.
-        num_particles (unsigned int):
-            Number of particles.
         K (unsigned int):
             Symmetry of the order parameter.
     """  # noqa: E501
@@ -358,11 +356,6 @@ cdef class HexOrderParameter(PairCompute):
     def box(self):
         return freud.box.BoxFromCPP(<freud._box.Box> self.thisptr.getBox())
 
-    @Compute._computed_property()
-    def num_particles(self):
-        cdef unsigned int np = self.thisptr.getNP()
-        return np
-
     @property
     def K(self):
         cdef unsigned int k = self.thisptr.getK()
@@ -393,8 +386,6 @@ cdef class TransOrderParameter(PairCompute):
             Reference to the last computed translational order array.
         box (:class:`freud.box.Box`):
             Box used in the calculation.
-        num_particles (unsigned int):
-            Number of particles.
         K (float):
             Normalization value (d_r is divided by K).
     """  # noqa: E501
@@ -453,10 +444,6 @@ cdef class TransOrderParameter(PairCompute):
     @Compute._computed_property()
     def box(self):
         return freud.box.BoxFromCPP(<freud._box.Box> self.thisptr.getBox())
-
-    @Compute._computed_property()
-    def num_particles(self):
-        return self.thisptr.getNP()
 
     @property
     def K(self):
@@ -525,8 +512,6 @@ cdef class Steinhardt(PairCompute):
             Metrics :math:`Q'_l`. (Default value = :code:`False`)
 
     Attributes:
-        num_particles (unsigned int):
-            Number of particles.
         order (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The last computed selected variant of the Steinhardt order
             parameter for each particle (filled with NaN for particles with no
@@ -558,11 +543,6 @@ cdef class Steinhardt(PairCompute):
     @property
     def weighted(self):
         return self.stptr.isWeighted()
-
-    @Compute._computed_property()
-    def num_particles(self):
-        cdef unsigned int np = self.stptr.getNP()
-        return np
 
     @Compute._computed_property()
     def norm(self):
