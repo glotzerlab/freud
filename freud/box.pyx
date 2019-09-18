@@ -705,25 +705,15 @@ cdef class ParticleBuffer:
 
     @property
     def buffer_particles(self):
-        cdef unsigned int buffer_size = \
-            dereference(self.thisptr.getBufferParticles().get()).size()
-        if not buffer_size:
-            return np.empty(shape=(0, 3), dtype=np.float32)
-        cdef const float[:, ::1] buffer_particles = \
-            <float[:buffer_size, :3]> (<float*> dereference(
-                self.thisptr.getBufferParticles().get()).data())
-        return np.asarray(buffer_particles)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getBufferParticles(),
+            freud.util.arr_type_t.FLOAT, element_size=3)
 
     @property
     def buffer_ids(self):
-        cdef unsigned int buffer_size = \
-            dereference(self.thisptr.getBufferParticles().get()).size()
-        if not buffer_size:
-            return np.empty(shape=(0,), dtype=np.uint32)
-        cdef const unsigned int[::1] buffer_ids = \
-            <unsigned int[:buffer_size]> dereference(
-                self.thisptr.getBufferIds().get()).data()
-        return np.asarray(buffer_ids)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getBufferIds(),
+            freud.util.arr_type_t.UNSIGNED_INT)
 
     @property
     def buffer_box(self):

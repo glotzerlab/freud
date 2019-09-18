@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <vector>
 
+#include "ManagedArray.h"
 #include "ParticleBuffer.h"
 
 using namespace std;
@@ -28,10 +29,8 @@ void ParticleBuffer::compute(const vec3<float>* points, const unsigned int Np, c
     if (buff.z < 0)
         throw invalid_argument("Buffer z distance must be non-negative.");
 
-    m_buffer_particles = std::shared_ptr<std::vector<vec3<float>>>(new std::vector<vec3<float>>());
-    m_buffer_ids = std::shared_ptr<std::vector<unsigned int>>(new std::vector<unsigned int>());
-    std::vector<vec3<float>>& buffer_parts = *m_buffer_particles;
-    std::vector<unsigned int>& buffer_ids = *m_buffer_ids;
+    vector<vec3<float>> buffer_parts;
+    vector<unsigned int> buffer_ids;
 
     // Get the box dimensions
     vec3<float> L(m_box.getL());
@@ -117,6 +116,16 @@ void ParticleBuffer::compute(const vec3<float>* points, const unsigned int Np, c
                 }
             }
         }
+    }
+
+    // Copy the vectors into ManagedArrays
+    unsigned int buffer_size(buffer_parts.size());
+    m_buffer_particles.prepare(buffer_size);
+    m_buffer_ids.prepare(buffer_size);
+    for (unsigned int i = 0; i < buffer_size; i++)
+    {
+        m_buffer_particles[i] = buffer_parts[i];
+        m_buffer_ids[i] = buffer_ids[i];
     }
 }
 
