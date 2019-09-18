@@ -292,9 +292,10 @@ public:
     std::vector<std::vector<float> > getBinBoundaries() const
     {
         std::vector<std::vector<float> > bins(m_axes.size());
-        unsigned int index = 0;
-        for (auto axis = m_axes.begin(); axis != m_axes.end(); ++axis)
-            bins[index] = (*axis)->getBinBoundaries();
+        for (unsigned int i = 0; i < m_axes.size(); ++i)
+        {
+            bins[i] = m_axes[i]->getBinBoundaries();
+        }
         return bins;
     }
 
@@ -304,9 +305,10 @@ public:
     std::vector<std::vector<float> > getBinCenters() const
     {
         std::vector<std::vector<float> > bins(m_axes.size());
-        unsigned int index = 0;
-        for (auto axis = m_axes.begin(); axis != m_axes.end(); ++axis)
-            bins[index] = (*axis)->getBinCenters();
+        for (unsigned int i = 0; i < m_axes.size(); ++i)
+        {
+            bins[i] = m_axes[i]->getBinCenters();
+        }
         return bins;
     }
 

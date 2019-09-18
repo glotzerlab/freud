@@ -3,6 +3,7 @@
 
 from freud.util cimport vec3, quat
 from libcpp.memory cimport shared_ptr
+from libcpp.vector cimport vector
 cimport freud._box
 cimport freud._locality
 cimport freud.util
@@ -16,6 +17,8 @@ cdef extern from "PMFT.h" namespace "freud::pmft":
         const freud.util.ManagedArray[unsigned int] &getBinCounts()
         const freud.util.ManagedArray[float] &getPCF()
         float getRMax()
+        vector[vector[float]] getBins() const
+        vector[vector[float]] getBinCenters() const
 
 cdef extern from "PMFTR12.h" namespace "freud::pmft":
     cdef cppclass PMFTR12(PMFT):

@@ -101,6 +101,16 @@ cdef class _PMFT(SpatialHistogram):
             freud.util.arr_type_t.UNSIGNED_INT)
 
     @Compute._computed_property()
+    def bin_centers(self):
+        vec = self.pmftptr.getBinCenters()
+        return [np.array(b, copy=True) for b in vec]
+
+    @Compute._computed_property()
+    def bins(self):
+        vec = self.pmftptr.getBins()
+        return [np.array(b, copy=True) for b in vec]
+
+    @Compute._computed_property()
     def PCF(self):
         return freud.util.make_managed_numpy_array(
             &self.pmftptr.getPCF(),

@@ -66,7 +66,7 @@ cdef extern from "RDF.h" namespace "freud::density":
                         const freud._locality.NeighborList*,
                         freud._locality.QueryArgs) except +
         const freud.util.ManagedArray[float] &getRDF()
-        vector[float] getBinCenters()
+        vector[float] getBinCenters() const
         const freud.util.ManagedArray[float] &getNr()
-        const freud.util.ManagedArray[uint] &getBinCounts()
-        vector[float] getBins()
+        const freud.util.ManagedArray[uint] &getBinCounts() const
+        vector[float] getBins() const

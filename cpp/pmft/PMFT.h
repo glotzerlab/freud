@@ -61,6 +61,21 @@ public:
         return m_r_max;
     }
 
+    //! Get bin centers.
+    std::vector<std::vector<float> > getBinCenters() const
+    {
+        // RDFs are always 1D histograms, so we just return the first element.
+        return m_histogram.getBinCenters();
+    }
+
+    //! Return the bin boundaries.
+    std::vector<std::vector<float> > getBins() const
+    {
+        // RDFs are always 1D histograms, so we just return the first element.
+        return m_histogram.getBinBoundaries();
+    }
+
+
     //! \internal
     // Wrapper to do accumulation.
     /*! \param neighbor_query NeighborQuery object to iterate over
