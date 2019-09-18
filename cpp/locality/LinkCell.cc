@@ -218,11 +218,11 @@ std::shared_ptr<NeighborQueryPerPointIterator> LinkCell::querySingle(const vec3<
     this->validateQueryArgs(args);
     if (args.mode == QueryArgs::ball)
     {
-        return std::make_shared<LinkCellQueryBallIterator>(this, query_point, query_point_idx, args.r_max, args.exclude_ii);
+        return std::make_shared<LinkCellQueryBallIterator>(this, query_point, query_point_idx, args.r_max, args.r_min, args.exclude_ii);
     }
     else if (args.mode == QueryArgs::nearest)
     {
-        return std::make_shared<LinkCellQueryIterator>(this, query_point, query_point_idx, args.num_neighbors, args.r_max, args.exclude_ii);
+        return std::make_shared<LinkCellQueryIterator>(this, query_point, query_point_idx, args.num_neighbors, args.r_max, args.r_min, args.exclude_ii);
     }
     else
     {
@@ -233,6 +233,7 @@ std::shared_ptr<NeighborQueryPerPointIterator> LinkCell::querySingle(const vec3<
 NeighborBond LinkCellQueryBallIterator::next()
 {
     float r_max_sq = m_r_max * m_r_max;
+    float r_min_sq = m_r_min * m_r_min;
 
     vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_query_point));
     const unsigned int point_cell_index = m_linkcell->getCellIndex(
@@ -247,10 +248,16 @@ NeighborBond LinkCellQueryBallIterator::next()
         // track between calls to next.
         for (unsigned int j = m_cell_iter.next(); !m_cell_iter.atEnd(); j = m_cell_iter.next())
         {
+            // Skip ii matches immediately if requested.
+            if (m_exclude_ii && m_query_point_idx == j)
+            {
+                continue;
+            }
+
             const vec3<float> r_ij(m_neighbor_query->getBox().wrap((*m_linkcell)[j] - m_query_point));
             const float r_sq(dot(r_ij, r_ij));
 
-            if (r_sq < r_max_sq && (!m_exclude_ii || m_query_point_idx != j))
+            if (r_sq < r_max_sq && r_sq >= r_min_sq)
             {
                 return NeighborBond(m_query_point_idx, j, sqrt(r_sq));
             }
@@ -297,6 +304,9 @@ NeighborBond LinkCellQueryBallIterator::next()
 
 NeighborBond LinkCellQueryIterator::next()
 {
+    float r_max_sq = m_r_max * m_r_max;
+    float r_min_sq = m_r_min * m_r_min;
+
     vec3<float> plane_distance = m_neighbor_query->getBox().getNearestPlaneDistance();
     float min_plane_distance = std::min(plane_distance.x, plane_distance.y);
     if (!m_neighbor_query->getBox().is2D())
@@ -333,7 +343,7 @@ NeighborBond LinkCellQueryIterator::next()
                     const vec3<float> r_ij(
                         m_neighbor_query->getBox().wrap((*m_linkcell)[j] - m_query_point));
                     const float r_sq(dot(r_ij, r_ij));
-                    if (r_sq < m_r_max*m_r_max)
+                    if (r_sq < r_max_sq && r_sq >= r_min_sq)
                         m_current_neighbors.emplace_back(m_query_point_idx, j, sqrt(r_sq));
                 }
             }

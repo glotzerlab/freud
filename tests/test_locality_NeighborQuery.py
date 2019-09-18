@@ -144,6 +144,36 @@ class NeighborQueryTest(object):
                                        num_neighbors=num_neighbors,
                                        r_max=r_max)))
 
+    def test_r_min(self):
+        """Test filtering with r_min."""
+        L = 10  # Box Dimensions
+        N = 4  # number of particles
+
+        box = freud.box.Box.cube(L)  # Initialize Box
+
+        points = np.zeros(shape=(N, 3), dtype=np.float32)
+        points[0] = [0.0, 0.0, 0.0]
+        points[1] = [1.0, 0.0, 0.0]
+        points[2] = [3.0, 0.0, 0.0]
+        points[3] = [2.0, 0.0, 0.0]
+        nq = self.build_query_object(box, points, L/10)
+
+        # Test with ball query.
+        result = list(nq.query(points, dict(mode='ball', r_max=2.9, r_min=1.1,
+                                            exclude_ii=True)))
+        npt.assert_equal(get_point_neighbors(result, 0), {3})
+        npt.assert_equal(get_point_neighbors(result, 1), {2})
+        npt.assert_equal(get_point_neighbors(result, 2), {1})
+        npt.assert_equal(get_point_neighbors(result, 3), {0})
+
+        # Test with nearest neighbor query.
+        result = list(nq.query(points, dict(mode='nearest', num_neighbors=3,
+                                            r_min=1.1, exclude_ii=True)))
+        npt.assert_equal(get_point_neighbors(result, 0), {2, 3})
+        npt.assert_equal(get_point_neighbors(result, 1), {2})
+        npt.assert_equal(get_point_neighbors(result, 2), {0, 1})
+        npt.assert_equal(get_point_neighbors(result, 3), {0})
+
     def test_query_nearest(self):
         L = 10  # Box Dimensions
         N = 4  # number of particles

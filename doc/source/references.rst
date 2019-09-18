@@ -1,6 +1,6 @@
-========================
-References and Citations
-========================
+==========
+References
+==========
 
 .. [Matplotlib] Hunter, J. D. (2007). Matplotlib: A 2D Graphics Environment.
     Computing in Science & Engineering, 9 (3), 90-95.

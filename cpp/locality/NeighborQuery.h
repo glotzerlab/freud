@@ -32,7 +32,7 @@ struct QueryArgs
     //! Default constructor.
     /*! We set default values for all parameters here.
      */
-    QueryArgs() : mode(DEFAULT_MODE), num_neighbors(DEFAULT_NUM_NEIGHBORS), r_max(DEFAULT_R_MAX),
+    QueryArgs() : mode(DEFAULT_MODE), num_neighbors(DEFAULT_NUM_NEIGHBORS), r_max(DEFAULT_R_MAX), r_min(DEFAULT_R_MIN),
                   r_guess(DEFAULT_R_GUESS), scale(DEFAULT_SCALE), exclude_ii(DEFAULT_EXCLUDE_II) {}
 
     //! Enumeration for types of queries.
@@ -46,15 +46,17 @@ struct QueryArgs
     QueryType mode;    //! Whether to perform a ball or k-nearest neighbor query.
     unsigned int num_neighbors;         //! The number of nearest neighbors to find.
     float r_max;       //! The cutoff distance within which to find neighbors.
+    float r_min;       //! The minimum distance beyond which to find neighbors.
     float r_guess;     //! The initial distance for finding neighbors, used by some algorithms to initialize a number of neighbors query.
     float scale; //! The scale factor to use when performing repeated ball queries to find a specified number
                  //! of nearest neighbors.
     bool exclude_ii; //! If true, exclude self-neighbors.
 
     static const QueryType DEFAULT_MODE;                //!< Default mode.
-    static const unsigned int DEFAULT_NUM_NEIGHBORS;        //!< Default number of neighbors.
-    static const float DEFAULT_R_MAX;                   //!< Default query distance.
-    static const float DEFAULT_R_GUESS;                   //!< Default guess query distance.
+    static const unsigned int DEFAULT_NUM_NEIGHBORS;    //!< Default number of neighbors.
+    static const float DEFAULT_R_MAX;                   //!< Default maximum query distance.
+    static const float DEFAULT_R_MIN;                   //!< Default minimum query distance.
+    static const float DEFAULT_R_GUESS;                 //!< Default guess query distance.
     static const float DEFAULT_SCALE;                   //!< Default scaling parameter for AABB nearest neighbor queries.
     static const bool DEFAULT_EXCLUDE_II;               //!< Default for whether or not to include self-neighbors.
 };
@@ -174,6 +176,10 @@ protected:
                 args.r_max = std::numeric_limits<float>::infinity();
             }
         }
+        else
+        {
+            throw std::runtime_error("Unknown mode");
+        }
     }
 
     //! Try to determine the query mode if one is not specified.
@@ -220,8 +226,8 @@ public:
 
     //! Constructor
     NeighborQueryPerPointIterator(const NeighborQuery* neighbor_query, const vec3<float> query_point, unsigned int query_point_idx,
-                          bool exclude_ii)
-        : NeighborPerPointIterator(query_point_idx), m_neighbor_query(neighbor_query), m_query_point(query_point), m_finished(false), m_exclude_ii(exclude_ii) {}
+                          float r_max, float r_min, bool exclude_ii)
+        : NeighborPerPointIterator(query_point_idx), m_neighbor_query(neighbor_query), m_query_point(query_point), m_finished(false), m_r_max(r_max), m_r_min(r_min), m_exclude_ii(exclude_ii) {}
 
     //! Empty Destructor
     virtual ~NeighborQueryPerPointIterator() {}
@@ -241,6 +247,8 @@ protected:
     const NeighborQuery* m_neighbor_query;     //!< Link to the NeighborQuery object.
     const vec3<float> m_query_point;           //!< Coordinates of the query point.
     bool m_finished;                           //!< Flag to indicate that iteration is complete (must be set by next() on termination).
+    float m_r_max;                             //!< Cutoff distance for neighbors.
+    float m_r_min;                             //!< Minimum distance for neighbors.
     bool m_exclude_ii;                         //!< Flag to indicate whether or not to include self bonds.
 };
 

@@ -14,6 +14,7 @@ and this project adheres to
 * Internal threaded storage uses the standard ManagedArray object.
 * Upper bound r\_max option for number of neighbors queries.
 * C++ Histogram class to standardize n-dimensional binning and simplify writing new methods.
+* Lower bound r\_min option for all queries.
 
 ### Changed
 * All compute objects that perform neighbor computations now use NeighborQuery internally.
