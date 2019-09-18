@@ -75,8 +75,8 @@ cdef extern from "Steinhardt.h" namespace "freud::order":
         void compute(const freud._locality.NeighborList*,
                      const freud._locality.NeighborQuery*,
                      freud._locality.QueryArgs) except +
-        shared_ptr[float] getQl()
-        shared_ptr[float] getOrder()
+        const freud.util.ManagedArray[float] &getQl()
+        const freud.util.ManagedArray[float] &getOrder()
         float getNorm()
         bool isAverage()
         bool isWl()
