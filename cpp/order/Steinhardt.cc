@@ -222,7 +222,6 @@ float Steinhardt::normalize()
     if (m_Wl)
     {
         auto wigner3jvalues = getWigner3j(m_l);
-        //TODO Change this from using a pointer
         return reduceWigner3j(m_Qlm.get(), m_l, wigner3jvalues);
     }
     else
@@ -245,7 +244,6 @@ void Steinhardt::aggregateWl(util::ManagedArray<float> &target, util::ManagedArr
     parallel_for(tbb::blocked_range<size_t>(0, m_Np), [&](const tbb::blocked_range<size_t>& r) {
         for (size_t i = r.begin(); i != r.end(); i++)
         {
-            //TODO Change this from using a pointer
             target[i] = reduceWigner3j(&(source({static_cast<unsigned int>(i), 0})), m_l, wigner3jvalues);
         }
     });
