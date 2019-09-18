@@ -26,7 +26,6 @@ class TestHexatic(unittest.TestCase):
     def test_compute_random(self):
         boxlen = 10
         N = 500
-        r_max = 3
         box, points = util.make_box_and_random_points(boxlen, N, is2D=True)
         hop = freud.order.Hexatic()
         hop.compute(box, points)
