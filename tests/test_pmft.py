@@ -48,11 +48,8 @@ class TestPMFTR12(unittest.TestCase):
         listT1 = np.zeros(nbinsT1, dtype=np.float32)
         listT2 = np.zeros(nbinsT2, dtype=np.float32)
 
-        for i in range(nbinsR):
-            r = float(i) * dr
-            nextr = float(i + 1) * dr
-            listR[i] = 2.0/3.0 * (
-                nextr*nextr*nextr - r*r*r)/(nextr*nextr - r*r)
+        listR = np.array([dr*(i+1/2) for i in range(nbinsR) if
+                          dr*(i+1/2) < maxR])
 
         for i in range(nbinsT1):
             t = float(i) * dT1
@@ -67,13 +64,13 @@ class TestPMFTR12(unittest.TestCase):
         myPMFT = freud.pmft.PMFTR12(maxR, nbinsR, nbinsT1, nbinsT2)
 
         # Compare expected bins to the info from pmft
-        npt.assert_allclose(myPMFT.R, listR, atol=1e-3)
-        npt.assert_allclose(myPMFT.T1, listT1, atol=1e-3)
-        npt.assert_allclose(myPMFT.T2, listT2, atol=1e-3)
+        npt.assert_allclose(myPMFT.bin_centers[0], listR, atol=1e-3)
+        npt.assert_allclose(myPMFT.bin_centers[1], listT1, atol=1e-3)
+        npt.assert_allclose(myPMFT.bin_centers[2], listT2, atol=1e-3)
 
-        npt.assert_equal(nbinsR, myPMFT.n_bins_R)
-        npt.assert_equal(nbinsT1, myPMFT.n_bins_T1)
-        npt.assert_equal(nbinsT2, myPMFT.n_bins_T2)
+        npt.assert_equal(nbinsR, myPMFT.nbins[0])
+        npt.assert_equal(nbinsT1, myPMFT.nbins[1])
+        npt.assert_equal(nbinsT2, myPMFT.nbins[2])
 
         inverse_jacobian = np.array(
             [[[1/(R*dr*dT1*dT2)
@@ -281,13 +278,13 @@ class TestPMFTXYT(unittest.TestCase):
         myPMFT = freud.pmft.PMFTXYT(maxX, maxY, nbinsX, nbinsY, nbinsT)
 
         # Compare expected bins to the info from pmft
-        npt.assert_allclose(myPMFT.X, listX, atol=1e-3)
-        npt.assert_allclose(myPMFT.Y, listY, atol=1e-3)
-        npt.assert_allclose(myPMFT.T, listT, atol=1e-3)
+        npt.assert_allclose(myPMFT.bin_centers[0], listX, atol=1e-3)
+        npt.assert_allclose(myPMFT.bin_centers[1], listY, atol=1e-3)
+        npt.assert_allclose(myPMFT.bin_centers[2], listT, atol=1e-3)
 
-        npt.assert_equal(nbinsX, myPMFT.n_bins_X)
-        npt.assert_equal(nbinsY, myPMFT.n_bins_Y)
-        npt.assert_equal(nbinsT, myPMFT.n_bins_T)
+        npt.assert_equal(nbinsX, myPMFT.nbins[0])
+        npt.assert_equal(nbinsY, myPMFT.nbins[1])
+        npt.assert_equal(nbinsT, myPMFT.nbins[2])
 
         npt.assert_allclose(myPMFT.jacobian, dx*dy*dT)
 
@@ -491,11 +488,11 @@ class TestPMFTXY2D(unittest.TestCase):
         myPMFT = freud.pmft.PMFTXY2D(maxX, maxY, nbinsX, nbinsY)
 
         # Compare expected bins to the info from pmft
-        npt.assert_allclose(myPMFT.X, listX, atol=1e-3)
-        npt.assert_allclose(myPMFT.Y, listY, atol=1e-3)
+        npt.assert_allclose(myPMFT.bin_centers[0], listX, atol=1e-3)
+        npt.assert_allclose(myPMFT.bin_centers[1], listY, atol=1e-3)
 
-        npt.assert_equal(nbinsX, myPMFT.n_bins_X)
-        npt.assert_equal(nbinsY, myPMFT.n_bins_Y)
+        npt.assert_equal(nbinsX, myPMFT.nbins[0])
+        npt.assert_equal(nbinsY, myPMFT.nbins[1])
 
         npt.assert_allclose(myPMFT.jacobian, dx*dy)
 
@@ -745,13 +742,13 @@ class TestPMFTXYZ(unittest.TestCase):
         myPMFT = freud.pmft.PMFTXYZ(maxX, maxY, maxZ, nbinsX, nbinsY, nbinsZ)
 
         # Compare expected bins to the info from pmft
-        npt.assert_allclose(myPMFT.X, listX, atol=1e-3)
-        npt.assert_allclose(myPMFT.Y, listY, atol=1e-3)
-        npt.assert_allclose(myPMFT.Z, listZ, atol=1e-3)
+        npt.assert_allclose(myPMFT.bin_centers[0], listX, atol=1e-3)
+        npt.assert_allclose(myPMFT.bin_centers[1], listY, atol=1e-3)
+        npt.assert_allclose(myPMFT.bin_centers[2], listZ, atol=1e-3)
 
-        npt.assert_equal(nbinsX, myPMFT.n_bins_X)
-        npt.assert_equal(nbinsY, myPMFT.n_bins_Y)
-        npt.assert_equal(nbinsZ, myPMFT.n_bins_Z)
+        npt.assert_equal(nbinsX, myPMFT.nbins[0])
+        npt.assert_equal(nbinsY, myPMFT.nbins[1])
+        npt.assert_equal(nbinsZ, myPMFT.nbins[2])
 
         npt.assert_allclose(myPMFT.jacobian, dx*dy*dz)
 

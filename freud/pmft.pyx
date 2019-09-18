@@ -100,15 +100,30 @@ cdef class _PMFT(SpatialHistogram):
             &self.pmftptr.getBinCounts(),
             freud.util.arr_type_t.UNSIGNED_INT)
 
-    @Compute._computed_property()
+    @property
     def bin_centers(self):
+        # Must create a local reference or Cython tries to access an rvalue by
+        # reference in the list comprehension.
         vec = self.pmftptr.getBinCenters()
         return [np.array(b, copy=True) for b in vec]
 
-    @Compute._computed_property()
-    def bins(self):
-        vec = self.pmftptr.getBins()
+    @property
+    def bin_edges(self):
+        # Must create a local reference or Cython tries to access an rvalue by
+        # reference in the list comprehension.
+        vec = self.pmftptr.getBinEdges()
         return [np.array(b, copy=True) for b in vec]
+
+    @property
+    def bounds(self):
+        # Must create a local reference or Cython tries to access an rvalue by
+        # reference in the list comprehension.
+        vec = self.pmftptr.getBounds()
+        return [tuple(b) for b in vec]
+
+    @property
+    def nbins(self):
+        return list(self.pmftptr.getBinSizes())
 
     @Compute._computed_property()
     def PCF(self):
@@ -269,48 +284,19 @@ cdef class PMFTR12(_PMFT):
         return self
 
     @property
-    def R(self):
-        return freud.util.make_managed_numpy_array(
-            &self.pmftr12ptr.getR(),
-            freud.util.arr_type_t.FLOAT)
-
-    @property
-    def T1(self):
-        return freud.util.make_managed_numpy_array(
-            &self.pmftr12ptr.getT1(),
-            freud.util.arr_type_t.FLOAT)
-
-    @property
-    def T2(self):
-        return freud.util.make_managed_numpy_array(
-            &self.pmftr12ptr.getT2(),
-            freud.util.arr_type_t.FLOAT)
-
-    @property
     def inverse_jacobian(self):
         return freud.util.make_managed_numpy_array(
             &self.pmftr12ptr.getInverseJacobian(),
             freud.util.arr_type_t.FLOAT)
 
-    @property
-    def n_bins_R(self):
-        return self.pmftr12ptr.getNBinsR()
-
-    @property
-    def n_bins_T1(self):
-        return self.pmftr12ptr.getNBinsT1()
-
-    @property
-    def n_bins_T2(self):
-        return self.pmftr12ptr.getNBinsT2()
-
     def __repr__(self):
+        bounds = self.bounds
         return ("freud.pmft.{cls}(r_max={r_max}, n_r={n_r}, n_t1={n_t1}, "
                 "n_t2={n_t2})").format(cls=type(self).__name__,
                                        r_max=self.r_max,
-                                       n_r=self.n_bins_R,
-                                       n_t1=self.n_bins_T1,
-                                       n_t2=self.n_bins_T2)
+                                       n_r=bounds[0][1],
+                                       n_t1=bounds[2][1],
+                                       n_t2=bounds[2][1])
 
 
 cdef class PMFTXYT(_PMFT):
@@ -375,16 +361,12 @@ cdef class PMFTXYT(_PMFT):
             histogram.
     """  # noqa: E501
     cdef freud._pmft.PMFTXYT * pmftxytptr
-    cdef xmax
-    cdef ymax
 
     def __cinit__(self, x_max, y_max, n_x, n_y, n_t):
         if type(self) is PMFTXYT:
             self.pmftxytptr = self.pmftptr = new freud._pmft.PMFTXYT(
                 x_max, y_max, n_x, n_y, n_t)
             self.r_max = np.sqrt(x_max**2 + y_max**2)
-            self.xmax = x_max
-            self.ymax = y_max
 
     def __dealloc__(self):
         if type(self) is PMFTXYT:
@@ -476,47 +458,19 @@ cdef class PMFTXYT(_PMFT):
         return self
 
     @property
-    def X(self):
-        return freud.util.make_managed_numpy_array(
-            &self.pmftxytptr.getX(),
-            freud.util.arr_type_t.FLOAT)
-
-    @property
-    def Y(self):
-        return freud.util.make_managed_numpy_array(
-            &self.pmftxytptr.getY(),
-            freud.util.arr_type_t.FLOAT)
-
-    @property
-    def T(self):
-        return freud.util.make_managed_numpy_array(
-            &self.pmftxytptr.getT(),
-            freud.util.arr_type_t.FLOAT)
-
-    @property
     def jacobian(self):
         return self.pmftxytptr.getJacobian()
 
-    @property
-    def n_bins_X(self):
-        return self.pmftxytptr.getNBinsX()
-
-    @property
-    def n_bins_Y(self):
-        return self.pmftxytptr.getNBinsY()
-
-    @property
-    def n_bins_T(self):
-        return self.pmftxytptr.getNBinsT()
-
     def __repr__(self):
+        bounds = self.bounds
+        nbins = self.nbins
         return ("freud.pmft.{cls}(x_max={x_max}, y_max={y_max}, n_x={n_x}, "
                 "n_y={n_y}, n_t={n_t})").format(cls=type(self).__name__,
-                                                x_max=self.xmax,
-                                                y_max=self.ymax,
-                                                n_x=self.n_bins_X,
-                                                n_y=self.n_bins_Y,
-                                                n_t=self.n_bins_T)
+                                                x_max=bounds[0][1],
+                                                y_max=bounds[1][1],
+                                                n_x=self.nbins[0],
+                                                n_y=self.nbins[1],
+                                                n_t=self.nbins[2])
 
 
 cdef class PMFTXY2D(_PMFT):
@@ -570,16 +524,12 @@ cdef class PMFTXY2D(_PMFT):
             The number of bins in the :math:`y`-dimension of the histogram.
     """  # noqa: E501
     cdef freud._pmft.PMFTXY2D * pmftxy2dptr
-    cdef xmax
-    cdef ymax
 
     def __cinit__(self, x_max, y_max, n_x, n_y):
         if type(self) is PMFTXY2D:
             self.pmftxy2dptr = self.pmftptr = new freud._pmft.PMFTXY2D(
                 x_max, y_max, n_x, n_y)
             self.r_max = np.sqrt(x_max**2 + y_max**2)
-            self.xmax = x_max
-            self.ymax = y_max
 
     def __dealloc__(self):
         if type(self) is PMFTXY2D:
@@ -669,36 +619,18 @@ cdef class PMFTXY2D(_PMFT):
         return np.squeeze(super(PMFTXY2D, self).PCF)
 
     @property
-    def X(self):
-        return freud.util.make_managed_numpy_array(
-            &self.pmftxy2dptr.getX(),
-            freud.util.arr_type_t.FLOAT)
-
-    @property
-    def Y(self):
-        return freud.util.make_managed_numpy_array(
-            &self.pmftxy2dptr.getY(),
-            freud.util.arr_type_t.FLOAT)
-
-    @property
-    def n_bins_X(self):
-        return self.pmftxy2dptr.getNBinsX()
-
-    @property
-    def n_bins_Y(self):
-        return self.pmftxy2dptr.getNBinsY()
-
-    @property
     def jacobian(self):
         return self.pmftxy2dptr.getJacobian()
 
     def __repr__(self):
+        bounds = self.bounds
+        nbins = self.nbins
         return ("freud.pmft.{cls}(x_max={x_max}, y_max={y_max}, n_x={n_x}, "
                 "n_y={n_y})").format(cls=type(self).__name__,
-                                     x_max=self.xmax,
-                                     y_max=self.ymax,
-                                     n_x=self.n_bins_X,
-                                     n_y=self.n_bins_Y)
+                                     x_max=bounds[0][1],
+                                     y_max=bounds[1][1],
+                                     n_x=nbins[0],
+                                     n_y=nbins[1])
 
     def _repr_png_(self):
         import freud.plot
@@ -785,9 +717,6 @@ cdef class PMFTXYZ(_PMFT):
     """  # noqa: E501
     cdef freud._pmft.PMFTXYZ * pmftxyzptr
     cdef shiftvec
-    cdef xmax
-    cdef ymax
-    cdef zmax
 
     def __cinit__(self, x_max, y_max, z_max, n_x, n_y, n_z,
                   shiftvec=[0, 0, 0]):
@@ -799,9 +728,6 @@ cdef class PMFTXYZ(_PMFT):
                 x_max, y_max, z_max, n_x, n_y, n_z, c_shiftvec)
             self.shiftvec = np.array(shiftvec, dtype=np.float32)
             self.r_max = np.sqrt(x_max**2 + y_max**2 + z_max**2)
-            self.xmax = x_max
-            self.ymax = y_max
-            self.zmax = z_max
 
     def __dealloc__(self):
         if type(self) is PMFTXYZ:
@@ -939,48 +865,20 @@ cdef class PMFTXYZ(_PMFT):
         return self
 
     @property
-    def X(self):
-        return freud.util.make_managed_numpy_array(
-            &self.pmftxyzptr.getX(),
-            freud.util.arr_type_t.FLOAT)
-
-    @property
-    def Y(self):
-        return freud.util.make_managed_numpy_array(
-            &self.pmftxyzptr.getY(),
-            freud.util.arr_type_t.FLOAT)
-
-    @property
-    def Z(self):
-        return freud.util.make_managed_numpy_array(
-            &self.pmftxyzptr.getZ(),
-            freud.util.arr_type_t.FLOAT)
-
-    @property
-    def n_bins_X(self):
-        return self.pmftxyzptr.getNBinsX()
-
-    @property
-    def n_bins_Y(self):
-        return self.pmftxyzptr.getNBinsY()
-
-    @property
-    def n_bins_Z(self):
-        return self.pmftxyzptr.getNBinsZ()
-
-    @property
     def jacobian(self):
         return self.pmftxyzptr.getJacobian()
 
     def __repr__(self):
+        bounds = self.bounds
+        nbins = self.nbins
         return ("freud.pmft.{cls}(x_max={x_max}, y_max={y_max}, "
                 "z_max={z_max}, n_x={n_x}, n_y={n_y}, n_z={n_z}, "
                 "shiftvec={shiftvec})").format(
                     cls=type(self).__name__,
-                    x_max=self.xmax,
-                    y_max=self.ymax,
-                    z_max=self.zmax,
-                    n_x=self.n_bins_X,
-                    n_y=self.n_bins_Y,
-                    n_z=self.n_bins_Z,
+                    x_max=bounds[0][1],
+                    y_max=bounds[1][1],
+                    z_max=bounds[2][1],
+                    n_x=nbins[0],
+                    n_y=nbins[1],
+                    n_z=nbins[2],
                     shiftvec=self.shiftvec.tolist())

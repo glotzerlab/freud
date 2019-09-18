@@ -32,6 +32,14 @@ PMFTR12::PMFTR12(float r_max, unsigned int n_r, unsigned int n_t1, unsigned int 
     m_dt1 = m_t1_max / float(m_n_t1);
     m_dt2 = m_t2_max / float(m_n_t2);
 
+    // Construct the Histogram object that will be used to keep track of counts of bond distances found.
+    util::Histogram::Axes axes;
+    axes.push_back(std::make_shared<util::RegularAxis>(n_r, 0, m_r_max));
+    axes.push_back(std::make_shared<util::RegularAxis>(n_t1, 0, m_t1_max));
+    axes.push_back(std::make_shared<util::RegularAxis>(n_t2, 0, m_t2_max));
+    m_histogram = util::Histogram(axes);
+    m_local_histograms = util::Histogram::ThreadLocalHistogram(m_histogram);
+
     if (m_dr > r_max)
         throw invalid_argument("PMFTR12 requires that dr is less than or equal to r_max.");
     if (m_dt1 > m_t1_max)
@@ -46,9 +54,10 @@ PMFTR12::PMFTR12(float r_max, unsigned int n_r, unsigned int n_t1, unsigned int 
 
     // calculate the jacobian array; computed as the inverse for faster use later
     m_inv_jacobian_array.prepare({m_n_r, m_n_t1, m_n_t2});
+    std::vector<float> bins_r = m_histogram.getBinCenters()[0];
     for (unsigned int i = 0; i < m_n_r; i++)
     {
-        float r = m_r_array[i];
+        float r = bins_r[i];
         for (unsigned int j = 0; j < m_n_t1; j++)
         {
             for (unsigned int k = 0; k < m_n_t2; k++)
@@ -66,14 +75,6 @@ PMFTR12::PMFTR12(float r_max, unsigned int n_r, unsigned int n_t1, unsigned int 
 
     // create and populate the pcf_array
     m_pcf_array.prepare({m_n_r, m_n_t1, m_n_t2});
-
-    // Construct the Histogram object that will be used to keep track of counts of bond distances found.
-    util::Histogram::Axes axes;
-    axes.push_back(std::make_shared<util::RegularAxis>(n_r, 0, m_r_max));
-    axes.push_back(std::make_shared<util::RegularAxis>(n_t1, 0, m_t1_max));
-    axes.push_back(std::make_shared<util::RegularAxis>(n_t2, 0, m_t2_max));
-    m_histogram = util::Histogram(axes);
-    m_local_histograms = util::Histogram::ThreadLocalHistogram(m_histogram);
 }
 
 //! \internal

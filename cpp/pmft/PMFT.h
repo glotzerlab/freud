@@ -69,10 +69,25 @@ public:
     }
 
     //! Return the bin boundaries.
-    std::vector<std::vector<float> > getBins() const
+    std::vector<std::vector<float> > getBinEdges() const
     {
         // RDFs are always 1D histograms, so we just return the first element.
-        return m_histogram.getBinBoundaries();
+        return m_histogram.getBinEdges();
+    }
+
+
+    //! Return the bin boundaries.
+    std::vector<std::pair<float, float> > getBounds() const
+    {
+        // RDFs are always 1D histograms, so we just return the first element.
+        return m_histogram.getBounds();
+    }
+
+    //! Return the bin boundaries.
+    std::vector<unsigned int> getBinSizes() const
+    {
+        // RDFs are always 1D histograms, so we just return the first element.
+        return m_histogram.getBinSizes();
     }
 
 
