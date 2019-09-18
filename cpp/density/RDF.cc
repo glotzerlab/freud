@@ -14,8 +14,7 @@
 
 namespace freud { namespace density {
 
-RDF::RDF(unsigned int bins, float r_max, float r_min) : m_box(box::Box()), m_frame_counter(0), m_n_points(0),
-    m_n_query_points(0), m_reduce(true), m_r_max(r_max), m_r_min(r_min), m_bins(bins)
+RDF::RDF(unsigned int bins, float r_max, float r_min) : HistogramCompute(), m_r_max(r_max), m_r_min(r_min), m_bins(bins)
 {
     if (bins <= 0)
         throw std::invalid_argument("RDF requires a positive number of bins.");
@@ -73,29 +72,17 @@ void RDF::reduce()
     }
 }
 
-void RDF::reset()
-{
-    m_local_histograms.reset();
-    this->m_frame_counter = 0;
-    this->m_reduce = true;
-}
-
 void RDF::accumulate(const freud::locality::NeighborQuery* neighbor_query,
                     const vec3<float>* query_points, unsigned int n_query_points,
                     const freud::locality::NeighborList* nlist, freud::locality::QueryArgs qargs)
 {
-    m_box = neighbor_query->getBox();
-    locality::loopOverNeighbors(neighbor_query, query_points, n_query_points, qargs, nlist,
+    accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
         [=](const freud::locality::NeighborBond& neighbor_bond) {
         if (neighbor_bond.distance < m_r_max && neighbor_bond.distance > m_r_min)
         {
             m_local_histograms(neighbor_bond.distance);
         }
     });
-    m_frame_counter++;
-    m_n_points = neighbor_query->getNPoints();
-    m_n_query_points = n_query_points;
-    m_reduce = true;
 }
 
 }; }; // end namespace freud::density

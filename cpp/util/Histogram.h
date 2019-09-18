@@ -346,13 +346,7 @@ public:
         reduceOverThreadsPerBin(local_histograms, [](size_t i) {});
     }
 
-    //! Writeable index into array.
-    unsigned int &operator[](unsigned int i)
-    {
-        return m_bin_counts[i];
-    }
-
-    //! Writeable index into array.
+    //! Read-only index into array.
     const unsigned int &operator[](unsigned int i) const
     {
         return m_bin_counts[i];

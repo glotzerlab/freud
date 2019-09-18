@@ -7,16 +7,15 @@
 #include <memory>
 
 #include "Box.h"
-#include "NeighborQuery.h"
-#include "NeighborComputeFunctional.h"
 #include "Histogram.h"
+#include "HistogramCompute.h"
 
 /*! \file RDF.h
     \brief Routines for computing radial density functions.
 */
 
 namespace freud { namespace density {
-class RDF
+class RDF : public util::HistogramCompute
 {
 public:
     //! Constructor
@@ -24,9 +23,6 @@ public:
 
     //! Destructor
     ~RDF() {};
-
-    //! Reset the RDF array to all zeros
-    void reset();
 
     //! Compute the RDF
     /*! Accumulate the given points to the histogram. Accumulation is performed
@@ -39,24 +35,6 @@ public:
 
     //! Reduce thread-local arrays onto the primary data arrays.
     virtual void reduce();
-
-    //! Return :code:`thing_to_return` after reducing.
-    template<typename T>
-    T &reduceAndReturn(T &thing_to_return)
-    {
-        if (m_reduce == true)
-        {
-            reduce();
-        }
-        m_reduce = false;
-        return thing_to_return;
-    }
-
-    //! Get the simulation box
-    const box::Box& getBox() const
-    {
-        return m_box;
-    }
 
     //! Get the positional correlation function.
     const util::ManagedArray<float> &getRDF()
@@ -105,10 +83,6 @@ public:
     }
 
 private:
-    box::Box m_box;
-    unsigned int m_frame_counter;            //!< Number of frames calculated.
-    unsigned int m_n_points;                 //!< The number of points.
-    unsigned int m_n_query_points;           //!< The number of query points.
     bool m_reduce;                           //!< Whether or not the histogram needs to be reduced.
 
     float m_r_max;                           //!< Maximum r at which to compute g(r)
@@ -116,12 +90,9 @@ private:
     unsigned int m_bins;                     //!< Number of r bins to compute g(r) over
 
     util::ManagedArray<float> m_pcf;         //!< The computed pair correlation function.
-    util::Histogram m_histogram;             //!< Histogram of interparticle distances (bond lengths).
     util::ManagedArray<float> m_N_r;         //!< Cumulative bin sum N(r) (the average number of points in a ball of radius r).
     util::ManagedArray<float> m_vol_array2D; //!< Areas of concentric rings corresponding to the histogram bins in 2D.
     util::ManagedArray<float> m_vol_array3D; //!< Areas of concentric spherical shells corresponding to the histogram bins in 3D.
-
-    util::Histogram::ThreadLocalHistogram m_local_histograms;   //!< Thread local bin counts for TBB parallelism
 };
 
 }; }; // end namespace freud::density
