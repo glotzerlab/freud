@@ -261,9 +261,12 @@ cdef class NematicOrderParameter(Compute):
                                                  u=self.u.tolist())
 
 
-cdef class HexOrderParameter(PairCompute):
-    R"""Calculates the :math:`k`-atic order parameter for each particle in the
-    system.
+cdef class HexaticOrderParameter(PairCompute):
+    R"""Calculates the :math:`k`-atic order parameter for 2D systems.
+
+    The :math:`k`-atic order parameter (called the hexatic order parameter for
+    :math:`k = 6`) is analogous to Steinhardt order parameters, and is used to
+    measure order in the bonds of 2D systems.
 
     The :math:`k`-atic order parameter for a particle :math:`i` and its
     :math:`n` neighbors :math:`j` is given by:
@@ -271,43 +274,33 @@ cdef class HexOrderParameter(PairCompute):
     :math:`\psi_k \left( i \right) = \frac{1}{n}
     \sum_j^n e^{k i \phi_{ij}}`
 
-    The parameter :math:`k` governs the symmetry of the order parameter while
-    the parameter :math:`n` governs the number of neighbors of particle
-    :math:`i` to average over. :math:`\phi_{ij}` is the angle between the
+    The parameter :math:`k` governs the symmetry of the order parameter and
+    typically matches the number of neighbors to be found for each particle.
+    The quantity :math:`\phi_{ij}` is the angle between the
     vector :math:`r_{ij}` and :math:`\left( 1,0 \right)`.
 
     .. note::
-        **2D:** :class:`freud.order.HexOrderParameter` properly handles 2D
+        **2D:** :class:`freud.order.HexaticOrderParameter` properly handles 2D
         boxes. The points must be passed in as :code:`[x, y, 0]`. Failing to
         set z=0 will lead to undefined behavior.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
+    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
 
     Args:
-        r_max (float):
-            +/- r distance to search for neighbors.
         k (unsigned int, optional):
             Symmetry of order parameter. (Default value = :code:`6`).
-        num_neighbors (unsigned int, optional):
-            Number of neighbors. Uses :code:`k` if not provided or :code:`0`.
-            (Default value = :code:`0`).
 
     Attributes:
-        psi (:math:`\left(N_{particles} \right)` :class:`numpy.ndarray`):
-            Order parameter.
-        box (:class:`freud.box.Box`):
-            Box used in the calculation.
-        K (unsigned int):
+        k (unsigned int):
             Symmetry of the order parameter.
-    """  # noqa: E501
-    cdef freud._order.HexOrderParameter * thisptr
-    cdef int num_neighbors
-    cdef float r_max
+        order (:math:`\left(N_{particles} \right)` :class:`numpy.ndarray`):
+            Order parameter.
+    """
+    cdef freud._order.HexaticOrderParameter * thisptr
 
-    def __cinit__(self, r_max, k=int(6), num_neighbors=int(0)):
-        self.thisptr = new freud._order.HexOrderParameter(k)
-        self.r_max = r_max
-        self.num_neighbors = (num_neighbors if num_neighbors else int(k))
+    def __cinit__(self, k=6):
+        self.thisptr = new freud._order.HexaticOrderParameter(k)
 
     def __dealloc__(self):
         del self.thisptr
@@ -325,6 +318,8 @@ cdef class HexOrderParameter(PairCompute):
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds.
                 (Default value = :code:`None`).
+            query_args (dict): A dictionary of query arguments (Default value =
+                :code:`None`).
         """
         cdef:
             freud.box.Box b
@@ -343,60 +338,43 @@ cdef class HexOrderParameter(PairCompute):
 
     @property
     def default_query_args(self):
-        return dict(mode="nearest", num_neighbors=self.num_neighbors,
-                    r_guess=self.r_max)
+        return dict(mode="nearest", num_neighbors=self.k)
 
     @Compute._computed_property()
-    def psi(self):
+    def order(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getOrder(),
             freud.util.arr_type_t.COMPLEX_FLOAT)
 
-    @Compute._computed_property()
-    def box(self):
-        return freud.box.BoxFromCPP(<freud._box.Box> self.thisptr.getBox())
-
     @property
-    def K(self):
-        cdef unsigned int k = self.thisptr.getK()
-        return k
+    def k(self):
+        return self.thisptr.getK()
 
     def __repr__(self):
-        return "freud.order.{cls}(r_max={r}, k={k}, num_neighbors={n})".format(
-            cls=type(self).__name__, r=self.r_max, k=self.K,
-            n=self.num_neighbors)
+        return "freud.order.{cls}(k={k})".format(
+            cls=type(self).__name__, k=self.k)
 
 
 cdef class TransOrderParameter(PairCompute):
     R"""Compute the translational order parameter for each particle.
 
     .. moduleauthor:: Wenbo Shen <shenwb@umich.edu>
+    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
 
     Args:
-        r_max (float):
-            +/- r distance to search for neighbors.
         k (float, optional):
             Symmetry of order parameter. (Default value = :code:`6.0`).
-        num_neighbors (unsigned int, optional):
-            Number of neighbors. Uses :code:`k` if not provided or :code:`0`.
-            (Default value = :code:`0`).
 
     Attributes:
-        d_r (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
+        order (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             Reference to the last computed translational order array.
-        box (:class:`freud.box.Box`):
-            Box used in the calculation.
-        K (float):
-            Normalization value (d_r is divided by K).
-    """  # noqa: E501
+        k (float):
+            Normalization value (order is divided by k).
+    """
     cdef freud._order.TransOrderParameter * thisptr
-    cdef num_neighbors
-    cdef r_max
 
-    def __cinit__(self, r_max, k=6.0, num_neighbors=0):
+    def __cinit__(self, k=6.0):
         self.thisptr = new freud._order.TransOrderParameter(k)
-        self.r_max = r_max
-        self.num_neighbors = (num_neighbors if num_neighbors > 0 else int(k))
 
     def __dealloc__(self):
         del self.thisptr
@@ -413,6 +391,8 @@ cdef class TransOrderParameter(PairCompute):
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds.
                 (Default value = :code:`None`).
+            query_args (dict): A dictionary of query arguments (Default value =
+                :code:`None`).
         """
         cdef:
             freud.box.Box b
@@ -432,27 +412,21 @@ cdef class TransOrderParameter(PairCompute):
 
     @property
     def default_query_args(self):
-        return dict(mode="nearest", num_neighbors=self.num_neighbors,
-                    r_guess=self.r_max)
+        return dict(mode="nearest", num_neighbors=int(self.k))
 
     @Compute._computed_property()
-    def d_r(self):
+    def order(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getOrder(),
             freud.util.arr_type_t.COMPLEX_FLOAT)
 
-    @Compute._computed_property()
-    def box(self):
-        return freud.box.BoxFromCPP(<freud._box.Box> self.thisptr.getBox())
-
     @property
-    def K(self):
+    def k(self):
         return self.thisptr.getK()
 
     def __repr__(self):
-        return "freud.order.{cls}(r_max={r}, k={k}, num_neighbors={n})".format(
-            cls=type(self).__name__, r=self.r_max, k=self.K,
-            n=self.num_neighbors)
+        return "freud.order.{cls}(k={k})".format(
+            cls=type(self).__name__, k=self.k)
 
 
 cdef class Steinhardt(PairCompute):

@@ -32,14 +32,14 @@ void HexTransOrderParameter<T>::computeGeneral(Func func, const freud::locality:
     });
 }
 
-HexOrderParameter::HexOrderParameter(unsigned int k)
+HexaticOrderParameter::HexaticOrderParameter(unsigned int k)
     : HexTransOrderParameter<unsigned int>(k) {}
 
-HexOrderParameter::~HexOrderParameter() {}
+HexaticOrderParameter::~HexaticOrderParameter() {}
 
-void HexOrderParameter::compute(const freud::locality::NeighborList* nlist,
-                                const freud::locality::NeighborQuery* points,
-                                freud::locality::QueryArgs qargs)
+void HexaticOrderParameter::compute(const freud::locality::NeighborList* nlist,
+                                    const freud::locality::NeighborQuery* points,
+                                    freud::locality::QueryArgs qargs)
 {
     computeGeneral(
     [this] (const vec3<float> &delta)

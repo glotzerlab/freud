@@ -21,7 +21,7 @@
 
 namespace freud { namespace order {
 
-//! Parent class for HexOrderParameter and TransOrderParameter
+//! Parent class for HexaticOrderParameter and TransOrderParameter
 /*!
  */
 template<typename T> class HexTransOrderParameter
@@ -77,14 +77,14 @@ public:
 //! Compute the hexatic order parameter for a set of points
 /*!
  */
-class HexOrderParameter : public HexTransOrderParameter<unsigned int>
+class HexaticOrderParameter : public HexTransOrderParameter<unsigned int>
 {
 public:
     //! Constructor
-    HexOrderParameter(unsigned int k = 6);
+    HexaticOrderParameter(unsigned int k = 6);
 
     //! Destructor
-    ~HexOrderParameter();
+    ~HexaticOrderParameter();
 
     //! Compute the hexatic order parameter
     void compute(const freud::locality::NeighborList* nlist,

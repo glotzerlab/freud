@@ -47,8 +47,8 @@ cdef extern from "NematicOrderParameter.h" namespace "freud::order":
 
 
 cdef extern from "HexTransOrderParameter.h" namespace "freud::order":
-    cdef cppclass HexOrderParameter:
-        HexOrderParameter(unsigned int)
+    cdef cppclass HexaticOrderParameter:
+        HexaticOrderParameter(unsigned int)
         const freud._box.Box & getBox() const
         void compute(const freud._locality.NeighborList*,
                      const freud._locality.NeighborQuery*,
