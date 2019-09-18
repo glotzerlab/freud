@@ -9,6 +9,7 @@ from libcpp.vector cimport vector
 from libcpp.map cimport map
 cimport freud._box
 cimport freud._locality
+cimport freud.util
 
 cdef extern from "BondOrder.h" namespace "freud::environment":
     cdef cppclass BondOrder:
@@ -24,9 +25,9 @@ cdef extern from "BondOrder.h" namespace "freud::environment":
             unsigned int,
             const freud._locality.NeighborList*,
             freud._locality.QueryArgs)
-        shared_ptr[float] getBondOrder()
-        shared_ptr[float] getTheta()
-        shared_ptr[float] getPhi()
+        const freud.util.ManagedArray[float] &getBondOrder()
+        const freud.util.ManagedArray[float] &getTheta()
+        const freud.util.ManagedArray[float] &getPhi()
         unsigned int getNBinsTheta()
         unsigned int getNBinsPhi()
 

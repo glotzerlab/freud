@@ -12,6 +12,7 @@
 #include "NeighborQuery.h"
 #include "ThreadStorage.h"
 #include "VectorMath.h"
+#include "ManagedArray.h"
 
 /*! \file BondOrder.h
     \brief Compute the bond order diagram for the system of particles.
@@ -59,16 +60,16 @@ public:
     void reduceBondOrder();
 
     //! Get a reference to the last computed bond order
-    std::shared_ptr<float> getBondOrder();
+    const util::ManagedArray<float> &getBondOrder();
 
     //! Get a reference to the theta array
-    std::shared_ptr<float> getTheta()
+    const util::ManagedArray<float> &getTheta()
     {
         return m_theta_array;
     }
 
     //! Get a reference to the phi array
-    std::shared_ptr<float> getPhi()
+    const util::ManagedArray<float> &getPhi()
     {
         return m_phi_array;
     }
@@ -92,11 +93,11 @@ private:
     unsigned int m_frame_counter; //!< number of frames calculated
     bool m_reduce;                //!< Whether arrays need to be reduced across threads
 
-    std::shared_ptr<unsigned int> m_bin_counts; //!< bin counts computed
-    std::shared_ptr<float> m_bo_array;          //!< bond order array computed
-    std::shared_ptr<float> m_sa_array;          //!< surface area array computed
-    std::shared_ptr<float> m_theta_array;       //!< theta array computed
-    std::shared_ptr<float> m_phi_array;         //!< phi order array computed
+    util::ManagedArray<unsigned int> m_bin_counts; //!< bin counts computed
+    util::ManagedArray<float> m_bo_array;          //!< bond order array computed
+    util::ManagedArray<float> m_sa_array;          //!< surface area array computed
+    util::ManagedArray<float> m_theta_array;       //!< theta array computed
+    util::ManagedArray<float> m_phi_array;         //!< phi order array computed
     util::ThreadStorage<unsigned int> m_local_bin_counts;
 };
 
