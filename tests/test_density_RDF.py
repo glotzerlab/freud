@@ -18,7 +18,7 @@ class TestRDF(unittest.TestCase):
             r_list = np.array([r_min + dr*(i+1/2) for i in range(bins) if
                                r_min + dr*(i+1/2) < r_max])
             rdf = freud.density.RDF(bins, r_max, r_min=r_min)
-            npt.assert_allclose(rdf.R, r_list, rtol=1e-4, atol=1e-4)
+            npt.assert_allclose(rdf.bin_centers, r_list, rtol=1e-4, atol=1e-4)
             npt.assert_allclose((rdf.bins+dr/2)[:-1], r_list, rtol=1e-4,
                                 atol=1e-4)
 
@@ -146,7 +146,7 @@ class TestRDF(unittest.TestCase):
         # each other.
         dr = r_max/bins
         points = [[dr/4, 0, 0], [-dr/4, 0, 0], [0, dr/4, 0], [0, -dr/4, 0]]
-        for r in rdf.R:
+        for r in rdf.bin_centers:
             for k in range(N):
                 query_points.append([r * np.cos(2*np.pi*k/N),
                                      r * np.sin(2*np.pi*k/N), 0])

@@ -108,7 +108,7 @@ public:
         return arr;
     }
 
-    //! Helper function to reduce three dimensionally with appropriate Jaocobian.
+    //! Helper function to reduce three dimensionally with appropriate Jacobian.
     template<typename JacobFactor>
     void reduce(JacobFactor jf)
     {
