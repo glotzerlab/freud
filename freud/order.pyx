@@ -186,7 +186,7 @@ cdef class Nematic(Compute):
             (without any rotation applied).
 
     Attributes:
-        nematic_order_parameter (float):
+        order (float):
             Nematic order parameter.
         director (:math:`\left(3 \right)` :class:`numpy.ndarray`):
             The average nematic director.
@@ -231,7 +231,7 @@ cdef class Nematic(Compute):
         return self
 
     @Compute._computed_property()
-    def nematic_order_parameter(self):
+    def order(self):
         return self.thisptr.getNematicOrderParameter()
 
     @Compute._computed_property()
@@ -366,10 +366,10 @@ cdef class Translational(PairCompute):
             Symmetry of order parameter. (Default value = :code:`6.0`).
 
     Attributes:
-        order (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
-            Reference to the last computed translational order array.
         k (float):
             Normalization value (order is divided by k).
+        order (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
+            Reference to the last computed translational order array.
     """
     cdef freud._order.Translational * thisptr
 

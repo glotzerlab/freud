@@ -20,7 +20,7 @@ class TestNematicOrder(unittest.TestCase):
 
         # Test access
         with self.assertRaises(AttributeError):
-            op_parallel.nematic_order_parameter
+            op_parallel.order
         with self.assertRaises(AttributeError):
             op_parallel.director
         with self.assertRaises(AttributeError):
@@ -31,12 +31,12 @@ class TestNematicOrder(unittest.TestCase):
         op_parallel.compute(orientations)
 
         # Test access
-        op_parallel.nematic_order_parameter
+        op_parallel.order
         op_parallel.director
         op_parallel.particle_tensor
         op_parallel.nematic_tensor
 
-        self.assertTrue(op_parallel.nematic_order_parameter == 1)
+        self.assertTrue(op_parallel.order == 1)
         npt.assert_equal(op_parallel.director, u)
         npt.assert_equal(
             op_parallel.nematic_tensor, np.diag([1, -0.5, -0.5]))
@@ -49,7 +49,7 @@ class TestNematicOrder(unittest.TestCase):
         op_perp = freud.order.Nematic(u)
         op_perp.compute(orientations)
 
-        self.assertEqual(op_perp.nematic_order_parameter, 1)
+        self.assertEqual(op_perp.order, 1)
         npt.assert_equal(op_perp.director, u)
         npt.assert_equal(
             op_perp.nematic_tensor, np.diag([-0.5, 1, -0.5]))
@@ -70,8 +70,8 @@ class TestNematicOrder(unittest.TestCase):
         op = freud.order.Nematic(u)
         op.compute(orientations)
 
-        npt.assert_allclose(op.nematic_order_parameter, 1, atol=1e-1)
-        self.assertNotEqual(op.nematic_order_parameter, 1)
+        npt.assert_allclose(op.order, 1, atol=1e-1)
+        self.assertNotEqual(op.order, 1)
 
         npt.assert_allclose(op.director, u, atol=1e-1)
         self.assertFalse(np.all(op.director == u))
@@ -84,8 +84,8 @@ class TestNematicOrder(unittest.TestCase):
         op_perp = freud.order.Nematic(u)
         op_perp.compute(orientations)
 
-        npt.assert_allclose(op_perp.nematic_order_parameter, 1, atol=1e-1)
-        self.assertNotEqual(op_perp.nematic_order_parameter, 1)
+        npt.assert_allclose(op_perp.order, 1, atol=1e-1)
+        self.assertNotEqual(op_perp.order, 1)
 
         npt.assert_allclose(op_perp.director, u, atol=1e-1)
         self.assertFalse(np.all(op_perp.director == u))
