@@ -103,7 +103,7 @@ public:
         // Since we're using an unsigned int cast for truncation, we must
         // ensure that we will be working with a positive number or we will
         // fail to detect underflow.
-        if (value < m_min)
+        if (value < m_min || value > m_max)
         {
             return OVERFLOW_BIN;
         }
@@ -114,12 +114,6 @@ public:
 #else
         unsigned int bin = (unsigned int)(val);
 #endif
-        // Don't allow overflow. Since bin is unsigned, we don't need to check
-        // for underflow.
-        if (bin >= m_nbins)
-        {
-            return OVERFLOW_BIN;
-        }
         return bin;
     }
 
