@@ -210,7 +210,7 @@ public:
             if (indices[i] > (*m_shape)[i])
             {
                 std::ostringstream msg;
-                msg << "Attempted to access index " << indices[i] << " in dimension " << i << ", which has size" << (*m_shape)[i] << std::endl;
+                msg << "Attempted to access index " << indices[i] << " in dimension " << i << ", which has size " << (*m_shape)[i] << std::endl;
                 throw std::invalid_argument(msg.str());
             }
         }
