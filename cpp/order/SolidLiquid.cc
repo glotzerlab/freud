@@ -31,7 +31,7 @@ void SolidLiquid::compute(const freud::locality::NeighborList* nlist,
     // Make NeighborList from NeighborQuery if needed
     if (nlist == NULL)
     {
-        auto nqiter(points->queryWithArgs(points->getPoints(), points->getNPoints(), qargs));
+        auto nqiter(points->query(points->getPoints(), points->getNPoints(), qargs));
         nlist = nqiter->toNeighborList();
     }
 
@@ -52,14 +52,6 @@ void SolidLiquid::compute(const freud::locality::NeighborList* nlist,
 
     // Cluster using filtered neighbor list
     //m_cluster.compute()
-}
-
-unsigned int SolidLiquid::getLargestClusterSize()
-{
-}
-
-std::vector<unsigned int> SolidLiquid::getClusterSizes()
-{
 }
 
 }; }; // end namespace freud::order
