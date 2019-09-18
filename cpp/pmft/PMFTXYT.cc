@@ -14,7 +14,7 @@ using namespace tbb;
 namespace freud { namespace pmft {
 
 PMFTXYT::PMFTXYT(float x_max, float y_max, unsigned int n_x, unsigned int n_y, unsigned int n_t)
-    : PMFT(), m_x_max(x_max), m_y_max(y_max), m_t_max(2.0 * M_PI), m_n_x(n_x), m_n_y(n_y), m_n_t(n_t)
+    : PMFT()
 {
     if (n_x < 1)
         throw invalid_argument("PMFTXYT requires at least 1 bin in X.");
@@ -26,40 +26,27 @@ PMFTXYT::PMFTXYT(float x_max, float y_max, unsigned int n_x, unsigned int n_y, u
         throw invalid_argument("PMFTXYT requires that x_max must be positive.");
     if (y_max < 0.0f)
         throw invalid_argument("PMFTXYT requires that y_max must be positive.");
+    float angle_max = 2.0 * M_PI;
     // calculate dx, dy, dt
-    m_dx = 2.0 * m_x_max / float(m_n_x);
-    m_dy = 2.0 * m_y_max / float(m_n_y);
-    m_dt = m_t_max / float(m_n_t);
+    float dx = 2.0 * x_max / float(n_x);
+    float dy = 2.0 * y_max / float(n_y);
+    float dt = angle_max / float(n_t);
 
-    if (m_dx > x_max)
-        throw invalid_argument("PMFTXYT requires that dx is less than or equal to x_max.");
-    if (m_dy > y_max)
-        throw invalid_argument("PMFTXYT requires that dy is less than or equal to y_max.");
-    if (m_dt > m_t_max)
-        throw invalid_argument("PMFTXYT requires that dt is less than or equal to t_max.");
-
-    m_jacobian = m_dx * m_dy * m_dt;
-
-    // precompute the bin center positions for x
-    m_x_array = precomputeAxisBinCenter(m_n_x, m_dx, m_x_max);
-    // precompute the bin center positions for y
-    m_y_array = precomputeAxisBinCenter(m_n_y, m_dy, m_y_max);
-    // precompute the bin center positions for t
-    m_t_array = precomputeAxisBinCenter(m_n_t, m_dt, 0);
+    m_jacobian = dx * dy * dt;
 
     // create and populate the pcf_array
-    m_pcf_array.prepare({m_n_x, m_n_y, m_n_t});
+    m_pcf_array.prepare({n_x, n_y, n_t});
 
     // Construct the Histogram object that will be used to keep track of counts of bond distances found.
     util::Histogram::Axes axes;
-    axes.push_back(std::make_shared<util::RegularAxis>(n_x, -m_x_max, m_x_max));
-    axes.push_back(std::make_shared<util::RegularAxis>(n_y, -m_y_max, m_y_max));
-    axes.push_back(std::make_shared<util::RegularAxis>(n_t, 0, m_t_max));
+    axes.push_back(std::make_shared<util::RegularAxis>(n_x, -x_max, x_max));
+    axes.push_back(std::make_shared<util::RegularAxis>(n_y, -y_max, y_max));
+    axes.push_back(std::make_shared<util::RegularAxis>(n_t, 0, angle_max));
     m_histogram = util::Histogram(axes);
     m_local_histograms = util::Histogram::ThreadLocalHistogram(m_histogram);
 
     // Set r_max
-    m_r_max = sqrtf(m_x_max * m_x_max + m_y_max * m_y_max);
+    m_r_max = sqrtf(x_max * x_max + y_max * y_max);
 }
 
 //! \internal
