@@ -16,7 +16,7 @@ class TestNematicOrder(unittest.TestCase):
 
         # Test for parallel to molecular axis
         u = np.array([1, 0, 0])
-        op_parallel = freud.order.NematicOrderParameter(u)
+        op_parallel = freud.order.Nematic(u)
 
         # Test access
         with self.assertRaises(AttributeError):
@@ -46,7 +46,7 @@ class TestNematicOrder(unittest.TestCase):
 
         # Test for perpendicular to molecular axis
         u = np.array([0, 1, 0])
-        op_perp = freud.order.NematicOrderParameter(u)
+        op_perp = freud.order.Nematic(u)
         op_perp.compute(orientations)
 
         self.assertEqual(op_perp.nematic_order_parameter, 1)
@@ -67,7 +67,7 @@ class TestNematicOrder(unittest.TestCase):
             rowan.interpolate.slerp([1, 0, 0, 0], rowan.random.rand(N), 0.1)
 
         u = np.array([1, 0, 0])
-        op = freud.order.NematicOrderParameter(u)
+        op = freud.order.Nematic(u)
         op.compute(orientations)
 
         npt.assert_allclose(op.nematic_order_parameter, 1, atol=1e-1)
@@ -81,7 +81,7 @@ class TestNematicOrder(unittest.TestCase):
         self.assertFalse(np.all(op.nematic_tensor == np.diag([1, -0.5, -0.5])))
 
         u = np.array([0, 1, 0])
-        op_perp = freud.order.NematicOrderParameter(u)
+        op_perp = freud.order.Nematic(u)
         op_perp.compute(orientations)
 
         npt.assert_allclose(op_perp.nematic_order_parameter, 1, atol=1e-1)
@@ -97,7 +97,7 @@ class TestNematicOrder(unittest.TestCase):
 
     def test_repr(self):
         u = np.array([1, 0, 0])
-        op = freud.order.NematicOrderParameter(u)
+        op = freud.order.Nematic(u)
         self.assertEqual(str(op), str(eval(repr(op))))
 
 

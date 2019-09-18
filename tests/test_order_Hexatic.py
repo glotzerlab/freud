@@ -5,21 +5,21 @@ import unittest
 import util
 
 
-class TestHexaticOrderParameter(unittest.TestCase):
+class TestHexatic(unittest.TestCase):
     def test_getK(self):
-        hop = freud.order.HexaticOrderParameter()
+        hop = freud.order.Hexatic()
         npt.assert_equal(hop.k, 6)
 
     def test_getK_pass(self):
         k = 3
-        hop = freud.order.HexaticOrderParameter(k)
+        hop = freud.order.Hexatic(k)
         npt.assert_equal(hop.k, 3)
 
     def test_order_size(self):
         boxlen = 10
         N = 500
         box, points = util.make_box_and_random_points(boxlen, N, is2D=True)
-        hop = freud.order.HexaticOrderParameter()
+        hop = freud.order.Hexatic()
         hop.compute(box, points)
         npt.assert_equal(len(hop.order), N)
 
@@ -28,7 +28,7 @@ class TestHexaticOrderParameter(unittest.TestCase):
         N = 500
         r_max = 3
         box, points = util.make_box_and_random_points(boxlen, N, is2D=True)
-        hop = freud.order.HexaticOrderParameter()
+        hop = freud.order.Hexatic()
         hop.compute(box, points)
         npt.assert_allclose(np.mean(hop.order), 0. + 0.j, atol=1e-1)
 
@@ -45,7 +45,7 @@ class TestHexaticOrderParameter(unittest.TestCase):
 
         points = np.asarray(points, dtype=np.float32)
         points[:, 2] = 0.0
-        hop = freud.order.HexaticOrderParameter()
+        hop = freud.order.Hexatic()
 
         # Test access
         hop.k
@@ -63,7 +63,7 @@ class TestHexaticOrderParameter(unittest.TestCase):
             npt.assert_allclose(hop.order[0], 1. + 0.j, atol=1e-1)
 
     def test_repr(self):
-        hop = freud.order.HexaticOrderParameter(3)
+        hop = freud.order.Hexatic(3)
         self.assertEqual(str(hop), str(eval(repr(hop))))
 
 

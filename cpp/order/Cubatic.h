@@ -43,7 +43,7 @@ struct tensor4
 //! Compute the cubatic order parameter for a set of points
 /*! The cubatic order parameter is defined according to the paper "Strong
  * orientational coordinates and orientational order parameters for symmetric
- * objects" by Amir Haji-Akbari
+ * objects" by Amir Haji-Akbari and Sharon C. Glotzer
  * (http://dx.doi.org/10.1088/1751-8113/48/48/485201). Comments throughout this
  * file reference notes and equations from that paper for clarity. The central
  * idea is to define, for a given symmetry, a minimal set of vectors that can

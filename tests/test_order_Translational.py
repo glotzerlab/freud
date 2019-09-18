@@ -6,7 +6,7 @@ import itertools
 import util
 
 
-class TestTransOrder(unittest.TestCase):
+class TestTranslational(unittest.TestCase):
     def test_simple(self):
         box = freud.box.Box.square(10)
 
@@ -18,7 +18,7 @@ class TestTransOrder(unittest.TestCase):
 
         r_max = 1.1
         n = 4
-        trans = freud.order.TransOrderParameter(4)
+        trans = freud.order.Translational(4)
         # Test access
         with self.assertRaises(AttributeError):
             trans.order
@@ -33,7 +33,7 @@ class TestTransOrder(unittest.TestCase):
             npt.assert_allclose(trans.order, 0, atol=1e-6)
 
     def test_repr(self):
-        trans = freud.order.TransOrderParameter(4)
+        trans = freud.order.Translational(4)
         self.assertEqual(str(trans), str(eval(repr(trans))))
 
 
