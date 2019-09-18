@@ -256,7 +256,7 @@ void Steinhardt::reduce()
     parallel_for(tbb::blocked_range<size_t>(0, m_num_ms), [=](const tbb::blocked_range<size_t>& r) {
         for (size_t i = r.begin(); i != r.end(); i++)
         {
-            for (auto = m_Qlm_local.begin(); Ql_local != m_Qlm_local.end(); Ql_local++)
+            for (auto Ql_local = m_Qlm_local.begin(); Ql_local != m_Qlm_local.end(); Ql_local++)
             {
                 m_Qlm[i] += (*Ql_local)[i];
             }
