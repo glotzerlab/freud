@@ -9,54 +9,54 @@
 #endif
 
 #include "Index1D.h"
-#include "NematicOrderParameter.h"
+#include "Nematic.h"
 #include "diagonalize.h"
 
 using namespace std;
 using namespace tbb;
 
-/*! \file NematicOrderParameter.h
+/*! \file Nematic.h
     \brief Compute the nematic order parameter for each particle
 */
 
 namespace freud { namespace order {
 
 // m_u is the molecular axis, normalized to a unit vector
-NematicOrderParameter::NematicOrderParameter(vec3<float> u)
+Nematic::Nematic(vec3<float> u)
     : m_n(0), m_u(u / sqrt(dot(u, u)))
 {}
 
-float NematicOrderParameter::getNematicOrderParameter()
+float Nematic::getNematicOrderParameter()
 {
     return m_nematic_order_parameter;
 }
 
-const util::ManagedArray<float> &NematicOrderParameter::getParticleTensor()
+const util::ManagedArray<float> &Nematic::getParticleTensor()
 {
     return m_particle_tensor;
 }
 
-const util::ManagedArray<float> &NematicOrderParameter::getNematicTensor()
+const util::ManagedArray<float> &Nematic::getNematicTensor()
 {
     return m_nematic_tensor;
 }
 
-unsigned int NematicOrderParameter::getNumParticles()
+unsigned int Nematic::getNumParticles()
 {
     return m_n;
 }
 
-vec3<float> NematicOrderParameter::getNematicDirector()
+vec3<float> Nematic::getNematicDirector()
 {
     return m_nematic_director;
 }
 
-vec3<float> NematicOrderParameter::getU()
+vec3<float> Nematic::getU()
 {
     return m_u;
 }
 
-void NematicOrderParameter::compute(quat<float>* orientations, unsigned int n)
+void Nematic::compute(quat<float>* orientations, unsigned int n)
 {
     m_n = n;
     m_particle_tensor.prepare({m_n, 3, 3});

@@ -11,13 +11,13 @@ cimport freud._box
 cimport freud._locality
 cimport freud.util
 
-cdef extern from "CubaticOrderParameter.h" namespace "freud::order":
-    cdef cppclass CubaticOrderParameter:
-        CubaticOrderParameter(float,
-                              float,
-                              float,
-                              unsigned int,
-                              unsigned int) except +
+cdef extern from "Cubatic.h" namespace "freud::order":
+    cdef cppclass Cubatic:
+        Cubatic(float,
+                float,
+                float,
+                unsigned int,
+                unsigned int) except +
         void reset()
         void compute(quat[float]*,
                      unsigned int) except +
@@ -32,9 +32,9 @@ cdef extern from "CubaticOrderParameter.h" namespace "freud::order":
         quat[float] getCubaticOrientation()
 
 
-cdef extern from "NematicOrderParameter.h" namespace "freud::order":
-    cdef cppclass NematicOrderParameter:
-        NematicOrderParameter(vec3[float])
+cdef extern from "Nematic.h" namespace "freud::order":
+    cdef cppclass Nematic:
+        Nematic(vec3[float])
         void reset()
         void compute(quat[float]*,
                      unsigned int) except +
@@ -46,9 +46,9 @@ cdef extern from "NematicOrderParameter.h" namespace "freud::order":
         vec3[float] getU()
 
 
-cdef extern from "HexTransOrderParameter.h" namespace "freud::order":
-    cdef cppclass HexaticOrderParameter:
-        HexaticOrderParameter(unsigned int)
+cdef extern from "HexaticTranslational.h" namespace "freud::order":
+    cdef cppclass Hexatic:
+        Hexatic(unsigned int)
         const freud._box.Box & getBox() const
         void compute(const freud._locality.NeighborList*,
                      const freud._locality.NeighborQuery*,
@@ -56,8 +56,8 @@ cdef extern from "HexTransOrderParameter.h" namespace "freud::order":
         const freud.util.ManagedArray[float complex] &getOrder()
         unsigned int getK()
 
-    cdef cppclass TransOrderParameter:
-        TransOrderParameter(float)
+    cdef cppclass Translational:
+        Translational(float)
         const freud._box.Box & getBox() const,
         void compute(const freud._locality.NeighborList*,
                      const freud._locality.NeighborQuery*,

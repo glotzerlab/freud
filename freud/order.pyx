@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 # _always_ do that, or you will have segfaults
 np.import_array()
 
-cdef class CubaticOrderParameter(Compute):
+cdef class Cubatic(Compute):
     R"""Compute the cubatic order parameter [HajiAkbari2015]_ for a system of
     particles using simulated annealing instead of Newton-Raphson root finding.
 
@@ -61,11 +61,11 @@ cdef class CubaticOrderParameter(Compute):
             The value of the final temperature.
         scale (float):
             The scale
-        cubatic_order_parameter (float):
+        order (float):
             The cubatic order parameter.
         orientation (:math:`\left(4 \right)` :class:`numpy.ndarray`):
             The quaternion of global orientation.
-        particle_order_parameter (:class:`numpy.ndarray`):
+        particle_order (:class:`numpy.ndarray`):
              Cubatic order parameter.
         particle_tensor (:math:`\left(N_{particles}, 3, 3, 3, 3 \right)` :class:`numpy.ndarray`):
             Rank 5 tensor corresponding to each individual particle
@@ -78,7 +78,7 @@ cdef class CubaticOrderParameter(Compute):
             Rank 4 tensor corresponding to each individual particle
             orientation.
     """  # noqa: E501
-    cdef freud._order.CubaticOrderParameter * thisptr
+    cdef freud._order.Cubatic * thisptr
     cdef n_replicates
     cdef seed
 
@@ -98,7 +98,7 @@ cdef class CubaticOrderParameter(Compute):
                                "Using current time as seed.")
                 seed = int(time.time())
 
-        self.thisptr = new freud._order.CubaticOrderParameter(
+        self.thisptr = new freud._order.Cubatic(
             t_initial, t_final, scale, n_replicates,
             seed)
         self.n_replicates = n_replicates
@@ -138,7 +138,7 @@ cdef class CubaticOrderParameter(Compute):
         return self.thisptr.getScale()
 
     @Compute._computed_property()
-    def cubatic_order_parameter(self):
+    def order(self):
         return self.thisptr.getCubaticOrderParameter()
 
     @Compute._computed_property()
@@ -147,7 +147,7 @@ cdef class CubaticOrderParameter(Compute):
         return np.asarray([q.s, q.v.x, q.v.y, q.v.z], dtype=np.float32)
 
     @Compute._computed_property()
-    def particle_order_parameter(self):
+    def particle_order(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getParticleOrderParameter(),
             freud.util.arr_type_t.FLOAT)
@@ -175,7 +175,7 @@ cdef class CubaticOrderParameter(Compute):
                                        seed=self.seed)
 
 
-cdef class NematicOrderParameter(Compute):
+cdef class Nematic(Compute):
     R"""Compute the nematic order parameter for a system of particles.
 
     .. moduleauthor:: Jens Glaser <jsglaser@umich.edu>
@@ -199,7 +199,7 @@ cdef class NematicOrderParameter(Compute):
             The normalized reference director (the normalized vector provided
             on construction).
     """  # noqa: E501
-    cdef freud._order.NematicOrderParameter *thisptr
+    cdef freud._order.Nematic *thisptr
 
     def __cinit__(self, u):
         # run checks
@@ -207,7 +207,7 @@ cdef class NematicOrderParameter(Compute):
             raise ValueError('u needs to be a three-dimensional vector')
 
         cdef vec3[float] l_u = vec3[float](u[0], u[1], u[2])
-        self.thisptr = new freud._order.NematicOrderParameter(l_u)
+        self.thisptr = new freud._order.Nematic(l_u)
 
     def __dealloc__(self):
         del self.thisptr
@@ -261,7 +261,7 @@ cdef class NematicOrderParameter(Compute):
                                                  u=self.u.tolist())
 
 
-cdef class HexaticOrderParameter(PairCompute):
+cdef class Hexatic(PairCompute):
     R"""Calculates the :math:`k`-atic order parameter for 2D systems.
 
     The :math:`k`-atic order parameter (called the hexatic order parameter for
@@ -280,7 +280,7 @@ cdef class HexaticOrderParameter(PairCompute):
     vector :math:`r_{ij}` and :math:`\left( 1,0 \right)`.
 
     .. note::
-        **2D:** :class:`freud.order.HexaticOrderParameter` properly handles 2D
+        **2D:** :class:`freud.order.Hexatic` properly handles 2D
         boxes. The points must be passed in as :code:`[x, y, 0]`. Failing to
         set z=0 will lead to undefined behavior.
 
@@ -297,10 +297,10 @@ cdef class HexaticOrderParameter(PairCompute):
         order (:math:`\left(N_{particles} \right)` :class:`numpy.ndarray`):
             Order parameter.
     """
-    cdef freud._order.HexaticOrderParameter * thisptr
+    cdef freud._order.Hexatic * thisptr
 
     def __cinit__(self, k=6):
-        self.thisptr = new freud._order.HexaticOrderParameter(k)
+        self.thisptr = new freud._order.Hexatic(k)
 
     def __dealloc__(self):
         del self.thisptr
@@ -355,7 +355,7 @@ cdef class HexaticOrderParameter(PairCompute):
             cls=type(self).__name__, k=self.k)
 
 
-cdef class TransOrderParameter(PairCompute):
+cdef class Translational(PairCompute):
     R"""Compute the translational order parameter for each particle.
 
     .. moduleauthor:: Wenbo Shen <shenwb@umich.edu>
@@ -371,10 +371,10 @@ cdef class TransOrderParameter(PairCompute):
         k (float):
             Normalization value (order is divided by k).
     """
-    cdef freud._order.TransOrderParameter * thisptr
+    cdef freud._order.Translational * thisptr
 
     def __cinit__(self, k=6.0):
-        self.thisptr = new freud._order.TransOrderParameter(k)
+        self.thisptr = new freud._order.Translational(k)
 
     def __dealloc__(self):
         del self.thisptr

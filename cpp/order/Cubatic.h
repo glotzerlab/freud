@@ -1,8 +1,8 @@
 // Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#ifndef CUBATIC_ORDER_PARAMETER_H
-#define CUBATIC_ORDER_PARAMETER_H
+#ifndef CUBATIC_H
+#define CUBATIC_H
 
 #include <memory>
 #include <ostream>
@@ -12,7 +12,7 @@
 #include "saruprng.h"
 #include "ManagedArray.h"
 
-/*! \file CubaticOrderParameter.h
+/*! \file Cubatic.h
     \brief Compute the cubatic order parameter for each particle.
 */
 
@@ -56,15 +56,15 @@ struct tensor4
  * 3). The central idea of the paper is to then develop tensor functions of the
  * SOCs that can be used to quantify order.
  */
-class CubaticOrderParameter
+class Cubatic
 {
 public:
     //! Constructor
-    CubaticOrderParameter(float t_initial, float t_final, float scale,
+    Cubatic(float t_initial, float t_final, float scale,
                           unsigned int replicates, unsigned int seed);
 
     //! Destructor
-    ~CubaticOrderParameter() {}
+    ~Cubatic() {}
 
     //! Reset the bond order array to all zeros
     void reset();
@@ -187,4 +187,4 @@ private:
 
 }; }; // end namespace freud::order
 
-#endif // CUBATIC_ORDER_PARAMETER_H
+#endif // CUBATIC_H

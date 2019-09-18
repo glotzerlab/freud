@@ -1,8 +1,8 @@
 // Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#ifndef HEX_TRANS_ORDER_PARAMETER_H
-#define HEX_TRANS_ORDER_PARAMETER_H
+#ifndef HEXATIC_TRANSLATIONAL_H
+#define HEXATIC_TRANSLATIONAL_H
 
 #include <complex>
 #include <memory>
@@ -15,23 +15,23 @@
 #include "NeighborQuery.h"
 #include "VectorMath.h"
 
-/*! \file HexTransOrderParameter.h
+/*! \file HexaticTranslational.h
     \brief Compute the hexatic/translational order parameter for each particle.
 */
 
 namespace freud { namespace order {
 
-//! Parent class for HexaticOrderParameter and TransOrderParameter
+//! Parent class for Hexatic and Translational
 /*!
  */
-template<typename T> class HexTransOrderParameter
+template<typename T> class HexaticTranslational
 {
 public:
     //! Constructor
-    HexTransOrderParameter(T k): m_k(k) {}
+    HexaticTranslational(T k): m_k(k) {}
 
     //! Destructor
-    virtual ~HexTransOrderParameter() {}
+    virtual ~HexaticTranslational() {}
 
     T getK() const
     {
@@ -59,14 +59,14 @@ protected:
 //! Compute the translational order parameter for a set of points
 /*!
  */
-class TransOrderParameter : public HexTransOrderParameter<float>
+class Translational : public HexaticTranslational<float>
 {
 public:
     //! Constructor
-    TransOrderParameter(float k = 6);
+    Translational(float k = 6);
 
     //! Destructor
-    ~TransOrderParameter();
+    ~Translational();
 
     //! Compute the translational order parameter
     void compute(const freud::locality::NeighborList* nlist,
@@ -77,14 +77,14 @@ public:
 //! Compute the hexatic order parameter for a set of points
 /*!
  */
-class HexaticOrderParameter : public HexTransOrderParameter<unsigned int>
+class Hexatic : public HexaticTranslational<unsigned int>
 {
 public:
     //! Constructor
-    HexaticOrderParameter(unsigned int k = 6);
+    Hexatic(unsigned int k = 6);
 
     //! Destructor
-    ~HexaticOrderParameter();
+    ~Hexatic();
 
     //! Compute the hexatic order parameter
     void compute(const freud::locality::NeighborList* nlist,
@@ -94,4 +94,4 @@ public:
 
 }; }; // end namespace freud::order
 
-#endif // HEX_TRANS_ORDER_PARAMETER_H
+#endif // HEXATIC_TRANSLATIONAL_H

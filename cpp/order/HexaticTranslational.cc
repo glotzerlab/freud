@@ -1,11 +1,11 @@
-#include "HexTransOrderParameter.h"
+#include "HexaticTranslational.h"
 
 namespace freud { namespace order {
 
 //! Compute the order parameter
 template<typename T>
 template<typename Func>
-void HexTransOrderParameter<T>::computeGeneral(Func func, const freud::locality::NeighborList* nlist,
+void HexaticTranslational<T>::computeGeneral(Func func, const freud::locality::NeighborList* nlist,
                               const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs)
 {
     const auto box = points->getBox();
@@ -32,12 +32,12 @@ void HexTransOrderParameter<T>::computeGeneral(Func func, const freud::locality:
     });
 }
 
-HexaticOrderParameter::HexaticOrderParameter(unsigned int k)
-    : HexTransOrderParameter<unsigned int>(k) {}
+Hexatic::Hexatic(unsigned int k)
+    : HexaticTranslational<unsigned int>(k) {}
 
-HexaticOrderParameter::~HexaticOrderParameter() {}
+Hexatic::~Hexatic() {}
 
-void HexaticOrderParameter::compute(const freud::locality::NeighborList* nlist,
+void Hexatic::compute(const freud::locality::NeighborList* nlist,
                                     const freud::locality::NeighborQuery* points,
                                     freud::locality::QueryArgs qargs)
 {
@@ -50,12 +50,12 @@ void HexaticOrderParameter::compute(const freud::locality::NeighborList* nlist,
     nlist, points, qargs);
 }
 
-TransOrderParameter::TransOrderParameter(float k)
-    : HexTransOrderParameter<float>(k) {}
+Translational::Translational(float k)
+    : HexaticTranslational<float>(k) {}
 
-TransOrderParameter::~TransOrderParameter() {}
+Translational::~Translational() {}
 
-void TransOrderParameter::compute(const freud::locality::NeighborList* nlist,
+void Translational::compute(const freud::locality::NeighborList* nlist,
                                   const freud::locality::NeighborQuery* points,
                                   freud::locality::QueryArgs qargs)
 {
