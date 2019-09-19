@@ -4,9 +4,6 @@
 #include <stdexcept>
 #include "PMFTXYZ.h"
 
-using namespace std;
-using namespace tbb;
-
 /*! \file PMFTXYZ.cc
     \brief Routines for computing 3D potential of mean force in XYZ coordinates
 */
@@ -19,17 +16,17 @@ PMFTXYZ::PMFTXYZ(float x_max, float y_max, float z_max, unsigned int n_x, unsign
       m_shiftvec(shiftvec)
 {
     if (n_x < 1)
-        throw invalid_argument("PMFTXYZ requires at least 1 bin in X.");
+        throw std::invalid_argument("PMFTXYZ requires at least 1 bin in X.");
     if (n_y < 1)
-        throw invalid_argument("PMFTXYZ requires at least 1 bin in Y.");
+        throw std::invalid_argument("PMFTXYZ requires at least 1 bin in Y.");
     if (n_z < 1)
-        throw invalid_argument("PMFTXYZ requires at least 1 bin in Z.");
+        throw std::invalid_argument("PMFTXYZ requires at least 1 bin in Z.");
     if (x_max < 0.0f)
-        throw invalid_argument("PMFTXYZ requires that x_max must be positive.");
+        throw std::invalid_argument("PMFTXYZ requires that x_max must be positive.");
     if (y_max < 0.0f)
-        throw invalid_argument("PMFTXYZ requires that y_max must be positive.");
+        throw std::invalid_argument("PMFTXYZ requires that y_max must be positive.");
     if (z_max < 0.0f)
-        throw invalid_argument("PMFTXYZ requires that z_max must be positive.");
+        throw std::invalid_argument("PMFTXYZ requires that z_max must be positive.");
 
     // calculate dx, dy, dz
     float dx = float(2.0) * x_max / float(n_x);

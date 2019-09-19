@@ -5,9 +5,6 @@
 
 #include "PMFTXY2D.h"
 
-using namespace std;
-using namespace tbb;
-
 /*! \file PMFTXY2D.cc
     \brief Routines for computing 2D potential of mean force in XY coordinates
 */
@@ -18,13 +15,13 @@ PMFTXY2D::PMFTXY2D(float x_max, float y_max, unsigned int n_x, unsigned int n_y)
     : PMFT()
 {
     if (n_x < 1)
-        throw invalid_argument("PMFTXY2D requires at least 1 bin in X.");
+        throw std::invalid_argument("PMFTXY2D requires at least 1 bin in X.");
     if (n_y < 1)
-        throw invalid_argument("PMFTXY2D requires at least 1 bin in Y.");
+        throw std::invalid_argument("PMFTXY2D requires at least 1 bin in Y.");
     if (x_max < 0.0f)
-        throw invalid_argument("PMFTXY2D requires that x_max must be positive.");
+        throw std::invalid_argument("PMFTXY2D requires that x_max must be positive.");
     if (y_max < 0.0f)
-        throw invalid_argument("PMFTXY2D requires that y_max must be positive.");
+        throw std::invalid_argument("PMFTXY2D requires that y_max must be positive.");
 
     // Compute jacobian
     float dx = 2.0 * x_max / float(n_x);

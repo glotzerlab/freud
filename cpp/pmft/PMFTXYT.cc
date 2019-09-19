@@ -4,33 +4,32 @@
 #include <stdexcept>
 #include "PMFTXYT.h"
 
-using namespace std;
-using namespace tbb;
-
 /*! \file PMFTXYT.cc
     \brief Routines for computing potential of mean force and torque in XYT coordinates
 */
 
 namespace freud { namespace pmft {
 
+// namespace-level constant 2*pi for convenient use everywhere.
+constexpr float TWO_PI = 2.0 * M_PI;
+
 PMFTXYT::PMFTXYT(float x_max, float y_max, unsigned int n_x, unsigned int n_y, unsigned int n_t)
     : PMFT()
 {
     if (n_x < 1)
-        throw invalid_argument("PMFTXYT requires at least 1 bin in X.");
+        throw std::invalid_argument("PMFTXYT requires at least 1 bin in X.");
     if (n_y < 1)
-        throw invalid_argument("PMFTXYT requires at least 1 bin in Y.");
+        throw std::invalid_argument("PMFTXYT requires at least 1 bin in Y.");
     if (n_t < 1)
-        throw invalid_argument("PMFTXYT requires at least 1 bin in T.");
+        throw std::invalid_argument("PMFTXYT requires at least 1 bin in T.");
     if (x_max < 0.0f)
-        throw invalid_argument("PMFTXYT requires that x_max must be positive.");
+        throw std::invalid_argument("PMFTXYT requires that x_max must be positive.");
     if (y_max < 0.0f)
-        throw invalid_argument("PMFTXYT requires that y_max must be positive.");
-    float angle_max = 2.0 * M_PI;
+        throw std::invalid_argument("PMFTXYT requires that y_max must be positive.");
     // calculate dx, dy, dt
     float dx = 2.0 * x_max / float(n_x);
     float dy = 2.0 * y_max / float(n_y);
-    float dt = angle_max / float(n_t);
+    float dt = TWO_PI / float(n_t);
 
     m_jacobian = dx * dy * dt;
 
@@ -41,7 +40,7 @@ PMFTXYT::PMFTXYT(float x_max, float y_max, unsigned int n_x, unsigned int n_y, u
     util::Histogram::Axes axes;
     axes.push_back(std::make_shared<util::RegularAxis>(n_x, -x_max, x_max));
     axes.push_back(std::make_shared<util::RegularAxis>(n_y, -y_max, y_max));
-    axes.push_back(std::make_shared<util::RegularAxis>(n_t, 0, angle_max));
+    axes.push_back(std::make_shared<util::RegularAxis>(n_t, 0, TWO_PI));
     m_histogram = util::Histogram(axes);
     m_local_histograms = util::Histogram::ThreadLocalHistogram(m_histogram);
 }
@@ -72,10 +71,10 @@ void PMFTXYT::accumulate(const locality::NeighborQuery* neighbor_query,
         float d_theta = atan2(-delta.y, -delta.x);
         float t = query_orientations[neighbor_bond.id] - d_theta;
         // make sure that t is bounded between 0 and 2PI
-        t = fmod(t, 2 * M_PI);
+        t = fmod(t, TWO_PI);
         if (t < 0)
         {
-            t += 2 * M_PI;
+            t += TWO_PI;
         }
 
         m_local_histograms(rotVec.x, rotVec.y, t);
