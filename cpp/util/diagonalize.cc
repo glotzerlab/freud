@@ -19,6 +19,13 @@ void diagonalize33SymmetricMatrix(const util::ManagedArray<float> &mat, util::Ma
     }
     else
     {
+        // Note that Eigen by default stores matrices in column-major order,
+        // whereas everything we do in freud uses row major ordering. As a
+        // result, this operation here transposes the matrix, which is why
+        // eigenvectors are returned as rows rather than columns of the
+        // outputmatrix eigen_vecs.
+        // See here for information:
+        // https://eigen.tuxfamily.org/dox/group__TopicStorageOrders.html
         Eigen::Map<Eigen::Matrix3f>(eigen_vecs.get(), 3, 3) = es.eigenvectors();
         Eigen::Map<Eigen::Vector3f>(eigen_vals.get(), 3) = es.eigenvalues();
     }
