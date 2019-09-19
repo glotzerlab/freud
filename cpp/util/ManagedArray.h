@@ -226,6 +226,21 @@ public:
      */
     inline size_t getIndex(std::vector<unsigned int> indices) const
     {
+        if (indices.size() != m_shape->size())
+        {
+            throw std::invalid_argument("Incorrect number of indices for this array.");
+        }
+
+        for (unsigned int i = 0; i < indices.size(); ++i)
+        {
+            if (indices[i] > (*m_shape)[i])
+            {
+                std::ostringstream msg;
+                msg << "Attempted to access index " << indices[i] << " in dimension " << i << ", which has size " << (*m_shape)[i] << std::endl;
+                throw std::invalid_argument(msg.str());
+            }
+        }
+
         // In getting the linear bin, we must iterate over bins in reverse
         // order to build up the value of cur_prod because each subsequent axis
         // contributes less according to row-major ordering.

@@ -850,6 +850,7 @@ cdef class AngularSeparation(Compute):
 
     .. moduleauthor:: Erin Teich <erteich@umich.edu>
     .. moduleauthor:: Andrew Karas <askaras@umich.edu>
+    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
 
     Args:
         r_max (float):
@@ -861,13 +862,6 @@ cdef class AngularSeparation(Compute):
     Attributes:
         nlist (:class:`freud.locality.NeighborList`):
             The neighbor list.
-        n_points (unsigned int):
-            The number of points used in computing the last set.
-        n_query_points (unsigned int):
-            The number of query points used in computing the neighbor
-            angles.
-        n_global (unsigned int):
-            The number of global orientations to check against.
         neighbor_angles (:math:`\left(N_{bonds}\right)` :class:`numpy.ndarray`):
             The neighbor angles in radians. **This field is only populated
             after** :meth:`~.computeNeighbor` **is called.** The angles
@@ -1016,35 +1010,15 @@ cdef class AngularSeparation(Compute):
 
     @Compute._computed_property("computeNeighbor")
     def neighbor_angles(self):
-        cdef unsigned int n_bonds = len(self.nlist)
-        if not n_bonds:
-            return np.asarray([], dtype=np.float32)
-        cdef const float[::1] neighbor_angles = \
-            <float[:n_bonds]> self.thisptr.getNeighborAngles().get()
-        return np.asarray(neighbor_angles)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getNeighborAngles(),
+            freud.util.arr_type_t.FLOAT)
 
     @Compute._computed_property("computeGlobal")
     def global_angles(self):
-        cdef unsigned int n_particles = self.thisptr.getNPoints()
-        cdef unsigned int n_global = self.thisptr.getNglobal()
-        if not n_particles or not n_global:
-            return np.empty((n_particles, n_global), dtype=np.float32)
-        cdef const float[:, ::1] global_angles = \
-            <float[:n_particles, :n_global]> \
-            self.thisptr.getGlobalAngles().get()
-        return np.asarray(global_angles)
-
-    @Compute._computed_property(("computeGlobal", "computeNeighbor"))
-    def n_points(self):
-        return self.thisptr.getNPoints()
-
-    @Compute._computed_property("computeNeighbor")
-    def n_query_points(self):
-        return self.thisptr.getNQueryPoints()
-
-    @Compute._computed_property("computeGlobal")
-    def n_global(self):
-        return self.thisptr.getNglobal()
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getGlobalAngles(),
+            freud.util.arr_type_t.FLOAT)
 
     def __repr__(self):
         return "freud.environment.{cls}(r_max={r}, num_neighbors={n})".format(

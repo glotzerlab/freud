@@ -110,12 +110,8 @@ cdef extern from "AngularSeparation.h" namespace "freud::environment":
                            unsigned int,
                            quat[float]*,
                            unsigned int) except +
-
-        shared_ptr[float] getNeighborAngles()
-        shared_ptr[float] getGlobalAngles()
-        unsigned int getNPoints()
-        unsigned int getNQueryPoints()
-        unsigned int getNglobal()
+        const freud.util.ManagedArray[float] &getNeighborAngles()
+        const freud.util.ManagedArray[float] &getGlobalAngles()
 
 cdef extern from "LocalBondProjection.h" namespace "freud::environment":
     cdef cppclass LocalBondProjection:
