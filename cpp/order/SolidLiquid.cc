@@ -32,6 +32,8 @@ void SolidLiquid::compute(const freud::locality::NeighborList* nlist,
         nlist = nqiter->toNeighborList();
     }
 
+    const unsigned int num_query_points(nlist->getNumQueryPoints());
+
     // Compute Steinhardt using neighbor list (also gets Ql for normalization)
     m_steinhardt.compute(nlist, points, qargs);
     const util::ManagedArray<complex<float>> &Qlm = m_steinhardt.getQlm();
@@ -41,7 +43,7 @@ void SolidLiquid::compute(const freud::locality::NeighborList* nlist,
     const unsigned int num_bonds(nlist->getNumBonds());
     m_ql_dot_ij.prepare(num_bonds);
 
-    freud::locality::forLoopWrapper(0, nlist->getNumQueryPoints(), [=](size_t begin, size_t end) {
+    freud::locality::forLoopWrapper(0, num_query_points, [=](size_t begin, size_t end) {
         for (unsigned int i = begin; i != end; ++i)
         {
             unsigned int bond(nlist->find_first_index(i));
@@ -53,10 +55,10 @@ void SolidLiquid::compute(const freud::locality::NeighborList* nlist,
                 complex<float> bond_ql_dot_ij = 0;
                 for (unsigned int k = 0; k < m_num_ms; k++)
                 {
-                    bond_ql_dot_ij += Qlm(i, k) * Qlm(j, k);
+                    bond_ql_dot_ij += Qlm(i, k) * conj(Qlm(j, k));
                 }
 
-                // Normalize dot products by particle Ql values if requested
+                // Normalize dot products by points' Ql values if requested
                 if (m_normalize_Q)
                 {
                     bond_ql_dot_ij /= sqrt(Ql[i] * Ql[j]);
@@ -64,7 +66,7 @@ void SolidLiquid::compute(const freud::locality::NeighborList* nlist,
                 m_ql_dot_ij[bond] = bond_ql_dot_ij;
             }
         }
-    }, false);
+    }, true);
 
     // Filter neighbors to contain only solid-like bonds
     unique_ptr<bool[]> solid_filter(new bool[num_bonds]);
@@ -75,8 +77,12 @@ void SolidLiquid::compute(const freud::locality::NeighborList* nlist,
     freud::locality::NeighborList solid_nlist(*nlist);
     solid_nlist.filter(solid_filter.get());
 
-    // Save the neighbor counts of solid-like bonds
-    m_number_of_connections = solid_nlist.getCounts();
+    // Save the neighbor counts of solid-like bonds for each query point
+    m_number_of_connections.prepare(num_query_points);
+    for (unsigned int i(0); i < num_query_points; i++)
+    {
+        m_number_of_connections[i] = solid_nlist.getCounts()[i];
+    }
 
     // Filter nlist using solid-like threshold of (common) neighbors
     const unsigned int num_solid_bonds(solid_nlist.getNumBonds());
