@@ -621,7 +621,7 @@ cdef class SolidLiquid(PairCompute):
         Q_threshold (float):
             Value of dot product threshold when evaluating
             :math:`Q_{lm}^*(i) Q_{lm}(j)` to determine if a neighbor pair is a
-            solid-like bond. (For :math:`l=6`, 0.7 generally good for FCC or
+            solid-like bond. (For :math:`l=6`, 0.7 is generally good for FCC or
             BCC structures).
         S_threshold (unsigned int):
             Minimum required number of adjacent solid-like bonds for a particle

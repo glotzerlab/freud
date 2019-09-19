@@ -40,8 +40,9 @@ void SolidLiquid::compute(const freud::locality::NeighborList* nlist,
     const util::ManagedArray<float> &Ql = m_steinhardt.getQl();
 
     // Compute (normalized) dot products for each bond in the neighbor list
+    const float normalizationfactor = float(4 * M_PI / m_num_ms);
     const unsigned int num_bonds(nlist->getNumBonds());
-    m_ql_dot_ij.prepare(num_bonds);
+    m_Ql_i_dot_j.prepare(num_bonds);
 
     freud::locality::forLoopWrapper(0, num_query_points, [=](size_t begin, size_t end) {
         for (unsigned int i = begin; i != end; ++i)
@@ -52,18 +53,22 @@ void SolidLiquid::compute(const freud::locality::NeighborList* nlist,
                 const unsigned int j(nlist->getNeighbors()(bond, 1));
 
                 // Accumulate the dot product over m of Qlmi and Qlmj vectors
-                complex<float> bond_ql_dot_ij = 0;
+                complex<float> bond_Ql_i_dot_j = 0;
                 for (unsigned int k = 0; k < m_num_ms; k++)
                 {
-                    bond_ql_dot_ij += Qlm(i, k) * conj(Qlm(j, k));
+                    bond_Ql_i_dot_j += Qlm(i, k) * conj(Qlm(j, k));
                 }
 
                 // Normalize dot products by points' Ql values if requested
                 if (m_normalize_Q)
                 {
-                    bond_ql_dot_ij /= sqrt(Ql[i] * Ql[j]);
+                    // Divide by Ql values of each particle
+                    bond_Ql_i_dot_j /= sqrt(Ql[i] * Ql[j]);
+                    // This cancels out the normalization of the Ql values
+                    // to match the (lack of) normalization of Ql_i_dot_j
+                    bond_Ql_i_dot_j *= normalizationfactor;
                 }
-                m_ql_dot_ij[bond] = bond_ql_dot_ij;
+                m_Ql_i_dot_j[bond] = bond_Ql_i_dot_j;
             }
         }
     }, true);
@@ -72,7 +77,7 @@ void SolidLiquid::compute(const freud::locality::NeighborList* nlist,
     unique_ptr<bool[]> solid_filter(new bool[num_bonds]);
     for (unsigned int bond(0); bond < num_bonds; bond++)
     {
-        solid_filter[bond] = (m_ql_dot_ij[bond].real() > m_Q_threshold);
+        solid_filter[bond] = (m_Ql_i_dot_j[bond].real() > m_Q_threshold);
     }
     freud::locality::NeighborList solid_nlist(*nlist);
     solid_nlist.filter(solid_filter.get());
@@ -94,11 +99,11 @@ void SolidLiquid::compute(const freud::locality::NeighborList* nlist,
         neighbor_count_filter[bond] = (m_number_of_connections[i] >= m_S_threshold
                 && m_number_of_connections[j] >= m_S_threshold);
     }
-    freud::locality::NeighborList neighbor_nlist(solid_nlist);
-    neighbor_nlist.filter(neighbor_count_filter.get());
+    freud::locality::NeighborList solid_neighbor_nlist(solid_nlist);
+    solid_neighbor_nlist.filter(neighbor_count_filter.get());
 
-    // Cluster using filtered neighbor list
-    m_cluster.compute(points, &neighbor_nlist, qargs);
+    // Find clusters of solid-like particles
+    m_cluster.compute(points, &solid_neighbor_nlist, qargs);
 }
 
 }; }; // end namespace freud::order

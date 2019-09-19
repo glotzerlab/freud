@@ -120,7 +120,7 @@ private:
     freud::order::Steinhardt m_steinhardt;  //!< Steinhardt class used to compute Qlm
     freud::cluster::Cluster m_cluster;      //!< Cluster class used to cluster solid-like bonds
 
-    util::ManagedArray<std::complex<float>> m_ql_dot_ij; //!< All of the Qlmi dot Qlmj's computed
+    util::ManagedArray<std::complex<float>> m_Ql_i_dot_j; //!< All of the Qlmi dot Qlmj's computed
     //! Number of connections for each particle with dot product above Q_threshold
     util::ManagedArray<unsigned int> m_number_of_connections;
     util::ThreadStorage<unsigned int> m_number_of_connections_local;
