@@ -12,59 +12,55 @@ class TestSolidLiquid(unittest.TestCase):
 
         box, positions = util.make_box_and_random_points(L, N)
 
-        comp = freud.order.SolidLiquid(6, Qthreshold=.7, Sthreshold=6)
-        comp.compute(positions)
+        # Temporary nlist building to ensure validity
+        # TODO: Should test with query_args
+        aq = freud.locality.AABBQuery(box, positions)
+        nlist = aq.query(positions, dict(r_max=2.0)).toNeighborList()
+
+        comp = freud.order.SolidLiquid(6, Q_threshold=.7, S_threshold=6)
+        comp.compute(box, positions, nlist=nlist)
 
         npt.assert_equal(comp.clusters.shape[0], N)
 
     def test_identical_environments(self):
         (box, positions) = util.make_fcc(4, 4, 4)
 
-        comp = freud.order.SolidLiquid(6, Qthreshold=.7, Sthreshold=6)
+        comp_default = freud.order.SolidLiquid(
+            6, Q_threshold=.7, S_threshold=6)
+        comp_no_norm = freud.order.SolidLiquid(
+            6, Q_threshold=.7, S_threshold=6, normalize_Q=False)
+        comp_common_neighbors = freud.order.SolidLiquid(
+            6, Q_threshold=.7, S_threshold=6, common_neighbors=True)
 
-        comp.compute(positions)
-        # TODO: use both r_max=1.5 and num_neighbors=12 to test this
-        self.assertTrue(np.allclose(comp.largest_cluster_size, len(positions)))
-        self.assertEqual(len(comp.cluster_sizes), 1)
-
-        comp.computeSolidLiquidNoNorm(positions)
-        self.assertTrue(np.allclose(comp.largest_cluster_size, len(positions)))
-        self.assertEqual(len(comp.cluster_sizes), 1)
-
-        comp.computeSolidLiquidVariant(positions)
-        self.assertEqual(comp.largest_cluster_size, 1)
+        for comp in (comp_default, comp_no_norm, comp_common_neighbors):
+            for query_args in (dict(r_max=1.5), dict(num_neighbors=12)):
+                comp.compute(box, positions, query_args=query_args)
+                self.assertTrue(np.allclose(
+                    comp.largest_cluster_size, len(positions)))
+                self.assertEqual(len(comp.cluster_sizes), 1)
 
     def test_attribute_access(self):
         (box, positions) = util.make_fcc(4, 4, 4)
-        comp = freud.order.SolidLiquid(6, Qthreshold=.7, Sthreshold=6)
+        comp = freud.order.SolidLiquid(6, Q_threshold=.7, S_threshold=6)
 
         with self.assertRaises(AttributeError):
             comp.largest_cluster_size
         with self.assertRaises(AttributeError):
             comp.cluster_sizes
         with self.assertRaises(AttributeError):
-            comp.Ql_mi
-        with self.assertRaises(AttributeError):
             comp.clusters
         with self.assertRaises(AttributeError):
             comp.num_connections
-        with self.assertRaises(AttributeError):
-            comp.Ql_dot_ij
-        with self.assertRaises(AttributeError):
-            comp.num_particles
 
-        comp.compute(box, positions)
+        comp.compute(box, positions, query_args=dict(r_max=2.0))
 
         comp.largest_cluster_size
         comp.cluster_sizes
-        comp.Ql_mi
         comp.clusters
         comp.num_connections
-        comp.Ql_dot_ij
-        comp.num_particles
 
     def test_repr(self):
-        comp = freud.order.SolidLiquid(6, Qthreshold=.7, Sthreshold=6)
+        comp = freud.order.SolidLiquid(6, Q_threshold=.7, S_threshold=6)
         self.assertEqual(str(comp), str(eval(repr(comp))))
 
 
