@@ -705,15 +705,12 @@ cdef class ParticleBuffer:
 
     @property
     def buffer_particles(self):
-        return freud.util.make_managed_numpy_array(
-            &self.thisptr.getBufferParticles(),
-            freud.util.arr_type_t.FLOAT, element_size=3)
+        particles = self.thisptr.getBufferParticles()
+        return np.asarray([[p.x, p.y, p.z] for p in particles])
 
     @property
     def buffer_ids(self):
-        return freud.util.make_managed_numpy_array(
-            &self.thisptr.getBufferIds(),
-            freud.util.arr_type_t.UNSIGNED_INT)
+        return np.asarray(self.thisptr.getBufferIds())
 
     @property
     def buffer_box(self):
