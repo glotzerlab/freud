@@ -25,8 +25,6 @@ PMFTR12::PMFTR12(float r_max, unsigned int n_r, unsigned int n_t1, unsigned int 
         throw invalid_argument("PMFTR12 requires at least 1 bin in T2.");
     if (r_max < 0.0f)
         throw invalid_argument("PMFTR12 requires that r_max must be positive.");
-    // calculate dr, dt1, dt2
-    m_r_max = r_max;
 
     // Construct the Histogram object that will be used to keep track of counts of bond distances found.
     util::Histogram::Axes axes;
@@ -76,26 +74,23 @@ void PMFTR12::accumulate(const locality::NeighborQuery* neighbor_query,
         [=](const freud::locality::NeighborBond& neighbor_bond) {
         vec3<float> ref = neighbor_query->getPoints()[neighbor_bond.ref_id];
         vec3<float> delta = m_box.wrap(query_points[neighbor_bond.id] - ref);
-        if (neighbor_bond.distance < m_r_max)
+        // calculate angles
+        float d_theta1 = atan2(delta.y, delta.x);
+        float d_theta2 = atan2(-delta.y, -delta.x);
+        float t1 = orientations[neighbor_bond.ref_id] - d_theta1;
+        float t2 = query_orientations[neighbor_bond.id] - d_theta2;
+        // make sure that t1, t2 are bounded between 0 and 2PI
+        t1 = fmod(t1, 2 * M_PI);
+        if (t1 < 0)
         {
-            // calculate angles
-            float d_theta1 = atan2(delta.y, delta.x);
-            float d_theta2 = atan2(-delta.y, -delta.x);
-            float t1 = orientations[neighbor_bond.ref_id] - d_theta1;
-            float t2 = query_orientations[neighbor_bond.id] - d_theta2;
-            // make sure that t1, t2 are bounded between 0 and 2PI
-            t1 = fmod(t1, 2 * M_PI);
-            if (t1 < 0)
-            {
-                t1 += 2 * M_PI;
-            }
-            t2 = fmod(t2, 2 * M_PI);
-            if (t2 < 0)
-            {
-                t2 += 2 * M_PI;
-            }
-            m_local_histograms(neighbor_bond.distance, t1, t2);
+            t1 += 2 * M_PI;
         }
+        t2 = fmod(t2, 2 * M_PI);
+        if (t2 < 0)
+        {
+            t2 += 2 * M_PI;
+        }
+        m_local_histograms(neighbor_bond.distance, t1, t2);
     });
 }
 
