@@ -21,6 +21,7 @@ from cython.operator cimport dereference
 cimport freud.box
 cimport freud._environment
 cimport freud.locality
+cimport freud.util
 
 cimport numpy as np
 
@@ -218,12 +219,9 @@ cdef class BondOrder(PairCompute):
 
     @Compute._computed_property()
     def bond_order(self):
-        cdef unsigned int n_bins_phi = self.thisptr.getNBinsPhi()
-        cdef unsigned int n_bins_theta = self.thisptr.getNBinsTheta()
-        cdef float[:, ::1] bod = <float[:n_bins_phi, :n_bins_theta]> \
-            self.thisptr.getBondOrder().get()
-        result = np.asarray(bod)
-        return result
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getBondOrder(),
+            freud.util.arr_type_t.FLOAT)
 
     @Compute._computed_property()
     def box(self):
@@ -270,21 +268,15 @@ cdef class BondOrder(PairCompute):
 
     @property
     def theta(self):
-        cdef unsigned int n_bins_theta = self.thisptr.getNBinsTheta()
-        if not n_bins_theta:
-            return np.asarray([], dtype=np.float32)
-        cdef const float[::1] theta = \
-            <float[:n_bins_theta]> self.thisptr.getTheta().get()
-        return np.asarray(theta)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getTheta(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def phi(self):
-        cdef unsigned int n_bins_phi = self.thisptr.getNBinsPhi()
-        if not n_bins_phi:
-            return np.asarray([], dtype=np.float32)
-        cdef const float[::1] phi = \
-            <float[:n_bins_phi]> self.thisptr.getPhi().get()
-        return np.asarray(phi)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getPhi(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def n_bins_theta(self):
@@ -1187,24 +1179,15 @@ cdef class LocalBondProjection(Compute):
 
     @Compute._computed_property()
     def projections(self):
-        cdef unsigned int n_bond_projections = \
-            len(self.nlist) * self.thisptr.getNproj()
-        if not n_bond_projections:
-            return np.asarray([], dtype=np.float32)
-        cdef const float[::1] projections = \
-            <float[:n_bond_projections]> self.thisptr.getProjections().get()
-        return np.asarray(projections)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getProjections(),
+            freud.util.arr_type_t.FLOAT)
 
     @Compute._computed_property()
     def normed_projections(self):
-        cdef unsigned int n_bond_projections = \
-            len(self.nlist) * self.thisptr.getNproj()
-        if not n_bond_projections:
-            return np.asarray([], dtype=np.float32)
-        cdef const float[::1] normed_projections = \
-            <float[:n_bond_projections]> \
-            self.thisptr.getNormedProjections().get()
-        return np.asarray(normed_projections)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getNormedProjections(),
+            freud.util.arr_type_t.FLOAT)
 
     @Compute._computed_property()
     def num_points(self):

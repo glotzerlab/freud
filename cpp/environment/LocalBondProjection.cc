@@ -78,16 +78,10 @@ void LocalBondProjection::compute(box::Box& box,
     nlist->validate(n_query_points, n_points);
 
     // Get the maximum total number of bonds in the neighbor list
-    const size_t tot_num_neigh = nlist->getNumBonds();
+    const unsigned int tot_num_neigh = nlist->getNumBonds();
 
-    // reallocate the output array if it is not the right size
-    if (tot_num_neigh != m_tot_num_neigh || n_proj != m_n_proj)
-    {
-        m_local_bond_proj
-            = std::shared_ptr<float>(new float[tot_num_neigh * n_proj], std::default_delete<float[]>());
-        m_local_bond_proj_norm
-            = std::shared_ptr<float>(new float[tot_num_neigh * n_proj], std::default_delete<float[]>());
-    }
+    m_local_bond_proj.prepare({tot_num_neigh, n_proj});
+    m_local_bond_proj_norm.prepare({tot_num_neigh, n_proj});
 
     // compute the order parameter
     parallel_for(blocked_range<size_t>(0, n_query_points), [=](const blocked_range<size_t>& r) {
@@ -110,8 +104,8 @@ void LocalBondProjection::compute(box::Box& box,
                 {
                     vec3<float> proj_vec = proj_vecs[k];
                     float max_proj = computeMaxProjection(proj_vec, local_bond, equiv_orientations, n_equiv_orientations);
-                    m_local_bond_proj.get()[bond * n_proj + k] = max_proj;
-                    m_local_bond_proj_norm.get()[bond * n_proj + k] = max_proj / local_bond_len;
+                    m_local_bond_proj(bond, k) = max_proj;
+                    m_local_bond_proj_norm(bond, k) = max_proj / local_bond_len;
                 }
             }
         }
