@@ -32,7 +32,7 @@ class PMFT : public util::HistogramCompute
 {
 public:
     //! Constructor
-    PMFT() : HistogramCompute(), m_r_max(0) {}
+    PMFT() : HistogramCompute() {}
 
     //! Destructor
     virtual ~PMFT() {};
@@ -48,33 +48,62 @@ public:
         reducePCF();
     }
 
-    float getRMax()
+    //! Get bin centers.
+    std::vector<std::vector<float> > getBinCenters() const
     {
-        return m_r_max;
+        // RDFs are always 1D histograms, so we just return the first element.
+        return m_histogram.getBinCenters();
     }
 
-    //! Helper function to precompute axis bin center,
-    util::ManagedArray<float> precomputeAxisBinCenter(unsigned int size, float d, float max)
+    //! Return the bin boundaries.
+    std::vector<std::vector<float> > getBinEdges() const
     {
-        return precomputeArrayGeneral(size, d, [=](float T, float nextT) { return -max + ((T + nextT) / 2.0); });
+        // RDFs are always 1D histograms, so we just return the first element.
+        return m_histogram.getBinEdges();
     }
 
-    //! Helper function to precompute array with the following logic.
-    //! :code:`Func cf` should be some sort of (float)(float, float).
+
+    //! Return the bin boundaries.
+    std::vector<std::pair<float, float> > getBounds() const
+    {
+        // RDFs are always 1D histograms, so we just return the first element.
+        return m_histogram.getBounds();
+    }
+
+    //! Return the bin boundaries.
+    std::vector<unsigned int> getBinSizes() const
+    {
+        // RDFs are always 1D histograms, so we just return the first element.
+        return m_histogram.getBinSizes();
+    }
+
+
+    //! \internal
+    // Wrapper to do accumulation.
+    /*! \param neighbor_query NeighborQuery object to iterate over
+        \param query_points Points
+        \param n_query_points Number of query_points
+        \param nlist Neighbor List. If not NULL, loop over it. Otherwise, use neighbor_query
+           appropriately with given qargs.
+        \param qargs Query arguments
+        \param cf An object with operator(NeighborBond) as input.
+    */
     template<typename Func>
-    util::ManagedArray<float> precomputeArrayGeneral(unsigned int size, float d, Func cf)
+    void accumulateGeneral(const locality::NeighborQuery* neighbor_query, 
+                           const vec3<float>* query_points, unsigned int n_query_points,
+                           const locality::NeighborList* nlist,
+                           freud::locality::QueryArgs qargs,
+                           Func cf)
     {
-        util::ManagedArray<float> arr({size});
-        for (unsigned int i = 0; i < size; i++)
-        {
-            float T = float(i) * d ;
-            float nextT = float(i + 1) * d;
-            arr[i] = cf(T, nextT);
-        }
-        return arr;
+        m_box = neighbor_query->getBox();
+        locality::loopOverNeighbors(neighbor_query, query_points, n_query_points, qargs, nlist, cf);
+        m_frame_counter++;
+        m_n_points = neighbor_query->getNPoints();
+        m_n_query_points = n_query_points;
+        // flag to reduce
+        m_reduce = true;
     }
 
-    //! Helper function to reduce three dimensionally with appropriate Jaocobian.
     template<typename JacobFactor>
     void reduce(JacobFactor jf)
     {
@@ -104,7 +133,6 @@ public:
     }
 
 protected:
-    float m_r_max; //!< r_max used in cell list construction
 
     util::ManagedArray<float> m_pcf_array;         //!< Array of computed pair correlation function.
 };

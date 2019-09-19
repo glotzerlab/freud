@@ -35,52 +35,31 @@ public:
     ~AngularSeparation();
 
     //! Compute the angular separation between neighbors
-    void computeNeighbor(const quat<float>* orientations,  unsigned int n_points,
-                         const quat<float>* query_orientations, unsigned int n_query_points, 
+    void computeNeighbor(const quat<float>* orientations, unsigned int n_points,
+                         const quat<float>* query_orientations, unsigned int n_query_points,
                          const quat<float>* equiv_orientations, unsigned int n_equiv_orientations,
                          const freud::locality::NeighborList* nlist);
 
     //! Compute the angular separation with respect to global orientation
-    void computeGlobal(const quat<float>* global_orientations, unsigned int n_global, 
-                       const quat<float>* orientations, unsigned int n_points, 
+    void computeGlobal(const quat<float>* global_orientations, unsigned int n_global,
+                       const quat<float>* orientations, unsigned int n_points,
                        const quat<float>* equiv_orientations, unsigned int n_equiv_orientations);
 
-    //! Get a reference to the last computed neighbor angle array
-    std::shared_ptr<float> getNeighborAngles()
+    //! Returns the last computed neighbor angle array
+    util::ManagedArray<float> &getNeighborAngles()
     {
-        return m_neigh_ang_array;
+        return m_neighbor_angles;
     }
 
-    //! Get a reference to the last computed global angle array
-    std::shared_ptr<float> getGlobalAngles()
+    //! Returns the last computed global angle array
+    util::ManagedArray<float> &getGlobalAngles()
     {
-        return m_global_ang_array;
-    }
-
-    unsigned int getNQueryPoints()
-    {
-        return m_n_query_points;
-    }
-
-    unsigned int getNPoints()
-    {
-        return m_n_points;
-    }
-
-    unsigned int getNglobal()
-    {
-        return m_n_global;
+        return m_global_angles;
     }
 
 private:
-    unsigned int m_n_query_points;            //!< Last number of orientations computed
-    unsigned int m_n_points;          //!< Last number of reference orientations used for computation
-    unsigned int m_n_global;       //!< Last number of global orientations used for computation
-    unsigned int m_n_equiv_orientations;        //!< Last number of equivalent reference orientations used for computation
-    unsigned int m_tot_num_neigh; //!< Last number of total bonds used for computation
-
-    std::shared_ptr<float> m_neigh_ang_array;  //!< neighbor angle array computed
-    std::shared_ptr<float> m_global_ang_array; //!< global angle array computed
+    util::ManagedArray<float> m_neighbor_angles;  //!< neighbor angle array computed
+    util::ManagedArray<float> m_global_angles; //!< global angle array computed
 };
 
 }; }; // end namespace freud::environment

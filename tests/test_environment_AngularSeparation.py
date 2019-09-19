@@ -25,16 +25,8 @@ class TestAngularSeparation(unittest.TestCase):
             ang.neighbor_angles
         with self.assertRaises(AttributeError):
             ang.global_angles
-        with self.assertRaises(AttributeError):
-            ang.n_points
-        with self.assertRaises(AttributeError):
-            ang.n_global
-        with self.assertRaises(AttributeError):
-            ang.n_query_points
 
         ang.computeNeighbor(box, points, ors, query_points, query_ors)
-        self.assertEqual(ang.n_points, N)
-        self.assertEqual(ang.n_query_points, N//3)
 
     def test_getNGlobal(self):
         N = 500
@@ -47,7 +39,6 @@ class TestAngularSeparation(unittest.TestCase):
 
         ang = freud.environment.AngularSeparation(r_max, num_neighbors)
         ang.computeGlobal(global_ors, ors, equivalent_orientations)
-        npt.assert_equal(ang.n_global, 1)
 
     def test_get_num_points(self):
         boxlen = 10
@@ -60,7 +51,6 @@ class TestAngularSeparation(unittest.TestCase):
 
         ang = freud.environment.AngularSeparation(r_max, num_neighbors)
         ang.computeNeighbor(box, points, ors)
-        npt.assert_equal(ang.n_points, N)
 
     def test_compute_neighbors(self):
         boxlen = 4
@@ -88,12 +78,8 @@ class TestAngularSeparation(unittest.TestCase):
 
         # test access
         ang.neighbor_angles
-        ang.n_points
-        ang.n_query_points
         with self.assertRaises(AttributeError):
             ang.global_angles
-        with self.assertRaises(AttributeError):
-            ang.n_global
 
         # Should find that the angular separation between the first particle
         # and its neighbor is pi/3. The second particle's nearest neighbor will
@@ -126,12 +112,8 @@ class TestAngularSeparation(unittest.TestCase):
 
         # test access
         ang.global_angles
-        ang.n_points
-        ang.n_global
         with self.assertRaises(AttributeError):
             ang.neighbor_angles
-        with self.assertRaises(AttributeError):
-            ang.n_query_points
 
         # Each orientation should be either equal to or pi/16 away from the
         # global reference quaternion

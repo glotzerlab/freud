@@ -22,6 +22,7 @@ from cython.operator cimport dereference
 cimport freud.box
 cimport freud._environment
 cimport freud.locality
+cimport freud.util
 
 cimport numpy as np
 
@@ -219,12 +220,9 @@ cdef class BondOrder(PairCompute):
 
     @Compute._computed_property()
     def bond_order(self):
-        cdef unsigned int n_bins_phi = self.thisptr.getNBinsPhi()
-        cdef unsigned int n_bins_theta = self.thisptr.getNBinsTheta()
-        cdef float[:, ::1] bod = <float[:n_bins_phi, :n_bins_theta]> \
-            self.thisptr.getBondOrder().get()
-        result = np.asarray(bod)
-        return result
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getBondOrder(),
+            freud.util.arr_type_t.FLOAT)
 
     @Compute._computed_property()
     def box(self):
@@ -271,21 +269,15 @@ cdef class BondOrder(PairCompute):
 
     @property
     def theta(self):
-        cdef unsigned int n_bins_theta = self.thisptr.getNBinsTheta()
-        if not n_bins_theta:
-            return np.asarray([], dtype=np.float32)
-        cdef const float[::1] theta = \
-            <float[:n_bins_theta]> self.thisptr.getTheta().get()
-        return np.asarray(theta)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getTheta(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def phi(self):
-        cdef unsigned int n_bins_phi = self.thisptr.getNBinsPhi()
-        if not n_bins_phi:
-            return np.asarray([], dtype=np.float32)
-        cdef const float[::1] phi = \
-            <float[:n_bins_phi]> self.thisptr.getPhi().get()
-        return np.asarray(phi)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getPhi(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def n_bins_theta(self):
@@ -859,6 +851,7 @@ cdef class AngularSeparation(Compute):
 
     .. moduleauthor:: Erin Teich <erteich@umich.edu>
     .. moduleauthor:: Andrew Karas <askaras@umich.edu>
+    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
 
     Args:
         r_max (float):
@@ -870,13 +863,6 @@ cdef class AngularSeparation(Compute):
     Attributes:
         nlist (:class:`freud.locality.NeighborList`):
             The neighbor list.
-        n_points (unsigned int):
-            The number of points used in computing the last set.
-        n_query_points (unsigned int):
-            The number of query points used in computing the neighbor
-            angles.
-        n_global (unsigned int):
-            The number of global orientations to check against.
         neighbor_angles (:math:`\left(N_{bonds}\right)` :class:`numpy.ndarray`):
             The neighbor angles in radians. **This field is only populated
             after** :meth:`~.computeNeighbor` **is called.** The angles
@@ -1025,35 +1011,15 @@ cdef class AngularSeparation(Compute):
 
     @Compute._computed_property("computeNeighbor")
     def neighbor_angles(self):
-        cdef unsigned int n_bonds = len(self.nlist)
-        if not n_bonds:
-            return np.asarray([], dtype=np.float32)
-        cdef const float[::1] neighbor_angles = \
-            <float[:n_bonds]> self.thisptr.getNeighborAngles().get()
-        return np.asarray(neighbor_angles)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getNeighborAngles(),
+            freud.util.arr_type_t.FLOAT)
 
     @Compute._computed_property("computeGlobal")
     def global_angles(self):
-        cdef unsigned int n_particles = self.thisptr.getNPoints()
-        cdef unsigned int n_global = self.thisptr.getNglobal()
-        if not n_particles or not n_global:
-            return np.empty((n_particles, n_global), dtype=np.float32)
-        cdef const float[:, ::1] global_angles = \
-            <float[:n_particles, :n_global]> \
-            self.thisptr.getGlobalAngles().get()
-        return np.asarray(global_angles)
-
-    @Compute._computed_property(("computeGlobal", "computeNeighbor"))
-    def n_points(self):
-        return self.thisptr.getNPoints()
-
-    @Compute._computed_property("computeNeighbor")
-    def n_query_points(self):
-        return self.thisptr.getNQueryPoints()
-
-    @Compute._computed_property("computeGlobal")
-    def n_global(self):
-        return self.thisptr.getNglobal()
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getGlobalAngles(),
+            freud.util.arr_type_t.FLOAT)
 
     def __repr__(self):
         return "freud.environment.{cls}(r_max={r}, num_neighbors={n})".format(
@@ -1188,24 +1154,15 @@ cdef class LocalBondProjection(Compute):
 
     @Compute._computed_property()
     def projections(self):
-        cdef unsigned int n_bond_projections = \
-            len(self.nlist) * self.thisptr.getNproj()
-        if not n_bond_projections:
-            return np.asarray([], dtype=np.float32)
-        cdef const float[::1] projections = \
-            <float[:n_bond_projections]> self.thisptr.getProjections().get()
-        return np.asarray(projections)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getProjections(),
+            freud.util.arr_type_t.FLOAT)
 
     @Compute._computed_property()
     def normed_projections(self):
-        cdef unsigned int n_bond_projections = \
-            len(self.nlist) * self.thisptr.getNproj()
-        if not n_bond_projections:
-            return np.asarray([], dtype=np.float32)
-        cdef const float[::1] normed_projections = \
-            <float[:n_bond_projections]> \
-            self.thisptr.getNormedProjections().get()
-        return np.asarray(normed_projections)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getNormedProjections(),
+            freud.util.arr_type_t.FLOAT)
 
     @Compute._computed_property()
     def num_points(self):

@@ -1,7 +1,6 @@
 #ifndef MANAGED_ARRAY_H
 #define MANAGED_ARRAY_H
 
-#include <cstring>
 #include <memory>
 #include <vector>
 #include <sstream>
@@ -31,6 +30,14 @@ namespace freud { namespace util {
  *  new set of pointers that also manages the same data, allowing it to keep
  *  the original array alive if the original ManagedArray instances become
  *  decoupled from it.
+ *
+ *  Performance notes:
+ *      1. The variadic indexers may be a bottleneck if used in
+ *         performance-critical code paths. In such cases, directly calling the
+ *         overloaded signature using an std::vector is preferable.
+ *      2. In situations where multiple identically shaped arrays are being
+ *         indexed into, the index may be computed once using the getIndex
+ *         function and reused to avoid recomputing it each time.
  */
 template<typename T> class ManagedArray
 {
@@ -43,17 +50,7 @@ public:
      */
     ManagedArray(std::vector<unsigned int> shape = {0})
     {
-        m_shape = std::make_shared<std::vector<unsigned int> >(shape);
-
-        m_size = std::make_shared<unsigned int>(1);
-        for (unsigned int i = 0; i < m_shape->size(); ++i)
-        {
-            (*m_size) *= (*m_shape)[i];
-        }
-
-        m_data = std::shared_ptr<std::shared_ptr<T> >(
-            new std::shared_ptr<T>(new T[size()], std::default_delete<T[]>()));
-        reset();
+        prepare(shape, true);
     }
 
     //! Destructor (currently empty because data is managed by shared pointer).
@@ -74,16 +71,17 @@ public:
      * this function clears the data.
      *
      *  \param new_shape Shape of the array to allocate.
+     *  \param force Reallocate regardless of whether anything changed or needs to be persisted.
      */
-    void prepare(std::vector<unsigned int> new_shape)
+    void prepare(std::vector<unsigned int> new_shape, bool force=false)
     {
         // If we resized, or if there are outstanding references, we create a new array. No matter what, reset.
-        if ((m_data.use_count() > 1) || (new_shape != shape()))
+        if (force || (m_data.use_count() > 1) || (new_shape != shape()))
         {
             m_shape = std::make_shared<std::vector<unsigned int> >(new_shape);
 
             m_size = std::make_shared<unsigned int>(1);
-            for (unsigned int i = 0; i < m_shape->size(); ++i)
+            for (int i = m_shape->size() - 1; i >= 0; --i)
             {
                 (*m_size) *= (*m_shape)[i];
             }
@@ -154,51 +152,79 @@ public:
 
     //*************************************************************************
     // In order to support convenient indexing using arbitrary numbers of
-    // indices, we provide overloads of the indexing operator. For convenience,
-    // all calls eventually funnel through the simplest function interface, a
-    // std::vector of indices. However, the more convenient approach is enabled
-    // using variadic template arguments.
+    // indices, we provide overloads of the indexing operator.  All calls
+    // eventually funnel through the simplest function interface, a std::vector
+    // of indices. However, the more convenient approach is enabled using
+    // variadic template arguments.
+    //
+    // Performance note: the variadic indexers can be expensive
+    // since they have to build up a std::vector through a sequence of
+    // (hopefully compiler optimized) function calls. In general, this is
+    // unimportant since performance critical code paths in freud do not
+    // involve large amounts of indexing into ManagedArrays. However, in cases
+    // where critical code paths do index into the array, it may be
+    // advantageous to directly call the function with a std::vector of indices
+    // and bypass the variadic indexers.
     //*************************************************************************
 
     //! Implementation of variadic indexing function.
     template <typename ... Ints>
-    T &operator()(Ints ... indices)
+    inline T &operator()(Ints ... indices)
     {
         return (*this)(buildIndex(indices...));
     }
 
     //! Constant implementation of variadic indexing function.
     template <typename ... Ints>
-    const T &operator()(Ints ... indices) const
+    inline const T &operator()(Ints ... indices) const
     {
         return (*this)(buildIndex(indices ...));
     }
 
     //! Core function for multidimensional indexing.
     /*! All the other convenience functions for indexing ultimately call this
-     * function, which operates on a vector of indexes. The core logic for
-     * converting the vector of indices to a linear index is farmed out to
-     * getIndex, and then directly indexes into it.
+     * function (or the const version below), which operates on a vector of
+     * indexes.
+     *
+     * Note that the logic in getIndex is intentionally inlined here for
+     * performance reasons. Although unimportant in most cases, operator() can
+     * become a performance bottleneck when used in highly performance critical
+     * code paths.
     */
-    T &operator()(std::vector<unsigned int> indices)
+    inline T &operator()(std::vector<unsigned int> indices)
     {
-        return (*this)[getIndex(indices)];
+        size_t cur_prod = 1;
+        size_t idx = 0;
+        for (int i = indices.size() - 1; i >= 0; --i)
+        {
+            idx += indices[i] * cur_prod;
+            cur_prod *= (*m_shape)[i];
+        }
+        return (*this)[idx];
     }
 
     //! Const version of core function for multidimensional indexing.
-    const T &operator()(std::vector<unsigned int> indices) const
+    inline const T &operator()(std::vector<unsigned int> indices) const
     {
-        return (*this)[getIndex(indices)];
+        size_t cur_prod = 1;
+        size_t idx = 0;
+        for (int i = indices.size() - 1; i >= 0; --i)
+        {
+            idx += indices[i] * cur_prod;
+            cur_prod *= (*m_shape)[i];
+        }
+        return (*this)[idx];
     }
 
     //! Get the linear index corresponding to a vector of indices in each dimension.
-    /*! This function performs the actual conversion of a vector of indices
+    /*! This function performs the conversion of a vector of indices
      *  into a linear index into the underlying data array of the ManagedArray.
-     *  It also performs some sanity checks on the input.
+     *  This function is primarily provided as a convenience, but may be useful
+     *  to generate an index that can be reused multiple times.
      *
      *  \param indices The index in each dimension.
      */
-    size_t getIndex(std::vector<unsigned int> indices) const
+    inline size_t getIndex(std::vector<unsigned int> indices) const
     {
         if (indices.size() != m_shape->size())
         {
@@ -210,7 +236,7 @@ public:
             if (indices[i] > (*m_shape)[i])
             {
                 std::ostringstream msg;
-                msg << "Attempted to access index " << indices[i] << " in dimension " << i << ", which has size" << (*m_shape)[i] << std::endl;
+                msg << "Attempted to access index " << indices[i] << " in dimension " << i << ", which has size " << (*m_shape)[i] << std::endl;
                 throw std::invalid_argument(msg.str());
             }
         }
@@ -240,20 +266,15 @@ private:
      *  unwrapping the list of arguments.
      */
     template <typename Int>
-    static std::vector<unsigned int> buildIndex(Int index)
+    inline static std::vector<unsigned int> buildIndex(Int index)
     {
-        if (index < 0)
-            throw std::invalid_argument("Value must be positive.");
         return {static_cast<unsigned int>(index)};
     }
 
     //! The recursive case for building up the index (see above).
     template <typename Int, typename ... Ints>
-    static std::vector<unsigned int> buildIndex(Int index, Ints ... indices)
+    inline static std::vector<unsigned int> buildIndex(Int index, Ints ... indices)
     {
-        if (index < 0)
-            throw std::invalid_argument("Value must be positive.");
-
         std::vector<unsigned int> tmp = buildIndex(indices...);
         tmp.insert(tmp.begin(), static_cast<unsigned int>(index));
         return tmp;

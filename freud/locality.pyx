@@ -54,7 +54,7 @@ cdef class _QueryArgs:
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
     """
 
-    def __cinit__(self, mode=None, r_max=None, r_guess=None,
+    def __cinit__(self, mode=None, r_min=None, r_max=None, r_guess=None,
                   num_neighbors=None, exclude_ii=None,
                   scale=None, **kwargs):
         if type(self) == _QueryArgs:
@@ -62,6 +62,8 @@ cdef class _QueryArgs:
             self.mode = mode
             if r_max is not None:
                 self.r_max = r_max
+            if r_min is not None:
+                self.r_min = r_min
             if r_guess is not None:
                 self.r_guess = r_guess
             if num_neighbors is not None:
@@ -127,6 +129,14 @@ cdef class _QueryArgs:
         self.thisptr.r_guess = value
 
     @property
+    def r_min(self):
+        return self.thisptr.r_min
+
+    @r_min.setter
+    def r_min(self, value):
+        self.thisptr.r_min = value
+
+    @property
     def r_max(self):
         return self.thisptr.r_max
 
@@ -157,19 +167,6 @@ cdef class _QueryArgs:
     @scale.setter
     def scale(self, value):
         self.thisptr.scale = value
-
-    def __repr__(self):
-        return ("freud.locality.{cls}(mode={mode}, r_max={r_max}, "
-                "num_neighbors={num_neighbors}, exclude_ii={exclude_ii}, "
-                "scale={scale})").format(
-                    cls=type(self).__name__,
-                    mode=self.mode, r_max=self.r_max,
-                    num_neighbors=self.num_neighbors,
-                    exclude_ii=self.exclude_ii,
-                    scale=self.scale)
-
-    def __str__(self):
-        return repr(self)
 
 
 cdef class NeighborQueryResult:

@@ -16,8 +16,8 @@ namespace freud { namespace density {
 
 RDF::RDF(unsigned int bins, float r_max, float r_min) : HistogramCompute(), m_r_max(r_max), m_r_min(r_min), m_bins(bins)
 {
-    if (bins <= 0)
-        throw std::invalid_argument("RDF requires a positive number of bins.");
+    if (bins == 0)
+        throw std::invalid_argument("RDF requires a nonzero number of bins.");
     if (r_max <= 0.0f)
         throw std::invalid_argument("RDF requires r_max to be positive.");
     if (r_max <= r_min)
@@ -78,10 +78,7 @@ void RDF::accumulate(const freud::locality::NeighborQuery* neighbor_query,
 {
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
         [=](const freud::locality::NeighborBond& neighbor_bond) {
-        if (neighbor_bond.distance < m_r_max && neighbor_bond.distance > m_r_min)
-        {
             m_local_histograms(neighbor_bond.distance);
-        }
     });
 }
 

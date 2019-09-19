@@ -69,7 +69,7 @@ public:
     }
 
     //! Get bin centers.
-    std::vector<float> getR()
+    std::vector<float> getBinCenters() const
     {
         // RDFs are always 1D histograms, so we just return the first element.
         return m_histogram.getBinCenters()[0];
@@ -79,7 +79,7 @@ public:
     std::vector<float> getBins() const
     {
         // RDFs are always 1D histograms, so we just return the first element.
-        return m_histogram.getBinBoundaries()[0];
+        return m_histogram.getBinEdges()[0];
     }
 
 private:

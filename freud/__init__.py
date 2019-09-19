@@ -34,3 +34,16 @@ __all__ = [
     'pmft',
     'voronoi',
 ]
+
+__citation__ = """@misc{freud,
+    author = {Vyas Ramasubramani and
+              Bradley D. Dice and
+              Eric S. Harper and
+              Matthew P. Spellings and
+              Joshua A. Anderson and
+              Sharon C. Glotzer},
+    title = {freud: A Software Suite for High Throughput
+             Analysis of Particle Simulation Data},
+    year = {2019},
+    eprint = {arXiv:1906.06317},
+}"""

@@ -4,9 +4,6 @@
 #include <stdexcept>
 #include "PMFTXYZ.h"
 
-using namespace std;
-using namespace tbb;
-
 /*! \file PMFTXYZ.cc
     \brief Routines for computing 3D potential of mean force in XYZ coordinates
 */
@@ -15,56 +12,38 @@ namespace freud { namespace pmft {
 
 PMFTXYZ::PMFTXYZ(float x_max, float y_max, float z_max, unsigned int n_x, unsigned int n_y, unsigned int n_z,
                  vec3<float> shiftvec)
-    : PMFT(), m_x_max(x_max), m_y_max(y_max), m_z_max(z_max), m_n_x(n_x), m_n_y(n_y), m_n_z(n_z),
+    : PMFT(),
       m_shiftvec(shiftvec)
 {
     if (n_x < 1)
-        throw invalid_argument("PMFTXYZ requires at least 1 bin in X.");
+        throw std::invalid_argument("PMFTXYZ requires at least 1 bin in X.");
     if (n_y < 1)
-        throw invalid_argument("PMFTXYZ requires at least 1 bin in Y.");
+        throw std::invalid_argument("PMFTXYZ requires at least 1 bin in Y.");
     if (n_z < 1)
-        throw invalid_argument("PMFTXYZ requires at least 1 bin in Z.");
+        throw std::invalid_argument("PMFTXYZ requires at least 1 bin in Z.");
     if (x_max < 0.0f)
-        throw invalid_argument("PMFTXYZ requires that x_max must be positive.");
+        throw std::invalid_argument("PMFTXYZ requires that x_max must be positive.");
     if (y_max < 0.0f)
-        throw invalid_argument("PMFTXYZ requires that y_max must be positive.");
+        throw std::invalid_argument("PMFTXYZ requires that y_max must be positive.");
     if (z_max < 0.0f)
-        throw invalid_argument("PMFTXYZ requires that z_max must be positive.");
+        throw std::invalid_argument("PMFTXYZ requires that z_max must be positive.");
 
     // calculate dx, dy, dz
-    m_dx = float(2.0) * m_x_max / float(m_n_x);
-    m_dy = float(2.0) * m_y_max / float(m_n_y);
-    m_dz = float(2.0) * m_z_max / float(m_n_z);
-
-    if (m_dx > x_max)
-        throw invalid_argument("PMFTXYZ requires that dx is less than or equal to x_max.");
-    if (m_dy > y_max)
-        throw invalid_argument("PMFTXYZ requires that dy is less than or equal to y_max.");
-    if (m_dz > z_max)
-        throw invalid_argument("PMFTXYZ requires that dz is less than or equal to z_max.");
-
-    m_jacobian = m_dx * m_dy * m_dz;
-
-    // precompute the bin center positions for x
-    m_x_array = precomputeAxisBinCenter(m_n_x, m_dx, m_x_max);
-    // precompute the bin center positions for y
-    m_y_array = precomputeAxisBinCenter(m_n_y, m_dy, m_y_max);
-    // precompute the bin center positions for t
-    m_z_array = precomputeAxisBinCenter(m_n_z, m_dz, m_z_max);
+    float dx = float(2.0) * x_max / float(n_x);
+    float dy = float(2.0) * y_max / float(n_y);
+    float dz = float(2.0) * z_max / float(n_z);
+    m_jacobian = dx * dy * dz;
 
     // create and populate the pcf_array
-    m_pcf_array.prepare({m_n_x, m_n_y, m_n_z});
+    m_pcf_array.prepare({n_x, n_y, n_z});
 
     // Construct the Histogram object that will be used to keep track of counts of bond distances found.
     util::Histogram::Axes axes;
-    axes.push_back(std::make_shared<util::RegularAxis>(n_x, -m_x_max, m_x_max));
-    axes.push_back(std::make_shared<util::RegularAxis>(n_y, -m_y_max, m_y_max));
-    axes.push_back(std::make_shared<util::RegularAxis>(n_z, -m_z_max, m_z_max));
+    axes.push_back(std::make_shared<util::RegularAxis>(n_x, -x_max, x_max));
+    axes.push_back(std::make_shared<util::RegularAxis>(n_y, -y_max, y_max));
+    axes.push_back(std::make_shared<util::RegularAxis>(n_z, -z_max, z_max));
     m_histogram = util::Histogram(axes);
     m_local_histograms = util::Histogram::ThreadLocalHistogram(m_histogram);
-
-    // Set r_max
-    m_r_max = sqrtf(m_x_max * m_x_max + m_y_max * m_y_max + m_z_max * m_z_max);
 }
 
 //! \internal

@@ -99,7 +99,6 @@ private:
     float m_dr;                   //!< Step size for r in the computation
     unsigned int m_nbins;         //!< Number of r bins to compute g(r) over
     unsigned int m_n_ref;         //!< number of reference particles
-    unsigned int m_Np;            //!< number of check particles
     unsigned int m_frame_counter; //!< number of frames calc'd
     bool m_reduce;                //!< Whether arrays need to be reduced across threads
 

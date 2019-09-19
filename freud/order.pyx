@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 # _always_ do that, or you will have segfaults
 np.import_array()
 
-cdef class CubaticOrderParameter(Compute):
+cdef class Cubatic(Compute):
     R"""Compute the cubatic order parameter [HajiAkbari2015]_ for a system of
     particles using simulated annealing instead of Newton-Raphson root finding.
 
@@ -62,11 +62,11 @@ cdef class CubaticOrderParameter(Compute):
             The value of the final temperature.
         scale (float):
             The scale
-        cubatic_order_parameter (float):
+        order (float):
             The cubatic order parameter.
         orientation (:math:`\left(4 \right)` :class:`numpy.ndarray`):
             The quaternion of global orientation.
-        particle_order_parameter (:class:`numpy.ndarray`):
+        particle_order (:class:`numpy.ndarray`):
              Cubatic order parameter.
         particle_tensor (:math:`\left(N_{particles}, 3, 3, 3, 3 \right)` :class:`numpy.ndarray`):
             Rank 5 tensor corresponding to each individual particle
@@ -79,7 +79,7 @@ cdef class CubaticOrderParameter(Compute):
             Rank 4 tensor corresponding to each individual particle
             orientation.
     """  # noqa: E501
-    cdef freud._order.CubaticOrderParameter * thisptr
+    cdef freud._order.Cubatic * thisptr
     cdef n_replicates
     cdef seed
 
@@ -99,7 +99,7 @@ cdef class CubaticOrderParameter(Compute):
                                "Using current time as seed.")
                 seed = int(time.time())
 
-        self.thisptr = new freud._order.CubaticOrderParameter(
+        self.thisptr = new freud._order.Cubatic(
             t_initial, t_final, scale, n_replicates,
             seed)
         self.n_replicates = n_replicates
@@ -139,7 +139,7 @@ cdef class CubaticOrderParameter(Compute):
         return self.thisptr.getScale()
 
     @Compute._computed_property()
-    def cubatic_order_parameter(self):
+    def order(self):
         return self.thisptr.getCubaticOrderParameter()
 
     @Compute._computed_property()
@@ -148,7 +148,7 @@ cdef class CubaticOrderParameter(Compute):
         return np.asarray([q.s, q.v.x, q.v.y, q.v.z], dtype=np.float32)
 
     @Compute._computed_property()
-    def particle_order_parameter(self):
+    def particle_order(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getParticleOrderParameter(),
             freud.util.arr_type_t.FLOAT)
@@ -176,7 +176,7 @@ cdef class CubaticOrderParameter(Compute):
                                        seed=self.seed)
 
 
-cdef class NematicOrderParameter(Compute):
+cdef class Nematic(Compute):
     R"""Compute the nematic order parameter for a system of particles.
 
     .. moduleauthor:: Jens Glaser <jsglaser@umich.edu>
@@ -187,7 +187,7 @@ cdef class NematicOrderParameter(Compute):
             (without any rotation applied).
 
     Attributes:
-        nematic_order_parameter (float):
+        order (float):
             Nematic order parameter.
         director (:math:`\left(3 \right)` :class:`numpy.ndarray`):
             The average nematic director.
@@ -200,7 +200,7 @@ cdef class NematicOrderParameter(Compute):
             The normalized reference director (the normalized vector provided
             on construction).
     """  # noqa: E501
-    cdef freud._order.NematicOrderParameter *thisptr
+    cdef freud._order.Nematic *thisptr
 
     def __cinit__(self, u):
         # run checks
@@ -208,7 +208,7 @@ cdef class NematicOrderParameter(Compute):
             raise ValueError('u needs to be a three-dimensional vector')
 
         cdef vec3[float] l_u = vec3[float](u[0], u[1], u[2])
-        self.thisptr = new freud._order.NematicOrderParameter(l_u)
+        self.thisptr = new freud._order.Nematic(l_u)
 
     def __dealloc__(self):
         del self.thisptr
@@ -232,7 +232,7 @@ cdef class NematicOrderParameter(Compute):
         return self
 
     @Compute._computed_property()
-    def nematic_order_parameter(self):
+    def order(self):
         return self.thisptr.getNematicOrderParameter()
 
     @Compute._computed_property()
@@ -262,9 +262,12 @@ cdef class NematicOrderParameter(Compute):
                                                  u=self.u.tolist())
 
 
-cdef class HexOrderParameter(PairCompute):
-    R"""Calculates the :math:`k`-atic order parameter for each particle in the
-    system.
+cdef class Hexatic(PairCompute):
+    R"""Calculates the :math:`k`-atic order parameter for 2D systems.
+
+    The :math:`k`-atic order parameter (called the hexatic order parameter for
+    :math:`k = 6`) is analogous to Steinhardt order parameters, and is used to
+    measure order in the bonds of 2D systems.
 
     The :math:`k`-atic order parameter for a particle :math:`i` and its
     :math:`n` neighbors :math:`j` is given by:
@@ -272,45 +275,33 @@ cdef class HexOrderParameter(PairCompute):
     :math:`\psi_k \left( i \right) = \frac{1}{n}
     \sum_j^n e^{k i \phi_{ij}}`
 
-    The parameter :math:`k` governs the symmetry of the order parameter while
-    the parameter :math:`n` governs the number of neighbors of particle
-    :math:`i` to average over. :math:`\phi_{ij}` is the angle between the
+    The parameter :math:`k` governs the symmetry of the order parameter and
+    typically matches the number of neighbors to be found for each particle.
+    The quantity :math:`\phi_{ij}` is the angle between the
     vector :math:`r_{ij}` and :math:`\left( 1,0 \right)`.
 
     .. note::
-        **2D:** :class:`freud.order.HexOrderParameter` properly handles 2D
+        **2D:** :class:`freud.order.Hexatic` properly handles 2D
         boxes. The points must be passed in as :code:`[x, y, 0]`. Failing to
         set z=0 will lead to undefined behavior.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
+    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
 
     Args:
-        r_max (float):
-            +/- r distance to search for neighbors.
         k (unsigned int, optional):
             Symmetry of order parameter. (Default value = :code:`6`).
-        num_neighbors (unsigned int, optional):
-            Number of neighbors. Uses :code:`k` if not provided or :code:`0`.
-            (Default value = :code:`0`).
 
     Attributes:
-        psi (:math:`\left(N_{particles} \right)` :class:`numpy.ndarray`):
-            Order parameter.
-        box (:class:`freud.box.Box`):
-            Box used in the calculation.
-        num_particles (unsigned int):
-            Number of particles.
-        K (unsigned int):
+        k (unsigned int):
             Symmetry of the order parameter.
-    """  # noqa: E501
-    cdef freud._order.HexOrderParameter * thisptr
-    cdef int num_neighbors
-    cdef float r_max
+        order (:math:`\left(N_{particles} \right)` :class:`numpy.ndarray`):
+            Order parameter.
+    """
+    cdef freud._order.Hexatic * thisptr
 
-    def __cinit__(self, r_max, k=int(6), num_neighbors=int(0)):
-        self.thisptr = new freud._order.HexOrderParameter(k)
-        self.r_max = r_max
-        self.num_neighbors = (num_neighbors if num_neighbors else int(k))
+    def __cinit__(self, k=6):
+        self.thisptr = new freud._order.Hexatic(k)
 
     def __dealloc__(self):
         del self.thisptr
@@ -328,6 +319,8 @@ cdef class HexOrderParameter(PairCompute):
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds.
                 (Default value = :code:`None`).
+            query_args (dict): A dictionary of query arguments (Default value =
+                :code:`None`).
         """
         cdef:
             freud.box.Box b
@@ -346,67 +339,43 @@ cdef class HexOrderParameter(PairCompute):
 
     @property
     def default_query_args(self):
-        return dict(mode="nearest", num_neighbors=self.num_neighbors,
-                    r_guess=self.r_max)
+        return dict(mode="nearest", num_neighbors=self.k)
 
     @Compute._computed_property()
-    def psi(self):
+    def order(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getOrder(),
             freud.util.arr_type_t.COMPLEX_FLOAT)
 
-    @Compute._computed_property()
-    def box(self):
-        return freud.box.BoxFromCPP(<freud._box.Box> self.thisptr.getBox())
-
-    @Compute._computed_property()
-    def num_particles(self):
-        cdef unsigned int np = self.thisptr.getNP()
-        return np
-
     @property
-    def K(self):
-        cdef unsigned int k = self.thisptr.getK()
-        return k
+    def k(self):
+        return self.thisptr.getK()
 
     def __repr__(self):
-        return "freud.order.{cls}(r_max={r}, k={k}, num_neighbors={n})".format(
-            cls=type(self).__name__, r=self.r_max, k=self.K,
-            n=self.num_neighbors)
+        return "freud.order.{cls}(k={k})".format(
+            cls=type(self).__name__, k=self.k)
 
 
-cdef class TransOrderParameter(PairCompute):
+cdef class Translational(PairCompute):
     R"""Compute the translational order parameter for each particle.
 
     .. moduleauthor:: Wenbo Shen <shenwb@umich.edu>
+    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
 
     Args:
-        r_max (float):
-            +/- r distance to search for neighbors.
         k (float, optional):
             Symmetry of order parameter. (Default value = :code:`6.0`).
-        num_neighbors (unsigned int, optional):
-            Number of neighbors. Uses :code:`k` if not provided or :code:`0`.
-            (Default value = :code:`0`).
 
     Attributes:
-        d_r (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
+        k (float):
+            Normalization value (order is divided by k).
+        order (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             Reference to the last computed translational order array.
-        box (:class:`freud.box.Box`):
-            Box used in the calculation.
-        num_particles (unsigned int):
-            Number of particles.
-        K (float):
-            Normalization value (d_r is divided by K).
-    """  # noqa: E501
-    cdef freud._order.TransOrderParameter * thisptr
-    cdef num_neighbors
-    cdef r_max
+    """
+    cdef freud._order.Translational * thisptr
 
-    def __cinit__(self, r_max, k=6.0, num_neighbors=0):
-        self.thisptr = new freud._order.TransOrderParameter(k)
-        self.r_max = r_max
-        self.num_neighbors = (num_neighbors if num_neighbors > 0 else int(k))
+    def __cinit__(self, k=6.0):
+        self.thisptr = new freud._order.Translational(k)
 
     def __dealloc__(self):
         del self.thisptr
@@ -423,6 +392,8 @@ cdef class TransOrderParameter(PairCompute):
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds.
                 (Default value = :code:`None`).
+            query_args (dict): A dictionary of query arguments (Default value =
+                :code:`None`).
         """
         cdef:
             freud.box.Box b
@@ -442,31 +413,21 @@ cdef class TransOrderParameter(PairCompute):
 
     @property
     def default_query_args(self):
-        return dict(mode="nearest", num_neighbors=self.num_neighbors,
-                    r_guess=self.r_max)
+        return dict(mode="nearest", num_neighbors=int(self.k))
 
     @Compute._computed_property()
-    def d_r(self):
+    def order(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getOrder(),
             freud.util.arr_type_t.COMPLEX_FLOAT)
 
-    @Compute._computed_property()
-    def box(self):
-        return freud.box.BoxFromCPP(<freud._box.Box> self.thisptr.getBox())
-
-    @Compute._computed_property()
-    def num_particles(self):
-        return self.thisptr.getNP()
-
     @property
-    def K(self):
+    def k(self):
         return self.thisptr.getK()
 
     def __repr__(self):
-        return "freud.order.{cls}(r_max={r}, k={k}, num_neighbors={n})".format(
-            cls=type(self).__name__, r=self.r_max, k=self.K,
-            n=self.num_neighbors)
+        return "freud.order.{cls}(k={k})".format(
+            cls=type(self).__name__, k=self.k)
 
 
 cdef class Steinhardt(PairCompute):
@@ -526,8 +487,6 @@ cdef class Steinhardt(PairCompute):
             Metrics :math:`Q'_l`. (Default value = :code:`False`)
 
     Attributes:
-        num_particles (unsigned int):
-            Number of particles.
         order (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The last computed selected variant of the Steinhardt order
             parameter for each particle (filled with NaN for particles with no
@@ -561,27 +520,20 @@ cdef class Steinhardt(PairCompute):
         return self.stptr.isWeighted()
 
     @Compute._computed_property()
-    def num_particles(self):
-        cdef unsigned int np = self.stptr.getNP()
-        return np
-
-    @Compute._computed_property()
     def norm(self):
         return self.stptr.getNorm()
 
     @Compute._computed_property()
     def order(self):
-        cdef unsigned int n_particles = self.stptr.getNP()
-        cdef const float[::1] op = \
-            <float[:n_particles]> self.stptr.getOrder().get()
-        return np.asarray(op)
+        return freud.util.make_managed_numpy_array(
+            &self.stptr.getOrder(),
+            freud.util.arr_type_t.FLOAT)
 
     @Compute._computed_property()
     def Ql(self):
-        cdef unsigned int n_particles = self.stptr.getNP()
-        cdef const float[::1] op = \
-            <float[:n_particles]> self.stptr.getQl().get()
-        return np.asarray(op)
+        return freud.util.make_managed_numpy_array(
+            &self.stptr.getQl(),
+            freud.util.arr_type_t.FLOAT)
 
     @Compute._compute()
     def compute(self, box, points, nlist=None, query_args=None):

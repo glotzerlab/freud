@@ -6,7 +6,7 @@ import itertools
 import util
 
 
-class TestTransOrder(unittest.TestCase):
+class TestTranslational(unittest.TestCase):
     def test_simple(self):
         box = freud.box.Box.square(10)
 
@@ -18,31 +18,22 @@ class TestTransOrder(unittest.TestCase):
 
         r_max = 1.1
         n = 4
-        trans = freud.order.TransOrderParameter(r_max, 4, n)
+        trans = freud.order.Translational(4)
         # Test access
         with self.assertRaises(AttributeError):
-            trans.num_particles
-        with self.assertRaises(AttributeError):
-            trans.box
-        with self.assertRaises(AttributeError):
-            trans.d_r
+            trans.order
 
         test_set = util.make_raw_query_nlist_test_set(
             box, positions, positions, 'nearest', r_max, n, True)
         for ts in test_set:
             trans.compute(box, ts[0], nlist=ts[1])
             # Test access
-            trans.num_particles
-            trans.box
-            trans.d_r
+            trans.order
 
-            npt.assert_allclose(trans.d_r, 0, atol=1e-6)
-
-            self.assertEqual(box, trans.box)
-            self.assertEqual(len(positions), trans.num_particles)
+            npt.assert_allclose(trans.order, 0, atol=1e-6)
 
     def test_repr(self):
-        trans = freud.order.TransOrderParameter(1.1, 4, 4)
+        trans = freud.order.Translational(4)
         self.assertEqual(str(trans), str(eval(repr(trans))))
 
 

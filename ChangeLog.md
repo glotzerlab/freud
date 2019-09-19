@@ -14,6 +14,7 @@ and this project adheres to
 * Internal threaded storage uses the standard ManagedArray object.
 * Upper bound r\_max option for number of neighbors queries.
 * C++ Histogram class to standardize n-dimensional binning and simplify writing new methods.
+* Lower bound r\_min option for all queries.
 
 ### Changed
 * All compute objects that perform neighbor computations now use NeighborQuery internally.
@@ -27,6 +28,7 @@ and this project adheres to
 * RDF no longer performs parallel accumulation of cumulative counts (provided no performance gains and was substantially more complex code).
 * Cluster now finds connected components of the neighbor graph (the cluster cutoff distance is given through query arguments).
 * Steinhardt uses query arguments.
+* APIs for several order parameters have been standardized.
 
 ### Fixed
 * Steinhardt uses the ThreadStorage class and properly resets memory where needed.
@@ -37,7 +39,7 @@ and this project adheres to
 ### Removed
 * The freud.util module.
 * Python 2 is no longer supported. Python 3.5+ is required.
-* CubaticOrderParameter no longer returns the per-particle tensor or the constant r4 tensor.
+* Cubatic no longer returns the per-particle tensor or the constant r4 tensor.
 
 ## v1.2.2 - 2019-08-15
 

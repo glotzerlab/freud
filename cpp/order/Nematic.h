@@ -1,8 +1,8 @@
 // Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#ifndef NEMATIC_ORDER_PARAMETER_H
-#define NEMATIC_ORDER_PARAMETER_H
+#ifndef NEMATIC_H
+#define NEMATIC_H
 
 #include <memory>
 #include <ostream>
@@ -12,7 +12,7 @@
 #include "VectorMath.h"
 #include "ManagedArray.h"
 
-/*! \file NematicOrderParameter.h
+/*! \file Nematic.h
     \brief Compute the nematic order parameter for each particle
 */
 
@@ -20,14 +20,14 @@ namespace freud { namespace order {
 //! Compute the nematic order parameter for a set of points
 /*!
  */
-class NematicOrderParameter
+class Nematic
 {
 public:
     //! Constructor
-    NematicOrderParameter(vec3<float> u);
+    Nematic(vec3<float> u);
 
     //! Destructor
-    virtual ~NematicOrderParameter() {};
+    virtual ~Nematic() {};
 
     //! Compute the nematic order parameter
     void compute(quat<float>* orientations, unsigned int n);
@@ -57,4 +57,4 @@ private:
 
 }; }; // end namespace freud::order
 
-#endif // NEMATIC_ORDER_PARAMETER_H
+#endif // NEMATIC_H

@@ -9,6 +9,7 @@
 #endif
 #include <sstream>
 #include <tbb/tbb.h>
+#include <utility>
 
 namespace freud { namespace util {
 
@@ -22,7 +23,7 @@ class Axis
 public:
     Axis() : m_nbins(0) {}
 
-    Axis(size_t nbins) : m_nbins(nbins) {}
+    Axis(size_t nbins, float min, float max) : m_nbins(nbins), m_min(min), m_max(max) {}
 
     // Return the number of bins in the histogram.
     size_t size() const
@@ -41,9 +42,9 @@ public:
     virtual size_t bin(const float &value) const = 0;
 
     //! Return the boundaries of bins.
-    std::vector<float> getBinBoundaries() const
+    std::vector<float> getBinEdges() const
     {
-        return m_bin_boundaries;
+        return m_bin_edges;
     }
 
     //! Return the centers of bins.
@@ -52,16 +53,28 @@ public:
         std::vector<float> bin_centers(m_nbins);
         for (unsigned int i = 0; i < m_nbins; i++)
         {
-            bin_centers[i] = (m_bin_boundaries[i] + m_bin_boundaries[i+1])/float(2.0);
+            bin_centers[i] = (m_bin_edges[i] + m_bin_edges[i+1])/float(2.0);
         }
         return bin_centers;
+    }
+
+    float getMin() const
+    {
+        return m_min;
+    }
+
+    float getMax() const
+    {
+        return m_max;
     }
 
     static const size_t OVERFLOW_BIN = 0xffffffff;
 
 protected:
     size_t m_nbins; //!< Number of bins
-    std::vector<float> m_bin_boundaries;   //!< The edges of bins.
+    float m_min; //!< Lowest value allowed.
+    float m_max; //!< Highest value allowed.
+    std::vector<float> m_bin_edges;   //!< The edges of bins.
 };
 
 //! A regularly spaced axis.
@@ -74,16 +87,16 @@ protected:
 class RegularAxis : public Axis
 {
 public:
-    RegularAxis(size_t nbins, float min, float max) : Axis(nbins), m_min(min), m_max(max)
+    RegularAxis(size_t nbins, float min, float max) : Axis(nbins, min, max)
     {
-        m_bin_boundaries.resize(m_nbins+1);
+        m_bin_edges.resize(m_nbins+1);
         m_dr = (max-min)/static_cast<float>(m_nbins);
         m_dr_inv = 1/m_dr;
         float cur_location = min;
         // This must be <= because there is one extra bin boundary than the number of bins.
         for (unsigned int i = 0; i <= nbins; i++)
         {
-            m_bin_boundaries[i] = (cur_location);
+            m_bin_edges[i] = (cur_location);
             cur_location += m_dr;
         }
     }
@@ -103,7 +116,7 @@ public:
         // Since we're using an unsigned int cast for truncation, we must
         // ensure that we will be working with a positive number or we will
         // fail to detect underflow.
-        if (value < m_min || value > m_max)
+        if (value < m_min || value >= m_max)
         {
             return OVERFLOW_BIN;
         }
@@ -114,12 +127,14 @@ public:
 #else
         unsigned int bin = (unsigned int)(val);
 #endif
-        return bin;
+        // Avoid rounding leading to overflow.
+        if (bin == m_max)
+            return bin - 1;
+        else
+            return bin;
     }
 
 protected:
-    float m_min; //!< Lowest value allowed.
-    float m_max; //!< Highest value allowed.
     float m_dr; //!< Gap between bins
     float m_dr_inv; //!< Inverse gap between bins
 };
@@ -285,12 +300,13 @@ public:
     //! Return the edges of bins.
     /*! This vector will be of size m_bin_counts.size()+1.
      */
-    std::vector<std::vector<float> > getBinBoundaries() const
+    std::vector<std::vector<float> > getBinEdges() const
     {
         std::vector<std::vector<float> > bins(m_axes.size());
-        unsigned int index = 0;
-        for (auto axis = m_axes.begin(); axis != m_axes.end(); ++axis)
-            bins[index] = (*axis)->getBinBoundaries();
+        for (unsigned int i = 0; i < m_axes.size(); ++i)
+        {
+            bins[i] = m_axes[i]->getBinEdges();
+        }
         return bins;
     }
 
@@ -300,10 +316,40 @@ public:
     std::vector<std::vector<float> > getBinCenters() const
     {
         std::vector<std::vector<float> > bins(m_axes.size());
-        unsigned int index = 0;
-        for (auto axis = m_axes.begin(); axis != m_axes.end(); ++axis)
-            bins[index] = (*axis)->getBinCenters();
+        for (unsigned int i = 0; i < m_axes.size(); ++i)
+        {
+            bins[i] = m_axes[i]->getBinCenters();
+        }
         return bins;
+    }
+
+    //! Return a vector of tuples (min, max)
+    /*! This vector will be of size m_bin_counts.size().
+     */
+    std::vector<std::pair<float, float> > getBounds() const
+    {
+        std::vector<std::pair<float, float> > bounds(m_axes.size());
+        for (unsigned int i = 0; i < m_axes.size(); ++i)
+        {
+            bounds[i] = std::pair<float, float>(
+                m_axes[i]->getMin(),
+                m_axes[i]->getMax()
+                );
+        }
+        return bounds;
+    }
+
+    //! Return a vector of tuples (min, max)
+    /*! This vector will be of size m_bin_counts.size().
+     */
+    std::vector<unsigned int> getBinSizes() const
+    {
+        std::vector<unsigned int> sizes(m_axes.size());
+        for (unsigned int i = 0; i < m_axes.size(); ++i)
+        {
+            sizes[i] = m_axes[i]->size();
+        }
+        return sizes;
     }
 
     //!< Aggregate a set of thread-local histograms into this one and apply a function.

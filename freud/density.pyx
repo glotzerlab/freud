@@ -845,8 +845,8 @@ cdef class RDF(SpatialHistogram):
             freud.util.arr_type_t.UNSIGNED_INT)
 
     @property
-    def R(self):
-        return np.asarray(self.thisptr.getR())
+    def bin_centers(self):
+        return np.asarray(self.thisptr.getBinCenters())
 
     @Compute._computed_property()
     def n_r(self):
@@ -857,7 +857,7 @@ cdef class RDF(SpatialHistogram):
     def __repr__(self):
         return ("freud.density.{cls}(bins={bins}, r_max={r_max}, "
                 "r_min={r_min})").format(cls=type(self).__name__,
-                                         bins=len(self.R),
+                                         bins=len(self.bin_centers),
                                          r_max=self.r_max,
                                          r_min=self.r_min)
 

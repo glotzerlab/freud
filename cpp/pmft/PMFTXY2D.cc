@@ -5,9 +5,6 @@
 
 #include "PMFTXY2D.h"
 
-using namespace std;
-using namespace tbb;
-
 /*! \file PMFTXY2D.cc
     \brief Routines for computing 2D potential of mean force in XY coordinates
 */
@@ -15,44 +12,31 @@ using namespace tbb;
 namespace freud { namespace pmft {
 
 PMFTXY2D::PMFTXY2D(float x_max, float y_max, unsigned int n_x, unsigned int n_y)
-    : PMFT(), m_x_max(x_max), m_y_max(y_max), m_n_x(n_x), m_n_y(n_y)
+    : PMFT()
 {
     if (n_x < 1)
-        throw invalid_argument("PMFTXY2D requires at least 1 bin in X.");
+        throw std::invalid_argument("PMFTXY2D requires at least 1 bin in X.");
     if (n_y < 1)
-        throw invalid_argument("PMFTXY2D requires at least 1 bin in Y.");
+        throw std::invalid_argument("PMFTXY2D requires at least 1 bin in Y.");
     if (x_max < 0.0f)
-        throw invalid_argument("PMFTXY2D requires that x_max must be positive.");
+        throw std::invalid_argument("PMFTXY2D requires that x_max must be positive.");
     if (y_max < 0.0f)
-        throw invalid_argument("PMFTXY2D requires that y_max must be positive.");
-    // calculate dx, dy
-    m_dx = 2.0 * m_x_max / float(m_n_x);
-    m_dy = 2.0 * m_y_max / float(m_n_y);
+        throw std::invalid_argument("PMFTXY2D requires that y_max must be positive.");
 
-    if (m_dx > x_max)
-        throw invalid_argument("PMFTXY2D requires that dx is less than or equal to x_max.");
-    if (m_dy > y_max)
-        throw invalid_argument("PMFTXY2D requires that dy is less than or equal to y_max.");
-
-    m_jacobian = m_dx * m_dy;
-
-    // precompute the bin center positions for x
-    m_x_array = precomputeAxisBinCenter(m_n_x, m_dx, m_x_max);
-    // precompute the bin center positions for y
-    m_y_array = precomputeAxisBinCenter(m_n_y, m_dy, m_y_max);
+    // Compute jacobian
+    float dx = 2.0 * x_max / float(n_x);
+    float dy = 2.0 * y_max / float(n_y);
+    m_jacobian = dx * dy;
 
     // create the pcf_array
-    m_pcf_array.prepare({m_n_x, m_n_y});
+    m_pcf_array.prepare({n_x, n_y});
 
     // Construct the Histogram object that will be used to keep track of counts of bond distances found.
     util::Histogram::Axes axes;
-    axes.push_back(std::make_shared<util::RegularAxis>(n_x, -m_x_max, m_x_max));
-    axes.push_back(std::make_shared<util::RegularAxis>(n_y, -m_y_max, m_y_max));
+    axes.push_back(std::make_shared<util::RegularAxis>(n_x, -x_max, x_max));
+    axes.push_back(std::make_shared<util::RegularAxis>(n_y, -y_max, y_max));
     m_histogram = util::Histogram(axes);
     m_local_histograms = util::Histogram::ThreadLocalHistogram(m_histogram);
-
-    // Set r_max
-    m_r_max = sqrtf(m_x_max * m_x_max + m_y_max * m_y_max);
 }
 
 //! \internal
