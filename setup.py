@@ -360,6 +360,7 @@ extra_module_sources = dict(
     ],
     order=[
         os.path.join("cpp", "util", "diagonalize.cc"),
+        os.path.join("cpp", "cluster", "Cluster.cc"),
     ],
 )
 
