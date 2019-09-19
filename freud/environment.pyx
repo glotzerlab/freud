@@ -440,7 +440,7 @@ cdef class LocalDescriptors(Compute):
     @Compute._computed_property()
     def sph(self):
         return freud.util.make_managed_numpy_array(
-            &self.thisptr.getSphWidth(),
+            &self.thisptr.getSph(),
             freud.util.arr_type_t.COMPLEX_FLOAT)
 
     @Compute._computed_property()
@@ -760,12 +760,9 @@ cdef class MatchEnv(Compute):
 
     @Compute._computed_property()
     def clusters(self):
-        cdef unsigned int n_particles = self.thisptr.getNP()
-        if not n_particles:
-            return np.asarray([], dtype=np.uint32)
-        cdef const unsigned int[::1] clusters = \
-            <unsigned int[:n_particles]> self.thisptr.getClusters().get()
-        return np.asarray(clusters)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getClusters(),
+            freud.util.arr_type_t.UNSIGNED_INT)
 
     @Compute._computed_method()
     def getEnvironment(self, i):
@@ -778,24 +775,14 @@ cdef class MatchEnv(Compute):
             :math:`\left(N_{neighbors}, 3\right)` :class:`numpy.ndarray`:
             The array of vectors.
         """
-        cdef unsigned int max_neighbors = self.thisptr.getMaxNumNeighbors()
-        if not max_neighbors:
-            return np.asarray([[]], dtype=np.float32)
-        cdef const float[:, ::1] environment = \
-            <float[:max_neighbors, :3]> (
-                <float*> self.thisptr.getEnvironment(i).get())
-        return np.asarray(environment)
+        env = self.thisptr.getEnvironment(i)
+        return np.asarray([[p.x, p.y, p.z] for p in env])
 
     @Compute._computed_property()
     def tot_environment(self):
-        cdef unsigned int n_particles = self.thisptr.getNP()
-        cdef unsigned int max_neighbors = self.thisptr.getMaxNumNeighbors()
-        if not n_particles or not max_neighbors:
-            return np.asarray([[[]]], dtype=np.float32)
-        cdef const float[:, :, ::1] tot_environment = \
-            <float[:n_particles, :max_neighbors, :3]> (
-                <float*> self.thisptr.getTotEnvironment().get())
-        return np.asarray(tot_environment)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getTotEnvironment(),
+            freud.util.arr_type_t.FLOAT, 3)
 
     @Compute._computed_property()
     def num_particles(self):

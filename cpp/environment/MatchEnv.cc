@@ -209,15 +209,15 @@ std::vector<unsigned int> EnvDisjointSet::findSet(const unsigned int m)
 // Get the vectors corresponding to environment head index m. Vectors are
 // averaged over all members of the environment cluster.
 // If environment m doesn't exist as a HEAD in the set, throw an error.
-std::shared_ptr<vec3<float>> EnvDisjointSet::getAvgEnv(const unsigned int m)
+std::vector<vec3<float> > EnvDisjointSet::getAvgEnv(const unsigned int m)
 {
     assert(s.size() > 0);
     bool invalid_ind = true;
 
-    std::shared_ptr<vec3<float>> env(new vec3<float>[m_max_num_neigh], std::default_delete<vec3<float>[]>());
+    std::vector<vec3<float> > env(m_max_num_neigh);
     for (unsigned int n = 0; n < m_max_num_neigh; n++)
     {
-        env.get()[n] = vec3<float>(0.0, 0.0, 0.0);
+        env[n] = vec3<float>(0.0, 0.0, 0.0);
     }
     float N = float(0);
 
@@ -240,7 +240,7 @@ std::shared_ptr<vec3<float>> EnvDisjointSet::getAvgEnv(const unsigned int m)
                 for (unsigned int proper_ind = 0; proper_ind < s[i].vecs.size(); proper_ind++)
                 {
                     unsigned int relative_ind = s[i].vec_ind[proper_ind];
-                    env.get()[proper_ind] += s[i].proper_rot * s[i].vecs[relative_ind];
+                    env[proper_ind] += s[i].proper_rot * s[i].vecs[relative_ind];
                 }
                 N += float(1);
                 invalid_ind = false;
@@ -260,8 +260,8 @@ std::shared_ptr<vec3<float>> EnvDisjointSet::getAvgEnv(const unsigned int m)
         // of contributing particle environments to make an average
         for (unsigned int n = 0; n < m_max_num_neigh; n++)
         {
-            vec3<float> normed = env.get()[n] / N;
-            env.get()[n] = normed;
+            vec3<float> normed = env[n] / N;
+            env[n] = normed;
         }
     }
     return env;
@@ -648,7 +648,7 @@ void MatchEnv::cluster(const freud::locality::NeighborList* env_nlist,
     assert(threshold > 0);
 
     // reallocate the m_env_index array for safety
-    m_env_index = std::shared_ptr<unsigned int>(new unsigned int[Np], std::default_delete<unsigned int[]>());
+    m_env_index.prepare(Np);
 
     m_Np = Np;
     float m_threshold_sq = threshold * threshold;
@@ -674,9 +674,7 @@ void MatchEnv::cluster(const freud::locality::NeighborList* env_nlist,
     }
 
     // reallocate the m_tot_env array
-    unsigned int array_size = Np * m_max_num_neighbors;
-    m_tot_env
-        = std::shared_ptr<vec3<float>>(new vec3<float>[array_size], std::default_delete<vec3<float>[]>());
+    m_tot_env.prepare({Np, m_max_num_neighbors});
 
     size_t bond(0);
     // loop through points
@@ -747,7 +745,7 @@ void MatchEnv::matchMotif(const freud::locality::NeighborList* nlist, const vec3
     assert(threshold > 0);
 
     // reallocate the m_env_index array for safety
-    m_env_index = std::shared_ptr<unsigned int>(new unsigned int[Np], std::default_delete<unsigned int[]>());
+    m_env_index.prepare(Np);
 
     m_Np = Np;
     float m_threshold_sq = threshold * threshold;
@@ -762,9 +760,7 @@ void MatchEnv::matchMotif(const freud::locality::NeighborList* nlist, const vec3
     m_max_num_neighbors = m_num_neighbors;
 
     // reallocate the m_tot_env array
-    unsigned int array_size = Np * m_max_num_neighbors;
-    m_tot_env
-        = std::shared_ptr<vec3<float>>(new vec3<float>[array_size], std::default_delete<vec3<float>[]>());
+    m_tot_env.prepare({Np, m_max_num_neighbors});
 
     // create the environment characterized by refPoints. Index it as 0.
     // set the IGNORE flag to true, since this is not an environment we have
@@ -839,7 +835,7 @@ std::vector<float> MatchEnv::minRMSDMotif(const freud::locality::NeighborList* n
     assert(Np > 0);
 
     // reallocate the m_env_index array for safety
-    m_env_index = std::shared_ptr<unsigned int>(new unsigned int[Np], std::default_delete<unsigned int[]>());
+    m_env_index.prepare(Np);
 
     m_Np = Np;
     std::vector<float> min_rmsd_vec(m_Np);
@@ -854,9 +850,7 @@ std::vector<float> MatchEnv::minRMSDMotif(const freud::locality::NeighborList* n
     m_max_num_neighbors = m_num_neighbors;
 
     // reallocate the m_tot_env array
-    unsigned int array_size = Np * m_max_num_neighbors;
-    m_tot_env
-        = std::shared_ptr<vec3<float>>(new vec3<float>[array_size], std::default_delete<vec3<float>[]>());
+    m_tot_env.prepare({Np, m_max_num_neighbors});
 
     // create the environment characterized by refPoints. Index it as 0.
     // set the IGNORE flag to true, since this is not an environment we
@@ -943,7 +937,7 @@ void MatchEnv::populateEnv(EnvDisjointSet dj, bool reLabel)
             if (label_map.count(c) == 0)
             {
                 label_map[c] = cur_set;
-                std::shared_ptr<vec3<float>> vecs = dj.getAvgEnv(c);
+                std::vector<vec3<float>> vecs = dj.getAvgEnv(c);
 
                 if (reLabel == true)
                 {
@@ -969,15 +963,10 @@ void MatchEnv::populateEnv(EnvDisjointSet dj, bool reLabel)
             }
 
             // label this particle in m_env_index
-            m_env_index.get()[particle_ind] = label_ind;
-            // add the particle environment to m_tot_env
-            // get a pointer to the start of m_tot_env
-            vec3<float>* start = m_tot_env.get();
-            // loop through part_vecs and add them
+            m_env_index[particle_ind] = label_ind;
             for (unsigned int m = 0; m < part_vecs.size(); m++)
             {
-                unsigned int index = particle_ind * m_max_num_neighbors + m;
-                start[index] = part_vecs[m];
+                m_tot_env(particle_ind, m);
             }
             particle_ind++;
         }

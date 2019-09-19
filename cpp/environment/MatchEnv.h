@@ -14,6 +14,7 @@
 
 #include "BiMap.h"
 #include "Box.h"
+#include "ManagedArray.h"
 #include "NeighborList.h"
 #include "VectorMath.h"
 #include "brute_force.h"
@@ -72,7 +73,7 @@ public:
     std::vector<unsigned int> findSet(const unsigned int m);
     //! Get the vectors corresponding to environment head index m. Vectors are averaged over all members of
     //! the environment cluster.
-    std::shared_ptr<vec3<float>> getAvgEnv(const unsigned int m);
+    std::vector<vec3<float> > getAvgEnv(const unsigned int m);
     //! Get the vectors corresponding to index m in the dj set
     std::vector<vec3<float>> getIndividualEnv(const unsigned int m);
 
@@ -192,7 +193,7 @@ public:
                                                       bool registration);
 
     //! Get a reference to the particles, indexed into clusters according to their matching local environments
-    std::shared_ptr<unsigned int> getClusters()
+    const util::ManagedArray<unsigned int> &getClusters()
     {
         return m_env_index;
     }
@@ -204,15 +205,15 @@ public:
     }
 
     //! Returns the set of vectors defining the environment indexed by i (indices culled from m_env_index)
-    std::shared_ptr<vec3<float>> getEnvironment(unsigned int i)
+    std::vector<vec3<float>> getEnvironment(unsigned int i)
     {
-        std::map<unsigned int, std::shared_ptr<vec3<float>>>::iterator it = m_env.find(i);
-        std::shared_ptr<vec3<float>> vecs = it->second;
+        std::map<unsigned int, std::vector<vec3<float>>>::iterator it = m_env.find(i);
+        std::vector<vec3<float>> vecs = it->second;
         return vecs;
     }
 
     //! Returns the entire m_Np by m_k by 3 matrix of all environments for all particles
-    std::shared_ptr<vec3<float>> getTotEnvironment()
+    const util::ManagedArray<vec3<float>> &getTotEnvironment()
     {
         return m_tot_env;
     }
@@ -248,9 +249,9 @@ private:
     unsigned int m_Np;   //!< Last number of points computed
     unsigned int m_num_clusters; //!< Last number of local environments computed
 
-    std::shared_ptr<unsigned int> m_env_index; //!< Cluster index determined for each particle
-    std::map<unsigned int, std::shared_ptr<vec3<float>>> m_env; //!< Dictionary of (cluster id, vectors) pairs
-    std::shared_ptr<vec3<float>>
+    util::ManagedArray<unsigned int> m_env_index; //!< Cluster index determined for each particle
+    std::map<unsigned int, std::vector<vec3<float>>> m_env; //!< Dictionary of (cluster id, vectors) pairs
+    util::ManagedArray<vec3<float>>
         m_tot_env; //!< m_NP by m_max_num_neighbors by 3 matrix of all environments for all particles
 };
 

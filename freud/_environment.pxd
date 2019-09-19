@@ -88,9 +88,9 @@ cdef extern from "MatchEnv.h" namespace "freud::environment":
                                                      unsigned int,
                                                      float &,
                                                      bool) except +
-        shared_ptr[unsigned int] getClusters()
-        shared_ptr[vec3[float]] getEnvironment(unsigned int)
-        shared_ptr[vec3[float]] getTotEnvironment()
+        const freud.util.ManagedArray[unsigned int] &getClusters()
+        vector[vec3[float]] getEnvironment(unsigned int)
+        const freud.util.ManagedArray[vec3[float]] &getTotEnvironment()
         unsigned int getNP()
         unsigned int getNumClusters()
         unsigned int getNumNeighbors()
