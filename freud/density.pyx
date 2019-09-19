@@ -753,20 +753,14 @@ cdef class RDF(SpatialHistogram):
             last call to :meth:`~.compute` (or :meth:`~.accumulate`).
     """
     cdef freud._density.RDF * thisptr
-    cdef dr
-    cdef r_min
 
-    def __cinit__(self, float r_max, float dr, float r_min=0):
-        if r_max <= 0:
-            raise ValueError("r_max must be > 0")
-        if r_max <= r_min:
-            raise ValueError("r_max must be > r_min")
-        if dr <= 0.0:
-            raise ValueError("dr must be > 0")
-        self.thisptr = new freud._density.RDF(r_max, dr, r_min)
+    def __cinit__(self, unsigned int bins, float r_max, float r_min=0):
+        self.thisptr = new freud._density.RDF(bins, r_max, r_min)
+
+        # r_max is left as an attribute rather than a property for now since
+        # that change needs to happen at the SpatialHistogram level for
+        # multiple classes.
         self.r_max = r_max
-        self.dr = dr
-        self.r_min = r_min
 
     def __dealloc__(self):
         del self.thisptr
@@ -843,11 +837,15 @@ cdef class RDF(SpatialHistogram):
             &self.thisptr.getRDF(),
             freud.util.arr_type_t.FLOAT)
 
-    @property
-    def R(self):
+    @Compute._computed_property()
+    def bin_counts(self):
         return freud.util.make_managed_numpy_array(
-            &self.thisptr.getR(),
-            freud.util.arr_type_t.FLOAT)
+            &self.thisptr.getBinCounts(),
+            freud.util.arr_type_t.UNSIGNED_INT)
+
+    @property
+    def bin_centers(self):
+        return np.asarray(self.thisptr.getBinCenters())
 
     @Compute._computed_property()
     def n_r(self):
@@ -856,11 +854,19 @@ cdef class RDF(SpatialHistogram):
             freud.util.arr_type_t.FLOAT)
 
     def __repr__(self):
-        return ("freud.density.{cls}(r_max={r_max}, dr={dr}, "
+        return ("freud.density.{cls}(bins={bins}, r_max={r_max}, "
                 "r_min={r_min})").format(cls=type(self).__name__,
+                                         bins=len(self.bin_centers),
                                          r_max=self.r_max,
-                                         dr=self.dr,
                                          r_min=self.r_min)
+
+    @property
+    def r_min(self):
+        return self.thisptr.getRMin()
+
+    @property
+    def bins(self):
+        return np.asarray(self.thisptr.getBins())
 
     @Compute._computed_method()
     def plot(self, ax=None):

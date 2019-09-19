@@ -4,11 +4,6 @@
 #ifndef PMFTXYT_H
 #define PMFTXYT_H
 
-#include <memory>
-#include <ostream>
-#include <tbb/tbb.h>
-
-#include "NeighborList.h"
 #include "PMFT.h"
 
 /*! \file PMFTXYT.h
@@ -23,9 +18,6 @@ public:
     //! Constructor
     PMFTXYT(float x_max, float y_max, unsigned int n_x, unsigned int n_y, unsigned int n_t);
 
-    //! Reset the PCF array to all zeros
-    virtual void reset();
-
     /*! Compute the PCF for the passed in set of points. The function will be added to previous values
         of the PCF
     */
@@ -37,59 +29,13 @@ public:
     //! helper function to reduce the thread specific arrays into one array
     virtual void reducePCF();
 
-    //! Get a reference to the X array
-    const util::ManagedArray<float> &getX()
-    {
-        return m_x_array;
-    }
-
-    //! Get a reference to the Y array
-    const util::ManagedArray<float> &getY()
-    {
-        return m_y_array;
-    }
-
-    //! Get a reference to the T array
-    const util::ManagedArray<float> &getT()
-    {
-        return m_t_array;
-    }
-
     float getJacobian()
     {
         return m_jacobian;
     }
 
-    unsigned int getNBinsX()
-    {
-        return m_n_x;
-    }
-
-    unsigned int getNBinsY()
-    {
-        return m_n_y;
-    }
-
-    unsigned int getNBinsT()
-    {
-        return m_n_t;
-    }
-
 private:
-    float m_x_max;      //!< Maximum x at which to compute PCF
-    float m_y_max;      //!< Maximum y at which to compute PCF
-    float m_t_max;      //!< Maximum t at which to compute PCF
-    float m_dx;         //!< Bin size for x in the computation
-    float m_dy;         //!< Bin size for y in the computation
-    float m_dt;         //!< Bin size for t in the computation
-    unsigned int m_n_x; //!< Number of x bins to compute PCF over
-    unsigned int m_n_y; //!< Number of y bins to compute PCF over
-    unsigned int m_n_t; //!< Number of t bins to compute PCF over
     float m_jacobian;
-
-    util::ManagedArray<float> m_x_array; //!< Array of x values where the PCF is computed
-    util::ManagedArray<float> m_y_array; //!< Array of y values where the PCF is computed
-    util::ManagedArray<float> m_t_array; //!< Array of t values where the PCF is computed
 };
 
 }; }; // end namespace freud::pmft

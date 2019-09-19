@@ -4,9 +4,12 @@
 from freud.util cimport vec3
 from libcpp.memory cimport shared_ptr
 from libcpp.complex cimport complex
+from libcpp.vector cimport vector
 cimport freud._box
 cimport freud._locality
 cimport freud.util
+
+ctypedef unsigned int uint
 
 cdef extern from "CorrelationFunction.h" namespace "freud::density":
     cdef cppclass CorrelationFunction[T]:
@@ -53,6 +56,9 @@ cdef extern from "RDF.h" namespace "freud::density":
     cdef cppclass RDF:
         RDF(float, float, float) except +
         const freud._box.Box & getBox() const
+        float getRMax() const
+        float getRMin() const
+        float getDr() const
         void reset()
         void accumulate(const freud._locality.NeighborQuery*,
                         const vec3[float]*,
@@ -60,6 +66,7 @@ cdef extern from "RDF.h" namespace "freud::density":
                         const freud._locality.NeighborList*,
                         freud._locality.QueryArgs) except +
         const freud.util.ManagedArray[float] &getRDF()
-        const freud.util.ManagedArray[float] &getR()
+        vector[float] getBinCenters() const
         const freud.util.ManagedArray[float] &getNr()
-        unsigned int getNBins()
+        const freud.util.ManagedArray[uint] &getBinCounts() const
+        vector[float] getBins() const

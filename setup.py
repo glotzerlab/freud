@@ -236,7 +236,7 @@ def parallelCCompile(self, sources, output_dir=None, macros=None,
     return objects
 
 
-distutils.ccompiler.CCompiler.compile=parallelCCompile
+distutils.ccompiler.CCompiler.compile = parallelCCompile
 
 
 #########################
@@ -355,17 +355,11 @@ sources_in_all = [
 # Dict keys should be specified as the module name without
 # "freud.", i.e. not the fully qualified name.
 extra_module_sources = dict(
-    density=[
-        os.path.join("cpp", "util", "NdHistogram.cc"),
-    ],
     environment=[
         os.path.join("cpp", "util", "diagonalize.cc"),
     ],
     order=[
         os.path.join("cpp", "util", "diagonalize.cc"),
-    ],
-    pmft=[
-        os.path.join("cpp", "util", "NdHistogram.cc"),
     ],
 )
 
@@ -392,7 +386,7 @@ if args.use_cython:
 
 # Ensure that builds on Mac use correct stdlib.
 if platform.system() == 'Darwin':
-    os.environ["MACOSX_DEPLOYMENT_TARGET"]= "10.12"
+    os.environ["MACOSX_DEPLOYMENT_TARGET"] = "10.12"
 
 version = '1.2.2'
 
