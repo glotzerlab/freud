@@ -69,7 +69,7 @@ BondOrder::BondOrder(unsigned int n_bins_theta, unsigned int n_bins_phi)
         {
             float phi = (float) j * m_dp;
             float sa = m_dt * (cos(phi) - cos(phi + m_dp));
-            m_sa_array((int) i, (int) j) = sa;
+            m_sa_array(i, j) = sa;
         }
     }
     m_local_bin_counts.resize({m_n_bins_theta, m_n_bins_phi});
@@ -89,10 +89,9 @@ void BondOrder::reduceBondOrder()
                      = m_local_bin_counts.begin();
                      local_bins != m_local_bin_counts.end(); ++local_bins)
                 {
-                    m_bin_counts((int) i, (int) j) += (*local_bins)((int) i, (int) j);
+                    m_bin_counts(i, j) += (*local_bins)(i, j);
                 }
-                m_bo_array((int) i, (int) j)
-                    = m_bin_counts((int) i, (int) j) / m_sa_array((int) i, (int) j);
+                m_bo_array(i, j) = m_bin_counts(i, j) / m_sa_array(i, j);
             }
         }
     });
@@ -100,10 +99,8 @@ void BondOrder::reduceBondOrder()
     {
         for (unsigned int j = 0; j < m_n_bins_phi; j++)
         {
-            m_bin_counts((int) i, (int) j)
-                = m_bin_counts((int) i, (int) j) / (float) m_frame_counter;
-            m_bo_array((int) i, (int) j)
-                = m_bo_array((int) i, (int) j) / (float) m_frame_counter;
+            m_bin_counts(i, j) = m_bin_counts(i, j) / (float) m_frame_counter;
+            m_bo_array(i, j) = m_bo_array(i, j) / (float) m_frame_counter;
         }
     }
 }

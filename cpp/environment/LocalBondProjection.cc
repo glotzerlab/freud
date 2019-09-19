@@ -78,10 +78,10 @@ void LocalBondProjection::compute(box::Box& box,
     nlist->validate(n_query_points, n_points);
 
     // Get the maximum total number of bonds in the neighbor list
-    const size_t tot_num_neigh = nlist->getNumBonds();
+    const unsigned int tot_num_neigh = nlist->getNumBonds();
 
-    m_local_bond_proj.prepare({static_cast<unsigned int>(tot_num_neigh), n_proj});
-    m_local_bond_proj_norm.prepare({static_cast<unsigned int>(tot_num_neigh), n_proj});
+    m_local_bond_proj.prepare({tot_num_neigh, n_proj});
+    m_local_bond_proj_norm.prepare({tot_num_neigh, n_proj});
 
     // compute the order parameter
     parallel_for(blocked_range<size_t>(0, n_query_points), [=](const blocked_range<size_t>& r) {
