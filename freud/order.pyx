@@ -472,7 +472,7 @@ cdef class Steinhardt(PairCompute):
 
     Args:
         l (unsigned int):
-            Spherical harmonic quantum number l. Must be a positive number.
+            Spherical harmonic quantum number l.
         average (bool, optional):
             Determines whether to calculate the averaged Steinhardt order
             parameter. (Default value = :code:`False`)
@@ -491,8 +491,8 @@ cdef class Steinhardt(PairCompute):
             parameter for each particle (filled with NaN for particles with no
             neighbors).
         norm (float or complex):
-            Stores the system wide normalization of the :math:`Ql` or :math:`Wl`
-            order parameter.
+            Stores the system wide normalization of the :math:`Q_l` or
+            :math:`W_l` order parameter.
     """  # noqa: E501
     cdef freud._order.Steinhardt * stptr
     cdef sph_l
