@@ -291,7 +291,7 @@ cdef class PMFTR12(_PMFT):
                 "n_t2={n_t2})").format(cls=type(self).__name__,
                                        r_max=self.r_max,
                                        n_r=bounds[0][1],
-                                       n_t1=bounds[2][1],
+                                       n_t1=bounds[1][1],
                                        n_t2=bounds[2][1])
 
 
@@ -464,9 +464,9 @@ cdef class PMFTXYT(_PMFT):
                 "n_y={n_y}, n_t={n_t})").format(cls=type(self).__name__,
                                                 x_max=bounds[0][1],
                                                 y_max=bounds[1][1],
-                                                n_x=self.nbins[0],
-                                                n_y=self.nbins[1],
-                                                n_t=self.nbins[2])
+                                                n_x=nbins[0],
+                                                n_y=nbins[1],
+                                                n_t=nbins[2])
 
 
 cdef class PMFTXY2D(_PMFT):
