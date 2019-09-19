@@ -5,6 +5,7 @@ from libcpp cimport bool as cbool
 from libcpp.memory cimport shared_ptr
 
 from cython.operator cimport dereference
+from freud.common cimport Compute
 
 cimport freud._locality
 cimport freud.box
