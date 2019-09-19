@@ -8,9 +8,9 @@
 #endif
 #include <iostream>
 
-#include "CubaticOrderParameter.h"
+#include "Cubatic.h"
 
-/*! \file CubaticOrderParameter.h
+/*! \file Cubatic.h
     \brief Compute the cubatic order parameter for each particle.
 */
 
@@ -90,7 +90,7 @@ void tensor4::copyToManagedArray(util::ManagedArray<float> &ma)
  *
  *  \param a The first tensor.
  *  \param b The second tensor.
- */ 
+ */
 float dot(const tensor4& a, const tensor4& b)
 {
     float c = 0;
@@ -106,7 +106,7 @@ float dot(const tensor4& a, const tensor4& b)
  *  this code to refer to the second term in eqs. 27 in the paper. It is simply
  *  a scaled sum of some delta function products. For convenience, its
  *  calculation is performed in a single function.
- */ 
+ */
 tensor4 genR4Tensor()
 {
     // Construct the identity matrix to build the delta functions.
@@ -135,17 +135,17 @@ tensor4 genR4Tensor()
 }
 
 
-CubaticOrderParameter::CubaticOrderParameter(float t_initial, float t_final, float scale,
+Cubatic::Cubatic(float t_initial, float t_final, float scale,
                                              unsigned int replicates, unsigned int seed)
     : m_t_initial(t_initial), m_t_final(t_final), m_scale(scale), m_n(0), m_replicates(replicates),
       m_seed(seed)
 {
     if (m_t_initial < m_t_final)
-        throw std::invalid_argument("CubaticOrderParameter requires that t_initial must be greater than t_final.");
+        throw std::invalid_argument("Cubatic requires that t_initial must be greater than t_final.");
     if (t_final < 1e-6)
-        throw std::invalid_argument("CubaticOrderParameter requires that t_final must be >= 1e-6.");
+        throw std::invalid_argument("Cubatic requires that t_final must be >= 1e-6.");
     if ((scale > 1) || (scale < 0))
-        throw std::invalid_argument("CubaticOrderParameter requires that scale must be between 0 and 1.");
+        throw std::invalid_argument("Cubatic requires that scale must be between 0 and 1.");
 
     m_gen_r4_tensor = genR4Tensor();
 
@@ -155,7 +155,7 @@ CubaticOrderParameter::CubaticOrderParameter(float t_initial, float t_final, flo
     m_system_vectors[2] = vec3<float>(0, 0, 1);
 }
 
-tensor4 CubaticOrderParameter::calcCubaticTensor(quat<float> &orientation)
+tensor4 Cubatic::calcCubaticTensor(quat<float> &orientation)
 {
     tensor4 calculated_tensor = tensor4();
     for (unsigned int i = 0; i < 3; i++)
@@ -165,13 +165,13 @@ tensor4 CubaticOrderParameter::calcCubaticTensor(quat<float> &orientation)
     return calculated_tensor*float(2.0) - m_gen_r4_tensor;
 }
 
-float CubaticOrderParameter::calcCubaticOrderParameter(const tensor4 &cubatic_tensor, const tensor4 &global_tensor) const
+float Cubatic::calcCubaticOrderParameter(const tensor4 &cubatic_tensor, const tensor4 &global_tensor) const
 {
     tensor4 diff = global_tensor - cubatic_tensor;
     return float(1.0) - dot(diff, diff) / dot(cubatic_tensor, cubatic_tensor);
 }
 
-quat<float> CubaticOrderParameter::calcRandomQuaternion(Saru& saru, float angle_multiplier = 1.0) const
+quat<float> Cubatic::calcRandomQuaternion(Saru& saru, float angle_multiplier = 1.0) const
 {
     float theta = saru.s<float>(0, 2.0 * M_PI);
     float phi = acos(2.0 * saru.s<float>(0, 1) - 1.0);
@@ -182,7 +182,7 @@ quat<float> CubaticOrderParameter::calcRandomQuaternion(Saru& saru, float angle_
     return quat<float>::fromAxisAngle(axis, angle);
 }
 
-util::ManagedArray<tensor4> CubaticOrderParameter::calculatePerParticleTensor(const quat<float>* orientations) const
+util::ManagedArray<tensor4> Cubatic::calculatePerParticleTensor(const quat<float>* orientations) const
 {
     util::ManagedArray<tensor4> particle_tensor({m_n});
 
@@ -207,7 +207,7 @@ util::ManagedArray<tensor4> CubaticOrderParameter::calculatePerParticleTensor(co
     return particle_tensor;
 }
 
-tensor4 CubaticOrderParameter::calculateGlobalTensor(quat<float>* orientations) const
+tensor4 Cubatic::calculateGlobalTensor(quat<float>* orientations) const
 {
     tensor4 global_tensor = tensor4();
     util::ManagedArray<tensor4> particle_tensor = calculatePerParticleTensor(orientations);
@@ -234,7 +234,7 @@ tensor4 CubaticOrderParameter::calculateGlobalTensor(quat<float>* orientations) 
     return global_tensor - m_gen_r4_tensor;
 }
 
-void CubaticOrderParameter::compute(quat<float>* orientations, unsigned int num_orientations)
+void Cubatic::compute(quat<float>* orientations, unsigned int num_orientations)
 {
     m_n = num_orientations;
     m_particle_order_parameter.prepare(m_n);

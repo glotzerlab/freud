@@ -23,16 +23,16 @@ class TestCubatic(unittest.TestCase):
         t_final = 0.001
         scale = 0.95
         n_replicates = 10
-        cop = freud.order.CubaticOrderParameter(
+        cop = freud.order.Cubatic(
             t_initial, t_final, scale, n_replicates)
 
         # Test access
         with self.assertRaises(AttributeError):
-            cop.cubatic_order_parameter
+            cop.order
         with self.assertRaises(AttributeError):
             cop.orientation
         with self.assertRaises(AttributeError):
-            cop.particle_order_parameter
+            cop.particle_order
         with self.assertRaises(AttributeError):
             cop.global_tensor
         with self.assertRaises(AttributeError):
@@ -41,16 +41,16 @@ class TestCubatic(unittest.TestCase):
         cop.compute(orientations)
 
         # Test access
-        cop.cubatic_order_parameter
+        cop.order
         cop.orientation
-        cop.particle_order_parameter
+        cop.particle_order
         cop.global_tensor
         cop.cubatic_tensor
 
         # Test values of the OP
-        self.assertAlmostEqual(cop.cubatic_order_parameter, 1, places=2,
+        self.assertAlmostEqual(cop.order, 1, places=2,
                                msg="Cubatic Order is not approx. 1")
-        self.assertGreater(np.nanmin(cop.particle_order_parameter), 0.9,
+        self.assertGreater(np.nanmin(cop.particle_order), 0.9,
                            msg="Per particle order parameter value is too low")
 
         # Test attributes
@@ -83,12 +83,12 @@ class TestCubatic(unittest.TestCase):
         orientations = rowan.from_axis_angle(axes, angles)
 
         # create cubatic object
-        cubaticOP = freud.order.CubaticOrderParameter(5.0, 0.001, 0.95, 10)
-        cubaticOP.compute(orientations)
+        cubatic = freud.order.Cubatic(5.0, 0.001, 0.95, 10)
+        cubatic.compute(orientations)
         # get the op
-        op = cubaticOP.cubatic_order_parameter
+        op = cubatic.order
 
-        pop = cubaticOP.particle_order_parameter
+        pop = cubatic.particle_order
         op_max = np.nanmax(pop)
 
         npt.assert_array_less(op, 0.3, err_msg="Cubatic Order is > 0.3")
@@ -97,8 +97,8 @@ class TestCubatic(unittest.TestCase):
             err_msg="per particle order parameter value is too high")
 
     def test_repr(self):
-        cubaticOP = freud.order.CubaticOrderParameter(5.0, 0.001, 0.95, 10)
-        self.assertEqual(str(cubaticOP), str(eval(repr(cubaticOP))))
+        cubatic = freud.order.Cubatic(5.0, 0.001, 0.95, 10)
+        self.assertEqual(str(cubatic), str(eval(repr(cubatic))))
 
 
 if __name__ == '__main__':

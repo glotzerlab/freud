@@ -106,8 +106,6 @@ class TestSteinhardt(unittest.TestCase):
             npt.assert_allclose(comp.order, comp.order[0], atol=1e-5)
             self.assertAlmostEqual(comp.norm, PERFECT_FCC_W6, delta=1e-5)
 
-        self.assertEqual(len(positions), comp.num_particles)
-
     def test_identical_environments_Wl_near(self):
         (box, positions) = util.make_fcc(4, 4, 4)
         r_max = 1.5
@@ -130,8 +128,6 @@ class TestSteinhardt(unittest.TestCase):
             npt.assert_allclose(comp.order, comp.order[0], atol=1e-5)
             self.assertAlmostEqual(
                 np.real(comp.norm), PERFECT_FCC_W6, delta=1e-5)
-
-            self.assertEqual(len(positions), comp.num_particles)
 
     def test_weighted(self):
         (box, positions) = util.make_fcc(4, 4, 4)
@@ -174,8 +170,6 @@ class TestSteinhardt(unittest.TestCase):
                 with self.assertRaises(AssertionError):
                     npt.assert_allclose(
                         np.real(comp.norm), PERFECT_FCC_W6, rtol=1e-5)
-
-            self.assertEqual(len(positions), comp.num_particles)
 
     def test_attribute_access(self):
         comp = freud.order.Steinhardt(6)

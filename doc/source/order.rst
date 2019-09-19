@@ -7,10 +7,10 @@ Order Module
 .. autosummary::
     :nosignatures:
 
-    freud.order.CubaticOrderParameter
-    freud.order.NematicOrderParameter
-    freud.order.HexOrderParameter
-    freud.order.TransOrderParameter
+    freud.order.Cubatic
+    freud.order.Nematic
+    freud.order.Hexatic
+    freud.order.Translational
     freud.order.Steinhardt
     freud.order.SolLiq
     freud.order.SolLiqNear
@@ -24,25 +24,25 @@ Order Module
 Cubatic Order Parameter
 =======================
 
-.. autoclass:: freud.order.CubaticOrderParameter(t_initial, t_final, scale, n_replicates, seed)
+.. autoclass:: freud.order.Cubatic(t_initial, t_final, scale, n_replicates, seed)
     :members: compute
 
 Nematic Order Parameter
 =======================
 
-.. autoclass:: freud.order.NematicOrderParameter(u)
+.. autoclass:: freud.order.Nematic(u)
     :members: compute
 
 Hexatic Order Parameter
 =======================
 
-.. autoclass:: freud.order.HexOrderParameter(r_max, k=6, num_neighbors=0)
+.. autoclass:: freud.order.Hexatic(k=6)
     :members: compute
 
 Translational Order Parameter
 =============================
 
-.. autoclass:: freud.order.TransOrderParameter(r_max, k=6.0, num_neighbors=0)
+.. autoclass:: freud.order.Translational(k=6.0)
     :members: compute
 
 Steinhardt Order Parameters

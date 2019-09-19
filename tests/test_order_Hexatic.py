@@ -5,37 +5,31 @@ import unittest
 import util
 
 
-class TestHexOrderParameter(unittest.TestCase):
+class TestHexatic(unittest.TestCase):
     def test_getK(self):
-        r_max = 3
-        hop = freud.order.HexOrderParameter(r_max)
-        npt.assert_equal(hop.K, 6)
+        hop = freud.order.Hexatic()
+        npt.assert_equal(hop.k, 6)
 
     def test_getK_pass(self):
-        r_max = 3
         k = 3
-        hop = freud.order.HexOrderParameter(r_max, k)
-        npt.assert_equal(hop.K, 3)
+        hop = freud.order.Hexatic(k)
+        npt.assert_equal(hop.k, 3)
 
-    def test_getNP(self):
+    def test_order_size(self):
         boxlen = 10
         N = 500
-        r_max = 3
-        box, points = util.make_box_and_random_points(boxlen, N, True)
-        hop = freud.order.HexOrderParameter(r_max)
+        box, points = util.make_box_and_random_points(boxlen, N, is2D=True)
+        hop = freud.order.Hexatic()
         hop.compute(box, points)
-        npt.assert_equal(hop.num_particles, N)
+        npt.assert_equal(len(hop.order), N)
 
     def test_compute_random(self):
         boxlen = 10
         N = 500
-        r_max = 3
-        box, points = util.make_box_and_random_points(boxlen, N, True)
-        hop = freud.order.HexOrderParameter(r_max)
+        box, points = util.make_box_and_random_points(boxlen, N, is2D=True)
+        hop = freud.order.Hexatic()
         hop.compute(box, points)
-        npt.assert_allclose(np.mean(hop.psi), 0. + 0.j, atol=1e-1)
-
-        self.assertTrue(hop.box == box)
+        npt.assert_allclose(np.mean(hop.order), 0. + 0.j, atol=1e-1)
 
     def test_compute(self):
         boxlen = 10
@@ -50,29 +44,25 @@ class TestHexOrderParameter(unittest.TestCase):
 
         points = np.asarray(points, dtype=np.float32)
         points[:, 2] = 0.0
-        hop = freud.order.HexOrderParameter(r_max)
+        hop = freud.order.Hexatic()
 
         # Test access
+        hop.k
         with self.assertRaises(AttributeError):
-            hop.num_particles
-        with self.assertRaises(AttributeError):
-            hop.box
-        with self.assertRaises(AttributeError):
-            hop.psi
+            hop.order
 
         test_set = util.make_raw_query_nlist_test_set(
             box, points, points, 'nearest', r_max, 6, True)
         for ts in test_set:
             hop.compute(box, ts[0], nlist=ts[1])
             # Test access
-            hop.num_particles
-            hop.box
-            hop.psi
+            hop.k
+            hop.order
 
-            npt.assert_allclose(hop.psi[0], 1. + 0.j, atol=1e-1)
+            npt.assert_allclose(hop.order[0], 1. + 0.j, atol=1e-1)
 
     def test_repr(self):
-        hop = freud.order.HexOrderParameter(3.0, 6, 7)
+        hop = freud.order.Hexatic(3)
         self.assertEqual(str(hop), str(eval(repr(hop))))
 
 
