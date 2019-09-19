@@ -439,14 +439,9 @@ cdef class LocalDescriptors(Compute):
 
     @Compute._computed_property()
     def sph(self):
-        cdef unsigned int n_sphs = self.thisptr.getNSphs()
-        cdef unsigned int sph_width = self.thisptr.getSphWidth()
-        if not n_sphs or not sph_width:
-            return np.asarray([[]], dtype=np.complex64)
-        cdef np.complex64_t[:, ::1] sph = \
-            <np.complex64_t[:n_sphs, :sph_width]> \
-            self.thisptr.getSph().get()
-        return np.asarray(sph, dtype=np.complex64)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getSphWidth(),
+            freud.util.arr_type_t.COMPLEX_FLOAT)
 
     @Compute._computed_property()
     def num_particles(self):

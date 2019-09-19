@@ -50,7 +50,7 @@ cdef extern from "LocalDescriptors.h" namespace "freud::environment":
             const vec3[float]*, unsigned int,
             const quat[float]*, LocalDescriptorOrientation,
             const freud._locality.NeighborList*) except +
-        shared_ptr[float complex] getSph()
+        const freud.util.ManagedArray[float complex] &getSph()
 
 cdef extern from "MatchEnv.h" namespace "freud::environment":
     cdef cppclass MatchEnv:
