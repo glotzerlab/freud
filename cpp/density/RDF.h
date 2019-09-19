@@ -101,7 +101,7 @@ public:
     std::vector<float> getBins() const
     {
         // RDFs are always 1D histograms, so we just return the first element.
-        return m_histogram.getBinBoundaries()[0];
+        return m_histogram.getBinEdges()[0];
     }
 
 private:
