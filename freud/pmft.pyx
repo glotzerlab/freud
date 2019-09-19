@@ -131,10 +131,6 @@ cdef class _PMFT(SpatialHistogram):
             &self.pmftptr.getPCF(),
             freud.util.arr_type_t.FLOAT)
 
-    @property
-    def r_max(self):
-        return self.pmftptr.getRMax()
-
 
 cdef class PMFTR12(_PMFT):
     R"""Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in a 2D

@@ -47,9 +47,6 @@ PMFTXYZ::PMFTXYZ(float x_max, float y_max, float z_max, unsigned int n_x, unsign
     axes.push_back(std::make_shared<util::RegularAxis>(n_z, -z_max, z_max));
     m_histogram = util::Histogram(axes);
     m_local_histograms = util::Histogram::ThreadLocalHistogram(m_histogram);
-
-    // Set r_max
-    m_r_max = sqrtf(x_max * x_max + y_max * y_max + z_max * z_max);
 }
 
 //! \internal

@@ -36,6 +36,7 @@ public:
     }
 
 private:
+    float m_r_max;
     util::ManagedArray<float> m_inv_jacobian_array; //!< Array of inverse jacobians for each bin
 };
 

@@ -32,7 +32,7 @@ class PMFT
 {
 public:
     //! Constructor
-    PMFT() : m_box(box::Box()), m_frame_counter(0), m_n_points(0) , m_n_query_points(0), m_reduce(true), m_r_max(0) {}
+    PMFT() : m_box(box::Box()), m_frame_counter(0), m_n_points(0) , m_n_query_points(0), m_reduce(true) {}
 
     //! Destructor
     virtual ~PMFT() {};
@@ -54,11 +54,6 @@ public:
     virtual void reduce()
     {
         reducePCF();
-    }
-
-    float getRMax()
-    {
-        return m_r_max;
     }
 
     //! Get bin centers.
@@ -117,27 +112,6 @@ public:
         m_reduce = true;
     }
 
-    //! Helper function to precompute axis bin center,
-    util::ManagedArray<float> precomputeAxisBinCenter(unsigned int size, float d, float max)
-    {
-        return precomputeArrayGeneral(size, d, [=](float T, float nextT) { return -max + ((T + nextT) / 2.0); });
-    }
-
-    //! Helper function to precompute array with the following logic.
-    //! :code:`Func cf` should be some sort of (float)(float, float).
-    template<typename Func>
-    util::ManagedArray<float> precomputeArrayGeneral(unsigned int size, float d, Func cf)
-    {
-        util::ManagedArray<float> arr({size});
-        for (unsigned int i = 0; i < size; i++)
-        {
-            float T = float(i) * d ;
-            float nextT = float(i + 1) * d;
-            arr[i] = cf(T, nextT);
-        }
-        return arr;
-    }
-
     //! Helper function to reduce three dimensionally with appropriate Jacobian.
     template<typename JacobFactor>
     void reduce(JacobFactor jf)
@@ -191,7 +165,6 @@ protected:
     unsigned int m_n_points;         //!< The number of points.
     unsigned int m_n_query_points;   //!< The number of query points.
     bool m_reduce;                   //!< Whether or not the histogram needs to be reduced.
-    float m_r_max; //!< r_max used in cell list construction
 
     util::ManagedArray<float> m_pcf_array;         //!< Array of computed pair correlation function.
     util::Histogram m_histogram; //!< Counts for each bin.

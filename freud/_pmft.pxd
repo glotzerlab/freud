@@ -17,7 +17,6 @@ cdef extern from "PMFT.h" namespace "freud::pmft":
         void reset()
         const freud.util.ManagedArray[unsigned int] &getBinCounts()
         const freud.util.ManagedArray[float] &getPCF()
-        float getRMax()
         vector[vector[float]] getBinEdges() const
         vector[vector[float]] getBinCenters() const
         vector[pair[float, float]] getBounds() const
