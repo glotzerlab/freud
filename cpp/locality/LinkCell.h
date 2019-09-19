@@ -54,11 +54,11 @@ const unsigned int LINK_CELL_TERMINATOR = 0xffffffff;
 class IteratorLinkCell
 {
 public:
-    IteratorLinkCell() : m_cell_list(NULL), m_Np(0), m_Nc(0), m_cur_idx(LINK_CELL_TERMINATOR), m_cell(0) {}
+    IteratorLinkCell() : m_Np(0), m_Nc(0), m_cur_idx(LINK_CELL_TERMINATOR), m_cell(0) {}
 
-    IteratorLinkCell(const std::shared_ptr<unsigned int>& cell_list, unsigned int Np, unsigned int Nc,
+    IteratorLinkCell(const util::ManagedArray<unsigned int> cell_list, unsigned int Np, unsigned int Nc,
                      unsigned int cell)
-        : m_cell_list(cell_list.get()), m_Np(Np), m_Nc(Nc)
+        : m_cell_list(cell_list), m_Np(Np), m_Nc(Nc)
     {
         assert(cell < Nc);
         assert(Np > 0);
@@ -99,7 +99,7 @@ public:
     }
 
 private:
-    const unsigned int* m_cell_list; //!< The cell list
+    util::ManagedArray<unsigned int> m_cell_list; //!< The cell list
     unsigned int m_Np;               //!< Number of particles in the cell list
     unsigned int m_Nc;               //!< Number of cells in the cell list
     unsigned int m_cur_idx;          //!< Current index
@@ -418,7 +418,6 @@ public:
     //! Iterate over particles in a cell
     iteratorcell itercell(unsigned int cell) const
     {
-        assert(m_cell_list.get() != NULL);
         return iteratorcell(m_cell_list, m_n_points, getNumCells(), cell);
     }
 
@@ -468,7 +467,7 @@ private:
     float m_cell_width;           //!< Minimum necessary cell width cutoff
     vec3<unsigned int> m_celldim; //!< Cell dimensions
 
-    std::shared_ptr<unsigned int> m_cell_list; //!< The cell list last computed
+    util::ManagedArray<unsigned int> m_cell_list; //!< The cell list last computed
     typedef tbb::concurrent_hash_map<unsigned int, std::vector<unsigned int>> CellNeighbors;
     CellNeighbors m_cell_neighbors; //!< Hash map of cell neighbors for each cell
     NeighborList m_neighbor_list;   //!< Stored neighbor list

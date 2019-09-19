@@ -100,18 +100,14 @@ void LinkCell::computeCellList(const vec3<float>* points, unsigned int n_points)
     // determine the number of cells and allocate memory
     unsigned int Nc = getNumCells();
     assert(Nc > 0);
-    if ((m_n_points != n_points) || (m_Nc != Nc))
-    {
-        m_cell_list
-            = std::shared_ptr<unsigned int>(new unsigned int[n_points + Nc], std::default_delete<unsigned int[]>());
-    }
+    m_cell_list.prepare(n_points + Nc);
     m_n_points = n_points;
     m_Nc = Nc;
 
     // initialize memory
     for (unsigned int cell = 0; cell < Nc; cell++)
     {
-        m_cell_list.get()[n_points + cell] = LINK_CELL_TERMINATOR;
+        m_cell_list[n_points + cell] = LINK_CELL_TERMINATOR;
     }
 
     assert(points);
@@ -120,8 +116,8 @@ void LinkCell::computeCellList(const vec3<float>* points, unsigned int n_points)
     for (int i = n_points - 1; i >= 0; i--)
     {
         unsigned int cell = getCell(points[i]);
-        m_cell_list.get()[i] = m_cell_list.get()[n_points + cell];
-        m_cell_list.get()[n_points + cell] = i;
+        m_cell_list[i] = m_cell_list[n_points + cell];
+        m_cell_list[n_points + cell] = i;
     }
 }
 
