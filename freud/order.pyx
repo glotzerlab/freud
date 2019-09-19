@@ -655,11 +655,6 @@ cdef class SolidLiquid(PairCompute):
 
     def __cinit__(self, l, Q_threshold, S_threshold, normalize_Q=True,
                   common_neighbors=False):
-        self.sph_l = l
-        self.Q_threshold = Q_threshold
-        self.S_threshold = S_threshold
-        self.normalize_Q = normalize_Q
-        self.common_neighbors = common_neighbors
         self.thisptr = new freud._order.SolidLiquid(
             l, Q_threshold, S_threshold, normalize_Q, common_neighbors)
 
@@ -718,46 +713,34 @@ cdef class SolidLiquid(PairCompute):
 
     @Compute._computed_property()
     def clusters(self):
-        return []
-        """
-        cdef unsigned int n_particles = self.thisptr.getNP()
-        cdef const unsigned int[::1] clusters = \
-            <unsigned int[:n_particles]> self.thisptr.getClusters().get()
-        return np.asarray(clusters, dtype=np.uint32)
-        """
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getClusterIdx(),
+            freud.util.arr_type_t.UNSIGNED_INT)
 
     @Compute._computed_property()
     def cluster_sizes(self):
-        cdef unsigned int n_clusters = self.thisptr.getNumClusters()
-        cdef const unsigned int[::1] cluster_sizes = \
-            <unsigned int[:n_clusters]> self.thisptr.getClusterSizes().data()
-        return np.asarray(cluster_sizes, dtype=np.uint32)
+        return np.asarray(self.thisptr.getClusterSizes(), dtype=np.uint32)
 
     @Compute._computed_property()
     def largest_cluster_size(self):
-        cdef unsigned int clusterSize = self.thisptr.getLargestClusterSize()
-        return clusterSize
+        return self.thisptr.getLargestClusterSize()
 
     @Compute._computed_property()
     def num_connections(self):
-        return []
-        """
-        cdef unsigned int n_particles = self.thisptr.getNP()
-        cdef const unsigned int[::1] num_connections = \
-            <unsigned int[:n_particles]> \
-            self.thisptr.getNumberOfConnections().get()
-        return np.asarray(num_connections, dtype=np.uint32)
-        """
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getNumberOfConnections(),
+            freud.util.arr_type_t.UNSIGNED_INT)
 
     def __repr__(self):
         return ("freud.order.{cls}(l={sph_l}, Q_threshold={Q_threshold}, "
-                "S_threshold={S_threshold}, "
-                "normalize_Q={normalize_Q})").format(
+                "S_threshold={S_threshold}, normalize_Q={normalize_Q}, "
+                "common_neighbors={common_neighbors})").format(
                     cls=type(self).__name__,
-                    sph_l=self.sph_l,
+                    sph_l=self.l,
                     Q_threshold=self.Q_threshold,
                     S_threshold=self.S_threshold,
-                    normalize_Q=self.normalize_Q)
+                    normalize_Q=self.normalize_Q,
+                    common_neighbors=self.common_neighbors)
 
 
 cdef class RotationalAutocorrelation(Compute):

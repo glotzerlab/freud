@@ -94,7 +94,7 @@ cdef extern from "SolidLiquid.h" namespace "freud::order":
                      freud._locality.QueryArgs) nogil except +
         unsigned int getLargestClusterSize()
         vector[unsigned int] getClusterSizes()
-        const freud.util.ManagedArray[unsigned int] &getClusters()
+        const freud.util.ManagedArray[unsigned int] &getClusterIdx()
         const freud.util.ManagedArray[unsigned int] &getNumberOfConnections()
         unsigned int getNumClusters()
 

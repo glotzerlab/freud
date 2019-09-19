@@ -15,6 +15,7 @@
 #include "Cluster.h"
 #include "ManagedArray.h"
 #include "NeighborList.h"
+#include "NeighborComputeFunctional.h"
 #include "Steinhardt.h"
 #include "ThreadStorage.h"
 #include "VectorMath.h"
@@ -92,7 +93,7 @@ public:
 
     //! Get a reference to the last computed set of solid-like cluster
     //  indices for each particle
-    const util::ManagedArray<unsigned int> &getClusters()
+    const util::ManagedArray<unsigned int> &getClusterIdx()
     {
         return m_cluster.getClusterIdx();
     }
@@ -109,16 +110,17 @@ public:
     }
 
 private:
-    unsigned int m_l;                                  //!< Value of l for the spherical harmonic.
-    float m_Q_threshold;                               //!< Dot product cutoff
-    unsigned int m_S_threshold;                        //!< Solid-like num connections cutoff
-    bool m_normalize_Q;                                //!< Whether to normalize the Qlmi dot products.
-    bool m_common_neighbors;                           //!< Whether to threshold on common neighbors.
+    unsigned int m_l;                       //!< Value of l for the spherical harmonic.
+    unsigned int m_num_ms;                  //!< The number of magnetic quantum numbers (2*m_l+1).
+    float m_Q_threshold;                    //!< Dot product cutoff
+    unsigned int m_S_threshold;             //!< Solid-like num connections cutoff
+    bool m_normalize_Q;                     //!< Whether to normalize the Qlmi dot products.
+    bool m_common_neighbors;                //!< Whether to threshold on common neighbors.
 
-    freud::order::Steinhardt m_steinhardt;             //!< Steinhardt class used to compute Qlm
-    freud::cluster::Cluster m_cluster;                 //!< Cluster class used to cluster solid-like bonds
+    freud::order::Steinhardt m_steinhardt;  //!< Steinhardt class used to compute Qlm
+    freud::cluster::Cluster m_cluster;      //!< Cluster class used to cluster solid-like bonds
 
-    std::vector<std::complex<float>> m_qldot_ij; //!< All of the Qlmi dot Qlmj's computed
+    util::ManagedArray<std::complex<float>> m_ql_dot_ij; //!< All of the Qlmi dot Qlmj's computed
     //! Number of connections for each particle with dot product above Q_threshold
     util::ManagedArray<unsigned int> m_number_of_connections;
     util::ThreadStorage<unsigned int> m_number_of_connections_local;
