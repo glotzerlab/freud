@@ -142,11 +142,11 @@ void Nematic::compute(quat<float>* orientations, unsigned int n)
         m_nematic_tensor[i] = matrix.y_[i] / m_n;
 
     // the order parameter is the eigenvector belonging to the largest eigenvalue
-    Index2D a_i = Index2D(3);
-    float evec[9];
-    float eval[3];
+    util::ManagedArray<float> eval = util::ManagedArray<float>(3);
+    util::ManagedArray<float> evec = util::ManagedArray<float>({3, 3});
+
     freud::util::diagonalize33SymmetricMatrix(m_nematic_tensor, eval, evec);
-    m_nematic_director = vec3<Scalar>(evec[a_i(0, 2)], evec[a_i(1, 2)], evec[a_i(2, 2)]);
+    m_nematic_director = vec3<Scalar>(evec(2, 0), evec(2, 1), evec(2, 2));
     m_nematic_order_parameter = eval[2];
 }
 

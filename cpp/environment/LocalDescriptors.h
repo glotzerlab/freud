@@ -7,6 +7,7 @@
 #include <memory>
 
 #include "Box.h"
+#include "ManagedArray.h"
 #include "NeighborList.h"
 #include "VectorMath.h"
 #include "fsph/src/spherical_harmonics.hpp"
@@ -63,7 +64,7 @@ public:
         const freud::locality::NeighborList* nlist);
 
     //! Get a reference to the last computed spherical harmonic array
-    std::shared_ptr<std::complex<float>> getSph()
+    util::ManagedArray<std::complex<float>> getSph()
     {
         return m_sphArray;
     }
@@ -80,7 +81,7 @@ private:
     unsigned int m_nSphs; //!< Last number of bond spherical harmonics computed
 
     //! Spherical harmonics for each neighbor
-    std::shared_ptr<std::complex<float>> m_sphArray;
+    util::ManagedArray<std::complex<float>> m_sphArray;
 };
 
 }; }; // end namespace freud::environment

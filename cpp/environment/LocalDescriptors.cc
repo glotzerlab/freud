@@ -33,14 +33,7 @@ void LocalDescriptors::compute(const box::Box& box,
 {
     nlist->validate(n_query_points, n_points);
 
-    // reallocate the output array if it is not the right size
-    if (m_nSphs < nlist->getNumBonds())
-    {
-        m_sphArray = std::shared_ptr<complex<float>>(new complex<float>[nlist->getNumBonds() * getSphWidth()],
-                                                     std::default_delete<complex<float>[]>());
-    }
-
-    std::complex<float>* const sph_array(m_sphArray.get());
+    m_sphArray.prepare({nlist->getNumBonds(), getSphWidth()});
 
     parallel_for(blocked_range<size_t>(0, n_points), [=](const blocked_range<size_t>& br) {
         fsph::PointSPHEvaluator<float> sph_eval(m_l_max);
@@ -54,11 +47,7 @@ void LocalDescriptors::compute(const box::Box& box,
 
             if (orientation == LocalNeighborhood)
             {
-                Index2D a_i(3);
-                float inertiaTensor[9];
-                for (size_t ii(0); ii < 3; ++ii)
-                    for (size_t jj(0); jj < 3; ++jj)
-                        inertiaTensor[a_i(ii, jj)] = 0;
+                util::ManagedArray<float> inertiaTensor = util::ManagedArray<float>({3, 3});
 
                 for (size_t bond_copy(bond); bond_copy < nlist->getNumBonds()
                      && nlist->getNeighbors()(bond_copy, 0) == i && bond_copy < bond + num_neighbors;
@@ -71,31 +60,31 @@ void LocalDescriptors::compute(const box::Box& box,
 
                     for (size_t ii(0); ii < 3; ++ii)
                     {
-                        inertiaTensor[a_i(ii, ii)] += r_sq;
+                        inertiaTensor(ii, ii) += r_sq;
                     }
 
-                    inertiaTensor[a_i(0, 0)] -= r_ij.x * r_ij.x;
-                    inertiaTensor[a_i(0, 1)] -= r_ij.x * r_ij.y;
-                    inertiaTensor[a_i(0, 2)] -= r_ij.x * r_ij.z;
-                    inertiaTensor[a_i(1, 0)] -= r_ij.x * r_ij.y;
-                    inertiaTensor[a_i(1, 1)] -= r_ij.y * r_ij.y;
-                    inertiaTensor[a_i(1, 2)] -= r_ij.y * r_ij.z;
-                    inertiaTensor[a_i(2, 0)] -= r_ij.x * r_ij.z;
-                    inertiaTensor[a_i(2, 1)] -= r_ij.y * r_ij.z;
-                    inertiaTensor[a_i(2, 2)] -= r_ij.z * r_ij.z;
+                    inertiaTensor(0, 0) -= r_ij.x * r_ij.x;
+                    inertiaTensor(0, 1) -= r_ij.x * r_ij.y;
+                    inertiaTensor(0, 2) -= r_ij.x * r_ij.z;
+                    inertiaTensor(1, 0) -= r_ij.x * r_ij.y;
+                    inertiaTensor(1, 1) -= r_ij.y * r_ij.y;
+                    inertiaTensor(1, 2) -= r_ij.y * r_ij.z;
+                    inertiaTensor(2, 0) -= r_ij.x * r_ij.z;
+                    inertiaTensor(2, 1) -= r_ij.y * r_ij.z;
+                    inertiaTensor(2, 2) -= r_ij.z * r_ij.z;
                 }
 
-                float eigenvalues[3];
-                float eigenvectors[9];
+                util::ManagedArray<float> eigenvalues = util::ManagedArray<float>(3);
+                util::ManagedArray<float> eigenvectors = util::ManagedArray<float>({3, 3});
 
                 freud::util::diagonalize33SymmetricMatrix(inertiaTensor, eigenvalues, eigenvectors);
 
                 rotation_0
-                    = vec3<float>(eigenvectors[a_i(0, 0)], eigenvectors[a_i(1, 0)], eigenvectors[a_i(2, 0)]);
+                    = vec3<float>(eigenvectors(0, 0), eigenvectors(0, 1), eigenvectors(0, 2));
                 rotation_1
-                    = vec3<float>(eigenvectors[a_i(0, 1)], eigenvectors[a_i(1, 1)], eigenvectors[a_i(2, 1)]);
+                    = vec3<float>(eigenvectors(1, 0), eigenvectors(1, 1), eigenvectors(1, 2));
                 rotation_2
-                    = vec3<float>(eigenvectors[a_i(0, 2)], eigenvectors[a_i(1, 2)], eigenvectors[a_i(2, 2)]);
+                    = vec3<float>(eigenvectors(2, 0), eigenvectors(2, 1), eigenvectors(2, 2));
             }
             else if (orientation == ParticleLocal)
             {
@@ -139,7 +128,7 @@ void LocalDescriptors::compute(const box::Box& box,
 
                 sph_eval.compute(phi, theta);
 
-                std::copy(sph_eval.begin(m_negative_m), sph_eval.end(), &sph_array[sphCount]);
+                std::copy(sph_eval.begin(m_negative_m), sph_eval.end(), &m_sphArray[sphCount]);
             }
         }
     });

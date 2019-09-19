@@ -53,6 +53,14 @@ public:
         prepare(shape, true);
     }
 
+    //! Constructor based on a shape tuple.
+    /*! Including a default value for the shape allows the usage of this
+     *  constructor as the default constructor.
+     *
+     *  \param shape Shape of the array to allocate.
+     */
+    ManagedArray(unsigned int size) : ManagedArray(std::vector<unsigned int> {size}) {}
+
     //! Destructor (currently empty because data is managed by shared pointer).
     ~ManagedArray() {}
 
@@ -102,10 +110,13 @@ public:
     }
 
     //! Return the underlying pointer (requires two levels of indirection).
-    /*! This function SHOULD NOT BE USED. It is only part of the public API for
-     * the purpose of freud's Python API, which requires a non-const pointer to
-     * the data to construct a numpy array. However, this pointer to the
-     * underlying should never be accessed by client code.
+    /*! This function should only be used by client code when a raw pointer is
+     * absolutely required. It is primarily part of the public API for the
+     * purpose of freud's Python API, which requires a non-const pointer to the
+     * data to construct a numpy array. There are specific use-cases (e.g.
+     * interacting with Eigen) where directly accessing the underlying data
+     * pointer is valuable, but users should be cautious about overusing calls
+     * to get() rather than using the various operators provided by the class.
      */
     T *get() const
     {
