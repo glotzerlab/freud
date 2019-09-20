@@ -7,13 +7,13 @@ namespace freud { namespace locality {
 
 NeighborList::NeighborList()
     : m_num_query_points(0), m_num_points(0), m_neighbors({0, 2}),
-    m_distances({0}), m_weights({0}), m_segments_counts_updated(false)
+    m_distances(0), m_weights(0), m_segments_counts_updated(false)
 {
 }
 
 NeighborList::NeighborList(unsigned int num_bonds)
     : m_num_query_points(0), m_num_points(0), m_neighbors({num_bonds, 2}),
-    m_distances({num_bonds}), m_weights({num_bonds}), m_segments_counts_updated(false)
+    m_distances(num_bonds), m_weights(num_bonds), m_segments_counts_updated(false)
 {
 }
 
@@ -28,8 +28,8 @@ NeighborList::NeighborList(unsigned int num_bonds, const unsigned int* query_poi
                  unsigned int num_query_points, const unsigned int* point_index,
                  unsigned int num_points, const float* distances, const float* weights)
     : m_num_query_points(num_query_points), m_num_points(num_points),
-    m_neighbors({num_bonds, 2}), m_distances({num_bonds}),
-    m_weights({num_bonds}), m_segments_counts_updated(false)
+    m_neighbors({num_bonds, 2}), m_distances(num_bonds),
+    m_weights(num_bonds), m_segments_counts_updated(false)
 {
     unsigned int last_index(0);
     unsigned int index(0);
@@ -152,8 +152,8 @@ unsigned int NeighborList::find_first_index(unsigned int i) const
 void NeighborList::resize(unsigned int num_bonds)
 {
     auto new_neighbors = util::ManagedArray<unsigned int>({num_bonds, 2});
-    auto new_distances = util::ManagedArray<float>({num_bonds});
-    auto new_weights = util::ManagedArray<float>({num_bonds});
+    auto new_distances = util::ManagedArray<float>(num_bonds);
+    auto new_weights = util::ManagedArray<float>(num_bonds);
 
     // On shrinking resizes, keep existing data.
     if (num_bonds <= getNumBonds())

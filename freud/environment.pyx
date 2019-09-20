@@ -438,14 +438,9 @@ cdef class LocalDescriptors(Compute):
 
     @Compute._computed_property()
     def sph(self):
-        cdef unsigned int n_sphs = self.thisptr.getNSphs()
-        cdef unsigned int sph_width = self.thisptr.getSphWidth()
-        if not n_sphs or not sph_width:
-            return np.asarray([[]], dtype=np.complex64)
-        cdef np.complex64_t[:, ::1] sph = \
-            <np.complex64_t[:n_sphs, :sph_width]> \
-            self.thisptr.getSph().get()
-        return np.asarray(sph, dtype=np.complex64)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getSph(),
+            freud.util.arr_type_t.COMPLEX_FLOAT)
 
     @Compute._computed_property()
     def num_particles(self):
@@ -512,16 +507,6 @@ cdef class MatchEnv(Compute):
     def __dealloc__(self):
         del self.thisptr
 
-    def setBox(self, box):
-        R"""Reset the simulation box.
-
-        Args:
-            box (:class:`freud.box.Box`): Simulation box.
-        """
-        cdef freud.box.Box b = freud.common.convert_box(box)
-        self.thisptr.setBox(dereference(b.thisptr))
-        self.m_box = box
-
     @Compute._compute()
     def cluster(self, points, threshold, hard_r=False, registration=False,
                 global_search=False, env_nlist=None, nlist=None):
@@ -534,8 +519,8 @@ cdef class MatchEnv(Compute):
                 Maximum magnitude of the vector difference between two vectors,
                 below which they are "matching."
             hard_r (bool):
-                If True, add all particles that fall within the threshold of
-                :code:`r_max` to the environment.
+                If True, exclude all particles that fall beyond the threshold
+                of :code:`r_max` from the environment.
             registration (bool, optional):
                 If True, first use brute force registration to orient one set
                 of environment vectors with respect to the other set such that
@@ -579,7 +564,7 @@ cdef class MatchEnv(Compute):
 
         self.thisptr.cluster(
             env_nlist_.get_ptr(), nlist_.get_ptr(),
-            <vec3[float]*> &l_points[0, 0], nP, threshold, hard_r,
+            <vec3[float]*> &l_points[0, 0], nP, threshold,
             registration, global_search)
         return self
 
@@ -762,12 +747,9 @@ cdef class MatchEnv(Compute):
 
     @Compute._computed_property()
     def clusters(self):
-        cdef unsigned int n_particles = self.thisptr.getNP()
-        if not n_particles:
-            return np.asarray([], dtype=np.uint32)
-        cdef const unsigned int[::1] clusters = \
-            <unsigned int[:n_particles]> self.thisptr.getClusters().get()
-        return np.asarray(clusters)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getClusters(),
+            freud.util.arr_type_t.UNSIGNED_INT)
 
     @Compute._computed_method()
     def getEnvironment(self, i):
@@ -780,24 +762,14 @@ cdef class MatchEnv(Compute):
             :math:`\left(N_{neighbors}, 3\right)` :class:`numpy.ndarray`:
             The array of vectors.
         """
-        cdef unsigned int max_neighbors = self.thisptr.getMaxNumNeighbors()
-        if not max_neighbors:
-            return np.asarray([[]], dtype=np.float32)
-        cdef const float[:, ::1] environment = \
-            <float[:max_neighbors, :3]> (
-                <float*> self.thisptr.getEnvironment(i).get())
-        return np.asarray(environment)
+        env = self.thisptr.getEnvironment(i)
+        return np.asarray([[p.x, p.y, p.z] for p in env])
 
     @Compute._computed_property()
     def tot_environment(self):
-        cdef unsigned int n_particles = self.thisptr.getNP()
-        cdef unsigned int max_neighbors = self.thisptr.getMaxNumNeighbors()
-        if not n_particles or not max_neighbors:
-            return np.asarray([[[]]], dtype=np.float32)
-        cdef const float[:, :, ::1] tot_environment = \
-            <float[:n_particles, :max_neighbors, :3]> (
-                <float*> self.thisptr.getTotEnvironment().get())
-        return np.asarray(tot_environment)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getTotEnvironment(),
+            freud.util.arr_type_t.FLOAT, 3)
 
     @Compute._computed_property()
     def num_particles(self):

@@ -9,6 +9,7 @@
 #include <type_traits>
 #include <utility>
 #include <vector>
+#include <map>
 
 /* BiMap container modelled after Boost::BiMap with templatization.
  *
@@ -131,6 +132,17 @@ public:
         std::swap(set_A, rhs.set_A);
         std::swap(set_B, rhs.set_B);
         return *this;
+    }
+
+    // Return a std::map equivalent to this object.
+    std::map<T, U> asMap()
+    {
+        std::map<T, U> ret;
+        for (auto it = begin(); it != end(); ++it)
+        {
+            ret[(*it)->first] = (*it)->second;
+        }
+        return ret;
     }
 
     template<typename I, typename J> bool emplace(I&& Arg1_in, J&& Arg2_in)
