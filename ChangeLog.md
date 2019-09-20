@@ -15,6 +15,7 @@ and this project adheres to
 * Upper bound r\_max option for number of neighbors queries.
 * C++ Histogram class to standardize n-dimensional binning and simplify writing new methods.
 * Lower bound r\_min option for all queries.
+* Steinhardt now supports l = 0, 1.
 
 ### Changed
 * All compute objects that perform neighbor computations now use NeighborQuery internally.
