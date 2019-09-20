@@ -6,9 +6,6 @@
 
 #include "LocalBondProjection.h"
 
-using namespace std;
-using namespace tbb;
-
 /*! \file LocalBondProjection.h
     \brief Compute the projection of nearest neighbor bonds for each particle onto some
     set of reference vectors, defined in the particles' local reference frame.
@@ -84,7 +81,7 @@ void LocalBondProjection::compute(box::Box& box,
     m_local_bond_proj_norm.prepare({tot_num_neigh, n_proj});
 
     // compute the order parameter
-    parallel_for(blocked_range<size_t>(0, n_query_points), [=](const blocked_range<size_t>& r) {
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, n_query_points), [=](const tbb::blocked_range<size_t>& r) {
         size_t bond(nlist->find_first_index(r.begin()));
         for (size_t i = r.begin(); i != r.end(); ++i)
         {

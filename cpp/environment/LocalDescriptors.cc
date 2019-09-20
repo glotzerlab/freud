@@ -11,9 +11,6 @@
 #include "LocalDescriptors.h"
 #include "diagonalize.h"
 
-using namespace std;
-using namespace tbb;
-
 /*! \file LocalDescriptors.cc
   \brief Computes local descriptors.
 */
@@ -34,7 +31,7 @@ void LocalDescriptors::compute(const box::Box& box,
 
     m_sphArray.prepare({nlist->getNumBonds(), getSphWidth()});
 
-    parallel_for(blocked_range<size_t>(0, n_points), [=](const blocked_range<size_t>& br) {
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, n_points), [=](const tbb::blocked_range<size_t>& br) {
         fsph::PointSPHEvaluator<float> sph_eval(m_l_max);
 
         for (size_t i = br.begin(); i != br.end(); ++i)

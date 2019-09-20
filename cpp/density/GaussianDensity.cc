@@ -7,9 +7,6 @@
 
 #include "GaussianDensity.h"
 
-using namespace std;
-using namespace tbb;
-
 /*! \file GaussianDensity.cc
     \brief Routines for computing Gaussian smeared densities from points.
 */
@@ -20,13 +17,13 @@ GaussianDensity::GaussianDensity(vec3<unsigned int> width, float r_max, float si
     : m_box(box::Box()), m_width(width), m_r_max(r_max), m_sigma(sigma)
 {
     if (r_max <= 0.0f)
-        throw invalid_argument("GaussianDensity requires r_max to be positive.");
+        throw std::invalid_argument("GaussianDensity requires r_max to be positive.");
 }
 
 void GaussianDensity::reduce()
 {
     // combine arrays
-    parallel_for(blocked_range<size_t>(0, m_density_array.size()), [=](const blocked_range<size_t>& r) {
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, m_density_array.size()), [=](const tbb::blocked_range<size_t>& r) {
         for (size_t i = r.begin(); i != r.end(); i++)
         {
             for (util::ThreadStorage<float>::const_iterator local_bins = m_local_bin_counts.begin();
@@ -79,7 +76,7 @@ void GaussianDensity::compute(const box::Box& box, const vec3<float>* points, un
     }
     m_density_array.prepare({width.x, width.y, width.z});
     m_local_bin_counts.resize({width.x, width.y, width.z});
-    parallel_for(blocked_range<size_t>(0, n_points), [=](const blocked_range<size_t>& r) {
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, n_points), [=](const tbb::blocked_range<size_t>& r) {
         assert(points);
         assert(n_points > 0);
 

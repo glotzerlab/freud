@@ -8,8 +8,6 @@
 
 #include "ParticleBuffer.h"
 
-using namespace std;
-
 /*! \file ParticleBuffer.cc
     \brief Replicates particles across periodic boundaries.
 */

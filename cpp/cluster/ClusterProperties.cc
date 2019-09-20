@@ -10,8 +10,6 @@
 
 #include "ClusterProperties.h"
 
-using namespace std;
-
 /*! \file ClusterProperties.cc
     \brief Routines for computing properties of point clusters.
 */
@@ -37,7 +35,7 @@ void ClusterProperties::computeProperties(const box::Box& box, const vec3<float>
     assert(Np > 0);
 
     // determine the number of clusters
-    const unsigned int* max_cluster_id = max_element(cluster_idx, cluster_idx + Np);
+    const unsigned int* max_cluster_id = std::max_element(cluster_idx, cluster_idx + Np);
     m_num_clusters = *max_cluster_id + 1;
 
     // allocate memory for the cluster properties and temporary arrays
@@ -49,9 +47,9 @@ void ClusterProperties::computeProperties(const box::Box& box, const vec3<float>
     // ref_particle is the first particle found in a cluster, it is used as a
     // reference to compute the COM in relation to, for handling of the
     // periodic boundary conditions
-    vector<vec3<float>> ref_pos(m_num_clusters, vec3<float>(0.0f, 0.0f, 0.0f));
+    std::vector<vec3<float>> ref_pos(m_num_clusters, vec3<float>(0.0f, 0.0f, 0.0f));
     // determine if we have seen this cluster before or not (used to initialize ref_pos)
-    vector<bool> cluster_seen(m_num_clusters, false);
+    std::vector<bool> cluster_seen(m_num_clusters, false);
 
     // Start by determining the center of mass of each cluster. Since we are
     // given an array of particles, the easiest way to do this is to loop over

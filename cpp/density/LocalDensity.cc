@@ -7,9 +7,6 @@
 #include "LocalDensity.h"
 #include "NeighborComputeFunctional.h"
 
-using namespace std;
-using namespace tbb;
-
 /*! \file LocalDensity.cc
     \brief Routines for computing local density around a point.
 */

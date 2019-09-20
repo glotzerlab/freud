@@ -12,8 +12,6 @@
 #undef max // std::max clashes with a Windows header
 #endif
 
-using namespace std;
-
 /*! \file Wigner3j.cc
  *  \brief Stores and reduces over Wigner 3j coefficients for l from 0 to 20
  */

@@ -11,9 +11,6 @@
 #undef max // std::max clashes with a Windows header
 #endif
 
-using namespace std;
-using namespace tbb;
-
 /*! \file AngularSeparation.cc
     \brief Compute the angular separation for each particle.
 */
@@ -81,7 +78,7 @@ void AngularSeparation::computeNeighbor(const quat<float>* orientations, unsigne
     m_neighbor_angles.prepare(tot_num_neigh);
 
     // compute the order parameter
-    parallel_for(blocked_range<size_t>(0, n_points), [=](const blocked_range<size_t>& r) {
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, n_points), [=](const tbb::blocked_range<size_t>& r) {
         assert(orientations);
         assert(query_orientations);
         assert(equiv_orientations);
@@ -113,7 +110,7 @@ void AngularSeparation::computeGlobal(const quat<float>* global_orientations, un
     m_global_angles.prepare({n_points, n_global});
 
     // compute the order parameter
-    parallel_for(blocked_range<size_t>(0, n_points), [=](const blocked_range<size_t>& r) {
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, n_points), [=](const tbb::blocked_range<size_t>& r) {
         assert(global_orientations);
         assert(orientations);
         assert(equiv_orientations);

@@ -11,9 +11,6 @@
 #include "Nematic.h"
 #include "diagonalize.h"
 
-using namespace std;
-using namespace tbb;
-
 /*! \file Nematic.h
     \brief Compute the nematic order parameter for each particle
 */
@@ -61,7 +58,7 @@ void Nematic::compute(quat<float>* orientations, unsigned int n)
     m_particle_tensor.prepare({m_n, 3, 3});
 
     // calculate per-particle tensor
-    parallel_for(blocked_range<size_t>(0, n), [=](const blocked_range<size_t>& r) {
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, n), [=](const tbb::blocked_range<size_t>& r) {
 
         for (size_t i = r.begin(); i != r.end(); i++)
         {
@@ -133,7 +130,7 @@ void Nematic::compute(quat<float>* orientations, unsigned int n)
     // now calculate the sum of Q_ab's
     reduce_matrix matrix(m_particle_tensor);
 
-    parallel_reduce(blocked_range<unsigned int>(0, m_n), matrix);
+    tbb::parallel_reduce(tbb::blocked_range<unsigned int>(0, m_n), matrix);
 
     // set the averaged Q_ab
     m_nematic_tensor.prepare({3, 3});
