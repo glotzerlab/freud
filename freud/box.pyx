@@ -10,8 +10,6 @@ analysis methods that do not recognize periodic boundary conditions or extend
 beyond the limits of one periodicity of the box.
 """
 
-from __future__ import print_function
-
 import warnings
 import numpy as np
 from collections import namedtuple
