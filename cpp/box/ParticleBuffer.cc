@@ -1,10 +1,7 @@
 // Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#include <cassert>
-#include <memory>
 #include <stdexcept>
-#include <vector>
 
 #include "ParticleBuffer.h"
 
@@ -27,11 +24,6 @@ void ParticleBuffer::compute(const vec3<float>* points, const unsigned int Np, c
         throw invalid_argument("Buffer y distance must be non-negative.");
     if (buff.z < 0)
         throw invalid_argument("Buffer z distance must be non-negative.");
-
-    m_buffer_particles = std::shared_ptr<std::vector<vec3<float>>>(new std::vector<vec3<float>>());
-    m_buffer_ids = std::shared_ptr<std::vector<unsigned int>>(new std::vector<unsigned int>());
-    std::vector<vec3<float>>& buffer_parts = *m_buffer_particles;
-    std::vector<unsigned int>& buffer_ids = *m_buffer_ids;
 
     // Get the box dimensions
     vec3<float> L(m_box.getL());
@@ -61,8 +53,8 @@ void ParticleBuffer::compute(const vec3<float>* points, const unsigned int Np, c
         images.z = 0;
     }
 
-    buffer_parts.clear();
-    buffer_ids.clear();
+    m_buffer_particles.clear();
+    m_buffer_ids.clear();
 
     // for each particle
     for (unsigned int particle = 0; particle < Np; particle++)
@@ -97,8 +89,8 @@ void ParticleBuffer::compute(const vec3<float>* points, const unsigned int Np, c
                         // have the correct number of particles instead of
                         // relying on the floating point precision of the
                         // fractional check below.
-                        buffer_parts.push_back(m_buffer_box.wrap(particle_image));
-                        buffer_ids.push_back(particle);
+                        m_buffer_particles.push_back(m_buffer_box.wrap(particle_image));
+                        m_buffer_ids.push_back(particle);
                     }
                     else
                     {
@@ -110,8 +102,8 @@ void ParticleBuffer::compute(const vec3<float>* points, const unsigned int Np, c
                         if (0 <= buff_frac.x && buff_frac.x < 1 && 0 <= buff_frac.y && buff_frac.y < 1
                             && (is2D || (0 <= buff_frac.z && buff_frac.z < 1)))
                         {
-                            buffer_parts.push_back(particle_image);
-                            buffer_ids.push_back(particle);
+                            m_buffer_particles.push_back(particle_image);
+                            m_buffer_ids.push_back(particle);
                         }
                     }
                 }
