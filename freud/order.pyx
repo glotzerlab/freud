@@ -473,7 +473,7 @@ cdef class Steinhardt(PairCompute):
 
     Args:
         l (unsigned int):
-            Spherical harmonic quantum number l. Must be a positive number.
+            Spherical harmonic quantum number l.
         average (bool, optional):
             Determines whether to calculate the averaged Steinhardt order
             parameter. (Default value = :code:`False`)
@@ -492,8 +492,8 @@ cdef class Steinhardt(PairCompute):
             parameter for each particle (filled with NaN for particles with no
             neighbors).
         norm (float or complex):
-            Stores the system wide normalization of the :math:`Ql` or :math:`Wl`
-            order parameter.
+            Stores the system wide normalization of the :math:`Q_l` or
+            :math:`W_l` order parameter.
     """  # noqa: E501
     cdef freud._order.Steinhardt * stptr
     cdef sph_l
@@ -693,9 +693,9 @@ cdef class SolLiq(Compute):
         cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
 
-        defaulted_nlist = freud.locality.make_default_nlist(
-            self.m_box, points, points, self.r_max, nlist, True)
-        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
+        cdef freud.locality.NeighborList nlist_
+        nlist_ = freud.locality.make_default_nlist(
+            self.m_box, points, None, dict(r_max=self.r_max), nlist)
 
         self.thisptr.compute(nlist_.get_ptr(),
                              <vec3[float]*> &l_points[0, 0], nP)
@@ -721,9 +721,9 @@ cdef class SolLiq(Compute):
         cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
 
-        defaulted_nlist = freud.locality.make_default_nlist(
-            self.m_box, points, points, self.r_max, nlist, True)
-        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
+        cdef freud.locality.NeighborList nlist_
+        nlist_ = freud.locality.make_default_nlist(
+            self.m_box, points, None, dict(r_max=self.r_max), nlist)
 
         self.thisptr.computeSolLiqVariant(
             nlist_.get_ptr(), <vec3[float]*> &l_points[0, 0], nP)
@@ -746,9 +746,9 @@ cdef class SolLiq(Compute):
         cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
 
-        defaulted_nlist = freud.locality.make_default_nlist(
-            self.m_box, points, points, self.r_max, nlist, True)
-        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
+        cdef freud.locality.NeighborList nlist_
+        nlist_ = freud.locality.make_default_nlist(
+            self.m_box, points, None, dict(r_max=self.r_max), nlist)
 
         self.thisptr.computeSolLiqNoNorm(
             nlist_.get_ptr(), <vec3[float]*> &l_points[0, 0], nP)
@@ -900,10 +900,10 @@ cdef class SolLiqNear(SolLiq):
                 Neighborlist to use to find bonds.
                 (Default value = :code:`None`).
         """
-        defaulted_nlist = freud.locality.make_default_nlist_nn(
-            self.m_box, points, points,
-            self.num_neighbors, nlist, True, self.r_max)
-        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
+        cdef freud.locality.NeighborList nlist_
+        nlist_ = freud.locality.make_default_nlist(
+            self.m_box, points, None, dict(num_neighbors=self.num_neighbors,
+                                           r_guess=self.r_max), nlist)
         return SolLiq.compute(self, points, nlist_)
 
     @Compute._compute()
@@ -918,10 +918,10 @@ cdef class SolLiqNear(SolLiq):
                 Neighborlist to use to find bonds.
                 (Default value = :code:`None`).
         """
-        defaulted_nlist = freud.locality.make_default_nlist_nn(
-            self.m_box, points, points,
-            self.num_neighbors, nlist, True, self.r_max)
-        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
+        cdef freud.locality.NeighborList nlist_
+        nlist_ = freud.locality.make_default_nlist(
+            self.m_box, points, None, dict(num_neighbors=self.num_neighbors,
+                                           r_guess=self.r_max), nlist)
         return SolLiq.computeSolLiqVariant(self, points, nlist_)
 
     @Compute._compute()
@@ -936,10 +936,10 @@ cdef class SolLiqNear(SolLiq):
                 Neighborlist to use to find bonds.
                 (Default value = :code:`None`).
         """
-        defaulted_nlist = freud.locality.make_default_nlist_nn(
-            self.m_box, points, points,
-            self.num_neighbors, nlist, True, self.r_max)
-        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
+        cdef freud.locality.NeighborList nlist_
+        nlist_ = freud.locality.make_default_nlist(
+            self.m_box, points, None, dict(num_neighbors=self.num_neighbors,
+                                           r_guess=self.r_max), nlist)
         return SolLiq.computeSolLiqNoNorm(self, points, nlist_)
 
     def __repr__(self):

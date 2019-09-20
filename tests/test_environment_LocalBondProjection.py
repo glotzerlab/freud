@@ -125,9 +125,10 @@ class TestLocalBondProjection(unittest.TestCase):
         ang = freud.environment.LocalBondProjection(r_max, num_neighbors)
         ang.compute(box, proj_vecs, points, ors)
 
-        dnlist = freud.locality.make_default_nlist_nn(
-            box, points, points, num_neighbors, None, True, r_max)
-        bonds = [(i[0], i[1]) for i in dnlist[0]]
+        dnlist = freud.locality.make_default_nlist(
+            box, points, None,
+            dict(num_neighbors=num_neighbors, r_guess=r_max), None)
+        bonds = [(i[0], i[1]) for i in dnlist]
 
         # We will look at the bond between [1, 0, 0] as ref_point
         # and [0, 0, 0] as point

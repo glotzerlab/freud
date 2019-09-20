@@ -64,8 +64,6 @@ public:
     Steinhardt(unsigned int l, bool average = false, bool Wl = false, bool weighted = false)
         : m_Np(0), m_l(l), m_num_ms(2*l+1), m_average(average), m_Wl(Wl), m_weighted(weighted), m_Qlm_local(2 * l + 1)
     {
-        if (m_l < 2)
-            throw std::invalid_argument("Steinhardt requires l must be two or greater.");
     }
 
     //! Empty destructor

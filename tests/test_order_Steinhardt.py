@@ -22,6 +22,36 @@ class TestSteinhardt(unittest.TestCase):
 
         npt.assert_equal(comp.order.shape[0], N)
 
+    def test_l_zero(self):
+        # Points should always have Q_0 = 1.
+        N = 1000
+        L = 10
+
+        box, positions = util.make_box_and_random_points(L, N)
+
+        comp = freud.order.Steinhardt(0)
+        comp.compute(box, positions, query_args={'r_max': 1.5})
+
+        npt.assert_allclose(comp.order, 1, atol=1e-5)
+
+    def test_l_axis_aligned(self):
+        # This test has three points along the z-axis. By construction, the
+        # points on the end should have Q_l = 1 for odd l and the central
+        # point should have Q_l = 0 for odd l. All three points should
+        # have perfect order for even l.
+        box = freud.box.Box.cube(10)
+        positions = [[0, 0, -1], [0, 0, 0], [0, 0, 1]]
+
+        for odd_l in range(1, 20, 2):
+            comp = freud.order.Steinhardt(odd_l)
+            comp.compute(box, positions, query_args={'num_neighbors': 2})
+            npt.assert_allclose(comp.order, [1, 0, 1], atol=1e-5)
+
+        for even_l in range(0, 20, 2):
+            comp = freud.order.Steinhardt(even_l)
+            comp.compute(box, positions, query_args={'num_neighbors': 2})
+            npt.assert_allclose(comp.order, 1, atol=1e-5)
+
     def test_identical_environments_Ql(self):
         (box, positions) = util.make_fcc(4, 4, 4)
         r_max = 1.5

@@ -6,6 +6,11 @@
 
 #include "AngularSeparation.h"
 
+#if defined _WIN32
+#undef min // std::min clashes with a Windows header
+#undef max // std::max clashes with a Windows header
+#endif
+
 using namespace std;
 using namespace tbb;
 
