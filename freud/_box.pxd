@@ -2,6 +2,7 @@
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 from libcpp.memory cimport shared_ptr
+from libcpp.vector cimport vector
 from libcpp cimport bool as bool_t
 from freud.util cimport vec3
 from libcpp.vector cimport vector
@@ -62,5 +63,5 @@ cdef extern from "ParticleBuffer.h" namespace "freud::box":
             const unsigned int,
             const vec3[float],
             const bool_t) except +
-        shared_ptr[vector[vec3[float]]] getBufferParticles()
-        shared_ptr[vector[uint]] getBufferIds()
+        vector[vec3[float]] getBufferParticles()
+        vector[uint] getBufferIds()

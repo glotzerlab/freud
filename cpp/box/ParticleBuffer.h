@@ -38,12 +38,12 @@ public:
     void compute(const vec3<float>* points, const unsigned int Np, const vec3<float> buff,
                  const bool use_images);
 
-    std::shared_ptr<std::vector<vec3<float>>> getBufferParticles()
+    std::vector<vec3<float> > getBufferParticles()
     {
         return m_buffer_particles;
     }
 
-    std::shared_ptr<std::vector<unsigned int>> getBufferIds()
+    std::vector<unsigned int> getBufferIds()
     {
         return m_buffer_ids;
     }
@@ -51,8 +51,8 @@ public:
 private:
     const Box m_box;  //!< Simulation box of the original particles
     Box m_buffer_box; //!< Simulation box of the replicated particles
-    std::shared_ptr<std::vector<vec3<float>>> m_buffer_particles;
-    std::shared_ptr<std::vector<unsigned int>> m_buffer_ids;
+    std::vector<vec3<float> > m_buffer_particles;
+    std::vector<unsigned int> m_buffer_ids;
 };
 
 }; }; // end namespace freud::box
