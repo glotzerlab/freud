@@ -986,6 +986,10 @@ cdef class _Voronoi:
         if box.is2D():
             expanded_points = expanded_points[:, :2]
 
+        expanded_points = freud.common.convert_array(
+            np.atleast_2d(expanded_points),
+            shape=(None, 2 if box.is2D() else 3))
+
         # Use qhull to get the points
         return qvoronoi(expanded_points), expanded_ids, expanded_points
 
