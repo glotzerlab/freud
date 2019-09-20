@@ -214,11 +214,7 @@ std::vector<vec3<float> > EnvDisjointSet::getAvgEnv(const unsigned int m)
     assert(s.size() > 0);
     bool invalid_ind = true;
 
-    std::vector<vec3<float> > env(m_max_num_neigh);
-    for (unsigned int n = 0; n < m_max_num_neigh; n++)
-    {
-        env[n] = vec3<float>(0.0, 0.0, 0.0);
-    }
+    std::vector<vec3<float> > env(m_max_num_neigh, vec3<float>(0.0, 0.0, 0.0));
     float N = float(0);
 
     // loop over all the environments in the set
