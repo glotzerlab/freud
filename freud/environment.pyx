@@ -392,12 +392,18 @@ cdef class LocalDescriptors(Compute):
 
         points = freud.common.convert_array(points, shape=(None, 3))
 
-        exclude_ii = query_points is None
+        self.num_neighbors = num_neighbors
+
+        cdef freud.locality.NeighborList nlist_
+        nlist_ = freud.locality.make_default_nlist(
+            b, points, query_points,
+            dict(num_neighbors=self.num_neighbors, r_guess=self.r_max), nlist)
+
         if query_points is None:
             query_points = points
-
-        query_points = freud.common.convert_array(
-            query_points, shape=(None, 3))
+        else:
+            query_points = freud.common.convert_array(
+                query_points, shape=(None, 3))
 
         # The l_orientations_ptr is only used for 'particle_local' mode.
         cdef const float[:, ::1] l_orientations
@@ -421,13 +427,6 @@ cdef class LocalDescriptors(Compute):
         cdef freud._environment.LocalDescriptorOrientation l_mode
 
         l_mode = self.known_modes[mode]
-
-        self.num_neighbors = num_neighbors
-
-        defaulted_nlist = freud.locality.make_default_nlist_nn(
-            b, points, query_points, self.num_neighbors, nlist,
-            exclude_ii, self.r_max)
-        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         self.thisptr.compute(
             dereference(b.thisptr), num_neighbors,
@@ -562,23 +561,21 @@ cdef class MatchEnv(Compute):
         cdef freud.locality.NeighborList nlist_
         cdef freud.locality.NeighborList env_nlist_
         if hard_r:
-            defaulted_nlist = freud.locality.make_default_nlist(
-                self.m_box, points, points, self.r_max, nlist, True)
-            nlist_ = defaulted_nlist[0]
+            nlist_ = freud.locality.make_default_nlist(
+                self.m_box, points, None, dict(r_max=self.r_max), nlist)
 
-            defaulted_env_nlist = freud.locality.make_default_nlist(
-                self.m_box, points, points, self.r_max, env_nlist, True)
-            env_nlist_ = defaulted_env_nlist[0]
+            env_nlist_ = freud.locality.make_default_nlist(
+                self.m_box, points, None, dict(r_max=self.r_max), env_nlist)
         else:
-            defaulted_nlist = freud.locality.make_default_nlist_nn(
-                self.m_box, points, points, self.num_neighbors, nlist,
-                True, self.r_max)
-            nlist_ = defaulted_nlist[0]
+            nlist_ = freud.locality.make_default_nlist(
+                self.m_box, points, None,
+                dict(num_neighbors=self.num_neighbors, r_guess=self.r_max),
+                nlist)
 
-            defaulted_env_nlist = freud.locality.make_default_nlist_nn(
-                self.m_box, points, points, self.num_neighbors, env_nlist,
-                True, self.r_max)
-            env_nlist_ = defaulted_env_nlist[0]
+            env_nlist_ = freud.locality.make_default_nlist(
+                self.m_box, points, None,
+                dict(num_neighbors=self.num_neighbors, r_guess=self.r_max),
+                env_nlist)
 
         self.thisptr.cluster(
             env_nlist_.get_ptr(), nlist_.get_ptr(),
@@ -619,10 +616,10 @@ cdef class MatchEnv(Compute):
         cdef unsigned int nP = l_points.shape[0]
         cdef unsigned int nRef = l_ref_points.shape[0]
 
-        defaulted_nlist = freud.locality.make_default_nlist_nn(
-            self.m_box, points, points,
-            self.num_neighbors, nlist, True, self.r_max)
-        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
+        cdef freud.locality.NeighborList nlist_
+        nlist_ = freud.locality.make_default_nlist(
+            self.m_box, points, None,
+            dict(num_neighbors=self.num_neighbors, r_guess=self.r_max), nlist)
 
         self.thisptr.matchMotif(
             nlist_.get_ptr(), <vec3[float]*> &l_points[0], nP,
@@ -663,10 +660,10 @@ cdef class MatchEnv(Compute):
         cdef unsigned int nP = l_points.shape[0]
         cdef unsigned int nRef = l_ref_points.shape[0]
 
-        defaulted_nlist = freud.locality.make_default_nlist_nn(
-            self.m_box, points, points,
-            self.num_neighbors, nlist, True, self.r_max)
-        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
+        cdef freud.locality.NeighborList nlist_
+        nlist_ = freud.locality.make_default_nlist(
+            self.m_box, points, None,
+            dict(num_neighbors=self.num_neighbors, r_guess=self.r_max), nlist)
 
         cdef vector[float] min_rmsd_vec = self.thisptr.minRMSDMotif(
             nlist_.get_ptr(), <vec3[float]*> &l_points[0], nP,
@@ -924,27 +921,27 @@ cdef class AngularSeparation(Compute):
         cdef freud.box.Box b = freud.common.convert_box(box)
         points = freud.common.convert_array(points, shape=(None, 3))
 
-        exclude_ii = query_points is None
+        self.nlist_ = freud.locality.make_default_nlist(
+            b, points, query_points,
+            dict(num_neighbors=self.num_neighbors,
+                 r_guess=self.r_max), nlist).copy()
+
         if query_points is None:
             query_points = points
-
-        if query_orientations is None:
-            query_orientations = orientations
-
-        query_points = freud.common.convert_array(
-            query_points, shape=(None, 3))
+        else:
+            query_points = freud.common.convert_array(
+                query_points, shape=(None, 3))
 
         orientations = freud.common.convert_array(
             orientations, shape=(points.shape[0], 4))
-        query_orientations = freud.common.convert_array(
-            query_orientations, shape=(query_points.shape[0], 4))
+        if query_orientations is None:
+            query_orientations = orientations
+        else:
+            query_orientations = freud.common.convert_array(
+                query_orientations, shape=(query_points.shape[0], 4))
+
         equiv_orientations = freud.common.convert_array(
             equiv_orientations, shape=(None, 4))
-
-        defaulted_nlist = freud.locality.make_default_nlist_nn(
-            b, points, query_points, self.num_neighbors,
-            nlist, exclude_ii, self.r_max)
-        self.nlist_ = defaulted_nlist[0].copy()
 
         cdef const float[:, ::1] l_orientations = orientations
         cdef const float[:, ::1] l_query_orientations = query_orientations
@@ -1116,19 +1113,19 @@ cdef class LocalBondProjection(Compute):
         orientations = freud.common.convert_array(
             orientations, shape=(None, 4))
 
-        exclude_ii = query_points is None
+        self.nlist_ = freud.locality.make_default_nlist(
+            b, points, query_points,
+            dict(num_neighbors=self.num_neighbors,
+                 r_guess=self.r_max), nlist).copy()
+
         if query_points is None:
             query_points = points
-        query_points = freud.common.convert_array(
-            query_points, shape=(None, 3))
+        else:
+            query_points = freud.common.convert_array(
+                query_points, shape=(None, 3))
         equiv_orientations = freud.common.convert_array(
             equiv_orientations, shape=(None, 4))
         proj_vecs = freud.common.convert_array(proj_vecs, shape=(None, 3))
-
-        defaulted_nlist = freud.locality.make_default_nlist_nn(
-            box, points, query_points, self.num_neighbors, nlist,
-            exclude_ii, self.r_max)
-        self.nlist_ = defaulted_nlist[0].copy()
 
         cdef const float[:, ::1] l_points = points
         cdef const float[:, ::1] l_orientations = orientations

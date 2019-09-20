@@ -606,8 +606,7 @@ def make_default_nq(box, points):
     return rp
 
 
-def make_default_nlist(box, points, query_points, r_max, nlist=None,
-                       exclude_ii=False):
+def make_default_nlist(box, points, query_points, query_args, nlist=None):
     R"""Helper function to return a neighbor list object if is given, or to
     construct one using AABBQuery if it is not.
 
@@ -618,64 +617,28 @@ def make_default_nlist(box, points, query_points, r_max, nlist=None,
             Points for the neighborlist.
         query_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
             Query points to construct the neighborlist.
-        r_max (float):
-            The radius within which to find neighbors.
+        query_args (dict):
+            Query arguments to use. Note that, if it is not one of the provided
+            query arguments, :code:`exclude_ii` will be set to :code:`False` if
+            query_points is :code:`None` and :code:`True` otherwise.
         nlist (:class:`freud.locality.NeighborList`, optional):
             NeighborList to use to find bonds (Default value = :code:`None`).
-        exclude_ii (bool, optional):
-            Set this to :code:`True` if pairs of points with identical
-            indices should be excluded. (Default value = :code:`False`).
 
     Returns:
         tuple (:class:`freud.locality.NeighborList`, :class:`freud.locality.AABBQuery`):
             The NeighborList and the owning AABBQuery object.
     """  # noqa: E501
     if nlist is not None:
-        return nlist, nlist
+        return nlist
 
     cdef AABBQuery aq = AABBQuery(box, points)
+    query_args.setdefault('exclude_ii', query_points is None)
+    cdef _QueryArgs qa = _QueryArgs.from_dict(query_args)
+    qp = query_points if query_points is not None else points
     cdef NeighborList aq_nlist = aq.query(
-        query_points, dict(r_max=r_max,
-                           exclude_ii=exclude_ii)).toNeighborList()
+        qp, query_args).toNeighborList()
 
-    return aq_nlist, aq
-
-
-def make_default_nlist_nn(box, points, query_points, num_neighbors, nlist=None,
-                          exclude_ii=False, r_max_guess=2.0):
-    R"""Helper function to return a neighbor list object if is given, or to
-    construct one using NearestNeighbors if it is not.
-
-    Args:
-        box (:class:`freud.box.Box`):
-            Simulation box.
-        points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-            Reference points for the neighborlist.
-        query_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-            Points to construct the neighborlist.
-        num_neighbors (int):
-            The number of nearest neighbors to consider.
-        nlist (:class:`freud.locality.NeighborList`, optional):
-            NeighborList to use to find bonds (Default value = :code:`None`).
-        exclude_ii (bool, optional):
-            Set this to :code:`True` if pairs of points with identical
-            indices should be excluded. (Default value = :code:`False`).
-        r_max_guess (float):
-            Estimate of r_max, speeds up search if chosen properly.
-
-    Returns:
-        tuple (:class:`freud.locality.NeighborList`, :class:`freud.locality:NearestNeighbors`):
-            The neighborlist and the owning NearestNeighbors object.
-    """  # noqa: E501
-    if nlist is not None:
-        return nlist, nlist
-
-    cdef AABBQuery aq = AABBQuery(box, points)
-    cdef NeighborList aq_nlist = aq.query(
-        query_points, dict(num_neighbors=num_neighbors, r_guess=r_max_guess,
-                           exclude_ii=exclude_ii)).toNeighborList()
-
-    return aq_nlist, aq
+    return aq_nlist
 
 
 cdef class RawPoints(NeighborQuery):
