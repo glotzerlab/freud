@@ -4,7 +4,6 @@
 #ifndef LINKCELL_H
 #define LINKCELL_H
 
-#include <cassert>
 #include <memory>
 #include <tbb/concurrent_hash_map.h>
 #include <unordered_set>
@@ -60,9 +59,6 @@ public:
                      unsigned int cell)
         : m_cell_list(cell_list), m_Np(Np), m_Nc(Nc)
     {
-        assert(cell < Nc);
-        assert(Np > 0);
-        assert(Nc > 0);
         m_cell = cell;
         m_cur_idx = m_Np + cell;
     }

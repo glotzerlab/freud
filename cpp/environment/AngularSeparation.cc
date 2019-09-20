@@ -1,7 +1,6 @@
 // Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#include <cassert>
 #include <stdexcept>
 
 #include "AngularSeparation.h"
@@ -79,13 +78,6 @@ void AngularSeparation::computeNeighbor(const quat<float>* orientations, unsigne
 
     // compute the order parameter
     tbb::parallel_for(tbb::blocked_range<size_t>(0, n_points), [=](const tbb::blocked_range<size_t>& r) {
-        assert(orientations);
-        assert(query_orientations);
-        assert(equiv_orientations);
-        assert(n_points > 0);
-        assert(n_query_points > 0);
-        assert(n_equiv_orientations > 0);
-
         size_t bond(nlist->find_first_index(r.begin()));
         for (size_t i = r.begin(); i != r.end(); ++i)
         {
@@ -111,13 +103,6 @@ void AngularSeparation::computeGlobal(const quat<float>* global_orientations, un
 
     // compute the order parameter
     tbb::parallel_for(tbb::blocked_range<size_t>(0, n_points), [=](const tbb::blocked_range<size_t>& r) {
-        assert(global_orientations);
-        assert(orientations);
-        assert(equiv_orientations);
-        assert(n_global > 0);
-        assert(n_points > 0);
-        assert(n_equiv_orientations > 0);
-
         for (size_t i = r.begin(); i != r.end(); ++i)
         {
             quat<float> q = orientations[i];

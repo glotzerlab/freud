@@ -5,7 +5,6 @@
 #define CUBATIC_H
 
 #include <memory>
-#include <ostream>
 #include <tbb/tbb.h>
 
 #include "VectorMath.h"

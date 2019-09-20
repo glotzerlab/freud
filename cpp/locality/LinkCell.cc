@@ -96,7 +96,6 @@ void LinkCell::computeCellList(const vec3<float>* points, unsigned int n_points)
 
     // determine the number of cells and allocate memory
     unsigned int Nc = getNumCells();
-    assert(Nc > 0);
     m_cell_list.prepare(n_points + Nc);
     m_n_points = n_points;
     m_Nc = Nc;
@@ -106,8 +105,6 @@ void LinkCell::computeCellList(const vec3<float>* points, unsigned int n_points)
     {
         m_cell_list[n_points + cell] = LINK_CELL_TERMINATOR;
     }
-
-    assert(points);
 
     // generate the cell list
     for (int i = n_points - 1; i >= 0; i--)

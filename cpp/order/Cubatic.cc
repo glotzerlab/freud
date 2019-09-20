@@ -6,7 +6,6 @@
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
-#include <iostream>
 
 #include "Cubatic.h"
 

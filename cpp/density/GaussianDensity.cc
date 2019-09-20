@@ -1,7 +1,6 @@
 // Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#include <cassert>
 #include <stdexcept>
 #include <tbb/tbb.h>
 
@@ -77,9 +76,6 @@ void GaussianDensity::compute(const box::Box& box, const vec3<float>* points, un
     m_density_array.prepare({width.x, width.y, width.z});
     m_local_bin_counts.resize({width.x, width.y, width.z});
     tbb::parallel_for(tbb::blocked_range<size_t>(0, n_points), [=](const tbb::blocked_range<size_t>& r) {
-        assert(points);
-        assert(n_points > 0);
-
         // set up some constants first
         float lx = m_box.getLx();
         float ly = m_box.getLy();

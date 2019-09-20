@@ -2,7 +2,6 @@
 #define BIMAP_H
 
 #include <algorithm>
-#include <cassert>
 #include <cstddef>
 #include <memory>
 #include <set>
@@ -228,7 +227,6 @@ public:
 
         void erase(const T& Key_in)
         {
-            assert(this->has(Key_in));
             const auto& pairPtr(getPairPtr(&Key_in));
             this->b().set_A.erase(&(pairPtr->first));
             this->b().set_B.erase(&(pairPtr->second));
@@ -236,7 +234,6 @@ public:
                 std::remove_if(this->b().container.begin(), this->b().container.end(),
                                [&pairPtr](const std::pair<T, U>* i) { return *i == pairPtr; }),
                 this->b().container.end());
-            assert(!has(Key_in));
         }
     } left;
 
@@ -308,7 +305,6 @@ public:
 
         void erase(const U& Key_in)
         {
-            assert(this->has(Key_in));
             const auto& pairPtr(getPairPtr(&Key_in));
             this->b().set_A.erase(&(pairPtr->first));
             this->b().set_B.erase(&(pairPtr->second));
@@ -316,7 +312,6 @@ public:
                 std::remove_if(this->b().container.begin(), this->b().container.end(),
                                [&pairPtr](const std::pair<T, U>* i) { return *i == pairPtr; }),
                 this->b().container.end());
-            assert(!has(Key_in));
         }
     } right;
 

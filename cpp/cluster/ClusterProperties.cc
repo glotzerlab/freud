@@ -2,7 +2,6 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <algorithm>
-#include <cassert>
 #include <cstring>
 #include <map>
 #include <stdexcept>
@@ -30,10 +29,6 @@ ClusterProperties::ClusterProperties() : m_num_clusters(0) {}
 void ClusterProperties::computeProperties(const box::Box& box, const vec3<float>* points,
                                           const unsigned int* cluster_idx, unsigned int Np)
 {
-    assert(points);
-    assert(cluster_idx);
-    assert(Np > 0);
-
     // determine the number of clusters
     const unsigned int* max_cluster_id = std::max_element(cluster_idx, cluster_idx + Np);
     m_num_clusters = *max_cluster_id + 1;

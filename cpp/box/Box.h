@@ -4,7 +4,6 @@
 #ifndef BOX_H
 #define BOX_H
 
-#include <cassert>
 #include <math.h>
 #include <sstream>
 #include <stdexcept>

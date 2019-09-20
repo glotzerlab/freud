@@ -1,7 +1,6 @@
 // Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#include <cassert>
 #include <stdexcept>
 
 #include "LocalBondProjection.h"
@@ -62,16 +61,6 @@ void LocalBondProjection::compute(box::Box& box,
     const quat<float>* equiv_orientations, unsigned int n_equiv_orientations,
     const freud::locality::NeighborList* nlist)
 {
-    assert(query_points);
-    assert(points);
-    assert(orientations);
-    assert(equiv_orientations);
-    assert(proj_vecs);
-    assert(n_query_points > 0);
-    assert(n_points > 0);
-    assert(n_equiv_orientations > 0);
-    assert(n_proj > 0);
-
     nlist->validate(n_query_points, n_points);
 
     // Get the maximum total number of bonds in the neighbor list

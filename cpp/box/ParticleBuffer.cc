@@ -1,7 +1,6 @@
 // Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#include <cassert>
 #include <memory>
 #include <stdexcept>
 #include <vector>
@@ -17,8 +16,6 @@ namespace freud { namespace box {
 void ParticleBuffer::compute(const vec3<float>* points, const unsigned int Np, const vec3<float> buff,
                              const bool use_images)
 {
-    assert(points);
-
     if (buff.x < 0)
         throw std::invalid_argument("Buffer x distance must be non-negative.");
     if (buff.y < 0)
