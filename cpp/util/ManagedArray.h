@@ -234,7 +234,7 @@ public:
      *  \param shape The shape to map indexes to.
      *  \param indices The index in each dimension.
      */
-    static inline std::vector<unsigned int> getMultiIndex(std::vector<unsigned int> shape, unsigned int index) 
+    static inline std::vector<unsigned int> getMultiIndex(std::vector<unsigned int> shape, unsigned int index)
     {
         unsigned int cur_prod = 1;
         for (auto it = shape.begin(); it != shape.end(); ++it)
@@ -260,7 +260,7 @@ public:
      *  \param shape The shape to map indexes to.
      *  \param indices The index in each dimension.
      */
-    static inline size_t getIndex(std::vector<unsigned int> shape, std::vector<unsigned int> indices) 
+    static inline size_t getIndex(std::vector<unsigned int> shape, std::vector<unsigned int> indices)
     {
         // In getting the linear bin, we must iterate over bins in reverse
         // order to build up the value of cur_prod because each subsequent axis
