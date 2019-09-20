@@ -20,11 +20,11 @@ void ParticleBuffer::compute(const vec3<float>* points, const unsigned int Np, c
     assert(points);
 
     if (buff.x < 0)
-        throw invalid_argument("Buffer x distance must be non-negative.");
+        throw std::invalid_argument("Buffer x distance must be non-negative.");
     if (buff.y < 0)
-        throw invalid_argument("Buffer y distance must be non-negative.");
+        throw std::invalid_argument("Buffer y distance must be non-negative.");
     if (buff.z < 0)
-        throw invalid_argument("Buffer z distance must be non-negative.");
+        throw std::invalid_argument("Buffer z distance must be non-negative.");
 
     m_buffer_particles = std::shared_ptr<std::vector<vec3<float>>>(new std::vector<vec3<float>>());
     m_buffer_ids = std::shared_ptr<std::vector<unsigned int>>(new std::vector<unsigned int>());
