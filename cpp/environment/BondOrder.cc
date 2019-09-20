@@ -9,7 +9,6 @@
 #endif
 
 #include "BondOrder.h"
-#include "Index1D.h"
 #include "NeighborComputeFunctional.h"
 #include "NeighborBond.h"
 

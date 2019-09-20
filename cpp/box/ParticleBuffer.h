@@ -8,7 +8,6 @@
 #include <vector>
 
 #include "Box.h"
-#include "Index1D.h"
 #include "VectorMath.h"
 
 /*! \file ParticleBuffer.h

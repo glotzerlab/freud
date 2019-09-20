@@ -8,7 +8,6 @@
 #include <emmintrin.h>
 #endif
 
-#include "Index1D.h"
 #include "Nematic.h"
 #include "diagonalize.h"
 
