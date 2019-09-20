@@ -62,7 +62,6 @@ cdef extern from "MatchEnv.h" namespace "freud::environment":
                      unsigned int,
                      float,
                      bool,
-                     bool,
                      bool) except +
         void matchMotif(const freud._locality.NeighborList*,
                         const vec3[float]*,

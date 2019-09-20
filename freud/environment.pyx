@@ -508,16 +508,6 @@ cdef class MatchEnv(Compute):
     def __dealloc__(self):
         del self.thisptr
 
-    def setBox(self, box):
-        R"""Reset the simulation box.
-
-        Args:
-            box (:class:`freud.box.Box`): Simulation box.
-        """
-        cdef freud.box.Box b = freud.common.convert_box(box)
-        self.thisptr.setBox(dereference(b.thisptr))
-        self.m_box = box
-
     @Compute._compute()
     def cluster(self, points, threshold, hard_r=False, registration=False,
                 global_search=False, env_nlist=None, nlist=None):
@@ -530,8 +520,8 @@ cdef class MatchEnv(Compute):
                 Maximum magnitude of the vector difference between two vectors,
                 below which they are "matching."
             hard_r (bool):
-                If True, add all particles that fall within the threshold of
-                :code:`r_max` to the environment.
+                If True, exclude all particles that fall beyond the threshold
+                of :code:`r_max` from the environment.
             registration (bool, optional):
                 If True, first use brute force registration to orient one set
                 of environment vectors with respect to the other set such that
@@ -577,7 +567,7 @@ cdef class MatchEnv(Compute):
 
         self.thisptr.cluster(
             env_nlist_.get_ptr(), nlist_.get_ptr(),
-            <vec3[float]*> &l_points[0, 0], nP, threshold, hard_r,
+            <vec3[float]*> &l_points[0, 0], nP, threshold,
             registration, global_search)
         return self
 
