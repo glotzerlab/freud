@@ -227,6 +227,54 @@ public:
         return (*this)[idx];
     }
 
+    //! Get the multi-index corresponding to a single regular index.
+    /*! This function is provided as an external utility in the event that
+     * index generation is necessary without an actual array.
+     *
+     *  \param shape The shape to map indexes to.
+     *  \param indices The index in each dimension.
+     */
+    static inline std::vector<unsigned int> getMultiIndex(std::vector<unsigned int> shape, unsigned int index) 
+    {
+        unsigned int cur_prod = 1;
+        for (auto it = shape.begin(); it != shape.end(); ++it)
+        {
+            cur_prod *= *it;
+        }
+
+        std::vector<unsigned int> indices(shape.size());
+        for (unsigned int i = 0 ; i <= shape.size(); ++i)
+        {
+            cur_prod /= shape[i];
+            // Integer division should cast away extras.
+            indices[i] = index/cur_prod;
+            index %= cur_prod;
+        }
+        return indices;
+    }
+
+    //! Get the linear index corresponding to a vector of indices in each dimension.
+    /*! This function is provided as an external utility in the event that
+     * index generation is necessary without an actual array.
+     *
+     *  \param shape The shape to map indexes to.
+     *  \param indices The index in each dimension.
+     */
+    static inline size_t getIndex(std::vector<unsigned int> shape, std::vector<unsigned int> indices) 
+    {
+        // In getting the linear bin, we must iterate over bins in reverse
+        // order to build up the value of cur_prod because each subsequent axis
+        // contributes less according to row-major ordering.
+        size_t cur_prod = 1;
+        size_t idx = 0;
+        for (int i = indices.size() - 1; i >= 0; --i)
+        {
+            idx += indices[i] * cur_prod;
+            cur_prod *= shape[i];
+        }
+        return idx;
+    }
+
     //! Get the linear index corresponding to a vector of indices in each dimension.
     /*! This function performs the conversion of a vector of indices
      *  into a linear index into the underlying data array of the ManagedArray.

@@ -48,8 +48,8 @@ LinkCell::LinkCell(const box::Box& box, float cell_width, const vec3<float>* poi
         celldim.z = 1;
     }
 
-    m_cell_index = Index3D(celldim.x, celldim.y, celldim.z);
-    if (m_cell_index.getNumElements() < 1)
+    m_size = celldim.x * celldim.y * celldim.z;
+    if (m_size < 1)
     {
         throw runtime_error("At least one cell must be present.");
     }
@@ -124,7 +124,7 @@ void LinkCell::computeCellList(const vec3<float>* points, unsigned int n_points)
 const std::vector<unsigned int>& LinkCell::computeCellNeighbors(unsigned int cur_cell)
 {
     std::vector<unsigned int> neighbor_cells;
-    vec3<unsigned int> l_idx = m_cell_index(cur_cell);
+    vec3<unsigned int> l_idx = indexToCoord(cur_cell);
     const int i = (int) l_idx.x;
     const int j = (int) l_idx.y;
     const int k = (int) l_idx.z;
@@ -189,11 +189,11 @@ const std::vector<unsigned int>& LinkCell::computeCellNeighbors(unsigned int cur
             for (int neighi = starti; neighi <= endi; neighi++)
             {
                 // wrap back into the box
-                int wrapi = (m_cell_index.getW() + neighi) % m_cell_index.getW();
-                int wrapj = (m_cell_index.getH() + neighj) % m_cell_index.getH();
-                int wrapk = (m_cell_index.getD() + neighk) % m_cell_index.getD();
+                int wrapi = (m_celldim.x + neighi) % m_celldim.x;
+                int wrapj = (m_celldim.y + neighj) % m_celldim.y;
+                int wrapk = (m_celldim.z + neighk) % m_celldim.z;
 
-                unsigned int neigh_cell = m_cell_index(wrapi, wrapj, wrapk);
+                unsigned int neigh_cell = coordToIndex(wrapi, wrapj, wrapk);
                 // add to the list
                 neighbor_cells.push_back(neigh_cell);
             }
