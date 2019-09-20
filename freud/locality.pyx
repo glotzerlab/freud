@@ -619,8 +619,8 @@ def make_default_nlist(box, points, query_points, query_args, nlist=None):
             Query points to construct the neighborlist.
         query_args (dict):
             Query arguments to use. Note that, if it is not one of the provided
-            query arguments, exclude_ii will be set to False if query_points is
-            None and True otherwise.
+            query arguments, :code:`exclude_ii` will be set to :code:`False` if
+            query_points is :code:`None` and :code:`True` otherwise.
         nlist (:class:`freud.locality.NeighborList`, optional):
             NeighborList to use to find bonds (Default value = :code:`None`).
 
