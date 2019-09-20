@@ -5,7 +5,6 @@
 #include <tbb/tbb.h>
 
 #include "AABBQuery.h"
-#include "Index1D.h"
 #include "NeighborList.h"
 #include "NeighborQuery.h"
 #include "NeighborPerPointIterator.h"
@@ -133,7 +132,6 @@ void loopOverNeighborsIterator(const NeighborQuery* neighbor_query, const vec3<f
 
         // iterate over the query object in parallel
         forLoopWrapper(0, n_query_points, [=](size_t begin, size_t end) {
-            NeighborBond nb;
             for (size_t i = begin; i != end; ++i)
             {
                 std::shared_ptr<NeighborQueryPerPointIterator> it = iter->query(i);
@@ -142,9 +140,6 @@ void loopOverNeighborsIterator(const NeighborQuery* neighbor_query, const vec3<f
         }, parallel);
     }
 }
-
-
-//! Wrapper iterating looping over NeighborQuery or NeighborList
 
 //! Wrapper iterating looping over NeighborQuery or NeighborList.
 /*! This function dynamically determines whether or not the provided

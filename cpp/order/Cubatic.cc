@@ -184,7 +184,7 @@ quat<float> Cubatic::calcRandomQuaternion(Saru& saru, float angle_multiplier = 1
 
 util::ManagedArray<tensor4> Cubatic::calculatePerParticleTensor(const quat<float>* orientations) const
 {
-    util::ManagedArray<tensor4> particle_tensor({m_n});
+    util::ManagedArray<tensor4> particle_tensor(m_n);
 
     // calculate per-particle tensor
     tbb::parallel_for(tbb::blocked_range<size_t>(0, m_n), [=, &particle_tensor](const tbb::blocked_range<size_t>& r) {
@@ -248,9 +248,9 @@ void Cubatic::compute(quat<float>* orientations, unsigned int num_orientations)
     // parameter, but in practice we find that simulated annealing performs
     // much better, so we perform replicates of the process and choose the best
     // one.
-    util::ManagedArray<tensor4> p_cubatic_tensor({m_replicates});
-    util::ManagedArray<float> p_cubatic_order_parameter({m_replicates});
-    util::ManagedArray<quat<float> > p_cubatic_orientation({m_replicates});
+    util::ManagedArray<tensor4> p_cubatic_tensor(m_replicates);
+    util::ManagedArray<float> p_cubatic_order_parameter(m_replicates);
+    util::ManagedArray<quat<float> > p_cubatic_orientation(m_replicates);
 
     tbb::parallel_for(tbb::blocked_range<size_t>(0, m_replicates), [=, &p_cubatic_orientation, &p_cubatic_order_parameter, &p_cubatic_tensor](const tbb::blocked_range<size_t>& r) {
 

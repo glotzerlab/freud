@@ -8,7 +8,6 @@
 #include <utility>
 #include <vector>
 
-#include "Index1D.h"
 #include "LocalDescriptors.h"
 #include "diagonalize.h"
 
@@ -104,9 +103,7 @@ void LocalDescriptors::compute(const box::Box& box,
                 throw std::runtime_error("Uncaught orientation mode in LocalDescriptors::compute");
             }
 
-            for (unsigned int count(0);
-                 bond < nlist->getNumBonds() && nlist->getNeighbors()(bond, 0) == i && count < num_neighbors;
-                 ++bond, ++count)
+            for (; bond < nlist->getNumBonds() && nlist->getNeighbors()(bond, 0) == i; ++bond)
             {
                 const unsigned int sphCount(bond * getSphWidth());
                 const size_t j(nlist->getNeighbors()(bond, 1));
