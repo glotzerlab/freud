@@ -22,15 +22,6 @@ namespace freud { namespace locality {
 /********************
  * IteratorLinkCell *
  ********************/
-IteratorLinkCell::IteratorLinkCell(const util::ManagedArray<unsigned int> cell_list, unsigned int Np, unsigned int Nc,
-                 unsigned int cell)
-    : m_cell_list(cell_list), m_Np(Np), m_Nc(Nc)
-{
-    m_cell = cell;
-    m_cur_idx = m_Np + cell;
-}
-
-//! Copy the position of rhs into this object
 void IteratorLinkCell::copy(const IteratorLinkCell& rhs)
 {
     m_cell_list = rhs.m_cell_list;
@@ -40,20 +31,17 @@ void IteratorLinkCell::copy(const IteratorLinkCell& rhs)
     m_cell = rhs.m_cell;
 }
 
-//! Test if the iteration over the cell is complete
 bool IteratorLinkCell::atEnd()
 {
     return (m_cur_idx == LINK_CELL_TERMINATOR);
 }
 
-//! Get the next particle index in the list
 unsigned int IteratorLinkCell::next()
 {
     m_cur_idx = m_cell_list[m_cur_idx];
     return m_cur_idx;
 }
 
-//! Get the first particle index in the list
 unsigned int IteratorLinkCell::begin()
 {
     m_cur_idx = m_Np + m_cell;
@@ -192,8 +180,6 @@ void IteratorCellShell::operator++()
     }
 }
 
-vec3<int> IteratorCellShell::operator*()
-
 void IteratorCellShell::reset(unsigned int range)
 {
     m_range = range;
@@ -257,7 +243,7 @@ LinkCell::LinkCell(const box::Box& box, float cell_width, const vec3<float>* poi
 }
 
 
-unsigned int LinkCell::getCellIndex(const vec3<int> cellCoord) const;
+unsigned int LinkCell::getCellIndex(const vec3<int> cellCoord) const
 {
     int w = static_cast<int>(m_celldim.x);
     int h = static_cast<int>(m_celldim.y);
@@ -343,7 +329,7 @@ vec3<unsigned int> LinkCell::indexToCoord(unsigned int x) const
     return vec3<unsigned int>(coord[2], coord[1], coord[0]);
 }
 
-unsigned int LinkCell::coordToIndex(int x, int y, int z) const;
+unsigned int LinkCell::coordToIndex(int x, int y, int z) const
 {
     // For backwards compatibility with the Index1D layout, the indices and
     // the dimensions are passed in reverse to the indexer. Changing this would
