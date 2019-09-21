@@ -30,7 +30,6 @@ CorrelationFunction<T>::CorrelationFunction(float r_max, float dr)
         throw std::invalid_argument("CorrelationFunction requires dr must be less than or equal to r_max.");
 
     m_nbins = int(floorf(m_r_max / m_dr));
-    assert(m_nbins > 0);
     m_rdf_array.prepare(m_nbins);
     // Less efficient: initialize each bin sequentially using default ctor
     for (size_t i(0); i < m_nbins; ++i)

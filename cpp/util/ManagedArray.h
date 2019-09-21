@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include <sstream>
+#include <cstring>
 
 /*! \file ManagedArray.h
     \brief Defines the standard array class to be used throughout freud.
