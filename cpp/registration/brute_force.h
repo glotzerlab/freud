@@ -5,6 +5,7 @@
 #define BRUTE_FORCE_H
 
 #include <iostream>
+#include <chrono>
 #include <random>
 #include <vector>
 
