@@ -4,9 +4,7 @@
 #ifndef MATCH_ENV_H
 #define MATCH_ENV_H
 
-#include <algorithm>
 #include <map>
-#include <stdexcept>
 #include <vector>
 
 #include "BiMap.h"

@@ -4,8 +4,6 @@
 #ifndef ANGULAR_SEPARATION_H
 #define ANGULAR_SEPARATION_H
 
-#include <complex>
-#include <memory>
 #include <tbb/tbb.h>
 
 #include "NeighborList.h"

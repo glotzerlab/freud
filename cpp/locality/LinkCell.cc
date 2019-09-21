@@ -4,8 +4,6 @@
 #include <algorithm>
 #include <cmath>
 #include <stdexcept>
-#include <tbb/tbb.h>
-#include <tuple>
 
 #include "LinkCell.h"
 

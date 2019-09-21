@@ -4,8 +4,6 @@
 #ifndef CORRELATION_FUNCTION_H
 #define CORRELATION_FUNCTION_H
 
-#include <memory>
-
 #include "Box.h"
 #include "NeighborList.h"
 #include "NeighborQuery.h"

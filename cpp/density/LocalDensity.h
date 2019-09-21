@@ -4,9 +4,6 @@
 #ifndef LOCAL_DENSITY_H
 #define LOCAL_DENSITY_H
 
-#include <memory>
-#include <tbb/tbb.h>
-
 #include "Box.h"
 #include "NeighborList.h"
 #include "NeighborQuery.h"

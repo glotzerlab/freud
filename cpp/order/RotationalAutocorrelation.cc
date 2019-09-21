@@ -4,6 +4,7 @@
 #include "RotationalAutocorrelation.h"
 
 #include <math.h>
+#include <tbb/tbb.h>
 
 /*! \file RotationalAutocorrelation.cc
     \brief Implements the RotationalAutocorrelation class.
@@ -58,11 +59,6 @@ inline std::complex<float> RotationalAutocorrelation::hypersphere_harmonic(const
 
 void RotationalAutocorrelation::compute(const quat<float>* ref_ors, const quat<float>* ors, unsigned int N)
 {
-    assert(ref_ors);
-    assert(ors);
-    assert(N > 0);
-    assert(ref_ors.size == ors.size);
-
     m_N = N;
     m_RA_array.prepare(m_N);
 

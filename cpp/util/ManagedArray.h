@@ -39,7 +39,8 @@ namespace freud { namespace util {
  *         indexed into, the index may be computed once using the getIndex
  *         function and reused to avoid recomputing it each time.
  */
-template<typename T> class ManagedArray
+template<typename T>
+class ManagedArray
 {
 public:
     //! Constructor based on a shape tuple.

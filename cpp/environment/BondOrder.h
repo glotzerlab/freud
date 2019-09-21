@@ -4,9 +4,6 @@
 #ifndef BOND_ORDER_H
 #define BOND_ORDER_H
 
-#include <memory>
-#include <ostream>
-
 #include "Box.h"
 #include "NeighborList.h"
 #include "NeighborQuery.h"

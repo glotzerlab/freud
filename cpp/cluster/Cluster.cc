@@ -3,7 +3,6 @@
 
 #include <algorithm>
 #include <numeric>
-#include <stdexcept>
 
 #include "Cluster.h"
 #include "NeighborBond.h"

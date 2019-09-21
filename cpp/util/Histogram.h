@@ -23,6 +23,8 @@ class Axis
 public:
     Axis() : m_nbins(0) {}
 
+    virtual ~Axis() {}
+
     Axis(size_t nbins, float min, float max) : m_nbins(nbins), m_min(min), m_max(max) {}
 
     // Return the number of bins in the histogram.
@@ -100,6 +102,8 @@ public:
             cur_location += m_dr;
         }
     }
+
+    virtual ~RegularAxis() {}
 
     //! Find the bin of a value along this axis.
     /*! The linear spacing allows the binning process to be computed especially

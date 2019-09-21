@@ -1,11 +1,7 @@
 // Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#include <algorithm>
-#include <complex>
-#include <stdexcept>
 #include <tbb/tbb.h>
-#include <utility>
 #include <vector>
 
 #include "LocalDescriptors.h"

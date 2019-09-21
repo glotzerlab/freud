@@ -5,8 +5,6 @@
 #define ROTATIONAL_AUTOCORRELATION_H
 
 #include <complex>
-#include <memory>
-#include <tbb/tbb.h>
 
 #include "VectorMath.h"
 #include "ManagedArray.h"

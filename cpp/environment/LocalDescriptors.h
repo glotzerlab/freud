@@ -4,7 +4,7 @@
 #ifndef LOCAL_DESCRIPTORS_H
 #define LOCAL_DESCRIPTORS_H
 
-#include <memory>
+#include <complex>
 
 #include "Box.h"
 #include "ManagedArray.h"

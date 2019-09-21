@@ -7,7 +7,6 @@
 #include <memory>
 #include <stdexcept>
 #include <tbb/tbb.h>
-#include <tuple>
 
 #include "Box.h"
 #include "NeighborBond.h"

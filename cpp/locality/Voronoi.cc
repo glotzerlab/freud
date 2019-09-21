@@ -3,7 +3,6 @@
 
 #include <stdexcept>
 #include <tbb/tbb.h>
-#include <tuple>
 #include <cmath>
 #include <vector>
 
