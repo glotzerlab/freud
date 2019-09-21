@@ -1,19 +1,10 @@
 // Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#include <algorithm>
-#include <complex>
-#include <stdexcept>
-#include <tbb/tbb.h>
-#include <utility>
 #include <vector>
 
-#include "Index1D.h"
 #include "LocalDescriptors.h"
 #include "diagonalize.h"
-
-using namespace std;
-using namespace tbb;
 
 /*! \file LocalDescriptors.cc
   \brief Computes local descriptors.
@@ -35,10 +26,10 @@ void LocalDescriptors::compute(const box::Box& box,
 
     m_sphArray.prepare({nlist->getNumBonds(), getSphWidth()});
 
-    parallel_for(blocked_range<size_t>(0, n_points), [=](const blocked_range<size_t>& br) {
+    util::forLoopWrapper(0, n_points, [=](size_t begin, size_t end) {
         fsph::PointSPHEvaluator<float> sph_eval(m_l_max);
 
-        for (size_t i = br.begin(); i != br.end(); ++i)
+        for (size_t i = begin; i < end; ++i)
         {
             size_t bond(nlist->find_first_index(i));
             const vec3<float> r_i(points[i]);
@@ -104,9 +95,7 @@ void LocalDescriptors::compute(const box::Box& box,
                 throw std::runtime_error("Uncaught orientation mode in LocalDescriptors::compute");
             }
 
-            for (unsigned int count(0);
-                 bond < nlist->getNumBonds() && nlist->getNeighbors()(bond, 0) == i && count < num_neighbors;
-                 ++bond, ++count)
+            for (; bond < nlist->getNumBonds() && nlist->getNeighbors()(bond, 0) == i; ++bond)
             {
                 const unsigned int sphCount(bond * getSphWidth());
                 const size_t j(nlist->getNeighbors()(bond, 1));

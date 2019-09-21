@@ -2,16 +2,12 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <algorithm>
-#include <cassert>
 #include <numeric>
-#include <stdexcept>
 
 #include "Cluster.h"
 #include "NeighborBond.h"
 #include "NeighborComputeFunctional.h"
 #include "dset/dset.h"
-
-using namespace std;
 
 //! Finds clusters using a network of neighbors.
 namespace freud { namespace cluster {
@@ -42,9 +38,9 @@ void Cluster::compute(const freud::locality::NeighborQuery* nq,
     // These new cluster indexes are then sorted by cluster size from largest
     // to smallest, with equally-sized clusters sorted based on their minimum
     // particle index.
-    vector<size_t> cluster_label(m_num_particles, m_num_particles);
-    vector<size_t> cluster_label_count(m_num_particles);
-    vector<size_t> cluster_min_id(m_num_particles, m_num_particles);
+    std::vector<size_t> cluster_label(m_num_particles, m_num_particles);
+    std::vector<size_t> cluster_label_count(m_num_particles);
+    std::vector<size_t> cluster_min_id(m_num_particles, m_num_particles);
 
     // Loop over every particle.
     m_num_clusters = 0;
@@ -74,10 +70,10 @@ void Cluster::compute(const freud::locality::NeighborQuery* nq,
     cluster_min_id.shrink_to_fit();
 
     // Get a permutation that reorders clusters, largest to smallest.
-    vector<size_t> cluster_reindex = sort_indexes_inverse(cluster_label_count, cluster_min_id);
+    std::vector<size_t> cluster_reindex = sort_indexes_inverse(cluster_label_count, cluster_min_id);
 
     // Clear the cluster keys
-    m_cluster_keys = vector<vector<unsigned int>>(m_num_clusters, vector<unsigned int>());
+    m_cluster_keys = std::vector<std::vector<unsigned int>>(m_num_clusters, std::vector<unsigned int>());
 
     /* Loop over all particles, set their cluster ids and add them to a list of
      * sets. Each set contains all the keys that are part of that cluster. If

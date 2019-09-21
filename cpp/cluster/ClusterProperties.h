@@ -4,8 +4,6 @@
 #ifndef CLUSTER_PROPERTIES_H
 #define CLUSTER_PROPERTIES_H
 
-#include <memory>
-
 #include "ManagedArray.h"
 #include "Box.h"
 

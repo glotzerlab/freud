@@ -4,10 +4,6 @@
 #ifndef CUBATIC_H
 #define CUBATIC_H
 
-#include <memory>
-#include <ostream>
-#include <tbb/tbb.h>
-
 #include "VectorMath.h"
 #include "saruprng.h"
 #include "ManagedArray.h"

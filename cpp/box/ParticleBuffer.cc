@@ -5,8 +5,6 @@
 
 #include "ParticleBuffer.h"
 
-using namespace std;
-
 /*! \file ParticleBuffer.cc
     \brief Replicates particles across periodic boundaries.
 */
@@ -16,14 +14,12 @@ namespace freud { namespace box {
 void ParticleBuffer::compute(const vec3<float>* points, const unsigned int Np, const vec3<float> buff,
                              const bool use_images)
 {
-    assert(points);
-
     if (buff.x < 0)
-        throw invalid_argument("Buffer x distance must be non-negative.");
+        throw std::invalid_argument("Buffer x distance must be non-negative.");
     if (buff.y < 0)
-        throw invalid_argument("Buffer y distance must be non-negative.");
+        throw std::invalid_argument("Buffer y distance must be non-negative.");
     if (buff.z < 0)
-        throw invalid_argument("Buffer z distance must be non-negative.");
+        throw std::invalid_argument("Buffer z distance must be non-negative.");
 
     // Get the box dimensions
     vec3<float> L(m_box.getL());

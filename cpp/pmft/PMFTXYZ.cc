@@ -64,8 +64,6 @@ void PMFTXYZ::accumulate(const locality::NeighborQuery* neighbor_query,
                          freud::locality::QueryArgs qargs)
 {
     // precalc some values for faster computation within the loop
-    Index2D q_i = Index2D(n_faces, n_query_points);
-
     std::vector<unsigned int> shape = m_local_histograms.local().shape();
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
         [=](const freud::locality::NeighborBond& neighbor_bond) {
@@ -78,7 +76,7 @@ void PMFTXYZ::accumulate(const locality::NeighborQuery* neighbor_query,
         for (unsigned int k = 0; k < n_faces; k++)
         {
             // create the extra quaternion
-            quat<float> qe(face_orientations[q_i(k, neighbor_bond.ref_id)]);
+            quat<float> qe(face_orientations[util::ManagedArray<unsigned int>::getIndex({neighbor_query->getNPoints(), n_faces}, {neighbor_bond.ref_id, k})]);
             // create point vector
             vec3<float> v(delta);
             // rotate the vector

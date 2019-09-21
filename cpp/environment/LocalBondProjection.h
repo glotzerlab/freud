@@ -4,10 +4,6 @@
 #ifndef LOCAL_BOND_PROJECTION_H
 #define LOCAL_BOND_PROJECTION_H
 
-#include <complex>
-#include <memory>
-#include <tbb/tbb.h>
-
 #include "Box.h"
 #include "NeighborList.h"
 #include "VectorMath.h"

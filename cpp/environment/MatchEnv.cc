@@ -1,7 +1,6 @@
 // Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#include <cassert>
 #include <cstdio>
 #include <stdexcept>
 
@@ -27,10 +26,6 @@ EnvDisjointSet::EnvDisjointSet(unsigned int Np) : rank(std::vector<unsigned int>
 void EnvDisjointSet::merge(const unsigned int a, const unsigned int b,
                            BiMap<unsigned int, unsigned int> vec_map, rotmat3<float> rotation)
 {
-    assert(a < s.size() && b < s.size());
-    assert(s[a].vecs.size() == s[b].vecs.size());
-    assert(vec_map.size() == s[a].vecs.size());
-
     // if tree heights are equal, merge b to a
     if (rank[s[a].env_ind] == rank[s[b].env_ind])
     {
@@ -179,7 +174,6 @@ unsigned int EnvDisjointSet::find(const unsigned int c)
 // If environment m doesn't exist as a HEAD in the set, throw an error.
 std::vector<unsigned int> EnvDisjointSet::findSet(const unsigned int m)
 {
-    assert(s.size() > 0);
     bool invalid_ind = true;
 
     std::vector<unsigned int> m_set;
@@ -211,7 +205,6 @@ std::vector<unsigned int> EnvDisjointSet::findSet(const unsigned int m)
 // If environment m doesn't exist as a HEAD in the set, throw an error.
 std::vector<vec3<float> > EnvDisjointSet::getAvgEnv(const unsigned int m)
 {
-    assert(s.size() > 0);
     bool invalid_ind = true;
 
     std::vector<vec3<float> > env(m_max_num_neigh, vec3<float>(0.0, 0.0, 0.0));
@@ -228,9 +221,6 @@ std::vector<vec3<float> > EnvDisjointSet::getAvgEnv(const unsigned int m)
             // if we are part of the environment m, add the vectors to env
             if (head_env == m)
             {
-                assert(s[i].vec_ind.size() <= m_max_num_neigh);
-                assert(s[i].vecs.size() <= m_max_num_neigh);
-                assert(s[i].num_vecs == s[m].num_vecs);
                 // loop through the vectors, getting them properly indexed
                 // add them to env
                 for (unsigned int proper_ind = 0; proper_ind < s[i].vecs.size(); proper_ind++)
@@ -267,7 +257,6 @@ std::vector<vec3<float> > EnvDisjointSet::getAvgEnv(const unsigned int m)
 // If index m doesn't exist in the set, throw an error.
 std::vector<vec3<float>> EnvDisjointSet::getIndividualEnv(const unsigned int m)
 {
-    assert(s.size() > 0);
     if (m >= s.size())
     {
         fprintf(stderr, "m is %d\n", m);
@@ -357,8 +346,7 @@ MatchEnv::isSimilar(Environment& e1, Environment& e2, float threshold_sq, bool r
         r.Fit(v2);
         // get the optimal rotation to take v2 to v1
         std::vector<vec3<float>> rot = r.getRotation();
-        // this must be a 3x3 matrix. if it isn't, something has gone wrong.
-        assert(rot.size() == 3);
+        // rot must be a 3x3 matrix. if it isn't, something has gone wrong.
         rotation = rotmat3<float>(rot[0], rot[1], rot[2]);
         BiMap<unsigned int, unsigned int> tmp_vec_map = r.getVecMap();
 
@@ -499,8 +487,7 @@ MatchEnv::minimizeRMSD(Environment& e1, Environment& e2, float& min_rmsd, bool r
         r.Fit(v2);
         // get the optimal rotation to take v2 to v1
         std::vector<vec3<float>> rot = r.getRotation();
-        // this must be a 3x3 matrix. if it isn't, something has gone wrong.
-        assert(rot.size() == 3);
+        // rot must be a 3x3 matrix. if it isn't, something has gone wrong.
         rotation = rotmat3<float>(rot[0], rot[1], rot[2]);
         min_rmsd = r.getRMSD();
         vec_map = r.getVecMap();
@@ -545,10 +532,6 @@ void MatchEnv::cluster(const freud::locality::NeighborList* env_nlist,
                        const freud::locality::NeighborList* nlist, const vec3<float>* points, unsigned int Np,
                        float threshold, bool registration, bool global)
 {
-    assert(points);
-    assert(Np > 0);
-    assert(threshold > 0);
-
     // reallocate the m_env_index array for safety
     m_env_index.prepare(Np);
 
@@ -640,12 +623,6 @@ void MatchEnv::matchMotif(const freud::locality::NeighborList* nlist, const vec3
                           unsigned int Np, const vec3<float>* refPoints, unsigned int numRef, float threshold,
                           bool registration)
 {
-    assert(points);
-    assert(refPoints);
-    assert(numRef == m_num_neighbors);
-    assert(Np > 0);
-    assert(threshold > 0);
-
     // reallocate the m_env_index array for safety
     m_env_index.prepare(Np);
 
@@ -729,11 +706,6 @@ std::vector<float> MatchEnv::minRMSDMotif(const freud::locality::NeighborList* n
                                           const vec3<float>* refPoints, unsigned int numRef,
                                           bool registration)
 {
-    assert(points);
-    assert(refPoints);
-    assert(numRef == m_num_neighbors);
-    assert(Np > 0);
-
     // reallocate the m_env_index array for safety
     m_env_index.prepare(Np);
 

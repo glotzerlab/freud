@@ -4,8 +4,6 @@
 #ifndef RDF_H
 #define RDF_H
 
-#include <memory>
-
 #include "Box.h"
 #include "NeighborQuery.h"
 #include "NeighborComputeFunctional.h"
@@ -23,7 +21,7 @@ public:
     RDF(unsigned int bins, float r_max, float r_min = 0);
 
     //! Destructor
-    ~RDF() {};
+    virtual ~RDF() {};
 
     //! Reset the RDF array to all zeros
     void reset();

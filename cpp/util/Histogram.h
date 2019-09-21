@@ -3,13 +3,15 @@
 
 #include <vector>
 #include <memory>
-#include "ManagedArray.h"
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
 #include <sstream>
 #include <tbb/tbb.h>
 #include <utility>
+
+#include "ManagedArray.h"
+#include "utils.h"
 
 namespace freud { namespace util {
 
@@ -22,6 +24,8 @@ class Axis
 {
 public:
     Axis() : m_nbins(0) {}
+
+    virtual ~Axis() {}
 
     Axis(size_t nbins, float min, float max) : m_nbins(nbins), m_min(min), m_max(max) {}
 
@@ -100,6 +104,8 @@ public:
             cur_location += m_dr;
         }
     }
+
+    virtual ~RegularAxis() {}
 
     //! Find the bin of a value along this axis.
     /*! The linear spacing allows the binning process to be computed especially
@@ -363,8 +369,8 @@ public:
     template <typename ComputeFunction>
     void reduceOverThreadsPerBin(ThreadLocalHistogram &local_histograms, const ComputeFunction &cf)
     {
-        tbb::parallel_for(tbb::blocked_range<size_t>(0, m_bin_counts.size()), [=](const tbb::blocked_range<size_t>& r) {
-            for (size_t i = r.begin(); i != r.end(); i++)
+        util::forLoopWrapper(0, m_bin_counts.size(), [=](size_t begin, size_t end) {
+            for (size_t i = begin; i < end; ++i)
             {
                 for (ThreadLocalHistogram::const_iterator local_bins = local_histograms.begin();
                     local_bins != local_histograms.end(); ++local_bins)

@@ -2,9 +2,6 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <stdexcept>
-#ifdef __SSE2__
-#include <emmintrin.h>
-#endif
 
 #include "RDF.h"
 

@@ -4,9 +4,8 @@
 #ifndef BRUTE_FORCE_H
 #define BRUTE_FORCE_H
 
-#include <cassert>
-#include <chrono>
 #include <iostream>
+#include <chrono>
 #include <random>
 #include <vector>
 
@@ -332,7 +331,6 @@ public:
     double AlignedRMSDTree(const matrix& points, BiMap<unsigned int, unsigned int>& m)
     {
         // Also brute force.
-        assert(points.rows() == m_ref_points.rows());
         double rmsd = 0.0;
 
         // a mapping between the vectors of m_ref_points and the vectors of points

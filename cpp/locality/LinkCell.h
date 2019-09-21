@@ -4,14 +4,12 @@
 #ifndef LINKCELL_H
 #define LINKCELL_H
 
-#include <cassert>
 #include <memory>
 #include <tbb/concurrent_hash_map.h>
 #include <unordered_set>
 #include <vector>
 
 #include "Box.h"
-#include "Index1D.h"
 #include "NeighborList.h"
 #include "NeighborQuery.h"
 
@@ -60,9 +58,6 @@ public:
                      unsigned int cell)
         : m_cell_list(cell_list), m_Np(Np), m_Nc(Nc)
     {
-        assert(cell < Nc);
-        assert(Np > 0);
-        assert(Nc > 0);
         m_cell = cell;
         m_cur_idx = m_Np + cell;
     }
@@ -359,18 +354,12 @@ public:
     //! Compute LinkCell dimensions
     const vec3<unsigned int> computeDimensions(const box::Box& box, float cell_width) const;
 
-    //! Get the cell indexer
-    const Index3D& getCellIndexer() const
-    {
-        return m_cell_index;
-    }
-
     //! Compute cell id from cell coordinates
     unsigned int getCellIndex(const vec3<int> cellCoord) const
     {
-        int w = (int) getCellIndexer().getW();
-        int h = (int) getCellIndexer().getH();
-        int d = (int) getCellIndexer().getD();
+        int w = static_cast<int>(m_celldim.x);
+        int h = static_cast<int>(m_celldim.y);
+        int d = static_cast<int>(m_celldim.z);
 
         int x = cellCoord.x % w;
         x += (x < 0 ? w : 0);
@@ -379,13 +368,13 @@ public:
         int z = cellCoord.z % d;
         z += (z < 0 ? d : 0);
 
-        return getCellIndexer()(x, y, z);
+        return coordToIndex(x, y, z);
     }
 
     //! Get the number of cells
     unsigned int getNumCells() const
     {
-        return m_cell_index.getNumElements();
+        return m_size;
     }
 
     //! Get the cell width
@@ -398,7 +387,20 @@ public:
     unsigned int getCell(const vec3<float>& p) const
     {
         vec3<unsigned int> c = getCellCoord(p);
-        return m_cell_index(c.x, c.y, c.z);
+        return coordToIndex(c.x, c.y, c.z);
+    }
+
+    //! Convert xyz coordinates to a linear index.
+    vec3<unsigned int> indexToCoord(unsigned int x) const;
+
+    //! Convert xyz coordinates to a linear index.
+    unsigned int coordToIndex(int x, int y, int z) const
+    {
+        // For backwards compatibility with the Index1D layout, the indices and
+        // the dimensions are passed in reverse to the indexer.
+        return util::ManagedArray<unsigned int>::getIndex(
+            {m_celldim.z, m_celldim.y, m_celldim.x},
+            {static_cast<unsigned int>(z), static_cast<unsigned int>(y), static_cast<unsigned int>(x)});
     }
 
     //! Compute cell coordinates for a given position
@@ -406,12 +408,12 @@ public:
     {
         vec3<float> alpha = m_box.makeFraction(p);
         vec3<unsigned int> c;
-        c.x = (unsigned int) floorf(alpha.x * float(m_cell_index.getW()));
-        c.x %= m_cell_index.getW();
-        c.y = (unsigned int) floorf(alpha.y * float(m_cell_index.getH()));
-        c.y %= m_cell_index.getH();
-        c.z = (unsigned int) floorf(alpha.z * float(m_cell_index.getD()));
-        c.z %= m_cell_index.getD();
+        c.x = (unsigned int) floorf(alpha.x * float(m_celldim.x));
+        c.x %= m_celldim.x;
+        c.y = (unsigned int) floorf(alpha.y * float(m_celldim.y));
+        c.y %= m_celldim.y;
+        c.z = (unsigned int) floorf(alpha.z * float(m_celldim.z));
+        c.z %= m_celldim.z;
         return c;
     }
 
@@ -461,11 +463,11 @@ private:
     //! Helper function to compute cell neighbors
     const std::vector<unsigned int>& computeCellNeighbors(unsigned int cell);
 
-    Index3D m_cell_index;         //!< Indexer to compute cell indices
     unsigned int m_n_points;      //!< Number of particles last placed into the cell list
     unsigned int m_Nc;            //!< Number of cells last used
     float m_cell_width;           //!< Minimum necessary cell width cutoff
     vec3<unsigned int> m_celldim; //!< Cell dimensions
+    unsigned int m_size; //!< The size of cell list.
 
     util::ManagedArray<unsigned int> m_cell_list; //!< The cell list last computed
     typedef tbb::concurrent_hash_map<unsigned int, std::vector<unsigned int>> CellNeighbors;

@@ -4,13 +4,8 @@
 #include <algorithm>
 #include <cmath>
 #include <stdexcept>
-#include <tbb/tbb.h>
-#include <tuple>
 
 #include "LinkCell.h"
-
-using namespace std;
-using namespace tbb;
 
 #if defined _WIN32
 #undef min // std::min clashes with a Windows header
@@ -39,7 +34,7 @@ LinkCell::LinkCell(const box::Box& box, float cell_width, const vec3<float>* poi
     if ((m_cell_width * 2.0 > nearest_plane_distance.x) || (m_cell_width * 2.0 > nearest_plane_distance.y)
         || (!box.is2D() && m_cell_width * 2.0 > nearest_plane_distance.z))
     {
-        throw runtime_error(
+        throw std::runtime_error(
             "Cannot generate a cell list where cell_width is larger than half the box.");
     }
     // Only 1 cell deep in 2D
@@ -48,10 +43,11 @@ LinkCell::LinkCell(const box::Box& box, float cell_width, const vec3<float>* poi
         celldim.z = 1;
     }
 
-    m_cell_index = Index3D(celldim.x, celldim.y, celldim.z);
-    if (m_cell_index.getNumElements() < 1)
+    m_size = celldim.x * celldim.y * celldim.z;
+    //printf("The dimensions are %d, %d, %d\n", celldim.x, celldim.y, celldim.z);
+    if (m_size < 1)
     {
-        throw runtime_error("At least one cell must be present.");
+        throw std::runtime_error("At least one cell must be present.");
     }
     m_celldim = celldim;
 
@@ -94,12 +90,11 @@ void LinkCell::computeCellList(const vec3<float>* points, unsigned int n_points)
 {
     if (n_points == 0)
     {
-        throw runtime_error("Cannot generate a cell list of 0 particles.");
+        throw std::runtime_error("Cannot generate a cell list of 0 particles.");
     }
 
     // determine the number of cells and allocate memory
     unsigned int Nc = getNumCells();
-    assert(Nc > 0);
     m_cell_list.prepare(n_points + Nc);
     m_n_points = n_points;
     m_Nc = Nc;
@@ -110,8 +105,6 @@ void LinkCell::computeCellList(const vec3<float>* points, unsigned int n_points)
         m_cell_list[n_points + cell] = LINK_CELL_TERMINATOR;
     }
 
-    assert(points);
-
     // generate the cell list
     for (int i = n_points - 1; i >= 0; i--)
     {
@@ -121,13 +114,23 @@ void LinkCell::computeCellList(const vec3<float>* points, unsigned int n_points)
     }
 }
 
+//! Convert xyz coordinates to a linear index.
+vec3<unsigned int> LinkCell::indexToCoord(unsigned int x) const
+{
+    std::vector<unsigned int> coord = util::ManagedArray<unsigned int>::getMultiIndex(
+        {m_celldim.x, m_celldim.y, m_celldim.z}, x);
+    // For backwards compatibility with the Index1D layout, these indices must
+    // be returned in reverse.
+    return vec3<unsigned int>(coord[2], coord[1], coord[0]);
+}
+
 const std::vector<unsigned int>& LinkCell::computeCellNeighbors(unsigned int cur_cell)
 {
     std::vector<unsigned int> neighbor_cells;
-    vec3<unsigned int> l_idx = m_cell_index(cur_cell);
-    const int i = (int) l_idx.x;
-    const int j = (int) l_idx.y;
-    const int k = (int) l_idx.z;
+    vec3<unsigned int> l_idx = indexToCoord(cur_cell);
+    const int i = static_cast<int>(l_idx.x);
+    const int j = static_cast<int>(l_idx.y);
+    const int k = static_cast<int>(l_idx.z);
 
     // loop over the neighbor cells
     int starti, startj, startk;
@@ -189,17 +192,17 @@ const std::vector<unsigned int>& LinkCell::computeCellNeighbors(unsigned int cur
             for (int neighi = starti; neighi <= endi; neighi++)
             {
                 // wrap back into the box
-                int wrapi = (m_cell_index.getW() + neighi) % m_cell_index.getW();
-                int wrapj = (m_cell_index.getH() + neighj) % m_cell_index.getH();
-                int wrapk = (m_cell_index.getD() + neighk) % m_cell_index.getD();
+                int wrapi = (m_celldim.x + neighi) % m_celldim.x;
+                int wrapj = (m_celldim.y + neighj) % m_celldim.y;
+                int wrapk = (m_celldim.z + neighk) % m_celldim.z;
 
-                unsigned int neigh_cell = m_cell_index(wrapi, wrapj, wrapk);
+                unsigned int neigh_cell = coordToIndex(wrapi, wrapj, wrapk);
                 // add to the list
                 neighbor_cells.push_back(neigh_cell);
             }
 
     // sort the list
-    sort(neighbor_cells.begin(), neighbor_cells.end());
+    std::sort(neighbor_cells.begin(), neighbor_cells.end());
 
     // add the vector of neighbor cells to the hash table
     CellNeighbors::accessor a;
