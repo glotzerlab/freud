@@ -245,7 +245,7 @@ public:
         }
 
         std::vector<unsigned int> indices(shape.size());
-        for (unsigned int i = 0 ; i <= shape.size(); ++i)
+        for (unsigned int i = 0 ; i < shape.size(); ++i)
         {
             cur_prod /= shape[i];
             // Integer division should cast away extras.
@@ -262,13 +262,13 @@ public:
      *  \param shape The shape to map indexes to.
      *  \param indices The index in each dimension.
      */
-    static inline size_t getIndex(std::vector<unsigned int> shape, std::vector<unsigned int> indices)
+    static inline unsigned int getIndex(std::vector<unsigned int> shape, std::vector<unsigned int> indices)
     {
         // In getting the linear bin, we must iterate over bins in reverse
         // order to build up the value of cur_prod because each subsequent axis
         // contributes less according to row-major ordering.
-        size_t cur_prod = 1;
-        size_t idx = 0;
+        unsigned int cur_prod = 1;
+        unsigned int idx = 0;
         for (int i = indices.size() - 1; i >= 0; --i)
         {
             idx += indices[i] * cur_prod;
