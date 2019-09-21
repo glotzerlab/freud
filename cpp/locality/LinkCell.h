@@ -4,7 +4,6 @@
 #ifndef LINKCELL_H
 #define LINKCELL_H
 
-#include <cassert>
 #include <memory>
 #include <tbb/concurrent_hash_map.h>
 #include <unordered_set>
@@ -60,9 +59,6 @@ public:
                      unsigned int cell)
         : m_cell_list(cell_list), m_Np(Np), m_Nc(Nc)
     {
-        assert(cell < Nc);
-        assert(Np > 0);
-        assert(Nc > 0);
         m_cell = cell;
         m_cur_idx = m_Np + cell;
     }
@@ -362,9 +358,9 @@ public:
     //! Compute cell id from cell coordinates
     unsigned int getCellIndex(const vec3<int> cellCoord) const
     {
-        int w = (int) m_celldim.x;
-        int h = (int) m_celldim.y;
-        int d = (int) m_celldim.z;
+        int w = static_cast<int>(m_celldim.x);
+        int h = static_cast<int>(m_celldim.y);
+        int d = static_cast<int>(m_celldim.z);
 
         int x = cellCoord.x % w;
         x += (x < 0 ? w : 0);
@@ -471,13 +467,13 @@ private:
     //! Helper function to compute cell neighbors
     const std::vector<unsigned int>& computeCellNeighbors(unsigned int cell);
 
-    Index3D m_cell_index;         //!< Indexer to compute cell indices
     unsigned int m_n_points;      //!< Number of particles last placed into the cell list
     unsigned int m_Nc;            //!< Number of cells last used
     float m_cell_width;           //!< Minimum necessary cell width cutoff
     vec3<unsigned int> m_celldim; //!< Cell dimensions
     unsigned int m_size; //!< The size of cell list.
 
+    Index3D m_cell_index;         //!< Indexer to compute cell indices
     util::ManagedArray<unsigned int> m_cell_list; //!< The cell list last computed
     typedef tbb::concurrent_hash_map<unsigned int, std::vector<unsigned int>> CellNeighbors;
     CellNeighbors m_cell_neighbors; //!< Hash map of cell neighbors for each cell
