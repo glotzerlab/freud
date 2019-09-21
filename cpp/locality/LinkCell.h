@@ -139,7 +139,7 @@ public:
     char m_stage; //!< stage of the computation (which face is being iterated over)
 
 private:
-    void reset(unsigned int range)
+    void reset(unsigned int range);
 
     int m_current_x; //!< Current position in x
     int m_current_y; //!< Current position in y
