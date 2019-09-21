@@ -392,16 +392,13 @@ public:
     }
 
     //! Convert xyz coordinates to a linear index.
-    vec3<unsigned int> indexToCoord(unsigned int x) const
-    {
-        std::vector<unsigned int> coord = util::ManagedArray<unsigned int>::getMultiIndex(
-            {m_celldim.x, m_celldim.y, m_celldim.z}, x);
-        return vec3<unsigned int>(coord[0], coord[1], coord[2]);
-    }
+    vec3<unsigned int> indexToCoord(unsigned int x) const;
 
     //! Convert xyz coordinates to a linear index.
     unsigned int coordToIndex(int x, int y, int z) const
     {
+        // For backwards compatibility with the Index1D layout, the indices and
+        // the dimensions are passed in reverse to the indexer.
         return util::ManagedArray<unsigned int>::getIndex(
             {m_celldim.z, m_celldim.y, m_celldim.x},
             {static_cast<unsigned int>(z), static_cast<unsigned int>(y), static_cast<unsigned int>(x)});

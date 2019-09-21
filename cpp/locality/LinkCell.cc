@@ -115,14 +115,20 @@ void LinkCell::computeCellList(const vec3<float>* points, unsigned int n_points)
     }
 }
 
+//! Convert xyz coordinates to a linear index.
+vec3<unsigned int> LinkCell::indexToCoord(unsigned int x) const
+{
+    std::vector<unsigned int> coord = util::ManagedArray<unsigned int>::getMultiIndex(
+        {m_celldim.x, m_celldim.y, m_celldim.z}, x);
+    // For backwards compatibility with the Index1D layout, these indices must
+    // be returned in reverse.
+    return vec3<unsigned int>(coord[2], coord[1], coord[0]);
+}
+
 const std::vector<unsigned int>& LinkCell::computeCellNeighbors(unsigned int cur_cell)
 {
     std::vector<unsigned int> neighbor_cells;
-    //printf("About to run for cur_cell %d\n", cur_cell);
-    vec3<unsigned int> l_idx = m_cell_index(cur_cell);
-    //printf("Actual output: %d, %d, %d\n", l_idx.x, l_idx.y, l_idx.z);
-    vec3<unsigned int> l_idx2 = indexToCoord(cur_cell);
-    //printf("Done");
+    vec3<unsigned int> l_idx = indexToCoord(cur_cell);
     const int i = static_cast<int>(l_idx.x);
     const int j = static_cast<int>(l_idx.y);
     const int k = static_cast<int>(l_idx.z);
