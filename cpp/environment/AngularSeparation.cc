@@ -2,6 +2,7 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include "AngularSeparation.h"
+#include "utils.h"
 
 #if defined _WIN32
 #undef min // std::min clashes with a Windows header
@@ -18,15 +19,10 @@ AngularSeparation::AngularSeparation() {}
 
 AngularSeparation::~AngularSeparation() {}
 
-//! Clip v if it is outside the range [lo, hi].
-float clamp(float v, float lo, float hi) {
-    return std::max(lo, std::min(v, hi));
-}
-
 float computeSeparationAngle(const quat<float> ref_q, const quat<float> q)
 {
     quat<float> R = q * conj(ref_q);
-    float theta = float(2.0 * acos(clamp(R.s, -1, 1)));
+    float theta = float(2.0 * acos(util::clamp(R.s, -1, 1)));
     return theta;
 }
 

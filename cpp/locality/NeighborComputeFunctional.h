@@ -8,6 +8,7 @@
 #include "NeighborList.h"
 #include "NeighborQuery.h"
 #include "NeighborPerPointIterator.h"
+#include "utils.h"
 
 /*! \file NeighborComputeFunctional.h
     \brief Implements logic for generic looping over neighbors and applying a compute function.
@@ -67,26 +68,6 @@ private:
     bool m_finished;
 };
 
-
-//! Wrapper for for-loop to allow the execution in parallel or not.
-/*! \param parallel If true, run body in parallel.
- *  \param begin Beginning index.
- *  \param end Ending index.
- *  \param body An object with operator(size_t begin, size_t end).
- */
-template<typename Body> void forLoopWrapper(size_t begin, size_t end, const Body& body, bool parallel)
-{
-    if (parallel)
-    {
-        tbb::parallel_for(tbb::blocked_range<size_t>(begin, end),
-                          [&body](const tbb::blocked_range<size_t>& r) { body(r.begin(), r.end()); });
-    }
-    else
-    {
-        body(begin, end);
-    }
-}
-
 //! Wrapper iterating looping over NeighborQuery or NeighborList.
 /*! This function dynamically determines whether or not the provided
  *  NeighborList is valid. If it is, it applies the provide compute function to
@@ -118,7 +99,7 @@ void loopOverNeighborsIterator(const NeighborQuery* neighbor_query, const vec3<f
     // check if nlist exists
     if (nlist != NULL)
     {
-        forLoopWrapper(0, n_query_points, [=](size_t begin, size_t end) {
+        util::forLoopWrapper(0, n_query_points, [=](size_t begin, size_t end) {
             for (size_t i = begin; i != end; ++i)
             {
                 std::shared_ptr<NeighborListPerPointIterator> niter = std::make_shared<NeighborListPerPointIterator>(nlist, i);
@@ -131,7 +112,7 @@ void loopOverNeighborsIterator(const NeighborQuery* neighbor_query, const vec3<f
         std::shared_ptr<NeighborQueryIterator> iter = neighbor_query->query(query_points, n_query_points, qargs);
 
         // iterate over the query object in parallel
-        forLoopWrapper(0, n_query_points, [=](size_t begin, size_t end) {
+        util::forLoopWrapper(0, n_query_points, [=](size_t begin, size_t end) {
             for (size_t i = begin; i != end; ++i)
             {
                 std::shared_ptr<NeighborQueryPerPointIterator> it = iter->query(i);
@@ -170,7 +151,7 @@ void loopOverNeighbors(const NeighborQuery* neighbor_query, const vec3<float>* q
     // check if nlist exists
     if (nlist != NULL)
     {
-        forLoopWrapper(0, nlist->getNumBonds(), [=](size_t begin, size_t end) {
+        util::forLoopWrapper(0, nlist->getNumBonds(), [=](size_t begin, size_t end) {
             for (size_t bond = begin; bond != end; ++bond)
             {
                 const NeighborBond nb(
@@ -187,7 +168,7 @@ void loopOverNeighbors(const NeighborQuery* neighbor_query, const vec3<float>* q
         std::shared_ptr<NeighborQueryIterator> iter = neighbor_query->query(query_points, n_query_points, qargs);
 
         // iterate over the query object in parallel
-        forLoopWrapper(0, n_query_points, [&iter, &cf](size_t begin, size_t end) {
+        util::forLoopWrapper(0, n_query_points, [&iter, &cf](size_t begin, size_t end) {
             NeighborBond nb;
             for (size_t i = begin; i != end; ++i)
             {

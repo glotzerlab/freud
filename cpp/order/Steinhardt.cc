@@ -3,17 +3,13 @@
 
 #include "Steinhardt.h"
 #include "NeighborComputeFunctional.h"
+#include "utils.h"
 
 /*! \file Steinhardt.cc
     \brief Computes variants of Steinhardt order parameters.
 */
 
 namespace freud { namespace order {
-
-//! Clip v if it is outside the range [lo, hi].
-float clamp(float v, float lo, float hi) {
-  return std::max(lo, std::min(v, hi));
-}
 
 // Calculating Ylm using fsph module
 void Steinhardt::computeYlm(const float theta, const float phi, std::vector<std::complex<float>>& Ylm)
@@ -121,7 +117,7 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
                 // aligned along z, otherwise due to floating point error we
                 // could get delta.z/nb.distance = -1-eps, which is outside the
                 // valid range of acos.
-                float theta = acos(clamp(delta.z / nb.distance, -1, 1)); // 0..Pi
+                float theta = acos(util::clamp(delta.z / nb.distance, -1, 1)); // 0..Pi
 
                 // If the points are directly on top of each other,
                 // theta should be zero instead of nan.
