@@ -1,8 +1,6 @@
 // Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#include <tbb/tbb.h>
-
 #include "LocalBondProjection.h"
 
 /*! \file LocalBondProjection.h
@@ -70,9 +68,9 @@ void LocalBondProjection::compute(box::Box& box,
     m_local_bond_proj_norm.prepare({tot_num_neigh, n_proj});
 
     // compute the order parameter
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, n_query_points), [=](const tbb::blocked_range<size_t>& r) {
-        size_t bond(nlist->find_first_index(r.begin()));
-        for (size_t i = r.begin(); i != r.end(); ++i)
+    util::forLoopWrapper(0, n_query_points, [=](size_t begin, size_t end) {
+        size_t bond(nlist->find_first_index(begin));
+        for (size_t i = begin; i < end; ++i)
         {
             for (; bond < tot_num_neigh && nlist->getNeighbors()(bond, 0) == i; ++bond)
             {

@@ -4,7 +4,7 @@
 #include "RotationalAutocorrelation.h"
 
 #include <math.h>
-#include <tbb/tbb.h>
+#include "utils.h"
 
 /*! \file RotationalAutocorrelation.cc
     \brief Implements the RotationalAutocorrelation class.
@@ -79,8 +79,8 @@ void RotationalAutocorrelation::compute(const quat<float>* ref_ors, const quat<f
     }
 
     // Parallel loop is over orientations (technically (ref_or, or) pairs).
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, N), [=](const tbb::blocked_range<size_t>& r) {
-        for (size_t i = r.begin(); i != r.end(); ++i)
+    util::forLoopWrapper(0, N, [=](size_t begin, size_t end) {
+        for (size_t i = begin; i < end; ++i)
         {
             // Transform the orientation quaternions into Xi/Zeta coordinates;
             quat<float> qq_1 = conj(ref_ors[i]) * ors[i];

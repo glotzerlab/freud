@@ -57,8 +57,8 @@ template<typename T> void CorrelationFunction<T>::reduceCorrelationFunction()
     for (size_t i(0); i < m_nbins; ++i)
         m_rdf_array.get()[i] = T();
     // now compute the rdf
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, m_nbins), [=](const tbb::blocked_range<size_t>& r) {
-        for (size_t i = r.begin(); i != r.end(); i++)
+    util::forLoopWrapper(0, m_nbins, [=](size_t begin, size_t end) {
+        for (size_t i = begin; i < end; ++i)
         {
             for (util::ThreadStorage<unsigned int>::const_iterator local_bins = m_local_bin_counts.begin();
                  local_bins != m_local_bin_counts.end(); ++local_bins)

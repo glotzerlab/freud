@@ -12,6 +12,7 @@
 #include "NeighborBond.h"
 #include "NeighborList.h"
 #include "NeighborPerPointIterator.h"
+#include "utils.h"
 
 /*! \file NeighborQuery.h
     \brief Defines the abstract API for collections of points that can be
@@ -336,10 +337,10 @@ public:
     {
         typedef tbb::enumerable_thread_specific<std::vector<NeighborBond>> BondVector;
         BondVector bonds;
-        tbb::parallel_for(tbb::blocked_range<size_t>(0, m_num_query_points), [&](const tbb::blocked_range<size_t>& r) {
+        util::forLoopWrapper(0, m_num_query_points, [&](size_t begin, size_t end) {
             BondVector::reference local_bonds(bonds.local());
             NeighborBond nb;
-            for (size_t i(r.begin()); i != r.end(); ++i)
+            for (size_t i = begin; i < end; ++i)
             {
                 std::shared_ptr<NeighborQueryPerPointIterator> it = this->query(i);
                 while (!it->end())
@@ -363,8 +364,8 @@ public:
         NeighborList* nl = new NeighborList();
         nl->setNumBonds(num_bonds, m_num_query_points, m_neighbor_query->getNPoints());
 
-        parallel_for(tbb::blocked_range<size_t>(0, num_bonds), [&](const tbb::blocked_range<size_t>& r) {
-            for (size_t bond(r.begin()); bond < r.end(); ++bond)
+        util::forLoopWrapper(0, num_bonds, [&](size_t begin, size_t end) {
+            for (size_t bond = begin; bond < end; ++bond)
             {
                 nl->getNeighbors()(bond, 0) = linear_bonds[bond].id;
                 nl->getNeighbors()(bond, 1) = linear_bonds[bond].ref_id;

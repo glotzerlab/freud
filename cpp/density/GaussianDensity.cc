@@ -22,8 +22,8 @@ GaussianDensity::GaussianDensity(vec3<unsigned int> width, float r_max, float si
 void GaussianDensity::reduce()
 {
     // combine arrays
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, m_density_array.size()), [=](const tbb::blocked_range<size_t>& r) {
-        for (size_t i = r.begin(); i != r.end(); i++)
+    util::forLoopWrapper(0, m_density_array.size(), [=](size_t begin, size_t end) {
+        for (size_t i = begin; i < end; ++i)
         {
             for (util::ThreadStorage<float>::const_iterator local_bins = m_local_bin_counts.begin();
                  local_bins != m_local_bin_counts.end(); ++local_bins)
@@ -75,7 +75,7 @@ void GaussianDensity::compute(const box::Box& box, const vec3<float>* points, un
     }
     m_density_array.prepare({width.x, width.y, width.z});
     m_local_bin_counts.resize({width.x, width.y, width.z});
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, n_points), [=](const tbb::blocked_range<size_t>& r) {
+    util::forLoopWrapper(0, n_points, [=](size_t begin, size_t end) {
         // set up some constants first
         float lx = m_box.getLx();
         float ly = m_box.getLy();
@@ -89,7 +89,7 @@ void GaussianDensity::compute(const box::Box& box, const vec3<float>* points, un
         float A = sqrt(1.0f / (2.0f * M_PI * sigmasq));
 
         // for each reference point
-        for (size_t idx = r.begin(); idx != r.end(); idx++)
+        for (size_t idx = begin; idx < end; ++idx)
         {
             // find the distance of that particle to bins
             // will use this information to evaluate the Gaussian

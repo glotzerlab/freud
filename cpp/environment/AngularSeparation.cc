@@ -71,9 +71,9 @@ void AngularSeparation::computeNeighbor(const quat<float>* orientations, unsigne
     m_neighbor_angles.prepare(tot_num_neigh);
 
     // compute the order parameter
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, n_points), [=](const tbb::blocked_range<size_t>& r) {
-        size_t bond(nlist->find_first_index(r.begin()));
-        for (size_t i = r.begin(); i != r.end(); ++i)
+    util::forLoopWrapper(0, n_points, [=](size_t begin, size_t end) {
+        size_t bond(nlist->find_first_index(begin));
+        for (size_t i = begin; i < end; ++i)
         {
             quat<float> q = orientations[i];
 
@@ -96,8 +96,8 @@ void AngularSeparation::computeGlobal(const quat<float>* global_orientations, un
     m_global_angles.prepare({n_points, n_global});
 
     // compute the order parameter
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, n_points), [=](const tbb::blocked_range<size_t>& r) {
-        for (size_t i = r.begin(); i != r.end(); ++i)
+    util::forLoopWrapper(0, n_points, [=](size_t begin, size_t end) {
+        for (size_t i = begin; i < end; ++i)
         {
             quat<float> q = orientations[i];
             for (unsigned int j = 0; j < n_global; j++)

@@ -4,8 +4,6 @@
 #ifndef ANGULAR_SEPARATION_H
 #define ANGULAR_SEPARATION_H
 
-#include <tbb/tbb.h>
-
 #include "NeighborList.h"
 #include "VectorMath.h"
 

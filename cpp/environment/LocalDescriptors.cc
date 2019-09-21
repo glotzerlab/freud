@@ -1,7 +1,6 @@
 // Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#include <tbb/tbb.h>
 #include <vector>
 
 #include "LocalDescriptors.h"
@@ -27,10 +26,10 @@ void LocalDescriptors::compute(const box::Box& box,
 
     m_sphArray.prepare({nlist->getNumBonds(), getSphWidth()});
 
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, n_points), [=](const tbb::blocked_range<size_t>& br) {
+    util::forLoopWrapper(0, n_points, [=](size_t begin, size_t end) {
         fsph::PointSPHEvaluator<float> sph_eval(m_l_max);
 
-        for (size_t i = br.begin(); i != br.end(); ++i)
+        for (size_t i = begin; i < end; ++i)
         {
             size_t bond(nlist->find_first_index(i));
             const vec3<float> r_i(points[i]);

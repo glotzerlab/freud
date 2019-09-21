@@ -5,7 +5,7 @@
 #define BOX_H
 
 #include <sstream>
-#include <tbb/tbb.h>
+#include "utils.h"
 
 #include "VectorMath.h"
 
@@ -204,8 +204,8 @@ public:
      */
     void makeCoordinates(vec3<float>* vecs, unsigned int Nvecs) const
     {
-        tbb::parallel_for(tbb::blocked_range<size_t>(0, Nvecs), [=](const tbb::blocked_range<size_t>& r) {
-            for (size_t i = r.begin(); i < r.end(); ++i)
+        util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
+            for (size_t i = begin; i < end; ++i)
             {
                 vecs[i] = makeCoordinates(vecs[i]);
             }
@@ -238,8 +238,8 @@ public:
 
     void makeFraction(vec3<float>* vecs, unsigned int Nvecs) const
     {
-        tbb::parallel_for(tbb::blocked_range<size_t>(0, Nvecs), [=](const tbb::blocked_range<size_t>& r) {
-            for (size_t i = r.begin(); i < r.end(); ++i)
+        util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
+            for (size_t i = begin; i < end; ++i)
             {
                 vecs[i] = makeFraction(vecs[i]);
             }
@@ -253,8 +253,8 @@ public:
      */
     void getImage(vec3<float>* vecs, unsigned int Nvecs, vec3<int>* res) const
     {
-        tbb::parallel_for(tbb::blocked_range<size_t>(0, Nvecs), [=](const tbb::blocked_range<size_t>& r) {
-            for (size_t i = r.begin(); i < r.end(); ++i)
+        util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
+            for (size_t i = begin; i < end; ++i)
             {
                 vec3<float> f = makeFraction(vecs[i]) - vec3<float>(0.5, 0.5, 0.5);
                 res[i].x = (int) ((f.x >= 0.0f) ? f.x + 0.5f : f.x - 0.5f);
@@ -296,8 +296,8 @@ public:
      */
     void wrap(vec3<float>* vecs, unsigned int Nvecs) const
     {
-        tbb::parallel_for(tbb::blocked_range<size_t>(0, Nvecs), [=](const tbb::blocked_range<size_t>& r) {
-            for (size_t i = r.begin(); i < r.end(); ++i)
+        util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
+            for (size_t i = begin; i < end; ++i)
             {
                 vecs[i] = wrap(vecs[i]);
             }
@@ -311,8 +311,8 @@ public:
     */
     void unwrap(vec3<float>* vecs, const vec3<int>* images, unsigned int Nvecs) const
     {
-        tbb::parallel_for(tbb::blocked_range<size_t>(0, Nvecs), [=](const tbb::blocked_range<size_t>& r) {
-            for (size_t i = r.begin(); i < r.end(); ++i)
+        util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
+            for (size_t i = begin; i < end; ++i)
             {
                 vecs[i] += getLatticeVector(0) * float(images[i].x);
                 vecs[i] += getLatticeVector(1) * float(images[i].y);

@@ -53,9 +53,8 @@ void Nematic::compute(quat<float>* orientations, unsigned int n)
     m_particle_tensor.prepare({m_n, 3, 3});
 
     // calculate per-particle tensor
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, n), [=](const tbb::blocked_range<size_t>& r) {
-
-        for (size_t i = r.begin(); i != r.end(); i++)
+    util::forLoopWrapper(0, n, [=](size_t begin, size_t end) {
+        for (size_t i = begin; i < end; ++i)
         {
             // get the director of the particle
             quat<float> q = orientations[i];

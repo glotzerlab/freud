@@ -2,7 +2,6 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <stdexcept>
-#include <tbb/tbb.h>
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
@@ -10,6 +9,7 @@
 #include "BondOrder.h"
 #include "NeighborComputeFunctional.h"
 #include "NeighborBond.h"
+#include "utils.h"
 
 /*! \file BondOrder.h
     \brief Compute the bond order diagram for the system of particles.
@@ -75,8 +75,8 @@ void BondOrder::reduceBondOrder()
     m_bin_counts.prepare({m_n_bins_theta, m_n_bins_phi});
     m_bo_array.prepare({m_n_bins_theta, m_n_bins_phi});
 
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, m_n_bins_theta), [=](const tbb::blocked_range<size_t>& r) {
-        for (size_t i = r.begin(); i != r.end(); i++)
+    util::forLoopWrapper(0, m_n_bins_theta, [=](size_t begin, size_t end) {
+        for (size_t i = begin; i < end; ++i)
         {
             for (size_t j = 0; j < m_n_bins_phi; j++)
             {

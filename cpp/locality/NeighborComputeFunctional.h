@@ -2,7 +2,6 @@
 #define NEIGHBOR_COMPUTE_FUNCTIONAL_H
 
 #include <memory>
-#include <tbb/tbb.h>
 
 #include "AABBQuery.h"
 #include "NeighborList.h"

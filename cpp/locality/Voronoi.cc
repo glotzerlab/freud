@@ -61,9 +61,9 @@ void Voronoi::compute(const box::Box &box, const vec3<double>* vertices,
 
         // iterate over ridges in parallel
         BondVector bonds;
-        tbb::parallel_for(tbb::blocked_range<size_t>(0, n_ridges), [&] (const tbb::blocked_range<size_t> &r) {
-             BondVector::reference local_bonds(bonds.local());
-            for (size_t ridge(r.begin()); ridge != r.end(); ++ridge) {
+        util::forLoopWrapper(0, n_ridges, [&](size_t begin, size_t end) {
+            BondVector::reference local_bonds(bonds.local());
+            for (size_t ridge = begin; ridge < end; ++ridge) {
                 unsigned int i = ridge_points[2*ridge];
                 unsigned int j = ridge_points[2*ridge+1];
                 float weight = 0;

@@ -237,8 +237,8 @@ float Steinhardt::normalize()
 void Steinhardt::aggregateWl(util::ManagedArray<float> &target, util::ManagedArray<complex<float> > &source)
 {
     auto wigner3jvalues = getWigner3j(m_l);
-    parallel_for(tbb::blocked_range<size_t>(0, m_Np), [&](const tbb::blocked_range<size_t>& r) {
-        for (size_t i = r.begin(); i != r.end(); i++)
+    util::forLoopWrapper(0, m_Np, [&](size_t begin, size_t end) {
+        for (size_t i = begin; i < end; ++i)
         {
             target[i] = reduceWigner3j(&(source({static_cast<unsigned int>(i), 0})), m_l, wigner3jvalues);
         }
@@ -247,8 +247,8 @@ void Steinhardt::aggregateWl(util::ManagedArray<float> &target, util::ManagedArr
 
 void Steinhardt::reduce()
 {
-    parallel_for(tbb::blocked_range<size_t>(0, m_num_ms), [=](const tbb::blocked_range<size_t>& r) {
-        for (size_t i = r.begin(); i != r.end(); i++)
+    util::forLoopWrapper(0, m_num_ms, [=](size_t begin, size_t end) {
+        for (size_t i = begin; i < end; ++i)
         {
             for (auto Ql_local = m_Qlm_local.begin(); Ql_local != m_Qlm_local.end(); Ql_local++)
             {

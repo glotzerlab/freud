@@ -19,7 +19,7 @@ inline float clamp(float v, float lo, float hi)
  *  \param body An object with operator(size_t begin, size_t end).
  */
 template<typename Body>
-inline void forLoopWrapper(size_t begin, size_t end, const Body& body, bool parallel)
+inline void forLoopWrapper(size_t begin, size_t end, const Body& body, bool parallel=true)
 {
     if (parallel)
     {

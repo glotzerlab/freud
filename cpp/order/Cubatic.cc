@@ -6,6 +6,7 @@
 #include <cstring>
 
 #include "Cubatic.h"
+#include "utils.h"
 
 /*! \file Cubatic.h
     \brief Compute the cubatic order parameter for each particle.
@@ -184,8 +185,8 @@ util::ManagedArray<tensor4> Cubatic::calculatePerParticleTensor(const quat<float
     util::ManagedArray<tensor4> particle_tensor(m_n);
 
     // calculate per-particle tensor
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, m_n), [=, &particle_tensor](const tbb::blocked_range<size_t>& r) {
-        for (size_t i = r.begin(); i != r.end(); ++i)
+    util::forLoopWrapper(0, m_n, [=, &particle_tensor](size_t begin, size_t end) {
+        for (size_t i = begin; i < end; ++i)
         {
             tensor4 l_mbar = tensor4();
             for (unsigned int j = 0; j < 3; ++j)
