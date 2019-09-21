@@ -43,7 +43,6 @@ LinkCell::LinkCell(const box::Box& box, float cell_width, const vec3<float>* poi
         celldim.z = 1;
     }
 
-    m_cell_index = Index3D(celldim.x, celldim.y, celldim.z);
     m_size = celldim.x * celldim.y * celldim.z;
     //printf("The dimensions are %d, %d, %d\n", celldim.x, celldim.y, celldim.z);
     if (m_size < 1)

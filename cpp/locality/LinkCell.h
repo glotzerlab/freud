@@ -10,7 +10,6 @@
 #include <vector>
 
 #include "Box.h"
-#include "Index1D.h"
 #include "NeighborList.h"
 #include "NeighborQuery.h"
 
@@ -470,7 +469,6 @@ private:
     vec3<unsigned int> m_celldim; //!< Cell dimensions
     unsigned int m_size; //!< The size of cell list.
 
-    Index3D m_cell_index;         //!< Indexer to compute cell indices
     util::ManagedArray<unsigned int> m_cell_list; //!< The cell list last computed
     typedef tbb::concurrent_hash_map<unsigned int, std::vector<unsigned int>> CellNeighbors;
     CellNeighbors m_cell_neighbors; //!< Hash map of cell neighbors for each cell
