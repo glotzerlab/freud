@@ -1,8 +1,6 @@
 // Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#include <algorithm>
-#include <iostream>
 #include <vector>
 
 #include "Wigner3j.h"
@@ -11,8 +9,6 @@
 #undef min // std::min clashes with a Windows header
 #undef max // std::max clashes with a Windows header
 #endif
-
-using namespace std;
 
 /*! \file Wigner3j.cc
  *  \brief Stores and reduces over Wigner 3j coefficients for l from 0 to 20

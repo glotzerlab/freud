@@ -1,7 +1,6 @@
 // Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#include <cassert>
 #include <complex>
 #include <stdexcept>
 #include <tbb/tbb.h>
@@ -12,9 +11,6 @@
 #include "CorrelationFunction.h"
 #include "NeighborComputeFunctional.h"
 #include "NeighborBond.h"
-
-using namespace std;
-using namespace tbb;
 
 /*! \file CorrelationFunction.cc
     \brief Generic pairwise correlation functions.
@@ -27,14 +23,13 @@ CorrelationFunction<T>::CorrelationFunction(float r_max, float dr)
     : m_box(box::Box()), m_r_max(r_max), m_dr(dr), m_frame_counter(0), m_reduce(true)
 {
     if (dr <= 0.0f)
-        throw invalid_argument("CorrelationFunction requires dr to be positive.");
+        throw std::invalid_argument("CorrelationFunction requires dr to be positive.");
     if (r_max <= 0.0f)
-        throw invalid_argument("CorrelationFunction requires r_max to be positive.");
+        throw std::invalid_argument("CorrelationFunction requires r_max to be positive.");
     if (dr > r_max)
-        throw invalid_argument("CorrelationFunction requires dr must be less than or equal to r_max.");
+        throw std::invalid_argument("CorrelationFunction requires dr must be less than or equal to r_max.");
 
     m_nbins = int(floorf(m_r_max / m_dr));
-    assert(m_nbins > 0);
     m_rdf_array.prepare(m_nbins);
     // Less efficient: initialize each bin sequentially using default ctor
     for (size_t i(0); i < m_nbins; ++i)
@@ -61,8 +56,8 @@ template<typename T> void CorrelationFunction<T>::reduceCorrelationFunction()
     for (size_t i(0); i < m_nbins; ++i)
         m_rdf_array.get()[i] = T();
     // now compute the rdf
-    parallel_for(tbb::blocked_range<size_t>(0, m_nbins), [=](const blocked_range<size_t>& r) {
-        for (size_t i = r.begin(); i != r.end(); i++)
+    util::forLoopWrapper(0, m_nbins, [=](size_t begin, size_t end) {
+        for (size_t i = begin; i < end; ++i)
         {
             for (util::ThreadStorage<unsigned int>::const_iterator local_bins = m_local_bin_counts.begin();
                  local_bins != m_local_bin_counts.end(); ++local_bins)
@@ -138,7 +133,7 @@ void CorrelationFunction<T>::accumulate(const freud::locality::NeighborQuery* ne
     m_reduce = true;
 }
 
-template class CorrelationFunction<complex<double>>;
+template class CorrelationFunction<std::complex<double>>;
 template class CorrelationFunction<double>;
 
 }; }; // end namespace freud::density

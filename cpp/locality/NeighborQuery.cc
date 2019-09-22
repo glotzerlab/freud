@@ -5,7 +5,7 @@
 
 namespace freud { namespace locality {
 
-const NeighborBond NeighborQueryIterator::ITERATOR_TERMINATOR(-1, -1, 0);
+const NeighborBond NeighborQueryIterator::ITERATOR_TERMINATOR(NeighborPerPointIterator::ITERATOR_TERMINATOR);
 
 const QueryArgs::QueryType QueryArgs::DEFAULT_MODE(QueryArgs::none);
 const unsigned int QueryArgs::DEFAULT_NUM_NEIGHBORS(0xffffffff);

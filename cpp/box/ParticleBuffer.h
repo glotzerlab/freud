@@ -4,7 +4,6 @@
 #ifndef PARTICLE_BUFFER_H
 #define PARTICLE_BUFFER_H
 
-#include <memory>
 #include <vector>
 
 #include "Box.h"

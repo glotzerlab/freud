@@ -4,14 +4,12 @@
 #ifndef LINKCELL_H
 #define LINKCELL_H
 
-#include <cassert>
 #include <memory>
 #include <tbb/concurrent_hash_map.h>
 #include <unordered_set>
 #include <vector>
 
 #include "Box.h"
-#include "Index1D.h"
 #include "NeighborList.h"
 #include "NeighborQuery.h"
 
@@ -60,43 +58,21 @@ public:
                      unsigned int cell)
         : m_cell_list(cell_list), m_Np(Np), m_Nc(Nc)
     {
-        assert(cell < Nc);
-        assert(Np > 0);
-        assert(Nc > 0);
         m_cell = cell;
         m_cur_idx = m_Np + cell;
     }
 
     //! Copy the position of rhs into this object
-    void copy(const IteratorLinkCell& rhs)
-    {
-        m_cell_list = rhs.m_cell_list;
-        m_Np = rhs.m_Np;
-        m_Nc = rhs.m_Nc;
-        m_cur_idx = rhs.m_cur_idx;
-        m_cell = rhs.m_cell;
-    }
+    void copy(const IteratorLinkCell& rhs);
 
     //! Test if the iteration over the cell is complete
-    bool atEnd()
-    {
-        return (m_cur_idx == LINK_CELL_TERMINATOR);
-    }
+    bool atEnd();
 
     //! Get the next particle index in the list
-    unsigned int next()
-    {
-        m_cur_idx = m_cell_list[m_cur_idx];
-        return m_cur_idx;
-    }
+    unsigned int next();
 
     //! Get the first particle index in the list
-    unsigned int begin()
-    {
-        m_cur_idx = m_Np + m_cell;
-        m_cur_idx = m_cell_list[m_cur_idx];
-        return m_cur_idx;
-    }
+    unsigned int begin();
 
 private:
     util::ManagedArray<unsigned int> m_cell_list; //!< The cell list
@@ -133,133 +109,10 @@ public:
         reset(range);
     }
 
-    void operator++()
-    {
-        // this bool indicates that we have wrapped over in whichever
-        // direction we are looking and should move to the next
-        // row/plane
-        bool wrapped(false);
+    //! Advance iterator to the next cell to check.
+    void operator++();
 
-        switch (m_stage)
-        {
-        // +y wedge: iterate over x and (possibly) z
-        // zs = list(range(-N + 1, N)) if threeD else [0]
-        // for r in itertools.product(range(-N, N), [N], zs):
-        //     yield r
-        case 0:
-            ++m_current_x;
-            wrapped = m_current_x >= m_range;
-            m_current_x -= 2 * wrapped * m_range;
-            if (!m_is2D)
-            {
-                m_current_z += wrapped;
-                wrapped = m_current_z >= m_range;
-                m_current_z += wrapped * (1 - 2 * m_range);
-            }
-            if (wrapped)
-            {
-                ++m_stage;
-                m_current_x = m_range;
-            }
-            break;
-            // +x wedge: iterate over y and (possibly) z
-            // for r in itertools.product([N], range(N, -N, -1), zs):
-            //     yield r
-        case 1:
-            --m_current_y;
-            wrapped = m_current_y <= -m_range;
-            m_current_y += 2 * wrapped * m_range;
-            if (!m_is2D)
-            {
-                m_current_z += wrapped;
-                wrapped = m_current_z >= m_range;
-                m_current_z += wrapped * (1 - 2 * m_range);
-            }
-            if (wrapped)
-            {
-                ++m_stage;
-                m_current_y = -m_range;
-            }
-            break;
-            // -y wedge: iterate over x and (possibly) z
-            // for r in itertools.product(range(N, -N, -1), [-N], zs):
-            //     yield r
-        case 2:
-            --m_current_x;
-            wrapped = m_current_x <= -m_range;
-            m_current_x += 2 * wrapped * m_range;
-            if (!m_is2D)
-            {
-                m_current_z += wrapped;
-                wrapped = m_current_z >= m_range;
-                m_current_z += wrapped * (1 - 2 * m_range);
-            }
-            if (wrapped)
-            {
-                ++m_stage;
-                m_current_x = -m_range;
-            }
-            break;
-            // -x wedge: iterate over y and (possibly) z
-            // for r in itertools.product([-N], range(-N, N), zs):
-            //     yield r
-        case 3:
-            ++m_current_y;
-            wrapped = m_current_y >= m_range;
-            m_current_y -= 2 * wrapped * m_range;
-            if (!m_is2D)
-            {
-                m_current_z += wrapped;
-                wrapped = m_current_z >= m_range;
-                m_current_z += wrapped * (1 - 2 * m_range);
-            }
-            if (wrapped)
-            {
-                if (m_is2D) // we're done for this range
-                    reset(m_range + 1);
-                else
-                {
-                    ++m_stage;
-                    m_current_x = -m_range;
-                    m_current_y = -m_range;
-                    m_current_z = -m_range;
-                }
-            }
-            break;
-            // -z face and +z face: iterate over x and y
-            // grid = list(range(-N, N + 1))
-            // if threeD:
-            //     # make front and back in z
-            //     for (x, y) in itertools.product(grid, grid):
-            //         yield (x, y, N)
-            //         if N > 0:
-            //             yield (x, y, -N)
-            // elif N == 0:
-            //     yield (0, 0, 0)
-        case 4:
-        case 5:
-        default:
-            ++m_current_x;
-            wrapped = m_current_x > m_range;
-            m_current_x -= wrapped * (2 * m_range + 1);
-            m_current_y += wrapped;
-            wrapped = m_current_y > m_range;
-            m_current_y -= wrapped * (2 * m_range + 1);
-            if (wrapped)
-            {
-                // 2D cases have already moved to the next stage by
-                // this point, only deal with 3D
-                ++m_stage;
-                m_current_z = m_range;
-
-                // if we're done, move on to the next range
-                if (m_stage > 5)
-                    reset(m_range + 1);
-            }
-            break;
-        }
-    }
-
+    //! Get the integral coordinates of the current cell.
     vec3<int> operator*()
     {
         return vec3<int>(m_current_x, m_current_y, m_current_z);
@@ -284,29 +137,10 @@ public:
 
     int m_range;  //!< Find cells this many cells away
     char m_stage; //!< stage of the computation (which face is being iterated over)
-private:
-    void reset(unsigned int range)
-    {
-        m_range = range;
-        m_stage = 0;
-        m_current_x = -m_range;
-        m_current_y = m_range;
-        if (m_is2D)
-        {
-            m_current_z = 0;
-        }
-        else
-        {
-            m_current_z = -m_range + 1;
-        }
 
-        if (range == 0)
-        {
-            m_current_z = 0;
-            // skip to the last stage
-            m_stage = 5;
-        }
-    }
+private:
+    void reset(unsigned int range);
+
     int m_current_x; //!< Current position in x
     int m_current_y; //!< Current position in y
     int m_current_z; //!< Current position in z
@@ -359,33 +193,13 @@ public:
     //! Compute LinkCell dimensions
     const vec3<unsigned int> computeDimensions(const box::Box& box, float cell_width) const;
 
-    //! Get the cell indexer
-    const Index3D& getCellIndexer() const
-    {
-        return m_cell_index;
-    }
-
     //! Compute cell id from cell coordinates
-    unsigned int getCellIndex(const vec3<int> cellCoord) const
-    {
-        int w = (int) getCellIndexer().getW();
-        int h = (int) getCellIndexer().getH();
-        int d = (int) getCellIndexer().getD();
-
-        int x = cellCoord.x % w;
-        x += (x < 0 ? w : 0);
-        int y = cellCoord.y % h;
-        y += (y < 0 ? h : 0);
-        int z = cellCoord.z % d;
-        z += (z < 0 ? d : 0);
-
-        return getCellIndexer()(x, y, z);
-    }
+    unsigned int getCellIndex(const vec3<int> cellCoord) const;
 
     //! Get the number of cells
     unsigned int getNumCells() const
     {
-        return m_cell_index.getNumElements();
+        return m_size;
     }
 
     //! Get the cell width
@@ -398,22 +212,17 @@ public:
     unsigned int getCell(const vec3<float>& p) const
     {
         vec3<unsigned int> c = getCellCoord(p);
-        return m_cell_index(c.x, c.y, c.z);
+        return coordToIndex(c.x, c.y, c.z);
     }
 
+    //! Convert xyz coordinates to a linear index.
+    vec3<unsigned int> indexToCoord(unsigned int x) const;
+
+    //! Convert xyz coordinates to a linear index.
+    unsigned int coordToIndex(int x, int y, int z) const;
+
     //! Compute cell coordinates for a given position
-    vec3<unsigned int> getCellCoord(const vec3<float> p) const
-    {
-        vec3<float> alpha = m_box.makeFraction(p);
-        vec3<unsigned int> c;
-        c.x = (unsigned int) floorf(alpha.x * float(m_cell_index.getW()));
-        c.x %= m_cell_index.getW();
-        c.y = (unsigned int) floorf(alpha.y * float(m_cell_index.getH()));
-        c.y %= m_cell_index.getH();
-        c.z = (unsigned int) floorf(alpha.z * float(m_cell_index.getD()));
-        c.z %= m_cell_index.getD();
-        return c;
-    }
+    vec3<unsigned int> getCellCoord(const vec3<float> p) const;
 
     //! Iterate over particles in a cell
     iteratorcell itercell(unsigned int cell) const
@@ -422,21 +231,7 @@ public:
     }
 
     //! Get a list of neighbors to a cell
-    const std::vector<unsigned int>& getCellNeighbors(unsigned int cell)
-    {
-        // check if the list of neighbors has been already computed
-        // return the list if it has
-        // otherwise, compute it and return
-        CellNeighbors::const_accessor a;
-        if (m_cell_neighbors.find(a, cell))
-        {
-            return a->second;
-        }
-        else
-        {
-            return computeCellNeighbors(cell);
-        }
-    }
+    const std::vector<unsigned int>& getCellNeighbors(unsigned int cell);
 
     //! Compute the cell list
     void computeCellList(const vec3<float>* points, unsigned int n_points);
@@ -461,11 +256,11 @@ private:
     //! Helper function to compute cell neighbors
     const std::vector<unsigned int>& computeCellNeighbors(unsigned int cell);
 
-    Index3D m_cell_index;         //!< Indexer to compute cell indices
     unsigned int m_n_points;      //!< Number of particles last placed into the cell list
     unsigned int m_Nc;            //!< Number of cells last used
     float m_cell_width;           //!< Minimum necessary cell width cutoff
     vec3<unsigned int> m_celldim; //!< Cell dimensions
+    unsigned int m_size; //!< The size of cell list.
 
     util::ManagedArray<unsigned int> m_cell_list; //!< The cell list last computed
     typedef tbb::concurrent_hash_map<unsigned int, std::vector<unsigned int>> CellNeighbors;

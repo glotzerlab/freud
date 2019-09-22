@@ -4,13 +4,8 @@
 #include <algorithm>
 #include <cmath>
 #include <stdexcept>
-#include <tbb/tbb.h>
-#include <tuple>
 
 #include "LinkCell.h"
-
-using namespace std;
-using namespace tbb;
 
 #if defined _WIN32
 #undef min // std::min clashes with a Windows header
@@ -23,6 +18,196 @@ using namespace tbb;
 
 namespace freud { namespace locality {
 
+
+/********************
+ * IteratorLinkCell *
+ ********************/
+void IteratorLinkCell::copy(const IteratorLinkCell& rhs)
+{
+    m_cell_list = rhs.m_cell_list;
+    m_Np = rhs.m_Np;
+    m_Nc = rhs.m_Nc;
+    m_cur_idx = rhs.m_cur_idx;
+    m_cell = rhs.m_cell;
+}
+
+bool IteratorLinkCell::atEnd()
+{
+    return (m_cur_idx == LINK_CELL_TERMINATOR);
+}
+
+unsigned int IteratorLinkCell::next()
+{
+    m_cur_idx = m_cell_list[m_cur_idx];
+    return m_cur_idx;
+}
+
+unsigned int IteratorLinkCell::begin()
+{
+    m_cur_idx = m_Np + m_cell;
+    m_cur_idx = m_cell_list[m_cur_idx];
+    return m_cur_idx;
+}
+
+/*********************
+ * IteratorCellShell *
+ *********************/
+
+void IteratorCellShell::operator++()
+{
+    // this bool indicates that we have wrapped over in whichever
+    // direction we are looking and should move to the next
+    // row/plane
+    bool wrapped(false);
+
+    switch (m_stage)
+    {
+    // +y wedge: iterate over x and (possibly) z
+    // zs = list(range(-N + 1, N)) if threeD else [0]
+    // for r in itertools.product(range(-N, N), [N], zs):
+    //     yield r
+    case 0:
+        ++m_current_x;
+        wrapped = m_current_x >= m_range;
+        m_current_x -= 2 * wrapped * m_range;
+        if (!m_is2D)
+        {
+            m_current_z += wrapped;
+            wrapped = m_current_z >= m_range;
+            m_current_z += wrapped * (1 - 2 * m_range);
+        }
+        if (wrapped)
+        {
+            ++m_stage;
+            m_current_x = m_range;
+        }
+        break;
+        // +x wedge: iterate over y and (possibly) z
+        // for r in itertools.product([N], range(N, -N, -1), zs):
+        //     yield r
+    case 1:
+        --m_current_y;
+        wrapped = m_current_y <= -m_range;
+        m_current_y += 2 * wrapped * m_range;
+        if (!m_is2D)
+        {
+            m_current_z += wrapped;
+            wrapped = m_current_z >= m_range;
+            m_current_z += wrapped * (1 - 2 * m_range);
+        }
+        if (wrapped)
+        {
+            ++m_stage;
+            m_current_y = -m_range;
+        }
+        break;
+        // -y wedge: iterate over x and (possibly) z
+        // for r in itertools.product(range(N, -N, -1), [-N], zs):
+        //     yield r
+    case 2:
+        --m_current_x;
+        wrapped = m_current_x <= -m_range;
+        m_current_x += 2 * wrapped * m_range;
+        if (!m_is2D)
+        {
+            m_current_z += wrapped;
+            wrapped = m_current_z >= m_range;
+            m_current_z += wrapped * (1 - 2 * m_range);
+        }
+        if (wrapped)
+        {
+            ++m_stage;
+            m_current_x = -m_range;
+        }
+        break;
+        // -x wedge: iterate over y and (possibly) z
+        // for r in itertools.product([-N], range(-N, N), zs):
+        //     yield r
+    case 3:
+        ++m_current_y;
+        wrapped = m_current_y >= m_range;
+        m_current_y -= 2 * wrapped * m_range;
+        if (!m_is2D)
+        {
+            m_current_z += wrapped;
+            wrapped = m_current_z >= m_range;
+            m_current_z += wrapped * (1 - 2 * m_range);
+        }
+        if (wrapped)
+        {
+            if (m_is2D) // we're done for this range
+                reset(m_range + 1);
+            else
+            {
+                ++m_stage;
+                m_current_x = -m_range;
+                m_current_y = -m_range;
+                m_current_z = -m_range;
+            }
+        }
+        break;
+        // -z face and +z face: iterate over x and y
+        // grid = list(range(-N, N + 1))
+        // if threeD:
+        //     # make front and back in z
+        //     for (x, y) in itertools.product(grid, grid):
+        //         yield (x, y, N)
+        //         if N > 0:
+        //             yield (x, y, -N)
+        // elif N == 0:
+        //     yield (0, 0, 0)
+    case 4:
+    case 5:
+    default:
+        ++m_current_x;
+        wrapped = m_current_x > m_range;
+        m_current_x -= wrapped * (2 * m_range + 1);
+        m_current_y += wrapped;
+        wrapped = m_current_y > m_range;
+        m_current_y -= wrapped * (2 * m_range + 1);
+        if (wrapped)
+        {
+            // 2D cases have already moved to the next stage by
+            // this point, only deal with 3D
+            ++m_stage;
+            m_current_z = m_range;
+
+            // if we're done, move on to the next range
+            if (m_stage > 5)
+                reset(m_range + 1);
+        }
+        break;
+    }
+}
+
+void IteratorCellShell::reset(unsigned int range)
+{
+    m_range = range;
+    m_stage = 0;
+    m_current_x = -m_range;
+    m_current_y = m_range;
+    if (m_is2D)
+    {
+        m_current_z = 0;
+    }
+    else
+    {
+        m_current_z = -m_range + 1;
+    }
+
+    if (range == 0)
+    {
+        m_current_z = 0;
+        // skip to the last stage
+        m_stage = 5;
+    }
+}
+
+
+/********************
+ * LinkCell *
+ ********************/
+
 // Default constructor
 LinkCell::LinkCell()
     : NeighborQuery(), m_n_points(0), m_cell_width(0), m_celldim(0, 0, 0), m_neighbor_list()
@@ -32,30 +217,46 @@ LinkCell::LinkCell(const box::Box& box, float cell_width, const vec3<float>* poi
     : NeighborQuery(box, points, n_points), m_n_points(0), m_cell_width(cell_width), m_celldim(0, 0, 0),
       m_neighbor_list()
 {
-    vec3<unsigned int> celldim = computeDimensions(box, m_cell_width);
+    m_celldim = computeDimensions(box, m_cell_width);
 
     // Check if box is too small!
     vec3<float> nearest_plane_distance = box.getNearestPlaneDistance();
     if ((m_cell_width * 2.0 > nearest_plane_distance.x) || (m_cell_width * 2.0 > nearest_plane_distance.y)
         || (!box.is2D() && m_cell_width * 2.0 > nearest_plane_distance.z))
     {
-        throw runtime_error(
+        throw std::runtime_error(
             "Cannot generate a cell list where cell_width is larger than half the box.");
     }
     // Only 1 cell deep in 2D
     if (box.is2D())
     {
-        celldim.z = 1;
+        m_celldim.z = 1;
     }
 
-    m_cell_index = Index3D(celldim.x, celldim.y, celldim.z);
-    if (m_cell_index.getNumElements() < 1)
+    m_size = m_celldim.x * m_celldim.y * m_celldim.z;
+    if (m_size < 1)
     {
-        throw runtime_error("At least one cell must be present.");
+        throw std::runtime_error("At least one cell must be present.");
     }
-    m_celldim = celldim;
 
     computeCellList(points, n_points);
+}
+
+
+unsigned int LinkCell::getCellIndex(const vec3<int> cellCoord) const
+{
+    int w = static_cast<int>(m_celldim.x);
+    int h = static_cast<int>(m_celldim.y);
+    int d = static_cast<int>(m_celldim.z);
+
+    int x = cellCoord.x % w;
+    x += (x < 0 ? w : 0);
+    int y = cellCoord.y % h;
+    y += (y < 0 ? h : 0);
+    int z = cellCoord.z % d;
+    z += (z < 0 ? d : 0);
+
+    return coordToIndex(x, y, z);
 }
 
 const vec3<unsigned int> LinkCell::computeDimensions(const box::Box& box, float cell_width) const
@@ -94,12 +295,11 @@ void LinkCell::computeCellList(const vec3<float>* points, unsigned int n_points)
 {
     if (n_points == 0)
     {
-        throw runtime_error("Cannot generate a cell list of 0 particles.");
+        throw std::runtime_error("Cannot generate a cell list of 0 particles.");
     }
 
     // determine the number of cells and allocate memory
     unsigned int Nc = getNumCells();
-    assert(Nc > 0);
     m_cell_list.prepare(n_points + Nc);
     m_n_points = n_points;
     m_Nc = Nc;
@@ -110,8 +310,6 @@ void LinkCell::computeCellList(const vec3<float>* points, unsigned int n_points)
         m_cell_list[n_points + cell] = LINK_CELL_TERMINATOR;
     }
 
-    assert(points);
-
     // generate the cell list
     for (int i = n_points - 1; i >= 0; i--)
     {
@@ -121,13 +319,62 @@ void LinkCell::computeCellList(const vec3<float>* points, unsigned int n_points)
     }
 }
 
+vec3<unsigned int> LinkCell::indexToCoord(unsigned int x) const
+{
+    std::vector<unsigned int> coord = util::ManagedArray<unsigned int>::getMultiIndex(
+        {m_celldim.x, m_celldim.y, m_celldim.z}, x);
+    // For backwards compatibility with the Index1D layout, the indices and
+    // the dimensions are passed in reverse to the indexer. Changing this would
+    // also require updating the logic in IteratorCellShell.
+    return vec3<unsigned int>(coord[2], coord[1], coord[0]);
+}
+
+unsigned int LinkCell::coordToIndex(int x, int y, int z) const
+{
+    // For backwards compatibility with the Index1D layout, the indices and
+    // the dimensions are passed in reverse to the indexer. Changing this would
+    // also require updating the logic in IteratorCellShell.
+    return util::ManagedArray<unsigned int>::getIndex(
+        {m_celldim.z, m_celldim.y, m_celldim.x},
+        {static_cast<unsigned int>(z), static_cast<unsigned int>(y), static_cast<unsigned int>(x)});
+}
+
+vec3<unsigned int> LinkCell::getCellCoord(const vec3<float> p) const
+{
+    vec3<float> alpha = m_box.makeFraction(p);
+    vec3<unsigned int> c;
+    c.x = (unsigned int) floorf(alpha.x * float(m_celldim.x));
+    c.x %= m_celldim.x;
+    c.y = (unsigned int) floorf(alpha.y * float(m_celldim.y));
+    c.y %= m_celldim.y;
+    c.z = (unsigned int) floorf(alpha.z * float(m_celldim.z));
+    c.z %= m_celldim.z;
+    return c;
+}
+
+const std::vector<unsigned int>& LinkCell::getCellNeighbors(unsigned int cell)
+{
+    // check if the list of neighbors has been already computed
+    // return the list if it has
+    // otherwise, compute it and return
+    CellNeighbors::const_accessor a;
+    if (m_cell_neighbors.find(a, cell))
+    {
+        return a->second;
+    }
+    else
+    {
+        return computeCellNeighbors(cell);
+    }
+}
+
 const std::vector<unsigned int>& LinkCell::computeCellNeighbors(unsigned int cur_cell)
 {
     std::vector<unsigned int> neighbor_cells;
-    vec3<unsigned int> l_idx = m_cell_index(cur_cell);
-    const int i = (int) l_idx.x;
-    const int j = (int) l_idx.y;
-    const int k = (int) l_idx.z;
+    vec3<unsigned int> l_idx = indexToCoord(cur_cell);
+    const int i = static_cast<int>(l_idx.x);
+    const int j = static_cast<int>(l_idx.y);
+    const int k = static_cast<int>(l_idx.z);
 
     // loop over the neighbor cells
     int starti, startj, startk;
@@ -189,17 +436,17 @@ const std::vector<unsigned int>& LinkCell::computeCellNeighbors(unsigned int cur
             for (int neighi = starti; neighi <= endi; neighi++)
             {
                 // wrap back into the box
-                int wrapi = (m_cell_index.getW() + neighi) % m_cell_index.getW();
-                int wrapj = (m_cell_index.getH() + neighj) % m_cell_index.getH();
-                int wrapk = (m_cell_index.getD() + neighk) % m_cell_index.getD();
+                int wrapi = (m_celldim.x + neighi) % m_celldim.x;
+                int wrapj = (m_celldim.y + neighj) % m_celldim.y;
+                int wrapk = (m_celldim.z + neighk) % m_celldim.z;
 
-                unsigned int neigh_cell = m_cell_index(wrapi, wrapj, wrapk);
+                unsigned int neigh_cell = coordToIndex(wrapi, wrapj, wrapk);
                 // add to the list
                 neighbor_cells.push_back(neigh_cell);
             }
 
     // sort the list
-    sort(neighbor_cells.begin(), neighbor_cells.end());
+    std::sort(neighbor_cells.begin(), neighbor_cells.end());
 
     // add the vector of neighbor cells to the hash table
     CellNeighbors::accessor a;

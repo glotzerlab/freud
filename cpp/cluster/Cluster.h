@@ -4,9 +4,6 @@
 #ifndef CLUSTER_H
 #define CLUSTER_H
 
-#include <memory>
-#include <set>
-#include <stdint.h>
 #include <vector>
 
 #include "Box.h"

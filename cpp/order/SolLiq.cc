@@ -108,12 +108,12 @@ void SolLiq::computeClustersQ(const locality::NeighborList* nlist, const vec3<fl
     memset((void*) m_Qlmi_array.get(), 0, sizeof(complex<float>) * (2 * m_l + 1) * Np);
     memset((void*) m_number_of_neighbors.get(), 0, sizeof(unsigned int) * Np);
 
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, Np), [=](const tbb::blocked_range<size_t>& r) {
+    util::forLoopWrapper(0, Np, [=](size_t begin, size_t end) {
         std::vector<std::complex<float>> Y;
         Y.resize(2 * m_l + 1);
 
-        size_t bond(nlist->find_first_index(r.begin()));
-        for (size_t i = r.begin(); i != r.end(); i++)
+        size_t bond(nlist->find_first_index(begin));
+        for (size_t i = begin; i < end; ++i)
         {
             // Get cell point is in
             vec3<float> ref = points[i];

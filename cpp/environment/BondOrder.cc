@@ -1,20 +1,15 @@
 // Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#include <complex>
 #include <stdexcept>
-#include <tbb/tbb.h>
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
 
 #include "BondOrder.h"
-#include "Index1D.h"
 #include "NeighborComputeFunctional.h"
 #include "NeighborBond.h"
-
-using namespace std;
-using namespace tbb;
+#include "utils.h"
 
 /*! \file BondOrder.h
     \brief Compute the bond order diagram for the system of particles.
@@ -28,9 +23,9 @@ BondOrder::BondOrder(unsigned int n_bins_theta, unsigned int n_bins_phi)
 {
     // sanity checks, but this is actually kinda dumb if these values are 1
     if (m_n_bins_theta < 2)
-        throw invalid_argument("BondOrder requires at least 2 bins in theta.");
+        throw std::invalid_argument("BondOrder requires at least 2 bins in theta.");
     if (m_n_bins_phi < 2)
-        throw invalid_argument("BondOrder requires at least 2 bins in phi.");
+        throw std::invalid_argument("BondOrder requires at least 2 bins in phi.");
     // calculate dt, dp
     /*
     0 < \theta < 2PI; 0 < \phi < PI
@@ -39,9 +34,9 @@ BondOrder::BondOrder(unsigned int n_bins_theta, unsigned int n_bins_phi)
     m_dp = M_PI / float(m_n_bins_phi);
     // this shouldn't be able to happen, but it's always better to check
     if (m_dt > 2.0 * M_PI)
-        throw invalid_argument("2PI must be greater than dt");
+        throw std::invalid_argument("2PI must be greater than dt");
     if (m_dp > M_PI)
-        throw invalid_argument("PI must be greater than dp");
+        throw std::invalid_argument("PI must be greater than dp");
 
     // precompute the bin center positions for t
     m_theta_array.prepare(m_n_bins_theta);
@@ -80,8 +75,8 @@ void BondOrder::reduceBondOrder()
     m_bin_counts.prepare({m_n_bins_theta, m_n_bins_phi});
     m_bo_array.prepare({m_n_bins_theta, m_n_bins_phi});
 
-    parallel_for(blocked_range<size_t>(0, m_n_bins_theta), [=](const blocked_range<size_t>& r) {
-        for (size_t i = r.begin(); i != r.end(); i++)
+    util::forLoopWrapper(0, m_n_bins_theta, [=](size_t begin, size_t end) {
+        for (size_t i = begin; i < end; ++i)
         {
             for (size_t j = 0; j < m_n_bins_phi; j++)
             {

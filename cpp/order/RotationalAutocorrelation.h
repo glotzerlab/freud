@@ -4,10 +4,7 @@
 #ifndef ROTATIONAL_AUTOCORRELATION_H
 #define ROTATIONAL_AUTOCORRELATION_H
 
-#include <cassert>
 #include <complex>
-#include <memory>
-#include <tbb/tbb.h>
 
 #include "VectorMath.h"
 #include "ManagedArray.h"

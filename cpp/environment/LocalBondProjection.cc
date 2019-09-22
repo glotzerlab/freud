@@ -1,13 +1,7 @@
 // Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#include <cassert>
-#include <stdexcept>
-
 #include "LocalBondProjection.h"
-
-using namespace std;
-using namespace tbb;
 
 /*! \file LocalBondProjection.h
     \brief Compute the projection of nearest neighbor bonds for each particle onto some
@@ -65,16 +59,6 @@ void LocalBondProjection::compute(box::Box& box,
     const quat<float>* equiv_orientations, unsigned int n_equiv_orientations,
     const freud::locality::NeighborList* nlist)
 {
-    assert(query_points);
-    assert(points);
-    assert(orientations);
-    assert(equiv_orientations);
-    assert(proj_vecs);
-    assert(n_query_points > 0);
-    assert(n_points > 0);
-    assert(n_equiv_orientations > 0);
-    assert(n_proj > 0);
-
     nlist->validate(n_query_points, n_points);
 
     // Get the maximum total number of bonds in the neighbor list
@@ -84,9 +68,9 @@ void LocalBondProjection::compute(box::Box& box,
     m_local_bond_proj_norm.prepare({tot_num_neigh, n_proj});
 
     // compute the order parameter
-    parallel_for(blocked_range<size_t>(0, n_query_points), [=](const blocked_range<size_t>& r) {
-        size_t bond(nlist->find_first_index(r.begin()));
-        for (size_t i = r.begin(); i != r.end(); ++i)
+    util::forLoopWrapper(0, n_query_points, [=](size_t begin, size_t end) {
+        size_t bond(nlist->find_first_index(begin));
+        for (size_t i = begin; i < end; ++i)
         {
             for (; bond < tot_num_neigh && nlist->getNeighbors()(bond, 0) == i; ++bond)
             {

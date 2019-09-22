@@ -4,7 +4,6 @@
 #ifndef AABB_TREE_H
 #define AABB_TREE_H
 
-#include <cassert>
 #include <cstring>
 #include <stack>
 #include <vector>
@@ -313,11 +312,8 @@ inline unsigned int AABBTree::query(std::vector<unsigned int>& hits, const AABB&
 */
 inline void AABBTree::update(unsigned int idx, const AABB& aabb)
 {
-    assert(idx < m_mapping.size());
-
     // find the node this particle is in
     unsigned int node_idx = m_mapping[idx];
-    assert(node_idx != INVALID_NODE);
 
     // grow its AABB if needed
     if (!contains(m_nodes[node_idx].aabb, aabb))
@@ -342,8 +338,6 @@ inline void AABBTree::update(unsigned int idx, const AABB& aabb)
 */
 inline unsigned int AABBTree::height(unsigned int idx)
 {
-    assert(idx < m_mapping.size());
-
     // find the node this particle is in
     unsigned int node_idx = m_mapping[idx];
 

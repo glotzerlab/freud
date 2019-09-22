@@ -1,14 +1,10 @@
 // Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#include <cassert>
 #include <stdexcept>
 #include <tbb/tbb.h>
 
 #include "GaussianDensity.h"
-
-using namespace std;
-using namespace tbb;
 
 /*! \file GaussianDensity.cc
     \brief Routines for computing Gaussian smeared densities from points.
@@ -20,14 +16,14 @@ GaussianDensity::GaussianDensity(vec3<unsigned int> width, float r_max, float si
     : m_box(box::Box()), m_width(width), m_r_max(r_max), m_sigma(sigma)
 {
     if (r_max <= 0.0f)
-        throw invalid_argument("GaussianDensity requires r_max to be positive.");
+        throw std::invalid_argument("GaussianDensity requires r_max to be positive.");
 }
 
 void GaussianDensity::reduce()
 {
     // combine arrays
-    parallel_for(blocked_range<size_t>(0, m_density_array.size()), [=](const blocked_range<size_t>& r) {
-        for (size_t i = r.begin(); i != r.end(); i++)
+    util::forLoopWrapper(0, m_density_array.size(), [=](size_t begin, size_t end) {
+        for (size_t i = begin; i < end; ++i)
         {
             for (util::ThreadStorage<float>::const_iterator local_bins = m_local_bin_counts.begin();
                  local_bins != m_local_bin_counts.end(); ++local_bins)
@@ -79,10 +75,7 @@ void GaussianDensity::compute(const box::Box& box, const vec3<float>* points, un
     }
     m_density_array.prepare({width.x, width.y, width.z});
     m_local_bin_counts.resize({width.x, width.y, width.z});
-    parallel_for(blocked_range<size_t>(0, n_points), [=](const blocked_range<size_t>& r) {
-        assert(points);
-        assert(n_points > 0);
-
+    util::forLoopWrapper(0, n_points, [=](size_t begin, size_t end) {
         // set up some constants first
         float lx = m_box.getLx();
         float ly = m_box.getLy();
@@ -96,7 +89,7 @@ void GaussianDensity::compute(const box::Box& box, const vec3<float>* points, un
         float A = sqrt(1.0f / (2.0f * M_PI * sigmasq));
 
         // for each reference point
-        for (size_t idx = r.begin(); idx != r.end(); idx++)
+        for (size_t idx = begin; idx < end; ++idx)
         {
             // find the distance of that particle to bins
             // will use this information to evaluate the Gaussian

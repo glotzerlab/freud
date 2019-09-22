@@ -4,8 +4,6 @@
 #ifndef RDF_H
 #define RDF_H
 
-#include <memory>
-
 #include "Box.h"
 #include "Histogram.h"
 #include "HistogramCompute.h"
@@ -22,7 +20,7 @@ public:
     RDF(unsigned int bins, float r_max, float r_min = 0);
 
     //! Destructor
-    ~RDF() {};
+    virtual ~RDF() {};
 
     //! Compute the RDF
     /*! Accumulate the given points to the histogram. Accumulation is performed

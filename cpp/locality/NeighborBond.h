@@ -11,6 +11,7 @@ namespace freud { namespace locality {
  */
 struct NeighborBond
 {
+    // For now, id = query_point_idx and ref_id = point_idx (into the NeighborQuery).
     NeighborBond() : id(0), ref_id(0), distance(0),  weight(0) {}
 
     NeighborBond(unsigned int id, unsigned int ref_id, float d, float w) :
