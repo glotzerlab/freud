@@ -6,6 +6,7 @@
 
 #include "Box.h"
 #include "Histogram.h"
+#include "HistogramCompute.h"
 #include "NeighborList.h"
 #include "NeighborQuery.h"
 #include "ThreadStorage.h"
@@ -30,7 +31,7 @@ typedef enum
 //! Compute the bond order parameter for a set of points
 /*!
  */
-class BondOrder
+class BondOrder : public util::HistogramCompute
 {
 public:
     //! Constructor
@@ -39,15 +40,6 @@ public:
     //! Destructor
     ~BondOrder() {}
 
-    //! Get the simulation box
-    const box::Box& getBox() const
-    {
-        return m_box;
-    }
-
-    //! Reset the bond order array to all zeros
-    void reset();
-
     //! Accumulate the bond order
     void accumulate(const locality::NeighborQuery* neighbor_query,
                     quat<float>* orientations, vec3<float>* query_points,
@@ -55,7 +47,7 @@ public:
                     unsigned int mode, const freud::locality::NeighborList* nlist,
                     freud::locality::QueryArgs qargs);
 
-    void reduceBondOrder();
+    virtual void reduce();
 
     //! Get a reference to the last computed bond order
     const util::ManagedArray<float> &getBondOrder();
@@ -83,20 +75,15 @@ public:
     }
 
 private:
-    box::Box m_box; //!< Simulation box where the particles belong
     float m_dt;
     float m_dp;
     unsigned int m_n_bins_theta;  //!< number of bins for theta
     unsigned int m_n_bins_phi;    //!< number of bins for phi
-    unsigned int m_frame_counter; //!< number of frames calculated
-    bool m_reduce;                //!< Whether arrays need to be reduced across threads
 
-    util::Histogram m_histogram; //!< bin counts computed
     util::ManagedArray<float> m_bo_array;          //!< bond order array computed
     util::ManagedArray<float> m_sa_array;          //!< surface area array computed
     util::ManagedArray<float> m_theta_array;       //!< theta array computed
     util::ManagedArray<float> m_phi_array;         //!< phi order array computed
-    util::Histogram::ThreadLocalHistogram m_local_histograms;   //!< Thread local bin counts for TBB parallelism
 };
 
 }; }; // end namespace freud::environment

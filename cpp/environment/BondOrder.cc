@@ -20,8 +20,7 @@ namespace freud { namespace environment {
 constexpr float TWO_PI = 2.0 * M_PI;
 
 BondOrder::BondOrder(unsigned int n_bins_theta, unsigned int n_bins_phi)
-    : m_box(box::Box()), m_n_bins_theta(n_bins_theta), m_n_bins_phi(n_bins_phi), m_frame_counter(0),
-      m_reduce(true)
+    : HistogramCompute(), m_n_bins_theta(n_bins_theta), m_n_bins_phi(n_bins_phi)
 {
     // sanity checks, but this is actually kinda dumb if these values are 1
     if (m_n_bins_theta < 2)
@@ -77,7 +76,7 @@ BondOrder::BondOrder(unsigned int n_bins_theta, unsigned int n_bins_phi)
     m_local_histograms = util::Histogram::ThreadLocalHistogram(m_histogram);
 }
 
-void BondOrder::reduceBondOrder()
+void BondOrder::reduce()
 {
     m_histogram.reset();
     m_bo_array.prepare({m_n_bins_theta, m_n_bins_phi});
@@ -91,18 +90,10 @@ const util::ManagedArray<float> &BondOrder::getBondOrder()
 {
     if (m_reduce == true)
     {
-        reduceBondOrder();
+        reduce();
     }
     m_reduce = false;
     return m_bo_array;
-}
-
-void BondOrder::reset()
-{
-    m_local_histograms.reset();
-    // reset the frame counter
-    m_frame_counter = 0;
-    m_reduce = true;
 }
 
 void BondOrder::accumulate(
@@ -116,10 +107,7 @@ void BondOrder::accumulate(
     // transform the mode from an integer to an enumerated type (enumerated in BondOrder.h)
     BondOrderMode b_mode = static_cast<BondOrderMode>(mode);
 
-    m_box = neighbor_query->getBox();
-    // compute the order parameter
-
-    freud::locality::loopOverNeighbors(neighbor_query, query_points, n_query_points, qargs, nlist,
+    accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
     [=] (const freud::locality::NeighborBond& neighbor_bond)
     {
         vec3<float> ref_pos = neighbor_query->getPoints()[neighbor_bond.ref_id];
@@ -168,11 +156,6 @@ void BondOrder::accumulate(
 
         m_local_histograms(theta, phi);
     });
-
-    // save the last computed number of particles
-    m_frame_counter++;
-    // flag to reduce
-    m_reduce = true;
 }
 
 }; }; // end namespace freud::environment
