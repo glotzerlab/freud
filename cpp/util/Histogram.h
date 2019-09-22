@@ -15,6 +15,29 @@
 
 namespace freud { namespace util {
 
+//! Weight to add to a histogram.
+/*! For histograms that are not simple counts, a Weight instance may be passed
+ * in to indicate what value should be added to a bin. If not provided,
+ * defaults to 1.
+ */
+struct Weight
+{
+    Weight() : value(1), is_default(true) {}
+    Weight(float value) : value(value), is_default(false) {}
+
+    Weight &operator=(Weight other)
+    {
+        if (!is_default)
+            throw std::runtime_error("Weight can only be assigned to once.");
+        value = other.value;
+        is_default = false;
+        return *this;
+    }
+
+    float value;
+    bool is_default;
+};
+
 //! Class defining an axis of a histogram.
 /*! An Axis is defined by a specified number of bins and the boundaries
  * defining them. Given a value along the Axis, the Axis can compute the bin
@@ -215,8 +238,8 @@ public:
         }
 
         //! Dispatch to thread local histogram.
-        template <typename ... Floats>
-        void operator()(Floats ... values)
+        template <typename ... FloatsOrWeight>
+        void operator()(FloatsOrWeight ... values)
         {
             m_local_histograms.local()(values ...);
         }
@@ -244,15 +267,15 @@ public:
     ~Histogram() {};
 
     //! Bin value and update the histogram count.
-    template <typename ... Floats>
-    void operator()(Floats ... values)
+    template <typename ... FloatsOrWeight>
+    void operator()(FloatsOrWeight ... values)
     {
-        std::vector<float> value_vector = getValueVector(values ...);
-        size_t value_bin = bin(value_vector);
+        std::pair<std::vector<float>, Weight> value_vector = getValueVector(values ...);
+        size_t value_bin = bin(value_vector.first);
         // Check for sentinel to avoid overflow.
         if (value_bin != Axis::OVERFLOW_BIN)
         {
-            m_bin_counts[value_bin]++; // TODO: Will want to replace this with custom accumulation at some point.
+            m_bin_counts[value_bin] += value_vector.second.value;
         }
     }
 
@@ -415,22 +438,41 @@ protected:
     std::vector<std::shared_ptr<Axis > > m_axes; //!< The axes.
     ManagedArray<unsigned int> m_bin_counts; //!< Counts for each bin
 
-    //! The base case for constructing a vector of values provided to operator().
+    //! The base case for type float when constructing a vector of values provided to operator().
     /*! This function and the accompanying recursive function below employ
      * variadic templating to accept an arbitrary set of float values and
      * construct a vector out of them.
      */
-    std::vector<float> getValueVector(float value) const
+    std::pair<std::vector<float>, Weight> getValueVector(float value) const
     {
-        return {value};
+        return {{value}, Weight()};
+    }
+
+    //! The base case for type Weight when constructing a vector of values provided to operator().
+    /*! This function and the accompanying recursive function below employ
+     * variadic templating to accept an arbitrary set of float values and
+     * construct a vector out of them.
+     */
+    std::pair<std::vector<float>, Weight> getValueVector(Weight weight) const
+    {
+        return {{}, weight};
     }
 
     //! The recursive case for constructing a vector of values (see base-case function docs).
-    template <typename ... Floats>
-    std::vector<float> getValueVector(float value, Floats ... values) const
+    template <typename ... FloatsOrWeight>
+    std::pair<std::vector<float>, Weight> getValueVector(float value, FloatsOrWeight ... values) const
     {
-        std::vector<float> tmp = getValueVector(values...);
-        tmp.insert(tmp.begin(), value);
+        std::pair<std::vector<float>, Weight> tmp = getValueVector(values...);
+        tmp.first.insert(tmp.first.begin(), value);
+        return tmp;
+    }
+
+    //! The recursive case for constructing a vector of values (see base-case function docs).
+    template <typename ... FloatsOrWeight>
+    std::pair<std::vector<float>, Weight> getValueVector(Weight weight, FloatsOrWeight ... values) const
+    {
+        std::pair<std::vector<float>, Weight> tmp = getValueVector(values...);
+        tmp.second = weight;
         return tmp;
     }
 };
