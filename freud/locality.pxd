@@ -82,3 +82,4 @@ cdef class PairCompute(Compute):
 
 cdef class SpatialHistogram(PairCompute):
     cdef float r_max
+    cdef freud._locality.BondHistogramCompute * histptr

@@ -5,22 +5,16 @@ from freud.util cimport vec3, quat
 from libcpp.memory cimport shared_ptr
 from libcpp.vector cimport vector
 from libcpp.pair cimport pair
+from freud._locality cimport BondHistogramCompute
+
 cimport freud._box
 cimport freud._locality
 cimport freud.util
 
 cdef extern from "PMFT.h" namespace "freud::pmft":
-    cdef cppclass PMFT:
+    cdef cppclass PMFT(BondHistogramCompute):
         PMFT() except +
-
-        const freud._box.Box & getBox() const
-        void reset()
-        const freud.util.ManagedArray[unsigned int] &getBinCounts()
         const freud.util.ManagedArray[float] &getPCF()
-        vector[vector[float]] getBinEdges() const
-        vector[vector[float]] getBinCenters() const
-        vector[pair[float, float]] getBounds() const
-        vector[unsigned int] getBinSizes() const
 
 cdef extern from "PMFTR12.h" namespace "freud::pmft":
     cdef cppclass PMFTR12(PMFT):

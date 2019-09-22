@@ -1226,6 +1226,50 @@ cdef class SpatialHistogram(PairCompute):
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
     """
 
+    def __cinit__(self):
+        # Abstract class
+        pass
+
     @property
     def default_query_args(self):
         return dict(mode="ball", r_max=self.r_max)
+
+    @Compute._computed_property()
+    def box(self):
+        return freud.box.BoxFromCPP(self.histptr.getBox())
+
+    @Compute._computed_property()
+    def bin_counts(self):
+        return freud.util.make_managed_numpy_array(
+            &self.histptr.getBinCounts(),
+            freud.util.arr_type_t.UNSIGNED_INT)
+
+    @property
+    def bin_centers(self):
+        # Must create a local reference or Cython tries to access an rvalue by
+        # reference in the list comprehension.
+        vec = self.histptr.getBinCenters()
+        return [np.array(b, copy=True) for b in vec]
+
+    @property
+    def bin_edges(self):
+        # Must create a local reference or Cython tries to access an rvalue by
+        # reference in the list comprehension.
+        vec = self.histptr.getBinEdges()
+        return [np.array(b, copy=True) for b in vec]
+
+    @property
+    def bounds(self):
+        # Must create a local reference or Cython tries to access an rvalue by
+        # reference in the list comprehension.
+        vec = self.histptr.getBounds()
+        return [tuple(b) for b in vec]
+
+    @property
+    def nbins(self):
+        return list(self.histptr.getAxisSizes())
+
+    @Compute._reset
+    def reset(self):
+        R"""Resets the values of RDF in memory."""
+        self.histptr.reset()

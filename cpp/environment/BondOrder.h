@@ -6,7 +6,7 @@
 
 #include "Box.h"
 #include "Histogram.h"
-#include "HistogramCompute.h"
+#include "BondHistogramCompute.h"
 #include "NeighborList.h"
 #include "NeighborQuery.h"
 #include "ThreadStorage.h"
@@ -31,7 +31,7 @@ typedef enum
 //! Compute the bond order parameter for a set of points
 /*!
  */
-class BondOrder : public util::HistogramCompute
+class BondOrder : public locality::BondHistogramCompute
 {
 public:
     //! Constructor

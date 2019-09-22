@@ -5,6 +5,7 @@ from libcpp cimport bool
 from freud.util cimport vec3
 from libcpp.memory cimport shared_ptr
 from libcpp.vector cimport vector
+from libcpp.pair cimport pair
 cimport freud._box
 cimport freud.util
 
@@ -141,3 +142,15 @@ cdef extern from "Voronoi.h" namespace "freud::locality":
             const vec3[double]*,
             const int*) except +
         NeighborList * getNeighborList()
+
+cdef extern from "BondHistogramCompute.h" namespace "freud::locality":
+    cdef cppclass BondHistogramCompute:
+        BondHistogramCompute()
+
+        const freud._box.Box & getBox() const
+        void reset()
+        const freud.util.ManagedArray[unsigned int] &getBinCounts()
+        vector[vector[float]] getBinEdges() const
+        vector[vector[float]] getBinCenters() const
+        vector[pair[float, float]] getBounds() const
+        vector[unsigned int] getAxisSizes() const

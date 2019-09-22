@@ -8,7 +8,7 @@
 
 #include "Box.h"
 #include "Histogram.h"
-#include "HistogramCompute.h"
+#include "BondHistogramCompute.h"
 #include "ManagedArray.h"
 #include "VectorMath.h"
 
@@ -26,11 +26,11 @@ namespace freud { namespace pmft {
  *  subclasses that account for the proper set of dimensions.The required functions are implemented as pure
  *  virtual functions here to enforce this.
  */
-class PMFT : public util::HistogramCompute
+class PMFT : public locality::BondHistogramCompute
 {
 public:
     //! Constructor
-    PMFT() : HistogramCompute() {}
+    PMFT() : BondHistogramCompute() {}
 
     //! Destructor
     virtual ~PMFT() {};
@@ -45,36 +45,6 @@ public:
     {
         reducePCF();
     }
-
-    //! Get bin centers.
-    std::vector<std::vector<float> > getBinCenters() const
-    {
-        // RDFs are always 1D histograms, so we just return the first element.
-        return m_histogram.getBinCenters();
-    }
-
-    //! Return the bin boundaries.
-    std::vector<std::vector<float> > getBinEdges() const
-    {
-        // RDFs are always 1D histograms, so we just return the first element.
-        return m_histogram.getBinEdges();
-    }
-
-
-    //! Return the bin boundaries.
-    std::vector<std::pair<float, float> > getBounds() const
-    {
-        // RDFs are always 1D histograms, so we just return the first element.
-        return m_histogram.getBounds();
-    }
-
-    //! Return the bin boundaries.
-    std::vector<unsigned int> getBinSizes() const
-    {
-        // RDFs are always 1D histograms, so we just return the first element.
-        return m_histogram.getBinSizes();
-    }
-
 
     //! \internal
     // Wrapper to do accumulation.
@@ -122,12 +92,6 @@ public:
     const util::ManagedArray<float> &getPCF()
     {
         return reduceAndReturn(m_pcf_array);
-    }
-
-    //! Get a reference to the bin counts array
-    const util::ManagedArray<unsigned int> &getBinCounts()
-    {
-        return reduceAndReturn(m_histogram.getBinCounts());
     }
 
 protected:

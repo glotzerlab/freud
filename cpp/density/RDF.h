@@ -6,14 +6,14 @@
 
 #include "Box.h"
 #include "Histogram.h"
-#include "HistogramCompute.h"
+#include "BondHistogramCompute.h"
 
 /*! \file RDF.h
     \brief Routines for computing radial density functions.
 */
 
 namespace freud { namespace density {
-class RDF : public util::HistogramCompute
+class RDF : public locality::BondHistogramCompute
 {
 public:
     //! Constructor
@@ -64,20 +64,6 @@ public:
     float getRMin() const
     {
         return m_r_min;
-    }
-
-    //! Get bin centers.
-    std::vector<float> getBinCenters() const
-    {
-        // RDFs are always 1D histograms, so we just return the first element.
-        return m_histogram.getBinCenters()[0];
-    }
-
-    //! Return the bin boundaries.
-    std::vector<float> getBins() const
-    {
-        // RDFs are always 1D histograms, so we just return the first element.
-        return m_histogram.getBinEdges()[0];
     }
 
 private:

@@ -80,51 +80,11 @@ cdef class _PMFT(SpatialHistogram):
             del self.pmftptr
 
     @Compute._computed_property()
-    def box(self):
-        return freud.box.BoxFromCPP(self.pmftptr.getBox())
-
-    @Compute._reset
-    def reset(self):
-        R"""Resets the values of the PCF histograms in memory."""
-        self.pmftptr.reset()
-
-    @Compute._computed_property()
     def PMFT(self):
         with np.warnings.catch_warnings():
             np.warnings.filterwarnings('ignore')
             result = -np.log(np.copy(self.PCF))
         return result
-
-    @Compute._computed_property()
-    def bin_counts(self):
-        return freud.util.make_managed_numpy_array(
-            &self.pmftptr.getBinCounts(),
-            freud.util.arr_type_t.UNSIGNED_INT)
-
-    @property
-    def bin_centers(self):
-        # Must create a local reference or Cython tries to access an rvalue by
-        # reference in the list comprehension.
-        vec = self.pmftptr.getBinCenters()
-        return [np.array(b, copy=True) for b in vec]
-
-    @property
-    def bin_edges(self):
-        # Must create a local reference or Cython tries to access an rvalue by
-        # reference in the list comprehension.
-        vec = self.pmftptr.getBinEdges()
-        return [np.array(b, copy=True) for b in vec]
-
-    @property
-    def bounds(self):
-        # Must create a local reference or Cython tries to access an rvalue by
-        # reference in the list comprehension.
-        vec = self.pmftptr.getBounds()
-        return [tuple(b) for b in vec]
-
-    @property
-    def nbins(self):
-        return list(self.pmftptr.getBinSizes())
 
     @Compute._computed_property()
     def PCF(self):
@@ -187,8 +147,8 @@ cdef class PMFTR12(_PMFT):
 
     def __cinit__(self, r_max, n_r, n_t1, n_t2):
         if type(self) is PMFTR12:
-            self.pmftr12ptr = self.pmftptr = new freud._pmft.PMFTR12(
-                r_max, n_r, n_t1, n_t2)
+            self.pmftr12ptr = self.pmftptr = self.histptr = \
+                new freud._pmft.PMFTR12(r_max, n_r, n_t1, n_t2)
             self.r_max = r_max
 
     def __dealloc__(self):
@@ -361,8 +321,8 @@ cdef class PMFTXYT(_PMFT):
 
     def __cinit__(self, x_max, y_max, n_x, n_y, n_t):
         if type(self) is PMFTXYT:
-            self.pmftxytptr = self.pmftptr = new freud._pmft.PMFTXYT(
-                x_max, y_max, n_x, n_y, n_t)
+            self.pmftxytptr = self.pmftptr = self.histptr = \
+                new freud._pmft.PMFTXYT(x_max, y_max, n_x, n_y, n_t)
             self.r_max = np.sqrt(x_max**2 + y_max**2)
 
     def __dealloc__(self):
@@ -524,8 +484,8 @@ cdef class PMFTXY2D(_PMFT):
 
     def __cinit__(self, x_max, y_max, n_x, n_y):
         if type(self) is PMFTXY2D:
-            self.pmftxy2dptr = self.pmftptr = new freud._pmft.PMFTXY2D(
-                x_max, y_max, n_x, n_y)
+            self.pmftxy2dptr = self.pmftptr = self.histptr = \
+                new freud._pmft.PMFTXY2D(x_max, y_max, n_x, n_y)
             self.r_max = np.sqrt(x_max**2 + y_max**2)
 
     def __dealloc__(self):
@@ -721,8 +681,9 @@ cdef class PMFTXYZ(_PMFT):
         if type(self) is PMFTXYZ:
             c_shiftvec = vec3[float](
                 shiftvec[0], shiftvec[1], shiftvec[2])
-            self.pmftxyzptr = self.pmftptr = new freud._pmft.PMFTXYZ(
-                x_max, y_max, z_max, n_x, n_y, n_z, c_shiftvec)
+            self.pmftxyzptr = self.pmftptr = self.histptr = \
+                new freud._pmft.PMFTXYZ(
+                    x_max, y_max, z_max, n_x, n_y, n_z, c_shiftvec)
             self.shiftvec = np.array(shiftvec, dtype=np.float32)
             self.r_max = np.sqrt(x_max**2 + y_max**2 + z_max**2)
 

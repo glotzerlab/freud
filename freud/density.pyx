@@ -756,19 +756,18 @@ cdef class RDF(SpatialHistogram):
     cdef freud._density.RDF * thisptr
 
     def __cinit__(self, unsigned int bins, float r_max, float r_min=0):
-        self.thisptr = new freud._density.RDF(bins, r_max, r_min)
+        if type(self) == RDF:
+            self.thisptr = self.histptr = new freud._density.RDF(
+                bins, r_max, r_min)
 
-        # r_max is left as an attribute rather than a property for now since
-        # that change needs to happen at the SpatialHistogram level for
-        # multiple classes.
-        self.r_max = r_max
+            # r_max is left as an attribute rather than a property for now
+            # since that change needs to happen at the SpatialHistogram level
+            # for multiple classes.
+            self.r_max = r_max
 
     def __dealloc__(self):
-        del self.thisptr
-
-    @Compute._computed_property()
-    def box(self):
-        return freud.box.BoxFromCPP(self.thisptr.getBox())
+        if type(self) == RDF:
+            del self.thisptr
 
     @Compute._compute()
     def accumulate(self, box, points, query_points=None, nlist=None,
@@ -827,26 +826,11 @@ cdef class RDF(SpatialHistogram):
         self.accumulate(box, points, query_points, nlist, query_args)
         return self
 
-    @Compute._reset
-    def reset(self):
-        R"""Resets the values of RDF in memory."""
-        self.thisptr.reset()
-
     @Compute._computed_property()
     def RDF(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getRDF(),
             freud.util.arr_type_t.FLOAT)
-
-    @Compute._computed_property()
-    def bin_counts(self):
-        return freud.util.make_managed_numpy_array(
-            &self.thisptr.getBinCounts(),
-            freud.util.arr_type_t.UNSIGNED_INT)
-
-    @property
-    def bin_centers(self):
-        return np.asarray(self.thisptr.getBinCenters())
 
     @Compute._computed_property()
     def n_r(self):
@@ -864,10 +848,6 @@ cdef class RDF(SpatialHistogram):
     @property
     def r_min(self):
         return self.thisptr.getRMin()
-
-    @property
-    def bins(self):
-        return np.asarray(self.thisptr.getBins())
 
     @Compute._computed_method()
     def plot(self, ax=None):
@@ -894,3 +874,25 @@ cdef class RDF(SpatialHistogram):
             return freud.plot.ax_to_bytes(self.plot())
         except AttributeError:
             return None
+
+    # We override all the parent properties below because we know that RDFs are
+    # 1D and prefer to expose them as such.
+
+    @property
+    def bin_centers(self):
+        vec = self.histptr.getBinCenters()
+        return np.array(vec[0], copy=True)
+
+    @property
+    def bin_edges(self):
+        vec = self.histptr.getBinEdges()
+        return np.array(vec[0], copy=True)
+
+    @property
+    def bounds(self):
+        vec = self.histptr.getBounds()
+        return vec[0]
+
+    @property
+    def nbins(self):
+        return self.histptr.getAxisSizes()[0]

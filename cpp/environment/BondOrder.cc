@@ -20,7 +20,7 @@ namespace freud { namespace environment {
 constexpr float TWO_PI = 2.0 * M_PI;
 
 BondOrder::BondOrder(unsigned int n_bins_theta, unsigned int n_bins_phi)
-    : HistogramCompute(), m_n_bins_theta(n_bins_theta), m_n_bins_phi(n_bins_phi)
+    : BondHistogramCompute(), m_n_bins_theta(n_bins_theta), m_n_bins_phi(n_bins_phi)
 {
     // sanity checks, but this is actually kinda dumb if these values are 1
     if (m_n_bins_theta < 2)

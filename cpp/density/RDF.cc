@@ -11,7 +11,7 @@
 
 namespace freud { namespace density {
 
-RDF::RDF(unsigned int bins, float r_max, float r_min) : HistogramCompute(), m_r_max(r_max), m_r_min(r_min), m_bins(bins)
+RDF::RDF(unsigned int bins, float r_max, float r_min) : BondHistogramCompute(), m_r_max(r_max), m_r_min(r_min), m_bins(bins)
 {
     if (bins == 0)
         throw std::invalid_argument("RDF requires a nonzero number of bins.");
@@ -30,7 +30,7 @@ RDF::RDF(unsigned int bins, float r_max, float r_min) : HistogramCompute(), m_r_
     m_vol_array2D.prepare(m_bins);
     m_vol_array3D.prepare(m_bins);
     float volume_prefactor = (float(4.0)/float(3.0))*M_PI;
-    std::vector<float> bin_boundaries = getBins();
+    std::vector<float> bin_boundaries = getBinEdges()[0];
 
     for (unsigned int i = 0; i < m_bins; i++)
     {

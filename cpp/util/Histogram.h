@@ -304,7 +304,7 @@ public:
     }
 
     //! Return the edges of bins.
-    /*! This vector will be of size m_bin_counts.size()+1.
+    /*! This vector will be of size axis.size()+1 for each axis.
      */
     std::vector<std::vector<float> > getBinEdges() const
     {
@@ -317,7 +317,7 @@ public:
     }
 
     //! Return the bin centers.
-    /*! This vector will be of size m_bin_counts.size().
+    /*! This vector will be of size axis.size() for each axis.
      */
     std::vector<std::vector<float> > getBinCenters() const
     {
@@ -329,9 +329,7 @@ public:
         return bins;
     }
 
-    //! Return a vector of tuples (min, max)
-    /*! This vector will be of size m_bin_counts.size().
-     */
+    //! Return a vector of tuples (min, max) indicating the bounds of each axis.
     std::vector<std::pair<float, float> > getBounds() const
     {
         std::vector<std::pair<float, float> > bounds(m_axes.size());
@@ -345,10 +343,8 @@ public:
         return bounds;
     }
 
-    //! Return a vector of tuples (min, max)
-    /*! This vector will be of size m_bin_counts.size().
-     */
-    std::vector<unsigned int> getBinSizes() const
+    //! Return a vector indicating the number of bins in each axis.
+    std::vector<unsigned int> getAxisSizes() const
     {
         std::vector<unsigned int> sizes(m_axes.size());
         for (unsigned int i = 0; i < m_axes.size(); ++i)
