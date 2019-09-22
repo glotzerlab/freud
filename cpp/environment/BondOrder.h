@@ -5,6 +5,7 @@
 #define BOND_ORDER_H
 
 #include "Box.h"
+#include "Histogram.h"
 #include "NeighborList.h"
 #include "NeighborQuery.h"
 #include "ThreadStorage.h"
@@ -90,12 +91,12 @@ private:
     unsigned int m_frame_counter; //!< number of frames calculated
     bool m_reduce;                //!< Whether arrays need to be reduced across threads
 
-    util::ManagedArray<unsigned int> m_bin_counts; //!< bin counts computed
+    util::Histogram m_histogram; //!< bin counts computed
     util::ManagedArray<float> m_bo_array;          //!< bond order array computed
     util::ManagedArray<float> m_sa_array;          //!< surface area array computed
     util::ManagedArray<float> m_theta_array;       //!< theta array computed
     util::ManagedArray<float> m_phi_array;         //!< phi order array computed
-    util::ThreadStorage<unsigned int> m_local_bin_counts;
+    util::Histogram::ThreadLocalHistogram m_local_histograms;   //!< Thread local bin counts for TBB parallelism
 };
 
 }; }; // end namespace freud::environment

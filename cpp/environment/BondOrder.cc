@@ -8,7 +8,6 @@
 
 #include "BondOrder.h"
 #include "NeighborComputeFunctional.h"
-#include "NeighborBond.h"
 #include "utils.h"
 
 /*! \file BondOrder.h
@@ -17,9 +16,12 @@
 
 namespace freud { namespace environment {
 
+// namespace-level constant 2*pi for convenient use everywhere.
+constexpr float TWO_PI = 2.0 * M_PI;
+
 BondOrder::BondOrder(unsigned int n_bins_theta, unsigned int n_bins_phi)
     : m_box(box::Box()), m_n_bins_theta(n_bins_theta), m_n_bins_phi(n_bins_phi), m_frame_counter(0),
-      m_reduce(true), m_local_bin_counts(n_bins_theta * n_bins_phi)
+      m_reduce(true)
 {
     // sanity checks, but this is actually kinda dumb if these values are 1
     if (m_n_bins_theta < 2)
@@ -67,37 +69,22 @@ BondOrder::BondOrder(unsigned int n_bins_theta, unsigned int n_bins_phi)
             m_sa_array(i, j) = sa;
         }
     }
-    m_local_bin_counts.resize({m_n_bins_theta, m_n_bins_phi});
+    util::Histogram::Axes axes;
+    axes.push_back(std::make_shared<util::RegularAxis>(m_n_bins_theta, 0, TWO_PI));
+    axes.push_back(std::make_shared<util::RegularAxis>(m_n_bins_phi, 0, M_PI));
+    m_histogram = util::Histogram(axes);
+
+    m_local_histograms = util::Histogram::ThreadLocalHistogram(m_histogram);
 }
 
 void BondOrder::reduceBondOrder()
 {
-    m_bin_counts.prepare({m_n_bins_theta, m_n_bins_phi});
+    m_histogram.reset();
     m_bo_array.prepare({m_n_bins_theta, m_n_bins_phi});
 
-    util::forLoopWrapper(0, m_n_bins_theta, [=](size_t begin, size_t end) {
-        for (size_t i = begin; i < end; ++i)
-        {
-            for (size_t j = 0; j < m_n_bins_phi; j++)
-            {
-                for (util::ThreadStorage<unsigned int>::const_iterator local_bins
-                     = m_local_bin_counts.begin();
-                     local_bins != m_local_bin_counts.end(); ++local_bins)
-                {
-                    m_bin_counts(i, j) += (*local_bins)(i, j);
-                }
-                m_bo_array(i, j) = m_bin_counts(i, j) / m_sa_array(i, j);
-            }
-        }
-    });
-    for (unsigned int i = 0; i < m_n_bins_theta; i++)
-    {
-        for (unsigned int j = 0; j < m_n_bins_phi; j++)
-        {
-            m_bin_counts(i, j) = m_bin_counts(i, j) / (float) m_frame_counter;
-            m_bo_array(i, j) = m_bo_array(i, j) / (float) m_frame_counter;
-        }
-    }
+    m_histogram.reduceOverThreadsPerBin(m_local_histograms, [&] (size_t i) {
+            m_bo_array[i] = m_histogram[i] / m_sa_array[i] / static_cast<float>(m_frame_counter);
+        });
 }
 
 const util::ManagedArray<float> &BondOrder::getBondOrder()
@@ -112,7 +99,7 @@ const util::ManagedArray<float> &BondOrder::getBondOrder()
 
 void BondOrder::reset()
 {
-    m_local_bin_counts.reset();
+    m_local_histograms.reset();
     // reset the frame counter
     m_frame_counter = 0;
     m_reduce = true;
@@ -131,9 +118,6 @@ void BondOrder::accumulate(
 
     m_box = neighbor_query->getBox();
     // compute the order parameter
-
-    float dt_inv = 1.0f / m_dt;
-    float dp_inv = 1.0f / m_dp;
 
     freud::locality::loopOverNeighbors(neighbor_query, query_points, n_query_points, qargs, nlist,
     [=] (const freud::locality::NeighborBond& neighbor_bond)
@@ -182,23 +166,7 @@ void BondOrder::accumulate(
         // NOTE that the below has replaced the commented out expression for phi.
         float phi = acos(v.z / sqrt(v.x * v.x + v.y * v.y + v.z * v.z)); // 0..Pi
 
-        // bin the point
-        float bin_theta = floorf(theta * dt_inv);
-        float bin_phi = floorf(phi * dp_inv);
-// fast float to int conversion with truncation
-#ifdef __SSE2__
-        unsigned int ibin_theta = _mm_cvtt_ss2si(_mm_load_ss(&bin_theta));
-        unsigned int ibin_phi = _mm_cvtt_ss2si(_mm_load_ss(&bin_phi));
-#else
-            unsigned int ibin_theta = (unsigned int)(bin_theta);
-            unsigned int ibin_phi = (unsigned int)(bin_phi);
-#endif
-
-        // increment the bin
-        if ((ibin_theta < m_n_bins_theta) && (ibin_phi < m_n_bins_phi))
-        {
-            ++m_local_bin_counts.local()(ibin_theta, ibin_phi);
-        }
+        m_local_histograms(theta, phi);
     });
 
     // save the last computed number of particles

@@ -399,9 +399,20 @@ public:
     }
 
     //! Read-only index into array.
+    unsigned int &operator[](unsigned int i)
+    {
+        return m_bin_counts[i];
+    }
+
+    //! Read-only index into array.
     const unsigned int &operator[](unsigned int i) const
     {
         return m_bin_counts[i];
+    }
+
+    unsigned int size() const
+    {
+        return m_bin_counts.size();
     }
 
 protected:
