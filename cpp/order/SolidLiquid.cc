@@ -62,11 +62,9 @@ void SolidLiquid::compute(const freud::locality::NeighborList* nlist,
                 // Normalize dot products by points' Ql values if requested
                 if (m_normalize_Q)
                 {
-                    // Divide by Ql values of each particle
-                    bond_Ql_i_dot_j /= sqrt(Ql[i] * Ql[j]);
-                    // This cancels out the normalization of the Ql values
-                    // to match the (lack of) normalization of Ql_i_dot_j
-                    bond_Ql_i_dot_j *= normalizationfactor;
+                    // Divide by Ql values of each particle, accounting for
+                    // the normalization of Ql values
+                    bond_Ql_i_dot_j *= normalizationfactor / (Ql[i] * Ql[j]);
                 }
                 m_Ql_i_dot_j[bond] = bond_Ql_i_dot_j;
             }
