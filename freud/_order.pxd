@@ -92,6 +92,7 @@ cdef extern from "SolidLiquid.h" namespace "freud::order":
         void compute(const freud._locality.NeighborList*,
                      const freud._locality.NeighborQuery*,
                      freud._locality.QueryArgs) nogil except +
+        const freud.util.ManagedArray[float complex] &getQlij()
         unsigned int getLargestClusterSize()
         vector[unsigned int] getClusterSizes()
         const freud.util.ManagedArray[unsigned int] &getClusterIdx()

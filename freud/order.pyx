@@ -712,6 +712,12 @@ cdef class SolidLiquid(PairCompute):
         return self.thisptr.getCommonNeighbors()
 
     @Compute._computed_property()
+    def Qlij(self):
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getQlij(),
+            freud.util.arr_type_t.COMPLEX_FLOAT)
+
+    @Compute._computed_property()
     def clusters(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getClusterIdx(),

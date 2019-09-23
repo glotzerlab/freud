@@ -73,6 +73,12 @@ public:
     void compute(const freud::locality::NeighborList* nlist,
             const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
 
+    //! Returns the Ql_i_dot_j values for each bond
+    const util::ManagedArray<std::complex<float>> &getQlij()
+    {
+        return m_Ql_i_dot_j;
+    }
+
     //! Returns largest cluster size.
     unsigned int getLargestClusterSize()
     {
