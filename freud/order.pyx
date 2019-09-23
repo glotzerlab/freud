@@ -608,35 +608,44 @@ cdef class Steinhardt(PairCompute):
 
 
 cdef class SolidLiquid(PairCompute):
-    R"""Uses dot products of :math:`Q_{lm}` between particles for clustering.
+    R"""Identifies solid-like clusters using dot products of :math:`Q_{lm}`.
 
-    .. moduleauthor:: Richmond Newman <newmanrs@umich.edu>
+    This order parameter uses a Steinhardt-like approach to identify solid-like
+    particles. First, a bond parameter :math:`Q_l(i, j)` is computed for each
+    neighbor bond.
+
+    If :code:`normalize_Q` is true (default), the bond parameter is given by
+    :math:`Q_l(i, j) = \frac{\sum_{m=-l}^{l} \text{Re}~Q_{lm}(i) Q_{lm}^*(j)}
+    {\sqrt{\sum_{m=-l}^{l} \lvert Q_{lm}(i) \rvert^2}
+    \sqrt{\sum_{m=-l}^{l} \lvert Q_{lm}(j) \rvert^2}}`
+
+    If :code:`normalize_Q` is false, then the denominator of the above
+    expression is left out.
+
+    Next, the bonds are filtered to keep only "solid-like" bonds with
+    :math:`Q_l(i, j)` above a cutoff value :math:`Q_{threshold}`.
+
+    If a particle has more than :math:`S_{threshold}` solid-like bonds, then
+    the particle is considered solid-like. Finally, solid-like particles are
+    clustered.
+
     .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
+    .. moduleauthor:: Richmond Newman <newmanrs@umich.edu>
 
     Args:
         l (unsigned int):
-            Choose spherical harmonic :math:`Q_l`. Must be positive and even.
+            Spherical harmonic quantum number l.
         Q_threshold (float):
             Value of dot product threshold when evaluating
-            :math:`Q_{lm}^*(i) Q_{lm}(j)` to determine if a neighbor pair is a
-            solid-like bond. (For :math:`l=6`, 0.7 is generally good for FCC or
-            BCC structures).
+            :math:`Q_l(i, j)` to determine if a bond is solid-like. For
+            :math:`l=6`, 0.7 is generally good for FCC or BCC structures.
         S_threshold (unsigned int):
             Minimum required number of adjacent solid-like bonds for a particle
-            to be considered solid-like for clustering. (For :math:`l=6`, 6-8
-            is generally good for FCC or BCC structures).
+            to be considered solid-like for clustering. For :math:`l=6`, 6-8
+            is generally good for FCC or BCC structures.
         normalize_Q (bool):
-            Whether to normalize the dot product :math:`Q_{lm}^*(i) Q_{lm}(j)`
-            by the quantity
-            :math:`\sqrt{\lvert Q_{lm}(i) \rvert \lvert Q_{lm}(j) \rvert}`
-            (Default value = :code:`True`).
-        common_neighbors (bool):
-            If :code:`False`, two solid-like particles are clustered if they
-            are neighbors and have at least :math:`S_{threshold}` solid-like
-            neighbors.
-            If :code:`True`, two solid-like particles are clustered if they are
-            neighbors and share at least :math:`S_{threshold}` solid-like
-            common neighbors (Default value = :code:`False`).
+            Whether to normalize the dot product (Default value =
+            :code:`True`).
 
     Attributes:
         clusters (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
@@ -645,16 +654,15 @@ cdef class SolidLiquid(PairCompute):
         cluster_sizes (unsigned int):
             The sizes of all clusters.
         largest_cluster_size (unsigned int):
-            The largest cluster size. Must call a compute method first.
+            The largest cluster size.
         num_connections (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The number of connections per particle.
     """  # noqa: E501
     cdef freud._order.SolidLiquid * thisptr
 
-    def __cinit__(self, l, Q_threshold, S_threshold, normalize_Q=True,
-                  common_neighbors=False):
+    def __cinit__(self, l, Q_threshold, S_threshold, normalize_Q=True):
         self.thisptr = new freud._order.SolidLiquid(
-            l, Q_threshold, S_threshold, normalize_Q, common_neighbors)
+            l, Q_threshold, S_threshold, normalize_Q)
 
     def __dealloc__(self):
         del self.thisptr
@@ -704,16 +712,6 @@ cdef class SolidLiquid(PairCompute):
     def normalize_Q(self):
         return self.thisptr.getNormalizeQ()
 
-    @property
-    def common_neighbors(self):
-        return self.thisptr.getCommonNeighbors()
-
-    @Compute._computed_property()
-    def Qlij(self):
-        return freud.util.make_managed_numpy_array(
-            &self.thisptr.getQlij(),
-            freud.util.arr_type_t.COMPLEX_FLOAT)
-
     @Compute._computed_property()
     def clusters(self):
         return freud.util.make_managed_numpy_array(
@@ -736,14 +734,13 @@ cdef class SolidLiquid(PairCompute):
 
     def __repr__(self):
         return ("freud.order.{cls}(l={sph_l}, Q_threshold={Q_threshold}, "
-                "S_threshold={S_threshold}, normalize_Q={normalize_Q}, "
-                "common_neighbors={common_neighbors})").format(
+                "S_threshold={S_threshold}, "
+                "normalize_Q={normalize_Q})").format(
                     cls=type(self).__name__,
                     sph_l=self.l,
                     Q_threshold=self.Q_threshold,
                     S_threshold=self.S_threshold,
-                    normalize_Q=self.normalize_Q,
-                    common_neighbors=self.common_neighbors)
+                    normalize_Q=self.normalize_Q)
 
 
 cdef class RotationalAutocorrelation(Compute):

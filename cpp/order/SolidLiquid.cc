@@ -5,8 +5,9 @@
 
 namespace freud { namespace order {
 
-SolidLiquid::SolidLiquid(unsigned int l, float Q_threshold, unsigned int S_threshold, bool normalize_Q, bool common_neighbors)
-    : m_l(l), m_num_ms(2 * l + 1), m_Q_threshold(Q_threshold), m_S_threshold(S_threshold), m_normalize_Q(normalize_Q), m_common_neighbors(common_neighbors), m_steinhardt(l), m_cluster()
+SolidLiquid::SolidLiquid(unsigned int l, float Q_threshold, unsigned int S_threshold, bool normalize_Q)
+    : m_l(l), m_num_ms(2 * l + 1), m_Q_threshold(Q_threshold), m_S_threshold(S_threshold),
+    m_normalize_Q(normalize_Q), m_steinhardt(l), m_cluster()
 {
     if (m_Q_threshold < 0.0)
     {
@@ -18,7 +19,7 @@ SolidLiquid::SolidLiquid(unsigned int l, float Q_threshold, unsigned int S_thres
 void SolidLiquid::compute(const freud::locality::NeighborList* nlist,
         const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs)
 {
-    // Make NeighborList from NeighborQuery if needed
+    // Make NeighborList from NeighborQuery if not provided
     if (nlist == NULL)
     {
         auto nqiter(points->query(points->getPoints(), points->getNPoints(), qargs));
@@ -35,7 +36,7 @@ void SolidLiquid::compute(const freud::locality::NeighborList* nlist,
     // Compute (normalized) dot products for each bond in the neighbor list
     const float normalizationfactor = float(4 * M_PI / m_num_ms);
     const unsigned int num_bonds(nlist->getNumBonds());
-    m_Ql_i_dot_j.prepare(num_bonds);
+    m_Ql_ij.prepare(num_bonds);
 
     util::forLoopWrapper(0, num_query_points, [=](size_t begin, size_t end) {
         for (unsigned int i = begin; i != end; ++i)
@@ -46,19 +47,19 @@ void SolidLiquid::compute(const freud::locality::NeighborList* nlist,
                 const unsigned int j(nlist->getNeighbors()(bond, 1));
 
                 // Accumulate the dot product over m of Qlmi and Qlmj vectors
-                std::complex<float> bond_Ql_i_dot_j = 0;
+                std::complex<float> bond_Ql_ij = 0;
                 for (unsigned int k = 0; k < m_num_ms; k++)
                 {
-                    bond_Ql_i_dot_j += Qlm(i, k) * conj(Qlm(j, k));
+                    bond_Ql_ij += Qlm(i, k) * conj(Qlm(j, k));
                 }
 
                 // Optionally normalize dot products by points' Ql values,
                 // accounting for the normalization of Ql values
                 if (m_normalize_Q)
                 {
-                    bond_Ql_i_dot_j *= normalizationfactor / (Ql[i] * Ql[j]);
+                    bond_Ql_ij *= normalizationfactor / (Ql[i] * Ql[j]);
                 }
-                m_Ql_i_dot_j[bond] = bond_Ql_i_dot_j;
+                m_Ql_ij[bond] = bond_Ql_ij.real();
             }
         }
     }, true);
@@ -67,7 +68,7 @@ void SolidLiquid::compute(const freud::locality::NeighborList* nlist,
     unique_ptr<bool[]> solid_filter(new bool[num_bonds]);
     for (unsigned int bond(0); bond < num_bonds; bond++)
     {
-        solid_filter[bond] = (m_Ql_i_dot_j[bond].real() > m_Q_threshold);
+        solid_filter[bond] = (m_Ql_ij[bond] > m_Q_threshold);
     }
     freud::locality::NeighborList solid_nlist(*nlist);
     solid_nlist.filter(solid_filter.get());
@@ -79,7 +80,8 @@ void SolidLiquid::compute(const freud::locality::NeighborList* nlist,
         m_number_of_connections[i] = solid_nlist.getCounts()[i];
     }
 
-    // Filter nlist using solid-like threshold of (common) neighbors
+    // Filter nlist to only bonds between solid-like particles
+    // (particles with more than S_threshold solid-like bonds)
     const unsigned int num_solid_bonds(solid_nlist.getNumBonds());
     unique_ptr<bool[]> neighbor_count_filter(new bool[num_solid_bonds]);
     for (unsigned int bond(0); bond < num_solid_bonds; bond++)

@@ -31,18 +31,17 @@ public:
     /*! Constructor for Solid-Liquid analysis class. After creation, call
      *  compute to calculate solid-like clusters. Use accessor functions
      *  to retrieve data.
-     *  \param l Choose spherical harmonic Ql. Must be positive and even.
+     *  \param l Spherical harmonic number l.
      *  \param Q_threshold Value of dot product threshold when evaluating
-     *     \f$Q_{lm}^*(i) Q_{lm}(j)\f$ to determine if a neighbor pair is
-     *     a solid-like bond. (For l=6, 0.7 generally good for FCC or BCC
+     *     \f$Q_{lm}(i) Q_{lm}^*(j)\f$ to determine if a neighbor pair is
+     *     a solid-like bond. (For l=6, 0.7 is generally good for FCC or BCC
      *     structures)
-     *  \param S_threshold Minimum required number of adjacent solid-link bonds
+     *  \param S_threshold Minimum required number of adjacent solid-like bonds
      *     for a particle to be considered solid-like for clustering. (For
-     *     l=6, 6-8 generally good for FCC or BCC structures)
+     *     l=6, 6-8 is generally good for FCC or BCC structures)
      *  \param normalize_Q Whether to normalize the per-bond dot products of Qlm.
-     *  \param common_neighbors Whether to use common neighbors for clustering.
      */
-    SolidLiquid(unsigned int l, float Q_threshold, unsigned int S_threshold, bool normalize_Q=true, bool common_neighbors=false);
+    SolidLiquid(unsigned int l, float Q_threshold, unsigned int S_threshold, bool normalize_Q=true);
 
     unsigned int getL()
     {
@@ -64,20 +63,9 @@ public:
         return m_normalize_Q;
     }
 
-    bool getCommonNeighbors()
-    {
-        return m_common_neighbors;
-    }
-
     //! Compute the Solid-Liquid Order Parameter
     void compute(const freud::locality::NeighborList* nlist,
             const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
-
-    //! Returns the Ql_i_dot_j values for each bond
-    const util::ManagedArray<std::complex<float>> &getQlij()
-    {
-        return m_Ql_i_dot_j;
-    }
 
     //! Returns largest cluster size.
     unsigned int getLargestClusterSize()
@@ -121,12 +109,11 @@ private:
     float m_Q_threshold;                    //!< Dot product cutoff
     unsigned int m_S_threshold;             //!< Solid-like num connections cutoff
     bool m_normalize_Q;                     //!< Whether to normalize the Qlmi dot products.
-    bool m_common_neighbors;                //!< Whether to threshold on common neighbors.
 
     freud::order::Steinhardt m_steinhardt;  //!< Steinhardt class used to compute Qlm
     freud::cluster::Cluster m_cluster;      //!< Cluster class used to cluster solid-like bonds
 
-    util::ManagedArray<std::complex<float>> m_Ql_i_dot_j; //!< All of the Qlmi dot Qlmj's computed
+    util::ManagedArray<float> m_Ql_ij; //!< All of the Qlmi dot Qlmj's computed
     //! Number of connections for each particle with dot product above Q_threshold
     util::ManagedArray<unsigned int> m_number_of_connections;
     util::ThreadStorage<unsigned int> m_number_of_connections_local;
