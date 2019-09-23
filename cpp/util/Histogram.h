@@ -18,12 +18,13 @@ namespace freud { namespace util {
 //! Weight to add to a histogram.
 /*! For histograms that are not simple counts, a Weight instance may be passed
  * in to indicate what value should be added to a bin. If not provided,
- * defaults to 1.
+ * defaults to 1. Templated to allow floating weights if needed.
  */
+template <typename T>
 struct Weight
 {
     Weight() : value(1), is_default(true) {}
-    Weight(float value) : value(value), is_default(false) {}
+    Weight(T value) : value(value), is_default(false) {}
 
     Weight &operator=(Weight other)
     {
@@ -34,7 +35,7 @@ struct Weight
         return *this;
     }
 
-    float value;
+    T value;
     bool is_default;
 };
 
@@ -179,6 +180,7 @@ protected:
  * to operate on the histogram directly. The underlying data is handled using a
  * ManagedArray, allowing dispatch of the multi-dimensional indexing.
  */
+template <typename T>
 class Histogram
 {
 public:
@@ -245,7 +247,7 @@ public:
         }
 
     protected:
-        tbb::enumerable_thread_specific<Histogram> m_local_histograms;  //!< The thread-local copies of m_histogram.
+        tbb::enumerable_thread_specific<Histogram<T> > m_local_histograms;  //!< The thread-local copies of m_histogram.
     };
 
     typedef std::vector<std::shared_ptr<Axis> > Axes;
@@ -260,7 +262,7 @@ public:
         std::vector<unsigned int> sizes;
         for (AxisIterator it = m_axes.begin(); it != m_axes.end(); it++)
             sizes.push_back((*it)->size());
-        m_bin_counts = ManagedArray<unsigned int>(sizes);
+        m_bin_counts = ManagedArray<T>(sizes);
     }
 
     //! Destructor
@@ -270,7 +272,7 @@ public:
     template <typename ... FloatsOrWeight>
     void operator()(FloatsOrWeight ... values)
     {
-        std::pair<std::vector<float>, Weight> value_vector = getValueVector(values ...);
+        std::pair<std::vector<float>, Weight<T> > value_vector = getValueVector(values ...);
         size_t value_bin = bin(value_vector.first);
         // Check for sentinel to avoid overflow.
         if (value_bin != Axis::OVERFLOW_BIN)
@@ -309,7 +311,7 @@ public:
     }
 
     //! Get the computed histogram.
-    const ManagedArray<unsigned int> &getBinCounts()
+    const ManagedArray<T> &getBinCounts()
     {
         return m_bin_counts;
     }
@@ -391,7 +393,7 @@ public:
         util::forLoopWrapper(0, m_bin_counts.size(), [=](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
-                for (ThreadLocalHistogram::const_iterator local_bins = local_histograms.begin();
+                for (typename ThreadLocalHistogram::const_iterator local_bins = local_histograms.begin();
                     local_bins != local_histograms.end(); ++local_bins)
                 {
                     m_bin_counts[i] += (*local_bins).m_bin_counts[i];
@@ -418,13 +420,13 @@ public:
     }
 
     //! Read-only index into array.
-    unsigned int &operator[](unsigned int i)
+    T &operator[](unsigned int i)
     {
         return m_bin_counts[i];
     }
 
     //! Read-only index into array.
-    const unsigned int &operator[](unsigned int i) const
+    const T &operator[](unsigned int i) const
     {
         return m_bin_counts[i];
     }
@@ -436,16 +438,16 @@ public:
 
 protected:
     std::vector<std::shared_ptr<Axis > > m_axes; //!< The axes.
-    ManagedArray<unsigned int> m_bin_counts; //!< Counts for each bin
+    ManagedArray<T> m_bin_counts; //!< Counts for each bin
 
     //! The base case for type float when constructing a vector of values provided to operator().
     /*! This function and the accompanying recursive function below employ
      * variadic templating to accept an arbitrary set of float values and
      * construct a vector out of them.
      */
-    std::pair<std::vector<float>, Weight> getValueVector(float value) const
+    std::pair<std::vector<float>, Weight<T> > getValueVector(float value) const
     {
-        return {{value}, Weight()};
+        return {{value}, Weight<T> ()};
     }
 
     //! The base case for type Weight when constructing a vector of values provided to operator().
@@ -453,25 +455,25 @@ protected:
      * variadic templating to accept an arbitrary set of float values and
      * construct a vector out of them.
      */
-    std::pair<std::vector<float>, Weight> getValueVector(Weight weight) const
+    std::pair<std::vector<float>, Weight<T> > getValueVector(Weight<T>  weight) const
     {
         return {{}, weight};
     }
 
     //! The recursive case for constructing a vector of values (see base-case function docs).
     template <typename ... FloatsOrWeight>
-    std::pair<std::vector<float>, Weight> getValueVector(float value, FloatsOrWeight ... values) const
+    std::pair<std::vector<float>, Weight<T> > getValueVector(float value, FloatsOrWeight ... values) const
     {
-        std::pair<std::vector<float>, Weight> tmp = getValueVector(values...);
+        std::pair<std::vector<float>, Weight<T> > tmp = getValueVector(values...);
         tmp.first.insert(tmp.first.begin(), value);
         return tmp;
     }
 
     //! The recursive case for constructing a vector of values (see base-case function docs).
     template <typename ... FloatsOrWeight>
-    std::pair<std::vector<float>, Weight> getValueVector(Weight weight, FloatsOrWeight ... values) const
+    std::pair<std::vector<float>, Weight<T> > getValueVector(Weight<T>  weight, FloatsOrWeight ... values) const
     {
-        std::pair<std::vector<float>, Weight> tmp = getValueVector(values...);
+        std::pair<std::vector<float>, Weight<T> > tmp = getValueVector(values...);
         tmp.second = weight;
         return tmp;
     }

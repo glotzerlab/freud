@@ -16,7 +16,6 @@ namespace freud { namespace locality {
  * of accumulating histograms over many frames, assuming that computations must
  * be performed on a per-NeighborBond basis. 
 */
-template <typename T>
 class BondHistogramCompute
 {
 public:
@@ -118,8 +117,11 @@ protected:
     unsigned int m_n_query_points;           //!< The number of query points.
     bool m_reduce;                           //!< Whether or not the histogram needs to be reduced.
 
-    util::Histogram m_histogram;             //!< Histogram of interparticle distances (bond lengths).
-    typename util::Histogram::ThreadLocalHistogram m_local_histograms;   //!< Thread local bin counts for TBB parallelism
+    util::Histogram<unsigned int> m_histogram;             //!< Histogram of interparticle distances (bond lengths).
+    util::Histogram<unsigned int>::ThreadLocalHistogram m_local_histograms;   //!< Thread local bin counts for TBB parallelism
+
+    typedef util::Histogram<unsigned int> BondHistogram;
+    typedef BondHistogram::Axes BHAxes;
 };
 
 }; }; // namespace freud::util

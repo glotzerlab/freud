@@ -21,10 +21,10 @@ RDF::RDF(unsigned int bins, float r_max, float r_min) : BondHistogramCompute(), 
         throw std::invalid_argument("RDF requires that r_max must be greater than r_min.");
 
     // Construct the Histogram object that will be used to keep track of counts of bond distances found.
-    util::Histogram::Axes axes;
+    BHAxes axes;
     axes.push_back(std::make_shared<util::RegularAxis>(m_bins, m_r_min, m_r_max));
-    m_histogram = util::Histogram(axes);
-    m_local_histograms = util::Histogram::ThreadLocalHistogram(m_histogram);
+    m_histogram = BondHistogram(axes);
+    m_local_histograms = BondHistogram::ThreadLocalHistogram(m_histogram);
 
     // Precompute the cell volumes to speed up later calculations.
     m_vol_array2D.prepare(m_bins);

@@ -27,12 +27,12 @@ PMFTR12::PMFTR12(float r_max, unsigned int n_r, unsigned int n_t1, unsigned int 
         throw std::invalid_argument("PMFTR12 requires that r_max must be positive.");
 
     // Construct the Histogram object that will be used to keep track of counts of bond distances found.
-    util::Histogram::Axes axes;
+    BHAxes axes;
     axes.push_back(std::make_shared<util::RegularAxis>(n_r, 0, r_max));
     axes.push_back(std::make_shared<util::RegularAxis>(n_t1, 0, TWO_PI));
     axes.push_back(std::make_shared<util::RegularAxis>(n_t2, 0, TWO_PI));
-    m_histogram = util::Histogram(axes);
-    m_local_histograms = util::Histogram::ThreadLocalHistogram(m_histogram);
+    m_histogram = BondHistogram(axes);
+    m_local_histograms = BondHistogram::ThreadLocalHistogram(m_histogram);
 
     // calculate the jacobian array; computed as the inverse for faster use later
     m_inv_jacobian_array.prepare({n_r, n_t1, n_t2});
