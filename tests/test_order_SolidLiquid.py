@@ -4,6 +4,9 @@ import freud
 import unittest
 import util
 
+# Validated against manual calculation and pyboo
+PERFECT_FCC_Q6 = 0.57452416
+
 
 class TestSolidLiquid(unittest.TestCase):
     def test_shape(self):
@@ -30,6 +33,8 @@ class TestSolidLiquid(unittest.TestCase):
         for comp in (comp_default, comp_no_norm, comp_common_neighbors):
             for query_args in (dict(r_max=2.0), dict(num_neighbors=12)):
                 comp.compute(box, positions, query_args=query_args)
+                if comp.normalize_Q:
+                    npt.assert_allclose(comp.Qlij, PERFECT_FCC_Q6, rtol=1e-5)
                 self.assertTrue(np.allclose(
                     comp.largest_cluster_size, len(positions)))
                 self.assertEqual(len(comp.cluster_sizes), 1)

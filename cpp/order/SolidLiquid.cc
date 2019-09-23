@@ -36,8 +36,8 @@ void SolidLiquid::compute(const freud::locality::NeighborList* nlist,
 
     // Compute Steinhardt using neighbor list (also gets Ql for normalization)
     m_steinhardt.compute(nlist, points, qargs);
-    const util::ManagedArray<complex<float>> &Qlm = m_steinhardt.getQlm();
-    const util::ManagedArray<float> &Ql = m_steinhardt.getQl();
+    const auto Qlm = m_steinhardt.getQlm();
+    const auto Ql = m_steinhardt.getQl();
 
     // Compute (normalized) dot products for each bond in the neighbor list
     const float normalizationfactor = float(4 * M_PI / m_num_ms);

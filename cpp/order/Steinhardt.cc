@@ -127,7 +127,7 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
                 }
 
                 std::vector<std::complex<float>> Ylm(m_num_ms);
-                this->computeYlm(theta, phi, Ylm); // Fill up Ylm
+                computeYlm(theta, phi, Ylm); // Fill up Ylm
 
                 for (unsigned int k = 0; k < m_num_ms; ++k)
                 {
