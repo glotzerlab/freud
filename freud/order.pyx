@@ -495,44 +495,42 @@ cdef class Steinhardt(PairCompute):
             Stores the system wide normalization of the :math:`Q_l` or
             :math:`W_l` order parameter.
     """  # noqa: E501
-    cdef freud._order.Steinhardt * stptr
+    cdef freud._order.Steinhardt * thisptr
     cdef int sph_l
 
     def __cinit__(self, l, average=False, Wl=False, weighted=False):
         self.sph_l = l
-        self.stptr = new freud._order.Steinhardt(l, average, Wl, weighted)
+        self.thisptr = new freud._order.Steinhardt(l, average, Wl, weighted)
 
     def __dealloc__(self):
-        if type(self) is Steinhardt:
-            del self.stptr
-            self.stptr = NULL
+        del self.thisptr
 
     @property
     def average(self):
-        return self.stptr.isAverage()
+        return self.thisptr.isAverage()
 
     @property
     def Wl(self):
-        return self.stptr.isWl()
+        return self.thisptr.isWl()
 
     @property
     def weighted(self):
-        return self.stptr.isWeighted()
+        return self.thisptr.isWeighted()
 
     @Compute._computed_property()
     def norm(self):
-        return self.stptr.getNorm()
+        return self.thisptr.getNorm()
 
     @Compute._computed_property()
     def order(self):
         return freud.util.make_managed_numpy_array(
-            &self.stptr.getOrder(),
+            &self.thisptr.getOrder(),
             freud.util.arr_type_t.FLOAT)
 
     @Compute._computed_property()
     def Ql(self):
         return freud.util.make_managed_numpy_array(
-            &self.stptr.getQl(),
+            &self.thisptr.getQl(),
             freud.util.arr_type_t.FLOAT)
 
     @Compute._compute()
@@ -561,9 +559,9 @@ cdef class Steinhardt(PairCompute):
                                       query_args=query_args)
         print(qargs)
 
-        self.stptr.compute(nlistptr.get_ptr(),
-                           nq.get_ptr(),
-                           dereference(qargs.thisptr))
+        self.thisptr.compute(nlistptr.get_ptr(),
+                             nq.get_ptr(),
+                             dereference(qargs.thisptr))
         return self
 
     def __repr__(self):
@@ -660,7 +658,6 @@ cdef class SolidLiquid(PairCompute):
 
     def __dealloc__(self):
         del self.thisptr
-        self.thisptr = NULL
 
     @Compute._compute()
     def compute(self, box, points, nlist=None, query_args=None):
@@ -725,7 +722,7 @@ cdef class SolidLiquid(PairCompute):
 
     @Compute._computed_property()
     def cluster_sizes(self):
-        return np.asarray(self.thisptr.getClusterSizes(), dtype=np.uint32)
+        return np.asarray(self.thisptr.getClusterSizes())
 
     @Compute._computed_property()
     def largest_cluster_size(self):
