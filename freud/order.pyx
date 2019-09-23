@@ -713,7 +713,7 @@ cdef class SolidLiquid(PairCompute):
         return self.thisptr.getNormalizeQ()
 
     @Compute._computed_property()
-    def clusters(self):
+    def cluster_idx(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getClusterIdx(),
             freud.util.arr_type_t.UNSIGNED_INT)
@@ -741,6 +741,34 @@ cdef class SolidLiquid(PairCompute):
                     Q_threshold=self.Q_threshold,
                     S_threshold=self.S_threshold,
                     normalize_Q=self.normalize_Q)
+
+    @Compute._computed_method()
+    def plot(self, ax=None):
+        """Plot solid-like cluster distribution.
+
+        Args:
+            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
+                :code:`None`, make a new figure and axis.
+                (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes.Axes`): Axis with the plot.
+        """
+        import freud.plot
+        try:
+            count = np.unique(self.cluster_idx, return_counts=True)
+        except ValueError:
+            return None
+        else:
+            return freud.plot.clusters_plot(count[0], count[1],
+                                            num_clusters_to_plot=10, ax=ax)
+
+    def _repr_png_(self):
+        import freud.plot
+        try:
+            return freud.plot.ax_to_bytes(self.plot())
+        except AttributeError:
+            return None
 
 
 cdef class RotationalAutocorrelation(Compute):

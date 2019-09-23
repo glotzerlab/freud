@@ -17,7 +17,7 @@ class TestSolidLiquid(unittest.TestCase):
         comp = freud.order.SolidLiquid(6, Q_threshold=.7, S_threshold=6)
         comp.compute(box, positions, query_args=dict(r_max=2.0))
 
-        npt.assert_equal(comp.clusters.shape, (N,))
+        npt.assert_equal(comp.cluster_idx.shape, (N,))
 
     def test_identical_environments(self):
         box, positions = util.make_fcc(4, 4, 4)
@@ -56,16 +56,19 @@ class TestSolidLiquid(unittest.TestCase):
         with self.assertRaises(AttributeError):
             comp.cluster_sizes
         with self.assertRaises(AttributeError):
-            comp.clusters
+            comp.cluster_idx
         with self.assertRaises(AttributeError):
             comp.num_connections
+        with self.assertRaises(AttributeError):
+            comp.plot()
 
         comp.compute(box, positions, query_args=dict(r_max=2.0))
 
         comp.largest_cluster_size
         comp.cluster_sizes
-        comp.clusters
+        comp.cluster_idx
         comp.num_connections
+        comp._repr_png_()
 
     def test_repr(self):
         comp = freud.order.SolidLiquid(6, Q_threshold=.7, S_threshold=6)

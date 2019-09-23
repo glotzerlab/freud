@@ -47,14 +47,14 @@ Translational Order Parameter
 Steinhardt Order Parameter
 ==========================
 
-.. autoclass:: freud.order.Steinhardt(l, r_min, r_max, average=False, norm=False, Wl=False, num_neighbors=0)
+.. autoclass:: freud.order.Steinhardt(l, average=False, Wl=False, weighted=False)
     :members: compute, plot
 
 Solid-Liquid Order Parameter
 ============================
 
-.. autoclass:: freud.order.SolidLiquid(l, Qthreshold, Sthreshold)
-    :members: compute
+.. autoclass:: freud.order.SolidLiquid(l, Q_threshold, S_threshold, normalize_Q=True)
+    :members: compute, plot
 
 Rotational Autocorrelation
 ==========================
