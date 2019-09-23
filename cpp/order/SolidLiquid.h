@@ -15,10 +15,10 @@
 #include "Cluster.h"
 #include "ManagedArray.h"
 #include "NeighborList.h"
-#include "NeighborComputeFunctional.h"
 #include "Steinhardt.h"
 #include "ThreadStorage.h"
 #include "VectorMath.h"
+#include "utils.h"
 
 namespace freud { namespace order {
 
