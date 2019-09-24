@@ -119,7 +119,7 @@ public:
     {
         m_bin_edges.resize(m_nbins+1);
         m_dr = (max-min)/static_cast<float>(m_nbins);
-        m_dr_inv = 1/m_dr;
+        m_dr_inv = float(1.0)/m_dr;
         float cur_location = min;
         // This must be <= because there is one extra bin boundary than the number of bins.
         for (unsigned int i = 0; i <= nbins; i++)
@@ -157,11 +157,7 @@ public:
 #else
         unsigned int bin = (unsigned int)(val);
 #endif
-        // Avoid rounding leading to overflow.
-        if (bin == m_max)
-            return bin - 1;
-        else
-            return bin;
+        return bin;
     }
 
 protected:
