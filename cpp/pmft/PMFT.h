@@ -26,7 +26,7 @@ namespace freud { namespace pmft {
  *  subclasses that account for the proper set of dimensions.The required functions are implemented as pure
  *  virtual functions here to enforce this.
  */
-class PMFT : public locality::BondHistogramCompute<unsigned int>
+class PMFT : public locality::BondHistogramCompute
 {
 public:
     //! Constructor

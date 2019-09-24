@@ -14,7 +14,7 @@ cimport freud._locality
 cimport freud.util
 
 cdef extern from "BondOrder.h" namespace "freud::environment":
-    cdef cppclass BondOrder(BondHistogramCompute[unsigned int]):
+    cdef cppclass BondOrder(BondHistogramCompute):
         BondOrder(unsigned int, unsigned int) except +
         void accumulate(
             const freud._locality.NeighborQuery*,

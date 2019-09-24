@@ -55,7 +55,7 @@ cdef extern from "LocalDensity.h" namespace "freud::density":
         const freud.util.ManagedArray[float] &getNumNeighbors()
 
 cdef extern from "RDF.h" namespace "freud::density":
-    cdef cppclass RDF(BondHistogramCompute[unsigned int]):
+    cdef cppclass RDF(BondHistogramCompute):
         RDF(float, float, float) except +
         const freud._box.Box & getBox() const
         float getRMax() const

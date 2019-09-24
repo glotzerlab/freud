@@ -31,7 +31,7 @@ typedef enum
 //! Compute the bond order parameter for a set of points
 /*!
  */
-class BondOrder : public locality::BondHistogramCompute<unsigned int>
+class BondOrder : public locality::BondHistogramCompute
 {
 public:
     //! Constructor
