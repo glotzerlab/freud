@@ -30,215 +30,7 @@ np.import_array()
 
 ctypedef unsigned int uint
 
-cdef class FloatCF(SpatialHistogram):
-    R"""Computes the real pairwise correlation function.
-
-    The correlation function is given by
-    :math:`C(r) = \left\langle s_1(0) \cdot s_2(r) \right\rangle` between
-    two sets of points :math:`p_1` (:code:`points`) and :math:`p_2`
-    (:code:`query_points`) with associated values :math:`s_1` (:code:`values`)
-    and :math:`s_2` (:code:`query_values`). Computing the correlation function
-    results in an array of the expected (average) product of all values at a
-    given radial distance :math:`r`.
-
-    The values of :math:`r` where the correlation function is computed are
-    controlled by the :code:`r_max` and :code:`dr` parameters to the
-    constructor. :code:`r_max` determines the maximum distance at which to
-    compute the correlation function and :code:`dr` is the step size for each
-    bin.
-
-    .. note::
-        **2D:** :class:`freud.density.FloatCF` properly handles 2D boxes.
-        The points must be passed in as :code:`[x, y, 0]`.
-        Failing to set z=0 will lead to undefined behavior.
-
-    .. note::
-        **Self-correlation:** It is often the case that we wish to compute the
-        correlation function of a set of points with itself. If :code:`query_points`
-        is the same as :code:`points`, not provided, or :code:`None`, we
-        omit accumulating the self-correlation value in the first bin.
-
-    .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
-
-    Args:
-        r_max (float):
-            Maximum pointwise distance to include in the calculation.
-        dr (float):
-            Bin size.
-
-    Attributes:
-        RDF ((:math:`N_{bins}`) :class:`numpy.ndarray`):
-            Expected (average) product of all values whose radial distance
-            falls within a given distance bin.
-        box (:class:`freud.box.Box`):
-            The box used in the calculation.
-        counts ((:math:`N_{bins}`) :class:`numpy.ndarray`):
-            The number of points in each histogram bin.
-        R ((:math:`N_{bins}`) :class:`numpy.ndarray`):
-            The centers of each bin.
-    """  # noqa E501
-    cdef freud._density.CorrelationFunction[double] * thisptr
-    cdef dr
-
-    def __cinit__(self, float r_max, float dr):
-        if dr <= 0.0:
-            raise ValueError("dr must be > 0")
-        self.thisptr = new freud._density.CorrelationFunction[double](
-            r_max, dr)
-        self.r_max = r_max
-        self.dr = dr
-
-    def __dealloc__(self):
-        del self.thisptr
-
-    @Compute._compute()
-    def accumulate(self, box, points, values, query_points=None,
-                   query_values=None, nlist=None, query_args=None):
-        R"""Calculates the correlation function and adds to the current
-        histogram.
-
-        Args:
-            box (:class:`freud.box.Box`):
-                Simulation box.
-            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
-                Reference points used to calculate the correlation function.
-            values ((:math:`N_{points}`) :class:`numpy.ndarray`):
-                Real values used to calculate the correlation function.
-            query_points ((:math:`N_{query_points}`, 3) :class:`numpy.ndarray`, optional):
-                query_points used to calculate the correlation function.
-                Uses :code:`points` if not provided or :code:`None`.
-                (Default value = :code:`None`).
-            query_values ((:math:`N_{query_points}`) :class:`numpy.ndarray`, optional):
-                Real values used to calculate the correlation function.
-                Uses :code:`values` if not provided or :code:`None`.
-                (Default value = :code:`None`).
-            nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value =
-                :code:`None`).
-        """  # noqa E501
-        cdef:
-            freud.box.Box b
-            freud.locality.NeighborQuery nq
-            freud.locality.NlistptrWrapper nlistptr
-            freud.locality._QueryArgs qargs
-            const float[:, ::1] l_query_points
-            unsigned int num_query_points
-
-        b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(box, points, query_points, nlist,
-                                      query_args)
-
-        values = freud.common.convert_array(
-            values, shape=(nq.points.shape[0], ), dtype=np.float64)
-        if query_values is None:
-            query_values = values
-        else:
-            query_values = freud.common.convert_array(
-                query_values, shape=(l_query_points.shape[0], ),
-                dtype=np.float64)
-
-        cdef const double[::1] l_values = values
-        cdef const double[::1] l_query_values = query_values
-
-        self.thisptr.accumulate(
-            nq.get_ptr(),
-            <double*> &l_values[0],
-            <vec3[float]*> &l_query_points[0, 0],
-            <double*> &l_query_values[0],
-            num_query_points, nlistptr.get_ptr(),
-            dereference(qargs.thisptr))
-        return self
-
-    @Compute._computed_property()
-    def RDF(self):
-        return freud.util.make_managed_numpy_array(
-            &self.thisptr.getRDF(),
-            freud.util.arr_type_t.DOUBLE)
-
-    @Compute._computed_property()
-    def box(self):
-        return freud.box.BoxFromCPP(self.thisptr.getBox())
-
-    @Compute._reset
-    def reset(self):
-        R"""Resets the values of the correlation function histogram in
-        memory.
-        """
-        self.thisptr.reset()
-
-    @Compute._compute()
-    def compute(self, box, points, values, query_points=None,
-                query_values=None, nlist=None, query_args=None):
-        R"""Calculates the correlation function for the given points. Will
-        overwrite the current histogram.
-
-        Args:
-            box (:class:`freud.box.Box`):
-                Simulation box.
-            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
-                Reference points used to calculate the correlation function.
-            values ((:math:`N_{points}`) :class:`numpy.ndarray`):
-                Real values used to calculate the correlation function.
-            query_points ((:math:`N_{query_points}`, 3) :class:`numpy.ndarray`, optional):
-                Points used to calculate the correlation function.
-                Uses :code:`points` if not provided or :code:`None`.
-                (Default value = :code:`None`).
-            query_values ((:math:`N_{query_points}`) :class:`numpy.ndarray`, optional):
-                Real values used to calculate the correlation function.
-                Uses :code:`values` if not provided or :code:`None`.
-                (Default value = :code:`None`).
-            nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value =
-                :code:`None`).
-        """  # noqa E501
-        self.reset()
-        self.accumulate(box, points, values, query_points, query_values, nlist,
-                        query_args)
-        return self
-
-    @Compute._computed_property()
-    def counts(self):
-        return freud.util.make_managed_numpy_array(
-            &self.thisptr.getCounts(),
-            freud.util.arr_type_t.UNSIGNED_INT)
-
-    @property
-    def R(self):
-        return freud.util.make_managed_numpy_array(
-            &self.thisptr.getR(),
-            freud.util.arr_type_t.FLOAT)
-
-    def __repr__(self):
-        return ("freud.density.{cls}(r_max={r_max}, dr={dr})").format(
-            cls=type(self).__name__, r_max=self.r_max, dr=self.dr)
-
-    def plot(self, ax=None):
-        """Plot correlation function.
-
-        Args:
-            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
-                :code:`None`, make a new figure and axis.
-                (Default value = :code:`None`)
-
-        Returns:
-            (:class:`matplotlib.axes.Axes`): Axis with the plot.
-        """
-        import freud.plot
-        return freud.plot.line_plot(self.R, self.RDF,
-                                    title="Correlation Function",
-                                    xlabel=r"$r$",
-                                    ylabel=r"$C(r)$",
-                                    ax=ax)
-
-    def _repr_png_(self):
-        import freud.plot
-        try:
-            return freud.plot.ax_to_bytes(self.plot())
-        except AttributeError:
-            return None
-
-
-cdef class ComplexCF(SpatialHistogram):
+cdef class CorrelationFunction(SpatialHistogram):
     R"""Computes the complex pairwise correlation function.
 
     The correlation function is given by
@@ -286,7 +78,8 @@ cdef class ComplexCF(SpatialHistogram):
             The centers of each bin.
     """  # noqa E501
     cdef freud._density.CorrelationFunction[np.complex128_t] * thisptr
-    cdef dr
+    cdef float dr
+    cdef is_complex
 
     def __cinit__(self, float r_max, float dr):
         if dr <= 0.0:
@@ -295,6 +88,7 @@ cdef class ComplexCF(SpatialHistogram):
             r_max, dr)
         self.r_max = r_max
         self.dr = dr
+        self.is_complex = False
 
     def __dealloc__(self):
         del self.thisptr
@@ -336,6 +130,10 @@ cdef class ComplexCF(SpatialHistogram):
             self.preprocess_arguments(box, points, query_points, nlist,
                                       query_args)
 
+        # Save if any inputs have been complex so far.
+        self.is_complex = self.is_complex or np.any(np.iscomplex(values)) or \
+            np.any(np.iscomplex(query_values))
+
         values = freud.common.convert_array(
             values, shape=(nq.points.shape[0], ), dtype=np.complex128)
         if query_values is None:
@@ -359,9 +157,10 @@ cdef class ComplexCF(SpatialHistogram):
 
     @Compute._computed_property()
     def RDF(self):
-        return freud.util.make_managed_numpy_array(
+        output = freud.util.make_managed_numpy_array(
             &self.thisptr.getRDF(),
             freud.util.arr_type_t.COMPLEX_DOUBLE)
+        return output if self.is_complex else np.real(output)
 
     @Compute._computed_property()
     def box(self):
@@ -372,6 +171,7 @@ cdef class ComplexCF(SpatialHistogram):
         R"""Resets the values of the correlation function histogram in
         memory.
         """
+        self.is_complex = False
         self.thisptr.reset()
 
     @Compute._compute()

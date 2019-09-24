@@ -50,7 +50,8 @@ CorrelationFunction<T>::CorrelationFunction(float r_max, float dr)
 
 //! \internal
 //! helper function to reduce the thread specific arrays into one array
-template<typename T> void CorrelationFunction<T>::reduceCorrelationFunction()
+template<typename T>
+void CorrelationFunction<T>::reduceCorrelationFunction()
 {
     m_bin_counts.prepare(m_nbins);
     for (size_t i(0); i < m_nbins; ++i)
@@ -92,7 +93,8 @@ const util::ManagedArray<T> &CorrelationFunction<T>::getRDF()
 //! \internal
 /*! \brief Function to reset the PCF array if needed e.g. calculating between new particle types
  */
-template<typename T> void CorrelationFunction<T>::reset()
+template<typename T>
+void CorrelationFunction<T>::reset()
 {
     // zero the bin counts for totaling
     m_local_rdf_array.reset();
