@@ -45,7 +45,7 @@ float reduceWigner3j(const complex<float>* source, unsigned int l_, const vector
     for (int m1 = -l; m1 <= l; m1++)
     {
         const int m1_index = lmIndex(l, m1);
-        for (int m2 = max(-l - m1, -l); m2 <= min(l - m1, l); m2++)
+        for (int m2 = std::max(-l - m1, -l); m2 <= std::min(l - m1, l); m2++)
         {
             const int m2_index = lmIndex(l, m2);
             const int m3 = -m1 - m2;
