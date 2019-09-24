@@ -12,7 +12,7 @@ cimport freud._locality
 cimport freud.util
 
 cdef extern from "PMFT.h" namespace "freud::pmft":
-    cdef cppclass PMFT(BondHistogramCompute):
+    cdef cppclass PMFT(BondHistogramCompute[unsigned int]):
         PMFT() except +
         const freud.util.ManagedArray[float] &getPCF()
 

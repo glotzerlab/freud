@@ -13,7 +13,7 @@
 */
 
 namespace freud { namespace density {
-class RDF : public locality::BondHistogramCompute
+class RDF : public locality::BondHistogramCompute<unsigned int>
 {
 public:
     //! Constructor

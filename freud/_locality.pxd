@@ -144,7 +144,7 @@ cdef extern from "Voronoi.h" namespace "freud::locality":
         NeighborList * getNeighborList()
 
 cdef extern from "BondHistogramCompute.h" namespace "freud::locality":
-    cdef cppclass BondHistogramCompute:
+    cdef cppclass BondHistogramCompute[T]:
         BondHistogramCompute()
 
         const freud._box.Box & getBox() const
