@@ -34,7 +34,12 @@ CorrelationFunction<T>::CorrelationFunction(float r_max, float dr)
     // Less efficient: initialize each bin sequentially using default ctor
     for (size_t i(0); i < m_nbins; ++i)
         m_rdf_array[i] = T();
-    m_bin_counts.prepare(m_nbins);
+
+    // Construct the Histogram object that will be used to keep track of counts of bond distances found.
+    util::Histogram<unsigned int>::Axes axes;
+    axes.push_back(std::make_shared<util::RegularAxis>(m_nbins, 0, m_r_max));
+    m_bin_counts = util::Histogram<unsigned int>(axes);
+    m_local_bin_counts = util::Histogram<unsigned int>::ThreadLocalHistogram(m_bin_counts);
 
     // precompute the bin center positions
     m_r_array.prepare(m_nbins);
@@ -44,7 +49,6 @@ CorrelationFunction<T>::CorrelationFunction(float r_max, float dr)
         float nextr = float(i + 1) * m_dr;
         m_r_array[i] = 2.0f / 3.0f * (nextr * nextr * nextr - r * r * r) / (nextr * nextr - r * r);
     }
-    m_local_bin_counts.resize(m_nbins);
     m_local_rdf_array.resize(m_nbins);
 }
 
@@ -53,18 +57,14 @@ CorrelationFunction<T>::CorrelationFunction(float r_max, float dr)
 template<typename T>
 void CorrelationFunction<T>::reduceCorrelationFunction()
 {
-    m_bin_counts.prepare(m_nbins);
+    m_bin_counts.reset();
     for (size_t i(0); i < m_nbins; ++i)
         m_rdf_array.get()[i] = T();
     // now compute the rdf
+    m_bin_counts.reduceOverThreads(m_local_bin_counts);
     util::forLoopWrapper(0, m_nbins, [=](size_t begin, size_t end) {
         for (size_t i = begin; i < end; ++i)
         {
-            for (util::ThreadStorage<unsigned int>::const_iterator local_bins = m_local_bin_counts.begin();
-                 local_bins != m_local_bin_counts.end(); ++local_bins)
-            {
-                m_bin_counts[i] += (*local_bins)[i];
-            }
             for (typename util::ThreadStorage<T>::const_iterator local_rdf = m_local_rdf_array.begin();
                  local_rdf != m_local_rdf_array.end(); ++local_rdf)
             {
@@ -115,6 +115,7 @@ void CorrelationFunction<T>::accumulate(const freud::locality::NeighborQuery* ne
     freud::locality::loopOverNeighbors(neighbor_query, query_points, n_query_points, qargs, nlist,
     [=](const freud::locality::NeighborBond& neighbor_bond)
         {
+            m_local_bin_counts(neighbor_bond.distance);
             // bin that r
             float binr = neighbor_bond.distance * dr_inv;
             // fast float to int conversion with truncation
@@ -126,7 +127,6 @@ void CorrelationFunction<T>::accumulate(const freud::locality::NeighborQuery* ne
 
             if (bin < m_nbins)
             {
-                ++m_local_bin_counts.local()[bin];
                 m_local_rdf_array.local()[bin] += values[neighbor_bond.ref_id] * query_values[neighbor_bond.id];
             }
         }

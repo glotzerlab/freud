@@ -5,6 +5,7 @@
 #define CORRELATION_FUNCTION_H
 
 #include "Box.h"
+#include "Histogram.h"
 #include "NeighborList.h"
 #include "NeighborQuery.h"
 #include "ThreadStorage.h"
@@ -73,11 +74,22 @@ public:
     //! Get a reference to the last computed rdf
     const util::ManagedArray<T> &getRDF();
 
+    //! Return :code:`thing_to_return` after reducing.
+    template<typename U>
+    U &reduceAndReturn(U &thing_to_return)
+    {
+        if (m_reduce == true)
+        {
+            reduceCorrelationFunction();
+        }
+        m_reduce = false;
+        return thing_to_return;
+    }
+
     //! Get a reference to the bin counts array
     const util::ManagedArray<unsigned int> &getCounts()
     {
-        reduceCorrelationFunction();
-        return m_bin_counts;
+        return reduceAndReturn(m_bin_counts.getBinCounts());
     }
 
     //! Get a reference to the r array
@@ -101,10 +113,11 @@ private:
     bool m_reduce;                //!< Whether arrays need to be reduced across threads
 
     util::ManagedArray<T> m_rdf_array;             //!< rdf array computed
-    util::ManagedArray<unsigned int> m_bin_counts; //!< bin counts that go into computing the rdf array
     util::ManagedArray<float> m_r_array;           //!< array of r values where the rdf is computed
-    util::ThreadStorage<unsigned int> m_local_bin_counts;
     util::ThreadStorage<T> m_local_rdf_array;
+
+    util::Histogram<unsigned int> m_bin_counts; //!< bin counts that go into computing the rdf array
+    util::Histogram<unsigned int>::ThreadLocalHistogram m_local_bin_counts;
 };
 
 }; }; // end namespace freud::density
