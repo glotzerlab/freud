@@ -557,7 +557,6 @@ cdef class Steinhardt(PairCompute):
         b, nq, nlistptr, qargs, l_query_points, num_query_points = \
             self.preprocess_arguments(box, points, nlist=nlist,
                                       query_args=query_args)
-        print(qargs)
 
         self.thisptr.compute(nlistptr.get_ptr(),
                              nq.get_ptr(),
