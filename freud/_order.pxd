@@ -69,7 +69,7 @@ cdef extern from "HexaticTranslational.h" namespace "freud::order":
 
 cdef extern from "Steinhardt.h" namespace "freud::order":
     cdef cppclass Steinhardt:
-        Steinhardt(unsigned int, bool, bool, bool) except +
+        Steinhardt(unsigned int, bool, bool, bool, bool) except +
         unsigned int getNP() const
         void compute(const freud._locality.NeighborList*,
                      const freud._locality.NeighborQuery*,
@@ -80,6 +80,7 @@ cdef extern from "Steinhardt.h" namespace "freud::order":
         bool isAverage() const
         bool isWl() const
         bool isWeighted() const
+        bool isWlNormalized() const
         unsigned int getL() const
 
 
