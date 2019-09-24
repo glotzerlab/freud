@@ -14,7 +14,7 @@ import numpy as np
 
 from cython.operator cimport dereference
 from freud.common cimport Compute
-from freud.locality cimport PairCompute, SpatialHistogram
+from freud.locality cimport PairCompute, SpatialHistogram1D
 from freud.util cimport vec3
 
 from collections.abc import Sequence
@@ -30,7 +30,7 @@ np.import_array()
 
 ctypedef unsigned int uint
 
-cdef class CorrelationFunction(SpatialHistogram):
+cdef class CorrelationFunction(SpatialHistogram1D):
     R"""Computes the complex pairwise correlation function.
 
     The correlation function is given by
@@ -84,8 +84,8 @@ cdef class CorrelationFunction(SpatialHistogram):
     def __cinit__(self, float r_max, float dr):
         if dr <= 0.0:
             raise ValueError("dr must be > 0")
-        self.thisptr = new freud._density.CorrelationFunction[np.complex128_t](
-            r_max, dr)
+        self.thisptr = self.histptr = new \
+            freud._density.CorrelationFunction[np.complex128_t](r_max, dr)
         self.r_max = r_max
         self.dr = dr
         self.is_complex = False
@@ -162,15 +162,9 @@ cdef class CorrelationFunction(SpatialHistogram):
             freud.util.arr_type_t.COMPLEX_DOUBLE)
         return output if self.is_complex else np.real(output)
 
-    @Compute._computed_property()
-    def box(self):
-        return freud.box.BoxFromCPP(self.thisptr.getBox())
-
     @Compute._reset
     def reset(self):
-        R"""Resets the values of the correlation function histogram in
-        memory.
-        """
+        """Overrides parent since resetting here requires additional logic."""
         self.is_complex = False
         self.thisptr.reset()
 
@@ -203,18 +197,6 @@ cdef class CorrelationFunction(SpatialHistogram):
         self.accumulate(box, points, values, query_points, query_values, nlist,
                         query_args)
         return self
-
-    @Compute._computed_property()
-    def counts(self):
-        return freud.util.make_managed_numpy_array(
-            &self.thisptr.getBinCounts(),
-            freud.util.arr_type_t.UNSIGNED_INT)
-
-    @property
-    def R(self):
-        return freud.util.make_managed_numpy_array(
-            &self.thisptr.getR(),
-            freud.util.arr_type_t.FLOAT)
 
     def __repr__(self):
         return ("freud.density.{cls}(r_max={r_max}, dr={dr})").format(
@@ -507,7 +489,7 @@ cdef class LocalDensity(PairCompute):
                                                diameter=self.diameter)
 
 
-cdef class RDF(SpatialHistogram):
+cdef class RDF(SpatialHistogram1D):
     R"""Computes RDF for supplied data.
 
     The RDF (:math:`g \left( r \right)`) is computed and averaged for a given
@@ -674,25 +656,3 @@ cdef class RDF(SpatialHistogram):
             return freud.plot.ax_to_bytes(self.plot())
         except AttributeError:
             return None
-
-    # We override all the parent properties below because we know that RDFs are
-    # 1D and prefer to expose them as such.
-
-    @property
-    def bin_centers(self):
-        vec = self.histptr.getBinCenters()
-        return np.array(vec[0], copy=True)
-
-    @property
-    def bin_edges(self):
-        vec = self.histptr.getBinEdges()
-        return np.array(vec[0], copy=True)
-
-    @property
-    def bounds(self):
-        vec = self.histptr.getBounds()
-        return vec[0]
-
-    @property
-    def nbins(self):
-        return self.histptr.getAxisSizes()[0]

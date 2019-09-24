@@ -1216,12 +1216,7 @@ cdef class PairCompute(Compute):
 
 cdef class SpatialHistogram(PairCompute):
     R"""Parent class for all compute classes in freud that perform a spatial
-    binning of particle bonds by distnace.
-
-
-    .. note::
-        This class does not mirror the C++ NdHistogram class, it merely
-        provides certain conveniences for Cython classes that build histograms.
+    binning of particle bonds by distance.
 
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
     """
@@ -1273,3 +1268,40 @@ cdef class SpatialHistogram(PairCompute):
     def reset(self):
         R"""Resets the values of RDF in memory."""
         self.histptr.reset()
+
+
+cdef class SpatialHistogram1D(SpatialHistogram):
+    R"""Subclasses SpatialHistogram to provide a simplified API for
+    properties of 1-dimensional histograms.
+
+    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
+    """
+
+    def __cinit__(self):
+        # Abstract class
+        pass
+
+    @property
+    def bin_centers(self):
+        # Must create a local reference or Cython tries to access an rvalue by
+        # reference in the list comprehension.
+        vec = self.histptr.getBinCenters()
+        return np.array(vec[0], copy=True)
+
+    @property
+    def bin_edges(self):
+        # Must create a local reference or Cython tries to access an rvalue by
+        # reference in the list comprehension.
+        vec = self.histptr.getBinEdges()
+        return np.array(vec[0], copy=True)
+
+    @property
+    def bounds(self):
+        # Must create a local reference or Cython tries to access an rvalue by
+        # reference in the list comprehension.
+        vec = self.histptr.getBounds()
+        return vec[0]
+
+    @property
+    def nbins(self):
+        return self.histptr.getAxisSizes()[0]

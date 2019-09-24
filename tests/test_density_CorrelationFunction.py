@@ -7,20 +7,18 @@ import util
 
 class TestCorrelationFunction(unittest.TestCase):
     def test_generateR(self):
-        r_max = 51.23
+        r_max = 5
         dr = 0.1
-        nbins = int(r_max / dr)
-
-        # make sure the radius for each bin is generated correctly
-        r_list = np.zeros(nbins, dtype=np.float32)
-        for i in range(nbins):
-            r1 = i * dr
-            r2 = r1 + dr
-            r_list[i] = 2.0/3.0 * (r2**3.0 - r1**3.0) / (r2**2.0 - r1**2.0)
+        bins = round(r_max / dr)
 
         ocf = freud.density.CorrelationFunction(r_max, dr)
 
-        npt.assert_allclose(ocf.R, r_list, atol=1e-3)
+        # make sure the radius for each bin is generated correctly
+        r_list = np.array([dr*(i+1/2) for i in range(bins) if
+                           dr*(i+1/2) < r_max])
+        npt.assert_allclose(ocf.bin_centers, r_list, rtol=1e-4, atol=1e-4)
+        npt.assert_allclose((ocf.bin_edges+dr/2)[:-1], r_list, rtol=1e-4,
+                            atol=1e-4)
 
     def test_attribute_access(self):
         r_max = 10.0
@@ -39,14 +37,14 @@ class TestCorrelationFunction(unittest.TestCase):
         with self.assertRaises(AttributeError):
             ocf.box
         with self.assertRaises(AttributeError):
-            ocf.counts
+            ocf.bin_counts
 
         ocf.accumulate(box, points, ang)
 
         # Test if accessible now
         ocf.RDF
         ocf.box
-        ocf.counts
+        ocf.bin_counts
 
         # reset
         ocf.reset()
@@ -57,14 +55,14 @@ class TestCorrelationFunction(unittest.TestCase):
         with self.assertRaises(AttributeError):
             ocf.box
         with self.assertRaises(AttributeError):
-            ocf.counts
+            ocf.bin_counts
 
         ocf.compute(box, points, ang)
 
         # Test if accessible now
         ocf.RDF
         ocf.box
-        ocf.counts
+        ocf.bin_counts
 
     def test_random_points_complex(self):
         r_max = 10.0
@@ -188,7 +186,7 @@ class TestCorrelationFunction(unittest.TestCase):
         ocf.compute(freud.box.Box.square(box_size), points, comp,
                     points, np.conj(comp),
                     query_args={"r_max": r_max, "exclude_ii": True})
-        self.assertEqual(np.sum(ocf.counts), correct)
+        self.assertEqual(np.sum(ocf.bin_counts), correct)
 
     @unittest.skip('Skipping slow summation test.')
     def test_summation(self):
@@ -207,12 +205,12 @@ class TestCorrelationFunction(unittest.TestCase):
         # A very large bin size exacerbates the problem
         cf = freud.density.CorrelationFunction(L/2.1, 40)
         cf.compute(box, pos2d, phi)
-        c1 = cf.counts
+        c1 = cf.bin_counts
         f1 = np.real(cf.RDF)
 
         freud.parallel.setNumThreads(20)
         cf.compute(box, pos2d, phi)
-        c2 = cf.counts
+        c2 = cf.bin_counts
         f2 = np.real(cf.RDF)
 
         npt.assert_allclose(f1, f2)
@@ -265,34 +263,34 @@ class TestCorrelationFunction(unittest.TestCase):
         cf.compute(box, ref_points, ref_values, points, values,
                    query_args={'mode': 'nearest', 'num_neighbors': 1})
         npt.assert_array_equal(cf.RDF, [1, 1, 1])
-        npt.assert_array_equal(cf.counts, [2, 2, 2])
+        npt.assert_array_equal(cf.bin_counts, [2, 2, 2])
 
         cf.compute(box, points, values, ref_points, ref_values,
                    query_args={'mode': 'nearest', 'num_neighbors': 1})
         npt.assert_array_equal(cf.RDF, [1, 0, 0])
-        npt.assert_array_equal(cf.counts, [1, 0, 0])
+        npt.assert_array_equal(cf.bin_counts, [1, 0, 0])
 
         ref_values = [1+1j]
         values = [1+1j, 1+1j, 2+2j, 2+2j, 3+3j, 3+3j]
         cf.compute(box, ref_points, ref_values, points, np.conj(values),
                    query_args={'mode': 'nearest', 'num_neighbors': 1})
         npt.assert_array_equal(cf.RDF, [2, 4, 6])
-        npt.assert_array_equal(cf.counts, [2, 2, 2])
+        npt.assert_array_equal(cf.bin_counts, [2, 2, 2])
 
         cf.compute(box, ref_points, ref_values, points, values,
                    query_args={'mode': 'nearest', 'num_neighbors': 1})
         npt.assert_array_equal(cf.RDF, [2j, 4j, 6j])
-        npt.assert_array_equal(cf.counts, [2, 2, 2])
+        npt.assert_array_equal(cf.bin_counts, [2, 2, 2])
 
         cf.compute(box, points, values, ref_points, np.conj(ref_values),
                    query_args={'mode': 'nearest', 'num_neighbors': 1})
         npt.assert_array_equal(cf.RDF, [2, 0, 0])
-        npt.assert_array_equal(cf.counts, [1, 0, 0])
+        npt.assert_array_equal(cf.bin_counts, [1, 0, 0])
 
         cf.compute(box, points, values, ref_points, ref_values,
                    query_args={'mode': 'nearest', 'num_neighbors': 1})
         npt.assert_array_equal(cf.RDF, [2j, 0, 0])
-        npt.assert_array_equal(cf.counts, [1, 0, 0])
+        npt.assert_array_equal(cf.bin_counts, [1, 0, 0])
 
     def test_query_nn_real(self):
         """Test nearest-neighbor-based querying."""
@@ -316,12 +314,12 @@ class TestCorrelationFunction(unittest.TestCase):
         cf.compute(box, ref_points, ref_values, points, values,
                    query_args={'mode': 'nearest', 'num_neighbors': 1})
         npt.assert_array_equal(cf.RDF, [1, 1, 1])
-        npt.assert_array_equal(cf.counts, [2, 2, 2])
+        npt.assert_array_equal(cf.bin_counts, [2, 2, 2])
 
         cf.compute(box, points, values, ref_points, ref_values,
                    query_args={'mode': 'nearest', 'num_neighbors': 1})
         npt.assert_array_equal(cf.RDF, [1, 0, 0])
-        npt.assert_array_equal(cf.counts, [1, 0, 0])
+        npt.assert_array_equal(cf.bin_counts, [1, 0, 0])
 
     def test_points_ne_query_points_complex(self):
         # Helper function to give complex number representation of a point
@@ -348,13 +346,13 @@ class TestCorrelationFunction(unittest.TestCase):
         # Nice proof for this fact is that when the n-th roots of unity
         # are viewed as vectors, we can draw a regular n-gon
         # so that we start at the origin and come back to origin.
-        for r in ocf.R:
+        for r in ocf.bin_centers:
             for k in range(N):
                 point = [r * np.cos(2*np.pi*k/N), r * np.sin(2*np.pi*k/N), 0]
                 query_points.append(point)
                 query_values.append(value_func(point))
 
-        supposed_RDF = np.zeros(ocf.R.shape)
+        supposed_RDF = np.zeros(ocf.bin_centers.shape)
 
         # points are within distances closer than dr, so their impact on
         # the result should be minimal.
@@ -395,7 +393,7 @@ class TestCorrelationFunction(unittest.TestCase):
         # rotated around z axis.
         # Therefore, the RDF should be a scalar multiple sin if we set our
         # ref_point to be in the origin.
-        for r in ocf.R:
+        for r in ocf.bin_centers:
             for k in range(N):
                 query_points.append([r * np.cos(2*np.pi*k/N),
                                      r * np.sin(2*np.pi*k/N), 0])

@@ -29,8 +29,8 @@ public:
     virtual void reset()
     {
         m_local_histograms.reset();
-        this->m_frame_counter = 0;
-        this->m_reduce = true;
+        m_frame_counter = 0;
+        m_reduce = true;
     }
 
     //! Reduce thread-local arrays onto the primary data arrays.

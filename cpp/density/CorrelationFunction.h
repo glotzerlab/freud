@@ -54,12 +54,6 @@ public:
     //! Destructor
     ~CorrelationFunction() {}
 
-    //! Get the simulation box
-    const box::Box& getBox() const
-    {
-        return m_box;
-    }
-
     //! Reset the PCF array to all zeros
     virtual void reset();
 
@@ -71,7 +65,7 @@ public:
 
     //! \internal
     //! helper function to reduce the thread specific arrays into one array
-    void reduce();
+    virtual void reduce();
 
     //! Get a reference to the last computed rdf
     const util::ManagedArray<T> &getRDF()
@@ -79,23 +73,9 @@ public:
         return reduceAndReturn(m_correlation_function.getBinCounts());
     }
 
-    //! Get a reference to the r array
-    const util::ManagedArray<float> &getR()
-    {
-        return m_r_array;
-    }
-
-    unsigned int getNBins() const
-    {
-        return m_nbins;
-    }
-
 private:
     float m_r_max;                 //!< Maximum r at which to compute g(r)
     float m_dr;                   //!< Step size for r in the computation
-    unsigned int m_nbins;         //!< Number of r bins to compute g(r) over
-
-    util::ManagedArray<float> m_r_array;           //!< array of r values where the rdf is computed
 
     // Typedef thread local histogram type for use in code.
     typedef typename util::Histogram<T>::ThreadLocalHistogram CFThreadHistogram;
