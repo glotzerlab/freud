@@ -281,6 +281,16 @@ public:
         }
     }
 
+    //! Increment specified linear bin (with a specified weight if desired).
+    void increment(size_t value_bin, T weight=1)
+    {
+        // Check for sentinel to avoid overflow.
+        if (value_bin != Axis::OVERFLOW_BIN)
+        {
+            m_bin_counts[value_bin] += weight;
+        }
+    }
+
     //! Find the bin of a value.
     /*! Bins are first computed along each axis of the histogram. These bins
      *  are then combined into a single linear index using the underlying
@@ -419,7 +429,7 @@ public:
         reduceOverThreadsPerBin(local_histograms, [](size_t i) {});
     }
 
-    //! Read-only index into array.
+    //! Writeable index into array.
     T &operator[](unsigned int i)
     {
         return m_bin_counts[i];

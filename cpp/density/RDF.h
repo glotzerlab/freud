@@ -67,8 +67,6 @@ public:
     }
 
 private:
-    bool m_reduce;                           //!< Whether or not the histogram needs to be reduced.
-
     float m_r_max;                           //!< Maximum r at which to compute g(r)
     float m_r_min;                           //!< Minimum r at which to compute g(r)
     unsigned int m_bins;                     //!< Number of r bins to compute g(r) over
