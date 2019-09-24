@@ -624,12 +624,8 @@ cdef class RDF(SpatialHistogram1D):
         return ("freud.density.{cls}(bins={bins}, r_max={r_max}, "
                 "r_min={r_min})").format(cls=type(self).__name__,
                                          bins=len(self.bin_centers),
-                                         r_max=self.r_max,
-                                         r_min=self.r_min)
-
-    @property
-    def r_min(self):
-        return self.thisptr.getRMin()
+                                         r_max=self.bounds[1],
+                                         r_min=self.bounds[0])
 
     @Compute._computed_method()
     def plot(self, ax=None):

@@ -20,7 +20,7 @@ namespace freud { namespace density {
 
 template<typename T>
 CorrelationFunction<T>::CorrelationFunction(float r_max, float dr)
-    : BondHistogramCompute(), m_r_max(r_max), m_dr(dr)
+    : BondHistogramCompute()
 {
     if (dr <= 0.0f)
         throw std::invalid_argument("CorrelationFunction requires dr to be positive.");
@@ -29,18 +29,18 @@ CorrelationFunction<T>::CorrelationFunction(float r_max, float dr)
     if (dr > r_max)
         throw std::invalid_argument("CorrelationFunction requires dr must be less than or equal to r_max.");
 
-    unsigned int nbins = int(floorf(m_r_max / m_dr));
+    unsigned int nbins = int(floorf(r_max / dr));
 
     // We must construct two separate histograms, one for the counts and one
     // for the actual correlation function. The counts are used to normalize
     // the correlation function.
     util::Histogram<unsigned int>::Axes axes;
-    axes.push_back(std::make_shared<util::RegularAxis>(nbins, 0, m_r_max));
+    axes.push_back(std::make_shared<util::RegularAxis>(nbins, 0, r_max));
     m_histogram = util::Histogram<unsigned int>(axes);
     m_local_histograms = util::Histogram<unsigned int>::ThreadLocalHistogram(m_histogram);
 
     typename util::Histogram<T>::Axes axes_rdf;
-    axes_rdf.push_back(std::make_shared<util::RegularAxis>(nbins, 0, m_r_max));
+    axes_rdf.push_back(std::make_shared<util::RegularAxis>(nbins, 0, r_max));
     m_correlation_function = util::Histogram<T>(axes_rdf);
     m_local_correlation_function = CFThreadHistogram(m_correlation_function);
 }

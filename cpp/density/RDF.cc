@@ -11,7 +11,7 @@
 
 namespace freud { namespace density {
 
-RDF::RDF(unsigned int bins, float r_max, float r_min) : BondHistogramCompute(), m_r_max(r_max), m_r_min(r_min), m_bins(bins)
+RDF::RDF(unsigned int bins, float r_max, float r_min) : BondHistogramCompute(), m_bins(bins)
 {
     if (bins == 0)
         throw std::invalid_argument("RDF requires a nonzero number of bins.");
@@ -22,7 +22,7 @@ RDF::RDF(unsigned int bins, float r_max, float r_min) : BondHistogramCompute(), 
 
     // Construct the Histogram object that will be used to keep track of counts of bond distances found.
     BHAxes axes;
-    axes.push_back(std::make_shared<util::RegularAxis>(m_bins, m_r_min, m_r_max));
+    axes.push_back(std::make_shared<util::RegularAxis>(m_bins, r_min, r_max));
     m_histogram = BondHistogram(axes);
     m_local_histograms = BondHistogram::ThreadLocalHistogram(m_histogram);
 

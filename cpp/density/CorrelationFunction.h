@@ -74,9 +74,6 @@ public:
     }
 
 private:
-    float m_r_max;                 //!< Maximum r at which to compute g(r)
-    float m_dr;                   //!< Step size for r in the computation
-
     // Typedef thread local histogram type for use in code.
     typedef typename util::Histogram<T>::ThreadLocalHistogram CFThreadHistogram;
 

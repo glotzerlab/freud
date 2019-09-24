@@ -22,7 +22,6 @@ cdef extern from "CorrelationFunction.h" namespace "freud::density":
                         unsigned int, const freud._locality.NeighborList*,
                         freud._locality.QueryArgs) except +
         const freud.util.ManagedArray[T] &getRDF()
-        const freud.util.ManagedArray[float] &getR()
 
 cdef extern from "GaussianDensity.h" namespace "freud::density":
     cdef cppclass GaussianDensity:
@@ -54,9 +53,6 @@ cdef extern from "RDF.h" namespace "freud::density":
     cdef cppclass RDF(BondHistogramCompute):
         RDF(float, float, float) except +
         const freud._box.Box & getBox() const
-        float getRMax() const
-        float getRMin() const
-        float getDr() const
         void accumulate(const freud._locality.NeighborQuery*,
                         const vec3[float]*,
                         unsigned int,
@@ -64,4 +60,3 @@ cdef extern from "RDF.h" namespace "freud::density":
                         freud._locality.QueryArgs) except +
         const freud.util.ManagedArray[float] &getRDF()
         const freud.util.ManagedArray[float] &getNr()
-        const freud.util.ManagedArray[uint] &getBinCounts() const

@@ -40,12 +40,6 @@ public:
         return reduceAndReturn(m_pcf);
     }
 
-    //! Get the histogram of bin distances.
-    const util::ManagedArray<unsigned int> &getBinCounts()
-    {
-        return m_histogram.getBinCounts();
-    }
-
     //! Get a reference to the N_r array.
     /*! Mathematically, m_N_r[i] is the average number of points
      * contained within a ball of radius getBins()[i+1] centered at a given
@@ -56,19 +50,7 @@ public:
         return reduceAndReturn(m_N_r);
     }
 
-    float getRMax() const
-    {
-        return m_r_max;
-    }
-
-    float getRMin() const
-    {
-        return m_r_min;
-    }
-
 private:
-    float m_r_max;                           //!< Maximum r at which to compute g(r)
-    float m_r_min;                           //!< Minimum r at which to compute g(r)
     unsigned int m_bins;                     //!< Number of r bins to compute g(r) over
 
     util::ManagedArray<float> m_pcf;         //!< The computed pair correlation function.
