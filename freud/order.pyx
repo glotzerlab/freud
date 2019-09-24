@@ -452,8 +452,10 @@ cdef class Steinhardt(PairCompute):
     """
     cdef freud._order.Steinhardt * thisptr
 
-    def __cinit__(self, l, average=False, Wl=False, weighted=False):
-        self.thisptr = new freud._order.Steinhardt(l, average, Wl, weighted)
+    def __cinit__(self, l, average=False, Wl=False, weighted=False,
+                  Wl_normalize=False):
+        self.thisptr = new freud._order.Steinhardt(l, average, Wl, weighted,
+                                                   Wl_normalize)
 
     def __dealloc__(self):
         del self.thisptr
@@ -480,6 +482,14 @@ cdef class Steinhardt(PairCompute):
     def l(self):  # noqa: E743
         """unsigned int: Spherical harmonic quantum number l."""
         return self.thisptr.getL()
+
+    @property
+    def Wl_normalize(self):
+        return self.stptr.isWlNormalized()
+
+    @Compute._computed_property
+    def norm(self):
+        return self.thisptr.getNorm()
 
     @Compute._computed_property
     def order(self):
@@ -537,12 +547,13 @@ cdef class Steinhardt(PairCompute):
 
     def __repr__(self):
         return ("freud.order.{cls}(l={l}, average={average}, Wl={Wl}, "
-                "weighted={weighted})").format(
+                "weighted={weighted}, Wl_normalize={Wl_normalize})").format(
                     cls=type(self).__name__,
                     l=self.l, # noqa: 743
                     average=self.average,
                     Wl=self.Wl,
-                    weighted=self.weighted)
+                    weighted=self.weighted,
+                    Wl_normalize=self.Wl_normalize)
 
     def plot(self, ax=None):
         """Plot order parameter distribution.
