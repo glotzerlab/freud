@@ -207,7 +207,7 @@ cdef class CorrelationFunction(SpatialHistogram):
     @Compute._computed_property()
     def counts(self):
         return freud.util.make_managed_numpy_array(
-            &self.thisptr.getCounts(),
+            &self.thisptr.getBinCounts(),
             freud.util.arr_type_t.UNSIGNED_INT)
 
     @property

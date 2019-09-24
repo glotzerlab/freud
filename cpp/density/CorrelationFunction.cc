@@ -31,7 +31,9 @@ CorrelationFunction<T>::CorrelationFunction(float r_max, float dr)
 
     m_nbins = int(floorf(m_r_max / m_dr));
 
-    // Construct the Histogram object that will be used to keep track of counts of bond distances found.
+    // We must construct two separate histograms, one for the counts and one
+    // for the actual correlation function. The counts are used to normalize
+    // the correlation function.
     util::Histogram<unsigned int>::Axes axes;
     axes.push_back(std::make_shared<util::RegularAxis>(m_nbins, 0, m_r_max));
     m_histogram = util::Histogram<unsigned int>(axes);
@@ -39,12 +41,8 @@ CorrelationFunction<T>::CorrelationFunction(float r_max, float dr)
 
     typename util::Histogram<T>::Axes axes_rdf;
     axes_rdf.push_back(std::make_shared<util::RegularAxis>(m_nbins, 0, m_r_max));
-    m_rdf_array = util::Histogram<T>(axes_rdf);
-    m_local_rdf_array = CFThreadHistogram(m_rdf_array);
-
-    // Less efficient: initialize each bin sequentially using default ctor
-    for (size_t i(0); i < m_nbins; ++i)
-        m_rdf_array[i] = T();
+    m_correlation_function = util::Histogram<T>(axes_rdf);
+    m_local_correlation_function = CFThreadHistogram(m_correlation_function);
 
     // precompute the bin center positions
     m_r_array.prepare(m_nbins);
@@ -62,15 +60,15 @@ template<typename T>
 void CorrelationFunction<T>::reduce()
 {
     m_histogram.reset();
-    for (size_t i(0); i < m_nbins; ++i)
-        m_rdf_array[i] = T();
+    m_correlation_function.reset();
+
     // Reduce the bin counts over all threads, then use them to normalize the
     // RDF when computing.
     m_histogram.reduceOverThreads(m_local_histograms);
-    m_rdf_array.reduceOverThreadsPerBin(m_local_rdf_array, [&] (size_t i) {
+    m_correlation_function.reduceOverThreadsPerBin(m_local_correlation_function, [&] (size_t i) {
         if (m_histogram[i])
         {
-            m_rdf_array[i] /= m_histogram[i];
+            m_correlation_function[i] /= m_histogram[i];
         }
     });
 }
@@ -84,7 +82,7 @@ void CorrelationFunction<T>::reset()
     BondHistogramCompute::reset();
 
     // zero the rdf as well
-    m_local_rdf_array.reset();
+    m_local_correlation_function.reset();
 }
 
 template<typename T>
@@ -98,7 +96,7 @@ void CorrelationFunction<T>::accumulate(const freud::locality::NeighborQuery* ne
         {
             size_t value_bin = m_histogram.bin({neighbor_bond.distance});
             m_local_histograms.increment(value_bin);
-            m_local_rdf_array.increment(value_bin, values[neighbor_bond.ref_id] * query_values[neighbor_bond.id]);
+            m_local_correlation_function.increment(value_bin, values[neighbor_bond.ref_id] * query_values[neighbor_bond.id]);
         }
     );
 }

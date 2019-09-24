@@ -14,17 +14,14 @@ cimport freud.util
 ctypedef unsigned int uint
 
 cdef extern from "CorrelationFunction.h" namespace "freud::density":
-    cdef cppclass CorrelationFunction[T]:
+    cdef cppclass CorrelationFunction[T](BondHistogramCompute):
         CorrelationFunction(float, float) except +
-        const freud._box.Box & getBox() const
-        void reset()
         void accumulate(const freud._locality.NeighborQuery*, const T*,
                         const vec3[float]*,
                         const T*,
                         unsigned int, const freud._locality.NeighborList*,
                         freud._locality.QueryArgs) except +
         const freud.util.ManagedArray[T] &getRDF()
-        const freud.util.ManagedArray[unsigned int] &getCounts()
         const freud.util.ManagedArray[float] &getR()
         unsigned int getNBins() const
 

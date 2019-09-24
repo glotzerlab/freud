@@ -10,8 +10,8 @@ import util
 class TestRDF(unittest.TestCase):
     def test_generateR(self):
         r_max = 5
-        bins = round(r_max/0.1)
-        for r_min in [0]:
+        for r_min in [0, 0.05, 0.1, 1.0, 3.0]:
+            bins = round((r_max-r_min)/0.1)
             dr = (r_max - r_min) / bins
 
             # make sure the radius for each bin is generated correctly

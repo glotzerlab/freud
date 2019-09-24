@@ -76,13 +76,7 @@ public:
     //! Get a reference to the last computed rdf
     const util::ManagedArray<T> &getRDF()
     {
-        return reduceAndReturn(m_rdf_array.getBinCounts());
-    }
-
-    //! Get a reference to the bin counts array
-    const util::ManagedArray<unsigned int> &getCounts()
-    {
-        return reduceAndReturn(m_histogram.getBinCounts());
+        return reduceAndReturn(m_correlation_function.getBinCounts());
     }
 
     //! Get a reference to the r array
@@ -106,8 +100,8 @@ private:
     // Typedef thread local histogram type for use in code.
     typedef typename util::Histogram<T>::ThreadLocalHistogram CFThreadHistogram;
 
-    util::Histogram<T> m_rdf_array; //!< bin counts that go into computing the rdf array
-    CFThreadHistogram m_local_rdf_array; //!< thread local copy of rdf
+    util::Histogram<T> m_correlation_function; //!< The correlation function
+    CFThreadHistogram m_local_correlation_function; //!< Thread local copy of the correlation function
 };
 
 }; }; // end namespace freud::density
