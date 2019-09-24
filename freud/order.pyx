@@ -449,7 +449,19 @@ cdef class Steinhardt(PairCompute):
             spherical harmonics over neighbors. If enabled and used with a
             Voronoi neighbor list, this results in the Minkowski Structure
             Metrics :math:`Q'_l`. (Default value = :code:`False`)
-    """
+        Wl_normalize (bool, optional):
+            Determines whether to normalize the :math:`W_l` version
+            of the Steinhardt order parameter. (Default value = :code:`False`)
+
+    Attributes:
+        order (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
+            The last computed selected variant of the Steinhardt order
+            parameter for each particle (filled with NaN for particles with no
+            neighbors).
+        norm (float or complex):
+            Stores the system wide normalization of the :math:`Q_l` or
+            :math:`W_l` order parameter.
+    """  # noqa: E501
     cdef freud._order.Steinhardt * thisptr
 
     def __cinit__(self, l, average=False, Wl=False, weighted=False,
