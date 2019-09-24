@@ -4,6 +4,7 @@
 #ifndef CORRELATION_FUNCTION_H
 #define CORRELATION_FUNCTION_H
 
+#include "BondHistogramCompute.h"
 #include "Box.h"
 #include "Histogram.h"
 #include "NeighborList.h"
@@ -43,7 +44,8 @@ namespace freud { namespace density {
     self-correlation value in the first bin.
 
 */
-template<typename T> class CorrelationFunction
+template<typename T>
+class CorrelationFunction : public locality::BondHistogramCompute
 {
 public:
     //! Constructor
@@ -59,7 +61,7 @@ public:
     }
 
     //! Reset the PCF array to all zeros
-    void reset();
+    virtual void reset();
 
     //! accumulate the correlation function
     void accumulate(const freud::locality::NeighborQuery* neighbor_query, const T* values,
@@ -69,27 +71,18 @@ public:
 
     //! \internal
     //! helper function to reduce the thread specific arrays into one array
-    void reduceCorrelationFunction();
+    void reduce();
 
     //! Get a reference to the last computed rdf
-    const util::ManagedArray<T> &getRDF();
-
-    //! Return :code:`thing_to_return` after reducing.
-    template<typename U>
-    U &reduceAndReturn(U &thing_to_return)
+    const util::ManagedArray<T> &getRDF()
     {
-        if (m_reduce == true)
-        {
-            reduceCorrelationFunction();
-        }
-        m_reduce = false;
-        return thing_to_return;
+        return reduceAndReturn(m_rdf_array.getBinCounts());
     }
 
     //! Get a reference to the bin counts array
     const util::ManagedArray<unsigned int> &getCounts()
     {
-        return reduceAndReturn(m_bin_counts.getBinCounts());
+        return reduceAndReturn(m_histogram.getBinCounts());
     }
 
     //! Get a reference to the r array
@@ -104,21 +97,15 @@ public:
     }
 
 private:
-    box::Box m_box;               //!< Simulation box where the particles belong
     float m_r_max;                 //!< Maximum r at which to compute g(r)
     float m_dr;                   //!< Step size for r in the computation
     unsigned int m_nbins;         //!< Number of r bins to compute g(r) over
-    unsigned int m_n_ref;         //!< number of reference particles
-    unsigned int m_frame_counter; //!< number of frames calc'd
-    bool m_reduce;                //!< Whether arrays need to be reduced across threads
 
     util::ManagedArray<float> m_r_array;           //!< array of r values where the rdf is computed
 
     // Typedef thread local histogram type for use in code.
     typedef typename util::Histogram<T>::ThreadLocalHistogram CFThreadHistogram;
 
-    util::Histogram<unsigned int> m_bin_counts; //!< bin counts that go into computing the rdf array
-    util::Histogram<unsigned int>::ThreadLocalHistogram m_local_bin_counts; //!< thread local copy of bin counts
     util::Histogram<T> m_rdf_array; //!< bin counts that go into computing the rdf array
     CFThreadHistogram m_local_rdf_array; //!< thread local copy of rdf
 };

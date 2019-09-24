@@ -20,7 +20,7 @@ namespace freud { namespace density {
 
 template<typename T>
 CorrelationFunction<T>::CorrelationFunction(float r_max, float dr)
-    : m_box(box::Box()), m_r_max(r_max), m_dr(dr), m_frame_counter(0), m_reduce(true)
+    : BondHistogramCompute(),  m_r_max(r_max), m_dr(dr)
 {
     if (dr <= 0.0f)
         throw std::invalid_argument("CorrelationFunction requires dr to be positive.");
@@ -34,8 +34,8 @@ CorrelationFunction<T>::CorrelationFunction(float r_max, float dr)
     // Construct the Histogram object that will be used to keep track of counts of bond distances found.
     util::Histogram<unsigned int>::Axes axes;
     axes.push_back(std::make_shared<util::RegularAxis>(m_nbins, 0, m_r_max));
-    m_bin_counts = util::Histogram<unsigned int>(axes);
-    m_local_bin_counts = util::Histogram<unsigned int>::ThreadLocalHistogram(m_bin_counts);
+    m_histogram = util::Histogram<unsigned int>(axes);
+    m_local_histograms = util::Histogram<unsigned int>::ThreadLocalHistogram(m_histogram);
 
     typename util::Histogram<T>::Axes axes_rdf;
     axes_rdf.push_back(std::make_shared<util::RegularAxis>(m_nbins, 0, m_r_max));
@@ -59,32 +59,20 @@ CorrelationFunction<T>::CorrelationFunction(float r_max, float dr)
 //! \internal
 //! helper function to reduce the thread specific arrays into one array
 template<typename T>
-void CorrelationFunction<T>::reduceCorrelationFunction()
+void CorrelationFunction<T>::reduce()
 {
-    m_bin_counts.reset();
+    m_histogram.reset();
     for (size_t i(0); i < m_nbins; ++i)
         m_rdf_array[i] = T();
     // Reduce the bin counts over all threads, then use them to normalize the
     // RDF when computing.
-    m_bin_counts.reduceOverThreads(m_local_bin_counts);
+    m_histogram.reduceOverThreads(m_local_histograms);
     m_rdf_array.reduceOverThreadsPerBin(m_local_rdf_array, [&] (size_t i) {
-        if (m_bin_counts[i])
+        if (m_histogram[i])
         {
-            m_rdf_array[i] /= m_bin_counts[i];
+            m_rdf_array[i] /= m_histogram[i];
         }
     });
-}
-
-//! Get a reference to the RDF array
-template<typename T>
-const util::ManagedArray<T> &CorrelationFunction<T>::getRDF()
-{
-    if (m_reduce == true)
-    {
-        reduceCorrelationFunction();
-    }
-    m_reduce = false;
-    return m_rdf_array.getBinCounts();
 }
 
 //! \internal
@@ -93,12 +81,10 @@ const util::ManagedArray<T> &CorrelationFunction<T>::getRDF()
 template<typename T>
 void CorrelationFunction<T>::reset()
 {
-    // zero the bin counts for totaling
+    BondHistogramCompute::reset();
+
+    // zero the rdf as well
     m_local_rdf_array.reset();
-    m_local_bin_counts.reset();
-    // reset the frame counter
-    m_frame_counter = 0;
-    m_reduce = true;
 }
 
 template<typename T>
@@ -107,17 +93,14 @@ void CorrelationFunction<T>::accumulate(const freud::locality::NeighborQuery* ne
                                         unsigned int n_query_points, const freud::locality::NeighborList* nlist,
                                         freud::locality::QueryArgs qargs)
 {
-    m_box = neighbor_query->getBox();
-    freud::locality::loopOverNeighbors(neighbor_query, query_points, n_query_points, qargs, nlist,
+    accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
     [=](const freud::locality::NeighborBond& neighbor_bond)
         {
-            size_t value_bin = m_bin_counts.bin({neighbor_bond.distance});
-            m_local_bin_counts.increment(value_bin);
+            size_t value_bin = m_histogram.bin({neighbor_bond.distance});
+            m_local_histograms.increment(value_bin);
             m_local_rdf_array.increment(value_bin, values[neighbor_bond.ref_id] * query_values[neighbor_bond.id]);
         }
     );
-    m_frame_counter += 1;
-    m_reduce = true;
 }
 
 template class CorrelationFunction<std::complex<double>>;
