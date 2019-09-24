@@ -610,9 +610,9 @@ cdef class Steinhardt(PairCompute):
 cdef class SolidLiquid(PairCompute):
     R"""Identifies solid-like clusters using dot products of :math:`Q_{lm}`.
 
-    This order parameter uses a Steinhardt-like approach to identify solid-like
-    particles. First, a bond parameter :math:`Q_l(i, j)` is computed for each
-    neighbor bond.
+    The solid-liquid order parameter [Frenkel1995]_ uses a Steinhardt-like
+    approach to identify solid-like particles. First, a bond parameter
+    :math:`Q_l(i, j)` is computed for each neighbor bond.
 
     If :code:`normalize_Q` is true (default), the bond parameter is given by
     :math:`Q_l(i, j) = \frac{\sum_{m=-l}^{l} \text{Re}~Q_{lm}(i) Q_{lm}^*(j)}
@@ -631,6 +631,10 @@ cdef class SolidLiquid(PairCompute):
 
     .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
     .. moduleauthor:: Richmond Newman <newmanrs@umich.edu>
+
+    .. [Frenkel1995] ten Wolde, P. R., Ruiz-Montero, M. J., & Frenkel, D
+       (1995).  Numerical Evidence for bcc Ordering at the Surface of a
+       Critical fcc Nucleus. Phys. Rev. Lett., 75 (2714).
 
     Args:
         l (unsigned int):
