@@ -635,6 +635,7 @@ cdef class SolidLiquid(PairCompute):
     .. [Frenkel1995] ten Wolde, P. R., Ruiz-Montero, M. J., & Frenkel, D
        (1995).  Numerical Evidence for bcc Ordering at the Surface of a
        Critical fcc Nucleus. Phys. Rev. Lett., 75 (2714).
+       https://doi.org/10.1103/PhysRevLett.75.2714
 
     Args:
         l (unsigned int):
