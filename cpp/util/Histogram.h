@@ -242,6 +242,12 @@ public:
             m_local_histograms.local()(values ...);
         }
 
+        //! Dispatch to thread local histogram.
+        void increment(size_t value_bin, T weight=1)
+        {
+            m_local_histograms.local().increment(value_bin, weight);
+        }
+
     protected:
         tbb::enumerable_thread_specific<Histogram<T> > m_local_histograms;  //!< The thread-local copies of m_histogram.
     };
@@ -297,7 +303,7 @@ public:
         if (values.size() != m_axes.size())
         {
             std::ostringstream msg;
-            msg << "This Histogram is " << m_axes.size() << "-dimensional, but only " << values.size() << " values were provided in bin" << std::endl;
+            msg << "This Histogram is " << m_axes.size() << "-dimensional, but " << values.size() << " values were provided in bin" << std::endl;
             throw std::invalid_argument(msg.str());
         }
         // First bin the values along each axis.

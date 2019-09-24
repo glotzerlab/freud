@@ -30,16 +30,21 @@ CorrelationFunction<T>::CorrelationFunction(float r_max, float dr)
         throw std::invalid_argument("CorrelationFunction requires dr must be less than or equal to r_max.");
 
     m_nbins = int(floorf(m_r_max / m_dr));
-    m_rdf_array.prepare(m_nbins);
-    // Less efficient: initialize each bin sequentially using default ctor
-    for (size_t i(0); i < m_nbins; ++i)
-        m_rdf_array[i] = T();
 
     // Construct the Histogram object that will be used to keep track of counts of bond distances found.
     util::Histogram<unsigned int>::Axes axes;
     axes.push_back(std::make_shared<util::RegularAxis>(m_nbins, 0, m_r_max));
     m_bin_counts = util::Histogram<unsigned int>(axes);
     m_local_bin_counts = util::Histogram<unsigned int>::ThreadLocalHistogram(m_bin_counts);
+
+    typename util::Histogram<T>::Axes axes_rdf;
+    axes_rdf.push_back(std::make_shared<util::RegularAxis>(m_nbins, 0, m_r_max));
+    m_rdf_array = util::Histogram<T>(axes_rdf);
+    m_local_rdf_array = CFThreadHistogram(m_rdf_array);
+
+    // Less efficient: initialize each bin sequentially using default ctor
+    for (size_t i(0); i < m_nbins; ++i)
+        m_rdf_array[i] = T();
 
     // precompute the bin center positions
     m_r_array.prepare(m_nbins);
@@ -49,7 +54,6 @@ CorrelationFunction<T>::CorrelationFunction(float r_max, float dr)
         float nextr = float(i + 1) * m_dr;
         m_r_array[i] = 2.0f / 3.0f * (nextr * nextr * nextr - r * r * r) / (nextr * nextr - r * r);
     }
-    m_local_rdf_array.resize(m_nbins);
 }
 
 //! \internal
@@ -59,21 +63,14 @@ void CorrelationFunction<T>::reduceCorrelationFunction()
 {
     m_bin_counts.reset();
     for (size_t i(0); i < m_nbins; ++i)
-        m_rdf_array.get()[i] = T();
-    // now compute the rdf
+        m_rdf_array[i] = T();
+    // Reduce the bin counts over all threads, then use them to normalize the
+    // RDF when computing.
     m_bin_counts.reduceOverThreads(m_local_bin_counts);
-    util::forLoopWrapper(0, m_nbins, [=](size_t begin, size_t end) {
-        for (size_t i = begin; i < end; ++i)
+    m_rdf_array.reduceOverThreadsPerBin(m_local_rdf_array, [&] (size_t i) {
+        if (m_bin_counts[i])
         {
-            for (typename util::ThreadStorage<T>::const_iterator local_rdf = m_local_rdf_array.begin();
-                 local_rdf != m_local_rdf_array.end(); ++local_rdf)
-            {
-                m_rdf_array[i] += (*local_rdf)[i];
-            }
-            if (m_bin_counts[i])
-            {
-                m_rdf_array[i] /= m_bin_counts[i];
-            }
+            m_rdf_array[i] /= m_bin_counts[i];
         }
     });
 }
@@ -87,7 +84,7 @@ const util::ManagedArray<T> &CorrelationFunction<T>::getRDF()
         reduceCorrelationFunction();
     }
     m_reduce = false;
-    return m_rdf_array;
+    return m_rdf_array.getBinCounts();
 }
 
 //! \internal
@@ -111,24 +108,12 @@ void CorrelationFunction<T>::accumulate(const freud::locality::NeighborQuery* ne
                                         freud::locality::QueryArgs qargs)
 {
     m_box = neighbor_query->getBox();
-    float dr_inv = 1.0f / m_dr;
     freud::locality::loopOverNeighbors(neighbor_query, query_points, n_query_points, qargs, nlist,
     [=](const freud::locality::NeighborBond& neighbor_bond)
         {
-            m_local_bin_counts(neighbor_bond.distance);
-            // bin that r
-            float binr = neighbor_bond.distance * dr_inv;
-            // fast float to int conversion with truncation
-            #ifdef __SSE2__
-            unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));
-            #else
-            unsigned int bin = (unsigned int)(binr);
-            #endif
-
-            if (bin < m_nbins)
-            {
-                m_local_rdf_array.local()[bin] += values[neighbor_bond.ref_id] * query_values[neighbor_bond.id];
-            }
+            size_t value_bin = m_bin_counts.bin({neighbor_bond.distance});
+            m_local_bin_counts.increment(value_bin);
+            m_local_rdf_array.increment(value_bin, values[neighbor_bond.ref_id] * query_values[neighbor_bond.id]);
         }
     );
     m_frame_counter += 1;

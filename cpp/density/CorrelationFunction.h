@@ -112,12 +112,15 @@ private:
     unsigned int m_frame_counter; //!< number of frames calc'd
     bool m_reduce;                //!< Whether arrays need to be reduced across threads
 
-    util::ManagedArray<T> m_rdf_array;             //!< rdf array computed
     util::ManagedArray<float> m_r_array;           //!< array of r values where the rdf is computed
-    util::ThreadStorage<T> m_local_rdf_array;
+
+    // Typedef thread local histogram type for use in code.
+    typedef typename util::Histogram<T>::ThreadLocalHistogram CFThreadHistogram;
 
     util::Histogram<unsigned int> m_bin_counts; //!< bin counts that go into computing the rdf array
-    util::Histogram<unsigned int>::ThreadLocalHistogram m_local_bin_counts;
+    util::Histogram<unsigned int>::ThreadLocalHistogram m_local_bin_counts; //!< thread local copy of bin counts
+    util::Histogram<T> m_rdf_array; //!< bin counts that go into computing the rdf array
+    CFThreadHistogram m_local_rdf_array; //!< thread local copy of rdf
 };
 
 }; }; // end namespace freud::density
