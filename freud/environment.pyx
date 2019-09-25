@@ -14,7 +14,7 @@ import warnings
 import freud.locality
 
 from freud.common cimport Compute
-from freud.locality cimport PairCompute
+from freud.locality cimport PairCompute, SpatialHistogram
 from freud.util cimport vec3, quat
 from libcpp.vector cimport vector
 from libcpp.map cimport map
@@ -31,7 +31,7 @@ cimport numpy as np
 np.import_array()
 
 
-cdef class BondOrder(PairCompute):
+cdef class BondOrder(SpatialHistogram):
     R"""Compute the bond orientational order diagram for the system of
     particles.
 
@@ -97,10 +97,10 @@ cdef class BondOrder(PairCompute):
             Distance over which to calculate.
         num_neighbors (unsigned int):
             Number of neighbors to find.
-        n_bins_theta (unsigned int):
-            Number of :math:`\theta` bins.
-        n_bins_phi (unsigned int):
-            Number of :math:`\phi` bins.
+        bins (unsigned int or sequence of length 2):
+            If an unsigned int, the number of bins in :math:`\theta` and
+            :math:`\phi`. If a sequence of three integers, interpreted as
+            :code:`(num_bins_theta, num_bins_phi)`.
 
     Attributes:
         bond_order (:math:`\left(N_{\phi}, N_{\theta} \right)` :class:`numpy.ndarray`):
@@ -119,22 +119,17 @@ cdef class BondOrder(PairCompute):
     """  # noqa: E501
     cdef freud._environment.BondOrder * thisptr
     cdef num_neighbors
-    cdef r_max
-    cdef n_bins_theta
-    cdef n_bins_phi
 
-    def __cinit__(self, float r_max, unsigned int num_neighbors,
-                  unsigned int n_bins_theta, unsigned int n_bins_phi):
-        if n_bins_theta < 2:
-            raise ValueError("Must have at least 2 bins in theta.")
-        if n_bins_phi < 2:
-            raise ValueError("Must have at least 2 bins in phi.")
-        self.thisptr = new freud._environment.BondOrder(
+    def __cinit__(self, float r_max, unsigned int num_neighbors, bins):
+        try:
+            n_bins_theta, n_bins_phi = bins
+        except TypeError:
+            n_bins_theta = n_bins_phi = bins
+
+        self.thisptr = self.histptr = new freud._environment.BondOrder(
             n_bins_theta, n_bins_phi)
         self.r_max = r_max
         self.num_neighbors = num_neighbors
-        self.n_bins_theta = n_bins_theta
-        self.n_bins_phi = n_bins_phi
 
     def __dealloc__(self):
         del self.thisptr
@@ -289,12 +284,10 @@ cdef class BondOrder(PairCompute):
 
     def __repr__(self):
         return ("freud.environment.{cls}(r_max={r_max}, "
-                "num_neighbors={num_neighbors}, n_bins_theta={n_bins_theta}, "
-                "n_bins_phi={n_bins_phi})").format(
+                "num_neighbors={num_neighbors}, bins=({bins}))".format(
                     cls=type(self).__name__, r_max=self.r_max,
                     num_neighbors=self.num_neighbors,
-                    n_bins_theta=self.n_bins_theta,
-                    n_bins_phi=self.n_bins_phi)
+                    bins=', '.join([str(b) for b in self.nbins])))
 
 
 cdef class LocalDescriptors(Compute):

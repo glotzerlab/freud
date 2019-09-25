@@ -583,7 +583,7 @@ cdef class PMFTXYZ(_PMFT):
         z_max (float):
             Maximum :math:`z` distance at which to compute the PMFT.
         bins (unsigned int or sequence of length 3):
-            If an unsigned int, the number of bins in:math:`x`, :math:`y`, and
+            If an unsigned int, the number of bins in :math:`x`, :math:`y`, and
             :math:`z`. If a sequence of three integers, interpreted as
             :code:`(num_bins_x, num_bins_y, num_bins_z)`.
         shiftvec (list):
