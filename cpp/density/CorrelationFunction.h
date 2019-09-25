@@ -49,7 +49,7 @@ class CorrelationFunction : public locality::BondHistogramCompute
 {
 public:
     //! Constructor
-    CorrelationFunction(float r_max, float dr);
+    CorrelationFunction(unsigned int bins, float r_max);
 
     //! Destructor
     ~CorrelationFunction() {}
@@ -67,8 +67,8 @@ public:
     //! helper function to reduce the thread specific arrays into one array
     virtual void reduce();
 
-    //! Get a reference to the last computed rdf
-    const util::ManagedArray<T> &getRDF()
+    //! Get a reference to the last computed correlation function.
+    const util::ManagedArray<T> &getCorrelation()
     {
         return reduceAndReturn(m_correlation_function.getBinCounts());
     }

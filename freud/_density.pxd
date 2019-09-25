@@ -21,7 +21,7 @@ cdef extern from "CorrelationFunction.h" namespace "freud::density":
                         const T*,
                         unsigned int, const freud._locality.NeighborList*,
                         freud._locality.QueryArgs) except +
-        const freud.util.ManagedArray[T] &getRDF()
+        const freud.util.ManagedArray[T] &getCorrelation()
 
 cdef extern from "GaussianDensity.h" namespace "freud::density":
     cdef cppclass GaussianDensity:

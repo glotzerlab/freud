@@ -61,10 +61,10 @@ cdef class CorrelationFunction(SpatialHistogram1D):
     .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
 
     Args:
+        bins (unsigned int):
+            The number of bins in the RDF.
         r_max (float):
             Maximum pointwise distance to include in the calculation.
-        dr (float):
-            Bin size.
 
     Attributes:
         RDF ((:math:`N_{bins}`) :class:`numpy.ndarray`):
@@ -72,16 +72,12 @@ cdef class CorrelationFunction(SpatialHistogram1D):
             distance.
     """  # noqa E501
     cdef freud._density.CorrelationFunction[np.complex128_t] * thisptr
-    cdef float dr
     cdef is_complex
 
-    def __cinit__(self, float r_max, float dr):
-        if dr <= 0.0:
-            raise ValueError("dr must be > 0")
+    def __cinit__(self, unsigned int bins, float r_max):
         self.thisptr = self.histptr = new \
-            freud._density.CorrelationFunction[np.complex128_t](r_max, dr)
+            freud._density.CorrelationFunction[np.complex128_t](bins, r_max)
         self.r_max = r_max
-        self.dr = dr
         self.is_complex = False
 
     def __dealloc__(self):
@@ -150,9 +146,9 @@ cdef class CorrelationFunction(SpatialHistogram1D):
         return self
 
     @Compute._computed_property()
-    def RDF(self):
+    def correlation(self):
         output = freud.util.make_managed_numpy_array(
-            &self.thisptr.getRDF(),
+            &self.thisptr.getCorrelation(),
             freud.util.arr_type_t.COMPLEX_DOUBLE)
         return output if self.is_complex else np.real(output)
 
@@ -193,8 +189,8 @@ cdef class CorrelationFunction(SpatialHistogram1D):
         return self
 
     def __repr__(self):
-        return ("freud.density.{cls}(r_max={r_max}, dr={dr})").format(
-            cls=type(self).__name__, r_max=self.r_max, dr=self.dr)
+        return ("freud.density.{cls}(bins={bins}, r_max={r_max})").format(
+            cls=type(self).__name__, bins=self.nbins, r_max=self.r_max)
 
     def plot(self, ax=None):
         """Plot complex correlation function.
@@ -493,11 +489,11 @@ cdef class RDF(SpatialHistogram1D):
     :code:`R` array.
 
     The values of :math:`r` to compute the RDF are set by the values of
-    :code:`r_min`, :code:`r_max`, :code:`dr` in the constructor. :code:`r_max`
-    sets the maximum distance at which to calculate the
-    :math:`g \left( r \right)`, :code:`r_min` sets the minimum distance at
-    which to calculate the :math:`g \left( r \right)`, and :code:`dr`
-    determines the step size for each bin.
+    :code:`r_min`, :code:`r_max`, :code:`bins` in the constructor.
+    :code:`r_max` sets the maximum distance at which to calculate the :math:`g
+    \left( r \right)`, :code:`r_min` sets the minimum distance at which to
+    calculate the :math:`g \left( r \right)`, and :code:`bins` determines the
+    number of bins.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
@@ -507,10 +503,10 @@ cdef class RDF(SpatialHistogram1D):
         Failing to set z=0 will lead to undefined behavior.
 
     Args:
+        bins (unsigned int):
+            The number of bins in the RDF.
         r_max (float):
             Maximum interparticle distance to include in the calculation.
-        dr (float):
-            Distance between histogram bins.
         r_min (float, optional):
             Minimum interparticle distance to include in the calculation
             (Default value = :code:`0`).
