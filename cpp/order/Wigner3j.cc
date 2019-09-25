@@ -21,7 +21,8 @@ inline int lmIndex(int l, int m)
     return m < 0 ? l - m : m;
 }
 
-float reduceWigner3j(const complex<float>* source, unsigned int l_, const vector<double> &wigner3j)
+float reduceWigner3j(const std::complex<float>* source,
+        unsigned int l_, const std::vector<double> &wigner3j)
 {
     /*
      * Wigner 3j coefficients:
@@ -58,7 +59,7 @@ float reduceWigner3j(const complex<float>* source, unsigned int l_, const vector
     return result;
 }
 
-vector<double> getWigner3j(unsigned int l)
+std::vector<double> getWigner3j(unsigned int l)
 {
     switch (l)
     {
@@ -2516,7 +2517,7 @@ vector<double> getWigner3j(unsigned int l)
     }
 
     }
-    throw out_of_range("Wigner 3j coefficients are implemented for l <= 20.");
+    throw std::out_of_range("Wigner 3j coefficients are implemented for l <= 20.");
 }
 
 }; };  // end namespace freud::order

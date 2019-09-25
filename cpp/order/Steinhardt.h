@@ -139,7 +139,7 @@ private:
     void reduce();
 
     //! Spherical harmonics calculation for Ylm filling a
-    //  vector<complex<float> > with values for m = -l..l.
+    //  std::vector<std::complex<float> > with values for m = -l..l.
     void computeYlm(const float theta, const float phi, std::vector<std::complex<float>>& Ylm);
 
     template<typename T> std::shared_ptr<T> makeArray(size_t size);
@@ -179,7 +179,7 @@ private:
     util::ThreadStorage<std::complex<float>> m_Qlm_local; //!< Thread-specific m_Qlm(Ave)
     util::ManagedArray<float> m_Qli;              //!< Ql locally invariant order parameter for each particle i
     util::ManagedArray<float> m_QliAve;           //!< Averaged Ql with 2nd neighbor shell for each particle i
-    util::ManagedArray<complex<float>> m_QlmiAve; //!< Averaged Qlm with 2nd neighbor shell for each particle i
+    util::ManagedArray<std::complex<float>> m_QlmiAve;  //!< Averaged Qlm with 2nd neighbor shell for each particle i
     util::ManagedArray<std::complex<float>> m_QlmAve;   //!< Normalized QlmiAve for the whole system
     float m_norm;                                    //!< System normalized order parameter
     util::ManagedArray<float> m_Wli; //!< Wl order parameter for each particle i, also used for Wl averaged data

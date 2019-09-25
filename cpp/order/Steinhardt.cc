@@ -234,7 +234,7 @@ float Steinhardt::normalize()
     }
 }
 
-void Steinhardt::aggregateWl(util::ManagedArray<float> &target, util::ManagedArray<complex<float> > &source)
+void Steinhardt::aggregateWl(util::ManagedArray<float> &target, util::ManagedArray<std::complex<float> > &source)
 {
     auto wigner3jvalues = getWigner3j(m_l);
     util::forLoopWrapper(0, m_Np, [&](size_t begin, size_t end) {

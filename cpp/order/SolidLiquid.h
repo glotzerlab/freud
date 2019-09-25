@@ -4,33 +4,54 @@
 #ifndef SOLID_LIQUID_H
 #define SOLID_LIQUID_H
 
-#include <algorithm>
 #include <complex>
-#include <memory>
-#include <stdexcept>
-#include <stdint.h>
 #include <vector>
 
-#include "Box.h"
 #include "Cluster.h"
 #include "ManagedArray.h"
 #include "NeighborList.h"
 #include "Steinhardt.h"
 #include "ThreadStorage.h"
-#include "VectorMath.h"
 #include "utils.h"
 
 namespace freud { namespace order {
 
-//! Computes dot products of Qlm between particles and uses these for clustering
+//! Identifies solid-like clusters using dot products of Q_{lm}.
+/*! The solid-liquid order parameter (Frenkel 1995) uses a Steinhardt-like
+ *  approach to identify solid-like particles. First, a bond parameter
+ *  Q_l(i, j) is computed for each neighbor bond.
+ *
+ *  If normalize_Q is true (default), the bond parameter is given by
+ *  Q_l(i, j) = \frac{\sum_{m=-l}^{l} \text{Re}~Q_{lm}(i) Q_{lm}^*(j)}
+ *  {\sqrt{\sum_{m=-l}^{l} \lvert Q_{lm}(i) \rvert^2}
+ *  \sqrt{\sum_{m=-l}^{l} \lvert Q_{lm}(j) \rvert^2}}
+ *
+ *  If normalize_Q is false, then the denominator of the above
+ *  expression is left out.
+ *
+ *  Next, the bonds are filtered to keep only "solid-like" bonds with
+ *  Q_l(i, j) above a cutoff value Q_{threshold}.
+ *
+ *  If a particle has more than S_{threshold} solid-like bonds, then
+ *  the particle is considered solid-like. Finally, solid-like particles are
+ *  clustered.
+ *
+ *  References:
+ *  ten Wolde, P. R., Ruiz-Montero, M. J., & Frenkel, D. (1995).
+ *  Numerical Evidence for bcc Ordering at the Surface of a Critical fcc Nucleus.
+ *  Phys. Rev. Lett., 75 (2714). https://doi.org/10.1103/PhysRevLett.75.2714
+ *
+ *  Filion, L., Hermes, M., Ni, R., & Dijkstra, M. (2010).
+ *  Crystal nucleation of hard spheres using molecular dynamics, umbrella sampling,
+ *  and forward flux sampling: A comparison of simulation techniques.
+ *  J. Chem. Phys. 133 (244115). https://doi.org/10.1063/1.3506838
+ */
 
 class SolidLiquid
 {
 public:
     //! Constructor
-    /*! Constructor for Solid-Liquid analysis class. After creation, call
-     *  compute to calculate solid-like clusters. Use accessor functions
-     *  to retrieve data.
+    /*! Constructor for Solid-Liquid analysis class.
      *  \param l Spherical harmonic number l.
      *  \param Q_threshold Value of dot product threshold when evaluating
      *     \f$Q_{lm}(i) Q_{lm}^*(j)\f$ to determine if a neighbor pair is

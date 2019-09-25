@@ -1,6 +1,8 @@
 // Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
+#include <stdexcept>
+
 #include "SolidLiquid.h"
 
 namespace freud { namespace order {
@@ -65,7 +67,7 @@ void SolidLiquid::compute(const freud::locality::NeighborList* nlist,
     }, true);
 
     // Filter neighbors to contain only solid-like bonds
-    unique_ptr<bool[]> solid_filter(new bool[num_bonds]);
+    std::unique_ptr<bool[]> solid_filter(new bool[num_bonds]);
     for (unsigned int bond(0); bond < num_bonds; bond++)
     {
         solid_filter[bond] = (m_Ql_ij[bond] > m_Q_threshold);
@@ -83,7 +85,7 @@ void SolidLiquid::compute(const freud::locality::NeighborList* nlist,
     // Filter nlist to only bonds between solid-like particles
     // (particles with more than S_threshold solid-like bonds)
     const unsigned int num_solid_bonds(solid_nlist.getNumBonds());
-    unique_ptr<bool[]> neighbor_count_filter(new bool[num_solid_bonds]);
+    std::unique_ptr<bool[]> neighbor_count_filter(new bool[num_solid_bonds]);
     for (unsigned int bond(0); bond < num_solid_bonds; bond++)
     {
         const unsigned int i(solid_nlist.getNeighbors()(bond, 0));
