@@ -26,10 +26,6 @@ cdef extern from "BondOrder.h" namespace "freud::environment":
             const freud._locality.NeighborList*,
             freud._locality.QueryArgs)
         const freud.util.ManagedArray[float] &getBondOrder()
-        const freud.util.ManagedArray[float] &getTheta()
-        const freud.util.ManagedArray[float] &getPhi()
-        unsigned int getNBinsTheta()
-        unsigned int getNBinsPhi()
 
 cdef extern from "LocalDescriptors.h" namespace "freud::environment":
     ctypedef enum LocalDescriptorOrientation:

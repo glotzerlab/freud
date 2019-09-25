@@ -20,57 +20,39 @@ namespace freud { namespace environment {
 constexpr float TWO_PI = 2.0 * M_PI;
 
 BondOrder::BondOrder(unsigned int n_bins_theta, unsigned int n_bins_phi)
-    : BondHistogramCompute(), m_n_bins_theta(n_bins_theta), m_n_bins_phi(n_bins_phi)
+    : BondHistogramCompute()
 {
     // sanity checks, but this is actually kinda dumb if these values are 1
-    if (m_n_bins_theta < 2)
+    if (n_bins_theta < 2)
         throw std::invalid_argument("BondOrder requires at least 2 bins in theta.");
-    if (m_n_bins_phi < 2)
+    if (n_bins_phi < 2)
         throw std::invalid_argument("BondOrder requires at least 2 bins in phi.");
     // calculate dt, dp
     /*
     0 < \theta < 2PI; 0 < \phi < PI
     */
-    m_dt = 2.0 * M_PI / float(m_n_bins_theta);
-    m_dp = M_PI / float(m_n_bins_phi);
+    float dt = 2.0 * M_PI / float(n_bins_theta);
+    float dp = M_PI / float(n_bins_phi);
     // this shouldn't be able to happen, but it's always better to check
-    if (m_dt > 2.0 * M_PI)
+    if (dt > 2.0 * M_PI)
         throw std::invalid_argument("2PI must be greater than dt");
-    if (m_dp > M_PI)
+    if (dp > M_PI)
         throw std::invalid_argument("PI must be greater than dp");
 
-    // precompute the bin center positions for t
-    m_theta_array.prepare(m_n_bins_theta);
-    for (unsigned int i = 0; i < m_n_bins_theta; i++)
-    {
-        float t = float(i) * m_dt;
-        float nextt = float(i + 1) * m_dt;
-        m_theta_array[i] = ((t + nextt) / 2.0);
-    }
-
-    // precompute the bin center positions for p
-    m_phi_array.prepare(m_n_bins_phi);
-    for (unsigned int i = 0; i < m_n_bins_phi; i++)
-    {
-        float p = float(i) * m_dp;
-        float nextp = float(i + 1) * m_dp;
-        m_phi_array[i] = ((p + nextp) / 2.0);
-    }
-
     // precompute the surface area array
-    m_sa_array.prepare({m_n_bins_theta, m_n_bins_phi});
-    for (unsigned int i = 0; i < m_n_bins_theta; i++)
+    m_sa_array.prepare({n_bins_theta, n_bins_phi});
+    for (unsigned int i = 0; i < n_bins_theta; i++)
     {
-        for (unsigned int j = 0; j < m_n_bins_phi; j++)
+        for (unsigned int j = 0; j < n_bins_phi; j++)
         {
-            float phi = (float) j * m_dp;
-            float sa = m_dt * (cos(phi) - cos(phi + m_dp));
+            float phi = (float) j * dp;
+            float sa = dt * (cos(phi) - cos(phi + dp));
             m_sa_array(i, j) = sa;
         }
     }
     BHAxes axes;
-    axes.push_back(std::make_shared<util::RegularAxis>(m_n_bins_theta, 0, TWO_PI));
-    axes.push_back(std::make_shared<util::RegularAxis>(m_n_bins_phi, 0, M_PI));
+    axes.push_back(std::make_shared<util::RegularAxis>(n_bins_theta, 0, TWO_PI));
+    axes.push_back(std::make_shared<util::RegularAxis>(n_bins_phi, 0, M_PI));
     m_histogram = BondHistogram(axes);
 
     m_local_histograms = BondHistogram::ThreadLocalHistogram(m_histogram);
@@ -79,7 +61,7 @@ BondOrder::BondOrder(unsigned int n_bins_theta, unsigned int n_bins_phi)
 void BondOrder::reduce()
 {
     m_histogram.reset();
-    m_bo_array.prepare({m_n_bins_theta, m_n_bins_phi});
+    m_bo_array.prepare(m_histogram.shape());
 
     m_histogram.reduceOverThreadsPerBin(m_local_histograms, [&] (size_t i) {
             m_bo_array[i] = m_histogram[i] / m_sa_array[i] / static_cast<float>(m_frame_counter);

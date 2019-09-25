@@ -262,26 +262,6 @@ cdef class BondOrder(SpatialHistogram):
                         query_points, query_orientations, mode, nlist)
         return self
 
-    @property
-    def theta(self):
-        return freud.util.make_managed_numpy_array(
-            &self.thisptr.getTheta(),
-            freud.util.arr_type_t.FLOAT)
-
-    @property
-    def phi(self):
-        return freud.util.make_managed_numpy_array(
-            &self.thisptr.getPhi(),
-            freud.util.arr_type_t.FLOAT)
-
-    @property
-    def n_bins_theta(self):
-        return self.thisptr.getNBinsTheta()
-
-    @property
-    def n_bins_phi(self):
-        return self.thisptr.getNBinsPhi()
-
     def __repr__(self):
         return ("freud.environment.{cls}(r_max={r_max}, "
                 "num_neighbors={num_neighbors}, bins=({bins}))".format(

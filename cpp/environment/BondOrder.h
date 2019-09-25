@@ -52,38 +52,9 @@ public:
     //! Get a reference to the last computed bond order
     const util::ManagedArray<float> &getBondOrder();
 
-    //! Get a reference to the theta array
-    const util::ManagedArray<float> &getTheta()
-    {
-        return m_theta_array;
-    }
-
-    //! Get a reference to the phi array
-    const util::ManagedArray<float> &getPhi()
-    {
-        return m_phi_array;
-    }
-
-    unsigned int getNBinsTheta()
-    {
-        return m_n_bins_theta;
-    }
-
-    unsigned int getNBinsPhi()
-    {
-        return m_n_bins_phi;
-    }
-
 private:
-    float m_dt;
-    float m_dp;
-    unsigned int m_n_bins_theta;  //!< number of bins for theta
-    unsigned int m_n_bins_phi;    //!< number of bins for phi
-
     util::ManagedArray<float> m_bo_array;          //!< bond order array computed
     util::ManagedArray<float> m_sa_array;          //!< surface area array computed
-    util::ManagedArray<float> m_theta_array;       //!< theta array computed
-    util::ManagedArray<float> m_phi_array;         //!< phi order array computed
 };
 
 }; }; // end namespace freud::environment

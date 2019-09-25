@@ -33,13 +33,15 @@ class TestBondOrder(unittest.TestCase):
         bo.bond_order
 
         # Test all the basic attributes.
-        self.assertEqual(bo.n_bins_theta, n_bins_theta)
-        self.assertEqual(bo.n_bins_phi, n_bins_phi)
+        self.assertEqual(bo.nbins[0], n_bins_theta)
+        self.assertEqual(bo.nbins[1], n_bins_phi)
         self.assertEqual(bo.box, box)
         self.assertTrue(np.allclose(
-            bo.theta, (2*np.arange(n_bins_theta)+1)*np.pi/6))
+            bo.bin_centers[0],
+            (2*np.arange(n_bins_theta)+1)*np.pi/n_bins_theta))
         self.assertTrue(np.allclose(
-            bo.phi, (2*np.arange(n_bins_phi)+1)*np.pi/12))
+            bo.bin_centers[1],
+            (2*np.arange(n_bins_phi)+1)*np.pi/(n_bins_phi*2)))
 
         # Test that reset works.
         bo.reset()
