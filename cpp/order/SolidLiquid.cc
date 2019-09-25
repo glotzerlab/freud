@@ -52,7 +52,7 @@ void SolidLiquid::compute(const freud::locality::NeighborList* nlist,
                 std::complex<float> bond_Ql_ij = 0;
                 for (unsigned int k = 0; k < m_num_ms; k++)
                 {
-                    bond_Ql_ij += Qlm(i, k) * conj(Qlm(j, k));
+                    bond_Ql_ij += Qlm(i, k) * std::conj(Qlm(j, k));
                 }
 
                 // Optionally normalize dot products by points' Ql values,
