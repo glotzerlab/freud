@@ -64,12 +64,6 @@ class TestPMFTR12(unittest.TestCase):
         npt.assert_equal(nbinsT1, myPMFT.nbins[1])
         npt.assert_equal(nbinsT2, myPMFT.nbins[2])
 
-        inverse_jacobian = np.array(
-            [[[1/(R*dr*dT1*dT2)
-               for T2 in listT2] for T1 in listT1] for R in listR])
-        npt.assert_allclose(myPMFT.inverse_jacobian, inverse_jacobian,
-                            atol=1e-5)
-
     def test_attribute_access(self):
         boxSize = 16.0
         box = freud.box.Box.square(boxSize)
@@ -268,8 +262,6 @@ class TestPMFTXYT(unittest.TestCase):
         npt.assert_equal(nbinsY, myPMFT.nbins[1])
         npt.assert_equal(nbinsT, myPMFT.nbins[2])
 
-        npt.assert_allclose(myPMFT.jacobian, dx*dy*dT)
-
     def test_attribute_access(self):
         boxSize = 16.0
         box = freud.box.Box.square(boxSize)
@@ -466,8 +458,6 @@ class TestPMFTXY2D(unittest.TestCase):
 
         npt.assert_equal(nbinsX, myPMFT.nbins[0])
         npt.assert_equal(nbinsY, myPMFT.nbins[1])
-
-        npt.assert_allclose(myPMFT.jacobian, dx*dy)
 
     def test_attribute_access(self):
         boxSize = 16.0
@@ -711,8 +701,6 @@ class TestPMFTXYZ(unittest.TestCase):
         npt.assert_equal(nbinsX, myPMFT.nbins[0])
         npt.assert_equal(nbinsY, myPMFT.nbins[1])
         npt.assert_equal(nbinsZ, myPMFT.nbins[2])
-
-        npt.assert_allclose(myPMFT.jacobian, dx*dy*dz)
 
     def test_attribute_access(self):
         boxSize = 25.0

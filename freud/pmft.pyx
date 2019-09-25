@@ -116,32 +116,12 @@ cdef class PMFTR12(_PMFT):
             Number of bins in :math:`\theta_2`.
 
     Attributes:
-        box (:class:`freud.box.Box`):
-            Box used in the calculation.
-        bin_counts (:math:`\left(N_{r}, N_{\theta1}, N_{\theta2}\right)`):
-            Bin counts.
         PCF (:math:`\left(N_{r}, N_{\theta1}, N_{\theta2}\right)`):
             The positional correlation function.
         PMFT (:math:`\left(N_{r}, N_{\theta1}, N_{\theta2}\right)`):
             The potential of mean force and torque.
         r_max (float):
             The cutoff used in the cell list.
-        R (:math:`\left(N_{r}\right)` :class:`numpy.ndarray`):
-            The array of :math:`r`-values for the PCF histogram.
-        T1 (:math:`\left(N_{\theta1}\right)` :class:`numpy.ndarray`):
-            The array of :math:`\theta_1`-values for the PCF histogram.
-        T2 (:math:`\left(N_{\theta2}\right)` :class:`numpy.ndarray`):
-            The array of :math:`\theta_2`-values for the PCF histogram.
-        inverse_jacobian (:math:`\left(N_{r}, N_{\theta1}, N_{\theta2}\right)`):
-            The inverse Jacobian used in the PMFT.
-        n_bins_R (unsigned int):
-            The number of bins in the :math:`r`-dimension of the histogram.
-        n_bins_T1 (unsigned int):
-            The number of bins in the :math:`\theta_1`-dimension of the
-            histogram.
-        n_bins_T2 (unsigned int):
-            The number of bins in the :math:`\theta_2`-dimension of the
-            histogram.
     """  # noqa: E501
     cdef freud._pmft.PMFTR12 * pmftr12ptr
 
@@ -240,12 +220,6 @@ cdef class PMFTR12(_PMFT):
                         query_points, query_orientations, nlist, query_args)
         return self
 
-    @property
-    def inverse_jacobian(self):
-        return freud.util.make_managed_numpy_array(
-            &self.pmftr12ptr.getInverseJacobian(),
-            freud.util.arr_type_t.FLOAT)
-
     def __repr__(self):
         bounds = self.bounds
         return ("freud.pmft.{cls}(r_max={r_max}, n_r={n_r}, n_t1={n_t1}, "
@@ -291,31 +265,12 @@ cdef class PMFTXYT(_PMFT):
             Number of bins in :math:`\theta`.
 
     Attributes:
-        box (:class:`freud.box.Box`):
-            Box used in the calculation.
-        bin_counts (:math:`\left(N_{x}, N_{y}, N_{\theta}\right)` :class:`numpy.ndarray`):
-            Bin counts.
         PCF (:math:`\left(N_{x}, N_{y}, N_{\theta}\right)` :class:`numpy.ndarray`):
             The positional correlation function.
         PMFT (:math:`\left(N_{x}, N_{y}, N_{\theta}\right)` :class:`numpy.ndarray`):
             The potential of mean force and torque.
         r_max (float):
             The cutoff used in the cell list.
-        X (:math:`\left(N_{x}\right)` :class:`numpy.ndarray`):
-            The array of :math:`x`-values for the PCF histogram.
-        Y (:math:`\left(N_{y}\right)` :class:`numpy.ndarray`):
-            The array of :math:`y`-values for the PCF histogram.
-        T (:math:`\left(N_{\theta}\right)` :class:`numpy.ndarray`):
-            The array of :math:`\theta`-values for the PCF histogram.
-        jacobian (float):
-            The Jacobian used in the PMFT.
-        n_bins_X (unsigned int):
-            The number of bins in the :math:`x`-dimension of the histogram.
-        n_bins_Y (unsigned int):
-            The number of bins in the :math:`y`-dimension of the histogram.
-        n_bins_T (unsigned int):
-            The number of bins in the :math:`\theta`-dimension of the
-            histogram.
     """  # noqa: E501
     cdef freud._pmft.PMFTXYT * pmftxytptr
 
@@ -414,10 +369,6 @@ cdef class PMFTXYT(_PMFT):
                         query_points, query_orientations, nlist, query_args)
         return self
 
-    @property
-    def jacobian(self):
-        return self.pmftxytptr.getJacobian()
-
     def __repr__(self):
         bounds = self.bounds
         nbins = self.nbins
@@ -459,26 +410,12 @@ cdef class PMFTXY2D(_PMFT):
             Number of bins in :math:`y`.
 
     Attributes:
-        box (:class:`freud.box.Box`):
-            Box used in the calculation.
-        bin_counts (:math:`\left(N_{x}, N_{y}\right)` :class:`numpy.ndarray`):
-            Bin counts.
         PCF (:math:`\left(N_{x}, N_{y}\right)` :class:`numpy.ndarray`):
             The positional correlation function.
         PMFT (:math:`\left(N_{x}, N_{y}\right)` :class:`numpy.ndarray`):
             The potential of mean force and torque.
         r_max (float):
             The cutoff used in the cell list.
-        X (:math:`\left(N_{x}\right)` :class:`numpy.ndarray`):
-            The array of :math:`x`-values for the PCF histogram.
-        Y (:math:`\left(N_{y}\right)` :class:`numpy.ndarray`):
-            The array of :math:`y`-values for the PCF histogram.
-        jacobian (float):
-            The Jacobian used in the PMFT.
-        n_bins_X (unsigned int):
-            The number of bins in the :math:`x`-dimension of the histogram.
-        n_bins_Y (unsigned int):
-            The number of bins in the :math:`y`-dimension of the histogram.
     """  # noqa: E501
     cdef freud._pmft.PMFTXY2D * pmftxy2dptr
 
@@ -575,10 +512,6 @@ cdef class PMFTXY2D(_PMFT):
         # changes.
         return np.squeeze(super(PMFTXY2D, self).PCF)
 
-    @property
-    def jacobian(self):
-        return self.pmftxy2dptr.getJacobian()
-
     def __repr__(self):
         bounds = self.bounds
         nbins = self.nbins
@@ -647,30 +580,12 @@ cdef class PMFTXYZ(_PMFT):
             Vector pointing from ``[0, 0, 0]`` to the center of the PMFT.
 
     Attributes:
-        box (:class:`freud.box.Box`):
-            Box used in the calculation.
-        bin_counts (:math:`\left(N_{x}, N_{y}, N_{z}\right)` :class:`numpy.ndarray`):
-            Bin counts.
         PCF (:math:`\left(N_{x}, N_{y}, N_{z}\right)` :class:`numpy.ndarray`):
             The positional correlation function.
         PMFT (:math:`\left(N_{x}, N_{y}, N_{z}\right)` :class:`numpy.ndarray`):
             The potential of mean force and torque.
         r_max (float):
             The cutoff used in the cell list.
-        X (:math:`\left(N_{x}\right)` :class:`numpy.ndarray`):
-            The array of :math:`x`-values for the PCF histogram.
-        Y (:math:`\left(N_{y}\right)` :class:`numpy.ndarray`):
-            The array of :math:`y`-values for the PCF histogram.
-        Z (:math:`\left(N_{z}\right)` :class:`numpy.ndarray`):
-            The array of :math:`z`-values for the PCF histogram.
-        jacobian (float):
-            The Jacobian used in the PMFT.
-        n_bins_X (unsigned int):
-            The number of bins in the :math:`x`-dimension of the histogram.
-        n_bins_Y (unsigned int):
-            The number of bins in the :math:`y`-dimension of the histogram.
-        n_bins_Z (unsigned int):
-            The number of bins in the :math:`z`-dimension of the histogram.
     """  # noqa: E501
     cdef freud._pmft.PMFTXYZ * pmftxyzptr
     cdef shiftvec
@@ -821,10 +736,6 @@ cdef class PMFTXYZ(_PMFT):
                         query_points, face_orientations,
                         nlist, query_args)
         return self
-
-    @property
-    def jacobian(self):
-        return self.pmftxyzptr.getJacobian()
 
     def __repr__(self):
         bounds = self.bounds

@@ -27,13 +27,6 @@ cdef extern from "PMFTR12.h" namespace "freud::pmft":
                         unsigned int,
                         const freud._locality.NeighborList*,
                         freud._locality.QueryArgs) except +
-        const freud.util.ManagedArray[float] &getR()
-        const freud.util.ManagedArray[float] &getT1()
-        const freud.util.ManagedArray[float] &getT2()
-        const freud.util.ManagedArray[float] &getInverseJacobian()
-        unsigned int getNBinsR()
-        unsigned int getNBinsT1()
-        unsigned int getNBinsT2()
 
 cdef extern from "PMFTXYT.h" namespace "freud::pmft":
     cdef cppclass PMFTXYT(PMFT):
@@ -47,13 +40,6 @@ cdef extern from "PMFTXYT.h" namespace "freud::pmft":
                         unsigned int,
                         const freud._locality.NeighborList*,
                         freud._locality.QueryArgs) except +
-        const freud.util.ManagedArray[float] &getX()
-        const freud.util.ManagedArray[float] &getY()
-        const freud.util.ManagedArray[float] &getT()
-        float getJacobian()
-        unsigned int getNBinsX()
-        unsigned int getNBinsY()
-        unsigned int getNBinsT()
 
 cdef extern from "PMFTXY2D.h" namespace "freud::pmft":
     cdef cppclass PMFTXY2D(PMFT):
@@ -65,11 +51,6 @@ cdef extern from "PMFTXY2D.h" namespace "freud::pmft":
                         unsigned int,
                         const freud._locality.NeighborList*,
                         freud._locality.QueryArgs) except +
-        const freud.util.ManagedArray[float] &getX()
-        const freud.util.ManagedArray[float] &getY()
-        float getJacobian()
-        unsigned int getNBinsX()
-        unsigned int getNBinsY()
 
 cdef extern from "PMFTXYZ.h" namespace "freud::pmft":
     cdef cppclass PMFTXYZ(PMFT):
@@ -84,10 +65,3 @@ cdef extern from "PMFTXYZ.h" namespace "freud::pmft":
                         unsigned int,
                         const freud._locality.NeighborList*,
                         freud._locality.QueryArgs) except +
-        const freud.util.ManagedArray[float] &getX()
-        const freud.util.ManagedArray[float] &getY()
-        const freud.util.ManagedArray[float] &getZ()
-        float getJacobian()
-        unsigned int getNBinsX()
-        unsigned int getNBinsY()
-        unsigned int getNBinsZ()

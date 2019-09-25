@@ -70,12 +70,6 @@ cdef class CorrelationFunction(SpatialHistogram1D):
         RDF ((:math:`N_{bins}`) :class:`numpy.ndarray`):
             Expected (average) product of all values at a given radial
             distance.
-        box (:class:`freud.box.Box`):
-            Box used in the calculation.
-        counts ((:math:`N_{bins}`) :class:`numpy.ndarray`):
-            The number of points in each histogram bin.
-        R ((:math:`N_{bins}`) :class:`numpy.ndarray`):
-            The centers of each bin.
     """  # noqa E501
     cdef freud._density.CorrelationFunction[np.complex128_t] * thisptr
     cdef float dr
@@ -522,12 +516,8 @@ cdef class RDF(SpatialHistogram1D):
             (Default value = :code:`0`).
 
     Attributes:
-        box (:class:`freud.box.Box`):
-            Box used in the calculation.
         RDF ((:math:`N_{bins}`,) :class:`numpy.ndarray`):
             Histogram of RDF values.
-        R ((:math:`N_{bins}`) :class:`numpy.ndarray`):
-            The centers of each bin.
         n_r ((:math:`N_{bins}`,) :class:`numpy.ndarray`):
             Histogram of cumulative bin_counts values. More precisely,
             :code:`n_r[i]` is the average number of points contained within a
