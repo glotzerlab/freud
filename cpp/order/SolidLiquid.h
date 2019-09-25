@@ -11,7 +11,6 @@
 #include "ManagedArray.h"
 #include "NeighborList.h"
 #include "Steinhardt.h"
-#include "ThreadStorage.h"
 #include "utils.h"
 
 namespace freud { namespace order {
@@ -134,15 +133,8 @@ private:
     freud::order::Steinhardt m_steinhardt;  //!< Steinhardt class used to compute Qlm
     freud::cluster::Cluster m_cluster;      //!< Cluster class used to cluster solid-like bonds
 
-    util::ManagedArray<float> m_Ql_ij; //!< All of the Qlmi dot Qlmj's computed
-    //! Number of connections for each particle with dot product above Q_threshold
-    util::ManagedArray<unsigned int> m_number_of_connections;
-    util::ThreadStorage<unsigned int> m_number_of_connections_local;
-
-    //! Number of neighbors for each particle (used for normalizing spherical harmonics)
-    util::ManagedArray<unsigned int> m_number_of_neighbors;
-    //! Stores number of shared neighbors for all ij pairs considered
-    std::vector<unsigned int> m_number_of_shared_connections;
+    util::ManagedArray<float> m_Ql_ij;                        //!< All of the Qlmi dot Qlmj's computed
+    util::ManagedArray<unsigned int> m_number_of_connections; //! Number of connections for each particle with dot product above Q_threshold
 };
 
 }; }; // end namespace freud::order
