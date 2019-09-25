@@ -39,7 +39,7 @@ cdef extern from "GaussianDensity.h" namespace "freud::density":
 
 cdef extern from "LocalDensity.h" namespace "freud::density":
     cdef cppclass LocalDensity:
-        LocalDensity(float, float, float)
+        LocalDensity(float, float)
         const freud._box.Box & getBox() const
         void compute(
             const freud._locality.NeighborQuery*,
@@ -49,6 +49,8 @@ cdef extern from "LocalDensity.h" namespace "freud::density":
         unsigned int getNPoints()
         const freud.util.ManagedArray[float] &getDensity()
         const freud.util.ManagedArray[float] &getNumNeighbors()
+        float getRMax() const
+        float getDiameter() const
 
 cdef extern from "RDF.h" namespace "freud::density":
     cdef cppclass RDF(BondHistogramCompute):

@@ -353,17 +353,10 @@ cdef class LocalDensity(PairCompute):
     an array listing the value of the local density around each reference
     point. Also available is the number of neighbors for each reference point,
     giving the user the ability to count the number of particles in that
-    region.
-
-    The values to compute the local density are set in the constructor.
-    :code:`r_max` sets the maximum distance at which data points are included
-    relative to a given reference point. :code:`volume` is the volume of a
-    single data points, and :code:`diameter` is the diameter of the
-    circumsphere of an individual data point. Note that the volume and diameter
-    do not affect the reference point; whether or not data points are counted
-    as neighbors of a given reference point is entirely determined by the
-    distance between reference point and data point center relative to
-    :code:`r_max` and the :code:`diameter` of the data point.
+    region. Note that the computed density is essentially a number density
+    (that allows for fractional values as described below). If your particles
+    have a specific volume, you can compute a volume density by simply
+    multiplying the output by the volume of the particles.
 
     In order to provide sufficiently smooth data, data points can be
     fractionally counted towards the density.  Rather than perform
@@ -388,8 +381,6 @@ cdef class LocalDensity(PairCompute):
     Args:
         r_max (float):
             Maximum distance over which to calculate the density.
-        volume (float):
-            Volume of a single particle.
         diameter (float):
             Diameter of particle circumsphere.
 
@@ -402,17 +393,20 @@ cdef class LocalDensity(PairCompute):
             Number of neighbor points for each ref_point.
     """
     cdef freud._density.LocalDensity * thisptr
-    cdef diameter
-    cdef volume
 
-    def __cinit__(self, float r_max, float volume, float diameter):
-        self.thisptr = new freud._density.LocalDensity(r_max, volume, diameter)
-        self.r_max = r_max
-        self.diameter = diameter
-        self.volume = volume
+    def __cinit__(self, float r_max, float diameter):
+        self.thisptr = new freud._density.LocalDensity(r_max, diameter)
 
     def __dealloc__(self):
         del self.thisptr
+
+    @property
+    def r_max(self):
+        return self.thisptr.getRMax()
+
+    @property
+    def diameter(self):
+        return self.thisptr.getDiameter()
 
     @Compute._computed_property()
     def box(self):
@@ -473,10 +467,9 @@ cdef class LocalDensity(PairCompute):
             freud.util.arr_type_t.FLOAT)
 
     def __repr__(self):
-        return ("freud.density.{cls}(r_max={r_max}, volume={volume}, "
+        return ("freud.density.{cls}(r_max={r_max}, "
                 "diameter={diameter})").format(cls=type(self).__name__,
                                                r_max=self.r_max,
-                                               volume=self.volume,
                                                diameter=self.diameter)
 
 
