@@ -36,7 +36,7 @@ Match Environments
 ==================
 
 .. autoclass:: freud.environment.MatchEnv(box, r_max, num_neighbors)
-    :members: cluster, getEnvironment, isSimilar, matchMotif, minRMSDMotif, minimizeRMSD, setBox, plot
+    :members: cluster, getEnvironment, isSimilar, matchMotif, minRMSDMotif, minimizeRMSD, plot
 
 Angular Separation
 ==================

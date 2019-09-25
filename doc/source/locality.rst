@@ -7,13 +7,12 @@ Locality Module
 .. autosummary::
     :nosignatures:
 
+    freud.locality.NeighborList
     freud.locality.NeighborQuery
     freud.locality.NeighborQueryResult
-    freud.locality.NeighborList
-    freud.locality.IteratorLinkCell
-    freud.locality.LinkCell
-    freud.locality.NearestNeighbors
     freud.locality.AABBQuery
+    freud.locality.LinkCell
+    freud.locality.IteratorLinkCell
 
 .. rubric:: Details
 
@@ -37,16 +36,9 @@ Neighbor Querying
 
 .. autoclass:: freud.locality.AABBQuery(box, points)
    :members:
-   :inherited-members: queryBall
 
 .. autoclass:: freud.locality.LinkCell(box, cell_width, points=None)
-   :members: compute, getCell, getCellNeighbors, itercell, query, queryBall
+   :members:
 
 .. autoclass:: freud.locality.IteratorLinkCell()
    :members:
-
-Nearest Neighbors
-=================
-
-.. autoclass:: freud.locality.NearestNeighbors(r_max, num_neighbors, scale=1.1, strict_cut=False)
-   :members: compute, getNeighborList, getNeighbors, getRsq
