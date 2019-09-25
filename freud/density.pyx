@@ -247,7 +247,6 @@ cdef class GaussianDensity(Compute):
             The image grid with the Gaussian density.
     """  # noqa: E501
     cdef freud._density.GaussianDensity * thisptr
-    cdef float r_max
 
     def __cinit__(self, width, r_max, sigma):
         cdef vec3[uint] width_vector
@@ -262,7 +261,6 @@ cdef class GaussianDensity(Compute):
                              "sequence indicating the widths in each spatial "
                              "dimension (length 2 in 2D, length 3 in 3D).")
 
-        self.r_max = r_max
         self.thisptr = new freud._density.GaussianDensity(
             width_vector, r_max, sigma)
 
@@ -300,6 +298,10 @@ cdef class GaussianDensity(Compute):
         else:
             return freud.util.make_managed_numpy_array(
                 &self.thisptr.getDensity(), freud.util.arr_type_t.FLOAT)
+
+    @property
+    def r_max(self):
+        return self.thisptr.getRMax()
 
     @property
     def sigma(self):
@@ -400,7 +402,6 @@ cdef class LocalDensity(PairCompute):
             Number of neighbor points for each ref_point.
     """
     cdef freud._density.LocalDensity * thisptr
-    cdef r_max
     cdef diameter
     cdef volume
 

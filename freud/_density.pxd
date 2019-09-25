@@ -35,6 +35,7 @@ cdef extern from "GaussianDensity.h" namespace "freud::density":
         const freud.util.ManagedArray[float] &getDensity()
         vec3[unsigned int] getWidth()
         float getSigma()
+        float getRMax() const
 
 cdef extern from "LocalDensity.h" namespace "freud::density":
     cdef cppclass LocalDensity:
