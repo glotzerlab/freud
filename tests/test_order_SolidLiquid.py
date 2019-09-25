@@ -3,9 +3,6 @@ import freud
 import unittest
 import util
 
-# Validated against manual calculation and pyboo
-PERFECT_FCC_Q6 = 0.57452416
-
 
 class TestSolidLiquid(unittest.TestCase):
     def test_shape(self):

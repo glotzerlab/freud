@@ -631,10 +631,16 @@ cdef class SolidLiquid(PairCompute):
     .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
     .. moduleauthor:: Richmond Newman <newmanrs@umich.edu>
 
-    .. [Frenkel1995] ten Wolde, P. R., Ruiz-Montero, M. J., & Frenkel, D
+    .. [tenWolde1995] ten Wolde, P. R., Ruiz-Montero, M. J., & Frenkel, D.
        (1995).  Numerical Evidence for bcc Ordering at the Surface of a
        Critical fcc Nucleus. Phys. Rev. Lett., 75 (2714).
        https://doi.org/10.1103/PhysRevLett.75.2714
+
+    .. [Filion2010] Filion, L., Hermes, M., Ni, R., & Dijkstra, M. (2010).
+       Crystal nucleation of hard spheres using molecular dynamics, umbrella
+       sampling, and forward flux sampling: A comparison of simulation
+       techniques. J. Chem. Phys. 133 (244115).
+       https://doi.org/10.1063/1.3506838
 
     Args:
         l (unsigned int):
@@ -642,7 +648,8 @@ cdef class SolidLiquid(PairCompute):
         Q_threshold (float):
             Value of dot product threshold when evaluating
             :math:`Q_l(i, j)` to determine if a bond is solid-like. For
-            :math:`l=6`, 0.7 is generally good for FCC or BCC structures.
+            :math:`l=6`, 0.7 is generally good for FCC or BCC structures
+            [Filion2010]_.
         S_threshold (unsigned int):
             Minimum required number of adjacent solid-like bonds for a particle
             to be considered solid-like for clustering. For :math:`l=6`, 6-8
