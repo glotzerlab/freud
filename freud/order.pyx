@@ -628,9 +628,6 @@ cdef class SolidLiquid(PairCompute):
     the particle is considered solid-like. Finally, solid-like particles are
     clustered.
 
-    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
-    .. moduleauthor:: Richmond Newman <newmanrs@umich.edu>
-
     .. [tenWolde1995] ten Wolde, P. R., Ruiz-Montero, M. J., & Frenkel, D.
        (1995).  Numerical Evidence for bcc Ordering at the Surface of a
        Critical fcc Nucleus. Phys. Rev. Lett., 75 (2714).
