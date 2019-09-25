@@ -67,8 +67,6 @@ cdef class _PMFT(SpatialHistogram):
     It must be specialized for a specific coordinate system; although in
     principle the PMFT is coordinate independent, the binning process must be
     performed in a particular coordinate system.
-
-    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
     """
     cdef freud._pmft.PMFT * pmftptr
 
@@ -101,9 +99,6 @@ cdef class PMFTR12(_PMFT):
         **2D:** :class:`freud.pmft.PMFTR12` is only defined for 2D systems.
         The points must be passed in as :code:`[x, y, 0]`.
         Failing to set z=0 will lead to undefined behavior.
-
-    .. moduleauthor:: Eric Harper <harperic@umich.edu>
-    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
 
     Args:
         r_max (float):
@@ -251,9 +246,6 @@ cdef class PMFTXYT(_PMFT):
         The points must be passed in as :code:`[x, y, 0]`.
         Failing to set z=0 will lead to undefined behavior.
 
-    .. moduleauthor:: Eric Harper <harperic@umich.edu>
-    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
-
     Args:
         x_max (float):
             Maximum :math:`x` distance at which to compute the PMFT.
@@ -400,9 +392,6 @@ cdef class PMFTXY2D(_PMFT):
         **2D:** :class:`freud.pmft.PMFTXY2D` is only defined for 2D systems.
         The points must be passed in as :code:`[x, y, 0]`.
         Failing to set z=0 will lead to undefined behavior.
-
-    .. moduleauthor:: Eric Harper <harperic@umich.edu>
-    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
 
     Args:
         x_max (float):
@@ -571,9 +560,6 @@ cdef class PMFTXYZ(_PMFT):
     .. note::
         3D: :class:`freud.pmft.PMFTXYZ` is only defined for 3D systems.
         The points must be passed in as :code:`[x, y, z]`.
-
-    .. moduleauthor:: Eric Harper <harperic@umich.edu>
-    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
 
     Args:
         x_max (float):

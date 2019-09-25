@@ -133,8 +133,6 @@ cdef class MSD(Compute):
         course of the simulation. Additionally, the number of particles must be
         constant over the course of the simulation.
 
-    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
-
     Args:
         box (:class:`freud.box.Box`, optional):
             If not provided, the class will assume that all positions provided

@@ -50,8 +50,6 @@ cdef class _QueryArgs:
     object. All arguments are funneled through this interface, which constructs
     the appropriate C++ QueryArgs object that can then be used in C++ compute
     calls.
-
-    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
     """
 
     def __cinit__(self, mode=None, r_min=None, r_max=None, r_guess=None,
@@ -198,8 +196,6 @@ cdef class NeighborQueryResult:
     queries and convert them to various natural objects. Additionally, the
     result is a generator, making it easy for users to lazily iterate over the
     object.
-
-    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
     """
 
     def __iter__(self):
@@ -265,8 +261,6 @@ cdef class NeighborQuery:
     all points within a distance cutoff, respectively.  Subclasses of
     NeighborQuery implement these methods based on the nature of the underlying
     data structure.
-
-    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
 
     Args:
         box (:class:`freud.box.Box`):
@@ -337,9 +331,6 @@ cdef class NeighborList:
     can be found in :math:`\log(N_{bonds})` time using
     :meth:`find_first_index`, because bonds are ordered by the query point
     index.
-
-    .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
-    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
 
     .. note::
 
@@ -658,8 +649,6 @@ cdef class RawPoints(NeighborQuery):
     R"""Dummy class that only contains minimal information
     to make C++ side work well.
 
-    .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
-
     Attributes:
         box (:class:`freud.locality.Box`):
             The simulation box.
@@ -688,9 +677,6 @@ cdef class RawPoints(NeighborQuery):
 cdef class AABBQuery(NeighborQuery):
     R"""Use an AABB tree to find neighbors.
 
-    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
-    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
-
     Attributes:
         box (:class:`freud.locality.Box`):
             The simulation box.
@@ -718,8 +704,6 @@ cdef class AABBQuery(NeighborQuery):
 
 cdef class IteratorLinkCell:
     R"""Iterates over the particles in a cell.
-
-    .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 
     Example::
 
@@ -760,9 +744,6 @@ cdef class IteratorLinkCell:
 cdef class LinkCell(NeighborQuery):
     R"""Supports efficiently finding all points in a set within a certain
     distance from a given point.
-
-    .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
-    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
 
     Args:
         box (:class:`freud.box.Box`):
@@ -887,12 +868,6 @@ cdef class _Voronoi:
     R"""Compute the Voronoi tessellation of a 2D or 3D system using qhull.
     This uses :class:`scipy.spatial.Voronoi`, accounting for periodic
     boundary conditions.
-
-    .. moduleauthor:: Benjamin Schultz <baschult@umich.edu>
-    .. moduleauthor:: Yina Geng <yinageng@umich.edu>
-    .. moduleauthor:: Mayank Agrawal <amayank@umich.edu>
-    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
-    .. moduleauthor:: Yezhi Jin <jinyezhi@umich.com>
 
     Since qhull does not support periodic boundary conditions natively, we
     expand the box to include a portion of the particles' periodic images.
@@ -1159,8 +1134,6 @@ cdef class PairCompute(Compute):
     particular, this class contains a helper function that calls the necessary
     functions to create NeighborQuery and NeighborList classes as needed, as
     well as dealing with boxes and query arguments.
-
-    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
     """
 
     def preprocess_arguments(self, box, points, query_points=None, nlist=None,
@@ -1230,8 +1203,6 @@ cdef class PairCompute(Compute):
 cdef class SpatialHistogram(PairCompute):
     R"""Parent class for all compute classes in freud that perform a spatial
     binning of particle bonds by distance.
-
-    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
     """
 
     def __cinit__(self):
@@ -1286,8 +1257,6 @@ cdef class SpatialHistogram(PairCompute):
 cdef class SpatialHistogram1D(SpatialHistogram):
     R"""Subclasses SpatialHistogram to provide a simplified API for
     properties of 1-dimensional histograms.
-
-    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
     """
 
     def __cinit__(self):
