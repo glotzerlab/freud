@@ -5,6 +5,7 @@ from libcpp cimport bool as cbool
 from libcpp.memory cimport shared_ptr
 
 from cython.operator cimport dereference
+from freud.common cimport Compute
 
 cimport freud._locality
 cimport freud.box
@@ -75,3 +76,13 @@ cdef class _Voronoi:
     cdef NeighborList _nlist
     cdef _volumes
     cdef _polytopes
+
+cdef class PairCompute(Compute):
+    pass
+
+cdef class SpatialHistogram(PairCompute):
+    cdef float r_max
+    cdef freud._locality.BondHistogramCompute *histptr
+
+cdef class SpatialHistogram1D(SpatialHistogram):
+    pass

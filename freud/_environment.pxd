@@ -7,15 +7,15 @@ from libcpp.memory cimport shared_ptr
 from libcpp.complex cimport complex
 from libcpp.vector cimport vector
 from libcpp.map cimport map
+from freud._locality cimport BondHistogramCompute
+
 cimport freud._box
 cimport freud._locality
 cimport freud.util
 
 cdef extern from "BondOrder.h" namespace "freud::environment":
-    cdef cppclass BondOrder:
+    cdef cppclass BondOrder(BondHistogramCompute):
         BondOrder(unsigned int, unsigned int) except +
-        const freud._box.Box & getBox() const
-        void reset()
         void accumulate(
             const freud._locality.NeighborQuery*,
             quat[float]*,
@@ -26,10 +26,6 @@ cdef extern from "BondOrder.h" namespace "freud::environment":
             const freud._locality.NeighborList*,
             freud._locality.QueryArgs)
         const freud.util.ManagedArray[float] &getBondOrder()
-        const freud.util.ManagedArray[float] &getTheta()
-        const freud.util.ManagedArray[float] &getPhi()
-        unsigned int getNBinsTheta()
-        unsigned int getNBinsPhi()
 
 cdef extern from "LocalDescriptors.h" namespace "freud::environment":
     ctypedef enum LocalDescriptorOrientation:

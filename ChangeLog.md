@@ -16,6 +16,7 @@ and this project adheres to
 * C++ Histogram class to standardize n-dimensional binning and simplify writing new methods.
 * Lower bound r\_min option for all queries.
 * Steinhardt now supports l = 0, 1.
+* C++ BondHistogramCompute class encapsulates logic of histogram-based methods.
 
 ### Changed
 * All compute objects that perform neighbor computations now use NeighborQuery internally.

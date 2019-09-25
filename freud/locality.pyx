@@ -1110,3 +1110,198 @@ cdef class _Voronoi:
 
     def __str__(self):
         return repr(self)
+
+    @Compute._computed_method()
+    def plot(self, ax=None):
+        """Plot Voronoi diagram.
+
+        Args:
+            ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
+                :code:`None`, make a new figure and axis.
+                (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes.Axes`): Axis with the plot.
+        """
+        import freud.plot
+        if not self._box.is2D():
+            return None
+        else:
+            return freud.plot.voronoi_plot(self._box, self.polytopes, ax=ax)
+
+    def _repr_png_(self):
+        import freud.plot
+        try:
+            return freud.plot.ax_to_bytes(self.plot())
+        except AttributeError:
+            return None
+
+
+cdef class PairCompute(Compute):
+    R"""Parent class for all compute classes in freud that depend on finding
+    nearest neighbors.
+
+    The purpose of this class is to consolidate some of the logic for parsing
+    the numerous possible inputs to the compute calls of such classes. In
+    particular, this class contains a helper function that calls the necessary
+    functions to create NeighborQuery and NeighborList classes as needed, as
+    well as dealing with boxes and query arguments.
+
+    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
+    """
+
+    def preprocess_arguments(self, box, points, query_points=None, nlist=None,
+                             query_args=None, dimensions=None):
+        """Process standard compute arguments into freud's internal types by
+        calling all the required internal functions.
+
+        This function handles the preprocessing of boxes and points into
+        :class:`freud.locality.NeighborQuery` objects, the determination of how
+        to handle the NeighborList object, the creation of default query
+        arguments as needed, deciding what `query_points` are, and setting the
+        appropriate `exclude_ii` flag.
+
+        Args:
+            box (:class:`freud.box.Box`):
+                Simulation box.
+            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
+                Reference points used to calculate the RDF.
+            query_points ((:math:`N_{query_points}`, 3) :class:`numpy.ndarray`, optional):
+                Points used to calculate the RDF. Uses :code:`points` if
+                not provided or :code:`None`.
+            nlist (:class:`freud.locality.NeighborList`, optional):
+                NeighborList to use to find bonds (Default value =
+                :code:`None`).
+            query_args (dict): A dictionary of query arguments (Default value =
+                :code:`None`).
+        dimensions (int): Number of dimensions the box should be. If not None,
+            used to verify the box dimensions (Default value = :code:`None`).
+        """  # noqa E501
+        cdef freud.box.Box b = freud.common.convert_box(box, dimensions)
+        cdef NeighborQuery nq = make_default_nq(box, points)
+        cdef NlistptrWrapper nlistptr = NlistptrWrapper(nlist)
+        cdef _QueryArgs qargs
+        if query_args is not None:
+            query_args.setdefault('exclude_ii', query_points is None)
+            qargs = _QueryArgs.from_dict(query_args)
+        else:
+            try:
+                query_args = self.default_query_args
+                query_args.setdefault('exclude_ii', query_points is None)
+                qargs = _QueryArgs.from_dict(query_args)
+            except ValueError:
+                # If a NeighborList was provided, then the user need not
+                # provide _QueryArgs.
+                if nlist is None:
+                    raise
+                else:
+                    qargs = _QueryArgs()
+
+        if query_points is None:
+            query_points = nq.points
+        else:
+            query_points = freud.common.convert_array(
+                query_points, shape=(None, 3))
+        cdef const float[:, ::1] l_query_points = query_points
+        cdef unsigned int num_query_points = l_query_points.shape[0]
+        return (b, nq, nlistptr, qargs, l_query_points, num_query_points)
+
+    @property
+    def default_query_args(self):
+        raise ValueError(
+            "The {} class does not provide default query arguments. You must "
+            "either provide query arguments or a neighbor list to this "
+            "compute method.".format(type(self).__name__))
+
+
+cdef class SpatialHistogram(PairCompute):
+    R"""Parent class for all compute classes in freud that perform a spatial
+    binning of particle bonds by distance.
+
+    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
+    """
+
+    def __cinit__(self):
+        # Abstract class
+        pass
+
+    @property
+    def default_query_args(self):
+        return dict(mode="ball", r_max=self.r_max)
+
+    @Compute._computed_property()
+    def box(self):
+        return freud.box.BoxFromCPP(self.histptr.getBox())
+
+    @Compute._computed_property()
+    def bin_counts(self):
+        return freud.util.make_managed_numpy_array(
+            &self.histptr.getBinCounts(),
+            freud.util.arr_type_t.UNSIGNED_INT)
+
+    @property
+    def bin_centers(self):
+        # Must create a local reference or Cython tries to access an rvalue by
+        # reference in the list comprehension.
+        vec = self.histptr.getBinCenters()
+        return [np.array(b, copy=True) for b in vec]
+
+    @property
+    def bin_edges(self):
+        # Must create a local reference or Cython tries to access an rvalue by
+        # reference in the list comprehension.
+        vec = self.histptr.getBinEdges()
+        return [np.array(b, copy=True) for b in vec]
+
+    @property
+    def bounds(self):
+        # Must create a local reference or Cython tries to access an rvalue by
+        # reference in the list comprehension.
+        vec = self.histptr.getBounds()
+        return [tuple(b) for b in vec]
+
+    @property
+    def nbins(self):
+        return list(self.histptr.getAxisSizes())
+
+    @Compute._reset
+    def reset(self):
+        R"""Resets the values of RDF in memory."""
+        self.histptr.reset()
+
+
+cdef class SpatialHistogram1D(SpatialHistogram):
+    R"""Subclasses SpatialHistogram to provide a simplified API for
+    properties of 1-dimensional histograms.
+
+    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
+    """
+
+    def __cinit__(self):
+        # Abstract class
+        pass
+
+    @property
+    def bin_centers(self):
+        # Must create a local reference or Cython tries to access an rvalue by
+        # reference in the list comprehension.
+        vec = self.histptr.getBinCenters()
+        return np.array(vec[0], copy=True)
+
+    @property
+    def bin_edges(self):
+        # Must create a local reference or Cython tries to access an rvalue by
+        # reference in the list comprehension.
+        vec = self.histptr.getBinEdges()
+        return np.array(vec[0], copy=True)
+
+    @property
+    def bounds(self):
+        # Must create a local reference or Cython tries to access an rvalue by
+        # reference in the list comprehension.
+        vec = self.histptr.getBounds()
+        return vec[0]
+
+    @property
+    def nbins(self):
+        return self.histptr.getAxisSizes()[0]

@@ -13,9 +13,8 @@ class TestBondOrder(unittest.TestCase):
 
         r_max = 1.5
         num_neighbors = 12
-        n_bins_theta = n_bins_phi = 6
-        bo = freud.environment.BondOrder(r_max, num_neighbors,
-                                         n_bins_theta, n_bins_phi)
+        n_bins_theta = n_bins_phi = nbins = 6
+        bo = freud.environment.BondOrder(r_max, num_neighbors, nbins)
 
         # Test access
         with self.assertRaises(AttributeError):
@@ -34,13 +33,15 @@ class TestBondOrder(unittest.TestCase):
         bo.bond_order
 
         # Test all the basic attributes.
-        self.assertEqual(bo.n_bins_theta, n_bins_theta)
-        self.assertEqual(bo.n_bins_phi, n_bins_phi)
+        self.assertEqual(bo.nbins[0], n_bins_theta)
+        self.assertEqual(bo.nbins[1], n_bins_phi)
         self.assertEqual(bo.box, box)
         self.assertTrue(np.allclose(
-            bo.theta, (2*np.arange(n_bins_theta)+1)*np.pi/6))
+            bo.bin_centers[0],
+            (2*np.arange(n_bins_theta)+1)*np.pi/n_bins_theta))
         self.assertTrue(np.allclose(
-            bo.phi, (2*np.arange(n_bins_phi)+1)*np.pi/12))
+            bo.bin_centers[1],
+            (2*np.arange(n_bins_phi)+1)*np.pi/(n_bins_phi*2)))
 
         # Test that reset works.
         bo.reset()
@@ -95,7 +96,7 @@ class TestBondOrder(unittest.TestCase):
             self.assertGreater(np.sum(bo.bond_order > 0), 30)
 
     def test_repr(self):
-        bo = freud.environment.BondOrder(1.5, 12, 6, 6)
+        bo = freud.environment.BondOrder(1.5, 12, (6, 6))
         self.assertEqual(str(bo), str(eval(repr(bo))))
 
     def test_points_ne_query_points(self):
@@ -116,7 +117,7 @@ class TestBondOrder(unittest.TestCase):
         for ts in test_set:
             bod = freud.environment.BondOrder(
                 r_max=r_max, num_neighbors=num_neighbors,
-                n_bins_theta=n_bins_theta, n_bins_phi=n_bins_phi)
+                bins=(n_bins_theta, n_bins_phi))
 
             # orientations are not used in bod mode
             ref_orientations = np.array([[1, 0, 0, 0]]*len(points))
