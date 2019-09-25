@@ -504,6 +504,16 @@ class NeighborQueryTest(object):
         q = nq.query(positions[0], dict(num_neighbors=1000))
         self.assertEqual(len(list(q)), 3)
 
+    def test_2d_box_3d_points(self):
+        """Test that points with z != 0 fail if the box is 2D."""
+        L = 10  # Box Dimensions
+        r_max = 2.01  # Cutoff radius
+
+        box = freud.box.Box.square(L)  # Initialize Box
+        points = np.array([[0, 0, 0], [0, 1, 1]])
+        with self.assertRaises(ValueError):
+            self.build_query_object(box, points, r_max)
+
 
 class TestNeighborQueryAABB(NeighborQueryTest, unittest.TestCase):
     @classmethod
