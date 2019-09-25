@@ -236,11 +236,6 @@ public:
     //! Compute the cell list
     void computeCellList(const vec3<float>* points, unsigned int n_points);
 
-    NeighborList* getNeighborList()
-    {
-        return &m_neighbor_list;
-    }
-
     //! Implementation of per-particle query for LinkCell (see NeighborQuery.h for documentation).
     /*! \param query_point The point to find neighbors for.
      *  \param n_query_points The number of query points.
@@ -265,7 +260,6 @@ private:
     util::ManagedArray<unsigned int> m_cell_list; //!< The cell list last computed
     typedef tbb::concurrent_hash_map<unsigned int, std::vector<unsigned int>> CellNeighbors;
     CellNeighbors m_cell_neighbors; //!< Hash map of cell neighbors for each cell
-    NeighborList m_neighbor_list;   //!< Stored neighbor list
 };
 
 //! Parent class of LinkCell iterators that knows how to traverse general cell-linked list structures.
