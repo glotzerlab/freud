@@ -108,12 +108,11 @@ cdef class PMFTR12(_PMFT):
     Args:
         r_max (float):
             Maximum distance at which to compute the PMFT.
-        n_r (unsigned int):
-            Number of bins in :math:`r`.
-        n_t1 (unsigned int):
-            Number of bins in :math:`\theta_1`.
-        n_t2 (unsigned int):
-            Number of bins in :math:`\theta_2`.
+        bins (unsigned int or sequence of length 3):
+            If an unsigned int, the number of bins in:math:`r`,
+            :math:`\theta_1`, and :math:`\theta_2`. If a sequence of three
+            integers, interpreted as :code:`(num_bins_r, num_bins_t1,
+            num_bins_t2)`.
 
     Attributes:
         PCF (:math:`\left(N_{r}, N_{\theta1}, N_{\theta2}\right)`):
@@ -125,8 +124,12 @@ cdef class PMFTR12(_PMFT):
     """  # noqa: E501
     cdef freud._pmft.PMFTR12 * pmftr12ptr
 
-    def __cinit__(self, r_max, n_r, n_t1, n_t2):
+    def __cinit__(self, r_max, bins):
         if type(self) is PMFTR12:
+            try:
+                n_r, n_t1, n_t2 = bins
+            except TypeError:
+                n_r = n_t1 = n_t2 = bins
             self.pmftr12ptr = self.pmftptr = self.histptr = \
                 new freud._pmft.PMFTR12(r_max, n_r, n_t1, n_t2)
             self.r_max = r_max
@@ -222,12 +225,10 @@ cdef class PMFTR12(_PMFT):
 
     def __repr__(self):
         bounds = self.bounds
-        return ("freud.pmft.{cls}(r_max={r_max}, n_r={n_r}, n_t1={n_t1}, "
-                "n_t2={n_t2})").format(cls=type(self).__name__,
-                                       r_max=self.r_max,
-                                       n_r=bounds[0][1],
-                                       n_t1=bounds[1][1],
-                                       n_t2=bounds[2][1])
+        return ("freud.pmft.{cls}(r_max={r_max}, bins=({bins}))").format(
+            cls=type(self).__name__,
+            r_max=self.r_max,
+            bins=', '.join([str(b) for b in self.nbins]))
 
 
 cdef class PMFTXYT(_PMFT):
@@ -236,13 +237,14 @@ cdef class PMFTXYT(_PMFT):
     listed in the ``X``, ``Y``, and ``T`` arrays.
 
     The values of :math:`x, y, \theta` at which to compute the PCF are
-    controlled by ``x_max``, ``y_max``, and ``n_x``, ``n_y``, ``n_t``
-    parameters to the constructor. The ``x_max`` and ``y_max`` parameters
-    determine the minimum/maximum :math:`x, y` values
-    (:math:`\min \left(\theta \right) = 0`,
-    (:math:`\max \left( \theta \right) = 2\pi`) at which to compute the
-    PCF and ``n_x``, ``n_y``, ``n_t`` are the number of bins in
-    :math:`x, y, \theta`.
+    controlled by ``x_max``, ``y_max``, and ``bins`` parameters to the
+    constructor. The ``x_max`` and ``y_max`` parameters determine the
+    minimum/maximum :math:`x, y` values (:math:`\min \left(\theta \right) = 0`,
+    (:math:`\max \left( \theta \right) = 2\pi`) at which to compute the PCF.
+    The ``bins`` may be either an integer, in which case it is interpreted as
+    the number of bins in each dimension, or a sequence of length 3, in which
+    case it is interpreted as the number of bins in :math:`x`, :math:`y`, and
+    :math:`\theta`.
 
     .. note::
         **2D:** :class:`freud.pmft.PMFTXYT` is only defined for 2D systems.
@@ -257,12 +259,10 @@ cdef class PMFTXYT(_PMFT):
             Maximum :math:`x` distance at which to compute the PMFT.
         y_max (float):
             Maximum :math:`y` distance at which to compute the PMFT.
-        n_x (unsigned int):
-            Number of bins in :math:`x`.
-        n_y (unsigned int):
-            Number of bins in :math:`y`.
-        n_t (unsigned int):
-            Number of bins in :math:`\theta`.
+        bins (unsigned int or sequence of length 3):
+            If an unsigned int, the number of bins in:math:`x`, :math:`y`, and
+            :math:`t`. If a sequence of three integers, interpreted as
+            :code:`(num_bins_x, num_bins_y, num_bins_t)`.
 
     Attributes:
         PCF (:math:`\left(N_{x}, N_{y}, N_{\theta}\right)` :class:`numpy.ndarray`):
@@ -274,8 +274,13 @@ cdef class PMFTXYT(_PMFT):
     """  # noqa: E501
     cdef freud._pmft.PMFTXYT * pmftxytptr
 
-    def __cinit__(self, x_max, y_max, n_x, n_y, n_t):
+    def __cinit__(self, x_max, y_max, bins):
         if type(self) is PMFTXYT:
+            try:
+                n_x, n_y, n_t = bins
+            except TypeError:
+                n_x = n_y = n_t = bins
+
             self.pmftxytptr = self.pmftptr = self.histptr = \
                 new freud._pmft.PMFTXYT(x_max, y_max, n_x, n_y, n_t)
             self.r_max = np.sqrt(x_max**2 + y_max**2)
@@ -371,14 +376,12 @@ cdef class PMFTXYT(_PMFT):
 
     def __repr__(self):
         bounds = self.bounds
-        nbins = self.nbins
-        return ("freud.pmft.{cls}(x_max={x_max}, y_max={y_max}, n_x={n_x}, "
-                "n_y={n_y}, n_t={n_t})").format(cls=type(self).__name__,
-                                                x_max=bounds[0][1],
-                                                y_max=bounds[1][1],
-                                                n_x=nbins[0],
-                                                n_y=nbins[1],
-                                                n_t=nbins[2])
+        return ("freud.pmft.{cls}(x_max={x_max}, y_max={y_max}, "
+                "bins=({bins}))").format(cls=type(self).__name__,
+                                         x_max=bounds[0][1],
+                                         y_max=bounds[1][1],
+                                         bins=', '.join(
+                                             [str(b) for b in self.nbins]))
 
 
 cdef class PMFTXY2D(_PMFT):
@@ -386,10 +389,12 @@ cdef class PMFTXY2D(_PMFT):
     coordinates :math:`x`, :math:`y` listed in the ``X`` and ``Y`` arrays.
 
     The values of :math:`x` and :math:`y` at which to compute the PCF are
-    controlled by ``x_max``, ``y_max``, ``n_x``, and ``n_y`` parameters to the
+    controlled by ``x_max``, ``y_max``, and ``bins`` parameters to the
     constructor. The ``x_max`` and ``y_max`` parameters determine the
-    minimum/maximum distance at which to compute the PCF and ``n_x`` and
-    ``n_y`` are the number of bins in :math:`x` and :math:`y`.
+    minimum/maximum distance at which to compute the PCF.  The ``bins`` may be
+    either an integer, in which case it is interpreted as the number of bins in
+    each dimension, or a sequence of length 2, in which case it is interpreted
+    as the number of bins in :math:`x` and :math:`y` respectively.
 
     .. note::
         **2D:** :class:`freud.pmft.PMFTXY2D` is only defined for 2D systems.
@@ -404,10 +409,10 @@ cdef class PMFTXY2D(_PMFT):
             Maximum :math:`x` distance at which to compute the PMFT.
         y_max (float):
             Maximum :math:`y` distance at which to compute the PMFT.
-        n_x (unsigned int):
-            Number of bins in :math:`x`.
-        n_y (unsigned int):
-            Number of bins in :math:`y`.
+        bins (unsigned int or sequence of length 2):
+            If an unsigned int, the number of bins in:math:`x`, :math:`y`, and
+            :math:`z`. If a sequence of two integers, interpreted as
+            :code:`(num_bins_x, num_bins_y)`.
 
     Attributes:
         PCF (:math:`\left(N_{x}, N_{y}\right)` :class:`numpy.ndarray`):
@@ -419,8 +424,13 @@ cdef class PMFTXY2D(_PMFT):
     """  # noqa: E501
     cdef freud._pmft.PMFTXY2D * pmftxy2dptr
 
-    def __cinit__(self, x_max, y_max, n_x, n_y):
+    def __cinit__(self, x_max, y_max, bins):
         if type(self) is PMFTXY2D:
+            try:
+                n_x, n_y = bins
+            except TypeError:
+                n_x = n_y = bins
+
             self.pmftxy2dptr = self.pmftptr = self.histptr = \
                 new freud._pmft.PMFTXY2D(x_max, y_max, n_x, n_y)
             self.r_max = np.sqrt(x_max**2 + y_max**2)
@@ -514,13 +524,12 @@ cdef class PMFTXY2D(_PMFT):
 
     def __repr__(self):
         bounds = self.bounds
-        nbins = self.nbins
-        return ("freud.pmft.{cls}(x_max={x_max}, y_max={y_max}, n_x={n_x}, "
-                "n_y={n_y})").format(cls=type(self).__name__,
-                                     x_max=bounds[0][1],
-                                     y_max=bounds[1][1],
-                                     n_x=nbins[0],
-                                     n_y=nbins[1])
+        return ("freud.pmft.{cls}(x_max={x_max}, y_max={y_max}, "
+                "bins=({bins}))").format(cls=type(self).__name__,
+                                         x_max=bounds[0][1],
+                                         y_max=bounds[1][1],
+                                         bins=', '.join(
+                                             [str(b) for b in self.nbins]))
 
     def _repr_png_(self):
         import freud.plot
@@ -551,10 +560,13 @@ cdef class PMFTXYZ(_PMFT):
     and ``Z`` arrays.
 
     The values of :math:`x, y, z` at which to compute the PCF are controlled by
-    ``x_max``, ``y_max``, ``z_max``, ``n_x``, ``n_y``, and ``n_z`` parameters
-    to the constructor. The ``x_max``, ``y_max``, and ``z_max`` parameters]
-    determine the minimum/maximum distance at which to compute the PCF and
-    ``n_x``, ``n_y``, and ``n_z`` are the number of bins in :math:`x, y, z`.
+    ``x_max``, ``y_max``, ``z_max``, and ``bins`` parameters to the constructor.
+    The ``x_max``, ``y_max``, and ``z_max`` parameters] determine the
+    minimum/maximum distance at which to compute the pair correlation function.
+    The ``bins`` may be either an integer, in which case it is interpreted as
+    the number of bins in each dimension, or a sequence of length 3, in which
+    case it is interpreted as the number of bins in :math:`x`, :math:`y`, and
+    :math:`z` respectively.
 
     .. note::
         3D: :class:`freud.pmft.PMFTXYZ` is only defined for 3D systems.
@@ -570,12 +582,10 @@ cdef class PMFTXYZ(_PMFT):
             Maximum :math:`y` distance at which to compute the PMFT.
         z_max (float):
             Maximum :math:`z` distance at which to compute the PMFT.
-        n_x (unsigned int):
-            Number of bins in :math:`x`.
-        n_y (unsigned int):
-            Number of bins in :math:`y`.
-        n_z (unsigned int):
-            Number of bins in :math:`z`.
+        bins (unsigned int or sequence of length 3):
+            If an unsigned int, the number of bins in:math:`x`, :math:`y`, and
+            :math:`z`. If a sequence of three integers, interpreted as
+            :code:`(num_bins_x, num_bins_y, num_bins_z)`.
         shiftvec (list):
             Vector pointing from ``[0, 0, 0]`` to the center of the PMFT.
 
@@ -590,9 +600,15 @@ cdef class PMFTXYZ(_PMFT):
     cdef freud._pmft.PMFTXYZ * pmftxyzptr
     cdef shiftvec
 
-    def __cinit__(self, x_max, y_max, z_max, n_x, n_y, n_z,
+    def __cinit__(self, x_max, y_max, z_max, bins,
                   shiftvec=[0, 0, 0]):
         cdef vec3[float] c_shiftvec
+
+        try:
+            n_x, n_y, n_z = bins
+        except TypeError:
+            n_x = n_y = n_z = bins
+
         if type(self) is PMFTXYZ:
             c_shiftvec = vec3[float](
                 shiftvec[0], shiftvec[1], shiftvec[2])
@@ -739,15 +755,12 @@ cdef class PMFTXYZ(_PMFT):
 
     def __repr__(self):
         bounds = self.bounds
-        nbins = self.nbins
         return ("freud.pmft.{cls}(x_max={x_max}, y_max={y_max}, "
-                "z_max={z_max}, n_x={n_x}, n_y={n_y}, n_z={n_z}, "
+                "z_max={z_max}, bins=({bins}), "
                 "shiftvec={shiftvec})").format(
                     cls=type(self).__name__,
                     x_max=bounds[0][1],
                     y_max=bounds[1][1],
                     z_max=bounds[2][1],
-                    n_x=nbins[0],
-                    n_y=nbins[1],
-                    n_z=nbins[2],
+                    bins=', '.join([str(b) for b in self.nbins]),
                     shiftvec=self.shiftvec.tolist())
