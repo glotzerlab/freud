@@ -133,11 +133,6 @@ public:
     void compute(const freud::locality::NeighborList* nlist,
                                   const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
 
-    //! Calculates Qlms and the Ql order parameter before any further modifications
-    void baseCompute(const freud::locality::NeighborList* nlist,
-                                  const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
-
-
 private:
     //! \internal
     //! helper function to reduce the thread specific arrays into one array
@@ -152,6 +147,10 @@ private:
     //! Reallocates only the necessary arrays when the number of particles changes
     // unsigned int Np number of particles
     void reallocateArrays(unsigned int Np);
+
+    //! Calculates Qlms and the Ql order parameter before any further modifications
+    void baseCompute(const freud::locality::NeighborList* nlist,
+                                  const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
 
     //! Calculates the neighbor average Ql order parameter
     void computeAve(const freud::locality::NeighborList* nlist,
