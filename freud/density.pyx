@@ -154,7 +154,7 @@ cdef class CorrelationFunction(SpatialHistogram1D):
 
     @Compute._reset
     def reset(self):
-        """Overrides parent since resetting here requires additional logic."""
+        # Overrides parent since resetting here requires additional logic.
         self.is_complex = False
         self.thisptr.reset()
 

@@ -29,7 +29,7 @@ struct Weight
     Weight &operator=(Weight other)
     {
         if (!is_default)
-            throw std::runtime_error("Weight can only be assigned to once.");
+            throw std::runtime_error("Weight can only be assigned once.");
         value = other.value;
         is_default = false;
         return *this;

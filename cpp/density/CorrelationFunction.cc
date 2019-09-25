@@ -60,15 +60,13 @@ void CorrelationFunction<T>::reduce()
     });
 }
 
-//! \internal
-/*! \brief Function to reset the PCF array if needed e.g. calculating between new particle types
- */
 template<typename T>
 void CorrelationFunction<T>::reset()
 {
     BondHistogramCompute::reset();
 
-    // zero the rdf as well
+    // Zero the correlation function in addition to the bin counts that are
+    // reset by the parent.
     m_local_correlation_function.reset();
 }
 

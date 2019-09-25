@@ -42,7 +42,7 @@ public:
         return m_box;
     }
 
-    //! Return :code:`thing_to_return` after reducing.
+    //! Return thing_to_return after reducing if necessary.
     template<typename U>
     U &reduceAndReturn(U &thing_to_return)
     {
@@ -102,7 +102,7 @@ public:
     void accumulateGeneral(const locality::NeighborQuery* neighbor_query, 
                            const vec3<float>* query_points, unsigned int n_query_points,
                            const locality::NeighborList* nlist,
-                           freud::locality::QueryArgs qargs,
+                           locality::QueryArgs qargs,
                            Func cf)
     {
         m_box = neighbor_query->getBox();

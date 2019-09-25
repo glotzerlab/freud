@@ -70,12 +70,7 @@ void BondOrder::reduce()
 
 const util::ManagedArray<float> &BondOrder::getBondOrder()
 {
-    if (m_reduce == true)
-    {
-        reduce();
-    }
-    m_reduce = false;
-    return m_bo_array;
+    return reduceAndReturn(m_bo_array);
 }
 
 void BondOrder::accumulate(
@@ -134,7 +129,7 @@ void BondOrder::accumulate(
         }
 
         // NOTE that the below has replaced the commented out expression for phi.
-        float phi = acos(v.z / sqrt(v.x * v.x + v.y * v.y + v.z * v.z)); // 0..Pi
+        float phi = acos(v.z / sqrt(dot(v, v))); // 0..Pi
 
         m_local_histograms(theta, phi);
     });
