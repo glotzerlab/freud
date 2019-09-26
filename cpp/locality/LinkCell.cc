@@ -351,7 +351,7 @@ vec3<unsigned int> LinkCell::getCellCoord(const vec3<float> p) const
     return c;
 }
 
-const std::vector<unsigned int>& LinkCell::getCellNeighbors(unsigned int cell)
+const std::vector<unsigned int>& LinkCell::getCellNeighbors(unsigned int cell) const
 {
     // check if the list of neighbors has been already computed
     // return the list if it has
@@ -367,7 +367,7 @@ const std::vector<unsigned int>& LinkCell::getCellNeighbors(unsigned int cell)
     }
 }
 
-const std::vector<unsigned int>& LinkCell::computeCellNeighbors(unsigned int cur_cell)
+const std::vector<unsigned int>& LinkCell::computeCellNeighbors(unsigned int cur_cell) const
 {
     std::vector<unsigned int> neighbor_cells;
     vec3<unsigned int> l_idx = indexToCoord(cur_cell);

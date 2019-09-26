@@ -231,7 +231,7 @@ public:
     }
 
     //! Get a list of neighbors to a cell
-    const std::vector<unsigned int>& getCellNeighbors(unsigned int cell);
+    const std::vector<unsigned int>& getCellNeighbors(unsigned int cell) const;
 
     //! Compute the cell list
     void computeCellList(const vec3<float>* points, unsigned int n_points);
@@ -249,7 +249,7 @@ private:
     static unsigned int roundDown(unsigned int v, unsigned int m);
 
     //! Helper function to compute cell neighbors
-    const std::vector<unsigned int>& computeCellNeighbors(unsigned int cell);
+    const std::vector<unsigned int>& computeCellNeighbors(unsigned int cell) const;
 
     unsigned int m_n_points;      //!< Number of particles last placed into the cell list
     unsigned int m_Nc;            //!< Number of cells last used
@@ -259,7 +259,7 @@ private:
 
     util::ManagedArray<unsigned int> m_cell_list; //!< The cell list last computed
     typedef tbb::concurrent_hash_map<unsigned int, std::vector<unsigned int>> CellNeighbors;
-    CellNeighbors m_cell_neighbors; //!< Hash map of cell neighbors for each cell
+    mutable CellNeighbors m_cell_neighbors; //!< Hash map of cell neighbors for each cell
 };
 
 //! Parent class of LinkCell iterators that knows how to traverse general cell-linked list structures.

@@ -114,7 +114,7 @@ cdef extern from "LinkCell.h" namespace "freud::locality":
         float getCellWidth() const
         unsigned int getCell(const vec3[float] &) const
         IteratorLinkCell itercell(unsigned int) const
-        vector[unsigned int] getCellNeighbors(unsigned int)
+        vector[unsigned int] getCellNeighbors(unsigned int) const
         void computeCellList(
             const freud._box.Box &,
             const vec3[float]*,
