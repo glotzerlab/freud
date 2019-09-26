@@ -1221,10 +1221,11 @@ cdef class PairCompute(Compute):
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
-            query_args (dict): A dictionary of query arguments (Default value =
-                :code:`None`).
-        dimensions (int): Number of dimensions the box should be. If not None,
-            used to verify the box dimensions (Default value = :code:`None`).
+            query_args (dict):
+                A dictionary of query arguments (Default value = :code:`None`).
+            dimensions (int):
+                Number of dimensions the box should be. If not None, used to
+                verify the box dimensions (Default value = :code:`None`).
         """  # noqa E501
         cdef freud.box.Box b = freud.common.convert_box(box, dimensions)
         cdef NeighborQuery nq = make_default_nq(box, points)
