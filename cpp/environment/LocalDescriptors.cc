@@ -22,7 +22,7 @@ void LocalDescriptors::compute(const locality::NeighborQuery *nq,
     const quat<float>* orientations, LocalDescriptorOrientation orientation,
     const freud::locality::NeighborList* nlist, locality::QueryArgs qargs)
 {
-    // This function requires a NeighborList object, so we always make one and store it locally..
+    // This function requires a NeighborList object, so we always make one and store it locally.
     m_nlist = locality::makeDefaultNlist(nq, nlist, query_points, n_query_points, qargs);
     m_nlist.validate(n_query_points, nq->getNPoints());
 

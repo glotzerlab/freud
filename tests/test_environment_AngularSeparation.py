@@ -39,7 +39,7 @@ class TestAngularSeparation(unittest.TestCase):
     def test_compute_neighbors(self):
         boxlen = 4
         num_neighbors = 1
-        r_max = 2
+        r_guess = 2
 
         box = freud.box.Box.square(boxlen)
 
@@ -56,10 +56,12 @@ class TestAngularSeparation(unittest.TestCase):
         equivalent_orientations = np.asarray([[1, 0, 0, 0], [-1, 0, 0, 0]],
                                              dtype=np.float32)
 
-        ang = freud.environment.AngularSeparationNeighbor(r_max,
+        ang = freud.environment.AngularSeparationNeighbor(r_guess,
                                                           num_neighbors)
         ang.compute(box, points, ors,
-                    equiv_orientations=equivalent_orientations)
+                    equiv_orientations=equivalent_orientations,
+                    neighbors=dict(num_neighbors=num_neighbors,
+                                   r_guess=r_guess))
 
         # Should find that the angular separation between the first particle
         # and its neighbor is pi/3. The second particle's nearest neighbor will

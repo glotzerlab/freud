@@ -764,7 +764,7 @@ cdef class MatchEnv(Compute):
             return None
 
 
-cdef class AngularSeparationNeighbor(Compute):
+cdef class AngularSeparationNeighbor(PairCompute):
     R"""Calculates the minimum angles of separation between particles and
     references.
 
@@ -808,7 +808,7 @@ cdef class AngularSeparationNeighbor(Compute):
     def compute(self, box, points, orientations, query_points=None,
                 query_orientations=None,
                 equiv_orientations=np.array([[1, 0, 0, 0]]),
-                nlist=None):
+                neighbors=None):
         R"""Calculates the minimum angles of separation between :code:`orientations`
         and :code:`query_orientations`, checking for underlying symmetry as encoded
         in :code:`equiv_orientations`. The result is stored in the :code:`neighbor_angles`
@@ -837,19 +837,16 @@ cdef class AngularSeparationNeighbor(Compute):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         """  # noqa: E501
-        cdef freud.box.Box b = freud.common.convert_box(box)
-        points = freud.common.convert_array(points, shape=(None, 3))
+        cdef:
+            freud.box.Box b
+            freud.locality.NeighborQuery nq
+            freud.locality.NlistptrWrapper nlistptr
+            freud.locality._QueryArgs qargs
+            const float[:, ::1] l_query_points
+            unsigned int num_query_points
 
-        self.nlist_ = freud.locality.make_default_nlist(
-            b, points, query_points,
-            dict(num_neighbors=self.num_neighbors,
-                 r_guess=self.r_max), nlist).copy()
-
-        if query_points is None:
-            query_points = points
-        else:
-            query_points = freud.common.convert_array(
-                query_points, shape=(None, 3))
+        b, nq, nlistptr, qargs, l_query_points, num_query_points = \
+            self.preprocess_arguments_new(box, points, query_points, neighbors)
 
         orientations = freud.common.convert_array(
             orientations, shape=(points.shape[0], 4))
@@ -866,18 +863,18 @@ cdef class AngularSeparationNeighbor(Compute):
         cdef const float[:, ::1] l_query_orientations = query_orientations
         cdef const float[:, ::1] l_equiv_orientations = equiv_orientations
 
-        cdef unsigned int n_points = l_orientations.shape[0]
-        cdef unsigned int n_query_points = l_query_orientations.shape[0]
         cdef unsigned int n_equiv_orientations = l_equiv_orientations.shape[0]
 
         self.thisptr.compute(
+            nq.get_ptr(),
             <quat[float]*> &l_orientations[0, 0],
-            n_points,
+            <vec3[float]*> &l_query_points[0, 0],
             <quat[float]*> &l_query_orientations[0, 0],
-            n_query_points,
+            num_query_points,
             <quat[float]*> &l_equiv_orientations[0, 0],
             n_equiv_orientations,
-            self.nlist_.get_ptr(),)
+            nlistptr.get_ptr(),
+            dereference(qargs.thisptr))
         return self
 
     @Compute._computed_property()

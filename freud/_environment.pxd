@@ -106,10 +106,13 @@ cdef extern from "AngularSeparation.h" namespace "freud::environment":
     cdef cppclass AngularSeparationNeighbor:
         AngularSeparationNeighbor()
         void compute(
-            quat[float]*, unsigned int,
-            quat[float]*, unsigned int,
-            quat[float]*, unsigned int,
-            const freud._locality.NeighborList*) except +
+            const freud._locality.NeighborQuery*,
+            const quat[float]*,
+            const vec3[float] *,
+            const quat[float]*, unsigned int,
+            const quat[float]*, unsigned int,
+            const freud._locality.NeighborList*,
+            freud._locality.QueryArgs) except +
         const freud.util.ManagedArray[float] &getAngles()
 
 cdef extern from "LocalBondProjection.h" namespace "freud::environment":

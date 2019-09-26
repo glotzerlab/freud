@@ -3,6 +3,7 @@
 
 #include "AngularSeparation.h"
 #include "utils.h"
+#include "NeighborComputeFunctional.h"
 
 #if defined _WIN32
 #undef min // std::min clashes with a Windows header
@@ -55,25 +56,28 @@ float computeMinSeparationAngle(const quat<float> ref_q, const quat<float> q, co
     return min_angle;
 }
 
-void AngularSeparationNeighbor::compute(const quat<float>* orientations, unsigned int n_points,
-                         const quat<float>* query_orientations, unsigned int n_query_points,
-                         const quat<float>* equiv_orientations, unsigned int n_equiv_orientations,
-                         const freud::locality::NeighborList* nlist)
+void AngularSeparationNeighbor::compute(const locality::NeighborQuery *nq, const quat<float>* orientations,
+                 const vec3<float>* query_points,
+                 const quat<float>* query_orientations, unsigned int n_query_points,
+                 const quat<float>* equiv_orientations, unsigned int n_equiv_orientations,
+                 const freud::locality::NeighborList* nlist, locality::QueryArgs qargs)
 {
-    nlist->validate(n_query_points, n_points);
+    // This function requires a NeighborList object, so we always make one and store it locally.
+    locality::NeighborList m_nlist = locality::makeDefaultNlist(nq, nlist, query_points, n_query_points, qargs);
+    m_nlist.validate(n_query_points, nq->getNPoints());
 
-    const size_t tot_num_neigh = nlist->getNumBonds();
+    const size_t tot_num_neigh = m_nlist.getNumBonds();
     m_angles.prepare(tot_num_neigh);
 
-    util::forLoopWrapper(0, n_points, [=](size_t begin, size_t end) {
-        size_t bond(nlist->find_first_index(begin));
+    util::forLoopWrapper(0, nq->getNPoints(), [=](size_t begin, size_t end) {
+        size_t bond(m_nlist.find_first_index(begin));
         for (size_t i = begin; i < end; ++i)
         {
             quat<float> q = orientations[i];
 
-            for (; bond < tot_num_neigh && nlist->getNeighbors()(bond, 0) == i; ++bond)
+            for (; bond < tot_num_neigh && m_nlist.getNeighbors()(bond, 0) == i; ++bond)
             {
-                const size_t j(nlist->getNeighbors()(bond, 1));
+                const size_t j(m_nlist.getNeighbors()(bond, 1));
                 quat<float> query_q = query_orientations[j];
 
                 float theta = computeMinSeparationAngle(q, query_q, equiv_orientations, n_equiv_orientations);

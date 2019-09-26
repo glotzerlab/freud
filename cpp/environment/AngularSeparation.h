@@ -5,6 +5,7 @@
 #define ANGULAR_SEPARATION_H
 
 #include "NeighborList.h"
+#include "NeighborQuery.h"
 #include "VectorMath.h"
 
 /*! \file AngularSeparation.h
@@ -60,10 +61,11 @@ public:
     ~AngularSeparationNeighbor() {}
 
     //! Compute the angular separation between neighbors
-    void compute(const quat<float>* orientations, unsigned int n_points,
+    void compute(const locality::NeighborQuery *nq, const quat<float>* orientations,
+                 const vec3<float>* query_points,
                  const quat<float>* query_orientations, unsigned int n_query_points,
                  const quat<float>* equiv_orientations, unsigned int n_equiv_orientations,
-                 const freud::locality::NeighborList* nlist);
+                 const freud::locality::NeighborList* nlist, locality::QueryArgs qargs);
 
     //! Returns the last computed neighbor angle array
     util::ManagedArray<float> &getAngles()
