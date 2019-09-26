@@ -18,10 +18,10 @@ Box Module
 Box
 ===
 
-.. autoclass:: freud.box.Box(Lx=None, Ly=None, Lz=None, xy=None, xz=None, yz=None, is2D=None)
-    :members: cube, from_box, from_matrix, getImage, getLatticeVector, is2D, makeCoordinates, makeFraction, square, to_dict, to_matrix, to_tuple, unwrap, wrap
+.. autoclass:: freud.box.Box(Lx, Ly, Lz=0, xy=0, xz=0, yz=0, is2D=None)
+    :members: cube, from_box, from_matrix, get_images, get_lattice_vector, make_absolute, make_fractional, square, to_dict, to_matrix, unwrap, wrap
 
-Particle Buffer
+Periodic Buffer
 ===============
 
 .. autoclass:: freud.box.PeriodicBuffer(box)

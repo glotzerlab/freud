@@ -43,7 +43,16 @@ The freud library uses single-precision `NumPy arrays <https://www.numpy.org/>`_
    :maxdepth: 2
    :caption: API
 
-   modules
+   box
+   cluster
+   density
+   environment
+   interface
+   locality
+   msd
+   order
+   parallel
+   pmft
 
 .. toctree::
    :maxdepth: 2
