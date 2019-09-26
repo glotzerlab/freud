@@ -37,7 +37,9 @@ cdef extern from "NeighborQuery.h" namespace "freud::locality":
 
     cdef cppclass NeighborQuery:
         NeighborQuery() except +
-        NeighborQuery(const freud._box.Box &, const vec3[float]*, unsigned int)
+        NeighborQuery(const freud._box.Box &,
+                      const vec3[float]*,
+                      unsigned int) except +
         shared_ptr[NeighborQueryIterator] query(
             const vec3[float]*, unsigned int, QueryArgs) except +
         const freud._box.Box & getBox() const
@@ -59,7 +61,9 @@ cdef extern from "RawPoints.h" namespace "freud::locality":
 
     cdef cppclass RawPoints(NeighborQuery):
         RawPoints() except +
-        RawPoints(const freud._box.Box, const vec3[float]*, unsigned int)
+        RawPoints(const freud._box.Box,
+                  const vec3[float]*,
+                  unsigned int) except +
 
 cdef extern from "NeighborList.h" namespace "freud::locality":
     cdef cppclass NeighborList:
