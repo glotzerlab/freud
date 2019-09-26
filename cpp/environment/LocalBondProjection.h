@@ -5,6 +5,7 @@
 #define LOCAL_BOND_PROJECTION_H
 
 #include "Box.h"
+#include "NeighborQuery.h"
 #include "NeighborList.h"
 #include "VectorMath.h"
 #include "ManagedArray.h"
@@ -31,12 +32,12 @@ public:
     ~LocalBondProjection();
 
     //! Compute the maximal local bond projection
-    void compute(box::Box& box, 
-        const vec3<float>* proj_vecs,  unsigned int n_proj,
-        const vec3<float>* points, const quat<float>* orientations, unsigned int m_n_points,
+    void compute(const locality::NeighborQuery *nq,
+        const quat<float>* orientations,
         const vec3<float>* query_points, unsigned int n_query_points,
+        const vec3<float>* proj_vecs,  unsigned int n_proj,
         const quat<float>* equiv_orientations, unsigned int n_equiv_orientations,
-        const freud::locality::NeighborList* nlist);
+        const freud::locality::NeighborList* nlist, locality::QueryArgs qargs);
 
     //! Get a reference to the last computed maximal local bond projection array
     const util::ManagedArray<float> &getProjections()

@@ -969,7 +969,7 @@ cdef class AngularSeparationGlobal(Compute):
             cls=type(self).__name__)
 
 
-cdef class LocalBondProjection(Compute):
+cdef class LocalBondProjection(PairCompute):
     R"""Calculates the maximal projection of nearest neighbor bonds for each
     particle onto some set of reference vectors, defined in the particles'
     local reference frame.
@@ -1018,7 +1018,7 @@ cdef class LocalBondProjection(Compute):
     @Compute._compute()
     def compute(self, box, proj_vecs, points,
                 orientations, query_points=None,
-                equiv_orientations=np.array([[1, 0, 0, 0]]), nlist=None):
+                equiv_orientations=np.array([[1, 0, 0, 0]]), neighbors=None):
         R"""Calculates the maximal projections of nearest neighbor bonds
         (between :code:`points` and :code:`query_points`) onto the set of
         reference vectors :code:`proj_vecs`, defined in the local reference
@@ -1053,44 +1053,38 @@ cdef class LocalBondProjection(Compute):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         """  # noqa: E501
-        cdef freud.box.Box b = freud.common.convert_box(box)
-        points = freud.common.convert_array(points, shape=(None, 3))
+        cdef:
+            freud.box.Box b
+            freud.locality.NeighborQuery nq
+            freud.locality.NlistptrWrapper nlistptr
+            freud.locality._QueryArgs qargs
+            const float[:, ::1] l_query_points
+            unsigned int num_query_points
+
+        b, nq, nlistptr, qargs, l_query_points, num_query_points = \
+            self.preprocess_arguments_new(box, points, query_points, neighbors)
+
         orientations = freud.common.convert_array(
             orientations, shape=(None, 4))
 
-        self.nlist_ = freud.locality.make_default_nlist(
-            b, points, query_points,
-            dict(num_neighbors=self.num_neighbors,
-                 r_guess=self.r_max), nlist).copy()
-
-        if query_points is None:
-            query_points = points
-        else:
-            query_points = freud.common.convert_array(
-                query_points, shape=(None, 3))
         equiv_orientations = freud.common.convert_array(
             equiv_orientations, shape=(None, 4))
         proj_vecs = freud.common.convert_array(proj_vecs, shape=(None, 3))
 
-        cdef const float[:, ::1] l_points = points
         cdef const float[:, ::1] l_orientations = orientations
-        cdef const float[:, ::1] l_query_points = query_points
         cdef const float[:, ::1] l_equiv_orientations = equiv_orientations
         cdef const float[:, ::1] l_proj_vecs = proj_vecs
 
-        cdef unsigned int n_points = l_points.shape[0]
-        cdef unsigned int n_query_points = l_query_points.shape[0]
         cdef unsigned int n_equiv = l_equiv_orientations.shape[0]
         cdef unsigned int n_proj = l_proj_vecs.shape[0]
 
         self.thisptr.compute(
-            dereference(b.thisptr),
+            nq.get_ptr(),
+            <quat[float]*> &l_orientations[0, 0],
+            <vec3[float]*> &l_query_points[0, 0], num_query_points,
             <vec3[float]*> &l_proj_vecs[0, 0], n_proj,
-            <vec3[float]*> &l_points[0, 0],
-            <quat[float]*> &l_orientations[0, 0], n_points,
-            <vec3[float]*> &l_query_points[0, 0], n_query_points,
             <quat[float]*> &l_equiv_orientations[0, 0], n_equiv,
-            self.nlist_.get_ptr())
+            nlistptr.get_ptr(), dereference(qargs.thisptr))
         return self
 
     @Compute._computed_property()

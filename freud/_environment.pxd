@@ -119,12 +119,11 @@ cdef extern from "AngularSeparation.h" namespace "freud::environment":
 cdef extern from "LocalBondProjection.h" namespace "freud::environment":
     cdef cppclass LocalBondProjection:
         LocalBondProjection()
-        void compute(freud._box.Box &,
-                     vec3[float]*, unsigned int,
-                     vec3[float]*, quat[float]*, unsigned int,
-                     vec3[float]*, unsigned int,
-                     quat[float]*, unsigned int,
-                     const freud._locality.NeighborList*) except +
+        void compute(const freud._locality.NeighborQuery*, quat[float]*,
+                     vec3[float]*, unsigned int, vec3[float]*, unsigned int,
+                     quat[float]*, unsigned int, const
+                     freud._locality.NeighborList*,
+                     freud._locality.QueryArgs) except +
 
         const freud.util.ManagedArray[float] &getProjections()
         const freud.util.ManagedArray[float] &getNormedProjections()

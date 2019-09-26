@@ -11,7 +11,8 @@ class TestLocalBondProjection(unittest.TestCase):
         boxlen = 10
         N = 500
         num_neighbors = 8
-        r_max = 3
+        r_guess = 3
+        query_args = dict(num_neighbors=num_neighbors, r_guess=r_guess)
 
         N_query = N//3
 
@@ -20,8 +21,9 @@ class TestLocalBondProjection(unittest.TestCase):
         ors = rowan.random.rand(N)
         proj_vecs = np.asarray([[0, 0, 1]])
 
-        ang = freud.environment.LocalBondProjection(r_max, num_neighbors)
-        ang.compute(box, proj_vecs, points, ors, query_points)
+        ang = freud.environment.LocalBondProjection(r_guess, num_neighbors)
+        ang.compute(box, proj_vecs, points, ors, query_points,
+                    neighbors=query_args)
         self.assertEqual(ang.num_points, N)
         self.assertEqual(ang.num_query_points, N_query)
 
@@ -29,28 +31,30 @@ class TestLocalBondProjection(unittest.TestCase):
         boxlen = 10
         N = 500
         num_neighbors = 8
-        r_max = 3
+        r_guess = 3
+        query_args = dict(num_neighbors=num_neighbors, r_guess=r_guess)
 
         box, points = make_box_and_random_points(boxlen, N, True)
         ors = rowan.random.rand(N)
         proj_vecs = np.asarray([[0, 0, 1]])
 
-        ang = freud.environment.LocalBondProjection(r_max, num_neighbors)
-        ang.compute(box, proj_vecs, points, ors)
+        ang = freud.environment.LocalBondProjection(r_guess, num_neighbors)
+        ang.compute(box, proj_vecs, points, ors, neighbors=query_args)
         npt.assert_equal(ang.num_proj_vectors, 1)
 
     def test_box(self):
         boxlen = 10
         N = 500
         num_neighbors = 8
-        r_max = 3
+        r_guess = 3
+        query_args = dict(num_neighbors=num_neighbors, r_guess=r_guess)
 
         box, points = make_box_and_random_points(boxlen, N)
         ors = rowan.random.rand(N)
         proj_vecs = np.asarray([[0, 0, 1]])
 
-        ang = freud.environment.LocalBondProjection(r_max, num_neighbors)
-        ang.compute(box, proj_vecs, points, ors)
+        ang = freud.environment.LocalBondProjection(r_guess, num_neighbors)
+        ang.compute(box, proj_vecs, points, ors, neighbors=query_args)
 
         npt.assert_equal(ang.box.Lx, boxlen)
         npt.assert_equal(ang.box.Ly, boxlen)
@@ -63,13 +67,14 @@ class TestLocalBondProjection(unittest.TestCase):
         boxlen = 10
         N = 100
         num_neighbors = 8
-        r_max = 3
+        r_guess = 3
+        query_args = dict(num_neighbors=num_neighbors, r_guess=r_guess)
 
         box, points = make_box_and_random_points(boxlen, N, True)
         ors = rowan.random.rand(N)
         proj_vecs = np.asarray([[0, 0, 1]])
 
-        ang = freud.environment.LocalBondProjection(r_max, num_neighbors)
+        ang = freud.environment.LocalBondProjection(r_guess, num_neighbors)
 
         with self.assertRaises(AttributeError):
             ang.nlist
@@ -86,7 +91,7 @@ class TestLocalBondProjection(unittest.TestCase):
         with self.assertRaises(AttributeError):
             ang.box
 
-        ang.compute(box, proj_vecs, points, ors)
+        ang.compute(box, proj_vecs, points, ors, neighbors=query_args)
 
         ang.nlist
         ang.projections
@@ -99,7 +104,8 @@ class TestLocalBondProjection(unittest.TestCase):
     def test_compute(self):
         boxlen = 4
         num_neighbors = 1
-        r_max = 2
+        r_guess = 2
+        query_args = dict(num_neighbors=num_neighbors, r_guess=r_guess)
 
         box = freud.box.Box.cube(boxlen)
 
@@ -122,12 +128,12 @@ class TestLocalBondProjection(unittest.TestCase):
 
         # First have no particle symmetry
 
-        ang = freud.environment.LocalBondProjection(r_max, num_neighbors)
-        ang.compute(box, proj_vecs, points, ors)
+        ang = freud.environment.LocalBondProjection(r_guess, num_neighbors)
+        ang.compute(box, proj_vecs, points, ors, neighbors=query_args)
 
         dnlist = freud.locality.make_default_nlist(
             box, points, None,
-            dict(num_neighbors=num_neighbors, r_guess=r_max), None)
+            dict(num_neighbors=num_neighbors, r_guess=r_guess), None)
         bonds = [(i[0], i[1]) for i in dnlist]
 
         # We will look at the bond between [1, 0, 0] as ref_point
@@ -174,7 +180,7 @@ class TestLocalBondProjection(unittest.TestCase):
             equiv_quats.append(np.array([q[0], -q[1], -q[2], -q[3]]))
         equiv_quats = np.asarray(equiv_quats, dtype=np.float32)
 
-        ang.compute(box, proj_vecs, points, ors, None, equiv_quats)
+        ang.compute(box, proj_vecs, points, ors, None, equiv_quats, query_args)
 
         # Now all projections should be cos(0)=1
         npt.assert_allclose(ang.projections[1], 1, atol=1e-6)
