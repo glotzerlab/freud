@@ -319,7 +319,7 @@ cdef class LocalDescriptors(Compute):
     @Compute._compute()
     def compute(self, box, unsigned int num_neighbors, points,
                 query_points=None,
-                orientations=None, mode='neighborhood', neighbors=None):
+                orientations=None, mode='neighborhood', nlist=None):
         R"""Calculates the local descriptors of bonds from a set of source
         points to a set of destination points.
 
