@@ -1189,7 +1189,7 @@ cdef class PairCompute(Compute):
                 query_args = self.default_query_args
                 query_args.setdefault('exclude_ii', query_points is None)
                 qargs = _QueryArgs.from_dict(query_args)
-            except ValueError:
+            except NotImplementedError:
                 # If a NeighborList was provided, then the user need not
                 # provide _QueryArgs.
                 if nlist is None:
@@ -1208,7 +1208,7 @@ cdef class PairCompute(Compute):
 
     @property
     def default_query_args(self):
-        raise ValueError(
+        raise NotImplementedError(
             "The {} class does not provide default query arguments. You must "
             "either provide query arguments or a neighbor list to this "
             "compute method.".format(type(self).__name__))

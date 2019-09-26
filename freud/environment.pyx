@@ -95,8 +95,6 @@ cdef class BondOrder(SpatialHistogram):
     Args:
         r_max (float):
             Distance over which to calculate.
-        num_neighbors (unsigned int):
-            Number of neighbors to find.
         bins (unsigned int or sequence of length 2):
             If an unsigned int, the number of bins in :math:`\theta` and
             :math:`\phi`. If a sequence of three integers, interpreted as
@@ -118,9 +116,8 @@ cdef class BondOrder(SpatialHistogram):
 
     """  # noqa: E501
     cdef freud._environment.BondOrder * thisptr
-    cdef num_neighbors
 
-    def __cinit__(self, float r_max, unsigned int num_neighbors, bins):
+    def __cinit__(self, bins):
         try:
             n_bins_theta, n_bins_phi = bins
         except TypeError:
@@ -128,20 +125,18 @@ cdef class BondOrder(SpatialHistogram):
 
         self.thisptr = self.histptr = new freud._environment.BondOrder(
             n_bins_theta, n_bins_phi)
-        self.r_max = r_max
-        self.num_neighbors = num_neighbors
 
     def __dealloc__(self):
         del self.thisptr
 
     @property
     def default_query_args(self):
-        return dict(mode="nearest", r_guess=self.r_max,
-                    num_neighbors=self.num_neighbors)
+        raise NotImplementedError('No default query arguments for BondOrder.')
 
     @Compute._compute()
     def accumulate(self, box, points, orientations, query_points=None,
-                   query_orientations=None, str mode="bod", nlist=None):
+                   query_orientations=None, str mode="bod", nlist=None,
+                   query_args=None):
         R"""Calculates the correlation function and adds to the current
         histogram.
 
@@ -178,7 +173,7 @@ cdef class BondOrder(SpatialHistogram):
 
         b, nq, nlistptr, qargs, l_query_points, num_query_points = \
             self.preprocess_arguments(box, points, query_points, nlist,
-                                      self.default_query_args)
+                                      query_args)
         if query_orientations is None:
             query_orientations = orientations
 
@@ -230,7 +225,8 @@ cdef class BondOrder(SpatialHistogram):
 
     @Compute._compute()
     def compute(self, box, points, orientations, query_points=None,
-                query_orientations=None, mode="bod", nlist=None):
+                query_orientations=None, mode="bod", nlist=None,
+                query_args=None):
         R"""Calculates the bond order histogram. Will overwrite the current
         histogram.
 
@@ -259,15 +255,14 @@ cdef class BondOrder(SpatialHistogram):
         """  # noqa: E501
         self.reset()
         self.accumulate(box, points, orientations,
-                        query_points, query_orientations, mode, nlist)
+                        query_points, query_orientations, mode, nlist,
+                        query_args)
         return self
 
     def __repr__(self):
-        return ("freud.environment.{cls}(r_max={r_max}, "
-                "num_neighbors={num_neighbors}, bins=({bins}))".format(
-                    cls=type(self).__name__, r_max=self.r_max,
-                    num_neighbors=self.num_neighbors,
-                    bins=', '.join([str(b) for b in self.nbins])))
+        return ("freud.environment.{cls}( bins=({bins}))".format(
+            cls=type(self).__name__,
+            bins=', '.join([str(b) for b in self.nbins])))
 
 
 cdef class LocalDescriptors(Compute):
