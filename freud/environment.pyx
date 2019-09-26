@@ -985,16 +985,9 @@ cdef class LocalBondProjection(PairCompute):
             The projection of each bond between reference particles and their
             neighbors onto each of the projection vectors.
         normed_projections ((:math:`\left(N_{reference}, N_{neighbors}, N_{projection\_vecs} \right)` :class:`numpy.ndarray`)
-            The normalized projection of each bond between reference particles
-            and their neighbors onto each of the projection vectors.
-        num_reference_particles (int):
-            The number of reference points used in the last calculation.
-        num_particles (int):
-            The number of points used in the last calculation.
-        num_proj_vectors (int):
-            The number of projection vectors used in the last calculation.
-        box (:class:`freud.box.Box`):
-            The box used in the last calculation.
+            The projection of each bond between reference particles and their
+            neighbors onto each of the projection vectors, normalized by the
+            length of the bond.
         nlist (:class:`freud.locality.NeighborList`):
             The neighbor list generated in the last calculation.
     """  # noqa: E501
@@ -1098,22 +1091,6 @@ cdef class LocalBondProjection(PairCompute):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getNormedProjections(),
             freud.util.arr_type_t.FLOAT)
-
-    @Compute._computed_property()
-    def num_points(self):
-        return self.thisptr.getNPoints()
-
-    @Compute._computed_property()
-    def num_query_points(self):
-        return self.thisptr.getNQueryPoints()
-
-    @Compute._computed_property()
-    def num_proj_vectors(self):
-        return self.thisptr.getNproj()
-
-    @Compute._computed_property()
-    def box(self):
-        return freud.box.BoxFromCPP(<freud._box.Box> self.thisptr.getBox())
 
     def __repr__(self):
         return ("freud.environment.{cls}(r_max={r_max}, "

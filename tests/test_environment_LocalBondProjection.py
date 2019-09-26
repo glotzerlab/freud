@@ -7,62 +7,6 @@ from util import make_box_and_random_points
 
 
 class TestLocalBondProjection(unittest.TestCase):
-    def test_num_points(self):
-        boxlen = 10
-        N = 500
-        num_neighbors = 8
-        r_guess = 3
-        query_args = dict(num_neighbors=num_neighbors, r_guess=r_guess)
-
-        N_query = N//3
-
-        box, points = make_box_and_random_points(boxlen, N, True)
-        _, query_points = make_box_and_random_points(boxlen, N_query, True)
-        ors = rowan.random.rand(N)
-        proj_vecs = np.asarray([[0, 0, 1]])
-
-        ang = freud.environment.LocalBondProjection(r_guess, num_neighbors)
-        ang.compute(box, proj_vecs, points, ors, query_points,
-                    neighbors=query_args)
-        self.assertEqual(ang.num_points, N)
-        self.assertEqual(ang.num_query_points, N_query)
-
-    def test_num_proj_vectors(self):
-        boxlen = 10
-        N = 500
-        num_neighbors = 8
-        r_guess = 3
-        query_args = dict(num_neighbors=num_neighbors, r_guess=r_guess)
-
-        box, points = make_box_and_random_points(boxlen, N, True)
-        ors = rowan.random.rand(N)
-        proj_vecs = np.asarray([[0, 0, 1]])
-
-        ang = freud.environment.LocalBondProjection(r_guess, num_neighbors)
-        ang.compute(box, proj_vecs, points, ors, neighbors=query_args)
-        npt.assert_equal(ang.num_proj_vectors, 1)
-
-    def test_box(self):
-        boxlen = 10
-        N = 500
-        num_neighbors = 8
-        r_guess = 3
-        query_args = dict(num_neighbors=num_neighbors, r_guess=r_guess)
-
-        box, points = make_box_and_random_points(boxlen, N)
-        ors = rowan.random.rand(N)
-        proj_vecs = np.asarray([[0, 0, 1]])
-
-        ang = freud.environment.LocalBondProjection(r_guess, num_neighbors)
-        ang.compute(box, proj_vecs, points, ors, neighbors=query_args)
-
-        npt.assert_equal(ang.box.Lx, boxlen)
-        npt.assert_equal(ang.box.Ly, boxlen)
-        npt.assert_equal(ang.box.Lz, boxlen)
-        npt.assert_equal(ang.box.xy, 0)
-        npt.assert_equal(ang.box.xz, 0)
-        npt.assert_equal(ang.box.yz, 0)
-
     def test_nlist(self):
         """Check that the internally generated NeighborList is correct."""
         boxlen = 10
@@ -106,24 +50,12 @@ class TestLocalBondProjection(unittest.TestCase):
             ang.projections
         with self.assertRaises(AttributeError):
             ang.normed_projections
-        with self.assertRaises(AttributeError):
-            ang.num_points
-        with self.assertRaises(AttributeError):
-            ang.num_points
-        with self.assertRaises(AttributeError):
-            ang.num_proj_vectors
-        with self.assertRaises(AttributeError):
-            ang.box
 
         ang.compute(box, proj_vecs, points, ors, neighbors=query_args)
 
         ang.nlist
         ang.projections
         ang.normed_projections
-        ang.num_query_points
-        ang.num_points
-        ang.num_proj_vectors
-        ang.box
 
     def test_compute(self):
         boxlen = 4

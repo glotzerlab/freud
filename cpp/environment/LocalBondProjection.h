@@ -51,26 +51,6 @@ public:
         return m_local_bond_proj_norm;
     }
 
-    unsigned int getNQueryPoints()
-    {
-        return m_n_query_points;
-    }
-
-    unsigned int getNPoints()
-    {
-        return m_n_points;
-    }
-
-    unsigned int getNproj()
-    {
-        return m_n_proj;
-    }
-
-    const box::Box& getBox() const
-    {
-        return m_box;
-    }
-
     //! Return a pointer to the NeighborList used in the last call to compute.
     locality::NeighborList *getNList()
     {

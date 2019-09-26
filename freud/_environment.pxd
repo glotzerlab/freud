@@ -127,8 +127,4 @@ cdef extern from "LocalBondProjection.h" namespace "freud::environment":
 
         const freud.util.ManagedArray[float] &getProjections()
         const freud.util.ManagedArray[float] &getNormedProjections()
-        unsigned int getNPoints()
-        unsigned int getNQueryPoints()
-        unsigned int getNproj()
-        const freud._box.Box & getBox() const
         freud._locality.NeighborList * getNList()
