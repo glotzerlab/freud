@@ -65,6 +65,16 @@ class TestBox(unittest.TestCase):
         npt.assert_allclose(box.xz, 2, rtol=1e-6)
         npt.assert_allclose(box.yz, 3, rtol=1e-6)
 
+    def test_set_tilt_factor(self):
+        box = freud.box.Box(2, 2, 2, 1, 2, 3)
+        box.xy = 4
+        box.xz = 5
+        box.yz = 6
+
+        npt.assert_allclose(box.xy, 4, rtol=1e-6)
+        npt.assert_allclose(box.xz, 5, rtol=1e-6)
+        npt.assert_allclose(box.yz, 6, rtol=1e-6)
+
     def test_box_volume(self):
         box3d = freud.box.Box(2, 2, 2, 1, 0, 0)
         box2d = freud.box.Box(2, 2, 0, 0, 0, 0, is2D=True)
