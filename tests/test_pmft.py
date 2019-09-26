@@ -634,7 +634,7 @@ class TestPMFTXY2D(unittest.TestCase):
         angles = np.zeros(points.shape[0])
         max_width = 3
         nbins = 3
-        pmft = freud.pmft.PMFTXY2D(max_width, max_width, nbins, nbins)
+        pmft = freud.pmft.PMFTXY2D(max_width, max_width, nbins)
         with self.assertRaises(ValueError):
             pmft.compute(box, points, angles,
                          query_args={'mode': 'nearest', 'num_neighbors': 1})
