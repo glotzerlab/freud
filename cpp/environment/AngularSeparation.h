@@ -73,8 +73,15 @@ public:
         return m_angles;
     }
 
+    //! Return a pointer to the NeighborList used in the last call to compute.
+    locality::NeighborList *getNList()
+    {
+        return &m_nlist;
+    }
+
 protected:
     util::ManagedArray<float> m_angles;  //!< neighbor angle array computed
+    locality::NeighborList m_nlist; //!< The NeighborList used in the last call to compute.
 };
 
 }; }; // end namespace freud::environment

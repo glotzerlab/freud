@@ -114,6 +114,7 @@ cdef extern from "AngularSeparation.h" namespace "freud::environment":
             const freud._locality.NeighborList*,
             freud._locality.QueryArgs) except +
         const freud.util.ManagedArray[float] &getAngles()
+        freud._locality.NeighborList * getNList()
 
 cdef extern from "LocalBondProjection.h" namespace "freud::environment":
     cdef cppclass LocalBondProjection:

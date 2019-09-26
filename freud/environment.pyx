@@ -788,21 +788,12 @@ cdef class AngularSeparationNeighbor(PairCompute):
             are stored in the order of the neighborlist object.
     """  # noqa: E501
     cdef freud._environment.AngularSeparationNeighbor * thisptr
-    cdef unsigned int num_neighbors
-    cdef float r_max
-    cdef freud.locality.NeighborList nlist_
 
-    def __cinit__(self, float r_max, unsigned int num_neighbors):
+    def __cinit__(self):
         self.thisptr = new freud._environment.AngularSeparationNeighbor()
-        self.r_max = r_max
-        self.num_neighbors = num_neighbors
 
     def __dealloc__(self):
         del self.thisptr
-
-    @property
-    def nlist(self):
-        return self.nlist_
 
     @Compute._compute()
     def compute(self, box, points, orientations, query_points=None,
@@ -884,8 +875,12 @@ cdef class AngularSeparationNeighbor(PairCompute):
             freud.util.arr_type_t.FLOAT)
 
     def __repr__(self):
-        return "freud.environment.{cls}(r_max={r}, num_neighbors={n})".format(
-            cls=type(self).__name__, r=self.r_max, n=self.num_neighbors)
+        return "freud.environment.{cls}()".format(
+            cls=type(self).__name__)
+
+    @Compute._computed_property()
+    def nlist(self):
+        return freud.locality.nlist_from_cnlist(self.thisptr.getNList())
 
 
 cdef class AngularSeparationGlobal(Compute):
@@ -912,14 +907,9 @@ cdef class AngularSeparationGlobal(Compute):
             are stored in the order of the neighborlist object.
     """  # noqa: E501
     cdef freud._environment.AngularSeparationGlobal * thisptr
-    cdef unsigned int num_neighbors
-    cdef float r_max
-    cdef freud.locality.NeighborList nlist_
 
-    def __cinit__(self, float r_max, unsigned int num_neighbors):
+    def __cinit__(self):
         self.thisptr = new freud._environment.AngularSeparationGlobal()
-        self.r_max = r_max
-        self.num_neighbors = num_neighbors
 
     def __dealloc__(self):
         del self.thisptr
@@ -975,8 +965,8 @@ cdef class AngularSeparationGlobal(Compute):
             freud.util.arr_type_t.FLOAT)
 
     def __repr__(self):
-        return "freud.environment.{cls}(r_max={r}, num_neighbors={n})".format(
-            cls=type(self).__name__, r=self.r_max, n=self.num_neighbors)
+        return "freud.environment.{cls}()".format(
+            cls=type(self).__name__)
 
 
 cdef class LocalBondProjection(Compute):

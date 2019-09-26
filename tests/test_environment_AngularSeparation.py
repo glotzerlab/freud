@@ -9,13 +9,11 @@ class TestAngularSeparation(unittest.TestCase):
     def test_getN_global(self):
         boxlen = 10
         N = 500
-        num_neighbors = 8
-        r_max = 3
 
         box, points = make_box_and_random_points(boxlen, N, True)
         _, query_points = make_box_and_random_points(boxlen, N//3, True)
 
-        ang = freud.environment.AngularSeparationGlobal(r_max, num_neighbors)
+        ang = freud.environment.AngularSeparationGlobal()
 
         # test access
         with self.assertRaises(AttributeError):
@@ -24,17 +22,48 @@ class TestAngularSeparation(unittest.TestCase):
     def test_getN_neighbor(self):
         boxlen = 10
         N = 500
-        num_neighbors = 8
-        r_max = 3
 
         box, points = make_box_and_random_points(boxlen, N, True)
         _, query_points = make_box_and_random_points(boxlen, N//3, True)
 
-        ang = freud.environment.AngularSeparationNeighbor(r_max, num_neighbors)
+        ang = freud.environment.AngularSeparationNeighbor()
 
         # test access
         with self.assertRaises(AttributeError):
             ang.angles
+
+    def test_nlist(self):
+        """Check that the internally generated NeighborList is correct."""
+        boxlen = 4
+        num_neighbors = 1
+        r_guess = 2
+
+        box = freud.box.Box.square(boxlen)
+
+        # Create three points in a line.
+        points = np.asarray([[0, 0, 0], [1, 0, 0], [1.5, 0, 0]],
+                            dtype=np.float32)
+        # Use two separate orientations. The second orientation is a pi/3
+        # rotation from the identity quaternion
+        ors = np.asarray([[1, 0, 0, 0],
+                          [np.cos(np.pi/6), np.sin(np.pi/6), 0, 0],
+                          [np.cos(np.pi/6), np.sin(np.pi/6), 0, 0]],
+                         dtype=np.float32)
+
+        equivalent_orientations = np.asarray([[1, 0, 0, 0], [-1, 0, 0, 0]],
+                                             dtype=np.float32)
+
+        ang = freud.environment.AngularSeparationNeighbor()
+        qargs = dict(num_neighbors=num_neighbors, r_guess=r_guess,
+                     exclude_ii=True)
+        ang.compute(box, points, ors,
+                    equiv_orientations=equivalent_orientations,
+                    neighbors=qargs)
+
+        aq = freud.locality.AABBQuery(box, points)
+        nlist = aq.query(points, qargs).toNeighborList()
+
+        npt.assert_array_equal(nlist[:], ang.nlist[:])
 
     def test_compute_neighbors(self):
         boxlen = 4
@@ -56,8 +85,7 @@ class TestAngularSeparation(unittest.TestCase):
         equivalent_orientations = np.asarray([[1, 0, 0, 0], [-1, 0, 0, 0]],
                                              dtype=np.float32)
 
-        ang = freud.environment.AngularSeparationNeighbor(r_guess,
-                                                          num_neighbors)
+        ang = freud.environment.AngularSeparationNeighbor()
         ang.compute(box, points, ors,
                     equiv_orientations=equivalent_orientations,
                     neighbors=dict(num_neighbors=num_neighbors,
@@ -70,9 +98,6 @@ class TestAngularSeparation(unittest.TestCase):
         npt.assert_allclose(ang.angles[1], 0, atol=1e-6)
 
     def test_compute_global(self):
-        num_neighbors = 1
-        r_max = 2
-
         # Going to make sure that the use of equivalent_orientations captures
         # both of the global reference orientations
         global_ors = np.array([[1, 0, 0, 0], [0, 1, 0, 0]], dtype=np.float32)
@@ -89,7 +114,7 @@ class TestAngularSeparation(unittest.TestCase):
 
         ors = np.asarray(ors, dtype=np.float32)
 
-        ang = freud.environment.AngularSeparationGlobal(r_max, num_neighbors)
+        ang = freud.environment.AngularSeparationGlobal()
         ang.compute(global_ors, ors, equivalent_orientations)
 
         # Each orientation should be either equal to or pi/16 away from the
@@ -103,10 +128,10 @@ class TestAngularSeparation(unittest.TestCase):
                                     atol=1e-6)
 
     def test_repr(self):
-        ang = freud.environment.AngularSeparationGlobal(3, 12)
+        ang = freud.environment.AngularSeparationGlobal()
         self.assertEqual(str(ang), str(eval(repr(ang))))
 
-        ang = freud.environment.AngularSeparationNeighbor(3, 12)
+        ang = freud.environment.AngularSeparationNeighbor()
         self.assertEqual(str(ang), str(eval(repr(ang))))
 
 
