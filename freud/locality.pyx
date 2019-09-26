@@ -904,7 +904,7 @@ cdef class _Voronoi:
         self._nlist = NeighborList()
 
     def _qhull_compute(self, box, positions, buffer, images):
-        R"""Calls ParticleBuffer and qhull
+        R"""Calls PeriodicBuffer and qhull
 
         Args:
             box (:class:`freud.box.Box`):
@@ -920,7 +920,7 @@ cdef class _Voronoi:
                 dimension.
         """
         # Compute the buffer particles in C++
-        pbuff = freud.box.ParticleBuffer(box)
+        pbuff = freud.box.PeriodicBuffer(box)
         pbuff.compute(positions, buffer, images)
         buff_ptls = pbuff.buffer_particles
         buff_ids = pbuff.buffer_ids
@@ -934,12 +934,12 @@ cdef class _Voronoi:
             expanded_ids = np.arange(len(positions))
 
         # Use only the first two components if the box is 2D
-        if box.is2D():
+        if box.is2D:
             expanded_points = expanded_points[:, :2]
 
         expanded_points = freud.common.convert_array(
             np.atleast_2d(expanded_points),
-            shape=(None, 2 if box.is2D() else 3))
+            shape=(None, 2 if box.is2D else 3))
 
         # Use qhull to get the points
         return qvoronoi(expanded_points), expanded_ids, expanded_points
@@ -973,7 +973,7 @@ cdef class _Voronoi:
         vertices = voronoi.vertices
 
         # Add a z-component of 0 if the box is 2D
-        if b.is2D():
+        if b.is2D:
             vertices = np.insert(vertices, 2, 0, 1)
 
         # compute neighbors
@@ -1112,7 +1112,7 @@ cdef class _Voronoi:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         import freud.plot
-        if not self._box.is2D():
+        if not self._box.is2D:
             return None
         else:
             return freud.plot.voronoi_plot(self._box, self.polytopes, ax=ax)

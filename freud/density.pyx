@@ -284,7 +284,7 @@ cdef class GaussianDensity(Compute):
 
     @Compute._computed_property()
     def gaussian_density(self):
-        if self.box.is2D():
+        if self.box.is2D:
             return np.squeeze(freud.util.make_managed_numpy_array(
                 &self.thisptr.getDensity(), freud.util.arr_type_t.FLOAT))
         else:
@@ -324,7 +324,7 @@ cdef class GaussianDensity(Compute):
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         import freud.plot
-        if not self.box.is2D():
+        if not self.box.is2D:
             return None
         return freud.plot.density_plot(self.gaussian_density, self.box, ax=ax)
 
