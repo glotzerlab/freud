@@ -764,7 +764,7 @@ cdef class MatchEnv(Compute):
             return None
 
 
-cdef class AngularSeparation(Compute):
+cdef class AngularSeparationNeighbor(Compute):
     R"""Calculates the minimum angles of separation between particles and
     references.
 
@@ -787,13 +787,13 @@ cdef class AngularSeparation(Compute):
             after** :meth:`~.computeGlobal` **is called.** The angles
             are stored in the order of the neighborlist object.
     """  # noqa: E501
-    cdef freud._environment.AngularSeparation * thisptr
+    cdef freud._environment.AngularSeparationNeighbor * thisptr
     cdef unsigned int num_neighbors
     cdef float r_max
     cdef freud.locality.NeighborList nlist_
 
     def __cinit__(self, float r_max, unsigned int num_neighbors):
-        self.thisptr = new freud._environment.AngularSeparation()
+        self.thisptr = new freud._environment.AngularSeparationNeighbor()
         self.r_max = r_max
         self.num_neighbors = num_neighbors
 
@@ -804,11 +804,11 @@ cdef class AngularSeparation(Compute):
     def nlist(self):
         return self.nlist_
 
-    @Compute._compute("computeNeighbor")
-    def computeNeighbor(self, box, points, orientations, query_points=None,
-                        query_orientations=None,
-                        equiv_orientations=np.array([[1, 0, 0, 0]]),
-                        nlist=None):
+    @Compute._compute()
+    def compute(self, box, points, orientations, query_points=None,
+                query_orientations=None,
+                equiv_orientations=np.array([[1, 0, 0, 0]]),
+                nlist=None):
         R"""Calculates the minimum angles of separation between :code:`orientations`
         and :code:`query_orientations`, checking for underlying symmetry as encoded
         in :code:`equiv_orientations`. The result is stored in the :code:`neighbor_angles`
@@ -870,7 +870,7 @@ cdef class AngularSeparation(Compute):
         cdef unsigned int n_query_points = l_query_orientations.shape[0]
         cdef unsigned int n_equiv_orientations = l_equiv_orientations.shape[0]
 
-        self.thisptr.computeNeighbor(
+        self.thisptr.compute(
             <quat[float]*> &l_orientations[0, 0],
             n_points,
             <quat[float]*> &l_query_orientations[0, 0],
@@ -880,9 +880,56 @@ cdef class AngularSeparation(Compute):
             self.nlist_.get_ptr(),)
         return self
 
-    @Compute._compute("computeGlobal")
-    def computeGlobal(self, global_orientations,
-                      orientations, equiv_orientations):
+    @Compute._computed_property()
+    def angles(self):
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getAngles(),
+            freud.util.arr_type_t.FLOAT)
+
+    def __repr__(self):
+        return "freud.environment.{cls}(r_max={r}, num_neighbors={n})".format(
+            cls=type(self).__name__, r=self.r_max, n=self.num_neighbors)
+
+
+cdef class AngularSeparationGlobal(Compute):
+    R"""Calculates the minimum angles of separation between particles and
+    references.
+
+    Args:
+        r_max (float):
+            Cutoff radius for cell list and clustering algorithm. Values near
+            the first minimum of the RDF are recommended.
+        num_neighbors (int):
+            The number of neighbors.
+
+    Attributes:
+        nlist (:class:`freud.locality.NeighborList`):
+            The neighbor list.
+        neighbor_angles (:math:`\left(N_{bonds}\right)` :class:`numpy.ndarray`):
+            The neighbor angles in radians. **This field is only populated
+            after** :meth:`~.computeNeighbor` **is called.** The angles
+            are stored in the order of the neighborlist object.
+        global_angles (:math:`\left(N_{particles}, N_{global} \right)` :class:`numpy.ndarray`):
+            The global angles in radians. **This field is only populated
+            after** :meth:`~.computeGlobal` **is called.** The angles
+            are stored in the order of the neighborlist object.
+    """  # noqa: E501
+    cdef freud._environment.AngularSeparationGlobal * thisptr
+    cdef unsigned int num_neighbors
+    cdef float r_max
+    cdef freud.locality.NeighborList nlist_
+
+    def __cinit__(self, float r_max, unsigned int num_neighbors):
+        self.thisptr = new freud._environment.AngularSeparationGlobal()
+        self.r_max = r_max
+        self.num_neighbors = num_neighbors
+
+    def __dealloc__(self):
+        del self.thisptr
+
+    @Compute._compute()
+    def compute(self, global_orientations,
+                orientations, equiv_orientations):
         R"""Calculates the minimum angles of separation between
         :code:`global_orientations` and :code:`orientations`, checking for underlying symmetry as
         encoded in :code:`equiv_orientations`. The result is stored in the
@@ -915,7 +962,7 @@ cdef class AngularSeparation(Compute):
         cdef unsigned int n_points = l_orientations.shape[0]
         cdef unsigned int n_equiv_orientations = l_equiv_orientations.shape[0]
 
-        self.thisptr.computeGlobal(
+        self.thisptr.compute(
             <quat[float]*> &l_global_orientations[0, 0],
             n_global,
             <quat[float]*> &l_orientations[0, 0],
@@ -924,16 +971,10 @@ cdef class AngularSeparation(Compute):
             n_equiv_orientations)
         return self
 
-    @Compute._computed_property("computeNeighbor")
-    def neighbor_angles(self):
+    @Compute._computed_property()
+    def angles(self):
         return freud.util.make_managed_numpy_array(
-            &self.thisptr.getNeighborAngles(),
-            freud.util.arr_type_t.FLOAT)
-
-    @Compute._computed_property("computeGlobal")
-    def global_angles(self):
-        return freud.util.make_managed_numpy_array(
-            &self.thisptr.getGlobalAngles(),
+            &self.thisptr.getAngles(),
             freud.util.arr_type_t.FLOAT)
 
     def __repr__(self):

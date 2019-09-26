@@ -93,21 +93,24 @@ cdef extern from "MatchEnv.h" namespace "freud::environment":
         unsigned int getMaxNumNeighbors()
 
 cdef extern from "AngularSeparation.h" namespace "freud::environment":
-    cdef cppclass AngularSeparation:
-        AngularSeparation()
-        void computeNeighbor(
+    cdef cppclass AngularSeparationGlobal:
+        AngularSeparationGlobal()
+        void compute(quat[float]*,
+                     unsigned int,
+                     quat[float]*,
+                     unsigned int,
+                     quat[float]*,
+                     unsigned int) except +
+        const freud.util.ManagedArray[float] &getAngles()
+
+    cdef cppclass AngularSeparationNeighbor:
+        AngularSeparationNeighbor()
+        void compute(
             quat[float]*, unsigned int,
             quat[float]*, unsigned int,
             quat[float]*, unsigned int,
             const freud._locality.NeighborList*) except +
-        void computeGlobal(quat[float]*,
-                           unsigned int,
-                           quat[float]*,
-                           unsigned int,
-                           quat[float]*,
-                           unsigned int) except +
-        const freud.util.ManagedArray[float] &getNeighborAngles()
-        const freud.util.ManagedArray[float] &getGlobalAngles()
+        const freud.util.ManagedArray[float] &getAngles()
 
 cdef extern from "LocalBondProjection.h" namespace "freud::environment":
     cdef cppclass LocalBondProjection:

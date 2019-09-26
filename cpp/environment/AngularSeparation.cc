@@ -15,10 +15,6 @@
 
 namespace freud { namespace environment {
 
-AngularSeparation::AngularSeparation() {}
-
-AngularSeparation::~AngularSeparation() {}
-
 float computeSeparationAngle(const quat<float> ref_q, const quat<float> q)
 {
     quat<float> R = q * conj(ref_q);
@@ -42,7 +38,7 @@ float computeMinSeparationAngle(const quat<float> ref_q, const quat<float> q, co
     float min_angle = computeSeparationAngle(ref_q, q);
 
     // loop through all equivalent rotations and see if they have smaller angles with ref_q
-    for (unsigned int i = 0; i < n_equiv_quats; i++)
+    for (unsigned int i = 1; i < n_equiv_quats; ++i)
     {
         quat<float> qe = equiv_qs[i];
         quat<float> qtest = qtemp * qe;
@@ -59,18 +55,16 @@ float computeMinSeparationAngle(const quat<float> ref_q, const quat<float> q, co
     return min_angle;
 }
 
-void AngularSeparation::computeNeighbor(const quat<float>* orientations, unsigned int n_points,
+void AngularSeparationNeighbor::compute(const quat<float>* orientations, unsigned int n_points,
                          const quat<float>* query_orientations, unsigned int n_query_points,
                          const quat<float>* equiv_orientations, unsigned int n_equiv_orientations,
                          const freud::locality::NeighborList* nlist)
 {
     nlist->validate(n_query_points, n_points);
 
-    // Get the maximum total number of bonds in the neighbor list
     const size_t tot_num_neigh = nlist->getNumBonds();
-    m_neighbor_angles.prepare(tot_num_neigh);
+    m_angles.prepare(tot_num_neigh);
 
-    // compute the order parameter
     util::forLoopWrapper(0, n_points, [=](size_t begin, size_t end) {
         size_t bond(nlist->find_first_index(begin));
         for (size_t i = begin; i < end; ++i)
@@ -83,19 +77,18 @@ void AngularSeparation::computeNeighbor(const quat<float>* orientations, unsigne
                 quat<float> query_q = query_orientations[j];
 
                 float theta = computeMinSeparationAngle(q, query_q, equiv_orientations, n_equiv_orientations);
-                m_neighbor_angles[bond] = theta;
+                m_angles[bond] = theta;
             }
         }
     });
 }
 
-void AngularSeparation::computeGlobal(const quat<float>* global_orientations, unsigned int n_global,
+void AngularSeparationGlobal::compute(const quat<float>* global_orientations, unsigned int n_global,
                        const quat<float>* orientations, unsigned int n_points,
                        const quat<float>* equiv_orientations, unsigned int n_equiv_orientations)
 {
-    m_global_angles.prepare({n_points, n_global});
+    m_angles.prepare({n_points, n_global});
 
-    // compute the order parameter
     util::forLoopWrapper(0, n_points, [=](size_t begin, size_t end) {
         for (size_t i = begin; i < end; ++i)
         {
@@ -104,7 +97,7 @@ void AngularSeparation::computeGlobal(const quat<float>* global_orientations, un
             {
                 quat<float> global_q = global_orientations[j];
                 float theta = computeMinSeparationAngle(q, global_q, equiv_orientations, n_equiv_orientations);
-                m_global_angles(i, j) = theta;
+                m_angles(i, j) = theta;
             }
         }
     });
