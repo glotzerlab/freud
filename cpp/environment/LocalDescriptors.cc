@@ -14,7 +14,7 @@
 namespace freud { namespace environment {
 
 LocalDescriptors::LocalDescriptors(unsigned int l_max, bool negative_m)
-    : m_l_max(l_max), m_negative_m(negative_m), m_n_points(0), m_nSphs(0)
+    : m_l_max(l_max), m_negative_m(negative_m), m_nSphs(0)
 {}
 
 void LocalDescriptors::compute(const locality::NeighborQuery *nq,
@@ -125,7 +125,6 @@ void LocalDescriptors::compute(const locality::NeighborQuery *nq,
     });
 
     // save the last computed number of particles
-    m_n_points = nq->getNPoints();
     m_nSphs = m_nlist.getNumBonds();
 }
 

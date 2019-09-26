@@ -96,8 +96,6 @@ class TestLocalDescriptors(unittest.TestCase):
         with self.assertRaises(AttributeError):
             comp.sph
         with self.assertRaises(AttributeError):
-            comp.num_particles
-        with self.assertRaises(AttributeError):
             comp.num_sphs
 
         comp.compute(box, positions, neighbors={'num_neighbors':
@@ -105,14 +103,9 @@ class TestLocalDescriptors(unittest.TestCase):
 
         # Test access
         comp.sph
-        comp.num_particles
         comp.num_sphs
 
         self.assertEqual(comp.sph.shape[0], N*num_neighbors)
-
-        self.assertEqual(comp.num_particles, positions.shape[0])
-
-        self.assertEqual(comp.num_sphs/comp.num_particles, num_neighbors)
 
         self.assertEqual(comp.l_max, l_max)
 

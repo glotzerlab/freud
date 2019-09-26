@@ -278,8 +278,6 @@ cdef class LocalDescriptors(PairCompute):
     Attributes:
         sph (:math:`\left(N_{bonds}, \text{SphWidth} \right)` :class:`numpy.ndarray`):
             A reference to the last computed spherical harmonic array.
-        num_particles (unsigned int):
-            The number of points passed to the last call to :meth:`~.compute`.
         num_sphs (unsigned int):
             The last number of spherical harmonics computed. This is equal to
             the number of bonds in the last computation, which is at most the
@@ -386,10 +384,6 @@ cdef class LocalDescriptors(PairCompute):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getSph(),
             freud.util.arr_type_t.COMPLEX_FLOAT)
-
-    @Compute._computed_property()
-    def num_particles(self):
-        return self.thisptr.getNPoints()
 
     @Compute._computed_property()
     def num_sphs(self):

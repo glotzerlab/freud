@@ -50,12 +50,6 @@ public:
         return m_l_max;
     }
 
-    //! Get the number of particles
-    unsigned int getNPoints() const
-    {
-        return m_n_points;
-    }
-
     //! Compute the local neighborhood descriptors given some
     //! positions and the number of particles
     void compute(const locality::NeighborQuery *nq,
@@ -84,7 +78,6 @@ public:
 private:
     unsigned int m_l_max;  //!< Maximum spherical harmonic l to calculate
     bool m_negative_m;    //!< true if we should compute Ylm for negative m
-    unsigned int m_n_points;  //!< Last number of points computed
     unsigned int m_nSphs; //!< Last number of bond spherical harmonics computed
     locality::NeighborList m_nlist; //!< The NeighborList used in the last call to compute.
 

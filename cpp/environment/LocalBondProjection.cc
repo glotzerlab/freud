@@ -11,8 +11,7 @@
 
 namespace freud { namespace environment {
 
-LocalBondProjection::LocalBondProjection() : m_n_query_points(0), m_n_points(0), m_n_proj(0), m_n_equiv_orientations(0), m_tot_num_neigh(0)
-{}
+LocalBondProjection::LocalBondProjection() {}
 
 LocalBondProjection::~LocalBondProjection() {}
 
@@ -97,19 +96,6 @@ void LocalBondProjection::compute(const locality::NeighborQuery *nq,
             }
         }
     });
-
-    // save the last computed box
-    m_box = nq->getBox();
-    // save the last computed number of particles
-    m_n_query_points = n_query_points;
-    // save the last computed number of reference particles
-    m_n_points = nq->getNPoints();
-    // save the last computed number of equivalent quaternions
-    m_n_equiv_orientations = n_equiv_orientations;
-    // save the last computed number of reference projection vectors
-    m_n_proj = n_proj;
-    // save the last computed number of total bonds
-    m_tot_num_neigh = tot_num_neigh;
 }
 
 }; }; // end namespace freud::environment
