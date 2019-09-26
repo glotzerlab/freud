@@ -232,8 +232,7 @@ cdef class NeighborQueryResult:
 
         cdef freud._locality.NeighborList *cnlist = dereference(
             iterator).toNeighborList()
-        cdef NeighborList nl = NeighborList()
-        nl.refer_to(cnlist)
+        cdef NeighborList nl = nlist_from_cnlist(cnlist)
         # Explicitly manage a manually created nlist so that it will be
         # deleted when the Python object is.
         nl._managed = True
@@ -430,15 +429,6 @@ cdef class NeighborList:
             &l_point_indices[0], l_num_points, &l_distances[0], &l_weights[0])
 
         return result
-
-    cdef refer_to(self, freud._locality.NeighborList * other):
-        R"""Makes this cython wrapper object point to a different C++ object,
-        deleting the one we are already holding if necessary. We do not
-        own the memory of the other C++ object."""
-        if self._managed:
-            del self.thisptr
-        self._managed = False
-        self.thisptr = other
 
     def __cinit__(self):
         self._managed = True
@@ -1026,10 +1016,7 @@ cdef class _Voronoi:
             <int*> &expanded_ids[0], <vec3[double]*> &expanded_points[0, 0],
             <int*> &ridge_vertex_indices[0])
 
-        cdef freud._locality.NeighborList * nlist
-        nlist = self.thisptr.getNeighborList()
-        self._nlist.refer_to(nlist)
-        self._nlist.base = self
+        self._nlist = nlist_from_cnlist(self.thisptr.getNeighborList())
 
         # Construct a list of polytope vertices
         self._polytopes = list()
