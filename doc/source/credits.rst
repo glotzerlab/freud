@@ -80,8 +80,10 @@ Vyas Ramasubramani - **Lead developer**
 * Debugged and added rotational autocorrelation code.
 * Added MSD module.
 * Wrote NeighborQuery, _QueryArgs, NeighborQueryResult classes.
+* Wrote neighbor iterator infrastructure.
 * Wrote PairCompute and SpatialHistogram parent classes.
-* Wrote ManagedArray classes.
+* Wrote ManagedArray class.
+* Wrote C++ histogram-related classes.
 
 Bradley Dice - **Lead developer**
 
@@ -107,6 +109,8 @@ Bradley Dice - **Lead developer**
 * Consolidated cluster module functionality.
 * Rewrote SolidLiquid order parameter class.
 * Updated AngularSeparation class.
+* Rewrote Voronoi implementation to leverage voro++.
+* Implemented Voronoi bond weighting to enable Minkowski structure metrics.
 
 Richmond Newman
 
@@ -119,8 +123,8 @@ Carl Simon Adorf
 
 Jens Glaser
 
-* Wrote kspace front-end.
-* Modified kspace module.
+* Wrote kspace front-end (since removed).
+* Modified kspace module (since removed).
 * Wrote Nematic order parameter class.
 
 Benjamin Schultz
@@ -213,6 +217,8 @@ Kelly Wang
 Yezhi Jin
 
 * Added support for 2D arrays in the Python interface to Box functions.
+* Rewrote Voronoi implementation to leverage voro++.
+* Implemented Voronoi bond weighting to enable Minkowski structure metrics.
 
 Brandon Butler
 
@@ -224,10 +230,10 @@ Jin Soo Ihm
 * Contributed to NeighborQuery classes.
 * Refactored C++ to perform neighbor queries on-the-fly.
 * Added plotting functions to analysis classes.
-* Added decorators to ensure properties have been computed.
 * Wrote RawPoints class.
-* Created Compute parent class.
+* Created Compute parent class with decorators to ensure properties have been computed.
 * Updated common array conversion logic.
+* Added many validation tests.
 
 Source code
 -----------
