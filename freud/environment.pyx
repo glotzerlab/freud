@@ -91,8 +91,6 @@ cdef class BondOrder(SpatialHistogram):
       neighbors are oriented.
 
     Args:
-        r_max (float):
-            Distance over which to calculate.
         bins (unsigned int or sequence of length 2):
             If an unsigned int, the number of bins in :math:`\theta` and
             :math:`\phi`. If a sequence of two integers, interpreted as
@@ -271,12 +269,8 @@ cdef class LocalDescriptors(PairCompute):
     harmonics for each particle will not be set.
 
     Args:
-        num_neighbors (unsigned int):
-            Maximum number of neighbors to compute descriptors for.
         l_max (unsigned int):
             Maximum spherical harmonic :math:`l` to consider.
-        r_max (float):
-            Initial guess of the maximum radius to looks for neighbors.
         negative_m (bool, optional):
             True if we should also calculate :math:`Y_{lm}` for negative
             :math:`m`. (Default value = :code:`True`)
@@ -296,21 +290,20 @@ cdef class LocalDescriptors(PairCompute):
             The maximum spherical harmonic :math:`l` to calculate for.
         r_max (float):
             The cutoff radius.
+        nlist (:class:`freud.locality.NeighborList`):
+            The neighbor list from the last compute, which is generated if not
+            provided as the :code:`neighbors` argument.
     """  # noqa: E501
     cdef freud._environment.LocalDescriptors * thisptr
-    cdef num_neighbors
-    cdef r_max
     cdef negative_m
 
     known_modes = {'neighborhood': freud._environment.LocalNeighborhood,
                    'global': freud._environment.Global,
                    'particle_local': freud._environment.ParticleLocal}
 
-    def __cinit__(self, num_neighbors, l_max, r_max, negative_m=True):
+    def __cinit__(self, l_max, negative_m=True):
         self.thisptr = new freud._environment.LocalDescriptors(
             l_max, negative_m)
-        self.num_neighbors = num_neighbors
-        self.r_max = r_max
         self.negative_m = negative_m
 
     def __dealloc__(self):
@@ -407,11 +400,9 @@ cdef class LocalDescriptors(PairCompute):
         return self.thisptr.getLMax()
 
     def __repr__(self):
-        return ("freud.environment.{cls}(num_neighbors={num_neighbors}, "
-                "l_max={l_max}, r_max={r_max}, "
+        return ("freud.environment.{cls}(l_max={l_max}, "
                 "negative_m={negative_m})").format(
-                    cls=type(self).__name__, num_neighbors=self.num_neighbors,
-                    l_max=self.l_max, r_max=self.r_max,
+                    cls=type(self).__name__, l_max=self.l_max,
                     negative_m=self.negative_m)
 
 
@@ -768,24 +759,13 @@ cdef class AngularSeparationNeighbor(PairCompute):
     R"""Calculates the minimum angles of separation between particles and
     references.
 
-    Args:
-        r_max (float):
-            Cutoff radius for cell list and clustering algorithm. Values near
-            the first minimum of the RDF are recommended.
-        num_neighbors (int):
-            The number of neighbors.
-
     Attributes:
         nlist (:class:`freud.locality.NeighborList`):
-            The neighbor list.
-        neighbor_angles (:math:`\left(N_{bonds}\right)` :class:`numpy.ndarray`):
-            The neighbor angles in radians. **This field is only populated
-            after** :meth:`~.computeNeighbor` **is called.** The angles
-            are stored in the order of the neighborlist object.
-        global_angles (:math:`\left(N_{particles}, N_{global} \right)` :class:`numpy.ndarray`):
-            The global angles in radians. **This field is only populated
-            after** :meth:`~.computeGlobal` **is called.** The angles
-            are stored in the order of the neighborlist object.
+            The neighbor list from the last compute, which is generated if not
+            provided as the :code:`neighbors` argument.
+        angles (:math:`\left(N_{bonds}\right)` :class:`numpy.ndarray`):
+            The neighbor angles in radians. The angles are stored in the order
+            of the neighborlist object.
     """  # noqa: E501
     cdef freud._environment.AngularSeparationNeighbor * thisptr
 
@@ -887,24 +867,9 @@ cdef class AngularSeparationGlobal(Compute):
     R"""Calculates the minimum angles of separation between particles and
     references.
 
-    Args:
-        r_max (float):
-            Cutoff radius for cell list and clustering algorithm. Values near
-            the first minimum of the RDF are recommended.
-        num_neighbors (int):
-            The number of neighbors.
-
     Attributes:
-        nlist (:class:`freud.locality.NeighborList`):
-            The neighbor list.
-        neighbor_angles (:math:`\left(N_{bonds}\right)` :class:`numpy.ndarray`):
-            The neighbor angles in radians. **This field is only populated
-            after** :meth:`~.computeNeighbor` **is called.** The angles
-            are stored in the order of the neighborlist object.
-        global_angles (:math:`\left(N_{particles}, N_{global} \right)` :class:`numpy.ndarray`):
-            The global angles in radians. **This field is only populated
-            after** :meth:`~.computeGlobal` **is called.** The angles
-            are stored in the order of the neighborlist object.
+        angles (:math:`\left(N_{bonds}\right)` :class:`numpy.ndarray`):
+            The global angles in radians.
     """  # noqa: E501
     cdef freud._environment.AngularSeparationGlobal * thisptr
 
@@ -921,7 +886,6 @@ cdef class AngularSeparationGlobal(Compute):
         :code:`global_orientations` and :code:`orientations`, checking for underlying symmetry as
         encoded in :code:`equiv_orientations`. The result is stored in the
         :code:`global_angles` class attribute.
-
 
         Args:
             global_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
@@ -974,12 +938,6 @@ cdef class LocalBondProjection(PairCompute):
     particle onto some set of reference vectors, defined in the particles'
     local reference frame.
 
-    Args:
-        r_max (float):
-            Cutoff radius.
-        num_neighbors (unsigned int):
-            The number of neighbors.
-
     Attributes:
         projections ((:math:`\left(N_{reference}, N_{neighbors}, N_{projection\_vecs} \right)` :class:`numpy.ndarray`):
             The projection of each bond between reference particles and their
@@ -989,17 +947,14 @@ cdef class LocalBondProjection(PairCompute):
             neighbors onto each of the projection vectors, normalized by the
             length of the bond.
         nlist (:class:`freud.locality.NeighborList`):
-            The neighbor list generated in the last calculation.
+            The neighbor list from the last compute, which is generated if not
+            provided as the :code:`neighbors` argument.
     """  # noqa: E501
     cdef freud._environment.LocalBondProjection * thisptr
-    cdef float r_max
-    cdef unsigned int num_neighbors
     cdef freud.locality.NeighborList nlist_
 
-    def __cinit__(self, r_max, num_neighbors):
+    def __cinit__(self):
         self.thisptr = new freud._environment.LocalBondProjection()
-        self.r_max = r_max
-        self.num_neighbors = int(num_neighbors)
 
     def __dealloc__(self):
         del self.thisptr
@@ -1093,7 +1048,4 @@ cdef class LocalBondProjection(PairCompute):
             freud.util.arr_type_t.FLOAT)
 
     def __repr__(self):
-        return ("freud.environment.{cls}(r_max={r_max}, "
-                "num_neighbors={num_neighbors})").format(
-                    cls=type(self).__name__, r_max=self.r_max,
-                    num_neighbors=self.num_neighbors)
+        return ("freud.environment.{cls}()").format(cls=type(self).__name__)

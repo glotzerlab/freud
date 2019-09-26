@@ -22,7 +22,7 @@ class TestLocalBondProjection(unittest.TestCase):
         ors = rowan.random.rand(N)
         proj_vecs = np.asarray([[0, 0, 1]])
 
-        ang = freud.environment.LocalBondProjection(r_guess, num_neighbors)
+        ang = freud.environment.LocalBondProjection()
         ang.compute(box, proj_vecs, points, ors, query_points,
                     neighbors=query_args)
 
@@ -42,7 +42,7 @@ class TestLocalBondProjection(unittest.TestCase):
         ors = rowan.random.rand(N)
         proj_vecs = np.asarray([[0, 0, 1]])
 
-        ang = freud.environment.LocalBondProjection(r_guess, num_neighbors)
+        ang = freud.environment.LocalBondProjection()
 
         with self.assertRaises(AttributeError):
             ang.nlist
@@ -84,7 +84,7 @@ class TestLocalBondProjection(unittest.TestCase):
 
         # First have no particle symmetry
 
-        ang = freud.environment.LocalBondProjection(r_guess, num_neighbors)
+        ang = freud.environment.LocalBondProjection()
         ang.compute(box, proj_vecs, points, ors, neighbors=query_args)
 
         dnlist = freud.locality.make_default_nlist(
@@ -147,7 +147,7 @@ class TestLocalBondProjection(unittest.TestCase):
         npt.assert_allclose(ang.normed_projections[2], 1, atol=1e-6)
 
     def test_repr(self):
-        ang = freud.environment.LocalBondProjection(3.0, 8)
+        ang = freud.environment.LocalBondProjection()
         self.assertEqual(str(ang), str(eval(repr(ang))))
 
 
