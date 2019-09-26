@@ -357,6 +357,7 @@ sources_in_all = [
 extra_module_sources = dict(
     environment=[
         os.path.join("cpp", "util", "diagonalize.cc"),
+        os.path.join("cpp", "locality", "NeighborComputeFunctional.cc"),
     ],
     order=[
         os.path.join("cpp", "util", "diagonalize.cc"),

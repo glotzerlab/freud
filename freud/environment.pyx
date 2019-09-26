@@ -259,7 +259,7 @@ cdef class BondOrder(SpatialHistogram):
             bins=', '.join([str(b) for b in self.nbins])))
 
 
-cdef class LocalDescriptors(Compute):
+cdef class LocalDescriptors(PairCompute):
     R"""Compute a set of descriptors (a numerical "fingerprint") of a particle's
     local environment.
 
@@ -317,9 +317,9 @@ cdef class LocalDescriptors(Compute):
         del self.thisptr
 
     @Compute._compute()
-    def compute(self, box, unsigned int num_neighbors, points,
-                query_points=None,
-                orientations=None, mode='neighborhood', nlist=None):
+    def compute(self, box, points,
+                query_points=None, orientations=None, mode='neighborhood',
+                neighbors=None):
         R"""Calculates the local descriptors of bonds from a set of source
         points to a set of destination points.
 
@@ -345,36 +345,20 @@ cdef class LocalDescriptors(Compute):
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value = :code:`None`).
         """  # noqa: E501
-        cdef freud.box.Box b = freud.common.convert_box(box)
+        cdef:
+            freud.box.Box b
+            freud.locality.NeighborQuery nq
+            freud.locality.NlistptrWrapper nlistptr
+            freud.locality._QueryArgs qargs
+            const float[:, ::1] l_query_points
+            unsigned int num_query_points
 
-        """
-        Desired logic: If neighbors is an nlist, just pass it through. We can
-        still use preprocess_arguments, we just need to add something that says
-        whether or not to force making a NeighborList.
-        """
-
-        if mode not in self.known_modes:
-            raise RuntimeError(
-                'Unknown LocalDescriptors orientation mode: {}'.format(mode))
-
-        points = freud.common.convert_array(points, shape=(None, 3))
-
-        self.num_neighbors = num_neighbors
-
-        cdef freud.locality.NeighborList nlist_
-        nlist_ = freud.locality.make_default_nlist(
-            b, points, query_points,
-            dict(num_neighbors=self.num_neighbors, r_guess=self.r_max), nlist)
-
-        if query_points is None:
-            query_points = points
-        else:
-            query_points = freud.common.convert_array(
-                query_points, shape=(None, 3))
+        b, nq, nlistptr, qargs, l_query_points, num_query_points = \
+            self.preprocess_arguments_new(box, points, query_points, neighbors)
 
         # The l_orientations_ptr is only used for 'particle_local' mode.
         cdef const float[:, ::1] l_orientations
-        cdef quat[float]* l_orientations_ptr = NULL
+        cdef quat[float] *l_orientations_ptr = NULL
         if mode == 'particle_local':
             if orientations is None:
                 raise RuntimeError(
@@ -387,20 +371,17 @@ cdef class LocalDescriptors(Compute):
             l_orientations = orientations
             l_orientations_ptr = <quat[float]*> &l_orientations[0, 0]
 
-        cdef const float[:, ::1] l_points = points
-        cdef unsigned int n_points = l_points.shape[0]
-        cdef const float[:, ::1] l_query_points = query_points
-        cdef unsigned int n_query_points = l_query_points.shape[0]
+        if mode not in self.known_modes:
+            raise RuntimeError(
+                'Unknown LocalDescriptors orientation mode: {}'.format(mode))
         cdef freud._environment.LocalDescriptorOrientation l_mode
-
         l_mode = self.known_modes[mode]
 
         self.thisptr.compute(
-            dereference(b.thisptr), num_neighbors,
-            <vec3[float]*> &l_points[0, 0], n_points,
-            <vec3[float]*> &l_query_points[0, 0], n_query_points,
+            nq.get_ptr(),
+            <vec3[float]*> &l_query_points[0, 0], num_query_points,
             l_orientations_ptr, l_mode,
-            nlist_.get_ptr())
+            nlistptr.get_ptr(), dereference(qargs.thisptr))
         return self
 
     @Compute._computed_property()

@@ -8,6 +8,7 @@
 
 #include "Box.h"
 #include "ManagedArray.h"
+#include "NeighborQuery.h"
 #include "NeighborList.h"
 #include "VectorMath.h"
 #include "fsph/src/spherical_harmonics.hpp"
@@ -57,11 +58,10 @@ public:
 
     //! Compute the local neighborhood descriptors given some
     //! positions and the number of particles
-    void compute(const box::Box& box, unsigned int num_neighbors,
-        const vec3<float>* points, unsigned int n_points,
+    void compute(const locality::NeighborQuery *nq,
         const vec3<float>* query_points, unsigned int n_query_points,
         const quat<float>* orientations, LocalDescriptorOrientation orientation,
-        const freud::locality::NeighborList* nlist);
+        const freud::locality::NeighborList* nlist, locality::QueryArgs qargs);
 
     //! Get a reference to the last computed spherical harmonic array
     util::ManagedArray<std::complex<float>> &getSph()
