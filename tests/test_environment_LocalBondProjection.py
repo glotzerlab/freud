@@ -63,6 +63,30 @@ class TestLocalBondProjection(unittest.TestCase):
         npt.assert_equal(ang.box.xz, 0)
         npt.assert_equal(ang.box.yz, 0)
 
+    def test_nlist(self):
+        """Check that the internally generated NeighborList is correct."""
+        boxlen = 10
+        N = 500
+        num_neighbors = 8
+        r_guess = 3
+        query_args = dict(num_neighbors=num_neighbors, r_guess=r_guess)
+
+        N_query = N//3
+
+        box, points = make_box_and_random_points(boxlen, N, True)
+        _, query_points = make_box_and_random_points(boxlen, N_query, True)
+        ors = rowan.random.rand(N)
+        proj_vecs = np.asarray([[0, 0, 1]])
+
+        ang = freud.environment.LocalBondProjection(r_guess, num_neighbors)
+        ang.compute(box, proj_vecs, points, ors, query_points,
+                    neighbors=query_args)
+
+        aq = freud.locality.AABBQuery(box, points)
+        nlist = aq.query(query_points, query_args).toNeighborList()
+
+        npt.assert_array_equal(nlist[:], ang.nlist[:])
+
     def test_attribute_access(self):
         boxlen = 10
         N = 100

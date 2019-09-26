@@ -1013,7 +1013,7 @@ cdef class LocalBondProjection(PairCompute):
 
     @Compute._computed_property()
     def nlist(self):
-        return self.nlist_
+        return freud.locality.nlist_from_cnlist(self.thisptr.getNList())
 
     @Compute._compute()
     def compute(self, box, proj_vecs, points,

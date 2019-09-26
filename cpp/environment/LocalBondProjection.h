@@ -71,6 +71,12 @@ public:
         return m_box;
     }
 
+    //! Return a pointer to the NeighborList used in the last call to compute.
+    locality::NeighborList *getNList()
+    {
+        return &m_nlist;
+    }
+
 private:
     box::Box m_box;               //!< Last used simulation box
     unsigned int m_n_query_points;            //!< Last number of particles computed
@@ -78,6 +84,7 @@ private:
     unsigned int m_n_proj;         //!< Last number of projection vectors used for computation
     unsigned int m_n_equiv_orientations;        //!< Last number of equivalent reference orientations used for computation
     unsigned int m_tot_num_neigh; //!< Last number of total bonds used for computation
+    locality::NeighborList m_nlist; //!< The NeighborList used in the last call to compute.
 
     util::ManagedArray<float> m_local_bond_proj;      //!< Local bond projection array computed
     util::ManagedArray<float> m_local_bond_proj_norm; //!< Normalized local bond projection array computed
