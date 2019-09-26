@@ -48,15 +48,11 @@ cdef class CorrelationFunction(SpatialHistogram1D):
     bin.
 
     .. note::
-        **2D:** :class:`freud.density.ComplexCF` properly handles 2D boxes.
-        The points must be passed in as :code:`[x, y, 0]`.
-        Failing to set z=0 will lead to undefined behavior.
-
-    .. note::
         **Self-correlation:** It is often the case that we wish to compute the
-        correlation function of a set of points with itself. If :code:`query_points`
-        is the same as :code:`points`, not provided, or :code:`None`, we
-        omit accumulating the self-correlation value in the first bin.
+        correlation function of a set of points with itself. If
+        :code:`query_points` is the same as :code:`points`, not provided, or
+        :code:`None`, we omit accumulating the self-correlation value in the
+        first bin.
 
     Args:
         bins (unsigned int):
@@ -65,7 +61,7 @@ cdef class CorrelationFunction(SpatialHistogram1D):
             Maximum pointwise distance to include in the calculation.
 
     Attributes:
-        RDF ((:math:`N_{bins}`) :class:`numpy.ndarray`):
+        correlation ((:math:`N_{bins}`) :class:`numpy.ndarray`):
             Expected (average) product of all values at a given radial
             distance.
     """  # noqa E501
