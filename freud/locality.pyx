@@ -571,7 +571,7 @@ cdef class NlistptrWrapper:
             Neighbor list or :code:`None`.
     """
 
-    def __cinit__(self, nlist):
+    def __cinit__(self, nlist=None):
         cdef NeighborList _nlist
         if nlist is not None:
             _nlist = nlist
@@ -1182,6 +1182,66 @@ cdef class PairCompute(Compute):
                     raise
                 else:
                     qargs = _QueryArgs()
+
+        if query_points is None:
+            query_points = nq.points
+        else:
+            query_points = freud.common.convert_array(
+                query_points, shape=(None, 3))
+        cdef const float[:, ::1] l_query_points = query_points
+        cdef unsigned int num_query_points = l_query_points.shape[0]
+        return (b, nq, nlistptr, qargs, l_query_points, num_query_points)
+
+    def preprocess_arguments_new(self, box, points, query_points=None,
+                                 neighbors=None, dimensions=None):
+        """Process standard compute arguments into freud's internal types by
+        calling all the required internal functions.
+
+        This function handles the preprocessing of boxes and points into
+        :class:`freud.locality.NeighborQuery` objects, the determination of how
+        to handle the NeighborList object, the creation of default query
+        arguments as needed, deciding what `query_points` are, and setting the
+        appropriate `exclude_ii` flag.
+
+        Args:
+            box (:class:`freud.box.Box`):
+                Simulation box.
+            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
+                Reference points used to calculate the RDF.
+            query_points ((:math:`N_{query_points}`, 3) :class:`numpy.ndarray`, optional):
+                Points used to calculate the RDF. Uses :code:`points` if
+                not provided or :code:`None`.
+            nlist (:class:`freud.locality.NeighborList`, optional):
+                NeighborList to use to find bonds (Default value =
+                :code:`None`).
+            query_args (dict): A dictionary of query arguments (Default value =
+                :code:`None`).
+        dimensions (int): Number of dimensions the box should be. If not None,
+            used to verify the box dimensions (Default value = :code:`None`).
+        """  # noqa E501
+        cdef freud.box.Box b = freud.common.convert_box(box, dimensions)
+        cdef NeighborQuery nq = make_default_nq(box, points)
+
+        # Resolve the two possible ways of passing neighbors (query arguments
+        # or neighbor lists) based on the type of the neighbors argument.
+        cdef NlistptrWrapper nlistptr
+        cdef _QueryArgs qargs
+
+        if type(neighbors) == NeighborList:
+            nlistptr = NlistptrWrapper(neighbors)
+            qargs = _QueryArgs()
+        elif neighbors is None or type(neighbors) == dict:
+            # The default_query_args property must raise a NotImplementedError
+            # if no query arguments were passed in and the class has no
+            # reasonable choice of defaults.
+            try:
+                query_args = self.default_query_args if neighbors is None \
+                    else neighbors.copy()
+                query_args.setdefault('exclude_ii', query_points is None)
+                qargs = _QueryArgs.from_dict(query_args)
+                nlistptr = NlistptrWrapper()
+            except NotImplementedError:
+                raise
 
         if query_points is None:
             query_points = nq.points
