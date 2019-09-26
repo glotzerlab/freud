@@ -625,6 +625,20 @@ class TestPMFTXY2D(unittest.TestCase):
              [0, 0, 0],
              [0, 0, 0]])
 
+    def test_2d_box_3d_points(self):
+        """Test that points with z != 0 fail if the box is 2D."""
+        L = 10  # Box Dimensions
+
+        box = freud.box.Box.square(L)  # Initialize Box
+        points = np.array([[0, 0, 0], [0, 1, 1]])
+        angles = np.zeros(points.shape[0])
+        max_width = 3
+        nbins = 3
+        pmft = freud.pmft.PMFTXY2D(max_width, max_width, nbins)
+        with self.assertRaises(ValueError):
+            pmft.compute(box, points, angles,
+                         query_args={'mode': 'nearest', 'num_neighbors': 1})
+
 
 class TestPMFTXYZ(unittest.TestCase):
     def test_box(self):

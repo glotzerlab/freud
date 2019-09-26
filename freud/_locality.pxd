@@ -36,8 +36,10 @@ cdef extern from "NeighborQuery.h" namespace "freud::locality":
         bool exclude_ii
 
     cdef cppclass NeighborQuery:
-        NeighborQuery()
-        NeighborQuery(const freud._box.Box &, const vec3[float]*, unsigned int)
+        NeighborQuery() except +
+        NeighborQuery(const freud._box.Box &,
+                      const vec3[float]*,
+                      unsigned int) except +
         shared_ptr[NeighborQueryIterator] query(
             const vec3[float]*, unsigned int, QueryArgs) except +
         const freud._box.Box & getBox() const
@@ -58,8 +60,10 @@ cdef extern from "NeighborQuery.h" namespace "freud::locality":
 cdef extern from "RawPoints.h" namespace "freud::locality":
 
     cdef cppclass RawPoints(NeighborQuery):
-        RawPoints()
-        RawPoints(const freud._box.Box, const vec3[float]*, unsigned int)
+        RawPoints() except +
+        RawPoints(const freud._box.Box,
+                  const vec3[float]*,
+                  unsigned int) except +
 
 cdef extern from "NeighborList.h" namespace "freud::locality":
     cdef cppclass NeighborList:
@@ -102,13 +106,11 @@ cdef extern from "LinkCell.h" namespace "freud::locality":
         unsigned int begin()
 
     cdef cppclass LinkCell(NeighborQuery):
-        LinkCell()
-        LinkCell(const freud._box.Box &, float) except +
-        LinkCell(const freud._box.Box &, float,
-                 const vec3[float]*, unsigned int) except +
-
-        setCellWidth(float) except +
-        updateBox(const freud._box.Box &) except +
+        LinkCell() except +
+        LinkCell(const freud._box.Box &,
+                 float,
+                 const vec3[float]*,
+                 unsigned int) except +
         const vec3[unsigned int] computeDimensions(
             const freud._box.Box &,
             float) const
@@ -121,12 +123,13 @@ cdef extern from "LinkCell.h" namespace "freud::locality":
             const freud._box.Box &,
             const vec3[float]*,
             unsigned int) except +
-        NeighborList * getNeighborList()
 
 cdef extern from "AABBQuery.h" namespace "freud::locality":
     cdef cppclass AABBQuery(NeighborQuery):
-        AABBQuery()
-        AABBQuery(const freud._box.Box, const vec3[float]*, unsigned int)
+        AABBQuery() except +
+        AABBQuery(const freud._box.Box,
+                  const vec3[float]*,
+                  unsigned int) except +
 
 cdef extern from "Voronoi.h" namespace "freud::locality":
     cdef cppclass Voronoi:

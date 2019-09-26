@@ -2,6 +2,7 @@
 #define BIMAP_H
 
 #include <algorithm>
+#include <cstddef> // Needed for offsetof
 #include <set>
 #include <vector>
 #include <map>
