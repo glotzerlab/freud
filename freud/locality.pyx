@@ -922,13 +922,13 @@ cdef class _Voronoi:
         # Compute the buffer particles in C++
         pbuff = freud.box.PeriodicBuffer(box)
         pbuff.compute(positions, buffer, images)
-        buff_ptls = pbuff.buffer_particles
-        buff_ids = pbuff.buffer_ids
+        buffer_points = pbuff.buffer_points
+        buffer_ids = pbuff.buffer_ids
 
-        if buff_ptls.size > 0:
-            expanded_points = np.concatenate((positions, buff_ptls))
+        if buffer_points.size > 0:
+            expanded_points = np.concatenate((positions, buffer_points))
             expanded_ids = np.concatenate((
-                np.arange(len(positions)), buff_ids))
+                np.arange(len(positions)), buffer_ids))
         else:
             expanded_points = positions
             expanded_ids = np.arange(len(positions))
