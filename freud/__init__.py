@@ -14,7 +14,7 @@ from . import parallel
 from . import pmft
 
 from .box import Box
-from .locality import AABBQuery, LinkCell
+from .locality import AABBQuery, LinkCell, NeighborList
 from .parallel import get_num_threads, set_num_threads, NumThreads
 
 # Override TBB's default autoselection. This is necessary because once the
@@ -40,6 +40,7 @@ __all__ = [
     'Box',
     'AABBQuery',
     'LinkCell',
+    'NeighborList',
     'get_num_threads',
     'set_num_threads',
     'NumThreads',
