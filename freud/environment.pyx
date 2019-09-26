@@ -97,7 +97,7 @@ cdef class BondOrder(SpatialHistogram):
             Distance over which to calculate.
         bins (unsigned int or sequence of length 2):
             If an unsigned int, the number of bins in :math:`\theta` and
-            :math:`\phi`. If a sequence of three integers, interpreted as
+            :math:`\phi`. If a sequence of two integers, interpreted as
             :code:`(num_bins_theta, num_bins_phi)`.
 
     Attributes:
