@@ -41,6 +41,12 @@ public:
         return m_sigma;
     }
 
+    //! Return the cutoff distance.
+    float getRMax() const
+    {
+        return m_r_max;
+    }
+
     //! Reset the gaussian array to all zeros
     void reset();
 

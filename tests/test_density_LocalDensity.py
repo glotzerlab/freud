@@ -26,7 +26,7 @@ class TestLD(unittest.TestCase):
             box_size, num_points)
         self.r_max = 3
         self.diameter = 1
-        self.ld = freud.density.LocalDensity(self.r_max, 1, self.diameter)
+        self.ld = freud.density.LocalDensity(self.r_max, self.diameter)
 
         # Test access
         with self.assertRaises(AttributeError):
@@ -87,13 +87,12 @@ class TestLD(unittest.TestCase):
         box = freud.box.Box.cube(10)
         points = np.array([[0, 0, 0], [1, 0, 0]])
         query_points = np.array([[0, 1, 0], [-1, -1, 0]])
-        volume = 1
         diameter = 1
         r_max = 2
 
         v_around = 4/3 * (r_max**3) * np.pi
 
-        ld = freud.density.LocalDensity(r_max, volume, diameter)
+        ld = freud.density.LocalDensity(r_max, diameter)
         ld.compute(box, points, query_points)
 
         cd0 = 2/v_around
