@@ -15,9 +15,6 @@ class TestBox(unittest.TestCase):
     def test_construct(self):
         """Test correct behavior for various constructor signatures"""
         with self.assertRaises(ValueError):
-            freud.box.Box()
-
-        with self.assertRaises(ValueError):
             freud.box.Box(0, 0)
 
         with self.assertRaises(ValueError):
@@ -34,12 +31,11 @@ class TestBox(unittest.TestCase):
     def test_get_length(self):
         box = freud.box.Box(2, 4, 5, 1, 0, 0)
 
-        npt.assert_allclose(box.Lx, 2, rtol=1e-6, err_msg="LxFail")
-        npt.assert_allclose(box.Ly, 4, rtol=1e-6, err_msg="LyFail")
-        npt.assert_allclose(box.Lz, 5, rtol=1e-6, err_msg="LzFail")
-        npt.assert_allclose(box.L, [2, 4, 5], rtol=1e-6, err_msg="LFail")
-        npt.assert_allclose(box.Linv, [0.5, 0.25, 0.2], rtol=1e-6,
-                            err_msg="LinvFail")
+        npt.assert_allclose(box.Lx, 2, rtol=1e-6)
+        npt.assert_allclose(box.Ly, 4, rtol=1e-6)
+        npt.assert_allclose(box.Lz, 5, rtol=1e-6)
+        npt.assert_allclose(box.L, [2, 4, 5], rtol=1e-6)
+        npt.assert_allclose(box.L_inv, [0.5, 0.25, 0.2], rtol=1e-6)
 
     def test_set_length(self):
         # Make sure we can change the lengths of the box after its creation
@@ -49,13 +45,12 @@ class TestBox(unittest.TestCase):
         box.Ly = 5
         box.Lz = 6
 
-        npt.assert_allclose(box.Lx, 4, rtol=1e-6, err_msg="SetLxFail")
-        npt.assert_allclose(box.Ly, 5, rtol=1e-6, err_msg="SetLyFail")
-        npt.assert_allclose(box.Lz, 6, rtol=1e-6, err_msg="SetLzFail")
+        npt.assert_allclose(box.Lx, 4, rtol=1e-6)
+        npt.assert_allclose(box.Ly, 5, rtol=1e-6)
+        npt.assert_allclose(box.Lz, 6, rtol=1e-6)
 
         box.L = [7, 8, 9]
-        npt.assert_allclose(box.L, [7, 8, 9], rtol=1e-6,
-                            err_msg="SetLFail")
+        npt.assert_allclose(box.L, [7, 8, 9], rtol=1e-6)
 
         with self.assertRaises(ValueError):
             box.L = [1, 2, 3, 4]
@@ -66,27 +61,25 @@ class TestBox(unittest.TestCase):
     def test_get_tilt_factor(self):
         box = freud.box.Box(2, 2, 2, 1, 2, 3)
 
-        npt.assert_allclose(box.xy, 1, rtol=1e-6, err_msg="TiltXYFail")
-        npt.assert_allclose(box.xz, 2, rtol=1e-6, err_msg="TiltXZFail")
-        npt.assert_allclose(box.yz, 3, rtol=1e-6, err_msg="TiltYZFail")
+        npt.assert_allclose(box.xy, 1, rtol=1e-6)
+        npt.assert_allclose(box.xz, 2, rtol=1e-6)
+        npt.assert_allclose(box.yz, 3, rtol=1e-6)
 
     def test_box_volume(self):
         box3d = freud.box.Box(2, 2, 2, 1, 0, 0)
         box2d = freud.box.Box(2, 2, 0, 0, 0, 0, is2D=True)
 
-        npt.assert_allclose(box3d.volume, 8, rtol=1e-6, err_msg="Volume3DFail")
-        npt.assert_allclose(box2d.volume, 4, rtol=1e-6, err_msg="Volume2DFail")
+        npt.assert_allclose(box3d.volume, 8, rtol=1e-6)
+        npt.assert_allclose(box2d.volume, 4, rtol=1e-6)
 
     def test_wrap_single_particle(self):
         box = freud.box.Box(2, 2, 2, 1, 0, 0)
 
         testpoints = [0, -1, -1]
-        npt.assert_allclose(box.wrap(testpoints)[0], -2, rtol=1e-6,
-                            err_msg="WrapFail")
+        npt.assert_allclose(box.wrap(testpoints)[0], -2, rtol=1e-6)
 
         testpoints = np.array(testpoints)
-        npt.assert_allclose(box.wrap(testpoints)[0], -2, rtol=1e-6,
-                            err_msg="WrapFail")
+        npt.assert_allclose(box.wrap(testpoints)[0], -2, rtol=1e-6)
 
         with self.assertRaises(ValueError):
             box.wrap([1, 2])
@@ -95,41 +88,35 @@ class TestBox(unittest.TestCase):
         box = freud.box.Box(2, 2, 2, 1, 0, 0)
 
         testpoints = [[0, -1, -1], [0, 0.5, 0]]
-        npt.assert_allclose(box.wrap(testpoints)[0, 0], -2, rtol=1e-6,
-                            err_msg="WrapFail")
+        npt.assert_allclose(box.wrap(testpoints)[0, 0], -2, rtol=1e-6)
 
         testpoints = np.array(testpoints)
-        npt.assert_allclose(box.wrap(testpoints)[0, 0], -2, rtol=1e-6,
-                            err_msg="WrapFail")
+        npt.assert_allclose(box.wrap(testpoints)[0, 0], -2, rtol=1e-6)
 
     def test_wrap_multiple_images(self):
         box = freud.box.Box(2, 2, 2, 1, 0, 0)
 
         testpoints = [[10, -5, -5], [0, 0.5, 0]]
-        npt.assert_allclose(box.wrap(testpoints)[0, 0], -2, rtol=1e-6,
-                            err_msg="WrapFail")
+        npt.assert_allclose(box.wrap(testpoints)[0, 0], -2, rtol=1e-6)
 
         testpoints = np.array(testpoints)
-        npt.assert_allclose(box.wrap(testpoints)[0, 0], -2, rtol=1e-6,
-                            err_msg="WrapFail")
+        npt.assert_allclose(box.wrap(testpoints)[0, 0], -2, rtol=1e-6)
 
     def test_unwrap(self):
         box = freud.box.Box(2, 2, 2, 1, 0, 0)
 
         testpoints = [0, -1, -1]
         imgs = [1, 0, 0]
-        npt.assert_allclose(box.unwrap(testpoints, imgs), [2, -1, -1],
-                            rtol=1e-6, err_msg="WrapFail")
+        npt.assert_allclose(
+            box.unwrap(testpoints, imgs), [2, -1, -1], rtol=1e-6)
 
         testpoints = [[0, -1, -1], [0, 0.5, 0]]
         imgs = [[1, 0, 0], [1, 1, 0]]
-        npt.assert_allclose(box.unwrap(testpoints, imgs)[0, 0], 2,
-                            rtol=1e-6, err_msg="WrapFail")
+        npt.assert_allclose(box.unwrap(testpoints, imgs)[0, 0], 2, rtol=1e-6)
 
         testpoints = np.array(testpoints)
         imgs = np.array(imgs)
-        npt.assert_allclose(box.unwrap(testpoints, imgs)[0, 0], 2,
-                            rtol=1e-6, err_msg="WrapFail")
+        npt.assert_allclose(box.unwrap(testpoints, imgs)[0, 0], 2, rtol=1e-6)
 
         with self.assertRaises(ValueError):
             box.unwrap(testpoints, imgs[..., np.newaxis])
@@ -142,51 +129,49 @@ class TestBox(unittest.TestCase):
 
         testpoints = [10, 0, 0]
         imgs = [10, 1, 2]
-        npt.assert_allclose(box.unwrap(testpoints, imgs), [20, 1, 0],
-                            rtol=1e-6, err_msg="WrapFail")
+        npt.assert_allclose(
+            box.unwrap(testpoints, imgs), [20, 1, 0], rtol=1e-6)
 
     def test_images(self):
         box = freud.box.Box(2, 2, 2, 0, 0, 0)
         testpoints = np.array([[50, 40, 30],
                                [-10, 0, 0]])
-        testimages = np.array([box.getImage(vec) for vec in testpoints])
+        testimages = np.array([box.get_images(vec) for vec in testpoints])
         npt.assert_equal(testimages,
                          np.array([[25, 20, 15],
-                                   [-5, 0, 0]]),
-                         err_msg="ImageFail")
-        testimages = box.getImage(testpoints)
+                                   [-5, 0, 0]]))
+        testimages = box.get_images(testpoints)
         npt.assert_equal(testimages,
                          np.array([[25, 20, 15],
-                                   [-5, 0, 0]]),
-                         err_msg="ImageFail")
+                                   [-5, 0, 0]]))
 
-    def test_coordinates(self):
+    def test_absolute_coordinates(self):
         box = freud.box.Box(2, 2, 2)
         f_point = np.array([[0.5, 0.25, 0.75],
                             [0, 0, 0],
                             [0.5, 0.5, 0.5]])
         point = np.array([[0, -0.5, 0.5], [-1, -1, -1], [0, 0, 0]])
 
-        testcoordinates = np.array([box.makeCoordinates(f) for f in f_point])
-        npt.assert_equal(testcoordinates, point, err_msg="CoordinatesFail")
+        testcoordinates = np.array([box.make_absolute(f) for f in f_point])
+        npt.assert_equal(testcoordinates, point)
 
-        testcoordinates = box.makeCoordinates(f_point)
+        testcoordinates = box.make_absolute(f_point)
 
-        npt.assert_equal(testcoordinates, point, err_msg="CoordinatesFail")
+        npt.assert_equal(testcoordinates, point)
 
-    def test_fraction(self):
+    def test_fractional_coordinates(self):
         box = freud.box.Box(2, 2, 2)
         f_point = np.array([[0.5, 0.25, 0.75],
                             [0, 0, 0],
                             [0.5, 0.5, 0.5]])
         point = np.array([[0, -0.5, 0.5], [-1, -1, -1], [0, 0, 0]])
 
-        testfraction = np.array([box.makeFraction(vec) for vec in point])
-        npt.assert_equal(testfraction, f_point, err_msg="FractionFail")
+        testfraction = np.array([box.make_fractional(vec) for vec in point])
+        npt.assert_equal(testfraction, f_point)
 
-        testfraction = box.makeFraction(point)
+        testfraction = box.make_fractional(point)
 
-        npt.assert_equal(testfraction, f_point, err_msg="FractionFail")
+        npt.assert_equal(testfraction, f_point)
 
     def test_vectors(self):
         """Test getting lattice vectors"""
@@ -194,15 +179,15 @@ class TestBox(unittest.TestCase):
         Lx, Ly, Lz, xy, xz, yz = b_list
         box = freud.box.Box.from_box(b_list)
         npt.assert_allclose(
-            box.getLatticeVector(0),
+            box.get_lattice_vector(0),
             [Lx, 0, 0]
         )
         npt.assert_allclose(
-            box.getLatticeVector(1),
+            box.get_lattice_vector(1),
             [xy*Ly, Ly, 0]
         )
         npt.assert_allclose(
-            box.getLatticeVector(2),
+            box.get_lattice_vector(2),
             [xz*Lz, yz*Lz, Lz]
         )
 
@@ -257,11 +242,6 @@ class TestBox(unittest.TestCase):
         box_dict = {'Lx': 2, 'Ly': 2, 'Lz': 2, 'xy': 1, 'xz': 0.5, 'yz': 0.1}
         for k in box_dict:
             npt.assert_allclose(box_dict[k], box2[k])
-
-    def test_tuple(self):
-        box = freud.box.Box(2, 2, 2, 1, 0.5, 0.1)
-        box2 = freud.box.Box.from_box(box.to_tuple())
-        self.assertEqual(box, box2)
 
     def test_from_box(self):
         """Test various methods of initializing a box"""

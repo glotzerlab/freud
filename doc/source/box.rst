@@ -8,7 +8,7 @@ Box Module
     :nosignatures:
 
     freud.box.Box
-    freud.box.ParticleBuffer
+    freud.box.PeriodicBuffer
 
 .. rubric:: Details
 
@@ -24,5 +24,5 @@ Box
 Particle Buffer
 ===============
 
-.. autoclass:: freud.box.ParticleBuffer(box)
+.. autoclass:: freud.box.PeriodicBuffer(box)
     :members: compute
