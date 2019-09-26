@@ -60,6 +60,64 @@ def make_raw_query_nlist_test_set(box, points, query_points, mode, r_max,
     return test_set
 
 
+def make_raw_query_nlist_test_set_new(box, points, query_points, mode, r_max,
+                                      num_neighbors, exclude_ii):
+    """Helper function to test multiple neighbor-finding data structures.
+
+    .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
+    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
+
+    Args:
+        box (:class:`freud.box.Box`):
+            Simulation box.
+        points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
+            Reference points used to calculate the correlation function.
+        query_points ((:math:`N_{query_points}`, 3) :class:`numpy.ndarray`, optional):
+            query_points used to calculate the correlation function.
+            Uses :code:`points` if not provided or :code:`None`.
+            (Default value = :code:`None`).
+        mode (str):
+            String indicating query mode.
+        r_max (float):
+            Maximum cutoff distance.
+        num_neighbors (int):
+            Number of nearest neighbors to include.
+        exclude_ii (bool):
+            Whether to exclude self-neighbors.
+
+    Returns:
+        tuple:
+            Contains points or :class:`freud.locality.NeighborQuery`,
+            :class:`freud.locality.NeighborList` or :code:`None`,
+            query_args :class:`dict` or :code:`None`.
+    """  # noqa: E501
+    test_set = []
+    query_args = {'mode': mode, 'exclude_ii': exclude_ii}
+    if mode == "ball":
+        query_args['r_max'] = r_max
+
+    if mode == 'nearest':
+        query_args['num_neighbors'] = num_neighbors
+        query_args['r_guess'] = r_max
+
+    test_set.append((points, query_args))
+    test_set.append((freud.locality.RawPoints(box, points), query_args))
+    test_set.append((freud.locality.AABBQuery(box, points), query_args))
+    test_set.append(
+        (freud.locality.LinkCell(box, r_max, points), query_args))
+    if mode == "ball":
+        nlist = freud.locality.make_default_nlist(
+            box, points, query_points,
+            dict(r_max=r_max, exclude_ii=exclude_ii), None)
+    if mode == "nearest":
+        nlist = freud.locality.make_default_nlist(
+            box, points, query_points,
+            dict(num_neighbors=num_neighbors, exclude_ii=exclude_ii,
+                 r_guess=r_max), None)
+    test_set.append((points, nlist))
+    return test_set
+
+
 def make_box_and_random_points(box_size, num_points, is2D=False, seed=0):
     R"""Helper function to make random points with a cubic or square box.
 
