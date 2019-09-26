@@ -12,7 +12,6 @@ beyond the limits of one periodicity of the box.
 
 import warnings
 import numpy as np
-from collections import namedtuple
 import freud.common
 
 import logging
@@ -46,13 +45,13 @@ cdef class Box:
         Ly (float, optional):
             The y-dimension length.
         Lz (float, optional):
-            The z-dimension length. (Default value = 0).
+            The z-dimension length (Default value = 0).
         xy (float, optional):
-            The xy tilt factor. (Default value = 0).
+            The xy tilt factor (Default value = 0).
         xz (float, optional):
-            The xz tilt factor. (Default value = 0).
+            The xz tilt factor (Default value = 0).
         yz (float, optional):
-            The yz tilt factor. (Default value = 0).
+            The yz tilt factor (Default value = 0).
         is2D (bool, optional):
             Whether the box is 2-dimensional. Uses :code:`Lz == 0`
             if not provided or :code:`None`. (Default value = :code:`None`)
@@ -204,17 +203,14 @@ cdef class Box:
         R"""Convert fractional coordinates into absolute coordinates.
 
         Args:
-            fractional_coordinates (:math:`\left(3\right)` or
-            :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
-                Fractional coordinates between 0 and 1 within parallelepipedal
-                box.
+            fractional_coordinates (:math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
+                Fractional coordinate vector(s), between 0 and 1 within
+                parallelepipedal box.
 
         Returns:
-            :math:`\left(3\right)` or :math:`\left(N, 3\right)`
-            :class:`numpy.ndarray`:
-                Vectors of absolute coordinates: :math:`\left(3\right)` or
-                :math:`\left(N, 3\right)`.
-        """
+            :math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
+                Absolute coordinate vector(s).
+        """  # noqa: E501
         fractions = np.asarray(fractional_coordinates)
         flatten = fractions.ndim == 1
         fractions = np.atleast_2d(fractions)
@@ -230,16 +226,13 @@ cdef class Box:
         R"""Convert absolute coordinates into fractional coordinates.
 
         Args:
-            absolute_coordinates (:math:`\left(3\right)` or
-            :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
-                Absolute coordinates.
+            absolute_coordinates (:math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
+                Absolute coordinate vector(s).
 
         Returns:
-            :math:`\left(3\right)` or :math:`\left(N, 3\right)`
-            :class:`numpy.ndarray`:
-                Fractional coordinate vectors: :math:`\left(3\right)` or
-                :math:`\left(N, 3\right)`.
-        """
+            :math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
+                Fractional coordinate vector(s).
+        """  # noqa: E501
         vecs = np.asarray(absolute_coordinates)
         flatten = vecs.ndim == 1
         vecs = np.atleast_2d(vecs)
@@ -252,18 +245,15 @@ cdef class Box:
         return np.squeeze(vecs) if flatten else vecs
 
     def get_images(self, vecs):
-        R"""Returns the images corresponding to a unwrapped vectors.
+        R"""Returns the images corresponding to unwrapped vectors.
 
         Args:
-            vecs (:math:`\left(3\right)` or :math:`\left(N, 3\right)`
-            :class:`numpy.ndarray`):
-                Coordinates of a single vector or array of :math:`N` unwrapped
-                vectors.
+            vecs (:math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
+                Coordinates of unwrapped vector(s).
 
         Returns:
-            :math:`\left(3\right)` or :math:`\left(N, 3\right)`
-            :class:`numpy.ndarray`:
-                Image index vector.
+            :math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
+                Image index vector(s).
         """  # noqa: E501
         vecs = np.asarray(vecs)
         flatten = vecs.ndim == 1
@@ -305,11 +295,11 @@ cdef class Box:
 
         Args:
             vecs (:math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
-                Single vector or array of :math:`N` vectors.
+                Unwrapped vector(s).
 
         Returns:
             :math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
-                Vectors wrapped into the box.
+                Vector(s) wrapped into the box.
         """  # noqa: E501
         vecs = np.asarray(vecs)
         flatten = vecs.ndim == 1
@@ -329,13 +319,13 @@ cdef class Box:
 
         Args:
             vecs (:math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
-                Single vector or array of :math:`N` vectors.
+                Vector(s) to be unwrapped.
             imgs (:math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
-                Single image index or array of :math:`N` image indices.
+                Image indices for vector(s).
 
         Returns:
             :math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
-                Vectors unwrapped by the image indices provided.
+                Unwrapped vector(s).
         """  # noqa: E501
         vecs = np.asarray(vecs)
         flatten = vecs.ndim == 1
@@ -488,7 +478,7 @@ cdef class Box:
                   lists like :code:`[Lx, Ly, Lz, xy, xz, yz]`,
                   dictionaries with keys
                   :code:`'Lx', 'Ly', 'Lz', 'xy', 'xz', 'yz', 'dimensions'`,
-                  namedtuples with properties
+                  objects with attributes
                   :code:`Lx, Ly, Lz, xy, xz, yz, dimensions`,
                   3x3 matrices (see :meth:`~.from_matrix()`),
                   or existing :class:`freud.box.Box` objects.
@@ -514,7 +504,7 @@ cdef class Box:
             # Handles 3x3 matrices
             return cls.from_matrix(box)
         try:
-            # Handles freud.box.Box and namedtuple
+            # Handles freud.box.Box and objects with attributes
             Lx = box.Lx
             Ly = box.Ly
             Lz = getattr(box, 'Lz', 0)
@@ -571,7 +561,7 @@ cdef class Box:
         R"""Initialize a Box instance from a box matrix.
 
         For more information and the source for this code,
-        see: http://hoomd-blue.readthedocs.io/en/stable/box.html
+        see: https://hoomd-blue.readthedocs.io/en/stable/box.html
 
         Args:
             box_matrix (array-like):
@@ -639,20 +629,19 @@ cdef BoxFromCPP(const freud._box.Box & cppbox):
 
 
 cdef class PeriodicBuffer:
-    R"""Replicates points outside the box via periodic images.
+    R"""Replicate periodic images of points inside a box.
 
     Args:
         box (:py:class:`freud.box.Box`): Simulation box.
 
     Attributes:
-        buffer_points (:math:`\left(N_{buffer}, 3\right)`
-        :class:`numpy.ndarray`):
+        buffer_points (:math:`\left(N_{buffer}, 3\right)` :class:`numpy.ndarray`):
             The buffer point positions.
         buffer_ids (:math:`\left(N_{buffer}\right)` :class:`numpy.ndarray`):
             The buffer point ids.
         buffer_box (:class:`freud.box.Box`):
             The buffer box, expanded to hold the replicated points.
-    """
+    """  # noqa: E501
 
     def __cinit__(self, box):
         cdef Box b = freud.common.convert_box(box)
