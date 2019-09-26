@@ -51,10 +51,10 @@ class TestLD(unittest.TestCase):
         """Test that LocalDensity computes the correct density at each point"""
 
         r_max = self.r_max + 0.5*self.diameter
-        test_set = util.make_raw_query_nlist_test_set(
+        test_set = util.make_raw_query_nlist_test_set_new(
             self.box, self.pos, self.pos, "ball", r_max, 0, True)
         for ts in test_set:
-            self.ld.compute(self.box, ts[0], nlist=ts[1])
+            self.ld.compute(self.box, ts[0], neighbors=ts[1])
 
             # Test access
             self.ld.density
