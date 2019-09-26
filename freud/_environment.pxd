@@ -47,6 +47,7 @@ cdef extern from "LocalDescriptors.h" namespace "freud::environment":
             const freud._locality.NeighborList*,
             freud._locality.QueryArgs) except +
         const freud.util.ManagedArray[float complex] &getSph()
+        freud._locality.NeighborList * getNList()
 
 cdef extern from "MatchEnv.h" namespace "freud::environment":
     cdef cppclass MatchEnv:

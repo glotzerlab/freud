@@ -385,6 +385,10 @@ cdef class LocalDescriptors(PairCompute):
         return self
 
     @Compute._computed_property()
+    def nlist(self):
+        return freud.locality.nlist_from_cnlist(self.thisptr.getNList())
+
+    @Compute._computed_property()
     def sph(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getSph(),

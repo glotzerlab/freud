@@ -69,9 +69,16 @@ public:
         return m_sphArray;
     }
 
+    //! Return the number of spherical harmonics that will be computed for each bond.
     unsigned int getSphWidth() const
     {
         return fsph::sphCount(m_l_max) + (m_l_max > 0 && m_negative_m ? fsph::sphCount(m_l_max - 1) : 0);
+    }
+
+    //! Return a pointer to the NeighborList used in the last call to compute.
+    locality::NeighborList *getNList()
+    {
+        return &m_nlist;
     }
 
 private:
@@ -79,6 +86,7 @@ private:
     bool m_negative_m;    //!< true if we should compute Ylm for negative m
     unsigned int m_n_points;  //!< Last number of points computed
     unsigned int m_nSphs; //!< Last number of bond spherical harmonics computed
+    locality::NeighborList m_nlist; //!< The NeighborList used in the last call to compute.
 
     //! Spherical harmonics for each neighbor
     util::ManagedArray<std::complex<float>> m_sphArray;

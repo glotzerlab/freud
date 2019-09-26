@@ -177,6 +177,27 @@ class TestLocalDescriptors(unittest.TestCase):
                          mode='particle_local_wrong',
                          neighbors=dict(num_neighbors=num_neighbors))
 
+    def test_nlist(self):
+        """Check that the internally generated NeighborList is correct."""
+        N = 1000
+        num_neighbors = 4
+        l_max = 8
+        L = 10
+
+        box, positions = make_box_and_random_points(L, N)
+        positions2 = np.random.uniform(-L/2, L/2,
+                                       size=(N//3, 3)).astype(np.float32)
+
+        comp = freud.environment.LocalDescriptors(
+            num_neighbors, l_max, .5, True)
+        qargs = {'num_neighbors': num_neighbors}
+        comp.compute(box, positions, positions2, neighbors=qargs)
+
+        aq = freud.locality.AABBQuery(box, positions)
+        nlist = aq.query(positions2, qargs).toNeighborList()
+
+        npt.assert_array_equal(nlist[:], comp.nlist[:])
+
     def test_shape_twosets(self):
         N = 1000
         num_neighbors = 4

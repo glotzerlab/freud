@@ -560,6 +560,15 @@ cdef class NeighborList:
         return self
 
 
+cdef NeighborList nlist_from_cnlist(freud._locality.NeighborList *c_nlist):
+    cdef NeighborList result
+    result = NeighborList()
+    del result.thisptr
+    result._managed = False
+    result.thisptr = c_nlist
+    return result
+
+
 cdef class NlistptrWrapper:
     R"""Wrapper class to hold :code:`freud._locality.NeighborList *`.
 
