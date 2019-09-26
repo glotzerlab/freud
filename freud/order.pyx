@@ -495,44 +495,42 @@ cdef class Steinhardt(PairCompute):
             Stores the system wide normalization of the :math:`Q_l` or
             :math:`W_l` order parameter.
     """  # noqa: E501
-    cdef freud._order.Steinhardt * stptr
-    cdef sph_l
+    cdef freud._order.Steinhardt * thisptr
+    cdef int sph_l
 
     def __cinit__(self, l, average=False, Wl=False, weighted=False):
         self.sph_l = l
-        self.stptr = new freud._order.Steinhardt(l, average, Wl, weighted)
+        self.thisptr = new freud._order.Steinhardt(l, average, Wl, weighted)
 
     def __dealloc__(self):
-        if type(self) is Steinhardt:
-            del self.stptr
-            self.stptr = NULL
+        del self.thisptr
 
     @property
     def average(self):
-        return self.stptr.isAverage()
+        return self.thisptr.isAverage()
 
     @property
     def Wl(self):
-        return self.stptr.isWl()
+        return self.thisptr.isWl()
 
     @property
     def weighted(self):
-        return self.stptr.isWeighted()
+        return self.thisptr.isWeighted()
 
     @Compute._computed_property()
     def norm(self):
-        return self.stptr.getNorm()
+        return self.thisptr.getNorm()
 
     @Compute._computed_property()
     def order(self):
         return freud.util.make_managed_numpy_array(
-            &self.stptr.getOrder(),
+            &self.thisptr.getOrder(),
             freud.util.arr_type_t.FLOAT)
 
     @Compute._computed_property()
     def Ql(self):
         return freud.util.make_managed_numpy_array(
-            &self.stptr.getQl(),
+            &self.thisptr.getQl(),
             freud.util.arr_type_t.FLOAT)
 
     @Compute._compute()
@@ -560,9 +558,9 @@ cdef class Steinhardt(PairCompute):
             self.preprocess_arguments(box, points, nlist=nlist,
                                       query_args=query_args)
 
-        self.stptr.compute(nlistptr.get_ptr(),
-                           nq.get_ptr(),
-                           dereference(qargs.thisptr))
+        self.thisptr.compute(nlistptr.get_ptr(),
+                             nq.get_ptr(),
+                             dereference(qargs.thisptr))
         return self
 
     def __repr__(self):
@@ -608,351 +606,177 @@ cdef class Steinhardt(PairCompute):
             return None
 
 
-cdef class SolLiq(Compute):
-    R"""Uses dot products of :math:`Q_{lm}` between particles for clustering.
+cdef class SolidLiquid(PairCompute):
+    R"""Identifies solid-like clusters using dot products of :math:`Q_{lm}`.
 
-    .. moduleauthor:: Richmond Newman <newmanrs@umich.edu>
+    The solid-liquid order parameter [Frenkel1995]_ uses a Steinhardt-like
+    approach to identify solid-like particles. First, a bond parameter
+    :math:`Q_l(i, j)` is computed for each neighbor bond.
+
+    If :code:`normalize_Q` is true (default), the bond parameter is given by
+    :math:`Q_l(i, j) = \frac{\sum_{m=-l}^{l} \text{Re}~Q_{lm}(i) Q_{lm}^*(j)}
+    {\sqrt{\sum_{m=-l}^{l} \lvert Q_{lm}(i) \rvert^2}
+    \sqrt{\sum_{m=-l}^{l} \lvert Q_{lm}(j) \rvert^2}}`
+
+    If :code:`normalize_Q` is false, then the denominator of the above
+    expression is left out.
+
+    Next, the bonds are filtered to keep only "solid-like" bonds with
+    :math:`Q_l(i, j)` above a cutoff value :math:`Q_{threshold}`.
+
+    If a particle has more than :math:`S_{threshold}` solid-like bonds, then
+    the particle is considered solid-like. Finally, solid-like particles are
+    clustered.
+
+    .. [tenWolde1995] ten Wolde, P. R., Ruiz-Montero, M. J., & Frenkel, D.
+       (1995).  Numerical Evidence for bcc Ordering at the Surface of a
+       Critical fcc Nucleus. Phys. Rev. Lett., 75 (2714).
+       https://doi.org/10.1103/PhysRevLett.75.2714
+
+    .. [Filion2010] Filion, L., Hermes, M., Ni, R., & Dijkstra, M. (2010).
+       Crystal nucleation of hard spheres using molecular dynamics, umbrella
+       sampling, and forward flux sampling: A comparison of simulation
+       techniques. J. Chem. Phys. 133 (244115).
+       https://doi.org/10.1063/1.3506838
 
     Args:
-        box (:class:`freud.box.Box`):
-            Simulation box.
-        r_max (float):
-            Cutoff radius for the local order parameter. Values near first
-            minimum of the RDF are recommended.
-        Qthreshold (float):
-            Value of dot product threshold when evaluating
-            :math:`Q_{lm}^*(i) Q_{lm}(j)` to determine if a neighbor pair is a
-            solid-like bond. (For :math:`l=6`, 0.7 generally good for FCC or
-            BCC structures).
-        Sthreshold (unsigned int):
-            Minimum required number of adjacent solid-link bonds for a particle
-            to be considered solid-like for clustering. (For :math:`l=6`, 6-8
-            is generally good for FCC or BCC structures).
         l (unsigned int):
-            Choose spherical harmonic :math:`Q_l`. Must be positive and even.
+            Spherical harmonic quantum number l.
+        Q_threshold (float):
+            Value of dot product threshold when evaluating
+            :math:`Q_l(i, j)` to determine if a bond is solid-like. For
+            :math:`l=6`, 0.7 is generally good for FCC or BCC structures
+            [Filion2010]_.
+        S_threshold (unsigned int):
+            Minimum required number of adjacent solid-like bonds for a particle
+            to be considered solid-like for clustering. For :math:`l=6`, 6-8
+            is generally good for FCC or BCC structures.
+        normalize_Q (bool):
+            Whether to normalize the dot product (Default value =
+            :code:`True`).
 
     Attributes:
-        box (:class:`freud.box.Box`):
-            Box used in the calculation.
-        largest_cluster_size (unsigned int):
-            The largest cluster size. Must call a compute method first.
-        cluster_sizes (unsigned int):
-            The sizes of all clusters.
-        largest_cluster_size (unsigned int):
-            The largest cluster size. Must call a compute method first.
-        Ql_mi (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
-            The last computed :math:`Q_{lmi}` for each particle.
         clusters (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The last computed set of solid-like cluster indices for each
             particle.
+        cluster_sizes (unsigned int):
+            The sizes of all clusters.
+        largest_cluster_size (unsigned int):
+            The largest cluster size.
         num_connections (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The number of connections per particle.
-        Ql_dot_ij (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
-            Reference to the qldot_ij values.
-        num_particles (unsigned int):
-            Number of particles.
-
-    .. todo:: move box to compute, this is old API
     """  # noqa: E501
-    cdef freud._order.SolLiq * thisptr
-    cdef freud.box.Box m_box
-    cdef r_max
-    cdef Qthreshold
-    cdef Sthreshold
-    cdef sph_l
+    cdef freud._order.SolidLiquid * thisptr
 
-    def __cinit__(self, box, r_max, Qthreshold,
-                  Sthreshold, l, *args, **kwargs):
-        cdef freud.box.Box b = freud.common.convert_box(box)
-        if type(self) is SolLiq:
-            self.thisptr = new freud._order.SolLiq(
-                dereference(b.thisptr), r_max, Qthreshold, Sthreshold, l)
-            self.m_box = b
-            self.r_max = r_max
-            self.Qthreshold = Qthreshold
-            self.Sthreshold = Sthreshold
-            self.sph_l = l
+    def __cinit__(self, l, Q_threshold, S_threshold, normalize_Q=True):
+        self.thisptr = new freud._order.SolidLiquid(
+            l, Q_threshold, S_threshold, normalize_Q)
 
     def __dealloc__(self):
         del self.thisptr
-        self.thisptr = NULL
 
     @Compute._compute()
-    def compute(self, points, nlist=None):
-        R"""Compute the solid-liquid order parameter.
+    def compute(self, box, points, nlist=None, query_args=None):
+        R"""Compute the order parameter.
 
         Args:
+            box (:class:`freud.box.Box`):
+                Simulation box.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate the order parameter.
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds.
                 (Default value = :code:`None`).
         """
-        points = freud.common.convert_array(points, shape=(None, 3))
+        cdef:
+            freud.box.Box b
+            freud.locality.NeighborQuery nq
+            freud.locality.NlistptrWrapper nlistptr
+            freud.locality._QueryArgs qargs
+            const float[:, ::1] l_query_points
+            unsigned int num_query_points
 
-        cdef const float[:, ::1] l_points = points
-        cdef unsigned int nP = l_points.shape[0]
+        b, nq, nlistptr, qargs, l_query_points, num_query_points = \
+            self.preprocess_arguments(box, points, nlist=nlist,
+                                      query_args=query_args)
 
-        cdef freud.locality.NeighborList nlist_
-        nlist_ = freud.locality.make_default_nlist(
-            self.m_box, points, None, dict(r_max=self.r_max), nlist)
-
-        self.thisptr.compute(nlist_.get_ptr(),
-                             <vec3[float]*> &l_points[0, 0], nP)
-        return self
-
-    @Compute._compute()
-    def computeSolLiqVariant(self, points, nlist=None):
-        R"""Compute a variant of the solid-liquid order parameter.
-
-        This variant method places a minimum threshold on the number
-        of solid-like bonds a particle must have to be considered solid-like
-        for clustering purposes.
-
-        Args:
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the order parameter.
-            nlist (:class:`freud.locality.NeighborList`, optional):
-                Neighborlist to use to find bonds.
-                (Default value = :code:`None`).
-        """
-        points = freud.common.convert_array(points, shape=(None, 3))
-
-        cdef const float[:, ::1] l_points = points
-        cdef unsigned int nP = l_points.shape[0]
-
-        cdef freud.locality.NeighborList nlist_
-        nlist_ = freud.locality.make_default_nlist(
-            self.m_box, points, None, dict(r_max=self.r_max), nlist)
-
-        self.thisptr.computeSolLiqVariant(
-            nlist_.get_ptr(), <vec3[float]*> &l_points[0, 0], nP)
-        return self
-
-    @Compute._compute()
-    def computeSolLiqNoNorm(self, points, nlist=None):
-        R"""Compute the solid-liquid order parameter without normalizing the dot
-        product.
-
-        Args:
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the order parameter.
-            nlist (:class:`freud.locality.NeighborList`, optional):
-                Neighborlist to use to find bonds.
-                (Default value = :code:`None`).
-        """
-        points = freud.common.convert_array(points, shape=(None, 3))
-
-        cdef const float[:, ::1] l_points = points
-        cdef unsigned int nP = l_points.shape[0]
-
-        cdef freud.locality.NeighborList nlist_
-        nlist_ = freud.locality.make_default_nlist(
-            self.m_box, points, None, dict(r_max=self.r_max), nlist)
-
-        self.thisptr.computeSolLiqNoNorm(
-            nlist_.get_ptr(), <vec3[float]*> &l_points[0, 0], nP)
-        return self
+        self.thisptr.compute(nlistptr.get_ptr(),
+                             nq.get_ptr(),
+                             dereference(qargs.thisptr))
 
     @property
-    def box(self):
-        return freud.box.BoxFromCPP(<freud._box.Box> self.thisptr.getBox())
+    def l(self):  # noqa: E743
+        return self.thisptr.getL()
 
-    @box.setter
-    def box(self, value):
-        cdef freud.box.Box b = freud.common.convert_box(value)
-        self.thisptr.setBox(dereference(b.thisptr))
+    @property
+    def Q_threshold(self):
+        return self.thisptr.getQThreshold()
+
+    @property
+    def S_threshold(self):
+        return self.thisptr.getSThreshold()
+
+    @property
+    def normalize_Q(self):
+        return self.thisptr.getNormalizeQ()
 
     @Compute._computed_property()
-    def largest_cluster_size(self):
-        cdef unsigned int clusterSize = self.thisptr.getLargestClusterSize()
-        return clusterSize
+    def cluster_idx(self):
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getClusterIdx(),
+            freud.util.arr_type_t.UNSIGNED_INT)
 
     @Compute._computed_property()
     def cluster_sizes(self):
-        cdef unsigned int n_clusters = self.thisptr.getNumClusters()
-        cdef const unsigned int[::1] cluster_sizes = \
-            <unsigned int[:n_clusters]> self.thisptr.getClusterSizes().data()
-        return np.asarray(cluster_sizes, dtype=np.uint32)
+        return np.asarray(self.thisptr.getClusterSizes())
 
     @Compute._computed_property()
-    def Ql_mi(self):
-        cdef unsigned int n_particles = self.thisptr.getNP()
-        cdef np.complex64_t[::1] Ql_mi = \
-            <np.complex64_t[:n_particles]> self.thisptr.getQlmi().get()
-        return np.asarray(Ql_mi, dtype=np.complex64)
-
-    @Compute._computed_property()
-    def clusters(self):
-        cdef unsigned int n_particles = self.thisptr.getNP()
-        cdef const unsigned int[::1] clusters = \
-            <unsigned int[:n_particles]> self.thisptr.getClusters().get()
-        return np.asarray(clusters, dtype=np.uint32)
+    def largest_cluster_size(self):
+        return self.thisptr.getLargestClusterSize()
 
     @Compute._computed_property()
     def num_connections(self):
-        cdef unsigned int n_particles = self.thisptr.getNP()
-        cdef const unsigned int[::1] num_connections = \
-            <unsigned int[:n_particles]> \
-            self.thisptr.getNumberOfConnections().get()
-        return np.asarray(num_connections, dtype=np.uint32)
-
-    @Compute._computed_property()
-    def Ql_dot_ij(self):
-        cdef unsigned int n_clusters = self.thisptr.getNumClusters()
-        cdef np.complex64_t[::1] Ql_dot_ij = \
-            <np.complex64_t[:n_clusters]> self.thisptr.getQldot_ij().data()
-        return np.asarray(Ql_dot_ij, dtype=np.complex64)
-
-    @Compute._computed_property()
-    def num_particles(self):
-        cdef unsigned int np = self.thisptr.getNP()
-        return np
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getNumberOfConnections(),
+            freud.util.arr_type_t.UNSIGNED_INT)
 
     def __repr__(self):
-        return ("freud.order.{cls}(box={box}, r_max={r_max}, "
-                "Qthreshold={Qthreshold}, Sthreshold={Sthreshold}, "
-                "l={sph_l})").format(cls=type(self).__name__,
-                                     box=self.m_box,
-                                     r_max=self.r_max,
-                                     Qthreshold=self.Qthreshold,
-                                     Sthreshold=self.Sthreshold,
-                                     sph_l=self.sph_l)
+        return ("freud.order.{cls}(l={sph_l}, Q_threshold={Q_threshold}, "
+                "S_threshold={S_threshold}, "
+                "normalize_Q={normalize_Q})").format(
+                    cls=type(self).__name__,
+                    sph_l=self.l,
+                    Q_threshold=self.Q_threshold,
+                    S_threshold=self.S_threshold,
+                    normalize_Q=self.normalize_Q)
 
-
-cdef class SolLiqNear(SolLiq):
-    R"""A variant of the :class:`~SolLiq` class that performs its average over nearest neighbor particles as determined by an instance of :class:`freud.locality.NeighborList`. The number of included neighbors is determined by the num_neighbors parameter to the constructor.
-
-    .. moduleauthor:: Richmond Newman <newmanrs@umich.edu>
-
-    Args:
-        box (:class:`freud.box.Box`):
-            Simulation box.
-        r_max (float):
-            Cutoff radius for the local order parameter. Values near the first
-            minimum of the RDF are recommended.
-        Qthreshold (float):
-            Value of dot product threshold when evaluating
-            :math:`Q_{lm}^*(i) Q_{lm}(j)` to determine if a neighbor pair is a
-            solid-like bond. (For :math:`l=6`, 0.7 generally good for FCC or
-            BCC structures).
-        Sthreshold (unsigned int):
-            Minimum required number of adjacent solid-link bonds for a particle
-            to be considered solid-like for clustering. (For :math:`l=6`, 6-8
-            is generally good for FCC or BCC structures).
-        l (unsigned int):
-            Choose spherical harmonic :math:`Q_l`. Must be positive and even.
-        num_neighbors (unsigned int, optional):
-            Number of nearest neighbors. Must be a positive number.
-            (Default value = :code:`12`).
-
-    Attributes:
-        box (:class:`freud.box.Box`):
-            Box used in the calculation.
-        largest_cluster_size (unsigned int):
-            The largest cluster size. Must call a compute method first.
-        cluster_sizes (unsigned int):
-            The sizes of all clusters.
-        largest_cluster_size (unsigned int):
-            The largest cluster size. Must call a compute method first.
-        Ql_mi (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
-            The last computed :math:`Q_{lmi}` for each particle.
-        clusters (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
-            The last computed set of solid-like cluster indices for each
-            particle.
-        num_connections (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
-            The number of connections per particle.
-        Ql_dot_ij (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
-            Reference to the qldot_ij values.
-        num_particles (unsigned int):
-            Number of particles.
-
-    .. todo:: move box to compute, this is old API
-    """  # noqa: E501
-    cdef num_neighbors
-
-    def __cinit__(self, box, r_max, Qthreshold, Sthreshold,
-                  l, num_neighbors=12):
-        cdef freud.box.Box b = freud.common.convert_box(box)
-        if type(self) is SolLiqNear:
-            self.thisptr = new freud._order.SolLiq(
-                dereference(b.thisptr), r_max, Qthreshold, Sthreshold, l)
-            self.m_box = b
-            self.r_max = r_max
-            self.Qthreshold = Qthreshold
-            self.Sthreshold = Sthreshold
-            self.sph_l = l
-            self.num_neighbors = num_neighbors
-
-    def __dealloc__(self):
-        del self.thisptr
-        self.thisptr = NULL
-
-    @Compute._compute()
-    def compute(self, points, nlist=None):
-        R"""Compute the local rotationally invariant :math:`Q_l` order
-        parameter.
+    @Compute._computed_method()
+    def plot(self, ax=None):
+        """Plot solid-like cluster distribution.
 
         Args:
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the order parameter.
-            nlist (:class:`freud.locality.NeighborList`, optional):
-                Neighborlist to use to find bonds.
-                (Default value = :code:`None`).
+            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
+                :code:`None`, make a new figure and axis.
+                (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        cdef freud.locality.NeighborList nlist_
-        nlist_ = freud.locality.make_default_nlist(
-            self.m_box, points, None, dict(num_neighbors=self.num_neighbors,
-                                           r_guess=self.r_max), nlist)
-        return SolLiq.compute(self, points, nlist_)
+        import freud.plot
+        try:
+            values, counts = np.unique(self.cluster_idx, return_counts=True)
+        except ValueError:
+            return None
+        else:
+            return freud.plot.clusters_plot(
+                values, counts, num_clusters_to_plot=10, ax=ax)
 
-    @Compute._compute()
-    def computeSolLiqVariant(self, points, nlist=None):
-        R"""Compute the local rotationally invariant :math:`Q_l` order
-        parameter.
-
-        Args:
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the order parameter.
-            nlist (:class:`freud.locality.NeighborList`, optional):
-                Neighborlist to use to find bonds.
-                (Default value = :code:`None`).
-        """
-        cdef freud.locality.NeighborList nlist_
-        nlist_ = freud.locality.make_default_nlist(
-            self.m_box, points, None, dict(num_neighbors=self.num_neighbors,
-                                           r_guess=self.r_max), nlist)
-        return SolLiq.computeSolLiqVariant(self, points, nlist_)
-
-    @Compute._compute()
-    def computeSolLiqNoNorm(self, points, nlist=None):
-        R"""Compute the local rotationally invariant :math:`Q_l` order
-        parameter.
-
-        Args:
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the order parameter.
-            nlist (:class:`freud.locality.NeighborList`, optional):
-                Neighborlist to use to find bonds.
-                (Default value = :code:`None`).
-        """
-        cdef freud.locality.NeighborList nlist_
-        nlist_ = freud.locality.make_default_nlist(
-            self.m_box, points, None, dict(num_neighbors=self.num_neighbors,
-                                           r_guess=self.r_max), nlist)
-        return SolLiq.computeSolLiqNoNorm(self, points, nlist_)
-
-    def __repr__(self):
-        return ("freud.order.{cls}(box={box}, r_max={r_max}, "
-                "Qthreshold={Qthreshold}, Sthreshold={Sthreshold}, "
-                "l={sph_l}, "
-                "num_neighbors={n})").format(cls=type(self).__name__,
-                                             box=self.m_box,
-                                             r_max=self.r_max,
-                                             Qthreshold=self.Qthreshold,
-                                             Sthreshold=self.Sthreshold,
-                                             sph_l=self.sph_l,
-                                             n=self.num_neighbors)
+    def _repr_png_(self):
+        import freud.plot
+        try:
+            return freud.plot.ax_to_bytes(self.plot())
+        except AttributeError:
+            return None
 
 
 cdef class RotationalAutocorrelation(Compute):

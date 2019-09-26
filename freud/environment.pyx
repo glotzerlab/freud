@@ -773,11 +773,12 @@ cdef class MatchEnv(Compute):
         """
         import freud.plot
         try:
-            counts = np.unique(self.clusters, return_counts=True)
+            values, counts = np.unique(self.clusters, return_counts=True)
         except ValueError:
             return None
-        return freud.plot.clusters_plot(counts[0], counts[1],
-                                        num_clusters_to_plot=10, ax=ax)
+        else:
+            return freud.plot.clusters_plot(
+                values, counts, num_clusters_to_plot=10, ax=ax)
 
     def _repr_png_(self):
         import freud.plot

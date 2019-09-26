@@ -62,7 +62,7 @@ void Steinhardt::reallocateArrays(unsigned int Np)
 void Steinhardt::compute(const freud::locality::NeighborList* nlist,
                                   const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs)
 {
-    // Allocate and zero out arrays as necessary
+    // Allocate and zero out arrays as necessary.
     reallocateArrays(points->getNPoints());
 
     // Computes the base Qlmi required for each specialized order parameter
@@ -127,7 +127,7 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
                 }
 
                 std::vector<std::complex<float>> Ylm(m_num_ms);
-                this->computeYlm(theta, phi, Ylm); // Fill up Ylm
+                computeYlm(theta, phi, Ylm); // Fill up Ylm
 
                 for (unsigned int k = 0; k < m_num_ms; ++k)
                 {
@@ -234,7 +234,7 @@ float Steinhardt::normalize()
     }
 }
 
-void Steinhardt::aggregateWl(util::ManagedArray<float> &target, util::ManagedArray<complex<float> > &source)
+void Steinhardt::aggregateWl(util::ManagedArray<float> &target, util::ManagedArray<std::complex<float> > &source)
 {
     auto wigner3jvalues = getWigner3j(m_l);
     util::forLoopWrapper(0, m_Np, [&](size_t begin, size_t end) {

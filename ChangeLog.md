@@ -31,6 +31,7 @@ and this project adheres to
 * Cluster now finds connected components of the neighbor graph (the cluster cutoff distance is given through query arguments).
 * Steinhardt uses query arguments.
 * APIs for several order parameters have been standardized.
+* SolidLiquid order parameter has been completely rewritten, fixing several bugs and simplifying its C++ code.
 
 ### Fixed
 * Steinhardt uses the ThreadStorage class and properly resets memory where needed.

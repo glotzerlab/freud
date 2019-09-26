@@ -81,29 +81,20 @@ cdef extern from "Steinhardt.h" namespace "freud::order":
         bool isWeighted()
 
 
-cdef extern from "SolLiq.h" namespace "freud::order":
-    cdef cppclass SolLiq:
-        SolLiq(const freud._box.Box &, float,
-               float, unsigned int, unsigned int) except +
-        const freud._box.Box & getBox() const
-        void setBox(const freud._box.Box)
-        void setClusteringRadius(float) except +
-        void compute(const freud._locality.NeighborList *,
-                     const vec3[float]*,
-                     unsigned int) except +
-        void computeSolLiqVariant(const freud._locality.NeighborList *,
-                                  const vec3[float]*,
-                                  unsigned int) except +
-        void computeSolLiqNoNorm(const freud._locality.NeighborList *,
-                                 const vec3[float]*,
-                                 unsigned int) except +
+cdef extern from "SolidLiquid.h" namespace "freud::order":
+    cdef cppclass SolidLiquid:
+        SolidLiquid(unsigned int, float, unsigned int, bool) except +
+        unsigned int getL()
+        float getQThreshold()
+        unsigned int getSThreshold()
+        bool getNormalizeQ()
+        void compute(const freud._locality.NeighborList*,
+                     const freud._locality.NeighborQuery*,
+                     freud._locality.QueryArgs) nogil except +
         unsigned int getLargestClusterSize()
         vector[unsigned int] getClusterSizes()
-        shared_ptr[float complex] getQlmi()
-        shared_ptr[unsigned int] getClusters()
-        shared_ptr[unsigned int] getNumberOfConnections()
-        vector[float complex] getQldot_ij()
-        unsigned int getNP()
+        const freud.util.ManagedArray[unsigned int] &getClusterIdx()
+        const freud.util.ManagedArray[unsigned int] &getNumberOfConnections()
         unsigned int getNumClusters()
 
 
