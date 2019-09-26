@@ -13,9 +13,13 @@ from . import order
 from . import parallel
 from . import pmft
 
+from .box import Box
+from .locality import AABBQuery, LinkCell
+from .parallel import get_num_threads, set_num_threads, NumThreads
+
 # Override TBB's default autoselection. This is necessary because once the
 # automatic selection runs, the user cannot change it.
-parallel.setNumThreads(0)
+set_num_threads(0)
 
 __version__ = '1.2.2'
 
@@ -33,6 +37,12 @@ __all__ = [
     'parallel',
     'pmft',
     'voronoi',
+    'Box',
+    'AABBQuery',
+    'LinkCell',
+    'get_num_threads',
+    'set_num_threads',
+    'NumThreads',
 ]
 
 __citation__ = """@misc{freud,
