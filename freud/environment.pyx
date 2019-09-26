@@ -133,8 +133,7 @@ cdef class BondOrder(SpatialHistogram):
 
     @Compute._compute()
     def accumulate(self, box, points, orientations, query_points=None,
-                   query_orientations=None, str mode="bod", nlist=None,
-                   query_args=None):
+                   query_orientations=None, str mode="bod", neighbors=None):
         R"""Calculates the correlation function and adds to the current
         histogram.
 
@@ -170,8 +169,7 @@ cdef class BondOrder(SpatialHistogram):
             unsigned int num_query_points
 
         b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(box, points, query_points, nlist,
-                                      query_args)
+            self.preprocess_arguments_new(box, points, query_points, neighbors)
         if query_orientations is None:
             query_orientations = orientations
 
@@ -223,8 +221,7 @@ cdef class BondOrder(SpatialHistogram):
 
     @Compute._compute()
     def compute(self, box, points, orientations, query_points=None,
-                query_orientations=None, mode="bod", nlist=None,
-                query_args=None):
+                query_orientations=None, mode="bod", neighbors=None):
         R"""Calculates the bond order histogram. Will overwrite the current
         histogram.
 
@@ -253,8 +250,7 @@ cdef class BondOrder(SpatialHistogram):
         """  # noqa: E501
         self.reset()
         self.accumulate(box, points, orientations,
-                        query_points, query_orientations, mode, nlist,
-                        query_args)
+                        query_points, query_orientations, mode, neighbors)
         return self
 
     def __repr__(self):
@@ -323,7 +319,7 @@ cdef class LocalDescriptors(Compute):
     @Compute._compute()
     def compute(self, box, unsigned int num_neighbors, points,
                 query_points=None,
-                orientations=None, mode='neighborhood', nlist=None):
+                orientations=None, mode='neighborhood', neighbors=None):
         R"""Calculates the local descriptors of bonds from a set of source
         points to a set of destination points.
 
@@ -350,6 +346,12 @@ cdef class LocalDescriptors(Compute):
                 NeighborList to use to find bonds (Default value = :code:`None`).
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
+
+        """
+        Desired logic: If neighbors is an nlist, just pass it through. We can
+        still use preprocess_arguments, we just need to add something that says
+        whether or not to force making a NeighborList.
+        """
 
         if mode not in self.known_modes:
             raise RuntimeError(

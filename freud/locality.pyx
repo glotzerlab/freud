@@ -586,6 +586,13 @@ cdef class NlistptrWrapper:
 def make_default_nq(box, points):
     R"""Helper function to return a NeighborQuery object.
 
+    Currently the resolution for NeighborQuery objects is such that if Python
+    users pass in a numpy array of points and a box, we always make a RawPoints
+    object. On the C++ side, the RawPoints object internally constructs an
+    AABBQuery object to find neighbors if needed. On the Python side, making
+    the RawPoints object is just so that compute functions on the C++ side
+    don't require overloads to work.
+
     Args:
         box (:class:`freud.box.Box`):
             Simulation box.

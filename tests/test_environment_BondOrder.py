@@ -25,7 +25,7 @@ class TestBondOrder(unittest.TestCase):
         # Test that there are exactly 12 non-zero bins for a perfect FCC
         # structure.
         bo.compute(box, positions, quats,
-                   query_args={'num_neighbors': num_neighbors, 'r_max': r_max})
+                   neighbors={'num_neighbors': num_neighbors, 'r_max': r_max})
         op_value = bo.bond_order.copy()
         self.assertEqual(np.sum(op_value > 0), 12)
 
@@ -52,7 +52,7 @@ class TestBondOrder(unittest.TestCase):
         with self.assertRaises(AttributeError):
             bo.bond_order
 
-        test_set = util.make_raw_query_nlist_test_set(
+        test_set = util.make_raw_query_nlist_test_set_new(
             box, positions, positions, "nearest", r_max, num_neighbors, True)
         for ts in test_set:
             bo.reset()
@@ -60,8 +60,7 @@ class TestBondOrder(unittest.TestCase):
             # same.
             #TODO: Find a way to test a rotated system to ensure that lbod gives  # noqa
             # the desired results.
-            bo.accumulate(box, ts[0], quats, mode='lbod', nlist=ts[1],
-                          query_args=ts[2])
+            bo.accumulate(box, ts[0], quats, mode='lbod', neighbors=ts[1])
             self.assertTrue(np.allclose(bo.bond_order, op_value))
 
             # Test access
@@ -70,35 +69,31 @@ class TestBondOrder(unittest.TestCase):
 
             # Test that obcd gives identical results when orientations are the
             # same.
-            bo.compute(box, ts[0], quats, mode='obcd', nlist=ts[1],
-                       query_args=ts[2])
+            bo.compute(box, ts[0], quats, mode='obcd', neighbors=ts[1])
             self.assertTrue(np.allclose(bo.bond_order, op_value))
 
             # Test that normal bod looks ordered for randomized orientations.
             np.random.seed(10893)
             random_quats = rowan.random.rand(len(positions))
-            bo.compute(box, ts[0], random_quats, nlist=ts[1], query_args=ts[2])
+            bo.compute(box, ts[0], random_quats, neighbors=ts[1])
             self.assertTrue(np.allclose(bo.bond_order, op_value))
 
             # Ensure that obcd looks random for the randomized orientations.
-            bo.compute(box, ts[0], random_quats, mode='obcd', nlist=ts[1],
-                       query_args=ts[2])
+            bo.compute(box, ts[0], random_quats, mode='obcd', neighbors=ts[1])
             self.assertTrue(not np.allclose(bo.bond_order, op_value))
             self.assertEqual(np.sum(bo.bond_order > 0), bo.bond_order.size)
 
             # Test that oocd shows exactly one peak when all orientations
             # are the same.
             bo.reset()
-            bo.accumulate(box, ts[0], quats, mode='oocd', nlist=ts[1],
-                          query_args=ts[2])
+            bo.accumulate(box, ts[0], quats, mode='oocd', neighbors=ts[1])
             self.assertEqual(np.sum(bo.bond_order > 0), 1)
             self.assertTrue(bo.bond_order[0, 0] > 0)
 
             # Test that oocd is highly disordered with random quaternions. In
             # practice, the edge bins may still not get any values, so just
             # check that we get a lot of values.
-            bo.compute(box, ts[0], random_quats, mode='oocd', nlist=ts[1],
-                       query_args=ts[2])
+            bo.compute(box, ts[0], random_quats, mode='oocd', neighbors=ts[1])
             self.assertGreater(np.sum(bo.bond_order > 0), 30)
 
     def test_repr(self):
@@ -118,7 +113,7 @@ class TestBondOrder(unittest.TestCase):
         num_neighbors = 12
         n_bins_theta = 30
         n_bins_phi = 2
-        test_set = util.make_raw_query_nlist_test_set(
+        test_set = util.make_raw_query_nlist_test_set_new(
             box, points, query_points, "nearest", r_max, num_neighbors, False)
         for ts in test_set:
             bod = freud.environment.BondOrder(
@@ -129,8 +124,7 @@ class TestBondOrder(unittest.TestCase):
             orientations = np.array([[1, 0, 0, 0]]*len(query_points))
 
             bod.compute(box, ts[0], ref_orientations,
-                        query_points, orientations, nlist=ts[1],
-                        query_args=ts[2])
+                        query_points, orientations, neighbors=ts[1])
 
             # we want to make sure that we get 12 nonzero places, so we can
             # test whether we are not considering neighbors between points
