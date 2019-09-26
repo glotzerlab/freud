@@ -15,8 +15,6 @@ _numThreads = 0
 def getNumThreads():
     R"""Get the number of threads for parallel computation.
 
-    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
-
     Returns:
         (int): Number of threads.
     """
@@ -26,8 +24,6 @@ def getNumThreads():
 
 def setNumThreads(nthreads=None):
     R"""Set the number of threads for parallel computation.
-
-    .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 
     Args:
         nthreads(int, optional):
@@ -46,8 +42,6 @@ def setNumThreads(nthreads=None):
 
 class NumThreads:
     R"""Context manager for managing the number of threads to use.
-
-    .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 
     Args:
         N (int, optional): Number of threads to use in this context. If

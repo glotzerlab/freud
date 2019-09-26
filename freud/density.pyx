@@ -58,8 +58,6 @@ cdef class CorrelationFunction(SpatialHistogram1D):
         is the same as :code:`points`, not provided, or :code:`None`, we
         omit accumulating the self-correlation value in the first bin.
 
-    .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
-
     Args:
         bins (unsigned int):
             The number of bins in the RDF.
@@ -229,8 +227,6 @@ cdef class GaussianDensity(Compute):
     dimensions of the image (grid) are set in the constructor, and can either
     be set equally for all dimensions or for each dimension independently.
 
-    .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
-
     Args:
         width (int or list or tuple):
             The number of bins to make the image in each direction (identical
@@ -381,8 +377,6 @@ cdef class LocalDensity(PairCompute):
         boxes. The points must be passed in as :code:`[x, y, 0]`. Failing to
         set z=0 will lead to undefined behavior.
 
-    .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
-
     Args:
         r_max (float):
             Maximum distance over which to calculate the density.
@@ -494,8 +488,6 @@ cdef class RDF(SpatialHistogram1D):
     \left( r \right)`, :code:`r_min` sets the minimum distance at which to
     calculate the :math:`g \left( r \right)`, and :code:`bins` determines the
     number of bins.
-
-    .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     .. note::
         **2D:** :class:`freud.density.RDF` properly handles 2D boxes.

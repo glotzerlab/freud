@@ -90,8 +90,6 @@ cdef class BondOrder(SpatialHistogram):
       environment of particles, indicating, on average, how a particle's
       neighbors are oriented.
 
-    .. moduleauthor:: Erin Teich <erteich@umich.edu>
-
     Args:
         r_max (float):
             Distance over which to calculate.
@@ -281,8 +279,6 @@ cdef class LocalDescriptors(Compute):
     than this number, the last one or more rows of bond spherical
     harmonics for each particle will not be set.
 
-    .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
-
     Args:
         num_neighbors (unsigned int):
             Maximum number of neighbors to compute descriptors for.
@@ -440,8 +436,6 @@ cdef class LocalDescriptors(Compute):
 cdef class MatchEnv(Compute):
     R"""Clusters particles according to whether their local environments match
     or not, according to various shape matching metrics.
-
-    .. moduleauthor:: Erin Teich <erteich@umich.edu>
 
     Args:
         box (:class:`freud.box.Box`):
@@ -792,10 +786,6 @@ cdef class AngularSeparation(Compute):
     R"""Calculates the minimum angles of separation between particles and
     references.
 
-    .. moduleauthor:: Erin Teich <erteich@umich.edu>
-    .. moduleauthor:: Andrew Karas <askaras@umich.edu>
-    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
-
     Args:
         r_max (float):
             Cutoff radius for cell list and clustering algorithm. Values near
@@ -973,8 +963,6 @@ cdef class LocalBondProjection(Compute):
     R"""Calculates the maximal projection of nearest neighbor bonds for each
     particle onto some set of reference vectors, defined in the particles'
     local reference frame.
-
-    .. moduleauthor:: Erin Teich <erteich@umich.edu>
 
     Args:
         r_max (float):

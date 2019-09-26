@@ -39,8 +39,6 @@ cdef class Cubatic(Compute):
     R"""Compute the cubatic order parameter [HajiAkbari2015]_ for a system of
     particles using simulated annealing instead of Newton-Raphson root finding.
 
-    .. moduleauthor:: Eric Harper <harperic@umich.edu>
-
     Args:
         t_initial (float):
             Starting temperature.
@@ -179,8 +177,6 @@ cdef class Cubatic(Compute):
 cdef class Nematic(Compute):
     R"""Compute the nematic order parameter for a system of particles.
 
-    .. moduleauthor:: Jens Glaser <jsglaser@umich.edu>
-
     Args:
         u (:math:`\left(3 \right)` :class:`numpy.ndarray`):
             The nematic director of a single particle in the reference state
@@ -285,9 +281,6 @@ cdef class Hexatic(PairCompute):
         boxes. The points must be passed in as :code:`[x, y, 0]`. Failing to
         set z=0 will lead to undefined behavior.
 
-    .. moduleauthor:: Eric Harper <harperic@umich.edu>
-    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
-
     Args:
         k (unsigned int, optional):
             Symmetry of order parameter. (Default value = :code:`6`).
@@ -358,9 +351,6 @@ cdef class Hexatic(PairCompute):
 
 cdef class Translational(PairCompute):
     R"""Compute the translational order parameter for each particle.
-
-    .. moduleauthor:: Wenbo Shen <shenwb@umich.edu>
-    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
 
     Args:
         k (float, optional):
@@ -465,11 +455,6 @@ cdef class Steinhardt(PairCompute):
     order parameter, where the normalization is performed by averaging the
     :math:`Q_{lm}` values over all particles before computing the order
     parameter of choice.
-
-    .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
-    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
-    .. moduleauthor:: Brandon Butler <butlerbr@umich.edu>
-    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
 
     Args:
         l (unsigned int):
@@ -789,9 +774,6 @@ cdef class RotationalAutocorrelation(Compute):
     such, the output can be treated as an order parameter measuring degrees of
     rotational (de)correlation. For analysis of a trajectory, the compute call
     needs to be done at each trajectory frame.
-
-    .. moduleauthor:: Andrew Karas <askaras@umich.edu>
-    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
 
     Args:
         l (int):

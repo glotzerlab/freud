@@ -51,9 +51,6 @@ cdef class Cluster(PairCompute):
     provided, every particle is assigned a key corresponding to its index, and
     :code:`cluster_keys` contains the particle ids present in each cluster.
 
-    .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
-    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
-
     .. note::
         **2D:** :class:`freud.cluster.Cluster` properly handles 2D boxes.
         The points must be passed in as :code:`[x, y, 0]`.
@@ -191,8 +188,6 @@ cdef class ClusterProperties(Compute):
     The :math:`3 \times 3` gyration tensor :math:`G` can be accessed with
     :code:`cluster_G` attribute.
     The tensor is symmetric for each cluster.
-
-    .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 
     Attributes:
         num_clusters (int):

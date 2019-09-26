@@ -39,8 +39,6 @@ cdef class _ManagedArrayContainer:
     :meth:`~_ManagedArrayContainer.init` method, which creates the Python copy
     of a ManagedArray provided the instance member of the underlying C++
     compute class.
-
-    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
     """
 
     def __cinit__(self, arr_type, typenum, element_size):
