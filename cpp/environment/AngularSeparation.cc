@@ -39,7 +39,7 @@ float computeMinSeparationAngle(const quat<float> ref_q, const quat<float> q, co
     float min_angle = computeSeparationAngle(ref_q, q);
 
     // loop through all equivalent rotations and see if they have smaller angles with ref_q
-    for (unsigned int i = 1; i < n_equiv_quats; ++i)
+    for (unsigned int i = 0; i < n_equiv_quats; ++i)
     {
         quat<float> qe = equiv_qs[i];
         quat<float> qtest = qtemp * qe;
@@ -64,7 +64,6 @@ void AngularSeparationNeighbor::compute(const locality::NeighborQuery *nq, const
 {
     // This function requires a NeighborList object, so we always make one and store it locally.
     m_nlist = locality::makeDefaultNlist(nq, nlist, query_points, n_query_points, qargs);
-    m_nlist.validate(n_query_points, nq->getNPoints());
 
     const size_t tot_num_neigh = m_nlist.getNumBonds();
     m_angles.prepare(tot_num_neigh);

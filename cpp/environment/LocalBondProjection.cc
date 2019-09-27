@@ -61,7 +61,6 @@ void LocalBondProjection::compute(const locality::NeighborQuery *nq,
 {
     // This function requires a NeighborList object, so we always make one and store it locally.
     m_nlist = locality::makeDefaultNlist(nq, nlist, query_points, n_query_points, qargs);
-    m_nlist.validate(n_query_points, nq->getNPoints());
 
     // Get the maximum total number of bonds in the neighbor list
     const unsigned int tot_num_neigh = m_nlist.getNumBonds();

@@ -119,8 +119,7 @@ public:
         return m_seed;
     }
 
-
-protected:
+private:
 
     //! Calculate the cubatic tensor
     /*! Implements the second line of eq. 27, the calculation of M_{\omega}.
@@ -164,7 +163,6 @@ protected:
      */
     quat<float> calcRandomQuaternion(Saru& saru, float angle_multiplier) const;
 
-private:
     float m_t_initial;         //!< Initial temperature for simulated annealing.
     float m_t_final;           //!< Final temperature for simulated annealing.
     float m_scale;             //!< Scaling factor to reduce temperature.

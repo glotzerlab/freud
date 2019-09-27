@@ -117,8 +117,8 @@ class TestLocalDescriptors(unittest.TestCase):
 
         box, positions = make_box_and_random_points(L, N)
 
-        comp = freud.environment.LocalDescriptors(l_max, True)
-        comp.compute(box, positions, mode='global',
+        comp = freud.environment.LocalDescriptors(l_max, True, 'global')
+        comp.compute(box, positions,
                      neighbors=dict(num_neighbors=num_neighbors))
 
         sphs = comp.sph
@@ -136,14 +136,15 @@ class TestLocalDescriptors(unittest.TestCase):
         orientations /= np.sqrt(np.sum(orientations**2,
                                        axis=-1))[:, np.newaxis]
 
-        comp = freud.environment.LocalDescriptors(l_max, True)
+        comp = freud.environment.LocalDescriptors(l_max, True,
+                                                  mode='particle_local')
 
         with self.assertRaises(RuntimeError):
-            comp.compute(box, positions, mode='particle_local',
+            comp.compute(box, positions,
                          neighbors=dict(num_neighbors=num_neighbors))
 
         comp.compute(box, positions,
-                     orientations=orientations, mode='particle_local',
+                     orientations=orientations,
                      neighbors=dict(num_neighbors=num_neighbors))
 
         sphs = comp.sph
@@ -152,18 +153,14 @@ class TestLocalDescriptors(unittest.TestCase):
 
     def test_unknown_modes(self):
         N = 1000
-        num_neighbors = 4
         l_max = 8
         L = 10
 
         box, positions = make_box_and_random_points(L, N)
 
-        comp = freud.environment.LocalDescriptors(l_max, True)
-
-        with self.assertRaises(RuntimeError):
-            comp.compute(box, positions,
-                         mode='particle_local_wrong',
-                         neighbors=dict(num_neighbors=num_neighbors))
+        with self.assertRaises(ValueError):
+            freud.environment.LocalDescriptors(
+                l_max, True, mode='particle_local_wrong')
 
     def test_nlist(self):
         """Check that the internally generated NeighborList is correct."""
@@ -223,8 +220,8 @@ class TestLocalDescriptors(unittest.TestCase):
             nl = lc.query(points,
                           dict(exclude_ii=True,
                                num_neighbors=num_neighbors)).toNeighborList()
-            ld = freud.environment.LocalDescriptors(l_max)
-            ld.compute(box, points, mode='global', neighbors=nl)
+            ld = freud.environment.LocalDescriptors(l_max, mode='global')
+            ld.compute(box, points, neighbors=nl)
 
             Ql = get_Ql(points, ld, nl)
 
@@ -262,8 +259,8 @@ class TestLocalDescriptors(unittest.TestCase):
             nl = lc.query(points,
                           dict(exclude_ii=True,
                                num_neighbors=num_neighbors)).toNeighborList()
-            ld = freud.environment.LocalDescriptors(l_max)
-            ld.compute(box, points, mode='global', neighbors=nl)
+            ld = freud.environment.LocalDescriptors(l_max, mode='global')
+            ld.compute(box, points, neighbors=nl)
 
             # Generate random weights for each bond
             nl = freud.locality.NeighborList.from_arrays(
@@ -309,8 +306,8 @@ class TestLocalDescriptors(unittest.TestCase):
             nl = lc.query(points,
                           dict(exclude_ii=True,
                                num_neighbors=num_neighbors)).toNeighborList()
-            ld = freud.environment.LocalDescriptors(l_max)
-            ld.compute(box, points, mode='global', neighbors=nl)
+            ld = freud.environment.LocalDescriptors(l_max, mode='global')
+            ld.compute(box, points, neighbors=nl)
 
             Wl = get_Wl(points, ld, nl)
 
@@ -340,8 +337,8 @@ class TestLocalDescriptors(unittest.TestCase):
                       dict(exclude_ii=True,
                            num_neighbors=num_neighbors)).toNeighborList()
 
-        ld = freud.environment.LocalDescriptors(l_max)
-        ld.compute(box, points, mode='global', neighbors=nl)
+        ld = freud.environment.LocalDescriptors(l_max, mode='global')
+        ld.compute(box, points, neighbors=nl)
 
         # Loop over the sphs and compute them explicitly.
         for idx, (i, j) in enumerate(nl):
@@ -401,9 +398,8 @@ class TestLocalDescriptors(unittest.TestCase):
                       dict(exclude_ii=True,
                            num_neighbors=num_neighbors)).toNeighborList()
 
-        ld = freud.environment.LocalDescriptors(l_max)
-        ld.compute(box, ref_points, points, mode='global',
-                   neighbors=nl)
+        ld = freud.environment.LocalDescriptors(l_max, mode='global')
+        ld.compute(box, ref_points, points, neighbors=nl)
 
         # Loop over the sphs and compute them explicitly.
         for idx, (i, j) in enumerate(nl):

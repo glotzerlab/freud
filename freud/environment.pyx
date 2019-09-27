@@ -95,6 +95,10 @@ cdef class BondOrder(SpatialHistogram):
             If an unsigned int, the number of bins in :math:`\theta` and
             :math:`\phi`. If a sequence of two integers, interpreted as
             :code:`(num_bins_theta, num_bins_phi)`.
+        mode (str, optional):
+            Mode to calculate bond order. Options are :code:`'bod'`,
+            :code:`'lbod'`, :code:`'obcd'`, or :code:`'oocd'`
+            (Default value = :code:`'bod'`).
 
     Attributes:
         bond_order (:math:`\left(N_{\phi}, N_{\theta} \right)` :class:`numpy.ndarray`):
@@ -113,14 +117,26 @@ cdef class BondOrder(SpatialHistogram):
     """  # noqa: E501
     cdef freud._environment.BondOrder * thisptr
 
-    def __cinit__(self, bins):
+    known_modes = {'bod': freud._environment.bod,
+                   'lbod': freud._environment.lbod,
+                   'obcd': freud._environment.obcd,
+                   'oocd': freud._environment.oocd}
+
+    def __cinit__(self, bins, str mode="bod"):
         try:
             n_bins_theta, n_bins_phi = bins
         except TypeError:
             n_bins_theta = n_bins_phi = bins
 
+        cdef freud._environment.BondOrderMode l_mode
+        try:
+            l_mode = self.known_modes[mode]
+        except KeyError:
+            raise ValueError(
+                'Unknown BondOrder mode: {}'.format(mode))
+
         self.thisptr = self.histptr = new freud._environment.BondOrder(
-            n_bins_theta, n_bins_phi)
+            n_bins_theta, n_bins_phi, l_mode)
 
     def __dealloc__(self):
         del self.thisptr
@@ -131,7 +147,7 @@ cdef class BondOrder(SpatialHistogram):
 
     @Compute._compute()
     def accumulate(self, box, points, orientations, query_points=None,
-                   query_orientations=None, str mode="bod", neighbors=None):
+                   query_orientations=None, neighbors=None):
         R"""Calculates the correlation function and adds to the current
         histogram.
 
@@ -150,10 +166,6 @@ cdef class BondOrder(SpatialHistogram):
                 Orientations used to calculate bonds. Uses
                 :code:`orientations` if not provided or :code:`None`.
                 (Default value = :code:`None`).
-            mode (str, optional):
-                Mode to calculate bond order. Options are :code:`'bod'`,
-                :code:`'lbod'`, :code:`'obcd'`, or :code:`'oocd'`
-                (Default value = :code:`'bod'`).
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
@@ -176,20 +188,6 @@ cdef class BondOrder(SpatialHistogram):
         query_orientations = freud.common.convert_array(
             query_orientations, shape=(num_query_points, 4))
 
-        cdef unsigned int index = 0
-        if mode == "bod":
-            index = 0
-        elif mode == "lbod":
-            index = 1
-        elif mode == "obcd":
-            index = 2
-        elif mode == "oocd":
-            index = 3
-        else:
-            raise RuntimeError(
-                ('Unknown BOD mode: {}. Options are:'
-                    'bod, lbod, obcd, oocd.').format(mode))
-
         cdef const float[:, ::1] l_orientations = orientations
         cdef const float[:, ::1] l_query_orientations = query_orientations
 
@@ -199,7 +197,7 @@ cdef class BondOrder(SpatialHistogram):
             <vec3[float]*> &l_query_points[0, 0],
             <quat[float]*> &l_query_orientations[0, 0],
             num_query_points,
-            index, nlistptr.get_ptr(), dereference(qargs.thisptr))
+            nlistptr.get_ptr(), dereference(qargs.thisptr))
         return self
 
     @Compute._computed_property()
@@ -219,7 +217,7 @@ cdef class BondOrder(SpatialHistogram):
 
     @Compute._compute()
     def compute(self, box, points, orientations, query_points=None,
-                query_orientations=None, mode="bod", neighbors=None):
+                query_orientations=None, neighbors=None):
         R"""Calculates the bond order histogram. Will overwrite the current
         histogram.
 
@@ -238,23 +236,27 @@ cdef class BondOrder(SpatialHistogram):
                 Orientations used to calculate bonds. Uses
                 :code:`orientations` if not provided or :code:`None`.
                 (Default value = :code:`None`).
-            mode (str, optional):
-                Mode to calculate bond order. Options are :code:`'bod'`,
-                :code:`'lbod'`, :code:`'obcd'`, or :code:`'oocd'`
-                (Default value = :code:`'bod'`).
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         """  # noqa: E501
         self.reset()
         self.accumulate(box, points, orientations,
-                        query_points, query_orientations, mode, neighbors)
+                        query_points, query_orientations, neighbors)
         return self
 
     def __repr__(self):
-        return ("freud.environment.{cls}( bins=({bins}))".format(
+        return ("freud.environment.{cls}(bins=({bins}), mode='{mode}')".format(
             cls=type(self).__name__,
-            bins=', '.join([str(b) for b in self.nbins])))
+            bins=', '.join([str(b) for b in self.nbins]),
+            mode=self.mode))
+
+    @property
+    def mode(self):
+        mode = self.thisptr.getMode()
+        for key, value in self.known_modes.items():
+            if value == mode:
+                return key
 
 
 cdef class LocalDescriptors(PairCompute):
@@ -274,6 +276,12 @@ cdef class LocalDescriptors(PairCompute):
         negative_m (bool, optional):
             True if we should also calculate :math:`Y_{lm}` for negative
             :math:`m`. (Default value = :code:`True`)
+        mode (str, optional):
+            Orientation mode to use for environments, either
+            :code:`'neighborhood'` to use the orientation of the local
+            neighborhood, :code:`'particle_local'` to use the given
+            particle orientations, or :code:`'global'` to not rotate
+            environments (Default value = :code:`'neighborhood'`).
 
     Attributes:
         sph (:math:`\left(N_{bonds}, \text{SphWidth} \right)` :class:`numpy.ndarray`):
@@ -299,17 +307,23 @@ cdef class LocalDescriptors(PairCompute):
                    'global': freud._environment.Global,
                    'particle_local': freud._environment.ParticleLocal}
 
-    def __cinit__(self, l_max, negative_m=True):
+    def __cinit__(self, l_max, negative_m=True, mode='neighborhood'):
+        cdef freud._environment.LocalDescriptorOrientation l_mode
+        try:
+            l_mode = self.known_modes[mode]
+        except KeyError:
+            raise ValueError(
+                'Unknown LocalDescriptors orientation mode: {}'.format(mode))
+
         self.thisptr = new freud._environment.LocalDescriptors(
-            l_max, negative_m)
+            l_max, negative_m, l_mode)
         self.negative_m = negative_m
 
     def __dealloc__(self):
         del self.thisptr
 
     @Compute._compute()
-    def compute(self, box, points,
-                query_points=None, orientations=None, mode='neighborhood',
+    def compute(self, box, points, query_points=None, orientations=None,
                 neighbors=None):
         R"""Calculates the local descriptors of bonds from a set of source
         points to a set of destination points.
@@ -327,12 +341,6 @@ cdef class LocalDescriptors(PairCompute):
                 (Default value = :code:`None`).
             orientations ((:math:`N_{points}`, 4) :class:`numpy.ndarray`, optional):
                 Orientation of each point (Default value = :code:`None`).
-            mode (str, optional):
-                Orientation mode to use for environments, either
-                :code:`'neighborhood'` to use the orientation of the local
-                neighborhood, :code:`'particle_local'` to use the given
-                particle orientations, or :code:`'global'` to not rotate
-                environments (Default value = :code:`'neighborhood'`).
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value = :code:`None`).
         """  # noqa: E501
@@ -350,7 +358,7 @@ cdef class LocalDescriptors(PairCompute):
         # The l_orientations_ptr is only used for 'particle_local' mode.
         cdef const float[:, ::1] l_orientations
         cdef quat[float] *l_orientations_ptr = NULL
-        if mode == 'particle_local':
+        if self.mode == 'particle_local':
             if orientations is None:
                 raise RuntimeError(
                     ('Orientations must be given to orient LocalDescriptors '
@@ -362,16 +370,10 @@ cdef class LocalDescriptors(PairCompute):
             l_orientations = orientations
             l_orientations_ptr = <quat[float]*> &l_orientations[0, 0]
 
-        if mode not in self.known_modes:
-            raise RuntimeError(
-                'Unknown LocalDescriptors orientation mode: {}'.format(mode))
-        cdef freud._environment.LocalDescriptorOrientation l_mode
-        l_mode = self.known_modes[mode]
-
         self.thisptr.compute(
             nq.get_ptr(),
             <vec3[float]*> &l_query_points[0, 0], num_query_points,
-            l_orientations_ptr, l_mode,
+            l_orientations_ptr,
             nlistptr.get_ptr(), dereference(qargs.thisptr))
         return self
 
@@ -393,11 +395,18 @@ cdef class LocalDescriptors(PairCompute):
     def l_max(self):
         return self.thisptr.getLMax()
 
+    @property
+    def mode(self):
+        mode = self.thisptr.getMode()
+        for key, value in self.known_modes.items():
+            if value == mode:
+                return key
+
     def __repr__(self):
         return ("freud.environment.{cls}(l_max={l_max}, "
-                "negative_m={negative_m})").format(
+                "negative_m={negative_m}, mode='{mode}')").format(
                     cls=type(self).__name__, l_max=self.l_max,
-                    negative_m=self.negative_m)
+                    negative_m=self.negative_m, mode=self.mode)
 
 
 cdef class MatchEnv(Compute):

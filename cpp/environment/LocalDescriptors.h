@@ -36,7 +36,8 @@ public:
     //!
     //! \param l_max Maximum spherical harmonic l to consider
     //! \param negative_m whether to calculate Ylm for negative m
-    LocalDescriptors(unsigned int l_max, bool negative_m);
+    LocalDescriptors(unsigned int l_max, bool negative_m,
+                     LocalDescriptorOrientation orientation);
 
     //! Get the last number of spherical harmonics computed
     unsigned int getNSphs() const
@@ -54,7 +55,7 @@ public:
     //! positions and the number of particles
     void compute(const locality::NeighborQuery *nq,
         const vec3<float>* query_points, unsigned int n_query_points,
-        const quat<float>* orientations, LocalDescriptorOrientation orientation,
+        const quat<float>* orientations,
         const freud::locality::NeighborList* nlist, locality::QueryArgs qargs);
 
     //! Get a reference to the last computed spherical harmonic array
@@ -75,11 +76,17 @@ public:
         return &m_nlist;
     }
 
+    LocalDescriptorOrientation getMode() const
+    {
+        return m_orientation;
+    }
+
 private:
     unsigned int m_l_max;  //!< Maximum spherical harmonic l to calculate
     bool m_negative_m;    //!< true if we should compute Ylm for negative m
     unsigned int m_nSphs; //!< Last number of bond spherical harmonics computed
     locality::NeighborList m_nlist; //!< The NeighborList used in the last call to compute.
+    LocalDescriptorOrientation m_orientation; //!< The orientation mode to compute with.
 
     //! Spherical harmonics for each neighbor
     util::ManagedArray<std::complex<float>> m_sphArray;

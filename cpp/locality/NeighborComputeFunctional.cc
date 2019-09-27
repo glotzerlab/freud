@@ -21,7 +21,9 @@ NeighborList makeDefaultNlist(const NeighborQuery *nq, const NeighborList
         auto nqiter(nq->query(query_points, num_query_points, qargs));
         nlist = nqiter->toNeighborList();
     }
-    return NeighborList(*nlist);
+    locality::NeighborList new_nlist = NeighborList(*nlist);
+    new_nlist.validate(num_query_points, nq->getNPoints());
+    return new_nlist;
 }
 
 }; }; // end namespace freud::locality

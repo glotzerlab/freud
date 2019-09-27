@@ -14,18 +14,24 @@ cimport freud._locality
 cimport freud.util
 
 cdef extern from "BondOrder.h" namespace "freud::environment":
+    ctypedef enum BondOrderMode:
+        bod
+        lbod
+        obcd
+        oocd
+
     cdef cppclass BondOrder(BondHistogramCompute):
-        BondOrder(unsigned int, unsigned int) except +
+        BondOrder(unsigned int, unsigned int, BondOrderMode) except +
         void accumulate(
             const freud._locality.NeighborQuery*,
             quat[float]*,
             vec3[float]*,
             quat[float]*,
             unsigned int,
-            unsigned int,
             const freud._locality.NeighborList*,
             freud._locality.QueryArgs)
         const freud.util.ManagedArray[float] &getBondOrder()
+        BondOrderMode getMode() const
 
 cdef extern from "LocalDescriptors.h" namespace "freud::environment":
     ctypedef enum LocalDescriptorOrientation:
@@ -35,18 +41,19 @@ cdef extern from "LocalDescriptors.h" namespace "freud::environment":
 
     cdef cppclass LocalDescriptors:
         LocalDescriptors(unsigned int,
-                         bool)
+                         bool, LocalDescriptorOrientation)
         unsigned int getNSphs() const
         unsigned int getLMax() const
         unsigned int getSphWidth() const
         void compute(
             const freud._locality.NeighborQuery*,
             const vec3[float]*, unsigned int,
-            const quat[float]*, LocalDescriptorOrientation,
+            const quat[float]*,
             const freud._locality.NeighborList*,
             freud._locality.QueryArgs) except +
         const freud.util.ManagedArray[float complex] &getSph() const
         freud._locality.NeighborList * getNList()
+        LocalDescriptorOrientation getMode() const
 
 cdef extern from "MatchEnv.h" namespace "freud::environment":
     cdef cppclass MatchEnv:
