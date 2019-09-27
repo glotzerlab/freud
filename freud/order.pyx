@@ -708,6 +708,12 @@ cdef class SolidLiquid(PairCompute):
             freud.util.arr_type_t.UNSIGNED_INT)
 
     @Compute._computed_property()
+    def Ql_ij(self):
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getQlij(),
+            freud.util.arr_type_t.FLOAT)
+
+    @Compute._computed_property()
     def cluster_sizes(self):
         return np.asarray(self.thisptr.getClusterSizes())
 

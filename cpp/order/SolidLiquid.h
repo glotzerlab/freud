@@ -113,7 +113,7 @@ public:
     }
 
     //! Get a reference to the number of connections per particle
-    const util::ManagedArray<unsigned int> &getNumberOfConnections()
+    const util::ManagedArray<unsigned int> &getNumberOfConnections() const
     {
         return m_number_of_connections;
     }
@@ -127,6 +127,12 @@ public:
     locality::NeighborList *getNList()
     {
         return &m_nlist;
+    }
+
+    //! Return the Ql_ij values.
+    const util::ManagedArray<float> &getQlij() const
+    {
+        return m_Ql_ij;
     }
 
 private:

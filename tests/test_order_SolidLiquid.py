@@ -73,6 +73,8 @@ class TestSolidLiquid(unittest.TestCase):
         with self.assertRaises(AttributeError):
             comp.num_connections
         with self.assertRaises(AttributeError):
+            comp.Ql_ij
+        with self.assertRaises(AttributeError):
             comp.plot()
 
         comp.compute(box, positions, neighbors=dict(r_max=2.0))
@@ -81,6 +83,7 @@ class TestSolidLiquid(unittest.TestCase):
         comp.cluster_sizes
         comp.cluster_idx
         comp.num_connections
+        comp.Ql_ij
         comp._repr_png_()
 
     def test_repr(self):
