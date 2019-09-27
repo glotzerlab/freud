@@ -309,6 +309,18 @@ jobs:
       PYVER: "3.6"
     <<: *build_and_test_with_cov
 
+  test-py37:
+    <<: *test_container_config_ubuntu
+    environment:
+      PYVER: "3.7"
+    <<: *build_and_test_with_cov
+
+  test-py38:
+    <<: *test_container_config_ubuntu
+    environment:
+      PYVER: "3.8"
+    <<: *build_and_test_with_cov
+
   pypi-osx-wheels:
     <<: *container_osx
     <<: *build_osx_wheels
@@ -323,7 +335,7 @@ jobs:
   benchmarks:
     <<: *test_container_config_ubuntu
     environment:
-      PYVER: "3.6"
+      PYVER: "3.7"
     <<: *build_and_benchmark
 
 workflows:
@@ -334,7 +346,13 @@ workflows:
       - test-py36:
           requires:
             - check-style
-# Disabled benchmarks on CI - currently broken
+      - test-py37:
+          requires:
+            - check-style
+      - test-py38:
+          requires:
+            - check-style
+# Disabled benchmarks on CI - they currently take too much work
 #     - benchmarks:
 #         requires:
 #           - test-py36
