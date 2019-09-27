@@ -135,7 +135,7 @@ parser.add_argument(
          "non-standard location or cannot be located by Python for some other "
          "reason. Note that this information can also be provided using the "
          "environment variable TBB_ROOT. The options --TBB-INCLUDE and "
-         "--TBB-LINK will take precedence over -TBB-ROOT if both are "
+         "--TBB-LINK will take precedence over --TBB-ROOT if both are "
          "specified."
 )
 parser.add_argument(
@@ -143,16 +143,16 @@ parser.add_argument(
     dest="tbb_include",
     help="The include directory where the TBB headers are found. May also be "
          "provided using the environment variable TBB_INCLUDE. See the "
-         "documentation of --TBB_ROOT for more information. This will "
+         "documentation of --TBB-ROOT for more information. This will "
          "typically be `$TBB_ROOT/include`, but this option exists for cases "
-         "where that not true."
+         "where that is not true."
 )
 parser.add_argument(
     tbb_link_str,
     dest="tbb_link",
     help="The lib directory where the TBB shared libraries are found. May "
          "also be provided using the environment variable TBB_LINK. See the "
-         "documentation of --TBB_ROOT for more information. This will "
+         "documentation of --TBB-ROOT for more information. This will "
          "typically be `$TBB_ROOT/lib`, but this option exists for cases "
          "where that is not true."
 )
