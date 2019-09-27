@@ -1,9 +1,14 @@
 version: 2
 
 references:
-  container_ubuntu: &test_container_config_ubuntu
+  container_ubuntu18: &test_container_config_ubuntu18
     docker:
       - image: glotzerlab/ci:2019.06-ubuntu18.04
+    working_directory: ~/ci/freud
+
+  container_ubuntu19: &test_container_config_ubuntu19
+    docker:
+      - image: glotzerlab/ci:2019.06-ubuntu19.04
     working_directory: ~/ci/freud
 
   container_manylinux: &container_manylinux
@@ -298,28 +303,29 @@ references:
 
 jobs:
   check-style:
-    <<: *test_container_config_ubuntu
+    <<: *test_container_config_ubuntu18
     environment:
       PYVER: "3.6"
     <<: *load_check_style
 
   test-py36:
-    <<: *test_container_config_ubuntu
+    <<: *test_container_config_ubuntu18
     environment:
       PYVER: "3.6"
     <<: *build_and_test_with_cov
 
   test-py37:
-    <<: *test_container_config_ubuntu
+    <<: *test_container_config_ubuntu19
     environment:
       PYVER: "3.7"
     <<: *build_and_test_with_cov
 
-  test-py38:
-    <<: *test_container_config_ubuntu
-    environment:
-      PYVER: "3.8"
-    <<: *build_and_test_with_cov
+    #  Disabling 3.8 until it's added to the container.
+    #  test-py38:
+    #    <<: *test_container_config_ubuntu19
+    #    environment:
+    #      PYVER: "3.8"
+    #    <<: *build_and_test_with_cov
 
   pypi-osx-wheels:
     <<: *container_osx
@@ -333,7 +339,7 @@ jobs:
     <<: *build_linux_wheels
 
   benchmarks:
-    <<: *test_container_config_ubuntu
+    <<: *test_container_config_ubuntu18
     environment:
       PYVER: "3.7"
     <<: *build_and_benchmark
