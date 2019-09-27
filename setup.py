@@ -438,17 +438,27 @@ except ImportError:
 tfile = tempfile.TemporaryFile(mode='w+b')
 try:
     with stderr_manager(tfile):
-        setup(name='freud-analysis',
-              version=version,
-              description=desc,
-              long_description=readme,
-              long_description_content_type='text/x-rst',
-              url='https://github.com/glotzerlab/freud',
-              packages=['freud'],
-              python_requires='>=3.5',
-              install_requires=['numpy>=1.10', 'rowan>=1.2'],
-              tests_require=['matplotlib>=2.0', 'sympy>=1.0'],
-              ext_modules=extensions)
+        setup(
+            name='freud-analysis',
+            version=version,
+            description=desc,
+            long_description=readme,
+            long_description_content_type='text/x-rst',
+            url='https://github.com/glotzerlab/freud',
+            packages=['freud'],
+            python_requires='>=3.5',
+            install_requires=[
+                'numpy>=1.10',
+                'rowan>=1.2'
+            ],
+            tests_require=[
+                'gsd>=1.9',
+                'garnett>=0.5',
+                'matplotlib>=2.0',
+                'rowan>=1.0',
+                'sympy>=1.0',
+            ],
+            ext_modules=extensions)
 except SystemExit:
     # The errors we're explicitly checking for are whether or not
     # TBB is missing, and whether a parallel compile resulted in a
