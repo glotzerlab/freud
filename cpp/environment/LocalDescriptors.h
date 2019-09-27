@@ -76,6 +76,11 @@ public:
         return &m_nlist;
     }
 
+    bool getNegativeM() const
+    {
+        return m_negative_m;
+    }
+
     LocalDescriptorOrientation getMode() const
     {
         return m_orientation;
