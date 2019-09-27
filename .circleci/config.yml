@@ -320,12 +320,11 @@ jobs:
       PYVER: "3.7"
     <<: *build_and_test_with_cov
 
-    #  Disabling 3.8 until it's added to the container.
-    #  test-py38:
-    #    <<: *test_container_config_ubuntu19
-    #    environment:
-    #      PYVER: "3.8"
-    #    <<: *build_and_test_with_cov
+  test-py38:
+    <<: *test_container_config_ubuntu19
+    environment:
+      PYVER: "3.8"
+    <<: *build_and_test_with_cov
 
   pypi-osx-wheels:
     <<: *container_osx
@@ -355,9 +354,10 @@ workflows:
       - test-py37:
           requires:
             - check-style
-      - test-py38:
-          requires:
-            - check-style
+    #  Disabling 3.8 until it's added to the container.
+    #  - test-py38:
+    #      requires:
+    #        - check-style
 # Disabled benchmarks on CI - they currently take too much work
 #     - benchmarks:
 #         requires:
