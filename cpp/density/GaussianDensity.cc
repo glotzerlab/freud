@@ -19,29 +19,10 @@ GaussianDensity::GaussianDensity(vec3<unsigned int> width, float r_max, float si
         throw std::invalid_argument("GaussianDensity requires r_max to be positive.");
 }
 
-void GaussianDensity::reduce()
-{
-    // combine arrays
-    util::forLoopWrapper(0, m_density_array.size(), [=](size_t begin, size_t end) {
-        for (size_t i = begin; i < end; ++i)
-        {
-            for (util::ThreadStorage<float>::const_iterator local_bins = m_local_bin_counts.begin();
-                 local_bins != m_local_bin_counts.end(); ++local_bins)
-            {
-                m_density_array[i] += (*local_bins)[i];
-            }
-        }
-    });
-}
 
 //! Get a reference to the last computed Density
-const util::ManagedArray<float> &GaussianDensity::getDensity()
+const util::ManagedArray<float> &GaussianDensity::getDensity() const
 {
-    if (m_reduce == true)
-    {
-        reduce();
-    }
-    m_reduce = false;
     return m_density_array;
 }
 
@@ -57,7 +38,6 @@ vec3<unsigned int> GaussianDensity::getWidth()
 void GaussianDensity::reset()
 {
     m_local_bin_counts.reset();
-    this->m_reduce = true;
 }
 
 //! internal
@@ -152,5 +132,18 @@ void GaussianDensity::compute(const box::Box& box, const vec3<float>* points, un
             }
         }
     });
+
+    // Now reduce all the arrays into one.
+    util::forLoopWrapper(0, m_density_array.size(), [=](size_t begin, size_t end) {
+        for (size_t i = begin; i < end; ++i)
+        {
+            for (util::ThreadStorage<float>::const_iterator local_bins = m_local_bin_counts.begin();
+                 local_bins != m_local_bin_counts.end(); ++local_bins)
+            {
+                m_density_array[i] += (*local_bins)[i];
+            }
+        }
+    });
 }
+
 }; }; // end namespace freud::density
