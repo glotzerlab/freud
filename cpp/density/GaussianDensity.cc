@@ -32,20 +32,11 @@ vec3<unsigned int> GaussianDensity::getWidth()
     return m_width;
 }
 
-//! \internal
-/*! \brief Function to reset the density array if needed e.g. calculating between new particle types
- */
-void GaussianDensity::reset()
-{
-    m_local_bin_counts.reset();
-}
-
 //! internal
 /*! \brief Function to compute the density array
  */
 void GaussianDensity::compute(const box::Box& box, const vec3<float>* points, unsigned int n_points)
 {
-    reset();
     m_box = box;
 
     vec3<unsigned int> width(m_width);
@@ -54,8 +45,8 @@ void GaussianDensity::compute(const box::Box& box, const vec3<float>* points, un
         width.z = 1;
     }
     m_density_array.prepare({width.x, width.y, width.z});
-    m_local_bin_counts.resize({width.x, width.y, width.z});
-    util::forLoopWrapper(0, n_points, [=](size_t begin, size_t end) {
+    util::ThreadStorage<float> local_bin_counts({width.x, width.y, width.z});
+    util::forLoopWrapper(0, n_points, [=, &local_bin_counts](size_t begin, size_t end) {
         // set up some constants first
         float lx = m_box.getLx();
         float ly = m_box.getLy();
@@ -125,7 +116,7 @@ void GaussianDensity::compute(const box::Box& box, const vec3<float>* points, un
 
                             // store the product of these values in an array - n[i, j, k]
                             // = gx*gy*gz
-                            m_local_bin_counts.local()(ni, nj, nk) += x_gaussian * y_gaussian * z_gaussian;
+                            local_bin_counts.local()(ni, nj, nk) += x_gaussian * y_gaussian * z_gaussian;
                         }
                     }
                 }
@@ -137,8 +128,8 @@ void GaussianDensity::compute(const box::Box& box, const vec3<float>* points, un
     util::forLoopWrapper(0, m_density_array.size(), [=](size_t begin, size_t end) {
         for (size_t i = begin; i < end; ++i)
         {
-            for (util::ThreadStorage<float>::const_iterator local_bins = m_local_bin_counts.begin();
-                 local_bins != m_local_bin_counts.end(); ++local_bins)
+            for (util::ThreadStorage<float>::const_iterator local_bins = local_bin_counts.begin();
+                 local_bins != local_bin_counts.end(); ++local_bins)
             {
                 m_density_array[i] += (*local_bins)[i];
             }

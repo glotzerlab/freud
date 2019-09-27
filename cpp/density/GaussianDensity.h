@@ -47,9 +47,6 @@ public:
         return m_r_max;
     }
 
-    //! Reset the gaussian array to all zeros
-    void reset();
-
     //! Compute the Density
     void compute(const box::Box& box, const vec3<float>* points, unsigned int n_points);
 
@@ -65,7 +62,6 @@ private:
     float m_sigma;                                //!< Variance
 
     util::ManagedArray<float> m_density_array; //! computed density array
-    util::ThreadStorage<float> m_local_bin_counts;
 };
 
 }; }; // end namespace freud::density
