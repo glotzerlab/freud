@@ -114,6 +114,11 @@ public:
         return m_cubatic_orientation;
     }
 
+    unsigned int getSeed() const
+    {
+        return m_seed;
+    }
+
 private:
 
     //! Calculate the cubatic tensor
@@ -157,7 +162,6 @@ private:
      *  appropriate calculation.
      */
     quat<float> calcRandomQuaternion(Saru& saru, float angle_multiplier) const;
-
 
     float m_t_initial;         //!< Initial temperature for simulated annealing.
     float m_t_final;           //!< Final temperature for simulated annealing.
