@@ -135,7 +135,7 @@ cdef class PMFTR12(_PMFT):
 
     @Compute._compute()
     def accumulate(self, box, points, orientations, query_points=None,
-                   query_orientations=None, nlist=None, query_args=None):
+                   query_orientations=None, neighbors=None):
         R"""Calculates the positional correlation function and adds to the
         current histogram.
 
@@ -166,8 +166,8 @@ cdef class PMFTR12(_PMFT):
             unsigned int num_query_points
 
         b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(box, points, query_points, nlist,
-                                      query_args, dimensions=2)
+            self.preprocess_arguments_new(box, points, query_points, neighbors,
+                                          dimensions=2)
 
         orientations = freud.common.convert_array(
             np.atleast_1d(orientations.squeeze()),
@@ -191,7 +191,7 @@ cdef class PMFTR12(_PMFT):
 
     @Compute._compute()
     def compute(self, box, points, orientations, query_points=None,
-                query_orientations=None, nlist=None, query_args=None):
+                query_orientations=None, neighbors=None):
         R"""Calculates the positional correlation function for the given points.
         Will overwrite the current histogram.
 
@@ -215,7 +215,7 @@ cdef class PMFTR12(_PMFT):
         """  # noqa: E501
         self.reset()
         self.accumulate(box, points, orientations,
-                        query_points, query_orientations, nlist, query_args)
+                        query_points, query_orientations, neighbors)
         return self
 
     def __repr__(self):
@@ -283,7 +283,7 @@ cdef class PMFTXYT(_PMFT):
 
     @Compute._compute()
     def accumulate(self, box, points, orientations, query_points=None,
-                   query_orientations=None, nlist=None, query_args=None):
+                   query_orientations=None, neighbors=None):
         R"""Calculates the positional correlation function and adds to the
         current histogram.
 
@@ -314,8 +314,8 @@ cdef class PMFTXYT(_PMFT):
             unsigned int num_query_points
 
         b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(box, points, query_points, nlist,
-                                      query_args, dimensions=2)
+            self.preprocess_arguments_new(box, points, query_points, neighbors,
+                                          dimensions=2)
 
         orientations = freud.common.convert_array(
             np.atleast_1d(orientations.squeeze()),
@@ -339,7 +339,7 @@ cdef class PMFTXYT(_PMFT):
 
     @Compute._compute()
     def compute(self, box, points, orientations, query_points=None,
-                query_orientations=None, nlist=None, query_args=None):
+                query_orientations=None, neighbors=None):
         R"""Calculates the positional correlation function for the given points.
         Will overwrite the current histogram.
 
@@ -363,7 +363,7 @@ cdef class PMFTXYT(_PMFT):
         """  # noqa: E501
         self.reset()
         self.accumulate(box, points, orientations,
-                        query_points, query_orientations, nlist, query_args)
+                        query_points, query_orientations, neighbors)
         return self
 
     def __repr__(self):
@@ -430,7 +430,7 @@ cdef class PMFTXY2D(_PMFT):
 
     @Compute._compute()
     def accumulate(self, box, points, orientations, query_points=None,
-                   nlist=None, query_args=None):
+                   neighbors=None):
         R"""Calculates the positional correlation function and adds to the
         current histogram.
 
@@ -457,8 +457,8 @@ cdef class PMFTXY2D(_PMFT):
             unsigned int num_query_points
 
         b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(box, points, query_points, nlist,
-                                      query_args, dimensions=2)
+            self.preprocess_arguments_new(box, points, query_points, neighbors,
+                                          dimensions=2)
 
         orientations = freud.common.convert_array(
             np.atleast_1d(orientations.squeeze()),
@@ -474,7 +474,7 @@ cdef class PMFTXY2D(_PMFT):
 
     @Compute._compute()
     def compute(self, box, points, orientations, query_points=None,
-                nlist=None, query_args=None):
+                neighbors=None):
         R"""Calculates the positional correlation function for the given points.
         Will overwrite the current histogram.
 
@@ -494,7 +494,7 @@ cdef class PMFTXY2D(_PMFT):
         """  # noqa: E501
         self.reset()
         self.accumulate(box, points, orientations,
-                        query_points, nlist, query_args)
+                        query_points, neighbors)
         return self
 
     @Compute._computed_property()
@@ -610,7 +610,7 @@ cdef class PMFTXYZ(_PMFT):
 
     @Compute._compute()
     def accumulate(self, box, points, orientations, query_points=None,
-                   face_orientations=None, nlist=None, query_args=None):
+                   face_orientations=None, neighbors=None):
         R"""Calculates the positional correlation function and adds to the
         current histogram.
 
@@ -644,8 +644,8 @@ cdef class PMFTXYZ(_PMFT):
             unsigned int num_query_points
 
         b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(box, points, query_points, nlist,
-                                      query_args, dimensions=3)
+            self.preprocess_arguments_new(box, points, query_points, neighbors,
+                                          dimensions=3)
         l_query_points = l_query_points - self.shiftvec.reshape(1, 3)
 
         orientations = freud.common.convert_array(
@@ -707,8 +707,7 @@ cdef class PMFTXYZ(_PMFT):
 
     @Compute._compute()
     def compute(self, box, points, orientations, query_points=None,
-                face_orientations=None, nlist=None,
-                query_args=None):
+                face_orientations=None, neighbors=None):
         R"""Calculates the positional correlation function for the given points.
         Will overwrite the current histogram.
 
@@ -734,9 +733,8 @@ cdef class PMFTXYZ(_PMFT):
                 :code:`None`).
         """  # noqa: E501
         self.reset()
-        self.accumulate(box, points, orientations,
-                        query_points, face_orientations,
-                        nlist, query_args)
+        self.accumulate(box, points, orientations, query_points,
+                        face_orientations, neighbors)
         return self
 
     def __repr__(self):
