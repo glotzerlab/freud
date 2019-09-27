@@ -517,7 +517,7 @@ cdef class Steinhardt(PairCompute):
             freud.util.arr_type_t.FLOAT)
 
     @Compute._compute()
-    def compute(self, box, points, nlist=None, query_args=None):
+    def compute(self, box, points, neighbors=None):
         R"""Compute the order parameter.
 
         Args:
@@ -538,8 +538,7 @@ cdef class Steinhardt(PairCompute):
             unsigned int num_query_points
 
         b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(box, points, nlist=nlist,
-                                      query_args=query_args)
+            self.preprocess_arguments_new(box, points, neighbors=neighbors)
 
         self.thisptr.compute(nlistptr.get_ptr(),
                              nq.get_ptr(),
