@@ -52,6 +52,11 @@ public:
     //! Get a reference to the last computed bond order
     const util::ManagedArray<float> &getBondOrder();
 
+    BondOrderMode getMode() const
+    {
+        return m_mode;
+    }
+
 private:
     util::ManagedArray<float> m_bo_array;          //!< bond order array computed
     util::ManagedArray<float> m_sa_array;          //!< surface area array computed

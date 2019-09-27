@@ -31,6 +31,7 @@ cdef extern from "BondOrder.h" namespace "freud::environment":
             const freud._locality.NeighborList*,
             freud._locality.QueryArgs)
         const freud.util.ManagedArray[float] &getBondOrder()
+        BondOrderMode getMode() const
 
 cdef extern from "LocalDescriptors.h" namespace "freud::environment":
     ctypedef enum LocalDescriptorOrientation:

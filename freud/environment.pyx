@@ -246,9 +246,17 @@ cdef class BondOrder(SpatialHistogram):
         return self
 
     def __repr__(self):
-        return ("freud.environment.{cls}( bins=({bins}))".format(
+        return ("freud.environment.{cls}(bins=({bins}), mode='{mode}')".format(
             cls=type(self).__name__,
-            bins=', '.join([str(b) for b in self.nbins])))
+            bins=', '.join([str(b) for b in self.nbins]),
+            mode=self.mode))
+
+    @property
+    def mode(self):
+        mode = self.thisptr.getMode()
+        for key, value in self.known_modes.items():
+            if value == mode:
+                return key
 
 
 cdef class LocalDescriptors(PairCompute):
