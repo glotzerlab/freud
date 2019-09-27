@@ -123,12 +123,19 @@ public:
         return m_cluster.getNumClusters();
     }
 
+    //! Return a pointer to the NeighborList used in the last call to compute.
+    locality::NeighborList *getNList()
+    {
+        return &m_nlist;
+    }
+
 private:
     unsigned int m_l;                       //!< Value of l for the spherical harmonic.
     unsigned int m_num_ms;                  //!< The number of magnetic quantum numbers (2*m_l+1).
     float m_Q_threshold;                    //!< Dot product cutoff
     unsigned int m_S_threshold;             //!< Solid-like num connections cutoff
     bool m_normalize_Q;                     //!< Whether to normalize the Qlmi dot products.
+    locality::NeighborList m_nlist; //!< The NeighborList used in the last call to compute.
 
     freud::order::Steinhardt m_steinhardt;  //!< Steinhardt class used to compute Qlm
     freud::cluster::Cluster m_cluster;      //!< Cluster class used to cluster solid-like bonds
