@@ -11,8 +11,6 @@ except ImportError:
 def ax_to_bytes(ax):
     """Helper function to convert figure to png file.
 
-    .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
-
     Args:
         ax (:class:`matplotlib.axes.Axes`): axes object to plot.
 
@@ -32,8 +30,6 @@ def ax_to_bytes(ax):
 
 def bar_plot(x, height, title=None, xlabel=None, ylabel=None, ax=None):
     """Helper function to draw a bar graph.
-
-    .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
 
     Args:
         x (list): x values of the bar graph.
@@ -67,8 +63,6 @@ def bar_plot(x, height, title=None, xlabel=None, ylabel=None, ax=None):
 def clusters_plot(keys, freqs, num_clusters_to_plot=10, ax=None):
     """Helper function to plot most frequent clusters in a bar graph.
 
-    .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
-
     Args:
         keys (list): Cluster keys.
         freqs (list): Number of particles in each clusters.
@@ -94,8 +88,6 @@ def clusters_plot(keys, freqs, num_clusters_to_plot=10, ax=None):
 
 def line_plot(x, y, title=None, xlabel=None, ylabel=None, ax=None):
     """Helper function to draw a line graph.
-
-    .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
 
     Args:
         x (list): x values of the line graph.
@@ -127,8 +119,6 @@ def line_plot(x, y, title=None, xlabel=None, ylabel=None, ax=None):
 def histogram_plot(values, title=None, xlabel=None, ylabel=None, ax=None):
     """Helper function to draw a histogram graph.
 
-    .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
-
     Args:
         values (list): values of the histogram.
         title (str): Title of the graph. (Default value = :code:`None`).
@@ -157,8 +147,6 @@ def histogram_plot(values, title=None, xlabel=None, ylabel=None, ax=None):
 
 def pmft_plot(pmft, ax=None):
     """Helper function to draw 2D PMFT diagram.
-
-    .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
 
     Args:
         pmft (:class:`freud.pmft.PMFTXY2D`):

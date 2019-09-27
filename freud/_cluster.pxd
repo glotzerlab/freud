@@ -14,10 +14,10 @@ cdef extern from "Cluster.h" namespace "freud::cluster":
                      const freud._locality.NeighborList*,
                      freud._locality.QueryArgs,
                      const unsigned int*) except +
-        unsigned int getNumClusters()
-        unsigned int getNumParticles()
-        const freud.util.ManagedArray[unsigned int] &getClusterIdx()
-        const vector[vector[uint]] getClusterKeys()
+        unsigned int getNumClusters() const
+        unsigned int getNumParticles() const
+        const freud.util.ManagedArray[unsigned int] &getClusterIdx() const
+        const vector[vector[uint]] getClusterKeys() const
 
 cdef extern from "ClusterProperties.h" namespace "freud::cluster":
     cdef cppclass ClusterProperties:
@@ -27,7 +27,7 @@ cdef extern from "ClusterProperties.h" namespace "freud::cluster":
             const vec3[float]*,
             const unsigned int*,
             unsigned int) except +
-        unsigned int getNumClusters()
-        const freud.util.ManagedArray[vec3[float]] &getClusterCOM()
-        const freud.util.ManagedArray[float] &getClusterG()
-        const freud.util.ManagedArray[unsigned int] &getClusterSize()
+        unsigned int getNumClusters() const
+        const freud.util.ManagedArray[vec3[float]] &getClusterCOM() const
+        const freud.util.ManagedArray[float] &getClusterG() const
+        const freud.util.ManagedArray[unsigned int] &getClusterSize() const

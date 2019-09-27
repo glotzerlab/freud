@@ -37,7 +37,7 @@ class TestCluster(unittest.TestCase):
         test_set = util.make_raw_query_nlist_test_set(
             box, positions, positions, "ball", 0.5, 0, True)
         for ts in test_set:
-            clust.compute(box, ts[0], nlist=ts[1])
+            clust.compute(box, ts[0], neighbors=ts[1])
             self.assertTrue(np.all(clust.cluster_idx == idx))
 
         # Test if attributes are accessible now

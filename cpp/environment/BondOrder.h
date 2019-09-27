@@ -35,7 +35,7 @@ class BondOrder : public locality::BondHistogramCompute
 {
 public:
     //! Constructor
-    BondOrder(unsigned int n_bins_theta, unsigned int n_bins_phi);
+    BondOrder(unsigned int n_bins_theta, unsigned int n_bins_phi, BondOrderMode mode);
 
     //! Destructor
     ~BondOrder() {}
@@ -44,7 +44,7 @@ public:
     void accumulate(const locality::NeighborQuery* neighbor_query,
                     quat<float>* orientations, vec3<float>* query_points,
                     quat<float>* query_orientations, unsigned int n_query_points,
-                    unsigned int mode, const freud::locality::NeighborList* nlist,
+                    const freud::locality::NeighborList* nlist,
                     freud::locality::QueryArgs qargs);
 
     virtual void reduce();
@@ -52,9 +52,15 @@ public:
     //! Get a reference to the last computed bond order
     const util::ManagedArray<float> &getBondOrder();
 
+    BondOrderMode getMode() const
+    {
+        return m_mode;
+    }
+
 private:
     util::ManagedArray<float> m_bo_array;          //!< bond order array computed
     util::ManagedArray<float> m_sa_array;          //!< surface area array computed
+    BondOrderMode m_mode;                          //!< The mode to calculate with.
 };
 
 }; }; // end namespace freud::environment

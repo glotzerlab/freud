@@ -42,25 +42,25 @@ public:
                            unsigned int Np);
 
     //! Count the number of clusters found in the last call to computeProperties()
-    unsigned int getNumClusters()
+    unsigned int getNumClusters() const
     {
         return m_num_clusters;
     }
 
     //! Get a reference to the last computed cluster_com
-    const util::ManagedArray<vec3<float>> &getClusterCOM()
+    const util::ManagedArray<vec3<float>> &getClusterCOM() const
     {
         return m_cluster_com;
     }
 
     //! Get a reference to the last computed cluster_G
-    const util::ManagedArray<float> &getClusterG()
+    const util::ManagedArray<float> &getClusterG() const
     {
         return m_cluster_G;
     }
 
     //! Get a reference to the last computed cluster size
-    const util::ManagedArray<unsigned int> &getClusterSize()
+    const util::ManagedArray<unsigned int> &getClusterSize() const
     {
         return m_cluster_size;
     }

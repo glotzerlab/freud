@@ -19,8 +19,8 @@ namespace freud { namespace environment {
 // namespace-level constant 2*pi for convenient use everywhere.
 constexpr float TWO_PI = 2.0 * M_PI;
 
-BondOrder::BondOrder(unsigned int n_bins_theta, unsigned int n_bins_phi)
-    : BondHistogramCompute()
+BondOrder::BondOrder(unsigned int n_bins_theta, unsigned int n_bins_phi, BondOrderMode mode)
+    : BondHistogramCompute(), m_mode(mode)
 {
     // sanity checks, but this is actually kinda dumb if these values are 1
     if (n_bins_theta < 2)
@@ -77,13 +77,9 @@ void BondOrder::accumulate(
                     const locality::NeighborQuery* neighbor_query,
                     quat<float>* orientations, vec3<float>* query_points,
                     quat<float>* query_orientations, unsigned int n_query_points,
-                    unsigned int mode,
                     const freud::locality::NeighborList* nlist,
                     freud::locality::QueryArgs qargs)
 {
-    // transform the mode from an integer to an enumerated type (enumerated in BondOrder.h)
-    BondOrderMode b_mode = static_cast<BondOrderMode>(mode);
-
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
     [=] (const freud::locality::NeighborBond& neighbor_bond)
     {
@@ -91,7 +87,7 @@ void BondOrder::accumulate(
         quat<float>& ref_q = orientations[neighbor_bond.ref_id];
         vec3<float> v = m_box.wrap(query_points[neighbor_bond.id] - ref_pos);
         quat<float>& q = query_orientations[neighbor_bond.id];
-        if (b_mode == obcd)
+        if (m_mode == obcd)
         {
             // give bond directions of neighboring particles rotated by the matrix
             // that takes the orientation of particle neighbor_bond.id to the orientation of
@@ -99,13 +95,13 @@ void BondOrder::accumulate(
             v = rotate(conj(ref_q), v);
             v = rotate(q, v);
         }
-        else if (b_mode == lbod)
+        else if (m_mode == lbod)
         {
             // give bond directions of neighboring particles rotated into the
             // local orientation of the central particle.
             v = rotate(conj(ref_q), v);
         }
-        else if (b_mode == oocd)
+        else if (m_mode == oocd)
         {
             // give the directors of neighboring particles rotated into the local
             // orientation of the central particle. pick a (random vector)

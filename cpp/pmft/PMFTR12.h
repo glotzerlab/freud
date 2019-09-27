@@ -29,12 +29,6 @@ public:
     //! helper function to reduce the thread specific arrays into one array
     virtual void reducePCF();
 
-    //! Get a reference to the jacobian array
-    const util::ManagedArray<float> &getInverseJacobian()
-    {
-        return m_inv_jacobian_array;
-    }
-
 private:
     util::ManagedArray<float> m_inv_jacobian_array; //!< Array of inverse jacobians for each bin
 };

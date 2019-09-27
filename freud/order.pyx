@@ -300,7 +300,7 @@ cdef class Hexatic(PairCompute):
         del self.thisptr
 
     @Compute._compute()
-    def compute(self, box, points, nlist=None, query_args=None):
+    def compute(self, box, points, neighbors=None):
         R"""Calculates the correlation function and adds to the current
         histogram.
 
@@ -324,8 +324,7 @@ cdef class Hexatic(PairCompute):
             unsigned int num_query_points
 
         b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(box, points, nlist=nlist,
-                                      query_args=query_args)
+            self.preprocess_arguments(box, points, neighbors=neighbors)
         self.thisptr.compute(nlistptr.get_ptr(),
                              nq.get_ptr(), dereference(qargs.thisptr))
         return self
@@ -371,7 +370,7 @@ cdef class Translational(PairCompute):
         del self.thisptr
 
     @Compute._compute()
-    def compute(self, box, points, nlist=None, query_args=None):
+    def compute(self, box, points, neighbors=None):
         R"""Calculates the local descriptors.
 
         Args:
@@ -394,8 +393,7 @@ cdef class Translational(PairCompute):
             unsigned int num_query_points
 
         b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(box, points, nlist=nlist,
-                                      query_args=query_args)
+            self.preprocess_arguments(box, points, neighbors=neighbors)
 
         self.thisptr.compute(nlistptr.get_ptr(),
                              nq.get_ptr(), dereference(qargs.thisptr))
@@ -519,7 +517,7 @@ cdef class Steinhardt(PairCompute):
             freud.util.arr_type_t.FLOAT)
 
     @Compute._compute()
-    def compute(self, box, points, nlist=None, query_args=None):
+    def compute(self, box, points, neighbors=None):
         R"""Compute the order parameter.
 
         Args:
@@ -540,8 +538,7 @@ cdef class Steinhardt(PairCompute):
             unsigned int num_query_points
 
         b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(box, points, nlist=nlist,
-                                      query_args=query_args)
+            self.preprocess_arguments(box, points, neighbors=neighbors)
 
         self.thisptr.compute(nlistptr.get_ptr(),
                              nq.get_ptr(),
@@ -661,7 +658,7 @@ cdef class SolidLiquid(PairCompute):
         del self.thisptr
 
     @Compute._compute()
-    def compute(self, box, points, nlist=None, query_args=None):
+    def compute(self, box, points, neighbors=None):
         R"""Compute the order parameter.
 
         Args:
@@ -682,8 +679,7 @@ cdef class SolidLiquid(PairCompute):
             unsigned int num_query_points
 
         b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(box, points, nlist=nlist,
-                                      query_args=query_args)
+            self.preprocess_arguments(box, points, neighbors=neighbors)
 
         self.thisptr.compute(nlistptr.get_ptr(),
                              nq.get_ptr(),
@@ -712,12 +708,22 @@ cdef class SolidLiquid(PairCompute):
             freud.util.arr_type_t.UNSIGNED_INT)
 
     @Compute._computed_property()
+    def Ql_ij(self):
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getQlij(),
+            freud.util.arr_type_t.FLOAT)
+
+    @Compute._computed_property()
     def cluster_sizes(self):
         return np.asarray(self.thisptr.getClusterSizes())
 
     @Compute._computed_property()
     def largest_cluster_size(self):
         return self.thisptr.getLargestClusterSize()
+
+    @Compute._computed_property()
+    def nlist(self):
+        return freud.locality.nlist_from_cnlist(self.thisptr.getNList())
 
     @Compute._computed_property()
     def num_connections(self):

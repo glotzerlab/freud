@@ -232,8 +232,7 @@ cdef class NeighborQueryResult:
 
         cdef freud._locality.NeighborList *cnlist = dereference(
             iterator).toNeighborList()
-        cdef NeighborList nl = NeighborList()
-        nl.refer_to(cnlist)
+        cdef NeighborList nl = nlist_from_cnlist(cnlist)
         # Explicitly manage a manually created nlist so that it will be
         # deleted when the Python object is.
         nl._managed = True
@@ -431,15 +430,6 @@ cdef class NeighborList:
 
         return result
 
-    cdef refer_to(self, freud._locality.NeighborList * other):
-        R"""Makes this cython wrapper object point to a different C++ object,
-        deleting the one we are already holding if necessary. We do not
-        own the memory of the other C++ object."""
-        if self._managed:
-            del self.thisptr
-        self._managed = False
-        self.thisptr = other
-
     def __cinit__(self):
         self._managed = True
         self.thisptr = new freud._locality.NeighborList()
@@ -560,6 +550,25 @@ cdef class NeighborList:
         return self
 
 
+cdef NeighborList nlist_from_cnlist(freud._locality.NeighborList *c_nlist):
+    """Create a Python NeighborList object that points to an existing C++
+    NeighborList object.
+
+    This functions generally serves two purposes. Any special locality
+    NeighborList generators, like :class:`~.Voronoi`, should use this as a way
+    to point to the C++ NeighborList they generate internally. Additionally,
+    any compute method that requires a :class:`~.NeighborList` (i.e. cannot do
+    with just a :class:`~.NeighborQuery`) should also expose the internally
+    computed :class:`~.NeighborList` using this method.
+    """
+    cdef NeighborList result
+    result = NeighborList()
+    del result.thisptr
+    result._managed = False
+    result.thisptr = c_nlist
+    return result
+
+
 cdef class NlistptrWrapper:
     R"""Wrapper class to hold :code:`freud._locality.NeighborList *`.
 
@@ -571,7 +580,7 @@ cdef class NlistptrWrapper:
             Neighbor list or :code:`None`.
     """
 
-    def __cinit__(self, nlist):
+    def __cinit__(self, nlist=None):
         cdef NeighborList _nlist
         if nlist is not None:
             _nlist = nlist
@@ -585,6 +594,13 @@ cdef class NlistptrWrapper:
 
 def make_default_nq(box, points):
     R"""Helper function to return a NeighborQuery object.
+
+    Currently the resolution for NeighborQuery objects is such that if Python
+    users pass in a numpy array of points and a box, we always make a RawPoints
+    object. On the C++ side, the RawPoints object internally constructs an
+    AABBQuery object to find neighbors if needed. On the Python side, making
+    the RawPoints object is just so that compute functions on the C++ side
+    don't require overloads to work.
 
     Args:
         box (:class:`freud.box.Box`):
@@ -1010,10 +1026,7 @@ cdef class _Voronoi:
             <int*> &expanded_ids[0], <vec3[double]*> &expanded_points[0, 0],
             <int*> &ridge_vertex_indices[0])
 
-        cdef freud._locality.NeighborList * nlist
-        nlist = self.thisptr.getNeighborList()
-        self._nlist.refer_to(nlist)
-        self._nlist.base = self
+        self._nlist = nlist_from_cnlist(self.thisptr.getNeighborList())
 
         # Construct a list of polytope vertices
         self._polytopes = list()
@@ -1136,8 +1149,8 @@ cdef class PairCompute(Compute):
     well as dealing with boxes and query arguments.
     """
 
-    def preprocess_arguments(self, box, points, query_points=None, nlist=None,
-                             query_args=None, dimensions=None):
+    def preprocess_arguments(self, box, points, query_points=None,
+                             neighbors=None, dimensions=None):
         """Process standard compute arguments into freud's internal types by
         calling all the required internal functions.
 
@@ -1158,30 +1171,35 @@ cdef class PairCompute(Compute):
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
-            query_args (dict): A dictionary of query arguments (Default value =
-                :code:`None`).
-        dimensions (int): Number of dimensions the box should be. If not None,
-            used to verify the box dimensions (Default value = :code:`None`).
+            query_args (dict):
+                A dictionary of query arguments (Default value = :code:`None`).
+            dimensions (int):
+                Number of dimensions the box should be. If not None, used to
+                verify the box dimensions (Default value = :code:`None`).
         """  # noqa E501
         cdef freud.box.Box b = freud.common.convert_box(box, dimensions)
         cdef NeighborQuery nq = make_default_nq(box, points)
-        cdef NlistptrWrapper nlistptr = NlistptrWrapper(nlist)
+
+        # Resolve the two possible ways of passing neighbors (query arguments
+        # or neighbor lists) based on the type of the neighbors argument.
+        cdef NlistptrWrapper nlistptr
         cdef _QueryArgs qargs
-        if query_args is not None:
-            query_args.setdefault('exclude_ii', query_points is None)
-            qargs = _QueryArgs.from_dict(query_args)
-        else:
+
+        if type(neighbors) == NeighborList:
+            nlistptr = NlistptrWrapper(neighbors)
+            qargs = _QueryArgs()
+        elif neighbors is None or type(neighbors) == dict:
+            # The default_query_args property must raise a NotImplementedError
+            # if no query arguments were passed in and the class has no
+            # reasonable choice of defaults.
             try:
-                query_args = self.default_query_args
+                query_args = self.default_query_args if neighbors is None \
+                    else neighbors.copy()
                 query_args.setdefault('exclude_ii', query_points is None)
                 qargs = _QueryArgs.from_dict(query_args)
+                nlistptr = NlistptrWrapper()
             except NotImplementedError:
-                # If a NeighborList was provided, then the user need not
-                # provide _QueryArgs.
-                if nlist is None:
-                    raise
-                else:
-                    qargs = _QueryArgs()
+                raise
 
         if query_points is None:
             query_points = nq.points

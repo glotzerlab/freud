@@ -31,7 +31,7 @@ public:
     NeighborList();
     //! Create a NeighborList that can hold up to the given number of bonds
     NeighborList(unsigned int max_bonds);
-    //! Copy constructor
+    //! Copy constructor (makes a deep copy)
     NeighborList(const NeighborList& other);
     //! Construct from arrays
     NeighborList(unsigned int num_bonds, const unsigned int* query_point_index,

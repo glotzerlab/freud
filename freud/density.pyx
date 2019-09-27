@@ -83,7 +83,7 @@ cdef class CorrelationFunction(SpatialHistogram1D):
 
     @Compute._compute()
     def accumulate(self, box, points, values, query_points=None,
-                   query_values=None, nlist=None, query_args=None):
+                   query_values=None, neighbors=None):
         R"""Calculates the correlation function and adds to the current
         histogram.
 
@@ -115,8 +115,7 @@ cdef class CorrelationFunction(SpatialHistogram1D):
             unsigned int num_query_points
 
         b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(box, points, query_points, nlist,
-                                      query_args)
+            self.preprocess_arguments(box, points, query_points, neighbors)
 
         # Save if any inputs have been complex so far.
         self.is_complex = self.is_complex or np.any(np.iscomplex(values)) or \
@@ -158,7 +157,7 @@ cdef class CorrelationFunction(SpatialHistogram1D):
 
     @Compute._compute()
     def compute(self, box, points, values, query_points=None,
-                query_values=None, nlist=None, query_args=None):
+                query_values=None, neighbors=None):
         R"""Calculates the correlation function for the given points. Will
         overwrite the current histogram.
 
@@ -182,8 +181,8 @@ cdef class CorrelationFunction(SpatialHistogram1D):
                 :code:`None`).
         """  # noqa E501
         self.reset()
-        self.accumulate(box, points, values, query_points, query_values, nlist,
-                        query_args)
+        self.accumulate(box, points, values, query_points, query_values,
+                        neighbors)
         return self
 
     def __repr__(self):
@@ -407,8 +406,7 @@ cdef class LocalDensity(PairCompute):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     @Compute._compute()
-    def compute(self, box, points, query_points=None, nlist=None,
-                query_args=None):
+    def compute(self, box, points, query_points=None, neighbors=None):
         R"""Calculates the local density for the specified points. Does not
         accumulate (will overwrite current data).
 
@@ -434,8 +432,7 @@ cdef class LocalDensity(PairCompute):
             unsigned int num_query_points
 
         b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(box, points, query_points, nlist,
-                                      query_args)
+            self.preprocess_arguments(box, points, query_points, neighbors)
         self.thisptr.compute(
             nq.get_ptr(),
             <vec3[float]*> &l_query_points[0, 0],
@@ -524,8 +521,7 @@ cdef class RDF(SpatialHistogram1D):
             del self.thisptr
 
     @Compute._compute()
-    def accumulate(self, box, points, query_points=None, nlist=None,
-                   query_args=None):
+    def accumulate(self, box, points, query_points=None, neighbors=None):
         R"""Calculates the RDF and adds to the current RDF histogram.
 
         Args:
@@ -548,8 +544,7 @@ cdef class RDF(SpatialHistogram1D):
             const float[:, ::1] l_query_points
             unsigned int num_query_points
         b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(box, points, query_points, nlist,
-                                      query_args)
+            self.preprocess_arguments(box, points, query_points, neighbors)
 
         self.thisptr.accumulate(
             nq.get_ptr(),
@@ -559,8 +554,7 @@ cdef class RDF(SpatialHistogram1D):
         return self
 
     @Compute._compute()
-    def compute(self, box, points, query_points=None, nlist=None,
-                query_args=None):
+    def compute(self, box, points, query_points=None, neighbors=None):
         R"""Calculates the RDF for the specified points. Will overwrite the current
         histogram.
 
@@ -577,7 +571,7 @@ cdef class RDF(SpatialHistogram1D):
                 :code:`None`).
         """  # noqa E501
         self.reset()
-        self.accumulate(box, points, query_points, nlist, query_args)
+        self.accumulate(box, points, query_points, neighbors)
         return self
 
     @Compute._computed_property()

@@ -349,6 +349,7 @@ sources_in_all = [
     os.path.join("cpp", "locality", "NeighborQuery.cc"),
     os.path.join("cpp", "locality", "AABBQuery.cc"),
     os.path.join("cpp", "locality", "NeighborList.cc"),
+    os.path.join("cpp", "locality", "NeighborComputeFunctional.cc"),
 ]
 
 # Any source files required only for specific modules.
