@@ -551,6 +551,16 @@ cdef class NeighborList:
 
 
 cdef NeighborList nlist_from_cnlist(freud._locality.NeighborList *c_nlist):
+    """Create a Python NeighborList object that points to an existing C++
+    NeighborList object.
+
+    This functions generally serves two purposes. Any special locality
+    NeighborList generators, like :class:`~.Voronoi`, should use this as a way
+    to point to the C++ Neighborlist they generate internally. Additionally,
+    any compute method that requires a :class:`~.NeighborList` (i.e. cannot do
+    with just a :class:`~.NeighborQuery`) should also expose the internally
+    computed :class:`~.NeighborList` using this method.
+    """
     cdef NeighborList result
     result = NeighborList()
     del result.thisptr
@@ -1138,62 +1148,6 @@ cdef class PairCompute(Compute):
     functions to create NeighborQuery and NeighborList classes as needed, as
     well as dealing with boxes and query arguments.
     """
-
-    def preprocess_arguments(self, box, points, query_points=None, nlist=None,
-                             query_args=None, dimensions=None):
-        """Process standard compute arguments into freud's internal types by
-        calling all the required internal functions.
-
-        This function handles the preprocessing of boxes and points into
-        :class:`freud.locality.NeighborQuery` objects, the determination of how
-        to handle the NeighborList object, the creation of default query
-        arguments as needed, deciding what `query_points` are, and setting the
-        appropriate `exclude_ii` flag.
-
-        Args:
-            box (:class:`freud.box.Box`):
-                Simulation box.
-            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
-                Reference points used to calculate the RDF.
-            query_points ((:math:`N_{query_points}`, 3) :class:`numpy.ndarray`, optional):
-                Points used to calculate the RDF. Uses :code:`points` if
-                not provided or :code:`None`.
-            nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value =
-                :code:`None`).
-            query_args (dict): A dictionary of query arguments (Default value =
-                :code:`None`).
-        dimensions (int): Number of dimensions the box should be. If not None,
-            used to verify the box dimensions (Default value = :code:`None`).
-        """  # noqa E501
-        cdef freud.box.Box b = freud.common.convert_box(box, dimensions)
-        cdef NeighborQuery nq = make_default_nq(box, points)
-        cdef NlistptrWrapper nlistptr = NlistptrWrapper(nlist)
-        cdef _QueryArgs qargs
-        if query_args is not None:
-            query_args.setdefault('exclude_ii', query_points is None)
-            qargs = _QueryArgs.from_dict(query_args)
-        else:
-            try:
-                query_args = self.default_query_args
-                query_args.setdefault('exclude_ii', query_points is None)
-                qargs = _QueryArgs.from_dict(query_args)
-            except NotImplementedError:
-                # If a NeighborList was provided, then the user need not
-                # provide _QueryArgs.
-                if nlist is None:
-                    raise
-                else:
-                    qargs = _QueryArgs()
-
-        if query_points is None:
-            query_points = nq.points
-        else:
-            query_points = freud.common.convert_array(
-                query_points, shape=(None, 3))
-        cdef const float[:, ::1] l_query_points = query_points
-        cdef unsigned int num_query_points = l_query_points.shape[0]
-        return (b, nq, nlistptr, qargs, l_query_points, num_query_points)
 
     def preprocess_arguments_new(self, box, points, query_points=None,
                                  neighbors=None, dimensions=None):
