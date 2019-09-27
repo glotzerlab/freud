@@ -556,7 +556,7 @@ cdef NeighborList nlist_from_cnlist(freud._locality.NeighborList *c_nlist):
 
     This functions generally serves two purposes. Any special locality
     NeighborList generators, like :class:`~.Voronoi`, should use this as a way
-    to point to the C++ Neighborlist they generate internally. Additionally,
+    to point to the C++ NeighborList they generate internally. Additionally,
     any compute method that requires a :class:`~.NeighborList` (i.e. cannot do
     with just a :class:`~.NeighborQuery`) should also expose the internally
     computed :class:`~.NeighborList` using this method.

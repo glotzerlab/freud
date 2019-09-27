@@ -41,7 +41,7 @@ public:
         return m_angles;
     }
 
-protected:
+private:
     util::ManagedArray<float> m_angles; //!< Global angle array computed
 };
 
@@ -79,7 +79,7 @@ public:
         return &m_nlist;
     }
 
-protected:
+private:
     util::ManagedArray<float> m_angles;  //!< neighbor angle array computed
     locality::NeighborList m_nlist; //!< The NeighborList used in the last call to compute.
 };

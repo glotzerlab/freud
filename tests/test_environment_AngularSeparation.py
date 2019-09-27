@@ -5,8 +5,8 @@ import unittest
 from util import make_box_and_random_points
 
 
-class TestAngularSeparation(unittest.TestCase):
-    def test_getN_global(self):
+class TestAngularSeparationGlobal(unittest.TestCase):
+    def test_getN(self):
         boxlen = 10
         N = 500
 
@@ -19,7 +19,43 @@ class TestAngularSeparation(unittest.TestCase):
         with self.assertRaises(AttributeError):
             ang.angles
 
-    def test_getN_neighbor(self):
+    def test_compute(self):
+        # Going to make sure that the use of equivalent_orientations captures
+        # both of the global reference orientations
+        global_ors = np.array([[1, 0, 0, 0], [0, 1, 0, 0]], dtype=np.float32)
+        equivalent_orientations = np.array(
+            [[1, 0, 0, 0], [0, 1, 0, 0], [-1, 0, 0, 0], [0, -1, 0, 0]],
+            dtype=np.float32)
+
+        ors = [[1, 0, 0, 0]]
+        ors.append([0, 1, 0, 0])
+        # The following two quaternions correspond to rotations of the above
+        # by pi/16
+        ors.append([0.99518473, 0., 0., 0.09801714])
+        ors.append([0., 0.99518473, -0.09801714, 0.])
+
+        ors = np.asarray(ors, dtype=np.float32)
+
+        ang = freud.environment.AngularSeparationGlobal()
+        ang.compute(global_ors, ors, equivalent_orientations)
+
+        # Each orientation should be either equal to or pi/16 away from the
+        # global reference quaternion
+        for i in [0, 1]:
+            for j in [0, 1]:
+                npt.assert_allclose(ang.angles[i][j], 0, atol=1e-6)
+        for i in [2, 3]:
+            for j in [0, 1]:
+                npt.assert_allclose(ang.angles[i][j], np.pi/16,
+                                    atol=1e-6)
+
+    def test_repr(self):
+        ang = freud.environment.AngularSeparationGlobal()
+        self.assertEqual(str(ang), str(eval(repr(ang))))
+
+
+class TestAngularSeparationNeighbor(unittest.TestCase):
+    def test_getN(self):
         boxlen = 10
         N = 500
 
@@ -65,7 +101,7 @@ class TestAngularSeparation(unittest.TestCase):
 
         npt.assert_array_equal(nlist[:], ang.nlist[:])
 
-    def test_compute_neighbors(self):
+    def test_compute(self):
         boxlen = 4
         num_neighbors = 1
         r_guess = 2
@@ -97,40 +133,7 @@ class TestAngularSeparation(unittest.TestCase):
         npt.assert_allclose(ang.angles[0], np.pi/3, atol=1e-6)
         npt.assert_allclose(ang.angles[1], 0, atol=1e-6)
 
-    def test_compute_global(self):
-        # Going to make sure that the use of equivalent_orientations captures
-        # both of the global reference orientations
-        global_ors = np.array([[1, 0, 0, 0], [0, 1, 0, 0]], dtype=np.float32)
-        equivalent_orientations = np.array(
-            [[1, 0, 0, 0], [0, 1, 0, 0], [-1, 0, 0, 0], [0, -1, 0, 0]],
-            dtype=np.float32)
-
-        ors = [[1, 0, 0, 0]]
-        ors.append([0, 1, 0, 0])
-        # The following two quaternions correspond to rotations of the above
-        # by pi/16
-        ors.append([0.99518473, 0., 0., 0.09801714])
-        ors.append([0., 0.99518473, -0.09801714, 0.])
-
-        ors = np.asarray(ors, dtype=np.float32)
-
-        ang = freud.environment.AngularSeparationGlobal()
-        ang.compute(global_ors, ors, equivalent_orientations)
-
-        # Each orientation should be either equal to or pi/16 away from the
-        # global reference quaternion
-        for i in [0, 1]:
-            for j in [0, 1]:
-                npt.assert_allclose(ang.angles[i][j], 0, atol=1e-6)
-        for i in [2, 3]:
-            for j in [0, 1]:
-                npt.assert_allclose(ang.angles[i][j], np.pi/16,
-                                    atol=1e-6)
-
     def test_repr(self):
-        ang = freud.environment.AngularSeparationGlobal()
-        self.assertEqual(str(ang), str(eval(repr(ang))))
-
         ang = freud.environment.AngularSeparationNeighbor()
         self.assertEqual(str(ang), str(eval(repr(ang))))
 
