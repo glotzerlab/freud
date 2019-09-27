@@ -167,7 +167,7 @@ cdef class BondOrder(SpatialHistogram):
             unsigned int num_query_points
 
         b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments_new(box, points, query_points, neighbors)
+            self.preprocess_arguments(box, points, query_points, neighbors)
         if query_orientations is None:
             query_orientations = orientations
 
@@ -345,7 +345,7 @@ cdef class LocalDescriptors(PairCompute):
             unsigned int num_query_points
 
         b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments_new(box, points, query_points, neighbors)
+            self.preprocess_arguments(box, points, query_points, neighbors)
 
         # The l_orientations_ptr is only used for 'particle_local' mode.
         cdef const float[:, ::1] l_orientations
@@ -811,7 +811,7 @@ cdef class AngularSeparationNeighbor(PairCompute):
             unsigned int num_query_points
 
         b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments_new(box, points, query_points, neighbors)
+            self.preprocess_arguments(box, points, query_points, neighbors)
 
         orientations = freud.common.convert_array(
             orientations, shape=(points.shape[0], 4))
@@ -1004,7 +1004,7 @@ cdef class LocalBondProjection(PairCompute):
             unsigned int num_query_points
 
         b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments_new(box, points, query_points, neighbors)
+            self.preprocess_arguments(box, points, query_points, neighbors)
 
         orientations = freud.common.convert_array(
             orientations, shape=(None, 4))

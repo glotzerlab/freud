@@ -166,8 +166,8 @@ cdef class PMFTR12(_PMFT):
             unsigned int num_query_points
 
         b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments_new(box, points, query_points, neighbors,
-                                          dimensions=2)
+            self.preprocess_arguments(
+                box, points, query_points, neighbors, dimensions=2)
 
         orientations = freud.common.convert_array(
             np.atleast_1d(orientations.squeeze()),
@@ -314,8 +314,8 @@ cdef class PMFTXYT(_PMFT):
             unsigned int num_query_points
 
         b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments_new(box, points, query_points, neighbors,
-                                          dimensions=2)
+            self.preprocess_arguments(
+                box, points, query_points, neighbors, dimensions=2)
 
         orientations = freud.common.convert_array(
             np.atleast_1d(orientations.squeeze()),
@@ -457,8 +457,8 @@ cdef class PMFTXY2D(_PMFT):
             unsigned int num_query_points
 
         b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments_new(box, points, query_points, neighbors,
-                                          dimensions=2)
+            self.preprocess_arguments(
+                box, points, query_points, neighbors, dimensions=2)
 
         orientations = freud.common.convert_array(
             np.atleast_1d(orientations.squeeze()),
@@ -644,8 +644,8 @@ cdef class PMFTXYZ(_PMFT):
             unsigned int num_query_points
 
         b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments_new(box, points, query_points, neighbors,
-                                          dimensions=3)
+            self.preprocess_arguments(
+                box, points, query_points, neighbors, dimensions=3)
         l_query_points = l_query_points - self.shiftvec.reshape(1, 3)
 
         orientations = freud.common.convert_array(

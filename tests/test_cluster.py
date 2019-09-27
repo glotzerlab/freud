@@ -34,7 +34,7 @@ class TestCluster(unittest.TestCase):
         clust.compute(box, positions)
         idx = np.copy(clust.cluster_idx)
 
-        test_set = util.make_raw_query_nlist_test_set_new(
+        test_set = util.make_raw_query_nlist_test_set(
             box, positions, positions, "ball", 0.5, 0, True)
         for ts in test_set:
             clust.compute(box, ts[0], neighbors=ts[1])

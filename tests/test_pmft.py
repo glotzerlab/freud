@@ -148,7 +148,7 @@ class TestPMFTR12(unittest.TestCase):
         absoluteTolerance = 0.1
 
         r_max = maxR
-        test_set = util.make_raw_query_nlist_test_set_new(
+        test_set = util.make_raw_query_nlist_test_set(
             box, points, points, 'ball', r_max, 0, True)
         for ts in test_set:
             myPMFT = freud.pmft.PMFTR12(maxR, (nbinsR, nbinsT1, nbinsT2))
@@ -182,7 +182,7 @@ class TestPMFTR12(unittest.TestCase):
         orientations = np.array([0]*len(points))
         query_orientations = np.array([0]*len(query_points))
 
-        test_set = util.make_raw_query_nlist_test_set_new(
+        test_set = util.make_raw_query_nlist_test_set(
             box, points, query_points, "ball", r_max, 0, False)
         for ts in test_set:
             pmft = freud.pmft.PMFTR12(r_max, nbins)
@@ -341,7 +341,7 @@ class TestPMFTXYT(unittest.TestCase):
         absoluteTolerance = 0.1
 
         r_max = np.sqrt(maxX**2 + maxY**2)
-        test_set = util.make_raw_query_nlist_test_set_new(
+        test_set = util.make_raw_query_nlist_test_set(
             box, points, points, 'ball', r_max, 0, True)
         for ts in test_set:
             myPMFT = freud.pmft.PMFTXYT(maxX, maxY, (nbinsX, nbinsY, nbinsT))
@@ -380,7 +380,7 @@ class TestPMFTXYT(unittest.TestCase):
         query_orientations = np.array([0]*len(query_points))
 
         r_max = np.sqrt(x_max**2 + y_max**2)
-        test_set = util.make_raw_query_nlist_test_set_new(
+        test_set = util.make_raw_query_nlist_test_set(
             box, points, query_points, 'ball', r_max, 0, False)
 
         for ts in test_set:
@@ -524,7 +524,7 @@ class TestPMFTXY2D(unittest.TestCase):
         absoluteTolerance = 0.1
 
         r_max = np.sqrt(maxX**2 + maxY**2)
-        test_set = util.make_raw_query_nlist_test_set_new(
+        test_set = util.make_raw_query_nlist_test_set(
             box, points, points, 'ball', r_max, 0, True)
         for ts in test_set:
             myPMFT = freud.pmft.PMFTXY2D(maxX, maxY, (nbinsX, nbinsY))
@@ -580,7 +580,7 @@ class TestPMFTXY2D(unittest.TestCase):
         orientations = np.array([0]*len(points))
 
         r_max = np.sqrt(x_max**2 + y_max**2)
-        test_set = util.make_raw_query_nlist_test_set_new(
+        test_set = util.make_raw_query_nlist_test_set(
             box, points, query_points, 'ball', r_max, 0, False)
 
         for ts in test_set:
@@ -783,7 +783,7 @@ class TestPMFTXYZ(unittest.TestCase):
         absoluteTolerance = 0.1
 
         r_max = np.sqrt(maxX**2 + maxY**2 + maxZ**2)
-        test_set = util.make_raw_query_nlist_test_set_new(
+        test_set = util.make_raw_query_nlist_test_set(
             box, points, points, 'ball', r_max, 0, True)
         for ts in test_set:
             myPMFT = freud.pmft.PMFTXYZ(

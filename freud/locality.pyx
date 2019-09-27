@@ -1149,8 +1149,8 @@ cdef class PairCompute(Compute):
     well as dealing with boxes and query arguments.
     """
 
-    def preprocess_arguments_new(self, box, points, query_points=None,
-                                 neighbors=None, dimensions=None):
+    def preprocess_arguments(self, box, points, query_points=None,
+                             neighbors=None, dimensions=None):
         """Process standard compute arguments into freud's internal types by
         calling all the required internal functions.
 

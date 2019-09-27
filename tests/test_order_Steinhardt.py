@@ -55,7 +55,7 @@ class TestSteinhardt(unittest.TestCase):
     def test_identical_environments_Ql(self):
         (box, positions) = util.make_fcc(4, 4, 4)
         r_max = 1.5
-        test_set = util.make_raw_query_nlist_test_set_new(
+        test_set = util.make_raw_query_nlist_test_set(
             box, positions, positions, 'ball', r_max, 0, True)
         for ts in test_set:
             comp = freud.order.Steinhardt(6)
@@ -77,7 +77,7 @@ class TestSteinhardt(unittest.TestCase):
 
         r_max = 1.5
         n = 12
-        test_set = util.make_raw_query_nlist_test_set_new(
+        test_set = util.make_raw_query_nlist_test_set(
             box, positions, positions, 'nearest', r_max, n, True)
         for ts in test_set:
             comp = freud.order.Steinhardt(6)
@@ -98,7 +98,7 @@ class TestSteinhardt(unittest.TestCase):
         perturbed_positions = positions.copy()
         perturbed_positions[-1] += [0.1, 0, 0]
 
-        test_set = util.make_raw_query_nlist_test_set_new(
+        test_set = util.make_raw_query_nlist_test_set(
             box, perturbed_positions, perturbed_positions,
             'nearest', r_max, n, True)
         # Ensure exactly 13 values change for the perturbed system
@@ -119,7 +119,7 @@ class TestSteinhardt(unittest.TestCase):
         (box, positions) = util.make_fcc(4, 4, 4)
 
         r_max = 1.5
-        test_set = util.make_raw_query_nlist_test_set_new(
+        test_set = util.make_raw_query_nlist_test_set(
             box, positions, positions, 'ball', r_max, 0, True)
         for ts in test_set:
             comp = freud.order.Steinhardt(6, Wl=True)
@@ -140,7 +140,7 @@ class TestSteinhardt(unittest.TestCase):
         (box, positions) = util.make_fcc(4, 4, 4)
         r_max = 1.5
         n = 12
-        test_set = util.make_raw_query_nlist_test_set_new(
+        test_set = util.make_raw_query_nlist_test_set(
             box, positions, positions, 'nearest', r_max, n, True)
         for ts in test_set:
             comp = freud.order.Steinhardt(6, Wl=True)
@@ -163,7 +163,7 @@ class TestSteinhardt(unittest.TestCase):
         (box, positions) = util.make_fcc(4, 4, 4)
         r_max = 1.5
         n = 12
-        test_set = util.make_raw_query_nlist_test_set_new(
+        test_set = util.make_raw_query_nlist_test_set(
             box, positions, positions, 'nearest', r_max, n, True)
 
         # Skip test sets without an explicit neighbor list

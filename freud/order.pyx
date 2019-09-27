@@ -324,7 +324,7 @@ cdef class Hexatic(PairCompute):
             unsigned int num_query_points
 
         b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments_new(box, points, neighbors=neighbors)
+            self.preprocess_arguments(box, points, neighbors=neighbors)
         self.thisptr.compute(nlistptr.get_ptr(),
                              nq.get_ptr(), dereference(qargs.thisptr))
         return self
@@ -393,7 +393,7 @@ cdef class Translational(PairCompute):
             unsigned int num_query_points
 
         b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments_new(box, points, neighbors=neighbors)
+            self.preprocess_arguments(box, points, neighbors=neighbors)
 
         self.thisptr.compute(nlistptr.get_ptr(),
                              nq.get_ptr(), dereference(qargs.thisptr))
@@ -538,7 +538,7 @@ cdef class Steinhardt(PairCompute):
             unsigned int num_query_points
 
         b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments_new(box, points, neighbors=neighbors)
+            self.preprocess_arguments(box, points, neighbors=neighbors)
 
         self.thisptr.compute(nlistptr.get_ptr(),
                              nq.get_ptr(),
@@ -679,7 +679,7 @@ cdef class SolidLiquid(PairCompute):
             unsigned int num_query_points
 
         b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments_new(box, points, neighbors=neighbors)
+            self.preprocess_arguments(box, points, neighbors=neighbors)
 
         self.thisptr.compute(nlistptr.get_ptr(),
                              nq.get_ptr(),

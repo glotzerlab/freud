@@ -2,8 +2,8 @@ import numpy as np
 import freud
 
 
-def make_raw_query_nlist_test_set_new(box, points, query_points, mode, r_max,
-                                      num_neighbors, exclude_ii):
+def make_raw_query_nlist_test_set(box, points, query_points, mode, r_max,
+                                  num_neighbors, exclude_ii):
     """Helper function to test multiple neighbor-finding data structures.
 
     Args:

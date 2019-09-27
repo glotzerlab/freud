@@ -667,7 +667,7 @@ class TestMultipleMethods(unittest.TestCase):
         r_max = 1.6
         num_neighbors = 12
 
-        test_set = util.make_raw_query_nlist_test_set_new(
+        test_set = util.make_raw_query_nlist_test_set(
             box, points, query_points, "nearest", r_max, num_neighbors, False)
         nlist = test_set[-1][1]
         for ts in test_set:

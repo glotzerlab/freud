@@ -52,7 +52,7 @@ class TestBondOrder(unittest.TestCase):
         with self.assertRaises(AttributeError):
             bo.bond_order
 
-        test_set = util.make_raw_query_nlist_test_set_new(
+        test_set = util.make_raw_query_nlist_test_set(
             box, positions, positions, "nearest", r_max, num_neighbors, True)
         for ts in test_set:
             bo.reset()
@@ -113,7 +113,7 @@ class TestBondOrder(unittest.TestCase):
         num_neighbors = 12
         n_bins_theta = 30
         n_bins_phi = 2
-        test_set = util.make_raw_query_nlist_test_set_new(
+        test_set = util.make_raw_query_nlist_test_set(
             box, points, query_points, "nearest", r_max, num_neighbors, False)
         for ts in test_set:
             bod = freud.environment.BondOrder(

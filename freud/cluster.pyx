@@ -99,7 +99,7 @@ cdef class Cluster(PairCompute):
             unsigned int num_query_points
 
         b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments_new(box, points, neighbors=neighbors)
+            self.preprocess_arguments(box, points, neighbors=neighbors)
 
         cdef unsigned int* l_keys_ptr = NULL
         cdef unsigned int[::1] l_keys

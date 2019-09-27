@@ -77,7 +77,7 @@ class TestCorrelationFunction(unittest.TestCase):
         correct = np.zeros(bins, dtype=np.complex64)
         absolute_tolerance = 0.1
         # first bin is bad
-        test_set = util.make_raw_query_nlist_test_set_new(
+        test_set = util.make_raw_query_nlist_test_set(
             box, points, points, 'ball', r_max, 0, True)
         for ts in test_set:
             ocf = freud.density.CorrelationFunction(bins, r_max)
@@ -112,7 +112,7 @@ class TestCorrelationFunction(unittest.TestCase):
         correct = np.zeros(bins, dtype=np.float64)
         absolute_tolerance = 0.1
         # first bin is bad
-        test_set = util.make_raw_query_nlist_test_set_new(
+        test_set = util.make_raw_query_nlist_test_set(
             box, points, points, 'ball', r_max, 0, True)
         for ts in test_set:
             ocf = freud.density.CorrelationFunction(bins, r_max)
@@ -365,7 +365,7 @@ class TestCorrelationFunction(unittest.TestCase):
         # the result should be minimal.
         points = [[dr/4, 0, 0], [-dr/4, 0, 0], [0, dr/4, 0], [0, -dr/4, 0]]
 
-        test_set = util.make_raw_query_nlist_test_set_new(
+        test_set = util.make_raw_query_nlist_test_set(
             box, points, query_points, "ball", r_max, 0, False)
         for ts in test_set:
             ocf = freud.density.CorrelationFunction(bins, r_max)
@@ -413,7 +413,7 @@ class TestCorrelationFunction(unittest.TestCase):
         # the result should be minimal.
         points = [[dr/4, 0, 0], [-dr/4, 0, 0], [0, dr/4, 0], [0, -dr/4, 0]]
 
-        test_set = util.make_raw_query_nlist_test_set_new(
+        test_set = util.make_raw_query_nlist_test_set(
             box, points, query_points, "ball", r_max, 0, False)
         for ts in test_set:
             ocf = freud.density.CorrelationFunction(bins, r_max)

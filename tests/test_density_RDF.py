@@ -82,7 +82,7 @@ class TestRDF(unittest.TestCase):
 
         for i, r_min in enumerate([0, 0.05, 0.1, 1.0, 3.0]):
             box, points = util.make_box_and_random_points(box_size, num_points)
-            test_set = util.make_raw_query_nlist_test_set_new(
+            test_set = util.make_raw_query_nlist_test_set(
                 box, points, points, "ball", r_max, 0, True)
             for ts in test_set:
                 rdf = freud.density.RDF(bins, r_max, r_min)
@@ -153,7 +153,7 @@ class TestRDF(unittest.TestCase):
             supposed_RDF.append(supposed_RDF[-1] + N)
         supposed_RDF = np.array(supposed_RDF[1:])
 
-        test_set = util.make_raw_query_nlist_test_set_new(
+        test_set = util.make_raw_query_nlist_test_set(
             box, points, query_points, "ball", r_max, 0, False)
         for ts in test_set:
             rdf = freud.density.RDF(bins, r_max)
