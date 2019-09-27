@@ -306,7 +306,7 @@ jobs:
     <<: *test_container_config_ubuntu18
     environment:
       PYVER: "3.7"
-      PIP: "pip3.7"
+      PIP: "pip3"
     <<: *load_check_style
 
   test-py36:
