@@ -23,6 +23,7 @@ NeighborList makeDefaultNlist(const NeighborQuery *nq, const NeighborList
     }
     locality::NeighborList new_nlist = NeighborList(*nlist);
     new_nlist.validate(num_query_points, nq->getNPoints());
+    return new_nlist;
 }
 
 }; }; // end namespace freud::locality

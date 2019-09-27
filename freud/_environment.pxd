@@ -35,18 +35,19 @@ cdef extern from "LocalDescriptors.h" namespace "freud::environment":
 
     cdef cppclass LocalDescriptors:
         LocalDescriptors(unsigned int,
-                         bool)
+                         bool, LocalDescriptorOrientation)
         unsigned int getNSphs() const
         unsigned int getLMax() const
         unsigned int getSphWidth() const
         void compute(
             const freud._locality.NeighborQuery*,
             const vec3[float]*, unsigned int,
-            const quat[float]*, LocalDescriptorOrientation,
+            const quat[float]*,
             const freud._locality.NeighborList*,
             freud._locality.QueryArgs) except +
         const freud.util.ManagedArray[float complex] &getSph() const
         freud._locality.NeighborList * getNList()
+        LocalDescriptorOrientation getMode() const
 
 cdef extern from "MatchEnv.h" namespace "freud::environment":
     cdef cppclass MatchEnv:

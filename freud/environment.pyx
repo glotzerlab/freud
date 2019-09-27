@@ -274,6 +274,12 @@ cdef class LocalDescriptors(PairCompute):
         negative_m (bool, optional):
             True if we should also calculate :math:`Y_{lm}` for negative
             :math:`m`. (Default value = :code:`True`)
+        mode (str, optional):
+            Orientation mode to use for environments, either
+            :code:`'neighborhood'` to use the orientation of the local
+            neighborhood, :code:`'particle_local'` to use the given
+            particle orientations, or :code:`'global'` to not rotate
+            environments (Default value = :code:`'neighborhood'`).
 
     Attributes:
         sph (:math:`\left(N_{bonds}, \text{SphWidth} \right)` :class:`numpy.ndarray`):
@@ -299,17 +305,23 @@ cdef class LocalDescriptors(PairCompute):
                    'global': freud._environment.Global,
                    'particle_local': freud._environment.ParticleLocal}
 
-    def __cinit__(self, l_max, negative_m=True):
+    def __cinit__(self, l_max, negative_m=True, mode='neighborhood'):
+        cdef freud._environment.LocalDescriptorOrientation l_mode
+        try:
+            l_mode = self.known_modes[mode]
+        except KeyError:
+            raise ValueError(
+                'Unknown LocalDescriptors orientation mode: {}'.format(mode))
+
         self.thisptr = new freud._environment.LocalDescriptors(
-            l_max, negative_m)
+            l_max, negative_m, l_mode)
         self.negative_m = negative_m
 
     def __dealloc__(self):
         del self.thisptr
 
     @Compute._compute()
-    def compute(self, box, points,
-                query_points=None, orientations=None, mode='neighborhood',
+    def compute(self, box, points, query_points=None, orientations=None,
                 neighbors=None):
         R"""Calculates the local descriptors of bonds from a set of source
         points to a set of destination points.
@@ -327,12 +339,6 @@ cdef class LocalDescriptors(PairCompute):
                 (Default value = :code:`None`).
             orientations ((:math:`N_{points}`, 4) :class:`numpy.ndarray`, optional):
                 Orientation of each point (Default value = :code:`None`).
-            mode (str, optional):
-                Orientation mode to use for environments, either
-                :code:`'neighborhood'` to use the orientation of the local
-                neighborhood, :code:`'particle_local'` to use the given
-                particle orientations, or :code:`'global'` to not rotate
-                environments (Default value = :code:`'neighborhood'`).
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value = :code:`None`).
         """  # noqa: E501
@@ -350,7 +356,7 @@ cdef class LocalDescriptors(PairCompute):
         # The l_orientations_ptr is only used for 'particle_local' mode.
         cdef const float[:, ::1] l_orientations
         cdef quat[float] *l_orientations_ptr = NULL
-        if mode == 'particle_local':
+        if self.mode == 'particle_local':
             if orientations is None:
                 raise RuntimeError(
                     ('Orientations must be given to orient LocalDescriptors '
@@ -362,16 +368,10 @@ cdef class LocalDescriptors(PairCompute):
             l_orientations = orientations
             l_orientations_ptr = <quat[float]*> &l_orientations[0, 0]
 
-        if mode not in self.known_modes:
-            raise RuntimeError(
-                'Unknown LocalDescriptors orientation mode: {}'.format(mode))
-        cdef freud._environment.LocalDescriptorOrientation l_mode
-        l_mode = self.known_modes[mode]
-
         self.thisptr.compute(
             nq.get_ptr(),
             <vec3[float]*> &l_query_points[0, 0], num_query_points,
-            l_orientations_ptr, l_mode,
+            l_orientations_ptr,
             nlistptr.get_ptr(), dereference(qargs.thisptr))
         return self
 
@@ -393,11 +393,18 @@ cdef class LocalDescriptors(PairCompute):
     def l_max(self):
         return self.thisptr.getLMax()
 
+    @property
+    def mode(self):
+        mode = self.thisptr.getMode()
+        for key, value in self.known_modes.items():
+            if value == mode:
+                return key
+
     def __repr__(self):
         return ("freud.environment.{cls}(l_max={l_max}, "
-                "negative_m={negative_m})").format(
+                "negative_m={negative_m}, mode='{mode}')").format(
                     cls=type(self).__name__, l_max=self.l_max,
-                    negative_m=self.negative_m)
+                    negative_m=self.negative_m, mode=self.mode)
 
 
 cdef class MatchEnv(Compute):
