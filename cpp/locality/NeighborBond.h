@@ -12,18 +12,18 @@ namespace freud { namespace locality {
 struct NeighborBond
 {
     // For now, id = query_point_idx and ref_id = point_idx (into the NeighborQuery).
-    NeighborBond() : id(0), ref_id(0), distance(0),  weight(0) {}
+    NeighborBond() : query_point_idx(0), point_idx(0), distance(0),  weight(0) {}
 
-    NeighborBond(unsigned int id, unsigned int ref_id, float d, float w) :
-        id(id), ref_id(ref_id), distance(d), weight(w) {}
+    NeighborBond(unsigned int query_point_idx, unsigned int point_idx, float d, float w) :
+        query_point_idx(query_point_idx), point_idx(point_idx), distance(d), weight(w) {}
 
-    NeighborBond(unsigned int id, unsigned int ref_id, float d) :
-        id(id), ref_id(ref_id), distance(d), weight(1) {}
+    NeighborBond(unsigned int query_point_idx, unsigned int point_idx, float d) :
+        query_point_idx(query_point_idx), point_idx(point_idx), distance(d), weight(1) {}
 
-    //! Equality checks both id and distance.
+    //! Equality checks both query_point_idx and distance.
     bool operator==(const NeighborBond& other)
     {
-        return (id == other.id) && (ref_id == other.ref_id) && (distance == other.distance);
+        return (query_point_idx == other.query_point_idx) && (point_idx == other.point_idx) && (distance == other.distance);
     }
 
     //! Not equals checks inverse of equality.
@@ -42,26 +42,26 @@ struct NeighborBond
 
     bool less_id_ref_weight(const NeighborBond& n) const
     {
-        if (id != n.id)
+        if (query_point_idx != n.query_point_idx)
         {
-            return id < n.id;
+            return query_point_idx < n.query_point_idx;
         }
-        if (ref_id != n.ref_id)
+        if (point_idx != n.point_idx)
         {
-            return ref_id < n.ref_id;
+            return point_idx < n.point_idx;
         }
         return weight < n.weight;
     }
 
     bool less_as_tuple(const NeighborBond& n) const
     {
-        if (id != n.id)
+        if (query_point_idx != n.query_point_idx)
         {
-            return id < n.id;
+            return query_point_idx < n.query_point_idx;
         }
-        if (ref_id != n.ref_id)
+        if (point_idx != n.point_idx)
         {
-            return ref_id < n.ref_id;
+            return point_idx < n.point_idx;
         }
         if (weight != n.weight)
         {
@@ -70,8 +70,8 @@ struct NeighborBond
         return distance < n.distance;
     }
 
-    unsigned int id;          //! The point id.
-    unsigned int ref_id;      //! The reference point id.
+    unsigned int query_point_idx;          //! The query point index.
+    unsigned int point_idx;      //! The reference point index.
     float distance;           //! The distance between the points.
     float weight;             //! The weight of this bond.
 };

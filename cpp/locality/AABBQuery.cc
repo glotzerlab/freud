@@ -237,19 +237,19 @@ NeighborBond AABBQueryIterator::next()
                 if (nb == NeighborQueryIterator::ITERATOR_TERMINATOR)
                     continue;
 
-                if (!m_exclude_ii || m_query_point_idx != nb.ref_id)
+                if (!m_exclude_ii || m_query_point_idx != nb.point_idx)
                 {
-                    nb.id = m_query_point_idx;
+                    nb.query_point_idx = m_query_point_idx;
                     // If we've expanded our search radius beyond safe
                     // distance, use the map instead of the vector.
                     if (m_search_extended)
                     {
-                        if (!m_all_distances.count(nb.ref_id) || m_all_distances[nb.ref_id] > nb.distance)
+                        if (!m_all_distances.count(nb.point_idx) || m_all_distances[nb.point_idx] > nb.distance)
                         {
-                            m_all_distances[nb.ref_id] = nb.distance;
+                            m_all_distances[nb.point_idx] = nb.distance;
                             if (nb.distance < m_r_min)
                             {
-                                m_query_points_below_r_min.insert(nb.ref_id);
+                                m_query_points_below_r_min.insert(nb.point_idx);
                             }
                         }
                     }
