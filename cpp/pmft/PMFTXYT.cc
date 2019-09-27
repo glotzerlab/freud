@@ -60,16 +60,16 @@ void PMFTXYT::accumulate(const locality::NeighborQuery* neighbor_query,
 {
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
         [=](const freud::locality::NeighborBond& neighbor_bond) {
-        vec3<float> ref = neighbor_query->getPoints()[neighbor_bond.ref_id];
-        vec3<float> delta = m_box.wrap(query_points[neighbor_bond.id] - ref);
+        vec3<float> ref = neighbor_query->getPoints()[neighbor_bond.point_idx];
+        vec3<float> delta = m_box.wrap(query_points[neighbor_bond.query_point_idx] - ref);
 
         // rotate interparticle vector
         vec2<float> myVec(delta.x, delta.y);
-        rotmat2<float> myMat = rotmat2<float>::fromAngle(-orientations[neighbor_bond.ref_id]);
+        rotmat2<float> myMat = rotmat2<float>::fromAngle(-orientations[neighbor_bond.point_idx]);
         vec2<float> rotVec = myMat * myVec;
         // calculate angle
         float d_theta = atan2(-delta.y, -delta.x);
-        float t = query_orientations[neighbor_bond.id] - d_theta;
+        float t = query_orientations[neighbor_bond.query_point_idx] - d_theta;
         // make sure that t is bounded between 0 and 2PI
         t = fmod(t, TWO_PI);
         if (t < 0)

@@ -11,8 +11,8 @@ cimport freud.util
 
 cdef extern from "NeighborBond.h" namespace "freud::locality":
     cdef cppclass NeighborBond:
-        unsigned int id
-        unsigned int ref_id
+        unsigned int query_point_idx
+        unsigned int point_idx
         float distance
         float weight
         bool operator==(NeighborBond)
