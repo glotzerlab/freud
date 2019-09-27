@@ -303,7 +303,7 @@ references:
 
 jobs:
   check-style:
-    <<: *test_container_config_ubuntu18
+    <<: *test_container_config_ubuntu19
     environment:
       PYVER: "3.7"
       PIP: "pip3"
