@@ -16,7 +16,7 @@
 namespace freud { namespace order {
 
 //! Identifies solid-like clusters using dot products of Q_{lm}.
-/*! The solid-liquid order parameter (Frenkel 1995) uses a Steinhardt-like
+/*! The solid-liquid order parameter (ten Wolde 1995) uses a Steinhardt-like
  *  approach to identify solid-like particles. First, a bond parameter
  *  Q_l(i, j) is computed for each neighbor bond.
  *

@@ -595,7 +595,7 @@ cdef class Steinhardt(PairCompute):
 cdef class SolidLiquid(PairCompute):
     R"""Identifies solid-like clusters using dot products of :math:`Q_{lm}`.
 
-    The solid-liquid order parameter [Frenkel1995]_ uses a Steinhardt-like
+    The solid-liquid order parameter [tenWolde1995]_ uses a Steinhardt-like
     approach to identify solid-like particles. First, a bond parameter
     :math:`Q_l(i, j)` is computed for each neighbor bond.
 

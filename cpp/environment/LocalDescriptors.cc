@@ -13,18 +13,17 @@
 
 namespace freud { namespace environment {
 
-LocalDescriptors::LocalDescriptors(unsigned int l_max, bool negative_m)
-    : m_l_max(l_max), m_negative_m(negative_m), m_nSphs(0)
+LocalDescriptors::LocalDescriptors(unsigned int l_max, bool negative_m, LocalDescriptorOrientation orientation)
+    : m_l_max(l_max), m_negative_m(negative_m), m_nSphs(0), m_orientation(orientation)
 {}
 
 void LocalDescriptors::compute(const locality::NeighborQuery *nq,
     const vec3<float>* query_points, unsigned int n_query_points,
-    const quat<float>* orientations, LocalDescriptorOrientation orientation,
-    const freud::locality::NeighborList* nlist, locality::QueryArgs qargs)
+    const quat<float>* orientations, const freud::locality::NeighborList*
+    nlist, locality::QueryArgs qargs)
 {
     // This function requires a NeighborList object, so we always make one and store it locally.
     m_nlist = locality::makeDefaultNlist(nq, nlist, query_points, n_query_points, qargs);
-    m_nlist.validate(n_query_points, nq->getNPoints());
 
     m_sphArray.prepare({m_nlist.getNumBonds(), getSphWidth()});
 
@@ -38,7 +37,7 @@ void LocalDescriptors::compute(const locality::NeighborQuery *nq,
 
             vec3<float> rotation_0, rotation_1, rotation_2;
 
-            if (orientation == LocalNeighborhood)
+            if (m_orientation == LocalNeighborhood)
             {
                 util::ManagedArray<float> inertiaTensor = util::ManagedArray<float>({3, 3});
 
@@ -79,14 +78,14 @@ void LocalDescriptors::compute(const locality::NeighborQuery *nq,
                 rotation_2
                     = vec3<float>(eigenvectors(2, 0), eigenvectors(2, 1), eigenvectors(2, 2));
             }
-            else if (orientation == ParticleLocal)
+            else if (m_orientation == ParticleLocal)
             {
                 const rotmat3<float> rotmat(conj(orientations[i]));
                 rotation_0 = rotmat.row0;
                 rotation_1 = rotmat.row1;
                 rotation_2 = rotmat.row2;
             }
-            else if (orientation == Global)
+            else if (m_orientation == Global)
             {
                 rotation_0 = vec3<float>(1, 0, 0);
                 rotation_1 = vec3<float>(0, 1, 0);

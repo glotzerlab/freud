@@ -55,12 +55,12 @@ class TestBondOrder(unittest.TestCase):
         test_set = util.make_raw_query_nlist_test_set(
             box, positions, positions, "nearest", r_max, num_neighbors, True)
         for ts in test_set:
-            bo.reset()
             # Test that lbod gives identical results when orientations are the
             # same.
             #TODO: Find a way to test a rotated system to ensure that lbod gives  # noqa
             # the desired results.
-            bo.accumulate(box, ts[0], quats, mode='lbod', neighbors=ts[1])
+            bo = freud.environment.BondOrder(nbins, mode='lbod')
+            bo.accumulate(box, ts[0], quats, neighbors=ts[1])
             self.assertTrue(np.allclose(bo.bond_order, op_value))
 
             # Test access
@@ -69,31 +69,35 @@ class TestBondOrder(unittest.TestCase):
 
             # Test that obcd gives identical results when orientations are the
             # same.
-            bo.compute(box, ts[0], quats, mode='obcd', neighbors=ts[1])
+            bo = freud.environment.BondOrder(nbins, mode='obcd')
+            bo.compute(box, ts[0], quats, neighbors=ts[1])
             self.assertTrue(np.allclose(bo.bond_order, op_value))
 
             # Test that normal bod looks ordered for randomized orientations.
             np.random.seed(10893)
             random_quats = rowan.random.rand(len(positions))
+            bo = freud.environment.BondOrder(nbins)
             bo.compute(box, ts[0], random_quats, neighbors=ts[1])
             self.assertTrue(np.allclose(bo.bond_order, op_value))
 
             # Ensure that obcd looks random for the randomized orientations.
-            bo.compute(box, ts[0], random_quats, mode='obcd', neighbors=ts[1])
+            bo = freud.environment.BondOrder(nbins, mode='obcd')
+            bo.compute(box, ts[0], random_quats, neighbors=ts[1])
             self.assertTrue(not np.allclose(bo.bond_order, op_value))
             self.assertEqual(np.sum(bo.bond_order > 0), bo.bond_order.size)
 
             # Test that oocd shows exactly one peak when all orientations
             # are the same.
-            bo.reset()
-            bo.accumulate(box, ts[0], quats, mode='oocd', neighbors=ts[1])
+            bo = freud.environment.BondOrder(nbins, mode='oocd')
+            bo.accumulate(box, ts[0], quats, neighbors=ts[1])
             self.assertEqual(np.sum(bo.bond_order > 0), 1)
             self.assertTrue(bo.bond_order[0, 0] > 0)
 
             # Test that oocd is highly disordered with random quaternions. In
             # practice, the edge bins may still not get any values, so just
             # check that we get a lot of values.
-            bo.compute(box, ts[0], random_quats, mode='oocd', neighbors=ts[1])
+            bo = freud.environment.BondOrder(nbins, mode='oocd')
+            bo.compute(box, ts[0], random_quats, neighbors=ts[1])
             self.assertGreater(np.sum(bo.bond_order > 0), 30)
 
     def test_repr(self):

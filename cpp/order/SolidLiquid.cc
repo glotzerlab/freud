@@ -24,7 +24,6 @@ void SolidLiquid::compute(const freud::locality::NeighborList* nlist,
 {
     // This function requires a NeighborList object, so we always make one and store it locally.
     m_nlist = locality::makeDefaultNlist(points, nlist, points->getPoints(), points->getNPoints(), qargs);
-    m_nlist.validate(points->getNPoints(), points->getNPoints());
 
     const unsigned int num_query_points(m_nlist.getNumQueryPoints());
 

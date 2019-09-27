@@ -42,8 +42,8 @@ cdef extern from "Box.h" namespace "freud::box":
         # parsing limitations we cannot have it both be const and pass the
         # exception back to Cython so we choose to capture the exception since
         # constness is less important on the Cython side.
-        vec3[float] getLatticeVector(unsigned int i) except +
-        void wrap(vec3[float]* vs, unsigned int Nv) const
+        vec3[float] getLatticeVector(unsigned int) except +
+        void wrap(vec3[float]*, unsigned int) const
         void unwrap(vec3[float]*, const vec3[int]*,
                     unsigned int) const
 
