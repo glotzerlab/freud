@@ -231,7 +231,7 @@ class TestLocalDescriptors(unittest.TestCase):
             # Test all allowable values of l.
             for L in range(2, l_max+1):
                 steinhardt = freud.order.Steinhardt(L)
-                steinhardt.compute(box, points, nlist=nl)
+                steinhardt.compute(box, points, neighbors=nl)
                 # Some of the calculations done for Steinhardt can be imprecise
                 # in cases where there is no symmetry. Since simple cubic
                 # should have a 0 Ql value in many cases, we need to set high
@@ -276,7 +276,7 @@ class TestLocalDescriptors(unittest.TestCase):
             # Test all allowable values of l.
             for L in range(2, l_max+1):
                 steinhardt = freud.order.Steinhardt(L, weighted=True)
-                steinhardt.compute(box, points, nlist=nl)
+                steinhardt.compute(box, points, neighbors=nl)
                 # Some of the calculations done for Steinhardt can be imprecise
                 # in cases where there is no symmetry. Since simple cubic
                 # should have a 0 Ql value in many cases, we need to set high
@@ -317,7 +317,7 @@ class TestLocalDescriptors(unittest.TestCase):
             # Test all allowable values of l.
             for L in range(2, l_max+1):
                 steinhardt = freud.order.Steinhardt(L, Wl=True)
-                steinhardt.compute(box, points, nlist=nl)
+                steinhardt.compute(box, points, neighbors=nl)
                 npt.assert_array_almost_equal(steinhardt.order, Wl[:, L])
 
     @skipIfMissing('scipy.special')
