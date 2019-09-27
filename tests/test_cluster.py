@@ -65,7 +65,7 @@ class TestCluster(unittest.TestCase):
         self.assertTrue(np.all(props.sizes == Nrep))
 
     def test_cluster_props_advanced(self):
-        """Test radius of gyration and COM calculations"""
+        """Test radius of gyration and center of mass calculations"""
         box = freud.box.Box.square(L=5)
         positions = np.array([[0, -2, 0],
                               [0, -2, 0],
