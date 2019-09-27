@@ -300,7 +300,7 @@ cdef class Hexatic(PairCompute):
         del self.thisptr
 
     @Compute._compute()
-    def compute(self, box, points, nlist=None, query_args=None):
+    def compute(self, box, points, neighbors=None):
         R"""Calculates the correlation function and adds to the current
         histogram.
 
@@ -324,8 +324,7 @@ cdef class Hexatic(PairCompute):
             unsigned int num_query_points
 
         b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(box, points, nlist=nlist,
-                                      query_args=query_args)
+            self.preprocess_arguments_new(box, points, neighbors=neighbors)
         self.thisptr.compute(nlistptr.get_ptr(),
                              nq.get_ptr(), dereference(qargs.thisptr))
         return self
