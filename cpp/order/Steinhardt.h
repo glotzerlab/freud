@@ -46,6 +46,9 @@ namespace freud { namespace order {
  * If the flag Wl is set, the third-order invariant Wl order parameter will
  * be calculated. Wl can aid in distinguishing between FCC, HCP, and BCC.
  *
+ * If the flag Wl_normalize is set, the third-order invariant Wl order parameter
+ * will be normalized.
+ *
  * For more details see:
  * - PJ Steinhardt (1983) (DOI: 10.1103/PhysRevB.28.784)
  * - Wolfgang Lechner (2008) (DOI: 10.1063/Journal of Chemical Physics 129.114707)
