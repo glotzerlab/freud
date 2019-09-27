@@ -15,19 +15,17 @@ cdef extern from "Cluster.h" namespace "freud::cluster":
                      freud._locality.QueryArgs,
                      const unsigned int*) except +
         unsigned int getNumClusters() const
-        unsigned int getNumParticles() const
         const freud.util.ManagedArray[unsigned int] &getClusterIdx() const
         const vector[vector[uint]] getClusterKeys() const
 
 cdef extern from "ClusterProperties.h" namespace "freud::cluster":
     cdef cppclass ClusterProperties:
         ClusterProperties()
-        void computeProperties(
+        void compute(
             const freud._box.Box &,
             const vec3[float]*,
             const unsigned int*,
             unsigned int) except +
-        unsigned int getNumClusters() const
-        const freud.util.ManagedArray[vec3[float]] &getClusterCOM() const
-        const freud.util.ManagedArray[float] &getClusterG() const
-        const freud.util.ManagedArray[unsigned int] &getClusterSize() const
+        const freud.util.ManagedArray[vec3[float]] &getClusterCenters() const
+        const freud.util.ManagedArray[float] &getClusterGyrations() const
+        const freud.util.ManagedArray[unsigned int] &getClusterSizes() const
