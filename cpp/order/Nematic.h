@@ -38,11 +38,11 @@ public:
 
     const util::ManagedArray<float> &getNematicTensor() const;
 
-    unsigned int getNumParticles();
+    unsigned int getNumParticles() const;
 
-    vec3<float> getNematicDirector();
+    vec3<float> getNematicDirector() const;
 
-    vec3<float> getU();
+    vec3<float> getU() const;
 
 private:
     unsigned int m_n;                //!< Last number of points computed

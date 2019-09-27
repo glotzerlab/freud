@@ -32,17 +32,17 @@ const util::ManagedArray<float> &Nematic::getNematicTensor() const
     return m_nematic_tensor;
 }
 
-unsigned int Nematic::getNumParticles()
+unsigned int Nematic::getNumParticles() const
 {
     return m_n;
 }
 
-vec3<float> Nematic::getNematicDirector()
+vec3<float> Nematic::getNematicDirector() const
 {
     return m_nematic_director;
 }
 
-vec3<float> Nematic::getU()
+vec3<float> Nematic::getU() const
 {
     return m_u;
 }

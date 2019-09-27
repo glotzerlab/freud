@@ -26,8 +26,8 @@ cdef extern from "ManagedArray.h" namespace "freud::util":
         ManagedArray()
         ManagedArray(const ManagedArray[T] &)
         T *get()
-        unsigned int size()
-        vector[unsigned int] shape()
+        unsigned int size() const
+        vector[unsigned int] shape() const
 
 
 cdef extern from "numpy/arrayobject.h":

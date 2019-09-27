@@ -45,7 +45,7 @@ cdef extern from "LocalDescriptors.h" namespace "freud::environment":
             const quat[float]*, LocalDescriptorOrientation,
             const freud._locality.NeighborList*,
             freud._locality.QueryArgs) except +
-        const freud.util.ManagedArray[float complex] &getSph()
+        const freud.util.ManagedArray[float complex] &getSph() const
         freud._locality.NeighborList * getNList()
 
 cdef extern from "MatchEnv.h" namespace "freud::environment":
@@ -100,7 +100,7 @@ cdef extern from "AngularSeparation.h" namespace "freud::environment":
                      unsigned int,
                      quat[float]*,
                      unsigned int) except +
-        const freud.util.ManagedArray[float] &getAngles()
+        const freud.util.ManagedArray[float] &getAngles() const
 
     cdef cppclass AngularSeparationNeighbor:
         AngularSeparationNeighbor()
@@ -112,7 +112,7 @@ cdef extern from "AngularSeparation.h" namespace "freud::environment":
             const quat[float]*, unsigned int,
             const freud._locality.NeighborList*,
             freud._locality.QueryArgs) except +
-        const freud.util.ManagedArray[float] &getAngles()
+        const freud.util.ManagedArray[float] &getAngles() const
         freud._locality.NeighborList * getNList()
 
 cdef extern from "LocalBondProjection.h" namespace "freud::environment":
@@ -124,6 +124,6 @@ cdef extern from "LocalBondProjection.h" namespace "freud::environment":
                      freud._locality.NeighborList*,
                      freud._locality.QueryArgs) except +
 
-        const freud.util.ManagedArray[float] &getProjections()
-        const freud.util.ManagedArray[float] &getNormedProjections()
+        const freud.util.ManagedArray[float] &getProjections() const
+        const freud.util.ManagedArray[float] &getNormedProjections() const
         freud._locality.NeighborList * getNList()
