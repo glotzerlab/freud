@@ -29,7 +29,7 @@ class TestCluster(unittest.TestCase):
             clust.cluster_idx
 
         # Test with explicit box provided
-        clust.compute(box, positions, query_args={'r_max': 0.5})
+        clust.compute(box, positions, neighbors={'r_max': 0.5})
         idx = np.copy(clust.cluster_idx)
 
         test_set = util.make_raw_query_nlist_test_set(
@@ -72,7 +72,7 @@ class TestCluster(unittest.TestCase):
                               [0, 2, 0],
                               [-0.1, 1.9, 0]])
         clust = freud.cluster.Cluster()
-        clust.compute(box, positions, query_args={'r_max': 0.5})
+        clust.compute(box, positions, neighbors={'r_max': 0.5})
 
         props = freud.cluster.ClusterProperties()
         props.compute(box, positions, clust.cluster_idx)
@@ -109,7 +109,7 @@ class TestCluster(unittest.TestCase):
             clust.cluster_keys
 
         clust.compute(box, positions, keys=np.arange(Nrep*Ngrid),
-                      query_args={'r_max': 0.5})
+                      neighbors={'r_max': 0.5})
 
         # Test if attributes are accessible now
         clust.cluster_keys
@@ -139,7 +139,7 @@ class TestCluster(unittest.TestCase):
             clust.plot()
         self.assertEqual(clust._repr_png_(), None)
 
-        clust.compute(box, positions, query_args={'r_max': 0.5})
+        clust.compute(box, positions, neighbors={'r_max': 0.5})
         clust._repr_png_()
 
     def test_saved_values(self):
@@ -157,7 +157,7 @@ class TestCluster(unittest.TestCase):
         box = freud.box.Box.cube(L)
         for i in range(num_tests):
             points = np.random.rand(num_points, 3)*L - L/2
-            cl.compute(box, points, query_args={'r_max': r_max})
+            cl.compute(box, points, neighbors={'r_max': r_max})
 
             copied.append(np.copy(cl.cluster_idx))
             accessed.append(cl.cluster_idx)
