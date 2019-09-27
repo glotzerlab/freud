@@ -84,6 +84,9 @@ Vyas Ramasubramani - **Lead developer**
 * Wrote PairCompute and SpatialHistogram parent classes.
 * Wrote ManagedArray class.
 * Wrote C++ histogram-related classes.
+* Standardized neighbor API in Python to use dictionaries of arguments or NeighborList objects for all pair computations.
+* Standardized all attribute access into C++ with Python properties.
+* Standardized variable naming of points/query\_points across all of freud.
 
 Bradley Dice - **Lead developer**
 

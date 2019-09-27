@@ -25,9 +25,9 @@ void Cluster::compute(const freud::locality::NeighborQuery* nq,
         nq, nq->getPoints(), num_points, qargs, nlist,
         [&dj](const freud::locality::NeighborBond& neighbor_bond) {
             // Merge the two sets using the disjoint set
-            if (!dj.same(neighbor_bond.ref_id, neighbor_bond.id))
+            if (!dj.same(neighbor_bond.point_idx, neighbor_bond.query_point_idx))
             {
-                dj.unite(neighbor_bond.ref_id, neighbor_bond.id);
+                dj.unite(neighbor_bond.point_idx, neighbor_bond.query_point_idx);
             }
         });
 

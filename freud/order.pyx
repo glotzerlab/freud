@@ -98,10 +98,8 @@ cdef class Cubatic(Compute):
                 seed = int(time.time())
 
         self.thisptr = new freud._order.Cubatic(
-            t_initial, t_final, scale, n_replicates,
-            seed)
+            t_initial, t_final, scale, n_replicates, seed)
         self.n_replicates = n_replicates
-        self.seed = seed
 
     def __dealloc__(self):
         del self.thisptr
@@ -135,6 +133,10 @@ cdef class Cubatic(Compute):
     @property
     def scale(self):
         return self.thisptr.getScale()
+
+    @property
+    def seed(self):
+        return self.thisptr.getSeed()
 
     @Compute._computed_property()
     def order(self):
@@ -479,10 +481,8 @@ cdef class Steinhardt(PairCompute):
             :math:`W_l` order parameter.
     """  # noqa: E501
     cdef freud._order.Steinhardt * thisptr
-    cdef int sph_l
 
     def __cinit__(self, l, average=False, Wl=False, weighted=False):
-        self.sph_l = l
         self.thisptr = new freud._order.Steinhardt(l, average, Wl, weighted)
 
     def __dealloc__(self):
@@ -499,6 +499,10 @@ cdef class Steinhardt(PairCompute):
     @property
     def weighted(self):
         return self.thisptr.isWeighted()
+
+    @property
+    def l(self):  # noqa: E743
+        return self.thisptr.getL()
 
     @Compute._computed_property()
     def norm(self):
@@ -546,10 +550,10 @@ cdef class Steinhardt(PairCompute):
         return self
 
     def __repr__(self):
-        return ("freud.order.{cls}(l={sph_l}, average={average}, Wl={Wl}, "
+        return ("freud.order.{cls}(l={l}, average={average}, Wl={Wl}, "
                 "weighted={weighted})").format(
                     cls=type(self).__name__,
-                    sph_l=self.sph_l,
+                    l=self.l, # noqa: 743
                     average=self.average,
                     Wl=self.Wl,
                     weighted=self.weighted)
@@ -570,7 +574,7 @@ cdef class Steinhardt(PairCompute):
         xlabel = r"${mode_letter}{prime}_{{{sph_l}{average}}}$".format(
             mode_letter='w' if self.Wl else 'q',
             prime='\'' if self.weighted else '',
-            sph_l=self.sph_l,
+            sph_l=self.l,
             average=',ave' if self.average else '')
 
         return freud.plot.histogram_plot(
@@ -799,15 +803,12 @@ cdef class RotationalAutocorrelation(Compute):
             The autocorrelation computed in the last call to compute.
     """
     cdef freud._order.RotationalAutocorrelation * thisptr
-    cdef unsigned int l
 
     def __cinit__(self, l):
         if l % 2 or l < 0:
             raise ValueError(
                 "The quantum number must be a positive, even integer.")
-        self.l = l  # noqa
-        self.thisptr = new freud._order.RotationalAutocorrelation(
-            self.l)
+        self.thisptr = new freud._order.RotationalAutocorrelation(l)
 
     def __dealloc__(self):
         del self.thisptr
@@ -839,8 +840,7 @@ cdef class RotationalAutocorrelation(Compute):
 
     @Compute._computed_property()
     def autocorrelation(self):
-        cdef float Ft = self.thisptr.getRotationalAutocorrelation()
-        return Ft
+        return self.thisptr.getRotationalAutocorrelation()
 
     @Compute._computed_property()
     def ra_array(self):
@@ -850,14 +850,12 @@ cdef class RotationalAutocorrelation(Compute):
 
     @Compute._computed_property()
     def num_orientations(self):
-        cdef unsigned int num = self.thisptr.getN()
-        return num
+        return self.thisptr.getN()
 
     @property
     def azimuthal(self):
-        cdef unsigned int azimuthal = self.thisptr.getL()
-        return azimuthal
+        return self.thisptr.getL()
 
     def __repr__(self):
         return "freud.order.{cls}(l={sph_l})".format(cls=type(self).__name__,
-                                                     sph_l=self.l)
+                                                     sph_l=self.azimuthal)

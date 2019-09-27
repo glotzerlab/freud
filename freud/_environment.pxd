@@ -54,6 +54,7 @@ cdef extern from "LocalDescriptors.h" namespace "freud::environment":
         const freud.util.ManagedArray[float complex] &getSph() const
         freud._locality.NeighborList * getNList()
         LocalDescriptorOrientation getMode() const
+        bool getNegativeM() const
 
 cdef extern from "MatchEnv.h" namespace "freud::environment":
     cdef cppclass MatchEnv:

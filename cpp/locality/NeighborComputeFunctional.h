@@ -60,7 +60,7 @@ public:
                                        m_nlist->getDistances()[m_current_index],
                                        m_nlist->getWeights()[m_current_index]);
         ++m_current_index;
-        m_returned_point_index = nb.id;
+        m_returned_point_index = nb.query_point_idx;
         return nb;
     }
 

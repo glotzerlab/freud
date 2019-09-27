@@ -24,7 +24,7 @@ void HexaticTranslational<T>::computeGeneral(Func func, const freud::locality::N
         for(freud::locality::NeighborBond nb = ppiter->next(); !ppiter->end(); nb = ppiter->next())
         {
             // Compute vector between the two particles
-            const vec3<float> delta = box.wrap((*points)[nb.ref_id] - ref);
+            const vec3<float> delta = box.wrap((*points)[nb.point_idx] - ref);
 
             // Compute psi for neighboring particle
             // (only constructed for 2d)

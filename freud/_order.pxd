@@ -30,6 +30,7 @@ cdef extern from "Cubatic.h" namespace "freud::order":
         float getTFinal() const
         float getScale() const
         quat[float] getCubaticOrientation() const
+        unsigned int getSeed() const
 
 
 cdef extern from "Nematic.h" namespace "freud::order":
@@ -79,6 +80,7 @@ cdef extern from "Steinhardt.h" namespace "freud::order":
         bool isAverage() const
         bool isWl() const
         bool isWeighted() const
+        unsigned int getL() const
 
 
 cdef extern from "SolidLiquid.h" namespace "freud::order":

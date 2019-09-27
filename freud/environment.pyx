@@ -301,7 +301,6 @@ cdef class LocalDescriptors(PairCompute):
             provided as the :code:`neighbors` argument.
     """  # noqa: E501
     cdef freud._environment.LocalDescriptors * thisptr
-    cdef negative_m
 
     known_modes = {'neighborhood': freud._environment.LocalNeighborhood,
                    'global': freud._environment.Global,
@@ -317,7 +316,6 @@ cdef class LocalDescriptors(PairCompute):
 
         self.thisptr = new freud._environment.LocalDescriptors(
             l_max, negative_m, l_mode)
-        self.negative_m = negative_m
 
     def __dealloc__(self):
         del self.thisptr
@@ -394,6 +392,10 @@ cdef class LocalDescriptors(PairCompute):
     @property
     def l_max(self):
         return self.thisptr.getLMax()
+
+    @property
+    def negative_m(self):
+        return self.thisptr.getNegativeM()
 
     @property
     def mode(self):
@@ -954,7 +956,6 @@ cdef class LocalBondProjection(PairCompute):
             provided as the :code:`neighbors` argument.
     """  # noqa: E501
     cdef freud._environment.LocalBondProjection * thisptr
-    cdef freud.locality.NeighborList nlist_
 
     def __cinit__(self):
         self.thisptr = new freud._environment.LocalBondProjection()
