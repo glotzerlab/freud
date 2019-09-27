@@ -46,16 +46,16 @@ references:
       name: Install dependencies
       command: |
         git submodule update --init
-        pip${PYVER} install --user -r requirements.txt
-        pip${PYVER} install --user -U coverage cython matplotlib rowan sympy
+        $PIP install --user -r requirements.txt
+        $PIP install --user -U coverage cython matplotlib rowan sympy
 
   get_style_requirements: &get_style_requirements
     run:
       name: Install style check dependencies
       command: |
         git submodule update --init
-        pip${PYVER} install --user -r requirements.txt
-        pip${PYVER} install --user flake8==3.7.7
+        $PIP install --user -r requirements.txt
+        $PIP install --user flake8==3.7.7
 
   check_style: &check_style
     run:
@@ -100,8 +100,8 @@ references:
     run:
       name: Run benchmarks
       command: |
-          pip${PYVER} install --user gitpython
-          pip${PYVER} install --user rowan
+          $PIP install --user gitpython
+          $PIP install --user rowan
           echo 'export PYTHONPATH=$PYTHONPATH:.' >> $BASH_ENV
           echo 'export BENCHMARK_NPROC=2' >> $BASH_ENV
           source $BASH_ENV
@@ -305,26 +305,30 @@ jobs:
   check-style:
     <<: *test_container_config_ubuntu18
     environment:
-      PYVER: "3.6"
+      PYVER: "3.7"
+      PIP: "pip3.7"
     <<: *load_check_style
 
   test-py36:
     <<: *test_container_config_ubuntu18
     environment:
       PYVER: "3.6"
-    <<: *build_and_test_with_cov
+      PIP: "pip3.6"
+    <<: *build_and_test
 
   test-py37:
     <<: *test_container_config_ubuntu19
     environment:
       PYVER: "3.7"
+      PIP: "pip3"
     <<: *build_and_test_with_cov
 
   test-py38:
     <<: *test_container_config_ubuntu19
     environment:
       PYVER: "3.8"
-    <<: *build_and_test_with_cov
+      PIP: "pip3.8"
+    <<: *build_and_test
 
   pypi-osx-wheels:
     <<: *container_osx
@@ -341,6 +345,7 @@ jobs:
     <<: *test_container_config_ubuntu18
     environment:
       PYVER: "3.7"
+      PIP: "pip3"
     <<: *build_and_benchmark
 
 workflows:
