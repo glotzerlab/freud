@@ -7,11 +7,6 @@
 namespace freud { namespace locality {
 
 
-//! Make a default NeighborList object to use.
-/*! This function makes a NeighborList from the provided NeighborQuery object
- * if the provided NeighborList is NULL. Otherwise, it simply returns a copy of
- * the provided NeighborList.
- */
 NeighborList makeDefaultNlist(const NeighborQuery *nq, const NeighborList
         *nlist, const vec3<float>* query_points, unsigned int num_query_points,
         locality::QueryArgs qargs)

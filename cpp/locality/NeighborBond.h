@@ -14,11 +14,8 @@ struct NeighborBond
     // For now, id = query_point_idx and ref_id = point_idx (into the NeighborQuery).
     NeighborBond() : query_point_idx(0), point_idx(0), distance(0),  weight(0) {}
 
-    NeighborBond(unsigned int query_point_idx, unsigned int point_idx, float d, float w) :
+    NeighborBond(unsigned int query_point_idx, unsigned int point_idx, float d=0, float w=1) :
         query_point_idx(query_point_idx), point_idx(point_idx), distance(d), weight(w) {}
-
-    NeighborBond(unsigned int query_point_idx, unsigned int point_idx, float d) :
-        query_point_idx(query_point_idx), point_idx(point_idx), distance(d), weight(1) {}
 
     //! Equality checks both query_point_idx and distance.
     bool operator==(const NeighborBond& other)

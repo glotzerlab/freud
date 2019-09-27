@@ -78,8 +78,7 @@ void LocalBondProjection::compute(const locality::NeighborQuery *nq,
                 const size_t j(m_nlist.getNeighbors()(bond, 1));
 
                 // compute bond vector between the two particles
-                vec3<float> delta = nq->getBox().wrap(query_points[i] - (*nq)[j]);
-                vec3<float> local_bond(delta);
+                vec3<float> local_bond(calcDelta(locality::NeighborBond(i, j), nq, query_points));
                 // rotate bond vector into the local frame of particle p
                 local_bond = rotate(conj(orientations[j]), local_bond);
                 // store the length of this local bond
