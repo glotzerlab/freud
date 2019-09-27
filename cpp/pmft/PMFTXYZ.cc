@@ -70,7 +70,7 @@ void PMFTXYZ::accumulate(const locality::NeighborQuery* neighbor_query,
         // create the reference point quaternion
         quat<float> ref_q(orientations[neighbor_bond.point_idx]);
         // make sure that the particles are wrapped into the box
-        vec3<float> delta(calcDelta(neighbor_bond, neighbor_query, query_points));
+        vec3<float> delta(bondVector(neighbor_bond, neighbor_query, query_points));
 
         for (unsigned int k = 0; k < n_faces; k++)
         {

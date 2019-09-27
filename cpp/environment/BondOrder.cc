@@ -84,7 +84,7 @@ void BondOrder::accumulate(
     [=] (const freud::locality::NeighborBond& neighbor_bond)
     {
         quat<float>& ref_q = orientations[neighbor_bond.point_idx];
-        vec3<float> v(calcDelta(neighbor_bond, neighbor_query, query_points));
+        vec3<float> v(bondVector(neighbor_bond, neighbor_query, query_points));
         quat<float>& q = query_orientations[neighbor_bond.query_point_idx];
         if (m_mode == obcd)
         {
