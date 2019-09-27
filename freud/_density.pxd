@@ -46,7 +46,6 @@ cdef extern from "LocalDensity.h" namespace "freud::density":
             const vec3[float]*,
             unsigned int, const freud._locality.NeighborList *,
             freud._locality.QueryArgs) except +
-        unsigned int getNPoints() const
         const freud.util.ManagedArray[float] &getDensity() const
         const freud.util.ManagedArray[float] &getNumNeighbors() const
         float getRMax() const

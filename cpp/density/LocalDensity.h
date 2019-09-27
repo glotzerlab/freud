@@ -51,12 +51,6 @@ public:
                  unsigned int n_query_points, const freud::locality::NeighborList* nlist,
                  freud::locality::QueryArgs qargs);
 
-    //! Get the number of reference particles
-    unsigned int getNPoints() const
-    {
-        return m_n_points;
-    }
-
     //! Get a reference to the last computed density
     const util::ManagedArray<float> &getDensity() const
     {
@@ -73,7 +67,6 @@ private:
     box::Box m_box;       //!< Simulation box where the particles belong
     float m_r_max;         //!< Maximum neighbor distance
     float m_diameter;     //!< Diameter of the particles
-    unsigned int m_n_points; //!< Last number of points computed
 
     util::ManagedArray<float> m_density_array;       //!< density array computed
     util::ManagedArray<float> m_num_neighbors_array; //!< number of neighbors array computed
