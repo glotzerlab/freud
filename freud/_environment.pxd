@@ -39,7 +39,6 @@ cdef extern from "LocalDescriptors.h" namespace "freud::environment":
         unsigned int getNSphs() const
         unsigned int getLMax() const
         unsigned int getSphWidth() const
-        unsigned int getNPoints()
         void compute(
             const freud._locality.NeighborQuery*,
             const vec3[float]*, unsigned int,

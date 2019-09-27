@@ -96,6 +96,7 @@ cdef extern from "SolidLiquid.h" namespace "freud::order":
         const freud.util.ManagedArray[unsigned int] &getClusterIdx()
         const freud.util.ManagedArray[unsigned int] &getNumberOfConnections()
         unsigned int getNumClusters()
+        freud._locality.NeighborList * getNList()
 
 
 cdef extern from "RotationalAutocorrelation.h" namespace "freud::order":

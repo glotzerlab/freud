@@ -716,6 +716,10 @@ cdef class SolidLiquid(PairCompute):
         return self.thisptr.getLargestClusterSize()
 
     @Compute._computed_property()
+    def nlist(self):
+        return freud.locality.nlist_from_cnlist(self.thisptr.getNList())
+
+    @Compute._computed_property()
     def num_connections(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getNumberOfConnections(),

@@ -16,6 +16,22 @@ class TestSolidLiquid(unittest.TestCase):
 
         npt.assert_equal(comp.cluster_idx.shape, (N,))
 
+    def test_nlist(self):
+        """Check that the internally generated NeighborList is correct."""
+        N = 1000
+        L = 10
+
+        box, positions = util.make_box_and_random_points(L, N)
+
+        query_args = dict(r_max=2.0, exclude_ii=True)
+        comp = freud.order.SolidLiquid(6, Q_threshold=.7, S_threshold=6)
+        comp.compute(box, positions, neighbors=query_args)
+
+        aq = freud.locality.AABBQuery(box, positions)
+        nlist = aq.query(positions, query_args).toNeighborList()
+
+        npt.assert_array_equal(nlist[:], comp.nlist[:])
+
     def test_identical_environments(self):
         box, positions = util.make_fcc(4, 4, 4)
 
