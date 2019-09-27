@@ -95,6 +95,10 @@ cdef class BondOrder(SpatialHistogram):
             If an unsigned int, the number of bins in :math:`\theta` and
             :math:`\phi`. If a sequence of two integers, interpreted as
             :code:`(num_bins_theta, num_bins_phi)`.
+        mode (str, optional):
+            Mode to calculate bond order. Options are :code:`'bod'`,
+            :code:`'lbod'`, :code:`'obcd'`, or :code:`'oocd'`
+            (Default value = :code:`'bod'`).
 
     Attributes:
         bond_order (:math:`\left(N_{\phi}, N_{\theta} \right)` :class:`numpy.ndarray`):
@@ -113,14 +117,26 @@ cdef class BondOrder(SpatialHistogram):
     """  # noqa: E501
     cdef freud._environment.BondOrder * thisptr
 
-    def __cinit__(self, bins):
+    known_modes = {'bod': freud._environment.bod,
+                   'lbod': freud._environment.lbod,
+                   'obcd': freud._environment.obcd,
+                   'oocd': freud._environment.oocd}
+
+    def __cinit__(self, bins, str mode="bod"):
         try:
             n_bins_theta, n_bins_phi = bins
         except TypeError:
             n_bins_theta = n_bins_phi = bins
 
+        cdef freud._environment.BondOrderMode l_mode
+        try:
+            l_mode = self.known_modes[mode]
+        except KeyError:
+            raise ValueError(
+                'Unknown BondOrder mode: {}'.format(mode))
+
         self.thisptr = self.histptr = new freud._environment.BondOrder(
-            n_bins_theta, n_bins_phi)
+            n_bins_theta, n_bins_phi, l_mode)
 
     def __dealloc__(self):
         del self.thisptr
@@ -131,7 +147,7 @@ cdef class BondOrder(SpatialHistogram):
 
     @Compute._compute()
     def accumulate(self, box, points, orientations, query_points=None,
-                   query_orientations=None, str mode="bod", neighbors=None):
+                   query_orientations=None, neighbors=None):
         R"""Calculates the correlation function and adds to the current
         histogram.
 
@@ -150,10 +166,6 @@ cdef class BondOrder(SpatialHistogram):
                 Orientations used to calculate bonds. Uses
                 :code:`orientations` if not provided or :code:`None`.
                 (Default value = :code:`None`).
-            mode (str, optional):
-                Mode to calculate bond order. Options are :code:`'bod'`,
-                :code:`'lbod'`, :code:`'obcd'`, or :code:`'oocd'`
-                (Default value = :code:`'bod'`).
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
@@ -176,20 +188,6 @@ cdef class BondOrder(SpatialHistogram):
         query_orientations = freud.common.convert_array(
             query_orientations, shape=(num_query_points, 4))
 
-        cdef unsigned int index = 0
-        if mode == "bod":
-            index = 0
-        elif mode == "lbod":
-            index = 1
-        elif mode == "obcd":
-            index = 2
-        elif mode == "oocd":
-            index = 3
-        else:
-            raise RuntimeError(
-                ('Unknown BOD mode: {}. Options are:'
-                    'bod, lbod, obcd, oocd.').format(mode))
-
         cdef const float[:, ::1] l_orientations = orientations
         cdef const float[:, ::1] l_query_orientations = query_orientations
 
@@ -199,7 +197,7 @@ cdef class BondOrder(SpatialHistogram):
             <vec3[float]*> &l_query_points[0, 0],
             <quat[float]*> &l_query_orientations[0, 0],
             num_query_points,
-            index, nlistptr.get_ptr(), dereference(qargs.thisptr))
+            nlistptr.get_ptr(), dereference(qargs.thisptr))
         return self
 
     @Compute._computed_property()
@@ -219,7 +217,7 @@ cdef class BondOrder(SpatialHistogram):
 
     @Compute._compute()
     def compute(self, box, points, orientations, query_points=None,
-                query_orientations=None, mode="bod", neighbors=None):
+                query_orientations=None, neighbors=None):
         R"""Calculates the bond order histogram. Will overwrite the current
         histogram.
 
@@ -238,17 +236,13 @@ cdef class BondOrder(SpatialHistogram):
                 Orientations used to calculate bonds. Uses
                 :code:`orientations` if not provided or :code:`None`.
                 (Default value = :code:`None`).
-            mode (str, optional):
-                Mode to calculate bond order. Options are :code:`'bod'`,
-                :code:`'lbod'`, :code:`'obcd'`, or :code:`'oocd'`
-                (Default value = :code:`'bod'`).
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         """  # noqa: E501
         self.reset()
         self.accumulate(box, points, orientations,
-                        query_points, query_orientations, mode, neighbors)
+                        query_points, query_orientations, neighbors)
         return self
 
     def __repr__(self):

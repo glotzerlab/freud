@@ -86,7 +86,7 @@ private:
     bool m_negative_m;    //!< true if we should compute Ylm for negative m
     unsigned int m_nSphs; //!< Last number of bond spherical harmonics computed
     locality::NeighborList m_nlist; //!< The NeighborList used in the last call to compute.
-    LocalDescriptorOrientation m_orientation; //!< The NeighborList used in the last call to compute.
+    LocalDescriptorOrientation m_orientation; //!< The orientation mode to compute with.
 
     //! Spherical harmonics for each neighbor
     util::ManagedArray<std::complex<float>> m_sphArray;
