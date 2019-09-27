@@ -82,24 +82,22 @@ class TestCorrelationFunction(unittest.TestCase):
         for ts in test_set:
             ocf = freud.density.CorrelationFunction(bins, r_max)
             ocf.accumulate(box, ts[0], comp, points, np.conj(comp),
-                           query_args={"r_max": r_max, "exclude_ii": True},
-                           nlist=ts[1])
+                           neighbors=ts[1])
             npt.assert_allclose(ocf.correlation, correct,
                                 atol=absolute_tolerance)
             ocf.compute(box, ts[0], comp, points, np.conj(comp),
-                        query_args={"r_max": r_max, "exclude_ii": True},
-                        nlist=ts[1])
+                        neighbors=ts[1])
             npt.assert_allclose(ocf.correlation, correct,
                                 atol=absolute_tolerance)
             self.assertEqual(box, ocf.box)
 
             ocf.reset()
             ocf.accumulate(
-                box, ts[0], comp, query_values=np.conj(comp), nlist=ts[1])
+                box, ts[0], comp, query_values=np.conj(comp), neighbors=ts[1])
             npt.assert_allclose(ocf.correlation, correct,
                                 atol=absolute_tolerance)
             ocf.compute(
-                box, ts[0], comp, query_values=np.conj(comp), nlist=ts[1])
+                box, ts[0], comp, query_values=np.conj(comp), neighbors=ts[1])
             npt.assert_allclose(ocf.correlation, correct,
                                 atol=absolute_tolerance)
 
@@ -118,23 +116,21 @@ class TestCorrelationFunction(unittest.TestCase):
             box, points, points, 'ball', r_max, 0, True)
         for ts in test_set:
             ocf = freud.density.CorrelationFunction(bins, r_max)
-            ocf.accumulate(box, ts[0], ang, nlist=ts[1])
+            ocf.accumulate(box, ts[0], ang, neighbors=ts[1])
             npt.assert_allclose(ocf.correlation, correct,
                                 atol=absolute_tolerance)
-            ocf.compute(box, ts[0], ang, nlist=ts[1])
-            npt.assert_allclose(ocf.correlation, correct,
-                                atol=absolute_tolerance)
-            ocf.reset()
-            ocf.accumulate(box, ts[0], ang, points, ang,
-                           query_args={'r_max': r_max, 'exclude_ii': True},
-                           nlist=ts[1])
+            ocf.compute(box, ts[0], ang, neighbors=ts[1])
             npt.assert_allclose(ocf.correlation, correct,
                                 atol=absolute_tolerance)
             ocf.reset()
-            ocf.accumulate(box, ts[0], ang, query_values=ang, nlist=ts[1])
+            ocf.accumulate(box, ts[0], ang, points, ang, neighbors=ts[1])
             npt.assert_allclose(ocf.correlation, correct,
                                 atol=absolute_tolerance)
-            ocf.compute(box, ts[0], ang, nlist=ts[1])
+            ocf.reset()
+            ocf.accumulate(box, ts[0], ang, query_values=ang, neighbors=ts[1])
+            npt.assert_allclose(ocf.correlation, correct,
+                                atol=absolute_tolerance)
+            ocf.compute(box, ts[0], ang, neighbors=ts[1])
             npt.assert_allclose(ocf.correlation, correct,
                                 atol=absolute_tolerance)
             self.assertEqual(freud.box.Box.square(box_size), ocf.box)
@@ -152,7 +148,7 @@ class TestCorrelationFunction(unittest.TestCase):
         ocf = freud.density.CorrelationFunction(bins, r_max)
         ocf.accumulate(freud.box.Box.square(box_size), points, comp,
                        points, np.conj(comp),
-                       query_args={"r_max": r_max, "exclude_ii": True})
+                       neighbors={"r_max": r_max, "exclude_ii": True})
 
         correct = np.ones(int(r_max/dr), dtype=np.float32) + \
             1j * np.zeros(int(r_max/dr), dtype=np.float32)
@@ -195,7 +191,7 @@ class TestCorrelationFunction(unittest.TestCase):
         ocf = freud.density.CorrelationFunction(bins, r_max)
         ocf.compute(freud.box.Box.square(box_size), points, comp,
                     points, np.conj(comp),
-                    query_args={"r_max": r_max, "exclude_ii": True})
+                    neighbors={"r_max": r_max, "exclude_ii": True})
         self.assertEqual(np.sum(ocf.bin_counts), correct)
 
     @unittest.skip('Skipping slow summation test.')
@@ -248,7 +244,7 @@ class TestCorrelationFunction(unittest.TestCase):
 
         ocf.accumulate(freud.box.Box.square(box_size), points, comp,
                        points, np.conj(comp),
-                       query_args={"r_max": r_max, "exclude_ii": True})
+                       neighbors={"r_max": r_max, "exclude_ii": True})
         ocf._repr_png_()
 
     def test_query_nn_complex(self):
@@ -271,34 +267,34 @@ class TestCorrelationFunction(unittest.TestCase):
 
         cf = freud.density.CorrelationFunction(bins, r_max)
         cf.compute(box, ref_points, ref_values, points, values,
-                   query_args={'mode': 'nearest', 'num_neighbors': 1})
+                   neighbors={'mode': 'nearest', 'num_neighbors': 1})
         npt.assert_array_equal(cf.correlation, [1, 1, 1])
         npt.assert_array_equal(cf.bin_counts, [2, 2, 2])
 
         cf.compute(box, points, values, ref_points, ref_values,
-                   query_args={'mode': 'nearest', 'num_neighbors': 1})
+                   neighbors={'mode': 'nearest', 'num_neighbors': 1})
         npt.assert_array_equal(cf.correlation, [1, 0, 0])
         npt.assert_array_equal(cf.bin_counts, [1, 0, 0])
 
         ref_values = [1+1j]
         values = [1+1j, 1+1j, 2+2j, 2+2j, 3+3j, 3+3j]
         cf.compute(box, ref_points, ref_values, points, np.conj(values),
-                   query_args={'mode': 'nearest', 'num_neighbors': 1})
+                   neighbors={'mode': 'nearest', 'num_neighbors': 1})
         npt.assert_array_equal(cf.correlation, [2, 4, 6])
         npt.assert_array_equal(cf.bin_counts, [2, 2, 2])
 
         cf.compute(box, ref_points, ref_values, points, values,
-                   query_args={'mode': 'nearest', 'num_neighbors': 1})
+                   neighbors={'mode': 'nearest', 'num_neighbors': 1})
         npt.assert_array_equal(cf.correlation, [2j, 4j, 6j])
         npt.assert_array_equal(cf.bin_counts, [2, 2, 2])
 
         cf.compute(box, points, values, ref_points, np.conj(ref_values),
-                   query_args={'mode': 'nearest', 'num_neighbors': 1})
+                   neighbors={'mode': 'nearest', 'num_neighbors': 1})
         npt.assert_array_equal(cf.correlation, [2, 0, 0])
         npt.assert_array_equal(cf.bin_counts, [1, 0, 0])
 
         cf.compute(box, points, values, ref_points, ref_values,
-                   query_args={'mode': 'nearest', 'num_neighbors': 1})
+                   neighbors={'mode': 'nearest', 'num_neighbors': 1})
         npt.assert_array_equal(cf.correlation, [2j, 0, 0])
         npt.assert_array_equal(cf.bin_counts, [1, 0, 0])
 
@@ -322,12 +318,12 @@ class TestCorrelationFunction(unittest.TestCase):
 
         cf = freud.density.CorrelationFunction(bins, r_max)
         cf.compute(box, ref_points, ref_values, points, values,
-                   query_args={'mode': 'nearest', 'num_neighbors': 1})
+                   neighbors={'mode': 'nearest', 'num_neighbors': 1})
         npt.assert_array_equal(cf.correlation, [1, 1, 1])
         npt.assert_array_equal(cf.bin_counts, [2, 2, 2])
 
         cf.compute(box, points, values, ref_points, ref_values,
-                   query_args={'mode': 'nearest', 'num_neighbors': 1})
+                   neighbors={'mode': 'nearest', 'num_neighbors': 1})
         npt.assert_array_equal(cf.correlation, [1, 0, 0])
         npt.assert_array_equal(cf.bin_counts, [1, 0, 0])
 
@@ -379,7 +375,7 @@ class TestCorrelationFunction(unittest.TestCase):
 
                 ocf.compute(
                     box, ts[0], values,
-                    query_points, query_values, nlist=ts[1])
+                    query_points, query_values, neighbors=ts[1])
                 correct = supposed_correlation
 
                 npt.assert_allclose(ocf.correlation, correct, atol=1e-6)
@@ -427,7 +423,7 @@ class TestCorrelationFunction(unittest.TestCase):
 
                 ocf.compute(
                     box, ts[0], values,
-                    query_points, query_values, nlist=ts[1])
+                    query_points, query_values, neighbors=ts[1])
                 correct = supposed_correlation * rv
 
                 npt.assert_allclose(ocf.correlation, correct, atol=1e-6)

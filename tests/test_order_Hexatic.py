@@ -54,7 +54,7 @@ class TestHexatic(unittest.TestCase):
         test_set = util.make_raw_query_nlist_test_set(
             box, points, points, 'nearest', r_max, 6, True)
         for ts in test_set:
-            hop.compute(box, ts[0], nlist=ts[1])
+            hop.compute(box, ts[0], neighbors=ts[1])
             # Test access
             hop.k
             hop.order

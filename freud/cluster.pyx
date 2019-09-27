@@ -67,7 +67,7 @@ cdef class Cluster(PairCompute):
         del self.thisptr
 
     @Compute._compute()
-    def compute(self, box, points, keys=None, nlist=None, query_args=None):
+    def compute(self, box, points, keys=None, neighbors=None):
         R"""Compute the clusters for the given set of points.
 
         Args:
@@ -89,8 +89,7 @@ cdef class Cluster(PairCompute):
             unsigned int num_query_points
 
         b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(box, points, nlist=nlist,
-                                      query_args=query_args)
+            self.preprocess_arguments(box, points, neighbors=neighbors)
 
         cdef unsigned int* l_keys_ptr = NULL
         cdef unsigned int[::1] l_keys

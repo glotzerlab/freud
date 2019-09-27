@@ -5,6 +5,7 @@
 
 #include "LocalDescriptors.h"
 #include "diagonalize.h"
+#include "NeighborComputeFunctional.h"
 
 /*! \file LocalDescriptors.cc
   \brief Computes local descriptors.
@@ -12,41 +13,41 @@
 
 namespace freud { namespace environment {
 
-LocalDescriptors::LocalDescriptors(unsigned int l_max, bool negative_m)
-    : m_l_max(l_max), m_negative_m(negative_m), m_n_points(0), m_nSphs(0)
+LocalDescriptors::LocalDescriptors(unsigned int l_max, bool negative_m, LocalDescriptorOrientation orientation)
+    : m_l_max(l_max), m_negative_m(negative_m), m_nSphs(0), m_orientation(orientation)
 {}
 
-void LocalDescriptors::compute(const box::Box& box,
-                               unsigned int num_neighbors, const vec3<float>* points, unsigned int n_points,
-                               const vec3<float>* query_points, unsigned int n_query_points,
-                               const quat<float>* orientations, LocalDescriptorOrientation orientation,
-                               const freud::locality::NeighborList* nlist)
+void LocalDescriptors::compute(const locality::NeighborQuery *nq,
+    const vec3<float>* query_points, unsigned int n_query_points,
+    const quat<float>* orientations, const freud::locality::NeighborList*
+    nlist, locality::QueryArgs qargs)
 {
-    nlist->validate(n_query_points, n_points);
+    // This function requires a NeighborList object, so we always make one and store it locally.
+    m_nlist = locality::makeDefaultNlist(nq, nlist, query_points, n_query_points, qargs);
 
-    m_sphArray.prepare({nlist->getNumBonds(), getSphWidth()});
+    m_sphArray.prepare({m_nlist.getNumBonds(), getSphWidth()});
 
-    util::forLoopWrapper(0, n_points, [=](size_t begin, size_t end) {
+    util::forLoopWrapper(0, nq->getNPoints(), [=](size_t begin, size_t end) {
         fsph::PointSPHEvaluator<float> sph_eval(m_l_max);
 
         for (size_t i = begin; i < end; ++i)
         {
-            size_t bond(nlist->find_first_index(i));
-            const vec3<float> r_i(points[i]);
+            size_t bond(m_nlist.find_first_index(i));
+            const vec3<float> r_i((*nq)[i]);
 
             vec3<float> rotation_0, rotation_1, rotation_2;
 
-            if (orientation == LocalNeighborhood)
+            if (m_orientation == LocalNeighborhood)
             {
                 util::ManagedArray<float> inertiaTensor = util::ManagedArray<float>({3, 3});
 
-                for (size_t bond_copy(bond); bond_copy < nlist->getNumBonds()
-                     && nlist->getNeighbors()(bond_copy, 0) == i && bond_copy < bond + num_neighbors;
+                for (size_t bond_copy(bond); bond_copy < m_nlist.getNumBonds()
+                     && m_nlist.getNeighbors()(bond_copy, 0) == i;
                      ++bond_copy)
                 {
-                    const size_t j(nlist->getNeighbors()(bond_copy, 1));
+                    const size_t j(m_nlist.getNeighbors()(bond_copy, 1));
                     const vec3<float> r_j(query_points[j]);
-                    const vec3<float> r_ij(box.wrap(r_j - r_i));
+                    const vec3<float> r_ij(nq->getBox().wrap(r_j - r_i));
                     const float r_sq(dot(r_ij, r_ij));
 
                     for (size_t ii(0); ii < 3; ++ii)
@@ -77,14 +78,14 @@ void LocalDescriptors::compute(const box::Box& box,
                 rotation_2
                     = vec3<float>(eigenvectors(2, 0), eigenvectors(2, 1), eigenvectors(2, 2));
             }
-            else if (orientation == ParticleLocal)
+            else if (m_orientation == ParticleLocal)
             {
                 const rotmat3<float> rotmat(conj(orientations[i]));
                 rotation_0 = rotmat.row0;
                 rotation_1 = rotmat.row1;
                 rotation_2 = rotmat.row2;
             }
-            else if (orientation == Global)
+            else if (m_orientation == Global)
             {
                 rotation_0 = vec3<float>(1, 0, 0);
                 rotation_1 = vec3<float>(0, 1, 0);
@@ -95,12 +96,12 @@ void LocalDescriptors::compute(const box::Box& box,
                 throw std::runtime_error("Uncaught orientation mode in LocalDescriptors::compute");
             }
 
-            for (; bond < nlist->getNumBonds() && nlist->getNeighbors()(bond, 0) == i; ++bond)
+            for (; bond < m_nlist.getNumBonds() && m_nlist.getNeighbors()(bond, 0) == i; ++bond)
             {
                 const unsigned int sphCount(bond * getSphWidth());
-                const size_t j(nlist->getNeighbors()(bond, 1));
+                const size_t j(m_nlist.getNeighbors()(bond, 1));
                 const vec3<float> r_j(query_points[j]);
-                const vec3<float> r_ij(box.wrap(r_j - r_i));
+                const vec3<float> r_ij(nq->getBox().wrap(r_j - r_i));
                 const float r_sq(dot(r_ij, r_ij));
                 const vec3<float> bond_ij(dot(rotation_0, r_ij), dot(rotation_1, r_ij), dot(rotation_2, r_ij));
 
@@ -123,8 +124,7 @@ void LocalDescriptors::compute(const box::Box& box,
     });
 
     // save the last computed number of particles
-    m_n_points = n_points;
-    m_nSphs = nlist->getNumBonds();
+    m_nSphs = m_nlist.getNumBonds();
 }
 
 }; }; // end namespace freud::environment

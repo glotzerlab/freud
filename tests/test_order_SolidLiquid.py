@@ -12,9 +12,25 @@ class TestSolidLiquid(unittest.TestCase):
         box, positions = util.make_box_and_random_points(L, N)
 
         comp = freud.order.SolidLiquid(6, Q_threshold=.7, S_threshold=6)
-        comp.compute(box, positions, query_args=dict(r_max=2.0))
+        comp.compute(box, positions, neighbors=dict(r_max=2.0))
 
         npt.assert_equal(comp.cluster_idx.shape, (N,))
+
+    def test_nlist(self):
+        """Check that the internally generated NeighborList is correct."""
+        N = 1000
+        L = 10
+
+        box, positions = util.make_box_and_random_points(L, N)
+
+        query_args = dict(r_max=2.0, exclude_ii=True)
+        comp = freud.order.SolidLiquid(6, Q_threshold=.7, S_threshold=6)
+        comp.compute(box, positions, neighbors=query_args)
+
+        aq = freud.locality.AABBQuery(box, positions)
+        nlist = aq.query(positions, query_args).toNeighborList()
+
+        npt.assert_array_equal(nlist[:], comp.nlist[:])
 
     def test_identical_environments(self):
         box, positions = util.make_fcc(4, 4, 4)
@@ -26,7 +42,7 @@ class TestSolidLiquid(unittest.TestCase):
 
         for comp in (comp_default, comp_no_norm):
             for query_args in (dict(r_max=2.0), dict(num_neighbors=12)):
-                comp.compute(box, positions, query_args=query_args)
+                comp.compute(box, positions, neighbors=query_args)
                 self.assertEqual(comp.largest_cluster_size, len(positions))
                 self.assertEqual(len(comp.cluster_sizes), 1)
                 self.assertEqual(comp.cluster_sizes[0], len(positions))
@@ -57,14 +73,17 @@ class TestSolidLiquid(unittest.TestCase):
         with self.assertRaises(AttributeError):
             comp.num_connections
         with self.assertRaises(AttributeError):
+            comp.Ql_ij
+        with self.assertRaises(AttributeError):
             comp.plot()
 
-        comp.compute(box, positions, query_args=dict(r_max=2.0))
+        comp.compute(box, positions, neighbors=dict(r_max=2.0))
 
         comp.largest_cluster_size
         comp.cluster_sizes
         comp.cluster_idx
         comp.num_connections
+        comp.Ql_ij
         comp._repr_png_()
 
     def test_repr(self):

@@ -21,12 +21,13 @@
 #include "Eigen/Eigen/Sparse"
 
 #include "BiMap.h"
+#include "VectorMath.h"
 
 namespace freud { namespace registration {
 
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> matrix;
 
-inline matrix makeEigenMatrix(const std::vector<vec3<float>>& vecs)
+inline matrix makeEigenMatrix(const std::vector<vec3<float> >& vecs)
 {
     // build the Eigen matrix
     matrix mat;

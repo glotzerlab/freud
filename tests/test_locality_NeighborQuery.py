@@ -674,7 +674,7 @@ class TestMultipleMethods(unittest.TestCase):
             if not isinstance(ts[0], freud.locality.NeighborQuery):
                 continue
             check_nlist = ts[0].query(
-                query_points, query_args=ts[2]).toNeighborList()
+                query_points, ts[1]).toNeighborList()
             self.assertTrue(nlist_equal(nlist, check_nlist))
 
 

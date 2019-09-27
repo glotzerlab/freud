@@ -10,6 +10,7 @@ from freud.common cimport Compute
 cimport freud._locality
 cimport freud.box
 
+cdef NeighborList nlist_from_cnlist(freud._locality.NeighborList *c_nlist)
 
 cdef class NeighborQueryResult:
     cdef NeighborQuery nq
@@ -48,9 +49,7 @@ cdef class NeighborQuery:
 cdef class NeighborList:
     cdef freud._locality.NeighborList * thisptr
     cdef char _managed
-    cdef base
 
-    cdef refer_to(self, freud._locality.NeighborList * other)
     cdef freud._locality.NeighborList * get_ptr(self)
     cdef void copy_c(self, NeighborList other)
 

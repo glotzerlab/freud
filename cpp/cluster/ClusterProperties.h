@@ -36,19 +36,19 @@ public:
             const unsigned int* cluster_idx, unsigned int Np);
 
     //! Get a reference to the last computed cluster centers
-    const util::ManagedArray<vec3<float>> &getClusterCenters()
+    const util::ManagedArray<vec3<float>> &getClusterCenters() const
     {
         return m_cluster_centers;
     }
 
     //! Get a reference to the last computed cluster gyration tensors
-    const util::ManagedArray<float> &getClusterGyrations()
+    const util::ManagedArray<float> &getClusterGyrations() const
     {
         return m_cluster_gyrations;
     }
 
     //! Get a reference to the last computed cluster size
-    const util::ManagedArray<unsigned int> &getClusterSizes()
+    const util::ManagedArray<unsigned int> &getClusterSizes() const
     {
         return m_cluster_sizes;
     }

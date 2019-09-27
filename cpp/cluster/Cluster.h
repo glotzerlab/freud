@@ -51,19 +51,19 @@ public:
                  const unsigned int* keys=NULL);
 
     //! Get the total number of clusters.
-    unsigned int getNumClusters()
+    unsigned int getNumClusters() const
     {
         return m_num_clusters;
     }
 
     //! Get a reference to the cluster ids.
-    const util::ManagedArray<unsigned int> &getClusterIdx()
+    const util::ManagedArray<unsigned int> &getClusterIdx() const
     {
         return m_cluster_idx;
     }
 
     //! Get a reference to the cluster keys.
-    const std::vector<std::vector<unsigned int>> &getClusterKeys()
+    const std::vector<std::vector<unsigned int>> &getClusterKeys() const
     {
         return m_cluster_keys;
     }
