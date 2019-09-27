@@ -32,11 +32,6 @@ public:
     //! helper function to reduce the thread specific arrays into one array
     virtual void reducePCF();
 
-    float getJacobian()
-    {
-        return m_jacobian;
-    }
-
 private:
     float m_jacobian;
     vec3<float> m_shiftvec; //!< vector that points from [0,0,0] to the origin of the pmft

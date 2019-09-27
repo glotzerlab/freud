@@ -32,11 +32,11 @@ public:
     void compute(quat<float>* orientations, unsigned int n);
 
     //! Get the value of the last computed nematic order parameter
-    float getNematicOrderParameter();
+    float getNematicOrderParameter() const;
 
-    const util::ManagedArray<float> &getParticleTensor();
+    const util::ManagedArray<float> &getParticleTensor() const;
 
-    const util::ManagedArray<float> &getNematicTensor();
+    const util::ManagedArray<float> &getNematicTensor() const;
 
     unsigned int getNumParticles();
 

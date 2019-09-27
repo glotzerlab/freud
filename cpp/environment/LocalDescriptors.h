@@ -58,7 +58,7 @@ public:
         const freud::locality::NeighborList* nlist, locality::QueryArgs qargs);
 
     //! Get a reference to the last computed spherical harmonic array
-    util::ManagedArray<std::complex<float>> &getSph()
+    const util::ManagedArray<std::complex<float>> &getSph() const
     {
         return m_sphArray;
     }

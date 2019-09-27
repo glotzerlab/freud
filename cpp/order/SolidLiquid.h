@@ -63,22 +63,22 @@ public:
      */
     SolidLiquid(unsigned int l, float Q_threshold, unsigned int S_threshold, bool normalize_Q=true);
 
-    unsigned int getL()
+    unsigned int getL() const
     {
         return m_l;
     }
 
-    float getQThreshold()
+    float getQThreshold() const
     {
         return m_Q_threshold;
     }
 
-    unsigned int getSThreshold()
+    unsigned int getSThreshold() const
     {
         return m_S_threshold;
     }
 
-    bool getNormalizeQ()
+    bool getNormalizeQ() const
     {
         return m_normalize_Q;
     }
@@ -88,13 +88,13 @@ public:
             const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
 
     //! Returns largest cluster size.
-    unsigned int getLargestClusterSize()
+    unsigned int getLargestClusterSize() const
     {
         return m_cluster.getClusterKeys()[0].size();
     }
 
     //! Returns a vector containing the size of all clusters.
-    std::vector<unsigned int> getClusterSizes()
+    std::vector<unsigned int> getClusterSizes() const
     {
         std::vector<unsigned int> sizes;
         auto keys = m_cluster.getClusterKeys();
@@ -107,7 +107,7 @@ public:
 
     //! Get a reference to the last computed set of solid-like cluster
     //  indices for each particle
-    const util::ManagedArray<unsigned int> &getClusterIdx()
+    const util::ManagedArray<unsigned int> &getClusterIdx() const
     {
         return m_cluster.getClusterIdx();
     }
@@ -118,7 +118,7 @@ public:
         return m_number_of_connections;
     }
 
-    unsigned int getNumClusters()
+    unsigned int getNumClusters() const
     {
         return m_cluster.getNumClusters();
     }

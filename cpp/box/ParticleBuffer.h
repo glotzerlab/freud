@@ -37,12 +37,12 @@ public:
     void compute(const vec3<float>* points, const unsigned int Np, const vec3<float> buff,
                  const bool use_images);
 
-    std::vector<vec3<float> > getBufferParticles()
+    std::vector<vec3<float> > getBufferParticles() const
     {
         return m_buffer_particles;
     }
 
-    std::vector<unsigned int> getBufferIds()
+    std::vector<unsigned int> getBufferIds() const
     {
         return m_buffer_ids;
     }

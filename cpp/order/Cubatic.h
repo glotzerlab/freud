@@ -69,47 +69,47 @@ public:
     void compute(quat<float>* orientations, unsigned int num_orientations);
 
     //! Get a reference to the last computed cubatic order parameter
-    float getCubaticOrderParameter()
+    float getCubaticOrderParameter() const
     {
         return m_cubatic_order_parameter;
     }
 
-    const util::ManagedArray<float> &getParticleOrderParameter()
+    const util::ManagedArray<float> &getParticleOrderParameter() const
     {
         return m_particle_order_parameter;
     }
 
-    const util::ManagedArray<float> &getGlobalTensor()
+    const util::ManagedArray<float> &getGlobalTensor() const
     {
         return m_global_tensor;
     }
 
-    const util::ManagedArray<float> &getCubaticTensor()
+    const util::ManagedArray<float> &getCubaticTensor() const
     {
         return m_cubatic_tensor;
     }
 
-    unsigned int getNumParticles()
+    unsigned int getNumParticles() const
     {
         return m_n;
     }
 
-    float getTInitial()
+    float getTInitial() const
     {
         return m_t_initial;
     }
 
-    float getTFinal()
+    float getTFinal() const
     {
         return m_t_final;
     }
 
-    float getScale()
+    float getScale() const
     {
         return m_scale;
     }
 
-    quat<float> getCubaticOrientation()
+    quat<float> getCubaticOrientation() const
     {
         return m_cubatic_orientation;
     }

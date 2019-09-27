@@ -30,12 +30,6 @@ public:
     //! helper function to reduce the thread specific arrays into one array
     virtual void reducePCF();
 
-    //! Get the jacobian determinant (not the matrix)
-    float getJacobian()
-    {
-        return m_jacobian;
-    }
-
 private:
     float m_jacobian;   //!< Determinant of Jacobian, bin area
 };

@@ -65,21 +65,4 @@ void LocalDensity::compute(const freud::locality::NeighborQuery* neighbor_query,
     m_n_points = n_points;
 }
 
-unsigned int LocalDensity::getNPoints()
-{
-    return m_n_points;
-}
-
-//! Get a reference to the last computed density
-const util::ManagedArray<float> &LocalDensity::getDensity()
-{
-    return m_density_array;
-}
-
-//! Get a reference to the last computed number of neighbors
-const util::ManagedArray<float> &LocalDensity::getNumNeighbors()
-{
-    return m_num_neighbors_array;
-}
-
 }; }; // end namespace freud::density

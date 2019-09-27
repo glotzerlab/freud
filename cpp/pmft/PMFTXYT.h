@@ -29,11 +29,6 @@ public:
     //! helper function to reduce the thread specific arrays into one array
     virtual void reducePCF();
 
-    float getJacobian()
-    {
-        return m_jacobian;
-    }
-
 private:
     float m_jacobian;
 };

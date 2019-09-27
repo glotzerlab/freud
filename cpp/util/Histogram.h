@@ -323,7 +323,7 @@ public:
     }
 
     //! Get the computed histogram.
-    const ManagedArray<T> &getBinCounts()
+    const ManagedArray<T> &getBinCounts() const
     {
         return m_bin_counts;
     }

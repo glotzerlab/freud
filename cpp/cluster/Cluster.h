@@ -57,25 +57,25 @@ public:
                  const unsigned int* keys=NULL);
 
     //! Count the number of clusters found in the last call to compute().
-    unsigned int getNumClusters()
+    unsigned int getNumClusters() const
     {
         return m_num_clusters;
     }
 
     //! Return the number of particles in the current Compute.
-    unsigned int getNumParticles()
+    unsigned int getNumParticles() const
     {
         return m_num_particles;
     }
 
     //! Get a reference to the last computed cluster ids.
-    const util::ManagedArray<unsigned int> &getClusterIdx()
+    const util::ManagedArray<unsigned int> &getClusterIdx() const
     {
         return m_cluster_idx;
     }
 
     //! Returns the last computed cluster keys.
-    const std::vector<std::vector<unsigned int>> &getClusterKeys()
+    const std::vector<std::vector<unsigned int>> &getClusterKeys() const
     {
         return m_cluster_keys;
     }

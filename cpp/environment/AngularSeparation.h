@@ -36,7 +36,7 @@ public:
                  const quat<float>* equiv_orientations, unsigned int n_equiv_orientations);
 
     //! Returns the last computed global angle array
-    util::ManagedArray<float> &getAngles()
+    const util::ManagedArray<float> &getAngles() const
     {
         return m_angles;
     }
@@ -68,7 +68,7 @@ public:
                  const freud::locality::NeighborList* nlist, locality::QueryArgs qargs);
 
     //! Returns the last computed neighbor angle array
-    util::ManagedArray<float> &getAngles()
+    const util::ManagedArray<float> &getAngles() const
     {
         return m_angles;
     }
