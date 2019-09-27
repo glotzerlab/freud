@@ -33,6 +33,7 @@ and this project adheres to
 * APIs for several order parameters have been standardized.
 * SolidLiquid order parameter has been completely rewritten, fixing several bugs and simplifying its C++ code.
 * NeighborQuery objects require z == 0 for all points if the box is 2D.
+* Refactored and renamed attributes of Cluster and ClusterProperties modules.
 
 ### Fixed
 * Steinhardt uses the ThreadStorage class and properly resets memory where needed.
