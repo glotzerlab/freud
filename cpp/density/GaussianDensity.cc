@@ -46,7 +46,7 @@ void GaussianDensity::compute(const box::Box& box, const vec3<float>* points, un
     }
     m_density_array.prepare({width.x, width.y, width.z});
     util::ThreadStorage<float> local_bin_counts({width.x, width.y, width.z});
-    util::forLoopWrapper(0, n_points, [=, &local_bin_counts](size_t begin, size_t end) {
+    util::forLoopWrapper(0, n_points, [&](size_t begin, size_t end) {
         // set up some constants first
         float lx = m_box.getLx();
         float ly = m_box.getLy();

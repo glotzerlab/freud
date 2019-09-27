@@ -133,6 +133,11 @@ public:
     void compute(const freud::locality::NeighborList* nlist,
                                   const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
 
+    unsigned int getL() const
+    {
+        return m_l;
+    }
+
 private:
     //! \internal
     //! helper function to reduce the thread specific arrays into one array

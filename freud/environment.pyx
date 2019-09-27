@@ -945,7 +945,6 @@ cdef class LocalBondProjection(PairCompute):
             provided as the :code:`neighbors` argument.
     """  # noqa: E501
     cdef freud._environment.LocalBondProjection * thisptr
-    cdef freud.locality.NeighborList nlist_
 
     def __cinit__(self):
         self.thisptr = new freud._environment.LocalBondProjection()
