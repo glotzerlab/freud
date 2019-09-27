@@ -210,7 +210,7 @@ cdef class NeighborQueryResult:
 
         npoint = dereference(iterator).next()
         while npoint != ITERATOR_TERMINATOR:
-            yield (npoint.id, npoint.ref_id, npoint.distance)
+            yield (npoint.query_point_idx, npoint.point_idx, npoint.distance)
             npoint = dereference(iterator).next()
 
         raise StopIteration

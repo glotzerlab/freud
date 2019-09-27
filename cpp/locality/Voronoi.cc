@@ -185,8 +185,8 @@ void Voronoi::compute(const box::Box &box, const vec3<double>* vertices,
             [&] (const tbb::blocked_range<size_t> &r) {
             for (size_t bond(r.begin()); bond < r.end(); ++bond)
             {
-                m_neighbor_list.getNeighbors()(bond, 0) = linear_bonds[bond].id;
-                m_neighbor_list.getNeighbors()(bond, 1) = linear_bonds[bond].ref_id;
+                m_neighbor_list.getNeighbors()(bond, 0) = linear_bonds[bond].query_point_idx;
+                m_neighbor_list.getNeighbors()(bond, 1) = linear_bonds[bond].point_idx;
                 m_neighbor_list.getWeights()[bond] = linear_bonds[bond].weight;
             }
         });
