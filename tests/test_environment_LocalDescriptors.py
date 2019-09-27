@@ -342,7 +342,7 @@ class TestLocalDescriptors(unittest.TestCase):
 
         # Loop over the sphs and compute them explicitly.
         for idx, (i, j) in enumerate(nl):
-            bond = box.wrap(points[j] - points[i])
+            bond = box.wrap(points[i] - points[j])
             r = np.linalg.norm(bond)
             theta = np.arccos(bond[2]/r)
             phi = np.arctan2(bond[1], bond[0])
@@ -403,7 +403,7 @@ class TestLocalDescriptors(unittest.TestCase):
 
         # Loop over the sphs and compute them explicitly.
         for idx, (i, j) in enumerate(nl):
-            bond = box.wrap(points[j] - ref_points[i])
+            bond = box.wrap(points[i] - ref_points[j])
             r = np.linalg.norm(bond)
             theta = np.arccos(bond[2]/r)
             phi = np.arctan2(bond[1], bond[0])
