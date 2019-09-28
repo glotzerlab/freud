@@ -431,7 +431,7 @@ try:
               url='https://github.com/glotzerlab/freud',
               packages=['freud'],
               python_requires='>=3.5',
-              install_requires=['numpy>=1.10', 'rowan>=1.0'],
+              install_requires=['numpy>=1.10', 'rowan>=1.2'],
               tests_require=['matplotlib>=2.0', 'sympy>=1.0'],
               ext_modules=extensions)
 except SystemExit:
