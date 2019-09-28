@@ -321,7 +321,7 @@ cdef class LocalDescriptors(PairCompute):
         del self.thisptr
 
     @Compute._compute()
-    def compute(self, box, points, query_points=None, orientations=None,
+    def compute(self, neighbor_query, query_points=None, orientations=None,
                 neighbors=None):
         R"""Calculates the local descriptors of bonds from a set of source
         points to a set of destination points.
@@ -343,15 +343,15 @@ cdef class LocalDescriptors(PairCompute):
                 NeighborList to use to find bonds (Default value = :code:`None`).
         """  # noqa: E501
         cdef:
-            freud.box.Box b
             freud.locality.NeighborQuery nq
-            freud.locality.NlistptrWrapper nlistptr
+            freud.locality.NeighborList nlist
             freud.locality._QueryArgs qargs
             const float[:, ::1] l_query_points
             unsigned int num_query_points
 
-        b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(box, points, query_points, neighbors)
+        nq, nlist, qargs, l_query_points, num_query_points = \
+            self.preprocess_arguments_new(
+                neighbor_query, query_points, neighbors)
 
         # The l_orientations_ptr is only used for 'particle_local' mode.
         cdef const float[:, ::1] l_orientations
@@ -363,7 +363,7 @@ cdef class LocalDescriptors(PairCompute):
                         'with particles\' orientations'))
 
             orientations = freud.common.convert_array(
-                orientations, shape=(points.shape[0], 4))
+                orientations, shape=(nq.points.shape[0], 4))
 
             l_orientations = orientations
             l_orientations_ptr = <quat[float]*> &l_orientations[0, 0]
@@ -372,7 +372,7 @@ cdef class LocalDescriptors(PairCompute):
             nq.get_ptr(),
             <vec3[float]*> &l_query_points[0, 0], num_query_points,
             l_orientations_ptr,
-            nlistptr.get_ptr(), dereference(qargs.thisptr))
+            nlist.get_ptr(), dereference(qargs.thisptr))
         return self
 
     @Compute._computed_property()
