@@ -84,13 +84,13 @@ class TestRDF(unittest.TestCase):
             box, points = util.make_box_and_random_points(box_size, num_points)
             test_set = util.make_raw_query_nlist_test_set(
                 box, points, points, "ball", r_max, 0, True)
-            for ts in test_set:
+            for nq, neighbors in test_set:
                 rdf = freud.density.RDF(bins, r_max, r_min)
 
                 if i < 3:
-                    rdf.accumulate(box, ts[0], neighbors=ts[1])
+                    rdf.accumulate(box, nq, neighbors=neighbors)
                 else:
-                    rdf.compute(box, ts[0], neighbors=ts[1])
+                    rdf.compute(box, nq, neighbors=neighbors)
                 self.assertTrue(rdf.box == box)
                 correct = np.ones(bins, dtype=np.float32)
                 npt.assert_allclose(rdf.RDF, correct, atol=tolerance)
@@ -155,9 +155,9 @@ class TestRDF(unittest.TestCase):
 
         test_set = util.make_raw_query_nlist_test_set(
             box, points, query_points, "ball", r_max, 0, False)
-        for ts in test_set:
+        for nq, neighbors in test_set:
             rdf = freud.density.RDF(bins, r_max)
-            rdf.compute(box, ts[0], query_points, neighbors=ts[1])
+            rdf.compute(box, nq, query_points, neighbors=neighbors)
 
             npt.assert_allclose(rdf.n_r, supposed_RDF, atol=1e-6)
 

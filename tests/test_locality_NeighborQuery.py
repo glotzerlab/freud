@@ -670,11 +670,11 @@ class TestMultipleMethods(unittest.TestCase):
         test_set = util.make_raw_query_nlist_test_set(
             box, points, query_points, "nearest", r_max, num_neighbors, False)
         nlist = test_set[-1][1]
-        for ts in test_set:
-            if not isinstance(ts[0], freud.locality.NeighborQuery):
+        for nq, neighbors in test_set:
+            if not isinstance(nq, freud.locality.NeighborQuery):
                 continue
-            check_nlist = ts[0].query(
-                query_points, ts[1]).toNeighborList()
+            check_nlist = nq.query(
+                query_points, neighbors).toNeighborList()
             self.assertTrue(nlist_equal(nlist, check_nlist))
 
 
