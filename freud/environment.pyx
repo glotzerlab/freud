@@ -968,9 +968,9 @@ cdef class LocalBondProjection(PairCompute):
         return freud.locality.nlist_from_cnlist(self.thisptr.getNList())
 
     @Compute._compute()
-    def compute(self, box, proj_vecs, points,
-                orientations, query_points=None,
-                equiv_orientations=np.array([[1, 0, 0, 0]]), neighbors=None):
+    def compute(self, neighbor_query, orientations, proj_vecs,
+                query_points=None, equiv_orientations=np.array([[1, 0, 0, 0]]),
+                neighbors=None):
         R"""Calculates the maximal projections of nearest neighbor bonds
         (between :code:`points` and :code:`query_points`) onto the set of
         reference vectors :code:`proj_vecs`, defined in the local reference
@@ -1006,15 +1006,15 @@ cdef class LocalBondProjection(PairCompute):
                 :code:`None`).
         """  # noqa: E501
         cdef:
-            freud.box.Box b
             freud.locality.NeighborQuery nq
-            freud.locality.NlistptrWrapper nlistptr
+            freud.locality.NeighborList nlist
             freud.locality._QueryArgs qargs
             const float[:, ::1] l_query_points
             unsigned int num_query_points
 
-        b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(box, points, query_points, neighbors)
+        nq, nlist, qargs, l_query_points, num_query_points = \
+            self.preprocess_arguments_new(
+                neighbor_query, query_points, neighbors)
 
         orientations = freud.common.convert_array(
             orientations, shape=(None, 4))
@@ -1036,7 +1036,7 @@ cdef class LocalBondProjection(PairCompute):
             <vec3[float]*> &l_query_points[0, 0], num_query_points,
             <vec3[float]*> &l_proj_vecs[0, 0], n_proj,
             <quat[float]*> &l_equiv_orientations[0, 0], n_equiv,
-            nlistptr.get_ptr(), dereference(qargs.thisptr))
+            nlist.get_ptr(), dereference(qargs.thisptr))
         return self
 
     @Compute._computed_property()

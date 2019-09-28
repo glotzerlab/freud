@@ -23,7 +23,7 @@ class TestLocalBondProjection(unittest.TestCase):
         proj_vecs = np.asarray([[0, 0, 1]])
 
         ang = freud.environment.LocalBondProjection()
-        ang.compute(box, proj_vecs, points, ors, query_points,
+        ang.compute((box, points), ors, proj_vecs, query_points,
                     neighbors=query_args)
 
         aq = freud.locality.AABBQuery(box, points)
@@ -51,7 +51,7 @@ class TestLocalBondProjection(unittest.TestCase):
         with self.assertRaises(AttributeError):
             ang.normed_projections
 
-        ang.compute(box, proj_vecs, points, ors, neighbors=query_args)
+        ang.compute((box, points), ors, proj_vecs, neighbors=query_args)
 
         ang.nlist
         ang.projections
@@ -85,7 +85,7 @@ class TestLocalBondProjection(unittest.TestCase):
         # First have no particle symmetry
 
         ang = freud.environment.LocalBondProjection()
-        ang.compute(box, proj_vecs, points, ors, neighbors=query_args)
+        ang.compute((box, points), ors, proj_vecs, neighbors=query_args)
 
         dnlist = freud.locality.make_default_nlist(
             box, points, None,
@@ -136,7 +136,8 @@ class TestLocalBondProjection(unittest.TestCase):
             equiv_quats.append(np.array([q[0], -q[1], -q[2], -q[3]]))
         equiv_quats = np.asarray(equiv_quats, dtype=np.float32)
 
-        ang.compute(box, proj_vecs, points, ors, None, equiv_quats, query_args)
+        ang.compute((box, points), ors, proj_vecs, None, equiv_quats,
+                    query_args)
 
         # Now all projections should be cos(0)=1
         npt.assert_allclose(ang.projections[1], 1, atol=1e-6)
