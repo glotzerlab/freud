@@ -39,6 +39,7 @@ and this project adheres to
 * Refactored and renamed attributes of Cluster and ClusterProperties modules.
 * All class attributes are stored in the C++ members and accessed via getters wrapped as Python properties.
 * Vector directionality is standardized for all computes that use it (always points from point to query\_point).
+* Documentation uses automodule instead of autoclass.
 
 ### Fixed
 * Steinhardt uses the ThreadStorage class and properly resets memory where needed.
