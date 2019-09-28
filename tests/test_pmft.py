@@ -669,7 +669,7 @@ class TestPMFTXY2D(unittest.TestCase):
              [1, 0, 1],
              [0, 1, 0]])
         # Now there will be only one neighbor for the single point.
-        pmft.compute(box, query_points, query_orientations, points,
+        pmft.compute((box, query_points), query_orientations, points,
                      neighbors={'mode': 'nearest', 'num_neighbors': 1})
         npt.assert_array_equal(
             pmft.bin_counts,
