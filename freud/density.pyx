@@ -110,7 +110,8 @@ cdef class CorrelationFunction(SpatialHistogram1D):
             unsigned int num_query_points
 
         nq, nlist, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments_new(neighbor_query, query_points, neighbors)
+            self.preprocess_arguments_new(neighbor_query, query_points,
+                                          neighbors)
 
         # Save if any inputs have been complex so far.
         self.is_complex = self.is_complex or np.any(np.iscomplex(values)) or \
@@ -401,7 +402,7 @@ cdef class LocalDensity(PairCompute):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     @Compute._compute()
-    def compute(self, box, points, query_points=None, neighbors=None):
+    def compute(self, neighbor_query, query_points=None, neighbors=None):
         R"""Calculates the local density for the specified points. Does not
         accumulate (will overwrite current data).
 
@@ -419,19 +420,19 @@ cdef class LocalDensity(PairCompute):
                 :code:`None`).
         """  # noqa E501
         cdef:
-            freud.box.Box b
             freud.locality.NeighborQuery nq
-            freud.locality.NlistptrWrapper nlistptr
+            freud.locality.NeighborList nlist
             freud.locality._QueryArgs qargs
             const float[:, ::1] l_query_points
             unsigned int num_query_points
 
-        b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(box, points, query_points, neighbors)
+        nq, nlist, qargs, l_query_points, num_query_points = \
+            self.preprocess_arguments_new(neighbor_query, query_points,
+                                          neighbors)
         self.thisptr.compute(
             nq.get_ptr(),
             <vec3[float]*> &l_query_points[0, 0],
-            num_query_points, nlistptr.get_ptr(),
+            num_query_points, nlist.get_ptr(),
             dereference(qargs.thisptr))
         return self
 
