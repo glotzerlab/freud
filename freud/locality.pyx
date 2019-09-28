@@ -430,9 +430,14 @@ cdef class NeighborList:
 
         return result
 
-    def __cinit__(self):
-        self._managed = True
-        self.thisptr = new freud._locality.NeighborList()
+    def __cinit__(self, _null=False):
+        # Setting _null to True will create a NeighborList with no underlying
+        # C++ object. This is useful for passing NULL pointers to C++ to
+        # indicate the lack of a NeighborList
+        self._managed = not _null
+        # Cython won't assign NULL without cast
+        self.thisptr = <freud._locality.NeighborList *> NULL if _null \
+            else new freud._locality.NeighborList()
 
     def __dealloc__(self):
         if self._managed:
@@ -1209,6 +1214,74 @@ cdef class PairCompute(Compute):
         cdef const float[:, ::1] l_query_points = query_points
         cdef unsigned int num_query_points = l_query_points.shape[0]
         return (b, nq, nlistptr, qargs, l_query_points, num_query_points)
+
+    def preprocess_arguments_new(self, neighbor_query, query_points=None,
+                                 neighbors=None, dimensions=None):
+        """Process standard compute arguments into freud's internal types by
+        calling all the required internal functions.
+
+        This function handles the preprocessing of boxes and points into
+        :class:`freud.locality.NeighborQuery` objects, the determination of how
+        to handle the NeighborList object, the creation of default query
+        arguments as needed, deciding what `query_points` are, and setting the
+        appropriate `exclude_ii` flag.
+
+        Args:
+            neighbor_query (:class:`freud.locality.NeighborQuery` or tuple):
+                If a tuple, must be of the form (box_like, array_like), i.e. it
+                must be an object that can be converted into a
+                :class:`freud.locality.NeighborQuery`.
+            box (:class:`freud.box.Box`):
+                Simulation box.
+            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
+                Reference points used to calculate the RDF.
+            query_points ((:math:`N_{query_points}`, 3) :class:`numpy.ndarray`, optional):
+                Points used to calculate the RDF. Uses :code:`points` if
+                not provided or :code:`None`.
+            nlist (:class:`freud.locality.NeighborList`, optional):
+                NeighborList to use to find bonds (Default value =
+                :code:`None`).
+            query_args (dict):
+                A dictionary of query arguments (Default value = :code:`None`).
+            dimensions (int):
+                Number of dimensions the box should be. If not None, used to
+                verify the box dimensions (Default value = :code:`None`).
+        """  # noqa E501
+        cdef NeighborQuery nq
+        if not isinstance(neighbor_query, NeighborQuery):
+            nq = RawPoints(*neighbor_query)
+        else:
+            nq = neighbor_query
+
+        # Resolve the two possible ways of passing neighbors (query arguments
+        # or neighbor lists) based on the type of the neighbors argument.
+        cdef NeighborList nlist
+        cdef _QueryArgs qargs
+
+        if type(neighbors) == NeighborList:
+            nlist = neighbors
+            qargs = _QueryArgs()
+        elif neighbors is None or type(neighbors) == dict:
+            # The default_query_args property must raise a NotImplementedError
+            # if no query arguments were passed in and the class has no
+            # reasonable choice of defaults.
+            try:
+                query_args = self.default_query_args if neighbors is None \
+                    else neighbors.copy()
+                query_args.setdefault('exclude_ii', query_points is None)
+                qargs = _QueryArgs.from_dict(query_args)
+                nlist = NeighborList(True)
+            except NotImplementedError:
+                raise
+
+        if query_points is None:
+            query_points = nq.points
+        else:
+            query_points = freud.common.convert_array(
+                query_points, shape=(None, 3))
+        cdef const float[:, ::1] l_query_points = query_points
+        cdef unsigned int num_query_points = l_query_points.shape[0]
+        return (nq, nlist, qargs, l_query_points, num_query_points)
 
     @property
     def default_query_args(self):

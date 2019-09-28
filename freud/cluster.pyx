@@ -67,7 +67,7 @@ cdef class Cluster(PairCompute):
         del self.thisptr
 
     @Compute._compute()
-    def compute(self, box, points, keys=None, neighbors=None):
+    def compute(self, neighbor_query, keys=None, neighbors=None):
         R"""Compute the clusters for the given set of points.
 
         Args:
@@ -81,15 +81,14 @@ cdef class Cluster(PairCompute):
                 Object to use to find bonds (Default value = :code:`None`).
         """
         cdef:
-            freud.box.Box b
             freud.locality.NeighborQuery nq
-            freud.locality.NlistptrWrapper nlistptr
+            freud.locality.NeighborList nlist
             freud.locality._QueryArgs qargs
             const float[:, ::1] l_query_points
             unsigned int num_query_points
 
-        b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(box, points, neighbors=neighbors)
+        nq, nlist, qargs, l_query_points, num_query_points = \
+            self.preprocess_arguments_new(neighbor_query, neighbors=neighbors)
 
         cdef unsigned int* l_keys_ptr = NULL
         cdef unsigned int[::1] l_keys
@@ -100,7 +99,7 @@ cdef class Cluster(PairCompute):
 
         self.thisptr.compute(
             nq.get_ptr(),
-            nlistptr.get_ptr(),
+            nlist.get_ptr(),
             dereference(qargs.thisptr),
             l_keys_ptr)
         return self
