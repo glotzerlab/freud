@@ -430,9 +430,14 @@ cdef class NeighborList:
 
         return result
 
-    def __cinit__(self):
-        self._managed = True
-        self.thisptr = new freud._locality.NeighborList()
+    def __cinit__(self, _null=False):
+        # Setting _null to True will create a NeighborList with no underlying
+        # C++ object. This is useful for passing NULL pointers to C++ to
+        # indicate the lack of a NeighborList
+        self._managed = not _null
+        # Cython won't assign NULL without cast
+        self.thisptr = <freud._locality.NeighborList *> NULL if _null \
+            else new freud._locality.NeighborList()
 
     def __dealloc__(self):
         if self._managed:
@@ -567,29 +572,6 @@ cdef NeighborList nlist_from_cnlist(freud._locality.NeighborList *c_nlist):
     result._managed = False
     result.thisptr = c_nlist
     return result
-
-
-cdef class NlistptrWrapper:
-    R"""Wrapper class to hold :code:`freud._locality.NeighborList *`.
-
-    This class is to handle the logic of changing :code:`None` to :code:`NULL`
-    in Cython.
-
-    Args:
-        nlist (:class:`freud.locality.NeighborList`):
-            Neighbor list or :code:`None`.
-    """
-
-    def __cinit__(self, nlist=None):
-        cdef NeighborList _nlist
-        if nlist is not None:
-            _nlist = nlist
-            self.nlistptr = _nlist.get_ptr()
-        else:
-            self.nlistptr = NULL
-
-    cdef freud._locality.NeighborList * get_ptr(self):
-        return self.nlistptr
 
 
 def make_default_nq(box, points):
@@ -1148,7 +1130,7 @@ cdef class PairCompute(Compute):
     well as dealing with boxes and query arguments.
     """
 
-    def preprocess_arguments(self, box, points, query_points=None,
+    def preprocess_arguments(self, neighbor_query, query_points=None,
                              neighbors=None, dimensions=None):
         """Process standard compute arguments into freud's internal types by
         calling all the required internal functions.
@@ -1160,6 +1142,10 @@ cdef class PairCompute(Compute):
         appropriate `exclude_ii` flag.
 
         Args:
+            neighbor_query (:class:`freud.locality.NeighborQuery` or tuple):
+                If a tuple, must be of the form (box_like, array_like), i.e. it
+                must be an object that can be converted into a
+                :class:`freud.locality.NeighborQuery`.
             box (:class:`freud.box.Box`):
                 Simulation box.
             points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
@@ -1176,16 +1162,23 @@ cdef class PairCompute(Compute):
                 Number of dimensions the box should be. If not None, used to
                 verify the box dimensions (Default value = :code:`None`).
         """  # noqa E501
-        cdef freud.box.Box b = freud.common.convert_box(box, dimensions)
-        cdef NeighborQuery nq = make_default_nq(box, points)
+        cdef NeighborQuery nq
+        if not isinstance(neighbor_query, NeighborQuery):
+            nq = RawPoints(*neighbor_query)
+        else:
+            nq = neighbor_query
+
+        if dimensions is not None and dimensions != nq.box.dimensions:
+            raise ValueError("The box must be {}-dimensional.".format(
+                dimensions))
 
         # Resolve the two possible ways of passing neighbors (query arguments
         # or neighbor lists) based on the type of the neighbors argument.
-        cdef NlistptrWrapper nlistptr
+        cdef NeighborList nlist
         cdef _QueryArgs qargs
 
         if type(neighbors) == NeighborList:
-            nlistptr = NlistptrWrapper(neighbors)
+            nlist = neighbors
             qargs = _QueryArgs()
         elif neighbors is None or type(neighbors) == dict:
             # The default_query_args property must raise a NotImplementedError
@@ -1196,7 +1189,7 @@ cdef class PairCompute(Compute):
                     else neighbors.copy()
                 query_args.setdefault('exclude_ii', query_points is None)
                 qargs = _QueryArgs.from_dict(query_args)
-                nlistptr = NlistptrWrapper()
+                nlist = NeighborList(True)
             except NotImplementedError:
                 raise
 
@@ -1207,7 +1200,7 @@ cdef class PairCompute(Compute):
                 query_points, shape=(None, 3))
         cdef const float[:, ::1] l_query_points = query_points
         cdef unsigned int num_query_points = l_query_points.shape[0]
-        return (b, nq, nlistptr, qargs, l_query_points, num_query_points)
+        return (nq, nlist, qargs, l_query_points, num_query_points)
 
     @property
     def default_query_args(self):

@@ -89,6 +89,7 @@ Vyas Ramasubramani - **Lead developer**
 * Standardized variable naming of points/query\_points across all of freud.
 * Standardized vector directionality in computes.
 * Enabled usage of quaternions in place of angles for orientations in 2D PMFT calculations.
+* Wrote new freud 2.0 compute APIs based on neighbor\_query objects and neighbors as either dictionaries or NeighborLists.
 
 Bradley Dice - **Lead developer**
 

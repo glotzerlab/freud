@@ -39,7 +39,7 @@ def make_raw_query_nlist_test_set(box, points, query_points, mode, r_max,
         query_args['num_neighbors'] = num_neighbors
         query_args['r_guess'] = r_max
 
-    test_set.append((points, query_args))
+    test_set.append(((box, points), query_args))
     test_set.append((freud.locality.RawPoints(box, points), query_args))
     test_set.append((freud.locality.AABBQuery(box, points), query_args))
     test_set.append(
@@ -53,7 +53,7 @@ def make_raw_query_nlist_test_set(box, points, query_points, mode, r_max,
             box, points, query_points,
             dict(num_neighbors=num_neighbors, exclude_ii=exclude_ii,
                  r_guess=r_max), None)
-    test_set.append((points, nlist))
+    test_set.append(((box, points), nlist))
     return test_set
 
 

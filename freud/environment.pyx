@@ -146,7 +146,7 @@ cdef class BondOrder(SpatialHistogram):
         raise NotImplementedError('No default query arguments for BondOrder.')
 
     @Compute._compute()
-    def accumulate(self, box, points, orientations, query_points=None,
+    def accumulate(self, neighbor_query, orientations, query_points=None,
                    query_orientations=None, neighbors=None):
         R"""Calculates the correlation function and adds to the current
         histogram.
@@ -171,15 +171,14 @@ cdef class BondOrder(SpatialHistogram):
                 :code:`None`).
         """  # noqa: E501
         cdef:
-            freud.box.Box b
             freud.locality.NeighborQuery nq
-            freud.locality.NlistptrWrapper nlistptr
+            freud.locality.NeighborList nlist
             freud.locality._QueryArgs qargs
             const float[:, ::1] l_query_points
             unsigned int num_query_points
 
-        b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(box, points, query_points, neighbors)
+        nq, nlist, qargs, l_query_points, num_query_points = \
+            self.preprocess_arguments(neighbor_query, query_points, neighbors)
         if query_orientations is None:
             query_orientations = orientations
 
@@ -197,7 +196,7 @@ cdef class BondOrder(SpatialHistogram):
             <vec3[float]*> &l_query_points[0, 0],
             <quat[float]*> &l_query_orientations[0, 0],
             num_query_points,
-            nlistptr.get_ptr(), dereference(qargs.thisptr))
+            nlist.get_ptr(), dereference(qargs.thisptr))
         return self
 
     @Compute._computed_property()
@@ -216,7 +215,7 @@ cdef class BondOrder(SpatialHistogram):
         self.thisptr.reset()
 
     @Compute._compute()
-    def compute(self, box, points, orientations, query_points=None,
+    def compute(self, neighbor_query, orientations, query_points=None,
                 query_orientations=None, neighbors=None):
         R"""Calculates the bond order histogram. Will overwrite the current
         histogram.
@@ -241,7 +240,7 @@ cdef class BondOrder(SpatialHistogram):
                 :code:`None`).
         """  # noqa: E501
         self.reset()
-        self.accumulate(box, points, orientations,
+        self.accumulate(neighbor_query, orientations,
                         query_points, query_orientations, neighbors)
         return self
 
@@ -321,7 +320,7 @@ cdef class LocalDescriptors(PairCompute):
         del self.thisptr
 
     @Compute._compute()
-    def compute(self, box, points, query_points=None, orientations=None,
+    def compute(self, neighbor_query, query_points=None, orientations=None,
                 neighbors=None):
         R"""Calculates the local descriptors of bonds from a set of source
         points to a set of destination points.
@@ -343,15 +342,14 @@ cdef class LocalDescriptors(PairCompute):
                 NeighborList to use to find bonds (Default value = :code:`None`).
         """  # noqa: E501
         cdef:
-            freud.box.Box b
             freud.locality.NeighborQuery nq
-            freud.locality.NlistptrWrapper nlistptr
+            freud.locality.NeighborList nlist
             freud.locality._QueryArgs qargs
             const float[:, ::1] l_query_points
             unsigned int num_query_points
 
-        b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(box, points, query_points, neighbors)
+        nq, nlist, qargs, l_query_points, num_query_points = \
+            self.preprocess_arguments(neighbor_query, query_points, neighbors)
 
         # The l_orientations_ptr is only used for 'particle_local' mode.
         cdef const float[:, ::1] l_orientations
@@ -363,7 +361,7 @@ cdef class LocalDescriptors(PairCompute):
                         'with particles\' orientations'))
 
             orientations = freud.common.convert_array(
-                orientations, shape=(points.shape[0], 4))
+                orientations, shape=(nq.points.shape[0], 4))
 
             l_orientations = orientations
             l_orientations_ptr = <quat[float]*> &l_orientations[0, 0]
@@ -372,7 +370,7 @@ cdef class LocalDescriptors(PairCompute):
             nq.get_ptr(),
             <vec3[float]*> &l_query_points[0, 0], num_query_points,
             l_orientations_ptr,
-            nlistptr.get_ptr(), dereference(qargs.thisptr))
+            nlist.get_ptr(), dereference(qargs.thisptr))
         return self
 
     @Compute._computed_property()
@@ -781,7 +779,7 @@ cdef class AngularSeparationNeighbor(PairCompute):
         del self.thisptr
 
     @Compute._compute()
-    def compute(self, box, points, orientations, query_points=None,
+    def compute(self, neighbor_query, orientations, query_points=None,
                 query_orientations=None,
                 equiv_orientations=np.array([[1, 0, 0, 0]]),
                 neighbors=None):
@@ -814,18 +812,17 @@ cdef class AngularSeparationNeighbor(PairCompute):
                 :code:`None`).
         """  # noqa: E501
         cdef:
-            freud.box.Box b
             freud.locality.NeighborQuery nq
-            freud.locality.NlistptrWrapper nlistptr
+            freud.locality.NeighborList nlist
             freud.locality._QueryArgs qargs
             const float[:, ::1] l_query_points
             unsigned int num_query_points
 
-        b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(box, points, query_points, neighbors)
+        nq, nlist, qargs, l_query_points, num_query_points = \
+            self.preprocess_arguments(neighbor_query, query_points, neighbors)
 
         orientations = freud.common.convert_array(
-            orientations, shape=(points.shape[0], 4))
+            orientations, shape=(nq.points.shape[0], 4))
         if query_orientations is None:
             query_orientations = orientations
         else:
@@ -849,7 +846,7 @@ cdef class AngularSeparationNeighbor(PairCompute):
             num_query_points,
             <quat[float]*> &l_equiv_orientations[0, 0],
             n_equiv_orientations,
-            nlistptr.get_ptr(),
+            nlist.get_ptr(),
             dereference(qargs.thisptr))
         return self
 
@@ -968,9 +965,9 @@ cdef class LocalBondProjection(PairCompute):
         return freud.locality.nlist_from_cnlist(self.thisptr.getNList())
 
     @Compute._compute()
-    def compute(self, box, proj_vecs, points,
-                orientations, query_points=None,
-                equiv_orientations=np.array([[1, 0, 0, 0]]), neighbors=None):
+    def compute(self, neighbor_query, orientations, proj_vecs,
+                query_points=None, equiv_orientations=np.array([[1, 0, 0, 0]]),
+                neighbors=None):
         R"""Calculates the maximal projections of nearest neighbor bonds
         (between :code:`points` and :code:`query_points`) onto the set of
         reference vectors :code:`proj_vecs`, defined in the local reference
@@ -1006,15 +1003,14 @@ cdef class LocalBondProjection(PairCompute):
                 :code:`None`).
         """  # noqa: E501
         cdef:
-            freud.box.Box b
             freud.locality.NeighborQuery nq
-            freud.locality.NlistptrWrapper nlistptr
+            freud.locality.NeighborList nlist
             freud.locality._QueryArgs qargs
             const float[:, ::1] l_query_points
             unsigned int num_query_points
 
-        b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(box, points, query_points, neighbors)
+        nq, nlist, qargs, l_query_points, num_query_points = \
+            self.preprocess_arguments(neighbor_query, query_points, neighbors)
 
         orientations = freud.common.convert_array(
             orientations, shape=(None, 4))
@@ -1036,7 +1032,7 @@ cdef class LocalBondProjection(PairCompute):
             <vec3[float]*> &l_query_points[0, 0], num_query_points,
             <vec3[float]*> &l_proj_vecs[0, 0], n_proj,
             <quat[float]*> &l_equiv_orientations[0, 0], n_equiv,
-            nlistptr.get_ptr(), dereference(qargs.thisptr))
+            nlist.get_ptr(), dereference(qargs.thisptr))
         return self
 
     @Compute._computed_property()

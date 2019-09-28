@@ -39,7 +39,7 @@ class TestRDF(unittest.TestCase):
         with self.assertRaises(AttributeError):
             rdf.n_r
 
-        rdf.accumulate(box, points)
+        rdf.accumulate((box, points))
 
         # Test if accessible now
         rdf.RDF
@@ -57,7 +57,7 @@ class TestRDF(unittest.TestCase):
         with self.assertRaises(AttributeError):
             rdf.n_r
 
-        rdf.compute(box, points)
+        rdf.compute((box, points))
 
         # Test if accessible now
         rdf.RDF
@@ -88,9 +88,9 @@ class TestRDF(unittest.TestCase):
                 rdf = freud.density.RDF(bins, r_max, r_min)
 
                 if i < 3:
-                    rdf.accumulate(box, nq, neighbors=neighbors)
+                    rdf.accumulate(nq, neighbors=neighbors)
                 else:
-                    rdf.compute(box, nq, neighbors=neighbors)
+                    rdf.compute(nq, neighbors=neighbors)
                 self.assertTrue(rdf.box == box)
                 correct = np.ones(bins, dtype=np.float32)
                 npt.assert_allclose(rdf.RDF, correct, atol=tolerance)
@@ -124,7 +124,7 @@ class TestRDF(unittest.TestCase):
             rdf.plot()
         self.assertEqual(rdf._repr_png_(), None)
 
-        rdf.accumulate(box, points)
+        rdf.accumulate((box, points))
         rdf._repr_png_()
 
     def test_points_ne_query_points(self):
@@ -157,7 +157,7 @@ class TestRDF(unittest.TestCase):
             box, points, query_points, "ball", r_max, 0, False)
         for nq, neighbors in test_set:
             rdf = freud.density.RDF(bins, r_max)
-            rdf.compute(box, nq, query_points, neighbors=neighbors)
+            rdf.compute(nq, query_points, neighbors=neighbors)
 
             npt.assert_allclose(rdf.n_r, supposed_RDF, atol=1e-6)
 
