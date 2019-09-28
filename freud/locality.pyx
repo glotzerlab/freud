@@ -605,8 +605,7 @@ def make_default_nq(box, points):
     Args:
         box (:class:`freud.box.Box`):
             Simulation box.
-        points (:class:`freud.locality.AABBQuery`,
-            :class:`freud.locality.LinkCell`, or :class:`numpy.ndarray`):
+        points (:class:`freud.locality.NeighborQuery` or :class:`numpy.ndarray`):
             NeighborQuery object or NumPy array used to build :class:`RawPoints`.
 
     Returns:

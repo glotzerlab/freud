@@ -13,9 +13,4 @@ MSD Module
 
 .. automodule:: freud.msd
     :synopsis: Compute mean squared displacement.
-
-MSD
-===
-
-.. autoclass:: freud.msd.MSD(box=None, mode='window')
-    :members: accumulate, compute, reset, plot
+    :members:
