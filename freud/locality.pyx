@@ -1253,6 +1253,10 @@ cdef class PairCompute(Compute):
         else:
             nq = neighbor_query
 
+        if dimensions is not None and dimensions != nq.box.dimensions:
+            raise ValueError("The box must be {}-dimensional.".format(
+                dimensions))
+
         # Resolve the two possible ways of passing neighbors (query arguments
         # or neighbor lists) based on the type of the neighbors argument.
         cdef NeighborList nlist
