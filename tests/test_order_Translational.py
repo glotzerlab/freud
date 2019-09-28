@@ -23,7 +23,7 @@ class TestTranslational(unittest.TestCase):
         with self.assertRaises(AttributeError):
             trans.order
 
-        test_set = util.make_raw_query_nlist_test_set_new(
+        test_set = util.make_raw_query_nlist_test_set(
             box, positions, positions, 'nearest', r_max, n, True)
         for nq, neighbors in test_set:
             trans.compute(nq, neighbors=neighbors)

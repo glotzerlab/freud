@@ -215,7 +215,7 @@ cdef class PMFTR12(_PMFT):
             unsigned int num_query_points
 
         nq, nlist, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments_new(
+            self.preprocess_arguments(
                 neighbor_query, query_points, neighbors, dimensions=2)
 
         orientations = _gen_angle_array(
@@ -382,7 +382,7 @@ cdef class PMFTXYT(_PMFT):
             unsigned int num_query_points
 
         nq, nlist, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments_new(
+            self.preprocess_arguments(
                 neighbor_query, query_points, neighbors, dimensions=2)
 
         orientations = _gen_angle_array(
@@ -539,7 +539,7 @@ cdef class PMFTXY2D(_PMFT):
             unsigned int num_query_points
 
         nq, nlist, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments_new(
+            self.preprocess_arguments(
                 neighbor_query, query_points, neighbors, dimensions=2)
 
         orientations = _gen_angle_array(
@@ -729,7 +729,7 @@ cdef class PMFTXYZ(_PMFT):
             unsigned int num_query_points
 
         nq, nlist, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments_new(
+            self.preprocess_arguments(
                 neighbor_query, query_points, neighbors, dimensions=3)
         l_query_points = l_query_points - self.shiftvec.reshape(1, 3)
 

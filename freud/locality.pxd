@@ -36,10 +36,6 @@ cdef class NeighborQueryResult:
 
         return obj
 
-cdef class NlistptrWrapper:
-    cdef freud._locality.NeighborList * nlistptr
-    cdef freud._locality.NeighborList * get_ptr(self)
-
 cdef class NeighborQuery:
     cdef freud._locality.NeighborQuery * nqptr
     cdef freud.box.Box _box

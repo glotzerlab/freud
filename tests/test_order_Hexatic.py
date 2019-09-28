@@ -51,7 +51,7 @@ class TestHexatic(unittest.TestCase):
         with self.assertRaises(AttributeError):
             hop.order
 
-        test_set = util.make_raw_query_nlist_test_set_new(
+        test_set = util.make_raw_query_nlist_test_set(
             box, points, points, 'nearest', r_max, 6, True)
         for nq, neighbors in test_set:
             hop.compute(nq, neighbors=neighbors)
