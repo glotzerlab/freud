@@ -39,13 +39,17 @@ cdef extern from "Box.h" namespace "freud::box":
         void setTiltFactorYZ(float)
 
         float getVolume() const
-        void makeAbsolute(vec3[float]*, unsigned int) except +
-        void makeFractional(vec3[float]*, unsigned int) except +
-        void getImage(vec3[float]*, unsigned int, vec3[int]*) except +
+        void makeAbsolute(vec3[float]*, unsigned int) const
+        void makeFractional(vec3[float]*, unsigned int) econst
+        void getImage(vec3[float]*, unsigned int, vec3[int]*) const
+        # Note that getLatticeVector is a const function, but due to Cython
+        # parsing limitations we cannot have it both be const and pass the
+        # exception back to Cython so we choose to capture the exception since
+        # constness is less important on the Cython side.
         vec3[float] getLatticeVector(unsigned int i) except +
-        void wrap(vec3[float]* vs, unsigned int Nv) except +
+        void wrap(vec3[float]* vs, unsigned int Nv) const
         void unwrap(vec3[float]*, const vec3[int]*,
-                    unsigned int) except +
+                    unsigned int) const
 
         vec3[bool_t] getPeriodic() const
         bool_t getPeriodicX() const
@@ -67,5 +71,5 @@ cdef extern from "PeriodicBuffer.h" namespace "freud::box":
             const unsigned int,
             const vec3[float],
             const bool_t) except +
-        vector[vec3[float]] getBufferPoints()
-        vector[uint] getBufferIds()
+        vector[vec3[float]] getBufferPoints() const
+        vector[uint] getBufferIds() const

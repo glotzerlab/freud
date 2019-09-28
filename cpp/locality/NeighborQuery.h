@@ -360,7 +360,7 @@ public:
                     // If we're excluding ii bonds, we have to check before adding.
                     if (nb != ITERATOR_TERMINATOR)
                     {
-                        local_bonds.emplace_back(nb.id, nb.ref_id, nb.distance);
+                        local_bonds.emplace_back(nb.query_point_idx, nb.point_idx, nb.distance);
                     }
                 }
             }
@@ -378,8 +378,8 @@ public:
         util::forLoopWrapper(0, num_bonds, [&](size_t begin, size_t end) {
             for (size_t bond = begin; bond < end; ++bond)
             {
-                nl->getNeighbors()(bond, 0) = linear_bonds[bond].id;
-                nl->getNeighbors()(bond, 1) = linear_bonds[bond].ref_id;
+                nl->getNeighbors()(bond, 0) = linear_bonds[bond].query_point_idx;
+                nl->getNeighbors()(bond, 1) = linear_bonds[bond].point_idx;
                 nl->getDistances()[bond] = linear_bonds[bond].distance;
                 nl->getWeights()[bond] = float(1.0);
             }

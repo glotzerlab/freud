@@ -52,13 +52,22 @@ public:
                  freud::locality::QueryArgs qargs);
 
     //! Get the number of reference particles
-    unsigned int getNPoints();
+    unsigned int getNPoints() const
+    {
+        return m_n_points;
+    }
 
     //! Get a reference to the last computed density
-    const util::ManagedArray<float> &getDensity();
+    const util::ManagedArray<float> &getDensity() const
+    {
+        return m_density_array;
+    }
 
     //! Get a reference to the last computed number of neighbors
-    const util::ManagedArray<float> &getNumNeighbors();
+    const util::ManagedArray<float> &getNumNeighbors() const
+    {
+        return m_num_neighbors_array;
+    }
 
 private:
     box::Box m_box;       //!< Simulation box where the particles belong

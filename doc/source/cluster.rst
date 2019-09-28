@@ -18,7 +18,7 @@ Cluster Module
 Cluster
 =======
 
-.. autoclass:: freud.cluster.Cluster(r_max)
+.. autoclass:: freud.cluster.Cluster()
     :members: compute, plot
 
 Cluster Properties

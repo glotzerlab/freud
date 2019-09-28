@@ -71,13 +71,12 @@ void PMFTR12::accumulate(const locality::NeighborQuery* neighbor_query,
 {
     accumulateGeneral(neighbor_query, query_points, n_p, nlist, qargs,
         [=](const freud::locality::NeighborBond& neighbor_bond) {
-        vec3<float> ref = neighbor_query->getPoints()[neighbor_bond.ref_id];
-        vec3<float> delta = m_box.wrap(query_points[neighbor_bond.id] - ref);
+        vec3<float> delta(bondVector(neighbor_bond, neighbor_query, query_points));
         // calculate angles
         float d_theta1 = atan2(delta.y, delta.x);
         float d_theta2 = atan2(-delta.y, -delta.x);
-        float t1 = orientations[neighbor_bond.ref_id] - d_theta1;
-        float t2 = query_orientations[neighbor_bond.id] - d_theta2;
+        float t1 = orientations[neighbor_bond.point_idx] - d_theta1;
+        float t2 = query_orientations[neighbor_bond.query_point_idx] - d_theta2;
         // make sure that t1, t2 are bounded between 0 and 2PI
         t1 = fmod(t1, TWO_PI);
         if (t1 < 0)

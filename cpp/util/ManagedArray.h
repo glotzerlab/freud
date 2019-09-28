@@ -315,6 +315,19 @@ public:
         return idx;
     }
 
+    //! Return a copy of this array.
+    /*! The returned object is a deep copy in the sense that it will copy every
+     * element of the stored array. However, if the stored elements are
+     * themselves pointers (e.g. if you create a ManagedArray<int*>), then the
+     * copy will also retain pointers to that data.
+     */
+    ManagedArray copy() const
+    {
+        ManagedArray newarray(shape());
+        for (unsigned int i = 0; i < size(); ++i)
+            newarray[i] = get()[i];
+        return newarray;
+    }
 
 private:
 

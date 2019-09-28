@@ -4,6 +4,7 @@
 #include <stdexcept>
 
 #include "SolidLiquid.h"
+#include "NeighborComputeFunctional.h"
 
 namespace freud { namespace order {
 
@@ -21,32 +22,28 @@ SolidLiquid::SolidLiquid(unsigned int l, float Q_threshold, unsigned int S_thres
 void SolidLiquid::compute(const freud::locality::NeighborList* nlist,
         const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs)
 {
-    // Make NeighborList from NeighborQuery if not provided
-    if (nlist == NULL)
-    {
-        auto nqiter(points->query(points->getPoints(), points->getNPoints(), qargs));
-        nlist = nqiter->toNeighborList();
-    }
+    // This function requires a NeighborList object, so we always make one and store it locally.
+    m_nlist = locality::makeDefaultNlist(points, nlist, points->getPoints(), points->getNPoints(), qargs);
 
-    const unsigned int num_query_points(nlist->getNumQueryPoints());
+    const unsigned int num_query_points(m_nlist.getNumQueryPoints());
 
     // Compute Steinhardt using neighbor list (also gets Ql for normalization)
-    m_steinhardt.compute(nlist, points, qargs);
+    m_steinhardt.compute(&m_nlist, points, qargs);
     const auto& Qlm = m_steinhardt.getQlm();
     const auto& Ql = m_steinhardt.getQl();
 
     // Compute (normalized) dot products for each bond in the neighbor list
     const float normalizationfactor = float(4 * M_PI / m_num_ms);
-    const unsigned int num_bonds(nlist->getNumBonds());
+    const unsigned int num_bonds(m_nlist.getNumBonds());
     m_Ql_ij.prepare(num_bonds);
 
     util::forLoopWrapper(0, num_query_points, [=](size_t begin, size_t end) {
         for (unsigned int i = begin; i != end; ++i)
         {
-            unsigned int bond(nlist->find_first_index(i));
-            for (; bond < num_bonds && nlist->getNeighbors()(bond, 0) == i; ++bond)
+            unsigned int bond(m_nlist.find_first_index(i));
+            for (; bond < num_bonds && m_nlist.getNeighbors()(bond, 0) == i; ++bond)
             {
-                const unsigned int j(nlist->getNeighbors()(bond, 1));
+                const unsigned int j(m_nlist.getNeighbors()(bond, 1));
 
                 // Accumulate the dot product over m of Qlmi and Qlmj vectors
                 std::complex<float> bond_Ql_ij = 0;
@@ -72,7 +69,7 @@ void SolidLiquid::compute(const freud::locality::NeighborList* nlist,
     {
         solid_filter[bond] = (m_Ql_ij[bond] > m_Q_threshold);
     }
-    freud::locality::NeighborList solid_nlist(*nlist);
+    freud::locality::NeighborList solid_nlist(m_nlist);
     solid_nlist.filter(solid_filter.get());
 
     // Save the neighbor counts of solid-like bonds for each query point

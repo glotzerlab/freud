@@ -63,22 +63,22 @@ public:
      */
     SolidLiquid(unsigned int l, float Q_threshold, unsigned int S_threshold, bool normalize_Q=true);
 
-    unsigned int getL()
+    unsigned int getL() const
     {
         return m_l;
     }
 
-    float getQThreshold()
+    float getQThreshold() const
     {
         return m_Q_threshold;
     }
 
-    unsigned int getSThreshold()
+    unsigned int getSThreshold() const
     {
         return m_S_threshold;
     }
 
-    bool getNormalizeQ()
+    bool getNormalizeQ() const
     {
         return m_normalize_Q;
     }
@@ -88,13 +88,13 @@ public:
             const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
 
     //! Returns largest cluster size.
-    unsigned int getLargestClusterSize()
+    unsigned int getLargestClusterSize() const
     {
         return m_cluster.getClusterKeys()[0].size();
     }
 
     //! Returns a vector containing the size of all clusters.
-    std::vector<unsigned int> getClusterSizes()
+    std::vector<unsigned int> getClusterSizes() const
     {
         std::vector<unsigned int> sizes;
         auto keys = m_cluster.getClusterKeys();
@@ -107,20 +107,32 @@ public:
 
     //! Get a reference to the last computed set of solid-like cluster
     //  indices for each particle
-    const util::ManagedArray<unsigned int> &getClusterIdx()
+    const util::ManagedArray<unsigned int> &getClusterIdx() const
     {
         return m_cluster.getClusterIdx();
     }
 
     //! Get a reference to the number of connections per particle
-    const util::ManagedArray<unsigned int> &getNumberOfConnections()
+    const util::ManagedArray<unsigned int> &getNumberOfConnections() const
     {
         return m_number_of_connections;
     }
 
-    unsigned int getNumClusters()
+    unsigned int getNumClusters() const
     {
         return m_cluster.getNumClusters();
+    }
+
+    //! Return a pointer to the NeighborList used in the last call to compute.
+    locality::NeighborList *getNList()
+    {
+        return &m_nlist;
+    }
+
+    //! Return the Ql_ij values.
+    const util::ManagedArray<float> &getQlij() const
+    {
+        return m_Ql_ij;
     }
 
 private:
@@ -129,6 +141,7 @@ private:
     float m_Q_threshold;                    //!< Dot product cutoff
     unsigned int m_S_threshold;             //!< Solid-like num connections cutoff
     bool m_normalize_Q;                     //!< Whether to normalize the Qlmi dot products.
+    locality::NeighborList m_nlist; //!< The NeighborList used in the last call to compute.
 
     freud::order::Steinhardt m_steinhardt;  //!< Steinhardt class used to compute Qlm
     freud::cluster::Cluster m_cluster;      //!< Cluster class used to cluster solid-like bonds

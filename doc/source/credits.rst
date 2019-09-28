@@ -84,6 +84,10 @@ Vyas Ramasubramani - **Lead developer**
 * Wrote PairCompute and SpatialHistogram parent classes.
 * Wrote ManagedArray class.
 * Wrote C++ histogram-related classes.
+* Standardized neighbor API in Python to use dictionaries of arguments or NeighborList objects for all pair computations.
+* Standardized all attribute access into C++ with Python properties.
+* Standardized variable naming of points/query\_points across all of freud.
+* Standardized vector directionality in computes.
 
 Bradley Dice - **Lead developer**
 
@@ -112,6 +116,7 @@ Bradley Dice - **Lead developer**
 * Rewrote Voronoi implementation to leverage voro++.
 * Implemented Voronoi bond weighting to enable Minkowski structure metrics.
 * Refactored methods in Box and PeriodicBuffer for v2.0.
+* Refactored cluster module
 
 Richmond Newman
 

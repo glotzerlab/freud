@@ -129,17 +129,32 @@ parser.add_argument(
 parser.add_argument(
     tbb_root_str,
     dest="tbb_root",
-    help="The root directory where TBB is installed."
+    help="The root directory where TBB is installed. For example, if tbb.h is "
+         "in the directory /opt/local/include/tbb/, then use `--TBB-ROOT "
+         "/opt/local`. This argument is useful if TBB is installed in a "
+         "non-standard location or cannot be located by Python for some other "
+         "reason. Note that this information can also be provided using the "
+         "environment variable TBB_ROOT. The options --TBB-INCLUDE and "
+         "--TBB-LINK will take precedence over --TBB-ROOT if both are "
+         "specified."
 )
 parser.add_argument(
     tbb_include_str,
     dest="tbb_include",
-    help="The includes directory where the TBB headers are found."
+    help="The include directory where the TBB headers are found. May also be "
+         "provided using the environment variable TBB_INCLUDE. See the "
+         "documentation of --TBB-ROOT for more information. This will "
+         "typically be `$TBB_ROOT/include`, but this option exists for cases "
+         "where that is not true."
 )
 parser.add_argument(
     tbb_link_str,
     dest="tbb_link",
-    help="The lib directory where TBB shared libraries are found."
+    help="The lib directory where the TBB shared libraries are found. May "
+         "also be provided using the environment variable TBB_LINK. See the "
+         "documentation of --TBB-ROOT for more information. This will "
+         "typically be `$TBB_ROOT/lib`, but this option exists for cases "
+         "where that is not true."
 )
 
 # Parse known args then rewrite sys.argv for setuptools.setup to use
@@ -349,6 +364,7 @@ sources_in_all = [
     os.path.join("cpp", "locality", "NeighborQuery.cc"),
     os.path.join("cpp", "locality", "AABBQuery.cc"),
     os.path.join("cpp", "locality", "NeighborList.cc"),
+    os.path.join("cpp", "locality", "NeighborComputeFunctional.cc"),
 ]
 
 # Any source files required only for specific modules.
@@ -395,7 +411,7 @@ version = '1.2.2'
 desc = 'Powerful, efficient trajectory analysis in scientific Python.'
 try:
     readme_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                               'README.md')
+                               'README.rst')
     with open(readme_file) as f:
         readme = f.read()
 except ImportError:

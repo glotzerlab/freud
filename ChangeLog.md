@@ -17,6 +17,7 @@ and this project adheres to
 * Lower bound r\_min option for all queries.
 * Steinhardt now supports l = 0, 1.
 * C++ BondHistogramCompute class encapsulates logic of histogram-based methods.
+* NeighborLists and query arguments are now accepted on equal footing by compute methods that involve neighbor finding.
 
 ### Changed
 * All compute objects that perform neighbor computations now use NeighborQuery internally.
@@ -34,6 +35,9 @@ and this project adheres to
 * SolidLiquid order parameter has been completely rewritten, fixing several bugs and simplifying its C++ code.
 * NeighborQuery objects require z == 0 for all points if the box is 2D.
 * Renamed several Box methods, ParticleBuffer is now PeriodicBuffer.
+* Refactored and renamed attributes of Cluster and ClusterProperties modules.
+* All class attributes are stored in the C++ members and accessed via getters wrapped as Python properties.
+* Vector directionality is standardized for all computes that use it (always points from point to query\_point).
 
 ### Fixed
 * Steinhardt uses the ThreadStorage class and properly resets memory where needed.
