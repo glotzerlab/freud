@@ -58,7 +58,7 @@ If the code you are adding is in a *new* module, not an existing module, you mus
   - Add :code:`cpp/moduleName` to the :code:`includes` list.
   - If there are any helper cc files that will not have a corresponding Cython class, add those files to the :code:`sources` list inside the :code:`extensions` list.
 
-- Add line to :code:`doc/source/modules.rst`
+- Add line to :code:`doc/source/index.rst`
 
   - Make sure your new module is referenced in the documentation.
 

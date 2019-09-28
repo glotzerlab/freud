@@ -116,6 +116,7 @@ Bradley Dice - **Lead developer**
 * Updated AngularSeparation class.
 * Rewrote Voronoi implementation to leverage voro++.
 * Implemented Voronoi bond weighting to enable Minkowski structure metrics.
+* Refactored methods in Box and PeriodicBuffer for v2.0.
 * Refactored cluster module
 
 Richmond Newman

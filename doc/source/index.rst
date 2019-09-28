@@ -14,7 +14,16 @@ Table of Contents
    :maxdepth: 2
    :caption: API
 
-   modules
+   box
+   cluster
+   density
+   environment
+   interface
+   locality
+   msd
+   order
+   parallel
+   pmft
 
 .. toctree::
    :maxdepth: 2

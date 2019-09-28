@@ -9,32 +9,32 @@ freud uses all available threads for parallelization unless directed otherwise.
 
 cimport freud._parallel
 
-_numThreads = 0
+_num_threads = 0
 
 
-def getNumThreads():
+def get_num_threads():
     R"""Get the number of threads for parallel computation.
 
     Returns:
         (int): Number of threads.
     """
-    global _numThreads
-    return _numThreads
+    global _num_threads
+    return _num_threads
 
 
-def setNumThreads(nthreads=None):
+def set_num_threads(nthreads=None):
     R"""Set the number of threads for parallel computation.
 
     Args:
-        nthreads(int, optional):
+        nthreads (int, optional):
             Number of threads to use. If :code:`None`, use all threads
             available. (Default value = :code:`None`).
     """
-    global _numThreads
+    global _num_threads
     if nthreads is None or nthreads < 0:
         nthreads = 0
 
-    _numThreads = nthreads
+    _num_threads = nthreads
 
     cdef unsigned int cNthreads = nthreads
     freud._parallel.setNumThreads(cNthreads)
@@ -50,13 +50,13 @@ class NumThreads:
     """
 
     def __init__(self, N=None):
-        global _numThreads
-        self.restore_N = _numThreads
+        global _num_threads
+        self.restore_N = _num_threads
         self.N = N
 
     def __enter__(self):
-        setNumThreads(self.N)
+        set_num_threads(self.N)
         return self
 
     def __exit__(self, *args):
-        setNumThreads(self.restore_N)
+        set_num_threads(self.restore_N)

@@ -20,10 +20,7 @@ Density Module
 Correlation Functions
 =====================
 
-.. autoclass:: freud.density.CorrelationFunction(r_max, dr)
-    :members: accumulate, compute, reset, plot
-
-.. autoclass:: freud.density.CorrelationFunction(r_max, dr)
+.. autoclass:: freud.density.CorrelationFunction(bins, r_max)
     :members: accumulate, compute, reset, plot
 
 Gaussian Density

@@ -8,5 +8,5 @@ cdef class Box:
 
 cdef BoxFromCPP(const freud._box.Box & cppbox)
 
-cdef class ParticleBuffer:
-    cdef freud._box.ParticleBuffer * thisptr
+cdef class PeriodicBuffer:
+    cdef freud._box.PeriodicBuffer * thisptr

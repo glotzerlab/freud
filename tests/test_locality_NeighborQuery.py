@@ -315,7 +315,8 @@ class NeighborQueryTest(object):
         for i in range(10):
             _, points = util.make_box_and_random_points(L, N, seed=seed+i)
             all_vectors = points[:, np.newaxis, :] - points[np.newaxis, :, :]
-            box.wrap(all_vectors.reshape((-1, 3)))
+            all_vectors = box.wrap(
+                all_vectors.reshape((-1, 3))).reshape(all_vectors.shape)
             all_rsqs = np.sum(all_vectors**2, axis=-1)
             (exhaustive_i, exhaustive_j) = np.where(np.logical_and(
                 all_rsqs < r_max**2, all_rsqs > 0))
@@ -357,7 +358,8 @@ class NeighborQueryTest(object):
             points2 = np.random.uniform(
                 -L/2, L/2, (N//2, 3)).astype(np.float32)
             all_vectors = points[:, np.newaxis, :] - points2[np.newaxis, :, :]
-            box.wrap(all_vectors.reshape((-1, 3)))
+            all_vectors = box.wrap(
+                all_vectors.reshape((-1, 3))).reshape(all_vectors.shape)
             all_rsqs = np.sum(all_vectors**2, axis=-1)
             (exhaustive_i, exhaustive_j) = np.where(np.logical_and(
                 all_rsqs < r_max**2, all_rsqs > 0))
