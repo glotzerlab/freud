@@ -517,7 +517,7 @@ cdef class RDF(SpatialHistogram1D):
             del self.thisptr
 
     @Compute._compute()
-    def accumulate(self, box, points, query_points=None, neighbors=None):
+    def accumulate(self, neighbor_query, query_points=None, neighbors=None):
         R"""Calculates the RDF and adds to the current RDF histogram.
 
         Args:
@@ -533,24 +533,24 @@ cdef class RDF(SpatialHistogram1D):
                 :code:`None`).
         """  # noqa E501
         cdef:
-            freud.box.Box b
             freud.locality.NeighborQuery nq
-            freud.locality.NlistptrWrapper nlistptr
+            freud.locality.NeighborList nlist
             freud.locality._QueryArgs qargs
             const float[:, ::1] l_query_points
             unsigned int num_query_points
-        b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(box, points, query_points, neighbors)
+        nq, nlist, qargs, l_query_points, num_query_points = \
+            self.preprocess_arguments_new(
+                neighbor_query, query_points, neighbors)
 
         self.thisptr.accumulate(
             nq.get_ptr(),
             <vec3[float]*> &l_query_points[0, 0],
-            num_query_points, nlistptr.get_ptr(),
+            num_query_points, nlist.get_ptr(),
             dereference(qargs.thisptr))
         return self
 
     @Compute._compute()
-    def compute(self, box, points, query_points=None, neighbors=None):
+    def compute(self, neighbor_query, query_points=None, neighbors=None):
         R"""Calculates the RDF for the specified points. Will overwrite the current
         histogram.
 
@@ -567,7 +567,7 @@ cdef class RDF(SpatialHistogram1D):
                 :code:`None`).
         """  # noqa E501
         self.reset()
-        self.accumulate(box, points, query_points, neighbors)
+        self.accumulate(neighbor_query, query_points, neighbors)
         return self
 
     @Compute._computed_property()
