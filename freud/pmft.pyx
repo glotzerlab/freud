@@ -80,7 +80,7 @@ def _quat_to_z_angle(orientations, num_points):
 
     if is_quat:
         axes, orientations = rowan.to_axis_angle(orientations)
-        if not np.allclose(axes, [0, 0, 1]):
+        if not (np.allclose(orientations, 0) or np.allclose(axes, [0, 0, 1])):
             raise ValueError("Orientations provided as quaternions "
                              "must represent rotations about the z-axis.")
     return orientations
