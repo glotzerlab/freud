@@ -835,18 +835,14 @@ cdef class RotationalAutocorrelation(Compute):
         return self
 
     @Compute._computed_property()
-    def autocorrelation(self):
+    def order(self):
         return self.thisptr.getRotationalAutocorrelation()
 
     @Compute._computed_property()
-    def ra_array(self):
+    def particle_order(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getRAArray(),
             freud.util.arr_type_t.COMPLEX_FLOAT)
-
-    @Compute._computed_property()
-    def num_orientations(self):
-        return self.thisptr.getN()
 
     @property
     def azimuthal(self):
