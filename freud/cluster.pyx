@@ -182,7 +182,7 @@ cdef class ClusterProperties(Compute):
     def __dealloc__(self):
         del self.thisptr
 
-    @Compute._compute("compute")
+    @Compute._compute()
     def compute(self, box, points, cluster_idx):
         R"""Compute properties of the point clusters.
         Loops over all points in the given array and determines the center of

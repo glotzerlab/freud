@@ -78,7 +78,7 @@ cdef class CorrelationFunction(SpatialHistogram1D):
         del self.thisptr
 
     @Compute._compute()
-    def accumulate(self, box, points, values, query_points=None,
+    def accumulate(self, neighbor_query, values, query_points=None,
                    query_values=None, neighbors=None):
         R"""Calculates the correlation function and adds to the current
         histogram.
@@ -103,15 +103,14 @@ cdef class CorrelationFunction(SpatialHistogram1D):
                 :code:`None`).
         """  # noqa E501
         cdef:
-            freud.box.Box b
             freud.locality.NeighborQuery nq
-            freud.locality.NlistptrWrapper nlistptr
+            freud.locality.NeighborList nlist
             freud.locality._QueryArgs qargs
             const float[:, ::1] l_query_points
             unsigned int num_query_points
 
-        b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(box, points, query_points, neighbors)
+        nq, nlist, qargs, l_query_points, num_query_points = \
+            self.preprocess_arguments_new(neighbor_query, query_points, neighbors)
 
         # Save if any inputs have been complex so far.
         self.is_complex = self.is_complex or np.any(np.iscomplex(values)) or \
@@ -134,7 +133,7 @@ cdef class CorrelationFunction(SpatialHistogram1D):
             <np.complex128_t*> &l_values[0],
             <vec3[float]*> &l_query_points[0, 0],
             <np.complex128_t*> &l_query_values[0],
-            num_query_points, nlistptr.get_ptr(),
+            num_query_points, nlist.get_ptr(),
             dereference(qargs.thisptr))
         return self
 
@@ -152,7 +151,7 @@ cdef class CorrelationFunction(SpatialHistogram1D):
         self.thisptr.reset()
 
     @Compute._compute()
-    def compute(self, box, points, values, query_points=None,
+    def compute(self, neighbor_query, values, query_points=None,
                 query_values=None, neighbors=None):
         R"""Calculates the correlation function for the given points. Will
         overwrite the current histogram.
@@ -177,7 +176,7 @@ cdef class CorrelationFunction(SpatialHistogram1D):
                 :code:`None`).
         """  # noqa E501
         self.reset()
-        self.accumulate(box, points, values, query_points, query_values,
+        self.accumulate(neighbor_query, values, query_points, query_values,
                         neighbors)
         return self
 
