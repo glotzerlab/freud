@@ -40,7 +40,7 @@ cdef extern from "Box.h" namespace "freud::box":
 
         float getVolume() const
         void makeAbsolute(vec3[float]*, unsigned int) const
-        void makeFractional(vec3[float]*, unsigned int) econst
+        void makeFractional(vec3[float]*, unsigned int) const
         void getImage(vec3[float]*, unsigned int, vec3[int]*) const
         # Note that getLatticeVector is a const function, but due to Cython
         # parsing limitations we cannot have it both be const and pass the
