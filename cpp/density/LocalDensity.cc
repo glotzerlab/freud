@@ -11,7 +11,7 @@
 namespace freud { namespace density {
 
 LocalDensity::LocalDensity(float r_max, float diameter)
-    : m_box(box::Box()), m_r_max(r_max), m_diameter(diameter), m_n_points(0)
+    : m_box(box::Box()), m_r_max(r_max), m_diameter(diameter)
 {}
 
 LocalDensity::~LocalDensity() {}
@@ -22,13 +22,13 @@ void LocalDensity::compute(const freud::locality::NeighborQuery* neighbor_query,
 {
     m_box = neighbor_query->getBox();
 
-    unsigned int n_points = neighbor_query->getNPoints();
+    const unsigned int n_points = neighbor_query->getNPoints();
 
     m_density_array.prepare(n_points);
     m_num_neighbors_array.prepare(n_points);
 
-    float area = M_PI * m_r_max * m_r_max;
-    float volume = float(4.0/3.0) * M_PI * m_r_max * m_r_max * m_r_max;
+    const float area = M_PI * m_r_max * m_r_max;
+    const float volume = float(4.0/3.0) * M_PI * m_r_max * m_r_max * m_r_max;
     // compute the local density
     freud::locality::loopOverNeighborsIterator(neighbor_query, query_points, n_query_points, qargs, nlist,
     [=](size_t i, std::shared_ptr<freud::locality::NeighborPerPointIterator> ppiter)
@@ -62,7 +62,6 @@ void LocalDensity::compute(const freud::locality::NeighborQuery* neighbor_query,
             }
         }
     });
-    m_n_points = n_points;
 }
 
 }; }; // end namespace freud::density
