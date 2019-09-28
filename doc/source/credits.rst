@@ -88,6 +88,7 @@ Vyas Ramasubramani - **Lead developer**
 * Standardized all attribute access into C++ with Python properties.
 * Standardized variable naming of points/query\_points across all of freud.
 * Standardized vector directionality in computes.
+* Enabled usage of quaternions in place of angles for orientations in 2D PMFT calculations.
 
 Bradley Dice - **Lead developer**
 
