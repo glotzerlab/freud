@@ -660,7 +660,7 @@ class TestPMFTXY2D(unittest.TestCase):
         max_width = 3
         nbins = 3
         pmft = freud.pmft.PMFTXY2D(max_width, max_width, nbins)
-        pmft.compute(box, points, orientations, query_points,
+        pmft.compute((box, points), orientations, query_points,
                      neighbors={'mode': 'nearest', 'num_neighbors': 1})
         # Now every point in query_points will find the origin as a neighbor.
         npt.assert_array_equal(
