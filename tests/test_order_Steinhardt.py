@@ -168,7 +168,7 @@ class TestSteinhardt(unittest.TestCase):
 
         # Skip test sets without an explicit neighbor list
         for nq, neighbors in filter(
-                lambda ts: type(neighbors) == freud.locality.NeighborList,
+                lambda ts: type(ts[1]) == freud.locality.NeighborList,
                 test_set):
             nlist = neighbors
 
