@@ -146,7 +146,7 @@ cdef class BondOrder(SpatialHistogram):
         raise NotImplementedError('No default query arguments for BondOrder.')
 
     @Compute._compute()
-    def accumulate(self, box, points, orientations, query_points=None,
+    def accumulate(self, neighbor_query, orientations, query_points=None,
                    query_orientations=None, neighbors=None):
         R"""Calculates the correlation function and adds to the current
         histogram.
@@ -171,15 +171,15 @@ cdef class BondOrder(SpatialHistogram):
                 :code:`None`).
         """  # noqa: E501
         cdef:
-            freud.box.Box b
             freud.locality.NeighborQuery nq
-            freud.locality.NlistptrWrapper nlistptr
+            freud.locality.NeighborList nlist
             freud.locality._QueryArgs qargs
             const float[:, ::1] l_query_points
             unsigned int num_query_points
 
-        b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(box, points, query_points, neighbors)
+        nq, nlist, qargs, l_query_points, num_query_points = \
+            self.preprocess_arguments_new(
+                neighbor_query, query_points, neighbors)
         if query_orientations is None:
             query_orientations = orientations
 
@@ -197,7 +197,7 @@ cdef class BondOrder(SpatialHistogram):
             <vec3[float]*> &l_query_points[0, 0],
             <quat[float]*> &l_query_orientations[0, 0],
             num_query_points,
-            nlistptr.get_ptr(), dereference(qargs.thisptr))
+            nlist.get_ptr(), dereference(qargs.thisptr))
         return self
 
     @Compute._computed_property()
@@ -216,7 +216,7 @@ cdef class BondOrder(SpatialHistogram):
         self.thisptr.reset()
 
     @Compute._compute()
-    def compute(self, box, points, orientations, query_points=None,
+    def compute(self, neighbor_query, orientations, query_points=None,
                 query_orientations=None, neighbors=None):
         R"""Calculates the bond order histogram. Will overwrite the current
         histogram.
@@ -241,7 +241,7 @@ cdef class BondOrder(SpatialHistogram):
                 :code:`None`).
         """  # noqa: E501
         self.reset()
-        self.accumulate(box, points, orientations,
+        self.accumulate(neighbor_query, orientations,
                         query_points, query_orientations, neighbors)
         return self
 
