@@ -43,7 +43,7 @@ def make_raw_query_nlist_test_set(box, points, query_points, mode, r_max,
     test_set.append((freud.locality.RawPoints(box, points), query_args))
     test_set.append((freud.locality.AABBQuery(box, points), query_args))
     test_set.append(
-        (freud.locality.LinkCell(box, r_max, points), query_args))
+        (freud.locality.LinkCell(box, points, r_max), query_args))
     if mode == "ball":
         nlist = freud.locality.make_default_nlist(
             box, points, query_points,
