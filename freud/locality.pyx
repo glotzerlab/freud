@@ -787,16 +787,16 @@ cdef class LinkCell(NeighborQuery):
        dens.compute(box, positions, nlist=lc.nlist)
     """
 
-    def __cinit__(self, box, cell_width, points):
+    def __cinit__(self, box, points, cell_width=0):
         self._box = freud.common.convert_box(box)
         cdef const float[:, ::1] l_points
         self.points = freud.common.convert_array(
             points, shape=(None, 3)).copy()
         l_points = self.points
         self.thisptr = self.nqptr = new freud._locality.LinkCell(
-            dereference(self._box.thisptr), float(cell_width),
+            dereference(self._box.thisptr),
             <vec3[float]*> &l_points[0, 0],
-            self.points.shape[0])
+            self.points.shape[0], cell_width)
 
     def __dealloc__(self):
         del self.thisptr
