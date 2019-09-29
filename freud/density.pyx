@@ -109,7 +109,7 @@ cdef class CorrelationFunction(SpatialHistogram1D):
             unsigned int num_query_points
 
         nq, nlist, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(neighbor_query, query_points, neighbors)
+            self._preprocess_arguments(neighbor_query, query_points, neighbors)
 
         # Save if any inputs have been complex so far.
         self.is_complex = self.is_complex or np.any(np.iscomplex(values)) or \
@@ -421,7 +421,7 @@ cdef class LocalDensity(PairCompute):
             unsigned int num_query_points
 
         nq, nlist, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(neighbor_query, query_points, neighbors)
+            self._preprocess_arguments(neighbor_query, query_points, neighbors)
         self.thisptr.compute(
             nq.get_ptr(),
             <vec3[float]*> &l_query_points[0, 0],
@@ -531,7 +531,7 @@ cdef class RDF(SpatialHistogram1D):
             const float[:, ::1] l_query_points
             unsigned int num_query_points
         nq, nlist, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(neighbor_query, query_points, neighbors)
+            self._preprocess_arguments(neighbor_query, query_points, neighbors)
 
         self.thisptr.accumulate(
             nq.get_ptr(),
