@@ -268,47 +268,12 @@ std::vector<vec3<float>> EnvDisjointSet::getIndividualEnv(const unsigned int m)
 /*************************
  * Convenience functions *
  *************************/
-/************
- * MatchEnv *
- ************/
-MatchEnv::MatchEnv(const box::Box& box, float r_max, unsigned int num_neighbors) : m_box(box), m_r_max_sq(r_max*r_max), m_num_neighbors(num_neighbors)
-{
-    m_Np = 0;
-    m_num_clusters = 0;
-    m_max_num_neighbors = 0;
-    if (r_max < 0.0f)
-        throw std::invalid_argument("r_max must be positive!");
-}
-
-MatchEnv::~MatchEnv() {}
-
-Environment MatchEnv::buildEnv(const freud::locality::NeighborList* nlist, size_t num_bonds, size_t& bond,
-                               const vec3<float>* points, unsigned int i, unsigned int env_ind)
-{
-    Environment ei = Environment();
-    // set the environment index equal to the particle index
-    ei.env_ind = env_ind;
-
-    vec3<float> p = points[i];
-    for (; bond < num_bonds && nlist->getNeighbors()(bond, 0) == i; ++bond)
-    {
-        // compute vec{r} between the two particles
-        const size_t j(nlist->getNeighbors()(bond, 1));
-        if (i != j)
-        {
-            vec3<float> delta = m_box.wrap(points[j] - p);
-            ei.addVec(delta);
-        }
-    }
-
-    return ei;
-}
-
 std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>>
-MatchEnv::isSimilar(Environment& e1, Environment& e2, float threshold_sq, bool registration)
+isSimilar(Environment& e1, Environment& e2, float r_max, float threshold_sq, bool registration)
 {
     BiMap<unsigned int, unsigned int> vec_map;
     rotmat3<float> rotation = rotmat3<float>(); // this initializes to the identity matrix
+    float r_max_sq = r_max*r_max;
 
     // If the vector sets do not have equal numbers of vectors, just return
     // an empty map since the 1-1 bimapping will be too weird in this case.
@@ -349,7 +314,7 @@ MatchEnv::isSimilar(Environment& e1, Environment& e2, float threshold_sq, bool r
             // imposed by the threshold?
             vec3<float> delta = v1[(*it)->first] - v2[(*it)->second];
             float r_sq = dot(delta, delta);
-            if (r_sq < threshold_sq * m_r_max_sq)
+            if (r_sq < threshold_sq * r_max_sq)
             {
                 vec_map.emplace((*it)->first, (*it)->second);
             }
@@ -365,7 +330,7 @@ MatchEnv::isSimilar(Environment& e1, Environment& e2, float threshold_sq, bool r
             {
                 vec3<float> delta = v1[i] - v2[j];
                 float r_sq = dot(delta, delta);
-                if (r_sq < threshold_sq * m_r_max_sq)
+                if (r_sq < threshold_sq * r_max_sq)
                 {
                     // these vectors are deemed "matching"
                     // since this is a bimap, this (i,j) pair is only inserted
@@ -390,16 +355,17 @@ MatchEnv::isSimilar(Environment& e1, Environment& e2, float threshold_sq, bool r
     }
 }
 
-std::map<unsigned int, unsigned int> MatchEnv::isSimilar(const vec3<float>* refPoints1,
-                                                         vec3<float>* refPoints2, unsigned int numRef,
-                                                         float threshold_sq, bool registration)
+std::map<unsigned int, unsigned int>
+isSimilar(const box::Box &box, const vec3<float>* refPoints1, vec3<float>*
+        refPoints2, unsigned int numRef, float r_max, float threshold_sq, bool
+        registration)
 {
     Environment e0, e1;
-    std::tie(e0, e1) = makeEnvironments(m_box, refPoints1, refPoints2, numRef);
+    std::tie(e0, e1) = makeEnvironments(box, refPoints1, refPoints2, numRef);
 
     // call isSimilar for e0 and e1
     std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>> mapping
-        = isSimilar(e0, e1, threshold_sq, registration);
+        = isSimilar(e0, e1, r_max, threshold_sq, registration);
     rotmat3<float> rotation = mapping.first;
     BiMap<unsigned int, unsigned int> vec_map = mapping.second;
 
@@ -515,6 +481,41 @@ std::map<unsigned int, unsigned int> minimizeRMSD(const box::Box &box, const vec
     // Convert BiMap to a std::map and return
     return vec_map.asMap();
 }
+/************
+ * MatchEnv *
+ ************/
+MatchEnv::MatchEnv(const box::Box& box, float r_max, unsigned int num_neighbors) : m_box(box), m_r_max(r_max), m_num_neighbors(num_neighbors)
+{
+    m_Np = 0;
+    m_num_clusters = 0;
+    m_max_num_neighbors = 0;
+    if (r_max < 0.0f)
+        throw std::invalid_argument("r_max must be positive!");
+}
+
+MatchEnv::~MatchEnv() {}
+
+Environment MatchEnv::buildEnv(const freud::locality::NeighborList* nlist, size_t num_bonds, size_t& bond,
+                               const vec3<float>* points, unsigned int i, unsigned int env_ind)
+{
+    Environment ei = Environment();
+    // set the environment index equal to the particle index
+    ei.env_ind = env_ind;
+
+    vec3<float> p = points[i];
+    for (; bond < num_bonds && nlist->getNeighbors()(bond, 0) == i; ++bond)
+    {
+        // compute vec{r} between the two particles
+        const size_t j(nlist->getNeighbors()(bond, 1));
+        if (i != j)
+        {
+            vec3<float> delta = m_box.wrap(points[j] - p);
+            ei.addVec(delta);
+        }
+    }
+
+    return ei;
+}
 
 void MatchEnv::cluster(const freud::locality::NeighborList* env_nlist,
                        const freud::locality::NeighborList* nlist, const vec3<float>* points, unsigned int Np,
@@ -560,7 +561,7 @@ void MatchEnv::cluster(const freud::locality::NeighborList* env_nlist,
             {
                 const size_t j(nlist->getNeighbors()(bond, 1));
                 std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>> mapping
-                    = isSimilar(dj.s[i], dj.s[j], m_threshold_sq, registration);
+                    = isSimilar(dj.s[i], dj.s[j], m_r_max, m_threshold_sq, registration);
                 rotmat3<float> rotation = mapping.first;
                 BiMap<unsigned int, unsigned int> vec_map = mapping.second;
                 // if the mapping between the vectors of the environments
@@ -582,7 +583,7 @@ void MatchEnv::cluster(const freud::locality::NeighborList* env_nlist,
             for (unsigned int j = i + 1; j < m_Np; j++)
             {
                 std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>> mapping
-                    = isSimilar(dj.s[i], dj.s[j], m_threshold_sq, registration);
+                    = isSimilar(dj.s[i], dj.s[j], m_r_max, m_threshold_sq, registration);
                 rotmat3<float> rotation = mapping.first;
                 BiMap<unsigned int, unsigned int> vec_map = mapping.second;
                 // if the mapping between the vectors of the environments
@@ -660,7 +661,7 @@ void MatchEnv::matchMotif(const freud::locality::NeighborList* nlist, const vec3
 
         // if the environment matches e0, merge it into the e0 environment set
         std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>> mapping
-            = isSimilar(dj.s[0], dj.s[dummy], m_threshold_sq, registration);
+            = isSimilar(dj.s[0], dj.s[dummy], m_r_max, m_threshold_sq, registration);
         rotmat3<float> rotation = mapping.first;
         BiMap<unsigned int, unsigned int> vec_map = mapping.second;
         // if the mapping between the vectors of the environments is NOT empty,

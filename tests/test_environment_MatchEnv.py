@@ -235,8 +235,8 @@ class TestCluster(unittest.TestCase):
                          err_msg="two points do not have similar environment")
 
         # Particle 22 and particle 31's local environments should match
-        returnResult = match.isSimilar(tot_env[22], tot_env[31],
-                                       0.005, registration=True)
+        returnResult = freud.environment.isSimilar(
+            box, tot_env[22], tot_env[31], r_max, 0.005, registration=True)
         npt.assert_equal(len(returnResult[1]), num_neighbors,
                          err_msg="two environments are not similar")
 
@@ -257,7 +257,6 @@ class TestCluster(unittest.TestCase):
 
         # r_max and num_neighbors are meaningless here
         r_max = 2
-        num_neighbors = len(env_vec)
 
         ux = norm[0]
         uy = norm[1]
@@ -283,9 +282,8 @@ class TestCluster(unittest.TestCase):
         np.random.shuffle(e1)
         # 3. Verify that OUR method isSimilar gives that these two
         #    environments are similar.
-        match = freud.environment.MatchEnv(box, r_max, num_neighbors)
-        [refPoints2, isSim_vec_map] = match.isSimilar(
-            e0, e1, threshold, registration=False)
+        [refPoints2, isSim_vec_map] = freud.environment.isSimilar(
+            box, e0, e1, r_max, threshold, registration=False)
         npt.assert_allclose(
             e0, refPoints2[np.asarray(list(isSim_vec_map.values()))],
             atol=1e-6)
@@ -344,8 +342,8 @@ class TestCluster(unittest.TestCase):
             e0, refPoints2[np.asarray(list(minRMSD_vec_map.values()))],
             atol=1e-5)
         # 14. Finally use isSimilar with registration turned ON.
-        [refPoints2, isSim_vec_map] = match.isSimilar(
-            e0, e1_rot, threshold, registration=True)
+        [refPoints2, isSim_vec_map] = freud.environment.isSimilar(
+            box, e0, e1_rot, r_max, threshold, registration=True)
         npt.assert_allclose(
             e0, refPoints2[np.asarray(list(isSim_vec_map.values()))],
             atol=1e-5)

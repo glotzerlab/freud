@@ -451,6 +451,56 @@ def minimizeRMSD(box, ref_points, points, registration=False):
     return [min_rmsd, np.asarray(l_points), results_map]
 
 
+def isSimilar(box, ref_points, points, r_max, threshold, registration=False):
+    R"""Test if the motif provided by ref_points is similar to the motif
+    provided by points.
+
+    Args:
+        ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            Vectors that make up motif 1.
+        points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            Vectors that make up motif 2.
+        threshold (float):
+            Maximum magnitude of the vector difference between two vectors,
+            below which they are considered "matching."
+        registration (bool, optional):
+            If True, first use brute force registration to orient one set
+            of environment vectors with respect to the other set such that
+            it minimizes the RMSD between the two sets
+            (Default value = :code:`False`).
+
+    Returns:
+        tuple ((:math:`\left(N_{particles}, 3\right)` :class:`numpy.ndarray`), map[int, int]):
+            A doublet that gives the rotated (or not) set of
+            :code:`points`, and the mapping between the vectors of
+            :code:`ref_points` and :code:`points` that will make them
+            correspond to each other. Empty if they do not correspond to
+            each other.
+    """  # noqa: E501
+    cdef freud.box.Box b = freud.common.convert_box(box)
+
+    ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
+    points = freud.common.convert_array(points, shape=(None, 3))
+
+    cdef const float[:, ::1] l_ref_points = ref_points
+    cdef const float[:, ::1] l_points = points
+    cdef unsigned int nRef1 = l_ref_points.shape[0]
+    cdef unsigned int nRef2 = l_points.shape[0]
+    cdef float threshold_sq = threshold*threshold
+
+    if nRef1 != nRef2:
+        raise ValueError(
+            ("The number of vectors in ref_points must MATCH"
+                "the number of vectors in points"))
+
+    cdef map[unsigned int, unsigned int] vec_map = \
+        freud._environment.isSimilar(
+            dereference(b.thisptr), <vec3[float]*> &l_ref_points[0, 0],
+            <vec3[float]*> &l_points[0, 0], nRef1, r_max, threshold_sq,
+            registration)
+    return [np.asarray(l_points), vec_map]
+
+
 cdef class MatchEnv(Compute):
     R"""Clusters particles according to whether their local environments match
     or not, according to various shape matching metrics.
@@ -638,53 +688,6 @@ cdef class MatchEnv(Compute):
             <vec3[float]*> &l_ref_points[0], nRef, registration)
 
         return min_rmsd_vec
-
-    def isSimilar(self, ref_points, points,
-                  threshold, registration=False):
-        R"""Test if the motif provided by ref_points is similar to the motif
-        provided by points.
-
-        Args:
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Vectors that make up motif 1.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Vectors that make up motif 2.
-            threshold (float):
-                Maximum magnitude of the vector difference between two vectors,
-                below which they are considered "matching."
-            registration (bool, optional):
-                If True, first use brute force registration to orient one set
-                of environment vectors with respect to the other set such that
-                it minimizes the RMSD between the two sets
-                (Default value = :code:`False`).
-
-        Returns:
-            tuple ((:math:`\left(N_{particles}, 3\right)` :class:`numpy.ndarray`), map[int, int]):
-                A doublet that gives the rotated (or not) set of
-                :code:`points`, and the mapping between the vectors of
-                :code:`ref_points` and :code:`points` that will make them
-                correspond to each other. Empty if they do not correspond to
-                each other.
-        """  # noqa: E501
-        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
-        points = freud.common.convert_array(points, shape=(None, 3))
-
-        cdef const float[:, ::1] l_ref_points = ref_points
-        cdef const float[:, ::1] l_points = points
-        cdef unsigned int nRef1 = l_ref_points.shape[0]
-        cdef unsigned int nRef2 = l_points.shape[0]
-        cdef float threshold_sq = threshold*threshold
-
-        if nRef1 != nRef2:
-            raise ValueError(
-                ("The number of vectors in ref_points must MATCH"
-                 "the number of vectors in points"))
-
-        cdef map[unsigned int, unsigned int] vec_map = self.thisptr.isSimilar(
-            <vec3[float]*> &l_ref_points[0, 0],
-            <vec3[float]*> &l_points[0, 0],
-            nRef1, threshold_sq, registration)
-        return [np.asarray(l_points), vec_map]
 
     @property
     def clusters(self):

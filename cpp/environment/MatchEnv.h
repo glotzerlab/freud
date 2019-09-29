@@ -147,6 +147,53 @@ std::map<unsigned int, unsigned int> minimizeRMSD(
     const box::Box &box, const vec3<float>* refPoints1, vec3<float>*
     refPoints2, unsigned int numRef, float& min_rmsd, bool registration);
 
+//! Finds a rotation matrix and the appropriate index correspondence between two environments if it exists.
+/*! If the two environments correspond, returns a std::pair of the rotation matrix that takes the
+    * vectors of e2 to the vectors of e1 AND the mapping between the properly
+    * indexed vectors of the environments that will make them correspond to
+    * each other. If not, return a std::pair of the identity matrix AND an
+    * empty map.
+    *
+    * \param e1 First environment.
+    * \param e2 First environment.
+    * \param threshold A unitless number that is multiply by m_r_max. This
+    *                  quantity is the maximum magnitude of the vector
+    *                  difference between two vectors, below which you call
+    *                  them matching.  Note that ONLY values of (threshold < 2)
+    *                  make any sense, since 2*r_max is the absolute
+    *                  maximum difference between any two environment vectors. 
+    * \param registration Controls whether we first use brute force registration to 
+    *                     orient the second set of vectors such that it
+    *                     minimizes the RMSD between the two sets
+    */
+std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>>
+isSimilar(Environment& e1, Environment& e2, float r_max, float threshold_sq, bool registration);
+
+//! Overload of the above isSimilar function that provides an easier interface to Python.
+/*! If the two environments correspond, returns a std::pair of the rotation matrix that takes the
+    * vectors of e2 to the vectors of e1 AND the mapping between the properly
+    * indexed vectors of the environments that will make them correspond to
+    * each other. If not, return a std::pair of the identity matrix AND an
+    * empty map.
+    *
+    * WARNING: If registration=True, then refPoints2 is CHANGED by this function.
+    *
+    * \param refPoints1 Points composing first environment.
+    * \param refPoints2 Points composing second environment.
+    * \param numRef Number of points.
+    * \param threshold A unitless number that is multiply by m_r_max. This
+    *                  quantity is the maximum magnitude of the vector
+    *                  difference between two vectors, below which you call
+    *                  them matching.  Note that ONLY values of (threshold < 2)
+    *                  make any sense, since 2*r_max is the absolute
+    *                  maximum difference between any two environment vectors. 
+    * \param registration Controls whether we first use brute force registration to 
+    *                     orient the second set of vectors such that it
+    *                     minimizes the RMSD between the two sets
+    */
+std::map<unsigned int, unsigned int> isSimilar(const box::Box &box, const vec3<float>* refPoints1, vec3<float>* refPoints2,
+                                                unsigned int numRef, float r_max, float threshold_sq,
+                                                bool registration);
 
 //! Cluster particles with similar environments.
 /*! The environment matching method is defined according to the paper "Identity
@@ -259,54 +306,6 @@ public:
                                     unsigned int Np, const vec3<float>* refPoints, unsigned int numRef,
                                     bool registration = false);
 
-    //! Finds a rotation matrix and the appropriate index correspondence between two environments if it exists.
-    /*! If the two environments correspond, returns a std::pair of the rotation matrix that takes the
-     * vectors of e2 to the vectors of e1 AND the mapping between the properly
-     * indexed vectors of the environments that will make them correspond to
-     * each other. If not, return a std::pair of the identity matrix AND an
-     * empty map.
-     *
-     * \param e1 First environment.
-     * \param e2 First environment.
-     * \param threshold A unitless number that is multiply by m_r_max. This
-     *                  quantity is the maximum magnitude of the vector
-     *                  difference between two vectors, below which you call
-     *                  them matching.  Note that ONLY values of (threshold < 2)
-     *                  make any sense, since 2*r_max is the absolute
-     *                  maximum difference between any two environment vectors. 
-     * \param registration Controls whether we first use brute force registration to 
-     *                     orient the second set of vectors such that it
-     *                     minimizes the RMSD between the two sets
-     */
-    std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>>
-    isSimilar(Environment& e1, Environment& e2, float threshold_sq, bool registration);
-
-    //! Overload of the above isSimilar function that provides an easier interface to Python.
-    /*! If the two environments correspond, returns a std::pair of the rotation matrix that takes the
-     * vectors of e2 to the vectors of e1 AND the mapping between the properly
-     * indexed vectors of the environments that will make them correspond to
-     * each other. If not, return a std::pair of the identity matrix AND an
-     * empty map.
-     *
-     * WARNING: If registration=True, then refPoints2 is CHANGED by this function.
-     *
-     * \param refPoints1 Points composing first environment.
-     * \param refPoints2 Points composing second environment.
-     * \param numRef Number of points.
-     * \param threshold A unitless number that is multiply by m_r_max. This
-     *                  quantity is the maximum magnitude of the vector
-     *                  difference between two vectors, below which you call
-     *                  them matching.  Note that ONLY values of (threshold < 2)
-     *                  make any sense, since 2*r_max is the absolute
-     *                  maximum difference between any two environment vectors. 
-     * \param registration Controls whether we first use brute force registration to 
-     *                     orient the second set of vectors such that it
-     *                     minimizes the RMSD between the two sets
-     */
-    std::map<unsigned int, unsigned int> isSimilar(const vec3<float>* refPoints1, vec3<float>* refPoints2,
-                                                   unsigned int numRef, float threshold_sq,
-                                                   bool registration);
-
     //! Get a reference to the particles, indexed into clusters according to their matching local environments
     const util::ManagedArray<unsigned int> &getClusters()
     {
@@ -353,7 +352,7 @@ private:
     void populateEnv(EnvDisjointSet dj, bool reLabel = true);
 
     box::Box m_box; //!< Simulation box
-    float m_r_max_sq; //!< Square of the maximum cutoff radius at which to determine local environment
+    float m_r_max; //!< Square of the maximum cutoff radius at which to determine local environment
     unsigned int m_num_neighbors;      //!< Default number of nearest neighbors used to determine which environments are compared
                //!< during local environment clustering.
     unsigned int m_max_num_neighbors; //!< Maximum number of neighbors in any particle's local environment. If
