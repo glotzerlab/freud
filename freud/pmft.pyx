@@ -172,7 +172,6 @@ cdef class PMFTR12(_PMFT):
         if type(self) is PMFTR12:
             del self.pmftr12ptr
 
-    @Compute._compute
     def accumulate(self, neighbor_query, orientations, query_points=None,
                    query_orientations=None, neighbors=None):
         R"""Calculates the positional correlation function and adds to the
@@ -236,7 +235,6 @@ cdef class PMFTR12(_PMFT):
                                    dereference(qargs.thisptr))
         return self
 
-    @Compute._compute
     def compute(self, neighbor_query, orientations, query_points=None,
                 query_orientations=None, neighbors=None):
         R"""Calculates the positional correlation function for the given points.
@@ -339,7 +337,6 @@ cdef class PMFTXYT(_PMFT):
         if type(self) is PMFTXYT:
             del self.pmftxytptr
 
-    @Compute._compute
     def accumulate(self, neighbor_query, orientations, query_points=None,
                    query_orientations=None, neighbors=None):
         R"""Calculates the positional correlation function and adds to the
@@ -403,7 +400,6 @@ cdef class PMFTXYT(_PMFT):
                                    dereference(qargs.thisptr))
         return self
 
-    @Compute._compute
     def compute(self, neighbor_query, orientations, query_points=None,
                 query_orientations=None, neighbors=None):
         R"""Calculates the positional correlation function for the given points.
@@ -505,7 +501,6 @@ cdef class PMFTXY2D(_PMFT):
         if type(self) is PMFTXY2D:
             del self.pmftxy2dptr
 
-    @Compute._compute
     def accumulate(self, neighbor_query, orientations, query_points=None,
                    neighbors=None):
         R"""Calculates the positional correlation function and adds to the
@@ -553,7 +548,6 @@ cdef class PMFTXY2D(_PMFT):
                                     dereference(qargs.thisptr))
         return self
 
-    @Compute._compute
     def compute(self, neighbor_query, orientations, query_points=None,
                 neighbors=None):
         R"""Calculates the positional correlation function for the given points.
@@ -694,7 +688,6 @@ cdef class PMFTXYZ(_PMFT):
         if type(self) is PMFTXYZ:
             del self.pmftxyzptr
 
-    @Compute._compute
     def accumulate(self, neighbor_query, orientations, query_points=None,
                    face_orientations=None, neighbors=None):
         R"""Calculates the positional correlation function and adds to the
@@ -790,7 +783,6 @@ cdef class PMFTXYZ(_PMFT):
             num_faces, nlist.get_ptr(), dereference(qargs.thisptr))
         return self
 
-    @Compute._compute
     def compute(self, neighbor_query, orientations, query_points=None,
                 face_orientations=None, neighbors=None):
         R"""Calculates the positional correlation function for the given points.

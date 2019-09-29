@@ -49,7 +49,6 @@ cdef class InterfaceMeasure(Compute):
         self._point_ids = np.empty(0, dtype=np.uint32)
         self._query_point_ids = np.empty(0, dtype=np.uint32)
 
-    @Compute._compute
     def compute(self, box, points, query_points, nlist=None):
         R"""Compute the particles at the interface between the two given sets of
         points.

@@ -104,7 +104,6 @@ cdef class Cubatic(Compute):
     def __dealloc__(self):
         del self.thisptr
 
-    @Compute._compute
     def compute(self, orientations):
         R"""Calculates the per-particle and global order parameter.
 
@@ -211,7 +210,6 @@ cdef class Nematic(Compute):
     def __dealloc__(self):
         del self.thisptr
 
-    @Compute._compute
     def compute(self, orientations):
         R"""Calculates the per-particle and global order parameter.
 
@@ -301,7 +299,6 @@ cdef class Hexatic(PairCompute):
     def __dealloc__(self):
         del self.thisptr
 
-    @Compute._compute
     def compute(self, neighbor_query, neighbors=None):
         R"""Calculates the correlation function and adds to the current
         histogram.
@@ -370,7 +367,6 @@ cdef class Translational(PairCompute):
     def __dealloc__(self):
         del self.thisptr
 
-    @Compute._compute
     def compute(self, neighbor_query, neighbors=None):
         R"""Calculates the local descriptors.
 
@@ -518,7 +514,6 @@ cdef class Steinhardt(PairCompute):
             &self.thisptr.getQl(),
             freud.util.arr_type_t.FLOAT)
 
-    @Compute._compute
     def compute(self, neighbor_query, neighbors=None):
         R"""Compute the order parameter.
 
@@ -658,7 +653,6 @@ cdef class SolidLiquid(PairCompute):
     def __dealloc__(self):
         del self.thisptr
 
-    @Compute._compute
     def compute(self, neighbor_query, neighbors=None):
         R"""Compute the order parameter.
 
@@ -808,7 +802,6 @@ cdef class RotationalAutocorrelation(Compute):
     def __dealloc__(self):
         del self.thisptr
 
-    @Compute._compute
     def compute(self, ref_orientations, orientations):
         """Calculates the rotational autocorrelation function for a single frame.
 

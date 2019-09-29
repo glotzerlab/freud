@@ -1258,7 +1258,6 @@ cdef class SpatialHistogram(PairCompute):
     def nbins(self):
         return list(self.histptr.getAxisSizes())
 
-    @Compute._reset
     def reset(self):
         R"""Resets the values of RDF in memory."""
         self.histptr.reset()

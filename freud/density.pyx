@@ -77,7 +77,6 @@ cdef class CorrelationFunction(SpatialHistogram1D):
     def __dealloc__(self):
         del self.thisptr
 
-    @Compute._compute
     def accumulate(self, neighbor_query, values, query_points=None,
                    query_values=None, neighbors=None):
         R"""Calculates the correlation function and adds to the current
@@ -144,13 +143,11 @@ cdef class CorrelationFunction(SpatialHistogram1D):
             freud.util.arr_type_t.COMPLEX_DOUBLE)
         return output if self.is_complex else np.real(output)
 
-    @Compute._reset
     def reset(self):
         # Overrides parent since resetting here requires additional logic.
         self.is_complex = False
         self.thisptr.reset()
 
-    @Compute._compute
     def compute(self, neighbor_query, values, query_points=None,
                 query_values=None, neighbors=None):
         R"""Calculates the correlation function for the given points. Will
@@ -261,7 +258,6 @@ cdef class GaussianDensity(Compute):
     def box(self):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
-    @Compute._compute
     def compute(self, box, points):
         R"""Calculates the Gaussian blur for the specified points. Does not
         accumulate (will overwrite current image).
@@ -400,7 +396,6 @@ cdef class LocalDensity(PairCompute):
     def box(self):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
-    @Compute._compute
     def compute(self, neighbor_query, query_points=None, neighbors=None):
         R"""Calculates the local density for the specified points. Does not
         accumulate (will overwrite current data).
@@ -514,7 +509,6 @@ cdef class RDF(SpatialHistogram1D):
         if type(self) == RDF:
             del self.thisptr
 
-    @Compute._compute
     def accumulate(self, neighbor_query, query_points=None, neighbors=None):
         R"""Calculates the RDF and adds to the current RDF histogram.
 
@@ -546,7 +540,6 @@ cdef class RDF(SpatialHistogram1D):
             dereference(qargs.thisptr))
         return self
 
-    @Compute._compute
     def compute(self, neighbor_query, query_points=None, neighbors=None):
         R"""Calculates the RDF for the specified points. Will overwrite the current
         histogram.

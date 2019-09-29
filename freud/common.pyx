@@ -10,7 +10,7 @@ from functools import wraps
 
 cimport freud.box
 
-cdef class Compute:
+cdef class Compute(object):
     R"""Parent class for all compute classes in freud.
 
     Currently, the primary purpose of this class is implementing functions to
@@ -24,15 +24,12 @@ cdef class Compute:
     .. code-block:: python
         class Cluster(Compute):
 
-            @Compute._compute
             def compute(...)
                 ...
 
-            @Compute._computed_property
             def cluster_idx(self):
                 return ...
 
-            @Compute._reset
             def reset(...):
                 ...
 
@@ -44,23 +41,20 @@ cdef class Compute:
     def __cinit__(self):
         self._called_compute = False
 
-    @staticmethod
-    def _compute(func):
-        R"""Decorator that sets compute flag to be true.
-
-        Args:
-            func (callable): The compute function.
-
-        Returns:
-            Decorator decorating appropriate compute method.
-        """
-
-        @wraps(func)
-        def wrapper(self, *args, **kwargs):
-            retval = func(self, *args, **kwargs)
+    def __getattribute__(self, attr):
+        """Compute methods set a flag to indicate that quantities have been
+        computed. The flag is unset when reset is called, and you can never
+        plot without having called compute."""
+        attribute = object.__getattribute__(self, attr)
+        if attr in ('compute', 'accumulate'):
             self._called_compute = True
-            return retval
-        return wrapper
+        elif attr == 'reset':
+            self._called_compute = False
+        elif attr == 'plot':
+            if not self._called_compute:
+                raise AttributeError(
+                    "You must compute before you call plot.")
+        return attribute
 
     @staticmethod
     def _computed_property(prop):
@@ -99,20 +93,6 @@ cdef class Compute:
                 raise AttributeError(
                     "Property not computed. Call compute first.")
             return meth(self, *args, **kwargs)
-        return wrapper
-
-    @staticmethod
-    def _reset(func):
-        R"""Decorator that sets all compute flag to be false.
-
-        Returns:
-            Decorator decorating appropriate reset method.
-        """
-
-        @wraps(func)
-        def wrapper(self, *args, **kwargs):
-            self._called_compute = False
-            func(self, *args, **kwargs)
         return wrapper
 
     def __str__(self):

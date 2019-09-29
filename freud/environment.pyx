@@ -145,7 +145,6 @@ cdef class BondOrder(SpatialHistogram):
     def default_query_args(self):
         raise NotImplementedError('No default query arguments for BondOrder.')
 
-    @Compute._compute
     def accumulate(self, neighbor_query, orientations, query_points=None,
                    query_orientations=None, neighbors=None):
         R"""Calculates the correlation function and adds to the current
@@ -209,12 +208,10 @@ cdef class BondOrder(SpatialHistogram):
     def box(self):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
-    @Compute._reset
     def reset(self):
         R"""Resets the values of the bond order in memory."""
         self.thisptr.reset()
 
-    @Compute._compute
     def compute(self, neighbor_query, orientations, query_points=None,
                 query_orientations=None, neighbors=None):
         R"""Calculates the bond order histogram. Will overwrite the current
@@ -319,7 +316,6 @@ cdef class LocalDescriptors(PairCompute):
     def __dealloc__(self):
         del self.thisptr
 
-    @Compute._compute
     def compute(self, neighbor_query, query_points=None, orientations=None,
                 neighbors=None):
         R"""Calculates the local descriptors of bonds from a set of source
@@ -451,7 +447,6 @@ cdef class MatchEnv(Compute):
     def __dealloc__(self):
         del self.thisptr
 
-    @Compute._compute
     def cluster(self, points, threshold, hard_r=False, registration=False,
                 global_search=False, env_nlist=None, nlist=None):
         R"""Determine clusters of particles with matching environments.
@@ -512,7 +507,6 @@ cdef class MatchEnv(Compute):
             registration, global_search)
         return self
 
-    @Compute._compute
     def matchMotif(self, points, ref_points, threshold, registration=False,
                    nlist=None):
         R"""Determine clusters of particles that match the motif provided by
@@ -555,7 +549,6 @@ cdef class MatchEnv(Compute):
             <vec3[float]*> &l_ref_points[0], nRef, threshold,
             registration)
 
-    @Compute._compute
     def minRMSDMotif(self, ref_points, points, registration=False, nlist=None):
         R"""Rotate (if registration=True) and permute the environments of all
         particles to minimize their RMSD with respect to the motif provided by
@@ -778,7 +771,6 @@ cdef class AngularSeparationNeighbor(PairCompute):
     def __dealloc__(self):
         del self.thisptr
 
-    @Compute._compute
     def compute(self, neighbor_query, orientations, query_points=None,
                 query_orientations=None,
                 equiv_orientations=np.array([[1, 0, 0, 0]]),
@@ -881,7 +873,6 @@ cdef class AngularSeparationGlobal(Compute):
     def __dealloc__(self):
         del self.thisptr
 
-    @Compute._compute
     def compute(self, global_orientations,
                 orientations, equiv_orientations):
         R"""Calculates the minimum angles of separation between
@@ -964,7 +955,6 @@ cdef class LocalBondProjection(PairCompute):
     def nlist(self):
         return freud.locality._nlist_from_cnlist(self.thisptr.getNList())
 
-    @Compute._compute
     def compute(self, neighbor_query, orientations, proj_vecs,
                 query_points=None, equiv_orientations=np.array([[1, 0, 0, 0]]),
                 neighbors=None):
