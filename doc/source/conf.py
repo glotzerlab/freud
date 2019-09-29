@@ -304,6 +304,10 @@ intersphinx_mapping = {'python': ('https://docs.python.org/3', None),
 
 autodoc_mock_import = ["numpy"]
 
+autodoc_default_options = {
+    'inherited-members': True
+}
+
 nitpick_ignore = [("py:obj", "numpy.dtype"),
                   ("py:class", "numpy.ndarray"),
                   ("py:class", "numpy.uint32"),
@@ -316,3 +320,11 @@ nitpick_ignore = [("py:obj", "numpy.dtype"),
 
 # Make class attributes show on single line
 napoleon_use_ivar = True
+
+
+def autodoc_skip_member(app, what, name, obj, skip, options):
+    return skip or isinstance(obj, property)
+
+
+def setup(app):
+    app.connect('autodoc-skip-member', autodoc_skip_member)
