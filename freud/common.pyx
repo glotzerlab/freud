@@ -76,25 +76,6 @@ cdef class Compute(object):
             return prop(self, *args, **kwargs)
         return wrapper
 
-    @staticmethod
-    def _computed_method(meth):
-        R"""Decorator that makes a class method to be a method with limited access.
-
-        Args:
-            meth (callable): The method that requires compute to be called.
-
-        Returns:
-            Decorator decorating appropriate method.
-        """
-
-        @wraps(meth)
-        def wrapper(self, *args, **kwargs):
-            if not self._called_compute:
-                raise AttributeError(
-                    "Property not computed. Call compute first.")
-            return meth(self, *args, **kwargs)
-        return wrapper
-
     def __str__(self):
         return repr(self)
 

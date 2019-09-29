@@ -688,7 +688,6 @@ cdef class MatchEnv(Compute):
             &self.thisptr.getClusters(),
             freud.util.arr_type_t.UNSIGNED_INT)
 
-    @Compute._computed_method
     def getEnvironment(self, i):
         R"""Returns the set of vectors defining the environment indexed by i.
 
@@ -722,7 +721,6 @@ cdef class MatchEnv(Compute):
                     cls=type(self).__name__, box=self.m_box.__repr__(),
                     r_max=self.r_max, num_neighbors=self.num_neighbors)
 
-    @Compute._computed_method
     def plot(self, ax=None):
         """Plot cluster distribution.
 

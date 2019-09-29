@@ -121,7 +121,6 @@ cdef class Cluster(PairCompute):
     def __repr__(self):
         return "freud.cluster.{cls}()".format(cls=type(self).__name__)
 
-    @Compute._computed_method
     def plot(self, ax=None):
         """Plot cluster distribution.
 

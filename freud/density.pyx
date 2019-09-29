@@ -305,7 +305,6 @@ cdef class GaussianDensity(Compute):
                                             r_max=self.r_max,
                                             sigma=self.sigma)
 
-    @Compute._computed_method
     def plot(self, ax=None):
         """Plot Gaussian Density.
 
@@ -579,7 +578,6 @@ cdef class RDF(SpatialHistogram1D):
                                          r_max=self.bounds[1],
                                          r_min=self.bounds[0])
 
-    @Compute._computed_method
     def plot(self, ax=None):
         """Plot radial distribution function.
 

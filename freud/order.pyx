@@ -550,7 +550,6 @@ cdef class Steinhardt(PairCompute):
                     Wl=self.Wl,
                     weighted=self.weighted)
 
-    @Compute._computed_method
     def plot(self, ax=None):
         """Plot order parameter distribution.
 
@@ -734,7 +733,6 @@ cdef class SolidLiquid(PairCompute):
                     S_threshold=self.S_threshold,
                     normalize_Q=self.normalize_Q)
 
-    @Compute._computed_method
     def plot(self, ax=None):
         """Plot solid-like cluster distribution.
 

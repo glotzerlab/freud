@@ -1093,7 +1093,6 @@ cdef class _Voronoi:
     def __str__(self):
         return repr(self)
 
-    @Compute._computed_method
     def plot(self, ax=None):
         """Plot Voronoi diagram.
 

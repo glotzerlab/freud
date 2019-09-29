@@ -322,6 +322,7 @@ nitpick_ignore = [("py:obj", "numpy.dtype"),
 napoleon_use_ivar = True
 
 
+# Don't document properties (we document them as class attributes).
 def autodoc_skip_member(app, what, name, obj, skip, options):
     return skip or isinstance(obj, property)
 

@@ -607,7 +607,6 @@ cdef class PMFTXY2D(_PMFT):
         except AttributeError:
             return None
 
-    @Compute._computed_method
     def plot(self, ax=None):
         """Plot PMFTXY2D.
 
