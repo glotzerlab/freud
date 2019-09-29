@@ -104,7 +104,7 @@ cdef class Cubatic(Compute):
     def __dealloc__(self):
         del self.thisptr
 
-    @Compute._compute()
+    @Compute._compute
     def compute(self, orientations):
         R"""Calculates the per-particle and global order parameter.
 
@@ -138,28 +138,28 @@ cdef class Cubatic(Compute):
     def seed(self):
         return self.thisptr.getSeed()
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def order(self):
         return self.thisptr.getCubaticOrderParameter()
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def orientation(self):
         cdef quat[float] q = self.thisptr.getCubaticOrientation()
         return np.asarray([q.s, q.v.x, q.v.y, q.v.z], dtype=np.float32)
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def particle_order(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getParticleOrderParameter(),
             freud.util.arr_type_t.FLOAT)
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def global_tensor(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getGlobalTensor(),
             freud.util.arr_type_t.FLOAT)
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def cubatic_tensor(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getCubaticTensor(),
@@ -211,7 +211,7 @@ cdef class Nematic(Compute):
     def __dealloc__(self):
         del self.thisptr
 
-    @Compute._compute()
+    @Compute._compute
     def compute(self, orientations):
         R"""Calculates the per-particle and global order parameter.
 
@@ -229,22 +229,22 @@ cdef class Nematic(Compute):
                              num_particles)
         return self
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def order(self):
         return self.thisptr.getNematicOrderParameter()
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def director(self):
         cdef vec3[float] n = self.thisptr.getNematicDirector()
         return np.asarray([n.x, n.y, n.z], dtype=np.float32)
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def particle_tensor(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getParticleTensor(),
             freud.util.arr_type_t.FLOAT)
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def nematic_tensor(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getNematicTensor(),
@@ -301,7 +301,7 @@ cdef class Hexatic(PairCompute):
     def __dealloc__(self):
         del self.thisptr
 
-    @Compute._compute()
+    @Compute._compute
     def compute(self, neighbor_query, neighbors=None):
         R"""Calculates the correlation function and adds to the current
         histogram.
@@ -334,7 +334,7 @@ cdef class Hexatic(PairCompute):
     def default_query_args(self):
         return dict(mode="nearest", num_neighbors=self.k)
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def order(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getOrder(),
@@ -370,7 +370,7 @@ cdef class Translational(PairCompute):
     def __dealloc__(self):
         del self.thisptr
 
-    @Compute._compute()
+    @Compute._compute
     def compute(self, neighbor_query, neighbors=None):
         R"""Calculates the local descriptors.
 
@@ -403,7 +403,7 @@ cdef class Translational(PairCompute):
     def default_query_args(self):
         return dict(mode="nearest", num_neighbors=int(self.k))
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def order(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getOrder(),
@@ -502,23 +502,23 @@ cdef class Steinhardt(PairCompute):
     def l(self):  # noqa: E743
         return self.thisptr.getL()
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def norm(self):
         return self.thisptr.getNorm()
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def order(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getOrder(),
             freud.util.arr_type_t.FLOAT)
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def Ql(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getQl(),
             freud.util.arr_type_t.FLOAT)
 
-    @Compute._compute()
+    @Compute._compute
     def compute(self, neighbor_query, neighbors=None):
         R"""Compute the order parameter.
 
@@ -555,7 +555,7 @@ cdef class Steinhardt(PairCompute):
                     Wl=self.Wl,
                     weighted=self.weighted)
 
-    @Compute._computed_method()
+    @Compute._computed_method
     def plot(self, ax=None):
         """Plot order parameter distribution.
 
@@ -658,7 +658,7 @@ cdef class SolidLiquid(PairCompute):
     def __dealloc__(self):
         del self.thisptr
 
-    @Compute._compute()
+    @Compute._compute
     def compute(self, neighbor_query, neighbors=None):
         R"""Compute the order parameter.
 
@@ -700,31 +700,31 @@ cdef class SolidLiquid(PairCompute):
     def normalize_Q(self):
         return self.thisptr.getNormalizeQ()
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def cluster_idx(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getClusterIdx(),
             freud.util.arr_type_t.UNSIGNED_INT)
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def Ql_ij(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getQlij(),
             freud.util.arr_type_t.FLOAT)
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def cluster_sizes(self):
         return np.asarray(self.thisptr.getClusterSizes())
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def largest_cluster_size(self):
         return self.thisptr.getLargestClusterSize()
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def nlist(self):
         return freud.locality._nlist_from_cnlist(self.thisptr.getNList())
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def num_connections(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getNumberOfConnections(),
@@ -740,7 +740,7 @@ cdef class SolidLiquid(PairCompute):
                     S_threshold=self.S_threshold,
                     normalize_Q=self.normalize_Q)
 
-    @Compute._computed_method()
+    @Compute._computed_method
     def plot(self, ax=None):
         """Plot solid-like cluster distribution.
 
@@ -808,7 +808,7 @@ cdef class RotationalAutocorrelation(Compute):
     def __dealloc__(self):
         del self.thisptr
 
-    @Compute._compute()
+    @Compute._compute
     def compute(self, ref_orientations, orientations):
         """Calculates the rotational autocorrelation function for a single frame.
 
@@ -833,11 +833,11 @@ cdef class RotationalAutocorrelation(Compute):
             nP)
         return self
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def order(self):
         return self.thisptr.getRotationalAutocorrelation()
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def particle_order(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getRAArray(),

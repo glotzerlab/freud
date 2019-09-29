@@ -77,7 +77,7 @@ cdef class CorrelationFunction(SpatialHistogram1D):
     def __dealloc__(self):
         del self.thisptr
 
-    @Compute._compute()
+    @Compute._compute
     def accumulate(self, neighbor_query, values, query_points=None,
                    query_values=None, neighbors=None):
         R"""Calculates the correlation function and adds to the current
@@ -137,7 +137,7 @@ cdef class CorrelationFunction(SpatialHistogram1D):
             dereference(qargs.thisptr))
         return self
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def correlation(self):
         output = freud.util.make_managed_numpy_array(
             &self.thisptr.getCorrelation(),
@@ -150,7 +150,7 @@ cdef class CorrelationFunction(SpatialHistogram1D):
         self.is_complex = False
         self.thisptr.reset()
 
-    @Compute._compute()
+    @Compute._compute
     def compute(self, neighbor_query, values, query_points=None,
                 query_values=None, neighbors=None):
         R"""Calculates the correlation function for the given points. Will
@@ -257,11 +257,11 @@ cdef class GaussianDensity(Compute):
     def __dealloc__(self):
         del self.thisptr
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def box(self):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
-    @Compute._compute()
+    @Compute._compute
     def compute(self, box, points):
         R"""Calculates the Gaussian blur for the specified points. Does not
         accumulate (will overwrite current image).
@@ -280,7 +280,7 @@ cdef class GaussianDensity(Compute):
                              <vec3[float]*> &l_points[0, 0], n_p)
         return self
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def gaussian_density(self):
         if self.box.is2D:
             return np.squeeze(freud.util.make_managed_numpy_array(
@@ -309,7 +309,7 @@ cdef class GaussianDensity(Compute):
                                             r_max=self.r_max,
                                             sigma=self.sigma)
 
-    @Compute._computed_method()
+    @Compute._computed_method
     def plot(self, ax=None):
         """Plot Gaussian Density.
 
@@ -396,11 +396,11 @@ cdef class LocalDensity(PairCompute):
     def diameter(self):
         return self.thisptr.getDiameter()
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def box(self):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
-    @Compute._compute()
+    @Compute._compute
     def compute(self, neighbor_query, query_points=None, neighbors=None):
         R"""Calculates the local density for the specified points. Does not
         accumulate (will overwrite current data).
@@ -439,13 +439,13 @@ cdef class LocalDensity(PairCompute):
         return dict(mode="ball",
                     r_max=self.r_max + 0.5*self.diameter)
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def density(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getDensity(),
             freud.util.arr_type_t.FLOAT)
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def num_neighbors(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getNumNeighbors(),
@@ -514,7 +514,7 @@ cdef class RDF(SpatialHistogram1D):
         if type(self) == RDF:
             del self.thisptr
 
-    @Compute._compute()
+    @Compute._compute
     def accumulate(self, neighbor_query, query_points=None, neighbors=None):
         R"""Calculates the RDF and adds to the current RDF histogram.
 
@@ -546,7 +546,7 @@ cdef class RDF(SpatialHistogram1D):
             dereference(qargs.thisptr))
         return self
 
-    @Compute._compute()
+    @Compute._compute
     def compute(self, neighbor_query, query_points=None, neighbors=None):
         R"""Calculates the RDF for the specified points. Will overwrite the current
         histogram.
@@ -567,13 +567,13 @@ cdef class RDF(SpatialHistogram1D):
         self.accumulate(neighbor_query, query_points, neighbors)
         return self
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def RDF(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getRDF(),
             freud.util.arr_type_t.FLOAT)
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def n_r(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getNr(),
@@ -586,7 +586,7 @@ cdef class RDF(SpatialHistogram1D):
                                          r_max=self.bounds[1],
                                          r_min=self.bounds[0])
 
-    @Compute._computed_method()
+    @Compute._computed_method
     def plot(self, ax=None):
         """Plot radial distribution function.
 

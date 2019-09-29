@@ -49,7 +49,7 @@ cdef class InterfaceMeasure(Compute):
         self._point_ids = np.empty(0, dtype=np.uint32)
         self._query_point_ids = np.empty(0, dtype=np.uint32)
 
-    @Compute._compute()
+    @Compute._compute
     def compute(self, box, points, query_points, nlist=None):
         R"""Compute the particles at the interface between the two given sets of
         points.
@@ -78,19 +78,19 @@ cdef class InterfaceMeasure(Compute):
         self._query_point_ids = np.unique(nlist.query_point_indices)
         return self
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def point_count(self):
         return len(self._point_ids)
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def point_ids(self):
         return np.asarray(self._point_ids)
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def query_point_count(self):
         return len(self._query_point_ids)
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def query_point_ids(self):
         return np.asarray(self._query_point_ids)
 

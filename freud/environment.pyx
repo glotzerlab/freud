@@ -145,7 +145,7 @@ cdef class BondOrder(SpatialHistogram):
     def default_query_args(self):
         raise NotImplementedError('No default query arguments for BondOrder.')
 
-    @Compute._compute()
+    @Compute._compute
     def accumulate(self, neighbor_query, orientations, query_points=None,
                    query_orientations=None, neighbors=None):
         R"""Calculates the correlation function and adds to the current
@@ -199,13 +199,13 @@ cdef class BondOrder(SpatialHistogram):
             nlist.get_ptr(), dereference(qargs.thisptr))
         return self
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def bond_order(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getBondOrder(),
             freud.util.arr_type_t.FLOAT)
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def box(self):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
@@ -214,7 +214,7 @@ cdef class BondOrder(SpatialHistogram):
         R"""Resets the values of the bond order in memory."""
         self.thisptr.reset()
 
-    @Compute._compute()
+    @Compute._compute
     def compute(self, neighbor_query, orientations, query_points=None,
                 query_orientations=None, neighbors=None):
         R"""Calculates the bond order histogram. Will overwrite the current
@@ -319,7 +319,7 @@ cdef class LocalDescriptors(PairCompute):
     def __dealloc__(self):
         del self.thisptr
 
-    @Compute._compute()
+    @Compute._compute
     def compute(self, neighbor_query, query_points=None, orientations=None,
                 neighbors=None):
         R"""Calculates the local descriptors of bonds from a set of source
@@ -373,17 +373,17 @@ cdef class LocalDescriptors(PairCompute):
             nlist.get_ptr(), dereference(qargs.thisptr))
         return self
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def nlist(self):
         return freud.locality._nlist_from_cnlist(self.thisptr.getNList())
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def sph(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getSph(),
             freud.util.arr_type_t.COMPLEX_FLOAT)
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def num_sphs(self):
         return self.thisptr.getNSphs()
 
@@ -451,7 +451,7 @@ cdef class MatchEnv(Compute):
     def __dealloc__(self):
         del self.thisptr
 
-    @Compute._compute()
+    @Compute._compute
     def cluster(self, points, threshold, hard_r=False, registration=False,
                 global_search=False, env_nlist=None, nlist=None):
         R"""Determine clusters of particles with matching environments.
@@ -512,7 +512,7 @@ cdef class MatchEnv(Compute):
             registration, global_search)
         return self
 
-    @Compute._compute()
+    @Compute._compute
     def matchMotif(self, points, ref_points, threshold, registration=False,
                    nlist=None):
         R"""Determine clusters of particles that match the motif provided by
@@ -555,7 +555,7 @@ cdef class MatchEnv(Compute):
             <vec3[float]*> &l_ref_points[0], nRef, threshold,
             registration)
 
-    @Compute._compute()
+    @Compute._compute
     def minRMSDMotif(self, ref_points, points, registration=False, nlist=None):
         R"""Rotate (if registration=True) and permute the environments of all
         particles to minimize their RMSD with respect to the motif provided by
@@ -689,13 +689,13 @@ cdef class MatchEnv(Compute):
                 nRef1, min_rmsd, registration)
         return [min_rmsd, np.asarray(l_points), results_map]
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def clusters(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getClusters(),
             freud.util.arr_type_t.UNSIGNED_INT)
 
-    @Compute._computed_method()
+    @Compute._computed_method
     def getEnvironment(self, i):
         R"""Returns the set of vectors defining the environment indexed by i.
 
@@ -709,17 +709,17 @@ cdef class MatchEnv(Compute):
         env = self.thisptr.getEnvironment(i)
         return np.asarray([[p.x, p.y, p.z] for p in env])
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def tot_environment(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getTotEnvironment(),
             freud.util.arr_type_t.FLOAT, 3)
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def num_particles(self):
         return self.thisptr.getNP()
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def num_clusters(self):
         return self.thisptr.getNumClusters()
 
@@ -729,7 +729,7 @@ cdef class MatchEnv(Compute):
                     cls=type(self).__name__, box=self.m_box.__repr__(),
                     r_max=self.r_max, num_neighbors=self.num_neighbors)
 
-    @Compute._computed_method()
+    @Compute._computed_method
     def plot(self, ax=None):
         """Plot cluster distribution.
 
@@ -778,7 +778,7 @@ cdef class AngularSeparationNeighbor(PairCompute):
     def __dealloc__(self):
         del self.thisptr
 
-    @Compute._compute()
+    @Compute._compute
     def compute(self, neighbor_query, orientations, query_points=None,
                 query_orientations=None,
                 equiv_orientations=np.array([[1, 0, 0, 0]]),
@@ -850,7 +850,7 @@ cdef class AngularSeparationNeighbor(PairCompute):
             dereference(qargs.thisptr))
         return self
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def angles(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getAngles(),
@@ -860,7 +860,7 @@ cdef class AngularSeparationNeighbor(PairCompute):
         return "freud.environment.{cls}()".format(
             cls=type(self).__name__)
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def nlist(self):
         return freud.locality._nlist_from_cnlist(self.thisptr.getNList())
 
@@ -881,7 +881,7 @@ cdef class AngularSeparationGlobal(Compute):
     def __dealloc__(self):
         del self.thisptr
 
-    @Compute._compute()
+    @Compute._compute
     def compute(self, global_orientations,
                 orientations, equiv_orientations):
         R"""Calculates the minimum angles of separation between
@@ -924,7 +924,7 @@ cdef class AngularSeparationGlobal(Compute):
             n_equiv_orientations)
         return self
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def angles(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getAngles(),
@@ -960,11 +960,11 @@ cdef class LocalBondProjection(PairCompute):
     def __dealloc__(self):
         del self.thisptr
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def nlist(self):
         return freud.locality._nlist_from_cnlist(self.thisptr.getNList())
 
-    @Compute._compute()
+    @Compute._compute
     def compute(self, neighbor_query, orientations, proj_vecs,
                 query_points=None, equiv_orientations=np.array([[1, 0, 0, 0]]),
                 neighbors=None):
@@ -1035,13 +1035,13 @@ cdef class LocalBondProjection(PairCompute):
             nlist.get_ptr(), dereference(qargs.thisptr))
         return self
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def projections(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getProjections(),
             freud.util.arr_type_t.FLOAT)
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def normed_projections(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getNormedProjections(),

@@ -1093,7 +1093,7 @@ cdef class _Voronoi:
     def __str__(self):
         return repr(self)
 
-    @Compute._computed_method()
+    @Compute._computed_method
     def plot(self, ax=None):
         """Plot Voronoi diagram.
 
@@ -1223,11 +1223,11 @@ cdef class SpatialHistogram(PairCompute):
     def default_query_args(self):
         return dict(mode="ball", r_max=self.r_max)
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def box(self):
         return freud.box.BoxFromCPP(self.histptr.getBox())
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def bin_counts(self):
         return freud.util.make_managed_numpy_array(
             &self.histptr.getBinCounts(),
