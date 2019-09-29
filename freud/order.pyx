@@ -722,7 +722,7 @@ cdef class SolidLiquid(PairCompute):
 
     @Compute._computed_property()
     def nlist(self):
-        return freud.locality.nlist_from_cnlist(self.thisptr.getNList())
+        return freud.locality._nlist_from_cnlist(self.thisptr.getNList())
 
     @Compute._computed_property()
     def num_connections(self):

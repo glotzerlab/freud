@@ -375,7 +375,7 @@ cdef class LocalDescriptors(PairCompute):
 
     @Compute._computed_property()
     def nlist(self):
-        return freud.locality.nlist_from_cnlist(self.thisptr.getNList())
+        return freud.locality._nlist_from_cnlist(self.thisptr.getNList())
 
     @Compute._computed_property()
     def sph(self):
@@ -490,18 +490,18 @@ cdef class MatchEnv(Compute):
         cdef freud.locality.NeighborList nlist_
         cdef freud.locality.NeighborList env_nlist_
         if hard_r:
-            nlist_ = freud.locality.make_default_nlist(
+            nlist_ = freud.locality._make_default_nlist(
                 self.m_box, points, None, dict(r_max=self.r_max), nlist)
 
-            env_nlist_ = freud.locality.make_default_nlist(
+            env_nlist_ = freud.locality._make_default_nlist(
                 self.m_box, points, None, dict(r_max=self.r_max), env_nlist)
         else:
-            nlist_ = freud.locality.make_default_nlist(
+            nlist_ = freud.locality._make_default_nlist(
                 self.m_box, points, None,
                 dict(num_neighbors=self.num_neighbors, r_guess=self.r_max),
                 nlist)
 
-            env_nlist_ = freud.locality.make_default_nlist(
+            env_nlist_ = freud.locality._make_default_nlist(
                 self.m_box, points, None,
                 dict(num_neighbors=self.num_neighbors, r_guess=self.r_max),
                 env_nlist)
@@ -546,7 +546,7 @@ cdef class MatchEnv(Compute):
         cdef unsigned int nRef = l_ref_points.shape[0]
 
         cdef freud.locality.NeighborList nlist_
-        nlist_ = freud.locality.make_default_nlist(
+        nlist_ = freud.locality._make_default_nlist(
             self.m_box, points, None,
             dict(num_neighbors=self.num_neighbors, r_guess=self.r_max), nlist)
 
@@ -590,7 +590,7 @@ cdef class MatchEnv(Compute):
         cdef unsigned int nRef = l_ref_points.shape[0]
 
         cdef freud.locality.NeighborList nlist_
-        nlist_ = freud.locality.make_default_nlist(
+        nlist_ = freud.locality._make_default_nlist(
             self.m_box, points, None,
             dict(num_neighbors=self.num_neighbors, r_guess=self.r_max), nlist)
 
@@ -862,7 +862,7 @@ cdef class AngularSeparationNeighbor(PairCompute):
 
     @Compute._computed_property()
     def nlist(self):
-        return freud.locality.nlist_from_cnlist(self.thisptr.getNList())
+        return freud.locality._nlist_from_cnlist(self.thisptr.getNList())
 
 
 cdef class AngularSeparationGlobal(Compute):
@@ -962,7 +962,7 @@ cdef class LocalBondProjection(PairCompute):
 
     @Compute._computed_property()
     def nlist(self):
-        return freud.locality.nlist_from_cnlist(self.thisptr.getNList())
+        return freud.locality._nlist_from_cnlist(self.thisptr.getNList())
 
     @Compute._compute()
     def compute(self, neighbor_query, orientations, proj_vecs,

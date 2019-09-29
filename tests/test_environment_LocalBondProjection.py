@@ -87,9 +87,10 @@ class TestLocalBondProjection(unittest.TestCase):
         ang = freud.environment.LocalBondProjection()
         ang.compute((box, points), ors, proj_vecs, neighbors=query_args)
 
-        dnlist = freud.locality.make_default_nlist(
-            box, points, None,
-            dict(num_neighbors=num_neighbors, r_guess=r_guess), None)
+        dnlist = freud.locality.AABBQuery(
+            box, points).query(
+                points, dict(num_neighbors=num_neighbors, r_guess=r_guess,
+                             exclude_ii=True))
         bonds = [(i[0], i[1]) for i in dnlist]
 
         # We will look at the bond between [1, 0, 0] as ref_point

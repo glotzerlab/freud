@@ -232,7 +232,7 @@ cdef class NeighborQueryResult:
 
         cdef freud._locality.NeighborList *cnlist = dereference(
             iterator).toNeighborList()
-        cdef NeighborList nl = nlist_from_cnlist(cnlist)
+        cdef NeighborList nl = _nlist_from_cnlist(cnlist)
         # Explicitly manage a manually created nlist so that it will be
         # deleted when the Python object is.
         nl._managed = True
@@ -555,7 +555,7 @@ cdef class NeighborList:
         return self
 
 
-cdef NeighborList nlist_from_cnlist(freud._locality.NeighborList *c_nlist):
+cdef NeighborList _nlist_from_cnlist(freud._locality.NeighborList *c_nlist):
     """Create a Python NeighborList object that points to an existing C++
     NeighborList object.
 
@@ -574,7 +574,7 @@ cdef NeighborList nlist_from_cnlist(freud._locality.NeighborList *c_nlist):
     return result
 
 
-def make_default_nq(box, points):
+def _make_default_nq(box, points):
     R"""Helper function to return a NeighborQuery object.
 
     Currently the resolution for NeighborQuery objects is such that if Python
@@ -607,7 +607,7 @@ def make_default_nq(box, points):
     return rp
 
 
-def make_default_nlist(box, points, query_points, query_args, nlist=None):
+def _make_default_nlist(box, points, query_points, query_args, nlist=None):
     R"""Helper function to return a neighbor list object if is given, or to
     construct one using AABBQuery if it is not.
 
@@ -1007,7 +1007,7 @@ cdef class _Voronoi:
             <int*> &expanded_ids[0], <vec3[double]*> &expanded_points[0, 0],
             <int*> &ridge_vertex_indices[0])
 
-        self._nlist = nlist_from_cnlist(self.thisptr.getNeighborList())
+        self._nlist = _nlist_from_cnlist(self.thisptr.getNeighborList())
 
         # Construct a list of polytope vertices
         self._polytopes = list()
