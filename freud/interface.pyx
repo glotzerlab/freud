@@ -68,8 +68,8 @@ cdef class InterfaceMeasure(Compute):
             query_points, shape=(None, 3))
 
         if nlist is None:
-            lc = freud.locality.LinkCell(b, self.r_max, points)
-            nlist = lc.query(query_points,
+            aq = freud.locality.AABBQuery(b, points)
+            nlist = aq.query(query_points,
                              dict(r_max=self.r_max)).toNeighborList()
         else:
             nlist = nlist.copy().filter_r(self.r_max)
