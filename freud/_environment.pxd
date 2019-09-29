@@ -57,6 +57,10 @@ cdef extern from "LocalDescriptors.h" namespace "freud::environment":
         bool getNegativeM() const
 
 cdef extern from "MatchEnv.h" namespace "freud::environment":
+    map[unsigned int, unsigned int] minimizeRMSD(
+        const freud._box.Box &, const vec3[float]*, vec3[float]*, unsigned int,
+        float &, bool) except +
+
     cdef cppclass MatchEnv:
         MatchEnv(const freud._box.Box &, float, unsigned int) except +
         void setBox(const freud._box.Box)
@@ -86,11 +90,6 @@ cdef extern from "MatchEnv.h" namespace "freud::environment":
                                                   unsigned int,
                                                   float,
                                                   bool) except +
-        map[unsigned int, unsigned int] minimizeRMSD(const vec3[float]*,
-                                                     vec3[float]*,
-                                                     unsigned int,
-                                                     float &,
-                                                     bool) except +
         const freud.util.ManagedArray[unsigned int] &getClusters()
         vector[vec3[float]] getEnvironment(unsigned int)
         const freud.util.ManagedArray[vec3[float]] &getTotEnvironment()

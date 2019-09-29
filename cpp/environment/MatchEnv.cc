@@ -395,7 +395,7 @@ std::map<unsigned int, unsigned int> MatchEnv::isSimilar(const vec3<float>* refP
                                                          float threshold_sq, bool registration)
 {
     Environment e0, e1;
-    std::tie(e0, e1) = makeEnvironments(refPoints1, refPoints2, numRef);
+    std::tie(e0, e1) = makeEnvironments(m_box, refPoints1, refPoints2, numRef);
 
     // call isSimilar for e0 and e1
     std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>> mapping
@@ -413,8 +413,8 @@ std::map<unsigned int, unsigned int> MatchEnv::isSimilar(const vec3<float>* refP
     return vec_map.asMap();
 }
 
-std::pair<Environment, Environment> MatchEnv::makeEnvironments(const vec3<float>* refPoints1,
-                                                         vec3<float>* refPoints2, unsigned int numRef)
+std::pair<Environment, Environment> makeEnvironments(const box::Box &box, const vec3<float>* refPoints1,
+                                                     vec3<float>* refPoints2, unsigned int numRef)
 {
     // create the environment characterized by refPoints1. Index it as 0.
     // set the IGNORE flag to true, since this is not an environment we have
@@ -433,8 +433,8 @@ std::pair<Environment, Environment> MatchEnv::makeEnvironments(const vec3<float>
     // be wrapped into the box as well.
     for (unsigned int i = 0; i < numRef; i++)
     {
-        vec3<float> p0 = m_box.wrap(refPoints1[i]);
-        vec3<float> p1 = m_box.wrap(refPoints2[i]);
+        vec3<float> p0 = box.wrap(refPoints1[i]);
+        vec3<float> p1 = box.wrap(refPoints2[i]);
         e0.addVec(p0);
         e1.addVec(p1);
     }
@@ -443,7 +443,7 @@ std::pair<Environment, Environment> MatchEnv::makeEnvironments(const vec3<float>
 
 
 std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>>
-MatchEnv::minimizeRMSD(Environment& e1, Environment& e2, float& min_rmsd, bool registration)
+minimizeRMSD(Environment& e1, Environment& e2, float& min_rmsd, bool registration)
 {
     BiMap<unsigned int, unsigned int> vec_map;
     rotmat3<float> rotation = rotmat3<float>(); // this initializes to the identity matrix
@@ -492,12 +492,12 @@ MatchEnv::minimizeRMSD(Environment& e1, Environment& e2, float& min_rmsd, bool r
     return std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>>(rotation, vec_map);
 }
 
-std::map<unsigned int, unsigned int> MatchEnv::minimizeRMSD(const vec3<float>* refPoints1,
-                                                            vec3<float>* refPoints2, unsigned int numRef,
-                                                            float& min_rmsd, bool registration)
+std::map<unsigned int, unsigned int> minimizeRMSD(const box::Box &box, const vec3<float>* refPoints1,
+                                                  vec3<float>* refPoints2, unsigned int numRef,
+                                                  float& min_rmsd, bool registration)
 {
     Environment e0, e1;
-    std::tie(e0, e1) = makeEnvironments(refPoints1, refPoints2, numRef);
+    std::tie(e0, e1) = makeEnvironments(box, refPoints1, refPoints2, numRef);
 
     float tmp_min_rmsd = -1.0;
     std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>> mapping

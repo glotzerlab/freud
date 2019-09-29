@@ -90,6 +90,64 @@ struct EnvDisjointSet
     unsigned int m_max_num_neigh;   //!< The maximum number of neighbors in any environment in the set
 };
 
+/*****************************************************************************
+ * There are various registration functions that are used by MatchEnv but do *
+ * not need to be exposed, or at least are not stateful and need not be      *
+ * attached to the class.                                                    *
+ *****************************************************************************/
+//! Make environments from two sets of points.
+/*! This function is primarily used to offer a simpler Python interface.
+*/
+std::pair<Environment, Environment> makeEnvironments(const box::Box &box, const vec3<float>* refPoints1,
+                                                     vec3<float>* refPoints2, unsigned int numRef);
+
+// Get the somewhat-optimal RMSD between the (PROPERLY REGISTERED) environment e1 and the (PROPERLY REGISTERED) environment e2.
+/*! This function returns an std::pair of the rotation matrix that takes
+	* the vectors of e2 to the vectors of e1 AND the mapping between the
+	* properly indexed vectors of the environments that gives this RMSD.  NOTE
+	* that this does not guarantee an absolutely minimal RMSD. It doesn't
+	* figure out the optimal permutation of BOTH sets of vectors to minimize
+	* the RMSD. Rather, it just figures out the optimal permutation of the
+	* second set, the vector set used in the argument below. To fully solve
+	* this, we need to use the Hungarian algorithm or some other way of
+	* solving the so-called assignment problem.
+	*
+	* \param e1 First environment.
+	* \param e2 First environment.
+	* \param min_rmsd The value of the minimum RMSD (updated by reference).
+	* \param registration Controls whether we first use brute force registration to 
+	*                     orient the second set of vectors such that it
+	*                     minimizes the RMSD between the two sets
+	*/
+std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int> >
+minimizeRMSD(Environment& e1, Environment& e2, float& min_rmsd, bool registration);
+
+//! Overload of the above minimizeRMSD function that provides an easier interface to Python.
+/*! Construct the environments accordingly, and utilize minimizeRMSD() as
+	* above. Arguments are pointers to interface directly with python. Return
+	* a std::map (for ease of use) with the mapping between vectors refPoints1
+	* and refPoints2 that gives this RMSD. 
+	*
+	* WARNING: If registration=True, then refPoints2 is CHANGED by this function.
+	*
+	* \param refPoints1 Points composing first environment.
+	* \param refPoints2 Points composing second environment.
+	* \param numRef Number of points.
+	* \param threshold A unitless number that is multiply by m_r_max. This
+	*                  quantity is the maximum magnitude of the vector
+	*                  difference between two vectors, below which you call
+	*                  them matching.  Note that ONLY values of (threshold < 2)
+	*                  make any sense, since 2*r_max is the absolute
+	*                  maximum difference between any two environment vectors. 
+	* \param registration Controls whether we first use brute force registration to 
+	*                     orient the second set of vectors such that it
+	*                     minimizes the RMSD between the two sets
+	*/
+std::map<unsigned int, unsigned int> minimizeRMSD(
+    const box::Box &box, const vec3<float>* refPoints1, vec3<float>*
+    refPoints2, unsigned int numRef, float& min_rmsd, bool registration);
+
+
 //! Cluster particles with similar environments.
 /*! The environment matching method is defined according to the paper "Identity
  * crisis in alchemical space drives the entropic colloidal glass transition"
@@ -249,52 +307,6 @@ public:
                                                    unsigned int numRef, float threshold_sq,
                                                    bool registration);
 
-    // Get the somewhat-optimal RMSD between the (PROPERLY REGISTERED) environment e1 and the (PROPERLY REGISTERED) environment e2.
-    /*! This function returns an std::pair of the rotation matrix that takes
-     * the vectors of e2 to the vectors of e1 AND the mapping between the
-     * properly indexed vectors of the environments that gives this RMSD.  NOTE
-     * that this does not guarantee an absolutely minimal RMSD. It doesn't
-     * figure out the optimal permutation of BOTH sets of vectors to minimize
-     * the RMSD. Rather, it just figures out the optimal permutation of the
-     * second set, the vector set used in the argument below. To fully solve
-     * this, we need to use the Hungarian algorithm or some other way of
-     * solving the so-called assignment problem.
-     *
-     * \param e1 First environment.
-     * \param e2 First environment.
-     * \param min_rmsd The value of the minimum RMSD (updated by reference).
-     * \param registration Controls whether we first use brute force registration to 
-     *                     orient the second set of vectors such that it
-     *                     minimizes the RMSD between the two sets
-     */
-    std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>>
-    minimizeRMSD(Environment& e1, Environment& e2, float& min_rmsd, bool registration);
-
-    //! Overload of the above minimizeRMSD function that provides an easier interface to Python.
-    /*! Construct the environments accordingly, and utilize minimizeRMSD() as
-     * above. Arguments are pointers to interface directly with python. Return
-     * a std::map (for ease of use) with the mapping between vectors refPoints1
-     * and refPoints2 that gives this RMSD. 
-     *
-     * WARNING: If registration=True, then refPoints2 is CHANGED by this function.
-     *
-     * \param refPoints1 Points composing first environment.
-     * \param refPoints2 Points composing second environment.
-     * \param numRef Number of points.
-     * \param threshold A unitless number that is multiply by m_r_max. This
-     *                  quantity is the maximum magnitude of the vector
-     *                  difference between two vectors, below which you call
-     *                  them matching.  Note that ONLY values of (threshold < 2)
-     *                  make any sense, since 2*r_max is the absolute
-     *                  maximum difference between any two environment vectors. 
-     * \param registration Controls whether we first use brute force registration to 
-     *                     orient the second set of vectors such that it
-     *                     minimizes the RMSD between the two sets
-     */
-    std::map<unsigned int, unsigned int> minimizeRMSD(const vec3<float>* refPoints1, vec3<float>* refPoints2,
-                                                      unsigned int numRef, float& min_rmsd,
-                                                      bool registration);
-
     //! Get a reference to the particles, indexed into clusters according to their matching local environments
     const util::ManagedArray<unsigned int> &getClusters()
     {
@@ -334,12 +346,6 @@ public:
     }
 
 private:
-
-    //! Make environments from two sets of points.
-    /*! This function is primarily used to offer a simpler Python interface.
-    */
-    std::pair<Environment, Environment> makeEnvironments(const vec3<float>* refPoints1,
-                                                         vec3<float>* refPoints2, unsigned int numRef);
 
     //! Populate the m_env_index, m_env and m_tot_env arrays.
     /*! Renumber the clusters in the disjoint set dj from zero to num_clusters-1.

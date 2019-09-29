@@ -405,6 +405,52 @@ cdef class LocalDescriptors(PairCompute):
                     negative_m=self.negative_m, mode=self.mode)
 
 
+def minimizeRMSD(box, ref_points, points, registration=False):
+    R"""Get the somewhat-optimal RMSD between the set of vectors ref_points
+    and the set of vectors points.
+
+    Args:
+        ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            Vectors that make up motif 1.
+        points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            Vectors that make up motif 2.
+        registration (bool, optional):
+            If true, first use brute force registration to orient one set
+            of environment vectors with respect to the other set such that
+            it minimizes the RMSD between the two sets
+            (Default value = :code:`False`).
+
+    Returns:
+        tuple (float, (:math:`\left(N_{particles}, 3\right)` :class:`numpy.ndarray`), map[int, int]):
+            A triplet that gives the associated min_rmsd, rotated (or not)
+            set of points, and the mapping between the vectors of
+            ref_points and points that somewhat minimizes the RMSD.
+    """  # noqa: E501
+    cdef freud.box.Box b = freud.common.convert_box(box)
+
+    ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
+    points = freud.common.convert_array(points, shape=(None, 3))
+
+    cdef const float[:, ::1] l_ref_points = ref_points
+    cdef const float[:, ::1] l_points = points
+    cdef unsigned int nRef1 = l_ref_points.shape[0]
+    cdef unsigned int nRef2 = l_points.shape[0]
+
+    if nRef1 != nRef2:
+        raise ValueError(
+            ("The number of vectors in ref_points must MATCH"
+                "the number of vectors in points"))
+
+    cdef float min_rmsd = -1
+    cdef map[unsigned int, unsigned int] results_map = \
+        freud._environment.minimizeRMSD(
+            dereference(b.thisptr),
+            <vec3[float]*> &l_ref_points[0, 0],
+            <vec3[float]*> &l_points[0, 0],
+            nRef1, min_rmsd, registration)
+    return [min_rmsd, np.asarray(l_points), results_map]
+
+
 cdef class MatchEnv(Compute):
     R"""Clusters particles according to whether their local environments match
     or not, according to various shape matching metrics.
@@ -639,48 +685,6 @@ cdef class MatchEnv(Compute):
             <vec3[float]*> &l_points[0, 0],
             nRef1, threshold_sq, registration)
         return [np.asarray(l_points), vec_map]
-
-    def minimizeRMSD(self, ref_points, points, registration=False):
-        R"""Get the somewhat-optimal RMSD between the set of vectors ref_points
-        and the set of vectors points.
-
-        Args:
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Vectors that make up motif 1.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Vectors that make up motif 2.
-            registration (bool, optional):
-                If true, first use brute force registration to orient one set
-                of environment vectors with respect to the other set such that
-                it minimizes the RMSD between the two sets
-                (Default value = :code:`False`).
-
-        Returns:
-            tuple (float, (:math:`\left(N_{particles}, 3\right)` :class:`numpy.ndarray`), map[int, int]):
-                A triplet that gives the associated min_rmsd, rotated (or not)
-                set of points, and the mapping between the vectors of
-                ref_points and points that somewhat minimizes the RMSD.
-        """  # noqa: E501
-        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
-        points = freud.common.convert_array(points, shape=(None, 3))
-
-        cdef const float[:, ::1] l_ref_points = ref_points
-        cdef const float[:, ::1] l_points = points
-        cdef unsigned int nRef1 = l_ref_points.shape[0]
-        cdef unsigned int nRef2 = l_points.shape[0]
-
-        if nRef1 != nRef2:
-            raise ValueError(
-                ("The number of vectors in ref_points must MATCH"
-                 "the number of vectors in points"))
-
-        cdef float min_rmsd = -1
-        cdef map[unsigned int, unsigned int] results_map = \
-            self.thisptr.minimizeRMSD(
-                <vec3[float]*> &l_ref_points[0, 0],
-                <vec3[float]*> &l_points[0, 0],
-                nRef1, min_rmsd, registration)
-        return [min_rmsd, np.asarray(l_points), results_map]
 
     @property
     def clusters(self):

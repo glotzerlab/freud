@@ -290,8 +290,8 @@ class TestCluster(unittest.TestCase):
             e0, refPoints2[np.asarray(list(isSim_vec_map.values()))],
             atol=1e-6)
         # 4. Calculate the minimal RMSD.
-        [min_rmsd, refPoints2, minRMSD_vec_map] = match.minimizeRMSD(
-            e0, e1, registration=False)
+        [min_rmsd, refPoints2, minRMSD_vec_map] = \
+            freud.environment.minimizeRMSD(box, e0, e1, registration=False)
         # 5. Verify that the minimizeRMSD method finds 0 minimal RMSD
         #    (with no registration.)
         npt.assert_equal(0.0, min_rmsd)
@@ -318,8 +318,8 @@ class TestCluster(unittest.TestCase):
         analy_rmsd = np.sqrt(deltasum)
         # 9. Verify that minimizeRMSD gives this minimal RMSD
         #    (with no registration).
-        [min_rmsd, refPoints2, minRMSD_vec_map] = match.minimizeRMSD(
-            e0, e0_rot, registration=False)
+        [min_rmsd, refPoints2, minRMSD_vec_map] = \
+            freud.environment.minimizeRMSD(box, e0, e0_rot, registration=False)
         npt.assert_allclose(analy_rmsd, min_rmsd, atol=1e-5)
         npt.assert_allclose(
             e0_rot, refPoints2[np.asarray(list(minRMSD_vec_map.values()))],
@@ -329,15 +329,15 @@ class TestCluster(unittest.TestCase):
         np.random.shuffle(e1_rot)
         # 11. Verify that minimizeRMSD gives this minimal RMSD again
         #     (with no registration).
-        [min_rmsd, refPoints2, minRMSD_vec_map] = match.minimizeRMSD(
-            e0, e1_rot, registration=False)
+        [min_rmsd, refPoints2, minRMSD_vec_map] = \
+            freud.environment.minimizeRMSD(box, e0, e1_rot, registration=False)
         npt.assert_allclose(analy_rmsd, min_rmsd, atol=1e-5)
         npt.assert_allclose(
             e0_rot, refPoints2[np.asarray(list(minRMSD_vec_map.values()))],
             atol=1e-5)
         # 12. Now use minimizeRMSD with registration turned ON.
-        [min_rmsd, refPoints2, minRMSD_vec_map] = match.minimizeRMSD(
-            e0, e1_rot, registration=True)
+        [min_rmsd, refPoints2, minRMSD_vec_map] = \
+            freud.environment.minimizeRMSD(box, e0, e1_rot, registration=True)
         # 13. This should get us back to 0 minimal rmsd.
         npt.assert_allclose(0., min_rmsd, atol=1e-5)
         npt.assert_allclose(
