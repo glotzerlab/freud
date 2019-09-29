@@ -4,6 +4,8 @@
 #ifndef RAW_POINTS_H
 #define RAW_POINTS_H
 
+#include <stdexcept>
+
 #include "NeighborQuery.h"
 #include "AABBQuery.h"
 
@@ -28,19 +30,45 @@ public:
     RawPoints() {}
 
     RawPoints(const box::Box& box, const vec3<float>* points, unsigned int n_points)
-        : NeighborQuery(box, points, n_points), aq(box, points, n_points) {}
+        : NeighborQuery(box, points, n_points) {}
 
     ~RawPoints() {}
+
+    //! Perform a query based on a set of query parameters.
+    /*! Shadow parent function to ensure that the underlying AABBQuery is
+     * only constructed when this object is actually queried. Note that unlike
+     * the parent function it is not const since it does modify the object.
+     *
+     *  \param query_points The points to find neighbors for.
+     *  \param n_query_points The number of query points.
+     *  \param qargs The query arguments that should be used to find neighbors.
+     */
+    virtual std::shared_ptr<NeighborQueryIterator> query(const vec3<float>* query_points, unsigned int n_query_points,
+                                                                 QueryArgs query_args) const
+    {
+        if (!aq)
+        {
+            aq = std::unique_ptr<AABBQuery>(new AABBQuery(m_box, m_points, m_n_points));
+        }
+
+        this->validateQueryArgs(query_args);
+        return std::make_shared<NeighborQueryIterator>(this, query_points, n_query_points, query_args);
+    }
 
     // dummy implementation for pure virtual function in the parent class
     virtual std::shared_ptr<NeighborQueryPerPointIterator> querySingle(const vec3<float> query_point, unsigned int query_point_idx,
                                                          QueryArgs qargs) const
     {
-        return aq.querySingle(query_point, query_point_idx, qargs);
+        if (!aq)
+        {
+            throw std::runtime_error("The underlying AAABBQuery object has not yet been initialized. This likely developer failure.");
+        }
+
+        return aq->querySingle(query_point, query_point_idx, qargs);
     }
 
 private:
-    AABBQuery aq;  //!< The AABBQuery object that will be used to perform queries.
+    mutable std::unique_ptr<AABBQuery> aq;  //!< The AABBQuery object that will be used to perform queries.
 };
 
 }; }; // end namespace freud::locality
