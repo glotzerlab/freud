@@ -24,11 +24,11 @@ cdef class Compute:
     .. code-block:: python
         class Cluster(Compute):
 
-            @Compute._compute("computeClusters")
-            def computeClusters(...)
+            @Compute._compute()
+            def compute(...)
                 ...
 
-            @Compute._computed_property("computeClusters")
+            @Compute._computed_property()
             def cluster_idx(self):
                 return ...
 
@@ -42,13 +42,10 @@ cdef class Compute:
     """
 
     def __cinit__(self):
-        self._called_compute = {"compute": False}
-
-    def _set_compute_flag(self, flag_name):
-        self._called_compute[flag_name] = False
+        self._called_compute = False
 
     @staticmethod
-    def _compute(key="compute"):
+    def _compute():
         R"""Decorator that sets compute flag to be true.
 
         Args:
@@ -62,13 +59,13 @@ cdef class Compute:
             @wraps(func)
             def wrapper(self, *args, **kwargs):
                 retval = func(self, *args, **kwargs)
-                self._called_compute[key] = True
+                self._called_compute = True
                 return retval
             return wrapper
         return _compute_with_key
 
     @staticmethod
-    def _computed_property(key="compute"):
+    def _computed_property():
         R"""Decorator that makes a class method to be a property with limited access.
 
         Args:
@@ -77,22 +74,20 @@ cdef class Compute:
         Returns:
             Decorator decorating appropriate property method.
         """
-        if isinstance(key, str):
-            key = (key,)
 
         def _computed_property_with_key(func):
             @property
             @wraps(func)
             def wrapper(self, *args, **kwargs):
-                if not any(self._called_compute.get(k, False) for k in key):
-                    raise AttributeError("Property not computed. Call one of: "
-                                         "{} first.".format(', '.join(key)))
+                if not self._called_compute:
+                    raise AttributeError(
+                        "Property not computed. Call compute first.")
                 return func(self, *args, **kwargs)
             return wrapper
         return _computed_property_with_key
 
     @staticmethod
-    def _computed_method(key="compute"):
+    def _computed_method():
         R"""Decorator that makes a class method to be a method with limited access.
 
         Args:
@@ -101,15 +96,13 @@ cdef class Compute:
         Returns:
             Decorator decorating appropriate property method.
         """
-        if isinstance(key, str):
-            key = (key,)
 
         def _computed_property_with_key(func):
             @wraps(func)
             def wrapper(self, *args, **kwargs):
-                if not any(self._called_compute.get(k, False) for k in key):
-                    raise AttributeError("Property not computed. Call one of: "
-                                         "{} first.".format(', '.join(key)))
+                if not self._called_compute:
+                    raise AttributeError(
+                        "Property not computed. Call compute first.")
                 return func(self, *args, **kwargs)
             return wrapper
         return _computed_property_with_key
@@ -124,8 +117,7 @@ cdef class Compute:
 
         @wraps(func)
         def wrapper(self, *args, **kwargs):
-            for k in self._called_compute:
-                self._called_compute[k] = False
+            self._called_compute = False
             func(self, *args, **kwargs)
         return wrapper
 
