@@ -682,7 +682,7 @@ cdef class MatchEnv(Compute):
                 nRef1, min_rmsd, registration)
         return [min_rmsd, np.asarray(l_points), results_map]
 
-    @Compute._computed_property
+    @property
     def clusters(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getClusters(),
@@ -701,17 +701,17 @@ cdef class MatchEnv(Compute):
         env = self.thisptr.getEnvironment(i)
         return np.asarray([[p.x, p.y, p.z] for p in env])
 
-    @Compute._computed_property
+    @property
     def tot_environment(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getTotEnvironment(),
             freud.util.arr_type_t.FLOAT, 3)
 
-    @Compute._computed_property
+    @property
     def num_particles(self):
         return self.thisptr.getNP()
 
-    @Compute._computed_property
+    @property
     def num_clusters(self):
         return self.thisptr.getNumClusters()
 

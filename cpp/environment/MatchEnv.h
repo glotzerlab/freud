@@ -51,19 +51,38 @@ struct Environment
 //! General disjoint set class, taken mostly from Cluster.h
 struct EnvDisjointSet
 {
-    //! Constructor
+    //! Constructor (taken partially from Cluster.cc).
     EnvDisjointSet(unsigned int Np);
     //! Merge two sets
+    /*! Merge the two sets that elements a and b belong to. Taken partially
+     * from Cluster.cc. The vec_map must be a bimap of PROPERLY ORDERED vector
+     * indices where those of set a are on the left and those of set b are on
+     * the right. The rotation must take the set of PROPERLY ROTATED vectors b
+     * and rotate them to match the set of PROPERLY ROTATED vectors a
+     */
     void merge(const unsigned int a, const unsigned int b, BiMap<unsigned int, unsigned int> vec_map,
                rotmat3<float> rotation);
-    //! Find the set with a given element
+
+    //! Find the set with a given element (taken mostly from Cluster.cc).
     unsigned int find(const unsigned int c);
+
     //! Return ALL nodes in the tree that correspond to the head index m
+    /*! Return ALL nodes in the tree that correspond to the head index m.
+     * Values returned: the actual locations of the nodes in s. (i.e. if i is
+     * returned, the node is accessed by s[i]). If environment m doesn't exist
+     * as a HEAD in the set, throw an error.
+     */
     std::vector<unsigned int> findSet(const unsigned int m);
-    //! Get the vectors corresponding to environment head index m. Vectors are averaged over all members of
-    //! the environment cluster.
+
+    //! Get the vectors corresponding to environment head index m.
+    /*! Vectors are averaged over all members of the environment cluster. Get
+     * the vectors corresponding to environment head index m. Vectors are
+     * averaged over all members of the environment cluster. If environment m
+     * doesn't exist as a HEAD in the set, throw an error.
+     */
     std::vector<vec3<float> > getAvgEnv(const unsigned int m);
-    //! Get the vectors corresponding to index m in the dj set
+
+    //! Get the vectors corresponding to index m in the dj set (throw an error if it doesn't exist).
     std::vector<vec3<float>> getIndividualEnv(const unsigned int m);
 
     std::vector<Environment> s;     //!< The disjoint set data
@@ -71,6 +90,16 @@ struct EnvDisjointSet
     unsigned int m_max_num_neigh;   //!< The maximum number of neighbors in any environment in the set
 };
 
+//! Cluster particles with similar environments.
+/*! The environment matching method is defined according to the paper "Identity
+ * crisis in alchemical space drives the entropic colloidal glass transition"
+ * by Erin G. Teich (http://dx.doi.org/10.1038/s41467-018-07977-2). The core of
+ * the method is a brute force point set registration of the bonds betweena
+ * point and its nearest neighbors with the corresponding bonds of another
+ * point. By performing this sort of registration between various pairs of
+ * points, we identify regions where neighboring points share similar local
+ * environments.
+ */
 class MatchEnv
 {
 public:
@@ -100,6 +129,7 @@ public:
      * environments, unless global is set true. Otherwise, it performs a
      * pairwise comparison of all particle environments to perform the match.
      * WARNING: A global search can be extremely slow.
+     * This is taken from Cluster.cc and SolLiq.cc and LocalQlNear.cc
      *
      * \param env_nlist The NeighborList used to build the environment of every particle.
      * \param nlist The NeighborList used to determine the neighbors against which 

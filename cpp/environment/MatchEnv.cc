@@ -13,16 +13,11 @@
 
 namespace freud { namespace environment {
 
-// Constructor for EnvDisjointSet
-// Taken partially from Cluster.cc
+/*****************
+ * EnvDisjoinSet *
+ *****************/
 EnvDisjointSet::EnvDisjointSet(unsigned int Np) : rank(std::vector<unsigned int>(Np, 0)) {}
 
-// Merge the two sets that elements a and b belong to.
-// Taken partially from Cluster.cc
-// The vec_map must be a bimap of PROPERLY ORDERED vector indices where those
-// of set a are on the left and those of set b are on the right.
-// The rotation must take the set of PROPERLY ROTATED vectors b and rotate
-// them to match the set of PROPERLY ROTATED vectors a
 void EnvDisjointSet::merge(const unsigned int a, const unsigned int b,
                            BiMap<unsigned int, unsigned int> vec_map, rotmat3<float> rotation)
 {
@@ -147,8 +142,6 @@ void EnvDisjointSet::merge(const unsigned int a, const unsigned int b,
     }
 }
 
-// Return the set label that contains the element c
-// Taken mostly from Cluster.cc
 unsigned int EnvDisjointSet::find(const unsigned int c)
 {
     unsigned int r = c;
@@ -168,10 +161,6 @@ unsigned int EnvDisjointSet::find(const unsigned int c)
     return r;
 }
 
-// Return ALL nodes in the tree that correspond to the head index m.
-// Values returned: the actual locations of the nodes in s. (i.e. if i is
-// returned, the node is accessed by s[i]).
-// If environment m doesn't exist as a HEAD in the set, throw an error.
 std::vector<unsigned int> EnvDisjointSet::findSet(const unsigned int m)
 {
     bool invalid_ind = true;
@@ -200,9 +189,6 @@ std::vector<unsigned int> EnvDisjointSet::findSet(const unsigned int m)
     return m_set;
 }
 
-// Get the vectors corresponding to environment head index m. Vectors are
-// averaged over all members of the environment cluster.
-// If environment m doesn't exist as a HEAD in the set, throw an error.
 std::vector<vec3<float> > EnvDisjointSet::getAvgEnv(const unsigned int m)
 {
     bool invalid_ind = true;
@@ -253,8 +239,6 @@ std::vector<vec3<float> > EnvDisjointSet::getAvgEnv(const unsigned int m)
     return env;
 }
 
-// Get the vectors corresponding to index m in the dj set
-// If index m doesn't exist in the set, throw an error.
 std::vector<vec3<float>> EnvDisjointSet::getIndividualEnv(const unsigned int m)
 {
     if (m >= s.size())
@@ -281,6 +265,12 @@ std::vector<vec3<float>> EnvDisjointSet::getIndividualEnv(const unsigned int m)
     return env;
 }
 
+/*************************
+ * Convenience functions *
+ *************************/
+/************
+ * MatchEnv *
+ ************/
 MatchEnv::MatchEnv(const box::Box& box, float r_max, unsigned int num_neighbors) : m_box(box), m_r_max_sq(r_max*r_max), m_num_neighbors(num_neighbors)
 {
     m_Np = 0;
@@ -526,8 +516,6 @@ std::map<unsigned int, unsigned int> MatchEnv::minimizeRMSD(const vec3<float>* r
     return vec_map.asMap();
 }
 
-// Determine clusters of particles with matching environments
-// This is taken from Cluster.cc and SolLiq.cc and LocalQlNear.cc
 void MatchEnv::cluster(const freud::locality::NeighborList* env_nlist,
                        const freud::locality::NeighborList* nlist, const vec3<float>* points, unsigned int Np,
                        float threshold, bool registration, bool global)
@@ -617,8 +605,6 @@ void MatchEnv::cluster(const freud::locality::NeighborList* env_nlist,
     populateEnv(dj, true);
 }
 
-//! Determine whether particles match a given input motif, characterized by
-//  refPoints (of which there are numRef)
 void MatchEnv::matchMotif(const freud::locality::NeighborList* nlist, const vec3<float>* points,
                           unsigned int Np, const vec3<float>* refPoints, unsigned int numRef, float threshold,
                           bool registration)
@@ -691,16 +677,6 @@ void MatchEnv::matchMotif(const freud::locality::NeighborList* nlist, const vec3
     populateEnv(dj, false);
 }
 
-//! Rotate (if registration=True) and permute the environments of all particles
-//  to minimize their RMSD wrt a given input motif, characterized by refPoints
-//  (of which there are numRef).
-//  Returns a vector of minimal RMSD values, one value per particle.
-//  NOTE that this does not guarantee an absolutely minimal RMSD. It doesn't
-//  figure out the optimal permutation of BOTH sets of vectors to minimize the
-//  RMSD. Rather, it just figures out the optimal permutation of the second
-//  set, the vector set used in the argument below.
-//  To fully solve this, we need to use the Hungarian algorithm or some other
-//  way of solving the so-called assignment problem.
 std::vector<float> MatchEnv::minRMSDMotif(const freud::locality::NeighborList* nlist,
                                           const vec3<float>* points, unsigned int Np,
                                           const vec3<float>* refPoints, unsigned int numRef,

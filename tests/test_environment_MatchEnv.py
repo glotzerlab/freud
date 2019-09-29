@@ -5,7 +5,6 @@ import unittest
 import os
 
 
-@unittest.skip
 class TestCluster(unittest.TestCase):
     # by Chrisy
     test_folder = os.path.join(os.path.dirname(__file__), 'numpy_test_files')
