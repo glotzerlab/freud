@@ -481,6 +481,56 @@ std::map<unsigned int, unsigned int> minimizeRMSD(const box::Box &box, const vec
     // Convert BiMap to a std::map and return
     return vec_map.asMap();
 }
+
+unsigned int populateEnv(EnvDisjointSet dj, util::ManagedArray<unsigned int> &env_index, std::map<unsigned int, std::vector<vec3<float> > > &env, util::ManagedArray<vec3<float> > &tot_env, bool reLabel)
+{
+    std::map<unsigned int, unsigned int> label_map;
+
+    // loop over all environments
+    unsigned int label_ind;
+    unsigned int cur_set = 0;
+    unsigned int particle_ind = 0;
+    for (unsigned int i = 0; i < dj.s.size(); i++)
+    {
+        // only count this if the environment is physical
+        if (dj.s[i].ghost == false)
+        {
+            // grab the set of vectors that define this individual environment
+            std::vector<vec3<float>> part_vecs = dj.getIndividualEnv(i);
+
+            unsigned int c = dj.find(i);
+            // insert the set into the mapping if we haven't seen it before.
+            // also grab the vectors that define the set and insert them into m_env
+            if (label_map.count(c) == 0)
+            {
+                label_map[c] = cur_set;
+                std::vector<vec3<float>> vecs = dj.getAvgEnv(c);
+                label_ind = reLabel ? label_map[c] : c;
+                env[label_ind] = vecs;
+                cur_set++;
+            }
+            else
+            {
+                label_ind = reLabel ? label_map[c] : c;
+            }
+
+            // label this particle in m_env_index
+            env_index[particle_ind] = label_ind;
+            for (unsigned int m = 0; m < part_vecs.size(); m++)
+            {
+                tot_env(particle_ind, m) = part_vecs[m];
+            }
+            particle_ind++;
+        }
+    }
+
+    // specify the number of cluster environments
+    return cur_set;
+}
+
+
+
+
 /************
  * MatchEnv *
  ************/
@@ -603,7 +653,7 @@ void MatchEnv::cluster(const freud::locality::NeighborList* env_nlist,
 
     // done looping over points. All clusters are now determined. Renumber
     // them from zero to num_clusters-1.
-    populateEnv(dj, m_env_index, m_env, m_tot_env, true);
+    m_num_clusters = populateEnv(dj, m_env_index, m_env, m_tot_env, true);
 }
 
 void MatchEnv::matchMotif(const freud::locality::NeighborList* nlist, const vec3<float>* points,
@@ -675,7 +725,7 @@ void MatchEnv::matchMotif(const freud::locality::NeighborList* nlist, const vec3
     // DON'T renumber the clusters in the disjoint set from zero to
     // num_clusters-1. The way I have set it up here, the "0th" cluster
     // is the one that matches the motif.
-    populateEnv(dj, m_env_index, m_env, m_tot_env, false);
+    m_num_clusters = populateEnv(dj, m_env_index, m_env, m_tot_env, false);
 }
 
 std::vector<float> MatchEnv::minRMSDMotif(const freud::locality::NeighborList* nlist,
@@ -754,55 +804,9 @@ std::vector<float> MatchEnv::minRMSDMotif(const freud::locality::NeighborList* n
     // DON'T renumber the clusters in the disjoint set from zero to
     // num_clusters-1. The way I have set it up here, the "0th" cluster
     // is the one that matches the motif.
-    populateEnv(dj, m_env_index, m_env, m_tot_env, false);
+    m_num_clusters = populateEnv(dj, m_env_index, m_env, m_tot_env, false);
 
     return min_rmsd_vec;
-}
-
-void MatchEnv::populateEnv(EnvDisjointSet dj, util::ManagedArray<unsigned int> &env_index, std::map<unsigned int, std::vector<vec3<float> > > &env, util::ManagedArray<vec3<float> > &tot_env, bool reLabel)
-{
-    std::map<unsigned int, unsigned int> label_map;
-
-    // loop over all environments
-    unsigned int label_ind;
-    unsigned int cur_set = 0;
-    unsigned int particle_ind = 0;
-    for (unsigned int i = 0; i < dj.s.size(); i++)
-    {
-        // only count this if the environment is physical
-        if (dj.s[i].ghost == false)
-        {
-            // grab the set of vectors that define this individual environment
-            std::vector<vec3<float>> part_vecs = dj.getIndividualEnv(i);
-
-            unsigned int c = dj.find(i);
-            // insert the set into the mapping if we haven't seen it before.
-            // also grab the vectors that define the set and insert them into m_env
-            if (label_map.count(c) == 0)
-            {
-                label_map[c] = cur_set;
-                std::vector<vec3<float>> vecs = dj.getAvgEnv(c);
-                label_ind = reLabel ? label_map[c] : c;
-                env[label_ind] = vecs;
-                cur_set++;
-            }
-            else
-            {
-                label_ind = reLabel ? label_map[c] : c;
-            }
-
-            // label this particle in m_env_index
-            env_index[particle_ind] = label_ind;
-            for (unsigned int m = 0; m < part_vecs.size(); m++)
-            {
-                tot_env(particle_ind, m) = part_vecs[m];
-            }
-            particle_ind++;
-        }
-    }
-
-    // specify the number of cluster environments
-    m_num_clusters = cur_set;
 }
 
 }; }; // end namespace freud::environment
