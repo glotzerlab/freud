@@ -870,32 +870,29 @@ cdef class LinkCell(NeighborQuery):
 
 
 cdef class Voronoi(Compute):
-    R"""Compute the Voronoi tessellation of a 2D or 3D system using voro++.
+    R"""Computes Voronoi diagrams using voro++.
 
-    Since qhull does not support periodic boundary conditions natively, we
-    expand the box to include a portion of the particles' periodic images.
-    The buffer width is given by the parameter :code:`buffer`. The
-    computation of Voronoi tessellations and neighbors is only guaranteed
-    to be correct if :code:`buffer >= L/2` where :code:`L` is the longest side
-    of the simulation box. For dense systems with particles filling the
-    entire simulation volume, a smaller value for :code:`buffer` is acceptable.
-    If the buffer width is too small, then some polytopes may not be closed
-    (they may have a boundary at infinity), and these polytopes' vertices are
-    excluded from the list.  If either the polytopes or volumes lists that are
-    computed is different from the size of the array of positions used in the
-    :meth:`freud.locality.Voronoi.compute()` method, try recomputing using a
-    larger buffer width.
+    Voronoi diagrams (`Wikipedia
+    <https://en.wikipedia.org/wiki/Voronoi_diagram>`_) are composed of convex
+    polytopes (polyhedra in 3D, polygons in 2D) called cells, corresponding to
+    each input point. The cells bound a region of Euclidean space for which all
+    contained points are closer to a corresponding input point than any other
+    input point. A ridge is defined as a boundary between cells, which contains
+    points equally close to two or more input points.
+
+    The voro++ library [Rycroft2009]_ is used for fast computations of the
+    Voronoi diagram.
+
+    .. [Rycroft2009] Rycroft, Chris (2009). Voro++: a three-dimensional Voronoi
+       cell library in C++. Technical Report. https://doi.org/10.2172/946741
 
     Attributes:
         nlist (:class:`~.locality.NeighborList`):
-            Returns a weighted neighbor list. In 2D systems, the bond weight is
-            the "ridge length" of the Voronoi boundary line between the
-            neighboring particles. In 3D systems, the bond weight is the "ridge
-            area" of the Voronoi boundary polygon between the neighboring
-            particles.
+            Returns a neighbor list weighted by ridge area (length in 2D).
         polytopes (list[:class:`numpy.ndarray`]):
-            List of arrays, each containing Voronoi cell polytope vertices.
-        volumes ((:math:`\left(N_{cells} \right)`) :class:`numpy.ndarray`):
+            A list of :class:`numpy.ndarray` defining Voronoi polytope vertices
+            for each cell.
+        volumes (:math:`\left(N_{points} \right)` :class:`numpy.ndarray`):
             Returns an array of Voronoi cell volumes (areas in 2D).
     """
 
@@ -935,11 +932,6 @@ cdef class Voronoi(Compute):
     def polytopes(self):
         R"""Polytope vertices of each Voronoi cell.
 
-        The Voronoi cells are convex polytopes (polyhedra in 3D, polygons in
-        2D) corresponding to each input point. The polytopes bound a region of
-        Euclidean space for which all contained points are closer to a given
-        input point than any other input point.
-
         Returns:
             list:
                 List of :class:`numpy.ndarray` defining Voronoi polytope
@@ -967,12 +959,11 @@ cdef class Voronoi(Compute):
 
     @Compute._computed_property()
     def volumes(self):
-        R"""Returns an array of volumes (areas in 2D) corresponding to Voronoi
-        cells.
+        R"""Returns an array of volumes (areas in 2D) of the Voronoi cells.
 
         Returns:
-            (:math:`\left(N_points \right)`) :class:`numpy.ndarray`:
-                Array of voronoi polytope volumes (areas in 2D).
+            :math:`\left(N_{points} \right)` :class:`numpy.ndarray`:
+                Array of Voronoi polytope volumes (areas in 2D).
         """
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getVolumes(),
@@ -980,15 +971,19 @@ cdef class Voronoi(Compute):
 
     @Compute._computed_property()
     def nlist(self):
-        R"""Returns a neighbor list object.
+        R"""Returns the computed :class:`~.locality.NeighborList`.
 
-        In the neighbor list, each neighbor pair has a weight value.
+        The :class:`~.locality.NeighborList` computed by this class is
+        weighted. In 2D systems, the bond weight is the length of the ridge
+        (boundary line) between the neighboring points' Voronoi cells. In 3D
+        systems, the bond weight is the area of the ridge (boundary polygon)
+        between the neighboring points' Voronoi cells. The weights are not
+        normalized, and the weights for each query point sum to the surface
+        area (perimeter in 2D) of the polytope.
 
-        In 2D systems, the bond weight is the "ridge length" of the Voronoi
-        boundary line between the neighboring particles.
-
-        In 3D systems, the bond weight is the "ridge area" of the Voronoi
-        boundary polygon between the neighboring particles.
+        It is possible for pairs of points to appear multiple times in the
+        neighbor list. For example, in a small unit cell, points may neighbor
+        one another on multiple sides because of periodic boundary conditions.
 
         Returns:
             :class:`~.locality.NeighborList`: Neighbor list.
@@ -1013,7 +1008,7 @@ cdef class Voronoi(Compute):
                 (Default value = :code:`None`)
 
         Returns:
-            (:class:`matplotlib.axes.Axes`): Axis with the plot.
+            :class:`matplotlib.axes.Axes`: Axis with the plot.
         """
         import freud.plot
         if not self._box.is2D():
