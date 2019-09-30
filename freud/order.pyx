@@ -504,12 +504,12 @@ cdef class Steinhardt(PairCompute):
         return self.thisptr.isWeighted()
 
     @property
-    def l(self):  # noqa: E743
-        return self.thisptr.getL()
+    def Wl_normalize(self):
+        return self.thisptr.isWlNormalized()
 
     @property
-    def Wl_normalize(self):
-        return self.stptr.isWlNormalized()
+    def l(self):  # noqa: E743
+        return self.thisptr.getL()
 
     @Compute._computed_property()
     def norm(self):
