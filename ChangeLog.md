@@ -36,6 +36,7 @@ and this project adheres to
 * NeighborQuery objects require z == 0 for all points if the box is 2D.
 * Refactored and renamed attributes of Cluster and ClusterProperties modules.
 * All class attributes are stored in the C++ members and accessed via getters wrapped as Python properties.
+* The Voronoi class was rewritten to use voro++ for vastly improved performance and correctness in edge cases.
 
 ### Fixed
 * Steinhardt uses the ThreadStorage class and properly resets memory where needed.
