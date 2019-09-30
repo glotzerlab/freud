@@ -172,7 +172,8 @@ private:
     void computeAve(const freud::locality::NeighborList* nlist,
                                   const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
 
-    //! Normalize the order parameter
+    //! Compute the system-wide order by averaging over particles, then
+    //  reducing over the m values to produce a single scalar.
     float normalizeSystem();
 
     //! Sum over Wigner 3j coefficients to compute third-order invariants
