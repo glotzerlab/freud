@@ -5,6 +5,7 @@
 #define BOX_H
 
 #include <sstream>
+#include <stdexcept>
 #include "utils.h"
 
 #include "VectorMath.h"
@@ -419,27 +420,35 @@ public:
     }
 
     //! Get the periodic flags
-    vec3<bool> getPeriodic()
+    vec3<bool> getPeriodic() const
     {
         return vec3<bool>(m_periodic.x, m_periodic.y, m_periodic.z);
     }
 
     //! Get the periodic flag along x
-    bool getPeriodicX()
+    bool getPeriodicX() const
     {
         return m_periodic.x;
     }
 
     //! Get the periodic flag along y
-    bool getPeriodicY()
+    bool getPeriodicY() const
     {
         return m_periodic.y;
     }
 
     //! Get the periodic flag along z
-    bool getPeriodicZ()
+    bool getPeriodicZ() const
     {
         return m_periodic.z;
+    }
+
+    void enforce2D() const
+    {
+        if (!is2D())
+        {
+            throw std::invalid_argument("A 3D box was provided to a class that only supports 2D systems.");
+        }
     }
 
 private:
