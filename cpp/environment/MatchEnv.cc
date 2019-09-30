@@ -603,7 +603,7 @@ void MatchEnv::cluster(const freud::locality::NeighborList* env_nlist,
 
     // done looping over points. All clusters are now determined. Renumber
     // them from zero to num_clusters-1.
-    populateEnv(dj, true);
+    populateEnv(dj, m_env_index, m_env, m_tot_env, true);
 }
 
 void MatchEnv::matchMotif(const freud::locality::NeighborList* nlist, const vec3<float>* points,
@@ -675,7 +675,7 @@ void MatchEnv::matchMotif(const freud::locality::NeighborList* nlist, const vec3
     // DON'T renumber the clusters in the disjoint set from zero to
     // num_clusters-1. The way I have set it up here, the "0th" cluster
     // is the one that matches the motif.
-    populateEnv(dj, false);
+    populateEnv(dj, m_env_index, m_env, m_tot_env, false);
 }
 
 std::vector<float> MatchEnv::minRMSDMotif(const freud::locality::NeighborList* nlist,
@@ -754,12 +754,12 @@ std::vector<float> MatchEnv::minRMSDMotif(const freud::locality::NeighborList* n
     // DON'T renumber the clusters in the disjoint set from zero to
     // num_clusters-1. The way I have set it up here, the "0th" cluster
     // is the one that matches the motif.
-    populateEnv(dj, false);
+    populateEnv(dj, m_env_index, m_env, m_tot_env, false);
 
     return min_rmsd_vec;
 }
 
-void MatchEnv::populateEnv(EnvDisjointSet dj, bool reLabel)
+void MatchEnv::populateEnv(EnvDisjointSet dj, util::ManagedArray<unsigned int> &env_index, std::map<unsigned int, std::vector<vec3<float> > > &env, util::ManagedArray<vec3<float> > &tot_env, bool reLabel)
 {
     std::map<unsigned int, unsigned int> label_map;
 
@@ -783,7 +783,7 @@ void MatchEnv::populateEnv(EnvDisjointSet dj, bool reLabel)
                 label_map[c] = cur_set;
                 std::vector<vec3<float>> vecs = dj.getAvgEnv(c);
                 label_ind = reLabel ? label_map[c] : c;
-                m_env[label_ind] = vecs;
+                env[label_ind] = vecs;
                 cur_set++;
             }
             else
@@ -792,10 +792,10 @@ void MatchEnv::populateEnv(EnvDisjointSet dj, bool reLabel)
             }
 
             // label this particle in m_env_index
-            m_env_index[particle_ind] = label_ind;
+            env_index[particle_ind] = label_ind;
             for (unsigned int m = 0; m < part_vecs.size(); m++)
             {
-                m_tot_env(particle_ind, m) = part_vecs[m];
+                tot_env(particle_ind, m) = part_vecs[m];
             }
             particle_ind++;
         }

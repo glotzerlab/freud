@@ -364,7 +364,7 @@ private:
     //! Populate the m_env_index, m_env and m_tot_env arrays.
     /*! Renumber the clusters in the disjoint set dj from zero to num_clusters-1.
      */
-    void populateEnv(EnvDisjointSet dj, bool reLabel = true);
+    void populateEnv(EnvDisjointSet dj, util::ManagedArray<unsigned int> &env_index, std::map<unsigned int, std::vector<vec3<float> > > &env, util::ManagedArray<vec3<float> > &tot_env, bool reLabel);
 
     box::Box m_box; //!< Simulation box
     float m_r_max; //!< Square of the maximum cutoff radius at which to determine local environment
@@ -377,8 +377,8 @@ private:
     unsigned int m_num_clusters; //!< Last number of local environments computed
 
     util::ManagedArray<unsigned int> m_env_index; //!< Cluster index determined for each particle
-    std::map<unsigned int, std::vector<vec3<float>>> m_env; //!< Dictionary of (cluster id, vectors) pairs
-    util::ManagedArray<vec3<float>>
+    std::map<unsigned int, std::vector<vec3<float> > > m_env; //!< Dictionary of (cluster id, vectors) pairs
+    util::ManagedArray<vec3<float> >
         m_tot_env; //!< m_NP by m_max_num_neighbors by 3 matrix of all environments for all particles
 };
 
