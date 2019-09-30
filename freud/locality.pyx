@@ -944,7 +944,6 @@ cdef class Voronoi(Compute):
         cdef size_t j
         cdef size_t num_verts
         cdef vector[vec3[double]] raw_vertices
-        cdef vec3[double] vertex
         cdef double[:, ::1] polytope_vertices
         for i in range(raw_polytopes.size()):
             raw_vertices = raw_polytopes[i]
