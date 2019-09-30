@@ -199,7 +199,10 @@ std::map<unsigned int, unsigned int> isSimilar(const box::Box &box, const vec3<f
 /*! T
  * \param dj The object encoding the set of clusters found.
  * \param env_index An array indexed by point id indicating the cluster id for each point.
- * \param env A mapping from cluster id to a list of vectors composing that cluster's environment.
+ * \param cluster_env A mapping from cluster id to a list of vectors composing
+ *                    that cluster's environment. A null pointer may be passed
+ *                    indicating that we do not need to keep track of cluster
+ *                    environments.
  * \param tot_env An array indexed by point id indicating the environment of each point.
  * \param reLabel If true, the cluster ids are relabeled to ensur contiguous
  *                ordering from 0 to the number of clusters. Otherwise, the
@@ -207,7 +210,7 @@ std::map<unsigned int, unsigned int> isSimilar(const box::Box &box, const vec3<f
  *                with that environment (which defines the cluster).
  * \return The number of clusters found.
 */
-unsigned int populateEnv(EnvDisjointSet dj, util::ManagedArray<unsigned int> &env_index, std::map<unsigned int, std::vector<vec3<float> > > &env, util::ManagedArray<vec3<float> > &tot_env, bool reLabel);
+unsigned int populateEnv(EnvDisjointSet dj, util::ManagedArray<unsigned int> &env_index, std::map<unsigned int, std::vector<vec3<float> > > *env, util::ManagedArray<vec3<float> > &tot_env, bool reLabel);
 
 
 
@@ -227,26 +230,13 @@ public:
     Environment buildEnv(const freud::locality::NeighborList* nlist, size_t num_bonds, size_t& bond,
                          const vec3<float>* points, unsigned int i, unsigned int env_ind);
 
-    unsigned int getNP()
-    {
-        return m_Np;
-    }
-
     //! Get a reference to the particles, indexed into clusters according to their matching local environments
     const util::ManagedArray<unsigned int> &getClusters()
     {
         return m_env_index;
     }
 
-    //! Returns the set of vectors defining the environment indexed by i (indices culled from m_env_index)
-    std::vector<vec3<float>> getEnvironment(unsigned int i)
-    {
-        std::map<unsigned int, std::vector<vec3<float>>>::iterator it = m_env.find(i);
-        std::vector<vec3<float>> vecs = it->second;
-        return vecs;
-    }
-
-    //! Returns the entire m_Np by m_k by 3 matrix of all environments for all particles
+    //! Returns the entire Np by m_num_neighbors by 3 matrix of all environments for all particles
     const util::ManagedArray<vec3<float>> &getTotEnvironment()
     {
         return m_tot_env;
@@ -273,11 +263,9 @@ protected:
     unsigned int m_max_num_neighbors; //!< Maximum number of neighbors in any particle's local environment. If
                          //!< hard_r=false, m_max_num_neighbors = m_num_neighbors. In the cluster method it is also possible to provide
                          //!< two separate neighborlists, one for environments and one for clustering.
-    unsigned int m_Np;   //!< Last number of points computed
     unsigned int m_num_clusters; //!< Last number of local environments computed
 
     util::ManagedArray<unsigned int> m_env_index; //!< Cluster index determined for each particle
-    std::map<unsigned int, std::vector<vec3<float> > > m_env; //!< Dictionary of (cluster id, vectors) pairs
     util::ManagedArray<vec3<float> >
         m_tot_env; //!< m_NP by m_max_num_neighbors by 3 matrix of all environments for all particles
 };
@@ -336,6 +324,21 @@ public:
                  const vec3<float>* points, unsigned int Np, float threshold,
                  bool registration = false, bool global = false);
 
+    //! Returns the set of vectors defining the environment indexed by i (indices culled from m_env_index)
+    /*! The environments are averaged over all particles that are deemed to
+     * share the same environment. This invariant can always be checked by
+     * comparing the average of environments in m_tot_env sharing some cluster
+     * index to the output of getEnvironment(i).
+     */
+    std::vector<vec3<float>> getEnvironment(unsigned int i)
+    {
+        std::map<unsigned int, std::vector<vec3<float>>>::iterator it = m_cluster_env.find(i);
+        std::vector<vec3<float>> vecs = it->second;
+        return vecs;
+    }
+
+private:
+    std::map<unsigned int, std::vector<vec3<float> > > m_cluster_env; //!< Dictionary of (cluster id, vectors) pairs
 };
 
 //! Match local point environments to a specific motif.

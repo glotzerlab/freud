@@ -72,9 +72,7 @@ cdef extern from "MatchEnv.h" namespace "freud::environment":
     cdef cppclass MatchEnv:
         MatchEnv(const freud._box.Box &, float, unsigned int) except +
         const freud.util.ManagedArray[unsigned int] &getClusters()
-        vector[vec3[float]] getEnvironment(unsigned int)
         const freud.util.ManagedArray[vec3[float]] &getTotEnvironment()
-        unsigned int getNP()
         unsigned int getNumClusters()
         unsigned int getNumNeighbors()
         unsigned int getMaxNumNeighbors()
@@ -109,6 +107,7 @@ cdef extern from "MatchEnv.h" namespace "freud::environment":
                      float,
                      bool,
                      bool) except +
+        vector[vec3[float]] getEnvironment(unsigned int)
 
 cdef extern from "AngularSeparation.h" namespace "freud::environment":
     cdef cppclass AngularSeparationGlobal:

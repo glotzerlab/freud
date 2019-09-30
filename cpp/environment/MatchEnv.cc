@@ -482,7 +482,7 @@ std::map<unsigned int, unsigned int> minimizeRMSD(const box::Box &box, const vec
     return vec_map.asMap();
 }
 
-unsigned int populateEnv(EnvDisjointSet dj, util::ManagedArray<unsigned int> &env_index, std::map<unsigned int, std::vector<vec3<float> > > &env, util::ManagedArray<vec3<float> > &tot_env, bool reLabel)
+unsigned int populateEnv(EnvDisjointSet dj, util::ManagedArray<unsigned int> &env_index, std::map<unsigned int, std::vector<vec3<float> > > *cluster_env, util::ManagedArray<vec3<float> > &tot_env, bool reLabel)
 {
     std::map<unsigned int, unsigned int> label_map;
 
@@ -500,13 +500,14 @@ unsigned int populateEnv(EnvDisjointSet dj, util::ManagedArray<unsigned int> &en
 
             unsigned int c = dj.find(i);
             // insert the set into the mapping if we haven't seen it before.
-            // also grab the vectors that define the set and insert them into m_env
+            // also grab the vectors that define the set and insert them into cluster_env
             if (label_map.count(c) == 0)
             {
                 label_map[c] = cur_set;
                 std::vector<vec3<float>> vecs = dj.getAvgEnv(c);
                 label_ind = reLabel ? label_map[c] : c;
-                env[label_ind] = vecs;
+                if (cluster_env != nullptr)
+                    (*cluster_env)[label_ind] = vecs;
                 cur_set++;
             }
             else
@@ -534,7 +535,6 @@ unsigned int populateEnv(EnvDisjointSet dj, util::ManagedArray<unsigned int> &en
 
 MatchEnv::MatchEnv(const box::Box& box, float r_max, unsigned int num_neighbors) : m_box(box), m_r_max(r_max), m_num_neighbors(num_neighbors)
 {
-    m_Np = 0;
     m_num_clusters = 0;
     m_max_num_neighbors = 0;
     if (r_max < 0.0f)
@@ -574,10 +574,8 @@ void EnvironmentCluster::cluster(const freud::locality::NeighborList* env_nlist,
                        const freud::locality::NeighborList* nlist, const vec3<float>* points, unsigned int Np,
                        float threshold, bool registration, bool global)
 {
-    // reallocate the m_env_index array for safety
     m_env_index.prepare(Np);
 
-    m_Np = Np;
     float m_threshold_sq = threshold * threshold;
 
     nlist->validate(Np, Np);
@@ -586,13 +584,13 @@ void EnvironmentCluster::cluster(const freud::locality::NeighborList* env_nlist,
     const size_t env_num_bonds(env_nlist->getNumBonds());
 
     // create a disjoint set where all particles belong in their own cluster
-    EnvDisjointSet dj(m_Np);
+    EnvDisjointSet dj(Np);
 
     // add all the environments to the set
     // take care, here: set things up s.t. the env_ind of every environment
     // matches its location in the disjoint set.
     // if you don't do this, things will get screwy.
-    for (unsigned int i = 0; i < m_Np; i++)
+    for (unsigned int i = 0; i < Np; i++)
     {
         Environment ei = buildEnv(env_nlist, env_num_bonds, env_bond, points, i, i);
         dj.s.push_back(ei);
@@ -605,7 +603,7 @@ void EnvironmentCluster::cluster(const freud::locality::NeighborList* env_nlist,
 
     size_t bond(0);
     // loop through points
-    for (unsigned int i = 0; i < m_Np; i++)
+    for (unsigned int i = 0; i < Np; i++)
     {
         if (global == false)
         {
@@ -633,7 +631,7 @@ void EnvironmentCluster::cluster(const freud::locality::NeighborList* env_nlist,
         else
         {
             // loop over all other particles
-            for (unsigned int j = i + 1; j < m_Np; j++)
+            for (unsigned int j = i + 1; j < Np; j++)
             {
                 std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>> mapping
                     = isSimilar(dj.s[i], dj.s[j], m_r_max, m_threshold_sq, registration);
@@ -656,17 +654,15 @@ void EnvironmentCluster::cluster(const freud::locality::NeighborList* env_nlist,
 
     // done looping over points. All clusters are now determined. Renumber
     // them from zero to num_clusters-1.
-    m_num_clusters = populateEnv(dj, m_env_index, m_env, m_tot_env, true);
+    m_num_clusters = populateEnv(dj, m_env_index, &m_cluster_env, m_tot_env, true);
 }
 
 void EnvironmentMotifMatch::matchMotif(const freud::locality::NeighborList* nlist, const vec3<float>* points,
                           unsigned int Np, const vec3<float>* motif, unsigned int motif_size, float threshold,
                           bool registration)
 {
-    // reallocate the m_env_index array for safety
     m_env_index.prepare(Np);
 
-    m_Np = Np;
     float m_threshold_sq = threshold * threshold;
 
     nlist->validate(Np, Np);
@@ -674,7 +670,7 @@ void EnvironmentMotifMatch::matchMotif(const freud::locality::NeighborList* nlis
     // create a disjoint set where all particles belong in their own cluster.
     // this has to have ONE MORE environment than there are actual particles,
     // because we're inserting the motif into it.
-    EnvDisjointSet dj(m_Np + 1);
+    EnvDisjointSet dj(Np + 1);
     dj.m_max_num_neigh = m_num_neighbors;
     m_max_num_neighbors = m_num_neighbors;
 
@@ -706,7 +702,7 @@ void EnvironmentMotifMatch::matchMotif(const freud::locality::NeighborList* nlis
     // take care, here: set things up s.t. the env_ind of every environment
     // matches its location in the disjoint set.
     // if you don't do this, things will get screwy.
-    for (unsigned int i = 0; i < m_Np; i++)
+    for (unsigned int i = 0; i < Np; i++)
     {
         unsigned int dummy = i + 1;
         Environment ei = buildEnv(nlist, num_bonds, bond, points, i, dummy);
@@ -727,8 +723,10 @@ void EnvironmentMotifMatch::matchMotif(const freud::locality::NeighborList* nlis
 
     // DON'T renumber the clusters in the disjoint set from zero to
     // num_clusters-1. The way I have set it up here, the "0th" cluster
-    // is the one that matches the motif.
-    m_num_clusters = populateEnv(dj, m_env_index, m_env, m_tot_env, false);
+    // is the one that matches the motif. We also pass a nullptr for the
+    // cluster environment since the only environment of interest is the one
+    // corresponding to the motif.
+    m_num_clusters = populateEnv(dj, m_env_index, nullptr, m_tot_env, false);
 }
 
 std::vector<float> EnvironmentMotifMatch::minRMSDMotif(const freud::locality::NeighborList* nlist,
@@ -736,18 +734,16 @@ std::vector<float> EnvironmentMotifMatch::minRMSDMotif(const freud::locality::Ne
                                           const vec3<float>* motif, unsigned int motif_size,
                                           bool registration)
 {
-    // reallocate the m_env_index array for safety
     m_env_index.prepare(Np);
 
-    m_Np = Np;
-    std::vector<float> min_rmsd_vec(m_Np);
+    std::vector<float> min_rmsd_vec(Np);
 
     nlist->validate(Np, Np);
 
     // create a disjoint set where all particles belong in their own cluster.
     // this has to have ONE MORE environment than there are actual particles,
     // because we're inserting the motif into it.
-    EnvDisjointSet dj(m_Np + 1);
+    EnvDisjointSet dj(Np + 1);
     dj.m_max_num_neigh = m_num_neighbors;
     m_max_num_neighbors = m_num_neighbors;
 
@@ -779,7 +775,7 @@ std::vector<float> EnvironmentMotifMatch::minRMSDMotif(const freud::locality::Ne
     // take care, here: set things up s.t. the env_ind of every environment
     // matches its location in the disjoint set.
     // if you don't do this, things will get screwy.
-    for (unsigned int i = 0; i < m_Np; i++)
+    for (unsigned int i = 0; i < Np; i++)
     {
         unsigned int dummy = i + 1;
         Environment ei = buildEnv(nlist, num_bonds, bond, points, i, dummy);
@@ -806,8 +802,10 @@ std::vector<float> EnvironmentMotifMatch::minRMSDMotif(const freud::locality::Ne
 
     // DON'T renumber the clusters in the disjoint set from zero to
     // num_clusters-1. The way I have set it up here, the "0th" cluster
-    // is the one that matches the motif.
-    m_num_clusters = populateEnv(dj, m_env_index, m_env, m_tot_env, false);
+    // is the one that matches the motif. We also pass a nullptr for the
+    // cluster environment since the only environment of interest is the one
+    // corresponding to the motif.
+    m_num_clusters = populateEnv(dj, m_env_index, nullptr, m_tot_env, false);
 
     return min_rmsd_vec;
 }

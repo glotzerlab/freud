@@ -515,10 +515,8 @@ cdef class _MatchEnv(Compute):
             of any given particle.
 
     Attributes:
-        tot_environment (:math:`\left(N_{particles}, N_{neighbors}, 3\right)` :class:`numpy.ndarray`):
+        particle_environments (:math:`\left(N_{particles}, N_{neighbors}, 3\right)` :class:`numpy.ndarray`):
             All environments for all particles.
-        num_particles (unsigned int):
-            The number of particles.
         num_clusters (unsigned int):
             The number of clusters.
         clusters (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
@@ -539,28 +537,11 @@ cdef class _MatchEnv(Compute):
             &self.matchptr.getClusters(),
             freud.util.arr_type_t.UNSIGNED_INT)
 
-    def getEnvironment(self, i):
-        R"""Returns the set of vectors defining the environment indexed by i.
-
-        Args:
-            i (unsigned int): Environment index.
-
-        Returns:
-            :math:`\left(N_{neighbors}, 3\right)` :class:`numpy.ndarray`:
-            The array of vectors.
-        """
-        env = self.matchptr.getEnvironment(i)
-        return np.asarray([[p.x, p.y, p.z] for p in env])
-
     @property
-    def tot_environment(self):
+    def particle_environments(self):
         return freud.util.make_managed_numpy_array(
             &self.matchptr.getTotEnvironment(),
             freud.util.arr_type_t.FLOAT, 3)
-
-    @property
-    def num_particles(self):
-        return self.matchptr.getNP()
 
     @property
     def num_clusters(self):
@@ -592,8 +573,6 @@ cdef class EnvironmentCluster(_MatchEnv):
             of any given particle.
 
     Attributes:
-        tot_environment (:math:`\left(N_{particles}, N_{neighbors}, 3\right)` :class:`numpy.ndarray`):
-            All environments for all particles.
         num_particles (unsigned int):
             The number of particles.
         num_clusters (unsigned int):
@@ -637,7 +616,7 @@ cdef class EnvironmentCluster(_MatchEnv):
                 it minimizes the RMSD between the two sets.
                 (Default value = :code:`False`)
             global_search (bool, optional):
-                If True, do an exhaustive search wherein the environments of
+                 If True, do an exhaustive search wherein the environments of
                 every single pair of particles in the simulation are compared.
                 If False, only compare the environments of neighboring
                 particles. (Default value = :code:`False`)
@@ -677,6 +656,19 @@ cdef class EnvironmentCluster(_MatchEnv):
             <vec3[float]*> &l_points[0, 0], nP, threshold,
             registration, global_search)
         return self
+
+    def getEnvironment(self, i):
+        R"""Returns the set of vectors defining the environment indexed by i.
+
+        Args:
+            i (unsigned int): Environment index.
+
+        Returns:
+            :math:`\left(N_{neighbors}, 3\right)` :class:`numpy.ndarray`:
+            The array of vectors.
+        """
+        env = self.thisptr.getEnvironment(i)
+        return np.asarray([[p.x, p.y, p.z] for p in env])
 
     def plot(self, ax=None):
         """Plot cluster distribution.
@@ -724,8 +716,6 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
             of any given particle.
 
     Attributes:
-        tot_environment (:math:`\left(N_{particles}, N_{neighbors}, 3\right)` :class:`numpy.ndarray`):
-            All environments for all particles.
         num_particles (unsigned int):
             The number of particles.
         num_clusters (unsigned int):
