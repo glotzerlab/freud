@@ -8,7 +8,8 @@ import os
 
 def _get_structure_data(structure, qtype):
     return np.genfromtxt(os.path.join(
-        os.path.dirname(__file__), 'files/{}_{}.txt'.format(structure, qtype)))
+        os.path.dirname(__file__), 'files', 'minkowski_structure_metrics',
+        '{}_{}.txt'.format(structure, qtype)))
 
 
 class TestMinkowski(unittest.TestCase):
@@ -21,7 +22,8 @@ class TestMinkowski(unittest.TestCase):
 
             with garnett.read(os.path.join(
                     os.path.dirname(__file__),
-                    'files/{}.gsd'.format(structure))) as traj:
+                    'files', 'minkowski_structure_metrics',
+                    '{}.gsd'.format(structure))) as traj:
                 frame = traj[0]
                 box = frame.box
                 positions = frame.positions.copy()
