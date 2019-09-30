@@ -258,12 +258,23 @@ public:
                  bool registration = false, bool global = false);
 
     //! Determine whether particles match a given input motif.
-    /*!
+    /*! Given a motif composed of vectors that represent the vectors connecting
+     * a point to the neighbors that are part of the motif, matchMotif looks at
+     * every point in points and checks if its neighbors may match this motif.
+     * Any point whose local environment matches the motif is marked as part of
+     * cluster 0 in the clusters array. All others are ignored. The
+     * tot_environments array is updated with the vectors composing the
+     * environment of every particle.
+     *
      * \param nlist A NeighborList instance.
      * \param points The points to test against the motif.
      * \param Np The number of points. 
-     * \param refPoints The points characterizing the motif.
-     * \param numRef The number of reference points. 
+     * \param motif The vectors characterizing the motif. Note that these are
+     *              vectors, so for instance given a square motif composed of
+     *              points at the corners of a square, the motif should not
+     *              include the point (0, 0) because what we are matching is
+     *              the vectors to the neighbors.
+     * \param motif_size The number of vectors characterizing the motif.
      * \param threshold A unitless number that is multiply by m_r_max. This
      *                  quantity is the maximum magnitude of the vector
      *                  difference between two vectors, below which you call
@@ -275,7 +286,7 @@ public:
      *                     minimizes the RMSD between the two sets
      */
     void matchMotif(const freud::locality::NeighborList* nlist, const vec3<float>* points, unsigned int Np,
-                    const vec3<float>* refPoints, unsigned int numRef, float threshold,
+                    const vec3<float>* motif, unsigned int motif_size, float threshold,
                     bool registration = false);
 
     //! Rotate (if registration=True) and permute the environments of all particles to minimize their RMSD wrt a given input motif.
@@ -290,8 +301,12 @@ public:
      * \param nlist A NeighborList instance.
      * \param points The points to test against the motif.
      * \param Np The number of points. 
-     * \param refPoints The points characterizing the motif.
-     * \param numRef The number of reference points. 
+     * \param motif The vectors characterizing the motif. Note that these are
+     *              vectors, so for instance given a square motif composed of
+     *              points at the corners of a square, the motif should not
+     *              include the point (0, 0) because what we are matching is
+     *              the vectors to the neighbors.
+     * \param motif_size The number of vectors characterizing the motif.
      * \param threshold A unitless number that is multiply by m_r_max. This
      *                  quantity is the maximum magnitude of the vector
      *                  difference between two vectors, below which you call
@@ -303,7 +318,7 @@ public:
      *                     minimizes the RMSD between the two sets
      */
     std::vector<float> minRMSDMotif(const freud::locality::NeighborList* nlist, const vec3<float>* points,
-                                    unsigned int Np, const vec3<float>* refPoints, unsigned int numRef,
+                                    unsigned int Np, const vec3<float>* motif, unsigned int motif_size,
                                     bool registration = false);
 
     //! Get a reference to the particles, indexed into clusters according to their matching local environments

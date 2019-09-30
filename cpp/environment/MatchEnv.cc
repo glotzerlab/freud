@@ -607,7 +607,7 @@ void MatchEnv::cluster(const freud::locality::NeighborList* env_nlist,
 }
 
 void MatchEnv::matchMotif(const freud::locality::NeighborList* nlist, const vec3<float>* points,
-                          unsigned int Np, const vec3<float>* refPoints, unsigned int numRef, float threshold,
+                          unsigned int Np, const vec3<float>* motif, unsigned int motif_size, float threshold,
                           bool registration)
 {
     // reallocate the m_env_index array for safety
@@ -628,18 +628,18 @@ void MatchEnv::matchMotif(const freud::locality::NeighborList* nlist, const vec3
     // reallocate the m_tot_env array
     m_tot_env.prepare({Np, m_max_num_neighbors});
 
-    // create the environment characterized by refPoints. Index it as 0.
+    // create the environment characterized by motif. Index it as 0.
     // set the IGNORE flag to true, since this is not an environment we have
     // actually encountered in the simulation.
     Environment e0 = Environment(true);
 
-    // loop through all the vectors in refPoints and add them to the environment.
+    // loop through all the vectors in motif and add them to the environment.
     // wrap all the vectors back into the box. I think this is necessary since
     // all the vectors that will be added to actual particle environments will
     // be wrapped into the box as well.
-    for (unsigned int i = 0; i < numRef; i++)
+    for (unsigned int i = 0; i < motif_size; i++)
     {
-        vec3<float> p = m_box.wrap(refPoints[i]);
+        vec3<float> p = m_box.wrap(motif[i]);
         e0.addVec(p);
     }
 
@@ -680,7 +680,7 @@ void MatchEnv::matchMotif(const freud::locality::NeighborList* nlist, const vec3
 
 std::vector<float> MatchEnv::minRMSDMotif(const freud::locality::NeighborList* nlist,
                                           const vec3<float>* points, unsigned int Np,
-                                          const vec3<float>* refPoints, unsigned int numRef,
+                                          const vec3<float>* motif, unsigned int motif_size,
                                           bool registration)
 {
     // reallocate the m_env_index array for safety
@@ -701,18 +701,18 @@ std::vector<float> MatchEnv::minRMSDMotif(const freud::locality::NeighborList* n
     // reallocate the m_tot_env array
     m_tot_env.prepare({Np, m_max_num_neighbors});
 
-    // create the environment characterized by refPoints. Index it as 0.
+    // create the environment characterized by motif. Index it as 0.
     // set the IGNORE flag to true, since this is not an environment we
     // have actually encountered in the simulation.
     Environment e0 = Environment(true);
 
-    // loop through all the vectors in refPoints and add them to the environment.
+    // loop through all the vectors in motif and add them to the environment.
     // wrap all the vectors back into the box. I think this is necessary since
     // all the vectors that will be added to actual particle environments will
     // be wrapped into the box as well.
-    for (unsigned int i = 0; i < numRef; i++)
+    for (unsigned int i = 0; i < motif_size; i++)
     {
-        vec3<float> p = m_box.wrap(refPoints[i]);
+        vec3<float> p = m_box.wrap(motif[i]);
         e0.addVec(p);
     }
 

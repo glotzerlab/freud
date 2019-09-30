@@ -603,13 +603,13 @@ cdef class MatchEnv(Compute):
             registration, global_search)
         return self
 
-    def matchMotif(self, points, ref_points, threshold, registration=False,
+    def matchMotif(self, motif, points, threshold, registration=False,
                    nlist=None):
         R"""Determine clusters of particles that match the motif provided by
-        ref_points.
+        motif.
 
         Args:
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            motif ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Vectors that make up the motif against which we are matching.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Particle positions.
@@ -626,12 +626,12 @@ cdef class MatchEnv(Compute):
                 :code:`None`).
         """
         points = freud.common.convert_array(points, shape=(None, 3))
-        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
+        motif = freud.common.convert_array(motif, shape=(None, 3))
 
         cdef const float[:, ::1] l_points = points
-        cdef const float[:, ::1] l_ref_points = ref_points
+        cdef const float[:, ::1] l_motif = motif
         cdef unsigned int nP = l_points.shape[0]
-        cdef unsigned int nRef = l_ref_points.shape[0]
+        cdef unsigned int nRef = l_motif.shape[0]
 
         cdef freud.locality.NeighborList nlist_
         nlist_ = freud.locality._make_default_nlist(
@@ -640,16 +640,16 @@ cdef class MatchEnv(Compute):
 
         self.thisptr.matchMotif(
             nlist_.get_ptr(), <vec3[float]*> &l_points[0, 0], nP,
-            <vec3[float]*> &l_ref_points[0, 0], nRef, threshold,
+            <vec3[float]*> &l_motif[0, 0], nRef, threshold,
             registration)
 
-    def minRMSDMotif(self, ref_points, points, registration=False, nlist=None):
+    def minRMSDMotif(self, motif, points, registration=False, nlist=None):
         R"""Rotate (if registration=True) and permute the environments of all
         particles to minimize their RMSD with respect to the motif provided by
-        ref_points.
+        motif.
 
         Args:
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            motif ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Vectors that make up the motif against which we are matching.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Particle positions.
@@ -667,14 +667,12 @@ cdef class MatchEnv(Compute):
 
         """
         points = freud.common.convert_array(points, shape=(None, 3))
-        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
+        motif = freud.common.convert_array(motif, shape=(None, 3))
 
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(
-            points.flatten())
-        cdef np.ndarray[float, ndim=1] l_ref_points = np.ascontiguousarray(
-            ref_points.flatten())
+        cdef const float[:, ::1] l_points = points
+        cdef const float[:, ::1] l_motif = motif
         cdef unsigned int nP = l_points.shape[0]
-        cdef unsigned int nRef = l_ref_points.shape[0]
+        cdef unsigned int nRef = l_motif.shape[0]
 
         cdef freud.locality.NeighborList nlist_
         nlist_ = freud.locality._make_default_nlist(
@@ -682,8 +680,8 @@ cdef class MatchEnv(Compute):
             dict(num_neighbors=self.num_neighbors, r_guess=self.r_max), nlist)
 
         cdef vector[float] min_rmsd_vec = self.thisptr.minRMSDMotif(
-            nlist_.get_ptr(), <vec3[float]*> &l_points[0], nP,
-            <vec3[float]*> &l_ref_points[0], nRef, registration)
+            nlist_.get_ptr(), <vec3[float]*> &l_points[0, 0], nP,
+            <vec3[float]*> &l_motif[0, 0], nRef, registration)
 
         return min_rmsd_vec
 
