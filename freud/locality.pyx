@@ -537,7 +537,7 @@ cdef class NeighborList:
         """  # noqa E501
         filt = np.ascontiguousarray(filt, dtype=np.bool)
         cdef np.ndarray[np.uint8_t, ndim=1, cast=True] filt_c = filt
-        cdef cbool * filt_ptr = <cbool*> filt_c.data
+        cdef cbool * filt_ptr = <cbool*> &filt_c[0]
         self.thisptr.filter(filt_ptr)
         return self
 
