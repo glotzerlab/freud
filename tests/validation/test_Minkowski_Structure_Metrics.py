@@ -35,13 +35,13 @@ class TestMinkowski(unittest.TestCase):
                     continue
 
                 comp = freud.order.Steinhardt(sph_l, weighted=True)
-                comp.compute(box, positions, nlist=voro.nlist)
+                comp.compute((box, positions), neighbors=voro.nlist)
                 npt.assert_allclose(
                     comp.order, expected_ql[:, sph_l], rtol=5e-5, atol=1e-3)
 
                 comp = freud.order.Steinhardt(
                     sph_l, average=True, weighted=True)
-                comp.compute(box, positions, nlist=voro.nlist)
+                comp.compute((box, positions), neighbors=voro.nlist)
                 npt.assert_allclose(
                     comp.order, expected_avql[:, sph_l],
                     rtol=5e-5, atol=1e-3)
@@ -50,7 +50,7 @@ class TestMinkowski(unittest.TestCase):
                 if sph_l != 2:
                     comp = freud.order.Steinhardt(
                         sph_l, Wl=True, weighted=True, Wl_normalize=True)
-                    comp.compute(box, positions, nlist=voro.nlist)
+                    comp.compute((box, positions), neighbors=voro.nlist)
                     npt.assert_allclose(
                         comp.order, expected_wl[:, sph_l],
                         rtol=5e-5, atol=1e-3)
@@ -58,7 +58,7 @@ class TestMinkowski(unittest.TestCase):
                     comp = freud.order.Steinhardt(
                         sph_l, Wl=True, average=True, weighted=True,
                         Wl_normalize=True)
-                    comp.compute(box, positions, nlist=voro.nlist)
+                    comp.compute((box, positions), neighbors=voro.nlist)
                     npt.assert_allclose(
                         comp.order, expected_avwl[:, sph_l],
                         rtol=5e-5, atol=1e-3)
