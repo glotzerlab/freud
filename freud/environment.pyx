@@ -628,10 +628,8 @@ cdef class MatchEnv(Compute):
         points = freud.common.convert_array(points, shape=(None, 3))
         ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
 
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(
-            points.flatten())
-        cdef np.ndarray[float, ndim=1] l_ref_points = np.ascontiguousarray(
-            ref_points.flatten())
+        cdef const float[:, ::1] l_points = points
+        cdef const float[:, ::1] l_ref_points = ref_points
         cdef unsigned int nP = l_points.shape[0]
         cdef unsigned int nRef = l_ref_points.shape[0]
 
@@ -641,8 +639,8 @@ cdef class MatchEnv(Compute):
             dict(num_neighbors=self.num_neighbors, r_guess=self.r_max), nlist)
 
         self.thisptr.matchMotif(
-            nlist_.get_ptr(), <vec3[float]*> &l_points[0], nP,
-            <vec3[float]*> &l_ref_points[0], nRef, threshold,
+            nlist_.get_ptr(), <vec3[float]*> &l_points[0, 0], nP,
+            <vec3[float]*> &l_ref_points[0, 0], nRef, threshold,
             registration)
 
     def minRMSDMotif(self, ref_points, points, registration=False, nlist=None):
