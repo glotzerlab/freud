@@ -116,7 +116,7 @@ cdef class Compute:
 
     @staticmethod
     def _reset(func):
-        R"""Decorator that sets all compute flag to be false.
+        R"""Decorator that sets all compute flags to be false.
 
         Returns:
             Decorator decorating appropriate reset method.
