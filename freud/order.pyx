@@ -279,9 +279,8 @@ cdef class Hexatic(PairCompute):
     vector :math:`r_{ij}` and :math:`\left( 1,0 \right)`.
 
     .. note::
-        **2D:** :class:`freud.order.Hexatic` properly handles 2D
-        boxes. The points must be passed in as :code:`[x, y, 0]`. Failing to
-        set z=0 will lead to undefined behavior.
+        **2D:** :class:`freud.order.Hexatic` is only defined for 2D systems.
+        The points must be passed in as :code:`[x, y, 0]`.
 
     Args:
         k (unsigned int, optional):
@@ -351,6 +350,10 @@ cdef class Hexatic(PairCompute):
 
 cdef class Translational(PairCompute):
     R"""Compute the translational order parameter for each particle.
+
+    .. note::
+        **2D:** :class:`freud.order.Translational` is only defined for 2D
+        systems. The points must be passed in as :code:`[x, y, 0]`.
 
     Args:
         k (float, optional):
