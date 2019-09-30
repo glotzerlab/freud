@@ -47,42 +47,39 @@ void GaussianDensity::compute(const box::Box& box, const vec3<float>* points, un
     m_density_array.prepare({width.x, width.y, width.z});
     util::ThreadStorage<float> local_bin_counts({width.x, width.y, width.z});
 
+    // set up some constants first
+    const float lx = m_box.getLx();
+    const float ly = m_box.getLy();
+    const float lz = m_box.getLz();
+
+    const float grid_size_x = lx / m_width.x;
+    const float grid_size_y = ly / m_width.y;
+    const float grid_size_z = m_box.is2D() ? 0 : lz / m_width.z;
+
+    // Find the number of bins within r_max
+    const int bin_cut_x = int(m_r_max / grid_size_x);
+    const int bin_cut_y = int(m_r_max / grid_size_y);
+    const int bin_cut_z = m_box.is2D() ? 0 : int(m_r_max / grid_size_z);
+
+    const float sigmasq = m_sigma * m_sigma;
+    const float A = std::sqrt(1.0f / (2.0f * M_PI * sigmasq));
+
     util::forLoopWrapper(0, n_points, [&](size_t begin, size_t end) {
-        // set up some constants first
-        const float lx = m_box.getLx();
-        const float ly = m_box.getLy();
-        const float lz = m_box.getLz();
-
-        const float grid_size_x = lx / m_width.x;
-        const float grid_size_y = ly / m_width.y;
-        const float grid_size_z = m_box.is2D() ? lz / m_width.z : 0;
-
-        // Find the number of bins within r_max
-        const int bin_cut_x = int(m_r_max / grid_size_x);
-        const int bin_cut_y = int(m_r_max / grid_size_y);
-        const int bin_cut_z = m_box.is2D() ? int(m_r_max / grid_size_z) : 0;
-
-        const float sigmasq = m_sigma * m_sigma;
-        const float A = std::sqrt(1.0f / (2.0f * M_PI * sigmasq));
-
         // for each reference point
         for (size_t idx = begin; idx < end; ++idx)
         {
-            // find the distance of that particle to bins
-            // will use this information to evaluate the Gaussian
-            // Find the which bin the particle is in
+            // Find which bin the particle is in
             int bin_x = int((points[idx].x + lx / 2.0f) / grid_size_x);
             int bin_y = int((points[idx].y + ly / 2.0f) / grid_size_y);
             int bin_z = int((points[idx].z + lz / 2.0f) / grid_size_z);
 
-            // in 2D, only loop over the 0 z plane
+            // In 2D, only loop over the z=0 plane
             if (m_box.is2D())
             {
                 bin_z = 0;
             }
 
-            // Only evaluate over bins that are within the cut off
-            // to reduce the number of computations
+            // Only evaluate over bins that are within the cutoff
             for (int k = bin_z - bin_cut_z; k <= bin_z + bin_cut_z; k++)
             {
                 const float dz = float((grid_size_z * k + grid_size_z / 2.0f) - points[idx].z - lz / 2.0f);
