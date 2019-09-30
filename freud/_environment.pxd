@@ -71,14 +71,18 @@ cdef extern from "MatchEnv.h" namespace "freud::environment":
 
     cdef cppclass MatchEnv:
         MatchEnv(const freud._box.Box &, float, unsigned int) except +
-        void setBox(const freud._box.Box)
-        void cluster(const freud._locality.NeighborList*,
-                     const freud._locality.NeighborList*,
-                     const vec3[float]*,
-                     unsigned int,
-                     float,
-                     bool,
-                     bool) except +
+        const freud.util.ManagedArray[unsigned int] &getClusters()
+        vector[vec3[float]] getEnvironment(unsigned int)
+        const freud.util.ManagedArray[vec3[float]] &getTotEnvironment()
+        unsigned int getNP()
+        unsigned int getNumClusters()
+        unsigned int getNumNeighbors()
+        unsigned int getMaxNumNeighbors()
+
+    cdef cppclass EnvironmentMotifMatch(MatchEnv):
+        EnvironmentMotifMatch(const freud._box.Box &,
+                              float,
+                              unsigned int) except +
         void matchMotif(const freud._locality.NeighborList*,
                         const vec3[float]*,
                         unsigned int,
@@ -93,13 +97,18 @@ cdef extern from "MatchEnv.h" namespace "freud::environment":
             const vec3[float]*,
             unsigned int,
             bool) except +
-        const freud.util.ManagedArray[unsigned int] &getClusters()
-        vector[vec3[float]] getEnvironment(unsigned int)
-        const freud.util.ManagedArray[vec3[float]] &getTotEnvironment()
-        unsigned int getNP()
-        unsigned int getNumClusters()
-        unsigned int getNumNeighbors()
-        unsigned int getMaxNumNeighbors()
+
+    cdef cppclass EnvironmentCluster(MatchEnv):
+        EnvironmentCluster(const freud._box.Box &,
+                           float,
+                           unsigned int) except +
+        void cluster(const freud._locality.NeighborList*,
+                     const freud._locality.NeighborList*,
+                     const vec3[float]*,
+                     unsigned int,
+                     float,
+                     bool,
+                     bool) except +
 
 cdef extern from "AngularSeparation.h" namespace "freud::environment":
     cdef cppclass AngularSeparationGlobal:

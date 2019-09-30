@@ -501,9 +501,8 @@ def isSimilar(box, ref_points, points, r_max, threshold, registration=False):
     return [np.asarray(l_points), vec_map]
 
 
-cdef class MatchEnv(Compute):
-    R"""Clusters particles according to whether their local environments match
-    or not, according to various shape matching metrics.
+cdef class _MatchEnv(Compute):
+    R"""Parent for environment matching methods.
 
     Args:
         box (:class:`freud.box.Box`):
@@ -525,16 +524,92 @@ cdef class MatchEnv(Compute):
         clusters (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The per-particle index indicating cluster membership.
     """  # noqa: E501
-    cdef freud._environment.MatchEnv * thisptr
+    cdef freud._environment.MatchEnv * matchptr
     cdef r_max
     cdef num_neighbors
     cdef m_box
 
     def __cinit__(self, box, r_max, num_neighbors):
+        # Abstract class
+        pass
+
+    @property
+    def clusters(self):
+        return freud.util.make_managed_numpy_array(
+            &self.matchptr.getClusters(),
+            freud.util.arr_type_t.UNSIGNED_INT)
+
+    def getEnvironment(self, i):
+        R"""Returns the set of vectors defining the environment indexed by i.
+
+        Args:
+            i (unsigned int): Environment index.
+
+        Returns:
+            :math:`\left(N_{neighbors}, 3\right)` :class:`numpy.ndarray`:
+            The array of vectors.
+        """
+        env = self.matchptr.getEnvironment(i)
+        return np.asarray([[p.x, p.y, p.z] for p in env])
+
+    @property
+    def tot_environment(self):
+        return freud.util.make_managed_numpy_array(
+            &self.matchptr.getTotEnvironment(),
+            freud.util.arr_type_t.FLOAT, 3)
+
+    @property
+    def num_particles(self):
+        return self.matchptr.getNP()
+
+    @property
+    def num_clusters(self):
+        return self.matchptr.getNumClusters()
+
+    def __repr__(self):
+        return ("freud.environment.{cls}(box={box}, "
+                "r_max={r_max}, num_neighbors={num_neighbors})").format(
+                    cls=type(self).__name__, box=self.m_box.__repr__(),
+                    r_max=self.r_max, num_neighbors=self.num_neighbors)
+
+
+cdef class EnvironmentCluster(_MatchEnv):
+    R"""Clusters particles according to whether their local environments match
+    or not, according to various shape matching metrics.
+
+    In general, it is recommended to specify a number of neighbors rather than
+    just a distance cutoff as part of your neighbor querying when performing
+    this computation since it can otherwise be very sensitive.
+
+    Args:
+        box (:class:`freud.box.Box`):
+            Simulation box.
+        r_max (float):
+            Cutoff radius for cell list and clustering algorithm. Values near
+            the first minimum of the RDF are recommended.
+        num_neighbors (unsigned int):
+            Number of nearest neighbors taken to define the local environment
+            of any given particle.
+
+    Attributes:
+        tot_environment (:math:`\left(N_{particles}, N_{neighbors}, 3\right)` :class:`numpy.ndarray`):
+            All environments for all particles.
+        num_particles (unsigned int):
+            The number of particles.
+        num_clusters (unsigned int):
+            The number of clusters.
+        clusters (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
+            The per-particle index indicating cluster membership.
+    """  # noqa: E501
+
+    cdef freud._environment.EnvironmentCluster * thisptr
+
+    def __cinit__(self, box, r_max, num_neighbors):
         cdef freud.box.Box b = freud.common.convert_box(box)
 
-        self.thisptr = new freud._environment.MatchEnv(
-            dereference(b.thisptr), r_max, num_neighbors)
+        self.thisptr = self.matchptr = \
+            new freud._environment.EnvironmentCluster(
+                dereference(b.thisptr), r_max, num_neighbors)
 
         self.r_max = r_max
         self.num_neighbors = num_neighbors
@@ -602,6 +677,75 @@ cdef class MatchEnv(Compute):
             <vec3[float]*> &l_points[0, 0], nP, threshold,
             registration, global_search)
         return self
+
+    def plot(self, ax=None):
+        """Plot cluster distribution.
+
+        Args:
+            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
+                :code:`None`, make a new figure and axis.
+                (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes.Axes`): Axis with the plot.
+        """
+        import freud.plot
+        try:
+            values, counts = np.unique(self.clusters, return_counts=True)
+        except ValueError:
+            return None
+        else:
+            return freud.plot.clusters_plot(
+                values, counts, num_clusters_to_plot=10, ax=ax)
+
+    def _repr_png_(self):
+        import freud.plot
+        try:
+            return freud.plot.ax_to_bytes(self.plot())
+        except AttributeError:
+            return None
+
+
+cdef class EnvironmentMotifMatch(_MatchEnv):
+    R"""Find matches between local arrangements of a set of points and a provided motif.
+
+    In general, it is recommended to specify a number of neighbors rather than
+    just a distance cutoff as part of your neighbor querying when performing
+    this computation since it can otherwise be very sensitive.
+
+    Args:
+        box (:class:`freud.box.Box`):
+            Simulation box.
+        r_max (float):
+            Cutoff radius for cell list and clustering algorithm. Values near
+            the first minimum of the RDF are recommended.
+        num_neighbors (unsigned int):
+            Number of nearest neighbors taken to define the local environment
+            of any given particle.
+
+    Attributes:
+        tot_environment (:math:`\left(N_{particles}, N_{neighbors}, 3\right)` :class:`numpy.ndarray`):
+            All environments for all particles.
+        num_particles (unsigned int):
+            The number of particles.
+        num_clusters (unsigned int):
+            The number of clusters.
+        clusters (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
+            The per-particle index indicating cluster membership.
+    """  # noqa: E501
+
+    cdef freud._environment.EnvironmentMotifMatch * thisptr
+
+    def __cinit__(self, box, r_max, num_neighbors):
+        cdef freud.box.Box b = freud.common.convert_box(box)
+
+        self.thisptr = self.matchptr = \
+            new freud._environment.EnvironmentMotifMatch(
+                dereference(b.thisptr), r_max, num_neighbors)
+
+        self.r_max = r_max
+        self.num_neighbors = num_neighbors
+        self.m_box = box
 
     def matchMotif(self, motif, points, threshold, registration=False,
                    nlist=None):
@@ -684,73 +828,6 @@ cdef class MatchEnv(Compute):
             <vec3[float]*> &l_motif[0, 0], nRef, registration)
 
         return min_rmsd_vec
-
-    @property
-    def clusters(self):
-        return freud.util.make_managed_numpy_array(
-            &self.thisptr.getClusters(),
-            freud.util.arr_type_t.UNSIGNED_INT)
-
-    def getEnvironment(self, i):
-        R"""Returns the set of vectors defining the environment indexed by i.
-
-        Args:
-            i (unsigned int): Environment index.
-
-        Returns:
-            :math:`\left(N_{neighbors}, 3\right)` :class:`numpy.ndarray`:
-            The array of vectors.
-        """
-        env = self.thisptr.getEnvironment(i)
-        return np.asarray([[p.x, p.y, p.z] for p in env])
-
-    @property
-    def tot_environment(self):
-        return freud.util.make_managed_numpy_array(
-            &self.thisptr.getTotEnvironment(),
-            freud.util.arr_type_t.FLOAT, 3)
-
-    @property
-    def num_particles(self):
-        return self.thisptr.getNP()
-
-    @property
-    def num_clusters(self):
-        return self.thisptr.getNumClusters()
-
-    def __repr__(self):
-        return ("freud.environment.{cls}(box={box}, "
-                "r_max={r_max}, num_neighbors={num_neighbors})").format(
-                    cls=type(self).__name__, box=self.m_box.__repr__(),
-                    r_max=self.r_max, num_neighbors=self.num_neighbors)
-
-    def plot(self, ax=None):
-        """Plot cluster distribution.
-
-        Args:
-            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
-                :code:`None`, make a new figure and axis.
-                (Default value = :code:`None`)
-
-        Returns:
-            (:class:`matplotlib.axes.Axes`): Axis with the plot.
-        """
-        import freud.plot
-        try:
-            values, counts = np.unique(self.clusters, return_counts=True)
-        except ValueError:
-            return None
-        else:
-            return freud.plot.clusters_plot(
-                values, counts, num_clusters_to_plot=10, ax=ax)
-
-    def _repr_png_(self):
-        import freud.plot
-        try:
-            return freud.plot.ax_to_bytes(self.plot())
-        except AttributeError:
-            return None
-
 
 cdef class AngularSeparationNeighbor(PairCompute):
     R"""Calculates the minimum angles of separation between particles and

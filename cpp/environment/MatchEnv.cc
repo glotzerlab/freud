@@ -528,12 +528,10 @@ unsigned int populateEnv(EnvDisjointSet dj, util::ManagedArray<unsigned int> &en
     return cur_set;
 }
 
+/**********************
+ * EnvironmentCluster *
+ **********************/
 
-
-
-/************
- * MatchEnv *
- ************/
 MatchEnv::MatchEnv(const box::Box& box, float r_max, unsigned int num_neighbors) : m_box(box), m_r_max(r_max), m_num_neighbors(num_neighbors)
 {
     m_Np = 0;
@@ -544,6 +542,11 @@ MatchEnv::MatchEnv(const box::Box& box, float r_max, unsigned int num_neighbors)
 }
 
 MatchEnv::~MatchEnv() {}
+
+/**********************
+ * EnvironmentCluster *
+ **********************/
+EnvironmentCluster::~EnvironmentCluster() {}
 
 Environment MatchEnv::buildEnv(const freud::locality::NeighborList* nlist, size_t num_bonds, size_t& bond,
                                const vec3<float>* points, unsigned int i, unsigned int env_ind)
@@ -567,7 +570,7 @@ Environment MatchEnv::buildEnv(const freud::locality::NeighborList* nlist, size_
     return ei;
 }
 
-void MatchEnv::cluster(const freud::locality::NeighborList* env_nlist,
+void EnvironmentCluster::cluster(const freud::locality::NeighborList* env_nlist,
                        const freud::locality::NeighborList* nlist, const vec3<float>* points, unsigned int Np,
                        float threshold, bool registration, bool global)
 {
@@ -656,7 +659,7 @@ void MatchEnv::cluster(const freud::locality::NeighborList* env_nlist,
     m_num_clusters = populateEnv(dj, m_env_index, m_env, m_tot_env, true);
 }
 
-void MatchEnv::matchMotif(const freud::locality::NeighborList* nlist, const vec3<float>* points,
+void EnvironmentMotifMatch::matchMotif(const freud::locality::NeighborList* nlist, const vec3<float>* points,
                           unsigned int Np, const vec3<float>* motif, unsigned int motif_size, float threshold,
                           bool registration)
 {
@@ -728,7 +731,7 @@ void MatchEnv::matchMotif(const freud::locality::NeighborList* nlist, const vec3
     m_num_clusters = populateEnv(dj, m_env_index, m_env, m_tot_env, false);
 }
 
-std::vector<float> MatchEnv::minRMSDMotif(const freud::locality::NeighborList* nlist,
+std::vector<float> EnvironmentMotifMatch::minRMSDMotif(const freud::locality::NeighborList* nlist,
                                           const vec3<float>* points, unsigned int Np,
                                           const vec3<float>* motif, unsigned int motif_size,
                                           bool registration)

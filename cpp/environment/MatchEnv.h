@@ -91,7 +91,7 @@ struct EnvDisjointSet
 };
 
 /*****************************************************************************
- * There are various registration functions that are used by MatchEnv but do *
+ * There are various registration functions that are used by EnvironmentCluster but do *
  * not need to be exposed, or at least are not stateful and need not be      *
  * attached to the class.                                                    *
  *****************************************************************************/
@@ -210,6 +210,79 @@ std::map<unsigned int, unsigned int> isSimilar(const box::Box &box, const vec3<f
 unsigned int populateEnv(EnvDisjointSet dj, util::ManagedArray<unsigned int> &env_index, std::map<unsigned int, std::vector<vec3<float> > > &env, util::ManagedArray<vec3<float> > &tot_env, bool reLabel);
 
 
+
+//! Parent class for environment matching.
+/*! This class defines some of the common features of the different environment
+ * matching classes. All of them perform some form of registration for
+ * matching, but the precise feature set differs between the classes.
+ */
+class MatchEnv
+{
+public:
+    MatchEnv(const box::Box& box, float r_max, unsigned int num_neighbors);
+
+    ~MatchEnv();
+
+    //! Construct and return a local environment surrounding the particle indexed by i. Set the environment index to env_ind.
+    Environment buildEnv(const freud::locality::NeighborList* nlist, size_t num_bonds, size_t& bond,
+                         const vec3<float>* points, unsigned int i, unsigned int env_ind);
+
+    unsigned int getNP()
+    {
+        return m_Np;
+    }
+
+    //! Get a reference to the particles, indexed into clusters according to their matching local environments
+    const util::ManagedArray<unsigned int> &getClusters()
+    {
+        return m_env_index;
+    }
+
+    //! Returns the set of vectors defining the environment indexed by i (indices culled from m_env_index)
+    std::vector<vec3<float>> getEnvironment(unsigned int i)
+    {
+        std::map<unsigned int, std::vector<vec3<float>>>::iterator it = m_env.find(i);
+        std::vector<vec3<float>> vecs = it->second;
+        return vecs;
+    }
+
+    //! Returns the entire m_Np by m_k by 3 matrix of all environments for all particles
+    const util::ManagedArray<vec3<float>> &getTotEnvironment()
+    {
+        return m_tot_env;
+    }
+
+    unsigned int getNumClusters()
+    {
+        return m_num_clusters;
+    }
+    unsigned int getNumNeighbors()
+    {
+        return m_num_neighbors;
+    }
+    unsigned int getMaxNumNeighbors()
+    {
+        return m_max_num_neighbors;
+    }
+
+protected:
+    box::Box m_box; //!< Simulation box
+    float m_r_max; //!< Square of the maximum cutoff radius at which to determine local environment
+    unsigned int m_num_neighbors;      //!< Default number of nearest neighbors used to determine which environments are compared
+               //!< during local environment clustering.
+    unsigned int m_max_num_neighbors; //!< Maximum number of neighbors in any particle's local environment. If
+                         //!< hard_r=false, m_max_num_neighbors = m_num_neighbors. In the cluster method it is also possible to provide
+                         //!< two separate neighborlists, one for environments and one for clustering.
+    unsigned int m_Np;   //!< Last number of points computed
+    unsigned int m_num_clusters; //!< Last number of local environments computed
+
+    util::ManagedArray<unsigned int> m_env_index; //!< Cluster index determined for each particle
+    std::map<unsigned int, std::vector<vec3<float> > > m_env; //!< Dictionary of (cluster id, vectors) pairs
+    util::ManagedArray<vec3<float> >
+        m_tot_env; //!< m_NP by m_max_num_neighbors by 3 matrix of all environments for all particles
+};
+
+
 //! Cluster particles with similar environments.
 /*! The environment matching method is defined according to the paper "Identity
  * crisis in alchemical space drives the entropic colloidal glass transition"
@@ -220,31 +293,22 @@ unsigned int populateEnv(EnvDisjointSet dj, util::ManagedArray<unsigned int> &en
  * points, we identify regions where neighboring points share similar local
  * environments.
  */
-class MatchEnv
+class EnvironmentCluster : public MatchEnv
 {
 public:
     //! Constructor
     /*!
-     * Constructor for Match-Environment analysis class.  After creation, call
-     * cluster to agnostically calculate clusters grouped by matching
-     * environment, or matchMotif to match all particle environments against an
-     * input motif. Use accessor functions to retrieve data. 
-     *
      * \param box The system box.
      * \param r_max Cutoff radius for cell list and clustering algorithm. Values near first minimum of the rdf are recommended.  
      * \param num_neighbors Number of nearest neighbors taken to define the local environment of any given particle.
      */
-    MatchEnv(const box::Box& box, float r_max, unsigned int num_neighbors = 12);
+    EnvironmentCluster(const box::Box& box, float r_max, unsigned int num_neighbors) : MatchEnv(box, r_max, num_neighbors) {}
 
     //! Destructor
-    ~MatchEnv();
-
-    //! Construct and return a local environment surrounding the particle indexed by i. Set the environment index to env_ind.
-    Environment buildEnv(const freud::locality::NeighborList* nlist, size_t num_bonds, size_t& bond,
-                         const vec3<float>* points, unsigned int i, unsigned int env_ind);
+    ~EnvironmentCluster();
 
     //! Determine clusters of particles with matching environments
-    /*! This is the primary interface to MatchEnv. It computes particle
+    /*! This is the primary interface to EnvironmentCluster. It computes particle
      * environments and then attempts to cluster nearby particles with similar
      * environments, unless global is set true. Otherwise, it performs a
      * pairwise comparison of all particle environments to perform the match.
@@ -271,6 +335,24 @@ public:
     void cluster(const freud::locality::NeighborList* env_nlist, const freud::locality::NeighborList* nlist,
                  const vec3<float>* points, unsigned int Np, float threshold,
                  bool registration = false, bool global = false);
+
+};
+
+//! Match local point environments to a specific motif.
+/*! The environment matching method is defined according to the paper "Identity
+ * crisis in alchemical space drives the entropic colloidal glass transition"
+ * by Erin G. Teich (http://dx.doi.org/10.1038/s41467-018-07977-2). This class is primarily provided as a companion to EnvironmentCluster that can be used to more closely analyze specific motifs. Rather than clustering all points in a system based on their local environments, this class provides more a more fine-grained computation to analyze which points match a specified motif.
+ */
+class EnvironmentMotifMatch : public MatchEnv
+{
+public:
+    //! Constructor
+    /*!
+     * \param box The system box.
+     * \param r_max Cutoff radius for cell list and clustering algorithm. Values near first minimum of the rdf are recommended.  
+     * \param num_neighbors Number of nearest neighbors taken to define the local environment of any given particle.
+     */
+    EnvironmentMotifMatch(const box::Box& box, float r_max, unsigned int num_neighbors) : MatchEnv(box, r_max, num_neighbors) {}
 
     //! Determine whether particles match a given input motif.
     /*! Given a motif composed of vectors that represent the vectors connecting
@@ -335,62 +417,8 @@ public:
     std::vector<float> minRMSDMotif(const freud::locality::NeighborList* nlist, const vec3<float>* points,
                                     unsigned int Np, const vec3<float>* motif, unsigned int motif_size,
                                     bool registration = false);
-
-    //! Get a reference to the particles, indexed into clusters according to their matching local environments
-    const util::ManagedArray<unsigned int> &getClusters()
-    {
-        return m_env_index;
-    }
-
-    //! Returns the set of vectors defining the environment indexed by i (indices culled from m_env_index)
-    std::vector<vec3<float>> getEnvironment(unsigned int i)
-    {
-        std::map<unsigned int, std::vector<vec3<float>>>::iterator it = m_env.find(i);
-        std::vector<vec3<float>> vecs = it->second;
-        return vecs;
-    }
-
-    //! Returns the entire m_Np by m_k by 3 matrix of all environments for all particles
-    const util::ManagedArray<vec3<float>> &getTotEnvironment()
-    {
-        return m_tot_env;
-    }
-
-    unsigned int getNP()
-    {
-        return m_Np;
-    }
-
-    unsigned int getNumClusters()
-    {
-        return m_num_clusters;
-    }
-    unsigned int getNumNeighbors()
-    {
-        return m_num_neighbors;
-    }
-    unsigned int getMaxNumNeighbors()
-    {
-        return m_max_num_neighbors;
-    }
-
-private:
-
-    box::Box m_box; //!< Simulation box
-    float m_r_max; //!< Square of the maximum cutoff radius at which to determine local environment
-    unsigned int m_num_neighbors;      //!< Default number of nearest neighbors used to determine which environments are compared
-               //!< during local environment clustering.
-    unsigned int m_max_num_neighbors; //!< Maximum number of neighbors in any particle's local environment. If
-                         //!< hard_r=false, m_max_num_neighbors = m_num_neighbors. In the cluster method it is also possible to provide
-                         //!< two separate neighborlists, one for environments and one for clustering.
-    unsigned int m_Np;   //!< Last number of points computed
-    unsigned int m_num_clusters; //!< Last number of local environments computed
-
-    util::ManagedArray<unsigned int> m_env_index; //!< Cluster index determined for each particle
-    std::map<unsigned int, std::vector<vec3<float> > > m_env; //!< Dictionary of (cluster id, vectors) pairs
-    util::ManagedArray<vec3<float> >
-        m_tot_env; //!< m_NP by m_max_num_neighbors by 3 matrix of all environments for all particles
 };
+
 
 }; }; // end namespace freud::environment
 

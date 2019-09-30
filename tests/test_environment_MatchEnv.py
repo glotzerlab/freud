@@ -21,7 +21,7 @@ class TestCluster(unittest.TestCase):
         num_neighbors = 14
         threshold = 0.1
 
-        match = freud.environment.MatchEnv(box, r_max, num_neighbors)
+        match = freud.environment.EnvironmentCluster(box, r_max, num_neighbors)
         with self.assertRaises(AttributeError):
             match.tot_environment
         with self.assertRaises(AttributeError):
@@ -75,7 +75,7 @@ class TestCluster(unittest.TestCase):
         num_neighbors = 6
         threshold = 0.1
 
-        match = freud.environment.MatchEnv(box, r_max, num_neighbors)
+        match = freud.environment.EnvironmentCluster(box, r_max, num_neighbors)
         match.cluster(xyz, threshold)
         clusters = match.clusters
 
@@ -108,7 +108,7 @@ class TestCluster(unittest.TestCase):
         npt.assert_allclose(sorted_env_cluster, sorted_sc_env, atol=1e-5,
                             err_msg="SC Cluster Environment fail")
 
-    # Test MatchEnv.cluster function, defining clusters using
+    # Test EnvironmentCluster.cluster function, defining clusters using
     # constant k neighbors, hard_r=false, registration=false
     def test_cluster_kNeighbor(self):
         fn = os.path.join(self.test_folder, "bcc.npy")
@@ -121,7 +121,7 @@ class TestCluster(unittest.TestCase):
         num_neighbors = 14
         threshold = 0.1
 
-        match = freud.environment.MatchEnv(box, r_max, num_neighbors)
+        match = freud.environment.EnvironmentCluster(box, r_max, num_neighbors)
         match.cluster(xyz, threshold, hard_r=False, registration=False)
         clusters = match.clusters
 
@@ -153,7 +153,7 @@ class TestCluster(unittest.TestCase):
         npt.assert_allclose(sorted_env_cluster, sorted_bcc_env, atol=1e-5,
                             err_msg="BCC Cluster Environment fail")
 
-    # Test MatchEnv.cluster function, hard_r=true, registration=false
+    # Test EnvironmentCluster.cluster function, hard_r=true, registration=false
     def test_cluster_hardr(self):
         fn = os.path.join(self.test_folder, "bcc.npy")
         xyz = np.load(fn)
@@ -165,7 +165,7 @@ class TestCluster(unittest.TestCase):
         num_neighbors = 14
         threshold = 0.1
 
-        match = freud.environment.MatchEnv(box, r_max, num_neighbors)
+        match = freud.environment.EnvironmentCluster(box, r_max, num_neighbors)
         match.cluster(xyz, threshold, hard_r=True, registration=False)
         clusters = match.clusters
 
@@ -197,7 +197,7 @@ class TestCluster(unittest.TestCase):
         npt.assert_allclose(sorted_env_cluster, sorted_bcc_env, atol=1e-5,
                             err_msg="BCC Cluster Environment fail")
 
-    # Test MatchEnv.cluster function,
+    # Test EnvironmentCluster.cluster function,
     # hard_r=false, registration=true, global=true
     def test_cluster_registration(self):
         fn = os.path.join(self.test_folder, "sc_N54.npy")
@@ -221,7 +221,7 @@ class TestCluster(unittest.TestCase):
         L = np.max(xyz)*3.0
         box = freud.box.Box(L, L, L, 0, 0, 0)
 
-        match = freud.environment.MatchEnv(box, r_max, num_neighbors)
+        match = freud.environment.EnvironmentCluster(box, r_max, num_neighbors)
         match.cluster(xyz, threshold, hard_r=False,
                       registration=True, global_search=True)
         clusters = match.clusters
@@ -240,7 +240,7 @@ class TestCluster(unittest.TestCase):
         npt.assert_equal(len(returnResult[1]), num_neighbors,
                          err_msg="two environments are not similar")
 
-    # Test MatchEnv.minimizeRMSD and registration functionality.
+    # Test EnvironmentCluster.minimizeRMSD and registration functionality.
     # Overkill? Maybe.
     def test_minimizeRMSD(self):
         env_vec = np.array([[1, 0, 0],
@@ -353,7 +353,7 @@ class TestCluster(unittest.TestCase):
         box = freud.box.Box.cube(L)
         r_max = 3.1
         num_neighbors = 14
-        match = freud.environment.MatchEnv(box, r_max, num_neighbors)
+        match = freud.environment.EnvironmentCluster(box, r_max, num_neighbors)
         self.assertEqual(str(match), str(eval(repr(match))))
 
     def test_repr_png(self):
@@ -372,7 +372,7 @@ class TestCluster(unittest.TestCase):
         xyz = np.array(xyz, dtype=np.float32)
         xyz[:, 2] = 0
         xyz.flags['WRITEABLE'] = False
-        match = freud.environment.MatchEnv(box, r_max, num_neighbors)
+        match = freud.environment.EnvironmentCluster(box, r_max, num_neighbors)
 
         with self.assertRaises(AttributeError):
             match.plot()
