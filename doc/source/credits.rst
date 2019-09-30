@@ -87,6 +87,9 @@ Vyas Ramasubramani - **Lead developer**
 * Standardized neighbor API in Python to use dictionaries of arguments or NeighborList objects for all pair computations.
 * Standardized all attribute access into C++ with Python properties.
 * Standardized variable naming of points/query\_points across all of freud.
+* Standardized vector directionality in computes.
+* Enabled usage of quaternions in place of angles for orientations in 2D PMFT calculations.
+* Wrote new freud 2.0 compute APIs based on neighbor\_query objects and neighbors as either dictionaries or NeighborLists.
 
 Bradley Dice - **Lead developer**
 
@@ -114,6 +117,7 @@ Bradley Dice - **Lead developer**
 * Updated AngularSeparation class.
 * Rewrote Voronoi implementation to leverage voro++.
 * Implemented Voronoi bond weighting to enable Minkowski structure metrics.
+* Refactored methods in Box and PeriodicBuffer for v2.0.
 * Refactored cluster module
 
 Richmond Newman

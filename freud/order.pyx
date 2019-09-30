@@ -302,7 +302,7 @@ cdef class Hexatic(PairCompute):
         del self.thisptr
 
     @Compute._compute()
-    def compute(self, box, points, neighbors=None):
+    def compute(self, neighbor_query, neighbors=None):
         R"""Calculates the correlation function and adds to the current
         histogram.
 
@@ -318,16 +318,15 @@ cdef class Hexatic(PairCompute):
                 :code:`None`).
         """
         cdef:
-            freud.box.Box b
             freud.locality.NeighborQuery nq
-            freud.locality.NlistptrWrapper nlistptr
+            freud.locality.NeighborList nlist
             freud.locality._QueryArgs qargs
             const float[:, ::1] l_query_points
             unsigned int num_query_points
 
-        b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(box, points, neighbors=neighbors)
-        self.thisptr.compute(nlistptr.get_ptr(),
+        nq, nlist, qargs, l_query_points, num_query_points = \
+            self.preprocess_arguments(neighbor_query, neighbors=neighbors)
+        self.thisptr.compute(nlist.get_ptr(),
                              nq.get_ptr(), dereference(qargs.thisptr))
         return self
 
@@ -372,7 +371,7 @@ cdef class Translational(PairCompute):
         del self.thisptr
 
     @Compute._compute()
-    def compute(self, box, points, neighbors=None):
+    def compute(self, neighbor_query, neighbors=None):
         R"""Calculates the local descriptors.
 
         Args:
@@ -387,17 +386,16 @@ cdef class Translational(PairCompute):
                 :code:`None`).
         """
         cdef:
-            freud.box.Box b
             freud.locality.NeighborQuery nq
-            freud.locality.NlistptrWrapper nlistptr
+            freud.locality.NeighborList nlist
             freud.locality._QueryArgs qargs
             const float[:, ::1] l_query_points
             unsigned int num_query_points
 
-        b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(box, points, neighbors=neighbors)
+        nq, nlist, qargs, l_query_points, num_query_points = \
+            self.preprocess_arguments(neighbor_query, neighbors=neighbors)
 
-        self.thisptr.compute(nlistptr.get_ptr(),
+        self.thisptr.compute(nlist.get_ptr(),
                              nq.get_ptr(), dereference(qargs.thisptr))
         return self
 
@@ -521,7 +519,7 @@ cdef class Steinhardt(PairCompute):
             freud.util.arr_type_t.FLOAT)
 
     @Compute._compute()
-    def compute(self, box, points, neighbors=None):
+    def compute(self, neighbor_query, neighbors=None):
         R"""Compute the order parameter.
 
         Args:
@@ -534,17 +532,16 @@ cdef class Steinhardt(PairCompute):
                 (Default value = :code:`None`).
         """
         cdef:
-            freud.box.Box b
             freud.locality.NeighborQuery nq
-            freud.locality.NlistptrWrapper nlistptr
+            freud.locality.NeighborList nlist
             freud.locality._QueryArgs qargs
             const float[:, ::1] l_query_points
             unsigned int num_query_points
 
-        b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(box, points, neighbors=neighbors)
+        nq, nlist, qargs, l_query_points, num_query_points = \
+            self.preprocess_arguments(neighbor_query, neighbors=neighbors)
 
-        self.thisptr.compute(nlistptr.get_ptr(),
+        self.thisptr.compute(nlist.get_ptr(),
                              nq.get_ptr(),
                              dereference(qargs.thisptr))
         return self
@@ -662,7 +659,7 @@ cdef class SolidLiquid(PairCompute):
         del self.thisptr
 
     @Compute._compute()
-    def compute(self, box, points, neighbors=None):
+    def compute(self, neighbor_query, neighbors=None):
         R"""Compute the order parameter.
 
         Args:
@@ -675,17 +672,15 @@ cdef class SolidLiquid(PairCompute):
                 (Default value = :code:`None`).
         """
         cdef:
-            freud.box.Box b
             freud.locality.NeighborQuery nq
-            freud.locality.NlistptrWrapper nlistptr
+            freud.locality.NeighborList nlist
             freud.locality._QueryArgs qargs
             const float[:, ::1] l_query_points
             unsigned int num_query_points
 
-        b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(box, points, neighbors=neighbors)
-
-        self.thisptr.compute(nlistptr.get_ptr(),
+        nq, nlist, qargs, l_query_points, num_query_points = \
+            self.preprocess_arguments(neighbor_query, neighbors=neighbors)
+        self.thisptr.compute(nlist.get_ptr(),
                              nq.get_ptr(),
                              dereference(qargs.thisptr))
 
@@ -839,18 +834,14 @@ cdef class RotationalAutocorrelation(Compute):
         return self
 
     @Compute._computed_property()
-    def autocorrelation(self):
+    def order(self):
         return self.thisptr.getRotationalAutocorrelation()
 
     @Compute._computed_property()
-    def ra_array(self):
+    def particle_order(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getRAArray(),
             freud.util.arr_type_t.COMPLEX_FLOAT)
-
-    @Compute._computed_property()
-    def num_orientations(self):
-        return self.thisptr.getN()
 
     @property
     def azimuthal(self):

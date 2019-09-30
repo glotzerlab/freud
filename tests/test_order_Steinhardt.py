@@ -18,7 +18,7 @@ class TestSteinhardt(unittest.TestCase):
         box, positions = util.make_box_and_random_points(L, N)
 
         comp = freud.order.Steinhardt(6)
-        comp.compute(box, positions, neighbors={'r_max': 1.5})
+        comp.compute((box, positions), neighbors={'r_max': 1.5})
 
         npt.assert_equal(comp.order.shape[0], N)
 
@@ -30,7 +30,7 @@ class TestSteinhardt(unittest.TestCase):
         box, positions = util.make_box_and_random_points(L, N)
 
         comp = freud.order.Steinhardt(0)
-        comp.compute(box, positions, neighbors={'r_max': 1.5})
+        comp.compute((box, positions), neighbors={'r_max': 1.5})
 
         npt.assert_allclose(comp.order, 1, atol=1e-5)
 
@@ -44,12 +44,12 @@ class TestSteinhardt(unittest.TestCase):
 
         for odd_l in range(1, 20, 2):
             comp = freud.order.Steinhardt(odd_l)
-            comp.compute(box, positions, neighbors={'num_neighbors': 2})
+            comp.compute((box, positions), neighbors={'num_neighbors': 2})
             npt.assert_allclose(comp.order, [1, 0, 1], atol=1e-5)
 
         for even_l in range(0, 20, 2):
             comp = freud.order.Steinhardt(even_l)
-            comp.compute(box, positions, neighbors={'num_neighbors': 2})
+            comp.compute((box, positions), neighbors={'num_neighbors': 2})
             npt.assert_allclose(comp.order, 1, atol=1e-5)
 
     def test_identical_environments_Ql(self):
@@ -57,16 +57,16 @@ class TestSteinhardt(unittest.TestCase):
         r_max = 1.5
         test_set = util.make_raw_query_nlist_test_set(
             box, positions, positions, 'ball', r_max, 0, True)
-        for ts in test_set:
+        for nq, neighbors in test_set:
             comp = freud.order.Steinhardt(6)
-            comp.compute(box, ts[0], neighbors=ts[1])
+            comp.compute(nq, neighbors=neighbors)
             npt.assert_allclose(
                 np.average(comp.order), PERFECT_FCC_Q6, atol=1e-5)
             npt.assert_allclose(comp.order, comp.order[0], atol=1e-5)
             self.assertAlmostEqual(comp.norm, PERFECT_FCC_Q6, delta=1e-5)
 
             comp = freud.order.Steinhardt(6, average=True)
-            comp.compute(box, ts[0], neighbors=ts[1])
+            comp.compute(nq, neighbors=neighbors)
             npt.assert_allclose(
                 np.average(comp.order), PERFECT_FCC_Q6, atol=1e-5)
             npt.assert_allclose(comp.order, comp.order[0], atol=1e-5)
@@ -79,16 +79,16 @@ class TestSteinhardt(unittest.TestCase):
         n = 12
         test_set = util.make_raw_query_nlist_test_set(
             box, positions, positions, 'nearest', r_max, n, True)
-        for ts in test_set:
+        for nq, neighbors in test_set:
             comp = freud.order.Steinhardt(6)
-            comp.compute(box, ts[0], neighbors=ts[1])
+            comp.compute(nq, neighbors=neighbors)
             npt.assert_allclose(
                 np.average(comp.order), PERFECT_FCC_Q6, atol=1e-5)
             npt.assert_allclose(comp.order, comp.order[0], atol=1e-5)
             self.assertAlmostEqual(comp.norm, PERFECT_FCC_Q6, delta=1e-5)
 
             comp = freud.order.Steinhardt(6, average=True)
-            comp.compute(box, ts[0], neighbors=ts[1])
+            comp.compute(nq, neighbors=neighbors)
             npt.assert_allclose(
                 np.average(comp.order), PERFECT_FCC_Q6, atol=1e-5)
             npt.assert_allclose(comp.order, comp.order[0], atol=1e-5)
@@ -102,16 +102,16 @@ class TestSteinhardt(unittest.TestCase):
             box, perturbed_positions, perturbed_positions,
             'nearest', r_max, n, True)
         # Ensure exactly 13 values change for the perturbed system
-        for ts in test_set:
+        for nq, neighbors in test_set:
             comp = freud.order.Steinhardt(6)
-            comp.compute(box, ts[0], neighbors=ts[1])
+            comp.compute(nq, neighbors=neighbors)
             self.assertEqual(
                 sum(~np.isclose(comp.Ql, PERFECT_FCC_Q6, rtol=1e-6)), 13)
 
             # More than 13 particles should change for
             # Ql averaged over neighbors
             comp = freud.order.Steinhardt(6, average=True)
-            comp.compute(box, ts[0], neighbors=ts[1])
+            comp.compute(nq, neighbors=neighbors)
             self.assertGreater(
                 sum(~np.isclose(comp.order, PERFECT_FCC_Q6, rtol=1e-6)), 13)
 
@@ -121,16 +121,16 @@ class TestSteinhardt(unittest.TestCase):
         r_max = 1.5
         test_set = util.make_raw_query_nlist_test_set(
             box, positions, positions, 'ball', r_max, 0, True)
-        for ts in test_set:
+        for nq, neighbors in test_set:
             comp = freud.order.Steinhardt(6, Wl=True)
-            comp.compute(box, ts[0], neighbors=ts[1])
+            comp.compute(nq, neighbors=neighbors)
             npt.assert_allclose(
                 np.average(comp.order), PERFECT_FCC_W6, atol=1e-5)
             npt.assert_allclose(comp.order, comp.order[0], atol=1e-5)
             self.assertAlmostEqual(comp.norm, PERFECT_FCC_W6, delta=1e-5)
 
             comp = freud.order.Steinhardt(6, Wl=True, average=True)
-            comp.compute(box, ts[0], neighbors=ts[1])
+            comp.compute(nq, neighbors=neighbors)
             npt.assert_allclose(
                 np.average(comp.order), PERFECT_FCC_W6, atol=1e-5)
             npt.assert_allclose(comp.order, comp.order[0], atol=1e-5)
@@ -142,9 +142,9 @@ class TestSteinhardt(unittest.TestCase):
         n = 12
         test_set = util.make_raw_query_nlist_test_set(
             box, positions, positions, 'nearest', r_max, n, True)
-        for ts in test_set:
+        for nq, neighbors in test_set:
             comp = freud.order.Steinhardt(6, Wl=True)
-            comp.compute(box, ts[0], neighbors=ts[1])
+            comp.compute(nq, neighbors=neighbors)
             npt.assert_allclose(
                 np.real(np.average(comp.order)), PERFECT_FCC_W6, atol=1e-5)
             npt.assert_allclose(comp.order, comp.order[0], atol=1e-5)
@@ -152,7 +152,7 @@ class TestSteinhardt(unittest.TestCase):
                 np.real(comp.norm), PERFECT_FCC_W6, delta=1e-5)
 
             comp = freud.order.Steinhardt(6, Wl=True, average=True)
-            comp.compute(box, ts[0], neighbors=ts[1])
+            comp.compute(nq, neighbors=neighbors)
             npt.assert_allclose(
                 np.real(np.average(comp.order)), PERFECT_FCC_W6, atol=1e-5)
             npt.assert_allclose(comp.order, comp.order[0], atol=1e-5)
@@ -167,9 +167,10 @@ class TestSteinhardt(unittest.TestCase):
             box, positions, positions, 'nearest', r_max, n, True)
 
         # Skip test sets without an explicit neighbor list
-        for ts in filter(lambda ts: type(ts[1]) == freud.locality.NeighborList,
-                         test_set):
-            nlist = ts[1]
+        for nq, neighbors in filter(
+                lambda ts: type(ts[1]) == freud.locality.NeighborList,
+                test_set):
+            nlist = neighbors
 
             for wt in [0, 0.1, 0.9, 1.1, 10, 1e6]:
                 # Change the weight of the first bond for each particle
@@ -183,7 +184,7 @@ class TestSteinhardt(unittest.TestCase):
                     weights)
 
                 comp = freud.order.Steinhardt(6, weighted=True)
-                comp.compute(box, ts[0], neighbors=weighted_nlist)
+                comp.compute(nq, neighbors=weighted_nlist)
 
                 # Unequal neighbor weighting in a perfect FCC structure
                 # appears to increase the Q6 order parameter
@@ -193,7 +194,7 @@ class TestSteinhardt(unittest.TestCase):
 
                 # Ensure that W6 values are altered by changing the weights
                 comp = freud.order.Steinhardt(6, Wl=True, weighted=True)
-                comp.compute(box, ts[0], neighbors=weighted_nlist)
+                comp.compute(nq, neighbors=weighted_nlist)
                 with self.assertRaises(AssertionError):
                     npt.assert_allclose(
                         np.real(np.average(comp.order)),
@@ -211,7 +212,7 @@ class TestSteinhardt(unittest.TestCase):
             comp.order
 
         (box, positions) = util.make_fcc(4, 4, 4)
-        comp.compute(box, positions, neighbors={'r_max': 1.5})
+        comp.compute((box, positions), neighbors={'r_max': 1.5})
 
         comp.norm
         comp.order
@@ -223,8 +224,9 @@ class TestSteinhardt(unittest.TestCase):
         box, points = util.make_box_and_random_points(L, num_points, seed=0)
 
         st = freud.order.Steinhardt(6)
-        first_result = st.compute(box, points, neighbors={'r_max': 1.5}).norm
-        second_result = st.compute(box, points, neighbors={'r_max': 1.5}).norm
+        first_result = st.compute((box, points), neighbors={'r_max': 1.5}).norm
+        second_result = st.compute((box, points),
+                                   neighbors={'r_max': 1.5}).norm
 
         npt.assert_array_almost_equal(first_result, second_result)
 
@@ -252,9 +254,9 @@ class TestSteinhardt(unittest.TestCase):
         q6 = freud.order.Steinhardt(6)
         w6 = freud.order.Steinhardt(6, Wl=True)
 
-        q6.compute(box, positions, neighbors=nlist)
+        q6.compute((box, positions), neighbors=nlist)
         q6_unrotated_order = q6.order[0]
-        w6.compute(box, positions, neighbors=nlist)
+        w6.compute((box, positions), neighbors=nlist)
         w6_unrotated_order = w6.order[0]
 
         for i in range(10):
@@ -263,12 +265,12 @@ class TestSteinhardt(unittest.TestCase):
             positions_rotated = rowan.rotate(quat, positions)
 
             # Ensure Q6 is rotationally invariant
-            q6.compute(box, positions_rotated, neighbors=nlist)
+            q6.compute((box, positions_rotated), neighbors=nlist)
             npt.assert_allclose(q6.order[0], q6_unrotated_order, rtol=1e-5)
             npt.assert_allclose(q6.order[0], PERFECT_FCC_Q6, rtol=1e-5)
 
             # Ensure W6 is rotationally invariant
-            w6.compute(box, positions_rotated, neighbors=nlist)
+            w6.compute((box, positions_rotated), neighbors=nlist)
             npt.assert_allclose(w6.order[0], w6_unrotated_order, rtol=1e-5)
             npt.assert_allclose(w6.order[0], PERFECT_FCC_W6, rtol=1e-5)
 

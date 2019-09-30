@@ -59,8 +59,7 @@ inline std::complex<float> RotationalAutocorrelation::hypersphere_harmonic(const
 
 void RotationalAutocorrelation::compute(const quat<float>* ref_ors, const quat<float>* ors, unsigned int N)
 {
-    m_N = N;
-    m_RA_array.prepare(m_N);
+    m_RA_array.prepare(N);
 
     // Precompute the hyperspherical harmonics for the unit quaternion. The
     // default quaternion constructor gives a unit quaternion. We will assume

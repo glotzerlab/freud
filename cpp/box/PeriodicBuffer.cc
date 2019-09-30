@@ -3,15 +3,15 @@
 
 #include <stdexcept>
 
-#include "ParticleBuffer.h"
+#include "PeriodicBuffer.h"
 
-/*! \file ParticleBuffer.cc
-    \brief Replicates particles across periodic boundaries.
+/*! \file PeriodicBuffer.cc
+    \brief Replicates points across periodic boundaries.
 */
 
 namespace freud { namespace box {
 
-void ParticleBuffer::compute(const vec3<float>* points, const unsigned int Np, const vec3<float> buff,
+void PeriodicBuffer::compute(const vec3<float>* points, const unsigned int Np, const vec3<float> buff,
                              const bool use_images)
 {
     if (buff.x < 0)
@@ -49,11 +49,11 @@ void ParticleBuffer::compute(const vec3<float>* points, const unsigned int Np, c
         images.z = 0;
     }
 
-    m_buffer_particles.clear();
+    m_buffer_points.clear();
     m_buffer_ids.clear();
 
-    // for each particle
-    for (unsigned int particle = 0; particle < Np; particle++)
+    // for each point
+    for (unsigned int point_id = 0; point_id < Np; point_id++)
     {
         for (int i = use_images ? 0 : -images.x; i <= images.x; i++)
         {
@@ -67,14 +67,14 @@ void ParticleBuffer::compute(const vec3<float>* points, const unsigned int Np, c
                         continue;
                     }
 
-                    // Compute the new position for the buffer particle,
+                    // Compute the new position for the buffer point,
                     // shifted by images.
-                    vec3<float> particle_image = points[particle];
-                    particle_image += float(i) * m_box.getLatticeVector(0);
-                    particle_image += float(j) * m_box.getLatticeVector(1);
+                    vec3<float> point_image = points[point_id];
+                    point_image += float(i) * m_box.getLatticeVector(0);
+                    point_image += float(j) * m_box.getLatticeVector(1);
                     if (!is2D)
                     {
-                        particle_image += float(k) * m_box.getLatticeVector(2);
+                        point_image += float(k) * m_box.getLatticeVector(2);
                     }
 
                     if (use_images)
@@ -82,24 +82,24 @@ void ParticleBuffer::compute(const vec3<float>* points, const unsigned int Np, c
                         // Wrap the positions back into the buffer box and
                         // always append them if a number of images was
                         // specified. Performing the check this way ensures we
-                        // have the correct number of particles instead of
+                        // have the correct number of points instead of
                         // relying on the floating point precision of the
                         // fractional check below.
-                        m_buffer_particles.push_back(m_buffer_box.wrap(particle_image));
-                        m_buffer_ids.push_back(particle);
+                        m_buffer_points.push_back(m_buffer_box.wrap(point_image));
+                        m_buffer_ids.push_back(point_id);
                     }
                     else
                     {
                         // When using a buffer "skin distance," we check the
-                        // fractional coordinates to see if the particles are
+                        // fractional coordinates to see if the points are
                         // inside the buffer box. Unexpected results may occur
                         // due to numerical imprecision in this check!
-                        vec3<float> buff_frac = m_buffer_box.makeFraction(particle_image);
+                        vec3<float> buff_frac = m_buffer_box.makeFractional(point_image);
                         if (0 <= buff_frac.x && buff_frac.x < 1 && 0 <= buff_frac.y && buff_frac.y < 1
                             && (is2D || (0 <= buff_frac.z && buff_frac.z < 1)))
                         {
-                            m_buffer_particles.push_back(particle_image);
-                            m_buffer_ids.push_back(particle);
+                            m_buffer_points.push_back(point_image);
+                            m_buffer_ids.push_back(point_id);
                         }
                     }
                 }

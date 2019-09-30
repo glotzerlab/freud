@@ -48,15 +48,11 @@ cdef class CorrelationFunction(SpatialHistogram1D):
     bin.
 
     .. note::
-        **2D:** :class:`freud.density.ComplexCF` properly handles 2D boxes.
-        The points must be passed in as :code:`[x, y, 0]`.
-        Failing to set z=0 will lead to undefined behavior.
-
-    .. note::
         **Self-correlation:** It is often the case that we wish to compute the
-        correlation function of a set of points with itself. If :code:`query_points`
-        is the same as :code:`points`, not provided, or :code:`None`, we
-        omit accumulating the self-correlation value in the first bin.
+        correlation function of a set of points with itself. If
+        :code:`query_points` is the same as :code:`points`, not provided, or
+        :code:`None`, we omit accumulating the self-correlation value in the
+        first bin.
 
     Args:
         bins (unsigned int):
@@ -65,7 +61,7 @@ cdef class CorrelationFunction(SpatialHistogram1D):
             Maximum pointwise distance to include in the calculation.
 
     Attributes:
-        RDF ((:math:`N_{bins}`) :class:`numpy.ndarray`):
+        correlation ((:math:`N_{bins}`) :class:`numpy.ndarray`):
             Expected (average) product of all values at a given radial
             distance.
     """  # noqa E501
@@ -82,7 +78,7 @@ cdef class CorrelationFunction(SpatialHistogram1D):
         del self.thisptr
 
     @Compute._compute()
-    def accumulate(self, box, points, values, query_points=None,
+    def accumulate(self, neighbor_query, values, query_points=None,
                    query_values=None, neighbors=None):
         R"""Calculates the correlation function and adds to the current
         histogram.
@@ -107,15 +103,14 @@ cdef class CorrelationFunction(SpatialHistogram1D):
                 :code:`None`).
         """  # noqa E501
         cdef:
-            freud.box.Box b
             freud.locality.NeighborQuery nq
-            freud.locality.NlistptrWrapper nlistptr
+            freud.locality.NeighborList nlist
             freud.locality._QueryArgs qargs
             const float[:, ::1] l_query_points
             unsigned int num_query_points
 
-        b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(box, points, query_points, neighbors)
+        nq, nlist, qargs, l_query_points, num_query_points = \
+            self.preprocess_arguments(neighbor_query, query_points, neighbors)
 
         # Save if any inputs have been complex so far.
         self.is_complex = self.is_complex or np.any(np.iscomplex(values)) or \
@@ -138,7 +133,7 @@ cdef class CorrelationFunction(SpatialHistogram1D):
             <np.complex128_t*> &l_values[0],
             <vec3[float]*> &l_query_points[0, 0],
             <np.complex128_t*> &l_query_values[0],
-            num_query_points, nlistptr.get_ptr(),
+            num_query_points, nlist.get_ptr(),
             dereference(qargs.thisptr))
         return self
 
@@ -156,7 +151,7 @@ cdef class CorrelationFunction(SpatialHistogram1D):
         self.thisptr.reset()
 
     @Compute._compute()
-    def compute(self, box, points, values, query_points=None,
+    def compute(self, neighbor_query, values, query_points=None,
                 query_values=None, neighbors=None):
         R"""Calculates the correlation function for the given points. Will
         overwrite the current histogram.
@@ -181,7 +176,7 @@ cdef class CorrelationFunction(SpatialHistogram1D):
                 :code:`None`).
         """  # noqa E501
         self.reset()
-        self.accumulate(box, points, values, query_points, query_values,
+        self.accumulate(neighbor_query, values, query_points, query_values,
                         neighbors)
         return self
 
@@ -287,7 +282,7 @@ cdef class GaussianDensity(Compute):
 
     @Compute._computed_property()
     def gaussian_density(self):
-        if self.box.is2D():
+        if self.box.is2D:
             return np.squeeze(freud.util.make_managed_numpy_array(
                 &self.thisptr.getDensity(), freud.util.arr_type_t.FLOAT))
         else:
@@ -327,7 +322,7 @@ cdef class GaussianDensity(Compute):
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         import freud.plot
-        if not self.box.is2D():
+        if not self.box.is2D:
             return None
         return freud.plot.density_plot(self.gaussian_density, self.box, ax=ax)
 
@@ -406,7 +401,7 @@ cdef class LocalDensity(PairCompute):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     @Compute._compute()
-    def compute(self, box, points, query_points=None, neighbors=None):
+    def compute(self, neighbor_query, query_points=None, neighbors=None):
         R"""Calculates the local density for the specified points. Does not
         accumulate (will overwrite current data).
 
@@ -424,19 +419,18 @@ cdef class LocalDensity(PairCompute):
                 :code:`None`).
         """  # noqa E501
         cdef:
-            freud.box.Box b
             freud.locality.NeighborQuery nq
-            freud.locality.NlistptrWrapper nlistptr
+            freud.locality.NeighborList nlist
             freud.locality._QueryArgs qargs
             const float[:, ::1] l_query_points
             unsigned int num_query_points
 
-        b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(box, points, query_points, neighbors)
+        nq, nlist, qargs, l_query_points, num_query_points = \
+            self.preprocess_arguments(neighbor_query, query_points, neighbors)
         self.thisptr.compute(
             nq.get_ptr(),
             <vec3[float]*> &l_query_points[0, 0],
-            num_query_points, nlistptr.get_ptr(),
+            num_query_points, nlist.get_ptr(),
             dereference(qargs.thisptr))
         return self
 
@@ -521,7 +515,7 @@ cdef class RDF(SpatialHistogram1D):
             del self.thisptr
 
     @Compute._compute()
-    def accumulate(self, box, points, query_points=None, neighbors=None):
+    def accumulate(self, neighbor_query, query_points=None, neighbors=None):
         R"""Calculates the RDF and adds to the current RDF histogram.
 
         Args:
@@ -537,24 +531,23 @@ cdef class RDF(SpatialHistogram1D):
                 :code:`None`).
         """  # noqa E501
         cdef:
-            freud.box.Box b
             freud.locality.NeighborQuery nq
-            freud.locality.NlistptrWrapper nlistptr
+            freud.locality.NeighborList nlist
             freud.locality._QueryArgs qargs
             const float[:, ::1] l_query_points
             unsigned int num_query_points
-        b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(box, points, query_points, neighbors)
+        nq, nlist, qargs, l_query_points, num_query_points = \
+            self.preprocess_arguments(neighbor_query, query_points, neighbors)
 
         self.thisptr.accumulate(
             nq.get_ptr(),
             <vec3[float]*> &l_query_points[0, 0],
-            num_query_points, nlistptr.get_ptr(),
+            num_query_points, nlist.get_ptr(),
             dereference(qargs.thisptr))
         return self
 
     @Compute._compute()
-    def compute(self, box, points, query_points=None, neighbors=None):
+    def compute(self, neighbor_query, query_points=None, neighbors=None):
         R"""Calculates the RDF for the specified points. Will overwrite the current
         histogram.
 
@@ -571,7 +564,7 @@ cdef class RDF(SpatialHistogram1D):
                 :code:`None`).
         """  # noqa E501
         self.reset()
-        self.accumulate(box, points, query_points, neighbors)
+        self.accumulate(neighbor_query, query_points, neighbors)
         return self
 
     @Compute._computed_property()

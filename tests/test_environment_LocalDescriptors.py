@@ -98,8 +98,8 @@ class TestLocalDescriptors(unittest.TestCase):
         with self.assertRaises(AttributeError):
             comp.num_sphs
 
-        comp.compute(box, positions, neighbors={'num_neighbors':
-                                                num_neighbors})
+        comp.compute((box, positions), neighbors={'num_neighbors':
+                                                  num_neighbors})
 
         # Test access
         comp.sph
@@ -118,7 +118,7 @@ class TestLocalDescriptors(unittest.TestCase):
         box, positions = make_box_and_random_points(L, N)
 
         comp = freud.environment.LocalDescriptors(l_max, True, 'global')
-        comp.compute(box, positions,
+        comp.compute((box, positions),
                      neighbors=dict(num_neighbors=num_neighbors))
 
         sphs = comp.sph
@@ -140,10 +140,10 @@ class TestLocalDescriptors(unittest.TestCase):
                                                   mode='particle_local')
 
         with self.assertRaises(RuntimeError):
-            comp.compute(box, positions,
+            comp.compute((box, positions),
                          neighbors=dict(num_neighbors=num_neighbors))
 
-        comp.compute(box, positions,
+        comp.compute((box, positions),
                      orientations=orientations,
                      neighbors=dict(num_neighbors=num_neighbors))
 
@@ -175,7 +175,7 @@ class TestLocalDescriptors(unittest.TestCase):
 
         comp = freud.environment.LocalDescriptors(l_max, True)
         qargs = {'num_neighbors': num_neighbors}
-        comp.compute(box, positions, positions2, neighbors=qargs)
+        comp.compute((box, positions), positions2, neighbors=qargs)
 
         aq = freud.locality.AABBQuery(box, positions)
         nlist = aq.query(positions2, qargs).toNeighborList()
@@ -193,8 +193,8 @@ class TestLocalDescriptors(unittest.TestCase):
                                        size=(N//3, 3)).astype(np.float32)
 
         comp = freud.environment.LocalDescriptors(l_max, True)
-        comp.compute(box, positions, positions2, neighbors={'num_neighbors':
-                                                            num_neighbors})
+        comp.compute((box, positions), positions2, neighbors={'num_neighbors':
+                                                              num_neighbors})
         sphs = comp.sph
         self.assertEqual(sphs.shape[0], N//3*num_neighbors)
 
@@ -221,14 +221,14 @@ class TestLocalDescriptors(unittest.TestCase):
                           dict(exclude_ii=True,
                                num_neighbors=num_neighbors)).toNeighborList()
             ld = freud.environment.LocalDescriptors(l_max, mode='global')
-            ld.compute(box, points, neighbors=nl)
+            ld.compute((box, points), neighbors=nl)
 
             Ql = get_Ql(points, ld, nl)
 
             # Test all allowable values of l.
             for L in range(2, l_max+1):
                 steinhardt = freud.order.Steinhardt(L)
-                steinhardt.compute(box, points, neighbors=nl)
+                steinhardt.compute((box, points), neighbors=nl)
                 # Some of the calculations done for Steinhardt can be imprecise
                 # in cases where there is no symmetry. Since simple cubic
                 # should have a 0 Ql value in many cases, we need to set high
@@ -260,7 +260,7 @@ class TestLocalDescriptors(unittest.TestCase):
                           dict(exclude_ii=True,
                                num_neighbors=num_neighbors)).toNeighborList()
             ld = freud.environment.LocalDescriptors(l_max, mode='global')
-            ld.compute(box, points, neighbors=nl)
+            ld.compute((box, points), neighbors=nl)
 
             # Generate random weights for each bond
             nl = freud.locality.NeighborList.from_arrays(
@@ -273,7 +273,7 @@ class TestLocalDescriptors(unittest.TestCase):
             # Test all allowable values of l.
             for L in range(2, l_max+1):
                 steinhardt = freud.order.Steinhardt(L, weighted=True)
-                steinhardt.compute(box, points, neighbors=nl)
+                steinhardt.compute((box, points), neighbors=nl)
                 # Some of the calculations done for Steinhardt can be imprecise
                 # in cases where there is no symmetry. Since simple cubic
                 # should have a 0 Ql value in many cases, we need to set high
@@ -307,14 +307,14 @@ class TestLocalDescriptors(unittest.TestCase):
                           dict(exclude_ii=True,
                                num_neighbors=num_neighbors)).toNeighborList()
             ld = freud.environment.LocalDescriptors(l_max, mode='global')
-            ld.compute(box, points, neighbors=nl)
+            ld.compute((box, points), neighbors=nl)
 
             Wl = get_Wl(points, ld, nl)
 
             # Test all allowable values of l.
             for L in range(2, l_max+1):
                 steinhardt = freud.order.Steinhardt(L, Wl=True)
-                steinhardt.compute(box, points, neighbors=nl)
+                steinhardt.compute((box, points), neighbors=nl)
                 npt.assert_array_almost_equal(steinhardt.order, Wl[:, L])
 
     @skipIfMissing('scipy.special')
@@ -338,11 +338,11 @@ class TestLocalDescriptors(unittest.TestCase):
                            num_neighbors=num_neighbors)).toNeighborList()
 
         ld = freud.environment.LocalDescriptors(l_max, mode='global')
-        ld.compute(box, points, neighbors=nl)
+        ld.compute((box, points), neighbors=nl)
 
         # Loop over the sphs and compute them explicitly.
         for idx, (i, j) in enumerate(nl):
-            bond = box.wrap(points[j] - points[i])
+            bond = box.wrap(points[i] - points[j])
             r = np.linalg.norm(bond)
             theta = np.arccos(bond[2]/r)
             phi = np.arctan2(bond[1], bond[0])
@@ -399,11 +399,11 @@ class TestLocalDescriptors(unittest.TestCase):
                            num_neighbors=num_neighbors)).toNeighborList()
 
         ld = freud.environment.LocalDescriptors(l_max, mode='global')
-        ld.compute(box, ref_points, points, neighbors=nl)
+        ld.compute((box, ref_points), points, neighbors=nl)
 
         # Loop over the sphs and compute them explicitly.
         for idx, (i, j) in enumerate(nl):
-            bond = box.wrap(points[j] - ref_points[i])
+            bond = box.wrap(points[i] - ref_points[j])
             r = np.linalg.norm(bond)
             theta = np.arccos(bond[2]/r)
             phi = np.arctan2(bond[1], bond[0])

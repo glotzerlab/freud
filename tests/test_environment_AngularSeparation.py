@@ -92,7 +92,7 @@ class TestAngularSeparationNeighbor(unittest.TestCase):
         ang = freud.environment.AngularSeparationNeighbor()
         qargs = dict(num_neighbors=num_neighbors, r_guess=r_guess,
                      exclude_ii=True)
-        ang.compute(box, points, ors,
+        ang.compute((box, points), ors,
                     equiv_orientations=equivalent_orientations,
                     neighbors=qargs)
 
@@ -122,7 +122,7 @@ class TestAngularSeparationNeighbor(unittest.TestCase):
                                              dtype=np.float32)
 
         ang = freud.environment.AngularSeparationNeighbor()
-        ang.compute(box, points, ors,
+        ang.compute((box, points), ors,
                     equiv_orientations=equivalent_orientations,
                     neighbors=dict(num_neighbors=num_neighbors,
                                    r_guess=r_guess))

@@ -1,9 +1,14 @@
 version: 2
 
 references:
-  container_ubuntu: &test_container_config_ubuntu
+  container_ubuntu18: &test_container_config_ubuntu18
     docker:
       - image: glotzerlab/ci:2019.06-ubuntu18.04
+    working_directory: ~/ci/freud
+
+  container_ubuntu19: &test_container_config_ubuntu19
+    docker:
+      - image: glotzerlab/ci:2019.06-ubuntu19.04
     working_directory: ~/ci/freud
 
   container_manylinux: &container_manylinux
@@ -41,16 +46,16 @@ references:
       name: Install dependencies
       command: |
         git submodule update --init
-        pip${PYVER} install --user -r requirements.txt
-        pip${PYVER} install --user -U coverage cython matplotlib rowan sympy
+        $PIP install --user -r requirements.txt
+        $PIP install --user -U coverage cython matplotlib rowan sympy
 
   get_style_requirements: &get_style_requirements
     run:
       name: Install style check dependencies
       command: |
         git submodule update --init
-        pip${PYVER} install --user -r requirements.txt
-        pip${PYVER} install --user flake8==3.7.7
+        $PIP install --user -r requirements.txt
+        $PIP install --user flake8==3.7.7
 
   check_style: &check_style
     run:
@@ -95,8 +100,8 @@ references:
     run:
       name: Run benchmarks
       command: |
-          pip${PYVER} install --user gitpython
-          pip${PYVER} install --user rowan
+          $PIP install --user gitpython
+          $PIP install --user rowan
           echo 'export PYTHONPATH=$PYTHONPATH:.' >> $BASH_ENV
           echo 'export BENCHMARK_NPROC=2' >> $BASH_ENV
           source $BASH_ENV
@@ -298,16 +303,32 @@ references:
 
 jobs:
   check-style:
-    <<: *test_container_config_ubuntu
+    <<: *test_container_config_ubuntu19
     environment:
-      PYVER: "3.6"
+      PYVER: "3.7"
+      PIP: "pip3"
     <<: *load_check_style
 
   test-py36:
-    <<: *test_container_config_ubuntu
+    <<: *test_container_config_ubuntu18
     environment:
       PYVER: "3.6"
+      PIP: "pip3.6"
+    <<: *build_and_test
+
+  test-py37:
+    <<: *test_container_config_ubuntu19
+    environment:
+      PYVER: "3.7"
+      PIP: "pip3"
     <<: *build_and_test_with_cov
+
+  test-py38:
+    <<: *test_container_config_ubuntu19
+    environment:
+      PYVER: "3.8"
+      PIP: "pip3.8"
+    <<: *build_and_test
 
   pypi-osx-wheels:
     <<: *container_osx
@@ -321,9 +342,10 @@ jobs:
     <<: *build_linux_wheels
 
   benchmarks:
-    <<: *test_container_config_ubuntu
+    <<: *test_container_config_ubuntu18
     environment:
-      PYVER: "3.6"
+      PYVER: "3.7"
+      PIP: "pip3"
     <<: *build_and_benchmark
 
 workflows:
@@ -334,7 +356,14 @@ workflows:
       - test-py36:
           requires:
             - check-style
-# Disabled benchmarks on CI - currently broken
+      - test-py37:
+          requires:
+            - check-style
+    #  Disabling 3.8 until it's added to the container.
+    #  - test-py38:
+    #      requires:
+    #        - check-style
+# Disabled benchmarks on CI - they currently take too much work
 #     - benchmarks:
 #         requires:
 #           - test-py36

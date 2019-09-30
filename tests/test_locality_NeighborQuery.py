@@ -315,7 +315,8 @@ class NeighborQueryTest(object):
         for i in range(10):
             _, points = util.make_box_and_random_points(L, N, seed=seed+i)
             all_vectors = points[:, np.newaxis, :] - points[np.newaxis, :, :]
-            box.wrap(all_vectors.reshape((-1, 3)))
+            all_vectors = box.wrap(
+                all_vectors.reshape((-1, 3))).reshape(all_vectors.shape)
             all_rsqs = np.sum(all_vectors**2, axis=-1)
             (exhaustive_i, exhaustive_j) = np.where(np.logical_and(
                 all_rsqs < r_max**2, all_rsqs > 0))
@@ -357,7 +358,8 @@ class NeighborQueryTest(object):
             points2 = np.random.uniform(
                 -L/2, L/2, (N//2, 3)).astype(np.float32)
             all_vectors = points[:, np.newaxis, :] - points2[np.newaxis, :, :]
-            box.wrap(all_vectors.reshape((-1, 3)))
+            all_vectors = box.wrap(
+                all_vectors.reshape((-1, 3))).reshape(all_vectors.shape)
             all_rsqs = np.sum(all_vectors**2, axis=-1)
             (exhaustive_i, exhaustive_j) = np.where(np.logical_and(
                 all_rsqs < r_max**2, all_rsqs > 0))
@@ -670,11 +672,11 @@ class TestMultipleMethods(unittest.TestCase):
         test_set = util.make_raw_query_nlist_test_set(
             box, points, query_points, "nearest", r_max, num_neighbors, False)
         nlist = test_set[-1][1]
-        for ts in test_set:
-            if not isinstance(ts[0], freud.locality.NeighborQuery):
+        for nq, neighbors in test_set:
+            if not isinstance(nq, freud.locality.NeighborQuery):
                 continue
-            check_nlist = ts[0].query(
-                query_points, ts[1]).toNeighborList()
+            check_nlist = nq.query(
+                query_points, neighbors).toNeighborList()
             self.assertTrue(nlist_equal(nlist, check_nlist))
 
 

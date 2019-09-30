@@ -340,7 +340,7 @@ unsigned int LinkCell::coordToIndex(int x, int y, int z) const
 
 vec3<unsigned int> LinkCell::getCellCoord(const vec3<float> p) const
 {
-    vec3<float> alpha = m_box.makeFraction(p);
+    vec3<float> alpha = m_box.makeFractional(p);
     vec3<unsigned int> c;
     c.x = (unsigned int) floorf(alpha.x * float(m_celldim.x));
     c.x %= m_celldim.x;

@@ -57,8 +57,7 @@ void PMFTXY2D::accumulate(const locality::NeighborQuery* neighbor_query,
 {
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
         [=](const freud::locality::NeighborBond& neighbor_bond) {
-        vec3<float> ref = neighbor_query->getPoints()[neighbor_bond.point_idx];
-        vec3<float> delta = this->m_box.wrap(query_points[neighbor_bond.query_point_idx] - ref);
+        vec3<float> delta(bondVector(neighbor_bond, neighbor_query, query_points));
 
         // rotate interparticle vector
         vec2<float> myVec(delta.x, delta.y);

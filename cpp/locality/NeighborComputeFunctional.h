@@ -24,6 +24,17 @@ NeighborList makeDefaultNlist(const NeighborQuery *nq, const NeighborList
         *nlist, const vec3<float>* query_points, unsigned int num_query_points,
         locality::QueryArgs qargs);
 
+//! Compute the vector corresponding to a NeighborBond.
+/*! The primary purpose of this function is to standardize the directionality
+ * of the delta vector, which is defined as pointing from the point to
+ * the query_point (query_point - point), wrapped into the box.
+ */
+inline vec3<float> bondVector(const NeighborBond &nb, const NeighborQuery *nq,
+        const vec3<float> *query_points)
+{
+    return nq->getBox().wrap(query_points[nb.query_point_idx] - (*nq)[nb.point_idx]);
+}
+
 //! Implementation of per-point finding logic for NeighborList objects.
 /*! This class provides a concrete implementation of the per-point neighbor
  *  finding interface specified by the NeighborPerPointIterator. In particular,
