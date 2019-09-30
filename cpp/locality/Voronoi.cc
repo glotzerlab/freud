@@ -6,21 +6,21 @@
 #include <cmath>
 #include <vector>
 
-#include "VoroPlusPlus.h"
+#include "Voronoi.h"
 
 #if defined _WIN32
 #undef min // std::min clashes with a Windows header
 #undef max // std::max clashes with a Windows header
 #endif
 
-/*! \file VoroPlusPlus.cc
+/*! \file Voronoi.cc
     \brief Computes Voronoi neighbors for a set of points.
 */
 
 namespace freud { namespace locality {
 
 // Voronoi calculations should be kept in double precision.
-void VoroPlusPlus::compute(const box::Box &box, const vec3<double>* points, unsigned int n_points)
+void Voronoi::compute(const box::Box &box, const vec3<double>* points, unsigned int n_points)
     {
         m_polytopes.resize(n_points);
         m_volumes.prepare(n_points);

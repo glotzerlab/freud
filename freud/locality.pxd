@@ -82,6 +82,6 @@ cdef class SpatialHistogram1D(SpatialHistogram):
     pass
 
 cdef class Voronoi(Compute):
-    cdef freud._locality.VoroPlusPlus * thisptr
+    cdef freud._locality.Voronoi * thisptr
     cdef NeighborList _nlist
     cdef freud.box.Box _box

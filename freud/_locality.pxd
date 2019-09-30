@@ -131,9 +131,9 @@ cdef extern from "AABBQuery.h" namespace "freud::locality":
                   const vec3[float]*,
                   unsigned int) except +
 
-cdef extern from "VoroPlusPlus.h" namespace "freud::locality":
-    cdef cppclass VoroPlusPlus:
-        VoroPlusPlus()
+cdef extern from "Voronoi.h" namespace "freud::locality":
+    cdef cppclass Voronoi:
+        Voronoi()
         void compute(
             const freud._box.Box &,
             const vec3[double]*,

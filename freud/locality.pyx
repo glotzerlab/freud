@@ -900,7 +900,7 @@ cdef class Voronoi(Compute):
     """
 
     def __cinit__(self):
-        self.thisptr = new freud._locality.VoroPlusPlus()
+        self.thisptr = new freud._locality.Voronoi()
         self._nlist = NeighborList()
 
     def __dealloc__(self):

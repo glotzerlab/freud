@@ -1,8 +1,8 @@
 // Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#ifndef VOROPLUSPLUS_H
-#define VOROPLUSPLUS_H
+#ifndef VORONOI_H
+#define VORONOI_H
 
 #include "Box.h"
 #include "ManagedArray.h"
@@ -13,11 +13,11 @@
 
 namespace freud { namespace locality {
 
-class VoroPlusPlus
+class Voronoi
 {
 public:
     // default constructor
-    VoroPlusPlus() : m_neighbor_list(std::make_shared<NeighborList>())
+    Voronoi() : m_neighbor_list(std::make_shared<NeighborList>())
     {
     }
 
@@ -46,4 +46,4 @@ private:
 };
 }; }; // end namespace freud::locality
 
-#endif // VOROPLUSPLUS_H
+#endif // VORONOI_H
