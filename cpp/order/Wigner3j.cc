@@ -1,6 +1,7 @@
 // Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
+#include <algorithm>
 #include <vector>
 
 #include "Wigner3j.h"
@@ -21,7 +22,8 @@ inline int lmIndex(int l, int m)
     return m < 0 ? l - m : m;
 }
 
-float reduceWigner3j(const complex<float>* source, unsigned int l_, const vector<double> &wigner3j)
+float reduceWigner3j(const std::complex<float>* source,
+        unsigned int l_, const std::vector<double> &wigner3j)
 {
     /*
      * Wigner 3j coefficients:
@@ -45,7 +47,7 @@ float reduceWigner3j(const complex<float>* source, unsigned int l_, const vector
     for (int m1 = -l; m1 <= l; m1++)
     {
         const int m1_index = lmIndex(l, m1);
-        for (int m2 = max(-l - m1, -l); m2 <= min(l - m1, l); m2++)
+        for (int m2 = std::max(-l - m1, -l); m2 <= std::min(l - m1, l); m2++)
         {
             const int m2_index = lmIndex(l, m2);
             const int m3 = -m1 - m2;
@@ -58,7 +60,7 @@ float reduceWigner3j(const complex<float>* source, unsigned int l_, const vector
     return result;
 }
 
-vector<double> getWigner3j(unsigned int l)
+std::vector<double> getWigner3j(unsigned int l)
 {
     switch (l)
     {
@@ -2516,7 +2518,7 @@ vector<double> getWigner3j(unsigned int l)
     }
 
     }
-    throw out_of_range("Wigner 3j coefficients are implemented for l <= 20.");
+    throw std::out_of_range("Wigner 3j coefficients are implemented for l <= 20.");
 }
 
 }; };  // end namespace freud::order

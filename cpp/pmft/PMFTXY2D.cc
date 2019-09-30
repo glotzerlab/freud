@@ -32,11 +32,11 @@ PMFTXY2D::PMFTXY2D(float x_max, float y_max, unsigned int n_x, unsigned int n_y)
     m_pcf_array.prepare({n_x, n_y});
 
     // Construct the Histogram object that will be used to keep track of counts of bond distances found.
-    util::Histogram::Axes axes;
+    BHAxes axes;
     axes.push_back(std::make_shared<util::RegularAxis>(n_x, -x_max, x_max));
     axes.push_back(std::make_shared<util::RegularAxis>(n_y, -y_max, y_max));
-    m_histogram = util::Histogram(axes);
-    m_local_histograms = util::Histogram::ThreadLocalHistogram(m_histogram);
+    m_histogram = BondHistogram(axes);
+    m_local_histograms = BondHistogram::ThreadLocalHistogram(m_histogram);
 }
 
 //! \internal
@@ -57,12 +57,12 @@ void PMFTXY2D::accumulate(const locality::NeighborQuery* neighbor_query,
 {
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
         [=](const freud::locality::NeighborBond& neighbor_bond) {
-        vec3<float> ref = neighbor_query->getPoints()[neighbor_bond.ref_id];
-        vec3<float> delta = this->m_box.wrap(query_points[neighbor_bond.id] - ref);
+        vec3<float> ref = neighbor_query->getPoints()[neighbor_bond.point_idx];
+        vec3<float> delta = this->m_box.wrap(query_points[neighbor_bond.query_point_idx] - ref);
 
         // rotate interparticle vector
         vec2<float> myVec(delta.x, delta.y);
-        rotmat2<float> myMat = rotmat2<float>::fromAngle(-orientations[neighbor_bond.ref_id]);
+        rotmat2<float> myMat = rotmat2<float>::fromAngle(-orientations[neighbor_bond.point_idx]);
         vec2<float> rotVec = myMat * myVec;
 
         m_local_histograms(rotVec.x, rotVec.y);

@@ -19,15 +19,11 @@
 
 namespace freud { namespace locality {
 
-// Default constructor
-VoroPlusPlus::VoroPlusPlus()
-{}
-
 // Voronoi calculations should be kept in double precision.
-void VoroPlusPlus::compute(const box::Box &box, const vec3<double>* points, unsigned int N)
+void VoroPlusPlus::compute(const box::Box &box, const vec3<double>* points, unsigned int n_points)
     {
-        m_polytopes.resize(N);
-        m_volumes.resize(N);
+        m_polytopes.resize(n_points);
+        m_volumes.prepare(n_points);
 
         vec3<float> boxLatticeVectors[3];
         boxLatticeVectors[0] = box.getLatticeVector(0);
@@ -47,7 +43,7 @@ void VoroPlusPlus::compute(const box::Box &box, const vec3<double>* points, unsi
             3, 3, 3, 3
         );
 
-        for (size_t pid = 0; pid < N; pid++) {
+        for (size_t pid = 0; pid < n_points; pid++) {
             container.put(pid, points[pid].x, points[pid].y, points[pid].z);
         }
 
@@ -161,17 +157,16 @@ void VoroPlusPlus::compute(const box::Box &box, const vec3<double>* points, unsi
 
         unsigned int num_bonds = bonds.size();
 
-        m_neighbor_list.resize(num_bonds);
-        m_neighbor_list.setNumBonds(num_bonds, N, N);
+        m_neighbor_list->resize(num_bonds);
+        m_neighbor_list->setNumBonds(num_bonds, n_points, n_points);
 
-        parallel_for(tbb::blocked_range<size_t>(0, num_bonds),
-            [&] (const tbb::blocked_range<size_t> &r) {
-            for (size_t bond(r.begin()); bond < r.end(); ++bond)
+        util::forLoopWrapper(0, num_bonds, [=](size_t begin, size_t end) {
+            for (size_t bond = begin; bond != end; ++bond)
             {
-                m_neighbor_list.getNeighbors()(bond, 0) = bonds[bond].id;
-                m_neighbor_list.getNeighbors()(bond, 1) = bonds[bond].ref_id;
-                m_neighbor_list.getDistances()[bond] = bonds[bond].distance;
-                m_neighbor_list.getWeights()[bond] = bonds[bond].weight;
+                m_neighbor_list->getNeighbors()(bond, 0) = bonds[bond].query_point_idx;
+                m_neighbor_list->getNeighbors()(bond, 1) = bonds[bond].point_idx;
+                m_neighbor_list->getDistances()[bond] = bonds[bond].distance;
+                m_neighbor_list->getWeights()[bond] = bonds[bond].weight;
             }
         });
 

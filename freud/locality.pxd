@@ -6,10 +6,12 @@ from libcpp.memory cimport shared_ptr
 from freud.common cimport Compute
 
 from cython.operator cimport dereference
+from freud.common cimport Compute
 
 cimport freud._locality
 cimport freud.box
 
+cdef NeighborList nlist_from_cnlist(freud._locality.NeighborList *c_nlist)
 
 cdef class NeighborQueryResult:
     cdef NeighborQuery nq
@@ -48,9 +50,7 @@ cdef class NeighborQuery:
 cdef class NeighborList:
     cdef freud._locality.NeighborList * thisptr
     cdef char _managed
-    cdef base
 
-    cdef refer_to(self, freud._locality.NeighborList * other)
     cdef freud._locality.NeighborList * get_ptr(self)
     cdef void copy_c(self, NeighborList other)
 
@@ -71,13 +71,17 @@ cdef class RawPoints(NeighborQuery):
 cdef class _QueryArgs:
     cdef freud._locality.QueryArgs * thisptr
 
-cdef class Voronoi(Compute):
-    cdef freud._locality.VoroPlusPlus * thisptr
-    cdef NeighborList _nlist
-    cdef freud.box.Box _box
-
 cdef class PairCompute(Compute):
     pass
 
 cdef class SpatialHistogram(PairCompute):
     cdef float r_max
+    cdef freud._locality.BondHistogramCompute *histptr
+
+cdef class SpatialHistogram1D(SpatialHistogram):
+    pass
+
+cdef class Voronoi(Compute):
+    cdef freud._locality.VoroPlusPlus * thisptr
+    cdef NeighborList _nlist
+    cdef freud.box.Box _box

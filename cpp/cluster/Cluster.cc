@@ -12,24 +12,22 @@
 //! Finds clusters using a network of neighbors.
 namespace freud { namespace cluster {
 
-Cluster::Cluster() {}
-
 void Cluster::compute(const freud::locality::NeighborQuery* nq,
                       const freud::locality::NeighborList* nlist,
                       freud::locality::QueryArgs qargs,
                       const unsigned int* keys)
 {
-    m_num_particles = nq->getNPoints();
-    m_cluster_idx.prepare(m_num_particles);
-    DisjointSets dj(m_num_particles);
+    const unsigned int num_points = nq->getNPoints();
+    m_cluster_idx.prepare(num_points);
+    DisjointSets dj(num_points);
 
     freud::locality::loopOverNeighbors(
-        nq, nq->getPoints(), m_num_particles, qargs, nlist,
+        nq, nq->getPoints(), num_points, qargs, nlist,
         [&dj](const freud::locality::NeighborBond& neighbor_bond) {
             // Merge the two sets using the disjoint set
-            if (!dj.same(neighbor_bond.ref_id, neighbor_bond.id))
+            if (!dj.same(neighbor_bond.point_idx, neighbor_bond.query_point_idx))
             {
-                dj.unite(neighbor_bond.ref_id, neighbor_bond.id);
+                dj.unite(neighbor_bond.point_idx, neighbor_bond.query_point_idx);
             }
         });
 
@@ -37,23 +35,23 @@ void Cluster::compute(const freud::locality::NeighborQuery* nq,
     // Next, we renumber clusters from zero to num_clusters-1.
     // These new cluster indexes are then sorted by cluster size from largest
     // to smallest, with equally-sized clusters sorted based on their minimum
-    // particle index.
-    std::vector<size_t> cluster_label(m_num_particles, m_num_particles);
-    std::vector<size_t> cluster_label_count(m_num_particles);
-    std::vector<size_t> cluster_min_id(m_num_particles, m_num_particles);
+    // point index.
+    std::vector<size_t> cluster_label(num_points, num_points);
+    std::vector<size_t> cluster_label_count(num_points);
+    std::vector<size_t> cluster_min_id(num_points, num_points);
 
-    // Loop over every particle.
+    // Loop over every point.
     m_num_clusters = 0;
-    for (size_t i = 0; i < m_num_particles; i++)
+    for (size_t i = 0; i < num_points; i++)
     {
         size_t s = dj.find(i);
 
         // Label this cluster if we haven't seen it yet.
-        if (cluster_label[s] == m_num_particles)
+        if (cluster_label[s] == num_points)
         {
             // Label this cluster uniquely.
             cluster_label[s] = m_num_clusters;
-            // Track the smallest particle index in this cluster.
+            // Track the smallest point index in this cluster.
             cluster_min_id[cluster_label[s]] = i;
             // Increment the count of unique clusters.
             m_num_clusters++;
@@ -75,12 +73,12 @@ void Cluster::compute(const freud::locality::NeighborQuery* nq,
     // Clear the cluster keys
     m_cluster_keys = std::vector<std::vector<unsigned int>>(m_num_clusters, std::vector<unsigned int>());
 
-    /* Loop over all particles, set their cluster ids and add them to a list of
+    /* Loop over all points, set their cluster ids and add them to a list of
      * sets. Each set contains all the keys that are part of that cluster. If
-     * no keys are provided, the keys use particle ids. Get the computed list
+     * no keys are provided, the keys use point ids. Get the computed list
      * with getClusterKeys().
     */
-    for (size_t i = 0; i < m_num_particles; i++)
+    for (size_t i = 0; i < num_points; i++)
     {
         size_t s = dj.find(i);
         size_t cluster_idx = cluster_reindex[cluster_label[s]];
@@ -109,7 +107,7 @@ std::vector<size_t> Cluster::sort_indexes_inverse(const std::vector<size_t> &cou
         else
         {
             // If the counts are equal, return the cluster with the smallest
-            // particle id first.
+            // point id first.
             return min_ids[i1] < min_ids[i2];
         }
     });

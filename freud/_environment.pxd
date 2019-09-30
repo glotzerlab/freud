@@ -7,29 +7,31 @@ from libcpp.memory cimport shared_ptr
 from libcpp.complex cimport complex
 from libcpp.vector cimport vector
 from libcpp.map cimport map
+from freud._locality cimport BondHistogramCompute
+
 cimport freud._box
 cimport freud._locality
 cimport freud.util
 
 cdef extern from "BondOrder.h" namespace "freud::environment":
-    cdef cppclass BondOrder:
-        BondOrder(unsigned int, unsigned int) except +
-        const freud._box.Box & getBox() const
-        void reset()
+    ctypedef enum BondOrderMode:
+        bod
+        lbod
+        obcd
+        oocd
+
+    cdef cppclass BondOrder(BondHistogramCompute):
+        BondOrder(unsigned int, unsigned int, BondOrderMode) except +
         void accumulate(
             const freud._locality.NeighborQuery*,
             quat[float]*,
             vec3[float]*,
             quat[float]*,
             unsigned int,
-            unsigned int,
             const freud._locality.NeighborList*,
             freud._locality.QueryArgs)
         const freud.util.ManagedArray[float] &getBondOrder()
-        const freud.util.ManagedArray[float] &getTheta()
-        const freud.util.ManagedArray[float] &getPhi()
-        unsigned int getNBinsTheta()
-        unsigned int getNBinsPhi()
+        BondOrderMode getMode() const
 
 cdef extern from "LocalDescriptors.h" namespace "freud::environment":
     ctypedef enum LocalDescriptorOrientation:
@@ -39,18 +41,20 @@ cdef extern from "LocalDescriptors.h" namespace "freud::environment":
 
     cdef cppclass LocalDescriptors:
         LocalDescriptors(unsigned int,
-                         bool)
+                         bool, LocalDescriptorOrientation)
         unsigned int getNSphs() const
         unsigned int getLMax() const
         unsigned int getSphWidth() const
-        unsigned int getNPoints()
         void compute(
-            const freud._box.Box &, unsigned int,
+            const freud._locality.NeighborQuery*,
             const vec3[float]*, unsigned int,
-            const vec3[float]*, unsigned int,
-            const quat[float]*, LocalDescriptorOrientation,
-            const freud._locality.NeighborList*) except +
-        const freud.util.ManagedArray[float complex] &getSph()
+            const quat[float]*,
+            const freud._locality.NeighborList*,
+            freud._locality.QueryArgs) except +
+        const freud.util.ManagedArray[float complex] &getSph() const
+        freud._locality.NeighborList * getNList()
+        LocalDescriptorOrientation getMode() const
+        bool getNegativeM() const
 
 cdef extern from "MatchEnv.h" namespace "freud::environment":
     cdef cppclass MatchEnv:
@@ -96,35 +100,38 @@ cdef extern from "MatchEnv.h" namespace "freud::environment":
         unsigned int getMaxNumNeighbors()
 
 cdef extern from "AngularSeparation.h" namespace "freud::environment":
-    cdef cppclass AngularSeparation:
-        AngularSeparation()
-        void computeNeighbor(
-            quat[float]*, unsigned int,
-            quat[float]*, unsigned int,
-            quat[float]*, unsigned int,
-            const freud._locality.NeighborList*) except +
-        void computeGlobal(quat[float]*,
-                           unsigned int,
-                           quat[float]*,
-                           unsigned int,
-                           quat[float]*,
-                           unsigned int) except +
-        const freud.util.ManagedArray[float] &getNeighborAngles()
-        const freud.util.ManagedArray[float] &getGlobalAngles()
+    cdef cppclass AngularSeparationGlobal:
+        AngularSeparationGlobal()
+        void compute(quat[float]*,
+                     unsigned int,
+                     quat[float]*,
+                     unsigned int,
+                     quat[float]*,
+                     unsigned int) except +
+        const freud.util.ManagedArray[float] &getAngles() const
+
+    cdef cppclass AngularSeparationNeighbor:
+        AngularSeparationNeighbor()
+        void compute(
+            const freud._locality.NeighborQuery*,
+            const quat[float]*,
+            const vec3[float] *,
+            const quat[float]*, unsigned int,
+            const quat[float]*, unsigned int,
+            const freud._locality.NeighborList*,
+            freud._locality.QueryArgs) except +
+        const freud.util.ManagedArray[float] &getAngles() const
+        freud._locality.NeighborList * getNList()
 
 cdef extern from "LocalBondProjection.h" namespace "freud::environment":
     cdef cppclass LocalBondProjection:
         LocalBondProjection()
-        void compute(freud._box.Box &,
-                     vec3[float]*, unsigned int,
-                     vec3[float]*, quat[float]*, unsigned int,
-                     vec3[float]*, unsigned int,
-                     quat[float]*, unsigned int,
-                     const freud._locality.NeighborList*) except +
+        void compute(const freud._locality.NeighborQuery*, quat[float]*,
+                     vec3[float]*, unsigned int, vec3[float]*, unsigned int,
+                     quat[float]*, unsigned int, const
+                     freud._locality.NeighborList*,
+                     freud._locality.QueryArgs) except +
 
-        const freud.util.ManagedArray[float] &getProjections()
-        const freud.util.ManagedArray[float] &getNormedProjections()
-        unsigned int getNPoints()
-        unsigned int getNQueryPoints()
-        unsigned int getNproj()
-        const freud._box.Box & getBox() const
+        const freud.util.ManagedArray[float] &getProjections() const
+        const freud.util.ManagedArray[float] &getNormedProjections() const
+        freud._locality.NeighborList * getNList()

@@ -6,9 +6,6 @@ def make_raw_query_nlist_test_set(box, points, query_points, mode, r_max,
                                   num_neighbors, exclude_ii):
     """Helper function to test multiple neighbor-finding data structures.
 
-    .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
-    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
-
     Args:
         box (:class:`freud.box.Box`):
             Simulation box.
@@ -42,11 +39,11 @@ def make_raw_query_nlist_test_set(box, points, query_points, mode, r_max,
         query_args['num_neighbors'] = num_neighbors
         query_args['r_guess'] = r_max
 
-    test_set.append((points, None, query_args))
-    test_set.append((freud.locality.RawPoints(box, points), None, query_args))
-    test_set.append((freud.locality.AABBQuery(box, points), None, query_args))
+    test_set.append((points, query_args))
+    test_set.append((freud.locality.RawPoints(box, points), query_args))
+    test_set.append((freud.locality.AABBQuery(box, points), query_args))
     test_set.append(
-        (freud.locality.LinkCell(box, r_max, points), None, query_args))
+        (freud.locality.LinkCell(box, r_max, points), query_args))
     if mode == "ball":
         nlist = freud.locality.make_default_nlist(
             box, points, query_points,
@@ -56,7 +53,7 @@ def make_raw_query_nlist_test_set(box, points, query_points, mode, r_max,
             box, points, query_points,
             dict(num_neighbors=num_neighbors, exclude_ii=exclude_ii,
                  r_guess=r_max), None)
-    test_set.append((points, nlist, None))
+    test_set.append((points, nlist))
     return test_set
 
 
@@ -64,8 +61,6 @@ def make_box_and_random_points(box_size, num_points, is2D=False, seed=0):
     R"""Helper function to make random points with a cubic or square box.
 
     This function has a side effect that it will set the random seed of numpy.
-
-    .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
 
     Args:
         box_size (float): Size of box.
@@ -98,8 +93,6 @@ def make_alternating_lattice(lattice_size, angle=0, extra_shell=2):
     distance 1 for each point in points_1. Setting extra_shell to 2 will give
     8 more neighboring points in points_2 at distance :math:`\sqrt{5}` for each
     point in points_1 and so on.
-
-    .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
 
     Args:
         lattice_size (int): Size of lattice for points_1.

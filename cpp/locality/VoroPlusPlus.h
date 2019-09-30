@@ -5,6 +5,7 @@
 #define VOROPLUSPLUS_H
 
 #include "Box.h"
+#include "ManagedArray.h"
 #include "VectorMath.h"
 #include "NeighborBond.h"
 #include "NeighborList.h"
@@ -16,31 +17,32 @@ class VoroPlusPlus
 {
 public:
     // default constructor
-    VoroPlusPlus();
-
-    void compute(const box::Box &box, const vec3<double>* points, unsigned int N);
-
-    NeighborList *getNeighborList()
+    VoroPlusPlus() : m_neighbor_list(std::make_shared<NeighborList>())
     {
-        return &m_neighbor_list;
     }
 
-    std::vector<std::vector<vec3<double>>> getPolytopes()
+    void compute(const box::Box &box, const vec3<double>* points, unsigned int n_points);
+
+    std::shared_ptr<NeighborList> getNeighborList() const
+    {
+        return m_neighbor_list;
+    }
+
+    const std::vector<std::vector<vec3<double>>> getPolytopes() const
     {
         return m_polytopes;
     }
 
-    std::vector<double> getVolumes()
+    const util::ManagedArray<double> &getVolumes() const
     {
         return m_volumes;
     }
 
 private:
     box::Box m_box;
-    NeighborList m_neighbor_list; //!< Stored neighbor list
+    std::shared_ptr<NeighborList> m_neighbor_list; //!< Stored neighbor list
     std::vector<std::vector<vec3<double>>> m_polytopes; //!< Voronoi polytopes
-    std::vector<double> m_volumes; //!< Voronoi cell volumes
-
+    util::ManagedArray<double> m_volumes; //!< Voronoi cell volumes
 };
 }; }; // end namespace freud::locality
 

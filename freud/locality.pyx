@@ -27,18 +27,6 @@ cimport numpy as np
 
 logger = logging.getLogger(__name__)
 
-try:
-    from scipy.spatial import Voronoi as qvoronoi
-    from scipy.spatial import ConvexHull
-    _SCIPY_AVAILABLE = True
-except ImportError:
-    qvoronoi = None
-    msg = ('scipy.spatial.Voronoi is not available (requires scipy 0.12+), '
-           'so freud.voronoi is not available.')
-    logger.warning(msg)
-    _SCIPY_AVAILABLE = False
-
-
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
 np.import_array()
@@ -51,8 +39,6 @@ cdef class _QueryArgs:
     object. All arguments are funneled through this interface, which constructs
     the appropriate C++ QueryArgs object that can then be used in C++ compute
     calls.
-
-    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
     """
 
     def __cinit__(self, mode=None, r_min=None, r_max=None, r_guess=None,
@@ -169,6 +155,19 @@ cdef class _QueryArgs:
     def scale(self, value):
         self.thisptr.scale = value
 
+    def __repr__(self):
+        return ("freud.locality.{cls}(mode={mode}, r_max={r_max}, "
+                "num_neighbors={num_neighbors}, exclude_ii={exclude_ii}, "
+                "scale={scale})").format(
+                    cls=type(self).__name__,
+                    mode=self.mode, r_max=self.r_max,
+                    num_neighbors=self.num_neighbors,
+                    exclude_ii=self.exclude_ii,
+                    scale=self.scale)
+
+    def __str__(self):
+        return repr(self)
+
 
 cdef class NeighborQueryResult:
     R"""Class encapsulating the output of queries of NeighborQuery objects.
@@ -186,8 +185,6 @@ cdef class NeighborQueryResult:
     queries and convert them to various natural objects. Additionally, the
     result is a generator, making it easy for users to lazily iterate over the
     object.
-
-    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
     """
 
     def __iter__(self):
@@ -202,7 +199,7 @@ cdef class NeighborQueryResult:
 
         npoint = dereference(iterator).next()
         while npoint != ITERATOR_TERMINATOR:
-            yield (npoint.id, npoint.ref_id, npoint.distance)
+            yield (npoint.query_point_idx, npoint.point_idx, npoint.distance)
             npoint = dereference(iterator).next()
 
         raise StopIteration
@@ -224,8 +221,7 @@ cdef class NeighborQueryResult:
 
         cdef freud._locality.NeighborList *cnlist = dereference(
             iterator).toNeighborList()
-        cdef NeighborList nl = NeighborList()
-        nl.refer_to(cnlist)
+        cdef NeighborList nl = nlist_from_cnlist(cnlist)
         # Explicitly manage a manually created nlist so that it will be
         # deleted when the Python object is.
         nl._managed = True
@@ -253,8 +249,6 @@ cdef class NeighborQuery:
     all points within a distance cutoff, respectively.  Subclasses of
     NeighborQuery implement these methods based on the nature of the underlying
     data structure.
-
-    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
 
     Args:
         box (:class:`freud.box.Box`):
@@ -325,9 +319,6 @@ cdef class NeighborList:
     can be found in :math:`\log(N_{bonds})` time using
     :meth:`find_first_index`, because bonds are ordered by the query point
     index.
-
-    .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
-    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
 
     .. note::
 
@@ -427,15 +418,6 @@ cdef class NeighborList:
             &l_point_indices[0], l_num_points, &l_distances[0], &l_weights[0])
 
         return result
-
-    cdef refer_to(self, freud._locality.NeighborList * other):
-        R"""Makes this cython wrapper object point to a different C++ object,
-        deleting the one we are already holding if necessary. We do not
-        own the memory of the other C++ object."""
-        if self._managed:
-            del self.thisptr
-        self._managed = False
-        self.thisptr = other
 
     def __cinit__(self):
         self._managed = True
@@ -557,6 +539,25 @@ cdef class NeighborList:
         return self
 
 
+cdef NeighborList nlist_from_cnlist(freud._locality.NeighborList *c_nlist):
+    """Create a Python NeighborList object that points to an existing C++
+    NeighborList object.
+
+    This functions generally serves two purposes. Any special locality
+    NeighborList generators, like :class:`~.Voronoi`, should use this as a way
+    to point to the C++ NeighborList they generate internally. Additionally,
+    any compute method that requires a :class:`~.NeighborList` (i.e. cannot do
+    with just a :class:`~.NeighborQuery`) should also expose the internally
+    computed :class:`~.NeighborList` using this method.
+    """
+    cdef NeighborList result
+    result = NeighborList()
+    del result.thisptr
+    result._managed = False
+    result.thisptr = c_nlist
+    return result
+
+
 cdef class NlistptrWrapper:
     R"""Wrapper class to hold :code:`freud._locality.NeighborList *`.
 
@@ -568,7 +569,7 @@ cdef class NlistptrWrapper:
             Neighbor list or :code:`None`.
     """
 
-    def __cinit__(self, nlist):
+    def __cinit__(self, nlist=None):
         cdef NeighborList _nlist
         if nlist is not None:
             _nlist = nlist
@@ -582,6 +583,13 @@ cdef class NlistptrWrapper:
 
 def make_default_nq(box, points):
     R"""Helper function to return a NeighborQuery object.
+
+    Currently the resolution for NeighborQuery objects is such that if Python
+    users pass in a numpy array of points and a box, we always make a RawPoints
+    object. On the C++ side, the RawPoints object internally constructs an
+    AABBQuery object to find neighbors if needed. On the Python side, making
+    the RawPoints object is just so that compute functions on the C++ side
+    don't require overloads to work.
 
     Args:
         box (:class:`freud.box.Box`):
@@ -646,8 +654,6 @@ cdef class RawPoints(NeighborQuery):
     R"""Dummy class that only contains minimal information
     to make C++ side work well.
 
-    .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
-
     Attributes:
         box (:class:`freud.locality.Box`):
             The simulation box.
@@ -676,9 +682,6 @@ cdef class RawPoints(NeighborQuery):
 cdef class AABBQuery(NeighborQuery):
     R"""Use an AABB tree to find neighbors.
 
-    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
-    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
-
     Attributes:
         box (:class:`freud.locality.Box`):
             The simulation box.
@@ -706,8 +709,6 @@ cdef class AABBQuery(NeighborQuery):
 
 cdef class IteratorLinkCell:
     R"""Iterates over the particles in a cell.
-
-    .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 
     Example::
 
@@ -748,9 +749,6 @@ cdef class IteratorLinkCell:
 cdef class LinkCell(NeighborQuery):
     R"""Supports efficiently finding all points in a set within a certain
     distance from a given point.
-
-    .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
-    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
 
     Args:
         box (:class:`freud.box.Box`):
@@ -874,8 +872,19 @@ cdef class LinkCell(NeighborQuery):
 cdef class Voronoi(Compute):
     R"""Compute the Voronoi tessellation of a 2D or 3D system using voro++.
 
-    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
-    .. moduleauthor:: Yezhi Jin <jinyezhi@umich.com>
+    Since qhull does not support periodic boundary conditions natively, we
+    expand the box to include a portion of the particles' periodic images.
+    The buffer width is given by the parameter :code:`buffer`. The
+    computation of Voronoi tessellations and neighbors is only guaranteed
+    to be correct if :code:`buffer >= L/2` where :code:`L` is the longest side
+    of the simulation box. For dense systems with particles filling the
+    entire simulation volume, a smaller value for :code:`buffer` is acceptable.
+    If the buffer width is too small, then some polytopes may not be closed
+    (they may have a boundary at infinity), and these polytopes' vertices are
+    excluded from the list.  If either the polytopes or volumes lists that are
+    computed is different from the size of the array of positions used in the
+    :meth:`freud.locality.Voronoi.compute()` method, try recomputing using a
+    larger buffer width.
 
     Attributes:
         nlist (:class:`~.locality.NeighborList`):
@@ -920,30 +929,21 @@ cdef class Voronoi(Compute):
             <vec3[double]*> &l_points[0, 0],
             N)
 
-        cdef freud._locality.NeighborList * nlist
-        nlist = self.thisptr.getNeighborList()
-        self._nlist.refer_to(nlist)
-        self._nlist.base = self
-
         return self
 
     @Compute._computed_property()
     def polytopes(self):
-        R"""Returns a list of polytope vertices corresponding to Voronoi cells.
+        R"""Polytope vertices of each Voronoi cell.
 
-        If the buffer width is too small, then some polytopes may not be
-        closed (they may have a boundary at infinity), and these polytopes'
-        vertices are excluded from the list.
-
-        The length of the list returned by this method should be the same
-        as the array of positions used in the
-        :meth:`freud.locality.Voronoi.compute()` method, if all the polytopes
-        are closed. Otherwise try using a larger buffer width.
+        The Voronoi cells are convex polytopes (polyhedra in 3D, polygons in
+        2D) corresponding to each input point. The polytopes bound a region of
+        Euclidean space for which all contained points are closer to a given
+        input point than any other input point.
 
         Returns:
             list:
-                List of :class:`numpy.ndarray` containing Voronoi polytope
-                vertices.
+                List of :class:`numpy.ndarray` defining Voronoi polytope
+                vertices for each cell.
         """
         polytopes = []
         cdef vector[vector[vec3[double]]] raw_polytopes = \
@@ -966,6 +966,19 @@ cdef class Voronoi(Compute):
         return polytopes
 
     @Compute._computed_property()
+    def volumes(self):
+        R"""Returns an array of volumes (areas in 2D) corresponding to Voronoi
+        cells.
+
+        Returns:
+            (:math:`\left(N_points \right)`) :class:`numpy.ndarray`:
+                Array of voronoi polytope volumes (areas in 2D).
+        """
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getVolumes(),
+            freud.util.arr_type_t.DOUBLE)
+
+    @Compute._computed_property()
     def nlist(self):
         R"""Returns a neighbor list object.
 
@@ -980,18 +993,8 @@ cdef class Voronoi(Compute):
         Returns:
             :class:`~.locality.NeighborList`: Neighbor list.
         """
+        self._nlist = nlist_from_cnlist(self.thisptr.getNeighborList().get())
         return self._nlist
-
-    @Compute._computed_property()
-    def volumes(self):
-        R"""Returns an array of volumes (areas in 2D) corresponding to Voronoi
-        cells.
-
-        Returns:
-            (:math:`\left(N_{cells} \right)`) :class:`numpy.ndarray`:
-                Array of voronoi polytope volumes (areas in 2D).
-        """
-        return np.asarray(self.thisptr.getVolumes())
 
     def __repr__(self):
         return "freud.locality.{cls}()".format(
@@ -1035,12 +1038,10 @@ cdef class PairCompute(Compute):
     particular, this class contains a helper function that calls the necessary
     functions to create NeighborQuery and NeighborList classes as needed, as
     well as dealing with boxes and query arguments.
-
-    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
     """
 
-    def preprocess_arguments(self, box, points, query_points=None, nlist=None,
-                             query_args=None, dimensions=None):
+    def preprocess_arguments(self, box, points, query_points=None,
+                             neighbors=None, dimensions=None):
         """Process standard compute arguments into freud's internal types by
         calling all the required internal functions.
 
@@ -1061,30 +1062,35 @@ cdef class PairCompute(Compute):
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
-            query_args (dict): A dictionary of query arguments (Default value =
-                :code:`None`).
-        dimensions (int): Number of dimensions the box should be. If not None,
-            used to verify the box dimensions (Default value = :code:`None`).
+            query_args (dict):
+                A dictionary of query arguments (Default value = :code:`None`).
+            dimensions (int):
+                Number of dimensions the box should be. If not None, used to
+                verify the box dimensions (Default value = :code:`None`).
         """  # noqa E501
         cdef freud.box.Box b = freud.common.convert_box(box, dimensions)
         cdef NeighborQuery nq = make_default_nq(box, points)
-        cdef NlistptrWrapper nlistptr = NlistptrWrapper(nlist)
+
+        # Resolve the two possible ways of passing neighbors (query arguments
+        # or neighbor lists) based on the type of the neighbors argument.
+        cdef NlistptrWrapper nlistptr
         cdef _QueryArgs qargs
-        if query_args is not None:
-            query_args.setdefault('exclude_ii', query_points is None)
-            qargs = _QueryArgs.from_dict(query_args)
-        else:
+
+        if type(neighbors) == NeighborList:
+            nlistptr = NlistptrWrapper(neighbors)
+            qargs = _QueryArgs()
+        elif neighbors is None or type(neighbors) == dict:
+            # The default_query_args property must raise a NotImplementedError
+            # if no query arguments were passed in and the class has no
+            # reasonable choice of defaults.
             try:
-                query_args = self.default_query_args
+                query_args = self.default_query_args if neighbors is None \
+                    else neighbors.copy()
                 query_args.setdefault('exclude_ii', query_points is None)
                 qargs = _QueryArgs.from_dict(query_args)
-            except ValueError:
-                # If a NeighborList was provided, then the user need not
-                # provide _QueryArgs.
-                if nlist is None:
-                    raise
-                else:
-                    qargs = _QueryArgs()
+                nlistptr = NlistptrWrapper()
+            except NotImplementedError:
+                raise
 
         if query_points is None:
             query_points = nq.points
@@ -1097,7 +1103,7 @@ cdef class PairCompute(Compute):
 
     @property
     def default_query_args(self):
-        raise ValueError(
+        raise NotImplementedError(
             "The {} class does not provide default query arguments. You must "
             "either provide query arguments or a neighbor list to this "
             "compute method.".format(type(self).__name__))
@@ -1105,16 +1111,88 @@ cdef class PairCompute(Compute):
 
 cdef class SpatialHistogram(PairCompute):
     R"""Parent class for all compute classes in freud that perform a spatial
-    binning of particle bonds by distnace.
-
-
-    .. note::
-        This class does not mirror the C++ NdHistogram class, it merely
-        provides certain conveniences for Cython classes that build histograms.
-
-    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
+    binning of particle bonds by distance.
     """
+
+    def __cinit__(self):
+        # Abstract class
+        pass
 
     @property
     def default_query_args(self):
         return dict(mode="ball", r_max=self.r_max)
+
+    @Compute._computed_property()
+    def box(self):
+        return freud.box.BoxFromCPP(self.histptr.getBox())
+
+    @Compute._computed_property()
+    def bin_counts(self):
+        return freud.util.make_managed_numpy_array(
+            &self.histptr.getBinCounts(),
+            freud.util.arr_type_t.UNSIGNED_INT)
+
+    @property
+    def bin_centers(self):
+        # Must create a local reference or Cython tries to access an rvalue by
+        # reference in the list comprehension.
+        vec = self.histptr.getBinCenters()
+        return [np.array(b, copy=True) for b in vec]
+
+    @property
+    def bin_edges(self):
+        # Must create a local reference or Cython tries to access an rvalue by
+        # reference in the list comprehension.
+        vec = self.histptr.getBinEdges()
+        return [np.array(b, copy=True) for b in vec]
+
+    @property
+    def bounds(self):
+        # Must create a local reference or Cython tries to access an rvalue by
+        # reference in the list comprehension.
+        vec = self.histptr.getBounds()
+        return [tuple(b) for b in vec]
+
+    @property
+    def nbins(self):
+        return list(self.histptr.getAxisSizes())
+
+    @Compute._reset
+    def reset(self):
+        R"""Resets the values of RDF in memory."""
+        self.histptr.reset()
+
+
+cdef class SpatialHistogram1D(SpatialHistogram):
+    R"""Subclasses SpatialHistogram to provide a simplified API for
+    properties of 1-dimensional histograms.
+    """
+
+    def __cinit__(self):
+        # Abstract class
+        pass
+
+    @property
+    def bin_centers(self):
+        # Must create a local reference or Cython tries to access an rvalue by
+        # reference in the list comprehension.
+        vec = self.histptr.getBinCenters()
+        return np.array(vec[0], copy=True)
+
+    @property
+    def bin_edges(self):
+        # Must create a local reference or Cython tries to access an rvalue by
+        # reference in the list comprehension.
+        vec = self.histptr.getBinEdges()
+        return np.array(vec[0], copy=True)
+
+    @property
+    def bounds(self):
+        # Must create a local reference or Cython tries to access an rvalue by
+        # reference in the list comprehension.
+        vec = self.histptr.getBounds()
+        return vec[0]
+
+    @property
+    def nbins(self):
+        return self.histptr.getAxisSizes()[0]

@@ -8,8 +8,8 @@
 
 #include "Box.h"
 #include "Histogram.h"
+#include "BondHistogramCompute.h"
 #include "ManagedArray.h"
-#include "NeighborComputeFunctional.h"
 #include "VectorMath.h"
 
 /*! \internal
@@ -26,22 +26,14 @@ namespace freud { namespace pmft {
  *  subclasses that account for the proper set of dimensions.The required functions are implemented as pure
  *  virtual functions here to enforce this.
  */
-class PMFT
+class PMFT : public locality::BondHistogramCompute
 {
 public:
     //! Constructor
-    PMFT() : m_box(box::Box()), m_frame_counter(0), m_n_points(0) , m_n_query_points(0), m_reduce(true) {}
+    PMFT() : BondHistogramCompute() {}
 
     //! Destructor
     virtual ~PMFT() {};
-
-    //! Reset the PCF array to all zeros
-    void reset()
-    {
-        m_local_histograms.reset();
-        this->m_frame_counter = 0;
-        this->m_reduce = true;
-    }
 
     //! \internal
     //! helper function to reduce the thread specific arrays into one array
@@ -53,36 +45,6 @@ public:
     {
         reducePCF();
     }
-
-    //! Get bin centers.
-    std::vector<std::vector<float> > getBinCenters() const
-    {
-        // RDFs are always 1D histograms, so we just return the first element.
-        return m_histogram.getBinCenters();
-    }
-
-    //! Return the bin boundaries.
-    std::vector<std::vector<float> > getBinEdges() const
-    {
-        // RDFs are always 1D histograms, so we just return the first element.
-        return m_histogram.getBinEdges();
-    }
-
-
-    //! Return the bin boundaries.
-    std::vector<std::pair<float, float> > getBounds() const
-    {
-        // RDFs are always 1D histograms, so we just return the first element.
-        return m_histogram.getBounds();
-    }
-
-    //! Return the bin boundaries.
-    std::vector<unsigned int> getBinSizes() const
-    {
-        // RDFs are always 1D histograms, so we just return the first element.
-        return m_histogram.getBinSizes();
-    }
-
 
     //! \internal
     // Wrapper to do accumulation.
@@ -110,7 +72,6 @@ public:
         m_reduce = true;
     }
 
-    //! Helper function to reduce three dimensionally with appropriate Jacobian.
     template<typename JacobFactor>
     void reduce(JacobFactor jf)
     {
@@ -133,40 +94,9 @@ public:
         return reduceAndReturn(m_pcf_array);
     }
 
-    //! Get a reference to the bin counts array
-    const util::ManagedArray<unsigned int> &getBinCounts()
-    {
-        return reduceAndReturn(m_histogram.getBinCounts());
-    }
-
-    //! Return :code:`thing_to_return` after reducing.
-    template<typename T>
-    T &reduceAndReturn(T &thing_to_return)
-    {
-        if (m_reduce == true)
-        {
-            reduce();
-        }
-        m_reduce = false;
-        return thing_to_return;
-    }
-
-    //! Get the simulation box
-    const box::Box& getBox() const
-    {
-        return m_box;
-    }
-
 protected:
-    box::Box m_box;
-    unsigned int m_frame_counter;    //!< Number of frames calculated.
-    unsigned int m_n_points;         //!< The number of points.
-    unsigned int m_n_query_points;   //!< The number of query points.
-    bool m_reduce;                   //!< Whether or not the histogram needs to be reduced.
 
     util::ManagedArray<float> m_pcf_array;         //!< Array of computed pair correlation function.
-    util::Histogram m_histogram; //!< Counts for each bin.
-    util::Histogram::ThreadLocalHistogram m_local_histograms;   //!< Thread local bin counts for TBB parallelism
 };
 
 }; }; // end namespace freud::pmft

@@ -27,12 +27,12 @@ PMFTR12::PMFTR12(float r_max, unsigned int n_r, unsigned int n_t1, unsigned int 
         throw std::invalid_argument("PMFTR12 requires that r_max must be positive.");
 
     // Construct the Histogram object that will be used to keep track of counts of bond distances found.
-    util::Histogram::Axes axes;
+    BHAxes axes;
     axes.push_back(std::make_shared<util::RegularAxis>(n_r, 0, r_max));
     axes.push_back(std::make_shared<util::RegularAxis>(n_t1, 0, TWO_PI));
     axes.push_back(std::make_shared<util::RegularAxis>(n_t2, 0, TWO_PI));
-    m_histogram = util::Histogram(axes);
-    m_local_histograms = util::Histogram::ThreadLocalHistogram(m_histogram);
+    m_histogram = BondHistogram(axes);
+    m_local_histograms = BondHistogram::ThreadLocalHistogram(m_histogram);
 
     // calculate the jacobian array; computed as the inverse for faster use later
     m_inv_jacobian_array.prepare({n_r, n_t1, n_t2});
@@ -71,13 +71,13 @@ void PMFTR12::accumulate(const locality::NeighborQuery* neighbor_query,
 {
     accumulateGeneral(neighbor_query, query_points, n_p, nlist, qargs,
         [=](const freud::locality::NeighborBond& neighbor_bond) {
-        vec3<float> ref = neighbor_query->getPoints()[neighbor_bond.ref_id];
-        vec3<float> delta = m_box.wrap(query_points[neighbor_bond.id] - ref);
+        vec3<float> ref = neighbor_query->getPoints()[neighbor_bond.point_idx];
+        vec3<float> delta = m_box.wrap(query_points[neighbor_bond.query_point_idx] - ref);
         // calculate angles
         float d_theta1 = atan2(delta.y, delta.x);
         float d_theta2 = atan2(-delta.y, -delta.x);
-        float t1 = orientations[neighbor_bond.ref_id] - d_theta1;
-        float t2 = query_orientations[neighbor_bond.id] - d_theta2;
+        float t1 = orientations[neighbor_bond.point_idx] - d_theta1;
+        float t2 = query_orientations[neighbor_bond.query_point_idx] - d_theta2;
         // make sure that t1, t2 are bounded between 0 and 2PI
         t1 = fmod(t1, TWO_PI);
         if (t1 < 0)

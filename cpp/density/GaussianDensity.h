@@ -41,18 +41,17 @@ public:
         return m_sigma;
     }
 
-    //! Reset the gaussian array to all zeros
-    void reset();
-
-    //! \internal
-    //! helper function to reduce the thread specific arrays into one array
-    void reduce();
+    //! Return the cutoff distance.
+    float getRMax() const
+    {
+        return m_r_max;
+    }
 
     //! Compute the Density
     void compute(const box::Box& box, const vec3<float>* points, unsigned int n_points);
 
     //! Get a reference to the last computed Density
-    const util::ManagedArray<float> &getDensity();
+    const util::ManagedArray<float> &getDensity() const;
 
     vec3<unsigned int> getWidth();
 
@@ -61,10 +60,8 @@ private:
     vec3<unsigned int> m_width;                   //!< Num of bins on each side of the cube
     float m_r_max;                                 //!< Max r at which to compute density
     float m_sigma;                                //!< Variance
-    bool m_reduce;                                //!< Whether arrays need to be reduced across threads
 
     util::ManagedArray<float> m_density_array; //! computed density array
-    util::ThreadStorage<float> m_local_bin_counts;
 };
 
 }; }; // end namespace freud::density

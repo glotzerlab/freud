@@ -38,12 +38,12 @@ PMFTXYZ::PMFTXYZ(float x_max, float y_max, float z_max, unsigned int n_x, unsign
     m_pcf_array.prepare({n_x, n_y, n_z});
 
     // Construct the Histogram object that will be used to keep track of counts of bond distances found.
-    util::Histogram::Axes axes;
+    BHAxes axes;
     axes.push_back(std::make_shared<util::RegularAxis>(n_x, -x_max, x_max));
     axes.push_back(std::make_shared<util::RegularAxis>(n_y, -y_max, y_max));
     axes.push_back(std::make_shared<util::RegularAxis>(n_z, -z_max, z_max));
-    m_histogram = util::Histogram(axes);
-    m_local_histograms = util::Histogram::ThreadLocalHistogram(m_histogram);
+    m_histogram = BondHistogram(axes);
+    m_local_histograms = BondHistogram::ThreadLocalHistogram(m_histogram);
 }
 
 //! \internal
@@ -67,16 +67,16 @@ void PMFTXYZ::accumulate(const locality::NeighborQuery* neighbor_query,
     std::vector<unsigned int> shape = m_local_histograms.local().shape();
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
         [=](const freud::locality::NeighborBond& neighbor_bond) {
-        vec3<float> ref = neighbor_query->getPoints()[neighbor_bond.ref_id];
+        vec3<float> ref = neighbor_query->getPoints()[neighbor_bond.point_idx];
         // create the reference point quaternion
-        quat<float> ref_q(orientations[neighbor_bond.ref_id]);
+        quat<float> ref_q(orientations[neighbor_bond.point_idx]);
         // make sure that the particles are wrapped into the box
-        vec3<float> delta = m_box.wrap(query_points[neighbor_bond.id] - ref);
+        vec3<float> delta = m_box.wrap(query_points[neighbor_bond.query_point_idx] - ref);
 
         for (unsigned int k = 0; k < n_faces; k++)
         {
             // create the extra quaternion
-            quat<float> qe(face_orientations[util::ManagedArray<unsigned int>::getIndex({neighbor_query->getNPoints(), n_faces}, {neighbor_bond.ref_id, k})]);
+            quat<float> qe(face_orientations[util::ManagedArray<unsigned int>::getIndex({neighbor_query->getNPoints(), n_faces}, {neighbor_bond.point_idx, k})]);
             // create point vector
             vec3<float> v(delta);
             // rotate the vector

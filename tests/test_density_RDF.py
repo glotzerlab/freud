@@ -10,8 +10,8 @@ import util
 class TestRDF(unittest.TestCase):
     def test_generateR(self):
         r_max = 5
-        bins = round(r_max/0.1)
-        for r_min in [0]:
+        for r_min in [0, 0.05, 0.1, 1.0, 3.0]:
+            bins = round((r_max-r_min)/0.1)
             dr = (r_max - r_min) / bins
 
             # make sure the radius for each bin is generated correctly
@@ -19,7 +19,7 @@ class TestRDF(unittest.TestCase):
                                r_min + dr*(i+1/2) < r_max])
             rdf = freud.density.RDF(bins, r_max, r_min=r_min)
             npt.assert_allclose(rdf.bin_centers, r_list, rtol=1e-4, atol=1e-4)
-            npt.assert_allclose((rdf.bins+dr/2)[:-1], r_list, rtol=1e-4,
+            npt.assert_allclose((rdf.bin_edges+dr/2)[:-1], r_list, rtol=1e-4,
                                 atol=1e-4)
 
     def test_attribute_access(self):
@@ -88,9 +88,9 @@ class TestRDF(unittest.TestCase):
                 rdf = freud.density.RDF(bins, r_max, r_min)
 
                 if i < 3:
-                    rdf.accumulate(box, ts[0], nlist=ts[1])
+                    rdf.accumulate(box, ts[0], neighbors=ts[1])
                 else:
-                    rdf.compute(box, ts[0], nlist=ts[1])
+                    rdf.compute(box, ts[0], neighbors=ts[1])
                 self.assertTrue(rdf.box == box)
                 correct = np.ones(bins, dtype=np.float32)
                 npt.assert_allclose(rdf.RDF, correct, atol=tolerance)
@@ -157,7 +157,7 @@ class TestRDF(unittest.TestCase):
             box, points, query_points, "ball", r_max, 0, False)
         for ts in test_set:
             rdf = freud.density.RDF(bins, r_max)
-            rdf.compute(box, ts[0], query_points, nlist=ts[1])
+            rdf.compute(box, ts[0], query_points, neighbors=ts[1])
 
             npt.assert_allclose(rdf.n_r, supposed_RDF, atol=1e-6)
 

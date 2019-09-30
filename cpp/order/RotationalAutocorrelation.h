@@ -66,25 +66,25 @@ public:
     ~RotationalAutocorrelation() {}
 
     //! Get the quantum number l used in calculations.
-    unsigned int getL()
+    unsigned int getL() const
     {
         return m_l;
     }
 
     //! Get the number of orientations used in the last call to compute.
-    unsigned int getN()
+    unsigned int getN() const
     {
         return m_N;
     }
 
     //! Get a reference to the last computed rotational autocorrelation array.
-    const util::ManagedArray<std::complex<float>> &getRAArray()
+    const util::ManagedArray<std::complex<float>> &getRAArray() const
     {
         return m_RA_array;
     }
 
     //! Get a reference to the last computed value of the rotational autocorrelation.
-    float getRotationalAutocorrelation()
+    float getRotationalAutocorrelation() const
     {
         return m_Ft;
     }

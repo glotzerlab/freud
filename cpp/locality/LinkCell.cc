@@ -210,12 +210,11 @@ void IteratorCellShell::reset(unsigned int range)
 
 // Default constructor
 LinkCell::LinkCell()
-    : NeighborQuery(), m_n_points(0), m_cell_width(0), m_celldim(0, 0, 0), m_neighbor_list()
+    : NeighborQuery(), m_n_points(0), m_cell_width(0), m_celldim(0, 0, 0)
 {}
 
 LinkCell::LinkCell(const box::Box& box, float cell_width, const vec3<float>* points, unsigned int n_points)
-    : NeighborQuery(box, points, n_points), m_n_points(0), m_cell_width(cell_width), m_celldim(0, 0, 0),
-      m_neighbor_list()
+    : NeighborQuery(box, points, n_points), m_n_points(0), m_cell_width(cell_width), m_celldim(0, 0, 0)
 {
     m_celldim = computeDimensions(box, m_cell_width);
 
@@ -352,7 +351,7 @@ vec3<unsigned int> LinkCell::getCellCoord(const vec3<float> p) const
     return c;
 }
 
-const std::vector<unsigned int>& LinkCell::getCellNeighbors(unsigned int cell)
+const std::vector<unsigned int>& LinkCell::getCellNeighbors(unsigned int cell) const
 {
     // check if the list of neighbors has been already computed
     // return the list if it has
@@ -368,7 +367,7 @@ const std::vector<unsigned int>& LinkCell::getCellNeighbors(unsigned int cell)
     }
 }
 
-const std::vector<unsigned int>& LinkCell::computeCellNeighbors(unsigned int cur_cell)
+const std::vector<unsigned int>& LinkCell::computeCellNeighbors(unsigned int cur_cell) const
 {
     std::vector<unsigned int> neighbor_cells;
     vec3<unsigned int> l_idx = indexToCoord(cur_cell);

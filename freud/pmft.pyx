@@ -67,8 +67,6 @@ cdef class _PMFT(SpatialHistogram):
     It must be specialized for a specific coordinate system; although in
     principle the PMFT is coordinate independent, the binning process must be
     performed in a particular coordinate system.
-
-    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
     """
     cdef freud._pmft.PMFT * pmftptr
 
@@ -80,51 +78,11 @@ cdef class _PMFT(SpatialHistogram):
             del self.pmftptr
 
     @Compute._computed_property()
-    def box(self):
-        return freud.box.BoxFromCPP(self.pmftptr.getBox())
-
-    @Compute._reset
-    def reset(self):
-        R"""Resets the values of the PCF histograms in memory."""
-        self.pmftptr.reset()
-
-    @Compute._computed_property()
     def PMFT(self):
         with np.warnings.catch_warnings():
             np.warnings.filterwarnings('ignore')
             result = -np.log(np.copy(self.PCF))
         return result
-
-    @Compute._computed_property()
-    def bin_counts(self):
-        return freud.util.make_managed_numpy_array(
-            &self.pmftptr.getBinCounts(),
-            freud.util.arr_type_t.UNSIGNED_INT)
-
-    @property
-    def bin_centers(self):
-        # Must create a local reference or Cython tries to access an rvalue by
-        # reference in the list comprehension.
-        vec = self.pmftptr.getBinCenters()
-        return [np.array(b, copy=True) for b in vec]
-
-    @property
-    def bin_edges(self):
-        # Must create a local reference or Cython tries to access an rvalue by
-        # reference in the list comprehension.
-        vec = self.pmftptr.getBinEdges()
-        return [np.array(b, copy=True) for b in vec]
-
-    @property
-    def bounds(self):
-        # Must create a local reference or Cython tries to access an rvalue by
-        # reference in the list comprehension.
-        vec = self.pmftptr.getBounds()
-        return [tuple(b) for b in vec]
-
-    @property
-    def nbins(self):
-        return list(self.pmftptr.getBinSizes())
 
     @Compute._computed_property()
     def PCF(self):
@@ -142,53 +100,33 @@ cdef class PMFTR12(_PMFT):
         The points must be passed in as :code:`[x, y, 0]`.
         Failing to set z=0 will lead to undefined behavior.
 
-    .. moduleauthor:: Eric Harper <harperic@umich.edu>
-    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
-
     Args:
         r_max (float):
             Maximum distance at which to compute the PMFT.
-        n_r (unsigned int):
-            Number of bins in :math:`r`.
-        n_t1 (unsigned int):
-            Number of bins in :math:`\theta_1`.
-        n_t2 (unsigned int):
-            Number of bins in :math:`\theta_2`.
+        bins (unsigned int or sequence of length 3):
+            If an unsigned int, the number of bins in:math:`r`,
+            :math:`\theta_1`, and :math:`\theta_2`. If a sequence of three
+            integers, interpreted as :code:`(num_bins_r, num_bins_t1,
+            num_bins_t2)`.
 
     Attributes:
-        box (:class:`freud.box.Box`):
-            Box used in the calculation.
-        bin_counts (:math:`\left(N_{r}, N_{\theta1}, N_{\theta2}\right)`):
-            Bin counts.
         PCF (:math:`\left(N_{r}, N_{\theta1}, N_{\theta2}\right)`):
             The positional correlation function.
         PMFT (:math:`\left(N_{r}, N_{\theta1}, N_{\theta2}\right)`):
             The potential of mean force and torque.
         r_max (float):
             The cutoff used in the cell list.
-        R (:math:`\left(N_{r}\right)` :class:`numpy.ndarray`):
-            The array of :math:`r`-values for the PCF histogram.
-        T1 (:math:`\left(N_{\theta1}\right)` :class:`numpy.ndarray`):
-            The array of :math:`\theta_1`-values for the PCF histogram.
-        T2 (:math:`\left(N_{\theta2}\right)` :class:`numpy.ndarray`):
-            The array of :math:`\theta_2`-values for the PCF histogram.
-        inverse_jacobian (:math:`\left(N_{r}, N_{\theta1}, N_{\theta2}\right)`):
-            The inverse Jacobian used in the PMFT.
-        n_bins_R (unsigned int):
-            The number of bins in the :math:`r`-dimension of the histogram.
-        n_bins_T1 (unsigned int):
-            The number of bins in the :math:`\theta_1`-dimension of the
-            histogram.
-        n_bins_T2 (unsigned int):
-            The number of bins in the :math:`\theta_2`-dimension of the
-            histogram.
     """  # noqa: E501
     cdef freud._pmft.PMFTR12 * pmftr12ptr
 
-    def __cinit__(self, r_max, n_r, n_t1, n_t2):
+    def __cinit__(self, r_max, bins):
         if type(self) is PMFTR12:
-            self.pmftr12ptr = self.pmftptr = new freud._pmft.PMFTR12(
-                r_max, n_r, n_t1, n_t2)
+            try:
+                n_r, n_t1, n_t2 = bins
+            except TypeError:
+                n_r = n_t1 = n_t2 = bins
+            self.pmftr12ptr = self.pmftptr = self.histptr = \
+                new freud._pmft.PMFTR12(r_max, n_r, n_t1, n_t2)
             self.r_max = r_max
 
     def __dealloc__(self):
@@ -197,7 +135,7 @@ cdef class PMFTR12(_PMFT):
 
     @Compute._compute()
     def accumulate(self, box, points, orientations, query_points=None,
-                   query_orientations=None, nlist=None, query_args=None):
+                   query_orientations=None, neighbors=None):
         R"""Calculates the positional correlation function and adds to the
         current histogram.
 
@@ -228,8 +166,8 @@ cdef class PMFTR12(_PMFT):
             unsigned int num_query_points
 
         b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(box, points, query_points, nlist,
-                                      query_args, dimensions=2)
+            self.preprocess_arguments(
+                box, points, query_points, neighbors, dimensions=2)
 
         orientations = freud.common.convert_array(
             np.atleast_1d(orientations.squeeze()),
@@ -253,7 +191,7 @@ cdef class PMFTR12(_PMFT):
 
     @Compute._compute()
     def compute(self, box, points, orientations, query_points=None,
-                query_orientations=None, nlist=None, query_args=None):
+                query_orientations=None, neighbors=None):
         R"""Calculates the positional correlation function for the given points.
         Will overwrite the current histogram.
 
@@ -277,23 +215,15 @@ cdef class PMFTR12(_PMFT):
         """  # noqa: E501
         self.reset()
         self.accumulate(box, points, orientations,
-                        query_points, query_orientations, nlist, query_args)
+                        query_points, query_orientations, neighbors)
         return self
-
-    @property
-    def inverse_jacobian(self):
-        return freud.util.make_managed_numpy_array(
-            &self.pmftr12ptr.getInverseJacobian(),
-            freud.util.arr_type_t.FLOAT)
 
     def __repr__(self):
         bounds = self.bounds
-        return ("freud.pmft.{cls}(r_max={r_max}, n_r={n_r}, n_t1={n_t1}, "
-                "n_t2={n_t2})").format(cls=type(self).__name__,
-                                       r_max=self.r_max,
-                                       n_r=bounds[0][1],
-                                       n_t1=bounds[1][1],
-                                       n_t2=bounds[2][1])
+        return ("freud.pmft.{cls}(r_max={r_max}, bins=({bins}))").format(
+            cls=type(self).__name__,
+            r_max=self.r_max,
+            bins=', '.join([str(b) for b in self.nbins]))
 
 
 cdef class PMFTXYT(_PMFT):
@@ -302,67 +232,49 @@ cdef class PMFTXYT(_PMFT):
     listed in the ``X``, ``Y``, and ``T`` arrays.
 
     The values of :math:`x, y, \theta` at which to compute the PCF are
-    controlled by ``x_max``, ``y_max``, and ``n_x``, ``n_y``, ``n_t``
-    parameters to the constructor. The ``x_max`` and ``y_max`` parameters
-    determine the minimum/maximum :math:`x, y` values
-    (:math:`\min \left(\theta \right) = 0`,
-    (:math:`\max \left( \theta \right) = 2\pi`) at which to compute the
-    PCF and ``n_x``, ``n_y``, ``n_t`` are the number of bins in
-    :math:`x, y, \theta`.
+    controlled by ``x_max``, ``y_max``, and ``bins`` parameters to the
+    constructor. The ``x_max`` and ``y_max`` parameters determine the
+    minimum/maximum :math:`x, y` values (:math:`\min \left(\theta \right) = 0`,
+    (:math:`\max \left( \theta \right) = 2\pi`) at which to compute the PCF.
+    The ``bins`` may be either an integer, in which case it is interpreted as
+    the number of bins in each dimension, or a sequence of length 3, in which
+    case it is interpreted as the number of bins in :math:`x`, :math:`y`, and
+    :math:`\theta`.
 
     .. note::
         **2D:** :class:`freud.pmft.PMFTXYT` is only defined for 2D systems.
         The points must be passed in as :code:`[x, y, 0]`.
         Failing to set z=0 will lead to undefined behavior.
 
-    .. moduleauthor:: Eric Harper <harperic@umich.edu>
-    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
-
     Args:
         x_max (float):
             Maximum :math:`x` distance at which to compute the PMFT.
         y_max (float):
             Maximum :math:`y` distance at which to compute the PMFT.
-        n_x (unsigned int):
-            Number of bins in :math:`x`.
-        n_y (unsigned int):
-            Number of bins in :math:`y`.
-        n_t (unsigned int):
-            Number of bins in :math:`\theta`.
+        bins (unsigned int or sequence of length 3):
+            If an unsigned int, the number of bins in:math:`x`, :math:`y`, and
+            :math:`t`. If a sequence of three integers, interpreted as
+            :code:`(num_bins_x, num_bins_y, num_bins_t)`.
 
     Attributes:
-        box (:class:`freud.box.Box`):
-            Box used in the calculation.
-        bin_counts (:math:`\left(N_{x}, N_{y}, N_{\theta}\right)` :class:`numpy.ndarray`):
-            Bin counts.
         PCF (:math:`\left(N_{x}, N_{y}, N_{\theta}\right)` :class:`numpy.ndarray`):
             The positional correlation function.
         PMFT (:math:`\left(N_{x}, N_{y}, N_{\theta}\right)` :class:`numpy.ndarray`):
             The potential of mean force and torque.
         r_max (float):
             The cutoff used in the cell list.
-        X (:math:`\left(N_{x}\right)` :class:`numpy.ndarray`):
-            The array of :math:`x`-values for the PCF histogram.
-        Y (:math:`\left(N_{y}\right)` :class:`numpy.ndarray`):
-            The array of :math:`y`-values for the PCF histogram.
-        T (:math:`\left(N_{\theta}\right)` :class:`numpy.ndarray`):
-            The array of :math:`\theta`-values for the PCF histogram.
-        jacobian (float):
-            The Jacobian used in the PMFT.
-        n_bins_X (unsigned int):
-            The number of bins in the :math:`x`-dimension of the histogram.
-        n_bins_Y (unsigned int):
-            The number of bins in the :math:`y`-dimension of the histogram.
-        n_bins_T (unsigned int):
-            The number of bins in the :math:`\theta`-dimension of the
-            histogram.
     """  # noqa: E501
     cdef freud._pmft.PMFTXYT * pmftxytptr
 
-    def __cinit__(self, x_max, y_max, n_x, n_y, n_t):
+    def __cinit__(self, x_max, y_max, bins):
         if type(self) is PMFTXYT:
-            self.pmftxytptr = self.pmftptr = new freud._pmft.PMFTXYT(
-                x_max, y_max, n_x, n_y, n_t)
+            try:
+                n_x, n_y, n_t = bins
+            except TypeError:
+                n_x = n_y = n_t = bins
+
+            self.pmftxytptr = self.pmftptr = self.histptr = \
+                new freud._pmft.PMFTXYT(x_max, y_max, n_x, n_y, n_t)
             self.r_max = np.sqrt(x_max**2 + y_max**2)
 
     def __dealloc__(self):
@@ -371,7 +283,7 @@ cdef class PMFTXYT(_PMFT):
 
     @Compute._compute()
     def accumulate(self, box, points, orientations, query_points=None,
-                   query_orientations=None, nlist=None, query_args=None):
+                   query_orientations=None, neighbors=None):
         R"""Calculates the positional correlation function and adds to the
         current histogram.
 
@@ -402,8 +314,8 @@ cdef class PMFTXYT(_PMFT):
             unsigned int num_query_points
 
         b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(box, points, query_points, nlist,
-                                      query_args, dimensions=2)
+            self.preprocess_arguments(
+                box, points, query_points, neighbors, dimensions=2)
 
         orientations = freud.common.convert_array(
             np.atleast_1d(orientations.squeeze()),
@@ -427,7 +339,7 @@ cdef class PMFTXYT(_PMFT):
 
     @Compute._compute()
     def compute(self, box, points, orientations, query_points=None,
-                query_orientations=None, nlist=None, query_args=None):
+                query_orientations=None, neighbors=None):
         R"""Calculates the positional correlation function for the given points.
         Will overwrite the current histogram.
 
@@ -451,23 +363,17 @@ cdef class PMFTXYT(_PMFT):
         """  # noqa: E501
         self.reset()
         self.accumulate(box, points, orientations,
-                        query_points, query_orientations, nlist, query_args)
+                        query_points, query_orientations, neighbors)
         return self
-
-    @property
-    def jacobian(self):
-        return self.pmftxytptr.getJacobian()
 
     def __repr__(self):
         bounds = self.bounds
-        nbins = self.nbins
-        return ("freud.pmft.{cls}(x_max={x_max}, y_max={y_max}, n_x={n_x}, "
-                "n_y={n_y}, n_t={n_t})").format(cls=type(self).__name__,
-                                                x_max=bounds[0][1],
-                                                y_max=bounds[1][1],
-                                                n_x=nbins[0],
-                                                n_y=nbins[1],
-                                                n_t=nbins[2])
+        return ("freud.pmft.{cls}(x_max={x_max}, y_max={y_max}, "
+                "bins=({bins}))").format(cls=type(self).__name__,
+                                         x_max=bounds[0][1],
+                                         y_max=bounds[1][1],
+                                         bins=', '.join(
+                                             [str(b) for b in self.nbins]))
 
 
 cdef class PMFTXY2D(_PMFT):
@@ -475,57 +381,47 @@ cdef class PMFTXY2D(_PMFT):
     coordinates :math:`x`, :math:`y` listed in the ``X`` and ``Y`` arrays.
 
     The values of :math:`x` and :math:`y` at which to compute the PCF are
-    controlled by ``x_max``, ``y_max``, ``n_x``, and ``n_y`` parameters to the
+    controlled by ``x_max``, ``y_max``, and ``bins`` parameters to the
     constructor. The ``x_max`` and ``y_max`` parameters determine the
-    minimum/maximum distance at which to compute the PCF and ``n_x`` and
-    ``n_y`` are the number of bins in :math:`x` and :math:`y`.
+    minimum/maximum distance at which to compute the PCF.  The ``bins`` may be
+    either an integer, in which case it is interpreted as the number of bins in
+    each dimension, or a sequence of length 2, in which case it is interpreted
+    as the number of bins in :math:`x` and :math:`y` respectively.
 
     .. note::
         **2D:** :class:`freud.pmft.PMFTXY2D` is only defined for 2D systems.
         The points must be passed in as :code:`[x, y, 0]`.
         Failing to set z=0 will lead to undefined behavior.
 
-    .. moduleauthor:: Eric Harper <harperic@umich.edu>
-    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
-
     Args:
         x_max (float):
             Maximum :math:`x` distance at which to compute the PMFT.
         y_max (float):
             Maximum :math:`y` distance at which to compute the PMFT.
-        n_x (unsigned int):
-            Number of bins in :math:`x`.
-        n_y (unsigned int):
-            Number of bins in :math:`y`.
+        bins (unsigned int or sequence of length 2):
+            If an unsigned int, the number of bins in:math:`x`, :math:`y`, and
+            :math:`z`. If a sequence of two integers, interpreted as
+            :code:`(num_bins_x, num_bins_y)`.
 
     Attributes:
-        box (:class:`freud.box.Box`):
-            Box used in the calculation.
-        bin_counts (:math:`\left(N_{x}, N_{y}\right)` :class:`numpy.ndarray`):
-            Bin counts.
         PCF (:math:`\left(N_{x}, N_{y}\right)` :class:`numpy.ndarray`):
             The positional correlation function.
         PMFT (:math:`\left(N_{x}, N_{y}\right)` :class:`numpy.ndarray`):
             The potential of mean force and torque.
         r_max (float):
             The cutoff used in the cell list.
-        X (:math:`\left(N_{x}\right)` :class:`numpy.ndarray`):
-            The array of :math:`x`-values for the PCF histogram.
-        Y (:math:`\left(N_{y}\right)` :class:`numpy.ndarray`):
-            The array of :math:`y`-values for the PCF histogram.
-        jacobian (float):
-            The Jacobian used in the PMFT.
-        n_bins_X (unsigned int):
-            The number of bins in the :math:`x`-dimension of the histogram.
-        n_bins_Y (unsigned int):
-            The number of bins in the :math:`y`-dimension of the histogram.
     """  # noqa: E501
     cdef freud._pmft.PMFTXY2D * pmftxy2dptr
 
-    def __cinit__(self, x_max, y_max, n_x, n_y):
+    def __cinit__(self, x_max, y_max, bins):
         if type(self) is PMFTXY2D:
-            self.pmftxy2dptr = self.pmftptr = new freud._pmft.PMFTXY2D(
-                x_max, y_max, n_x, n_y)
+            try:
+                n_x, n_y = bins
+            except TypeError:
+                n_x = n_y = bins
+
+            self.pmftxy2dptr = self.pmftptr = self.histptr = \
+                new freud._pmft.PMFTXY2D(x_max, y_max, n_x, n_y)
             self.r_max = np.sqrt(x_max**2 + y_max**2)
 
     def __dealloc__(self):
@@ -534,7 +430,7 @@ cdef class PMFTXY2D(_PMFT):
 
     @Compute._compute()
     def accumulate(self, box, points, orientations, query_points=None,
-                   nlist=None, query_args=None):
+                   neighbors=None):
         R"""Calculates the positional correlation function and adds to the
         current histogram.
 
@@ -561,8 +457,8 @@ cdef class PMFTXY2D(_PMFT):
             unsigned int num_query_points
 
         b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(box, points, query_points, nlist,
-                                      query_args, dimensions=2)
+            self.preprocess_arguments(
+                box, points, query_points, neighbors, dimensions=2)
 
         orientations = freud.common.convert_array(
             np.atleast_1d(orientations.squeeze()),
@@ -578,7 +474,7 @@ cdef class PMFTXY2D(_PMFT):
 
     @Compute._compute()
     def compute(self, box, points, orientations, query_points=None,
-                nlist=None, query_args=None):
+                neighbors=None):
         R"""Calculates the positional correlation function for the given points.
         Will overwrite the current histogram.
 
@@ -598,7 +494,7 @@ cdef class PMFTXY2D(_PMFT):
         """  # noqa: E501
         self.reset()
         self.accumulate(box, points, orientations,
-                        query_points, nlist, query_args)
+                        query_points, neighbors)
         return self
 
     @Compute._computed_property()
@@ -615,19 +511,14 @@ cdef class PMFTXY2D(_PMFT):
         # changes.
         return np.squeeze(super(PMFTXY2D, self).PCF)
 
-    @property
-    def jacobian(self):
-        return self.pmftxy2dptr.getJacobian()
-
     def __repr__(self):
         bounds = self.bounds
-        nbins = self.nbins
-        return ("freud.pmft.{cls}(x_max={x_max}, y_max={y_max}, n_x={n_x}, "
-                "n_y={n_y})").format(cls=type(self).__name__,
-                                     x_max=bounds[0][1],
-                                     y_max=bounds[1][1],
-                                     n_x=nbins[0],
-                                     n_y=nbins[1])
+        return ("freud.pmft.{cls}(x_max={x_max}, y_max={y_max}, "
+                "bins=({bins}))").format(cls=type(self).__name__,
+                                         x_max=bounds[0][1],
+                                         y_max=bounds[1][1],
+                                         bins=', '.join(
+                                             [str(b) for b in self.nbins]))
 
     def _repr_png_(self):
         import freud.plot
@@ -658,17 +549,17 @@ cdef class PMFTXYZ(_PMFT):
     and ``Z`` arrays.
 
     The values of :math:`x, y, z` at which to compute the PCF are controlled by
-    ``x_max``, ``y_max``, ``z_max``, ``n_x``, ``n_y``, and ``n_z`` parameters
-    to the constructor. The ``x_max``, ``y_max``, and ``z_max`` parameters]
-    determine the minimum/maximum distance at which to compute the PCF and
-    ``n_x``, ``n_y``, and ``n_z`` are the number of bins in :math:`x, y, z`.
+    ``x_max``, ``y_max``, ``z_max``, and ``bins`` parameters to the constructor.
+    The ``x_max``, ``y_max``, and ``z_max`` parameters] determine the
+    minimum/maximum distance at which to compute the pair correlation function.
+    The ``bins`` may be either an integer, in which case it is interpreted as
+    the number of bins in each dimension, or a sequence of length 3, in which
+    case it is interpreted as the number of bins in :math:`x`, :math:`y`, and
+    :math:`z` respectively.
 
     .. note::
         3D: :class:`freud.pmft.PMFTXYZ` is only defined for 3D systems.
         The points must be passed in as :code:`[x, y, z]`.
-
-    .. moduleauthor:: Eric Harper <harperic@umich.edu>
-    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
 
     Args:
         x_max (float):
@@ -677,52 +568,39 @@ cdef class PMFTXYZ(_PMFT):
             Maximum :math:`y` distance at which to compute the PMFT.
         z_max (float):
             Maximum :math:`z` distance at which to compute the PMFT.
-        n_x (unsigned int):
-            Number of bins in :math:`x`.
-        n_y (unsigned int):
-            Number of bins in :math:`y`.
-        n_z (unsigned int):
-            Number of bins in :math:`z`.
+        bins (unsigned int or sequence of length 3):
+            If an unsigned int, the number of bins in :math:`x`, :math:`y`, and
+            :math:`z`. If a sequence of three integers, interpreted as
+            :code:`(num_bins_x, num_bins_y, num_bins_z)`.
         shiftvec (list):
             Vector pointing from ``[0, 0, 0]`` to the center of the PMFT.
 
     Attributes:
-        box (:class:`freud.box.Box`):
-            Box used in the calculation.
-        bin_counts (:math:`\left(N_{x}, N_{y}, N_{z}\right)` :class:`numpy.ndarray`):
-            Bin counts.
         PCF (:math:`\left(N_{x}, N_{y}, N_{z}\right)` :class:`numpy.ndarray`):
             The positional correlation function.
         PMFT (:math:`\left(N_{x}, N_{y}, N_{z}\right)` :class:`numpy.ndarray`):
             The potential of mean force and torque.
         r_max (float):
             The cutoff used in the cell list.
-        X (:math:`\left(N_{x}\right)` :class:`numpy.ndarray`):
-            The array of :math:`x`-values for the PCF histogram.
-        Y (:math:`\left(N_{y}\right)` :class:`numpy.ndarray`):
-            The array of :math:`y`-values for the PCF histogram.
-        Z (:math:`\left(N_{z}\right)` :class:`numpy.ndarray`):
-            The array of :math:`z`-values for the PCF histogram.
-        jacobian (float):
-            The Jacobian used in the PMFT.
-        n_bins_X (unsigned int):
-            The number of bins in the :math:`x`-dimension of the histogram.
-        n_bins_Y (unsigned int):
-            The number of bins in the :math:`y`-dimension of the histogram.
-        n_bins_Z (unsigned int):
-            The number of bins in the :math:`z`-dimension of the histogram.
     """  # noqa: E501
     cdef freud._pmft.PMFTXYZ * pmftxyzptr
     cdef shiftvec
 
-    def __cinit__(self, x_max, y_max, z_max, n_x, n_y, n_z,
+    def __cinit__(self, x_max, y_max, z_max, bins,
                   shiftvec=[0, 0, 0]):
         cdef vec3[float] c_shiftvec
+
+        try:
+            n_x, n_y, n_z = bins
+        except TypeError:
+            n_x = n_y = n_z = bins
+
         if type(self) is PMFTXYZ:
             c_shiftvec = vec3[float](
                 shiftvec[0], shiftvec[1], shiftvec[2])
-            self.pmftxyzptr = self.pmftptr = new freud._pmft.PMFTXYZ(
-                x_max, y_max, z_max, n_x, n_y, n_z, c_shiftvec)
+            self.pmftxyzptr = self.pmftptr = self.histptr = \
+                new freud._pmft.PMFTXYZ(
+                    x_max, y_max, z_max, n_x, n_y, n_z, c_shiftvec)
             self.shiftvec = np.array(shiftvec, dtype=np.float32)
             self.r_max = np.sqrt(x_max**2 + y_max**2 + z_max**2)
 
@@ -732,7 +610,7 @@ cdef class PMFTXYZ(_PMFT):
 
     @Compute._compute()
     def accumulate(self, box, points, orientations, query_points=None,
-                   face_orientations=None, nlist=None, query_args=None):
+                   face_orientations=None, neighbors=None):
         R"""Calculates the positional correlation function and adds to the
         current histogram.
 
@@ -766,8 +644,8 @@ cdef class PMFTXYZ(_PMFT):
             unsigned int num_query_points
 
         b, nq, nlistptr, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(box, points, query_points, nlist,
-                                      query_args, dimensions=3)
+            self.preprocess_arguments(
+                box, points, query_points, neighbors, dimensions=3)
         l_query_points = l_query_points - self.shiftvec.reshape(1, 3)
 
         orientations = freud.common.convert_array(
@@ -829,8 +707,7 @@ cdef class PMFTXYZ(_PMFT):
 
     @Compute._compute()
     def compute(self, box, points, orientations, query_points=None,
-                face_orientations=None, nlist=None,
-                query_args=None):
+                face_orientations=None, neighbors=None):
         R"""Calculates the positional correlation function for the given points.
         Will overwrite the current histogram.
 
@@ -856,26 +733,18 @@ cdef class PMFTXYZ(_PMFT):
                 :code:`None`).
         """  # noqa: E501
         self.reset()
-        self.accumulate(box, points, orientations,
-                        query_points, face_orientations,
-                        nlist, query_args)
+        self.accumulate(box, points, orientations, query_points,
+                        face_orientations, neighbors)
         return self
-
-    @property
-    def jacobian(self):
-        return self.pmftxyzptr.getJacobian()
 
     def __repr__(self):
         bounds = self.bounds
-        nbins = self.nbins
         return ("freud.pmft.{cls}(x_max={x_max}, y_max={y_max}, "
-                "z_max={z_max}, n_x={n_x}, n_y={n_y}, n_z={n_z}, "
+                "z_max={z_max}, bins=({bins}), "
                 "shiftvec={shiftvec})").format(
                     cls=type(self).__name__,
                     x_max=bounds[0][1],
                     y_max=bounds[1][1],
                     z_max=bounds[2][1],
-                    n_x=nbins[0],
-                    n_y=nbins[1],
-                    n_z=nbins[2],
+                    bins=', '.join([str(b) for b in self.nbins]),
                     shiftvec=self.shiftvec.tolist())

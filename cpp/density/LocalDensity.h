@@ -23,7 +23,7 @@ class LocalDensity
 {
 public:
     //! Constructor
-    LocalDensity(float r_max, float volume, float diameter);
+    LocalDensity(float r_max, float diameter);
 
     //! Destructor
     ~LocalDensity();
@@ -34,24 +34,44 @@ public:
         return m_box;
     }
 
+    //! Return the cutoff distance.
+    float getRMax() const
+    {
+        return m_r_max;
+    }
+
+    //! Return the cutoff distance.
+    float getDiameter() const
+    {
+        return m_diameter;
+    }
+
     //! Compute the local density
     void compute(const freud::locality::NeighborQuery* neighbor_query, const vec3<float>* query_points,
                  unsigned int n_query_points, const freud::locality::NeighborList* nlist,
                  freud::locality::QueryArgs qargs);
 
     //! Get the number of reference particles
-    unsigned int getNPoints();
+    unsigned int getNPoints() const
+    {
+        return m_n_points;
+    }
 
     //! Get a reference to the last computed density
-    const util::ManagedArray<float> &getDensity();
+    const util::ManagedArray<float> &getDensity() const
+    {
+        return m_density_array;
+    }
 
     //! Get a reference to the last computed number of neighbors
-    const util::ManagedArray<float> &getNumNeighbors();
+    const util::ManagedArray<float> &getNumNeighbors() const
+    {
+        return m_num_neighbors_array;
+    }
 
 private:
     box::Box m_box;       //!< Simulation box where the particles belong
     float m_r_max;         //!< Maximum neighbor distance
-    float m_volume;       //!< Volume (area in 2d) of a single particle
     float m_diameter;     //!< Diameter of the particles
     unsigned int m_n_points; //!< Last number of points computed
 

@@ -7,8 +7,7 @@ Density Module
 .. autosummary::
     :nosignatures:
 
-    freud.density.FloatCF
-    freud.density.ComplexCF
+    freud.density.CorrelationFunction
     freud.density.GaussianDensity
     freud.density.LocalDensity
     freud.density.RDF
@@ -21,10 +20,10 @@ Density Module
 Correlation Functions
 =====================
 
-.. autoclass:: freud.density.FloatCF(r_max, dr)
+.. autoclass:: freud.density.CorrelationFunction(r_max, dr)
     :members: accumulate, compute, reset, plot
 
-.. autoclass:: freud.density.ComplexCF(r_max, dr)
+.. autoclass:: freud.density.CorrelationFunction(r_max, dr)
     :members: accumulate, compute, reset, plot
 
 Gaussian Density

@@ -34,10 +34,6 @@ np.import_array()
 cdef class Box:
     R"""The freud Box class for simulation boxes.
 
-    .. moduleauthor:: Richmond Newman <newmanrs@umich.edu>
-    .. moduleauthor:: Carl Simon Adorf <csadorf@umich.edu>
-    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
-
     The Box class is defined according to the conventions of the
     HOOMD-blue simulation software.
     For more information, please see:
@@ -645,9 +641,6 @@ cdef BoxFromCPP(const freud._box.Box & cppbox):
 
 cdef class ParticleBuffer:
     R"""Replicates particles outside the box via periodic images.
-
-    .. moduleauthor:: Ben Schultz <baschult@umich.edu>
-    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
 
     Args:
         box (:py:class:`freud.box.Box`): Simulation box.

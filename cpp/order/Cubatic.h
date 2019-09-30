@@ -69,52 +69,57 @@ public:
     void compute(quat<float>* orientations, unsigned int num_orientations);
 
     //! Get a reference to the last computed cubatic order parameter
-    float getCubaticOrderParameter()
+    float getCubaticOrderParameter() const
     {
         return m_cubatic_order_parameter;
     }
 
-    const util::ManagedArray<float> &getParticleOrderParameter()
+    const util::ManagedArray<float> &getParticleOrderParameter() const
     {
         return m_particle_order_parameter;
     }
 
-    const util::ManagedArray<float> &getGlobalTensor()
+    const util::ManagedArray<float> &getGlobalTensor() const
     {
         return m_global_tensor;
     }
 
-    const util::ManagedArray<float> &getCubaticTensor()
+    const util::ManagedArray<float> &getCubaticTensor() const
     {
         return m_cubatic_tensor;
     }
 
-    unsigned int getNumParticles()
+    unsigned int getNumParticles() const
     {
         return m_n;
     }
 
-    float getTInitial()
+    float getTInitial() const
     {
         return m_t_initial;
     }
 
-    float getTFinal()
+    float getTFinal() const
     {
         return m_t_final;
     }
 
-    float getScale()
+    float getScale() const
     {
         return m_scale;
     }
 
-    quat<float> getCubaticOrientation()
+    quat<float> getCubaticOrientation() const
     {
         return m_cubatic_orientation;
     }
 
-protected:
+    unsigned int getSeed() const
+    {
+        return m_seed;
+    }
+
+private:
 
     //! Calculate the cubatic tensor
     /*! Implements the second line of eq. 27, the calculation of M_{\omega}.
@@ -158,8 +163,6 @@ protected:
      */
     quat<float> calcRandomQuaternion(Saru& saru, float angle_multiplier) const;
 
-
-private:
     float m_t_initial;         //!< Initial temperature for simulated annealing.
     float m_t_final;           //!< Final temperature for simulated annealing.
     float m_scale;             //!< Scaling factor to reduce temperature.

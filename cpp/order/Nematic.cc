@@ -14,35 +14,35 @@ namespace freud { namespace order {
 
 // m_u is the molecular axis, normalized to a unit vector
 Nematic::Nematic(vec3<float> u)
-    : m_n(0), m_u(u / sqrt(dot(u, u)))
+    : m_n(0), m_u(u / std::sqrt(dot(u, u)))
 {}
 
-float Nematic::getNematicOrderParameter()
+float Nematic::getNematicOrderParameter() const
 {
     return m_nematic_order_parameter;
 }
 
-const util::ManagedArray<float> &Nematic::getParticleTensor()
+const util::ManagedArray<float> &Nematic::getParticleTensor() const
 {
     return m_particle_tensor;
 }
 
-const util::ManagedArray<float> &Nematic::getNematicTensor()
+const util::ManagedArray<float> &Nematic::getNematicTensor() const
 {
     return m_nematic_tensor;
 }
 
-unsigned int Nematic::getNumParticles()
+unsigned int Nematic::getNumParticles() const
 {
     return m_n;
 }
 
-vec3<float> Nematic::getNematicDirector()
+vec3<float> Nematic::getNematicDirector() const
 {
     return m_nematic_director;
 }
 
-vec3<float> Nematic::getU()
+vec3<float> Nematic::getU() const
 {
     return m_u;
 }

@@ -65,7 +65,7 @@ public:
     }
 
     //! Empty destructor
-    virtual ~Steinhardt() {};
+    ~Steinhardt() {};
 
     //! Get the number of particles used in the last compute
     unsigned int getNP() const
@@ -99,6 +99,12 @@ public:
         }
     }
 
+    //! Get the last calculated Qlm for each particle
+    const util::ManagedArray<std::complex<float>> &getQlm() const
+    {
+        return m_Qlmi;
+    }
+
     //! Get norm
     float getNorm() const
     {
@@ -124,8 +130,13 @@ public:
     }
 
     //! Compute the order parameter
-    virtual void compute(const freud::locality::NeighborList* nlist,
+    void compute(const freud::locality::NeighborList* nlist,
                                   const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
+
+    unsigned int getL() const
+    {
+        return m_l;
+    }
 
 private:
     //! \internal
@@ -133,8 +144,8 @@ private:
     void reduce();
 
     //! Spherical harmonics calculation for Ylm filling a
-    //  vector<complex<float> > with values for m = -l..l.
-    virtual void computeYlm(const float theta, const float phi, std::vector<std::complex<float>>& Ylm);
+    //  std::vector<std::complex<float> > with values for m = -l..l.
+    void computeYlm(const float theta, const float phi, std::vector<std::complex<float>>& Ylm);
 
     template<typename T> std::shared_ptr<T> makeArray(size_t size);
 
@@ -142,8 +153,7 @@ private:
     // unsigned int Np number of particles
     void reallocateArrays(unsigned int Np);
 
-    //! Calculates the base Ql order parameter before further modifications
-    // if any.
+    //! Calculates Qlms and the Ql order parameter before any further modifications
     void baseCompute(const freud::locality::NeighborList* nlist,
                                   const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
 
@@ -174,7 +184,7 @@ private:
     util::ThreadStorage<std::complex<float>> m_Qlm_local; //!< Thread-specific m_Qlm(Ave)
     util::ManagedArray<float> m_Qli;              //!< Ql locally invariant order parameter for each particle i
     util::ManagedArray<float> m_QliAve;           //!< Averaged Ql with 2nd neighbor shell for each particle i
-    util::ManagedArray<complex<float>> m_QlmiAve; //!< Averaged Qlm with 2nd neighbor shell for each particle i
+    util::ManagedArray<std::complex<float>> m_QlmiAve;  //!< Averaged Qlm with 2nd neighbor shell for each particle i
     util::ManagedArray<std::complex<float>> m_QlmAve;   //!< Normalized QlmiAve for the whole system
     float m_norm;                                    //!< System normalized order parameter
     util::ManagedArray<float> m_Wli; //!< Wl order parameter for each particle i, also used for Wl averaged data

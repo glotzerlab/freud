@@ -8,50 +8,50 @@ The following people contributed to the development of freud.
 
 Eric Harper, University of Michigan - **Former lead developer**
 
-* TBB parallelism.
-* PMFT module.
-* NearestNeighbors.
-* RDF.
-* Bonding module (since removed).
-* Cubatic order parameter.
-* Hexatic order parameter.
-* Pairing2D (since removed).
+* Added TBB parallelism.
+* Wrote PMFT module.
+* Added NearestNeighbors (since removed).
+* Wrote RDF.
+* Added bonding module (since removed).
+* Added cubatic order parameter.
+* Added hexatic order parameter.
+* Added Pairing2D (since removed).
+* Created common array conversion logic.
 
 Joshua A. Anderson, University of Michigan - **Creator**
 
 * Initial design and implementation.
-* IteratorLinkCell.
-* LinkCell.
-* Various density modules.
-* freud.parallel.
-* Indexing modules.
-* cluster.pxi.
+* Wrote LinkCell and IteratorLinkCell.
+* Wrote GaussianDensity, LocalDensity.
+* Added parallel module.
+* Added indexing modules (since removed).
+* Wrote Cluster and ClusterProperties modules.
 
 Matthew Spellings - **Former lead developer**
 
 * Added generic neighbor list.
 * Enabled neighbor list usage across freud modules.
-* Correlation functions.
-* LocalDescriptors class.
-* interface.pxi.
+* Added correlation functions.
+* Added LocalDescriptors class.
+* Added interface module.
 
 Erin Teich
 
-* Wrote environment matching module.
-* BondOrder (with Julia Dshemuchadse).
-* Angular separation (with Andrew Karas).
+* Wrote environment matching (MatchEnv) class.
+* Wrote BondOrder class (with Julia Dshemuchadse).
+* Wrote AngularSeparation class (with Andrew Karas).
 * Contributed to LocalQl development.
-* Wrote LocalBondProjection module.
+* Wrote LocalBondProjection class.
 
 M. Eric Irrgang
 
-* Authored (now removed) kspace code.
-* Numerous bug fixes.
-* Various contributions to freud.shape.
+* Authored kspace module (since removed).
+* Fixed numerous bugs.
+* Contributed to freud.shape (since removed).
 
 Chrisy Du
 
-* Authored all Steinhardt order parameters.
+* Authored Steinhardt order parameter classes.
 * Fixed support for triclinic boxes.
 
 Antonio Osorio
@@ -62,7 +62,7 @@ Antonio Osorio
 
 Vyas Ramasubramani - **Lead developer**
 
-* Ensured pep8 compliance.
+* Ensured PEP8 compliance.
 * Added CircleCI continuous integration support.
 * Create environment module and refactored order module.
 * Rewrote most of freud docs, including order, density, and environment modules.
@@ -79,13 +79,21 @@ Vyas Ramasubramani - **Lead developer**
 * Converted all docstrings to Google format, fixed various incorrect docs.
 * Debugged and added rotational autocorrelation code.
 * Added MSD module.
+* Wrote NeighborQuery, _QueryArgs, NeighborQueryResult classes.
+* Wrote neighbor iterator infrastructure.
+* Wrote PairCompute and SpatialHistogram parent classes.
+* Wrote ManagedArray class.
+* Wrote C++ histogram-related classes.
+* Standardized neighbor API in Python to use dictionaries of arguments or NeighborList objects for all pair computations.
+* Standardized all attribute access into C++ with Python properties.
+* Standardized variable naming of points/query\_points across all of freud.
 
 Bradley Dice - **Lead developer**
 
 * Cleaned up various docstrings.
-* HexOrderParameter bug fixes.
+* Fixed bugs in HexOrderParameter.
 * Cleaned up testing code.
-* Bumpversion support.
+* Added bumpversion support.
 * Reduced all compile warnings.
 * Added Python interface for box periodicity.
 * Added Voronoi support for neighbor lists across periodic boundaries.
@@ -96,10 +104,17 @@ Bradley Dice - **Lead developer**
 * Added some freud tests.
 * Added ReadTheDocs support.
 * Rewrote interface module into pure Cython.
-* Proper box duck-typing.
+* Added box duck-typing.
 * Removed nose from unit testing.
 * Use lambda function for parallelizing CorrelationFunction with TBB.
 * Finalized boost removal.
+* Wrote AABBQuery class.
+* Consolidated cluster module functionality.
+* Rewrote SolidLiquid order parameter class.
+* Updated AngularSeparation class.
+* Rewrote Voronoi implementation to leverage voro++.
+* Implemented Voronoi bond weighting to enable Minkowski structure metrics.
+* Refactored cluster module
 
 Richmond Newman
 
@@ -108,19 +123,19 @@ Richmond Newman
 
 Carl Simon Adorf
 
-* Developed the python box module.
+* Developed the Python box module.
 
 Jens Glaser
 
-* Wrote kspace.pxi front-end.
-* Modifications to kspace module.
-* Nematic order parameter.
+* Wrote kspace front-end (since removed).
+* Modified kspace module (since removed).
+* Wrote Nematic order parameter class.
 
 Benjamin Schultz
 
-* Wrote Voronoi module.
+* Wrote Voronoi class.
 * Fix normalization in GaussianDensity.
-* Bugfixes in freud.shape.
+* Bug fixes in shape module (since removed).
 
 Bryan VanSaders
 
@@ -206,19 +221,35 @@ Kelly Wang
 Yezhi Jin
 
 * Added support for 2D arrays in the Python interface to Box functions.
+* Rewrote Voronoi implementation to leverage voro++.
+* Implemented Voronoi bond weighting to enable Minkowski structure metrics.
+
+Brandon Butler
+
+* Rewrote Steinhardt order parameter.
+
+Jin Soo Ihm
+
+* Added benchmarks.
+* Contributed to NeighborQuery classes.
+* Refactored C++ to perform neighbor queries on-the-fly.
+* Added plotting functions to analysis classes.
+* Wrote RawPoints class.
+* Created Compute parent class with decorators to ensure properties have been computed.
+* Updated common array conversion logic.
+* Added many validation tests.
 
 Source code
 -----------
 
 Eigen (http://eigen.tuxfamily.org/) is included as a git submodule in freud.
-Eigen is made available under the Mozilla Public License v.2.0
+Eigen is made available under the Mozilla Public License v2.0
 (http://mozilla.org/MPL/2.0/). Its linear algebra routines are used for
 various tasks including the computation of eigenvalues and eigenvectors.
 
-fsph (https://bitbucket.org/glotzer/fsph) is included as a git submodule in
-freud. fsph is made available under the MIT license. It is used for the
-calculation of spherical harmonics, which are then used in the calculation of
-various order parameters, under the following license::
+fsph (https://github.com/glotzerlab/fsph) is included as a git submodule in
+freud. It is used for the calculation of spherical harmonics. fsph is made
+available under the MIT license::
 
     Copyright (c) 2016 The Regents of the University of Michigan
 

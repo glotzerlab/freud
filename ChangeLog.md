@@ -16,6 +16,8 @@ and this project adheres to
 * C++ Histogram class to standardize n-dimensional binning and simplify writing new methods.
 * Lower bound r\_min option for all queries.
 * Steinhardt now supports l = 0, 1.
+* C++ BondHistogramCompute class encapsulates logic of histogram-based methods.
+* NeighborLists and query arguments are now accepted on equal footing by compute methods that involve neighbor finding.
 
 ### Changed
 * All compute objects that perform neighbor computations now use NeighborQuery internally.
@@ -30,6 +32,10 @@ and this project adheres to
 * Cluster now finds connected components of the neighbor graph (the cluster cutoff distance is given through query arguments).
 * Steinhardt uses query arguments.
 * APIs for several order parameters have been standardized.
+* SolidLiquid order parameter has been completely rewritten, fixing several bugs and simplifying its C++ code.
+* NeighborQuery objects require z == 0 for all points if the box is 2D.
+* Refactored and renamed attributes of Cluster and ClusterProperties modules.
+* All class attributes are stored in the C++ members and accessed via getters wrapped as Python properties.
 
 ### Fixed
 * Steinhardt uses the ThreadStorage class and properly resets memory where needed.

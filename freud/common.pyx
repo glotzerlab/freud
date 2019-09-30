@@ -36,8 +36,6 @@ cdef class Compute:
             def reset(...):
                 ...
 
-    .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
-
     Attributes:
         _called_compute (dict):
             Flags representing whether appropriate compute method was called.
@@ -139,9 +137,6 @@ def convert_array(array, shape=None, dtype=np.float32):
     """Function which takes a given array, checks the dimensions and shape,
     and converts to a supplied dtype.
 
-    .. moduleauthor:: Eric Harper <harperic@umich.edu>
-    .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
-
     Args:
         array (:class:`numpy.ndarray`): Array to check and convert.
         shape: (tuple of int and :code:`None`): Expected shape of the array.
@@ -175,9 +170,6 @@ def convert_box(box, dimensions=None):
     """Function which takes a box-like object and attempts to convert it to
     :class:`freud.box.Box`. Existing :class:`freud.box.Box` objects are
     used directly.
-
-    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
-    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.com>
 
     Args:
         box (box-like object (see :meth:`freud.box.Box.from_box`)): Box to
