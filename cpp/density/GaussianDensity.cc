@@ -55,7 +55,12 @@ void GaussianDensity::compute(const box::Box& box, const vec3<float>* points, un
 
         const float grid_size_x = lx / m_width.x;
         const float grid_size_y = ly / m_width.y;
-        const float grid_size_z = lz / m_width.z;
+        const float grid_size_z = m_box.is2D() ? lz / m_width.z : 0;
+
+        // Find the number of bins within r_max
+        const int bin_cut_x = int(m_r_max / grid_size_x);
+        const int bin_cut_y = int(m_r_max / grid_size_y);
+        const int bin_cut_z = m_box.is2D() ? int(m_r_max / grid_size_z) : 0;
 
         const float sigmasq = m_sigma * m_sigma;
         const float A = std::sqrt(1.0f / (2.0f * M_PI * sigmasq));
@@ -70,18 +75,12 @@ void GaussianDensity::compute(const box::Box& box, const vec3<float>* points, un
             int bin_y = int((points[idx].y + ly / 2.0f) / grid_size_y);
             int bin_z = int((points[idx].z + lz / 2.0f) / grid_size_z);
 
-            // Find the number of bins within r_max
-            int bin_cut_x = int(m_r_max / grid_size_x);
-            int bin_cut_y = int(m_r_max / grid_size_y);
-            int bin_cut_z = int(m_r_max / grid_size_z);
-
             // in 2D, only loop over the 0 z plane
             if (m_box.is2D())
             {
                 bin_z = 0;
-                bin_cut_z = 0;
-                grid_size_z = 0;
             }
+
             // Only evaluate over bins that are within the cut off
             // to reduce the number of computations
             for (int k = bin_z - bin_cut_z; k <= bin_z + bin_cut_z; k++)
