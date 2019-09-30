@@ -33,7 +33,7 @@ class TestCluster(unittest.TestCase):
         with self.assertRaises(AttributeError):
             match.getEnvironment(0)
 
-        match.cluster(xyz, threshold)
+        match.compute(xyz, threshold)
         clusters = match.clusters
 
         cluster_env = {}
@@ -76,7 +76,7 @@ class TestCluster(unittest.TestCase):
         threshold = 0.1
 
         match = freud.environment.EnvironmentCluster(box, r_max, num_neighbors)
-        match.cluster(xyz, threshold)
+        match.compute(xyz, threshold)
         clusters = match.clusters
 
         cluster_env = {}
@@ -108,7 +108,7 @@ class TestCluster(unittest.TestCase):
         npt.assert_allclose(sorted_env_cluster, sorted_sc_env, atol=1e-5,
                             err_msg="SC Cluster Environment fail")
 
-    # Test EnvironmentCluster.cluster function, defining clusters using
+    # Test EnvironmentCluster.compute function, defining clusters using
     # constant k neighbors, hard_r=false, registration=false
     def test_cluster_kNeighbor(self):
         fn = os.path.join(self.test_folder, "bcc.npy")
@@ -122,7 +122,7 @@ class TestCluster(unittest.TestCase):
         threshold = 0.1
 
         match = freud.environment.EnvironmentCluster(box, r_max, num_neighbors)
-        match.cluster(xyz, threshold, hard_r=False, registration=False)
+        match.compute(xyz, threshold, hard_r=False, registration=False)
         clusters = match.clusters
 
         cluster_env = {}
@@ -153,7 +153,7 @@ class TestCluster(unittest.TestCase):
         npt.assert_allclose(sorted_env_cluster, sorted_bcc_env, atol=1e-5,
                             err_msg="BCC Cluster Environment fail")
 
-    # Test EnvironmentCluster.cluster function, hard_r=true, registration=false
+    # Test EnvironmentCluster.compute function, hard_r=true, registration=false
     def test_cluster_hardr(self):
         fn = os.path.join(self.test_folder, "bcc.npy")
         xyz = np.load(fn)
@@ -166,7 +166,7 @@ class TestCluster(unittest.TestCase):
         threshold = 0.1
 
         match = freud.environment.EnvironmentCluster(box, r_max, num_neighbors)
-        match.cluster(xyz, threshold, hard_r=True, registration=False)
+        match.compute(xyz, threshold, hard_r=True, registration=False)
         clusters = match.clusters
 
         cluster_env = {}
@@ -197,7 +197,7 @@ class TestCluster(unittest.TestCase):
         npt.assert_allclose(sorted_env_cluster, sorted_bcc_env, atol=1e-5,
                             err_msg="BCC Cluster Environment fail")
 
-    # Test EnvironmentCluster.cluster function,
+    # Test EnvironmentCluster.compute function,
     # hard_r=false, registration=true, global=true
     def test_cluster_registration(self):
         fn = os.path.join(self.test_folder, "sc_N54.npy")
@@ -222,7 +222,7 @@ class TestCluster(unittest.TestCase):
         box = freud.box.Box(L, L, L, 0, 0, 0)
 
         match = freud.environment.EnvironmentCluster(box, r_max, num_neighbors)
-        match.cluster(xyz, threshold, hard_r=False,
+        match.compute(xyz, threshold, hard_r=False,
                       registration=True, global_search=True)
         clusters = match.clusters
 
@@ -378,7 +378,7 @@ class TestCluster(unittest.TestCase):
             match.plot()
         self.assertEqual(match._repr_png_(), None)
 
-        match.cluster(xyz, threshold)
+        match.compute(xyz, threshold)
         match._repr_png_()
 
 

@@ -482,81 +482,12 @@ std::map<unsigned int, unsigned int> minimizeRMSD(const box::Box &box, const vec
     return vec_map.asMap();
 }
 
-unsigned int populateEnv(EnvDisjointSet dj, util::ManagedArray<unsigned int> &env_index, std::map<unsigned int, std::vector<vec3<float> > > *cluster_env, util::ManagedArray<vec3<float> > &tot_env, bool reLabel)
-{
-    std::map<unsigned int, unsigned int> label_map;
-
-    // loop over all environments
-    unsigned int label_ind;
-    unsigned int cur_set = 0;
-    unsigned int particle_ind = 0;
-    for (unsigned int i = 0; i < dj.s.size(); i++)
-    {
-        // only count this if the environment is physical
-        if (dj.s[i].ghost == false)
-        {
-            // grab the set of vectors that define this individual environment
-            std::vector<vec3<float>> part_vecs = dj.getIndividualEnv(i);
-
-            unsigned int c = dj.find(i);
-            // insert the set into the mapping if we haven't seen it before.
-            // also grab the vectors that define the set and insert them into cluster_env
-            if (label_map.count(c) == 0)
-            {
-                label_map[c] = cur_set;
-                std::vector<vec3<float>> vecs = dj.getAvgEnv(c);
-                label_ind = reLabel ? label_map[c] : c;
-                if (cluster_env != nullptr)
-                    (*cluster_env)[label_ind] = vecs;
-                cur_set++;
-            }
-            else
-            {
-                label_ind = reLabel ? label_map[c] : c;
-            }
-
-            // label this particle in m_env_index
-            env_index[particle_ind] = label_ind;
-            for (unsigned int m = 0; m < part_vecs.size(); m++)
-            {
-                tot_env(particle_ind, m) = part_vecs[m];
-            }
-            particle_ind++;
-        }
-    }
-
-    // specify the number of cluster environments
-    return cur_set;
-}
-
-void populateParticleEnvironments(EnvDisjointSet dj, util::ManagedArray<vec3<float> > &tot_env)
-{
-    // loop over all environments
-    unsigned int particle_ind = 0;
-    for (unsigned int i = 0; i < dj.s.size(); i++)
-    {
-        // only count this if the environment is physical
-        if (dj.s[i].ghost == false)
-        {
-            // grab the set of vectors that define this individual environment
-            std::vector<vec3<float>> part_vecs = dj.getIndividualEnv(i);
-
-            for (unsigned int m = 0; m < part_vecs.size(); m++)
-            {
-                tot_env(particle_ind, m) = part_vecs[m];
-            }
-            particle_ind++;
-        }
-    }
-}
-
-/**********************
- * EnvironmentCluster *
- **********************/
+/************
+ * MatchEnv *
+ ************/
 
 MatchEnv::MatchEnv(const box::Box& box, float r_max, unsigned int num_neighbors) : m_box(box), m_r_max(r_max), m_num_neighbors(num_neighbors)
 {
-    m_num_clusters = 0;
     m_max_num_neighbors = 0;
     if (r_max < 0.0f)
         throw std::invalid_argument("r_max must be positive!");
@@ -567,6 +498,10 @@ MatchEnv::~MatchEnv() {}
 /**********************
  * EnvironmentCluster *
  **********************/
+EnvironmentCluster::EnvironmentCluster(const box::Box& box, float r_max, unsigned int num_neighbors) : MatchEnv(box, r_max, num_neighbors) 
+{
+    m_num_clusters = 0;
+}
 EnvironmentCluster::~EnvironmentCluster() {}
 
 Environment MatchEnv::buildEnv(const freud::locality::NeighborList* nlist, size_t num_bonds, size_t& bond,
@@ -591,7 +526,7 @@ Environment MatchEnv::buildEnv(const freud::locality::NeighborList* nlist, size_
     return ei;
 }
 
-void EnvironmentCluster::cluster(const freud::locality::NeighborList* env_nlist,
+void EnvironmentCluster::compute(const freud::locality::NeighborList* env_nlist,
                        const freud::locality::NeighborList* nlist, const vec3<float>* points, unsigned int Np,
                        float threshold, bool registration, bool global)
 {
@@ -675,15 +610,62 @@ void EnvironmentCluster::cluster(const freud::locality::NeighborList* env_nlist,
 
     // done looping over points. All clusters are now determined. Renumber
     // them from zero to num_clusters-1.
-    m_num_clusters = populateEnv(dj, m_env_index, &m_cluster_env, m_particle_environments, true);
+    m_num_clusters = populateEnv(dj);
 }
 
-void EnvironmentMotifMatch::matchMotif(const freud::locality::NeighborList* nlist, const vec3<float>* points,
+unsigned int EnvironmentCluster::populateEnv(EnvDisjointSet dj)
+{
+    std::map<unsigned int, unsigned int> label_map;
+
+    // loop over all environments
+    unsigned int label_ind;
+    unsigned int cur_set = 0;
+    unsigned int particle_ind = 0;
+    for (unsigned int i = 0; i < dj.s.size(); i++)
+    {
+        // only count this if the environment is physical
+        if (dj.s[i].ghost == false)
+        {
+            // grab the set of vectors that define this individual environment
+            std::vector<vec3<float>> part_vecs = dj.getIndividualEnv(i);
+
+            unsigned int c = dj.find(i);
+            // insert the set into the mapping if we haven't seen it before.
+            // also grab the vectors that define the set and insert them into cluster_env
+            if (label_map.count(c) == 0)
+            {
+                label_map[c] = cur_set;
+                std::vector<vec3<float>> vecs = dj.getAvgEnv(c);
+                label_ind = label_map[c];
+                m_cluster_env[label_ind] = vecs;
+                cur_set++;
+            }
+            else
+            {
+                label_ind = label_map[c];
+            }
+
+            // label this particle in m_env_index
+            m_env_index[particle_ind] = label_ind;
+            for (unsigned int m = 0; m < part_vecs.size(); m++)
+            {
+                m_particle_environments(particle_ind, m) = part_vecs[m];
+            }
+            particle_ind++;
+        }
+    }
+
+    // specify the number of cluster environments
+    return cur_set;
+}
+
+/**********************
+ * EnvironmentCluster *
+ **********************/
+void EnvironmentMotifMatch::compute(const freud::locality::NeighborList* nlist, const vec3<float>* points,
                           unsigned int Np, const vec3<float>* motif, unsigned int motif_size, float threshold,
                           bool registration)
 {
-    m_env_index.prepare(Np);
-
     float m_threshold_sq = threshold * threshold;
 
     nlist->validate(Np, Np);
@@ -742,19 +724,26 @@ void EnvironmentMotifMatch::matchMotif(const freud::locality::NeighborList* nlis
         {
             dj.merge(0, dummy, vec_map, rotation);
             m_matches[i] = true;
+
+        }
+        // grab the set of vectors that define this individual environment
+        std::vector<vec3<float>> part_vecs = dj.getIndividualEnv(dummy);
+
+        for (unsigned int m = 0; m < part_vecs.size(); m++)
+        {
+            m_particle_environments(i, m) = part_vecs[m];
         }
     }
-
-    populateParticleEnvironments(dj, m_particle_environments);
 }
 
-void EnvironmentRMSDMinimizer::minRMSDMotif(const freud::locality::NeighborList* nlist,
+/****************************
+ * EnvironmentRMSDMinimizer *
+ ****************************/
+void EnvironmentRMSDMinimizer::compute(const freud::locality::NeighborList* nlist,
                                           const vec3<float>* points, unsigned int Np,
                                           const vec3<float>* motif, unsigned int motif_size,
                                           bool registration)
 {
-    m_env_index.prepare(Np);
-
     nlist->validate(Np, Np);
 
     // create a disjoint set where all particles belong in their own cluster.
@@ -817,9 +806,15 @@ void EnvironmentRMSDMinimizer::minRMSDMotif(const freud::locality::NeighborList*
         {
             dj.merge(0, dummy, vec_map, rotation);
         }
-    }
 
-    populateParticleEnvironments(dj, m_particle_environments);
+        // grab the set of vectors that define this individual environment
+        std::vector<vec3<float>> part_vecs = dj.getIndividualEnv(dummy);
+
+        for (unsigned int m = 0; m < part_vecs.size(); m++)
+        {
+            m_particle_environments(i, m) = part_vecs[m];
+        }
+    }
 }
 
 }; }; // end namespace freud::environment

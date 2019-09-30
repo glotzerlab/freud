@@ -531,16 +531,10 @@ cdef class _MatchEnv(Compute):
         # Abstract class
         pass
 
-    @property
-    def clusters(self):
-        return freud.util.make_managed_numpy_array(
-            &self.matchptr.getClusters(),
-            freud.util.arr_type_t.UNSIGNED_INT)
-
-    @property
+    @Compute._computed_property
     def particle_environments(self):
         return freud.util.make_managed_numpy_array(
-            &self.matchptr.getTotEnvironment(),
+            &self.matchptr.getParticleEnvironments(),
             freud.util.arr_type_t.FLOAT, 3)
 
     def __repr__(self):
@@ -593,7 +587,7 @@ cdef class EnvironmentCluster(_MatchEnv):
     def __dealloc__(self):
         del self.thisptr
 
-    def cluster(self, points, threshold, hard_r=False, registration=False,
+    def compute(self, points, threshold, hard_r=False, registration=False,
                 global_search=False, env_nlist=None, nlist=None):
         R"""Determine clusters of particles with matching environments.
 
@@ -647,13 +641,19 @@ cdef class EnvironmentCluster(_MatchEnv):
                 dict(num_neighbors=self.num_neighbors, r_guess=self.r_max),
                 env_nlist)
 
-        self.thisptr.cluster(
+        self.thisptr.compute(
             env_nlist_.get_ptr(), nlist_.get_ptr(),
             <vec3[float]*> &l_points[0, 0], nP, threshold,
             registration, global_search)
         return self
 
-    @property
+    @Compute._computed_property
+    def clusters(self):
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getClusters(),
+            freud.util.arr_type_t.UNSIGNED_INT)
+
+    @Compute._computed_property
     def num_clusters(self):
         return self.thisptr.getNumClusters()
 
@@ -737,8 +737,8 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
         self.num_neighbors = num_neighbors
         self.m_box = box
 
-    def matchMotif(self, motif, points, threshold, registration=False,
-                   nlist=None):
+    def compute(self, motif, points, threshold, registration=False,
+                nlist=None):
         R"""Determine clusters of particles that match the motif provided by
         motif.
 
@@ -772,12 +772,12 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
             self.m_box, points, None,
             dict(num_neighbors=self.num_neighbors, r_guess=self.r_max), nlist)
 
-        self.thisptr.matchMotif(
+        self.thisptr.compute(
             nlist_.get_ptr(), <vec3[float]*> &l_points[0, 0], nP,
             <vec3[float]*> &l_motif[0, 0], nRef, threshold,
             registration)
 
-    @property
+    @Compute._computed_property
     def matches(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getMatches(),
@@ -823,13 +823,13 @@ cdef class EnvironmentRMSDMinimizer(_MatchEnv):
         self.num_neighbors = num_neighbors
         self.m_box = box
 
-    @property
+    @Compute._computed_property
     def rmsds(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getRMSDs(),
             freud.util.arr_type_t.FLOAT)
 
-    def minRMSDMotif(self, motif, points, registration=False, nlist=None):
+    def compute(self, motif, points, registration=False, nlist=None):
         R"""Rotate (if registration=True) and permute the environments of all
         particles to minimize their RMSD with respect to the motif provided by
         motif.
@@ -865,7 +865,7 @@ cdef class EnvironmentRMSDMinimizer(_MatchEnv):
             self.m_box, points, None,
             dict(num_neighbors=self.num_neighbors, r_guess=self.r_max), nlist)
 
-        self.thisptr.minRMSDMotif(
+        self.thisptr.compute(
             nlist_.get_ptr(), <vec3[float]*> &l_points[0, 0], nP,
             <vec3[float]*> &l_motif[0, 0], nRef, registration)
 
