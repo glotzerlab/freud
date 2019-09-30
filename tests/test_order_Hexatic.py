@@ -61,6 +61,14 @@ class TestHexatic(unittest.TestCase):
 
             npt.assert_allclose(hop.order[0], 1. + 0.j, atol=1e-1)
 
+    def test_3d_box(self):
+        boxlen = 10
+        N = 500
+        box, points = util.make_box_and_random_points(boxlen, N, is2D=False)
+        hop = freud.order.Hexatic()
+        with self.assertRaises(ValueError):
+            hop.compute((box, points))
+
     def test_repr(self):
         hop = freud.order.Hexatic(3)
         self.assertEqual(str(hop), str(eval(repr(hop))))
