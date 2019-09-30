@@ -13,6 +13,7 @@ Locality Module
     freud.locality.AABBQuery
     freud.locality.LinkCell
     freud.locality.IteratorLinkCell
+    freud.locality.Voronoi
 
 .. rubric:: Details
 
@@ -41,4 +42,7 @@ Neighbor Querying
    :members:
 
 .. autoclass:: freud.locality.IteratorLinkCell()
+   :members:
+
+.. autoclass:: freud.locality.Voronoi()
    :members:
