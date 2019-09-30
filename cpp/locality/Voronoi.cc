@@ -1,17 +1,12 @@
 // Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#include <stdexcept>
 #include <tbb/tbb.h>
 #include <cmath>
 #include <vector>
 
 #include "Voronoi.h"
-
-#if defined _WIN32
-#undef min // std::min clashes with a Windows header
-#undef max // std::max clashes with a Windows header
-#endif
+#include "NeighborBond.h"
 
 /*! \file Voronoi.cc
     \brief Computes Voronoi neighbors for a set of points.
@@ -43,8 +38,8 @@ void Voronoi::compute(const box::Box &box, const vec3<double>* points, unsigned 
             3, 3, 3, 3
         );
 
-        for (size_t pid = 0; pid < n_points; pid++) {
-            container.put(pid, points[pid].x, points[pid].y, points[pid].z);
+        for (size_t query_point_id = 0; query_point_id < n_points; query_point_id++) {
+            container.put(query_point_id, points[query_point_id].x, points[query_point_id].y, points[query_point_id].z);
         }
 
         voro::voronoicell_neighbor cell;
@@ -61,7 +56,7 @@ void Voronoi::compute(const box::Box &box, const vec3<double>* points, unsigned 
                 container.compute_cell(cell, voronoi_loop);
 
                 // Get id and position of current particle
-                int pid(voronoi_loop.pid());
+                const int query_point_id(voronoi_loop.pid());
                 vec3<double> ri(
                     voronoi_loop.x(),
                     voronoi_loop.y(),
@@ -96,19 +91,19 @@ void Voronoi::compute(const box::Box &box, const vec3<double>* points, unsigned 
                     }
                     vec3_vertices.push_back(vec3<double>(vert_x, vert_y, vert_z));
                 }
-                m_polytopes[pid] = vec3_vertices;
+                m_polytopes[query_point_id] = vec3_vertices;
 
                 // Save cell volume
-                m_volumes[pid] = cell.volume();
+                m_volumes[query_point_id] = cell.volume();
 
                 size_t neighbor_counter(0);
                 size_t face_vertices_index(0);
                 for (auto neighbor_iterator = neighbors.begin(); neighbor_iterator != neighbors.end(); neighbor_iterator++) {
-                    int neighbor_id = *neighbor_iterator;
-                    float weight(face_areas[neighbor_counter]);
+                    const int point_id = *neighbor_iterator;
+                    const float weight(face_areas[neighbor_counter]);
 
                     // Get the normal to the current face
-                    vec3<double> normal(
+                    const vec3<double> normal(
                         normals[3*neighbor_counter],
                         normals[3*neighbor_counter+1],
                         normals[3*neighbor_counter+2]
@@ -123,28 +118,28 @@ void Voronoi::compute(const box::Box &box, const vec3<double>* points, unsigned 
                     // counter" element of face_vertices for the current face.
 
                     // Get the first vertex id on this face
-                    int vertex_id_on_face = face_vertices[face_vertices_index+1];
+                    const int vertex_id_on_face = face_vertices[face_vertices_index+1];
 
                     // Project the vertex vector onto the face normal to get a
                     // distance from ri to the face, then double it to get the
                     // distance to the neighbor particle
-                    vec3<double> rv(
+                    const vec3<double> rv(
                         vertices[3*vertex_id_on_face],
                         vertices[3*vertex_id_on_face+1],
                         vertices[3*vertex_id_on_face+2]
                     );
-                    vec3<double> riv(rv - ri);
-                    float dist(2*dot(riv, normal));
+                    const vec3<double> riv(rv - ri);
+                    const float distance(2*dot(riv, normal));
 
 
                     neighbor_counter++;
                     face_vertices_index += face_vertices[face_vertices_index] + 1;
 
                     // Ignore bonds in 2D systems that point up or down
-                    if (box.is2D() && abs(normal.z) > 0)
+                    if (box.is2D() && std::abs(normal.z) > 0)
                         continue;
 
-                    bonds.push_back(NeighborBond(pid, neighbor_id, dist, weight));
+                    bonds.push_back(NeighborBond(query_point_id, point_id, distance, weight));
                 }
 
             } while (voronoi_loop.inc());

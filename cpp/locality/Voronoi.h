@@ -7,7 +7,6 @@
 #include "Box.h"
 #include "ManagedArray.h"
 #include "VectorMath.h"
-#include "NeighborBond.h"
 #include "NeighborList.h"
 #include <voro++/src/voro++.hh>
 
@@ -28,7 +27,7 @@ public:
         return m_neighbor_list;
     }
 
-    const std::vector<std::vector<vec3<double>>> getPolytopes() const
+    const std::vector<std::vector<vec3<double> > > getPolytopes() const
     {
         return m_polytopes;
     }
@@ -41,7 +40,7 @@ public:
 private:
     box::Box m_box;
     std::shared_ptr<NeighborList> m_neighbor_list; //!< Stored neighbor list
-    std::vector<std::vector<vec3<double>>> m_polytopes; //!< Voronoi polytopes
+    std::vector<std::vector<vec3<double> > > m_polytopes; //!< Voronoi polytopes
     util::ManagedArray<double> m_volumes; //!< Voronoi cell volumes
 };
 }; }; // end namespace freud::locality
