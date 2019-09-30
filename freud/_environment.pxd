@@ -73,7 +73,6 @@ cdef extern from "MatchEnv.h" namespace "freud::environment":
         MatchEnv(const freud._box.Box &, float, unsigned int) except +
         const freud.util.ManagedArray[unsigned int] &getClusters()
         const freud.util.ManagedArray[vec3[float]] &getTotEnvironment()
-        unsigned int getNumClusters()
         unsigned int getNumNeighbors()
         unsigned int getMaxNumNeighbors()
 
@@ -88,13 +87,20 @@ cdef extern from "MatchEnv.h" namespace "freud::environment":
                         unsigned int,
                         float,
                         bool) except +
-        vector[float] minRMSDMotif(
+        const freud.util.ManagedArray[bool] &getMatches()
+
+    cdef cppclass EnvironmentRMSDMinimizer(MatchEnv):
+        EnvironmentRMSDMinimizer(const freud._box.Box &,
+                                 float,
+                                 unsigned int) except +
+        void minRMSDMotif(
             const freud._locality.NeighborList*,
             const vec3[float]*,
             unsigned int,
             const vec3[float]*,
             unsigned int,
             bool) except +
+        const freud.util.ManagedArray[float] &getRMSDs()
 
     cdef cppclass EnvironmentCluster(MatchEnv):
         EnvironmentCluster(const freud._box.Box &,
@@ -108,6 +114,7 @@ cdef extern from "MatchEnv.h" namespace "freud::environment":
                      bool,
                      bool) except +
         vector[vec3[float]] getEnvironment(unsigned int)
+        unsigned int getNumClusters()
 
 cdef extern from "AngularSeparation.h" namespace "freud::environment":
     cdef cppclass AngularSeparationGlobal:

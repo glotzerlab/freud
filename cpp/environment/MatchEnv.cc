@@ -529,6 +529,27 @@ unsigned int populateEnv(EnvDisjointSet dj, util::ManagedArray<unsigned int> &en
     return cur_set;
 }
 
+void populateParticleEnvironments(EnvDisjointSet dj, util::ManagedArray<vec3<float> > &tot_env)
+{
+    // loop over all environments
+    unsigned int particle_ind = 0;
+    for (unsigned int i = 0; i < dj.s.size(); i++)
+    {
+        // only count this if the environment is physical
+        if (dj.s[i].ghost == false)
+        {
+            // grab the set of vectors that define this individual environment
+            std::vector<vec3<float>> part_vecs = dj.getIndividualEnv(i);
+
+            for (unsigned int m = 0; m < part_vecs.size(); m++)
+            {
+                tot_env(particle_ind, m) = part_vecs[m];
+            }
+            particle_ind++;
+        }
+    }
+}
+
 /**********************
  * EnvironmentCluster *
  **********************/
@@ -598,8 +619,8 @@ void EnvironmentCluster::cluster(const freud::locality::NeighborList* env_nlist,
         dj.m_max_num_neigh = m_max_num_neighbors;
     }
 
-    // reallocate the m_tot_env array
-    m_tot_env.prepare({Np, m_max_num_neighbors});
+    // reallocate the m_particle_environments array
+    m_particle_environments.prepare({Np, m_max_num_neighbors});
 
     size_t bond(0);
     // loop through points
@@ -654,7 +675,7 @@ void EnvironmentCluster::cluster(const freud::locality::NeighborList* env_nlist,
 
     // done looping over points. All clusters are now determined. Renumber
     // them from zero to num_clusters-1.
-    m_num_clusters = populateEnv(dj, m_env_index, &m_cluster_env, m_tot_env, true);
+    m_num_clusters = populateEnv(dj, m_env_index, &m_cluster_env, m_particle_environments, true);
 }
 
 void EnvironmentMotifMatch::matchMotif(const freud::locality::NeighborList* nlist, const vec3<float>* points,
@@ -674,8 +695,8 @@ void EnvironmentMotifMatch::matchMotif(const freud::locality::NeighborList* nlis
     dj.m_max_num_neigh = m_num_neighbors;
     m_max_num_neighbors = m_num_neighbors;
 
-    // reallocate the m_tot_env array
-    m_tot_env.prepare({Np, m_max_num_neighbors});
+    // reallocate the m_particle_environments array
+    m_particle_environments.prepare({Np, m_max_num_neighbors});
 
     // create the environment characterized by motif. Index it as 0.
     // set the IGNORE flag to true, since this is not an environment we have
@@ -698,6 +719,8 @@ void EnvironmentMotifMatch::matchMotif(const freud::locality::NeighborList* nlis
     size_t bond(0);
     const size_t num_bonds(nlist->getNumBonds());
 
+    m_matches.prepare(Np);
+
     // loop through the particles and add their environments to the set
     // take care, here: set things up s.t. the env_ind of every environment
     // matches its location in the disjoint set.
@@ -718,25 +741,19 @@ void EnvironmentMotifMatch::matchMotif(const freud::locality::NeighborList* nlis
         if (!vec_map.empty())
         {
             dj.merge(0, dummy, vec_map, rotation);
+            m_matches[i] = true;
         }
     }
 
-    // DON'T renumber the clusters in the disjoint set from zero to
-    // num_clusters-1. The way I have set it up here, the "0th" cluster
-    // is the one that matches the motif. We also pass a nullptr for the
-    // cluster environment since the only environment of interest is the one
-    // corresponding to the motif.
-    m_num_clusters = populateEnv(dj, m_env_index, nullptr, m_tot_env, false);
+    populateParticleEnvironments(dj, m_particle_environments);
 }
 
-std::vector<float> EnvironmentMotifMatch::minRMSDMotif(const freud::locality::NeighborList* nlist,
+void EnvironmentRMSDMinimizer::minRMSDMotif(const freud::locality::NeighborList* nlist,
                                           const vec3<float>* points, unsigned int Np,
                                           const vec3<float>* motif, unsigned int motif_size,
                                           bool registration)
 {
     m_env_index.prepare(Np);
-
-    std::vector<float> min_rmsd_vec(Np);
 
     nlist->validate(Np, Np);
 
@@ -747,8 +764,8 @@ std::vector<float> EnvironmentMotifMatch::minRMSDMotif(const freud::locality::Ne
     dj.m_max_num_neigh = m_num_neighbors;
     m_max_num_neighbors = m_num_neighbors;
 
-    // reallocate the m_tot_env array
-    m_tot_env.prepare({Np, m_max_num_neighbors});
+    // reallocate the m_particle_environments array
+    m_particle_environments.prepare({Np, m_max_num_neighbors});
 
     // create the environment characterized by motif. Index it as 0.
     // set the IGNORE flag to true, since this is not an environment we
@@ -771,6 +788,8 @@ std::vector<float> EnvironmentMotifMatch::minRMSDMotif(const freud::locality::Ne
     size_t bond(0);
     const size_t num_bonds(nlist->getNumBonds());
 
+    m_rmsds.prepare(Np);
+
     // loop through the particles and add their environments to the set
     // take care, here: set things up s.t. the env_ind of every environment
     // matches its location in the disjoint set.
@@ -788,7 +807,7 @@ std::vector<float> EnvironmentMotifMatch::minRMSDMotif(const freud::locality::Ne
         rotmat3<float> rotation = mapping.first;
         BiMap<unsigned int, unsigned int> vec_map = mapping.second;
         // populate the min_rmsd vector
-        min_rmsd_vec[i] = min_rmsd;
+        m_rmsds[i] = min_rmsd;
 
         // if the mapping between the vectors of the environments is NOT
         // empty, then the environments are similar.
@@ -800,14 +819,7 @@ std::vector<float> EnvironmentMotifMatch::minRMSDMotif(const freud::locality::Ne
         }
     }
 
-    // DON'T renumber the clusters in the disjoint set from zero to
-    // num_clusters-1. The way I have set it up here, the "0th" cluster
-    // is the one that matches the motif. We also pass a nullptr for the
-    // cluster environment since the only environment of interest is the one
-    // corresponding to the motif.
-    m_num_clusters = populateEnv(dj, m_env_index, nullptr, m_tot_env, false);
-
-    return min_rmsd_vec;
+    populateParticleEnvironments(dj, m_particle_environments);
 }
 
 }; }; // end namespace freud::environment

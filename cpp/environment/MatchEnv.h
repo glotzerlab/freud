@@ -213,6 +213,12 @@ std::map<unsigned int, unsigned int> isSimilar(const box::Box &box, const vec3<f
 unsigned int populateEnv(EnvDisjointSet dj, util::ManagedArray<unsigned int> &env_index, std::map<unsigned int, std::vector<vec3<float> > > *env, util::ManagedArray<vec3<float> > &tot_env, bool reLabel);
 
 
+//! Simpler version of populateEnv for non-clustering algorithms that only fills the tot_env array.
+/*! T
+ * \param dj The object encoding the set of clusters found.
+ * \param tot_env An array indexed by point id indicating the environment of each point.
+*/
+void populateParticleEnvironments(EnvDisjointSet dj, util::ManagedArray<vec3<float> > &tot_env);
 
 //! Parent class for environment matching.
 /*! This class defines some of the common features of the different environment
@@ -239,13 +245,9 @@ public:
     //! Returns the entire Np by m_num_neighbors by 3 matrix of all environments for all particles
     const util::ManagedArray<vec3<float>> &getTotEnvironment()
     {
-        return m_tot_env;
+        return m_particle_environments;
     }
 
-    unsigned int getNumClusters()
-    {
-        return m_num_clusters;
-    }
     unsigned int getNumNeighbors()
     {
         return m_num_neighbors;
@@ -267,7 +269,7 @@ protected:
 
     util::ManagedArray<unsigned int> m_env_index; //!< Cluster index determined for each particle
     util::ManagedArray<vec3<float> >
-        m_tot_env; //!< m_NP by m_max_num_neighbors by 3 matrix of all environments for all particles
+        m_particle_environments; //!< m_NP by m_max_num_neighbors by 3 matrix of all environments for all particles
 };
 
 
@@ -327,7 +329,7 @@ public:
     //! Returns the set of vectors defining the environment indexed by i (indices culled from m_env_index)
     /*! The environments are averaged over all particles that are deemed to
      * share the same environment. This invariant can always be checked by
-     * comparing the average of environments in m_tot_env sharing some cluster
+     * comparing the average of environments in m_particle_environments sharing some cluster
      * index to the output of getEnvironment(i).
      */
     std::vector<vec3<float>> getEnvironment(unsigned int i)
@@ -335,6 +337,11 @@ public:
         std::map<unsigned int, std::vector<vec3<float>>>::iterator it = m_cluster_env.find(i);
         std::vector<vec3<float>> vecs = it->second;
         return vecs;
+    }
+
+    unsigned int getNumClusters()
+    {
+        return m_num_clusters;
     }
 
 private:
@@ -356,6 +363,66 @@ public:
      * \param num_neighbors Number of nearest neighbors taken to define the local environment of any given particle.
      */
     EnvironmentMotifMatch(const box::Box& box, float r_max, unsigned int num_neighbors) : MatchEnv(box, r_max, num_neighbors) {}
+
+    //! Determine whether particles match a given input motif.
+    /*! Given a motif composed of vectors that represent the vectors connecting
+     * a point to the neighbors that are part of the motif, matchMotif looks at
+     * every point in points and checks if its neighbors may match this motif.
+     * Any point whose local environment matches the motif is marked as part of
+     * cluster 0 in the clusters array. All others are ignored. The
+     * tot_environments array is updated with the vectors composing the
+     * environment of every particle.
+     *
+     * \param nlist A NeighborList instance.
+     * \param points The points to test against the motif.
+     * \param Np The number of points. 
+     * \param motif The vectors characterizing the motif. Note that these are
+     *              vectors, so for instance given a square motif composed of
+     *              points at the corners of a square, the motif should not
+     *              include the point (0, 0) because what we are matching is
+     *              the vectors to the neighbors.
+     * \param motif_size The number of vectors characterizing the motif.
+     * \param threshold A unitless number that is multiply by m_r_max. This
+     *                  quantity is the maximum magnitude of the vector
+     *                  difference between two vectors, below which you call
+     *                  them matching.  Note that ONLY values of (threshold < 2)
+     *                  make any sense, since 2*r_max is the absolute
+     *                  maximum difference between any two environment vectors. 
+     * \param registration Controls whether we first use brute force registration to 
+     *                     orient the second set of vectors such that it
+     *                     minimizes the RMSD between the two sets
+     */
+    void matchMotif(const freud::locality::NeighborList* nlist, const vec3<float>* points, unsigned int Np,
+                    const vec3<float>* motif, unsigned int motif_size, float threshold,
+                    bool registration = false);
+
+    //! Return the array indicating whether each particle matched the motif or not.
+    const util::ManagedArray<bool> &getMatches()
+    {
+        return m_matches;
+    }
+
+private:
+    util::ManagedArray<bool> m_matches; //!< Boolean array indicating whether or not a particle's environment matches the motif.
+    std::vector<std::vector<vec3<float> > > m_cluster_env; //!< Dictionary of (cluster id, vectors) pairs
+};
+
+
+//! Match local point environments to a specific motif.
+/*! The environment matching method is defined according to the paper "Identity
+ * crisis in alchemical space drives the entropic colloidal glass transition"
+ * by Erin G. Teich (http://dx.doi.org/10.1038/s41467-018-07977-2). This class is primarily provided as a companion to EnvironmentCluster that can be used to more closely analyze specific motifs. Rather than clustering all points in a system based on their local environments, this class provides more a more fine-grained computation to analyze which points match a specified motif.
+ */
+class EnvironmentRMSDMinimizer : public MatchEnv
+{
+public:
+    //! Constructor
+    /*!
+     * \param box The system box.
+     * \param r_max Cutoff radius for cell list and clustering algorithm. Values near first minimum of the rdf are recommended.  
+     * \param num_neighbors Number of nearest neighbors taken to define the local environment of any given particle.
+     */
+    EnvironmentRMSDMinimizer(const box::Box& box, float r_max, unsigned int num_neighbors) : MatchEnv(box, r_max, num_neighbors) {}
 
     //! Determine whether particles match a given input motif.
     /*! Given a motif composed of vectors that represent the vectors connecting
@@ -417,11 +484,20 @@ public:
      *                     orient the second set of vectors such that it
      *                     minimizes the RMSD between the two sets
      */
-    std::vector<float> minRMSDMotif(const freud::locality::NeighborList* nlist, const vec3<float>* points,
+    void minRMSDMotif(const freud::locality::NeighborList* nlist, const vec3<float>* points,
                                     unsigned int Np, const vec3<float>* motif, unsigned int motif_size,
                                     bool registration = false);
-};
 
+    //! Return the array indicating whether or not a successful mapping was found between each particle and the provided motif.
+    const util::ManagedArray<float> &getRMSDs()
+    {
+        return m_rmsds;
+    }
+
+private:
+    util::ManagedArray<float> m_rmsds; //!< Boolean array indicating whether or not a particle's environment matches the motif.
+    std::vector<std::vector<vec3<float> > > m_cluster_env; //!< Dictionary of (cluster id, vectors) pairs
+};
 
 }; }; // end namespace freud::environment
 

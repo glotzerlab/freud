@@ -543,10 +543,6 @@ cdef class _MatchEnv(Compute):
             &self.matchptr.getTotEnvironment(),
             freud.util.arr_type_t.FLOAT, 3)
 
-    @property
-    def num_clusters(self):
-        return self.matchptr.getNumClusters()
-
     def __repr__(self):
         return ("freud.environment.{cls}(box={box}, "
                 "r_max={r_max}, num_neighbors={num_neighbors})").format(
@@ -656,6 +652,10 @@ cdef class EnvironmentCluster(_MatchEnv):
             <vec3[float]*> &l_points[0, 0], nP, threshold,
             registration, global_search)
         return self
+
+    @property
+    def num_clusters(self):
+        return self.thisptr.getNumClusters()
 
     def getEnvironment(self, i):
         R"""Returns the set of vectors defining the environment indexed by i.
@@ -777,6 +777,58 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
             <vec3[float]*> &l_motif[0, 0], nRef, threshold,
             registration)
 
+    @property
+    def matches(self):
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getMatches(),
+            freud.util.arr_type_t.BOOL)
+
+
+cdef class EnvironmentRMSDMinimizer(_MatchEnv):
+    R"""Find linear transformations that map the environments of points onto a motif.
+
+    In general, it is recommended to specify a number of neighbors rather than
+    just a distance cutoff as part of your neighbor querying when performing
+    this computation since it can otherwise be very sensitive.
+
+    Args:
+        box (:class:`freud.box.Box`):
+            Simulation box.
+        r_max (float):
+            Cutoff radius for cell list and clustering algorithm. Values near
+            the first minimum of the RDF are recommended.
+        num_neighbors (unsigned int):
+            Number of nearest neighbors taken to define the local environment
+            of any given particle.
+
+    Attributes:
+        num_particles (unsigned int):
+            The number of particles.
+        num_clusters (unsigned int):
+            The number of clusters.
+        clusters (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
+            The per-particle index indicating cluster membership.
+    """  # noqa: E501
+
+    cdef freud._environment.EnvironmentRMSDMinimizer * thisptr
+
+    def __cinit__(self, box, r_max, num_neighbors):
+        cdef freud.box.Box b = freud.common.convert_box(box)
+
+        self.thisptr = self.matchptr = \
+            new freud._environment.EnvironmentRMSDMinimizer(
+                dereference(b.thisptr), r_max, num_neighbors)
+
+        self.r_max = r_max
+        self.num_neighbors = num_neighbors
+        self.m_box = box
+
+    @property
+    def rmsds(self):
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getRMSDs(),
+            freud.util.arr_type_t.FLOAT)
+
     def minRMSDMotif(self, motif, points, registration=False, nlist=None):
         R"""Rotate (if registration=True) and permute the environments of all
         particles to minimize their RMSD with respect to the motif provided by
@@ -813,11 +865,11 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
             self.m_box, points, None,
             dict(num_neighbors=self.num_neighbors, r_guess=self.r_max), nlist)
 
-        cdef vector[float] min_rmsd_vec = self.thisptr.minRMSDMotif(
+        self.thisptr.minRMSDMotif(
             nlist_.get_ptr(), <vec3[float]*> &l_points[0, 0], nP,
             <vec3[float]*> &l_motif[0, 0], nRef, registration)
 
-        return min_rmsd_vec
+        return self
 
 cdef class AngularSeparationNeighbor(PairCompute):
     R"""Calculates the minimum angles of separation between particles and
