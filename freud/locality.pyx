@@ -922,12 +922,12 @@ cdef class Voronoi(Compute):
         points = freud.common.convert_array(points, shape=(None, 3),
                                             dtype=np.float64)
         cdef const double[:, ::1] l_points = points
-        cdef unsigned int N = len(points)
+        cdef unsigned int n_points = len(points)
 
         self.thisptr.compute(
             dereference(self._box.thisptr),
             <vec3[double]*> &l_points[0, 0],
-            N)
+            n_points)
 
         return self
 
