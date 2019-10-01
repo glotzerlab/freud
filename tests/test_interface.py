@@ -56,8 +56,8 @@ class TestInterface(unittest.TestCase):
         others = np.concatenate([positions[:index], positions[index + 1:]])
 
         # Creates a neighborlist with r_max larger than the interface r_max
-        lc = freud.locality.LinkCell(box, r_max, others)
-        nlist = lc.query(point, dict(r_max=r_max)).toNeighborList()
+        aq = freud.locality.AABBQuery(box, others)
+        nlist = aq.query(point, dict(r_max=r_max)).toNeighborList()
 
         inter = freud.interface.InterfaceMeasure(1.5)
 

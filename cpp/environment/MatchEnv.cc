@@ -6,6 +6,9 @@
 
 #include "MatchEnv.h"
 
+#include "NeighborComputeFunctional.h"
+#include "NeighborBond.h"
+
 #if defined _WIN32
 #undef min // std::min clashes with a Windows header
 #undef max // std::max clashes with a Windows header
@@ -13,16 +16,11 @@
 
 namespace freud { namespace environment {
 
-// Constructor for EnvDisjointSet
-// Taken partially from Cluster.cc
-EnvDisjointSet::EnvDisjointSet(unsigned int Np) : rank(std::vector<unsigned int>(Np, 0)) {}
+/*****************
+ * EnvDisjoinSet *
+ *****************/
+EnvDisjointSet::EnvDisjointSet(unsigned int Np) : rank(std::vector<unsigned int>(Np, 0)), m_max_num_neigh(0) {}
 
-// Merge the two sets that elements a and b belong to.
-// Taken partially from Cluster.cc
-// The vec_map must be a bimap of PROPERLY ORDERED vector indices where those
-// of set a are on the left and those of set b are on the right.
-// The rotation must take the set of PROPERLY ROTATED vectors b and rotate
-// them to match the set of PROPERLY ROTATED vectors a
 void EnvDisjointSet::merge(const unsigned int a, const unsigned int b,
                            BiMap<unsigned int, unsigned int> vec_map, rotmat3<float> rotation)
 {
@@ -147,8 +145,6 @@ void EnvDisjointSet::merge(const unsigned int a, const unsigned int b,
     }
 }
 
-// Return the set label that contains the element c
-// Taken mostly from Cluster.cc
 unsigned int EnvDisjointSet::find(const unsigned int c)
 {
     unsigned int r = c;
@@ -168,10 +164,6 @@ unsigned int EnvDisjointSet::find(const unsigned int c)
     return r;
 }
 
-// Return ALL nodes in the tree that correspond to the head index m.
-// Values returned: the actual locations of the nodes in s. (i.e. if i is
-// returned, the node is accessed by s[i]).
-// If environment m doesn't exist as a HEAD in the set, throw an error.
 std::vector<unsigned int> EnvDisjointSet::findSet(const unsigned int m)
 {
     bool invalid_ind = true;
@@ -200,9 +192,6 @@ std::vector<unsigned int> EnvDisjointSet::findSet(const unsigned int m)
     return m_set;
 }
 
-// Get the vectors corresponding to environment head index m. Vectors are
-// averaged over all members of the environment cluster.
-// If environment m doesn't exist as a HEAD in the set, throw an error.
 std::vector<vec3<float> > EnvDisjointSet::getAvgEnv(const unsigned int m)
 {
     bool invalid_ind = true;
@@ -253,8 +242,6 @@ std::vector<vec3<float> > EnvDisjointSet::getAvgEnv(const unsigned int m)
     return env;
 }
 
-// Get the vectors corresponding to index m in the dj set
-// If index m doesn't exist in the set, throw an error.
 std::vector<vec3<float>> EnvDisjointSet::getIndividualEnv(const unsigned int m)
 {
     if (m >= s.size())
@@ -281,41 +268,11 @@ std::vector<vec3<float>> EnvDisjointSet::getIndividualEnv(const unsigned int m)
     return env;
 }
 
-MatchEnv::MatchEnv(const box::Box& box, float r_max, unsigned int num_neighbors) : m_box(box), m_r_max_sq(r_max*r_max), m_num_neighbors(num_neighbors)
-{
-    m_Np = 0;
-    m_num_clusters = 0;
-    m_max_num_neighbors = 0;
-    if (r_max < 0.0f)
-        throw std::invalid_argument("r_max must be positive!");
-}
-
-MatchEnv::~MatchEnv() {}
-
-Environment MatchEnv::buildEnv(const freud::locality::NeighborList* nlist, size_t num_bonds, size_t& bond,
-                               const vec3<float>* points, unsigned int i, unsigned int env_ind)
-{
-    Environment ei = Environment();
-    // set the environment index equal to the particle index
-    ei.env_ind = env_ind;
-
-    vec3<float> p = points[i];
-    for (; bond < num_bonds && nlist->getNeighbors()(bond, 0) == i; ++bond)
-    {
-        // compute vec{r} between the two particles
-        const size_t j(nlist->getNeighbors()(bond, 1));
-        if (i != j)
-        {
-            vec3<float> delta = m_box.wrap(points[j] - p);
-            ei.addVec(delta);
-        }
-    }
-
-    return ei;
-}
-
+/*************************
+ * Convenience functions *
+ *************************/
 std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>>
-MatchEnv::isSimilar(Environment& e1, Environment& e2, float threshold_sq, bool registration)
+isSimilar(Environment& e1, Environment& e2, float threshold_sq, bool registration)
 {
     BiMap<unsigned int, unsigned int> vec_map;
     rotmat3<float> rotation = rotmat3<float>(); // this initializes to the identity matrix
@@ -359,7 +316,7 @@ MatchEnv::isSimilar(Environment& e1, Environment& e2, float threshold_sq, bool r
             // imposed by the threshold?
             vec3<float> delta = v1[(*it)->first] - v2[(*it)->second];
             float r_sq = dot(delta, delta);
-            if (r_sq < threshold_sq * m_r_max_sq)
+            if (r_sq < threshold_sq)
             {
                 vec_map.emplace((*it)->first, (*it)->second);
             }
@@ -375,7 +332,7 @@ MatchEnv::isSimilar(Environment& e1, Environment& e2, float threshold_sq, bool r
             {
                 vec3<float> delta = v1[i] - v2[j];
                 float r_sq = dot(delta, delta);
-                if (r_sq < threshold_sq * m_r_max_sq)
+                if (r_sq < threshold_sq)
                 {
                     // these vectors are deemed "matching"
                     // since this is a bimap, this (i,j) pair is only inserted
@@ -400,12 +357,13 @@ MatchEnv::isSimilar(Environment& e1, Environment& e2, float threshold_sq, bool r
     }
 }
 
-std::map<unsigned int, unsigned int> MatchEnv::isSimilar(const vec3<float>* refPoints1,
-                                                         vec3<float>* refPoints2, unsigned int numRef,
-                                                         float threshold_sq, bool registration)
+std::map<unsigned int, unsigned int>
+isSimilar(const box::Box &box, const vec3<float>* refPoints1, vec3<float>*
+        refPoints2, unsigned int numRef, float threshold_sq, bool
+        registration)
 {
     Environment e0, e1;
-    std::tie(e0, e1) = makeEnvironments(refPoints1, refPoints2, numRef);
+    std::tie(e0, e1) = makeEnvironments(box, refPoints1, refPoints2, numRef);
 
     // call isSimilar for e0 and e1
     std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>> mapping
@@ -423,8 +381,8 @@ std::map<unsigned int, unsigned int> MatchEnv::isSimilar(const vec3<float>* refP
     return vec_map.asMap();
 }
 
-std::pair<Environment, Environment> MatchEnv::makeEnvironments(const vec3<float>* refPoints1,
-                                                         vec3<float>* refPoints2, unsigned int numRef)
+std::pair<Environment, Environment> makeEnvironments(const box::Box &box, const vec3<float>* refPoints1,
+                                                     vec3<float>* refPoints2, unsigned int numRef)
 {
     // create the environment characterized by refPoints1. Index it as 0.
     // set the IGNORE flag to true, since this is not an environment we have
@@ -443,8 +401,8 @@ std::pair<Environment, Environment> MatchEnv::makeEnvironments(const vec3<float>
     // be wrapped into the box as well.
     for (unsigned int i = 0; i < numRef; i++)
     {
-        vec3<float> p0 = m_box.wrap(refPoints1[i]);
-        vec3<float> p1 = m_box.wrap(refPoints2[i]);
+        vec3<float> p0 = box.wrap(refPoints1[i]);
+        vec3<float> p1 = box.wrap(refPoints2[i]);
         e0.addVec(p0);
         e1.addVec(p1);
     }
@@ -453,7 +411,7 @@ std::pair<Environment, Environment> MatchEnv::makeEnvironments(const vec3<float>
 
 
 std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>>
-MatchEnv::minimizeRMSD(Environment& e1, Environment& e2, float& min_rmsd, bool registration)
+minimizeRMSD(Environment& e1, Environment& e2, float& min_rmsd, bool registration)
 {
     BiMap<unsigned int, unsigned int> vec_map;
     rotmat3<float> rotation = rotmat3<float>(); // this initializes to the identity matrix
@@ -502,12 +460,12 @@ MatchEnv::minimizeRMSD(Environment& e1, Environment& e2, float& min_rmsd, bool r
     return std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>>(rotation, vec_map);
 }
 
-std::map<unsigned int, unsigned int> MatchEnv::minimizeRMSD(const vec3<float>* refPoints1,
-                                                            vec3<float>* refPoints2, unsigned int numRef,
-                                                            float& min_rmsd, bool registration)
+std::map<unsigned int, unsigned int> minimizeRMSD(const box::Box &box, const vec3<float>* refPoints1,
+                                                  vec3<float>* refPoints2, unsigned int numRef,
+                                                  float& min_rmsd, bool registration)
 {
     Environment e0, e1;
-    std::tie(e0, e1) = makeEnvironments(refPoints1, refPoints2, numRef);
+    std::tie(e0, e1) = makeEnvironments(box, refPoints1, refPoints2, numRef);
 
     float tmp_min_rmsd = -1.0;
     std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>> mapping
@@ -526,51 +484,82 @@ std::map<unsigned int, unsigned int> MatchEnv::minimizeRMSD(const vec3<float>* r
     return vec_map.asMap();
 }
 
-// Determine clusters of particles with matching environments
-// This is taken from Cluster.cc and SolLiq.cc and LocalQlNear.cc
-void MatchEnv::cluster(const freud::locality::NeighborList* env_nlist,
-                       const freud::locality::NeighborList* nlist, const vec3<float>* points, unsigned int Np,
-                       float threshold, bool registration, bool global)
+/************
+ * MatchEnv *
+ ************/
+MatchEnv::MatchEnv() {}
+
+MatchEnv::~MatchEnv() {}
+
+/**********************
+ * EnvironmentCluster *
+ **********************/
+
+EnvironmentCluster::~EnvironmentCluster() {}
+
+Environment MatchEnv::buildEnv(const freud::locality::NeighborQuery* nq, const freud::locality::NeighborList* nlist, size_t num_bonds, size_t& bond,
+                               unsigned int i, unsigned int env_ind)
 {
-    // reallocate the m_env_index array for safety
+    Environment ei = Environment();
+    // set the environment index equal to the particle index
+    ei.env_ind = env_ind;
+
+    for (; bond < num_bonds && nlist->getNeighbors()(bond, 0) == i; ++bond)
+    {
+        // compute vec{r} between the two particles
+        const size_t j(nlist->getNeighbors()(bond, 1));
+        if (i != j)
+        {
+            vec3<float> delta(bondVector(locality::NeighborBond(i, j), nq, nq->getPoints()));
+            ei.addVec(delta);
+        }
+    }
+
+    return ei;
+}
+
+void EnvironmentCluster::compute(const freud::locality::NeighborQuery* nq, const freud::locality::NeighborList* nlist_arg, locality::QueryArgs qargs, const freud::locality::NeighborList* env_nlist_arg, locality::QueryArgs env_qargs, float threshold, bool registration, bool global)
+{
+    const locality::NeighborList nlist = locality::makeDefaultNlist(nq, nlist_arg, nq->getPoints(), nq->getNPoints(), qargs);
+    const locality::NeighborList env_nlist = locality::makeDefaultNlist(nq, env_nlist_arg, nq->getPoints(), nq->getNPoints(), env_qargs);
+
+    unsigned int Np = nq->getNPoints();
     m_env_index.prepare(Np);
 
-    m_Np = Np;
     float m_threshold_sq = threshold * threshold;
 
-    nlist->validate(Np, Np);
-    env_nlist->validate(Np, Np);
+    nlist.validate(Np, Np);
+    env_nlist.validate(Np, Np);
     size_t env_bond(0);
-    const size_t env_num_bonds(env_nlist->getNumBonds());
+    const size_t env_num_bonds(env_nlist.getNumBonds());
 
     // create a disjoint set where all particles belong in their own cluster
-    EnvDisjointSet dj(m_Np);
+    EnvDisjointSet dj(Np);
 
     // add all the environments to the set
     // take care, here: set things up s.t. the env_ind of every environment
     // matches its location in the disjoint set.
     // if you don't do this, things will get screwy.
-    for (unsigned int i = 0; i < m_Np; i++)
+    for (unsigned int i = 0; i < Np; i++)
     {
-        Environment ei = buildEnv(env_nlist, env_num_bonds, env_bond, points, i, i);
+        Environment ei = buildEnv(nq, &env_nlist, env_num_bonds, env_bond, i, i);
         dj.s.push_back(ei);
-        m_max_num_neighbors = std::max(m_max_num_neighbors, ei.num_vecs);
-        dj.m_max_num_neigh = m_max_num_neighbors;
+        dj.m_max_num_neigh = std::max(dj.m_max_num_neigh, ei.num_vecs);;
     }
 
-    // reallocate the m_tot_env array
-    m_tot_env.prepare({Np, m_max_num_neighbors});
+    // reallocate the m_point_environments array
+    m_point_environments.prepare({Np, dj.m_max_num_neigh});
 
     size_t bond(0);
     // loop through points
-    for (unsigned int i = 0; i < m_Np; i++)
+    for (unsigned int i = 0; i < Np; i++)
     {
         if (global == false)
         {
             // loop over the neighbors
-            for (; bond < nlist->getNumBonds() && nlist->getNeighbors()(bond, 0) == i; ++bond)
+            for (; bond < nlist.getNumBonds() && nlist.getNeighbors()(bond, 0) == i; ++bond)
             {
-                const size_t j(nlist->getNeighbors()(bond, 1));
+                const size_t j(nlist.getNeighbors()(bond, 1));
                 std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>> mapping
                     = isSimilar(dj.s[i], dj.s[j], m_threshold_sq, registration);
                 rotmat3<float> rotation = mapping.first;
@@ -591,7 +580,7 @@ void MatchEnv::cluster(const freud::locality::NeighborList* env_nlist,
         else
         {
             // loop over all other particles
-            for (unsigned int j = i + 1; j < m_Np; j++)
+            for (unsigned int j = i + 1; j < Np; j++)
             {
                 std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>> mapping
                     = isSimilar(dj.s[i], dj.s[j], m_threshold_sq, registration);
@@ -614,177 +603,13 @@ void MatchEnv::cluster(const freud::locality::NeighborList* env_nlist,
 
     // done looping over points. All clusters are now determined. Renumber
     // them from zero to num_clusters-1.
-    populateEnv(dj, true);
+    m_num_clusters = populateEnv(dj);
 }
 
-//! Determine whether particles match a given input motif, characterized by
-//  refPoints (of which there are numRef)
-void MatchEnv::matchMotif(const freud::locality::NeighborList* nlist, const vec3<float>* points,
-                          unsigned int Np, const vec3<float>* refPoints, unsigned int numRef, float threshold,
-                          bool registration)
-{
-    // reallocate the m_env_index array for safety
-    m_env_index.prepare(Np);
-
-    m_Np = Np;
-    float m_threshold_sq = threshold * threshold;
-
-    nlist->validate(Np, Np);
-
-    // create a disjoint set where all particles belong in their own cluster.
-    // this has to have ONE MORE environment than there are actual particles,
-    // because we're inserting the motif into it.
-    EnvDisjointSet dj(m_Np + 1);
-    dj.m_max_num_neigh = m_num_neighbors;
-    m_max_num_neighbors = m_num_neighbors;
-
-    // reallocate the m_tot_env array
-    m_tot_env.prepare({Np, m_max_num_neighbors});
-
-    // create the environment characterized by refPoints. Index it as 0.
-    // set the IGNORE flag to true, since this is not an environment we have
-    // actually encountered in the simulation.
-    Environment e0 = Environment(true);
-
-    // loop through all the vectors in refPoints and add them to the environment.
-    // wrap all the vectors back into the box. I think this is necessary since
-    // all the vectors that will be added to actual particle environments will
-    // be wrapped into the box as well.
-    for (unsigned int i = 0; i < numRef; i++)
-    {
-        vec3<float> p = m_box.wrap(refPoints[i]);
-        e0.addVec(p);
-    }
-
-    // add this environment to the set
-    dj.s.push_back(e0);
-
-    size_t bond(0);
-    const size_t num_bonds(nlist->getNumBonds());
-
-    // loop through the particles and add their environments to the set
-    // take care, here: set things up s.t. the env_ind of every environment
-    // matches its location in the disjoint set.
-    // if you don't do this, things will get screwy.
-    for (unsigned int i = 0; i < m_Np; i++)
-    {
-        unsigned int dummy = i + 1;
-        Environment ei = buildEnv(nlist, num_bonds, bond, points, i, dummy);
-        dj.s.push_back(ei);
-
-        // if the environment matches e0, merge it into the e0 environment set
-        std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>> mapping
-            = isSimilar(dj.s[0], dj.s[dummy], m_threshold_sq, registration);
-        rotmat3<float> rotation = mapping.first;
-        BiMap<unsigned int, unsigned int> vec_map = mapping.second;
-        // if the mapping between the vectors of the environments is NOT empty,
-        // then the environments are similar.
-        if (!vec_map.empty())
-        {
-            dj.merge(0, dummy, vec_map, rotation);
-        }
-    }
-
-    // DON'T renumber the clusters in the disjoint set from zero to
-    // num_clusters-1. The way I have set it up here, the "0th" cluster
-    // is the one that matches the motif.
-    populateEnv(dj, false);
-}
-
-//! Rotate (if registration=True) and permute the environments of all particles
-//  to minimize their RMSD wrt a given input motif, characterized by refPoints
-//  (of which there are numRef).
-//  Returns a vector of minimal RMSD values, one value per particle.
-//  NOTE that this does not guarantee an absolutely minimal RMSD. It doesn't
-//  figure out the optimal permutation of BOTH sets of vectors to minimize the
-//  RMSD. Rather, it just figures out the optimal permutation of the second
-//  set, the vector set used in the argument below.
-//  To fully solve this, we need to use the Hungarian algorithm or some other
-//  way of solving the so-called assignment problem.
-std::vector<float> MatchEnv::minRMSDMotif(const freud::locality::NeighborList* nlist,
-                                          const vec3<float>* points, unsigned int Np,
-                                          const vec3<float>* refPoints, unsigned int numRef,
-                                          bool registration)
-{
-    // reallocate the m_env_index array for safety
-    m_env_index.prepare(Np);
-
-    m_Np = Np;
-    std::vector<float> min_rmsd_vec(m_Np);
-
-    nlist->validate(Np, Np);
-
-    // create a disjoint set where all particles belong in their own cluster.
-    // this has to have ONE MORE environment than there are actual particles,
-    // because we're inserting the motif into it.
-    EnvDisjointSet dj(m_Np + 1);
-    dj.m_max_num_neigh = m_num_neighbors;
-    m_max_num_neighbors = m_num_neighbors;
-
-    // reallocate the m_tot_env array
-    m_tot_env.prepare({Np, m_max_num_neighbors});
-
-    // create the environment characterized by refPoints. Index it as 0.
-    // set the IGNORE flag to true, since this is not an environment we
-    // have actually encountered in the simulation.
-    Environment e0 = Environment(true);
-
-    // loop through all the vectors in refPoints and add them to the environment.
-    // wrap all the vectors back into the box. I think this is necessary since
-    // all the vectors that will be added to actual particle environments will
-    // be wrapped into the box as well.
-    for (unsigned int i = 0; i < numRef; i++)
-    {
-        vec3<float> p = m_box.wrap(refPoints[i]);
-        e0.addVec(p);
-    }
-
-    // add this environment to the set
-    dj.s.push_back(e0);
-
-    size_t bond(0);
-    const size_t num_bonds(nlist->getNumBonds());
-
-    // loop through the particles and add their environments to the set
-    // take care, here: set things up s.t. the env_ind of every environment
-    // matches its location in the disjoint set.
-    // if you don't do this, things will get screwy.
-    for (unsigned int i = 0; i < m_Np; i++)
-    {
-        unsigned int dummy = i + 1;
-        Environment ei = buildEnv(nlist, num_bonds, bond, points, i, dummy);
-        dj.s.push_back(ei);
-
-        // if the environment matches e0, merge it into the e0 environment set
-        float min_rmsd = -1.0;
-        std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>> mapping
-            = minimizeRMSD(dj.s[0], dj.s[dummy], min_rmsd, registration);
-        rotmat3<float> rotation = mapping.first;
-        BiMap<unsigned int, unsigned int> vec_map = mapping.second;
-        // populate the min_rmsd vector
-        min_rmsd_vec[i] = min_rmsd;
-
-        // if the mapping between the vectors of the environments is NOT
-        // empty, then the environments are similar.
-        // minimizeRMSD should always return a non-empty vec_map, except if
-        // e0 and e1 have different numbers of vectors.
-        if (!vec_map.empty())
-        {
-            dj.merge(0, dummy, vec_map, rotation);
-        }
-    }
-
-    // DON'T renumber the clusters in the disjoint set from zero to
-    // num_clusters-1. The way I have set it up here, the "0th" cluster
-    // is the one that matches the motif.
-    populateEnv(dj, false);
-
-    return min_rmsd_vec;
-}
-
-void MatchEnv::populateEnv(EnvDisjointSet dj, bool reLabel)
+unsigned int EnvironmentCluster::populateEnv(EnvDisjointSet dj)
 {
     std::map<unsigned int, unsigned int> label_map;
+    std::map<unsigned int, std::vector<vec3<float> > > cluster_env;
 
     // loop over all environments
     unsigned int label_ind;
@@ -800,32 +625,199 @@ void MatchEnv::populateEnv(EnvDisjointSet dj, bool reLabel)
 
             unsigned int c = dj.find(i);
             // insert the set into the mapping if we haven't seen it before.
-            // also grab the vectors that define the set and insert them into m_env
+            // also grab the vectors that define the set and insert them into cluster_env
             if (label_map.count(c) == 0)
             {
                 label_map[c] = cur_set;
                 std::vector<vec3<float>> vecs = dj.getAvgEnv(c);
-                label_ind = reLabel ? label_map[c] : c;
-                m_env[label_ind] = vecs;
+                label_ind = label_map[c];
+                cluster_env[label_ind] = vecs;
                 cur_set++;
             }
             else
             {
-                label_ind = reLabel ? label_map[c] : c;
+                label_ind = label_map[c];
             }
 
             // label this particle in m_env_index
             m_env_index[particle_ind] = label_ind;
             for (unsigned int m = 0; m < part_vecs.size(); m++)
             {
-                m_tot_env(particle_ind, m) = part_vecs[m];
+                m_point_environments(particle_ind, m) = part_vecs[m];
             }
             particle_ind++;
         }
     }
 
+    // Now update the vector of environments from the map.
+    m_cluster_environments.resize(cluster_env.size());
+    for (auto it = cluster_env.begin(); it != cluster_env.end(); ++it)
+    {
+        m_cluster_environments[it->first] = it->second;
+    }
+
     // specify the number of cluster environments
-    m_num_clusters = cur_set;
+    return cur_set;
+}
+
+/*************************
+ * EnvironmentMotifMatch *
+ *************************/
+void EnvironmentMotifMatch::compute(const freud::locality::NeighborQuery* nq, const freud::locality::NeighborList* nlist_arg, locality::QueryArgs qargs,
+                          const vec3<float>* motif, unsigned int motif_size, float threshold,
+                          bool registration)
+{
+    const locality::NeighborList nlist = locality::makeDefaultNlist(nq, nlist_arg, nq->getPoints(), nq->getNPoints(), qargs);
+
+    unsigned int Np = nq->getNPoints();
+    float m_threshold_sq = threshold * threshold;
+
+    nlist.validate(Np, Np);
+
+    // create a disjoint set where all particles belong in their own cluster.
+    // this has to have ONE MORE environment than there are actual particles,
+    // because we're inserting the motif into it.
+    EnvDisjointSet dj(Np + 1);
+    dj.m_max_num_neigh = motif_size;
+
+    // reallocate the m_point_environments array
+    m_point_environments.prepare({Np, motif_size});
+
+    // create the environment characterized by motif. Index it as 0.
+    // set the IGNORE flag to true, since this is not an environment we have
+    // actually encountered in the simulation.
+    Environment e0 = Environment(true);
+
+    // loop through all the vectors in motif and add them to the environment.
+    // wrap all the vectors back into the box. I think this is necessary since
+    // all the vectors that will be added to actual particle environments will
+    // be wrapped into the box as well.
+    for (unsigned int i = 0; i < motif_size; i++)
+    {
+        vec3<float> p = nq->getBox().wrap(motif[i]);
+        e0.addVec(p);
+    }
+
+    // add this environment to the set
+    dj.s.push_back(e0);
+
+    size_t bond(0);
+    const size_t num_bonds(nlist.getNumBonds());
+
+    m_matches.prepare(Np);
+
+    // loop through the particles and add their environments to the set
+    // take care, here: set things up s.t. the env_ind of every environment
+    // matches its location in the disjoint set.
+    // if you don't do this, things will get screwy.
+    for (unsigned int i = 0; i < Np; i++)
+    {
+        unsigned int dummy = i + 1;
+        Environment ei = buildEnv(nq, &nlist, num_bonds, bond, i, dummy);
+        dj.s.push_back(ei);
+
+        // if the environment matches e0, merge it into the e0 environment set
+        std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>> mapping
+            = isSimilar(dj.s[0], dj.s[dummy], m_threshold_sq, registration);
+        rotmat3<float> rotation = mapping.first;
+        BiMap<unsigned int, unsigned int> vec_map = mapping.second;
+        // if the mapping between the vectors of the environments is NOT empty,
+        // then the environments are similar.
+        if (!vec_map.empty())
+        {
+            dj.merge(0, dummy, vec_map, rotation);
+            m_matches[i] = true;
+
+        }
+        // grab the set of vectors that define this individual environment
+        std::vector<vec3<float>> part_vecs = dj.getIndividualEnv(dummy);
+
+        for (unsigned int m = 0; m < part_vecs.size(); m++)
+        {
+            m_point_environments(i, m) = part_vecs[m];
+        }
+    }
+}
+
+/****************************
+ * EnvironmentRMSDMinimizer *
+ ****************************/
+void EnvironmentRMSDMinimizer::compute(const freud::locality::NeighborQuery* nq, const freud::locality::NeighborList* nlist_arg, locality::QueryArgs qargs,
+                                          const vec3<float>* motif, unsigned int motif_size,
+                                          bool registration)
+{
+    const locality::NeighborList nlist = locality::makeDefaultNlist(nq, nlist_arg, nq->getPoints(), nq->getNPoints(), qargs);
+
+    unsigned int Np = nq->getNPoints();
+
+    // create a disjoint set where all particles belong in their own cluster.
+    // this has to have ONE MORE environment than there are actual particles,
+    // because we're inserting the motif into it.
+    EnvDisjointSet dj(Np + 1);
+    dj.m_max_num_neigh = motif_size;
+
+    // reallocate the m_point_environments array
+    m_point_environments.prepare({Np, motif_size});
+
+    // create the environment characterized by motif. Index it as 0.
+    // set the IGNORE flag to true, since this is not an environment we
+    // have actually encountered in the simulation.
+    Environment e0 = Environment(true);
+
+    // loop through all the vectors in motif and add them to the environment.
+    // wrap all the vectors back into the box. I think this is necessary since
+    // all the vectors that will be added to actual particle environments will
+    // be wrapped into the box as well.
+    for (unsigned int i = 0; i < motif_size; i++)
+    {
+        vec3<float> p = nq->getBox().wrap(motif[i]);
+        e0.addVec(p);
+    }
+
+    // add this environment to the set
+    dj.s.push_back(e0);
+
+    size_t bond(0);
+    const size_t num_bonds(nlist.getNumBonds());
+
+    m_rmsds.prepare(Np);
+
+    // loop through the particles and add their environments to the set
+    // take care, here: set things up s.t. the env_ind of every environment
+    // matches its location in the disjoint set.
+    // if you don't do this, things will get screwy.
+    for (unsigned int i = 0; i < Np; i++)
+    {
+        unsigned int dummy = i + 1;
+        Environment ei = buildEnv(nq, &nlist, num_bonds, bond, i, dummy);
+        dj.s.push_back(ei);
+
+        // if the environment matches e0, merge it into the e0 environment set
+        float min_rmsd = -1.0;
+        std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>> mapping
+            = minimizeRMSD(dj.s[0], dj.s[dummy], min_rmsd, registration);
+        rotmat3<float> rotation = mapping.first;
+        BiMap<unsigned int, unsigned int> vec_map = mapping.second;
+        // populate the min_rmsd vector
+        m_rmsds[i] = min_rmsd;
+
+        // if the mapping between the vectors of the environments is NOT
+        // empty, then the environments are similar.
+        // minimizeRMSD should always return a non-empty vec_map, except if
+        // e0 and e1 have different numbers of vectors.
+        if (!vec_map.empty())
+        {
+            dj.merge(0, dummy, vec_map, rotation);
+        }
+
+        // grab the set of vectors that define this individual environment
+        std::vector<vec3<float>> part_vecs = dj.getIndividualEnv(dummy);
+
+        for (unsigned int m = 0; m < part_vecs.size(); m++)
+        {
+            m_point_environments(i, m) = part_vecs[m];
+        }
+    }
 }
 
 }; }; // end namespace freud::environment

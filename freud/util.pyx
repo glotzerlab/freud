@@ -61,6 +61,8 @@ cdef class _ManagedArrayContainer:
             return tuple(self.thisptr.complex_float_ptr.shape())
         elif self.data_type == arr_type_t.COMPLEX_DOUBLE:
             return tuple(self.thisptr.complex_double_ptr.shape())
+        elif self.data_type == arr_type_t.BOOL:
+            return tuple(self.thisptr.bool_ptr.shape())
 
     @property
     def element_size(self):
@@ -77,6 +79,8 @@ cdef class _ManagedArrayContainer:
             del self.thisptr.complex_float_ptr
         elif self.data_type == arr_type_t.COMPLEX_DOUBLE:
             del self.thisptr.complex_double_ptr
+        elif self.data_type == arr_type_t.BOOL:
+            del self.thisptr.bool_ptr
 
     cdef void set_as_base(self, arr):
         """Sets the base of arr to be this object and increases the
@@ -96,6 +100,8 @@ cdef class _ManagedArrayContainer:
             return self.thisptr.complex_float_ptr.get()
         elif self.data_type == arr_type_t.COMPLEX_DOUBLE:
             return self.thisptr.complex_double_ptr.get()
+        elif self.data_type == arr_type_t.BOOL:
+            return self.thisptr.bool_ptr.get()
 
     def __array__(self):
         """Convert the underlying data array into a read-only numpy array.

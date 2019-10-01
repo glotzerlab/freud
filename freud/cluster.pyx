@@ -66,7 +66,6 @@ cdef class Cluster(PairCompute):
     def __dealloc__(self):
         del self.thisptr
 
-    @Compute._compute()
     def compute(self, neighbor_query, keys=None, neighbors=None):
         R"""Compute the clusters for the given set of points.
 
@@ -88,7 +87,7 @@ cdef class Cluster(PairCompute):
             unsigned int num_query_points
 
         nq, nlist, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(neighbor_query, neighbors=neighbors)
+            self._preprocess_arguments(neighbor_query, neighbors=neighbors)
 
         cdef unsigned int* l_keys_ptr = NULL
         cdef unsigned int[::1] l_keys
@@ -104,17 +103,17 @@ cdef class Cluster(PairCompute):
             l_keys_ptr)
         return self
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def num_clusters(self):
         return self.thisptr.getNumClusters()
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def cluster_idx(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getClusterIdx(),
             freud.util.arr_type_t.UNSIGNED_INT)
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def cluster_keys(self):
         cluster_keys = self.thisptr.getClusterKeys()
         return cluster_keys
@@ -122,7 +121,6 @@ cdef class Cluster(PairCompute):
     def __repr__(self):
         return "freud.cluster.{cls}()".format(cls=type(self).__name__)
 
-    @Compute._computed_method()
     def plot(self, ax=None):
         """Plot cluster distribution.
 
@@ -182,7 +180,6 @@ cdef class ClusterProperties(Compute):
     def __dealloc__(self):
         del self.thisptr
 
-    @Compute._compute()
     def compute(self, box, points, cluster_idx):
         R"""Compute properties of the point clusters.
         Loops over all points in the given array and determines the center of
@@ -213,19 +210,19 @@ cdef class ClusterProperties(Compute):
             Np)
         return self
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def centers(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getClusterCenters(),
             freud.util.arr_type_t.FLOAT, 3)
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def gyrations(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getClusterGyrations(),
             freud.util.arr_type_t.FLOAT)
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def sizes(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getClusterSizes(),

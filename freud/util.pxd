@@ -11,6 +11,7 @@ from cpython cimport Py_INCREF
 from libcpp.complex cimport complex
 from cython.operator cimport dereference
 from libcpp.memory cimport shared_ptr
+from libcpp cimport bool
 
 cimport numpy as np
 
@@ -24,6 +25,7 @@ ctypedef enum arr_type_t:
     COMPLEX_FLOAT
     COMPLEX_DOUBLE
     UNSIGNED_INT
+    BOOL
 
 ctypedef union arr_ptr_t:
     const void *null_ptr
@@ -32,6 +34,7 @@ ctypedef union arr_ptr_t:
     const ManagedArray[float complex] *complex_float_ptr
     const ManagedArray[double complex] *complex_double_ptr
     const ManagedArray[uint] *uint_ptr
+    const ManagedArray[bool] *bool_ptr
 
 
 cdef class _ManagedArrayContainer:
@@ -73,6 +76,11 @@ cdef class _ManagedArrayContainer:
                                          element_size)
             obj.thisptr.uint_ptr = new const ManagedArray[uint](
                 dereference(<const ManagedArray[uint] *>array))
+        elif arr_type == arr_type_t.BOOL:
+            obj = _ManagedArrayContainer(arr_type, np.NPY_BOOL,
+                                         element_size)
+            obj.thisptr.bool_ptr = new const ManagedArray[bool](
+                dereference(<const ManagedArray[bool] *>array))
 
         return obj
 

@@ -108,9 +108,9 @@ cdef extern from "LinkCell.h" namespace "freud::locality":
     cdef cppclass LinkCell(NeighborQuery):
         LinkCell() except +
         LinkCell(const freud._box.Box &,
-                 float,
                  const vec3[float]*,
-                 unsigned int) except +
+                 unsigned int,
+                 float) except +
         const vec3[unsigned int] computeDimensions(
             const freud._box.Box &,
             float) const

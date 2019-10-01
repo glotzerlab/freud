@@ -221,7 +221,7 @@ cdef class NeighborQueryResult:
 
         cdef freud._locality.NeighborList *cnlist = dereference(
             iterator).toNeighborList()
-        cdef NeighborList nl = nlist_from_cnlist(cnlist)
+        cdef NeighborList nl = _nlist_from_cnlist(cnlist)
         # Explicitly manage a manually created nlist so that it will be
         # deleted when the Python object is.
         nl._managed = True
@@ -526,7 +526,7 @@ cdef class NeighborList:
         """  # noqa E501
         filt = np.ascontiguousarray(filt, dtype=np.bool)
         cdef np.ndarray[np.uint8_t, ndim=1, cast=True] filt_c = filt
-        cdef cbool * filt_ptr = <cbool*> filt_c.data
+        cdef cbool * filt_ptr = <cbool*> &filt_c[0]
         self.thisptr.filter(filt_ptr)
         return self
 
@@ -544,7 +544,7 @@ cdef class NeighborList:
         return self
 
 
-cdef NeighborList nlist_from_cnlist(freud._locality.NeighborList *c_nlist):
+cdef NeighborList _nlist_from_cnlist(freud._locality.NeighborList *c_nlist):
     """Create a Python NeighborList object that points to an existing C++
     NeighborList object.
 
@@ -563,7 +563,7 @@ cdef NeighborList nlist_from_cnlist(freud._locality.NeighborList *c_nlist):
     return result
 
 
-def make_default_nq(box, points):
+def _make_default_nq(box, points):
     R"""Helper function to return a NeighborQuery object.
 
     Currently the resolution for NeighborQuery objects is such that if Python
@@ -596,7 +596,7 @@ def make_default_nq(box, points):
     return rp
 
 
-def make_default_nlist(box, points, query_points, query_args, nlist=None):
+def _make_default_nlist(box, points, query_points, query_args, nlist=None):
     R"""Helper function to return a neighbor list object if is given, or to
     construct one using AABBQuery if it is not.
 
@@ -775,16 +775,16 @@ cdef class LinkCell(NeighborQuery):
        dens.compute(box, positions, nlist=lc.nlist)
     """
 
-    def __cinit__(self, box, cell_width, points):
+    def __cinit__(self, box, points, cell_width=0):
         self._box = freud.common.convert_box(box)
         cdef const float[:, ::1] l_points
         self.points = freud.common.convert_array(
             points, shape=(None, 3)).copy()
         l_points = self.points
         self.thisptr = self.nqptr = new freud._locality.LinkCell(
-            dereference(self._box.thisptr), float(cell_width),
+            dereference(self._box.thisptr),
             <vec3[float]*> &l_points[0, 0],
-            self.points.shape[0])
+            self.points.shape[0], cell_width)
 
     def __dealloc__(self):
         del self.thisptr
@@ -883,7 +883,6 @@ cdef class Voronoi(Compute):
     def __dealloc__(self):
         del self.thisptr
 
-    @Compute._compute()
     def compute(self, box, points):
         R"""Compute Voronoi diagram.
 
@@ -908,7 +907,7 @@ cdef class Voronoi(Compute):
 
         return self
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def polytopes(self):
         R"""Polytope vertices of each Voronoi cell.
 
@@ -936,7 +935,7 @@ cdef class Voronoi(Compute):
             polytopes.append(np.asarray(polytope_vertices))
         return polytopes
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def volumes(self):
         R"""Returns an array of volumes (areas in 2D) of the Voronoi cells.
 
@@ -948,7 +947,7 @@ cdef class Voronoi(Compute):
             &self.thisptr.getVolumes(),
             freud.util.arr_type_t.DOUBLE)
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def nlist(self):
         R"""Returns the computed :class:`~.locality.NeighborList`.
 
@@ -967,7 +966,7 @@ cdef class Voronoi(Compute):
         Returns:
             :class:`~.locality.NeighborList`: Neighbor list.
         """
-        self._nlist = nlist_from_cnlist(self.thisptr.getNeighborList().get())
+        self._nlist = _nlist_from_cnlist(self.thisptr.getNeighborList().get())
         return self._nlist
 
     def __repr__(self):
@@ -977,7 +976,6 @@ cdef class Voronoi(Compute):
     def __str__(self):
         return repr(self)
 
-    @Compute._computed_method()
     def plot(self, ax=None):
         """Plot Voronoi diagram.
 
@@ -1014,8 +1012,8 @@ cdef class PairCompute(Compute):
     well as dealing with boxes and query arguments.
     """
 
-    def preprocess_arguments(self, neighbor_query, query_points=None,
-                             neighbors=None):
+    def _preprocess_arguments(self, neighbor_query, query_points=None,
+                              neighbors=None):
         """Process standard compute arguments into freud's internal types by
         calling all the required internal functions.
 
@@ -1048,6 +1046,18 @@ cdef class PairCompute(Compute):
         cdef NeighborList nlist
         cdef _QueryArgs qargs
 
+        nlist, qargs = self._resolve_neighbors(neighbors, query_points)
+
+        if query_points is None:
+            query_points = nq.points
+        else:
+            query_points = freud.common.convert_array(
+                query_points, shape=(None, 3))
+        cdef const float[:, ::1] l_query_points = query_points
+        cdef unsigned int num_query_points = l_query_points.shape[0]
+        return (nq, nlist, qargs, l_query_points, num_query_points)
+
+    def _resolve_neighbors(self, neighbors, query_points=None):
         if type(neighbors) == NeighborList:
             nlist = neighbors
             qargs = _QueryArgs()
@@ -1063,15 +1073,7 @@ cdef class PairCompute(Compute):
                 nlist = NeighborList(True)
             except NotImplementedError:
                 raise
-
-        if query_points is None:
-            query_points = nq.points
-        else:
-            query_points = freud.common.convert_array(
-                query_points, shape=(None, 3))
-        cdef const float[:, ::1] l_query_points = query_points
-        cdef unsigned int num_query_points = l_query_points.shape[0]
-        return (nq, nlist, qargs, l_query_points, num_query_points)
+        return nlist, qargs
 
     @property
     def default_query_args(self):
@@ -1094,11 +1096,11 @@ cdef class SpatialHistogram(PairCompute):
     def default_query_args(self):
         return dict(mode="ball", r_max=self.r_max)
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def box(self):
         return freud.box.BoxFromCPP(self.histptr.getBox())
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def bin_counts(self):
         return freud.util.make_managed_numpy_array(
             &self.histptr.getBinCounts(),
@@ -1129,7 +1131,6 @@ cdef class SpatialHistogram(PairCompute):
     def nbins(self):
         return list(self.histptr.getAxisSizes())
 
-    @Compute._reset
     def reset(self):
         R"""Resets the values of RDF in memory."""
         self.histptr.reset()

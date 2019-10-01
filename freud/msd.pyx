@@ -164,7 +164,6 @@ cdef class MSD(Compute):
             raise ValueError("Invalid mode")
         self.mode = mode
 
-    @Compute._compute()
     def accumulate(self, positions, images=None):
         """Calculate the MSD for the positions provided and add to the existing
         per-particle data.
@@ -232,17 +231,15 @@ cdef class MSD(Compute):
     def box(self):
         return self._box
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def msd(self):
         return np.concatenate(self.particle_msd, axis=1).mean(axis=-1)
 
-    @Compute._reset
     def reset(self):
         R"""Clears the stored MSD values from previous calls to accumulate (or
         the last call to compute)."""
         self.particle_msd = []
 
-    @Compute._compute()
     def compute(self, positions, images=None):
         """Calculate the MSD for the positions provided.
 
@@ -265,7 +262,6 @@ cdef class MSD(Compute):
         return "freud.msd.{cls}(box={box}, mode={mode})".format(
             cls=type(self).__name__, box=self._box, mode=repr(self.mode))
 
-    @Compute._computed_method()
     def plot(self, ax=None):
         """Plot MSD.
 

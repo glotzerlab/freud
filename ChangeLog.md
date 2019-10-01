@@ -42,6 +42,7 @@ and this project adheres to
 * Neighbor-based compute methods now accept NeighborQuery objects as the first object, including (box, point) tuples.
 * Documentation uses automodule instead of autoclass.
 * The Voronoi class was rewritten to use voro++ for vastly improved performance and correctness in edge cases.
+* MatchEnv has been split into separate classes for the different types of computations it is capable of performing, and these classes all use v2.0-style APIs.
 
 ### Fixed
 * Steinhardt uses the ThreadStorage class and properly resets memory where needed.
