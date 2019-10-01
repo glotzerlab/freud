@@ -561,17 +561,16 @@ cdef class EnvironmentCluster(_MatchEnv):
 
     cdef freud._environment.EnvironmentCluster * thisptr
 
-    def __cinit__(self, num_neighbors):
+    def __cinit__(self):
         self.thisptr = self.matchptr = \
             new freud._environment.EnvironmentCluster()
-
-        self.num_neighbors = num_neighbors
 
     def __dealloc__(self):
         del self.thisptr
 
     def compute(self, box, points, threshold, hard_r=False, registration=False,
-                global_search=False, env_nlist=None, nlist=None, r_max=None):
+                global_search=False, env_nlist=None, nlist=None, r_max=None,
+                num_neighbors=None):
         R"""Determine clusters of particles with matching environments.
 
         Args:
@@ -619,12 +618,12 @@ cdef class EnvironmentCluster(_MatchEnv):
         else:
             nlist_ = freud.locality._make_default_nlist(
                 self.m_box, points, None,
-                dict(num_neighbors=self.num_neighbors, r_guess=r_max),
+                dict(num_neighbors=num_neighbors, r_guess=r_max),
                 nlist)
 
             env_nlist_ = freud.locality._make_default_nlist(
                 self.m_box, points, None,
-                dict(num_neighbors=self.num_neighbors, r_guess=r_max),
+                dict(num_neighbors=num_neighbors, r_guess=r_max),
                 env_nlist)
 
         self.thisptr.compute(
@@ -670,10 +669,8 @@ cdef class EnvironmentCluster(_MatchEnv):
                 values, counts, num_clusters_to_plot=10, ax=ax)
 
     def __repr__(self):
-        return ("freud.environment.{cls}("
-                "num_neighbors={num_neighbors})").format(
-                    cls=type(self).__name__,
-                    num_neighbors=self.num_neighbors)
+        return ("freud.environment.{cls}()").format(
+            cls=type(self).__name__)
 
     def _repr_png_(self):
         import freud.plot
@@ -711,14 +708,12 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
 
     cdef freud._environment.EnvironmentMotifMatch * thisptr
 
-    def __cinit__(self, num_neighbors):
+    def __cinit__(self):
         self.thisptr = self.matchptr = \
             new freud._environment.EnvironmentMotifMatch()
 
-        self.num_neighbors = num_neighbors
-
     def compute(self, box, motif, points, threshold, registration=False,
-                nlist=None, r_max=None):
+                nlist=None, r_max=None, num_neighbors=None):
         R"""Determine clusters of particles that match the motif provided by
         motif.
 
@@ -753,7 +748,7 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
         cdef freud.locality.NeighborList nlist_
         nlist_ = freud.locality._make_default_nlist(
             self.m_box, points, None,
-            dict(num_neighbors=self.num_neighbors, r_guess=r_max), nlist)
+            dict(num_neighbors=num_neighbors, r_guess=r_max), nlist)
 
         self.thisptr.compute(
             dereference(b.thisptr), nlist_.get_ptr(), <vec3[float]*>
@@ -767,10 +762,8 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
             freud.util.arr_type_t.BOOL)
 
     def __repr__(self):
-        return ("freud.environment.{cls}("
-                "num_neighbors={num_neighbors})").format(
-                    cls=type(self).__name__,
-                    num_neighbors=self.num_neighbors)
+        return ("freud.environment.{cls}()").format(
+            cls=type(self).__name__)
 
 
 cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
@@ -801,11 +794,9 @@ cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
 
     cdef freud._environment.EnvironmentRMSDMinimizer * thisptr
 
-    def __cinit__(self, num_neighbors):
+    def __cinit__(self):
         self.thisptr = self.matchptr = \
             new freud._environment.EnvironmentRMSDMinimizer()
-
-        self.num_neighbors = num_neighbors
 
     @Compute._computed_property
     def rmsds(self):
@@ -814,7 +805,7 @@ cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
             freud.util.arr_type_t.FLOAT)
 
     def compute(self, box, motif, points, registration=False, nlist=None,
-                r_max=None):
+                r_max=None, num_neighbors=None):
         R"""Rotate (if registration=True) and permute the environments of all
         particles to minimize their RMSD with respect to the motif provided by
         motif.
@@ -851,7 +842,7 @@ cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
         cdef freud.locality.NeighborList nlist_
         nlist_ = freud.locality._make_default_nlist(
             self.m_box, points, None,
-            dict(num_neighbors=self.num_neighbors, r_guess=r_max), nlist)
+            dict(num_neighbors=num_neighbors, r_guess=r_max), nlist)
 
         self.thisptr.compute(
             dereference(b.thisptr), nlist_.get_ptr(), <vec3[float]*>
@@ -861,10 +852,8 @@ cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
         return self
 
     def __repr__(self):
-        return ("freud.environment.{cls}("
-                "num_neighbors={num_neighbors})").format(
-                    cls=type(self).__name__,
-                    num_neighbors=self.num_neighbors)
+        return ("freud.environment.{cls}()").format(
+            cls=type(self).__name__)
 
 
 cdef class AngularSeparationNeighbor(PairCompute):

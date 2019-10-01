@@ -22,7 +22,7 @@ class TestCluster(unittest.TestCase):
         threshold_prefactor = 0.1
         threshold = threshold_prefactor * r_max
 
-        match = freud.environment.EnvironmentCluster(num_neighbors)
+        match = freud.environment.EnvironmentCluster()
         with self.assertRaises(AttributeError):
             match.particle_environments
         with self.assertRaises(AttributeError):
@@ -34,7 +34,8 @@ class TestCluster(unittest.TestCase):
         with self.assertRaises(AttributeError):
             match.cluster_environments
 
-        match.compute(box, xyz, threshold, r_max=r_max)
+        match.compute(box, xyz, threshold, r_max=r_max,
+                      num_neighbors=num_neighbors)
 
         cluster_env = match.cluster_environments
 
@@ -72,8 +73,9 @@ class TestCluster(unittest.TestCase):
         threshold_prefactor = 0.1
         threshold = threshold_prefactor * r_max
 
-        match = freud.environment.EnvironmentCluster(num_neighbors)
-        match.compute(box, xyz, threshold, r_max=r_max)
+        match = freud.environment.EnvironmentCluster()
+        match.compute(box, xyz, threshold, r_max=r_max,
+                      num_neighbors=num_neighbors)
 
         cluster_env = match.cluster_environments
 
@@ -114,9 +116,9 @@ class TestCluster(unittest.TestCase):
         threshold_prefactor = 0.1
         threshold = threshold_prefactor * r_max
 
-        match = freud.environment.EnvironmentCluster(num_neighbors)
+        match = freud.environment.EnvironmentCluster()
         match.compute(box, xyz, threshold, hard_r=False, registration=False,
-                      r_max=r_max)
+                      r_max=r_max, num_neighbors=num_neighbors)
 
         cluster_env = match.cluster_environments
 
@@ -155,9 +157,9 @@ class TestCluster(unittest.TestCase):
         threshold_prefactor = 0.1
         threshold = threshold_prefactor * r_max
 
-        match = freud.environment.EnvironmentCluster(num_neighbors)
+        match = freud.environment.EnvironmentCluster()
         match.compute(box, xyz, threshold, hard_r=True, registration=False,
-                      r_max=r_max)
+                      r_max=r_max, num_neighbors=num_neighbors)
         cluster_env = match.cluster_environments
 
         fn = os.path.join(self.test_folder, "bcc_env.npy")
@@ -207,9 +209,10 @@ class TestCluster(unittest.TestCase):
         L = np.max(xyz)*3.0
         box = freud.box.Box(L, L, L, 0, 0, 0)
 
-        match = freud.environment.EnvironmentCluster(num_neighbors)
+        match = freud.environment.EnvironmentCluster()
         match.compute(box, xyz, threshold, hard_r=False,
-                      registration=True, global_search=True, r_max=r_max)
+                      registration=True, global_search=True, r_max=r_max,
+                      num_neighbors=num_neighbors)
         clusters = match.clusters
 
         # Get environment for each particle
@@ -334,8 +337,7 @@ class TestCluster(unittest.TestCase):
             atol=1e-5)
 
     def test_repr(self):
-        num_neighbors = 14
-        match = freud.environment.EnvironmentCluster(num_neighbors)
+        match = freud.environment.EnvironmentCluster()
         self.assertEqual(str(match), str(eval(repr(match))))
 
     def test_repr_png(self):
@@ -355,13 +357,14 @@ class TestCluster(unittest.TestCase):
         xyz = np.array(xyz, dtype=np.float32)
         xyz[:, 2] = 0
         xyz.flags['WRITEABLE'] = False
-        match = freud.environment.EnvironmentCluster(num_neighbors)
+        match = freud.environment.EnvironmentCluster()
 
         with self.assertRaises(AttributeError):
             match.plot()
         self.assertEqual(match._repr_png_(), None)
 
-        match.compute(box, xyz, threshold, r_max=r_max)
+        match.compute(box, xyz, threshold, r_max=r_max,
+                      num_neighbors=num_neighbors)
         match._repr_png_()
 
 
@@ -375,9 +378,9 @@ class TestEnvironmentMotifMatch(unittest.TestCase):
         num_neighbors = 4
 
         box = freud.box.Box.square(3)
-        match = freud.environment.EnvironmentMotifMatch(
-            num_neighbors)
-        match.compute(box, motif, points, 0.1, r_max=r_max)
+        match = freud.environment.EnvironmentMotifMatch()
+        match.compute(box, motif, points, 0.1, r_max=r_max,
+                      num_neighbors=num_neighbors)
         matches = match.matches
 
         for i in range(len(motif)):
@@ -395,9 +398,9 @@ class TestEnvironmentRMSDMinimizer(unittest.TestCase):
         num_neighbors = 4
 
         box = freud.box.Box.square(3)
-        match = freud.environment._EnvironmentRMSDMinimizer(
-            num_neighbors)
-        match.compute(box, motif, points, 0.1, r_max=r_max)
+        match = freud.environment._EnvironmentRMSDMinimizer()
+        match.compute(box, motif, points, 0.1, r_max=r_max,
+                      num_neighbors=num_neighbors)
         self.assertTrue(np.all(match.rmsds[:-1] > 0))
         self.assertEqual(match.rmsds[-1], 0)
 
