@@ -28,6 +28,10 @@ void Voronoi::compute(const box::Box &box, const vec3<double>* points, unsigned 
         } else {
             boxLatticeVectors[2] = box.getLatticeVector(2);
         }
+        // TODO: This container uses 3 blocks in x, y, and z, and an initial
+        // memory allocation of 3, which should be improved. Ideally, this code
+        // should use a pre_container or implement its own heuristics to choose
+        // a number of blocks.
         voro::container_periodic container(
             boxLatticeVectors[0].x,
             boxLatticeVectors[1].x,

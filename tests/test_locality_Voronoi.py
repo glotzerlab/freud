@@ -6,6 +6,10 @@ import util
 
 
 def sort_rounded_xyz_array(arr, decimals=4):
+    """The order of Voronoi polytopes' vertices is not well-defined. Instead of
+    testing a fixed array, arrays must be sorted by their rounded
+    representations in order to compare their values.
+    """
     arr = np.asarray(arr)
     arr = arr.round(decimals)
     indices = np.lexsort((arr[:, 2], arr[:, 1], arr[:, 0]))
