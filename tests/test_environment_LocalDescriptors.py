@@ -342,7 +342,7 @@ class TestLocalDescriptors(unittest.TestCase):
 
         # Loop over the sphs and compute them explicitly.
         for idx, (i, j) in enumerate(nl):
-            bond = box.wrap(points[i] - points[j])
+            bond = box.wrap(points[j] - points[i])
             r = np.linalg.norm(bond)
             theta = np.arccos(bond[2]/r)
             phi = np.arctan2(bond[1], bond[0])
@@ -378,7 +378,7 @@ class TestLocalDescriptors(unittest.TestCase):
                     count += 1
 
     @skipIfMissing('scipy.special')
-    def test_ref_point_ne_points(self):
+    def test_query_point_ne_points(self):
         """Verify the behavior of LocalDescriptors by explicitly calculating
         spherical harmonics manually and verifying them."""
         from scipy.special import sph_harm
@@ -386,7 +386,7 @@ class TestLocalDescriptors(unittest.TestCase):
         L = 8
         N = 100
         box, points = make_box_and_random_points(L, N)
-        ref_points = np.random.rand(N, 3)*L - L/2
+        query_points = np.random.rand(N, 3)*L - L/2
 
         num_neighbors = 1
         l_max = 2
@@ -399,11 +399,11 @@ class TestLocalDescriptors(unittest.TestCase):
                            num_neighbors=num_neighbors)).toNeighborList()
 
         ld = freud.environment.LocalDescriptors(l_max, mode='global')
-        ld.compute((box, ref_points), points, neighbors=nl)
+        ld.compute((box, points), query_points, neighbors=nl)
 
         # Loop over the sphs and compute them explicitly.
         for idx, (i, j) in enumerate(nl):
-            bond = box.wrap(points[i] - ref_points[j])
+            bond = box.wrap(points[j] - query_points[i])
             r = np.linalg.norm(bond)
             theta = np.arccos(bond[2]/r)
             phi = np.arctan2(bond[1], bond[0])

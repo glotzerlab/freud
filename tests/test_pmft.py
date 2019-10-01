@@ -131,13 +131,15 @@ class TestPMFTR12(unittest.TestCase):
         dT2 = (2.0 * np.pi / float(nbinsT2))
 
         # calculation for array idxs
-        def get_bin(point_i, point_j, angle_i, angle_j):
-            delta_x = point_j - point_i
-            r_bin = np.floor(np.linalg.norm(delta_x)/dr)
-            delta_t1 = np.arctan2(delta_x[1], delta_x[0])
-            delta_t2 = np.arctan2(-delta_x[1], -delta_x[0])
-            t1_bin = np.floor(((angle_i - delta_t1) % (2. * np.pi))/dT1)
-            t2_bin = np.floor(((angle_j - delta_t2) % (2. * np.pi))/dT2)
+        def get_bin(query_point, point, query_point_angle, point_angle):
+            r_ij = point - query_point
+            r_bin = np.floor(np.linalg.norm(r_ij) / dr)
+            delta_t1 = np.arctan2(r_ij[1], r_ij[0])
+            delta_t2 = np.arctan2(-r_ij[1], -r_ij[0])
+            t1_bin = np.floor(
+                ((point_angle - delta_t1) % (2. * np.pi)) / dT1)
+            t2_bin = np.floor(
+                ((query_point_angle - delta_t2) % (2. * np.pi)) / dT2)
             return np.array([r_bin, t1_bin, t2_bin], dtype=np.int32)
 
         correct_bin_counts = np.zeros(shape=(nbinsR, nbinsT1, nbinsT2),
@@ -321,15 +323,14 @@ class TestPMFTXYT(unittest.TestCase):
         dT = (2.0 * np.pi / float(nbinsT))
 
         # calculation for array idxs
-        def get_bin(point_i, point_j, angle_i, angle_j):
-            delta_x = point_j - point_i
-            rot_mat = np.array([[np.cos(-angle_i), -np.sin(-angle_i)],
-                                [np.sin(-angle_i), np.cos(-angle_i)]])
-            rot_delta_x = np.matmul(rot_mat, delta_x[:2])
-            xy_bins = np.floor((rot_delta_x + [maxX, maxY]) /
+        def get_bin(query_point, point, query_point_angle, point_angle):
+            r_ij = point - query_point
+            orientation = rowan.from_axis_angle([0, 0, 1], -point_angle)
+            rot_r_ij = rowan.rotate(orientation, r_ij)
+            xy_bins = np.floor((rot_r_ij[:2] + [maxX, maxY]) /
                                [dx, dy]).astype(np.int32)
             angle_bin = np.floor(
-                ((angle_j - np.arctan2(-delta_x[1], -delta_x[0])) %
+                ((query_point_angle - np.arctan2(-r_ij[1], -r_ij[0])) %
                  (2. * np.pi)) / dT).astype(np.int32)
             return [xy_bins[0], xy_bins[1], angle_bin]
 
@@ -514,8 +515,8 @@ class TestPMFTXY2D(unittest.TestCase):
         correct_bin_counts = np.zeros(shape=(nbinsX, nbinsY), dtype=np.int32)
 
         # calculation for array idxs
-        def get_bin(point_i, point_j):
-            return np.floor((point_i - point_j + [maxX, maxY, 0]) /
+        def get_bin(query_point, point):
+            return np.floor((query_point - point + [maxX, maxY, 0]) /
                             [dx, dy, 1]).astype(np.int32)[:2]
 
         bins = get_bin(points[0], points[1])
@@ -622,9 +623,9 @@ class TestPMFTXY2D(unittest.TestCase):
                      neighbors={'mode': 'nearest', 'num_neighbors': 1})
         npt.assert_array_equal(
             pmft.bin_counts,
-            [[0, 1, 0],
+            [[0, 0, 0],
              [0, 0, 0],
-             [0, 0, 0]])
+             [0, 1, 0]])
 
     def test_2d_box_3d_points(self):
         """Test that points with z != 0 fail if the box is 2D."""
@@ -673,9 +674,9 @@ class TestPMFTXY2D(unittest.TestCase):
                      neighbors={'mode': 'nearest', 'num_neighbors': 1})
         npt.assert_array_equal(
             pmft.bin_counts,
-            [[0, 1, 0],
+            [[0, 0, 0],
              [0, 0, 0],
-             [0, 0, 0]])
+             [0, 1, 0]])
 
 
 class TestPMFTXYZ(unittest.TestCase):
@@ -811,8 +812,8 @@ class TestPMFTXYZ(unittest.TestCase):
                                       dtype=np.int32)
 
         # calculation for array idxs
-        def get_bin(point_i, point_j):
-            return np.floor((point_i - point_j + [maxX, maxY, maxZ]) /
+        def get_bin(query_point, point):
+            return np.floor((query_point - point + [maxX, maxY, maxZ]) /
                             [dx, dy, dz]).astype(np.int32)
 
         bins = get_bin(points[0], points[1])
@@ -929,9 +930,8 @@ class TestPMFTXYZ(unittest.TestCase):
 
         pmft.compute((box, query_points), query_angles, points,
                      neighbors={'mode': 'nearest', 'num_neighbors': 1})
-        # The only nonzero bin is in the left bin for x, but the center for
-        # everything else (0 distance in y and z).
-        self.assertEqual(pmft.bin_counts[0, 1, 1], 1)
+        # The only nonzero bin is the right-center bin (zero distance in y, z)
+        self.assertEqual(pmft.bin_counts[2, 1, 1], 1)
         self.assertEqual(np.sum(pmft.bin_counts), 1)
         self.assertTrue(np.all(pmft.bin_counts >= 0))
 
