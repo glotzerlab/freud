@@ -293,23 +293,16 @@ public:
                  const vec3<float>* points, unsigned int Np, float threshold,
                  bool registration = false, bool global = false);
 
-    //! Returns the set of vectors defining the environment indexed by i (indices culled from m_env_index)
-    /*! The environments are averaged over all particles that are deemed to
-     * share the same environment. This invariant can always be checked by
-     * comparing the average of environments in m_particle_environments sharing some cluster
-     * index to the output of getEnvironment(i).
-     */
-    std::vector<vec3<float>> getEnvironment(unsigned int i)
-    {
-        std::map<unsigned int, std::vector<vec3<float>>>::iterator it = m_cluster_env.find(i);
-        std::vector<vec3<float>> vecs = it->second;
-        return vecs;
-    }
-
     //! Get a reference to the particles, indexed into clusters according to their matching local environments
     const util::ManagedArray<unsigned int> &getClusters()
     {
         return m_env_index;
+    }
+
+    //! Get a reference to the particles, indexed into clusters according to their matching local environments
+    std::vector<std::vector<vec3<float> > > getClusterEnvironments()
+    {
+        return m_cluster_environments;
     }
 
     unsigned int getNumClusters()
@@ -337,8 +330,8 @@ private:
     unsigned int populateEnv(EnvDisjointSet dj);
 
     unsigned int m_num_clusters; //!< Last number of local environments computed
-    std::map<unsigned int, std::vector<vec3<float> > > m_cluster_env; //!< Dictionary of (cluster id, vectors) pairs
     util::ManagedArray<unsigned int> m_env_index; //!< Cluster index determined for each particle
+    std::vector<std::vector<vec3<float> > > m_cluster_environments; //!< Dictionary of (cluster id, vectors) pairs
 };
 
 //! Match local point environments to a specific motif.
@@ -397,7 +390,6 @@ public:
 
 private:
     util::ManagedArray<bool> m_matches; //!< Boolean array indicating whether or not a particle's environment matches the motif.
-    std::vector<std::vector<vec3<float> > > m_cluster_env; //!< Dictionary of (cluster id, vectors) pairs
 };
 
 
@@ -457,7 +449,6 @@ public:
 
 private:
     util::ManagedArray<float> m_rmsds; //!< Boolean array indicating whether or not a particle's environment matches the motif.
-    std::vector<std::vector<vec3<float> > > m_cluster_env; //!< Dictionary of (cluster id, vectors) pairs
 };
 
 }; }; // end namespace freud::environment

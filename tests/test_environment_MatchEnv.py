@@ -31,16 +31,11 @@ class TestCluster(unittest.TestCase):
         with self.assertRaises(AttributeError):
             match.clusters
         with self.assertRaises(AttributeError):
-            match.getEnvironment(0)
+            match.cluster_environments
 
         match.compute(xyz, threshold)
-        clusters = match.clusters
 
-        cluster_env = {}
-        for cluster_ind in clusters:
-            if cluster_ind not in cluster_env:
-                cluster_env[cluster_ind] = np.copy(np.array(
-                    match.getEnvironment(cluster_ind)))
+        cluster_env = match.cluster_environments
 
         fn = os.path.join(self.test_folder, 'bcc_env.npy')
         bcc_env = np.load(fn)
@@ -51,9 +46,9 @@ class TestCluster(unittest.TestCase):
         # purposes of an element-by-element comparison.
         # np.lexsort() sorts by the columns you feed it, with the final fed
         # column being the "primary" sorting key.
-        # getEnvironment() might return the motif with its vectors sorted any
-        # old way, and if we compare against a saved numpy array then we have
-        # to order the two arrays in the same fashion.
+        # cluster_environments might provide the motif with its vectors sorted
+        # any old way, and if we compare against a saved numpy array then we
+        # have to order the two arrays in the same fashion.
         sorted_env_cluster = env_cluster[np.lexsort((env_cluster[:, 0],
                                                      env_cluster[:, 1],
                                                      env_cluster[:, 2]))]
@@ -77,13 +72,8 @@ class TestCluster(unittest.TestCase):
 
         match = freud.environment.EnvironmentCluster(box, r_max, num_neighbors)
         match.compute(xyz, threshold)
-        clusters = match.clusters
 
-        cluster_env = {}
-        for cluster_ind in clusters:
-            if cluster_ind not in cluster_env:
-                cluster_env[cluster_ind] = np.copy(np.array(
-                    match.getEnvironment(cluster_ind)))
+        cluster_env = match.cluster_environments
 
         fn = os.path.join(self.test_folder, "sc_env.npy")
         sc_env = np.load(fn)
@@ -95,9 +85,9 @@ class TestCluster(unittest.TestCase):
         # purposes of an element-by-element comparison.
         # np.lexsort() sorts by the columns you feed it, with the final fed
         # column being the "primary" sorting key.
-        # getEnvironment() might return the motif with its vectors sorted any
-        # old way, and if we compare against a saved numpy array then we have
-        # to order the two arrays in the same fashion.
+        # cluster_environments might provide the motif with its vectors sorted
+        # any old way, and if we compare against a saved numpy array then we
+        # have to order the two arrays in the same fashion.
         sorted_env_cluster = env_cluster[np.lexsort((env_cluster[:, 0],
                                                      env_cluster[:, 1],
                                                      env_cluster[:, 2]))]
@@ -123,13 +113,8 @@ class TestCluster(unittest.TestCase):
 
         match = freud.environment.EnvironmentCluster(box, r_max, num_neighbors)
         match.compute(xyz, threshold, hard_r=False, registration=False)
-        clusters = match.clusters
 
-        cluster_env = {}
-        for cluster_ind in clusters:
-            if cluster_ind not in cluster_env:
-                cluster_env[cluster_ind] = np.copy(np.array(
-                    match.getEnvironment(cluster_ind)))
+        cluster_env = match.cluster_environments
 
         fn = os.path.join(self.test_folder, "bcc_env.npy")
         bcc_env = np.load(fn)
@@ -140,9 +125,9 @@ class TestCluster(unittest.TestCase):
         # purposes of an element-by-element comparison.
         # np.lexsort() sorts by the columns you feed it, with the final fed
         # column being the "primary" sorting key.
-        # getEnvironment() might return the motif with its vectors sorted any
-        # old way, and if we compare against a saved numpy array then we have
-        # to order the two arrays in the same fashion.
+        # cluster_environments might provide the motif with its vectors sorted
+        # any old way, and if we compare against a saved numpy array then we
+        # have to order the two arrays in the same fashion.
         sorted_env_cluster = env_cluster[np.lexsort((env_cluster[:, 0],
                                                      env_cluster[:, 1],
                                                      env_cluster[:, 2]))]
@@ -167,13 +152,7 @@ class TestCluster(unittest.TestCase):
 
         match = freud.environment.EnvironmentCluster(box, r_max, num_neighbors)
         match.compute(xyz, threshold, hard_r=True, registration=False)
-        clusters = match.clusters
-
-        cluster_env = {}
-        for cluster_ind in clusters:
-            if cluster_ind not in cluster_env:
-                cluster_env[cluster_ind] = np.copy(np.array(
-                    match.getEnvironment(cluster_ind)))
+        cluster_env = match.cluster_environments
 
         fn = os.path.join(self.test_folder, "bcc_env.npy")
         bcc_env = np.load(fn)
@@ -184,9 +163,9 @@ class TestCluster(unittest.TestCase):
         # purposes of an element-by-element comparison.
         # np.lexsort() sorts by the columns you feed it, with the final fed
         # column being the "primary" sorting key.
-        # getEnvironment() might return the motif with its vectors sorted any
-        # old way, and if we compare against a saved numpy array then we have
-        # to order the two arrays in the same fashion.
+        # cluster_environments might provide the motif with its vectors sorted
+        # any old way, and if we compare against a saved numpy array then we
+        # have to order the two arrays in the same fashion.
         sorted_env_cluster = env_cluster[np.lexsort((env_cluster[:, 0],
                                                      env_cluster[:, 1],
                                                      env_cluster[:, 2]))]

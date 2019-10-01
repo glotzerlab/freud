@@ -112,9 +112,9 @@ cdef extern from "MatchEnv.h" namespace "freud::environment":
                      float,
                      bool,
                      bool) except +
-        vector[vec3[float]] getEnvironment(unsigned int)
         unsigned int getNumClusters()
         const freud.util.ManagedArray[unsigned int] &getClusters()
+        vector[vector[vec3[float]]] &getClusterEnvironments()
 
 cdef extern from "AngularSeparation.h" namespace "freud::environment":
     cdef cppclass AngularSeparationGlobal:

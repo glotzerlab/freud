@@ -657,18 +657,11 @@ cdef class EnvironmentCluster(_MatchEnv):
     def num_clusters(self):
         return self.thisptr.getNumClusters()
 
-    def getEnvironment(self, i):
-        R"""Returns the set of vectors defining the environment indexed by i.
-
-        Args:
-            i (unsigned int): Environment index.
-
-        Returns:
-            :math:`\left(N_{neighbors}, 3\right)` :class:`numpy.ndarray`:
-            The array of vectors.
-        """
-        env = self.thisptr.getEnvironment(i)
-        return np.asarray([[p.x, p.y, p.z] for p in env])
+    @Compute._computed_property
+    def cluster_environments(self):
+        envs = self.thisptr.getClusterEnvironments()
+        return [np.asarray([[p.x, p.y, p.z] for p in env])
+                for env in envs]
 
     def plot(self, ax=None):
         """Plot cluster distribution.
@@ -870,6 +863,7 @@ cdef class EnvironmentRMSDMinimizer(_MatchEnv):
             <vec3[float]*> &l_motif[0, 0], nRef, registration)
 
         return self
+
 
 cdef class AngularSeparationNeighbor(PairCompute):
     R"""Calculates the minimum angles of separation between particles and

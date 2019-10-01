@@ -616,6 +616,7 @@ void EnvironmentCluster::compute(const freud::locality::NeighborList* env_nlist,
 unsigned int EnvironmentCluster::populateEnv(EnvDisjointSet dj)
 {
     std::map<unsigned int, unsigned int> label_map;
+    std::map<unsigned int, std::vector<vec3<float> > > cluster_env;
 
     // loop over all environments
     unsigned int label_ind;
@@ -637,7 +638,7 @@ unsigned int EnvironmentCluster::populateEnv(EnvDisjointSet dj)
                 label_map[c] = cur_set;
                 std::vector<vec3<float>> vecs = dj.getAvgEnv(c);
                 label_ind = label_map[c];
-                m_cluster_env[label_ind] = vecs;
+                cluster_env[label_ind] = vecs;
                 cur_set++;
             }
             else
@@ -653,6 +654,13 @@ unsigned int EnvironmentCluster::populateEnv(EnvDisjointSet dj)
             }
             particle_ind++;
         }
+    }
+
+    // Now update the vector of environments from the map.
+    m_cluster_environments.resize(cluster_env.size());
+    for (auto it = cluster_env.begin(); it != cluster_env.end(); ++it)
+    {
+        m_cluster_environments[it->first] = it->second;
     }
 
     // specify the number of cluster environments
