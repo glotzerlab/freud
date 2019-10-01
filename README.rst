@@ -119,4 +119,3 @@ Support and Contribution
 Please visit our repository on `GitHub <https://github.com/glotzerlab/freud>`_ for the library source code.
 Any issues or bugs may be reported at our `issue tracker <https://github.com/glotzerlab/freud/issues>`_, while questions and discussion can be directed to our `forum <https://groups.google.com/forum/#!forum/freud-users>`_.
 All contributions to freud are welcomed via pull requests!
-Please see the :doc:`development guide <development>` for more information on requirements for new code.

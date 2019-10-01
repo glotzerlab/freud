@@ -3,73 +3,101 @@ channels:
   - conda-forge
   - defaults
 dependencies:
+  - _libgcc_mutex=0.1=main
   - alabaster=0.7.12=py_0
   - asn1crypto=0.24.0=py37_1003
   - attrs=19.1.0=py_0
-  - babel=2.6.0=py_1
-  - blas=1.1=openblas
+  - babel=2.7.0=py_0
+  - backcall=0.1.0=py_0
   - bleach=3.1.0=py_0
-  - bzip2=1.0.6=h14c3975_1002
-  - ca-certificates=2018.11.29=ha4d7672_0
-  - certifi=2018.11.29=py37_1000
-  - cffi=1.12.2=py37h9745a5d_0
+  - bzip2=1.0.8=h516909a_1
+  - ca-certificates=2019.9.11=hecc5488_0
+  - certifi=2019.9.11=py37_0
+  - cffi=1.12.3=py37h8022711_0
   - chardet=3.0.4=py37_1003
-  - cryptography=2.5=py37h9d9f1b6_1
-  - cython=0.29.6=py37hf484d3e_0
-  - decorator=4.3.2=py_0
-  - defusedxml=0.5.0=py_1
-  - docutils=0.14=py37_1001
+  - cryptography=2.7=py37h72c5cf5_0
+  - cython=0.29.13=py37he1b5a44_0
+  - decorator=4.4.0=py_0
+  - defusedxml=0.6.0=py_0
+  - docutils=0.15.2=py37_0
   - entrypoints=0.3=py37_1000
-  - gmp=6.1.2=hf484d3e_1000
   - idna=2.8=py37_1000
   - imagesize=1.1.0=py_0
+  - ipykernel=5.1.2=py37h5ca1d4c_0
+  - ipython=7.8.0=py37h5ca1d4c_0
   - ipython_genutils=0.2.0=py_1
-  - jinja2=2.10=py_1
-  - jsonschema=3.0.1=py37_0
+  - ipywidgets=7.5.1=py_0
+  - jedi=0.15.1=py37_0
+  - jinja2=2.10.1=py_0
+  - jsonschema=3.0.2=py37_0
+  - jupyter_client=5.3.3=py37_1
   - jupyter_core=4.4.0=py_0
-  - jupyter_sphinx
-  - libffi=3.2.1=hf484d3e_1005
-  - libgcc-ng=7.3.0=hdf63c60_0
-  - libgfortran-ng=7.2.0=hdf63c60_3
-  - libstdcxx-ng=7.3.0=hdf63c60_0
+  - jupyter_sphinx=0.2.1=py37_0
+  - libblas=3.8.0=12_openblas
+  - libcblas=3.8.0=12_openblas
+  - libffi=3.2.1=he1b5a44_1006
+  - libgcc-ng=9.1.0=hdf63c60_0
+  - libgfortran-ng=7.3.0=hdf63c60_0
+  - liblapack=3.8.0=12_openblas
+  - libopenblas=0.3.7=h6e990d7_1
+  - libsodium=1.0.17=h516909a_0
+  - libstdcxx-ng=9.1.0=hdf63c60_0
   - markupsafe=1.1.1=py37h14c3975_0
   - mistune=0.8.4=py37h14c3975_1000
-  - nbconvert=5.4.1=py_1
+  - nbconvert=5.6.0=py37_1
   - nbformat=4.4.0=py_1
-  - nbsphinx=0.4.2=py_0
+  - nbsphinx=0.4.3=py_0
   - ncurses=6.1=hf484d3e_1002
-  - numpy=1.16.2=py37_blas_openblash1522bff_0
-  - openblas=0.3.3=h9ac9557_1001
-  - openssl=1.1.1b=h14c3975_0
-  - packaging=19.0=py_0
-  - pandoc=1.19.2=0
+  - notebook=6.0.1=py37_0
+  - numpy=1.17.2=py37h95a1406_0
+  - openssl=1.1.1c=h516909a_0
+  - packaging=19.2=py_0
+  - pandoc=2.7.3=0
   - pandocfilters=1.4.2=py_1
-  - pip=19.0.3=py37_0
-  - pycparser=2.19=py_0
-  - pygments=2.3.1=py_0
+  - parso=0.5.1=py_0
+  - pexpect=4.7.0=py37_0
+  - pickleshare=0.7.5=py37_1000
+  - pip=19.2.3=py37_0
+  - prometheus_client=0.7.1=py_0
+  - prompt_toolkit=2.0.9=py_0
+  - ptyprocess=0.6.0=py_1001
+  - pycparser=2.19=py37_1
+  - pygments=2.4.2=py_0
   - pyopenssl=19.0.0=py37_0
-  - pyparsing=2.3.1=py_0
-  - pyrsistent=0.14.11=py37h14c3975_0
-  - pysocks=1.6.8=py37_1002
-  - python=3.7.1=h381d211_1002
-  - pytz=2018.9=py_0
-  - readline=7.0=hf8c457e_1001
-  - requests=2.21.0=py37_1000
-  - scipy=1.2.1=py37_blas_openblash1522bff_0
-  - setuptools=40.8.0=py37_0
+  - pyparsing=2.4.2=py_0
+  - pyrsistent=0.15.4=py37h516909a_0
+  - pysocks=1.7.1=py37_0
+  - python=3.7.3=h33d41f4_1
+  - python-dateutil=2.8.0=py_0
+  - pytz=2019.2=py_0
+  - pyzmq=18.1.0=py37h1768529_0
+  - readline=8.0=hf8c457e_0
+  - requests=2.22.0=py37_1
+  - send2trash=1.5.0=py_0
+  - setuptools=41.2.0=py37_0
   - six=1.12.0=py37_1000
-  - snowballstemmer=1.2.1=py_1
-  - sphinx=1.8.4=py37_0
+  - snowballstemmer=1.9.1=py_0
+  - sphinx=2.2.0=py_0
   - sphinx_rtd_theme=0.4.3=py_0
-  - sphinxcontrib-websupport=1.1.0=py_1
-  - sqlite=3.26.0=h67949de_1000
-  - tbb=2019.4=h6bb024c_0
-  - tbb-devel=2019.4=h6bb024c_0
-  - testpath=0.4.2=py37_1000
-  - tk=8.6.9=h84994c4_1000
+  - sphinxcontrib-applehelp=1.0.1=py_0
+  - sphinxcontrib-devhelp=1.0.1=py_0
+  - sphinxcontrib-htmlhelp=1.0.2=py_0
+  - sphinxcontrib-jsmath=1.0.1=py_0
+  - sphinxcontrib-qthelp=1.0.2=py_0
+  - sphinxcontrib-serializinghtml=1.1.3=py_0
+  - sqlite=3.29.0=hcee41ef_1
+  - tbb=2019.8=hc9558a2_0
+  - tbb-devel=2019.8=hc9558a2_0
+  - terminado=0.8.2=py37_0
+  - testpath=0.4.2=py_1001
+  - tk=8.6.9=hed695b0_1003
+  - tornado=6.0.3=py37h516909a_0
   - traitlets=4.3.2=py37_1000
-  - urllib3=1.24.1=py37_1000
+  - urllib3=1.25.6=py37_0
+  - wcwidth=0.1.7=py_1
   - webencodings=0.5.1=py_1
-  - wheel=0.33.1=py37_0
+  - wheel=0.33.6=py37_0
+  - widgetsnbextension=3.5.1=py37_0
   - xz=5.2.4=h14c3975_1001
-  - zlib=1.2.11=h14c3975_1004
+  - zeromq=4.3.2=he1b5a44_2
+  - zlib=1.2.11=h516909a_1006
