@@ -537,12 +537,6 @@ cdef class _MatchEnv(Compute):
             &self.matchptr.getParticleEnvironments(),
             freud.util.arr_type_t.FLOAT, 3)
 
-    def __repr__(self):
-        return ("freud.environment.{cls}("
-                "r_max={r_max}, num_neighbors={num_neighbors})").format(
-                    cls=type(self).__name__,
-                    r_max=self.r_max, num_neighbors=self.num_neighbors)
-
 
 cdef class EnvironmentCluster(_MatchEnv):
     R"""Clusters particles according to whether their local environments match
@@ -683,6 +677,12 @@ cdef class EnvironmentCluster(_MatchEnv):
             return freud.plot.clusters_plot(
                 values, counts, num_clusters_to_plot=10, ax=ax)
 
+    def __repr__(self):
+        return ("freud.environment.{cls}("
+                "r_max={r_max}, num_neighbors={num_neighbors})").format(
+                    cls=type(self).__name__,
+                    r_max=self.r_max, num_neighbors=self.num_neighbors)
+
     def _repr_png_(self):
         import freud.plot
         try:
@@ -776,6 +776,12 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
             &self.thisptr.getMatches(),
             freud.util.arr_type_t.BOOL)
 
+    def __repr__(self):
+        return ("freud.environment.{cls}("
+                "r_max={r_max}, num_neighbors={num_neighbors})").format(
+                    cls=type(self).__name__,
+                    r_max=self.r_max, num_neighbors=self.num_neighbors)
+
 
 cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
     R"""Find linear transformations that map the environments of points onto a motif.
@@ -864,6 +870,12 @@ cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
             registration)
 
         return self
+
+    def __repr__(self):
+        return ("freud.environment.{cls}("
+                "r_max={r_max}, num_neighbors={num_neighbors})").format(
+                    cls=type(self).__name__,
+                    r_max=self.r_max, num_neighbors=self.num_neighbors)
 
 
 cdef class AngularSeparationNeighbor(PairCompute):
