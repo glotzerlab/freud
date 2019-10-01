@@ -12,6 +12,8 @@ void HexaticTranslational<T>::computeGeneral(Func func, const freud::locality::N
                               const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs)
 {
     const auto box = points->getBox();
+    box.enforce2D();
+
     const unsigned int Np = points->getNPoints();
 
     m_psi_array.prepare(Np);

@@ -764,7 +764,6 @@ cdef class LinkCell(NeighborQuery):
     .. note::
         **2D:** :class:`freud.locality.LinkCell` properly handles 2D boxes.
         The points must be passed in as :code:`[x, y, 0]`.
-        Failing to set z=0 will lead to undefined behavior.
 
     Example::
 
@@ -1131,7 +1130,7 @@ cdef class PairCompute(Compute):
     """
 
     def preprocess_arguments(self, neighbor_query, query_points=None,
-                             neighbors=None, dimensions=None):
+                             neighbors=None):
         """Process standard compute arguments into freud's internal types by
         calling all the required internal functions.
 
@@ -1146,31 +1145,18 @@ cdef class PairCompute(Compute):
                 If a tuple, must be of the form (box_like, array_like), i.e. it
                 must be an object that can be converted into a
                 :class:`freud.locality.NeighborQuery`.
-            box (:class:`freud.box.Box`):
-                Simulation box.
-            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
-                Reference points used to calculate the RDF.
             query_points ((:math:`N_{query_points}`, 3) :class:`numpy.ndarray`, optional):
                 Points used to calculate the RDF. Uses :code:`points` if
                 not provided or :code:`None`.
-            nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value =
-                :code:`None`).
-            query_args (dict):
-                A dictionary of query arguments (Default value = :code:`None`).
-            dimensions (int):
-                Number of dimensions the box should be. If not None, used to
-                verify the box dimensions (Default value = :code:`None`).
+            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
+                NeighborList or dictionary of query arguments to use to find
+                bonds (Default value = :code:`None`).
         """  # noqa E501
         cdef NeighborQuery nq
         if not isinstance(neighbor_query, NeighborQuery):
             nq = RawPoints(*neighbor_query)
         else:
             nq = neighbor_query
-
-        if dimensions is not None and dimensions != nq.box.dimensions:
-            raise ValueError("The box must be {}-dimensional.".format(
-                dimensions))
 
         # Resolve the two possible ways of passing neighbors (query arguments
         # or neighbor lists) based on the type of the neighbors argument.

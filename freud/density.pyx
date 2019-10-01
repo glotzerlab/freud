@@ -363,8 +363,7 @@ cdef class LocalDensity(PairCompute):
 
     .. note::
         **2D:** :class:`freud.density.LocalDensity` properly handles 2D
-        boxes. The points must be passed in as :code:`[x, y, 0]`. Failing to
-        set z=0 will lead to undefined behavior.
+        boxes. The points must be passed in as :code:`[x, y, 0]`.
 
     Args:
         r_max (float):
@@ -477,7 +476,6 @@ cdef class RDF(SpatialHistogram1D):
     .. note::
         **2D:** :class:`freud.density.RDF` properly handles 2D boxes.
         The points must be passed in as :code:`[x, y, 0]`.
-        Failing to set z=0 will lead to undefined behavior.
 
     Args:
         bins (unsigned int):

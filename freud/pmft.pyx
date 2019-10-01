@@ -137,7 +137,6 @@ cdef class PMFTR12(_PMFT):
     .. note::
         **2D:** :class:`freud.pmft.PMFTR12` is only defined for 2D systems.
         The points must be passed in as :code:`[x, y, 0]`.
-        Failing to set z=0 will lead to undefined behavior.
 
     Args:
         r_max (float):
@@ -215,8 +214,7 @@ cdef class PMFTR12(_PMFT):
             unsigned int num_query_points
 
         nq, nlist, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(
-                neighbor_query, query_points, neighbors, dimensions=2)
+            self.preprocess_arguments(neighbor_query, query_points, neighbors)
 
         orientations = _gen_angle_array(
             orientations, shape=(nq.points.shape[0], ))
@@ -302,7 +300,6 @@ cdef class PMFTXYT(_PMFT):
     .. note::
         **2D:** :class:`freud.pmft.PMFTXYT` is only defined for 2D systems.
         The points must be passed in as :code:`[x, y, 0]`.
-        Failing to set z=0 will lead to undefined behavior.
 
     Args:
         x_max (float):
@@ -382,8 +379,7 @@ cdef class PMFTXYT(_PMFT):
             unsigned int num_query_points
 
         nq, nlist, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(
-                neighbor_query, query_points, neighbors, dimensions=2)
+            self.preprocess_arguments(neighbor_query, query_points, neighbors)
 
         orientations = _gen_angle_array(
             orientations, shape=(nq.points.shape[0], ))
@@ -468,7 +464,6 @@ cdef class PMFTXY2D(_PMFT):
     .. note::
         **2D:** :class:`freud.pmft.PMFTXY2D` is only defined for 2D systems.
         The points must be passed in as :code:`[x, y, 0]`.
-        Failing to set z=0 will lead to undefined behavior.
 
     Args:
         x_max (float):
@@ -539,8 +534,7 @@ cdef class PMFTXY2D(_PMFT):
             unsigned int num_query_points
 
         nq, nlist, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(
-                neighbor_query, query_points, neighbors, dimensions=2)
+            self.preprocess_arguments(neighbor_query, query_points, neighbors)
 
         orientations = _gen_angle_array(
             orientations, shape=(nq.points.shape[0], ))
@@ -643,10 +637,6 @@ cdef class PMFTXYZ(_PMFT):
     case it is interpreted as the number of bins in :math:`x`, :math:`y`, and
     :math:`z` respectively.
 
-    .. note::
-        3D: :class:`freud.pmft.PMFTXYZ` is only defined for 3D systems.
-        The points must be passed in as :code:`[x, y, z]`.
-
     Args:
         x_max (float):
             Maximum :math:`x` distance at which to compute the PMFT.
@@ -729,8 +719,8 @@ cdef class PMFTXYZ(_PMFT):
             unsigned int num_query_points
 
         nq, nlist, qargs, l_query_points, num_query_points = \
-            self.preprocess_arguments(
-                neighbor_query, query_points, neighbors, dimensions=3)
+            self.preprocess_arguments(neighbor_query, query_points, neighbors)
+
         l_query_points = l_query_points - self.shiftvec.reshape(1, 3)
 
         orientations = freud.common.convert_array(

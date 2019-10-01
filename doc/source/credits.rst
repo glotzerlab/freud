@@ -118,6 +118,7 @@ Bradley Dice - **Lead developer**
 * Rewrote Voronoi implementation to leverage voro++.
 * Implemented Voronoi bond weighting to enable Minkowski structure metrics.
 * Refactored methods in Box and PeriodicBuffer for v2.0.
+* Added checks to C++ for 2D boxes where required.
 * Refactored cluster module.
 * Standardized vector directionality in computes.
 
