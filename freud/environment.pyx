@@ -405,7 +405,7 @@ cdef class LocalDescriptors(PairCompute):
                     negative_m=self.negative_m, mode=self.mode)
 
 
-def minimizeRMSD(box, ref_points, points, registration=False):
+def _minimizeRMSD(box, ref_points, points, registration=False):
     R"""Get the somewhat-optimal RMSD between the set of vectors ref_points
     and the set of vectors points.
 
@@ -451,7 +451,7 @@ def minimizeRMSD(box, ref_points, points, registration=False):
     return [min_rmsd, np.asarray(l_points), results_map]
 
 
-def isSimilar(box, ref_points, points, r_max, threshold, registration=False):
+def _isSimilar(box, ref_points, points, r_max, threshold, registration=False):
     R"""Test if the motif provided by ref_points is similar to the motif
     provided by points.
 
@@ -777,7 +777,7 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
             freud.util.arr_type_t.BOOL)
 
 
-cdef class EnvironmentRMSDMinimizer(_MatchEnv):
+cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
     R"""Find linear transformations that map the environments of points onto a motif.
 
     In general, it is recommended to specify a number of neighbors rather than

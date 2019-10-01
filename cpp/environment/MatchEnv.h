@@ -337,7 +337,12 @@ private:
 //! Match local point environments to a specific motif.
 /*! The environment matching method is defined according to the paper "Identity
  * crisis in alchemical space drives the entropic colloidal glass transition"
- * by Erin G. Teich (http://dx.doi.org/10.1038/s41467-018-07977-2). This class is primarily provided as a companion to EnvironmentCluster that can be used to more closely analyze specific motifs. Rather than clustering all points in a system based on their local environments, this class provides more a more fine-grained computation to analyze which points match a specified motif.
+ * by Erin G. Teich (http://dx.doi.org/10.1038/s41467-018-07977-2). This class
+ * is primarily provided as a companion to EnvironmentCluster that can be used
+ * to more closely analyze specific motifs. Rather than clustering all points
+ * in a system based on their local environments, this class provides more a
+ * more fine-grained computation to analyze which points match a specified
+ * motif.
  */
 class EnvironmentMotifMatch : public MatchEnv
 {
@@ -396,7 +401,11 @@ private:
 //! Compute RMSDs of the local particle environments.
 /*! The environment matching method is defined according to the paper "Identity
  * crisis in alchemical space drives the entropic colloidal glass transition"
- * by Erin G. Teich (http://dx.doi.org/10.1038/s41467-018-07977-2). This class is primarily provided as a companion to EnvironmentCluster that can be used to more closely analyze specific motifs. Rather than clustering all points in a system based on their local environments, this class provides more a more fine-grained computation to analyze which points match a specified motif.
+ * by Erin G. Teich (http://dx.doi.org/10.1038/s41467-018-07977-2). Similar to
+ * EnvironmentMotifMatch, this class is primarily provided as a companion to
+ * EnvironmentCluster that can be used to more closely analyze specific motifs.
+ * The purpose of this class is to find the optimal transformation that maps a
+ * set of points onto a specified motif.
  */
 class EnvironmentRMSDMinimizer : public MatchEnv
 {
@@ -448,7 +457,7 @@ public:
     }
 
 private:
-    util::ManagedArray<float> m_rmsds; //!< Boolean array indicating whether or not a particle's environment matches the motif.
+    util::ManagedArray<float> m_rmsds;  //!< Boolean array indicating whether or not a particle's environment matches the motif.
 };
 
 }; }; // end namespace freud::environment

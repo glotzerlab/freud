@@ -485,7 +485,6 @@ std::map<unsigned int, unsigned int> minimizeRMSD(const box::Box &box, const vec
 /************
  * MatchEnv *
  ************/
-
 MatchEnv::MatchEnv(const box::Box& box, float r_max, unsigned int num_neighbors) : m_box(box), m_r_max(r_max), m_num_neighbors(num_neighbors)
 {
     m_max_num_neighbors = 0;
@@ -667,9 +666,9 @@ unsigned int EnvironmentCluster::populateEnv(EnvDisjointSet dj)
     return cur_set;
 }
 
-/**********************
- * EnvironmentCluster *
- **********************/
+/*************************
+ * EnvironmentMotifMatch *
+ *************************/
 void EnvironmentMotifMatch::compute(const freud::locality::NeighborList* nlist, const vec3<float>* points,
                           unsigned int Np, const vec3<float>* motif, unsigned int motif_size, float threshold,
                           bool registration)
