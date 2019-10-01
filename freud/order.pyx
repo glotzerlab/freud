@@ -299,8 +299,7 @@ cdef class Hexatic(PairCompute):
         del self.thisptr
 
     def compute(self, neighbor_query, neighbors=None):
-        R"""Calculates the correlation function and adds to the current
-        histogram.
+        R"""Calculates the hexatic order parameter.
 
         Args:
             box (:class:`freud.box.Box`):
