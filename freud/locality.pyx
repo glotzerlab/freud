@@ -622,7 +622,7 @@ def _make_default_nlist(neighbor_query, query_points, query_args, nlist=None):
     if nlist is not None:
         return nlist
 
-    cdef NeighborQuery nq = _make_default_nq(box, points)
+    cdef NeighborQuery nq = _make_default_nq(neighbor_query)
     query_args.setdefault('exclude_ii', query_points is None)
     qp = query_points if query_points is not None else nq.points
     cdef NeighborList nq_nlist = nq.query(qp, query_args).toNeighborList()
