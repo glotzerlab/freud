@@ -1030,7 +1030,7 @@ cdef class PairCompute(Compute):
                 If a tuple, must be of the form (box_like, array_like), i.e. it
                 must be an object that can be converted into a
                 :class:`freud.locality.NeighborQuery`.
-            query_points ((:math:`N_{query_points}`, 3) :class:`numpy.ndarray`, optional):
+            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Points used to calculate the RDF. Uses :code:`points` if
                 not provided or :code:`None`.
             neighbors (:class:`freud.locality.NeighborList` or dict, optional):

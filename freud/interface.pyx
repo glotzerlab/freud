@@ -57,7 +57,7 @@ cdef class InterfaceMeasure(Compute):
         Args:
             points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
                 One set of particle positions.
-            query_points ((:math:`N_{query_points}`, 3) :class:`numpy.ndarray`):
+            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`):
                 Other set of particle positions.
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).

@@ -158,11 +158,11 @@ cdef class BondOrder(SpatialHistogram):
                 Reference points used to calculate bonds.
             orientations ((:math:`N_{points}`, 4) :class:`numpy.ndarray`):
                 Reference orientations used to calculate bonds.
-            query_points ((:math:`N_{query_points}`, 3) :class:`numpy.ndarray`, optional):
+            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Points used to calculate bonds. Uses :code:`points` if not
                 provided or :code:`None`.
                 (Default value = :code:`None`).
-            query_orientations ((:math:`N_{query_points}`, 4) :class:`numpy.ndarray`, optional):
+            query_orientations ((:math:`N_{query\_points}`, 4) :class:`numpy.ndarray`, optional):
                 Orientations used to calculate bonds. Uses
                 :code:`orientations` if not provided or :code:`None`.
                 (Default value = :code:`None`).
@@ -227,11 +227,11 @@ cdef class BondOrder(SpatialHistogram):
                 Reference points used to calculate bonds.
             orientations ((:math:`N_{points}`, 4) :class:`numpy.ndarray`):
                 Reference orientations used to calculate bonds.
-            query_points ((:math:`N_{query_points}`, 3) :class:`numpy.ndarray`, optional):
+            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 query_points used to calculate bonds. Uses :code:`points` if not
                 provided or :code:`None`.
                 (Default value = :code:`None`).
-            query_orientations ((:math:`N_{query_points}`, 4) :class:`numpy.ndarray`, optional):
+            query_orientations ((:math:`N_{query\_points}`, 4) :class:`numpy.ndarray`, optional):
                 Orientations used to calculate bonds. Uses
                 :code:`orientations` if not provided or :code:`None`.
                 (Default value = :code:`None`).
@@ -333,7 +333,7 @@ cdef class LocalDescriptors(PairCompute):
                 neighbor list is precomputed.
             points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
                 Source points to calculate the order parameter.
-            query_points ((:math:`N_{query_points}`, 3) :class:`numpy.ndarray`, optional):
+            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Destination points to calculate the order parameter
                 (Default value = :code:`None`).
             orientations ((:math:`N_{points}`, 4) :class:`numpy.ndarray`, optional):
@@ -795,10 +795,10 @@ cdef class AngularSeparationNeighbor(PairCompute):
                 Reference points used to calculate the order parameter.
             orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Reference orientations used to calculate the order parameter.
-            query_points ((:math:`N_{query_points}`, 3) :class:`numpy.ndarray`):
+            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`):
                 Points used to calculate the order parameter. Uses :code:`points`
                 if not provided or :code:`None`.
-            query_orientations ((:math:`N_{query_points}`, 4) :class:`numpy.ndarray`):
+            query_orientations ((:math:`N_{query\_points}`, 4) :class:`numpy.ndarray`):
                 query_orientations used to calculate the order parameter. Uses :code:`orientations`
                 if not provided or :code:`None`.
             equiv_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional):
@@ -986,7 +986,7 @@ cdef class LocalBondProjection(PairCompute):
                 Reference points used in the calculation.
             orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Reference orientations used in the calculation.
-            query_points ((:math:`N_{query_points}`, 3) :class:`numpy.ndarray`, optional):
+            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Points (neighbors of :code:`points`) used in the
                 calculation. Uses :code:`points` if not provided or
                 :code:`None`.
