@@ -46,16 +46,14 @@ references:
       name: Install dependencies
       command: |
         git submodule update --init
-        $PIP install --user -r requirements.txt
-        $PIP install --user -U coverage cython matplotlib rowan sympy
+        $PIP install --user -r requirements-testing.txt
 
   get_style_requirements: &get_style_requirements
     run:
       name: Install style check dependencies
       command: |
         git submodule update --init
-        $PIP install --user -r requirements.txt
-        $PIP install --user flake8==3.7.7
+        $PIP install --user flake8==3.7.8
 
   check_style: &check_style
     run:
@@ -100,8 +98,7 @@ references:
     run:
       name: Run benchmarks
       command: |
-          $PIP install --user gitpython
-          $PIP install --user rowan
+          $PIP install --user -r requirements-testing.txt
           echo 'export PYTHONPATH=$PYTHONPATH:.' >> $BASH_ENV
           echo 'export BENCHMARK_NPROC=2' >> $BASH_ENV
           source $BASH_ENV

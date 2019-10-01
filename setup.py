@@ -452,7 +452,7 @@ try:
                 'gsd>=1.9',
                 'garnett>=0.5',
                 'matplotlib>=2.0',
-                'rowan>=1.0',
+                'rowan>=1.2',
                 'sympy>=1.0',
             ],
             ext_modules=extensions)
