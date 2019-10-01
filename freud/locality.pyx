@@ -882,7 +882,7 @@ cdef class Voronoi(Compute):
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, box, points):
+    def compute(self, neighbor_query):
         R"""Compute Voronoi diagram.
 
         Args:
@@ -891,19 +891,8 @@ cdef class Voronoi(Compute):
             points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
                 Points used to calculate Voronoi diagram.
         """
-        self._box = freud.common.convert_box(box)
-
-        # voro++ uses double precision
-        points = freud.common.convert_array(points, shape=(None, 3),
-                                            dtype=np.float64)
-        cdef const double[:, ::1] l_points = points
-        cdef unsigned int n_points = len(points)
-
-        self.thisptr.compute(
-            dereference(self._box.thisptr),
-            <vec3[double]*> &l_points[0, 0],
-            n_points)
-
+        cdef NeighborQuery nq = _make_default_nq(neighbor_query)
+        self.thisptr.compute(nq.get_ptr())
         return self
 
     @Compute._computed_property
