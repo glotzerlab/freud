@@ -214,12 +214,12 @@ class TestCluster(unittest.TestCase):
                          err_msg="two points do not have similar environment")
 
         # Particle 22 and particle 31's local environments should match
-        returnResult = freud.environment.isSimilar(
+        returnResult = freud.environment._isSimilar(
             box, tot_env[22], tot_env[31], r_max, 0.005, registration=True)
         npt.assert_equal(len(returnResult[1]), num_neighbors,
                          err_msg="two environments are not similar")
 
-    # Test EnvironmentCluster.minimizeRMSD and registration functionality.
+    # Test EnvironmentCluster._minimizeRMSD and registration functionality.
     # Overkill? Maybe.
     def test_minimizeRMSD(self):
         env_vec = np.array([[1, 0, 0],
@@ -259,20 +259,20 @@ class TestCluster(unittest.TestCase):
         e1 = np.copy(e0)
         np.random.seed(0)
         np.random.shuffle(e1)
-        # 3. Verify that OUR method isSimilar gives that these two
+        # 3. Verify that OUR method _isSimilar gives that these two
         #    environments are similar.
-        [refPoints2, isSim_vec_map] = freud.environment.isSimilar(
+        [refPoints2, isSim_vec_map] = freud.environment._isSimilar(
             box, e0, e1, r_max, threshold, registration=False)
         npt.assert_allclose(
             e0, refPoints2[np.asarray(list(isSim_vec_map.values()))],
             atol=1e-6)
         # 4. Calculate the minimal RMSD.
         [min_rmsd, refPoints2, minRMSD_vec_map] = \
-            freud.environment.minimizeRMSD(box, e0, e1, registration=False)
-        # 5. Verify that the minimizeRMSD method finds 0 minimal RMSD
+            freud.environment._minimizeRMSD(box, e0, e1, registration=False)
+        # 5. Verify that the _minimizeRMSD method finds 0 minimal RMSD
         #    (with no registration.)
         npt.assert_equal(0.0, min_rmsd)
-        # 6. Verify that it gives the same vector mapping that isSimilar gave.
+        # 6. Verify that it gives the same vector mapping that _isSimilar gave.
         npt.assert_equal(np.asarray(list(isSim_vec_map.values())),
                          np.asarray(list(minRMSD_vec_map.values())))
         npt.assert_allclose(
@@ -293,10 +293,11 @@ class TestCluster(unittest.TestCase):
         deltasum = np.sum(deltasq)
         deltasum /= len(deltasq)
         analy_rmsd = np.sqrt(deltasum)
-        # 9. Verify that minimizeRMSD gives this minimal RMSD
+        # 9. Verify that _minimizeRMSD gives this minimal RMSD
         #    (with no registration).
         [min_rmsd, refPoints2, minRMSD_vec_map] = \
-            freud.environment.minimizeRMSD(box, e0, e0_rot, registration=False)
+            freud.environment._minimizeRMSD(
+                box, e0, e0_rot, registration=False)
         npt.assert_allclose(analy_rmsd, min_rmsd, atol=1e-5)
         npt.assert_allclose(
             e0_rot, refPoints2[np.asarray(list(minRMSD_vec_map.values()))],
@@ -304,24 +305,25 @@ class TestCluster(unittest.TestCase):
         # 10. Re-index the second environment randomly again.
         e1_rot = np.copy(e0_rot)
         np.random.shuffle(e1_rot)
-        # 11. Verify that minimizeRMSD gives this minimal RMSD again
+        # 11. Verify that _minimizeRMSD gives this minimal RMSD again
         #     (with no registration).
         [min_rmsd, refPoints2, minRMSD_vec_map] = \
-            freud.environment.minimizeRMSD(box, e0, e1_rot, registration=False)
+            freud.environment._minimizeRMSD(
+                box, e0, e1_rot, registration=False)
         npt.assert_allclose(analy_rmsd, min_rmsd, atol=1e-5)
         npt.assert_allclose(
             e0_rot, refPoints2[np.asarray(list(minRMSD_vec_map.values()))],
             atol=1e-5)
-        # 12. Now use minimizeRMSD with registration turned ON.
+        # 12. Now use _minimizeRMSD with registration turned ON.
         [min_rmsd, refPoints2, minRMSD_vec_map] = \
-            freud.environment.minimizeRMSD(box, e0, e1_rot, registration=True)
+            freud.environment._minimizeRMSD(box, e0, e1_rot, registration=True)
         # 13. This should get us back to 0 minimal rmsd.
         npt.assert_allclose(0., min_rmsd, atol=1e-5)
         npt.assert_allclose(
             e0, refPoints2[np.asarray(list(minRMSD_vec_map.values()))],
             atol=1e-5)
-        # 14. Finally use isSimilar with registration turned ON.
-        [refPoints2, isSim_vec_map] = freud.environment.isSimilar(
+        # 14. Finally use _isSimilar with registration turned ON.
+        [refPoints2, isSim_vec_map] = freud.environment._isSimilar(
             box, e0, e1_rot, r_max, threshold, registration=True)
         npt.assert_allclose(
             e0, refPoints2[np.asarray(list(isSim_vec_map.values()))],
@@ -359,6 +361,25 @@ class TestCluster(unittest.TestCase):
 
         match.compute(xyz, threshold)
         match._repr_png_()
+
+
+class TestEnvironmentMotifMatch(unittest.TestCase):
+    def test_square(self):
+        motif = [[1, 0, 0], [0, 1, 0], [-1, 0, 0], [0, -1, 0]]
+        points = motif + [[0, 0, 0]]
+
+        r_max = 1.5
+        num_neighbors = 4
+
+        box = freud.box.Box.square(3)
+        match = freud.environment.EnvironmentMotifMatch(
+            box, r_max, num_neighbors)
+        match.compute(motif, points, 0.1)
+        matches = match.matches
+
+        for i in range(len(motif)):
+            self.assertFalse(matches[i])
+        self.assertTrue(matches[len(motif)])
 
 
 if __name__ == '__main__':

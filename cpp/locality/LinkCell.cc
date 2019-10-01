@@ -224,10 +224,9 @@ LinkCell::LinkCell(const box::Box& box, const vec3<float>* points, unsigned int 
         // This number is arbitrary because there is no way to determine an
         // appropriate cell density for an arbitrary triclinic box.
         const unsigned int num_particle_per_cell = 10;
-        vec3<float> L = box.getNearestPlaneDistance();
         unsigned int desired_num_cells = std::max(n_points/num_particle_per_cell,
                                                   static_cast<unsigned int>(1));
-        m_cell_width = std::cbrtf(float(L.x*L.y*L.z)/desired_num_cells);
+        m_cell_width = std::cbrtf(box.getVolume()/desired_num_cells);
     }
 
     m_celldim = computeDimensions(box, m_cell_width);

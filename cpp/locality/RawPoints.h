@@ -61,7 +61,7 @@ public:
     {
         if (!aq)
         {
-            throw std::runtime_error("The underlying AAABBQuery object has not yet been initialized. This likely developer failure.");
+            throw std::runtime_error("The underlying AABBQuery object has not yet been initialized. This likely developer failure.");
         }
 
         return aq->querySingle(query_point, query_point_idx, qargs);

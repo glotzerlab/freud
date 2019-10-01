@@ -184,7 +184,7 @@ public:
     //! Null Constructor
     LinkCell();
 
-    //! New constructor
+    //! Constructor
     LinkCell(const box::Box& box, const vec3<float>* points, unsigned int n_points, float cell_width=0);
 
     //! Compute LinkCell dimensions

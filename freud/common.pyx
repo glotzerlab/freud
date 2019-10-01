@@ -27,6 +27,7 @@ cdef class Compute(object):
             def compute(...)
                 ...
 
+            @Compute._computed_property()
             def cluster_idx(self):
                 return ...
 
