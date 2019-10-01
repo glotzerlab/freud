@@ -451,6 +451,14 @@ public:
         }
     }
 
+    void enforce3D() const
+    {
+        if (is2D())
+        {
+            throw std::invalid_argument("A 2D box was provided to a class that only supports 3D systems.");
+        }
+    }
+
 private:
     vec3<float> m_lo;      //!< Minimum coords in the box
     vec3<float> m_hi;      //!< Maximum coords in the box
