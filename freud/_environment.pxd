@@ -76,6 +76,7 @@ cdef extern from "MatchEnv.h" namespace "freud::environment":
         EnvironmentMotifMatch() except +
         void compute(const freud._locality.NeighborQuery*,
                      const freud._locality.NeighborList*,
+                     freud._locality.QueryArgs,
                      const vec3[float]*,
                      unsigned int,
                      float,
@@ -87,6 +88,7 @@ cdef extern from "MatchEnv.h" namespace "freud::environment":
         void compute(
             const freud._locality.NeighborQuery*,
             const freud._locality.NeighborList*,
+            freud._locality.QueryArgs,
             const vec3[float]*,
             unsigned int,
             bool) except +
@@ -97,6 +99,7 @@ cdef extern from "MatchEnv.h" namespace "freud::environment":
         void compute(const freud._locality.NeighborQuery*,
                      const freud._locality.NeighborList*,
                      const freud._locality.NeighborList*,
+                     freud._locality.QueryArgs,
                      float,
                      bool,
                      bool) except +

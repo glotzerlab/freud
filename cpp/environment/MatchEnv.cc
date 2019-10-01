@@ -518,19 +518,22 @@ Environment MatchEnv::buildEnv(const freud::locality::NeighborQuery* nq, const f
     return ei;
 }
 
-void EnvironmentCluster::compute(const freud::locality::NeighborQuery* nq, const freud::locality::NeighborList* env_nlist,
-                       const freud::locality::NeighborList* nlist,
+void EnvironmentCluster::compute(const freud::locality::NeighborQuery* nq, const freud::locality::NeighborList* env_nlist_arg,
+                       const freud::locality::NeighborList* nlist_arg, locality::QueryArgs qargs,
                        float threshold, bool registration, bool global)
 {
+    const locality::NeighborList nlist = locality::makeDefaultNlist(nq, nlist_arg, nq->getPoints(), nq->getNPoints(), qargs);
+    const locality::NeighborList env_nlist = locality::makeDefaultNlist(nq, env_nlist_arg, nq->getPoints(), nq->getNPoints(), qargs);
+
     unsigned int Np = nq->getNPoints();
     m_env_index.prepare(Np);
 
     float m_threshold_sq = threshold * threshold;
 
-    nlist->validate(Np, Np);
-    env_nlist->validate(Np, Np);
+    nlist.validate(Np, Np);
+    env_nlist.validate(Np, Np);
     size_t env_bond(0);
-    const size_t env_num_bonds(env_nlist->getNumBonds());
+    const size_t env_num_bonds(env_nlist.getNumBonds());
 
     // create a disjoint set where all particles belong in their own cluster
     EnvDisjointSet dj(Np);
@@ -541,7 +544,7 @@ void EnvironmentCluster::compute(const freud::locality::NeighborQuery* nq, const
     // if you don't do this, things will get screwy.
     for (unsigned int i = 0; i < Np; i++)
     {
-        Environment ei = buildEnv(nq, env_nlist, env_num_bonds, env_bond, i, i);
+        Environment ei = buildEnv(nq, &env_nlist, env_num_bonds, env_bond, i, i);
         dj.s.push_back(ei);
         dj.m_max_num_neigh = std::max(dj.m_max_num_neigh, ei.num_vecs);;
     }
@@ -556,9 +559,9 @@ void EnvironmentCluster::compute(const freud::locality::NeighborQuery* nq, const
         if (global == false)
         {
             // loop over the neighbors
-            for (; bond < nlist->getNumBonds() && nlist->getNeighbors()(bond, 0) == i; ++bond)
+            for (; bond < nlist.getNumBonds() && nlist.getNeighbors()(bond, 0) == i; ++bond)
             {
-                const size_t j(nlist->getNeighbors()(bond, 1));
+                const size_t j(nlist.getNeighbors()(bond, 1));
                 std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>> mapping
                     = isSimilar(dj.s[i], dj.s[j], m_threshold_sq, registration);
                 rotmat3<float> rotation = mapping.first;
@@ -662,14 +665,16 @@ unsigned int EnvironmentCluster::populateEnv(EnvDisjointSet dj)
 /*************************
  * EnvironmentMotifMatch *
  *************************/
-void EnvironmentMotifMatch::compute(const freud::locality::NeighborQuery* nq, const freud::locality::NeighborList* nlist,
+void EnvironmentMotifMatch::compute(const freud::locality::NeighborQuery* nq, const freud::locality::NeighborList* nlist_arg, locality::QueryArgs qargs,
                           const vec3<float>* motif, unsigned int motif_size, float threshold,
                           bool registration)
 {
+    const locality::NeighborList nlist = locality::makeDefaultNlist(nq, nlist_arg, nq->getPoints(), nq->getNPoints(), qargs);
+
     unsigned int Np = nq->getNPoints();
     float m_threshold_sq = threshold * threshold;
 
-    nlist->validate(Np, Np);
+    nlist.validate(Np, Np);
 
     // create a disjoint set where all particles belong in their own cluster.
     // this has to have ONE MORE environment than there are actual particles,
@@ -699,7 +704,7 @@ void EnvironmentMotifMatch::compute(const freud::locality::NeighborQuery* nq, co
     dj.s.push_back(e0);
 
     size_t bond(0);
-    const size_t num_bonds(nlist->getNumBonds());
+    const size_t num_bonds(nlist.getNumBonds());
 
     m_matches.prepare(Np);
 
@@ -710,7 +715,7 @@ void EnvironmentMotifMatch::compute(const freud::locality::NeighborQuery* nq, co
     for (unsigned int i = 0; i < Np; i++)
     {
         unsigned int dummy = i + 1;
-        Environment ei = buildEnv(nq, nlist, num_bonds, bond, i, dummy);
+        Environment ei = buildEnv(nq, &nlist, num_bonds, bond, i, dummy);
         dj.s.push_back(ei);
 
         // if the environment matches e0, merge it into the e0 environment set
@@ -739,12 +744,13 @@ void EnvironmentMotifMatch::compute(const freud::locality::NeighborQuery* nq, co
 /****************************
  * EnvironmentRMSDMinimizer *
  ****************************/
-void EnvironmentRMSDMinimizer::compute(const freud::locality::NeighborQuery* nq, const freud::locality::NeighborList* nlist,
+void EnvironmentRMSDMinimizer::compute(const freud::locality::NeighborQuery* nq, const freud::locality::NeighborList* nlist_arg, locality::QueryArgs qargs,
                                           const vec3<float>* motif, unsigned int motif_size,
                                           bool registration)
 {
+    const locality::NeighborList nlist = locality::makeDefaultNlist(nq, nlist_arg, nq->getPoints(), nq->getNPoints(), qargs);
+
     unsigned int Np = nq->getNPoints();
-    nlist->validate(Np, Np);
 
     // create a disjoint set where all particles belong in their own cluster.
     // this has to have ONE MORE environment than there are actual particles,
@@ -774,7 +780,7 @@ void EnvironmentRMSDMinimizer::compute(const freud::locality::NeighborQuery* nq,
     dj.s.push_back(e0);
 
     size_t bond(0);
-    const size_t num_bonds(nlist->getNumBonds());
+    const size_t num_bonds(nlist.getNumBonds());
 
     m_rmsds.prepare(Np);
 
@@ -785,7 +791,7 @@ void EnvironmentRMSDMinimizer::compute(const freud::locality::NeighborQuery* nq,
     for (unsigned int i = 0; i < Np; i++)
     {
         unsigned int dummy = i + 1;
-        Environment ei = buildEnv(nq, nlist, num_bonds, bond, i, dummy);
+        Environment ei = buildEnv(nq, &nlist, num_bonds, bond, i, dummy);
         dj.s.push_back(ei);
 
         // if the environment matches e0, merge it into the e0 environment set

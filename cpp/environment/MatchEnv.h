@@ -265,7 +265,7 @@ public:
      *               simulation. If global is false, only compare the
      *               environments of neighboring particles.
      */
-    void compute(const freud::locality::NeighborQuery* nq, const freud::locality::NeighborList* env_nlist, const freud::locality::NeighborList* nlist, float threshold,
+    void compute(const freud::locality::NeighborQuery* nq, const freud::locality::NeighborList* env_nlist_arg, const freud::locality::NeighborList* nlist_arg, locality::QueryArgs qargs, float threshold,
                  bool registration = false, bool global = false);
 
     //! Get a reference to the particles, indexed into clusters according to their matching local environments
@@ -356,7 +356,7 @@ public:
      *                     orient the second set of vectors such that it
      *                     minimizes the RMSD between the two sets
      */
-    void compute(const freud::locality::NeighborQuery* nq, const freud::locality::NeighborList* nlist,
+    void compute(const freud::locality::NeighborQuery* nq, const freud::locality::NeighborList* nlist_arg, locality::QueryArgs qargs,
                     const vec3<float>* motif, unsigned int motif_size, float threshold,
                     bool registration = false);
 
@@ -416,7 +416,7 @@ public:
      *                     orient the second set of vectors such that it
      *                     minimizes the RMSD between the two sets
      */
-    void compute(const freud::locality::NeighborQuery* nq, const freud::locality::NeighborList* nlist, const vec3<float>* motif, unsigned int motif_size,
+    void compute(const freud::locality::NeighborQuery* nq, const freud::locality::NeighborList* nlist_arg, locality::QueryArgs qargs, const vec3<float>* motif, unsigned int motif_size,
                                     bool registration = false);
 
     //! Return the array indicating whether or not a successful mapping was found between each particle and the provided motif.

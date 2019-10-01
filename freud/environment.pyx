@@ -501,7 +501,7 @@ def _isSimilar(box, ref_points, points, threshold, registration=False):
     return [np.asarray(l_points), vec_map]
 
 
-cdef class _MatchEnv(Compute):
+cdef class _MatchEnv(PairCompute):
     R"""Parent for environment matching methods.
 
     Args:
@@ -601,6 +601,7 @@ cdef class EnvironmentCluster(_MatchEnv):
         """
         cdef freud.locality.NeighborQuery nq = freud.locality._make_default_nq(
             box, points)
+        cdef freud.locality._QueryArgs qa = freud.locality._QueryArgs()
 
         self.m_box = box
 
@@ -619,7 +620,7 @@ cdef class EnvironmentCluster(_MatchEnv):
 
         self.thisptr.compute(
             nq.get_ptr(), env_nlist_.get_ptr(), nlist_.get_ptr(),
-            threshold, registration,
+            dereference(qa.thisptr), threshold, registration,
             global_search)
         return self
 
@@ -727,6 +728,7 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
         """
         cdef freud.locality.NeighborQuery nq = freud.locality._make_default_nq(
             box, points)
+        cdef freud.locality._QueryArgs qa = freud.locality._QueryArgs()
         self.m_box = box
 
         points = freud.common.convert_array(points, shape=(None, 3))
@@ -743,7 +745,8 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
             query_args, nlist)
 
         self.thisptr.compute(
-            nq.get_ptr(), nlist_.get_ptr(), <vec3[float]*>
+            nq.get_ptr(), nlist_.get_ptr(), dereference(qa.thisptr),
+            <vec3[float]*>
             <vec3[float]*> &l_motif[0, 0], nRef,
             threshold, registration)
 
@@ -822,6 +825,7 @@ cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
         """
         cdef freud.locality.NeighborQuery nq = freud.locality._make_default_nq(
             box, points)
+        cdef freud.locality._QueryArgs qa = freud.locality._QueryArgs()
         self.m_box = box
 
         points = freud.common.convert_array(points, shape=(None, 3))
@@ -838,7 +842,8 @@ cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
             query_args, nlist)
 
         self.thisptr.compute(
-            nq.get_ptr(), nlist_.get_ptr(), <vec3[float]*>
+            nq.get_ptr(), nlist_.get_ptr(), dereference(qa.thisptr),
+            <vec3[float]*>
             <vec3[float]*> &l_motif[0, 0], nRef,
             registration)
 
