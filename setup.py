@@ -374,6 +374,18 @@ extra_module_sources = dict(
     environment=[
         os.path.join("cpp", "util", "diagonalize.cc"),
     ],
+    locality=[
+        os.path.join("extern", "voro++", "src", "cell.cc"),
+        os.path.join("extern", "voro++", "src", "common.cc"),
+        os.path.join("extern", "voro++", "src", "container.cc"),
+        os.path.join("extern", "voro++", "src", "unitcell.cc"),
+        os.path.join("extern", "voro++", "src", "v_compute.cc"),
+        os.path.join("extern", "voro++", "src", "c_loops.cc"),
+        os.path.join("extern", "voro++", "src", "v_base.cc"),
+        os.path.join("extern", "voro++", "src", "wall.cc"),
+        os.path.join("extern", "voro++", "src", "pre_container.cc"),
+        os.path.join("extern", "voro++", "src", "container_prd.cc"),
+    ],
     order=[
         os.path.join("cpp", "util", "diagonalize.cc"),
         os.path.join("cpp", "cluster", "Cluster.cc"),
@@ -427,7 +439,7 @@ try:
               version=version,
               description=desc,
               long_description=readme,
-              long_description_content_type='text/markdown',
+              long_description_content_type='text/x-rst',
               url='https://github.com/glotzerlab/freud',
               packages=['freud'],
               python_requires='>=3.5',

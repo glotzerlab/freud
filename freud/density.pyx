@@ -89,11 +89,11 @@ cdef class CorrelationFunction(SpatialHistogram1D):
                 Reference points used to calculate the correlation function.
             values ((:math:`N_{points}`) :class:`numpy.ndarray`):
                 Complex values used to calculate the correlation function.
-            query_points ((:math:`N_{query_points}`, 3) :class:`numpy.ndarray`, optional):
+            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Points used to calculate the correlation function.
                 Uses :code:`points` if not provided or :code:`None`.
                 (Default value = :code:`None`).
-            query_values ((:math:`N_{query_points}`) :class:`numpy.ndarray`, optional):
+            query_values ((:math:`N_{query\_points}`) :class:`numpy.ndarray`, optional):
                 Complex values used to calculate the correlation function.
                 Uses :code:`values` if not provided or :code:`None`.
                 (Default value = :code:`None`).
@@ -160,11 +160,11 @@ cdef class CorrelationFunction(SpatialHistogram1D):
                 Reference points used to calculate the correlation function.
             values ((:math:`N_{points}`) :class:`numpy.ndarray`):
                 Complex values used to calculate the correlation function.
-            query_points ((:math:`N_{query_points}`, 3) :class:`numpy.ndarray`, optional):
+            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Points used to calculate the correlation function.
                 Uses :code:`points` if not provided or :code:`None`.
                 (Default value = :code:`None`).
-            query_values ((:math:`N_{query_points}`) :class:`numpy.ndarray`, optional):
+            query_values ((:math:`N_{query\_points}`) :class:`numpy.ndarray`, optional):
                 Complex values used to calculate the correlation function.
                 Uses :code:`values` if not provided or :code:`None`.
                 (Default value = :code:`None`).
@@ -358,8 +358,7 @@ cdef class LocalDensity(PairCompute):
 
     .. note::
         **2D:** :class:`freud.density.LocalDensity` properly handles 2D
-        boxes. The points must be passed in as :code:`[x, y, 0]`. Failing to
-        set z=0 will lead to undefined behavior.
+        boxes. The points must be passed in as :code:`[x, y, 0]`.
 
     Args:
         r_max (float):
@@ -404,7 +403,7 @@ cdef class LocalDensity(PairCompute):
                 Simulation box.
             points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
                 Reference points to calculate the local density.
-            query_points ((:math:`N_{query_points}`, 3) :class:`numpy.ndarray`, optional):
+            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Points to calculate the local density. Uses :code:`points`
                 if not provided or :code:`None`.
                 (Default value = :code:`None`).
@@ -471,7 +470,6 @@ cdef class RDF(SpatialHistogram1D):
     .. note::
         **2D:** :class:`freud.density.RDF` properly handles 2D boxes.
         The points must be passed in as :code:`[x, y, 0]`.
-        Failing to set z=0 will lead to undefined behavior.
 
     Args:
         bins (unsigned int):
@@ -516,7 +514,7 @@ cdef class RDF(SpatialHistogram1D):
                 Simulation box.
             points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
                 Reference points used to calculate the RDF.
-            query_points ((:math:`N_{query_points}`, 3) :class:`numpy.ndarray`, optional):
+            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Points used to calculate the RDF. Uses :code:`points` if
                 not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
@@ -548,7 +546,7 @@ cdef class RDF(SpatialHistogram1D):
                 Simulation box.
             points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
                 Reference points used to calculate the RDF.
-            query_points ((:math:`N_{query_points}`, 3) :class:`numpy.ndarray`, optional):
+            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Points used to calculate the RDF. Uses :code:`points` if
                 not provided or :code:`None`. (Default value = :code:`None`).
             nlist (:class:`freud.locality.NeighborList`):

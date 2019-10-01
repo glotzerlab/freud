@@ -137,14 +137,10 @@ cdef extern from "Voronoi.h" namespace "freud::locality":
         void compute(
             const freud._box.Box &,
             const vec3[double]*,
-            const int*,
-            const int*,
-            unsigned int,
-            unsigned int,
-            const int*,
-            const vec3[double]*,
-            const int*) except +
-        NeighborList * getNeighborList()
+            const unsigned int) nogil except +
+        vector[vector[vec3[double]]] getPolytopes() const
+        const freud.util.ManagedArray[double] &getVolumes() const
+        shared_ptr[NeighborList] getNeighborList() const
 
 cdef extern from "BondHistogramCompute.h" namespace "freud::locality":
     cdef cppclass BondHistogramCompute:

@@ -38,15 +38,17 @@ and this project adheres to
 * Renamed several Box methods, ParticleBuffer is now PeriodicBuffer.
 * Refactored and renamed attributes of Cluster and ClusterProperties modules.
 * All class attributes are stored in the C++ members and accessed via getters wrapped as Python properties.
-* Vector directionality is standardized for all computes that use it (always points from point to query\_point).
+* Bond vector directionality is standardized for all computes that use it (always from query\_point to point).
 * Neighbor-based compute methods now accept NeighborQuery objects as the first object, including (box, point) tuples.
 * Documentation uses automodule instead of autoclass.
+* The Voronoi class was rewritten to use voro++ for vastly improved performance and correctness in edge cases.
 
 ### Fixed
 * Steinhardt uses the ThreadStorage class and properly resets memory where needed.
 * Removed all neighbor exclusion logic from all classes, depends entirely on locality module now.
 * RDF no longer forces the first bin of the PCF and first two bins of the cumulative counts to be 0.
 * LinkCell nearest neighbor queries properly check the largest distance found before proceeding to next shell.
+* Compute classes requiring 2D systems check the dimensionality of their input boxes.
 
 ### Removed
 * The freud.util module.

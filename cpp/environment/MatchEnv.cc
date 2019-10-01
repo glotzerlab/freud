@@ -510,7 +510,7 @@ Environment MatchEnv::buildEnv(const freud::locality::NeighborQuery* nq, const f
         const size_t j(nlist->getNeighbors()(bond, 1));
         if (i != j)
         {
-            vec3<float> delta(bondVector(locality::NeighborBond(j, i), nq, nq->getPoints()));
+            vec3<float> delta(bondVector(locality::NeighborBond(i, j), nq, nq->getPoints()));
             ei.addVec(delta);
         }
     }

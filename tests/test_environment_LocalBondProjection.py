@@ -93,36 +93,36 @@ class TestLocalBondProjection(unittest.TestCase):
                              exclude_ii=True))
         bonds = [(i[0], i[1]) for i in dnlist]
 
-        # We will look at the bond between [1, 0, 0] as ref_point
+        # We will look at the bond between [1, 0, 0] as query_point
         # and [0, 0, 0] as point
         # This will give bond [-1, 0, 0].
-        # Since [1, 0, 0] is the ref_point at index 1, we rotate
+        # Since [1, 0, 0] is the query_point at index 1, we rotate
         # this about y axis by pi/2, which will give
-        # [0, 0, -1].
-        # The projection onto [0, 0, 1] is cos(pi) = -1.
+        # [0, 0, 1].
+        # The projection onto [0, 0, 1] is cos(0) = 1.
         index = bonds.index((0, 1))
-        npt.assert_allclose(ang.projections[index], -1, atol=1e-6)
-        npt.assert_allclose(ang.normed_projections[index], -1, atol=1e-6)
+        npt.assert_allclose(ang.projections[index], 1, atol=1e-6)
+        npt.assert_allclose(ang.normed_projections[index], 1, atol=1e-6)
 
-        # We will look at the bond between [0, 0, 0] as ref_point
+        # We will look at the bond between [0, 0, 0] as query_point
         # and [1, 0, 0] as point
-        # This will give bond [1, 0, 0].
-        # Since [0, 0, 0] is the ref_point at index 0, we rotate
-        # this by the identity, which will give [1, 0, 0].
+        # This will give bond [-1, 0, 0].
+        # Since [0, 0, 0] is the query_point at index 0, we rotate
+        # this by the identity, which will give [-1, 0, 0].
         # The projection onto [0, 0, 1] is 0.
         index = bonds.index((1, 0))
         npt.assert_allclose(ang.projections[index], 0, atol=1e-6)
         npt.assert_allclose(ang.normed_projections[index], 0, atol=1e-6)
 
-        # We will look at the bond between [0, 0, 0] as ref_point
-        # and [0, 0, 1.5] as point
-        # This will give bond [0, 0, 1.5].
-        # Since [0, 0, 0] is the ref_point at index 0, we rotate
-        # this by the identity, which will give [0, 0, 1.5].
-        # The projection onto [0, 0, 1] is 1.5.
+        # We will look at the bond between [0, 0, 1.5] as query_point
+        # and [0, 0, 0] as point
+        # This will give bond [0, 0, -1.5].
+        # Since [0, 0, 0] is the query_point at index 0, we rotate
+        # this by the identity, which will give [0, 0, -1.5].
+        # The projection onto [0, 0, 1] is -1.5.
         index = bonds.index((2, 0))
-        npt.assert_allclose(ang.projections[index], 1.5, atol=1e-6)
-        npt.assert_allclose(ang.normed_projections[index], 1, atol=1e-6)
+        npt.assert_allclose(ang.projections[index], -1.5, atol=1e-6)
+        npt.assert_allclose(ang.normed_projections[index], -1, atol=1e-6)
 
         # Specify that rotations about y by +/-pi/2 and rotations about x by pi
         # result in equivalent particle shapes
