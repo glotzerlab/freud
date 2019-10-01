@@ -547,8 +547,8 @@ void EnvironmentCluster::compute(const freud::locality::NeighborQuery* nq, const
         dj.m_max_num_neigh = std::max(dj.m_max_num_neigh, ei.num_vecs);;
     }
 
-    // reallocate the m_particle_environments array
-    m_particle_environments.prepare({Np, dj.m_max_num_neigh});
+    // reallocate the m_point_environments array
+    m_point_environments.prepare({Np, dj.m_max_num_neigh});
 
     size_t bond(0);
     // loop through points
@@ -643,7 +643,7 @@ unsigned int EnvironmentCluster::populateEnv(EnvDisjointSet dj)
             m_env_index[particle_ind] = label_ind;
             for (unsigned int m = 0; m < part_vecs.size(); m++)
             {
-                m_particle_environments(particle_ind, m) = part_vecs[m];
+                m_point_environments(particle_ind, m) = part_vecs[m];
             }
             particle_ind++;
         }
@@ -680,8 +680,8 @@ void EnvironmentMotifMatch::compute(const freud::locality::NeighborQuery* nq, co
     EnvDisjointSet dj(Np + 1);
     dj.m_max_num_neigh = motif_size;
 
-    // reallocate the m_particle_environments array
-    m_particle_environments.prepare({Np, motif_size});
+    // reallocate the m_point_environments array
+    m_point_environments.prepare({Np, motif_size});
 
     // create the environment characterized by motif. Index it as 0.
     // set the IGNORE flag to true, since this is not an environment we have
@@ -734,7 +734,7 @@ void EnvironmentMotifMatch::compute(const freud::locality::NeighborQuery* nq, co
 
         for (unsigned int m = 0; m < part_vecs.size(); m++)
         {
-            m_particle_environments(i, m) = part_vecs[m];
+            m_point_environments(i, m) = part_vecs[m];
         }
     }
 }
@@ -756,8 +756,8 @@ void EnvironmentRMSDMinimizer::compute(const freud::locality::NeighborQuery* nq,
     EnvDisjointSet dj(Np + 1);
     dj.m_max_num_neigh = motif_size;
 
-    // reallocate the m_particle_environments array
-    m_particle_environments.prepare({Np, motif_size});
+    // reallocate the m_point_environments array
+    m_point_environments.prepare({Np, motif_size});
 
     // create the environment characterized by motif. Index it as 0.
     // set the IGNORE flag to true, since this is not an environment we
@@ -815,7 +815,7 @@ void EnvironmentRMSDMinimizer::compute(const freud::locality::NeighborQuery* nq,
 
         for (unsigned int m = 0; m < part_vecs.size(); m++)
         {
-            m_particle_environments(i, m) = part_vecs[m];
+            m_point_environments(i, m) = part_vecs[m];
         }
     }
 }

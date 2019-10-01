@@ -24,7 +24,7 @@ class TestCluster(unittest.TestCase):
 
         match = freud.environment.EnvironmentCluster()
         with self.assertRaises(AttributeError):
-            match.particle_environments
+            match.point_environments
         with self.assertRaises(AttributeError):
             match.num_particles
         with self.assertRaises(AttributeError):
@@ -218,7 +218,7 @@ class TestCluster(unittest.TestCase):
         clusters = match.clusters
 
         # Get environment for each particle
-        tot_env = match.particle_environments
+        tot_env = match.point_environments
 
         # Particles with index 22 and 31 have opposite y positions,
         # they should have the same local environment

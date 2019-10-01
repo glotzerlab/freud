@@ -507,12 +507,8 @@ cdef class _MatchEnv(PairCompute):
     R"""Parent for environment matching methods.
 
     Attributes:
-        particle_environments (:math:`\left(N_{particles}, N_{neighbors}, 3\right)` :class:`numpy.ndarray`):
-            All environments for all particles.
-        num_clusters (unsigned int):
-            The number of clusters.
-        clusters (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
-            The per-particle index indicating cluster membership.
+        point_environments (:math:`\left(N_{points}, N_{neighbors}, 3\right)` :class:`numpy.ndarray`):
+            All environments for all points.
     """  # noqa: E501
     cdef freud._environment.MatchEnv * matchptr
 
@@ -521,9 +517,9 @@ cdef class _MatchEnv(PairCompute):
         pass
 
     @Compute._computed_property
-    def particle_environments(self):
+    def point_environments(self):
         return freud.util.make_managed_numpy_array(
-            &self.matchptr.getParticleEnvironments(),
+            &self.matchptr.getPointEnvironments(),
             freud.util.arr_type_t.FLOAT, 3)
 
     def __repr__(self):
@@ -536,8 +532,8 @@ cdef class EnvironmentCluster(_MatchEnv):
     or not, according to various shape matching metrics.
 
     Attributes:
-        particle_environments (:math:`\left(N_{particles}, N_{neighbors}, 3\right)` :class:`numpy.ndarray`):
-            All environments for all particles.
+        point_environments (:math:`\left(N_{points}, N_{neighbors}, 3\right)` :class:`numpy.ndarray`):
+            All environments for all points.
         num_clusters (unsigned int):
             The number of clusters.
         clusters (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
@@ -670,8 +666,8 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
     Attributes:
         matches (:math:`(N_p, )` :class:`numpy.ndarray`):
             A boolean array indicating whether each point matches the motif.
-        particle_environments (:math:`\left(N_{points}, N_{neighbors}, 3\right)` :class:`numpy.ndarray`):
-            The environments for all points.
+        point_environments (:math:`\left(N_{points}, N_{neighbors}, 3\right)` :class:`numpy.ndarray`):
+            All environments for all points.
     """  # noqa: E501
 
     cdef freud._environment.EnvironmentMotifMatch * thisptr
@@ -746,8 +742,8 @@ cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
     Attributes:
         rmsds (:math:`(N_p, )` :class:`numpy.ndarray`):
             A boolean array of the RMSDs found for each point's environment.
-        particle_environments (:math:`\left(N_{points}, N_{neighbors}, 3\right)` :class:`numpy.ndarray`):
-            The environments for all points.
+        point_environments (:math:`\left(N_{points}, N_{neighbors}, 3\right)` :class:`numpy.ndarray`):
+            All environments for all points.
     """  # noqa: E501
 
     cdef freud._environment.EnvironmentRMSDMinimizer * thisptr
