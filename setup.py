@@ -209,7 +209,10 @@ directives = {
     'embedsignature': True,
     'language_level': 3,
 }
-macros = []
+macros = [
+    ('NPY_NO_DEPRECATED_API', 'NPY_1_10_API_VERSION'),
+    ('VOROPP_VERBOSE', '1'),
+]
 
 # Decide whether or not to compile with coverage support
 if args.use_coverage:
