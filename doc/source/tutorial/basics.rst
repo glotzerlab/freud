@@ -8,7 +8,7 @@ Periodic Boundary Conditions
 ============================
 
 The central goal of **freud** is the analysis of simulations performed in periodic boxes.
-Periodic boundary conditions are ubiquitous in simulations because they permit the simulation of pseudo-infinite systems with minimal computational effort.
+Periodic boundary conditions are ubiquitous in simulations because they permit the simulation of quasi-infinite systems with minimal computational effort.
 As long as simulation systems are sufficiently large, i.e. assuming that particles in the system experience correlations over length scales substantially smaller than the system length scale, periodic boundary conditions ensure that the system appears effectively infinite to all particles.
 
 In order to consistently define the geometry of a simulation system with periodic boundaries, **freud** defines the :py:class:`freud.box.Box` class.

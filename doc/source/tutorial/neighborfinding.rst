@@ -22,8 +22,8 @@ The central interface for neighbor finding is the :py:class:`freud.locality.Neig
 The :py:class:`freud.locality.NeighborQuery` class defines an abstract interface for neighbor finding that is implemented by its subclasses, namely the :py:class:`freud.locality.LinkCell` and :py:class:`freud.locality.AABBQuery` classes.
 These classes represent data structures used to accelerate neighbor finding.
 
-In general, these data structures operate by constructing them using one set of points, after which they can be queried to efficiently find the neighbors of arbitrary other points.
-The queries can either be based strictly on a distance cutoff (using :py:class:`freud.locality.NeighborQuery.queryBall`), or by searching for a specific number of neighbors (using :py:class:`freud.locality.NeighborQuery.query`).
+In general, these data structures operate by constructing them using one set of points, after which they can be queried to efficiently find the neighbors of arbitrary other points using :py:meth:`freud.locality.NeighborQuery.queryBall`.
+The queries can either be based strictly on a distance cutoff or by searching for a specific number of neighbors.
 These classes expose a standardized API for this task, returning a generator than can be easily looped over.
 Alternatively, the pairs of points can be converted into a :py:class:`freud.locality.NeighborList`, a lightweight class that can be used to store pairs of bonds that will be used multiple times.
 For example, the following code first uses the :py:class:`freud.locality.LinkCell` to search for at least 6 neighbors for all points in a given set and calculate the average distances between them, and then uses a :py:class:`freud.locality.AABBQuery` to create a :py:class:`freud.locality.NeighborList` based on a distance cutoff:
@@ -44,10 +44,12 @@ For example, the following code first uses the :py:class:`freud.locality.LinkCel
     box = freud.box.Box.cube(L)
 
     # Linked cell lists are parameterized by the size of the individual cells.
-    # The cell width significantly affects neighbor-finding performance.
-    # In general, for a single distance-based query a good choice for the cell
-    # width is the actual distance to query; in this case, since we are asking
-    # for a specific number of neighbors, we simply provide a reasonable guess.
+    # Although freud will attempt to provide a value if none is given, the cell
+    # width can significantly affect neighbor-finding performance so it is
+    # beneficial to try and define a good value for your system.  # In general,
+    # for a single distance-based query a good choice for the cell # width is the
+    # actual distance to query; in this case, since we are asking # for a
+    # specific number of neighbors, we simply provide a reasonable guess.
     cell_width = 2
     lc = freud.locality.LinkCell(box=box, points=points, cell_width=cell_width)
     distances = []
