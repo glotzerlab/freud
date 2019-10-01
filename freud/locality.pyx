@@ -616,8 +616,8 @@ def _make_default_nlist(neighbor_query, query_points, query_args, nlist=None):
             NeighborList to use to find bonds (Default value = :code:`None`).
 
     Returns:
-        tuple (:class:`freud.locality.NeighborList`, :class:`freud.locality.AABBQuery`):
-            The NeighborList and the owning AABBQuery object.
+        :class:`freud.locality.NeighborList`:
+            The neighbor list.
     """  # noqa: E501
     if nlist is not None:
         return nlist
