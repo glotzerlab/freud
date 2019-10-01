@@ -1176,6 +1176,18 @@ cdef class PairCompute(Compute):
         cdef NeighborList nlist
         cdef _QueryArgs qargs
 
+        nlist, qargs = self._resolve_neighbors(neighbors, query_points)
+
+        if query_points is None:
+            query_points = nq.points
+        else:
+            query_points = freud.common.convert_array(
+                query_points, shape=(None, 3))
+        cdef const float[:, ::1] l_query_points = query_points
+        cdef unsigned int num_query_points = l_query_points.shape[0]
+        return (nq, nlist, qargs, l_query_points, num_query_points)
+
+    def _resolve_neighbors(self, neighbors, query_points=None):
         if type(neighbors) == NeighborList:
             nlist = neighbors
             qargs = _QueryArgs()
@@ -1191,15 +1203,7 @@ cdef class PairCompute(Compute):
                 nlist = NeighborList(True)
             except NotImplementedError:
                 raise
-
-        if query_points is None:
-            query_points = nq.points
-        else:
-            query_points = freud.common.convert_array(
-                query_points, shape=(None, 3))
-        cdef const float[:, ::1] l_query_points = query_points
-        cdef unsigned int num_query_points = l_query_points.shape[0]
-        return (nq, nlist, qargs, l_query_points, num_query_points)
+        return nlist, qargs
 
     @property
     def default_query_args(self):

@@ -35,7 +35,7 @@ class TestCluster(unittest.TestCase):
             match.cluster_environments
 
         query_args = dict(r_guess=r_max, num_neighbors=num_neighbors)
-        match.compute(box, xyz, threshold, query_args=query_args)
+        match.compute((box, xyz), threshold, neighbors=query_args)
 
         cluster_env = match.cluster_environments
 
@@ -75,7 +75,7 @@ class TestCluster(unittest.TestCase):
 
         match = freud.environment.EnvironmentCluster()
         query_args = dict(r_guess=r_max, num_neighbors=num_neighbors)
-        match.compute(box, xyz, threshold, query_args=query_args)
+        match.compute((box, xyz), threshold, neighbors=query_args)
 
         cluster_env = match.cluster_environments
 
@@ -118,8 +118,8 @@ class TestCluster(unittest.TestCase):
 
         match = freud.environment.EnvironmentCluster()
         query_args = dict(r_guess=r_max, num_neighbors=num_neighbors)
-        match.compute(box, xyz, threshold, registration=False,
-                      query_args=query_args)
+        match.compute((box, xyz), threshold, registration=False,
+                      neighbors=query_args)
 
         cluster_env = match.cluster_environments
 
@@ -160,8 +160,8 @@ class TestCluster(unittest.TestCase):
 
         match = freud.environment.EnvironmentCluster()
         query_args = dict(r_max=r_max, num_neighbors=num_neighbors)
-        match.compute(box, xyz, threshold, registration=False,
-                      query_args=query_args)
+        match.compute((box, xyz), threshold, registration=False,
+                      neighbors=query_args)
         cluster_env = match.cluster_environments
 
         fn = os.path.join(self.test_folder, "bcc_env.npy")
@@ -213,8 +213,8 @@ class TestCluster(unittest.TestCase):
 
         match = freud.environment.EnvironmentCluster()
         query_args = dict(r_guess=r_max, num_neighbors=num_neighbors)
-        match.compute(box, xyz, threshold, registration=True,
-                      global_search=True, query_args=query_args)
+        match.compute((box, xyz), threshold, registration=True,
+                      global_search=True, neighbors=query_args)
         clusters = match.clusters
 
         # Get environment for each particle
@@ -366,7 +366,7 @@ class TestCluster(unittest.TestCase):
         self.assertEqual(match._repr_png_(), None)
 
         query_args = dict(r_guess=r_max, num_neighbors=num_neighbors)
-        match.compute(box, xyz, threshold, query_args=query_args)
+        match.compute((box, xyz), threshold, neighbors=query_args)
         match._repr_png_()
 
 
@@ -382,7 +382,7 @@ class TestEnvironmentMotifMatch(unittest.TestCase):
         box = freud.box.Box.square(3)
         match = freud.environment.EnvironmentMotifMatch()
         query_args = dict(r_guess=r_max, num_neighbors=num_neighbors)
-        match.compute(box, motif, points, 0.1, query_args=query_args)
+        match.compute((box, points), motif, 0.1, neighbors=query_args)
         matches = match.matches
 
         for i in range(len(motif)):
@@ -402,7 +402,7 @@ class TestEnvironmentRMSDMinimizer(unittest.TestCase):
         box = freud.box.Box.square(3)
         match = freud.environment._EnvironmentRMSDMinimizer()
         query_args = dict(r_guess=r_max, num_neighbors=num_neighbors)
-        match.compute(box, motif, points, 0.1, query_args=query_args)
+        match.compute((box, points), motif, neighbors=query_args)
         self.assertTrue(np.all(match.rmsds[:-1] > 0))
         self.assertEqual(match.rmsds[-1], 0)
 

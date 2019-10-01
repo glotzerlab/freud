@@ -98,6 +98,7 @@ cdef extern from "MatchEnv.h" namespace "freud::environment":
         EnvironmentCluster() except +
         void compute(const freud._locality.NeighborQuery*,
                      const freud._locality.NeighborList*,
+                     freud._locality.QueryArgs,
                      const freud._locality.NeighborList*,
                      freud._locality.QueryArgs,
                      float,

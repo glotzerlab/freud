@@ -568,9 +568,9 @@ cdef class EnvironmentCluster(_MatchEnv):
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, box, points, threshold, registration=False,
-                global_search=False, env_nlist=None, nlist=None,
-                query_args=None):
+    def compute(self, neighbor_query, threshold, neighbors=None,
+                env_neighbors=None, registration=False,
+                global_search=False):
         R"""Determine clusters of particles with matching environments.
 
         Args:
@@ -599,29 +599,24 @@ cdef class EnvironmentCluster(_MatchEnv):
                 NeighborList to use to find neighbors of every particle, to
                 compare environments (Default value = :code:`None`).
         """
-        cdef freud.locality.NeighborQuery nq = freud.locality._make_default_nq(
-            box, points)
-        cdef freud.locality._QueryArgs qa = freud.locality._QueryArgs()
+        cdef:
+            freud.locality.NeighborQuery nq
+            freud.locality.NeighborList nlist, env_nlist
+            freud.locality._QueryArgs qargs, env_qargs
+            const float[:, ::1] l_query_points
+            unsigned int num_query_points
 
-        self.m_box = box
+        nq, nlist, qargs, l_query_points, num_query_points = \
+            self._preprocess_arguments(neighbor_query, neighbors=neighbors)
 
-        points = freud.common.convert_array(points, shape=(None, 3))
-
-        cdef const float[:, ::1] l_points = points
-        cdef unsigned int nP = l_points.shape[0]
-
-        cdef freud.locality.NeighborList nlist_
-        cdef freud.locality.NeighborList env_nlist_
-        nlist_ = freud.locality._make_default_nlist(
-            self.m_box, points, None, query_args, nlist)
-
-        env_nlist_ = freud.locality._make_default_nlist(
-            self.m_box, points, None, query_args, env_nlist)
+        if env_neighbors is None:
+            env_neighbors = neighbors
+        env_nlist, env_qargs = self._resolve_neighbors(env_neighbors)
 
         self.thisptr.compute(
-            nq.get_ptr(), env_nlist_.get_ptr(), nlist_.get_ptr(),
-            dereference(qa.thisptr), threshold, registration,
-            global_search)
+            nq.get_ptr(), nlist.get_ptr(), dereference(qargs.thisptr),
+            env_nlist.get_ptr(), dereference(env_qargs.thisptr), threshold,
+            registration, global_search)
         return self
 
     @Compute._computed_property
@@ -704,8 +699,8 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
         self.thisptr = self.matchptr = \
             new freud._environment.EnvironmentMotifMatch()
 
-    def compute(self, box, motif, points, threshold, registration=False,
-                nlist=None, query_args=None):
+    def compute(self, neighbor_query, motif, threshold, neighbors=None,
+                registration=False):
         R"""Determine clusters of particles that match the motif provided by
         motif.
 
@@ -726,26 +721,22 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         """
-        cdef freud.locality.NeighborQuery nq = freud.locality._make_default_nq(
-            box, points)
-        cdef freud.locality._QueryArgs qa = freud.locality._QueryArgs()
-        self.m_box = box
+        cdef:
+            freud.locality.NeighborQuery nq
+            freud.locality.NeighborList nlist
+            freud.locality._QueryArgs qargs
+            const float[:, ::1] l_query_points
+            unsigned int num_query_points
 
-        points = freud.common.convert_array(points, shape=(None, 3))
+        nq, nlist, qargs, l_query_points, num_query_points = \
+            self._preprocess_arguments(neighbor_query, neighbors=neighbors)
+
         motif = freud.common.convert_array(motif, shape=(None, 3))
-
-        cdef const float[:, ::1] l_points = points
         cdef const float[:, ::1] l_motif = motif
-        cdef unsigned int nP = l_points.shape[0]
         cdef unsigned int nRef = l_motif.shape[0]
 
-        cdef freud.locality.NeighborList nlist_
-        nlist_ = freud.locality._make_default_nlist(
-            self.m_box, points, None,
-            query_args, nlist)
-
         self.thisptr.compute(
-            nq.get_ptr(), nlist_.get_ptr(), dereference(qa.thisptr),
+            nq.get_ptr(), nlist.get_ptr(), dereference(qargs.thisptr),
             <vec3[float]*>
             <vec3[float]*> &l_motif[0, 0], nRef,
             threshold, registration)
@@ -799,8 +790,8 @@ cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
             &self.thisptr.getRMSDs(),
             freud.util.arr_type_t.FLOAT)
 
-    def compute(self, box, motif, points, registration=False, nlist=None,
-                query_args=None):
+    def compute(self, neighbor_query, motif, neighbors=None,
+                registration=False):
         R"""Rotate (if registration=True) and permute the environments of all
         particles to minimize their RMSD with respect to the motif provided by
         motif.
@@ -823,26 +814,22 @@ cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
                 Vector of minimal RMSD values, one value per particle.
 
         """
-        cdef freud.locality.NeighborQuery nq = freud.locality._make_default_nq(
-            box, points)
-        cdef freud.locality._QueryArgs qa = freud.locality._QueryArgs()
-        self.m_box = box
+        cdef:
+            freud.locality.NeighborQuery nq
+            freud.locality.NeighborList nlist
+            freud.locality._QueryArgs qargs
+            const float[:, ::1] l_query_points
+            unsigned int num_query_points
 
-        points = freud.common.convert_array(points, shape=(None, 3))
+        nq, nlist, qargs, l_query_points, num_query_points = \
+            self._preprocess_arguments(neighbor_query, neighbors=neighbors)
+
         motif = freud.common.convert_array(motif, shape=(None, 3))
-
-        cdef const float[:, ::1] l_points = points
         cdef const float[:, ::1] l_motif = motif
-        cdef unsigned int nP = l_points.shape[0]
         cdef unsigned int nRef = l_motif.shape[0]
 
-        cdef freud.locality.NeighborList nlist_
-        nlist_ = freud.locality._make_default_nlist(
-            self.m_box, points, None,
-            query_args, nlist)
-
         self.thisptr.compute(
-            nq.get_ptr(), nlist_.get_ptr(), dereference(qa.thisptr),
+            nq.get_ptr(), nlist.get_ptr(), dereference(qargs.thisptr),
             <vec3[float]*>
             <vec3[float]*> &l_motif[0, 0], nRef,
             registration)

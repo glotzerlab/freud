@@ -518,12 +518,10 @@ Environment MatchEnv::buildEnv(const freud::locality::NeighborQuery* nq, const f
     return ei;
 }
 
-void EnvironmentCluster::compute(const freud::locality::NeighborQuery* nq, const freud::locality::NeighborList* env_nlist_arg,
-                       const freud::locality::NeighborList* nlist_arg, locality::QueryArgs qargs,
-                       float threshold, bool registration, bool global)
+void EnvironmentCluster::compute(const freud::locality::NeighborQuery* nq, const freud::locality::NeighborList* nlist_arg, locality::QueryArgs qargs, const freud::locality::NeighborList* env_nlist_arg, locality::QueryArgs env_qargs, float threshold, bool registration, bool global)
 {
     const locality::NeighborList nlist = locality::makeDefaultNlist(nq, nlist_arg, nq->getPoints(), nq->getNPoints(), qargs);
-    const locality::NeighborList env_nlist = locality::makeDefaultNlist(nq, env_nlist_arg, nq->getPoints(), nq->getNPoints(), qargs);
+    const locality::NeighborList env_nlist = locality::makeDefaultNlist(nq, env_nlist_arg, nq->getPoints(), nq->getNPoints(), env_qargs);
 
     unsigned int Np = nq->getNPoints();
     m_env_index.prepare(Np);
