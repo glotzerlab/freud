@@ -538,9 +538,9 @@ cdef class MatchEnv(Compute):
         points = freud.common.convert_array(points, shape=(None, 3))
         ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
 
-        cdef const float[::1] l_points = np.ascontiguousarray(
+        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(
             points.flatten())
-        cdef const float[::1] l_ref_points = np.ascontiguousarray(
+        cdef np.ndarray[float, ndim=1] l_ref_points = np.ascontiguousarray(
             ref_points.flatten())
         cdef unsigned int nP = l_points.shape[0]
         cdef unsigned int nRef = l_ref_points.shape[0]
@@ -582,9 +582,9 @@ cdef class MatchEnv(Compute):
         points = freud.common.convert_array(points, shape=(None, 3))
         ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
 
-        cdef const float[::1] l_points = np.ascontiguousarray(
+        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(
             points.flatten())
-        cdef const float[::1] l_ref_points = np.ascontiguousarray(
+        cdef np.ndarray[float, ndim=1] l_ref_points = np.ascontiguousarray(
             ref_points.flatten())
         cdef unsigned int nP = l_points.shape[0]
         cdef unsigned int nRef = l_ref_points.shape[0]
