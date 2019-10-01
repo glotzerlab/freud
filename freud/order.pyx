@@ -641,9 +641,9 @@ cdef class SolidLiquid(PairCompute):
             particle.
         cluster_sizes (unsigned int):
             The sizes of all clusters.
-        order (unsigned int):
+        largest_cluster_size (unsigned int):
             The largest cluster size.
-        particle_order (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
+        num_connections (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The number of solid-like bonds for each particle.
     """  # noqa: E501
     cdef freud._order.SolidLiquid * thisptr
@@ -713,7 +713,7 @@ cdef class SolidLiquid(PairCompute):
         return np.asarray(self.thisptr.getClusterSizes())
 
     @Compute._computed_property
-    def order(self):
+    def largest_cluster_size(self):
         return self.thisptr.getLargestClusterSize()
 
     @Compute._computed_property
@@ -721,7 +721,7 @@ cdef class SolidLiquid(PairCompute):
         return freud.locality._nlist_from_cnlist(self.thisptr.getNList())
 
     @Compute._computed_property
-    def particle_order(self):
+    def num_connections(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getNumberOfConnections(),
             freud.util.arr_type_t.UNSIGNED_INT)
