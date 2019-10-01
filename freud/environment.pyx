@@ -527,7 +527,7 @@ cdef class _MatchEnv(Compute):
     cdef num_neighbors
     cdef m_box
 
-    def __cinit__(self, box, r_max, num_neighbors):
+    def __cinit__(self, *args, **kwargs):
         # Abstract class
         pass
 
@@ -538,9 +538,9 @@ cdef class _MatchEnv(Compute):
             freud.util.arr_type_t.FLOAT, 3)
 
     def __repr__(self):
-        return ("freud.environment.{cls}(box={box}, "
+        return ("freud.environment.{cls}("
                 "r_max={r_max}, num_neighbors={num_neighbors})").format(
-                    cls=type(self).__name__, box=self.m_box.__repr__(),
+                    cls=type(self).__name__,
                     r_max=self.r_max, num_neighbors=self.num_neighbors)
 
 
@@ -573,21 +573,18 @@ cdef class EnvironmentCluster(_MatchEnv):
 
     cdef freud._environment.EnvironmentCluster * thisptr
 
-    def __cinit__(self, box, r_max, num_neighbors):
-        cdef freud.box.Box b = freud.common.convert_box(box)
-
+    def __cinit__(self, r_max, num_neighbors):
         self.thisptr = self.matchptr = \
             new freud._environment.EnvironmentCluster(
-                dereference(b.thisptr), r_max, num_neighbors)
+                r_max, num_neighbors)
 
         self.r_max = r_max
         self.num_neighbors = num_neighbors
-        self.m_box = box
 
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, points, threshold, hard_r=False, registration=False,
+    def compute(self, box, points, threshold, hard_r=False, registration=False,
                 global_search=False, env_nlist=None, nlist=None):
         R"""Determine clusters of particles with matching environments.
 
@@ -617,6 +614,9 @@ cdef class EnvironmentCluster(_MatchEnv):
                 NeighborList to use to find neighbors of every particle, to
                 compare environments (Default value = :code:`None`).
         """
+        cdef freud.box.Box b = freud.common.convert_box(box)
+        self.m_box = box
+
         points = freud.common.convert_array(points, shape=(None, 3))
 
         cdef const float[:, ::1] l_points = points
@@ -642,9 +642,9 @@ cdef class EnvironmentCluster(_MatchEnv):
                 env_nlist)
 
         self.thisptr.compute(
-            env_nlist_.get_ptr(), nlist_.get_ptr(),
-            <vec3[float]*> &l_points[0, 0], nP, threshold,
-            registration, global_search)
+            dereference(b.thisptr), env_nlist_.get_ptr(), nlist_.get_ptr(),
+            <vec3[float]*> &l_points[0, 0], nP, threshold, registration,
+            global_search)
         return self
 
     @Compute._computed_property
@@ -719,18 +719,15 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
 
     cdef freud._environment.EnvironmentMotifMatch * thisptr
 
-    def __cinit__(self, box, r_max, num_neighbors):
-        cdef freud.box.Box b = freud.common.convert_box(box)
-
+    def __cinit__(self, r_max, num_neighbors):
         self.thisptr = self.matchptr = \
             new freud._environment.EnvironmentMotifMatch(
-                dereference(b.thisptr), r_max, num_neighbors)
+                r_max, num_neighbors)
 
         self.r_max = r_max
         self.num_neighbors = num_neighbors
-        self.m_box = box
 
-    def compute(self, motif, points, threshold, registration=False,
+    def compute(self, box, motif, points, threshold, registration=False,
                 nlist=None):
         R"""Determine clusters of particles that match the motif provided by
         motif.
@@ -752,6 +749,9 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         """
+        cdef freud.box.Box b = freud.common.convert_box(box)
+        self.m_box = box
+
         points = freud.common.convert_array(points, shape=(None, 3))
         motif = freud.common.convert_array(motif, shape=(None, 3))
 
@@ -766,9 +766,9 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
             dict(num_neighbors=self.num_neighbors, r_guess=self.r_max), nlist)
 
         self.thisptr.compute(
-            nlist_.get_ptr(), <vec3[float]*> &l_points[0, 0], nP,
-            <vec3[float]*> &l_motif[0, 0], nRef, threshold,
-            registration)
+            dereference(b.thisptr), nlist_.get_ptr(), <vec3[float]*>
+            &l_points[0, 0], nP, <vec3[float]*> &l_motif[0, 0], nRef,
+            threshold, registration)
 
     @Compute._computed_property
     def matches(self):
@@ -805,16 +805,13 @@ cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
 
     cdef freud._environment.EnvironmentRMSDMinimizer * thisptr
 
-    def __cinit__(self, box, r_max, num_neighbors):
-        cdef freud.box.Box b = freud.common.convert_box(box)
-
+    def __cinit__(self, r_max, num_neighbors):
         self.thisptr = self.matchptr = \
             new freud._environment.EnvironmentRMSDMinimizer(
-                dereference(b.thisptr), r_max, num_neighbors)
+                r_max, num_neighbors)
 
         self.r_max = r_max
         self.num_neighbors = num_neighbors
-        self.m_box = box
 
     @Compute._computed_property
     def rmsds(self):
@@ -822,7 +819,7 @@ cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
             &self.thisptr.getRMSDs(),
             freud.util.arr_type_t.FLOAT)
 
-    def compute(self, motif, points, registration=False, nlist=None):
+    def compute(self, box, motif, points, registration=False, nlist=None):
         R"""Rotate (if registration=True) and permute the environments of all
         particles to minimize their RMSD with respect to the motif provided by
         motif.
@@ -845,6 +842,9 @@ cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
                 Vector of minimal RMSD values, one value per particle.
 
         """
+        cdef freud.box.Box b = freud.common.convert_box(box)
+        self.m_box = box
+
         points = freud.common.convert_array(points, shape=(None, 3))
         motif = freud.common.convert_array(motif, shape=(None, 3))
 
@@ -859,8 +859,9 @@ cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
             dict(num_neighbors=self.num_neighbors, r_guess=self.r_max), nlist)
 
         self.thisptr.compute(
-            nlist_.get_ptr(), <vec3[float]*> &l_points[0, 0], nP,
-            <vec3[float]*> &l_motif[0, 0], nRef, registration)
+            dereference(b.thisptr), nlist_.get_ptr(), <vec3[float]*>
+            &l_points[0, 0], nP, <vec3[float]*> &l_motif[0, 0], nRef,
+            registration)
 
         return self
 

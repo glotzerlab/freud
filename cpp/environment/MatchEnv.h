@@ -203,12 +203,12 @@ std::map<unsigned int, unsigned int> isSimilar(const box::Box &box, const vec3<f
 class MatchEnv
 {
 public:
-    MatchEnv(const box::Box& box, float r_max, unsigned int num_neighbors);
+    MatchEnv(float r_max, unsigned int num_neighbors);
 
     ~MatchEnv();
 
     //! Construct and return a local environment surrounding the particle indexed by i. Set the environment index to env_ind.
-    Environment buildEnv(const freud::locality::NeighborList* nlist, size_t num_bonds, size_t& bond,
+    Environment buildEnv(const box::Box &box, const freud::locality::NeighborList* nlist, size_t num_bonds, size_t& bond,
                          const vec3<float>* points, unsigned int i, unsigned int env_ind);
 
     unsigned int getNumNeighbors()
@@ -227,7 +227,6 @@ public:
     }
 
 protected:
-    box::Box m_box; //!< Simulation box
     float m_r_max; //!< Square of the maximum cutoff radius at which to determine local environment
     unsigned int m_num_neighbors;      //!< Default number of nearest neighbors used to determine which environments are compared
                //!< during local environment clustering.
@@ -259,7 +258,7 @@ public:
      * \param r_max Cutoff radius for cell list and clustering algorithm. Values near first minimum of the rdf are recommended.  
      * \param num_neighbors Number of nearest neighbors taken to define the local environment of any given particle.
      */
-    EnvironmentCluster(const box::Box& box, float r_max, unsigned int num_neighbors);
+    EnvironmentCluster(float r_max, unsigned int num_neighbors);
 
     //! Destructor
     ~EnvironmentCluster();
@@ -289,7 +288,7 @@ public:
      *               simulation. If global is false, only compare the
      *               environments of neighboring particles.
      */
-    void compute(const freud::locality::NeighborList* env_nlist, const freud::locality::NeighborList* nlist,
+    void compute(const box::Box& box, const freud::locality::NeighborList* env_nlist, const freud::locality::NeighborList* nlist,
                  const vec3<float>* points, unsigned int Np, float threshold,
                  bool registration = false, bool global = false);
 
@@ -353,7 +352,7 @@ public:
      * \param r_max Cutoff radius for cell list and clustering algorithm. Values near first minimum of the rdf are recommended.  
      * \param num_neighbors Number of nearest neighbors taken to define the local environment of any given particle.
      */
-    EnvironmentMotifMatch(const box::Box& box, float r_max, unsigned int num_neighbors) : MatchEnv(box, r_max, num_neighbors) {}
+    EnvironmentMotifMatch(float r_max, unsigned int num_neighbors) : MatchEnv(r_max, num_neighbors) {}
 
     //! Determine whether particles match a given input motif.
     /*! Given a motif composed of vectors that represent the vectors connecting
@@ -383,7 +382,7 @@ public:
      *                     orient the second set of vectors such that it
      *                     minimizes the RMSD between the two sets
      */
-    void compute(const freud::locality::NeighborList* nlist, const vec3<float>* points, unsigned int Np,
+    void compute(const box::Box& box, const freud::locality::NeighborList* nlist, const vec3<float>* points, unsigned int Np,
                     const vec3<float>* motif, unsigned int motif_size, float threshold,
                     bool registration = false);
 
@@ -416,7 +415,7 @@ public:
      * \param r_max Cutoff radius for cell list and clustering algorithm. Values near first minimum of the rdf are recommended.  
      * \param num_neighbors Number of nearest neighbors taken to define the local environment of any given particle.
      */
-    EnvironmentRMSDMinimizer(const box::Box& box, float r_max, unsigned int num_neighbors) : MatchEnv(box, r_max, num_neighbors) {}
+    EnvironmentRMSDMinimizer(float r_max, unsigned int num_neighbors) : MatchEnv(r_max, num_neighbors) {}
 
     //! Rotate (if registration=True) and permute the environments of all particles to minimize their RMSD wrt a given input motif.
     /*! Returns a vector of minimal RMSD values, one value per particle. NOTE
@@ -446,7 +445,7 @@ public:
      *                     orient the second set of vectors such that it
      *                     minimizes the RMSD between the two sets
      */
-    void compute(const freud::locality::NeighborList* nlist, const vec3<float>* points,
+    void compute(const box::Box& box, const freud::locality::NeighborList* nlist, const vec3<float>* points,
                                     unsigned int Np, const vec3<float>* motif, unsigned int motif_size,
                                     bool registration = false);
 
