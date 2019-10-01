@@ -197,22 +197,13 @@ std::map<unsigned int, unsigned int> isSimilar(const box::Box &box, const vec3<f
 class MatchEnv
 {
 public:
-    MatchEnv(unsigned int num_neighbors);
+    MatchEnv();
 
     ~MatchEnv();
 
     //! Construct and return a local environment surrounding the particle indexed by i. Set the environment index to env_ind.
     Environment buildEnv(const box::Box &box, const freud::locality::NeighborList* nlist, size_t num_bonds, size_t& bond,
                          const vec3<float>* points, unsigned int i, unsigned int env_ind);
-
-    unsigned int getNumNeighbors()
-    {
-        return m_num_neighbors;
-    }
-    unsigned int getMaxNumNeighbors()
-    {
-        return m_max_num_neighbors;
-    }
 
     //! Returns the entire Np by m_num_neighbors by 3 matrix of all environments for all particles
     const util::ManagedArray<vec3<float>> &getParticleEnvironments()
@@ -221,12 +212,6 @@ public:
     }
 
 protected:
-    unsigned int m_num_neighbors;      //!< Default number of nearest neighbors used to determine which environments are compared
-               //!< during local environment clustering.
-    unsigned int m_max_num_neighbors; //!< Maximum number of neighbors in any particle's local environment. If
-                         //!< hard_r=false, m_max_num_neighbors = m_num_neighbors. In the cluster method it is also possible to provide
-                         //!< two separate neighborlists, one for environments and one for clustering.
-
     util::ManagedArray<vec3<float> >
         m_particle_environments; //!< m_NP by m_max_num_neighbors by 3 matrix of all environments for all particles
 };
@@ -250,7 +235,7 @@ public:
      * \param box The system box.
      * \param num_neighbors Number of nearest neighbors taken to define the local environment of any given particle.
      */
-    EnvironmentCluster(unsigned int num_neighbors);
+    EnvironmentCluster() : MatchEnv() {}
 
     //! Destructor
     ~EnvironmentCluster();
@@ -342,7 +327,7 @@ public:
      * \param box The system box.
      * \param num_neighbors Number of nearest neighbors taken to define the local environment of any given particle.
      */
-    EnvironmentMotifMatch(unsigned int num_neighbors) : MatchEnv(num_neighbors) {}
+    EnvironmentMotifMatch() : MatchEnv() {}
 
     //! Determine whether particles match a given input motif.
     /*! Given a motif composed of vectors that represent the vectors connecting
@@ -402,7 +387,7 @@ public:
     /*!
      * \param num_neighbors Number of nearest neighbors taken to define the local environment of any given particle.
      */
-    EnvironmentRMSDMinimizer(unsigned int num_neighbors) : MatchEnv(num_neighbors) {}
+    EnvironmentRMSDMinimizer() : MatchEnv() {}
 
     //! Rotate (if registration=True) and permute the environments of all particles to minimize their RMSD wrt a given input motif.
     /*! Returns a vector of minimal RMSD values, one value per particle. NOTE

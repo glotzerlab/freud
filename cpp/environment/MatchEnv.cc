@@ -16,7 +16,7 @@ namespace freud { namespace environment {
 /*****************
  * EnvDisjoinSet *
  *****************/
-EnvDisjointSet::EnvDisjointSet(unsigned int Np) : rank(std::vector<unsigned int>(Np, 0)) {}
+EnvDisjointSet::EnvDisjointSet(unsigned int Np) : rank(std::vector<unsigned int>(Np, 0)), m_max_num_neigh(0) {}
 
 void EnvDisjointSet::merge(const unsigned int a, const unsigned int b,
                            BiMap<unsigned int, unsigned int> vec_map, rotmat3<float> rotation)
@@ -484,20 +484,14 @@ std::map<unsigned int, unsigned int> minimizeRMSD(const box::Box &box, const vec
 /************
  * MatchEnv *
  ************/
-MatchEnv::MatchEnv(unsigned int num_neighbors) : m_num_neighbors(num_neighbors)
-{
-    m_max_num_neighbors = 0;
-}
+MatchEnv::MatchEnv() {}
 
 MatchEnv::~MatchEnv() {}
 
 /**********************
  * EnvironmentCluster *
  **********************/
-EnvironmentCluster::EnvironmentCluster(unsigned int num_neighbors) : MatchEnv(num_neighbors) 
-{
-    m_num_clusters = 0;
-}
+
 EnvironmentCluster::~EnvironmentCluster() {}
 
 Environment MatchEnv::buildEnv(const box::Box &box, const freud::locality::NeighborList* nlist, size_t num_bonds, size_t& bond,
@@ -546,12 +540,11 @@ void EnvironmentCluster::compute(const box::Box &box, const freud::locality::Nei
     {
         Environment ei = buildEnv(box, env_nlist, env_num_bonds, env_bond, points, i, i);
         dj.s.push_back(ei);
-        m_max_num_neighbors = std::max(m_max_num_neighbors, ei.num_vecs);
-        dj.m_max_num_neigh = m_max_num_neighbors;
+        dj.m_max_num_neigh = std::max(dj.m_max_num_neigh, ei.num_vecs);;
     }
 
     // reallocate the m_particle_environments array
-    m_particle_environments.prepare({Np, m_max_num_neighbors});
+    m_particle_environments.prepare({Np, dj.m_max_num_neigh});
 
     size_t bond(0);
     // loop through points
@@ -678,11 +671,10 @@ void EnvironmentMotifMatch::compute(const box::Box &box, const freud::locality::
     // this has to have ONE MORE environment than there are actual particles,
     // because we're inserting the motif into it.
     EnvDisjointSet dj(Np + 1);
-    dj.m_max_num_neigh = m_num_neighbors;
-    m_max_num_neighbors = m_num_neighbors;
+    dj.m_max_num_neigh = motif_size;
 
     // reallocate the m_particle_environments array
-    m_particle_environments.prepare({Np, m_max_num_neighbors});
+    m_particle_environments.prepare({Np, motif_size});
 
     // create the environment characterized by motif. Index it as 0.
     // set the IGNORE flag to true, since this is not an environment we have
@@ -754,11 +746,10 @@ void EnvironmentRMSDMinimizer::compute(const box::Box &box, const freud::localit
     // this has to have ONE MORE environment than there are actual particles,
     // because we're inserting the motif into it.
     EnvDisjointSet dj(Np + 1);
-    dj.m_max_num_neigh = m_num_neighbors;
-    m_max_num_neighbors = m_num_neighbors;
+    dj.m_max_num_neigh = motif_size;
 
     // reallocate the m_particle_environments array
-    m_particle_environments.prepare({Np, m_max_num_neighbors});
+    m_particle_environments.prepare({Np, motif_size});
 
     // create the environment characterized by motif. Index it as 0.
     // set the IGNORE flag to true, since this is not an environment we

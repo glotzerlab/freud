@@ -563,8 +563,7 @@ cdef class EnvironmentCluster(_MatchEnv):
 
     def __cinit__(self, num_neighbors):
         self.thisptr = self.matchptr = \
-            new freud._environment.EnvironmentCluster(
-                num_neighbors)
+            new freud._environment.EnvironmentCluster()
 
         self.num_neighbors = num_neighbors
 
@@ -689,7 +688,12 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
 
     In general, it is recommended to specify a number of neighbors rather than
     just a distance cutoff as part of your neighbor querying when performing
-    this computation since it can otherwise be very sensitive.
+    this computation since it can otherwise be very sensitive. Specifically, it
+    is highly recommended that you choose a number of neighbors that you
+    specify a number of neighbors query that requests at least as many
+    neighbors as the size of the motif you intend to test against. Otherwise,
+    you will struggle to match the motif. However, this is not currently
+    enforced (but we could add a warning to the compute...).
 
     Args:
         num_neighbors (unsigned int):
@@ -709,8 +713,7 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
 
     def __cinit__(self, num_neighbors):
         self.thisptr = self.matchptr = \
-            new freud._environment.EnvironmentMotifMatch(
-                num_neighbors)
+            new freud._environment.EnvironmentMotifMatch()
 
         self.num_neighbors = num_neighbors
 
@@ -775,14 +778,14 @@ cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
 
     In general, it is recommended to specify a number of neighbors rather than
     just a distance cutoff as part of your neighbor querying when performing
-    this computation since it can otherwise be very sensitive.
+    this computation since it can otherwise be very sensitive. Specifically, it
+    is highly recommended that you choose a number of neighbors that you
+    specify a number of neighbors query that requests at least as many
+    neighbors as the size of the motif you intend to test against. Otherwise,
+    you will struggle to match the motif. However, this is not currently
+    enforced (but we could add a warning to the compute...).
 
     Args:
-        box (:class:`freud.box.Box`):
-            Simulation box.
-        r_max (float):
-            Cutoff radius for cell list and clustering algorithm. Values near
-            the first minimum of the RDF are recommended.
         num_neighbors (unsigned int):
             Number of nearest neighbors taken to define the local environment
             of any given particle.
@@ -800,8 +803,7 @@ cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
 
     def __cinit__(self, num_neighbors):
         self.thisptr = self.matchptr = \
-            new freud._environment.EnvironmentRMSDMinimizer(
-                num_neighbors)
+            new freud._environment.EnvironmentRMSDMinimizer()
 
         self.num_neighbors = num_neighbors
 
