@@ -462,7 +462,9 @@ def _isSimilar(box, ref_points, points, threshold, registration=False):
             Vectors that make up motif 2.
         threshold (float):
             Maximum magnitude of the vector difference between two vectors,
-            below which they are considered "matching."
+            below which they are "matching". Typically, a good choice is
+            between 10% and 30% of the first well in the radial
+            distribution function (this has distance units).
         registration (bool, optional):
             If True, first use brute force registration to orient one set
             of environment vectors with respect to the other set such that
@@ -504,16 +506,6 @@ def _isSimilar(box, ref_points, points, threshold, registration=False):
 cdef class _MatchEnv(PairCompute):
     R"""Parent for environment matching methods.
 
-    Args:
-        box (:class:`freud.box.Box`):
-            Simulation box.
-        r_max (float):
-            Cutoff radius for cell list and clustering algorithm. Values near
-            the first minimum of the RDF are recommended.
-        num_neighbors (unsigned int):
-            Number of nearest neighbors taken to define the local environment
-            of any given particle.
-
     Attributes:
         particle_environments (:math:`\left(N_{particles}, N_{neighbors}, 3\right)` :class:`numpy.ndarray`):
             All environments for all particles.
@@ -523,8 +515,6 @@ cdef class _MatchEnv(PairCompute):
             The per-particle index indicating cluster membership.
     """  # noqa: E501
     cdef freud._environment.MatchEnv * matchptr
-    cdef num_neighbors
-    cdef m_box
 
     def __cinit__(self, *args, **kwargs):
         # Abstract class
@@ -536,27 +526,24 @@ cdef class _MatchEnv(PairCompute):
             &self.matchptr.getParticleEnvironments(),
             freud.util.arr_type_t.FLOAT, 3)
 
+    def __repr__(self):
+        return ("freud.environment.{cls}()").format(
+            cls=type(self).__name__)
+
 
 cdef class EnvironmentCluster(_MatchEnv):
     R"""Clusters particles according to whether their local environments match
     or not, according to various shape matching metrics.
 
-    In general, it is recommended to specify a number of neighbors rather than
-    just a distance cutoff as part of your neighbor querying when performing
-    this computation since it can otherwise be very sensitive.
-
-    Args:
-        num_neighbors (unsigned int):
-            Number of nearest neighbors taken to define the local environment
-            of any given particle.
-
     Attributes:
-        num_particles (unsigned int):
-            The number of particles.
+        particle_environments (:math:`\left(N_{particles}, N_{neighbors}, 3\right)` :class:`numpy.ndarray`):
+            All environments for all particles.
         num_clusters (unsigned int):
             The number of clusters.
         clusters (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The per-particle index indicating cluster membership.
+        cluster_environments (:math:`\left(N_{clusters}, N_{neighbors}, 3\right)` :class:`numpy.ndarray`):
+            The environments for all clusters.
     """  # noqa: E501
 
     cdef freud._environment.EnvironmentCluster * thisptr
@@ -573,15 +560,26 @@ cdef class EnvironmentCluster(_MatchEnv):
                 global_search=False):
         R"""Determine clusters of particles with matching environments.
 
+        In general, it is recommended to specify a number of neighbors rather
+        than just a distance cutoff as part of your neighbor querying when
+        performing this computation. Using a distance cutoff alone could easily
+        lead to situations where a point doesn't match a cluster because a
+        required neighbor is just outside the cutoff.
+
         Args:
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            neighbor_query ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Destination points to calculate the order parameter.
             threshold (float):
                 Maximum magnitude of the vector difference between two vectors,
-                below which they are "matching."
-            hard_r (bool):
-                If True, exclude all particles that fall beyond the threshold
-                of :code:`r_max` from the environment.
+                below which they are "matching". Typically, a good choice is
+                between 10% and 30% of the first well in the radial
+                distribution function (this has distance units).
+            neighbors (:class:`freud.locality.NeighborList`, optional):
+                NeighborList to use to find neighbors of every particle, to
+                compare environments (Default value = :code:`None`).
+            env_neighbors (:class:`freud.locality.NeighborList` or dict, optional):
+                NeighborList to use to find the environment of every particle
+                (Default value = :code:`None`).
             registration (bool, optional):
                 If True, first use brute force registration to orient one set
                 of environment vectors with respect to the other set such that
@@ -592,13 +590,7 @@ cdef class EnvironmentCluster(_MatchEnv):
                 every single pair of particles in the simulation are compared.
                 If False, only compare the environments of neighboring
                 particles. (Default value = :code:`False`)
-            env_nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find the environment of every particle
-                (Default value = :code:`None`).
-            nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find neighbors of every particle, to
-                compare environments (Default value = :code:`None`).
-        """
+        """  # noqa: E501
         cdef:
             freud.locality.NeighborQuery nq
             freud.locality.NeighborList nlist, env_nlist
@@ -655,10 +647,6 @@ cdef class EnvironmentCluster(_MatchEnv):
             return freud.plot.clusters_plot(
                 values, counts, num_clusters_to_plot=10, ax=ax)
 
-    def __repr__(self):
-        return ("freud.environment.{cls}()").format(
-            cls=type(self).__name__)
-
     def _repr_png_(self):
         import freud.plot
         try:
@@ -677,20 +665,13 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
     specify a number of neighbors query that requests at least as many
     neighbors as the size of the motif you intend to test against. Otherwise,
     you will struggle to match the motif. However, this is not currently
-    enforced (but we could add a warning to the compute...).
-
-    Args:
-        num_neighbors (unsigned int):
-            Number of nearest neighbors taken to define the local environment
-            of any given particle.
+    enforced.
 
     Attributes:
-        num_particles (unsigned int):
-            The number of particles.
-        num_clusters (unsigned int):
-            The number of clusters.
-        clusters (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
-            The per-particle index indicating cluster membership.
+        matches (:math:`(N_p, )` :class:`numpy.ndarray`):
+            A boolean array indicating whether each point matches the motif.
+        particle_environments (:math:`\left(N_{points}, N_{neighbors}, 3\right)` :class:`numpy.ndarray`):
+            The environments for all points.
     """  # noqa: E501
 
     cdef freud._environment.EnvironmentMotifMatch * thisptr
@@ -705,21 +686,23 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
         motif.
 
         Args:
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                NeighborQuery.
             motif ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Vectors that make up the motif against which we are matching.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Particle positions.
             threshold (float):
                 Maximum magnitude of the vector difference between two vectors,
-                below which they are considered "matching."
+                below which they are "matching". Typically, a good choice is
+                between 10% and 30% of the first well in the radial
+                distribution function (this has distance units).
+            neighbors (:class:`freud.locality.NeighborList`, optional):
+                NeighborList to use to find bonds (Default value =
+                :code:`None`).
             registration (bool, optional):
                 If True, first use brute force registration to orient one set
                 of environment vectors with respect to the other set such that
                 it minimizes the RMSD between the two sets
                 (Default value = False).
-            nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value =
-                :code:`None`).
         """
         cdef:
             freud.locality.NeighborQuery nq
@@ -747,10 +730,6 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
             &self.thisptr.getMatches(),
             freud.util.arr_type_t.BOOL)
 
-    def __repr__(self):
-        return ("freud.environment.{cls}()").format(
-            cls=type(self).__name__)
-
 
 cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
     R"""Find linear transformations that map the environments of points onto a motif.
@@ -764,18 +743,11 @@ cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
     you will struggle to match the motif. However, this is not currently
     enforced (but we could add a warning to the compute...).
 
-    Args:
-        num_neighbors (unsigned int):
-            Number of nearest neighbors taken to define the local environment
-            of any given particle.
-
     Attributes:
-        num_particles (unsigned int):
-            The number of particles.
-        num_clusters (unsigned int):
-            The number of clusters.
-        clusters (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
-            The per-particle index indicating cluster membership.
+        rmsds (:math:`(N_p, )` :class:`numpy.ndarray`):
+            A boolean array of the RMSDs found for each point's environment.
+        particle_environments (:math:`\left(N_{points}, N_{neighbors}, 3\right)` :class:`numpy.ndarray`):
+            The environments for all points.
     """  # noqa: E501
 
     cdef freud._environment.EnvironmentRMSDMinimizer * thisptr
@@ -797,18 +769,18 @@ cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
         motif.
 
         Args:
+            neighbor_query ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                NeighborQuery or (box, points).
             motif ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Vectors that make up the motif against which we are matching.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Particle positions.
+            neighbors (:class:`freud.locality.NeighborList`, optional):
+                NeighborList to use to find bonds (Default value =
+                :code:`None`).
             registration (bool, optional):
                 If True, first use brute force registration to orient one set
                 of environment vectors with respect to the other set such that
                 it minimizes the RMSD between the two sets
                 (Default value = :code:`False`).
-            nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value =
-                :code:`None`).
         Returns:
             :math:`\left(N_{particles}\right)` :class:`numpy.ndarray`:
                 Vector of minimal RMSD values, one value per particle.
@@ -835,10 +807,6 @@ cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
             registration)
 
         return self
-
-    def __repr__(self):
-        return ("freud.environment.{cls}()").format(
-            cls=type(self).__name__)
 
 
 cdef class AngularSeparationNeighbor(PairCompute):
