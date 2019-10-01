@@ -6,6 +6,9 @@
 
 #include "MatchEnv.h"
 
+#include "NeighborComputeFunctional.h"
+#include "NeighborBond.h"
+
 #if defined _WIN32
 #undef min // std::min clashes with a Windows header
 #undef max // std::max clashes with a Windows header
@@ -494,21 +497,20 @@ MatchEnv::~MatchEnv() {}
 
 EnvironmentCluster::~EnvironmentCluster() {}
 
-Environment MatchEnv::buildEnv(const box::Box &box, const freud::locality::NeighborList* nlist, size_t num_bonds, size_t& bond,
-                               const vec3<float>* points, unsigned int i, unsigned int env_ind)
+Environment MatchEnv::buildEnv(const freud::locality::NeighborQuery* nq, const freud::locality::NeighborList* nlist, size_t num_bonds, size_t& bond,
+                               unsigned int i, unsigned int env_ind)
 {
     Environment ei = Environment();
     // set the environment index equal to the particle index
     ei.env_ind = env_ind;
 
-    vec3<float> p = points[i];
     for (; bond < num_bonds && nlist->getNeighbors()(bond, 0) == i; ++bond)
     {
         // compute vec{r} between the two particles
         const size_t j(nlist->getNeighbors()(bond, 1));
         if (i != j)
         {
-            vec3<float> delta = box.wrap(points[j] - p);
+            vec3<float> delta(bondVector(locality::NeighborBond(j, i), nq, nq->getPoints()));
             ei.addVec(delta);
         }
     }
@@ -516,10 +518,11 @@ Environment MatchEnv::buildEnv(const box::Box &box, const freud::locality::Neigh
     return ei;
 }
 
-void EnvironmentCluster::compute(const box::Box &box, const freud::locality::NeighborList* env_nlist,
-                       const freud::locality::NeighborList* nlist, const vec3<float>* points, unsigned int Np,
+void EnvironmentCluster::compute(const freud::locality::NeighborQuery* nq, const freud::locality::NeighborList* env_nlist,
+                       const freud::locality::NeighborList* nlist,
                        float threshold, bool registration, bool global)
 {
+    unsigned int Np = nq->getNPoints();
     m_env_index.prepare(Np);
 
     float m_threshold_sq = threshold * threshold;
@@ -538,7 +541,7 @@ void EnvironmentCluster::compute(const box::Box &box, const freud::locality::Nei
     // if you don't do this, things will get screwy.
     for (unsigned int i = 0; i < Np; i++)
     {
-        Environment ei = buildEnv(box, env_nlist, env_num_bonds, env_bond, points, i, i);
+        Environment ei = buildEnv(nq, env_nlist, env_num_bonds, env_bond, i, i);
         dj.s.push_back(ei);
         dj.m_max_num_neigh = std::max(dj.m_max_num_neigh, ei.num_vecs);;
     }
@@ -659,10 +662,11 @@ unsigned int EnvironmentCluster::populateEnv(EnvDisjointSet dj)
 /*************************
  * EnvironmentMotifMatch *
  *************************/
-void EnvironmentMotifMatch::compute(const box::Box &box, const freud::locality::NeighborList* nlist, const vec3<float>* points,
-                          unsigned int Np, const vec3<float>* motif, unsigned int motif_size, float threshold,
+void EnvironmentMotifMatch::compute(const freud::locality::NeighborQuery* nq, const freud::locality::NeighborList* nlist,
+                          const vec3<float>* motif, unsigned int motif_size, float threshold,
                           bool registration)
 {
+    unsigned int Np = nq->getNPoints();
     float m_threshold_sq = threshold * threshold;
 
     nlist->validate(Np, Np);
@@ -687,7 +691,7 @@ void EnvironmentMotifMatch::compute(const box::Box &box, const freud::locality::
     // be wrapped into the box as well.
     for (unsigned int i = 0; i < motif_size; i++)
     {
-        vec3<float> p = box.wrap(motif[i]);
+        vec3<float> p = nq->getBox().wrap(motif[i]);
         e0.addVec(p);
     }
 
@@ -706,7 +710,7 @@ void EnvironmentMotifMatch::compute(const box::Box &box, const freud::locality::
     for (unsigned int i = 0; i < Np; i++)
     {
         unsigned int dummy = i + 1;
-        Environment ei = buildEnv(box, nlist, num_bonds, bond, points, i, dummy);
+        Environment ei = buildEnv(nq, nlist, num_bonds, bond, i, dummy);
         dj.s.push_back(ei);
 
         // if the environment matches e0, merge it into the e0 environment set
@@ -735,11 +739,11 @@ void EnvironmentMotifMatch::compute(const box::Box &box, const freud::locality::
 /****************************
  * EnvironmentRMSDMinimizer *
  ****************************/
-void EnvironmentRMSDMinimizer::compute(const box::Box &box, const freud::locality::NeighborList* nlist,
-                                          const vec3<float>* points, unsigned int Np,
+void EnvironmentRMSDMinimizer::compute(const freud::locality::NeighborQuery* nq, const freud::locality::NeighborList* nlist,
                                           const vec3<float>* motif, unsigned int motif_size,
                                           bool registration)
 {
+    unsigned int Np = nq->getNPoints();
     nlist->validate(Np, Np);
 
     // create a disjoint set where all particles belong in their own cluster.
@@ -762,7 +766,7 @@ void EnvironmentRMSDMinimizer::compute(const box::Box &box, const freud::localit
     // be wrapped into the box as well.
     for (unsigned int i = 0; i < motif_size; i++)
     {
-        vec3<float> p = box.wrap(motif[i]);
+        vec3<float> p = nq->getBox().wrap(motif[i]);
         e0.addVec(p);
     }
 
@@ -781,7 +785,7 @@ void EnvironmentRMSDMinimizer::compute(const box::Box &box, const freud::localit
     for (unsigned int i = 0; i < Np; i++)
     {
         unsigned int dummy = i + 1;
-        Environment ei = buildEnv(box, nlist, num_bonds, bond, points, i, dummy);
+        Environment ei = buildEnv(nq, nlist, num_bonds, bond, i, dummy);
         dj.s.push_back(ei);
 
         // if the environment matches e0, merge it into the e0 environment set

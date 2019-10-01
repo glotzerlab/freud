@@ -599,7 +599,9 @@ cdef class EnvironmentCluster(_MatchEnv):
                 NeighborList to use to find neighbors of every particle, to
                 compare environments (Default value = :code:`None`).
         """
-        cdef freud.box.Box b = freud.common.convert_box(box)
+        cdef freud.locality.NeighborQuery nq = freud.locality._make_default_nq(
+            box, points)
+
         self.m_box = box
 
         points = freud.common.convert_array(points, shape=(None, 3))
@@ -616,8 +618,8 @@ cdef class EnvironmentCluster(_MatchEnv):
             self.m_box, points, None, query_args, env_nlist)
 
         self.thisptr.compute(
-            dereference(b.thisptr), env_nlist_.get_ptr(), nlist_.get_ptr(),
-            <vec3[float]*> &l_points[0, 0], nP, threshold, registration,
+            nq.get_ptr(), env_nlist_.get_ptr(), nlist_.get_ptr(),
+            threshold, registration,
             global_search)
         return self
 
@@ -723,7 +725,8 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         """
-        cdef freud.box.Box b = freud.common.convert_box(box)
+        cdef freud.locality.NeighborQuery nq = freud.locality._make_default_nq(
+            box, points)
         self.m_box = box
 
         points = freud.common.convert_array(points, shape=(None, 3))
@@ -740,8 +743,8 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
             query_args, nlist)
 
         self.thisptr.compute(
-            dereference(b.thisptr), nlist_.get_ptr(), <vec3[float]*>
-            &l_points[0, 0], nP, <vec3[float]*> &l_motif[0, 0], nRef,
+            nq.get_ptr(), nlist_.get_ptr(), <vec3[float]*>
+            <vec3[float]*> &l_motif[0, 0], nRef,
             threshold, registration)
 
     @Compute._computed_property
@@ -817,7 +820,8 @@ cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
                 Vector of minimal RMSD values, one value per particle.
 
         """
-        cdef freud.box.Box b = freud.common.convert_box(box)
+        cdef freud.locality.NeighborQuery nq = freud.locality._make_default_nq(
+            box, points)
         self.m_box = box
 
         points = freud.common.convert_array(points, shape=(None, 3))
@@ -834,8 +838,8 @@ cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
             query_args, nlist)
 
         self.thisptr.compute(
-            dereference(b.thisptr), nlist_.get_ptr(), <vec3[float]*>
-            &l_points[0, 0], nP, <vec3[float]*> &l_motif[0, 0], nRef,
+            nq.get_ptr(), nlist_.get_ptr(), <vec3[float]*>
+            <vec3[float]*> &l_motif[0, 0], nRef,
             registration)
 
         return self

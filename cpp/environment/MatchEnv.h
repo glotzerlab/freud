@@ -10,6 +10,7 @@
 #include "BiMap.h"
 #include "Box.h"
 #include "ManagedArray.h"
+#include "NeighborQuery.h"
 #include "NeighborList.h"
 #include "VectorMath.h"
 #include "brute_force.h"
@@ -202,8 +203,8 @@ public:
     ~MatchEnv();
 
     //! Construct and return a local environment surrounding the particle indexed by i. Set the environment index to env_ind.
-    Environment buildEnv(const box::Box &box, const freud::locality::NeighborList* nlist, size_t num_bonds, size_t& bond,
-                         const vec3<float>* points, unsigned int i, unsigned int env_ind);
+    Environment buildEnv(const freud::locality::NeighborQuery* nq, const freud::locality::NeighborList* nlist, size_t num_bonds, size_t& bond,
+                         unsigned int i, unsigned int env_ind);
 
     //! Returns the entire Np by m_num_neighbors by 3 matrix of all environments for all particles
     const util::ManagedArray<vec3<float>> &getParticleEnvironments()
@@ -264,8 +265,7 @@ public:
      *               simulation. If global is false, only compare the
      *               environments of neighboring particles.
      */
-    void compute(const box::Box& box, const freud::locality::NeighborList* env_nlist, const freud::locality::NeighborList* nlist,
-                 const vec3<float>* points, unsigned int Np, float threshold,
+    void compute(const freud::locality::NeighborQuery* nq, const freud::locality::NeighborList* env_nlist, const freud::locality::NeighborList* nlist, float threshold,
                  bool registration = false, bool global = false);
 
     //! Get a reference to the particles, indexed into clusters according to their matching local environments
@@ -356,7 +356,7 @@ public:
      *                     orient the second set of vectors such that it
      *                     minimizes the RMSD between the two sets
      */
-    void compute(const box::Box& box, const freud::locality::NeighborList* nlist, const vec3<float>* points, unsigned int Np,
+    void compute(const freud::locality::NeighborQuery* nq, const freud::locality::NeighborList* nlist,
                     const vec3<float>* motif, unsigned int motif_size, float threshold,
                     bool registration = false);
 
@@ -416,8 +416,7 @@ public:
      *                     orient the second set of vectors such that it
      *                     minimizes the RMSD between the two sets
      */
-    void compute(const box::Box& box, const freud::locality::NeighborList* nlist, const vec3<float>* points,
-                                    unsigned int Np, const vec3<float>* motif, unsigned int motif_size,
+    void compute(const freud::locality::NeighborQuery* nq, const freud::locality::NeighborList* nlist, const vec3<float>* motif, unsigned int motif_size,
                                     bool registration = false);
 
     //! Return the array indicating whether or not a successful mapping was found between each particle and the provided motif.

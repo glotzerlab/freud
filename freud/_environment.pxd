@@ -74,47 +74,35 @@ cdef extern from "MatchEnv.h" namespace "freud::environment":
 
     cdef cppclass EnvironmentMotifMatch(MatchEnv):
         EnvironmentMotifMatch() except +
-        void compute(const freud._box.Box &,
+        void compute(const freud._locality.NeighborQuery*,
                      const freud._locality.NeighborList*,
-                     const vec3[float]*,
-                     unsigned int,
                      const vec3[float]*,
                      unsigned int,
                      float,
                      bool) except +
         const freud.util.ManagedArray[bool] &getMatches()
-        unsigned int getNumNeighbors()
-        unsigned int getMaxNumNeighbors()
 
     cdef cppclass EnvironmentRMSDMinimizer(MatchEnv):
         EnvironmentRMSDMinimizer() except +
         void compute(
-            const freud._box.Box &,
+            const freud._locality.NeighborQuery*,
             const freud._locality.NeighborList*,
-            const vec3[float]*,
-            unsigned int,
             const vec3[float]*,
             unsigned int,
             bool) except +
         const freud.util.ManagedArray[float] &getRMSDs()
-        unsigned int getNumNeighbors()
-        unsigned int getMaxNumNeighbors()
 
     cdef cppclass EnvironmentCluster(MatchEnv):
         EnvironmentCluster() except +
-        void compute(const freud._box.Box &,
+        void compute(const freud._locality.NeighborQuery*,
                      const freud._locality.NeighborList*,
                      const freud._locality.NeighborList*,
-                     const vec3[float]*,
-                     unsigned int,
                      float,
                      bool,
                      bool) except +
         unsigned int getNumClusters()
         const freud.util.ManagedArray[unsigned int] &getClusters()
         vector[vector[vec3[float]]] &getClusterEnvironments()
-        unsigned int getNumNeighbors()
-        unsigned int getMaxNumNeighbors()
 
 cdef extern from "AngularSeparation.h" namespace "freud::environment":
     cdef cppclass AngularSeparationGlobal:
