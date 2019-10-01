@@ -10,6 +10,7 @@ Table of Contents
    introduction
    installation
    gettingstarted
+   tutorial
    examples
 
 .. toctree::

@@ -52,5 +52,5 @@ You can then access the data exactly as we previously did.
 
 And that's it!
 You now know enough to start making use of **freud**.
-If you'd like a complete walkthrough please look at the `tutorial`_.
-To see a more thorough listing of the features in **freud** and how they can be used, look through the `examples`_ or read the `API documentation <modules>`_ for the module you're interested in.
+If you'd like a complete walkthrough please look at the :ref:`tutorial`.
+To see a more thorough listing of the features in **freud** and how they can be used, look through the :ref:`examples` or read the `API documentation <modules>`_ for the module you're interested in.
