@@ -66,18 +66,16 @@ cdef extern from "MatchEnv.h" namespace "freud::environment":
                                               vec3[float]*,
                                               unsigned int,
                                               float,
-                                              float,
                                               bool) except +
 
     cdef cppclass MatchEnv:
-        MatchEnv(const freud._box.Box &, float, unsigned int) except +
+        MatchEnv(unsigned int) except +
         unsigned int getNumNeighbors()
         unsigned int getMaxNumNeighbors()
         const freud.util.ManagedArray[vec3[float]] &getParticleEnvironments()
 
     cdef cppclass EnvironmentMotifMatch(MatchEnv):
-        EnvironmentMotifMatch(float,
-                              unsigned int) except +
+        EnvironmentMotifMatch(unsigned int) except +
         void compute(const freud._box.Box &,
                      const freud._locality.NeighborList*,
                      const vec3[float]*,
@@ -89,8 +87,7 @@ cdef extern from "MatchEnv.h" namespace "freud::environment":
         const freud.util.ManagedArray[bool] &getMatches()
 
     cdef cppclass EnvironmentRMSDMinimizer(MatchEnv):
-        EnvironmentRMSDMinimizer(float,
-                                 unsigned int) except +
+        EnvironmentRMSDMinimizer(unsigned int) except +
         void compute(
             const freud._box.Box &,
             const freud._locality.NeighborList*,
@@ -102,8 +99,7 @@ cdef extern from "MatchEnv.h" namespace "freud::environment":
         const freud.util.ManagedArray[float] &getRMSDs()
 
     cdef cppclass EnvironmentCluster(MatchEnv):
-        EnvironmentCluster(float,
-                           unsigned int) except +
+        EnvironmentCluster(unsigned int) except +
         void compute(const freud._box.Box &,
                      const freud._locality.NeighborList*,
                      const freud._locality.NeighborList*,

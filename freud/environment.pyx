@@ -451,7 +451,7 @@ def _minimizeRMSD(box, ref_points, points, registration=False):
     return [min_rmsd, np.asarray(l_points), results_map]
 
 
-def _isSimilar(box, ref_points, points, r_max, threshold, registration=False):
+def _isSimilar(box, ref_points, points, threshold, registration=False):
     R"""Test if the motif provided by ref_points is similar to the motif
     provided by points.
 
@@ -496,7 +496,7 @@ def _isSimilar(box, ref_points, points, r_max, threshold, registration=False):
     cdef map[unsigned int, unsigned int] vec_map = \
         freud._environment.isSimilar(
             dereference(b.thisptr), <vec3[float]*> &l_ref_points[0, 0],
-            <vec3[float]*> &l_points[0, 0], nRef1, r_max, threshold_sq,
+            <vec3[float]*> &l_points[0, 0], nRef1, threshold_sq,
             registration)
     return [np.asarray(l_points), vec_map]
 
@@ -523,7 +523,6 @@ cdef class _MatchEnv(Compute):
             The per-particle index indicating cluster membership.
     """  # noqa: E501
     cdef freud._environment.MatchEnv * matchptr
-    cdef r_max
     cdef num_neighbors
     cdef m_box
 
@@ -547,11 +546,6 @@ cdef class EnvironmentCluster(_MatchEnv):
     this computation since it can otherwise be very sensitive.
 
     Args:
-        box (:class:`freud.box.Box`):
-            Simulation box.
-        r_max (float):
-            Cutoff radius for cell list and clustering algorithm. Values near
-            the first minimum of the RDF are recommended.
         num_neighbors (unsigned int):
             Number of nearest neighbors taken to define the local environment
             of any given particle.
@@ -567,19 +561,18 @@ cdef class EnvironmentCluster(_MatchEnv):
 
     cdef freud._environment.EnvironmentCluster * thisptr
 
-    def __cinit__(self, r_max, num_neighbors):
+    def __cinit__(self, num_neighbors):
         self.thisptr = self.matchptr = \
             new freud._environment.EnvironmentCluster(
-                r_max, num_neighbors)
+                num_neighbors)
 
-        self.r_max = r_max
         self.num_neighbors = num_neighbors
 
     def __dealloc__(self):
         del self.thisptr
 
     def compute(self, box, points, threshold, hard_r=False, registration=False,
-                global_search=False, env_nlist=None, nlist=None):
+                global_search=False, env_nlist=None, nlist=None, r_max=None):
         R"""Determine clusters of particles with matching environments.
 
         Args:
@@ -620,19 +613,19 @@ cdef class EnvironmentCluster(_MatchEnv):
         cdef freud.locality.NeighborList env_nlist_
         if hard_r:
             nlist_ = freud.locality._make_default_nlist(
-                self.m_box, points, None, dict(r_max=self.r_max), nlist)
+                self.m_box, points, None, dict(r_max=r_max), nlist)
 
             env_nlist_ = freud.locality._make_default_nlist(
-                self.m_box, points, None, dict(r_max=self.r_max), env_nlist)
+                self.m_box, points, None, dict(r_max=r_max), env_nlist)
         else:
             nlist_ = freud.locality._make_default_nlist(
                 self.m_box, points, None,
-                dict(num_neighbors=self.num_neighbors, r_guess=self.r_max),
+                dict(num_neighbors=self.num_neighbors, r_guess=r_max),
                 nlist)
 
             env_nlist_ = freud.locality._make_default_nlist(
                 self.m_box, points, None,
-                dict(num_neighbors=self.num_neighbors, r_guess=self.r_max),
+                dict(num_neighbors=self.num_neighbors, r_guess=r_max),
                 env_nlist)
 
         self.thisptr.compute(
@@ -679,9 +672,9 @@ cdef class EnvironmentCluster(_MatchEnv):
 
     def __repr__(self):
         return ("freud.environment.{cls}("
-                "r_max={r_max}, num_neighbors={num_neighbors})").format(
+                "num_neighbors={num_neighbors})").format(
                     cls=type(self).__name__,
-                    r_max=self.r_max, num_neighbors=self.num_neighbors)
+                    num_neighbors=self.num_neighbors)
 
     def _repr_png_(self):
         import freud.plot
@@ -699,11 +692,6 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
     this computation since it can otherwise be very sensitive.
 
     Args:
-        box (:class:`freud.box.Box`):
-            Simulation box.
-        r_max (float):
-            Cutoff radius for cell list and clustering algorithm. Values near
-            the first minimum of the RDF are recommended.
         num_neighbors (unsigned int):
             Number of nearest neighbors taken to define the local environment
             of any given particle.
@@ -719,16 +707,15 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
 
     cdef freud._environment.EnvironmentMotifMatch * thisptr
 
-    def __cinit__(self, r_max, num_neighbors):
+    def __cinit__(self, num_neighbors):
         self.thisptr = self.matchptr = \
             new freud._environment.EnvironmentMotifMatch(
-                r_max, num_neighbors)
+                num_neighbors)
 
-        self.r_max = r_max
         self.num_neighbors = num_neighbors
 
     def compute(self, box, motif, points, threshold, registration=False,
-                nlist=None):
+                nlist=None, r_max=None):
         R"""Determine clusters of particles that match the motif provided by
         motif.
 
@@ -763,7 +750,7 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
         cdef freud.locality.NeighborList nlist_
         nlist_ = freud.locality._make_default_nlist(
             self.m_box, points, None,
-            dict(num_neighbors=self.num_neighbors, r_guess=self.r_max), nlist)
+            dict(num_neighbors=self.num_neighbors, r_guess=r_max), nlist)
 
         self.thisptr.compute(
             dereference(b.thisptr), nlist_.get_ptr(), <vec3[float]*>
@@ -778,9 +765,9 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
 
     def __repr__(self):
         return ("freud.environment.{cls}("
-                "r_max={r_max}, num_neighbors={num_neighbors})").format(
+                "num_neighbors={num_neighbors})").format(
                     cls=type(self).__name__,
-                    r_max=self.r_max, num_neighbors=self.num_neighbors)
+                    num_neighbors=self.num_neighbors)
 
 
 cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
@@ -811,12 +798,11 @@ cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
 
     cdef freud._environment.EnvironmentRMSDMinimizer * thisptr
 
-    def __cinit__(self, r_max, num_neighbors):
+    def __cinit__(self, num_neighbors):
         self.thisptr = self.matchptr = \
             new freud._environment.EnvironmentRMSDMinimizer(
-                r_max, num_neighbors)
+                num_neighbors)
 
-        self.r_max = r_max
         self.num_neighbors = num_neighbors
 
     @Compute._computed_property
@@ -825,7 +811,8 @@ cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
             &self.thisptr.getRMSDs(),
             freud.util.arr_type_t.FLOAT)
 
-    def compute(self, box, motif, points, registration=False, nlist=None):
+    def compute(self, box, motif, points, registration=False, nlist=None,
+                r_max=None):
         R"""Rotate (if registration=True) and permute the environments of all
         particles to minimize their RMSD with respect to the motif provided by
         motif.
@@ -862,7 +849,7 @@ cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
         cdef freud.locality.NeighborList nlist_
         nlist_ = freud.locality._make_default_nlist(
             self.m_box, points, None,
-            dict(num_neighbors=self.num_neighbors, r_guess=self.r_max), nlist)
+            dict(num_neighbors=self.num_neighbors, r_guess=r_max), nlist)
 
         self.thisptr.compute(
             dereference(b.thisptr), nlist_.get_ptr(), <vec3[float]*>
@@ -873,9 +860,9 @@ cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
 
     def __repr__(self):
         return ("freud.environment.{cls}("
-                "r_max={r_max}, num_neighbors={num_neighbors})").format(
+                "num_neighbors={num_neighbors})").format(
                     cls=type(self).__name__,
-                    r_max=self.r_max, num_neighbors=self.num_neighbors)
+                    num_neighbors=self.num_neighbors)
 
 
 cdef class AngularSeparationNeighbor(PairCompute):

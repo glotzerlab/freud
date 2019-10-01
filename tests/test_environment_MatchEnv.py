@@ -19,9 +19,10 @@ class TestCluster(unittest.TestCase):
 
         r_max = 3.1
         num_neighbors = 14
-        threshold = 0.1
+        threshold_prefactor = 0.1
+        threshold = threshold_prefactor * r_max
 
-        match = freud.environment.EnvironmentCluster(r_max, num_neighbors)
+        match = freud.environment.EnvironmentCluster(num_neighbors)
         with self.assertRaises(AttributeError):
             match.particle_environments
         with self.assertRaises(AttributeError):
@@ -33,7 +34,7 @@ class TestCluster(unittest.TestCase):
         with self.assertRaises(AttributeError):
             match.cluster_environments
 
-        match.compute(box, xyz, threshold)
+        match.compute(box, xyz, threshold, r_max=r_max)
 
         cluster_env = match.cluster_environments
 
@@ -68,10 +69,11 @@ class TestCluster(unittest.TestCase):
 
         r_max = 4
         num_neighbors = 6
-        threshold = 0.1
+        threshold_prefactor = 0.1
+        threshold = threshold_prefactor * r_max
 
-        match = freud.environment.EnvironmentCluster(r_max, num_neighbors)
-        match.compute(box, xyz, threshold)
+        match = freud.environment.EnvironmentCluster(num_neighbors)
+        match.compute(box, xyz, threshold, r_max=r_max)
 
         cluster_env = match.cluster_environments
 
@@ -109,10 +111,12 @@ class TestCluster(unittest.TestCase):
 
         r_max = 3.1
         num_neighbors = 14
-        threshold = 0.1
+        threshold_prefactor = 0.1
+        threshold = threshold_prefactor * r_max
 
-        match = freud.environment.EnvironmentCluster(r_max, num_neighbors)
-        match.compute(box, xyz, threshold, hard_r=False, registration=False)
+        match = freud.environment.EnvironmentCluster(num_neighbors)
+        match.compute(box, xyz, threshold, hard_r=False, registration=False,
+                      r_max=r_max)
 
         cluster_env = match.cluster_environments
 
@@ -148,10 +152,12 @@ class TestCluster(unittest.TestCase):
 
         r_max = 3.1
         num_neighbors = 14
-        threshold = 0.1
+        threshold_prefactor = 0.1
+        threshold = threshold_prefactor * r_max
 
-        match = freud.environment.EnvironmentCluster(r_max, num_neighbors)
-        match.compute(box, xyz, threshold, hard_r=True, registration=False)
+        match = freud.environment.EnvironmentCluster(num_neighbors)
+        match.compute(box, xyz, threshold, hard_r=True, registration=False,
+                      r_max=r_max)
         cluster_env = match.cluster_environments
 
         fn = os.path.join(self.test_folder, "bcc_env.npy")
@@ -185,7 +191,8 @@ class TestCluster(unittest.TestCase):
 
         r_max = 4
         num_neighbors = 6
-        threshold = 0.005
+        threshold_prefactor = 0.005
+        threshold = threshold_prefactor * r_max
 
         # Define rotation matrix, rotate along z axis by pi/24 degree
         rotationAngle = np.pi/24.0
@@ -200,9 +207,9 @@ class TestCluster(unittest.TestCase):
         L = np.max(xyz)*3.0
         box = freud.box.Box(L, L, L, 0, 0, 0)
 
-        match = freud.environment.EnvironmentCluster(r_max, num_neighbors)
+        match = freud.environment.EnvironmentCluster(num_neighbors)
         match.compute(box, xyz, threshold, hard_r=False,
-                      registration=True, global_search=True)
+                      registration=True, global_search=True, r_max=r_max)
         clusters = match.clusters
 
         # Get environment for each particle
@@ -215,7 +222,7 @@ class TestCluster(unittest.TestCase):
 
         # Particle 22 and particle 31's local environments should match
         returnResult = freud.environment._isSimilar(
-            box, tot_env[22], tot_env[31], r_max, 0.005, registration=True)
+            box, tot_env[22], tot_env[31], 0.005, registration=True)
         npt.assert_equal(len(returnResult[1]), num_neighbors,
                          err_msg="two environments are not similar")
 
@@ -226,16 +233,13 @@ class TestCluster(unittest.TestCase):
                             [0, 1, 0],
                             [0, 0, 1],
                             [0, 0, 2]])
-        threshold = 0.1
+        threshold_sq = 0.1
 
         # https://en.wikipedia.org/wiki/Rotation_matrix
         norm = np.array([1, 1, 1])
         norm = norm/np.sqrt(np.dot(norm, norm))
 
         theta = np.pi/10
-
-        # r_max and num_neighbors are meaningless here
-        r_max = 2
 
         ux = norm[0]
         uy = norm[1]
@@ -262,7 +266,7 @@ class TestCluster(unittest.TestCase):
         # 3. Verify that OUR method _isSimilar gives that these two
         #    environments are similar.
         [refPoints2, isSim_vec_map] = freud.environment._isSimilar(
-            box, e0, e1, r_max, threshold, registration=False)
+            box, e0, e1, threshold_sq, registration=False)
         npt.assert_allclose(
             e0, refPoints2[np.asarray(list(isSim_vec_map.values()))],
             atol=1e-6)
@@ -324,15 +328,14 @@ class TestCluster(unittest.TestCase):
             atol=1e-5)
         # 14. Finally use _isSimilar with registration turned ON.
         [refPoints2, isSim_vec_map] = freud.environment._isSimilar(
-            box, e0, e1_rot, r_max, threshold, registration=True)
+            box, e0, e1_rot, threshold_sq, registration=True)
         npt.assert_allclose(
             e0, refPoints2[np.asarray(list(isSim_vec_map.values()))],
             atol=1e-5)
 
     def test_repr(self):
-        r_max = 3.1
         num_neighbors = 14
-        match = freud.environment.EnvironmentCluster(r_max, num_neighbors)
+        match = freud.environment.EnvironmentCluster(num_neighbors)
         self.assertEqual(str(match), str(eval(repr(match))))
 
     def test_repr_png(self):
@@ -344,25 +347,27 @@ class TestCluster(unittest.TestCase):
 
         r_max = 3.1
         num_neighbors = 14
-        threshold = 0.1
+        threshold_prefactor = 0.1
+        threshold = threshold_prefactor * r_max
 
         box = freud.box.Box.square(L)
         xyz = np.load(fn)
         xyz = np.array(xyz, dtype=np.float32)
         xyz[:, 2] = 0
         xyz.flags['WRITEABLE'] = False
-        match = freud.environment.EnvironmentCluster(r_max, num_neighbors)
+        match = freud.environment.EnvironmentCluster(num_neighbors)
 
         with self.assertRaises(AttributeError):
             match.plot()
         self.assertEqual(match._repr_png_(), None)
 
-        match.compute(box, xyz, threshold)
+        match.compute(box, xyz, threshold, r_max=r_max)
         match._repr_png_()
 
 
 class TestEnvironmentMotifMatch(unittest.TestCase):
     def test_square(self):
+        """Test that a simple square motif correctly matches."""
         motif = [[1, 0, 0], [0, 1, 0], [-1, 0, 0], [0, -1, 0]]
         points = motif + [[0, 0, 0]]
 
@@ -371,13 +376,30 @@ class TestEnvironmentMotifMatch(unittest.TestCase):
 
         box = freud.box.Box.square(3)
         match = freud.environment.EnvironmentMotifMatch(
-            r_max, num_neighbors)
-        match.compute(box, motif, points, 0.1)
+            num_neighbors)
+        match.compute(box, motif, points, 0.1, r_max=r_max)
         matches = match.matches
 
         for i in range(len(motif)):
             self.assertFalse(matches[i])
         self.assertTrue(matches[len(motif)])
+
+
+class TestEnvironmentRMSDMinimizer(unittest.TestCase):
+    def test_api(self):
+        """This test simply verifies functional code, but not correctness."""
+        motif = [[1, 0, 0], [0, 1, 0], [-1, 0, 0], [0, -1, 0]]
+        points = motif + [[0, 0, 0]]
+
+        r_max = 1.5
+        num_neighbors = 4
+
+        box = freud.box.Box.square(3)
+        match = freud.environment._EnvironmentRMSDMinimizer(
+            num_neighbors)
+        match.compute(box, motif, points, 0.1, r_max=r_max)
+        self.assertTrue(np.all(match.rmsds[:-1] > 0))
+        self.assertEqual(match.rmsds[-1], 0)
 
 
 if __name__ == '__main__':

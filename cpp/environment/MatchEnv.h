@@ -133,12 +133,7 @@ minimizeRMSD(Environment& e1, Environment& e2, float& min_rmsd, bool registratio
  * \param refPoints1 Points composing first environment.
  * \param refPoints2 Points composing second environment.
  * \param numRef Number of points.
- * \param threshold A unitless number that is multiply by m_r_max. This
- *                  quantity is the maximum magnitude of the vector
- *                  difference between two vectors, below which you call
- *                  them matching.  Note that ONLY values of (threshold < 2)
- *                  make any sense, since 2*r_max is the absolute
- *                  maximum difference between any two environment vectors. 
+ * \param min_rmsd The value of the minimum RMSD (updated by reference).
  * \param registration Controls whether we first use brute force registration to 
  *                     orient the second set of vectors such that it
  *                     minimizes the RMSD between the two sets
@@ -156,18 +151,18 @@ std::map<unsigned int, unsigned int> minimizeRMSD(
  *
  * \param e1 First environment.
  * \param e2 First environment.
- * \param threshold A unitless number that is multiply by m_r_max. This
- *                  quantity is the maximum magnitude of the vector
- *                  difference between two vectors, below which you call
- *                  them matching.  Note that ONLY values of (threshold < 2)
- *                  make any sense, since 2*r_max is the absolute
- *                  maximum difference between any two environment vectors. 
+ * \param threshold_sq This quantity is the square of the maximum magnitude of
+ *                     the vector difference between two vectors, below which
+ *                     you call them matching. Recommended values for the
+ *                     threshold are 10-30% of the first minimum of the radial
+ *                     distribution function (so the argument should be the
+ *                     square of that).
  * \param registration Controls whether we first use brute force registration to 
  *                     orient the second set of vectors such that it
  *                     minimizes the RMSD between the two sets
  */
 std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>>
-isSimilar(Environment& e1, Environment& e2, float r_max, float threshold_sq, bool registration);
+isSimilar(Environment& e1, Environment& e2, float threshold_sq, bool registration);
 
 //! Overload of the above isSimilar function that provides an easier interface to Python.
 /*! If the two environments correspond, returns a std::pair of the rotation matrix that takes the
@@ -181,18 +176,17 @@ isSimilar(Environment& e1, Environment& e2, float r_max, float threshold_sq, boo
  * \param refPoints1 Points composing first environment.
  * \param refPoints2 Points composing second environment.
  * \param numRef Number of points.
- * \param threshold A unitless number that is multiply by m_r_max. This
- *                  quantity is the maximum magnitude of the vector
- *                  difference between two vectors, below which you call
- *                  them matching.  Note that ONLY values of (threshold < 2)
- *                  make any sense, since 2*r_max is the absolute
- *                  maximum difference between any two environment vectors. 
+ * \param threshold_sq This quantity is the square of the maximum magnitude of the vector
+ *                     difference between two vectors, below which you call
+ *                     them matching. Recommended values for the threshold are
+ *                     10-30% of the first minimum of the radial distribution
+ *                     function (so the argument should be the square of that).
  * \param registration Controls whether we first use brute force registration to 
  *                     orient the second set of vectors such that it
  *                     minimizes the RMSD between the two sets
  */
 std::map<unsigned int, unsigned int> isSimilar(const box::Box &box, const vec3<float>* refPoints1, vec3<float>* refPoints2,
-                                                unsigned int numRef, float r_max, float threshold_sq,
+                                                unsigned int numRef, float threshold_sq,
                                                 bool registration);
 
 //! Parent class for environment matching.
@@ -203,7 +197,7 @@ std::map<unsigned int, unsigned int> isSimilar(const box::Box &box, const vec3<f
 class MatchEnv
 {
 public:
-    MatchEnv(float r_max, unsigned int num_neighbors);
+    MatchEnv(unsigned int num_neighbors);
 
     ~MatchEnv();
 
@@ -227,7 +221,6 @@ public:
     }
 
 protected:
-    float m_r_max; //!< Square of the maximum cutoff radius at which to determine local environment
     unsigned int m_num_neighbors;      //!< Default number of nearest neighbors used to determine which environments are compared
                //!< during local environment clustering.
     unsigned int m_max_num_neighbors; //!< Maximum number of neighbors in any particle's local environment. If
@@ -255,10 +248,9 @@ public:
     //! Constructor
     /*!
      * \param box The system box.
-     * \param r_max Cutoff radius for cell list and clustering algorithm. Values near first minimum of the rdf are recommended.  
      * \param num_neighbors Number of nearest neighbors taken to define the local environment of any given particle.
      */
-    EnvironmentCluster(float r_max, unsigned int num_neighbors);
+    EnvironmentCluster(unsigned int num_neighbors);
 
     //! Destructor
     ~EnvironmentCluster();
@@ -274,12 +266,11 @@ public:
      * \param env_nlist The NeighborList used to build the environment of every particle.
      * \param nlist The NeighborList used to determine the neighbors against which 
      *              to compare environments for every particle, if hard_r = False.
-     * \param threshold A unitless number that is multiply by m_r_max. This
-     *                  quantity is the maximum magnitude of the vector
-     *                  difference between two vectors, below which you call
-     *                  them matching.  Note that ONLY values of (threshold < 2)
-     *                  make any sense, since 2*r_max is the absolute
-     *                  maximum difference between any two environment vectors. 
+     * \param threshold This quantity is of the maximum magnitude of the
+     *                  vector difference between two vectors, below which
+     *                  you call them matching. Recommended values for the
+     *                  threshold are 10-30% of the first minimum of the radial
+     *                  distribution function.
      * \param registration Controls whether we first use brute force registration to 
      *                     orient the second set of vectors such that it
      *                     minimizes the RMSD between the two sets
@@ -349,10 +340,9 @@ public:
     //! Constructor
     /*!
      * \param box The system box.
-     * \param r_max Cutoff radius for cell list and clustering algorithm. Values near first minimum of the rdf are recommended.  
      * \param num_neighbors Number of nearest neighbors taken to define the local environment of any given particle.
      */
-    EnvironmentMotifMatch(float r_max, unsigned int num_neighbors) : MatchEnv(r_max, num_neighbors) {}
+    EnvironmentMotifMatch(unsigned int num_neighbors) : MatchEnv(num_neighbors) {}
 
     //! Determine whether particles match a given input motif.
     /*! Given a motif composed of vectors that represent the vectors connecting
@@ -372,12 +362,11 @@ public:
      *              include the point (0, 0) because what we are matching is
      *              the vectors to the neighbors.
      * \param motif_size The number of vectors characterizing the motif.
-     * \param threshold A unitless number that is multiply by m_r_max. This
-     *                  quantity is the maximum magnitude of the vector
-     *                  difference between two vectors, below which you call
-     *                  them matching.  Note that ONLY values of (threshold < 2)
-     *                  make any sense, since 2*r_max is the absolute
-     *                  maximum difference between any two environment vectors. 
+     * \param threshold This quantity is of the maximum magnitude of the
+     *                  vector difference between two vectors, below which
+     *                  you call them matching. Recommended values for the
+     *                  threshold are 10-30% of the first minimum of the radial
+     *                  distribution function.
      * \param registration Controls whether we first use brute force registration to 
      *                     orient the second set of vectors such that it
      *                     minimizes the RMSD between the two sets
@@ -411,11 +400,9 @@ class EnvironmentRMSDMinimizer : public MatchEnv
 public:
     //! Constructor
     /*!
-     * \param box The system box.
-     * \param r_max Cutoff radius for cell list and clustering algorithm. Values near first minimum of the rdf are recommended.  
      * \param num_neighbors Number of nearest neighbors taken to define the local environment of any given particle.
      */
-    EnvironmentRMSDMinimizer(float r_max, unsigned int num_neighbors) : MatchEnv(r_max, num_neighbors) {}
+    EnvironmentRMSDMinimizer(unsigned int num_neighbors) : MatchEnv(num_neighbors) {}
 
     //! Rotate (if registration=True) and permute the environments of all particles to minimize their RMSD wrt a given input motif.
     /*! Returns a vector of minimal RMSD values, one value per particle. NOTE
@@ -435,12 +422,11 @@ public:
      *              include the point (0, 0) because what we are matching is
      *              the vectors to the neighbors.
      * \param motif_size The number of vectors characterizing the motif.
-     * \param threshold A unitless number that is multiply by m_r_max. This
-     *                  quantity is the maximum magnitude of the vector
-     *                  difference between two vectors, below which you call
-     *                  them matching.  Note that ONLY values of (threshold < 2)
-     *                  make any sense, since 2*r_max is the absolute
-     *                  maximum difference between any two environment vectors. 
+     * \param threshold This quantity is of the maximum magnitude of the
+     *                  vector difference between two vectors, below which
+     *                  you call them matching. Recommended values for the
+     *                  threshold are 10-30% of the first minimum of the radial
+     *                  distribution function.
      * \param registration Controls whether we first use brute force registration to 
      *                     orient the second set of vectors such that it
      *                     minimizes the RMSD between the two sets
