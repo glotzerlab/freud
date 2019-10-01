@@ -5,9 +5,10 @@
 #define GAUSSIAN_DENSITY_H
 
 #include "Box.h"
+#include "ManagedArray.h"
+#include "NeighborQuery.h"
 #include "ThreadStorage.h"
 #include "VectorMath.h"
-#include "ManagedArray.h"
 
 /*! \file GaussianDensity.h
     \brief Routines for computing Gaussian smeared densities from points.
@@ -48,7 +49,7 @@ public:
     }
 
     //! Compute the Density
-    void compute(const box::Box& box, const vec3<float>* points, unsigned int n_points);
+    void compute(const freud::locality::NeighborQuery* nq);
 
     //! Get a reference to the last computed Density
     const util::ManagedArray<float> &getDensity() const;
