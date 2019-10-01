@@ -34,8 +34,8 @@ class TestCluster(unittest.TestCase):
         with self.assertRaises(AttributeError):
             match.cluster_environments
 
-        match.compute(box, xyz, threshold, r_max=r_max,
-                      num_neighbors=num_neighbors)
+        query_args = dict(r_guess=r_max, num_neighbors=num_neighbors)
+        match.compute(box, xyz, threshold, query_args=query_args)
 
         cluster_env = match.cluster_environments
 
@@ -74,8 +74,8 @@ class TestCluster(unittest.TestCase):
         threshold = threshold_prefactor * r_max
 
         match = freud.environment.EnvironmentCluster()
-        match.compute(box, xyz, threshold, r_max=r_max,
-                      num_neighbors=num_neighbors)
+        query_args = dict(r_guess=r_max, num_neighbors=num_neighbors)
+        match.compute(box, xyz, threshold, query_args=query_args)
 
         cluster_env = match.cluster_environments
 
@@ -117,8 +117,9 @@ class TestCluster(unittest.TestCase):
         threshold = threshold_prefactor * r_max
 
         match = freud.environment.EnvironmentCluster()
-        match.compute(box, xyz, threshold, hard_r=False, registration=False,
-                      r_max=r_max, num_neighbors=num_neighbors)
+        query_args = dict(r_guess=r_max, num_neighbors=num_neighbors)
+        match.compute(box, xyz, threshold, registration=False,
+                      query_args=query_args)
 
         cluster_env = match.cluster_environments
 
@@ -158,8 +159,9 @@ class TestCluster(unittest.TestCase):
         threshold = threshold_prefactor * r_max
 
         match = freud.environment.EnvironmentCluster()
-        match.compute(box, xyz, threshold, hard_r=True, registration=False,
-                      r_max=r_max, num_neighbors=num_neighbors)
+        query_args = dict(r_max=r_max, num_neighbors=num_neighbors)
+        match.compute(box, xyz, threshold, registration=False,
+                      query_args=query_args)
         cluster_env = match.cluster_environments
 
         fn = os.path.join(self.test_folder, "bcc_env.npy")
@@ -210,9 +212,9 @@ class TestCluster(unittest.TestCase):
         box = freud.box.Box(L, L, L, 0, 0, 0)
 
         match = freud.environment.EnvironmentCluster()
-        match.compute(box, xyz, threshold, hard_r=False,
-                      registration=True, global_search=True, r_max=r_max,
-                      num_neighbors=num_neighbors)
+        query_args = dict(r_guess=r_max, num_neighbors=num_neighbors)
+        match.compute(box, xyz, threshold, registration=True,
+                      global_search=True, query_args=query_args)
         clusters = match.clusters
 
         # Get environment for each particle
@@ -363,8 +365,8 @@ class TestCluster(unittest.TestCase):
             match.plot()
         self.assertEqual(match._repr_png_(), None)
 
-        match.compute(box, xyz, threshold, r_max=r_max,
-                      num_neighbors=num_neighbors)
+        query_args = dict(r_guess=r_max, num_neighbors=num_neighbors)
+        match.compute(box, xyz, threshold, query_args=query_args)
         match._repr_png_()
 
 
@@ -379,8 +381,8 @@ class TestEnvironmentMotifMatch(unittest.TestCase):
 
         box = freud.box.Box.square(3)
         match = freud.environment.EnvironmentMotifMatch()
-        match.compute(box, motif, points, 0.1, r_max=r_max,
-                      num_neighbors=num_neighbors)
+        query_args = dict(r_guess=r_max, num_neighbors=num_neighbors)
+        match.compute(box, motif, points, 0.1, query_args=query_args)
         matches = match.matches
 
         for i in range(len(motif)):
@@ -399,8 +401,8 @@ class TestEnvironmentRMSDMinimizer(unittest.TestCase):
 
         box = freud.box.Box.square(3)
         match = freud.environment._EnvironmentRMSDMinimizer()
-        match.compute(box, motif, points, 0.1, r_max=r_max,
-                      num_neighbors=num_neighbors)
+        query_args = dict(r_guess=r_max, num_neighbors=num_neighbors)
+        match.compute(box, motif, points, 0.1, query_args=query_args)
         self.assertTrue(np.all(match.rmsds[:-1] > 0))
         self.assertEqual(match.rmsds[-1], 0)
 
