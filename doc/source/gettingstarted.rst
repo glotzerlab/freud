@@ -3,8 +3,8 @@ Getting Started
 ================
 
 Once you have `installed freud <installation.rst>`_, you can start using **freud** with any simulation data that you have on hand.
-As an example, we'll assume that you have run a simulation using the `HOOMD-blue <http://glotzerlab.engin.umich.edu/hoomd-blue/>`_ and used the ``hoomd.dump.gsd`` command to output the trajectory into a file ``trajectory.gsd``
-The GSD file format provides its own convenient Python file reader that offers access to data in the form of NumPy arrays, making it immediately suitable for calculation with **freud**.
+As an example, we'll assume that you have run a simulation using the `HOOMD-blue <http://glotzerlab.engin.umich.edu/hoomd-blue/>`_ and used the :class:`hoomd.dump.gsd` command to output the trajectory into a file ``trajectory.gsd``.
+The `GSD file format <https://gsd.readthedocs.io/en/stable/>`_ provides its own convenient Python file reader that offers access to data in the form of NumPy arrays, making it immediately suitable for calculation with **freud**.
 
 We start by reading the data into a NumPy array:
 
@@ -17,17 +17,17 @@ We start by reading the data into a NumPy array:
 
 
 We can now immediately calculate important quantities.
-Here, we will compute the radial distribution function :math:`g(r)` using the `freud.density.RDF` compute class.
+Here, we will compute the radial distribution function :math:`g(r)` using the :class:`freud.density.RDF` compute class.
 Since the radial distribution function is in practice computed as a histogram, we must specify the histogram bin widths and the largest interparticle distance to include in our calculation.
-To do so, we simply instantiate the class with the appropriate parameters and then pass in the data, taking advantage of **freud**'s *method chaining* API to do both at once:
+To do so, we simply instantiate the class with the appropriate parameters and then perform a computation on the given data:
 
 .. code-block:: python
 
     import freud
-    rdf = freud.density.RDF(rmax=5, dr=0.1)
+    rdf = freud.density.RDF(bins=50, rmax=5)
     rdf.compute((traj[-1].configuration.box, traj[-1].particles.position))
 
-We can now access the data through properties of the ``rdf`` object; for example, we might plot the data using Matplotlib:
+We can now access the data through properties of the ``rdf`` object; for example, we might plot the data using `Matplotlib <https://matplotlib.org/>`:
 
 .. code-block:: python
 
@@ -45,7 +45,7 @@ Assuming that you have some method for identifying the frames you wish to includ
 .. code-block:: python
 
     import freud
-    rdf = freud.density.RDF(rmax=5, dr=0.1)
+    rdf = freud.density.RDF(bins=50, rmax=5)
     for frame in traj[frame_start:]:
         rdf.accumulate(frame.configuration.box, frame.particles.position)
 
@@ -54,4 +54,6 @@ You can then access the data exactly as we previously did.
 And that's it!
 You now know enough to start making use of **freud**.
 If you'd like a complete walkthrough please look at the :ref:`tutorial`.
-To see a more thorough listing of the features in **freud** and how they can be used, look through the :ref:`examples` or read the `API documentation <modules>`_ for the module you're interested in.
+The tutorial walks through many of the core concepts in **freud** in greater detail, starting with the basics of the simulation systems we analyze and describing the details of the neighbor finding logic in **freud**.
+To see specific features of **freud** in action, look through the :ref:`examples`.
+More detailed documentation on specific classes and functions can be found in the `API documentation <modules>`_.
