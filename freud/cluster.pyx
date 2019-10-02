@@ -8,12 +8,11 @@ of clusters of points in a system.
 
 import numpy as np
 import warnings
-import freud.common
 import freud.locality
 import freud.util
 
 from cython.operator cimport dereference
-from freud.common cimport Compute
+from freud.util cimport Compute
 from freud.locality cimport PairCompute
 from freud.util cimport vec3, uint
 
@@ -92,7 +91,7 @@ cdef class Cluster(PairCompute):
         cdef unsigned int* l_keys_ptr = NULL
         cdef unsigned int[::1] l_keys
         if keys is not None:
-            l_keys = freud.common.convert_array(
+            l_keys = freud.util._convert_array(
                 keys, shape=(num_query_points, ), dtype=np.uint32)
             l_keys_ptr = &l_keys[0]
 
@@ -180,7 +179,7 @@ cdef class ClusterProperties(Compute):
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, box, points, cluster_idx):
+    def compute(self, neighbor_query, cluster_idx):
         R"""Compute properties of the point clusters.
         Loops over all points in the given array and determines the center of
         mass of the cluster as well as the gyration tensor. These can be
@@ -195,19 +194,14 @@ cdef class ClusterProperties(Compute):
             cluster_idx ((:math:`N_{points}`,) :class:`np.ndarray`):
                 Cluster indexes for each point.
         """
-        cdef freud.box.Box b = freud.common.convert_box(box)
-
-        points = freud.common.convert_array(points, shape=(None, 3))
-        cluster_idx = freud.common.convert_array(
-            cluster_idx, shape=(points.shape[0], ), dtype=np.uint32)
-        cdef const float[:, ::1] l_points = points
+        cdef freud.locality.NeighborQuery nq = \
+            freud.locality._make_default_nq(neighbor_query)
+        cluster_idx = freud.util._convert_array(
+            cluster_idx, shape=(nq.points.shape[0], ), dtype=np.uint32)
         cdef const unsigned int[::1] l_cluster_idx = cluster_idx
-        cdef unsigned int Np = l_points.shape[0]
         self.thisptr.compute(
-            dereference(b.thisptr),
-            <vec3[float]*> &l_points[0, 0],
-            <unsigned int*> &l_cluster_idx[0],
-            Np)
+            nq.get_ptr(),
+            <unsigned int*> &l_cluster_idx[0])
         return self
 
     @Compute._computed_property

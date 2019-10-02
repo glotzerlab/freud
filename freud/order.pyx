@@ -10,14 +10,13 @@ harmonics of the bond order diagram, which are the spherical analogue of
 Fourier Transforms.
 """
 
-import freud.common
 import warnings
 import numpy as np
 import time
 import freud.locality
 import logging
 
-from freud.common cimport Compute
+from freud.util cimport Compute
 from freud.locality cimport PairCompute
 from freud.util cimport vec3, quat
 from cython.operator cimport dereference
@@ -111,7 +110,7 @@ cdef class Cubatic(Compute):
             orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Orientations as angles to use in computation.
         """
-        orientations = freud.common.convert_array(
+        orientations = freud.util._convert_array(
             orientations, shape=(None, 4))
 
         cdef const float[:, ::1] l_orientations = orientations
@@ -217,7 +216,7 @@ cdef class Nematic(Compute):
             orientations (:math:`\left(N_{particles}, 4 \right)` :class:`numpy.ndarray`):
                 Orientations to calculate the order parameter.
         """  # noqa: E501
-        orientations = freud.common.convert_array(
+        orientations = freud.util._convert_array(
             orientations, shape=(None, 4))
 
         cdef const float[:, ::1] l_orientations = orientations
@@ -287,9 +286,9 @@ cdef class Hexatic(PairCompute):
     Attributes:
         k (unsigned int):
             Symmetry of the order parameter.
-        order (:math:`\left(N_{particles} \right)` :class:`numpy.ndarray`):
+        particle_order (:math:`\left(N_{particles} \right)` :class:`numpy.ndarray`):
             Order parameter.
-    """
+    """  # noqa: E501
     cdef freud._order.Hexatic * thisptr
 
     def __cinit__(self, k=6):
@@ -299,8 +298,7 @@ cdef class Hexatic(PairCompute):
         del self.thisptr
 
     def compute(self, neighbor_query, neighbors=None):
-        R"""Calculates the correlation function and adds to the current
-        histogram.
+        R"""Calculates the hexatic order parameter.
 
         Args:
             box (:class:`freud.box.Box`):
@@ -331,7 +329,7 @@ cdef class Hexatic(PairCompute):
         return dict(mode="nearest", num_neighbors=self.k)
 
     @Compute._computed_property
-    def order(self):
+    def particle_order(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getOrder(),
             freud.util.arr_type_t.COMPLEX_FLOAT)
@@ -359,9 +357,9 @@ cdef class Translational(PairCompute):
     Attributes:
         k (float):
             Normalization value (order is divided by k).
-        order (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
+        particle_order (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             Reference to the last computed translational order array.
-    """
+    """  # noqa E501
     cdef freud._order.Translational * thisptr
 
     def __cinit__(self, k=6.0):
@@ -403,7 +401,7 @@ cdef class Translational(PairCompute):
         return dict(mode="nearest", num_neighbors=int(self.k))
 
     @Compute._computed_property
-    def order(self):
+    def particle_order(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getOrder(),
             freud.util.arr_type_t.COMPLEX_FLOAT)
@@ -469,12 +467,12 @@ cdef class Steinhardt(PairCompute):
             Metrics :math:`Q'_l`. (Default value = :code:`False`)
 
     Attributes:
-        order (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
+        particle_order (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The last computed selected variant of the Steinhardt order
             parameter for each particle (filled with NaN for particles with no
             neighbors).
-        norm (float or complex):
-            Stores the system wide normalization of the :math:`Q_l` or
+        order (float):
+            The system wide normalization of the :math:`Q_l` or
             :math:`W_l` order parameter.
     """  # noqa: E501
     cdef freud._order.Steinhardt * thisptr
@@ -502,13 +500,13 @@ cdef class Steinhardt(PairCompute):
         return self.thisptr.getL()
 
     @Compute._computed_property
-    def norm(self):
-        return self.thisptr.getNorm()
+    def order(self):
+        return self.thisptr.getOrder()
 
     @Compute._computed_property
-    def order(self):
+    def particle_order(self):
         return freud.util.make_managed_numpy_array(
-            &self.thisptr.getOrder(),
+            &self.thisptr.getParticleOrder(),
             freud.util.arr_type_t.FLOAT)
 
     @Compute._computed_property
@@ -644,7 +642,7 @@ cdef class SolidLiquid(PairCompute):
         largest_cluster_size (unsigned int):
             The largest cluster size.
         num_connections (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
-            The number of connections per particle.
+            The number of solid-like bonds for each particle.
     """  # noqa: E501
     cdef freud._order.SolidLiquid * thisptr
 
@@ -781,16 +779,14 @@ cdef class RotationalAutocorrelation(Compute):
             integer.
 
     Attributes:
-        num_orientations (unsigned int):
-            The number of orientations used in computing the last set.
         azimuthal (int):
             The azimuthal quantum number, which defines the order of the
             hyperspherical harmonic. Must be a positive, even integer.
-        ra_array ((:math:`N_{orientations}`) :class:`numpy.ndarray`):
+        order (float):
+            The autocorrelation computed in the last call to compute.
+        particle_order ((:math:`N_{orientations}`) :class:`numpy.ndarray`):
             The per-orientation array of rotational autocorrelation values
             calculated by the last call to compute.
-        autocorrelation (float):
-            The autocorrelation computed in the last call to compute.
     """
     cdef freud._order.RotationalAutocorrelation * thisptr
 
@@ -812,9 +808,9 @@ cdef class RotationalAutocorrelation(Compute):
             orientations ((:math:`N_{orientations}`, 4) :class:`numpy.ndarray`):
                 Orientations for the frame of interest.
         """  # noqa
-        ref_orientations = freud.common.convert_array(
+        ref_orientations = freud.util._convert_array(
             ref_orientations, shape=(None, 4))
-        orientations = freud.common.convert_array(
+        orientations = freud.util._convert_array(
             orientations, shape=ref_orientations.shape)
 
         cdef const float[:, ::1] l_ref_orientations = ref_orientations

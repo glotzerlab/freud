@@ -39,12 +39,11 @@ refer to the supplementary information of [vanAndersKlotsa2014]_.
 """
 
 import numpy as np
-import freud.common
 import freud.locality
 import warnings
 import rowan
 
-from freud.common cimport Compute
+from freud.util cimport Compute
 from freud.locality cimport SpatialHistogram
 from freud.util cimport vec3, quat
 from cython.operator cimport dereference
@@ -93,7 +92,7 @@ def _gen_angle_array(orientations, shape):
     orientations. It performs the conversion of quaternion inputs if needed and
     ensures that singleton arrays are treated correctly."""
 
-    return freud.common.convert_array(
+    return freud.util._convert_array(
         np.atleast_1d(_quat_to_z_angle(orientations.squeeze(), shape[0])),
         shape=shape)
 
@@ -718,7 +717,7 @@ cdef class PMFTXYZ(_PMFT):
                 neighbor_query, query_points, neighbors)
         l_query_points = l_query_points - self.shiftvec.reshape(1, 3)
 
-        orientations = freud.common.convert_array(
+        orientations = freud.util._convert_array(
             np.atleast_1d(orientations),
             shape=(nq.points.shape[0], 4))
 
@@ -733,7 +732,7 @@ cdef class PMFTXYZ(_PMFT):
         else:
             if face_orientations.ndim < 2 or face_orientations.ndim > 3:
                 raise ValueError("points must be a 2 or 3 dimensional array")
-            face_orientations = freud.common.convert_array(face_orientations)
+            face_orientations = freud.util._convert_array(face_orientations)
             if face_orientations.ndim == 2:
                 if face_orientations.shape[1] != 4:
                     raise ValueError(

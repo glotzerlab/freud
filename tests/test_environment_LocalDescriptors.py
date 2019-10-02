@@ -234,7 +234,7 @@ class TestLocalDescriptors(unittest.TestCase):
                 # should have a 0 Ql value in many cases, we need to set high
                 # tolerances for those specific cases.
                 npt.assert_allclose(
-                    steinhardt.order, Ql[:, L],
+                    steinhardt.particle_order, Ql[:, L],
                     atol=1e-3 if struct_func == make_sc else 1e-6,
                     err_msg="Failed for {}, L = {}".format(
                         struct_func.__name__, L))
@@ -279,7 +279,7 @@ class TestLocalDescriptors(unittest.TestCase):
                 # should have a 0 Ql value in many cases, we need to set high
                 # tolerances for those specific cases.
                 npt.assert_allclose(
-                    steinhardt.order,
+                    steinhardt.particle_order,
                     Ql[:, L],
                     atol=1e-3 if struct_func == make_sc else 1e-6,
                     err_msg="Failed for {}, L = {}".format(
@@ -315,7 +315,8 @@ class TestLocalDescriptors(unittest.TestCase):
             for L in range(2, l_max+1):
                 steinhardt = freud.order.Steinhardt(L, Wl=True)
                 steinhardt.compute((box, points), neighbors=nl)
-                npt.assert_array_almost_equal(steinhardt.order, Wl[:, L])
+                npt.assert_array_almost_equal(steinhardt.particle_order,
+                                              Wl[:, L])
 
     @skipIfMissing('scipy.special')
     def test_ld(self):

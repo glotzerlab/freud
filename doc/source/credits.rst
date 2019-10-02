@@ -84,6 +84,7 @@ Vyas Ramasubramani - **Lead developer**
 * Wrote PairCompute and SpatialHistogram parent classes.
 * Wrote ManagedArray class.
 * Wrote C++ histogram-related classes.
+* Initial design of freud 2.0 API (NeighborQuery objects, neighbor computations, histograms).
 * Standardized neighbor API in Python to use dictionaries of arguments or NeighborList objects for all pair computations.
 * Standardized all attribute access into C++ with Python properties.
 * Standardized variable naming of points/query\_points across all of freud.
@@ -92,6 +93,7 @@ Vyas Ramasubramani - **Lead developer**
 * Wrote new freud 2.0 compute APIs based on neighbor\_query objects and neighbors as either dictionaries or NeighborLists.
 * Rewrote MatchEnv code to fit freud 2.0 API, splitting it into 3 separate calculations and rewriting internals using NeighborQuery objects.
 * Wrote tutorial and reference sections of documentation.
+* Unified util and common packages.
 
 Bradley Dice - **Lead developer**
 
@@ -123,6 +125,8 @@ Bradley Dice - **Lead developer**
 * Added checks to C++ for 2D boxes where required.
 * Refactored cluster module.
 * Standardized vector directionality in computes.
+* NeighborQuery support to ClusterProperties, GaussianDensity, Voronoi.
+* Standardized APIs for order parameters.
 
 Richmond Newman
 

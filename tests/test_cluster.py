@@ -55,7 +55,7 @@ class TestCluster(unittest.TestCase):
         with self.assertRaises(AttributeError):
             props.sizes
 
-        props.compute(box, positions, clust.cluster_idx)
+        props.compute((box, positions), clust.cluster_idx)
 
         # Test if attributes are accessible now
         props.centers
@@ -75,7 +75,7 @@ class TestCluster(unittest.TestCase):
         clust.compute((box, positions), neighbors={'r_max': 0.5})
 
         props = freud.cluster.ClusterProperties()
-        props.compute(box, positions, clust.cluster_idx)
+        props.compute((box, positions), clust.cluster_idx)
 
         com_1 = np.array([[0, -2, 0]])
         com_2 = np.array([[-0.05, 1.95, 0]])
