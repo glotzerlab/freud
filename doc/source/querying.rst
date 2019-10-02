@@ -1,0 +1,96 @@
+.. _querying:
+
+=========
+Query API
+=========
+
+This page provides a thorough review of how neighbor finding is structured in **freud**.
+It assumes knowledge at the level of the :ref:`neighbors` level of the tutorial; if you're not familiar with using the :meth:`query <freud.locality.NeighborQuery.query>` method with query arguments to find neighbors of points, please familiarize yourself with that section of the tutorial.
+
+The central interface for neighbor finding is the :py:class:`freud.locality.NeighborQuery` family of classes, which provide methods for dynamically finding neighbors given a :py:class:`freud.box.Box`.
+The :py:class:`freud.locality.NeighborQuery` class defines an abstract interface for neighbor finding that is implemented by its subclasses, namely the :py:class:`freud.locality.LinkCell` and :py:class:`freud.locality.AABBQuery` classes.
+These classes represent specific data structures used to accelerate neighbor finding.
+These two different methods have different performance characteristics, but in most cases :class:`freud.locality.AABBQuery` performs no worse than :class:`freud.locality.LinkCell` and is entirely parameter free, so it is the default method of choice used internally in **freud**'s ``PairCompute classes``.
+
+In general, these data structures operate by constructing them using one set of points, after which they can be queried to efficiently find the neighbors of arbitrary other points using :py:meth:`freud.locality.NeighborQuery.query`.
+
+
+Query Arguments
+===============
+
+The table below describes the set of valid query arguments.
+
++----------------+-----------------------------------------------------------------------+-----------+---------------------------+---------------------------------------------------------------------+
+| Query Argument | Definition                                                            | Data type | Legal Values              | Valid for                                                           |
++================+=======================================================================+===========+===========================+=====================================================================+
+| mode           | The type of query to perform (distance cutoff or number of neighbors) | str       | 'none', 'ball', 'nearest' | :class:`freud.locality.LinkCell`, :class:`freud.locality.AABBQuery` |
++----------------+-----------------------------------------------------------------------+-----------+---------------------------+---------------------------------------------------------------------+
+| r_max          | Maximum distance to find neighbors                                    | float     | r_max > 0                 | :class:`freud.locality.LinkCell`, :class:`freud.locality.AABBQuery` |
++----------------+-----------------------------------------------------------------------+-----------+---------------------------+---------------------------------------------------------------------+
+| r_min          | Minimum distance to find neighbors                                    | float     | 0 <= r_min < r_max        | :class:`freud.locality.LinkCell`, :class:`freud.locality.AABBQuery` |
++----------------+-----------------------------------------------------------------------+-----------+---------------------------+---------------------------------------------------------------------+
+| num_neighbors  | Number of Neighbors                                                   | int       | num_neighbors >= 0        | :class:`freud.locality.LinkCell`, :class:`freud.locality.AABBQuery` |
++----------------+-----------------------------------------------------------------------+-----------+---------------------------+---------------------------------------------------------------------+
+| exclude_ii     | Whether or not to include self-neighbors                              | bool      | True/False                | :class:`freud.locality.LinkCell`, :class:`freud.locality.AABBQuery` |
++----------------+-----------------------------------------------------------------------+-----------+---------------------------+---------------------------------------------------------------------+
+| r_guess        | Initial search distance for sequence of ball queries                  | float     | r_guess > 0               |  :class:`freud.locality.AABBQuery`                                  |
++----------------+-----------------------------------------------------------------------+-----------+---------------------------+---------------------------------------------------------------------+
+| scale          | Amount to increase r_guess when not enough neighbors are found        | float     | scale > 1                 |  :class:`freud.locality.AABBQuery`                                  |
++----------------+-----------------------------------------------------------------------+-----------+---------------------------+---------------------------------------------------------------------+
+
+
+Mode Deduction
+==============
+
+The ``mode`` query argument specifies the type of query that is being performed, and it therefore governs how other arguments are interpreted.
+In most cases, however, the query mode can be deduced from the set of query arguments.
+Specifically, any query with the ``num_neighbors`` key set is assumed to be a query with ``mode=nearest``.
+For completeness, users may specify the mode explicitly if they wish.
+The presence of the ``mode`` key also ensures that **freud** will not have to change its promises around mode deduction as additional query modes are added.
+
+
+Query Results
+=============
+
+Although they don't typically need to be operated on directly, it can be useful to know a little about the objects returned by queries.
+In fact, the :class:`freud.locality.NeighborQueryResult` class (actually, it's underlying C++ counterparts) actually contains most of the logic for querying.
+The actual call to query simply creates a result object, which is an `iterator <https://docs.python.org/3/tutorial/classes.html#iterators>`_.
+More specifically, it is a generator, so it generates new neighbor pairs as it loops.
+Under the hood, the underlying C++ classes are actually performing the work of looping through candidate points and identifying neighbors
+This process also occurs when ``Compute classes`` employ :class:`NeighborQuery <freud.locality.NeighborQuery>` objects for finding neighbors on-the-fly, but in that case it all happens on the C++ side.
+
+The primary goal of the result class is to support easy iteration and conversion to more persistent formats.
+Since it is an iterator, you can use any typical Python approach to consuming it, including passing it to :class:`list` to build a list of the neighbors.
+For a more **freud**-friendly approach, you can use the :meth:`toNeighborList <freud.locality.NeighborQueryResult.toNeighborList>` method to convert the object into a **freud** :class:`freud.locality.NeighborList`.
+
+
+Custom NeighborLists
+====================
+
+Thus far, we've mostly discussed :class:`NeighborLists <freud.locality.NeighborList` as a way to persist neighbor information beyond a single query.
+In :ref:`optimizing`, more guidance is provided on how you can use these objects to speed up certain uses of **freud**.
+However, these objects are also extremely useful because they provide a *completely customizable* way to specify neighbors to **freud**.
+Of particular note here is the :meth:`freud.locality.NeighborList.from_arrays` factory function that allows you to make :class:`freud.locality.NeighborList` objects by directly specifying the ``(i, j)`` pairs that should be in the list.
+This kind of explicit construction of the list enables custom analyses that would otherwise be impossible.
+For example, consider a molecular dynamics simulation in which particles only interact via extremely short-ranged patches on their surface, and that particles should only be considered bonded if their patches are actually interacting, irrespective of how close together the particles themselves are.
+This type of neighbor interaction cannot be captured by any normal querying mode, but could be constructed by the user and then fed to **freud** for downstream analysis.
+
+Nearest Neighbor Asymmetry
+==========================
+
+There is one important but easily overlooked detail associated with using query arguments with mode ``'nearest'``.
+Consider a simple example of three points on the x-axis located at -1, 0, and 2 (and assume the box is of dimensions :math:`(100, 100, 100)`, i.e. sufficiently large that periodicity plays no role):
+
+.. code-block:: python
+
+    box = [100, 100, 100]
+    points = [[-1, 0, 0], [0, 0, 0], [2, 0, 0]]
+    query_args = dict(mode='nearest', num_neighbors=1, exclude_ii=True)
+    list(freud.locality.AABBQuery(box, points).query(points, query_args))
+    # Output: [(0, 1, 1), (1, 0, 1), (2, 1, 2)]
+
+Evidently, the calculation is not symmetric.
+This feature of nearest neighbor queries can have unexpected side effects if a ``PairCompute`` is performed using distinct ``points`` and ``query_points`` and the two are interchanged.
+In such cases, users should always keep in mind that **freud** promises that every ``query_point`` will end up with ``num_neighbors`` points (assuming no hard cutoff ``r_max`` is imposed and enough points are present in the system).
+However, it is possible (and indeed likely) that any given ``point`` will have more or fewer than that many neighbors.
+This distinction can be particularly tricky for calculations that depend on vector directionality: **freud** imposes the convention that bond vectors always point from ``query_point`` to ``point``, so users of calculations like PMFTs where directionality is important should keep this in mind.

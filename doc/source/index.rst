@@ -15,6 +15,13 @@ Table of Contents
 
 .. toctree::
    :maxdepth: 2
+   :caption: Reference
+
+   querying
+   optimizing
+
+.. toctree::
+   :maxdepth: 2
    :caption: API
 
    box
