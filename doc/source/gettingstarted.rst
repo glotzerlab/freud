@@ -1,3 +1,5 @@
+.. _gettingstarted:
+
 ================
 Getting Started
 ================
@@ -10,10 +12,8 @@ We start by reading the data into a NumPy array:
 
 .. code-block:: python
 
-    import gsd.hoomd, gsd.pygsd
-
-    f = gsd.pygsd.GSDFile(open('trajectory.gsd', 'rb'))
-    traj = gsd.hoomd.HOOMDTrajectory(f)
+    import gsd.hoomd
+    traj = gsd.hoomd.open('trajectory.gsd', 'rb')
 
 
 We can now immediately calculate important quantities.
@@ -46,8 +46,8 @@ Assuming that you have some method for identifying the frames you wish to includ
 
     import freud
     rdf = freud.density.RDF(bins=50, rmax=5)
-    for frame in traj[frame_start:]:
-        rdf.accumulate(frame.configuration.box, frame.particles.position)
+    for frame in traj:
+        rdf.accumulate((frame.configuration.box, frame.particles.position))
 
 You can then access the data exactly as we previously did.
 

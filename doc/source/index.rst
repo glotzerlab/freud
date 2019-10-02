@@ -19,6 +19,7 @@ Table of Contents
 
    querying
    optimizing
+   datainputs
 
 .. toctree::
    :maxdepth: 2
