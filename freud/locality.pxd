@@ -50,7 +50,7 @@ cdef class NeighborList:
     cdef freud._locality.NeighborList * get_ptr(self)
     cdef void copy_c(self, NeighborList other)
 
-cdef class IteratorLinkCell:
+cdef class _IteratorLinkCell:
     cdef freud._locality.IteratorLinkCell * thisptr
 
     cdef void copy(self, const freud._locality.IteratorLinkCell & rhs)

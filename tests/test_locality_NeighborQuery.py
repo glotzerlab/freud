@@ -614,7 +614,7 @@ class TestNeighborQueryLinkCell(NeighborQueryTest, unittest.TestCase):
 
         # 27 is the total number of cells
         for i in range(27):
-            neighbors = cl.getCellNeighbors(i)
+            neighbors = cl._getCellNeighbors(i)
             self.assertEqual(
                 len(np.unique(neighbors)), 27,
                 msg="Cell %d does not have 27 unique adjacent cell indices, "
@@ -634,12 +634,12 @@ class TestNeighborQueryLinkCell(NeighborQueryTest, unittest.TestCase):
         cl = freud.locality.LinkCell(fbox, testpoints, r_max)
 
         # Get cell index
-        cell_index0 = cl.getCell(testpoints[0])
-        cell_index1 = cl.getCell(testpoints[1])
+        cell_index0 = cl._getCell(testpoints[0])
+        cell_index1 = cl._getCell(testpoints[1])
 
         # Get cell neighbors
-        neighbors0 = cl.getCellNeighbors(cell_index0)
-        neighbors1 = cl.getCellNeighbors(cell_index1)
+        neighbors0 = cl._getCellNeighbors(cell_index0)
+        neighbors1 = cl._getCellNeighbors(cell_index1)
 
         # Check if particle 0 is in a cell neighboring particle 1
         # np.where returns [[index]] if found, otherwise [[]]
@@ -661,7 +661,7 @@ class TestNeighborQueryLinkCell(NeighborQueryTest, unittest.TestCase):
 
         neighbors_ij = set()
         for i in range(N):
-            cells = cl.getCellNeighbors(cl.getCell(points[i]))
+            cells = cl._getCellNeighbors(cl._getCell(points[i]))
             for cell in cells:
                 neighbors_ij.update([(i, j) for j in cl.itercell(cell)])
 

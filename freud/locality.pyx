@@ -688,7 +688,7 @@ cdef class AABBQuery(NeighborQuery):
             del self.thisptr
 
 
-cdef class IteratorLinkCell:
+cdef class _IteratorLinkCell:
     R"""Iterates over the particles in a cell.
 
     Example::
@@ -794,10 +794,10 @@ cdef class LinkCell(NeighborQuery):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     @property
-    def num_cells(self):
+    def _num_cells(self):
         return self.thisptr.getNumCells()
 
-    def getCell(self, point):
+    def _getCell(self, point):
         R"""Returns the index of the cell containing the given point.
 
         Args:
@@ -813,7 +813,7 @@ cdef class LinkCell(NeighborQuery):
 
         return self.thisptr.getCell(dereference(<vec3[float]*> &cPoint[0]))
 
-    def itercell(self, unsigned int cell):
+    def _itercell(self, unsigned int cell):
         R"""Return an iterator over all particles in the given cell.
 
         Args:
@@ -826,13 +826,13 @@ cdef class LinkCell(NeighborQuery):
         if current_version.major < 3:
             raise RuntimeError(
                 "Must use python 3.x or greater to use itercell")
-        result = IteratorLinkCell()
+        result = _IteratorLinkCell()
         cdef freud._locality.IteratorLinkCell cResult = self.thisptr.itercell(
             cell)
         result.copy(cResult)
         return iter(result)
 
-    def getCellNeighbors(self, cell):
+    def _getCellNeighbors(self, cell):
         R"""Returns the neighboring cell indices of the given cell.
 
         Args:
