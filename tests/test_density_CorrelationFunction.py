@@ -46,17 +46,6 @@ class TestCorrelationFunction(unittest.TestCase):
         ocf.box
         ocf.bin_counts
 
-        # reset
-        ocf.reset()
-
-        # Test protected attribute access
-        with self.assertRaises(AttributeError):
-            ocf.correlation
-        with self.assertRaises(AttributeError):
-            ocf.box
-        with self.assertRaises(AttributeError):
-            ocf.bin_counts
-
         ocf.compute((box, points), ang)
 
         # Test if accessible now
@@ -91,7 +80,6 @@ class TestCorrelationFunction(unittest.TestCase):
                                 atol=absolute_tolerance)
             self.assertEqual(box, ocf.box)
 
-            ocf.reset()
             ocf.compute(nq, comp, query_values=np.conj(comp),
                         neighbors=neighbors, reset=False)
             npt.assert_allclose(ocf.correlation, correct,
@@ -122,11 +110,9 @@ class TestCorrelationFunction(unittest.TestCase):
             ocf.compute(nq, ang, neighbors=neighbors)
             npt.assert_allclose(ocf.correlation, correct,
                                 atol=absolute_tolerance)
-            ocf.reset()
             ocf.compute(nq, ang, points, ang, neighbors=neighbors, reset=False)
             npt.assert_allclose(ocf.correlation, correct,
                                 atol=absolute_tolerance)
-            ocf.reset()
             ocf.compute(nq, ang, query_values=ang, neighbors=neighbors,
                         reset=False)
             npt.assert_allclose(ocf.correlation, correct,

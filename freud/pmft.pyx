@@ -201,9 +201,7 @@ cdef class PMFTR12(_PMFT):
                 :code:`None`).
         """  # noqa: E501
         if reset:
-            # Must directly call C++ to avoid overwriting the computed flags
-            # set by the call to compute.
-            self.thisptr.reset()
+            self._reset()
 
         cdef:
             freud.locality.NeighborQuery nq
@@ -327,9 +325,7 @@ cdef class PMFTXYT(_PMFT):
                 :code:`None`).
         """  # noqa: E501
         if reset:
-            # Must directly call C++ to avoid overwriting the computed flags
-            # set by the call to compute.
-            self.thisptr.reset()
+            self._reset()
 
         cdef:
             freud.locality.NeighborQuery nq
@@ -443,9 +439,7 @@ cdef class PMFTXY2D(_PMFT):
                 :code:`None`).
         """  # noqa: E501
         if reset:
-            # Must directly call C++ to avoid overwriting the computed flags
-            # set by the call to compute.
-            self.thisptr.reset()
+            self._reset()
 
         cdef:
             freud.locality.NeighborQuery nq
@@ -591,9 +585,7 @@ cdef class PMFTXYZ(_PMFT):
                 :code:`None`).
         """  # noqa: E501
         if reset:
-            # Must directly call C++ to avoid overwriting the computed flags
-            # set by the call to compute.
-            self.thisptr.reset()
+            self._reset()
 
         cdef:
             freud.locality.NeighborQuery nq

@@ -46,17 +46,6 @@ class TestRDF(unittest.TestCase):
         rdf.box
         rdf.n_r
 
-        # reset
-        rdf.reset()
-
-        # Test protected attribute access
-        with self.assertRaises(AttributeError):
-            rdf.RDF
-        with self.assertRaises(AttributeError):
-            rdf.box
-        with self.assertRaises(AttributeError):
-            rdf.n_r
-
         rdf.compute((box, points))
 
         # Test if accessible now

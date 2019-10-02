@@ -93,15 +93,6 @@ class TestPMFTR12(unittest.TestCase):
         npt.assert_equal(myPMFT.bin_counts.shape, (nbins, nbins, nbins))
         npt.assert_equal(myPMFT.PMFT.shape, (nbins, nbins, nbins))
 
-        myPMFT.reset()
-
-        with self.assertRaises(AttributeError):
-            myPMFT.bin_counts
-        with self.assertRaises(AttributeError):
-            myPMFT.box
-        with self.assertRaises(AttributeError):
-            myPMFT.PMFT
-
         myPMFT.compute((box, points), angles, points, angles)
         myPMFT.bin_counts
         myPMFT.PMFT
@@ -151,7 +142,6 @@ class TestPMFTR12(unittest.TestCase):
             myPMFT.compute(nq, angles, neighbors=neighbors, reset=False)
             npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                                 atol=absoluteTolerance)
-            myPMFT.reset()
             myPMFT.compute(nq, angles, neighbors=neighbors)
             npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                                 atol=absoluteTolerance)
@@ -279,15 +269,6 @@ class TestPMFTXYT(unittest.TestCase):
         npt.assert_equal(myPMFT.bin_counts.shape, (nbins, nbins, nbins))
         npt.assert_equal(myPMFT.PMFT.shape, (nbins, nbins, nbins))
 
-        myPMFT.reset()
-
-        with self.assertRaises(AttributeError):
-            myPMFT.bin_counts
-        with self.assertRaises(AttributeError):
-            myPMFT.box
-        with self.assertRaises(AttributeError):
-            myPMFT.PMFT
-
         myPMFT.compute((box, points), angles, points, angles)
         myPMFT.bin_counts
         myPMFT.PMFT
@@ -336,7 +317,6 @@ class TestPMFTXYT(unittest.TestCase):
             myPMFT.compute(nq, angles, neighbors=neighbors, reset=False)
             npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                                 atol=absoluteTolerance)
-            myPMFT.reset()
             myPMFT.compute(nq, angles, neighbors=neighbors)
             npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                                 atol=absoluteTolerance)
@@ -464,15 +444,6 @@ class TestPMFTXY2D(unittest.TestCase):
         npt.assert_equal(myPMFT.bin_counts.shape, (nbins, nbins))
         npt.assert_equal(myPMFT.PMFT.shape, (nbins, nbins))
 
-        myPMFT.reset()
-
-        with self.assertRaises(AttributeError):
-            myPMFT.bin_counts
-        with self.assertRaises(AttributeError):
-            myPMFT.box
-        with self.assertRaises(AttributeError):
-            myPMFT.PMFT
-
         myPMFT.compute((box, points), angles, points)
         myPMFT.bin_counts
         myPMFT.PMFT
@@ -512,7 +483,6 @@ class TestPMFTXY2D(unittest.TestCase):
             myPMFT.compute(nq, angles, neighbors=neighbors, reset=False)
             npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                                 atol=absoluteTolerance)
-            myPMFT.reset()
             myPMFT.compute(nq, angles, neighbors=neighbors)
             npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                                 atol=absoluteTolerance)
@@ -752,15 +722,6 @@ class TestPMFTXYZ(unittest.TestCase):
         npt.assert_equal(myPMFT.bin_counts.shape, (nbinsX, nbinsY, nbinsZ))
         npt.assert_equal(myPMFT.PMFT.shape, (nbinsX, nbinsY, nbinsZ))
 
-        myPMFT.reset()
-
-        with self.assertRaises(AttributeError):
-            myPMFT.bin_counts
-        with self.assertRaises(AttributeError):
-            myPMFT.box
-        with self.assertRaises(AttributeError):
-            myPMFT.PMFT
-
         myPMFT.compute((box, points), orientations, points, orientations)
         myPMFT.bin_counts
         myPMFT.PMFT
@@ -805,7 +766,6 @@ class TestPMFTXYZ(unittest.TestCase):
             myPMFT.compute(nq, orientations, neighbors=neighbors, reset=False)
             npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                                 atol=absoluteTolerance)
-            myPMFT.reset()
             myPMFT.compute(nq, orientations, neighbors=neighbors)
             npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                                 atol=absoluteTolerance)

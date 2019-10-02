@@ -44,14 +44,6 @@ class TestBondOrder(unittest.TestCase):
             bo.bin_centers[1],
             (2*np.arange(n_bins_phi)+1)*np.pi/(n_bins_phi*2)))
 
-        # Test that reset works.
-        bo.reset()
-        # Test access
-        with self.assertRaises(AttributeError):
-            bo.box
-        with self.assertRaises(AttributeError):
-            bo.bond_order
-
         test_set = util.make_raw_query_nlist_test_set(
             box, positions, positions, "nearest", r_max, num_neighbors, True)
         for nq, neighbors in test_set:

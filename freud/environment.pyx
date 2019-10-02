@@ -169,9 +169,7 @@ cdef class BondOrder(SpatialHistogram):
                 :code:`None`).
         """  # noqa: E501
         if reset:
-            # Must directly call C++ to avoid overwriting the computed flags
-            # set by the call to compute.
-            self.thisptr.reset()
+            self._reset()
 
         cdef:
             freud.locality.NeighborQuery nq

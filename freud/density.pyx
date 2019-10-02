@@ -101,10 +101,8 @@ cdef class CorrelationFunction(SpatialHistogram1D):
                 :code:`None`).
         """  # noqa E501
         if reset:
-            # Must replicate the Python function to avoid overriding the
-            # computed flags set by the call to compute.
             self.is_complex = False
-            self.thisptr.reset()
+            self._reset()
 
         cdef:
             freud.locality.NeighborQuery nq
@@ -147,13 +145,6 @@ cdef class CorrelationFunction(SpatialHistogram1D):
             &self.thisptr.getCorrelation(),
             freud.util.arr_type_t.COMPLEX_DOUBLE)
         return output if self.is_complex else np.real(output)
-
-    def reset(self):
-        # Overrides parent since resetting here requires also resetting the
-        # complex flag to False (it's only True when a call to accumulate
-        # provides complex values).
-        self.is_complex = False
-        self.thisptr.reset()
 
     def __repr__(self):
         return ("freud.density.{cls}(bins={bins}, r_max={r_max})").format(
@@ -500,9 +491,7 @@ cdef class RDF(SpatialHistogram1D):
                 :code:`None`).
         """  # noqa E501
         if reset:
-            # Must directly call C++ to avoid overwriting the computed flags
-            # set by the call to compute.
-            self.thisptr.reset()
+            self._reset()
 
         cdef:
             freud.locality.NeighborQuery nq
