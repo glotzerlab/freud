@@ -237,7 +237,7 @@ cdef class GaussianDensity(Compute):
                 Points to calculate the local density.
         """
         cdef freud.locality.NeighborQuery nq = \
-            freud.locality._make_default_nq(neighbor_query)
+            freud.locality.NeighborQuery.from_system(neighbor_query)
         self.thisptr.compute(nq.get_ptr())
         return self
 

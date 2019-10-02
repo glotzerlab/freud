@@ -195,7 +195,7 @@ cdef class ClusterProperties(Compute):
                 Cluster indexes for each point.
         """
         cdef freud.locality.NeighborQuery nq = \
-            freud.locality._make_default_nq(neighbor_query)
+            freud.locality.NeighborQuery.from_system(neighbor_query)
         cluster_idx = freud.util._convert_array(
             cluster_idx, shape=(nq.points.shape[0], ), dtype=np.uint32)
         cdef const unsigned int[::1] l_cluster_idx = cluster_idx

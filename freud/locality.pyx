@@ -270,6 +270,44 @@ cdef class NeighborQuery:
                 "directly instantiated"
             )
 
+    @classmethod
+    def from_system(cls, system):
+        R"""Create a :class:`~.NeighborQuery` from any system-like object.
+
+        The standard concept of a system in **freud** is any object that
+        provides a way to access a box-like object (anything that can be
+        coerced to a box by :meth:`freud.box.Box.box`) and an array-like
+        (according to `NumPy's definition
+        <https://docs.scipy.org/doc/numpy/user/basics.creation.html#converting-python-array-like-objects-to-numpy-arrays>`_)
+        object that turns into a :math:`N\times 3` array.
+
+        Supported types for :code:`neighbor_query` include:
+        - :class:`~.locality.AABBQuery`
+        - :class:`~.locality.LinkCell`
+        - :class:`~.locality.RawPoints`
+        - A sequence of :code:`(box, points)` where :code:`box` is a
+          :class:`~.box.Box` and :code:`points` is a :class:`numpy.ndarray`.
+
+        Args:
+            system (system-like object):
+                Any object that can be converted to a :class:`~.NeighborQuery`.
+
+        Returns:
+            :class:`freud.locality.NeighborQuery`
+                The same :class:`NeighborQuery` object if one is given or
+                :class:`RawPoints` built from an inferred :code:`box` and
+                :code:`points`.
+        """
+        if isinstance(system, NeighborQuery):
+            return system
+        elif cls == NeighborQuery:
+            # If called from this abstract parent class, always make
+            # :class:`~.RawPoints`.
+            return RawPoints(*system)
+        else:
+            # Otherwise, use the current class.
+            return cls(*system)
+
     @property
     def box(self):
         return freud.box.BoxFromCPP(self.nqptr.getBox())
@@ -563,40 +601,6 @@ cdef NeighborList _nlist_from_cnlist(freud._locality.NeighborList *c_nlist):
     return result
 
 
-def _make_default_nq(neighbor_query):
-    R"""Helper function to return a NeighborQuery object.
-
-    Currently the resolution for NeighborQuery objects is such that if Python
-    users pass in a NumPy array of points and a box, we always make a RawPoints
-    object. On the C++ side, the RawPoints object internally constructs an
-    AABBQuery object to find neighbors if needed. On the Python side, making
-    the RawPoints object is just so that compute functions on the C++ side
-    don't require overloads to work.
-
-    Supported types for :code:`neighbor_query` include:
-    - :class:`~.locality.AABBQuery`
-    - :class:`~.locality.LinkCell`
-    - A tuple of :code:`(box, points)` where :code:`box` is a
-      :class:`~.box.Box` and :code:`points` is a :class:`numpy.ndarray`.
-
-    Args:
-        neighbor_query (:class:`~.locality.NeighborQuery` - like object):
-            A :class:`~.locality.NeighborQuery` or object that can be
-            duck-typed into one.
-
-    Returns:
-        :class:`freud.locality.NeighborQuery`
-            The same :class:`NeighborQuery` object if one is given or
-            :class:`RawPoints` built from an inferred :code:`box` and
-            :code:`points`.
-    """
-    if not isinstance(neighbor_query, NeighborQuery):
-        nq = RawPoints(*neighbor_query)
-    else:
-        nq = neighbor_query
-    return nq
-
-
 def _make_default_nlist(neighbor_query, query_points, query_args, nlist=None):
     R"""Helper function to return a neighbor list object if is given, or to
     construct one using AABBQuery if it is not.
@@ -622,7 +626,7 @@ def _make_default_nlist(neighbor_query, query_points, query_args, nlist=None):
     if nlist is not None:
         return nlist
 
-    cdef NeighborQuery nq = _make_default_nq(neighbor_query)
+    cdef NeighborQuery nq = NeighborQuery.from_system(neighbor_query)
     query_args.setdefault('exclude_ii', query_points is None)
     qp = query_points if query_points is not None else nq.points
     cdef NeighborList nq_nlist = nq.query(qp, query_args).toNeighborList()
@@ -775,7 +779,7 @@ cdef class Voronoi(Compute):
             points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
                 Points used to calculate Voronoi diagram.
         """
-        cdef NeighborQuery nq = _make_default_nq(neighbor_query)
+        cdef NeighborQuery nq = NeighborQuery.from_system(neighbor_query)
         self.thisptr.compute(nq.get_ptr())
         return self
 
