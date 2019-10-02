@@ -297,7 +297,7 @@ cdef class Hexatic(PairCompute):
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, neighbor_query, neighbors=None):
+    def compute(self, system, neighbors=None):
         R"""Calculates the hexatic order parameter.
 
         Args:
@@ -319,7 +319,7 @@ cdef class Hexatic(PairCompute):
             unsigned int num_query_points
 
         nq, nlist, qargs, l_query_points, num_query_points = \
-            self._preprocess_arguments(neighbor_query, neighbors=neighbors)
+            self._preprocess_arguments(system, neighbors=neighbors)
         self.thisptr.compute(nlist.get_ptr(),
                              nq.get_ptr(), dereference(qargs.thisptr))
         return self
@@ -368,7 +368,7 @@ cdef class Translational(PairCompute):
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, neighbor_query, neighbors=None):
+    def compute(self, system, neighbors=None):
         R"""Calculates the local descriptors.
 
         Args:
@@ -390,7 +390,7 @@ cdef class Translational(PairCompute):
             unsigned int num_query_points
 
         nq, nlist, qargs, l_query_points, num_query_points = \
-            self._preprocess_arguments(neighbor_query, neighbors=neighbors)
+            self._preprocess_arguments(system, neighbors=neighbors)
 
         self.thisptr.compute(nlist.get_ptr(),
                              nq.get_ptr(), dereference(qargs.thisptr))
@@ -515,7 +515,7 @@ cdef class Steinhardt(PairCompute):
             &self.thisptr.getQl(),
             freud.util.arr_type_t.FLOAT)
 
-    def compute(self, neighbor_query, neighbors=None):
+    def compute(self, system, neighbors=None):
         R"""Compute the order parameter.
 
         Args:
@@ -535,7 +535,7 @@ cdef class Steinhardt(PairCompute):
             unsigned int num_query_points
 
         nq, nlist, qargs, l_query_points, num_query_points = \
-            self._preprocess_arguments(neighbor_query, neighbors=neighbors)
+            self._preprocess_arguments(system, neighbors=neighbors)
 
         self.thisptr.compute(nlist.get_ptr(),
                              nq.get_ptr(),
@@ -653,7 +653,7 @@ cdef class SolidLiquid(PairCompute):
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, neighbor_query, neighbors=None):
+    def compute(self, system, neighbors=None):
         R"""Compute the order parameter.
 
         Args:
@@ -673,7 +673,7 @@ cdef class SolidLiquid(PairCompute):
             unsigned int num_query_points
 
         nq, nlist, qargs, l_query_points, num_query_points = \
-            self._preprocess_arguments(neighbor_query, neighbors=neighbors)
+            self._preprocess_arguments(system, neighbors=neighbors)
         self.thisptr.compute(nlist.get_ptr(),
                              nq.get_ptr(),
                              dereference(qargs.thisptr))

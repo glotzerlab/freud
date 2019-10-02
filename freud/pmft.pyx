@@ -166,7 +166,7 @@ cdef class PMFTR12(_PMFT):
         if type(self) is PMFTR12:
             del self.pmftr12ptr
 
-    def compute(self, neighbor_query, orientations, query_points=None,
+    def compute(self, system, orientations, query_points=None,
                 query_orientations=None, neighbors=None, reset=True):
         R"""Calculates the positional correlation function and adds to the
         current histogram.
@@ -212,7 +212,7 @@ cdef class PMFTR12(_PMFT):
 
         nq, nlist, qargs, l_query_points, num_query_points = \
             self._preprocess_arguments(
-                neighbor_query, query_points, neighbors)
+                system, query_points, neighbors)
 
         orientations = _gen_angle_array(
             orientations, shape=(nq.points.shape[0], ))
@@ -290,7 +290,7 @@ cdef class PMFTXYT(_PMFT):
         if type(self) is PMFTXYT:
             del self.pmftxytptr
 
-    def compute(self, neighbor_query, orientations, query_points=None,
+    def compute(self, system, orientations, query_points=None,
                 query_orientations=None, neighbors=None, reset=True):
         R"""Calculates the positional correlation function and adds to the
         current histogram.
@@ -336,7 +336,7 @@ cdef class PMFTXYT(_PMFT):
 
         nq, nlist, qargs, l_query_points, num_query_points = \
             self._preprocess_arguments(
-                neighbor_query, query_points, neighbors)
+                system, query_points, neighbors)
 
         orientations = _gen_angle_array(
             orientations, shape=(nq.points.shape[0], ))
@@ -413,7 +413,7 @@ cdef class PMFTXY2D(_PMFT):
         if type(self) is PMFTXY2D:
             del self.pmftxy2dptr
 
-    def compute(self, neighbor_query, orientations, query_points=None,
+    def compute(self, system, orientations, query_points=None,
                 neighbors=None, reset=True):
         R"""Calculates the positional correlation function and adds to the
         current histogram.
@@ -450,7 +450,7 @@ cdef class PMFTXY2D(_PMFT):
 
         nq, nlist, qargs, l_query_points, num_query_points = \
             self._preprocess_arguments(
-                neighbor_query, query_points, neighbors)
+                system, query_points, neighbors)
 
         orientations = _gen_angle_array(
             orientations, shape=(nq.points.shape[0], ))
@@ -558,7 +558,7 @@ cdef class PMFTXYZ(_PMFT):
         if type(self) is PMFTXYZ:
             del self.pmftxyzptr
 
-    def compute(self, neighbor_query, orientations, query_points=None,
+    def compute(self, system, orientations, query_points=None,
                 face_orientations=None, neighbors=None, reset=True):
         R"""Calculates the positional correlation function and adds to the
         current histogram.
@@ -596,7 +596,7 @@ cdef class PMFTXYZ(_PMFT):
 
         nq, nlist, qargs, l_query_points, num_query_points = \
             self._preprocess_arguments(
-                neighbor_query, query_points, neighbors)
+                system, query_points, neighbors)
         l_query_points = l_query_points - self.shiftvec.reshape(1, 3)
 
         orientations = freud.util._convert_array(

@@ -281,7 +281,7 @@ cdef class NeighborQuery:
         <https://docs.scipy.org/doc/numpy/user/basics.creation.html#converting-python-array-like-objects-to-numpy-arrays>`_)
         object that turns into a :math:`N\times 3` array.
 
-        Supported types for :code:`neighbor_query` include:
+        Supported types for :code:`system` include:
         - :class:`~.locality.AABBQuery`
         - :class:`~.locality.LinkCell`
         - :class:`~.locality.RawPoints`
@@ -307,6 +307,8 @@ cdef class NeighborQuery:
         else:
             # Otherwise, use the current class.
             return cls(*system)
+        raise ValueError(
+            "This system could not be coerced into a NeighborQuery object.")
 
     @property
     def box(self):
@@ -601,7 +603,7 @@ cdef NeighborList _nlist_from_cnlist(freud._locality.NeighborList *c_nlist):
     return result
 
 
-def _make_default_nlist(neighbor_query, query_points, query_args, nlist=None):
+def _make_default_nlist(system, query_points, query_args, nlist=None):
     R"""Helper function to return a neighbor list object if is given, or to
     construct one using AABBQuery if it is not.
 
@@ -626,7 +628,7 @@ def _make_default_nlist(neighbor_query, query_points, query_args, nlist=None):
     if nlist is not None:
         return nlist
 
-    cdef NeighborQuery nq = NeighborQuery.from_system(neighbor_query)
+    cdef NeighborQuery nq = NeighborQuery.from_system(system)
     query_args.setdefault('exclude_ii', query_points is None)
     qp = query_points if query_points is not None else nq.points
     cdef NeighborList nq_nlist = nq.query(qp, query_args).toNeighborList()
@@ -770,7 +772,7 @@ cdef class Voronoi(Compute):
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, neighbor_query):
+    def compute(self, system):
         R"""Compute Voronoi diagram.
 
         Args:
@@ -779,7 +781,7 @@ cdef class Voronoi(Compute):
             points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
                 Points used to calculate Voronoi diagram.
         """
-        cdef NeighborQuery nq = NeighborQuery.from_system(neighbor_query)
+        cdef NeighborQuery nq = NeighborQuery.from_system(system)
         self.thisptr.compute(nq.get_ptr())
         return self
 
@@ -888,7 +890,7 @@ cdef class PairCompute(Compute):
     well as dealing with boxes and query arguments.
     """
 
-    def _preprocess_arguments(self, neighbor_query, query_points=None,
+    def _preprocess_arguments(self, system, query_points=None,
                               neighbors=None):
         """Process standard compute arguments into freud's internal types by
         calling all the required internal functions.
@@ -900,7 +902,7 @@ cdef class PairCompute(Compute):
         appropriate `exclude_ii` flag.
 
         Args:
-            neighbor_query (:class:`freud.locality.NeighborQuery` or tuple):
+            system (:class:`freud.locality.NeighborQuery` or tuple):
                 If a tuple, must be of the form (box_like, array_like), i.e. it
                 must be an object that can be converted into a
                 :class:`freud.locality.NeighborQuery`.
@@ -911,11 +913,7 @@ cdef class PairCompute(Compute):
                 NeighborList or dictionary of query arguments to use to find
                 bonds (Default value = :code:`None`).
         """  # noqa E501
-        cdef NeighborQuery nq
-        if not isinstance(neighbor_query, NeighborQuery):
-            nq = RawPoints(*neighbor_query)
-        else:
-            nq = neighbor_query
+        cdef NeighborQuery nq = NeighborQuery.from_system(system)
 
         # Resolve the two possible ways of passing neighbors (query arguments
         # or neighbor lists) based on the type of the neighbors argument.

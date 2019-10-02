@@ -65,7 +65,7 @@ cdef class Cluster(PairCompute):
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, neighbor_query, keys=None, neighbors=None):
+    def compute(self, system, keys=None, neighbors=None):
         R"""Compute the clusters for the given set of points.
 
         Args:
@@ -86,7 +86,7 @@ cdef class Cluster(PairCompute):
             unsigned int num_query_points
 
         nq, nlist, qargs, l_query_points, num_query_points = \
-            self._preprocess_arguments(neighbor_query, neighbors=neighbors)
+            self._preprocess_arguments(system, neighbors=neighbors)
 
         cdef unsigned int* l_keys_ptr = NULL
         cdef unsigned int[::1] l_keys
@@ -179,7 +179,7 @@ cdef class ClusterProperties(Compute):
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, neighbor_query, cluster_idx):
+    def compute(self, system, cluster_idx):
         R"""Compute properties of the point clusters.
         Loops over all points in the given array and determines the center of
         mass of the cluster as well as the gyration tensor. These can be
@@ -195,7 +195,7 @@ cdef class ClusterProperties(Compute):
                 Cluster indexes for each point.
         """
         cdef freud.locality.NeighborQuery nq = \
-            freud.locality.NeighborQuery.from_system(neighbor_query)
+            freud.locality.NeighborQuery.from_system(system)
         cluster_idx = freud.util._convert_array(
             cluster_idx, shape=(nq.points.shape[0], ), dtype=np.uint32)
         cdef const unsigned int[::1] l_cluster_idx = cluster_idx

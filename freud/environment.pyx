@@ -144,7 +144,7 @@ cdef class BondOrder(SpatialHistogram):
     def default_query_args(self):
         raise NotImplementedError('No default query arguments for BondOrder.')
 
-    def compute(self, neighbor_query, orientations, query_points=None,
+    def compute(self, system, orientations, query_points=None,
                 query_orientations=None, neighbors=None, reset=True):
         R"""Calculates the correlation function and adds to the current
         histogram.
@@ -179,7 +179,7 @@ cdef class BondOrder(SpatialHistogram):
             unsigned int num_query_points
 
         nq, nlist, qargs, l_query_points, num_query_points = \
-            self._preprocess_arguments(neighbor_query, query_points, neighbors)
+            self._preprocess_arguments(system, query_points, neighbors)
         if query_orientations is None:
             query_orientations = orientations
 
@@ -289,7 +289,7 @@ cdef class LocalDescriptors(PairCompute):
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, neighbor_query, query_points=None, orientations=None,
+    def compute(self, system, query_points=None, orientations=None,
                 neighbors=None):
         R"""Calculates the local descriptors of bonds from a set of source
         points to a set of destination points.
@@ -318,7 +318,7 @@ cdef class LocalDescriptors(PairCompute):
             unsigned int num_query_points
 
         nq, nlist, qargs, l_query_points, num_query_points = \
-            self._preprocess_arguments(neighbor_query, query_points, neighbors)
+            self._preprocess_arguments(system, query_points, neighbors)
 
         # The l_orientations_ptr is only used for 'particle_local' mode.
         cdef const float[:, ::1] l_orientations
@@ -524,7 +524,7 @@ cdef class EnvironmentCluster(_MatchEnv):
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, neighbor_query, threshold, neighbors=None,
+    def compute(self, system, threshold, neighbors=None,
                 env_neighbors=None, registration=False,
                 global_search=False):
         R"""Determine clusters of particles with matching environments.
@@ -536,7 +536,7 @@ cdef class EnvironmentCluster(_MatchEnv):
         required neighbor is just outside the cutoff.
 
         Args:
-            neighbor_query ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            system ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Destination points to calculate the order parameter.
             threshold (float):
                 Maximum magnitude of the vector difference between two vectors,
@@ -568,7 +568,7 @@ cdef class EnvironmentCluster(_MatchEnv):
             unsigned int num_query_points
 
         nq, nlist, qargs, l_query_points, num_query_points = \
-            self._preprocess_arguments(neighbor_query, neighbors=neighbors)
+            self._preprocess_arguments(system, neighbors=neighbors)
 
         if env_neighbors is None:
             env_neighbors = neighbors
@@ -649,7 +649,7 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
         self.thisptr = self.matchptr = \
             new freud._environment.EnvironmentMotifMatch()
 
-    def compute(self, neighbor_query, motif, threshold, neighbors=None,
+    def compute(self, system, motif, threshold, neighbors=None,
                 registration=False):
         R"""Determine clusters of particles that match the motif provided by
         motif.
@@ -681,7 +681,7 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
             unsigned int num_query_points
 
         nq, nlist, qargs, l_query_points, num_query_points = \
-            self._preprocess_arguments(neighbor_query, neighbors=neighbors)
+            self._preprocess_arguments(system, neighbors=neighbors)
 
         motif = freud.util._convert_array(motif, shape=(None, 3))
         cdef const float[:, ::1] l_motif = motif
@@ -731,14 +731,14 @@ cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
             &self.thisptr.getRMSDs(),
             freud.util.arr_type_t.FLOAT)
 
-    def compute(self, neighbor_query, motif, neighbors=None,
+    def compute(self, system, motif, neighbors=None,
                 registration=False):
         R"""Rotate (if registration=True) and permute the environments of all
         particles to minimize their RMSD with respect to the motif provided by
         motif.
 
         Args:
-            neighbor_query ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            system ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 NeighborQuery or (box, points).
             motif ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Vectors that make up the motif against which we are matching.
@@ -763,7 +763,7 @@ cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
             unsigned int num_query_points
 
         nq, nlist, qargs, l_query_points, num_query_points = \
-            self._preprocess_arguments(neighbor_query, neighbors=neighbors)
+            self._preprocess_arguments(system, neighbors=neighbors)
 
         motif = freud.util._convert_array(motif, shape=(None, 3))
         cdef const float[:, ::1] l_motif = motif
@@ -798,7 +798,7 @@ cdef class AngularSeparationNeighbor(PairCompute):
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, neighbor_query, orientations, query_points=None,
+    def compute(self, system, orientations, query_points=None,
                 query_orientations=None,
                 equiv_orientations=np.array([[1, 0, 0, 0]]),
                 neighbors=None):
@@ -838,7 +838,7 @@ cdef class AngularSeparationNeighbor(PairCompute):
             unsigned int num_query_points
 
         nq, nlist, qargs, l_query_points, num_query_points = \
-            self._preprocess_arguments(neighbor_query, query_points, neighbors)
+            self._preprocess_arguments(system, query_points, neighbors)
 
         orientations = freud.util._convert_array(
             orientations, shape=(nq.points.shape[0], 4))
@@ -982,7 +982,7 @@ cdef class LocalBondProjection(PairCompute):
     def nlist(self):
         return freud.locality._nlist_from_cnlist(self.thisptr.getNList())
 
-    def compute(self, neighbor_query, orientations, proj_vecs,
+    def compute(self, system, orientations, proj_vecs,
                 query_points=None, equiv_orientations=np.array([[1, 0, 0, 0]]),
                 neighbors=None):
         R"""Calculates the maximal projections of nearest neighbor bonds
@@ -1027,7 +1027,7 @@ cdef class LocalBondProjection(PairCompute):
             unsigned int num_query_points
 
         nq, nlist, qargs, l_query_points, num_query_points = \
-            self._preprocess_arguments(neighbor_query, query_points, neighbors)
+            self._preprocess_arguments(system, query_points, neighbors)
 
         orientations = freud.util._convert_array(
             orientations, shape=(None, 4))
