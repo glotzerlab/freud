@@ -123,7 +123,7 @@ cdef class _PMFT(SpatialHistogram):
         return result
 
     @Compute._computed_property
-    def PCF(self):
+    def _PCF(self):
         return freud.util.make_managed_numpy_array(
             &self.pmftptr.getPCF(),
             freud.util.arr_type_t.FLOAT)
@@ -151,8 +151,6 @@ cdef class PMFTR12(_PMFT):
             The positional correlation function.
         PMFT (:math:`\left(N_{r}, N_{\theta1}, N_{\theta2}\right)`):
             The potential of mean force and torque.
-        r_max (float):
-            The cutoff used in the cell list.
     """  # noqa: E501
     cdef freud._pmft.PMFTR12 * pmftr12ptr
 
@@ -314,8 +312,6 @@ cdef class PMFTXYT(_PMFT):
             The positional correlation function.
         PMFT (:math:`\left(N_{x}, N_{y}, N_{\theta}\right)` :class:`numpy.ndarray`):
             The potential of mean force and torque.
-        r_max (float):
-            The cutoff used in the cell list.
     """  # noqa: E501
     cdef freud._pmft.PMFTXYT * pmftxytptr
 
@@ -477,8 +473,6 @@ cdef class PMFTXY2D(_PMFT):
             The positional correlation function.
         PMFT (:math:`\left(N_{x}, N_{y}\right)` :class:`numpy.ndarray`):
             The potential of mean force and torque.
-        r_max (float):
-            The cutoff used in the cell list.
     """  # noqa: E501
     cdef freud._pmft.PMFTXY2D * pmftxy2dptr
 
@@ -651,8 +645,6 @@ cdef class PMFTXYZ(_PMFT):
             The positional correlation function.
         PMFT (:math:`\left(N_{x}, N_{y}, N_{z}\right)` :class:`numpy.ndarray`):
             The potential of mean force and torque.
-        r_max (float):
-            The cutoff used in the cell list.
     """  # noqa: E501
     cdef freud._pmft.PMFTXYZ * pmftxyzptr
     cdef shiftvec

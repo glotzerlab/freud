@@ -22,15 +22,15 @@ class TestDensity(unittest.TestCase):
             with self.assertRaises(AttributeError):
                 diff.box
             with self.assertRaises(AttributeError):
-                diff.gaussian_density
+                diff.density
 
             diff.compute(box, points)
 
             # Test access
             diff.box
-            diff.gaussian_density
+            diff.density
 
-            myDiff = diff.gaussian_density
+            myDiff = diff.density
             myFFT = fft(fft(myDiff[:, :], axis=1), axis=0)
             myDiff = (myFFT * np.conj(myFFT)).real
             myDiff = fftshift(myDiff)[:, :]

@@ -143,7 +143,9 @@ cdef class CorrelationFunction(SpatialHistogram1D):
         return output if self.is_complex else np.real(output)
 
     def reset(self):
-        # Overrides parent since resetting here requires additional logic.
+        # Overrides parent since resetting here requires also resetting the
+        # complex flag to False (it's only True when a call to accumulate
+        # provides complex values).
         self.is_complex = False
         self.thisptr.reset()
 
@@ -229,7 +231,7 @@ cdef class GaussianDensity(Compute):
     Attributes:
         box (:class:`freud.box.Box`):
             Box used in the calculation.
-        gaussian_density ((:math:`w_x`, :math:`w_y`, :math:`w_z`) :class:`numpy.ndarray`):
+        density ((:math:`w_x`, :math:`w_y`, :math:`w_z`) :class:`numpy.ndarray`):
             The image grid with the Gaussian density.
     """  # noqa: E501
     cdef freud._density.GaussianDensity * thisptr
@@ -258,8 +260,7 @@ cdef class GaussianDensity(Compute):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     def compute(self, box, points):
-        R"""Calculates the Gaussian blur for the specified points. Does not
-        accumulate (will overwrite current image).
+        R"""Calculates the Gaussian blur for the specified points.
 
         Args:
             box (:class:`freud.box.Box`):
@@ -276,7 +277,7 @@ cdef class GaussianDensity(Compute):
         return self
 
     @Compute._computed_property
-    def gaussian_density(self):
+    def density(self):
         if self.box.is2D:
             return np.squeeze(freud.util.make_managed_numpy_array(
                 &self.thisptr.getDensity(), freud.util.arr_type_t.FLOAT))

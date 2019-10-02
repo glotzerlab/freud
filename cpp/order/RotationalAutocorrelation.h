@@ -84,8 +84,8 @@ public:
     }
 
     //! Compute the rotational autocorrelation.
-    /*! \param ref_ors Quaternions in initial frame.
-     *  \param ors Quaternions in current frame.
+    /*! \param ref_orientations Quaternions in initial frame.
+     *  \param orientations Quaternions in current frame.
      *  \param N The number of orientations.
      *
      *  This function loops over all provided orientations and reference
@@ -96,7 +96,7 @@ public:
      *  for the whole system is then the average of the real parts of the
      *  autocorrelation for the whole system.
      */
-    void compute(const quat<float>* ref_ors, const quat<float>* ors, unsigned int N);
+    void compute(const quat<float>* ref_orientations, const quat<float>* orientations, unsigned int N);
 
 private:
     //! Compute a hyperspherical harmonic.
