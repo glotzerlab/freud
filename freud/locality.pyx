@@ -597,7 +597,7 @@ def _make_default_nq(neighbor_query):
     return nq
 
 
-def _make_default_nlist(neighbor_query, query_points, query_args, nlist=None):
+def _make_default_nlist(neighbor_query, neighbors, query_points=None):
     R"""Helper function to return a neighbor list object if is given, or to
     construct one using AABBQuery if it is not.
 
@@ -619,15 +619,19 @@ def _make_default_nlist(neighbor_query, query_points, query_args, nlist=None):
         :class:`freud.locality.NeighborList`:
             The neighbor list.
     """  # noqa: E501
-    if nlist is not None:
+    cdef:
+        NeighborQuery nq
+        NeighborList nlist
+        _QueryArgs qargs
+
+    nlist, qargs = _resolve_neighbors(neighbors, query_points)
+
+    if nlist.get_ptr() == NULL:
+        nq = _make_default_nq(neighbor_query)
+        qp = query_points if query_points is not None else nq.points
+        return nq.query(qp, qargs).toNeighborList()
+    else:
         return nlist
-
-    cdef NeighborQuery nq = _make_default_nq(neighbor_query)
-    query_args.setdefault('exclude_ii', query_points is None)
-    qp = query_points if query_points is not None else nq.points
-    cdef NeighborList nq_nlist = nq.query(qp, query_args).toNeighborList()
-
-    return nq_nlist
 
 
 cdef class RawPoints(NeighborQuery):
@@ -942,7 +946,7 @@ cdef class PairCompute(Compute):
                     else neighbors.copy()
                 query_args.setdefault('exclude_ii', query_points is None)
                 qargs = _QueryArgs.from_dict(query_args)
-                nlist = NeighborList(True)
+                nlist = NeighborList(_null=True)
             except NotImplementedError:
                 raise
         return nlist, qargs

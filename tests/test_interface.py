@@ -17,7 +17,7 @@ class TestInterface(unittest.TestCase):
         point = positions[index].reshape((1, 3))
         others = np.concatenate([positions[:index], positions[index + 1:]])
 
-        inter = freud.interface.InterfaceMeasure(1.5)
+        inter = freud.interface.InterfaceMeasure()
 
         # Test attribute access
         with self.assertRaises(AttributeError):
@@ -29,7 +29,8 @@ class TestInterface(unittest.TestCase):
         with self.assertRaises(AttributeError):
             inter.query_point_ids
 
-        test_one = inter.compute(box, point, others)
+        test_one = inter.compute(
+            (box, point), others, neighbors=dict(r_max=1.5))
 
         # Test attribute access
         inter.point_count
@@ -40,7 +41,8 @@ class TestInterface(unittest.TestCase):
         self.assertEqual(test_one.point_count, 1)
         self.assertEqual(len(test_one.point_ids), 1)
 
-        test_twelve = inter.compute(box, others, point)
+        test_twelve = inter.compute(
+            (box, others), point, neighbors=dict(r_max=1.5))
         self.assertEqual(test_twelve.point_count, 12)
         self.assertEqual(len(test_twelve.point_ids), 12)
 
