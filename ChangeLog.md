@@ -19,6 +19,7 @@ and this project adheres to
 * C++ BondHistogramCompute class encapsulates logic of histogram-based methods.
 * NeighborLists and query arguments are now accepted on equal footing by compute methods that involve neighbor finding.
 * 2D PMFTs accept quaternions as well as angles for their orientations.
+* Extensive new documentation including tutorial for new users and reference sections on crucial topics.
 * Added NeighborQuery support to ClusterProperties, GaussianDensity, Voronoi.
 
 ### Changed

@@ -92,6 +92,7 @@ Vyas Ramasubramani - **Lead developer**
 * Enabled usage of quaternions in place of angles for orientations in 2D PMFT calculations.
 * Wrote new freud 2.0 compute APIs based on neighbor\_query objects and neighbors as either dictionaries or NeighborLists.
 * Rewrote MatchEnv code to fit freud 2.0 API, splitting it into 3 separate calculations and rewriting internals using NeighborQuery objects.
+* Wrote tutorial and reference sections of documentation.
 * Unified util and common packages.
 
 Bradley Dice - **Lead developer**
