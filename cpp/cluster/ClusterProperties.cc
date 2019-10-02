@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "ClusterProperties.h"
+#include "NeighborComputeFunctional.h"
 
 /*! \file ClusterProperties.cc
     \brief Routines for computing properties of point clusters.
@@ -36,7 +37,7 @@ void ClusterProperties::compute(const freud::locality::NeighborQuery* nq,
     // ref_pos is the first point found in a cluster, it is used as a reference
     // to compute the center in relation to, for handling of the periodic
     // boundary conditions
-    std::vector<vec3<float>> ref_pos(num_clusters, vec3<float>(0.0f, 0.0f, 0.0f));
+    std::vector<vec3<float>> ref_pos(num_clusters);
     // determine if we have seen this cluster before or not (used to initialize ref_pos)
     std::vector<bool> cluster_seen(num_clusters, false);
 
@@ -46,13 +47,12 @@ void ClusterProperties::compute(const freud::locality::NeighborQuery* nq,
     // we go.
     for (unsigned int i = 0; i < nq->getNPoints(); i++)
     {
-        unsigned int c = cluster_idx[i];
-        vec3<float> pos = (*nq)[i];
+        const unsigned int c = cluster_idx[i];
 
         // The first time we see the cluster, mark a reference position
         if (!cluster_seen[c])
         {
-            ref_pos[c] = pos;
+            ref_pos[c] = (*nq)[i];
             cluster_seen[c] = true;
         }
 
@@ -60,8 +60,7 @@ void ClusterProperties::compute(const freud::locality::NeighborQuery* nq,
         // reference vectors as wrapped vectors relative to ref_pos. When we
         // are done, we can add the computed center to ref_pos to get the
         // center in the space frame.
-        vec3<float> delta = pos - ref_pos[c];
-        delta = nq->getBox().wrap(delta);
+        const vec3<float> delta(bondVector(locality::NeighborBond(c, i), nq, ref_pos.data()));
 
         // Add the vector into the center tally so far
         m_cluster_centers[c] += delta;
