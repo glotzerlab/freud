@@ -13,7 +13,7 @@ import warnings
 import numpy as np
 
 from cython.operator cimport dereference
-from freud.common cimport Compute
+from freud.util cimport Compute
 from freud.locality cimport PairCompute, SpatialHistogram1D
 from freud.util cimport vec3
 
@@ -115,12 +115,12 @@ cdef class CorrelationFunction(SpatialHistogram1D):
         self.is_complex = self.is_complex or np.any(np.iscomplex(values)) or \
             np.any(np.iscomplex(query_values))
 
-        values = freud.common.convert_array(
+        values = freud.util._convert_array(
             values, shape=(nq.points.shape[0], ), dtype=np.complex128)
         if query_values is None:
             query_values = values
         else:
-            query_values = freud.common.convert_array(
+            query_values = freud.util._convert_array(
                 query_values, shape=(l_query_points.shape[0], ),
                 dtype=np.complex128)
 
@@ -268,8 +268,8 @@ cdef class GaussianDensity(Compute):
             points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
                 Points to calculate the local density.
         """
-        cdef freud.box.Box b = freud.common.convert_box(box)
-        points = freud.common.convert_array(points, shape=(None, 3))
+        cdef freud.box.Box b = freud.util._convert_box(box)
+        points = freud.util._convert_array(points, shape=(None, 3))
         cdef const float[:, ::1] l_points = points
         cdef unsigned int n_p = points.shape[0]
         self.thisptr.compute(dereference(b.thisptr),

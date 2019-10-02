@@ -214,7 +214,7 @@ cdef class Box:
         fractions = np.asarray(fractional_coordinates)
         flatten = fractions.ndim == 1
         fractions = np.atleast_2d(fractions)
-        fractions = freud.common.convert_array(fractions, shape=(None, 3))
+        fractions = freud.util._convert_array(fractions, shape=(None, 3))
 
         cdef const float[:, ::1] l_points = fractions
         cdef unsigned int Np = l_points.shape[0]
@@ -236,7 +236,7 @@ cdef class Box:
         vecs = np.asarray(absolute_coordinates)
         flatten = vecs.ndim == 1
         vecs = np.atleast_2d(vecs)
-        vecs = freud.common.convert_array(vecs, shape=(None, 3))
+        vecs = freud.util._convert_array(vecs, shape=(None, 3))
 
         cdef const float[:, ::1] l_points = vecs
         cdef unsigned int Np = l_points.shape[0]
@@ -258,7 +258,7 @@ cdef class Box:
         vecs = np.asarray(vecs)
         flatten = vecs.ndim == 1
         vecs = np.atleast_2d(vecs)
-        vecs = freud.common.convert_array(vecs, shape=(None, 3))
+        vecs = freud.util._convert_array(vecs, shape=(None, 3))
 
         images = np.zeros(vecs.shape, dtype=np.int32)
         cdef const float[:, ::1] l_points = vecs
@@ -304,7 +304,7 @@ cdef class Box:
         vecs = np.asarray(vecs)
         flatten = vecs.ndim == 1
         vecs = np.atleast_2d(vecs)
-        vecs = freud.common.convert_array(vecs, shape=(None, 3)).copy()
+        vecs = freud.util._convert_array(vecs, shape=(None, 3)).copy()
 
         cdef const float[:, ::1] l_points = vecs
         cdef unsigned int Np = l_points.shape[0]
@@ -330,10 +330,10 @@ cdef class Box:
         vecs = np.asarray(vecs)
         flatten = vecs.ndim == 1
         vecs = np.atleast_2d(vecs)
-        vecs = freud.common.convert_array(vecs, shape=(None, 3)).copy()
+        vecs = freud.util._convert_array(vecs, shape=(None, 3)).copy()
         imgs = np.atleast_2d(imgs)
-        imgs = freud.common.convert_array(imgs, shape=vecs.shape,
-                                          dtype=np.int32)
+        imgs = freud.util._convert_array(imgs, shape=vecs.shape,
+                                         dtype=np.int32)
 
         cdef const float[:, ::1] l_points = vecs
         cdef const int[:, ::1] l_imgs = imgs
@@ -644,7 +644,7 @@ cdef class PeriodicBuffer:
     """  # noqa: E501
 
     def __cinit__(self, box):
-        cdef Box b = freud.common.convert_box(box)
+        cdef Box b = freud.util._convert_box(box)
         self.thisptr = new freud._box.PeriodicBuffer(dereference(b.thisptr))
 
     def __dealloc__(self):
@@ -666,7 +666,7 @@ cdef class PeriodicBuffer:
                 two images triples the box side lengths, and so on.
                 (Default value = :code:`None`).
         """
-        points = freud.common.convert_array(points, shape=(None, 3))
+        points = freud.util._convert_array(points, shape=(None, 3))
         cdef const float[:, ::1] l_points = points
         cdef unsigned int Np = l_points.shape[0]
 

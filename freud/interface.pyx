@@ -9,7 +9,7 @@ between sets of points.
 import freud.common
 import numpy as np
 
-from freud.common cimport Compute
+from freud.util cimport Compute
 from freud.util cimport vec3
 from cython.operator cimport dereference
 import freud.locality
@@ -61,9 +61,9 @@ cdef class InterfaceMeasure(Compute):
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """  # noqa E501
-        b = freud.common.convert_box(box)
-        points = freud.common.convert_array(points, shape=(None, 3))
-        query_points = freud.common.convert_array(
+        b = freud.util._convert_box(box)
+        points = freud.util._convert_array(points, shape=(None, 3))
+        query_points = freud.util._convert_array(
             query_points, shape=(None, 3))
 
         if nlist is None:

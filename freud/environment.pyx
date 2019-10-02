@@ -13,7 +13,7 @@ import numpy as np
 import warnings
 import freud.locality
 
-from freud.common cimport Compute
+from freud.util cimport Compute
 from freud.locality cimport PairCompute, SpatialHistogram
 from freud.util cimport vec3, quat
 from libcpp.vector cimport vector
@@ -181,9 +181,9 @@ cdef class BondOrder(SpatialHistogram):
         if query_orientations is None:
             query_orientations = orientations
 
-        orientations = freud.common.convert_array(
+        orientations = freud.util._convert_array(
             orientations, shape=(nq.points.shape[0], 4))
-        query_orientations = freud.common.convert_array(
+        query_orientations = freud.util._convert_array(
             query_orientations, shape=(num_query_points, 4))
 
         cdef const float[:, ::1] l_orientations = orientations
@@ -356,7 +356,7 @@ cdef class LocalDescriptors(PairCompute):
                     ('Orientations must be given to orient LocalDescriptors '
                         'with particles\' orientations'))
 
-            orientations = freud.common.convert_array(
+            orientations = freud.util._convert_array(
                 orientations, shape=(nq.points.shape[0], 4))
 
             l_orientations = orientations
@@ -426,10 +426,10 @@ def _minimizeRMSD(box, ref_points, points, registration=False):
             set of points, and the mapping between the vectors of
             ref_points and points that somewhat minimizes the RMSD.
     """  # noqa: E501
-    cdef freud.box.Box b = freud.common.convert_box(box)
+    cdef freud.box.Box b = freud.util._convert_box(box)
 
-    ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
-    points = freud.common.convert_array(points, shape=(None, 3))
+    ref_points = freud.util._convert_array(ref_points, shape=(None, 3))
+    points = freud.util._convert_array(points, shape=(None, 3))
 
     cdef const float[:, ::1] l_ref_points = ref_points
     cdef const float[:, ::1] l_points = points
@@ -479,10 +479,10 @@ def _isSimilar(box, ref_points, points, threshold, registration=False):
             correspond to each other. Empty if they do not correspond to
             each other.
     """  # noqa: E501
-    cdef freud.box.Box b = freud.common.convert_box(box)
+    cdef freud.box.Box b = freud.util._convert_box(box)
 
-    ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
-    points = freud.common.convert_array(points, shape=(None, 3))
+    ref_points = freud.util._convert_array(ref_points, shape=(None, 3))
+    points = freud.util._convert_array(points, shape=(None, 3))
 
     cdef const float[:, ::1] l_ref_points = ref_points
     cdef const float[:, ::1] l_points = points
@@ -710,7 +710,7 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
         nq, nlist, qargs, l_query_points, num_query_points = \
             self._preprocess_arguments(neighbor_query, neighbors=neighbors)
 
-        motif = freud.common.convert_array(motif, shape=(None, 3))
+        motif = freud.util._convert_array(motif, shape=(None, 3))
         cdef const float[:, ::1] l_motif = motif
         cdef unsigned int nRef = l_motif.shape[0]
 
@@ -792,7 +792,7 @@ cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
         nq, nlist, qargs, l_query_points, num_query_points = \
             self._preprocess_arguments(neighbor_query, neighbors=neighbors)
 
-        motif = freud.common.convert_array(motif, shape=(None, 3))
+        motif = freud.util._convert_array(motif, shape=(None, 3))
         cdef const float[:, ::1] l_motif = motif
         cdef unsigned int nRef = l_motif.shape[0]
 
@@ -867,15 +867,15 @@ cdef class AngularSeparationNeighbor(PairCompute):
         nq, nlist, qargs, l_query_points, num_query_points = \
             self._preprocess_arguments(neighbor_query, query_points, neighbors)
 
-        orientations = freud.common.convert_array(
+        orientations = freud.util._convert_array(
             orientations, shape=(nq.points.shape[0], 4))
         if query_orientations is None:
             query_orientations = orientations
         else:
-            query_orientations = freud.common.convert_array(
+            query_orientations = freud.util._convert_array(
                 query_orientations, shape=(query_points.shape[0], 4))
 
-        equiv_orientations = freud.common.convert_array(
+        equiv_orientations = freud.util._convert_array(
             equiv_orientations, shape=(None, 4))
 
         cdef const float[:, ::1] l_orientations = orientations
@@ -945,11 +945,11 @@ cdef class AngularSeparationGlobal(Compute):
                 Important: :code:`equiv_orientations` must include both :math:`q` and
                 :math:`-q`, for all included quaternions.
         """  # noqa
-        global_orientations = freud.common.convert_array(
+        global_orientations = freud.util._convert_array(
             global_orientations, shape=(None, 4))
-        orientations = freud.common.convert_array(
+        orientations = freud.util._convert_array(
             orientations, shape=(None, 4))
-        equiv_orientations = freud.common.convert_array(
+        equiv_orientations = freud.util._convert_array(
             equiv_orientations, shape=(None, 4))
 
         cdef const float[:, ::1] l_global_orientations = global_orientations
@@ -1056,12 +1056,12 @@ cdef class LocalBondProjection(PairCompute):
         nq, nlist, qargs, l_query_points, num_query_points = \
             self._preprocess_arguments(neighbor_query, query_points, neighbors)
 
-        orientations = freud.common.convert_array(
+        orientations = freud.util._convert_array(
             orientations, shape=(None, 4))
 
-        equiv_orientations = freud.common.convert_array(
+        equiv_orientations = freud.util._convert_array(
             equiv_orientations, shape=(None, 4))
-        proj_vecs = freud.common.convert_array(proj_vecs, shape=(None, 3))
+        proj_vecs = freud.util._convert_array(proj_vecs, shape=(None, 3))
 
         cdef const float[:, ::1] l_orientations = orientations
         cdef const float[:, ::1] l_equiv_orientations = equiv_orientations

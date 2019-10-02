@@ -17,7 +17,7 @@ import time
 import freud.locality
 import logging
 
-from freud.common cimport Compute
+from freud.util cimport Compute
 from freud.locality cimport PairCompute
 from freud.util cimport vec3, quat
 from cython.operator cimport dereference
@@ -111,7 +111,7 @@ cdef class Cubatic(Compute):
             orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Orientations as angles to use in computation.
         """
-        orientations = freud.common.convert_array(
+        orientations = freud.util._convert_array(
             orientations, shape=(None, 4))
 
         cdef const float[:, ::1] l_orientations = orientations
@@ -217,7 +217,7 @@ cdef class Nematic(Compute):
             orientations (:math:`\left(N_{particles}, 4 \right)` :class:`numpy.ndarray`):
                 Orientations to calculate the order parameter.
         """  # noqa: E501
-        orientations = freud.common.convert_array(
+        orientations = freud.util._convert_array(
             orientations, shape=(None, 4))
 
         cdef const float[:, ::1] l_orientations = orientations
@@ -810,9 +810,9 @@ cdef class RotationalAutocorrelation(Compute):
             orientations ((:math:`N_{orientations}`, 4) :class:`numpy.ndarray`):
                 Orientations for the frame of interest.
         """  # noqa
-        ref_orientations = freud.common.convert_array(
+        ref_orientations = freud.util._convert_array(
             ref_orientations, shape=(None, 4))
-        orientations = freud.common.convert_array(
+        orientations = freud.util._convert_array(
             orientations, shape=ref_orientations.shape)
 
         cdef const float[:, ::1] l_ref_orientations = ref_orientations
