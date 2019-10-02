@@ -5,7 +5,7 @@ Getting Started
 ================
 
 Once you have `installed freud <installation.rst>`_, you can start using **freud** with any simulation data that you have on hand.
-As an example, we'll assume that you have run a simulation using the `HOOMD-blue <http://glotzerlab.engin.umich.edu/hoomd-blue/>`_ and used the :class:`hoomd.dump.gsd` command to output the trajectory into a file ``trajectory.gsd``.
+As an example, we'll assume that you have run a simulation using the `HOOMD-blue <https://glotzerlab.engin.umich.edu/hoomd-blue/>`_ and used the :class:`hoomd.dump.gsd` command to output the trajectory into a file ``trajectory.gsd``.
 The `GSD file format <https://gsd.readthedocs.io/en/stable/>`_ provides its own convenient Python file reader that offers access to data in the form of NumPy arrays, making it immediately suitable for calculation with **freud**.
 
 We start by reading the data into a NumPy array:
@@ -24,7 +24,7 @@ To do so, we simply instantiate the class with the appropriate parameters and th
 .. code-block:: python
 
     import freud
-    rdf = freud.density.RDF(bins=50, rmax=5)
+    rdf = freud.density.RDF(bins=50, r_max=5)
     rdf.compute((traj[-1].configuration.box, traj[-1].particles.position))
 
 We can now access the data through properties of the ``rdf`` object; for example, we might plot the data using `Matplotlib <https://matplotlib.org/>`:
@@ -41,19 +41,18 @@ In general, what we are interested in are *time-averaged* quantities once a syst
 To perform such a calculation, we can easily modify our original calculation to take advantage of **freud**'s *accumulation* features.
 Assuming that you have some method for identifying the frames you wish to include in your sample, our original code snippet would be modified as follows:
 
-
 .. code-block:: python
 
     import freud
-    rdf = freud.density.RDF(bins=50, rmax=5)
+    rdf = freud.density.RDF(bins=50, r_max=5)
     for frame in traj:
         rdf.accumulate((frame.configuration.box, frame.particles.position))
 
 You can then access the data exactly as we previously did.
-
 And that's it!
-You now know enough to start making use of **freud**.
-If you'd like a complete walkthrough please look at the :ref:`tutorial`.
+
+Now that you've seen a brief example of reading data and computing a radial distribution function, you're ready to learn more.
+If you'd like a complete walkthrough please see the :ref:`tutorial`.
 The tutorial walks through many of the core concepts in **freud** in greater detail, starting with the basics of the simulation systems we analyze and describing the details of the neighbor finding logic in **freud**.
 To see specific features of **freud** in action, look through the :ref:`examples`.
 More detailed documentation on specific classes and functions can be found in the `API documentation <modules>`_.

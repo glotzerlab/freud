@@ -10,7 +10,7 @@ It assumes knowledge at the level of the :ref:`neighbors` level of the tutorial;
 The central interface for neighbor finding is the :py:class:`freud.locality.NeighborQuery` family of classes, which provide methods for dynamically finding neighbors given a :py:class:`freud.box.Box`.
 The :py:class:`freud.locality.NeighborQuery` class defines an abstract interface for neighbor finding that is implemented by its subclasses, namely the :py:class:`freud.locality.LinkCell` and :py:class:`freud.locality.AABBQuery` classes.
 These classes represent specific data structures used to accelerate neighbor finding.
-These two different methods have different performance characteristics, but in most cases :class:`freud.locality.AABBQuery` performs no worse than :class:`freud.locality.LinkCell` and is entirely parameter free, so it is the default method of choice used internally in **freud**'s ``PairCompute classes``.
+These two different methods have different performance characteristics, but in most cases :class:`freud.locality.AABBQuery` performs at least as well as, if not better than, :class:`freud.locality.LinkCell` and is entirely parameter free, so it is the default method of choice used internally in **freud**'s ``PairCompute`` classes.
 
 In general, these data structures operate by constructing them using one set of points, after which they can be queried to efficiently find the neighbors of arbitrary other points using :py:meth:`freud.locality.NeighborQuery.query`.
 
@@ -23,19 +23,19 @@ The table below describes the set of valid query arguments.
 +----------------+-----------------------------------------------------------------------+-----------+---------------------------+---------------------------------------------------------------------+
 | Query Argument | Definition                                                            | Data type | Legal Values              | Valid for                                                           |
 +================+=======================================================================+===========+===========================+=====================================================================+
-| mode           | The type of query to perform (distance cutoff or number of neighbors) | str       | 'none', 'ball', 'nearest' | :class:`freud.locality.LinkCell`, :class:`freud.locality.AABBQuery` |
+| mode           | The type of query to perform (distance cutoff or number of neighbors) | str       | 'none', 'ball', 'nearest' | :class:`freud.locality.AABBQuery`, :class:`freud.locality.LinkCell` |
 +----------------+-----------------------------------------------------------------------+-----------+---------------------------+---------------------------------------------------------------------+
-| r_max          | Maximum distance to find neighbors                                    | float     | r_max > 0                 | :class:`freud.locality.LinkCell`, :class:`freud.locality.AABBQuery` |
+| r_max          | Maximum distance to find neighbors                                    | float     | r_max > 0                 | :class:`freud.locality.AABBQuery`, :class:`freud.locality.LinkCell` |
 +----------------+-----------------------------------------------------------------------+-----------+---------------------------+---------------------------------------------------------------------+
-| r_min          | Minimum distance to find neighbors                                    | float     | 0 <= r_min < r_max        | :class:`freud.locality.LinkCell`, :class:`freud.locality.AABBQuery` |
+| r_min          | Minimum distance to find neighbors                                    | float     | 0 <= r_min < r_max        | :class:`freud.locality.AABBQuery`, :class:`freud.locality.LinkCell` |
 +----------------+-----------------------------------------------------------------------+-----------+---------------------------+---------------------------------------------------------------------+
-| num_neighbors  | Number of Neighbors                                                   | int       | num_neighbors >= 0        | :class:`freud.locality.LinkCell`, :class:`freud.locality.AABBQuery` |
+| num_neighbors  | Number of Neighbors                                                   | int       | num_neighbors > 0         | :class:`freud.locality.AABBQuery`, :class:`freud.locality.LinkCell` |
 +----------------+-----------------------------------------------------------------------+-----------+---------------------------+---------------------------------------------------------------------+
-| exclude_ii     | Whether or not to include self-neighbors                              | bool      | True/False                | :class:`freud.locality.LinkCell`, :class:`freud.locality.AABBQuery` |
+| exclude_ii     | Whether or not to include neighbors with the same id in the array     | bool      | True/False                | :class:`freud.locality.AABBQuery`, :class:`freud.locality.LinkCell` |
 +----------------+-----------------------------------------------------------------------+-----------+---------------------------+---------------------------------------------------------------------+
-| r_guess        | Initial search distance for sequence of ball queries                  | float     | r_guess > 0               |  :class:`freud.locality.AABBQuery`                                  |
+| r_guess        | Initial search distance for sequence of ball queries                  | float     | r_guess > 0               | :class:`freud.locality.AABBQuery`                                   |
 +----------------+-----------------------------------------------------------------------+-----------+---------------------------+---------------------------------------------------------------------+
-| scale          | Amount to increase r_guess when not enough neighbors are found        | float     | scale > 1                 |  :class:`freud.locality.AABBQuery`                                  |
+| scale          | Scale factor for r_guess when not enough neighbors are found          | float     | scale > 1                 | :class:`freud.locality.AABBQuery`                                   |
 +----------------+-----------------------------------------------------------------------+-----------+---------------------------+---------------------------------------------------------------------+
 
 
@@ -53,15 +53,11 @@ Query Results
 =============
 
 Although they don't typically need to be operated on directly, it can be useful to know a little about the objects returned by queries.
-In fact, the :class:`freud.locality.NeighborQueryResult` class (actually, it's underlying C++ counterparts) actually contains most of the logic for querying.
-The actual call to query simply creates a result object, which is an `iterator <https://docs.python.org/3/tutorial/classes.html#iterators>`_.
-More specifically, it is a generator, so it generates new neighbor pairs as it loops.
-Under the hood, the underlying C++ classes are actually performing the work of looping through candidate points and identifying neighbors
-This process also occurs when ``Compute classes`` employ :class:`NeighborQuery <freud.locality.NeighborQuery>` objects for finding neighbors on-the-fly, but in that case it all happens on the C++ side.
-
+The :class:`freud.locality.NeighborQueryResult` stores the ``query_points`` passed to a ``query`` and returns neighbors for them one at a time (like any Python :class:`iterator`).
 The primary goal of the result class is to support easy iteration and conversion to more persistent formats.
 Since it is an iterator, you can use any typical Python approach to consuming it, including passing it to :class:`list` to build a list of the neighbors.
 For a more **freud**-friendly approach, you can use the :meth:`toNeighborList <freud.locality.NeighborQueryResult.toNeighborList>` method to convert the object into a **freud** :class:`freud.locality.NeighborList`.
+Under the hood, the underlying C++ classes loop through candidate points and identifying neighbors for each ``query_point``; this is the same process that occurs when ``Compute classes`` employ :class:`NeighborQuery <freud.locality.NeighborQuery>` objects for finding neighbors on-the-fly, but in that case it all happens on the C++ side.
 
 
 Custom NeighborLists

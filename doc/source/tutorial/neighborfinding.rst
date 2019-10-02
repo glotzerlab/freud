@@ -18,7 +18,7 @@ Unlike in simulation, though, many analyses call for different specifications th
 
 An important example is the calculation of order parameters, which can help characterize phase transitions.
 Such parameters can be highly sensitive to the precise way in which neighbors are selected.
-For instance, if a hard distance cutoff is imposed in finding neighbors for the hexatic order parameter, a particle may only be found to have five neighbors when it actually has six neighbors except the first is just outside the cutoff radius.
+For instance, if a hard distance cutoff is imposed in finding neighbors for the hexatic order parameter, a particle may only be found to have five neighbors when it actually has six neighbors except the last particle is slightly outside the cutoff radius.
 To accomodate such differences in a flexible manner, **freud** allows users to specify neighbors in a variety of ways.
 
 Finding Periodic Neighbors
@@ -94,7 +94,7 @@ For example, if we wanted to rerun the above example but instead find all bonds 
 
 Query arguments constitute a powerful method for specifying a query request.
 Many query arguments may be combined for more specific purposes.
-A common use-case is finding all neighbors within a single set of points (i.e. setting ``query_points=points`` in the above example).
+A common use-case is finding all neighbors within a single set of points (i.e. setting ``query_points = points`` in the above example).
 In this situation, however, it is typically not useful for a point to find itself as a neighbor since it is trivially the closest point to itself and falls within any cutoff radius.
 To avoid this, we can use the ``exclude_ii`` query argument:
 

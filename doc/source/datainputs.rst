@@ -7,14 +7,14 @@ Reading Simulation Data for **freud**
 The **freud** package is designed for maximum flexibility by making minimal assumptions about its data.
 However, users accustomed to the more restrictive patterns of most other tools may find this flexibility confusing.
 In particular, knowing how to provide data from specific simulation sources can be a significant source of confusion.
-This page is intended to describe how various types of data may be converted into a form suitable for **freud**
+This page is intended to describe how various types of data may be converted into a form suitable for **freud**.
 
 To simplify the examples below, we will assume in all cases that the user wishes to compute a :class:`radial distribution function <freud.density.RDF>` and that the following code has already been run:
 
 .. code-block:: python
 
     import freud
-    rdf = freud.density.RDF(bins=50, rmax=5)
+    rdf = freud.density.RDF(bins=50, r_max=5)
 
 
 GSD Trajectories
@@ -34,7 +34,8 @@ Using the GSD Python API, GSD files can be very easily integrated with **freud**
 XYZ Files
 =========
 
-XYZ files are among the simplest data outputs.
+XYZ files are among the simplest and most common data outputs.
+They can be generated and used by many tools for particle simulation and analysis, including LAMMPS and VMD.
 As a result, while they are extremely easy to parse, they are also typically lacking in information.
 In particular, they usually contain no information about the system box, so this must already be known by the user.
 Assuming knowledge of the box used in the simulation, a LAMMPS XYZ file could be used as follows:
@@ -42,8 +43,9 @@ Assuming knowledge of the box used in the simulation, a LAMMPS XYZ file could be
 .. code-block:: python
 
 	N = int(np.genfromtxt('trajectory.xyz', max_rows=1))
-	traj = np.genfromtxt('trajectory.xyz', skip_header=2,
-		invalid_raise=False)[:, 1:4].reshape(-1, N, 3
+	traj = np.genfromtxt(
+        'trajectory.xyz', skip_header=2,
+        invalid_raise=False)[:, 1:4].reshape(-1, N, 3)
 
     for frame in traj[frame_start:]:
         rdf.accumulate((frame.configuration.box, frame.particles.position))

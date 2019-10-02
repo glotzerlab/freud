@@ -21,7 +21,7 @@ It is important to recognize that internally, each time such a calculation is pe
     # Behind the scenes, freud is essentially running
     # freud.locality.AABBQuery(box, points).query(points, dict(r_max=5))
     # and feeding the result to the RDF calculation.
-    rdf = freud.density.RDF(bins=50, rmax=5).compute((box, points))
+    rdf = freud.density.RDF(bins=50, r_max=5).compute((box, points))
 
 
 If users anticipate performing many such calculations on the same system of points, they can amortize the cost of rebuilding the :class:`AABBQuery <freud.locality.AABBQuery>` object by constructing it once and then passing it to multiple computes:
@@ -30,12 +30,12 @@ If users anticipate performing many such calculations on the same system of poin
 
     # Now, let's instead reuse the object for a pair of calculations:
     nq = freud.locality.AABBQuery(box=box, points=points)
-    rdf = freud.density.RDF(bins=50, rmax=5).compute(nq)
+    rdf = freud.density.RDF(bins=50, r_max=5).compute(nq)
 
     nbins = 100
-    rmax = 4
+    r_max = 4
     orientations = np.array([[1, 0, 0, 0]*num_points)
-    pmft = freud.pmft.PMFTXYZ(rmax, rmax, rmax, nbins, nbins, nbins)
+    pmft = freud.pmft.PMFTXYZ(r_max, r_max, r_max, nbins, nbins, nbins)
     pmft.compute(nq, orientations=orientations)
 
 This reuse can significantly improve performance in e.g. visualization contexts where users may wish to calculate a :class:`bond order diagram <freud.environment.BondOrder>` and an :class:`RDF <freud.density.RDF>` at each frame, perhaps for integration with a visualization toolkit like `Ovito <http://ovito.org/>`_.

@@ -304,8 +304,6 @@ intersphinx_mapping = {
     'hoomd': ('https://hoomd-blue.readthedocs.io/en/stable/', None),
 }
 
-autodoc_mock_import = ["numpy"]
-
 autodoc_default_options = {
     'inherited-members': True
 }

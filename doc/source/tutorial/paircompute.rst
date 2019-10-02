@@ -109,9 +109,9 @@ Since these objects all contain a :class:`freud.box.Box` and a set of points, th
     aq = freud.locality.AABBQuery(box, points)
     ld.compute(aq, query_points, nlist)
 
-For more information on why you might want to use :class:`freud.locality.NeighborQuery` objects instead of the tuples, see `optimizing`_.
+For more information on why you might want to use :class:`freud.locality.NeighborQuery` objects instead of the tuples, see :ref:`optimizing`.
 For now, just consider this to be a way in which you can simplify your calls to many **freud** computes in one script by storing ``(box, points)`` into another objects.
 
 You've now covered the most important information needed to use **freud**!
 To recap, we've discussed how **freud** handles periodic boundary conditions, the structure and usage of ``Compute classes``, and methods for finding and performing calculations with pairs of neighbors.
-For more detailed information on specific methods in **freud**, see the `examples`_ page or look at the API documentation for specific modules.
+For more detailed information on specific methods in **freud**, see the :ref:`examples` page or look at the API documentation for specific modules.
