@@ -144,8 +144,8 @@ cdef class BondOrder(SpatialHistogram):
     def default_query_args(self):
         raise NotImplementedError('No default query arguments for BondOrder.')
 
-    def accumulate(self, neighbor_query, orientations, query_points=None,
-                   query_orientations=None, neighbors=None):
+    def compute(self, neighbor_query, orientations, query_points=None,
+                query_orientations=None, neighbors=None, reset=True):
         R"""Calculates the correlation function and adds to the current
         histogram.
 
@@ -168,6 +168,11 @@ cdef class BondOrder(SpatialHistogram):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         """  # noqa: E501
+        if reset:
+            # Must directly call C++ to avoid overwriting the computed flags
+            # set by the call to compute.
+            self.thisptr.reset()
+
         cdef:
             freud.locality.NeighborQuery nq
             freud.locality.NeighborList nlist
@@ -210,35 +215,6 @@ cdef class BondOrder(SpatialHistogram):
     def reset(self):
         R"""Resets the values of the bond order in memory."""
         self.thisptr.reset()
-
-    def compute(self, neighbor_query, orientations, query_points=None,
-                query_orientations=None, neighbors=None):
-        R"""Calculates the bond order histogram. Will overwrite the current
-        histogram.
-
-        Args:
-            box (:class:`freud.box.Box`):
-                Simulation box.
-            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
-                Reference points used to calculate bonds.
-            orientations ((:math:`N_{points}`, 4) :class:`numpy.ndarray`):
-                Reference orientations used to calculate bonds.
-            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
-                query_points used to calculate bonds. Uses :code:`points` if not
-                provided or :code:`None`.
-                (Default value = :code:`None`).
-            query_orientations ((:math:`N_{query\_points}`, 4) :class:`numpy.ndarray`, optional):
-                Orientations used to calculate bonds. Uses
-                :code:`orientations` if not provided or :code:`None`.
-                (Default value = :code:`None`).
-            nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value =
-                :code:`None`).
-        """  # noqa: E501
-        self.reset()
-        self.accumulate(neighbor_query, orientations,
-                        query_points, query_orientations, neighbors)
-        return self
 
     def __repr__(self):
         return ("freud.environment.{cls}(bins=({bins}), mode='{mode}')".format(

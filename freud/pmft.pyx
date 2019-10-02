@@ -119,7 +119,7 @@ cdef class _PMFT(SpatialHistogram):
     def PMFT(self):
         with np.warnings.catch_warnings():
             np.warnings.filterwarnings('ignore')
-            result = -np.log(np.copy(self.PCF))
+            result = -np.log(np.copy(self._PCF))
         return result
 
     @Compute._computed_property
@@ -147,8 +147,6 @@ cdef class PMFTR12(_PMFT):
             num_bins_t2)`.
 
     Attributes:
-        PCF (:math:`\left(N_{r}, N_{\theta1}, N_{\theta2}\right)`):
-            The positional correlation function.
         PMFT (:math:`\left(N_{r}, N_{\theta1}, N_{\theta2}\right)`):
             The potential of mean force and torque.
     """  # noqa: E501
@@ -168,8 +166,8 @@ cdef class PMFTR12(_PMFT):
         if type(self) is PMFTR12:
             del self.pmftr12ptr
 
-    def accumulate(self, neighbor_query, orientations, query_points=None,
-                   query_orientations=None, neighbors=None):
+    def compute(self, neighbor_query, orientations, query_points=None,
+                query_orientations=None, neighbors=None, reset=True):
         R"""Calculates the positional correlation function and adds to the
         current histogram.
 
@@ -202,6 +200,11 @@ cdef class PMFTR12(_PMFT):
                 NeighborList used to find bonds (Default value =
                 :code:`None`).
         """  # noqa: E501
+        if reset:
+            # Must directly call C++ to avoid overwriting the computed flags
+            # set by the call to compute.
+            self.thisptr.reset()
+
         cdef:
             freud.locality.NeighborQuery nq
             freud.locality.NeighborList nlist
@@ -231,45 +234,6 @@ cdef class PMFTR12(_PMFT):
                                    dereference(qargs.thisptr))
         return self
 
-    def compute(self, neighbor_query, orientations, query_points=None,
-                query_orientations=None, neighbors=None):
-        R"""Calculates the positional correlation function for the given points.
-        Will overwrite the current histogram.
-
-        Args:
-            box (:class:`freud.box.Box`):
-                Simulation box.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Reference points used in computation.
-            orientations (:class:`numpy.ndarray`):
-                Orientations used in computation. May be provided as an array
-                of shape (:math:`N_{particles}`, 1) or
-                (:math:`N_{particles}`,), in which case it is treated as an
-                array of angles, or as an array of shape
-                (:math:`N_{particles}`, 4) or (4,), in which case it is treated
-                as an array of quaternions representing rotations about the
-                :math:`z` axis.
-            query_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
-                Points used in computation. Uses :code:`points` if not
-                provided or :code:`None`. (Default value = :code:`None`).
-            query_orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
-                Query orientations used in computation. May be provided as
-                an array of shape (:math:`N_{particles}`, 1) or
-                (:math:`N_{particles}`,), in which case it is treated as an
-                array of angles, or as an array of shape
-                (:math:`N_{particles}`, 4) or (4,), in which case it is treated
-                as an array of quaternions representing rotations about the
-                :math:`z` axis. Uses :code:`orientations` if omitted or or
-                :code:`None` is provided. (Default value = :code:`None`).
-            nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList used to find bonds (Default value =
-                :code:`None`).
-        """  # noqa: E501
-        self.reset()
-        self.accumulate(neighbor_query, orientations,
-                        query_points, query_orientations, neighbors)
-        return self
-
     def __repr__(self):
         bounds = self.bounds
         return ("freud.pmft.{cls}(r_max={r_max}, bins=({bins}))").format(
@@ -283,11 +247,11 @@ cdef class PMFTXYT(_PMFT):
     systems described by coordinates :math:`x`, :math:`y`, :math:`\theta`
     listed in the ``X``, ``Y``, and ``T`` arrays.
 
-    The values of :math:`x, y, \theta` at which to compute the PCF are
+    The values of :math:`x, y, \theta` at which to compute the PMFT are
     controlled by ``x_max``, ``y_max``, and ``bins`` parameters to the
     constructor. The ``x_max`` and ``y_max`` parameters determine the
     minimum/maximum :math:`x, y` values (:math:`\min \left(\theta \right) = 0`,
-    (:math:`\max \left( \theta \right) = 2\pi`) at which to compute the PCF.
+    (:math:`\max \left( \theta \right) = 2\pi`) at which to compute the PMFT.
     The ``bins`` may be either an integer, in which case it is interpreted as
     the number of bins in each dimension, or a sequence of length 3, in which
     case it is interpreted as the number of bins in :math:`x`, :math:`y`, and
@@ -308,8 +272,6 @@ cdef class PMFTXYT(_PMFT):
             :code:`(num_bins_x, num_bins_y, num_bins_t)`.
 
     Attributes:
-        PCF (:math:`\left(N_{x}, N_{y}, N_{\theta}\right)` :class:`numpy.ndarray`):
-            The positional correlation function.
         PMFT (:math:`\left(N_{x}, N_{y}, N_{\theta}\right)` :class:`numpy.ndarray`):
             The potential of mean force and torque.
     """  # noqa: E501
@@ -330,8 +292,8 @@ cdef class PMFTXYT(_PMFT):
         if type(self) is PMFTXYT:
             del self.pmftxytptr
 
-    def accumulate(self, neighbor_query, orientations, query_points=None,
-                   query_orientations=None, neighbors=None):
+    def compute(self, neighbor_query, orientations, query_points=None,
+                query_orientations=None, neighbors=None, reset=True):
         R"""Calculates the positional correlation function and adds to the
         current histogram.
 
@@ -364,6 +326,11 @@ cdef class PMFTXYT(_PMFT):
                 NeighborList used to find bonds (Default value =
                 :code:`None`).
         """  # noqa: E501
+        if reset:
+            # Must directly call C++ to avoid overwriting the computed flags
+            # set by the call to compute.
+            self.thisptr.reset()
+
         cdef:
             freud.locality.NeighborQuery nq
             freud.locality.NeighborList nlist
@@ -393,45 +360,6 @@ cdef class PMFTXYT(_PMFT):
                                    dereference(qargs.thisptr))
         return self
 
-    def compute(self, neighbor_query, orientations, query_points=None,
-                query_orientations=None, neighbors=None):
-        R"""Calculates the positional correlation function for the given points.
-        Will overwrite the current histogram.
-
-        Args:
-            box (:class:`freud.box.Box`):
-                Simulation box.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Reference points used in computation.
-            orientations (:class:`numpy.ndarray`):
-                Orientations used in computation. May be provided as an array
-                of shape (:math:`N_{particles}`, 1) or
-                (:math:`N_{particles}`,), in which case it is treated as an
-                array of angles, or as an array of shape
-                (:math:`N_{particles}`, 4) or (4,), in which case it is treated
-                as an array of quaternions representing rotations about the
-                :math:`z` axis.
-            query_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
-                Points used in computation. Uses :code:`points` if not
-                provided or :code:`None`. (Default value = :code:`None`).
-            query_orientations (:class:`numpy.ndarray`, optional):
-                Query orientations used in computation. May be provided as
-                an array of shape (:math:`N_{particles}`, 1) or
-                (:math:`N_{particles}`,), in which case it is treated as an
-                array of angles, or as an array of shape
-                (:math:`N_{particles}`, 4) or (4,), in which case it is treated
-                as an array of quaternions representing rotations about the
-                :math:`z` axis. Uses :code:`orientations` if omitted or or
-                :code:`None` is provided. (Default value = :code:`None`).
-            nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList used to find bonds (Default value =
-                :code:`None`).
-        """  # noqa: E501
-        self.reset()
-        self.accumulate(neighbor_query, orientations,
-                        query_points, query_orientations, neighbors)
-        return self
-
     def __repr__(self):
         bounds = self.bounds
         return ("freud.pmft.{cls}(x_max={x_max}, y_max={y_max}, "
@@ -446,10 +374,10 @@ cdef class PMFTXY2D(_PMFT):
     R"""Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in
     coordinates :math:`x`, :math:`y` listed in the ``X`` and ``Y`` arrays.
 
-    The values of :math:`x` and :math:`y` at which to compute the PCF are
+    The values of :math:`x` and :math:`y` at which to compute the PMFT are
     controlled by ``x_max``, ``y_max``, and ``bins`` parameters to the
     constructor. The ``x_max`` and ``y_max`` parameters determine the
-    minimum/maximum distance at which to compute the PCF.  The ``bins`` may be
+    minimum/maximum distance at which to compute the PMFT.  The ``bins`` may be
     either an integer, in which case it is interpreted as the number of bins in
     each dimension, or a sequence of length 2, in which case it is interpreted
     as the number of bins in :math:`x` and :math:`y` respectively.
@@ -469,8 +397,6 @@ cdef class PMFTXY2D(_PMFT):
             :code:`(num_bins_x, num_bins_y)`.
 
     Attributes:
-        PCF (:math:`\left(N_{x}, N_{y}\right)` :class:`numpy.ndarray`):
-            The positional correlation function.
         PMFT (:math:`\left(N_{x}, N_{y}\right)` :class:`numpy.ndarray`):
             The potential of mean force and torque.
     """  # noqa: E501
@@ -491,8 +417,8 @@ cdef class PMFTXY2D(_PMFT):
         if type(self) is PMFTXY2D:
             del self.pmftxy2dptr
 
-    def accumulate(self, neighbor_query, orientations, query_points=None,
-                   neighbors=None):
+    def compute(self, neighbor_query, orientations, query_points=None,
+                neighbors=None, reset=True):
         R"""Calculates the positional correlation function and adds to the
         current histogram.
 
@@ -516,6 +442,11 @@ cdef class PMFTXY2D(_PMFT):
                 NeighborList used to find bonds (Default value =
                 :code:`None`).
         """  # noqa: E501
+        if reset:
+            # Must directly call C++ to avoid overwriting the computed flags
+            # set by the call to compute.
+            self.thisptr.reset()
+
         cdef:
             freud.locality.NeighborQuery nq
             freud.locality.NeighborList nlist
@@ -538,48 +469,12 @@ cdef class PMFTXY2D(_PMFT):
                                     dereference(qargs.thisptr))
         return self
 
-    def compute(self, neighbor_query, orientations, query_points=None,
-                neighbors=None):
-        R"""Calculates the positional correlation function for the given points.
-        Will overwrite the current histogram.
-
-        Args:
-            box (:class:`freud.box.Box`):
-                Simulation box.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Reference points used in computation.
-            orientations (:class:`numpy.ndarray`):
-                Orientations used in computation. May be provided as an array
-                of shape (:math:`N_{particles}`, 1) or
-                (:math:`N_{particles}`,), in which case it is treated as an
-                array of angles, or as an array of shape
-                (:math:`N_{particles}`, 4) or (4,), in which case it is treated
-                as an array of quaternions representing rotations about the
-                :math:`z` axis.
-            query_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
-                Points used in computation. Uses :code:`points` if not
-                provided or :code:`None`. (Default value = :code:`None`).
-            nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList used to find bonds (Default value =
-                :code:`None`).
-        """  # noqa: E501
-        self.reset()
-        self.accumulate(neighbor_query, orientations, query_points, neighbors)
-        return self
-
     @Compute._computed_property
     def bin_counts(self):
         # Currently this returns a 3D array that must be squeezed due to the
         # internal choices in the histogramming; this will be fixed in future
         # changes.
         return np.squeeze(super(PMFTXY2D, self).bin_counts)
-
-    @Compute._computed_property
-    def PCF(self):
-        # Currently this returns a 3D array that must be squeezed due to the
-        # internal choices in the histogramming; this will be fixed in future
-        # changes.
-        return np.squeeze(super(PMFTXY2D, self).PCF)
 
     def __repr__(self):
         bounds = self.bounds
@@ -617,7 +512,7 @@ cdef class PMFTXYZ(_PMFT):
     coordinates :math:`x`, :math:`y`, :math:`z`, listed in the ``X``, ``Y``,
     and ``Z`` arrays.
 
-    The values of :math:`x, y, z` at which to compute the PCF are controlled by
+    The values of :math:`x, y, z` at which to compute the PMFT are controlled by
     ``x_max``, ``y_max``, ``z_max``, and ``bins`` parameters to the constructor.
     The ``x_max``, ``y_max``, and ``z_max`` parameters] determine the
     minimum/maximum distance at which to compute the pair correlation function.
@@ -641,8 +536,6 @@ cdef class PMFTXYZ(_PMFT):
             Vector pointing from ``[0, 0, 0]`` to the center of the PMFT.
 
     Attributes:
-        PCF (:math:`\left(N_{x}, N_{y}, N_{z}\right)` :class:`numpy.ndarray`):
-            The positional correlation function.
         PMFT (:math:`\left(N_{x}, N_{y}, N_{z}\right)` :class:`numpy.ndarray`):
             The potential of mean force and torque.
     """  # noqa: E501
@@ -671,8 +564,8 @@ cdef class PMFTXYZ(_PMFT):
         if type(self) is PMFTXYZ:
             del self.pmftxyzptr
 
-    def accumulate(self, neighbor_query, orientations, query_points=None,
-                   face_orientations=None, neighbors=None):
+    def compute(self, neighbor_query, orientations, query_points=None,
+                face_orientations=None, neighbors=None, reset=True):
         R"""Calculates the positional correlation function and adds to the
         current histogram.
 
@@ -697,6 +590,11 @@ cdef class PMFTXYZ(_PMFT):
                 NeighborList used to find bonds (Default value =
                 :code:`None`).
         """  # noqa: E501
+        if reset:
+            # Must directly call C++ to avoid overwriting the computed flags
+            # set by the call to compute.
+            self.thisptr.reset()
+
         cdef:
             freud.locality.NeighborQuery nq
             freud.locality.NeighborList nlist
@@ -764,37 +662,6 @@ cdef class PMFTXYZ(_PMFT):
             num_query_points,
             <quat[float]*> &l_face_orientations[0, 0, 0],
             num_faces, nlist.get_ptr(), dereference(qargs.thisptr))
-        return self
-
-    def compute(self, neighbor_query, orientations, query_points=None,
-                face_orientations=None, neighbors=None):
-        R"""Calculates the positional correlation function for the given points.
-        Will overwrite the current histogram.
-
-        Args:
-            box (:class:`freud.box.Box`):
-                Simulation box.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Reference points used in computation.
-            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
-                Reference orientations as quaternions used in computation.
-            query_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
-                Points used in computation. Uses :code:`points` if not
-                provided or :code:`None`. (Default value = :code:`None`).
-            face_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional):
-                Orientations of particle faces to account for particle
-                symmetry. If not supplied by user, unit quaternions will be
-                supplied. If a 2D array of shape (:math:`N_f`, 4) or a
-                3D array of shape (1, :math:`N_f`, 4) is supplied, the
-                supplied quaternions will be broadcast for all particles.
-                (Default value = :code:`None`).
-            nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList used to find bonds (Default value =
-                :code:`None`).
-        """  # noqa: E501
-        self.reset()
-        self.accumulate(neighbor_query, orientations, query_points,
-                        face_orientations, neighbors)
         return self
 
     def __repr__(self):
