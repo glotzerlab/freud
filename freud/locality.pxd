@@ -3,10 +3,10 @@
 
 from libcpp cimport bool as cbool
 from libcpp.memory cimport shared_ptr
-from freud.common cimport Compute
+from freud.util cimport Compute
 
 from cython.operator cimport dereference
-from freud.common cimport Compute
+from freud.util cimport Compute
 
 cimport freud._locality
 cimport freud.box
