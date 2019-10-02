@@ -11,6 +11,7 @@ import itertools
 import warnings
 import logging
 import copy
+import freud.util
 
 from libcpp cimport bool as cbool
 from freud.util cimport vec3

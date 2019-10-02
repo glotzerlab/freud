@@ -12,8 +12,9 @@ beyond the limits of one periodicity of the box.
 
 import warnings
 import numpy as np
-
 import logging
+
+import freud.util
 
 from freud.util cimport vec3
 from cython.operator cimport dereference
