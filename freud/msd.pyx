@@ -230,6 +230,7 @@ cdef class MSD(Compute):
     def reset(self):
         R"""Clears the stored MSD values from previous calls to accumulate (or
         the last call to compute)."""
+        self._called_compute = False
         self.particle_msd = []
 
     def compute(self, positions, images=None):
