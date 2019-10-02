@@ -405,7 +405,7 @@ cdef class LocalDescriptors(PairCompute):
                     negative_m=self.negative_m, mode=self.mode)
 
 
-def _minimizeRMSD(box, ref_points, points, registration=False):
+def _minimize_RMSD(box, ref_points, points, registration=False):
     R"""Get the somewhat-optimal RMSD between the set of vectors ref_points
     and the set of vectors points.
 
@@ -451,7 +451,7 @@ def _minimizeRMSD(box, ref_points, points, registration=False):
     return [min_rmsd, np.asarray(l_points), results_map]
 
 
-def _isSimilar(box, ref_points, points, threshold, registration=False):
+def _is_similar_motif(box, ref_points, points, threshold, registration=False):
     R"""Test if the motif provided by ref_points is similar to the motif
     provided by points.
 
@@ -492,7 +492,7 @@ def _isSimilar(box, ref_points, points, threshold, registration=False):
 
     if nRef1 != nRef2:
         raise ValueError(
-            ("The number of vectors in ref_points must MATCH"
+            ("The number of vectors in ref_points must match"
                 "the number of vectors in points"))
 
     cdef map[unsigned int, unsigned int] vec_map = \
@@ -536,7 +536,7 @@ cdef class EnvironmentCluster(_MatchEnv):
             All environments for all points.
         num_clusters (unsigned int):
             The number of clusters.
-        clusters (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
+        cluster_idx (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The per-particle index indicating cluster membership.
         cluster_environments (:math:`\left(N_{clusters}, N_{neighbors}, 3\right)` :class:`numpy.ndarray`):
             The environments for all clusters.
@@ -608,7 +608,7 @@ cdef class EnvironmentCluster(_MatchEnv):
         return self
 
     @Compute._computed_property
-    def clusters(self):
+    def cluster_idx(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getClusters(),
             freud.util.arr_type_t.UNSIGNED_INT)
