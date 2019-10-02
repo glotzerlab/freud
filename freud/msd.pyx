@@ -7,11 +7,10 @@ mean-squared-displacement (MSD) of particles in periodic systems.
 """
 
 import numpy as np
-import freud.common
 import freud.parallel
 import logging
 
-from freud.common cimport Compute
+from freud.util cimport Compute
 cimport freud.box
 cimport numpy as np
 
@@ -154,7 +153,7 @@ cdef class MSD(Compute):
 
     def __cinit__(self, box=None, mode='window'):
         if box is not None:
-            self._box = freud.common.convert_box(box)
+            self._box = freud.util._convert_box(box)
         else:
             self._box = None
 
@@ -188,10 +187,10 @@ cdef class MSD(Compute):
                 (Default value = :code:`None`).
         """  # noqa: E501
 
-        positions = freud.common.convert_array(
+        positions = freud.util._convert_array(
             positions, shape=(None, None, 3))
         if images is not None:
-            images = freud.common.convert_array(
+            images = freud.util._convert_array(
                 images, shape=positions.shape, dtype=np.int32)
 
         # Make sure we aren't modifying the provided array

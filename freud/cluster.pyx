@@ -8,12 +8,11 @@ of clusters of points in a system.
 
 import numpy as np
 import warnings
-import freud.common
 import freud.locality
 import freud.util
 
 from cython.operator cimport dereference
-from freud.common cimport Compute
+from freud.util cimport Compute
 from freud.locality cimport PairCompute
 from freud.util cimport vec3, uint
 
@@ -92,7 +91,7 @@ cdef class Cluster(PairCompute):
         cdef unsigned int* l_keys_ptr = NULL
         cdef unsigned int[::1] l_keys
         if keys is not None:
-            l_keys = freud.common.convert_array(
+            l_keys = freud.util._convert_array(
                 keys, shape=(num_query_points, ), dtype=np.uint32)
             l_keys_ptr = &l_keys[0]
 
@@ -197,7 +196,7 @@ cdef class ClusterProperties(Compute):
         """
         cdef freud.locality.NeighborQuery nq = \
             freud.locality._make_default_nq(neighbor_query)
-        cluster_idx = freud.common.convert_array(
+        cluster_idx = freud.util._convert_array(
             cluster_idx, shape=(nq.points.shape[0], ), dtype=np.uint32)
         cdef const unsigned int[::1] l_cluster_idx = cluster_idx
         self.thisptr.compute(

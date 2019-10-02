@@ -3,10 +3,10 @@
 
 from libcpp cimport bool as cbool
 from libcpp.memory cimport shared_ptr
-from freud.common cimport Compute
+from freud.util cimport Compute
 
 from cython.operator cimport dereference
-from freud.common cimport Compute
+from freud.util cimport Compute
 
 cimport freud._locality
 cimport freud.box
@@ -39,7 +39,6 @@ cdef class NeighborQueryResult:
 
 cdef class NeighborQuery:
     cdef freud._locality.NeighborQuery * nqptr
-    cdef freud.box.Box _box
     cdef const float[:, ::1] points
     cdef freud._locality.NeighborQuery * get_ptr(self)
 
@@ -49,11 +48,6 @@ cdef class NeighborList:
 
     cdef freud._locality.NeighborList * get_ptr(self)
     cdef void copy_c(self, NeighborList other)
-
-cdef class IteratorLinkCell:
-    cdef freud._locality.IteratorLinkCell * thisptr
-
-    cdef void copy(self, const freud._locality.IteratorLinkCell & rhs)
 
 cdef class LinkCell(NeighborQuery):
     cdef freud._locality.LinkCell * thisptr
