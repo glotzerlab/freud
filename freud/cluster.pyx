@@ -179,7 +179,7 @@ cdef class ClusterProperties(Compute):
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, box, points, cluster_idx):
+    def compute(self, neighbor_query, cluster_idx):
         R"""Compute properties of the point clusters.
         Loops over all points in the given array and determines the center of
         mass of the cluster as well as the gyration tensor. These can be
@@ -194,19 +194,14 @@ cdef class ClusterProperties(Compute):
             cluster_idx ((:math:`N_{points}`,) :class:`np.ndarray`):
                 Cluster indexes for each point.
         """
-        cdef freud.box.Box b = freud.util._convert_box(box)
-
-        points = freud.util._convert_array(points, shape=(None, 3))
+        cdef freud.locality.NeighborQuery nq = \
+            freud.locality._make_default_nq(neighbor_query)
         cluster_idx = freud.util._convert_array(
-            cluster_idx, shape=(points.shape[0], ), dtype=np.uint32)
-        cdef const float[:, ::1] l_points = points
+            cluster_idx, shape=(nq.points.shape[0], ), dtype=np.uint32)
         cdef const unsigned int[::1] l_cluster_idx = cluster_idx
-        cdef unsigned int Np = l_points.shape[0]
         self.thisptr.compute(
-            dereference(b.thisptr),
-            <vec3[float]*> &l_points[0, 0],
-            <unsigned int*> &l_cluster_idx[0],
-            Np)
+            nq.get_ptr(),
+            <unsigned int*> &l_cluster_idx[0])
         return self
 
     @Compute._computed_property

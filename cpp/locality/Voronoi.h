@@ -6,8 +6,9 @@
 
 #include "Box.h"
 #include "ManagedArray.h"
-#include "VectorMath.h"
 #include "NeighborList.h"
+#include "NeighborQuery.h"
+#include "VectorMath.h"
 #include <voro++/src/voro++.hh>
 
 namespace freud { namespace locality {
@@ -20,7 +21,7 @@ public:
     {
     }
 
-    void compute(const box::Box &box, const vec3<double>* points, unsigned int n_points);
+    void compute(const freud::locality::NeighborQuery* nq);
 
     std::shared_ptr<NeighborList> getNeighborList() const
     {

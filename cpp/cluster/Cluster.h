@@ -6,7 +6,6 @@
 
 #include <vector>
 
-#include "Box.h"
 #include "ManagedArray.h"
 #include "NeighborList.h"
 #include "NeighborQuery.h"

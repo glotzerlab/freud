@@ -563,40 +563,41 @@ cdef NeighborList _nlist_from_cnlist(freud._locality.NeighborList *c_nlist):
     return result
 
 
-def _make_default_nq(box, points):
+def _make_default_nq(neighbor_query):
     R"""Helper function to return a NeighborQuery object.
 
     Currently the resolution for NeighborQuery objects is such that if Python
-    users pass in a numpy array of points and a box, we always make a RawPoints
+    users pass in a NumPy array of points and a box, we always make a RawPoints
     object. On the C++ side, the RawPoints object internally constructs an
     AABBQuery object to find neighbors if needed. On the Python side, making
     the RawPoints object is just so that compute functions on the C++ side
     don't require overloads to work.
 
+    Supported types for :code:`neighbor_query` include:
+    - :class:`~.locality.AABBQuery`
+    - :class:`~.locality.LinkCell`
+    - A tuple of :code:`(box, points)` where :code:`box` is a
+      :class:`~.box.Box` and :code:`points` is a :class:`numpy.ndarray`.
+
     Args:
-        box (:class:`freud.box.Box`):
-            Simulation box.
-        points (:class:`freud.locality.NeighborQuery` or :class:`numpy.ndarray`):
-            NeighborQuery object or NumPy array used to build :class:`RawPoints`.
+        neighbor_query (:class:`~.locality.NeighborQuery` - like object):
+            A :class:`~.locality.NeighborQuery` or object that can be
+            duck-typed into one.
 
     Returns:
         :class:`freud.locality.NeighborQuery`
-            The same :class:`NeighborQuery` object if one is given or :class:`RawPoints`
-            built from :code:`box` and :code:`points`.
-    """  # noqa: E501
-    if isinstance(points, NeighborQuery):
-        if points.box != box:
-            raise ValueError("The box provided and the box of the"
-                             "NeighborQuery object are different")
-        return points
-
-    points = freud.util._convert_array(
-        points, shape=(None, 3))
-    cdef RawPoints rp = RawPoints(box, points)
-    return rp
+            The same :class:`NeighborQuery` object if one is given or
+            :class:`RawPoints` built from an inferred :code:`box` and
+            :code:`points`.
+    """
+    if not isinstance(neighbor_query, NeighborQuery):
+        nq = RawPoints(*neighbor_query)
+    else:
+        nq = neighbor_query
+    return nq
 
 
-def _make_default_nlist(box, points, query_points, query_args, nlist=None):
+def _make_default_nlist(neighbor_query, query_points, query_args, nlist=None):
     R"""Helper function to return a neighbor list object if is given, or to
     construct one using AABBQuery if it is not.
 
@@ -615,20 +616,18 @@ def _make_default_nlist(box, points, query_points, query_args, nlist=None):
             NeighborList to use to find bonds (Default value = :code:`None`).
 
     Returns:
-        tuple (:class:`freud.locality.NeighborList`, :class:`freud.locality.AABBQuery`):
-            The NeighborList and the owning AABBQuery object.
+        :class:`freud.locality.NeighborList`:
+            The neighbor list.
     """  # noqa: E501
     if nlist is not None:
         return nlist
 
-    cdef AABBQuery aq = AABBQuery(box, points)
+    cdef NeighborQuery nq = _make_default_nq(neighbor_query)
     query_args.setdefault('exclude_ii', query_points is None)
-    cdef _QueryArgs qa = _QueryArgs.from_dict(query_args)
-    qp = query_points if query_points is not None else points
-    cdef NeighborList aq_nlist = aq.query(
-        qp, query_args).toNeighborList()
+    qp = query_points if query_points is not None else nq.points
+    cdef NeighborList nq_nlist = nq.query(qp, query_args).toNeighborList()
 
-    return aq_nlist
+    return nq_nlist
 
 
 cdef class RawPoints(NeighborQuery):
@@ -767,7 +766,7 @@ cdef class Voronoi(Compute):
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, box, points):
+    def compute(self, neighbor_query):
         R"""Compute Voronoi diagram.
 
         Args:
@@ -776,19 +775,8 @@ cdef class Voronoi(Compute):
             points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
                 Points used to calculate Voronoi diagram.
         """
-        self._box = freud.util._convert_box(box)
-
-        # voro++ uses double precision
-        points = freud.util._convert_array(points, shape=(None, 3),
-                                           dtype=np.float64)
-        cdef const double[:, ::1] l_points = points
-        cdef unsigned int n_points = len(points)
-
-        self.thisptr.compute(
-            dereference(self._box.thisptr),
-            <vec3[double]*> &l_points[0, 0],
-            n_points)
-
+        cdef NeighborQuery nq = _make_default_nq(neighbor_query)
+        self.thisptr.compute(nq.get_ptr())
         return self
 
     @Compute._computed_property
