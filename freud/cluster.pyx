@@ -69,14 +69,17 @@ cdef class Cluster(PairCompute):
         R"""Compute the clusters for the given set of points.
 
         Args:
-            box (:class:`freud.box.Box`):
-                Simulation box.
-            points ((:math:`N_{points}`, 3) :class:`np.ndarray`):
-                Point coordinates.
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
             keys ((:math:`N_{points}`) :class:`numpy.ndarray`):
                 Membership keys, one for each point.
-            nlist (:class:`freud.locality.NeighborList`, optional):
-                Object to use to find bonds (Default value = :code:`None`).
+            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
+                Either a :class:`NeighborList <freud.locality.NeighborList>` of
+                neighbor pairs to use in the calculation, or a dictionary of
+                `query arguments
+                <https://freud.readthedocs.io/en/next/querying.html>`_
+                (Default value: None).
         """
         cdef:
             freud.locality.NeighborQuery nq
@@ -187,10 +190,9 @@ cdef class ClusterProperties(Compute):
         :code:`centers` and :code:`gyrations` attributes.
 
         Args:
-            box (:class:`freud.box.Box`):
-                Simulation box.
-            points ((:math:`N_{points}`, 3) :class:`np.ndarray`):
-                Positions of the points making up the clusters.
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
             cluster_idx ((:math:`N_{points}`,) :class:`np.ndarray`):
                 Cluster indexes for each point.
         """
