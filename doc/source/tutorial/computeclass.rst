@@ -28,20 +28,20 @@ If you're unfamiliar with this order parameter, the most important piece of info
 
 To calculate the order parameter we call :meth:`compute <freud.order.HexOrderParameter.compute>`, which takes two arguments, a :class:`tuple` `(box, points)` and a :class:`dict`.
 We first focus on the first argument.
-The `box` is any object that can be coerced into a :class:`freud.box.Box` as described in the previous section; in this case, we use a dictionary to specify a square (2-dimensional) box.
-The `points` must be anything that can be coerced into a 2-dimensional NumPy array of shape :code:`(N, 3)`
+The ``box`` is any object that can be coerced into a :class:`freud.box.Box` as described in the previous section; in this case, we use a dictionary to specify a square (2-dimensional) box.
+The ``points`` must be anything that can be coerced into a 2-dimensional NumPy array of shape :code:`(N, 3)`
 In general, the points may be provided as anything that can be interpreted as an :math:`N\times 3` list of positions; for more details on valid inputs here, see :func:`numpy.asarray`.
 Note that because the hexatic order parmaeter is designed for two-dimensional systems, the points must be provided of the form `[x, y, 0]` (i.e. the z-component must be 0).
-We'll go into more detail about the `(box, points)` tuple in the `next section <neighborfinding>`_, but for now, it's sufficient to just think of it as specifying the system of points we want to work with.
+We'll go into more detail about the ``(box, points)`` tuple `soon <paircompute>`_, but for now, it's sufficient to just think of it as specifying the system of points we want to work with.
 
-Now let's return to the second argument to `compute`, which is a dictionary is used to determine which particle neighbors to use.
-Many computations in **freud** (such as the hexatic order parameter) involve the set of all bonds in the system (for example, the average length of bonds or the average number of bonds a given point has).
+Now let's return to the second argument to ``compute``, which is a dictionary is used to determine which particle neighbors to use.
+Many computations in **freud** (such as the hexatic order parameter) involve the bonds in the system (for example, the average length of bonds or the average number of bonds a given point has).
 However, the concept of a bond is sufficiently variable between different calculations; for instance, should points be considered bonded if they are within a certain distance of each other?
 Should every point be considered bonded to a fixed number of other points?
 
 To accommodate this variability, **freud** offers a very general framework by which bonds can be specified, and we'll go into more details in the `next section <neighborfinding>`_.
 In the example above, we've simply informed the :class:`HexOrderParameter <freud.order.HexOrderParameter>` class that we want it to define bonds as pairs of particles that are less than 3 distance units apart.
-We then access the computed order parameter as `op.order` (we use :func:`np.absolute` because the output is a complex number and we just want to see its magnitude).
+We then access the computed order parameter as ``op.order`` (we use :func:`np.absolute` because the output is a complex number and we just want to see its magnitude).
 
 
 Accessing Computed Properties

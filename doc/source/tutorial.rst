@@ -18,3 +18,4 @@ Finally, the tutorial includes a few more complete demonstrations of using **fre
    tutorial/periodic.rst
    tutorial/computeclass.rst
    tutorial/neighborfinding
+   tutorial/paircompute.rst
