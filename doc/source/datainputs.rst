@@ -9,7 +9,7 @@ However, users accustomed to the more restrictive patterns of most other tools m
 In particular, knowing how to provide data from specific simulation sources can be a significant source of confusion.
 This page is intended to describe how various types of data may be converted into a form suitable for **freud**
 
-To simplify the examples below, we will assume in all cases that the user wishes to compute a :class:`radial distribution function <freud.density.RDF>`_ and that the following code has already been run:
+To simplify the examples below, we will assume in all cases that the user wishes to compute a :class:`radial distribution function <freud.density.RDF>` and that the following code has already been run:
 
 .. code-block:: python
 
@@ -20,7 +20,7 @@ To simplify the examples below, we will assume in all cases that the user wishes
 GSD Trajectories
 ================
 
-Using the GSD Python API, GSD files can be very easily integrated with **freud** as shown in `gettingstarted`_
+Using the GSD Python API, GSD files can be very easily integrated with **freud** as shown in :ref:`gettingstarted`
 
 .. code-block:: python
 
