@@ -663,7 +663,7 @@ class TestNeighborQueryLinkCell(NeighborQueryTest, unittest.TestCase):
         for i in range(N):
             cells = cl._getCellNeighbors(cl._getCell(points[i]))
             for cell in cells:
-                neighbors_ij.update([(i, j) for j in cl.itercell(cell)])
+                neighbors_ij.update([(i, j) for j in cl._itercell(cell)])
 
         neighbors_ji = set((j, i) for (i, j) in neighbors_ij)
         # if i is a neighbor of j, then j should be a neighbor of i
