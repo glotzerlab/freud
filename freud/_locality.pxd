@@ -93,36 +93,13 @@ cdef extern from "NeighborList.h" namespace "freud::locality":
         void validate(unsigned int, unsigned int) except +
 
 cdef extern from "LinkCell.h" namespace "freud::locality":
-    cdef cppclass IteratorLinkCell:
-        IteratorLinkCell()
-        IteratorLinkCell(
-            const shared_ptr[unsigned int] &,
-            unsigned int,
-            unsigned int,
-            unsigned int)
-        void copy(const IteratorLinkCell &)
-        bool atEnd()
-        unsigned int next()
-        unsigned int begin()
-
     cdef cppclass LinkCell(NeighborQuery):
         LinkCell() except +
         LinkCell(const freud._box.Box &,
                  const vec3[float]*,
                  unsigned int,
                  float) except +
-        const vec3[unsigned int] computeDimensions(
-            const freud._box.Box &,
-            float) const
-        unsigned int getNumCells() const
         float getCellWidth() const
-        unsigned int getCell(const vec3[float] &) const
-        IteratorLinkCell itercell(unsigned int) const
-        vector[unsigned int] getCellNeighbors(unsigned int) const
-        void computeCellList(
-            const freud._box.Box &,
-            const vec3[float]*,
-            unsigned int) except +
 
 cdef extern from "AABBQuery.h" namespace "freud::locality":
     cdef cppclass AABBQuery(NeighborQuery):
