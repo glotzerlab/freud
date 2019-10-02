@@ -43,6 +43,7 @@ and this project adheres to
 * Documentation uses automodule instead of autoclass.
 * The Voronoi class was rewritten to use voro++ for vastly improved performance and correctness in edge cases.
 * MatchEnv has been split into separate classes for the different types of computations it is capable of performing, and these classes all use v2.0-style APIs.
+* Code in the freud.common has been moved to freud.util.
 
 ### Fixed
 * Steinhardt uses the ThreadStorage class and properly resets memory where needed.
@@ -55,6 +56,7 @@ and this project adheres to
 * The freud.util module.
 * Python 2 is no longer supported. Python 3.5+ is required.
 * Cubatic no longer returns the per-particle tensor or the constant r4 tensor.
+* Most features of freud.common are removed from the public API.
 
 ## v1.2.2 - 2019-08-15
 
