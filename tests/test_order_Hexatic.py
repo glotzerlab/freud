@@ -21,7 +21,7 @@ class TestHexatic(unittest.TestCase):
         box, points = util.make_box_and_random_points(boxlen, N, is2D=True)
         hop = freud.order.Hexatic()
         hop.compute((box, points))
-        npt.assert_equal(len(hop.order), N)
+        npt.assert_equal(len(hop.particle_order), N)
 
     def test_compute_random(self):
         boxlen = 10
@@ -29,7 +29,7 @@ class TestHexatic(unittest.TestCase):
         box, points = util.make_box_and_random_points(boxlen, N, is2D=True)
         hop = freud.order.Hexatic()
         hop.compute((box, points))
-        npt.assert_allclose(np.mean(hop.order), 0. + 0.j, atol=1e-1)
+        npt.assert_allclose(np.mean(hop.particle_order), 0. + 0.j, atol=1e-1)
 
     def test_compute(self):
         boxlen = 10
@@ -49,7 +49,7 @@ class TestHexatic(unittest.TestCase):
         # Test access
         hop.k
         with self.assertRaises(AttributeError):
-            hop.order
+            hop.particle_order
 
         test_set = util.make_raw_query_nlist_test_set(
             box, points, points, 'nearest', r_max, 6, True)
@@ -57,9 +57,9 @@ class TestHexatic(unittest.TestCase):
             hop.compute(nq, neighbors=neighbors)
             # Test access
             hop.k
-            hop.order
+            hop.particle_order
 
-            npt.assert_allclose(hop.order[0], 1. + 0.j, atol=1e-1)
+            npt.assert_allclose(hop.particle_order[0], 1. + 0.j, atol=1e-1)
 
     def test_3d_box(self):
         boxlen = 10
