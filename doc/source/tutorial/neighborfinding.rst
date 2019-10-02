@@ -1,32 +1,48 @@
 .. _neighbors:
 
-================
-Neighbor Finding
-================
+=================
+Finding Neighbors
+=================
+
+Now that you've been introduced to the basics of interacting with **freud**, let's dive into the central feature of **freud**: efficiently and flexibly finding neighbors in periodic systems.
 
 Problem Statement
 =================
 
-A central task in many of the computations in **freud** is finding particles' neighbors.
-Many of the methods characterize the environments of particles based on their relative positions.
-As a result, the computations involve performing pair calculations.
-Although in principle such calculations should typically be conducted for all possible pairs, it is usually sufficient to perform analyses only on particles within a given distance that characterizes the local environment.
+Neighbor-Based Calculations
+---------------------------
+As discussed in :ref:`the previous section <computeclass>`, a central task in many of the computations in **freud** is finding particles' neighbors.
+These calculations typically only involve a limited subset of a particle's neighbors that are defined as characterizing its local environment.
 This requirement is analogous to the force calculations typically performed in molecular dynamics simulations, where a cutoff radius is specified beyond which pair forces are assumed to be small enough to neglect.
+Unlike in simulation, though, many analyses call for different specifications than simply selecting all points within a certain distance.
+
+An important example is the calculation of order parameters, which can help characterize phase transitions.
+Such parameters can be highly sensitive to the precise way in which neighbors are selected.
+For instance, if a hard distance cutoff is imposed in finding neighbors for the hexatic order parameter, a particle may only be found to have five neighbors when it actually has six neighbors except the first is just outside the cutoff radius.
+To accomodate such differences in a flexible manner, **freud** allows users to specify neighbors in a variety of ways.
+
+Finding Periodic Neighbors
+--------------------------
+
+.. image:: ../images/PeriodicBoundaryConditions.png
+    :width: 200px
+
+Finding neighbors in periodic systems is significantly more challenging than in aperiodic systems.
+To illustrate the difference, consider the figure above, where the black dashed line indicates the boundaries of the system.
+If this system were aperiodic, the three nearest neighbors for point 1 would be points 5, 6, and 7.
+However, due to periodicity, point 2 is actually closer to point 1 than any of the others if you consider moving straight through the top (or equivalently, the bottom) boundary.
+Although many tools provide efficient implementations of algorithms for finding neighbors in aperiodic systems, they seldom generalize to periodic systems.
+Even more rare is the ability to work not just in *cubic* periodic systems, which are relatively tractable, but in arbitrary triclinic geometries as described in :ref:`pbcs`.
+This is precisely the type of calculation **freud** is designed for.
 
 
 Neighbor Querying
 =================
 
-To support efficiently finding neighbors in periodic systems, the **freud** library provides a unified interface to finding neighbors that can both be accessed directly by users and is leveraged internally by all methods that require such calculations.
-The central interface for neighbor finding is the :py:class:`freud.locality.NeighborQuery` family of classes, which provide methods for dynamically finding neighbors given a :py:class:`freud.box.Box`.
-The :py:class:`freud.locality.NeighborQuery` class defines an abstract interface for neighbor finding that is implemented by its subclasses, namely the :py:class:`freud.locality.LinkCell` and :py:class:`freud.locality.AABBQuery` classes.
-These classes represent data structures used to accelerate neighbor finding.
-
-In general, these data structures operate by constructing them using one set of points, after which they can be queried to efficiently find the neighbors of arbitrary other points using :py:meth:`freud.locality.NeighborQuery.queryBall`.
-The queries can either be based strictly on a distance cutoff or by searching for a specific number of neighbors.
-These classes expose a standardized API for this task, returning a generator than can be easily looped over.
-Alternatively, the pairs of points can be converted into a :py:class:`freud.locality.NeighborList`, a lightweight class that can be used to store pairs of bonds that will be used multiple times.
-For example, the following code first uses the :py:class:`freud.locality.LinkCell` to search for at least 6 neighbors for all points in a given set and calculate the average distances between them, and then uses a :py:class:`freud.locality.AABBQuery` to create a :py:class:`freud.locality.NeighborList` based on a distance cutoff:
+To understand how ``Compute classes`` find neighbors in **freud**, it helps to start by learning about **freud**'s neighbor finding classes directly.
+Note that much more detail on this topic is available in the :ref:`querying` topic guide; in this section we will restrict ourselves to a higher-level overview.
+For our demonstration, we will make use of the :class:`freud.locality.AABBQuery` class, which implements one fast method for periodic neighbor finding.
+The primary mode of interfacing with this class (and other neighbor finding classes) is through the :meth:`query <freud.locality.AABBQuery>` interface.
 
 .. code-block:: python
 
@@ -37,187 +53,125 @@ For example, the following code first uses the :py:class:`freud.locality.LinkCel
     L = 10
     num_points = 100
 
-    # Note that we are shifting all points into the expected range for freud.
-    # An alternative would be to simply wrap all points back into the box using
-    # the box.wrap method.
+    # We shift all points into the expected range for freud.
     points = np.random.rand(num_points)*L - L/2
     box = freud.box.Box.cube(L)
+    aq = freud.locality.AABBQuery(box, points)
 
-    # Linked cell lists are parameterized by the size of the individual cells.
-    # Although freud will attempt to provide a value if none is given, the cell
-    # width can significantly affect neighbor-finding performance so it is
-    # beneficial to try and define a good value for your system.  # In general,
-    # for a single distance-based query a good choice for the cell # width is the
-    # actual distance to query; in this case, since we are asking # for a
-    # specific number of neighbors, we simply provide a reasonable guess.
-    cell_width = 2
-    lc = freud.locality.LinkCell(box=box, points=points, cell_width=cell_width)
+    # Now we generate a smaller sample of points for which we want to find
+    # neighbors based on the original set.
+    query_points = np.random.rand(num_points/10)*L - L/2
     distances = []
-    for bond in lc.query(query_points=points, num_neighbors=4):
+
+    # Here, we ask for the 4 nearest neighbors of each point in query_points.
+    for bond in aq.query(query_points, dict(num_neighbors=4)):
         # The returned bonds are tuples of the form
-        # (index_query_point, index_point, distance).
+        # (query_point_index, point_index, distance). For instance, a bond
+        # (1, 3, 0.2) would indicate that points[3] was one of the 4 nearest
+        # neighbors for query_points[1], and that they are separated by a
+        # distance of 0.2
+        # (i.e. np.linalg.norm(query_points[1] - points[3]) == 2).
         distances.append(bond[2])
+
     avg_distance = np.mean(distances)
 
-    # The result of a query object can be transparently converted into a
-    # NeighborList object for future use in computations. In this example,
-    # we instead perform a distance-based query using the queryBall method.
-    query_distance = 3
-    freud.locality.AABBQuery(box=box, points=points).queryBall(
-        query_points=points, r=query_distance).toNeighborList()
+Let's dig into this script a little bit.
+Our first step is creating a set of 100 points in a cubic box.
+Note that the shifting done in the code above could also be accomplished using the :meth:`Box.wrap <freud.box.Box.wrap>` method like so: ``box.wrap(np.random.rand(num_points)*L)``.
+The result would appear different, because if plotted without considering periodicity, the points would range from :code:`-L/2` to :code:`L/2` rather than from 0 to :code:`L`.
+However, these two sets of points would be equivalent in a periodic system.
 
-
-Neighbor Computations
-=====================
-
-Classes that actually involve finding neighbors in general expose an API that maps directly onto the neighbor querying API.
-Like all compute classes, they expose a ``compute`` method, but in general these methods have a signature ``compute(nq, query_points=None, query_args={}, nlist=None, ...)`` (potentially with additional arguments as signified by the ellipsis).
-The ``nq`` argument can be either a :py:class:`freud.locality.NeighborQuery` or a tuple ``(box, points)``, where ``box`` and ``points`` have the usual meanings as elsewhere in **freud**.
-
-The API for these classes is intended to offer maximal flexibility, allowing users to choose the fastest way to iterate over neighbors for a given computation, but the options can be a bit complex, so we provide an overview here.
-The simplest usage of one of these classes is to simply call ``compute((box, points), METHOD_SPECIFIC_ARGS...)``, in which case the class will internally build a :py:class:`freud.locality.NeighborQuery` class using the points and then find their neighbors.
-However, if the user expects to perform multiple different **freud** calculations (for instance, the calculation of various order parameters) on the same pairs of points, it is worthwhile to cache the :py:class:`freud.locality.NeighborQuery` object between calls and pass it into each of the computations to spare the cost of rebuilding the object.
+We then generate an additional set of ``query_points`` and ask for neighbors using the :meth:`query <freud.locality.AABBQuery>` method.
+This function accepts two arguments: a set of points, and a :class:`dict` of **query arguments**.
+Query arguments are a central concept in **freud** and represent a complete specification of the set of neighbors to be found.
+In general, the most common forms of queries are those requesting either a fixed number of neighbors, as in the example above, or those requesting all neighbors within a specific distance.
+For example, if we wanted to rerun the above example but instead find all bonds of length less than or equal to 2, we would simply replace the for loop above with:
 
 .. code-block:: python
 
-    # For simplicity, let's reuse the configuration used above.
+    for bond in aq.query(query_points, dict(r_max=2)):
+        distances.append(bond[2])
+
+Query arguments constitute a powerful method for specifying a query request.
+Many query arguments may be combined for more specific purposes.
+A common use-case is finding all neighbors within a single set of points (i.e. setting ``query_points=points`` in the above example).
+In this situation, however, it is typically not useful for a point to find itself as a neighbor since it is trivially the closest point to itself and falls within any cutoff radius.
+To avoid this, we can use the ``exclude_ii`` query argument:
+
+.. code-block:: python
+
+    query_points = points
+    for bond in aq.query(query_points, dict(num_neighbors=4, exclude_ii)):
+        pass
+
+The above example will find the 4 nearest neighbors to each point, excepting the point itself.
+A complete description of valid query arguments can be found in :ref:`querying`.
+
+Neighbor Lists
+==============
+
+Query arguments provide a simple but powerful language with which to express neighbor finding logic.
+Used in the manner shown above, :meth:`query <freud.locality.AABBQuery>` can be used to express many calculations in a very natural, Pythonic way.
+By itself, though, the API shown above is somewhat restrictive because the output of :meth:`query <freud.locality.AABBQuery>` is a `generator <https://docs.python.org/3/glossary.html#term-generator>`_.
+If you aren't familiar with generators, the important thing to know is that they can be looped over, *but only once*.
+Unlike objects like lists, which you can loop over as many times as you like, once you've looped over a generator once, you can't start again from the beginning.
+
+In the examples above, this wasn't a problem because we simply iterated over the bonds once for a single calculation.
+However, in many practical cases we may need to reuse the set of neighbors multiple times.
+A simple solution would be to simply to store the bonds into a list as we loop over them.
+However, because this is such a common use-case, **freud** provides its own containers for bonds: the :class:`freud.locality.NeighborList`.
+
+Queries can easily be used to generate :class:`NeighborList <freud.locality.NeighborList>` objects using their :meth:`toNeighborList <freud.locality.NeighborQuery.toNeighborList>` method:
+
+.. code-block:: python
+
+    query_result = aq.query(query_points, dict(num_neighbors=4, exclude_ii))
+    nlist = query_result.toNeighborList()
+
+The resulting object provides a persistent container for bond data.
+Using :class:`NeighborLists <freud.locality.NeighborList>`, our original example might instead look like this:
+
+.. code-block:: python
+
+    import numpy as np
+    import freud
+
     L = 10
     num_points = 100
+
     points = np.random.rand(num_points)*L - L/2
     box = freud.box.Box.cube(L)
+    aq = freud.locality.AABBQuery(box, points)
 
-    # First, let's compute an RDF using the straightforward API.
-    rdf = freud.density.RDF(rmax=5, dr=0.1).compute(
-        (box, points))
+    query_points = np.random.rand(num_points/10)*L - L/2
+    distances = []
 
-    # Now, let's instead reuse the object for a pair of calculations:
-    nq = freud.locality.AABBQuery(box=box, points=points)
-    rdf = freud.density.RDF(rmax=5, dr=0.1).compute(nq)
+    # Here, we ask for the 4 nearest neighbors of each point in query_points.
+    query_result = aq.query(query_points, dict(num_neighbors=4)):
+    nlist = query_result.toNeighborList()
+    for (i, j) in nlist:
+        # Note that we have to wrap the bond vector before taking the norm;
+        # this is the simplest way to compute distances in a periodic system.
+        distances.append(np.linalg.norm(box.wrap(query_points[i] - points[j])))
 
-    nbins = 100
-    rmax = 4
-    orientations = np.array([[1, 0, 0, 0]*num_points)
-    pmft = freud.pmft.PMFTXYZ(rmax, rmax, rmax, nbins, nbins, nbins)
-    pmft.compute(nq, orientations=orientations)
+    avg_distance = np.mean(distances)
 
+Note that in the above example we looped directly over the ``nlist`` and recomputed distances.
+However, the ``query_result`` contained information about distances: here's how we access that through the ``nlist``:
 
-If the user in fact expects to perform computations with the exact same pairs of neighbors (for example, to compute :py:class:`freud.order.Steinhardt` for multiple :math:`l` values), then the user can further speed up the calculation by precomputing the entire :py:class:`freud.locality.NeighborList` and storing it for future use.
-In this case, if the user passes in ``compute(nq=(box, points))``, **freud** will not spend the time to construct a :py:class:`freud.locality.NeighborQuery`, knowing that no querying is necessary because a :py:class:`freud.locality.NeighborList` has been provided.
-This mode of operation is particularly useful when the user wishes to use a :py:class:`freud.locality.NeighborList` computed using an alternate method, such as a Voronoi cell calculation.
+.. code-block:: python
+
+    assert np.all(nlist.distances == distances)
+
+The indices are also accessible through properties, or through a NumPy-like slicing interface:
 
 
 .. code-block:: python
 
-    # Reusing the AABBQuery object constructed in the previous example,
-    # we first attempt the computation for various values of l using a
-    # distance based cutoff for neighbor finding.
-    rmax = 3
-    nlist_ball = nq.queryBall(points, r=rmax)
-    q6_ball_arrays = []
-    for l in range(3, 6):
-        ql = freud.density.Steinhardt(l=l)
-        q6_ball_arrays.append(ql.compute((box, points), nlist_ball).order)
+    assert np.all(nlist.query_point_indices == nlist[:, 0])
+    assert np.all(nlist.point_indices == nlist[:, 1])
 
-    nlist_number = nq.queryBall(points, num_neighbors=6)
-    q6_number_arrays = []
-    for l in [4, 6, 8]:
-        q6 = freud.density.Steinhardt(l=l)
-        q6_number_arrays.append(ql.compute((box, points), nlist_number).order)
-
-
-Notably, in this example we used two different methods for finding neighbors.
-Just as the querying interface for :py:class:`freud.locality.NeighborQuery` classes offers both of these approaches, all neighbor compute classes also offer this flexibility through the ``query_args`` argument.
-This argument accepts a dictionary of inputs that will be passed through to the underlying query call, allowing the user flexibility as to how neighbors are defined.
-For instance, to replicate the above results, we could instead do the following:
-
-
-.. code-block:: python
-
-    # Reusing the AABBQuery object constructed in the previous example,
-    # we first attempt the computation for various values of l using a
-    # distance based cutoff for neighbor finding.
-    q6_ball_arrays = []
-    for l in range(3, 6):
-        ql = freud.density.Steinhardt(l=l)
-        q6_ball_arrays.append(
-            ql.compute((box, points),
-                       query_args={'mode': 'ball', 'r': rmax}).order)
-
-    nlist_number = nq.queryBall(points, num_neighbors=6)
-    for l in range(3, 6):
-        q6 = freud.density.Steinhardt(l=l)
-        q6_number_arrays.append(ql.compute((box, points), nlist_order).order)
-        q6_number_arrays.append(
-            ql.compute((box, points),
-                       query_args={'mode': 'nearest', 'nn': 6}).order)
-
-Since most computations in **freud** have sensible defaults, the query arguments for a given class will be populated automatically if not provided by the user.
-The defaults for each class are given in the class's documentation.
-In general, the valid keys for the ``query_args`` dictionary are ``mode``,  ``r``,  ``nn``, and ``exclude_ii``.
-We have seen examples of the first three above; to understand the last one, we must consider slightly more complex systems, namely binary systems.
-
-
-Binary Computations
-+++++++++++++++++++
-
-The final argument of note is the ``query_points`` argument.
-In some cases, it may be useful to perform a calculation with two distinct sets of points.
-For instance, in a binary system we might be interested in the :py:class:`freud.pmft.PMFTXYZ` of one particle type with respect to the other.
-In such cases, we can use the ``query_points`` argument to perform this calculation:
-
-.. code-block:: python
-
-    pmft = freud.pmft.PMFTXYZ(rmax, rmax, rmax, nbins, nbins, nbins)
-    positions_A = ...
-    positions_B = ...
-
-    # For simplicity, assume all particles are isotropic (spherical) and
-    # therefore orientations are irrelevant.
-    orientations = np.array([[1, 0, 0, 0]*num_points)
-
-    pmft.compute((box, positions_A), orientations=orientations,
-                 query_points=positions_B, query_orientations=orientations)
-
-Let's take a moment to understand exactly what this calculation means.
-Internally, **freud** will create a :py:class:`freud.locality.NeighborQuery` object using ``(box, positions_A)``, and then call its ``queryBall`` method, passing in ``positions_B`` and ``rmax`` as the query arguments (default for PMFTs that can, of course, be overridden using the ``query_args``).
-The resulting sets of neighbors will then be used in the calculation of the PMFT.
-As a result, we will calculate the PMFT of the distribution of ``positions_A`` around centers located at ``positions_B``.
-
-Understanding this sequence is particularly important when using the ``nearest`` mode of neighbor finding, because *this mode is not symmetric*.
-To understand what this means, consider the following simple example:
-
-
-.. code-block:: python
-
-    positions_A = [[0, 0, 0]]
-    positions_B = [[-1, 0, 0], [1, 0, 0]]
-    nq_A = freud.locality.AABBQuery(box=box, points=positions_A)
-    count_A = 0
-    for _ in nq_A.query(positions_B, num_neighbors=1):
-        count_A += 1
-
-    nq_B = freud.locality.AABBQuery(box=box, points=positions_B)
-    count_B = 0
-    for _ in nq_B.query(positions_A, num_neighbors=1):
-        count_B += 1
-
-    print(count_A)
-    >>> 2
-
-    print(count_B)
-    >>> 1
-
-The reason these calculations give different results is simple.
-We only asked for one neighbor for each point, but in the first case we queried for two points, and as a result, it found us one neighbor for each of the two points.
-In the second case, we constructed our object with two points, but then only requested the neighbors for the single point in ``positions_A``; as a result, we only found one neighbor.
-This logic is precisely what governs the ``query_points`` argument; the ``points`` are used to build the query object, and the ``query_points`` are what is passed to the query methods.
-
-Neighbor Self-Exclusion
-+++++++++++++++++++++++
-
-We are now in a position to explain the ``exclude_ii`` query argument.
-When performing a calculation on a single-component system, we typically do not wish to include a particle as its own neighbor.
-The ``exclude_ii`` argument indicates to a query method that any pair of particles with identical indices in the ``points`` and ``query_points`` arrays should be ignored.
-Since this behavior is generally expected for single-component systems, it is automatically set to ``True`` in compute classes if ``query_points`` are not passed in explicitly (in which case the ``points`` are reused as the ``query_points``).
-Conversely, the argument defaults to ``False`` when ``query_points`` are explicitly provided.
-In both cases, the user can override the default behavior by passing the argument explicitly in ``query_args``.
+Note that the ``query_points`` are always in the first column, while the ``points`` are in the second column.
+:class:`freud.locality.NeighborList` objects also store other properties; for instance, they may assign different weights to different bonds.
+This feature can be used by, for example, :class:`freud.order.Steinhardt`, which is typically used for calculating `Steinhardt order parameters <https://journals.aps.org/prb/abstract/10.1103/PhysRevB.28.784>`_, a standard tool for characterizing crystalline order.
+When provided appropriately weighted neighbors, however, the class instead computes `Minkowski structure metrics <https://iopscience.iop.org/article/10.1088/1367-2630/15/8/083028/meta>`_, which are much more sensitive measures that can differentiate a wider array of crystal structures.
