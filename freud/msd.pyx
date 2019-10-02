@@ -7,7 +7,6 @@ mean-squared-displacement (MSD) of particles in periodic systems.
 """
 
 import numpy as np
-import freud.common
 import freud.parallel
 import logging
 

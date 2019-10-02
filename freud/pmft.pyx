@@ -39,7 +39,6 @@ refer to the supplementary information of [vanAndersKlotsa2014]_.
 """
 
 import numpy as np
-import freud.common
 import freud.locality
 import warnings
 import rowan

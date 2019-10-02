@@ -6,7 +6,6 @@ The :class:`freud.interface` module contains functions to measure the interface
 between sets of points.
 """
 
-import freud.common
 import numpy as np
 
 from freud.util cimport Compute

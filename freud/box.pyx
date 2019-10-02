@@ -12,7 +12,6 @@ beyond the limits of one periodicity of the box.
 
 import warnings
 import numpy as np
-import freud.common
 
 import logging
 

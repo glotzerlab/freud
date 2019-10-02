@@ -7,7 +7,6 @@ density of the system. These functions allow evaluation of particle
 distributions with respect to other particles.
 """
 
-import freud.common
 import freud.locality
 import warnings
 import numpy as np

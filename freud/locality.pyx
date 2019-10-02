@@ -7,7 +7,6 @@ locate points based on their proximity to other points.
 """
 import sys
 import numpy as np
-import freud.common
 import itertools
 import warnings
 import logging

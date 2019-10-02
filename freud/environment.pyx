@@ -8,7 +8,6 @@ and orientations of particles in the local neighborhood of a given particle to
 characterize the particle environment.
 """
 
-import freud.common
 import numpy as np
 import warnings
 import freud.locality

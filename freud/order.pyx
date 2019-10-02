@@ -10,7 +10,6 @@ harmonics of the bond order diagram, which are the spherical analogue of
 Fourier Transforms.
 """
 
-import freud.common
 import warnings
 import numpy as np
 import time

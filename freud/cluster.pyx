@@ -8,7 +8,6 @@ of clusters of points in a system.
 
 import numpy as np
 import warnings
-import freud.common
 import freud.locality
 import freud.util
 
