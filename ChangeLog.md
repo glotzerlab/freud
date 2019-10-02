@@ -55,6 +55,7 @@ and this project adheres to
 * The freud.util module.
 * Python 2 is no longer supported. Python 3.5+ is required.
 * Cubatic no longer returns the per-particle tensor or the constant r4 tensor.
+* LinkCell no longer exposes the internals of the cell list data structure.
 
 ## v1.2.2 - 2019-08-15
 
