@@ -161,13 +161,10 @@ cdef class Compute(object):
 
     def __getattribute__(self, attr):
         """Compute methods set a flag to indicate that quantities have been
-        computed. The flag is unset when reset is called, and you can never
-        plot without having called compute."""
+        computed. You can never plot without having called compute."""
         attribute = object.__getattribute__(self, attr)
-        if attr in ('compute', 'accumulate'):
+        if attr == 'compute':
             self._called_compute = True
-        elif attr == 'reset':
-            self._called_compute = False
         elif attr == 'plot':
             if not self._called_compute:
                 raise AttributeError(

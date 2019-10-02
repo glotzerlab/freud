@@ -57,7 +57,7 @@ inline std::complex<float> RotationalAutocorrelation::hypersphere_harmonic(const
     return sum_tracker;
 }
 
-void RotationalAutocorrelation::compute(const quat<float>* ref_ors, const quat<float>* ors, unsigned int N)
+void RotationalAutocorrelation::compute(const quat<float>* ref_orientations, const quat<float>* orientations, unsigned int N)
 {
     m_RA_array.prepare(N);
 
@@ -82,7 +82,7 @@ void RotationalAutocorrelation::compute(const quat<float>* ref_ors, const quat<f
         for (size_t i = begin; i < end; ++i)
         {
             // Transform the orientation quaternions into Xi/Zeta coordinates;
-            quat<float> qq_1 = conj(ref_ors[i]) * ors[i];
+            quat<float> qq_1 = conj(ref_orientations[i]) * orientations[i];
             std::complex<float> xi = std::complex<float>(qq_1.v.x, qq_1.v.y);
             std::complex<float> zeta = std::complex<float>(qq_1.v.z, qq_1.s);
 

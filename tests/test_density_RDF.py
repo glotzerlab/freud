@@ -39,23 +39,12 @@ class TestRDF(unittest.TestCase):
         with self.assertRaises(AttributeError):
             rdf.n_r
 
-        rdf.accumulate((box, points))
+        rdf.compute((box, points), reset=False)
 
         # Test if accessible now
         rdf.RDF
         rdf.box
         rdf.n_r
-
-        # reset
-        rdf.reset()
-
-        # Test protected attribute access
-        with self.assertRaises(AttributeError):
-            rdf.RDF
-        with self.assertRaises(AttributeError):
-            rdf.box
-        with self.assertRaises(AttributeError):
-            rdf.n_r
 
         rdf.compute((box, points))
 
@@ -88,7 +77,7 @@ class TestRDF(unittest.TestCase):
                 rdf = freud.density.RDF(bins, r_max, r_min)
 
                 if i < 3:
-                    rdf.accumulate(nq, neighbors=neighbors)
+                    rdf.compute(nq, neighbors=neighbors, reset=False)
                 else:
                     rdf.compute(nq, neighbors=neighbors)
                 self.assertTrue(rdf.box == box)
@@ -124,7 +113,7 @@ class TestRDF(unittest.TestCase):
             rdf.plot()
         self.assertEqual(rdf._repr_png_(), None)
 
-        rdf.accumulate((box, points))
+        rdf.compute((box, points), reset=False)
         rdf._repr_png_()
 
     def test_points_ne_query_points(self):
