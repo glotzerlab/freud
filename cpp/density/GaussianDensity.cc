@@ -36,8 +36,10 @@ vec3<unsigned int> GaussianDensity::getWidth()
 //! internal
 /*! \brief Function to compute the density array
  */
-void GaussianDensity::compute(const box::Box& box, const vec3<float>* points, unsigned int n_points)
+void GaussianDensity::compute(const freud::locality::NeighborQuery* nq)
 {
+    auto box = nq->getBox();
+    auto n_points = nq->getNPoints();
     m_box = box;
 
     vec3<unsigned int> width(m_width);
@@ -69,10 +71,11 @@ void GaussianDensity::compute(const box::Box& box, const vec3<float>* points, un
         // for each reference point
         for (size_t idx = begin; idx < end; ++idx)
         {
+            const vec3<float> point = (*nq)[idx];
             // Find which bin the particle is in
-            int bin_x = int((points[idx].x + lx / 2.0f) / grid_size_x);
-            int bin_y = int((points[idx].y + ly / 2.0f) / grid_size_y);
-            int bin_z = int((points[idx].z + lz / 2.0f) / grid_size_z);
+            int bin_x = int((point.x + lx / 2.0f) / grid_size_x);
+            int bin_y = int((point.y + ly / 2.0f) / grid_size_y);
+            int bin_z = int((point.z + lz / 2.0f) / grid_size_z);
 
             // In 2D, only loop over the z=0 plane
             if (m_box.is2D())
@@ -83,16 +86,16 @@ void GaussianDensity::compute(const box::Box& box, const vec3<float>* points, un
             // Only evaluate over bins that are within the cutoff
             for (int k = bin_z - bin_cut_z; k <= bin_z + bin_cut_z; k++)
             {
-                const float dz = float((grid_size_z * k + grid_size_z / 2.0f) - points[idx].z - lz / 2.0f);
+                const float dz = float((grid_size_z * k + grid_size_z / 2.0f) - point.z - lz / 2.0f);
 
                 for (int j = bin_y - bin_cut_y; j <= bin_y + bin_cut_y; j++)
                 {
-                    const float dy = float((grid_size_y * j + grid_size_y / 2.0f) - points[idx].y - ly / 2.0f);
+                    const float dy = float((grid_size_y * j + grid_size_y / 2.0f) - point.y - ly / 2.0f);
 
                     for (int i = bin_x - bin_cut_x; i <= bin_x + bin_cut_x; i++)
                     {
                         // Calculate the distance from the particle to the grid cell
-                        const float dx = float((grid_size_x * i + grid_size_x / 2.0f) - points[idx].x - lx / 2.0f);
+                        const float dx = float((grid_size_x * i + grid_size_x / 2.0f) - point.x - lx / 2.0f);
                         vec3<float> delta = m_box.wrap(vec3<float>(dx, dy, dz));
 
                         const float r_sq = dot(delta, delta);

@@ -19,6 +19,7 @@ and this project adheres to
 * C++ BondHistogramCompute class encapsulates logic of histogram-based methods.
 * NeighborLists and query arguments are now accepted on equal footing by compute methods that involve neighbor finding.
 * 2D PMFTs accept quaternions as well as angles for their orientations.
+* Added NeighborQuery support to ClusterProperties, GaussianDensity, Voronoi.
 
 ### Changed
 * All compute objects that perform neighbor computations now use NeighborQuery internally.
@@ -57,6 +58,7 @@ and this project adheres to
 * Python 2 is no longer supported. Python 3.5+ is required.
 * Cubatic no longer returns the per-particle tensor or the constant r4 tensor.
 * Most features of freud.common are removed from the public API.
+* LinkCell no longer exposes the internals of the cell list data structure.
 
 ## v1.2.2 - 2019-08-15
 

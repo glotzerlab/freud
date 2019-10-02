@@ -524,7 +524,7 @@ NeighborBond LinkCellQueryBallIterator::next()
         {
             // Determine the next neighbor cell to consider. We're done if we
             // reach a new shell and the closest point of approach to the new
-            // shell is greater than our rcut.
+            // shell is greater than our r_max.
             ++m_neigh_cell_iter;
 
             if ((m_neigh_cell_iter.getRange() - m_extra_search_width) * m_linkcell->getCellWidth() > m_r_max)

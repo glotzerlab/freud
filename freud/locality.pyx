@@ -272,7 +272,7 @@ cdef class NeighborQuery:
 
     @property
     def box(self):
-        return self._box
+        return freud.box.BoxFromCPP(self.nqptr.getBox())
 
     @property
     def points(self):
@@ -563,40 +563,41 @@ cdef NeighborList _nlist_from_cnlist(freud._locality.NeighborList *c_nlist):
     return result
 
 
-def _make_default_nq(box, points):
+def _make_default_nq(neighbor_query):
     R"""Helper function to return a NeighborQuery object.
 
     Currently the resolution for NeighborQuery objects is such that if Python
-    users pass in a numpy array of points and a box, we always make a RawPoints
+    users pass in a NumPy array of points and a box, we always make a RawPoints
     object. On the C++ side, the RawPoints object internally constructs an
     AABBQuery object to find neighbors if needed. On the Python side, making
     the RawPoints object is just so that compute functions on the C++ side
     don't require overloads to work.
 
+    Supported types for :code:`neighbor_query` include:
+    - :class:`~.locality.AABBQuery`
+    - :class:`~.locality.LinkCell`
+    - A tuple of :code:`(box, points)` where :code:`box` is a
+      :class:`~.box.Box` and :code:`points` is a :class:`numpy.ndarray`.
+
     Args:
-        box (:class:`freud.box.Box`):
-            Simulation box.
-        points (:class:`freud.locality.NeighborQuery` or :class:`numpy.ndarray`):
-            NeighborQuery object or NumPy array used to build :class:`RawPoints`.
+        neighbor_query (:class:`~.locality.NeighborQuery` - like object):
+            A :class:`~.locality.NeighborQuery` or object that can be
+            duck-typed into one.
 
     Returns:
         :class:`freud.locality.NeighborQuery`
-            The same :class:`NeighborQuery` object if one is given or :class:`RawPoints`
-            built from :code:`box` and :code:`points`.
-    """  # noqa: E501
-    if isinstance(points, NeighborQuery):
-        if points.box != box:
-            raise ValueError("The box provided and the box of the"
-                             "NeighborQuery object are different")
-        return points
-
-    points = freud.util._convert_array(
-        points, shape=(None, 3))
-    cdef RawPoints rp = RawPoints(box, points)
-    return rp
+            The same :class:`NeighborQuery` object if one is given or
+            :class:`RawPoints` built from an inferred :code:`box` and
+            :code:`points`.
+    """
+    if not isinstance(neighbor_query, NeighborQuery):
+        nq = RawPoints(*neighbor_query)
+    else:
+        nq = neighbor_query
+    return nq
 
 
-def _make_default_nlist(box, points, query_points, query_args, nlist=None):
+def _make_default_nlist(neighbor_query, query_points, query_args, nlist=None):
     R"""Helper function to return a neighbor list object if is given, or to
     construct one using AABBQuery if it is not.
 
@@ -615,20 +616,18 @@ def _make_default_nlist(box, points, query_points, query_args, nlist=None):
             NeighborList to use to find bonds (Default value = :code:`None`).
 
     Returns:
-        tuple (:class:`freud.locality.NeighborList`, :class:`freud.locality.AABBQuery`):
-            The NeighborList and the owning AABBQuery object.
+        :class:`freud.locality.NeighborList`:
+            The neighbor list.
     """  # noqa: E501
     if nlist is not None:
         return nlist
 
-    cdef AABBQuery aq = AABBQuery(box, points)
+    cdef NeighborQuery nq = _make_default_nq(neighbor_query)
     query_args.setdefault('exclude_ii', query_points is None)
-    cdef _QueryArgs qa = _QueryArgs.from_dict(query_args)
-    qp = query_points if query_points is not None else points
-    cdef NeighborList aq_nlist = aq.query(
-        qp, query_args).toNeighborList()
+    qp = query_points if query_points is not None else nq.points
+    cdef NeighborList nq_nlist = nq.query(qp, query_args).toNeighborList()
 
-    return aq_nlist
+    return nq_nlist
 
 
 cdef class RawPoints(NeighborQuery):
@@ -644,14 +643,15 @@ cdef class RawPoints(NeighborQuery):
 
     def __cinit__(self, box, points):
         cdef const float[:, ::1] l_points
+        cdef freud.box.Box b
         if type(self) is RawPoints:
             # Assume valid set of arguments is passed
-            self._box = freud.util._convert_box(box)
+            b = freud.util._convert_box(box)
             self.points = freud.util._convert_array(
                 points, shape=(None, 3))
             l_points = self.points
             self.thisptr = self.nqptr = new freud._locality.RawPoints(
-                dereference(self._box.thisptr),
+                dereference(b.thisptr),
                 <vec3[float]*> &l_points[0, 0],
                 self.points.shape[0])
 
@@ -672,59 +672,21 @@ cdef class AABBQuery(NeighborQuery):
 
     def __cinit__(self, box, points):
         cdef const float[:, ::1] l_points
+        cdef freud.box.Box b
         if type(self) is AABBQuery:
             # Assume valid set of arguments is passed
-            self._box = freud.util._convert_box(box)
+            b = freud.util._convert_box(box)
             self.points = freud.util._convert_array(
                 points, shape=(None, 3)).copy()
             l_points = self.points
             self.thisptr = self.nqptr = new freud._locality.AABBQuery(
-                dereference(self._box.thisptr),
+                dereference(b.thisptr),
                 <vec3[float]*> &l_points[0, 0],
                 self.points.shape[0])
 
     def __dealloc__(self):
         if type(self) is AABBQuery:
             del self.thisptr
-
-
-cdef class IteratorLinkCell:
-    R"""Iterates over the particles in a cell.
-
-    Example::
-
-       # Grab particles in cell 0
-       for j in linkcell.itercell(0):
-           print(positions[j])
-    """
-
-    def __cinit__(self):
-        # Must be running python 3.x
-        current_version = sys.version_info
-        if current_version.major < 3:
-            raise RuntimeError(
-                "Must use python 3.x or greater to use IteratorLinkCell")
-        else:
-            self.thisptr = new freud._locality.IteratorLinkCell()
-
-    def __dealloc__(self):
-        del self.thisptr
-
-    cdef void copy(self, const freud._locality.IteratorLinkCell & rhs):
-        self.thisptr.copy(rhs)
-
-    def next(self):
-        R"""Implements iterator interface"""
-        cdef unsigned int result = self.thisptr.next()
-        if self.thisptr.atEnd():
-            raise StopIteration()
-        return result
-
-    def __next__(self):
-        return self.next()
-
-    def __iter__(self):
-        return self
 
 
 cdef class LinkCell(NeighborQuery):
@@ -749,40 +711,16 @@ cdef class LinkCell(NeighborQuery):
         nlist (:class:`freud.locality.NeighborList`):
             The neighbor list stored by this object, generated by
             :meth:`~.compute()`.
-
-    .. note::
-        **2D:** :class:`freud.locality.LinkCell` properly handles 2D boxes.
-        The points must be passed in as :code:`[x, y, 0]`.
-
-    Example::
-
-       # Assume positions are an Nx3 array
-       lc = LinkCell(box, 1.5)
-       lc.compute(box, positions)
-       for i in range(positions.shape[0]):
-           # Cell containing particle i
-           cell = lc.getCell(positions[0])
-           # List of cell's neighboring cells
-           cellNeighbors = lc.getCellNeighbors(cell)
-           # Iterate over neighboring cells (including our own)
-           for neighborCell in cellNeighbors:
-               # Iterate over particles in each neighboring cell
-               for neighbor in lc.itercell(neighborCell):
-                   pass # Do something with neighbor index
-
-       # Using NeighborList API
-       dens = density.LocalDensity(1.5, 1, 1)
-       dens.compute(box, positions, nlist=lc.nlist)
     """
 
     def __cinit__(self, box, points, cell_width=0):
-        self._box = freud.util._convert_box(box)
+        cdef freud.box.Box b = freud.util._convert_box(box)
         cdef const float[:, ::1] l_points
         self.points = freud.util._convert_array(
             points, shape=(None, 3)).copy()
         l_points = self.points
         self.thisptr = self.nqptr = new freud._locality.LinkCell(
-            dereference(self._box.thisptr),
+            dereference(b.thisptr),
             <vec3[float]*> &l_points[0, 0],
             self.points.shape[0], cell_width)
 
@@ -790,63 +728,8 @@ cdef class LinkCell(NeighborQuery):
         del self.thisptr
 
     @property
-    def box(self):
-        return freud.box.BoxFromCPP(self.thisptr.getBox())
-
-    @property
-    def num_cells(self):
-        return self.thisptr.getNumCells()
-
-    def getCell(self, point):
-        R"""Returns the index of the cell containing the given point.
-
-        Args:
-            point(:math:`\left(3\right)` :class:`numpy.ndarray`):
-                Point coordinates :math:`\left(x,y,z\right)`.
-
-        Returns:
-            unsigned int: Cell index.
-        """
-        point = freud.util._convert_array(point, shape=(None, ))
-
-        cdef const float[::1] cPoint = point
-
-        return self.thisptr.getCell(dereference(<vec3[float]*> &cPoint[0]))
-
-    def itercell(self, unsigned int cell):
-        R"""Return an iterator over all particles in the given cell.
-
-        Args:
-            cell (unsigned int): Cell index.
-
-        Returns:
-            iter: Iterator to particle indices in specified cell.
-        """
-        current_version = sys.version_info
-        if current_version.major < 3:
-            raise RuntimeError(
-                "Must use python 3.x or greater to use itercell")
-        result = IteratorLinkCell()
-        cdef freud._locality.IteratorLinkCell cResult = self.thisptr.itercell(
-            cell)
-        result.copy(cResult)
-        return iter(result)
-
-    def getCellNeighbors(self, cell):
-        R"""Returns the neighboring cell indices of the given cell.
-
-        Args:
-            cell (unsigned int): Cell index.
-
-        Returns:
-            :math:`\left(N_{neighbors}\right)` :class:`numpy.ndarray`:
-                Array of cell neighbors.
-        """
-        neighbors = self.thisptr.getCellNeighbors(int(cell))
-        result = np.zeros(neighbors.size(), dtype=np.uint32)
-        for i in range(neighbors.size()):
-            result[i] = neighbors[i]
-        return result
+    def cell_width(self):
+        return self.thisptr.getCellWidth()
 
 
 cdef class Voronoi(Compute):
@@ -883,7 +766,7 @@ cdef class Voronoi(Compute):
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, box, points):
+    def compute(self, neighbor_query):
         R"""Compute Voronoi diagram.
 
         Args:
@@ -892,19 +775,8 @@ cdef class Voronoi(Compute):
             points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
                 Points used to calculate Voronoi diagram.
         """
-        self._box = freud.util._convert_box(box)
-
-        # voro++ uses double precision
-        points = freud.util._convert_array(points, shape=(None, 3),
-                                           dtype=np.float64)
-        cdef const double[:, ::1] l_points = points
-        cdef unsigned int n_points = len(points)
-
-        self.thisptr.compute(
-            dereference(self._box.thisptr),
-            <vec3[double]*> &l_points[0, 0],
-            n_points)
-
+        cdef NeighborQuery nq = _make_default_nq(neighbor_query)
+        self.thisptr.compute(nq.get_ptr())
         return self
 
     @Compute._computed_property
