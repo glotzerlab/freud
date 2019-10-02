@@ -27,6 +27,7 @@ ctypedef enum arr_type_t:
     UNSIGNED_INT
     BOOL
 
+
 ctypedef union arr_ptr_t:
     const void *null_ptr
     const ManagedArray[float] *float_ptr
@@ -84,9 +85,14 @@ cdef class _ManagedArrayContainer:
 
         return obj
 
+
 cdef inline make_managed_numpy_array(
         const void *array, arr_type_t arr_type, uint element_size=1):
     """Make a _ManagedArrayContainer and return an array pointing to its
     data."""
     return np.asarray(
         _ManagedArrayContainer.init(array, arr_type, element_size))
+
+
+cdef class Compute:
+    cdef public _called_compute

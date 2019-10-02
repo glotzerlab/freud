@@ -7,11 +7,11 @@ locate points based on their proximity to other points.
 """
 import sys
 import numpy as np
-import freud.common
 import itertools
 import warnings
 import logging
 import copy
+import freud.util
 
 from libcpp cimport bool as cbool
 from freud.util cimport vec3
@@ -19,7 +19,7 @@ from cython.operator cimport dereference
 from libcpp.memory cimport shared_ptr
 from libcpp.vector cimport vector
 from freud._locality cimport ITERATOR_TERMINATOR
-from freud.common cimport Compute
+from freud.util cimport Compute
 
 cimport freud._locality
 cimport freud.box
@@ -293,7 +293,7 @@ cdef class NeighborQuery:
             :class:`~.NeighborQueryResult`: Results object containing the
             output of this query.
         """
-        query_points = freud.common.convert_array(
+        query_points = freud.util._convert_array(
             np.atleast_2d(query_points), shape=(None, 3))
 
         cdef _QueryArgs args = _QueryArgs.from_dict(query_args)
@@ -389,17 +389,17 @@ cdef class NeighborList:
                 Array of per-bond weights (if :code:`None` is given, use a
                 value of 1 for each weight) (Default value = :code:`None`).
         """
-        query_point_indices = freud.common.convert_array(
+        query_point_indices = freud.util._convert_array(
             query_point_indices, shape=(None,), dtype=np.uint32)
-        point_indices = freud.common.convert_array(
+        point_indices = freud.util._convert_array(
             point_indices, shape=query_point_indices.shape, dtype=np.uint32)
 
-        distances = freud.common.convert_array(
+        distances = freud.util._convert_array(
             distances, shape=query_point_indices.shape)
 
         if weights is None:
             weights = np.ones(query_point_indices.shape, dtype=np.float32)
-        weights = freud.common.convert_array(
+        weights = freud.util._convert_array(
             weights, shape=query_point_indices.shape)
 
         cdef const unsigned int[::1] l_query_point_indices = \
@@ -590,7 +590,7 @@ def _make_default_nq(box, points):
                              "NeighborQuery object are different")
         return points
 
-    points = freud.common.convert_array(
+    points = freud.util._convert_array(
         points, shape=(None, 3))
     cdef RawPoints rp = RawPoints(box, points)
     return rp
@@ -646,8 +646,8 @@ cdef class RawPoints(NeighborQuery):
         cdef const float[:, ::1] l_points
         if type(self) is RawPoints:
             # Assume valid set of arguments is passed
-            self._box = freud.common.convert_box(box)
-            self.points = freud.common.convert_array(
+            self._box = freud.util._convert_box(box)
+            self.points = freud.util._convert_array(
                 points, shape=(None, 3))
             l_points = self.points
             self.thisptr = self.nqptr = new freud._locality.RawPoints(
@@ -674,8 +674,8 @@ cdef class AABBQuery(NeighborQuery):
         cdef const float[:, ::1] l_points
         if type(self) is AABBQuery:
             # Assume valid set of arguments is passed
-            self._box = freud.common.convert_box(box)
-            self.points = freud.common.convert_array(
+            self._box = freud.util._convert_box(box)
+            self.points = freud.util._convert_array(
                 points, shape=(None, 3)).copy()
             l_points = self.points
             self.thisptr = self.nqptr = new freud._locality.AABBQuery(
@@ -776,9 +776,9 @@ cdef class LinkCell(NeighborQuery):
     """
 
     def __cinit__(self, box, points, cell_width=0):
-        self._box = freud.common.convert_box(box)
+        self._box = freud.util._convert_box(box)
         cdef const float[:, ::1] l_points
-        self.points = freud.common.convert_array(
+        self.points = freud.util._convert_array(
             points, shape=(None, 3)).copy()
         l_points = self.points
         self.thisptr = self.nqptr = new freud._locality.LinkCell(
@@ -807,7 +807,7 @@ cdef class LinkCell(NeighborQuery):
         Returns:
             unsigned int: Cell index.
         """
-        point = freud.common.convert_array(point, shape=(None, ))
+        point = freud.util._convert_array(point, shape=(None, ))
 
         cdef const float[::1] cPoint = point
 
@@ -892,11 +892,11 @@ cdef class Voronoi(Compute):
             points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
                 Points used to calculate Voronoi diagram.
         """
-        self._box = freud.common.convert_box(box)
+        self._box = freud.util._convert_box(box)
 
         # voro++ uses double precision
-        points = freud.common.convert_array(points, shape=(None, 3),
-                                            dtype=np.float64)
+        points = freud.util._convert_array(points, shape=(None, 3),
+                                           dtype=np.float64)
         cdef const double[:, ::1] l_points = points
         cdef unsigned int n_points = len(points)
 
@@ -1051,7 +1051,7 @@ cdef class PairCompute(Compute):
         if query_points is None:
             query_points = nq.points
         else:
-            query_points = freud.common.convert_array(
+            query_points = freud.util._convert_array(
                 query_points, shape=(None, 3))
         cdef const float[:, ::1] l_query_points = query_points
         cdef unsigned int num_query_points = l_query_points.shape[0]
