@@ -55,6 +55,9 @@ cdef class Cluster(PairCompute):
     def __cinit__(self):
         self.thisptr = new freud._cluster.Cluster()
 
+    def __init__(self):
+        pass
+
     def __dealloc__(self):
         del self.thisptr
 
@@ -169,6 +172,9 @@ cdef class ClusterProperties(Compute):
 
     def __cinit__(self):
         self.thisptr = new freud._cluster.ClusterProperties()
+
+    def __init__(self):
+        pass
 
     def __dealloc__(self):
         del self.thisptr

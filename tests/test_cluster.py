@@ -6,6 +6,12 @@ import util
 
 
 class TestCluster(unittest.TestCase):
+    def test_constructor(self):
+        """Ensure no arguments are accepted to the constructor."""
+        freud.cluster.Cluster()
+        with self.assertRaises(TypeError):
+            freud.cluster.Cluster(42)
+
     def test_cluster_props(self):
         Nlattice = 4
         Nrep = 5

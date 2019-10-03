@@ -13,41 +13,41 @@ class TestPeriodicBuffer(unittest.TestCase):
         box, positions = util.make_box_and_random_points(L, N, True)
         positions.flags['WRITEABLE'] = False
 
-        pbuff = freud.box.PeriodicBuffer(box)
+        pbuff = freud.box.PeriodicBuffer()
 
         # Compute with zero buffer distance
-        pbuff.compute(positions, buffer=0, images=False)
+        pbuff.compute((box, positions), buffer=0, images=False)
         self.assertEqual(len(pbuff.buffer_points), 0)
         self.assertEqual(len(pbuff.buffer_ids), 0)
         npt.assert_array_equal(pbuff.buffer_box.L, np.asarray(box.L))
 
         # Compute with buffer distances
-        pbuff.compute(positions, buffer=0.5*L, images=False)
+        pbuff.compute((box, positions), buffer=0.5*L, images=False)
         self.assertEqual(len(pbuff.buffer_points), 3 * N)
         self.assertEqual(len(pbuff.buffer_ids), 3 * N)
         npt.assert_array_equal(pbuff.buffer_box.L, 2 * np.asarray(box.L))
 
         # Compute with different buffer distances
-        pbuff.compute(positions, buffer=[L, 0, 0], images=False)
+        pbuff.compute((box, positions), buffer=[L, 0, 0], images=False)
         self.assertEqual(len(pbuff.buffer_points), 2 * N)
         self.assertEqual(len(pbuff.buffer_ids), 2 * N)
         npt.assert_array_equal(pbuff.buffer_box.L,
                                box.L * np.array([3, 1, 1]))
 
         # Compute with zero images
-        pbuff.compute(positions, buffer=0, images=True)
+        pbuff.compute((box, positions), buffer=0, images=True)
         self.assertEqual(len(pbuff.buffer_points), 0)
         self.assertEqual(len(pbuff.buffer_ids), 0)
         npt.assert_array_equal(pbuff.buffer_box.L, np.asarray(box.L))
 
         # Compute with images
-        pbuff.compute(positions, buffer=1, images=True)
+        pbuff.compute((box, positions), buffer=1, images=True)
         self.assertEqual(len(pbuff.buffer_points), 3 * N)
         self.assertEqual(len(pbuff.buffer_ids), 3 * N)
         npt.assert_array_equal(pbuff.buffer_box.L, 2 * np.asarray(box.L))
 
         # Compute with different images
-        pbuff.compute(positions, buffer=[1, 0, 0], images=True)
+        pbuff.compute((box, positions), buffer=[1, 0, 0], images=True)
         self.assertEqual(len(pbuff.buffer_points), N)
         self.assertEqual(len(pbuff.buffer_ids), N)
         npt.assert_array_equal(pbuff.buffer_box.L,
@@ -61,53 +61,54 @@ class TestPeriodicBuffer(unittest.TestCase):
         box, positions = util.make_box_and_random_points(L, N, False)
         positions.flags['WRITEABLE'] = False
 
-        pbuff = freud.box.PeriodicBuffer(box)
+        pbuff = freud.box.PeriodicBuffer()
 
         # Compute with zero buffer distance
-        pbuff.compute(positions, buffer=0, images=False)
+        pbuff.compute((box, positions), buffer=0, images=False)
         self.assertEqual(len(pbuff.buffer_points), 0)
         self.assertEqual(len(pbuff.buffer_ids), 0)
         npt.assert_array_equal(pbuff.buffer_box.L, np.asarray(box.L))
 
         # Compute with buffer distances
-        pbuff.compute(positions, buffer=0.5*L, images=False)
+        pbuff.compute((box, positions), buffer=0.5*L, images=False)
         self.assertEqual(len(pbuff.buffer_points), 7 * N)
         self.assertEqual(len(pbuff.buffer_ids), 7 * N)
         npt.assert_array_equal(pbuff.buffer_box.L, 2 * np.asarray(box.L))
 
         # Compute with different buffer distances
-        pbuff.compute(positions, buffer=[L, 0, L], images=False)
+        pbuff.compute((box, positions), buffer=[L, 0, L], images=False)
         self.assertEqual(len(pbuff.buffer_points), 8 * N)
         self.assertEqual(len(pbuff.buffer_ids), 8 * N)
         npt.assert_array_equal(pbuff.buffer_box.L,
                                box.L * np.array([3, 1, 3]))
 
         # Compute with zero images
-        pbuff.compute(positions, buffer=0, images=True)
+        pbuff.compute((box, positions), buffer=0, images=True)
         self.assertEqual(len(pbuff.buffer_points), 0)
         self.assertEqual(len(pbuff.buffer_ids), 0)
         npt.assert_array_equal(pbuff.buffer_box.L, np.asarray(box.L))
 
         # Compute with images
-        pbuff.compute(positions, buffer=1, images=True)
+        pbuff.compute((box, positions), buffer=1, images=True)
         self.assertEqual(len(pbuff.buffer_points), 7 * N)
         self.assertEqual(len(pbuff.buffer_ids), 7 * N)
         npt.assert_array_equal(pbuff.buffer_box.L, 2 * np.asarray(box.L))
 
         # Compute with images-success
-        pbuff.compute(positions, buffer=2, images=True)
+        pbuff.compute((box, positions), buffer=2, images=True)
         self.assertEqual(len(pbuff.buffer_points), 26 * N)
         self.assertEqual(len(pbuff.buffer_ids), 26 * N)
         npt.assert_array_equal(pbuff.buffer_box.L, 3 * np.asarray(box.L))
 
         # Compute with two images in x axis
-        pbuff.compute(positions, buffer=np.array([1, 0, 0]), images=True)
+        pbuff.compute(
+            (box, positions), buffer=np.array([1, 0, 0]), images=True)
         self.assertEqual(len(pbuff.buffer_points), N)
         self.assertEqual(len(pbuff.buffer_ids), N)
         npt.assert_array_equal(pbuff.buffer_box.Lx, 2 * np.asarray(box.Lx))
 
         # Compute with different images
-        pbuff.compute(positions, buffer=[1, 0, 1], images=True)
+        pbuff.compute((box, positions), buffer=[1, 0, 1], images=True)
         self.assertEqual(len(pbuff.buffer_points), 3 * N)
         self.assertEqual(len(pbuff.buffer_ids), 3 * N)
         npt.assert_array_equal(pbuff.buffer_box.L,
@@ -118,18 +119,18 @@ class TestPeriodicBuffer(unittest.TestCase):
         L = 2*s  # Box length
 
         box = freud.box.Box.cube(L)  # Initialize box
-        pbuff = freud.box.PeriodicBuffer(box)
+        pbuff = freud.box.PeriodicBuffer()
         positions = np.array([(s, s, 0), (s, 0, s), (0, s, s), (0, 0, 0)])
         positions.flags['WRITEABLE'] = False
 
         # Compute with zero buffer distance
-        pbuff.compute(positions, buffer=0, images=False)
+        pbuff.compute((box, positions), buffer=0, images=False)
         self.assertEqual(len(pbuff.buffer_points), 0)
         self.assertEqual(len(pbuff.buffer_ids), 0)
         npt.assert_array_equal(pbuff.buffer_box.L, np.asarray(box.L))
 
         # Compute with buffer distances
-        pbuff.compute(positions, buffer=0.5*L, images=False)
+        pbuff.compute((box, positions), buffer=0.5*L, images=False)
         self.assertEqual(len(pbuff.buffer_points), 7 * len(positions))
         self.assertEqual(len(pbuff.buffer_ids), 7 * len(positions))
         npt.assert_array_equal(pbuff.buffer_box.L, 2 * np.asarray(box.L))
@@ -141,39 +142,40 @@ class TestPeriodicBuffer(unittest.TestCase):
         length such as sqrt(0.5), as in this test case.
 
         # Compute with buffer of one box length
-        pbuff.compute(positions, buffer=L, images=False)
+        pbuff.compute((box, positions), buffer=L, images=False)
         self.assertEqual(len(pbuff.buffer_points), 8 * len(positions))
         npt.assert_array_equal(pbuff.buffer_box.L,
                                box.L * np.array([3, 1, 3]))
         """
 
         # Compute with zero images
-        pbuff.compute(positions, buffer=0, images=True)
+        pbuff.compute((box, positions), buffer=0, images=True)
         self.assertEqual(len(pbuff.buffer_points), 0)
         self.assertEqual(len(pbuff.buffer_ids), 0)
         npt.assert_array_equal(pbuff.buffer_box.L, np.asarray(box.L))
 
         # Compute with images
-        pbuff.compute(positions, buffer=1, images=True)
+        pbuff.compute((box, positions), buffer=1, images=True)
         self.assertEqual(len(pbuff.buffer_points), 7 * len(positions))
         self.assertEqual(len(pbuff.buffer_ids), 7 * len(positions))
         npt.assert_array_equal(pbuff.buffer_box.L, 2 * np.asarray(box.L))
 
         # Compute with images-success
-        pbuff.compute(positions, buffer=2, images=True)
+        pbuff.compute((box, positions), buffer=2, images=True)
         self.assertEqual(len(pbuff.buffer_points), 26 * len(positions))
         self.assertEqual(len(pbuff.buffer_ids), 26 * len(positions))
         npt.assert_allclose(pbuff.buffer_box.L, 3 * np.asarray(box.L),
                             atol=1e-6)
 
         # Compute with two images in x axis
-        pbuff.compute(positions, buffer=np.array([1, 0, 0]), images=True)
+        pbuff.compute(
+            (box, positions), buffer=np.array([1, 0, 0]), images=True)
         self.assertEqual(len(pbuff.buffer_points), len(positions))
         self.assertEqual(len(pbuff.buffer_ids), len(positions))
         npt.assert_array_equal(pbuff.buffer_box.Lx, 2 * np.asarray(box.Lx))
 
         # Compute with different images
-        pbuff.compute(positions, buffer=[1, 0, 1], images=True)
+        pbuff.compute((box, positions), buffer=[1, 0, 1], images=True)
         self.assertEqual(len(pbuff.buffer_points), 3 * len(positions))
         self.assertEqual(len(pbuff.buffer_ids), 3 * len(positions))
         npt.assert_array_equal(pbuff.buffer_box.L,
@@ -184,7 +186,7 @@ class TestPeriodicBuffer(unittest.TestCase):
         np.random.seed(0)
 
         box = freud.box.Box(Lx=2, Ly=2, Lz=2, xy=1, xz=0, yz=1)
-        pbuff = freud.box.PeriodicBuffer(box)
+        pbuff = freud.box.PeriodicBuffer()
 
         # Generate random points in the box, in fractional coordinates
         positions = np.random.uniform(0, 1, size=(N, 3))
@@ -194,27 +196,26 @@ class TestPeriodicBuffer(unittest.TestCase):
         positions = box.wrap(positions)
 
         # Compute with zero images
-        pbuff.compute(positions, buffer=0, images=True)
+        pbuff.compute((box, positions), buffer=0, images=True)
         self.assertEqual(len(pbuff.buffer_points), 0)
         self.assertEqual(len(pbuff.buffer_ids), 0)
         npt.assert_array_equal(pbuff.buffer_box.L, np.asarray(box.L))
 
         # Compute with images
-        pbuff.compute(positions, buffer=2, images=True)
+        pbuff.compute((box, positions), buffer=2, images=True)
         self.assertEqual(len(pbuff.buffer_points), 26 * N)
         self.assertEqual(len(pbuff.buffer_ids), 26 * N)
         npt.assert_array_equal(pbuff.buffer_box.L, 3 * np.asarray(box.L))
 
         # Compute with different images
-        pbuff.compute(positions, buffer=[1, 0, 1], images=True)
+        pbuff.compute((box, positions), buffer=[1, 0, 1], images=True)
         self.assertEqual(len(pbuff.buffer_points), 3 * N)
         self.assertEqual(len(pbuff.buffer_ids), 3 * N)
         npt.assert_array_equal(pbuff.buffer_box.L,
                                box.L * np.array([2, 1, 2]))
 
     def test_repr(self):
-        box = freud.box.Box(Lx=2, Ly=2, Lz=2, xy=1, xz=0, yz=1)
-        pbuff = freud.box.PeriodicBuffer(box)
+        pbuff = freud.box.PeriodicBuffer()
         self.assertEqual(str(pbuff), str(eval(repr(pbuff))))
 
 

@@ -507,6 +507,9 @@ cdef class EnvironmentCluster(_MatchEnv):
         self.thisptr = self.matchptr = \
             new freud._environment.EnvironmentCluster()
 
+    def __init__(self):
+        pass
+
     def __dealloc__(self):
         del self.thisptr
 
@@ -643,6 +646,9 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
         self.thisptr = self.matchptr = \
             new freud._environment.EnvironmentMotifMatch()
 
+    def __init__(self):
+        pass
+
     def compute(self, system, motif, threshold, neighbors=None,
                 registration=False):
         R"""Determine clusters of particles that match the motif provided by
@@ -720,6 +726,9 @@ cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
         self.thisptr = self.matchptr = \
             new freud._environment.EnvironmentRMSDMinimizer()
 
+    def __init__(self):
+        pass
+
     @Compute._computed_property
     def rmsds(self):
         """:math:`(N_p, )` :class:`numpy.ndarray`: A boolean array of the RMSDs
@@ -786,6 +795,9 @@ cdef class AngularSeparationNeighbor(PairCompute):
 
     def __cinit__(self):
         self.thisptr = new freud._environment.AngularSeparationNeighbor()
+
+    def __init__(self):
+        pass
 
     def __dealloc__(self):
         del self.thisptr
@@ -896,6 +908,9 @@ cdef class AngularSeparationGlobal(Compute):
     def __cinit__(self):
         self.thisptr = new freud._environment.AngularSeparationGlobal()
 
+    def __init__(self):
+        pass
+
     def __dealloc__(self):
         del self.thisptr
 
@@ -967,6 +982,9 @@ cdef class LocalBondProjection(PairCompute):
 
     def __cinit__(self):
         self.thisptr = new freud._environment.LocalBondProjection()
+
+    def __init__(self):
+        pass
 
     def __dealloc__(self):
         del self.thisptr

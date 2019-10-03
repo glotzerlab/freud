@@ -125,7 +125,7 @@ Bradley Dice - **Lead developer**
 * Added checks to C++ for 2D boxes where required.
 * Refactored cluster module.
 * Standardized vector directionality in computes.
-* NeighborQuery support to ClusterProperties, GaussianDensity, Voronoi.
+* NeighborQuery support to ClusterProperties, GaussianDensity, Voronoi, PeriodicBuffer, Interface.
 * Standardized APIs for order parameters.
 
 Richmond Newman

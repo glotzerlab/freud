@@ -108,9 +108,6 @@ cdef class _PMFT(SpatialHistogram):
     """
     cdef freud._pmft.PMFT * pmftptr
 
-    def __cinit__(self):
-        pass
-
     def __dealloc__(self):
         if type(self) is _PMFT:
             del self.pmftptr
