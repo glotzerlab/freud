@@ -199,7 +199,7 @@ cdef class BondOrder(SpatialHistogram):
 
     @Compute._computed_property
     def bond_order(self):
-        """:math:`\\left(N_{\phi}, N_{\\theta} \\right)` :class:`numpy.ndarray`: Bond order."""  # noqa: E501
+        """:math:`\\left(N_{\\phi}, N_{\\theta} \\right)` :class:`numpy.ndarray`: Bond order."""  # noqa: E501
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getBondOrder(),
             freud.util.arr_type_t.FLOAT)
@@ -1071,7 +1071,7 @@ cdef class LocalBondProjection(PairCompute):
 
     @Compute._computed_property
     def projections(self):
-        """(:math:`\\left(N_{reference}, N_{neighbors}, N_{projection_vecs}
+        """:math:`\\left(N_{reference}, N_{neighbors}, N_{projection\\_vecs}
         \\right)` :class:`numpy.ndarray`: The projection of each bond between
         reference particles and their neighbors onto each of the projection
         vectors."""
@@ -1081,7 +1081,7 @@ cdef class LocalBondProjection(PairCompute):
 
     @Compute._computed_property
     def normed_projections(self):
-        """(:math:`\\left(N_{reference}, N_{neighbors}, N_{projection\\_vecs} \\right)` :class:`numpy.ndarray`:
+        """:math:`\\left(N_{reference}, N_{neighbors}, N_{projection\\_vecs} \\right)` :class:`numpy.ndarray`:
         The projection of each bond between reference particles and their
         neighbors onto each of the projection vectors, normalized by the length
         of the bond."""  # noqa: E501

@@ -33,8 +33,7 @@ cdef class Interface(PairCompute):
         self._query_point_ids = np.empty(0, dtype=np.uint32)
 
     def compute(self, system, query_points, neighbors=None):
-        R"""Compute the particles at the interface between the two given sets of
-        points.
+        R"""Compute the particles at the interface between two sets of points.
 
         Args:
             system:
@@ -42,8 +41,7 @@ cdef class Interface(PairCompute):
                 :class:`freud.locality.NeighborQuery.from_system`.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Second set of points (in addition to the system points) to
-                calculate the interface.  Uses the system's points if not
-                provided or :code:`None` (Default value = :code:`None`).
+                calculate the interface.
             neighbors (:class:`freud.locality.NeighborList` or dict, optional):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
                 neighbor pairs to use in the calculation, or a dictionary of

@@ -785,7 +785,7 @@ cdef class Voronoi(Compute):
 
     @Compute._computed_property
     def polytopes(self):
-        """(list[:class:`numpy.ndarray`]): A list of :class:`numpy.ndarray`
+        """list[:class:`numpy.ndarray`]: A list of :class:`numpy.ndarray`
         defining Voronoi polytope vertices for each cell."""
         polytopes = []
         cdef vector[vector[vec3[double]]] raw_polytopes = \
@@ -808,7 +808,7 @@ cdef class Voronoi(Compute):
 
     @Compute._computed_property
     def volumes(self):
-        """(:math:`\\left(N_{points} \\right)` :class:`numpy.ndarray`): Returns
+        """:math:`\\left(N_{points} \\right)` :class:`numpy.ndarray`: Returns
         an array of Voronoi cell volumes (areas in 2D)."""
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getVolumes(),
@@ -896,11 +896,11 @@ cdef class PairCompute(Compute):
                 must be an object that can be converted into a
                 :class:`freud.locality.NeighborQuery`.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
-                Points used to calculate the RDF. Uses :code:`points` if
-                not provided or :code:`None`.
-            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
-                NeighborList or dictionary of query arguments to use to find
-                bonds (Default value = :code:`None`).
+                Query points for preprocessing. Uses :code:`points` if
+                :code:`None` (Default value = :code:`None`).
+            neighbors (:class:`freud.locality.NeighborList` or :class:`dict`, optional):
+                :class:`~.locality.NeighborList` or dictionary of query
+                arguments to use to find bonds (Default value = :code:`None`).
         """  # noqa E501
         cdef NeighborQuery nq = NeighborQuery.from_system(system)
 
