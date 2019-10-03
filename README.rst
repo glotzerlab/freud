@@ -28,7 +28,7 @@ freud
 .. danger::
    **freud v2.0 is currently in beta on the** :code:`master` **branch.**
    This major rewrite of the freud library brings new APIs, speedups,
-   and many new features to the library. Please
+   and many new features. Please
    `report any issues <https://github.com/glotzerlab/freud/issues>`_
    you encounter while using the beta or learning the new API.
 
