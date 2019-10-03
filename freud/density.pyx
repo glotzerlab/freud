@@ -58,11 +58,6 @@ cdef class CorrelationFunction(SpatialHistogram1D):
             The number of bins in the RDF.
         r_max (float):
             Maximum pointwise distance to include in the calculation.
-
-    Attributes:
-        correlation ((:math:`N_{bins}`) :class:`numpy.ndarray`):
-            Expected (average) product of all values at a given radial
-            distance.
     """  # noqa E501
     cdef freud._density.CorrelationFunction[np.complex128_t] * thisptr
     cdef is_complex
@@ -141,6 +136,8 @@ cdef class CorrelationFunction(SpatialHistogram1D):
 
     @Compute._computed_property
     def correlation(self):
+        """(:math:`N_{bins}`) :class:`numpy.ndarray`: Expected (average)
+        product of all values at a given radial distance."""
         output = freud.util.make_managed_numpy_array(
             &self.thisptr.getCorrelation(),
             freud.util.arr_type_t.COMPLEX_DOUBLE)
@@ -195,12 +192,6 @@ cdef class GaussianDensity(Compute):
             Distance over which to blur.
         sigma (float):
             Sigma parameter for Gaussian.
-
-    Attributes:
-        box (:class:`freud.box.Box`):
-            Box used in the calculation.
-        density ((:math:`w_x`, :math:`w_y`, :math:`w_z`) :class:`numpy.ndarray`):
-            The image grid with the Gaussian density.
     """  # noqa: E501
     cdef freud._density.GaussianDensity * thisptr
 
@@ -225,6 +216,7 @@ cdef class GaussianDensity(Compute):
 
     @Compute._computed_property
     def box(self):
+        """(:class:`freud.box.Box`): Box used in the calculation."""
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     def compute(self, system):
@@ -243,6 +235,8 @@ cdef class GaussianDensity(Compute):
 
     @Compute._computed_property
     def density(self):
+        """(:math:`w_x`, :math:`w_y`, :math:`w_z`) :class:`numpy.ndarray`: The
+        image grid with the Gaussian density."""
         if self.box.is2D:
             return np.squeeze(freud.util.make_managed_numpy_array(
                 &self.thisptr.getDensity(), freud.util.arr_type_t.FLOAT))
@@ -252,14 +246,19 @@ cdef class GaussianDensity(Compute):
 
     @property
     def r_max(self):
+        """float: Distance over which to blur."""
         return self.thisptr.getRMax()
 
     @property
     def sigma(self):
+        """float: Sigma parameter for Gaussian."""
         return self.thisptr.getSigma()
 
     @property
     def width(self):
+        """int or list or tuple: The number of bins to make the image in each
+        direction (identical in all dimensions if a single integer value is
+        provided)."""
         cdef vec3[uint] width = self.thisptr.getWidth()
         return (width.x, width.y, width.z)
 
@@ -330,14 +329,6 @@ cdef class LocalDensity(PairCompute):
             Maximum distance over which to calculate the density.
         diameter (float):
             Diameter of particle circumsphere.
-
-    Attributes:
-        box (:class:`freud.box.Box`):
-            Box used in the calculation.
-        density ((:math:`N_{points}`) :class:`numpy.ndarray`):
-            Density of points per ref_point.
-        num_neighbors ((:math:`N_{points}`) :class:`numpy.ndarray`):
-            Number of neighbor points for each ref_point.
     """
     cdef freud._density.LocalDensity * thisptr
 
@@ -349,14 +340,17 @@ cdef class LocalDensity(PairCompute):
 
     @property
     def r_max(self):
+        """float: Maximum distance over which to calculate the density."""
         return self.thisptr.getRMax()
 
     @property
     def diameter(self):
+        """float: Diameter of particle circumsphere."""
         return self.thisptr.getDiameter()
 
     @Compute._computed_property
     def box(self):
+        """:class:`freud.box.Box`: Box used in the calculation."""
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     def compute(self, system, query_points=None, neighbors=None):
@@ -394,17 +388,23 @@ cdef class LocalDensity(PairCompute):
 
     @property
     def default_query_args(self):
+        """The default query arguments are
+        :code:`{'mode': 'ball', 'r_max': self.r_max + 0.5*self.diameter}`."""
         return dict(mode="ball",
                     r_max=self.r_max + 0.5*self.diameter)
 
     @Compute._computed_property
     def density(self):
+        """(:math:`N_{points}`) :class:`numpy.ndarray`: Density of points per
+        ref_point."""
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getDensity(),
             freud.util.arr_type_t.FLOAT)
 
     @Compute._computed_property
     def num_neighbors(self):
+        """(:math:`N_{points}`) :class:`numpy.ndarray`: Number of neighbor
+        points for each ref_point."""
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getNumNeighbors(),
             freud.util.arr_type_t.FLOAT)
@@ -444,16 +444,6 @@ cdef class RDF(SpatialHistogram1D):
         r_min (float, optional):
             Minimum interparticle distance to include in the calculation
             (Default value = :code:`0`).
-
-    Attributes:
-        RDF ((:math:`N_{bins}`,) :class:`numpy.ndarray`):
-            Histogram of RDF values.
-        n_r ((:math:`N_{bins}`,) :class:`numpy.ndarray`):
-            Histogram of cumulative bin_counts values. More precisely,
-            :code:`n_r[i]` is the average number of points contained within a
-            ball of radius :code:`R[i]+dr/2` centered at a given
-            :code:`query_point` averaged over all :code:`query_points` in the
-            last call to :meth:`~.compute` (or :meth:`~.accumulate`).
     """
     cdef freud._density.RDF * thisptr
 
@@ -508,12 +498,19 @@ cdef class RDF(SpatialHistogram1D):
 
     @Compute._computed_property
     def RDF(self):
+        """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Histogram of RDF
+        values."""
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getRDF(),
             freud.util.arr_type_t.FLOAT)
 
     @Compute._computed_property
     def n_r(self):
+        """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Histogram of cumulative
+        bin_counts values. More precisely, :code:`n_r[i]` is the average number
+        of points contained within a ball of radius :code:`R[i]+dr/2` centered
+        at a given :code:`query_point` averaged over all :code:`query_points`
+        in the last call to :meth:`~.compute` (or :meth:`~.accumulate`)."""
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getNr(),
             freud.util.arr_type_t.FLOAT)

@@ -51,30 +51,6 @@ cdef class Cubatic(Compute):
         seed (unsigned int, optional):
             Random seed to use in calculations. If :code:`None`, system time is used.
             (Default value = :code:`None`).
-
-    Attributes:
-        t_initial (float):
-            The value of the initial temperature.
-        t_final (float):
-            The value of the final temperature.
-        scale (float):
-            The scale
-        order (float):
-            The cubatic order parameter.
-        orientation (:math:`\left(4 \right)` :class:`numpy.ndarray`):
-            The quaternion of global orientation.
-        particle_order (:class:`numpy.ndarray`):
-             Cubatic order parameter.
-        particle_tensor (:math:`\left(N_{particles}, 3, 3, 3, 3 \right)` :class:`numpy.ndarray`):
-            Rank 5 tensor corresponding to each individual particle
-            orientation.
-        global_tensor (:math:`\left(3, 3, 3, 3 \right)` :class:`numpy.ndarray`):
-            Rank 4 tensor corresponding to global orientation.
-        cubatic_tensor (:math:`\left(3, 3, 3, 3 \right)` :class:`numpy.ndarray`):
-            Rank 4 cubatic tensor.
-        gen_r4_tensor (:math:`\left(3, 3, 3, 3 \right)` :class:`numpy.ndarray`):
-            Rank 4 tensor corresponding to each individual particle
-            orientation.
     """  # noqa: E501
     cdef freud._order.Cubatic * thisptr
     cdef n_replicates
@@ -122,43 +98,56 @@ cdef class Cubatic(Compute):
 
     @property
     def t_initial(self):
+        """float: The value of the initial temperature."""
         return self.thisptr.getTInitial()
 
     @property
     def t_final(self):
+        """float: The value of the final temperature."""
         return self.thisptr.getTFinal()
 
     @property
     def scale(self):
+        """float: The scale."""
         return self.thisptr.getScale()
 
     @property
     def seed(self):
+        """unsigned int: Random seed to use in calculations."""
         return self.thisptr.getSeed()
 
     @Compute._computed_property
     def order(self):
+        """float: The cubatic order parameter."""
         return self.thisptr.getCubaticOrderParameter()
 
     @Compute._computed_property
     def orientation(self):
+        """:math:`\\left(4 \\right)` :class:`numpy.ndarray`: The quaternion of
+        global orientation."""
         cdef quat[float] q = self.thisptr.getCubaticOrientation()
         return np.asarray([q.s, q.v.x, q.v.y, q.v.z], dtype=np.float32)
 
     @Compute._computed_property
     def particle_order(self):
+        """:class:`numpy.ndarray`: The per-particle cubatic order parameter."""
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getParticleOrderParameter(),
             freud.util.arr_type_t.FLOAT)
 
     @Compute._computed_property
     def global_tensor(self):
+        """:math:`\\left(3, 3, 3, 3 \\right)` :class:`numpy.ndarray`: Rank 4
+        tensor corresponding to the global orientation. Computed from all
+        orientations."""
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getGlobalTensor(),
             freud.util.arr_type_t.FLOAT)
 
     @Compute._computed_property
     def cubatic_tensor(self):
+        """:math:`\\left(3, 3, 3, 3 \\right)` :class:`numpy.ndarray`: Rank 4
+        homogeneous tensor representing the optimal system-wide coordinates."""
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getCubaticTensor(),
             freud.util.arr_type_t.FLOAT)
@@ -181,21 +170,7 @@ cdef class Nematic(Compute):
         u (:math:`\left(3 \right)` :class:`numpy.ndarray`):
             The nematic director of a single particle in the reference state
             (without any rotation applied).
-
-    Attributes:
-        order (float):
-            Nematic order parameter.
-        director (:math:`\left(3 \right)` :class:`numpy.ndarray`):
-            The average nematic director.
-        particle_tensor (:math:`\left(N_{particles}, 3, 3 \right)` :class:`numpy.ndarray`):
-            One 3x3 matrix per-particle corresponding to each individual
-            particle orientation.
-        nematic_tensor (:math:`\left(3, 3 \right)` :class:`numpy.ndarray`):
-            3x3 matrix corresponding to the average particle orientation.
-        u (:math:`\left(3 \right)` :class:`numpy.ndarray`):
-            The normalized reference director (the normalized vector provided
-            on construction).
-    """  # noqa: E501
+    """
     cdef freud._order.Nematic *thisptr
 
     def __cinit__(self, u):
@@ -228,27 +203,37 @@ cdef class Nematic(Compute):
 
     @Compute._computed_property
     def order(self):
+        """float: Nematic order parameter."""
         return self.thisptr.getNematicOrderParameter()
 
     @Compute._computed_property
     def director(self):
+        """:math:`\\left(3 \\right)` :class:`numpy.ndarray`: The average
+        nematic director."""
         cdef vec3[float] n = self.thisptr.getNematicDirector()
         return np.asarray([n.x, n.y, n.z], dtype=np.float32)
 
     @Compute._computed_property
     def particle_tensor(self):
+        """:math:`\\left(N_{particles}, 3, 3 \\right)` :class:`numpy.ndarray`:
+            One 3x3 matrix per-particle corresponding to each individual
+            particle orientation."""
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getParticleTensor(),
             freud.util.arr_type_t.FLOAT)
 
     @Compute._computed_property
     def nematic_tensor(self):
+        """:math:`\\left(3, 3 \\right)` :class:`numpy.ndarray`: 3x3 matrix
+        corresponding to the average particle orientation."""
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getNematicTensor(),
             freud.util.arr_type_t.FLOAT)
 
     @property
     def u(self):
+        """:math:`\\left(3 \\right)` :class:`numpy.ndarray`: The normalized
+        reference director (the normalized vector provided on construction)."""
         cdef vec3[float] u = self.thisptr.getU()
         return np.asarray([u.x, u.y, u.z], dtype=np.float32)
 
@@ -282,12 +267,6 @@ cdef class Hexatic(PairCompute):
     Args:
         k (unsigned int, optional):
             Symmetry of order parameter. (Default value = :code:`6`).
-
-    Attributes:
-        k (unsigned int):
-            Symmetry of the order parameter.
-        particle_order (:math:`\left(N_{particles} \right)` :class:`numpy.ndarray`):
-            Order parameter.
     """  # noqa: E501
     cdef freud._order.Hexatic * thisptr
 
@@ -326,16 +305,21 @@ cdef class Hexatic(PairCompute):
 
     @property
     def default_query_args(self):
+        """The default query arguments are
+        :code:`{'mode': 'nearest', 'num_neighbors': self.k}`."""
         return dict(mode="nearest", num_neighbors=self.k)
 
     @Compute._computed_property
     def particle_order(self):
+        """:math:`\\left(N_{particles} \\right)` :class:`numpy.ndarray`: Order
+        parameter."""
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getOrder(),
             freud.util.arr_type_t.COMPLEX_FLOAT)
 
     @property
     def k(self):
+        """unsigned int: Symmetry of the order parameter."""
         return self.thisptr.getK()
 
     def __repr__(self):
@@ -398,16 +382,21 @@ cdef class Translational(PairCompute):
 
     @property
     def default_query_args(self):
+        """The default query arguments are :code:`{'mode': 'nearest',
+        'num_neighbors': self.k}`."""
         return dict(mode="nearest", num_neighbors=int(self.k))
 
     @Compute._computed_property
     def particle_order(self):
+        """:math:`\\left(N_{particles} \\right)` :class:`numpy.ndarray`: Order
+        parameter."""
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getOrder(),
             freud.util.arr_type_t.COMPLEX_FLOAT)
 
     @property
     def k(self):
+        """unsigned int: Symmetry of the order parameter."""
         return self.thisptr.getK()
 
     def __repr__(self):
@@ -419,26 +408,26 @@ cdef class Steinhardt(PairCompute):
     R"""Compute the local Steinhardt [Steinhardt1983]_ rotationally invariant
     :math:`Q_l` :math:`W_l` order parameter for a set of points.
 
-    Implements the local rotationally invariant :math:`Q_l` or :math:`W_l` order
-    parameter described by Steinhardt. For a particle i, we calculate the
+    Implements the local rotationally invariant :math:`Q_l` or :math:`W_l`
+    order parameter described by Steinhardt. For a particle i, we calculate the
     average order parameter by summing the spherical harmonics between particle
     :math:`i` and its neighbors :math:`j` in a local region:
     :math:`\overline{Q}_{lm}(i) = \frac{1}{N_b} \displaystyle\sum_{j=1}^{N_b}
-    Y_{lm}(\theta(\vec{r}_{ij}), \phi(\vec{r}_{ij}))`. The particles included in
-    the sum are determined by the r_max argument to the constructor.
+    Y_{lm}(\theta(\vec{r}_{ij}), \phi(\vec{r}_{ij}))`. The particles included
+    in the sum are determined by the r_max argument to the constructor.
 
-    For :math:`Q_l`, this is then combined in a rotationally invariant fashion to
-    remove local orientational order as follows:
+    For :math:`Q_l`, this is then combined in a rotationally invariant fashion
+    to remove local orientational order as follows:
     :math:`Q_l(i)=\sqrt{\frac{4\pi}{2l+1} \displaystyle\sum_{m=-l}^{l}
     |\overline{Q}_{lm}|^2 }`.
 
     For :math:`W_l`, it is then defined as a weighted average over the
-    :math:`\overline{Q}_{lm}(i)` values using Wigner 3j symbols
-    (Clebsch-Gordan coefficients). The resulting combination is rotationally
-    (i.e. frame) invariant.
+    :math:`\overline{Q}_{lm}(i)` values using Wigner 3j symbols (Clebsch-Gordan
+    coefficients). The resulting combination is rotationally (i.e. frame)
+    invariant.
 
-    The average argument in the constructor provides access to a variant
-    of this parameter that performs a average over the first and second shell
+    The average argument in the constructor provides access to a variant of
+    this parameter that performs a average over the first and second shell
     combined [Lechner2008]_. To compute this parameter, we perform a second
     averaging over the first neighbor shell of the particle to implicitly
     include information about the second neighbor shell. This averaging is
@@ -465,16 +454,7 @@ cdef class Steinhardt(PairCompute):
             spherical harmonics over neighbors. If enabled and used with a
             Voronoi neighbor list, this results in the Minkowski Structure
             Metrics :math:`Q'_l`. (Default value = :code:`False`)
-
-    Attributes:
-        particle_order (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
-            The last computed selected variant of the Steinhardt order
-            parameter for each particle (filled with NaN for particles with no
-            neighbors).
-        order (float):
-            The system wide normalization of the :math:`Q_l` or
-            :math:`W_l` order parameter.
-    """  # noqa: E501
+    """
     cdef freud._order.Steinhardt * thisptr
 
     def __cinit__(self, l, average=False, Wl=False, weighted=False):
@@ -485,32 +465,48 @@ cdef class Steinhardt(PairCompute):
 
     @property
     def average(self):
+        """bool: Whether the the averaged Steinhardt order parameter was
+        calculated."""
         return self.thisptr.isAverage()
 
     @property
     def Wl(self):
+        """bool: Whether the :math:`W_l` version of the Steinhardt order
+        parameter was used."""
         return self.thisptr.isWl()
 
     @property
     def weighted(self):
+        """bool: Whether neighbor weights were used in the computation of
+        spherical harmonics over neighbors."""
         return self.thisptr.isWeighted()
 
     @property
     def l(self):  # noqa: E743
+        """unsigned int: Spherical harmonic quantum number l."""
         return self.thisptr.getL()
 
     @Compute._computed_property
     def order(self):
+        """float: The system wide normalization of the :math:`Q_l` or
+        :math:`W_l` order parameter."""
         return self.thisptr.getOrder()
 
     @Compute._computed_property
     def particle_order(self):
+        """:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`: The
+        last computed selected variant of the Steinhardt order parameter for
+        each particle (filled with NaN for particles with no neighbors)."""
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getParticleOrder(),
             freud.util.arr_type_t.FLOAT)
 
     @Compute._computed_property
     def Ql(self):
+        """:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`: The
+        last computed :math:`Q_l` Steinhardt order parameter for each particle
+        (filled with NaN for particles with no neighbors). This is always
+        available no matter which options are selected."""
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getQl(),
             freud.util.arr_type_t.FLOAT)
@@ -632,17 +628,6 @@ cdef class SolidLiquid(PairCompute):
         normalize_Q (bool):
             Whether to normalize the dot product (Default value =
             :code:`True`).
-
-    Attributes:
-        clusters (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
-            The last computed set of solid-like cluster indices for each
-            particle.
-        cluster_sizes (unsigned int):
-            The sizes of all clusters.
-        largest_cluster_size (unsigned int):
-            The largest cluster size.
-        num_connections (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
-            The number of solid-like bonds for each particle.
     """  # noqa: E501
     cdef freud._order.SolidLiquid * thisptr
 
@@ -680,46 +665,64 @@ cdef class SolidLiquid(PairCompute):
 
     @property
     def l(self):  # noqa: E743
+        """unsigned int: Spherical harmonic quantum number l used in last
+        calculation."""
         return self.thisptr.getL()
 
     @property
     def Q_threshold(self):
+        """float: Value of dot product threshold used in last calculation."""
         return self.thisptr.getQThreshold()
 
     @property
     def S_threshold(self):
+        """float: Value of number-of-bonds threshold used in last
+        calculation."""
         return self.thisptr.getSThreshold()
 
     @property
     def normalize_Q(self):
+        """bool: Whether the dot product was normalized."""
         return self.thisptr.getNormalizeQ()
 
     @Compute._computed_property
     def cluster_idx(self):
+        """:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`: The
+        last computed set of solid-like cluster indices for each particle."""
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getClusterIdx(),
             freud.util.arr_type_t.UNSIGNED_INT)
 
     @Compute._computed_property
     def Ql_ij(self):
+        """:math:`\\left(N_{bonds}\\right)` :class:`numpy.ndarray`: The last
+        computed set :math:`Ql_ij` dot products. Indexed the elements of
+        ``self.nlist``."""
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getQlij(),
             freud.util.arr_type_t.FLOAT)
 
     @Compute._computed_property
     def cluster_sizes(self):
+        """:math:`(N_{clusters}, )` :class:`np.ndarray`: The sizes of all
+        clusters."""
         return np.asarray(self.thisptr.getClusterSizes())
 
     @Compute._computed_property
     def largest_cluster_size(self):
+        """unsigned int: The largest cluster size."""
         return self.thisptr.getLargestClusterSize()
 
     @Compute._computed_property
     def nlist(self):
+        """:class:`freud.locality.NeighborList`: The neighbor list from the
+        last compute."""
         return freud.locality._nlist_from_cnlist(self.thisptr.getNList())
 
     @Compute._computed_property
     def num_connections(self):
+        """:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`: The
+        number of solid-like bonds for each particle."""
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getNumberOfConnections(),
             freud.util.arr_type_t.UNSIGNED_INT)
@@ -779,14 +782,6 @@ cdef class RotationalAutocorrelation(Compute):
             integer.
 
     Attributes:
-        azimuthal (int):
-            The azimuthal quantum number, which defines the order of the
-            hyperspherical harmonic. Must be a positive, even integer.
-        order (float):
-            The autocorrelation computed in the last call to compute.
-        particle_order ((:math:`N_{orientations}`) :class:`numpy.ndarray`):
-            The per-orientation array of rotational autocorrelation values
-            calculated by the last call to compute.
     """
     cdef freud._order.RotationalAutocorrelation * thisptr
 
@@ -825,16 +820,22 @@ cdef class RotationalAutocorrelation(Compute):
 
     @Compute._computed_property
     def order(self):
+        """float: The autocorrelation computed in the last call to compute."""
         return self.thisptr.getRotationalAutocorrelation()
 
     @Compute._computed_property
     def particle_order(self):
+        """(:math:`N_{orientations}`) :class:`numpy.ndarray`: The
+        per-orientation array of rotational autocorrelation values calculated
+        by the last call to compute."""
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getRAArray(),
             freud.util.arr_type_t.COMPLEX_FLOAT)
 
     @property
-    def azimuthal(self):
+    def l(self):  # noqa: E743
+        """int: The azimuthal quantum number, which defines the order of the
+        hyperspherical harmonic."""
         return self.thisptr.getL()
 
     def __repr__(self):

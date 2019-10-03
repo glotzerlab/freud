@@ -331,7 +331,7 @@ void Cubatic::compute(quat<float>* orientations, unsigned int num_orientations)
         for (size_t i = r.begin(); i != r.end(); i++)
         {
             // The per-particle order parameter is defined as the value of the
-            // cubatic order parameter if the global oreintation was the
+            // cubatic order parameter if the global orientation was the
             // particle orientation, so we can reuse the same machinery.
             m_particle_order_parameter[i] = calcCubaticOrderParameter(calcCubaticTensor(orientations[i]), global_tensor);
         }

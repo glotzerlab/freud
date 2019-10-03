@@ -117,6 +117,8 @@ cdef class _PMFT(SpatialHistogram):
 
     @Compute._computed_property
     def PMFT(self):
+        """:class:`np.ndarray`: The discrete potential of mean force and
+        torque."""
         with np.warnings.catch_warnings():
             np.warnings.filterwarnings('ignore')
             result = -np.log(np.copy(self._PCF))
@@ -124,6 +126,7 @@ cdef class _PMFT(SpatialHistogram):
 
     @Compute._computed_property
     def _PCF(self):
+        """:class:`np.ndarray`: The discrete pair correlation function."""
         return freud.util.make_managed_numpy_array(
             &self.pmftptr.getPCF(),
             freud.util.arr_type_t.FLOAT)
@@ -145,10 +148,6 @@ cdef class PMFTR12(_PMFT):
             :math:`\theta_1`, and :math:`\theta_2`. If a sequence of three
             integers, interpreted as :code:`(num_bins_r, num_bins_t1,
             num_bins_t2)`.
-
-    Attributes:
-        PMFT (:math:`\left(N_{r}, N_{\theta1}, N_{\theta2}\right)`):
-            The potential of mean force and torque.
     """  # noqa: E501
     cdef freud._pmft.PMFTR12 * pmftr12ptr
 
@@ -268,10 +267,6 @@ cdef class PMFTXYT(_PMFT):
             If an unsigned int, the number of bins in:math:`x`, :math:`y`, and
             :math:`t`. If a sequence of three integers, interpreted as
             :code:`(num_bins_x, num_bins_y, num_bins_t)`.
-
-    Attributes:
-        PMFT (:math:`\left(N_{x}, N_{y}, N_{\theta}\right)` :class:`numpy.ndarray`):
-            The potential of mean force and torque.
     """  # noqa: E501
     cdef freud._pmft.PMFTXYT * pmftxytptr
 
@@ -391,10 +386,6 @@ cdef class PMFTXY2D(_PMFT):
             If an unsigned int, the number of bins in:math:`x`, :math:`y`, and
             :math:`z`. If a sequence of two integers, interpreted as
             :code:`(num_bins_x, num_bins_y)`.
-
-    Attributes:
-        PMFT (:math:`\left(N_{x}, N_{y}\right)` :class:`numpy.ndarray`):
-            The potential of mean force and torque.
     """  # noqa: E501
     cdef freud._pmft.PMFTXY2D * pmftxy2dptr
 
@@ -465,9 +456,10 @@ cdef class PMFTXY2D(_PMFT):
 
     @Compute._computed_property
     def bin_counts(self):
-        # Currently this returns a 3D array that must be squeezed due to the
-        # internal choices in the histogramming; this will be fixed in future
-        # changes.
+        """:class:`numpy.ndarray`: The bin counts in the histogram."""
+        # Currently the parent function returns a 3D array that must be
+        # squeezed due to the internal choices in the histogramming; this will
+        # be fixed in future changes.
         return np.squeeze(super(PMFTXY2D, self).bin_counts)
 
     def __repr__(self):
@@ -528,10 +520,6 @@ cdef class PMFTXYZ(_PMFT):
             :code:`(num_bins_x, num_bins_y, num_bins_z)`.
         shiftvec (list):
             Vector pointing from ``[0, 0, 0]`` to the center of the PMFT.
-
-    Attributes:
-        PMFT (:math:`\left(N_{x}, N_{y}, N_{z}\right)` :class:`numpy.ndarray`):
-            The potential of mean force and torque.
     """  # noqa: E501
     cdef freud._pmft.PMFTXYZ * pmftxyzptr
     cdef shiftvec

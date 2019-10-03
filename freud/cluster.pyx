@@ -48,15 +48,8 @@ cdef class Cluster(PairCompute):
     attribute :code:`cluster_keys`, as a list of lists. If keys are not
     provided, every point is assigned a key corresponding to its index, and
     :code:`cluster_keys` contains the point ids present in each cluster.
-
-    Attributes:
-        num_clusters (int):
-            The number of clusters.
-        cluster_idx ((:math:`N_{points}`) :class:`numpy.ndarray`):
-            The cluster index for each point.
-        cluster_keys (list(list)):
-            A list of lists of the keys contained in each cluster.
     """
+
     cdef freud._cluster.Cluster * thisptr
 
     def __cinit__(self):
@@ -107,16 +100,21 @@ cdef class Cluster(PairCompute):
 
     @Compute._computed_property
     def num_clusters(self):
+        """int: The number of clusters."""
         return self.thisptr.getNumClusters()
 
     @Compute._computed_property
     def cluster_idx(self):
+        """:math:`N_{points}` :class:`numpy.ndarray`: The cluster index for
+        each point."""
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getClusterIdx(),
             freud.util.arr_type_t.UNSIGNED_INT)
 
     @Compute._computed_property
     def cluster_keys(self):
+        """list(list): A list of lists of the keys contained in each
+        cluster."""
         cluster_keys = self.thisptr.getClusterKeys()
         return cluster_keys
 
@@ -165,15 +163,8 @@ cdef class ClusterProperties(Compute):
     conditions) can be accessed with :code:`centers` attribute.  The :math:`3
     \times 3` symmetric gyration tensors :math:`G` can be accessed with
     :code:`gyrations` attribute.
-
-    Attributes:
-        centers ((:math:`N_{clusters}`, 3) :class:`numpy.ndarray`):
-            The centers of mass of the clusters.
-        gyrations ((:math:`N_{clusters}`, 3, 3) :class:`numpy.ndarray`):
-            The gyration tensors of the clusters.
-        sizes ((:math:`N_{clusters}`) :class:`numpy.ndarray`):
-            The cluster sizes.
     """
+
     cdef freud._cluster.ClusterProperties * thisptr
 
     def __cinit__(self):
@@ -208,18 +199,23 @@ cdef class ClusterProperties(Compute):
 
     @Compute._computed_property
     def centers(self):
+        """(:math:`N_{clusters}`, 3) :class:`numpy.ndarray`: The centers of
+        mass of the clusters."""
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getClusterCenters(),
             freud.util.arr_type_t.FLOAT, 3)
 
     @Compute._computed_property
     def gyrations(self):
+        """(:math:`N_{clusters}`, 3, 3) :class:`numpy.ndarray`: The gyration
+        tensors of the clusters."""
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getClusterGyrations(),
             freud.util.arr_type_t.FLOAT)
 
     @Compute._computed_property
     def sizes(self):
+        """(:math:`N_{clusters}`) :class:`numpy.ndarray`: The cluster sizes."""
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getClusterSizes(),
             freud.util.arr_type_t.UNSIGNED_INT)

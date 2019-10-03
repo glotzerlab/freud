@@ -28,16 +28,6 @@ cdef class InterfaceMeasure(Compute):
     Args:
         box (:class:`freud.box.Box`): Simulation box.
         r_max (float): Distance to search for particle neighbors.
-
-    Attributes:
-        point_count (int):
-            Number of particles from :code:`points` on the interface.
-        point_ids (:class:`np.ndarray`):
-            The particle IDs from :code:`points`.
-        query_point_count (int):
-            Number of particles from :code:`query_points` on the interface.
-        query_point_ids (:class:`np.ndarray`):
-            The particle IDs from :code:`query_points`.
     """
     cdef float r_max
     cdef const unsigned int[::1] _point_ids
@@ -78,18 +68,23 @@ cdef class InterfaceMeasure(Compute):
 
     @Compute._computed_property
     def point_count(self):
+        """int: Number of particles from :code:`points` on the interface."""
         return len(self._point_ids)
 
     @Compute._computed_property
     def point_ids(self):
+        """:class:`np.ndarray`: The particle IDs from :code:`points`."""
         return np.asarray(self._point_ids)
 
     @Compute._computed_property
     def query_point_count(self):
+        """int: Number of particles from :code:`query_points` on the
+        interface."""
         return len(self._query_point_ids)
 
     @Compute._computed_property
     def query_point_ids(self):
+        """:class:`np.ndarray`: The particle IDs from :code:`query_points`."""
         return np.asarray(self._query_point_ids)
 
     def __repr__(self):
