@@ -32,17 +32,24 @@ cdef class Interface(PairCompute):
         self._point_ids = np.empty(0, dtype=np.uint32)
         self._query_point_ids = np.empty(0, dtype=np.uint32)
 
-    def compute(self, neighbor_query, query_points, neighbors=None):
+    def compute(self, system, query_points, neighbors=None):
         R"""Compute the particles at the interface between the two given sets of
         points.
 
         Args:
-            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
-                One set of particle positions.
-            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`):
-                Other set of particle positions.
-            nlist (:class:`freud.locality.NeighborList`, optional):
-                Neighborlist to use to find bonds (Default value = None).
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
+            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
+                Second set of points (in addition to the system points) to
+                calculate the interface.  Uses the system's points if not
+                provided or :code:`None` (Default value = :code:`None`).
+            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
+                Either a :class:`NeighborList <freud.locality.NeighborList>` of
+                neighbor pairs to use in the calculation, or a dictionary of
+                `query arguments
+                <https://freud.readthedocs.io/en/next/querying.html>`_
+                (Default value: None).
         """  # noqa E501
         cdef:
             freud.locality.NeighborQuery nq
@@ -52,7 +59,7 @@ cdef class Interface(PairCompute):
             unsigned int num_query_points
 
         nlist = freud.locality._make_default_nlist(
-            neighbor_query, neighbors, query_points)
+            system, neighbors, query_points)
 
         self._point_ids = np.unique(nlist.point_indices)
         self._query_point_ids = np.unique(nlist.query_point_indices)

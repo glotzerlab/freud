@@ -842,4 +842,4 @@ cdef class RotationalAutocorrelation(Compute):
 
     def __repr__(self):
         return "freud.order.{cls}(l={sph_l})".format(cls=type(self).__name__,
-                                                     sph_l=self.azimuthal)
+                                                     sph_l=self.l)

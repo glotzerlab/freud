@@ -615,11 +615,7 @@ cdef BoxFromCPP(const freud._box.Box & cppbox):
 
 
 cdef class PeriodicBuffer:
-    R"""Replicate periodic images of points inside a box.
-
-    Args:
-        box (:py:class:`freud.box.Box`): Simulation box.
-    """
+    R"""Replicate periodic images of points inside a box."""
 
     def __cinit__(self):
         self.thisptr = new freud._box.PeriodicBuffer()
@@ -630,12 +626,13 @@ cdef class PeriodicBuffer:
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, neighbor_query, buffer, bool_t images=False):
+    def compute(self, system, buffer, bool_t images=False):
         R"""Compute the periodic buffer.
 
         Args:
-            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
-                Points used to calculate periodic buffer.
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
             buffer (float or list of 3 floats):
                 Buffer distance for replication outside the box.
             images (bool, optional):
@@ -644,10 +641,10 @@ cdef class PeriodicBuffer:
                 dimension. Note that one image adds half of a box length to
                 each side, meaning that one image doubles the box side lengths,
                 two images triples the box side lengths, and so on.
-                (Default value = :code:`None`).
+                (Default value = :code:`False`).
         """
         cdef freud.locality.NeighborQuery nq = \
-            freud.locality._make_default_nq(neighbor_query)
+            freud.locality._make_default_nq(system)
         cdef vec3[float] buffer_vec
         if np.ndim(buffer) == 0:
             # catches more cases than np.isscalar
