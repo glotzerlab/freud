@@ -647,6 +647,9 @@ cdef class PeriodicBuffer:
     def __cinit__(self):
         self.thisptr = new freud._box.PeriodicBuffer()
 
+    def __init__(self):
+        pass
+
     def __dealloc__(self):
         del self.thisptr
 
