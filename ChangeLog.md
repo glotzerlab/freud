@@ -7,7 +7,7 @@ and this project adheres to
 ## Upcoming: Changes for freud 2.0
 
 ### Added
-* Ability to specify NeighborQuery objects as points for neighbor-based pair computes.
+* Ability to specify NeighborQuery objects as points for most computes that require boxes and sets of points.
 * Various validation tests.
 * Standard method for preprocessing arguments of pair computations.
 * New internal array object that allows data persistence and improves indexing in C++.
@@ -19,7 +19,6 @@ and this project adheres to
 * C++ BondHistogramCompute class encapsulates logic of histogram-based methods.
 * NeighborLists and query arguments are now accepted on equal footing by compute methods that involve neighbor finding.
 * 2D PMFTs accept quaternions as well as angles for their orientations.
-* Added NeighborQuery support to ClusterProperties, GaussianDensity, Voronoi, PeriodicBuffer, Interface.
 * Extensive new documentation including tutorial for new users and reference sections on crucial topics.
 
 ### Changed
