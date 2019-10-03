@@ -78,7 +78,7 @@ cdef class Box:
 
     @property
     def L(self):
-        """:math:`\\left(3, \\right` :class:`numpy.ndarray`): Get or set the
+        """:math:`\\left(3, \\right)` :class:`numpy.ndarray`: Get or set the
         box lengths along x, y, and z."""
         cdef vec3[float] result = self.thisptr.getL()
         return np.asarray([result.x, result.y, result.z])
@@ -165,12 +165,12 @@ cdef class Box:
 
     @property
     def is2D(self):
-        """(bool): Whether the box is 2D."""
+        """bool: Whether the box is 2D."""
         return self.thisptr.is2D()
 
     @property
     def L_inv(self):
-        """:math:`\\left(3\\right)` :class:`numpy.ndarray`: The inverse box
+        """:math:`\\left(3, \\right)` :class:`numpy.ndarray`: The inverse box
         lengths."""
         cdef vec3[float] result = self.thisptr.getLinv()
         return np.asarray([result.x, result.y, result.z])

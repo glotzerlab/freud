@@ -270,7 +270,7 @@ cdef class NeighborQuery:
 
         The standard concept of a system in **freud** is any object that
         provides a way to access a box-like object (anything that can be
-        coerced to a box by :meth:`freud.box.Box.box`) and an array-like
+        coerced to a box by :meth:`freud.box.Box.from_box`) and an array-like
         (according to `NumPy's definition
         <https://docs.scipy.org/doc/numpy/user/basics.creation.html#converting-python-array-like-objects-to-numpy-arrays>`_)
         object that turns into a :math:`N\times 3` array.
@@ -288,10 +288,10 @@ cdef class NeighborQuery:
                 Any object that can be converted to a :class:`~.NeighborQuery`.
 
         Returns:
-            :class:`freud.locality.NeighborQuery`
-                The same :class:`NeighborQuery` object if one is given or
-                :class:`RawPoints` built from an inferred :code:`box` and
-                :code:`points`.
+            :class:`freud.locality.NeighborQuery`:
+                The same :class:`NeighborQuery` object if one is given, or an
+                instance of :class:`RawPoints` built from an inferred
+                :code:`box` and :code:`points`.
         """
         if isinstance(system, NeighborQuery):
             return system
