@@ -15,7 +15,7 @@ class BenchmarkDensityRDF(Benchmark):
         np.random.seed(0)
         self.points = np.random.random_sample((N, 3)).astype(np.float32) \
             * self.box_size - self.box_size/2
-        self.rdf = freud.density.RDF(self.rmax, self.dr, rmin=self.rmin)
+        self.rdf = freud.density.RDF(self.rmax, self.dr, r_min=self.rmin)
         self.box = freud.box.Box.cube(self.box_size)
 
     def bench_run(self, N):

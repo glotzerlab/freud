@@ -7,15 +7,10 @@ Interface Module
 .. autosummary::
     :nosignatures:
 
-    freud.interface.InterfaceMeasure
+    freud.interface.Interface
 
 .. rubric:: Details
 
 .. automodule:: freud.interface
     :synopsis: Measure interfaces.
-
-Interface Measure
-=================
-
-.. autoclass:: freud.interface.InterfaceMeasure(box, r_cut)
-   :members:
+    :members:

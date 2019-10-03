@@ -4,12 +4,10 @@
 #ifndef ROTATIONAL_AUTOCORRELATION_H
 #define ROTATIONAL_AUTOCORRELATION_H
 
-#include <cassert>
 #include <complex>
-#include <memory>
-#include <tbb/tbb.h>
 
 #include "VectorMath.h"
+#include "ManagedArray.h"
 
 /*! \file RotationalAutocorrelation.h
     \brief Defines the RotationalAutocorrelation class, which computes the total
@@ -52,16 +50,15 @@ public:
     //! Constructor
     /*! \param l The order of the spherical harmonic.
      */
-    RotationalAutocorrelation(unsigned int l) : m_l(l), m_N(0), m_Ft(0)
+    RotationalAutocorrelation(unsigned int l) : m_l(l), m_Ft(0)
     {
-        // For efficiency, precompute all required factorials;
-        m_factorials
-            = std::shared_ptr<unsigned int>(new unsigned int[m_l + 1], std::default_delete<unsigned int[]>());
-        memset((void*) m_factorials.get(), 0, sizeof(unsigned int) * (m_l + 1));
-        m_factorials.get()[0] = 1;
+        // For efficiency, we precompute all required factorials for use during
+        // the per-particle computation.
+        m_factorials.prepare(m_l+1);
+        m_factorials[0] = 1;
         for (unsigned int i = 1; i <= m_l; i++)
         {
-            m_factorials.get()[i] = i * m_factorials.get()[i - 1];
+            m_factorials[i] = i*m_factorials[i-1];
         }
     }
 
@@ -69,32 +66,26 @@ public:
     ~RotationalAutocorrelation() {}
 
     //! Get the quantum number l used in calculations.
-    unsigned int getL()
+    unsigned int getL() const
     {
         return m_l;
     }
 
-    //! Get the number of orientations used in the last call to compute.
-    unsigned int getN()
-    {
-        return m_N;
-    }
-
     //! Get a reference to the last computed rotational autocorrelation array.
-    std::shared_ptr<std::complex<float>> getRAArray()
+    const util::ManagedArray<std::complex<float>> &getRAArray() const
     {
         return m_RA_array;
     }
 
     //! Get a reference to the last computed value of the rotational autocorrelation.
-    float getRotationalAutocorrelation()
+    float getRotationalAutocorrelation() const
     {
         return m_Ft;
     }
 
     //! Compute the rotational autocorrelation.
-    /*! \param ref_ors Quaternions in initial frame.
-     *  \param ors Quaternions in current frame.
+    /*! \param ref_orientations Quaternions in initial frame.
+     *  \param orientations Quaternions in current frame.
      *  \param N The number of orientations.
      *
      *  This function loops over all provided orientations and reference
@@ -105,7 +96,7 @@ public:
      *  for the whole system is then the average of the real parts of the
      *  autocorrelation for the whole system.
      */
-    void compute(const quat<float>* ref_ors, const quat<float>* ors, unsigned int N);
+    void compute(const quat<float>* ref_orientations, const quat<float>* orientations, unsigned int N);
 
 private:
     //! Compute a hyperspherical harmonic.
@@ -123,16 +114,14 @@ private:
      *  method to access the cached factorial values for the class's value of
      *  m_l.
      */
-    std::complex<float> hypersphere_harmonic(const std::complex<float> xi, std::complex<float> zeta,
-                                             const unsigned int l, const unsigned int m1,
-                                             const unsigned int m2);
+    std::complex<float> hypersphere_harmonic(const std::complex<float> xi, std::complex<float> zeta, const unsigned int l,
+                                             const unsigned int m1, const unsigned int m2);
 
-    unsigned int m_l; //!< Order of the hyperspherical harmonic.
-    unsigned int m_N; //!< Last number of orientations used in compute.
+    unsigned int m_l;          //!< Order of the hyperspherical harmonic.
     float m_Ft;       //!< Real value of calculated RA function.
 
-    std::shared_ptr<std::complex<float>> m_RA_array; //!< Array of RA values per particle
-    std::shared_ptr<unsigned int> m_factorials;      //!< Array of cached factorials
+    util::ManagedArray<std::complex<float>> m_RA_array; //!< Array of RA values per particle
+    util::ManagedArray<unsigned int> m_factorials; //!< Array of cached factorials
 };
 
 }; }; // end namespace freud::order

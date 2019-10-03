@@ -4,13 +4,11 @@
 #ifndef LOCAL_BOND_PROJECTION_H
 #define LOCAL_BOND_PROJECTION_H
 
-#include <complex>
-#include <memory>
-#include <tbb/tbb.h>
-
 #include "Box.h"
+#include "NeighborQuery.h"
 #include "NeighborList.h"
 #include "VectorMath.h"
+#include "ManagedArray.h"
 
 /*! \file LocalBondProjection.h
     \brief Compute the projection of nearest neighbor bonds for each particle onto some
@@ -34,53 +32,36 @@ public:
     ~LocalBondProjection();
 
     //! Compute the maximal local bond projection
-    void compute(box::Box& box, const freud::locality::NeighborList* nlist, const vec3<float>* pos,
-                 const vec3<float>* ref_pos, const quat<float>* ref_ors, const quat<float>* ref_equiv_ors,
-                 const vec3<float>* proj_vecs, unsigned int Np, unsigned int Nref, unsigned int Nequiv,
-                 unsigned int Nproj);
+    void compute(const locality::NeighborQuery *nq,
+        const quat<float>* orientations,
+        const vec3<float>* query_points, unsigned int n_query_points,
+        const vec3<float>* proj_vecs,  unsigned int n_proj,
+        const quat<float>* equiv_orientations, unsigned int n_equiv_orientations,
+        const freud::locality::NeighborList* nlist, locality::QueryArgs qargs);
 
     //! Get a reference to the last computed maximal local bond projection array
-    std::shared_ptr<float> getProjections()
+    const util::ManagedArray<float> &getProjections() const
     {
         return m_local_bond_proj;
     }
 
     //! Get a reference to the last computed normalized maximal local bond projection array
-    std::shared_ptr<float> getNormedProjections()
+    const util::ManagedArray<float> &getNormedProjections() const
     {
         return m_local_bond_proj_norm;
     }
 
-    unsigned int getNP()
+    //! Return a pointer to the NeighborList used in the last call to compute.
+    locality::NeighborList *getNList()
     {
-        return m_Np;
-    }
-
-    unsigned int getNref()
-    {
-        return m_Nref;
-    }
-
-    unsigned int getNproj()
-    {
-        return m_Nproj;
-    }
-
-    const box::Box& getBox() const
-    {
-        return m_box;
+        return &m_nlist;
     }
 
 private:
-    box::Box m_box;               //!< Last used simulation box
-    unsigned int m_Np;            //!< Last number of particles computed
-    unsigned int m_Nref;          //!< Last number of reference particles used for computation
-    unsigned int m_Nproj;         //!< Last number of projection vectors used for computation
-    unsigned int m_Nequiv;        //!< Last number of equivalent reference orientations used for computation
-    unsigned int m_tot_num_neigh; //!< Last number of total bonds used for computation
+    locality::NeighborList m_nlist; //!< The NeighborList used in the last call to compute.
 
-    std::shared_ptr<float> m_local_bond_proj;      //!< Local bond projection array computed
-    std::shared_ptr<float> m_local_bond_proj_norm; //!< Normalized local bond projection array computed
+    util::ManagedArray<float> m_local_bond_proj;      //!< Local bond projection array computed
+    util::ManagedArray<float> m_local_bond_proj_norm; //!< Normalized local bond projection array computed
 };
 
 }; }; // end namespace freud::environment

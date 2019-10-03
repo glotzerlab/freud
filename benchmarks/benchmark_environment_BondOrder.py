@@ -8,7 +8,6 @@ from benchmarker import run_benchmarks
 class BenchmarkEnvironmentBondOrder(Benchmark):
     def __init__(self, rmax, k, num_neighbors, n_bins_t, n_bins_p):
         self.rmax = rmax
-        self.k = k
         self.num_neighbors = num_neighbors
         self.n_bins_t = n_bins_t
         self.n_bins_p = n_bins_p
@@ -21,7 +20,7 @@ class BenchmarkEnvironmentBondOrder(Benchmark):
         self.random_quats /= np.linalg.norm(self.random_quats,
                                             axis=1)[:, np.newaxis]
 
-        self.bo = freud.environment.BondOrder(self.rmax, self.k,
+        self.bo = freud.environment.BondOrder(self.rmax,
                                               self.num_neighbors,
                                               self.n_bins_t, self.n_bins_p)
 

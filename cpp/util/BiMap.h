@@ -2,13 +2,10 @@
 #define BIMAP_H
 
 #include <algorithm>
-#include <cassert>
-#include <cstddef>
-#include <memory>
+#include <cstddef> // Needed for offsetof
 #include <set>
-#include <type_traits>
-#include <utility>
 #include <vector>
+#include <map>
 
 /* BiMap container modelled after Boost::BiMap with templatization.
  *
@@ -133,6 +130,17 @@ public:
         return *this;
     }
 
+    // Return a std::map equivalent to this object.
+    std::map<T, U> asMap()
+    {
+        std::map<T, U> ret;
+        for (auto it = begin(); it != end(); ++it)
+        {
+            ret[(*it)->first] = (*it)->second;
+        }
+        return ret;
+    }
+
     template<typename I, typename J> bool emplace(I&& Arg1_in, J&& Arg2_in)
     {
         auto pair = new Pair(std::forward<I>(Arg1_in), std::forward<J>(Arg2_in));
@@ -216,7 +224,6 @@ public:
 
         void erase(const T& Key_in)
         {
-            assert(this->has(Key_in));
             const auto& pairPtr(getPairPtr(&Key_in));
             this->b().set_A.erase(&(pairPtr->first));
             this->b().set_B.erase(&(pairPtr->second));
@@ -224,7 +231,6 @@ public:
                 std::remove_if(this->b().container.begin(), this->b().container.end(),
                                [&pairPtr](const std::pair<T, U>* i) { return *i == pairPtr; }),
                 this->b().container.end());
-            assert(!has(Key_in));
         }
     } left;
 
@@ -296,7 +302,6 @@ public:
 
         void erase(const U& Key_in)
         {
-            assert(this->has(Key_in));
             const auto& pairPtr(getPairPtr(&Key_in));
             this->b().set_A.erase(&(pairPtr->first));
             this->b().set_B.erase(&(pairPtr->second));
@@ -304,7 +309,6 @@ public:
                 std::remove_if(this->b().container.begin(), this->b().container.end(),
                                [&pairPtr](const std::pair<T, U>* i) { return *i == pairPtr; }),
                 this->b().container.end());
-            assert(!has(Key_in));
         }
     } right;
 

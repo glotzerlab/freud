@@ -4,81 +4,84 @@
 #ifndef ANGULAR_SEPARATION_H
 #define ANGULAR_SEPARATION_H
 
-#include <complex>
-#include <memory>
-#include <tbb/tbb.h>
-
 #include "NeighborList.h"
+#include "NeighborQuery.h"
 #include "VectorMath.h"
 
 /*! \file AngularSeparation.h
-    \brief Compute the angular separation for each particle.
+    \brief Compute the angular separations.
 */
 
 namespace freud { namespace environment {
 
-float computeSeparationAngle(const quat<float> ref_q, const quat<float> q);
-
-float computeMinSeparationAngle(const quat<float> ref_q, const quat<float> q, const quat<float>* equiv_qs,
-                                unsigned int Nequiv);
-
 //! Compute the angular separation for a set of points
-/*!
+/*! Given a set of global orientations, this method accepts a set of
+ * orientations that are compared against the global orientations to determine
+ * the total angular distance between them. The output is an array of shape
+ * (num_orientations, num_global_orientations) containing the pairwise
+ * separation angles between the provided orientations and global orientations.
  */
-class AngularSeparation
+class AngularSeparationGlobal
 {
 public:
     //! Constructor
-    AngularSeparation();
+    AngularSeparationGlobal() {}
 
     //! Destructor
-    ~AngularSeparation();
-
-    //! Compute the angular separation between neighbors
-    void computeNeighbor(const freud::locality::NeighborList* nlist, const quat<float>* ref_ors,
-                         const quat<float>* ors, const quat<float>* ref_equiv_ors, unsigned int Nref,
-                         unsigned int Np, unsigned int Nequiv);
+    ~AngularSeparationGlobal() {}
 
     //! Compute the angular separation with respect to global orientation
-    void computeGlobal(const quat<float>* global_ors, const quat<float>* ors, const quat<float>* equiv_ors,
-                       unsigned int Nglobal, unsigned int Np, unsigned int Nequiv);
+    void compute(const quat<float>* global_orientations, unsigned int n_global,
+                 const quat<float>* orientations, unsigned int n_points,
+                 const quat<float>* equiv_orientations, unsigned int n_equiv_orientations);
 
-    //! Get a reference to the last computed neighbor angle array
-    std::shared_ptr<float> getNeighborAngles()
+    //! Returns the last computed global angle array
+    const util::ManagedArray<float> &getAngles() const
     {
-        return m_neigh_ang_array;
-    }
-
-    //! Get a reference to the last computed global angle array
-    std::shared_ptr<float> getGlobalAngles()
-    {
-        return m_global_ang_array;
-    }
-
-    unsigned int getNP()
-    {
-        return m_Np;
-    }
-
-    unsigned int getNref()
-    {
-        return m_Nref;
-    }
-
-    unsigned int getNglobal()
-    {
-        return m_Nglobal;
+        return m_angles;
     }
 
 private:
-    unsigned int m_Np;            //!< Last number of orientations computed
-    unsigned int m_Nref;          //!< Last number of reference orientations used for computation
-    unsigned int m_Nglobal;       //!< Last number of global orientations used for computation
-    unsigned int m_Nequiv;        //!< Last number of equivalent reference orientations used for computation
-    unsigned int m_tot_num_neigh; //!< Last number of total bonds used for computation
+    util::ManagedArray<float> m_angles; //!< Global angle array computed
+};
 
-    std::shared_ptr<float> m_neigh_ang_array;  //!< neighbor angle array computed
-    std::shared_ptr<float> m_global_ang_array; //!< global angle array computed
+
+//! Compute the difference in orientation between pairs of points.
+/*! Given two sets of oriented points and the bonds between these points, this
+ * class computes the minimum separating angle between the orientations of each
+ * pair of bonded points.
+ */
+class AngularSeparationNeighbor
+{
+public:
+    //! Constructor
+    AngularSeparationNeighbor() {}
+
+    //! Destructor
+    ~AngularSeparationNeighbor() {}
+
+    //! Compute the angular separation between neighbors
+    void compute(const locality::NeighborQuery *nq, const quat<float>* orientations,
+                 const vec3<float>* query_points,
+                 const quat<float>* query_orientations, unsigned int n_query_points,
+                 const quat<float>* equiv_orientations, unsigned int n_equiv_orientations,
+                 const freud::locality::NeighborList* nlist, locality::QueryArgs qargs);
+
+    //! Returns the last computed neighbor angle array
+    const util::ManagedArray<float> &getAngles() const
+    {
+        return m_angles;
+    }
+
+    //! Return a pointer to the NeighborList used in the last call to compute.
+    locality::NeighborList *getNList()
+    {
+        return &m_nlist;
+    }
+
+private:
+    util::ManagedArray<float> m_angles;  //!< neighbor angle array computed
+    locality::NeighborList m_nlist; //!< The NeighborList used in the last call to compute.
 };
 
 }; }; // end namespace freud::environment

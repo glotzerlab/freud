@@ -4,28 +4,26 @@
 R"""
 The :class:`~.Box` class defines the geometry of a simulation box. The module
 natively supports periodicity by providing the fundamental features for
-wrapping vectors outside the box back into it. The :class:`~.ParticleBuffer`
-class is used to replicate particles across the periodic boundary to assist
+wrapping vectors outside the box back into it. The :class:`~.PeriodicBuffer`
+class is used to replicate points across the periodic boundary to assist
 analysis methods that do not recognize periodic boundary conditions or extend
 beyond the limits of one periodicity of the box.
 """
 
-from __future__ import print_function
-
 import warnings
 import numpy as np
-from collections import namedtuple
-import freud.common
-
 import logging
 
-from freud.util._VectorMath cimport vec3
+import freud.util
+
+from freud.util cimport vec3
 from cython.operator cimport dereference
 from libcpp cimport bool as bool_t
 from cpython.object cimport Py_EQ, Py_NE
 
 cimport freud._box
 cimport numpy as np
+cimport freud.locality
 
 logger = logging.getLogger(__name__)
 
@@ -36,80 +34,30 @@ np.import_array()
 cdef class Box:
     R"""The freud Box class for simulation boxes.
 
-    .. moduleauthor:: Richmond Newman <newmanrs@umich.edu>
-    .. moduleauthor:: Carl Simon Adorf <csadorf@umich.edu>
-    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
-
-    .. versionchanged:: 0.7.0
-       Added box periodicity interface
-
-    The Box class is defined according to the conventions of the
-    HOOMD-blue simulation software.
-    For more information, please see:
-
-        http://hoomd-blue.readthedocs.io/en/stable/box.html
+    This class defines an arbitrary triclinic geometry within which all points
+    are confined. For more information, see the `documentation
+    <https://freud.readthedocs.io/en/stable/tutorial/periodic.html>`_ on boxes
+    and periodic boundary conditions.
 
     Args:
-        Lx (float):
-            Length of side x.
-        Ly (float):
-            Length of side y.
-        Lz (float):
-            Length of side z.
-        xy (float):
-            Tilt of xy plane.
-        xz (float):
-            Tilt of xz plane.
-        yz (float):
-            Tilt of yz plane.
-        is2D(bool):
-            Specify that this box is 2-dimensional, default is 3-dimensional.
-
-    Attributes:
-        xy (float):
-            The xy tilt factor.
-        xz (float):
-            The xz tilt factor.
-        yz (float):
-            The yz tilt factor.
-        L (:math:`\left(3\right)` :class:`numpy.ndarray`, settable):
-            The box lengths along x, y, and z.
-        Lx (float, settable):
+        Lx (float, optional):
             The x-dimension length.
-        Ly (float, settable):
+        Ly (float, optional):
             The y-dimension length.
-        Lz (float, settable):
-            The z-dimension length.
-        Linv (:math:`\left(3\right)` :class:`numpy.ndarray`):
-            The inverse box lengths.
-        volume (float):
-            The box volume (area in 2D).
-        dimensions (int, settable):
-            The number of dimensions (2 or 3).
-        periodic (:math:`\left(3\right)` :class:`numpy.ndarray`, settable):
-            Whether or not the box is periodic.
-        periodic_x (bool, settable):
-            Whether or not the box is periodic in x.
-        periodic_y (bool, settable):
-            Whether or not the box is periodic in y.
-        periodic_z (bool, settable):
-            Whether or not the box is periodic in z.
+        Lz (float, optional):
+            The z-dimension length (Default value = 0).
+        xy (float, optional):
+            The xy tilt factor (Default value = 0).
+        xz (float, optional):
+            The xz tilt factor (Default value = 0).
+        yz (float, optional):
+            The yz tilt factor (Default value = 0).
+        is2D (bool, optional):
+            Whether the box is 2-dimensional. Uses :code:`Lz == 0`
+            if :code:`None`. (Default value = :code:`None`)
     """
 
-    def __cinit__(self, Lx=None, Ly=None, Lz=None, xy=None, xz=None, yz=None,
-                  is2D=None):
-        if Lx is None:
-            Lx = 0
-        if Ly is None:
-            Ly = 0
-        if Lz is None:
-            Lz = 0
-        if xy is None:
-            xy = 0
-        if xz is None:
-            xz = 0
-        if yz is None:
-            yz = 0
+    def __cinit__(self, Lx, Ly, Lz=0, xy=0, xz=0, yz=0, is2D=None):
         if is2D is None:
             is2D = (Lz == 0)
         if is2D:
@@ -130,6 +78,8 @@ cdef class Box:
 
     @property
     def L(self):
+        """:math:`\\left(3, \\right)` :class:`numpy.ndarray`: Get or set the
+        box lengths along x, y, and z."""
         cdef vec3[float] result = self.thisptr.getL()
         return np.asarray([result.x, result.y, result.z])
 
@@ -143,7 +93,7 @@ cdef class Box:
             # Will fail if object has no length
             value = (value, value, value)
 
-        if self.is2D() and value[2] != 0:
+        if self.is2D and value[2] != 0:
             warnings.warn(
                 "Specifying z-dimensions in a 2-dimensional box "
                 "has no effect!")
@@ -151,6 +101,7 @@ cdef class Box:
 
     @property
     def Lx(self):
+        """float: Get or set the x-dimension length."""
         return self.thisptr.getLx()
 
     @Lx.setter
@@ -159,6 +110,7 @@ cdef class Box:
 
     @property
     def Ly(self):
+        """float: Get or set the y-dimension length."""
         return self.thisptr.getLy()
 
     @Ly.setter
@@ -167,6 +119,7 @@ cdef class Box:
 
     @property
     def Lz(self):
+        """float: Get or set the z-dimension length."""
         return self.thisptr.getLz()
 
     @Lz.setter
@@ -175,135 +128,147 @@ cdef class Box:
 
     @property
     def xy(self):
+        """float: Get or set the xy tilt factor."""
         return self.thisptr.getTiltFactorXY()
+
+    @xy.setter
+    def xy(self, value):
+        self.thisptr.setTiltFactorXY(value)
 
     @property
     def xz(self):
+        """float: Get or set the xz tilt factor."""
         return self.thisptr.getTiltFactorXZ()
+
+    @xz.setter
+    def xz(self, value):
+        self.thisptr.setTiltFactorXZ(value)
 
     @property
     def yz(self):
+        """float: Get or set the yz tilt factor."""
         return self.thisptr.getTiltFactorYZ()
+
+    @yz.setter
+    def yz(self, value):
+        self.thisptr.setTiltFactorYZ(value)
 
     @property
     def dimensions(self):
-        return 2 if self.is2D() else 3
+        """int: Get or set the number of dimensions (2 or 3)."""
+        return 2 if self.is2D else 3
 
     @dimensions.setter
     def dimensions(self, value):
         assert value == 2 or value == 3
         self.thisptr.set2D(bool(value == 2))
 
+    @property
     def is2D(self):
-        R"""Return if box is 2D (True) or 3D (False).
-
-        Returns:
-            bool: True if 2D, False if 3D.
-        """
+        """bool: Whether the box is 2D."""
         return self.thisptr.is2D()
 
     @property
-    def Linv(self):
+    def L_inv(self):
+        """:math:`\\left(3, \\right)` :class:`numpy.ndarray`: The inverse box
+        lengths."""
         cdef vec3[float] result = self.thisptr.getLinv()
         return np.asarray([result.x, result.y, result.z])
 
     @property
     def volume(self):
+        """float: The box volume (area in 2D)."""
         return self.thisptr.getVolume()
 
-    def makeCoordinates(self, fractions):
-        R"""Convert fractional coordinates into real coordinates.
+    def make_absolute(self, fractional_coordinates):
+        R"""Convert fractional coordinates into absolute coordinates.
 
         Args:
-            fractions (:math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
-                Fractional coordinates between 0 and 1 within parallelepipedal box.
+            fractional_coordinates (:math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
+                Fractional coordinate vector(s), between 0 and 1 within
+                parallelepipedal box.
 
         Returns:
             :math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
-                Vectors of real coordinates: :math:`\left(3\right)` or :math:`\left(N, 3\right)`.
+                Absolute coordinate vector(s).
         """  # noqa: E501
-        fractions = np.asarray(fractions)
+        fractions = np.asarray(fractional_coordinates)
         flatten = fractions.ndim == 1
         fractions = np.atleast_2d(fractions)
-        fractions = freud.common.convert_array(fractions, shape=(None, 3))
+        fractions = freud.util._convert_array(fractions, shape=(None, 3))
 
         cdef const float[:, ::1] l_points = fractions
         cdef unsigned int Np = l_points.shape[0]
-        with nogil:
-            self.thisptr.makeCoordinates(<vec3[float]*> &l_points[0, 0], Np)
+        self.thisptr.makeAbsolute(<vec3[float]*> &l_points[0, 0], Np)
 
         return np.squeeze(fractions) if flatten else fractions
 
-    def makeFraction(self, vecs):
-        R"""Convert real coordinates into fractional coordinates.
+    def make_fractional(self, absolute_coordinates):
+        R"""Convert absolute coordinates into fractional coordinates.
 
         Args:
-            vecs (:math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
-                Real coordinates within parallelepipedal box.
+            absolute_coordinates (:math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
+                Absolute coordinate vector(s).
 
         Returns:
             :math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
-                Fractional coordinate vectors: :math:`\left(3\right)` or :math:`\left(N, 3\right)`.
+                Fractional coordinate vector(s).
         """  # noqa: E501
-        vecs = np.asarray(vecs)
+        vecs = np.asarray(absolute_coordinates)
         flatten = vecs.ndim == 1
         vecs = np.atleast_2d(vecs)
-        vecs = freud.common.convert_array(vecs, shape=(None, 3))
+        vecs = freud.util._convert_array(vecs, shape=(None, 3))
 
         cdef const float[:, ::1] l_points = vecs
         cdef unsigned int Np = l_points.shape[0]
-        with nogil:
-            self.thisptr.makeFraction(<vec3[float]*> &l_points[0, 0], Np)
+        self.thisptr.makeFractional(<vec3[float]*> &l_points[0, 0], Np)
 
         return np.squeeze(vecs) if flatten else vecs
 
-    def getImage(self, vecs):
-        R"""Returns the image corresponding to a wrapped vector.
-
-        .. versionadded:: 0.8
+    def get_images(self, vecs):
+        R"""Returns the images corresponding to unwrapped vectors.
 
         Args:
             vecs (:math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
-                Coordinates of a single vector or array of :math:`N` unwrapped vectors.
+                Coordinates of unwrapped vector(s).
 
         Returns:
             :math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
-                Image index vector.
+                Image index vector(s).
         """  # noqa: E501
         vecs = np.asarray(vecs)
         flatten = vecs.ndim == 1
         vecs = np.atleast_2d(vecs)
-        vecs = freud.common.convert_array(vecs, shape=(None, 3))
+        vecs = freud.util._convert_array(vecs, shape=(None, 3))
 
         images = np.zeros(vecs.shape, dtype=np.int32)
         cdef const float[:, ::1] l_points = vecs
         cdef const int[:, ::1] l_result = images
         cdef unsigned int Np = l_points.shape[0]
-        with nogil:
-            self.thisptr.getImage(<vec3[float]*> &l_points[0, 0], Np,
-                                  <vec3[int]*> &l_result[0, 0])
+        self.thisptr.getImage(<vec3[float]*> &l_points[0, 0], Np,
+                              <vec3[int]*> &l_result[0, 0])
 
         return np.squeeze(images) if flatten else images
 
-    def getLatticeVector(self, i):
+    def get_lattice_vector(self, i):
         R"""Get the lattice vector with index :math:`i`.
 
         Args:
             i (unsigned int):
-                Index (:math:`0 \leq i < d`) of the lattice vector, where :math:`d` is the box dimension (2 or 3).
+                Index (:math:`0 \leq i < d`) of the lattice vector, where
+                :math:`d` is the box dimension (2 or 3).
 
         Returns:
             :math:`\left(3\right)` :class:`numpy.ndarray`:
                 Lattice vector with index :math:`i`.
-        """  # noqa: E501
+        """
         cdef vec3[float] result = self.thisptr.getLatticeVector(i)
-        if self.thisptr.is2D():
+        if self.is2D:
             result.z = 0.0
         return np.asarray([result.x, result.y, result.z])
 
     def wrap(self, vecs):
-        R"""Wrap a given array of vectors from real space into the box, using
-        the periodic boundaries.
+        R"""Wrap an array of vectors into the box, using periodic boundaries.
 
         .. note:: Since the origin of the box is in the center, wrapping is
                   equivalent to applying the minimum image convention to the
@@ -311,60 +276,58 @@ cdef class Box:
 
         Args:
             vecs (:math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
-                Single vector or array of :math:`N` vectors. The vectors are
-                altered in place and returned.
+                Unwrapped vector(s).
 
         Returns:
             :math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
-                Vectors wrapped into the box.
+                Vector(s) wrapped into the box.
         """  # noqa: E501
         vecs = np.asarray(vecs)
         flatten = vecs.ndim == 1
         vecs = np.atleast_2d(vecs)
-        vecs = freud.common.convert_array(vecs, shape=(None, 3))
+        vecs = freud.util._convert_array(vecs, shape=(None, 3)).copy()
 
         cdef const float[:, ::1] l_points = vecs
         cdef unsigned int Np = l_points.shape[0]
-        with nogil:
-            self.thisptr.wrap(<vec3[float]*> &l_points[0, 0], Np)
+        self.thisptr.wrap(<vec3[float]*> &l_points[0, 0], Np)
 
         return np.squeeze(vecs) if flatten else vecs
 
     def unwrap(self, vecs, imgs):
-        R"""Unwrap a given array of vectors inside the box back into real space,
-        using an array of image indices that determine how many times to
-        unwrap in each dimension.
+        R"""Unwrap an array of vectors inside the box back into real space,
+        using an array of image indices that determine how many times to unwrap
+        in each dimension.
 
         Args:
             vecs (:math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
-                Single vector or array of :math:`N` vectors. The vectors are
-                modified in place.
+                Vector(s) to be unwrapped.
             imgs (:math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
-                Single image index or array of :math:`N` image indices.
+                Image indices for vector(s).
 
         Returns:
             :math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
-                Vectors unwrapped by the image indices provided.
+                Unwrapped vector(s).
         """  # noqa: E501
         vecs = np.asarray(vecs)
         flatten = vecs.ndim == 1
         vecs = np.atleast_2d(vecs)
-        vecs = freud.common.convert_array(vecs, shape=(None, 3))
+        vecs = freud.util._convert_array(vecs, shape=(None, 3)).copy()
         imgs = np.atleast_2d(imgs)
-        imgs = freud.common.convert_array(imgs, shape=vecs.shape,
-                                          dtype=np.int32)
+        imgs = freud.util._convert_array(imgs, shape=vecs.shape,
+                                         dtype=np.int32)
 
         cdef const float[:, ::1] l_points = vecs
         cdef const int[:, ::1] l_imgs = imgs
         cdef unsigned int Np = l_points.shape[0]
-        with nogil:
-            self.thisptr.unwrap(<vec3[float]*> &l_points[0, 0],
-                                <vec3[int]*> &l_imgs[0, 0], Np)
+        self.thisptr.unwrap(<vec3[float]*> &l_points[0, 0],
+                            <vec3[int]*> &l_imgs[0, 0], Np)
 
         return np.squeeze(vecs) if flatten else vecs
 
     @property
     def periodic(self):
+        """:math:`\\left(3\\right)` :class:`numpy.ndarray`: Get or set the
+        periodicty of the box in each dimension."""
         periodic = self.thisptr.getPeriodic()
         return np.asarray([periodic.x, periodic.y, periodic.z])
 
@@ -379,6 +342,7 @@ cdef class Box:
 
     @property
     def periodic_x(self):
+        """bool: Get or set the periodcity of the box in x."""
         return self.thisptr.getPeriodicX()
 
     @periodic_x.setter
@@ -387,6 +351,7 @@ cdef class Box:
 
     @property
     def periodic_y(self):
+        """bool: Get or set the periodcity of the box in x."""
         return self.thisptr.getPeriodicY()
 
     @periodic_y.setter
@@ -395,6 +360,7 @@ cdef class Box:
 
     @property
     def periodic_z(self):
+        """bool: Get or set the periodcity of the box in x."""
         return self.thisptr.getPeriodicZ()
 
     @periodic_z.setter
@@ -403,6 +369,12 @@ cdef class Box:
 
     def to_dict(self):
         R"""Return box as dictionary.
+
+        Example::
+            >>> box = freud.box.Box.cube(L=10)
+            >>> box.to_dict()
+            {'Lx': 10.0, 'Ly': 10.0, 'Lz': 10.0,
+             'xy': 0.0, 'xz': 0.0, 'yz': 0.0, 'dimensions': 3}
 
         Returns:
           dict: Box parameters
@@ -416,19 +388,15 @@ cdef class Box:
             'yz': self.yz,
             'dimensions': self.dimensions}
 
-    def to_tuple(self):
-        R"""Returns the box as named tuple.
-
-        Returns:
-            namedtuple: Box parameters
-        """
-        tuple_type = namedtuple(
-            'BoxTuple', ['Lx', 'Ly', 'Lz', 'xy', 'xz', 'yz'])
-        return tuple_type(Lx=self.Lx, Ly=self.Ly, Lz=self.Lz,
-                          xy=self.xy, xz=self.xz, yz=self.yz)
-
     def to_matrix(self):
         R"""Returns the box matrix (3x3).
+
+        Example::
+            >>> box = freud.box.Box.cube(L=10)
+            >>> box.to_matrix()
+            array([[10.,  0.,  0.],
+                   [ 0., 10.,  0.],
+                   [ 0.,  0., 10.]])
 
         Returns:
             :math:`\left(3, 3\right)` :class:`numpy.ndarray`: Box matrix
@@ -441,8 +409,13 @@ cdef class Box:
         return ("freud.box.{cls}(Lx={Lx}, Ly={Ly}, Lz={Lz}, "
                 "xy={xy}, xz={xz}, yz={yz}, "
                 "is2D={is2D})").format(cls=type(self).__name__,
-                                       **self.to_dict(),
-                                       is2D=self.is2D())
+                                       Lx=self.Lx,
+                                       Ly=self.Ly,
+                                       Lz=self.Lz,
+                                       xy=self.xy,
+                                       xz=self.xz,
+                                       yz=self.yz,
+                                       is2D=self.is2D)
 
     def __str__(self):
         return repr(self)
@@ -473,7 +446,7 @@ cdef class Box:
                                   Ly=self.Ly*scale,
                                   Lz=self.Lz*scale,
                                   xy=self.xy, xz=self.xz, yz=self.yz,
-                                  is2D=self.is2D())
+                                  is2D=self.is2D)
         else:
             raise ValueError("Box can only be multiplied by positive values.")
 
@@ -491,7 +464,7 @@ cdef class Box:
                   lists like :code:`[Lx, Ly, Lz, xy, xz, yz]`,
                   dictionaries with keys
                   :code:`'Lx', 'Ly', 'Lz', 'xy', 'xz', 'yz', 'dimensions'`,
-                  namedtuples with properties
+                  objects with attributes
                   :code:`Lx, Ly, Lz, xy, xz, yz, dimensions`,
                   3x3 matrices (see :meth:`~.from_matrix()`),
                   or existing :class:`freud.box.Box` objects.
@@ -517,7 +490,7 @@ cdef class Box:
             # Handles 3x3 matrices
             return cls.from_matrix(box)
         try:
-            # Handles freud.box.Box and namedtuple
+            # Handles freud.box.Box and objects with attributes
             Lx = box.Lx
             Ly = box.Ly
             Lz = getattr(box, 'Lz', 0)
@@ -570,22 +543,22 @@ cdef class Box:
         return cls(Lx=Lx, Ly=Ly, Lz=Lz, xy=xy, xz=xz, yz=yz, is2D=is2D)
 
     @classmethod
-    def from_matrix(cls, boxMatrix, dimensions=None):
+    def from_matrix(cls, box_matrix, dimensions=None):
         R"""Initialize a Box instance from a box matrix.
 
         For more information and the source for this code,
-        see: http://hoomd-blue.readthedocs.io/en/stable/box.html
+        see: https://hoomd-blue.readthedocs.io/en/stable/box.html
 
         Args:
-            boxMatrix (array-like):
+            box_matrix (array-like):
                 A 3x3 matrix or list of lists
             dimensions (int):
-                Number of dimensions (Default value = None)
+                Number of dimensions (Default value = :code:`None`)
         """
-        boxMatrix = np.asarray(boxMatrix, dtype=np.float32)
-        v0 = boxMatrix[:, 0]
-        v1 = boxMatrix[:, 1]
-        v2 = boxMatrix[:, 2]
+        box_matrix = np.asarray(box_matrix, dtype=np.float32)
+        v0 = box_matrix[:, 0]
+        v1 = box_matrix[:, 1]
+        v2 = box_matrix[:, 2]
         Lx = np.sqrt(np.dot(v0, v0))
         a2x = np.dot(v0, v1) / Lx
         Ly = np.sqrt(np.dot(v1, v1) - a2x * a2x)
@@ -601,8 +574,9 @@ cdef class Box:
             xz = yz = 0
         if dimensions is None:
             dimensions = 2 if Lz == 0 else 3
+        is2D = (dimensions == 2)
         return cls(Lx=Lx, Ly=Ly, Lz=Lz,
-                   xy=xy, xz=xz, yz=yz, is2D=dimensions == 2)
+                   xy=xy, xz=xz, yz=yz, is2D=is2D)
 
     @classmethod
     def cube(cls, L=None):
@@ -633,14 +607,6 @@ cdef class Box:
                             "positional argument: L")
         return cls(Lx=L, Ly=L, Lz=0, xy=0, xz=0, yz=0, is2D=True)
 
-    # Enable box to be pickled
-    def __getinitargs__(self):
-        return (self.getLx(), self.getLy(), self.getLz(),
-                self.getTiltFactorXY(),
-                self.getTiltFactorXZ(),
-                self.getTiltFactorYZ(),
-                self.is2D())
-
 
 cdef BoxFromCPP(const freud._box.Box & cppbox):
     return Box(cppbox.getLx(), cppbox.getLy(), cppbox.getLz(),
@@ -648,52 +614,37 @@ cdef BoxFromCPP(const freud._box.Box & cppbox):
                cppbox.getTiltFactorYZ(), cppbox.is2D())
 
 
-cdef class ParticleBuffer:
-    R"""Replicates particles outside the box via periodic images.
+cdef class PeriodicBuffer:
+    R"""Replicate periodic images of points inside a box."""
 
-    .. moduleauthor:: Ben Schultz <baschult@umich.edu>
-    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
+    def __cinit__(self):
+        self.thisptr = new freud._box.PeriodicBuffer()
 
-    .. versionadded:: 0.11
-
-    Args:
-        box (:py:class:`freud.box.Box`): Simulation box.
-
-    Attributes:
-        buffer_particles (:math:`\left(N_{buffer}, 3\right)` :class:`numpy.ndarray`):
-            The buffer particle positions.
-        buffer_ids (:math:`\left(N_{buffer}\right)` :class:`numpy.ndarray`):
-            The buffer particle ids.
-        buffer_box (:class:`freud.box.Box`):
-            The buffer box, expanded to hold the replicated particles.
-    """  # noqa: E501
-
-    def __cinit__(self, box):
-        cdef Box b = freud.common.convert_box(box)
-        self.thisptr = new freud._box.ParticleBuffer(dereference(b.thisptr))
+    def __init__(self):
+        pass
 
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, points, buffer, bool_t images=False):
-        R"""Compute the particle buffer.
+    def compute(self, system, buffer, bool_t images=False):
+        R"""Compute the periodic buffer.
 
         Args:
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points used to calculate particle buffer.
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
             buffer (float or list of 3 floats):
                 Buffer distance for replication outside the box.
-            images (bool):
-                If ``False`` (default), ``buffer`` is a distance. If ``True``,
+            images (bool, optional):
+                If ``False``, ``buffer`` is a distance. If ``True``,
                 ``buffer`` is a number of images to replicate in each
                 dimension. Note that one image adds half of a box length to
                 each side, meaning that one image doubles the box side lengths,
                 two images triples the box side lengths, and so on.
+                (Default value = :code:`False`).
         """
-        points = freud.common.convert_array(points, shape=(None, 3))
-        cdef const float[:, ::1] l_points = points
-        cdef unsigned int Np = l_points.shape[0]
-
+        cdef freud.locality.NeighborQuery nq = \
+            freud.locality._make_default_nq(system)
         cdef vec3[float] buffer_vec
         if np.ndim(buffer) == 0:
             # catches more cases than np.isscalar
@@ -703,39 +654,30 @@ cdef class ParticleBuffer:
         else:
             raise ValueError('buffer must be a scalar or have length 3.')
 
-        self.thisptr.compute(<vec3[float]*> &l_points[0, 0], Np, buffer_vec,
-                             images)
+        self.thisptr.compute(nq.get_ptr(), buffer_vec, images)
         return self
 
     @property
-    def buffer_particles(self):
-        cdef unsigned int buffer_size = \
-            dereference(self.thisptr.getBufferParticles().get()).size()
-        if not buffer_size:
-            return np.empty(shape=(0, 3), dtype=np.float32)
-        cdef const float[:, ::1] buffer_particles = \
-            <float[:buffer_size, :3]> (<float*> dereference(
-                self.thisptr.getBufferParticles().get()).data())
-        return np.asarray(buffer_particles)
+    def buffer_points(self):
+        """:math:`\\left(N_{buffer}, 3\\right)` :class:`numpy.ndarray`: The
+        buffer point positions."""
+        points = self.thisptr.getBufferPoints()
+        return np.asarray([[p.x, p.y, p.z] for p in points])
 
     @property
     def buffer_ids(self):
-        cdef unsigned int buffer_size = \
-            dereference(self.thisptr.getBufferParticles().get()).size()
-        if not buffer_size:
-            return np.empty(shape=(0,), dtype=np.uint32)
-        cdef const unsigned int[::1] buffer_ids = \
-            <unsigned int[:buffer_size]> dereference(
-                self.thisptr.getBufferIds().get()).data()
-        return np.asarray(buffer_ids)
+        """:math:`\\left(N_{buffer}\\right)` :class:`numpy.ndarray`: The buffer
+        point ids."""
+        return np.asarray(self.thisptr.getBufferIds())
 
     @property
     def buffer_box(self):
+        """:class:`freud.box.Box`: The buffer box, expanded to hold the
+        replicated points."""
         return BoxFromCPP(<freud._box.Box> self.thisptr.getBufferBox())
 
     def __repr__(self):
-        return ("freud.box.{cls}(box={box})").format(
-            cls=type(self).__name__, box=repr(self.buffer_box))
+        return "freud.box.{cls}()".format(cls=type(self).__name__)
 
     def __str__(self):
         return repr(self)

@@ -222,7 +222,7 @@ class Benchmark(object):
                 :py:meth:`~.bench_run` (Default value = 1).
 
         Returns:
-            :math:`\left(N_{cores}, len(N_{list}) \right)` :class:`numpy.ndarray`:
+            :math:`(N_{cores}, len(N_{list}))` :class:`numpy.ndarray`:
                 All the per iteration timings with respect to the number of
                 cores used (in seconds).
         """  # noqa: E501

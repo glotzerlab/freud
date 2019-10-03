@@ -6,14 +6,11 @@ The :class:`freud.msd` module provides functions for computing the
 mean-squared-displacement (MSD) of particles in periodic systems.
 """
 
-from __future__ import print_function, division, absolute_import
-
 import numpy as np
-import freud.common
 import freud.parallel
 import logging
 
-from freud.common cimport Compute
+from freud.util cimport Compute
 cimport freud.box
 cimport numpy as np
 
@@ -135,24 +132,14 @@ cdef class MSD(Compute):
         course of the simulation. Additionally, the number of particles must be
         constant over the course of the simulation.
 
-    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
-
-    .. versionadded:: 1.0
-
     Args:
         box (:class:`freud.box.Box`, optional):
             If not provided, the class will assume that all positions provided
             in calls to :meth:`~compute` or :meth:`~accumulate` are already
-            unwrapped.
+            unwrapped. (Default value = :code:`None`).
         mode (str, optional):
             Mode of calculation. Options are :code:`'window'` and
             :code:`'direct'`.  (Default value = :code:`'window'`).
-
-    Attributes:
-        box (:class:`freud.box.Box`):
-            Box used in the calculation.
-        msd (:math:`\left(N_{frames}, \right)` :class:`numpy.ndarray`):
-            The mean squared displacement.
     """   # noqa: E501
     cdef freud.box.Box _box
     cdef particle_msd
@@ -160,7 +147,7 @@ cdef class MSD(Compute):
 
     def __cinit__(self, box=None, mode='window'):
         if box is not None:
-            self._box = freud.common.convert_box(box)
+            self._box = freud.util._convert_box(box)
         else:
             self._box = None
 
@@ -170,18 +157,9 @@ cdef class MSD(Compute):
             raise ValueError("Invalid mode")
         self.mode = mode
 
-    @Compute._compute()
     def accumulate(self, positions, images=None):
         """Calculate the MSD for the positions provided and add to the existing
         per-particle data.
-
-        .. note::
-            Unlike most methods in freud, accumulation for the MSD is split
-            over particles rather than frames of a simulation. The reason for
-            this choice is that efficient computation of the MSD requires using
-            the entire trajectory for a given particle. As a result, this
-            accumulation is primarily useful when the trajectory is so large
-            that computing an MSD on all particles at once is prohibitive.
 
         Args:
             positions ((:math:`N_{frames}`, :math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -192,12 +170,14 @@ cdef class MSD(Compute):
                 along with a simulation box (in the constructor) if particle
                 positions need to be unwrapped. If neither are provided,
                 positions are assumed to be unwrapped already.
+                (Default value = :code:`None`).
         """  # noqa: E501
+        self._called_compute = True
 
-        positions = freud.common.convert_array(
+        positions = freud.util._convert_array(
             positions, shape=(None, None, 3))
         if images is not None:
-            images = freud.common.convert_array(
+            images = freud.util._convert_array(
                 images, shape=positions.shape, dtype=np.int32)
 
         # Make sure we aren't modifying the provided array
@@ -235,19 +215,21 @@ cdef class MSD(Compute):
 
     @property
     def box(self):
+        """:class:`freud.box.Box`: Box used in the calculation."""
         return self._box
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def msd(self):
+        """:math:`\\left(N_{frames}, \\right`) :class:`numpy.ndarray`: The mean
+        squared displacement."""
         return np.concatenate(self.particle_msd, axis=1).mean(axis=-1)
 
-    @Compute._reset
     def reset(self):
         R"""Clears the stored MSD values from previous calls to accumulate (or
         the last call to compute)."""
+        self._called_compute = False
         self.particle_msd = []
 
-    @Compute._compute()
     def compute(self, positions, images=None):
         """Calculate the MSD for the positions provided.
 
@@ -260,6 +242,7 @@ cdef class MSD(Compute):
                 along with a simulation box (in the constructor) if particle
                 positions need to be unwrapped. If neither are provided,
                 positions are assumed to be unwrapped already.
+                (Default value = :code:`None`).
         """  # noqa: E501
         self.reset()
         self.accumulate(positions, images)
@@ -269,15 +252,11 @@ cdef class MSD(Compute):
         return "freud.msd.{cls}(box={box}, mode={mode})".format(
             cls=type(self).__name__, box=self._box, mode=repr(self.mode))
 
-    def __str__(self):
-        return repr(self)
-
-    @Compute._computed_method()
     def plot(self, ax=None):
         """Plot MSD.
 
         Args:
-            ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
+            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
                 :code:`None`, make a new figure and axis.
                 (Default value = :code:`None`)
 

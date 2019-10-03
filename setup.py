@@ -129,17 +129,32 @@ parser.add_argument(
 parser.add_argument(
     tbb_root_str,
     dest="tbb_root",
-    help="The root directory where TBB is installed."
+    help="The root directory where TBB is installed. For example, if tbb.h is "
+         "in the directory /opt/local/include/tbb/, then use `--TBB-ROOT "
+         "/opt/local`. This argument is useful if TBB is installed in a "
+         "non-standard location or cannot be located by Python for some other "
+         "reason. Note that this information can also be provided using the "
+         "environment variable TBB_ROOT. The options --TBB-INCLUDE and "
+         "--TBB-LINK will take precedence over --TBB-ROOT if both are "
+         "specified."
 )
 parser.add_argument(
     tbb_include_str,
     dest="tbb_include",
-    help="The includes directory where the TBB headers are found."
+    help="The include directory where the TBB headers are found. May also be "
+         "provided using the environment variable TBB_INCLUDE. See the "
+         "documentation of --TBB-ROOT for more information. This will "
+         "typically be `$TBB_ROOT/include`, but this option exists for cases "
+         "where that is not true."
 )
 parser.add_argument(
     tbb_link_str,
     dest="tbb_link",
-    help="The lib directory where TBB shared libraries are found."
+    help="The lib directory where the TBB shared libraries are found. May "
+         "also be provided using the environment variable TBB_LINK. See the "
+         "documentation of --TBB-ROOT for more information. This will "
+         "typically be `$TBB_ROOT/lib`, but this option exists for cases "
+         "where that is not true."
 )
 
 # Parse known args then rewrite sys.argv for setuptools.setup to use
@@ -188,12 +203,16 @@ else:
 
 # Set directives and macros
 directives = {
-    'embedsignature': True,
     'binding': True,
     'boundscheck': False,
     'wraparound': False,
+    'embedsignature': True,
+    'language_level': 3,
 }
-macros = []
+macros = [
+    ('NPY_NO_DEPRECATED_API', 'NPY_1_10_API_VERSION'),
+    ('VOROPP_VERBOSE', '1'),
+]
 
 # Decide whether or not to compile with coverage support
 if args.use_coverage:
@@ -235,7 +254,7 @@ def parallelCCompile(self, sources, output_dir=None, macros=None,
     return objects
 
 
-distutils.ccompiler.CCompiler.compile=parallelCCompile
+distutils.ccompiler.CCompiler.compile = parallelCCompile
 
 
 #########################
@@ -339,36 +358,40 @@ ext_args = dict(
 # Need to find files manually; cythonize accepts glob syntax, but basic
 # extension modules with C++ do not
 files = glob.glob(os.path.join('freud', '*') + ext)
-files.extend(glob.glob(os.path.join('freud', 'util', '*') + ext))
 modules = [f.replace(ext, '') for f in files]
 modules = [m.replace(os.path.sep, '.') for m in modules]
 
 # Source files required for all modules.
-sources_in_all = []
+sources_in_all = [
+    os.path.join("cpp", "locality", "NeighborPerPointIterator.cc"),
+    os.path.join("cpp", "locality", "NeighborQuery.cc"),
+    os.path.join("cpp", "locality", "AABBQuery.cc"),
+    os.path.join("cpp", "locality", "NeighborList.cc"),
+    os.path.join("cpp", "locality", "NeighborComputeFunctional.cc"),
+]
 
 # Any source files required only for specific modules.
 # Dict keys should be specified as the module name without
 # "freud.", i.e. not the fully qualified name.
 extra_module_sources = dict(
-    cluster=[
-        os.path.join("cpp", "locality", "NeighborList.cc"),
-    ],
-    density=[
-        os.path.join("cpp", "locality", "NeighborList.cc"),
-        os.path.join("cpp", "util", "NdHistogram.cc"),
-    ],
     environment=[
-        os.path.join("cpp", "locality", "NeighborList.cc"),
         os.path.join("cpp", "util", "diagonalize.cc"),
+    ],
+    locality=[
+        os.path.join("extern", "voro++", "src", "cell.cc"),
+        os.path.join("extern", "voro++", "src", "common.cc"),
+        os.path.join("extern", "voro++", "src", "container.cc"),
+        os.path.join("extern", "voro++", "src", "unitcell.cc"),
+        os.path.join("extern", "voro++", "src", "v_compute.cc"),
+        os.path.join("extern", "voro++", "src", "c_loops.cc"),
+        os.path.join("extern", "voro++", "src", "v_base.cc"),
+        os.path.join("extern", "voro++", "src", "wall.cc"),
+        os.path.join("extern", "voro++", "src", "pre_container.cc"),
+        os.path.join("extern", "voro++", "src", "container_prd.cc"),
     ],
     order=[
-        os.path.join("cpp", "cluster", "Cluster.cc"),
-        os.path.join("cpp", "locality", "NeighborList.cc"),
         os.path.join("cpp", "util", "diagonalize.cc"),
-    ],
-    pmft=[
-        os.path.join("cpp", "locality", "NeighborList.cc"),
-        os.path.join("cpp", "util", "NdHistogram.cc"),
+        os.path.join("cpp", "cluster", "Cluster.cc"),
     ],
 )
 
@@ -395,7 +418,7 @@ if args.use_cython:
 
 # Ensure that builds on Mac use correct stdlib.
 if platform.system() == 'Darwin':
-    os.environ["MACOSX_DEPLOYMENT_TARGET"]= "10.12"
+    os.environ["MACOSX_DEPLOYMENT_TARGET"] = "10.12"
 
 version = '1.2.2'
 
@@ -403,7 +426,7 @@ version = '1.2.2'
 desc = 'Powerful, efficient trajectory analysis in scientific Python.'
 try:
     readme_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                               'README.md')
+                               'README.rst')
     with open(readme_file) as f:
         readme = f.read()
 except ImportError:
@@ -419,12 +442,12 @@ try:
               version=version,
               description=desc,
               long_description=readme,
-              long_description_content_type='text/markdown',
+              long_description_content_type='text/x-rst',
               url='https://github.com/glotzerlab/freud',
               packages=['freud'],
-              python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*',
-              install_requires=['numpy>=1.10'],
-              tests_require=['matplotlib>=2.0', 'rowan>=1.0', 'sympy>=1.0'],
+              python_requires='>=3.5',
+              install_requires=['numpy>=1.10', 'rowan>=1.2'],
+              tests_require=['matplotlib>=2.0', 'sympy>=1.0'],
               ext_modules=extensions)
 except SystemExit:
     # The errors we're explicitly checking for are whether or not
@@ -452,7 +475,7 @@ except: # noqa
     raise
 else:
     if args.print_warnings:
-        sys.stdout.write("Printing warnings: ")
+        sys.stderr.write("Printing warnings: ")
         sys.stderr.write(tfile.read().decode('utf-8'))
     else:
         out = tfile.read().decode('utf-8')

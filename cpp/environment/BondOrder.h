@@ -4,13 +4,14 @@
 #ifndef BOND_ORDER_H
 #define BOND_ORDER_H
 
-#include <memory>
-#include <ostream>
-
 #include "Box.h"
+#include "Histogram.h"
+#include "BondHistogramCompute.h"
 #include "NeighborList.h"
+#include "NeighborQuery.h"
 #include "ThreadStorage.h"
 #include "VectorMath.h"
+#include "ManagedArray.h"
 
 /*! \file BondOrder.h
     \brief Compute the bond order diagram for the system of particles.
@@ -30,73 +31,36 @@ typedef enum
 //! Compute the bond order parameter for a set of points
 /*!
  */
-class BondOrder
+class BondOrder : public locality::BondHistogramCompute
 {
 public:
     //! Constructor
-    BondOrder(float rmax, float k, unsigned int n, unsigned int nbins_t, unsigned int nbins_p);
+    BondOrder(unsigned int n_bins_theta, unsigned int n_bins_phi, BondOrderMode mode);
 
     //! Destructor
     ~BondOrder() {}
 
-    //! Get the simulation box
-    const box::Box& getBox() const
-    {
-        return m_box;
-    }
-
-    //! Reset the bond order array to all zeros
-    void reset();
-
     //! Accumulate the bond order
-    void accumulate(box::Box& box, const freud::locality::NeighborList* nlist, vec3<float>* ref_points,
-                    quat<float>* ref_orientations, unsigned int n_ref, vec3<float>* points,
-                    quat<float>* orientations, unsigned int n_p, unsigned int mode);
+    void accumulate(const locality::NeighborQuery* neighbor_query,
+                    quat<float>* orientations, vec3<float>* query_points,
+                    quat<float>* query_orientations, unsigned int n_query_points,
+                    const freud::locality::NeighborList* nlist,
+                    freud::locality::QueryArgs qargs);
 
-    void reduceBondOrder();
+    virtual void reduce();
 
     //! Get a reference to the last computed bond order
-    std::shared_ptr<float> getBondOrder();
+    const util::ManagedArray<float> &getBondOrder();
 
-    //! Get a reference to the theta array
-    std::shared_ptr<float> getTheta()
+    BondOrderMode getMode() const
     {
-        return m_theta_array;
-    }
-
-    //! Get a reference to the phi array
-    std::shared_ptr<float> getPhi()
-    {
-        return m_phi_array;
-    }
-
-    unsigned int getNBinsTheta()
-    {
-        return m_nbins_t;
-    }
-
-    unsigned int getNBinsPhi()
-    {
-        return m_nbins_p;
+        return m_mode;
     }
 
 private:
-    box::Box m_box; //!< Simulation box where the particles belong
-    float m_dt;
-    float m_dp;
-    unsigned int m_n_ref;         //!< Last number of points computed
-    unsigned int m_n_p;           //!< Last number of points computed
-    unsigned int m_nbins_t;       //!< number of bins for theta
-    unsigned int m_nbins_p;       //!< number of bins for phi
-    unsigned int m_frame_counter; //!< number of frames calc'd
-    bool m_reduce;                //!< Whether arrays need to be reduced across threads
-
-    std::shared_ptr<unsigned int> m_bin_counts; //!< bin counts computed
-    std::shared_ptr<float> m_bo_array;          //!< bond order array computed
-    std::shared_ptr<float> m_sa_array;          //!< surface area array computed
-    std::shared_ptr<float> m_theta_array;       //!< theta array computed
-    std::shared_ptr<float> m_phi_array;         //!< phi order array computed
-    util::ThreadStorage<unsigned int> m_local_bin_counts;
+    util::ManagedArray<float> m_bo_array;          //!< bond order array computed
+    util::ManagedArray<float> m_sa_array;          //!< surface area array computed
+    BondOrderMode m_mode;                          //!< The mode to calculate with.
 };
 
 }; }; // end namespace freud::environment

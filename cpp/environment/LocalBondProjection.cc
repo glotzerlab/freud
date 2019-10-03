@@ -1,13 +1,8 @@
 // Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
-#include <cassert>
-#include <stdexcept>
-
 #include "LocalBondProjection.h"
-
-using namespace std;
-using namespace tbb;
+#include "NeighborComputeFunctional.h"
 
 /*! \file LocalBondProjection.h
     \brief Compute the projection of nearest neighbor bonds for each particle onto some
@@ -16,8 +11,7 @@ using namespace tbb;
 
 namespace freud { namespace environment {
 
-LocalBondProjection::LocalBondProjection() : m_Np(0), m_Nref(0), m_Nproj(0), m_Nequiv(0), m_tot_num_neigh(0)
-{}
+LocalBondProjection::LocalBondProjection() {}
 
 LocalBondProjection::~LocalBondProjection() {}
 
@@ -30,7 +24,7 @@ LocalBondProjection::~LocalBondProjection() {}
 // q and -q effect the same rotation on vectors, and here we just use equiv_quats to
 // find all symmetrically equivalent vectors to proj_vec.
 float computeMaxProjection(const vec3<float> proj_vec, const vec3<float> local_bond,
-                           const quat<float>* equiv_qs, unsigned int Nequiv)
+                           const quat<float>* equiv_qs, unsigned int n_equiv_qs)
 {
     quat<float> qconst = equiv_qs[0];
 
@@ -39,7 +33,7 @@ float computeMaxProjection(const vec3<float> proj_vec, const vec3<float> local_b
     float max_proj = dot(proj_vec, local_bond);
 
     // loop through all equivalent rotations and see if they have a larger projection onto local_bond
-    for (unsigned int i = 0; i < Nequiv; i++)
+    for (unsigned int i = 0; i < n_equiv_qs; i++)
     {
         quat<float> qe = equiv_qs[i];
         // here we undo a rotation represented by one of the equivalent orientations
@@ -58,79 +52,48 @@ float computeMaxProjection(const vec3<float> proj_vec, const vec3<float> local_b
     return max_proj;
 }
 
-void LocalBondProjection::compute(box::Box& box, const freud::locality::NeighborList* nlist,
-                                  const vec3<float>* pos, const vec3<float>* ref_pos,
-                                  const quat<float>* ref_ors, const quat<float>* ref_equiv_ors,
-                                  const vec3<float>* proj_vecs, unsigned int Np, unsigned int Nref,
-                                  unsigned int Nequiv, unsigned int Nproj)
-
+void LocalBondProjection::compute(const locality::NeighborQuery *nq,
+    const quat<float>* orientations,
+    const vec3<float>* query_points, unsigned int n_query_points,
+    const vec3<float>* proj_vecs,  unsigned int n_proj,
+    const quat<float>* equiv_orientations, unsigned int n_equiv_orientations,
+    const freud::locality::NeighborList* nlist, locality::QueryArgs qargs)
 {
-    assert(pos);
-    assert(ref_pos);
-    assert(ref_ors);
-    assert(ref_equiv_ors);
-    assert(proj_vecs);
-    assert(Np > 0);
-    assert(Nref > 0);
-    assert(Nequiv > 0);
-    assert(Nproj > 0);
+    // This function requires a NeighborList object, so we always make one and store it locally.
+    m_nlist = locality::makeDefaultNlist(nq, nlist, query_points, n_query_points, qargs);
 
-    nlist->validate(Nref, Np);
-    const size_t* neighbor_list(nlist->getNeighbors());
     // Get the maximum total number of bonds in the neighbor list
-    const size_t tot_num_neigh = nlist->getNumBonds();
+    const unsigned int tot_num_neigh = m_nlist.getNumBonds();
 
-    // reallocate the output array if it is not the right size
-    if (tot_num_neigh != m_tot_num_neigh || Nproj != m_Nproj)
-    {
-        m_local_bond_proj
-            = std::shared_ptr<float>(new float[tot_num_neigh * Nproj], std::default_delete<float[]>());
-        m_local_bond_proj_norm
-            = std::shared_ptr<float>(new float[tot_num_neigh * Nproj], std::default_delete<float[]>());
-    }
+    m_local_bond_proj.prepare({tot_num_neigh, n_proj});
+    m_local_bond_proj_norm.prepare({tot_num_neigh, n_proj});
 
     // compute the order parameter
-    parallel_for(blocked_range<size_t>(0, Nref), [=](const blocked_range<size_t>& r) {
-        size_t bond(nlist->find_first_index(r.begin()));
-        for (size_t i = r.begin(); i != r.end(); ++i)
+    util::forLoopWrapper(0, n_query_points, [=](size_t begin, size_t end) {
+        size_t bond(m_nlist.find_first_index(begin));
+        for (size_t i = begin; i < end; ++i)
         {
-            vec3<float> p = ref_pos[i];
-            quat<float> q = ref_ors[i];
-
-            for (; bond < tot_num_neigh && neighbor_list[2 * bond] == i; ++bond)
+            for (; bond < tot_num_neigh && m_nlist.getNeighbors()(bond, 0) == i; ++bond)
             {
-                const size_t j(neighbor_list[2 * bond + 1]);
+                const size_t j(m_nlist.getNeighbors()(bond, 1));
+
                 // compute bond vector between the two particles
-                vec3<float> delta = box.wrap(pos[j] - p);
-                vec3<float> local_bond(delta);
+                vec3<float> local_bond(bondVector(locality::NeighborBond(i, j), nq, query_points));
                 // rotate bond vector into the local frame of particle p
-                local_bond = rotate(conj(q), local_bond);
+                local_bond = rotate(conj(orientations[j]), local_bond);
                 // store the length of this local bond
                 float local_bond_len = sqrt(dot(local_bond, local_bond));
 
-                for (unsigned int k = 0; k < Nproj; k++)
+                for (unsigned int k = 0; k < n_proj; k++)
                 {
                     vec3<float> proj_vec = proj_vecs[k];
-                    float max_proj = computeMaxProjection(proj_vec, local_bond, ref_equiv_ors, Nequiv);
-                    m_local_bond_proj.get()[bond * Nproj + k] = max_proj;
-                    m_local_bond_proj_norm.get()[bond * Nproj + k] = max_proj / local_bond_len;
+                    float max_proj = computeMaxProjection(proj_vec, local_bond, equiv_orientations, n_equiv_orientations);
+                    m_local_bond_proj(bond, k) = max_proj;
+                    m_local_bond_proj_norm(bond, k) = max_proj / local_bond_len;
                 }
             }
         }
     });
-
-    // save the last computed box
-    m_box = box;
-    // save the last computed number of particles
-    m_Np = Np;
-    // save the last computed number of reference particles
-    m_Nref = Nref;
-    // save the last computed number of equivalent quaternions
-    m_Nequiv = Nequiv;
-    // save the last computed number of reference projection vectors
-    m_Nproj = Nproj;
-    // save the last computed number of total bonds
-    m_tot_num_neigh = tot_num_neigh;
 }
 
 }; }; // end namespace freud::environment

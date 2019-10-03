@@ -11,8 +11,6 @@ except ImportError:
 def ax_to_bytes(ax):
     """Helper function to convert figure to png file.
 
-    .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
-
     Args:
         ax (:class:`matplotlib.axes.Axes`): axes object to plot.
 
@@ -32,8 +30,6 @@ def ax_to_bytes(ax):
 
 def bar_plot(x, height, title=None, xlabel=None, ylabel=None, ax=None):
     """Helper function to draw a bar graph.
-
-    .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
 
     Args:
         x (list): x values of the bar graph.
@@ -64,16 +60,14 @@ def bar_plot(x, height, title=None, xlabel=None, ylabel=None, ax=None):
     return ax
 
 
-def plot_clusters(keys, freqs, num_cluster_to_plot=10, ax=None):
+def clusters_plot(keys, freqs, num_clusters_to_plot=10, ax=None):
     """Helper function to plot most frequent clusters in a bar graph.
-
-    .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
 
     Args:
         keys (list): Cluster keys.
         freqs (list): Number of particles in each clusters.
-        num_cluster_to_plot (unsigned int): Number of the most frequent
-            clusters to plot.
+        num_clusters_to_plot (unsigned int): Number of largest clusters to
+            plot.
         ax (:class:`matplotlib.axes.Axes`): axes object to plot.
             If :code:`None`, make a new axes and figure object.
             (Default value = :code:`None`).
@@ -84,8 +78,8 @@ def plot_clusters(keys, freqs, num_cluster_to_plot=10, ax=None):
     count_sorted = sorted([(freq, key)
                           for key, freq in zip(keys, freqs)],
                           key=lambda x: -x[0])
-    sorted_freqs = [i[0] for i in count_sorted[:num_cluster_to_plot]]
-    sorted_keys = [str(i[1]) for i in count_sorted[:num_cluster_to_plot]]
+    sorted_freqs = [i[0] for i in count_sorted[:num_clusters_to_plot]]
+    sorted_keys = [str(i[1]) for i in count_sorted[:num_clusters_to_plot]]
     return bar_plot(sorted_keys, sorted_freqs, title="Cluster Frequency",
                     xlabel="Keys of {} largest clusters (total clusters: "
                            "{})".format(len(sorted_freqs), len(freqs)),
@@ -94,8 +88,6 @@ def plot_clusters(keys, freqs, num_cluster_to_plot=10, ax=None):
 
 def line_plot(x, y, title=None, xlabel=None, ylabel=None, ax=None):
     """Helper function to draw a line graph.
-
-    .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
 
     Args:
         x (list): x values of the line graph.
@@ -127,8 +119,6 @@ def line_plot(x, y, title=None, xlabel=None, ylabel=None, ax=None):
 def histogram_plot(values, title=None, xlabel=None, ylabel=None, ax=None):
     """Helper function to draw a histogram graph.
 
-    .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
-
     Args:
         values (list): values of the histogram.
         title (str): Title of the graph. (Default value = :code:`None`).
@@ -157,8 +147,6 @@ def histogram_plot(values, title=None, xlabel=None, ylabel=None, ax=None):
 
 def pmft_plot(pmft, ax=None):
     """Helper function to draw 2D PMFT diagram.
-
-    .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
 
     Args:
         pmft (:class:`freud.pmft.PMFTXY2D`):
@@ -210,7 +198,7 @@ def pmft_plot(pmft, ax=None):
         return ax
 
 
-def plot_density(density, box, ax=None):
+def density_plot(density, box, ax=None):
     R"""Helper function to plot density diagram.
 
     Args:
@@ -247,7 +235,7 @@ def plot_density(density, box, ax=None):
     ax_divider = make_axes_locatable(ax)
     cax = ax_divider.append_axes("right", size="7%", pad="10%")
 
-    im = ax.imshow(density, extent=[xlims[0], xlims[1], ylims[0], ylims[1]])
+    im = ax.imshow(density.T, extent=[xlims[0], xlims[1], ylims[0], ylims[1]])
 
     cb = Colorbar(cax, im)
     cb.set_label("Density")
@@ -255,7 +243,7 @@ def plot_density(density, box, ax=None):
     return ax
 
 
-def draw_voronoi(box, cells, ax=None):
+def voronoi_plot(box, cells, ax=None):
     """Helper function to draw 2D Voronoi diagram.
 
     Args:

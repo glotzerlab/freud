@@ -4,9 +4,8 @@
 #ifndef BRUTE_FORCE_H
 #define BRUTE_FORCE_H
 
-#include <cassert>
-#include <chrono>
 #include <iostream>
+#include <chrono>
 #include <random>
 #include <vector>
 
@@ -22,12 +21,13 @@
 #include "Eigen/Eigen/Sparse"
 
 #include "BiMap.h"
+#include "VectorMath.h"
 
 namespace freud { namespace registration {
 
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> matrix;
 
-inline matrix makeEigenMatrix(const std::vector<vec3<float>>& vecs)
+inline matrix makeEigenMatrix(const std::vector<vec3<float> >& vecs)
 {
     // build the Eigen matrix
     matrix mat;
@@ -332,7 +332,6 @@ public:
     double AlignedRMSDTree(const matrix& points, BiMap<unsigned int, unsigned int>& m)
     {
         // Also brute force.
-        assert(points.rows() == m_ref_points.rows());
         double rmsd = 0.0;
 
         // a mapping between the vectors of m_ref_points and the vectors of points
@@ -357,8 +356,8 @@ public:
             {
                 vec3<float> ref_point = make_point(m_ref_points.row(ref_index));
                 vec3<float> delta = ref_point - pfit;
-                double rsq = dot(delta, delta);
-                ref_distances.push_back(std::pair<unsigned int, double>(ref_index, rsq));
+                double r_sq = dot(delta, delta);
+                ref_distances.push_back(std::pair<unsigned int, double>(ref_index, r_sq));
             }
             // sort the ref_distances from nearest to farthest
             sort(ref_distances.begin(), ref_distances.end(), compare_ref_distances);

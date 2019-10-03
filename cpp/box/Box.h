@@ -4,12 +4,9 @@
 #ifndef BOX_H
 #define BOX_H
 
-#include <cassert>
-#include <iostream>
-#include <math.h>
 #include <sstream>
 #include <stdexcept>
-#include <tbb/tbb.h>
+#include "utils.h"
 
 #include "VectorMath.h"
 
@@ -175,6 +172,24 @@ public:
         return m_yz;
     }
 
+    //! Set tilt factor xy
+    void setTiltFactorXY(float xy)
+    {
+        m_xy = xy;
+    }
+
+    //! Set tilt factor xz
+    void setTiltFactorXZ(float xz)
+    {
+        m_xz = xz;
+    }
+
+    //! Set tilt factor yz
+    void setTiltFactorYZ(float yz)
+    {
+        m_yz = yz;
+    }
+
     //! Get the volume of the box (area in 2D)
     float getVolume() const
     {
@@ -184,12 +199,12 @@ public:
             return m_L.x * m_L.y * m_L.z;
     }
 
-    //! Convert fractional coordinates into real coordinates
+    //! Convert fractional coordinates into absolute coordinates
     /*! \param f Fractional coordinates between 0 and 1 within
      *         parallelepipedal box
      *  \return A vector inside the box corresponding to f
      */
-    vec3<float> makeCoordinates(const vec3<float>& f) const
+    vec3<float> makeAbsolute(const vec3<float>& f) const
     {
         vec3<float> v = m_lo + f * m_L;
         v.x += m_xy * v.y + m_xz * v.z;
@@ -201,17 +216,17 @@ public:
         return v;
     }
 
-    //! Convert fractional coordinates into real coordinates in place
+    //! Convert fractional coordinates into absolute coordinates in place
     /*! \param vecs Vectors of fractional coordinates between 0 and 1 within
      *         parallelepipedal box
      *  \param Nvecs Number of vectors
      */
-    void makeCoordinates(vec3<float>* vecs, unsigned int Nvecs) const
+    void makeAbsolute(vec3<float>* vecs, unsigned int Nvecs) const
     {
-        tbb::parallel_for(tbb::blocked_range<size_t>(0, Nvecs), [=](const tbb::blocked_range<size_t>& r) {
-            for (size_t i = r.begin(); i < r.end(); ++i)
+        util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
+            for (size_t i = begin; i < end; ++i)
             {
-                vecs[i] = makeCoordinates(vecs[i]);
+                vecs[i] = makeAbsolute(vecs[i]);
             }
         });
     }
@@ -225,8 +240,8 @@ public:
      *  either direction, it will go larger than 1 or less than 0
      *  keeping the same scaling.
      */
-    vec3<float> makeFraction(const vec3<float>& v,
-                             const vec3<float>& ghost_width = vec3<float>(0.0, 0.0, 0.0)) const
+    vec3<float> makeFractional(const vec3<float>& v,
+                               const vec3<float>& ghost_width = vec3<float>(0.0, 0.0, 0.0)) const
     {
         vec3<float> delta = v - m_lo;
         delta.x -= (m_xz - m_yz * m_xy) * v.z + m_xy * v.y;
@@ -240,12 +255,12 @@ public:
         return delta;
     }
 
-    void makeFraction(vec3<float>* vecs, unsigned int Nvecs) const
+    void makeFractional(vec3<float>* vecs, unsigned int Nvecs) const
     {
-        tbb::parallel_for(tbb::blocked_range<size_t>(0, Nvecs), [=](const tbb::blocked_range<size_t>& r) {
-            for (size_t i = r.begin(); i < r.end(); ++i)
+        util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
+            for (size_t i = begin; i < end; ++i)
             {
-                vecs[i] = makeFraction(vecs[i]);
+                vecs[i] = makeFractional(vecs[i]);
             }
         });
     }
@@ -257,10 +272,10 @@ public:
      */
     void getImage(vec3<float>* vecs, unsigned int Nvecs, vec3<int>* res) const
     {
-        tbb::parallel_for(tbb::blocked_range<size_t>(0, Nvecs), [=](const tbb::blocked_range<size_t>& r) {
-            for (size_t i = r.begin(); i < r.end(); ++i)
+        util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
+            for (size_t i = begin; i < end; ++i)
             {
-                vec3<float> f = makeFraction(vecs[i]) - vec3<float>(0.5, 0.5, 0.5);
+                vec3<float> f = makeFractional(vecs[i]) - vec3<float>(0.5, 0.5, 0.5);
                 res[i].x = (int) ((f.x >= 0.0f) ? f.x + 0.5f : f.x - 0.5f);
                 res[i].y = (int) ((f.y >= 0.0f) ? f.y + 0.5f : f.y - 0.5f);
                 res[i].z = (int) ((f.z >= 0.0f) ? f.z + 0.5f : f.z - 0.5f);
@@ -274,7 +289,7 @@ public:
      */
     vec3<float> wrap(const vec3<float>& v) const
     {
-        vec3<float> tmp = makeFraction(v);
+        vec3<float> tmp = makeFractional(v);
         tmp.x = fmod(tmp.x, 1.0f);
         tmp.y = fmod(tmp.y, 1.0f);
         tmp.z = fmod(tmp.z, 1.0f);
@@ -291,7 +306,7 @@ public:
         {
             tmp.z += 1;
         }
-        return makeCoordinates(tmp);
+        return makeAbsolute(tmp);
     }
 
     //! Wrap vectors back into the box in place
@@ -300,23 +315,23 @@ public:
      */
     void wrap(vec3<float>* vecs, unsigned int Nvecs) const
     {
-        tbb::parallel_for(tbb::blocked_range<size_t>(0, Nvecs), [=](const tbb::blocked_range<size_t>& r) {
-            for (size_t i = r.begin(); i < r.end(); ++i)
+        util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
+            for (size_t i = begin; i < end; ++i)
             {
                 vecs[i] = wrap(vecs[i]);
             }
         });
     }
 
-    //! Unwrap given positions to their "real" location in place
+    //! Unwrap given positions to their absolute location in place
     /*! \param vecs Vectors of coordinates to unwrap
      *  \param images images flags for this point
         \param Nvecs Number of vectors
     */
     void unwrap(vec3<float>* vecs, const vec3<int>* images, unsigned int Nvecs) const
     {
-        tbb::parallel_for(tbb::blocked_range<size_t>(0, Nvecs), [=](const tbb::blocked_range<size_t>& r) {
-            for (size_t i = r.begin(); i < r.end(); ++i)
+        util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
+            for (size_t i = begin; i < end; ++i)
             {
                 vecs[i] += getLatticeVector(0) * float(images[i].x);
                 vecs[i] += getLatticeVector(1) * float(images[i].y);
@@ -405,27 +420,43 @@ public:
     }
 
     //! Get the periodic flags
-    vec3<bool> getPeriodic()
+    vec3<bool> getPeriodic() const
     {
         return vec3<bool>(m_periodic.x, m_periodic.y, m_periodic.z);
     }
 
     //! Get the periodic flag along x
-    bool getPeriodicX()
+    bool getPeriodicX() const
     {
         return m_periodic.x;
     }
 
     //! Get the periodic flag along y
-    bool getPeriodicY()
+    bool getPeriodicY() const
     {
         return m_periodic.y;
     }
 
     //! Get the periodic flag along z
-    bool getPeriodicZ()
+    bool getPeriodicZ() const
     {
         return m_periodic.z;
+    }
+
+    void enforce2D() const
+    {
+        if (!is2D())
+        {
+            throw std::invalid_argument("A 3D box was provided to a class that only supports 2D systems.");
+        }
+    }
+
+    void enforce3D() const
+    {
+        if (is2D())
+        {
+            throw std::invalid_argument("A 2D box was provided to a class that only supports 3D systems.");
+        }
     }
 
 private:

@@ -5,48 +5,242 @@ import unittest
 import util
 
 
-@util.skipIfMissing('scipy.spatial')
+def sort_rounded_xyz_array(arr, decimals=4):
+    """The order of Voronoi polytopes' vertices is not well-defined. Instead of
+    testing a fixed array, arrays must be sorted by their rounded
+    representations in order to compare their values.
+    """
+    arr = np.asarray(arr)
+    arr = arr.round(decimals)
+    indices = np.lexsort((arr[:, 2], arr[:, 1], arr[:, 0]))
+    return arr[indices]
+
+
 class TestVoronoi(unittest.TestCase):
-    def test_basic(self):
+    def test_basic_2d(self):
         # Test that voronoi tessellations of random systems have the same
         # number of points and polytopes
         L = 10  # Box length
         N = 50  # Number of particles
-        vor = freud.locality._Voronoi()
-        box, positions = util.make_box_and_random_points(L, N, True)
-        vor.compute(box=box, positions=positions, buffer=L/2)
+        box, points = util.make_box_and_random_points(L, N, is2D=True)
+        vor = freud.locality.Voronoi()
+        vor.compute((box, points))
 
-        result = vor.polytopes
+        npt.assert_equal(len(vor.polytopes), len(points))
+        npt.assert_equal(len(vor.volumes), len(points))
+        npt.assert_almost_equal(np.sum(vor.volumes), box.volume)
 
-        npt.assert_equal(len(result), len(positions))
+    def test_basic_3d(self):
+        # Test that voronoi tessellations of random systems have the same
+        # number of points and polytopes
+        L = 10  # Box length
+        N = 50  # Number of particles
+        box, points = util.make_box_and_random_points(L, N, is2D=False)
+        vor = freud.locality.Voronoi()
+        vor.compute((box, points))
+
+        npt.assert_equal(len(vor.polytopes), len(points))
+        npt.assert_equal(len(vor.volumes), len(points))
+        npt.assert_almost_equal(np.sum(vor.volumes), box.volume)
 
     def test_voronoi_tess_2d(self):
         # Test that the voronoi polytope works for a 2D system
         L = 10  # Box length
         box = freud.box.Box.square(L)
-        vor = freud.locality._Voronoi()
+        vor = freud.locality.Voronoi()
         # Make a regular grid
-        positions = np.array(
+        points = np.array(
             [[0, 0, 0], [0, 1, 0], [0, 2, 0],
              [1, 0, 0], [1, 1, 0], [1, 2, 0],
-             [2, 0, 0], [2, 1, 0], [2, 2, 0]]).astype(np.float32)
-        vor.compute(box, positions, 0, False)
-        polytope_centers = set(tuple(point)
-                               for point in vor.polytopes[0].tolist())
-        check_centers = set([(1.5, 1.5, 0), (0.5, 1.5, 0),
-                             (0.5, 0.5, 0), (1.5, 0.5, 0)])
-        self.assertEqual(polytope_centers, check_centers)
+             [2, 0, 0], [2, 1, 0], [2, 2, 0]]).astype(np.float64)
+        vor.compute((box, points))
+        center_polytope = sort_rounded_xyz_array(vor.polytopes[4])
+        expected_polytope = sort_rounded_xyz_array(
+            [[1.5, 1.5, 0], [0.5, 1.5, 0], [0.5, 0.5, 0], [1.5, 0.5, 0]])
+        npt.assert_almost_equal(center_polytope, expected_polytope)
 
-        # # Verify the cell areas
-        npt.assert_equal(vor.volumes, [1])
+        # Verify the cell areas
+        npt.assert_almost_equal(vor.volumes[4], 1)
+        npt.assert_almost_equal(np.sum(vor.volumes), box.volume)
+
+        # Verify the neighbor list weights
+        npt.assert_almost_equal(
+            vor.nlist.weights[vor.nlist.query_point_indices == 4], 1)
+
+        # Double the points (still inside the box) and test again
+        points *= 2
+        vor.compute((box, points))
+        center_polytope = sort_rounded_xyz_array(vor.polytopes[4])
+        expected_polytope = sort_rounded_xyz_array(
+            [[3, 3, 0], [1, 3, 0], [1, 1, 0], [3, 1, 0]])
+        npt.assert_almost_equal(center_polytope, expected_polytope)
+        npt.assert_almost_equal(vor.volumes[4], 4)
+        npt.assert_almost_equal(np.sum(vor.volumes), box.volume)
+        npt.assert_almost_equal(
+            vor.nlist.weights[vor.nlist.query_point_indices == 4], 2)
 
     def test_voronoi_tess_3d(self):
         # Test that the voronoi polytope works for a 3D system
         L = 10  # Box length
         box = freud.box.Box.cube(L)
-        vor = freud.locality._Voronoi()
+        vor = freud.locality.Voronoi()
         # Make a regular grid
-        positions = np.array(
+        points = np.array(
+            [[0, 0, 0], [0, 1, 0], [0, 2, 0],
+             [1, 0, 0], [1, 1, 0], [1, 2, 0],
+             [2, 0, 0], [2, 1, 0], [2, 2, 0],
+             [0, 0, 1], [0, 1, 1], [0, 2, 1],
+             [1, 0, 1], [1, 1, 1], [1, 2, 1],
+             [2, 0, 1], [2, 1, 1], [2, 2, 1],
+             [0, 0, 2], [0, 1, 2], [0, 2, 2],
+             [1, 0, 2], [1, 1, 2], [1, 2, 2],
+             [2, 0, 2], [2, 1, 2], [2, 2, 2]]).astype(np.float64)
+        vor.compute((box, points))
+
+        center_polytope = sort_rounded_xyz_array(vor.polytopes[13])
+        expected_polytope = sort_rounded_xyz_array(
+            [[1.5, 1.5, 1.5], [1.5, 0.5, 1.5], [1.5, 0.5, 0.5],
+             [1.5, 1.5, 0.5], [0.5, 0.5, 0.5], [0.5, 0.5, 1.5],
+             [0.5, 1.5, 0.5], [0.5, 1.5, 1.5]])
+        npt.assert_almost_equal(center_polytope, expected_polytope)
+
+        # Verify the cell volumes
+        npt.assert_almost_equal(vor.volumes[13], 1)
+        npt.assert_almost_equal(np.sum(vor.volumes), box.volume)
+
+        # Verify the neighbor list weights
+        npt.assert_almost_equal(
+            vor.nlist.weights[vor.nlist.query_point_indices == 13], 1)
+
+        # Double the points (still inside the box) and test again
+        points *= 2
+        vor.compute((box, points))
+        center_polytope = sort_rounded_xyz_array(vor.polytopes[13])
+        expected_polytope = sort_rounded_xyz_array(
+            [[3, 3, 3], [3, 1, 3], [3, 1, 1],
+             [3, 3, 1], [1, 1, 1], [1, 1, 3],
+             [1, 3, 1], [1, 3, 3]])
+        npt.assert_almost_equal(center_polytope, expected_polytope)
+        npt.assert_almost_equal(vor.volumes[13], 8)
+        npt.assert_almost_equal(np.sum(vor.volumes), box.volume)
+        npt.assert_almost_equal(
+            vor.nlist.weights[vor.nlist.query_point_indices == 13], 4)
+
+    def test_voronoi_neighbors_wrapped(self):
+        # Test that voronoi neighbors in the first shell are correct for a
+        # wrapped 3D system, also tests multiple compute calls
+
+        n = 10
+        structure_neighbors = {
+            'sc': (util.make_sc, 6),
+            'bcc': (util.make_bcc, 14),
+            'fcc': (util.make_fcc, 12),
+        }
+        vor = freud.locality.Voronoi()
+
+        for func, neighbors in structure_neighbors.values():
+            box, points = func(nx=n, ny=n, nz=n)
+            vor.compute((box, points))
+            nlist = vor.nlist
+
+            # Drop the tiny facets that come from numerical imprecision
+            nlist = nlist.filter(nlist.weights > 1e-5)
+
+            unique_indices, counts = np.unique(nlist.query_point_indices,
+                                               return_counts=True)
+
+            # Every particle should have six neighbors
+            npt.assert_equal(counts, neighbors)
+            npt.assert_almost_equal(np.sum(vor.volumes), box.volume)
+
+    def test_voronoi_weights_fcc(self):
+        # Test that voronoi neighbor weights are computed properly for 3D FCC
+
+        n = 3
+        box, points = util.make_fcc(nx=n, ny=n, nz=n)
+
+        vor = freud.locality.Voronoi()
+        vor.compute((box, points))
+        nlist = vor.nlist
+
+        # Drop the tiny facets that come from numerical imprecision
+        nlist = nlist.filter(nlist.weights > 1e-5)
+
+        # Every FCC particle should have 12 neighbors
+        npt.assert_equal(nlist.neighbor_counts, np.full(len(points), 12))
+
+        # Every facet area should be sqrt(2)/2
+        npt.assert_allclose(nlist.weights,
+                            np.full(len(nlist.weights), 0.5*np.sqrt(2)),
+                            atol=1e-5)
+
+        # Every cell should have volume 2
+        vor.compute((box, points))
+        npt.assert_allclose(vor.compute((box, points)).volumes,
+                            np.full(len(vor.polytopes), 2.),
+                            atol=1e-5)
+
+    def test_nlist_symmetric(self):
+        # Test that the voronoi neighborlist is symmetric
+        L = 10  # Box length
+        N = 40  # Number of particles
+
+        box, points = util.make_box_and_random_points(L, N, is2D=False)
+        vor = freud.locality.Voronoi()
+        vor.compute((box, points))
+        nlist = vor.nlist
+
+        ijs = set(zip(nlist.query_point_indices, nlist.point_indices))
+        jis = set(zip(nlist.point_indices, nlist.query_point_indices))
+
+        # every (i, j) pair should have a corresponding (j, i) pair
+        self.assertTrue(all((j, i) in jis for (i, j) in ijs))
+
+    def test_repr(self):
+        vor = freud.locality.Voronoi()
+        self.assertEqual(str(vor), str(eval(repr(vor))))
+
+    def test_attributes(self):
+        # Test that the class attributes are protected
+        L = 10  # Box length
+        N = 40  # Number of particles
+        vor = freud.locality.Voronoi()
+        with self.assertRaises(AttributeError):
+            vor.nlist
+        with self.assertRaises(AttributeError):
+            vor.polytopes
+        with self.assertRaises(AttributeError):
+            vor.volumes
+        box, points = util.make_box_and_random_points(L, N, is2D=False)
+        vor.compute((box, points))
+
+        # Ensure attributes are accessible after calling compute
+        vor.nlist
+        vor.polytopes
+        vor.volumes
+
+    def test_repr_png(self):
+        L = 10  # Box length
+        box = freud.box.Box.square(L)
+        vor = freud.locality.Voronoi()
+
+        with self.assertRaises(AttributeError):
+            vor.plot()
+        self.assertEqual(vor._repr_png_(), None)
+
+        # Make a regular grid
+        points = np.array(
+            [[0, 0, 0], [0, 1, 0], [0, 2, 0],
+             [1, 0, 0], [1, 1, 0], [1, 2, 0],
+             [2, 0, 0], [2, 1, 0], [2, 2, 0]]).astype(np.float32)
+        vor.compute((box, points))
+        vor._repr_png_()
+
+        L = 10  # Box length
+        box = freud.box.Box.cube(L)
+        vor = freud.locality.Voronoi()
+        # Make a regular grid
+        points = np.array(
             [[0, 0, 0], [0, 1, 0], [0, 2, 0],
              [1, 0, 0], [1, 1, 0], [1, 2, 0],
              [2, 0, 0], [2, 1, 0], [2, 2, 0],
@@ -56,99 +250,8 @@ class TestVoronoi(unittest.TestCase):
              [0, 0, 2], [0, 1, 2], [0, 2, 2],
              [1, 0, 2], [1, 1, 2], [1, 2, 2],
              [2, 0, 2], [2, 1, 2], [2, 2, 2]]).astype(np.float32)
-        vor.compute(box, positions, 0, False)
-        polytope_centers = set(tuple(point)
-                               for point in vor.polytopes[0].tolist())
-        check_centers = set([(1.5, 1.5, 1.5), (1.5, 0.5, 1.5), (1.5, 0.5, 0.5),
-                             (1.5, 1.5, 0.5), (0.5, 0.5, 0.5), (0.5, 0.5, 1.5),
-                             (0.5, 1.5, 0.5), (0.5, 1.5, 1.5)])
-        self.assertEqual(polytope_centers, check_centers)
-
-        # Verify the cell volumes
-        npt.assert_equal(vor.volumes, [1])
-
-    def test_voronoi_neighbors_wrapped(self):
-        # Test that voronoi neighbors in the first shell are
-        # correct for a wrapped 3D system
-
-        L = 3.0  # Box length
-        box = freud.box.Box.cube(L)
-        rbuf = L/2
-
-        # Make a simple cubic structure
-        positions = np.array([[i + 0.5 - L/2,
-                               j + 0.5 - L/2,
-                               k + 0.5 - L/2]
-                              for i in range(int(L))
-                              for j in range(int(L))
-                              for k in range(int(L))]).astype(np.float32)
-        vor = freud.locality._Voronoi()
-        vor.compute(box, positions, rbuf)
-        nlist = vor.nlist
-
-        # Drop the tiny facets that come from numerical imprecision
-        nlist = nlist.filter(nlist.weights > 1e-7)
-
-        unique_indices, counts = np.unique(nlist.index_i, return_counts=True)
-
-        # Every particle should have six neighbors
-        npt.assert_equal(counts, np.full(len(unique_indices), 6))
-
-    def test_voronoi_weights_fcc(self):
-        # Test that voronoi neighbor weights are computed properly for 3D FCC
-
-        L = 3
-        box, positions = util.make_fcc(nx=L, ny=L, nz=L)
-        rbuf = np.max(box.L)/2
-
-        vor = freud.locality._Voronoi()
-        vor.compute(box, positions, rbuf, False)
-        nlist = vor.nlist
-
-        # Drop the tiny facets that come from numerical imprecision
-        nlist = nlist.filter(nlist.weights > 1e-5)
-
-        unique_indices, counts = np.unique(nlist.index_i, return_counts=True)
-
-        # Every FCC particle should have 12 neighbors
-        npt.assert_equal(counts, np.full(len(unique_indices), 12))
-
-        # Every facet area should be sqrt(2)/2
-        npt.assert_allclose(nlist.weights,
-                            np.full(len(nlist.weights), 0.5*np.sqrt(2)),
-                            atol=1e-5)
-        # Every cell should have volume 2
-        vor.compute(box, positions)
-        npt.assert_allclose(vor.compute(box, positions, rbuf, False).volumes,
-                            np.full(len(vor.polytopes), 2.),
-                            atol=1e-5)
-
-    def test_nlist_symmetric(self):
-        # Test that the voronoi neighborlist is symmetric
-        L = 10  # Box length
-        rbuf = 3  # Cutoff radius
-        N = 40  # Number of particles
-
-        box, points = util.make_box_and_random_points(L, N)
-        vor = freud.locality._Voronoi()
-        vor.compute(
-            box=box, positions=points, buffer=rbuf, images=False)
-        nlist = vor.nlist
-
-        ijs = set(zip(nlist.index_i, nlist.index_j))
-        jis = set(zip(nlist.index_j, nlist.index_i))
-
-        # we shouldn't have duplicate (i, j) pairs in the
-        # resulting neighbor list
-        # npt.assert_equal(len(ijs), len(nlist))
-        # npt.assert_equal(len(ijs), len(jis))
-
-        # every (i, j) pair should have a corresponding (j, i) pair
-        self.assertTrue(all((j, i) in jis for (i, j) in ijs))
-
-    def test_repr(self):
-        vor = freud.locality._Voronoi()
-        self.assertEqual(str(vor), str(eval(repr(vor))))
+        vor.compute((box, points))
+        self.assertEqual(vor._repr_png_(), None)
 
 
 if __name__ == '__main__':

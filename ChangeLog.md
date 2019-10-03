@@ -4,6 +4,63 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## Upcoming: Changes for freud 2.0
+
+### Added
+* Ability to specify NeighborQuery objects as points for most computes that require boxes and sets of points.
+* Various validation tests.
+* Standard method for preprocessing arguments of pair computations.
+* New internal array object that allows data persistence and improves indexing in C++.
+* Internal threaded storage uses the standard ManagedArray object.
+* Upper bound r\_max option for number of neighbors queries.
+* C++ Histogram class to standardize n-dimensional binning and simplify writing new methods.
+* Lower bound r\_min option for all queries.
+* Steinhardt now supports l = 0, 1.
+* C++ BondHistogramCompute class encapsulates logic of histogram-based methods.
+* NeighborLists and query arguments are now accepted on equal footing by compute methods that involve neighbor finding.
+* 2D PMFTs accept quaternions as well as angles for their orientations.
+* Extensive new documentation including tutorial for new users and reference sections on crucial topics.
+
+### Changed
+* All compute objects that perform neighbor computations now use NeighborQuery internally.
+* All compute objects that perform neighbor computations now loop over NeighborBond objects.
+* Renamed (ref\_points, points) to (points, query\_points) to clarify their usage.
+* Standardized naming of various common parameters across freud such as the search distance r\_max.
+* Updated GaussianDensity constructor to accept tuples as width instead of having 2 distinct signatures.
+* Removed unused query\_orientations from PMFTXYZ and PMFTXY2D.
+* Arrays returned to Python persist even after the compute object is destroyed or resizes its arrays.
+* RDF bin centers are now strictly at the center of bins.
+* RDF no longer performs parallel accumulation of cumulative counts (provided no performance gains and was substantially more complex code).
+* Cluster now finds connected components of the neighbor graph (the cluster cutoff distance is given through query arguments).
+* Steinhardt uses query arguments.
+* APIs for several order parameters have been standardized.
+* SolidLiquid order parameter has been completely rewritten, fixing several bugs and simplifying its C++ code.
+* NeighborQuery objects require z == 0 for all points if the box is 2D.
+* Renamed several Box methods, ParticleBuffer is now PeriodicBuffer.
+* Refactored and renamed attributes of Cluster and ClusterProperties modules.
+* All class attributes are stored in the C++ members and accessed via getters wrapped as Python properties.
+* Bond vector directionality is standardized for all computes that use it (always from query\_point to point).
+* Neighbor-based compute methods now accept NeighborQuery objects as the first object, including (box, point) tuples.
+* Documentation uses automodule instead of autoclass.
+* The Voronoi class was rewritten to use voro++ for vastly improved performance and correctness in edge cases.
+* MatchEnv has been split into separate classes for the different types of computations it is capable of performing, and these classes all use v2.0-style APIs.
+* Code in the freud.common has been moved to freud.util.
+* PMFTXY2D has been renamed to PMFTXY.
+
+### Fixed
+* Steinhardt uses the ThreadStorage class and properly resets memory where needed.
+* Removed all neighbor exclusion logic from all classes, depends entirely on locality module now.
+* RDF no longer forces the first bin of the PCF and first two bins of the cumulative counts to be 0.
+* LinkCell nearest neighbor queries properly check the largest distance found before proceeding to next shell.
+* Compute classes requiring 2D systems check the dimensionality of their input boxes.
+
+### Removed
+* The freud.util module.
+* Python 2 is no longer supported. Python 3.5+ is required.
+* Cubatic no longer returns the per-particle tensor or the constant r4 tensor.
+* Most features of freud.common are removed from the public API.
+* LinkCell no longer exposes the internals of the cell list data structure.
+
 ## v1.2.2 - 2019-08-15
 
 ### Changed
@@ -69,7 +126,7 @@ and this project adheres to
 ## v1.1.0 - 2019-05-23
 
 ### Added
-* New neighbor querying API to enable reuse of query data structures.
+* New neighbor querying API to enable reuse of query data structures (see NeighborQuery class).
 * AABBQuery (AABB tree-based neighbor finding) added to public API.
 * Ability to dynamically select query method based on struct of arguments.
 * All compute objects have `__repr__` and `__str__` methods defined.

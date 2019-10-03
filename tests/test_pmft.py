@@ -4,6 +4,7 @@ import freud
 import unittest
 import warnings
 import util
+import rowan
 
 
 class TestPMFTR12(unittest.TestCase):
@@ -17,22 +18,14 @@ class TestPMFTR12(unittest.TestCase):
         nbinsR = 10
         nbinsT1 = 20
         nbinsT2 = 30
-        myPMFT = freud.pmft.PMFTR12(maxR, nbinsR, nbinsT1, nbinsT2)
-        myPMFT.accumulate(box, points, angles, points, angles)
+        myPMFT = freud.pmft.PMFTR12(maxR, (nbinsR, nbinsT1, nbinsT2))
+        myPMFT.compute((box, points), angles, points, angles, reset=False)
         npt.assert_equal(myPMFT.box, freud.box.Box.square(boxSize))
 
         # Ensure expected errors are raised
         box = freud.box.Box.cube(boxSize)
         with self.assertRaises(ValueError):
-            myPMFT.accumulate(box, points, angles, points, angles)
-
-    def test_r_cut(self):
-        maxR = 5.23
-        nbinsR = 10
-        nbinsT1 = 20
-        nbinsT2 = 30
-        myPMFT = freud.pmft.PMFTR12(maxR, nbinsR, nbinsT1, nbinsT2)
-        npt.assert_allclose(myPMFT.r_cut, maxR, atol=1e-6)
+            myPMFT.compute((box, points), angles, points, angles, reset=False)
 
     def test_bins(self):
         maxR = 5.23
@@ -48,11 +41,8 @@ class TestPMFTR12(unittest.TestCase):
         listT1 = np.zeros(nbinsT1, dtype=np.float32)
         listT2 = np.zeros(nbinsT2, dtype=np.float32)
 
-        for i in range(nbinsR):
-            r = float(i) * dr
-            nextr = float(i + 1) * dr
-            listR[i] = 2.0/3.0 * (
-                nextr*nextr*nextr - r*r*r)/(nextr*nextr - r*r)
+        listR = np.array([dr*(i+1/2) for i in range(nbinsR) if
+                          dr*(i+1/2) < maxR])
 
         for i in range(nbinsT1):
             t = float(i) * dT1
@@ -64,22 +54,16 @@ class TestPMFTR12(unittest.TestCase):
             nextt = float(i + 1) * dT2
             listT2[i] = ((t + nextt) / 2.0)
 
-        myPMFT = freud.pmft.PMFTR12(maxR, nbinsR, nbinsT1, nbinsT2)
+        myPMFT = freud.pmft.PMFTR12(maxR, (nbinsR, nbinsT1, nbinsT2))
 
         # Compare expected bins to the info from pmft
-        npt.assert_allclose(myPMFT.R, listR, atol=1e-3)
-        npt.assert_allclose(myPMFT.T1, listT1, atol=1e-3)
-        npt.assert_allclose(myPMFT.T2, listT2, atol=1e-3)
+        npt.assert_allclose(myPMFT.bin_centers[0], listR, atol=1e-3)
+        npt.assert_allclose(myPMFT.bin_centers[1], listT1, atol=1e-3)
+        npt.assert_allclose(myPMFT.bin_centers[2], listT2, atol=1e-3)
 
-        npt.assert_equal(nbinsR, myPMFT.n_bins_R)
-        npt.assert_equal(nbinsT1, myPMFT.n_bins_T1)
-        npt.assert_equal(nbinsT2, myPMFT.n_bins_T2)
-
-        inverse_jacobian = np.array(
-            [[[1/(R*dr*dT1*dT2)
-               for T1 in listT1] for T2 in listT2] for R in listR])
-        npt.assert_allclose(myPMFT.inverse_jacobian, inverse_jacobian,
-                            atol=1e-5)
+        npt.assert_equal(nbinsR, myPMFT.nbins[0])
+        npt.assert_equal(nbinsT1, myPMFT.nbins[1])
+        npt.assert_equal(nbinsT2, myPMFT.nbins[2])
 
     def test_attribute_access(self):
         boxSize = 16.0
@@ -90,14 +74,10 @@ class TestPMFTR12(unittest.TestCase):
         angles = np.array([0.0, np.pi/2], dtype=np.float32)
         angles.flags['WRITEABLE'] = False
         maxR = 5.23
-        nbinsR = 10
-        nbinsT1 = 20
-        nbinsT2 = 30
+        nbins = 10
 
-        myPMFT = freud.pmft.PMFTR12(maxR, nbinsR, nbinsT1, nbinsT2)
+        myPMFT = freud.pmft.PMFTR12(maxR, nbins)
 
-        with self.assertRaises(AttributeError):
-            myPMFT.PCF
         with self.assertRaises(AttributeError):
             myPMFT.bin_counts
         with self.assertRaises(AttributeError):
@@ -105,29 +85,15 @@ class TestPMFTR12(unittest.TestCase):
         with self.assertRaises(AttributeError):
             myPMFT.PMFT
 
-        myPMFT.accumulate(box, points, angles, points, angles)
+        myPMFT.compute((box, points), angles, points, angles, reset=False)
 
-        myPMFT.PCF
         myPMFT.bin_counts
         myPMFT.PMFT
         myPMFT.box
-        npt.assert_equal(myPMFT.bin_counts.shape, (nbinsR, nbinsT2, nbinsT1))
-        npt.assert_equal(myPMFT.PCF.shape, (nbinsR, nbinsT2, nbinsT1))
-        npt.assert_equal(myPMFT.PMFT.shape, (nbinsR, nbinsT2, nbinsT1))
+        npt.assert_equal(myPMFT.bin_counts.shape, (nbins, nbins, nbins))
+        npt.assert_equal(myPMFT.PMFT.shape, (nbins, nbins, nbins))
 
-        myPMFT.reset()
-
-        with self.assertRaises(AttributeError):
-            myPMFT.PCF
-        with self.assertRaises(AttributeError):
-            myPMFT.bin_counts
-        with self.assertRaises(AttributeError):
-            myPMFT.box
-        with self.assertRaises(AttributeError):
-            myPMFT.PMFT
-
-        myPMFT.compute(box, points, angles, points, angles)
-        myPMFT.PCF
+        myPMFT.compute((box, points), angles, points, angles)
         myPMFT.bin_counts
         myPMFT.PMFT
         myPMFT.box
@@ -149,16 +115,18 @@ class TestPMFTR12(unittest.TestCase):
         dT2 = (2.0 * np.pi / float(nbinsT2))
 
         # calculation for array idxs
-        def get_bin(point_i, point_j, angle_i, angle_j):
-            delta_x = point_j - point_i
-            r_bin = np.floor(np.linalg.norm(delta_x)/dr)
-            delta_t1 = np.arctan2(delta_x[1], delta_x[0])
-            delta_t2 = np.arctan2(-delta_x[1], -delta_x[0])
-            t1_bin = np.floor(((angle_i - delta_t1) % (2. * np.pi))/dT1)
-            t2_bin = np.floor(((angle_j - delta_t2) % (2. * np.pi))/dT2)
-            return np.array([r_bin, t2_bin, t1_bin], dtype=np.int32)
+        def get_bin(query_point, point, query_point_angle, point_angle):
+            r_ij = point - query_point
+            r_bin = np.floor(np.linalg.norm(r_ij) / dr)
+            delta_t1 = np.arctan2(r_ij[1], r_ij[0])
+            delta_t2 = np.arctan2(-r_ij[1], -r_ij[0])
+            t1_bin = np.floor(
+                ((point_angle - delta_t1) % (2. * np.pi)) / dT1)
+            t2_bin = np.floor(
+                ((query_point_angle - delta_t2) % (2. * np.pi)) / dT2)
+            return np.array([r_bin, t1_bin, t2_bin], dtype=np.int32)
 
-        correct_bin_counts = np.zeros(shape=(nbinsR, nbinsT2, nbinsT1),
+        correct_bin_counts = np.zeros(shape=(nbinsR, nbinsT1, nbinsT2),
                                       dtype=np.int32)
         bins = get_bin(points[0], points[1], angles[0], angles[1])
         correct_bin_counts[bins[0], bins[1], bins[2]] = 1
@@ -166,46 +134,50 @@ class TestPMFTR12(unittest.TestCase):
         correct_bin_counts[bins[0], bins[1], bins[2]] = 1
         absoluteTolerance = 0.1
 
-        myPMFT = freud.pmft.PMFTR12(maxR, nbinsR, nbinsT1, nbinsT2)
-        myPMFT.accumulate(box, points, angles, points, angles)
-        npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
-                            atol=absoluteTolerance)
-        myPMFT.reset()
-        myPMFT.compute(box, points, angles, points, angles)
-        npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
-                            atol=absoluteTolerance)
+        r_max = maxR
+        test_set = util.make_raw_query_nlist_test_set(
+            box, points, points, 'ball', r_max, 0, True)
+        for nq, neighbors in test_set:
+            myPMFT = freud.pmft.PMFTR12(maxR, (nbinsR, nbinsT1, nbinsT2))
+            myPMFT.compute(nq, angles, neighbors=neighbors, reset=False)
+            npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
+                                atol=absoluteTolerance)
+            myPMFT.compute(nq, angles, neighbors=neighbors)
+            npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
+                                atol=absoluteTolerance)
 
-        myPMFT.compute(box, points, angles)
-        npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
-                            atol=absoluteTolerance)
+            myPMFT.compute(nq, angles, neighbors=neighbors)
+            npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
+                                atol=absoluteTolerance)
 
     def test_repr(self):
         maxR = 5.23
-        nbinsR = 10
-        nbinsT1 = 20
-        nbinsT2 = 30
-        myPMFT = freud.pmft.PMFTR12(maxR, nbinsR, nbinsT1, nbinsT2)
+        nbins = 10
+        myPMFT = freud.pmft.PMFTR12(maxR, nbins)
         self.assertEqual(str(myPMFT), str(eval(repr(myPMFT))))
 
-    def test_ref_points_ne_points(self):
+    def test_points_ne_query_points(self):
         r_max = 2.3
-        n_r = 10
-        n_t1 = 10
-        n_t2 = 10
-        pmft = freud.pmft.PMFTR12(r_max, n_r, n_t1, n_t2)
+        nbins = 10
 
         lattice_size = 10
         box = freud.box.Box.square(lattice_size*5)
 
-        ref_points, points = util.make_alternating_lattice(
+        points, query_points = util.make_alternating_lattice(
             lattice_size, 0.01, 2)
-        ref_orientations = np.array([0]*len(ref_points))
         orientations = np.array([0]*len(points))
+        query_orientations = np.array([0]*len(query_points))
 
-        pmft.compute(box, ref_points, ref_orientations, points, orientations)
+        test_set = util.make_raw_query_nlist_test_set(
+            box, points, query_points, "ball", r_max, 0, False)
+        for nq, neighbors in test_set:
+            pmft = freud.pmft.PMFTR12(r_max, nbins)
+            pmft.compute(nq,
+                         orientations, query_points,
+                         query_orientations, neighbors=neighbors)
 
-        self.assertEqual(np.count_nonzero(np.isinf(pmft.PMFT) == 0), 12)
-        self.assertEqual(len(np.unique(pmft.PMFT)), 3)
+            self.assertEqual(np.count_nonzero(np.isinf(pmft.PMFT) == 0), 12)
+            self.assertEqual(len(np.unique(pmft.PMFT)), 3)
 
 
 class TestPMFTXYT(unittest.TestCase):
@@ -220,24 +192,14 @@ class TestPMFTXYT(unittest.TestCase):
         nbinsX = 20
         nbinsY = 30
         nbinsT = 40
-        myPMFT = freud.pmft.PMFTXYT(maxX, maxY, nbinsX, nbinsY, nbinsT)
-        myPMFT.accumulate(box, points, angles, points, angles)
+        myPMFT = freud.pmft.PMFTXYT(maxX, maxY, (nbinsX, nbinsY, nbinsT))
+        myPMFT.compute((box, points), angles, points, angles, reset=False)
         npt.assert_equal(myPMFT.box, freud.box.Box.square(boxSize))
 
         # Ensure expected errors are raised
         box = freud.box.Box.cube(boxSize)
         with self.assertRaises(ValueError):
-            myPMFT.accumulate(box, points, angles, points, angles)
-
-    def test_r_cut(self):
-        maxX = 3.6
-        maxY = 4.2
-        nbinsX = 20
-        nbinsY = 30
-        nbinsT = 40
-        myPMFT = freud.pmft.PMFTXYT(maxX, maxY, nbinsX, nbinsY, nbinsT)
-        npt.assert_allclose(myPMFT.r_cut,
-                            np.linalg.norm([maxX, maxY]), atol=1e-6)
+            myPMFT.compute((box, points), angles, points, angles, reset=False)
 
     def test_bins(self):
         maxX = 3.6
@@ -269,18 +231,16 @@ class TestPMFTXYT(unittest.TestCase):
             nextt = float(i + 1) * dT
             listT[i] = ((t + nextt) / 2.0)
 
-        myPMFT = freud.pmft.PMFTXYT(maxX, maxY, nbinsX, nbinsY, nbinsT)
+        myPMFT = freud.pmft.PMFTXYT(maxX, maxY, (nbinsX, nbinsY, nbinsT))
 
         # Compare expected bins to the info from pmft
-        npt.assert_allclose(myPMFT.X, listX, atol=1e-3)
-        npt.assert_allclose(myPMFT.Y, listY, atol=1e-3)
-        npt.assert_allclose(myPMFT.T, listT, atol=1e-3)
+        npt.assert_allclose(myPMFT.bin_centers[0], listX, atol=1e-3)
+        npt.assert_allclose(myPMFT.bin_centers[1], listY, atol=1e-3)
+        npt.assert_allclose(myPMFT.bin_centers[2], listT, atol=1e-3)
 
-        npt.assert_equal(nbinsX, myPMFT.n_bins_X)
-        npt.assert_equal(nbinsY, myPMFT.n_bins_Y)
-        npt.assert_equal(nbinsT, myPMFT.n_bins_T)
-
-        npt.assert_allclose(myPMFT.jacobian, dx*dy*dT)
+        npt.assert_equal(nbinsX, myPMFT.nbins[0])
+        npt.assert_equal(nbinsY, myPMFT.nbins[1])
+        npt.assert_equal(nbinsT, myPMFT.nbins[2])
 
     def test_attribute_access(self):
         boxSize = 16.0
@@ -290,14 +250,10 @@ class TestPMFTXYT(unittest.TestCase):
         angles = np.array([0.0, np.pi/2], dtype=np.float32)
         maxX = 3.6
         maxY = 4.2
-        nbinsX = 20
-        nbinsY = 30
-        nbinsT = 40
+        nbins = 20
 
-        myPMFT = freud.pmft.PMFTXYT(maxX, maxY, nbinsX, nbinsY, nbinsT)
+        myPMFT = freud.pmft.PMFTXYT(maxX, maxY, nbins)
 
-        with self.assertRaises(AttributeError):
-            myPMFT.PCF
         with self.assertRaises(AttributeError):
             myPMFT.bin_counts
         with self.assertRaises(AttributeError):
@@ -305,29 +261,15 @@ class TestPMFTXYT(unittest.TestCase):
         with self.assertRaises(AttributeError):
             myPMFT.PMFT
 
-        myPMFT.accumulate(box, points, angles, points, angles)
+        myPMFT.compute((box, points), angles, points, angles, reset=False)
 
-        myPMFT.PCF
         myPMFT.bin_counts
         myPMFT.PMFT
         myPMFT.box
-        npt.assert_equal(myPMFT.bin_counts.shape, (nbinsT, nbinsY, nbinsX))
-        npt.assert_equal(myPMFT.PCF.shape, (nbinsT, nbinsY, nbinsX))
-        npt.assert_equal(myPMFT.PMFT.shape, (nbinsT, nbinsY, nbinsX))
+        npt.assert_equal(myPMFT.bin_counts.shape, (nbins, nbins, nbins))
+        npt.assert_equal(myPMFT.PMFT.shape, (nbins, nbins, nbins))
 
-        myPMFT.reset()
-
-        with self.assertRaises(AttributeError):
-            myPMFT.PCF
-        with self.assertRaises(AttributeError):
-            myPMFT.bin_counts
-        with self.assertRaises(AttributeError):
-            myPMFT.box
-        with self.assertRaises(AttributeError):
-            myPMFT.PMFT
-
-        myPMFT.compute(box, points, angles, points, angles)
-        myPMFT.PCF
+        myPMFT.compute((box, points), angles, points, angles)
         myPMFT.bin_counts
         myPMFT.PMFT
         myPMFT.box
@@ -348,75 +290,83 @@ class TestPMFTXYT(unittest.TestCase):
         dT = (2.0 * np.pi / float(nbinsT))
 
         # calculation for array idxs
-        def get_bin(point_i, point_j, angle_i, angle_j):
-            delta_x = point_j - point_i
-            rot_mat = np.array([[np.cos(-angle_i), -np.sin(-angle_i)],
-                                [np.sin(-angle_i), np.cos(-angle_i)]])
-            rot_delta_x = np.matmul(rot_mat, delta_x[:2])
-            xy_bins = np.floor((rot_delta_x + [maxX, maxY]) /
+        def get_bin(query_point, point, query_point_angle, point_angle):
+            r_ij = point - query_point
+            orientation = rowan.from_axis_angle([0, 0, 1], -point_angle)
+            rot_r_ij = rowan.rotate(orientation, r_ij)
+            xy_bins = np.floor((rot_r_ij[:2] + [maxX, maxY]) /
                                [dx, dy]).astype(np.int32)
             angle_bin = np.floor(
-                ((angle_j - np.arctan2(-delta_x[1], -delta_x[0])) %
+                ((query_point_angle - np.arctan2(-r_ij[1], -r_ij[0])) %
                  (2. * np.pi)) / dT).astype(np.int32)
             return [xy_bins[0], xy_bins[1], angle_bin]
 
-        correct_bin_counts = np.zeros(shape=(nbinsT, nbinsY, nbinsX),
+        correct_bin_counts = np.zeros(shape=(nbinsX, nbinsY, nbinsT),
                                       dtype=np.int32)
         bins = get_bin(points[0], points[1], angles[0], angles[1])
-        correct_bin_counts[bins[2], bins[1], bins[0]] = 1
+        correct_bin_counts[bins[0], bins[1], bins[2]] = 1
         bins = get_bin(points[1], points[0], angles[1], angles[0])
-        correct_bin_counts[bins[2], bins[1], bins[0]] = 1
+        correct_bin_counts[bins[0], bins[1], bins[2]] = 1
         absoluteTolerance = 0.1
 
-        myPMFT = freud.pmft.PMFTXYT(maxX, maxY, nbinsX, nbinsY, nbinsT)
-        myPMFT.accumulate(box, points, angles, points, angles)
-        npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
-                            atol=absoluteTolerance)
-        myPMFT.reset()
-        myPMFT.compute(box, points, angles, points, angles)
-        npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
-                            atol=absoluteTolerance)
+        r_max = np.sqrt(maxX**2 + maxY**2)
+        test_set = util.make_raw_query_nlist_test_set(
+            box, points, points, 'ball', r_max, 0, True)
+        for nq, neighbors in test_set:
+            myPMFT = freud.pmft.PMFTXYT(maxX, maxY, (nbinsX, nbinsY, nbinsT))
+            myPMFT.compute(nq, angles, neighbors=neighbors, reset=False)
+            npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
+                                atol=absoluteTolerance)
+            myPMFT.compute(nq, angles, neighbors=neighbors)
+            npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
+                                atol=absoluteTolerance)
 
-        myPMFT.compute(box, points, angles)
-        npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
-                            atol=absoluteTolerance)
+            myPMFT.compute(nq, angles, neighbors=neighbors)
+            npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
+                                atol=absoluteTolerance)
 
     def test_repr(self):
         maxX = 3.0
         maxY = 4.0
-        nbinsX = 20
-        nbinsY = 30
-        nbinsT = 40
-        myPMFT = freud.pmft.PMFTXYT(maxX, maxY, nbinsX, nbinsY, nbinsT)
+        nbins = 20
+        myPMFT = freud.pmft.PMFTXYT(maxX, maxY, nbins)
         self.assertEqual(str(myPMFT), str(eval(repr(myPMFT))))
 
-    def test_ref_points_ne_points(self):
+    def test_points_ne_query_points(self):
         x_max = 2.5
         y_max = 2.5
         n_x = 10
         n_y = 10
         n_t = 4
-        pmft = freud.pmft.PMFTXYT(x_max, y_max, n_x, n_y, n_t)
 
         lattice_size = 10
         box = freud.box.Box.square(lattice_size*5)
 
-        ref_points, points = util.make_alternating_lattice(
+        points, query_points = util.make_alternating_lattice(
             lattice_size, 0.01, 2)
-        ref_orientations = np.array([0]*len(ref_points))
         orientations = np.array([0]*len(points))
+        query_orientations = np.array([0]*len(query_points))
 
-        pmft.compute(box, ref_points, ref_orientations, points, orientations)
+        r_max = np.sqrt(x_max**2 + y_max**2)
+        test_set = util.make_raw_query_nlist_test_set(
+            box, points, query_points, 'ball', r_max, 0, False)
 
-        # when rotated slightly, for each ref point, each quadrant
-        # (corresponding to two consecutive bins) should contain 3 points.
-        for i in range(n_t):
-            self.assertEqual(np.count_nonzero(np.isinf(pmft.PMFT[i]) == 0), 3)
+        for nq, neighbors in test_set:
+            pmft = freud.pmft.PMFTXYT(x_max, y_max, (n_x, n_y, n_t))
+            pmft.compute(nq,
+                         orientations, query_points,
+                         query_orientations, neighbors=neighbors)
 
-        self.assertEqual(len(np.unique(pmft.PMFT)), 2)
+            # when rotated slightly, for each ref point, each quadrant
+            # (corresponding to two consecutive bins) should contain 3 points.
+            for i in range(n_t):
+                self.assertEqual(
+                    np.count_nonzero(np.isinf(pmft.PMFT[..., i]) == 0), 3)
+
+            self.assertEqual(len(np.unique(pmft.PMFT)), 2)
 
 
-class TestPMFTXY2D(unittest.TestCase):
+class TestPMFTXY(unittest.TestCase):
     def test_box(self):
         boxSize = 16.0
         box = freud.box.Box.square(boxSize)
@@ -427,23 +377,14 @@ class TestPMFTXY2D(unittest.TestCase):
         maxY = 4.2
         nbinsX = 100
         nbinsY = 110
-        myPMFT = freud.pmft.PMFTXY2D(maxX, maxY, nbinsX, nbinsY)
-        myPMFT.accumulate(box, points, angles, points, angles)
+        myPMFT = freud.pmft.PMFTXY(maxX, maxY, (nbinsX, nbinsY))
+        myPMFT.compute((box, points), angles, points, reset=False)
         npt.assert_equal(myPMFT.box, freud.box.Box.square(boxSize))
 
         # Ensure expected errors are raised
         box = freud.box.Box.cube(boxSize)
         with self.assertRaises(ValueError):
-            myPMFT.accumulate(box, points, angles, points, angles)
-
-    def test_r_cut(self):
-        maxX = 3.6
-        maxY = 4.2
-        nbinsX = 100
-        nbinsY = 110
-        myPMFT = freud.pmft.PMFTXY2D(maxX, maxY, nbinsX, nbinsY)
-        npt.assert_allclose(myPMFT.r_cut,
-                            np.linalg.norm([maxX, maxY]), atol=1e-6)
+            myPMFT.compute((box, points), angles, points, reset=False)
 
     def test_bins(self):
         maxX = 3.6
@@ -467,16 +408,14 @@ class TestPMFTXY2D(unittest.TestCase):
             nextY = float(i + 1) * dy
             listY[i] = -maxY + ((y + nextY) / 2.0)
 
-        myPMFT = freud.pmft.PMFTXY2D(maxX, maxY, nbinsX, nbinsY)
+        myPMFT = freud.pmft.PMFTXY(maxX, maxY, (nbinsX, nbinsY))
 
         # Compare expected bins to the info from pmft
-        npt.assert_allclose(myPMFT.X, listX, atol=1e-3)
-        npt.assert_allclose(myPMFT.Y, listY, atol=1e-3)
+        npt.assert_allclose(myPMFT.bin_centers[0], listX, atol=1e-3)
+        npt.assert_allclose(myPMFT.bin_centers[1], listY, atol=1e-3)
 
-        npt.assert_equal(nbinsX, myPMFT.n_bins_X)
-        npt.assert_equal(nbinsY, myPMFT.n_bins_Y)
-
-        npt.assert_allclose(myPMFT.jacobian, dx*dy)
+        npt.assert_equal(nbinsX, myPMFT.nbins[0])
+        npt.assert_equal(nbinsY, myPMFT.nbins[1])
 
     def test_attribute_access(self):
         boxSize = 16.0
@@ -486,13 +425,10 @@ class TestPMFTXY2D(unittest.TestCase):
         angles = np.array([0.0, 0.0], dtype=np.float32)
         maxX = 3.6
         maxY = 4.2
-        nbinsX = 100
-        nbinsY = 110
+        nbins = 100
 
-        myPMFT = freud.pmft.PMFTXY2D(maxX, maxY, nbinsX, nbinsY)
+        myPMFT = freud.pmft.PMFTXY(maxX, maxY, nbins)
 
-        with self.assertRaises(AttributeError):
-            myPMFT.PCF
         with self.assertRaises(AttributeError):
             myPMFT.bin_counts
         with self.assertRaises(AttributeError):
@@ -500,29 +436,15 @@ class TestPMFTXY2D(unittest.TestCase):
         with self.assertRaises(AttributeError):
             myPMFT.PMFT
 
-        myPMFT.accumulate(box, points, angles, points, angles)
+        myPMFT.compute((box, points), angles, points, reset=False)
 
-        myPMFT.PCF
         myPMFT.bin_counts
         myPMFT.PMFT
         myPMFT.box
-        npt.assert_equal(myPMFT.bin_counts.shape, (nbinsY, nbinsX))
-        npt.assert_equal(myPMFT.PCF.shape, (nbinsY, nbinsX))
-        npt.assert_equal(myPMFT.PMFT.shape, (nbinsY, nbinsX))
+        npt.assert_equal(myPMFT.bin_counts.shape, (nbins, nbins))
+        npt.assert_equal(myPMFT.PMFT.shape, (nbins, nbins))
 
-        myPMFT.reset()
-
-        with self.assertRaises(AttributeError):
-            myPMFT.PCF
-        with self.assertRaises(AttributeError):
-            myPMFT.bin_counts
-        with self.assertRaises(AttributeError):
-            myPMFT.box
-        with self.assertRaises(AttributeError):
-            myPMFT.PMFT
-
-        myPMFT.compute(box, points, angles, points, angles)
-        myPMFT.PCF
+        myPMFT.compute((box, points), angles, points)
         myPMFT.bin_counts
         myPMFT.PMFT
         myPMFT.box
@@ -540,38 +462,40 @@ class TestPMFTXY2D(unittest.TestCase):
         dx = (2.0 * maxX / float(nbinsX))
         dy = (2.0 * maxY / float(nbinsY))
 
-        correct_bin_counts = np.zeros(shape=(nbinsY, nbinsX), dtype=np.int32)
+        correct_bin_counts = np.zeros(shape=(nbinsX, nbinsY), dtype=np.int32)
 
         # calculation for array idxs
-        def get_bin(point_i, point_j):
-            return np.floor((point_i - point_j + [maxX, maxY, 0]) /
+        def get_bin(query_point, point):
+            return np.floor((query_point - point + [maxX, maxY, 0]) /
                             [dx, dy, 1]).astype(np.int32)[:2]
 
         bins = get_bin(points[0], points[1])
-        correct_bin_counts[bins[1], bins[0]] = 1
+        correct_bin_counts[bins[0], bins[1]] = 1
         bins = get_bin(points[1], points[0])
-        correct_bin_counts[bins[1], bins[0]] = 1
+        correct_bin_counts[bins[0], bins[1]] = 1
         absoluteTolerance = 0.1
 
-        myPMFT = freud.pmft.PMFTXY2D(maxX, maxY, nbinsX, nbinsY)
-        myPMFT.accumulate(box, points, angles, points, angles)
-        npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
-                            atol=absoluteTolerance)
-        myPMFT.reset()
-        myPMFT.compute(box, points, angles, points, angles)
-        npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
-                            atol=absoluteTolerance)
+        r_max = np.sqrt(maxX**2 + maxY**2)
+        test_set = util.make_raw_query_nlist_test_set(
+            box, points, points, 'ball', r_max, 0, True)
+        for nq, neighbors in test_set:
+            myPMFT = freud.pmft.PMFTXY(maxX, maxY, (nbinsX, nbinsY))
+            myPMFT.compute(nq, angles, neighbors=neighbors, reset=False)
+            npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
+                                atol=absoluteTolerance)
+            myPMFT.compute(nq, angles, neighbors=neighbors)
+            npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
+                                atol=absoluteTolerance)
 
-        myPMFT.compute(box, points, angles)
-        npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
-                            atol=absoluteTolerance)
+            myPMFT.compute(nq, angles, neighbors=neighbors)
+            npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
+                                atol=absoluteTolerance)
 
     def test_repr(self):
         maxX = 3.0
         maxY = 4.0
-        nbinsX = 100
-        nbinsY = 110
-        myPMFT = freud.pmft.PMFTXY2D(maxX, maxY, nbinsX, nbinsY)
+        nbins = 100
+        myPMFT = freud.pmft.PMFTXY(maxX, maxY, nbins)
         self.assertEqual(str(myPMFT), str(eval(repr(myPMFT))))
 
     def test_repr_png(self):
@@ -584,35 +508,124 @@ class TestPMFTXY2D(unittest.TestCase):
         maxY = 4.2
         nbinsX = 100
         nbinsY = 110
-        myPMFT = freud.pmft.PMFTXY2D(maxX, maxY, nbinsX, nbinsY)
+        myPMFT = freud.pmft.PMFTXY(maxX, maxY, (nbinsX, nbinsY))
 
         with self.assertRaises(AttributeError):
             myPMFT.plot()
         self.assertEqual(myPMFT._repr_png_(), None)
 
-        myPMFT.accumulate(box, points, angles, points, angles)
+        myPMFT.compute((box, points), angles, points, reset=False)
         myPMFT._repr_png_()
 
-    def test_ref_points_ne_points(self):
+    def test_points_ne_query_points(self):
         x_max = 2.5
         y_max = 2.5
-        n_x = 20
-        n_y = 20
-        pmft = freud.pmft.PMFTXY2D(x_max, y_max, n_x, n_y)
+        nbins = 20
 
         lattice_size = 10
         box = freud.box.Box.square(lattice_size*5)
 
-        ref_points, points = util.make_alternating_lattice(
+        points, query_points = util.make_alternating_lattice(
             lattice_size, 0.01, 2)
 
-        ref_orientations = np.array([0]*len(ref_points))
         orientations = np.array([0]*len(points))
 
-        pmft.compute(box, ref_points, ref_orientations, points, orientations)
+        r_max = np.sqrt(x_max**2 + y_max**2)
+        test_set = util.make_raw_query_nlist_test_set(
+            box, points, query_points, 'ball', r_max, 0, False)
 
-        self.assertEqual(np.count_nonzero(np.isinf(pmft.PMFT) == 0), 12)
-        self.assertEqual(len(np.unique(pmft.PMFT)), 2)
+        for nq, neighbors in test_set:
+            pmft = freud.pmft.PMFTXY(x_max, y_max, nbins)
+            pmft.compute(
+                nq, orientations, query_points, neighbors)
+
+            self.assertEqual(np.count_nonzero(np.isinf(pmft.PMFT) == 0), 12)
+            self.assertEqual(len(np.unique(pmft.PMFT)), 2)
+
+    def test_query_args_nn(self):
+        """Test that using nn based query args works."""
+        boxSize = 8
+        box = freud.box.Box.square(boxSize)
+        points = np.array([[0, 0, 0]],
+                          dtype=np.float32)
+        query_points = np.array([[1.1, 0.0, 0.0],
+                                [-1.2, 0.0, 0.0],
+                                [0.0, 1.3, 0.0],
+                                [0.0, -1.4, 0.0]],
+                                dtype=np.float32)
+        angles = np.array([0.0]*points.shape[0], dtype=np.float32)
+        query_angles = np.array([0.0]*query_points.shape[0], dtype=np.float32)
+
+        max_width = 3
+        nbins = 3
+        pmft = freud.pmft.PMFTXY(max_width, max_width, nbins)
+        pmft.compute((box, points), angles, query_points,
+                     neighbors={'mode': 'nearest', 'num_neighbors': 1})
+        # Now every point in query_points will find the origin as a neighbor.
+        npt.assert_array_equal(
+            pmft.bin_counts,
+            [[0, 1, 0],
+             [1, 0, 1],
+             [0, 1, 0]])
+        # Now there will be only one neighbor for the single point.
+        pmft.compute((box, query_points), query_angles, points,
+                     neighbors={'mode': 'nearest', 'num_neighbors': 1})
+        npt.assert_array_equal(
+            pmft.bin_counts,
+            [[0, 0, 0],
+             [0, 0, 0],
+             [0, 1, 0]])
+
+    def test_2d_box_3d_points(self):
+        """Test that points with z != 0 fail if the box is 2D."""
+        L = 10  # Box Dimensions
+
+        box = freud.box.Box.square(L)  # Initialize Box
+        points = np.array([[0, 0, 0], [0, 1, 1]])
+        angles = np.zeros(points.shape[0])
+        max_width = 3
+        nbins = 3
+        pmft = freud.pmft.PMFTXY(max_width, max_width, nbins)
+        with self.assertRaises(ValueError):
+            pmft.compute((box, points), angles,
+                         neighbors={'mode': 'nearest', 'num_neighbors': 1})
+
+    def test_quaternions(self):
+        """Test that using quaternions as angles works."""
+        boxSize = 8
+        box = freud.box.Box.square(boxSize)
+        points = np.array([[0, 0, 0]],
+                          dtype=np.float32)
+        query_points = np.array([[1.1, 0.0, 0.0],
+                                [-1.2, 0.0, 0.0],
+                                [0.0, 1.3, 0.0],
+                                [0.0, -1.4, 0.0]],
+                                dtype=np.float32)
+        angles = np.array([0.0]*points.shape[0], dtype=np.float32)
+        query_angles = np.array([0.0]*query_points.shape[0], dtype=np.float32)
+
+        orientations = rowan.from_axis_angle([0, 0, 1], angles)
+        query_orientations = rowan.from_axis_angle([0, 0, 1], query_angles)
+
+        max_width = 3
+        nbins = 3
+        pmft = freud.pmft.PMFTXY(max_width, max_width, nbins)
+        pmft.compute((box, points), orientations, query_points,
+                     neighbors={'mode': 'nearest', 'num_neighbors': 1})
+        # Now every point in query_points will find the origin as a neighbor.
+        npt.assert_array_equal(
+            pmft.bin_counts,
+            [[0, 1, 0],
+             [1, 0, 1],
+             [0, 1, 0]])
+        # Now there will be only one neighbor for the single point.
+        pmft.compute((box, query_points), query_orientations, points,
+                     neighbors={'mode': 'nearest', 'num_neighbors': 1})
+        npt.assert_array_equal(
+            pmft.bin_counts,
+            [[0, 0, 0],
+             [0, 0, 0],
+             [0, 1, 0]])
 
 
 class TestPMFTXYZ(unittest.TestCase):
@@ -628,25 +641,16 @@ class TestPMFTXYZ(unittest.TestCase):
         nbinsX = 100
         nbinsY = 110
         nbinsZ = 120
-        myPMFT = freud.pmft.PMFTXYZ(maxX, maxY, maxZ, nbinsX, nbinsY, nbinsZ)
-        myPMFT.accumulate(box, points, orientations, points, orientations)
+        myPMFT = freud.pmft.PMFTXYZ(maxX, maxY, maxZ, (nbinsX, nbinsY, nbinsZ))
+        myPMFT.compute((box, points), orientations, points, orientations,
+                       reset=False)
         npt.assert_equal(myPMFT.box, freud.box.Box.cube(boxSize))
 
         # Ensure expected errors are raised
         box = freud.box.Box.square(boxSize)
         with self.assertRaises(ValueError):
-            myPMFT.accumulate(box, points, orientations, points, orientations)
-
-    def test_r_cut(self):
-        maxX = 5.23
-        maxY = 6.23
-        maxZ = 7.23
-        nbinsX = 100
-        nbinsY = 110
-        nbinsZ = 120
-        myPMFT = freud.pmft.PMFTXYZ(maxX, maxY, maxZ, nbinsX, nbinsY, nbinsZ)
-        r_cut = np.linalg.norm([maxX, maxY, maxZ])
-        npt.assert_allclose(myPMFT.r_cut, r_cut, atol=1e-6)
+            myPMFT.compute((box, points), orientations, points,
+                           orientations, reset=False)
 
     def test_bins(self):
         maxX = 5.23
@@ -678,18 +682,16 @@ class TestPMFTXYZ(unittest.TestCase):
             nextZ = float(i + 1) * dz
             listZ[i] = -maxZ + ((z + nextZ) / 2.0)
 
-        myPMFT = freud.pmft.PMFTXYZ(maxX, maxY, maxZ, nbinsX, nbinsY, nbinsZ)
+        myPMFT = freud.pmft.PMFTXYZ(maxX, maxY, maxZ, (nbinsX, nbinsY, nbinsZ))
 
         # Compare expected bins to the info from pmft
-        npt.assert_allclose(myPMFT.X, listX, atol=1e-3)
-        npt.assert_allclose(myPMFT.Y, listY, atol=1e-3)
-        npt.assert_allclose(myPMFT.Z, listZ, atol=1e-3)
+        npt.assert_allclose(myPMFT.bin_centers[0], listX, atol=1e-3)
+        npt.assert_allclose(myPMFT.bin_centers[1], listY, atol=1e-3)
+        npt.assert_allclose(myPMFT.bin_centers[2], listZ, atol=1e-3)
 
-        npt.assert_equal(nbinsX, myPMFT.n_bins_X)
-        npt.assert_equal(nbinsY, myPMFT.n_bins_Y)
-        npt.assert_equal(nbinsZ, myPMFT.n_bins_Z)
-
-        npt.assert_allclose(myPMFT.jacobian, dx*dy*dz)
+        npt.assert_equal(nbinsX, myPMFT.nbins[0])
+        npt.assert_equal(nbinsY, myPMFT.nbins[1])
+        npt.assert_equal(nbinsZ, myPMFT.nbins[2])
 
     def test_attribute_access(self):
         boxSize = 25.0
@@ -700,14 +702,10 @@ class TestPMFTXYZ(unittest.TestCase):
         maxX = 5.23
         maxY = 6.23
         maxZ = 7.23
-        nbinsX = 100
-        nbinsY = 110
-        nbinsZ = 120
+        nbinsX = nbinsY = nbinsZ = 100
 
-        myPMFT = freud.pmft.PMFTXYZ(maxX, maxY, maxZ, nbinsX, nbinsY, nbinsZ)
+        myPMFT = freud.pmft.PMFTXYZ(maxX, maxY, maxZ, nbinsX)
 
-        with self.assertRaises(AttributeError):
-            myPMFT.PCF
         with self.assertRaises(AttributeError):
             myPMFT.bin_counts
         with self.assertRaises(AttributeError):
@@ -715,29 +713,16 @@ class TestPMFTXYZ(unittest.TestCase):
         with self.assertRaises(AttributeError):
             myPMFT.PMFT
 
-        myPMFT.accumulate(box, points, orientations, points, orientations)
+        myPMFT.compute((box, points), orientations, points, orientations,
+                       reset=False)
 
-        myPMFT.PCF
         myPMFT.bin_counts
         myPMFT.PMFT
         myPMFT.box
-        npt.assert_equal(myPMFT.bin_counts.shape, (nbinsZ, nbinsY, nbinsX))
-        npt.assert_equal(myPMFT.PCF.shape, (nbinsZ, nbinsY, nbinsX))
-        npt.assert_equal(myPMFT.PMFT.shape, (nbinsZ, nbinsY, nbinsX))
+        npt.assert_equal(myPMFT.bin_counts.shape, (nbinsX, nbinsY, nbinsZ))
+        npt.assert_equal(myPMFT.PMFT.shape, (nbinsX, nbinsY, nbinsZ))
 
-        myPMFT.reset()
-
-        with self.assertRaises(AttributeError):
-            myPMFT.PCF
-        with self.assertRaises(AttributeError):
-            myPMFT.bin_counts
-        with self.assertRaises(AttributeError):
-            myPMFT.box
-        with self.assertRaises(AttributeError):
-            myPMFT.PMFT
-
-        myPMFT.compute(box, points, orientations, points, orientations)
-        myPMFT.PCF
+        myPMFT.compute((box, points), orientations, points, orientations)
         myPMFT.bin_counts
         myPMFT.PMFT
         myPMFT.box
@@ -758,63 +743,65 @@ class TestPMFTXYZ(unittest.TestCase):
         dy = (2.0 * maxY / float(nbinsY))
         dz = (2.0 * maxZ / float(nbinsZ))
 
-        correct_bin_counts = np.zeros(shape=(nbinsZ, nbinsY, nbinsX),
+        correct_bin_counts = np.zeros(shape=(nbinsX, nbinsY, nbinsZ),
                                       dtype=np.int32)
 
         # calculation for array idxs
-        def get_bin(point_i, point_j):
-            return np.floor((point_i - point_j + [maxX, maxY, maxZ]) /
+        def get_bin(query_point, point):
+            return np.floor((query_point - point + [maxX, maxY, maxZ]) /
                             [dx, dy, dz]).astype(np.int32)
 
         bins = get_bin(points[0], points[1])
-        correct_bin_counts[bins[2], bins[1], bins[0]] = 1
+        correct_bin_counts[bins[0], bins[1], bins[2]] = 1
         bins = get_bin(points[1], points[0])
-        correct_bin_counts[bins[2], bins[1], bins[0]] = 1
+        correct_bin_counts[bins[0], bins[1], bins[2]] = 1
         absoluteTolerance = 0.1
 
-        myPMFT = freud.pmft.PMFTXYZ(maxX, maxY, maxZ, nbinsX, nbinsY, nbinsZ)
-        myPMFT.accumulate(box, points, orientations, points, orientations)
-        npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
-                            atol=absoluteTolerance)
-        myPMFT.reset()
-        myPMFT.compute(box, points, orientations, points, orientations)
-        npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
-                            atol=absoluteTolerance)
+        r_max = np.sqrt(maxX**2 + maxY**2 + maxZ**2)
+        test_set = util.make_raw_query_nlist_test_set(
+            box, points, points, 'ball', r_max, 0, True)
+        for nq, neighbors in test_set:
+            myPMFT = freud.pmft.PMFTXYZ(
+                maxX, maxY, maxZ, (nbinsX, nbinsY, nbinsZ))
+            myPMFT.compute(nq, orientations, neighbors=neighbors, reset=False)
+            npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
+                                atol=absoluteTolerance)
+            myPMFT.compute(nq, orientations, neighbors=neighbors)
+            npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
+                                atol=absoluteTolerance)
 
-        # Test face orientations, shape (N_faces, 4)
-        face_orientations = np.array([[1., 0., 0., 0.]])
-        myPMFT.compute(box, points, orientations,
-                       face_orientations=face_orientations)
-        npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
-                            atol=absoluteTolerance)
-        # Test face orientations, shape (1, N_faces, 4)
-        face_orientations = np.array([[[1., 0., 0., 0.]]])
-        myPMFT.compute(box, points, orientations,
-                       face_orientations=face_orientations)
-        npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
-                            atol=absoluteTolerance)
-        # Test face orientations, shape (N_particles, N_faces, 4)
-        face_orientations = np.array([[[1., 0., 0., 0.]], [[1., 0., 0., 0.]]])
-        myPMFT.compute(box, points, orientations,
-                       face_orientations=face_orientations)
-        npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
-                            atol=absoluteTolerance)
+            # Test face orientations, shape (N_faces, 4)
+            face_orientations = np.array([[1., 0., 0., 0.]])
+            myPMFT.compute(nq, orientations, neighbors=neighbors,
+                           face_orientations=face_orientations)
+            npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
+                                atol=absoluteTolerance)
+            # Test face orientations, shape (1, N_faces, 4)
+            face_orientations = np.array([[[1., 0., 0., 0.]]])
+            myPMFT.compute(nq, orientations, neighbors=neighbors,
+                           face_orientations=face_orientations)
+            npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
+                                atol=absoluteTolerance)
+            # Test face orientations, shape (N_particles, N_faces, 4)
+            face_orientations = np.array([[[1., 0., 0., 0.]],
+                                          [[1., 0., 0., 0.]]])
+            myPMFT.compute(nq, orientations, neighbors=neighbors,
+                           face_orientations=face_orientations)
+            npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
+                                atol=absoluteTolerance)
 
-        myPMFT.compute(box, points, orientations)
-        npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
-                            atol=absoluteTolerance)
+            myPMFT.compute(nq, orientations, neighbors=neighbors)
+            npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
+                                atol=absoluteTolerance)
 
     def test_shift_two_particles_dead_pixel(self):
         points = np.array([[1, 1, 1], [0, 0, 0]], dtype=np.float32)
         orientations = np.array([[1, 0, 0, 0], [1, 0, 0, 0]], dtype=np.float32)
-        noshift = freud.pmft.PMFTXYZ(0.5, 0.5, 0.5, 3, 3, 3,
-                                     shiftvec=[0, 0, 0])
-        shift = freud.pmft.PMFTXYZ(0.5, 0.5, 0.5, 3, 3, 3,
-                                   shiftvec=[1, 1, 1])
+        noshift = freud.pmft.PMFTXYZ(0.5, 0.5, 0.5, 3, shiftvec=[0, 0, 0])
+        shift = freud.pmft.PMFTXYZ(0.5, 0.5, 0.5, 3, shiftvec=[1, 1, 1])
 
         for pm in [noshift, shift]:
-            pm.compute(freud.box.Box.cube(3), points, orientations,
-                       points, orientations, face_orientations=None)
+            pm.compute((freud.box.Box.cube(3), points), orientations)
 
         # Ignore warnings about NaNs
         warnings.simplefilter("ignore", category=RuntimeWarning)
@@ -835,8 +822,52 @@ class TestPMFTXYZ(unittest.TestCase):
         nbinsX = 100
         nbinsY = 110
         nbinsZ = 120
-        myPMFT = freud.pmft.PMFTXYZ(maxX, maxY, maxZ, nbinsX, nbinsY, nbinsZ)
+        myPMFT = freud.pmft.PMFTXYZ(maxX, maxY, maxZ, (nbinsX, nbinsY, nbinsZ))
         self.assertEqual(str(myPMFT), str(eval(repr(myPMFT))))
+
+    def test_query_args_nn(self):
+        """Test that using nn based query args works."""
+        boxSize = 8
+        box = freud.box.Box.cube(boxSize)
+        points = np.array([[0, 0, 0]],
+                          dtype=np.float32)
+        query_points = np.array([[1.1, 0.0, 0.0],
+                                [-1.2, 0.0, 0.0],
+                                [0.0, 1.3, 0.0],
+                                [0.0, -1.4, 0.0],
+                                [0.0, 0.0, 1.5],
+                                [0.0, 0.0, -1.6]],
+                                dtype=np.float32)
+        angles = np.array([[1.0, 0.0, 0.0, 0.0]]*points.shape[0],
+                          dtype=np.float32)
+        query_angles = np.array([[1.0, 0.0, 0.0, 0.0]]*query_points.shape[0],
+                                dtype=np.float32)
+
+        max_width = 3
+        nbins = 3
+        pmft = freud.pmft.PMFTXYZ(max_width, max_width, max_width, nbins)
+        pmft.compute((box, points), angles, query_points,
+                     neighbors={'mode': 'nearest', 'num_neighbors': 1})
+
+        # Now every point in query_points will find the origin as a neighbor.
+        npt.assert_array_equal(
+            pmft.bin_counts,
+            [[[0, 0, 0],
+              [0, 1, 0],
+              [0, 0, 0]],
+             [[0, 1, 0],
+              [1, 0, 1],
+              [0, 1, 0]],
+             [[0, 0, 0],
+              [0, 1, 0],
+              [0, 0, 0]]])
+
+        pmft.compute((box, query_points), query_angles, points,
+                     neighbors={'mode': 'nearest', 'num_neighbors': 1})
+        # The only nonzero bin is the right-center bin (zero distance in y, z)
+        self.assertEqual(pmft.bin_counts[2, 1, 1], 1)
+        self.assertEqual(np.sum(pmft.bin_counts), 1)
+        self.assertTrue(np.all(pmft.bin_counts >= 0))
 
 
 if __name__ == '__main__':

@@ -40,7 +40,7 @@ extensions = [
     'sphinx.ext.autosummary',
     'sphinx.ext.napoleon',
     'nbsphinx',
-    'jupyter_sphinx.embed_widgets',
+    'jupyter_sphinx.execute',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -183,7 +183,7 @@ html_static_path = []
 # html_split_index = False
 
 # If true, links to the reST sources are added to the pages.
-# html_show_sourcelink = True
+html_show_sourcelink = True
 
 # If true, "Created using Sphinx" is shown in the HTML footer. Default is True.
 # html_show_sphinx = True
@@ -297,22 +297,14 @@ texinfo_documents = [
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 # texinfo_no_detailmenu = False
 
-intersphinx_mapping = {'python': ('https://docs.python.org/3', None),
-                       'numpy': ('https://docs.scipy.org/doc/numpy', None),
-                       'matplotlib': ('https://matplotlib.org', None),
-                       }
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3', None),
+    'numpy': ('https://docs.scipy.org/doc/numpy', None),
+    'matplotlib': ('https://matplotlib.org', None),
+    'hoomd': ('https://hoomd-blue.readthedocs.io/en/stable/', None),
+}
 
-autodoc_mock_import = ["numpy"]
-
-nitpick_ignore = [("py:obj", "numpy.dtype"),
-                  ("py:class", "numpy.ndarray"),
-                  ("py:class", "numpy.uint32"),
-                  ("py:class", "numpy.int32"),
-                  ("py:class", "numpy.float32"),
-                  ("py:class", "numpy.float64"),
-                  ("py:class", "numpy.complex64"),
-                  ("py:class", "numpy.complex128"),
-                  ("py:obj", "unsigned int")]
-
-# Make class attributes show on single line
-napoleon_use_ivar = True
+autodoc_default_options = {
+    'inherited-members': True,
+    'show-inheritance': True,
+}

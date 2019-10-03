@@ -8,15 +8,17 @@ of clusters of points in a system.
 
 import numpy as np
 import warnings
-import freud.common
 import freud.locality
+import freud.util
 
 from cython.operator cimport dereference
-from freud.common cimport Compute
-from freud.util._VectorMath cimport vec3
+from freud.util cimport Compute
+from freud.locality cimport PairCompute
+from freud.util cimport vec3, uint
 
 cimport freud._cluster
 cimport freud.box, freud.locality
+cimport freud.util
 
 cimport numpy as np
 
@@ -24,174 +26,128 @@ cimport numpy as np
 # _always_ do that, or you will have segfaults
 np.import_array()
 
-cdef class Cluster(Compute):
-    R"""Finds clusters in a set of points.
+cdef class Cluster(PairCompute):
+    """Finds clusters using a network of neighbors.
 
-    Given a set of coordinates and a cutoff, :class:`freud.cluster.Cluster`
-    will determine all of the clusters of points that are made up of points
-    that are closer than the cutoff. Clusters are 0-indexed. The class contains
-    an index array, the :code:`cluster_idx` attribute, which can be used to
-    identify which cluster a particle is associated with:
-    :code:`cluster_obj.cluster_idx[i]` is the cluster index in which particle
-    :code:`i` is found. By the definition of a cluster, points that are not
-    within the cutoff of another point end up in their own 1-particle cluster.
+    Given a set of points and their neighbors, :class:`freud.cluster.Cluster`
+    will determine all of the connected components of the network formed by
+    those neighbor bonds. That is, two points are in the same cluster if and
+    only if a path exists between them on the network of bonds. The class
+    attribute :code:`cluster_idx` holds an array of cluster indices for each
+    point. By the definition of a cluster, points that are not bonded to any
+    other point end up in their own 1-point cluster.
 
-    Identifying micelles is one primary use-case for finding clusters. This
-    operation is somewhat different, though. In a cluster of points, each and
-    every point belongs to one and only one cluster. However, because a string
-    of points belongs to a polymer, that single polymer may be present in more
-    than one cluster. To handle this situation, an optional layer is presented
-    on top of the :code:`cluster_idx` array. Given a key value per particle
-    (i.e. the polymer id), the computeClusterMembership function will process
-    :code:`cluster_idx` with the key values in mind and provide a list of keys
-    that are present in each cluster.
-
-    .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
-
-    Args:
-        box (:class:`freud.box.Box`):
-            The simulation box.
-        rcut (float):
-            Particle distance cutoff.
-
-    .. note::
-        **2D:** :class:`freud.cluster.Cluster` properly handles 2D boxes.
-        The points must be passed in as :code:`[x, y, 0]`.
-        Failing to set z=0 will lead to undefined behavior.
-
-    Attributes:
-        box (:class:`freud.box.Box`):
-            Box used in the calculation.
-        num_clusters (int):
-            The number of clusters.
-        num_particles (int):
-            The number of particles.
-        cluster_idx ((:math:`N_{particles}`) :class:`numpy.ndarray`):
-            The cluster index for each particle.
-        cluster_keys (list(list)):
-            A list of lists of the keys contained in each cluster.
+    Identifying micelles is one use-case for finding clusters. This operation
+    is somewhat different, though. In a cluster of points, each and every point
+    belongs to one and only one cluster. However, because a string of points
+    belongs to a polymer, that single polymer may be present in more than one
+    cluster. To handle this situation, an optional layer is presented on top of
+    the :code:`cluster_idx` array. Given a key value per point (e.g. the
+    polymer id), the compute function will process clusters with the key values
+    in mind and provide a list of keys that are present in each cluster in the
+    attribute :code:`cluster_keys`, as a list of lists. If keys are not
+    provided, every point is assigned a key corresponding to its index, and
+    :code:`cluster_keys` contains the point ids present in each cluster.
     """
-    cdef freud._cluster.Cluster * thisptr
-    cdef freud.box.Box m_box
-    cdef rmax
 
-    def __cinit__(self, box, float rcut):
-        cdef freud.box.Box b = freud.common.convert_box(box)
-        self.thisptr = new freud._cluster.Cluster(rcut)
-        self.m_box = b
-        self.rmax = rcut
+    cdef freud._cluster.Cluster * thisptr
+
+    def __cinit__(self):
+        self.thisptr = new freud._cluster.Cluster()
+
+    def __init__(self):
+        pass
 
     def __dealloc__(self):
         del self.thisptr
 
-    @property
-    def box(self):
-        return self.m_box
-
-    @Compute._compute("computeClusters")
-    def computeClusters(self, points, nlist=None, box=None):
+    def compute(self, system, keys=None, neighbors=None):
         R"""Compute the clusters for the given set of points.
 
         Args:
-            points ((:math:`N_{particles}`, 3) :class:`np.ndarray`):
-                Particle coordinates.
-            nlist (:class:`freud.locality.NeighborList`, optional):
-                Object to use to find bonds (Default value = None).
-            box (:class:`freud.box.Box`, optional):
-                Simulation box (Default value = None).
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
+            keys ((:math:`N_{points}`) :class:`numpy.ndarray`):
+                Membership keys, one for each point.
+            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
+                Either a :class:`NeighborList <freud.locality.NeighborList>` of
+                neighbor pairs to use in the calculation, or a dictionary of
+                `query arguments
+                <https://freud.readthedocs.io/en/next/querying.html>`_
+                (Default value: None).
         """
-        points = freud.common.convert_array(points, shape=(None, 3))
+        cdef:
+            freud.locality.NeighborQuery nq
+            freud.locality.NeighborList nlist
+            freud.locality._QueryArgs qargs
+            const float[:, ::1] l_query_points
+            unsigned int num_query_points
 
-        defaulted_nlist = freud.locality.make_default_nlist(
-            self.m_box, points, points, self.rmax, nlist, True)
-        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
+        nq, nlist, qargs, l_query_points, num_query_points = \
+            self._preprocess_arguments(system, neighbors=neighbors)
 
-        cdef freud.box.Box b
-        if box is None:
-            b = self.m_box
-        else:
-            b = freud.common.convert_box(box)
+        cdef unsigned int* l_keys_ptr = NULL
+        cdef unsigned int[::1] l_keys
+        if keys is not None:
+            l_keys = freud.util._convert_array(
+                keys, shape=(num_query_points, ), dtype=np.uint32)
+            l_keys_ptr = &l_keys[0]
 
-        cdef const float[:, ::1] l_points = points
-        cdef unsigned int Np = l_points.shape[0]
-        with nogil:
-            self.thisptr.computeClusters(
-                dereference(b.thisptr), nlist_.get_ptr(),
-                <vec3[float]*> &l_points[0, 0], Np)
+        self.thisptr.compute(
+            nq.get_ptr(),
+            nlist.get_ptr(),
+            dereference(qargs.thisptr),
+            l_keys_ptr)
         return self
 
-    @Compute._compute("computeClusterMembership")
-    def computeClusterMembership(self, keys):
-        R"""Compute the clusters with key membership.
-        Loops over all particles and adds them to a list of sets.
-        Each set contains all the keys that are part of that cluster.
-        Get the computed list with :attr:`~cluster_keys`.
-
-        Args:
-            keys ((:math:`N_{particles}`) :class:`numpy.ndarray`):
-                Membership keys, one for each particle.
-        """
-        keys = freud.common.convert_array(
-            keys, shape=(self.num_particles, ), dtype=np.uint32)
-        cdef const unsigned int[::1] l_keys = keys
-        with nogil:
-            self.thisptr.computeClusterMembership(<unsigned int*> &l_keys[0])
-        return self
-
-    @Compute._computed_property("computeClusters")
+    @Compute._computed_property
     def num_clusters(self):
+        """int: The number of clusters."""
         return self.thisptr.getNumClusters()
 
-    @Compute._computed_property("computeClusters")
-    def num_particles(self):
-        return self.thisptr.getNumParticles()
-
-    @Compute._computed_property("computeClusters")
+    @Compute._computed_property
     def cluster_idx(self):
-        cdef unsigned int n_particles = self.thisptr.getNumParticles()
-        cdef const unsigned int[::1] cluster_idx = \
-            <unsigned int[:n_particles]> self.thisptr.getClusterIdx().get()
-        return np.asarray(cluster_idx)
+        """:math:`N_{points}` :class:`numpy.ndarray`: The cluster index for
+        each point."""
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getClusterIdx(),
+            freud.util.arr_type_t.UNSIGNED_INT)
 
-    @Compute._computed_property("computeClusterMembership")
+    @Compute._computed_property
     def cluster_keys(self):
+        """list(list): A list of lists of the keys contained in each
+        cluster."""
         cluster_keys = self.thisptr.getClusterKeys()
         return cluster_keys
 
     def __repr__(self):
-        return ("freud.cluster.{cls}(box={box}, "
-                "rcut={rcut})").format(cls=type(self).__name__,
-                                       box=self.m_box.__repr__(),
-                                       rcut=self.rmax)
+        return "freud.cluster.{cls}()".format(cls=type(self).__name__)
 
-    def __str__(self):
-        return repr(self)
-
-    @Compute._computed_method("computeClusters")
     def plot(self, ax=None):
         """Plot cluster distribution.
 
         Args:
-            ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
+            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
                 :code:`None`, make a new figure and axis.
                 (Default value = :code:`None`)
 
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import plot
+        import freud.plot
         try:
-            count = np.unique(self.cluster_idx, return_counts=True)
+            values, counts = np.unique(self.cluster_idx, return_counts=True)
         except ValueError:
             return None
         else:
-            return plot.plot_clusters(count[0], count[1],
-                                      num_cluster_to_plot=10, ax=ax)
+            return freud.plot.clusters_plot(
+                values, counts, num_clusters_to_plot=10, ax=ax)
 
     def _repr_png_(self):
-        import plot
+        import freud.plot
         try:
-            return plot.ax_to_bytes(self.plot())
+            return freud.plot.ax_to_bytes(self.plot())
         except AttributeError:
             return None
 
@@ -199,125 +155,76 @@ cdef class Cluster(Compute):
 cdef class ClusterProperties(Compute):
     R"""Routines for computing properties of point clusters.
 
-    Given a set of points and cluster ids (from :class:`~.Cluster`, or another
-    source), ClusterProperties determines the following properties for each
-    cluster:
+    Given a set of points and cluster ids (from :class:`~.Cluster` or another
+    source), this class determines the following properties for each cluster:
 
      - Center of mass
      - Gyration tensor
+     - Size (number of points)
 
-    The computed center of mass for each cluster (properly handling periodic
-    boundary conditions) can be accessed with :code:`cluster_COM` attribute.
-    The :math:`3 \times 3` gyration tensor :math:`G` can be accessed with
-    :code:`cluster_G` attribute.
-    The tensor is symmetric for each cluster.
-
-    .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
-
-    Args:
-        box (:class:`freud.box.Box`): Simulation box.
-
-    Attributes:
-        box (:class:`freud.box.Box`):
-            Box used in the calculation.
-        num_clusters (int):
-            The number of clusters.
-        cluster_COM ((:math:`N_{clusters}`, 3) :class:`numpy.ndarray`):
-            The center of mass of the last computed cluster.
-        cluster_G ((:math:`N_{clusters}`, 3, 3) :class:`numpy.ndarray`):
-            The cluster :math:`G` tensors computed by the last call to
-            :meth:`~.computeProperties()`.
-        cluster_sizes ((:math:`N_{clusters}`) :class:`numpy.ndarray`):
-            The cluster sizes computed by the last call to
-            :meth:`~.computeProperties()`.
+    The center of mass for each cluster (properly handling periodic boundary
+    conditions) can be accessed with :code:`centers` attribute.  The :math:`3
+    \times 3` symmetric gyration tensors :math:`G` can be accessed with
+    :code:`gyrations` attribute.
     """
-    cdef freud._cluster.ClusterProperties * thisptr
-    cdef freud.box.Box m_box
 
-    def __cinit__(self, box):
-        cdef freud.box.Box b = freud.common.convert_box(box)
+    cdef freud._cluster.ClusterProperties * thisptr
+
+    def __cinit__(self):
         self.thisptr = new freud._cluster.ClusterProperties()
-        self.m_box = b
+
+    def __init__(self):
+        pass
 
     def __dealloc__(self):
         del self.thisptr
 
-    @property
-    def box(self):
-        return self.m_box
-
-    @Compute._compute("computeProperties")
-    def computeProperties(self, points, cluster_idx, box=None):
+    def compute(self, system, cluster_idx):
         R"""Compute properties of the point clusters.
         Loops over all points in the given array and determines the center of
-        mass of the cluster as well as the :math:`G` tensor. These can be
-        accessed after the call to :meth:`~.computeProperties()` with the
-        :code:`cluster_COM` and :code:`cluster_G` attributes.
+        mass of the cluster as well as the gyration tensor. These can be
+        accessed after the call to :meth:`~.compute()` with the
+        :code:`centers` and :code:`gyrations` attributes.
 
         Args:
-            points ((:math:`N_{particles}`, 3) :class:`np.ndarray`):
-                Positions of the particles making up the clusters.
-            cluster_idx (:class:`np.ndarray`):
-                List of cluster indexes for each particle.
-            box (:class:`freud.box.Box`, optional):
-                Simulation box (Default value = None).
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
+            cluster_idx ((:math:`N_{points}`,) :class:`np.ndarray`):
+                Cluster indexes for each point.
         """
-        cdef freud.box.Box b
-        if box is None:
-            b = self.m_box
-        else:
-            b = freud.common.convert_box(box)
-
-        points = freud.common.convert_array(points, shape=(None, 3))
-        cluster_idx = freud.common.convert_array(
-            cluster_idx, shape=(points.shape[0], ), dtype=np.uint32)
-        cdef const float[:, ::1] l_points = points
+        cdef freud.locality.NeighborQuery nq = \
+            freud.locality.NeighborQuery.from_system(system)
+        cluster_idx = freud.util._convert_array(
+            cluster_idx, shape=(nq.points.shape[0], ), dtype=np.uint32)
         cdef const unsigned int[::1] l_cluster_idx = cluster_idx
-        cdef unsigned int Np = l_points.shape[0]
-        with nogil:
-            self.thisptr.computeProperties(
-                dereference(b.thisptr),
-                <vec3[float]*> &l_points[0, 0],
-                <unsigned int*> &l_cluster_idx[0],
-                Np)
+        self.thisptr.compute(
+            nq.get_ptr(),
+            <unsigned int*> &l_cluster_idx[0])
         return self
 
-    @Compute._computed_property("computeProperties")
-    def num_clusters(self):
-        return self.thisptr.getNumClusters()
+    @Compute._computed_property
+    def centers(self):
+        """(:math:`N_{clusters}`, 3) :class:`numpy.ndarray`: The centers of
+        mass of the clusters."""
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getClusterCenters(),
+            freud.util.arr_type_t.FLOAT, 3)
 
-    @Compute._computed_property("computeProperties")
-    def cluster_COM(self):
-        cdef unsigned int n_clusters = self.thisptr.getNumClusters()
-        if not n_clusters:
-            return np.asarray([[]], dtype=np.float32)
-        cdef const float[:, ::1] cluster_COM = \
-            <float[:n_clusters, :3]> (
-                <float*> self.thisptr.getClusterCOM().get())
-        return np.asarray(cluster_COM)
+    @Compute._computed_property
+    def gyrations(self):
+        """(:math:`N_{clusters}`, 3, 3) :class:`numpy.ndarray`: The gyration
+        tensors of the clusters."""
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getClusterGyrations(),
+            freud.util.arr_type_t.FLOAT)
 
-    @Compute._computed_property("computeProperties")
-    def cluster_G(self):
-        cdef unsigned int n_clusters = self.thisptr.getNumClusters()
-        if not n_clusters:
-            return np.asarray([[[]]], dtype=np.float32)
-        cdef const float[:, :, ::1] cluster_G = \
-            <float[:n_clusters, :3, :3]> (
-                <float*> self.thisptr.getClusterG().get())
-        return np.asarray(cluster_G)
-
-    @Compute._computed_property("computeProperties")
-    def cluster_sizes(self):
-        cdef unsigned int n_clusters = self.thisptr.getNumClusters()
-        if not n_clusters:
-            return np.asarray([], dtype=np.uint32)
-        cdef const unsigned int[::1] cluster_sizes = \
-            <unsigned int[:n_clusters]> self.thisptr.getClusterSize().get()
-        return np.asarray(cluster_sizes, dtype=np.uint32)
+    @Compute._computed_property
+    def sizes(self):
+        """(:math:`N_{clusters}`) :class:`numpy.ndarray`: The cluster sizes."""
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getClusterSizes(),
+            freud.util.arr_type_t.UNSIGNED_INT)
 
     def __repr__(self):
-        return ("freud.cluster.{cls}(box={box})").format(
-            cls=type(self).__name__, box=self.m_box.__repr__())
-
-    def __str__(self):
-        return repr(self)
+        return "freud.cluster.{cls}()".format(cls=type(self).__name__)

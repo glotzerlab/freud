@@ -16,8 +16,8 @@ class BenchmarkClusterCluster(Benchmark):
         self.positions = np.random.uniform(-self.L/2, self.L/2, (N, 3))
 
     def bench_run(self, N):
-        clust = freud.cluster.Cluster(self.box, self.rcut)
-        clust.computeClusters(self.positions, box=self.box)
+        clust = freud.cluster.Cluster(self.rcut)
+        clust.compute(self.box, self.positions)
         clust.computeClusterMembership(np.arange(N))
 
 

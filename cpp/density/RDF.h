@@ -4,75 +4,59 @@
 #ifndef RDF_H
 #define RDF_H
 
-#include <memory>
-
 #include "Box.h"
-#include "NdHistogram.h"
-#include "NeighborList.h"
-#include "PMFT.h"
-#include "ThreadStorage.h"
-#include "VectorMath.h"
+#include "Histogram.h"
+#include "BondHistogramCompute.h"
 
 /*! \file RDF.h
     \brief Routines for computing radial density functions.
 */
 
 namespace freud { namespace density {
-class RDF : public util::NdHistogram
+class RDF : public locality::BondHistogramCompute
 {
 public:
     //! Constructor
-    RDF(float rmax, float dr, float rmin = 0);
+    RDF(unsigned int bins, float r_max, float r_min = 0);
 
     //! Destructor
-    ~RDF() {};
-
-    //! Reset the RDF array to all zeros
-    void reset();
+    virtual ~RDF() {};
 
     //! Compute the RDF
-    void accumulate(box::Box& box, const freud::locality::NeighborList* nlist, const vec3<float>* ref_points,
-                    unsigned int n_ref, const vec3<float>* points, unsigned int n_p);
+    /*! Accumulate the given points to the histogram. Accumulation is performed
+     * in parallel on thread-local copies of the data, which are reduced into
+     * the primary data arrays when the user requests outputs.
+     */
+    void accumulate(const freud::locality::NeighborQuery* neighbor_query,
+                    const vec3<float>* query_points, unsigned int n_query_points,
+                    const freud::locality::NeighborList* nlist, freud::locality::QueryArgs qargs);
 
-    //! \internal
-    //! helper function to reduce the thread specific arrays into one array
-    void reduceRDF();
+    //! Reduce thread-local arrays onto the primary data arrays.
+    virtual void reduce();
 
-    //! Implementing pure virtual function from parent class.
-    virtual void reduce()
+    //! Get the positional correlation function.
+    const util::ManagedArray<float> &getRDF()
     {
-        reduceRDF();
+        return reduceAndReturn(m_pcf);
     }
 
-    //! Get a reference to the PCF array
-    std::shared_ptr<float> getRDF()
+    //! Get a reference to the N_r array.
+    /*! Mathematically, m_N_r[i] is the average number of points
+     * contained within a ball of radius getBins()[i+1] centered at a given
+     * query_point, averaged over all query_points.
+     */
+    const util::ManagedArray<float> &getNr()
     {
-        return getPCF();
+        return reduceAndReturn(m_N_r);
     }
-
-    //! Get a reference to the r array
-    std::shared_ptr<float> getR();
-
-    //! Get a reference to the N_r array
-    std::shared_ptr<float> getNr()
-    {
-        return reduceAndReturn(m_N_r_array);
-    }
-
-    unsigned int getNBins();
 
 private:
-    float m_rmax;         //!< Maximum r at which to compute g(r)
-    float m_rmin;         //!< Minimum r at which to compute g(r)
-    float m_dr;           //!< Step size for r in the computation
-    unsigned int m_nbins; //!< Number of r bins to compute g(r) over
+    unsigned int m_bins;                     //!< Number of r bins to compute g(r) over
 
-    std::shared_ptr<float> m_avg_counts;  //!< Bin counts that go into computing the RDF array
-    std::shared_ptr<float> m_N_r_array;   //!< Cumulative bin sum N(r)
-    std::shared_ptr<float> m_r_array;     //!< Array of r values that the RDF is computed at
-    std::shared_ptr<float> m_vol_array;   //!< Array of volumes for each slice of r
-    std::shared_ptr<float> m_vol_array2D; //!< Array of volumes for each slice of r
-    std::shared_ptr<float> m_vol_array3D; //!< Array of volumes for each slice of r
+    util::ManagedArray<float> m_pcf;         //!< The computed pair correlation function.
+    util::ManagedArray<float> m_N_r;         //!< Cumulative bin sum N(r) (the average number of points in a ball of radius r).
+    util::ManagedArray<float> m_vol_array2D; //!< Areas of concentric rings corresponding to the histogram bins in 2D.
+    util::ManagedArray<float> m_vol_array3D; //!< Areas of concentric spherical shells corresponding to the histogram bins in 3D.
 };
 
 }; }; // end namespace freud::density

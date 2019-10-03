@@ -5,43 +5,44 @@
 #define VORONOI_H
 
 #include "Box.h"
+#include "ManagedArray.h"
 #include "NeighborList.h"
+#include "NeighborQuery.h"
 #include "VectorMath.h"
+#include <voro++/src/voro++.hh>
 
 namespace freud { namespace locality {
-
-struct NeighborBond
-{
-    NeighborBond() : index_i(0), index_j(0), weight(0), distance(0) {}
-
-    NeighborBond(unsigned int index_i, unsigned int index_j, float w, float d)
-        : index_i(index_i), index_j(index_j), weight(w), distance(d)
-    {}
-
-    unsigned int index_i; //! The point id.
-    unsigned int index_j; //! The reference point id.
-    float weight;         //! The weight of this bond.
-    float distance;       //! The distance bewteen the points.
-};
 
 class Voronoi
 {
 public:
     // default constructor
-    Voronoi();
-
-    void compute(const box::Box& box, const vec3<double>* vertices, const int* ridge_points,
-                 const int* ridge_vertices, unsigned int n_ridges, unsigned int N, const int* expanded_ids,
-                 const vec3<double>* expanded_points, const int* ridge_vertex_indices);
-
-    NeighborList* getNeighborList()
+    Voronoi() : m_neighbor_list(std::make_shared<NeighborList>())
     {
-        return &m_neighbor_list;
+    }
+
+    void compute(const freud::locality::NeighborQuery* nq);
+
+    std::shared_ptr<NeighborList> getNeighborList() const
+    {
+        return m_neighbor_list;
+    }
+
+    const std::vector<std::vector<vec3<double> > > getPolytopes() const
+    {
+        return m_polytopes;
+    }
+
+    const util::ManagedArray<double> &getVolumes() const
+    {
+        return m_volumes;
     }
 
 private:
     box::Box m_box;
-    NeighborList m_neighbor_list; //!< Stored neighbor list
+    std::shared_ptr<NeighborList> m_neighbor_list; //!< Stored neighbor list
+    std::vector<std::vector<vec3<double> > > m_polytopes; //!< Voronoi polytopes
+    util::ManagedArray<double> m_volumes; //!< Voronoi cell volumes
 };
 }; }; // end namespace freud::locality
 
