@@ -76,8 +76,8 @@ cdef class CorrelationFunction(SpatialHistogram1D):
     def __dealloc__(self):
         del self.thisptr
 
-    def accumulate(self, neighbor_query, values, query_points=None,
-                   query_values=None, neighbors=None):
+    def compute(self, neighbor_query, values, query_points=None,
+                query_values=None, neighbors=None, reset=True):
         R"""Calculates the correlation function and adds to the current
         histogram.
 
@@ -100,6 +100,10 @@ cdef class CorrelationFunction(SpatialHistogram1D):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         """  # noqa E501
+        if reset:
+            self.is_complex = False
+            self._reset()
+
         cdef:
             freud.locality.NeighborQuery nq
             freud.locality.NeighborList nlist
@@ -141,40 +145,6 @@ cdef class CorrelationFunction(SpatialHistogram1D):
             &self.thisptr.getCorrelation(),
             freud.util.arr_type_t.COMPLEX_DOUBLE)
         return output if self.is_complex else np.real(output)
-
-    def reset(self):
-        # Overrides parent since resetting here requires additional logic.
-        self.is_complex = False
-        self.thisptr.reset()
-
-    def compute(self, neighbor_query, values, query_points=None,
-                query_values=None, neighbors=None):
-        R"""Calculates the correlation function for the given points. Will
-        overwrite the current histogram.
-
-        Args:
-            box (:class:`freud.box.Box`):
-                Simulation box.
-            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
-                Reference points used to calculate the correlation function.
-            values ((:math:`N_{points}`) :class:`numpy.ndarray`):
-                Complex values used to calculate the correlation function.
-            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
-                Points used to calculate the correlation function.
-                Uses :code:`points` if not provided or :code:`None`.
-                (Default value = :code:`None`).
-            query_values ((:math:`N_{query\_points}`) :class:`numpy.ndarray`, optional):
-                Complex values used to calculate the correlation function.
-                Uses :code:`values` if not provided or :code:`None`.
-                (Default value = :code:`None`).
-            nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value =
-                :code:`None`).
-        """  # noqa E501
-        self.reset()
-        self.accumulate(neighbor_query, values, query_points, query_values,
-                        neighbors)
-        return self
 
     def __repr__(self):
         return ("freud.density.{cls}(bins={bins}, r_max={r_max})").format(
@@ -229,7 +199,7 @@ cdef class GaussianDensity(Compute):
     Attributes:
         box (:class:`freud.box.Box`):
             Box used in the calculation.
-        gaussian_density ((:math:`w_x`, :math:`w_y`, :math:`w_z`) :class:`numpy.ndarray`):
+        density ((:math:`w_x`, :math:`w_y`, :math:`w_z`) :class:`numpy.ndarray`):
             The image grid with the Gaussian density.
     """  # noqa: E501
     cdef freud._density.GaussianDensity * thisptr
@@ -258,8 +228,7 @@ cdef class GaussianDensity(Compute):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     def compute(self, neighbor_query):
-        R"""Calculates the Gaussian blur for the specified points. Does not
-        accumulate (will overwrite current image).
+        R"""Calculates the Gaussian blur for the specified points.
 
         Args:
             box (:class:`freud.box.Box`):
@@ -273,7 +242,7 @@ cdef class GaussianDensity(Compute):
         return self
 
     @Compute._computed_property
-    def gaussian_density(self):
+    def density(self):
         if self.box.is2D:
             return np.squeeze(freud.util.make_managed_numpy_array(
                 &self.thisptr.getDensity(), freud.util.arr_type_t.FLOAT))
@@ -315,7 +284,7 @@ cdef class GaussianDensity(Compute):
         import freud.plot
         if not self.box.is2D:
             return None
-        return freud.plot.density_plot(self.gaussian_density, self.box, ax=ax)
+        return freud.plot.density_plot(self.density, self.box, ax=ax)
 
     def _repr_png_(self):
         import freud.plot
@@ -502,7 +471,8 @@ cdef class RDF(SpatialHistogram1D):
         if type(self) == RDF:
             del self.thisptr
 
-    def accumulate(self, neighbor_query, query_points=None, neighbors=None):
+    def compute(self, neighbor_query, query_points=None, neighbors=None,
+                reset=True):
         R"""Calculates the RDF and adds to the current RDF histogram.
 
         Args:
@@ -517,6 +487,9 @@ cdef class RDF(SpatialHistogram1D):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         """  # noqa E501
+        if reset:
+            self._reset()
+
         cdef:
             freud.locality.NeighborQuery nq
             freud.locality.NeighborList nlist
@@ -531,26 +504,6 @@ cdef class RDF(SpatialHistogram1D):
             <vec3[float]*> &l_query_points[0, 0],
             num_query_points, nlist.get_ptr(),
             dereference(qargs.thisptr))
-        return self
-
-    def compute(self, neighbor_query, query_points=None, neighbors=None):
-        R"""Calculates the RDF for the specified points. Will overwrite the current
-        histogram.
-
-        Args:
-            box (:class:`freud.box.Box`):
-                Simulation box.
-            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
-                Reference points used to calculate the RDF.
-            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
-                Points used to calculate the RDF. Uses :code:`points` if
-                not provided or :code:`None`. (Default value = :code:`None`).
-            nlist (:class:`freud.locality.NeighborList`):
-                NeighborList to use to find bonds (Default value =
-                :code:`None`).
-        """  # noqa E501
-        self.reset()
-        self.accumulate(neighbor_query, query_points, neighbors)
         return self
 
     @Compute._computed_property

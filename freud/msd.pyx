@@ -167,14 +167,6 @@ cdef class MSD(Compute):
         """Calculate the MSD for the positions provided and add to the existing
         per-particle data.
 
-        .. note::
-            Unlike most methods in freud, accumulation for the MSD is split
-            over particles rather than frames of a simulation. The reason for
-            this choice is that efficient computation of the MSD requires using
-            the entire trajectory for a given particle. As a result, this
-            accumulation is primarily useful when the trajectory is so large
-            that computing an MSD on all particles at once is prohibitive.
-
         Args:
             positions ((:math:`N_{frames}`, :math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 The particle positions over a trajectory. If neither box nor images
@@ -186,6 +178,7 @@ cdef class MSD(Compute):
                 positions are assumed to be unwrapped already.
                 (Default value = :code:`None`).
         """  # noqa: E501
+        self._called_compute = True
 
         positions = freud.util._convert_array(
             positions, shape=(None, None, 3))
@@ -237,6 +230,7 @@ cdef class MSD(Compute):
     def reset(self):
         R"""Clears the stored MSD values from previous calls to accumulate (or
         the last call to compute)."""
+        self._called_compute = False
         self.particle_msd = []
 
     def compute(self, positions, images=None):

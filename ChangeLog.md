@@ -20,6 +20,7 @@ and this project adheres to
 * NeighborLists and query arguments are now accepted on equal footing by compute methods that involve neighbor finding.
 * 2D PMFTs accept quaternions as well as angles for their orientations.
 * Added NeighborQuery support to ClusterProperties, GaussianDensity, Voronoi, PeriodicBuffer, Interface.
+* Extensive new documentation including tutorial for new users and reference sections on crucial topics.
 
 ### Changed
 * All compute objects that perform neighbor computations now use NeighborQuery internally.

@@ -7,8 +7,19 @@ Table of Contents
    :maxdepth: 2
    :caption: Getting Started
 
+   introduction
    installation
+   gettingstarted
+   tutorial
    examples
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Reference
+
+   querying
+   optimizing
+   datainputs
 
 .. toctree::
    :maxdepth: 2

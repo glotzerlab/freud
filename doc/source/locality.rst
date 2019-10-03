@@ -12,7 +12,6 @@ Locality Module
     freud.locality.NeighborQueryResult
     freud.locality.AABBQuery
     freud.locality.LinkCell
-    freud.locality.IteratorLinkCell
 
 .. rubric:: Details
 
