@@ -140,23 +140,30 @@ cdef class BondOrder(SpatialHistogram):
         histogram.
 
         Args:
-            box (:class:`freud.box.Box`):
-                Simulation box.
-            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
-                Reference points used to calculate bonds.
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
             orientations ((:math:`N_{points}`, 4) :class:`numpy.ndarray`):
-                Reference orientations used to calculate bonds.
+                Orientations associated with system points that are used to
+                calculate bonds.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
-                Points used to calculate bonds. Uses :code:`points` if not
-                provided or :code:`None`.
-                (Default value = :code:`None`).
+                Query points used to calculate the correlation function.  Uses
+                the system's points if not provided or :code:`None` (Default
+                value = :code:`None`).
             query_orientations ((:math:`N_{query\_points}`, 4) :class:`numpy.ndarray`, optional):
-                Orientations used to calculate bonds. Uses
-                :code:`orientations` if not provided or :code:`None`.
-                (Default value = :code:`None`).
-            nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value =
-                :code:`None`).
+                Query orientations used to calculate bonds. Uses
+                :code:`orientations` if not provided or :code:`None`.  (Default
+                value = :code:`None`).
+            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
+                Either a :class:`NeighborList <freud.locality.NeighborList>` of
+                neighbor pairs to use in the calculation, or a dictionary of
+                `query arguments
+                <https://freud.readthedocs.io/en/next/querying.html>`_
+                (Default value: None).
+            reset (bool):
+                Whether to erase the previously computed values before adding
+                the new computation; if False, will accumulate data (Default
+                value: True).
         """  # noqa: E501
         if reset:
             self._reset()
@@ -267,20 +274,22 @@ cdef class LocalDescriptors(PairCompute):
         points to a set of destination points.
 
         Args:
-            box (:class:`freud.box.Box`):
-                Simulation box.
-            num_neighbors (unsigned int):
-                Number of nearest neighbors to compute with or to limit to, if the
-                neighbor list is precomputed.
-            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
-                Source points to calculate the order parameter.
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
-                Destination points to calculate the order parameter
-                (Default value = :code:`None`).
-            orientations ((:math:`N_{points}`, 4) :class:`numpy.ndarray`, optional):
-                Orientation of each point (Default value = :code:`None`).
-            nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value = :code:`None`).
+                Query points used to calculate the correlation function.  Uses
+                the system's points if not provided or :code:`None` (Default
+                value = :code:`None`).
+            orientations ((:math:`N_{points}`, 4) :class:`numpy.ndarray`):
+                Orientations associated with system points that are used to
+                calculate bonds.
+            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
+                Either a :class:`NeighborList <freud.locality.NeighborList>` of
+                neighbor pairs to use in the calculation, or a dictionary of
+                `query arguments
+                <https://freud.readthedocs.io/en/next/querying.html>`_
+                (Default value: None).
         """  # noqa: E501
         cdef:
             freud.locality.NeighborQuery nq
@@ -513,19 +522,28 @@ cdef class EnvironmentCluster(_MatchEnv):
         required neighbor is just outside the cutoff.
 
         Args:
-            system ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Destination points to calculate the order parameter.
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
             threshold (float):
                 Maximum magnitude of the vector difference between two vectors,
                 below which they are "matching". Typically, a good choice is
                 between 10% and 30% of the first well in the radial
                 distribution function (this has distance units).
-            neighbors (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find neighbors of every particle, to
-                compare environments (Default value = :code:`None`).
+            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
+                Either a :class:`NeighborList <freud.locality.NeighborList>` of
+                neighbor pairs to use in the calculation, or a dictionary of
+                `query arguments
+                <https://freud.readthedocs.io/en/next/querying.html>`_
+                (Default value: None).
             env_neighbors (:class:`freud.locality.NeighborList` or dict, optional):
-                NeighborList to use to find the environment of every particle
-                (Default value = :code:`None`).
+                Either a :class:`NeighborList <freud.locality.NeighborList>` of
+                neighbor pairs to use in the calculation, or a dictionary of
+                `query arguments
+                <https://freud.readthedocs.io/en/next/querying.html>`_
+                (Default value: None). This argument is used to define the
+                neighbors of the environment that motifs are registered
+                against.
             registration (bool, optional):
                 If True, first use brute force registration to orient one set
                 of environment vectors with respect to the other set such that
@@ -631,8 +649,9 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
         motif.
 
         Args:
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                NeighborQuery.
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
             motif ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Vectors that make up the motif against which we are matching.
             threshold (float):
@@ -640,9 +659,12 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
                 below which they are "matching". Typically, a good choice is
                 between 10% and 30% of the first well in the radial
                 distribution function (this has distance units).
-            neighbors (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value =
-                :code:`None`).
+            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
+                Either a :class:`NeighborList <freud.locality.NeighborList>` of
+                neighbor pairs to use in the calculation, or a dictionary of
+                `query arguments
+                <https://freud.readthedocs.io/en/next/querying.html>`_
+                (Default value: None).
             registration (bool, optional):
                 If True, first use brute force registration to orient one set
                 of environment vectors with respect to the other set such that
@@ -713,13 +735,17 @@ cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
         motif.
 
         Args:
-            system ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                NeighborQuery or (box, points).
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
             motif ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Vectors that make up the motif against which we are matching.
-            neighbors (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value =
-                :code:`None`).
+            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
+                Either a :class:`NeighborList <freud.locality.NeighborList>` of
+                neighbor pairs to use in the calculation, or a dictionary of
+                `query arguments
+                <https://freud.readthedocs.io/en/next/querying.html>`_
+                (Default value: None).
             registration (bool, optional):
                 If True, first use brute force registration to orient one set
                 of environment vectors with respect to the other set such that
@@ -774,27 +800,34 @@ cdef class AngularSeparationNeighbor(PairCompute):
         class attribute.
 
         Args:
-            box (:class:`freud.box.Box`):
-                Simulation box.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Reference points used to calculate the order parameter.
-            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
-                Reference orientations used to calculate the order parameter.
-            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`):
-                Points used to calculate the order parameter. Uses :code:`points`
-                if not provided or :code:`None`.
-            query_orientations ((:math:`N_{query\_points}`, 4) :class:`numpy.ndarray`):
-                query_orientations used to calculate the order parameter. Uses :code:`orientations`
-                if not provided or :code:`None`.
-            equiv_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional):
-                The set of all equivalent quaternions that takes the particle
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
+            orientations ((:math:`N_{points}`, 4) :class:`numpy.ndarray`):
+                Orientations associated with system points that are used to
+                calculate bonds.
+            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
+                Query points used to calculate the correlation function.  Uses
+                the system's points if not provided or :code:`None` (Default
+                value = :code:`None`).
+            query_orientations ((:math:`N_{query\_points}`, 4) :class:`numpy.ndarray`, optional):
+                Query orientations used to calculate bonds. Uses
+                :code:`orientations` if not provided or :code:`None`.  (Default
+                value = :code:`None`).
+            equiv_orientations ((:math:`N_{equiv}`, 4) :class:`numpy.ndarray`, optional):
+                The set of all equivalent quaternions that takes the point
                 as it is defined to some global reference orientation.
-                Important: :code:`equiv_orientations` must include both :math:`q` and
-                :math:`-q`, for all included quaternions.
+                Important: :code:`equiv_orientations` must include both
+                :math:`q` and :math:`-q`, for all included quaternions. Note
+                that this calculation assumes that all points in the system
+                share the same set of equivalent orientations.
                 (Default value = :code:`[[1, 0, 0, 0]]`)
-            nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value =
-                :code:`None`).
+            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
+                Either a :class:`NeighborList <freud.locality.NeighborList>` of
+                neighbor pairs to use in the calculation, or a dictionary of
+                `query arguments
+                <https://freud.readthedocs.io/en/next/querying.html>`_
+                (Default value: None).
         """  # noqa: E501
         cdef:
             freud.locality.NeighborQuery nq
@@ -866,22 +899,27 @@ cdef class AngularSeparationGlobal(Compute):
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, global_orientations, orientations, equiv_orientations):
+    def compute(self, global_orientations, orientations,
+                equiv_orientations=np.array([[1, 0, 0, 0]])):
         R"""Calculates the minimum angles of separation between
         :code:`global_orientations` and :code:`orientations`, checking for
         underlying symmetry as encoded in :code:`equiv_orientations`. The
         result is stored in the :code:`global_angles` class attribute.
 
         Args:
-            global_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
-                Reference orientations to calculate the order parameter.
+            global_orientations ((:math:`N_{global}`, 4) :class:`numpy.ndarray`):
+                Set of global reference orientations to calculate the order
+                parameter.
             orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Orientations to calculate the order parameter.
-            equiv_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
-                The set of all equivalent quaternions that takes the particle
+            equiv_orientations ((:math:`N_{equiv}`, 4) :class:`numpy.ndarray`, optional):
+                The set of all equivalent quaternions that takes the point
                 as it is defined to some global reference orientation.
-                Important: :code:`equiv_orientations` must include both :math:`q` and
-                :math:`-q`, for all included quaternions.
+                Important: :code:`equiv_orientations` must include both
+                :math:`q` and :math:`-q`, for all included quaternions. Note
+                that this calculation assumes that all points in the system
+                share the same set of equivalent orientations.
+                (Default value = :code:`[[1, 0, 0, 0]]`)
         """  # noqa
         global_orientations = freud.util._convert_array(
             global_orientations, shape=(None, 4))
@@ -950,31 +988,35 @@ cdef class LocalBondProjection(PairCompute):
         symmetries of the reference frame as encoded in :code:`equiv_orientations`.
 
         Args:
-            box (:class:`freud.box.Box`):
-                Simulation box.
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
+            orientations ((:math:`N_{points}`, 4) :class:`numpy.ndarray`):
+                Orientations associated with system points that are used to
+                calculate bonds.
             proj_vecs ((:math:`N_{vectors}`, 3) :class:`numpy.ndarray`):
                 The set of reference vectors, defined in the reference
                 particles' reference frame, to calculate maximal local bond
                 projections onto.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Reference points used in the calculation.
-            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
-                Reference orientations used in the calculation.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
-                Points (neighbors of :code:`points`) used in the
-                calculation. Uses :code:`points` if not provided or
-                :code:`None`.
+                Query points used to calculate the correlation function.  Uses
+                the system's points if not provided or :code:`None` (Default
+                value = :code:`None`).
                 (Default value = :code:`None`).
-            equiv_orientations ((:math:`N_{quats}`, 4) :class:`numpy.ndarray`, optional):
-                The set of all equivalent quaternions that takes the particle
-                as it is defined to some global reference orientation. Note
-                that this does not need to include both :math:`q` and
-                :math:`-q`, since :math:`q` and :math:`-q` effect the same
-                rotation on vectors. (Default value = :code:`[1, 0, 0, 0]`)
-                (Default value = :code:`None`).
-            nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value =
-                :code:`None`).
+            equiv_orientations ((:math:`N_{equiv}`, 4) :class:`numpy.ndarray`, optional):
+                The set of all equivalent quaternions that takes the point
+                as it is defined to some global reference orientation.
+                Important: :code:`equiv_orientations` must include both
+                :math:`q` and :math:`-q`, for all included quaternions. Note
+                that this calculation assumes that all points in the system
+                share the same set of equivalent orientations.
+                (Default value = :code:`[[1, 0, 0, 0]]`)
+            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
+                Either a :class:`NeighborList <freud.locality.NeighborList>` of
+                neighbor pairs to use in the calculation, or a dictionary of
+                `query arguments
+                <https://freud.readthedocs.io/en/next/querying.html>`_
+                (Default value: None).
         """  # noqa: E501
         cdef:
             freud.locality.NeighborQuery nq

@@ -280,15 +280,15 @@ cdef class Hexatic(PairCompute):
         R"""Calculates the hexatic order parameter.
 
         Args:
-            box (:class:`freud.box.Box`):
-                Simulation box.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the order parameter.
-            nlist (:class:`freud.locality.NeighborList`, optional):
-                Neighborlist to use to find bonds.
-                (Default value = :code:`None`).
-            query_args (dict): A dictionary of query arguments (Default value =
-                :code:`None`).
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
+            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
+                Either a :class:`NeighborList <freud.locality.NeighborList>` of
+                neighbor pairs to use in the calculation, or a dictionary of
+                `query arguments
+                <https://freud.readthedocs.io/en/next/querying.html>`_
+                (Default value: None).
         """
         cdef:
             freud.locality.NeighborQuery nq
@@ -356,15 +356,15 @@ cdef class Translational(PairCompute):
         R"""Calculates the local descriptors.
 
         Args:
-            box (:class:`freud.box.Box`):
-                Simulation box.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the order parameter.
-            nlist (:class:`freud.locality.NeighborList`, optional):
-                Neighborlist to use to find bonds.
-                (Default value = :code:`None`).
-            query_args (dict): A dictionary of query arguments (Default value =
-                :code:`None`).
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
+            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
+                Either a :class:`NeighborList <freud.locality.NeighborList>` of
+                neighbor pairs to use in the calculation, or a dictionary of
+                `query arguments
+                <https://freud.readthedocs.io/en/next/querying.html>`_
+                (Default value: None).
         """
         cdef:
             freud.locality.NeighborQuery nq
@@ -515,13 +515,15 @@ cdef class Steinhardt(PairCompute):
         R"""Compute the order parameter.
 
         Args:
-            box (:class:`freud.box.Box`):
-                Simulation box.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the order parameter.
-            nlist (:class:`freud.locality.NeighborList`, optional):
-                Neighborlist to use to find bonds.
-                (Default value = :code:`None`).
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
+            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
+                Either a :class:`NeighborList <freud.locality.NeighborList>` of
+                neighbor pairs to use in the calculation, or a dictionary of
+                `query arguments
+                <https://freud.readthedocs.io/en/next/querying.html>`_
+                (Default value: None).
         """
         cdef:
             freud.locality.NeighborQuery nq
@@ -642,13 +644,15 @@ cdef class SolidLiquid(PairCompute):
         R"""Compute the order parameter.
 
         Args:
-            box (:class:`freud.box.Box`):
-                Simulation box.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the order parameter.
-            nlist (:class:`freud.locality.NeighborList`, optional):
-                Neighborlist to use to find bonds.
-                (Default value = :code:`None`).
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
+            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
+                Either a :class:`NeighborList <freud.locality.NeighborList>` of
+                neighbor pairs to use in the calculation, or a dictionary of
+                `query arguments
+                <https://freud.readthedocs.io/en/next/querying.html>`_
+                (Default value: None).
         """
         cdef:
             freud.locality.NeighborQuery nq
@@ -780,8 +784,6 @@ cdef class RotationalAutocorrelation(Compute):
         l (int):
             Order of the hyperspherical harmonic. Must be a positive, even
             integer.
-
-    Attributes:
     """
     cdef freud._order.RotationalAutocorrelation * thisptr
 
@@ -799,7 +801,7 @@ cdef class RotationalAutocorrelation(Compute):
 
         Args:
             ref_orientations ((:math:`N_{orientations}`, 4) :class:`numpy.ndarray`):
-                Reference orientations for the initial frame.
+                Orientations for the initial frame.
             orientations ((:math:`N_{orientations}`, 4) :class:`numpy.ndarray`):
                 Orientations for the frame of interest.
         """  # noqa

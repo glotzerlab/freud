@@ -77,23 +77,30 @@ cdef class CorrelationFunction(SpatialHistogram1D):
         histogram.
 
         Args:
-            box (:class:`freud.box.Box`):
-                Simulation box.
-            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
-                Reference points used to calculate the correlation function.
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
             values ((:math:`N_{points}`) :class:`numpy.ndarray`):
-                Complex values used to calculate the correlation function.
+                Values associated with the system points used to calculate the
+                correlation function.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
-                Points used to calculate the correlation function.
-                Uses :code:`points` if not provided or :code:`None`.
-                (Default value = :code:`None`).
+                Query points used to calculate the correlation function.  Uses
+                the system's points if not provided or :code:`None` (Default
+                value = :code:`None`).
             query_values ((:math:`N_{query\_points}`) :class:`numpy.ndarray`, optional):
-                Complex values used to calculate the correlation function.
-                Uses :code:`values` if not provided or :code:`None`.
-                (Default value = :code:`None`).
-            nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value =
-                :code:`None`).
+                Query values used to calculate the correlation function.  Uses
+                :code:`values` if not provided or :code:`None`.  (Default value
+                = :code:`None`).
+            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
+                Either a :class:`NeighborList <freud.locality.NeighborList>` of
+                neighbor pairs to use in the calculation, or a dictionary of
+                `query arguments
+                <https://freud.readthedocs.io/en/next/querying.html>`_
+                (Default value: None).
+            reset (bool):
+                Whether to erase the previously computed values before adding
+                the new computation; if False, will accumulate data (Default
+                value: True).
         """  # noqa E501
         if reset:
             self.is_complex = False
@@ -223,10 +230,9 @@ cdef class GaussianDensity(Compute):
         R"""Calculates the Gaussian blur for the specified points.
 
         Args:
-            box (:class:`freud.box.Box`):
-                Simulation box.
-            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the local density.
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
         """
         cdef freud.locality.NeighborQuery nq = \
             freud.locality.NeighborQuery.from_system(system)
@@ -320,10 +326,6 @@ cdef class LocalDensity(PairCompute):
 
     .. image:: images/density.png
 
-    .. note::
-        **2D:** :class:`freud.density.LocalDensity` properly handles 2D
-        boxes. The points must be passed in as :code:`[x, y, 0]`.
-
     Args:
         r_max (float):
             Maximum distance over which to calculate the density.
@@ -358,17 +360,19 @@ cdef class LocalDensity(PairCompute):
         accumulate (will overwrite current data).
 
         Args:
-            box (:class:`freud.box.Box`):
-                Simulation box.
-            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
-                Reference points to calculate the local density.
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
-                Points to calculate the local density. Uses :code:`points`
-                if not provided or :code:`None`.
-                (Default value = :code:`None`).
-            nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value =
-                :code:`None`).
+                Query points used to calculate the correlation function. Uses
+                the system's points if not provided or :code:`None` (Default
+                value = :code:`None`).
+            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
+                Either a :class:`NeighborList <freud.locality.NeighborList>` of
+                neighbor pairs to use in the calculation, or a dictionary of
+                `query arguments
+                <https://freud.readthedocs.io/en/next/querying.html>`_
+                (Default value: None).
         """  # noqa E501
         cdef:
             freud.locality.NeighborQuery nq
@@ -466,16 +470,23 @@ cdef class RDF(SpatialHistogram1D):
         R"""Calculates the RDF and adds to the current RDF histogram.
 
         Args:
-            box (:class:`freud.box.Box`):
-                Simulation box.
-            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
-                Reference points used to calculate the RDF.
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
-                Points used to calculate the RDF. Uses :code:`points` if
-                not provided or :code:`None`.
-            nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value =
+                Query points used to calculate the RDF. Uses the system's
+                points if not provided or :code:`None` (Default value =
                 :code:`None`).
+            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
+                Either a :class:`NeighborList <freud.locality.NeighborList>` of
+                neighbor pairs to use in the calculation, or a dictionary of
+                `query arguments
+                <https://freud.readthedocs.io/en/next/querying.html>`_
+                (Default value: None).
+            reset (bool):
+                Whether to erase the previously computed values before adding
+                the new computation; if False, will accumulate data (Default
+                value: True).
         """  # noqa E501
         if reset:
             self._reset()
