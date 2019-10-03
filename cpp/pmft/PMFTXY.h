@@ -1,22 +1,22 @@
 // Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#ifndef PMFTXY2D_H
-#define PMFTXY2D_H
+#ifndef PMFTXY_H
+#define PMFTXY_H
 
 #include "PMFT.h"
 
-/*! \file PMFTXY2D.h
+/*! \file PMFTXY.h
     \brief Routines for computing 2D potential of mean force in XY coordinates
 */
 
 namespace freud { namespace pmft {
 
-class PMFTXY2D : public PMFT
+class PMFTXY : public PMFT
 {
 public:
     //! Constructor
-    PMFTXY2D(float x_max, float y_max, unsigned int n_x, unsigned int n_y);
+    PMFTXY(float x_max, float y_max, unsigned int n_x, unsigned int n_y);
 
     /*! Compute the PCF for the passed in set of points. The result will
      *  be added to previous values of the PCF.
@@ -36,4 +36,4 @@ private:
 
 }; }; // end namespace freud::pmft
 
-#endif // PMFTXY2D_H
+#endif // PMFTXY_H
