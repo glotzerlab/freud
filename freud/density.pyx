@@ -85,11 +85,11 @@ cdef class CorrelationFunction(SpatialHistogram1D):
                 correlation function.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Query points used to calculate the correlation function.  Uses
-                the system's points if not provided or :code:`None` (Default
-                value = :code:`None`).
+                the system's points if :code:`None` (Default value =
+                :code:`None`).
             query_values ((:math:`N_{query\_points}`) :class:`numpy.ndarray`, optional):
                 Query values used to calculate the correlation function.  Uses
-                :code:`values` if not provided or :code:`None`.  (Default value
+                :code:`values` if :code:`None`.  (Default value
                 = :code:`None`).
             neighbors (:class:`freud.locality.NeighborList` or dict, optional):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
@@ -223,7 +223,7 @@ cdef class GaussianDensity(Compute):
 
     @Compute._computed_property
     def box(self):
-        """(:class:`freud.box.Box`): Box used in the calculation."""
+        """:class:`freud.box.Box`: Box used in the calculation."""
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     def compute(self, system):
@@ -365,7 +365,7 @@ cdef class LocalDensity(PairCompute):
                 :class:`freud.locality.NeighborQuery.from_system`.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Query points used to calculate the correlation function. Uses
-                the system's points if not provided or :code:`None` (Default
+                the system's points if :code:`None` (Default
                 value = :code:`None`).
             neighbors (:class:`freud.locality.NeighborList` or dict, optional):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
@@ -475,7 +475,7 @@ cdef class RDF(SpatialHistogram1D):
                 :class:`freud.locality.NeighborQuery.from_system`.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Query points used to calculate the RDF. Uses the system's
-                points if not provided or :code:`None` (Default value =
+                points if :code:`None` (Default value =
                 :code:`None`).
             neighbors (:class:`freud.locality.NeighborList` or dict, optional):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of

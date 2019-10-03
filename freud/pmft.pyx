@@ -176,11 +176,11 @@ cdef class PMFTR12(_PMFT):
                 calculate bonds.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Query points used to calculate the correlation function.  Uses
-                the system's points if not provided or :code:`None` (Default
+                the system's points if :code:`None` (Default
                 value = :code:`None`).
             query_orientations ((:math:`N_{query\_points}`, 4) :class:`numpy.ndarray`, optional):
                 Query orientations used to calculate bonds. Uses
-                :code:`orientations` if not provided or :code:`None`.  (Default
+                :code:`orientations` if :code:`None`.  (Default
                 value = :code:`None`).
             neighbors (:class:`freud.locality.NeighborList` or dict, optional):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
@@ -283,11 +283,11 @@ cdef class PMFTXYT(_PMFT):
                 calculate bonds.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Query points used to calculate the correlation function.  Uses
-                the system's points if not provided or :code:`None` (Default
+                the system's points if :code:`None` (Default
                 value = :code:`None`).
             query_orientations ((:math:`N_{query\_points}`, 4) :class:`numpy.ndarray`, optional):
                 Query orientations used to calculate bonds. Uses
-                :code:`orientations` if not provided or :code:`None`.  (Default
+                :code:`orientations` if :code:`None`.  (Default
                 value = :code:`None`).
             neighbors (:class:`freud.locality.NeighborList` or dict, optional):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
@@ -391,7 +391,7 @@ cdef class PMFTXY2D(_PMFT):
                 calculate bonds.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Query points used to calculate the correlation function.  Uses
-                the system's points if not provided or :code:`None` (Default
+                the system's points if :code:`None` (Default
                 value = :code:`None`).
             neighbors (:class:`freud.locality.NeighborList` or dict, optional):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
@@ -526,7 +526,7 @@ cdef class PMFTXYZ(_PMFT):
                 calculate bonds.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Query points used to calculate the correlation function.  Uses
-                the system's points if not provided or :code:`None` (Default
+                the system's points if :code:`None` (Default
                 value = :code:`None`).
             face_orientations ((:math:`N_{points}`, :math:`N_{faces}`, 4) :class:`numpy.ndarray`, optional):
                 Orientations of particle faces to account for symmetry of the

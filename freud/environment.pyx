@@ -148,11 +148,11 @@ cdef class BondOrder(SpatialHistogram):
                 calculate bonds.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Query points used to calculate the correlation function.  Uses
-                the system's points if not provided or :code:`None` (Default
+                the system's points if :code:`None` (Default
                 value = :code:`None`).
             query_orientations ((:math:`N_{query\_points}`, 4) :class:`numpy.ndarray`, optional):
                 Query orientations used to calculate bonds. Uses
-                :code:`orientations` if not provided or :code:`None`.  (Default
+                :code:`orientations` if :code:`None`.  (Default
                 value = :code:`None`).
             neighbors (:class:`freud.locality.NeighborList` or dict, optional):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
@@ -279,7 +279,7 @@ cdef class LocalDescriptors(PairCompute):
                 :class:`freud.locality.NeighborQuery.from_system`.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Query points used to calculate the correlation function.  Uses
-                the system's points if not provided or :code:`None` (Default
+                the system's points if :code:`None` (Default
                 value = :code:`None`).
             orientations ((:math:`N_{points}`, 4) :class:`numpy.ndarray`):
                 Orientations associated with system points that are used to
@@ -820,11 +820,11 @@ cdef class AngularSeparationNeighbor(PairCompute):
                 calculate bonds.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Query points used to calculate the correlation function.  Uses
-                the system's points if not provided or :code:`None` (Default
+                the system's points if :code:`None` (Default
                 value = :code:`None`).
             query_orientations ((:math:`N_{query\_points}`, 4) :class:`numpy.ndarray`, optional):
                 Query orientations used to calculate bonds. Uses
-                :code:`orientations` if not provided or :code:`None`.  (Default
+                :code:`orientations` if :code:`None`.  (Default
                 value = :code:`None`).
             equiv_orientations ((:math:`N_{equiv}`, 4) :class:`numpy.ndarray`, optional):
                 The set of all equivalent quaternions that takes the point
@@ -1018,7 +1018,7 @@ cdef class LocalBondProjection(PairCompute):
                 projections onto.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Query points used to calculate the correlation function.  Uses
-                the system's points if not provided or :code:`None` (Default
+                the system's points if :code:`None` (Default
                 value = :code:`None`).
                 (Default value = :code:`None`).
             equiv_orientations ((:math:`N_{equiv}`, 4) :class:`numpy.ndarray`, optional):

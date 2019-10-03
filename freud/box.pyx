@@ -54,7 +54,7 @@ cdef class Box:
             The yz tilt factor (Default value = 0).
         is2D (bool, optional):
             Whether the box is 2-dimensional. Uses :code:`Lz == 0`
-            if not provided or :code:`None`. (Default value = :code:`None`)
+            if :code:`None`. (Default value = :code:`None`)
     """
 
     def __cinit__(self, Lx, Ly, Lz=0, xy=0, xz=0, yz=0, is2D=None):
