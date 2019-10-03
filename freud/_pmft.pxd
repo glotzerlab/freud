@@ -41,9 +41,9 @@ cdef extern from "PMFTXYT.h" namespace "freud::pmft":
                         const freud._locality.NeighborList*,
                         freud._locality.QueryArgs) except +
 
-cdef extern from "PMFTXY2D.h" namespace "freud::pmft":
-    cdef cppclass PMFTXY2D(PMFT):
-        PMFTXY2D(float, float, unsigned int, unsigned int) except +
+cdef extern from "PMFTXY.h" namespace "freud::pmft":
+    cdef cppclass PMFTXY(PMFT):
+        PMFTXY(float, float, unsigned int, unsigned int) except +
 
         void accumulate(const freud._locality.NeighborQuery*,
                         float*,

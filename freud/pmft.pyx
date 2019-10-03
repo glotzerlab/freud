@@ -342,12 +342,12 @@ cdef class PMFTXYT(_PMFT):
                                              [str(b) for b in self.nbins]))
 
 
-cdef class PMFTXY2D(_PMFT):
+cdef class PMFTXY(_PMFT):
     R"""Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in
     coordinates :math:`x`, :math:`y` listed in the ``X`` and ``Y`` arrays.
 
     .. note::
-        **2D:** :class:`freud.pmft.PMFTXY2D` is only defined for 2D systems.
+        **2D:** :class:`freud.pmft.PMFTXY` is only defined for 2D systems.
         The points must be passed in as :code:`[x, y, 0]`.
 
     Args:
@@ -360,22 +360,22 @@ cdef class PMFTXY2D(_PMFT):
             :math:`z`. If a sequence of two integers, interpreted as
             :code:`(num_bins_x, num_bins_y)`.
     """  # noqa: E501
-    cdef freud._pmft.PMFTXY2D * pmftxy2dptr
+    cdef freud._pmft.PMFTXY * pmftxyptr
 
     def __cinit__(self, x_max, y_max, bins):
-        if type(self) is PMFTXY2D:
+        if type(self) is PMFTXY:
             try:
                 n_x, n_y = bins
             except TypeError:
                 n_x = n_y = bins
 
-            self.pmftxy2dptr = self.pmftptr = self.histptr = \
-                new freud._pmft.PMFTXY2D(x_max, y_max, n_x, n_y)
+            self.pmftxyptr = self.pmftptr = self.histptr = \
+                new freud._pmft.PMFTXY(x_max, y_max, n_x, n_y)
             self.r_max = np.sqrt(x_max**2 + y_max**2)
 
     def __dealloc__(self):
-        if type(self) is PMFTXY2D:
-            del self.pmftxy2dptr
+        if type(self) is PMFTXY:
+            del self.pmftxyptr
 
     def compute(self, system, orientations, query_points=None,
                 neighbors=None, reset=True):
@@ -422,11 +422,11 @@ cdef class PMFTXY2D(_PMFT):
             orientations, shape=(nq.points.shape[0], ))
         cdef const float[::1] l_orientations = orientations
 
-        self.pmftxy2dptr.accumulate(nq.get_ptr(),
-                                    <float*> &l_orientations[0],
-                                    <vec3[float]*> &l_query_points[0, 0],
-                                    num_query_points, nlist.get_ptr(),
-                                    dereference(qargs.thisptr))
+        self.pmftxyptr.accumulate(nq.get_ptr(),
+                                  <float*> &l_orientations[0],
+                                  <vec3[float]*> &l_query_points[0, 0],
+                                  num_query_points, nlist.get_ptr(),
+                                  dereference(qargs.thisptr))
         return self
 
     @Compute._computed_property
@@ -435,7 +435,7 @@ cdef class PMFTXY2D(_PMFT):
         # Currently the parent function returns a 3D array that must be
         # squeezed due to the internal choices in the histogramming; this will
         # be fixed in future changes.
-        return np.squeeze(super(PMFTXY2D, self).bin_counts)
+        return np.squeeze(super(PMFTXY, self).bin_counts)
 
     def __repr__(self):
         bounds = self.bounds
@@ -454,7 +454,7 @@ cdef class PMFTXY2D(_PMFT):
             return None
 
     def plot(self, ax=None):
-        """Plot PMFTXY2D.
+        """Plot PMFTXY.
 
         Args:
             ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
