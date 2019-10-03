@@ -94,6 +94,7 @@ Vyas Ramasubramani - **Lead developer**
 * Rewrote MatchEnv code to fit freud 2.0 API, splitting it into 3 separate calculations and rewriting internals using NeighborQuery objects.
 * Wrote tutorial and reference sections of documentation.
 * Unified util and common packages.
+* Rewrote all docstrings in the package for freud 2.0.
 
 Bradley Dice - **Lead developer**
 
