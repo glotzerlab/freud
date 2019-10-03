@@ -183,7 +183,7 @@ html_static_path = []
 # html_split_index = False
 
 # If true, links to the reST sources are added to the pages.
-# html_show_sourcelink = True
+html_show_sourcelink = True
 
 # If true, "Created using Sphinx" is shown in the HTML footer. Default is True.
 # html_show_sphinx = True
@@ -305,27 +305,6 @@ intersphinx_mapping = {
 }
 
 autodoc_default_options = {
-    'inherited-members': True
+    'inherited-members': True,
+    'show-inheritance': True,
 }
-
-nitpick_ignore = [("py:obj", "numpy.dtype"),
-                  ("py:class", "numpy.ndarray"),
-                  ("py:class", "numpy.uint32"),
-                  ("py:class", "numpy.int32"),
-                  ("py:class", "numpy.float32"),
-                  ("py:class", "numpy.float64"),
-                  ("py:class", "numpy.complex64"),
-                  ("py:class", "numpy.complex128"),
-                  ("py:obj", "unsigned int")]
-
-# Make class attributes show on single line
-napoleon_use_ivar = True
-
-
-# Don't document properties (we document them as class attributes).
-def autodoc_skip_member(app, what, name, obj, skip, options):
-    return skip or isinstance(obj, property)
-
-
-def setup(app):
-    app.connect('autodoc-skip-member', autodoc_skip_member)

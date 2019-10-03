@@ -45,6 +45,7 @@ and this project adheres to
 * The Voronoi class was rewritten to use voro++ for vastly improved performance and correctness in edge cases.
 * MatchEnv has been split into separate classes for the different types of computations it is capable of performing, and these classes all use v2.0-style APIs.
 * Code in the freud.common has been moved to freud.util.
+* PMFTXY2D has been renamed to PMFTXY.
 
 ### Fixed
 * Steinhardt uses the ThreadStorage class and properly resets memory where needed.

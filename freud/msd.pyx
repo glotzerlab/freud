@@ -140,12 +140,6 @@ cdef class MSD(Compute):
         mode (str, optional):
             Mode of calculation. Options are :code:`'window'` and
             :code:`'direct'`.  (Default value = :code:`'window'`).
-
-    Attributes:
-        box (:class:`freud.box.Box`):
-            Box used in the calculation.
-        msd (:math:`\left(N_{frames}, \right)` :class:`numpy.ndarray`):
-            The mean squared displacement.
     """   # noqa: E501
     cdef freud.box.Box _box
     cdef particle_msd
@@ -221,10 +215,13 @@ cdef class MSD(Compute):
 
     @property
     def box(self):
+        """:class:`freud.box.Box`: Box used in the calculation."""
         return self._box
 
     @Compute._computed_property
     def msd(self):
+        """:math:`\\left(N_{frames}, \\right`) :class:`numpy.ndarray`: The mean
+        squared displacement."""
         return np.concatenate(self.particle_msd, axis=1).mean(axis=-1)
 
     def reset(self):

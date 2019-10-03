@@ -7,7 +7,7 @@ Interface Module
 .. autosummary::
     :nosignatures:
 
-    freud.interface.InterfaceMeasure
+    freud.interface.Interface
 
 .. rubric:: Details
 
