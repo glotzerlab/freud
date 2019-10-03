@@ -763,15 +763,31 @@ cdef class SolidLiquid(PairCompute):
 
 
 cdef class RotationalAutocorrelation(Compute):
-    """Calculates a measure of total rotational autocorrelation based on
-    hyperspherical harmonics as laid out in "Design rules for engineering
-    colloidal plastic crystals of hard polyhedra - phase behavior and
-    directional entropic forces" by Karas et al. (currently in preparation).
-    The output is not a correlation function, but rather a scalar value that
-    measures total system orientational correlation with an initial state. As
-    such, the output can be treated as an order parameter measuring degrees of
-    rotational (de)correlation. For analysis of a trajectory, the compute call
-    needs to be done at each trajectory frame.
+    """Calculates a measure of total rotational autocorrelation.
+
+    For any calculation of rotational correlations of extended (i.e. non-point)
+    particles, encoding the symmetries of these particles is crucial to
+    appropriately determining correlations. For systems of anisotropic
+    particles in three dimensions, representing such equivalence can be quite
+    mathematically challenging. This calculation is based on the hyperspherical
+    harmonics as laid out in :cite:`Karas2019`. Generalizations of spherical
+    harmonics to four dimensions, hyperspherical harmonics provide a natural
+    basis for periodic functions in 4 dimensions just as harmonic functions
+    (sines and cosines) or spherical harmonics do in lower dimensions. The idea
+    behind this calculation is to embed orientation quaternions into a
+    4-dimensional space and then use hyperspherical harmonics to find
+    correlations in a symmetry-aware fashion.
+
+    The choice of the hyperspherical harmonic parameter :math:`l` determines
+    the symmetry of the functions. The output is not a correlation function,
+    but rather a scalar value that measures total system orientational
+    correlation with an initial state. As such, the output can be treated as an
+    order parameter measuring degrees of rotational (de)correlation. For
+    analysis of a trajectory, the compute call needs to be
+    done at each trajectory frame.
+
+
+    .. bibliography:: freud.bib
 
     Args:
         l (int):
