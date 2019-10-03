@@ -23,6 +23,7 @@ from cpython.object cimport Py_EQ, Py_NE
 
 cimport freud._box
 cimport numpy as np
+cimport freud.locality
 
 logger = logging.getLogger(__name__)
 
@@ -643,14 +644,16 @@ cdef class PeriodicBuffer:
             The buffer box, expanded to hold the replicated points.
     """  # noqa: E501
 
-    def __cinit__(self, box):
-        cdef Box b = freud.util._convert_box(box)
-        self.thisptr = new freud._box.PeriodicBuffer(dereference(b.thisptr))
+    def __cinit__(self):
+        self.thisptr = new freud._box.PeriodicBuffer()
+
+    def __init__(self):
+        pass
 
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, points, buffer, bool_t images=False):
+    def compute(self, neighbor_query, buffer, bool_t images=False):
         R"""Compute the periodic buffer.
 
         Args:
@@ -666,10 +669,8 @@ cdef class PeriodicBuffer:
                 two images triples the box side lengths, and so on.
                 (Default value = :code:`None`).
         """
-        points = freud.util._convert_array(points, shape=(None, 3))
-        cdef const float[:, ::1] l_points = points
-        cdef unsigned int Np = l_points.shape[0]
-
+        cdef freud.locality.NeighborQuery nq = \
+            freud.locality._make_default_nq(neighbor_query)
         cdef vec3[float] buffer_vec
         if np.ndim(buffer) == 0:
             # catches more cases than np.isscalar
@@ -679,8 +680,7 @@ cdef class PeriodicBuffer:
         else:
             raise ValueError('buffer must be a scalar or have length 3.')
 
-        self.thisptr.compute(<vec3[float]*> &l_points[0, 0], Np, buffer_vec,
-                             images)
+        self.thisptr.compute(nq.get_ptr(), buffer_vec, images)
         return self
 
     @property
@@ -697,8 +697,7 @@ cdef class PeriodicBuffer:
         return BoxFromCPP(<freud._box.Box> self.thisptr.getBufferBox())
 
     def __repr__(self):
-        return ("freud.box.{cls}(box={box})").format(
-            cls=type(self).__name__, box=repr(self.buffer_box))
+        return "freud.box.{cls}()".format(cls=type(self).__name__)
 
     def __str__(self):
         return repr(self)

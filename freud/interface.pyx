@@ -9,6 +9,7 @@ between sets of points.
 import numpy as np
 
 from freud.util cimport Compute
+from freud.locality cimport PairCompute
 from freud.util cimport vec3
 from cython.operator cimport dereference
 import freud.locality
@@ -22,12 +23,8 @@ cimport numpy as np
 # _always_ do that, or you will have segfaults
 np.import_array()
 
-cdef class InterfaceMeasure(Compute):
+cdef class Interface(PairCompute):
     R"""Measures the interface between two sets of points.
-
-    Args:
-        box (:class:`freud.box.Box`): Simulation box.
-        r_max (float): Distance to search for particle neighbors.
 
     Attributes:
         point_count (int):
@@ -39,16 +36,14 @@ cdef class InterfaceMeasure(Compute):
         query_point_ids (:class:`np.ndarray`):
             The particle IDs from :code:`query_points`.
     """
-    cdef float r_max
     cdef const unsigned int[::1] _point_ids
     cdef const unsigned int[::1] _query_point_ids
 
-    def __cinit__(self, float r_max):
-        self.r_max = r_max
+    def __init__(self):
         self._point_ids = np.empty(0, dtype=np.uint32)
         self._query_point_ids = np.empty(0, dtype=np.uint32)
 
-    def compute(self, box, points, query_points, nlist=None):
+    def compute(self, neighbor_query, query_points, neighbors=None):
         R"""Compute the particles at the interface between the two given sets of
         points.
 
@@ -60,17 +55,15 @@ cdef class InterfaceMeasure(Compute):
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """  # noqa E501
-        b = freud.util._convert_box(box)
-        points = freud.util._convert_array(points, shape=(None, 3))
-        query_points = freud.util._convert_array(
-            query_points, shape=(None, 3))
+        cdef:
+            freud.locality.NeighborQuery nq
+            freud.locality.NeighborList nlist
+            freud.locality._QueryArgs qargs
+            const float[:, ::1] l_query_points
+            unsigned int num_query_points
 
-        if nlist is None:
-            aq = freud.locality.AABBQuery(b, points)
-            nlist = aq.query(query_points,
-                             dict(r_max=self.r_max)).toNeighborList()
-        else:
-            nlist = nlist.copy().filter_r(self.r_max)
+        nlist = freud.locality._make_default_nlist(
+            neighbor_query, neighbors, query_points)
 
         self._point_ids = np.unique(nlist.point_indices)
         self._query_point_ids = np.unique(nlist.query_point_indices)
@@ -93,5 +86,4 @@ cdef class InterfaceMeasure(Compute):
         return np.asarray(self._query_point_ids)
 
     def __repr__(self):
-        return "freud.interface.{cls}(r_max={r_max})".format(
-            cls=type(self).__name__, r_max=self.r_max)
+        return "freud.interface.{cls}()".format(cls=type(self).__name__)

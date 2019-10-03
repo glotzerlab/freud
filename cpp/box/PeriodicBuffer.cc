@@ -11,9 +11,10 @@
 
 namespace freud { namespace box {
 
-void PeriodicBuffer::compute(const vec3<float>* points, const unsigned int Np, const vec3<float> buff,
-                             const bool use_images)
+void PeriodicBuffer::compute(const freud::locality::NeighborQuery* neighbor_query,
+                             const vec3<float> buff, const bool use_images)
 {
+    m_box = neighbor_query->getBox();
     if (buff.x < 0)
         throw std::invalid_argument("Buffer x distance must be non-negative.");
     if (buff.y < 0)
@@ -53,7 +54,7 @@ void PeriodicBuffer::compute(const vec3<float>* points, const unsigned int Np, c
     m_buffer_ids.clear();
 
     // for each point
-    for (unsigned int point_id = 0; point_id < Np; point_id++)
+    for (unsigned int point_id = 0; point_id < neighbor_query->getNPoints(); point_id++)
     {
         for (int i = use_images ? 0 : -images.x; i <= images.x; i++)
         {
@@ -69,7 +70,7 @@ void PeriodicBuffer::compute(const vec3<float>* points, const unsigned int Np, c
 
                     // Compute the new position for the buffer point,
                     // shifted by images.
-                    vec3<float> point_image = points[point_id];
+                    vec3<float> point_image = (*neighbor_query)[point_id];
                     point_image += float(i) * m_box.getLatticeVector(0);
                     point_image += float(j) * m_box.getLatticeVector(1);
                     if (!is2D)

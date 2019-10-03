@@ -7,6 +7,7 @@ from libcpp cimport bool as bool_t
 from freud.util cimport vec3
 from libcpp.vector cimport vector
 from libcpp.string cimport string
+cimport freud._locality
 
 ctypedef unsigned int uint
 
@@ -63,12 +64,11 @@ cdef extern from "Box.h" namespace "freud::box":
 
 cdef extern from "PeriodicBuffer.h" namespace "freud::box":
     cdef cppclass PeriodicBuffer:
-        PeriodicBuffer(const Box &)
+        PeriodicBuffer()
         const Box & getBox() const
         const Box & getBufferBox() const
         void compute(
-            const vec3[float]*,
-            const unsigned int,
+            const freud._locality.NeighborQuery*,
             const vec3[float],
             const bool_t) except +
         vector[vec3[float]] getBufferPoints() const
