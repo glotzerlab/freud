@@ -9,7 +9,7 @@ PMFT Module
 
     freud.pmft.PMFTR12
     freud.pmft.PMFTXYT
-    freud.pmft.PMFTXY
+    freud.pmft.PMFTXY2D
     freud.pmft.PMFTXYZ
 
 .. rubric:: Details
