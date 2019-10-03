@@ -23,7 +23,7 @@ cimport numpy as np
 # _always_ do that, or you will have segfaults
 np.import_array()
 
-cdef class InterfaceMeasure(PairCompute):
+cdef class Interface(PairCompute):
     R"""Measures the interface between two sets of points.
 
     Attributes:
@@ -39,7 +39,7 @@ cdef class InterfaceMeasure(PairCompute):
     cdef const unsigned int[::1] _point_ids
     cdef const unsigned int[::1] _query_point_ids
 
-    def __cinit__(self):
+    def __init__(self):
         self._point_ids = np.empty(0, dtype=np.uint32)
         self._query_point_ids = np.empty(0, dtype=np.uint32)
 

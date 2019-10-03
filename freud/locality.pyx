@@ -622,16 +622,15 @@ def _make_default_nlist(neighbor_query, neighbors, query_points=None):
     cdef:
         NeighborQuery nq
         NeighborList nlist
-        _QueryArgs qargs
 
-    nlist, qargs = _resolve_neighbors(neighbors, query_points)
-
-    if nlist.get_ptr() == NULL:
+    if type(neighbors) == NeighborList:
+        return neighbors
+    else:
+        query_args = neighbors.copy()
+        query_args.setdefault('exclude_ii', query_points is None)
         nq = _make_default_nq(neighbor_query)
         qp = query_points if query_points is not None else nq.points
-        return nq.query(qp, qargs).toNeighborList()
-    else:
-        return nlist
+        return nq.query(qp, query_args).toNeighborList()
 
 
 cdef class RawPoints(NeighborQuery):
