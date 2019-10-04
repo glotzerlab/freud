@@ -780,6 +780,7 @@ cdef class Voronoi(Compute):
         """
         cdef NeighborQuery nq = NeighborQuery.from_system(system)
         self.thisptr.compute(nq.get_ptr())
+        self._box = nq.box
         return self
 
     @Compute._computed_property
@@ -842,13 +843,19 @@ cdef class Voronoi(Compute):
     def __str__(self):
         return repr(self)
 
-    def plot(self, ax=None):
+    def plot(self, ax=None, color_by_sides=True, cmap=None):
         """Plot Voronoi diagram.
 
         Args:
             ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
                 :code:`None`, make a new figure and axis.
                 (Default value = :code:`None`)
+        color_by_sides (bool):
+            If :code:`True`, color cells by the number of sides.
+            If :code:`False`, random colors are used for each cell.
+            (Default value = :code:`True`)
+        cmap (str):
+            Colormap name to use (Default value = :code:`None`).
 
         Returns:
             :class:`matplotlib.axes.Axes`: Axis with the plot.
@@ -857,7 +864,8 @@ cdef class Voronoi(Compute):
         if not self._box.is2D:
             return None
         else:
-            return freud.plot.voronoi_plot(self._box, self.polytopes, ax=ax)
+            return freud.plot.voronoi_plot(
+                self._box, self.polytopes, ax, color_by_sides, cmap)
 
     def _repr_png_(self):
         import freud.plot
