@@ -129,6 +129,7 @@ Bradley Dice - **Lead developer**
 * Standardized vector directionality in computes.
 * NeighborQuery support to ClusterProperties, GaussianDensity, Voronoi, PeriodicBuffer, Interface.
 * Standardized APIs for order parameters.
+* Improved Voronoi plotting code.
 
 Richmond Newman
 
