@@ -46,8 +46,8 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
         );
 
         for (size_t query_point_id = 0; query_point_id < n_points; query_point_id++) {
-            auto point = (*nq)[query_point_id];
-            container.put(query_point_id, double(point.x), double(point.y), double(point.z));
+            vec3<double> query_point((*nq)[query_point_id]);
+            container.put(query_point_id, query_point.x, query_point.y, query_point.z);
         }
 
         voro::voronoicell_neighbor cell;
@@ -78,8 +78,8 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
                 cell.normals(normals);
                 cell.vertices(ri.x, ri.y, ri.z, vertices);
 
-                // Save polytope vertices in system coordinates
-                std::vector<vec3<double>> vec3_vertices;
+                // Compute polytope vertices in relative coordinates
+                std::vector<vec3<double> > relative_vertices;
                 auto vertex_iterator = vertices.begin();
                 while (vertex_iterator != vertices.end()) {
                     double vert_x = *vertex_iterator;
@@ -97,9 +97,30 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
                         }
                         vert_z = 0;
                     }
-                    vec3_vertices.push_back(vec3<double>(vert_x, vert_y, vert_z));
+                    vec3<double> delta = vec3<double>(vert_x, vert_y, vert_z) - ri;
+                    relative_vertices.push_back(delta);
                 }
-                m_polytopes[query_point_id] = vec3_vertices;
+
+                // Sort relative vertices by their angle in 2D systems
+                if (box.is2D())
+                {
+                    std::sort(relative_vertices.begin(), relative_vertices.end(),
+                            [](const vec3<double> a, const vec3<double> b)
+                            {
+                                const double a_angle = std::atan2(a.y, a.x);
+                                const double b_angle = std::atan2(b.y, b.x);
+                                return a_angle < b_angle;
+                            });
+                }
+
+                // Save polytope vertices in system coordinates
+                std::vector<vec3<double> > system_vertices;
+                for (auto vertex_iter = relative_vertices.begin(); vertex_iter != relative_vertices.end(); vertex_iter++)
+                {
+                    vec3<double> query_point((*nq)[query_point_id]);
+                    system_vertices.push_back((*vertex_iter) + query_point);
+                }
+                m_polytopes[query_point_id] = system_vertices;
 
                 // Save cell volume
                 m_volumes[query_point_id] = cell.volume();
