@@ -774,10 +774,9 @@ cdef class Voronoi(Compute):
         R"""Compute Voronoi diagram.
 
         Args:
-            box (:class:`freud.box.Box`):
-                Simulation box.
-            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
-                Points used to calculate Voronoi diagram.
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
         """
         cdef NeighborQuery nq = NeighborQuery.from_system(system)
         self.thisptr.compute(nq.get_ptr())
