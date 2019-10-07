@@ -169,15 +169,15 @@ float Cubatic::calcCubaticOrderParameter(const tensor4 &cubatic_tensor, const te
     return float(1.0) - dot(diff, diff) / dot(cubatic_tensor, cubatic_tensor);
 }
 
-quat<float> Cubatic::calcRandomQuaternion(std::mt19937& gen, float angle_multiplier = 1.0) const
+template <typename T>
+quat<float> Cubatic::calcRandomQuaternion(T& dist, float angle_multiplier) const
 {
-    ;
-    float theta = std::uniform_real_distribution<float>(0, 2.0*M_PI)(gen);
-    float phi = acos(2.0 * std::uniform_real_distribution<float>(0, 1)(gen) - 1.0);
+    float theta = 2.0 * M_PI * dist();
+    float phi = acos(2.0 * dist() - 1.0);
     vec3<float> axis = vec3<float>(cosf(theta) * sinf(phi), sinf(theta) * sinf(phi), cosf(phi));
     float axis_norm = sqrt(dot(axis, axis));
     axis /= axis_norm;
-    float angle = angle_multiplier * std::uniform_real_distribution<float>(0, 1)(gen);
+    float angle = angle_multiplier * dist();
     return quat<float>::fromAxisAngle(axis, angle);
 }
 
@@ -262,11 +262,13 @@ void Cubatic::compute(quat<float>* orientations, unsigned int num_orientations)
 		seed_seq[2] = 0xffaabb;
 		std::seed_seq seed(seed_seq.begin(), seed_seq.end());
 		std::mt19937 rng(seed);
+        std::uniform_real_distribution<float> base_dist(0, 1);
+        auto dist = std::bind(base_dist, rng);
 
         for (size_t i = r.begin(); i != r.end(); i++)
         {
             // need to generate random orientation
-            quat<float> cubatic_orientation = calcRandomQuaternion(rng);
+            quat<float> cubatic_orientation = calcRandomQuaternion(dist);
             quat<float> new_orientation = cubatic_orientation;
 
             // now calculate the cubatic tensor
@@ -281,7 +283,7 @@ void Cubatic::compute(quat<float>* orientations, unsigned int num_orientations)
             while ((t_current > m_t_final) && (loop_count < 10000))
             {
                 ++loop_count;
-                new_orientation = calcRandomQuaternion(rng, 0.1) * (cubatic_orientation);
+                new_orientation = calcRandomQuaternion(dist, 0.1) * (cubatic_orientation);
                 // now calculate the cubatic tensor
                 tensor4 new_cubatic_tensor = calcCubaticTensor(new_orientation);
                 new_order_parameter = calcCubaticOrderParameter(new_cubatic_tensor, global_tensor);
@@ -295,7 +297,7 @@ void Cubatic::compute(quat<float>* orientations, unsigned int num_orientations)
                 {
                     float boltzmann_factor
                         = exp(-(cubatic_order_parameter - new_order_parameter) / t_current);
-                    if (boltzmann_factor >= std::uniform_real_distribution<float>(0, 1)(rng))
+                    if (boltzmann_factor >= dist())
                     {
                         cubatic_tensor = new_cubatic_tensor;
                         cubatic_order_parameter = new_order_parameter;
