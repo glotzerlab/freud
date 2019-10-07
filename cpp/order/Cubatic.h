@@ -5,7 +5,7 @@
 #define CUBATIC_H
 
 #include "VectorMath.h"
-#include "saruprng.h"
+#include <random>
 #include "ManagedArray.h"
 
 /*! \file Cubatic.h
@@ -161,7 +161,7 @@ private:
      *  and then normalize the quaternion. This function implements an
      *  appropriate calculation.
      */
-    quat<float> calcRandomQuaternion(Saru& saru, float angle_multiplier) const;
+    quat<float> calcRandomQuaternion(std::mt19937& gen, float angle_multiplier) const;
 
     float m_t_initial;         //!< Initial temperature for simulated annealing.
     float m_t_final;           //!< Final temperature for simulated annealing.
