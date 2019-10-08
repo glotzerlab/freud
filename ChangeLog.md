@@ -46,6 +46,7 @@ and this project adheres to
 * MatchEnv has been split into separate classes for the different types of computations it is capable of performing, and these classes all use v2.0-style APIs.
 * Code in the freud.common has been moved to freud.util.
 * PMFTXY2D has been renamed to PMFTXY.
+* Cubatic uses standard library random functions instead of Saru (which has been removed from the repo).
 
 ### Fixed
 * Steinhardt uses the ThreadStorage class and properly resets memory where needed.

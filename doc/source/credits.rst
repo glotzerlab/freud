@@ -95,6 +95,7 @@ Vyas Ramasubramani - **Lead developer**
 * Wrote tutorial and reference sections of documentation.
 * Unified util and common packages.
 * Rewrote all docstrings in the package for freud 2.0.
+* Changed Cubatic to use Mersenne Twisters for rng.
 
 Bradley Dice - **Lead developer**
 
