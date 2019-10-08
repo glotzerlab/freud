@@ -449,11 +449,25 @@ cdef class Steinhardt(PairCompute):
             spherical harmonics over neighbors. If enabled and used with a
             Voronoi neighbor list, this results in the Minkowski Structure
             Metrics :math:`Q'_l`. (Default value = :code:`False`)
-    """
+        Wl_normalize (bool, optional):
+            Determines whether to normalize the :math:`W_l` version
+            of the Steinhardt order parameter. (Default value = :code:`False`)
+
+    Attributes:
+        order (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
+            The last computed selected variant of the Steinhardt order
+            parameter for each particle (filled with NaN for particles with no
+            neighbors).
+        norm (float or complex):
+            Stores the system wide normalization of the :math:`Q_l` or
+            :math:`W_l` order parameter.
+    """  # noqa: E501
     cdef freud._order.Steinhardt * thisptr
 
-    def __cinit__(self, l, average=False, Wl=False, weighted=False):
-        self.thisptr = new freud._order.Steinhardt(l, average, Wl, weighted)
+    def __cinit__(self, l, average=False, Wl=False, weighted=False,
+                  Wl_normalize=False):
+        self.thisptr = new freud._order.Steinhardt(l, average, Wl, weighted,
+                                                   Wl_normalize)
 
     def __dealloc__(self):
         del self.thisptr
@@ -475,6 +489,10 @@ cdef class Steinhardt(PairCompute):
         """bool: Whether neighbor weights were used in the computation of
         spherical harmonics over neighbors."""
         return self.thisptr.isWeighted()
+
+    @property
+    def Wl_normalize(self):
+        return self.thisptr.isWlNormalized()
 
     @property
     def l(self):  # noqa: E743
@@ -537,12 +555,13 @@ cdef class Steinhardt(PairCompute):
 
     def __repr__(self):
         return ("freud.order.{cls}(l={l}, average={average}, Wl={Wl}, "
-                "weighted={weighted})").format(
+                "weighted={weighted}, Wl_normalize={Wl_normalize})").format(
                     cls=type(self).__name__,
                     l=self.l, # noqa: 743
                     average=self.average,
                     Wl=self.Wl,
-                    weighted=self.weighted)
+                    weighted=self.weighted,
+                    Wl_normalize=self.Wl_normalize)
 
     def plot(self, ax=None):
         """Plot order parameter distribution.
