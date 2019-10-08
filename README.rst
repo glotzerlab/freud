@@ -25,6 +25,14 @@ freud
 .. |GitHub-Stars| image:: https://img.shields.io/github/stars/glotzerlab/freud.svg?style=social
    :target: https://github.com/glotzerlab/freud
 
+.. danger::
+   **freud v2.0 is currently in beta on the** :code:`master` **branch.**
+   That's right -- **freud** just got a whole lot... *beta*. (Pun intended.)
+   This major rewrite of the **freud** library brings new APIs, speedups,
+   and many new features. Please
+   `report any issues <https://github.com/glotzerlab/freud/issues>`_
+   you encounter while using the beta or learning the new API.
+
 
 Overview
 ========
@@ -119,4 +127,3 @@ Support and Contribution
 Please visit our repository on `GitHub <https://github.com/glotzerlab/freud>`_ for the library source code.
 Any issues or bugs may be reported at our `issue tracker <https://github.com/glotzerlab/freud/issues>`_, while questions and discussion can be directed to our `forum <https://groups.google.com/forum/#!forum/freud-users>`_.
 All contributions to freud are welcomed via pull requests!
-Please see the :doc:`development guide <development>` for more information on requirements for new code.

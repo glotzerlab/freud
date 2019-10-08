@@ -213,9 +213,22 @@ LinkCell::LinkCell()
     : NeighborQuery(), m_n_points(0), m_cell_width(0), m_celldim(0, 0, 0)
 {}
 
-LinkCell::LinkCell(const box::Box& box, float cell_width, const vec3<float>* points, unsigned int n_points)
+LinkCell::LinkCell(const box::Box& box, const vec3<float>* points, unsigned int n_points, float cell_width)
     : NeighborQuery(box, points, n_points), m_n_points(0), m_cell_width(cell_width), m_celldim(0, 0, 0)
 {
+    // If no cell width is provided, we calculate the system density and
+    // estimate the number of cells that would lead to 10 particles per cell.
+    // Want n_points/num_cells = 10
+    if (cell_width == 0)
+    {
+        // This number is arbitrary because there is no way to determine an
+        // appropriate cell density for an arbitrary triclinic box.
+        const unsigned int num_particle_per_cell = 10;
+        unsigned int desired_num_cells = std::max(n_points/num_particle_per_cell,
+                                                  static_cast<unsigned int>(1));
+        m_cell_width = std::cbrtf(box.getVolume()/desired_num_cells);
+    }
+
     m_celldim = computeDimensions(box, m_cell_width);
 
     // Check if box is too small!
@@ -511,7 +524,7 @@ NeighborBond LinkCellQueryBallIterator::next()
         {
             // Determine the next neighbor cell to consider. We're done if we
             // reach a new shell and the closest point of approach to the new
-            // shell is greater than our rcut.
+            // shell is greater than our r_max.
             ++m_neigh_cell_iter;
 
             if ((m_neigh_cell_iter.getRange() - m_extra_search_width) * m_linkcell->getCellWidth() > m_r_max)

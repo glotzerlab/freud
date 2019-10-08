@@ -57,47 +57,56 @@ cdef extern from "LocalDescriptors.h" namespace "freud::environment":
         bool getNegativeM() const
 
 cdef extern from "MatchEnv.h" namespace "freud::environment":
+    map[unsigned int, unsigned int] minimizeRMSD(
+        const freud._box.Box &, const vec3[float]*, vec3[float]*, unsigned int,
+        float &, bool) except +
+
+    map[unsigned int, unsigned int] isSimilar(const freud._box.Box &,
+                                              const vec3[float]*,
+                                              vec3[float]*,
+                                              unsigned int,
+                                              float,
+                                              bool) except +
+
     cdef cppclass MatchEnv:
-        MatchEnv(const freud._box.Box &, float, unsigned int) except +
-        void setBox(const freud._box.Box)
-        void cluster(const freud._locality.NeighborList*,
+        MatchEnv() except +
+        const freud.util.ManagedArray[vec3[float]] &getPointEnvironments()
+
+    cdef cppclass EnvironmentMotifMatch(MatchEnv):
+        EnvironmentMotifMatch() except +
+        void compute(const freud._locality.NeighborQuery*,
                      const freud._locality.NeighborList*,
+                     freud._locality.QueryArgs,
                      const vec3[float]*,
                      unsigned int,
                      float,
-                     bool,
                      bool) except +
-        void matchMotif(const freud._locality.NeighborList*,
-                        const vec3[float]*,
-                        unsigned int,
-                        const vec3[float]*,
-                        unsigned int,
-                        float,
-                        bool) except +
-        vector[float] minRMSDMotif(
+        const freud.util.ManagedArray[bool] &getMatches()
+
+    cdef cppclass EnvironmentRMSDMinimizer(MatchEnv):
+        EnvironmentRMSDMinimizer() except +
+        void compute(
+            const freud._locality.NeighborQuery*,
             const freud._locality.NeighborList*,
-            const vec3[float]*,
-            unsigned int,
+            freud._locality.QueryArgs,
             const vec3[float]*,
             unsigned int,
             bool) except +
-        map[unsigned int, unsigned int] isSimilar(const vec3[float]*,
-                                                  vec3[float]*,
-                                                  unsigned int,
-                                                  float,
-                                                  bool) except +
-        map[unsigned int, unsigned int] minimizeRMSD(const vec3[float]*,
-                                                     vec3[float]*,
-                                                     unsigned int,
-                                                     float &,
-                                                     bool) except +
-        const freud.util.ManagedArray[unsigned int] &getClusters()
-        vector[vec3[float]] getEnvironment(unsigned int)
-        const freud.util.ManagedArray[vec3[float]] &getTotEnvironment()
-        unsigned int getNP()
+        const freud.util.ManagedArray[float] &getRMSDs()
+
+    cdef cppclass EnvironmentCluster(MatchEnv):
+        EnvironmentCluster() except +
+        void compute(const freud._locality.NeighborQuery*,
+                     const freud._locality.NeighborList*,
+                     freud._locality.QueryArgs,
+                     const freud._locality.NeighborList*,
+                     freud._locality.QueryArgs,
+                     float,
+                     bool,
+                     bool) except +
         unsigned int getNumClusters()
-        unsigned int getNumNeighbors()
-        unsigned int getMaxNumNeighbors()
+        const freud.util.ManagedArray[unsigned int] &getClusters()
+        vector[vector[vec3[float]]] &getClusterEnvironments()
 
 cdef extern from "AngularSeparation.h" namespace "freud::environment":
     cdef cppclass AngularSeparationGlobal:

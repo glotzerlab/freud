@@ -21,16 +21,16 @@ class TestTranslational(unittest.TestCase):
         trans = freud.order.Translational(4)
         # Test access
         with self.assertRaises(AttributeError):
-            trans.order
+            trans.particle_order
 
         test_set = util.make_raw_query_nlist_test_set(
             box, positions, positions, 'nearest', r_max, n, True)
         for nq, neighbors in test_set:
             trans.compute(nq, neighbors=neighbors)
             # Test access
-            trans.order
+            trans.particle_order
 
-            npt.assert_allclose(trans.order, 0, atol=1e-6)
+            npt.assert_allclose(trans.particle_order, 0, atol=1e-6)
 
     def test_repr(self):
         trans = freud.order.Translational(4)

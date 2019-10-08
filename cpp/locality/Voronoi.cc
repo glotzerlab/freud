@@ -15,8 +15,11 @@
 namespace freud { namespace locality {
 
 // Voronoi calculations should be kept in double precision.
-void Voronoi::compute(const box::Box &box, const vec3<double>* points, unsigned int n_points)
+void Voronoi::compute(const freud::locality::NeighborQuery* nq)
     {
+        auto box = nq->getBox();
+        auto n_points = nq->getNPoints();
+
         m_polytopes.resize(n_points);
         m_volumes.prepare(n_points);
 
@@ -28,6 +31,10 @@ void Voronoi::compute(const box::Box &box, const vec3<double>* points, unsigned 
         } else {
             boxLatticeVectors[2] = box.getLatticeVector(2);
         }
+        // TODO: This container uses 3 blocks in x, y, and z, and an initial
+        // memory allocation of 3, which should be improved. Ideally, this code
+        // should use a pre_container or implement its own heuristics to choose
+        // a number of blocks.
         voro::container_periodic container(
             boxLatticeVectors[0].x,
             boxLatticeVectors[1].x,
@@ -39,7 +46,8 @@ void Voronoi::compute(const box::Box &box, const vec3<double>* points, unsigned 
         );
 
         for (size_t query_point_id = 0; query_point_id < n_points; query_point_id++) {
-            container.put(query_point_id, points[query_point_id].x, points[query_point_id].y, points[query_point_id].z);
+            auto point = (*nq)[query_point_id];
+            container.put(query_point_id, double(point.x), double(point.y), double(point.z));
         }
 
         voro::voronoicell_neighbor cell;

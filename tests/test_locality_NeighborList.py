@@ -17,8 +17,7 @@ class TestNeighborList(unittest.TestCase):
 
         # Initialize Box and cell list
         box, points = make_box_and_random_points(self.L, self.N)
-        self.nq = freud.locality.LinkCell(box, self.query_args['r_guess']/10,
-                                          points)
+        self.nq = freud.locality.AABBQuery(box, points)
         self.nlist = self.nq.query(points,
                                    self.query_args).toNeighborList()
 

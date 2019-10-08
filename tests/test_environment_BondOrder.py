@@ -44,14 +44,6 @@ class TestBondOrder(unittest.TestCase):
             bo.bin_centers[1],
             (2*np.arange(n_bins_phi)+1)*np.pi/(n_bins_phi*2)))
 
-        # Test that reset works.
-        bo.reset()
-        # Test access
-        with self.assertRaises(AttributeError):
-            bo.box
-        with self.assertRaises(AttributeError):
-            bo.bond_order
-
         test_set = util.make_raw_query_nlist_test_set(
             box, positions, positions, "nearest", r_max, num_neighbors, True)
         for nq, neighbors in test_set:
@@ -60,7 +52,7 @@ class TestBondOrder(unittest.TestCase):
             #TODO: Find a way to test a rotated system to ensure that lbod gives  # noqa
             # the desired results.
             bo = freud.environment.BondOrder(nbins, mode='lbod')
-            bo.accumulate(nq, quats, neighbors=neighbors)
+            bo.compute(nq, quats, neighbors=neighbors, reset=False)
             self.assertTrue(np.allclose(bo.bond_order, op_value))
 
             # Test access
@@ -89,7 +81,7 @@ class TestBondOrder(unittest.TestCase):
             # Test that oocd shows exactly one peak when all orientations
             # are the same.
             bo = freud.environment.BondOrder(nbins, mode='oocd')
-            bo.accumulate(nq, quats, neighbors=neighbors)
+            bo.compute(nq, quats, neighbors=neighbors, reset=False)
             self.assertEqual(np.sum(bo.bond_order > 0), 1)
             self.assertTrue(bo.bond_order[0, 0] > 0)
 

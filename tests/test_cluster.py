@@ -6,6 +6,12 @@ import util
 
 
 class TestCluster(unittest.TestCase):
+    def test_constructor(self):
+        """Ensure no arguments are accepted to the constructor."""
+        freud.cluster.Cluster()
+        with self.assertRaises(TypeError):
+            freud.cluster.Cluster(42)
+
     def test_cluster_props(self):
         Nlattice = 4
         Nrep = 5
@@ -55,7 +61,7 @@ class TestCluster(unittest.TestCase):
         with self.assertRaises(AttributeError):
             props.sizes
 
-        props.compute(box, positions, clust.cluster_idx)
+        props.compute((box, positions), clust.cluster_idx)
 
         # Test if attributes are accessible now
         props.centers
@@ -75,7 +81,7 @@ class TestCluster(unittest.TestCase):
         clust.compute((box, positions), neighbors={'r_max': 0.5})
 
         props = freud.cluster.ClusterProperties()
-        props.compute(box, positions, clust.cluster_idx)
+        props.compute((box, positions), clust.cluster_idx)
 
         com_1 = np.array([[0, -2, 0]])
         com_2 = np.array([[-0.05, 1.95, 0]])

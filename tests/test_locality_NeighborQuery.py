@@ -4,7 +4,6 @@ import freud
 from collections import Counter
 import itertools
 import unittest
-import sys
 
 import util
 
@@ -576,85 +575,32 @@ class TestNeighborQueryLinkCell(NeighborQueryTest, unittest.TestCase):
     def build_query_object(cls, box, ref_points, r_max=None):
         if r_max is None:
             raise ValueError("Building LinkCells requires passing an r_max.")
-        return freud.locality.LinkCell(box, r_max, ref_points)
+        return freud.locality.LinkCell(box, ref_points, r_max)
 
     def test_chaining(self):
         N = 500
         L = 10
         r_max = 1
         box, points = util.make_box_and_random_points(L, N)
-        nlist1 = freud.locality.LinkCell(box, 1.0, points).query(
+        nlist1 = freud.locality.LinkCell(box, points, 1.0).query(
             points, dict(r_max=r_max, exclude_ii=True)).toNeighborList()
-        lc = freud.locality.LinkCell(box, 1.0, points)
+        lc = freud.locality.LinkCell(box, points, 1.0)
         nlist2 = lc.query(points, dict(r_max=r_max,
                                        exclude_ii=True)).toNeighborList()
         self.assertTrue(nlist_equal(nlist1, nlist2))
 
-    def test_unique_neighbors(self):
-        """Check that cells have the appropriate number of neighbors."""
-        L = 10  # Box Dimensions
-        r_max = 3  # Cutoff radius
-
-        # Initialize Box, initialize and compute cell list
-        fbox = freud.box.Box.cube(L)
-        cl = freud.locality.LinkCell(fbox, r_max, np.zeros((1, 3)))
-
-        # 27 is the total number of cells
-        for i in range(27):
-            neighbors = cl.getCellNeighbors(i)
-            self.assertEqual(
-                len(np.unique(neighbors)), 27,
-                msg="Cell %d does not have 27 unique adjacent cell indices, "
-                "it has %d" % (i, len(np.unique(neighbors))))
-
-    def test_cell_neighbors(self):
-        """Check that cells have the appropriate neighbors."""
-        L = 31  # Box Dimensions
-        r_max = 3  # Cutoff radius
-
-        # Initialize test points across periodic boundary condition
-        testpoints = np.array([[-5.0, 0, 0],
-                               [2.05, 0, 0]], dtype=np.float32)
-
-        # Initialize Box, initialize and compute cell list
-        fbox = freud.box.Box.cube(L)
-        cl = freud.locality.LinkCell(fbox, r_max, testpoints)
-
-        # Get cell index
-        cell_index0 = cl.getCell(testpoints[0])
-        cell_index1 = cl.getCell(testpoints[1])
-
-        # Get cell neighbors
-        neighbors0 = cl.getCellNeighbors(cell_index0)
-        neighbors1 = cl.getCellNeighbors(cell_index1)
-
-        # Check if particle 0 is in a cell neighboring particle 1
-        # np.where returns [[index]] if found, otherwise [[]]
-        test0 = np.where(neighbors1 == cell_index0)[0]
-        test1 = np.where(neighbors0 == cell_index1)[0]
-        self.assertEqual(len(test0), len(test1))
-
-    @unittest.skipIf(sys.version_info.major < 3,
-                     "Not running on Python 2")
-    def test_symmetric(self):
-        """Check that cell list neighbors are symmetric."""
-        L = 10  # Box Dimensions
-        r_max = 2  # Cutoff radius
-        N = 40  # number of particles
-
-        # Initialize test points randomly
-        fbox, points = util.make_box_and_random_points(L, N)
-        cl = freud.locality.LinkCell(fbox, r_max, points)
-
-        neighbors_ij = set()
-        for i in range(N):
-            cells = cl.getCellNeighbors(cl.getCell(points[i]))
-            for cell in cells:
-                neighbors_ij.update([(i, j) for j in cl.itercell(cell)])
-
-        neighbors_ji = set((j, i) for (i, j) in neighbors_ij)
-        # if i is a neighbor of j, then j should be a neighbor of i
-        self.assertEqual(neighbors_ij, neighbors_ji)
+    def test_default_cell_width(self):
+        """Check that using a default cell width works."""
+        N = 500
+        L = 10
+        r_max = 1
+        box, points = util.make_box_and_random_points(L, N)
+        nlist1 = freud.locality.LinkCell(box, points).query(
+            points, dict(r_max=r_max, exclude_ii=True)).toNeighborList()
+        lc = freud.locality.LinkCell(box, points, 1.0)
+        nlist2 = lc.query(points, dict(r_max=r_max,
+                                       exclude_ii=True)).toNeighborList()
+        self.assertTrue(nlist_equal(nlist1, nlist2))
 
 
 class TestMultipleMethods(unittest.TestCase):

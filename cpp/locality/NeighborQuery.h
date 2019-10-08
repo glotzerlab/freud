@@ -109,7 +109,7 @@ public:
      *  \param n_query_points The number of query points.
      *  \param qargs The query arguments that should be used to find neighbors.
      */
-    std::shared_ptr<NeighborQueryIterator> query(const vec3<float>* query_points, unsigned int n_query_points,
+    virtual std::shared_ptr<NeighborQueryIterator> query(const vec3<float>* query_points, unsigned int n_query_points,
                                                                  QueryArgs query_args) const
     {
         this->validateQueryArgs(query_args);

@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "Box.h"
+#include "NeighborQuery.h"
 #include "VectorMath.h"
 
 /*! \file PeriodicBuffer.h
@@ -19,7 +20,7 @@ class PeriodicBuffer
 {
 public:
     //! Constructor
-    PeriodicBuffer(const Box& box) : m_box(box), m_buffer_box(box) {}
+    PeriodicBuffer() {}
 
     //! Get the simulation box
     const Box& getBox() const
@@ -34,24 +35,26 @@ public:
     }
 
     //! Compute the periodic buffer
-    void compute(const vec3<float>* points, const unsigned int Np, const vec3<float> buff,
-                 const bool use_images);
+    void compute(const freud::locality::NeighborQuery* neighbor_query,
+                 const vec3<float> buff, const bool use_images);
 
+    //! Return the buffer points
     std::vector<vec3<float> > getBufferPoints() const
     {
         return m_buffer_points;
     }
 
+    //! Return the buffer ids
     std::vector<unsigned int> getBufferIds() const
     {
         return m_buffer_ids;
     }
 
 private:
-    const Box m_box;  //!< Simulation box of the original points
+    Box m_box;  //!< Simulation box of the original points
     Box m_buffer_box; //!< Simulation box of the replicated points
-    std::vector<vec3<float> > m_buffer_points;
-    std::vector<unsigned int> m_buffer_ids;
+    std::vector<vec3<float> > m_buffer_points; //!< The replicated points
+    std::vector<unsigned int> m_buffer_ids; //!< The replicated points' original point ids
 };
 
 }; }; // end namespace freud::box

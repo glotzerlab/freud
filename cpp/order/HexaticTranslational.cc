@@ -12,6 +12,8 @@ void HexaticTranslational<T>::computeGeneral(Func func, const freud::locality::N
                               const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs)
 {
     const auto box = points->getBox();
+    box.enforce2D();
+
     const unsigned int Np = points->getNPoints();
 
     m_psi_array.prepare(Np);
@@ -23,11 +25,10 @@ void HexaticTranslational<T>::computeGeneral(Func func, const freud::locality::N
 
         for(freud::locality::NeighborBond nb = ppiter->next(); !ppiter->end(); nb = ppiter->next())
         {
-            // Compute vector between the two particles
+            // Compute vector from query_point to point
             const vec3<float> delta = box.wrap((*points)[nb.point_idx] - ref);
 
-            // Compute psi for neighboring particle
-            // (only constructed for 2d)
+            // Compute psi for this vector
             m_psi_array[i] += func(delta);
         }
 

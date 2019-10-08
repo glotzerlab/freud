@@ -22,15 +22,15 @@ class TestDensity(unittest.TestCase):
             with self.assertRaises(AttributeError):
                 diff.box
             with self.assertRaises(AttributeError):
-                diff.gaussian_density
+                diff.density
 
-            diff.compute(box, points)
+            diff.compute((box, points))
 
             # Test access
             diff.box
-            diff.gaussian_density
+            diff.density
 
-            myDiff = diff.gaussian_density
+            myDiff = diff.density
             myFFT = fft(fft(myDiff[:, :], axis=1), axis=0)
             myDiff = (myFFT * np.conj(myFFT)).real
             myDiff = fftshift(myDiff)[:, :]
@@ -46,10 +46,10 @@ class TestDensity(unittest.TestCase):
         box, points = make_box_and_random_points(box_size, num_points, True)
         diff = freud.density.GaussianDensity(width, r_max, sigma)
 
-        diff.compute(box, points)
+        diff.compute((box, points))
 
         testBox = freud.box.Box.cube(box_size)
-        diff.compute(testBox, points)
+        diff.compute((testBox, points))
 
     def test_repr(self):
         diff = freud.density.GaussianDensity(100, 10.0, 0.1)
@@ -72,12 +72,12 @@ class TestDensity(unittest.TestCase):
             diff.plot()
         self.assertEqual(diff._repr_png_(), None)
 
-        diff.compute(box, points)
+        diff.compute((box, points))
         diff.plot()
 
         diff = freud.density.GaussianDensity(width, r_max, sigma)
         testBox = freud.box.Box.cube(box_size)
-        diff.compute(testBox, points)
+        diff.compute((testBox, points))
         diff.plot()
         self.assertEqual(diff._repr_png_(), None)
 

@@ -11,7 +11,8 @@ Environment Module
 
     freud.environment.BondOrder
     freud.environment.LocalDescriptors
-    freud.environment.MatchEnv
+    freud.environment.EnvironmentCluster
+    freud.environment.EnvironmentMotifMatch
     freud.environment.AngularSeparationGlobal
     freud.environment.AngularSeparationNeighbor
     freud.environment.LocalBondProjection

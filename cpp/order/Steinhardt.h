@@ -79,7 +79,7 @@ public:
     }
 
     //! Get the last calculated order parameter
-    const util::ManagedArray<float> &getOrder() const
+    const util::ManagedArray<float> &getParticleOrder() const
     {
         if (m_Wl)
         {
@@ -110,8 +110,8 @@ public:
         return m_Qlmi;
     }
 
-    //! Get norm
-    float getNorm() const
+    //! Get system-normalized order
+    float getOrder() const
     {
         return m_norm;
     }

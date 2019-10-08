@@ -6,10 +6,10 @@ The :class:`freud.interface` module contains functions to measure the interface
 between sets of points.
 """
 
-import freud.common
 import numpy as np
 
-from freud.common cimport Compute
+from freud.util cimport Compute
+from freud.locality cimport PairCompute
 from freud.util cimport vec3
 from cython.operator cimport dereference
 import freud.locality
@@ -23,77 +23,66 @@ cimport numpy as np
 # _always_ do that, or you will have segfaults
 np.import_array()
 
-cdef class InterfaceMeasure(Compute):
-    R"""Measures the interface between two sets of points.
-
-    Args:
-        box (:class:`freud.box.Box`): Simulation box.
-        r_max (float): Distance to search for particle neighbors.
-
-    Attributes:
-        point_count (int):
-            Number of particles from :code:`points` on the interface.
-        point_ids (:class:`np.ndarray`):
-            The particle IDs from :code:`points`.
-        query_point_count (int):
-            Number of particles from :code:`query_points` on the interface.
-        query_point_ids (:class:`np.ndarray`):
-            The particle IDs from :code:`query_points`.
-    """
-    cdef float r_max
+cdef class Interface(PairCompute):
+    R"""Measures the interface between two sets of points."""
     cdef const unsigned int[::1] _point_ids
     cdef const unsigned int[::1] _query_point_ids
 
-    def __cinit__(self, float r_max):
-        self.r_max = r_max
+    def __init__(self):
         self._point_ids = np.empty(0, dtype=np.uint32)
         self._query_point_ids = np.empty(0, dtype=np.uint32)
 
-    @Compute._compute()
-    def compute(self, box, points, query_points, nlist=None):
-        R"""Compute the particles at the interface between the two given sets of
-        points.
+    def compute(self, system, query_points, neighbors=None):
+        R"""Compute the particles at the interface between two sets of points.
 
         Args:
-            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
-                One set of particle positions.
-            query_points ((:math:`N_{query_points}`, 3) :class:`numpy.ndarray`):
-                Other set of particle positions.
-            nlist (:class:`freud.locality.NeighborList`, optional):
-                Neighborlist to use to find bonds (Default value = None).
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
+            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
+                Second set of points (in addition to the system points) to
+                calculate the interface.
+            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
+                Either a :class:`NeighborList <freud.locality.NeighborList>` of
+                neighbor pairs to use in the calculation, or a dictionary of
+                `query arguments
+                <https://freud.readthedocs.io/en/next/querying.html>`_
+                (Default value: None).
         """  # noqa E501
-        b = freud.common.convert_box(box)
-        points = freud.common.convert_array(points, shape=(None, 3))
-        query_points = freud.common.convert_array(
-            query_points, shape=(None, 3))
+        cdef:
+            freud.locality.NeighborQuery nq
+            freud.locality.NeighborList nlist
+            freud.locality._QueryArgs qargs
+            const float[:, ::1] l_query_points
+            unsigned int num_query_points
 
-        if nlist is None:
-            lc = freud.locality.LinkCell(b, self.r_max, points)
-            nlist = lc.query(query_points,
-                             dict(r_max=self.r_max)).toNeighborList()
-        else:
-            nlist = nlist.copy().filter_r(self.r_max)
+        nlist = freud.locality._make_default_nlist(
+            system, neighbors, query_points)
 
         self._point_ids = np.unique(nlist.point_indices)
         self._query_point_ids = np.unique(nlist.query_point_indices)
         return self
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def point_count(self):
+        """int: Number of particles from :code:`points` on the interface."""
         return len(self._point_ids)
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def point_ids(self):
+        """:class:`np.ndarray`: The particle IDs from :code:`points`."""
         return np.asarray(self._point_ids)
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def query_point_count(self):
+        """int: Number of particles from :code:`query_points` on the
+        interface."""
         return len(self._query_point_ids)
 
-    @Compute._computed_property()
+    @Compute._computed_property
     def query_point_ids(self):
+        """:class:`np.ndarray`: The particle IDs from :code:`query_points`."""
         return np.asarray(self._query_point_ids)
 
     def __repr__(self):
-        return "freud.interface.{cls}(r_max={r_max})".format(
-            cls=type(self).__name__, r_max=self.r_max)
+        return "freud.interface.{cls}()".format(cls=type(self).__name__)

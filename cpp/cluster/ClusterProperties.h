@@ -5,7 +5,7 @@
 #define CLUSTER_PROPERTIES_H
 
 #include "ManagedArray.h"
-#include "Box.h"
+#include "NeighborQuery.h"
 
 /*! \file ClusterProperties.h
     \brief Routines for computing properties of point clusters.
@@ -32,8 +32,8 @@ public:
     ClusterProperties() {}
 
     //! Compute properties of the point clusters
-    void compute(const box::Box& box, const vec3<float>* points,
-            const unsigned int* cluster_idx, unsigned int Np);
+    void compute(const freud::locality::NeighborQuery* nq,
+            const unsigned int* cluster_idx);
 
     //! Get a reference to the last computed cluster centers
     const util::ManagedArray<vec3<float>> &getClusterCenters() const

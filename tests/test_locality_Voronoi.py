@@ -6,6 +6,10 @@ import util
 
 
 def sort_rounded_xyz_array(arr, decimals=4):
+    """The order of Voronoi polytopes' vertices is not well-defined. Instead of
+    testing a fixed array, arrays must be sorted by their rounded
+    representations in order to compare their values.
+    """
     arr = np.asarray(arr)
     arr = arr.round(decimals)
     indices = np.lexsort((arr[:, 2], arr[:, 1], arr[:, 0]))
@@ -20,7 +24,7 @@ class TestVoronoi(unittest.TestCase):
         N = 50  # Number of particles
         box, points = util.make_box_and_random_points(L, N, is2D=True)
         vor = freud.locality.Voronoi()
-        vor.compute(box, points)
+        vor.compute((box, points))
 
         npt.assert_equal(len(vor.polytopes), len(points))
         npt.assert_equal(len(vor.volumes), len(points))
@@ -33,7 +37,7 @@ class TestVoronoi(unittest.TestCase):
         N = 50  # Number of particles
         box, points = util.make_box_and_random_points(L, N, is2D=False)
         vor = freud.locality.Voronoi()
-        vor.compute(box, points)
+        vor.compute((box, points))
 
         npt.assert_equal(len(vor.polytopes), len(points))
         npt.assert_equal(len(vor.volumes), len(points))
@@ -45,11 +49,11 @@ class TestVoronoi(unittest.TestCase):
         box = freud.box.Box.square(L)
         vor = freud.locality.Voronoi()
         # Make a regular grid
-        positions = np.array(
+        points = np.array(
             [[0, 0, 0], [0, 1, 0], [0, 2, 0],
              [1, 0, 0], [1, 1, 0], [1, 2, 0],
              [2, 0, 0], [2, 1, 0], [2, 2, 0]]).astype(np.float64)
-        vor.compute(box, positions)
+        vor.compute((box, points))
         center_polytope = sort_rounded_xyz_array(vor.polytopes[4])
         expected_polytope = sort_rounded_xyz_array(
             [[1.5, 1.5, 0], [0.5, 1.5, 0], [0.5, 0.5, 0], [1.5, 0.5, 0]])
@@ -64,8 +68,8 @@ class TestVoronoi(unittest.TestCase):
             vor.nlist.weights[vor.nlist.query_point_indices == 4], 1)
 
         # Double the points (still inside the box) and test again
-        positions *= 2
-        vor.compute(box, positions)
+        points *= 2
+        vor.compute((box, points))
         center_polytope = sort_rounded_xyz_array(vor.polytopes[4])
         expected_polytope = sort_rounded_xyz_array(
             [[3, 3, 0], [1, 3, 0], [1, 1, 0], [3, 1, 0]])
@@ -81,7 +85,7 @@ class TestVoronoi(unittest.TestCase):
         box = freud.box.Box.cube(L)
         vor = freud.locality.Voronoi()
         # Make a regular grid
-        positions = np.array(
+        points = np.array(
             [[0, 0, 0], [0, 1, 0], [0, 2, 0],
              [1, 0, 0], [1, 1, 0], [1, 2, 0],
              [2, 0, 0], [2, 1, 0], [2, 2, 0],
@@ -91,7 +95,7 @@ class TestVoronoi(unittest.TestCase):
              [0, 0, 2], [0, 1, 2], [0, 2, 2],
              [1, 0, 2], [1, 1, 2], [1, 2, 2],
              [2, 0, 2], [2, 1, 2], [2, 2, 2]]).astype(np.float64)
-        vor.compute(box, positions)
+        vor.compute((box, points))
 
         center_polytope = sort_rounded_xyz_array(vor.polytopes[13])
         expected_polytope = sort_rounded_xyz_array(
@@ -109,8 +113,8 @@ class TestVoronoi(unittest.TestCase):
             vor.nlist.weights[vor.nlist.query_point_indices == 13], 1)
 
         # Double the points (still inside the box) and test again
-        positions *= 2
-        vor.compute(box, positions)
+        points *= 2
+        vor.compute((box, points))
         center_polytope = sort_rounded_xyz_array(vor.polytopes[13])
         expected_polytope = sort_rounded_xyz_array(
             [[3, 3, 3], [3, 1, 3], [3, 1, 1],
@@ -136,7 +140,7 @@ class TestVoronoi(unittest.TestCase):
 
         for func, neighbors in structure_neighbors.values():
             box, points = func(nx=n, ny=n, nz=n)
-            vor.compute(box, points)
+            vor.compute((box, points))
             nlist = vor.nlist
 
             # Drop the tiny facets that come from numerical imprecision
@@ -153,17 +157,17 @@ class TestVoronoi(unittest.TestCase):
         # Test that voronoi neighbor weights are computed properly for 3D FCC
 
         n = 3
-        box, positions = util.make_fcc(nx=n, ny=n, nz=n)
+        box, points = util.make_fcc(nx=n, ny=n, nz=n)
 
         vor = freud.locality.Voronoi()
-        vor.compute(box, positions)
+        vor.compute((box, points))
         nlist = vor.nlist
 
         # Drop the tiny facets that come from numerical imprecision
         nlist = nlist.filter(nlist.weights > 1e-5)
 
         # Every FCC particle should have 12 neighbors
-        npt.assert_equal(nlist.neighbor_counts, np.full(len(positions), 12))
+        npt.assert_equal(nlist.neighbor_counts, np.full(len(points), 12))
 
         # Every facet area should be sqrt(2)/2
         npt.assert_allclose(nlist.weights,
@@ -171,8 +175,8 @@ class TestVoronoi(unittest.TestCase):
                             atol=1e-5)
 
         # Every cell should have volume 2
-        vor.compute(box, positions)
-        npt.assert_allclose(vor.compute(box, positions).volumes,
+        vor.compute((box, points))
+        npt.assert_allclose(vor.compute((box, points)).volumes,
                             np.full(len(vor.polytopes), 2.),
                             atol=1e-5)
 
@@ -183,7 +187,7 @@ class TestVoronoi(unittest.TestCase):
 
         box, points = util.make_box_and_random_points(L, N, is2D=False)
         vor = freud.locality.Voronoi()
-        vor.compute(box, points)
+        vor.compute((box, points))
         nlist = vor.nlist
 
         ijs = set(zip(nlist.query_point_indices, nlist.point_indices))
@@ -208,7 +212,7 @@ class TestVoronoi(unittest.TestCase):
         with self.assertRaises(AttributeError):
             vor.volumes
         box, points = util.make_box_and_random_points(L, N, is2D=False)
-        vor.compute(box, points)
+        vor.compute((box, points))
 
         # Ensure attributes are accessible after calling compute
         vor.nlist
@@ -225,18 +229,18 @@ class TestVoronoi(unittest.TestCase):
         self.assertEqual(vor._repr_png_(), None)
 
         # Make a regular grid
-        positions = np.array(
+        points = np.array(
             [[0, 0, 0], [0, 1, 0], [0, 2, 0],
              [1, 0, 0], [1, 1, 0], [1, 2, 0],
              [2, 0, 0], [2, 1, 0], [2, 2, 0]]).astype(np.float32)
-        vor.compute(box, positions)
+        vor.compute((box, points))
         vor._repr_png_()
 
         L = 10  # Box length
         box = freud.box.Box.cube(L)
         vor = freud.locality.Voronoi()
         # Make a regular grid
-        positions = np.array(
+        points = np.array(
             [[0, 0, 0], [0, 1, 0], [0, 2, 0],
              [1, 0, 0], [1, 1, 0], [1, 2, 0],
              [2, 0, 0], [2, 1, 0], [2, 2, 0],
@@ -246,7 +250,7 @@ class TestVoronoi(unittest.TestCase):
              [0, 0, 2], [0, 1, 2], [0, 2, 2],
              [1, 0, 2], [1, 1, 2], [1, 2, 2],
              [2, 0, 2], [2, 1, 2], [2, 2, 2]]).astype(np.float32)
-        vor.compute(box, positions)
+        vor.compute((box, points))
         self.assertEqual(vor._repr_png_(), None)
 
 

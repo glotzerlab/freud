@@ -32,7 +32,7 @@ NeighborList makeDefaultNlist(const NeighborQuery *nq, const NeighborList
 inline vec3<float> bondVector(const NeighborBond &nb, const NeighborQuery *nq,
         const vec3<float> *query_points)
 {
-    return nq->getBox().wrap(query_points[nb.query_point_idx] - (*nq)[nb.point_idx]);
+    return nq->getBox().wrap((*nq)[nb.point_idx] - query_points[nb.query_point_idx]);
 }
 
 //! Implementation of per-point finding logic for NeighborList objects.

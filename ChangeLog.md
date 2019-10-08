@@ -7,7 +7,7 @@ and this project adheres to
 ## Upcoming: Changes for freud 2.0
 
 ### Added
-* Ability to specify NeighborQuery objects as points for neighbor-based pair computes.
+* Ability to specify NeighborQuery objects as points for most computes that require boxes and sets of points.
 * Various validation tests.
 * Standard method for preprocessing arguments of pair computations.
 * New internal array object that allows data persistence and improves indexing in C++.
@@ -19,6 +19,7 @@ and this project adheres to
 * C++ BondHistogramCompute class encapsulates logic of histogram-based methods.
 * NeighborLists and query arguments are now accepted on equal footing by compute methods that involve neighbor finding.
 * 2D PMFTs accept quaternions as well as angles for their orientations.
+* Extensive new documentation including tutorial for new users and reference sections on crucial topics.
 
 ### Changed
 * All compute objects that perform neighbor computations now use NeighborQuery internally.
@@ -38,21 +39,28 @@ and this project adheres to
 * Renamed several Box methods, ParticleBuffer is now PeriodicBuffer.
 * Refactored and renamed attributes of Cluster and ClusterProperties modules.
 * All class attributes are stored in the C++ members and accessed via getters wrapped as Python properties.
-* Vector directionality is standardized for all computes that use it (always points from point to query\_point).
+* Bond vector directionality is standardized for all computes that use it (always from query\_point to point).
 * Neighbor-based compute methods now accept NeighborQuery objects as the first object, including (box, point) tuples.
 * Documentation uses automodule instead of autoclass.
 * The Voronoi class was rewritten to use voro++ for vastly improved performance and correctness in edge cases.
+* MatchEnv has been split into separate classes for the different types of computations it is capable of performing, and these classes all use v2.0-style APIs.
+* Code in the freud.common has been moved to freud.util.
+* PMFTXY2D has been renamed to PMFTXY.
+* Cubatic uses standard library random functions instead of Saru (which has been removed from the repo).
 
 ### Fixed
 * Steinhardt uses the ThreadStorage class and properly resets memory where needed.
 * Removed all neighbor exclusion logic from all classes, depends entirely on locality module now.
 * RDF no longer forces the first bin of the PCF and first two bins of the cumulative counts to be 0.
 * LinkCell nearest neighbor queries properly check the largest distance found before proceeding to next shell.
+* Compute classes requiring 2D systems check the dimensionality of their input boxes.
 
 ### Removed
 * The freud.util module.
 * Python 2 is no longer supported. Python 3.5+ is required.
 * Cubatic no longer returns the per-particle tensor or the constant r4 tensor.
+* Most features of freud.common are removed from the public API.
+* LinkCell no longer exposes the internals of the cell list data structure.
 
 ## v1.2.2 - 2019-08-15
 

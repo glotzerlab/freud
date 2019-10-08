@@ -209,7 +209,10 @@ directives = {
     'embedsignature': True,
     'language_level': 3,
 }
-macros = []
+macros = [
+    ('NPY_NO_DEPRECATED_API', 'NPY_1_10_API_VERSION'),
+    ('VOROPP_VERBOSE', '1'),
+]
 
 # Decide whether or not to compile with coverage support
 if args.use_coverage:
@@ -440,7 +443,7 @@ try:
             version=version,
             description=desc,
             long_description=readme,
-            long_description_content_type='text/markdown',
+            long_description_content_type='text/x-rst',
             url='https://github.com/glotzerlab/freud',
             packages=['freud'],
             python_requires='>=3.5',
