@@ -508,7 +508,7 @@ cdef class RDF(_SpatialHistogram1D):
         return self
 
     @Compute._computed_property
-    def RDF(self):
+    def rdf(self):
         """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Histogram of RDF
         values."""
         return freud.util.make_managed_numpy_array(
