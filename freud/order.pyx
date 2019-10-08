@@ -462,7 +462,6 @@ cdef class Steinhardt(PairCompute):
             Stores the system wide normalization of the :math:`Q_l` or
             :math:`W_l` order parameter.
     """  # noqa: E501
-    """
     cdef freud._order.Steinhardt * thisptr
 
     def __cinit__(self, l, average=False, Wl=False, weighted=False,
