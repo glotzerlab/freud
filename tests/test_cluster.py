@@ -88,10 +88,12 @@ class TestCluster(unittest.TestCase):
         g_tensor_2 = np.array([[0.0025, 0.0025, 0],
                                [0.0025, 0.0025, 0],
                                [0, 0, 0]])
-        self.assertTrue(np.all(props.centers[0, :] == com_1))
-        self.assertTrue(np.allclose(props.centers[1, :], com_2))
-        self.assertTrue(np.all(props.gyrations[0] == 0))
-        self.assertTrue(np.allclose(props.gyrations[1], g_tensor_2))
+        rg_2 = np.sqrt(2*(0.0025**2))
+        npt.assert_allclose(props.centers[0, :], com_1)
+        npt.assert_allclose(props.centers[1, :], com_2)
+        npt.assert_allclose(props.gyrations[0], 0)
+        npt.assert_allclose(props.gyrations[1], g_tensor_2)
+        npt.assert_allclose(props.radii_of_gyration, [0, rg_2])
 
     def test_cluster_keys(self):
         Nlattice = 4
