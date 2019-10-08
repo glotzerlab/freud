@@ -36,13 +36,13 @@ class TestMinkowski(unittest.TestCase):
                 if structure == 'hcp' and sph_l in [3, 5]:
                     continue
 
-                # Test Ql
+                # Test ql
                 comp = freud.order.Steinhardt(sph_l, weighted=True)
                 comp.compute((box, positions), neighbors=voro.nlist)
                 npt.assert_allclose(
                     comp.order, expected_ql[:, sph_l], rtol=5e-5, atol=1e-3)
 
-                # Test Average Ql
+                # Test Average ql
                 comp = freud.order.Steinhardt(
                     sph_l, average=True, weighted=True)
                 comp.compute((box, positions), neighbors=voro.nlist)
@@ -52,18 +52,18 @@ class TestMinkowski(unittest.TestCase):
 
                 # These tests fail for unknown (probably numerical) reasons.
                 if sph_l != 2:
-                    # Test Wl
+                    # Test wl
                     comp = freud.order.Steinhardt(
-                        sph_l, Wl=True, weighted=True, Wl_normalize=True)
+                        sph_l, wl=True, weighted=True, wl_normalize=True)
                     comp.compute((box, positions), neighbors=voro.nlist)
                     npt.assert_allclose(
                         comp.order, expected_wl[:, sph_l],
                         rtol=5e-5, atol=1e-3)
 
-                    # Test Average Wl
+                    # Test Average wl
                     comp = freud.order.Steinhardt(
-                        sph_l, Wl=True, average=True, weighted=True,
-                        Wl_normalize=True)
+                        sph_l, wl=True, average=True, weighted=True,
+                        wl_normalize=True)
                     comp.compute((box, positions), neighbors=voro.nlist)
                     npt.assert_allclose(
                         comp.order, expected_avwl[:, sph_l],

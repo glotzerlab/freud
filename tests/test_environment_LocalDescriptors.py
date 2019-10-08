@@ -10,9 +10,9 @@ from util import (make_box_and_random_points, make_sc, make_bcc, make_fcc,
                   skipIfMissing)
 
 
-def get_Ql(p, descriptors, nlist, weighted=False):
+def get_ql(p, descriptors, nlist, weighted=False):
     """Given a set of points and a LocalDescriptors object (and the
-    underlying neighborlist), compute the per-particle Steinhardt Ql
+    underlying neighborlist), compute the per-particle Steinhardt ql
     order parameter for all :math:`l` values up to the maximum quantum
     number used in the computation of the descriptors."""
     Qbar_lm = np.zeros((p.shape[0], descriptors.sph.shape[1]),
@@ -29,14 +29,14 @@ def get_Ql(p, descriptors, nlist, weighted=False):
             num_neighbors = descriptors.sph.shape[0]/p.shape[0]
         Qbar_lm[i, :] = np.sum(Ylms * weights, axis=0)/num_neighbors
 
-    Ql = np.zeros((Qbar_lm.shape[0], descriptors.l_max+1))
-    for i in range(Ql.shape[0]):
-        for l in range(Ql.shape[1]):
+    ql = np.zeros((Qbar_lm.shape[0], descriptors.l_max+1))
+    for i in range(ql.shape[0]):
+        for l in range(ql.shape[1]):
             for k in range(l**2, (l+1)**2):
-                Ql[i, l] += np.absolute(Qbar_lm[i, k])**2
-            Ql[i, l] = np.sqrt(4*np.pi/(2*l + 1) * Ql[i, l])
+                ql[i, l] += np.absolute(Qbar_lm[i, k])**2
+            ql[i, l] = np.sqrt(4*np.pi/(2*l + 1) * ql[i, l])
 
-    return Ql
+    return ql
 
 
 def lm_index(l, m):
@@ -48,9 +48,9 @@ def get_wigner3j(l, m1, m2, m3):
     return float(wigner_3j(l, l, l, m1, m2, m3))
 
 
-def get_Wl(p, descriptors, nlist):
+def get_wl(p, descriptors, nlist):
     """Given a set of points and a LocalDescriptors object (and the
-    underlying neighborlist), compute the per-particle Steinhardt Wl
+    underlying neighborlist), compute the per-particle Steinhardt wl
     order parameter for all :math:`l` values up to the maximum quantum
     number used in the computation of the descriptors."""
     Qbar_lm = np.zeros((p.shape[0], descriptors.sph.shape[1]),
@@ -62,9 +62,9 @@ def get_Wl(p, descriptors, nlist):
         Qbar_lm[i, :] = np.sum(descriptors.sph[indices, :],
                                axis=0)/num_neighbors
 
-    Wl = np.zeros((Qbar_lm.shape[0], descriptors.l_max+1), dtype=np.complex128)
-    for i in range(Wl.shape[0]):
-        for l in range(Wl.shape[1]):
+    wl = np.zeros((Qbar_lm.shape[0], descriptors.l_max+1), dtype=np.complex128)
+    for i in range(wl.shape[0]):
+        for l in range(wl.shape[1]):
             for m1 in range(-l, l+1):
                 for m2 in range(max(-l-m1, -l), min(l-m1, l)+1):
                     m3 = -m1 - m2
@@ -73,11 +73,11 @@ def get_Wl(p, descriptors, nlist):
                     for m in m1, m2, m3:
                         if m > 0 and m % 2 == 1:
                             phase *= -1
-                    Wl[i, l] += phase * get_wigner3j(l, m1, m2, m3) * \
+                    wl[i, l] += phase * get_wigner3j(l, m1, m2, m3) * \
                         Qbar_lm[i, lm_index(l, m1)] * \
                         Qbar_lm[i, lm_index(l, m2)] * \
                         Qbar_lm[i, lm_index(l, m3)]
-    return Wl
+    return wl
 
 
 class TestLocalDescriptors(unittest.TestCase):
@@ -203,7 +203,7 @@ class TestLocalDescriptors(unittest.TestCase):
         self.assertEqual(str(comp), str(eval(repr(comp))))
 
     def test_ql(self):
-        """Check if we can reproduce Steinhardt Ql."""
+        """Check if we can reproduce Steinhardt ql."""
         # These exact parameter values aren't important; they won't necessarily
         # give useful outputs for some of the structures, but that's fine since
         # we just want to check that LocalDescriptors is consistent with
@@ -223,7 +223,7 @@ class TestLocalDescriptors(unittest.TestCase):
             ld = freud.environment.LocalDescriptors(l_max, mode='global')
             ld.compute((box, points), neighbors=nl)
 
-            Ql = get_Ql(points, ld, nl)
+            ql = get_ql(points, ld, nl)
 
             # Test all allowable values of l.
             for L in range(2, l_max+1):
@@ -231,16 +231,16 @@ class TestLocalDescriptors(unittest.TestCase):
                 steinhardt.compute((box, points), neighbors=nl)
                 # Some of the calculations done for Steinhardt can be imprecise
                 # in cases where there is no symmetry. Since simple cubic
-                # should have a 0 Ql value in many cases, we need to set high
+                # should have a 0 ql value in many cases, we need to set high
                 # tolerances for those specific cases.
                 npt.assert_allclose(
-                    steinhardt.particle_order, Ql[:, L],
+                    steinhardt.particle_order, ql[:, L],
                     atol=1e-3 if struct_func == make_sc else 1e-6,
                     err_msg="Failed for {}, L = {}".format(
                         struct_func.__name__, L))
 
     def test_ql_weighted(self):
-        """Check if we can reproduce Steinhardt Ql with bond weights."""
+        """Check if we can reproduce Steinhardt ql with bond weights."""
         np.random.seed(0)
 
         # These exact parameter values aren't important; they won't necessarily
@@ -268,7 +268,7 @@ class TestLocalDescriptors(unittest.TestCase):
                 nl.query_point_indices, nl.point_indices,
                 nl.distances, np.random.rand(len(nl.weights)))
 
-            Ql = get_Ql(points, ld, nl, True)
+            ql = get_ql(points, ld, nl, True)
 
             # Test all allowable values of l.
             for L in range(2, l_max+1):
@@ -276,11 +276,11 @@ class TestLocalDescriptors(unittest.TestCase):
                 steinhardt.compute((box, points), neighbors=nl)
                 # Some of the calculations done for Steinhardt can be imprecise
                 # in cases where there is no symmetry. Since simple cubic
-                # should have a 0 Ql value in many cases, we need to set high
+                # should have a 0 ql value in many cases, we need to set high
                 # tolerances for those specific cases.
                 npt.assert_allclose(
                     steinhardt.particle_order,
-                    Ql[:, L],
+                    ql[:, L],
                     atol=1e-3 if struct_func == make_sc else 1e-6,
                     err_msg="Failed for {}, L = {}".format(
                         struct_func.__name__, L))
@@ -289,7 +289,7 @@ class TestLocalDescriptors(unittest.TestCase):
                      "functools.lru_cache only supported on Python 3.2+")
     @skipIfMissing('sympy.physics.wigner')
     def test_wl(self):
-        """Check if we can reproduce Steinhardt Wl."""
+        """Check if we can reproduce Steinhardt wl."""
         # These exact parameter values aren't important; they won't necessarily
         # give useful outputs for some of the structures, but that's fine since
         # we just want to check that LocalDescriptors is consistent with
@@ -309,14 +309,14 @@ class TestLocalDescriptors(unittest.TestCase):
             ld = freud.environment.LocalDescriptors(l_max, mode='global')
             ld.compute((box, points), neighbors=nl)
 
-            Wl = get_Wl(points, ld, nl)
+            wl = get_wl(points, ld, nl)
 
             # Test all allowable values of l.
             for L in range(2, l_max+1):
-                steinhardt = freud.order.Steinhardt(L, Wl=True)
+                steinhardt = freud.order.Steinhardt(L, wl=True)
                 steinhardt.compute((box, points), neighbors=nl)
                 npt.assert_array_almost_equal(steinhardt.particle_order,
-                                              Wl[:, L])
+                                              wl[:, L])
 
     @skipIfMissing('scipy.special')
     def test_ld(self):
