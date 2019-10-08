@@ -13,7 +13,7 @@ import numpy as np
 
 from cython.operator cimport dereference
 from freud.util cimport Compute
-from freud.locality cimport PairCompute, SpatialHistogram1D
+from freud.locality cimport _PairCompute, _SpatialHistogram1D
 from freud.util cimport vec3
 
 from collections.abc import Sequence
@@ -29,7 +29,7 @@ np.import_array()
 
 ctypedef unsigned int uint
 
-cdef class CorrelationFunction(SpatialHistogram1D):
+cdef class CorrelationFunction(_SpatialHistogram1D):
     R"""Computes the complex pairwise correlation function.
 
     The correlation function is given by
@@ -299,7 +299,7 @@ cdef class GaussianDensity(Compute):
             return None
 
 
-cdef class LocalDensity(PairCompute):
+cdef class LocalDensity(_PairCompute):
     R"""Computes the local density around a particle.
 
     The density of the local environment is computed and averaged for a given
@@ -420,7 +420,7 @@ cdef class LocalDensity(PairCompute):
                                                diameter=self.diameter)
 
 
-cdef class RDF(SpatialHistogram1D):
+cdef class RDF(_SpatialHistogram1D):
     R"""Computes RDF for supplied data.
 
     The RDF (:math:`g \left( r \right)`) is computed and averaged for a given
@@ -457,7 +457,7 @@ cdef class RDF(SpatialHistogram1D):
                 bins, r_max, r_min)
 
             # r_max is left as an attribute rather than a property for now
-            # since that change needs to happen at the SpatialHistogram level
+            # since that change needs to happen at the _SpatialHistogram level
             # for multiple classes.
             self.r_max = r_max
 

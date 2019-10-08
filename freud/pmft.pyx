@@ -44,7 +44,7 @@ import warnings
 import rowan
 
 from freud.util cimport Compute
-from freud.locality cimport SpatialHistogram
+from freud.locality cimport _SpatialHistogram
 from freud.util cimport vec3, quat
 from cython.operator cimport dereference
 
@@ -97,7 +97,7 @@ def _gen_angle_array(orientations, shape):
         shape=shape)
 
 
-cdef class _PMFT(SpatialHistogram):
+cdef class _PMFT(_SpatialHistogram):
     R"""Compute the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ for a
     given set of points.
 

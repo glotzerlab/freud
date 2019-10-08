@@ -17,7 +17,7 @@ import freud.locality
 import logging
 
 from freud.util cimport Compute
-from freud.locality cimport PairCompute
+from freud.locality cimport _PairCompute
 from freud.util cimport vec3, quat
 from cython.operator cimport dereference
 
@@ -243,7 +243,7 @@ cdef class Nematic(Compute):
                                                  u=self.u.tolist())
 
 
-cdef class Hexatic(PairCompute):
+cdef class Hexatic(_PairCompute):
     R"""Calculates the :math:`k`-atic order parameter for 2D systems.
 
     The :math:`k`-atic order parameter (called the hexatic order parameter for
@@ -328,7 +328,7 @@ cdef class Hexatic(PairCompute):
             cls=type(self).__name__, k=self.k)
 
 
-cdef class Translational(PairCompute):
+cdef class Translational(_PairCompute):
     R"""Compute the translational order parameter for each particle.
 
     .. note::
@@ -399,7 +399,7 @@ cdef class Translational(PairCompute):
             cls=type(self).__name__, k=self.k)
 
 
-cdef class Steinhardt(PairCompute):
+cdef class Steinhardt(_PairCompute):
     R"""Compute the local Steinhardt [Steinhardt1983]_ rotationally invariant
     :math:`Q_l` :math:`W_l` order parameter for a set of points.
 
@@ -596,7 +596,7 @@ cdef class Steinhardt(PairCompute):
             return None
 
 
-cdef class SolidLiquid(PairCompute):
+cdef class SolidLiquid(_PairCompute):
     R"""Identifies solid-like clusters using dot products of :math:`Q_{lm}`.
 
     The solid-liquid order parameter [tenWolde1995]_ uses a Steinhardt-like
