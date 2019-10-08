@@ -65,7 +65,7 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
 
                 // Get id and position of current particle
                 const int query_point_id(voronoi_loop.pid());
-                vec3<double> ri(
+                vec3<double> query_point(
                     voronoi_loop.x(),
                     voronoi_loop.y(),
                     voronoi_loop.z()
@@ -76,7 +76,7 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
                 cell.face_vertices(face_vertices);
                 cell.neighbors(neighbors);
                 cell.normals(normals);
-                cell.vertices(ri.x, ri.y, ri.z, vertices);
+                cell.vertices(query_point.x, query_point.y, query_point.z, vertices);
 
                 // Compute polytope vertices in relative coordinates
                 std::vector<vec3<double> > relative_vertices;
@@ -97,7 +97,7 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
                         }
                         vert_z = 0;
                     }
-                    vec3<double> delta = vec3<double>(vert_x, vert_y, vert_z) - ri;
+                    vec3<double> delta = vec3<double>(vert_x, vert_y, vert_z) - query_point;
                     relative_vertices.push_back(delta);
                 }
 
@@ -115,7 +115,6 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
                 std::vector<vec3<double> > system_vertices;
                 for (auto vertex_iter = relative_vertices.begin(); vertex_iter != relative_vertices.end(); vertex_iter++)
                 {
-                    vec3<double> query_point((*nq)[query_point_id]);
                     system_vertices.push_back((*vertex_iter) + query_point);
                 }
                 m_polytopes[query_point_id] = system_vertices;
@@ -148,14 +147,14 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
                     const int vertex_id_on_face = face_vertices[face_vertices_index+1];
 
                     // Project the vertex vector onto the face normal to get a
-                    // distance from ri to the face, then double it to get the
-                    // distance to the neighbor particle
+                    // distance from query_point to the face, then double it to
+                    // get the distance to the neighbor particle.
                     const vec3<double> rv(
                         vertices[3*vertex_id_on_face],
                         vertices[3*vertex_id_on_face+1],
                         vertices[3*vertex_id_on_face+2]
                     );
-                    const vec3<double> riv(rv - ri);
+                    const vec3<double> riv(rv - query_point);
                     const float distance(2*dot(riv, normal));
 
 
