@@ -107,9 +107,7 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
                     std::sort(relative_vertices.begin(), relative_vertices.end(),
                             [](const vec3<double> a, const vec3<double> b)
                             {
-                                const double a_angle = std::atan2(a.y, a.x);
-                                const double b_angle = std::atan2(b.y, b.x);
-                                return a_angle < b_angle;
+                                return std::atan2(a.y, a.x) < std::atan2(b.y, b.x);
                             });
                 }
 
