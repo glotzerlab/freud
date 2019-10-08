@@ -22,9 +22,9 @@ try:
     import pyfftw
     logger.info("Using PyFFTW for FFTs")
 
-    pyfftw.config.NUM_THREADS = min(1, freud.parallel._numThreads)
+    pyfftw.config.NUM_THREADS = min(1, freud.parallel.get_num_threads())
     logger.info("Setting number of threads to {}".format(
-        freud.parallel._numThreads))
+        freud.parallel.get_num_threads()))
 
     # Note that currently these functions are defined to match only the parts
     # of the numpy/scipy API that are actually used below. There is no promise

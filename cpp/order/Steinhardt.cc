@@ -80,14 +80,14 @@ void Steinhardt::compute(const freud::locality::NeighborList* nlist,
     {
         if (m_average)
         {
-            aggregateWl(m_Wli, m_QlmiAve);
+            aggregateWl(m_Wli, m_QlmiAve, m_QliAve);
         }
         else
         {
-            aggregateWl(m_Wli, m_Qlmi);
+            aggregateWl(m_Wli, m_Qlmi, m_Qli);
         }
     }
-    m_norm = normalize();
+    m_norm = normalizeSystem();
 }
 
 void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
@@ -213,34 +213,52 @@ void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
         });
 }
 
-float Steinhardt::normalize()
+float Steinhardt::normalizeSystem()
 {
+    float calc_norm(0);
+    const float normalizationfactor = 4 * M_PI / m_num_ms;
+    for (unsigned int k = 0; k < m_num_ms; ++k)
+    {
+        // Add the norm, which is the complex squared magnitude
+        calc_norm += norm(m_Qlm[k]);
+    }
+    const float Ql_system_norm = sqrt(calc_norm * normalizationfactor);
+
     if (m_Wl)
     {
         auto wigner3jvalues = getWigner3j(m_l);
-        return reduceWigner3j(m_Qlm.get(), m_l, wigner3jvalues);
+        float Wl_system_norm = reduceWigner3j(m_Qlm.get(), m_l, wigner3jvalues);
+
+        // The normalization factor of Wl is calculated using Qli, which is
+        // equivalent to calculate the normalization factor from Qlmi
+        if (m_Wl_normalize)
+        {
+            const float Wl_normalization = sqrt(normalizationfactor) / Ql_system_norm;
+            Wl_system_norm *= Wl_normalization * Wl_normalization * Wl_normalization;
+        }
+        return Wl_system_norm;
     }
     else
     {
-        const float normalizationfactor = 4 * M_PI / m_num_ms;
-        float calc_norm(0);
-
-        for (unsigned int k = 0; k < m_num_ms; ++k)
-        {
-            // Add the norm, which is the complex squared magnitude
-            calc_norm += norm(m_Qlm[k]);
-        }
-        return sqrt(calc_norm * normalizationfactor);
+        return Ql_system_norm;
     }
 }
 
-void Steinhardt::aggregateWl(util::ManagedArray<float> &target, util::ManagedArray<std::complex<float> > &source)
+void Steinhardt::aggregateWl(util::ManagedArray<float> &target,
+    util::ManagedArray<std::complex<float> > &source,
+    util::ManagedArray<float> &normalization_source)
 {
     auto wigner3jvalues = getWigner3j(m_l);
+    const float normalizationfactor = float(4 * M_PI / m_num_ms);
     util::forLoopWrapper(0, m_Np, [&](size_t begin, size_t end) {
         for (size_t i = begin; i < end; ++i)
         {
             target[i] = reduceWigner3j(&(source({static_cast<unsigned int>(i), 0})), m_l, wigner3jvalues);
+            if (m_Wl_normalize)
+            {
+                const float normalization = sqrt(normalizationfactor) / normalization_source[i];
+                target[i] *= normalization * normalization * normalization;
+            }
         }
     });
 }

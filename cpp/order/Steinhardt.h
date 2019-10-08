@@ -46,6 +46,9 @@ namespace freud { namespace order {
  * If the flag Wl is set, the third-order invariant Wl order parameter will
  * be calculated. Wl can aid in distinguishing between FCC, HCP, and BCC.
  *
+ * If the flag Wl_normalize is set, the third-order invariant Wl order parameter
+ * will be normalized.
+ *
  * For more details see:
  * - PJ Steinhardt (1983) (DOI: 10.1103/PhysRevB.28.784)
  * - Wolfgang Lechner (2008) (DOI: 10.1063/Journal of Chemical Physics 129.114707)
@@ -59,8 +62,10 @@ public:
      *  \param l Spherical harmonic number l.
      *           Must be a positive number.
      */
-    Steinhardt(unsigned int l, bool average = false, bool Wl = false, bool weighted = false)
-        : m_Np(0), m_l(l), m_num_ms(2*l+1), m_average(average), m_Wl(Wl), m_weighted(weighted), m_Qlm_local(2 * l + 1)
+    Steinhardt(unsigned int l, bool average = false, bool Wl = false, bool weighted = false, bool Wl_normalize = false)
+        : m_Np(0), m_l(l), m_num_ms(2*l+1), m_average(average), m_Wl(Wl), m_weighted(weighted), m_Wl_normalize(Wl_normalize),
+        m_Qlm_local(2 * l + 1)
+
     {
     }
 
@@ -129,6 +134,12 @@ public:
         return m_weighted;
     }
 
+    //!< Whether to normalize the third-order invariant Wl
+    bool isWlNormalized() const
+    {
+        return m_Wl_normalize;
+    }
+
     //! Compute the order parameter
     void compute(const freud::locality::NeighborList* nlist,
                                   const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
@@ -161,13 +172,15 @@ private:
     void computeAve(const freud::locality::NeighborList* nlist,
                                   const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
 
-    //! Normalize the order parameter
-    float normalize();
+    //! Compute the system-wide order by averaging over particles, then
+    //  reducing over the m values to produce a single scalar.
+    float normalizeSystem();
 
     //! Sum over Wigner 3j coefficients to compute third-order invariants
     //  Wl from second-order invariants Ql
     void aggregateWl(util::ManagedArray<float> &target,
-                     util::ManagedArray<std::complex<float>> &source);
+                     util::ManagedArray<std::complex<float>> &source,
+                     util::ManagedArray<float> &normalization_source);
 
     // Member variables used for compute
     unsigned int m_Np; //!< Last number of points computed
@@ -178,6 +191,7 @@ private:
     bool m_average; //!< Whether to take a second shell average (default false)
     bool m_Wl;      //!< Whether to use the third-order invariant Wl (default false)
     bool m_weighted;      //!< Whether to use neighbor weights in computing Qlmi (default false)
+    bool m_Wl_normalize;  //!< Whether to normalize the third-order invariant Wl (default false)
 
     util::ManagedArray<std::complex<float>> m_Qlmi; //!< Qlm for each particle i
     util::ManagedArray<std::complex<float>> m_Qlm;  //!< Normalized Qlm(Ave) for the whole system
