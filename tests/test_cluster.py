@@ -83,17 +83,19 @@ class TestCluster(unittest.TestCase):
         props = freud.cluster.ClusterProperties()
         props.compute((box, positions), clust.cluster_idx)
 
-        com_1 = np.array([[0, -2, 0]])
-        com_2 = np.array([[-0.05, 1.95, 0]])
-        g_tensor_2 = np.array([[0.0025, 0.0025, 0],
-                               [0.0025, 0.0025, 0],
-                               [0, 0, 0]])
-        rg_2 = np.sqrt(2*(0.0025**2))
-        npt.assert_allclose(props.centers[0, :], com_1)
-        npt.assert_allclose(props.centers[1, :], com_2)
-        npt.assert_allclose(props.gyrations[0], 0)
-        npt.assert_allclose(props.gyrations[1], g_tensor_2)
-        npt.assert_allclose(props.radii_of_gyration, [0, rg_2])
+        com_1 = [0, -2, 0]
+        com_2 = [-0.05, 1.95, 0]
+        g_tensor_2 = [[0.0025, 0.0025, 0],
+                      [0.0025, 0.0025, 0],
+                      [0, 0, 0]]
+        rg_2 = np.sqrt(np.trace(g_tensor_2))
+        npt.assert_allclose(props.centers[0, :], com_1, rtol=1e-5, atol=1e-5)
+        npt.assert_allclose(props.centers[1, :], com_2, rtol=1e-5, atol=1e-5)
+        npt.assert_allclose(props.gyrations[0], 0, atol=1e-5)
+        npt.assert_allclose(
+            props.gyrations[1], g_tensor_2, rtol=1e-5, atol=1e-5)
+        npt.assert_allclose(
+            props.radii_of_gyration, [0, rg_2], rtol=1e-5, atol=1e-5)
 
     def test_cluster_keys(self):
         Nlattice = 4
