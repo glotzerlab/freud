@@ -503,10 +503,6 @@ cdef class Steinhardt(PairCompute):
         return self.thisptr.isWlNormalized()
 
     @Compute._computed_property
-    def norm(self):
-        return self.thisptr.getNorm()
-
-    @Compute._computed_property
     def order(self):
         """float: The system wide normalization of the :math:`Q_l` or
         :math:`W_l` order parameter."""

@@ -29,7 +29,7 @@ class TestMinkowski(unittest.TestCase):
                 positions = frame.positions.copy()
 
             voro = freud.locality.Voronoi()
-            voro.compute(box, positions)
+            voro.compute((box, positions))
             for sph_l in range(expected_ql.shape[1]):
 
                 # These tests fail for unknown (probably numerical) reasons.
