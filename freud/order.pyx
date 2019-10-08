@@ -491,6 +491,10 @@ cdef class Steinhardt(PairCompute):
         return self.thisptr.isWeighted()
 
     @property
+    def Wl_normalize(self):
+        return self.thisptr.isWlNormalized()
+
+    @property
     def l(self):  # noqa: E743
         """unsigned int: Spherical harmonic quantum number l."""
         return self.thisptr.getL()
