@@ -499,9 +499,6 @@ cdef class Steinhardt(PairCompute):
         """unsigned int: Spherical harmonic quantum number l."""
         return self.thisptr.getL()
 
-    def Wl_normalize(self):
-        return self.thisptr.isWlNormalized()
-
     @Compute._computed_property
     def order(self):
         """float: The system wide normalization of the :math:`Q_l` or
