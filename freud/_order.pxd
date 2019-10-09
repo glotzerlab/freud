@@ -89,7 +89,7 @@ cdef extern from "SolidLiquid.h" namespace "freud::order":
         SolidLiquid(unsigned int, float, unsigned int, bool) except +
         unsigned int getL() const
         float getQThreshold() const
-        unsigned int getSThreshold() const
+        unsigned int getSolidThreshold() const
         bool getNormalizeQ() const
         void compute(const freud._locality.NeighborList*,
                      const freud._locality.NeighborQuery*,

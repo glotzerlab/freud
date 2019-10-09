@@ -13,7 +13,7 @@ import freud.util
 
 from cython.operator cimport dereference
 from freud.util cimport Compute
-from freud.locality cimport PairCompute
+from freud.locality cimport _PairCompute
 from freud.util cimport vec3, uint
 
 cimport freud._cluster
@@ -26,7 +26,7 @@ cimport numpy as np
 # _always_ do that, or you will have segfaults
 np.import_array()
 
-cdef class Cluster(PairCompute):
+cdef class Cluster(_PairCompute):
     """Finds clusters using a network of neighbors.
 
     Given a set of points and their neighbors, :class:`freud.cluster.Cluster`

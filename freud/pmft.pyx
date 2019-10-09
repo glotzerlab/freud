@@ -44,7 +44,7 @@ import warnings
 import rowan
 
 from freud.util cimport Compute
-from freud.locality cimport SpatialHistogram
+from freud.locality cimport _SpatialHistogram
 from freud.util cimport vec3, quat
 from cython.operator cimport dereference
 
@@ -97,7 +97,7 @@ def _gen_angle_array(orientations, shape):
         shape=shape)
 
 
-cdef class _PMFT(SpatialHistogram):
+cdef class _PMFT(_SpatialHistogram):
     R"""Compute the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ for a
     given set of points.
 
@@ -113,16 +113,16 @@ cdef class _PMFT(SpatialHistogram):
             del self.pmftptr
 
     @Compute._computed_property
-    def PMFT(self):
+    def pmft(self):
         """:class:`np.ndarray`: The discrete potential of mean force and
         torque."""
         with np.warnings.catch_warnings():
             np.warnings.filterwarnings('ignore')
-            result = -np.log(np.copy(self._PCF))
+            result = -np.log(np.copy(self._pcf))
         return result
 
     @Compute._computed_property
-    def _PCF(self):
+    def _pcf(self):
         """:class:`np.ndarray`: The discrete pair correlation function."""
         return freud.util.make_managed_numpy_array(
             &self.pmftptr.getPCF(),
