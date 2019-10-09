@@ -876,7 +876,7 @@ cdef class Voronoi(Compute):
             return None
 
 
-cdef class PairCompute(Compute):
+cdef class _PairCompute(Compute):
     R"""Parent class for all compute classes in freud that depend on finding
     nearest neighbors.
 
@@ -955,7 +955,7 @@ cdef class PairCompute(Compute):
             "compute method.".format(type(self).__name__))
 
 
-cdef class SpatialHistogram(PairCompute):
+cdef class _SpatialHistogram(_PairCompute):
     R"""Parent class for all compute classes in freud that perform a spatial
     binning of particle bonds by distance.
     """
@@ -1016,8 +1016,8 @@ cdef class SpatialHistogram(PairCompute):
         self.histptr.reset()
 
 
-cdef class SpatialHistogram1D(SpatialHistogram):
-    R"""Subclasses SpatialHistogram to provide a simplified API for
+cdef class _SpatialHistogram1D(_SpatialHistogram):
+    R"""Subclasses _SpatialHistogram to provide a simplified API for
     properties of 1-dimensional histograms.
     """
 

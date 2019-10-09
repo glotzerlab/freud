@@ -61,14 +61,14 @@ cdef class RawPoints(NeighborQuery):
 cdef class _QueryArgs:
     cdef freud._locality.QueryArgs * thisptr
 
-cdef class PairCompute(Compute):
+cdef class _PairCompute(Compute):
     pass
 
-cdef class SpatialHistogram(PairCompute):
+cdef class _SpatialHistogram(_PairCompute):
     cdef float r_max
     cdef freud._locality.BondHistogramCompute *histptr
 
-cdef class SpatialHistogram1D(SpatialHistogram):
+cdef class _SpatialHistogram1D(_SpatialHistogram):
     pass
 
 cdef class Voronoi(Compute):
