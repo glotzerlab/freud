@@ -15,7 +15,7 @@ def get_ql(p, descriptors, nlist, weighted=False):
     underlying neighborlist), compute the per-particle Steinhardt ql
     order parameter for all :math:`l` values up to the maximum quantum
     number used in the computation of the descriptors."""
-    Qbar_lm = np.zeros((p.shape[0], descriptors.sph.shape[1]),
+    qbar_lm = np.zeros((p.shape[0], descriptors.sph.shape[1]),
                        dtype=np.complex128)
     for i in range(p.shape[0]):
         indices = nlist.query_point_indices == i
@@ -27,13 +27,13 @@ def get_ql(p, descriptors, nlist, weighted=False):
         else:
             weights = np.ones_like(Ylms)
             num_neighbors = descriptors.sph.shape[0]/p.shape[0]
-        Qbar_lm[i, :] = np.sum(Ylms * weights, axis=0)/num_neighbors
+        qbar_lm[i, :] = np.sum(Ylms * weights, axis=0)/num_neighbors
 
-    ql = np.zeros((Qbar_lm.shape[0], descriptors.l_max+1))
+    ql = np.zeros((qbar_lm.shape[0], descriptors.l_max+1))
     for i in range(ql.shape[0]):
         for l in range(ql.shape[1]):
             for k in range(l**2, (l+1)**2):
-                ql[i, l] += np.absolute(Qbar_lm[i, k])**2
+                ql[i, l] += np.absolute(qbar_lm[i, k])**2
             ql[i, l] = np.sqrt(4*np.pi/(2*l + 1) * ql[i, l])
 
     return ql
@@ -53,16 +53,16 @@ def get_wl(p, descriptors, nlist):
     underlying neighborlist), compute the per-particle Steinhardt wl
     order parameter for all :math:`l` values up to the maximum quantum
     number used in the computation of the descriptors."""
-    Qbar_lm = np.zeros((p.shape[0], descriptors.sph.shape[1]),
+    qbar_lm = np.zeros((p.shape[0], descriptors.sph.shape[1]),
                        dtype=np.complex128)
 
     num_neighbors = descriptors.sph.shape[0]/p.shape[0]
     for i in range(p.shape[0]):
         indices = nlist.query_point_indices == i
-        Qbar_lm[i, :] = np.sum(descriptors.sph[indices, :],
+        qbar_lm[i, :] = np.sum(descriptors.sph[indices, :],
                                axis=0)/num_neighbors
 
-    wl = np.zeros((Qbar_lm.shape[0], descriptors.l_max+1), dtype=np.complex128)
+    wl = np.zeros((qbar_lm.shape[0], descriptors.l_max+1), dtype=np.complex128)
     for i in range(wl.shape[0]):
         for l in range(wl.shape[1]):
             for m1 in range(-l, l+1):
@@ -74,9 +74,9 @@ def get_wl(p, descriptors, nlist):
                         if m > 0 and m % 2 == 1:
                             phase *= -1
                     wl[i, l] += phase * get_wigner3j(l, m1, m2, m3) * \
-                        Qbar_lm[i, lm_index(l, m1)] * \
-                        Qbar_lm[i, lm_index(l, m2)] * \
-                        Qbar_lm[i, lm_index(l, m3)]
+                        qbar_lm[i, lm_index(l, m1)] * \
+                        qbar_lm[i, lm_index(l, m2)] * \
+                        qbar_lm[i, lm_index(l, m3)]
     return wl
 
 
