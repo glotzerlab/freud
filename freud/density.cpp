@@ -61,15 +61,15 @@
         "name": "freud.density",
         "sources": [
             "freud/density.pyx",
-            "cpp/locality/NeighborPerPointIterator.cc",
             "cpp/density/CorrelationFunction.cc",
-            "cpp/density/RDF.cc",
-            "cpp/locality/NeighborComputeFunctional.cc",
-            "cpp/locality/NeighborList.cc",
-            "cpp/density/GaussianDensity.cc",
             "cpp/density/LocalDensity.cc",
+            "cpp/density/GaussianDensity.cc",
+            "cpp/locality/NeighborList.cc",
+            "cpp/locality/NeighborComputeFunctional.cc",
+            "cpp/locality/NeighborQuery.cc",
             "cpp/locality/AABBQuery.cc",
-            "cpp/locality/NeighborQuery.cc"
+            "cpp/density/RDF.cc",
+            "cpp/locality/NeighborPerPointIterator.cc"
         ]
     },
     "module_name": "freud.density"

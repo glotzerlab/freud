@@ -717,12 +717,13 @@ cdef class LinkCell(NeighborQuery):
     Args:
         box (:class:`freud.box.Box`):
             Simulation box.
-        cell_width (float):
-            Maximum distance to find particles within.
-        points (:class:`np.ndarray`, optional):
-            The points associated with this class, if used as a NeighborQuery
-            object, i.e. built on one set of points that can then be queried
-            against.  (Default value = :code:`None`).
+        points (:class:`np.ndarray`):
+            The points to bin into the cell list.
+        cell_width (float, optional):
+            Maximum distance to find particles within. If not provided,
+            `~.LinkCell` will estimate a cell width based on the number of
+            points and the box size assuming constant density of points
+            throughout the box.
     """
 
     def __cinit__(self, box, points, cell_width=0):

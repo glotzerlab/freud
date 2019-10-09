@@ -220,6 +220,12 @@ cdef class ClusterProperties(Compute):
             freud.util.arr_type_t.FLOAT)
 
     @Compute._computed_property
+    def radii_of_gyration(self):
+        """(:math:`N_{clusters}`,) :class:`numpy.ndarray`: The radius of
+        gyration of each cluster."""
+        return np.sqrt(np.trace(self.gyrations, axis1=-2, axis2=-1))
+
+    @Compute._computed_property
     def sizes(self):
         """(:math:`N_{clusters}`) :class:`numpy.ndarray`: The cluster sizes."""
         return freud.util.make_managed_numpy_array(
