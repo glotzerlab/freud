@@ -62,15 +62,15 @@
         "name": "freud.pmft",
         "sources": [
             "freud/pmft.pyx",
-            "cpp/locality/NeighborPerPointIterator.cc",
-            "cpp/pmft/PMFTR12.cc",
-            "cpp/pmft/PMFTXYT.cc",
-            "cpp/locality/NeighborComputeFunctional.cc",
-            "cpp/locality/NeighborList.cc",
             "cpp/pmft/PMFTXYZ.cc",
-            "cpp/locality/AABBQuery.cc",
             "cpp/pmft/PMFTXY.cc",
-            "cpp/locality/NeighborQuery.cc"
+            "cpp/pmft/PMFTR12.cc",
+            "cpp/locality/NeighborList.cc",
+            "cpp/locality/NeighborComputeFunctional.cc",
+            "cpp/locality/NeighborQuery.cc",
+            "cpp/locality/AABBQuery.cc",
+            "cpp/pmft/PMFTXYT.cc",
+            "cpp/locality/NeighborPerPointIterator.cc"
         ]
     },
     "module_name": "freud.pmft"
