@@ -717,12 +717,13 @@ cdef class LinkCell(NeighborQuery):
     Args:
         box (:class:`freud.box.Box`):
             Simulation box.
-        cell_width (float):
-            Maximum distance to find particles within.
-        points (:class:`np.ndarray`, optional):
-            The points associated with this class, if used as a NeighborQuery
-            object, i.e. built on one set of points that can then be queried
-            against.  (Default value = :code:`None`).
+        points (:class:`np.ndarray`):
+            The points to bin into the cell list.
+        cell_width (float, optional):
+            Maximum distance to find particles within. If not provided,
+            `~.LinkCell` will estimate a cell width based on the number of
+            points and the box size assuming constant density of points
+            throughout the box.
     """
 
     def __cinit__(self, box, points, cell_width=0):
@@ -774,13 +775,13 @@ cdef class Voronoi(Compute):
         R"""Compute Voronoi diagram.
 
         Args:
-            box (:class:`freud.box.Box`):
-                Simulation box.
-            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
-                Points used to calculate Voronoi diagram.
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
         """
         cdef NeighborQuery nq = NeighborQuery.from_system(system)
         self.thisptr.compute(nq.get_ptr())
+        self._box = nq.box
         return self
 
     @Compute._computed_property
@@ -843,13 +844,19 @@ cdef class Voronoi(Compute):
     def __str__(self):
         return repr(self)
 
-    def plot(self, ax=None):
+    def plot(self, ax=None, color_by_sides=True, cmap=None):
         """Plot Voronoi diagram.
 
         Args:
             ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
                 :code:`None`, make a new figure and axis.
                 (Default value = :code:`None`)
+        color_by_sides (bool):
+            If :code:`True`, color cells by the number of sides.
+            If :code:`False`, random colors are used for each cell.
+            (Default value = :code:`True`)
+        cmap (str):
+            Colormap name to use (Default value = :code:`None`).
 
         Returns:
             :class:`matplotlib.axes.Axes`: Axis with the plot.
@@ -858,7 +865,8 @@ cdef class Voronoi(Compute):
         if not self._box.is2D:
             return None
         else:
-            return freud.plot.voronoi_plot(self._box, self.polytopes, ax=ax)
+            return freud.plot.voronoi_plot(
+                self._box, self.polytopes, ax, color_by_sides, cmap)
 
     def _repr_png_(self):
         import freud.plot

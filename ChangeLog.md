@@ -48,6 +48,7 @@ and this project adheres to
 * Code in the freud.common has been moved to freud.util.
 * PMFTXY2D has been renamed to PMFTXY.
 * Cubatic uses standard library random functions instead of Saru (which has been removed from the repo).
+* Improved Voronoi plotting code.
 
 ### Fixed
 * Steinhardt uses the ThreadStorage class and properly resets memory where needed.

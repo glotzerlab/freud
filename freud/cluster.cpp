@@ -59,13 +59,13 @@
         "name": "freud.cluster",
         "sources": [
             "freud/cluster.pyx",
-            "cpp/locality/NeighborPerPointIterator.cc",
-            "cpp/locality/NeighborComputeFunctional.cc",
-            "cpp/locality/NeighborList.cc",
-            "cpp/cluster/ClusterProperties.cc",
             "cpp/cluster/Cluster.cc",
+            "cpp/cluster/ClusterProperties.cc",
+            "cpp/locality/NeighborList.cc",
+            "cpp/locality/NeighborComputeFunctional.cc",
+            "cpp/locality/NeighborQuery.cc",
             "cpp/locality/AABBQuery.cc",
-            "cpp/locality/NeighborQuery.cc"
+            "cpp/locality/NeighborPerPointIterator.cc"
         ]
     },
     "module_name": "freud.cluster"
