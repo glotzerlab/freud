@@ -729,14 +729,6 @@ cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
     def __init__(self):
         pass
 
-    @Compute._computed_property
-    def rmsds(self):
-        """:math:`(N_p, )` :class:`numpy.ndarray`: A boolean array of the RMSDs
-        found for each point's environment."""
-        return freud.util.make_managed_numpy_array(
-            &self.thisptr.getRMSDs(),
-            freud.util.arr_type_t.FLOAT)
-
     def compute(self, system, motif, neighbors=None,
                 registration=False):
         R"""Rotate (if registration=True) and permute the environments of all
@@ -787,10 +779,18 @@ cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
 
         return self
 
+    @Compute._computed_property
+    def rmsds(self):
+        """:math:`(N_p, )` :class:`numpy.ndarray`: A boolean array of the RMSDs
+        found for each point's environment."""
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getRMSDs(),
+            freud.util.arr_type_t.FLOAT)
+
 
 cdef class AngularSeparationNeighbor(PairCompute):
-    R"""Calculates the minimum angles of separation between particles and
-    references."""
+    R"""Calculates the minimum angles of separation between orientations and
+    query orientations."""
     cdef freud._environment.AngularSeparationNeighbor * thisptr
 
     def __cinit__(self):
@@ -827,8 +827,8 @@ cdef class AngularSeparationNeighbor(PairCompute):
                 :code:`orientations` if :code:`None`.  (Default
                 value = :code:`None`).
             equiv_orientations ((:math:`N_{equiv}`, 4) :class:`numpy.ndarray`, optional):
-                The set of all equivalent quaternions that takes the point
-                as it is defined to some global reference orientation.
+                The set of all equivalent quaternions that map the particle
+                to itself (the elements of its rotational symmetry group).
                 Important: :code:`equiv_orientations` must include both
                 :math:`q` and :math:`-q`, for all included quaternions. Note
                 that this calculation assumes that all points in the system
@@ -901,8 +901,8 @@ cdef class AngularSeparationNeighbor(PairCompute):
 
 
 cdef class AngularSeparationGlobal(Compute):
-    R"""Calculates the minimum angles of separation between particles and
-    references."""
+    R"""Calculates the minimum angles of separation between orientations and
+    global orientations."""
     cdef freud._environment.AngularSeparationGlobal * thisptr
 
     def __cinit__(self):
@@ -923,13 +923,13 @@ cdef class AngularSeparationGlobal(Compute):
 
         Args:
             global_orientations ((:math:`N_{global}`, 4) :class:`numpy.ndarray`):
-                Set of global reference orientations to calculate the order
+                Set of global orientations to calculate the order
                 parameter.
             orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Orientations to calculate the order parameter.
             equiv_orientations ((:math:`N_{equiv}`, 4) :class:`numpy.ndarray`, optional):
-                The set of all equivalent quaternions that takes the point
-                as it is defined to some global reference orientation.
+                The set of all equivalent quaternions that map the particle
+                to itself (the elements of its rotational symmetry group).
                 Important: :code:`equiv_orientations` must include both
                 :math:`q` and :math:`-q`, for all included quaternions. Note
                 that this calculation assumes that all points in the system
@@ -989,12 +989,6 @@ cdef class LocalBondProjection(PairCompute):
     def __dealloc__(self):
         del self.thisptr
 
-    @Compute._computed_property
-    def nlist(self):
-        """:class:`freud.locality.NeighborList`: The neighbor list from the
-        last compute."""
-        return freud.locality._nlist_from_cnlist(self.thisptr.getNList())
-
     def compute(self, system, orientations, proj_vecs,
                 query_points=None, equiv_orientations=np.array([[1, 0, 0, 0]]),
                 neighbors=None):
@@ -1013,7 +1007,7 @@ cdef class LocalBondProjection(PairCompute):
                 Orientations associated with system points that are used to
                 calculate bonds.
             proj_vecs ((:math:`N_{vectors}`, 3) :class:`numpy.ndarray`):
-                The set of reference vectors, defined in the reference
+                The set of projection vectors, defined in the query
                 particles' reference frame, to calculate maximal local bond
                 projections onto.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
@@ -1022,8 +1016,8 @@ cdef class LocalBondProjection(PairCompute):
                 value = :code:`None`).
                 (Default value = :code:`None`).
             equiv_orientations ((:math:`N_{equiv}`, 4) :class:`numpy.ndarray`, optional):
-                The set of all equivalent quaternions that takes the point
-                as it is defined to some global reference orientation.
+                The set of all equivalent quaternions that map the particle
+                to itself (the elements of its rotational symmetry group).
                 Important: :code:`equiv_orientations` must include both
                 :math:`q` and :math:`-q`, for all included quaternions. Note
                 that this calculation assumes that all points in the system
@@ -1070,10 +1064,16 @@ cdef class LocalBondProjection(PairCompute):
         return self
 
     @Compute._computed_property
+    def nlist(self):
+        """:class:`freud.locality.NeighborList`: The neighbor list from the
+        last compute."""
+        return freud.locality._nlist_from_cnlist(self.thisptr.getNList())
+
+    @Compute._computed_property
     def projections(self):
-        """:math:`\\left(N_{reference}, N_{neighbors}, N_{projection\\_vecs}
+        """:math:`\\left(N_{bonds}, N_{projection\\_vecs}
         \\right)` :class:`numpy.ndarray`: The projection of each bond between
-        reference particles and their neighbors onto each of the projection
+        query particles and their neighbors onto each of the projection
         vectors."""
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getProjections(),
@@ -1081,8 +1081,8 @@ cdef class LocalBondProjection(PairCompute):
 
     @Compute._computed_property
     def normed_projections(self):
-        """:math:`\\left(N_{reference}, N_{neighbors}, N_{projection\\_vecs} \\right)` :class:`numpy.ndarray`:
-        The projection of each bond between reference particles and their
+        """:math:`\\left(N_{bonds}, N_{projection\\_vecs} \\right)` :class:`numpy.ndarray`:
+        The projection of each bond between query particles and their
         neighbors onto each of the projection vectors, normalized by the length
         of the bond."""  # noqa: E501
         return freud.util.make_managed_numpy_array(
