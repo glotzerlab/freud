@@ -303,10 +303,10 @@ cdef class LocalDensity(PairCompute):
     R"""Computes the local density around a particle.
 
     The density of the local environment is computed and averaged for a given
-    set of reference points in a sea of data points. Providing the same points
+    set of query points in a sea of data points. Providing the same points
     calculates them against themselves. Computing the local density results in
-    an array listing the value of the local density around each reference
-    point. Also available is the number of neighbors for each reference point,
+    an array listing the value of the local density around each query
+    point. Also available is the number of neighbors for each query point,
     giving the user the ability to count the number of particles in that
     region. Note that the computed density is essentially a number density
     (that allows for fractional values as described below). If your particles
@@ -319,10 +319,10 @@ cdef class LocalDensity(PairCompute):
     determine the exact amount of overlap area (volume), the LocalDensity class
     performs a simple linear interpolation relative to the centers of the data
     points.  Specifically, a point is counted as one neighbor of a given
-    reference point if it is entirely contained within the :code:`r_max`, half
+    query point if it is entirely contained within the :code:`r_max`, half
     of a neighbor if the distance to its center is exactly :code:`r_max`, and
     zero if its center is a distance greater than or equal to :code:`r_max +
-    diameter` from the reference point's center. Graphically, this looks like:
+    diameter` from the query point's center. Graphically, this looks like:
 
     .. image:: images/density.png
 
@@ -400,7 +400,7 @@ cdef class LocalDensity(PairCompute):
     @Compute._computed_property
     def density(self):
         """(:math:`N_{points}`) :class:`numpy.ndarray`: Density of points per
-        ref_point."""
+        query point."""
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getDensity(),
             freud.util.arr_type_t.FLOAT)
@@ -408,7 +408,7 @@ cdef class LocalDensity(PairCompute):
     @Compute._computed_property
     def num_neighbors(self):
         """(:math:`N_{points}`) :class:`numpy.ndarray`: Number of neighbor
-        points for each ref_point."""
+        points for each query point."""
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getNumNeighbors(),
             freud.util.arr_type_t.FLOAT)
@@ -424,7 +424,7 @@ cdef class RDF(SpatialHistogram1D):
     R"""Computes RDF for supplied data.
 
     The RDF (:math:`g \left( r \right)`) is computed and averaged for a given
-    set of reference points in a sea of data points. Providing the same points
+    set of query points in a sea of data points. Providing the same points
     calculates them against themselves. Computing the RDF results in an RDF
     array listing the value of the RDF at each given :math:`r`, listed in the
     :code:`R` array.
