@@ -134,7 +134,7 @@ cdef class BondOrder(SpatialHistogram):
             "either provide query arguments or a neighbor list to this "
             "compute method.".format(type(self).__name__))
 
-    def compute(self, system, orientations, query_points=None,
+    def compute(self, system, orientations=None, query_points=None,
                 query_orientations=None, neighbors=None, reset=True):
         R"""Calculates the correlation function and adds to the current
         histogram.
@@ -145,7 +145,8 @@ cdef class BondOrder(SpatialHistogram):
                 :class:`freud.locality.NeighborQuery.from_system`.
             orientations ((:math:`N_{points}`, 4) :class:`numpy.ndarray`):
                 Orientations associated with system points that are used to
-                calculate bonds.
+                calculate bonds. Uses identity quaternions if :code:`None`
+                (Default value = :code:`None`).
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Query points used to calculate the correlation function.  Uses
                 the system's points if :code:`None` (Default
@@ -177,6 +178,8 @@ cdef class BondOrder(SpatialHistogram):
 
         nq, nlist, qargs, l_query_points, num_query_points = \
             self._preprocess_arguments(system, query_points, neighbors)
+        if orientations is None:
+            orientations = np.array([[1, 0, 0, 0]] * nq.points.shape[0])
         if query_orientations is None:
             query_orientations = orientations
 
@@ -935,7 +938,7 @@ cdef class AngularSeparationGlobal(Compute):
                 that this calculation assumes that all points in the system
                 share the same set of equivalent orientations.
                 (Default value = :code:`[[1, 0, 0, 0]]`)
-        """  # noqa
+        """  # noqa: E501
         global_orientations = freud.util._convert_array(
             global_orientations, shape=(None, 4))
         orientations = freud.util._convert_array(
@@ -962,8 +965,8 @@ cdef class AngularSeparationGlobal(Compute):
 
     @Compute._computed_property
     def angles(self):
-        """:math:`\\left(N_{bonds}\\right)` :class:`numpy.ndarray`: The global
-        angles in radians."""
+        """:math:`\\left(N_{orientations}, N_{global\\_orientations}\\right)` :class:`numpy.ndarray`:
+        The global angles in radians."""  # noqa: E501
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getAngles(),
             freud.util.arr_type_t.FLOAT)
@@ -1082,9 +1085,9 @@ cdef class LocalBondProjection(PairCompute):
     @Compute._computed_property
     def normed_projections(self):
         """:math:`\\left(N_{bonds}, N_{projection\\_vecs} \\right)` :class:`numpy.ndarray`:
-        The projection of each bond between query particles and their
-        neighbors onto each of the projection vectors, normalized by the length
-        of the bond."""  # noqa: E501
+        The projection of each bond between query particles and their neighbors
+        onto each of the projection vectors, normalized by the length of the
+        bond."""  # noqa: E501
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getNormedProjections(),
             freud.util.arr_type_t.FLOAT)
