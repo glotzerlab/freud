@@ -115,7 +115,12 @@ class TestBondOrder(unittest.TestCase):
             bod = freud.environment.BondOrder(
                 bins=(n_bins_theta, n_bins_phi))
 
-            bod.compute(nq, query_points=query_points, neighbors=neighbors)
+            # orientations are not used in bod mode
+            orientations = np.array([[1, 0, 0, 0]]*len(points))
+            query_orientations = np.array([[1, 0, 0, 0]]*len(query_points))
+
+            bod.compute(nq, orientations, query_points, query_orientations,
+                        neighbors=neighbors)
 
             # we want to make sure that we get 12 nonzero places, so we can
             # test whether we are not considering neighbors between points
