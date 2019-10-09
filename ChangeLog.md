@@ -55,6 +55,7 @@ and this project adheres to
 * RDF no longer forces the first bin of the PCF and first two bins of the cumulative counts to be 0.
 * LinkCell nearest neighbor queries properly check the largest distance found before proceeding to next shell.
 * Compute classes requiring 2D systems check the dimensionality of their input boxes.
+* LocalDensity uses the correct number of points/query points.
 
 ### Removed
 * The freud.util module.

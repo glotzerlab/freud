@@ -130,6 +130,7 @@ Bradley Dice - **Lead developer**
 * NeighborQuery support to ClusterProperties, GaussianDensity, Voronoi, PeriodicBuffer, Interface.
 * Standardized APIs for order parameters.
 * Improved Voronoi plotting code.
+* Corrected number of points/query points in LocalDensity.
 
 Richmond Newman
 
