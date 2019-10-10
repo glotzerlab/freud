@@ -12,7 +12,7 @@ import numpy as np
 import warnings
 import freud.locality
 
-from freud.util cimport Compute
+from freud.util cimport _Compute
 from freud.locality cimport _PairCompute, _SpatialHistogram
 from freud.util cimport vec3, quat
 from libcpp.vector cimport vector
@@ -200,14 +200,14 @@ cdef class BondOrder(_SpatialHistogram):
             nlist.get_ptr(), dereference(qargs.thisptr))
         return self
 
-    @Compute._computed_property
+    @_Compute._computed_property
     def bond_order(self):
         """:math:`\\left(N_{\\phi}, N_{\\theta} \\right)` :class:`numpy.ndarray`: Bond order."""  # noqa: E501
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getBondOrder(),
             freud.util.arr_type_t.FLOAT)
 
-    @Compute._computed_property
+    @_Compute._computed_property
     def box(self):
         """:class:`freud.box.Box`: Box used in the calculation."""
         return freud.box.BoxFromCPP(self.thisptr.getBox())
@@ -326,13 +326,13 @@ cdef class LocalDescriptors(_PairCompute):
             nlist.get_ptr(), dereference(qargs.thisptr))
         return self
 
-    @Compute._computed_property
+    @_Compute._computed_property
     def nlist(self):
         """:class:`freud.locality.NeighborList`: The neighbor list from the
         last compute."""
         return freud.locality._nlist_from_cnlist(self.thisptr.getNList())
 
-    @Compute._computed_property
+    @_Compute._computed_property
     def sph(self):
         """:math:`\\left(N_{bonds}, \\text{SphWidth} \\right)`
         :class:`numpy.ndarray`: The last computed spherical harmonic array."""
@@ -340,7 +340,7 @@ cdef class LocalDescriptors(_PairCompute):
             &self.thisptr.getSph(),
             freud.util.arr_type_t.COMPLEX_FLOAT)
 
-    @Compute._computed_property
+    @_Compute._computed_property
     def num_sphs(self):
         """unsigned int: The last number of spherical harmonics computed. This
         is equal to the number of bonds in the last computation, which is at
@@ -486,7 +486,7 @@ cdef class _MatchEnv(_PairCompute):
         # Abstract class
         pass
 
-    @Compute._computed_property
+    @_Compute._computed_property
     def point_environments(self):
         """:math:`\\left(N_{points}, N_{neighbors}, 3\\right)`
         :class:`numpy.ndarray`: All environments for all points."""
@@ -581,7 +581,7 @@ cdef class EnvironmentCluster(_MatchEnv):
             registration, global_search)
         return self
 
-    @Compute._computed_property
+    @_Compute._computed_property
     def cluster_idx(self):
         """:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`: The
         per-particle index indicating cluster membership."""
@@ -589,12 +589,12 @@ cdef class EnvironmentCluster(_MatchEnv):
             &self.thisptr.getClusters(),
             freud.util.arr_type_t.UNSIGNED_INT)
 
-    @Compute._computed_property
+    @_Compute._computed_property
     def num_clusters(self):
         """unsigned int: The number of clusters."""
         return self.thisptr.getNumClusters()
 
-    @Compute._computed_property
+    @_Compute._computed_property
     def cluster_environments(self):
         """:math:`\\left(N_{clusters}, N_{neighbors}, 3\\right`
         :class:`numpy.ndarray`): The environments for all clusters."""
@@ -700,7 +700,7 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
             <vec3[float]*> &l_motif[0, 0], nRef,
             threshold, registration)
 
-    @Compute._computed_property
+    @_Compute._computed_property
     def matches(self):
         """:math:`(N_p, )` :class:`numpy.ndarray`: A boolean array indicating
         whether each point matches the motif."""
@@ -782,7 +782,7 @@ cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
 
         return self
 
-    @Compute._computed_property
+    @_Compute._computed_property
     def rmsds(self):
         """:math:`(N_p, )` :class:`numpy.ndarray`: A boolean array of the RMSDs
         found for each point's environment."""
@@ -883,7 +883,7 @@ cdef class AngularSeparationNeighbor(_PairCompute):
             dereference(qargs.thisptr))
         return self
 
-    @Compute._computed_property
+    @_Compute._computed_property
     def angles(self):
         """:math:`\\left(N_{bonds}\\right)` :class:`numpy.ndarray`: The
         neighbor angles in radians. The angles are stored in the order of the
@@ -896,14 +896,14 @@ cdef class AngularSeparationNeighbor(_PairCompute):
         return "freud.environment.{cls}()".format(
             cls=type(self).__name__)
 
-    @Compute._computed_property
+    @_Compute._computed_property
     def nlist(self):
         """:class:`freud.locality.NeighborList`: The neighbor list from the
         last compute."""
         return freud.locality._nlist_from_cnlist(self.thisptr.getNList())
 
 
-cdef class AngularSeparationGlobal(Compute):
+cdef class AngularSeparationGlobal(_Compute):
     R"""Calculates the minimum angles of separation between orientations and
     global orientations."""
     cdef freud._environment.AngularSeparationGlobal * thisptr
@@ -963,7 +963,7 @@ cdef class AngularSeparationGlobal(Compute):
             n_equiv_orientations)
         return self
 
-    @Compute._computed_property
+    @_Compute._computed_property
     def angles(self):
         """:math:`\\left(N_{orientations}, N_{global\\_orientations}\\right)` :class:`numpy.ndarray`:
         The global angles in radians."""  # noqa: E501
@@ -1066,13 +1066,13 @@ cdef class LocalBondProjection(_PairCompute):
             nlist.get_ptr(), dereference(qargs.thisptr))
         return self
 
-    @Compute._computed_property
+    @_Compute._computed_property
     def nlist(self):
         """:class:`freud.locality.NeighborList`: The neighbor list from the
         last compute."""
         return freud.locality._nlist_from_cnlist(self.thisptr.getNList())
 
-    @Compute._computed_property
+    @_Compute._computed_property
     def projections(self):
         """:math:`\\left(N_{bonds}, N_{projection\\_vecs}
         \\right)` :class:`numpy.ndarray`: The projection of each bond between
@@ -1082,7 +1082,7 @@ cdef class LocalBondProjection(_PairCompute):
             &self.thisptr.getProjections(),
             freud.util.arr_type_t.FLOAT)
 
-    @Compute._computed_property
+    @_Compute._computed_property
     def normed_projections(self):
         """:math:`\\left(N_{bonds}, N_{projection\\_vecs} \\right)` :class:`numpy.ndarray`:
         The projection of each bond between query particles and their neighbors

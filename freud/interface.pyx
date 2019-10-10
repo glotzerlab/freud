@@ -8,7 +8,7 @@ between sets of points.
 
 import numpy as np
 
-from freud.util cimport Compute
+from freud.util cimport _Compute
 from freud.locality cimport _PairCompute
 from freud.util cimport vec3
 from cython.operator cimport dereference
@@ -63,23 +63,23 @@ cdef class Interface(_PairCompute):
         self._query_point_ids = np.unique(nlist.query_point_indices)
         return self
 
-    @Compute._computed_property
+    @_Compute._computed_property
     def point_count(self):
         """int: Number of particles from :code:`points` on the interface."""
         return len(self._point_ids)
 
-    @Compute._computed_property
+    @_Compute._computed_property
     def point_ids(self):
         """:class:`np.ndarray`: The particle IDs from :code:`points`."""
         return np.asarray(self._point_ids)
 
-    @Compute._computed_property
+    @_Compute._computed_property
     def query_point_count(self):
         """int: Number of particles from :code:`query_points` on the
         interface."""
         return len(self._query_point_ids)
 
-    @Compute._computed_property
+    @_Compute._computed_property
     def query_point_ids(self):
         """:class:`np.ndarray`: The particle IDs from :code:`query_points`."""
         return np.asarray(self._query_point_ids)

@@ -127,7 +127,7 @@ cdef class _ManagedArrayContainer:
             else self.shape + (self.element_size, ))
 
 
-cdef class Compute(object):
+cdef class _Compute(object):
     R"""Parent class for all compute classes in freud.
 
     Currently, the primary purpose of this class is implementing functions to
@@ -139,12 +139,12 @@ cdef class Compute(object):
     To use this class, one would do, for example,
 
     .. code-block:: python
-        class Cluster(Compute):
+        class Cluster(_Compute):
 
             def compute(...)
                 ...
 
-            @Compute._computed_property()
+            @_Compute._computed_property()
             def cluster_idx(self):
                 return ...
 
