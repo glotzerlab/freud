@@ -37,7 +37,7 @@ and this project adheres to
 * APIs for several order parameters have been standardized.
 * SolidLiquid order parameter has been completely rewritten, fixing several bugs and simplifying its C++ code.
 * NeighborQuery objects require z == 0 for all points if the box is 2D.
-* Renamed several Box methods, ParticleBuffer is now PeriodicBuffer.
+* Renamed several Box methods, box.ParticleBuffer is now locality.PeriodicBuffer.
 * Refactored and renamed attributes of Cluster and ClusterProperties modules.
 * All class attributes are stored in the C++ members and accessed via getters wrapped as Python properties.
 * Bond vector directionality is standardized for all computes that use it (always from query\_point to point).

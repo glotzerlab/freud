@@ -132,6 +132,7 @@ Bradley Dice - **Lead developer**
 * Added radius of gyration to ClusterProperties.
 * Improved Voronoi plotting code.
 * Corrected number of points/query points in LocalDensity.
+* Made PeriodicBuffer inherit from _Compute.
 
 Richmond Newman
 
