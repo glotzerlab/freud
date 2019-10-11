@@ -88,7 +88,7 @@ cdef class MSD(_Compute):
 
       The windowed calculation can be quite computationally intensive. To
       perform this calculation efficiently, we use the algorithm described in
-      [Calandrini2011]_ as described in `this StackOverflow thread
+      :cite:`calandrini2011nmoldyn` as described in `this StackOverflow thread
       <https://stackoverflow.com/questions/34222272/computing-mean-square-displacement-using-python-and-fft>`_.
 
         .. note::

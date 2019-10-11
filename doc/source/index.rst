@@ -42,7 +42,6 @@ Table of Contents
 
    development
    citing
-   references
    license
    credits
 

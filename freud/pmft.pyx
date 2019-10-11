@@ -36,8 +36,6 @@ refer to the supplementary information of :cite:`vanAnders:2014aa`.
     For any bins where the histogram is zero (i.e. no observations were made
     with that relative position/orientation of particles), the PCF will be zero
     and the PMFT will return :code:`nan`.
-
-.. bibliography:: freud.bib
 """
 
 import numpy as np

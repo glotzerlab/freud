@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 np.import_array()
 
 cdef class Cubatic(_Compute):
-    R"""Compute the cubatic order parameter [HajiAkbari2015]_ for a system of
+    R"""Compute the cubatic order parameter :cite:`Haji_Akbari_2015` for a system of
     particles using simulated annealing instead of Newton-Raphson root finding.
 
     Args:
@@ -423,7 +423,7 @@ cdef class Steinhardt(_PairCompute):
 
     The average argument in the constructor provides access to a variant of
     this parameter that performs a average over the first and second shell
-    combined [Lechner2008]_. To compute this parameter, we perform a second
+    combined :cite:`Lechner_2008`. To compute this parameter, we perform a second
     averaging over the first neighbor shell of the particle to implicitly
     include information about the second neighbor shell. This averaging is
     performed by replacing the value :math:`\overline{q}_{lm}(i)` in the
