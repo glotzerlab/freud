@@ -108,14 +108,6 @@ cdef extern from "AABBQuery.h" namespace "freud::locality":
                   const vec3[float]*,
                   unsigned int) except +
 
-cdef extern from "Voronoi.h" namespace "freud::locality":
-    cdef cppclass Voronoi:
-        Voronoi()
-        void compute(const NeighborQuery*) nogil except +
-        vector[vector[vec3[double]]] getPolytopes() const
-        const freud.util.ManagedArray[double] &getVolumes() const
-        shared_ptr[NeighborList] getNeighborList() const
-
 cdef extern from "BondHistogramCompute.h" namespace "freud::locality":
     cdef cppclass BondHistogramCompute:
         BondHistogramCompute()
@@ -127,3 +119,23 @@ cdef extern from "BondHistogramCompute.h" namespace "freud::locality":
         vector[vector[float]] getBinCenters() const
         vector[pair[float, float]] getBounds() const
         vector[unsigned int] getAxisSizes() const
+
+cdef extern from "PeriodicBuffer.h" namespace "freud::locality":
+    cdef cppclass PeriodicBuffer:
+        PeriodicBuffer()
+        const freud._box.Box & getBox() const
+        const freud._box.Box & getBufferBox() const
+        void compute(
+            const NeighborQuery*,
+            const vec3[float],
+            const bool) except +
+        vector[vec3[float]] getBufferPoints() const
+        vector[uint] getBufferIds() const
+
+cdef extern from "Voronoi.h" namespace "freud::locality":
+    cdef cppclass Voronoi:
+        Voronoi()
+        void compute(const NeighborQuery*) nogil except +
+        vector[vector[vec3[double]]] getPolytopes() const
+        const freud.util.ManagedArray[double] &getVolumes() const
+        shared_ptr[NeighborList] getNeighborList() const

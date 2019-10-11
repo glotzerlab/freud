@@ -7,6 +7,3 @@ cdef class Box:
     cdef freud._box.Box * thisptr
 
 cdef BoxFromCPP(const freud._box.Box & cppbox)
-
-cdef class PeriodicBuffer:
-    cdef freud._box.PeriodicBuffer * thisptr

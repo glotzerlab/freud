@@ -3,10 +3,10 @@
 
 from libcpp cimport bool as cbool
 from libcpp.memory cimport shared_ptr
-from freud.util cimport Compute
+from freud.util cimport _Compute
 
 from cython.operator cimport dereference
-from freud.util cimport Compute
+from freud.util cimport _Compute
 
 cimport freud._locality
 cimport freud.box
@@ -61,7 +61,7 @@ cdef class RawPoints(NeighborQuery):
 cdef class _QueryArgs:
     cdef freud._locality.QueryArgs * thisptr
 
-cdef class _PairCompute(Compute):
+cdef class _PairCompute(_Compute):
     pass
 
 cdef class _SpatialHistogram(_PairCompute):
@@ -71,7 +71,10 @@ cdef class _SpatialHistogram(_PairCompute):
 cdef class _SpatialHistogram1D(_SpatialHistogram):
     pass
 
-cdef class Voronoi(Compute):
+cdef class PeriodicBuffer(_Compute):
+    cdef freud._locality.PeriodicBuffer * thisptr
+
+cdef class Voronoi(_Compute):
     cdef freud._locality.Voronoi * thisptr
     cdef NeighborList _nlist
     cdef freud.box.Box _box

@@ -13,7 +13,7 @@ class TestPeriodicBuffer(unittest.TestCase):
         box, positions = util.make_box_and_random_points(L, N, True)
         positions.flags['WRITEABLE'] = False
 
-        pbuff = freud.box.PeriodicBuffer()
+        pbuff = freud.locality.PeriodicBuffer()
 
         # Compute with zero buffer distance
         pbuff.compute((box, positions), buffer=0, images=False)
@@ -61,7 +61,7 @@ class TestPeriodicBuffer(unittest.TestCase):
         box, positions = util.make_box_and_random_points(L, N, False)
         positions.flags['WRITEABLE'] = False
 
-        pbuff = freud.box.PeriodicBuffer()
+        pbuff = freud.locality.PeriodicBuffer()
 
         # Compute with zero buffer distance
         pbuff.compute((box, positions), buffer=0, images=False)
@@ -119,7 +119,7 @@ class TestPeriodicBuffer(unittest.TestCase):
         L = 2*s  # Box length
 
         box = freud.box.Box.cube(L)  # Initialize box
-        pbuff = freud.box.PeriodicBuffer()
+        pbuff = freud.locality.PeriodicBuffer()
         positions = np.array([(s, s, 0), (s, 0, s), (0, s, s), (0, 0, 0)])
         positions.flags['WRITEABLE'] = False
 
@@ -186,7 +186,7 @@ class TestPeriodicBuffer(unittest.TestCase):
         np.random.seed(0)
 
         box = freud.box.Box(Lx=2, Ly=2, Lz=2, xy=1, xz=0, yz=1)
-        pbuff = freud.box.PeriodicBuffer()
+        pbuff = freud.locality.PeriodicBuffer()
 
         # Generate random points in the box, in fractional coordinates
         positions = np.random.uniform(0, 1, size=(N, 3))
@@ -215,7 +215,7 @@ class TestPeriodicBuffer(unittest.TestCase):
                                box.L * np.array([2, 1, 2]))
 
     def test_repr(self):
-        pbuff = freud.box.PeriodicBuffer()
+        pbuff = freud.locality.PeriodicBuffer()
         self.assertEqual(str(pbuff), str(eval(repr(pbuff))))
 
 

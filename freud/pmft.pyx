@@ -43,7 +43,7 @@ import freud.locality
 import warnings
 import rowan
 
-from freud.util cimport Compute
+from freud.util cimport _Compute
 from freud.locality cimport _SpatialHistogram
 from freud.util cimport vec3, quat
 from cython.operator cimport dereference
@@ -112,7 +112,7 @@ cdef class _PMFT(_SpatialHistogram):
         if type(self) is _PMFT:
             del self.pmftptr
 
-    @Compute._computed_property
+    @_Compute._computed_property
     def pmft(self):
         """:class:`np.ndarray`: The discrete potential of mean force and
         torque."""
@@ -121,7 +121,7 @@ cdef class _PMFT(_SpatialHistogram):
             result = -np.log(np.copy(self._pcf))
         return result
 
-    @Compute._computed_property
+    @_Compute._computed_property
     def _pcf(self):
         """:class:`np.ndarray`: The discrete pair correlation function."""
         return freud.util.make_managed_numpy_array(
@@ -429,7 +429,7 @@ cdef class PMFTXY(_PMFT):
                                   dereference(qargs.thisptr))
         return self
 
-    @Compute._computed_property
+    @_Compute._computed_property
     def bin_counts(self):
         """:class:`numpy.ndarray`: The bin counts in the histogram."""
         # Currently the parent function returns a 3D array that must be
