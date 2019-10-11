@@ -96,6 +96,7 @@ Vyas Ramasubramani - **Lead developer**
 * Unified util and common packages.
 * Rewrote all docstrings in the package for freud 2.0.
 * Changed Cubatic to use Mersenne Twisters for rng.
+* Moved all citations into Bibtex format.
 
 Bradley Dice - **Lead developer**
 
