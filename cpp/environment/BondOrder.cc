@@ -60,7 +60,7 @@ BondOrder::BondOrder(unsigned int n_bins_theta, unsigned int n_bins_phi, BondOrd
 
 void BondOrder::reduce()
 {
-    m_histogram.reset();
+    m_histogram.prepare(m_histogram.shape());
     m_bo_array.prepare(m_histogram.shape());
 
     m_histogram.reduceOverThreadsPerBin(m_local_histograms, [&] (size_t i) {
