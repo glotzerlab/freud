@@ -44,7 +44,7 @@ RDF::RDF(unsigned int bins, float r_max, float r_min) : BondHistogramCompute(), 
 void RDF::reduce()
 {
     m_pcf.prepare(m_bins);
-    m_histogram.reset();
+    m_histogram.prepare(m_bins);
     m_N_r.prepare(m_bins);
 
     // Define prefactors with appropriate types to simplify and speed later code.

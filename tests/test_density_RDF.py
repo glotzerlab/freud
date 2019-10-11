@@ -1,5 +1,3 @@
-from __future__ import division
-
 import numpy as np
 import numpy.testing as npt
 import freud
@@ -159,7 +157,7 @@ class TestRDFManagedArray(TestManagedArray, unittest.TestCase):
 
     @property
     def computed_properties(self):
-        return ['RDF', 'n_r']
+        return ['RDF', 'n_r', 'bin_counts']
 
     def compute(self):
         box = freud.box.Box.cube(10)
