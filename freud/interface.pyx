@@ -8,8 +8,8 @@ between sets of points.
 
 import numpy as np
 
-from freud.util cimport Compute
-from freud.locality cimport PairCompute
+from freud.util cimport _Compute
+from freud.locality cimport _PairCompute
 from freud.util cimport vec3
 from cython.operator cimport dereference
 import freud.locality
@@ -23,7 +23,7 @@ cimport numpy as np
 # _always_ do that, or you will have segfaults
 np.import_array()
 
-cdef class Interface(PairCompute):
+cdef class Interface(_PairCompute):
     R"""Measures the interface between two sets of points."""
     cdef const unsigned int[::1] _point_ids
     cdef const unsigned int[::1] _query_point_ids
@@ -63,23 +63,23 @@ cdef class Interface(PairCompute):
         self._query_point_ids = np.unique(nlist.query_point_indices)
         return self
 
-    @Compute._computed_property
+    @_Compute._computed_property
     def point_count(self):
         """int: Number of particles from :code:`points` on the interface."""
         return len(self._point_ids)
 
-    @Compute._computed_property
+    @_Compute._computed_property
     def point_ids(self):
         """:class:`np.ndarray`: The particle IDs from :code:`points`."""
         return np.asarray(self._point_ids)
 
-    @Compute._computed_property
+    @_Compute._computed_property
     def query_point_count(self):
         """int: Number of particles from :code:`query_points` on the
         interface."""
         return len(self._query_point_ids)
 
-    @Compute._computed_property
+    @_Compute._computed_property
     def query_point_ids(self):
         """:class:`np.ndarray`: The particle IDs from :code:`query_points`."""
         return np.asarray(self._query_point_ids)

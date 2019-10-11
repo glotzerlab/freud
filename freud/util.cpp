@@ -57,12 +57,12 @@
         "name": "freud.util",
         "sources": [
             "freud/util.pyx",
-            "cpp/locality/NeighborPerPointIterator.cc",
-            "cpp/locality/NeighborComputeFunctional.cc",
             "cpp/locality/NeighborList.cc",
+            "cpp/locality/NeighborComputeFunctional.cc",
+            "cpp/locality/NeighborQuery.cc",
             "cpp/locality/AABBQuery.cc",
             "cpp/util/diagonalize.cc",
-            "cpp/locality/NeighborQuery.cc"
+            "cpp/locality/NeighborPerPointIterator.cc"
         ]
     },
     "module_name": "freud.util"

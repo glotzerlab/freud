@@ -243,20 +243,23 @@ def density_plot(density, box, ax=None):
     return ax
 
 
-def voronoi_plot(box, cells, ax=None):
+def voronoi_plot(box, polytopes, ax=None, color_by_sides=True, cmap=None):
     """Helper function to draw 2D Voronoi diagram.
 
     Args:
         box (:class:`freud.box.Box`):
             Simulation box.
-        cells (:class:`numpy.ndarray`):
+        polytopes (:class:`numpy.ndarray`):
             Array containing Voronoi polytope vertices.
-        color_by_sides (bool):
-            If :code:`True`, color cells by the number of sides.
-            (Default value = :code:`False`)
         ax (:class:`matplotlib.axes.Axes`): axes object to plot.
             If :code:`None`, make a new axes and figure object.
             (Default value = :code:`None`).
+        color_by_sides (bool):
+            If :code:`True`, color cells by the number of sides.
+            If :code:`False`, random colors are used for each cell.
+            (Default value = :code:`True`)
+        cmap (str):
+            Colormap name to use (Default value = :code:`None`).
 
     Returns:
         :class:`matplotlib.axes.Axes`: axes object with the diagram.
@@ -266,7 +269,9 @@ def voronoi_plot(box, cells, ax=None):
     try:
         from matplotlib import cm
         from matplotlib.collections import PatchCollection
-        from matplotlib.patches import Polygon, Rectangle
+        from matplotlib.patches import Polygon
+        from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
+        from matplotlib.colorbar import Colorbar
     except ImportError:
         return None
 
@@ -274,28 +279,41 @@ def voronoi_plot(box, cells, ax=None):
         fig = Figure()
         ax = fig.subplots()
 
-    # Draw Voronoi cells
-    patches = [Polygon(cell[:, :2]) for cell in cells]
+    # Draw Voronoi polytopes
+    patches = [Polygon(poly[:, :2]) for poly in polytopes]
     patch_collection = PatchCollection(patches, edgecolors='black', alpha=0.4)
-    cmap = cm.Set1
 
-    colors = np.random.permutation(np.arange(len(patches)))
+    if color_by_sides:
+        colors = np.array([len(poly) for poly in polytopes])
+    else:
+        colors = np.random.permutation(np.arange(len(patches)))
 
-    cmap = cm.get_cmap('Set1', np.unique(colors).size)
-    bounds = np.array(range(min(colors), max(colors)+2))
+    cmap = cm.get_cmap('Set1' if cmap is None else cmap,
+                       np.unique(colors).size)
+    bounds = np.arange(np.min(colors), np.max(colors)+1)
 
-    patch_collection.set_array(np.array(colors))
+    patch_collection.set_array(np.array(colors)-0.5)
     patch_collection.set_cmap(cmap)
-    patch_collection.set_clim(bounds[0], bounds[-1])
+    patch_collection.set_clim(bounds[0]-0.5, bounds[-1]+0.5)
     ax.add_collection(patch_collection)
 
-    ax.set_title('Voronoi Diagram')
-    ax.set_xlim((-box.Lx/2, box.Lx/2))
-    ax.set_ylim((-box.Ly/2, box.Ly/2))
+    # Draw box
+    corners = [[0, 0, 0], [0, 1, 0], [1, 1, 0], [1, 0, 0]]
+    corners.append(corners[0])  # Need to copy this so that the box is closed.
+    corners = box.make_absolute(corners)[:, :2]
+    ax.plot(corners[:, 0], corners[:, 1], color='k')
 
-    # Set equal aspect and draw box
+    # Set title, limits, aspect
+    ax.set_title('Voronoi Diagram')
+    ax.set_xlim((np.min(corners[:, 0]), np.max(corners[:, 0])))
+    ax.set_ylim((np.min(corners[:, 1]), np.max(corners[:, 1])))
     ax.set_aspect('equal', 'datalim')
-    box_patch = Rectangle([-box.Lx/2, -box.Ly/2], box.Lx,
-                          box.Ly, alpha=1, fill=None)
-    ax.add_patch(box_patch)
+
+    # Add colorbar for number of sides
+    if color_by_sides:
+        ax_divider = make_axes_locatable(ax)
+        cax = ax_divider.append_axes("right", size="7%", pad="10%")
+        cb = Colorbar(cax, patch_collection)
+        cb.set_label("Number of sides")
+        cb.set_ticks(bounds)
     return ax

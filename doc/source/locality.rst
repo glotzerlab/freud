@@ -7,11 +7,14 @@ Locality Module
 .. autosummary::
     :nosignatures:
 
+    freud.locality.AABBQuery
+    freud.locality.LinkCell
     freud.locality.NeighborList
     freud.locality.NeighborQuery
     freud.locality.NeighborQueryResult
-    freud.locality.AABBQuery
-    freud.locality.LinkCell
+    freud.locality.PeriodicBuffer
+    freud.locality.RawPoints
+    freud.locality.Voronoi
 
 .. rubric:: Details
 

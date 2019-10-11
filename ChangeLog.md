@@ -20,6 +20,7 @@ and this project adheres to
 * NeighborLists and query arguments are now accepted on equal footing by compute methods that involve neighbor finding.
 * 2D PMFTs accept quaternions as well as angles for their orientations.
 * Extensive new documentation including tutorial for new users and reference sections on crucial topics.
+* ClusterProperties computes radius of gyration from the gyration tensor for each cluster.
 
 ### Changed
 * All compute objects that perform neighbor computations now use NeighborQuery internally.
@@ -36,7 +37,7 @@ and this project adheres to
 * APIs for several order parameters have been standardized.
 * SolidLiquid order parameter has been completely rewritten, fixing several bugs and simplifying its C++ code.
 * NeighborQuery objects require z == 0 for all points if the box is 2D.
-* Renamed several Box methods, ParticleBuffer is now PeriodicBuffer.
+* Renamed several Box methods, box.ParticleBuffer is now locality.PeriodicBuffer.
 * Refactored and renamed attributes of Cluster and ClusterProperties modules.
 * All class attributes are stored in the C++ members and accessed via getters wrapped as Python properties.
 * Bond vector directionality is standardized for all computes that use it (always from query\_point to point).
@@ -47,6 +48,7 @@ and this project adheres to
 * Code in the freud.common has been moved to freud.util.
 * PMFTXY2D has been renamed to PMFTXY.
 * Cubatic uses standard library random functions instead of Saru (which has been removed from the repo).
+* Improved Voronoi plotting code.
 
 ### Fixed
 * Steinhardt uses the ThreadStorage class and properly resets memory where needed.
@@ -54,6 +56,7 @@ and this project adheres to
 * RDF no longer forces the first bin of the PCF and first two bins of the cumulative counts to be 0.
 * LinkCell nearest neighbor queries properly check the largest distance found before proceeding to next shell.
 * Compute classes requiring 2D systems check the dimensionality of their input boxes.
+* LocalDensity uses the correct number of points/query points.
 
 ### Removed
 * The freud.util module.
