@@ -4,6 +4,8 @@ import freud
 import unittest
 import util
 
+from test_managedarray import TestManagedArray
+
 
 class TestCorrelationFunction(unittest.TestCase):
     def test_generateR(self):
@@ -414,6 +416,23 @@ class TestCorrelationFunction(unittest.TestCase):
                 correct = supposed_correlation * rv
 
                 npt.assert_allclose(ocf.correlation, correct, atol=1e-6)
+
+
+class TestCorrelationFunctionManagedArray(TestManagedArray, unittest.TestCase):
+    def build_object(self):
+        self.obj = freud.density.CorrelationFunction(50, 3)
+
+    @property
+    def computed_properties(self):
+        return ['bin_counts', 'correlation']
+
+    def compute(self):
+        box = freud.box.Box.cube(10)
+        num_points = 100
+        points = np.random.rand(
+            num_points, 3)*box.L - box.L/2
+        values = np.random.rand(num_points) + np.random.rand(num_points)*1j
+        self.obj.compute((box, points), values, neighbors={'r_max': 3})
 
 
 if __name__ == '__main__':

@@ -46,8 +46,8 @@ CorrelationFunction<T>::CorrelationFunction(unsigned int bins, float r_max)
 template<typename T>
 void CorrelationFunction<T>::reduce()
 {
-    m_histogram.reset();
-    m_correlation_function.reset();
+    m_histogram.prepare(getAxisSizes()[0]);
+    m_correlation_function.prepare(getAxisSizes()[0]);
 
     // Reduce the bin counts over all threads, then use them to normalize the
     // RDF when computing.
