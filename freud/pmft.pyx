@@ -387,24 +387,24 @@ cdef class PMFTXY(_PMFT):
         if type(self) is PMFTXY:
             del self.pmftxyptr
 
-    def compute(self, system, orientations, query_points=None,
+    def compute(self, system, query_orientations, query_points=None,
                 neighbors=None, reset=True):
         R"""Calculates the positional correlation function and adds to the
         current histogram.
 
         .. note::
-            If ``query_points`` are provided, the orientations are assigned to
-            the ``query_points``, not the system's points. This behavior is
-            expected since when both sets of points are given, the orientations
-            of the system points are irrelevant (that dimension is integrated
-            out by this calculation).
+            The orientations of the system points are irrelevant for this
+            calculation because that dimension is integrated out. The provided
+            ``query_orientations`` are therefore always associated with
+            ``query_points`` (which are equal to the system points of no
+            ``query_points`` are explicitly provided.
 
         Args:
             system:
                 Any object that is a valid argument to
                 :class:`freud.locality.NeighborQuery.from_system`.
-            orientations ((:math:`N_{points}`, 4) or (:math:`N_{points}`,) :class:`numpy.ndarray`):
-                Orientations associated with system points that are used to
+            query_orientations ((:math:`N_{query\_points}`, 4) or (:math:`N_{query\_points}`,) :class:`numpy.ndarray`):
+                Orientations associated with query points that are used to
                 calculate bonds. If the array is one-dimensional, the values
                 are treated as angles in radians corresponding to
                 **counterclockwise** rotations about the z axis.
@@ -437,12 +437,12 @@ cdef class PMFTXY(_PMFT):
             self._preprocess_arguments(
                 system, query_points, neighbors)
 
-        orientations = _gen_angle_array(
-            orientations, shape=(nq.points.shape[0], ))
-        cdef const float[::1] l_orientations = orientations
+        query_orientations = _gen_angle_array(
+            query_orientations, shape=(nq.points.shape[0], ))
+        cdef const float[::1] l_query_orientations = query_orientations
 
         self.pmftxyptr.accumulate(nq.get_ptr(),
-                                  <float*> &l_orientations[0],
+                                  <float*> &l_query_orientations[0],
                                   <vec3[float]*> &l_query_points[0, 0],
                                   num_query_points, nlist.get_ptr(),
                                   dereference(qargs.thisptr))

@@ -593,7 +593,7 @@ cdef class EnvironmentCluster(_MatchEnv):
 
     @Compute._computed_property
     def cluster_environments(self):
-        """:math:`\\left(N_{clusters}, N_{neighbors}, 3\\right`
+        """:math:`\\left(N_{clusters}, N_{neighbors}, 3\\right)`
         :class:`numpy.ndarray`): The environments for all clusters."""
         envs = self.thisptr.getClusterEnvironments()
         return [np.asarray([[p.x, p.y, p.z] for p in env])
