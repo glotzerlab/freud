@@ -3,7 +3,7 @@
 
 R"""
 The :class:`freud.pmft` module allows for the calculation of the Potential of
-Mean Force and Torque (PMFT) [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in a
+Mean Force and Torque (PMFT) :cite:`vanAnders:2014aa,van_Anders_2013` in a
 number of different coordinate systems. The shape of the arrays computed by
 this module depend on the coordinate system used, with space discretized into a
 set of bins created by the PMFT object's constructor. Each query point's
@@ -13,7 +13,7 @@ and/or orientations of the particles. Next, the positional correlation function
 number of accumulated frames, bin sizes (the Jacobian), and query point
 number density. The PMFT is then defined as the negative logarithm of the PCF.
 For further descriptions of the numerical methods used to compute the PMFT,
-refer to the supplementary information of [vanAndersKlotsa2014]_.
+refer to the supplementary information of :cite:`vanAnders:2014aa`.
 
 .. note::
     The coordinate system in which the calculation is performed is not the same
@@ -98,7 +98,7 @@ def _gen_angle_array(orientations, shape):
 
 
 cdef class _PMFT(_SpatialHistogram):
-    R"""Compute the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ for a
+    R"""Compute the PMFT :cite:`vanAnders:2014aa,van_Anders_2013` for a
     given set of points.
 
     This class provides an abstract interface for computing the PMFT.
@@ -130,7 +130,7 @@ cdef class _PMFT(_SpatialHistogram):
 
 
 cdef class PMFTR12(_PMFT):
-    R"""Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in a 2D
+    R"""Computes the PMFT :cite:`vanAnders:2014aa,van_Anders_2013` in a 2D
     system described by :math:`r`, :math:`\theta_1`, :math:`\theta_2`.
 
     .. note::
@@ -239,7 +239,7 @@ cdef class PMFTR12(_PMFT):
 
 
 cdef class PMFTXYT(_PMFT):
-    R"""Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ for
+    R"""Computes the PMFT :cite:`vanAnders:2014aa,van_Anders_2013` for
     systems described by coordinates :math:`x`, :math:`y`, :math:`\theta`
     listed in the ``X``, ``Y``, and ``T`` arrays.
 
@@ -353,7 +353,7 @@ cdef class PMFTXYT(_PMFT):
 
 
 cdef class PMFTXY(_PMFT):
-    R"""Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in
+    R"""Computes the PMFT :cite:`vanAnders:2014aa,van_Anders_2013` in
     coordinates :math:`x`, :math:`y` listed in the ``X`` and ``Y`` arrays.
 
     .. note::
@@ -488,7 +488,7 @@ cdef class PMFTXY(_PMFT):
 
 
 cdef class PMFTXYZ(_PMFT):
-    R"""Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in
+    R"""Computes the PMFT :cite:`vanAnders:2014aa,van_Anders_2013` in
     coordinates :math:`x`, :math:`y`, :math:`z`, listed in the ``X``, ``Y``,
     and ``Z`` arrays.
 

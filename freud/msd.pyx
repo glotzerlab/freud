@@ -88,27 +88,27 @@ cdef class MSD(_Compute):
 
       The windowed calculation can be quite computationally intensive. To
       perform this calculation efficiently, we use the algorithm described in
-      [Calandrini2011]_ as described in `this StackOverflow thread
+      :cite:`calandrini2011nmoldyn` as described in `this StackOverflow thread
       <https://stackoverflow.com/questions/34222272/computing-mean-square-displacement-using-python-and-fft>`_.
 
-        .. note::
-            The most intensive part of this calculation is computing an FFT. To
-            maximize performance, freud attempts to use the fastest FFT library
-            available. By default, the order of preference is `pyFFTW
-            <https://github.com/pyFFTW/pyFFTW>`_, SciPy, and then NumPy. If you
-            are experiencing significant slowdowns in calculating the MSD, you
-            may benefit from installing a faster FFT library, which freud will
-            automatically detect. The performance change will be especially
-            noticeable if the length of your trajectory is a number whose prime
-            factorization consists of extremely large prime factors. The
-            standard Cooley-Tukey FFT algorithm performs very poorly in this
-            case, so installing pyFFTW will significantly improve performance.
+      .. note::
+          The most intensive part of this calculation is computing an FFT. To
+          maximize performance, freud attempts to use the fastest FFT library
+          available. By default, the order of preference is `pyFFTW
+          <https://github.com/pyFFTW/pyFFTW>`_, SciPy, and then NumPy. If you
+          are experiencing significant slowdowns in calculating the MSD, you
+          may benefit from installing a faster FFT library, which freud will
+          automatically detect. The performance change will be especially
+          noticeable if the length of your trajectory is a number whose prime
+          factorization consists of extremely large prime factors. The
+          standard Cooley-Tukey FFT algorithm performs very poorly in this
+          case, so installing pyFFTW will significantly improve performance.
 
-            Note that while pyFFTW is released under the BSD 3-Clause license,
-            the FFTW library is available under either GPL or a commercial
-            license. As a result, if you wish to use this module with pyFFTW in
-            code, your code must also be GPL licensed unless you purchase a
-            commercial license.
+          Note that while pyFFTW is released under the BSD 3-Clause license,
+          the FFTW library is available under either GPL or a commercial
+          license. As a result, if you wish to use this module with pyFFTW in
+          code, your code must also be GPL licensed unless you purchase a
+          commercial license.
 
     * :code:`'direct'`:
       Under some circumstances, however, we may be more interested in
