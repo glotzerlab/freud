@@ -8,8 +8,6 @@ bond order data and interpret it in some way to quantify the degree of order in
 a system using a scalar value. This is often done through computing spherical
 harmonics of the bond order diagram, which are the spherical analogue of
 Fourier Transforms.
-
-.. bibliography:: freud.bib
 """
 
 import warnings
