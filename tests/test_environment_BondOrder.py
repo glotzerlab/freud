@@ -116,11 +116,11 @@ class TestBondOrder(unittest.TestCase):
                 bins=(n_bins_theta, n_bins_phi))
 
             # orientations are not used in bod mode
-            ref_orientations = np.array([[1, 0, 0, 0]]*len(points))
-            orientations = np.array([[1, 0, 0, 0]]*len(query_points))
+            orientations = np.array([[1, 0, 0, 0]]*len(points))
+            query_orientations = np.array([[1, 0, 0, 0]]*len(query_points))
 
-            bod.compute(nq, ref_orientations,
-                        query_points, orientations, neighbors=neighbors)
+            bod.compute(nq, orientations, query_points, query_orientations,
+                        neighbors=neighbors)
 
             # we want to make sure that we get 12 nonzero places, so we can
             # test whether we are not considering neighbors between points

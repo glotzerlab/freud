@@ -8,7 +8,6 @@ Box Module
     :nosignatures:
 
     freud.box.Box
-    freud.box.PeriodicBuffer
 
 .. rubric:: Details
 

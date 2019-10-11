@@ -2,12 +2,9 @@
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 R"""
-The :class:`~.Box` class defines the geometry of a simulation box. The module
+The :class:`~.Box` class defines the geometry of a simulation box. The class
 natively supports periodicity by providing the fundamental features for
-wrapping vectors outside the box back into it. The :class:`~.PeriodicBuffer`
-class is used to replicate points across the periodic boundary to assist
-analysis methods that do not recognize periodic boundary conditions or extend
-beyond the limits of one periodicity of the box.
+wrapping vectors outside the box back into it.
 """
 
 import warnings
@@ -18,8 +15,8 @@ import freud.util
 
 from freud.util cimport vec3
 from cython.operator cimport dereference
-from libcpp cimport bool as bool_t
 from cpython.object cimport Py_EQ, Py_NE
+from freud.util cimport _Compute
 
 cimport freud._box
 cimport numpy as np
@@ -612,72 +609,3 @@ cdef BoxFromCPP(const freud._box.Box & cppbox):
     return Box(cppbox.getLx(), cppbox.getLy(), cppbox.getLz(),
                cppbox.getTiltFactorXY(), cppbox.getTiltFactorXZ(),
                cppbox.getTiltFactorYZ(), cppbox.is2D())
-
-
-cdef class PeriodicBuffer:
-    R"""Replicate periodic images of points inside a box."""
-
-    def __cinit__(self):
-        self.thisptr = new freud._box.PeriodicBuffer()
-
-    def __init__(self):
-        pass
-
-    def __dealloc__(self):
-        del self.thisptr
-
-    def compute(self, system, buffer, bool_t images=False):
-        R"""Compute the periodic buffer.
-
-        Args:
-            system:
-                Any object that is a valid argument to
-                :class:`freud.locality.NeighborQuery.from_system`.
-            buffer (float or list of 3 floats):
-                Buffer distance for replication outside the box.
-            images (bool, optional):
-                If ``False``, ``buffer`` is a distance. If ``True``,
-                ``buffer`` is a number of images to replicate in each
-                dimension. Note that one image adds half of a box length to
-                each side, meaning that one image doubles the box side lengths,
-                two images triples the box side lengths, and so on.
-                (Default value = :code:`False`).
-        """
-        cdef freud.locality.NeighborQuery nq = \
-            freud.locality._make_default_nq(system)
-        cdef vec3[float] buffer_vec
-        if np.ndim(buffer) == 0:
-            # catches more cases than np.isscalar
-            buffer_vec = vec3[float](buffer, buffer, buffer)
-        elif len(buffer) == 3:
-            buffer_vec = vec3[float](buffer[0], buffer[1], buffer[2])
-        else:
-            raise ValueError('buffer must be a scalar or have length 3.')
-
-        self.thisptr.compute(nq.get_ptr(), buffer_vec, images)
-        return self
-
-    @property
-    def buffer_points(self):
-        """:math:`\\left(N_{buffer}, 3\\right)` :class:`numpy.ndarray`: The
-        buffer point positions."""
-        points = self.thisptr.getBufferPoints()
-        return np.asarray([[p.x, p.y, p.z] for p in points])
-
-    @property
-    def buffer_ids(self):
-        """:math:`\\left(N_{buffer}\\right)` :class:`numpy.ndarray`: The buffer
-        point ids."""
-        return np.asarray(self.thisptr.getBufferIds())
-
-    @property
-    def buffer_box(self):
-        """:class:`freud.box.Box`: The buffer box, expanded to hold the
-        replicated points."""
-        return BoxFromCPP(<freud._box.Box> self.thisptr.getBufferBox())
-
-    def __repr__(self):
-        return "freud.box.{cls}()".format(cls=type(self).__name__)
-
-    def __str__(self):
-        return repr(self)

@@ -19,7 +19,7 @@ from cython.operator cimport dereference
 from libcpp.memory cimport shared_ptr
 from libcpp.vector cimport vector
 from freud._locality cimport ITERATOR_TERMINATOR
-from freud.util cimport Compute
+from freud.util cimport _Compute
 
 cimport freud._locality
 cimport freud.box
@@ -666,8 +666,8 @@ def _make_default_nlist(system, neighbors, query_points=None):
 
 
 cdef class RawPoints(NeighborQuery):
-    R"""Dummy class that only contains minimal information
-    to make C++ side work well."""
+    R"""Class containing :class:`~.box.Box` and points with no spatial data
+    structures for accelerating neighbor queries."""
 
     def __cinit__(self, box, points):
         cdef const float[:, ::1] l_points
@@ -675,8 +675,7 @@ cdef class RawPoints(NeighborQuery):
         if type(self) is RawPoints:
             # Assume valid set of arguments is passed
             b = freud.util._convert_box(box)
-            self.points = freud.util._convert_array(
-                points, shape=(None, 3))
+            self.points = freud.util._convert_array(points, shape=(None, 3))
             l_points = self.points
             self.thisptr = self.nqptr = new freud._locality.RawPoints(
                 dereference(b.thisptr),
@@ -720,10 +719,9 @@ cdef class LinkCell(NeighborQuery):
         points (:class:`np.ndarray`):
             The points to bin into the cell list.
         cell_width (float, optional):
-            Maximum distance to find particles within. If not provided,
-            `~.LinkCell` will estimate a cell width based on the number of
-            points and the box size assuming constant density of points
-            throughout the box.
+            Width of cells. If not provided, `~.LinkCell` will estimate a cell
+            width based on the number of points and the box size assuming
+            constant density of points throughout the box.
     """
 
     def __cinit__(self, box, points, cell_width=0):
@@ -742,141 +740,11 @@ cdef class LinkCell(NeighborQuery):
 
     @property
     def cell_width(self):
-        """float: Maximum distance to find particles within."""
+        """float: Cell width."""
         return self.thisptr.getCellWidth()
 
 
-cdef class Voronoi(Compute):
-    R"""Computes Voronoi diagrams using voro++.
-
-    Voronoi diagrams (`Wikipedia
-    <https://en.wikipedia.org/wiki/Voronoi_diagram>`_) are composed of convex
-    polytopes (polyhedra in 3D, polygons in 2D) called cells, corresponding to
-    each input point. The cells bound a region of Euclidean space for which all
-    contained points are closer to a corresponding input point than any other
-    input point. A ridge is defined as a boundary between cells, which contains
-    points equally close to two or more input points.
-
-    The voro++ library [Rycroft2009]_ is used for fast computations of the
-    Voronoi diagram.
-
-    .. [Rycroft2009] Rycroft, Chris (2009). Voro++: a three-dimensional Voronoi
-       cell library in C++. Technical Report. https://doi.org/10.2172/946741
-    """
-
-    def __cinit__(self):
-        self.thisptr = new freud._locality.Voronoi()
-        self._nlist = NeighborList()
-
-    def __dealloc__(self):
-        del self.thisptr
-
-    def compute(self, system):
-        R"""Compute Voronoi diagram.
-
-        Args:
-            system:
-                Any object that is a valid argument to
-                :class:`freud.locality.NeighborQuery.from_system`.
-        """
-        cdef NeighborQuery nq = NeighborQuery.from_system(system)
-        self.thisptr.compute(nq.get_ptr())
-        self._box = nq.box
-        return self
-
-    @Compute._computed_property
-    def polytopes(self):
-        """list[:class:`numpy.ndarray`]: A list of :class:`numpy.ndarray`
-        defining Voronoi polytope vertices for each cell."""
-        polytopes = []
-        cdef vector[vector[vec3[double]]] raw_polytopes = \
-            self.thisptr.getPolytopes()
-        cdef size_t i
-        cdef size_t j
-        cdef size_t num_verts
-        cdef vector[vec3[double]] raw_vertices
-        cdef double[:, ::1] polytope_vertices
-        for i in range(raw_polytopes.size()):
-            raw_vertices = raw_polytopes[i]
-            num_verts = raw_vertices.size()
-            polytope_vertices = np.empty((num_verts, 3), dtype=np.float64)
-            for j in range(num_verts):
-                polytope_vertices[j, 0] = raw_vertices[j].x
-                polytope_vertices[j, 1] = raw_vertices[j].y
-                polytope_vertices[j, 2] = raw_vertices[j].z
-            polytopes.append(np.asarray(polytope_vertices))
-        return polytopes
-
-    @Compute._computed_property
-    def volumes(self):
-        """:math:`\\left(N_{points} \\right)` :class:`numpy.ndarray`: Returns
-        an array of Voronoi cell volumes (areas in 2D)."""
-        return freud.util.make_managed_numpy_array(
-            &self.thisptr.getVolumes(),
-            freud.util.arr_type_t.DOUBLE)
-
-    @Compute._computed_property
-    def nlist(self):
-        R"""Returns the computed :class:`~.locality.NeighborList`.
-
-        The :class:`~.locality.NeighborList` computed by this class is
-        weighted. In 2D systems, the bond weight is the length of the ridge
-        (boundary line) between the neighboring points' Voronoi cells. In 3D
-        systems, the bond weight is the area of the ridge (boundary polygon)
-        between the neighboring points' Voronoi cells. The weights are not
-        normalized, and the weights for each query point sum to the surface
-        area (perimeter in 2D) of the polytope.
-
-        It is possible for pairs of points to appear multiple times in the
-        neighbor list. For example, in a small unit cell, points may neighbor
-        one another on multiple sides because of periodic boundary conditions.
-
-        Returns:
-            :class:`~.locality.NeighborList`: Neighbor list.
-        """
-        self._nlist = _nlist_from_cnlist(self.thisptr.getNeighborList().get())
-        return self._nlist
-
-    def __repr__(self):
-        return "freud.locality.{cls}()".format(
-            cls=type(self).__name__)
-
-    def __str__(self):
-        return repr(self)
-
-    def plot(self, ax=None, color_by_sides=True, cmap=None):
-        """Plot Voronoi diagram.
-
-        Args:
-            ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
-                :code:`None`, make a new figure and axis.
-                (Default value = :code:`None`)
-        color_by_sides (bool):
-            If :code:`True`, color cells by the number of sides.
-            If :code:`False`, random colors are used for each cell.
-            (Default value = :code:`True`)
-        cmap (str):
-            Colormap name to use (Default value = :code:`None`).
-
-        Returns:
-            :class:`matplotlib.axes.Axes`: Axis with the plot.
-        """
-        import freud.plot
-        if not self._box.is2D:
-            return None
-        else:
-            return freud.plot.voronoi_plot(
-                self._box, self.polytopes, ax, color_by_sides, cmap)
-
-    def _repr_png_(self):
-        import freud.plot
-        try:
-            return freud.plot.ax_to_bytes(self.plot())
-        except AttributeError:
-            return None
-
-
-cdef class PairCompute(Compute):
+cdef class _PairCompute(_Compute):
     R"""Parent class for all compute classes in freud that depend on finding
     nearest neighbors.
 
@@ -955,7 +823,7 @@ cdef class PairCompute(Compute):
             "compute method.".format(type(self).__name__))
 
 
-cdef class SpatialHistogram(PairCompute):
+cdef class _SpatialHistogram(_PairCompute):
     R"""Parent class for all compute classes in freud that perform a spatial
     binning of particle bonds by distance.
     """
@@ -970,13 +838,13 @@ cdef class SpatialHistogram(PairCompute):
         :code:`{'mode': 'ball', 'r_max': self.r_max}`."""
         return dict(mode="ball", r_max=self.r_max)
 
-    @Compute._computed_property
+    @_Compute._computed_property
     def box(self):
         """:class:`freud.box.Box`: The box object used in the last
         computation."""
         return freud.box.BoxFromCPP(self.histptr.getBox())
 
-    @Compute._computed_property
+    @_Compute._computed_property
     def bin_counts(self):
         """:class:`numpy.ndarray`: The bin counts in the histogram."""
         return freud.util.make_managed_numpy_array(
@@ -1016,8 +884,8 @@ cdef class SpatialHistogram(PairCompute):
         self.histptr.reset()
 
 
-cdef class SpatialHistogram1D(SpatialHistogram):
-    R"""Subclasses SpatialHistogram to provide a simplified API for
+cdef class _SpatialHistogram1D(_SpatialHistogram):
+    R"""Subclasses _SpatialHistogram to provide a simplified API for
     properties of 1-dimensional histograms.
     """
 
@@ -1057,3 +925,202 @@ cdef class SpatialHistogram1D(SpatialHistogram):
     def nbins(self):
         """int: The number of bins in the histogram"""
         return self.histptr.getAxisSizes()[0]
+
+
+cdef class PeriodicBuffer(_Compute):
+    R"""Replicate periodic images of points inside a box."""
+
+    def __cinit__(self):
+        self.thisptr = new freud._locality.PeriodicBuffer()
+
+    def __init__(self):
+        pass
+
+    def __dealloc__(self):
+        del self.thisptr
+
+    def compute(self, system, buffer, cbool images=False):
+        R"""Compute the periodic buffer.
+
+        Args:
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
+            buffer (float or list of 3 floats):
+                Buffer distance for replication outside the box.
+            images (bool, optional):
+                If ``False``, ``buffer`` is a distance. If ``True``,
+                ``buffer`` is a number of images to replicate in each
+                dimension. Note that one image adds half of a box length to
+                each side, meaning that one image doubles the box side lengths,
+                two images triples the box side lengths, and so on.
+                (Default value = :code:`False`).
+        """
+        cdef NeighborQuery nq = _make_default_nq(system)
+        cdef vec3[float] buffer_vec
+        if np.ndim(buffer) == 0:
+            # catches more cases than np.isscalar
+            buffer_vec = vec3[float](buffer, buffer, buffer)
+        elif len(buffer) == 3:
+            buffer_vec = vec3[float](buffer[0], buffer[1], buffer[2])
+        else:
+            raise ValueError('buffer must be a scalar or have length 3.')
+
+        self.thisptr.compute(nq.get_ptr(), buffer_vec, images)
+        return self
+
+    @_Compute._computed_property
+    def buffer_points(self):
+        """:math:`\\left(N_{buffer}, 3\\right)` :class:`numpy.ndarray`: The
+        buffer point positions."""
+        points = self.thisptr.getBufferPoints()
+        return np.asarray([[p.x, p.y, p.z] for p in points])
+
+    @_Compute._computed_property
+    def buffer_ids(self):
+        """:math:`\\left(N_{buffer}\\right)` :class:`numpy.ndarray`: The buffer
+        point ids."""
+        return np.asarray(self.thisptr.getBufferIds())
+
+    @_Compute._computed_property
+    def buffer_box(self):
+        """:class:`freud.box.Box`: The buffer box, expanded to hold the
+        replicated points."""
+        return freud.box.BoxFromCPP(
+            <freud._box.Box> self.thisptr.getBufferBox())
+
+    def __repr__(self):
+        return "freud.locality.{cls}()".format(cls=type(self).__name__)
+
+    def __str__(self):
+        return repr(self)
+
+
+cdef class Voronoi(_Compute):
+    R"""Computes Voronoi diagrams using voro++.
+
+    Voronoi diagrams (`Wikipedia
+    <https://en.wikipedia.org/wiki/Voronoi_diagram>`_) are composed of convex
+    polytopes (polyhedra in 3D, polygons in 2D) called cells, corresponding to
+    each input point. The cells bound a region of Euclidean space for which all
+    contained points are closer to a corresponding input point than any other
+    input point. A ridge is defined as a boundary between cells, which contains
+    points equally close to two or more input points.
+
+    The voro++ library [Rycroft2009]_ is used for fast computations of the
+    Voronoi diagram.
+
+    .. [Rycroft2009] Rycroft, Chris (2009). Voro++: a three-dimensional Voronoi
+       cell library in C++. Technical Report. https://doi.org/10.2172/946741
+    """
+
+    def __cinit__(self):
+        self.thisptr = new freud._locality.Voronoi()
+        self._nlist = NeighborList()
+
+    def __dealloc__(self):
+        del self.thisptr
+
+    def compute(self, system):
+        R"""Compute Voronoi diagram.
+
+        Args:
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
+        """
+        cdef NeighborQuery nq = NeighborQuery.from_system(system)
+        self.thisptr.compute(nq.get_ptr())
+        self._box = nq.box
+        return self
+
+    @_Compute._computed_property
+    def polytopes(self):
+        """list[:class:`numpy.ndarray`]: A list of :class:`numpy.ndarray`
+        defining Voronoi polytope vertices for each cell."""
+        polytopes = []
+        cdef vector[vector[vec3[double]]] raw_polytopes = \
+            self.thisptr.getPolytopes()
+        cdef size_t i
+        cdef size_t j
+        cdef size_t num_verts
+        cdef vector[vec3[double]] raw_vertices
+        cdef double[:, ::1] polytope_vertices
+        for i in range(raw_polytopes.size()):
+            raw_vertices = raw_polytopes[i]
+            num_verts = raw_vertices.size()
+            polytope_vertices = np.empty((num_verts, 3), dtype=np.float64)
+            for j in range(num_verts):
+                polytope_vertices[j, 0] = raw_vertices[j].x
+                polytope_vertices[j, 1] = raw_vertices[j].y
+                polytope_vertices[j, 2] = raw_vertices[j].z
+            polytopes.append(np.asarray(polytope_vertices))
+        return polytopes
+
+    @_Compute._computed_property
+    def volumes(self):
+        """:math:`\\left(N_{points} \\right)` :class:`numpy.ndarray`: Returns
+        an array of Voronoi cell volumes (areas in 2D)."""
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getVolumes(),
+            freud.util.arr_type_t.DOUBLE)
+
+    @_Compute._computed_property
+    def nlist(self):
+        R"""Returns the computed :class:`~.locality.NeighborList`.
+
+        The :class:`~.locality.NeighborList` computed by this class is
+        weighted. In 2D systems, the bond weight is the length of the ridge
+        (boundary line) between the neighboring points' Voronoi cells. In 3D
+        systems, the bond weight is the area of the ridge (boundary polygon)
+        between the neighboring points' Voronoi cells. The weights are not
+        normalized, and the weights for each query point sum to the surface
+        area (perimeter in 2D) of the polytope.
+
+        It is possible for pairs of points to appear multiple times in the
+        neighbor list. For example, in a small unit cell, points may neighbor
+        one another on multiple sides because of periodic boundary conditions.
+
+        Returns:
+            :class:`~.locality.NeighborList`: Neighbor list.
+        """
+        self._nlist = _nlist_from_cnlist(self.thisptr.getNeighborList().get())
+        return self._nlist
+
+    def __repr__(self):
+        return "freud.locality.{cls}()".format(
+            cls=type(self).__name__)
+
+    def __str__(self):
+        return repr(self)
+
+    def plot(self, ax=None, color_by_sides=True, cmap=None):
+        """Plot Voronoi diagram.
+
+        Args:
+            ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
+                :code:`None`, make a new figure and axis.
+                (Default value = :code:`None`)
+        color_by_sides (bool):
+            If :code:`True`, color cells by the number of sides.
+            If :code:`False`, random colors are used for each cell.
+            (Default value = :code:`True`)
+        cmap (str):
+            Colormap name to use (Default value = :code:`None`).
+
+        Returns:
+            :class:`matplotlib.axes.Axes`: Axis with the plot.
+        """
+        import freud.plot
+        if not self._box.is2D:
+            return None
+        else:
+            return freud.plot.voronoi_plot(
+                self._box, self.polytopes, ax, color_by_sides, cmap)
+
+    def _repr_png_(self):
+        import freud.plot
+        try:
+            return freud.plot.ax_to_bytes(self.plot())
+        except AttributeError:
+            return None
