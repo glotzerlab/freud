@@ -878,7 +878,7 @@ class TestPMFTR12ManagedArray(TestManagedArray, unittest.TestCase):
 
     @property
     def computed_properties(self):
-        return ['bin_counts', 'PMFT']
+        return ['bin_counts', 'pmft']
 
     def compute(self):
         box = freud.box.Box.square(10)
@@ -895,7 +895,7 @@ class TestPMFTXYTManagedArray(TestManagedArray, unittest.TestCase):
 
     @property
     def computed_properties(self):
-        return ['bin_counts', 'PMFT']
+        return ['bin_counts', 'pmft']
 
     def compute(self):
         box = freud.box.Box.square(10)
@@ -912,7 +912,7 @@ class TestPMFTXYManagedArray(TestManagedArray, unittest.TestCase):
 
     @property
     def computed_properties(self):
-        return ['bin_counts', 'PMFT']
+        return ['bin_counts', 'pmft']
 
     def compute(self):
         box = freud.box.Box.square(10)
@@ -929,7 +929,7 @@ class TestPMFTXYZManagedArray(TestManagedArray, unittest.TestCase):
 
     @property
     def computed_properties(self):
-        return ['bin_counts', 'PMFT']
+        return ['bin_counts', 'pmft']
 
     def compute(self):
         box = freud.box.Box.cube(10)

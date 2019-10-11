@@ -157,7 +157,7 @@ class TestRDFManagedArray(TestManagedArray, unittest.TestCase):
 
     @property
     def computed_properties(self):
-        return ['RDF', 'n_r', 'bin_counts']
+        return ['rdf', 'n_r', 'bin_counts']
 
     def compute(self):
         box = freud.box.Box.cube(10)
