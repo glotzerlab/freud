@@ -12,6 +12,7 @@ Locality Module
     freud.locality.NeighborList
     freud.locality.NeighborQuery
     freud.locality.NeighborQueryResult
+    freud.locality.PeriodicBuffer
     freud.locality.RawPoints
     freud.locality.Voronoi
 

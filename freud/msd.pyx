@@ -10,7 +10,7 @@ import numpy as np
 import freud.parallel
 import logging
 
-from freud.util cimport Compute
+from freud.util cimport _Compute
 cimport freud.box
 cimport numpy as np
 
@@ -60,7 +60,7 @@ def _autocorrelation(x):
     return res/n[:, np.newaxis]
 
 
-cdef class MSD(Compute):
+cdef class MSD(_Compute):
     R"""Compute the mean squared displacement.
 
     The mean squared displacement (MSD) measures how much particles move over
@@ -218,7 +218,7 @@ cdef class MSD(Compute):
         """:class:`freud.box.Box`: Box used in the calculation."""
         return self._box
 
-    @Compute._computed_property
+    @_Compute._computed_property
     def msd(self):
         """:math:`\\left(N_{frames}, \\right`) :class:`numpy.ndarray`: The mean
         squared displacement."""

@@ -14,7 +14,7 @@
     \brief Replicates points across periodic boundaries.
 */
 
-namespace freud { namespace box {
+namespace freud { namespace locality {
 
 class PeriodicBuffer
 {
@@ -23,13 +23,13 @@ public:
     PeriodicBuffer() {}
 
     //! Get the simulation box
-    const Box& getBox() const
+    const freud::box::Box& getBox() const
     {
         return m_box;
     }
 
     //! Get the buffer box
-    const Box& getBufferBox() const
+    const freud::box::Box& getBufferBox() const
     {
         return m_buffer_box;
     }
@@ -51,12 +51,12 @@ public:
     }
 
 private:
-    Box m_box;  //!< Simulation box of the original points
-    Box m_buffer_box; //!< Simulation box of the replicated points
+    freud::box::Box m_box;  //!< Simulation box of the original points
+    freud::box::Box m_buffer_box; //!< Simulation box of the replicated points
     std::vector<vec3<float> > m_buffer_points; //!< The replicated points
     std::vector<unsigned int> m_buffer_ids; //!< The replicated points' original point ids
 };
 
-}; }; // end namespace freud::box
+}; }; // end namespace freud::locality
 
 #endif // PERIODIC_BUFFER_H

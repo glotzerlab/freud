@@ -9,7 +9,7 @@
     \brief Replicates points across periodic boundaries.
 */
 
-namespace freud { namespace box {
+namespace freud { namespace locality {
 
 void PeriodicBuffer::compute(const freud::locality::NeighborQuery* neighbor_query,
                              const vec3<float> buff, const bool use_images)
@@ -34,12 +34,12 @@ void PeriodicBuffer::compute(const freud::locality::NeighborQuery* neighbor_quer
     {
         images = vec3<int>(ceil(buff.x), ceil(buff.y), ceil(buff.z));
         m_buffer_box
-            = Box((1 + images.x) * L.x, (1 + images.y) * L.y, (1 + images.z) * L.z, xy, xz, yz, is2D);
+            = freud::box::Box((1 + images.x) * L.x, (1 + images.y) * L.y, (1 + images.z) * L.z, xy, xz, yz, is2D);
     }
     else
     {
         images = vec3<int>(ceil(buff.x / L.x), ceil(buff.y / L.y), ceil(buff.z / L.z));
-        m_buffer_box = Box(L.x + 2 * buff.x, L.y + 2 * buff.y, L.z + 2 * buff.z, xy, xz, yz, is2D);
+        m_buffer_box = freud::box::Box(L.x + 2 * buff.x, L.y + 2 * buff.y, L.z + 2 * buff.z, xy, xz, yz, is2D);
     }
 
     if (is2D)
@@ -109,4 +109,4 @@ void PeriodicBuffer::compute(const freud::locality::NeighborQuery* neighbor_quer
     }
 }
 
-}; }; // end namespace freud::box
+}; }; // end namespace freud::locality

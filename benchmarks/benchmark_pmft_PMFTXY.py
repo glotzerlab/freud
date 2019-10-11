@@ -4,13 +4,12 @@ from benchmark import Benchmark
 from benchmarker import run_benchmarks
 
 
-class BenchmarkPMFTPMFTR12(Benchmark):
-    def __init__(self, L, r_max, n_r, n_t1, n_t2):
+class BenchmarkPMFTPMFTXY(Benchmark):
+    def __init__(self, L, x_max, y_max, bins):
         self.L = L
-        self.r_max = r_max
-        self.n_r = n_r
-        self.n_t1 = n_t1
-        self.n_t2 = n_t2
+        self.x_max = x_max
+        self.y_max = y_max
+        self.bins = bins
 
     def bench_setup(self, N):
         self.box = freud.box.Box.square(self.L)
@@ -19,26 +18,25 @@ class BenchmarkPMFTPMFTR12(Benchmark):
         self.points = np.random.uniform(-self.L/2, self.L/2, (N, 3))
         self.points[:, 2] = 0
         self.orientations = np.random.uniform(0.0, 2*np.pi, (N, 1))
-        self.pmft = freud.pmft.PMFTR12(self.r_max, self.n_r,
-                                       self.n_t1, self.n_t2)
+        self.pmft = freud.pmft.PMFTXY(self.x_max, self.y_max, self.bins)
 
     def bench_run(self, N):
-        self.pmft.compute(self.box, self.points, self.orientations)
+        self.pmft.compute((self.box, self.points), self.orientations)
         self.pmft.bin_counts
 
 
 def run():
     Ns = [100, 500, 1000, 2000]
     number = 100
-    name = 'freud.PMFT.PMFTR12'
+    name = 'freud.PMFT.PMFTXY'
 
     kwargs = {"L": 16.0,
-              "r_max": 5.23,
-              "n_r": 10,
-              "n_t1": 20,
-              "n_t2": 30}
+              "x_max": 3.6,
+              "y_max": 4.2,
+              "bins": (100, 110),
+              }
 
-    return run_benchmarks(name, Ns, number, BenchmarkPMFTPMFTR12,
+    return run_benchmarks(name, Ns, number, BenchmarkPMFTPMFTXY,
                           **kwargs)
 
 
