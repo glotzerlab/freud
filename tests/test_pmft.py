@@ -85,19 +85,19 @@ class TestPMFTR12(unittest.TestCase):
         with self.assertRaises(AttributeError):
             myPMFT.box
         with self.assertRaises(AttributeError):
-            myPMFT.PMFT
+            myPMFT.pmft
 
         myPMFT.compute((box, points), angles, points, angles, reset=False)
 
         myPMFT.bin_counts
-        myPMFT.PMFT
+        myPMFT.pmft
         myPMFT.box
         npt.assert_equal(myPMFT.bin_counts.shape, (nbins, nbins, nbins))
-        npt.assert_equal(myPMFT.PMFT.shape, (nbins, nbins, nbins))
+        npt.assert_equal(myPMFT.pmft.shape, (nbins, nbins, nbins))
 
         myPMFT.compute((box, points), angles, points, angles)
         myPMFT.bin_counts
-        myPMFT.PMFT
+        myPMFT.pmft
         myPMFT.box
 
     def test_two_particles(self):
@@ -178,8 +178,8 @@ class TestPMFTR12(unittest.TestCase):
                          orientations, query_points,
                          query_orientations, neighbors=neighbors)
 
-            self.assertEqual(np.count_nonzero(np.isinf(pmft.PMFT) == 0), 12)
-            self.assertEqual(len(np.unique(pmft.PMFT)), 3)
+            self.assertEqual(np.count_nonzero(np.isinf(pmft.pmft) == 0), 12)
+            self.assertEqual(len(np.unique(pmft.pmft)), 3)
 
 
 class TestPMFTXYT(unittest.TestCase):
@@ -261,19 +261,19 @@ class TestPMFTXYT(unittest.TestCase):
         with self.assertRaises(AttributeError):
             myPMFT.box
         with self.assertRaises(AttributeError):
-            myPMFT.PMFT
+            myPMFT.pmft
 
         myPMFT.compute((box, points), angles, points, angles, reset=False)
 
         myPMFT.bin_counts
-        myPMFT.PMFT
+        myPMFT.pmft
         myPMFT.box
         npt.assert_equal(myPMFT.bin_counts.shape, (nbins, nbins, nbins))
-        npt.assert_equal(myPMFT.PMFT.shape, (nbins, nbins, nbins))
+        npt.assert_equal(myPMFT.pmft.shape, (nbins, nbins, nbins))
 
         myPMFT.compute((box, points), angles, points, angles)
         myPMFT.bin_counts
-        myPMFT.PMFT
+        myPMFT.pmft
         myPMFT.box
 
     def test_two_particles(self):
@@ -363,9 +363,9 @@ class TestPMFTXYT(unittest.TestCase):
             # (corresponding to two consecutive bins) should contain 3 points.
             for i in range(n_t):
                 self.assertEqual(
-                    np.count_nonzero(np.isinf(pmft.PMFT[..., i]) == 0), 3)
+                    np.count_nonzero(np.isinf(pmft.pmft[..., i]) == 0), 3)
 
-            self.assertEqual(len(np.unique(pmft.PMFT)), 2)
+            self.assertEqual(len(np.unique(pmft.pmft)), 2)
 
 
 class TestPMFTXY(unittest.TestCase):
@@ -436,19 +436,19 @@ class TestPMFTXY(unittest.TestCase):
         with self.assertRaises(AttributeError):
             myPMFT.box
         with self.assertRaises(AttributeError):
-            myPMFT.PMFT
+            myPMFT.pmft
 
         myPMFT.compute((box, points), angles, points, reset=False)
 
         myPMFT.bin_counts
-        myPMFT.PMFT
+        myPMFT.pmft
         myPMFT.box
         npt.assert_equal(myPMFT.bin_counts.shape, (nbins, nbins))
-        npt.assert_equal(myPMFT.PMFT.shape, (nbins, nbins))
+        npt.assert_equal(myPMFT.pmft.shape, (nbins, nbins))
 
         myPMFT.compute((box, points), angles, points)
         myPMFT.bin_counts
-        myPMFT.PMFT
+        myPMFT.pmft
         myPMFT.box
 
     def test_two_particles(self):
@@ -541,8 +541,8 @@ class TestPMFTXY(unittest.TestCase):
             pmft.compute(
                 nq, orientations, query_points, neighbors)
 
-            self.assertEqual(np.count_nonzero(np.isinf(pmft.PMFT) == 0), 12)
-            self.assertEqual(len(np.unique(pmft.PMFT)), 2)
+            self.assertEqual(np.count_nonzero(np.isinf(pmft.pmft) == 0), 12)
+            self.assertEqual(len(np.unique(pmft.pmft)), 2)
 
     def test_query_args_nn(self):
         """Test that using nn based query args works."""
@@ -713,20 +713,20 @@ class TestPMFTXYZ(unittest.TestCase):
         with self.assertRaises(AttributeError):
             myPMFT.box
         with self.assertRaises(AttributeError):
-            myPMFT.PMFT
+            myPMFT.pmft
 
         myPMFT.compute((box, points), orientations, points, orientations,
                        reset=False)
 
         myPMFT.bin_counts
-        myPMFT.PMFT
+        myPMFT.pmft
         myPMFT.box
         npt.assert_equal(myPMFT.bin_counts.shape, (nbinsX, nbinsY, nbinsZ))
-        npt.assert_equal(myPMFT.PMFT.shape, (nbinsX, nbinsY, nbinsZ))
+        npt.assert_equal(myPMFT.pmft.shape, (nbinsX, nbinsY, nbinsZ))
 
         myPMFT.compute((box, points), orientations)
         myPMFT.bin_counts
-        myPMFT.PMFT
+        myPMFT.pmft
         myPMFT.box
 
     def test_two_particles(self):
@@ -810,9 +810,9 @@ class TestPMFTXYZ(unittest.TestCase):
 
         # Non-shifted pmft should have no non-inf valued voxels,
         # since the other point is outside the x/y/z max
-        infcheck_noshift = np.isfinite(noshift.PMFT).sum()
+        infcheck_noshift = np.isfinite(noshift.pmft).sum()
         # Shifted pmft should have one non-inf valued voxel
-        infcheck_shift = np.isfinite(shift.PMFT).sum()
+        infcheck_shift = np.isfinite(shift.pmft).sum()
 
         npt.assert_equal(infcheck_noshift, 0)
         npt.assert_equal(infcheck_shift, 1)

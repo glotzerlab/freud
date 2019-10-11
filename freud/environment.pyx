@@ -13,7 +13,7 @@ import warnings
 import freud.locality
 
 from freud.util cimport Compute
-from freud.locality cimport PairCompute, SpatialHistogram
+from freud.locality cimport _PairCompute, _SpatialHistogram
 from freud.util cimport vec3, quat
 from libcpp.vector cimport vector
 from libcpp.map cimport map
@@ -30,7 +30,7 @@ cimport numpy as np
 np.import_array()
 
 
-cdef class BondOrder(SpatialHistogram):
+cdef class BondOrder(_SpatialHistogram):
     R"""Compute the bond orientational order diagram for the system of
     particles.
 
@@ -224,7 +224,7 @@ cdef class BondOrder(SpatialHistogram):
                 return key
 
 
-cdef class LocalDescriptors(PairCompute):
+cdef class LocalDescriptors(_PairCompute):
     R"""Compute a set of descriptors (a numerical "fingerprint") of a particle's
     local environment.
 
@@ -475,7 +475,7 @@ def _is_similar_motif(box, ref_points, points, threshold, registration=False):
     return [np.asarray(l_points), vec_map]
 
 
-cdef class _MatchEnv(PairCompute):
+cdef class _MatchEnv(_PairCompute):
     R"""Parent for environment matching methods. """
     cdef freud._environment.MatchEnv * matchptr
 
@@ -788,7 +788,7 @@ cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
         return self
 
 
-cdef class AngularSeparationNeighbor(PairCompute):
+cdef class AngularSeparationNeighbor(_PairCompute):
     R"""Calculates the minimum angles of separation between particles and
     references."""
     cdef freud._environment.AngularSeparationNeighbor * thisptr
@@ -973,7 +973,7 @@ cdef class AngularSeparationGlobal(Compute):
             cls=type(self).__name__)
 
 
-cdef class LocalBondProjection(PairCompute):
+cdef class LocalBondProjection(_PairCompute):
     R"""Calculates the maximal projection of nearest neighbor bonds for each
     particle onto some set of reference vectors, defined in the particles'
     local reference frame.

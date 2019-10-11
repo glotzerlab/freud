@@ -106,6 +106,9 @@ template<class Real> struct vec3
     //! Implicit cast from vec3<double> to the current Real
     DEVICE vec3(const vec3<double>& a) : x(a.x), y(a.y), z(a.z) {}
 
+    //! Implicit cast from vec3<float> to the current Real
+    DEVICE vec3(const vec3<float>& a) : x(a.x), y(a.y), z(a.z) {}
+
     //! Default construct a 0 vector
     DEVICE vec3() : x(0), y(0), z(0) {}
 

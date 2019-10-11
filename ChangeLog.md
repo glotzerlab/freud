@@ -20,6 +20,7 @@ and this project adheres to
 * NeighborLists and query arguments are now accepted on equal footing by compute methods that involve neighbor finding.
 * 2D PMFTs accept quaternions as well as angles for their orientations.
 * Extensive new documentation including tutorial for new users and reference sections on crucial topics.
+* ClusterProperties computes radius of gyration from the gyration tensor for each cluster.
 
 ### Changed
 * All compute objects that perform neighbor computations now use NeighborQuery internally.
@@ -47,6 +48,7 @@ and this project adheres to
 * Code in the freud.common has been moved to freud.util.
 * PMFTXY2D has been renamed to PMFTXY.
 * Cubatic uses standard library random functions instead of Saru (which has been removed from the repo).
+* Improved Voronoi plotting code.
 
 ### Fixed
 * Steinhardt uses the ThreadStorage class and properly resets memory where needed.
