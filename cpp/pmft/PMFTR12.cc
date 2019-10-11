@@ -59,9 +59,9 @@ PMFTR12::PMFTR12(float r_max, unsigned int n_r, unsigned int n_t1, unsigned int 
 
 //! \internal
 //! helper function to reduce the thread specific arrays into one array
-void PMFTR12::reducePCF()
+void PMFTR12::reduce()
 {
-    reduce([this](size_t i) { return m_inv_jacobian_array[i]; });
+    PMFT::reduce([this](size_t i) { return m_inv_jacobian_array[i]; });
 }
 
 void PMFTR12::accumulate(const locality::NeighborQuery* neighbor_query,

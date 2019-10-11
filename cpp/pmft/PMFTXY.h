@@ -28,7 +28,7 @@ public:
 
     //! \internal
     //! helper function to reduce the thread specific arrays into one array
-    virtual void reducePCF();
+    virtual void reduce();
 
 private:
     float m_jacobian;   //!< Determinant of Jacobian, bin area

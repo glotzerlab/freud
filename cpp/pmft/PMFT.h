@@ -36,17 +36,6 @@ public:
     virtual ~PMFT() {};
 
     //! \internal
-    //! helper function to reduce the thread specific arrays into one array
-    //! Must be implemented by subclasses
-    virtual void reducePCF() = 0;
-
-    //! Implementing pure virtual function from parent class.
-    virtual void reduce()
-    {
-        reducePCF();
-    }
-
-    //! \internal
     // Wrapper to do accumulation.
     /*! \param neighbor_query NeighborQuery object to iterate over
         \param query_points Points
@@ -76,7 +65,7 @@ public:
     void reduce(JacobFactor jf)
     {
         m_pcf_array.prepare(m_histogram.shape());
-        m_histogram.reset();
+        m_histogram.prepare(m_histogram.shape());
 
         float inv_num_dens = m_box.getVolume() / (float) m_n_query_points;
         float norm_factor = (float) 1.0 / ((float) m_frame_counter * (float) m_n_points);
