@@ -6,11 +6,11 @@ The :class:`freud.pmft` module allows for the calculation of the Potential of
 Mean Force and Torque (PMFT) [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in a
 number of different coordinate systems. The shape of the arrays computed by
 this module depend on the coordinate system used, with space discretized into a
-set of bins created by the PMFT object's constructor. Each reference point's
+set of bins created by the PMFT object's constructor. Each query point's
 neighboring points are assigned to bins, determined by the relative positions
 and/or orientations of the particles. Next, the positional correlation function
 (PCF) is computed by normalizing the binned histogram, by dividing out the
-number of accumulated frames, bin sizes (the Jacobian), and reference point
+number of accumulated frames, bin sizes (the Jacobian), and query point
 number density. The PMFT is then defined as the negative logarithm of the PCF.
 For further descriptions of the numerical methods used to compute the PMFT,
 refer to the supplementary information of [vanAndersKlotsa2014]_.

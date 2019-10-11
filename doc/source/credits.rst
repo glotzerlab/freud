@@ -131,6 +131,7 @@ Bradley Dice - **Lead developer**
 * Standardized APIs for order parameters.
 * Added radius of gyration to ClusterProperties.
 * Improved Voronoi plotting code.
+* Corrected number of points/query points in LocalDensity.
 
 Richmond Newman
 
