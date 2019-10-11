@@ -20,12 +20,12 @@ class BenchmarkDensityLocalDensity(Benchmark):
         self.pos = np.random.random_sample((N, 3)).astype(np.float32) \
             * box_size - box_size/2
         self.pos[:, 2] = 0
-        self.ld = freud.density.LocalDensity(self.rcut, 1, 1)
+        self.ld = freud.density.LocalDensity(self.rcut, 1)
         box_size = math.sqrt(N*self.nu)
         self.box = freud.box.Box.square(box_size)
 
     def bench_run(self, N):
-        self.ld.compute(self.box, self.pos)
+        self.ld.compute((self.box, self.pos))
 
 
 def run():

@@ -4,10 +4,11 @@ from benchmark import Benchmark
 from benchmarker import run_benchmarks
 
 
-class BenchmarkOrderTransOrderParameter(Benchmark):
-    def __init__(self, L, rmax):
+class BenchmarkOrderTranslational(Benchmark):
+    def __init__(self, L, r_max, k):
         self.L = L
-        self.rmax = rmax
+        self.r_max = r_max
+        self.k = k
 
     def bench_setup(self, N):
         self.box = freud.box.Box.square(self.L)
@@ -17,22 +18,23 @@ class BenchmarkOrderTransOrderParameter(Benchmark):
                                                    (N, 3)),
                                  dtype=np.float32)
         self.points[:, 2] = 0.0
-        self.top = freud.order.TransOrderParameter(self.rmax)
+        self.top = freud.order.Translational(self.k)
 
     def bench_run(self, N):
-        self.top.compute(self.box, self.points)
+        self.top.compute((self.box, self.points), {'r_max': self.r_max})
 
 
 def run():
     Ns = [100, 500, 1000, 5000, 10000]
     number = 100
-    name = 'freud.order.TransOrderParameter'
+    name = 'freud.order.Translational'
 
     kwargs = {"L": 10,
-              "rmax": 3}
+              "r_max": 3,
+              "k": 6}
 
     return run_benchmarks(name, Ns, number,
-                          BenchmarkOrderTransOrderParameter,
+                          BenchmarkOrderTranslational,
                           **kwargs)
 
 
