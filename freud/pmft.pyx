@@ -3,7 +3,7 @@
 
 R"""
 The :class:`freud.pmft` module allows for the calculation of the Potential of
-Mean Force and Torque (PMFT) [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in a
+Mean Force and Torque (PMFT) :cite:`vanAnders:2014aa,van_Anders_2013` in a
 number of different coordinate systems. The shape of the arrays computed by
 this module depend on the coordinate system used, with space discretized into a
 set of bins created by the PMFT object's constructor. Each reference point's
@@ -13,7 +13,7 @@ and/or orientations of the particles. Next, the positional correlation function
 number of accumulated frames, bin sizes (the Jacobian), and reference point
 number density. The PMFT is then defined as the negative logarithm of the PCF.
 For further descriptions of the numerical methods used to compute the PMFT,
-refer to the supplementary information of [vanAndersKlotsa2014]_.
+refer to the supplementary information of :cite:`vanAnders:2014aa`.
 
 .. note::
     The coordinate system in which the calculation is performed is not the same
@@ -36,6 +36,8 @@ refer to the supplementary information of [vanAndersKlotsa2014]_.
     For any bins where the histogram is zero (i.e. no observations were made
     with that relative position/orientation of particles), the PCF will be zero
     and the PMFT will return :code:`nan`.
+
+.. bibliography:: freud.bib
 """
 
 import numpy as np
@@ -98,7 +100,7 @@ def _gen_angle_array(orientations, shape):
 
 
 cdef class _PMFT(SpatialHistogram):
-    R"""Compute the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ for a
+    R"""Compute the PMFT :cite:`vanAnders:2014aa,van_Anders_2013` for a
     given set of points.
 
     This class provides an abstract interface for computing the PMFT.
@@ -127,7 +129,7 @@ cdef class _PMFT(SpatialHistogram):
 
 
 cdef class PMFTR12(_PMFT):
-    R"""Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in a 2D
+    R"""Computes the PMFT :cite:`vanAnders:2014aa,van_Anders_2013` in a 2D
     system described by :math:`r`, :math:`\theta_1`, :math:`\theta_2`.
 
     .. note::
@@ -238,7 +240,7 @@ cdef class PMFTR12(_PMFT):
 
 
 cdef class PMFTXYT(_PMFT):
-    R"""Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ for
+    R"""Computes the PMFT :cite:`vanAnders:2014aa,van_Anders_2013` for
     systems described by coordinates :math:`x`, :math:`y`, :math:`\theta`
     listed in the ``X``, ``Y``, and ``T`` arrays.
 
@@ -265,10 +267,6 @@ cdef class PMFTXYT(_PMFT):
             If an unsigned int, the number of bins in:math:`x`, :math:`y`, and
             :math:`t`. If a sequence of three integers, interpreted as
             :code:`(num_bins_x, num_bins_y, num_bins_t)`.
-
-    Attributes:
-        PMFT (:math:`\left(N_{x}, N_{y}, N_{\theta}\right)` :class:`numpy.ndarray`):
-            The potential of mean force and torque.
     """  # noqa: E501
     cdef freud._pmft.PMFTXYT * pmftxytptr
 
@@ -364,7 +362,7 @@ cdef class PMFTXYT(_PMFT):
 
 
 cdef class PMFTXY2D(_PMFT):
-    R"""Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in
+    R"""Computes the PMFT :cite:`vanAnders:2014aa,van_Anders_2013` in
     coordinates :math:`x`, :math:`y` listed in the ``X`` and ``Y`` arrays.
 
     The values of :math:`x` and :math:`y` at which to compute the PMFT are
@@ -388,10 +386,6 @@ cdef class PMFTXY2D(_PMFT):
             If an unsigned int, the number of bins in:math:`x`, :math:`y`, and
             :math:`z`. If a sequence of two integers, interpreted as
             :code:`(num_bins_x, num_bins_y)`.
-
-    Attributes:
-        PMFT (:math:`\left(N_{x}, N_{y}\right)` :class:`numpy.ndarray`):
-            The potential of mean force and torque.
     """  # noqa: E501
     cdef freud._pmft.PMFTXY2D * pmftxy2dptr
 
@@ -499,7 +493,7 @@ cdef class PMFTXY2D(_PMFT):
 
 
 cdef class PMFTXYZ(_PMFT):
-    R"""Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in
+    R"""Computes the PMFT :cite:`vanAnders:2014aa,van_Anders_2013` in
     coordinates :math:`x`, :math:`y`, :math:`z`, listed in the ``X``, ``Y``,
     and ``Z`` arrays.
 
@@ -525,10 +519,6 @@ cdef class PMFTXYZ(_PMFT):
             :code:`(num_bins_x, num_bins_y, num_bins_z)`.
         shiftvec (list):
             Vector pointing from ``[0, 0, 0]`` to the center of the PMFT.
-
-    Attributes:
-        PMFT (:math:`\left(N_{x}, N_{y}, N_{z}\right)` :class:`numpy.ndarray`):
-            The potential of mean force and torque.
     """  # noqa: E501
     cdef freud._pmft.PMFTXYZ * pmftxyzptr
     cdef shiftvec

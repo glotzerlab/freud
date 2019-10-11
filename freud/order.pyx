@@ -8,6 +8,8 @@ bond order data and interpret it in some way to quantify the degree of order in
 a system using a scalar value. This is often done through computing spherical
 harmonics of the bond order diagram, which are the spherical analogue of
 Fourier Transforms.
+
+.. bibliography:: freud.bib
 """
 
 import warnings
@@ -416,7 +418,7 @@ cdef class Translational(PairCompute):
 
 
 cdef class Steinhardt(PairCompute):
-    R"""Compute the local Steinhardt [Steinhardt1983]_ rotationally invariant
+    R"""Compute the local Steinhardt :cite:`Steinhardt:1983aa` rotationally invariant
     :math:`Q_l` :math:`W_l` order parameter for a set of points.
 
     Implements the local rotationally invariant :math:`Q_l` or :math:`W_l` order
@@ -587,9 +589,9 @@ cdef class Steinhardt(PairCompute):
 cdef class SolidLiquid(PairCompute):
     R"""Identifies solid-like clusters using dot products of :math:`Q_{lm}`.
 
-    The solid-liquid order parameter [tenWolde1995]_ uses a Steinhardt-like
-    approach to identify solid-like particles. First, a bond parameter
-    :math:`Q_l(i, j)` is computed for each neighbor bond.
+    The solid-liquid order parameter :cite:`Wolde:1995aa,Filion_2010` uses a
+    Steinhardt-like approach to identify solid-like particles. First, a bond
+    parameter :math:`Q_l(i, j)` is computed for each neighbor bond.
 
     If :code:`normalize_Q` is true (default), the bond parameter is given by
     :math:`Q_l(i, j) = \frac{\sum_{m=-l}^{l} \text{Re}~Q_{lm}(i) Q_{lm}^*(j)}
@@ -606,17 +608,6 @@ cdef class SolidLiquid(PairCompute):
     the particle is considered solid-like. Finally, solid-like particles are
     clustered.
 
-    .. [tenWolde1995] ten Wolde, P. R., Ruiz-Montero, M. J., & Frenkel, D.
-       (1995).  Numerical Evidence for bcc Ordering at the Surface of a
-       Critical fcc Nucleus. Phys. Rev. Lett., 75 (2714).
-       https://doi.org/10.1103/PhysRevLett.75.2714
-
-    .. [Filion2010] Filion, L., Hermes, M., Ni, R., & Dijkstra, M. (2010).
-       Crystal nucleation of hard spheres using molecular dynamics, umbrella
-       sampling, and forward flux sampling: A comparison of simulation
-       techniques. J. Chem. Phys. 133 (244115).
-       https://doi.org/10.1063/1.3506838
-
     Args:
         l (unsigned int):
             Spherical harmonic quantum number l.
@@ -624,7 +615,7 @@ cdef class SolidLiquid(PairCompute):
             Value of dot product threshold when evaluating
             :math:`Q_l(i, j)` to determine if a bond is solid-like. For
             :math:`l=6`, 0.7 is generally good for FCC or BCC structures
-            [Filion2010]_.
+            :cite:`Filion_2010`.
         S_threshold (unsigned int):
             Minimum required number of adjacent solid-like bonds for a particle
             to be considered solid-like for clustering. For :math:`l=6`, 6-8
@@ -786,8 +777,6 @@ cdef class RotationalAutocorrelation(Compute):
     analysis of a trajectory, the compute call needs to be
     done at each trajectory frame.
 
-
-    .. bibliography:: freud.bib
 
     Args:
         l (int):
