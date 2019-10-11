@@ -1,2 +1,2 @@
-numpy
-scipy
+numpy>=1.10
+rowan>=1.2

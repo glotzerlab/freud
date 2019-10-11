@@ -5,7 +5,7 @@
 #define CUBATIC_H
 
 #include "VectorMath.h"
-#include "saruprng.h"
+#include <random>
 #include "ManagedArray.h"
 
 /*! \file Cubatic.h
@@ -159,9 +159,11 @@ private:
     /*! To calculate a random quaternion in a way that obeys the right
      *  distribution of angles, we cannot simply just choose 4 random numbers
      *  and then normalize the quaternion. This function implements an
-     *  appropriate calculation.
+     *  appropriate calculation. It is templated to allow easy input of
+     *  parameterized distributions using std::bind.
      */
-    quat<float> calcRandomQuaternion(Saru& saru, float angle_multiplier) const;
+    template <typename T>
+    quat<float> calcRandomQuaternion(T& dist, float angle_multiplier = 1.0) const;
 
     float m_t_initial;         //!< Initial temperature for simulated annealing.
     float m_t_final;           //!< Final temperature for simulated annealing.

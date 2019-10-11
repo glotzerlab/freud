@@ -22,10 +22,8 @@ void LocalDensity::compute(const freud::locality::NeighborQuery* neighbor_query,
 {
     m_box = neighbor_query->getBox();
 
-    const unsigned int n_points = neighbor_query->getNPoints();
-
-    m_density_array.prepare(n_points);
-    m_num_neighbors_array.prepare(n_points);
+    m_density_array.prepare(n_query_points);
+    m_num_neighbors_array.prepare(n_query_points);
 
     const float area = M_PI * m_r_max * m_r_max;
     const float volume = float(4.0/3.0) * M_PI * m_r_max * m_r_max * m_r_max;

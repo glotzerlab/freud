@@ -169,14 +169,15 @@ float Cubatic::calcCubaticOrderParameter(const tensor4 &cubatic_tensor, const te
     return float(1.0) - dot(diff, diff) / dot(cubatic_tensor, cubatic_tensor);
 }
 
-quat<float> Cubatic::calcRandomQuaternion(Saru& saru, float angle_multiplier = 1.0) const
+template <typename T>
+quat<float> Cubatic::calcRandomQuaternion(T& dist, float angle_multiplier) const
 {
-    float theta = saru.s<float>(0, 2.0 * M_PI);
-    float phi = acos(2.0 * saru.s<float>(0, 1) - 1.0);
+    float theta = 2.0 * M_PI * dist();
+    float phi = acos(2.0 * dist() - 1.0);
     vec3<float> axis = vec3<float>(cosf(theta) * sinf(phi), sinf(theta) * sinf(phi), cosf(phi));
     float axis_norm = sqrt(dot(axis, axis));
     axis /= axis_norm;
-    float angle = angle_multiplier * saru.s<float>(0, 1);
+    float angle = angle_multiplier * dist();
     return quat<float>::fromAxisAngle(axis, angle);
 }
 
@@ -254,12 +255,20 @@ void Cubatic::compute(quat<float>* orientations, unsigned int num_orientations)
 
         // create thread-specific rng
         unsigned int thread_start = (unsigned int) r.begin();
-        Saru l_saru(m_seed, thread_start, 0xffaabb);
+
+		std::vector<unsigned int> seed_seq(3);
+		seed_seq[0] = m_seed;
+		seed_seq[1] = thread_start;
+		seed_seq[2] = 0xffaabb;
+		std::seed_seq seed(seed_seq.begin(), seed_seq.end());
+		std::mt19937 rng(seed);
+        std::uniform_real_distribution<float> base_dist(0, 1);
+        auto dist = std::bind(base_dist, rng);
 
         for (size_t i = r.begin(); i != r.end(); i++)
         {
             // need to generate random orientation
-            quat<float> cubatic_orientation = calcRandomQuaternion(l_saru);
+            quat<float> cubatic_orientation = calcRandomQuaternion(dist);
             quat<float> new_orientation = cubatic_orientation;
 
             // now calculate the cubatic tensor
@@ -274,7 +283,7 @@ void Cubatic::compute(quat<float>* orientations, unsigned int num_orientations)
             while ((t_current > m_t_final) && (loop_count < 10000))
             {
                 ++loop_count;
-                new_orientation = calcRandomQuaternion(l_saru, 0.1) * (cubatic_orientation);
+                new_orientation = calcRandomQuaternion(dist, 0.1) * (cubatic_orientation);
                 // now calculate the cubatic tensor
                 tensor4 new_cubatic_tensor = calcCubaticTensor(new_orientation);
                 new_order_parameter = calcCubaticOrderParameter(new_cubatic_tensor, global_tensor);
@@ -288,7 +297,7 @@ void Cubatic::compute(quat<float>* orientations, unsigned int num_orientations)
                 {
                     float boltzmann_factor
                         = exp(-(cubatic_order_parameter - new_order_parameter) / t_current);
-                    if (boltzmann_factor >= l_saru.s<float>(0, 1))
+                    if (boltzmann_factor >= dist())
                     {
                         cubatic_tensor = new_cubatic_tensor;
                         cubatic_order_parameter = new_order_parameter;
@@ -331,7 +340,7 @@ void Cubatic::compute(quat<float>* orientations, unsigned int num_orientations)
         for (size_t i = r.begin(); i != r.end(); i++)
         {
             // The per-particle order parameter is defined as the value of the
-            // cubatic order parameter if the global oreintation was the
+            // cubatic order parameter if the global orientation was the
             // particle orientation, so we can reuse the same machinery.
             m_particle_order_parameter[i] = calcCubaticOrderParameter(calcCubaticTensor(orientations[i]), global_tensor);
         }

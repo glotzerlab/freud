@@ -2,12 +2,9 @@
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 R"""
-The :class:`~.Box` class defines the geometry of a simulation box. The module
+The :class:`~.Box` class defines the geometry of a simulation box. The class
 natively supports periodicity by providing the fundamental features for
-wrapping vectors outside the box back into it. The :class:`~.PeriodicBuffer`
-class is used to replicate points across the periodic boundary to assist
-analysis methods that do not recognize periodic boundary conditions or extend
-beyond the limits of one periodicity of the box.
+wrapping vectors outside the box back into it.
 """
 
 import warnings
@@ -18,8 +15,8 @@ import freud.util
 
 from freud.util cimport vec3
 from cython.operator cimport dereference
-from libcpp cimport bool as bool_t
 from cpython.object cimport Py_EQ, Py_NE
+from freud.util cimport _Compute
 
 cimport freud._box
 cimport numpy as np
@@ -34,11 +31,10 @@ np.import_array()
 cdef class Box:
     R"""The freud Box class for simulation boxes.
 
-    The Box class is defined according to the conventions of the
-    HOOMD-blue simulation software.
-    For more information, please see:
-
-        https://hoomd-blue.readthedocs.io/en/stable/box.html
+    This class defines an arbitrary triclinic geometry within which all points
+    are confined. For more information, see the `documentation
+    <https://freud.readthedocs.io/en/stable/tutorial/periodic.html>`_ on boxes
+    and periodic boundary conditions.
 
     Args:
         Lx (float, optional):
@@ -55,39 +51,7 @@ cdef class Box:
             The yz tilt factor (Default value = 0).
         is2D (bool, optional):
             Whether the box is 2-dimensional. Uses :code:`Lz == 0`
-            if not provided or :code:`None`. (Default value = :code:`None`)
-
-    Attributes:
-        L (:math:`\left(3\right)` :class:`numpy.ndarray`, settable):
-            The box lengths along x, y, and z.
-        Lx (float, settable):
-            The x-dimension length.
-        Ly (float, settable):
-            The y-dimension length.
-        Lz (float, settable):
-            The z-dimension length.
-        xy (float):
-            The xy tilt factor.
-        xz (float):
-            The xz tilt factor.
-        yz (float):
-            The yz tilt factor.
-        is2D (bool):
-            Whether the box is 2D.
-        L_inv (:math:`\left(3\right)` :class:`numpy.ndarray`):
-            The inverse box lengths.
-        volume (float):
-            The box volume (area in 2D).
-        dimensions (int, settable):
-            The number of dimensions (2 or 3).
-        periodic (:math:`\left(3\right)` :class:`numpy.ndarray`, settable):
-            Whether or not the box is periodic in each dimension.
-        periodic_x (bool, settable):
-            Whether or not the box is periodic in x.
-        periodic_y (bool, settable):
-            Whether or not the box is periodic in y.
-        periodic_z (bool, settable):
-            Whether or not the box is periodic in z.
+            if :code:`None`. (Default value = :code:`None`)
     """
 
     def __cinit__(self, Lx, Ly, Lz=0, xy=0, xz=0, yz=0, is2D=None):
@@ -111,6 +75,8 @@ cdef class Box:
 
     @property
     def L(self):
+        """:math:`\\left(3, \\right)` :class:`numpy.ndarray`: Get or set the
+        box lengths along x, y, and z."""
         cdef vec3[float] result = self.thisptr.getL()
         return np.asarray([result.x, result.y, result.z])
 
@@ -132,6 +98,7 @@ cdef class Box:
 
     @property
     def Lx(self):
+        """float: Get or set the x-dimension length."""
         return self.thisptr.getLx()
 
     @Lx.setter
@@ -140,6 +107,7 @@ cdef class Box:
 
     @property
     def Ly(self):
+        """float: Get or set the y-dimension length."""
         return self.thisptr.getLy()
 
     @Ly.setter
@@ -148,6 +116,7 @@ cdef class Box:
 
     @property
     def Lz(self):
+        """float: Get or set the z-dimension length."""
         return self.thisptr.getLz()
 
     @Lz.setter
@@ -156,6 +125,7 @@ cdef class Box:
 
     @property
     def xy(self):
+        """float: Get or set the xy tilt factor."""
         return self.thisptr.getTiltFactorXY()
 
     @xy.setter
@@ -164,6 +134,7 @@ cdef class Box:
 
     @property
     def xz(self):
+        """float: Get or set the xz tilt factor."""
         return self.thisptr.getTiltFactorXZ()
 
     @xz.setter
@@ -172,6 +143,7 @@ cdef class Box:
 
     @property
     def yz(self):
+        """float: Get or set the yz tilt factor."""
         return self.thisptr.getTiltFactorYZ()
 
     @yz.setter
@@ -180,6 +152,7 @@ cdef class Box:
 
     @property
     def dimensions(self):
+        """int: Get or set the number of dimensions (2 or 3)."""
         return 2 if self.is2D else 3
 
     @dimensions.setter
@@ -189,15 +162,19 @@ cdef class Box:
 
     @property
     def is2D(self):
+        """bool: Whether the box is 2D."""
         return self.thisptr.is2D()
 
     @property
     def L_inv(self):
+        """:math:`\\left(3, \\right)` :class:`numpy.ndarray`: The inverse box
+        lengths."""
         cdef vec3[float] result = self.thisptr.getLinv()
         return np.asarray([result.x, result.y, result.z])
 
     @property
     def volume(self):
+        """float: The box volume (area in 2D)."""
         return self.thisptr.getVolume()
 
     def make_absolute(self, fractional_coordinates):
@@ -346,6 +323,8 @@ cdef class Box:
 
     @property
     def periodic(self):
+        """:math:`\\left(3\\right)` :class:`numpy.ndarray`: Get or set the
+        periodicty of the box in each dimension."""
         periodic = self.thisptr.getPeriodic()
         return np.asarray([periodic.x, periodic.y, periodic.z])
 
@@ -360,6 +339,7 @@ cdef class Box:
 
     @property
     def periodic_x(self):
+        """bool: Get or set the periodcity of the box in x."""
         return self.thisptr.getPeriodicX()
 
     @periodic_x.setter
@@ -368,6 +348,7 @@ cdef class Box:
 
     @property
     def periodic_y(self):
+        """bool: Get or set the periodcity of the box in x."""
         return self.thisptr.getPeriodicY()
 
     @periodic_y.setter
@@ -376,6 +357,7 @@ cdef class Box:
 
     @property
     def periodic_z(self):
+        """bool: Get or set the periodcity of the box in x."""
         return self.thisptr.getPeriodicZ()
 
     @periodic_z.setter
@@ -627,77 +609,3 @@ cdef BoxFromCPP(const freud._box.Box & cppbox):
     return Box(cppbox.getLx(), cppbox.getLy(), cppbox.getLz(),
                cppbox.getTiltFactorXY(), cppbox.getTiltFactorXZ(),
                cppbox.getTiltFactorYZ(), cppbox.is2D())
-
-
-cdef class PeriodicBuffer:
-    R"""Replicate periodic images of points inside a box.
-
-    Args:
-        box (:py:class:`freud.box.Box`): Simulation box.
-
-    Attributes:
-        buffer_points (:math:`\left(N_{buffer}, 3\right)` :class:`numpy.ndarray`):
-            The buffer point positions.
-        buffer_ids (:math:`\left(N_{buffer}\right)` :class:`numpy.ndarray`):
-            The buffer point ids.
-        buffer_box (:class:`freud.box.Box`):
-            The buffer box, expanded to hold the replicated points.
-    """  # noqa: E501
-
-    def __cinit__(self):
-        self.thisptr = new freud._box.PeriodicBuffer()
-
-    def __init__(self):
-        pass
-
-    def __dealloc__(self):
-        del self.thisptr
-
-    def compute(self, neighbor_query, buffer, bool_t images=False):
-        R"""Compute the periodic buffer.
-
-        Args:
-            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
-                Points used to calculate periodic buffer.
-            buffer (float or list of 3 floats):
-                Buffer distance for replication outside the box.
-            images (bool, optional):
-                If ``False``, ``buffer`` is a distance. If ``True``,
-                ``buffer`` is a number of images to replicate in each
-                dimension. Note that one image adds half of a box length to
-                each side, meaning that one image doubles the box side lengths,
-                two images triples the box side lengths, and so on.
-                (Default value = :code:`None`).
-        """
-        cdef freud.locality.NeighborQuery nq = \
-            freud.locality._make_default_nq(neighbor_query)
-        cdef vec3[float] buffer_vec
-        if np.ndim(buffer) == 0:
-            # catches more cases than np.isscalar
-            buffer_vec = vec3[float](buffer, buffer, buffer)
-        elif len(buffer) == 3:
-            buffer_vec = vec3[float](buffer[0], buffer[1], buffer[2])
-        else:
-            raise ValueError('buffer must be a scalar or have length 3.')
-
-        self.thisptr.compute(nq.get_ptr(), buffer_vec, images)
-        return self
-
-    @property
-    def buffer_points(self):
-        points = self.thisptr.getBufferPoints()
-        return np.asarray([[p.x, p.y, p.z] for p in points])
-
-    @property
-    def buffer_ids(self):
-        return np.asarray(self.thisptr.getBufferIds())
-
-    @property
-    def buffer_box(self):
-        return BoxFromCPP(<freud._box.Box> self.thisptr.getBufferBox())
-
-    def __repr__(self):
-        return "freud.box.{cls}()".format(cls=type(self).__name__)
-
-    def __str__(self):
-        return repr(self)

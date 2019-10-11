@@ -41,7 +41,7 @@ class TestRotationalAutocorrelation(unittest.TestCase):
         ra.particle_order
         ra.order
 
-        self.assertEqual(ra.azimuthal, 2)
+        self.assertEqual(ra.l, 2)
 
     def test_data(self):
         """Regression test against known outputs."""

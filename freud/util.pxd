@@ -94,5 +94,5 @@ cdef inline make_managed_numpy_array(
         _ManagedArrayContainer.init(array, arr_type, element_size))
 
 
-cdef class Compute:
+cdef class _Compute:
     cdef public _called_compute

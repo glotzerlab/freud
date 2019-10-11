@@ -3,7 +3,7 @@
 
 from libcpp.memory cimport shared_ptr
 from libcpp.vector cimport vector
-from libcpp cimport bool as bool_t
+from libcpp cimport bool
 from freud.util cimport vec3
 from libcpp.vector cimport vector
 from libcpp.string cimport string
@@ -14,15 +14,15 @@ ctypedef unsigned int uint
 cdef extern from "Box.h" namespace "freud::box":
     cdef cppclass Box:
         Box()
-        Box(float, bool_t)
-        Box(float, float, float, bool_t)
-        Box(float, float, float, float, float, float, bool_t)
+        Box(float, bool)
+        Box(float, float, float, bool)
+        Box(float, float, float, float, float, float, bool)
 
         void setL(vec3[float])
         void setL(float, float, float)
 
-        void set2D(bool_t)
-        bool_t is2D() const
+        void set2D(bool)
+        bool is2D() const
 
         float getLx() const
         float getLy() const
@@ -52,24 +52,11 @@ cdef extern from "Box.h" namespace "freud::box":
         void unwrap(vec3[float]*, const vec3[int]*,
                     unsigned int) const
 
-        vec3[bool_t] getPeriodic() const
-        bool_t getPeriodicX() const
-        bool_t getPeriodicY() const
-        bool_t getPeriodicZ() const
-        void setPeriodic(bool_t, bool_t, bool_t)
-        void setPeriodicX(bool_t)
-        void setPeriodicY(bool_t)
-        void setPeriodicZ(bool_t)
-
-
-cdef extern from "PeriodicBuffer.h" namespace "freud::box":
-    cdef cppclass PeriodicBuffer:
-        PeriodicBuffer()
-        const Box & getBox() const
-        const Box & getBufferBox() const
-        void compute(
-            const freud._locality.NeighborQuery*,
-            const vec3[float],
-            const bool_t) except +
-        vector[vec3[float]] getBufferPoints() const
-        vector[uint] getBufferIds() const
+        vec3[bool] getPeriodic() const
+        bool getPeriodicX() const
+        bool getPeriodicY() const
+        bool getPeriodicZ() const
+        void setPeriodic(bool, bool, bool)
+        void setPeriodicX(bool)
+        void setPeriodicY(bool)
+        void setPeriodicZ(bool)

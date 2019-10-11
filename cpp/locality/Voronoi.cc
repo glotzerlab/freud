@@ -46,8 +46,8 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
         );
 
         for (size_t query_point_id = 0; query_point_id < n_points; query_point_id++) {
-            auto point = (*nq)[query_point_id];
-            container.put(query_point_id, double(point.x), double(point.y), double(point.z));
+            vec3<double> query_point((*nq)[query_point_id]);
+            container.put(query_point_id, query_point.x, query_point.y, query_point.z);
         }
 
         voro::voronoicell_neighbor cell;
@@ -65,7 +65,7 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
 
                 // Get id and position of current particle
                 const int query_point_id(voronoi_loop.pid());
-                vec3<double> ri(
+                vec3<double> query_point(
                     voronoi_loop.x(),
                     voronoi_loop.y(),
                     voronoi_loop.z()
@@ -76,10 +76,10 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
                 cell.face_vertices(face_vertices);
                 cell.neighbors(neighbors);
                 cell.normals(normals);
-                cell.vertices(ri.x, ri.y, ri.z, vertices);
+                cell.vertices(query_point.x, query_point.y, query_point.z, vertices);
 
-                // Save polytope vertices in system coordinates
-                std::vector<vec3<double>> vec3_vertices;
+                // Compute polytope vertices in relative coordinates
+                std::vector<vec3<double> > relative_vertices;
                 auto vertex_iterator = vertices.begin();
                 while (vertex_iterator != vertices.end()) {
                     double vert_x = *vertex_iterator;
@@ -97,9 +97,27 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
                         }
                         vert_z = 0;
                     }
-                    vec3_vertices.push_back(vec3<double>(vert_x, vert_y, vert_z));
+                    vec3<double> delta = vec3<double>(vert_x, vert_y, vert_z) - query_point;
+                    relative_vertices.push_back(delta);
                 }
-                m_polytopes[query_point_id] = vec3_vertices;
+
+                // Sort relative vertices by their angle in 2D systems
+                if (box.is2D())
+                {
+                    std::sort(relative_vertices.begin(), relative_vertices.end(),
+                            [](const vec3<double> a, const vec3<double> b)
+                            {
+                                return std::atan2(a.y, a.x) < std::atan2(b.y, b.x);
+                            });
+                }
+
+                // Save polytope vertices in system coordinates
+                std::vector<vec3<double> > system_vertices;
+                for (auto vertex_iter = relative_vertices.begin(); vertex_iter != relative_vertices.end(); vertex_iter++)
+                {
+                    system_vertices.push_back((*vertex_iter) + query_point);
+                }
+                m_polytopes[query_point_id] = system_vertices;
 
                 // Save cell volume
                 m_volumes[query_point_id] = cell.volume();
@@ -129,14 +147,14 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
                     const int vertex_id_on_face = face_vertices[face_vertices_index+1];
 
                     // Project the vertex vector onto the face normal to get a
-                    // distance from ri to the face, then double it to get the
-                    // distance to the neighbor particle
+                    // distance from query_point to the face, then double it to
+                    // get the distance to the neighbor particle.
                     const vec3<double> rv(
                         vertices[3*vertex_id_on_face],
                         vertices[3*vertex_id_on_face+1],
                         vertices[3*vertex_id_on_face+2]
                     );
-                    const vec3<double> riv(rv - ri);
+                    const vec3<double> riv(rv - query_point);
                     const float distance(2*dot(riv, normal));
 
 

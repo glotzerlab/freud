@@ -76,7 +76,7 @@ class TestLD(unittest.TestCase):
     def test_points_ne_query_points(self):
         box = freud.box.Box.cube(10)
         points = np.array([[0, 0, 0], [1, 0, 0]])
-        query_points = np.array([[0, 1, 0], [-1, -1, 0]])
+        query_points = np.array([[0, 1, 0], [-1, -1, 0], [4, 0, 0]])
         diameter = 1
         r_max = 2
 
@@ -88,7 +88,7 @@ class TestLD(unittest.TestCase):
         cd0 = 2/v_around
         cd1 = (1 + get_fraction(np.linalg.norm(points[1] - query_points[1]),
                                 r_max, diameter)) / v_around
-        correct_density = [cd0, cd1]
+        correct_density = [cd0, cd1, 0]
         npt.assert_allclose(ld.density, correct_density, rtol=1e-4)
 
 

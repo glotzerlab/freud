@@ -10,7 +10,7 @@ import numpy as np
 import freud.parallel
 import logging
 
-from freud.util cimport Compute
+from freud.util cimport _Compute
 cimport freud.box
 cimport numpy as np
 
@@ -22,9 +22,9 @@ try:
     import pyfftw
     logger.info("Using PyFFTW for FFTs")
 
-    pyfftw.config.NUM_THREADS = min(1, freud.parallel._numThreads)
+    pyfftw.config.NUM_THREADS = min(1, freud.parallel.get_num_threads())
     logger.info("Setting number of threads to {}".format(
-        freud.parallel._numThreads))
+        freud.parallel.get_num_threads()))
 
     # Note that currently these functions are defined to match only the parts
     # of the numpy/scipy API that are actually used below. There is no promise
@@ -60,7 +60,7 @@ def _autocorrelation(x):
     return res/n[:, np.newaxis]
 
 
-cdef class MSD(Compute):
+cdef class MSD(_Compute):
     R"""Compute the mean squared displacement.
 
     The mean squared displacement (MSD) measures how much particles move over
@@ -140,12 +140,6 @@ cdef class MSD(Compute):
         mode (str, optional):
             Mode of calculation. Options are :code:`'window'` and
             :code:`'direct'`.  (Default value = :code:`'window'`).
-
-    Attributes:
-        box (:class:`freud.box.Box`):
-            Box used in the calculation.
-        msd (:math:`\left(N_{frames}, \right)` :class:`numpy.ndarray`):
-            The mean squared displacement.
     """   # noqa: E501
     cdef freud.box.Box _box
     cdef particle_msd
@@ -221,10 +215,13 @@ cdef class MSD(Compute):
 
     @property
     def box(self):
+        """:class:`freud.box.Box`: Box used in the calculation."""
         return self._box
 
-    @Compute._computed_property
+    @_Compute._computed_property
     def msd(self):
+        """:math:`\\left(N_{frames}, \\right`) :class:`numpy.ndarray`: The mean
+        squared displacement."""
         return np.concatenate(self.particle_msd, axis=1).mean(axis=-1)
 
     def reset(self):

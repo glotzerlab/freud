@@ -8,8 +8,8 @@ between sets of points.
 
 import numpy as np
 
-from freud.util cimport Compute
-from freud.locality cimport PairCompute
+from freud.util cimport _Compute
+from freud.locality cimport _PairCompute
 from freud.util cimport vec3
 from cython.operator cimport dereference
 import freud.locality
@@ -23,19 +23,8 @@ cimport numpy as np
 # _always_ do that, or you will have segfaults
 np.import_array()
 
-cdef class Interface(PairCompute):
-    R"""Measures the interface between two sets of points.
-
-    Attributes:
-        point_count (int):
-            Number of particles from :code:`points` on the interface.
-        point_ids (:class:`np.ndarray`):
-            The particle IDs from :code:`points`.
-        query_point_count (int):
-            Number of particles from :code:`query_points` on the interface.
-        query_point_ids (:class:`np.ndarray`):
-            The particle IDs from :code:`query_points`.
-    """
+cdef class Interface(_PairCompute):
+    R"""Measures the interface between two sets of points."""
     cdef const unsigned int[::1] _point_ids
     cdef const unsigned int[::1] _query_point_ids
 
@@ -43,17 +32,22 @@ cdef class Interface(PairCompute):
         self._point_ids = np.empty(0, dtype=np.uint32)
         self._query_point_ids = np.empty(0, dtype=np.uint32)
 
-    def compute(self, neighbor_query, query_points, neighbors=None):
-        R"""Compute the particles at the interface between the two given sets of
-        points.
+    def compute(self, system, query_points, neighbors=None):
+        R"""Compute the particles at the interface between two sets of points.
 
         Args:
-            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
-                One set of particle positions.
-            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`):
-                Other set of particle positions.
-            nlist (:class:`freud.locality.NeighborList`, optional):
-                Neighborlist to use to find bonds (Default value = None).
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
+            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
+                Second set of points (in addition to the system points) to
+                calculate the interface.
+            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
+                Either a :class:`NeighborList <freud.locality.NeighborList>` of
+                neighbor pairs to use in the calculation, or a dictionary of
+                `query arguments
+                <https://freud.readthedocs.io/en/next/querying.html>`_
+                (Default value: None).
         """  # noqa E501
         cdef:
             freud.locality.NeighborQuery nq
@@ -63,26 +57,31 @@ cdef class Interface(PairCompute):
             unsigned int num_query_points
 
         nlist = freud.locality._make_default_nlist(
-            neighbor_query, neighbors, query_points)
+            system, neighbors, query_points)
 
         self._point_ids = np.unique(nlist.point_indices)
         self._query_point_ids = np.unique(nlist.query_point_indices)
         return self
 
-    @Compute._computed_property
+    @_Compute._computed_property
     def point_count(self):
+        """int: Number of particles from :code:`points` on the interface."""
         return len(self._point_ids)
 
-    @Compute._computed_property
+    @_Compute._computed_property
     def point_ids(self):
+        """:class:`np.ndarray`: The particle IDs from :code:`points`."""
         return np.asarray(self._point_ids)
 
-    @Compute._computed_property
+    @_Compute._computed_property
     def query_point_count(self):
+        """int: Number of particles from :code:`query_points` on the
+        interface."""
         return len(self._query_point_ids)
 
-    @Compute._computed_property
+    @_Compute._computed_property
     def query_point_ids(self):
+        """:class:`np.ndarray`: The particle IDs from :code:`query_points`."""
         return np.asarray(self._query_point_ids)
 
     def __repr__(self):

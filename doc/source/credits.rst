@@ -94,6 +94,8 @@ Vyas Ramasubramani - **Lead developer**
 * Rewrote MatchEnv code to fit freud 2.0 API, splitting it into 3 separate calculations and rewriting internals using NeighborQuery objects.
 * Wrote tutorial and reference sections of documentation.
 * Unified util and common packages.
+* Rewrote all docstrings in the package for freud 2.0.
+* Changed Cubatic to use Mersenne Twisters for rng.
 
 Bradley Dice - **Lead developer**
 
@@ -127,6 +129,10 @@ Bradley Dice - **Lead developer**
 * Standardized vector directionality in computes.
 * NeighborQuery support to ClusterProperties, GaussianDensity, Voronoi, PeriodicBuffer, Interface.
 * Standardized APIs for order parameters.
+* Added radius of gyration to ClusterProperties.
+* Improved Voronoi plotting code.
+* Corrected number of points/query points in LocalDensity.
+* Made PeriodicBuffer inherit from _Compute.
 
 Richmond Newman
 

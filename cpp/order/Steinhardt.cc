@@ -45,17 +45,17 @@ template<typename T> std::shared_ptr<T> Steinhardt::makeArray(size_t size)
 void Steinhardt::reallocateArrays(unsigned int Np)
 {
     m_Np = Np;
-    m_Qlmi.prepare({Np, m_num_ms});
-    m_Qlm.prepare(m_num_ms);
-    m_Qli.prepare(Np);
+    m_qlmi.prepare({Np, m_num_ms});
+    m_qlm.prepare(m_num_ms);
+    m_qli.prepare(Np);
     if (m_average)
     {
-        m_QlmiAve.prepare({Np, m_num_ms});
-        m_QliAve.prepare(Np);
+        m_qlmiAve.prepare({Np, m_num_ms});
+        m_qliAve.prepare(Np);
     }
-    if (m_Wl)
+    if (m_wl)
     {
-        m_Wli.prepare(Np);
+        m_wli.prepare(Np);
     }
 }
 
@@ -65,7 +65,7 @@ void Steinhardt::compute(const freud::locality::NeighborList* nlist,
     // Allocate and zero out arrays as necessary.
     reallocateArrays(points->getNPoints());
 
-    // Computes the base Qlmi required for each specialized order parameter
+    // Computes the base qlmi required for each specialized order parameter
     baseCompute(nlist, points, qargs);
 
     if (m_average)
@@ -73,21 +73,21 @@ void Steinhardt::compute(const freud::locality::NeighborList* nlist,
         computeAve(nlist, points, qargs);
     }
 
-    // Reduce Qlm
+    // Reduce qlm
     reduce();
 
-    if (m_Wl)
+    if (m_wl)
     {
         if (m_average)
         {
-            aggregateWl(m_Wli, m_QlmiAve);
+            aggregatewl(m_wli, m_qlmiAve, m_qliAve);
         }
         else
         {
-            aggregateWl(m_Wli, m_Qlmi);
+            aggregatewl(m_wli, m_qlmi, m_qli);
         }
     }
-    m_norm = normalize();
+    m_norm = normalizeSystem();
 }
 
 void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
@@ -97,7 +97,7 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
     const float normalizationfactor = float(4 * M_PI / m_num_ms);
     // For consistency, this reset is done here regardless of whether the array
     // is populated in baseCompute or computeAve.
-    m_Qlm_local.reset();
+    m_qlm_local.reset();
     freud::locality::loopOverNeighborsIterator(points, points->getPoints(), m_Np, qargs, nlist,
         [=](size_t i, std::shared_ptr<freud::locality::NeighborPerPointIterator> ppiter)
         {
@@ -131,7 +131,7 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
 
                 for (unsigned int k = 0; k < m_num_ms; ++k)
                 {
-                    m_Qlmi({static_cast<unsigned int>(i), k}) += weight * Ylm[k];
+                    m_qlmi({static_cast<unsigned int>(i), k}) += weight * Ylm[k];
                 }
                 total_weight += weight;
             } // End loop going over neighbor bonds
@@ -140,18 +140,18 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
             for (unsigned int k = 0; k < m_num_ms; ++k)
             {
                 // Cache the index for efficiency.
-                const unsigned int index = m_Qlmi.getIndex({static_cast<unsigned int>(i), k});
-                m_Qlmi[index] /= total_weight;
+                const unsigned int index = m_qlmi.getIndex({static_cast<unsigned int>(i), k});
+                m_qlmi[index] /= total_weight;
                 // Add the norm, which is the (complex) squared magnitude
-                m_Qli[i] += norm(m_Qlmi[index]);
+                m_qli[i] += norm(m_qlmi[index]);
                 // This array gets populated by computeAve in the averaging case.
                 if (!m_average)
                 {
-                    m_Qlm_local.local()[k] += m_Qlmi[index] / float(m_Np);
+                    m_qlm_local.local()[k] += m_qlmi[index] / float(m_Np);
                 }
             }
-            m_Qli[i] *= normalizationfactor;
-            m_Qli[i] = sqrt(m_Qli[i]);
+            m_qli[i] *= normalizationfactor;
+            m_qli[i] = sqrt(m_qli[i]);
         });
 }
 
@@ -187,10 +187,10 @@ void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
                 {
                     for (unsigned int k = 0; k < m_num_ms; ++k)
                     {
-                        // Adding all the Qlm of the neighbors. We use the
+                        // Adding all the qlm of the neighbors. We use the
                         // vector function signature for indexing into the
                         // arrays for speed.
-                        m_QlmiAve({static_cast<unsigned int>(i), k}) += m_Qlmi({nb2.point_idx, k});
+                        m_qlmiAve({static_cast<unsigned int>(i), k}) += m_qlmi({nb2.point_idx, k});
                     }
                     neighborcount++;
                 } // End loop over particle neighbor's bonds
@@ -200,47 +200,65 @@ void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
             for (unsigned int k = 0; k < m_num_ms; ++k)
             {
                 // Cache the index for efficiency.
-                const unsigned int index = m_QlmiAve.getIndex({static_cast<unsigned int>(i), k});
-                // Adding the Qlm of the particle i itself
-                m_QlmiAve[index] += m_Qlmi[index];
-                m_QlmiAve[index] /= neighborcount;
-                m_Qlm_local.local()[k] += m_QlmiAve[index] / float(m_Np);
+                const unsigned int index = m_qlmiAve.getIndex({static_cast<unsigned int>(i), k});
+                // Adding the qlm of the particle i itself
+                m_qlmiAve[index] += m_qlmi[index];
+                m_qlmiAve[index] /= neighborcount;
+                m_qlm_local.local()[k] += m_qlmiAve[index] / float(m_Np);
                 // Add the norm, which is the complex squared magnitude
-                m_QliAve[i] += norm(m_QlmiAve[index]);
+                m_qliAve[i] += norm(m_qlmiAve[index]);
             }
-            m_QliAve[i] *= normalizationfactor;
-            m_QliAve[i] = sqrt(m_QliAve[i]);
+            m_qliAve[i] *= normalizationfactor;
+            m_qliAve[i] = sqrt(m_qliAve[i]);
         });
 }
 
-float Steinhardt::normalize()
+float Steinhardt::normalizeSystem()
 {
-    if (m_Wl)
+    float calc_norm(0);
+    const float normalizationfactor = 4 * M_PI / m_num_ms;
+    for (unsigned int k = 0; k < m_num_ms; ++k)
+    {
+        // Add the norm, which is the complex squared magnitude
+        calc_norm += norm(m_qlm[k]);
+    }
+    const float ql_system_norm = sqrt(calc_norm * normalizationfactor);
+
+    if (m_wl)
     {
         auto wigner3jvalues = getWigner3j(m_l);
-        return reduceWigner3j(m_Qlm.get(), m_l, wigner3jvalues);
+        float wl_system_norm = reduceWigner3j(m_qlm.get(), m_l, wigner3jvalues);
+
+        // The normalization factor of wl is calculated using qli, which is
+        // equivalent to calculate the normalization factor from qlmi
+        if (m_wl_normalize)
+        {
+            const float wl_normalization = sqrt(normalizationfactor) / ql_system_norm;
+            wl_system_norm *= wl_normalization * wl_normalization * wl_normalization;
+        }
+        return wl_system_norm;
     }
     else
     {
-        const float normalizationfactor = 4 * M_PI / m_num_ms;
-        float calc_norm(0);
-
-        for (unsigned int k = 0; k < m_num_ms; ++k)
-        {
-            // Add the norm, which is the complex squared magnitude
-            calc_norm += norm(m_Qlm[k]);
-        }
-        return sqrt(calc_norm * normalizationfactor);
+        return ql_system_norm;
     }
 }
 
-void Steinhardt::aggregateWl(util::ManagedArray<float> &target, util::ManagedArray<std::complex<float> > &source)
+void Steinhardt::aggregatewl(util::ManagedArray<float> &target,
+    util::ManagedArray<std::complex<float> > &source,
+    util::ManagedArray<float> &normalization_source)
 {
     auto wigner3jvalues = getWigner3j(m_l);
+    const float normalizationfactor = float(4 * M_PI / m_num_ms);
     util::forLoopWrapper(0, m_Np, [&](size_t begin, size_t end) {
         for (size_t i = begin; i < end; ++i)
         {
             target[i] = reduceWigner3j(&(source({static_cast<unsigned int>(i), 0})), m_l, wigner3jvalues);
+            if (m_wl_normalize)
+            {
+                const float normalization = sqrt(normalizationfactor) / normalization_source[i];
+                target[i] *= normalization * normalization * normalization;
+            }
         }
     });
 }
@@ -250,9 +268,9 @@ void Steinhardt::reduce()
     util::forLoopWrapper(0, m_num_ms, [=](size_t begin, size_t end) {
         for (size_t i = begin; i < end; ++i)
         {
-            for (auto Ql_local = m_Qlm_local.begin(); Ql_local != m_Qlm_local.end(); Ql_local++)
+            for (auto ql_local = m_qlm_local.begin(); ql_local != m_qlm_local.end(); ql_local++)
             {
-                m_Qlm[i] += (*Ql_local)[i];
+                m_qlm[i] += (*ql_local)[i];
             }
         }
     });

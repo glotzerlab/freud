@@ -33,7 +33,7 @@ class TestRDF(unittest.TestCase):
 
         # Test protected attribute access
         with self.assertRaises(AttributeError):
-            rdf.RDF
+            rdf.rdf
         with self.assertRaises(AttributeError):
             rdf.box
         with self.assertRaises(AttributeError):
@@ -42,14 +42,14 @@ class TestRDF(unittest.TestCase):
         rdf.compute((box, points), reset=False)
 
         # Test if accessible now
-        rdf.RDF
+        rdf.rdf
         rdf.box
         rdf.n_r
 
         rdf.compute((box, points))
 
         # Test if accessible now
-        rdf.RDF
+        rdf.rdf
         rdf.box
         rdf.n_r
 
@@ -82,7 +82,7 @@ class TestRDF(unittest.TestCase):
                     rdf.compute(nq, neighbors=neighbors)
                 self.assertTrue(rdf.box == box)
                 correct = np.ones(bins, dtype=np.float32)
-                npt.assert_allclose(rdf.RDF, correct, atol=tolerance)
+                npt.assert_allclose(rdf.rdf, correct, atol=tolerance)
 
                 # Numerical integration to compute the running coordination
                 # number will be highly inaccurate, so we can only test up to
@@ -93,7 +93,7 @@ class TestRDF(unittest.TestCase):
                 bin_boundaries = np.array([r_min + dr*i for i in range(bins+1)
                                            if r_min + dr*i <= r_max])
                 bin_volumes = 4/3*np.pi*np.diff(bin_boundaries**3)
-                avg_counts = rdf.RDF*ndens*bin_volumes
+                avg_counts = rdf.rdf*ndens*bin_volumes
                 npt.assert_allclose(rdf.n_r, np.cumsum(avg_counts),
                                     rtol=tolerance)
 
