@@ -3,7 +3,7 @@
 
 R"""
 The :class:`freud.pmft` module allows for the calculation of the Potential of
-Mean Force and Torque (PMFT) [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in a
+Mean Force and Torque (PMFT) :cite:`vanAnders:2014aa,van_Anders_2013` in a
 number of different coordinate systems. The shape of the arrays computed by
 this module depend on the coordinate system used, with space discretized into a
 set of bins created by the PMFT object's constructor. Each query point's
@@ -13,7 +13,7 @@ and/or orientations of the particles. Next, the positional correlation function
 number of accumulated frames, bin sizes (the Jacobian), and query point
 number density. The PMFT is then defined as the negative logarithm of the PCF.
 For further descriptions of the numerical methods used to compute the PMFT,
-refer to the supplementary information of [vanAndersKlotsa2014]_.
+refer to the supplementary information of :cite:`vanAnders:2014aa`.
 
 .. note::
     The coordinate system in which the calculation is performed is not the same
@@ -98,7 +98,7 @@ def _gen_angle_array(orientations, shape):
 
 
 cdef class _PMFT(_SpatialHistogram):
-    R"""Compute the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ for a
+    R"""Compute the PMFT :cite:`vanAnders:2014aa,van_Anders_2013` for a
     given set of points.
 
     This class provides an abstract interface for computing the PMFT.
@@ -130,7 +130,7 @@ cdef class _PMFT(_SpatialHistogram):
 
 
 cdef class PMFTR12(_PMFT):
-    R"""Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in a 2D
+    R"""Computes the PMFT :cite:`vanAnders:2014aa,van_Anders_2013` in a 2D
     system described by :math:`r`, :math:`\theta_1`, :math:`\theta_2`.
 
     .. note::
@@ -171,17 +171,22 @@ cdef class PMFTR12(_PMFT):
             system:
                 Any object that is a valid argument to
                 :class:`freud.locality.NeighborQuery.from_system`.
-            orientations ((:math:`N_{points}`, 4) :class:`numpy.ndarray`):
+            orientations ((:math:`N_{points}`, 4) or (:math:`N_{points}`,) :class:`numpy.ndarray`):
                 Orientations associated with system points that are used to
-                calculate bonds.
+                calculate bonds. If the array is one-dimensional, the values
+                are treated as angles in radians corresponding to
+                **counterclockwise** rotations about the z axis.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Query points used to calculate the correlation function.  Uses
                 the system's points if :code:`None` (Default
                 value = :code:`None`).
             query_orientations ((:math:`N_{query\_points}`, 4) :class:`numpy.ndarray`, optional):
-                Query orientations used to calculate bonds. Uses
-                :code:`orientations` if :code:`None`.  (Default
-                value = :code:`None`).
+                Query orientations associated with query points that are used
+                to calculate bonds. If the array is one-dimensional, the values
+                are treated as angles in radians corresponding to
+                **counterclockwise** rotations about the z axis. Uses
+                :code:`orientations` if :code:`None`.  (Default value =
+                :code:`None`).
             neighbors (:class:`freud.locality.NeighborList` or dict, optional):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
                 neighbor pairs to use in the calculation, or a dictionary of
@@ -234,7 +239,7 @@ cdef class PMFTR12(_PMFT):
 
 
 cdef class PMFTXYT(_PMFT):
-    R"""Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ for
+    R"""Computes the PMFT :cite:`vanAnders:2014aa,van_Anders_2013` for
     systems described by coordinates :math:`x`, :math:`y`, :math:`\theta`
     listed in the ``X``, ``Y``, and ``T`` arrays.
 
@@ -278,17 +283,22 @@ cdef class PMFTXYT(_PMFT):
             system:
                 Any object that is a valid argument to
                 :class:`freud.locality.NeighborQuery.from_system`.
-            orientations ((:math:`N_{points}`, 4) :class:`numpy.ndarray`):
+            orientations ((:math:`N_{points}`, 4) or (:math:`N_{points}`,) :class:`numpy.ndarray`):
                 Orientations associated with system points that are used to
-                calculate bonds.
+                calculate bonds. If the array is one-dimensional, the values
+                are treated as angles in radians corresponding to
+                **counterclockwise** rotations about the z axis.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Query points used to calculate the correlation function.  Uses
                 the system's points if :code:`None` (Default
                 value = :code:`None`).
             query_orientations ((:math:`N_{query\_points}`, 4) :class:`numpy.ndarray`, optional):
-                Query orientations used to calculate bonds. Uses
-                :code:`orientations` if :code:`None`.  (Default
-                value = :code:`None`).
+                Query orientations associated with query points that are used
+                to calculate bonds. If the array is one-dimensional, the values
+                are treated as angles in radians corresponding to
+                **counterclockwise** rotations about the z axis. Uses
+                :code:`orientations` if :code:`None`.  (Default value =
+                :code:`None`).
             neighbors (:class:`freud.locality.NeighborList` or dict, optional):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
                 neighbor pairs to use in the calculation, or a dictionary of
@@ -343,7 +353,7 @@ cdef class PMFTXYT(_PMFT):
 
 
 cdef class PMFTXY(_PMFT):
-    R"""Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in
+    R"""Computes the PMFT :cite:`vanAnders:2014aa,van_Anders_2013` in
     coordinates :math:`x`, :math:`y` listed in the ``X`` and ``Y`` arrays.
 
     .. note::
@@ -377,18 +387,27 @@ cdef class PMFTXY(_PMFT):
         if type(self) is PMFTXY:
             del self.pmftxyptr
 
-    def compute(self, system, orientations, query_points=None,
+    def compute(self, system, query_orientations, query_points=None,
                 neighbors=None, reset=True):
         R"""Calculates the positional correlation function and adds to the
         current histogram.
+
+        .. note::
+            The orientations of the system points are irrelevant for this
+            calculation because that dimension is integrated out. The provided
+            ``query_orientations`` are therefore always associated with
+            ``query_points`` (which are equal to the system points of no
+            ``query_points`` are explicitly provided.
 
         Args:
             system:
                 Any object that is a valid argument to
                 :class:`freud.locality.NeighborQuery.from_system`.
-            orientations ((:math:`N_{points}`, 4) :class:`numpy.ndarray`):
-                Orientations associated with system points that are used to
-                calculate bonds.
+            query_orientations ((:math:`N_{query\_points}`, 4) or (:math:`N_{query\_points}`,) :class:`numpy.ndarray`):
+                Orientations associated with query points that are used to
+                calculate bonds. If the array is one-dimensional, the values
+                are treated as angles in radians corresponding to
+                **counterclockwise** rotations about the z axis.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Query points used to calculate the correlation function.  Uses
                 the system's points if :code:`None` (Default
@@ -418,12 +437,12 @@ cdef class PMFTXY(_PMFT):
             self._preprocess_arguments(
                 system, query_points, neighbors)
 
-        orientations = _gen_angle_array(
-            orientations, shape=(nq.points.shape[0], ))
-        cdef const float[::1] l_orientations = orientations
+        query_orientations = _gen_angle_array(
+            query_orientations, shape=(nq.points.shape[0], ))
+        cdef const float[::1] l_query_orientations = query_orientations
 
         self.pmftxyptr.accumulate(nq.get_ptr(),
-                                  <float*> &l_orientations[0],
+                                  <float*> &l_query_orientations[0],
                                   <vec3[float]*> &l_query_points[0, 0],
                                   num_query_points, nlist.get_ptr(),
                                   dereference(qargs.thisptr))
@@ -469,7 +488,7 @@ cdef class PMFTXY(_PMFT):
 
 
 cdef class PMFTXYZ(_PMFT):
-    R"""Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in
+    R"""Computes the PMFT :cite:`vanAnders:2014aa,van_Anders_2013` in
     coordinates :math:`x`, :math:`y`, :math:`z`, listed in the ``X``, ``Y``,
     and ``Z`` arrays.
 

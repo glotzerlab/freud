@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 np.import_array()
 
 cdef class Cubatic(_Compute):
-    R"""Compute the cubatic order parameter [HajiAkbari2015]_ for a system of
+    R"""Compute the cubatic order parameter :cite:`Haji_Akbari_2015` for a system of
     particles using simulated annealing instead of Newton-Raphson root finding.
 
     Args:
@@ -400,8 +400,8 @@ cdef class Translational(_PairCompute):
 
 
 cdef class Steinhardt(_PairCompute):
-    R"""Compute the local Steinhardt [Steinhardt1983]_ rotationally invariant
-    :math:`q_l` :math:`w_l` order parameter for a set of points.
+    R"""Compute the local Steinhardt :cite:`Steinhardt:1983aa` rotationally invariant
+    :math:`Q_l` :math:`W_l` order parameter for a set of points.
 
     Implements the local rotationally invariant :math:`q_l` or :math:`w_l`
     order parameter described by Steinhardt. For a particle i, we calculate the
@@ -423,7 +423,7 @@ cdef class Steinhardt(_PairCompute):
 
     The average argument in the constructor provides access to a variant of
     this parameter that performs a average over the first and second shell
-    combined [Lechner2008]_. To compute this parameter, we perform a second
+    combined :cite:`Lechner_2008`. To compute this parameter, we perform a second
     averaging over the first neighbor shell of the particle to implicitly
     include information about the second neighbor shell. This averaging is
     performed by replacing the value :math:`\overline{q}_{lm}(i)` in the
@@ -590,9 +590,9 @@ cdef class Steinhardt(_PairCompute):
 cdef class SolidLiquid(_PairCompute):
     R"""Identifies solid-like clusters using dot products of :math:`q_{lm}`.
 
-    The solid-liquid order parameter [tenWolde1995]_ uses a Steinhardt-like
-    approach to identify solid-like particles. First, a bond parameter
-    :math:`q_l(i, j)` is computed for each neighbor bond.
+    The solid-liquid order parameter :cite:`Wolde:1995aa,Filion_2010` uses a
+    Steinhardt-like approach to identify solid-like particles. First, a bond
+    parameter :math:`q_l(i, j)` is computed for each neighbor bond.
 
     If :code:`normalize_q` is true (default), the bond parameter is given by
     :math:`q_l(i, j) = \frac{\sum_{m=-l}^{l} \text{Re}~q_{lm}(i) q_{lm}^*(j)}
@@ -609,17 +609,6 @@ cdef class SolidLiquid(_PairCompute):
     the particle is considered solid-like. Finally, solid-like particles are
     clustered.
 
-    .. [tenWolde1995] ten Wolde, P. R., Ruiz-Montero, M. J., & Frenkel, D.
-       (1995).  Numerical Evidence for bcc Ordering at the Surface of a
-       Critical fcc Nucleus. Phys. Rev. Lett., 75 (2714).
-       https://doi.org/10.1103/PhysRevLett.75.2714
-
-    .. [Filion2010] Filion, L., Hermes, M., Ni, R., & Dijkstra, M. (2010).
-       Crystal nucleation of hard spheres using molecular dynamics, umbrella
-       sampling, and forward flux sampling: A comparison of simulation
-       techniques. J. Chem. Phys. 133 (244115).
-       https://doi.org/10.1063/1.3506838
-
     Args:
         l (unsigned int):
             Spherical harmonic quantum number l.
@@ -627,7 +616,7 @@ cdef class SolidLiquid(_PairCompute):
             Value of dot product threshold when evaluating
             :math:`q_l(i, j)` to determine if a bond is solid-like. For
             :math:`l=6`, 0.7 is generally good for FCC or BCC structures
-            [Filion2010]_.
+            :cite:`Filion_2010`.
         solid_threshold (unsigned int):
             Minimum required number of adjacent solid-like bonds for a particle
             to be considered solid-like for clustering. For :math:`l=6`, 6-8
@@ -773,15 +762,28 @@ cdef class SolidLiquid(_PairCompute):
 
 
 cdef class RotationalAutocorrelation(_Compute):
-    """Calculates a measure of total rotational autocorrelation based on
-    hyperspherical harmonics as laid out in "Design rules for engineering
-    colloidal plastic crystals of hard polyhedra - phase behavior and
-    directional entropic forces" by Karas et al. (currently in preparation).
-    The output is not a correlation function, but rather a scalar value that
-    measures total system orientational correlation with an initial state. As
-    such, the output can be treated as an order parameter measuring degrees of
-    rotational (de)correlation. For analysis of a trajectory, the compute call
-    needs to be done at each trajectory frame.
+    """Calculates a measure of total rotational autocorrelation.
+
+    For any calculation of rotational correlations of extended (i.e. non-point)
+    particles, encoding the symmetries of these particles is crucial to
+    appropriately determining correlations. For systems of anisotropic
+    particles in three dimensions, representing such equivalence can be quite
+    mathematically challenging. This calculation is based on the hyperspherical
+    harmonics as laid out in :cite:`Karas2019`. Generalizations of spherical
+    harmonics to four dimensions, hyperspherical harmonics provide a natural
+    basis for periodic functions in 4 dimensions just as harmonic functions
+    (sines and cosines) or spherical harmonics do in lower dimensions. The idea
+    behind this calculation is to embed orientation quaternions into a
+    4-dimensional space and then use hyperspherical harmonics to find
+    correlations in a symmetry-aware fashion.
+
+    The choice of the hyperspherical harmonic parameter :math:`l` determines
+    the symmetry of the functions. The output is not a correlation function,
+    but rather a scalar value that measures total system orientational
+    correlation with an initial state. As such, the output can be treated as an
+    order parameter measuring degrees of rotational (de)correlation. For
+    analysis of a trajectory, the compute call needs to be
+    done at each trajectory frame.
 
     Args:
         l (int):

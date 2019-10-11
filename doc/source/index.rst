@@ -42,7 +42,7 @@ Table of Contents
 
    development
    citing
-   references
+   zreferences
    license
    credits
 

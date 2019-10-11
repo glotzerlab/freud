@@ -49,6 +49,7 @@ and this project adheres to
 * PMFTXY2D has been renamed to PMFTXY.
 * Cubatic uses standard library random functions instead of Saru (which has been removed from the repo).
 * Improved Voronoi plotting code.
+* Citations are now included using bibtex and sphinxcontrib-bibtex.
 
 ### Fixed
 * Steinhardt uses the ThreadStorage class and properly resets memory where needed.

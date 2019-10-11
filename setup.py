@@ -463,6 +463,11 @@ except SystemExit:
     # The errors we're explicitly checking for are whether or not
     # TBB is missing, and whether a parallel compile resulted in a
     # distutils-caused race condition.
+    # See these threads for more info:
+    # https://github.com/scipy/scipy/issues/7112#issuecomment-369993514
+    # https://github.com/numpy/numpy/issues/13080
+    # And here's the original introduction of parallelism to setup(...)
+    # https://bugs.python.org/issue5309
     parallel_err = "file not recognized: file truncated"
     tbb_err = "'tbb/tbb.h' file not found"
 
