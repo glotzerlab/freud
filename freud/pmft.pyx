@@ -171,17 +171,22 @@ cdef class PMFTR12(_PMFT):
             system:
                 Any object that is a valid argument to
                 :class:`freud.locality.NeighborQuery.from_system`.
-            orientations ((:math:`N_{points}`, 4) :class:`numpy.ndarray`):
+            orientations ((:math:`N_{points}`, 4) or (:math:`N_{points}`,) :class:`numpy.ndarray`):
                 Orientations associated with system points that are used to
-                calculate bonds.
+                calculate bonds. If the array is one-dimensional, the values
+                are treated as angles in radians corresponding to
+                **counterclockwise** rotations about the z axis.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Query points used to calculate the correlation function.  Uses
                 the system's points if :code:`None` (Default
                 value = :code:`None`).
             query_orientations ((:math:`N_{query\_points}`, 4) :class:`numpy.ndarray`, optional):
-                Query orientations used to calculate bonds. Uses
-                :code:`orientations` if :code:`None`.  (Default
-                value = :code:`None`).
+                Query orientations associated with query points that are used
+                to calculate bonds. If the array is one-dimensional, the values
+                are treated as angles in radians corresponding to
+                **counterclockwise** rotations about the z axis. Uses
+                :code:`orientations` if :code:`None`.  (Default value =
+                :code:`None`).
             neighbors (:class:`freud.locality.NeighborList` or dict, optional):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
                 neighbor pairs to use in the calculation, or a dictionary of
@@ -278,17 +283,22 @@ cdef class PMFTXYT(_PMFT):
             system:
                 Any object that is a valid argument to
                 :class:`freud.locality.NeighborQuery.from_system`.
-            orientations ((:math:`N_{points}`, 4) :class:`numpy.ndarray`):
+            orientations ((:math:`N_{points}`, 4) or (:math:`N_{points}`,) :class:`numpy.ndarray`):
                 Orientations associated with system points that are used to
-                calculate bonds.
+                calculate bonds. If the array is one-dimensional, the values
+                are treated as angles in radians corresponding to
+                **counterclockwise** rotations about the z axis.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Query points used to calculate the correlation function.  Uses
                 the system's points if :code:`None` (Default
                 value = :code:`None`).
             query_orientations ((:math:`N_{query\_points}`, 4) :class:`numpy.ndarray`, optional):
-                Query orientations used to calculate bonds. Uses
-                :code:`orientations` if :code:`None`.  (Default
-                value = :code:`None`).
+                Query orientations associated with query points that are used
+                to calculate bonds. If the array is one-dimensional, the values
+                are treated as angles in radians corresponding to
+                **counterclockwise** rotations about the z axis. Uses
+                :code:`orientations` if :code:`None`.  (Default value =
+                :code:`None`).
             neighbors (:class:`freud.locality.NeighborList` or dict, optional):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
                 neighbor pairs to use in the calculation, or a dictionary of
@@ -382,13 +392,22 @@ cdef class PMFTXY(_PMFT):
         R"""Calculates the positional correlation function and adds to the
         current histogram.
 
+        .. note::
+            If ``query_points`` are provided, the orientations are assigned to
+            the ``query_points``, not the system's points. This behavior is
+            expected since when both sets of points are given, the orientations
+            of the system points are irrelevant (that dimension is integrated
+            out by this calculation).
+
         Args:
             system:
                 Any object that is a valid argument to
                 :class:`freud.locality.NeighborQuery.from_system`.
-            orientations ((:math:`N_{points}`, 4) :class:`numpy.ndarray`):
+            orientations ((:math:`N_{points}`, 4) or (:math:`N_{points}`,) :class:`numpy.ndarray`):
                 Orientations associated with system points that are used to
-                calculate bonds.
+                calculate bonds. If the array is one-dimensional, the values
+                are treated as angles in radians corresponding to
+                **counterclockwise** rotations about the z axis.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Query points used to calculate the correlation function.  Uses
                 the system's points if :code:`None` (Default
