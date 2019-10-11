@@ -171,17 +171,22 @@ cdef class PMFTR12(_PMFT):
             system:
                 Any object that is a valid argument to
                 :class:`freud.locality.NeighborQuery.from_system`.
-            orientations ((:math:`N_{points}`, 4) :class:`numpy.ndarray`):
+            orientations ((:math:`N_{points}`, 4) or (:math:`N_{points}`,) :class:`numpy.ndarray`):
                 Orientations associated with system points that are used to
-                calculate bonds.
+                calculate bonds. If the array is one-dimensional, the values
+                are treated as angles in radians corresponding to
+                **counterclockwise** rotations about the z axis.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Query points used to calculate the correlation function.  Uses
                 the system's points if :code:`None` (Default
                 value = :code:`None`).
             query_orientations ((:math:`N_{query\_points}`, 4) :class:`numpy.ndarray`, optional):
-                Query orientations used to calculate bonds. Uses
-                :code:`orientations` if :code:`None`.  (Default
-                value = :code:`None`).
+                Query orientations associated with query points that are used
+                to calculate bonds. If the array is one-dimensional, the values
+                are treated as angles in radians corresponding to
+                **counterclockwise** rotations about the z axis. Uses
+                :code:`orientations` if :code:`None`.  (Default value =
+                :code:`None`).
             neighbors (:class:`freud.locality.NeighborList` or dict, optional):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
                 neighbor pairs to use in the calculation, or a dictionary of
@@ -278,17 +283,22 @@ cdef class PMFTXYT(_PMFT):
             system:
                 Any object that is a valid argument to
                 :class:`freud.locality.NeighborQuery.from_system`.
-            orientations ((:math:`N_{points}`, 4) :class:`numpy.ndarray`):
+            orientations ((:math:`N_{points}`, 4) or (:math:`N_{points}`,) :class:`numpy.ndarray`):
                 Orientations associated with system points that are used to
-                calculate bonds.
+                calculate bonds. If the array is one-dimensional, the values
+                are treated as angles in radians corresponding to
+                **counterclockwise** rotations about the z axis.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Query points used to calculate the correlation function.  Uses
                 the system's points if :code:`None` (Default
                 value = :code:`None`).
             query_orientations ((:math:`N_{query\_points}`, 4) :class:`numpy.ndarray`, optional):
-                Query orientations used to calculate bonds. Uses
-                :code:`orientations` if :code:`None`.  (Default
-                value = :code:`None`).
+                Query orientations associated with query points that are used
+                to calculate bonds. If the array is one-dimensional, the values
+                are treated as angles in radians corresponding to
+                **counterclockwise** rotations about the z axis. Uses
+                :code:`orientations` if :code:`None`.  (Default value =
+                :code:`None`).
             neighbors (:class:`freud.locality.NeighborList` or dict, optional):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
                 neighbor pairs to use in the calculation, or a dictionary of
@@ -377,18 +387,27 @@ cdef class PMFTXY(_PMFT):
         if type(self) is PMFTXY:
             del self.pmftxyptr
 
-    def compute(self, system, orientations, query_points=None,
+    def compute(self, system, query_orientations, query_points=None,
                 neighbors=None, reset=True):
         R"""Calculates the positional correlation function and adds to the
         current histogram.
+
+        .. note::
+            The orientations of the system points are irrelevant for this
+            calculation because that dimension is integrated out. The provided
+            ``query_orientations`` are therefore always associated with
+            ``query_points`` (which are equal to the system points of no
+            ``query_points`` are explicitly provided.
 
         Args:
             system:
                 Any object that is a valid argument to
                 :class:`freud.locality.NeighborQuery.from_system`.
-            orientations ((:math:`N_{points}`, 4) :class:`numpy.ndarray`):
-                Orientations associated with system points that are used to
-                calculate bonds.
+            query_orientations ((:math:`N_{query\_points}`, 4) or (:math:`N_{query\_points}`,) :class:`numpy.ndarray`):
+                Orientations associated with query points that are used to
+                calculate bonds. If the array is one-dimensional, the values
+                are treated as angles in radians corresponding to
+                **counterclockwise** rotations about the z axis.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Query points used to calculate the correlation function.  Uses
                 the system's points if :code:`None` (Default
@@ -418,12 +437,12 @@ cdef class PMFTXY(_PMFT):
             self._preprocess_arguments(
                 system, query_points, neighbors)
 
-        orientations = _gen_angle_array(
-            orientations, shape=(nq.points.shape[0], ))
-        cdef const float[::1] l_orientations = orientations
+        query_orientations = _gen_angle_array(
+            query_orientations, shape=(nq.points.shape[0], ))
+        cdef const float[::1] l_query_orientations = query_orientations
 
         self.pmftxyptr.accumulate(nq.get_ptr(),
-                                  <float*> &l_orientations[0],
+                                  <float*> &l_query_orientations[0],
                                   <vec3[float]*> &l_query_points[0, 0],
                                   num_query_points, nlist.get_ptr(),
                                   dereference(qargs.thisptr))

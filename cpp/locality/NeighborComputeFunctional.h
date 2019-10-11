@@ -26,8 +26,8 @@ NeighborList makeDefaultNlist(const NeighborQuery *nq, const NeighborList
 
 //! Compute the vector corresponding to a NeighborBond.
 /*! The primary purpose of this function is to standardize the directionality
- * of the delta vector, which is defined as pointing from the point to
- * the query_point (query_point - point), wrapped into the box.
+ * of the delta vector, which is defined as pointing from the query_point to
+ * the point (point - query_point), wrapped into the box.
  */
 inline vec3<float> bondVector(const NeighborBond &nb, const NeighborQuery *nq,
         const vec3<float> *query_points)

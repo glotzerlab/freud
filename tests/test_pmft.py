@@ -627,6 +627,67 @@ class TestPMFTXY(unittest.TestCase):
              [0, 0, 0],
              [0, 1, 0]])
 
+    def test_orientation_with_query_points(self):
+        """The orientations should be associated with the query points if they
+        are provided."""
+        boxSize = 8
+        box = freud.box.Box.square(boxSize)
+        # Don't place the points at exactly distances of 0/1 apart to avoid any
+        # ambiguity when the distances fall on the bin boundaries.
+        points = np.array([[0.1, 0.1, 0]],
+                          dtype=np.float32)
+        points2 = np.array([[1, 0, 0]],
+                           dtype=np.float32)
+        angles = np.array([np.deg2rad(0)]*points.shape[0], dtype=np.float32)
+
+        max_width = 3
+        cells_per_unit_length = 4
+        nbins = max_width * cells_per_unit_length
+        pmft = freud.pmft.PMFTXY(max_width, max_width, nbins)
+
+        # In this case, the only nonzero bin should be in the bin corresponding
+        # to dx=-0.9, dy=0.1, which is (4, 6).
+        pmft.compute((box, points), angles, points2,
+                     neighbors={'mode': 'nearest', 'num_neighbors': 1})
+        npt.assert_array_equal(
+            np.asarray(np.where(pmft.bin_counts)).squeeze(),
+            (4, 6))
+
+        # Now the sets of points are swapped, so dx=0.9, dy=-0.1, which is
+        # (7, 5).
+        pmft.compute((box, points2), angles, points,
+                     neighbors={'mode': 'nearest', 'num_neighbors': 1})
+        npt.assert_array_equal(
+            np.asarray(np.where(pmft.bin_counts)).squeeze(),
+            (7, 5))
+
+        # Apply a rotation to whichever point is provided as a query_point by
+        # 45 degrees (easiest to picture if you think of each point as a
+        # square).
+        angles = np.array([np.deg2rad(45)]*points.shape[0], dtype=np.float32)
+
+        # Determine the relative position of the point when points2 is rotated
+        # by 45 degrees. Since we're undoing the orientation of the orientation
+        # of the particle, we have to conjugate the quaternion.
+        quats = rowan.from_axis_angle([0, 0, 1], angles)
+        bond_vector = rowan.rotate(rowan.conjugate(quats), points - points2)
+        bins = ((bond_vector+max_width)*cells_per_unit_length/2).astype(int)
+        pmft.compute((box, points), angles, points2,
+                     neighbors={'mode': 'nearest', 'num_neighbors': 1})
+        npt.assert_array_equal(
+            np.asarray(np.where(pmft.bin_counts)).squeeze(),
+            bins.squeeze()[:2])
+
+        # If we swap the order of the points, the angle should no longer
+        # matter.
+        pmft.compute((box, points2), angles, points,
+                     neighbors={'mode': 'nearest', 'num_neighbors': 1})
+        bond_vector = rowan.rotate(rowan.conjugate(quats), points2 - points)
+        bins = ((bond_vector+max_width)*cells_per_unit_length/2).astype(int)
+        npt.assert_array_equal(
+            np.asarray(np.where(pmft.bin_counts)).squeeze(),
+            bins.squeeze()[:2])
+
 
 class TestPMFTXYZ(unittest.TestCase):
     def test_box(self):
