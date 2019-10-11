@@ -42,6 +42,7 @@ Table of Contents
 
    development
    citing
+   zreferences
    license
    credits
 
