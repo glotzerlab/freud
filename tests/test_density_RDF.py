@@ -6,6 +6,8 @@ import freud
 import unittest
 import util
 
+from test_managedarray import TestManagedArray
+
 
 class TestRDF(unittest.TestCase):
     def test_generateR(self):
@@ -149,6 +151,22 @@ class TestRDF(unittest.TestCase):
             rdf.compute(nq, query_points, neighbors=neighbors)
 
             npt.assert_allclose(rdf.n_r, supposed_RDF, atol=1e-6)
+
+
+class TestRDFManagedArray(TestManagedArray, unittest.TestCase):
+    def build_object(self):
+        self.obj = freud.density.RDF(50, 3)
+
+    @property
+    def computed_properties(self):
+        return ['RDF', 'n_r']
+
+    def compute(self):
+        box = freud.box.Box.cube(10)
+        num_points = 100
+        points = np.random.rand(
+            num_points, 3)*box.L - box.L/2
+        self.obj.compute((box, points), neighbors={'r_max': 2})
 
 
 if __name__ == '__main__':
