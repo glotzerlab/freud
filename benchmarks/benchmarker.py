@@ -355,8 +355,7 @@ def main_compare(args):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(
-        "Test the runtime performance of freud")
+    parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers()
 
     parser_run = subparsers.add_parser(
@@ -415,4 +414,7 @@ if __name__ == '__main__':
     parser_compare.set_defaults(func=main_compare)
 
     args = parser.parse_args()
+    if not hasattr(args, 'func'):
+        parser.print_usage()
+        sys.exit(2)
     args.func(args)

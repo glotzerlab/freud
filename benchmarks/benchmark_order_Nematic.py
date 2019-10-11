@@ -5,7 +5,7 @@ from benchmarker import run_benchmarks
 import rowan
 
 
-class BenchmarkOrderNematicOrderParameter(Benchmark):
+class BenchmarkOrderNematic(Benchmark):
     def __init__(self, u):
         self.u = u
 
@@ -13,7 +13,7 @@ class BenchmarkOrderNematicOrderParameter(Benchmark):
         seed = 0
         np.random.seed(seed)
         self.orientations = rowan.random.random_sample((N, ))
-        self.nop = freud.order.NematicOrderParameter(np.array(self.u))
+        self.nop = freud.order.Nematic(np.array(self.u))
 
     def bench_run(self, N):
         self.nop.compute(self.orientations)
@@ -22,12 +22,12 @@ class BenchmarkOrderNematicOrderParameter(Benchmark):
 def run():
     Ns = [1000, 5000, 10000]
     number = 100
-    name = 'freud.order.NematicOrderParameter'
+    name = 'freud.order.Nematic'
 
     kwargs = {"u": [1, 0, 0]}
 
     return run_benchmarks(name, Ns, number,
-                          BenchmarkOrderNematicOrderParameter,
+                          BenchmarkOrderNematic,
                           **kwargs)
 
 

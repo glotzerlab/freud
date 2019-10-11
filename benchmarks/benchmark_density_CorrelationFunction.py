@@ -4,39 +4,41 @@ from benchmark import Benchmark
 from benchmarker import run_benchmarks
 
 
-class BenchmarkDensityComplexCF(Benchmark):
-    def __init__(self, rmax, dr):
+class BenchmarkDensityCorrelationFunction(Benchmark):
+    def __init__(self, bins, rmax):
         self.rmax = rmax
-        self.dr = dr
+        self.bins = bins
 
     def bench_setup(self, N):
         self.box_size = self.rmax*3.1
         np.random.seed(0)
         self.points = np.random.random_sample((N, 3)).astype(np.float32) \
             * self.box_size - self.box_size/2
+        self.points[:, 2] = 0
         ang = np.random.random_sample((N)).astype(np.float64) \
             * 2.0 * np.pi
         self.comp = np.exp(1j*ang)
-        self.ocf = freud.density.ComplexCF(self.rmax, self.dr)
+        self.ocf = freud.density.CorrelationFunction(self.bins, self.bins)
         self.box = freud.box.Box.square(self.box_size)
 
     def bench_run(self, N):
-        self.ocf.accumulate(self.box, self.points,
-                            self.comp, self.points, np.conj(self.comp))
-        self.ocf.compute(self.box, self.points,
+        self.ocf.compute((self.box, self.points),
+                         self.comp, self.points, np.conj(self.comp),
+                         reset=False)
+        self.ocf.compute((self.box, self.points),
                          self.comp, self.points, np.conj(self.comp))
 
 
 def run():
     Ns = [1000, 10000]
     rmax = 10.0
-    dr = 1.0
-    name = 'freud.density.ComplexCF'
-    classobj = BenchmarkDensityComplexCF
+    bins = 10
+    name = 'freud.density.CorrelationFunction'
+    classobj = BenchmarkDensityCorrelationFunction
     number = 100
 
     return run_benchmarks(name, Ns, number, classobj,
-                          rmax=rmax, dr=dr)
+                          rmax=rmax, bins=bins)
 
 
 if __name__ == '__main__':

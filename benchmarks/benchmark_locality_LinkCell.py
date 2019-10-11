@@ -5,30 +5,29 @@ from benchmarker import run_benchmarks
 
 
 class BenchmarkLocalityLinkCell(Benchmark):
-    def __init__(self, L, rcut):
+    def __init__(self, L, r_max):
         self.L = L
-        self.rcut = rcut
+        self.r_max = r_max
 
     def bench_setup(self, N):
         self.box = freud.box.Box.cube(self.L)
-        seed = 0
-        np.random.seed(seed)
+        np.random.seed(0)
         self.points = np.random.uniform(-self.L/2, self.L/2, (N, 3))
 
     def bench_run(self, N):
-        lc = freud.locality.LinkCell(self.box, self.rcut)
-        lc.compute(self.box, self.points, self.points, exclude_ii=True)
+        lc = freud.locality.LinkCell(self.box, self.points)
+        lc.query(self.points, {'r_max': self.r_max, 'exclude_ii': True})
 
 
 def run():
     Ns = [1000, 10000]
-    rcut = 1.0
+    r_max = 1.0
     L = 10
     number = 100
 
     name = 'freud.locality.LinkCell'
     return run_benchmarks(name, Ns, number, BenchmarkLocalityLinkCell,
-                          L=L, rcut=rcut)
+                          L=L, r_max=r_max)
 
 
 if __name__ == '__main__':

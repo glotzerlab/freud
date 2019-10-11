@@ -4,10 +4,11 @@ from benchmark import Benchmark
 from benchmarker import run_benchmarks
 
 
-class BenchmarkOrderHexOrderParameter(Benchmark):
-    def __init__(self, L, rmax):
+class BenchmarkOrderHexatic(Benchmark):
+    def __init__(self, L, r_max, k):
         self.L = L
-        self.rmax = rmax
+        self.r_max = r_max
+        self.k = k
 
     def bench_setup(self, N):
         self.box = freud.box.Box.square(self.L)
@@ -17,22 +18,23 @@ class BenchmarkOrderHexOrderParameter(Benchmark):
                                                    (N, 3)),
                                  dtype=np.float32)
         self.points[:, 2] = 0.0
-        self.hop = freud.order.HexOrderParameter(self.rmax)
+        self.hop = freud.order.Hexatic(self.k)
 
     def bench_run(self, N):
-        self.hop.compute(self.box, self.points)
+        self.hop.compute((self.box, self.points), {'r_max': self.r_max})
 
 
 def run():
     Ns = [100, 500, 1000, 5000, 10000]
     number = 100
-    name = 'freud.order.HexOrderParameter'
+    name = 'freud.order.Hexatic'
 
     kwargs = {"L": 10,
-              "rmax": 3}
+              "r_max": 3,
+              "k": 6}
 
     return run_benchmarks(name, Ns, number,
-                          BenchmarkOrderHexOrderParameter,
+                          BenchmarkOrderHexatic,
                           **kwargs)
 
 

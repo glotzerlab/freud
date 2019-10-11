@@ -5,9 +5,9 @@ from benchmarker import run_benchmarks
 
 
 class BenchmarkLocalityAABBQuery(Benchmark):
-    def __init__(self, L, rcut):
+    def __init__(self, L, r_max):
         self.L = L
-        self.rcut = rcut
+        self.r_max = r_max
 
     def bench_setup(self, N):
         self.box = freud.box.Box.cube(self.L)
@@ -17,18 +17,18 @@ class BenchmarkLocalityAABBQuery(Benchmark):
 
     def bench_run(self, N):
         aq = freud.locality.AABBQuery(self.box, self.points)
-        aq.queryBall(self.points, self.rcut, exclude_ii=True)
+        aq.query(self.points, {'r_max': self.r_max, 'exclude_ii': True})
 
 
 def run():
     Ns = [1000, 10000]
-    rcut = 0.5
+    r_max = 0.5
     L = 10
     number = 100
 
     name = 'freud.locality.AABBQuery'
     return run_benchmarks(name, Ns, number, BenchmarkLocalityAABBQuery,
-                          L=L, rcut=rcut)
+                          L=L, r_max=r_max)
 
 
 if __name__ == '__main__':
