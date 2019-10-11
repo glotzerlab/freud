@@ -267,6 +267,24 @@ public:
         m_bin_counts = ManagedArray<T>(sizes);
     }
 
+    //! Simple convenience for 1D arrays that calls through to the shape based `prepare` function.
+    /*! \param new_size Size of the 1D array to allocate.
+     */
+    void prepare(unsigned int new_size)
+    {
+        prepare(std::vector<unsigned int> {new_size});
+    }
+
+    //! Prepare the underlying bin counts array.
+    /*! Reallocate memory if needed.
+     *
+     *  \param new_shape Shape of the array to allocate.
+     */
+    void prepare(std::vector<unsigned int> new_shape)
+    {
+        m_bin_counts.prepare(new_shape);
+    }
+
     //! Destructor
     ~Histogram() {};
 

@@ -48,10 +48,10 @@ PMFTXYZ::PMFTXYZ(float x_max, float y_max, float z_max, unsigned int n_x, unsign
 
 //! \internal
 //! helper function to reduce the thread specific arrays into one array
-void PMFTXYZ::reducePCF()
+void PMFTXYZ::reduce()
 {
     float jacobian_factor = (float) 1.0 / m_jacobian;
-    reduce([jacobian_factor](size_t i) { return jacobian_factor; });
+    PMFT::reduce([jacobian_factor](size_t i) { return jacobian_factor; });
 }
 
 //! \internal

@@ -6,6 +6,8 @@ import warnings
 import util
 import rowan
 
+from test_managedarray import TestManagedArray
+
 
 class TestPMFTR12(unittest.TestCase):
     def test_box(self):
@@ -25,7 +27,7 @@ class TestPMFTR12(unittest.TestCase):
         # Ensure expected errors are raised
         box = freud.box.Box.cube(boxSize)
         with self.assertRaises(ValueError):
-            myPMFT.compute((box, points), angles, points, angles, reset=False)
+            myPMFT.compute((box, points), angles, reset=False)
 
     def test_bins(self):
         maxR = 5.23
@@ -783,7 +785,7 @@ class TestPMFTXYZ(unittest.TestCase):
         npt.assert_equal(myPMFT.bin_counts.shape, (nbinsX, nbinsY, nbinsZ))
         npt.assert_equal(myPMFT.pmft.shape, (nbinsX, nbinsY, nbinsZ))
 
-        myPMFT.compute((box, points), orientations, points, orientations)
+        myPMFT.compute((box, points), orientations)
         myPMFT.bin_counts
         myPMFT.pmft
         myPMFT.box
@@ -929,6 +931,74 @@ class TestPMFTXYZ(unittest.TestCase):
         self.assertEqual(pmft.bin_counts[2, 1, 1], 1)
         self.assertEqual(np.sum(pmft.bin_counts), 1)
         self.assertTrue(np.all(pmft.bin_counts >= 0))
+
+
+class TestPMFTR12ManagedArray(TestManagedArray, unittest.TestCase):
+    def build_object(self):
+        self.obj = freud.pmft.PMFTR12(5, (50, 50, 50))
+
+    @property
+    def computed_properties(self):
+        return ['bin_counts', 'pmft']
+
+    def compute(self):
+        box = freud.box.Box.square(10)
+        num_points = 100
+        points = np.random.rand(
+            num_points, 3)*box.L - box.L/2
+        angles = np.random.rand(num_points)*2*np.pi
+        self.obj.compute((box, points), angles, neighbors={'r_max': 3})
+
+
+class TestPMFTXYTManagedArray(TestManagedArray, unittest.TestCase):
+    def build_object(self):
+        self.obj = freud.pmft.PMFTXYT(5, 5, (50, 50, 50))
+
+    @property
+    def computed_properties(self):
+        return ['bin_counts', 'pmft']
+
+    def compute(self):
+        box = freud.box.Box.square(10)
+        num_points = 100
+        points = np.random.rand(
+            num_points, 3)*box.L - box.L/2
+        angles = np.random.rand(num_points)*2*np.pi
+        self.obj.compute((box, points), angles, neighbors={'r_max': 3})
+
+
+class TestPMFTXYManagedArray(TestManagedArray, unittest.TestCase):
+    def build_object(self):
+        self.obj = freud.pmft.PMFTXY(5, 5, (50, 50))
+
+    @property
+    def computed_properties(self):
+        return ['bin_counts', 'pmft']
+
+    def compute(self):
+        box = freud.box.Box.square(10)
+        num_points = 100
+        points = np.random.rand(
+            num_points, 3)*box.L - box.L/2
+        angles = np.random.rand(num_points)*2*np.pi
+        self.obj.compute((box, points), angles, neighbors={'r_max': 3})
+
+
+class TestPMFTXYZManagedArray(TestManagedArray, unittest.TestCase):
+    def build_object(self):
+        self.obj = freud.pmft.PMFTXYZ(5, 5, 5, (50, 50, 50))
+
+    @property
+    def computed_properties(self):
+        return ['bin_counts', 'pmft']
+
+    def compute(self):
+        box = freud.box.Box.cube(10)
+        num_points = 100
+        points = np.random.rand(
+            num_points, 3)*box.L - box.L/2
+        orientations = rowan.random.rand(num_points)
+        self.obj.compute((box, points), orientations, neighbors={'r_max': 3})
 
 
 if __name__ == '__main__':

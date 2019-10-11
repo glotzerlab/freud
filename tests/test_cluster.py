@@ -4,6 +4,8 @@ import freud
 import unittest
 import util
 
+from test_managedarray import TestManagedArray
+
 
 class TestCluster(unittest.TestCase):
     def test_constructor(self):
@@ -152,29 +154,21 @@ class TestCluster(unittest.TestCase):
         clust.compute((box, positions), neighbors={'r_max': 0.5})
         clust._repr_png_()
 
-    def test_saved_values(self):
-        """Check that saved output don't get overwritten by later calls to
-        compute or object deletion."""
-        L = 10
+
+class TestClusterManagedArray(TestManagedArray, unittest.TestCase):
+    def build_object(self):
+        self.obj = freud.cluster.Cluster()
+
+    @property
+    def computed_properties(self):
+        return ['cluster_idx']
+
+    def compute(self):
+        box = freud.box.Box.cube(10)
         num_points = 100
-        num_tests = 3
-
-        r_max = 2
-        copied = []
-        accessed = []
-        cl = freud.cluster.Cluster()
-
-        box = freud.box.Box.cube(L)
-        for i in range(num_tests):
-            points = np.random.rand(num_points, 3)*L - L/2
-            cl.compute((box, points), neighbors={'r_max': r_max})
-
-            copied.append(np.copy(cl.cluster_idx))
-            accessed.append(cl.cluster_idx)
-        npt.assert_array_equal(copied, accessed)
-
-        del cl
-        npt.assert_array_equal(copied, accessed)
+        points = np.random.rand(
+            num_points, 3)*box.L - box.L/2
+        self.obj.compute((box, points), neighbors={'r_max': 2})
 
 
 if __name__ == '__main__':

@@ -11,7 +11,7 @@
 
 namespace freud { namespace density {
 
-RDF::RDF(unsigned int bins, float r_max, float r_min) : BondHistogramCompute(), m_bins(bins)
+RDF::RDF(unsigned int bins, float r_max, float r_min) : BondHistogramCompute()
 {
     if (bins == 0)
         throw std::invalid_argument("RDF requires a nonzero number of bins.");
@@ -22,17 +22,17 @@ RDF::RDF(unsigned int bins, float r_max, float r_min) : BondHistogramCompute(), 
 
     // Construct the Histogram object that will be used to keep track of counts of bond distances found.
     BHAxes axes;
-    axes.push_back(std::make_shared<util::RegularAxis>(m_bins, r_min, r_max));
+    axes.push_back(std::make_shared<util::RegularAxis>(bins, r_min, r_max));
     m_histogram = BondHistogram(axes);
     m_local_histograms = BondHistogram::ThreadLocalHistogram(m_histogram);
 
     // Precompute the cell volumes to speed up later calculations.
-    m_vol_array2D.prepare(m_bins);
-    m_vol_array3D.prepare(m_bins);
+    m_vol_array2D.prepare(bins);
+    m_vol_array3D.prepare(bins);
     float volume_prefactor = (float(4.0)/float(3.0))*M_PI;
     std::vector<float> bin_boundaries = getBinEdges()[0];
 
-    for (unsigned int i = 0; i < m_bins; i++)
+    for (unsigned int i = 0; i < bins; i++)
     {
         float r = bin_boundaries[i];
         float nextr = bin_boundaries[i+1];
@@ -43,10 +43,9 @@ RDF::RDF(unsigned int bins, float r_max, float r_min) : BondHistogramCompute(), 
 
 void RDF::reduce()
 {
-    m_pcf.prepare(m_bins);
-    // MAKE SURE THIS REDUCTION SHOULD ACTUALLY BE HAPPENING
-    m_histogram.reset();
-    m_N_r.prepare(m_bins);
+    m_pcf.prepare(getAxisSizes()[0]);
+    m_histogram.prepare(getAxisSizes()[0]);
+    m_N_r.prepare(getAxisSizes()[0]);
 
     // Define prefactors with appropriate types to simplify and speed later code.
     float ndens = float(m_n_query_points) / m_box.getVolume();
@@ -63,7 +62,7 @@ void RDF::reduce()
     // sequence, so it is done after the reduction.
     prefactor = float(1.0)/(np*m_frame_counter);
     m_N_r[0] = m_histogram[0] * prefactor;
-    for (unsigned int i = 1; i < m_bins; i++)
+    for (unsigned int i = 1; i < getAxisSizes()[0]; i++)
     {
         m_N_r[i] = m_N_r[i-1] + m_histogram[i] * prefactor;
     }

@@ -27,7 +27,7 @@ public:
 
     //! \internal
     //! helper function to reduce the thread specific arrays into one array
-    virtual void reducePCF();
+    virtual void reduce();
 
 private:
     util::ManagedArray<float> m_inv_jacobian_array; //!< Array of inverse jacobians for each bin

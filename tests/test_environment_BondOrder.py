@@ -4,6 +4,8 @@ import rowan
 import unittest
 import util
 
+from test_managedarray import TestManagedArray
+
 
 class TestBondOrder(unittest.TestCase):
     def test_bond_order(self):
@@ -126,6 +128,24 @@ class TestBondOrder(unittest.TestCase):
             # test whether we are not considering neighbors between points
             self.assertEqual(np.count_nonzero(bod.bond_order), 12)
             self.assertEqual(len(np.unique(bod.bond_order)), 2)
+
+
+class TestBondOrderManagedArray(TestManagedArray, unittest.TestCase):
+    def build_object(self):
+        self.obj = freud.environment.BondOrder(
+            bins=(10, 10))
+
+    @property
+    def computed_properties(self):
+        return ['bond_order', 'bin_counts']
+
+    def compute(self):
+        box = freud.box.Box.square(10)
+        num_points = 100
+        points = np.random.rand(
+            num_points, 3)*box.L - box.L/2
+        orientations = rowan.random.rand(num_points)
+        self.obj.compute((box, points), orientations, neighbors={'r_max': 3})
 
 
 if __name__ == '__main__':
