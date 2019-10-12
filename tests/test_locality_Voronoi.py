@@ -132,9 +132,9 @@ class TestVoronoi(unittest.TestCase):
 
         n = 10
         structure_neighbors = {
-            'sc': (util.make_sc, 6),
-            'bcc': (util.make_bcc, 14),
-            'fcc': (util.make_fcc, 12),
+            'sc': (freud.data.make_sc, 6),
+            'bcc': (freud.data.make_bcc, 14),
+            'fcc': (freud.data.make_fcc, 12),
         }
         vor = freud.locality.Voronoi()
 
@@ -157,7 +157,7 @@ class TestVoronoi(unittest.TestCase):
         # Test that voronoi neighbor weights are computed properly for 3D FCC
 
         n = 3
-        box, points = util.make_fcc(nx=n, ny=n, nz=n)
+        box, points = freud.data.make_fcc(nx=n, ny=n, nz=n)
 
         vor = freud.locality.Voronoi()
         vor.compute((box, points))

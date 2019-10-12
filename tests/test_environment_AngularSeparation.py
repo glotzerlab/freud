@@ -2,7 +2,7 @@ import numpy.testing as npt
 import numpy as np
 import freud
 import unittest
-from util import make_box_and_random_points
+import util
 
 
 class TestAngularSeparationGlobal(unittest.TestCase):
@@ -10,8 +10,8 @@ class TestAngularSeparationGlobal(unittest.TestCase):
         boxlen = 10
         N = 500
 
-        box, points = make_box_and_random_points(boxlen, N, True)
-        _, query_points = make_box_and_random_points(boxlen, N//3, True)
+        box, points = util.make_box_and_random_points(boxlen, N, True)
+        _, query_points = util.make_box_and_random_points(boxlen, N//3, True)
 
         ang = freud.environment.AngularSeparationGlobal()
 
@@ -59,8 +59,8 @@ class TestAngularSeparationNeighbor(unittest.TestCase):
         boxlen = 10
         N = 500
 
-        box, points = make_box_and_random_points(boxlen, N, True)
-        _, query_points = make_box_and_random_points(boxlen, N//3, True)
+        box, points = util.make_box_and_random_points(boxlen, N, True)
+        _, query_points = util.make_box_and_random_points(boxlen, N//3, True)
 
         ang = freud.environment.AngularSeparationNeighbor()
 

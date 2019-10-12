@@ -10,7 +10,7 @@ import numpy as np
 import freud
 
 
-def make_cubic(nx=1, ny=1, nz=1, fractions=np.array([0, 0, 0],
+def make_cubic(nx=1, ny=1, nz=1, fractions=np.array([[0, 0, 0]],
                dtype=np.float32), scale=1.0, noise=0.0):
     """Make a cubic crystal for testing.
 
@@ -29,11 +29,11 @@ def make_cubic(nx=1, ny=1, nz=1, fractions=np.array([0, 0, 0],
             particle positions, shape=(fractions.shape[0]*nx*ny*nz, 3)
     """
 
-    fractions = np.tile(fractions[np.newaxis, np.newaxis, np.newaxis, ...],
-                        (nx, ny, nz, 1))
-    fractions[..., 0] += np.arange(nx)[:, np.newaxis, np.newaxis]
-    fractions[..., 1] += np.arange(ny)[np.newaxis, :, np.newaxis]
-    fractions[..., 2] += np.arange(nz)[np.newaxis, np.newaxis, :]
+    fractions = np.tile(fractions[np.newaxis, np.newaxis, np.newaxis],
+                        (nx, ny, nz, 1, 1))
+    fractions[..., 0] += np.arange(nx)[:, np.newaxis, np.newaxis, np.newaxis]
+    fractions[..., 1] += np.arange(ny)[np.newaxis, :, np.newaxis, np.newaxis]
+    fractions[..., 2] += np.arange(nz)[np.newaxis, np.newaxis, :, np.newaxis]
     fractions /= [nx, ny, nz]
 
     box = 2*scale*np.array([nx, ny, nz], dtype=np.float32)

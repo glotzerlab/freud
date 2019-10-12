@@ -1,8 +1,6 @@
-from __future__ import division
-
 import numpy as np
 import numpy.testing as npt
-import freud.msd
+import freud
 import unittest
 
 
