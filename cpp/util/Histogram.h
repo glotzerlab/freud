@@ -261,7 +261,7 @@ public:
     //! Constructor
     Histogram(std::vector<std::shared_ptr<Axis>> axes) : m_axes(axes)
     {
-        std::vector<unsigned int> sizes;
+        std::vector<size_t> sizes;
         for (AxisIterator it = m_axes.begin(); it != m_axes.end(); it++)
             sizes.push_back((*it)->size());
         m_bin_counts = ManagedArray<T>(sizes);
@@ -270,9 +270,9 @@ public:
     //! Simple convenience for 1D arrays that calls through to the shape based `prepare` function.
     /*! \param new_size Size of the 1D array to allocate.
      */
-    void prepare(unsigned int new_size)
+    void prepare(size_t new_size)
     {
-        prepare(std::vector<unsigned int> {new_size});
+        prepare(std::vector<size_t> {new_size});
     }
 
     //! Prepare the underlying bin counts array.
@@ -280,7 +280,7 @@ public:
      *
      *  \param new_shape Shape of the array to allocate.
      */
-    void prepare(std::vector<unsigned int> new_shape)
+    void prepare(std::vector<size_t> new_shape)
     {
         m_bin_counts.prepare(new_shape);
     }
@@ -325,10 +325,10 @@ public:
             throw std::invalid_argument(msg.str());
         }
         // First bin the values along each axis.
-        std::vector<unsigned int> ax_bins;
-        for (unsigned int ax_idx = 0; ax_idx < m_axes.size(); ax_idx++)
+        std::vector<size_t> ax_bins;
+        for (unsigned int ax_idx = 0; ax_idx < m_axes.size(); ++ax_idx)
         {
-            unsigned int bin_i = m_axes[ax_idx]->bin(values[ax_idx]);
+            size_t bin_i = m_axes[ax_idx]->bin(values[ax_idx]);
             // Immediately return sentinel if any bin is out of bounds.
             if (bin_i == Axis::OVERFLOW_BIN)
             {
@@ -347,7 +347,7 @@ public:
     }
 
     //! Get the shape of the computed histogram.
-    std::vector<unsigned int> shape() const
+    std::vector<size_t> shape() const
     {
         return m_bin_counts.shape();
     }
@@ -399,9 +399,9 @@ public:
     }
 
     //! Return a vector indicating the number of bins in each axis.
-    std::vector<unsigned int> getAxisSizes() const
+    std::vector<size_t> getAxisSizes() const
     {
-        std::vector<unsigned int> sizes(m_axes.size());
+        std::vector<size_t> sizes(m_axes.size());
         for (unsigned int i = 0; i < m_axes.size(); ++i)
         {
             sizes[i] = m_axes[i]->size();
@@ -450,18 +450,18 @@ public:
     }
 
     //! Writeable index into array.
-    T &operator[](unsigned int i)
+    T &operator[](size_t i)
     {
         return m_bin_counts[i];
     }
 
     //! Read-only index into array.
-    const T &operator[](unsigned int i) const
+    const T &operator[](size_t i) const
     {
         return m_bin_counts[i];
     }
 
-    unsigned int size() const
+    size_t size() const
     {
         return m_bin_counts.size();
     }
