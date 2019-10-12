@@ -1007,7 +1007,7 @@ class TestCompare(unittest.TestCase):
         x_max = 2.5
         y_max = 2.5
         z_max = 1
-        nbins = 2
+        nbins = 4
         num_points = 100
         L = 10
 
@@ -1028,7 +1028,7 @@ class TestCompare(unittest.TestCase):
         npt.assert_array_equal(pmft2.bin_counts,
                                pmft3.bin_counts[:, :, nbins//2])
         npt.assert_allclose(np.exp(pmft2.pmft),
-                            np.exp(pmft3.pmft[:, :, nbins//2])*L,
+                            np.exp(pmft3.pmft[:, :, nbins//2])*((nbins/2)*L),
                             atol=1e-6)
 
 
