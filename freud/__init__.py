@@ -3,6 +3,7 @@
 
 from . import box
 from . import cluster
+from . import data
 from . import density
 from . import environment
 from . import interface
@@ -26,6 +27,7 @@ __all__ = [
     '__version__',
     'box',
     'cluster',
+    'data',
     'density',
     'environment',
     'interface',
