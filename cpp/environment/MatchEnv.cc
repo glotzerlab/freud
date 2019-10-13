@@ -1,7 +1,7 @@
 // Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#include <cstdio>
+#include <sstream>
 #include <stdexcept>
 
 #include "MatchEnv.h"
@@ -185,8 +185,9 @@ std::vector<unsigned int> EnvDisjointSet::findSet(const unsigned int m)
 
     if (invalid_ind)
     {
-        fprintf(stderr, "m is %d\n", m);
-        throw std::invalid_argument("m must be a head index in the environment set!");
+        std::ostringstream msg;
+        msg << "Index " << m << " must be a head index in the environment set!" << std::endl;
+        throw std::invalid_argument(msg.str());
     }
 
     return m_set;
@@ -225,8 +226,9 @@ std::vector<vec3<float> > EnvDisjointSet::getAvgEnv(const unsigned int m)
 
     if (invalid_ind)
     {
-        fprintf(stderr, "m is %d\n", m);
-        throw std::invalid_argument("m must be a head index in the environment set!");
+        std::ostringstream msg;
+        msg << "Index " << m << " must be a head index in the environment set!" << std::endl;
+        throw std::invalid_argument(msg.str());
     }
 
     else
@@ -246,9 +248,9 @@ std::vector<vec3<float>> EnvDisjointSet::getIndividualEnv(const unsigned int m)
 {
     if (m >= s.size())
     {
-        fprintf(stderr, "m is %d\n", m);
-        throw std::invalid_argument(
-            "m is indexing into the environment set. It must be less than the size of the set!");
+        std::ostringstream msg;
+        msg << "Index " << m << " must be less than the size of the environment set!" << std::endl;
+        throw std::invalid_argument(msg.str());
     }
 
     std::vector<vec3<float>> env;
@@ -299,7 +301,7 @@ isSimilar(Environment& e1, Environment& e2, float threshold_sq, bool registratio
     // to v1. The Fit operation CHANGES v2.
     if (registration == true)
     {
-        registration::RegisterBruteForce r = registration::RegisterBruteForce(v1);
+        RegisterBruteForce r = RegisterBruteForce(v1);
         r.Fit(v2);
         // get the optimal rotation to take v2 to v1
         std::vector<vec3<float>> rot = r.getRotation();
@@ -437,7 +439,7 @@ minimizeRMSD(Environment& e1, Environment& e2, float& min_rmsd, bool registratio
     }
 
     // call RegisterBruteForce::Fit and update min_rmsd accordingly
-    registration::RegisterBruteForce r = registration::RegisterBruteForce(v1);
+    RegisterBruteForce r = RegisterBruteForce(v1);
     // If we have to register, first find the rotated set of v2 that best
     // maps to v1. The Fit operation CHANGES v2.
     if (registration == true)
@@ -453,7 +455,7 @@ minimizeRMSD(Environment& e1, Environment& e2, float& min_rmsd, bool registratio
     else
     {
         // this will populate vec_map with the correct mapping
-        min_rmsd = r.AlignedRMSDTree(registration::makeEigenMatrix(v2), vec_map);
+        min_rmsd = r.AlignedRMSDTree(makeEigenMatrix(v2), vec_map);
     }
 
     // return the rotation matrix and bimap
