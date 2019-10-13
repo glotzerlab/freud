@@ -134,6 +134,7 @@ Bradley Dice - **Lead developer**
 * Improved Voronoi plotting code.
 * Corrected number of points/query points in LocalDensity.
 * Made PeriodicBuffer inherit from _Compute.
+* Removed cudacpu and HOOMDMath includes.
 
 Richmond Newman
 
