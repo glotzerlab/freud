@@ -21,6 +21,7 @@ and this project adheres to
 * 2D PMFTs accept quaternions as well as angles for their orientations.
 * Extensive new documentation including tutorial for new users and reference sections on crucial topics.
 * ClusterProperties computes radius of gyration from the gyration tensor for each cluster.
+* `freud.data` module.
 
 ### Changed
 * All compute objects that perform neighbor computations now use NeighborQuery internally.
