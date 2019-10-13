@@ -50,7 +50,7 @@ public:
      *
      *  \param shape Shape of the array to allocate.
      */
-    ManagedArray(std::vector<unsigned int> shape = {0})
+    ManagedArray(std::vector<size_t> shape = {0})
     {
         prepare(shape, true);
     }
@@ -61,7 +61,7 @@ public:
      *
      *  \param shape Shape of the array to allocate.
      */
-    ManagedArray(unsigned int size) : ManagedArray(std::vector<unsigned int> {size}) {}
+    ManagedArray(size_t size) : ManagedArray(std::vector<size_t> {size}) {}
 
     //! Destructor (currently empty because data is managed by shared pointer).
     ~ManagedArray() {}
@@ -69,9 +69,9 @@ public:
     //! Simple convenience for 1D arrays that calls through to the shape based `prepare` function.
     /*! \param new_size Size of the 1D array to allocate.
      */
-    void prepare(unsigned int new_size)
+    void prepare(size_t new_size)
     {
-        prepare(std::vector<unsigned int> {new_size});
+        prepare(std::vector<size_t> {new_size});
     }
 
     //! Prepare for writing new data.
@@ -83,14 +83,14 @@ public:
      *  \param new_shape Shape of the array to allocate.
      *  \param force Reallocate regardless of whether anything changed or needs to be persisted.
      */
-    void prepare(std::vector<unsigned int> new_shape, bool force=false)
+    void prepare(std::vector<size_t> new_shape, bool force=false)
     {
         // If we resized, or if there are outstanding references, we create a new array. No matter what, reset.
         if (force || (m_data.use_count() > 1) || (new_shape != shape()))
         {
-            m_shape = std::make_shared<std::vector<unsigned int> >(new_shape);
+            m_shape = std::make_shared<std::vector<size_t> >(new_shape);
 
-            m_size = std::make_shared<unsigned int>(1);
+            m_size = std::make_shared<size_t>(1);
             for (int i = m_shape->size() - 1; i >= 0; --i)
             {
                 (*m_size) *= (*m_shape)[i];
@@ -127,7 +127,7 @@ public:
     }
 
     //! Writeable index into array.
-    T &operator[](unsigned int index)
+    T &operator[](size_t index)
     {
         if (index >= size())
         {
@@ -140,7 +140,7 @@ public:
 
 
     //! Read-only index into array.
-    const T &operator[](unsigned int index) const
+    const T &operator[](size_t index) const
     {
         if (index >= size())
         {
@@ -152,13 +152,13 @@ public:
     }
 
     //! Get the size of the current array.
-    unsigned int size() const
+    size_t size() const
     {
         return *m_size;
     }
 
     //! Get the shape of the current array.
-    std::vector<unsigned int> shape() const
+    std::vector<size_t> shape() const
     {
         return *m_shape;
     }
@@ -204,7 +204,7 @@ public:
      * become a performance bottleneck when used in highly performance critical
      * code paths.
     */
-    inline T &operator()(std::vector<unsigned int> indices)
+    inline T &operator()(std::vector<size_t> indices)
     {
         size_t cur_prod = 1;
         size_t idx = 0;
@@ -217,7 +217,7 @@ public:
     }
 
     //! Const version of core function for multidimensional indexing.
-    inline const T &operator()(std::vector<unsigned int> indices) const
+    inline const T &operator()(std::vector<size_t> indices) const
     {
         size_t cur_prod = 1;
         size_t idx = 0;
@@ -236,15 +236,15 @@ public:
      *  \param shape The shape to map indexes to.
      *  \param indices The index in each dimension.
      */
-    static inline std::vector<unsigned int> getMultiIndex(std::vector<unsigned int> shape, unsigned int index)
+    static inline std::vector<size_t> getMultiIndex(std::vector<size_t> shape, size_t index)
     {
-        unsigned int cur_prod = 1;
+        size_t cur_prod = 1;
         for (auto it = shape.begin(); it != shape.end(); ++it)
         {
             cur_prod *= *it;
         }
 
-        std::vector<unsigned int> indices(shape.size());
+        std::vector<size_t> indices(shape.size());
         for (unsigned int i = 0 ; i < shape.size(); ++i)
         {
             cur_prod /= shape[i];
@@ -262,7 +262,7 @@ public:
      *  \param shape The shape to map indexes to.
      *  \param indices The index in each dimension.
      */
-    static inline size_t getIndex(std::vector<unsigned int> shape, std::vector<unsigned int> indices)
+    static inline size_t getIndex(std::vector<size_t> shape, std::vector<size_t> indices)
     {
         // In getting the linear bin, we must iterate over bins in reverse
         // order to build up the value of cur_prod because each subsequent axis
@@ -285,7 +285,7 @@ public:
      *
      *  \param indices The index in each dimension.
      */
-    inline size_t getIndex(std::vector<unsigned int> indices) const
+    inline size_t getIndex(std::vector<size_t> indices) const
     {
         if (indices.size() != m_shape->size())
         {
@@ -340,23 +340,23 @@ private:
      *  unwrapping the list of arguments.
      */
     template <typename Int>
-    inline static std::vector<unsigned int> buildIndex(Int index)
+    inline static std::vector<size_t> buildIndex(Int index)
     {
-        return {static_cast<unsigned int>(index)};
+        return {static_cast<size_t>(index)};
     }
 
     //! The recursive case for building up the index (see above).
     template <typename Int, typename ... Ints>
-    inline static std::vector<unsigned int> buildIndex(Int index, Ints ... indices)
+    inline static std::vector<size_t> buildIndex(Int index, Ints ... indices)
     {
-        std::vector<unsigned int> tmp = buildIndex(indices...);
-        tmp.insert(tmp.begin(), static_cast<unsigned int>(index));
+        std::vector<size_t> tmp = buildIndex(indices...);
+        tmp.insert(tmp.begin(), static_cast<size_t>(index));
         return tmp;
     }
 
     std::shared_ptr<std::shared_ptr<T> > m_data;           //!< Pointer to array.
-    std::shared_ptr<std::vector<unsigned int> > m_shape;   //!< Shape of array.
-    std::shared_ptr<unsigned int> m_size;                  //!< Size of array.
+    std::shared_ptr<std::vector<size_t> > m_shape;   //!< Shape of array.
+    std::shared_ptr<size_t> m_size;                  //!< Size of array.
 };
 
 }; }; // end namespace freud::util
