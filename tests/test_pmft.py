@@ -1011,25 +1011,25 @@ class TestCompare(unittest.TestCase):
         num_points = 100
         L = 10
 
-        box2 = freud.box.Box.square(L)
-        box3 = freud.box.Box.cube(L)
+        box2d = freud.box.Box.square(L)
+        box3d = freud.box.Box.cube(L)
 
         points = np.random.rand(num_points, 3)
         points[:, 2] = 0
         orientations = np.array([[1, 0, 0, 0]]*len(points))
 
-        pmft2 = freud.pmft.PMFTXY(x_max, y_max, nbins)
-        pmft2.compute((box2, points), orientations)
+        pmft2d = freud.pmft.PMFTXY(x_max, y_max, nbins)
+        pmft2d.compute((box2d, points), orientations)
 
-        pmft3 = freud.pmft.PMFTXYZ(x_max, y_max, z_max, nbins)
-        pmft3.compute((box3, points), orientations)
+        pmft3d = freud.pmft.PMFTXYZ(x_max, y_max, z_max, nbins)
+        pmft3d.compute((box3d, points), orientations)
 
         # Bin counts are equal, PMFTs are scaled by the box length in z.
-        npt.assert_array_equal(pmft2.bin_counts,
-                               pmft3.bin_counts[:, :, nbins//2])
+        npt.assert_array_equal(pmft2d.bin_counts,
+                               pmft3d.bin_counts[:, :, nbins//2])
         scale_factor = (nbins/2)*L
-        npt.assert_allclose(np.exp(pmft2.pmft),
-                            np.exp(pmft3.pmft[:, :, nbins//2])*scale_factor,
+        npt.assert_allclose(np.exp(pmft2d.pmft),
+                            np.exp(pmft3d.pmft[:, :, nbins//2])*scale_factor,
                             atol=1e-6)
 
     def test_XY_XYT(self):
