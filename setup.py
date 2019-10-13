@@ -212,6 +212,7 @@ directives = {
 macros = [
     ('NPY_NO_DEPRECATED_API', 'NPY_1_10_API_VERSION'),
     ('VOROPP_VERBOSE', '1'),
+    ('_USE_MATH_DEFINES', '1'),  # for Windows to define M_PI in <cmath>
 ]
 
 # Decide whether or not to compile with coverage support

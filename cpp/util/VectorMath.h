@@ -5,7 +5,6 @@
 #ifndef VECTOR_MATH_H
 #define VECTOR_MATH_H
 
-#define _USE_MATH_DEFINES // For Windows to include constants like M_PI
 #include <cmath>
 
 /*! \file VectorMath.h
