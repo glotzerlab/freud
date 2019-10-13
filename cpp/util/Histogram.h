@@ -79,7 +79,7 @@ public:
     std::vector<float> getBinCenters() const
     {
         std::vector<float> bin_centers(m_nbins);
-        for (unsigned int i = 0; i < m_nbins; i++)
+        for (size_t i = 0; i < m_nbins; i++)
         {
             bin_centers[i] = (m_bin_edges[i] + m_bin_edges[i+1])/float(2.0);
         }
@@ -122,7 +122,7 @@ public:
         m_dr_inv = float(1.0)/m_dr;
         float cur_location = min;
         // This must be <= because there is one extra bin boundary than the number of bins.
-        for (unsigned int i = 0; i <= nbins; i++)
+        for (size_t i = 0; i <= nbins; i++)
         {
             m_bin_edges[i] = (cur_location);
             cur_location += m_dr;
@@ -153,9 +153,9 @@ public:
         float val = (value - m_min) * m_dr_inv;
         // fast float to int conversion with truncation
 #ifdef __SSE2__
-        unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&val));
+        size_t bin = _mm_cvtt_ss2si(_mm_load_ss(&val));
 #else
-        unsigned int bin = (unsigned int)(val);
+        size_t bin = (size_t)(val);
 #endif
         return bin;
     }
