@@ -1,7 +1,6 @@
 import numpy as np
 import numpy.testing as npt
 import freud
-import sys
 import unittest
 from functools import lru_cache
 from sympy.physics.wigner import wigner_3j
@@ -288,8 +287,6 @@ class TestLocalDescriptors(unittest.TestCase):
                     err_msg="Failed for {}, L = {}".format(
                         struct_func.__name__, L))
 
-    @unittest.skipIf(sys.version_info < (3, 2),
-                     "functools.lru_cache only supported on Python 3.2+")
     @util.skipIfMissing('sympy.physics.wigner')
     def test_wl(self):
         """Check if we can reproduce Steinhardt wl."""
