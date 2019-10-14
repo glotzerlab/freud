@@ -19,13 +19,13 @@ public:
     //! Constructor with specific size for thread local arrays
     /*! \param size Size of the thread local arrays
      */
-    ThreadStorage(unsigned int size)
-        : ThreadStorage(std::vector<unsigned int> {size}) {}
+    ThreadStorage(size_t size)
+        : ThreadStorage(std::vector<size_t> {size}) {}
 
     //! Constructor with specific shape for thread local arrays
     /*! \param shape Vector of sizes in each dimension of the thread local arrays
      */
-    ThreadStorage(std::vector<unsigned int> shape)
+    ThreadStorage(std::vector<size_t> shape)
         : arrays(tbb::enumerable_thread_specific<ManagedArray<T> >([shape]() { return ManagedArray<T>(shape); })) {}
 
     //! Destructor
@@ -34,15 +34,15 @@ public:
     //! Update size of the thread local arrays
     /*! \param size New size of the thread local arrays
      */
-    void resize(unsigned int size)
+    void resize(size_t size)
     {
-        resize(std::vector<unsigned int> {size});
+        resize(std::vector<size_t> {size});
     }
 
     //! Update size of the thread local arrays
     /*! \param size New size of the thread local arrays
      */
-    void resize(std::vector<unsigned int> shape)
+    void resize(std::vector<size_t> shape)
     {
         arrays = tbb::enumerable_thread_specific<ManagedArray<T> >([shape]() { return ManagedArray<T>(shape); });
     }

@@ -83,7 +83,7 @@ public:
     }
 
     //! Return a vector indicating the number of bins in each axis.
-    std::vector<unsigned int> getAxisSizes() const
+    std::vector<size_t> getAxisSizes() const
     {
         return m_histogram.getAxisSizes();
     }

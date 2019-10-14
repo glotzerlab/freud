@@ -118,7 +118,7 @@ cdef extern from "BondHistogramCompute.h" namespace "freud::locality":
         vector[vector[float]] getBinEdges() const
         vector[vector[float]] getBinCenters() const
         vector[pair[float, float]] getBounds() const
-        vector[unsigned int] getAxisSizes() const
+        vector[size_t] getAxisSizes() const
 
 cdef extern from "PeriodicBuffer.h" namespace "freud::locality":
     cdef cppclass PeriodicBuffer:

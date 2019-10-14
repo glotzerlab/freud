@@ -65,7 +65,6 @@ void PMFTXYZ::accumulate(const locality::NeighborQuery* neighbor_query,
 {
     // precalc some values for faster computation within the loop
     neighbor_query->getBox().enforce3D();
-    std::vector<unsigned int> shape = m_local_histograms.local().shape();
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
         [=](const freud::locality::NeighborBond& neighbor_bond) {
         // create the reference point quaternion
