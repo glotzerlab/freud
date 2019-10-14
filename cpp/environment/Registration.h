@@ -1,10 +1,11 @@
 // Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#ifndef BRUTE_FORCE_H
-#define BRUTE_FORCE_H
+#ifndef REGISTRATION_H
+#define REGISTRATION_H
 
 #include <iostream>
+#include <sstream>
 #include <chrono>
 #include <random>
 #include <vector>
@@ -23,7 +24,7 @@
 #include "BiMap.h"
 #include "VectorMath.h"
 
-namespace freud { namespace registration {
+namespace freud { namespace environment {
 
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> matrix;
 
@@ -52,8 +53,9 @@ inline std::vector<vec3<float>> makeVec3Matrix(const matrix& m)
     // Force the user to put this in correctly.
     if (m.cols() != 3)
     {
-        fprintf(stderr, "Number of columns in the input matrix is %ld\n", m.cols());
-        throw std::invalid_argument("makeVec3Matrix requires the input matrix to be Nx3!");
+        std::ostringstream msg;
+        msg << "makeVec3Matrix requires the input matrix to have 3 columns, not " << m.cols() << "!" << std::endl;
+        throw std::invalid_argument(msg.str());
     }
     std::vector<vec3<float>> vecs;
     for (unsigned int i = 0; i < m.rows(); i++)
@@ -93,9 +95,9 @@ inline matrix Rotate(const matrix& R, const matrix& P)
     // Then make sure that matrix R is ready to act on it
     if (R.cols() != P.rows())
     {
-        fprintf(stderr, "Number of columns in the rotation matrix is %ld\n", R.cols());
-        fprintf(stderr, "Number of rows in the point matrix is %ld\n", P.rows());
-        throw std::invalid_argument("These values must be equal to perform the rotation!");
+        std::ostringstream msg;
+        msg << "Rotation matrix has " << R.cols() << " columns and point matrix has " << P.rows() << " rows. These must be equal to perform the rotation." << std::endl;
+        throw std::invalid_argument(msg.str());
     }
     matrix rotated = matrix::Zero(P.rows(), P.cols());
     // Apply the rotation R.
@@ -170,9 +172,10 @@ public:
         unsigned int N = points.rows();
         if (N != m_ref_points.rows())
         {
-            fprintf(stderr, "Number of vecs to which we are matching is %ld\n", m_ref_points.rows());
-            fprintf(stderr, "Number of vecs we are trying to match is %d\n", N);
-            throw std::invalid_argument("Brute force matching requires the same number of points!");
+            std::ostringstream msg;
+            msg << "There are " << m_ref_points.rows() << " reference points and " << N << " points. ";
+            msg << "Brute force matching requires the same number of reference points and points!" << std::endl;
+            throw std::invalid_argument(msg.str());
         }
 
         RandomNumber<std::mt19937_64> rng;
@@ -183,18 +186,18 @@ public:
             while (p0 == p1 || p0 == p2 || p1 == p2)
             {
                 p0 = rng.random_int(0, N - 1);
-                if (N == int(1))
+                if (N == 1)
                 {
-                    p1 = int(-2);
+                    p1 = -2;
                 }
                 else
                 {
                     p1 = rng.random_int(0, N - 1);
                 }
 
-                if (N == int(2) || N == int(1))
+                if (N == 2 || N == 1)
                 {
-                    p2 = int(-1);
+                    p2 = -1;
                 }
                 else
                 {
@@ -203,7 +206,7 @@ public:
             }
 
             size_t comb[3] = {0, 1, 2};
-            if (N == int(2))
+            if (N == 2)
             {
                 num_pts = 2;
                 p.resize(num_pts, m_ref_points.cols());
@@ -440,7 +443,7 @@ private:
             }
             catch (...)
             {
-                std::cout << "random_device is not available..." << std::endl;
+                std::cerr << "random_device is not available..." << std::endl;
                 seeds.push_back(size_t(std::chrono::system_clock::now().time_since_epoch().count()));
                 seeds.push_back(size_t(getpid()));
             }
@@ -460,6 +463,6 @@ private:
     BiMap<unsigned int, unsigned int> m_vec_map;
 };
 
-}; }; // end namespace freud::registration
+}; }; // end namespace freud::environment
 
-#endif // BRUTE_FORCE_H
+#endif // REGISTRATION_H

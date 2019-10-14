@@ -12,8 +12,8 @@
 #include "ManagedArray.h"
 #include "NeighborQuery.h"
 #include "NeighborList.h"
+#include "Registration.h"
 #include "VectorMath.h"
-#include "brute_force.h"
 
 /*! \file MatchEnv.h
     \brief Particle environment matching
@@ -116,7 +116,7 @@ std::pair<Environment, Environment> makeEnvironments(const box::Box &box, const 
  * \param e1 First environment.
  * \param e2 First environment.
  * \param min_rmsd The value of the minimum RMSD (updated by reference).
- * \param registration Controls whether we first use brute force registration to 
+ * \param registration Controls whether we first use brute force registration to
  *                     orient the second set of vectors such that it
  *                     minimizes the RMSD between the two sets
  */
@@ -127,7 +127,7 @@ minimizeRMSD(Environment& e1, Environment& e2, float& min_rmsd, bool registratio
 /*! Construct the environments accordingly, and utilize minimizeRMSD() as
  * above. Arguments are pointers to interface directly with python. Return
  * a std::map (for ease of use) with the mapping between vectors refPoints1
- * and refPoints2 that gives this RMSD. 
+ * and refPoints2 that gives this RMSD.
  *
  * WARNING: If registration=True, then refPoints2 is CHANGED by this function.
  *
@@ -135,7 +135,7 @@ minimizeRMSD(Environment& e1, Environment& e2, float& min_rmsd, bool registratio
  * \param refPoints2 Points composing second environment.
  * \param numRef Number of points.
  * \param min_rmsd The value of the minimum RMSD (updated by reference).
- * \param registration Controls whether we first use brute force registration to 
+ * \param registration Controls whether we first use brute force registration to
  *                     orient the second set of vectors such that it
  *                     minimizes the RMSD between the two sets
  */
@@ -158,7 +158,7 @@ std::map<unsigned int, unsigned int> minimizeRMSD(
  *                     threshold are 10-30% of the first minimum of the radial
  *                     distribution function (so the argument should be the
  *                     square of that).
- * \param registration Controls whether we first use brute force registration to 
+ * \param registration Controls whether we first use brute force registration to
  *                     orient the second set of vectors such that it
  *                     minimizes the RMSD between the two sets
  */
@@ -182,7 +182,7 @@ isSimilar(Environment& e1, Environment& e2, float threshold_sq, bool registratio
  *                     them matching. Recommended values for the threshold are
  *                     10-30% of the first minimum of the radial distribution
  *                     function (so the argument should be the square of that).
- * \param registration Controls whether we first use brute force registration to 
+ * \param registration Controls whether we first use brute force registration to
  *                     orient the second set of vectors such that it
  *                     minimizes the RMSD between the two sets
  */
@@ -250,14 +250,14 @@ public:
      * This is taken from Cluster.cc and SolLiq.cc and LocalQlNear.cc
      *
      * \param env_nlist The NeighborList used to build the environment of every particle.
-     * \param nlist The NeighborList used to determine the neighbors against which 
+     * \param nlist The NeighborList used to determine the neighbors against which
      *              to compare environments for every particle, if hard_r = False.
      * \param threshold This quantity is of the maximum magnitude of the
      *                  vector difference between two vectors, below which
      *                  you call them matching. Recommended values for the
      *                  threshold are 10-30% of the first minimum of the radial
      *                  distribution function.
-     * \param registration Controls whether we first use brute force registration to 
+     * \param registration Controls whether we first use brute force registration to
      *                     orient the second set of vectors such that it
      *                     minimizes the RMSD between the two sets
      * \param global If true, do an exhaustive search wherein you compare the
@@ -340,7 +340,7 @@ public:
      *
      * \param nlist A NeighborList instance.
      * \param points The points to test against the motif.
-     * \param Np The number of points. 
+     * \param Np The number of points.
      * \param motif The vectors characterizing the motif. Note that these are
      *              vectors, so for instance given a square motif composed of
      *              points at the corners of a square, the motif should not
@@ -352,7 +352,7 @@ public:
      *                  you call them matching. Recommended values for the
      *                  threshold are 10-30% of the first minimum of the radial
      *                  distribution function.
-     * \param registration Controls whether we first use brute force registration to 
+     * \param registration Controls whether we first use brute force registration to
      *                     orient the second set of vectors such that it
      *                     minimizes the RMSD between the two sets
      */
@@ -400,7 +400,7 @@ public:
      *
      * \param nlist A NeighborList instance.
      * \param points The points to test against the motif.
-     * \param Np The number of points. 
+     * \param Np The number of points.
      * \param motif The vectors characterizing the motif. Note that these are
      *              vectors, so for instance given a square motif composed of
      *              points at the corners of a square, the motif should not
@@ -412,7 +412,7 @@ public:
      *                  you call them matching. Recommended values for the
      *                  threshold are 10-30% of the first minimum of the radial
      *                  distribution function.
-     * \param registration Controls whether we first use brute force registration to 
+     * \param registration Controls whether we first use brute force registration to
      *                     orient the second set of vectors such that it
      *                     minimizes the RMSD between the two sets
      */
