@@ -10,129 +10,154 @@ import numpy as np
 import freud
 
 
-def make_cubic(nx=1, ny=1, nz=1, fractions=np.array([[0, 0, 0]],
-               dtype=np.float32), scale=1.0, noise=0.0):
-    """Make a cubic crystal for testing.
+class UnitCell(object):
+    """Class to represent the unit cell of a crystal structure.
+
+    This class represents the unit cell of a crystal structure, which is
+    defined by a lattice and a basis. It provides the basic attributes of the
+    unit cell as well as enabling the generation of systems of points
+    (optionally with some noise) from the unit cell.
 
     Args:
-        nx: Number of repeats in the x direction, default is 1.
-        ny: Number of repeats in the y direction, default is 1.
-        nz: Number of repeats in the z direction, default is 1.
-        fractions: The basis to replicate using the lattice.
-        scale: Amount to scale the unit cell by (in distance units)
-               (Default value = 1.0).
-        noise: Apply Gaussian noise with this width to particle positions
-               (Default value = 0.0).
-
-    Returns:
-        tuple (:class:`freud.box.Box`, :class:`np.ndarray`): freud Box,
-            particle positions, shape=(fractions.shape[0]*nx*ny*nz, 3)
+        box:
+            A box-like object (see :meth:`~freud.box.Box.from_box`) containing
+            the lattice vectors of the unit cell.
+        basis_positions ((:math:`N_{points}`) :class:`numpy.ndarray`):
+            The basis of the unit cell in fractional coordinates
+            (Default value = ``[[0, 0, 0]]``.
     """
+    def __init__(self, box, basis_positions=[[0, 0, 0]]):
+        self._box = freud.box.Box.from_box(box)
+        self._basis_positions = np.dot(basis_positions, self.box.to_matrix().T)
 
-    fractions = np.tile(fractions[np.newaxis, np.newaxis, np.newaxis],
-                        (nx, ny, nz, 1, 1))
-    fractions[..., 0] += np.arange(nx)[:, np.newaxis, np.newaxis, np.newaxis]
-    fractions[..., 1] += np.arange(ny)[np.newaxis, :, np.newaxis, np.newaxis]
-    fractions[..., 2] += np.arange(nz)[np.newaxis, np.newaxis, :, np.newaxis]
-    fractions /= [nx, ny, nz]
+    def to_system(self, num_replicas=1, scale=1, sigma_noise=0):
+        """Generate a system from the unit cell.
 
-    box = 2*scale*np.array([nx, ny, nz], dtype=np.float32)
-    positions = ((fractions - .5)*box).reshape((-1, 3))
+        Args:
+            num_replicas (:class:`tuple` or `int`):
+                If provided as a single number, the number of replicas in all
+                dimensions. If a tuple, the number of times replicated in each
+                dimension. Must be of the form (nx, ny, 1) for 2D boxes
+                (Default value = 1).
+            scale (float): Amount to scale the unit cell by (in distance units)
+                (Default value = 1).
+            sigma_noise (float):
+                The standard deviation of the normal distribution used to add
+                noise to the positions in the system (Default value = 0).
 
-    if noise != 0:
-        positions += np.random.normal(scale=noise, size=positions.shape)
+        Returns:
+            tuple (:class:`freud.box.Box`, :class:`np.ndarray`):
+                A system-like object (see
+                :class:`~freud.locality.NeighborQuery.from_system`.).
+        """
+        try:
+            nx, ny, nz = num_replicas
+        except TypeError:
+            nx = ny = num_replicas
+            nz = 1 if self.box.is2D else num_replicas
 
-    return freud.box.Box(*box), positions
+        if self.box.is2D and nz != 1:
+            raise ValueError("The number of replicas in z must be 1 for a "
+                             "2D unit cell.")
 
+        basis = np.tile(
+            self.basis_positions[np.newaxis, np.newaxis, np.newaxis, ...],
+            (nx, ny, nz, 1, 1))
+        basis[..., 0] += np.arange(nx)[:, np.newaxis, np.newaxis, np.newaxis]
+        basis[..., 1] += np.arange(ny)[np.newaxis, :, np.newaxis, np.newaxis]
+        basis[..., 2] += np.arange(nz)[np.newaxis, np.newaxis, :, np.newaxis]
 
-def make_fcc(nx=1, ny=1, nz=1, scale=1.0, noise=0.0):
-    """Make a FCC crystal for testing.
+        positions = (basis - 0.5).reshape(-1, 3).dot(
+            self.box.to_matrix().T)*scale
+        box = freud.box.Box.from_matrix(
+            self.box.to_matrix() * scale * [[nx, ny, nz]])
 
-    Args:
-        nx: Number of repeats in the x direction, default is 1
-        ny: Number of repeats in the y direction, default is 1
-        nz: Number of repeats in the z direction, default is 1
-        scale: Amount to scale the unit cell by (in distance units)
-               (Default value = 1.0).
-        noise: Apply Gaussian noise with this width to particle positions
-               (Default value = 0.0).
+        if sigma_noise != 0:
+            mean = [0]*3
+            var = sigma_noise*sigma_noise
+            cov = np.diag([var, var, var if self.dimensions == 3 else 0])
+            positions += np.random.multivariate_normal(
+                mean, cov, size=positions.shape[:-1])
 
-    Returns:
-        tuple (:class:`freud.box.Box`, :class:`np.ndarray`): freud Box,
-            particle positions, shape=(4*nx*ny*nz, 3)
-    """
-    fractions = np.array([[.5, .5, 0],
-                          [.5, 0, .5],
-                          [0, .5, .5],
-                          [0, 0, 0]], dtype=np.float32)
-    return make_cubic(nx, ny, nz, fractions, scale, noise)
+        return box, positions
 
+    @property
+    def box(self):
+        """:class:`freud.box.Box`: The box instance containing the lattice
+        vectors."""
+        return self._box
 
-def make_bcc(nx=1, ny=1, nz=1, scale=1.0, noise=0.0):
-    """Make a body-centered-cubic crystal for testing.
+    @property
+    def lattice_vectors(self):
+        """:math:`(3, 3)` :class:`np.ndarray`: The matrix of lattice
+        vectors."""
+        return self._box.to_matrix()
 
-    Args:
-        nx: Number of repeats in the x direction, default is 1
-        ny: Number of repeats in the y direction, default is 1
-        nz: Number of repeats in the z direction, default is 1
-        scale: Amount to scale the unit cell by (in distance units)
-               (Default value = 1.0).
-        noise: Apply Gaussian noise with this width to particle positions
-               (Default value = 0.0).
+    @property
+    def basis_positions(self):
+        """:math:`(N_{points}, 3)` :class:`np.ndarray`: The basis positions."""
+        return self._basis_positions
 
-    Returns:
-        tuple (:class:`freud.box.Box`, :class:`np.ndarray`): freud Box,
-            particle positions, shape=(2*nx*ny*nz, 3)
-    """
-    fractions = np.array([[.5, .5, .5],
-                          [0, 0, 0]], dtype=np.float32)
-    return make_cubic(nx, ny, nz, fractions, scale, noise)
+    @property
+    def a1(self):
+        """:math:`(3, )` :class:`np.ndarray`: The first lattice vector."""
+        return self.box.to_matrix()[:, 0]
 
+    @property
+    def a2(self):
+        """:math:`(3, )` :class:`np.ndarray`: The second lattice vector."""
+        return self.box.to_matrix()[:, 1]
 
-def make_sc(nx=1, ny=1, nz=1, scale=1.0, noise=0.0):
-    """Make a simple cubic for testing.
+    @property
+    def a3(self):
+        """:math:`(3, )` :class:`np.ndarray`: The third lattice vector."""
+        return self.box.to_matrix()[:, 2]
 
-    Args:
-        nx: Number of repeats in the x direction, default is 1
-        ny: Number of repeats in the y direction, default is 1
-        nz: Number of repeats in the z direction, default is 1
-        scale: Amount to scale the unit cell by (in distance units)
-               (Default value = 1.0).
-        noise: Apply Gaussian noise with this width to particle positions
-               (Default value = 0.0).
+    @property
+    def dimensions(self):
+        """int: The dimensionality of the unit cell."""
+        return self.box.dimensions
 
-    Returns:
-        tuple (py:class:`freud.box.Box`, :class:`np.ndarray`): freud Box,
-            particle positions, shape=(nx*ny*nz, 3)
-    """
-    fractions = np.array([[0, 0, 0]], dtype=np.float32)
-    return make_cubic(nx, ny, nz, fractions, scale, noise)
+    @classmethod
+    def fcc(cls):
+        """Create an FCC crystal.
 
+        Returns:
+            :class:`~.UnitCell`: An FCC unit cell.
+        """
+        fractions = np.array([[.5, .5, 0],
+                              [.5, 0, .5],
+                              [0, .5, .5],
+                              [0, 0, 0]], dtype=np.float32)
+        return cls([1, 1, 1], fractions)
 
-def make_square(nx=1, ny=1, fractions=np.array([[0, 0, 0]], dtype=np.float32),
-                scale=1.0, noise=0.0):
-    """Make a square crystal for testing
+    @classmethod
+    def bcc(cls):
+        """Create an BCC crystal.
 
-    Args:
-        nx:
-            Number of repeats in the x direction, default is 1
-        ny:
-            Number of repeats in the y direction, default is 1
-        fractions:
-            The basis to replicate using the lattice.
-        scale:
-            Amount to scale the unit cell by (in distance units), default is
-            1.0
-        noise:
-            Apply Gaussian noise with this width to particle positions (Default
-            value = 0.0)
+        Returns:
+            :class:`~.UnitCell`: An BCC unit cell.
+        """
+        fractions = np.array([[.5, .5, .5],
+                              [0, 0, 0]], dtype=np.float32)
+        return cls([1, 1, 1], fractions)
 
-    Returns:
-        tuple (py:class:`freud.box.Box`, :class:`np.ndarray`):
-            freud Box, particle positions, shape=(nx*ny*nz, 3)
-    """
-    box, positions = make_cubic(nx, ny, 1, fractions, scale, noise)
-    box.dimensions = 2
-    positions[:, 2] = 0
+    @classmethod
+    def sc(cls):
+        """Create an SC crystal.
 
-    return box, positions
+        Returns:
+            :class:`~.UnitCell`: An SC unit cell.
+        """
+        fractions = np.array([[0, 0, 0]], dtype=np.float32)
+        return cls([1, 1, 1], fractions)
+
+    @classmethod
+    def square(cls):
+        """Create a square crystal.
+
+        Returns:
+            :class:`~.UnitCell`: A square unit cell.
+        """
+        fractions = np.array([[0, 0, 0]], dtype=np.float32)
+        return cls([1, 1], fractions)
