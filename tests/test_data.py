@@ -9,33 +9,30 @@ class TestData(unittest.TestCase):
         """Test that the square lattice is correctly generated."""
         box, points = freud.data.UnitCell.square().generate_system()
         self.assertEqual(box, freud.box.Box.square(1))
-        npt.assert_array_equal(points, [[0, 0, 0]])
+        npt.assert_array_equal(points, [[-0.5, -0.5, 0]])
 
     def test_sc(self):
         """Test that the sc lattice is correctly generated."""
         box, points = freud.data.UnitCell.sc().generate_system()
         self.assertEqual(box, freud.box.Box.cube(1))
-        npt.assert_array_equal(points, [[0, 0, 0]])
+        npt.assert_array_equal(points, [[-0.5, -0.5, -0.5]])
 
     def test_bcc(self):
         """Test that the bcc lattice is correctly generated."""
         box, points = freud.data.UnitCell.bcc().generate_system()
         self.assertEqual(box, freud.box.Box.cube(1))
-        # Add a box.wrap to make sure there's no issues comparing periodic
-        # images (e.g. 0.5 vs -0.5).
-        npt.assert_array_equal(points, box.wrap([[.5, .5, .5], [0, 0, 0]]))
+        npt.assert_array_equal(points, [[0, 0, 0],
+                                        [-0.5, -0.5, -0.5]])
 
     def test_fcc(self):
         """Test that the fcc lattice is correctly generated."""
         box, points = freud.data.UnitCell.fcc().generate_system()
         self.assertEqual(box, freud.box.Box.cube(1))
-        # Add a box.wrap to make sure there's no issues comparing periodic
-        # images (e.g. 0.5 vs -0.5).
         npt.assert_array_equal(points,
-                               box.wrap([[.5, .5, 0],
-                                         [.5, 0, .5],
-                                         [0, .5, .5],
-                                         [0, 0, 0]]))
+                               [[0, 0, -0.5],
+                                [0, -0.5, 0],
+                                [-0.5, 0, 0],
+                                [-0.5, -0.5, -0.5]])
 
     def test_scale(self):
         """Test the generation of a scaled structure."""
@@ -45,10 +42,10 @@ class TestData(unittest.TestCase):
             self.assertEqual(box, freud.box.Box.cube(scale))
             npt.assert_array_equal(
                 points,
-                box.wrap(scale*np.array([[.5, .5, 0],
-                                        [.5, 0, .5],
-                                        [0, .5, .5],
-                                        [0, 0, 0]])))
+                scale*np.array([[0, 0, -0.5],
+                                [0, -0.5, 0],
+                                [-0.5, 0, 0],
+                                [-0.5, -0.5, -0.5]]))
 
     def test_replicas(self):
         """Test that replication works."""
@@ -57,10 +54,10 @@ class TestData(unittest.TestCase):
             num_replicas=num_replicas)
         self.assertEqual(box, freud.box.Box.cube(num_replicas))
 
-        test_points = np.array([[.5, .5, 0],
-                                [.5, 0, .5],
-                                [0, .5, .5],
-                                [0, 0, 0]])
+        test_points = np.array([[0, 0, -0.5],
+                                [0, -0.5, 0],
+                                [-0.5, 0, 0],
+                                [-0.5, -0.5, -0.5]])
         test_points = test_points[np.newaxis, np.newaxis, np.newaxis, ...]
         test_points = np.tile(test_points,
                               [num_replicas, num_replicas, num_replicas, 1, 1])
@@ -85,10 +82,10 @@ class TestData(unittest.TestCase):
             sigma_noise=sigma, seed=0)
         self.assertEqual(box, freud.box.Box.cube(1))
 
-        test_points = box.wrap(np.array([[.5, .5, 0],
-                                         [.5, 0, .5],
-                                         [0, .5, .5],
-                                         [0, 0, 0]]))
+        test_points = np.array([[0, 0, -0.5],
+                                [0, -0.5, 0],
+                                [-0.5, 0, 0],
+                                [-0.5, -0.5, -0.5]])
 
         deltas = np.linalg.norm(box.wrap(test_points-points), axis=-1)
         # Nothing should be exactly equal, but differences should not be too

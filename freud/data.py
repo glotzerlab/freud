@@ -71,7 +71,7 @@ class UnitCell(object):
 
         if any([n > 1 for n in (nx, ny, nz)]):
             pbuff = freud.locality.PeriodicBuffer()
-            abs_positions = self.basis_positions.copy()
+            abs_positions = self.box.make_absolute(self.basis_positions)
             pbuff.compute((self.box, abs_positions),
                           buffer=(nx-1, ny-1, nz-1),
                           images=True)
@@ -80,7 +80,7 @@ class UnitCell(object):
                                         pbuff.buffer_points))
         else:
             box = self.box*scale
-            positions = self.basis_positions.copy()
+            positions = self.box.make_absolute(self.basis_positions)
         positions *= scale
 
         if sigma_noise != 0:
