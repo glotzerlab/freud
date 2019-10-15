@@ -1027,7 +1027,12 @@ class TestCompare(unittest.TestCase):
         # Bin counts are equal, PMFTs are scaled by the box length in z.
         npt.assert_array_equal(pmft2d.bin_counts,
                                pmft3d.bin_counts[:, :, nbins//2])
-        scale_factor = (nbins/2)*L
+        # The numerator of the scale factor comes from the extra z bins (which
+        # we cannot avoid adding because of the query distance limitations on
+        # NeighborQuery objects). The denominator comes from the 8pi^2 of
+        # orientational phase space in PMFTXYZ divided by the 2pi in theta
+        # space in PMFTXY.
+        scale_factor = ((nbins/2)*L)/(4*np.pi)
         npt.assert_allclose(np.exp(pmft2d.pmft),
                             np.exp(pmft3d.pmft[:, :, nbins//2])*scale_factor,
                             atol=1e-6)

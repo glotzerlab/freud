@@ -28,11 +28,23 @@ PMFTXYZ::PMFTXYZ(float x_max, float y_max, float z_max, unsigned int n_x, unsign
     if (z_max < 0.0f)
         throw std::invalid_argument("PMFTXYZ requires that z_max must be positive.");
 
-    // calculate dx, dy, dz
-    float dx = float(2.0) * x_max / float(n_x);
-    float dy = float(2.0) * y_max / float(n_y);
-    float dz = float(2.0) * z_max / float(n_z);
-    m_jacobian = dx * dy * dz;
+    // Compute Jacobian
+    const float dx = float(2.0) * x_max / float(n_x);
+    const float dy = float(2.0) * y_max / float(n_y);
+    const float dz = float(2.0) * z_max / float(n_z);
+
+    // To properly normalize, we must consider the 3 degrees of freedom that
+    // are implicitly integrated over by this calculation. In three dimensions,
+    // there are 6 total degrees of freedom; we are only accounting for the
+    // relative positions. The orientational degrees of freedom of the second
+    // particle constitute the other three. The total volume in our 6D
+    // coordinate space accounted for by these orientational degrees of freedom
+    // is 8*pi^2. To see this, consider an integral over the Euler angles as shown
+    // here https://en.wikipedia.org/wiki/3D_rotation_group#Spherical_harmonics
+    // or discussed more in depth in Representations of the Rotation and
+    // Lorentz Groups and Their Applications by Gelfand, Minlos, and Shapiro.
+    const float orientation_volume = 8 * M_PI * M_PI;
+    m_jacobian = dx * dy * dz * orientation_volume;
 
     // create and populate the pcf_array
     m_pcf_array.prepare({n_x, n_y, n_z});
