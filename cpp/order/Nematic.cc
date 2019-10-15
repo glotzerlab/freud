@@ -136,7 +136,7 @@ void Nematic::compute(quat<float>* orientations, unsigned int n)
     util::ManagedArray<float> evec = util::ManagedArray<float>({3, 3});
 
     freud::util::diagonalize33SymmetricMatrix(m_nematic_tensor, eval, evec);
-    m_nematic_director = vec3<Scalar>(evec(2, 0), evec(2, 1), evec(2, 2));
+    m_nematic_director = vec3<float>(evec(2, 0), evec(2, 1), evec(2, 2));
     m_nematic_order_parameter = eval[2];
 }
 

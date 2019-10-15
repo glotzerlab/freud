@@ -256,12 +256,12 @@ void Cubatic::compute(quat<float>* orientations, unsigned int num_orientations)
         // create thread-specific rng
         unsigned int thread_start = (unsigned int) r.begin();
 
-		std::vector<unsigned int> seed_seq(3);
-		seed_seq[0] = m_seed;
-		seed_seq[1] = thread_start;
-		seed_seq[2] = 0xffaabb;
-		std::seed_seq seed(seed_seq.begin(), seed_seq.end());
-		std::mt19937 rng(seed);
+        std::vector<unsigned int> seed_seq(3);
+        seed_seq[0] = m_seed;
+        seed_seq[1] = thread_start;
+        seed_seq[2] = 0xffaabb;
+        std::seed_seq seed(seed_seq.begin(), seed_seq.end());
+        std::mt19937 rng(seed);
         std::uniform_real_distribution<float> base_dist(0, 1);
         auto dist = std::bind(base_dist, rng);
 

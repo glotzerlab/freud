@@ -51,6 +51,7 @@ and this project adheres to
 * Cubatic uses standard library random functions instead of Saru (which has been removed from the repo).
 * Improved Voronoi plotting code.
 * Citations are now included using bibtex and sphinxcontrib-bibtex.
+* PMFTXY and PMFTXYZ include the phase space volume of coordinates that are implicitly integrated out (one angle in PMFTXY, and three angles in PMFTXYZ).
 
 ### Fixed
 * Steinhardt uses the ThreadStorage class and properly resets memory where needed.

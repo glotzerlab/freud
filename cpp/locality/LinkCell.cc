@@ -333,7 +333,7 @@ void LinkCell::computeCellList(const vec3<float>* points, unsigned int n_points)
 
 vec3<unsigned int> LinkCell::indexToCoord(unsigned int x) const
 {
-    std::vector<unsigned int> coord = util::ManagedArray<unsigned int>::getMultiIndex(
+    std::vector<size_t> coord = util::ManagedArray<unsigned int>::getMultiIndex(
         {m_celldim.x, m_celldim.y, m_celldim.z}, x);
     // For backwards compatibility with the Index1D layout, the indices and
     // the dimensions are passed in reverse to the indexer. Changing this would

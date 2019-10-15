@@ -24,9 +24,9 @@ struct NeighborBond
     }
 
     //! Not equals checks inverse of equality.
-	bool operator!=(const NeighborBond& other) {
-	  return !(*this == other);
-	}
+    bool operator!=(const NeighborBond& other) {
+      return !(*this == other);
+    }
 
     //! Default comparator of points is by distance.
     /*! This form of comparison allows easy sorting of nearest neighbors by
