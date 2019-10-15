@@ -240,8 +240,7 @@ cdef class PMFTR12(_PMFT):
 
 cdef class PMFTXYT(_PMFT):
     R"""Computes the PMFT :cite:`vanAnders:2014aa,van_Anders_2013` for
-    systems described by coordinates :math:`x`, :math:`y`, :math:`\theta`
-    listed in the ``X``, ``Y``, and ``T`` arrays.
+    systems described by coordinates :math:`x`, :math:`y`, :math:`\theta`.
 
     .. note::
         **2D:** :class:`freud.pmft.PMFTXYT` is only defined for 2D systems.
@@ -354,7 +353,14 @@ cdef class PMFTXYT(_PMFT):
 
 cdef class PMFTXY(_PMFT):
     R"""Computes the PMFT :cite:`vanAnders:2014aa,van_Anders_2013` in
-    coordinates :math:`x`, :math:`y` listed in the ``X`` and ``Y`` arrays.
+    coordinates :math:`x`, :math:`y`.
+
+    Since there are 3 degrees of translational and rotational freedom in 2
+    dimensions, this class is implicitly integrating out one of them.
+    Specifically, by comparison to :class:`~.PMFTXYT` we see that the missing
+    dimension is the relative orientation of the second particle. Note that
+    this degree of freedom is still accounted for in the Jacobian of this
+    calculation.
 
     .. note::
         **2D:** :class:`freud.pmft.PMFTXY` is only defined for 2D systems.
@@ -489,8 +495,26 @@ cdef class PMFTXY(_PMFT):
 
 cdef class PMFTXYZ(_PMFT):
     R"""Computes the PMFT :cite:`vanAnders:2014aa,van_Anders_2013` in
-    coordinates :math:`x`, :math:`y`, :math:`z`, listed in the ``X``, ``Y``,
-    and ``Z`` arrays.
+    coordinates :math:`x`, :math:`y`, :math:`z`.
+
+    Since there are 6 degrees of translational and rotational freedom in 3
+    dimensions, this class is implicitly integrating out three of them.
+    In particular, we are disregarding the orientational degrees of freedom in
+    the system. The simplest parameterization of these degrees is using Euler
+    angles. The total volume of orientations that are implicitly integrated out
+    by this calculation can be computed by an explicit integral over the Euler
+    angles:
+
+    .. math::
+
+        \int_0^{2\pi} \int_0^\pi \int_0^{2\pi} \sin \theta d\phi d\theta
+        d\psi = 8 \pi^2
+
+    For more information on this calculation, see :cite:`gelfand1963` (the
+    equation is also reproduced without proof at
+    https://en.wikipedia.org/wiki/3D_rotation_group#Spherical_harmonics).
+    This prefactor of :math:`8 \pi^2` is accounted for in the Jacobian used to
+    compute the :class:`PMFTXYZ`.
 
     Args:
         x_max (float):

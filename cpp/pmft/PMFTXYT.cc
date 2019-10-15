@@ -26,11 +26,11 @@ PMFTXYT::PMFTXYT(float x_max, float y_max, unsigned int n_x, unsigned int n_y, u
         throw std::invalid_argument("PMFTXYT requires that x_max must be positive.");
     if (y_max < 0.0f)
         throw std::invalid_argument("PMFTXYT requires that y_max must be positive.");
-    // calculate dx, dy, dt
-    float dx = 2.0 * x_max / float(n_x);
-    float dy = 2.0 * y_max / float(n_y);
-    float dt = TWO_PI / float(n_t);
 
+    // Compute Jacobian
+    const float dx = 2.0 * x_max / float(n_x);
+    const float dy = 2.0 * y_max / float(n_y);
+    const float dt = TWO_PI / float(n_t);
     m_jacobian = dx * dy * dt;
 
     // create and populate the pcf_array

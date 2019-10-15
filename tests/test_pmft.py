@@ -1001,5 +1001,70 @@ class TestPMFTXYZManagedArray(TestManagedArray, unittest.TestCase):
         self.obj.compute((box, points), orientations, neighbors={'r_max': 3})
 
 
+class TestCompare(unittest.TestCase):
+    def test_XY_XYZ(self):
+        """Check that 2D and 3D PMFTs give the same results."""
+        x_max = 2.5
+        y_max = 2.5
+        z_max = 1
+        nbins = 4
+        num_points = 100
+        L = 10
+
+        box2d = freud.box.Box.square(L)
+        box3d = freud.box.Box.cube(L)
+
+        points = np.random.rand(num_points, 3)
+        points[:, 2] = 0
+        orientations = np.array([[1, 0, 0, 0]]*len(points))
+
+        pmft2d = freud.pmft.PMFTXY(x_max, y_max, nbins)
+        pmft2d.compute((box2d, points), orientations)
+
+        pmft3d = freud.pmft.PMFTXYZ(x_max, y_max, z_max, nbins)
+        pmft3d.compute((box3d, points), orientations)
+
+        # Bin counts are equal, PMFTs are scaled by the box length in z.
+        npt.assert_array_equal(pmft2d.bin_counts,
+                               pmft3d.bin_counts[:, :, nbins//2])
+        # The numerator of the scale factor comes from the extra z bins (which
+        # we cannot avoid adding because of the query distance limitations on
+        # NeighborQuery objects). The denominator comes from the 8pi^2 of
+        # orientational phase space in PMFTXYZ divided by the 2pi in theta
+        # space in PMFTXY.
+        scale_factor = ((nbins/2)*L)/(4*np.pi)
+        npt.assert_allclose(np.exp(pmft2d.pmft),
+                            np.exp(pmft3d.pmft[:, :, nbins//2])*scale_factor,
+                            atol=1e-6)
+
+    def test_XY_XYT(self):
+        """Check that XY and XYT PMFTs give the same results."""
+        x_max = 2.5
+        y_max = 2.5
+        nbins = 3
+        nbinsxyt = (3, 3, 1)
+        num_points = 100
+        L = 10
+
+        box = freud.box.Box.square(L)
+
+        np.random.seed(0)
+        points = np.random.rand(num_points, 3)
+        points[:, 2] = 0
+        orientations = np.array([0]*len(points))
+
+        pmftxy = freud.pmft.PMFTXY(x_max, y_max, nbins)
+        pmftxy.compute((box, points), orientations)
+
+        pmftxyt = freud.pmft.PMFTXYT(x_max, y_max, nbinsxyt)
+        pmftxyt.compute((box, points), orientations)
+
+        npt.assert_array_equal(pmftxy.bin_counts,
+                               pmftxyt.bin_counts.reshape(nbins, nbins))
+        npt.assert_allclose(np.exp(pmftxy.pmft),
+                            np.exp(pmftxyt.pmft).reshape(nbins, nbins),
+                            atol=1e-6)
+
+
 if __name__ == '__main__':
     unittest.main()
