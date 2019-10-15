@@ -22,25 +22,30 @@ class UnitCell(object):
         box:
             A box-like object (see :meth:`~freud.box.Box.from_box`) containing
             the lattice vectors of the unit cell.
-        basis_positions ((:math:`N_{points}`) :class:`numpy.ndarray`):
+        basis_positions ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
             The basis of the unit cell in fractional coordinates
-            (Default value = ``[[0, 0, 0]]``.
+            (Default value = ``[[0, 0, 0]]``).
     """
     def __init__(self, box, basis_positions=[[0, 0, 0]]):
         self._box = freud.box.Box.from_box(box)
-        self._basis_positions = np.dot(basis_positions, self.box.to_matrix().T)
+        self._basis_positions = basis_positions
 
     def to_system(self, num_replicas=1, scale=1, sigma_noise=0):
         """Generate a system from the unit cell.
 
+        The box and the positions are expanded by ``scale``, and then Gaussian
+        noise with standard deviation ``sigma_noise`` is added to the
+        positions.  All points are wrapped back into the box before being
+        returned.
+
         Args:
-            num_replicas (:class:`tuple` or `int`):
+            num_replicas (:class:`tuple` or int):
                 If provided as a single number, the number of replicas in all
                 dimensions. If a tuple, the number of times replicated in each
                 dimension. Must be of the form (nx, ny, 1) for 2D boxes
                 (Default value = 1).
-            scale (float): Amount to scale the unit cell by (in distance units)
-                (Default value = 1).
+            scale (float): Factor by which scale the unit cell b
+            (Default value = 1).
             sigma_noise (float):
                 The standard deviation of the normal distribution used to add
                 noise to the positions in the system (Default value = 0).
@@ -67,8 +72,7 @@ class UnitCell(object):
         basis[..., 1] += np.arange(ny)[np.newaxis, :, np.newaxis, np.newaxis]
         basis[..., 2] += np.arange(nz)[np.newaxis, np.newaxis, :, np.newaxis]
 
-        positions = (basis - 0.5).reshape(-1, 3).dot(
-            self.box.to_matrix().T)*scale
+        positions = self.box.make_absolute((basis - 0.5).reshape(-1, 3)*scale)
         box = freud.box.Box.from_matrix(
             self.box.to_matrix() * scale * [[nx, ny, nz]])
 
@@ -78,6 +82,7 @@ class UnitCell(object):
             cov = np.diag([var, var, var if self.dimensions == 3 else 0])
             positions += np.random.multivariate_normal(
                 mean, cov, size=positions.shape[:-1])
+            positions = box.wrap(positions)
 
         return box, positions
 
@@ -91,7 +96,7 @@ class UnitCell(object):
     def lattice_vectors(self):
         """:math:`(3, 3)` :class:`np.ndarray`: The matrix of lattice
         vectors."""
-        return self._box.to_matrix()
+        return self.box.to_matrix()
 
     @property
     def basis_positions(self):
@@ -120,10 +125,10 @@ class UnitCell(object):
 
     @classmethod
     def fcc(cls):
-        """Create an FCC crystal.
+        """Create an fcc crystal.
 
         Returns:
-            :class:`~.UnitCell`: An FCC unit cell.
+            :class:`~.UnitCell`: An fcc unit cell.
         """
         fractions = np.array([[.5, .5, 0],
                               [.5, 0, .5],
@@ -133,10 +138,10 @@ class UnitCell(object):
 
     @classmethod
     def bcc(cls):
-        """Create an BCC crystal.
+        """Create an bcc crystal.
 
         Returns:
-            :class:`~.UnitCell`: An BCC unit cell.
+            :class:`~.UnitCell`: An bcc unit cell.
         """
         fractions = np.array([[.5, .5, .5],
                               [0, 0, 0]], dtype=np.float32)
@@ -144,10 +149,10 @@ class UnitCell(object):
 
     @classmethod
     def sc(cls):
-        """Create an SC crystal.
+        """Create an sc crystal.
 
         Returns:
-            :class:`~.UnitCell`: An SC unit cell.
+            :class:`~.UnitCell`: An sc unit cell.
         """
         fractions = np.array([[0, 0, 0]], dtype=np.float32)
         return cls([1, 1, 1], fractions)
