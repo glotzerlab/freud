@@ -72,7 +72,7 @@ class TestData(unittest.TestCase):
         test_points = (test_points-(0.5*num_replicas)).reshape(-1, 3)
 
         # Can't guarantee identical ordering based on algorithms.
-        npt.assert_array_equal(
+        self.assertEqual(
             set([tuple(x) for x in points]),
             set([tuple(x) for x in box.wrap(test_points)]),
         )

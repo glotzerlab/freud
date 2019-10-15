@@ -42,21 +42,21 @@ class UnitCell(object):
             num_replicas (:class:`tuple` or int):
                 If provided as a single number, the number of replicas in all
                 dimensions. If a tuple, the number of times replicated in each
-                dimension. Must be of the form (nx, ny, 1) for 2D boxes
+                dimension. Must be of the form ``(nx, ny, 1)`` for 2D boxes
                 (Default value = 1).
             scale (float):
-                Factor by which scale the unit cell (Default value = 1).
+                Factor by which to scale the unit cell (Default value = 1).
             sigma_noise (float):
                 The standard deviation of the normal distribution used to add
                 noise to the positions in the system (Default value = 0).
             seed (int):
                 If provided, used to seed the random noise generation. Not used
-                unless ``sigma_noise`` > 0 (Default value = None).
+                unless ``sigma_noise`` > 0 (Default value = :code:`None`).
 
         Returns:
             tuple (:class:`freud.box.Box`, :class:`np.ndarray`):
                 A system-like object (see
-                :class:`~freud.locality.NeighborQuery.from_system`.).
+                :class:`~freud.locality.NeighborQuery.from_system`).
         """
         try:
             nx, ny, nz = num_replicas
@@ -70,11 +70,12 @@ class UnitCell(object):
 
         if any([n > 1 for n in (nx, ny, nz)]):
             pbuff = freud.locality.PeriodicBuffer()
-            pbuff.compute((self.box, self.basis_positions),
+            abs_positions = self.basis_positions.copy()
+            pbuff.compute((self.box, abs_positions),
                           buffer=(nx-1, ny-1, nz-1),
                           images=True)
             box = pbuff.buffer_box*scale
-            positions = np.concatenate((self.basis_positions,
+            positions = np.concatenate((abs_positions,
                                         pbuff.buffer_points))
         else:
             box = self.box*scale
