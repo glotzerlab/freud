@@ -65,16 +65,18 @@ class UnitCell(object):
             raise ValueError("The number of replicas in z must be 1 for a "
                              "2D unit cell.")
 
-        basis = np.tile(
-            self.basis_positions[np.newaxis, np.newaxis, np.newaxis, ...],
-            (nx, ny, nz, 1, 1))
-        basis[..., 0] += np.arange(nx)[:, np.newaxis, np.newaxis, np.newaxis]
-        basis[..., 1] += np.arange(ny)[np.newaxis, :, np.newaxis, np.newaxis]
-        basis[..., 2] += np.arange(nz)[np.newaxis, np.newaxis, :, np.newaxis]
-
-        positions = self.box.make_absolute((basis - 0.5).reshape(-1, 3)*scale)
-        box = freud.box.Box.from_matrix(
-            self.box.to_matrix() * scale * [[nx, ny, nz]])
+        if any([n > 1 for n in (nx, ny, nz)]):
+            pbuff = freud.locality.PeriodicBuffer()
+            pbuff.compute((self.box, self.basis_positions),
+                          buffer=(nx-1, ny-1, nz-1),
+                          images=True)
+            box = pbuff.buffer_box*scale
+            positions = np.concatenate((self.basis_positions,
+                                        pbuff.buffer_points))
+        else:
+            box = self.box*scale
+            positions = self.basis_positions.copy()
+        positions *= scale
 
         if sigma_noise != 0:
             mean = [0]*3
@@ -82,8 +84,8 @@ class UnitCell(object):
             cov = np.diag([var, var, var if self.dimensions == 3 else 0])
             positions += np.random.multivariate_normal(
                 mean, cov, size=positions.shape[:-1])
-            positions = box.wrap(positions)
 
+        positions = box.wrap(positions)
         return box, positions
 
     @property
