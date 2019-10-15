@@ -21,7 +21,7 @@ class TestCluster(unittest.TestCase):
         np.random.seed(0)
         positions = []
         for _ in range(Nrep):
-            (box, pos) = freud.data.UnitCell.fcc().to_system(
+            (box, pos) = freud.data.UnitCell.fcc().generate_system(
                 Nlattice, sigma_noise=1e-2)
             positions.append(pos)
 
@@ -106,7 +106,7 @@ class TestCluster(unittest.TestCase):
         np.random.seed(0)
         positions = []
         for _ in range(Nrep):
-            (box, pos) = freud.data.UnitCell.fcc().to_system(
+            (box, pos) = freud.data.UnitCell.fcc().generate_system(
                 Nlattice, sigma_noise=1e-2)
             positions.append(pos)
 

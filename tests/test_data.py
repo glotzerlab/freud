@@ -7,19 +7,19 @@ import numpy as np
 class TestData(unittest.TestCase):
     def test_square(self):
         """Test that the square lattice is correctly generated."""
-        box, points = freud.data.UnitCell.square().to_system()
+        box, points = freud.data.UnitCell.square().generate_system()
         self.assertEqual(box, freud.box.Box.square(1))
         npt.assert_array_equal(points, [[0, 0, 0]])
 
     def test_sc(self):
         """Test that the sc lattice is correctly generated."""
-        box, points = freud.data.UnitCell.sc().to_system()
+        box, points = freud.data.UnitCell.sc().generate_system()
         self.assertEqual(box, freud.box.Box.cube(1))
         npt.assert_array_equal(points, [[0, 0, 0]])
 
     def test_bcc(self):
         """Test that the bcc lattice is correctly generated."""
-        box, points = freud.data.UnitCell.bcc().to_system()
+        box, points = freud.data.UnitCell.bcc().generate_system()
         self.assertEqual(box, freud.box.Box.cube(1))
         # Add a box.wrap to make sure there's no issues comparing periodic
         # images (e.g. 0.5 vs -0.5).
@@ -27,7 +27,7 @@ class TestData(unittest.TestCase):
 
     def test_fcc(self):
         """Test that the fcc lattice is correctly generated."""
-        box, points = freud.data.UnitCell.fcc().to_system()
+        box, points = freud.data.UnitCell.fcc().generate_system()
         self.assertEqual(box, freud.box.Box.cube(1))
         # Add a box.wrap to make sure there's no issues comparing periodic
         # images (e.g. 0.5 vs -0.5).
@@ -40,7 +40,8 @@ class TestData(unittest.TestCase):
     def test_scale(self):
         """Test the generation of a scaled structure."""
         for scale in [0.5, 2]:
-            box, points = freud.data.UnitCell.fcc().to_system(scale=scale)
+            box, points = freud.data.UnitCell.fcc().generate_system(
+                scale=scale)
             self.assertEqual(box, freud.box.Box.cube(scale))
             npt.assert_array_equal(
                 points,
@@ -52,7 +53,7 @@ class TestData(unittest.TestCase):
     def test_replicas(self):
         """Test that replication works."""
         num_replicas = 2
-        box, points = freud.data.UnitCell.fcc().to_system(
+        box, points = freud.data.UnitCell.fcc().generate_system(
             num_replicas=num_replicas)
         self.assertEqual(box, freud.box.Box.cube(num_replicas))
 
@@ -80,7 +81,7 @@ class TestData(unittest.TestCase):
     def test_noise(self):
         """Test that noise generation works."""
         sigma = 0.01
-        box, points = freud.data.UnitCell.fcc().to_system(
+        box, points = freud.data.UnitCell.fcc().generate_system(
             sigma_noise=sigma, seed=0)
         self.assertEqual(box, freud.box.Box.cube(1))
 
@@ -104,13 +105,13 @@ class TestData(unittest.TestCase):
 
         np.random.seed(0)
         first_rand = np.random.randint(num_points)
-        box, points = freud.data.UnitCell.fcc().to_system(
+        box, points = freud.data.UnitCell.fcc().generate_system(
             sigma_noise=sigma, seed=1)
         second_rand = np.random.randint(num_points)
 
         np.random.seed(0)
         third_rand = np.random.randint(num_points)
-        box, points = freud.data.UnitCell.fcc().to_system(
+        box, points = freud.data.UnitCell.fcc().generate_system(
             sigma_noise=sigma, seed=2)
         fourth_rand = np.random.randint(num_points)
 

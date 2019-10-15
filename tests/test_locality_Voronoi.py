@@ -139,7 +139,7 @@ class TestVoronoi(unittest.TestCase):
         vor = freud.locality.Voronoi()
 
         for func, neighbors in structure_neighbors.values():
-            box, points = func().to_system(n)
+            box, points = func().generate_system(n)
             vor.compute((box, points))
             nlist = vor.nlist
 
@@ -157,7 +157,7 @@ class TestVoronoi(unittest.TestCase):
         # Test that voronoi neighbor weights are computed properly for 3D FCC
 
         n = 3
-        box, points = freud.data.UnitCell.fcc().to_system(n, scale=2)
+        box, points = freud.data.UnitCell.fcc().generate_system(n, scale=2)
 
         vor = freud.locality.Voronoi()
         vor.compute((box, points))

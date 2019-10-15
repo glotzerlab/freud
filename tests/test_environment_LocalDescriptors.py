@@ -212,7 +212,7 @@ class TestLocalDescriptors(unittest.TestCase):
         for struct_func in [freud.data.UnitCell.sc,
                             freud.data.UnitCell.bcc,
                             freud.data.UnitCell.fcc]:
-            box, points = struct_func().to_system((5, 5, 5))
+            box, points = struct_func().generate_system((5, 5, 5))
 
             # In order to be able to access information on which particles are
             # bonded to which ones, we precompute the neighborlist
@@ -254,7 +254,7 @@ class TestLocalDescriptors(unittest.TestCase):
         for struct_func in [freud.data.UnitCell.sc,
                             freud.data.UnitCell.bcc,
                             freud.data.UnitCell.fcc]:
-            box, points = struct_func().to_system((5, 5, 5))
+            box, points = struct_func().generate_system((5, 5, 5))
 
             # In order to be able to access information on which particles are
             # bonded to which ones, we precompute the neighborlist
@@ -302,7 +302,7 @@ class TestLocalDescriptors(unittest.TestCase):
         for struct_func in [freud.data.UnitCell.sc,
                             freud.data.UnitCell.bcc,
                             freud.data.UnitCell.fcc]:
-            box, points = struct_func().to_system((5, 5, 5))
+            box, points = struct_func().generate_system((5, 5, 5))
 
             # In order to be able to access information on which particles are
             # bonded to which ones, we precompute the neighborlist

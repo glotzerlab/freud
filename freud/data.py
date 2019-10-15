@@ -30,7 +30,8 @@ class UnitCell(object):
         self._box = freud.box.Box.from_box(box)
         self._basis_positions = basis_positions
 
-    def to_system(self, num_replicas=1, scale=1, sigma_noise=0, seed=None):
+    def generate_system(self, num_replicas=1, scale=1, sigma_noise=0,
+                        seed=None):
         """Generate a system from the unit cell.
 
         The box and the positions are expanded by ``scale``, and then Gaussian
