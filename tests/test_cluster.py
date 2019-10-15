@@ -21,8 +21,8 @@ class TestCluster(unittest.TestCase):
         np.random.seed(0)
         positions = []
         for _ in range(Nrep):
-            (box, pos) = freud.data.make_fcc(Nlattice, Nlattice, Nlattice,
-                                             noise=1e-2)
+            (box, pos) = freud.data.UnitCell.fcc().to_system(
+                Nlattice, sigma_noise=1e-2)
             positions.append(pos)
 
         positions = np.array(positions).reshape((-1, 3))
@@ -106,8 +106,8 @@ class TestCluster(unittest.TestCase):
         np.random.seed(0)
         positions = []
         for _ in range(Nrep):
-            (box, pos) = freud.data.make_fcc(Nlattice, Nlattice, Nlattice,
-                                             noise=1e-2)
+            (box, pos) = freud.data.UnitCell.fcc().to_system(
+                Nlattice, sigma_noise=1e-2)
             positions.append(pos)
 
         # number of grid points (N = Nrep*Ngrid)

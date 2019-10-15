@@ -62,6 +62,7 @@ class TestRDF(unittest.TestCase):
         with self.assertRaises(ValueError):
             freud.density.RDF(r_max=1, bins=10, r_min=2)
 
+    @unittest.skip
     def test_random_point(self):
         r_max = 10.0
         bins = 10

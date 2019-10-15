@@ -143,7 +143,7 @@ class UnitCell(object):
         fractions = np.array([[.5, .5, 0],
                               [.5, 0, .5],
                               [0, .5, .5],
-                              [0, 0, 0]], dtype=np.float32)
+                              [0, 0, 0]])
         return cls([1, 1, 1], fractions)
 
     @classmethod
@@ -154,7 +154,7 @@ class UnitCell(object):
             :class:`~.UnitCell`: An bcc unit cell.
         """
         fractions = np.array([[.5, .5, .5],
-                              [0, 0, 0]], dtype=np.float32)
+                              [0, 0, 0]])
         return cls([1, 1, 1], fractions)
 
     @classmethod
@@ -164,7 +164,7 @@ class UnitCell(object):
         Returns:
             :class:`~.UnitCell`: An sc unit cell.
         """
-        fractions = np.array([[0, 0, 0]], dtype=np.float32)
+        fractions = np.array([[0, 0, 0]])
         return cls([1, 1, 1], fractions)
 
     @classmethod
@@ -174,5 +174,5 @@ class UnitCell(object):
         Returns:
             :class:`~.UnitCell`: A square unit cell.
         """
-        fractions = np.array([[0, 0, 0]], dtype=np.float32)
+        fractions = np.array([[0, 0, 0]])
         return cls([1, 1], fractions)

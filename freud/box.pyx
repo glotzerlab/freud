@@ -263,17 +263,20 @@ cdef class Box:
 
     @property
     def v1(self):
-        """:math:`(3, )` :class:`np.ndarray`: The first box vector."""
+        """:math:`(3, )` :class:`np.ndarray`: The first box vector
+        :math:`[Lx, 0, 0]`."""
         return self.get_box_vector(0)
 
     @property
     def v2(self):
-        """:math:`(3, )` :class:`np.ndarray`: The second box vector."""
+        """:math:`(3, )` :class:`np.ndarray`: The second box vector
+        :math:`[xy*Ly, Ly, 0]`."""
         return self.get_box_vector(1)
 
     @property
     def v3(self):
-        """:math:`(3, )` :class:`np.ndarray`: The third box vector."""
+        """:math:`(3, )` :class:`np.ndarray`: The third box vector
+        :math:`[xz*Lz, yz*Lz, Lz]`."""
         return self.get_box_vector(2)
 
     def wrap(self, vecs):

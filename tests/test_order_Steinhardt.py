@@ -53,7 +53,7 @@ class TestSteinhardt(unittest.TestCase):
             npt.assert_allclose(comp.particle_order, 1, atol=1e-5)
 
     def test_identical_environments_ql(self):
-        (box, positions) = freud.data.make_fcc(4, 4, 4)
+        box, positions = freud.data.UnitCell.fcc().to_system(4, scale=2)
         r_max = 1.5
         test_set = util.make_raw_query_nlist_test_set(
             box, positions, positions, 'ball', r_max, 0, True)
@@ -75,7 +75,7 @@ class TestSteinhardt(unittest.TestCase):
             self.assertAlmostEqual(comp.order, PERFECT_FCC_Q6, delta=1e-5)
 
     def test_identical_environments_ql_near(self):
-        (box, positions) = freud.data.make_fcc(4, 4, 4)
+        box, positions = freud.data.UnitCell.fcc().to_system(4)
 
         r_max = 1.5
         n = 12
@@ -120,7 +120,7 @@ class TestSteinhardt(unittest.TestCase):
                 comp.particle_order, PERFECT_FCC_Q6, rtol=1e-6)), 13)
 
     def test_identical_environments_wl(self):
-        (box, positions) = freud.data.make_fcc(4, 4, 4)
+        box, positions = freud.data.UnitCell.fcc().to_system(4, scale=2)
 
         r_max = 1.5
         test_set = util.make_raw_query_nlist_test_set(
@@ -143,7 +143,7 @@ class TestSteinhardt(unittest.TestCase):
             self.assertAlmostEqual(comp.order, PERFECT_FCC_W6, delta=1e-5)
 
     def test_identical_environments_wl_near(self):
-        (box, positions) = freud.data.make_fcc(4, 4, 4)
+        box, positions = freud.data.UnitCell.fcc().to_system(4)
         r_max = 1.5
         n = 12
         test_set = util.make_raw_query_nlist_test_set(
@@ -166,7 +166,7 @@ class TestSteinhardt(unittest.TestCase):
             self.assertAlmostEqual(comp.order, PERFECT_FCC_W6, delta=1e-5)
 
     def test_weighted(self):
-        (box, positions) = freud.data.make_fcc(4, 4, 4)
+        box, positions = freud.data.UnitCell.fcc().to_system(4)
         r_max = 1.5
         n = 12
         test_set = util.make_raw_query_nlist_test_set(
@@ -216,7 +216,7 @@ class TestSteinhardt(unittest.TestCase):
         with self.assertRaises(AttributeError):
             comp.particle_order
 
-        (box, positions) = freud.data.make_fcc(4, 4, 4)
+        box, positions = freud.data.UnitCell.fcc().to_system(4)
         comp.compute((box, positions), neighbors={'r_max': 1.5})
 
         comp.order

@@ -209,10 +209,10 @@ class TestLocalDescriptors(unittest.TestCase):
         num_neighbors = 6
         l_max = 12
 
-        for struct_func in [freud.data.make_sc,
-                            freud.data.make_bcc,
-                            freud.data.make_fcc]:
-            box, points = struct_func(5, 5, 5)
+        for struct_func in [freud.data.UnitCell.sc,
+                            freud.data.UnitCell.bcc,
+                            freud.data.UnitCell.fcc]:
+            box, points = struct_func().to_system((5, 5, 5))
 
             # In order to be able to access information on which particles are
             # bonded to which ones, we precompute the neighborlist
@@ -233,9 +233,10 @@ class TestLocalDescriptors(unittest.TestCase):
                 # in cases where there is no symmetry. Since simple cubic
                 # should have a 0 ql value in many cases, we need to set high
                 # tolerances for those specific cases.
+                atol = 1e-3 if struct_func == freud.data.UnitCell.sc else 1e-6
                 npt.assert_allclose(
                     steinhardt.particle_order, ql[:, L],
-                    atol=1e-3 if struct_func == freud.data.make_sc else 1e-6,
+                    atol=atol,
                     err_msg="Failed for {}, L = {}".format(
                         struct_func.__name__, L))
 
@@ -250,10 +251,10 @@ class TestLocalDescriptors(unittest.TestCase):
         num_neighbors = 6
         l_max = 12
 
-        for struct_func in [freud.data.make_sc,
-                            freud.data.make_bcc,
-                            freud.data.make_fcc]:
-            box, points = struct_func(5, 5, 5)
+        for struct_func in [freud.data.UnitCell.sc,
+                            freud.data.UnitCell.bcc,
+                            freud.data.UnitCell.fcc]:
+            box, points = struct_func().to_system((5, 5, 5))
 
             # In order to be able to access information on which particles are
             # bonded to which ones, we precompute the neighborlist
@@ -280,10 +281,11 @@ class TestLocalDescriptors(unittest.TestCase):
                 # in cases where there is no symmetry. Since simple cubic
                 # should have a 0 ql value in many cases, we need to set high
                 # tolerances for those specific cases.
+                atol = 1e-3 if struct_func == freud.data.UnitCell.sc else 1e-6
                 npt.assert_allclose(
                     steinhardt.particle_order,
                     ql[:, L],
-                    atol=1e-3 if struct_func == freud.data.make_sc else 1e-6,
+                    atol=atol,
                     err_msg="Failed for {}, L = {}".format(
                         struct_func.__name__, L))
 
@@ -297,10 +299,10 @@ class TestLocalDescriptors(unittest.TestCase):
         num_neighbors = 6
         l_max = 12
 
-        for struct_func in [freud.data.make_sc,
-                            freud.data.make_bcc,
-                            freud.data.make_fcc]:
-            box, points = struct_func(5, 5, 5)
+        for struct_func in [freud.data.UnitCell.sc,
+                            freud.data.UnitCell.bcc,
+                            freud.data.UnitCell.fcc]:
+            box, points = struct_func().to_system((5, 5, 5))
 
             # In order to be able to access information on which particles are
             # bonded to which ones, we precompute the neighborlist
