@@ -97,6 +97,7 @@ Vyas Ramasubramani - **Lead developer**
 * Rewrote all docstrings in the package for freud 2.0.
 * Changed Cubatic to use Mersenne Twisters for rng.
 * Moved all citations into Bibtex format.
+* Standardized PMFT normalization.
 
 Bradley Dice - **Lead developer**
 
