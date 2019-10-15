@@ -4,6 +4,12 @@
 R"""
 The :class:`freud.data` module provides certain sample data sets and utility
 functions that are useful for testing and examples.
+
+.. rubric:: Stability
+
+:mod:`freud.data` is **unstable**. When upgrading from version 2.x to 2.y (y >
+x), existing freud scripts may need to be updated. The API will be finalized in
+a future release.
 """
 
 import numpy as np
