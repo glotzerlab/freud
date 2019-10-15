@@ -6,60 +6,6 @@ freud Developers
 
 The following people contributed to the development of freud.
 
-Eric Harper, University of Michigan - **Former lead developer**
-
-* Added TBB parallelism.
-* Wrote PMFT module.
-* Added NearestNeighbors (since removed).
-* Wrote RDF.
-* Added bonding module (since removed).
-* Added cubatic order parameter.
-* Added hexatic order parameter.
-* Added Pairing2D (since removed).
-* Created common array conversion logic.
-
-Joshua A. Anderson, University of Michigan - **Creator**
-
-* Initial design and implementation.
-* Wrote LinkCell and IteratorLinkCell.
-* Wrote GaussianDensity, LocalDensity.
-* Added parallel module.
-* Added indexing modules (since removed).
-* Wrote Cluster and ClusterProperties modules.
-
-Matthew Spellings - **Former lead developer**
-
-* Added generic neighbor list.
-* Enabled neighbor list usage across freud modules.
-* Added correlation functions.
-* Added LocalDescriptors class.
-* Added interface module.
-
-Erin Teich
-
-* Wrote environment matching (MatchEnv) class.
-* Wrote BondOrder class (with Julia Dshemuchadse).
-* Wrote AngularSeparation class (with Andrew Karas).
-* Contributed to LocalQl development.
-* Wrote LocalBondProjection class.
-
-M. Eric Irrgang
-
-* Authored kspace module (since removed).
-* Fixed numerous bugs.
-* Contributed to freud.shape (since removed).
-
-Chrisy Du
-
-* Authored Steinhardt order parameter classes.
-* Fixed support for triclinic boxes.
-
-Antonio Osorio
-
-* Developed TrajectoryXML class.
-* Various bug fixes.
-* OpenMP support.
-
 Vyas Ramasubramani - **Lead developer**
 
 * Ensured PEP8 compliance.
@@ -137,6 +83,60 @@ Bradley Dice - **Lead developer**
 * Corrected number of points/query points in LocalDensity.
 * Made PeriodicBuffer inherit from _Compute.
 * Removed cudacpu and HOOMDMath includes.
+
+Eric Harper, University of Michigan - **Former lead developer**
+
+* Added TBB parallelism.
+* Wrote PMFT module.
+* Added NearestNeighbors (since removed).
+* Wrote RDF.
+* Added bonding module (since removed).
+* Added cubatic order parameter.
+* Added hexatic order parameter.
+* Added Pairing2D (since removed).
+* Created common array conversion logic.
+
+Joshua A. Anderson, University of Michigan - **Creator and former lead developer**
+
+* Initial design and implementation.
+* Wrote LinkCell and IteratorLinkCell.
+* Wrote GaussianDensity, LocalDensity.
+* Added parallel module.
+* Added indexing modules (since removed).
+* Wrote Cluster and ClusterProperties modules.
+
+Matthew Spellings - **Former lead developer**
+
+* Added generic neighbor list.
+* Enabled neighbor list usage across freud modules.
+* Added correlation functions.
+* Added LocalDescriptors class.
+* Added interface module.
+
+Erin Teich
+
+* Wrote environment matching (MatchEnv) class.
+* Wrote BondOrder class (with Julia Dshemuchadse).
+* Wrote AngularSeparation class (with Andrew Karas).
+* Contributed to LocalQl development.
+* Wrote LocalBondProjection class.
+
+M. Eric Irrgang
+
+* Authored kspace module (since removed).
+* Fixed numerous bugs.
+* Contributed to freud.shape (since removed).
+
+Chrisy Du
+
+* Authored Steinhardt order parameter classes.
+* Fixed support for triclinic boxes.
+
+Antonio Osorio
+
+* Developed TrajectoryXML class.
+* Various bug fixes.
+* OpenMP support.
 
 Richmond Newman
 
