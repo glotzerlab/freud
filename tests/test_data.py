@@ -97,6 +97,26 @@ class TestData(unittest.TestCase):
         self.assertFalse(np.allclose(deltas, 0))
         npt.assert_allclose(deltas, 0, atol=4*sigma)
 
+    def test_seed(self):
+        """Ensure that seeding does not overwrite the global state."""
+        num_points = 10
+        sigma = 0.01
+
+        np.random.seed(0)
+        first_rand = np.random.randint(num_points)
+        box, points = freud.data.UnitCell.fcc().to_system(
+            sigma_noise=sigma, seed=1)
+        second_rand = np.random.randint(num_points)
+
+        np.random.seed(0)
+        third_rand = np.random.randint(num_points)
+        box, points = freud.data.UnitCell.fcc().to_system(
+            sigma_noise=sigma, seed=2)
+        fourth_rand = np.random.randint(num_points)
+
+        npt.assert_array_equal(first_rand, third_rand)
+        npt.assert_array_equal(second_rand, fourth_rand)
+
 
 if __name__ == '__main__':
     unittest.main()
