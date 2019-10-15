@@ -77,6 +77,26 @@ class TestData(unittest.TestCase):
             set([tuple(x) for x in box.wrap(test_points)]),
         )
 
+    def test_noise(self):
+        """Test that noise generation works."""
+        sigma = 0.01
+        box, points = freud.data.UnitCell.fcc().to_system(
+            sigma_noise=sigma, seed=0)
+        self.assertEqual(box, freud.box.Box.cube(1))
+
+        test_points = box.wrap(np.array([[.5, .5, 0],
+                                         [.5, 0, .5],
+                                         [0, .5, .5],
+                                         [0, 0, 0]]))
+
+        deltas = np.linalg.norm(box.wrap(test_points-points), axis=-1)
+        # Nothing should be exactly equal, but differences should not be too
+        # large. 4 sigma is an arbitrary choice that gives a high probability
+        # of the test passing (although not necessary since the seed is set
+        # above).
+        self.assertFalse(np.allclose(deltas, 0))
+        npt.assert_allclose(deltas, 0, atol=4*sigma)
+
 
 if __name__ == '__main__':
     unittest.main()

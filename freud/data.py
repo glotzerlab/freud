@@ -30,7 +30,7 @@ class UnitCell(object):
         self._box = freud.box.Box.from_box(box)
         self._basis_positions = basis_positions
 
-    def to_system(self, num_replicas=1, scale=1, sigma_noise=0):
+    def to_system(self, num_replicas=1, scale=1, sigma_noise=0, seed=None):
         """Generate a system from the unit cell.
 
         The box and the positions are expanded by ``scale``, and then Gaussian
@@ -44,11 +44,14 @@ class UnitCell(object):
                 dimensions. If a tuple, the number of times replicated in each
                 dimension. Must be of the form (nx, ny, 1) for 2D boxes
                 (Default value = 1).
-            scale (float): Factor by which scale the unit cell b
-            (Default value = 1).
+            scale (float):
+                Factor by which scale the unit cell (Default value = 1).
             sigma_noise (float):
                 The standard deviation of the normal distribution used to add
                 noise to the positions in the system (Default value = 0).
+            seed (int):
+                If provided, used to seed the random noise generation. Not used
+                unless ``sigma_noise`` > 0 (Default value = None).
 
         Returns:
             tuple (:class:`freud.box.Box`, :class:`np.ndarray`):
@@ -79,11 +82,16 @@ class UnitCell(object):
         positions *= scale
 
         if sigma_noise != 0:
+            if seed is not None:
+                random_state = np.random.get_state()
+                np.random.seed(seed)
             mean = [0]*3
             var = sigma_noise*sigma_noise
             cov = np.diag([var, var, var if self.dimensions == 3 else 0])
             positions += np.random.multivariate_normal(
                 mean, cov, size=positions.shape[:-1])
+            if seed is not None:
+                np.random.set_state(random_state)
 
         positions = box.wrap(positions)
         return box, positions
