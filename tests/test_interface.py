@@ -1,7 +1,6 @@
 import numpy as np
 import freud
 import unittest
-import util
 
 
 class TestInterface(unittest.TestCase):
@@ -15,7 +14,8 @@ class TestInterface(unittest.TestCase):
         """Test that there is exactly 1 or 12 particles at the interface when
         one particle is removed from an FCC structure"""
         np.random.seed(0)
-        (box, positions) = util.make_fcc(4, 4, 4, noise=1e-2)
+        (box, positions) = freud.data.UnitCell.fcc().generate_system(
+            4, scale=2, sigma_noise=1e-2)
         positions.flags['WRITEABLE'] = False
 
         index = np.random.randint(0, len(positions))
@@ -56,7 +56,8 @@ class TestInterface(unittest.TestCase):
         """Test that nlists are filtered to the correct r_max."""
         np.random.seed(0)
         r_max = 3.0
-        (box, positions) = util.make_fcc(4, 4, 4, noise=1e-2)
+        (box, positions) = freud.data.UnitCell.fcc().generate_system(
+            4, scale=2, sigma_noise=1e-2)
 
         index = np.random.randint(0, len(positions))
 

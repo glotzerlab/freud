@@ -33,7 +33,7 @@ class TestSolidLiquid(unittest.TestCase):
         npt.assert_array_equal(nlist[:], comp.nlist[:])
 
     def test_identical_environments(self):
-        box, positions = util.make_fcc(4, 4, 4)
+        box, positions = freud.data.UnitCell.fcc().generate_system(4, scale=2)
 
         comp_default = freud.order.SolidLiquid(
             6, q_threshold=.7, solid_threshold=6)
@@ -49,7 +49,7 @@ class TestSolidLiquid(unittest.TestCase):
                 npt.assert_array_equal(comp.num_connections, 12)
 
     def test_attribute_access(self):
-        box, positions = util.make_fcc(4, 4, 4)
+        box, positions = freud.data.UnitCell.fcc().generate_system(4, scale=2)
         sph_l = 6
         q_threshold = 0.7
         solid_threshold = 4

@@ -10,7 +10,7 @@ from test_managedarray import TestManagedArray
 class TestBondOrder(unittest.TestCase):
     def test_bond_order(self):
         """Test the bond order diagram calculation."""
-        box, positions = util.make_fcc(4, 4, 4)
+        box, positions = freud.data.UnitCell.fcc().generate_system(4)
         quats = np.array([[1, 0, 0, 0]] * len(positions))
 
         r_max = 1.5

@@ -1,6 +1,6 @@
 import numpy as np
 import numpy.testing as npt
-import freud.util
+import freud
 import unittest
 from collections import namedtuple
 

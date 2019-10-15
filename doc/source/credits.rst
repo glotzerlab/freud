@@ -6,6 +6,84 @@ freud Developers
 
 The following people contributed to the development of freud.
 
+Vyas Ramasubramani - **Lead developer**
+
+* Ensured PEP8 compliance.
+* Added CircleCI continuous integration support.
+* Create environment module and refactored order module.
+* Rewrote most of freud docs, including order, density, and environment modules.
+* Fixed nematic order parameter.
+* Add properties for accessing class members.
+* Various minor bug fixes.
+* Refactored PMFT code.
+* Refactored Steinhardt order parameter code.
+* Wrote numerous examples of freud usage.
+* Rewrote most of freud tests.
+* Replaced CMake-based installation with setup.py using Cython.
+* Add code coverage metrics.
+* Added support for installing from PyPI, including ensuring that NumPy is installed.
+* Converted all docstrings to Google format, fixed various incorrect docs.
+* Debugged and added rotational autocorrelation code.
+* Added MSD module.
+* Wrote NeighborQuery, _QueryArgs, NeighborQueryResult classes.
+* Wrote neighbor iterator infrastructure.
+* Wrote PairCompute and SpatialHistogram parent classes.
+* Wrote ManagedArray class.
+* Wrote C++ histogram-related classes.
+* Initial design of freud 2.0 API (NeighborQuery objects, neighbor computations, histograms).
+* Standardized neighbor API in Python to use dictionaries of arguments or NeighborList objects for all pair computations.
+* Standardized all attribute access into C++ with Python properties.
+* Standardized variable naming of points/query\_points across all of freud.
+* Standardized vector directionality in computes.
+* Enabled usage of quaternions in place of angles for orientations in 2D PMFT calculations.
+* Wrote new freud 2.0 compute APIs based on neighbor\_query objects and neighbors as either dictionaries or NeighborLists.
+* Rewrote MatchEnv code to fit freud 2.0 API, splitting it into 3 separate calculations and rewriting internals using NeighborQuery objects.
+* Wrote tutorial and reference sections of documentation.
+* Unified util and common packages.
+* Rewrote all docstrings in the package for freud 2.0.
+* Changed Cubatic to use Mersenne Twisters for rng.
+* Moved all citations into Bibtex format.
+* Created data module.
+* Standardized PMFT normalization.
+
+Bradley Dice - **Lead developer**
+
+* Cleaned up various docstrings.
+* Fixed bugs in HexOrderParameter.
+* Cleaned up testing code.
+* Added bumpversion support.
+* Reduced all compile warnings.
+* Added Python interface for box periodicity.
+* Added Voronoi support for neighbor lists across periodic boundaries.
+* Added Voronoi weights for 3D.
+* Added Voronoi cell volume computation.
+* Incorporated internal BiMap class for Boost removal.
+* Wrote numerous examples of freud usage.
+* Added some freud tests.
+* Added ReadTheDocs support.
+* Rewrote interface module into pure Cython.
+* Added box duck-typing.
+* Removed nose from unit testing.
+* Use lambda function for parallelizing CorrelationFunction with TBB.
+* Finalized boost removal.
+* Wrote AABBQuery class.
+* Consolidated cluster module functionality.
+* Rewrote SolidLiquid order parameter class.
+* Updated AngularSeparation class.
+* Rewrote Voronoi implementation to leverage voro++.
+* Implemented Voronoi bond weighting to enable Minkowski structure metrics.
+* Refactored methods in Box and PeriodicBuffer for v2.0.
+* Added checks to C++ for 2D boxes where required.
+* Refactored cluster module.
+* Standardized vector directionality in computes.
+* NeighborQuery support to ClusterProperties, GaussianDensity, Voronoi, PeriodicBuffer, Interface.
+* Standardized APIs for order parameters.
+* Added radius of gyration to ClusterProperties.
+* Improved Voronoi plotting code.
+* Corrected number of points/query points in LocalDensity.
+* Made PeriodicBuffer inherit from _Compute.
+* Removed cudacpu and HOOMDMath includes.
+
 Eric Harper, University of Michigan - **Former lead developer**
 
 * Added TBB parallelism.
@@ -18,7 +96,7 @@ Eric Harper, University of Michigan - **Former lead developer**
 * Added Pairing2D (since removed).
 * Created common array conversion logic.
 
-Joshua A. Anderson, University of Michigan - **Creator**
+Joshua A. Anderson, University of Michigan - **Creator and former lead developer**
 
 * Initial design and implementation.
 * Wrote LinkCell and IteratorLinkCell.
@@ -59,83 +137,6 @@ Antonio Osorio
 * Developed TrajectoryXML class.
 * Various bug fixes.
 * OpenMP support.
-
-Vyas Ramasubramani - **Lead developer**
-
-* Ensured PEP8 compliance.
-* Added CircleCI continuous integration support.
-* Create environment module and refactored order module.
-* Rewrote most of freud docs, including order, density, and environment modules.
-* Fixed nematic order parameter.
-* Add properties for accessing class members.
-* Various minor bug fixes.
-* Refactored PMFT code.
-* Refactored Steinhardt order parameter code.
-* Wrote numerous examples of freud usage.
-* Rewrote most of freud tests.
-* Replaced CMake-based installation with setup.py using Cython.
-* Add code coverage metrics.
-* Added support for installing from PyPI, including ensuring that NumPy is installed.
-* Converted all docstrings to Google format, fixed various incorrect docs.
-* Debugged and added rotational autocorrelation code.
-* Added MSD module.
-* Wrote NeighborQuery, _QueryArgs, NeighborQueryResult classes.
-* Wrote neighbor iterator infrastructure.
-* Wrote PairCompute and SpatialHistogram parent classes.
-* Wrote ManagedArray class.
-* Wrote C++ histogram-related classes.
-* Initial design of freud 2.0 API (NeighborQuery objects, neighbor computations, histograms).
-* Standardized neighbor API in Python to use dictionaries of arguments or NeighborList objects for all pair computations.
-* Standardized all attribute access into C++ with Python properties.
-* Standardized variable naming of points/query\_points across all of freud.
-* Standardized vector directionality in computes.
-* Enabled usage of quaternions in place of angles for orientations in 2D PMFT calculations.
-* Wrote new freud 2.0 compute APIs based on neighbor\_query objects and neighbors as either dictionaries or NeighborLists.
-* Rewrote MatchEnv code to fit freud 2.0 API, splitting it into 3 separate calculations and rewriting internals using NeighborQuery objects.
-* Wrote tutorial and reference sections of documentation.
-* Unified util and common packages.
-* Rewrote all docstrings in the package for freud 2.0.
-* Changed Cubatic to use Mersenne Twisters for rng.
-* Moved all citations into Bibtex format.
-* Standardized PMFT normalization.
-
-Bradley Dice - **Lead developer**
-
-* Cleaned up various docstrings.
-* Fixed bugs in HexOrderParameter.
-* Cleaned up testing code.
-* Added bumpversion support.
-* Reduced all compile warnings.
-* Added Python interface for box periodicity.
-* Added Voronoi support for neighbor lists across periodic boundaries.
-* Added Voronoi weights for 3D.
-* Added Voronoi cell volume computation.
-* Incorporated internal BiMap class for Boost removal.
-* Wrote numerous examples of freud usage.
-* Added some freud tests.
-* Added ReadTheDocs support.
-* Rewrote interface module into pure Cython.
-* Added box duck-typing.
-* Removed nose from unit testing.
-* Use lambda function for parallelizing CorrelationFunction with TBB.
-* Finalized boost removal.
-* Wrote AABBQuery class.
-* Consolidated cluster module functionality.
-* Rewrote SolidLiquid order parameter class.
-* Updated AngularSeparation class.
-* Rewrote Voronoi implementation to leverage voro++.
-* Implemented Voronoi bond weighting to enable Minkowski structure metrics.
-* Refactored methods in Box and PeriodicBuffer for v2.0.
-* Added checks to C++ for 2D boxes where required.
-* Refactored cluster module.
-* Standardized vector directionality in computes.
-* NeighborQuery support to ClusterProperties, GaussianDensity, Voronoi, PeriodicBuffer, Interface.
-* Standardized APIs for order parameters.
-* Added radius of gyration to ClusterProperties.
-* Improved Voronoi plotting code.
-* Corrected number of points/query points in LocalDensity.
-* Made PeriodicBuffer inherit from _Compute.
-* Removed cudacpu and HOOMDMath includes.
 
 Richmond Newman
 

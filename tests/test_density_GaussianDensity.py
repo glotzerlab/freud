@@ -2,11 +2,11 @@ import numpy as np
 import numpy.testing as npt
 import freud
 import unittest
-from util import skipIfMissing, make_box_and_random_points
+import util
 
 
 class TestDensity(unittest.TestCase):
-    @skipIfMissing('scipy.fftpack')
+    @util.skipIfMissing('scipy.fftpack')
     def test_random_point_with_cell_list(self):
         from scipy.fftpack import fft, fftshift
         width = 100
@@ -14,7 +14,8 @@ class TestDensity(unittest.TestCase):
         sigma = 0.1
         num_points = 10000
         box_size = r_max*3.1
-        box, points = make_box_and_random_points(box_size, num_points, True)
+        box, points = util.make_box_and_random_points(box_size, num_points,
+                                                      True)
         for w in (width, (width, width), [width, width]):
             diff = freud.density.GaussianDensity(w, r_max, sigma)
 
@@ -43,7 +44,8 @@ class TestDensity(unittest.TestCase):
         sigma = 0.1
         num_points = 100
         box_size = r_max*3.1
-        box, points = make_box_and_random_points(box_size, num_points, True)
+        box, points = util.make_box_and_random_points(box_size, num_points,
+                                                      True)
         diff = freud.density.GaussianDensity(width, r_max, sigma)
 
         diff.compute((box, points))
@@ -65,7 +67,8 @@ class TestDensity(unittest.TestCase):
         sigma = 0.1
         num_points = 100
         box_size = r_max*3.1
-        box, points = make_box_and_random_points(box_size, num_points, True)
+        box, points = util.make_box_and_random_points(box_size, num_points,
+                                                      True)
         diff = freud.density.GaussianDensity(width, r_max, sigma)
 
         with self.assertRaises(AttributeError):

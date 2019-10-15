@@ -2,7 +2,7 @@ import numpy as np
 import numpy.testing as npt
 import freud.locality
 import unittest
-from util import make_box_and_random_points
+import util
 
 
 class TestNeighborList(unittest.TestCase):
@@ -16,7 +16,7 @@ class TestNeighborList(unittest.TestCase):
                                exclude_ii=True)
 
         # Initialize Box and cell list
-        box, points = make_box_and_random_points(self.L, self.N)
+        box, points = util.make_box_and_random_points(self.L, self.N)
         self.nq = freud.locality.AABBQuery(box, points)
         self.nlist = self.nq.query(points,
                                    self.query_args).toNeighborList()

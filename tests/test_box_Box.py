@@ -189,15 +189,27 @@ class TestBox(unittest.TestCase):
         Lx, Ly, Lz, xy, xz, yz = b_list
         box = freud.box.Box.from_box(b_list)
         npt.assert_allclose(
-            box.get_lattice_vector(0),
+            box.get_box_vector(0),
             [Lx, 0, 0]
         )
         npt.assert_allclose(
-            box.get_lattice_vector(1),
+            box.v1,
+            [Lx, 0, 0]
+        )
+        npt.assert_allclose(
+            box.get_box_vector(1),
             [xy*Ly, Ly, 0]
         )
         npt.assert_allclose(
-            box.get_lattice_vector(2),
+            box.v2,
+            [xy*Ly, Ly, 0]
+        )
+        npt.assert_allclose(
+            box.get_box_vector(2),
+            [xz*Lz, yz*Lz, Lz]
+        )
+        npt.assert_allclose(
+            box.v3,
             [xz*Lz, yz*Lz, Lz]
         )
 

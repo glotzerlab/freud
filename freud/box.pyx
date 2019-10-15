@@ -247,22 +247,37 @@ cdef class Box:
 
         return np.squeeze(images) if flatten else images
 
-    def get_lattice_vector(self, i):
-        R"""Get the lattice vector with index :math:`i`.
+    def get_box_vector(self, i):
+        R"""Get the box vector with index :math:`i`.
 
         Args:
             i (unsigned int):
-                Index (:math:`0 \leq i < d`) of the lattice vector, where
+                Index (:math:`0 \leq i < d`) of the box vector, where
                 :math:`d` is the box dimension (2 or 3).
 
         Returns:
             :math:`\left(3\right)` :class:`numpy.ndarray`:
-                Lattice vector with index :math:`i`.
+                Box vector with index :math:`i`.
         """
-        cdef vec3[float] result = self.thisptr.getLatticeVector(i)
-        if self.is2D:
-            result.z = 0.0
-        return np.asarray([result.x, result.y, result.z])
+        return self.to_matrix()[:, i]
+
+    @property
+    def v1(self):
+        """:math:`(3, )` :class:`np.ndarray`: The first box vector
+        :math:`(L_x, 0, 0)`."""
+        return self.get_box_vector(0)
+
+    @property
+    def v2(self):
+        """:math:`(3, )` :class:`np.ndarray`: The second box vector
+        :math:`(xy*L_y, L_y, 0)`."""
+        return self.get_box_vector(1)
+
+    @property
+    def v3(self):
+        """:math:`(3, )` :class:`np.ndarray`: The third box vector
+        :math:`(xz*L_z, yz*L_z, L_z)`."""
+        return self.get_box_vector(2)
 
     def wrap(self, vecs):
         R"""Wrap an array of vectors into the box, using periodic boundaries.

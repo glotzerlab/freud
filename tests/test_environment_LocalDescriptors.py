@@ -1,13 +1,11 @@
 import numpy as np
 import numpy.testing as npt
 import freud
-import sys
 import unittest
 from functools import lru_cache
 from sympy.physics.wigner import wigner_3j
 
-from util import (make_box_and_random_points, make_sc, make_bcc, make_fcc,
-                  skipIfMissing)
+import util
 
 
 def get_ql(p, descriptors, nlist, weighted=False):
@@ -87,7 +85,7 @@ class TestLocalDescriptors(unittest.TestCase):
         l_max = 8
         L = 10
 
-        box, positions = make_box_and_random_points(L, N)
+        box, positions = util.make_box_and_random_points(L, N)
         positions.flags['WRITEABLE'] = False
 
         comp = freud.environment.LocalDescriptors(l_max, True)
@@ -115,7 +113,7 @@ class TestLocalDescriptors(unittest.TestCase):
         l_max = 8
         L = 10
 
-        box, positions = make_box_and_random_points(L, N)
+        box, positions = util.make_box_and_random_points(L, N)
 
         comp = freud.environment.LocalDescriptors(l_max, True, 'global')
         comp.compute((box, positions),
@@ -131,7 +129,7 @@ class TestLocalDescriptors(unittest.TestCase):
         l_max = 8
         L = 10
 
-        box, positions = make_box_and_random_points(L, N)
+        box, positions = util.make_box_and_random_points(L, N)
         orientations = np.random.uniform(-1, 1, size=(N, 4)).astype(np.float32)
         orientations /= np.sqrt(np.sum(orientations**2,
                                        axis=-1))[:, np.newaxis]
@@ -156,7 +154,7 @@ class TestLocalDescriptors(unittest.TestCase):
         l_max = 8
         L = 10
 
-        box, positions = make_box_and_random_points(L, N)
+        box, positions = util.make_box_and_random_points(L, N)
 
         with self.assertRaises(ValueError):
             freud.environment.LocalDescriptors(
@@ -169,7 +167,7 @@ class TestLocalDescriptors(unittest.TestCase):
         l_max = 8
         L = 10
 
-        box, positions = make_box_and_random_points(L, N)
+        box, positions = util.make_box_and_random_points(L, N)
         positions2 = np.random.uniform(-L/2, L/2,
                                        size=(N//3, 3)).astype(np.float32)
 
@@ -188,7 +186,7 @@ class TestLocalDescriptors(unittest.TestCase):
         l_max = 8
         L = 10
 
-        box, positions = make_box_and_random_points(L, N)
+        box, positions = util.make_box_and_random_points(L, N)
         positions2 = np.random.uniform(-L/2, L/2,
                                        size=(N//3, 3)).astype(np.float32)
 
@@ -211,8 +209,10 @@ class TestLocalDescriptors(unittest.TestCase):
         num_neighbors = 6
         l_max = 12
 
-        for struct_func in [make_sc, make_bcc, make_fcc]:
-            box, points = struct_func(5, 5, 5)
+        for struct_func in [freud.data.UnitCell.sc,
+                            freud.data.UnitCell.bcc,
+                            freud.data.UnitCell.fcc]:
+            box, points = struct_func().generate_system((5, 5, 5))
 
             # In order to be able to access information on which particles are
             # bonded to which ones, we precompute the neighborlist
@@ -233,9 +233,10 @@ class TestLocalDescriptors(unittest.TestCase):
                 # in cases where there is no symmetry. Since simple cubic
                 # should have a 0 ql value in many cases, we need to set high
                 # tolerances for those specific cases.
+                atol = 1e-3 if struct_func == freud.data.UnitCell.sc else 1e-6
                 npt.assert_allclose(
                     steinhardt.particle_order, ql[:, L],
-                    atol=1e-3 if struct_func == make_sc else 1e-6,
+                    atol=atol,
                     err_msg="Failed for {}, L = {}".format(
                         struct_func.__name__, L))
 
@@ -250,8 +251,10 @@ class TestLocalDescriptors(unittest.TestCase):
         num_neighbors = 6
         l_max = 12
 
-        for struct_func in [make_sc, make_bcc, make_fcc]:
-            box, points = struct_func(5, 5, 5)
+        for struct_func in [freud.data.UnitCell.sc,
+                            freud.data.UnitCell.bcc,
+                            freud.data.UnitCell.fcc]:
+            box, points = struct_func().generate_system((5, 5, 5))
 
             # In order to be able to access information on which particles are
             # bonded to which ones, we precompute the neighborlist
@@ -278,16 +281,15 @@ class TestLocalDescriptors(unittest.TestCase):
                 # in cases where there is no symmetry. Since simple cubic
                 # should have a 0 ql value in many cases, we need to set high
                 # tolerances for those specific cases.
+                atol = 1e-3 if struct_func == freud.data.UnitCell.sc else 1e-6
                 npt.assert_allclose(
                     steinhardt.particle_order,
                     ql[:, L],
-                    atol=1e-3 if struct_func == make_sc else 1e-6,
+                    atol=atol,
                     err_msg="Failed for {}, L = {}".format(
                         struct_func.__name__, L))
 
-    @unittest.skipIf(sys.version_info < (3, 2),
-                     "functools.lru_cache only supported on Python 3.2+")
-    @skipIfMissing('sympy.physics.wigner')
+    @util.skipIfMissing('sympy.physics.wigner')
     def test_wl(self):
         """Check if we can reproduce Steinhardt wl."""
         # These exact parameter values aren't important; they won't necessarily
@@ -297,8 +299,10 @@ class TestLocalDescriptors(unittest.TestCase):
         num_neighbors = 6
         l_max = 12
 
-        for struct_func in [make_sc, make_bcc, make_fcc]:
-            box, points = struct_func(5, 5, 5)
+        for struct_func in [freud.data.UnitCell.sc,
+                            freud.data.UnitCell.bcc,
+                            freud.data.UnitCell.fcc]:
+            box, points = struct_func().generate_system((5, 5, 5))
 
             # In order to be able to access information on which particles are
             # bonded to which ones, we precompute the neighborlist
@@ -318,7 +322,7 @@ class TestLocalDescriptors(unittest.TestCase):
                 npt.assert_array_almost_equal(steinhardt.particle_order,
                                               wl[:, L])
 
-    @skipIfMissing('scipy.special')
+    @util.skipIfMissing('scipy.special')
     def test_ld(self):
         """Verify the behavior of LocalDescriptors by explicitly calculating
         spherical harmonics manually and verifying them."""
@@ -326,7 +330,7 @@ class TestLocalDescriptors(unittest.TestCase):
         atol = 1e-5
         L = 8
         N = 100
-        box, points = make_box_and_random_points(L, N)
+        box, points = util.make_box_and_random_points(L, N)
 
         num_neighbors = 1
         l_max = 2
@@ -378,7 +382,7 @@ class TestLocalDescriptors(unittest.TestCase):
                             theta, phi))
                     count += 1
 
-    @skipIfMissing('scipy.special')
+    @util.skipIfMissing('scipy.special')
     def test_query_point_ne_points(self):
         """Verify the behavior of LocalDescriptors by explicitly calculating
         spherical harmonics manually and verifying them."""
@@ -386,7 +390,7 @@ class TestLocalDescriptors(unittest.TestCase):
         atol = 1e-5
         L = 8
         N = 100
-        box, points = make_box_and_random_points(L, N)
+        box, points = util.make_box_and_random_points(L, N)
         query_points = np.random.rand(N, 3)*L - L/2
 
         num_neighbors = 1
