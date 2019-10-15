@@ -1036,13 +1036,14 @@ class TestCompare(unittest.TestCase):
         """Check that XY and XYT PMFTs give the same results."""
         x_max = 2.5
         y_max = 2.5
-        nbins = 2
-        nbinsxyt = (2, 2, 1)
+        nbins = 3
+        nbinsxyt = (3, 3, 1)
         num_points = 100
         L = 10
 
         box = freud.box.Box.square(L)
 
+        np.random.seed(0)
         points = np.random.rand(num_points, 3)
         points[:, 2] = 0
         orientations = np.array([0]*len(points))
@@ -1053,12 +1054,10 @@ class TestCompare(unittest.TestCase):
         pmftxyt = freud.pmft.PMFTXYT(x_max, y_max, nbinsxyt)
         pmftxyt.compute((box, points), orientations)
 
-        # Bin counts are equal, PMFTs are scaled by the box length in z.
         npt.assert_array_equal(pmftxy.bin_counts,
-                               pmftxyt.bin_counts.reshape(2, 2))
-        scale_factor = (nbins/2)/(2*np.pi)
+                               pmftxyt.bin_counts.reshape(nbins, nbins))
         npt.assert_allclose(np.exp(pmftxy.pmft),
-                            np.exp(pmftxyt.pmft).reshape(2, 2)*scale_factor,
+                            np.exp(pmftxyt.pmft).reshape(nbins, nbins),
                             atol=1e-6)
 
 
