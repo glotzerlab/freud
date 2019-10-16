@@ -279,9 +279,9 @@ cdef class NeighborQuery:
 
         * :class:`~.locality.AABBQuery`
         * :class:`~.locality.LinkCell`
-        * :class:`~.locality.RawPoints`
         * A sequence of :code:`(box, points)` where :code:`box` is a
           :class:`~.box.Box` and :code:`points` is a :class:`numpy.ndarray`.
+        * Objects with attributes :code:`box` and :code:`points`.
 
         Args:
             system (system-like object):
@@ -289,16 +289,20 @@ cdef class NeighborQuery:
 
         Returns:
             :class:`freud.locality.NeighborQuery`:
-                The same :class:`NeighborQuery` object if one is given, or an
-                instance of :class:`RawPoints` built from an inferred
+                The same :class:`~.NeighborQuery` object if one is given, or an
+                instance of :class:`~.NeighborQuery` built from an inferred
                 :code:`box` and :code:`points`.
         """
-        if isinstance(system, NeighborQuery):
+        if isinstance(system, cls):
             return system
-        elif cls == NeighborQuery:
+        elif hasattr(system, 'box') and hasattr(system, 'points'):
+            # Convert systems with attributes into a (box, points) tuple
+            system = (system.box, system.points)
+
+        if cls == NeighborQuery:
             # If called from this abstract parent class, always make
-            # :class:`~.RawPoints`.
-            return RawPoints(*system)
+            # :class:`~._RawPoints`.
+            return _RawPoints(*system)
         else:
             # Otherwise, use the current class.
             return cls(*system)
@@ -599,11 +603,11 @@ def _make_default_nq(neighbor_query):
     R"""Helper function to return a NeighborQuery object.
 
     Currently the resolution for NeighborQuery objects is such that if Python
-    users pass in a NumPy array of points and a box, we always make a RawPoints
-    object. On the C++ side, the RawPoints object internally constructs an
-    AABBQuery object to find neighbors if needed. On the Python side, making
-    the RawPoints object is just so that compute functions on the C++ side
-    don't require overloads to work.
+    users pass in a NumPy array of points and a box, we always make a
+    _RawPoints object. On the C++ side, the _RawPoints object internally
+    constructs an AABBQuery object to find neighbors if needed. On the Python
+    side, making the _RawPoints object is just so that compute functions on the
+    C++ side don't require overloads to work.
 
     Supported types for :code:`neighbor_query` include:
     - :class:`~.locality.AABBQuery`
@@ -619,11 +623,11 @@ def _make_default_nq(neighbor_query):
     Returns:
         :class:`freud.locality.NeighborQuery`
             The same :class:`NeighborQuery` object if one is given or
-            :class:`RawPoints` built from an inferred :code:`box` and
+            :class:`_RawPoints` built from an inferred :code:`box` and
             :code:`points`.
     """
     if not isinstance(neighbor_query, NeighborQuery):
-        nq = RawPoints(*neighbor_query)
+        nq = _RawPoints(*neighbor_query)
     else:
         nq = neighbor_query
     return nq
@@ -665,14 +669,14 @@ def _make_default_nlist(system, neighbors, query_points=None):
         return nq.query(qp, query_args).toNeighborList()
 
 
-cdef class RawPoints(NeighborQuery):
+cdef class _RawPoints(NeighborQuery):
     R"""Class containing :class:`~.box.Box` and points with no spatial data
     structures for accelerating neighbor queries."""
 
     def __cinit__(self, box, points):
         cdef const float[:, ::1] l_points
         cdef freud.box.Box b
-        if type(self) is RawPoints:
+        if type(self) is _RawPoints:
             # Assume valid set of arguments is passed
             b = freud.util._convert_box(box)
             self.points = freud.util._convert_array(points, shape=(None, 3))
@@ -683,7 +687,7 @@ cdef class RawPoints(NeighborQuery):
                 self.points.shape[0])
 
     def __dealloc__(self):
-        if type(self) is RawPoints:
+        if type(self) is _RawPoints:
             del self.thisptr
 
 
