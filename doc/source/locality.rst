@@ -13,7 +13,6 @@ Locality Module
     freud.locality.NeighborQuery
     freud.locality.NeighborQueryResult
     freud.locality.PeriodicBuffer
-    freud.locality.RawPoints
     freud.locality.Voronoi
 
 .. rubric:: Details
