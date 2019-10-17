@@ -55,7 +55,7 @@ cdef class LinkCell(NeighborQuery):
 cdef class AABBQuery(NeighborQuery):
     cdef freud._locality.AABBQuery * thisptr
 
-cdef class RawPoints(NeighborQuery):
+cdef class _RawPoints(NeighborQuery):
     cdef freud._locality.RawPoints * thisptr
 
 cdef class _QueryArgs:
