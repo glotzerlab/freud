@@ -50,7 +50,7 @@ cdef extern from "LocalDensity.h" namespace "freud::density":
 
 cdef extern from "RDF.h" namespace "freud::density":
     cdef cppclass RDF(BondHistogramCompute):
-        RDF(float, float, float) except +
+        RDF(float, float, float, bool) except +
         const freud._box.Box & getBox() const
         void accumulate(const freud._locality.NeighborQuery*,
                         const vec3[float]*,

@@ -17,7 +17,7 @@ class RDF : public locality::BondHistogramCompute
 {
 public:
     //! Constructor
-    RDF(unsigned int bins, float r_max, float r_min = 0);
+    RDF(unsigned int bins, float r_max, float r_min = 0, bool normalize = false);
 
     //! Destructor
     virtual ~RDF() {};
@@ -51,6 +51,7 @@ public:
     }
 
 private:
+    bool m_normalize;                          //!< Whether to enforce that the RDF should tend to 1 (instead of num_query_points/num_points).
     util::ManagedArray<float> m_pcf;         //!< The computed pair correlation function.
     util::ManagedArray<float> m_N_r;         //!< Cumulative bin sum N(r) (the average number of points in a ball of radius r).
     util::ManagedArray<float> m_vol_array2D; //!< Areas of concentric rings corresponding to the histogram bins in 2D.
