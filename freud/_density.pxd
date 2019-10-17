@@ -6,6 +6,7 @@ from libcpp.memory cimport shared_ptr
 from libcpp.complex cimport complex
 from libcpp.vector cimport vector
 from freud._locality cimport BondHistogramCompute
+from libcpp cimport bool
 
 cimport freud._box
 cimport freud._locality

@@ -15,7 +15,6 @@ from cython.operator cimport dereference
 from freud.util cimport _Compute
 from freud.locality cimport _PairCompute, _SpatialHistogram1D
 from freud.util cimport vec3
-from libcpp cimport bool
 
 from collections.abc import Sequence
 
@@ -468,7 +467,7 @@ cdef class RDF(_SpatialHistogram1D):
     """
     cdef freud._density.RDF * thisptr
 
-    def __cinit__(self, unsigned int bins, float r_max, float r_min=0, bool
+    def __cinit__(self, unsigned int bins, float r_max, float r_min=0,
                   normalize=False):
         if type(self) == RDF:
             self.thisptr = self.histptr = new freud._density.RDF(
