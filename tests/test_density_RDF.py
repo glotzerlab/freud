@@ -114,6 +114,7 @@ class TestRDF(unittest.TestCase):
         self.assertEqual(rdf._repr_png_(), None)
 
         rdf.compute((box, points), reset=False)
+        rdf.plot()
         rdf._repr_png_()
 
     def test_points_ne_query_points(self):

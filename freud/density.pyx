@@ -545,7 +545,7 @@ cdef class RDF(_SpatialHistogram1D):
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         import freud.plot
-        return freud.plot.line_plot(self.R, self.RDF,
+        return freud.plot.line_plot(self.bin_centers, self.rdf,
                                     title="RDF",
                                     xlabel=r"$r$",
                                     ylabel=r"$g(r)$",
