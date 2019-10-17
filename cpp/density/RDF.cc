@@ -48,7 +48,11 @@ void RDF::reduce()
     m_N_r.prepare(getAxisSizes()[0]);
 
     // Define prefactors with appropriate types to simplify and speed later code.
-    float number_density = (m_normalize ? float(m_n_points) : float(m_n_query_points)) / m_box.getVolume();
+    float number_density = float(m_n_query_points) / m_box.getVolume();
+    if (m_normalize)
+    {
+        number_density *= static_cast<float>(m_n_query_points-1)/(m_n_query_points);
+    }
     float np = static_cast<float>(m_n_points);
     float prefactor = float(1.0)/(np*number_density*m_frame_counter);
 

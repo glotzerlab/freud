@@ -15,6 +15,7 @@ from cython.operator cimport dereference
 from freud.util cimport _Compute
 from freud.locality cimport _PairCompute, _SpatialHistogram1D
 from freud.util cimport vec3
+from libcpp cimport bool
 
 from collections.abc import Sequence
 
@@ -451,6 +452,19 @@ cdef class RDF(_SpatialHistogram1D):
         r_min (float, optional):
             Minimum interparticle distance to include in the calculation
             (Default value = :code:`0`).
+        normalize (bool, optional):
+            Scale the RDF values by
+            :math:`\frac{N_{query\_points}+1}{N_{query\_points}+1}`. This
+            argument primarily exists to deal with standard RDF calculations
+            where no special ``query_points`` or ``neighbors`` are provided,
+            but where the number of ``query_points`` is small enough that the
+            long-ranged limit of :math:`g(r)` deviates significantly from
+            :math:`1`. It should not be used if :code:`query_points` is
+            provided as a different set of points, or if unusual query
+            arguments are provided to :meth:`~.compute`, specifically if
+            :code`exclude_ii` is set to :code:`False`. This normalization is
+            not meaningful in such cases and will simply convolute the data.
+
     """
     cdef freud._density.RDF * thisptr
 
