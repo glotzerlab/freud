@@ -625,9 +625,9 @@ cdef class EnvironmentCluster(_MatchEnv):
     def _repr_png_(self):
         try:
             import freud.plot
-        except ImportError:
+            return freud.plot._ax_to_bytes(self.plot())
+        except (AttributeError, ImportError):
             return None
-        return freud.plot._ax_to_bytes(self.plot())
 
 
 cdef class EnvironmentMotifMatch(_MatchEnv):
