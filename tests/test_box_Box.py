@@ -142,6 +142,22 @@ class TestBox(unittest.TestCase):
         npt.assert_allclose(
             box.unwrap(testpoints, imgs), [20, 1, 0], rtol=1e-6)
 
+        # Test broadcasting one image with multiple vectors
+        box = freud.box.Box.cube(1)
+
+        testpoints = [[10, 0, 0], [11, 0, 0]]
+        imgs = [10, 1, 2]
+        npt.assert_allclose(
+            box.unwrap(testpoints, imgs), [[20, 1, 2], [21, 1, 2]], rtol=1e-6)
+
+        # Test broadcasting one vector with multiple images
+        box = freud.box.Box.cube(1)
+
+        testpoints = [[10, 0, 0]]
+        imgs = [[10, 1, 2], [11, 1, 2]]
+        npt.assert_allclose(
+            box.unwrap(testpoints, imgs), [[20, 1, 2], [21, 1, 2]], rtol=1e-6)
+
     def test_images(self):
         box = freud.box.Box(2, 2, 2, 0, 0, 0)
         testpoints = np.array([[50, 40, 30],
