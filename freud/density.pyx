@@ -421,20 +421,23 @@ cdef class LocalDensity(_PairCompute):
 
 
 cdef class RDF(_SpatialHistogram1D):
-    R"""Computes RDF for supplied data.
+    R"""Computes the RDF :math:`g \left( r \right)` for supplied data.
 
-    The RDF (:math:`g \left( r \right)`) is computed and averaged for a given
-    set of query points in a sea of data points. Providing the same points
-    calculates them against themselves. Computing the RDF results in an RDF
-    array listing the value of the RDF at each given :math:`r`, listed in the
-    :code:`R` array.
+    Note that the RDF is defined strictly according to the pair correlation
+    function, i.e.
 
-    The values of :math:`r` to compute the RDF are set by the values of
-    :code:`r_min`, :code:`r_max`, :code:`bins` in the constructor.
-    :code:`r_max` sets the maximum distance at which to calculate the :math:`g
-    \left( r \right)`, :code:`r_min` sets the minimum distance at which to
-    calculate the :math:`g \left( r \right)`, and :code:`bins` determines the
-    number of bins.
+     .. math::
+
+         g(r) = V\frac{N-1}{N} \langle \delta(r) \rangle
+
+    In the thermodynamic limit, the fraction tends to unity and the limiting
+    behavior of :math:`\lim_{r->\infty} g(r)=1` is recovered. However, for very
+    small systems the long range behavior of the radial distribution will
+    instead tend to :math:`\frac{N-1}{N}`. If you are analyzing a very small
+    system but wish to recover the more familiar behavior, you may use the
+    `normalize` flag to enforce this requirement upon construction of this
+    object. Note that this will have little to no effect on larger systems (for
+    example, for systems of 100 particles the RDF will differ by 1%).
 
     .. note::
         **2D:** :class:`freud.density.RDF` properly handles 2D boxes.
@@ -448,13 +451,27 @@ cdef class RDF(_SpatialHistogram1D):
         r_min (float, optional):
             Minimum interparticle distance to include in the calculation
             (Default value = :code:`0`).
+        normalize (bool, optional):
+            Scale the RDF values by
+            :math:`\frac{N_{query\_points}+1}{N_{query\_points}+1}`. This
+            argument primarily exists to deal with standard RDF calculations
+            where no special ``query_points`` or ``neighbors`` are provided,
+            but where the number of ``query_points`` is small enough that the
+            long-ranged limit of :math:`g(r)` deviates significantly from
+            :math:`1`. It should not be used if :code:`query_points` is
+            provided as a different set of points, or if unusual query
+            arguments are provided to :meth:`~.compute`, specifically if
+            :code`exclude_ii` is set to :code:`False`. This normalization is
+            not meaningful in such cases and will simply convolute the data.
+
     """
     cdef freud._density.RDF * thisptr
 
-    def __cinit__(self, unsigned int bins, float r_max, float r_min=0):
+    def __cinit__(self, unsigned int bins, float r_max, float r_min=0,
+                  normalize=False):
         if type(self) == RDF:
             self.thisptr = self.histptr = new freud._density.RDF(
-                bins, r_max, r_min)
+                bins, r_max, r_min, normalize)
 
             # r_max is left as an attribute rather than a property for now
             # since that change needs to happen at the _SpatialHistogram level
@@ -545,7 +562,7 @@ cdef class RDF(_SpatialHistogram1D):
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         import freud.plot
-        return freud.plot.line_plot(self.R, self.RDF,
+        return freud.plot.line_plot(self.bin_centers, self.rdf,
                                     title="RDF",
                                     xlabel=r"$r$",
                                     ylabel=r"$g(r)$",
