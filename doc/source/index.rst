@@ -27,6 +27,7 @@ Table of Contents
 
    box
    cluster
+   data
    density
    environment
    interface
