@@ -465,19 +465,27 @@ cdef class Box:
         else:
             raise ValueError("Box can only be multiplied by positive values.")
 
-    def plot(self, title=None, ax=None):
+    def plot(self, title=None, ax=None, image=[0, 0, 0], *args, **kwargs):
         """Plot a :class:`~.box.Box` object.
 
         Args:
             title (str):
                 Title of the graph. (Default value = :code:`None`).
-            ax (:class:`matplotlib.axes.Axes`): axes object to plot.
-                If :code:`None`, make a new axes and figure object.
-                If plotting a 3D box, the axes must be 3D.
+            ax (:class:`matplotlib.axes.Axes`):
+                Axes object to plot. If :code:`None`, make a new axes and
+                figure object. If plotting a 3D box, the axes must be 3D.
                 (Default value = :code:`None`).
+            image (list):
+                The periodic image location at which to draw the box (Default
+                value = :code:`[0, 0, 0]`).
+            ``*args``, ``**kwargs``:
+                All other arguments are passed on to
+                :meth:`mpl_toolkits.mplot3d.Axes3D.plot` or
+                :meth:`matplotlib.axes.Axes.plot`.
         """
         import freud.plot
-        return freud.plot.box_plot(self, title=title, ax=ax)
+        return freud.plot.box_plot(self, title=title, ax=ax, image=image,
+                                   *args, **kwargs)
 
     @classmethod
     def from_box(cls, box, dimensions=None):

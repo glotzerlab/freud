@@ -57,7 +57,7 @@ def _set_3d_axes_equal(ax, limits=None):
     return ax
 
 
-def box_plot(box, title=None, ax=None):
+def box_plot(box, title=None, ax=None, image=[0, 0, 0], *args, **kwargs):
     """Helper function to plot a :class:`~.box.Box` object.
 
     Args:
@@ -69,6 +69,13 @@ def box_plot(box, title=None, ax=None):
             If :code:`None`, make a new axes and figure object.
             If plotting a 3D box, the axes must be 3D.
             (Default value = :code:`None`).
+        image (list):
+            The periodic image location at which to draw the box (Default
+            value = :code:`[0, 0, 0]`).
+        ``*args``, ``**kwargs``:
+            All other arguments are passed on to
+            :meth:`mpl_toolkits.mplot3d.Axes3D.plot` or
+            :meth:`matplotlib.axes.Axes.plot`.
     """
     box = freud.box.Box.from_box(box)
 
@@ -86,8 +93,11 @@ def box_plot(box, title=None, ax=None):
         corners = [[0, 0, 0], [0, 1, 0], [1, 1, 0], [1, 0, 0]]
         # Need to copy the last point so that the box is closed.
         corners.append(corners[0])
+        corners = np.asarray(corners)
+        corners += np.asarray(image)
         corners = box.make_absolute(corners)[:, :2]
-        ax.plot(corners[:, 0], corners[:, 1], color='k')
+        color = kwargs.pop('color', 'k')
+        ax.plot(corners[:, 0], corners[:, 1], color=color, *args, **kwargs)
         ax.set_aspect('equal', 'datalim')
         ax.set_xlabel('$x$')
         ax.set_ylabel('$y$')
@@ -95,13 +105,15 @@ def box_plot(box, title=None, ax=None):
         # Draw 3D box
         corners = np.array([[0, 0, 0], [0, 0, 1], [0, 1, 0], [0, 1, 1],
                             [1, 0, 0], [1, 0, 1], [1, 1, 0], [1, 1, 1]])
+        corners += np.asarray(image)
         corners = box.make_absolute(corners)
         paths = [corners[[0, 1, 3, 2, 0]],
                  corners[[4, 5, 7, 6, 4]],
                  corners[[0, 4]], corners[[1, 5]],
                  corners[[2, 6]], corners[[3, 7]]]
         for path in paths:
-            ax.plot(path[:, 0], path[:, 1], path[:, 2], color='k')
+            color = kwargs.pop('color', 'k')
+            ax.plot(path[:, 0], path[:, 1], path[:, 2], color=color)
         ax.set_xlabel('$x$')
         ax.set_ylabel('$y$')
         ax.set_zlabel('$z$')
