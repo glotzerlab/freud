@@ -342,7 +342,7 @@ cdef class Box:
     @property
     def periodic(self):
         """:math:`\\left(3, \\right)` :class:`numpy.ndarray`: Get or set the
-        periodicty of the box in each dimension."""
+        periodicity of the box in each dimension."""
         periodic = self.thisptr.getPeriodic()
         return np.asarray([periodic.x, periodic.y, periodic.z])
 
