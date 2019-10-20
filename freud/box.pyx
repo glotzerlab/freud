@@ -323,8 +323,11 @@ cdef class Box:
         vecs = np.asarray(vecs)
         flatten = vecs.ndim == 1
         vecs = np.atleast_2d(vecs)
-        vecs = freud.util._convert_array(vecs, shape=(None, 3)).copy()
         imgs = np.atleast_2d(imgs)
+        if vecs.shape[0] != imgs.shape[0]:
+            # Broadcasts (1, 3) to (N, 3) for both arrays
+            vecs, imgs = np.broadcast_arrays(vecs, imgs)
+        vecs = freud.util._convert_array(vecs, shape=(None, 3)).copy()
         imgs = freud.util._convert_array(imgs, shape=vecs.shape,
                                          dtype=np.int32)
 
