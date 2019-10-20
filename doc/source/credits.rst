@@ -45,6 +45,7 @@ Vyas Ramasubramani - **Lead developer**
 * Moved all citations into Bibtex format.
 * Created data module.
 * Standardized PMFT normalization.
+* Enabled optional normalization of RDF.
 
 Bradley Dice - **Lead developer**
 

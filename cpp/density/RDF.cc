@@ -11,7 +11,7 @@
 
 namespace freud { namespace density {
 
-RDF::RDF(unsigned int bins, float r_max, float r_min) : BondHistogramCompute()
+RDF::RDF(unsigned int bins, float r_max, float r_min, bool normalize) : BondHistogramCompute(), m_normalize(normalize)
 {
     if (bins == 0)
         throw std::invalid_argument("RDF requires a nonzero number of bins.");
@@ -48,9 +48,13 @@ void RDF::reduce()
     m_N_r.prepare(getAxisSizes()[0]);
 
     // Define prefactors with appropriate types to simplify and speed later code.
-    float ndens = float(m_n_query_points) / m_box.getVolume();
+    float number_density = float(m_n_query_points) / m_box.getVolume();
+    if (m_normalize)
+    {
+        number_density *= static_cast<float>(m_n_query_points-1)/(m_n_query_points);
+    }
     float np = static_cast<float>(m_n_points);
-    float prefactor = float(1.0)/(np*ndens*m_frame_counter);
+    float prefactor = float(1.0)/(np*number_density*m_frame_counter);
 
     util::ManagedArray<float> vol_array = m_box.is2D() ? m_vol_array2D : m_vol_array3D;
     m_histogram.reduceOverThreadsPerBin(m_local_histograms,

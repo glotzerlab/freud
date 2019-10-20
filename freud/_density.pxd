@@ -6,6 +6,7 @@ from libcpp.memory cimport shared_ptr
 from libcpp.complex cimport complex
 from libcpp.vector cimport vector
 from freud._locality cimport BondHistogramCompute
+from libcpp cimport bool
 
 cimport freud._box
 cimport freud._locality
@@ -50,7 +51,7 @@ cdef extern from "LocalDensity.h" namespace "freud::density":
 
 cdef extern from "RDF.h" namespace "freud::density":
     cdef cppclass RDF(BondHistogramCompute):
-        RDF(float, float, float) except +
+        RDF(float, float, float, bool) except +
         const freud._box.Box & getBox() const
         void accumulate(const freud._locality.NeighborQuery*,
                         const vec3[float]*,
