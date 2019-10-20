@@ -474,7 +474,7 @@ cdef class PMFTXY(_PMFT):
     def _repr_png_(self):
         import freud.plot
         try:
-            return freud.plot.ax_to_bytes(self.plot())
+            return freud.plot._ax_to_bytes(self.plot())
         except AttributeError:
             return None
 

@@ -343,6 +343,28 @@ cdef class NeighborQuery:
         R"""Returns a pointer to the raw C++ object we are wrapping."""
         return self.nqptr
 
+    def plot(self, ax=None, title=None, *args, **kwargs):
+        """Plot system box and points.
+
+        Args:
+            ax (:class:`matplotlib.axes.Axes`):
+                Axis to plot on. If :code:`None`, make a new figure and axis.
+                The axis projection (2D or 3D) must match the dimensionality of
+                the system (Default value = :code:`None`).
+            title (str):
+                Title of the plot (Default value = :code:`None`).
+            ``*args``, ``**kwargs``:
+                All other arguments are passed on to
+                :meth:`mpl_toolkits.mplot3d.Axes3D.scatter` or
+                :meth:`matplotlib.axes.Axes.scatter`.
+
+        Returns:
+            :class:`matplotlib.axes.Axes`: Axis with the plot.
+        """
+        import freud.plot
+        return freud.plot.system_plot(
+            self, ax=ax, title=title, *args, **kwargs)
+
 
 cdef class NeighborList:
     R"""Class representing bonds between two sets of points.
@@ -1125,6 +1147,6 @@ cdef class Voronoi(_Compute):
     def _repr_png_(self):
         import freud.plot
         try:
-            return freud.plot.ax_to_bytes(self.plot())
+            return freud.plot._ax_to_bytes(self.plot())
         except AttributeError:
             return None

@@ -1,27 +1,26 @@
 # Copyright (c) 2010-2019 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
+import freud
 import io
 import numpy as np
+
 try:
     from matplotlib.figure import Figure
     from matplotlib.backends.backend_agg import FigureCanvasAgg
-    MATPLOTLIB = True
 except ImportError:
-    MATPLOTLIB = False
+    raise ImportError('matplotlib must be installed for freud.plot.')
 
 
-def ax_to_bytes(ax):
+def _ax_to_bytes(ax):
     """Helper function to convert figure to png file.
 
     Args:
-        ax (:class:`matplotlib.axes.Axes`): axes object to plot.
+        ax (:class:`matplotlib.axes.Axes`): Axes object to plot.
 
     Returns:
         bytes: Byte representation of the diagram in png format.
     """
-    if ax is None:
-        return None
     f = io.BytesIO()
     # Sets an Agg backend so this figure can be rendered
     fig = ax.figure
@@ -29,6 +28,138 @@ def ax_to_bytes(ax):
     fig.savefig(f, format='png')
     fig.clf()
     return f.getvalue()
+
+
+def _set_3d_axes_equal(ax, limits=None):
+    """Make axes of 3D plot have equal scale so that spheres appear as spheres,
+    cubes as cubes, etc. This is one possible solution to Matplotlib's
+    ax.set_aspect('equal') and ax.axis('equal') not working for 3D.
+
+    Args:
+        ax (:class:`matplotlib.axes.Axes`): Axes object.
+        limits (:math:`(3, 2)` :class:`np.ndarray`):
+            Axis limits in the form
+            :code:`[[xmin, xmax], [ymin, ymax], [zmin, zmax]]`. If
+            :code:`None`, the limits are auto-detected (Default value =
+            :code:`None`).
+    """
+    # Adapted from https://stackoverflow.com/a/50664367
+
+    if limits is None:
+        limits = np.array([ax.get_xlim3d(), ax.get_ylim3d(), ax.get_zlim3d()])
+    else:
+        limits = np.asarray(limits)
+    origin = np.mean(limits, axis=1)
+    radius = 0.5 * np.max(np.abs(limits[:, 1] - limits[:, 0]))
+    ax.set_xlim3d([origin[0] - radius, origin[0] + radius])
+    ax.set_ylim3d([origin[1] - radius, origin[1] + radius])
+    ax.set_zlim3d([origin[2] - radius, origin[2] + radius])
+    return ax
+
+
+def box_plot(box, title=None, ax=None):
+    """Helper function to plot a :class:`~.box.Box` object.
+
+    Args:
+        box (:class:`~.box.Box`):
+            Simulation box.
+        title (str):
+            Title of the graph. (Default value = :code:`None`).
+        ax (:class:`matplotlib.axes.Axes`): Axes object to plot.
+            If :code:`None`, make a new axes and figure object.
+            If plotting a 3D box, the axes must be 3D.
+            (Default value = :code:`None`).
+    """
+    box = freud.box.Box.from_box(box)
+
+    if ax is None:
+        fig = Figure()
+        if box.is2D:
+            ax = fig.subplots()
+        else:
+            # This import registers the 3d projection
+            from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
+            ax = fig.add_subplot(111, projection='3d')
+
+    if box.is2D:
+        # Draw 2D box
+        corners = [[0, 0, 0], [0, 1, 0], [1, 1, 0], [1, 0, 0]]
+        # Need to copy the last point so that the box is closed.
+        corners.append(corners[0])
+        corners = box.make_absolute(corners)[:, :2]
+        ax.plot(corners[:, 0], corners[:, 1], color='k')
+        ax.set_aspect('equal', 'datalim')
+        ax.set_xlabel('$x$')
+        ax.set_ylabel('$y$')
+    else:
+        # Draw 3D box
+        corners = np.array([[0, 0, 0], [0, 0, 1], [0, 1, 0], [0, 1, 1],
+                            [1, 0, 0], [1, 0, 1], [1, 1, 0], [1, 1, 1]])
+        corners = box.make_absolute(corners)
+        paths = [corners[[0, 1, 3, 2, 0]],
+                 corners[[4, 5, 7, 6, 4]],
+                 corners[[0, 4]], corners[[1, 5]],
+                 corners[[2, 6]], corners[[3, 7]]]
+        for path in paths:
+            ax.plot(path[:, 0], path[:, 1], path[:, 2], color='k')
+        ax.set_xlabel('$x$')
+        ax.set_ylabel('$y$')
+        ax.set_zlabel('$z$')
+        limits = [[corners[0, 0], corners[-1, 0]],
+                  [corners[0, 1], corners[-1, 1]],
+                  [corners[0, 2], corners[-1, 2]]]
+        _set_3d_axes_equal(ax, limits)
+
+    return ax
+
+
+def system_plot(system, title=None, ax=None, *args, **kwargs):
+    """Helper function to plot a system object.
+
+    Args:
+        system
+            Any object that is a valid argument to
+            :class:`freud.locality.NeighborQuery.from_system`.
+        title (str):
+            Title of the plot. (Default value = :code:`None`).
+        ax (:class:`matplotlib.axes.Axes`): Axes object to plot.
+            If :code:`None`, make a new axes and figure object.
+            (Default value = :code:`None`).
+    """
+    if ax is None:
+        fig = Figure()
+        ax = fig.subplots()
+
+    system = freud.locality.NeighborQuery.from_system(system)
+
+    if ax is None:
+        fig = Figure()
+        if system.box.is2D:
+            ax = fig.subplots()
+        else:
+            # This import registers the 3d projection
+            from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
+            ax = fig.add_subplot(111, projection='3d')
+
+    if system.box.is2D:
+        box_plot(system.box, ax=ax)
+        ax.scatter(system.points[:, 0],
+                   system.points[:, 1],
+                   *args, **kwargs)
+        ax.set_aspect('equal', 'datalim')
+    else:
+        box_plot(system.box, ax=ax)
+        ax.scatter(system.points[:, 0],
+                   system.points[:, 1],
+                   system.points[:, 2],
+                   *args, **kwargs)
+        box_min = system.box.make_absolute([0, 0, 0])
+        box_max = system.box.make_absolute([1, 1, 1])
+        points_min = np.min(system.points, axis=0)
+        points_max = np.max(system.points, axis=0)
+        limits = [[np.min([box_min[i], points_min[i]]),
+                   np.max([box_max[i], points_max[i]])] for i in range(3)]
+        _set_3d_axes_equal(ax, limits=limits)
 
 
 def bar_plot(x, height, title=None, xlabel=None, ylabel=None, ax=None):
@@ -40,16 +171,13 @@ def bar_plot(x, height, title=None, xlabel=None, ylabel=None, ax=None):
         title (str): Title of the graph. (Default value = :code:`None`).
         xlabel (str): Label of x axis. (Default value = :code:`None`).
         ylabel (str): Label of y axis. (Default value = :code:`None`).
-        ax (:class:`matplotlib.axes.Axes`): axes object to plot.
+        ax (:class:`matplotlib.axes.Axes`): Axes object to plot.
             If :code:`None`, make a new axes and figure object.
             (Default value = :code:`None`).
 
     Returns:
-        :class:`matplotlib.axes.Axes`: axes object with the diagram.
+        :class:`matplotlib.axes.Axes`: Axes object with the diagram.
     """
-    if not MATPLOTLIB:
-        return None
-
     if ax is None:
         fig = Figure()
         ax = fig.subplots()
@@ -71,12 +199,12 @@ def clusters_plot(keys, freqs, num_clusters_to_plot=10, ax=None):
         freqs (list): Number of particles in each clusters.
         num_clusters_to_plot (unsigned int): Number of largest clusters to
             plot.
-        ax (:class:`matplotlib.axes.Axes`): axes object to plot.
+        ax (:class:`matplotlib.axes.Axes`): Axes object to plot.
             If :code:`None`, make a new axes and figure object.
             (Default value = :code:`None`).
 
     Returns:
-        :class:`matplotlib.axes.Axes`: axes object with the diagram.
+        :class:`matplotlib.axes.Axes`: Axes object with the diagram.
     """
     count_sorted = sorted([(freq, key)
                           for key, freq in zip(keys, freqs)],
@@ -98,16 +226,13 @@ def line_plot(x, y, title=None, xlabel=None, ylabel=None, ax=None):
         title (str): Title of the graph. (Default value = :code:`None`).
         xlabel (str): Label of x axis. (Default value = :code:`None`).
         ylabel (str): Label of y axis. (Default value = :code:`None`).
-        ax (:class:`matplotlib.axes.Axes`): axes object to plot.
+        ax (:class:`matplotlib.axes.Axes`): Axes object to plot.
             If :code:`None`, make a new axes and figure object.
             (Default value = :code:`None`).
 
     Returns:
-        :class:`matplotlib.axes.Axes`: axes object with the diagram.
+        :class:`matplotlib.axes.Axes`: Axes object with the diagram.
     """
-    if not MATPLOTLIB:
-        return None
-
     if ax is None:
         fig = Figure()
         ax = fig.subplots()
@@ -127,16 +252,13 @@ def histogram_plot(values, title=None, xlabel=None, ylabel=None, ax=None):
         title (str): Title of the graph. (Default value = :code:`None`).
         xlabel (str): Label of x axis. (Default value = :code:`None`).
         ylabel (str): Label of y axis. (Default value = :code:`None`).
-        ax (:class:`matplotlib.axes.Axes`): axes object to plot.
+        ax (:class:`matplotlib.axes.Axes`): Axes object to plot.
             If :code:`None`, make a new axes and figure object.
             (Default value = :code:`None`).
 
     Returns:
-        :class:`matplotlib.axes.Axes`: axes object with the diagram.
+        :class:`matplotlib.axes.Axes`: Axes object with the diagram.
     """
-    if not MATPLOTLIB:
-        return None
-
     if ax is None:
         fig = Figure()
         ax = fig.subplots()
@@ -154,51 +276,46 @@ def pmft_plot(pmft, ax=None):
     Args:
         pmft (:class:`freud.pmft.PMFTXY2D`):
             PMFTXY2D instance.
-        ax (:class:`matplotlib.axes.Axes`): axes object to plot.
+        ax (:class:`matplotlib.axes.Axes`): Axes object to plot.
             If :code:`None`, make a new axes and figure object.
             (Default value = :code:`None`).
 
     Returns:
-        :class:`matplotlib.axes.Axes`: axes object with the diagram.
+        :class:`matplotlib.axes.Axes`: Axes object with the diagram.
     """
-    if not MATPLOTLIB:
-        return None
-    try:
-        from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
-        from matplotlib.colorbar import Colorbar
-    except ImportError:
-        return None
-    else:
-        # Plot figures
-        if ax is None:
-            fig = Figure()
-            ax = fig.subplots()
+    from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
+    from matplotlib.colorbar import Colorbar
 
-        pmft_arr = np.copy(pmft.PMFT)
-        pmft_arr[np.isinf(pmft_arr)] = np.nan
+    # Plot figures
+    if ax is None:
+        fig = Figure()
+        ax = fig.subplots()
 
-        xlims = (pmft.X[0], pmft.X[-1])
-        ylims = (pmft.Y[0], pmft.Y[-1])
-        ax.set_xlim(xlims)
-        ax.set_ylim(ylims)
-        ax.xaxis.set_ticks([i for i in range(int(xlims[0]), int(xlims[1]+1))])
-        ax.yaxis.set_ticks([i for i in range(int(ylims[0]), int(ylims[1]+1))])
-        ax.set_xlabel(r'$x$')
-        ax.set_ylabel(r'$y$')
-        ax.set_title('PMFT')
+    pmft_arr = np.copy(pmft.PMFT)
+    pmft_arr[np.isinf(pmft_arr)] = np.nan
 
-        ax_divider = make_axes_locatable(ax)
-        cax = ax_divider.append_axes("right", size="7%", pad="10%")
+    xlims = (pmft.X[0], pmft.X[-1])
+    ylims = (pmft.Y[0], pmft.Y[-1])
+    ax.set_xlim(xlims)
+    ax.set_ylim(ylims)
+    ax.xaxis.set_ticks([i for i in range(int(xlims[0]), int(xlims[1]+1))])
+    ax.yaxis.set_ticks([i for i in range(int(ylims[0]), int(ylims[1]+1))])
+    ax.set_xlabel(r'$x$')
+    ax.set_ylabel(r'$y$')
+    ax.set_title('PMFT')
 
-        im = ax.imshow(np.flipud(pmft_arr),
-                       extent=[xlims[0], xlims[1], ylims[0], ylims[1]],
-                       interpolation='nearest', cmap='viridis',
-                       vmin=-2.5, vmax=3.0)
+    ax_divider = make_axes_locatable(ax)
+    cax = ax_divider.append_axes("right", size="7%", pad="10%")
 
-        cb = Colorbar(cax, im)
-        cb.set_label(r"$k_B T$")
+    im = ax.imshow(np.flipud(pmft_arr),
+                   extent=[xlims[0], xlims[1], ylims[0], ylims[1]],
+                   interpolation='nearest', cmap='viridis',
+                   vmin=-2.5, vmax=3.0)
 
-        return ax
+    cb = Colorbar(cax, im)
+    cb.set_label(r"$k_B T$")
+
+    return ax
 
 
 def density_plot(density, box, ax=None):
@@ -209,20 +326,15 @@ def density_plot(density, box, ax=None):
             Array containing density.
         box (:class:`freud.box.Box`):
             Simulation box.
-        ax (:class:`matplotlib.axes.Axes`): axes object to plot.
+        ax (:class:`matplotlib.axes.Axes`): Axes object to plot.
             If :code:`None`, make a new axes and figure object.
             (Default value = :code:`None`).
 
     Returns:
-        :class:`matplotlib.axes.Axes`: axes object with the diagram.
+        :class:`matplotlib.axes.Axes`: Axes object with the diagram.
     """
-    if not MATPLOTLIB:
-        return None
-    try:
-        from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
-        from matplotlib.colorbar import Colorbar
-    except ImportError:
-        return None
+    from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
+    from matplotlib.colorbar import Colorbar
 
     if ax is None:
         fig = Figure()
@@ -254,29 +366,24 @@ def voronoi_plot(box, polytopes, ax=None, color_by_sides=True, cmap=None):
             Simulation box.
         polytopes (:class:`numpy.ndarray`):
             Array containing Voronoi polytope vertices.
-        ax (:class:`matplotlib.axes.Axes`): axes object to plot.
+        ax (:class:`matplotlib.axes.Axes`): Axes object to plot.
             If :code:`None`, make a new axes and figure object.
             (Default value = :code:`None`).
         color_by_sides (bool):
             If :code:`True`, color cells by the number of sides.
             If :code:`False`, random colors are used for each cell.
-            (Default value = :code:`True`)
+            (Default value = :code:`True`).
         cmap (str):
             Colormap name to use (Default value = :code:`None`).
 
     Returns:
-        :class:`matplotlib.axes.Axes`: axes object with the diagram.
+        :class:`matplotlib.axes.Axes`: Axes object with the diagram.
     """
-    if not MATPLOTLIB:
-        return None
-    try:
-        from matplotlib import cm
-        from matplotlib.collections import PatchCollection
-        from matplotlib.patches import Polygon
-        from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
-        from matplotlib.colorbar import Colorbar
-    except ImportError:
-        return None
+    from matplotlib import cm
+    from matplotlib.collections import PatchCollection
+    from matplotlib.patches import Polygon
+    from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
+    from matplotlib.colorbar import Colorbar
 
     if ax is None:
         fig = Figure()
@@ -302,7 +409,8 @@ def voronoi_plot(box, polytopes, ax=None, color_by_sides=True, cmap=None):
 
     # Draw box
     corners = [[0, 0, 0], [0, 1, 0], [1, 1, 0], [1, 0, 0]]
-    corners.append(corners[0])  # Need to copy this so that the box is closed.
+    # Need to copy the last point so that the box is closed.
+    corners.append(corners[0])
     corners = box.make_absolute(corners)[:, :2]
     ax.plot(corners[:, 0], corners[:, 1], color='k')
 
