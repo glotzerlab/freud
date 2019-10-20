@@ -173,11 +173,11 @@ cdef class CorrelationFunction(_SpatialHistogram1D):
                                     ax=ax)
 
     def _repr_png_(self):
-        import freud.plot
         try:
-            return freud.plot._ax_to_bytes(self.plot())
-        except AttributeError:
+            import freud.plot
+        except ImportError:
             return None
+        return freud.plot._ax_to_bytes(self.plot())
 
 
 cdef class GaussianDensity(_Compute):
@@ -292,11 +292,11 @@ cdef class GaussianDensity(_Compute):
         return freud.plot.density_plot(self.density, self.box, ax=ax)
 
     def _repr_png_(self):
-        import freud.plot
         try:
-            return freud.plot._ax_to_bytes(self.plot())
-        except AttributeError:
+            import freud.plot
+        except ImportError:
             return None
+        return freud.plot._ax_to_bytes(self.plot())
 
 
 cdef class LocalDensity(_PairCompute):
@@ -552,8 +552,8 @@ cdef class RDF(_SpatialHistogram1D):
                                     ax=ax)
 
     def _repr_png_(self):
-        import freud.plot
         try:
-            return freud.plot._ax_to_bytes(self.plot())
-        except AttributeError:
+            import freud.plot
+        except ImportError:
             return None
+        return freud.plot._ax_to_bytes(self.plot())

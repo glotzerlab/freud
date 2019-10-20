@@ -275,8 +275,8 @@ cdef class MSD(_Compute):
                                     ax=ax)
 
     def _repr_png_(self):
-        import freud.plot
         try:
-            return freud.plot._ax_to_bytes(self.plot())
-        except AttributeError:
+            import freud.plot
+        except ImportError:
             return None
+        return freud.plot._ax_to_bytes(self.plot())
