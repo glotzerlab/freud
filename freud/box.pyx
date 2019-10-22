@@ -189,7 +189,7 @@ cdef class Box:
             :math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
                 Absolute coordinate vector(s).
         """  # noqa: E501
-        fractions = np.asarray(fractional_coordinates)
+        fractions = np.asarray(fractional_coordinates).copy()
         flatten = fractions.ndim == 1
         fractions = np.atleast_2d(fractions)
         fractions = freud.util._convert_array(fractions, shape=(None, 3))
@@ -211,7 +211,7 @@ cdef class Box:
             :math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
                 Fractional coordinate vector(s).
         """  # noqa: E501
-        vecs = np.asarray(absolute_coordinates)
+        vecs = np.asarray(absolute_coordinates).copy()
         flatten = vecs.ndim == 1
         vecs = np.atleast_2d(vecs)
         vecs = freud.util._convert_array(vecs, shape=(None, 3))
