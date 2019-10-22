@@ -362,7 +362,8 @@ def density_plot(density, box, ax=None):
     ax_divider = make_axes_locatable(ax)
     cax = ax_divider.append_axes("right", size="7%", pad="10%")
 
-    im = ax.imshow(density.T, extent=[xlims[0], xlims[1], ylims[0], ylims[1]])
+    im = ax.imshow(np.flipud(density.T),
+                   extent=[xlims[0], xlims[1], ylims[0], ylims[1]])
 
     cb = Colorbar(cax, im)
     cb.set_label("Density")
