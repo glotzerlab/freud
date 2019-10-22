@@ -59,35 +59,6 @@ def make_raw_query_nlist_test_set(box, points, query_points, mode, r_max,
     return test_set
 
 
-def make_box_and_random_points(box_size, num_points, is2D=False, seed=0):
-    R"""Helper function to make random points with a cubic or square box.
-
-    This function has a side effect that it will set the random seed of numpy.
-
-    Args:
-        box_size (float): Size of box.
-        num_points (int): Number of points.
-        is2D (bool): If true, points and box are in a 2D system.
-            (Default value = False).
-        seed (int): Random seed to use. (Default value = 0).
-
-    Returns:
-        tuple (:class:`freud.box.Box`, (:math:`\left(num_points`, 3\right)` :class:`numpy.ndarray`):
-            Generated box and points.
-    """  # noqa: E501
-    np.random.seed(seed)
-    points = np.random.random_sample((num_points, 3)).astype(np.float32) \
-        * box_size - box_size/2
-
-    if is2D is True:
-        box = freud.box.Box.square(box_size)
-        points[:, 2] = 0
-    else:
-        box = freud.box.Box.cube(box_size)
-
-    return box, points
-
-
 def make_alternating_lattice(lattice_size, angle=0, extra_shell=2):
     R"""Make 2D integer lattice of alternating set of points.
 

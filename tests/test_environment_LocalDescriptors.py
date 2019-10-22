@@ -85,7 +85,7 @@ class TestLocalDescriptors(unittest.TestCase):
         l_max = 8
         L = 10
 
-        box, positions = util.make_box_and_random_points(L, N)
+        box, positions = freud.data.make_random_system(L, N)
         positions.flags['WRITEABLE'] = False
 
         comp = freud.environment.LocalDescriptors(l_max, True)
@@ -113,7 +113,7 @@ class TestLocalDescriptors(unittest.TestCase):
         l_max = 8
         L = 10
 
-        box, positions = util.make_box_and_random_points(L, N)
+        box, positions = freud.data.make_random_system(L, N)
 
         comp = freud.environment.LocalDescriptors(l_max, True, 'global')
         comp.compute((box, positions),
@@ -129,7 +129,7 @@ class TestLocalDescriptors(unittest.TestCase):
         l_max = 8
         L = 10
 
-        box, positions = util.make_box_and_random_points(L, N)
+        box, positions = freud.data.make_random_system(L, N)
         orientations = np.random.uniform(-1, 1, size=(N, 4)).astype(np.float32)
         orientations /= np.sqrt(np.sum(orientations**2,
                                        axis=-1))[:, np.newaxis]
@@ -154,7 +154,7 @@ class TestLocalDescriptors(unittest.TestCase):
         l_max = 8
         L = 10
 
-        box, positions = util.make_box_and_random_points(L, N)
+        box, positions = freud.data.make_random_system(L, N)
 
         with self.assertRaises(ValueError):
             freud.environment.LocalDescriptors(
@@ -167,7 +167,7 @@ class TestLocalDescriptors(unittest.TestCase):
         l_max = 8
         L = 10
 
-        box, positions = util.make_box_and_random_points(L, N)
+        box, positions = freud.data.make_random_system(L, N)
         positions2 = np.random.uniform(-L/2, L/2,
                                        size=(N//3, 3)).astype(np.float32)
 
@@ -186,7 +186,7 @@ class TestLocalDescriptors(unittest.TestCase):
         l_max = 8
         L = 10
 
-        box, positions = util.make_box_and_random_points(L, N)
+        box, positions = freud.data.make_random_system(L, N)
         positions2 = np.random.uniform(-L/2, L/2,
                                        size=(N//3, 3)).astype(np.float32)
 
@@ -330,7 +330,7 @@ class TestLocalDescriptors(unittest.TestCase):
         atol = 1e-5
         L = 8
         N = 100
-        box, points = util.make_box_and_random_points(L, N)
+        box, points = freud.data.make_random_system(L, N)
 
         num_neighbors = 1
         l_max = 2
@@ -390,7 +390,7 @@ class TestLocalDescriptors(unittest.TestCase):
         atol = 1e-5
         L = 8
         N = 100
-        box, points = util.make_box_and_random_points(L, N)
+        box, points = freud.data.make_random_system(L, N)
         query_points = np.random.rand(N, 3)*L - L/2
 
         num_neighbors = 1

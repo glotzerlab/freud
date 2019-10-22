@@ -15,7 +15,7 @@ class TestSteinhardt(unittest.TestCase):
         N = 1000
         L = 10
 
-        box, positions = util.make_box_and_random_points(L, N)
+        box, positions = freud.data.make_random_system(L, N)
 
         comp = freud.order.Steinhardt(6)
         comp.compute((box, positions), neighbors={'r_max': 1.5})
@@ -27,7 +27,7 @@ class TestSteinhardt(unittest.TestCase):
         N = 1000
         L = 10
 
-        box, positions = util.make_box_and_random_points(L, N)
+        box, positions = freud.data.make_random_system(L, N)
 
         comp = freud.order.Steinhardt(0)
         comp.compute((box, positions), neighbors={'r_max': 1.5})
@@ -226,7 +226,7 @@ class TestSteinhardt(unittest.TestCase):
         """Test that computing norm twice works as expected."""
         L = 5
         num_points = 100
-        box, points = util.make_box_and_random_points(L, num_points, seed=0)
+        box, points = freud.data.make_random_system(L, num_points, seed=0)
 
         st = freud.order.Steinhardt(6)
         first_result = st.compute((box, points),

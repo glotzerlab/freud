@@ -23,7 +23,7 @@ class TestLD(unittest.TestCase):
         """Initialize a box with randomly placed particles"""
         box_size = 10
         num_points = 10000
-        self.box, self.pos = util.make_box_and_random_points(
+        self.box, self.pos = freud.data.make_random_system(
             box_size, num_points)
         self.r_max = 3
         self.diameter = 1

@@ -18,7 +18,7 @@ class TestHexatic(unittest.TestCase):
     def test_order_size(self):
         boxlen = 10
         N = 500
-        box, points = util.make_box_and_random_points(boxlen, N, is2D=True)
+        box, points = freud.data.make_random_system(boxlen, N, is2D=True)
         hop = freud.order.Hexatic()
         hop.compute((box, points))
         npt.assert_equal(len(hop.particle_order), N)
@@ -26,7 +26,7 @@ class TestHexatic(unittest.TestCase):
     def test_compute_random(self):
         boxlen = 10
         N = 500
-        box, points = util.make_box_and_random_points(boxlen, N, is2D=True)
+        box, points = freud.data.make_random_system(boxlen, N, is2D=True)
         hop = freud.order.Hexatic()
         hop.compute((box, points))
         npt.assert_allclose(np.mean(hop.particle_order), 0. + 0.j, atol=1e-1)
@@ -64,7 +64,7 @@ class TestHexatic(unittest.TestCase):
     def test_3d_box(self):
         boxlen = 10
         N = 500
-        box, points = util.make_box_and_random_points(boxlen, N, is2D=False)
+        box, points = freud.data.make_random_system(boxlen, N, is2D=False)
         hop = freud.order.Hexatic()
         with self.assertRaises(ValueError):
             hop.compute((box, points))
