@@ -166,7 +166,8 @@ cdef class CorrelationFunction(_SpatialHistogram1D):
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         import freud.plot
-        return freud.plot.line_plot(self.R, np.real(self.RDF),
+        return freud.plot.line_plot(self.bin_centers,
+                                    np.real(self.correlation),
                                     title="Correlation Function",
                                     xlabel=r"$r$",
                                     ylabel=r"$\operatorname{Re}(C(r))$",
