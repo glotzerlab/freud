@@ -12,5 +12,5 @@ Data Module
 .. rubric:: Details
 
 .. automodule:: freud.data
-    :synopsis: Data sets and utility functions for testing and examples.
+    :synopsis: Utility functions for generating standard types of systems of points.
     :members:
