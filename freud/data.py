@@ -167,7 +167,7 @@ class UnitCell(object):
 
     @classmethod
     def sc(cls):
-        """Create an simple cubic crystal.
+        """Create a simple cubic crystal.
 
         Returns:
             :class:`~.UnitCell`: An sc unit cell.
