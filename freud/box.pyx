@@ -181,12 +181,12 @@ cdef class Box:
         R"""Convert fractional coordinates into absolute coordinates.
 
         Args:
-            fractional_coordinates (:math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
+            fractional_coordinates (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Fractional coordinate vector(s), between 0 and 1 within
                 parallelepipedal box.
 
         Returns:
-            :math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
+            :math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
                 Absolute coordinate vector(s).
         """  # noqa: E501
         fractions = np.asarray(fractional_coordinates)
@@ -204,11 +204,11 @@ cdef class Box:
         R"""Convert absolute coordinates into fractional coordinates.
 
         Args:
-            absolute_coordinates (:math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
+            absolute_coordinates (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Absolute coordinate vector(s).
 
         Returns:
-            :math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
+            :math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
                 Fractional coordinate vector(s).
         """  # noqa: E501
         vecs = np.asarray(absolute_coordinates)
@@ -226,11 +226,11 @@ cdef class Box:
         R"""Returns the images corresponding to unwrapped vectors.
 
         Args:
-            vecs (:math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
+            vecs (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Coordinates of unwrapped vector(s).
 
         Returns:
-            :math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
+            :math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
                 Image index vector(s).
         """  # noqa: E501
         vecs = np.asarray(vecs)
@@ -256,7 +256,7 @@ cdef class Box:
                 :math:`d` is the box dimension (2 or 3).
 
         Returns:
-            :math:`\left(3\right)` :class:`numpy.ndarray`:
+            :math:`\left(3, \right)` :class:`numpy.ndarray`:
                 Box vector with index :math:`i`.
         """
         return self.to_matrix()[:, i]
@@ -287,11 +287,11 @@ cdef class Box:
                   input vectors.
 
         Args:
-            vecs (:math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
+            vecs (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Unwrapped vector(s).
 
         Returns:
-            :math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
+            :math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
                 Vector(s) wrapped into the box.
         """  # noqa: E501
         vecs = np.asarray(vecs)
@@ -311,13 +311,13 @@ cdef class Box:
         in each dimension.
 
         Args:
-            vecs (:math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
+            vecs (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Vector(s) to be unwrapped.
-            imgs (:math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
+            imgs (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Image indices for vector(s).
 
         Returns:
-            :math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
+            :math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
                 Unwrapped vector(s).
         """  # noqa: E501
         vecs = np.asarray(vecs)
@@ -338,7 +338,7 @@ cdef class Box:
 
     @property
     def periodic(self):
-        """:math:`\\left(3\\right)` :class:`numpy.ndarray`: Get or set the
+        """:math:`\\left(3, \\right)` :class:`numpy.ndarray`: Get or set the
         periodicty of the box in each dimension."""
         periodic = self.thisptr.getPeriodic()
         return np.asarray([periodic.x, periodic.y, periodic.z])
@@ -354,7 +354,7 @@ cdef class Box:
 
     @property
     def periodic_x(self):
-        """bool: Get or set the periodcity of the box in x."""
+        """bool: Get or set the periodicity of the box in x."""
         return self.thisptr.getPeriodicX()
 
     @periodic_x.setter
@@ -363,7 +363,7 @@ cdef class Box:
 
     @property
     def periodic_y(self):
-        """bool: Get or set the periodcity of the box in x."""
+        """bool: Get or set the periodicity of the box in y."""
         return self.thisptr.getPeriodicY()
 
     @periodic_y.setter
@@ -372,7 +372,7 @@ cdef class Box:
 
     @property
     def periodic_z(self):
-        """bool: Get or set the periodcity of the box in x."""
+        """bool: Get or set the periodicity of the box in z."""
         return self.thisptr.getPeriodicZ()
 
     @periodic_z.setter

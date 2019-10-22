@@ -22,6 +22,7 @@ and this project adheres to
 * Extensive new documentation including tutorial for new users and reference sections on crucial topics.
 * ClusterProperties computes radius of gyration from the gyration tensor for each cluster.
 * `freud.data` module.
+* Optional normalization for RDF, useful for small systems.
 
 ### Changed
 * All compute objects that perform neighbor computations now use NeighborQuery internally.
