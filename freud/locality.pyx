@@ -894,7 +894,7 @@ cdef class _SpatialHistogram(_PairCompute):
 
     @property
     def bounds(self):
-        """:class:`list`(:class:`tuple`): A list of tuples indicating upper and
+        """:class:`list` (:class:`tuple`): A list of tuples indicating upper and
         lower bounds of each axis of the histogram."""
         vec = self.histptr.getBounds()
         return [tuple(b) for b in vec]
