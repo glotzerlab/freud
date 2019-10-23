@@ -157,7 +157,11 @@ public:
 #else
         size_t bin = (size_t)(val);
 #endif
-        return bin;
+        // Avoid rounding leading to overflow.
+        if (bin == m_nbins)
+            return bin - 1;
+        else
+            return bin;
     }
 
 protected:
@@ -428,7 +432,7 @@ public:
                 {
                     m_bin_counts[i] += (*local_bins).m_bin_counts[i];
                 }
-                
+
                 cf(i);
             }
         });
