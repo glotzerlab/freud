@@ -37,11 +37,6 @@ void Steinhardt::computeYlm(const float theta, const float phi, std::vector<std:
     }
 }
 
-template<typename T> std::shared_ptr<T> Steinhardt::makeArray(size_t size)
-{
-    return std::shared_ptr<T>(new T[size], std::default_delete<T[]>());
-}
-
 void Steinhardt::reallocateArrays(unsigned int Np)
 {
     m_Np = Np;
@@ -111,13 +106,13 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
                 // phi is usually in range 0..2Pi, but
                 // it only appears in Ylm as exp(im\phi),
                 // so range -Pi..Pi will give same results.
-                float phi = atan2(delta.y, delta.x);     // -Pi..Pi
+                float phi = std::atan2(delta.y, delta.x);     // -Pi..Pi
 
                 // This value must be clamped in cases where the particles are
                 // aligned along z, otherwise due to floating point error we
                 // could get delta.z/nb.distance = -1-eps, which is outside the
-                // valid range of acos.
-                float theta = acos(util::clamp(delta.z / nb.distance, -1, 1)); // 0..Pi
+                // valid range of std::acos.
+                float theta = std::acos(util::clamp(delta.z / nb.distance, -1, 1)); // 0..Pi
 
                 // If the points are directly on top of each other,
                 // theta should be zero instead of nan.
@@ -151,7 +146,7 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
                 }
             }
             m_qli[i] *= normalizationfactor;
-            m_qli[i] = sqrt(m_qli[i]);
+            m_qli[i] = std::sqrt(m_qli[i]);
         });
 }
 
@@ -209,7 +204,7 @@ void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
                 m_qliAve[i] += norm(m_qlmiAve[index]);
             }
             m_qliAve[i] *= normalizationfactor;
-            m_qliAve[i] = sqrt(m_qliAve[i]);
+            m_qliAve[i] = std::sqrt(m_qliAve[i]);
         });
 }
 
@@ -222,7 +217,7 @@ float Steinhardt::normalizeSystem()
         // Add the norm, which is the complex squared magnitude
         calc_norm += norm(m_qlm[k]);
     }
-    const float ql_system_norm = sqrt(calc_norm * normalizationfactor);
+    const float ql_system_norm = std::sqrt(calc_norm * normalizationfactor);
 
     if (m_wl)
     {
@@ -233,7 +228,7 @@ float Steinhardt::normalizeSystem()
         // equivalent to calculate the normalization factor from qlmi
         if (m_wl_normalize)
         {
-            const float wl_normalization = sqrt(normalizationfactor) / ql_system_norm;
+            const float wl_normalization = std::sqrt(normalizationfactor) / ql_system_norm;
             wl_system_norm *= wl_normalization * wl_normalization * wl_normalization;
         }
         return wl_system_norm;
@@ -256,7 +251,7 @@ void Steinhardt::aggregatewl(util::ManagedArray<float> &target,
             target[i] = reduceWigner3j(&(source({static_cast<unsigned int>(i), 0})), m_l, wigner3jvalues);
             if (m_wl_normalize)
             {
-                const float normalization = sqrt(normalizationfactor) / normalization_source[i];
+                const float normalization = std::sqrt(normalizationfactor) / normalization_source[i];
                 target[i] *= normalization * normalization * normalization;
             }
         }
