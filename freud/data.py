@@ -143,7 +143,7 @@ class UnitCell(object):
 
     @classmethod
     def fcc(cls):
-        """Create an fcc crystal.
+        """Create a face-centered cubic crystal.
 
         Returns:
             :class:`~.UnitCell`: An fcc unit cell.
@@ -156,10 +156,10 @@ class UnitCell(object):
 
     @classmethod
     def bcc(cls):
-        """Create an bcc crystal.
+        """Create a body-centered cubic crystal.
 
         Returns:
-            :class:`~.UnitCell`: An bcc unit cell.
+            :class:`~.UnitCell`: A bcc unit cell.
         """
         fractions = np.array([[.5, .5, .5],
                               [0, 0, 0]])
@@ -167,7 +167,7 @@ class UnitCell(object):
 
     @classmethod
     def sc(cls):
-        """Create an sc crystal.
+        """Create a simple cubic crystal.
 
         Returns:
             :class:`~.UnitCell`: An sc unit cell.
