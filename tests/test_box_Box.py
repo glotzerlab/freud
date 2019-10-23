@@ -371,6 +371,14 @@ class TestBox(unittest.TestCase):
         box3 = 2 * box
         self.assertEqual(box2, box3)
 
+    def test_plot_3d(self):
+        box = freud.box.Box(2, 3, 4, 1, 0.5, 0.1)
+        box.plot()
+
+    def test_plot_2d(self):
+        box = freud.box.Box(2, 3, 0, 1, 0, 0, is2D=True)
+        box.plot()
+
 
 if __name__ == '__main__':
     unittest.main()

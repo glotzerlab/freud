@@ -515,6 +515,20 @@ class NeighborQueryTest(object):
         with self.assertRaises(ValueError):
             self.build_query_object(box, points, r_max)
 
+    def test_plot_3d(self):
+        box = freud.box.Box(3, 4, 5, 1, 0.5, 0.1)
+        points = np.array([[0, 0, 0], [1, 1, 0]])
+        r_max = 1
+        nq = self.build_query_object(box, points, r_max)
+        nq.plot()
+
+    def test_plot_2d(self):
+        box = freud.box.Box(3, 3, 0, 1, 0, 0, is2D=True)
+        points = np.array([[0, 0, 0], [1, 1, 0]])
+        r_max = 1
+        nq = self.build_query_object(box, points, r_max)
+        nq.plot()
+
 
 class TestNeighborQueryAABB(NeighborQueryTest, unittest.TestCase):
     @classmethod
