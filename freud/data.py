@@ -71,8 +71,8 @@ class UnitCell(object):
             nx = ny = num_replicas
             nz = 1 if self.box.is2D else num_replicas
 
-        if not all((isinstance(n, int) and n > 0 for n in (nx, ny, nz))):
-            raise ValueError("The number of replicates must be a positive "
+        if not all((int(n) == n and n > 0 for n in (nx, ny, nz))):
+            raise ValueError("The number of replicas must be a positive "
                              "integer in each dimension.")
 
         if self.box.is2D and nz != 1:
