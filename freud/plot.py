@@ -155,16 +155,16 @@ def system_plot(system, title=None, ax=None, *args, **kwargs):
 
     if system.box.is2D:
         box_plot(system.box, ax=ax)
-        ax.scatter(system.points[:, 0],
-                   system.points[:, 1],
-                   *args, **kwargs)
+        sc = ax.scatter(system.points[:, 0],
+                        system.points[:, 1],
+                        *args, **kwargs)
         ax.set_aspect('equal', 'datalim')
     else:
         box_plot(system.box, ax=ax)
-        ax.scatter(system.points[:, 0],
-                   system.points[:, 1],
-                   system.points[:, 2],
-                   *args, **kwargs)
+        sc = ax.scatter(system.points[:, 0],
+                        system.points[:, 1],
+                        system.points[:, 2],
+                        *args, **kwargs)
         box_min = system.box.make_absolute([0, 0, 0])
         box_max = system.box.make_absolute([1, 1, 1])
         points_min = np.min(system.points, axis=0)
@@ -172,6 +172,8 @@ def system_plot(system, title=None, ax=None, *args, **kwargs):
         limits = [[np.min([box_min[i], points_min[i]]),
                    np.max([box_max[i], points_max[i]])] for i in range(3)]
         _set_3d_axes_equal(ax, limits=limits)
+
+    return ax, sc
 
 
 def bar_plot(x, height, title=None, xlabel=None, ylabel=None, ax=None):
