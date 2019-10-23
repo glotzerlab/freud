@@ -82,12 +82,16 @@ class UnitCell(object):
                           buffer=(nx-1, ny-1, nz-1),
                           images=True)
             box = pbuff.buffer_box*scale
-            positions = np.concatenate((abs_positions,
-                                        pbuff.buffer_points))
+            positions = np.concatenate((abs_positions, pbuff.buffer_points))
         else:
             box = self.box*scale
             positions = self.box.make_absolute(self.basis_positions)
+
+        # Even numbers of repeats shift the box by L/2
+        shift_vec = (np.array([nx, ny, nz]) + 1) % 2
+        positions += shift_vec * self.box.make_absolute([1, 1, 1])
         positions *= scale
+        positions = box.wrap(positions)
 
         if sigma_noise != 0:
             if seed is not None:
