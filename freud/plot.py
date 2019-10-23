@@ -138,10 +138,6 @@ def system_plot(system, title=None, ax=None, *args, **kwargs):
             If :code:`None`, make a new axes and figure object.
             (Default value = :code:`None`).
     """
-    if ax is None:
-        fig = Figure()
-        ax = fig.subplots()
-
     system = freud.locality.NeighborQuery.from_system(system)
 
     if ax is None:
