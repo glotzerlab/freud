@@ -29,7 +29,7 @@ cdef extern from "BondOrder.h" namespace "freud::environment":
             quat[float]*,
             unsigned int,
             const freud._locality.NeighborList*,
-            freud._locality.QueryArgs)
+            freud._locality.QueryArgs) except +
         const freud.util.ManagedArray[float] &getBondOrder()
         BondOrderMode getMode() const
 
