@@ -141,7 +141,7 @@ cdef class PMFTR12(_PMFT):
         r_max (float):
             Maximum distance at which to compute the PMFT.
         bins (unsigned int or sequence of length 3):
-            If an unsigned int, the number of bins in:math:`r`,
+            If an unsigned int, the number of bins in :math:`r`,
             :math:`\theta_1`, and :math:`\theta_2`. If a sequence of three
             integers, interpreted as :code:`(num_bins_r, num_bins_t1,
             num_bins_t2)`.
@@ -252,7 +252,7 @@ cdef class PMFTXYT(_PMFT):
         y_max (float):
             Maximum :math:`y` distance at which to compute the PMFT.
         bins (unsigned int or sequence of length 3):
-            If an unsigned int, the number of bins in:math:`x`, :math:`y`, and
+            If an unsigned int, the number of bins in :math:`x`, :math:`y`, and
             :math:`t`. If a sequence of three integers, interpreted as
             :code:`(num_bins_x, num_bins_y, num_bins_t)`.
     """  # noqa: E501
@@ -372,7 +372,7 @@ cdef class PMFTXY(_PMFT):
         y_max (float):
             Maximum :math:`y` distance at which to compute the PMFT.
         bins (unsigned int or sequence of length 2):
-            If an unsigned int, the number of bins in:math:`x`, :math:`y`, and
+            If an unsigned int, the number of bins in :math:`x`, :math:`y`, and
             :math:`z`. If a sequence of two integers, interpreted as
             :code:`(num_bins_x, num_bins_y)`.
     """  # noqa: E501
@@ -472,10 +472,10 @@ cdef class PMFTXY(_PMFT):
                                              [str(b) for b in self.nbins]))
 
     def _repr_png_(self):
-        import freud.plot
         try:
-            return freud.plot.ax_to_bytes(self.plot())
-        except AttributeError:
+            import freud.plot
+            return freud.plot._ax_to_bytes(self.plot())
+        except (AttributeError, ImportError):
             return None
 
     def plot(self, ax=None):

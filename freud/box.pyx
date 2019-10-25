@@ -189,7 +189,7 @@ cdef class Box:
             :math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
                 Absolute coordinate vector(s).
         """  # noqa: E501
-        fractions = np.asarray(fractional_coordinates)
+        fractions = np.asarray(fractional_coordinates).copy()
         flatten = fractions.ndim == 1
         fractions = np.atleast_2d(fractions)
         fractions = freud.util._convert_array(fractions, shape=(None, 3))
@@ -211,7 +211,7 @@ cdef class Box:
             :math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
                 Fractional coordinate vector(s).
         """  # noqa: E501
-        vecs = np.asarray(absolute_coordinates)
+        vecs = np.asarray(absolute_coordinates).copy()
         flatten = vecs.ndim == 1
         vecs = np.atleast_2d(vecs)
         vecs = freud.util._convert_array(vecs, shape=(None, 3))
@@ -323,8 +323,11 @@ cdef class Box:
         vecs = np.asarray(vecs)
         flatten = vecs.ndim == 1
         vecs = np.atleast_2d(vecs)
-        vecs = freud.util._convert_array(vecs, shape=(None, 3)).copy()
         imgs = np.atleast_2d(imgs)
+        if vecs.shape[0] != imgs.shape[0]:
+            # Broadcasts (1, 3) to (N, 3) for both arrays
+            vecs, imgs = np.broadcast_arrays(vecs, imgs)
+        vecs = freud.util._convert_array(vecs, shape=(None, 3)).copy()
         imgs = freud.util._convert_array(imgs, shape=vecs.shape,
                                          dtype=np.int32)
 
@@ -339,7 +342,7 @@ cdef class Box:
     @property
     def periodic(self):
         """:math:`\\left(3, \\right)` :class:`numpy.ndarray`: Get or set the
-        periodicty of the box in each dimension."""
+        periodicity of the box in each dimension."""
         periodic = self.thisptr.getPeriodic()
         return np.asarray([periodic.x, periodic.y, periodic.z])
 
@@ -461,6 +464,28 @@ cdef class Box:
                                   is2D=self.is2D)
         else:
             raise ValueError("Box can only be multiplied by positive values.")
+
+    def plot(self, title=None, ax=None, image=[0, 0, 0], *args, **kwargs):
+        """Plot a :class:`~.box.Box` object.
+
+        Args:
+            title (str):
+                Title of the graph. (Default value = :code:`None`).
+            ax (:class:`matplotlib.axes.Axes`):
+                Axes object to plot. If :code:`None`, make a new axes and
+                figure object. If plotting a 3D box, the axes must be 3D.
+                (Default value = :code:`None`).
+            image (list):
+                The periodic image location at which to draw the box (Default
+                value = :code:`[0, 0, 0]`).
+            ``*args``, ``**kwargs``:
+                All other arguments are passed on to
+                :meth:`mpl_toolkits.mplot3d.Axes3D.plot` or
+                :meth:`matplotlib.axes.Axes.plot`.
+        """
+        import freud.plot
+        return freud.plot.box_plot(self, title=title, ax=ax, image=image,
+                                   *args, **kwargs)
 
     @classmethod
     def from_box(cls, box, dimensions=None):

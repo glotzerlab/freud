@@ -71,6 +71,10 @@ class UnitCell(object):
             nx = ny = num_replicas
             nz = 1 if self.box.is2D else num_replicas
 
+        if not all((int(n) == n and n > 0 for n in (nx, ny, nz))):
+            raise ValueError("The number of replicas must be a positive "
+                             "integer in each dimension.")
+
         if self.box.is2D and nz != 1:
             raise ValueError("The number of replicas in z must be 1 for a "
                              "2D unit cell.")
@@ -82,12 +86,16 @@ class UnitCell(object):
                           buffer=(nx-1, ny-1, nz-1),
                           images=True)
             box = pbuff.buffer_box*scale
-            positions = np.concatenate((abs_positions,
-                                        pbuff.buffer_points))
+            positions = np.concatenate((abs_positions, pbuff.buffer_points))
         else:
             box = self.box*scale
             positions = self.box.make_absolute(self.basis_positions)
+
+        # Even numbers of repeats shift the box by L/2
+        shift_vec = (np.array([nx, ny, nz]) + 1) % 2
+        positions += shift_vec * self.box.make_absolute([1, 1, 1])
         positions *= scale
+        positions = box.wrap(positions)
 
         if sigma_noise != 0:
             if seed is not None:
@@ -184,3 +192,36 @@ class UnitCell(object):
         """
         fractions = np.array([[0, 0, 0]])
         return cls([1, 1], fractions)
+
+
+def make_random_system(box_size, num_points, is2D=False, seed=None):
+    R"""Helper function to make random points with a cubic or square box.
+
+    This function has a side effect, by setting the random seed of numpy if a
+    seed is specified.
+
+    Args:
+        box_size (float): Size of box.
+        num_points (int): Number of points.
+        is2D (bool): If true, creates a 2D system.
+            (Default value = :code:`False`).
+        seed (int): Random seed to use. (Default value = :code:`None`).
+
+    Returns:
+        tuple (:class:`freud.box.Box`, (:math:`\\left(num\_points, 3\\right)` :class:`numpy.ndarray`):
+            Generated box and points.
+    """  # noqa: E501
+    if seed is not None:
+        np.random.seed(seed)
+
+    fractional_coords = np.random.random_sample((num_points, 3))
+
+    if is2D:
+        box = freud.box.Box.square(box_size)
+        fractional_coords[:, 2] = 0
+    else:
+        box = freud.box.Box.cube(box_size)
+
+    points = box.make_absolute(fractional_coords)
+
+    return box, points

@@ -27,8 +27,8 @@ class TestRDF(unittest.TestCase):
         bins = 10
         num_points = 100
         box_size = r_max*3.1
-        box, points = util.make_box_and_random_points(
-            box_size, num_points, True)
+        box, points = freud.data.make_random_system(
+            box_size, num_points, is2D=True)
         rdf = freud.density.RDF(r_max=r_max, bins=bins)
 
         # Test protected attribute access
@@ -70,7 +70,7 @@ class TestRDF(unittest.TestCase):
         box_size = r_max*3.1
 
         for i, r_min in enumerate([0, 0.05, 0.1, 1.0, 3.0]):
-            box, points = util.make_box_and_random_points(box_size, num_points)
+            box, points = freud.data.make_random_system(box_size, num_points)
             test_set = util.make_raw_query_nlist_test_set(
                 box, points, points, "ball", r_max, 0, True)
             for nq, neighbors in test_set:
@@ -106,7 +106,7 @@ class TestRDF(unittest.TestCase):
         bins = 10
         num_points = 10
         box_size = r_max*3.1
-        box, points = util.make_box_and_random_points(box_size, num_points)
+        box, points = freud.data.make_random_system(box_size, num_points)
         rdf = freud.density.RDF(bins, r_max)
 
         with self.assertRaises(AttributeError):

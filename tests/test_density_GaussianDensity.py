@@ -14,8 +14,8 @@ class TestDensity(unittest.TestCase):
         sigma = 0.1
         num_points = 10000
         box_size = r_max*3.1
-        box, points = util.make_box_and_random_points(box_size, num_points,
-                                                      True)
+        box, points = freud.data.make_random_system(
+            box_size, num_points, is2D=True)
         for w in (width, (width, width), [width, width]):
             diff = freud.density.GaussianDensity(w, r_max, sigma)
 
@@ -44,8 +44,8 @@ class TestDensity(unittest.TestCase):
         sigma = 0.1
         num_points = 100
         box_size = r_max*3.1
-        box, points = util.make_box_and_random_points(box_size, num_points,
-                                                      True)
+        box, points = freud.data.make_random_system(
+            box_size, num_points, is2D=True)
         diff = freud.density.GaussianDensity(width, r_max, sigma)
 
         diff.compute((box, points))
@@ -67,8 +67,8 @@ class TestDensity(unittest.TestCase):
         sigma = 0.1
         num_points = 100
         box_size = r_max*3.1
-        box, points = util.make_box_and_random_points(box_size, num_points,
-                                                      True)
+        box, points = freud.data.make_random_system(
+            box_size, num_points, is2D=True)
         diff = freud.density.GaussianDensity(width, r_max, sigma)
 
         with self.assertRaises(AttributeError):

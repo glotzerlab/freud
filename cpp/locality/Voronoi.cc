@@ -113,9 +113,10 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
 
                 // Save polytope vertices in system coordinates
                 std::vector<vec3<double> > system_vertices;
+                vec3<double> query_point_system_coords((*nq)[query_point_id]);
                 for (auto vertex_iter = relative_vertices.begin(); vertex_iter != relative_vertices.end(); vertex_iter++)
                 {
-                    system_vertices.push_back((*vertex_iter) + query_point);
+                    system_vertices.push_back((*vertex_iter) + query_point_system_coords);
                 }
                 m_polytopes[query_point_id] = system_vertices;
 

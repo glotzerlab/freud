@@ -2,6 +2,7 @@ import freud
 import unittest
 import numpy.testing as npt
 import numpy as np
+from util import sort_rounded_xyz_array
 
 
 class TestData(unittest.TestCase):
@@ -49,31 +50,37 @@ class TestData(unittest.TestCase):
 
     def test_replicas(self):
         """Test that replication works."""
-        num_replicas = 2
-        box, points = freud.data.UnitCell.fcc().generate_system(
-            num_replicas=num_replicas)
-        self.assertEqual(box, freud.box.Box.cube(num_replicas))
+        for num_replicas in range(1, 10):
+            box, points = freud.data.UnitCell.fcc().generate_system(
+                num_replicas=num_replicas)
+            self.assertEqual(box, freud.box.Box.cube(num_replicas))
 
-        test_points = np.array([[0, 0, -0.5],
-                                [0, -0.5, 0],
-                                [-0.5, 0, 0],
-                                [-0.5, -0.5, -0.5]])
-        test_points = test_points[np.newaxis, np.newaxis, np.newaxis, ...]
-        test_points = np.tile(test_points,
-                              [num_replicas, num_replicas, num_replicas, 1, 1])
-        test_points[..., 0] += np.arange(
-            num_replicas)[:, np.newaxis, np.newaxis, np.newaxis]
-        test_points[..., 1] += np.arange(
-            num_replicas)[np.newaxis, :, np.newaxis, np.newaxis]
-        test_points[..., 2] += np.arange(
-            num_replicas)[np.newaxis, np.newaxis, :, np.newaxis]
-        test_points = (test_points-(0.5*num_replicas)).reshape(-1, 3)
+            test_points = np.array([[0, 0.5, 0.5],
+                                    [0.5, 0, 0.5],
+                                    [0.5, 0.5, 0],
+                                    [0., 0., 0.]])
+            test_points = test_points[np.newaxis, np.newaxis, np.newaxis, ...]
+            test_points = np.tile(
+                test_points, [num_replicas, num_replicas, num_replicas, 1, 1])
+            test_points[..., 0] += np.arange(
+                num_replicas)[:, np.newaxis, np.newaxis, np.newaxis]
+            test_points[..., 1] += np.arange(
+                num_replicas)[np.newaxis, :, np.newaxis, np.newaxis]
+            test_points[..., 2] += np.arange(
+                num_replicas)[np.newaxis, np.newaxis, :, np.newaxis]
+            test_points = (test_points-(num_replicas*0.5)).reshape(-1, 3)
 
-        # Can't guarantee identical ordering based on algorithms.
-        self.assertEqual(
-            set([tuple(x) for x in points]),
-            set([tuple(x) for x in box.wrap(test_points)]),
-        )
+            npt.assert_allclose(
+                sort_rounded_xyz_array(points),
+                sort_rounded_xyz_array(box.wrap(test_points))
+            )
+
+    def test_invalid_replicas(self):
+        """Test that invalid replications raise errors."""
+        for num_replicas in (0, 2.5, -1, [2, 2, 0], [2, 2, 2], 'abc'):
+            with self.assertRaises(ValueError):
+                freud.data.UnitCell.square().generate_system(
+                    num_replicas=num_replicas)
 
     def test_noise(self):
         """Test that noise generation works."""

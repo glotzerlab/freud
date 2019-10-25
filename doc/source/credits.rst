@@ -84,6 +84,7 @@ Bradley Dice - **Lead developer**
 * Corrected number of points/query points in LocalDensity.
 * Made PeriodicBuffer inherit from _Compute.
 * Removed cudacpu and HOOMDMath includes.
+* Added plotting functionality for Box and NeighborQuery objects.
 
 Eric Harper, University of Michigan - **Former lead developer**
 

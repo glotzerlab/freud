@@ -3,7 +3,6 @@ import numpy.testing as npt
 import numpy as np
 import freud
 import rowan
-import util
 
 
 class TestLocalBondProjection(unittest.TestCase):
@@ -17,9 +16,9 @@ class TestLocalBondProjection(unittest.TestCase):
 
         N_query = N//3
 
-        box, points = util.make_box_and_random_points(boxlen, N, True)
-        _, query_points = util.make_box_and_random_points(boxlen, N_query,
-                                                          True)
+        box, points = freud.data.make_random_system(boxlen, N, is2D=True)
+        _, query_points = freud.data.make_random_system(
+            boxlen, N_query, is2D=True)
         ors = rowan.random.rand(N)
         proj_vecs = np.asarray([[0, 0, 1]])
 
@@ -39,7 +38,7 @@ class TestLocalBondProjection(unittest.TestCase):
         r_guess = 3
         query_args = dict(num_neighbors=num_neighbors, r_guess=r_guess)
 
-        box, points = util.make_box_and_random_points(boxlen, N, True)
+        box, points = freud.data.make_random_system(boxlen, N, is2D=True)
         ors = rowan.random.rand(N)
         proj_vecs = np.asarray([[0, 0, 1]])
 

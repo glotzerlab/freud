@@ -1,7 +1,6 @@
 import numpy.testing as npt
 import freud
 import unittest
-import util
 
 
 class TestSolidLiquid(unittest.TestCase):
@@ -9,7 +8,7 @@ class TestSolidLiquid(unittest.TestCase):
         N = 1000
         L = 10
 
-        box, positions = util.make_box_and_random_points(L, N)
+        box, positions = freud.data.make_random_system(L, N)
 
         comp = freud.order.SolidLiquid(6, q_threshold=.7, solid_threshold=6)
         comp.compute((box, positions), neighbors=dict(r_max=2.0))
@@ -21,7 +20,7 @@ class TestSolidLiquid(unittest.TestCase):
         N = 1000
         L = 10
 
-        box, positions = util.make_box_and_random_points(L, N)
+        box, positions = freud.data.make_random_system(L, N)
 
         query_args = dict(r_max=2.0, exclude_ii=True)
         comp = freud.order.SolidLiquid(6, q_threshold=.7, solid_threshold=6)

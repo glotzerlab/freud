@@ -2,18 +2,7 @@ import numpy as np
 import numpy.testing as npt
 import freud
 import unittest
-import util
-
-
-def sort_rounded_xyz_array(arr, decimals=4):
-    """The order of Voronoi polytopes' vertices is not well-defined. Instead of
-    testing a fixed array, arrays must be sorted by their rounded
-    representations in order to compare their values.
-    """
-    arr = np.asarray(arr)
-    arr = arr.round(decimals)
-    indices = np.lexsort((arr[:, 2], arr[:, 1], arr[:, 0]))
-    return arr[indices]
+from util import sort_rounded_xyz_array
 
 
 class TestVoronoi(unittest.TestCase):
@@ -22,7 +11,7 @@ class TestVoronoi(unittest.TestCase):
         # number of points and polytopes
         L = 10  # Box length
         N = 50  # Number of particles
-        box, points = util.make_box_and_random_points(L, N, is2D=True)
+        box, points = freud.data.make_random_system(L, N, is2D=True)
         vor = freud.locality.Voronoi()
         vor.compute((box, points))
 
@@ -35,7 +24,7 @@ class TestVoronoi(unittest.TestCase):
         # number of points and polytopes
         L = 10  # Box length
         N = 50  # Number of particles
-        box, points = util.make_box_and_random_points(L, N, is2D=False)
+        box, points = freud.data.make_random_system(L, N, is2D=False)
         vor = freud.locality.Voronoi()
         vor.compute((box, points))
 
@@ -185,7 +174,7 @@ class TestVoronoi(unittest.TestCase):
         L = 10  # Box length
         N = 40  # Number of particles
 
-        box, points = util.make_box_and_random_points(L, N, is2D=False)
+        box, points = freud.data.make_random_system(L, N, is2D=False)
         vor = freud.locality.Voronoi()
         vor.compute((box, points))
         nlist = vor.nlist
@@ -211,7 +200,7 @@ class TestVoronoi(unittest.TestCase):
             vor.polytopes
         with self.assertRaises(AttributeError):
             vor.volumes
-        box, points = util.make_box_and_random_points(L, N, is2D=False)
+        box, points = freud.data.make_random_system(L, N, is2D=False)
         vor.compute((box, points))
 
         # Ensure attributes are accessible after calling compute

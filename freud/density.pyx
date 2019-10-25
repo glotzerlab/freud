@@ -166,17 +166,18 @@ cdef class CorrelationFunction(_SpatialHistogram1D):
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         import freud.plot
-        return freud.plot.line_plot(self.R, np.real(self.RDF),
+        return freud.plot.line_plot(self.bin_centers,
+                                    np.real(self.correlation),
                                     title="Correlation Function",
                                     xlabel=r"$r$",
                                     ylabel=r"$\operatorname{Re}(C(r))$",
                                     ax=ax)
 
     def _repr_png_(self):
-        import freud.plot
         try:
-            return freud.plot.ax_to_bytes(self.plot())
-        except AttributeError:
+            import freud.plot
+            return freud.plot._ax_to_bytes(self.plot())
+        except (AttributeError, ImportError):
             return None
 
 
@@ -292,10 +293,10 @@ cdef class GaussianDensity(_Compute):
         return freud.plot.density_plot(self.density, self.box, ax=ax)
 
     def _repr_png_(self):
-        import freud.plot
         try:
-            return freud.plot.ax_to_bytes(self.plot())
-        except AttributeError:
+            import freud.plot
+            return freud.plot._ax_to_bytes(self.plot())
+        except (AttributeError, ImportError):
             return None
 
 
@@ -569,8 +570,8 @@ cdef class RDF(_SpatialHistogram1D):
                                     ax=ax)
 
     def _repr_png_(self):
-        import freud.plot
         try:
-            return freud.plot.ax_to_bytes(self.plot())
-        except AttributeError:
+            import freud.plot
+            return freud.plot._ax_to_bytes(self.plot())
+        except (AttributeError, ImportError):
             return None

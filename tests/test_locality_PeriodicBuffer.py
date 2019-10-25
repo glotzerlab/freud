@@ -2,7 +2,6 @@ import numpy as np
 import numpy.testing as npt
 import freud
 import unittest
-import util
 
 
 class TestPeriodicBuffer(unittest.TestCase):
@@ -10,7 +9,7 @@ class TestPeriodicBuffer(unittest.TestCase):
         L = 10          # Box length
         N = 50          # Number of points
 
-        box, positions = util.make_box_and_random_points(L, N, True)
+        box, positions = freud.data.make_random_system(L, N, is2D=True)
         positions.flags['WRITEABLE'] = False
 
         pbuff = freud.locality.PeriodicBuffer()
@@ -58,7 +57,7 @@ class TestPeriodicBuffer(unittest.TestCase):
         N = 50  # Number of points
         np.random.seed(0)
 
-        box, positions = util.make_box_and_random_points(L, N, False)
+        box, positions = freud.data.make_random_system(L, N, is2D=False)
         positions.flags['WRITEABLE'] = False
 
         pbuff = freud.locality.PeriodicBuffer()

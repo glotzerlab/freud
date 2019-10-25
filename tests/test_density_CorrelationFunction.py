@@ -27,8 +27,8 @@ class TestCorrelationFunction(unittest.TestCase):
         bins = 10
         num_points = 100
         box_size = r_max*3.1
-        box, points = util.make_box_and_random_points(
-            box_size, num_points, True)
+        box, points = freud.data.make_random_system(
+            box_size, num_points, is2D=True)
         ang = np.random.random_sample((num_points)).astype(np.float64) \
             * 2.0 * np.pi
         ocf = freud.density.CorrelationFunction(bins, r_max)
@@ -60,8 +60,8 @@ class TestCorrelationFunction(unittest.TestCase):
         bins = 10
         num_points = 1000
         box_size = r_max*3.1
-        box, points = util.make_box_and_random_points(
-            box_size, num_points, True)
+        box, points = freud.data.make_random_system(
+            box_size, num_points, is2D=True)
         ang = np.random.random_sample((num_points)).astype(np.float64) \
             * 2.0 * np.pi
         comp = np.exp(1j*ang)
@@ -96,8 +96,8 @@ class TestCorrelationFunction(unittest.TestCase):
         bins = 10
         num_points = 1000
         box_size = r_max*3.1
-        box, points = util.make_box_and_random_points(
-            box_size, num_points, True)
+        box, points = freud.data.make_random_system(
+            box_size, num_points, is2D=True)
         ang = np.random.random_sample((num_points)).astype(np.float64) - 0.5
         correct = np.zeros(bins, dtype=np.float64)
         absolute_tolerance = 0.1
@@ -130,8 +130,8 @@ class TestCorrelationFunction(unittest.TestCase):
         dr = r_max / bins
         num_points = 1000
         box_size = r_max*3.1
-        box, points = util.make_box_and_random_points(
-            box_size, num_points, True)
+        box, points = freud.data.make_random_system(
+            box_size, num_points, is2D=True)
         ang = np.zeros(int(num_points), dtype=np.float64)
         comp = np.exp(1j*ang)
         ocf = freud.density.CorrelationFunction(bins, r_max)
@@ -149,8 +149,8 @@ class TestCorrelationFunction(unittest.TestCase):
         dr = 1.0
         num_points = 1000
         box_size = r_max*3.1
-        box, points = util.make_box_and_random_points(
-            box_size, num_points, True)
+        box, points = freud.data.make_random_system(
+            box_size, num_points, is2D=True)
         ang = np.zeros(int(num_points), dtype=np.float64)
         ocf = freud.density.CorrelationFunction(r_max, dr)
         ocf.compute((box, points), ang)
@@ -164,8 +164,8 @@ class TestCorrelationFunction(unittest.TestCase):
         bins = 10
         num_points = 10
         box_size = r_max*2.1
-        box, points = util.make_box_and_random_points(
-            box_size, num_points, True)
+        box, points = freud.data.make_random_system(
+            box_size, num_points, is2D=True)
         ang = np.zeros(int(num_points), dtype=np.float64)
         comp = np.exp(1j*ang)
 
@@ -191,7 +191,7 @@ class TestCorrelationFunction(unittest.TestCase):
         N = 20000
         L = 1000
         phi = np.random.rand(N)
-        box, pos2d = util.make_box_and_random_points(L, N, True)
+        box, pos2d = freud.data.make_random_system(L, N, is2D=True)
 
         # With a small number of particles, we won't get the average exactly
         # right, so we check for different behavior with different numbers of
@@ -220,8 +220,8 @@ class TestCorrelationFunction(unittest.TestCase):
         bins = 10
         num_points = 100
         box_size = r_max*3.1
-        box, points = util.make_box_and_random_points(
-            box_size, num_points, True)
+        box, points = freud.data.make_random_system(
+            box_size, num_points, is2D=True)
         ang = np.random.random_sample((num_points)).astype(np.float64) \
             * 2.0 * np.pi
         comp = np.exp(1j*ang)

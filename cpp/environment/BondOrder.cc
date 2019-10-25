@@ -1,6 +1,7 @@
 // Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
+#include <cmath>
 #include <stdexcept>
 #ifdef __SSE2__
 #include <emmintrin.h>
@@ -31,10 +32,10 @@ BondOrder::BondOrder(unsigned int n_bins_theta, unsigned int n_bins_phi, BondOrd
     /*
     0 < \theta < 2PI; 0 < \phi < PI
     */
-    float dt = 2.0 * M_PI / float(n_bins_theta);
+    float dt = TWO_PI / float(n_bins_theta);
     float dp = M_PI / float(n_bins_phi);
     // this shouldn't be able to happen, but it's always better to check
-    if (dt > 2.0 * M_PI)
+    if (dt > TWO_PI)
         throw std::invalid_argument("2PI must be greater than dt");
     if (dp > M_PI)
         throw std::invalid_argument("PI must be greater than dp");
@@ -115,16 +116,16 @@ void BondOrder::accumulate(
         // NOTE that angles are defined in the "mathematical" way, rather than how
         // most physics textbooks do it. get theta (azimuthal angle), phi (polar
         // angle)
-        float theta = atan2f(v.y, v.x); //-Pi..Pi
+        float theta = std::atan2(v.y, v.x); //-Pi..Pi
 
-        theta = fmod(theta, 2 * M_PI);
-        if (theta < 0)
+        theta = fmod(theta, TWO_PI);
+        while (theta < 0)
         {
-            theta += 2 * M_PI;
+            theta += TWO_PI;
         }
 
         // NOTE that the below has replaced the commented out expression for phi.
-        float phi = acos(v.z / sqrt(dot(v, v))); // 0..Pi
+        float phi = std::acos(v.z / std::sqrt(dot(v, v))); // 0..Pi
 
         m_local_histograms(theta, phi);
     });
