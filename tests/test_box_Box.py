@@ -153,7 +153,7 @@ class TestBox(unittest.TestCase):
         # Test broadcasting one vector with multiple images
         box = freud.box.Box.cube(1)
 
-        testpoints = [[10, 0, 0]]
+        testpoints = [10, 0, 0]
         imgs = [[10, 1, 2], [11, 1, 2]]
         npt.assert_allclose(
             box.unwrap(testpoints, imgs), [[20, 1, 2], [21, 1, 2]], rtol=1e-6)
