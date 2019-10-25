@@ -50,7 +50,7 @@ def _set_3d_axes_equal(ax, limits=None):
     else:
         limits = np.asarray(limits)
     origin = np.mean(limits, axis=1)
-    radius = 0.5 * np.max(np.abs(limits[:, 1] - limits[:, 0]))
+    radius = 0.5 * np.max(limits[:, 1] - limits[:, 0])
     ax.set_xlim3d([origin[0] - radius, origin[0] + radius])
     ax.set_ylim3d([origin[1] - radius, origin[1] + radius])
     ax.set_zlim3d([origin[2] - radius, origin[2] + radius])
