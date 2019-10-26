@@ -5,13 +5,14 @@ R"""
 The :mod:`freud.locality` module contains data structures to efficiently
 locate points based on their proximity to other points.
 """
-import sys
-import numpy as np
-import itertools
-import warnings
-import logging
 import copy
 import freud.util
+import inspect
+import itertools
+import logging
+import numpy as np
+import sys
+import warnings
 
 from libcpp cimport bool as cbool
 from freud.util cimport vec3
@@ -293,10 +294,35 @@ cdef class NeighborQuery:
                 instance of :class:`~.NeighborQuery` built from an inferred
                 :code:`box` and :code:`points`.
         """
+
+        def match_class_path(obj, match):
+            for cls in inspect.getmro(type(obj)):
+                if cls.__module__ + '.' + cls.__name__ == match:
+                    return True
+            return False
+
         if isinstance(system, cls):
             return system
+
+        # MDAnalysis compatibility
+        elif match_class_path(system, 'MDAnalysis.coordinates.base.Timestep'):
+            system = (system.triclinic_dimensions, system.positions)
+
+        # GSD compatibility
+        elif match_class_path(system, 'gsd.hoomd.Snapshot'):
+            system = (system.configuration.box, system.particles.position)
+
+        # garnett compatibility
+        elif match_class_path(system, 'garnett.trajectory.Frame'):
+            system = (system.box, system.positions)
+
+        # OVITO compatibility
+        elif (match_class_path(system, 'ovito.data.DataCollection') or
+              match_class_path(system, 'PyScript.DataCollection')):
+            system = (system.cell.matrix, system.particles.positions)
+
+        # Duck type systems with attributes into a (box, points) tuple
         elif hasattr(system, 'box') and hasattr(system, 'points'):
-            # Convert systems with attributes into a (box, points) tuple
             system = (system.box, system.points)
 
         if cls == NeighborQuery:
