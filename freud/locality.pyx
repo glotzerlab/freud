@@ -321,6 +321,11 @@ cdef class NeighborQuery:
               match_class_path(system, 'PyScript.DataCollection')):
             system = (system.cell.matrix, system.particles.positions)
 
+        # HOOMD-blue snapshot compatibility
+        elif (hasattr(system, 'box') and hasattr(system, 'particles') and
+              hasattr(system.particles, 'position')):
+            system = (system.box, system.particles.position)
+
         # Duck type systems with attributes into a (box, points) tuple
         elif hasattr(system, 'box') and hasattr(system, 'points'):
             system = (system.box, system.points)
