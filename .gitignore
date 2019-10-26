@@ -1,8 +1,6 @@
 *.sublime-workspace
 *.pyc
 *.pyo
-*.dcd
-*.mat
 *.swp
 .DS_Store
 *.kdev4
