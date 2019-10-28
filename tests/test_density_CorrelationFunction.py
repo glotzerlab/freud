@@ -72,22 +72,16 @@ class TestCorrelationFunction(unittest.TestCase):
             box, points, points, 'ball', r_max, 0, True)
         for nq, neighbors in test_set:
             ocf = freud.density.CorrelationFunction(bins, r_max)
-            ocf.compute(nq, comp, points, np.conj(comp),
-                        neighbors=neighbors, reset=False)
-            npt.assert_allclose(ocf.correlation, correct,
-                                atol=absolute_tolerance)
-            ocf.compute(nq, comp, points, np.conj(comp),
-                        neighbors=neighbors)
+            ocf.compute(nq, comp, neighbors=neighbors)
             npt.assert_allclose(ocf.correlation, correct,
                                 atol=absolute_tolerance)
             self.assertEqual(box, ocf.box)
 
-            ocf.compute(nq, comp, query_values=np.conj(comp),
-                        neighbors=neighbors, reset=False)
+            # Test setting that the reset flag works as expected.
+            ocf.compute(nq, comp, neighbors=neighbors, reset=False)
             npt.assert_allclose(ocf.correlation, correct,
                                 atol=absolute_tolerance)
-            ocf.compute(
-                nq, comp, query_values=np.conj(comp), neighbors=neighbors)
+            ocf.compute(nq, comp, neighbors=neighbors)
             npt.assert_allclose(ocf.correlation, correct,
                                 atol=absolute_tolerance)
 
@@ -136,7 +130,6 @@ class TestCorrelationFunction(unittest.TestCase):
         comp = np.exp(1j*ang)
         ocf = freud.density.CorrelationFunction(bins, r_max)
         ocf.compute((freud.box.Box.square(box_size), points), comp,
-                    points, np.conj(comp),
                     neighbors={"r_max": r_max, "exclude_ii": True})
 
         correct = np.ones(int(r_max/dr), dtype=np.float32) + \
@@ -179,7 +172,6 @@ class TestCorrelationFunction(unittest.TestCase):
         correct = np.sum(vector_lengths < r_max) - len(points)
         ocf = freud.density.CorrelationFunction(bins, r_max)
         ocf.compute((freud.box.Box.square(box_size), points), comp,
-                    points, np.conj(comp),
                     neighbors={"r_max": r_max, "exclude_ii": True})
         self.assertEqual(np.sum(ocf.bin_counts), correct)
 
@@ -232,7 +224,6 @@ class TestCorrelationFunction(unittest.TestCase):
         self.assertEqual(ocf._repr_png_(), None)
 
         ocf.compute((freud.box.Box.square(box_size), points), comp,
-                    points, np.conj(comp),
                     neighbors={"r_max": r_max, "exclude_ii": True})
         ocf._repr_png_()
 
@@ -242,47 +233,53 @@ class TestCorrelationFunction(unittest.TestCase):
         r_max = 3
         bins = 3
         box = freud.box.Box.cube(box_size)
-        ref_points = np.array([[0, 0, 0]],
-                              dtype=np.float32)
-        points = np.array([[0.4, 0.0, 0.0],
-                           [0.9, 0.0, 0.0],
-                           [0.0, 1.4, 0.0],
-                           [0.0, 1.9, 0.0],
-                           [0.0, 0.0, 2.4],
-                           [0.0, 0.0, 2.9]],
+        points = np.array([[0, 0, 0]],
                           dtype=np.float32)
-        ref_values = np.ones(ref_points.shape[0])
+        query_points = np.array([[0.4, 0.0, 0.0],
+                                 [0.9, 0.0, 0.0],
+                                 [0.0, 1.4, 0.0],
+                                 [0.0, 1.9, 0.0],
+                                 [0.0, 0.0, 2.4],
+                                 [0.0, 0.0, 2.9]],
+                                dtype=np.float32)
         values = np.ones(points.shape[0])
+        query_values = np.ones(query_points.shape[0])
 
+        # Normal calculation
         cf = freud.density.CorrelationFunction(bins, r_max)
-        cf.compute((box, ref_points), ref_values, points, values,
+        cf.compute((box, points), values, query_points, query_values,
                    neighbors={'mode': 'nearest', 'num_neighbors': 1})
         npt.assert_array_equal(cf.correlation, [1, 1, 1])
         npt.assert_array_equal(cf.bin_counts, [2, 2, 2])
 
-        cf.compute((box, points), values, ref_points, ref_values,
+        # Swap points and query_points
+        cf.compute((box, query_points), query_values, points, values,
                    neighbors={'mode': 'nearest', 'num_neighbors': 1})
         npt.assert_array_equal(cf.correlation, [1, 0, 0])
         npt.assert_array_equal(cf.bin_counts, [1, 0, 0])
 
-        ref_values = [1+1j]
-        values = [1+1j, 1+1j, 2+2j, 2+2j, 3+3j, 3+3j]
-        cf.compute((box, ref_points), ref_values, points, np.conj(values),
+        # Make values complex
+        values = [1+1j]
+        query_values = [1+1j, 1+1j, 2+2j, 2+2j, 3+3j, 3+3j]
+        cf.compute((box, points), values, query_points, query_values,
                    neighbors={'mode': 'nearest', 'num_neighbors': 1})
         npt.assert_array_equal(cf.correlation, [2, 4, 6])
         npt.assert_array_equal(cf.bin_counts, [2, 2, 2])
 
-        cf.compute((box, ref_points), ref_values, points, values,
+        # Test the effect of conjugating the query_values
+        cf.compute((box, points), np.conj(values), query_points, query_values,
                    neighbors={'mode': 'nearest', 'num_neighbors': 1})
         npt.assert_array_equal(cf.correlation, [2j, 4j, 6j])
         npt.assert_array_equal(cf.bin_counts, [2, 2, 2])
 
-        cf.compute((box, points), values, ref_points, np.conj(ref_values),
+        # Swap points and query_points
+        cf.compute((box, query_points), query_values, points, values,
                    neighbors={'mode': 'nearest', 'num_neighbors': 1})
         npt.assert_array_equal(cf.correlation, [2, 0, 0])
         npt.assert_array_equal(cf.bin_counts, [1, 0, 0])
 
-        cf.compute((box, points), values, ref_points, ref_values,
+        # Test the effect of conjugating the query_values
+        cf.compute((box, query_points), np.conj(query_values), points, values,
                    neighbors={'mode': 'nearest', 'num_neighbors': 1})
         npt.assert_array_equal(cf.correlation, [2j, 0, 0])
         npt.assert_array_equal(cf.bin_counts, [1, 0, 0])
@@ -293,25 +290,25 @@ class TestCorrelationFunction(unittest.TestCase):
         r_max = 3
         bins = 3
         box = freud.box.Box.cube(box_size)
-        ref_points = np.array([[0, 0, 0]],
-                              dtype=np.float32)
-        points = np.array([[0.4, 0.0, 0.0],
-                           [0.9, 0.0, 0.0],
-                           [0.0, 1.4, 0.0],
-                           [0.0, 1.9, 0.0],
-                           [0.0, 0.0, 2.4],
-                           [0.0, 0.0, 2.9]],
+        points = np.array([[0, 0, 0]],
                           dtype=np.float32)
-        ref_values = np.ones(ref_points.shape[0])
+        query_points = np.array([[0.4, 0.0, 0.0],
+                                 [0.9, 0.0, 0.0],
+                                 [0.0, 1.4, 0.0],
+                                 [0.0, 1.9, 0.0],
+                                 [0.0, 0.0, 2.4],
+                                 [0.0, 0.0, 2.9]],
+                                dtype=np.float32)
         values = np.ones(points.shape[0])
+        query_values = np.ones(query_points.shape[0])
 
         cf = freud.density.CorrelationFunction(bins, r_max)
-        cf.compute((box, ref_points), ref_values, points, values,
+        cf.compute((box, points), values, query_points, query_values,
                    neighbors={'mode': 'nearest', 'num_neighbors': 1})
         npt.assert_array_equal(cf.correlation, [1, 1, 1])
         npt.assert_array_equal(cf.bin_counts, [2, 2, 2])
 
-        cf.compute((box, points), values, ref_points, ref_values,
+        cf.compute((box, query_points), query_values, points, values,
                    neighbors={'mode': 'nearest', 'num_neighbors': 1})
         npt.assert_array_equal(cf.correlation, [1, 0, 0])
         npt.assert_array_equal(cf.bin_counts, [1, 0, 0])

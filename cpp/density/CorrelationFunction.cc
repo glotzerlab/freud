@@ -70,6 +70,18 @@ void CorrelationFunction<T>::reset()
     m_local_correlation_function.reset();
 }
 
+
+// Define an overloaded pair of product functions to deal with complex conjugation if necessary.
+inline std::complex<double> product(std::complex<double> x, std::complex<double> y)
+{
+    return std::conj(x)*y;
+}
+
+inline double product(double x, double y)
+{
+    return x*y;
+}
+
 template<typename T>
 void CorrelationFunction<T>::accumulate(const freud::locality::NeighborQuery* neighbor_query, const T* values,
                                         const vec3<float>* query_points, const T* query_values,
@@ -81,7 +93,7 @@ void CorrelationFunction<T>::accumulate(const freud::locality::NeighborQuery* ne
         {
             size_t value_bin = m_histogram.bin({neighbor_bond.distance});
             m_local_histograms.increment(value_bin);
-            m_local_correlation_function.increment(value_bin, values[neighbor_bond.point_idx] * query_values[neighbor_bond.query_point_idx]);
+            m_local_correlation_function.increment(value_bin, product(values[neighbor_bond.point_idx], query_values[neighbor_bond.query_point_idx]));
         }
     );
 }
