@@ -160,6 +160,18 @@ cdef class MSD(_Compute):
     def compute(self, positions, images=None, reset=True):
         """Calculate the MSD for the positions provided.
 
+        .. note::
+            Unlike most methods in freud, accumulation for the MSD is split
+            over points rather than frames of a simulation. The reason for
+            this choice is that efficient computation of the MSD requires using
+            the entire trajectory for a given particle. As a result, when setting
+            ``reset=False``, you must provide the positions of each point over
+            the full length of the trajectory, but you may call ``compute``
+            multiple times with different subsets the points to calculate the
+            MSD over the full set of positions. The primary use-case is when
+            the trajectory is so large that computing an MSD on all particles
+            at once is prohibitively expensive.
+
         Args:
             positions ((:math:`N_{frames}`, :math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 The particle positions over a trajectory. If neither box nor images
@@ -226,7 +238,7 @@ cdef class MSD(_Compute):
 
     @_Compute._computed_property
     def msd(self):
-        """:math:`\\left(N_{frames}, \\right`) :class:`numpy.ndarray`: The mean
+        """:math:`\\left(N_{frames}, \\right)` :class:`numpy.ndarray`: The mean
         squared displacement."""
         return np.concatenate(self.particle_msd, axis=1).mean(axis=-1)
 
