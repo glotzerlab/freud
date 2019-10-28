@@ -220,7 +220,7 @@ cdef class MSD(_Compute):
 
     @_Compute._computed_property
     def msd(self):
-        """:math:`\\left(N_{frames}, \\right`) :class:`numpy.ndarray`: The mean
+        """:math:`\\left(N_{frames}, \\right)` :class:`numpy.ndarray`: The mean
         squared displacement."""
         return np.concatenate(self.particle_msd, axis=1).mean(axis=-1)
 

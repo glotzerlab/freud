@@ -108,7 +108,7 @@ cdef class Cluster(_PairCompute):
 
     @_Compute._computed_property
     def cluster_idx(self):
-        """:math:`N_{points}` :class:`numpy.ndarray`: The cluster index for
+        """(:math:`N_{points}`) :class:`numpy.ndarray`: The cluster index for
         each point."""
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getClusterIdx(),

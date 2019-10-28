@@ -636,11 +636,10 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
     In general, it is recommended to specify a number of neighbors rather than
     just a distance cutoff as part of your neighbor querying when performing
     this computation since it can otherwise be very sensitive. Specifically, it
-    is highly recommended that you choose a number of neighbors that you
-    specify a number of neighbors query that requests at least as many
-    neighbors as the size of the motif you intend to test against. Otherwise,
-    you will struggle to match the motif. However, this is not currently
-    enforced.
+    is highly recommended that you choose a number of neighbors query that
+    requests at least as many neighbors as the size of the motif you intend to
+    test against. Otherwise, you will struggle to match the motif. However,
+    this is not currently enforced.
     """  # noqa: E501
 
     cdef freud._environment.EnvironmentMotifMatch * thisptr
@@ -661,7 +660,7 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
             system:
                 Any object that is a valid argument to
                 :class:`freud.locality.NeighborQuery.from_system`.
-            motif ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            motif ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
                 Vectors that make up the motif against which we are matching.
             threshold (float):
                 Maximum magnitude of the vector difference between two vectors,
@@ -702,7 +701,7 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
 
     @_Compute._computed_property
     def matches(self):
-        """:math:`(N_p, )` :class:`numpy.ndarray`: A boolean array indicating
+        """:math:`(N_points, )` :class:`numpy.ndarray`: A boolean array indicating
         whether each point matches the motif."""
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getMatches(),
@@ -1074,10 +1073,9 @@ cdef class LocalBondProjection(_PairCompute):
 
     @_Compute._computed_property
     def projections(self):
-        """:math:`\\left(N_{bonds}, N_{projection\\_vecs}
-        \\right)` :class:`numpy.ndarray`: The projection of each bond between
-        query particles and their neighbors onto each of the projection
-        vectors."""
+        """:math:`\\left(N_{bonds}, N_{projection\\_vecs} \\right)` :class:`numpy.ndarray`:
+        The projection of each bond between query particles and their neighbors
+        onto each of the projection vectors."""  # noqa: E501
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getProjections(),
             freud.util.arr_type_t.FLOAT)
