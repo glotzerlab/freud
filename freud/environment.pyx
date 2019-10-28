@@ -48,9 +48,8 @@ cdef class BondOrder(_SpatialHistogram):
     are situated relative to one-another in a system.
 
     This class provides access to the classical BOOD as well as a few useful
-    variants. These variants can be accessed *via* the :code:`mode` arguments
-    to the :meth:`~BondOrder.compute` or :meth:`~BondOrder.accumulate`
-    methods. Available modes of calculation are:
+    variants. These variants can be accessed via the :code:`mode` arguments to
+    the :meth:`~BondOrder.compute` method. Available modes of calculation are:
 
     * :code:`'bod'` (Bond Order Diagram, *default*):
       This mode constructs the default BOOD, which is the 2D histogram

@@ -14,16 +14,6 @@ class TestMSD(unittest.TestCase):
             msd.plot()
         self.assertEqual(msd._repr_png_(), None)
 
-        msd.accumulate(positions)
-        msd.msd
-
-        msd.reset()
-        with self.assertRaises(AttributeError):
-            msd.msd
-        with self.assertRaises(AttributeError):
-            msd.plot()
-        self.assertEqual(msd._repr_png_(), None)
-
         msd.compute(positions)
         msd.msd
         msd.box
@@ -34,8 +24,8 @@ class TestMSD(unittest.TestCase):
         positions = np.array([[[1, 0, 0]]])
         msd = freud.msd.MSD()
         msd_direct = freud.msd.MSD(mode='direct')
-        self.assertTrue(msd.accumulate(positions).msd == [0])
-        self.assertTrue(msd_direct.accumulate(positions).msd == [0])
+        self.assertTrue(msd.compute(positions).msd == [0])
+        self.assertTrue(msd_direct.compute(positions).msd == [0])
 
         positions = positions.repeat(10, axis=0)
         npt.assert_allclose(msd.compute(positions).msd, 0, atol=1e-4)
@@ -56,11 +46,10 @@ class TestMSD(unittest.TestCase):
 
         # Test accumulation
         positions.flags['WRITEABLE'] = False
-        msd.reset()
-        msd.accumulate(positions[:, [0], :])
-        msd.accumulate(positions[:, [1], :])
-        npt.assert_allclose(
-            msd.msd, msd.compute(positions).msd)
+        msd.compute(positions[:, [0], :])
+        msd.compute(positions[:, [1], :], reset=False)
+        msd_accumulated = msd.msd.copy()
+        npt.assert_allclose(msd_accumulated, msd.compute(positions).msd)
 
         # Test on a lot of random data against a more naive MSD calculation.
         def simple_msd(positions):
@@ -84,7 +73,6 @@ class TestMSD(unittest.TestCase):
             simple = simple_msd(positions)
             solution = msd.compute(positions).msd
             npt.assert_allclose(solution, simple, atol=1e-6)
-            msd.reset()
 
     def test_repr(self):
         msd = freud.msd.MSD()

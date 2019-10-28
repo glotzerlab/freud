@@ -87,6 +87,7 @@ Bradley Dice - **Lead developer**
 * Added plotting functionality for Box and NeighborQuery objects.
 * Added support for reading system data directly from MDAnalysis, garnett, gsd, HOOMD-blue, and OVITO.
 * Revised tutorials and documentation on data inputs.
+* Updated MSD to perform accumulation with `compute(..., reset=False)`.
 
 Eric Harper, University of Michigan - **Former lead developer**
 
