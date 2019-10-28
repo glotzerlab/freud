@@ -42,7 +42,7 @@ If users anticipate performing many such calculations on the same system of poin
 This reuse can significantly improve performance in e.g. visualization contexts where users may wish to calculate a :class:`bond order diagram <freud.environment.BondOrder>` and an :class:`RDF <freud.density.RDF>` at each frame, perhaps for integration with a visualization toolkit like `OVITO <https://www.ovito.org/>`_.
 
 A slightly different use-case would be the calculation of multiple quantities based on *exactly the same set of neighbors*.
-If the user in fact expects to perform computations with the exact same pairs of neighbors (for example, to compute :class:`freud.order.Steinhardt` for multiple :math:`l` values), then the user can further speed up the calculation by precomputing the entire :class:`freud.locality.NeighborList` and storing it for future use.
+If the user in fact expects to perform computations with the exact same pairs of neighbors (for example, to compute :class:`freud.order.Steinhardt` for multiple :math:`l` values), then the user can further speed up the calculation by precomputing the entire :class:`freud.NeighborList` and storing it for future use.
 
 .. code-block:: python
 
@@ -55,7 +55,7 @@ If the user in fact expects to perform computations with the exact same pairs of
         q6_arrays.append(ql.compute((box, points), neighbors=nlist).particle_order)
 
 
-Notably, if the user calls a compute method with ``compute(system=(box, points))``, unlike in the examples above **freud** **will not construct** a :class:`freud.locality.NeighborQuery` internally because the full set of neighbors is completely specified by the :class:`NeighborList <freud.locality.NeighborList>`.
+Notably, if the user calls a compute method with ``compute(system=(box, points))``, unlike in the examples above **freud** **will not construct** a :class:`freud.locality.NeighborQuery` internally because the full set of neighbors is completely specified by the :class:`NeighborList <freud.NeighborList>`.
 In all these cases, **freud** does the minimal work possible to find neighbors, so judicious use of these data structures can substantially accelerate your code.
 
 Proper Data Inputs

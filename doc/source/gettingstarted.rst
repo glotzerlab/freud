@@ -30,6 +30,7 @@ To do so, we simply instantiate the class with the appropriate parameters and th
 We can now access the data through properties of the ``rdf`` object.
 
 .. code-block:: python
+
     r = rdf.bin_centers
     y = rdf.rdf
 

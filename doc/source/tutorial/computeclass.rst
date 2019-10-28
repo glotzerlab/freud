@@ -22,7 +22,7 @@ We can look at the :class:`freud.order.Hexatic` order parameter calculator as an
     from matplotlib import pyplot as plt
     plt.hist(np.absolute(op.order))
 
-Here, we are calculating the hexatic order parameter, then using Matplotlib to plot 
+Here, we are calculating the hexatic order parameter, then using Matplotlib to plot
 The :class:`freud.order.Hexatic` class constructor accepts a single argument :code:`k`, which represents the periodicity of the calculation.
 If you're unfamiliar with this order parameter, the most important piece of information here is that many compute methods in **freud** require parameters that are provided when the ``Compute class`` is constructed.
 
@@ -86,7 +86,7 @@ Compute objects is that they can be used many times to calculate quantities, and
 If you need to perform a series of calculations and save all the data, you can also easily do that:
 
 .. code-block:: python
-    
+
     # Recall that lists of length 2 automatically convert to 2d freud boxes.
     box = [5, 5]
 

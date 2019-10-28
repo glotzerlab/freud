@@ -53,7 +53,7 @@ Here, we provide an example that reads data from a DCD file.
     reader = MDAnalysis.coordinates.DCD.DCDReader('trajectory.dcd')
 
     for frame in reader:
-        rdf.compute(frame, reset=False)
+        rdf.compute(system=frame, reset=False)
 
 garnett Trajectories
 --------------------
@@ -68,7 +68,7 @@ Here, we provide an example that reads data from a POS file.
 
     with garnett.read('trajectory.pos') as traj:
         for frame in traj:
-            rdf.compute(frame, reset=False)
+            rdf.compute(system=frame, reset=False)
 
 OVITO Modifiers
 ---------------
@@ -83,7 +83,7 @@ Below is an example modifier that creates a user particle property in the OVITO 
 
     def modify(frame, data):
         ql = freud.order.Steinhardt(l=6)
-        ql.compute(data, neighbors={'num_neighbors': 6})
+        ql.compute(system=data, neighbors={'num_neighbors': 6})
         data.create_user_particle_property(
             name='ql', data_type=float, data=ql.ql)
         print('Created ql property for {} particles.'.format(data.particles.count))
@@ -121,7 +121,7 @@ Below is an example demonstrating how to use an anlyzer to log the Steinhardt bo
     def compute_q6(timestep):
         print(timestep)
         snap = system.take_snapshot()
-        ql.compute(snap, neighbors={'num_neighbors': 6})
+        ql.compute(system=snap, neighbors={'num_neighbors': 6})
         return ql.order
 
     # Register a logger that computes q6 and saves to a file
@@ -146,10 +146,10 @@ Assuming knowledge of the box used in the simulation, a LAMMPS XYZ file could be
     traj = np.genfromtxt(
         'trajectory.xyz', skip_header=2,
         invalid_raise=False)[:, 1:4].reshape(-1, N, 3)
-    box = freud.Box.cube(L=20)
+    box = freud.box.Box.cube(L=20)
 
     for frame_positions in traj:
-        rdf.compute((box, frame_positions), reset=False)
+        rdf.compute(system=(box, frame_positions), reset=False)
 
 The first line is the number of particles, so we read this line and use it to determine how to reshape the contents of the rest of the file into a NumPy array.
 
@@ -166,6 +166,5 @@ Here, we provide an example using `MDAnalysis <https://www.mdanalysis.org/>`__ t
     reader = MDAnalysis.coordinates.DCD.DCDReader('trajectory.dcd')
 
     for frame in reader:
-        rdf.compute((
-            freud.box.Box.from_matrix(frame.triclinic_dimensions),
-            frame.positions), reset=False)
+        box = freud.box.Box.from_matrix(frame.triclinic_dimensions)
+        rdf.compute(system=(box, frame.positions), reset=False)
