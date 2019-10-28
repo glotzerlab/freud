@@ -869,6 +869,9 @@ cdef class _PairCompute(_Compute):
                 nlist = NeighborList(_null=True)
             except NotImplementedError:
                 raise
+        else:
+            raise ValueError('An invalid value was provided for neighbors, '
+                             'which must be a dict or NeighborList object.')
         return nlist, qargs
 
     @property
