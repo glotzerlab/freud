@@ -18,10 +18,9 @@ a Python interpreter.
 
 In order to achieve this goal, **freud** takes the following viewpoints:
 
-* In order to remain as agnostic to inputs as possible, **freud** makes
-  no attempt to interface directly with simulation software.
-  Instead, **freud** works directly with `NumPy <http://www.numpy.org/>_`
-  arrays to retain maximum flexibility.
+* **freud** works directly with `NumPy <http://www.numpy.org/>_`
+  arrays to retain maximum flexibility. Integrations with other tools
+  should be performed via the common data representations of NumPy arrays.
 * For ease of maintenance, **freud** uses Git for version control;
   GitHub for code hosting and issue tracking; and the PEP 8
   standard for code, stressing explicitly written code which is easy
