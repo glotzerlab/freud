@@ -357,8 +357,7 @@ cdef class LocalDensity(_PairCompute):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     def compute(self, system, query_points=None, neighbors=None):
-        R"""Calculates the local density for the specified points. Does not
-        accumulate (will overwrite current data).
+        R"""Calculates the local density for the specified points.
 
         Args:
             system:
@@ -539,7 +538,7 @@ cdef class RDF(_SpatialHistogram1D):
         bin_counts values. More precisely, :code:`n_r[i]` is the average number
         of points contained within a ball of radius :code:`R[i]+dr/2` centered
         at a given :code:`query_point` averaged over all :code:`query_points`
-        in the last call to :meth:`~.compute` (or :meth:`~.accumulate`)."""
+        in the last call to :meth:`~.compute`."""
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getNr(),
             freud.util.arr_type_t.FLOAT)

@@ -135,8 +135,8 @@ cdef class MSD(_Compute):
     Args:
         box (:class:`freud.box.Box`, optional):
             If not provided, the class will assume that all positions provided
-            in calls to :meth:`~compute` or :meth:`~accumulate` are already
-            unwrapped. (Default value = :code:`None`).
+            in calls to :meth:`~compute` are already unwrapped. (Default value
+            = :code:`None`).
         mode (str, optional):
             Mode of calculation. Options are :code:`'window'` and
             :code:`'direct'`.  (Default value = :code:`'window'`).
@@ -157,9 +157,8 @@ cdef class MSD(_Compute):
             raise ValueError("Invalid mode")
         self.mode = mode
 
-    def accumulate(self, positions, images=None):
-        """Calculate the MSD for the positions provided and add to the existing
-        per-particle data.
+    def compute(self, positions, images=None, reset=True):
+        """Calculate the MSD for the positions provided.
 
         Args:
             positions ((:math:`N_{frames}`, :math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -171,7 +170,14 @@ cdef class MSD(_Compute):
                 positions need to be unwrapped. If neither are provided,
                 positions are assumed to be unwrapped already.
                 (Default value = :code:`None`).
+            reset (bool):
+                Whether to erase the previously computed values before adding
+                the new computation; if False, will accumulate data (Default
+                value: True).
         """  # noqa: E501
+        if reset:
+            self.particle_msd = []
+
         self._called_compute = True
 
         positions = freud.util._convert_array(
@@ -223,30 +229,6 @@ cdef class MSD(_Compute):
         """:math:`\\left(N_{frames}, \\right`) :class:`numpy.ndarray`: The mean
         squared displacement."""
         return np.concatenate(self.particle_msd, axis=1).mean(axis=-1)
-
-    def reset(self):
-        R"""Clears the stored MSD values from previous calls to accumulate (or
-        the last call to compute)."""
-        self._called_compute = False
-        self.particle_msd = []
-
-    def compute(self, positions, images=None):
-        """Calculate the MSD for the positions provided.
-
-        Args:
-            positions ((:math:`N_{frames}`, :math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                The particle positions over a trajectory. If neither box nor images
-                are provided, the positions are assumed to be unwrapped already.
-            images ((:math:`N_{frames}`, :math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
-                The particle images to unwrap with if provided. Must be provided
-                along with a simulation box (in the constructor) if particle
-                positions need to be unwrapped. If neither are provided,
-                positions are assumed to be unwrapped already.
-                (Default value = :code:`None`).
-        """  # noqa: E501
-        self.reset()
-        self.accumulate(positions, images)
-        return self
 
     def __repr__(self):
         return "freud.msd.{cls}(box={box}, mode={mode})".format(
