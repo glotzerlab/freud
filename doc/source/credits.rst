@@ -85,6 +85,8 @@ Bradley Dice - **Lead developer**
 * Made PeriodicBuffer inherit from _Compute.
 * Removed cudacpu and HOOMDMath includes.
 * Added plotting functionality for Box and NeighborQuery objects.
+* Added support for reading system data directly from MDAnalysis, garnett, gsd, HOOMD-blue, and OVITO.
+* Revised tutorials and documentation on data inputs.
 
 Eric Harper, University of Michigan - **Former lead developer**
 

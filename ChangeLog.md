@@ -24,6 +24,7 @@ and this project adheres to
 * `freud.data` module.
 * Optional normalization for RDF, useful for small systems.
 * `plot()` methods for `NeighborQuery` and `Box` objects.
+* Added support for reading system data directly from MDAnalysis, garnett, gsd, HOOMD-blue, and OVITO.
 
 ### Changed
 * All compute objects that perform neighbor computations now use NeighborQuery internally.
