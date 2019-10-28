@@ -86,6 +86,8 @@ Bradley Dice - **Lead developer**
 * Made PeriodicBuffer inherit from _Compute.
 * Removed cudacpu and HOOMDMath includes.
 * Added plotting functionality for Box and NeighborQuery objects.
+* Added support for reading system data directly from MDAnalysis, garnett, gsd, HOOMD-blue, and OVITO.
+* Revised tutorials and documentation on data inputs.
 * Updated MSD to perform accumulation with `compute(..., reset=False)`.
 
 Eric Harper, University of Michigan - **Former lead developer**
@@ -267,6 +269,8 @@ Jin Soo Ihm
 
 Source code
 -----------
+
+.. highlight:: none
 
 Eigen (http://eigen.tuxfamily.org) is included as a git submodule in freud.
 Eigen is made available under the Mozilla Public License v2.0

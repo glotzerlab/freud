@@ -431,8 +431,8 @@ cdef class RDF(_SpatialHistogram1D):
          g(r) = V\frac{N-1}{N} \langle \delta(r) \rangle
 
     In the thermodynamic limit, the fraction tends to unity and the limiting
-    behavior of :math:`\lim_{r->\infty} g(r)=1` is recovered. However, for very
-    small systems the long range behavior of the radial distribution will
+    behavior of :math:`\lim_{r \to \infty} g(r)=1` is recovered. However, for
+    very small systems the long range behavior of the radial distribution will
     instead tend to :math:`\frac{N-1}{N}`. If you are analyzing a very small
     system but wish to recover the more familiar behavior, you may use the
     `normalize` flag to enforce this requirement upon construction of this

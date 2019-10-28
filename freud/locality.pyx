@@ -5,13 +5,14 @@ R"""
 The :mod:`freud.locality` module contains data structures to efficiently
 locate points based on their proximity to other points.
 """
-import sys
-import numpy as np
-import itertools
-import warnings
-import logging
 import copy
 import freud.util
+import inspect
+import itertools
+import logging
+import numpy as np
+import sys
+import warnings
 
 from libcpp cimport bool as cbool
 from freud.util cimport vec3
@@ -282,6 +283,11 @@ cdef class NeighborQuery:
         * A sequence of :code:`(box, points)` where :code:`box` is a
           :class:`~.box.Box` and :code:`points` is a :class:`numpy.ndarray`.
         * Objects with attributes :code:`box` and :code:`points`.
+        * :class:`MDAnalysis.coordinates.base.Timestep`
+        * :class:`gsd.hoomd.Snapshot`
+        * :class:`garnett.trajectory.Frame`
+        * :class:`ovito.data.DataCollection`
+        * :mod:`hoomd.data` snapshot
 
         Args:
             system (system-like object):
@@ -293,10 +299,40 @@ cdef class NeighborQuery:
                 instance of :class:`~.NeighborQuery` built from an inferred
                 :code:`box` and :code:`points`.
         """
+
+        def match_class_path(obj, match):
+            for cls in inspect.getmro(type(obj)):
+                if cls.__module__ + '.' + cls.__name__ == match:
+                    return True
+            return False
+
         if isinstance(system, cls):
             return system
+
+        # MDAnalysis compatibility
+        elif match_class_path(system, 'MDAnalysis.coordinates.base.Timestep'):
+            system = (system.triclinic_dimensions, system.positions)
+
+        # GSD compatibility
+        elif match_class_path(system, 'gsd.hoomd.Snapshot'):
+            system = (system.configuration.box, system.particles.position)
+
+        # garnett compatibility
+        elif match_class_path(system, 'garnett.trajectory.Frame'):
+            system = (system.box, system.positions)
+
+        # OVITO compatibility
+        elif (match_class_path(system, 'ovito.data.DataCollection') or
+              match_class_path(system, 'PyScript.DataCollection')):
+            system = (system.cell.matrix, system.particles.positions)
+
+        # HOOMD-blue snapshot compatibility
+        elif (hasattr(system, 'box') and hasattr(system, 'particles') and
+              hasattr(system.particles, 'position')):
+            system = (system.box, system.particles.position)
+
+        # Duck type systems with attributes into a (box, points) tuple
         elif hasattr(system, 'box') and hasattr(system, 'points'):
-            # Convert systems with attributes into a (box, points) tuple
             system = (system.box, system.points)
 
         if cls == NeighborQuery:
@@ -353,10 +389,12 @@ cdef class NeighborQuery:
                 the system (Default value = :code:`None`).
             title (str):
                 Title of the plot (Default value = :code:`None`).
-            ``*args``, ``**kwargs``:
-                All other arguments are passed on to
-                :meth:`mpl_toolkits.mplot3d.Axes3D.scatter` or
-                :meth:`matplotlib.axes.Axes.scatter`.
+            *args:
+                Passed on to :meth:`mpl_toolkits.mplot3d.Axes3D.plot` or
+                :meth:`matplotlib.axes.Axes.plot`.
+            **kwargs:
+                Passed on to :meth:`mpl_toolkits.mplot3d.Axes3D.plot` or
+                :meth:`matplotlib.axes.Axes.plot`.
 
         Returns:
             :class:`matplotlib.axes.Axes`: Axis with the plot.
@@ -389,6 +427,8 @@ cdef class NeighborList:
        :class:`freud.locality.NeighborList` objects received from a
        neighbor search algorithm, such as :class:`freud.locality.LinkCell`,
        :class:`freud.locality.AABBQuery`, or :class:`freud.locality.Voronoi`.
+
+    Also available as ``freud.NeighborList``.
 
     Example::
 
@@ -714,7 +754,10 @@ cdef class _RawPoints(NeighborQuery):
 
 
 cdef class AABBQuery(NeighborQuery):
-    R"""Use an AABB tree to find neighbors."""
+    R"""Use an AABB tree to find neighbors.
+
+    Also available as ``freud.AABBQuery``.
+    """
 
     def __cinit__(self, box, points):
         cdef const float[:, ::1] l_points
@@ -738,6 +781,8 @@ cdef class AABBQuery(NeighborQuery):
 cdef class LinkCell(NeighborQuery):
     R"""Supports efficiently finding all points in a set within a certain
     distance from a given point.
+
+    Also available as ``freud.LinkCell``.
 
     Args:
         box (:class:`freud.box.Box`):
@@ -838,6 +883,9 @@ cdef class _PairCompute(_Compute):
                 nlist = NeighborList(_null=True)
             except NotImplementedError:
                 raise
+        else:
+            raise ValueError('An invalid value was provided for neighbors, '
+                             'which must be a dict or NeighborList object.')
         return nlist, qargs
 
     @property

@@ -2,12 +2,12 @@
 How to Add New Code
 ===================
 
-This document details the process of adding new code into freud.
+This document details the process of adding new code into **freud**.
 
-Does my code belong in freud?
-=============================
+Does my code belong in **freud**?
+=================================
 
-The freud library is not meant to simply wrap or augment external Python
+The **freud** library is not meant to simply wrap or augment external Python
 libraries. A good rule of thumb is *if the code I plan to write does not
 require C++, it does not belong in freud*. There are, of course, exceptions.
 

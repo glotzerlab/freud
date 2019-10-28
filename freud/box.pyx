@@ -36,6 +36,8 @@ cdef class Box:
     <https://freud.readthedocs.io/en/stable/tutorial/periodic.html>`_ on boxes
     and periodic boundary conditions.
 
+    Also available as ``freud.Box``.
+
     Args:
         Lx (float, optional):
             The x-dimension length.
@@ -478,9 +480,11 @@ cdef class Box:
             image (list):
                 The periodic image location at which to draw the box (Default
                 value = :code:`[0, 0, 0]`).
-            ``*args``, ``**kwargs``:
-                All other arguments are passed on to
-                :meth:`mpl_toolkits.mplot3d.Axes3D.plot` or
+            *args:
+                Passed on to :meth:`mpl_toolkits.mplot3d.Axes3D.plot` or
+                :meth:`matplotlib.axes.Axes.plot`.
+            **kwargs:
+                Passed on to :meth:`mpl_toolkits.mplot3d.Axes3D.plot` or
                 :meth:`matplotlib.axes.Axes.plot`.
         """
         import freud.plot

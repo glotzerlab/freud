@@ -6,7 +6,7 @@ Getting Started
 
 Once you have `installed freud <installation.rst>`_, you can start using **freud** with any simulation data that you have on hand.
 As an example, we'll assume that you have run a simulation using the `HOOMD-blue <https://glotzerlab.engin.umich.edu/hoomd-blue/>`_ and used the :class:`hoomd.dump.gsd` command to output the trajectory into a file ``trajectory.gsd``.
-The `GSD file format <https://gsd.readthedocs.io/en/stable/>`_ provides its own convenient Python file reader that offers access to data in the form of NumPy arrays, making it immediately suitable for calculation with **freud**.
+The `GSD file format <https://gsd.readthedocs.io/en/stable/>`_ provides its own convenient Python file reader that offers access to data in the form of NumPy arrays, making it immediately suitable for calculation with **freud**. Many other file readers and data formats are supported, see :ref:`datainputs` for a full list and more examples.
 
 We start by reading the data into a NumPy array:
 
@@ -25,20 +25,28 @@ To do so, we simply instantiate the class with the appropriate parameters and th
 
     import freud
     rdf = freud.density.RDF(bins=50, r_max=5)
-    rdf.compute((traj[-1].configuration.box, traj[-1].particles.position))
+    rdf.compute(system=traj[-1])
 
-We can now access the data through properties of the ``rdf`` object; for example, we might plot the data using `Matplotlib <https://matplotlib.org/>`:
+We can now access the data through properties of the ``rdf`` object.
+
+.. code-block:: python
+
+    r = rdf.bin_centers
+    y = rdf.rdf
+
+Many classes in **freud** natively support plotting their data using `Matplotlib <https://matplotlib.org/>`:
 
 .. code-block:: python
 
     import matplotlib as plt
     fig, ax = plt.subplots()
-    ax.plot(rdf.R, rdf.RDF)
+    rdf.plot(ax=ax)
 
-You will note that in the above example, we computed :math:`g(r)` only using the final frame of the simulation trajectory.
+You will note that in the above example, we computed :math:`g(r)` only using the final frame of the simulation trajectory, ``traj[-1]``.
 However, in many cases, radial distributions and other similar quantities may be noisy in simulations due to the natural fluctuations present.
 In general, what we are interested in are *time-averaged* quantities once a system has equilibrated.
 To perform such a calculation, we can easily modify our original calculation to take advantage of **freud**'s *accumulation* features.
+To accumulate, just add the argument ``reset=False`` with a supported compute object (such as histogram-like computations).
 Assuming that you have some method for identifying the frames you wish to include in your sample, our original code snippet would be modified as follows:
 
 .. code-block:: python
@@ -46,7 +54,7 @@ Assuming that you have some method for identifying the frames you wish to includ
     import freud
     rdf = freud.density.RDF(bins=50, r_max=5)
     for frame in traj:
-        rdf.accumulate((frame.configuration.box, frame.particles.position))
+        rdf.compute(frame, reset=False)
 
 You can then access the data exactly as we previously did.
 And that's it!

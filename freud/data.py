@@ -208,7 +208,7 @@ def make_random_system(box_size, num_points, is2D=False, seed=None):
         seed (int): Random seed to use. (Default value = :code:`None`).
 
     Returns:
-        tuple (:class:`freud.box.Box`, (:math:`\\left(num\_points, 3\\right)` :class:`numpy.ndarray`):
+        tuple (:class:`freud.box.Box`, :math:`\left(num\_points, 3\right)` :class:`numpy.ndarray`):
             Generated box and points.
     """  # noqa: E501
     if seed is not None:

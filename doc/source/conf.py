@@ -303,6 +303,10 @@ intersphinx_mapping = {
     'numpy': ('https://docs.scipy.org/doc/numpy', None),
     'matplotlib': ('https://matplotlib.org', None),
     'hoomd': ('https://hoomd-blue.readthedocs.io/en/stable/', None),
+    'gsd': ('https://gsd.readthedocs.io/en/stable/', None),
+    'garnett': ('https://garnett.readthedocs.io/en/stable/', None),
+    'MDAnalysis': ('https://www.mdanalysis.org/docs/', None),
+    'ovito': ('https://www.ovito.org/docs/current/python/', None),
 }
 
 autodoc_default_options = {

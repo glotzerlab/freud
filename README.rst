@@ -37,19 +37,18 @@ freud
 Overview
 ========
 
-The **freud** Python library provides a simple, flexible, powerful set of
-tools for analyzing trajectories obtained from molecular dynamics or
-Monte Carlo simulations. High performance, parallelized C++ is used to
-compute standard tools such as radial distribution functions,
-correlation functions, and clusters, as well as original analysis
-methods including potentials of mean force and torque (PMFTs) and local
-environment matching. The **freud** library uses `NumPy
-arrays <https://www.numpy.org/>`__ for input and output, enabling
-integration with the scientific Python ecosystem for many typical
-materials science workflows.
+The **freud** Python library provides a simple, flexible, powerful set of tools
+for analyzing trajectories obtained from molecular dynamics or Monte Carlo
+simulations. High performance, parallelized C++ is used to compute standard
+tools such as radial distribution functions, correlation functions, order
+parameters, and clusters, as well as original analysis methods including
+potentials of mean force and torque (PMFTs) and local environment matching. The
+**freud** library uses `NumPy arrays <https://www.numpy.org/>`__ for input and
+output, enabling integration with the scientific Python ecosystem for many
+typical materials science workflows.
 
-When using **freud** to process data for publication, please `use this
-citation <https://doi.org/10.5281/zenodo.166564>`__.
+When using **freud** to process data for publication, please `use this citation
+<https://doi.org/10.5281/zenodo.166564>`__.
 
 
 Installation
@@ -72,17 +71,17 @@ or conda:
 <https://singularity-hub.org/collections/1663>`_.  If you need more detailed
 information or wish to install **freud** from source, please refer to the
 `Installation Guide
-<https://freud.readthedocs.io/en/stable/installation.html>`_ to compile freud
-from source.
+<https://freud.readthedocs.io/en/stable/installation.html>`_ to compile
+**freud** from source.
 
 
 Resources
 =========
 
-Some other helpful links for working with freud:
+Some other helpful links for working with **freud**:
 
 -  Find examples of using **freud** on the `examples page <https://freud.readthedocs.io/en/stable/examples.html>`_.
--  Find detailed tutorials and reference information at the official `freud documentation <https://freud.readthedocs.io/>`_.
+-  Find detailed tutorials and reference information in the `freud documentation <https://freud.readthedocs.io/>`_.
 -  View and download the code on the `GitHub repository <https://github.com/glotzerlab/freud>`_.
 -  Ask for help on the `freud-users Google Group <https://groups.google.com/d/forum/freud-users>`_.
 -  Report issues or request features using the `issue tracker <https://github.com/glotzerlab/freud/issues>`_.
@@ -98,27 +97,26 @@ the form of Jupyter notebooks, which can also be downloaded from the `freud
 examples repository <https://github.com/glotzerlab/freud-examples>`_ or
 `launched interactively on Binder
 <https://mybinder.org/v2/gh/glotzerlab/freud-examples/master?filepath=index.ipynb>`_.
-Below is a script that computes the radial distribution function.
+Below is a sample script that computes the radial distribution function for a
+simulation run with `HOOMD-blue <https://hoomd-blue.readthedocs.io/>`__ and
+saved into a `GSD file <https://gsd.readthedocs.io/>`_.
 
 .. code:: python
 
    import freud
+   import gsd.hoomd
 
-   # Create a freud compute object (rdf is the canonical example)
-   rdf = freud.density.RDF(rmax=5, dr=0.1)
+   # Create a freud compute object (RDF is the canonical example)
+   rdf = freud.density.RDF(bins=50, r_max=5)
 
-   # Load in your data (freud does not provide a data reader)
-   box_data = np.load("path/to/box_data.npy")
-   pos_data = np.load("path/to/pos_data.npy")
+   # Load a GSD trajectory (see docs for other formats)
+   traj = gsd.hoomd.open('trajectory.gsd', 'rb')
+   for frame in traj:
+       rdf.compute(frame, reset=False)
 
-   # Create freud box
-   box = freud.box.Box(Lx=box_data[0]["Lx"], Ly=box_data[0]["Ly"], is2D=True)
-
-   # Compute RDF
-   rdf.compute(box, pos_data[0], pos_data[0])
-   # Get bin centers, RDF data
-   r = rdf.R
-   y = rdf.RDF
+   # Get bin centers, RDF data from attributes
+   r = rdf.bin_centers
+   y = rdf.rdf
 
 
 Support and Contribution
@@ -126,4 +124,4 @@ Support and Contribution
 
 Please visit our repository on `GitHub <https://github.com/glotzerlab/freud>`_ for the library source code.
 Any issues or bugs may be reported at our `issue tracker <https://github.com/glotzerlab/freud/issues>`_, while questions and discussion can be directed to our `forum <https://groups.google.com/forum/#!forum/freud-users>`_.
-All contributions to freud are welcomed via pull requests!
+All contributions to **freud** are welcomed via pull requests!

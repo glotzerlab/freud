@@ -2,7 +2,7 @@
 Source Code Conventions
 =======================
 
-The guidelines below should be followed for any new code added to freud.
+The guidelines below should be followed for any new code added to **freud**.
 
 ------
 
@@ -28,13 +28,13 @@ Indentation
 Python
 ======
 
-Code in freud should follow
+Code in **freud** should follow
 `PEP 8 <https://www.python.org/dev/peps/pep-0008/>`_, as well as the
 following guidelines. Anything listed here takes precedence over PEP 8,
 but try to deviate as little as possible from PEP 8. When in doubt,
 follow these guidelines over PEP 8.
 
-During continuous integration (CI), all Python and Cython code in freud is
+During continuous integration (CI), all Python and Cython code in **freud** is
 tested with `flake8 <http://flake8.pycqa.org/>`_ to ensure PEP 8 compliance.
 It is strongly recommended to
 `set up a pre-commit hook <http://flake8.pycqa.org/en/latest/user/using-hooks.html>`_
@@ -74,7 +74,7 @@ Documentation Comments
      description::
 
         box (:class:`freud.box.Box`, optional): Simulation box (Default value = None).
-     
+
    - Properties that are settable should be documented the same way as optional
      arguments: :code:`Lx (float, settable): Length in x`.
 
@@ -89,11 +89,11 @@ Documentation Comments
 C++
 ===
 
-C++ code should follow the result of running :code:`clang-format-6.0` with the style specified in the file :code:`.clang-format`. 
+C++ code should follow the result of running :code:`clang-format-6.0` with the style specified in the file :code:`.clang-format`.
 Please refer to `Clang Format 6 <http://releases.llvm.org/6.0.1/tools/clang/docs/ClangFormatStyleOptions.html>`_ for details.
 
-When in doubt, run :code:`clang-format -style=file FILE_WITH_YOUR_CODE` in the top directory of the freud repository.
-If installing :code:`clang-format` is not a viable option, the :code:`check-style` step of 
+When in doubt, run :code:`clang-format -style=file FILE_WITH_YOUR_CODE` in the top directory of the **freud** repository.
+If installing :code:`clang-format` is not a viable option, the :code:`check-style` step of
 continuous integration (CI) contains the information on the correctness of the style.
 
 Source

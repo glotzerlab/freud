@@ -1,6 +1,6 @@
-=================
-How to cite freud
-=================
+=====================
+How to cite **freud**
+=====================
 
 Please acknowledge the use of this software within the body of your publication for example by copying or adapting the following formulation:
 

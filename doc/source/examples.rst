@@ -14,9 +14,9 @@ Visualization of data is done via `Matplotlib <https://matplotlib.org/>`_ and `B
 Key concepts
 ============
 
-There are a few critical concepts, algorithms, and data structures that are central to all of `freud`.
-The `box` module defines the concept of a periodic simulation box, and the `locality` module defines methods for finding nearest neighbors for particles.
-Since both of these are used throughout `freud`, we recommend familiarizing yourself with these first, before delving into the workings of specific `freud` analysis modules.
+There are a few critical concepts, algorithms, and data structures that are central to all of **freud**.
+The :class:`freud.box.Box` class defines the concept of a periodic simulation box, and the :mod:`freud.locality` module defines methods for finding nearest neighbors of particles.
+Since both of these are used throughout **freud**, we recommend familiarizing yourself with these first, before delving into the workings of specific **freud** analysis modules.
 
 .. toctree::
     :maxdepth: 1
@@ -28,7 +28,7 @@ Since both of these are used throughout `freud`, we recommend familiarizing your
 Analysis Modules
 ================
 
-These introductory examples showcase the functionality of specific modules in `freud`, showing how they can be used to perform specific types of analyses of simulations.
+These introductory examples showcase the functionality of specific modules in **freud**, showing how they can be used to perform specific types of analyses of simulations.
 
 .. toctree::
     :maxdepth: 1
@@ -40,12 +40,11 @@ These introductory examples showcase the functionality of specific modules in `f
     examples/module_intros/Interface*
     examples/module_intros/Order*
     examples/module_intros/PMFT*
-    examples/module_intros/Voronoi*
 
 Example Analyses
 ================
 
-The examples below go into greater detail about specific applications of `freud` and use cases that its analysis methods enable, such as user-defined analyses, machine learning, and data visualization.
+The examples below go into greater detail about specific applications of **freud** and use cases that its analysis methods enable, such as user-defined analyses, machine learning, and data visualization.
 
 .. toctree::
     :maxdepth: 1
@@ -64,7 +63,7 @@ The examples below go into greater detail about specific applications of `freud`
 Benchmarks
 ==========
 
-Performance is a central consideration for `freud`. Below are some benchmarks comparing `freud` to other tools offering similar analysis methods.
+Performance is a central consideration for **freud**. Below are some benchmarks comparing **freud** to other tools offering similar analysis methods.
 
 .. toctree::
     :maxdepth: 1
