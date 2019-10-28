@@ -21,14 +21,15 @@ Native Integrations
 
 The **freud** library offers interoperability with several popular tools for particle simulations, analysis, and visualization.
 Below is a list of file formats and tools that are directly supported as "system-like" objects (see :class:`freud.locality.NeighborQuery.from_system`).
-Such "system-like" objects are data containers that store information about a periodic box and particle positions.
+Such system-like objects are data containers that store information about a periodic box and particle positions.
 Other attributes, such as particle orientations, are not included automatically in the system representation and must be loaded as separate NumPy arrays.
 
 GSD Trajectories
 ----------------
 
 Using the GSD Python API, GSD files can be easily integrated with **freud** as shown in :ref:`gettingstarted`.
-This format is natively supported by `HOOMD-blue <https://hoomd-blue.readthedocs.io/>`__ and is recommended for use with freud because it also stores other quantities, such as orientations, that are required by some analysis methods in **freud**.
+This format is natively supported by `HOOMD-blue <https://hoomd-blue.readthedocs.io/>`__.
+Note: the GSD format can also be read by :ref:`MDAnalysis <mdanalysisreaders>` and :ref:`garnett <garnetttrajectories>`.
 Here, we provide an example that reads data from a GSD file.
 
 .. code-block:: python
@@ -39,10 +40,12 @@ Here, we provide an example that reads data from a GSD file.
     for frame in traj:
         rdf.compute(frame, reset=False)
 
+.. _mdanalysisreaders:
+
 MDAnalysis Readers
 ------------------
 
-The `MDAnalysis <https://www.mdanalysis.org/>`__ package can read `many popular trajectory formats <https://www.mdanalysis.org/docs/documentation_pages/coordinates/init.html#supported-coordinate-formats>`__, including common output formats from CHARMM, NAMD, LAMMPS, Gromacs, Tinker, AMBER, GAMESS, and more.
+The `MDAnalysis <https://www.mdanalysis.org/>`__ package can read `many popular trajectory formats <https://www.mdanalysis.org/docs/documentation_pages/coordinates/init.html#supported-coordinate-formats>`__, including common output formats from CHARMM, NAMD, LAMMPS, Gromacs, Tinker, AMBER, GAMESS, HOOMD-blue, and more.
 
 DCD files are among the most familiar simulation outputs due to their longevity.
 Here, we provide an example that reads data from a DCD file.
@@ -54,6 +57,8 @@ Here, we provide an example that reads data from a DCD file.
 
     for frame in reader:
         rdf.compute(system=frame, reset=False)
+
+.. _garnetttrajectories:
 
 garnett Trajectories
 --------------------
@@ -74,7 +79,7 @@ OVITO Modifiers
 ---------------
 
 The `OVITO Open Visualization Tool <https://www.ovito.org/>`__ supports user-written Python modifiers.
-The **freud** package can be installed alongside OVITO to enable user modifiers that leverage analyses from **freud**.
+The **freud** package can be installed alongside OVITO to enable user-written `Python script modifiers <https://www.ovito.org/docs/current/particles.modifiers.python_script.php>`_ that leverage analyses from **freud**.
 Below is an example modifier that creates a user particle property in the OVITO pipeline for Steinhardt bond order parameters.
 
 .. code-block:: python
@@ -119,7 +124,6 @@ Below is an example demonstrating how to use an anlyzer to log the Steinhardt bo
     ql = freud.order.Steinhardt(l=6)
 
     def compute_q6(timestep):
-        print(timestep)
         snap = system.take_snapshot()
         ql.compute(system=snap, neighbors={'num_neighbors': 6})
         return ql.order
@@ -134,9 +138,9 @@ Below is an example demonstrating how to use an anlyzer to log the Steinhardt bo
 Reading Text Files
 ==================
 
-Typically, it is best to use one of the natively supported data readers described above, however it is sometimes necessary to parse trajectory information directly from a text file.
-XYZ files can be generated and used by many tools for particle simulation and analysis, including LAMMPS and VMD.
-Note that various readers do exist for XYZ files, include MDAnalysis, but we choose to read the file manually for this example.
+Typically, it is best to use one of the natively supported data readers described above; however it is sometimes necessary to parse trajectory information directly from a text file.
+One example of a plain text format is the XYZ file format, which can be generated and used by many tools for particle simulation and analysis, including LAMMPS and VMD.
+Note that various readers do exist for XYZ files, including MDAnalysis, but in this example we read the file manually to demonstrate how to read these inputs as plain text.
 Though they are easy to parse, XYZ files usually contain no information about the system box, so this must already be known by the user.
 Assuming knowledge of the box used in the simulation, a LAMMPS XYZ file could be used as follows:
 
@@ -159,7 +163,7 @@ Other External Readers
 For many trajectory formats, high-quality readers already exist.
 However sometimes these readers' data structures must be converted into a format understood by **freud**.
 Below, we show an example that converts the MDAnalysis box dimensions from a matrix into a :class:`freud.box.Box`.
-(Note that MDAnalysis inputs are natively supported by **freud** without this extra step.)
+Note that :ref:`MDAnalysis inputs <mdanalysisreaders>` are natively supported by **freud** without this extra step.
 For other formats not supported by a reader listed above, a similar process can be followed.
 
 .. code-block:: python
