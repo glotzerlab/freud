@@ -6,7 +6,7 @@ Getting Started
 
 Once you have `installed freud <installation.rst>`_, you can start using **freud** with any simulation data that you have on hand.
 As an example, we'll assume that you have run a simulation using the `HOOMD-blue <https://glotzerlab.engin.umich.edu/hoomd-blue/>`_ and used the :class:`hoomd.dump.gsd` command to output the trajectory into a file ``trajectory.gsd``.
-The `GSD file format <https://gsd.readthedocs.io/en/stable/>`_ provides its own convenient Python file reader that offers access to data in the form of NumPy arrays, making it immediately suitable for calculation with **freud**.
+The `GSD file format <https://gsd.readthedocs.io/en/stable/>`_ provides its own convenient Python file reader that offers access to data in the form of NumPy arrays, making it immediately suitable for calculation with **freud**. Many other file readers and data formats are supported, see :ref:`datainputs` for a full list and more examples.
 
 We start by reading the data into a NumPy array:
 
