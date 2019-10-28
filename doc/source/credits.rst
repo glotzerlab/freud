@@ -85,6 +85,7 @@ Bradley Dice - **Lead developer**
 * Made PeriodicBuffer inherit from _Compute.
 * Removed cudacpu and HOOMDMath includes.
 * Added plotting functionality for Box and NeighborQuery objects.
+* Updated MSD to perform accumulation with `compute(..., reset=False)`.
 
 Eric Harper, University of Michigan - **Former lead developer**
 
