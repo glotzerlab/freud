@@ -16,7 +16,6 @@ To simplify the examples below, we will assume in all cases that the user wishes
     import freud
     rdf = freud.density.RDF(bins=50, r_max=5)
 
-
 Native Integrations
 ===================
 
@@ -29,7 +28,7 @@ GSD Trajectories
 ----------------
 
 Using the GSD Python API, GSD files can be easily integrated with **freud** as shown in :ref:`gettingstarted`.
-This format is natively supported by `HOOMD-blue <https://hoomd-blue.readthedocs.io/>`_ and is recommended for use with freud because it also stores other quantities, such as orientations, that are required by some analysis methods in **freud**.
+This format is natively supported by `HOOMD-blue <https://hoomd-blue.readthedocs.io/>`__ and is recommended for use with freud because it also stores other quantities, such as orientations, that are required by some analysis methods in **freud**.
 Here, we provide an example that reads data from a GSD file.
 
 .. code-block:: python
@@ -43,7 +42,7 @@ Here, we provide an example that reads data from a GSD file.
 MDAnalysis Readers
 ------------------
 
-The `MDAnalysis <https://www.mdanalysis.org/>`_ package can read `many popular trajectory formats <https://www.mdanalysis.org/docs/documentation_pages/coordinates/init.html#supported-coordinate-formats>`_, including common output formats from CHARMM, NAMD, LAMMPS, Gromacs, Tinker, AMBER, GAMESS, and more.
+The `MDAnalysis <https://www.mdanalysis.org/>`__ package can read `many popular trajectory formats <https://www.mdanalysis.org/docs/documentation_pages/coordinates/init.html#supported-coordinate-formats>`__, including common output formats from CHARMM, NAMD, LAMMPS, Gromacs, Tinker, AMBER, GAMESS, and more.
 
 DCD files are among the most familiar simulation outputs due to their longevity.
 Here, we provide an example that reads data from a DCD file.
@@ -59,7 +58,7 @@ Here, we provide an example that reads data from a DCD file.
 garnett Trajectories
 --------------------
 
-The `garnett <https://garnett.readthedocs.io/>`_ package can read `several trajectory formats <https://garnett.readthedocs.io/en/stable/readerswriters.html#file-formats>`_ that have historically been supported by the HOOMD-blue simulation engine, as well as other common types such as DCD and CIF.
+The `garnett <https://garnett.readthedocs.io/>`__ package can read `several trajectory formats <https://garnett.readthedocs.io/en/stable/readerswriters.html#file-formats>`__ that have historically been supported by the HOOMD-blue simulation engine, as well as other common types such as DCD and CIF.
 The **garnett** package will auto-detect supported file formats by the file extension.
 Here, we provide an example that reads data from a POS file.
 
@@ -74,7 +73,7 @@ Here, we provide an example that reads data from a POS file.
 OVITO Modifiers
 ---------------
 
-The `OVITO Open Visualization Tool <https://www.ovito.org/>`_ supports user-written Python modifiers.
+The `OVITO Open Visualization Tool <https://www.ovito.org/>`__ supports user-written Python modifiers.
 The **freud** package can be installed alongside OVITO to enable user modifiers that leverage analyses from **freud**.
 Below is an example modifier that creates a user particle property in the OVITO pipeline for Steinhardt bond order parameters.
 
@@ -92,7 +91,7 @@ Below is an example modifier that creates a user particle property in the OVITO 
 HOOMD-blue Snapshots
 --------------------
 
-`HOOMD-blue <https://hoomd-blue.readthedocs.io/en/stable/>`_ supports analyzers, callback functions that can perform analysis.
+`HOOMD-blue <https://hoomd-blue.readthedocs.io/>`__ supports analyzers, callback functions that can perform analysis.
 Below is an example demonstrating how to use an anlyzer to log the Steinhardt bond order parameter :math:`q_6` during the simulation run.
 
 .. code-block:: python
@@ -159,7 +158,7 @@ Other External Readers (MDAnalysis for DCD files)
 
 For many trajectory formats, high-quality readers already exist.
 DCD files are among the most familiar simulation outputs due to their longevity.
-Here, we provide an example using `MDAnalysis <https://www.mdanalysis.org/>`_ to read data from a DCD file.
+Here, we provide an example using `MDAnalysis <https://www.mdanalysis.org/>`__ to read data from a DCD file.
 
 .. code-block:: python
 

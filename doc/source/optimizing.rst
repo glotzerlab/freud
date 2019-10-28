@@ -19,29 +19,30 @@ It is important to recognize that internally, each time such a calculation is pe
 .. code-block:: python
 
     # Behind the scenes, freud is essentially running
-    # freud.locality.AABBQuery(box, points).query(points, dict(r_max=5))
+    # freud.locality.AABBQuery(box, points).query(points, dict(r_max=5, exclude_ii=True))
     # and feeding the result to the RDF calculation.
-    rdf = freud.density.RDF(bins=50, r_max=5).compute((box, points))
+    rdf = freud.density.RDF(bins=50, r_max=5)
+    rdf.compute(system=(box, points))
 
 
-If users anticipate performing many such calculations on the same system of points, they can amortize the cost of rebuilding the :class:`AABBQuery <freud.locality.AABBQuery>` object by constructing it once and then passing it to multiple computes:
+If users anticipate performing many such calculations on the same system of points, they can amortize the cost of rebuilding the :class:`AABBQuery <freud.locality.AABBQuery>` object by constructing it once and then passing it into multiple computations:
 
 .. code-block:: python
 
     # Now, let's instead reuse the object for a pair of calculations:
     nq = freud.locality.AABBQuery(box=box, points=points)
-    rdf = freud.density.RDF(bins=50, r_max=5).compute(nq)
+    rdf = freud.density.RDF(bins=50, r_max=5)
+    rdf.compute(system=nq)
 
-    nbins = 100
     r_max = 4
-    orientations = np.array([[1, 0, 0, 0]*num_points)
-    pmft = freud.pmft.PMFTXYZ(r_max, r_max, r_max, nbins, nbins, nbins)
-    pmft.compute(nq, orientations=orientations)
+    orientations = np.array([[1, 0, 0, 0]] * num_points)
+    pmft = freud.pmft.PMFTXYZ(r_max, r_max, r_max, bins=100)
+    pmft.compute(system=nq, orientations=orientations)
 
-This reuse can significantly improve performance in e.g. visualization contexts where users may wish to calculate a :class:`bond order diagram <freud.environment.BondOrder>` and an :class:`RDF <freud.density.RDF>` at each frame, perhaps for integration with a visualization toolkit like `Ovito <http://ovito.org/>`_.
+This reuse can significantly improve performance in e.g. visualization contexts where users may wish to calculate a :class:`bond order diagram <freud.environment.BondOrder>` and an :class:`RDF <freud.density.RDF>` at each frame, perhaps for integration with a visualization toolkit like `OVITO <https://www.ovito.org/>`_.
 
 A slightly different use-case would be the calculation of multiple quantities based on *exactly the same set of neighbors*.
-If the user in fact expects to perform computations with the exact same pairs of neighbors (for example, to compute :py:class:`freud.order.Steinhardt` for multiple :math:`l` values), then the user can further speed up the calculation by precomputing the entire :py:class:`freud.locality.NeighborList` and storing it for future use.
+If the user in fact expects to perform computations with the exact same pairs of neighbors (for example, to compute :class:`freud.order.Steinhardt` for multiple :math:`l` values), then the user can further speed up the calculation by precomputing the entire :class:`freud.locality.NeighborList` and storing it for future use.
 
 .. code-block:: python
 
@@ -50,11 +51,11 @@ If the user in fact expects to perform computations with the exact same pairs of
     nlist = nq.query(points, dict(r_max=r_max))
     q6_arrays = []
     for l in range(3, 6):
-        ql = freud.density.Steinhardt(l=l)
-        q6_arrays.append(ql.compute((box, points), neighbors=nlist).order)
+        ql = freud.order.Steinhardt(l=l)
+        q6_arrays.append(ql.compute((box, points), neighbors=nlist).particle_order)
 
 
-Notably, if the user calls a compute method with ``compute(neighbor_query=(box, points))``, unlike in the examples above **freud** **will not construct** a :py:class:`freud.locality.NeighborQuery` internally because the full set of neighbors is completely specified by the :class:`NeighborList <freud.locality.NeighborList>`.
+Notably, if the user calls a compute method with ``compute(system=(box, points))``, unlike in the examples above **freud** **will not construct** a :class:`freud.locality.NeighborQuery` internally because the full set of neighbors is completely specified by the :class:`NeighborList <freud.locality.NeighborList>`.
 In all these cases, **freud** does the minimal work possible to find neighbors, so judicious use of these data structures can substantially accelerate your code.
 
 Proper Data Inputs
