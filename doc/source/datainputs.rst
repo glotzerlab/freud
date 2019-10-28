@@ -131,13 +131,13 @@ Below is an example demonstrating how to use an anlyzer to log the Steinhardt bo
     # Run for 10,000 time steps
     hoomd.run(10e3)
 
-Reading Text Files (XYZ files)
-==============================
+Reading Text Files
+==================
 
 Typically, it is best to use one of the natively supported data readers described above, however it is sometimes necessary to parse trajectory information directly from a text file.
 XYZ files can be generated and used by many tools for particle simulation and analysis, including LAMMPS and VMD.
 Note that various readers do exist for XYZ files, include MDAnalysis, but we choose to read the file manually for this example.
-Though they are extremely easy to parse, XYZ files usually contain no information about the system box, so this must already be known by the user.
+Though they are easy to parse, XYZ files usually contain no information about the system box, so this must already be known by the user.
 Assuming knowledge of the box used in the simulation, a LAMMPS XYZ file could be used as follows:
 
 .. code-block:: python
@@ -153,12 +153,14 @@ Assuming knowledge of the box used in the simulation, a LAMMPS XYZ file could be
 
 The first line is the number of particles, so we read this line and use it to determine how to reshape the contents of the rest of the file into a NumPy array.
 
-Other External Readers (MDAnalysis for DCD files)
-=================================================
+Other External Readers
+======================
 
 For many trajectory formats, high-quality readers already exist.
-DCD files are among the most familiar simulation outputs due to their longevity.
-Here, we provide an example using `MDAnalysis <https://www.mdanalysis.org/>`__ to read data from a DCD file.
+However sometimes these readers' data structures must be converted into a format understood by **freud**.
+Below, we show an example that converts the MDAnalysis box dimensions from a matrix into a :class:`freud.box.Box`.
+(Note that MDAnalysis inputs are natively supported by **freud** without this extra step.)
+For other formats not supported by a reader listed above, a similar process can be followed.
 
 .. code-block:: python
 

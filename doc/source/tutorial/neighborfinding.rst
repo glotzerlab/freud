@@ -101,7 +101,7 @@ To avoid this, we can use the ``exclude_ii`` query argument:
 .. code-block:: python
 
     query_points = points
-    for bond in aq.query(query_points, dict(num_neighbors=4, exclude_ii)):
+    for bond in aq.query(query_points, dict(num_neighbors=4, exclude_ii=True)):
         pass
 
 The above example will find the 4 nearest neighbors to each point, excepting the point itself.
@@ -121,7 +121,7 @@ However, in many practical cases we may need to reuse the set of neighbors multi
 A simple solution would be to simply to store the bonds into a list as we loop over them.
 However, because this is such a common use-case, **freud** provides its own containers for bonds: the :class:`freud.locality.NeighborList`.
 
-Queries can easily be used to generate :class:`NeighborList <freud.locality.NeighborList>` objects using their :meth:`toNeighborList <freud.locality.NeighborQuery.toNeighborList>` method:
+Queries can easily be used to generate :class:`NeighborList <freud.locality.NeighborList>` objects using their :meth:`toNeighborList <freud.locality.NeighborQueryResult.toNeighborList>` method:
 
 .. code-block:: python
 

@@ -14,7 +14,7 @@ To support efficient, flexible computations of such quantities, various ``Comput
 These ``PairCompute classes`` are designed to mirror the querying functionality of **freud** as closely as possible.
 
 As an example, let's consider :class:`freud.density.LocalDensity`, which calculates the density of points in the local neighborhood of each point.
-Adapting our code from the `previous section <neighborfinding>`, the simplest usage of this class would be as follows:
+Adapting our code from the `previous section <neighborfinding>`_, the simplest usage of this class would be as follows:
 
 .. code-block:: python
 
@@ -37,7 +37,7 @@ Adapting our code from the `previous section <neighborfinding>`, the simplest us
     diameter = 0.001
 
     ld = freud.density.LocalDensity(r_max, diameter)
-    ld.compute((box, points))
+    ld.compute(system=(box, points))
 
     # Access the density.
     ld.density
@@ -65,7 +65,7 @@ In that case, we could modify the above calculation as follows:
     diameter = 0.001
 
     ld = freud.density.LocalDensity(r_max, diameter)
-    ld.compute((box, points), query_points)
+    ld.compute(system=(box, points), query_points=query_points)
 
     # Access the density.
     ld.density
@@ -81,7 +81,7 @@ To address this need, you could simply adapt the call to ``compute`` above as fo
 
 .. code-block:: python
 
-    ld.compute((box, points), query_points,
+    ld.compute(system=(box, points), query_points=query_points,
                neighbors=dict(r_max=2, r_min=1))
 
 The ``neighbors`` argument to ``PairCompute`` classes allows users to specify arbitary query arguments, making it possible to easily modify **freud** calculations on-the-fly.
@@ -89,7 +89,7 @@ The ``neighbors`` argument is actually more general than query arguments you've 
 
 .. code-block:: python
 
-    ld.compute(neighbor_query=(box, points), query_points=query_points,
+    ld.compute(system=(box, points), query_points=query_points,
                neighbors=nlist)
 
 This feature allows users essentially arbitrary flexibility to specify the bonds that should be included in any bond-based computation.
@@ -98,16 +98,17 @@ A common use-case for this is constructing a :class:`NeighborList <freud.localit
 You may have noticed in the last example that all the arguments are specified using keyword arguments.
 As the previous examples have attempted to show, the ``query_points`` argument defines a second set of points to be used when performing calculations on binary systems, while the ``neighbors`` argument is how users can specify which neighbors to consider in the calculation.
 
-The ``neighbor_query`` argument is what, to this point, we have been specifying as a :class:`tuple` ``(box, points)``.
-As the name suggests, however, we don't have to use this tuple.
+The ``system`` argument is what, to this point, we have been specifying as a :class:`tuple` ``(box, points)``.
+However, we don't have to use this tuple.
 Instead, we can pass in any :class:`freud.locality.NeighborQuery`, the central class in **freud**'s querying infrastructure.
 In fact, you've already seen examples of :class:`freud.locality.NeighborQuery`: the :class:`freud.locality.AABBQuery` object that we originally used to find neighbors.
+There are also a number of other input types that can be converted via :meth:`freud.locality.NeighborQuery.from_system`, see also :ref:`datainputs`.
 Since these objects all contain a :class:`freud.box.Box` and a set of points, they can be directly passed to computations:
 
 .. code-block:: python
 
     aq = freud.locality.AABBQuery(box, points)
-    ld.compute(aq, query_points, nlist)
+    ld.compute(system=aq, query_points=query_points, neighbors=nlist)
 
 For more information on why you might want to use :class:`freud.locality.NeighborQuery` objects instead of the tuples, see :ref:`optimizing`.
 For now, just consider this to be a way in which you can simplify your calls to many **freud** computes in one script by storing ``(box, points)`` into another objects.

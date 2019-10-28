@@ -283,6 +283,11 @@ cdef class NeighborQuery:
         * A sequence of :code:`(box, points)` where :code:`box` is a
           :class:`~.box.Box` and :code:`points` is a :class:`numpy.ndarray`.
         * Objects with attributes :code:`box` and :code:`points`.
+        * :class:`MDAnalysis.coordinates.base.Timestep`
+        * :class:`gsd.hoomd.Snapshot`
+        * :class:`garnett.trajectory.Frame`
+        * :class:`ovito.data.DataCollection`
+        * :mod:`hoomd.data` snapshot
 
         Args:
             system (system-like object):
@@ -384,10 +389,12 @@ cdef class NeighborQuery:
                 the system (Default value = :code:`None`).
             title (str):
                 Title of the plot (Default value = :code:`None`).
-            ``*args``, ``**kwargs``:
-                All other arguments are passed on to
-                :meth:`mpl_toolkits.mplot3d.Axes3D.scatter` or
-                :meth:`matplotlib.axes.Axes.scatter`.
+            *args:
+                Passed on to :meth:`mpl_toolkits.mplot3d.Axes3D.plot` or
+                :meth:`matplotlib.axes.Axes.plot`.
+            **kwargs:
+                Passed on to :meth:`mpl_toolkits.mplot3d.Axes3D.plot` or
+                :meth:`matplotlib.axes.Axes.plot`.
 
         Returns:
             :class:`matplotlib.axes.Axes`: Axis with the plot.
@@ -420,6 +427,8 @@ cdef class NeighborList:
        :class:`freud.locality.NeighborList` objects received from a
        neighbor search algorithm, such as :class:`freud.locality.LinkCell`,
        :class:`freud.locality.AABBQuery`, or :class:`freud.locality.Voronoi`.
+
+    Also available as ``freud.NeighborList``.
 
     Example::
 
@@ -745,7 +754,10 @@ cdef class _RawPoints(NeighborQuery):
 
 
 cdef class AABBQuery(NeighborQuery):
-    R"""Use an AABB tree to find neighbors."""
+    R"""Use an AABB tree to find neighbors.
+
+    Also available as ``freud.AABBQuery``.
+    """
 
     def __cinit__(self, box, points):
         cdef const float[:, ::1] l_points
@@ -769,6 +781,8 @@ cdef class AABBQuery(NeighborQuery):
 cdef class LinkCell(NeighborQuery):
     R"""Supports efficiently finding all points in a set within a certain
     distance from a given point.
+
+    Also available as ``freud.LinkCell``.
 
     Args:
         box (:class:`freud.box.Box`):

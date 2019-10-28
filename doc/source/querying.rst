@@ -29,9 +29,9 @@ The table below describes the set of valid query arguments.
 +----------------+-----------------------------------------------------------------------+-----------+---------------------------+---------------------------------------------------------------------+
 | r_min          | Minimum distance to find neighbors                                    | float     | 0 <= r_min < r_max        | :class:`freud.locality.AABBQuery`, :class:`freud.locality.LinkCell` |
 +----------------+-----------------------------------------------------------------------+-----------+---------------------------+---------------------------------------------------------------------+
-| num_neighbors  | Number of Neighbors                                                   | int       | num_neighbors > 0         | :class:`freud.locality.AABBQuery`, :class:`freud.locality.LinkCell` |
+| num_neighbors  | Number of neighbors                                                   | int       | num_neighbors > 0         | :class:`freud.locality.AABBQuery`, :class:`freud.locality.LinkCell` |
 +----------------+-----------------------------------------------------------------------+-----------+---------------------------+---------------------------------------------------------------------+
-| exclude_ii     | Whether or not to include neighbors with the same id in the array     | bool      | True/False                | :class:`freud.locality.AABBQuery`, :class:`freud.locality.LinkCell` |
+| exclude_ii     | Whether or not to include neighbors with the same index in the array  | bool      | True/False                | :class:`freud.locality.AABBQuery`, :class:`freud.locality.LinkCell` |
 +----------------+-----------------------------------------------------------------------+-----------+---------------------------+---------------------------------------------------------------------+
 | r_guess        | Initial search distance for sequence of ball queries                  | float     | r_guess > 0               | :class:`freud.locality.AABBQuery`                                   |
 +----------------+-----------------------------------------------------------------------+-----------+---------------------------+---------------------------------------------------------------------+
@@ -44,7 +44,7 @@ Mode Deduction
 
 The ``mode`` query argument specifies the type of query that is being performed, and it therefore governs how other arguments are interpreted.
 In most cases, however, the query mode can be deduced from the set of query arguments.
-Specifically, any query with the ``num_neighbors`` key set is assumed to be a query with ``mode=nearest``.
+Specifically, any query with the ``num_neighbors`` key set is assumed to be a query with ``mode='nearest'``.
 For completeness, users may specify the mode explicitly if they wish.
 The presence of the ``mode`` key also ensures that **freud** will not have to change its promises around mode deduction as additional query modes are added.
 
