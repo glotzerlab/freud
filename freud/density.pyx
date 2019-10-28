@@ -33,7 +33,7 @@ cdef class CorrelationFunction(_SpatialHistogram1D):
     R"""Computes the complex pairwise correlation function.
 
     The correlation function is given by
-    :math:`C(r) = \left\langle s_1(0) \cdot s_2(r) \right\rangle` between
+    :math:`C(r) = \left\langle s^*_1(0) \cdot s_2(r) \right\rangle` between
     two sets of points :math:`p_1` (:code:`points`) and :math:`p_2`
     (:code:`query_points`) with associated values :math:`s_1` (:code:`values`)
     and :math:`s_2` (:code:`query_values`). Computing the correlation function

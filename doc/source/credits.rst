@@ -46,6 +46,7 @@ Vyas Ramasubramani - **Lead developer**
 * Created data module.
 * Standardized PMFT normalization.
 * Enabled optional normalization of RDF.
+* Changed correlation function to properly take the complex conjugate of inputs.
 
 Bradley Dice - **Lead developer**
 

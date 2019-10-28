@@ -207,6 +207,7 @@ directives = {
     'boundscheck': False,
     'wraparound': False,
     'embedsignature': True,
+    'always_allow_keywords': True,
     'language_level': 3,
 }
 macros = [
