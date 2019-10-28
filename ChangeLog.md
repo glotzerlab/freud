@@ -56,6 +56,7 @@ and this project adheres to
 * Citations are now included using bibtex and sphinxcontrib-bibtex.
 * PMFTXY and PMFTXYZ include the phase space volume of coordinates that are implicitly integrated out (one angle in PMFTXY, and three angles in PMFTXYZ).
 * Accumulation is now performed with `compute(..., reset=False)`.
+* CorrelationFunction of complex inputs performs the necessary conjugation of the values before computing.
 
 ### Fixed
 * Steinhardt uses the ThreadStorage class and properly resets memory where needed.

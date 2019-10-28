@@ -1081,11 +1081,8 @@ cdef class Voronoi(_Compute):
     input point. A ridge is defined as a boundary between cells, which contains
     points equally close to two or more input points.
 
-    The voro++ library [Rycroft2009]_ is used for fast computations of the
+    The voro++ library :cite:`Rycroft2009` is used for fast computations of the
     Voronoi diagram.
-
-    .. [Rycroft2009] Rycroft, Chris (2009). Voro++: a three-dimensional Voronoi
-       cell library in C++. Technical Report. https://doi.org/10.2172/946741
     """
 
     def __cinit__(self):
