@@ -266,6 +266,8 @@ Jin Soo Ihm
 Source code
 -----------
 
+.. highlight:: none
+
 Eigen (http://eigen.tuxfamily.org) is included as a git submodule in freud.
 Eigen is made available under the Mozilla Public License v2.0
 (http://mozilla.org/MPL/2.0/). Its linear algebra routines are used for
@@ -371,3 +373,5 @@ under the following license::
     royalty-free perpetual license to install, use, modify, prepare derivative
     works, incorporate into other computer software, distribute, and sublicense
     such enhancements or derivative works thereof, in binary and source code form.
+
+.. highlight:: python
