@@ -16,14 +16,14 @@ Key concepts
 
 There are a few critical concepts, algorithms, and data structures that are central to all of **freud**.
 The :class:`freud.box.Box` class defines the concept of a periodic simulation box, and the :mod:`freud.locality` module defines methods for finding nearest neighbors of particles.
-Since both of these are used throughout **freud**, we recommend familiarizing yourself with these first, before delving into the workings of specific **freud** analysis modules.
+Since both of these are used throughout **freud**, we recommend reading the :ref:`tutorial` first, before delving into the workings of specific **freud** analysis modules.
 
 .. toctree::
     :maxdepth: 1
     :glob:
 
-    examples/module_intros/Box*
-    examples/module_intros/Locality*
+    examples/module_intros/box*
+    examples/module_intros/locality*
 
 Analysis Modules
 ================
@@ -34,12 +34,12 @@ These introductory examples showcase the functionality of specific modules in **
     :maxdepth: 1
     :glob:
 
-    examples/module_intros/Cluster*
-    examples/module_intros/Density*
-    examples/module_intros/Environment*
-    examples/module_intros/Interface*
-    examples/module_intros/Order*
-    examples/module_intros/PMFT*
+    examples/module_intros/cluster*
+    examples/module_intros/density*
+    examples/module_intros/environment*
+    examples/module_intros/interface*
+    examples/module_intros/order*
+    examples/module_intros/pmft*
 
 Example Analyses
 ================
