@@ -2,6 +2,7 @@ import numpy as np
 import numpy.testing as npt
 import freud
 import os
+import sys
 import unittest
 
 
@@ -25,6 +26,7 @@ class TestReaderIntegrations(unittest.TestCase):
             ql.compute(system, neighbors={'num_neighbors': 6})
         npt.assert_allclose(rdf.rdf, LJ_RDF, rtol=1e-5, atol=1e-5)
 
+    @unittest.skipIf(sys.platform.startswith("win"))
     def test_mdanalysis_gsd(self):
         import MDAnalysis
         reader = MDAnalysis.coordinates.GSD.GSDReader(LJ_GSD)
