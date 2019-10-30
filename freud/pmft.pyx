@@ -604,11 +604,10 @@ cdef class PMFTXYZ(_PMFT):
                 system, query_points, neighbors)
         l_query_points = l_query_points - self.shiftvec.reshape(1, 3)
 
-        orientations = freud.util._convert_array(
-            np.atleast_1d(orientations),
-            shape=(nq.points.shape[0], 4))
+        query_orientations = freud.util._convert_array(
+            np.atleast_1d(query_orientations), shape=(nq.points.shape[0], 4))
 
-        cdef const float[:, ::1] l_orientations = orientations
+        cdef const float[:, ::1] l_query_orientations = query_orientations
 
         # handle multiple ways to input
         if face_orientations is None:
@@ -618,13 +617,14 @@ cdef class PMFTXYZ(_PMFT):
             face_orientations[:, :, 0] = 1.0
         else:
             if face_orientations.ndim < 2 or face_orientations.ndim > 3:
-                raise ValueError("points must be a 2 or 3 dimensional array")
+                raise ValueError("face_orientations must be a 2 or 3 "
+                                 "dimensional array.")
             face_orientations = freud.util._convert_array(face_orientations)
             if face_orientations.ndim == 2:
                 if face_orientations.shape[1] != 4:
                     raise ValueError(
-                        "2nd dimension for orientations must have 4 values:"
-                        "w, x, y, z")
+                        "2nd dimension for face_orientations must have "
+                        "4 values: w, x, y, z.")
                 # need to broadcast into new array
                 tmp_face_orientations = np.zeros(
                     shape=(nq.points.shape[0],
@@ -638,14 +638,14 @@ cdef class PMFTXYZ(_PMFT):
                 # of particles
                 if face_orientations.shape[2] != 4:
                     raise ValueError(
-                        "2nd dimension for orientations must have 4 values:"
-                        "w, x, y, z")
+                        "3rd dimension for face_orientations must have "
+                        "4 values: w, x, y, z.")
                 elif face_orientations.shape[0] not in (
                         1, nq.points.shape[0]):
                     raise ValueError(
                         "If provided as a 3D array, the first dimension of "
                         "the face_orientations array must be either of "
-                        "size 1 or N_particles")
+                        "size 1 or the number of query_points.")
                 elif face_orientations.shape[0] == 1:
                     face_orientations = np.repeat(
                         face_orientations, nq.points.shape[0], axis=0)
@@ -654,7 +654,7 @@ cdef class PMFTXYZ(_PMFT):
         cdef unsigned int num_faces = l_face_orientations.shape[1]
         self.pmftxyzptr.accumulate(
             nq.get_ptr(),
-            <quat[float]*> &l_orientations[0, 0],
+            <quat[float]*> &l_query_orientations[0, 0],
             <vec3[float]*> &l_query_points[0, 0],
             num_query_points,
             <quat[float]*> &l_face_orientations[0, 0, 0],
