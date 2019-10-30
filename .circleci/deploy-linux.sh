@@ -28,7 +28,7 @@ if [ -z $1 ]; then
 fi
 
 # Build TBB
-git clone https://github.com/01org/tbb.git
+git clone https://github.com/intel/tbb.git
 cd tbb
 make
 BUILD_DIR=$(find build -name linux*release)

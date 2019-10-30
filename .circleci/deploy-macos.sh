@@ -34,7 +34,7 @@ eval "$(pyenv init -)"
 PY_VERSIONS=(3.6.9 3.7.5 3.8.0)
 
 # Build TBB
-git clone https://github.com/01org/tbb.git
+git clone https://github.com/intel/tbb.git
 cd tbb
 make
 BUILD_DIR=$(find build -name mac*release)

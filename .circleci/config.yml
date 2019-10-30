@@ -179,7 +179,7 @@ references:
       - run:
           name: Compile Linux wheels
           command: |
-            bash .circleci/deploy-linux.sh testpypi
+            source .circleci/deploy-linux.sh testpypi
 
   build_linux_wheels: &build_linux_wheels
     steps:
@@ -192,7 +192,7 @@ references:
       - run:
           name: Compile Linux wheels
           command: |
-            bash .circleci/deploy-linux.sh pypi
+            source .circleci/deploy-linux.sh pypi
 
   build_macos_test_wheels: &build_macos_test_wheels
     steps:
@@ -201,7 +201,7 @@ references:
       - run:
           name: Compile Mac wheels
           command: |
-            bash .circleci/deploy-macos.sh testpypi
+            source .circleci/deploy-macos.sh testpypi
 
   build_macos_wheels: &build_macos_wheels
     steps:
@@ -210,7 +210,7 @@ references:
       - run:
           name: Compile Mac wheels
           command: |
-            bash .circleci/deploy-macos.sh pypi
+            source .circleci/deploy-macos.sh pypi
 
 jobs:
   check-style:
