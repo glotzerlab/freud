@@ -23,7 +23,7 @@ public:
         of the pcf
     */
     void accumulate(const locality::NeighborQuery* neighbor_query,
-                    quat<float>* orientations, vec3<float>* query_points,
+                    quat<float>* query_orientations, vec3<float>* query_points,
                     unsigned int n_query_points, quat<float>* face_orientations,
                     unsigned int n_faces, const locality::NeighborList* nlist,
                     freud::locality::QueryArgs qargs);
