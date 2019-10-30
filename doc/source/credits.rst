@@ -89,6 +89,7 @@ Bradley Dice - **Lead developer**
 * Added support for reading system data directly from MDAnalysis, garnett, gsd, HOOMD-blue, and OVITO.
 * Revised tutorials and documentation on data inputs.
 * Updated MSD to perform accumulation with `compute(..., reset=False)`.
+* Added test PyPI support to continuous integration.
 
 Eric Harper, University of Michigan - **Former lead developer**
 
