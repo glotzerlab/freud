@@ -35,12 +35,9 @@ cd ${BUILD_DIR}
 source tbbvars.sh
 cd ~/
 
-# Build wheels
-for PYBIN in /opt/python/cp3*/bin; do
-  # Split the echo command and the version since python2
-  # --version doesn't return the value, just prints it.
-  echo "Building for "
-  ${PYBIN}/python --version
+# Build wheels for Python 3.5+
+for PYBIN in /opt/python/cp3[5-9]*/bin; do
+  echo "Building for $(${PYBIN}/python --version)"
 
   "${PYBIN}/python" -m pip install cython --no-deps --ignore-installed -q --progress-bar=off
   rm -rf numpy-1.10.4

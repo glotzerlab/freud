@@ -30,7 +30,8 @@ export MACOSX_DEPLOYMENT_TARGET=10.12
 # Get pyenv
 brew install pyenv
 eval "$(pyenv init -)"
-PY_VERSIONS=(3.6.9 3.7.5 3.8.0)
+# Check supported versions with pyenv install --list
+PY_VERSIONS=(3.5.7 3.6.9 3.7.4 3.8.0)
 
 # Build TBB
 git clone https://github.com/intel/tbb.git
