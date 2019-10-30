@@ -46,7 +46,7 @@ public:
         \param cf An object with operator(NeighborBond) as input.
     */
     template<typename Func>
-    void accumulateGeneral(const locality::NeighborQuery* neighbor_query, 
+    void accumulateGeneral(const locality::NeighborQuery* neighbor_query,
                            const vec3<float>* query_points, unsigned int n_query_points,
                            const locality::NeighborList* nlist,
                            freud::locality::QueryArgs qargs,

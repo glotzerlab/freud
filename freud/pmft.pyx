@@ -8,7 +8,7 @@ number of different coordinate systems. The shape of the arrays computed by
 this module depend on the coordinate system used, with space discretized into a
 set of bins created by the PMFT object's constructor. Each query point's
 neighboring points are assigned to bins, determined by the relative positions
-and/or orientations of the particles. Next, the positional correlation function
+and/or orientations of the particles. Next, the pair correlation function
 (PCF) is computed by normalizing the binned histogram, by dividing out the
 number of accumulated frames, bin sizes (the Jacobian), and query point
 number density. The PMFT is then defined as the negative logarithm of the PCF.
@@ -34,8 +34,8 @@ refer to the supplementary information of :cite:`vanAnders:2014aa`.
 
 .. note::
     For any bins where the histogram is zero (i.e. no observations were made
-    with that relative position/orientation of particles), the PCF will be zero
-    and the PMFT will return :code:`nan`.
+    with that relative position/orientation of particles), the PMFT will return
+    :code:`nan`.
 """
 
 import numpy as np
@@ -164,8 +164,7 @@ cdef class PMFTR12(_PMFT):
 
     def compute(self, system, orientations, query_points=None,
                 query_orientations=None, neighbors=None, reset=True):
-        R"""Calculates the positional correlation function and adds to the
-        current histogram.
+        R"""Calculates the PMFT.
 
         Args:
             system:
@@ -177,9 +176,8 @@ cdef class PMFTR12(_PMFT):
                 are treated as angles in radians corresponding to
                 **counterclockwise** rotations about the z axis.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
-                Query points used to calculate the correlation function.  Uses
-                the system's points if :code:`None` (Default
-                value = :code:`None`).
+                Query points used to calculate the PMFT. Uses the system's
+                points if :code:`None` (Default value = :code:`None`).
             query_orientations ((:math:`N_{query\_points}`, 4) :class:`numpy.ndarray`, optional):
                 Query orientations associated with query points that are used
                 to calculate bonds. If the array is one-dimensional, the values
@@ -275,8 +273,7 @@ cdef class PMFTXYT(_PMFT):
 
     def compute(self, system, orientations, query_points=None,
                 query_orientations=None, neighbors=None, reset=True):
-        R"""Calculates the positional correlation function and adds to the
-        current histogram.
+        R"""Calculates the PMFT.
 
         Args:
             system:
@@ -288,9 +285,8 @@ cdef class PMFTXYT(_PMFT):
                 are treated as angles in radians corresponding to
                 **counterclockwise** rotations about the z axis.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
-                Query points used to calculate the correlation function.  Uses
-                the system's points if :code:`None` (Default
-                value = :code:`None`).
+                Query points used to calculate the PMFT. Uses the system's
+                points if :code:`None` (Default value = :code:`None`).
             query_orientations ((:math:`N_{query\_points}`, 4) :class:`numpy.ndarray`, optional):
                 Query orientations associated with query points that are used
                 to calculate bonds. If the array is one-dimensional, the values
@@ -372,8 +368,8 @@ cdef class PMFTXY(_PMFT):
         y_max (float):
             Maximum :math:`y` distance at which to compute the PMFT.
         bins (unsigned int or sequence of length 2):
-            If an unsigned int, the number of bins in :math:`x`, :math:`y`, and
-            :math:`z`. If a sequence of two integers, interpreted as
+            If an unsigned int, the number of bins in :math:`x` and :math:`y`.
+            If a sequence of two integers, interpreted as
             :code:`(num_bins_x, num_bins_y)`.
     """  # noqa: E501
     cdef freud._pmft.PMFTXY * pmftxyptr
@@ -395,29 +391,27 @@ cdef class PMFTXY(_PMFT):
 
     def compute(self, system, query_orientations, query_points=None,
                 neighbors=None, reset=True):
-        R"""Calculates the positional correlation function and adds to the
-        current histogram.
+        R"""Calculates the PMFT.
 
         .. note::
             The orientations of the system points are irrelevant for this
             calculation because that dimension is integrated out. The provided
             ``query_orientations`` are therefore always associated with
-            ``query_points`` (which are equal to the system points of no
-            ``query_points`` are explicitly provided.
+            ``query_points`` (which are equal to the system points if no
+            ``query_points`` are explicitly provided).
 
         Args:
             system:
                 Any object that is a valid argument to
                 :class:`freud.locality.NeighborQuery.from_system`.
             query_orientations ((:math:`N_{query\_points}`, 4) or (:math:`N_{query\_points}`,) :class:`numpy.ndarray`):
-                Orientations associated with query points that are used to
-                calculate bonds. If the array is one-dimensional, the values
+                Query orientations associated with query points that are used
+                to calculate bonds. If the array is one-dimensional, the values
                 are treated as angles in radians corresponding to
                 **counterclockwise** rotations about the z axis.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
-                Query points used to calculate the correlation function.  Uses
-                the system's points if :code:`None` (Default
-                value = :code:`None`).
+                Query points used to calculate the PMFT. Uses the system's
+                points if :code:`None` (Default value = :code:`None`).
             neighbors (:class:`freud.locality.NeighborList` or dict, optional):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
                 neighbor pairs to use in the calculation, or a dictionary of
@@ -555,22 +549,27 @@ cdef class PMFTXYZ(_PMFT):
         if type(self) is PMFTXYZ:
             del self.pmftxyzptr
 
-    def compute(self, system, orientations, query_points=None,
+    def compute(self, system, query_orientations, query_points=None,
                 face_orientations=None, neighbors=None, reset=True):
-        R"""Calculates the positional correlation function and adds to the
-        current histogram.
+        R"""Calculates the PMFT.
+
+        .. note::
+            The orientations of the system points are irrelevant for this
+            calculation because that dimension is integrated out. The provided
+            ``query_orientations`` are therefore always associated with
+            ``query_points`` (which are equal to the system points if no
+            ``query_points`` are explicitly provided.
 
         Args:
             system:
                 Any object that is a valid argument to
                 :class:`freud.locality.NeighborQuery.from_system`.
-            orientations ((:math:`N_{points}`, 4) :class:`numpy.ndarray`):
-                Orientations associated with system points that are used to
-                calculate bonds.
+            query_orientations ((:math:`N_{points}`, 4) :class:`numpy.ndarray`):
+                Query orientations associated with query points that are used
+                to calculate bonds.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
-                Query points used to calculate the correlation function.  Uses
-                the system's points if :code:`None` (Default
-                value = :code:`None`).
+                Query points used to calculate the PMFT. Uses the system's
+                points if :code:`None` (Default value = :code:`None`).
             face_orientations ((:math:`N_{points}`, :math:`N_{faces}`, 4) :class:`numpy.ndarray`, optional):
                 Orientations of particle faces to account for symmetry of the
                 points. If not supplied by user or :code:`None`, unit
@@ -605,11 +604,10 @@ cdef class PMFTXYZ(_PMFT):
                 system, query_points, neighbors)
         l_query_points = l_query_points - self.shiftvec.reshape(1, 3)
 
-        orientations = freud.util._convert_array(
-            np.atleast_1d(orientations),
-            shape=(nq.points.shape[0], 4))
+        query_orientations = freud.util._convert_array(
+            np.atleast_1d(query_orientations), shape=(nq.points.shape[0], 4))
 
-        cdef const float[:, ::1] l_orientations = orientations
+        cdef const float[:, ::1] l_query_orientations = query_orientations
 
         # handle multiple ways to input
         if face_orientations is None:
@@ -619,13 +617,14 @@ cdef class PMFTXYZ(_PMFT):
             face_orientations[:, :, 0] = 1.0
         else:
             if face_orientations.ndim < 2 or face_orientations.ndim > 3:
-                raise ValueError("points must be a 2 or 3 dimensional array")
+                raise ValueError("face_orientations must be a 2 or 3 "
+                                 "dimensional array.")
             face_orientations = freud.util._convert_array(face_orientations)
             if face_orientations.ndim == 2:
                 if face_orientations.shape[1] != 4:
                     raise ValueError(
-                        "2nd dimension for orientations must have 4 values:"
-                        "w, x, y, z")
+                        "2nd dimension for face_orientations must have "
+                        "4 values: w, x, y, z.")
                 # need to broadcast into new array
                 tmp_face_orientations = np.zeros(
                     shape=(nq.points.shape[0],
@@ -639,14 +638,14 @@ cdef class PMFTXYZ(_PMFT):
                 # of particles
                 if face_orientations.shape[2] != 4:
                     raise ValueError(
-                        "2nd dimension for orientations must have 4 values:"
-                        "w, x, y, z")
+                        "3rd dimension for face_orientations must have "
+                        "4 values: w, x, y, z.")
                 elif face_orientations.shape[0] not in (
                         1, nq.points.shape[0]):
                     raise ValueError(
                         "If provided as a 3D array, the first dimension of "
                         "the face_orientations array must be either of "
-                        "size 1 or N_particles")
+                        "size 1 or the number of query_points.")
                 elif face_orientations.shape[0] == 1:
                     face_orientations = np.repeat(
                         face_orientations, nq.points.shape[0], axis=0)
@@ -655,7 +654,7 @@ cdef class PMFTXYZ(_PMFT):
         cdef unsigned int num_faces = l_face_orientations.shape[1]
         self.pmftxyzptr.accumulate(
             nq.get_ptr(),
-            <quat[float]*> &l_orientations[0, 0],
+            <quat[float]*> &l_query_orientations[0, 0],
             <vec3[float]*> &l_query_points[0, 0],
             num_query_points,
             <quat[float]*> &l_face_orientations[0, 0, 0],
