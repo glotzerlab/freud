@@ -44,10 +44,8 @@ public:
     Cluster() {}
 
     //! Compute the point clusters.
-    void compute(const freud::locality::NeighborQuery* nq,
-                 const freud::locality::NeighborList* nlist,
-                 freud::locality::QueryArgs qargs,
-                 const unsigned int* keys=NULL);
+    void compute(const freud::locality::NeighborQuery* nq, const freud::locality::NeighborList* nlist,
+                 freud::locality::QueryArgs qargs, const unsigned int* keys = NULL);
 
     //! Get the total number of clusters.
     unsigned int getNumClusters() const
@@ -56,13 +54,13 @@ public:
     }
 
     //! Get a reference to the cluster ids.
-    const util::ManagedArray<unsigned int> &getClusterIdx() const
+    const util::ManagedArray<unsigned int>& getClusterIdx() const
     {
         return m_cluster_idx;
     }
 
     //! Get a reference to the cluster keys.
-    const std::vector<std::vector<unsigned int>> &getClusterKeys() const
+    const std::vector<std::vector<unsigned int>>& getClusterKeys() const
     {
         return m_cluster_keys;
     }
@@ -75,8 +73,8 @@ private:
     // Returns inverse permutation of cluster indices, sorted from largest to
     // smallest. Adapted from
     // https://stackoverflow.com/questions/1577475/c-sorting-and-keeping-track-of-indexes
-    static std::vector<size_t> sort_indexes_inverse(const std::vector<size_t> &counts,
-            const std::vector<size_t> &min_ids);
+    static std::vector<size_t> sort_indexes_inverse(const std::vector<size_t>& counts,
+                                                    const std::vector<size_t>& min_ids);
 };
 
 }; }; // end namespace freud::cluster

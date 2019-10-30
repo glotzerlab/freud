@@ -6,8 +6,8 @@
 
 #include <complex>
 
-#include "VectorMath.h"
 #include "ManagedArray.h"
+#include "VectorMath.h"
 
 /*! \file RotationalAutocorrelation.h
     \brief Defines the RotationalAutocorrelation class, which computes the total
@@ -54,11 +54,11 @@ public:
     {
         // For efficiency, we precompute all required factorials for use during
         // the per-particle computation.
-        m_factorials.prepare(m_l+1);
+        m_factorials.prepare(m_l + 1);
         m_factorials[0] = 1;
         for (unsigned int i = 1; i <= m_l; i++)
         {
-            m_factorials[i] = i*m_factorials[i-1];
+            m_factorials[i] = i * m_factorials[i - 1];
         }
     }
 
@@ -72,7 +72,7 @@ public:
     }
 
     //! Get a reference to the last computed rotational autocorrelation array.
-    const util::ManagedArray<std::complex<float>> &getRAArray() const
+    const util::ManagedArray<std::complex<float>>& getRAArray() const
     {
         return m_RA_array;
     }
@@ -114,14 +114,15 @@ private:
      *  method to access the cached factorial values for the class's value of
      *  m_l.
      */
-    std::complex<float> hypersphere_harmonic(const std::complex<float> xi, std::complex<float> zeta, const unsigned int l,
-                                             const unsigned int m1, const unsigned int m2);
+    std::complex<float> hypersphere_harmonic(const std::complex<float> xi, std::complex<float> zeta,
+                                             const unsigned int l, const unsigned int m1,
+                                             const unsigned int m2);
 
-    unsigned int m_l;          //!< Order of the hyperspherical harmonic.
+    unsigned int m_l; //!< Order of the hyperspherical harmonic.
     float m_Ft;       //!< Real value of calculated RA function.
 
     util::ManagedArray<std::complex<float>> m_RA_array; //!< Array of RA values per particle
-    util::ManagedArray<unsigned int> m_factorials; //!< Array of cached factorials
+    util::ManagedArray<unsigned int> m_factorials;      //!< Array of cached factorials
 };
 
 }; }; // end namespace freud::order

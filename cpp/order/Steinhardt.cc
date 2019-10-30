@@ -55,7 +55,7 @@ void Steinhardt::reallocateArrays(unsigned int Np)
 }
 
 void Steinhardt::compute(const freud::locality::NeighborList* nlist,
-                                  const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs)
+                         const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs)
 {
     // Allocate and zero out arrays as necessary.
     reallocateArrays(points->getNPoints());
@@ -86,19 +86,18 @@ void Steinhardt::compute(const freud::locality::NeighborList* nlist,
 }
 
 void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
-                             const freud::locality::NeighborQuery* points,
-                             freud::locality::QueryArgs qargs)
+                             const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs)
 {
     const float normalizationfactor = float(4 * M_PI / m_num_ms);
     // For consistency, this reset is done here regardless of whether the array
     // is populated in baseCompute or computeAve.
     m_qlm_local.reset();
-    freud::locality::loopOverNeighborsIterator(points, points->getPoints(), m_Np, qargs, nlist,
-        [=](size_t i, std::shared_ptr<freud::locality::NeighborPerPointIterator> ppiter)
-        {
+    freud::locality::loopOverNeighborsIterator(
+        points, points->getPoints(), m_Np, qargs, nlist,
+        [=](size_t i, std::shared_ptr<freud::locality::NeighborPerPointIterator> ppiter) {
             float total_weight(0);
             const vec3<float> ref((*points)[i]);
-            for(freud::locality::NeighborBond nb = ppiter->next(); !ppiter->end(); nb = ppiter->next())
+            for (freud::locality::NeighborBond nb = ppiter->next(); !ppiter->end(); nb = ppiter->next())
             {
                 const vec3<float> delta = points->getBox().wrap((*points)[nb.point_idx] - ref);
                 const float weight(m_weighted ? nb.weight : 1.0);
@@ -106,7 +105,7 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
                 // phi is usually in range 0..2Pi, but
                 // it only appears in Ylm as exp(im\phi),
                 // so range -Pi..Pi will give same results.
-                float phi = std::atan2(delta.y, delta.x);     // -Pi..Pi
+                float phi = std::atan2(delta.y, delta.x); // -Pi..Pi
 
                 // This value must be clamped in cases where the particles are
                 // aligned along z, otherwise due to floating point error we
@@ -151,7 +150,7 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
 }
 
 void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
-                                  const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs)
+                            const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs)
 {
     std::shared_ptr<locality::NeighborQueryIterator> iter;
     if (nlist == NULL)
@@ -161,24 +160,27 @@ void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
 
     const float normalizationfactor = 4 * M_PI / m_num_ms;
 
-    freud::locality::loopOverNeighborsIterator(points, points->getPoints(), m_Np, qargs, nlist,
-        [=](size_t i, std::shared_ptr<freud::locality::NeighborPerPointIterator> ppiter)
-        {
+    freud::locality::loopOverNeighborsIterator(
+        points, points->getPoints(), m_Np, qargs, nlist,
+        [=](size_t i, std::shared_ptr<freud::locality::NeighborPerPointIterator> ppiter) {
             unsigned int neighborcount(1);
-            for(freud::locality::NeighborBond nb1 = ppiter->next(); !ppiter->end(); nb1 = ppiter->next())
+            for (freud::locality::NeighborBond nb1 = ppiter->next(); !ppiter->end(); nb1 = ppiter->next())
             {
-                // Since we need to find neighbors of neighbors, we need to add some extra logic here to create the appropriate iterators.
+                // Since we need to find neighbors of neighbors, we need to add some extra logic here to
+                // create the appropriate iterators.
                 std::shared_ptr<freud::locality::NeighborPerPointIterator> ns_neighbors_iter;
                 if (nlist != NULL)
                 {
-                    ns_neighbors_iter = std::make_shared<locality::NeighborListPerPointIterator>(nlist, nb1.point_idx);
+                    ns_neighbors_iter
+                        = std::make_shared<locality::NeighborListPerPointIterator>(nlist, nb1.point_idx);
                 }
                 else
                 {
                     ns_neighbors_iter = iter->query(nb1.point_idx);
                 }
 
-                for(freud::locality::NeighborBond nb2 = ns_neighbors_iter->next(); !ns_neighbors_iter->end(); nb2 = ns_neighbors_iter->next())
+                for (freud::locality::NeighborBond nb2 = ns_neighbors_iter->next(); !ns_neighbors_iter->end();
+                     nb2 = ns_neighbors_iter->next())
                 {
                     for (unsigned int k = 0; k < m_num_ms; ++k)
                     {
@@ -189,7 +191,7 @@ void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
                     }
                     neighborcount++;
                 } // End loop over particle neighbor's bonds
-            } // End loop over particle's bonds
+            }     // End loop over particle's bonds
 
             // Normalize!
             for (unsigned int k = 0; k < m_num_ms; ++k)
@@ -239,9 +241,9 @@ float Steinhardt::normalizeSystem()
     }
 }
 
-void Steinhardt::aggregatewl(util::ManagedArray<float> &target,
-    util::ManagedArray<std::complex<float> > &source,
-    util::ManagedArray<float> &normalization_source)
+void Steinhardt::aggregatewl(util::ManagedArray<float>& target,
+                             util::ManagedArray<std::complex<float>>& source,
+                             util::ManagedArray<float>& normalization_source)
 {
     auto wigner3jvalues = getWigner3j(m_l);
     const float normalizationfactor = float(4 * M_PI / m_num_ms);

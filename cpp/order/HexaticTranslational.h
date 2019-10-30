@@ -8,8 +8,8 @@
 
 #include "Box.h"
 #include "ManagedArray.h"
-#include "NeighborList.h"
 #include "NeighborComputeFunctional.h"
+#include "NeighborList.h"
 #include "NeighborQuery.h"
 #include "VectorMath.h"
 
@@ -26,7 +26,7 @@ template<typename T> class HexaticTranslational
 {
 public:
     //! Constructor
-    HexaticTranslational(T k): m_k(k) {}
+    HexaticTranslational(T k) : m_k(k) {}
 
     //! Destructor
     virtual ~HexaticTranslational() {}
@@ -37,18 +37,16 @@ public:
     }
 
     //! Get a reference to the order parameter array
-    const util::ManagedArray<std::complex<float>> &getOrder() const
+    const util::ManagedArray<std::complex<float>>& getOrder() const
     {
         return m_psi_array;
     }
-
 
 protected:
     //! Compute the order parameter
     template<typename Func>
     void computeGeneral(Func func, const freud::locality::NeighborList* nlist,
-                        const freud::locality::NeighborQuery* points,
-                        freud::locality::QueryArgs qargs);
+                        const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
 
     const T m_k;
     util::ManagedArray<std::complex<float>> m_psi_array; //!< psi array computed
@@ -67,8 +65,7 @@ public:
     ~Translational();
 
     //! Compute the translational order parameter
-    void compute(const freud::locality::NeighborList* nlist,
-                 const freud::locality::NeighborQuery* points,
+    void compute(const freud::locality::NeighborList* nlist, const freud::locality::NeighborQuery* points,
                  freud::locality::QueryArgs qargs);
 };
 
@@ -85,8 +82,7 @@ public:
     ~Hexatic();
 
     //! Compute the hexatic order parameter
-    void compute(const freud::locality::NeighborList* nlist,
-                 const freud::locality::NeighborQuery* points,
+    void compute(const freud::locality::NeighborList* nlist, const freud::locality::NeighborQuery* points,
                  freud::locality::QueryArgs qargs);
 };
 

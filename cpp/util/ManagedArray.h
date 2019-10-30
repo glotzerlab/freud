@@ -1,10 +1,10 @@
 #ifndef MANAGED_ARRAY_H
 #define MANAGED_ARRAY_H
 
-#include <memory>
-#include <vector>
-#include <sstream>
 #include <cstring>
+#include <memory>
+#include <sstream>
+#include <vector>
 
 /*! \file ManagedArray.h
     \brief Defines the standard array class to be used throughout freud.
@@ -40,8 +40,7 @@ namespace freud { namespace util {
  *         indexed into, the index may be computed once using the getIndex
  *         function and reused to avoid recomputing it each time.
  */
-template<typename T>
-class ManagedArray
+template<typename T> class ManagedArray
 {
 public:
     //! Constructor based on a shape tuple.
@@ -83,12 +82,13 @@ public:
      *  \param new_shape Shape of the array to allocate.
      *  \param force Reallocate regardless of whether anything changed or needs to be persisted.
      */
-    void prepare(std::vector<size_t> new_shape, bool force=false)
+    void prepare(std::vector<size_t> new_shape, bool force = false)
     {
-        // If we resized, or if there are outstanding references, we create a new array. No matter what, reset.
+        // If we resized, or if there are outstanding references, we create a new array. No matter what,
+        // reset.
         if (force || (m_data.use_count() > 1) || (new_shape != shape()))
         {
-            m_shape = std::make_shared<std::vector<size_t> >(new_shape);
+            m_shape = std::make_shared<std::vector<size_t>>(new_shape);
 
             m_size = std::make_shared<size_t>(1);
             for (int i = m_shape->size() - 1; i >= 0; --i)
@@ -96,7 +96,7 @@ public:
                 (*m_size) *= (*m_shape)[i];
             }
 
-            m_data = std::shared_ptr<std::shared_ptr<T> >(
+            m_data = std::shared_ptr<std::shared_ptr<T>>(
                 new std::shared_ptr<T>(new T[size()], std::default_delete<T[]>()));
         }
         reset();
@@ -120,14 +120,14 @@ public:
      * pointer is valuable, but users should be cautious about overusing calls
      * to get() rather than using the various operators provided by the class.
      */
-    T *get() const
+    T* get() const
     {
-        std::shared_ptr<T> *tmp = m_data.get();
+        std::shared_ptr<T>* tmp = m_data.get();
         return (*tmp).get();
     }
 
     //! Writeable index into array.
-    T &operator[](size_t index)
+    T& operator[](size_t index)
     {
         if (index >= size())
         {
@@ -138,9 +138,8 @@ public:
         return get()[index];
     }
 
-
     //! Read-only index into array.
-    const T &operator[](size_t index) const
+    const T& operator[](size_t index) const
     {
         if (index >= size())
         {
@@ -181,17 +180,15 @@ public:
     //*************************************************************************
 
     //! Implementation of variadic indexing function.
-    template <typename ... Ints>
-    inline T &operator()(Ints ... indices)
+    template<typename... Ints> inline T& operator()(Ints... indices)
     {
         return (*this)(buildIndex(indices...));
     }
 
     //! Constant implementation of variadic indexing function.
-    template <typename ... Ints>
-    inline const T &operator()(Ints ... indices) const
+    template<typename... Ints> inline const T& operator()(Ints... indices) const
     {
-        return (*this)(buildIndex(indices ...));
+        return (*this)(buildIndex(indices...));
     }
 
     //! Core function for multidimensional indexing.
@@ -203,8 +200,8 @@ public:
      * performance reasons. Although unimportant in most cases, operator() can
      * become a performance bottleneck when used in highly performance critical
      * code paths.
-    */
-    inline T &operator()(std::vector<size_t> indices)
+     */
+    inline T& operator()(std::vector<size_t> indices)
     {
         size_t cur_prod = 1;
         size_t idx = 0;
@@ -217,7 +214,7 @@ public:
     }
 
     //! Const version of core function for multidimensional indexing.
-    inline const T &operator()(std::vector<size_t> indices) const
+    inline const T& operator()(std::vector<size_t> indices) const
     {
         size_t cur_prod = 1;
         size_t idx = 0;
@@ -245,11 +242,11 @@ public:
         }
 
         std::vector<size_t> indices(shape.size());
-        for (unsigned int i = 0 ; i < shape.size(); ++i)
+        for (unsigned int i = 0; i < shape.size(); ++i)
         {
             cur_prod /= shape[i];
             // Integer division should cast away extras.
-            indices[i] = index/cur_prod;
+            indices[i] = index / cur_prod;
             index %= cur_prod;
         }
         return indices;
@@ -297,7 +294,8 @@ public:
             if (indices[i] > (*m_shape)[i])
             {
                 std::ostringstream msg;
-                msg << "Attempted to access index " << indices[i] << " in dimension " << i << ", which has size " << (*m_shape)[i] << std::endl;
+                msg << "Attempted to access index " << indices[i] << " in dimension " << i
+                    << ", which has size " << (*m_shape)[i] << std::endl;
                 throw std::invalid_argument(msg.str());
             }
         }
@@ -330,7 +328,6 @@ public:
     }
 
 private:
-
     //! The base case for building up the index.
     /*! These argument building functions are templated on two types, one that
      *  encapsulates the current object being operated on and the other being
@@ -339,24 +336,23 @@ private:
      *  Int object. The second function is used for template recursion in
      *  unwrapping the list of arguments.
      */
-    template <typename Int>
-    inline static std::vector<size_t> buildIndex(Int index)
+    template<typename Int> inline static std::vector<size_t> buildIndex(Int index)
     {
         return {static_cast<size_t>(index)};
     }
 
     //! The recursive case for building up the index (see above).
-    template <typename Int, typename ... Ints>
-    inline static std::vector<size_t> buildIndex(Int index, Ints ... indices)
+    template<typename Int, typename... Ints>
+    inline static std::vector<size_t> buildIndex(Int index, Ints... indices)
     {
         std::vector<size_t> tmp = buildIndex(indices...);
         tmp.insert(tmp.begin(), static_cast<size_t>(index));
         return tmp;
     }
 
-    std::shared_ptr<std::shared_ptr<T> > m_data;           //!< Pointer to array.
-    std::shared_ptr<std::vector<size_t> > m_shape;   //!< Shape of array.
-    std::shared_ptr<size_t> m_size;                  //!< Size of array.
+    std::shared_ptr<std::shared_ptr<T>> m_data;   //!< Pointer to array.
+    std::shared_ptr<std::vector<size_t>> m_shape; //!< Shape of array.
+    std::shared_ptr<size_t> m_size;               //!< Size of array.
 };
 
 }; }; // end namespace freud::util

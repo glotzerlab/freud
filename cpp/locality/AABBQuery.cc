@@ -20,17 +20,20 @@ AABBQuery::AABBQuery(const box::Box& box, const vec3<float>* points, unsigned in
 
 AABBQuery::~AABBQuery() {}
 
-std::shared_ptr<NeighborQueryPerPointIterator> AABBQuery::querySingle(const vec3<float> query_point, unsigned int query_point_idx,
-                                                             QueryArgs args) const
+std::shared_ptr<NeighborQueryPerPointIterator>
+AABBQuery::querySingle(const vec3<float> query_point, unsigned int query_point_idx, QueryArgs args) const
 {
     this->validateQueryArgs(args);
     if (args.mode == QueryArgs::ball)
     {
-        return std::make_shared<AABBQueryBallIterator>(this, query_point, query_point_idx, args.r_max, args.r_min, args.exclude_ii);
+        return std::make_shared<AABBQueryBallIterator>(this, query_point, query_point_idx, args.r_max,
+                                                       args.r_min, args.exclude_ii);
     }
     else if (args.mode == QueryArgs::nearest)
     {
-        return std::make_shared<AABBQueryIterator>(this, query_point, query_point_idx, args.num_neighbors, args.r_guess, args.r_max, args.r_min, args.scale, args.exclude_ii);
+        return std::make_shared<AABBQueryIterator>(this, query_point, query_point_idx, args.num_neighbors,
+                                                   args.r_guess, args.r_max, args.r_min, args.scale,
+                                                   args.exclude_ii);
     }
     else
     {
@@ -229,8 +232,9 @@ NeighborBond AABBQueryIterator::next()
             m_current_neighbors.clear();
             m_all_distances.clear();
             m_query_points_below_r_min.clear();
-            std::shared_ptr<NeighborQueryPerPointIterator> ball_it
-                = std::make_shared<AABBQueryBallIterator>(static_cast<const AABBQuery*>(m_neighbor_query), m_query_point, m_query_point_idx, std::min(m_r_cur, m_r_max), 0, m_exclude_ii, false);
+            std::shared_ptr<NeighborQueryPerPointIterator> ball_it = std::make_shared<AABBQueryBallIterator>(
+                static_cast<const AABBQuery*>(m_neighbor_query), m_query_point, m_query_point_idx,
+                std::min(m_r_cur, m_r_max), 0, m_exclude_ii, false);
             while (!ball_it->end())
             {
                 NeighborBond nb = ball_it->next();
@@ -244,7 +248,8 @@ NeighborBond AABBQueryIterator::next()
                     // distance, use the map instead of the vector.
                     if (m_search_extended)
                     {
-                        if (!m_all_distances.count(nb.point_idx) || m_all_distances[nb.point_idx] > nb.distance)
+                        if (!m_all_distances.count(nb.point_idx)
+                            || m_all_distances[nb.point_idx] > nb.distance)
                         {
                             m_all_distances[nb.point_idx] = nb.distance;
                             if (nb.distance < m_r_min)
@@ -270,7 +275,8 @@ NeighborBond AABBQueryIterator::next()
                 std::sort(m_current_neighbors.begin(), m_current_neighbors.end());
                 break;
             }
-            else if ((m_r_cur >= m_r_max) || (m_r_cur >= max_plane_distance) || ((m_all_distances.size() - m_query_points_below_r_min.size()) >= m_num_neighbors))
+            else if ((m_r_cur >= m_r_max) || (m_r_cur >= max_plane_distance)
+                     || ((m_all_distances.size() - m_query_points_below_r_min.size()) >= m_num_neighbors))
             {
                 // Once this condition is reached, either we found enough
                 // neighbors beyond the normal min_plane_distance

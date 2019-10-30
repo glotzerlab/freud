@@ -12,10 +12,8 @@
 //! Finds clusters using a network of neighbors.
 namespace freud { namespace cluster {
 
-void Cluster::compute(const freud::locality::NeighborQuery* nq,
-                      const freud::locality::NeighborList* nlist,
-                      freud::locality::QueryArgs qargs,
-                      const unsigned int* keys)
+void Cluster::compute(const freud::locality::NeighborQuery* nq, const freud::locality::NeighborList* nlist,
+                      freud::locality::QueryArgs qargs, const unsigned int* keys)
 {
     const unsigned int num_points = nq->getNPoints();
     m_cluster_idx.prepare(num_points);
@@ -77,7 +75,7 @@ void Cluster::compute(const freud::locality::NeighborQuery* nq,
      * sets. Each set contains all the keys that are part of that cluster. If
      * no keys are provided, the keys use point ids. Get the computed list
      * with getClusterKeys().
-    */
+     */
     for (size_t i = 0; i < num_points; i++)
     {
         size_t s = dj.find(i);
@@ -92,7 +90,9 @@ void Cluster::compute(const freud::locality::NeighborQuery* nq,
 
 // Returns inverse permutation of cluster indexes, sorted from largest to smallest.
 // Adapted from https://stackoverflow.com/questions/1577475/c-sorting-and-keeping-track-of-indexes
-std::vector<size_t> Cluster::sort_indexes_inverse(const std::vector<size_t> &counts, const std::vector<size_t> &min_ids) {
+std::vector<size_t> Cluster::sort_indexes_inverse(const std::vector<size_t>& counts,
+                                                  const std::vector<size_t>& min_ids)
+{
     // Initialize original index locations.
     std::vector<size_t> idx(counts.size());
     std::iota(idx.begin(), idx.end(), 0);

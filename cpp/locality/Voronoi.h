@@ -17,9 +17,7 @@ class Voronoi
 {
 public:
     // default constructor
-    Voronoi() : m_neighbor_list(std::make_shared<NeighborList>())
-    {
-    }
+    Voronoi() : m_neighbor_list(std::make_shared<NeighborList>()) {}
 
     void compute(const freud::locality::NeighborQuery* nq);
 
@@ -28,21 +26,21 @@ public:
         return m_neighbor_list;
     }
 
-    const std::vector<std::vector<vec3<double> > > getPolytopes() const
+    const std::vector<std::vector<vec3<double>>> getPolytopes() const
     {
         return m_polytopes;
     }
 
-    const util::ManagedArray<double> &getVolumes() const
+    const util::ManagedArray<double>& getVolumes() const
     {
         return m_volumes;
     }
 
 private:
     box::Box m_box;
-    std::shared_ptr<NeighborList> m_neighbor_list; //!< Stored neighbor list
-    std::vector<std::vector<vec3<double> > > m_polytopes; //!< Voronoi polytopes
-    util::ManagedArray<double> m_volumes; //!< Voronoi cell volumes
+    std::shared_ptr<NeighborList> m_neighbor_list;      //!< Stored neighbor list
+    std::vector<std::vector<vec3<double>>> m_polytopes; //!< Voronoi polytopes
+    util::ManagedArray<double> m_volumes;               //!< Voronoi cell volumes
 };
 }; }; // end namespace freud::locality
 

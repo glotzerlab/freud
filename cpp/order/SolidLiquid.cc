@@ -3,14 +3,14 @@
 
 #include <stdexcept>
 
-#include "SolidLiquid.h"
 #include "NeighborComputeFunctional.h"
+#include "SolidLiquid.h"
 
 namespace freud { namespace order {
 
 SolidLiquid::SolidLiquid(unsigned int l, float q_threshold, unsigned int solid_threshold, bool normalize_q)
     : m_l(l), m_num_ms(2 * l + 1), m_q_threshold(q_threshold), m_solid_threshold(solid_threshold),
-    m_normalize_q(normalize_q), m_steinhardt(l), m_cluster()
+      m_normalize_q(normalize_q), m_steinhardt(l), m_cluster()
 {
     if (m_q_threshold < 0.0)
     {
@@ -20,7 +20,7 @@ SolidLiquid::SolidLiquid(unsigned int l, float q_threshold, unsigned int solid_t
 }
 
 void SolidLiquid::compute(const freud::locality::NeighborList* nlist,
-        const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs)
+                          const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs)
 {
     // This function requires a NeighborList object, so we always make one and store it locally.
     m_nlist = locality::makeDefaultNlist(points, nlist, points->getPoints(), points->getNPoints(), qargs);
@@ -37,31 +37,34 @@ void SolidLiquid::compute(const freud::locality::NeighborList* nlist,
     const unsigned int num_bonds(m_nlist.getNumBonds());
     m_ql_ij.prepare(num_bonds);
 
-    util::forLoopWrapper(0, num_query_points, [=](size_t begin, size_t end) {
-        for (unsigned int i = begin; i != end; ++i)
-        {
-            unsigned int bond(m_nlist.find_first_index(i));
-            for (; bond < num_bonds && m_nlist.getNeighbors()(bond, 0) == i; ++bond)
+    util::forLoopWrapper(
+        0, num_query_points,
+        [=](size_t begin, size_t end) {
+            for (unsigned int i = begin; i != end; ++i)
             {
-                const unsigned int j(m_nlist.getNeighbors()(bond, 1));
-
-                // Accumulate the dot product over m of qlmi and qlmj vectors
-                std::complex<float> bond_ql_ij = 0;
-                for (unsigned int k = 0; k < m_num_ms; k++)
+                unsigned int bond(m_nlist.find_first_index(i));
+                for (; bond < num_bonds && m_nlist.getNeighbors()(bond, 0) == i; ++bond)
                 {
-                    bond_ql_ij += qlm(i, k) * std::conj(qlm(j, k));
-                }
+                    const unsigned int j(m_nlist.getNeighbors()(bond, 1));
 
-                // Optionally normalize dot products by points' ql values,
-                // accounting for the normalization of ql values
-                if (m_normalize_q)
-                {
-                    bond_ql_ij *= normalizationfactor / (ql[i] * ql[j]);
+                    // Accumulate the dot product over m of qlmi and qlmj vectors
+                    std::complex<float> bond_ql_ij = 0;
+                    for (unsigned int k = 0; k < m_num_ms; k++)
+                    {
+                        bond_ql_ij += qlm(i, k) * std::conj(qlm(j, k));
+                    }
+
+                    // Optionally normalize dot products by points' ql values,
+                    // accounting for the normalization of ql values
+                    if (m_normalize_q)
+                    {
+                        bond_ql_ij *= normalizationfactor / (ql[i] * ql[j]);
+                    }
+                    m_ql_ij[bond] = bond_ql_ij.real();
                 }
-                m_ql_ij[bond] = bond_ql_ij.real();
             }
-        }
-    }, true);
+        },
+        true);
 
     // Filter neighbors to contain only solid-like bonds
     std::unique_ptr<bool[]> solid_filter(new bool[num_bonds]);
@@ -88,7 +91,7 @@ void SolidLiquid::compute(const freud::locality::NeighborList* nlist,
         const unsigned int i(solid_nlist.getNeighbors()(bond, 0));
         const unsigned int j(solid_nlist.getNeighbors()(bond, 1));
         neighbor_count_filter[bond] = (m_number_of_connections[i] >= m_solid_threshold
-                && m_number_of_connections[j] >= m_solid_threshold);
+                                       && m_number_of_connections[j] >= m_solid_threshold);
     }
     freud::locality::NeighborList solid_neighbor_nlist(solid_nlist);
     solid_neighbor_nlist.filter(neighbor_count_filter.get());

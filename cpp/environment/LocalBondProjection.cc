@@ -52,12 +52,11 @@ float computeMaxProjection(const vec3<float> proj_vec, const vec3<float> local_b
     return max_proj;
 }
 
-void LocalBondProjection::compute(const locality::NeighborQuery *nq,
-    const quat<float>* orientations,
-    const vec3<float>* query_points, unsigned int n_query_points,
-    const vec3<float>* proj_vecs,  unsigned int n_proj,
-    const quat<float>* equiv_orientations, unsigned int n_equiv_orientations,
-    const freud::locality::NeighborList* nlist, locality::QueryArgs qargs)
+void LocalBondProjection::compute(const locality::NeighborQuery* nq, const quat<float>* orientations,
+                                  const vec3<float>* query_points, unsigned int n_query_points,
+                                  const vec3<float>* proj_vecs, unsigned int n_proj,
+                                  const quat<float>* equiv_orientations, unsigned int n_equiv_orientations,
+                                  const freud::locality::NeighborList* nlist, locality::QueryArgs qargs)
 {
     // This function requires a NeighborList object, so we always make one and store it locally.
     m_nlist = locality::makeDefaultNlist(nq, nlist, query_points, n_query_points, qargs);
@@ -87,7 +86,8 @@ void LocalBondProjection::compute(const locality::NeighborQuery *nq,
                 for (unsigned int k = 0; k < n_proj; k++)
                 {
                     vec3<float> proj_vec = proj_vecs[k];
-                    float max_proj = computeMaxProjection(proj_vec, local_bond, equiv_orientations, n_equiv_orientations);
+                    float max_proj = computeMaxProjection(proj_vec, local_bond, equiv_orientations,
+                                                          n_equiv_orientations);
                     m_local_bond_proj(bond, k) = max_proj;
                     m_local_bond_proj_norm(bond, k) = max_proj / local_bond_len;
                 }

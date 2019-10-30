@@ -1,9 +1,9 @@
 // Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
+#include <cmath>
 #include <stdexcept>
 #include <tbb/tbb.h>
-#include <cmath>
 
 #include "GaussianDensity.h"
 
@@ -20,9 +20,8 @@ GaussianDensity::GaussianDensity(vec3<unsigned int> width, float r_max, float si
         throw std::invalid_argument("GaussianDensity requires r_max to be positive.");
 }
 
-
 //! Get a reference to the last computed Density
-const util::ManagedArray<float> &GaussianDensity::getDensity() const
+const util::ManagedArray<float>& GaussianDensity::getDensity() const
 {
     return m_density_array;
 }
@@ -105,9 +104,12 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq)
                         if (r_sqrt < m_r_max)
                         {
                             // Evaluate the gaussian ...
-                            const float x_gaussian = A * exp((-1.0f) * (delta.x * delta.x) / (2.0f * sigmasq));
-                            const float y_gaussian = A * exp((-1.0f) * (delta.y * delta.y) / (2.0f * sigmasq));
-                            const float z_gaussian = A * exp((-1.0f) * (delta.z * delta.z) / (2.0f * sigmasq));
+                            const float x_gaussian
+                                = A * exp((-1.0f) * (delta.x * delta.x) / (2.0f * sigmasq));
+                            const float y_gaussian
+                                = A * exp((-1.0f) * (delta.y * delta.y) / (2.0f * sigmasq));
+                            const float z_gaussian
+                                = A * exp((-1.0f) * (delta.z * delta.z) / (2.0f * sigmasq));
 
                             // Assure that out of range indices are corrected for storage
                             // in the array i.e. bin -1 is actually bin 29 for nbins = 30

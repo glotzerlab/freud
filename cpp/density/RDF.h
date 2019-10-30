@@ -4,9 +4,9 @@
 #ifndef RDF_H
 #define RDF_H
 
+#include "BondHistogramCompute.h"
 #include "Box.h"
 #include "Histogram.h"
-#include "BondHistogramCompute.h"
 
 /*! \file RDF.h
     \brief Routines for computing radial density functions.
@@ -27,15 +27,15 @@ public:
      * in parallel on thread-local copies of the data, which are reduced into
      * the primary data arrays when the user requests outputs.
      */
-    void accumulate(const freud::locality::NeighborQuery* neighbor_query,
-                    const vec3<float>* query_points, unsigned int n_query_points,
-                    const freud::locality::NeighborList* nlist, freud::locality::QueryArgs qargs);
+    void accumulate(const freud::locality::NeighborQuery* neighbor_query, const vec3<float>* query_points,
+                    unsigned int n_query_points, const freud::locality::NeighborList* nlist,
+                    freud::locality::QueryArgs qargs);
 
     //! Reduce thread-local arrays onto the primary data arrays.
     virtual void reduce();
 
     //! Get the positional correlation function.
-    const util::ManagedArray<float> &getRDF()
+    const util::ManagedArray<float>& getRDF()
     {
         return reduceAndReturn(m_pcf);
     }
@@ -45,17 +45,21 @@ public:
      * contained within a ball of radius getBins()[i+1] centered at a given
      * query_point, averaged over all query_points.
      */
-    const util::ManagedArray<float> &getNr()
+    const util::ManagedArray<float>& getNr()
     {
         return reduceAndReturn(m_N_r);
     }
 
 private:
-    bool m_normalize;                          //!< Whether to enforce that the RDF should tend to 1 (instead of num_query_points/num_points).
-    util::ManagedArray<float> m_pcf;         //!< The computed pair correlation function.
-    util::ManagedArray<float> m_N_r;         //!< Cumulative bin sum N(r) (the average number of points in a ball of radius r).
-    util::ManagedArray<float> m_vol_array2D; //!< Areas of concentric rings corresponding to the histogram bins in 2D.
-    util::ManagedArray<float> m_vol_array3D; //!< Areas of concentric spherical shells corresponding to the histogram bins in 3D.
+    bool m_normalize;                //!< Whether to enforce that the RDF should tend to 1 (instead of
+                                     //!< num_query_points/num_points).
+    util::ManagedArray<float> m_pcf; //!< The computed pair correlation function.
+    util::ManagedArray<float>
+        m_N_r; //!< Cumulative bin sum N(r) (the average number of points in a ball of radius r).
+    util::ManagedArray<float>
+        m_vol_array2D; //!< Areas of concentric rings corresponding to the histogram bins in 2D.
+    util::ManagedArray<float>
+        m_vol_array3D; //!< Areas of concentric spherical shells corresponding to the histogram bins in 3D.
 };
 
 }; }; // end namespace freud::density

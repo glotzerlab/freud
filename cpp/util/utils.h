@@ -14,7 +14,7 @@ namespace freud { namespace util {
 //! Clip v if it is outside the range [lo, hi].
 inline float clamp(float v, float lo, float hi)
 {
-  return std::max(lo, std::min(v, hi));
+    return std::max(lo, std::min(v, hi));
 }
 
 //! Wrapper for for-loop to allow the execution in parallel or not.
@@ -24,7 +24,7 @@ inline float clamp(float v, float lo, float hi)
  *  \param body An object with operator(size_t begin, size_t end).
  */
 template<typename Body>
-inline void forLoopWrapper(size_t begin, size_t end, const Body& body, bool parallel=true)
+inline void forLoopWrapper(size_t begin, size_t end, const Body& body, bool parallel = true)
 {
     if (parallel)
     {

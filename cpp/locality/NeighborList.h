@@ -34,10 +34,9 @@ public:
     //! Copy constructor (makes a deep copy)
     NeighborList(const NeighborList& other);
     //! Construct from arrays
-    NeighborList(unsigned int num_bonds, const unsigned int* query_point_index,
-                 unsigned int num_query_points,
-                 const unsigned int* point_index, unsigned int num_points,
-                 const float* distances, const float* weights);
+    NeighborList(unsigned int num_bonds, const unsigned int* query_point_index, unsigned int num_query_points,
+                 const unsigned int* point_index, unsigned int num_points, const float* distances,
+                 const float* weights);
 
     //! Return the number of bonds stored in this NeighborList
     unsigned int getNumBonds() const;
@@ -52,56 +51,56 @@ public:
     void updateSegmentCounts() const;
 
     //! Access the neighbors array for reading and writing
-    util::ManagedArray<unsigned int> &getNeighbors()
+    util::ManagedArray<unsigned int>& getNeighbors()
     {
         return m_neighbors;
     }
     //! Access the distances array for reading and writing
-    util::ManagedArray<float> &getDistances()
+    util::ManagedArray<float>& getDistances()
     {
         return m_distances;
     }
     //! Access the weights array for reading and writing
-    util::ManagedArray<float> &getWeights()
+    util::ManagedArray<float>& getWeights()
     {
         return m_weights;
     }
     //! Access the counts array for reading
-    util::ManagedArray<unsigned int> &getCounts()
+    util::ManagedArray<unsigned int>& getCounts()
     {
         updateSegmentCounts();
         return m_counts;
     }
     //! Access the segments array for reading
-    util::ManagedArray<unsigned int> &getSegments()
+    util::ManagedArray<unsigned int>& getSegments()
     {
         updateSegmentCounts();
         return m_segments;
     }
 
     //! Access the neighbors array for reading
-    const util::ManagedArray<unsigned int> &getNeighbors() const
+    const util::ManagedArray<unsigned int>& getNeighbors() const
     {
         return m_neighbors;
     }
     //! Access the distances array for reading
-    const util::ManagedArray<float> &getDistances() const
+    const util::ManagedArray<float>& getDistances() const
     {
         return m_distances;
     }
     //! Access the weights array for reading
-    const util::ManagedArray<float> &getWeights() const
+    const util::ManagedArray<float>& getWeights() const
     {
         return m_weights;
     }
     //! Access the counts array for reading
-    const util::ManagedArray<unsigned int> &getCounts() const
+    const util::ManagedArray<unsigned int>& getCounts() const
     {
         updateSegmentCounts();
         return m_counts;
     }
     //! Access the segments array for reading
-    const util::ManagedArray<unsigned int> &getSegments() const
+    const util::ManagedArray<unsigned int>& getSegments() const
     {
         updateSegmentCounts();
         return m_segments;
@@ -151,8 +150,7 @@ private:
 };
 
 bool compareNeighborBond(const NeighborBond& left, const NeighborBond& right);
-bool compareFirstNeighborPairs(const std::vector<NeighborBond>& left,
-                               const std::vector<NeighborBond>& right);
+bool compareFirstNeighborPairs(const std::vector<NeighborBond>& left, const std::vector<NeighborBond>& right);
 
 }; }; // end namespace freud::locality
 

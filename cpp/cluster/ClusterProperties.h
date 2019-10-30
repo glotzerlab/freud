@@ -32,31 +32,32 @@ public:
     ClusterProperties() {}
 
     //! Compute properties of the point clusters
-    void compute(const freud::locality::NeighborQuery* nq,
-            const unsigned int* cluster_idx);
+    void compute(const freud::locality::NeighborQuery* nq, const unsigned int* cluster_idx);
 
     //! Get a reference to the last computed cluster centers
-    const util::ManagedArray<vec3<float>> &getClusterCenters() const
+    const util::ManagedArray<vec3<float>>& getClusterCenters() const
     {
         return m_cluster_centers;
     }
 
     //! Get a reference to the last computed cluster gyration tensors
-    const util::ManagedArray<float> &getClusterGyrations() const
+    const util::ManagedArray<float>& getClusterGyrations() const
     {
         return m_cluster_gyrations;
     }
 
     //! Get a reference to the last computed cluster size
-    const util::ManagedArray<unsigned int> &getClusterSizes() const
+    const util::ManagedArray<unsigned int>& getClusterSizes() const
     {
         return m_cluster_sizes;
     }
 
 private:
-    util::ManagedArray<vec3<float>> m_cluster_centers; //!< Center of mass computed for each cluster (length: m_num_clusters)
-    util::ManagedArray<float> m_cluster_gyrations;     //!< Gyration tensor computed for each cluster (m_num_clusters x 3 x 3 array)
-    util::ManagedArray<unsigned int> m_cluster_sizes;  //!< Size per cluster
+    util::ManagedArray<vec3<float>>
+        m_cluster_centers; //!< Center of mass computed for each cluster (length: m_num_clusters)
+    util::ManagedArray<float>
+        m_cluster_gyrations; //!< Gyration tensor computed for each cluster (m_num_clusters x 3 x 3 array)
+    util::ManagedArray<unsigned int> m_cluster_sizes; //!< Size per cluster
 };
 
 }; }; // end namespace freud::cluster

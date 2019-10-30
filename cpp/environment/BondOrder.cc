@@ -64,71 +64,68 @@ void BondOrder::reduce()
     m_histogram.prepare(m_histogram.shape());
     m_bo_array.prepare(m_histogram.shape());
 
-    m_histogram.reduceOverThreadsPerBin(m_local_histograms, [&] (size_t i) {
-            m_bo_array[i] = m_histogram[i] / m_sa_array[i] / static_cast<float>(m_frame_counter);
-        });
+    m_histogram.reduceOverThreadsPerBin(m_local_histograms, [&](size_t i) {
+        m_bo_array[i] = m_histogram[i] / m_sa_array[i] / static_cast<float>(m_frame_counter);
+    });
 }
 
-const util::ManagedArray<float> &BondOrder::getBondOrder()
+const util::ManagedArray<float>& BondOrder::getBondOrder()
 {
     return reduceAndReturn(m_bo_array);
 }
 
-void BondOrder::accumulate(
-                    const locality::NeighborQuery* neighbor_query,
-                    quat<float>* orientations, vec3<float>* query_points,
-                    quat<float>* query_orientations, unsigned int n_query_points,
-                    const freud::locality::NeighborList* nlist,
-                    freud::locality::QueryArgs qargs)
+void BondOrder::accumulate(const locality::NeighborQuery* neighbor_query, quat<float>* orientations,
+                           vec3<float>* query_points, quat<float>* query_orientations,
+                           unsigned int n_query_points, const freud::locality::NeighborList* nlist,
+                           freud::locality::QueryArgs qargs)
 {
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
-    [=] (const freud::locality::NeighborBond& neighbor_bond)
-    {
-        quat<float>& ref_q = orientations[neighbor_bond.point_idx];
-        vec3<float> v(bondVector(neighbor_bond, neighbor_query, query_points));
-        quat<float>& q = query_orientations[neighbor_bond.query_point_idx];
-        if (m_mode == obcd)
-        {
-            // give bond directions of neighboring particles rotated by the matrix
-            // that takes the orientation of particle neighbor_bond.id to the orientation of
-            // particle neighbor_bond.ref_id.
-            v = rotate(conj(ref_q), v);
-            v = rotate(q, v);
-        }
-        else if (m_mode == lbod)
-        {
-            // give bond directions of neighboring particles rotated into the
-            // local orientation of the central particle.
-            v = rotate(conj(ref_q), v);
-        }
-        else if (m_mode == oocd)
-        {
-            // give the directors of neighboring particles rotated into the local
-            // orientation of the central particle. pick a (random vector)
-            vec3<float> z(0, 0, 1);
-            // rotate that vector by the orientation of the neighboring particle
-            z = rotate(q, z);
-            // get the direction of this vector with respect to the orientation of
-            // the central particle
-            v = rotate(conj(ref_q), z);
-        }
+                      [=](const freud::locality::NeighborBond& neighbor_bond) {
+                          quat<float>& ref_q = orientations[neighbor_bond.point_idx];
+                          vec3<float> v(bondVector(neighbor_bond, neighbor_query, query_points));
+                          quat<float>& q = query_orientations[neighbor_bond.query_point_idx];
+                          if (m_mode == obcd)
+                          {
+                              // give bond directions of neighboring particles rotated by the matrix
+                              // that takes the orientation of particle neighbor_bond.id to the orientation of
+                              // particle neighbor_bond.ref_id.
+                              v = rotate(conj(ref_q), v);
+                              v = rotate(q, v);
+                          }
+                          else if (m_mode == lbod)
+                          {
+                              // give bond directions of neighboring particles rotated into the
+                              // local orientation of the central particle.
+                              v = rotate(conj(ref_q), v);
+                          }
+                          else if (m_mode == oocd)
+                          {
+                              // give the directors of neighboring particles rotated into the local
+                              // orientation of the central particle. pick a (random vector)
+                              vec3<float> z(0, 0, 1);
+                              // rotate that vector by the orientation of the neighboring particle
+                              z = rotate(q, z);
+                              // get the direction of this vector with respect to the orientation of
+                              // the central particle
+                              v = rotate(conj(ref_q), z);
+                          }
 
-        // NOTE that angles are defined in the "mathematical" way, rather than how
-        // most physics textbooks do it. get theta (azimuthal angle), phi (polar
-        // angle)
-        float theta = std::atan2(v.y, v.x); //-Pi..Pi
+                          // NOTE that angles are defined in the "mathematical" way, rather than how
+                          // most physics textbooks do it. get theta (azimuthal angle), phi (polar
+                          // angle)
+                          float theta = std::atan2(v.y, v.x); //-Pi..Pi
 
-        theta = fmod(theta, TWO_PI);
-        while (theta < 0)
-        {
-            theta += TWO_PI;
-        }
+                          theta = fmod(theta, TWO_PI);
+                          while (theta < 0)
+                          {
+                              theta += TWO_PI;
+                          }
 
-        // NOTE that the below has replaced the commented out expression for phi.
-        float phi = std::acos(v.z / std::sqrt(dot(v, v))); // 0..Pi
+                          // NOTE that the below has replaced the commented out expression for phi.
+                          float phi = std::acos(v.z / std::sqrt(dot(v, v))); // 0..Pi
 
-        m_local_histograms(theta, phi);
-    });
+                          m_local_histograms(theta, phi);
+                      });
 }
 
 }; }; // end namespace freud::environment

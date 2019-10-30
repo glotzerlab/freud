@@ -21,8 +21,7 @@ namespace freud { namespace cluster {
     getClusterGyrations().
 */
 
-void ClusterProperties::compute(const freud::locality::NeighborQuery* nq,
-                                const unsigned int* cluster_idx)
+void ClusterProperties::compute(const freud::locality::NeighborQuery* nq, const unsigned int* cluster_idx)
 {
     // determine the number of clusters
     const unsigned int* max_cluster_id = std::max_element(cluster_idx, cluster_idx + nq->getNPoints());

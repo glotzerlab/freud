@@ -12,20 +12,23 @@ namespace freud { namespace locality {
 struct NeighborBond
 {
     // For now, id = query_point_idx and ref_id = point_idx (into the NeighborQuery).
-    NeighborBond() : query_point_idx(0), point_idx(0), distance(0),  weight(0) {}
+    NeighborBond() : query_point_idx(0), point_idx(0), distance(0), weight(0) {}
 
-    NeighborBond(unsigned int query_point_idx, unsigned int point_idx, float d=0, float w=1) :
-        query_point_idx(query_point_idx), point_idx(point_idx), distance(d), weight(w) {}
+    NeighborBond(unsigned int query_point_idx, unsigned int point_idx, float d = 0, float w = 1)
+        : query_point_idx(query_point_idx), point_idx(point_idx), distance(d), weight(w)
+    {}
 
     //! Equality checks both query_point_idx and distance.
     bool operator==(const NeighborBond& other)
     {
-        return (query_point_idx == other.query_point_idx) && (point_idx == other.point_idx) && (distance == other.distance);
+        return (query_point_idx == other.query_point_idx) && (point_idx == other.point_idx)
+            && (distance == other.distance);
     }
 
     //! Not equals checks inverse of equality.
-    bool operator!=(const NeighborBond& other) {
-      return !(*this == other);
+    bool operator!=(const NeighborBond& other)
+    {
+        return !(*this == other);
     }
 
     //! Default comparator of points is by distance.
@@ -67,12 +70,11 @@ struct NeighborBond
         return distance < n.distance;
     }
 
-    unsigned int query_point_idx;          //! The query point index.
-    unsigned int point_idx;      //! The reference point index.
-    float distance;           //! The distance between the points.
-    float weight;             //! The weight of this bond.
+    unsigned int query_point_idx; //! The query point index.
+    unsigned int point_idx;       //! The reference point index.
+    float distance;               //! The distance between the points.
+    float weight;                 //! The weight of this bond.
 };
-
 
 }; }; // end namespace freud::locality
 

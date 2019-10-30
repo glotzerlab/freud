@@ -14,8 +14,7 @@ namespace freud { namespace pmft {
 // namespace-level constant 2*pi for convenient use everywhere.
 constexpr float TWO_PI = 2.0 * M_PI;
 
-PMFTXY::PMFTXY(float x_max, float y_max, unsigned int n_x, unsigned int n_y)
-    : PMFT()
+PMFTXY::PMFTXY(float x_max, float y_max, unsigned int n_x, unsigned int n_y) : PMFT()
 {
     if (n_x < 1)
         throw std::invalid_argument("PMFTXY requires at least 1 bin in X.");
@@ -53,23 +52,23 @@ void PMFTXY::reduce()
 //! \internal
 /*! \brief Helper functionto direct the calculation to the correct helper class
  */
-void PMFTXY::accumulate(const locality::NeighborQuery* neighbor_query,
-                          float* query_orientations, vec3<float>* query_points,
-                          unsigned int n_query_points,
-                          const locality::NeighborList* nlist, freud::locality::QueryArgs qargs)
+void PMFTXY::accumulate(const locality::NeighborQuery* neighbor_query, float* query_orientations,
+                        vec3<float>* query_points, unsigned int n_query_points,
+                        const locality::NeighborList* nlist, freud::locality::QueryArgs qargs)
 {
     neighbor_query->getBox().enforce2D();
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
-        [=](const freud::locality::NeighborBond& neighbor_bond) {
-        vec3<float> delta(bondVector(neighbor_bond, neighbor_query, query_points));
+                      [=](const freud::locality::NeighborBond& neighbor_bond) {
+                          vec3<float> delta(bondVector(neighbor_bond, neighbor_query, query_points));
 
-        // rotate interparticle vector
-        vec2<float> myVec(delta.x, delta.y);
-        rotmat2<float> myMat = rotmat2<float>::fromAngle(-query_orientations[neighbor_bond.point_idx]);
-        vec2<float> rotVec = myMat * myVec;
+                          // rotate interparticle vector
+                          vec2<float> myVec(delta.x, delta.y);
+                          rotmat2<float> myMat
+                              = rotmat2<float>::fromAngle(-query_orientations[neighbor_bond.point_idx]);
+                          vec2<float> rotVec = myMat * myVec;
 
-        m_local_histograms(rotVec.x, rotVec.y);
-    });
+                          m_local_histograms(rotVec.x, rotVec.y);
+                      });
 }
 
 }; }; // end namespace freud::pmft

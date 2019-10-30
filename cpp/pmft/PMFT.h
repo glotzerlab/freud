@@ -6,9 +6,9 @@
 
 #include <tbb/tbb.h>
 
+#include "BondHistogramCompute.h"
 #include "Box.h"
 #include "Histogram.h"
-#include "BondHistogramCompute.h"
 #include "ManagedArray.h"
 #include "VectorMath.h"
 
@@ -46,11 +46,9 @@ public:
         \param cf An object with operator(NeighborBond) as input.
     */
     template<typename Func>
-    void accumulateGeneral(const locality::NeighborQuery* neighbor_query,
-                           const vec3<float>* query_points, unsigned int n_query_points,
-                           const locality::NeighborList* nlist,
-                           freud::locality::QueryArgs qargs,
-                           Func cf)
+    void accumulateGeneral(const locality::NeighborQuery* neighbor_query, const vec3<float>* query_points,
+                           unsigned int n_query_points, const locality::NeighborList* nlist,
+                           freud::locality::QueryArgs qargs, Func cf)
     {
         m_box = neighbor_query->getBox();
         locality::loopOverNeighbors(neighbor_query, query_points, n_query_points, qargs, nlist, cf);
@@ -61,31 +59,28 @@ public:
         m_reduce = true;
     }
 
-    template<typename JacobFactor>
-    void reduce(JacobFactor jf)
+    template<typename JacobFactor> void reduce(JacobFactor jf)
     {
         m_pcf_array.prepare(m_histogram.shape());
         m_histogram.prepare(m_histogram.shape());
 
         float inv_num_dens = m_box.getVolume() / (float) m_n_query_points;
         float norm_factor = (float) 1.0 / ((float) m_frame_counter * (float) m_n_points);
-        float prefactor = inv_num_dens*norm_factor;
+        float prefactor = inv_num_dens * norm_factor;
 
-        m_histogram.reduceOverThreadsPerBin(m_local_histograms,
-                [this, &prefactor, &jf] (size_t i) {
-                m_pcf_array[i] = m_histogram[i] * prefactor * jf(i);
-                });
+        m_histogram.reduceOverThreadsPerBin(m_local_histograms, [this, &prefactor, &jf](size_t i) {
+            m_pcf_array[i] = m_histogram[i] * prefactor * jf(i);
+        });
     }
 
     //! Get a reference to the PCF array
-    const util::ManagedArray<float> &getPCF()
+    const util::ManagedArray<float>& getPCF()
     {
         return reduceAndReturn(m_pcf_array);
     }
 
 protected:
-
-    util::ManagedArray<float> m_pcf_array;         //!< Array of computed pair correlation function.
+    util::ManagedArray<float> m_pcf_array; //!< Array of computed pair correlation function.
 };
 
 }; }; // end namespace freud::pmft

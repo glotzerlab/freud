@@ -52,15 +52,15 @@ public:
     void compute(const freud::locality::NeighborQuery* nq);
 
     //! Get a reference to the last computed Density
-    const util::ManagedArray<float> &getDensity() const;
+    const util::ManagedArray<float>& getDensity() const;
 
     vec3<unsigned int> getWidth();
 
 private:
-    box::Box m_box;                               //!< Simulation box where the particles belong
-    vec3<unsigned int> m_width;                   //!< Num of bins on each side of the cube
-    float m_r_max;                                 //!< Max r at which to compute density
-    float m_sigma;                                //!< Variance
+    box::Box m_box;             //!< Simulation box where the particles belong
+    vec3<unsigned int> m_width; //!< Num of bins on each side of the cube
+    float m_r_max;              //!< Max r at which to compute density
+    float m_sigma;              //!< Variance
 
     util::ManagedArray<float> m_density_array; //! computed density array
 };

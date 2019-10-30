@@ -4,9 +4,9 @@
 #ifndef CUBATIC_H
 #define CUBATIC_H
 
+#include "ManagedArray.h"
 #include "VectorMath.h"
 #include <random>
-#include "ManagedArray.h"
 
 /*! \file Cubatic.h
     \brief Compute the cubatic order parameter for each particle.
@@ -25,16 +25,15 @@ struct tensor4
 {
     tensor4();
     tensor4(vec3<float> _vector);
-    tensor4 operator+=(const tensor4 &b);
-    tensor4 operator-(const tensor4 &b) const;
-    tensor4 operator*(const float &b) const;
-    float &operator[](unsigned int index);
+    tensor4 operator+=(const tensor4& b);
+    tensor4 operator-(const tensor4& b) const;
+    tensor4 operator*(const float& b) const;
+    float& operator[](unsigned int index);
 
-    void copyToManagedArray(util::ManagedArray<float> &ma);
+    void copyToManagedArray(util::ManagedArray<float>& ma);
 
     float data[81];
 };
-
 
 //! Compute the cubatic order parameter for a set of points
 /*! The cubatic order parameter is defined according to the paper "Strong
@@ -56,8 +55,7 @@ class Cubatic
 {
 public:
     //! Constructor
-    Cubatic(float t_initial, float t_final, float scale,
-                          unsigned int replicates, unsigned int seed);
+    Cubatic(float t_initial, float t_final, float scale, unsigned int replicates, unsigned int seed);
 
     //! Destructor
     ~Cubatic() {}
@@ -74,17 +72,17 @@ public:
         return m_cubatic_order_parameter;
     }
 
-    const util::ManagedArray<float> &getParticleOrderParameter() const
+    const util::ManagedArray<float>& getParticleOrderParameter() const
     {
         return m_particle_order_parameter;
     }
 
-    const util::ManagedArray<float> &getGlobalTensor() const
+    const util::ManagedArray<float>& getGlobalTensor() const
     {
         return m_global_tensor;
     }
 
-    const util::ManagedArray<float> &getCubaticTensor() const
+    const util::ManagedArray<float>& getCubaticTensor() const
     {
         return m_cubatic_tensor;
     }
@@ -120,7 +118,6 @@ public:
     }
 
 private:
-
     //! Calculate the cubatic tensor
     /*! Implements the second line of eq. 27, the calculation of M_{\omega}.
      *  The cubatic tensor is computed by creating the homogeneous tensor
@@ -129,7 +126,7 @@ private:
      *
      *  \return The cubatic tensor M_{\omega}.
      */
-    tensor4 calcCubaticTensor(quat<float> &orientation);
+    tensor4 calcCubaticTensor(quat<float>& orientation);
 
     //! Calculate the scalar cubatic order parameter.
     /*! Implements eq. 22.
@@ -139,7 +136,7 @@ private:
      *
      *  \return The value of the cubatic order parameter.
      */
-    float calcCubaticOrderParameter(const tensor4 &cubatic_tensor, const tensor4 &global_tensor) const;
+    float calcCubaticOrderParameter(const tensor4& cubatic_tensor, const tensor4& global_tensor) const;
 
     //! Calculate the per-particle tensor.
     /*! Implements the first line of eq. 27, the calculation of M.
@@ -162,8 +159,7 @@ private:
      *  appropriate calculation. It is templated to allow easy input of
      *  parameterized distributions using std::bind.
      */
-    template <typename T>
-    quat<float> calcRandomQuaternion(T& dist, float angle_multiplier = 1.0) const;
+    template<typename T> quat<float> calcRandomQuaternion(T& dist, float angle_multiplier = 1.0) const;
 
     float m_t_initial;         //!< Initial temperature for simulated annealing.
     float m_t_final;           //!< Final temperature for simulated annealing.
@@ -174,14 +170,14 @@ private:
     float m_cubatic_order_parameter;   //!< The value of the order parameter.
     quat<float> m_cubatic_orientation; //!< The cubatic orientation.
 
-    tensor4 m_gen_r4_tensor;  //!< The sum of various products of Kronecker deltas that is stored as a member for convenient reuse.
+    tensor4 m_gen_r4_tensor; //!< The sum of various products of Kronecker deltas that is stored as a member
+                             //!< for convenient reuse.
 
     util::ManagedArray<float> m_particle_order_parameter; //!< The per-particle value of the order parameter.
     util::ManagedArray<float>
         m_global_tensor; //!< The system-averaged homogeneous tensor encoding all particle orientations.
-    util::ManagedArray<float>
-        m_cubatic_tensor; //!< The output tensor computed via simulated annealing.
-    unsigned int m_seed; //!< Random seed.
+    util::ManagedArray<float> m_cubatic_tensor; //!< The output tensor computed via simulated annealing.
+    unsigned int m_seed;                        //!< Random seed.
 
     vec3<float> m_system_vectors[3]; //!< The global coordinate system, always use a simple Euclidean basis.
 };

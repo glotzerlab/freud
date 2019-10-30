@@ -1,8 +1,8 @@
 #ifndef HISTOGRAM_COMPUTE_H
 #define HISTOGRAM_COMPUTE_H
 
-#include "Histogram.h"
 #include "Box.h"
+#include "Histogram.h"
 #include "NeighborComputeFunctional.h"
 #include "NeighborQuery.h"
 
@@ -14,13 +14,16 @@ namespace freud { namespace locality {
  * instance as well as the thread local copies and accumulation and reduction
  * over these copies. It also offers some generalized functionality for process
  * of accumulating histograms over many frames, assuming that computations must
- * be performed on a per-NeighborBond basis. 
-*/
+ * be performed on a per-NeighborBond basis.
+ */
 class BondHistogramCompute
 {
 public:
     //! Default constructor
-    BondHistogramCompute() : m_box(box::Box()), m_frame_counter(0), m_n_points(0), m_n_query_points(0), m_reduce(true), m_histogram(), m_local_histograms() {}
+    BondHistogramCompute()
+        : m_box(box::Box()), m_frame_counter(0), m_n_points(0), m_n_query_points(0), m_reduce(true),
+          m_histogram(), m_local_histograms()
+    {}
 
     //! Destructor
     virtual ~BondHistogramCompute() {};
@@ -43,8 +46,7 @@ public:
     }
 
     //! Return thing_to_return after reducing if necessary.
-    template<typename U>
-    U &reduceAndReturn(U &thing_to_return)
+    template<typename U> U& reduceAndReturn(U& thing_to_return)
     {
         if (m_reduce == true)
         {
@@ -55,7 +57,7 @@ public:
     }
 
     //! Get a reference to the bin counts array
-    const util::ManagedArray<unsigned int> &getBinCounts()
+    const util::ManagedArray<unsigned int>& getBinCounts()
     {
         return reduceAndReturn(m_histogram.getBinCounts());
     }
@@ -63,7 +65,7 @@ public:
     //! Return the bin centers.
     /*! This vector will be of size axis.size() for each axis.
      */
-    std::vector<std::vector<float> > getBinCenters() const
+    std::vector<std::vector<float>> getBinCenters() const
     {
         return m_histogram.getBinCenters();
     }
@@ -71,13 +73,13 @@ public:
     //! Return the edges of bins.
     /*! This vector will be of size axis.size()+1 for each axis.
      */
-    std::vector<std::vector<float> > getBinEdges() const
+    std::vector<std::vector<float>> getBinEdges() const
     {
         return m_histogram.getBinEdges();
     }
 
     //! Return a vector of tuples (min, max) indicating the bounds of each axis.
-    std::vector<std::pair<float, float> > getBounds() const
+    std::vector<std::pair<float, float>> getBounds() const
     {
         return m_histogram.getBounds();
     }
@@ -99,11 +101,9 @@ public:
         \param cf An object with operator(NeighborBond) as input.
     */
     template<typename Func>
-    void accumulateGeneral(const locality::NeighborQuery* neighbor_query, 
-                           const vec3<float>* query_points, unsigned int n_query_points,
-                           const locality::NeighborList* nlist,
-                           locality::QueryArgs qargs,
-                           Func cf)
+    void accumulateGeneral(const locality::NeighborQuery* neighbor_query, const vec3<float>* query_points,
+                           unsigned int n_query_points, const locality::NeighborList* nlist,
+                           locality::QueryArgs qargs, Func cf)
     {
         m_box = neighbor_query->getBox();
         locality::loopOverNeighbors(neighbor_query, query_points, n_query_points, qargs, nlist, cf);
@@ -116,18 +116,19 @@ public:
 
 protected:
     box::Box m_box;
-    unsigned int m_frame_counter;            //!< Number of frames calculated.
-    unsigned int m_n_points;                 //!< The number of points.
-    unsigned int m_n_query_points;           //!< The number of query points.
-    bool m_reduce;                           //!< Whether or not the histogram needs to be reduced.
+    unsigned int m_frame_counter;  //!< Number of frames calculated.
+    unsigned int m_n_points;       //!< The number of points.
+    unsigned int m_n_query_points; //!< The number of query points.
+    bool m_reduce;                 //!< Whether or not the histogram needs to be reduced.
 
-    util::Histogram<unsigned int> m_histogram;             //!< Histogram of interparticle distances (bond lengths).
-    util::Histogram<unsigned int>::ThreadLocalHistogram m_local_histograms;   //!< Thread local bin counts for TBB parallelism
+    util::Histogram<unsigned int> m_histogram; //!< Histogram of interparticle distances (bond lengths).
+    util::Histogram<unsigned int>::ThreadLocalHistogram
+        m_local_histograms; //!< Thread local bin counts for TBB parallelism
 
     typedef util::Histogram<unsigned int> BondHistogram;
     typedef typename BondHistogram::Axes BHAxes;
 };
 
-}; }; // namespace freud::util
+}; }; // namespace freud::locality
 
-#endif  // HISTOGRAM_COMPUTE_H
+#endif // HISTOGRAM_COMPUTE_H

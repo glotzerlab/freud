@@ -8,8 +8,8 @@
 
 #include "Box.h"
 #include "ManagedArray.h"
-#include "NeighborQuery.h"
 #include "NeighborList.h"
+#include "NeighborQuery.h"
 #include "VectorMath.h"
 #include "fsph/src/spherical_harmonics.hpp"
 
@@ -36,8 +36,7 @@ public:
     //!
     //! \param l_max Maximum spherical harmonic l to consider
     //! \param negative_m whether to calculate Ylm for negative m
-    LocalDescriptors(unsigned int l_max, bool negative_m,
-                     LocalDescriptorOrientation orientation);
+    LocalDescriptors(unsigned int l_max, bool negative_m, LocalDescriptorOrientation orientation);
 
     //! Get the last number of spherical harmonics computed
     unsigned int getNSphs() const
@@ -53,13 +52,12 @@ public:
 
     //! Compute the local neighborhood descriptors given some
     //! positions and the number of particles
-    void compute(const locality::NeighborQuery *nq,
-        const vec3<float>* query_points, unsigned int n_query_points,
-        const quat<float>* orientations,
-        const freud::locality::NeighborList* nlist, locality::QueryArgs qargs);
+    void compute(const locality::NeighborQuery* nq, const vec3<float>* query_points,
+                 unsigned int n_query_points, const quat<float>* orientations,
+                 const freud::locality::NeighborList* nlist, locality::QueryArgs qargs);
 
     //! Get a reference to the last computed spherical harmonic array
-    const util::ManagedArray<std::complex<float>> &getSph() const
+    const util::ManagedArray<std::complex<float>>& getSph() const
     {
         return m_sphArray;
     }
@@ -71,7 +69,7 @@ public:
     }
 
     //! Return a pointer to the NeighborList used in the last call to compute.
-    locality::NeighborList *getNList()
+    locality::NeighborList* getNList()
     {
         return &m_nlist;
     }
@@ -87,10 +85,10 @@ public:
     }
 
 private:
-    unsigned int m_l_max;  //!< Maximum spherical harmonic l to calculate
-    bool m_negative_m;    //!< true if we should compute Ylm for negative m
-    unsigned int m_nSphs; //!< Last number of bond spherical harmonics computed
-    locality::NeighborList m_nlist; //!< The NeighborList used in the last call to compute.
+    unsigned int m_l_max;                     //!< Maximum spherical harmonic l to calculate
+    bool m_negative_m;                        //!< true if we should compute Ylm for negative m
+    unsigned int m_nSphs;                     //!< Last number of bond spherical harmonics computed
+    locality::NeighborList m_nlist;           //!< The NeighborList used in the last call to compute.
     LocalDescriptorOrientation m_orientation; //!< The orientation mode to compute with.
 
     //! Spherical harmonics for each neighbor

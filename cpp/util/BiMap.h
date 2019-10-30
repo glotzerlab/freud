@@ -3,9 +3,9 @@
 
 #include <algorithm>
 #include <cstddef> // Needed for offsetof
+#include <map>
 #include <set>
 #include <vector>
-#include <map>
 
 /* BiMap container modelled after Boost::BiMap with templatization.
  *

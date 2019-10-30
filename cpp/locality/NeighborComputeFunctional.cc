@@ -6,10 +6,9 @@
 
 namespace freud { namespace locality {
 
-
-NeighborList makeDefaultNlist(const NeighborQuery *nq, const NeighborList
-        *nlist, const vec3<float>* query_points, unsigned int num_query_points,
-        locality::QueryArgs qargs)
+NeighborList makeDefaultNlist(const NeighborQuery* nq, const NeighborList* nlist,
+                              const vec3<float>* query_points, unsigned int num_query_points,
+                              locality::QueryArgs qargs)
 {
     if (nlist == NULL)
     {

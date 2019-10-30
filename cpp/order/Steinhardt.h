@@ -11,10 +11,10 @@
 #include "ManagedArray.h"
 #include "NeighborList.h"
 #include "NeighborQuery.h"
-#include "VectorMath.h"
-#include "fsph/src/spherical_harmonics.hpp"
 #include "ThreadStorage.h"
+#include "VectorMath.h"
 #include "Wigner3j.h"
+#include "fsph/src/spherical_harmonics.hpp"
 
 /*! \file Steinhardt.h
     \brief Computes variants of Steinhardt order parameters.
@@ -62,12 +62,12 @@ public:
      *  \param l Spherical harmonic number l.
      *           Must be a positive number.
      */
-    Steinhardt(unsigned int l, bool average = false, bool wl = false, bool weighted = false, bool wl_normalize = false)
-        : m_Np(0), m_l(l), m_num_ms(2*l+1), m_average(average), m_wl(wl), m_weighted(weighted), m_wl_normalize(wl_normalize),
-        m_qlm_local(2 * l + 1)
+    Steinhardt(unsigned int l, bool average = false, bool wl = false, bool weighted = false,
+               bool wl_normalize = false)
+        : m_Np(0), m_l(l), m_num_ms(2 * l + 1), m_average(average), m_wl(wl), m_weighted(weighted),
+          m_wl_normalize(wl_normalize), m_qlm_local(2 * l + 1)
 
-    {
-    }
+    {}
 
     //! Empty destructor
     ~Steinhardt() {};
@@ -79,7 +79,7 @@ public:
     }
 
     //! Get the last calculated order parameter
-    const util::ManagedArray<float> &getParticleOrder() const
+    const util::ManagedArray<float>& getParticleOrder() const
     {
         if (m_wl)
         {
@@ -92,7 +92,7 @@ public:
     }
 
     //! Get the last calculated ql
-    const util::ManagedArray<float> &getQl() const
+    const util::ManagedArray<float>& getQl() const
     {
         if (m_average)
         {
@@ -105,7 +105,7 @@ public:
     }
 
     //! Get the last calculated qlm for each particle
-    const util::ManagedArray<std::complex<float>> &getQlm() const
+    const util::ManagedArray<std::complex<float>>& getQlm() const
     {
         return m_qlmi;
     }
@@ -141,8 +141,8 @@ public:
     }
 
     //! Compute the order parameter
-    void compute(const freud::locality::NeighborList* nlist,
-                                  const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
+    void compute(const freud::locality::NeighborList* nlist, const freud::locality::NeighborQuery* points,
+                 freud::locality::QueryArgs qargs);
 
     unsigned int getL() const
     {
@@ -165,12 +165,12 @@ private:
     void reallocateArrays(unsigned int Np);
 
     //! Calculates qlms and the ql order parameter before any further modifications
-    void baseCompute(const freud::locality::NeighborList* nlist,
-                                  const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
+    void baseCompute(const freud::locality::NeighborList* nlist, const freud::locality::NeighborQuery* points,
+                     freud::locality::QueryArgs qargs);
 
     //! Calculates the neighbor average ql order parameter
-    void computeAve(const freud::locality::NeighborList* nlist,
-                                  const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
+    void computeAve(const freud::locality::NeighborList* nlist, const freud::locality::NeighborQuery* points,
+                    freud::locality::QueryArgs qargs);
 
     //! Compute the system-wide order by averaging over particles, then
     //  reducing over the m values to produce a single scalar.
@@ -178,30 +178,31 @@ private:
 
     //! Sum over Wigner 3j coefficients to compute third-order invariants
     //  wl from second-order invariants ql
-    void aggregatewl(util::ManagedArray<float> &target,
-                     util::ManagedArray<std::complex<float>> &source,
-                     util::ManagedArray<float> &normalization_source);
+    void aggregatewl(util::ManagedArray<float>& target, util::ManagedArray<std::complex<float>>& source,
+                     util::ManagedArray<float>& normalization_source);
 
     // Member variables used for compute
-    unsigned int m_Np; //!< Last number of points computed
-    unsigned int m_l;  //!< Spherical harmonic l value.
+    unsigned int m_Np;     //!< Last number of points computed
+    unsigned int m_l;      //!< Spherical harmonic l value.
     unsigned int m_num_ms; //!< The number of magnetic quantum numbers (2*m_l+1).
 
     // Flags
-    bool m_average; //!< Whether to take a second shell average (default false)
-    bool m_wl;      //!< Whether to use the third-order invariant wl (default false)
-    bool m_weighted;      //!< Whether to use neighbor weights in computing qlmi (default false)
-    bool m_wl_normalize;  //!< Whether to normalize the third-order invariant wl (default false)
+    bool m_average;      //!< Whether to take a second shell average (default false)
+    bool m_wl;           //!< Whether to use the third-order invariant wl (default false)
+    bool m_weighted;     //!< Whether to use neighbor weights in computing qlmi (default false)
+    bool m_wl_normalize; //!< Whether to normalize the third-order invariant wl (default false)
 
-    util::ManagedArray<std::complex<float>> m_qlmi; //!< qlm for each particle i
-    util::ManagedArray<std::complex<float>> m_qlm;  //!< Normalized qlm(Ave) for the whole system
+    util::ManagedArray<std::complex<float>> m_qlmi;       //!< qlm for each particle i
+    util::ManagedArray<std::complex<float>> m_qlm;        //!< Normalized qlm(Ave) for the whole system
     util::ThreadStorage<std::complex<float>> m_qlm_local; //!< Thread-specific m_qlm(Ave)
-    util::ManagedArray<float> m_qli;              //!< ql locally invariant order parameter for each particle i
-    util::ManagedArray<float> m_qliAve;           //!< Averaged ql with 2nd neighbor shell for each particle i
-    util::ManagedArray<std::complex<float>> m_qlmiAve;  //!< Averaged qlm with 2nd neighbor shell for each particle i
-    util::ManagedArray<std::complex<float>> m_qlmAve;   //!< Normalized qlmiAve for the whole system
-    float m_norm;                                    //!< System normalized order parameter
-    util::ManagedArray<float> m_wli; //!< wl order parameter for each particle i, also used for wl averaged data
+    util::ManagedArray<float> m_qli;    //!< ql locally invariant order parameter for each particle i
+    util::ManagedArray<float> m_qliAve; //!< Averaged ql with 2nd neighbor shell for each particle i
+    util::ManagedArray<std::complex<float>>
+        m_qlmiAve; //!< Averaged qlm with 2nd neighbor shell for each particle i
+    util::ManagedArray<std::complex<float>> m_qlmAve; //!< Normalized qlmiAve for the whole system
+    float m_norm;                                     //!< System normalized order parameter
+    util::ManagedArray<float>
+        m_wli; //!< wl order parameter for each particle i, also used for wl averaged data
 };
 
 }; };  // end namespace freud::order
