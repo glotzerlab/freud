@@ -11,19 +11,23 @@
             [
                 "VOROPP_VERBOSE",
                 "1"
+            ],
+            [
+                "_USE_MATH_DEFINES",
+                "1"
             ]
         ],
         "depends": [
             "/usr/lib/python3.7/site-packages/numpy/core/include/numpy/arrayobject.h",
             "/usr/lib/python3.7/site-packages/numpy/core/include/numpy/ufuncobject.h",
             "cpp/box/Box.h",
-            "cpp/box/PeriodicBuffer.h",
             "cpp/locality/AABBQuery.h",
             "cpp/locality/BondHistogramCompute.h",
             "cpp/locality/LinkCell.h",
             "cpp/locality/NeighborBond.h",
             "cpp/locality/NeighborList.h",
             "cpp/locality/NeighborQuery.h",
+            "cpp/locality/PeriodicBuffer.h",
             "cpp/locality/RawPoints.h",
             "cpp/locality/Voronoi.h",
             "cpp/util/ManagedArray.h",
@@ -46,7 +50,6 @@
             "cpp/environment",
             "cpp/locality",
             "cpp/density",
-            "cpp/registration",
             "cpp/pmft",
             "/usr/include"
         ],
@@ -57,11 +60,11 @@
         "name": "freud.msd",
         "sources": [
             "freud/msd.pyx",
-            "cpp/locality/NeighborList.cc",
-            "cpp/locality/NeighborComputeFunctional.cc",
             "cpp/locality/NeighborQuery.cc",
-            "cpp/locality/AABBQuery.cc",
-            "cpp/locality/NeighborPerPointIterator.cc"
+            "cpp/locality/NeighborList.cc",
+            "cpp/locality/NeighborPerPointIterator.cc",
+            "cpp/locality/NeighborComputeFunctional.cc",
+            "cpp/locality/AABBQuery.cc"
         ]
     },
     "module_name": "freud.msd"
@@ -697,10 +700,10 @@ static CYTHON_INLINE float __PYX_NAN() {
 #include "NeighborList.h"
 #include "LinkCell.h"
 #include "AABBQuery.h"
-#include "Voronoi.h"
 #include "BondHistogramCompute.h"
-#include "Box.h"
 #include "PeriodicBuffer.h"
+#include "Voronoi.h"
+#include "Box.h"
 #ifdef _OPENMP
 #include <omp.h>
 #endif /* _OPENMP */
@@ -1174,9 +1177,8 @@ static CYTHON_INLINE __pyx_t_double_complex __pyx_t_double_complex_from_parts(do
 
 /*--- Type declarations ---*/
 struct __pyx_obj_5freud_4util__ManagedArrayContainer;
-struct __pyx_obj_5freud_4util_Compute;
+struct __pyx_obj_5freud_4util__Compute;
 struct __pyx_obj_5freud_3box_Box;
-struct __pyx_obj_5freud_3box_PeriodicBuffer;
 struct __pyx_obj_5freud_3msd_MSD;
 
 /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":815
@@ -1297,10 +1299,10 @@ struct __pyx_obj_5freud_4util__ManagedArrayContainer {
 /* "freud/util.pxd":97
  * 
  * 
- * cdef class Compute:             # <<<<<<<<<<<<<<
+ * cdef class _Compute:             # <<<<<<<<<<<<<<
  *     cdef public _called_compute
  */
-struct __pyx_obj_5freud_4util_Compute {
+struct __pyx_obj_5freud_4util__Compute {
   PyObject_HEAD
   PyObject *_called_compute;
 };
@@ -1319,27 +1321,15 @@ struct __pyx_obj_5freud_3box_Box {
 };
 
 
-/* "freud/box.pxd":11
- * cdef BoxFromCPP(const freud._box.Box & cppbox)
- * 
- * cdef class PeriodicBuffer:             # <<<<<<<<<<<<<<
- *     cdef freud._box.PeriodicBuffer * thisptr
- */
-struct __pyx_obj_5freud_3box_PeriodicBuffer {
-  PyObject_HEAD
-  freud::box::PeriodicBuffer *thisptr;
-};
-
-
 /* "freud/msd.pyx":63
  * 
  * 
- * cdef class MSD(Compute):             # <<<<<<<<<<<<<<
+ * cdef class MSD(_Compute):             # <<<<<<<<<<<<<<
  *     R"""Compute the mean squared displacement.
  * 
  */
 struct __pyx_obj_5freud_3msd_MSD {
-  struct __pyx_obj_5freud_4util_Compute __pyx_base;
+  struct __pyx_obj_5freud_4util__Compute __pyx_base;
   struct __pyx_obj_5freud_3box_Box *_box;
   PyObject *particle_msd;
   PyObject *mode;
@@ -1686,6 +1676,9 @@ static PyObject* __Pyx_PyObject_CallMethod1(PyObject* obj, PyObject* method_name
 
 /* append.proto */
 static CYTHON_INLINE int __Pyx_PyObject_Append(PyObject* L, PyObject* x);
+
+/* KeywordStringCheck.proto */
+static int __Pyx_CheckKeywordStrings(PyObject *kwdict, const char* function_name, int kw_allowed);
 
 /* Import.proto */
 static PyObject *__Pyx_Import(PyObject *name, PyObject *from_list, int level);
@@ -2129,7 +2122,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *, cha
 
 /* Module declarations from 'freud.util' */
 static PyTypeObject *__pyx_ptype_5freud_4util__ManagedArrayContainer = 0;
-static PyTypeObject *__pyx_ptype_5freud_4util_Compute = 0;
+static PyTypeObject *__pyx_ptype_5freud_4util__Compute = 0;
 
 /* Module declarations from 'libcpp.string' */
 
@@ -2145,7 +2138,6 @@ static PyTypeObject *__pyx_ptype_5freud_4util_Compute = 0;
 
 /* Module declarations from 'freud.box' */
 static PyTypeObject *__pyx_ptype_5freud_3box_Box = 0;
-static PyTypeObject *__pyx_ptype_5freud_3box_PeriodicBuffer = 0;
 
 /* Module declarations from 'freud.msd' */
 static PyTypeObject *__pyx_ptype_5freud_3msd_MSD = 0;
@@ -2232,7 +2224,6 @@ static const char __pyx_k_getstate[] = "__getstate__";
 static const char __pyx_k_parallel[] = "parallel";
 static const char __pyx_k_repr_png[] = "_repr_png_";
 static const char __pyx_k_setstate[] = "__setstate__";
-static const char __pyx_k_MSD_reset[] = "MSD.reset";
 static const char __pyx_k_TypeError[] = "TypeError";
 static const char __pyx_k_complex64[] = "complex64";
 static const char __pyx_k_conjugate[] = "conjugate";
@@ -2244,7 +2235,6 @@ static const char __pyx_k_positions[] = "positions";
 static const char __pyx_k_pyx_state[] = "__pyx_state";
 static const char __pyx_k_reduce_ex[] = "__reduce_ex__";
 static const char __pyx_k_ValueError[] = "ValueError";
-static const char __pyx_k_accumulate[] = "accumulate";
 static const char __pyx_k_fft_object[] = "fft_object";
 static const char __pyx_k_freud_plot[] = "freud.plot";
 static const char __pyx_k_pyx_vtable[] = "__pyx_vtable__";
@@ -2252,7 +2242,7 @@ static const char __pyx_k_ImportError[] = "ImportError";
 static const char __pyx_k_MSD_compute[] = "MSD.compute";
 static const char __pyx_k_NUM_THREADS[] = "NUM_THREADS";
 static const char __pyx_k_Window_size[] = "Window size";
-static const char __pyx_k_ax_to_bytes[] = "ax_to_bytes";
+static const char __pyx_k_ax_to_bytes[] = "_ax_to_bytes";
 static const char __pyx_k_concatenate[] = "concatenate";
 static const char __pyx_k_convert_box[] = "_convert_box";
 static const char __pyx_k_Frame_number[] = "Frame number";
@@ -2266,7 +2256,6 @@ static const char __pyx_k_freud_msd_pyx[] = "freud/msd.pyx";
 static const char __pyx_k_reduce_cython[] = "__reduce_cython__";
 static const char __pyx_k_scipy_fftpack[] = "scipy.fftpack";
 static const char __pyx_k_AttributeError[] = "AttributeError";
-static const char __pyx_k_MSD_accumulate[] = "MSD.accumulate";
 static const char __pyx_k_freud_parallel[] = "freud.parallel";
 static const char __pyx_k_autocorrelation[] = "_autocorrelation";
 static const char __pyx_k_get_num_threads[] = "get_num_threads";
@@ -2304,11 +2293,9 @@ static PyObject *__pyx_n_u_MSD;
 static PyObject *__pyx_n_s_MSD___reduce_cython;
 static PyObject *__pyx_n_s_MSD___setstate_cython;
 static PyObject *__pyx_n_s_MSD__repr_png;
-static PyObject *__pyx_n_s_MSD_accumulate;
 static PyObject *__pyx_n_s_MSD_compute;
 static PyObject *__pyx_n_s_MSD_msd;
 static PyObject *__pyx_n_s_MSD_plot;
-static PyObject *__pyx_n_s_MSD_reset;
 static PyObject *__pyx_n_s_N;
 static PyObject *__pyx_n_s_NUM_THREADS;
 static PyObject *__pyx_kp_u_Non_native_byte_order_not_suppor;
@@ -2325,7 +2312,6 @@ static PyObject *__pyx_kp_u_Using_SciPy_s_fftpack_for_FFTs;
 static PyObject *__pyx_n_s_ValueError;
 static PyObject *__pyx_kp_u_Window_size;
 static PyObject *__pyx_n_s_a;
-static PyObject *__pyx_n_s_accumulate;
 static PyObject *__pyx_n_s_append;
 static PyObject *__pyx_n_s_arange;
 static PyObject *__pyx_n_s_asarray;
@@ -2426,16 +2412,14 @@ static PyObject *__pyx_pf_5freud_3msd_fft(CYTHON_UNUSED PyObject *__pyx_self, Py
 static PyObject *__pyx_pf_5freud_3msd_2ifft(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_x, PyObject *__pyx_v_axis); /* proto */
 static PyObject *__pyx_pf_5freud_3msd_4_autocorrelation(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_x); /* proto */
 static int __pyx_pf_5freud_3msd_3MSD___cinit__(struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self, PyObject *__pyx_v_box, PyObject *__pyx_v_mode); /* proto */
-static PyObject *__pyx_pf_5freud_3msd_3MSD_2accumulate(struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self, PyObject *__pyx_v_positions, PyObject *__pyx_v_images); /* proto */
+static PyObject *__pyx_pf_5freud_3msd_3MSD_2compute(struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self, PyObject *__pyx_v_positions, PyObject *__pyx_v_images, PyObject *__pyx_v_reset); /* proto */
 static PyObject *__pyx_pf_5freud_3msd_3MSD_3box___get__(struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_5freud_3msd_3MSD_4msd(struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_5freud_3msd_3MSD_6reset(struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_5freud_3msd_3MSD_8compute(struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self, PyObject *__pyx_v_positions, PyObject *__pyx_v_images); /* proto */
-static PyObject *__pyx_pf_5freud_3msd_3MSD_10__repr__(struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_5freud_3msd_3MSD_12plot(struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self, PyObject *__pyx_v_ax); /* proto */
-static PyObject *__pyx_pf_5freud_3msd_3MSD_14_repr_png_(struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_5freud_3msd_3MSD_16__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_5freud_3msd_3MSD_18__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
+static PyObject *__pyx_pf_5freud_3msd_3MSD_6__repr__(struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_5freud_3msd_3MSD_8plot(struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self, PyObject *__pyx_v_ax); /* proto */
+static PyObject *__pyx_pf_5freud_3msd_3MSD_10_repr_png_(struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_5freud_3msd_3MSD_12__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_5freud_3msd_3MSD_14__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
 static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info, int __pyx_v_flags); /* proto */
 static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info); /* proto */
 static PyObject *__pyx_tp_new_5freud_3msd_MSD(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
@@ -2470,8 +2454,6 @@ static PyObject *__pyx_tuple__28;
 static PyObject *__pyx_tuple__30;
 static PyObject *__pyx_tuple__32;
 static PyObject *__pyx_tuple__34;
-static PyObject *__pyx_tuple__36;
-static PyObject *__pyx_tuple__38;
 static PyObject *__pyx_codeobj__17;
 static PyObject *__pyx_codeobj__19;
 static PyObject *__pyx_codeobj__23;
@@ -2481,8 +2463,6 @@ static PyObject *__pyx_codeobj__29;
 static PyObject *__pyx_codeobj__31;
 static PyObject *__pyx_codeobj__33;
 static PyObject *__pyx_codeobj__35;
-static PyObject *__pyx_codeobj__37;
-static PyObject *__pyx_codeobj__39;
 /* Late includes */
 
 /* "freud/msd.pyx":32
@@ -2988,14 +2968,51 @@ static PyObject *__pyx_pf_5freud_3msd_2ifft(CYTHON_UNUSED PyObject *__pyx_self, 
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_3msd_5_autocorrelation(PyObject *__pyx_self, PyObject *__pyx_v_x); /*proto*/
+static PyObject *__pyx_pw_5freud_3msd_5_autocorrelation(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static char __pyx_doc_5freud_3msd_4_autocorrelation[] = "_autocorrelation(x)\nCompute the autocorrelation of a sequence";
-static PyMethodDef __pyx_mdef_5freud_3msd_5_autocorrelation = {"_autocorrelation", (PyCFunction)__pyx_pw_5freud_3msd_5_autocorrelation, METH_O, __pyx_doc_5freud_3msd_4_autocorrelation};
-static PyObject *__pyx_pw_5freud_3msd_5_autocorrelation(PyObject *__pyx_self, PyObject *__pyx_v_x) {
+static PyMethodDef __pyx_mdef_5freud_3msd_5_autocorrelation = {"_autocorrelation", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_3msd_5_autocorrelation, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_3msd_4_autocorrelation};
+static PyObject *__pyx_pw_5freud_3msd_5_autocorrelation(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  PyObject *__pyx_v_x = 0;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("_autocorrelation (wrapper)", 0);
-  __pyx_r = __pyx_pf_5freud_3msd_4_autocorrelation(__pyx_self, ((PyObject *)__pyx_v_x));
+  {
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_x,0};
+    PyObject* values[1] = {0};
+    if (unlikely(__pyx_kwds)) {
+      Py_ssize_t kw_args;
+      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
+      switch (pos_args) {
+        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        CYTHON_FALLTHROUGH;
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      kw_args = PyDict_Size(__pyx_kwds);
+      switch (pos_args) {
+        case  0:
+        if (likely((values[0] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_x)) != 0)) kw_args--;
+        else goto __pyx_L5_argtuple_error;
+      }
+      if (unlikely(kw_args > 0)) {
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "_autocorrelation") < 0)) __PYX_ERR(0, 52, __pyx_L3_error)
+      }
+    } else if (PyTuple_GET_SIZE(__pyx_args) != 1) {
+      goto __pyx_L5_argtuple_error;
+    } else {
+      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+    }
+    __pyx_v_x = values[0];
+  }
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("_autocorrelation", 1, 1, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 52, __pyx_L3_error)
+  __pyx_L3_error:;
+  __Pyx_AddTraceback("freud.msd._autocorrelation", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return NULL;
+  __pyx_L4_argument_unpacking_done:;
+  __pyx_r = __pyx_pf_5freud_3msd_4_autocorrelation(__pyx_self, __pyx_v_x);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
@@ -3483,7 +3500,7 @@ static int __pyx_pf_5freud_3msd_3MSD___cinit__(struct __pyx_obj_5freud_3msd_MSD 
  *             raise ValueError("Invalid mode")
  *         self.mode = mode             # <<<<<<<<<<<<<<
  * 
- *     def accumulate(self, positions, images=None):
+ *     def compute(self, positions, images=None, reset=True):
  */
   if (!(likely(PyUnicode_CheckExact(__pyx_v_mode))||((__pyx_v_mode) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "unicode", Py_TYPE(__pyx_v_mode)->tp_name), 0))) __PYX_ERR(0, 158, __pyx_L1_error)
   __pyx_t_3 = __pyx_v_mode;
@@ -3519,29 +3536,33 @@ static int __pyx_pf_5freud_3msd_3MSD___cinit__(struct __pyx_obj_5freud_3msd_MSD 
 /* "freud/msd.pyx":160
  *         self.mode = mode
  * 
- *     def accumulate(self, positions, images=None):             # <<<<<<<<<<<<<<
- *         """Calculate the MSD for the positions provided and add to the existing
- *         per-particle data.
+ *     def compute(self, positions, images=None, reset=True):             # <<<<<<<<<<<<<<
+ *         """Calculate the MSD for the positions provided.
+ * 
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_3msd_3MSD_3accumulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_3msd_3MSD_2accumulate[] = "MSD.accumulate(self, positions, images=None)\nCalculate the MSD for the positions provided and add to the existing\n        per-particle data.\n\n        Args:\n            positions ((:math:`N_{frames}`, :math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                The particle positions over a trajectory. If neither box nor images\n                are provided, the positions are assumed to be unwrapped already.\n            images ((:math:`N_{frames}`, :math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):\n                The particle images to unwrap with if provided. Must be provided\n                along with a simulation box (in the constructor) if particle\n                positions need to be unwrapped. If neither are provided,\n                positions are assumed to be unwrapped already.\n                (Default value = :code:`None`).\n        ";
-static PyMethodDef __pyx_mdef_5freud_3msd_3MSD_3accumulate = {"accumulate", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_3msd_3MSD_3accumulate, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_3msd_3MSD_2accumulate};
-static PyObject *__pyx_pw_5freud_3msd_3MSD_3accumulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_5freud_3msd_3MSD_3compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_5freud_3msd_3MSD_2compute[] = "MSD.compute(self, positions, images=None, reset=True)\nCalculate the MSD for the positions provided.\n\n        .. note::\n            Unlike most methods in freud, accumulation for the MSD is split\n            over points rather than frames of a simulation. The reason for\n            this choice is that efficient computation of the MSD requires using\n            the entire trajectory for a given particle. As a result, when setting\n            ``reset=False``, you must provide the positions of each point over\n            the full length of the trajectory, but you may call ``compute``\n            multiple times with different subsets the points to calculate the\n            MSD over the full set of positions. The primary use-case is when\n            the trajectory is so large that computing an MSD on all particles\n            at once is prohibitively expensive.\n\n        Args:\n            positions ((:math:`N_{frames}`, :math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                The particle positions over a trajectory. If neither box nor images\n                are provided, the positions are assumed to be unwrapped already.\n            images ((:math:`N_{frames}`, :math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):\n                The particle images to unwrap with if provided. Must be provided\n                along with a simulation box (in the constructor) if particle\n                positions need to be unwrapped. If neither are provided,\n                positions are assumed to be unwrapped already.\n                (Default value = :code:`None`).\n            reset (bool):\n                Whether to erase the previously computed values before adding\n                the new computation; if False, will accumulate data (Default\n                value: True).\n        ";
+static PyMethodDef __pyx_mdef_5freud_3msd_3MSD_3compute = {"compute", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_3msd_3MSD_3compute, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_3msd_3MSD_2compute};
+static PyObject *__pyx_pw_5freud_3msd_3MSD_3compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_positions = 0;
   PyObject *__pyx_v_images = 0;
+  PyObject *__pyx_v_reset = 0;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("accumulate (wrapper)", 0);
+  __Pyx_RefNannySetupContext("compute (wrapper)", 0);
   {
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_positions,&__pyx_n_s_images,0};
-    PyObject* values[2] = {0,0};
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_positions,&__pyx_n_s_images,&__pyx_n_s_reset,0};
+    PyObject* values[3] = {0,0,0};
     values[1] = ((PyObject *)Py_None);
+    values[2] = ((PyObject *)Py_True);
     if (unlikely(__pyx_kwds)) {
       Py_ssize_t kw_args;
       const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
       switch (pos_args) {
+        case  3: values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
+        CYTHON_FALLTHROUGH;
         case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
         CYTHON_FALLTHROUGH;
         case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
@@ -3560,12 +3581,20 @@ static PyObject *__pyx_pw_5freud_3msd_3MSD_3accumulate(PyObject *__pyx_v_self, P
           PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_images);
           if (value) { values[1] = value; kw_args--; }
         }
+        CYTHON_FALLTHROUGH;
+        case  2:
+        if (kw_args > 0) {
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_reset);
+          if (value) { values[2] = value; kw_args--; }
+        }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "accumulate") < 0)) __PYX_ERR(0, 160, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "compute") < 0)) __PYX_ERR(0, 160, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
+        case  3: values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
+        CYTHON_FALLTHROUGH;
         case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
         CYTHON_FALLTHROUGH;
         case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
@@ -3575,23 +3604,24 @@ static PyObject *__pyx_pw_5freud_3msd_3MSD_3accumulate(PyObject *__pyx_v_self, P
     }
     __pyx_v_positions = values[0];
     __pyx_v_images = values[1];
+    __pyx_v_reset = values[2];
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("accumulate", 0, 1, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 160, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("compute", 0, 1, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 160, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("freud.msd.MSD.accumulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("freud.msd.MSD.compute", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_5freud_3msd_3MSD_2accumulate(((struct __pyx_obj_5freud_3msd_MSD *)__pyx_v_self), __pyx_v_positions, __pyx_v_images);
+  __pyx_r = __pyx_pf_5freud_3msd_3MSD_2compute(((struct __pyx_obj_5freud_3msd_MSD *)__pyx_v_self), __pyx_v_positions, __pyx_v_images, __pyx_v_reset);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_5freud_3msd_3MSD_2accumulate(struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self, PyObject *__pyx_v_positions, PyObject *__pyx_v_images) {
+static PyObject *__pyx_pf_5freud_3msd_3MSD_2compute(struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self, PyObject *__pyx_v_positions, PyObject *__pyx_v_images, PyObject *__pyx_v_reset) {
   PyObject *__pyx_v_unwrapped_positions = NULL;
   PyObject *__pyx_v_i = NULL;
   PyObject *__pyx_v_N = NULL;
@@ -3603,11 +3633,11 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_2accumulate(struct __pyx_obj_5freud_3
   PyObject *__pyx_v_S2 = NULL;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
-  PyObject *__pyx_t_1 = NULL;
+  int __pyx_t_1;
   PyObject *__pyx_t_2 = NULL;
   PyObject *__pyx_t_3 = NULL;
   PyObject *__pyx_t_4 = NULL;
-  int __pyx_t_5;
+  PyObject *__pyx_t_5 = NULL;
   int __pyx_t_6;
   PyObject *__pyx_t_7 = NULL;
   int __pyx_t_8;
@@ -3617,13 +3647,47 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_2accumulate(struct __pyx_obj_5freud_3
   int __pyx_t_12;
   PyObject *__pyx_t_13 = NULL;
   int __pyx_t_14;
-  __Pyx_RefNannySetupContext("accumulate", 0);
+  __Pyx_RefNannySetupContext("compute", 0);
   __Pyx_INCREF(__pyx_v_positions);
   __Pyx_INCREF(__pyx_v_images);
 
-  /* "freud/msd.pyx":175
- *                 (Default value = :code:`None`).
+  /* "freud/msd.pyx":190
+ *                 value: True).
  *         """  # noqa: E501
+ *         if reset:             # <<<<<<<<<<<<<<
+ *             self.particle_msd = []
+ * 
+ */
+  __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_reset); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 190, __pyx_L1_error)
+  if (__pyx_t_1) {
+
+    /* "freud/msd.pyx":191
+ *         """  # noqa: E501
+ *         if reset:
+ *             self.particle_msd = []             # <<<<<<<<<<<<<<
+ * 
+ *         self._called_compute = True
+ */
+    __pyx_t_2 = PyList_New(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 191, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __Pyx_GIVEREF(__pyx_t_2);
+    __Pyx_GOTREF(__pyx_v_self->particle_msd);
+    __Pyx_DECREF(__pyx_v_self->particle_msd);
+    __pyx_v_self->particle_msd = __pyx_t_2;
+    __pyx_t_2 = 0;
+
+    /* "freud/msd.pyx":190
+ *                 value: True).
+ *         """  # noqa: E501
+ *         if reset:             # <<<<<<<<<<<<<<
+ *             self.particle_msd = []
+ * 
+ */
+  }
+
+  /* "freud/msd.pyx":193
+ *             self.particle_msd = []
+ * 
  *         self._called_compute = True             # <<<<<<<<<<<<<<
  * 
  *         positions = freud.util._convert_array(
@@ -3634,122 +3698,122 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_2accumulate(struct __pyx_obj_5freud_3
   __Pyx_DECREF(__pyx_v_self->__pyx_base._called_compute);
   __pyx_v_self->__pyx_base._called_compute = Py_True;
 
-  /* "freud/msd.pyx":177
+  /* "freud/msd.pyx":195
  *         self._called_compute = True
  * 
  *         positions = freud.util._convert_array(             # <<<<<<<<<<<<<<
  *             positions, shape=(None, None, 3))
  *         if images is not None:
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_freud); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 177, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_util); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 177, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_freud); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 195, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 177, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_util); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 195, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 195, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "freud/msd.pyx":178
+  /* "freud/msd.pyx":196
  * 
  *         positions = freud.util._convert_array(
  *             positions, shape=(None, None, 3))             # <<<<<<<<<<<<<<
  *         if images is not None:
  *             images = freud.util._convert_array(
  */
-  __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 177, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 195, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
   __Pyx_INCREF(__pyx_v_positions);
   __Pyx_GIVEREF(__pyx_v_positions);
-  PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_v_positions);
-  __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 178, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_shape, __pyx_tuple__4) < 0) __PYX_ERR(0, 178, __pyx_L1_error)
+  PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_v_positions);
+  __pyx_t_4 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 196, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_shape, __pyx_tuple__4) < 0) __PYX_ERR(0, 196, __pyx_L1_error)
 
-  /* "freud/msd.pyx":177
+  /* "freud/msd.pyx":195
  *         self._called_compute = True
  * 
  *         positions = freud.util._convert_array(             # <<<<<<<<<<<<<<
  *             positions, shape=(None, None, 3))
  *         if images is not None:
  */
-  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 177, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 195, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __Pyx_DECREF_SET(__pyx_v_positions, __pyx_t_4);
-  __pyx_t_4 = 0;
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __Pyx_DECREF_SET(__pyx_v_positions, __pyx_t_5);
+  __pyx_t_5 = 0;
 
-  /* "freud/msd.pyx":179
+  /* "freud/msd.pyx":197
  *         positions = freud.util._convert_array(
  *             positions, shape=(None, None, 3))
  *         if images is not None:             # <<<<<<<<<<<<<<
  *             images = freud.util._convert_array(
  *                 images, shape=positions.shape, dtype=np.int32)
  */
-  __pyx_t_5 = (__pyx_v_images != Py_None);
-  __pyx_t_6 = (__pyx_t_5 != 0);
+  __pyx_t_1 = (__pyx_v_images != Py_None);
+  __pyx_t_6 = (__pyx_t_1 != 0);
   if (__pyx_t_6) {
 
-    /* "freud/msd.pyx":180
+    /* "freud/msd.pyx":198
  *             positions, shape=(None, None, 3))
  *         if images is not None:
  *             images = freud.util._convert_array(             # <<<<<<<<<<<<<<
  *                 images, shape=positions.shape, dtype=np.int32)
  * 
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_freud); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 180, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_freud); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 198, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_util); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 198, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_util); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 180, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 198, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 180, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-    /* "freud/msd.pyx":181
+    /* "freud/msd.pyx":199
  *         if images is not None:
  *             images = freud.util._convert_array(
  *                 images, shape=positions.shape, dtype=np.int32)             # <<<<<<<<<<<<<<
  * 
  *         # Make sure we aren't modifying the provided array
  */
-    __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 180, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
+    __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 198, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
     __Pyx_INCREF(__pyx_v_images);
     __Pyx_GIVEREF(__pyx_v_images);
-    PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_v_images);
-    __pyx_t_2 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 181, __pyx_L1_error)
+    PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_v_images);
+    __pyx_t_3 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 199, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_positions, __pyx_n_s_shape); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 199, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_positions, __pyx_n_s_shape); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 181, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_1);
-    if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_shape, __pyx_t_1) < 0) __PYX_ERR(0, 181, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 181, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_int32); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 181, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_shape, __pyx_t_2) < 0) __PYX_ERR(0, 199, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 199, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_int32); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 199, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
-    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_dtype, __pyx_t_7) < 0) __PYX_ERR(0, 181, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, __pyx_t_7) < 0) __PYX_ERR(0, 199, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-    /* "freud/msd.pyx":180
+    /* "freud/msd.pyx":198
  *             positions, shape=(None, None, 3))
  *         if images is not None:
  *             images = freud.util._convert_array(             # <<<<<<<<<<<<<<
  *                 images, shape=positions.shape, dtype=np.int32)
  * 
  */
-    __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 180, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_4, __pyx_t_3); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 198, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF_SET(__pyx_v_images, __pyx_t_7);
     __pyx_t_7 = 0;
 
-    /* "freud/msd.pyx":179
+    /* "freud/msd.pyx":197
  *         positions = freud.util._convert_array(
  *             positions, shape=(None, None, 3))
  *         if images is not None:             # <<<<<<<<<<<<<<
@@ -3758,103 +3822,103 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_2accumulate(struct __pyx_obj_5freud_3
  */
   }
 
-  /* "freud/msd.pyx":184
+  /* "freud/msd.pyx":202
  * 
  *         # Make sure we aren't modifying the provided array
  *         if self._box is not None and images is not None:             # <<<<<<<<<<<<<<
  *             unwrapped_positions = positions.copy()
  *             for i in range(positions.shape[0]):
  */
-  __pyx_t_5 = (((PyObject *)__pyx_v_self->_box) != Py_None);
-  __pyx_t_8 = (__pyx_t_5 != 0);
+  __pyx_t_1 = (((PyObject *)__pyx_v_self->_box) != Py_None);
+  __pyx_t_8 = (__pyx_t_1 != 0);
   if (__pyx_t_8) {
   } else {
     __pyx_t_6 = __pyx_t_8;
-    goto __pyx_L5_bool_binop_done;
+    goto __pyx_L6_bool_binop_done;
   }
   __pyx_t_8 = (__pyx_v_images != Py_None);
-  __pyx_t_5 = (__pyx_t_8 != 0);
-  __pyx_t_6 = __pyx_t_5;
-  __pyx_L5_bool_binop_done:;
+  __pyx_t_1 = (__pyx_t_8 != 0);
+  __pyx_t_6 = __pyx_t_1;
+  __pyx_L6_bool_binop_done:;
   if (__pyx_t_6) {
 
-    /* "freud/msd.pyx":185
+    /* "freud/msd.pyx":203
  *         # Make sure we aren't modifying the provided array
  *         if self._box is not None and images is not None:
  *             unwrapped_positions = positions.copy()             # <<<<<<<<<<<<<<
  *             for i in range(positions.shape[0]):
  *                 unwrapped_positions[i, :, :] = self._box.unwrap(
  */
-    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_positions, __pyx_n_s_copy); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 185, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_3 = NULL;
-    if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
-      __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_2);
-      if (likely(__pyx_t_3)) {
-        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
-        __Pyx_INCREF(__pyx_t_3);
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_positions, __pyx_n_s_copy); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 203, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __pyx_t_4 = NULL;
+    if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_3))) {
+      __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_3);
+      if (likely(__pyx_t_4)) {
+        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+        __Pyx_INCREF(__pyx_t_4);
         __Pyx_INCREF(function);
-        __Pyx_DECREF_SET(__pyx_t_2, function);
+        __Pyx_DECREF_SET(__pyx_t_3, function);
       }
     }
-    __pyx_t_7 = (__pyx_t_3) ? __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3) : __Pyx_PyObject_CallNoArg(__pyx_t_2);
-    __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 185, __pyx_L1_error)
+    __pyx_t_7 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
+    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+    if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 203, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __pyx_v_unwrapped_positions = __pyx_t_7;
     __pyx_t_7 = 0;
 
-    /* "freud/msd.pyx":186
+    /* "freud/msd.pyx":204
  *         if self._box is not None and images is not None:
  *             unwrapped_positions = positions.copy()
  *             for i in range(positions.shape[0]):             # <<<<<<<<<<<<<<
  *                 unwrapped_positions[i, :, :] = self._box.unwrap(
  *                     unwrapped_positions[i, :, :], images[i, :, :])
  */
-    __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_positions, __pyx_n_s_shape); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 186, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_positions, __pyx_n_s_shape); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 204, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
-    __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_7, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 186, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
+    __pyx_t_3 = __Pyx_GetItemInt(__pyx_t_7, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 204, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-    __pyx_t_7 = __Pyx_PyObject_CallOneArg(__pyx_builtin_range, __pyx_t_2); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 186, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_CallOneArg(__pyx_builtin_range, __pyx_t_3); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 204, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     if (likely(PyList_CheckExact(__pyx_t_7)) || PyTuple_CheckExact(__pyx_t_7)) {
-      __pyx_t_2 = __pyx_t_7; __Pyx_INCREF(__pyx_t_2); __pyx_t_9 = 0;
+      __pyx_t_3 = __pyx_t_7; __Pyx_INCREF(__pyx_t_3); __pyx_t_9 = 0;
       __pyx_t_10 = NULL;
     } else {
-      __pyx_t_9 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 186, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_2);
-      __pyx_t_10 = Py_TYPE(__pyx_t_2)->tp_iternext; if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 186, __pyx_L1_error)
+      __pyx_t_9 = -1; __pyx_t_3 = PyObject_GetIter(__pyx_t_7); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 204, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_3);
+      __pyx_t_10 = Py_TYPE(__pyx_t_3)->tp_iternext; if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 204, __pyx_L1_error)
     }
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
     for (;;) {
       if (likely(!__pyx_t_10)) {
-        if (likely(PyList_CheckExact(__pyx_t_2))) {
-          if (__pyx_t_9 >= PyList_GET_SIZE(__pyx_t_2)) break;
+        if (likely(PyList_CheckExact(__pyx_t_3))) {
+          if (__pyx_t_9 >= PyList_GET_SIZE(__pyx_t_3)) break;
           #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-          __pyx_t_7 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_9); __Pyx_INCREF(__pyx_t_7); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 186, __pyx_L1_error)
+          __pyx_t_7 = PyList_GET_ITEM(__pyx_t_3, __pyx_t_9); __Pyx_INCREF(__pyx_t_7); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 204, __pyx_L1_error)
           #else
-          __pyx_t_7 = PySequence_ITEM(__pyx_t_2, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 186, __pyx_L1_error)
+          __pyx_t_7 = PySequence_ITEM(__pyx_t_3, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 204, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_7);
           #endif
         } else {
-          if (__pyx_t_9 >= PyTuple_GET_SIZE(__pyx_t_2)) break;
+          if (__pyx_t_9 >= PyTuple_GET_SIZE(__pyx_t_3)) break;
           #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-          __pyx_t_7 = PyTuple_GET_ITEM(__pyx_t_2, __pyx_t_9); __Pyx_INCREF(__pyx_t_7); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 186, __pyx_L1_error)
+          __pyx_t_7 = PyTuple_GET_ITEM(__pyx_t_3, __pyx_t_9); __Pyx_INCREF(__pyx_t_7); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 204, __pyx_L1_error)
           #else
-          __pyx_t_7 = PySequence_ITEM(__pyx_t_2, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 186, __pyx_L1_error)
+          __pyx_t_7 = PySequence_ITEM(__pyx_t_3, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 204, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_7);
           #endif
         }
       } else {
-        __pyx_t_7 = __pyx_t_10(__pyx_t_2);
+        __pyx_t_7 = __pyx_t_10(__pyx_t_3);
         if (unlikely(!__pyx_t_7)) {
           PyObject* exc_type = PyErr_Occurred();
           if (exc_type) {
             if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-            else __PYX_ERR(0, 186, __pyx_L1_error)
+            else __PYX_ERR(0, 204, __pyx_L1_error)
           }
           break;
         }
@@ -3863,124 +3927,124 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_2accumulate(struct __pyx_obj_5freud_3
       __Pyx_XDECREF_SET(__pyx_v_i, __pyx_t_7);
       __pyx_t_7 = 0;
 
-      /* "freud/msd.pyx":187
+      /* "freud/msd.pyx":205
  *             unwrapped_positions = positions.copy()
  *             for i in range(positions.shape[0]):
  *                 unwrapped_positions[i, :, :] = self._box.unwrap(             # <<<<<<<<<<<<<<
  *                     unwrapped_positions[i, :, :], images[i, :, :])
  *             positions = unwrapped_positions
  */
-      __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->_box), __pyx_n_s_unwrap); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 187, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_3);
+      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->_box), __pyx_n_s_unwrap); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 205, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_4);
 
-      /* "freud/msd.pyx":188
+      /* "freud/msd.pyx":206
  *             for i in range(positions.shape[0]):
  *                 unwrapped_positions[i, :, :] = self._box.unwrap(
  *                     unwrapped_positions[i, :, :], images[i, :, :])             # <<<<<<<<<<<<<<
  *             positions = unwrapped_positions
  * 
  */
-      __pyx_t_4 = PyTuple_New(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 188, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_4);
+      __pyx_t_5 = PyTuple_New(3); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 206, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_5);
       __Pyx_INCREF(__pyx_v_i);
       __Pyx_GIVEREF(__pyx_v_i);
-      PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_v_i);
+      PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_v_i);
       __Pyx_INCREF(__pyx_slice_);
       __Pyx_GIVEREF(__pyx_slice_);
-      PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_slice_);
+      PyTuple_SET_ITEM(__pyx_t_5, 1, __pyx_slice_);
       __Pyx_INCREF(__pyx_slice_);
       __Pyx_GIVEREF(__pyx_slice_);
-      PyTuple_SET_ITEM(__pyx_t_4, 2, __pyx_slice_);
-      __pyx_t_1 = __Pyx_PyObject_GetItem(__pyx_v_unwrapped_positions, __pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 188, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_1);
-      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __pyx_t_4 = PyTuple_New(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 188, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_4);
+      PyTuple_SET_ITEM(__pyx_t_5, 2, __pyx_slice_);
+      __pyx_t_2 = __Pyx_PyObject_GetItem(__pyx_v_unwrapped_positions, __pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 206, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_2);
+      __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+      __pyx_t_5 = PyTuple_New(3); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 206, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_5);
       __Pyx_INCREF(__pyx_v_i);
       __Pyx_GIVEREF(__pyx_v_i);
-      PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_v_i);
+      PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_v_i);
       __Pyx_INCREF(__pyx_slice_);
       __Pyx_GIVEREF(__pyx_slice_);
-      PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_slice_);
+      PyTuple_SET_ITEM(__pyx_t_5, 1, __pyx_slice_);
       __Pyx_INCREF(__pyx_slice_);
       __Pyx_GIVEREF(__pyx_slice_);
-      PyTuple_SET_ITEM(__pyx_t_4, 2, __pyx_slice_);
-      __pyx_t_11 = __Pyx_PyObject_GetItem(__pyx_v_images, __pyx_t_4); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 188, __pyx_L1_error)
+      PyTuple_SET_ITEM(__pyx_t_5, 2, __pyx_slice_);
+      __pyx_t_11 = __Pyx_PyObject_GetItem(__pyx_v_images, __pyx_t_5); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 206, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_11);
-      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __pyx_t_4 = NULL;
+      __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+      __pyx_t_5 = NULL;
       __pyx_t_12 = 0;
-      if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_3))) {
-        __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_3);
-        if (likely(__pyx_t_4)) {
-          PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
-          __Pyx_INCREF(__pyx_t_4);
+      if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_4))) {
+        __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_4);
+        if (likely(__pyx_t_5)) {
+          PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_4);
+          __Pyx_INCREF(__pyx_t_5);
           __Pyx_INCREF(function);
-          __Pyx_DECREF_SET(__pyx_t_3, function);
+          __Pyx_DECREF_SET(__pyx_t_4, function);
           __pyx_t_12 = 1;
         }
       }
       #if CYTHON_FAST_PYCALL
-      if (PyFunction_Check(__pyx_t_3)) {
-        PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_t_1, __pyx_t_11};
-        __pyx_t_7 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_12, 2+__pyx_t_12); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 187, __pyx_L1_error)
-        __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+      if (PyFunction_Check(__pyx_t_4)) {
+        PyObject *__pyx_temp[3] = {__pyx_t_5, __pyx_t_2, __pyx_t_11};
+        __pyx_t_7 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_12, 2+__pyx_t_12); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 205, __pyx_L1_error)
+        __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
         __Pyx_GOTREF(__pyx_t_7);
-        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+        __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
         __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
       } else
       #endif
       #if CYTHON_FAST_PYCCALL
-      if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
-        PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_t_1, __pyx_t_11};
-        __pyx_t_7 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_12, 2+__pyx_t_12); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 187, __pyx_L1_error)
-        __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+      if (__Pyx_PyFastCFunction_Check(__pyx_t_4)) {
+        PyObject *__pyx_temp[3] = {__pyx_t_5, __pyx_t_2, __pyx_t_11};
+        __pyx_t_7 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_12, 2+__pyx_t_12); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 205, __pyx_L1_error)
+        __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
         __Pyx_GOTREF(__pyx_t_7);
-        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+        __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
         __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
       } else
       #endif
       {
-        __pyx_t_13 = PyTuple_New(2+__pyx_t_12); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 187, __pyx_L1_error)
+        __pyx_t_13 = PyTuple_New(2+__pyx_t_12); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 205, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_13);
-        if (__pyx_t_4) {
-          __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_13, 0, __pyx_t_4); __pyx_t_4 = NULL;
+        if (__pyx_t_5) {
+          __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_13, 0, __pyx_t_5); __pyx_t_5 = NULL;
         }
-        __Pyx_GIVEREF(__pyx_t_1);
-        PyTuple_SET_ITEM(__pyx_t_13, 0+__pyx_t_12, __pyx_t_1);
+        __Pyx_GIVEREF(__pyx_t_2);
+        PyTuple_SET_ITEM(__pyx_t_13, 0+__pyx_t_12, __pyx_t_2);
         __Pyx_GIVEREF(__pyx_t_11);
         PyTuple_SET_ITEM(__pyx_t_13, 1+__pyx_t_12, __pyx_t_11);
-        __pyx_t_1 = 0;
+        __pyx_t_2 = 0;
         __pyx_t_11 = 0;
-        __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_13, NULL); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 187, __pyx_L1_error)
+        __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_13, NULL); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 205, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_7);
         __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
       }
-      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-      /* "freud/msd.pyx":187
+      /* "freud/msd.pyx":205
  *             unwrapped_positions = positions.copy()
  *             for i in range(positions.shape[0]):
  *                 unwrapped_positions[i, :, :] = self._box.unwrap(             # <<<<<<<<<<<<<<
  *                     unwrapped_positions[i, :, :], images[i, :, :])
  *             positions = unwrapped_positions
  */
-      __pyx_t_3 = PyTuple_New(3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 187, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_3);
+      __pyx_t_4 = PyTuple_New(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 205, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_4);
       __Pyx_INCREF(__pyx_v_i);
       __Pyx_GIVEREF(__pyx_v_i);
-      PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_v_i);
+      PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_v_i);
       __Pyx_INCREF(__pyx_slice_);
       __Pyx_GIVEREF(__pyx_slice_);
-      PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_slice_);
+      PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_slice_);
       __Pyx_INCREF(__pyx_slice_);
       __Pyx_GIVEREF(__pyx_slice_);
-      PyTuple_SET_ITEM(__pyx_t_3, 2, __pyx_slice_);
-      if (unlikely(PyObject_SetItem(__pyx_v_unwrapped_positions, __pyx_t_3, __pyx_t_7) < 0)) __PYX_ERR(0, 187, __pyx_L1_error)
-      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+      PyTuple_SET_ITEM(__pyx_t_4, 2, __pyx_slice_);
+      if (unlikely(PyObject_SetItem(__pyx_v_unwrapped_positions, __pyx_t_4, __pyx_t_7) < 0)) __PYX_ERR(0, 205, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-      /* "freud/msd.pyx":186
+      /* "freud/msd.pyx":204
  *         if self._box is not None and images is not None:
  *             unwrapped_positions = positions.copy()
  *             for i in range(positions.shape[0]):             # <<<<<<<<<<<<<<
@@ -3988,9 +4052,9 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_2accumulate(struct __pyx_obj_5freud_3
  *                     unwrapped_positions[i, :, :], images[i, :, :])
  */
     }
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-    /* "freud/msd.pyx":189
+    /* "freud/msd.pyx":207
  *                 unwrapped_positions[i, :, :] = self._box.unwrap(
  *                     unwrapped_positions[i, :, :], images[i, :, :])
  *             positions = unwrapped_positions             # <<<<<<<<<<<<<<
@@ -4000,7 +4064,7 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_2accumulate(struct __pyx_obj_5freud_3
     __Pyx_INCREF(__pyx_v_unwrapped_positions);
     __Pyx_DECREF_SET(__pyx_v_positions, __pyx_v_unwrapped_positions);
 
-    /* "freud/msd.pyx":184
+    /* "freud/msd.pyx":202
  * 
  *         # Make sure we aren't modifying the provided array
  *         if self._box is not None and images is not None:             # <<<<<<<<<<<<<<
@@ -4009,166 +4073,166 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_2accumulate(struct __pyx_obj_5freud_3
  */
   }
 
-  /* "freud/msd.pyx":191
+  /* "freud/msd.pyx":209
  *             positions = unwrapped_positions
  * 
  *         if self.mode == 'window':             # <<<<<<<<<<<<<<
  *             # First compute the first term r^2(k+m) - r^2(k)
  *             N = positions.shape[0]
  */
-  __pyx_t_6 = (__Pyx_PyUnicode_Equals(__pyx_v_self->mode, __pyx_n_u_window, Py_EQ)); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 191, __pyx_L1_error)
-  __pyx_t_5 = (__pyx_t_6 != 0);
-  if (__pyx_t_5) {
+  __pyx_t_6 = (__Pyx_PyUnicode_Equals(__pyx_v_self->mode, __pyx_n_u_window, Py_EQ)); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 209, __pyx_L1_error)
+  __pyx_t_1 = (__pyx_t_6 != 0);
+  if (__pyx_t_1) {
 
-    /* "freud/msd.pyx":193
+    /* "freud/msd.pyx":211
  *         if self.mode == 'window':
  *             # First compute the first term r^2(k+m) - r^2(k)
  *             N = positions.shape[0]             # <<<<<<<<<<<<<<
  *             D = np.square(positions).sum(axis=2)
  *             D = np.append(D, np.zeros(positions.shape[:2]), axis=0)
  */
-    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_positions, __pyx_n_s_shape); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 193, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_7 = __Pyx_GetItemInt(__pyx_t_2, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 193, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_positions, __pyx_n_s_shape); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 211, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __pyx_t_7 = __Pyx_GetItemInt(__pyx_t_3, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 211, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __pyx_v_N = __pyx_t_7;
     __pyx_t_7 = 0;
 
-    /* "freud/msd.pyx":194
+    /* "freud/msd.pyx":212
  *             # First compute the first term r^2(k+m) - r^2(k)
  *             N = positions.shape[0]
  *             D = np.square(positions).sum(axis=2)             # <<<<<<<<<<<<<<
  *             D = np.append(D, np.zeros(positions.shape[:2]), axis=0)
  *             Q = 2*D.sum(axis=0)
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 194, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_square); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 194, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 212, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_2 = NULL;
-    if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
-      __pyx_t_2 = PyMethod_GET_SELF(__pyx_t_3);
-      if (likely(__pyx_t_2)) {
-        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
-        __Pyx_INCREF(__pyx_t_2);
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_square); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 212, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __pyx_t_3 = NULL;
+    if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
+      __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_4);
+      if (likely(__pyx_t_3)) {
+        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_4);
+        __Pyx_INCREF(__pyx_t_3);
         __Pyx_INCREF(function);
-        __Pyx_DECREF_SET(__pyx_t_3, function);
+        __Pyx_DECREF_SET(__pyx_t_4, function);
       }
     }
-    __pyx_t_7 = (__pyx_t_2) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_2, __pyx_v_positions) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_v_positions);
-    __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-    if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 194, __pyx_L1_error)
+    __pyx_t_7 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_3, __pyx_v_positions) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_v_positions);
+    __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+    if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 212, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_sum); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 194, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_sum); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 212, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+    __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 212, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_7);
+    if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_axis, __pyx_int_2) < 0) __PYX_ERR(0, 212, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_empty_tuple, __pyx_t_7); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 212, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-    __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 194, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_7);
-    if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_axis, __pyx_int_2) < 0) __PYX_ERR(0, 194, __pyx_L1_error)
-    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_empty_tuple, __pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 194, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-    __pyx_v_D = __pyx_t_2;
-    __pyx_t_2 = 0;
+    __pyx_v_D = __pyx_t_3;
+    __pyx_t_3 = 0;
 
-    /* "freud/msd.pyx":195
+    /* "freud/msd.pyx":213
  *             N = positions.shape[0]
  *             D = np.square(positions).sum(axis=2)
  *             D = np.append(D, np.zeros(positions.shape[:2]), axis=0)             # <<<<<<<<<<<<<<
  *             Q = 2*D.sum(axis=0)
  *             S1 = np.zeros(positions.shape[:2])
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 195, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_append); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 195, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 213, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_append); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 213, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 195, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_zeros); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 195, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 213, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_zeros); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 213, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_13);
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_positions, __pyx_n_s_shape); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 195, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_11 = __Pyx_PyObject_GetSlice(__pyx_t_3, 0, 2, NULL, NULL, &__pyx_slice__5, 0, 1, 0); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 195, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_positions, __pyx_n_s_shape); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 213, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __pyx_t_11 = __Pyx_PyObject_GetSlice(__pyx_t_4, 0, 2, NULL, NULL, &__pyx_slice__5, 0, 1, 0); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 213, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_11);
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = NULL;
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __pyx_t_4 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_13))) {
-      __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_13);
-      if (likely(__pyx_t_3)) {
+      __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_13);
+      if (likely(__pyx_t_4)) {
         PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_13);
-        __Pyx_INCREF(__pyx_t_3);
+        __Pyx_INCREF(__pyx_t_4);
         __Pyx_INCREF(function);
         __Pyx_DECREF_SET(__pyx_t_13, function);
       }
     }
-    __pyx_t_2 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_13, __pyx_t_3, __pyx_t_11) : __Pyx_PyObject_CallOneArg(__pyx_t_13, __pyx_t_11);
-    __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __pyx_t_3 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_13, __pyx_t_4, __pyx_t_11) : __Pyx_PyObject_CallOneArg(__pyx_t_13, __pyx_t_11);
+    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 195, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
+    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 213, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
-    __pyx_t_13 = PyTuple_New(2); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 195, __pyx_L1_error)
+    __pyx_t_13 = PyTuple_New(2); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 213, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_13);
     __Pyx_INCREF(__pyx_v_D);
     __Pyx_GIVEREF(__pyx_v_D);
     PyTuple_SET_ITEM(__pyx_t_13, 0, __pyx_v_D);
-    __Pyx_GIVEREF(__pyx_t_2);
-    PyTuple_SET_ITEM(__pyx_t_13, 1, __pyx_t_2);
-    __pyx_t_2 = 0;
-    __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 195, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
-    if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_axis, __pyx_int_0) < 0) __PYX_ERR(0, 195, __pyx_L1_error)
-    __pyx_t_11 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_13, __pyx_t_2); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 195, __pyx_L1_error)
+    __Pyx_GIVEREF(__pyx_t_3);
+    PyTuple_SET_ITEM(__pyx_t_13, 1, __pyx_t_3);
+    __pyx_t_3 = 0;
+    __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 213, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_axis, __pyx_int_0) < 0) __PYX_ERR(0, 213, __pyx_L1_error)
+    __pyx_t_11 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_13, __pyx_t_3); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 213, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_11);
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
     __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF_SET(__pyx_v_D, __pyx_t_11);
     __pyx_t_11 = 0;
 
-    /* "freud/msd.pyx":196
+    /* "freud/msd.pyx":214
  *             D = np.square(positions).sum(axis=2)
  *             D = np.append(D, np.zeros(positions.shape[:2]), axis=0)
  *             Q = 2*D.sum(axis=0)             # <<<<<<<<<<<<<<
  *             S1 = np.zeros(positions.shape[:2])
  *             for m in range(N):
  */
-    __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_v_D, __pyx_n_s_sum); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 196, __pyx_L1_error)
+    __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_v_D, __pyx_n_s_sum); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 214, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_11);
-    __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 196, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
-    if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_axis, __pyx_int_0) < 0) __PYX_ERR(0, 196, __pyx_L1_error)
-    __pyx_t_13 = __Pyx_PyObject_Call(__pyx_t_11, __pyx_empty_tuple, __pyx_t_2); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 196, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 214, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_axis, __pyx_int_0) < 0) __PYX_ERR(0, 214, __pyx_L1_error)
+    __pyx_t_13 = __Pyx_PyObject_Call(__pyx_t_11, __pyx_empty_tuple, __pyx_t_3); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 214, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_13);
     __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_2 = PyNumber_Multiply(__pyx_int_2, __pyx_t_13); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 196, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __pyx_t_3 = PyNumber_Multiply(__pyx_int_2, __pyx_t_13); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 214, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
-    __pyx_v_Q = __pyx_t_2;
-    __pyx_t_2 = 0;
+    __pyx_v_Q = __pyx_t_3;
+    __pyx_t_3 = 0;
 
-    /* "freud/msd.pyx":197
+    /* "freud/msd.pyx":215
  *             D = np.append(D, np.zeros(positions.shape[:2]), axis=0)
  *             Q = 2*D.sum(axis=0)
  *             S1 = np.zeros(positions.shape[:2])             # <<<<<<<<<<<<<<
  *             for m in range(N):
  *                 Q -= (D[m-1, :] + D[N-m, :])
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_13, __pyx_n_s_np); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 197, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_13, __pyx_n_s_np); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 215, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_13);
-    __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_t_13, __pyx_n_s_zeros); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 197, __pyx_L1_error)
+    __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_t_13, __pyx_n_s_zeros); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 215, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_11);
     __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
-    __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_v_positions, __pyx_n_s_shape); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 197, __pyx_L1_error)
+    __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_v_positions, __pyx_n_s_shape); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 215, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_13);
-    __pyx_t_7 = __Pyx_PyObject_GetSlice(__pyx_t_13, 0, 2, NULL, NULL, &__pyx_slice__5, 0, 1, 0); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 197, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_GetSlice(__pyx_t_13, 0, 2, NULL, NULL, &__pyx_slice__5, 0, 1, 0); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 215, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
     __pyx_t_13 = NULL;
@@ -4181,90 +4245,90 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_2accumulate(struct __pyx_obj_5freud_3
         __Pyx_DECREF_SET(__pyx_t_11, function);
       }
     }
-    __pyx_t_2 = (__pyx_t_13) ? __Pyx_PyObject_Call2Args(__pyx_t_11, __pyx_t_13, __pyx_t_7) : __Pyx_PyObject_CallOneArg(__pyx_t_11, __pyx_t_7);
+    __pyx_t_3 = (__pyx_t_13) ? __Pyx_PyObject_Call2Args(__pyx_t_11, __pyx_t_13, __pyx_t_7) : __Pyx_PyObject_CallOneArg(__pyx_t_11, __pyx_t_7);
     __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 197, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
+    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 215, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-    __pyx_v_S1 = __pyx_t_2;
-    __pyx_t_2 = 0;
+    __pyx_v_S1 = __pyx_t_3;
+    __pyx_t_3 = 0;
 
-    /* "freud/msd.pyx":198
+    /* "freud/msd.pyx":216
  *             Q = 2*D.sum(axis=0)
  *             S1 = np.zeros(positions.shape[:2])
  *             for m in range(N):             # <<<<<<<<<<<<<<
  *                 Q -= (D[m-1, :] + D[N-m, :])
  *                 S1[m, :] = Q/(N-m)
  */
-    __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_builtin_range, __pyx_v_N); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 198, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
-    if (likely(PyList_CheckExact(__pyx_t_2)) || PyTuple_CheckExact(__pyx_t_2)) {
-      __pyx_t_11 = __pyx_t_2; __Pyx_INCREF(__pyx_t_11); __pyx_t_9 = 0;
+    __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_builtin_range, __pyx_v_N); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 216, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    if (likely(PyList_CheckExact(__pyx_t_3)) || PyTuple_CheckExact(__pyx_t_3)) {
+      __pyx_t_11 = __pyx_t_3; __Pyx_INCREF(__pyx_t_11); __pyx_t_9 = 0;
       __pyx_t_10 = NULL;
     } else {
-      __pyx_t_9 = -1; __pyx_t_11 = PyObject_GetIter(__pyx_t_2); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 198, __pyx_L1_error)
+      __pyx_t_9 = -1; __pyx_t_11 = PyObject_GetIter(__pyx_t_3); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 216, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_11);
-      __pyx_t_10 = Py_TYPE(__pyx_t_11)->tp_iternext; if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 198, __pyx_L1_error)
+      __pyx_t_10 = Py_TYPE(__pyx_t_11)->tp_iternext; if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 216, __pyx_L1_error)
     }
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     for (;;) {
       if (likely(!__pyx_t_10)) {
         if (likely(PyList_CheckExact(__pyx_t_11))) {
           if (__pyx_t_9 >= PyList_GET_SIZE(__pyx_t_11)) break;
           #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-          __pyx_t_2 = PyList_GET_ITEM(__pyx_t_11, __pyx_t_9); __Pyx_INCREF(__pyx_t_2); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 198, __pyx_L1_error)
+          __pyx_t_3 = PyList_GET_ITEM(__pyx_t_11, __pyx_t_9); __Pyx_INCREF(__pyx_t_3); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 216, __pyx_L1_error)
           #else
-          __pyx_t_2 = PySequence_ITEM(__pyx_t_11, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 198, __pyx_L1_error)
-          __Pyx_GOTREF(__pyx_t_2);
+          __pyx_t_3 = PySequence_ITEM(__pyx_t_11, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 216, __pyx_L1_error)
+          __Pyx_GOTREF(__pyx_t_3);
           #endif
         } else {
           if (__pyx_t_9 >= PyTuple_GET_SIZE(__pyx_t_11)) break;
           #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-          __pyx_t_2 = PyTuple_GET_ITEM(__pyx_t_11, __pyx_t_9); __Pyx_INCREF(__pyx_t_2); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 198, __pyx_L1_error)
+          __pyx_t_3 = PyTuple_GET_ITEM(__pyx_t_11, __pyx_t_9); __Pyx_INCREF(__pyx_t_3); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 216, __pyx_L1_error)
           #else
-          __pyx_t_2 = PySequence_ITEM(__pyx_t_11, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 198, __pyx_L1_error)
-          __Pyx_GOTREF(__pyx_t_2);
+          __pyx_t_3 = PySequence_ITEM(__pyx_t_11, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 216, __pyx_L1_error)
+          __Pyx_GOTREF(__pyx_t_3);
           #endif
         }
       } else {
-        __pyx_t_2 = __pyx_t_10(__pyx_t_11);
-        if (unlikely(!__pyx_t_2)) {
+        __pyx_t_3 = __pyx_t_10(__pyx_t_11);
+        if (unlikely(!__pyx_t_3)) {
           PyObject* exc_type = PyErr_Occurred();
           if (exc_type) {
             if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-            else __PYX_ERR(0, 198, __pyx_L1_error)
+            else __PYX_ERR(0, 216, __pyx_L1_error)
           }
           break;
         }
-        __Pyx_GOTREF(__pyx_t_2);
+        __Pyx_GOTREF(__pyx_t_3);
       }
-      __Pyx_XDECREF_SET(__pyx_v_m, __pyx_t_2);
-      __pyx_t_2 = 0;
+      __Pyx_XDECREF_SET(__pyx_v_m, __pyx_t_3);
+      __pyx_t_3 = 0;
 
-      /* "freud/msd.pyx":199
+      /* "freud/msd.pyx":217
  *             S1 = np.zeros(positions.shape[:2])
  *             for m in range(N):
  *                 Q -= (D[m-1, :] + D[N-m, :])             # <<<<<<<<<<<<<<
  *                 S1[m, :] = Q/(N-m)
  * 
  */
-      __pyx_t_2 = __Pyx_PyInt_SubtractObjC(__pyx_v_m, __pyx_int_1, 1, 0, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 199, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_2);
-      __pyx_t_7 = PyTuple_New(2); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 199, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyInt_SubtractObjC(__pyx_v_m, __pyx_int_1, 1, 0, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 217, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_3);
+      __pyx_t_7 = PyTuple_New(2); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 217, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
-      __Pyx_GIVEREF(__pyx_t_2);
-      PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_2);
+      __Pyx_GIVEREF(__pyx_t_3);
+      PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_3);
       __Pyx_INCREF(__pyx_slice_);
       __Pyx_GIVEREF(__pyx_slice_);
       PyTuple_SET_ITEM(__pyx_t_7, 1, __pyx_slice_);
-      __pyx_t_2 = 0;
-      __pyx_t_2 = __Pyx_PyObject_GetItem(__pyx_v_D, __pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 199, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_2);
+      __pyx_t_3 = 0;
+      __pyx_t_3 = __Pyx_PyObject_GetItem(__pyx_v_D, __pyx_t_7); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 217, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-      __pyx_t_7 = PyNumber_Subtract(__pyx_v_N, __pyx_v_m); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 199, __pyx_L1_error)
+      __pyx_t_7 = PyNumber_Subtract(__pyx_v_N, __pyx_v_m); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 217, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
-      __pyx_t_13 = PyTuple_New(2); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 199, __pyx_L1_error)
+      __pyx_t_13 = PyTuple_New(2); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 217, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_13);
       __Pyx_GIVEREF(__pyx_t_7);
       PyTuple_SET_ITEM(__pyx_t_13, 0, __pyx_t_7);
@@ -4272,32 +4336,32 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_2accumulate(struct __pyx_obj_5freud_3
       __Pyx_GIVEREF(__pyx_slice_);
       PyTuple_SET_ITEM(__pyx_t_13, 1, __pyx_slice_);
       __pyx_t_7 = 0;
-      __pyx_t_7 = __Pyx_PyObject_GetItem(__pyx_v_D, __pyx_t_13); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 199, __pyx_L1_error)
+      __pyx_t_7 = __Pyx_PyObject_GetItem(__pyx_v_D, __pyx_t_13); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 217, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
       __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
-      __pyx_t_13 = PyNumber_Add(__pyx_t_2, __pyx_t_7); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 199, __pyx_L1_error)
+      __pyx_t_13 = PyNumber_Add(__pyx_t_3, __pyx_t_7); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 217, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_13);
-      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-      __pyx_t_7 = PyNumber_InPlaceSubtract(__pyx_v_Q, __pyx_t_13); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 199, __pyx_L1_error)
+      __pyx_t_7 = PyNumber_InPlaceSubtract(__pyx_v_Q, __pyx_t_13); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 217, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
       __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
       __Pyx_DECREF_SET(__pyx_v_Q, __pyx_t_7);
       __pyx_t_7 = 0;
 
-      /* "freud/msd.pyx":200
+      /* "freud/msd.pyx":218
  *             for m in range(N):
  *                 Q -= (D[m-1, :] + D[N-m, :])
  *                 S1[m, :] = Q/(N-m)             # <<<<<<<<<<<<<<
  * 
  *             # The second term can be computed via autocorrelation
  */
-      __pyx_t_7 = PyNumber_Subtract(__pyx_v_N, __pyx_v_m); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 200, __pyx_L1_error)
+      __pyx_t_7 = PyNumber_Subtract(__pyx_v_N, __pyx_v_m); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 218, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
-      __pyx_t_13 = __Pyx_PyNumber_Divide(__pyx_v_Q, __pyx_t_7); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 200, __pyx_L1_error)
+      __pyx_t_13 = __Pyx_PyNumber_Divide(__pyx_v_Q, __pyx_t_7); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 218, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_13);
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-      __pyx_t_7 = PyTuple_New(2); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 200, __pyx_L1_error)
+      __pyx_t_7 = PyTuple_New(2); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 218, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
       __Pyx_INCREF(__pyx_v_m);
       __Pyx_GIVEREF(__pyx_v_m);
@@ -4305,11 +4369,11 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_2accumulate(struct __pyx_obj_5freud_3
       __Pyx_INCREF(__pyx_slice_);
       __Pyx_GIVEREF(__pyx_slice_);
       PyTuple_SET_ITEM(__pyx_t_7, 1, __pyx_slice_);
-      if (unlikely(PyObject_SetItem(__pyx_v_S1, __pyx_t_7, __pyx_t_13) < 0)) __PYX_ERR(0, 200, __pyx_L1_error)
+      if (unlikely(PyObject_SetItem(__pyx_v_S1, __pyx_t_7, __pyx_t_13) < 0)) __PYX_ERR(0, 218, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
       __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
 
-      /* "freud/msd.pyx":198
+      /* "freud/msd.pyx":216
  *             Q = 2*D.sum(axis=0)
  *             S1 = np.zeros(positions.shape[:2])
  *             for m in range(N):             # <<<<<<<<<<<<<<
@@ -4319,40 +4383,40 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_2accumulate(struct __pyx_obj_5freud_3
     }
     __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
 
-    /* "freud/msd.pyx":203
+    /* "freud/msd.pyx":221
  * 
  *             # The second term can be computed via autocorrelation
  *             corrs = []             # <<<<<<<<<<<<<<
  *             for i in range(positions.shape[2]):
  *                 corrs.append(_autocorrelation(positions[:, :, i]))
  */
-    __pyx_t_11 = PyList_New(0); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 203, __pyx_L1_error)
+    __pyx_t_11 = PyList_New(0); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 221, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_11);
     __pyx_v_corrs = ((PyObject*)__pyx_t_11);
     __pyx_t_11 = 0;
 
-    /* "freud/msd.pyx":204
+    /* "freud/msd.pyx":222
  *             # The second term can be computed via autocorrelation
  *             corrs = []
  *             for i in range(positions.shape[2]):             # <<<<<<<<<<<<<<
  *                 corrs.append(_autocorrelation(positions[:, :, i]))
  *             S2 = np.sum(corrs, axis=0)
  */
-    __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_v_positions, __pyx_n_s_shape); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 204, __pyx_L1_error)
+    __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_v_positions, __pyx_n_s_shape); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 222, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_11);
-    __pyx_t_13 = __Pyx_GetItemInt(__pyx_t_11, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 204, __pyx_L1_error)
+    __pyx_t_13 = __Pyx_GetItemInt(__pyx_t_11, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 222, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_13);
     __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-    __pyx_t_11 = __Pyx_PyObject_CallOneArg(__pyx_builtin_range, __pyx_t_13); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 204, __pyx_L1_error)
+    __pyx_t_11 = __Pyx_PyObject_CallOneArg(__pyx_builtin_range, __pyx_t_13); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 222, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_11);
     __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
     if (likely(PyList_CheckExact(__pyx_t_11)) || PyTuple_CheckExact(__pyx_t_11)) {
       __pyx_t_13 = __pyx_t_11; __Pyx_INCREF(__pyx_t_13); __pyx_t_9 = 0;
       __pyx_t_10 = NULL;
     } else {
-      __pyx_t_9 = -1; __pyx_t_13 = PyObject_GetIter(__pyx_t_11); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 204, __pyx_L1_error)
+      __pyx_t_9 = -1; __pyx_t_13 = PyObject_GetIter(__pyx_t_11); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 222, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_13);
-      __pyx_t_10 = Py_TYPE(__pyx_t_13)->tp_iternext; if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 204, __pyx_L1_error)
+      __pyx_t_10 = Py_TYPE(__pyx_t_13)->tp_iternext; if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 222, __pyx_L1_error)
     }
     __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
     for (;;) {
@@ -4360,17 +4424,17 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_2accumulate(struct __pyx_obj_5freud_3
         if (likely(PyList_CheckExact(__pyx_t_13))) {
           if (__pyx_t_9 >= PyList_GET_SIZE(__pyx_t_13)) break;
           #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-          __pyx_t_11 = PyList_GET_ITEM(__pyx_t_13, __pyx_t_9); __Pyx_INCREF(__pyx_t_11); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 204, __pyx_L1_error)
+          __pyx_t_11 = PyList_GET_ITEM(__pyx_t_13, __pyx_t_9); __Pyx_INCREF(__pyx_t_11); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 222, __pyx_L1_error)
           #else
-          __pyx_t_11 = PySequence_ITEM(__pyx_t_13, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 204, __pyx_L1_error)
+          __pyx_t_11 = PySequence_ITEM(__pyx_t_13, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 222, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_11);
           #endif
         } else {
           if (__pyx_t_9 >= PyTuple_GET_SIZE(__pyx_t_13)) break;
           #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-          __pyx_t_11 = PyTuple_GET_ITEM(__pyx_t_13, __pyx_t_9); __Pyx_INCREF(__pyx_t_11); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 204, __pyx_L1_error)
+          __pyx_t_11 = PyTuple_GET_ITEM(__pyx_t_13, __pyx_t_9); __Pyx_INCREF(__pyx_t_11); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 222, __pyx_L1_error)
           #else
-          __pyx_t_11 = PySequence_ITEM(__pyx_t_13, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 204, __pyx_L1_error)
+          __pyx_t_11 = PySequence_ITEM(__pyx_t_13, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 222, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_11);
           #endif
         }
@@ -4380,7 +4444,7 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_2accumulate(struct __pyx_obj_5freud_3
           PyObject* exc_type = PyErr_Occurred();
           if (exc_type) {
             if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-            else __PYX_ERR(0, 204, __pyx_L1_error)
+            else __PYX_ERR(0, 222, __pyx_L1_error)
           }
           break;
         }
@@ -4389,49 +4453,49 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_2accumulate(struct __pyx_obj_5freud_3
       __Pyx_XDECREF_SET(__pyx_v_i, __pyx_t_11);
       __pyx_t_11 = 0;
 
-      /* "freud/msd.pyx":205
+      /* "freud/msd.pyx":223
  *             corrs = []
  *             for i in range(positions.shape[2]):
  *                 corrs.append(_autocorrelation(positions[:, :, i]))             # <<<<<<<<<<<<<<
  *             S2 = np.sum(corrs, axis=0)
  * 
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_autocorrelation); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 205, __pyx_L1_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_autocorrelation); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 223, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
-      __pyx_t_2 = PyTuple_New(3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 205, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_2);
+      __pyx_t_3 = PyTuple_New(3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 223, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_3);
       __Pyx_INCREF(__pyx_slice_);
       __Pyx_GIVEREF(__pyx_slice_);
-      PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_slice_);
+      PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_slice_);
       __Pyx_INCREF(__pyx_slice_);
       __Pyx_GIVEREF(__pyx_slice_);
-      PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_slice_);
+      PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_slice_);
       __Pyx_INCREF(__pyx_v_i);
       __Pyx_GIVEREF(__pyx_v_i);
-      PyTuple_SET_ITEM(__pyx_t_2, 2, __pyx_v_i);
-      __pyx_t_3 = __Pyx_PyObject_GetItem(__pyx_v_positions, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 205, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_3);
-      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-      __pyx_t_2 = NULL;
+      PyTuple_SET_ITEM(__pyx_t_3, 2, __pyx_v_i);
+      __pyx_t_4 = __Pyx_PyObject_GetItem(__pyx_v_positions, __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 223, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_4);
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+      __pyx_t_3 = NULL;
       if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_7))) {
-        __pyx_t_2 = PyMethod_GET_SELF(__pyx_t_7);
-        if (likely(__pyx_t_2)) {
+        __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_7);
+        if (likely(__pyx_t_3)) {
           PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_7);
-          __Pyx_INCREF(__pyx_t_2);
+          __Pyx_INCREF(__pyx_t_3);
           __Pyx_INCREF(function);
           __Pyx_DECREF_SET(__pyx_t_7, function);
         }
       }
-      __pyx_t_11 = (__pyx_t_2) ? __Pyx_PyObject_Call2Args(__pyx_t_7, __pyx_t_2, __pyx_t_3) : __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_t_3);
-      __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 205, __pyx_L1_error)
+      __pyx_t_11 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_7, __pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_t_4);
+      __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+      if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 223, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_11);
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-      __pyx_t_14 = __Pyx_PyList_Append(__pyx_v_corrs, __pyx_t_11); if (unlikely(__pyx_t_14 == ((int)-1))) __PYX_ERR(0, 205, __pyx_L1_error)
+      __pyx_t_14 = __Pyx_PyList_Append(__pyx_v_corrs, __pyx_t_11); if (unlikely(__pyx_t_14 == ((int)-1))) __PYX_ERR(0, 223, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
 
-      /* "freud/msd.pyx":204
+      /* "freud/msd.pyx":222
  *             # The second term can be computed via autocorrelation
  *             corrs = []
  *             for i in range(positions.shape[2]):             # <<<<<<<<<<<<<<
@@ -4441,175 +4505,175 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_2accumulate(struct __pyx_obj_5freud_3
     }
     __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
 
-    /* "freud/msd.pyx":206
+    /* "freud/msd.pyx":224
  *             for i in range(positions.shape[2]):
  *                 corrs.append(_autocorrelation(positions[:, :, i]))
  *             S2 = np.sum(corrs, axis=0)             # <<<<<<<<<<<<<<
  * 
  *             self.particle_msd.append(S1 - 2*S2)
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_13, __pyx_n_s_np); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 206, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_13, __pyx_n_s_np); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 224, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_13);
-    __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_t_13, __pyx_n_s_sum); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 206, __pyx_L1_error)
+    __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_t_13, __pyx_n_s_sum); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 224, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_11);
     __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
-    __pyx_t_13 = PyTuple_New(1); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 206, __pyx_L1_error)
+    __pyx_t_13 = PyTuple_New(1); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 224, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_13);
     __Pyx_INCREF(__pyx_v_corrs);
     __Pyx_GIVEREF(__pyx_v_corrs);
     PyTuple_SET_ITEM(__pyx_t_13, 0, __pyx_v_corrs);
-    __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 206, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 224, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
-    if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_axis, __pyx_int_0) < 0) __PYX_ERR(0, 206, __pyx_L1_error)
-    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_11, __pyx_t_13, __pyx_t_7); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 206, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
+    if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_axis, __pyx_int_0) < 0) __PYX_ERR(0, 224, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_11, __pyx_t_13, __pyx_t_7); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 224, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
     __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-    __pyx_v_S2 = __pyx_t_3;
-    __pyx_t_3 = 0;
+    __pyx_v_S2 = __pyx_t_4;
+    __pyx_t_4 = 0;
 
-    /* "freud/msd.pyx":208
+    /* "freud/msd.pyx":226
  *             S2 = np.sum(corrs, axis=0)
  * 
  *             self.particle_msd.append(S1 - 2*S2)             # <<<<<<<<<<<<<<
  *         elif self.mode == 'direct':
  *             self.particle_msd.append(
  */
-    __pyx_t_3 = PyNumber_Multiply(__pyx_int_2, __pyx_v_S2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 208, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_7 = PyNumber_Subtract(__pyx_v_S1, __pyx_t_3); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 208, __pyx_L1_error)
+    __pyx_t_4 = PyNumber_Multiply(__pyx_int_2, __pyx_v_S2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 226, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __pyx_t_7 = PyNumber_Subtract(__pyx_v_S1, __pyx_t_4); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 226, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_14 = __Pyx_PyObject_Append(__pyx_v_self->particle_msd, __pyx_t_7); if (unlikely(__pyx_t_14 == ((int)-1))) __PYX_ERR(0, 208, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __pyx_t_14 = __Pyx_PyObject_Append(__pyx_v_self->particle_msd, __pyx_t_7); if (unlikely(__pyx_t_14 == ((int)-1))) __PYX_ERR(0, 226, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-    /* "freud/msd.pyx":191
+    /* "freud/msd.pyx":209
  *             positions = unwrapped_positions
  * 
  *         if self.mode == 'window':             # <<<<<<<<<<<<<<
  *             # First compute the first term r^2(k+m) - r^2(k)
  *             N = positions.shape[0]
  */
-    goto __pyx_L9;
+    goto __pyx_L10;
   }
 
-  /* "freud/msd.pyx":209
+  /* "freud/msd.pyx":227
  * 
  *             self.particle_msd.append(S1 - 2*S2)
  *         elif self.mode == 'direct':             # <<<<<<<<<<<<<<
  *             self.particle_msd.append(
  *                 np.linalg.norm(
  */
-  __pyx_t_5 = (__Pyx_PyUnicode_Equals(__pyx_v_self->mode, __pyx_n_u_direct, Py_EQ)); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 209, __pyx_L1_error)
-  __pyx_t_6 = (__pyx_t_5 != 0);
+  __pyx_t_1 = (__Pyx_PyUnicode_Equals(__pyx_v_self->mode, __pyx_n_u_direct, Py_EQ)); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 227, __pyx_L1_error)
+  __pyx_t_6 = (__pyx_t_1 != 0);
   if (__pyx_t_6) {
 
-    /* "freud/msd.pyx":211
+    /* "freud/msd.pyx":229
  *         elif self.mode == 'direct':
  *             self.particle_msd.append(
  *                 np.linalg.norm(             # <<<<<<<<<<<<<<
  *                     positions - positions[[0], :, :], axis=-1)**2)
  * 
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_np); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 211, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_np); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 229, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_linalg); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 211, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_linalg); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 229, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-    __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_norm); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 211, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_norm); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 229, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-    /* "freud/msd.pyx":212
+    /* "freud/msd.pyx":230
  *             self.particle_msd.append(
  *                 np.linalg.norm(
  *                     positions - positions[[0], :, :], axis=-1)**2)             # <<<<<<<<<<<<<<
  * 
  *         return self
  */
-    __pyx_t_3 = PyList_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 212, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
+    __pyx_t_4 = PyList_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 230, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
     __Pyx_INCREF(__pyx_int_0);
     __Pyx_GIVEREF(__pyx_int_0);
-    PyList_SET_ITEM(__pyx_t_3, 0, __pyx_int_0);
-    __pyx_t_13 = PyTuple_New(3); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 212, __pyx_L1_error)
+    PyList_SET_ITEM(__pyx_t_4, 0, __pyx_int_0);
+    __pyx_t_13 = PyTuple_New(3); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 230, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_13);
-    __Pyx_GIVEREF(__pyx_t_3);
-    PyTuple_SET_ITEM(__pyx_t_13, 0, __pyx_t_3);
+    __Pyx_GIVEREF(__pyx_t_4);
+    PyTuple_SET_ITEM(__pyx_t_13, 0, __pyx_t_4);
     __Pyx_INCREF(__pyx_slice_);
     __Pyx_GIVEREF(__pyx_slice_);
     PyTuple_SET_ITEM(__pyx_t_13, 1, __pyx_slice_);
     __Pyx_INCREF(__pyx_slice_);
     __Pyx_GIVEREF(__pyx_slice_);
     PyTuple_SET_ITEM(__pyx_t_13, 2, __pyx_slice_);
-    __pyx_t_3 = 0;
-    __pyx_t_3 = __Pyx_PyObject_GetItem(__pyx_v_positions, __pyx_t_13); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 212, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
+    __pyx_t_4 = 0;
+    __pyx_t_4 = __Pyx_PyObject_GetItem(__pyx_v_positions, __pyx_t_13); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 230, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
-    __pyx_t_13 = PyNumber_Subtract(__pyx_v_positions, __pyx_t_3); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 212, __pyx_L1_error)
+    __pyx_t_13 = PyNumber_Subtract(__pyx_v_positions, __pyx_t_4); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 230, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_13);
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-    /* "freud/msd.pyx":211
+    /* "freud/msd.pyx":229
  *         elif self.mode == 'direct':
  *             self.particle_msd.append(
  *                 np.linalg.norm(             # <<<<<<<<<<<<<<
  *                     positions - positions[[0], :, :], axis=-1)**2)
  * 
  */
-    __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 211, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
+    __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 229, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
     __Pyx_GIVEREF(__pyx_t_13);
-    PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_13);
+    PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_13);
     __pyx_t_13 = 0;
 
-    /* "freud/msd.pyx":212
+    /* "freud/msd.pyx":230
  *             self.particle_msd.append(
  *                 np.linalg.norm(
  *                     positions - positions[[0], :, :], axis=-1)**2)             # <<<<<<<<<<<<<<
  * 
  *         return self
  */
-    __pyx_t_13 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 212, __pyx_L1_error)
+    __pyx_t_13 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 230, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_13);
-    if (PyDict_SetItem(__pyx_t_13, __pyx_n_s_axis, __pyx_int_neg_1) < 0) __PYX_ERR(0, 212, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_13, __pyx_n_s_axis, __pyx_int_neg_1) < 0) __PYX_ERR(0, 230, __pyx_L1_error)
 
-    /* "freud/msd.pyx":211
+    /* "freud/msd.pyx":229
  *         elif self.mode == 'direct':
  *             self.particle_msd.append(
  *                 np.linalg.norm(             # <<<<<<<<<<<<<<
  *                     positions - positions[[0], :, :], axis=-1)**2)
  * 
  */
-    __pyx_t_11 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_3, __pyx_t_13); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 211, __pyx_L1_error)
+    __pyx_t_11 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_4, __pyx_t_13); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 229, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_11);
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
 
-    /* "freud/msd.pyx":212
+    /* "freud/msd.pyx":230
  *             self.particle_msd.append(
  *                 np.linalg.norm(
  *                     positions - positions[[0], :, :], axis=-1)**2)             # <<<<<<<<<<<<<<
  * 
  *         return self
  */
-    __pyx_t_13 = PyNumber_Power(__pyx_t_11, __pyx_int_2, Py_None); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 212, __pyx_L1_error)
+    __pyx_t_13 = PyNumber_Power(__pyx_t_11, __pyx_int_2, Py_None); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 230, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_13);
     __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
 
-    /* "freud/msd.pyx":210
+    /* "freud/msd.pyx":228
  *             self.particle_msd.append(S1 - 2*S2)
  *         elif self.mode == 'direct':
  *             self.particle_msd.append(             # <<<<<<<<<<<<<<
  *                 np.linalg.norm(
  *                     positions - positions[[0], :, :], axis=-1)**2)
  */
-    __pyx_t_14 = __Pyx_PyObject_Append(__pyx_v_self->particle_msd, __pyx_t_13); if (unlikely(__pyx_t_14 == ((int)-1))) __PYX_ERR(0, 210, __pyx_L1_error)
+    __pyx_t_14 = __Pyx_PyObject_Append(__pyx_v_self->particle_msd, __pyx_t_13); if (unlikely(__pyx_t_14 == ((int)-1))) __PYX_ERR(0, 228, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
 
-    /* "freud/msd.pyx":209
+    /* "freud/msd.pyx":227
  * 
  *             self.particle_msd.append(S1 - 2*S2)
  *         elif self.mode == 'direct':             # <<<<<<<<<<<<<<
@@ -4617,9 +4681,9 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_2accumulate(struct __pyx_obj_5freud_3
  *                 np.linalg.norm(
  */
   }
-  __pyx_L9:;
+  __pyx_L10:;
 
-  /* "freud/msd.pyx":214
+  /* "freud/msd.pyx":232
  *                     positions - positions[[0], :, :], axis=-1)**2)
  * 
  *         return self             # <<<<<<<<<<<<<<
@@ -4634,21 +4698,21 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_2accumulate(struct __pyx_obj_5freud_3
   /* "freud/msd.pyx":160
  *         self.mode = mode
  * 
- *     def accumulate(self, positions, images=None):             # <<<<<<<<<<<<<<
- *         """Calculate the MSD for the positions provided and add to the existing
- *         per-particle data.
+ *     def compute(self, positions, images=None, reset=True):             # <<<<<<<<<<<<<<
+ *         """Calculate the MSD for the positions provided.
+ * 
  */
 
   /* function exit code */
   __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_7);
   __Pyx_XDECREF(__pyx_t_11);
   __Pyx_XDECREF(__pyx_t_13);
-  __Pyx_AddTraceback("freud.msd.MSD.accumulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("freud.msd.MSD.compute", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_unwrapped_positions);
@@ -4667,7 +4731,7 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_2accumulate(struct __pyx_obj_5freud_3
   return __pyx_r;
 }
 
-/* "freud/msd.pyx":217
+/* "freud/msd.pyx":235
  * 
  *     @property
  *     def box(self):             # <<<<<<<<<<<<<<
@@ -4693,19 +4757,19 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_3box___get__(struct __pyx_obj_5freud_
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "freud/msd.pyx":219
+  /* "freud/msd.pyx":237
  *     def box(self):
  *         """:class:`freud.box.Box`: Box used in the calculation."""
  *         return self._box             # <<<<<<<<<<<<<<
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  */
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(((PyObject *)__pyx_v_self->_box));
   __pyx_r = ((PyObject *)__pyx_v_self->_box);
   goto __pyx_L0;
 
-  /* "freud/msd.pyx":217
+  /* "freud/msd.pyx":235
  * 
  *     @property
  *     def box(self):             # <<<<<<<<<<<<<<
@@ -4720,22 +4784,25 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_3box___get__(struct __pyx_obj_5freud_
   return __pyx_r;
 }
 
-/* "freud/msd.pyx":222
+/* "freud/msd.pyx":240
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def msd(self):             # <<<<<<<<<<<<<<
- *         """:math:`\\left(N_{frames}, \\right`) :class:`numpy.ndarray`: The mean
+ *         """:math:`\\left(N_{frames}, \\right)` :class:`numpy.ndarray`: The mean
  *         squared displacement."""
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_3msd_3MSD_5msd(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_3msd_3MSD_4msd[] = "MSD.msd(self)\n:math:`\\left(N_{frames}, \\right`) :class:`numpy.ndarray`: The mean\n        squared displacement.";
-static PyMethodDef __pyx_mdef_5freud_3msd_3MSD_5msd = {"msd", (PyCFunction)__pyx_pw_5freud_3msd_3MSD_5msd, METH_NOARGS, __pyx_doc_5freud_3msd_3MSD_4msd};
-static PyObject *__pyx_pw_5freud_3msd_3MSD_5msd(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_5freud_3msd_3MSD_5msd(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_5freud_3msd_3MSD_4msd[] = "MSD.msd(self)\n:math:`\\left(N_{frames}, \\right)` :class:`numpy.ndarray`: The mean\n        squared displacement.";
+static PyMethodDef __pyx_mdef_5freud_3msd_3MSD_5msd = {"msd", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_3msd_3MSD_5msd, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_3msd_3MSD_4msd};
+static PyObject *__pyx_pw_5freud_3msd_3MSD_5msd(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("msd (wrapper)", 0);
+  if (unlikely(PyTuple_GET_SIZE(__pyx_args) > 0)) {
+    __Pyx_RaiseArgtupleInvalid("msd", 1, 0, 0, PyTuple_GET_SIZE(__pyx_args)); return NULL;}
+  if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "msd", 0))) return NULL;
   __pyx_r = __pyx_pf_5freud_3msd_3MSD_4msd(((struct __pyx_obj_5freud_3msd_MSD *)__pyx_v_self));
 
   /* function exit code */
@@ -4752,39 +4819,39 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_4msd(struct __pyx_obj_5freud_3msd_MSD
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("msd", 0);
 
-  /* "freud/msd.pyx":225
- *         """:math:`\\left(N_{frames}, \\right`) :class:`numpy.ndarray`: The mean
+  /* "freud/msd.pyx":243
+ *         """:math:`\\left(N_{frames}, \\right)` :class:`numpy.ndarray`: The mean
  *         squared displacement."""
  *         return np.concatenate(self.particle_msd, axis=1).mean(axis=-1)             # <<<<<<<<<<<<<<
  * 
- *     def reset(self):
+ *     def __repr__(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 225, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 243, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_concatenate); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 225, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_concatenate); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 243, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 225, __pyx_L1_error)
+  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 243, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_INCREF(__pyx_v_self->particle_msd);
   __Pyx_GIVEREF(__pyx_v_self->particle_msd);
   PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_v_self->particle_msd);
-  __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 225, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 243, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_axis, __pyx_int_1) < 0) __PYX_ERR(0, 225, __pyx_L1_error)
-  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_1, __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 225, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_axis, __pyx_int_1) < 0) __PYX_ERR(0, 243, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_1, __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 243, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_mean); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 225, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_mean); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 243, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 225, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 243, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_axis, __pyx_int_neg_1) < 0) __PYX_ERR(0, 225, __pyx_L1_error)
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_empty_tuple, __pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 225, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_axis, __pyx_int_neg_1) < 0) __PYX_ERR(0, 243, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_empty_tuple, __pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 243, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -4792,11 +4859,11 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_4msd(struct __pyx_obj_5freud_3msd_MSD
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/msd.pyx":222
+  /* "freud/msd.pyx":240
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def msd(self):             # <<<<<<<<<<<<<<
- *         """:math:`\\left(N_{frames}, \\right`) :class:`numpy.ndarray`: The mean
+ *         """:math:`\\left(N_{frames}, \\right)` :class:`numpy.ndarray`: The mean
  *         squared displacement."""
  */
 
@@ -4814,287 +4881,8 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_4msd(struct __pyx_obj_5freud_3msd_MSD
   return __pyx_r;
 }
 
-/* "freud/msd.pyx":227
+/* "freud/msd.pyx":245
  *         return np.concatenate(self.particle_msd, axis=1).mean(axis=-1)
- * 
- *     def reset(self):             # <<<<<<<<<<<<<<
- *         R"""Clears the stored MSD values from previous calls to accumulate (or
- *         the last call to compute)."""
- */
-
-/* Python wrapper */
-static PyObject *__pyx_pw_5freud_3msd_3MSD_7reset(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_3msd_3MSD_6reset[] = "MSD.reset(self)\nClears the stored MSD values from previous calls to accumulate (or\n        the last call to compute).";
-static PyMethodDef __pyx_mdef_5freud_3msd_3MSD_7reset = {"reset", (PyCFunction)__pyx_pw_5freud_3msd_3MSD_7reset, METH_NOARGS, __pyx_doc_5freud_3msd_3MSD_6reset};
-static PyObject *__pyx_pw_5freud_3msd_3MSD_7reset(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
-  PyObject *__pyx_r = 0;
-  __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("reset (wrapper)", 0);
-  __pyx_r = __pyx_pf_5freud_3msd_3MSD_6reset(((struct __pyx_obj_5freud_3msd_MSD *)__pyx_v_self));
-
-  /* function exit code */
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-static PyObject *__pyx_pf_5freud_3msd_3MSD_6reset(struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self) {
-  PyObject *__pyx_r = NULL;
-  __Pyx_RefNannyDeclarations
-  PyObject *__pyx_t_1 = NULL;
-  __Pyx_RefNannySetupContext("reset", 0);
-
-  /* "freud/msd.pyx":230
- *         R"""Clears the stored MSD values from previous calls to accumulate (or
- *         the last call to compute)."""
- *         self._called_compute = False             # <<<<<<<<<<<<<<
- *         self.particle_msd = []
- * 
- */
-  __Pyx_INCREF(Py_False);
-  __Pyx_GIVEREF(Py_False);
-  __Pyx_GOTREF(__pyx_v_self->__pyx_base._called_compute);
-  __Pyx_DECREF(__pyx_v_self->__pyx_base._called_compute);
-  __pyx_v_self->__pyx_base._called_compute = Py_False;
-
-  /* "freud/msd.pyx":231
- *         the last call to compute)."""
- *         self._called_compute = False
- *         self.particle_msd = []             # <<<<<<<<<<<<<<
- * 
- *     def compute(self, positions, images=None):
- */
-  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 231, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_GIVEREF(__pyx_t_1);
-  __Pyx_GOTREF(__pyx_v_self->particle_msd);
-  __Pyx_DECREF(__pyx_v_self->particle_msd);
-  __pyx_v_self->particle_msd = __pyx_t_1;
-  __pyx_t_1 = 0;
-
-  /* "freud/msd.pyx":227
- *         return np.concatenate(self.particle_msd, axis=1).mean(axis=-1)
- * 
- *     def reset(self):             # <<<<<<<<<<<<<<
- *         R"""Clears the stored MSD values from previous calls to accumulate (or
- *         the last call to compute)."""
- */
-
-  /* function exit code */
-  __pyx_r = Py_None; __Pyx_INCREF(Py_None);
-  goto __pyx_L0;
-  __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("freud.msd.MSD.reset", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __pyx_r = NULL;
-  __pyx_L0:;
-  __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-/* "freud/msd.pyx":233
- *         self.particle_msd = []
- * 
- *     def compute(self, positions, images=None):             # <<<<<<<<<<<<<<
- *         """Calculate the MSD for the positions provided.
- * 
- */
-
-/* Python wrapper */
-static PyObject *__pyx_pw_5freud_3msd_3MSD_9compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_3msd_3MSD_8compute[] = "MSD.compute(self, positions, images=None)\nCalculate the MSD for the positions provided.\n\n        Args:\n            positions ((:math:`N_{frames}`, :math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                The particle positions over a trajectory. If neither box nor images\n                are provided, the positions are assumed to be unwrapped already.\n            images ((:math:`N_{frames}`, :math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):\n                The particle images to unwrap with if provided. Must be provided\n                along with a simulation box (in the constructor) if particle\n                positions need to be unwrapped. If neither are provided,\n                positions are assumed to be unwrapped already.\n                (Default value = :code:`None`).\n        ";
-static PyMethodDef __pyx_mdef_5freud_3msd_3MSD_9compute = {"compute", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_3msd_3MSD_9compute, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_3msd_3MSD_8compute};
-static PyObject *__pyx_pw_5freud_3msd_3MSD_9compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
-  PyObject *__pyx_v_positions = 0;
-  PyObject *__pyx_v_images = 0;
-  PyObject *__pyx_r = 0;
-  __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("compute (wrapper)", 0);
-  {
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_positions,&__pyx_n_s_images,0};
-    PyObject* values[2] = {0,0};
-    values[1] = ((PyObject *)Py_None);
-    if (unlikely(__pyx_kwds)) {
-      Py_ssize_t kw_args;
-      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
-      switch (pos_args) {
-        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
-        CYTHON_FALLTHROUGH;
-        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
-        CYTHON_FALLTHROUGH;
-        case  0: break;
-        default: goto __pyx_L5_argtuple_error;
-      }
-      kw_args = PyDict_Size(__pyx_kwds);
-      switch (pos_args) {
-        case  0:
-        if (likely((values[0] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_positions)) != 0)) kw_args--;
-        else goto __pyx_L5_argtuple_error;
-        CYTHON_FALLTHROUGH;
-        case  1:
-        if (kw_args > 0) {
-          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_images);
-          if (value) { values[1] = value; kw_args--; }
-        }
-      }
-      if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "compute") < 0)) __PYX_ERR(0, 233, __pyx_L3_error)
-      }
-    } else {
-      switch (PyTuple_GET_SIZE(__pyx_args)) {
-        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
-        CYTHON_FALLTHROUGH;
-        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
-        break;
-        default: goto __pyx_L5_argtuple_error;
-      }
-    }
-    __pyx_v_positions = values[0];
-    __pyx_v_images = values[1];
-  }
-  goto __pyx_L4_argument_unpacking_done;
-  __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("compute", 0, 1, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 233, __pyx_L3_error)
-  __pyx_L3_error:;
-  __Pyx_AddTraceback("freud.msd.MSD.compute", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __Pyx_RefNannyFinishContext();
-  return NULL;
-  __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_5freud_3msd_3MSD_8compute(((struct __pyx_obj_5freud_3msd_MSD *)__pyx_v_self), __pyx_v_positions, __pyx_v_images);
-
-  /* function exit code */
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-static PyObject *__pyx_pf_5freud_3msd_3MSD_8compute(struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self, PyObject *__pyx_v_positions, PyObject *__pyx_v_images) {
-  PyObject *__pyx_r = NULL;
-  __Pyx_RefNannyDeclarations
-  PyObject *__pyx_t_1 = NULL;
-  PyObject *__pyx_t_2 = NULL;
-  PyObject *__pyx_t_3 = NULL;
-  int __pyx_t_4;
-  PyObject *__pyx_t_5 = NULL;
-  __Pyx_RefNannySetupContext("compute", 0);
-
-  /* "freud/msd.pyx":247
- *                 (Default value = :code:`None`).
- *         """  # noqa: E501
- *         self.reset()             # <<<<<<<<<<<<<<
- *         self.accumulate(positions, images)
- *         return self
- */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_reset); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 247, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = NULL;
-  if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
-    __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_2);
-    if (likely(__pyx_t_3)) {
-      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
-      __Pyx_INCREF(__pyx_t_3);
-      __Pyx_INCREF(function);
-      __Pyx_DECREF_SET(__pyx_t_2, function);
-    }
-  }
-  __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3) : __Pyx_PyObject_CallNoArg(__pyx_t_2);
-  __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 247, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-
-  /* "freud/msd.pyx":248
- *         """  # noqa: E501
- *         self.reset()
- *         self.accumulate(positions, images)             # <<<<<<<<<<<<<<
- *         return self
- * 
- */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_accumulate); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 248, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = NULL;
-  __pyx_t_4 = 0;
-  if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
-    __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_2);
-    if (likely(__pyx_t_3)) {
-      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
-      __Pyx_INCREF(__pyx_t_3);
-      __Pyx_INCREF(function);
-      __Pyx_DECREF_SET(__pyx_t_2, function);
-      __pyx_t_4 = 1;
-    }
-  }
-  #if CYTHON_FAST_PYCALL
-  if (PyFunction_Check(__pyx_t_2)) {
-    PyObject *__pyx_temp[3] = {__pyx_t_3, __pyx_v_positions, __pyx_v_images};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 2+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 248, __pyx_L1_error)
-    __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __Pyx_GOTREF(__pyx_t_1);
-  } else
-  #endif
-  #if CYTHON_FAST_PYCCALL
-  if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
-    PyObject *__pyx_temp[3] = {__pyx_t_3, __pyx_v_positions, __pyx_v_images};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 2+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 248, __pyx_L1_error)
-    __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __Pyx_GOTREF(__pyx_t_1);
-  } else
-  #endif
-  {
-    __pyx_t_5 = PyTuple_New(2+__pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 248, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_5);
-    if (__pyx_t_3) {
-      __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_3); __pyx_t_3 = NULL;
-    }
-    __Pyx_INCREF(__pyx_v_positions);
-    __Pyx_GIVEREF(__pyx_v_positions);
-    PyTuple_SET_ITEM(__pyx_t_5, 0+__pyx_t_4, __pyx_v_positions);
-    __Pyx_INCREF(__pyx_v_images);
-    __Pyx_GIVEREF(__pyx_v_images);
-    PyTuple_SET_ITEM(__pyx_t_5, 1+__pyx_t_4, __pyx_v_images);
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 248, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_1);
-    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  }
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-
-  /* "freud/msd.pyx":249
- *         self.reset()
- *         self.accumulate(positions, images)
- *         return self             # <<<<<<<<<<<<<<
- * 
- *     def __repr__(self):
- */
-  __Pyx_XDECREF(__pyx_r);
-  __Pyx_INCREF(((PyObject *)__pyx_v_self));
-  __pyx_r = ((PyObject *)__pyx_v_self);
-  goto __pyx_L0;
-
-  /* "freud/msd.pyx":233
- *         self.particle_msd = []
- * 
- *     def compute(self, positions, images=None):             # <<<<<<<<<<<<<<
- *         """Calculate the MSD for the positions provided.
- * 
- */
-
-  /* function exit code */
-  __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_XDECREF(__pyx_t_2);
-  __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_AddTraceback("freud.msd.MSD.compute", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __pyx_r = NULL;
-  __pyx_L0:;
-  __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-/* "freud/msd.pyx":251
- *         return self
  * 
  *     def __repr__(self):             # <<<<<<<<<<<<<<
  *         return "freud.msd.{cls}(box={box}, mode={mode})".format(
@@ -5102,19 +4890,19 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_8compute(struct __pyx_obj_5freud_3msd
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_3msd_3MSD_11__repr__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_5freud_3msd_3MSD_11__repr__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_5freud_3msd_3MSD_7__repr__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_5freud_3msd_3MSD_7__repr__(PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__repr__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_5freud_3msd_3MSD_10__repr__(((struct __pyx_obj_5freud_3msd_MSD *)__pyx_v_self));
+  __pyx_r = __pyx_pf_5freud_3msd_3MSD_6__repr__(((struct __pyx_obj_5freud_3msd_MSD *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_5freud_3msd_3MSD_10__repr__(struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self) {
+static PyObject *__pyx_pf_5freud_3msd_3MSD_6__repr__(struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -5123,7 +4911,7 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_10__repr__(struct __pyx_obj_5freud_3m
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("__repr__", 0);
 
-  /* "freud/msd.pyx":252
+  /* "freud/msd.pyx":246
  * 
  *     def __repr__(self):
  *         return "freud.msd.{cls}(box={box}, mode={mode})".format(             # <<<<<<<<<<<<<<
@@ -5131,39 +4919,39 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_10__repr__(struct __pyx_obj_5freud_3m
  * 
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_kp_u_freud_msd_cls_box_box_mode_mode, __pyx_n_s_format); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 252, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_kp_u_freud_msd_cls_box_box_mode_mode, __pyx_n_s_format); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 246, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
 
-  /* "freud/msd.pyx":253
+  /* "freud/msd.pyx":247
  *     def __repr__(self):
  *         return "freud.msd.{cls}(box={box}, mode={mode})".format(
  *             cls=type(self).__name__, box=self._box, mode=repr(self.mode))             # <<<<<<<<<<<<<<
  * 
  *     def plot(self, ax=None):
  */
-  __pyx_t_2 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 253, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 247, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self))), __pyx_n_s_name); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 253, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self))), __pyx_n_s_name); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 247, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_cls, __pyx_t_3) < 0) __PYX_ERR(0, 253, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_cls, __pyx_t_3) < 0) __PYX_ERR(0, 247, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_box, ((PyObject *)__pyx_v_self->_box)) < 0) __PYX_ERR(0, 253, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_box, ((PyObject *)__pyx_v_self->_box)) < 0) __PYX_ERR(0, 247, __pyx_L1_error)
   __pyx_t_3 = __pyx_v_self->mode;
   __Pyx_INCREF(__pyx_t_3);
-  __pyx_t_4 = PyObject_Repr(__pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 253, __pyx_L1_error)
+  __pyx_t_4 = PyObject_Repr(__pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 247, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_mode, __pyx_t_4) < 0) __PYX_ERR(0, 253, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_mode, __pyx_t_4) < 0) __PYX_ERR(0, 247, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "freud/msd.pyx":252
+  /* "freud/msd.pyx":246
  * 
  *     def __repr__(self):
  *         return "freud.msd.{cls}(box={box}, mode={mode})".format(             # <<<<<<<<<<<<<<
  *             cls=type(self).__name__, box=self._box, mode=repr(self.mode))
  * 
  */
-  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_empty_tuple, __pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 252, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_empty_tuple, __pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 246, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -5171,8 +4959,8 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_10__repr__(struct __pyx_obj_5freud_3m
   __pyx_t_4 = 0;
   goto __pyx_L0;
 
-  /* "freud/msd.pyx":251
- *         return self
+  /* "freud/msd.pyx":245
+ *         return np.concatenate(self.particle_msd, axis=1).mean(axis=-1)
  * 
  *     def __repr__(self):             # <<<<<<<<<<<<<<
  *         return "freud.msd.{cls}(box={box}, mode={mode})".format(
@@ -5193,7 +4981,7 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_10__repr__(struct __pyx_obj_5freud_3m
   return __pyx_r;
 }
 
-/* "freud/msd.pyx":255
+/* "freud/msd.pyx":249
  *             cls=type(self).__name__, box=self._box, mode=repr(self.mode))
  * 
  *     def plot(self, ax=None):             # <<<<<<<<<<<<<<
@@ -5202,10 +4990,10 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_10__repr__(struct __pyx_obj_5freud_3m
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_3msd_3MSD_13plot(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_3msd_3MSD_12plot[] = "MSD.plot(self, ax=None)\nPlot MSD.\n\n        Args:\n            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If\n                :code:`None`, make a new figure and axis.\n                (Default value = :code:`None`)\n\n        Returns:\n            (:class:`matplotlib.axes.Axes`): Axis with the plot.\n        ";
-static PyMethodDef __pyx_mdef_5freud_3msd_3MSD_13plot = {"plot", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_3msd_3MSD_13plot, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_3msd_3MSD_12plot};
-static PyObject *__pyx_pw_5freud_3msd_3MSD_13plot(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_5freud_3msd_3MSD_9plot(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_5freud_3msd_3MSD_8plot[] = "MSD.plot(self, ax=None)\nPlot MSD.\n\n        Args:\n            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If\n                :code:`None`, make a new figure and axis.\n                (Default value = :code:`None`)\n\n        Returns:\n            (:class:`matplotlib.axes.Axes`): Axis with the plot.\n        ";
+static PyMethodDef __pyx_mdef_5freud_3msd_3MSD_9plot = {"plot", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_3msd_3MSD_9plot, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_3msd_3MSD_8plot};
+static PyObject *__pyx_pw_5freud_3msd_3MSD_9plot(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_ax = 0;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -5232,7 +5020,7 @@ static PyObject *__pyx_pw_5freud_3msd_3MSD_13plot(PyObject *__pyx_v_self, PyObje
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "plot") < 0)) __PYX_ERR(0, 255, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "plot") < 0)) __PYX_ERR(0, 249, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -5246,20 +5034,20 @@ static PyObject *__pyx_pw_5freud_3msd_3MSD_13plot(PyObject *__pyx_v_self, PyObje
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("plot", 0, 0, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 255, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("plot", 0, 0, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 249, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.msd.MSD.plot", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_5freud_3msd_3MSD_12plot(((struct __pyx_obj_5freud_3msd_MSD *)__pyx_v_self), __pyx_v_ax);
+  __pyx_r = __pyx_pf_5freud_3msd_3MSD_8plot(((struct __pyx_obj_5freud_3msd_MSD *)__pyx_v_self), __pyx_v_ax);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_5freud_3msd_3MSD_12plot(struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self, PyObject *__pyx_v_ax) {
+static PyObject *__pyx_pf_5freud_3msd_3MSD_8plot(struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self, PyObject *__pyx_v_ax) {
   PyObject *__pyx_v_freud = NULL;
   PyObject *__pyx_v_xlabel = NULL;
   PyObject *__pyx_r = NULL;
@@ -5273,30 +5061,30 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_12plot(struct __pyx_obj_5freud_3msd_M
   PyObject *__pyx_t_7 = NULL;
   __Pyx_RefNannySetupContext("plot", 0);
 
-  /* "freud/msd.pyx":266
+  /* "freud/msd.pyx":260
  *             (:class:`matplotlib.axes.Axes`): Axis with the plot.
  *         """
  *         import freud.plot             # <<<<<<<<<<<<<<
  *         if self.mode == "window":
  *             xlabel = "Window size"
  */
-  __pyx_t_1 = __Pyx_Import(__pyx_n_s_freud_plot, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 266, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_Import(__pyx_n_s_freud_plot, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 260, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_freud = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "freud/msd.pyx":267
+  /* "freud/msd.pyx":261
  *         """
  *         import freud.plot
  *         if self.mode == "window":             # <<<<<<<<<<<<<<
  *             xlabel = "Window size"
  *         else:
  */
-  __pyx_t_2 = (__Pyx_PyUnicode_Equals(__pyx_v_self->mode, __pyx_n_u_window, Py_EQ)); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 267, __pyx_L1_error)
+  __pyx_t_2 = (__Pyx_PyUnicode_Equals(__pyx_v_self->mode, __pyx_n_u_window, Py_EQ)); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 261, __pyx_L1_error)
   __pyx_t_3 = (__pyx_t_2 != 0);
   if (__pyx_t_3) {
 
-    /* "freud/msd.pyx":268
+    /* "freud/msd.pyx":262
  *         import freud.plot
  *         if self.mode == "window":
  *             xlabel = "Window size"             # <<<<<<<<<<<<<<
@@ -5306,7 +5094,7 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_12plot(struct __pyx_obj_5freud_3msd_M
     __Pyx_INCREF(__pyx_kp_u_Window_size);
     __pyx_v_xlabel = __pyx_kp_u_Window_size;
 
-    /* "freud/msd.pyx":267
+    /* "freud/msd.pyx":261
  *         """
  *         import freud.plot
  *         if self.mode == "window":             # <<<<<<<<<<<<<<
@@ -5316,7 +5104,7 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_12plot(struct __pyx_obj_5freud_3msd_M
     goto __pyx_L3;
   }
 
-  /* "freud/msd.pyx":270
+  /* "freud/msd.pyx":264
  *             xlabel = "Window size"
  *         else:
  *             xlabel = "Frame number"             # <<<<<<<<<<<<<<
@@ -5329,7 +5117,7 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_12plot(struct __pyx_obj_5freud_3msd_M
   }
   __pyx_L3:;
 
-  /* "freud/msd.pyx":271
+  /* "freud/msd.pyx":265
  *         else:
  *             xlabel = "Frame number"
  *         return freud.plot.line_plot(list(range(len(self.msd))), self.msd,             # <<<<<<<<<<<<<<
@@ -5337,26 +5125,26 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_12plot(struct __pyx_obj_5freud_3msd_M
  *                                     xlabel=xlabel,
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_freud, __pyx_n_s_plot); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 271, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_freud, __pyx_n_s_plot); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 265, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_line_plot); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 271, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_line_plot); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 265, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_msd); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 271, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_msd); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 265, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_5 = PyObject_Length(__pyx_t_1); if (unlikely(__pyx_t_5 == ((Py_ssize_t)-1))) __PYX_ERR(0, 271, __pyx_L1_error)
+  __pyx_t_5 = PyObject_Length(__pyx_t_1); if (unlikely(__pyx_t_5 == ((Py_ssize_t)-1))) __PYX_ERR(0, 265, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyInt_FromSsize_t(__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 271, __pyx_L1_error)
+  __pyx_t_1 = PyInt_FromSsize_t(__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 265, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_6 = __Pyx_PyObject_CallOneArg(__pyx_builtin_range, __pyx_t_1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 271, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_CallOneArg(__pyx_builtin_range, __pyx_t_1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 265, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PySequence_List(__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 271, __pyx_L1_error)
+  __pyx_t_1 = PySequence_List(__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 265, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_msd); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 271, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_msd); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 265, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_7 = PyTuple_New(2); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 271, __pyx_L1_error)
+  __pyx_t_7 = PyTuple_New(2); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 265, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_GIVEREF(__pyx_t_1);
   PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_1);
@@ -5365,44 +5153,44 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_12plot(struct __pyx_obj_5freud_3msd_M
   __pyx_t_1 = 0;
   __pyx_t_6 = 0;
 
-  /* "freud/msd.pyx":272
+  /* "freud/msd.pyx":266
  *             xlabel = "Frame number"
  *         return freud.plot.line_plot(list(range(len(self.msd))), self.msd,
  *                                     title="MSD",             # <<<<<<<<<<<<<<
  *                                     xlabel=xlabel,
  *                                     ylabel="MSD",
  */
-  __pyx_t_6 = __Pyx_PyDict_NewPresized(4); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 272, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyDict_NewPresized(4); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 266, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_title, __pyx_n_u_MSD) < 0) __PYX_ERR(0, 272, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_title, __pyx_n_u_MSD) < 0) __PYX_ERR(0, 266, __pyx_L1_error)
 
-  /* "freud/msd.pyx":273
+  /* "freud/msd.pyx":267
  *         return freud.plot.line_plot(list(range(len(self.msd))), self.msd,
  *                                     title="MSD",
  *                                     xlabel=xlabel,             # <<<<<<<<<<<<<<
  *                                     ylabel="MSD",
  *                                     ax=ax)
  */
-  if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_xlabel, __pyx_v_xlabel) < 0) __PYX_ERR(0, 272, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_ylabel, __pyx_n_u_MSD) < 0) __PYX_ERR(0, 272, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_xlabel, __pyx_v_xlabel) < 0) __PYX_ERR(0, 266, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_ylabel, __pyx_n_u_MSD) < 0) __PYX_ERR(0, 266, __pyx_L1_error)
 
-  /* "freud/msd.pyx":275
+  /* "freud/msd.pyx":269
  *                                     xlabel=xlabel,
  *                                     ylabel="MSD",
  *                                     ax=ax)             # <<<<<<<<<<<<<<
  * 
  *     def _repr_png_(self):
  */
-  if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_ax, __pyx_v_ax) < 0) __PYX_ERR(0, 272, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_ax, __pyx_v_ax) < 0) __PYX_ERR(0, 266, __pyx_L1_error)
 
-  /* "freud/msd.pyx":271
+  /* "freud/msd.pyx":265
  *         else:
  *             xlabel = "Frame number"
  *         return freud.plot.line_plot(list(range(len(self.msd))), self.msd,             # <<<<<<<<<<<<<<
  *                                     title="MSD",
  *                                     xlabel=xlabel,
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_7, __pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 271, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_7, __pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 265, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
@@ -5411,7 +5199,7 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_12plot(struct __pyx_obj_5freud_3msd_M
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/msd.pyx":255
+  /* "freud/msd.pyx":249
  *             cls=type(self).__name__, box=self._box, mode=repr(self.mode))
  * 
  *     def plot(self, ax=None):             # <<<<<<<<<<<<<<
@@ -5435,30 +5223,33 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_12plot(struct __pyx_obj_5freud_3msd_M
   return __pyx_r;
 }
 
-/* "freud/msd.pyx":277
+/* "freud/msd.pyx":271
  *                                     ax=ax)
  * 
  *     def _repr_png_(self):             # <<<<<<<<<<<<<<
- *         import freud.plot
  *         try:
+ *             import freud.plot
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_3msd_3MSD_15_repr_png_(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_3msd_3MSD_14_repr_png_[] = "MSD._repr_png_(self)";
-static PyMethodDef __pyx_mdef_5freud_3msd_3MSD_15_repr_png_ = {"_repr_png_", (PyCFunction)__pyx_pw_5freud_3msd_3MSD_15_repr_png_, METH_NOARGS, __pyx_doc_5freud_3msd_3MSD_14_repr_png_};
-static PyObject *__pyx_pw_5freud_3msd_3MSD_15_repr_png_(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_5freud_3msd_3MSD_11_repr_png_(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_5freud_3msd_3MSD_10_repr_png_[] = "MSD._repr_png_(self)";
+static PyMethodDef __pyx_mdef_5freud_3msd_3MSD_11_repr_png_ = {"_repr_png_", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_3msd_3MSD_11_repr_png_, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_3msd_3MSD_10_repr_png_};
+static PyObject *__pyx_pw_5freud_3msd_3MSD_11_repr_png_(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("_repr_png_ (wrapper)", 0);
-  __pyx_r = __pyx_pf_5freud_3msd_3MSD_14_repr_png_(((struct __pyx_obj_5freud_3msd_MSD *)__pyx_v_self));
+  if (unlikely(PyTuple_GET_SIZE(__pyx_args) > 0)) {
+    __Pyx_RaiseArgtupleInvalid("_repr_png_", 1, 0, 0, PyTuple_GET_SIZE(__pyx_args)); return NULL;}
+  if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "_repr_png_", 0))) return NULL;
+  __pyx_r = __pyx_pf_5freud_3msd_3MSD_10_repr_png_(((struct __pyx_obj_5freud_3msd_MSD *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_5freud_3msd_3MSD_14_repr_png_(struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self) {
+static PyObject *__pyx_pf_5freud_3msd_3MSD_10_repr_png_(struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self) {
   PyObject *__pyx_v_freud = NULL;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
@@ -5473,48 +5264,48 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_14_repr_png_(struct __pyx_obj_5freud_
   int __pyx_t_9;
   __Pyx_RefNannySetupContext("_repr_png_", 0);
 
-  /* "freud/msd.pyx":278
+  /* "freud/msd.pyx":272
  * 
  *     def _repr_png_(self):
- *         import freud.plot             # <<<<<<<<<<<<<<
- *         try:
- *             return freud.plot.ax_to_bytes(self.plot())
- */
-  __pyx_t_1 = __Pyx_Import(__pyx_n_s_freud_plot, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 278, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_v_freud = __pyx_t_1;
-  __pyx_t_1 = 0;
-
-  /* "freud/msd.pyx":279
- *     def _repr_png_(self):
- *         import freud.plot
  *         try:             # <<<<<<<<<<<<<<
- *             return freud.plot.ax_to_bytes(self.plot())
- *         except AttributeError:
+ *             import freud.plot
+ *             return freud.plot._ax_to_bytes(self.plot())
  */
   {
     __Pyx_PyThreadState_declare
     __Pyx_PyThreadState_assign
-    __Pyx_ExceptionSave(&__pyx_t_2, &__pyx_t_3, &__pyx_t_4);
+    __Pyx_ExceptionSave(&__pyx_t_1, &__pyx_t_2, &__pyx_t_3);
+    __Pyx_XGOTREF(__pyx_t_1);
     __Pyx_XGOTREF(__pyx_t_2);
     __Pyx_XGOTREF(__pyx_t_3);
-    __Pyx_XGOTREF(__pyx_t_4);
     /*try:*/ {
 
-      /* "freud/msd.pyx":280
- *         import freud.plot
+      /* "freud/msd.pyx":273
+ *     def _repr_png_(self):
  *         try:
- *             return freud.plot.ax_to_bytes(self.plot())             # <<<<<<<<<<<<<<
- *         except AttributeError:
+ *             import freud.plot             # <<<<<<<<<<<<<<
+ *             return freud.plot._ax_to_bytes(self.plot())
+ *         except (AttributeError, ImportError):
+ */
+      __pyx_t_4 = __Pyx_Import(__pyx_n_s_freud_plot, 0, 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 273, __pyx_L3_error)
+      __Pyx_GOTREF(__pyx_t_4);
+      __pyx_v_freud = __pyx_t_4;
+      __pyx_t_4 = 0;
+
+      /* "freud/msd.pyx":274
+ *         try:
+ *             import freud.plot
+ *             return freud.plot._ax_to_bytes(self.plot())             # <<<<<<<<<<<<<<
+ *         except (AttributeError, ImportError):
  *             return None
  */
       __Pyx_XDECREF(__pyx_r);
-      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_freud, __pyx_n_s_plot); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 280, __pyx_L3_error)
+      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_freud, __pyx_n_s_plot); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 274, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_5);
-      __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_ax_to_bytes); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 280, __pyx_L3_error)
+      __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_ax_to_bytes); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 274, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-      __pyx_t_7 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_plot); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 280, __pyx_L3_error)
+      __pyx_t_7 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_plot); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 274, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_7);
       __pyx_t_8 = NULL;
       if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_7))) {
@@ -5528,7 +5319,7 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_14_repr_png_(struct __pyx_obj_5freud_
       }
       __pyx_t_5 = (__pyx_t_8) ? __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_t_8) : __Pyx_PyObject_CallNoArg(__pyx_t_7);
       __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
-      if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 280, __pyx_L3_error)
+      if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 274, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
       __pyx_t_7 = NULL;
@@ -5541,53 +5332,53 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_14_repr_png_(struct __pyx_obj_5freud_
           __Pyx_DECREF_SET(__pyx_t_6, function);
         }
       }
-      __pyx_t_1 = (__pyx_t_7) ? __Pyx_PyObject_Call2Args(__pyx_t_6, __pyx_t_7, __pyx_t_5) : __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_t_5);
+      __pyx_t_4 = (__pyx_t_7) ? __Pyx_PyObject_Call2Args(__pyx_t_6, __pyx_t_7, __pyx_t_5) : __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_t_5);
       __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 280, __pyx_L3_error)
-      __Pyx_GOTREF(__pyx_t_1);
+      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 274, __pyx_L3_error)
+      __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-      __pyx_r = __pyx_t_1;
-      __pyx_t_1 = 0;
+      __pyx_r = __pyx_t_4;
+      __pyx_t_4 = 0;
       goto __pyx_L7_try_return;
 
-      /* "freud/msd.pyx":279
+      /* "freud/msd.pyx":272
+ * 
  *     def _repr_png_(self):
- *         import freud.plot
  *         try:             # <<<<<<<<<<<<<<
- *             return freud.plot.ax_to_bytes(self.plot())
- *         except AttributeError:
+ *             import freud.plot
+ *             return freud.plot._ax_to_bytes(self.plot())
  */
     }
     __pyx_L3_error:;
-    __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
+    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
     __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
 
-    /* "freud/msd.pyx":281
- *         try:
- *             return freud.plot.ax_to_bytes(self.plot())
- *         except AttributeError:             # <<<<<<<<<<<<<<
+    /* "freud/msd.pyx":275
+ *             import freud.plot
+ *             return freud.plot._ax_to_bytes(self.plot())
+ *         except (AttributeError, ImportError):             # <<<<<<<<<<<<<<
  *             return None
  */
-    __pyx_t_9 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_AttributeError);
+    __pyx_t_9 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_AttributeError) || __Pyx_PyErr_ExceptionMatches(__pyx_builtin_ImportError);
     if (__pyx_t_9) {
       __Pyx_AddTraceback("freud.msd.MSD._repr_png_", __pyx_clineno, __pyx_lineno, __pyx_filename);
-      if (__Pyx_GetException(&__pyx_t_1, &__pyx_t_6, &__pyx_t_5) < 0) __PYX_ERR(0, 281, __pyx_L5_except_error)
-      __Pyx_GOTREF(__pyx_t_1);
+      if (__Pyx_GetException(&__pyx_t_4, &__pyx_t_6, &__pyx_t_5) < 0) __PYX_ERR(0, 275, __pyx_L5_except_error)
+      __Pyx_GOTREF(__pyx_t_4);
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_GOTREF(__pyx_t_5);
 
-      /* "freud/msd.pyx":282
- *             return freud.plot.ax_to_bytes(self.plot())
- *         except AttributeError:
+      /* "freud/msd.pyx":276
+ *             return freud.plot._ax_to_bytes(self.plot())
+ *         except (AttributeError, ImportError):
  *             return None             # <<<<<<<<<<<<<<
  */
       __Pyx_XDECREF(__pyx_r);
       __pyx_r = Py_None; __Pyx_INCREF(Py_None);
-      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
       goto __pyx_L6_except_return;
@@ -5595,43 +5386,43 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_14_repr_png_(struct __pyx_obj_5freud_
     goto __pyx_L5_except_error;
     __pyx_L5_except_error:;
 
-    /* "freud/msd.pyx":279
+    /* "freud/msd.pyx":272
+ * 
  *     def _repr_png_(self):
- *         import freud.plot
  *         try:             # <<<<<<<<<<<<<<
- *             return freud.plot.ax_to_bytes(self.plot())
- *         except AttributeError:
+ *             import freud.plot
+ *             return freud.plot._ax_to_bytes(self.plot())
  */
+    __Pyx_XGIVEREF(__pyx_t_1);
     __Pyx_XGIVEREF(__pyx_t_2);
     __Pyx_XGIVEREF(__pyx_t_3);
-    __Pyx_XGIVEREF(__pyx_t_4);
-    __Pyx_ExceptionReset(__pyx_t_2, __pyx_t_3, __pyx_t_4);
+    __Pyx_ExceptionReset(__pyx_t_1, __pyx_t_2, __pyx_t_3);
     goto __pyx_L1_error;
     __pyx_L7_try_return:;
+    __Pyx_XGIVEREF(__pyx_t_1);
     __Pyx_XGIVEREF(__pyx_t_2);
     __Pyx_XGIVEREF(__pyx_t_3);
-    __Pyx_XGIVEREF(__pyx_t_4);
-    __Pyx_ExceptionReset(__pyx_t_2, __pyx_t_3, __pyx_t_4);
+    __Pyx_ExceptionReset(__pyx_t_1, __pyx_t_2, __pyx_t_3);
     goto __pyx_L0;
     __pyx_L6_except_return:;
+    __Pyx_XGIVEREF(__pyx_t_1);
     __Pyx_XGIVEREF(__pyx_t_2);
     __Pyx_XGIVEREF(__pyx_t_3);
-    __Pyx_XGIVEREF(__pyx_t_4);
-    __Pyx_ExceptionReset(__pyx_t_2, __pyx_t_3, __pyx_t_4);
+    __Pyx_ExceptionReset(__pyx_t_1, __pyx_t_2, __pyx_t_3);
     goto __pyx_L0;
   }
 
-  /* "freud/msd.pyx":277
+  /* "freud/msd.pyx":271
  *                                     ax=ax)
  * 
  *     def _repr_png_(self):             # <<<<<<<<<<<<<<
- *         import freud.plot
  *         try:
+ *             import freud.plot
  */
 
   /* function exit code */
   __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_6);
   __Pyx_XDECREF(__pyx_t_7);
@@ -5652,21 +5443,24 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_14_repr_png_(struct __pyx_obj_5freud_
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_3msd_3MSD_17__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_3msd_3MSD_16__reduce_cython__[] = "MSD.__reduce_cython__(self)";
-static PyMethodDef __pyx_mdef_5freud_3msd_3MSD_17__reduce_cython__ = {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_3msd_3MSD_17__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_3msd_3MSD_16__reduce_cython__};
-static PyObject *__pyx_pw_5freud_3msd_3MSD_17__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_5freud_3msd_3MSD_13__reduce_cython__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_5freud_3msd_3MSD_12__reduce_cython__[] = "MSD.__reduce_cython__(self)";
+static PyMethodDef __pyx_mdef_5freud_3msd_3MSD_13__reduce_cython__ = {"__reduce_cython__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_3msd_3MSD_13__reduce_cython__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_3msd_3MSD_12__reduce_cython__};
+static PyObject *__pyx_pw_5freud_3msd_3MSD_13__reduce_cython__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__reduce_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_5freud_3msd_3MSD_16__reduce_cython__(((struct __pyx_obj_5freud_3msd_MSD *)__pyx_v_self));
+  if (unlikely(PyTuple_GET_SIZE(__pyx_args) > 0)) {
+    __Pyx_RaiseArgtupleInvalid("__reduce_cython__", 1, 0, 0, PyTuple_GET_SIZE(__pyx_args)); return NULL;}
+  if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "__reduce_cython__", 0))) return NULL;
+  __pyx_r = __pyx_pf_5freud_3msd_3MSD_12__reduce_cython__(((struct __pyx_obj_5freud_3msd_MSD *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_5freud_3msd_3MSD_16__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self) {
+static PyObject *__pyx_pf_5freud_3msd_3MSD_12__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -5708,21 +5502,58 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_16__reduce_cython__(CYTHON_UNUSED str
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_3msd_3MSD_19__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
-static char __pyx_doc_5freud_3msd_3MSD_18__setstate_cython__[] = "MSD.__setstate_cython__(self, __pyx_state)";
-static PyMethodDef __pyx_mdef_5freud_3msd_3MSD_19__setstate_cython__ = {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_3msd_3MSD_19__setstate_cython__, METH_O, __pyx_doc_5freud_3msd_3MSD_18__setstate_cython__};
-static PyObject *__pyx_pw_5freud_3msd_3MSD_19__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pw_5freud_3msd_3MSD_15__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_5freud_3msd_3MSD_14__setstate_cython__[] = "MSD.__setstate_cython__(self, __pyx_state)";
+static PyMethodDef __pyx_mdef_5freud_3msd_3MSD_15__setstate_cython__ = {"__setstate_cython__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_3msd_3MSD_15__setstate_cython__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_3msd_3MSD_14__setstate_cython__};
+static PyObject *__pyx_pw_5freud_3msd_3MSD_15__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  CYTHON_UNUSED PyObject *__pyx_v___pyx_state = 0;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setstate_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_5freud_3msd_3MSD_18__setstate_cython__(((struct __pyx_obj_5freud_3msd_MSD *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
+  {
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_pyx_state,0};
+    PyObject* values[1] = {0};
+    if (unlikely(__pyx_kwds)) {
+      Py_ssize_t kw_args;
+      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
+      switch (pos_args) {
+        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        CYTHON_FALLTHROUGH;
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      kw_args = PyDict_Size(__pyx_kwds);
+      switch (pos_args) {
+        case  0:
+        if (likely((values[0] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_pyx_state)) != 0)) kw_args--;
+        else goto __pyx_L5_argtuple_error;
+      }
+      if (unlikely(kw_args > 0)) {
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__setstate_cython__") < 0)) __PYX_ERR(1, 3, __pyx_L3_error)
+      }
+    } else if (PyTuple_GET_SIZE(__pyx_args) != 1) {
+      goto __pyx_L5_argtuple_error;
+    } else {
+      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+    }
+    __pyx_v___pyx_state = values[0];
+  }
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("__setstate_cython__", 1, 1, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 3, __pyx_L3_error)
+  __pyx_L3_error:;
+  __Pyx_AddTraceback("freud.msd.MSD.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return NULL;
+  __pyx_L4_argument_unpacking_done:;
+  __pyx_r = __pyx_pf_5freud_3msd_3MSD_14__setstate_cython__(((struct __pyx_obj_5freud_3msd_MSD *)__pyx_v_self), __pyx_v___pyx_state);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_5freud_3msd_3MSD_18__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_5freud_3msd_3MSD_14__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -8728,7 +8559,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5freud_4util_make_managed_numpy_array(voi
 
 static PyObject *__pyx_tp_new_5freud_3msd_MSD(PyTypeObject *t, PyObject *a, PyObject *k) {
   struct __pyx_obj_5freud_3msd_MSD *p;
-  PyObject *o = __pyx_ptype_5freud_4util_Compute->tp_new(t, a, k);
+  PyObject *o = __pyx_ptype_5freud_4util__Compute->tp_new(t, a, k);
   if (unlikely(!o)) return 0;
   p = ((struct __pyx_obj_5freud_3msd_MSD *)o);
   p->_box = ((struct __pyx_obj_5freud_3box_Box *)Py_None); Py_INCREF(Py_None);
@@ -8753,13 +8584,13 @@ static void __pyx_tp_dealloc_5freud_3msd_MSD(PyObject *o) {
   Py_CLEAR(p->particle_msd);
   Py_CLEAR(p->mode);
   PyObject_GC_Track(o);
-  if (likely(__pyx_ptype_5freud_4util_Compute)) __pyx_ptype_5freud_4util_Compute->tp_dealloc(o); else __Pyx_call_next_tp_dealloc(o, __pyx_tp_dealloc_5freud_3msd_MSD);
+  if (likely(__pyx_ptype_5freud_4util__Compute)) __pyx_ptype_5freud_4util__Compute->tp_dealloc(o); else __Pyx_call_next_tp_dealloc(o, __pyx_tp_dealloc_5freud_3msd_MSD);
 }
 
 static int __pyx_tp_traverse_5freud_3msd_MSD(PyObject *o, visitproc v, void *a) {
   int e;
   struct __pyx_obj_5freud_3msd_MSD *p = (struct __pyx_obj_5freud_3msd_MSD *)o;
-  e = ((likely(__pyx_ptype_5freud_4util_Compute)) ? ((__pyx_ptype_5freud_4util_Compute->tp_traverse) ? __pyx_ptype_5freud_4util_Compute->tp_traverse(o, v, a) : 0) : __Pyx_call_next_tp_traverse(o, v, a, __pyx_tp_traverse_5freud_3msd_MSD)); if (e) return e;
+  e = ((likely(__pyx_ptype_5freud_4util__Compute)) ? ((__pyx_ptype_5freud_4util__Compute->tp_traverse) ? __pyx_ptype_5freud_4util__Compute->tp_traverse(o, v, a) : 0) : __Pyx_call_next_tp_traverse(o, v, a, __pyx_tp_traverse_5freud_3msd_MSD)); if (e) return e;
   if (p->_box) {
     e = (*v)(((PyObject *)p->_box), a); if (e) return e;
   }
@@ -8772,7 +8603,7 @@ static int __pyx_tp_traverse_5freud_3msd_MSD(PyObject *o, visitproc v, void *a) 
 static int __pyx_tp_clear_5freud_3msd_MSD(PyObject *o) {
   PyObject* tmp;
   struct __pyx_obj_5freud_3msd_MSD *p = (struct __pyx_obj_5freud_3msd_MSD *)o;
-  if (likely(__pyx_ptype_5freud_4util_Compute)) { if (__pyx_ptype_5freud_4util_Compute->tp_clear) __pyx_ptype_5freud_4util_Compute->tp_clear(o); } else __Pyx_call_next_tp_clear(o, __pyx_tp_clear_5freud_3msd_MSD);
+  if (likely(__pyx_ptype_5freud_4util__Compute)) { if (__pyx_ptype_5freud_4util__Compute->tp_clear) __pyx_ptype_5freud_4util__Compute->tp_clear(o); } else __Pyx_call_next_tp_clear(o, __pyx_tp_clear_5freud_3msd_MSD);
   tmp = ((PyObject*)p->_box);
   p->_box = ((struct __pyx_obj_5freud_3box_Box *)Py_None); Py_INCREF(Py_None);
   Py_XDECREF(tmp);
@@ -8787,14 +8618,12 @@ static PyObject *__pyx_getprop_5freud_3msd_3MSD_box(PyObject *o, CYTHON_UNUSED v
 }
 
 static PyMethodDef __pyx_methods_5freud_3msd_MSD[] = {
-  {"accumulate", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_3msd_3MSD_3accumulate, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_3msd_3MSD_2accumulate},
-  {"msd", (PyCFunction)__pyx_pw_5freud_3msd_3MSD_5msd, METH_NOARGS, __pyx_doc_5freud_3msd_3MSD_4msd},
-  {"reset", (PyCFunction)__pyx_pw_5freud_3msd_3MSD_7reset, METH_NOARGS, __pyx_doc_5freud_3msd_3MSD_6reset},
-  {"compute", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_3msd_3MSD_9compute, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_3msd_3MSD_8compute},
-  {"plot", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_3msd_3MSD_13plot, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_3msd_3MSD_12plot},
-  {"_repr_png_", (PyCFunction)__pyx_pw_5freud_3msd_3MSD_15_repr_png_, METH_NOARGS, __pyx_doc_5freud_3msd_3MSD_14_repr_png_},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_3msd_3MSD_17__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_3msd_3MSD_16__reduce_cython__},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_3msd_3MSD_19__setstate_cython__, METH_O, __pyx_doc_5freud_3msd_3MSD_18__setstate_cython__},
+  {"compute", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_3msd_3MSD_3compute, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_3msd_3MSD_2compute},
+  {"msd", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_3msd_3MSD_5msd, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_3msd_3MSD_4msd},
+  {"plot", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_3msd_3MSD_9plot, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_3msd_3MSD_8plot},
+  {"_repr_png_", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_3msd_3MSD_11_repr_png_, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_3msd_3MSD_10_repr_png_},
+  {"__reduce_cython__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_3msd_3MSD_13__reduce_cython__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_3msd_3MSD_12__reduce_cython__},
+  {"__setstate_cython__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_3msd_3MSD_15__setstate_cython__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_3msd_3MSD_14__setstate_cython__},
   {0, 0, 0, 0}
 };
 
@@ -8818,7 +8647,7 @@ static PyTypeObject __pyx_type_5freud_3msd_MSD = {
   #if PY_MAJOR_VERSION >= 3
   0, /*tp_as_async*/
   #endif
-  __pyx_pw_5freud_3msd_3MSD_11__repr__, /*tp_repr*/
+  __pyx_pw_5freud_3msd_3MSD_7__repr__, /*tp_repr*/
   0, /*tp_as_number*/
   0, /*tp_as_sequence*/
   0, /*tp_as_mapping*/
@@ -8829,7 +8658,7 @@ static PyTypeObject __pyx_type_5freud_3msd_MSD = {
   0, /*tp_setattro*/
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-  "Compute the mean squared displacement.\n\n    The mean squared displacement (MSD) measures how much particles move over\n    time. The MSD plays an important role in characterizing Brownian motion,\n    since it provides a measure of whether particles are moving according to\n    diffusion alone or if there are other forces contributing. There are a\n    number of definitions for the mean squared displacement. This function\n    provides access to the two most common definitions through the mode\n    argument.\n\n    * :code:`'window'` (*default*):\n      This mode calculates the most common form of the MSD, which is defined as\n\n      .. math::\n\n          MSD(m) = \\frac{1}{N_{particles}} \\sum_{i=1}^{N_{particles}} \\frac{1}{N-m} \\sum_{k=0}^{N-m-1} (\\vec{r}_i(k+m) - \\vec{r}_i(k))^2\n\n      where :math:`r_i(t)` is the position of particle :math:`i` in frame\n      :math:`t`. According to this definition, the mean squared displacement is\n      the average displacement over all windows of length :math:`m` over the\n      course of the simulation. Therefore, for any :math:`m`, :math:`MSD(m)` is\n      averaged over all windows of length :math:`m` and over all particles.\n      This calculation can be accessed using the 'window' mode of this\n      function.\n\n      The windowed calculation can be quite computationally intensive. To\n      perform this calculation efficiently, we use the algorithm described in\n      [Calandrini2011]_ as described in `this StackOverflow thread\n      <https://stackoverflow.com/questions/34222272/computing-mean-square-displacement-using-python-and-fft>`_.\n\n        .. note::\n            The most intensive part of this calculation is computing an FFT. To\n            maximize performance, freud attempts to use the fastest FFT library\n            available. By default, the order of preference is `pyFFTW\n            <https://github.com/pyFFTW/pyFFTW>`_, SciPy, and then NumPy. If you\n            are experiencing significant sl""owdowns in calculating the MSD, you\n            may benefit from installing a faster FFT library, which freud will\n            automatically detect. The performance change will be especially\n            noticeable if the length of your trajectory is a number whose prime\n            factorization consists of extremely large prime factors. The\n            standard Cooley-Tukey FFT algorithm performs very poorly in this\n            case, so installing pyFFTW will significantly improve performance.\n\n            Note that while pyFFTW is released under the BSD 3-Clause license,\n            the FFTW library is available under either GPL or a commercial\n            license. As a result, if you wish to use this module with pyFFTW in\n            code, your code must also be GPL licensed unless you purchase a\n            commercial license.\n\n    * :code:`'direct'`:\n      Under some circumstances, however, we may be more interested in\n      calculating a different quantity described by\n\n      .. math::\n          :nowrap:\n\n          \\begin{eqnarray*}\n              MSD(t) =& \\dfrac{1}{N_{particles}} \\sum_{i=1}^{N_{particles}} (r_i(t) - r_i(0))^2 \\\\\n          \\end{eqnarray*}\n\n      In this case, at each time point (i.e. simulation frame) we simply\n      compute how much particles have moved from their initial position,\n      averaged over all particles. For more information on this calculation,\n      see `the Wikipedia page\n      <https://en.wikipedia.org/wiki/Mean_squared_displacement>`_.\n\n    .. note::\n        The MSD is only well-defined when the box is constant over the\n        course of the simulation. Additionally, the number of particles must be\n        constant over the course of the simulation.\n\n    Args:\n        box (:class:`freud.box.Box`, optional):\n            If not provided, the class will assume that all positions provided\n            in calls to :meth:`~compute` or :meth:`~accumulate` are already\n            unwrapped"". (Default value = :code:`None`).\n        mode (str, optional):\n            Mode of calculation. Options are :code:`'window'` and\n            :code:`'direct'`.  (Default value = :code:`'window'`).\n    ", /*tp_doc*/
+  "Compute the mean squared displacement.\n\n    The mean squared displacement (MSD) measures how much particles move over\n    time. The MSD plays an important role in characterizing Brownian motion,\n    since it provides a measure of whether particles are moving according to\n    diffusion alone or if there are other forces contributing. There are a\n    number of definitions for the mean squared displacement. This function\n    provides access to the two most common definitions through the mode\n    argument.\n\n    * :code:`'window'` (*default*):\n      This mode calculates the most common form of the MSD, which is defined as\n\n      .. math::\n\n          MSD(m) = \\frac{1}{N_{particles}} \\sum_{i=1}^{N_{particles}} \\frac{1}{N-m} \\sum_{k=0}^{N-m-1} (\\vec{r}_i(k+m) - \\vec{r}_i(k))^2\n\n      where :math:`r_i(t)` is the position of particle :math:`i` in frame\n      :math:`t`. According to this definition, the mean squared displacement is\n      the average displacement over all windows of length :math:`m` over the\n      course of the simulation. Therefore, for any :math:`m`, :math:`MSD(m)` is\n      averaged over all windows of length :math:`m` and over all particles.\n      This calculation can be accessed using the 'window' mode of this\n      function.\n\n      The windowed calculation can be quite computationally intensive. To\n      perform this calculation efficiently, we use the algorithm described in\n      :cite:`calandrini2011nmoldyn` as described in `this StackOverflow thread\n      <https://stackoverflow.com/questions/34222272/computing-mean-square-displacement-using-python-and-fft>`_.\n\n      .. note::\n          The most intensive part of this calculation is computing an FFT. To\n          maximize performance, freud attempts to use the fastest FFT library\n          available. By default, the order of preference is `pyFFTW\n          <https://github.com/pyFFTW/pyFFTW>`_, SciPy, and then NumPy. If you\n          are experiencing significant sl""owdowns in calculating the MSD, you\n          may benefit from installing a faster FFT library, which freud will\n          automatically detect. The performance change will be especially\n          noticeable if the length of your trajectory is a number whose prime\n          factorization consists of extremely large prime factors. The\n          standard Cooley-Tukey FFT algorithm performs very poorly in this\n          case, so installing pyFFTW will significantly improve performance.\n\n          Note that while pyFFTW is released under the BSD 3-Clause license,\n          the FFTW library is available under either GPL or a commercial\n          license. As a result, if you wish to use this module with pyFFTW in\n          code, your code must also be GPL licensed unless you purchase a\n          commercial license.\n\n    * :code:`'direct'`:\n      Under some circumstances, however, we may be more interested in\n      calculating a different quantity described by\n\n      .. math::\n          :nowrap:\n\n          \\begin{eqnarray*}\n              MSD(t) =& \\dfrac{1}{N_{particles}} \\sum_{i=1}^{N_{particles}} (r_i(t) - r_i(0))^2 \\\\\n          \\end{eqnarray*}\n\n      In this case, at each time point (i.e. simulation frame) we simply\n      compute how much particles have moved from their initial position,\n      averaged over all particles. For more information on this calculation,\n      see `the Wikipedia page\n      <https://en.wikipedia.org/wiki/Mean_squared_displacement>`_.\n\n    .. note::\n        The MSD is only well-defined when the box is constant over the\n        course of the simulation. Additionally, the number of particles must be\n        constant over the course of the simulation.\n\n    Args:\n        box (:class:`freud.box.Box`, optional):\n            If not provided, the class will assume that all positions provided\n            in calls to :meth:`~compute` are already unwrapped. (Default value\n            = :code:`None`).\n        mo""de (str, optional):\n            Mode of calculation. Options are :code:`'window'` and\n            :code:`'direct'`.  (Default value = :code:`'window'`).\n    ", /*tp_doc*/
   __pyx_tp_traverse_5freud_3msd_MSD, /*tp_traverse*/
   __pyx_tp_clear_5freud_3msd_MSD, /*tp_clear*/
   0, /*tp_richcompare*/
@@ -8923,11 +8752,9 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_MSD___reduce_cython, __pyx_k_MSD___reduce_cython, sizeof(__pyx_k_MSD___reduce_cython), 0, 0, 1, 1},
   {&__pyx_n_s_MSD___setstate_cython, __pyx_k_MSD___setstate_cython, sizeof(__pyx_k_MSD___setstate_cython), 0, 0, 1, 1},
   {&__pyx_n_s_MSD__repr_png, __pyx_k_MSD__repr_png, sizeof(__pyx_k_MSD__repr_png), 0, 0, 1, 1},
-  {&__pyx_n_s_MSD_accumulate, __pyx_k_MSD_accumulate, sizeof(__pyx_k_MSD_accumulate), 0, 0, 1, 1},
   {&__pyx_n_s_MSD_compute, __pyx_k_MSD_compute, sizeof(__pyx_k_MSD_compute), 0, 0, 1, 1},
   {&__pyx_n_s_MSD_msd, __pyx_k_MSD_msd, sizeof(__pyx_k_MSD_msd), 0, 0, 1, 1},
   {&__pyx_n_s_MSD_plot, __pyx_k_MSD_plot, sizeof(__pyx_k_MSD_plot), 0, 0, 1, 1},
-  {&__pyx_n_s_MSD_reset, __pyx_k_MSD_reset, sizeof(__pyx_k_MSD_reset), 0, 0, 1, 1},
   {&__pyx_n_s_N, __pyx_k_N, sizeof(__pyx_k_N), 0, 0, 1, 1},
   {&__pyx_n_s_NUM_THREADS, __pyx_k_NUM_THREADS, sizeof(__pyx_k_NUM_THREADS), 0, 0, 1, 1},
   {&__pyx_kp_u_Non_native_byte_order_not_suppor, __pyx_k_Non_native_byte_order_not_suppor, sizeof(__pyx_k_Non_native_byte_order_not_suppor), 0, 1, 0, 0},
@@ -8944,7 +8771,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_ValueError, __pyx_k_ValueError, sizeof(__pyx_k_ValueError), 0, 0, 1, 1},
   {&__pyx_kp_u_Window_size, __pyx_k_Window_size, sizeof(__pyx_k_Window_size), 0, 1, 0, 0},
   {&__pyx_n_s_a, __pyx_k_a, sizeof(__pyx_k_a), 0, 0, 1, 1},
-  {&__pyx_n_s_accumulate, __pyx_k_accumulate, sizeof(__pyx_k_accumulate), 0, 0, 1, 1},
   {&__pyx_n_s_append, __pyx_k_append, sizeof(__pyx_k_append), 0, 0, 1, 1},
   {&__pyx_n_s_arange, __pyx_k_arange, sizeof(__pyx_k_arange), 0, 0, 1, 1},
   {&__pyx_n_s_asarray, __pyx_k_asarray, sizeof(__pyx_k_asarray), 0, 0, 1, 1},
@@ -9046,8 +8872,8 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
   __pyx_builtin_ImportError = __Pyx_GetBuiltinName(__pyx_n_s_ImportError); if (!__pyx_builtin_ImportError) __PYX_ERR(0, 43, __pyx_L1_error)
   __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(0, 157, __pyx_L1_error)
-  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 186, __pyx_L1_error)
-  __pyx_builtin_AttributeError = __Pyx_GetBuiltinName(__pyx_n_s_AttributeError); if (!__pyx_builtin_AttributeError) __PYX_ERR(0, 281, __pyx_L1_error)
+  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 204, __pyx_L1_error)
+  __pyx_builtin_AttributeError = __Pyx_GetBuiltinName(__pyx_n_s_AttributeError); if (!__pyx_builtin_AttributeError) __PYX_ERR(0, 275, __pyx_L1_error)
   __pyx_builtin_TypeError = __Pyx_GetBuiltinName(__pyx_n_s_TypeError); if (!__pyx_builtin_TypeError) __PYX_ERR(1, 2, __pyx_L1_error)
   __pyx_builtin_RuntimeError = __Pyx_GetBuiltinName(__pyx_n_s_RuntimeError); if (!__pyx_builtin_RuntimeError) __PYX_ERR(2, 856, __pyx_L1_error)
   return 0;
@@ -9092,25 +8918,25 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__3);
   __Pyx_GIVEREF(__pyx_tuple__3);
 
-  /* "freud/msd.pyx":178
+  /* "freud/msd.pyx":196
  * 
  *         positions = freud.util._convert_array(
  *             positions, shape=(None, None, 3))             # <<<<<<<<<<<<<<
  *         if images is not None:
  *             images = freud.util._convert_array(
  */
-  __pyx_tuple__4 = PyTuple_Pack(3, Py_None, Py_None, __pyx_int_3); if (unlikely(!__pyx_tuple__4)) __PYX_ERR(0, 178, __pyx_L1_error)
+  __pyx_tuple__4 = PyTuple_Pack(3, Py_None, Py_None, __pyx_int_3); if (unlikely(!__pyx_tuple__4)) __PYX_ERR(0, 196, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__4);
   __Pyx_GIVEREF(__pyx_tuple__4);
 
-  /* "freud/msd.pyx":195
+  /* "freud/msd.pyx":213
  *             N = positions.shape[0]
  *             D = np.square(positions).sum(axis=2)
  *             D = np.append(D, np.zeros(positions.shape[:2]), axis=0)             # <<<<<<<<<<<<<<
  *             Q = 2*D.sum(axis=0)
  *             S1 = np.zeros(positions.shape[:2])
  */
-  __pyx_slice__5 = PySlice_New(Py_None, __pyx_int_2, Py_None); if (unlikely(!__pyx_slice__5)) __PYX_ERR(0, 195, __pyx_L1_error)
+  __pyx_slice__5 = PySlice_New(Py_None, __pyx_int_2, Py_None); if (unlikely(!__pyx_slice__5)) __PYX_ERR(0, 213, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_slice__5);
   __Pyx_GIVEREF(__pyx_slice__5);
 
@@ -9282,84 +9108,60 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   /* "freud/msd.pyx":160
  *         self.mode = mode
  * 
- *     def accumulate(self, positions, images=None):             # <<<<<<<<<<<<<<
- *         """Calculate the MSD for the positions provided and add to the existing
- *         per-particle data.
- */
-  __pyx_tuple__24 = PyTuple_Pack(12, __pyx_n_s_self, __pyx_n_s_positions, __pyx_n_s_images, __pyx_n_s_unwrapped_positions, __pyx_n_s_i, __pyx_n_s_N, __pyx_n_s_D, __pyx_n_s_Q, __pyx_n_s_S1, __pyx_n_s_m, __pyx_n_s_corrs, __pyx_n_s_S2); if (unlikely(!__pyx_tuple__24)) __PYX_ERR(0, 160, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__24);
-  __Pyx_GIVEREF(__pyx_tuple__24);
-  __pyx_codeobj__25 = (PyObject*)__Pyx_PyCode_New(3, 0, 12, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__24, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_msd_pyx, __pyx_n_s_accumulate, 160, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__25)) __PYX_ERR(0, 160, __pyx_L1_error)
-
-  /* "freud/msd.pyx":222
- * 
- *     @Compute._computed_property
- *     def msd(self):             # <<<<<<<<<<<<<<
- *         """:math:`\\left(N_{frames}, \\right`) :class:`numpy.ndarray`: The mean
- *         squared displacement."""
- */
-  __pyx_tuple__26 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__26)) __PYX_ERR(0, 222, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__26);
-  __Pyx_GIVEREF(__pyx_tuple__26);
-  __pyx_codeobj__27 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__26, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_msd_pyx, __pyx_n_s_msd, 222, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__27)) __PYX_ERR(0, 222, __pyx_L1_error)
-
-  /* "freud/msd.pyx":227
- *         return np.concatenate(self.particle_msd, axis=1).mean(axis=-1)
- * 
- *     def reset(self):             # <<<<<<<<<<<<<<
- *         R"""Clears the stored MSD values from previous calls to accumulate (or
- *         the last call to compute)."""
- */
-  __pyx_tuple__28 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__28)) __PYX_ERR(0, 227, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__28);
-  __Pyx_GIVEREF(__pyx_tuple__28);
-  __pyx_codeobj__29 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__28, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_msd_pyx, __pyx_n_s_reset, 227, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__29)) __PYX_ERR(0, 227, __pyx_L1_error)
-
-  /* "freud/msd.pyx":233
- *         self.particle_msd = []
- * 
- *     def compute(self, positions, images=None):             # <<<<<<<<<<<<<<
+ *     def compute(self, positions, images=None, reset=True):             # <<<<<<<<<<<<<<
  *         """Calculate the MSD for the positions provided.
  * 
  */
-  __pyx_tuple__30 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_positions, __pyx_n_s_images); if (unlikely(!__pyx_tuple__30)) __PYX_ERR(0, 233, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__30);
-  __Pyx_GIVEREF(__pyx_tuple__30);
-  __pyx_codeobj__31 = (PyObject*)__Pyx_PyCode_New(3, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__30, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_msd_pyx, __pyx_n_s_compute, 233, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__31)) __PYX_ERR(0, 233, __pyx_L1_error)
+  __pyx_tuple__24 = PyTuple_Pack(13, __pyx_n_s_self, __pyx_n_s_positions, __pyx_n_s_images, __pyx_n_s_reset, __pyx_n_s_unwrapped_positions, __pyx_n_s_i, __pyx_n_s_N, __pyx_n_s_D, __pyx_n_s_Q, __pyx_n_s_S1, __pyx_n_s_m, __pyx_n_s_corrs, __pyx_n_s_S2); if (unlikely(!__pyx_tuple__24)) __PYX_ERR(0, 160, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__24);
+  __Pyx_GIVEREF(__pyx_tuple__24);
+  __pyx_codeobj__25 = (PyObject*)__Pyx_PyCode_New(4, 0, 13, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__24, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_msd_pyx, __pyx_n_s_compute, 160, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__25)) __PYX_ERR(0, 160, __pyx_L1_error)
 
-  /* "freud/msd.pyx":255
+  /* "freud/msd.pyx":240
+ * 
+ *     @_Compute._computed_property
+ *     def msd(self):             # <<<<<<<<<<<<<<
+ *         """:math:`\\left(N_{frames}, \\right)` :class:`numpy.ndarray`: The mean
+ *         squared displacement."""
+ */
+  __pyx_tuple__26 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__26)) __PYX_ERR(0, 240, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__26);
+  __Pyx_GIVEREF(__pyx_tuple__26);
+  __pyx_codeobj__27 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__26, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_msd_pyx, __pyx_n_s_msd, 240, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__27)) __PYX_ERR(0, 240, __pyx_L1_error)
+
+  /* "freud/msd.pyx":249
  *             cls=type(self).__name__, box=self._box, mode=repr(self.mode))
  * 
  *     def plot(self, ax=None):             # <<<<<<<<<<<<<<
  *         """Plot MSD.
  * 
  */
-  __pyx_tuple__32 = PyTuple_Pack(4, __pyx_n_s_self, __pyx_n_s_ax, __pyx_n_s_freud, __pyx_n_s_xlabel); if (unlikely(!__pyx_tuple__32)) __PYX_ERR(0, 255, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__32);
-  __Pyx_GIVEREF(__pyx_tuple__32);
-  __pyx_codeobj__33 = (PyObject*)__Pyx_PyCode_New(2, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__32, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_msd_pyx, __pyx_n_s_plot, 255, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__33)) __PYX_ERR(0, 255, __pyx_L1_error)
+  __pyx_tuple__28 = PyTuple_Pack(4, __pyx_n_s_self, __pyx_n_s_ax, __pyx_n_s_freud, __pyx_n_s_xlabel); if (unlikely(!__pyx_tuple__28)) __PYX_ERR(0, 249, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__28);
+  __Pyx_GIVEREF(__pyx_tuple__28);
+  __pyx_codeobj__29 = (PyObject*)__Pyx_PyCode_New(2, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__28, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_msd_pyx, __pyx_n_s_plot, 249, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__29)) __PYX_ERR(0, 249, __pyx_L1_error)
 
-  /* "freud/msd.pyx":277
+  /* "freud/msd.pyx":271
  *                                     ax=ax)
  * 
  *     def _repr_png_(self):             # <<<<<<<<<<<<<<
- *         import freud.plot
  *         try:
+ *             import freud.plot
  */
-  __pyx_tuple__34 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_freud); if (unlikely(!__pyx_tuple__34)) __PYX_ERR(0, 277, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__34);
-  __Pyx_GIVEREF(__pyx_tuple__34);
-  __pyx_codeobj__35 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__34, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_msd_pyx, __pyx_n_s_repr_png, 277, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__35)) __PYX_ERR(0, 277, __pyx_L1_error)
+  __pyx_tuple__30 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_freud); if (unlikely(!__pyx_tuple__30)) __PYX_ERR(0, 271, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__30);
+  __Pyx_GIVEREF(__pyx_tuple__30);
+  __pyx_codeobj__31 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__30, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_msd_pyx, __pyx_n_s_repr_png, 271, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__31)) __PYX_ERR(0, 271, __pyx_L1_error)
 
   /* "(tree fragment)":1
  * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
  * def __setstate_cython__(self, __pyx_state):
  */
-  __pyx_tuple__36 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__36)) __PYX_ERR(1, 1, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__36);
-  __Pyx_GIVEREF(__pyx_tuple__36);
-  __pyx_codeobj__37 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__36, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_reduce_cython, 1, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__37)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __pyx_tuple__32 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__32)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__32);
+  __Pyx_GIVEREF(__pyx_tuple__32);
+  __pyx_codeobj__33 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__32, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_reduce_cython, 1, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__33)) __PYX_ERR(1, 1, __pyx_L1_error)
 
   /* "(tree fragment)":3
  * def __reduce_cython__(self):
@@ -9367,10 +9169,10 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
  */
-  __pyx_tuple__38 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_pyx_state); if (unlikely(!__pyx_tuple__38)) __PYX_ERR(1, 3, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__38);
-  __Pyx_GIVEREF(__pyx_tuple__38);
-  __pyx_codeobj__39 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__38, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 3, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__39)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __pyx_tuple__34 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_pyx_state); if (unlikely(!__pyx_tuple__34)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__34);
+  __Pyx_GIVEREF(__pyx_tuple__34);
+  __pyx_codeobj__35 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__34, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 3, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__35)) __PYX_ERR(1, 3, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -9429,9 +9231,9 @@ static int __Pyx_modinit_type_init_code(void) {
   /*--- Type init code ---*/
   __pyx_t_1 = PyImport_ImportModule("freud.util"); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_ptype_5freud_4util_Compute = __Pyx_ImportType(__pyx_t_1, "freud.util", "Compute", sizeof(struct __pyx_obj_5freud_4util_Compute), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_5freud_4util_Compute) __PYX_ERR(0, 1, __pyx_L1_error)
-  __pyx_type_5freud_3msd_MSD.tp_base = __pyx_ptype_5freud_4util_Compute;
+  __pyx_ptype_5freud_4util__Compute = __Pyx_ImportType(__pyx_t_1, "freud.util", "_Compute", sizeof(struct __pyx_obj_5freud_4util__Compute), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_5freud_4util__Compute) __PYX_ERR(0, 1, __pyx_L1_error)
+  __pyx_type_5freud_3msd_MSD.tp_base = __pyx_ptype_5freud_4util__Compute;
   if (PyType_Ready(&__pyx_type_5freud_3msd_MSD) < 0) __PYX_ERR(0, 63, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
   __pyx_type_5freud_3msd_MSD.tp_print = 0;
@@ -9500,8 +9302,6 @@ static int __Pyx_modinit_type_import_code(void) {
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_ptype_5freud_3box_Box = __Pyx_ImportType(__pyx_t_1, "freud.box", "Box", sizeof(struct __pyx_obj_5freud_3box_Box), __Pyx_ImportType_CheckSize_Warn);
    if (!__pyx_ptype_5freud_3box_Box) __PYX_ERR(7, 6, __pyx_L1_error)
-  __pyx_ptype_5freud_3box_PeriodicBuffer = __Pyx_ImportType(__pyx_t_1, "freud.box", "PeriodicBuffer", sizeof(struct __pyx_obj_5freud_3box_PeriodicBuffer), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_5freud_3box_PeriodicBuffer) __PYX_ERR(7, 11, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_RefNannyFinishContext();
   return 0;
@@ -9769,7 +9569,7 @@ if (!__Pyx_RefNanny) {
  * import freud.parallel
  * import logging             # <<<<<<<<<<<<<<
  * 
- * from freud.util cimport Compute
+ * from freud.util cimport _Compute
  */
   __pyx_t_1 = __Pyx_Import(__pyx_n_s_logging, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 11, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
@@ -10203,47 +10003,47 @@ if (!__Pyx_RefNanny) {
   /* "freud/msd.pyx":160
  *         self.mode = mode
  * 
- *     def accumulate(self, positions, images=None):             # <<<<<<<<<<<<<<
- *         """Calculate the MSD for the positions provided and add to the existing
- *         per-particle data.
+ *     def compute(self, positions, images=None, reset=True):             # <<<<<<<<<<<<<<
+ *         """Calculate the MSD for the positions provided.
+ * 
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_3msd_3MSD_3accumulate, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_MSD_accumulate, NULL, __pyx_n_s_freud_msd, __pyx_d, ((PyObject *)__pyx_codeobj__25)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 160, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_3msd_3MSD_3compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_MSD_compute, NULL, __pyx_n_s_freud_msd, __pyx_d, ((PyObject *)__pyx_codeobj__25)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 160, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_3msd_MSD->tp_dict, __pyx_n_s_accumulate, __pyx_t_1) < 0) __PYX_ERR(0, 160, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_3msd_MSD->tp_dict, __pyx_n_s_compute, __pyx_t_1) < 0) __PYX_ERR(0, 160, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   PyType_Modified(__pyx_ptype_5freud_3msd_MSD);
 
-  /* "freud/msd.pyx":222
+  /* "freud/msd.pyx":240
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def msd(self):             # <<<<<<<<<<<<<<
- *         """:math:`\\left(N_{frames}, \\right`) :class:`numpy.ndarray`: The mean
+ *         """:math:`\\left(N_{frames}, \\right)` :class:`numpy.ndarray`: The mean
  *         squared displacement."""
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_3msd_3MSD_5msd, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_MSD_msd, NULL, __pyx_n_s_freud_msd, __pyx_d, ((PyObject *)__pyx_codeobj__27)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 222, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_3msd_3MSD_5msd, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_MSD_msd, NULL, __pyx_n_s_freud_msd, __pyx_d, ((PyObject *)__pyx_codeobj__27)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 240, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_3msd_MSD->tp_dict, __pyx_n_s_msd, __pyx_t_1) < 0) __PYX_ERR(0, 222, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_3msd_MSD->tp_dict, __pyx_n_s_msd, __pyx_t_1) < 0) __PYX_ERR(0, 240, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   PyType_Modified(__pyx_ptype_5freud_3msd_MSD);
 
-  /* "freud/msd.pyx":221
+  /* "freud/msd.pyx":239
  *         return self._box
  * 
- *     @Compute._computed_property             # <<<<<<<<<<<<<<
+ *     @_Compute._computed_property             # <<<<<<<<<<<<<<
  *     def msd(self):
- *         """:math:`\\left(N_{frames}, \\right`) :class:`numpy.ndarray`: The mean
+ *         """:math:`\\left(N_{frames}, \\right)` :class:`numpy.ndarray`: The mean
  */
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_4util_Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 221, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_4util__Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 239, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
 
-  /* "freud/msd.pyx":222
+  /* "freud/msd.pyx":240
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def msd(self):             # <<<<<<<<<<<<<<
- *         """:math:`\\left(N_{frames}, \\right`) :class:`numpy.ndarray`: The mean
+ *         """:math:`\\left(N_{frames}, \\right)` :class:`numpy.ndarray`: The mean
  *         squared displacement."""
  */
-  __Pyx_GetNameInClass(__pyx_t_2, (PyObject *)__pyx_ptype_5freud_3msd_MSD, __pyx_n_s_msd); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 222, __pyx_L1_error)
+  __Pyx_GetNameInClass(__pyx_t_2, (PyObject *)__pyx_ptype_5freud_3msd_MSD, __pyx_n_s_msd); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 240, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_15 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_3))) {
@@ -10258,62 +10058,36 @@ if (!__Pyx_RefNanny) {
   __pyx_t_1 = (__pyx_t_15) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_15, __pyx_t_2) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2);
   __Pyx_XDECREF(__pyx_t_15); __pyx_t_15 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 221, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 239, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_3msd_MSD->tp_dict, __pyx_n_s_msd, __pyx_t_1) < 0) __PYX_ERR(0, 222, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_3msd_MSD->tp_dict, __pyx_n_s_msd, __pyx_t_1) < 0) __PYX_ERR(0, 240, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   PyType_Modified(__pyx_ptype_5freud_3msd_MSD);
 
-  /* "freud/msd.pyx":227
- *         return np.concatenate(self.particle_msd, axis=1).mean(axis=-1)
- * 
- *     def reset(self):             # <<<<<<<<<<<<<<
- *         R"""Clears the stored MSD values from previous calls to accumulate (or
- *         the last call to compute)."""
- */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_3msd_3MSD_7reset, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_MSD_reset, NULL, __pyx_n_s_freud_msd, __pyx_d, ((PyObject *)__pyx_codeobj__29)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 227, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_3msd_MSD->tp_dict, __pyx_n_s_reset, __pyx_t_1) < 0) __PYX_ERR(0, 227, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  PyType_Modified(__pyx_ptype_5freud_3msd_MSD);
-
-  /* "freud/msd.pyx":233
- *         self.particle_msd = []
- * 
- *     def compute(self, positions, images=None):             # <<<<<<<<<<<<<<
- *         """Calculate the MSD for the positions provided.
- * 
- */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_3msd_3MSD_9compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_MSD_compute, NULL, __pyx_n_s_freud_msd, __pyx_d, ((PyObject *)__pyx_codeobj__31)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 233, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_3msd_MSD->tp_dict, __pyx_n_s_compute, __pyx_t_1) < 0) __PYX_ERR(0, 233, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  PyType_Modified(__pyx_ptype_5freud_3msd_MSD);
-
-  /* "freud/msd.pyx":255
+  /* "freud/msd.pyx":249
  *             cls=type(self).__name__, box=self._box, mode=repr(self.mode))
  * 
  *     def plot(self, ax=None):             # <<<<<<<<<<<<<<
  *         """Plot MSD.
  * 
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_3msd_3MSD_13plot, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_MSD_plot, NULL, __pyx_n_s_freud_msd, __pyx_d, ((PyObject *)__pyx_codeobj__33)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 255, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_3msd_3MSD_9plot, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_MSD_plot, NULL, __pyx_n_s_freud_msd, __pyx_d, ((PyObject *)__pyx_codeobj__29)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 249, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_3msd_MSD->tp_dict, __pyx_n_s_plot, __pyx_t_1) < 0) __PYX_ERR(0, 255, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_3msd_MSD->tp_dict, __pyx_n_s_plot, __pyx_t_1) < 0) __PYX_ERR(0, 249, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   PyType_Modified(__pyx_ptype_5freud_3msd_MSD);
 
-  /* "freud/msd.pyx":277
+  /* "freud/msd.pyx":271
  *                                     ax=ax)
  * 
  *     def _repr_png_(self):             # <<<<<<<<<<<<<<
- *         import freud.plot
  *         try:
+ *             import freud.plot
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_3msd_3MSD_15_repr_png_, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_MSD__repr_png, NULL, __pyx_n_s_freud_msd, __pyx_d, ((PyObject *)__pyx_codeobj__35)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 277, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_3msd_3MSD_11_repr_png_, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_MSD__repr_png, NULL, __pyx_n_s_freud_msd, __pyx_d, ((PyObject *)__pyx_codeobj__31)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 271, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_3msd_MSD->tp_dict, __pyx_n_s_repr_png, __pyx_t_1) < 0) __PYX_ERR(0, 277, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_3msd_MSD->tp_dict, __pyx_n_s_repr_png, __pyx_t_1) < 0) __PYX_ERR(0, 271, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   PyType_Modified(__pyx_ptype_5freud_3msd_MSD);
 
@@ -10322,7 +10096,7 @@ if (!__Pyx_RefNanny) {
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
  * def __setstate_cython__(self, __pyx_state):
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_3msd_3MSD_17__reduce_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_MSD___reduce_cython, NULL, __pyx_n_s_freud_msd, __pyx_d, ((PyObject *)__pyx_codeobj__37)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_3msd_3MSD_13__reduce_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_MSD___reduce_cython, NULL, __pyx_n_s_freud_msd, __pyx_d, ((PyObject *)__pyx_codeobj__33)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_reduce_cython, __pyx_t_1) < 0) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -10333,7 +10107,7 @@ if (!__Pyx_RefNanny) {
  * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_3msd_3MSD_19__setstate_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_MSD___setstate_cython, NULL, __pyx_n_s_freud_msd, __pyx_d, ((PyObject *)__pyx_codeobj__39)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_3msd_3MSD_15__setstate_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_MSD___setstate_cython, NULL, __pyx_n_s_freud_msd, __pyx_d, ((PyObject *)__pyx_codeobj__35)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 3, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_setstate_cython, __pyx_t_1) < 0) __PYX_ERR(1, 3, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -11937,6 +11711,46 @@ static CYTHON_INLINE int __Pyx_PyObject_Append(PyObject* L, PyObject* x) {
             return -1;
         Py_DECREF(retval);
     }
+    return 0;
+}
+
+/* KeywordStringCheck */
+static int __Pyx_CheckKeywordStrings(
+    PyObject *kwdict,
+    const char* function_name,
+    int kw_allowed)
+{
+    PyObject* key = 0;
+    Py_ssize_t pos = 0;
+#if CYTHON_COMPILING_IN_PYPY
+    if (!kw_allowed && PyDict_Next(kwdict, &pos, &key, 0))
+        goto invalid_keyword;
+    return 1;
+#else
+    while (PyDict_Next(kwdict, &pos, &key, 0)) {
+        #if PY_MAJOR_VERSION < 3
+        if (unlikely(!PyString_Check(key)))
+        #endif
+            if (unlikely(!PyUnicode_Check(key)))
+                goto invalid_keyword_type;
+    }
+    if ((!kw_allowed) && unlikely(key))
+        goto invalid_keyword;
+    return 1;
+invalid_keyword_type:
+    PyErr_Format(PyExc_TypeError,
+        "%.200s() keywords must be strings", function_name);
+    return 0;
+#endif
+invalid_keyword:
+    PyErr_Format(PyExc_TypeError,
+    #if PY_MAJOR_VERSION < 3
+        "%.200s() got an unexpected keyword argument '%.200s'",
+        function_name, PyString_AsString(key));
+    #else
+        "%s() got an unexpected keyword argument '%U'",
+        function_name, key);
+    #endif
     return 0;
 }
 

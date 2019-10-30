@@ -11,19 +11,23 @@
             [
                 "VOROPP_VERBOSE",
                 "1"
+            ],
+            [
+                "_USE_MATH_DEFINES",
+                "1"
             ]
         ],
         "depends": [
             "/usr/lib/python3.7/site-packages/numpy/core/include/numpy/arrayobject.h",
             "/usr/lib/python3.7/site-packages/numpy/core/include/numpy/ufuncobject.h",
             "cpp/box/Box.h",
-            "cpp/box/PeriodicBuffer.h",
             "cpp/locality/AABBQuery.h",
             "cpp/locality/BondHistogramCompute.h",
             "cpp/locality/LinkCell.h",
             "cpp/locality/NeighborBond.h",
             "cpp/locality/NeighborList.h",
             "cpp/locality/NeighborQuery.h",
+            "cpp/locality/PeriodicBuffer.h",
             "cpp/locality/RawPoints.h",
             "cpp/locality/Voronoi.h",
             "cpp/util/ManagedArray.h",
@@ -46,7 +50,6 @@
             "cpp/environment",
             "cpp/locality",
             "cpp/density",
-            "cpp/registration",
             "cpp/pmft",
             "/usr/include"
         ],
@@ -57,11 +60,11 @@
         "name": "freud.interface",
         "sources": [
             "freud/interface.pyx",
-            "cpp/locality/NeighborList.cc",
-            "cpp/locality/NeighborComputeFunctional.cc",
             "cpp/locality/NeighborQuery.cc",
-            "cpp/locality/AABBQuery.cc",
-            "cpp/locality/NeighborPerPointIterator.cc"
+            "cpp/locality/NeighborList.cc",
+            "cpp/locality/NeighborPerPointIterator.cc",
+            "cpp/locality/NeighborComputeFunctional.cc",
+            "cpp/locality/AABBQuery.cc"
         ]
     },
     "module_name": "freud.interface"
@@ -692,15 +695,15 @@ static CYTHON_INLINE float __PYX_NAN() {
 #include <utility>
 #include <string>
 #include "Box.h"
-#include "PeriodicBuffer.h"
 #include "NeighborBond.h"
 #include "NeighborQuery.h"
 #include "RawPoints.h"
 #include "NeighborList.h"
 #include "LinkCell.h"
 #include "AABBQuery.h"
-#include "Voronoi.h"
 #include "BondHistogramCompute.h"
+#include "PeriodicBuffer.h"
+#include "Voronoi.h"
 #include <stdlib.h>
 #include "pystate.h"
 #ifdef _OPENMP
@@ -1285,19 +1288,19 @@ static CYTHON_INLINE __pyx_t_double_complex __pyx_t_double_complex_from_parts(do
 
 /*--- Type declarations ---*/
 struct __pyx_obj_5freud_4util__ManagedArrayContainer;
-struct __pyx_obj_5freud_4util_Compute;
+struct __pyx_obj_5freud_4util__Compute;
 struct __pyx_obj_5freud_3box_Box;
-struct __pyx_obj_5freud_3box_PeriodicBuffer;
 struct __pyx_obj_5freud_8locality_NeighborQueryResult;
 struct __pyx_obj_5freud_8locality_NeighborQuery;
 struct __pyx_obj_5freud_8locality_NeighborList;
 struct __pyx_obj_5freud_8locality_LinkCell;
 struct __pyx_obj_5freud_8locality_AABBQuery;
-struct __pyx_obj_5freud_8locality_RawPoints;
+struct __pyx_obj_5freud_8locality__RawPoints;
 struct __pyx_obj_5freud_8locality__QueryArgs;
-struct __pyx_obj_5freud_8locality_PairCompute;
-struct __pyx_obj_5freud_8locality_SpatialHistogram;
-struct __pyx_obj_5freud_8locality_SpatialHistogram1D;
+struct __pyx_obj_5freud_8locality__PairCompute;
+struct __pyx_obj_5freud_8locality__SpatialHistogram;
+struct __pyx_obj_5freud_8locality__SpatialHistogram1D;
+struct __pyx_obj_5freud_8locality_PeriodicBuffer;
 struct __pyx_obj_5freud_8locality_Voronoi;
 struct __pyx_obj_5freud_9interface_Interface;
 struct __pyx_array_obj;
@@ -1423,10 +1426,10 @@ struct __pyx_obj_5freud_4util__ManagedArrayContainer {
 /* "freud/util.pxd":97
  * 
  * 
- * cdef class Compute:             # <<<<<<<<<<<<<<
+ * cdef class _Compute:             # <<<<<<<<<<<<<<
  *     cdef public _called_compute
  */
-struct __pyx_obj_5freud_4util_Compute {
+struct __pyx_obj_5freud_4util__Compute {
   PyObject_HEAD
   PyObject *_called_compute;
 };
@@ -1442,18 +1445,6 @@ struct __pyx_obj_5freud_4util_Compute {
 struct __pyx_obj_5freud_3box_Box {
   PyObject_HEAD
   freud::box::Box *thisptr;
-};
-
-
-/* "freud/box.pxd":11
- * cdef BoxFromCPP(const freud._box.Box & cppbox)
- * 
- * cdef class PeriodicBuffer:             # <<<<<<<<<<<<<<
- *     cdef freud._box.PeriodicBuffer * thisptr
- */
-struct __pyx_obj_5freud_3box_PeriodicBuffer {
-  PyObject_HEAD
-  freud::box::PeriodicBuffer *thisptr;
 };
 
 
@@ -1532,11 +1523,11 @@ struct __pyx_obj_5freud_8locality_AABBQuery {
 /* "freud/locality.pxd":58
  *     cdef freud._locality.AABBQuery * thisptr
  * 
- * cdef class RawPoints(NeighborQuery):             # <<<<<<<<<<<<<<
+ * cdef class _RawPoints(NeighborQuery):             # <<<<<<<<<<<<<<
  *     cdef freud._locality.RawPoints * thisptr
  * 
  */
-struct __pyx_obj_5freud_8locality_RawPoints {
+struct __pyx_obj_5freud_8locality__RawPoints {
   struct __pyx_obj_5freud_8locality_NeighborQuery __pyx_base;
   freud::locality::RawPoints *thisptr;
 };
@@ -1558,24 +1549,24 @@ struct __pyx_obj_5freud_8locality__QueryArgs {
 /* "freud/locality.pxd":64
  *     cdef freud._locality.QueryArgs * thisptr
  * 
- * cdef class PairCompute(Compute):             # <<<<<<<<<<<<<<
+ * cdef class _PairCompute(_Compute):             # <<<<<<<<<<<<<<
  *     pass
  * 
  */
-struct __pyx_obj_5freud_8locality_PairCompute {
-  struct __pyx_obj_5freud_4util_Compute __pyx_base;
+struct __pyx_obj_5freud_8locality__PairCompute {
+  struct __pyx_obj_5freud_4util__Compute __pyx_base;
 };
 
 
 /* "freud/locality.pxd":67
  *     pass
  * 
- * cdef class SpatialHistogram(PairCompute):             # <<<<<<<<<<<<<<
+ * cdef class _SpatialHistogram(_PairCompute):             # <<<<<<<<<<<<<<
  *     cdef float r_max
  *     cdef freud._locality.BondHistogramCompute *histptr
  */
-struct __pyx_obj_5freud_8locality_SpatialHistogram {
-  struct __pyx_obj_5freud_8locality_PairCompute __pyx_base;
+struct __pyx_obj_5freud_8locality__SpatialHistogram {
+  struct __pyx_obj_5freud_8locality__PairCompute __pyx_base;
   float r_max;
   freud::locality::BondHistogramCompute *histptr;
 };
@@ -1584,24 +1575,37 @@ struct __pyx_obj_5freud_8locality_SpatialHistogram {
 /* "freud/locality.pxd":71
  *     cdef freud._locality.BondHistogramCompute *histptr
  * 
- * cdef class SpatialHistogram1D(SpatialHistogram):             # <<<<<<<<<<<<<<
+ * cdef class _SpatialHistogram1D(_SpatialHistogram):             # <<<<<<<<<<<<<<
  *     pass
  * 
  */
-struct __pyx_obj_5freud_8locality_SpatialHistogram1D {
-  struct __pyx_obj_5freud_8locality_SpatialHistogram __pyx_base;
+struct __pyx_obj_5freud_8locality__SpatialHistogram1D {
+  struct __pyx_obj_5freud_8locality__SpatialHistogram __pyx_base;
 };
 
 
 /* "freud/locality.pxd":74
  *     pass
  * 
- * cdef class Voronoi(Compute):             # <<<<<<<<<<<<<<
+ * cdef class PeriodicBuffer(_Compute):             # <<<<<<<<<<<<<<
+ *     cdef freud._locality.PeriodicBuffer * thisptr
+ * 
+ */
+struct __pyx_obj_5freud_8locality_PeriodicBuffer {
+  struct __pyx_obj_5freud_4util__Compute __pyx_base;
+  freud::locality::PeriodicBuffer *thisptr;
+};
+
+
+/* "freud/locality.pxd":77
+ *     cdef freud._locality.PeriodicBuffer * thisptr
+ * 
+ * cdef class Voronoi(_Compute):             # <<<<<<<<<<<<<<
  *     cdef freud._locality.Voronoi * thisptr
  *     cdef NeighborList _nlist
  */
 struct __pyx_obj_5freud_8locality_Voronoi {
-  struct __pyx_obj_5freud_4util_Compute __pyx_base;
+  struct __pyx_obj_5freud_4util__Compute __pyx_base;
   freud::locality::Voronoi *thisptr;
   struct __pyx_obj_5freud_8locality_NeighborList *_nlist;
   struct __pyx_obj_5freud_3box_Box *_box;
@@ -1611,12 +1615,12 @@ struct __pyx_obj_5freud_8locality_Voronoi {
 /* "freud/interface.pyx":26
  * np.import_array()
  * 
- * cdef class Interface(PairCompute):             # <<<<<<<<<<<<<<
+ * cdef class Interface(_PairCompute):             # <<<<<<<<<<<<<<
  *     R"""Measures the interface between two sets of points."""
  *     cdef const unsigned int[::1] _point_ids
  */
 struct __pyx_obj_5freud_9interface_Interface {
-  struct __pyx_obj_5freud_8locality_PairCompute __pyx_base;
+  struct __pyx_obj_5freud_8locality__PairCompute __pyx_base;
   __Pyx_memviewslice _point_ids;
   __Pyx_memviewslice _query_point_ids;
 };
@@ -1792,15 +1796,15 @@ static struct __pyx_vtabstruct_5freud_8locality_AABBQuery *__pyx_vtabptr_5freud_
 /* "freud/locality.pxd":58
  *     cdef freud._locality.AABBQuery * thisptr
  * 
- * cdef class RawPoints(NeighborQuery):             # <<<<<<<<<<<<<<
+ * cdef class _RawPoints(NeighborQuery):             # <<<<<<<<<<<<<<
  *     cdef freud._locality.RawPoints * thisptr
  * 
  */
 
-struct __pyx_vtabstruct_5freud_8locality_RawPoints {
+struct __pyx_vtabstruct_5freud_8locality__RawPoints {
   struct __pyx_vtabstruct_5freud_8locality_NeighborQuery __pyx_base;
 };
-static struct __pyx_vtabstruct_5freud_8locality_RawPoints *__pyx_vtabptr_5freud_8locality_RawPoints;
+static struct __pyx_vtabstruct_5freud_8locality__RawPoints *__pyx_vtabptr_5freud_8locality__RawPoints;
 
 
 /* "View.MemoryView":105
@@ -2791,7 +2795,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_array(void); /*proto*/
 
 /* Module declarations from 'freud.util' */
 static PyTypeObject *__pyx_ptype_5freud_4util__ManagedArrayContainer = 0;
-static PyTypeObject *__pyx_ptype_5freud_4util_Compute = 0;
+static PyTypeObject *__pyx_ptype_5freud_4util__Compute = 0;
 
 /* Module declarations from 'libcpp.utility' */
 
@@ -2801,7 +2805,6 @@ static PyTypeObject *__pyx_ptype_5freud_4util_Compute = 0;
 
 /* Module declarations from 'freud.box' */
 static PyTypeObject *__pyx_ptype_5freud_3box_Box = 0;
-static PyTypeObject *__pyx_ptype_5freud_3box_PeriodicBuffer = 0;
 
 /* Module declarations from 'freud' */
 
@@ -2815,11 +2818,12 @@ static PyTypeObject *__pyx_ptype_5freud_8locality_NeighborQuery = 0;
 static PyTypeObject *__pyx_ptype_5freud_8locality_NeighborList = 0;
 static PyTypeObject *__pyx_ptype_5freud_8locality_LinkCell = 0;
 static PyTypeObject *__pyx_ptype_5freud_8locality_AABBQuery = 0;
-static PyTypeObject *__pyx_ptype_5freud_8locality_RawPoints = 0;
+static PyTypeObject *__pyx_ptype_5freud_8locality__RawPoints = 0;
 static PyTypeObject *__pyx_ptype_5freud_8locality__QueryArgs = 0;
-static PyTypeObject *__pyx_ptype_5freud_8locality_PairCompute = 0;
-static PyTypeObject *__pyx_ptype_5freud_8locality_SpatialHistogram = 0;
-static PyTypeObject *__pyx_ptype_5freud_8locality_SpatialHistogram1D = 0;
+static PyTypeObject *__pyx_ptype_5freud_8locality__PairCompute = 0;
+static PyTypeObject *__pyx_ptype_5freud_8locality__SpatialHistogram = 0;
+static PyTypeObject *__pyx_ptype_5freud_8locality__SpatialHistogram1D = 0;
+static PyTypeObject *__pyx_ptype_5freud_8locality_PeriodicBuffer = 0;
 static PyTypeObject *__pyx_ptype_5freud_8locality_Voronoi = 0;
 
 /* Module declarations from 'freud.interface' */
@@ -3666,7 +3670,7 @@ static PyObject *__pyx_pf_5freud_9interface_9Interface_2compute(struct __pyx_obj
  *         self._query_point_ids = np.unique(nlist.query_point_indices)
  *         return self             # <<<<<<<<<<<<<<
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  */
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(((PyObject *)__pyx_v_self));
@@ -3700,20 +3704,23 @@ static PyObject *__pyx_pf_5freud_9interface_9Interface_2compute(struct __pyx_obj
 
 /* "freud/interface.pyx":67
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def point_count(self):             # <<<<<<<<<<<<<<
  *         """int: Number of particles from :code:`points` on the interface."""
  *         return len(self._point_ids)
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_9interface_9Interface_5point_count(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_5freud_9interface_9Interface_5point_count(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static char __pyx_doc_5freud_9interface_9Interface_4point_count[] = "Interface.point_count(self)\nint: Number of particles from :code:`points` on the interface.";
-static PyMethodDef __pyx_mdef_5freud_9interface_9Interface_5point_count = {"point_count", (PyCFunction)__pyx_pw_5freud_9interface_9Interface_5point_count, METH_NOARGS, __pyx_doc_5freud_9interface_9Interface_4point_count};
-static PyObject *__pyx_pw_5freud_9interface_9Interface_5point_count(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyMethodDef __pyx_mdef_5freud_9interface_9Interface_5point_count = {"point_count", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_9interface_9Interface_5point_count, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_9interface_9Interface_4point_count};
+static PyObject *__pyx_pw_5freud_9interface_9Interface_5point_count(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("point_count (wrapper)", 0);
+  if (unlikely(PyTuple_GET_SIZE(__pyx_args) > 0)) {
+    __Pyx_RaiseArgtupleInvalid("point_count", 1, 0, 0, PyTuple_GET_SIZE(__pyx_args)); return NULL;}
+  if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "point_count", 0))) return NULL;
   __pyx_r = __pyx_pf_5freud_9interface_9Interface_4point_count(((struct __pyx_obj_5freud_9interface_Interface *)__pyx_v_self));
 
   /* function exit code */
@@ -3733,7 +3740,7 @@ static PyObject *__pyx_pf_5freud_9interface_9Interface_4point_count(struct __pyx
  *         """int: Number of particles from :code:`points` on the interface."""
  *         return len(self._point_ids)             # <<<<<<<<<<<<<<
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  */
   __Pyx_XDECREF(__pyx_r);
   if (unlikely(!__pyx_v_self->_point_ids.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 69, __pyx_L1_error)}
@@ -3746,7 +3753,7 @@ static PyObject *__pyx_pf_5freud_9interface_9Interface_4point_count(struct __pyx
 
   /* "freud/interface.pyx":67
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def point_count(self):             # <<<<<<<<<<<<<<
  *         """int: Number of particles from :code:`points` on the interface."""
  *         return len(self._point_ids)
@@ -3765,20 +3772,23 @@ static PyObject *__pyx_pf_5freud_9interface_9Interface_4point_count(struct __pyx
 
 /* "freud/interface.pyx":72
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def point_ids(self):             # <<<<<<<<<<<<<<
  *         """:class:`np.ndarray`: The particle IDs from :code:`points`."""
  *         return np.asarray(self._point_ids)
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_9interface_9Interface_7point_ids(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_5freud_9interface_9Interface_7point_ids(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static char __pyx_doc_5freud_9interface_9Interface_6point_ids[] = "Interface.point_ids(self)\n:class:`np.ndarray`: The particle IDs from :code:`points`.";
-static PyMethodDef __pyx_mdef_5freud_9interface_9Interface_7point_ids = {"point_ids", (PyCFunction)__pyx_pw_5freud_9interface_9Interface_7point_ids, METH_NOARGS, __pyx_doc_5freud_9interface_9Interface_6point_ids};
-static PyObject *__pyx_pw_5freud_9interface_9Interface_7point_ids(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyMethodDef __pyx_mdef_5freud_9interface_9Interface_7point_ids = {"point_ids", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_9interface_9Interface_7point_ids, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_9interface_9Interface_6point_ids};
+static PyObject *__pyx_pw_5freud_9interface_9Interface_7point_ids(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("point_ids (wrapper)", 0);
+  if (unlikely(PyTuple_GET_SIZE(__pyx_args) > 0)) {
+    __Pyx_RaiseArgtupleInvalid("point_ids", 1, 0, 0, PyTuple_GET_SIZE(__pyx_args)); return NULL;}
+  if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "point_ids", 0))) return NULL;
   __pyx_r = __pyx_pf_5freud_9interface_9Interface_6point_ids(((struct __pyx_obj_5freud_9interface_Interface *)__pyx_v_self));
 
   /* function exit code */
@@ -3800,7 +3810,7 @@ static PyObject *__pyx_pf_5freud_9interface_9Interface_6point_ids(struct __pyx_o
  *         """:class:`np.ndarray`: The particle IDs from :code:`points`."""
  *         return np.asarray(self._point_ids)             # <<<<<<<<<<<<<<
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  */
   __Pyx_XDECREF(__pyx_r);
   __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 74, __pyx_L1_error)
@@ -3833,7 +3843,7 @@ static PyObject *__pyx_pf_5freud_9interface_9Interface_6point_ids(struct __pyx_o
 
   /* "freud/interface.pyx":72
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def point_ids(self):             # <<<<<<<<<<<<<<
  *         """:class:`np.ndarray`: The particle IDs from :code:`points`."""
  *         return np.asarray(self._point_ids)
@@ -3855,20 +3865,23 @@ static PyObject *__pyx_pf_5freud_9interface_9Interface_6point_ids(struct __pyx_o
 
 /* "freud/interface.pyx":77
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def query_point_count(self):             # <<<<<<<<<<<<<<
  *         """int: Number of particles from :code:`query_points` on the
  *         interface."""
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_9interface_9Interface_9query_point_count(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_5freud_9interface_9Interface_9query_point_count(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static char __pyx_doc_5freud_9interface_9Interface_8query_point_count[] = "Interface.query_point_count(self)\nint: Number of particles from :code:`query_points` on the\n        interface.";
-static PyMethodDef __pyx_mdef_5freud_9interface_9Interface_9query_point_count = {"query_point_count", (PyCFunction)__pyx_pw_5freud_9interface_9Interface_9query_point_count, METH_NOARGS, __pyx_doc_5freud_9interface_9Interface_8query_point_count};
-static PyObject *__pyx_pw_5freud_9interface_9Interface_9query_point_count(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyMethodDef __pyx_mdef_5freud_9interface_9Interface_9query_point_count = {"query_point_count", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_9interface_9Interface_9query_point_count, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_9interface_9Interface_8query_point_count};
+static PyObject *__pyx_pw_5freud_9interface_9Interface_9query_point_count(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("query_point_count (wrapper)", 0);
+  if (unlikely(PyTuple_GET_SIZE(__pyx_args) > 0)) {
+    __Pyx_RaiseArgtupleInvalid("query_point_count", 1, 0, 0, PyTuple_GET_SIZE(__pyx_args)); return NULL;}
+  if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "query_point_count", 0))) return NULL;
   __pyx_r = __pyx_pf_5freud_9interface_9Interface_8query_point_count(((struct __pyx_obj_5freud_9interface_Interface *)__pyx_v_self));
 
   /* function exit code */
@@ -3888,7 +3901,7 @@ static PyObject *__pyx_pf_5freud_9interface_9Interface_8query_point_count(struct
  *         interface."""
  *         return len(self._query_point_ids)             # <<<<<<<<<<<<<<
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  */
   __Pyx_XDECREF(__pyx_r);
   if (unlikely(!__pyx_v_self->_query_point_ids.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 80, __pyx_L1_error)}
@@ -3901,7 +3914,7 @@ static PyObject *__pyx_pf_5freud_9interface_9Interface_8query_point_count(struct
 
   /* "freud/interface.pyx":77
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def query_point_count(self):             # <<<<<<<<<<<<<<
  *         """int: Number of particles from :code:`query_points` on the
  *         interface."""
@@ -3920,20 +3933,23 @@ static PyObject *__pyx_pf_5freud_9interface_9Interface_8query_point_count(struct
 
 /* "freud/interface.pyx":83
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def query_point_ids(self):             # <<<<<<<<<<<<<<
  *         """:class:`np.ndarray`: The particle IDs from :code:`query_points`."""
  *         return np.asarray(self._query_point_ids)
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_9interface_9Interface_11query_point_ids(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_5freud_9interface_9Interface_11query_point_ids(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static char __pyx_doc_5freud_9interface_9Interface_10query_point_ids[] = "Interface.query_point_ids(self)\n:class:`np.ndarray`: The particle IDs from :code:`query_points`.";
-static PyMethodDef __pyx_mdef_5freud_9interface_9Interface_11query_point_ids = {"query_point_ids", (PyCFunction)__pyx_pw_5freud_9interface_9Interface_11query_point_ids, METH_NOARGS, __pyx_doc_5freud_9interface_9Interface_10query_point_ids};
-static PyObject *__pyx_pw_5freud_9interface_9Interface_11query_point_ids(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyMethodDef __pyx_mdef_5freud_9interface_9Interface_11query_point_ids = {"query_point_ids", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_9interface_9Interface_11query_point_ids, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_9interface_9Interface_10query_point_ids};
+static PyObject *__pyx_pw_5freud_9interface_9Interface_11query_point_ids(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("query_point_ids (wrapper)", 0);
+  if (unlikely(PyTuple_GET_SIZE(__pyx_args) > 0)) {
+    __Pyx_RaiseArgtupleInvalid("query_point_ids", 1, 0, 0, PyTuple_GET_SIZE(__pyx_args)); return NULL;}
+  if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "query_point_ids", 0))) return NULL;
   __pyx_r = __pyx_pf_5freud_9interface_9Interface_10query_point_ids(((struct __pyx_obj_5freud_9interface_Interface *)__pyx_v_self));
 
   /* function exit code */
@@ -3988,7 +4004,7 @@ static PyObject *__pyx_pf_5freud_9interface_9Interface_10query_point_ids(struct 
 
   /* "freud/interface.pyx":83
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def query_point_ids(self):             # <<<<<<<<<<<<<<
  *         """:class:`np.ndarray`: The particle IDs from :code:`query_points`."""
  *         return np.asarray(self._query_point_ids)
@@ -4085,13 +4101,16 @@ static PyObject *__pyx_pf_5freud_9interface_9Interface_12__repr__(struct __pyx_o
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_9interface_9Interface_15__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_5freud_9interface_9Interface_15__reduce_cython__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static char __pyx_doc_5freud_9interface_9Interface_14__reduce_cython__[] = "Interface.__reduce_cython__(self)";
-static PyMethodDef __pyx_mdef_5freud_9interface_9Interface_15__reduce_cython__ = {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_9interface_9Interface_15__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_9interface_9Interface_14__reduce_cython__};
-static PyObject *__pyx_pw_5freud_9interface_9Interface_15__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyMethodDef __pyx_mdef_5freud_9interface_9Interface_15__reduce_cython__ = {"__reduce_cython__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_9interface_9Interface_15__reduce_cython__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_9interface_9Interface_14__reduce_cython__};
+static PyObject *__pyx_pw_5freud_9interface_9Interface_15__reduce_cython__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__reduce_cython__ (wrapper)", 0);
+  if (unlikely(PyTuple_GET_SIZE(__pyx_args) > 0)) {
+    __Pyx_RaiseArgtupleInvalid("__reduce_cython__", 1, 0, 0, PyTuple_GET_SIZE(__pyx_args)); return NULL;}
+  if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "__reduce_cython__", 0))) return NULL;
   __pyx_r = __pyx_pf_5freud_9interface_9Interface_14__reduce_cython__(((struct __pyx_obj_5freud_9interface_Interface *)__pyx_v_self));
 
   /* function exit code */
@@ -4331,14 +4350,51 @@ static PyObject *__pyx_pf_5freud_9interface_9Interface_14__reduce_cython__(struc
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_9interface_9Interface_17__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static PyObject *__pyx_pw_5freud_9interface_9Interface_17__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static char __pyx_doc_5freud_9interface_9Interface_16__setstate_cython__[] = "Interface.__setstate_cython__(self, __pyx_state)";
-static PyMethodDef __pyx_mdef_5freud_9interface_9Interface_17__setstate_cython__ = {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_9interface_9Interface_17__setstate_cython__, METH_O, __pyx_doc_5freud_9interface_9Interface_16__setstate_cython__};
-static PyObject *__pyx_pw_5freud_9interface_9Interface_17__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyMethodDef __pyx_mdef_5freud_9interface_9Interface_17__setstate_cython__ = {"__setstate_cython__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_9interface_9Interface_17__setstate_cython__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_9interface_9Interface_16__setstate_cython__};
+static PyObject *__pyx_pw_5freud_9interface_9Interface_17__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  PyObject *__pyx_v___pyx_state = 0;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setstate_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_5freud_9interface_9Interface_16__setstate_cython__(((struct __pyx_obj_5freud_9interface_Interface *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
+  {
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_pyx_state,0};
+    PyObject* values[1] = {0};
+    if (unlikely(__pyx_kwds)) {
+      Py_ssize_t kw_args;
+      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
+      switch (pos_args) {
+        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        CYTHON_FALLTHROUGH;
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      kw_args = PyDict_Size(__pyx_kwds);
+      switch (pos_args) {
+        case  0:
+        if (likely((values[0] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_pyx_state)) != 0)) kw_args--;
+        else goto __pyx_L5_argtuple_error;
+      }
+      if (unlikely(kw_args > 0)) {
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__setstate_cython__") < 0)) __PYX_ERR(1, 16, __pyx_L3_error)
+      }
+    } else if (PyTuple_GET_SIZE(__pyx_args) != 1) {
+      goto __pyx_L5_argtuple_error;
+    } else {
+      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+    }
+    __pyx_v___pyx_state = values[0];
+  }
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("__setstate_cython__", 1, 1, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 16, __pyx_L3_error)
+  __pyx_L3_error:;
+  __Pyx_AddTraceback("freud.interface.Interface.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return NULL;
+  __pyx_L4_argument_unpacking_done:;
+  __pyx_r = __pyx_pf_5freud_9interface_9Interface_16__setstate_cython__(((struct __pyx_obj_5freud_9interface_Interface *)__pyx_v_self), __pyx_v___pyx_state);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
@@ -20680,7 +20736,7 @@ static PyObject *__pyx_unpickle_Enum__set_state(struct __pyx_MemviewEnum_obj *__
 
 static PyObject *__pyx_tp_new_5freud_9interface_Interface(PyTypeObject *t, PyObject *a, PyObject *k) {
   struct __pyx_obj_5freud_9interface_Interface *p;
-  PyObject *o = __pyx_ptype_5freud_8locality_PairCompute->tp_new(t, a, k);
+  PyObject *o = __pyx_ptype_5freud_8locality__PairCompute->tp_new(t, a, k);
   if (unlikely(!o)) return 0;
   p = ((struct __pyx_obj_5freud_9interface_Interface *)o);
   p->_point_ids.data = NULL;
@@ -20701,28 +20757,28 @@ static void __pyx_tp_dealloc_5freud_9interface_Interface(PyObject *o) {
   __PYX_XDEC_MEMVIEW(&p->_point_ids, 1);
   __PYX_XDEC_MEMVIEW(&p->_query_point_ids, 1);
   PyObject_GC_Track(o);
-  if (likely(__pyx_ptype_5freud_8locality_PairCompute)) __pyx_ptype_5freud_8locality_PairCompute->tp_dealloc(o); else __Pyx_call_next_tp_dealloc(o, __pyx_tp_dealloc_5freud_9interface_Interface);
+  if (likely(__pyx_ptype_5freud_8locality__PairCompute)) __pyx_ptype_5freud_8locality__PairCompute->tp_dealloc(o); else __Pyx_call_next_tp_dealloc(o, __pyx_tp_dealloc_5freud_9interface_Interface);
 }
 
 static int __pyx_tp_traverse_5freud_9interface_Interface(PyObject *o, visitproc v, void *a) {
   int e;
-  e = ((likely(__pyx_ptype_5freud_8locality_PairCompute)) ? ((__pyx_ptype_5freud_8locality_PairCompute->tp_traverse) ? __pyx_ptype_5freud_8locality_PairCompute->tp_traverse(o, v, a) : 0) : __Pyx_call_next_tp_traverse(o, v, a, __pyx_tp_traverse_5freud_9interface_Interface)); if (e) return e;
+  e = ((likely(__pyx_ptype_5freud_8locality__PairCompute)) ? ((__pyx_ptype_5freud_8locality__PairCompute->tp_traverse) ? __pyx_ptype_5freud_8locality__PairCompute->tp_traverse(o, v, a) : 0) : __Pyx_call_next_tp_traverse(o, v, a, __pyx_tp_traverse_5freud_9interface_Interface)); if (e) return e;
   return 0;
 }
 
 static int __pyx_tp_clear_5freud_9interface_Interface(PyObject *o) {
-  if (likely(__pyx_ptype_5freud_8locality_PairCompute)) { if (__pyx_ptype_5freud_8locality_PairCompute->tp_clear) __pyx_ptype_5freud_8locality_PairCompute->tp_clear(o); } else __Pyx_call_next_tp_clear(o, __pyx_tp_clear_5freud_9interface_Interface);
+  if (likely(__pyx_ptype_5freud_8locality__PairCompute)) { if (__pyx_ptype_5freud_8locality__PairCompute->tp_clear) __pyx_ptype_5freud_8locality__PairCompute->tp_clear(o); } else __Pyx_call_next_tp_clear(o, __pyx_tp_clear_5freud_9interface_Interface);
   return 0;
 }
 
 static PyMethodDef __pyx_methods_5freud_9interface_Interface[] = {
   {"compute", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_9interface_9Interface_3compute, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_9interface_9Interface_2compute},
-  {"point_count", (PyCFunction)__pyx_pw_5freud_9interface_9Interface_5point_count, METH_NOARGS, __pyx_doc_5freud_9interface_9Interface_4point_count},
-  {"point_ids", (PyCFunction)__pyx_pw_5freud_9interface_9Interface_7point_ids, METH_NOARGS, __pyx_doc_5freud_9interface_9Interface_6point_ids},
-  {"query_point_count", (PyCFunction)__pyx_pw_5freud_9interface_9Interface_9query_point_count, METH_NOARGS, __pyx_doc_5freud_9interface_9Interface_8query_point_count},
-  {"query_point_ids", (PyCFunction)__pyx_pw_5freud_9interface_9Interface_11query_point_ids, METH_NOARGS, __pyx_doc_5freud_9interface_9Interface_10query_point_ids},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_9interface_9Interface_15__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_9interface_9Interface_14__reduce_cython__},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_9interface_9Interface_17__setstate_cython__, METH_O, __pyx_doc_5freud_9interface_9Interface_16__setstate_cython__},
+  {"point_count", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_9interface_9Interface_5point_count, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_9interface_9Interface_4point_count},
+  {"point_ids", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_9interface_9Interface_7point_ids, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_9interface_9Interface_6point_ids},
+  {"query_point_count", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_9interface_9Interface_9query_point_count, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_9interface_9Interface_8query_point_count},
+  {"query_point_ids", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_9interface_9Interface_11query_point_ids, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_9interface_9Interface_10query_point_ids},
+  {"__reduce_cython__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_9interface_9Interface_15__reduce_cython__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_9interface_9Interface_14__reduce_cython__},
+  {"__setstate_cython__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_9interface_9Interface_17__setstate_cython__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_9interface_9Interface_16__setstate_cython__},
   {0, 0, 0, 0}
 };
 
@@ -21973,7 +22029,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
 
   /* "freud/interface.pyx":67
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def point_count(self):             # <<<<<<<<<<<<<<
  *         """int: Number of particles from :code:`points` on the interface."""
  *         return len(self._point_ids)
@@ -21985,7 +22041,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
 
   /* "freud/interface.pyx":72
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def point_ids(self):             # <<<<<<<<<<<<<<
  *         """:class:`np.ndarray`: The particle IDs from :code:`points`."""
  *         return np.asarray(self._point_ids)
@@ -21997,7 +22053,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
 
   /* "freud/interface.pyx":77
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def query_point_count(self):             # <<<<<<<<<<<<<<
  *         """int: Number of particles from :code:`query_points` on the
  *         interface."""
@@ -22009,7 +22065,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
 
   /* "freud/interface.pyx":83
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def query_point_ids(self):             # <<<<<<<<<<<<<<
  *         """:class:`np.ndarray`: The particle IDs from :code:`query_points`."""
  *         return np.asarray(self._query_point_ids)
@@ -22177,9 +22233,9 @@ static int __Pyx_modinit_type_init_code(void) {
   /*--- Type init code ---*/
   __pyx_t_1 = PyImport_ImportModule("freud.locality"); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_ptype_5freud_8locality_PairCompute = __Pyx_ImportType(__pyx_t_1, "freud.locality", "PairCompute", sizeof(struct __pyx_obj_5freud_8locality_PairCompute), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_5freud_8locality_PairCompute) __PYX_ERR(0, 1, __pyx_L1_error)
-  __pyx_type_5freud_9interface_Interface.tp_base = __pyx_ptype_5freud_8locality_PairCompute;
+  __pyx_ptype_5freud_8locality__PairCompute = __Pyx_ImportType(__pyx_t_1, "freud.locality", "_PairCompute", sizeof(struct __pyx_obj_5freud_8locality__PairCompute), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_5freud_8locality__PairCompute) __PYX_ERR(0, 1, __pyx_L1_error)
+  __pyx_type_5freud_9interface_Interface.tp_base = __pyx_ptype_5freud_8locality__PairCompute;
   if (PyType_Ready(&__pyx_type_5freud_9interface_Interface) < 0) __PYX_ERR(0, 26, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
   __pyx_type_5freud_9interface_Interface.tp_print = 0;
@@ -22294,15 +22350,13 @@ static int __Pyx_modinit_type_import_code(void) {
   __pyx_ptype_5freud_4util__ManagedArrayContainer = __Pyx_ImportType(__pyx_t_1, "freud.util", "_ManagedArrayContainer", sizeof(struct __pyx_obj_5freud_4util__ManagedArrayContainer), __Pyx_ImportType_CheckSize_Warn);
    if (!__pyx_ptype_5freud_4util__ManagedArrayContainer) __PYX_ERR(3, 41, __pyx_L1_error)
   __pyx_vtabptr_5freud_4util__ManagedArrayContainer = (struct __pyx_vtabstruct_5freud_4util__ManagedArrayContainer*)__Pyx_GetVtable(__pyx_ptype_5freud_4util__ManagedArrayContainer->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_4util__ManagedArrayContainer)) __PYX_ERR(3, 41, __pyx_L1_error)
-  __pyx_ptype_5freud_4util_Compute = __Pyx_ImportType(__pyx_t_1, "freud.util", "Compute", sizeof(struct __pyx_obj_5freud_4util_Compute), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_5freud_4util_Compute) __PYX_ERR(3, 97, __pyx_L1_error)
+  __pyx_ptype_5freud_4util__Compute = __Pyx_ImportType(__pyx_t_1, "freud.util", "_Compute", sizeof(struct __pyx_obj_5freud_4util__Compute), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_5freud_4util__Compute) __PYX_ERR(3, 97, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_1 = PyImport_ImportModule("freud.box"); if (unlikely(!__pyx_t_1)) __PYX_ERR(8, 6, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_ptype_5freud_3box_Box = __Pyx_ImportType(__pyx_t_1, "freud.box", "Box", sizeof(struct __pyx_obj_5freud_3box_Box), __Pyx_ImportType_CheckSize_Warn);
    if (!__pyx_ptype_5freud_3box_Box) __PYX_ERR(8, 6, __pyx_L1_error)
-  __pyx_ptype_5freud_3box_PeriodicBuffer = __Pyx_ImportType(__pyx_t_1, "freud.box", "PeriodicBuffer", sizeof(struct __pyx_obj_5freud_3box_PeriodicBuffer), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_5freud_3box_PeriodicBuffer) __PYX_ERR(8, 11, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_1 = PyImport_ImportModule("freud.locality"); if (unlikely(!__pyx_t_1)) __PYX_ERR(4, 16, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
@@ -22321,17 +22375,19 @@ static int __Pyx_modinit_type_import_code(void) {
   __pyx_ptype_5freud_8locality_AABBQuery = __Pyx_ImportType(__pyx_t_1, "freud.locality", "AABBQuery", sizeof(struct __pyx_obj_5freud_8locality_AABBQuery), __Pyx_ImportType_CheckSize_Warn);
    if (!__pyx_ptype_5freud_8locality_AABBQuery) __PYX_ERR(4, 55, __pyx_L1_error)
   __pyx_vtabptr_5freud_8locality_AABBQuery = (struct __pyx_vtabstruct_5freud_8locality_AABBQuery*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_AABBQuery->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_AABBQuery)) __PYX_ERR(4, 55, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_RawPoints = __Pyx_ImportType(__pyx_t_1, "freud.locality", "RawPoints", sizeof(struct __pyx_obj_5freud_8locality_RawPoints), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_5freud_8locality_RawPoints) __PYX_ERR(4, 58, __pyx_L1_error)
-  __pyx_vtabptr_5freud_8locality_RawPoints = (struct __pyx_vtabstruct_5freud_8locality_RawPoints*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_RawPoints->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_RawPoints)) __PYX_ERR(4, 58, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality__RawPoints = __Pyx_ImportType(__pyx_t_1, "freud.locality", "_RawPoints", sizeof(struct __pyx_obj_5freud_8locality__RawPoints), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_5freud_8locality__RawPoints) __PYX_ERR(4, 58, __pyx_L1_error)
+  __pyx_vtabptr_5freud_8locality__RawPoints = (struct __pyx_vtabstruct_5freud_8locality__RawPoints*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality__RawPoints->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality__RawPoints)) __PYX_ERR(4, 58, __pyx_L1_error)
   __pyx_ptype_5freud_8locality__QueryArgs = __Pyx_ImportType(__pyx_t_1, "freud.locality", "_QueryArgs", sizeof(struct __pyx_obj_5freud_8locality__QueryArgs), __Pyx_ImportType_CheckSize_Warn);
    if (!__pyx_ptype_5freud_8locality__QueryArgs) __PYX_ERR(4, 61, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_SpatialHistogram = __Pyx_ImportType(__pyx_t_1, "freud.locality", "SpatialHistogram", sizeof(struct __pyx_obj_5freud_8locality_SpatialHistogram), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_5freud_8locality_SpatialHistogram) __PYX_ERR(4, 67, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_SpatialHistogram1D = __Pyx_ImportType(__pyx_t_1, "freud.locality", "SpatialHistogram1D", sizeof(struct __pyx_obj_5freud_8locality_SpatialHistogram1D), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_5freud_8locality_SpatialHistogram1D) __PYX_ERR(4, 71, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality__SpatialHistogram = __Pyx_ImportType(__pyx_t_1, "freud.locality", "_SpatialHistogram", sizeof(struct __pyx_obj_5freud_8locality__SpatialHistogram), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_5freud_8locality__SpatialHistogram) __PYX_ERR(4, 67, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality__SpatialHistogram1D = __Pyx_ImportType(__pyx_t_1, "freud.locality", "_SpatialHistogram1D", sizeof(struct __pyx_obj_5freud_8locality__SpatialHistogram1D), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_5freud_8locality__SpatialHistogram1D) __PYX_ERR(4, 71, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality_PeriodicBuffer = __Pyx_ImportType(__pyx_t_1, "freud.locality", "PeriodicBuffer", sizeof(struct __pyx_obj_5freud_8locality_PeriodicBuffer), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_5freud_8locality_PeriodicBuffer) __PYX_ERR(4, 74, __pyx_L1_error)
   __pyx_ptype_5freud_8locality_Voronoi = __Pyx_ImportType(__pyx_t_1, "freud.locality", "Voronoi", sizeof(struct __pyx_obj_5freud_8locality_Voronoi), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_5freud_8locality_Voronoi) __PYX_ERR(4, 74, __pyx_L1_error)
+   if (!__pyx_ptype_5freud_8locality_Voronoi) __PYX_ERR(4, 77, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_RefNannyFinishContext();
   return 0;
@@ -22564,7 +22620,7 @@ if (!__Pyx_RefNanny) {
  * 
  * import numpy as np             # <<<<<<<<<<<<<<
  * 
- * from freud.util cimport Compute
+ * from freud.util cimport _Compute
  */
   __pyx_t_1 = __Pyx_Import(__pyx_n_s_numpy, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 9, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
@@ -22588,7 +22644,7 @@ if (!__Pyx_RefNanny) {
  * # _always_ do that, or you will have segfaults
  * np.import_array()             # <<<<<<<<<<<<<<
  * 
- * cdef class Interface(PairCompute):
+ * cdef class Interface(_PairCompute):
  */
   __pyx_t_2 = __pyx_f_5numpy_import_array(); if (unlikely(__pyx_t_2 == ((int)-1))) __PYX_ERR(0, 24, __pyx_L1_error)
 
@@ -22607,7 +22663,7 @@ if (!__Pyx_RefNanny) {
 
   /* "freud/interface.pyx":67
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def point_count(self):             # <<<<<<<<<<<<<<
  *         """int: Number of particles from :code:`points` on the interface."""
  *         return len(self._point_ids)
@@ -22621,16 +22677,16 @@ if (!__Pyx_RefNanny) {
   /* "freud/interface.pyx":66
  *         return self
  * 
- *     @Compute._computed_property             # <<<<<<<<<<<<<<
+ *     @_Compute._computed_property             # <<<<<<<<<<<<<<
  *     def point_count(self):
  *         """int: Number of particles from :code:`points` on the interface."""
  */
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_4util_Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 66, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_4util__Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 66, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
 
   /* "freud/interface.pyx":67
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def point_count(self):             # <<<<<<<<<<<<<<
  *         """int: Number of particles from :code:`points` on the interface."""
  *         return len(self._point_ids)
@@ -22659,7 +22715,7 @@ if (!__Pyx_RefNanny) {
 
   /* "freud/interface.pyx":72
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def point_ids(self):             # <<<<<<<<<<<<<<
  *         """:class:`np.ndarray`: The particle IDs from :code:`points`."""
  *         return np.asarray(self._point_ids)
@@ -22673,16 +22729,16 @@ if (!__Pyx_RefNanny) {
   /* "freud/interface.pyx":71
  *         return len(self._point_ids)
  * 
- *     @Compute._computed_property             # <<<<<<<<<<<<<<
+ *     @_Compute._computed_property             # <<<<<<<<<<<<<<
  *     def point_ids(self):
  *         """:class:`np.ndarray`: The particle IDs from :code:`points`."""
  */
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_4util_Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 71, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_4util__Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 71, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
 
   /* "freud/interface.pyx":72
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def point_ids(self):             # <<<<<<<<<<<<<<
  *         """:class:`np.ndarray`: The particle IDs from :code:`points`."""
  *         return np.asarray(self._point_ids)
@@ -22711,7 +22767,7 @@ if (!__Pyx_RefNanny) {
 
   /* "freud/interface.pyx":77
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def query_point_count(self):             # <<<<<<<<<<<<<<
  *         """int: Number of particles from :code:`query_points` on the
  *         interface."""
@@ -22725,16 +22781,16 @@ if (!__Pyx_RefNanny) {
   /* "freud/interface.pyx":76
  *         return np.asarray(self._point_ids)
  * 
- *     @Compute._computed_property             # <<<<<<<<<<<<<<
+ *     @_Compute._computed_property             # <<<<<<<<<<<<<<
  *     def query_point_count(self):
  *         """int: Number of particles from :code:`query_points` on the
  */
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_4util_Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 76, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_4util__Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 76, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
 
   /* "freud/interface.pyx":77
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def query_point_count(self):             # <<<<<<<<<<<<<<
  *         """int: Number of particles from :code:`query_points` on the
  *         interface."""
@@ -22763,7 +22819,7 @@ if (!__Pyx_RefNanny) {
 
   /* "freud/interface.pyx":83
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def query_point_ids(self):             # <<<<<<<<<<<<<<
  *         """:class:`np.ndarray`: The particle IDs from :code:`query_points`."""
  *         return np.asarray(self._query_point_ids)
@@ -22777,16 +22833,16 @@ if (!__Pyx_RefNanny) {
   /* "freud/interface.pyx":82
  *         return len(self._query_point_ids)
  * 
- *     @Compute._computed_property             # <<<<<<<<<<<<<<
+ *     @_Compute._computed_property             # <<<<<<<<<<<<<<
  *     def query_point_ids(self):
  *         """:class:`np.ndarray`: The particle IDs from :code:`query_points`."""
  */
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_4util_Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 82, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_4util__Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 82, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
 
   /* "freud/interface.pyx":83
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def query_point_ids(self):             # <<<<<<<<<<<<<<
  *         """:class:`np.ndarray`: The particle IDs from :code:`query_points`."""
  *         return np.asarray(self._query_point_ids)

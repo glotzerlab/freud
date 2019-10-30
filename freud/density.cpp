@@ -11,13 +11,16 @@
             [
                 "VOROPP_VERBOSE",
                 "1"
+            ],
+            [
+                "_USE_MATH_DEFINES",
+                "1"
             ]
         ],
         "depends": [
             "/usr/lib/python3.7/site-packages/numpy/core/include/numpy/arrayobject.h",
             "/usr/lib/python3.7/site-packages/numpy/core/include/numpy/ufuncobject.h",
             "cpp/box/Box.h",
-            "cpp/box/PeriodicBuffer.h",
             "cpp/density/CorrelationFunction.h",
             "cpp/density/GaussianDensity.h",
             "cpp/density/LocalDensity.h",
@@ -28,6 +31,7 @@
             "cpp/locality/NeighborBond.h",
             "cpp/locality/NeighborList.h",
             "cpp/locality/NeighborQuery.h",
+            "cpp/locality/PeriodicBuffer.h",
             "cpp/locality/RawPoints.h",
             "cpp/locality/Voronoi.h",
             "cpp/util/ManagedArray.h",
@@ -50,7 +54,6 @@
             "cpp/environment",
             "cpp/locality",
             "cpp/density",
-            "cpp/registration",
             "cpp/pmft",
             "/usr/include"
         ],
@@ -61,15 +64,15 @@
         "name": "freud.density",
         "sources": [
             "freud/density.pyx",
-            "cpp/density/CorrelationFunction.cc",
             "cpp/density/LocalDensity.cc",
             "cpp/density/GaussianDensity.cc",
-            "cpp/locality/NeighborList.cc",
-            "cpp/locality/NeighborComputeFunctional.cc",
             "cpp/locality/NeighborQuery.cc",
-            "cpp/locality/AABBQuery.cc",
+            "cpp/locality/NeighborList.cc",
             "cpp/density/RDF.cc",
-            "cpp/locality/NeighborPerPointIterator.cc"
+            "cpp/locality/NeighborPerPointIterator.cc",
+            "cpp/locality/NeighborComputeFunctional.cc",
+            "cpp/density/CorrelationFunction.cc",
+            "cpp/locality/AABBQuery.cc"
         ]
     },
     "module_name": "freud.density"
@@ -700,15 +703,15 @@ static CYTHON_INLINE float __PYX_NAN() {
 #include <utility>
 #include <string>
 #include "Box.h"
-#include "PeriodicBuffer.h"
 #include "NeighborBond.h"
 #include "NeighborQuery.h"
 #include "RawPoints.h"
 #include "NeighborList.h"
 #include "LinkCell.h"
 #include "AABBQuery.h"
-#include "Voronoi.h"
 #include "BondHistogramCompute.h"
+#include "PeriodicBuffer.h"
+#include "Voronoi.h"
 #include "CorrelationFunction.h"
 #include "GaussianDensity.h"
 #include "LocalDensity.h"
@@ -1262,7 +1265,7 @@ typedef npy_longdouble __pyx_t_5numpy_longdouble_t;
  */
 typedef unsigned int __pyx_t_5freud_4util_uint;
 
-/* "freud/_density.pxd":14
+/* "freud/_density.pxd":15
  * cimport freud.util
  * 
  * ctypedef unsigned int uint             # <<<<<<<<<<<<<<
@@ -1285,7 +1288,7 @@ typedef unsigned int __pyx_t_5freud_4_box_uint;
  * 
  * ctypedef unsigned int uint             # <<<<<<<<<<<<<<
  * 
- * cdef class CorrelationFunction(SpatialHistogram1D):
+ * cdef class CorrelationFunction(_SpatialHistogram1D):
  */
 typedef unsigned int __pyx_t_5freud_7density_uint;
 /* Declarations.proto */
@@ -1315,19 +1318,19 @@ static CYTHON_INLINE __pyx_t_double_complex __pyx_t_double_complex_from_parts(do
 
 /*--- Type declarations ---*/
 struct __pyx_obj_5freud_4util__ManagedArrayContainer;
-struct __pyx_obj_5freud_4util_Compute;
+struct __pyx_obj_5freud_4util__Compute;
 struct __pyx_obj_5freud_3box_Box;
-struct __pyx_obj_5freud_3box_PeriodicBuffer;
 struct __pyx_obj_5freud_8locality_NeighborQueryResult;
 struct __pyx_obj_5freud_8locality_NeighborQuery;
 struct __pyx_obj_5freud_8locality_NeighborList;
 struct __pyx_obj_5freud_8locality_LinkCell;
 struct __pyx_obj_5freud_8locality_AABBQuery;
-struct __pyx_obj_5freud_8locality_RawPoints;
+struct __pyx_obj_5freud_8locality__RawPoints;
 struct __pyx_obj_5freud_8locality__QueryArgs;
-struct __pyx_obj_5freud_8locality_PairCompute;
-struct __pyx_obj_5freud_8locality_SpatialHistogram;
-struct __pyx_obj_5freud_8locality_SpatialHistogram1D;
+struct __pyx_obj_5freud_8locality__PairCompute;
+struct __pyx_obj_5freud_8locality__SpatialHistogram;
+struct __pyx_obj_5freud_8locality__SpatialHistogram1D;
+struct __pyx_obj_5freud_8locality_PeriodicBuffer;
 struct __pyx_obj_5freud_8locality_Voronoi;
 struct __pyx_obj_5freud_7density_CorrelationFunction;
 struct __pyx_obj_5freud_7density_GaussianDensity;
@@ -1456,10 +1459,10 @@ struct __pyx_obj_5freud_4util__ManagedArrayContainer {
 /* "freud/util.pxd":97
  * 
  * 
- * cdef class Compute:             # <<<<<<<<<<<<<<
+ * cdef class _Compute:             # <<<<<<<<<<<<<<
  *     cdef public _called_compute
  */
-struct __pyx_obj_5freud_4util_Compute {
+struct __pyx_obj_5freud_4util__Compute {
   PyObject_HEAD
   PyObject *_called_compute;
 };
@@ -1475,18 +1478,6 @@ struct __pyx_obj_5freud_4util_Compute {
 struct __pyx_obj_5freud_3box_Box {
   PyObject_HEAD
   freud::box::Box *thisptr;
-};
-
-
-/* "freud/box.pxd":11
- * cdef BoxFromCPP(const freud._box.Box & cppbox)
- * 
- * cdef class PeriodicBuffer:             # <<<<<<<<<<<<<<
- *     cdef freud._box.PeriodicBuffer * thisptr
- */
-struct __pyx_obj_5freud_3box_PeriodicBuffer {
-  PyObject_HEAD
-  freud::box::PeriodicBuffer *thisptr;
 };
 
 
@@ -1565,11 +1556,11 @@ struct __pyx_obj_5freud_8locality_AABBQuery {
 /* "freud/locality.pxd":58
  *     cdef freud._locality.AABBQuery * thisptr
  * 
- * cdef class RawPoints(NeighborQuery):             # <<<<<<<<<<<<<<
+ * cdef class _RawPoints(NeighborQuery):             # <<<<<<<<<<<<<<
  *     cdef freud._locality.RawPoints * thisptr
  * 
  */
-struct __pyx_obj_5freud_8locality_RawPoints {
+struct __pyx_obj_5freud_8locality__RawPoints {
   struct __pyx_obj_5freud_8locality_NeighborQuery __pyx_base;
   freud::locality::RawPoints *thisptr;
 };
@@ -1591,24 +1582,24 @@ struct __pyx_obj_5freud_8locality__QueryArgs {
 /* "freud/locality.pxd":64
  *     cdef freud._locality.QueryArgs * thisptr
  * 
- * cdef class PairCompute(Compute):             # <<<<<<<<<<<<<<
+ * cdef class _PairCompute(_Compute):             # <<<<<<<<<<<<<<
  *     pass
  * 
  */
-struct __pyx_obj_5freud_8locality_PairCompute {
-  struct __pyx_obj_5freud_4util_Compute __pyx_base;
+struct __pyx_obj_5freud_8locality__PairCompute {
+  struct __pyx_obj_5freud_4util__Compute __pyx_base;
 };
 
 
 /* "freud/locality.pxd":67
  *     pass
  * 
- * cdef class SpatialHistogram(PairCompute):             # <<<<<<<<<<<<<<
+ * cdef class _SpatialHistogram(_PairCompute):             # <<<<<<<<<<<<<<
  *     cdef float r_max
  *     cdef freud._locality.BondHistogramCompute *histptr
  */
-struct __pyx_obj_5freud_8locality_SpatialHistogram {
-  struct __pyx_obj_5freud_8locality_PairCompute __pyx_base;
+struct __pyx_obj_5freud_8locality__SpatialHistogram {
+  struct __pyx_obj_5freud_8locality__PairCompute __pyx_base;
   float r_max;
   freud::locality::BondHistogramCompute *histptr;
 };
@@ -1617,24 +1608,37 @@ struct __pyx_obj_5freud_8locality_SpatialHistogram {
 /* "freud/locality.pxd":71
  *     cdef freud._locality.BondHistogramCompute *histptr
  * 
- * cdef class SpatialHistogram1D(SpatialHistogram):             # <<<<<<<<<<<<<<
+ * cdef class _SpatialHistogram1D(_SpatialHistogram):             # <<<<<<<<<<<<<<
  *     pass
  * 
  */
-struct __pyx_obj_5freud_8locality_SpatialHistogram1D {
-  struct __pyx_obj_5freud_8locality_SpatialHistogram __pyx_base;
+struct __pyx_obj_5freud_8locality__SpatialHistogram1D {
+  struct __pyx_obj_5freud_8locality__SpatialHistogram __pyx_base;
 };
 
 
 /* "freud/locality.pxd":74
  *     pass
  * 
- * cdef class Voronoi(Compute):             # <<<<<<<<<<<<<<
+ * cdef class PeriodicBuffer(_Compute):             # <<<<<<<<<<<<<<
+ *     cdef freud._locality.PeriodicBuffer * thisptr
+ * 
+ */
+struct __pyx_obj_5freud_8locality_PeriodicBuffer {
+  struct __pyx_obj_5freud_4util__Compute __pyx_base;
+  freud::locality::PeriodicBuffer *thisptr;
+};
+
+
+/* "freud/locality.pxd":77
+ *     cdef freud._locality.PeriodicBuffer * thisptr
+ * 
+ * cdef class Voronoi(_Compute):             # <<<<<<<<<<<<<<
  *     cdef freud._locality.Voronoi * thisptr
  *     cdef NeighborList _nlist
  */
 struct __pyx_obj_5freud_8locality_Voronoi {
-  struct __pyx_obj_5freud_4util_Compute __pyx_base;
+  struct __pyx_obj_5freud_4util__Compute __pyx_base;
   freud::locality::Voronoi *thisptr;
   struct __pyx_obj_5freud_8locality_NeighborList *_nlist;
   struct __pyx_obj_5freud_3box_Box *_box;
@@ -1644,39 +1648,39 @@ struct __pyx_obj_5freud_8locality_Voronoi {
 /* "freud/density.pyx":32
  * ctypedef unsigned int uint
  * 
- * cdef class CorrelationFunction(SpatialHistogram1D):             # <<<<<<<<<<<<<<
+ * cdef class CorrelationFunction(_SpatialHistogram1D):             # <<<<<<<<<<<<<<
  *     R"""Computes the complex pairwise correlation function.
  * 
  */
 struct __pyx_obj_5freud_7density_CorrelationFunction {
-  struct __pyx_obj_5freud_8locality_SpatialHistogram1D __pyx_base;
+  struct __pyx_obj_5freud_8locality__SpatialHistogram1D __pyx_base;
   freud::density::CorrelationFunction<__pyx_t_double_complex>  *thisptr;
   PyObject *is_complex;
 };
 
 
-/* "freud/density.pyx":183
+/* "freud/density.pyx":184
  * 
  * 
- * cdef class GaussianDensity(Compute):             # <<<<<<<<<<<<<<
+ * cdef class GaussianDensity(_Compute):             # <<<<<<<<<<<<<<
  *     R"""Computes the density of a system on a grid.
  * 
  */
 struct __pyx_obj_5freud_7density_GaussianDensity {
-  struct __pyx_obj_5freud_4util_Compute __pyx_base;
+  struct __pyx_obj_5freud_4util__Compute __pyx_base;
   freud::density::GaussianDensity *thisptr;
 };
 
 
-/* "freud/density.pyx":302
+/* "freud/density.pyx":303
  * 
  * 
- * cdef class LocalDensity(PairCompute):             # <<<<<<<<<<<<<<
+ * cdef class LocalDensity(_PairCompute):             # <<<<<<<<<<<<<<
  *     R"""Computes the local density around a particle.
  * 
  */
 struct __pyx_obj_5freud_7density_LocalDensity {
-  struct __pyx_obj_5freud_8locality_PairCompute __pyx_base;
+  struct __pyx_obj_5freud_8locality__PairCompute __pyx_base;
   freud::density::LocalDensity *thisptr;
 };
 
@@ -1684,12 +1688,12 @@ struct __pyx_obj_5freud_7density_LocalDensity {
 /* "freud/density.pyx":423
  * 
  * 
- * cdef class RDF(SpatialHistogram1D):             # <<<<<<<<<<<<<<
- *     R"""Computes RDF for supplied data.
+ * cdef class RDF(_SpatialHistogram1D):             # <<<<<<<<<<<<<<
+ *     R"""Computes the RDF :math:`g \left( r \right)` for supplied data.
  * 
  */
 struct __pyx_obj_5freud_7density_RDF {
-  struct __pyx_obj_5freud_8locality_SpatialHistogram1D __pyx_base;
+  struct __pyx_obj_5freud_8locality__SpatialHistogram1D __pyx_base;
   freud::density::RDF *thisptr;
 };
 
@@ -1864,15 +1868,15 @@ static struct __pyx_vtabstruct_5freud_8locality_AABBQuery *__pyx_vtabptr_5freud_
 /* "freud/locality.pxd":58
  *     cdef freud._locality.AABBQuery * thisptr
  * 
- * cdef class RawPoints(NeighborQuery):             # <<<<<<<<<<<<<<
+ * cdef class _RawPoints(NeighborQuery):             # <<<<<<<<<<<<<<
  *     cdef freud._locality.RawPoints * thisptr
  * 
  */
 
-struct __pyx_vtabstruct_5freud_8locality_RawPoints {
+struct __pyx_vtabstruct_5freud_8locality__RawPoints {
   struct __pyx_vtabstruct_5freud_8locality_NeighborQuery __pyx_base;
 };
-static struct __pyx_vtabstruct_5freud_8locality_RawPoints *__pyx_vtabptr_5freud_8locality_RawPoints;
+static struct __pyx_vtabstruct_5freud_8locality__RawPoints *__pyx_vtabptr_5freud_8locality__RawPoints;
 
 
 /* "View.MemoryView":105
@@ -2150,6 +2154,9 @@ static CYTHON_INLINE int __pyx_sub_acquisition_count_locked(
 #define __PYX_XDEC_MEMVIEW(slice, have_gil) __Pyx_XDEC_MEMVIEW(slice, have_gil, __LINE__)
 static CYTHON_INLINE void __Pyx_INC_MEMVIEW(__Pyx_memviewslice *, int, int);
 static CYTHON_INLINE void __Pyx_XDEC_MEMVIEW(__Pyx_memviewslice *, int, int);
+
+/* KeywordStringCheck.proto */
+static int __Pyx_CheckKeywordStrings(PyObject *kwdict, const char* function_name, int kw_allowed);
 
 /* Import.proto */
 static PyObject *__Pyx_Import(PyObject *name, PyObject *from_list, int level);
@@ -2914,7 +2921,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_array(void); /*proto*/
 
 /* Module declarations from 'freud.util' */
 static PyTypeObject *__pyx_ptype_5freud_4util__ManagedArrayContainer = 0;
-static PyTypeObject *__pyx_ptype_5freud_4util_Compute = 0;
+static PyTypeObject *__pyx_ptype_5freud_4util__Compute = 0;
 static CYTHON_INLINE PyObject *__pyx_f_5freud_4util_make_managed_numpy_array(void const *, __pyx_t_5freud_4util_arr_type_t, struct __pyx_opt_args_5freud_4util_make_managed_numpy_array *__pyx_optional_args); /*proto*/
 
 /* Module declarations from 'libcpp.utility' */
@@ -2925,7 +2932,6 @@ static CYTHON_INLINE PyObject *__pyx_f_5freud_4util_make_managed_numpy_array(voi
 
 /* Module declarations from 'freud.box' */
 static PyTypeObject *__pyx_ptype_5freud_3box_Box = 0;
-static PyTypeObject *__pyx_ptype_5freud_3box_PeriodicBuffer = 0;
 static PyObject *(*__pyx_f_5freud_3box_BoxFromCPP)(freud::box::Box const &); /*proto*/
 
 /* Module declarations from 'freud._density' */
@@ -2942,11 +2948,12 @@ static PyTypeObject *__pyx_ptype_5freud_8locality_NeighborQuery = 0;
 static PyTypeObject *__pyx_ptype_5freud_8locality_NeighborList = 0;
 static PyTypeObject *__pyx_ptype_5freud_8locality_LinkCell = 0;
 static PyTypeObject *__pyx_ptype_5freud_8locality_AABBQuery = 0;
-static PyTypeObject *__pyx_ptype_5freud_8locality_RawPoints = 0;
+static PyTypeObject *__pyx_ptype_5freud_8locality__RawPoints = 0;
 static PyTypeObject *__pyx_ptype_5freud_8locality__QueryArgs = 0;
-static PyTypeObject *__pyx_ptype_5freud_8locality_PairCompute = 0;
-static PyTypeObject *__pyx_ptype_5freud_8locality_SpatialHistogram = 0;
-static PyTypeObject *__pyx_ptype_5freud_8locality_SpatialHistogram1D = 0;
+static PyTypeObject *__pyx_ptype_5freud_8locality__PairCompute = 0;
+static PyTypeObject *__pyx_ptype_5freud_8locality__SpatialHistogram = 0;
+static PyTypeObject *__pyx_ptype_5freud_8locality__SpatialHistogram1D = 0;
+static PyTypeObject *__pyx_ptype_5freud_8locality_PeriodicBuffer = 0;
 static PyTypeObject *__pyx_ptype_5freud_8locality_Voronoi = 0;
 
 /* Module declarations from 'freud.density' */
@@ -3006,18 +3013,17 @@ int __pyx_module_is_main_freud__density = 0;
 
 /* Implementation of 'freud.density' */
 static PyObject *__pyx_builtin_AttributeError;
+static PyObject *__pyx_builtin_ImportError;
 static PyObject *__pyx_builtin_TypeError;
 static PyObject *__pyx_builtin_ValueError;
 static PyObject *__pyx_builtin_range;
 static PyObject *__pyx_builtin_RuntimeError;
-static PyObject *__pyx_builtin_ImportError;
 static PyObject *__pyx_builtin_MemoryError;
 static PyObject *__pyx_builtin_enumerate;
 static PyObject *__pyx_builtin_Ellipsis;
 static PyObject *__pyx_builtin_id;
 static PyObject *__pyx_builtin_IndexError;
 static const char __pyx_k_O[] = "O";
-static const char __pyx_k_R[] = "R";
 static const char __pyx_k_c[] = "c";
 static const char __pyx_k_r[] = "$r$";
 static const char __pyx_k_ax[] = "ax";
@@ -3032,6 +3038,7 @@ static const char __pyx_k_g_r[] = "$g(r)$";
 static const char __pyx_k_n_r[] = "n_r";
 static const char __pyx_k_new[] = "__new__";
 static const char __pyx_k_obj[] = "obj";
+static const char __pyx_k_rdf[] = "rdf";
 static const char __pyx_k_ball[] = "ball";
 static const char __pyx_k_base[] = "base";
 static const char __pyx_k_bins[] = "bins";
@@ -3084,8 +3091,8 @@ static const char __pyx_k_update[] = "update";
 static const char __pyx_k_values[] = "values";
 static const char __pyx_k_xlabel[] = "xlabel";
 static const char __pyx_k_ylabel[] = "ylabel";
-static const char __pyx_k_RDF_RDF[] = "RDF.RDF";
 static const char __pyx_k_RDF_n_r[] = "RDF.n_r";
+static const char __pyx_k_RDF_rdf[] = "RDF.rdf";
 static const char __pyx_k_asarray[] = "asarray";
 static const char __pyx_k_compute[] = "compute";
 static const char __pyx_k_density[] = "density";
@@ -3109,6 +3116,7 @@ static const char __pyx_k_enumerate[] = "enumerate";
 static const char __pyx_k_iscomplex[] = "iscomplex";
 static const char __pyx_k_line_plot[] = "line_plot";
 static const char __pyx_k_neighbors[] = "neighbors";
+static const char __pyx_k_normalize[] = "normalize";
 static const char __pyx_k_pyx_state[] = "__pyx_state";
 static const char __pyx_k_reduce_ex[] = "__reduce_ex__";
 static const char __pyx_k_IndexError[] = "IndexError";
@@ -3121,7 +3129,7 @@ static const char __pyx_k_ImportError[] = "ImportError";
 static const char __pyx_k_MemoryError[] = "MemoryError";
 static const char __pyx_k_PickleError[] = "PickleError";
 static const char __pyx_k_RDF_compute[] = "RDF.compute";
-static const char __pyx_k_ax_to_bytes[] = "ax_to_bytes";
+static const char __pyx_k_ax_to_bytes[] = "_ax_to_bytes";
 static const char __pyx_k_bin_centers[] = "bin_centers";
 static const char __pyx_k_correlation[] = "correlation";
 static const char __pyx_k_from_system[] = "from_system";
@@ -3264,16 +3272,15 @@ static PyObject *__pyx_kp_u_Non_native_byte_order_not_suppor;
 static PyObject *__pyx_n_b_O;
 static PyObject *__pyx_kp_s_Out_of_bounds_on_buffer_access_a;
 static PyObject *__pyx_n_s_PickleError;
-static PyObject *__pyx_n_s_R;
 static PyObject *__pyx_n_s_RDF;
 static PyObject *__pyx_n_u_RDF;
-static PyObject *__pyx_n_s_RDF_RDF;
 static PyObject *__pyx_n_s_RDF___reduce_cython;
 static PyObject *__pyx_n_s_RDF___setstate_cython;
 static PyObject *__pyx_n_s_RDF__repr_png;
 static PyObject *__pyx_n_s_RDF_compute;
 static PyObject *__pyx_n_s_RDF_n_r;
 static PyObject *__pyx_n_s_RDF_plot;
+static PyObject *__pyx_n_s_RDF_rdf;
 static PyObject *__pyx_n_s_RuntimeError;
 static PyObject *__pyx_n_s_Sequence;
 static PyObject *__pyx_kp_u_The_width_must_be_either_a_numbe;
@@ -3355,6 +3362,7 @@ static PyObject *__pyx_n_s_neighbors;
 static PyObject *__pyx_n_s_new;
 static PyObject *__pyx_n_s_nlist;
 static PyObject *__pyx_kp_s_no_default___reduce___due_to_non;
+static PyObject *__pyx_n_s_normalize;
 static PyObject *__pyx_n_s_np;
 static PyObject *__pyx_n_s_nq;
 static PyObject *__pyx_n_s_num_neighbors;
@@ -3384,6 +3392,7 @@ static PyObject *__pyx_kp_u_r;
 static PyObject *__pyx_n_s_r_max;
 static PyObject *__pyx_n_s_r_min;
 static PyObject *__pyx_n_s_range;
+static PyObject *__pyx_n_s_rdf;
 static PyObject *__pyx_n_s_real;
 static PyObject *__pyx_n_s_reduce;
 static PyObject *__pyx_n_s_reduce_cython;
@@ -3454,10 +3463,10 @@ static PyObject *__pyx_pf_5freud_7density_12LocalDensity_10num_neighbors(struct 
 static PyObject *__pyx_pf_5freud_7density_12LocalDensity_12__repr__(struct __pyx_obj_5freud_7density_LocalDensity *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_5freud_7density_12LocalDensity_14__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_5freud_7density_LocalDensity *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_5freud_7density_12LocalDensity_16__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_5freud_7density_LocalDensity *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
-static int __pyx_pf_5freud_7density_3RDF___cinit__(struct __pyx_obj_5freud_7density_RDF *__pyx_v_self, unsigned int __pyx_v_bins, float __pyx_v_r_max, float __pyx_v_r_min); /* proto */
+static int __pyx_pf_5freud_7density_3RDF___cinit__(struct __pyx_obj_5freud_7density_RDF *__pyx_v_self, unsigned int __pyx_v_bins, float __pyx_v_r_max, float __pyx_v_r_min, PyObject *__pyx_v_normalize); /* proto */
 static void __pyx_pf_5freud_7density_3RDF_2__dealloc__(struct __pyx_obj_5freud_7density_RDF *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_5freud_7density_3RDF_4compute(struct __pyx_obj_5freud_7density_RDF *__pyx_v_self, PyObject *__pyx_v_system, PyObject *__pyx_v_query_points, PyObject *__pyx_v_neighbors, PyObject *__pyx_v_reset); /* proto */
-static PyObject *__pyx_pf_5freud_7density_3RDF_6RDF(struct __pyx_obj_5freud_7density_RDF *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_5freud_7density_3RDF_6rdf(struct __pyx_obj_5freud_7density_RDF *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_5freud_7density_3RDF_8n_r(struct __pyx_obj_5freud_7density_RDF *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_5freud_7density_3RDF_10__repr__(struct __pyx_obj_5freud_7density_RDF *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_5freud_7density_3RDF_12plot(struct __pyx_obj_5freud_7density_RDF *__pyx_v_self, PyObject *__pyx_v_ax); /* proto */
@@ -4545,7 +4554,7 @@ static PyObject *__pyx_pf_5freud_7density_19CorrelationFunction_4compute(struct 
  *             dereference(qargs.thisptr))
  *         return self             # <<<<<<<<<<<<<<
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  */
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(((PyObject *)__pyx_v_self));
@@ -4589,20 +4598,23 @@ static PyObject *__pyx_pf_5freud_7density_19CorrelationFunction_4compute(struct 
 
 /* "freud/density.pyx":145
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def correlation(self):             # <<<<<<<<<<<<<<
  *         """(:math:`N_{bins}`) :class:`numpy.ndarray`: Expected (average)
  *         product of all values at a given radial distance."""
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_7density_19CorrelationFunction_7correlation(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_5freud_7density_19CorrelationFunction_7correlation(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static char __pyx_doc_5freud_7density_19CorrelationFunction_6correlation[] = "CorrelationFunction.correlation(self)\n(:math:`N_{bins}`) :class:`numpy.ndarray`: Expected (average)\n        product of all values at a given radial distance.";
-static PyMethodDef __pyx_mdef_5freud_7density_19CorrelationFunction_7correlation = {"correlation", (PyCFunction)__pyx_pw_5freud_7density_19CorrelationFunction_7correlation, METH_NOARGS, __pyx_doc_5freud_7density_19CorrelationFunction_6correlation};
-static PyObject *__pyx_pw_5freud_7density_19CorrelationFunction_7correlation(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyMethodDef __pyx_mdef_5freud_7density_19CorrelationFunction_7correlation = {"correlation", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_19CorrelationFunction_7correlation, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_19CorrelationFunction_6correlation};
+static PyObject *__pyx_pw_5freud_7density_19CorrelationFunction_7correlation(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("correlation (wrapper)", 0);
+  if (unlikely(PyTuple_GET_SIZE(__pyx_args) > 0)) {
+    __Pyx_RaiseArgtupleInvalid("correlation", 1, 0, 0, PyTuple_GET_SIZE(__pyx_args)); return NULL;}
+  if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "correlation", 0))) return NULL;
   __pyx_r = __pyx_pf_5freud_7density_19CorrelationFunction_6correlation(((struct __pyx_obj_5freud_7density_CorrelationFunction *)__pyx_v_self));
 
   /* function exit code */
@@ -4675,7 +4687,7 @@ static PyObject *__pyx_pf_5freud_7density_19CorrelationFunction_6correlation(str
 
   /* "freud/density.pyx":145
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def correlation(self):             # <<<<<<<<<<<<<<
  *         """(:math:`N_{bins}`) :class:`numpy.ndarray`: Expected (average)
  *         product of all values at a given radial distance."""
@@ -4876,8 +4888,8 @@ static PyObject *__pyx_pf_5freud_7density_19CorrelationFunction_10plot(struct __
  *             (:class:`matplotlib.axes.Axes`): Axis with the plot.
  *         """
  *         import freud.plot             # <<<<<<<<<<<<<<
- *         return freud.plot.line_plot(self.R, np.real(self.RDF),
- *                                     title="Correlation Function",
+ *         return freud.plot.line_plot(self.bin_centers,
+ *                                     np.real(self.correlation),
  */
   __pyx_t_1 = __Pyx_Import(__pyx_n_s_freud_plot, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 168, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
@@ -4887,9 +4899,9 @@ static PyObject *__pyx_pf_5freud_7density_19CorrelationFunction_10plot(struct __
   /* "freud/density.pyx":169
  *         """
  *         import freud.plot
- *         return freud.plot.line_plot(self.R, np.real(self.RDF),             # <<<<<<<<<<<<<<
+ *         return freud.plot.line_plot(self.bin_centers,             # <<<<<<<<<<<<<<
+ *                                     np.real(self.correlation),
  *                                     title="Correlation Function",
- *                                     xlabel=r"$r$",
  */
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_freud, __pyx_n_s_plot); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 169, __pyx_L1_error)
@@ -4897,14 +4909,22 @@ static PyObject *__pyx_pf_5freud_7density_19CorrelationFunction_10plot(struct __
   __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_line_plot); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 169, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_R); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 169, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_bin_centers); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 169, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 169, __pyx_L1_error)
+
+  /* "freud/density.pyx":170
+ *         import freud.plot
+ *         return freud.plot.line_plot(self.bin_centers,
+ *                                     np.real(self.correlation),             # <<<<<<<<<<<<<<
+ *                                     title="Correlation Function",
+ *                                     xlabel=r"$r$",
+ */
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 170, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_real); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 169, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_real); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 170, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_RDF); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 169, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_correlation); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 170, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_6 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_5))) {
@@ -4919,9 +4939,17 @@ static PyObject *__pyx_pf_5freud_7density_19CorrelationFunction_10plot(struct __
   __pyx_t_3 = (__pyx_t_6) ? __Pyx_PyObject_Call2Args(__pyx_t_5, __pyx_t_6, __pyx_t_4) : __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_4);
   __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 169, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 170, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+
+  /* "freud/density.pyx":169
+ *         """
+ *         import freud.plot
+ *         return freud.plot.line_plot(self.bin_centers,             # <<<<<<<<<<<<<<
+ *                                     np.real(self.correlation),
+ *                                     title="Correlation Function",
+ */
   __pyx_t_5 = PyTuple_New(2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 169, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_GIVEREF(__pyx_t_1);
@@ -4931,34 +4959,34 @@ static PyObject *__pyx_pf_5freud_7density_19CorrelationFunction_10plot(struct __
   __pyx_t_1 = 0;
   __pyx_t_3 = 0;
 
-  /* "freud/density.pyx":170
- *         import freud.plot
- *         return freud.plot.line_plot(self.R, np.real(self.RDF),
+  /* "freud/density.pyx":171
+ *         return freud.plot.line_plot(self.bin_centers,
+ *                                     np.real(self.correlation),
  *                                     title="Correlation Function",             # <<<<<<<<<<<<<<
  *                                     xlabel=r"$r$",
  *                                     ylabel=r"$\operatorname{Re}(C(r))$",
  */
-  __pyx_t_3 = __Pyx_PyDict_NewPresized(4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 170, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyDict_NewPresized(4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 171, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_title, __pyx_kp_u_Correlation_Function) < 0) __PYX_ERR(0, 170, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_xlabel, __pyx_kp_u_r) < 0) __PYX_ERR(0, 170, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_ylabel, __pyx_kp_u_operatorname_Re_C_r) < 0) __PYX_ERR(0, 170, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_title, __pyx_kp_u_Correlation_Function) < 0) __PYX_ERR(0, 171, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_xlabel, __pyx_kp_u_r) < 0) __PYX_ERR(0, 171, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_ylabel, __pyx_kp_u_operatorname_Re_C_r) < 0) __PYX_ERR(0, 171, __pyx_L1_error)
 
-  /* "freud/density.pyx":173
+  /* "freud/density.pyx":174
  *                                     xlabel=r"$r$",
  *                                     ylabel=r"$\operatorname{Re}(C(r))$",
  *                                     ax=ax)             # <<<<<<<<<<<<<<
  * 
  *     def _repr_png_(self):
  */
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_ax, __pyx_v_ax) < 0) __PYX_ERR(0, 170, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_ax, __pyx_v_ax) < 0) __PYX_ERR(0, 171, __pyx_L1_error)
 
   /* "freud/density.pyx":169
  *         """
  *         import freud.plot
- *         return freud.plot.line_plot(self.R, np.real(self.RDF),             # <<<<<<<<<<<<<<
+ *         return freud.plot.line_plot(self.bin_centers,             # <<<<<<<<<<<<<<
+ *                                     np.real(self.correlation),
  *                                     title="Correlation Function",
- *                                     xlabel=r"$r$",
  */
   __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_5, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 169, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
@@ -4994,22 +5022,25 @@ static PyObject *__pyx_pf_5freud_7density_19CorrelationFunction_10plot(struct __
   return __pyx_r;
 }
 
-/* "freud/density.pyx":175
+/* "freud/density.pyx":176
  *                                     ax=ax)
  * 
  *     def _repr_png_(self):             # <<<<<<<<<<<<<<
- *         import freud.plot
  *         try:
+ *             import freud.plot
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_7density_19CorrelationFunction_13_repr_png_(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_5freud_7density_19CorrelationFunction_13_repr_png_(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static char __pyx_doc_5freud_7density_19CorrelationFunction_12_repr_png_[] = "CorrelationFunction._repr_png_(self)";
-static PyMethodDef __pyx_mdef_5freud_7density_19CorrelationFunction_13_repr_png_ = {"_repr_png_", (PyCFunction)__pyx_pw_5freud_7density_19CorrelationFunction_13_repr_png_, METH_NOARGS, __pyx_doc_5freud_7density_19CorrelationFunction_12_repr_png_};
-static PyObject *__pyx_pw_5freud_7density_19CorrelationFunction_13_repr_png_(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyMethodDef __pyx_mdef_5freud_7density_19CorrelationFunction_13_repr_png_ = {"_repr_png_", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_19CorrelationFunction_13_repr_png_, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_19CorrelationFunction_12_repr_png_};
+static PyObject *__pyx_pw_5freud_7density_19CorrelationFunction_13_repr_png_(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("_repr_png_ (wrapper)", 0);
+  if (unlikely(PyTuple_GET_SIZE(__pyx_args) > 0)) {
+    __Pyx_RaiseArgtupleInvalid("_repr_png_", 1, 0, 0, PyTuple_GET_SIZE(__pyx_args)); return NULL;}
+  if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "_repr_png_", 0))) return NULL;
   __pyx_r = __pyx_pf_5freud_7density_19CorrelationFunction_12_repr_png_(((struct __pyx_obj_5freud_7density_CorrelationFunction *)__pyx_v_self));
 
   /* function exit code */
@@ -5032,48 +5063,48 @@ static PyObject *__pyx_pf_5freud_7density_19CorrelationFunction_12_repr_png_(str
   int __pyx_t_9;
   __Pyx_RefNannySetupContext("_repr_png_", 0);
 
-  /* "freud/density.pyx":176
+  /* "freud/density.pyx":177
  * 
  *     def _repr_png_(self):
- *         import freud.plot             # <<<<<<<<<<<<<<
- *         try:
- *             return freud.plot.ax_to_bytes(self.plot())
- */
-  __pyx_t_1 = __Pyx_Import(__pyx_n_s_freud_plot, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 176, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_v_freud = __pyx_t_1;
-  __pyx_t_1 = 0;
-
-  /* "freud/density.pyx":177
- *     def _repr_png_(self):
- *         import freud.plot
  *         try:             # <<<<<<<<<<<<<<
- *             return freud.plot.ax_to_bytes(self.plot())
- *         except AttributeError:
+ *             import freud.plot
+ *             return freud.plot._ax_to_bytes(self.plot())
  */
   {
     __Pyx_PyThreadState_declare
     __Pyx_PyThreadState_assign
-    __Pyx_ExceptionSave(&__pyx_t_2, &__pyx_t_3, &__pyx_t_4);
+    __Pyx_ExceptionSave(&__pyx_t_1, &__pyx_t_2, &__pyx_t_3);
+    __Pyx_XGOTREF(__pyx_t_1);
     __Pyx_XGOTREF(__pyx_t_2);
     __Pyx_XGOTREF(__pyx_t_3);
-    __Pyx_XGOTREF(__pyx_t_4);
     /*try:*/ {
 
       /* "freud/density.pyx":178
- *         import freud.plot
+ *     def _repr_png_(self):
  *         try:
- *             return freud.plot.ax_to_bytes(self.plot())             # <<<<<<<<<<<<<<
- *         except AttributeError:
+ *             import freud.plot             # <<<<<<<<<<<<<<
+ *             return freud.plot._ax_to_bytes(self.plot())
+ *         except (AttributeError, ImportError):
+ */
+      __pyx_t_4 = __Pyx_Import(__pyx_n_s_freud_plot, 0, 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 178, __pyx_L3_error)
+      __Pyx_GOTREF(__pyx_t_4);
+      __pyx_v_freud = __pyx_t_4;
+      __pyx_t_4 = 0;
+
+      /* "freud/density.pyx":179
+ *         try:
+ *             import freud.plot
+ *             return freud.plot._ax_to_bytes(self.plot())             # <<<<<<<<<<<<<<
+ *         except (AttributeError, ImportError):
  *             return None
  */
       __Pyx_XDECREF(__pyx_r);
-      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_freud, __pyx_n_s_plot); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 178, __pyx_L3_error)
+      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_freud, __pyx_n_s_plot); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 179, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_5);
-      __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_ax_to_bytes); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 178, __pyx_L3_error)
+      __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_ax_to_bytes); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 179, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-      __pyx_t_7 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_plot); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 178, __pyx_L3_error)
+      __pyx_t_7 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_plot); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 179, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_7);
       __pyx_t_8 = NULL;
       if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_7))) {
@@ -5087,7 +5118,7 @@ static PyObject *__pyx_pf_5freud_7density_19CorrelationFunction_12_repr_png_(str
       }
       __pyx_t_5 = (__pyx_t_8) ? __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_t_8) : __Pyx_PyObject_CallNoArg(__pyx_t_7);
       __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
-      if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 178, __pyx_L3_error)
+      if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 179, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
       __pyx_t_7 = NULL;
@@ -5100,56 +5131,56 @@ static PyObject *__pyx_pf_5freud_7density_19CorrelationFunction_12_repr_png_(str
           __Pyx_DECREF_SET(__pyx_t_6, function);
         }
       }
-      __pyx_t_1 = (__pyx_t_7) ? __Pyx_PyObject_Call2Args(__pyx_t_6, __pyx_t_7, __pyx_t_5) : __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_t_5);
+      __pyx_t_4 = (__pyx_t_7) ? __Pyx_PyObject_Call2Args(__pyx_t_6, __pyx_t_7, __pyx_t_5) : __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_t_5);
       __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 178, __pyx_L3_error)
-      __Pyx_GOTREF(__pyx_t_1);
+      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 179, __pyx_L3_error)
+      __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-      __pyx_r = __pyx_t_1;
-      __pyx_t_1 = 0;
+      __pyx_r = __pyx_t_4;
+      __pyx_t_4 = 0;
       goto __pyx_L7_try_return;
 
       /* "freud/density.pyx":177
+ * 
  *     def _repr_png_(self):
- *         import freud.plot
  *         try:             # <<<<<<<<<<<<<<
- *             return freud.plot.ax_to_bytes(self.plot())
- *         except AttributeError:
+ *             import freud.plot
+ *             return freud.plot._ax_to_bytes(self.plot())
  */
     }
     __pyx_L3_error:;
-    __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
+    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
     __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
 
-    /* "freud/density.pyx":179
- *         try:
- *             return freud.plot.ax_to_bytes(self.plot())
- *         except AttributeError:             # <<<<<<<<<<<<<<
+    /* "freud/density.pyx":180
+ *             import freud.plot
+ *             return freud.plot._ax_to_bytes(self.plot())
+ *         except (AttributeError, ImportError):             # <<<<<<<<<<<<<<
  *             return None
  * 
  */
-    __pyx_t_9 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_AttributeError);
+    __pyx_t_9 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_AttributeError) || __Pyx_PyErr_ExceptionMatches(__pyx_builtin_ImportError);
     if (__pyx_t_9) {
       __Pyx_AddTraceback("freud.density.CorrelationFunction._repr_png_", __pyx_clineno, __pyx_lineno, __pyx_filename);
-      if (__Pyx_GetException(&__pyx_t_1, &__pyx_t_6, &__pyx_t_5) < 0) __PYX_ERR(0, 179, __pyx_L5_except_error)
-      __Pyx_GOTREF(__pyx_t_1);
+      if (__Pyx_GetException(&__pyx_t_4, &__pyx_t_6, &__pyx_t_5) < 0) __PYX_ERR(0, 180, __pyx_L5_except_error)
+      __Pyx_GOTREF(__pyx_t_4);
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_GOTREF(__pyx_t_5);
 
-      /* "freud/density.pyx":180
- *             return freud.plot.ax_to_bytes(self.plot())
- *         except AttributeError:
+      /* "freud/density.pyx":181
+ *             return freud.plot._ax_to_bytes(self.plot())
+ *         except (AttributeError, ImportError):
  *             return None             # <<<<<<<<<<<<<<
  * 
  * 
  */
       __Pyx_XDECREF(__pyx_r);
       __pyx_r = Py_None; __Pyx_INCREF(Py_None);
-      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
       goto __pyx_L6_except_return;
@@ -5158,42 +5189,42 @@ static PyObject *__pyx_pf_5freud_7density_19CorrelationFunction_12_repr_png_(str
     __pyx_L5_except_error:;
 
     /* "freud/density.pyx":177
+ * 
  *     def _repr_png_(self):
- *         import freud.plot
  *         try:             # <<<<<<<<<<<<<<
- *             return freud.plot.ax_to_bytes(self.plot())
- *         except AttributeError:
+ *             import freud.plot
+ *             return freud.plot._ax_to_bytes(self.plot())
  */
+    __Pyx_XGIVEREF(__pyx_t_1);
     __Pyx_XGIVEREF(__pyx_t_2);
     __Pyx_XGIVEREF(__pyx_t_3);
-    __Pyx_XGIVEREF(__pyx_t_4);
-    __Pyx_ExceptionReset(__pyx_t_2, __pyx_t_3, __pyx_t_4);
+    __Pyx_ExceptionReset(__pyx_t_1, __pyx_t_2, __pyx_t_3);
     goto __pyx_L1_error;
     __pyx_L7_try_return:;
+    __Pyx_XGIVEREF(__pyx_t_1);
     __Pyx_XGIVEREF(__pyx_t_2);
     __Pyx_XGIVEREF(__pyx_t_3);
-    __Pyx_XGIVEREF(__pyx_t_4);
-    __Pyx_ExceptionReset(__pyx_t_2, __pyx_t_3, __pyx_t_4);
+    __Pyx_ExceptionReset(__pyx_t_1, __pyx_t_2, __pyx_t_3);
     goto __pyx_L0;
     __pyx_L6_except_return:;
+    __Pyx_XGIVEREF(__pyx_t_1);
     __Pyx_XGIVEREF(__pyx_t_2);
     __Pyx_XGIVEREF(__pyx_t_3);
-    __Pyx_XGIVEREF(__pyx_t_4);
-    __Pyx_ExceptionReset(__pyx_t_2, __pyx_t_3, __pyx_t_4);
+    __Pyx_ExceptionReset(__pyx_t_1, __pyx_t_2, __pyx_t_3);
     goto __pyx_L0;
   }
 
-  /* "freud/density.pyx":175
+  /* "freud/density.pyx":176
  *                                     ax=ax)
  * 
  *     def _repr_png_(self):             # <<<<<<<<<<<<<<
- *         import freud.plot
  *         try:
+ *             import freud.plot
  */
 
   /* function exit code */
   __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_6);
   __Pyx_XDECREF(__pyx_t_7);
@@ -5214,13 +5245,16 @@ static PyObject *__pyx_pf_5freud_7density_19CorrelationFunction_12_repr_png_(str
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_7density_19CorrelationFunction_15__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_5freud_7density_19CorrelationFunction_15__reduce_cython__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static char __pyx_doc_5freud_7density_19CorrelationFunction_14__reduce_cython__[] = "CorrelationFunction.__reduce_cython__(self)";
-static PyMethodDef __pyx_mdef_5freud_7density_19CorrelationFunction_15__reduce_cython__ = {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_7density_19CorrelationFunction_15__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_7density_19CorrelationFunction_14__reduce_cython__};
-static PyObject *__pyx_pw_5freud_7density_19CorrelationFunction_15__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyMethodDef __pyx_mdef_5freud_7density_19CorrelationFunction_15__reduce_cython__ = {"__reduce_cython__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_19CorrelationFunction_15__reduce_cython__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_19CorrelationFunction_14__reduce_cython__};
+static PyObject *__pyx_pw_5freud_7density_19CorrelationFunction_15__reduce_cython__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__reduce_cython__ (wrapper)", 0);
+  if (unlikely(PyTuple_GET_SIZE(__pyx_args) > 0)) {
+    __Pyx_RaiseArgtupleInvalid("__reduce_cython__", 1, 0, 0, PyTuple_GET_SIZE(__pyx_args)); return NULL;}
+  if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "__reduce_cython__", 0))) return NULL;
   __pyx_r = __pyx_pf_5freud_7density_19CorrelationFunction_14__reduce_cython__(((struct __pyx_obj_5freud_7density_CorrelationFunction *)__pyx_v_self));
 
   /* function exit code */
@@ -5270,14 +5304,51 @@ static PyObject *__pyx_pf_5freud_7density_19CorrelationFunction_14__reduce_cytho
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_7density_19CorrelationFunction_17__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static PyObject *__pyx_pw_5freud_7density_19CorrelationFunction_17__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static char __pyx_doc_5freud_7density_19CorrelationFunction_16__setstate_cython__[] = "CorrelationFunction.__setstate_cython__(self, __pyx_state)";
-static PyMethodDef __pyx_mdef_5freud_7density_19CorrelationFunction_17__setstate_cython__ = {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_7density_19CorrelationFunction_17__setstate_cython__, METH_O, __pyx_doc_5freud_7density_19CorrelationFunction_16__setstate_cython__};
-static PyObject *__pyx_pw_5freud_7density_19CorrelationFunction_17__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyMethodDef __pyx_mdef_5freud_7density_19CorrelationFunction_17__setstate_cython__ = {"__setstate_cython__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_19CorrelationFunction_17__setstate_cython__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_19CorrelationFunction_16__setstate_cython__};
+static PyObject *__pyx_pw_5freud_7density_19CorrelationFunction_17__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  CYTHON_UNUSED PyObject *__pyx_v___pyx_state = 0;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setstate_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_5freud_7density_19CorrelationFunction_16__setstate_cython__(((struct __pyx_obj_5freud_7density_CorrelationFunction *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
+  {
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_pyx_state,0};
+    PyObject* values[1] = {0};
+    if (unlikely(__pyx_kwds)) {
+      Py_ssize_t kw_args;
+      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
+      switch (pos_args) {
+        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        CYTHON_FALLTHROUGH;
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      kw_args = PyDict_Size(__pyx_kwds);
+      switch (pos_args) {
+        case  0:
+        if (likely((values[0] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_pyx_state)) != 0)) kw_args--;
+        else goto __pyx_L5_argtuple_error;
+      }
+      if (unlikely(kw_args > 0)) {
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__setstate_cython__") < 0)) __PYX_ERR(1, 3, __pyx_L3_error)
+      }
+    } else if (PyTuple_GET_SIZE(__pyx_args) != 1) {
+      goto __pyx_L5_argtuple_error;
+    } else {
+      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+    }
+    __pyx_v___pyx_state = values[0];
+  }
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("__setstate_cython__", 1, 1, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 3, __pyx_L3_error)
+  __pyx_L3_error:;
+  __Pyx_AddTraceback("freud.density.CorrelationFunction.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return NULL;
+  __pyx_L4_argument_unpacking_done:;
+  __pyx_r = __pyx_pf_5freud_7density_19CorrelationFunction_16__setstate_cython__(((struct __pyx_obj_5freud_7density_CorrelationFunction *)__pyx_v_self), __pyx_v___pyx_state);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
@@ -5318,7 +5389,7 @@ static PyObject *__pyx_pf_5freud_7density_19CorrelationFunction_16__setstate_cyt
   return __pyx_r;
 }
 
-/* "freud/density.pyx":205
+/* "freud/density.pyx":206
  *     cdef freud._density.GaussianDensity * thisptr
  * 
  *     def __cinit__(self, width, r_max, sigma):             # <<<<<<<<<<<<<<
@@ -5360,17 +5431,17 @@ static int __pyx_pw_5freud_7density_15GaussianDensity_1__cinit__(PyObject *__pyx
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_r_max)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 3, 3, 1); __PYX_ERR(0, 205, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 3, 3, 1); __PYX_ERR(0, 206, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_sigma)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 3, 3, 2); __PYX_ERR(0, 205, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 3, 3, 2); __PYX_ERR(0, 206, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(0, 205, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(0, 206, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 3) {
       goto __pyx_L5_argtuple_error;
@@ -5385,7 +5456,7 @@ static int __pyx_pw_5freud_7density_15GaussianDensity_1__cinit__(PyObject *__pyx
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 205, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 206, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.density.GaussianDensity.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -5415,7 +5486,7 @@ static int __pyx_pf_5freud_7density_15GaussianDensity___cinit__(struct __pyx_obj
   freud::density::GaussianDensity *__pyx_t_11;
   __Pyx_RefNannySetupContext("__cinit__", 0);
 
-  /* "freud/density.pyx":207
+  /* "freud/density.pyx":208
  *     def __cinit__(self, width, r_max, sigma):
  *         cdef vec3[uint] width_vector
  *         if isinstance(width, int):             # <<<<<<<<<<<<<<
@@ -5426,19 +5497,19 @@ static int __pyx_pf_5freud_7density_15GaussianDensity___cinit__(struct __pyx_obj
   __pyx_t_2 = (__pyx_t_1 != 0);
   if (__pyx_t_2) {
 
-    /* "freud/density.pyx":208
+    /* "freud/density.pyx":209
  *         cdef vec3[uint] width_vector
  *         if isinstance(width, int):
  *             width_vector = vec3[uint](width, width, width)             # <<<<<<<<<<<<<<
  *         elif isinstance(width, Sequence) and len(width) == 2:
  *             width_vector = vec3[uint](width[0], width[1], 1)
  */
-    __pyx_t_3 = __Pyx_PyInt_As_unsigned_int(__pyx_v_width); if (unlikely((__pyx_t_3 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 208, __pyx_L1_error)
-    __pyx_t_4 = __Pyx_PyInt_As_unsigned_int(__pyx_v_width); if (unlikely((__pyx_t_4 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 208, __pyx_L1_error)
-    __pyx_t_5 = __Pyx_PyInt_As_unsigned_int(__pyx_v_width); if (unlikely((__pyx_t_5 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 208, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyInt_As_unsigned_int(__pyx_v_width); if (unlikely((__pyx_t_3 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 209, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyInt_As_unsigned_int(__pyx_v_width); if (unlikely((__pyx_t_4 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 209, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyInt_As_unsigned_int(__pyx_v_width); if (unlikely((__pyx_t_5 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 209, __pyx_L1_error)
     __pyx_v_width_vector = vec3<unsigned int> (__pyx_t_3, __pyx_t_4, __pyx_t_5);
 
-    /* "freud/density.pyx":207
+    /* "freud/density.pyx":208
  *     def __cinit__(self, width, r_max, sigma):
  *         cdef vec3[uint] width_vector
  *         if isinstance(width, int):             # <<<<<<<<<<<<<<
@@ -5448,16 +5519,16 @@ static int __pyx_pf_5freud_7density_15GaussianDensity___cinit__(struct __pyx_obj
     goto __pyx_L3;
   }
 
-  /* "freud/density.pyx":209
+  /* "freud/density.pyx":210
  *         if isinstance(width, int):
  *             width_vector = vec3[uint](width, width, width)
  *         elif isinstance(width, Sequence) and len(width) == 2:             # <<<<<<<<<<<<<<
  *             width_vector = vec3[uint](width[0], width[1], 1)
  *         elif isinstance(width, Sequence) and len(width) == 3:
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_Sequence); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 209, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_Sequence); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 210, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_1 = PyObject_IsInstance(__pyx_v_width, __pyx_t_6); if (unlikely(__pyx_t_1 == ((int)-1))) __PYX_ERR(0, 209, __pyx_L1_error)
+  __pyx_t_1 = PyObject_IsInstance(__pyx_v_width, __pyx_t_6); if (unlikely(__pyx_t_1 == ((int)-1))) __PYX_ERR(0, 210, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __pyx_t_7 = (__pyx_t_1 != 0);
   if (__pyx_t_7) {
@@ -5465,30 +5536,30 @@ static int __pyx_pf_5freud_7density_15GaussianDensity___cinit__(struct __pyx_obj
     __pyx_t_2 = __pyx_t_7;
     goto __pyx_L4_bool_binop_done;
   }
-  __pyx_t_8 = PyObject_Length(__pyx_v_width); if (unlikely(__pyx_t_8 == ((Py_ssize_t)-1))) __PYX_ERR(0, 209, __pyx_L1_error)
+  __pyx_t_8 = PyObject_Length(__pyx_v_width); if (unlikely(__pyx_t_8 == ((Py_ssize_t)-1))) __PYX_ERR(0, 210, __pyx_L1_error)
   __pyx_t_7 = ((__pyx_t_8 == 2) != 0);
   __pyx_t_2 = __pyx_t_7;
   __pyx_L4_bool_binop_done:;
   if (__pyx_t_2) {
 
-    /* "freud/density.pyx":210
+    /* "freud/density.pyx":211
  *             width_vector = vec3[uint](width, width, width)
  *         elif isinstance(width, Sequence) and len(width) == 2:
  *             width_vector = vec3[uint](width[0], width[1], 1)             # <<<<<<<<<<<<<<
  *         elif isinstance(width, Sequence) and len(width) == 3:
  *             width_vector = vec3[uint](width[0], width[1], width[2])
  */
-    __pyx_t_6 = __Pyx_GetItemInt(__pyx_v_width, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 210, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_GetItemInt(__pyx_v_width, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 211, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_5 = __Pyx_PyInt_As_unsigned_int(__pyx_t_6); if (unlikely((__pyx_t_5 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 210, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyInt_As_unsigned_int(__pyx_t_6); if (unlikely((__pyx_t_5 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 211, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __pyx_t_6 = __Pyx_GetItemInt(__pyx_v_width, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 210, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_GetItemInt(__pyx_v_width, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 211, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_4 = __Pyx_PyInt_As_unsigned_int(__pyx_t_6); if (unlikely((__pyx_t_4 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 210, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyInt_As_unsigned_int(__pyx_t_6); if (unlikely((__pyx_t_4 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 211, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     __pyx_v_width_vector = vec3<unsigned int> (__pyx_t_5, __pyx_t_4, 1);
 
-    /* "freud/density.pyx":209
+    /* "freud/density.pyx":210
  *         if isinstance(width, int):
  *             width_vector = vec3[uint](width, width, width)
  *         elif isinstance(width, Sequence) and len(width) == 2:             # <<<<<<<<<<<<<<
@@ -5498,16 +5569,16 @@ static int __pyx_pf_5freud_7density_15GaussianDensity___cinit__(struct __pyx_obj
     goto __pyx_L3;
   }
 
-  /* "freud/density.pyx":211
+  /* "freud/density.pyx":212
  *         elif isinstance(width, Sequence) and len(width) == 2:
  *             width_vector = vec3[uint](width[0], width[1], 1)
  *         elif isinstance(width, Sequence) and len(width) == 3:             # <<<<<<<<<<<<<<
  *             width_vector = vec3[uint](width[0], width[1], width[2])
  *         else:
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_Sequence); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 211, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_Sequence); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 212, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_7 = PyObject_IsInstance(__pyx_v_width, __pyx_t_6); if (unlikely(__pyx_t_7 == ((int)-1))) __PYX_ERR(0, 211, __pyx_L1_error)
+  __pyx_t_7 = PyObject_IsInstance(__pyx_v_width, __pyx_t_6); if (unlikely(__pyx_t_7 == ((int)-1))) __PYX_ERR(0, 212, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __pyx_t_1 = (__pyx_t_7 != 0);
   if (__pyx_t_1) {
@@ -5515,34 +5586,34 @@ static int __pyx_pf_5freud_7density_15GaussianDensity___cinit__(struct __pyx_obj
     __pyx_t_2 = __pyx_t_1;
     goto __pyx_L6_bool_binop_done;
   }
-  __pyx_t_8 = PyObject_Length(__pyx_v_width); if (unlikely(__pyx_t_8 == ((Py_ssize_t)-1))) __PYX_ERR(0, 211, __pyx_L1_error)
+  __pyx_t_8 = PyObject_Length(__pyx_v_width); if (unlikely(__pyx_t_8 == ((Py_ssize_t)-1))) __PYX_ERR(0, 212, __pyx_L1_error)
   __pyx_t_1 = ((__pyx_t_8 == 3) != 0);
   __pyx_t_2 = __pyx_t_1;
   __pyx_L6_bool_binop_done:;
   if (likely(__pyx_t_2)) {
 
-    /* "freud/density.pyx":212
+    /* "freud/density.pyx":213
  *             width_vector = vec3[uint](width[0], width[1], 1)
  *         elif isinstance(width, Sequence) and len(width) == 3:
  *             width_vector = vec3[uint](width[0], width[1], width[2])             # <<<<<<<<<<<<<<
  *         else:
  *             raise ValueError("The width must be either a number of bins or a "
  */
-    __pyx_t_6 = __Pyx_GetItemInt(__pyx_v_width, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 212, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_GetItemInt(__pyx_v_width, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 213, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_4 = __Pyx_PyInt_As_unsigned_int(__pyx_t_6); if (unlikely((__pyx_t_4 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 212, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyInt_As_unsigned_int(__pyx_t_6); if (unlikely((__pyx_t_4 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 213, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __pyx_t_6 = __Pyx_GetItemInt(__pyx_v_width, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 212, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_GetItemInt(__pyx_v_width, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 213, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_5 = __Pyx_PyInt_As_unsigned_int(__pyx_t_6); if (unlikely((__pyx_t_5 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 212, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyInt_As_unsigned_int(__pyx_t_6); if (unlikely((__pyx_t_5 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 213, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __pyx_t_6 = __Pyx_GetItemInt(__pyx_v_width, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 212, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_GetItemInt(__pyx_v_width, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 213, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_3 = __Pyx_PyInt_As_unsigned_int(__pyx_t_6); if (unlikely((__pyx_t_3 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 212, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyInt_As_unsigned_int(__pyx_t_6); if (unlikely((__pyx_t_3 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 213, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     __pyx_v_width_vector = vec3<unsigned int> (__pyx_t_4, __pyx_t_5, __pyx_t_3);
 
-    /* "freud/density.pyx":211
+    /* "freud/density.pyx":212
  *         elif isinstance(width, Sequence) and len(width) == 2:
  *             width_vector = vec3[uint](width[0], width[1], 1)
  *         elif isinstance(width, Sequence) and len(width) == 3:             # <<<<<<<<<<<<<<
@@ -5552,7 +5623,7 @@ static int __pyx_pf_5freud_7density_15GaussianDensity___cinit__(struct __pyx_obj
     goto __pyx_L3;
   }
 
-  /* "freud/density.pyx":214
+  /* "freud/density.pyx":215
  *             width_vector = vec3[uint](width[0], width[1], width[2])
  *         else:
  *             raise ValueError("The width must be either a number of bins or a "             # <<<<<<<<<<<<<<
@@ -5560,25 +5631,25 @@ static int __pyx_pf_5freud_7density_15GaussianDensity___cinit__(struct __pyx_obj
  *                              "dimension (length 2 in 2D, length 3 in 3D).")
  */
   /*else*/ {
-    __pyx_t_6 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__3, NULL); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 214, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__3, NULL); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 215, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_Raise(__pyx_t_6, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __PYX_ERR(0, 214, __pyx_L1_error)
+    __PYX_ERR(0, 215, __pyx_L1_error)
   }
   __pyx_L3:;
 
-  /* "freud/density.pyx":219
+  /* "freud/density.pyx":220
  * 
  *         self.thisptr = new freud._density.GaussianDensity(
  *             width_vector, r_max, sigma)             # <<<<<<<<<<<<<<
  * 
  *     def __dealloc__(self):
  */
-  __pyx_t_9 = __pyx_PyFloat_AsFloat(__pyx_v_r_max); if (unlikely((__pyx_t_9 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 219, __pyx_L1_error)
-  __pyx_t_10 = __pyx_PyFloat_AsFloat(__pyx_v_sigma); if (unlikely((__pyx_t_10 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 219, __pyx_L1_error)
+  __pyx_t_9 = __pyx_PyFloat_AsFloat(__pyx_v_r_max); if (unlikely((__pyx_t_9 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 220, __pyx_L1_error)
+  __pyx_t_10 = __pyx_PyFloat_AsFloat(__pyx_v_sigma); if (unlikely((__pyx_t_10 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 220, __pyx_L1_error)
 
-  /* "freud/density.pyx":218
+  /* "freud/density.pyx":219
  *                              "dimension (length 2 in 2D, length 3 in 3D).")
  * 
  *         self.thisptr = new freud._density.GaussianDensity(             # <<<<<<<<<<<<<<
@@ -5589,11 +5660,11 @@ static int __pyx_pf_5freud_7density_15GaussianDensity___cinit__(struct __pyx_obj
     __pyx_t_11 = new freud::density::GaussianDensity(__pyx_v_width_vector, __pyx_t_9, __pyx_t_10);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(0, 218, __pyx_L1_error)
+    __PYX_ERR(0, 219, __pyx_L1_error)
   }
   __pyx_v_self->thisptr = __pyx_t_11;
 
-  /* "freud/density.pyx":205
+  /* "freud/density.pyx":206
  *     cdef freud._density.GaussianDensity * thisptr
  * 
  *     def __cinit__(self, width, r_max, sigma):             # <<<<<<<<<<<<<<
@@ -5613,7 +5684,7 @@ static int __pyx_pf_5freud_7density_15GaussianDensity___cinit__(struct __pyx_obj
   return __pyx_r;
 }
 
-/* "freud/density.pyx":221
+/* "freud/density.pyx":222
  *             width_vector, r_max, sigma)
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -5636,16 +5707,16 @@ static void __pyx_pf_5freud_7density_15GaussianDensity_2__dealloc__(struct __pyx
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__dealloc__", 0);
 
-  /* "freud/density.pyx":222
+  /* "freud/density.pyx":223
  * 
  *     def __dealloc__(self):
  *         del self.thisptr             # <<<<<<<<<<<<<<
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  */
   delete __pyx_v_self->thisptr;
 
-  /* "freud/density.pyx":221
+  /* "freud/density.pyx":222
  *             width_vector, r_max, sigma)
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -5657,22 +5728,25 @@ static void __pyx_pf_5freud_7density_15GaussianDensity_2__dealloc__(struct __pyx
   __Pyx_RefNannyFinishContext();
 }
 
-/* "freud/density.pyx":225
+/* "freud/density.pyx":226
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def box(self):             # <<<<<<<<<<<<<<
  *         """:class:`freud.box.Box`: Box used in the calculation."""
  *         return freud.box.BoxFromCPP(self.thisptr.getBox())
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_7density_15GaussianDensity_5box(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_5freud_7density_15GaussianDensity_5box(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static char __pyx_doc_5freud_7density_15GaussianDensity_4box[] = "GaussianDensity.box(self)\n:class:`freud.box.Box`: Box used in the calculation.";
-static PyMethodDef __pyx_mdef_5freud_7density_15GaussianDensity_5box = {"box", (PyCFunction)__pyx_pw_5freud_7density_15GaussianDensity_5box, METH_NOARGS, __pyx_doc_5freud_7density_15GaussianDensity_4box};
-static PyObject *__pyx_pw_5freud_7density_15GaussianDensity_5box(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyMethodDef __pyx_mdef_5freud_7density_15GaussianDensity_5box = {"box", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_15GaussianDensity_5box, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_15GaussianDensity_4box};
+static PyObject *__pyx_pw_5freud_7density_15GaussianDensity_5box(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("box (wrapper)", 0);
+  if (unlikely(PyTuple_GET_SIZE(__pyx_args) > 0)) {
+    __Pyx_RaiseArgtupleInvalid("box", 1, 0, 0, PyTuple_GET_SIZE(__pyx_args)); return NULL;}
+  if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "box", 0))) return NULL;
   __pyx_r = __pyx_pf_5freud_7density_15GaussianDensity_4box(((struct __pyx_obj_5freud_7density_GaussianDensity *)__pyx_v_self));
 
   /* function exit code */
@@ -5686,7 +5760,7 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_4box(struct __pyx_ob
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("box", 0);
 
-  /* "freud/density.pyx":227
+  /* "freud/density.pyx":228
  *     def box(self):
  *         """:class:`freud.box.Box`: Box used in the calculation."""
  *         return freud.box.BoxFromCPP(self.thisptr.getBox())             # <<<<<<<<<<<<<<
@@ -5694,15 +5768,15 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_4box(struct __pyx_ob
  *     def compute(self, system):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_5freud_3box_BoxFromCPP(__pyx_v_self->thisptr->getBox()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 227, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_5freud_3box_BoxFromCPP(__pyx_v_self->thisptr->getBox()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 228, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/density.pyx":225
+  /* "freud/density.pyx":226
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def box(self):             # <<<<<<<<<<<<<<
  *         """:class:`freud.box.Box`: Box used in the calculation."""
  *         return freud.box.BoxFromCPP(self.thisptr.getBox())
@@ -5719,7 +5793,7 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_4box(struct __pyx_ob
   return __pyx_r;
 }
 
-/* "freud/density.pyx":229
+/* "freud/density.pyx":230
  *         return freud.box.BoxFromCPP(self.thisptr.getBox())
  * 
  *     def compute(self, system):             # <<<<<<<<<<<<<<
@@ -5728,14 +5802,51 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_4box(struct __pyx_ob
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_7density_15GaussianDensity_7compute(PyObject *__pyx_v_self, PyObject *__pyx_v_system); /*proto*/
+static PyObject *__pyx_pw_5freud_7density_15GaussianDensity_7compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static char __pyx_doc_5freud_7density_15GaussianDensity_6compute[] = "GaussianDensity.compute(self, system)\nCalculates the Gaussian blur for the specified points.\n\n        Args:\n            system:\n                Any object that is a valid argument to\n                :class:`freud.locality.NeighborQuery.from_system`.\n        ";
-static PyMethodDef __pyx_mdef_5freud_7density_15GaussianDensity_7compute = {"compute", (PyCFunction)__pyx_pw_5freud_7density_15GaussianDensity_7compute, METH_O, __pyx_doc_5freud_7density_15GaussianDensity_6compute};
-static PyObject *__pyx_pw_5freud_7density_15GaussianDensity_7compute(PyObject *__pyx_v_self, PyObject *__pyx_v_system) {
+static PyMethodDef __pyx_mdef_5freud_7density_15GaussianDensity_7compute = {"compute", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_15GaussianDensity_7compute, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_15GaussianDensity_6compute};
+static PyObject *__pyx_pw_5freud_7density_15GaussianDensity_7compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  PyObject *__pyx_v_system = 0;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("compute (wrapper)", 0);
-  __pyx_r = __pyx_pf_5freud_7density_15GaussianDensity_6compute(((struct __pyx_obj_5freud_7density_GaussianDensity *)__pyx_v_self), ((PyObject *)__pyx_v_system));
+  {
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_system,0};
+    PyObject* values[1] = {0};
+    if (unlikely(__pyx_kwds)) {
+      Py_ssize_t kw_args;
+      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
+      switch (pos_args) {
+        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        CYTHON_FALLTHROUGH;
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      kw_args = PyDict_Size(__pyx_kwds);
+      switch (pos_args) {
+        case  0:
+        if (likely((values[0] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_system)) != 0)) kw_args--;
+        else goto __pyx_L5_argtuple_error;
+      }
+      if (unlikely(kw_args > 0)) {
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "compute") < 0)) __PYX_ERR(0, 230, __pyx_L3_error)
+      }
+    } else if (PyTuple_GET_SIZE(__pyx_args) != 1) {
+      goto __pyx_L5_argtuple_error;
+    } else {
+      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+    }
+    __pyx_v_system = values[0];
+  }
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("compute", 1, 1, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 230, __pyx_L3_error)
+  __pyx_L3_error:;
+  __Pyx_AddTraceback("freud.density.GaussianDensity.compute", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return NULL;
+  __pyx_L4_argument_unpacking_done:;
+  __pyx_r = __pyx_pf_5freud_7density_15GaussianDensity_6compute(((struct __pyx_obj_5freud_7density_GaussianDensity *)__pyx_v_self), __pyx_v_system);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
@@ -5751,14 +5862,14 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_6compute(struct __py
   PyObject *__pyx_t_3 = NULL;
   __Pyx_RefNannySetupContext("compute", 0);
 
-  /* "freud/density.pyx":238
+  /* "freud/density.pyx":239
  *         """
  *         cdef freud.locality.NeighborQuery nq = \
  *             freud.locality.NeighborQuery.from_system(system)             # <<<<<<<<<<<<<<
  *         self.thisptr.compute(nq.get_ptr())
  *         return self
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_8locality_NeighborQuery), __pyx_n_s_from_system); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 238, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_8locality_NeighborQuery), __pyx_n_s_from_system); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 239, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -5772,14 +5883,14 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_6compute(struct __py
   }
   __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_v_system) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_system);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 238, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 239, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5freud_8locality_NeighborQuery))))) __PYX_ERR(0, 238, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5freud_8locality_NeighborQuery))))) __PYX_ERR(0, 239, __pyx_L1_error)
   __pyx_v_nq = ((struct __pyx_obj_5freud_8locality_NeighborQuery *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "freud/density.pyx":239
+  /* "freud/density.pyx":240
  *         cdef freud.locality.NeighborQuery nq = \
  *             freud.locality.NeighborQuery.from_system(system)
  *         self.thisptr.compute(nq.get_ptr())             # <<<<<<<<<<<<<<
@@ -5790,22 +5901,22 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_6compute(struct __py
     __pyx_v_self->thisptr->compute(((struct __pyx_vtabstruct_5freud_8locality_NeighborQuery *)__pyx_v_nq->__pyx_vtab)->get_ptr(__pyx_v_nq));
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(0, 239, __pyx_L1_error)
+    __PYX_ERR(0, 240, __pyx_L1_error)
   }
 
-  /* "freud/density.pyx":240
+  /* "freud/density.pyx":241
  *             freud.locality.NeighborQuery.from_system(system)
  *         self.thisptr.compute(nq.get_ptr())
  *         return self             # <<<<<<<<<<<<<<
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  */
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(((PyObject *)__pyx_v_self));
   __pyx_r = ((PyObject *)__pyx_v_self);
   goto __pyx_L0;
 
-  /* "freud/density.pyx":229
+  /* "freud/density.pyx":230
  *         return freud.box.BoxFromCPP(self.thisptr.getBox())
  * 
  *     def compute(self, system):             # <<<<<<<<<<<<<<
@@ -5827,22 +5938,25 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_6compute(struct __py
   return __pyx_r;
 }
 
-/* "freud/density.pyx":243
+/* "freud/density.pyx":244
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def density(self):             # <<<<<<<<<<<<<<
  *         """(:math:`w_x`, :math:`w_y`, :math:`w_z`) :class:`numpy.ndarray`: The
  *         image grid with the Gaussian density."""
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_7density_15GaussianDensity_9density(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_5freud_7density_15GaussianDensity_9density(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static char __pyx_doc_5freud_7density_15GaussianDensity_8density[] = "GaussianDensity.density(self)\n(:math:`w_x`, :math:`w_y`, :math:`w_z`) :class:`numpy.ndarray`: The\n        image grid with the Gaussian density.";
-static PyMethodDef __pyx_mdef_5freud_7density_15GaussianDensity_9density = {"density", (PyCFunction)__pyx_pw_5freud_7density_15GaussianDensity_9density, METH_NOARGS, __pyx_doc_5freud_7density_15GaussianDensity_8density};
-static PyObject *__pyx_pw_5freud_7density_15GaussianDensity_9density(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyMethodDef __pyx_mdef_5freud_7density_15GaussianDensity_9density = {"density", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_15GaussianDensity_9density, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_15GaussianDensity_8density};
+static PyObject *__pyx_pw_5freud_7density_15GaussianDensity_9density(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("density (wrapper)", 0);
+  if (unlikely(PyTuple_GET_SIZE(__pyx_args) > 0)) {
+    __Pyx_RaiseArgtupleInvalid("density", 1, 0, 0, PyTuple_GET_SIZE(__pyx_args)); return NULL;}
+  if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "density", 0))) return NULL;
   __pyx_r = __pyx_pf_5freud_7density_15GaussianDensity_8density(((struct __pyx_obj_5freud_7density_GaussianDensity *)__pyx_v_self));
 
   /* function exit code */
@@ -5860,23 +5974,23 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_8density(struct __py
   PyObject *__pyx_t_5 = NULL;
   __Pyx_RefNannySetupContext("density", 0);
 
-  /* "freud/density.pyx":246
+  /* "freud/density.pyx":247
  *         """(:math:`w_x`, :math:`w_y`, :math:`w_z`) :class:`numpy.ndarray`: The
  *         image grid with the Gaussian density."""
  *         if self.box.is2D:             # <<<<<<<<<<<<<<
  *             return np.squeeze(freud.util.make_managed_numpy_array(
  *                 &self.thisptr.getDensity(), freud.util.arr_type_t.FLOAT))
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_box); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 246, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_box); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 247, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_is2D); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 246, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_is2D); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 247, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 246, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 247, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   if (__pyx_t_3) {
 
-    /* "freud/density.pyx":247
+    /* "freud/density.pyx":248
  *         image grid with the Gaussian density."""
  *         if self.box.is2D:
  *             return np.squeeze(freud.util.make_managed_numpy_array(             # <<<<<<<<<<<<<<
@@ -5884,20 +5998,20 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_8density(struct __py
  *         else:
  */
     __Pyx_XDECREF(__pyx_r);
-    __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 247, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 248, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_squeeze); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 247, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_squeeze); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 248, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-    /* "freud/density.pyx":248
+    /* "freud/density.pyx":249
  *         if self.box.is2D:
  *             return np.squeeze(freud.util.make_managed_numpy_array(
  *                 &self.thisptr.getDensity(), freud.util.arr_type_t.FLOAT))             # <<<<<<<<<<<<<<
  *         else:
  *             return freud.util.make_managed_numpy_array(
  */
-    __pyx_t_1 = __pyx_f_5freud_4util_make_managed_numpy_array((&__pyx_v_self->thisptr->getDensity()), __pyx_e_5freud_4util_FLOAT, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 247, __pyx_L1_error)
+    __pyx_t_1 = __pyx_f_5freud_4util_make_managed_numpy_array((&__pyx_v_self->thisptr->getDensity()), __pyx_e_5freud_4util_FLOAT, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 248, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __pyx_t_5 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
@@ -5912,14 +6026,14 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_8density(struct __py
     __pyx_t_2 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_5, __pyx_t_1) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_1);
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 247, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 248, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __pyx_r = __pyx_t_2;
     __pyx_t_2 = 0;
     goto __pyx_L0;
 
-    /* "freud/density.pyx":246
+    /* "freud/density.pyx":247
  *         """(:math:`w_x`, :math:`w_y`, :math:`w_z`) :class:`numpy.ndarray`: The
  *         image grid with the Gaussian density."""
  *         if self.box.is2D:             # <<<<<<<<<<<<<<
@@ -5928,7 +6042,7 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_8density(struct __py
  */
   }
 
-  /* "freud/density.pyx":250
+  /* "freud/density.pyx":251
  *                 &self.thisptr.getDensity(), freud.util.arr_type_t.FLOAT))
  *         else:
  *             return freud.util.make_managed_numpy_array(             # <<<<<<<<<<<<<<
@@ -5938,23 +6052,23 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_8density(struct __py
   /*else*/ {
     __Pyx_XDECREF(__pyx_r);
 
-    /* "freud/density.pyx":251
+    /* "freud/density.pyx":252
  *         else:
  *             return freud.util.make_managed_numpy_array(
  *                 &self.thisptr.getDensity(), freud.util.arr_type_t.FLOAT)             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-    __pyx_t_2 = __pyx_f_5freud_4util_make_managed_numpy_array((&__pyx_v_self->thisptr->getDensity()), __pyx_e_5freud_4util_FLOAT, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 250, __pyx_L1_error)
+    __pyx_t_2 = __pyx_f_5freud_4util_make_managed_numpy_array((&__pyx_v_self->thisptr->getDensity()), __pyx_e_5freud_4util_FLOAT, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 251, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __pyx_r = __pyx_t_2;
     __pyx_t_2 = 0;
     goto __pyx_L0;
   }
 
-  /* "freud/density.pyx":243
+  /* "freud/density.pyx":244
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def density(self):             # <<<<<<<<<<<<<<
  *         """(:math:`w_x`, :math:`w_y`, :math:`w_z`) :class:`numpy.ndarray`: The
  *         image grid with the Gaussian density."""
@@ -5974,7 +6088,7 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_8density(struct __py
   return __pyx_r;
 }
 
-/* "freud/density.pyx":254
+/* "freud/density.pyx":255
  * 
  *     @property
  *     def r_max(self):             # <<<<<<<<<<<<<<
@@ -6001,7 +6115,7 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_5r_max___get__(struc
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "freud/density.pyx":256
+  /* "freud/density.pyx":257
  *     def r_max(self):
  *         """float: Distance over which to blur."""
  *         return self.thisptr.getRMax()             # <<<<<<<<<<<<<<
@@ -6009,13 +6123,13 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_5r_max___get__(struc
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->thisptr->getRMax()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 256, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->thisptr->getRMax()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 257, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/density.pyx":254
+  /* "freud/density.pyx":255
  * 
  *     @property
  *     def r_max(self):             # <<<<<<<<<<<<<<
@@ -6034,7 +6148,7 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_5r_max___get__(struc
   return __pyx_r;
 }
 
-/* "freud/density.pyx":259
+/* "freud/density.pyx":260
  * 
  *     @property
  *     def sigma(self):             # <<<<<<<<<<<<<<
@@ -6061,7 +6175,7 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_5sigma___get__(struc
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "freud/density.pyx":261
+  /* "freud/density.pyx":262
  *     def sigma(self):
  *         """float: Sigma parameter for Gaussian."""
  *         return self.thisptr.getSigma()             # <<<<<<<<<<<<<<
@@ -6069,13 +6183,13 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_5sigma___get__(struc
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->thisptr->getSigma()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 261, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->thisptr->getSigma()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 262, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/density.pyx":259
+  /* "freud/density.pyx":260
  * 
  *     @property
  *     def sigma(self):             # <<<<<<<<<<<<<<
@@ -6094,7 +6208,7 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_5sigma___get__(struc
   return __pyx_r;
 }
 
-/* "freud/density.pyx":264
+/* "freud/density.pyx":265
  * 
  *     @property
  *     def width(self):             # <<<<<<<<<<<<<<
@@ -6125,7 +6239,7 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_5width___get__(struc
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "freud/density.pyx":268
+  /* "freud/density.pyx":269
  *         direction (identical in all dimensions if a single integer value is
  *         provided)."""
  *         cdef vec3[uint] width = self.thisptr.getWidth()             # <<<<<<<<<<<<<<
@@ -6134,7 +6248,7 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_5width___get__(struc
  */
   __pyx_v_width = __pyx_v_self->thisptr->getWidth();
 
-  /* "freud/density.pyx":269
+  /* "freud/density.pyx":270
  *         provided)."""
  *         cdef vec3[uint] width = self.thisptr.getWidth()
  *         return (width.x, width.y, width.z)             # <<<<<<<<<<<<<<
@@ -6142,13 +6256,13 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_5width___get__(struc
  *     def __repr__(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_unsigned_int(__pyx_v_width.x); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 269, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_unsigned_int(__pyx_v_width.x); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 270, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyInt_From_unsigned_int(__pyx_v_width.y); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 269, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_From_unsigned_int(__pyx_v_width.y); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 270, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyInt_From_unsigned_int(__pyx_v_width.z); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 269, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_From_unsigned_int(__pyx_v_width.z); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 270, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = PyTuple_New(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 269, __pyx_L1_error)
+  __pyx_t_4 = PyTuple_New(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 270, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_GIVEREF(__pyx_t_1);
   PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_1);
@@ -6163,7 +6277,7 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_5width___get__(struc
   __pyx_t_4 = 0;
   goto __pyx_L0;
 
-  /* "freud/density.pyx":264
+  /* "freud/density.pyx":265
  * 
  *     @property
  *     def width(self):             # <<<<<<<<<<<<<<
@@ -6185,7 +6299,7 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_5width___get__(struc
   return __pyx_r;
 }
 
-/* "freud/density.pyx":271
+/* "freud/density.pyx":272
  *         return (width.x, width.y, width.z)
  * 
  *     def __repr__(self):             # <<<<<<<<<<<<<<
@@ -6214,7 +6328,7 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_10__repr__(struct __
   PyObject *__pyx_t_3 = NULL;
   __Pyx_RefNannySetupContext("__repr__", 0);
 
-  /* "freud/density.pyx":272
+  /* "freud/density.pyx":273
  * 
  *     def __repr__(self):
  *         return ("freud.density.{cls}({width}, "             # <<<<<<<<<<<<<<
@@ -6223,66 +6337,66 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_10__repr__(struct __
  */
   __Pyx_XDECREF(__pyx_r);
 
-  /* "freud/density.pyx":273
+  /* "freud/density.pyx":274
  *     def __repr__(self):
  *         return ("freud.density.{cls}({width}, "
  *                 "{r_max}, {sigma})").format(cls=type(self).__name__,             # <<<<<<<<<<<<<<
  *                                             width=self.width,
  *                                             r_max=self.r_max,
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_kp_u_freud_density_cls_width_r_max_si, __pyx_n_s_format); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 273, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_kp_u_freud_density_cls_width_r_max_si, __pyx_n_s_format); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 274, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyDict_NewPresized(4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 273, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyDict_NewPresized(4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 274, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self))), __pyx_n_s_name); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 273, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self))), __pyx_n_s_name); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 274, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_cls, __pyx_t_3) < 0) __PYX_ERR(0, 273, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_cls, __pyx_t_3) < 0) __PYX_ERR(0, 274, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "freud/density.pyx":274
+  /* "freud/density.pyx":275
  *         return ("freud.density.{cls}({width}, "
  *                 "{r_max}, {sigma})").format(cls=type(self).__name__,
  *                                             width=self.width,             # <<<<<<<<<<<<<<
  *                                             r_max=self.r_max,
  *                                             sigma=self.sigma)
  */
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_width); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 274, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_width); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 275, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_width, __pyx_t_3) < 0) __PYX_ERR(0, 273, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_width, __pyx_t_3) < 0) __PYX_ERR(0, 274, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "freud/density.pyx":275
+  /* "freud/density.pyx":276
  *                 "{r_max}, {sigma})").format(cls=type(self).__name__,
  *                                             width=self.width,
  *                                             r_max=self.r_max,             # <<<<<<<<<<<<<<
  *                                             sigma=self.sigma)
  * 
  */
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_r_max); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 275, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_r_max); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 276, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_r_max, __pyx_t_3) < 0) __PYX_ERR(0, 273, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_r_max, __pyx_t_3) < 0) __PYX_ERR(0, 274, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "freud/density.pyx":276
+  /* "freud/density.pyx":277
  *                                             width=self.width,
  *                                             r_max=self.r_max,
  *                                             sigma=self.sigma)             # <<<<<<<<<<<<<<
  * 
  *     def plot(self, ax=None):
  */
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_sigma); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 276, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_sigma); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 277, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_sigma, __pyx_t_3) < 0) __PYX_ERR(0, 273, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_sigma, __pyx_t_3) < 0) __PYX_ERR(0, 274, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "freud/density.pyx":273
+  /* "freud/density.pyx":274
  *     def __repr__(self):
  *         return ("freud.density.{cls}({width}, "
  *                 "{r_max}, {sigma})").format(cls=type(self).__name__,             # <<<<<<<<<<<<<<
  *                                             width=self.width,
  *                                             r_max=self.r_max,
  */
-  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_empty_tuple, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 273, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_empty_tuple, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 274, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -6290,7 +6404,7 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_10__repr__(struct __
   __pyx_t_3 = 0;
   goto __pyx_L0;
 
-  /* "freud/density.pyx":271
+  /* "freud/density.pyx":272
  *         return (width.x, width.y, width.z)
  * 
  *     def __repr__(self):             # <<<<<<<<<<<<<<
@@ -6311,7 +6425,7 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_10__repr__(struct __
   return __pyx_r;
 }
 
-/* "freud/density.pyx":278
+/* "freud/density.pyx":279
  *                                             sigma=self.sigma)
  * 
  *     def plot(self, ax=None):             # <<<<<<<<<<<<<<
@@ -6350,7 +6464,7 @@ static PyObject *__pyx_pw_5freud_7density_15GaussianDensity_13plot(PyObject *__p
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "plot") < 0)) __PYX_ERR(0, 278, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "plot") < 0)) __PYX_ERR(0, 279, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -6364,7 +6478,7 @@ static PyObject *__pyx_pw_5freud_7density_15GaussianDensity_13plot(PyObject *__p
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("plot", 0, 0, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 278, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("plot", 0, 0, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 279, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.density.GaussianDensity.plot", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -6389,36 +6503,36 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_12plot(struct __pyx_
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("plot", 0);
 
-  /* "freud/density.pyx":289
+  /* "freud/density.pyx":290
  *             (:class:`matplotlib.axes.Axes`): Axis with the plot.
  *         """
  *         import freud.plot             # <<<<<<<<<<<<<<
  *         if not self.box.is2D:
  *             return None
  */
-  __pyx_t_1 = __Pyx_Import(__pyx_n_s_freud_plot, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 289, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_Import(__pyx_n_s_freud_plot, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 290, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_freud = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "freud/density.pyx":290
+  /* "freud/density.pyx":291
  *         """
  *         import freud.plot
  *         if not self.box.is2D:             # <<<<<<<<<<<<<<
  *             return None
  *         return freud.plot.density_plot(self.density, self.box, ax=ax)
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_box); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 290, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_box); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 291, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_is2D); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 290, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_is2D); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 291, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 290, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 291, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_t_4 = ((!__pyx_t_3) != 0);
   if (__pyx_t_4) {
 
-    /* "freud/density.pyx":291
+    /* "freud/density.pyx":292
  *         import freud.plot
  *         if not self.box.is2D:
  *             return None             # <<<<<<<<<<<<<<
@@ -6429,7 +6543,7 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_12plot(struct __pyx_
     __pyx_r = Py_None; __Pyx_INCREF(Py_None);
     goto __pyx_L0;
 
-    /* "freud/density.pyx":290
+    /* "freud/density.pyx":291
  *         """
  *         import freud.plot
  *         if not self.box.is2D:             # <<<<<<<<<<<<<<
@@ -6438,7 +6552,7 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_12plot(struct __pyx_
  */
   }
 
-  /* "freud/density.pyx":292
+  /* "freud/density.pyx":293
  *         if not self.box.is2D:
  *             return None
  *         return freud.plot.density_plot(self.density, self.box, ax=ax)             # <<<<<<<<<<<<<<
@@ -6446,16 +6560,16 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_12plot(struct __pyx_
  *     def _repr_png_(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_freud, __pyx_n_s_plot); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 292, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_freud, __pyx_n_s_plot); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 293, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_density_plot); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 292, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_density_plot); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 293, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_density); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 292, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_density); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 293, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_box); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 292, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_box); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 293, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_6 = PyTuple_New(2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 292, __pyx_L1_error)
+  __pyx_t_6 = PyTuple_New(2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 293, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_GIVEREF(__pyx_t_2);
   PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_2);
@@ -6463,10 +6577,10 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_12plot(struct __pyx_
   PyTuple_SET_ITEM(__pyx_t_6, 1, __pyx_t_5);
   __pyx_t_2 = 0;
   __pyx_t_5 = 0;
-  __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 292, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 293, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_ax, __pyx_v_ax) < 0) __PYX_ERR(0, 292, __pyx_L1_error)
-  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_6, __pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 292, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_ax, __pyx_v_ax) < 0) __PYX_ERR(0, 293, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_6, __pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 293, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
@@ -6475,7 +6589,7 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_12plot(struct __pyx_
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "freud/density.pyx":278
+  /* "freud/density.pyx":279
  *                                             sigma=self.sigma)
  * 
  *     def plot(self, ax=None):             # <<<<<<<<<<<<<<
@@ -6498,22 +6612,25 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_12plot(struct __pyx_
   return __pyx_r;
 }
 
-/* "freud/density.pyx":294
+/* "freud/density.pyx":295
  *         return freud.plot.density_plot(self.density, self.box, ax=ax)
  * 
  *     def _repr_png_(self):             # <<<<<<<<<<<<<<
- *         import freud.plot
  *         try:
+ *             import freud.plot
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_7density_15GaussianDensity_15_repr_png_(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_5freud_7density_15GaussianDensity_15_repr_png_(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static char __pyx_doc_5freud_7density_15GaussianDensity_14_repr_png_[] = "GaussianDensity._repr_png_(self)";
-static PyMethodDef __pyx_mdef_5freud_7density_15GaussianDensity_15_repr_png_ = {"_repr_png_", (PyCFunction)__pyx_pw_5freud_7density_15GaussianDensity_15_repr_png_, METH_NOARGS, __pyx_doc_5freud_7density_15GaussianDensity_14_repr_png_};
-static PyObject *__pyx_pw_5freud_7density_15GaussianDensity_15_repr_png_(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyMethodDef __pyx_mdef_5freud_7density_15GaussianDensity_15_repr_png_ = {"_repr_png_", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_15GaussianDensity_15_repr_png_, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_15GaussianDensity_14_repr_png_};
+static PyObject *__pyx_pw_5freud_7density_15GaussianDensity_15_repr_png_(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("_repr_png_ (wrapper)", 0);
+  if (unlikely(PyTuple_GET_SIZE(__pyx_args) > 0)) {
+    __Pyx_RaiseArgtupleInvalid("_repr_png_", 1, 0, 0, PyTuple_GET_SIZE(__pyx_args)); return NULL;}
+  if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "_repr_png_", 0))) return NULL;
   __pyx_r = __pyx_pf_5freud_7density_15GaussianDensity_14_repr_png_(((struct __pyx_obj_5freud_7density_GaussianDensity *)__pyx_v_self));
 
   /* function exit code */
@@ -6536,48 +6653,48 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_14_repr_png_(struct 
   int __pyx_t_9;
   __Pyx_RefNannySetupContext("_repr_png_", 0);
 
-  /* "freud/density.pyx":295
+  /* "freud/density.pyx":296
  * 
  *     def _repr_png_(self):
- *         import freud.plot             # <<<<<<<<<<<<<<
- *         try:
- *             return freud.plot.ax_to_bytes(self.plot())
- */
-  __pyx_t_1 = __Pyx_Import(__pyx_n_s_freud_plot, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 295, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_v_freud = __pyx_t_1;
-  __pyx_t_1 = 0;
-
-  /* "freud/density.pyx":296
- *     def _repr_png_(self):
- *         import freud.plot
  *         try:             # <<<<<<<<<<<<<<
- *             return freud.plot.ax_to_bytes(self.plot())
- *         except AttributeError:
+ *             import freud.plot
+ *             return freud.plot._ax_to_bytes(self.plot())
  */
   {
     __Pyx_PyThreadState_declare
     __Pyx_PyThreadState_assign
-    __Pyx_ExceptionSave(&__pyx_t_2, &__pyx_t_3, &__pyx_t_4);
+    __Pyx_ExceptionSave(&__pyx_t_1, &__pyx_t_2, &__pyx_t_3);
+    __Pyx_XGOTREF(__pyx_t_1);
     __Pyx_XGOTREF(__pyx_t_2);
     __Pyx_XGOTREF(__pyx_t_3);
-    __Pyx_XGOTREF(__pyx_t_4);
     /*try:*/ {
 
       /* "freud/density.pyx":297
- *         import freud.plot
+ *     def _repr_png_(self):
  *         try:
- *             return freud.plot.ax_to_bytes(self.plot())             # <<<<<<<<<<<<<<
- *         except AttributeError:
+ *             import freud.plot             # <<<<<<<<<<<<<<
+ *             return freud.plot._ax_to_bytes(self.plot())
+ *         except (AttributeError, ImportError):
+ */
+      __pyx_t_4 = __Pyx_Import(__pyx_n_s_freud_plot, 0, 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 297, __pyx_L3_error)
+      __Pyx_GOTREF(__pyx_t_4);
+      __pyx_v_freud = __pyx_t_4;
+      __pyx_t_4 = 0;
+
+      /* "freud/density.pyx":298
+ *         try:
+ *             import freud.plot
+ *             return freud.plot._ax_to_bytes(self.plot())             # <<<<<<<<<<<<<<
+ *         except (AttributeError, ImportError):
  *             return None
  */
       __Pyx_XDECREF(__pyx_r);
-      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_freud, __pyx_n_s_plot); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 297, __pyx_L3_error)
+      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_freud, __pyx_n_s_plot); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 298, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_5);
-      __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_ax_to_bytes); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 297, __pyx_L3_error)
+      __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_ax_to_bytes); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 298, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-      __pyx_t_7 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_plot); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 297, __pyx_L3_error)
+      __pyx_t_7 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_plot); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 298, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_7);
       __pyx_t_8 = NULL;
       if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_7))) {
@@ -6591,7 +6708,7 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_14_repr_png_(struct 
       }
       __pyx_t_5 = (__pyx_t_8) ? __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_t_8) : __Pyx_PyObject_CallNoArg(__pyx_t_7);
       __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
-      if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 297, __pyx_L3_error)
+      if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 298, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
       __pyx_t_7 = NULL;
@@ -6604,56 +6721,56 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_14_repr_png_(struct 
           __Pyx_DECREF_SET(__pyx_t_6, function);
         }
       }
-      __pyx_t_1 = (__pyx_t_7) ? __Pyx_PyObject_Call2Args(__pyx_t_6, __pyx_t_7, __pyx_t_5) : __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_t_5);
+      __pyx_t_4 = (__pyx_t_7) ? __Pyx_PyObject_Call2Args(__pyx_t_6, __pyx_t_7, __pyx_t_5) : __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_t_5);
       __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 297, __pyx_L3_error)
-      __Pyx_GOTREF(__pyx_t_1);
+      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 298, __pyx_L3_error)
+      __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-      __pyx_r = __pyx_t_1;
-      __pyx_t_1 = 0;
+      __pyx_r = __pyx_t_4;
+      __pyx_t_4 = 0;
       goto __pyx_L7_try_return;
 
       /* "freud/density.pyx":296
+ * 
  *     def _repr_png_(self):
- *         import freud.plot
  *         try:             # <<<<<<<<<<<<<<
- *             return freud.plot.ax_to_bytes(self.plot())
- *         except AttributeError:
+ *             import freud.plot
+ *             return freud.plot._ax_to_bytes(self.plot())
  */
     }
     __pyx_L3_error:;
-    __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
+    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
     __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
 
-    /* "freud/density.pyx":298
- *         try:
- *             return freud.plot.ax_to_bytes(self.plot())
- *         except AttributeError:             # <<<<<<<<<<<<<<
+    /* "freud/density.pyx":299
+ *             import freud.plot
+ *             return freud.plot._ax_to_bytes(self.plot())
+ *         except (AttributeError, ImportError):             # <<<<<<<<<<<<<<
  *             return None
  * 
  */
-    __pyx_t_9 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_AttributeError);
+    __pyx_t_9 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_AttributeError) || __Pyx_PyErr_ExceptionMatches(__pyx_builtin_ImportError);
     if (__pyx_t_9) {
       __Pyx_AddTraceback("freud.density.GaussianDensity._repr_png_", __pyx_clineno, __pyx_lineno, __pyx_filename);
-      if (__Pyx_GetException(&__pyx_t_1, &__pyx_t_6, &__pyx_t_5) < 0) __PYX_ERR(0, 298, __pyx_L5_except_error)
-      __Pyx_GOTREF(__pyx_t_1);
+      if (__Pyx_GetException(&__pyx_t_4, &__pyx_t_6, &__pyx_t_5) < 0) __PYX_ERR(0, 299, __pyx_L5_except_error)
+      __Pyx_GOTREF(__pyx_t_4);
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_GOTREF(__pyx_t_5);
 
-      /* "freud/density.pyx":299
- *             return freud.plot.ax_to_bytes(self.plot())
- *         except AttributeError:
+      /* "freud/density.pyx":300
+ *             return freud.plot._ax_to_bytes(self.plot())
+ *         except (AttributeError, ImportError):
  *             return None             # <<<<<<<<<<<<<<
  * 
  * 
  */
       __Pyx_XDECREF(__pyx_r);
       __pyx_r = Py_None; __Pyx_INCREF(Py_None);
-      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
       goto __pyx_L6_except_return;
@@ -6662,42 +6779,42 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_14_repr_png_(struct 
     __pyx_L5_except_error:;
 
     /* "freud/density.pyx":296
+ * 
  *     def _repr_png_(self):
- *         import freud.plot
  *         try:             # <<<<<<<<<<<<<<
- *             return freud.plot.ax_to_bytes(self.plot())
- *         except AttributeError:
+ *             import freud.plot
+ *             return freud.plot._ax_to_bytes(self.plot())
  */
+    __Pyx_XGIVEREF(__pyx_t_1);
     __Pyx_XGIVEREF(__pyx_t_2);
     __Pyx_XGIVEREF(__pyx_t_3);
-    __Pyx_XGIVEREF(__pyx_t_4);
-    __Pyx_ExceptionReset(__pyx_t_2, __pyx_t_3, __pyx_t_4);
+    __Pyx_ExceptionReset(__pyx_t_1, __pyx_t_2, __pyx_t_3);
     goto __pyx_L1_error;
     __pyx_L7_try_return:;
+    __Pyx_XGIVEREF(__pyx_t_1);
     __Pyx_XGIVEREF(__pyx_t_2);
     __Pyx_XGIVEREF(__pyx_t_3);
-    __Pyx_XGIVEREF(__pyx_t_4);
-    __Pyx_ExceptionReset(__pyx_t_2, __pyx_t_3, __pyx_t_4);
+    __Pyx_ExceptionReset(__pyx_t_1, __pyx_t_2, __pyx_t_3);
     goto __pyx_L0;
     __pyx_L6_except_return:;
+    __Pyx_XGIVEREF(__pyx_t_1);
     __Pyx_XGIVEREF(__pyx_t_2);
     __Pyx_XGIVEREF(__pyx_t_3);
-    __Pyx_XGIVEREF(__pyx_t_4);
-    __Pyx_ExceptionReset(__pyx_t_2, __pyx_t_3, __pyx_t_4);
+    __Pyx_ExceptionReset(__pyx_t_1, __pyx_t_2, __pyx_t_3);
     goto __pyx_L0;
   }
 
-  /* "freud/density.pyx":294
+  /* "freud/density.pyx":295
  *         return freud.plot.density_plot(self.density, self.box, ax=ax)
  * 
  *     def _repr_png_(self):             # <<<<<<<<<<<<<<
- *         import freud.plot
  *         try:
+ *             import freud.plot
  */
 
   /* function exit code */
   __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_6);
   __Pyx_XDECREF(__pyx_t_7);
@@ -6718,13 +6835,16 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_14_repr_png_(struct 
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_7density_15GaussianDensity_17__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_5freud_7density_15GaussianDensity_17__reduce_cython__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static char __pyx_doc_5freud_7density_15GaussianDensity_16__reduce_cython__[] = "GaussianDensity.__reduce_cython__(self)";
-static PyMethodDef __pyx_mdef_5freud_7density_15GaussianDensity_17__reduce_cython__ = {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_7density_15GaussianDensity_17__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_7density_15GaussianDensity_16__reduce_cython__};
-static PyObject *__pyx_pw_5freud_7density_15GaussianDensity_17__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyMethodDef __pyx_mdef_5freud_7density_15GaussianDensity_17__reduce_cython__ = {"__reduce_cython__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_15GaussianDensity_17__reduce_cython__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_15GaussianDensity_16__reduce_cython__};
+static PyObject *__pyx_pw_5freud_7density_15GaussianDensity_17__reduce_cython__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__reduce_cython__ (wrapper)", 0);
+  if (unlikely(PyTuple_GET_SIZE(__pyx_args) > 0)) {
+    __Pyx_RaiseArgtupleInvalid("__reduce_cython__", 1, 0, 0, PyTuple_GET_SIZE(__pyx_args)); return NULL;}
+  if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "__reduce_cython__", 0))) return NULL;
   __pyx_r = __pyx_pf_5freud_7density_15GaussianDensity_16__reduce_cython__(((struct __pyx_obj_5freud_7density_GaussianDensity *)__pyx_v_self));
 
   /* function exit code */
@@ -6774,14 +6894,51 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_16__reduce_cython__(
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_7density_15GaussianDensity_19__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static PyObject *__pyx_pw_5freud_7density_15GaussianDensity_19__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static char __pyx_doc_5freud_7density_15GaussianDensity_18__setstate_cython__[] = "GaussianDensity.__setstate_cython__(self, __pyx_state)";
-static PyMethodDef __pyx_mdef_5freud_7density_15GaussianDensity_19__setstate_cython__ = {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_7density_15GaussianDensity_19__setstate_cython__, METH_O, __pyx_doc_5freud_7density_15GaussianDensity_18__setstate_cython__};
-static PyObject *__pyx_pw_5freud_7density_15GaussianDensity_19__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyMethodDef __pyx_mdef_5freud_7density_15GaussianDensity_19__setstate_cython__ = {"__setstate_cython__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_15GaussianDensity_19__setstate_cython__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_15GaussianDensity_18__setstate_cython__};
+static PyObject *__pyx_pw_5freud_7density_15GaussianDensity_19__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  CYTHON_UNUSED PyObject *__pyx_v___pyx_state = 0;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setstate_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_5freud_7density_15GaussianDensity_18__setstate_cython__(((struct __pyx_obj_5freud_7density_GaussianDensity *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
+  {
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_pyx_state,0};
+    PyObject* values[1] = {0};
+    if (unlikely(__pyx_kwds)) {
+      Py_ssize_t kw_args;
+      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
+      switch (pos_args) {
+        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        CYTHON_FALLTHROUGH;
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      kw_args = PyDict_Size(__pyx_kwds);
+      switch (pos_args) {
+        case  0:
+        if (likely((values[0] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_pyx_state)) != 0)) kw_args--;
+        else goto __pyx_L5_argtuple_error;
+      }
+      if (unlikely(kw_args > 0)) {
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__setstate_cython__") < 0)) __PYX_ERR(1, 3, __pyx_L3_error)
+      }
+    } else if (PyTuple_GET_SIZE(__pyx_args) != 1) {
+      goto __pyx_L5_argtuple_error;
+    } else {
+      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+    }
+    __pyx_v___pyx_state = values[0];
+  }
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("__setstate_cython__", 1, 1, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 3, __pyx_L3_error)
+  __pyx_L3_error:;
+  __Pyx_AddTraceback("freud.density.GaussianDensity.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return NULL;
+  __pyx_L4_argument_unpacking_done:;
+  __pyx_r = __pyx_pf_5freud_7density_15GaussianDensity_18__setstate_cython__(((struct __pyx_obj_5freud_7density_GaussianDensity *)__pyx_v_self), __pyx_v___pyx_state);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
@@ -6822,7 +6979,7 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_18__setstate_cython_
   return __pyx_r;
 }
 
-/* "freud/density.pyx":337
+/* "freud/density.pyx":338
  *     cdef freud._density.LocalDensity * thisptr
  * 
  *     def __cinit__(self, float r_max, float diameter):             # <<<<<<<<<<<<<<
@@ -6861,11 +7018,11 @@ static int __pyx_pw_5freud_7density_12LocalDensity_1__cinit__(PyObject *__pyx_v_
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_diameter)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 2, 2, 1); __PYX_ERR(0, 337, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 2, 2, 1); __PYX_ERR(0, 338, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(0, 337, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(0, 338, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -6873,12 +7030,12 @@ static int __pyx_pw_5freud_7density_12LocalDensity_1__cinit__(PyObject *__pyx_v_
       values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
       values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
     }
-    __pyx_v_r_max = __pyx_PyFloat_AsFloat(values[0]); if (unlikely((__pyx_v_r_max == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 337, __pyx_L3_error)
-    __pyx_v_diameter = __pyx_PyFloat_AsFloat(values[1]); if (unlikely((__pyx_v_diameter == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 337, __pyx_L3_error)
+    __pyx_v_r_max = __pyx_PyFloat_AsFloat(values[0]); if (unlikely((__pyx_v_r_max == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 338, __pyx_L3_error)
+    __pyx_v_diameter = __pyx_PyFloat_AsFloat(values[1]); if (unlikely((__pyx_v_diameter == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 338, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 337, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 338, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.density.LocalDensity.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -6896,7 +7053,7 @@ static int __pyx_pf_5freud_7density_12LocalDensity___cinit__(struct __pyx_obj_5f
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__cinit__", 0);
 
-  /* "freud/density.pyx":338
+  /* "freud/density.pyx":339
  * 
  *     def __cinit__(self, float r_max, float diameter):
  *         self.thisptr = new freud._density.LocalDensity(r_max, diameter)             # <<<<<<<<<<<<<<
@@ -6905,7 +7062,7 @@ static int __pyx_pf_5freud_7density_12LocalDensity___cinit__(struct __pyx_obj_5f
  */
   __pyx_v_self->thisptr = new freud::density::LocalDensity(__pyx_v_r_max, __pyx_v_diameter);
 
-  /* "freud/density.pyx":337
+  /* "freud/density.pyx":338
  *     cdef freud._density.LocalDensity * thisptr
  * 
  *     def __cinit__(self, float r_max, float diameter):             # <<<<<<<<<<<<<<
@@ -6919,7 +7076,7 @@ static int __pyx_pf_5freud_7density_12LocalDensity___cinit__(struct __pyx_obj_5f
   return __pyx_r;
 }
 
-/* "freud/density.pyx":340
+/* "freud/density.pyx":341
  *         self.thisptr = new freud._density.LocalDensity(r_max, diameter)
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -6942,7 +7099,7 @@ static void __pyx_pf_5freud_7density_12LocalDensity_2__dealloc__(struct __pyx_ob
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__dealloc__", 0);
 
-  /* "freud/density.pyx":341
+  /* "freud/density.pyx":342
  * 
  *     def __dealloc__(self):
  *         del self.thisptr             # <<<<<<<<<<<<<<
@@ -6951,7 +7108,7 @@ static void __pyx_pf_5freud_7density_12LocalDensity_2__dealloc__(struct __pyx_ob
  */
   delete __pyx_v_self->thisptr;
 
-  /* "freud/density.pyx":340
+  /* "freud/density.pyx":341
  *         self.thisptr = new freud._density.LocalDensity(r_max, diameter)
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -6963,7 +7120,7 @@ static void __pyx_pf_5freud_7density_12LocalDensity_2__dealloc__(struct __pyx_ob
   __Pyx_RefNannyFinishContext();
 }
 
-/* "freud/density.pyx":344
+/* "freud/density.pyx":345
  * 
  *     @property
  *     def r_max(self):             # <<<<<<<<<<<<<<
@@ -6990,7 +7147,7 @@ static PyObject *__pyx_pf_5freud_7density_12LocalDensity_5r_max___get__(struct _
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "freud/density.pyx":346
+  /* "freud/density.pyx":347
  *     def r_max(self):
  *         """float: Maximum distance over which to calculate the density."""
  *         return self.thisptr.getRMax()             # <<<<<<<<<<<<<<
@@ -6998,13 +7155,13 @@ static PyObject *__pyx_pf_5freud_7density_12LocalDensity_5r_max___get__(struct _
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->thisptr->getRMax()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 346, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->thisptr->getRMax()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 347, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/density.pyx":344
+  /* "freud/density.pyx":345
  * 
  *     @property
  *     def r_max(self):             # <<<<<<<<<<<<<<
@@ -7023,7 +7180,7 @@ static PyObject *__pyx_pf_5freud_7density_12LocalDensity_5r_max___get__(struct _
   return __pyx_r;
 }
 
-/* "freud/density.pyx":349
+/* "freud/density.pyx":350
  * 
  *     @property
  *     def diameter(self):             # <<<<<<<<<<<<<<
@@ -7050,21 +7207,21 @@ static PyObject *__pyx_pf_5freud_7density_12LocalDensity_8diameter___get__(struc
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "freud/density.pyx":351
+  /* "freud/density.pyx":352
  *     def diameter(self):
  *         """float: Diameter of particle circumsphere."""
  *         return self.thisptr.getDiameter()             # <<<<<<<<<<<<<<
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->thisptr->getDiameter()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 351, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->thisptr->getDiameter()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 352, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/density.pyx":349
+  /* "freud/density.pyx":350
  * 
  *     @property
  *     def diameter(self):             # <<<<<<<<<<<<<<
@@ -7083,22 +7240,25 @@ static PyObject *__pyx_pf_5freud_7density_12LocalDensity_8diameter___get__(struc
   return __pyx_r;
 }
 
-/* "freud/density.pyx":354
+/* "freud/density.pyx":355
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def box(self):             # <<<<<<<<<<<<<<
  *         """:class:`freud.box.Box`: Box used in the calculation."""
  *         return freud.box.BoxFromCPP(self.thisptr.getBox())
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_7density_12LocalDensity_5box(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_5freud_7density_12LocalDensity_5box(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static char __pyx_doc_5freud_7density_12LocalDensity_4box[] = "LocalDensity.box(self)\n:class:`freud.box.Box`: Box used in the calculation.";
-static PyMethodDef __pyx_mdef_5freud_7density_12LocalDensity_5box = {"box", (PyCFunction)__pyx_pw_5freud_7density_12LocalDensity_5box, METH_NOARGS, __pyx_doc_5freud_7density_12LocalDensity_4box};
-static PyObject *__pyx_pw_5freud_7density_12LocalDensity_5box(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyMethodDef __pyx_mdef_5freud_7density_12LocalDensity_5box = {"box", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_12LocalDensity_5box, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_12LocalDensity_4box};
+static PyObject *__pyx_pw_5freud_7density_12LocalDensity_5box(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("box (wrapper)", 0);
+  if (unlikely(PyTuple_GET_SIZE(__pyx_args) > 0)) {
+    __Pyx_RaiseArgtupleInvalid("box", 1, 0, 0, PyTuple_GET_SIZE(__pyx_args)); return NULL;}
+  if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "box", 0))) return NULL;
   __pyx_r = __pyx_pf_5freud_7density_12LocalDensity_4box(((struct __pyx_obj_5freud_7density_LocalDensity *)__pyx_v_self));
 
   /* function exit code */
@@ -7112,7 +7272,7 @@ static PyObject *__pyx_pf_5freud_7density_12LocalDensity_4box(struct __pyx_obj_5
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("box", 0);
 
-  /* "freud/density.pyx":356
+  /* "freud/density.pyx":357
  *     def box(self):
  *         """:class:`freud.box.Box`: Box used in the calculation."""
  *         return freud.box.BoxFromCPP(self.thisptr.getBox())             # <<<<<<<<<<<<<<
@@ -7120,15 +7280,15 @@ static PyObject *__pyx_pf_5freud_7density_12LocalDensity_4box(struct __pyx_obj_5
  *     def compute(self, system, query_points=None, neighbors=None):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_5freud_3box_BoxFromCPP(__pyx_v_self->thisptr->getBox()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 356, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_5freud_3box_BoxFromCPP(__pyx_v_self->thisptr->getBox()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 357, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/density.pyx":354
+  /* "freud/density.pyx":355
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def box(self):             # <<<<<<<<<<<<<<
  *         """:class:`freud.box.Box`: Box used in the calculation."""
  *         return freud.box.BoxFromCPP(self.thisptr.getBox())
@@ -7145,17 +7305,17 @@ static PyObject *__pyx_pf_5freud_7density_12LocalDensity_4box(struct __pyx_obj_5
   return __pyx_r;
 }
 
-/* "freud/density.pyx":358
+/* "freud/density.pyx":359
  *         return freud.box.BoxFromCPP(self.thisptr.getBox())
  * 
  *     def compute(self, system, query_points=None, neighbors=None):             # <<<<<<<<<<<<<<
- *         R"""Calculates the local density for the specified points. Does not
- *         accumulate (will overwrite current data).
+ *         R"""Calculates the local density for the specified points.
+ * 
  */
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_7density_12LocalDensity_7compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_7density_12LocalDensity_6compute[] = "LocalDensity.compute(self, system, query_points=None, neighbors=None)\nCalculates the local density for the specified points. Does not\n        accumulate (will overwrite current data).\n\n        Args:\n            system:\n                Any object that is a valid argument to\n                :class:`freud.locality.NeighborQuery.from_system`.\n            query_points ((:math:`N_{query\\_points}`, 3) :class:`numpy.ndarray`, optional):\n                Query points used to calculate the correlation function. Uses\n                the system's points if :code:`None` (Default\n                value = :code:`None`).\n            neighbors (:class:`freud.locality.NeighborList` or dict, optional):\n                Either a :class:`NeighborList <freud.locality.NeighborList>` of\n                neighbor pairs to use in the calculation, or a dictionary of\n                `query arguments\n                <https://freud.readthedocs.io/en/next/querying.html>`_\n                (Default value: None).\n        ";
+static char __pyx_doc_5freud_7density_12LocalDensity_6compute[] = "LocalDensity.compute(self, system, query_points=None, neighbors=None)\nCalculates the local density for the specified points.\n\n        Args:\n            system:\n                Any object that is a valid argument to\n                :class:`freud.locality.NeighborQuery.from_system`.\n            query_points ((:math:`N_{query\\_points}`, 3) :class:`numpy.ndarray`, optional):\n                Query points used to calculate the correlation function. Uses\n                the system's points if :code:`None` (Default\n                value = :code:`None`).\n            neighbors (:class:`freud.locality.NeighborList` or dict, optional):\n                Either a :class:`NeighborList <freud.locality.NeighborList>` of\n                neighbor pairs to use in the calculation, or a dictionary of\n                `query arguments\n                <https://freud.readthedocs.io/en/next/querying.html>`_\n                (Default value: None).\n        ";
 static PyMethodDef __pyx_mdef_5freud_7density_12LocalDensity_7compute = {"compute", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_12LocalDensity_7compute, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_12LocalDensity_6compute};
 static PyObject *__pyx_pw_5freud_7density_12LocalDensity_7compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_system = 0;
@@ -7201,7 +7361,7 @@ static PyObject *__pyx_pw_5freud_7density_12LocalDensity_7compute(PyObject *__py
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "compute") < 0)) __PYX_ERR(0, 358, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "compute") < 0)) __PYX_ERR(0, 359, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -7220,7 +7380,7 @@ static PyObject *__pyx_pw_5freud_7density_12LocalDensity_7compute(PyObject *__py
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("compute", 0, 1, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 358, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("compute", 0, 1, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 359, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.density.LocalDensity.compute", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -7437,12 +7597,12 @@ static PyObject *__pyx_pf_5freud_7density_12LocalDensity_6compute(struct __pyx_o
   __pyx_r = ((PyObject *)__pyx_v_self);
   goto __pyx_L0;
 
-  /* "freud/density.pyx":358
+  /* "freud/density.pyx":359
  *         return freud.box.BoxFromCPP(self.thisptr.getBox())
  * 
  *     def compute(self, system, query_points=None, neighbors=None):             # <<<<<<<<<<<<<<
- *         R"""Calculates the local density for the specified points. Does not
- *         accumulate (will overwrite current data).
+ *         R"""Calculates the local density for the specified points.
+ * 
  */
 
   /* function exit code */
@@ -7514,7 +7674,7 @@ static PyObject *__pyx_pf_5freud_7density_12LocalDensity_18default_query_args___
  *         return dict(mode="ball",
  *                     r_max=self.r_max + 0.5*self.diameter)             # <<<<<<<<<<<<<<
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  */
   __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_r_max); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 398, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -7557,20 +7717,23 @@ static PyObject *__pyx_pf_5freud_7density_12LocalDensity_18default_query_args___
 
 /* "freud/density.pyx":401
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def density(self):             # <<<<<<<<<<<<<<
  *         """(:math:`N_{points}`) :class:`numpy.ndarray`: Density of points per
- *         ref_point."""
+ *         query point."""
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_7density_12LocalDensity_9density(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_7density_12LocalDensity_8density[] = "LocalDensity.density(self)\n(:math:`N_{points}`) :class:`numpy.ndarray`: Density of points per\n        ref_point.";
-static PyMethodDef __pyx_mdef_5freud_7density_12LocalDensity_9density = {"density", (PyCFunction)__pyx_pw_5freud_7density_12LocalDensity_9density, METH_NOARGS, __pyx_doc_5freud_7density_12LocalDensity_8density};
-static PyObject *__pyx_pw_5freud_7density_12LocalDensity_9density(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_5freud_7density_12LocalDensity_9density(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_5freud_7density_12LocalDensity_8density[] = "LocalDensity.density(self)\n(:math:`N_{points}`) :class:`numpy.ndarray`: Density of points per\n        query point.";
+static PyMethodDef __pyx_mdef_5freud_7density_12LocalDensity_9density = {"density", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_12LocalDensity_9density, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_12LocalDensity_8density};
+static PyObject *__pyx_pw_5freud_7density_12LocalDensity_9density(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("density (wrapper)", 0);
+  if (unlikely(PyTuple_GET_SIZE(__pyx_args) > 0)) {
+    __Pyx_RaiseArgtupleInvalid("density", 1, 0, 0, PyTuple_GET_SIZE(__pyx_args)); return NULL;}
+  if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "density", 0))) return NULL;
   __pyx_r = __pyx_pf_5freud_7density_12LocalDensity_8density(((struct __pyx_obj_5freud_7density_LocalDensity *)__pyx_v_self));
 
   /* function exit code */
@@ -7586,7 +7749,7 @@ static PyObject *__pyx_pf_5freud_7density_12LocalDensity_8density(struct __pyx_o
 
   /* "freud/density.pyx":404
  *         """(:math:`N_{points}`) :class:`numpy.ndarray`: Density of points per
- *         ref_point."""
+ *         query point."""
  *         return freud.util.make_managed_numpy_array(             # <<<<<<<<<<<<<<
  *             &self.thisptr.getDensity(),
  *             freud.util.arr_type_t.FLOAT)
@@ -7598,7 +7761,7 @@ static PyObject *__pyx_pf_5freud_7density_12LocalDensity_8density(struct __pyx_o
  *             &self.thisptr.getDensity(),
  *             freud.util.arr_type_t.FLOAT)             # <<<<<<<<<<<<<<
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  */
   __pyx_t_1 = __pyx_f_5freud_4util_make_managed_numpy_array((&__pyx_v_self->thisptr->getDensity()), __pyx_e_5freud_4util_FLOAT, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 404, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
@@ -7608,10 +7771,10 @@ static PyObject *__pyx_pf_5freud_7density_12LocalDensity_8density(struct __pyx_o
 
   /* "freud/density.pyx":401
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def density(self):             # <<<<<<<<<<<<<<
  *         """(:math:`N_{points}`) :class:`numpy.ndarray`: Density of points per
- *         ref_point."""
+ *         query point."""
  */
 
   /* function exit code */
@@ -7627,20 +7790,23 @@ static PyObject *__pyx_pf_5freud_7density_12LocalDensity_8density(struct __pyx_o
 
 /* "freud/density.pyx":409
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def num_neighbors(self):             # <<<<<<<<<<<<<<
  *         """(:math:`N_{points}`) :class:`numpy.ndarray`: Number of neighbor
- *         points for each ref_point."""
+ *         points for each query point."""
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_7density_12LocalDensity_11num_neighbors(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_7density_12LocalDensity_10num_neighbors[] = "LocalDensity.num_neighbors(self)\n(:math:`N_{points}`) :class:`numpy.ndarray`: Number of neighbor\n        points for each ref_point.";
-static PyMethodDef __pyx_mdef_5freud_7density_12LocalDensity_11num_neighbors = {"num_neighbors", (PyCFunction)__pyx_pw_5freud_7density_12LocalDensity_11num_neighbors, METH_NOARGS, __pyx_doc_5freud_7density_12LocalDensity_10num_neighbors};
-static PyObject *__pyx_pw_5freud_7density_12LocalDensity_11num_neighbors(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_5freud_7density_12LocalDensity_11num_neighbors(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_5freud_7density_12LocalDensity_10num_neighbors[] = "LocalDensity.num_neighbors(self)\n(:math:`N_{points}`) :class:`numpy.ndarray`: Number of neighbor\n        points for each query point.";
+static PyMethodDef __pyx_mdef_5freud_7density_12LocalDensity_11num_neighbors = {"num_neighbors", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_12LocalDensity_11num_neighbors, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_12LocalDensity_10num_neighbors};
+static PyObject *__pyx_pw_5freud_7density_12LocalDensity_11num_neighbors(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("num_neighbors (wrapper)", 0);
+  if (unlikely(PyTuple_GET_SIZE(__pyx_args) > 0)) {
+    __Pyx_RaiseArgtupleInvalid("num_neighbors", 1, 0, 0, PyTuple_GET_SIZE(__pyx_args)); return NULL;}
+  if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "num_neighbors", 0))) return NULL;
   __pyx_r = __pyx_pf_5freud_7density_12LocalDensity_10num_neighbors(((struct __pyx_obj_5freud_7density_LocalDensity *)__pyx_v_self));
 
   /* function exit code */
@@ -7656,7 +7822,7 @@ static PyObject *__pyx_pf_5freud_7density_12LocalDensity_10num_neighbors(struct 
 
   /* "freud/density.pyx":412
  *         """(:math:`N_{points}`) :class:`numpy.ndarray`: Number of neighbor
- *         points for each ref_point."""
+ *         points for each query point."""
  *         return freud.util.make_managed_numpy_array(             # <<<<<<<<<<<<<<
  *             &self.thisptr.getNumNeighbors(),
  *             freud.util.arr_type_t.FLOAT)
@@ -7678,10 +7844,10 @@ static PyObject *__pyx_pf_5freud_7density_12LocalDensity_10num_neighbors(struct 
 
   /* "freud/density.pyx":409
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def num_neighbors(self):             # <<<<<<<<<<<<<<
  *         """(:math:`N_{points}`) :class:`numpy.ndarray`: Number of neighbor
- *         points for each ref_point."""
+ *         points for each query point."""
  */
 
   /* function exit code */
@@ -7816,13 +7982,16 @@ static PyObject *__pyx_pf_5freud_7density_12LocalDensity_12__repr__(struct __pyx
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_7density_12LocalDensity_15__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_5freud_7density_12LocalDensity_15__reduce_cython__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static char __pyx_doc_5freud_7density_12LocalDensity_14__reduce_cython__[] = "LocalDensity.__reduce_cython__(self)";
-static PyMethodDef __pyx_mdef_5freud_7density_12LocalDensity_15__reduce_cython__ = {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_7density_12LocalDensity_15__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_7density_12LocalDensity_14__reduce_cython__};
-static PyObject *__pyx_pw_5freud_7density_12LocalDensity_15__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyMethodDef __pyx_mdef_5freud_7density_12LocalDensity_15__reduce_cython__ = {"__reduce_cython__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_12LocalDensity_15__reduce_cython__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_12LocalDensity_14__reduce_cython__};
+static PyObject *__pyx_pw_5freud_7density_12LocalDensity_15__reduce_cython__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__reduce_cython__ (wrapper)", 0);
+  if (unlikely(PyTuple_GET_SIZE(__pyx_args) > 0)) {
+    __Pyx_RaiseArgtupleInvalid("__reduce_cython__", 1, 0, 0, PyTuple_GET_SIZE(__pyx_args)); return NULL;}
+  if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "__reduce_cython__", 0))) return NULL;
   __pyx_r = __pyx_pf_5freud_7density_12LocalDensity_14__reduce_cython__(((struct __pyx_obj_5freud_7density_LocalDensity *)__pyx_v_self));
 
   /* function exit code */
@@ -7872,14 +8041,51 @@ static PyObject *__pyx_pf_5freud_7density_12LocalDensity_14__reduce_cython__(CYT
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_7density_12LocalDensity_17__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static PyObject *__pyx_pw_5freud_7density_12LocalDensity_17__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static char __pyx_doc_5freud_7density_12LocalDensity_16__setstate_cython__[] = "LocalDensity.__setstate_cython__(self, __pyx_state)";
-static PyMethodDef __pyx_mdef_5freud_7density_12LocalDensity_17__setstate_cython__ = {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_7density_12LocalDensity_17__setstate_cython__, METH_O, __pyx_doc_5freud_7density_12LocalDensity_16__setstate_cython__};
-static PyObject *__pyx_pw_5freud_7density_12LocalDensity_17__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyMethodDef __pyx_mdef_5freud_7density_12LocalDensity_17__setstate_cython__ = {"__setstate_cython__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_12LocalDensity_17__setstate_cython__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_12LocalDensity_16__setstate_cython__};
+static PyObject *__pyx_pw_5freud_7density_12LocalDensity_17__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  CYTHON_UNUSED PyObject *__pyx_v___pyx_state = 0;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setstate_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_5freud_7density_12LocalDensity_16__setstate_cython__(((struct __pyx_obj_5freud_7density_LocalDensity *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
+  {
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_pyx_state,0};
+    PyObject* values[1] = {0};
+    if (unlikely(__pyx_kwds)) {
+      Py_ssize_t kw_args;
+      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
+      switch (pos_args) {
+        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        CYTHON_FALLTHROUGH;
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      kw_args = PyDict_Size(__pyx_kwds);
+      switch (pos_args) {
+        case  0:
+        if (likely((values[0] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_pyx_state)) != 0)) kw_args--;
+        else goto __pyx_L5_argtuple_error;
+      }
+      if (unlikely(kw_args > 0)) {
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__setstate_cython__") < 0)) __PYX_ERR(1, 3, __pyx_L3_error)
+      }
+    } else if (PyTuple_GET_SIZE(__pyx_args) != 1) {
+      goto __pyx_L5_argtuple_error;
+    } else {
+      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+    }
+    __pyx_v___pyx_state = values[0];
+  }
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("__setstate_cython__", 1, 1, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 3, __pyx_L3_error)
+  __pyx_L3_error:;
+  __Pyx_AddTraceback("freud.density.LocalDensity.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return NULL;
+  __pyx_L4_argument_unpacking_done:;
+  __pyx_r = __pyx_pf_5freud_7density_12LocalDensity_16__setstate_cython__(((struct __pyx_obj_5freud_7density_LocalDensity *)__pyx_v_self), __pyx_v___pyx_state);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
@@ -7920,12 +8126,12 @@ static PyObject *__pyx_pf_5freud_7density_12LocalDensity_16__setstate_cython__(C
   return __pyx_r;
 }
 
-/* "freud/density.pyx":454
+/* "freud/density.pyx":470
  *     cdef freud._density.RDF * thisptr
  * 
- *     def __cinit__(self, unsigned int bins, float r_max, float r_min=0):             # <<<<<<<<<<<<<<
+ *     def __cinit__(self, unsigned int bins, float r_max, float r_min=0,             # <<<<<<<<<<<<<<
+ *                   normalize=False):
  *         if type(self) == RDF:
- *             self.thisptr = self.histptr = new freud._density.RDF(
  */
 
 /* Python wrapper */
@@ -7934,16 +8140,28 @@ static int __pyx_pw_5freud_7density_3RDF_1__cinit__(PyObject *__pyx_v_self, PyOb
   unsigned int __pyx_v_bins;
   float __pyx_v_r_max;
   float __pyx_v_r_min;
+  PyObject *__pyx_v_normalize = 0;
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__cinit__ (wrapper)", 0);
   {
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_bins,&__pyx_n_s_r_max,&__pyx_n_s_r_min,0};
-    PyObject* values[3] = {0,0,0};
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_bins,&__pyx_n_s_r_max,&__pyx_n_s_r_min,&__pyx_n_s_normalize,0};
+    PyObject* values[4] = {0,0,0,0};
+
+    /* "freud/density.pyx":471
+ * 
+ *     def __cinit__(self, unsigned int bins, float r_max, float r_min=0,
+ *                   normalize=False):             # <<<<<<<<<<<<<<
+ *         if type(self) == RDF:
+ *             self.thisptr = self.histptr = new freud._density.RDF(
+ */
+    values[3] = ((PyObject *)Py_False);
     if (unlikely(__pyx_kwds)) {
       Py_ssize_t kw_args;
       const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
       switch (pos_args) {
+        case  4: values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
+        CYTHON_FALLTHROUGH;
         case  3: values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
         CYTHON_FALLTHROUGH;
         case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
@@ -7962,7 +8180,7 @@ static int __pyx_pw_5freud_7density_3RDF_1__cinit__(PyObject *__pyx_v_self, PyOb
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_r_max)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__cinit__", 0, 2, 3, 1); __PYX_ERR(0, 454, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__cinit__", 0, 2, 4, 1); __PYX_ERR(0, 470, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
@@ -7970,12 +8188,20 @@ static int __pyx_pw_5freud_7density_3RDF_1__cinit__(PyObject *__pyx_v_self, PyOb
           PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_r_min);
           if (value) { values[2] = value; kw_args--; }
         }
+        CYTHON_FALLTHROUGH;
+        case  3:
+        if (kw_args > 0) {
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_normalize);
+          if (value) { values[3] = value; kw_args--; }
+        }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(0, 454, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(0, 470, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
+        case  4: values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
+        CYTHON_FALLTHROUGH;
         case  3: values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
         CYTHON_FALLTHROUGH;
         case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
@@ -7984,67 +8210,86 @@ static int __pyx_pw_5freud_7density_3RDF_1__cinit__(PyObject *__pyx_v_self, PyOb
         default: goto __pyx_L5_argtuple_error;
       }
     }
-    __pyx_v_bins = __Pyx_PyInt_As_unsigned_int(values[0]); if (unlikely((__pyx_v_bins == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 454, __pyx_L3_error)
-    __pyx_v_r_max = __pyx_PyFloat_AsFloat(values[1]); if (unlikely((__pyx_v_r_max == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 454, __pyx_L3_error)
+    __pyx_v_bins = __Pyx_PyInt_As_unsigned_int(values[0]); if (unlikely((__pyx_v_bins == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 470, __pyx_L3_error)
+    __pyx_v_r_max = __pyx_PyFloat_AsFloat(values[1]); if (unlikely((__pyx_v_r_max == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 470, __pyx_L3_error)
     if (values[2]) {
-      __pyx_v_r_min = __pyx_PyFloat_AsFloat(values[2]); if (unlikely((__pyx_v_r_min == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 454, __pyx_L3_error)
+      __pyx_v_r_min = __pyx_PyFloat_AsFloat(values[2]); if (unlikely((__pyx_v_r_min == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 470, __pyx_L3_error)
     } else {
       __pyx_v_r_min = ((float)0.0);
     }
+    __pyx_v_normalize = values[3];
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__cinit__", 0, 2, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 454, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__cinit__", 0, 2, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 470, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.density.RDF.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_5freud_7density_3RDF___cinit__(((struct __pyx_obj_5freud_7density_RDF *)__pyx_v_self), __pyx_v_bins, __pyx_v_r_max, __pyx_v_r_min);
+  __pyx_r = __pyx_pf_5freud_7density_3RDF___cinit__(((struct __pyx_obj_5freud_7density_RDF *)__pyx_v_self), __pyx_v_bins, __pyx_v_r_max, __pyx_v_r_min, __pyx_v_normalize);
+
+  /* "freud/density.pyx":470
+ *     cdef freud._density.RDF * thisptr
+ * 
+ *     def __cinit__(self, unsigned int bins, float r_max, float r_min=0,             # <<<<<<<<<<<<<<
+ *                   normalize=False):
+ *         if type(self) == RDF:
+ */
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_5freud_7density_3RDF___cinit__(struct __pyx_obj_5freud_7density_RDF *__pyx_v_self, unsigned int __pyx_v_bins, float __pyx_v_r_max, float __pyx_v_r_min) {
+static int __pyx_pf_5freud_7density_3RDF___cinit__(struct __pyx_obj_5freud_7density_RDF *__pyx_v_self, unsigned int __pyx_v_bins, float __pyx_v_r_max, float __pyx_v_r_min, PyObject *__pyx_v_normalize) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   int __pyx_t_2;
-  freud::density::RDF *__pyx_t_3;
+  bool __pyx_t_3;
+  freud::density::RDF *__pyx_t_4;
   __Pyx_RefNannySetupContext("__cinit__", 0);
 
-  /* "freud/density.pyx":455
- * 
- *     def __cinit__(self, unsigned int bins, float r_max, float r_min=0):
+  /* "freud/density.pyx":472
+ *     def __cinit__(self, unsigned int bins, float r_max, float r_min=0,
+ *                   normalize=False):
  *         if type(self) == RDF:             # <<<<<<<<<<<<<<
  *             self.thisptr = self.histptr = new freud._density.RDF(
- *                 bins, r_max, r_min)
+ *                 bins, r_max, r_min, normalize)
  */
-  __pyx_t_1 = PyObject_RichCompare(((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self))), ((PyObject *)__pyx_ptype_5freud_7density_RDF), Py_EQ); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 455, __pyx_L1_error)
-  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 455, __pyx_L1_error)
+  __pyx_t_1 = PyObject_RichCompare(((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self))), ((PyObject *)__pyx_ptype_5freud_7density_RDF), Py_EQ); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 472, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 472, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (__pyx_t_2) {
 
-    /* "freud/density.pyx":456
- *     def __cinit__(self, unsigned int bins, float r_max, float r_min=0):
+    /* "freud/density.pyx":474
+ *         if type(self) == RDF:
+ *             self.thisptr = self.histptr = new freud._density.RDF(
+ *                 bins, r_max, r_min, normalize)             # <<<<<<<<<<<<<<
+ * 
+ *             # r_max is left as an attribute rather than a property for now
+ */
+    __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_v_normalize); if (unlikely((__pyx_t_3 == ((bool)-1)) && PyErr_Occurred())) __PYX_ERR(0, 474, __pyx_L1_error)
+
+    /* "freud/density.pyx":473
+ *                   normalize=False):
  *         if type(self) == RDF:
  *             self.thisptr = self.histptr = new freud._density.RDF(             # <<<<<<<<<<<<<<
- *                 bins, r_max, r_min)
+ *                 bins, r_max, r_min, normalize)
  * 
  */
     try {
-      __pyx_t_3 = new freud::density::RDF(__pyx_v_bins, __pyx_v_r_max, __pyx_v_r_min);
+      __pyx_t_4 = new freud::density::RDF(__pyx_v_bins, __pyx_v_r_max, __pyx_v_r_min, __pyx_t_3);
     } catch(...) {
       __Pyx_CppExn2PyErr();
-      __PYX_ERR(0, 456, __pyx_L1_error)
+      __PYX_ERR(0, 473, __pyx_L1_error)
     }
-    __pyx_v_self->thisptr = __pyx_t_3;
-    __pyx_v_self->__pyx_base.__pyx_base.histptr = __pyx_t_3;
+    __pyx_v_self->thisptr = __pyx_t_4;
+    __pyx_v_self->__pyx_base.__pyx_base.histptr = __pyx_t_4;
 
-    /* "freud/density.pyx":462
- *             # since that change needs to happen at the SpatialHistogram level
+    /* "freud/density.pyx":479
+ *             # since that change needs to happen at the _SpatialHistogram level
  *             # for multiple classes.
  *             self.r_max = r_max             # <<<<<<<<<<<<<<
  * 
@@ -8052,21 +8297,21 @@ static int __pyx_pf_5freud_7density_3RDF___cinit__(struct __pyx_obj_5freud_7dens
  */
     __pyx_v_self->__pyx_base.__pyx_base.r_max = __pyx_v_r_max;
 
-    /* "freud/density.pyx":455
- * 
- *     def __cinit__(self, unsigned int bins, float r_max, float r_min=0):
+    /* "freud/density.pyx":472
+ *     def __cinit__(self, unsigned int bins, float r_max, float r_min=0,
+ *                   normalize=False):
  *         if type(self) == RDF:             # <<<<<<<<<<<<<<
  *             self.thisptr = self.histptr = new freud._density.RDF(
- *                 bins, r_max, r_min)
+ *                 bins, r_max, r_min, normalize)
  */
   }
 
-  /* "freud/density.pyx":454
+  /* "freud/density.pyx":470
  *     cdef freud._density.RDF * thisptr
  * 
- *     def __cinit__(self, unsigned int bins, float r_max, float r_min=0):             # <<<<<<<<<<<<<<
+ *     def __cinit__(self, unsigned int bins, float r_max, float r_min=0,             # <<<<<<<<<<<<<<
+ *                   normalize=False):
  *         if type(self) == RDF:
- *             self.thisptr = self.histptr = new freud._density.RDF(
  */
 
   /* function exit code */
@@ -8081,7 +8326,7 @@ static int __pyx_pf_5freud_7density_3RDF___cinit__(struct __pyx_obj_5freud_7dens
   return __pyx_r;
 }
 
-/* "freud/density.pyx":464
+/* "freud/density.pyx":481
  *             self.r_max = r_max
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -8106,19 +8351,19 @@ static void __pyx_pf_5freud_7density_3RDF_2__dealloc__(struct __pyx_obj_5freud_7
   int __pyx_t_2;
   __Pyx_RefNannySetupContext("__dealloc__", 0);
 
-  /* "freud/density.pyx":465
+  /* "freud/density.pyx":482
  * 
  *     def __dealloc__(self):
  *         if type(self) == RDF:             # <<<<<<<<<<<<<<
  *             del self.thisptr
  * 
  */
-  __pyx_t_1 = PyObject_RichCompare(((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self))), ((PyObject *)__pyx_ptype_5freud_7density_RDF), Py_EQ); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 465, __pyx_L1_error)
-  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 465, __pyx_L1_error)
+  __pyx_t_1 = PyObject_RichCompare(((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self))), ((PyObject *)__pyx_ptype_5freud_7density_RDF), Py_EQ); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 482, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 482, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (__pyx_t_2) {
 
-    /* "freud/density.pyx":466
+    /* "freud/density.pyx":483
  *     def __dealloc__(self):
  *         if type(self) == RDF:
  *             del self.thisptr             # <<<<<<<<<<<<<<
@@ -8127,7 +8372,7 @@ static void __pyx_pf_5freud_7density_3RDF_2__dealloc__(struct __pyx_obj_5freud_7
  */
     delete __pyx_v_self->thisptr;
 
-    /* "freud/density.pyx":465
+    /* "freud/density.pyx":482
  * 
  *     def __dealloc__(self):
  *         if type(self) == RDF:             # <<<<<<<<<<<<<<
@@ -8136,7 +8381,7 @@ static void __pyx_pf_5freud_7density_3RDF_2__dealloc__(struct __pyx_obj_5freud_7
  */
   }
 
-  /* "freud/density.pyx":464
+  /* "freud/density.pyx":481
  *             self.r_max = r_max
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -8153,7 +8398,7 @@ static void __pyx_pf_5freud_7density_3RDF_2__dealloc__(struct __pyx_obj_5freud_7
   __Pyx_RefNannyFinishContext();
 }
 
-/* "freud/density.pyx":468
+/* "freud/density.pyx":485
  *             del self.thisptr
  * 
  *     def compute(self, system, query_points=None, neighbors=None,             # <<<<<<<<<<<<<<
@@ -8179,7 +8424,7 @@ static PyObject *__pyx_pw_5freud_7density_3RDF_5compute(PyObject *__pyx_v_self, 
     values[1] = ((PyObject *)Py_None);
     values[2] = ((PyObject *)Py_None);
 
-    /* "freud/density.pyx":469
+    /* "freud/density.pyx":486
  * 
  *     def compute(self, system, query_points=None, neighbors=None,
  *                 reset=True):             # <<<<<<<<<<<<<<
@@ -8227,7 +8472,7 @@ static PyObject *__pyx_pw_5freud_7density_3RDF_5compute(PyObject *__pyx_v_self, 
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "compute") < 0)) __PYX_ERR(0, 468, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "compute") < 0)) __PYX_ERR(0, 485, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -8249,7 +8494,7 @@ static PyObject *__pyx_pw_5freud_7density_3RDF_5compute(PyObject *__pyx_v_self, 
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("compute", 0, 1, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 468, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("compute", 0, 1, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 485, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.density.RDF.compute", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -8257,7 +8502,7 @@ static PyObject *__pyx_pw_5freud_7density_3RDF_5compute(PyObject *__pyx_v_self, 
   __pyx_L4_argument_unpacking_done:;
   __pyx_r = __pyx_pf_5freud_7density_3RDF_4compute(((struct __pyx_obj_5freud_7density_RDF *)__pyx_v_self), __pyx_v_system, __pyx_v_query_points, __pyx_v_neighbors, __pyx_v_reset);
 
-  /* "freud/density.pyx":468
+  /* "freud/density.pyx":485
  *             del self.thisptr
  * 
  *     def compute(self, system, query_points=None, neighbors=None,             # <<<<<<<<<<<<<<
@@ -8294,24 +8539,24 @@ static PyObject *__pyx_pf_5freud_7density_3RDF_4compute(struct __pyx_obj_5freud_
   Py_ssize_t __pyx_t_14;
   __Pyx_RefNannySetupContext("compute", 0);
 
-  /* "freud/density.pyx":491
+  /* "freud/density.pyx":508
  *                 value: True).
  *         """  # noqa E501
  *         if reset:             # <<<<<<<<<<<<<<
  *             self._reset()
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_reset); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 491, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_reset); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 508, __pyx_L1_error)
   if (__pyx_t_1) {
 
-    /* "freud/density.pyx":492
+    /* "freud/density.pyx":509
  *         """  # noqa E501
  *         if reset:
  *             self._reset()             # <<<<<<<<<<<<<<
  * 
  *         cdef:
  */
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_reset_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 492, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_reset_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 509, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_4 = NULL;
     if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_3))) {
@@ -8325,12 +8570,12 @@ static PyObject *__pyx_pf_5freud_7density_3RDF_4compute(struct __pyx_obj_5freud_
     }
     __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 492, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 509, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-    /* "freud/density.pyx":491
+    /* "freud/density.pyx":508
  *                 value: True).
  *         """  # noqa E501
  *         if reset:             # <<<<<<<<<<<<<<
@@ -8339,14 +8584,14 @@ static PyObject *__pyx_pf_5freud_7density_3RDF_4compute(struct __pyx_obj_5freud_
  */
   }
 
-  /* "freud/density.pyx":501
+  /* "freud/density.pyx":518
  *             unsigned int num_query_points
  *         nq, nlist, qargs, l_query_points, num_query_points = \
  *             self._preprocess_arguments(system, query_points, neighbors)             # <<<<<<<<<<<<<<
  * 
  *         self.thisptr.accumulate(
  */
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_preprocess_arguments); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 501, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_preprocess_arguments); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 518, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -8363,7 +8608,7 @@ static PyObject *__pyx_pf_5freud_7density_3RDF_4compute(struct __pyx_obj_5freud_
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[4] = {__pyx_t_4, __pyx_v_system, __pyx_v_query_points, __pyx_v_neighbors};
-    __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 3+__pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 501, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 3+__pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 518, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_2);
   } else
@@ -8371,13 +8616,13 @@ static PyObject *__pyx_pf_5freud_7density_3RDF_4compute(struct __pyx_obj_5freud_
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[4] = {__pyx_t_4, __pyx_v_system, __pyx_v_query_points, __pyx_v_neighbors};
-    __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 3+__pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 501, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 3+__pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 518, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_2);
   } else
   #endif
   {
-    __pyx_t_6 = PyTuple_New(3+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 501, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(3+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 518, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -8391,7 +8636,7 @@ static PyObject *__pyx_pf_5freud_7density_3RDF_4compute(struct __pyx_obj_5freud_
     __Pyx_INCREF(__pyx_v_neighbors);
     __Pyx_GIVEREF(__pyx_v_neighbors);
     PyTuple_SET_ITEM(__pyx_t_6, 2+__pyx_t_5, __pyx_v_neighbors);
-    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 501, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 518, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
@@ -8402,7 +8647,7 @@ static PyObject *__pyx_pf_5freud_7density_3RDF_4compute(struct __pyx_obj_5freud_
     if (unlikely(size != 5)) {
       if (size > 5) __Pyx_RaiseTooManyValuesError(5);
       else if (size >= 0) __Pyx_RaiseNeedMoreValuesError(size);
-      __PYX_ERR(0, 500, __pyx_L1_error)
+      __PYX_ERR(0, 517, __pyx_L1_error)
     }
     #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
     if (likely(PyTuple_CheckExact(sequence))) {
@@ -8428,7 +8673,7 @@ static PyObject *__pyx_pf_5freud_7density_3RDF_4compute(struct __pyx_obj_5freud_
       Py_ssize_t i;
       PyObject** temps[5] = {&__pyx_t_3,&__pyx_t_6,&__pyx_t_4,&__pyx_t_7,&__pyx_t_8};
       for (i=0; i < 5; i++) {
-        PyObject* item = PySequence_ITEM(sequence, i); if (unlikely(!item)) __PYX_ERR(0, 500, __pyx_L1_error)
+        PyObject* item = PySequence_ITEM(sequence, i); if (unlikely(!item)) __PYX_ERR(0, 517, __pyx_L1_error)
         __Pyx_GOTREF(item);
         *(temps[i]) = item;
       }
@@ -8438,7 +8683,7 @@ static PyObject *__pyx_pf_5freud_7density_3RDF_4compute(struct __pyx_obj_5freud_
   } else {
     Py_ssize_t index = -1;
     PyObject** temps[5] = {&__pyx_t_3,&__pyx_t_6,&__pyx_t_4,&__pyx_t_7,&__pyx_t_8};
-    __pyx_t_9 = PyObject_GetIter(__pyx_t_2); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 500, __pyx_L1_error)
+    __pyx_t_9 = PyObject_GetIter(__pyx_t_2); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 517, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_9);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __pyx_t_10 = Py_TYPE(__pyx_t_9)->tp_iternext;
@@ -8447,7 +8692,7 @@ static PyObject *__pyx_pf_5freud_7density_3RDF_4compute(struct __pyx_obj_5freud_
       __Pyx_GOTREF(item);
       *(temps[index]) = item;
     }
-    if (__Pyx_IternextUnpackEndCheck(__pyx_t_10(__pyx_t_9), 5) < 0) __PYX_ERR(0, 500, __pyx_L1_error)
+    if (__Pyx_IternextUnpackEndCheck(__pyx_t_10(__pyx_t_9), 5) < 0) __PYX_ERR(0, 517, __pyx_L1_error)
     __pyx_t_10 = NULL;
     __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
     goto __pyx_L5_unpacking_done;
@@ -8455,23 +8700,23 @@ static PyObject *__pyx_pf_5freud_7density_3RDF_4compute(struct __pyx_obj_5freud_
     __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
     __pyx_t_10 = NULL;
     if (__Pyx_IterFinish() == 0) __Pyx_RaiseNeedMoreValuesError(index);
-    __PYX_ERR(0, 500, __pyx_L1_error)
+    __PYX_ERR(0, 517, __pyx_L1_error)
     __pyx_L5_unpacking_done:;
   }
 
-  /* "freud/density.pyx":500
+  /* "freud/density.pyx":517
  *             const float[:, ::1] l_query_points
  *             unsigned int num_query_points
  *         nq, nlist, qargs, l_query_points, num_query_points = \             # <<<<<<<<<<<<<<
  *             self._preprocess_arguments(system, query_points, neighbors)
  * 
  */
-  if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_5freud_8locality_NeighborQuery))))) __PYX_ERR(0, 500, __pyx_L1_error)
-  if (!(likely(((__pyx_t_6) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_6, __pyx_ptype_5freud_8locality_NeighborList))))) __PYX_ERR(0, 500, __pyx_L1_error)
-  if (!(likely(((__pyx_t_4) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_4, __pyx_ptype_5freud_8locality__QueryArgs))))) __PYX_ERR(0, 500, __pyx_L1_error)
-  __pyx_t_11 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_float__const__(__pyx_t_7, 0); if (unlikely(!__pyx_t_11.memview)) __PYX_ERR(0, 500, __pyx_L1_error)
+  if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_5freud_8locality_NeighborQuery))))) __PYX_ERR(0, 517, __pyx_L1_error)
+  if (!(likely(((__pyx_t_6) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_6, __pyx_ptype_5freud_8locality_NeighborList))))) __PYX_ERR(0, 517, __pyx_L1_error)
+  if (!(likely(((__pyx_t_4) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_4, __pyx_ptype_5freud_8locality__QueryArgs))))) __PYX_ERR(0, 517, __pyx_L1_error)
+  __pyx_t_11 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_float__const__(__pyx_t_7, 0); if (unlikely(!__pyx_t_11.memview)) __PYX_ERR(0, 517, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_12 = __Pyx_PyInt_As_unsigned_int(__pyx_t_8); if (unlikely((__pyx_t_12 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 500, __pyx_L1_error)
+  __pyx_t_12 = __Pyx_PyInt_As_unsigned_int(__pyx_t_8); if (unlikely((__pyx_t_12 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 517, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   __pyx_v_nq = ((struct __pyx_obj_5freud_8locality_NeighborQuery *)__pyx_t_3);
   __pyx_t_3 = 0;
@@ -8484,7 +8729,7 @@ static PyObject *__pyx_pf_5freud_7density_3RDF_4compute(struct __pyx_obj_5freud_
   __pyx_t_11.data = NULL;
   __pyx_v_num_query_points = __pyx_t_12;
 
-  /* "freud/density.pyx":505
+  /* "freud/density.pyx":522
  *         self.thisptr.accumulate(
  *             nq.get_ptr(),
  *             <vec3[float]*> &l_query_points[0, 0],             # <<<<<<<<<<<<<<
@@ -8494,7 +8739,7 @@ static PyObject *__pyx_pf_5freud_7density_3RDF_4compute(struct __pyx_obj_5freud_
   __pyx_t_13 = 0;
   __pyx_t_14 = 0;
 
-  /* "freud/density.pyx":503
+  /* "freud/density.pyx":520
  *             self._preprocess_arguments(system, query_points, neighbors)
  * 
  *         self.thisptr.accumulate(             # <<<<<<<<<<<<<<
@@ -8505,22 +8750,22 @@ static PyObject *__pyx_pf_5freud_7density_3RDF_4compute(struct __pyx_obj_5freud_
     __pyx_v_self->thisptr->accumulate(((struct __pyx_vtabstruct_5freud_8locality_NeighborQuery *)__pyx_v_nq->__pyx_vtab)->get_ptr(__pyx_v_nq), ((vec3<float>  *)(&(*((float const  *) ( /* dim=1 */ ((char *) (((float const  *) ( /* dim=0 */ (__pyx_v_l_query_points.data + __pyx_t_13 * __pyx_v_l_query_points.strides[0]) )) + __pyx_t_14)) ))))), __pyx_v_num_query_points, ((struct __pyx_vtabstruct_5freud_8locality_NeighborList *)__pyx_v_nlist->__pyx_vtab)->get_ptr(__pyx_v_nlist), (*__pyx_v_qargs->thisptr));
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(0, 503, __pyx_L1_error)
+    __PYX_ERR(0, 520, __pyx_L1_error)
   }
 
-  /* "freud/density.pyx":508
+  /* "freud/density.pyx":525
  *             num_query_points, nlist.get_ptr(),
  *             dereference(qargs.thisptr))
  *         return self             # <<<<<<<<<<<<<<
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  */
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(((PyObject *)__pyx_v_self));
   __pyx_r = ((PyObject *)__pyx_v_self);
   goto __pyx_L0;
 
-  /* "freud/density.pyx":468
+  /* "freud/density.pyx":485
  *             del self.thisptr
  * 
  *     def compute(self, system, query_points=None, neighbors=None,             # <<<<<<<<<<<<<<
@@ -8550,36 +8795,39 @@ static PyObject *__pyx_pf_5freud_7density_3RDF_4compute(struct __pyx_obj_5freud_
   return __pyx_r;
 }
 
-/* "freud/density.pyx":511
+/* "freud/density.pyx":528
  * 
- *     @Compute._computed_property
- *     def RDF(self):             # <<<<<<<<<<<<<<
+ *     @_Compute._computed_property
+ *     def rdf(self):             # <<<<<<<<<<<<<<
  *         """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Histogram of RDF
  *         values."""
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_7density_3RDF_7RDF(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_7density_3RDF_6RDF[] = "RDF.RDF(self)\n(:math:`N_{bins}`,) :class:`numpy.ndarray`: Histogram of RDF\n        values.";
-static PyMethodDef __pyx_mdef_5freud_7density_3RDF_7RDF = {"RDF", (PyCFunction)__pyx_pw_5freud_7density_3RDF_7RDF, METH_NOARGS, __pyx_doc_5freud_7density_3RDF_6RDF};
-static PyObject *__pyx_pw_5freud_7density_3RDF_7RDF(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_5freud_7density_3RDF_7rdf(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_5freud_7density_3RDF_6rdf[] = "RDF.rdf(self)\n(:math:`N_{bins}`,) :class:`numpy.ndarray`: Histogram of RDF\n        values.";
+static PyMethodDef __pyx_mdef_5freud_7density_3RDF_7rdf = {"rdf", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_3RDF_7rdf, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_3RDF_6rdf};
+static PyObject *__pyx_pw_5freud_7density_3RDF_7rdf(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("RDF (wrapper)", 0);
-  __pyx_r = __pyx_pf_5freud_7density_3RDF_6RDF(((struct __pyx_obj_5freud_7density_RDF *)__pyx_v_self));
+  __Pyx_RefNannySetupContext("rdf (wrapper)", 0);
+  if (unlikely(PyTuple_GET_SIZE(__pyx_args) > 0)) {
+    __Pyx_RaiseArgtupleInvalid("rdf", 1, 0, 0, PyTuple_GET_SIZE(__pyx_args)); return NULL;}
+  if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "rdf", 0))) return NULL;
+  __pyx_r = __pyx_pf_5freud_7density_3RDF_6rdf(((struct __pyx_obj_5freud_7density_RDF *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_5freud_7density_3RDF_6RDF(struct __pyx_obj_5freud_7density_RDF *__pyx_v_self) {
+static PyObject *__pyx_pf_5freud_7density_3RDF_6rdf(struct __pyx_obj_5freud_7density_RDF *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
-  __Pyx_RefNannySetupContext("RDF", 0);
+  __Pyx_RefNannySetupContext("rdf", 0);
 
-  /* "freud/density.pyx":514
+  /* "freud/density.pyx":531
  *         """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Histogram of RDF
  *         values."""
  *         return freud.util.make_managed_numpy_array(             # <<<<<<<<<<<<<<
@@ -8588,23 +8836,23 @@ static PyObject *__pyx_pf_5freud_7density_3RDF_6RDF(struct __pyx_obj_5freud_7den
  */
   __Pyx_XDECREF(__pyx_r);
 
-  /* "freud/density.pyx":516
+  /* "freud/density.pyx":533
  *         return freud.util.make_managed_numpy_array(
  *             &self.thisptr.getRDF(),
  *             freud.util.arr_type_t.FLOAT)             # <<<<<<<<<<<<<<
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  */
-  __pyx_t_1 = __pyx_f_5freud_4util_make_managed_numpy_array((&__pyx_v_self->thisptr->getRDF()), __pyx_e_5freud_4util_FLOAT, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 514, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_5freud_4util_make_managed_numpy_array((&__pyx_v_self->thisptr->getRDF()), __pyx_e_5freud_4util_FLOAT, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 531, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/density.pyx":511
+  /* "freud/density.pyx":528
  * 
- *     @Compute._computed_property
- *     def RDF(self):             # <<<<<<<<<<<<<<
+ *     @_Compute._computed_property
+ *     def rdf(self):             # <<<<<<<<<<<<<<
  *         """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Histogram of RDF
  *         values."""
  */
@@ -8612,7 +8860,7 @@ static PyObject *__pyx_pf_5freud_7density_3RDF_6RDF(struct __pyx_obj_5freud_7den
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("freud.density.RDF.RDF", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("freud.density.RDF.rdf", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -8620,22 +8868,25 @@ static PyObject *__pyx_pf_5freud_7density_3RDF_6RDF(struct __pyx_obj_5freud_7den
   return __pyx_r;
 }
 
-/* "freud/density.pyx":519
+/* "freud/density.pyx":536
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def n_r(self):             # <<<<<<<<<<<<<<
  *         """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Histogram of cumulative
  *         bin_counts values. More precisely, :code:`n_r[i]` is the average number
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_7density_3RDF_9n_r(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_7density_3RDF_8n_r[] = "RDF.n_r(self)\n(:math:`N_{bins}`,) :class:`numpy.ndarray`: Histogram of cumulative\n        bin_counts values. More precisely, :code:`n_r[i]` is the average number\n        of points contained within a ball of radius :code:`R[i]+dr/2` centered\n        at a given :code:`query_point` averaged over all :code:`query_points`\n        in the last call to :meth:`~.compute` (or :meth:`~.accumulate`).";
-static PyMethodDef __pyx_mdef_5freud_7density_3RDF_9n_r = {"n_r", (PyCFunction)__pyx_pw_5freud_7density_3RDF_9n_r, METH_NOARGS, __pyx_doc_5freud_7density_3RDF_8n_r};
-static PyObject *__pyx_pw_5freud_7density_3RDF_9n_r(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_5freud_7density_3RDF_9n_r(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_5freud_7density_3RDF_8n_r[] = "RDF.n_r(self)\n(:math:`N_{bins}`,) :class:`numpy.ndarray`: Histogram of cumulative\n        bin_counts values. More precisely, :code:`n_r[i]` is the average number\n        of points contained within a ball of radius :code:`R[i]+dr/2` centered\n        at a given :code:`query_point` averaged over all :code:`query_points`\n        in the last call to :meth:`~.compute`.";
+static PyMethodDef __pyx_mdef_5freud_7density_3RDF_9n_r = {"n_r", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_3RDF_9n_r, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_3RDF_8n_r};
+static PyObject *__pyx_pw_5freud_7density_3RDF_9n_r(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("n_r (wrapper)", 0);
+  if (unlikely(PyTuple_GET_SIZE(__pyx_args) > 0)) {
+    __Pyx_RaiseArgtupleInvalid("n_r", 1, 0, 0, PyTuple_GET_SIZE(__pyx_args)); return NULL;}
+  if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "n_r", 0))) return NULL;
   __pyx_r = __pyx_pf_5freud_7density_3RDF_8n_r(((struct __pyx_obj_5freud_7density_RDF *)__pyx_v_self));
 
   /* function exit code */
@@ -8649,31 +8900,31 @@ static PyObject *__pyx_pf_5freud_7density_3RDF_8n_r(struct __pyx_obj_5freud_7den
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("n_r", 0);
 
-  /* "freud/density.pyx":525
+  /* "freud/density.pyx":542
  *         at a given :code:`query_point` averaged over all :code:`query_points`
- *         in the last call to :meth:`~.compute` (or :meth:`~.accumulate`)."""
+ *         in the last call to :meth:`~.compute`."""
  *         return freud.util.make_managed_numpy_array(             # <<<<<<<<<<<<<<
  *             &self.thisptr.getNr(),
  *             freud.util.arr_type_t.FLOAT)
  */
   __Pyx_XDECREF(__pyx_r);
 
-  /* "freud/density.pyx":527
+  /* "freud/density.pyx":544
  *         return freud.util.make_managed_numpy_array(
  *             &self.thisptr.getNr(),
  *             freud.util.arr_type_t.FLOAT)             # <<<<<<<<<<<<<<
  * 
  *     def __repr__(self):
  */
-  __pyx_t_1 = __pyx_f_5freud_4util_make_managed_numpy_array((&__pyx_v_self->thisptr->getNr()), __pyx_e_5freud_4util_FLOAT, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 525, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_5freud_4util_make_managed_numpy_array((&__pyx_v_self->thisptr->getNr()), __pyx_e_5freud_4util_FLOAT, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 542, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/density.pyx":519
+  /* "freud/density.pyx":536
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def n_r(self):             # <<<<<<<<<<<<<<
  *         """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Histogram of cumulative
  *         bin_counts values. More precisely, :code:`n_r[i]` is the average number
@@ -8690,7 +8941,7 @@ static PyObject *__pyx_pf_5freud_7density_3RDF_8n_r(struct __pyx_obj_5freud_7den
   return __pyx_r;
 }
 
-/* "freud/density.pyx":529
+/* "freud/density.pyx":546
  *             freud.util.arr_type_t.FLOAT)
  * 
  *     def __repr__(self):             # <<<<<<<<<<<<<<
@@ -8721,7 +8972,7 @@ static PyObject *__pyx_pf_5freud_7density_3RDF_10__repr__(struct __pyx_obj_5freu
   PyObject *__pyx_t_5 = NULL;
   __Pyx_RefNannySetupContext("__repr__", 0);
 
-  /* "freud/density.pyx":530
+  /* "freud/density.pyx":547
  * 
  *     def __repr__(self):
  *         return ("freud.density.{cls}(bins={bins}, r_max={r_max}, "             # <<<<<<<<<<<<<<
@@ -8730,76 +8981,76 @@ static PyObject *__pyx_pf_5freud_7density_3RDF_10__repr__(struct __pyx_obj_5freu
  */
   __Pyx_XDECREF(__pyx_r);
 
-  /* "freud/density.pyx":531
+  /* "freud/density.pyx":548
  *     def __repr__(self):
  *         return ("freud.density.{cls}(bins={bins}, r_max={r_max}, "
  *                 "r_min={r_min})").format(cls=type(self).__name__,             # <<<<<<<<<<<<<<
  *                                          bins=len(self.bin_centers),
  *                                          r_max=self.bounds[1],
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_kp_u_freud_density_cls_bins_bins_r_ma_2, __pyx_n_s_format); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 531, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_kp_u_freud_density_cls_bins_bins_r_ma_2, __pyx_n_s_format); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 548, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyDict_NewPresized(4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 531, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyDict_NewPresized(4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 548, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self))), __pyx_n_s_name); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 531, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self))), __pyx_n_s_name); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 548, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_cls, __pyx_t_3) < 0) __PYX_ERR(0, 531, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_cls, __pyx_t_3) < 0) __PYX_ERR(0, 548, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "freud/density.pyx":532
+  /* "freud/density.pyx":549
  *         return ("freud.density.{cls}(bins={bins}, r_max={r_max}, "
  *                 "r_min={r_min})").format(cls=type(self).__name__,
  *                                          bins=len(self.bin_centers),             # <<<<<<<<<<<<<<
  *                                          r_max=self.bounds[1],
  *                                          r_min=self.bounds[0])
  */
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_bin_centers); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 532, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_bin_centers); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 549, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = PyObject_Length(__pyx_t_3); if (unlikely(__pyx_t_4 == ((Py_ssize_t)-1))) __PYX_ERR(0, 532, __pyx_L1_error)
+  __pyx_t_4 = PyObject_Length(__pyx_t_3); if (unlikely(__pyx_t_4 == ((Py_ssize_t)-1))) __PYX_ERR(0, 549, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = PyInt_FromSsize_t(__pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 532, __pyx_L1_error)
+  __pyx_t_3 = PyInt_FromSsize_t(__pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 549, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_bins, __pyx_t_3) < 0) __PYX_ERR(0, 531, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_bins, __pyx_t_3) < 0) __PYX_ERR(0, 548, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "freud/density.pyx":533
+  /* "freud/density.pyx":550
  *                 "r_min={r_min})").format(cls=type(self).__name__,
  *                                          bins=len(self.bin_centers),
  *                                          r_max=self.bounds[1],             # <<<<<<<<<<<<<<
  *                                          r_min=self.bounds[0])
  * 
  */
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_bounds); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 533, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_bounds); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 550, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_5 = __Pyx_GetItemInt(__pyx_t_3, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 533, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_GetItemInt(__pyx_t_3, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 550, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_r_max, __pyx_t_5) < 0) __PYX_ERR(0, 531, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_r_max, __pyx_t_5) < 0) __PYX_ERR(0, 548, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "freud/density.pyx":534
+  /* "freud/density.pyx":551
  *                                          bins=len(self.bin_centers),
  *                                          r_max=self.bounds[1],
  *                                          r_min=self.bounds[0])             # <<<<<<<<<<<<<<
  * 
  *     def plot(self, ax=None):
  */
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_bounds); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 534, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_bounds); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 551, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_3 = __Pyx_GetItemInt(__pyx_t_5, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 534, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_GetItemInt(__pyx_t_5, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 551, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_r_min, __pyx_t_3) < 0) __PYX_ERR(0, 531, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_r_min, __pyx_t_3) < 0) __PYX_ERR(0, 548, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "freud/density.pyx":531
+  /* "freud/density.pyx":548
  *     def __repr__(self):
  *         return ("freud.density.{cls}(bins={bins}, r_max={r_max}, "
  *                 "r_min={r_min})").format(cls=type(self).__name__,             # <<<<<<<<<<<<<<
  *                                          bins=len(self.bin_centers),
  *                                          r_max=self.bounds[1],
  */
-  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_empty_tuple, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 531, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_empty_tuple, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 548, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -8807,7 +9058,7 @@ static PyObject *__pyx_pf_5freud_7density_3RDF_10__repr__(struct __pyx_obj_5freu
   __pyx_t_3 = 0;
   goto __pyx_L0;
 
-  /* "freud/density.pyx":529
+  /* "freud/density.pyx":546
  *             freud.util.arr_type_t.FLOAT)
  * 
  *     def __repr__(self):             # <<<<<<<<<<<<<<
@@ -8829,7 +9080,7 @@ static PyObject *__pyx_pf_5freud_7density_3RDF_10__repr__(struct __pyx_obj_5freu
   return __pyx_r;
 }
 
-/* "freud/density.pyx":536
+/* "freud/density.pyx":553
  *                                          r_min=self.bounds[0])
  * 
  *     def plot(self, ax=None):             # <<<<<<<<<<<<<<
@@ -8868,7 +9119,7 @@ static PyObject *__pyx_pw_5freud_7density_3RDF_13plot(PyObject *__pyx_v_self, Py
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "plot") < 0)) __PYX_ERR(0, 536, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "plot") < 0)) __PYX_ERR(0, 553, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -8882,7 +9133,7 @@ static PyObject *__pyx_pw_5freud_7density_3RDF_13plot(PyObject *__pyx_v_self, Py
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("plot", 0, 0, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 536, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("plot", 0, 0, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 553, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.density.RDF.plot", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -8905,36 +9156,36 @@ static PyObject *__pyx_pf_5freud_7density_3RDF_12plot(struct __pyx_obj_5freud_7d
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("plot", 0);
 
-  /* "freud/density.pyx":547
+  /* "freud/density.pyx":564
  *             (:class:`matplotlib.axes.Axes`): Axis with the plot.
  *         """
  *         import freud.plot             # <<<<<<<<<<<<<<
- *         return freud.plot.line_plot(self.R, self.RDF,
+ *         return freud.plot.line_plot(self.bin_centers, self.rdf,
  *                                     title="RDF",
  */
-  __pyx_t_1 = __Pyx_Import(__pyx_n_s_freud_plot, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 547, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_Import(__pyx_n_s_freud_plot, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 564, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_freud = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "freud/density.pyx":548
+  /* "freud/density.pyx":565
  *         """
  *         import freud.plot
- *         return freud.plot.line_plot(self.R, self.RDF,             # <<<<<<<<<<<<<<
+ *         return freud.plot.line_plot(self.bin_centers, self.rdf,             # <<<<<<<<<<<<<<
  *                                     title="RDF",
  *                                     xlabel=r"$r$",
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_freud, __pyx_n_s_plot); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 548, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_freud, __pyx_n_s_plot); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 565, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_line_plot); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 548, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_line_plot); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 565, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_R); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 548, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_bin_centers); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 565, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_RDF); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 548, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_rdf); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 565, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 548, __pyx_L1_error)
+  __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 565, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_GIVEREF(__pyx_t_1);
   PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_1);
@@ -8943,36 +9194,36 @@ static PyObject *__pyx_pf_5freud_7density_3RDF_12plot(struct __pyx_obj_5freud_7d
   __pyx_t_1 = 0;
   __pyx_t_3 = 0;
 
-  /* "freud/density.pyx":549
+  /* "freud/density.pyx":566
  *         import freud.plot
- *         return freud.plot.line_plot(self.R, self.RDF,
+ *         return freud.plot.line_plot(self.bin_centers, self.rdf,
  *                                     title="RDF",             # <<<<<<<<<<<<<<
  *                                     xlabel=r"$r$",
  *                                     ylabel=r"$g(r)$",
  */
-  __pyx_t_3 = __Pyx_PyDict_NewPresized(4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 549, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyDict_NewPresized(4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 566, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_title, __pyx_n_u_RDF) < 0) __PYX_ERR(0, 549, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_xlabel, __pyx_kp_u_r) < 0) __PYX_ERR(0, 549, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_ylabel, __pyx_kp_u_g_r) < 0) __PYX_ERR(0, 549, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_title, __pyx_n_u_RDF) < 0) __PYX_ERR(0, 566, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_xlabel, __pyx_kp_u_r) < 0) __PYX_ERR(0, 566, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_ylabel, __pyx_kp_u_g_r) < 0) __PYX_ERR(0, 566, __pyx_L1_error)
 
-  /* "freud/density.pyx":552
+  /* "freud/density.pyx":569
  *                                     xlabel=r"$r$",
  *                                     ylabel=r"$g(r)$",
  *                                     ax=ax)             # <<<<<<<<<<<<<<
  * 
  *     def _repr_png_(self):
  */
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_ax, __pyx_v_ax) < 0) __PYX_ERR(0, 549, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_ax, __pyx_v_ax) < 0) __PYX_ERR(0, 566, __pyx_L1_error)
 
-  /* "freud/density.pyx":548
+  /* "freud/density.pyx":565
  *         """
  *         import freud.plot
- *         return freud.plot.line_plot(self.R, self.RDF,             # <<<<<<<<<<<<<<
+ *         return freud.plot.line_plot(self.bin_centers, self.rdf,             # <<<<<<<<<<<<<<
  *                                     title="RDF",
  *                                     xlabel=r"$r$",
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 548, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 565, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -8981,7 +9232,7 @@ static PyObject *__pyx_pf_5freud_7density_3RDF_12plot(struct __pyx_obj_5freud_7d
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/density.pyx":536
+  /* "freud/density.pyx":553
  *                                          r_min=self.bounds[0])
  * 
  *     def plot(self, ax=None):             # <<<<<<<<<<<<<<
@@ -9004,22 +9255,25 @@ static PyObject *__pyx_pf_5freud_7density_3RDF_12plot(struct __pyx_obj_5freud_7d
   return __pyx_r;
 }
 
-/* "freud/density.pyx":554
+/* "freud/density.pyx":571
  *                                     ax=ax)
  * 
  *     def _repr_png_(self):             # <<<<<<<<<<<<<<
- *         import freud.plot
  *         try:
+ *             import freud.plot
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_7density_3RDF_15_repr_png_(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_5freud_7density_3RDF_15_repr_png_(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static char __pyx_doc_5freud_7density_3RDF_14_repr_png_[] = "RDF._repr_png_(self)";
-static PyMethodDef __pyx_mdef_5freud_7density_3RDF_15_repr_png_ = {"_repr_png_", (PyCFunction)__pyx_pw_5freud_7density_3RDF_15_repr_png_, METH_NOARGS, __pyx_doc_5freud_7density_3RDF_14_repr_png_};
-static PyObject *__pyx_pw_5freud_7density_3RDF_15_repr_png_(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyMethodDef __pyx_mdef_5freud_7density_3RDF_15_repr_png_ = {"_repr_png_", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_3RDF_15_repr_png_, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_3RDF_14_repr_png_};
+static PyObject *__pyx_pw_5freud_7density_3RDF_15_repr_png_(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("_repr_png_ (wrapper)", 0);
+  if (unlikely(PyTuple_GET_SIZE(__pyx_args) > 0)) {
+    __Pyx_RaiseArgtupleInvalid("_repr_png_", 1, 0, 0, PyTuple_GET_SIZE(__pyx_args)); return NULL;}
+  if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "_repr_png_", 0))) return NULL;
   __pyx_r = __pyx_pf_5freud_7density_3RDF_14_repr_png_(((struct __pyx_obj_5freud_7density_RDF *)__pyx_v_self));
 
   /* function exit code */
@@ -9042,48 +9296,48 @@ static PyObject *__pyx_pf_5freud_7density_3RDF_14_repr_png_(struct __pyx_obj_5fr
   int __pyx_t_9;
   __Pyx_RefNannySetupContext("_repr_png_", 0);
 
-  /* "freud/density.pyx":555
+  /* "freud/density.pyx":572
  * 
  *     def _repr_png_(self):
- *         import freud.plot             # <<<<<<<<<<<<<<
- *         try:
- *             return freud.plot.ax_to_bytes(self.plot())
- */
-  __pyx_t_1 = __Pyx_Import(__pyx_n_s_freud_plot, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 555, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_v_freud = __pyx_t_1;
-  __pyx_t_1 = 0;
-
-  /* "freud/density.pyx":556
- *     def _repr_png_(self):
- *         import freud.plot
  *         try:             # <<<<<<<<<<<<<<
- *             return freud.plot.ax_to_bytes(self.plot())
- *         except AttributeError:
+ *             import freud.plot
+ *             return freud.plot._ax_to_bytes(self.plot())
  */
   {
     __Pyx_PyThreadState_declare
     __Pyx_PyThreadState_assign
-    __Pyx_ExceptionSave(&__pyx_t_2, &__pyx_t_3, &__pyx_t_4);
+    __Pyx_ExceptionSave(&__pyx_t_1, &__pyx_t_2, &__pyx_t_3);
+    __Pyx_XGOTREF(__pyx_t_1);
     __Pyx_XGOTREF(__pyx_t_2);
     __Pyx_XGOTREF(__pyx_t_3);
-    __Pyx_XGOTREF(__pyx_t_4);
     /*try:*/ {
 
-      /* "freud/density.pyx":557
- *         import freud.plot
+      /* "freud/density.pyx":573
+ *     def _repr_png_(self):
  *         try:
- *             return freud.plot.ax_to_bytes(self.plot())             # <<<<<<<<<<<<<<
- *         except AttributeError:
+ *             import freud.plot             # <<<<<<<<<<<<<<
+ *             return freud.plot._ax_to_bytes(self.plot())
+ *         except (AttributeError, ImportError):
+ */
+      __pyx_t_4 = __Pyx_Import(__pyx_n_s_freud_plot, 0, 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 573, __pyx_L3_error)
+      __Pyx_GOTREF(__pyx_t_4);
+      __pyx_v_freud = __pyx_t_4;
+      __pyx_t_4 = 0;
+
+      /* "freud/density.pyx":574
+ *         try:
+ *             import freud.plot
+ *             return freud.plot._ax_to_bytes(self.plot())             # <<<<<<<<<<<<<<
+ *         except (AttributeError, ImportError):
  *             return None
  */
       __Pyx_XDECREF(__pyx_r);
-      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_freud, __pyx_n_s_plot); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 557, __pyx_L3_error)
+      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_freud, __pyx_n_s_plot); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 574, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_5);
-      __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_ax_to_bytes); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 557, __pyx_L3_error)
+      __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_ax_to_bytes); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 574, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-      __pyx_t_7 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_plot); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 557, __pyx_L3_error)
+      __pyx_t_7 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_plot); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 574, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_7);
       __pyx_t_8 = NULL;
       if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_7))) {
@@ -9097,7 +9351,7 @@ static PyObject *__pyx_pf_5freud_7density_3RDF_14_repr_png_(struct __pyx_obj_5fr
       }
       __pyx_t_5 = (__pyx_t_8) ? __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_t_8) : __Pyx_PyObject_CallNoArg(__pyx_t_7);
       __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
-      if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 557, __pyx_L3_error)
+      if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 574, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
       __pyx_t_7 = NULL;
@@ -9110,53 +9364,53 @@ static PyObject *__pyx_pf_5freud_7density_3RDF_14_repr_png_(struct __pyx_obj_5fr
           __Pyx_DECREF_SET(__pyx_t_6, function);
         }
       }
-      __pyx_t_1 = (__pyx_t_7) ? __Pyx_PyObject_Call2Args(__pyx_t_6, __pyx_t_7, __pyx_t_5) : __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_t_5);
+      __pyx_t_4 = (__pyx_t_7) ? __Pyx_PyObject_Call2Args(__pyx_t_6, __pyx_t_7, __pyx_t_5) : __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_t_5);
       __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 557, __pyx_L3_error)
-      __Pyx_GOTREF(__pyx_t_1);
+      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 574, __pyx_L3_error)
+      __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-      __pyx_r = __pyx_t_1;
-      __pyx_t_1 = 0;
+      __pyx_r = __pyx_t_4;
+      __pyx_t_4 = 0;
       goto __pyx_L7_try_return;
 
-      /* "freud/density.pyx":556
+      /* "freud/density.pyx":572
+ * 
  *     def _repr_png_(self):
- *         import freud.plot
  *         try:             # <<<<<<<<<<<<<<
- *             return freud.plot.ax_to_bytes(self.plot())
- *         except AttributeError:
+ *             import freud.plot
+ *             return freud.plot._ax_to_bytes(self.plot())
  */
     }
     __pyx_L3_error:;
-    __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
+    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
     __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
 
-    /* "freud/density.pyx":558
- *         try:
- *             return freud.plot.ax_to_bytes(self.plot())
- *         except AttributeError:             # <<<<<<<<<<<<<<
+    /* "freud/density.pyx":575
+ *             import freud.plot
+ *             return freud.plot._ax_to_bytes(self.plot())
+ *         except (AttributeError, ImportError):             # <<<<<<<<<<<<<<
  *             return None
  */
-    __pyx_t_9 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_AttributeError);
+    __pyx_t_9 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_AttributeError) || __Pyx_PyErr_ExceptionMatches(__pyx_builtin_ImportError);
     if (__pyx_t_9) {
       __Pyx_AddTraceback("freud.density.RDF._repr_png_", __pyx_clineno, __pyx_lineno, __pyx_filename);
-      if (__Pyx_GetException(&__pyx_t_1, &__pyx_t_6, &__pyx_t_5) < 0) __PYX_ERR(0, 558, __pyx_L5_except_error)
-      __Pyx_GOTREF(__pyx_t_1);
+      if (__Pyx_GetException(&__pyx_t_4, &__pyx_t_6, &__pyx_t_5) < 0) __PYX_ERR(0, 575, __pyx_L5_except_error)
+      __Pyx_GOTREF(__pyx_t_4);
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_GOTREF(__pyx_t_5);
 
-      /* "freud/density.pyx":559
- *             return freud.plot.ax_to_bytes(self.plot())
- *         except AttributeError:
+      /* "freud/density.pyx":576
+ *             return freud.plot._ax_to_bytes(self.plot())
+ *         except (AttributeError, ImportError):
  *             return None             # <<<<<<<<<<<<<<
  */
       __Pyx_XDECREF(__pyx_r);
       __pyx_r = Py_None; __Pyx_INCREF(Py_None);
-      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
       goto __pyx_L6_except_return;
@@ -9164,43 +9418,43 @@ static PyObject *__pyx_pf_5freud_7density_3RDF_14_repr_png_(struct __pyx_obj_5fr
     goto __pyx_L5_except_error;
     __pyx_L5_except_error:;
 
-    /* "freud/density.pyx":556
+    /* "freud/density.pyx":572
+ * 
  *     def _repr_png_(self):
- *         import freud.plot
  *         try:             # <<<<<<<<<<<<<<
- *             return freud.plot.ax_to_bytes(self.plot())
- *         except AttributeError:
+ *             import freud.plot
+ *             return freud.plot._ax_to_bytes(self.plot())
  */
+    __Pyx_XGIVEREF(__pyx_t_1);
     __Pyx_XGIVEREF(__pyx_t_2);
     __Pyx_XGIVEREF(__pyx_t_3);
-    __Pyx_XGIVEREF(__pyx_t_4);
-    __Pyx_ExceptionReset(__pyx_t_2, __pyx_t_3, __pyx_t_4);
+    __Pyx_ExceptionReset(__pyx_t_1, __pyx_t_2, __pyx_t_3);
     goto __pyx_L1_error;
     __pyx_L7_try_return:;
+    __Pyx_XGIVEREF(__pyx_t_1);
     __Pyx_XGIVEREF(__pyx_t_2);
     __Pyx_XGIVEREF(__pyx_t_3);
-    __Pyx_XGIVEREF(__pyx_t_4);
-    __Pyx_ExceptionReset(__pyx_t_2, __pyx_t_3, __pyx_t_4);
+    __Pyx_ExceptionReset(__pyx_t_1, __pyx_t_2, __pyx_t_3);
     goto __pyx_L0;
     __pyx_L6_except_return:;
+    __Pyx_XGIVEREF(__pyx_t_1);
     __Pyx_XGIVEREF(__pyx_t_2);
     __Pyx_XGIVEREF(__pyx_t_3);
-    __Pyx_XGIVEREF(__pyx_t_4);
-    __Pyx_ExceptionReset(__pyx_t_2, __pyx_t_3, __pyx_t_4);
+    __Pyx_ExceptionReset(__pyx_t_1, __pyx_t_2, __pyx_t_3);
     goto __pyx_L0;
   }
 
-  /* "freud/density.pyx":554
+  /* "freud/density.pyx":571
  *                                     ax=ax)
  * 
  *     def _repr_png_(self):             # <<<<<<<<<<<<<<
- *         import freud.plot
  *         try:
+ *             import freud.plot
  */
 
   /* function exit code */
   __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_6);
   __Pyx_XDECREF(__pyx_t_7);
@@ -9221,13 +9475,16 @@ static PyObject *__pyx_pf_5freud_7density_3RDF_14_repr_png_(struct __pyx_obj_5fr
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_7density_3RDF_17__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_5freud_7density_3RDF_17__reduce_cython__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static char __pyx_doc_5freud_7density_3RDF_16__reduce_cython__[] = "RDF.__reduce_cython__(self)";
-static PyMethodDef __pyx_mdef_5freud_7density_3RDF_17__reduce_cython__ = {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_7density_3RDF_17__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_7density_3RDF_16__reduce_cython__};
-static PyObject *__pyx_pw_5freud_7density_3RDF_17__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyMethodDef __pyx_mdef_5freud_7density_3RDF_17__reduce_cython__ = {"__reduce_cython__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_3RDF_17__reduce_cython__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_3RDF_16__reduce_cython__};
+static PyObject *__pyx_pw_5freud_7density_3RDF_17__reduce_cython__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__reduce_cython__ (wrapper)", 0);
+  if (unlikely(PyTuple_GET_SIZE(__pyx_args) > 0)) {
+    __Pyx_RaiseArgtupleInvalid("__reduce_cython__", 1, 0, 0, PyTuple_GET_SIZE(__pyx_args)); return NULL;}
+  if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "__reduce_cython__", 0))) return NULL;
   __pyx_r = __pyx_pf_5freud_7density_3RDF_16__reduce_cython__(((struct __pyx_obj_5freud_7density_RDF *)__pyx_v_self));
 
   /* function exit code */
@@ -9277,14 +9534,51 @@ static PyObject *__pyx_pf_5freud_7density_3RDF_16__reduce_cython__(CYTHON_UNUSED
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_7density_3RDF_19__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static PyObject *__pyx_pw_5freud_7density_3RDF_19__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static char __pyx_doc_5freud_7density_3RDF_18__setstate_cython__[] = "RDF.__setstate_cython__(self, __pyx_state)";
-static PyMethodDef __pyx_mdef_5freud_7density_3RDF_19__setstate_cython__ = {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_7density_3RDF_19__setstate_cython__, METH_O, __pyx_doc_5freud_7density_3RDF_18__setstate_cython__};
-static PyObject *__pyx_pw_5freud_7density_3RDF_19__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyMethodDef __pyx_mdef_5freud_7density_3RDF_19__setstate_cython__ = {"__setstate_cython__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_3RDF_19__setstate_cython__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_3RDF_18__setstate_cython__};
+static PyObject *__pyx_pw_5freud_7density_3RDF_19__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  CYTHON_UNUSED PyObject *__pyx_v___pyx_state = 0;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setstate_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_5freud_7density_3RDF_18__setstate_cython__(((struct __pyx_obj_5freud_7density_RDF *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
+  {
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_pyx_state,0};
+    PyObject* values[1] = {0};
+    if (unlikely(__pyx_kwds)) {
+      Py_ssize_t kw_args;
+      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
+      switch (pos_args) {
+        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        CYTHON_FALLTHROUGH;
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      kw_args = PyDict_Size(__pyx_kwds);
+      switch (pos_args) {
+        case  0:
+        if (likely((values[0] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_pyx_state)) != 0)) kw_args--;
+        else goto __pyx_L5_argtuple_error;
+      }
+      if (unlikely(kw_args > 0)) {
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__setstate_cython__") < 0)) __PYX_ERR(1, 3, __pyx_L3_error)
+      }
+    } else if (PyTuple_GET_SIZE(__pyx_args) != 1) {
+      goto __pyx_L5_argtuple_error;
+    } else {
+      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+    }
+    __pyx_v___pyx_state = values[0];
+  }
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("__setstate_cython__", 1, 1, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 3, __pyx_L3_error)
+  __pyx_L3_error:;
+  __Pyx_AddTraceback("freud.density.RDF.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return NULL;
+  __pyx_L4_argument_unpacking_done:;
+  __pyx_r = __pyx_pf_5freud_7density_3RDF_18__setstate_cython__(((struct __pyx_obj_5freud_7density_RDF *)__pyx_v_self), __pyx_v___pyx_state);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
@@ -25218,7 +25512,7 @@ static PyObject *__pyx_unpickle_Enum__set_state(struct __pyx_MemviewEnum_obj *__
 
 static PyObject *__pyx_tp_new_5freud_7density_CorrelationFunction(PyTypeObject *t, PyObject *a, PyObject *k) {
   struct __pyx_obj_5freud_7density_CorrelationFunction *p;
-  PyObject *o = __pyx_ptype_5freud_8locality_SpatialHistogram1D->tp_new(t, a, k);
+  PyObject *o = __pyx_ptype_5freud_8locality__SpatialHistogram1D->tp_new(t, a, k);
   if (unlikely(!o)) return 0;
   p = ((struct __pyx_obj_5freud_7density_CorrelationFunction *)o);
   p->is_complex = Py_None; Py_INCREF(Py_None);
@@ -25247,13 +25541,13 @@ static void __pyx_tp_dealloc_5freud_7density_CorrelationFunction(PyObject *o) {
   }
   Py_CLEAR(p->is_complex);
   PyObject_GC_Track(o);
-  if (likely(__pyx_ptype_5freud_8locality_SpatialHistogram1D)) __pyx_ptype_5freud_8locality_SpatialHistogram1D->tp_dealloc(o); else __Pyx_call_next_tp_dealloc(o, __pyx_tp_dealloc_5freud_7density_CorrelationFunction);
+  if (likely(__pyx_ptype_5freud_8locality__SpatialHistogram1D)) __pyx_ptype_5freud_8locality__SpatialHistogram1D->tp_dealloc(o); else __Pyx_call_next_tp_dealloc(o, __pyx_tp_dealloc_5freud_7density_CorrelationFunction);
 }
 
 static int __pyx_tp_traverse_5freud_7density_CorrelationFunction(PyObject *o, visitproc v, void *a) {
   int e;
   struct __pyx_obj_5freud_7density_CorrelationFunction *p = (struct __pyx_obj_5freud_7density_CorrelationFunction *)o;
-  e = ((likely(__pyx_ptype_5freud_8locality_SpatialHistogram1D)) ? ((__pyx_ptype_5freud_8locality_SpatialHistogram1D->tp_traverse) ? __pyx_ptype_5freud_8locality_SpatialHistogram1D->tp_traverse(o, v, a) : 0) : __Pyx_call_next_tp_traverse(o, v, a, __pyx_tp_traverse_5freud_7density_CorrelationFunction)); if (e) return e;
+  e = ((likely(__pyx_ptype_5freud_8locality__SpatialHistogram1D)) ? ((__pyx_ptype_5freud_8locality__SpatialHistogram1D->tp_traverse) ? __pyx_ptype_5freud_8locality__SpatialHistogram1D->tp_traverse(o, v, a) : 0) : __Pyx_call_next_tp_traverse(o, v, a, __pyx_tp_traverse_5freud_7density_CorrelationFunction)); if (e) return e;
   if (p->is_complex) {
     e = (*v)(p->is_complex, a); if (e) return e;
   }
@@ -25263,7 +25557,7 @@ static int __pyx_tp_traverse_5freud_7density_CorrelationFunction(PyObject *o, vi
 static int __pyx_tp_clear_5freud_7density_CorrelationFunction(PyObject *o) {
   PyObject* tmp;
   struct __pyx_obj_5freud_7density_CorrelationFunction *p = (struct __pyx_obj_5freud_7density_CorrelationFunction *)o;
-  if (likely(__pyx_ptype_5freud_8locality_SpatialHistogram1D)) { if (__pyx_ptype_5freud_8locality_SpatialHistogram1D->tp_clear) __pyx_ptype_5freud_8locality_SpatialHistogram1D->tp_clear(o); } else __Pyx_call_next_tp_clear(o, __pyx_tp_clear_5freud_7density_CorrelationFunction);
+  if (likely(__pyx_ptype_5freud_8locality__SpatialHistogram1D)) { if (__pyx_ptype_5freud_8locality__SpatialHistogram1D->tp_clear) __pyx_ptype_5freud_8locality__SpatialHistogram1D->tp_clear(o); } else __Pyx_call_next_tp_clear(o, __pyx_tp_clear_5freud_7density_CorrelationFunction);
   tmp = ((PyObject*)p->is_complex);
   p->is_complex = Py_None; Py_INCREF(Py_None);
   Py_XDECREF(tmp);
@@ -25272,11 +25566,11 @@ static int __pyx_tp_clear_5freud_7density_CorrelationFunction(PyObject *o) {
 
 static PyMethodDef __pyx_methods_5freud_7density_CorrelationFunction[] = {
   {"compute", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_19CorrelationFunction_5compute, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_19CorrelationFunction_4compute},
-  {"correlation", (PyCFunction)__pyx_pw_5freud_7density_19CorrelationFunction_7correlation, METH_NOARGS, __pyx_doc_5freud_7density_19CorrelationFunction_6correlation},
+  {"correlation", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_19CorrelationFunction_7correlation, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_19CorrelationFunction_6correlation},
   {"plot", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_19CorrelationFunction_11plot, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_19CorrelationFunction_10plot},
-  {"_repr_png_", (PyCFunction)__pyx_pw_5freud_7density_19CorrelationFunction_13_repr_png_, METH_NOARGS, __pyx_doc_5freud_7density_19CorrelationFunction_12_repr_png_},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_7density_19CorrelationFunction_15__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_7density_19CorrelationFunction_14__reduce_cython__},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_7density_19CorrelationFunction_17__setstate_cython__, METH_O, __pyx_doc_5freud_7density_19CorrelationFunction_16__setstate_cython__},
+  {"_repr_png_", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_19CorrelationFunction_13_repr_png_, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_19CorrelationFunction_12_repr_png_},
+  {"__reduce_cython__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_19CorrelationFunction_15__reduce_cython__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_19CorrelationFunction_14__reduce_cython__},
+  {"__setstate_cython__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_19CorrelationFunction_17__setstate_cython__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_19CorrelationFunction_16__setstate_cython__},
   {0, 0, 0, 0}
 };
 
@@ -25306,7 +25600,7 @@ static PyTypeObject __pyx_type_5freud_7density_CorrelationFunction = {
   0, /*tp_setattro*/
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-  "Computes the complex pairwise correlation function.\n\n    The correlation function is given by\n    :math:`C(r) = \\left\\langle s_1(0) \\cdot s_2(r) \\right\\rangle` between\n    two sets of points :math:`p_1` (:code:`points`) and :math:`p_2`\n    (:code:`query_points`) with associated values :math:`s_1` (:code:`values`)\n    and :math:`s_2` (:code:`query_values`). Computing the correlation function\n    results in an array of the expected (average) product of all values at a\n    given radial distance :math:`r`.\n\n    The values of :math:`r` where the correlation function is computed are\n    controlled by the :code:`r_max` and :code:`dr` parameters to the\n    constructor. :code:`r_max` determines the maximum distance at which to\n    compute the correlation function and :code:`dr` is the step size for each\n    bin.\n\n    .. note::\n        **Self-correlation:** It is often the case that we wish to compute the\n        correlation function of a set of points with itself. If\n        :code:`query_points` is the same as :code:`points`, not provided, or\n        :code:`None`, we omit accumulating the self-correlation value in the\n        first bin.\n\n    Args:\n        bins (unsigned int):\n            The number of bins in the RDF.\n        r_max (float):\n            Maximum pointwise distance to include in the calculation.\n    ", /*tp_doc*/
+  "Computes the complex pairwise correlation function.\n\n    The correlation function is given by\n    :math:`C(r) = \\left\\langle s^*_1(0) \\cdot s_2(r) \\right\\rangle` between\n    two sets of points :math:`p_1` (:code:`points`) and :math:`p_2`\n    (:code:`query_points`) with associated values :math:`s_1` (:code:`values`)\n    and :math:`s_2` (:code:`query_values`). Computing the correlation function\n    results in an array of the expected (average) product of all values at a\n    given radial distance :math:`r`.\n\n    The values of :math:`r` where the correlation function is computed are\n    controlled by the :code:`r_max` and :code:`dr` parameters to the\n    constructor. :code:`r_max` determines the maximum distance at which to\n    compute the correlation function and :code:`dr` is the step size for each\n    bin.\n\n    .. note::\n        **Self-correlation:** It is often the case that we wish to compute the\n        correlation function of a set of points with itself. If\n        :code:`query_points` is the same as :code:`points`, not provided, or\n        :code:`None`, we omit accumulating the self-correlation value in the\n        first bin.\n\n    Args:\n        bins (unsigned int):\n            The number of bins in the RDF.\n        r_max (float):\n            Maximum pointwise distance to include in the calculation.\n    ", /*tp_doc*/
   __pyx_tp_traverse_5freud_7density_CorrelationFunction, /*tp_traverse*/
   __pyx_tp_clear_5freud_7density_CorrelationFunction, /*tp_clear*/
   0, /*tp_richcompare*/
@@ -25342,7 +25636,7 @@ static PyTypeObject __pyx_type_5freud_7density_CorrelationFunction = {
 };
 
 static PyObject *__pyx_tp_new_5freud_7density_GaussianDensity(PyTypeObject *t, PyObject *a, PyObject *k) {
-  PyObject *o = __pyx_ptype_5freud_4util_Compute->tp_new(t, a, k);
+  PyObject *o = __pyx_ptype_5freud_4util__Compute->tp_new(t, a, k);
   if (unlikely(!o)) return 0;
   if (unlikely(__pyx_pw_5freud_7density_15GaussianDensity_1__cinit__(o, a, k) < 0)) goto bad;
   return o;
@@ -25367,17 +25661,17 @@ static void __pyx_tp_dealloc_5freud_7density_GaussianDensity(PyObject *o) {
     PyErr_Restore(etype, eval, etb);
   }
   PyObject_GC_Track(o);
-  if (likely(__pyx_ptype_5freud_4util_Compute)) __pyx_ptype_5freud_4util_Compute->tp_dealloc(o); else __Pyx_call_next_tp_dealloc(o, __pyx_tp_dealloc_5freud_7density_GaussianDensity);
+  if (likely(__pyx_ptype_5freud_4util__Compute)) __pyx_ptype_5freud_4util__Compute->tp_dealloc(o); else __Pyx_call_next_tp_dealloc(o, __pyx_tp_dealloc_5freud_7density_GaussianDensity);
 }
 
 static int __pyx_tp_traverse_5freud_7density_GaussianDensity(PyObject *o, visitproc v, void *a) {
   int e;
-  e = ((likely(__pyx_ptype_5freud_4util_Compute)) ? ((__pyx_ptype_5freud_4util_Compute->tp_traverse) ? __pyx_ptype_5freud_4util_Compute->tp_traverse(o, v, a) : 0) : __Pyx_call_next_tp_traverse(o, v, a, __pyx_tp_traverse_5freud_7density_GaussianDensity)); if (e) return e;
+  e = ((likely(__pyx_ptype_5freud_4util__Compute)) ? ((__pyx_ptype_5freud_4util__Compute->tp_traverse) ? __pyx_ptype_5freud_4util__Compute->tp_traverse(o, v, a) : 0) : __Pyx_call_next_tp_traverse(o, v, a, __pyx_tp_traverse_5freud_7density_GaussianDensity)); if (e) return e;
   return 0;
 }
 
 static int __pyx_tp_clear_5freud_7density_GaussianDensity(PyObject *o) {
-  if (likely(__pyx_ptype_5freud_4util_Compute)) { if (__pyx_ptype_5freud_4util_Compute->tp_clear) __pyx_ptype_5freud_4util_Compute->tp_clear(o); } else __Pyx_call_next_tp_clear(o, __pyx_tp_clear_5freud_7density_GaussianDensity);
+  if (likely(__pyx_ptype_5freud_4util__Compute)) { if (__pyx_ptype_5freud_4util__Compute->tp_clear) __pyx_ptype_5freud_4util__Compute->tp_clear(o); } else __Pyx_call_next_tp_clear(o, __pyx_tp_clear_5freud_7density_GaussianDensity);
   return 0;
 }
 
@@ -25394,13 +25688,13 @@ static PyObject *__pyx_getprop_5freud_7density_15GaussianDensity_width(PyObject 
 }
 
 static PyMethodDef __pyx_methods_5freud_7density_GaussianDensity[] = {
-  {"box", (PyCFunction)__pyx_pw_5freud_7density_15GaussianDensity_5box, METH_NOARGS, __pyx_doc_5freud_7density_15GaussianDensity_4box},
-  {"compute", (PyCFunction)__pyx_pw_5freud_7density_15GaussianDensity_7compute, METH_O, __pyx_doc_5freud_7density_15GaussianDensity_6compute},
-  {"density", (PyCFunction)__pyx_pw_5freud_7density_15GaussianDensity_9density, METH_NOARGS, __pyx_doc_5freud_7density_15GaussianDensity_8density},
+  {"box", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_15GaussianDensity_5box, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_15GaussianDensity_4box},
+  {"compute", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_15GaussianDensity_7compute, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_15GaussianDensity_6compute},
+  {"density", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_15GaussianDensity_9density, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_15GaussianDensity_8density},
   {"plot", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_15GaussianDensity_13plot, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_15GaussianDensity_12plot},
-  {"_repr_png_", (PyCFunction)__pyx_pw_5freud_7density_15GaussianDensity_15_repr_png_, METH_NOARGS, __pyx_doc_5freud_7density_15GaussianDensity_14_repr_png_},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_7density_15GaussianDensity_17__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_7density_15GaussianDensity_16__reduce_cython__},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_7density_15GaussianDensity_19__setstate_cython__, METH_O, __pyx_doc_5freud_7density_15GaussianDensity_18__setstate_cython__},
+  {"_repr_png_", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_15GaussianDensity_15_repr_png_, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_15GaussianDensity_14_repr_png_},
+  {"__reduce_cython__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_15GaussianDensity_17__reduce_cython__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_15GaussianDensity_16__reduce_cython__},
+  {"__setstate_cython__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_15GaussianDensity_19__setstate_cython__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_15GaussianDensity_18__setstate_cython__},
   {0, 0, 0, 0}
 };
 
@@ -25473,7 +25767,7 @@ static PyTypeObject __pyx_type_5freud_7density_GaussianDensity = {
 };
 
 static PyObject *__pyx_tp_new_5freud_7density_LocalDensity(PyTypeObject *t, PyObject *a, PyObject *k) {
-  PyObject *o = __pyx_ptype_5freud_8locality_PairCompute->tp_new(t, a, k);
+  PyObject *o = __pyx_ptype_5freud_8locality__PairCompute->tp_new(t, a, k);
   if (unlikely(!o)) return 0;
   if (unlikely(__pyx_pw_5freud_7density_12LocalDensity_1__cinit__(o, a, k) < 0)) goto bad;
   return o;
@@ -25498,17 +25792,17 @@ static void __pyx_tp_dealloc_5freud_7density_LocalDensity(PyObject *o) {
     PyErr_Restore(etype, eval, etb);
   }
   PyObject_GC_Track(o);
-  if (likely(__pyx_ptype_5freud_8locality_PairCompute)) __pyx_ptype_5freud_8locality_PairCompute->tp_dealloc(o); else __Pyx_call_next_tp_dealloc(o, __pyx_tp_dealloc_5freud_7density_LocalDensity);
+  if (likely(__pyx_ptype_5freud_8locality__PairCompute)) __pyx_ptype_5freud_8locality__PairCompute->tp_dealloc(o); else __Pyx_call_next_tp_dealloc(o, __pyx_tp_dealloc_5freud_7density_LocalDensity);
 }
 
 static int __pyx_tp_traverse_5freud_7density_LocalDensity(PyObject *o, visitproc v, void *a) {
   int e;
-  e = ((likely(__pyx_ptype_5freud_8locality_PairCompute)) ? ((__pyx_ptype_5freud_8locality_PairCompute->tp_traverse) ? __pyx_ptype_5freud_8locality_PairCompute->tp_traverse(o, v, a) : 0) : __Pyx_call_next_tp_traverse(o, v, a, __pyx_tp_traverse_5freud_7density_LocalDensity)); if (e) return e;
+  e = ((likely(__pyx_ptype_5freud_8locality__PairCompute)) ? ((__pyx_ptype_5freud_8locality__PairCompute->tp_traverse) ? __pyx_ptype_5freud_8locality__PairCompute->tp_traverse(o, v, a) : 0) : __Pyx_call_next_tp_traverse(o, v, a, __pyx_tp_traverse_5freud_7density_LocalDensity)); if (e) return e;
   return 0;
 }
 
 static int __pyx_tp_clear_5freud_7density_LocalDensity(PyObject *o) {
-  if (likely(__pyx_ptype_5freud_8locality_PairCompute)) { if (__pyx_ptype_5freud_8locality_PairCompute->tp_clear) __pyx_ptype_5freud_8locality_PairCompute->tp_clear(o); } else __Pyx_call_next_tp_clear(o, __pyx_tp_clear_5freud_7density_LocalDensity);
+  if (likely(__pyx_ptype_5freud_8locality__PairCompute)) { if (__pyx_ptype_5freud_8locality__PairCompute->tp_clear) __pyx_ptype_5freud_8locality__PairCompute->tp_clear(o); } else __Pyx_call_next_tp_clear(o, __pyx_tp_clear_5freud_7density_LocalDensity);
   return 0;
 }
 
@@ -25525,12 +25819,12 @@ static PyObject *__pyx_getprop_5freud_7density_12LocalDensity_default_query_args
 }
 
 static PyMethodDef __pyx_methods_5freud_7density_LocalDensity[] = {
-  {"box", (PyCFunction)__pyx_pw_5freud_7density_12LocalDensity_5box, METH_NOARGS, __pyx_doc_5freud_7density_12LocalDensity_4box},
+  {"box", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_12LocalDensity_5box, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_12LocalDensity_4box},
   {"compute", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_12LocalDensity_7compute, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_12LocalDensity_6compute},
-  {"density", (PyCFunction)__pyx_pw_5freud_7density_12LocalDensity_9density, METH_NOARGS, __pyx_doc_5freud_7density_12LocalDensity_8density},
-  {"num_neighbors", (PyCFunction)__pyx_pw_5freud_7density_12LocalDensity_11num_neighbors, METH_NOARGS, __pyx_doc_5freud_7density_12LocalDensity_10num_neighbors},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_7density_12LocalDensity_15__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_7density_12LocalDensity_14__reduce_cython__},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_7density_12LocalDensity_17__setstate_cython__, METH_O, __pyx_doc_5freud_7density_12LocalDensity_16__setstate_cython__},
+  {"density", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_12LocalDensity_9density, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_12LocalDensity_8density},
+  {"num_neighbors", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_12LocalDensity_11num_neighbors, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_12LocalDensity_10num_neighbors},
+  {"__reduce_cython__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_12LocalDensity_15__reduce_cython__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_12LocalDensity_14__reduce_cython__},
+  {"__setstate_cython__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_12LocalDensity_17__setstate_cython__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_12LocalDensity_16__setstate_cython__},
   {0, 0, 0, 0}
 };
 
@@ -25567,7 +25861,7 @@ static PyTypeObject __pyx_type_5freud_7density_LocalDensity = {
   0, /*tp_setattro*/
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-  "Computes the local density around a particle.\n\n    The density of the local environment is computed and averaged for a given\n    set of reference points in a sea of data points. Providing the same points\n    calculates them against themselves. Computing the local density results in\n    an array listing the value of the local density around each reference\n    point. Also available is the number of neighbors for each reference point,\n    giving the user the ability to count the number of particles in that\n    region. Note that the computed density is essentially a number density\n    (that allows for fractional values as described below). If your particles\n    have a specific volume, you can compute a volume density by simply\n    multiplying the output by the volume of the particles.\n\n    In order to provide sufficiently smooth data, data points can be\n    fractionally counted towards the density.  Rather than perform\n    compute-intensive area (volume) overlap calculations to\n    determine the exact amount of overlap area (volume), the LocalDensity class\n    performs a simple linear interpolation relative to the centers of the data\n    points.  Specifically, a point is counted as one neighbor of a given\n    reference point if it is entirely contained within the :code:`r_max`, half\n    of a neighbor if the distance to its center is exactly :code:`r_max`, and\n    zero if its center is a distance greater than or equal to :code:`r_max +\n    diameter` from the reference point's center. Graphically, this looks like:\n\n    .. image:: images/density.png\n\n    Args:\n        r_max (float):\n            Maximum distance over which to calculate the density.\n        diameter (float):\n            Diameter of particle circumsphere.\n    ", /*tp_doc*/
+  "Computes the local density around a particle.\n\n    The density of the local environment is computed and averaged for a given\n    set of query points in a sea of data points. Providing the same points\n    calculates them against themselves. Computing the local density results in\n    an array listing the value of the local density around each query\n    point. Also available is the number of neighbors for each query point,\n    giving the user the ability to count the number of particles in that\n    region. Note that the computed density is essentially a number density\n    (that allows for fractional values as described below). If your particles\n    have a specific volume, you can compute a volume density by simply\n    multiplying the output by the volume of the particles.\n\n    In order to provide sufficiently smooth data, data points can be\n    fractionally counted towards the density.  Rather than perform\n    compute-intensive area (volume) overlap calculations to\n    determine the exact amount of overlap area (volume), the LocalDensity class\n    performs a simple linear interpolation relative to the centers of the data\n    points.  Specifically, a point is counted as one neighbor of a given\n    query point if it is entirely contained within the :code:`r_max`, half\n    of a neighbor if the distance to its center is exactly :code:`r_max`, and\n    zero if its center is a distance greater than or equal to :code:`r_max +\n    diameter` from the query point's center. Graphically, this looks like:\n\n    .. image:: images/density.png\n\n    Args:\n        r_max (float):\n            Maximum distance over which to calculate the density.\n        diameter (float):\n            Diameter of particle circumsphere.\n    ", /*tp_doc*/
   __pyx_tp_traverse_5freud_7density_LocalDensity, /*tp_traverse*/
   __pyx_tp_clear_5freud_7density_LocalDensity, /*tp_clear*/
   0, /*tp_richcompare*/
@@ -25603,7 +25897,7 @@ static PyTypeObject __pyx_type_5freud_7density_LocalDensity = {
 };
 
 static PyObject *__pyx_tp_new_5freud_7density_RDF(PyTypeObject *t, PyObject *a, PyObject *k) {
-  PyObject *o = __pyx_ptype_5freud_8locality_SpatialHistogram1D->tp_new(t, a, k);
+  PyObject *o = __pyx_ptype_5freud_8locality__SpatialHistogram1D->tp_new(t, a, k);
   if (unlikely(!o)) return 0;
   if (unlikely(__pyx_pw_5freud_7density_3RDF_1__cinit__(o, a, k) < 0)) goto bad;
   return o;
@@ -25628,28 +25922,28 @@ static void __pyx_tp_dealloc_5freud_7density_RDF(PyObject *o) {
     PyErr_Restore(etype, eval, etb);
   }
   PyObject_GC_Track(o);
-  if (likely(__pyx_ptype_5freud_8locality_SpatialHistogram1D)) __pyx_ptype_5freud_8locality_SpatialHistogram1D->tp_dealloc(o); else __Pyx_call_next_tp_dealloc(o, __pyx_tp_dealloc_5freud_7density_RDF);
+  if (likely(__pyx_ptype_5freud_8locality__SpatialHistogram1D)) __pyx_ptype_5freud_8locality__SpatialHistogram1D->tp_dealloc(o); else __Pyx_call_next_tp_dealloc(o, __pyx_tp_dealloc_5freud_7density_RDF);
 }
 
 static int __pyx_tp_traverse_5freud_7density_RDF(PyObject *o, visitproc v, void *a) {
   int e;
-  e = ((likely(__pyx_ptype_5freud_8locality_SpatialHistogram1D)) ? ((__pyx_ptype_5freud_8locality_SpatialHistogram1D->tp_traverse) ? __pyx_ptype_5freud_8locality_SpatialHistogram1D->tp_traverse(o, v, a) : 0) : __Pyx_call_next_tp_traverse(o, v, a, __pyx_tp_traverse_5freud_7density_RDF)); if (e) return e;
+  e = ((likely(__pyx_ptype_5freud_8locality__SpatialHistogram1D)) ? ((__pyx_ptype_5freud_8locality__SpatialHistogram1D->tp_traverse) ? __pyx_ptype_5freud_8locality__SpatialHistogram1D->tp_traverse(o, v, a) : 0) : __Pyx_call_next_tp_traverse(o, v, a, __pyx_tp_traverse_5freud_7density_RDF)); if (e) return e;
   return 0;
 }
 
 static int __pyx_tp_clear_5freud_7density_RDF(PyObject *o) {
-  if (likely(__pyx_ptype_5freud_8locality_SpatialHistogram1D)) { if (__pyx_ptype_5freud_8locality_SpatialHistogram1D->tp_clear) __pyx_ptype_5freud_8locality_SpatialHistogram1D->tp_clear(o); } else __Pyx_call_next_tp_clear(o, __pyx_tp_clear_5freud_7density_RDF);
+  if (likely(__pyx_ptype_5freud_8locality__SpatialHistogram1D)) { if (__pyx_ptype_5freud_8locality__SpatialHistogram1D->tp_clear) __pyx_ptype_5freud_8locality__SpatialHistogram1D->tp_clear(o); } else __Pyx_call_next_tp_clear(o, __pyx_tp_clear_5freud_7density_RDF);
   return 0;
 }
 
 static PyMethodDef __pyx_methods_5freud_7density_RDF[] = {
   {"compute", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_3RDF_5compute, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_3RDF_4compute},
-  {"RDF", (PyCFunction)__pyx_pw_5freud_7density_3RDF_7RDF, METH_NOARGS, __pyx_doc_5freud_7density_3RDF_6RDF},
-  {"n_r", (PyCFunction)__pyx_pw_5freud_7density_3RDF_9n_r, METH_NOARGS, __pyx_doc_5freud_7density_3RDF_8n_r},
+  {"rdf", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_3RDF_7rdf, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_3RDF_6rdf},
+  {"n_r", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_3RDF_9n_r, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_3RDF_8n_r},
   {"plot", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_3RDF_13plot, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_3RDF_12plot},
-  {"_repr_png_", (PyCFunction)__pyx_pw_5freud_7density_3RDF_15_repr_png_, METH_NOARGS, __pyx_doc_5freud_7density_3RDF_14_repr_png_},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_7density_3RDF_17__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_7density_3RDF_16__reduce_cython__},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_7density_3RDF_19__setstate_cython__, METH_O, __pyx_doc_5freud_7density_3RDF_18__setstate_cython__},
+  {"_repr_png_", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_3RDF_15_repr_png_, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_3RDF_14_repr_png_},
+  {"__reduce_cython__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_3RDF_17__reduce_cython__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_3RDF_16__reduce_cython__},
+  {"__setstate_cython__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_7density_3RDF_19__setstate_cython__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7density_3RDF_18__setstate_cython__},
   {0, 0, 0, 0}
 };
 
@@ -25679,7 +25973,7 @@ static PyTypeObject __pyx_type_5freud_7density_RDF = {
   0, /*tp_setattro*/
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-  "Computes RDF for supplied data.\n\n    The RDF (:math:`g \\left( r \\right)`) is computed and averaged for a given\n    set of reference points in a sea of data points. Providing the same points\n    calculates them against themselves. Computing the RDF results in an RDF\n    array listing the value of the RDF at each given :math:`r`, listed in the\n    :code:`R` array.\n\n    The values of :math:`r` to compute the RDF are set by the values of\n    :code:`r_min`, :code:`r_max`, :code:`bins` in the constructor.\n    :code:`r_max` sets the maximum distance at which to calculate the :math:`g\n    \\left( r \\right)`, :code:`r_min` sets the minimum distance at which to\n    calculate the :math:`g \\left( r \\right)`, and :code:`bins` determines the\n    number of bins.\n\n    .. note::\n        **2D:** :class:`freud.density.RDF` properly handles 2D boxes.\n        The points must be passed in as :code:`[x, y, 0]`.\n\n    Args:\n        bins (unsigned int):\n            The number of bins in the RDF.\n        r_max (float):\n            Maximum interparticle distance to include in the calculation.\n        r_min (float, optional):\n            Minimum interparticle distance to include in the calculation\n            (Default value = :code:`0`).\n    ", /*tp_doc*/
+  "Computes the RDF :math:`g \\left( r \\right)` for supplied data.\n\n    Note that the RDF is defined strictly according to the pair correlation\n    function, i.e.\n\n     .. math::\n\n         g(r) = V\\frac{N-1}{N} \\langle \\delta(r) \\rangle\n\n    In the thermodynamic limit, the fraction tends to unity and the limiting\n    behavior of :math:`\\lim_{r \\to \\infty} g(r)=1` is recovered. However, for\n    very small systems the long range behavior of the radial distribution will\n    instead tend to :math:`\\frac{N-1}{N}`. If you are analyzing a very small\n    system but wish to recover the more familiar behavior, you may use the\n    `normalize` flag to enforce this requirement upon construction of this\n    object. Note that this will have little to no effect on larger systems (for\n    example, for systems of 100 particles the RDF will differ by 1%).\n\n    .. note::\n        **2D:** :class:`freud.density.RDF` properly handles 2D boxes.\n        The points must be passed in as :code:`[x, y, 0]`.\n\n    Args:\n        bins (unsigned int):\n            The number of bins in the RDF.\n        r_max (float):\n            Maximum interparticle distance to include in the calculation.\n        r_min (float, optional):\n            Minimum interparticle distance to include in the calculation\n            (Default value = :code:`0`).\n        normalize (bool, optional):\n            Scale the RDF values by\n            :math:`\\frac{N_{query\\_points}+1}{N_{query\\_points}+1}`. This\n            argument primarily exists to deal with standard RDF calculations\n            where no special ``query_points`` or ``neighbors`` are provided,\n            but where the number of ``query_points`` is small enough that the\n            long-ranged limit of :math:`g(r)` deviates significantly from\n            :math:`1`. It should not be used if :code:`query_points` is\n            provided as a different set of points, or if unusual query\n            arguments are provided to"" :meth:`~.compute`, specifically if\n            :code`exclude_ii` is set to :code:`False`. This normalization is\n            not meaningful in such cases and will simply convolute the data.\n\n    ", /*tp_doc*/
   __pyx_tp_traverse_5freud_7density_RDF, /*tp_traverse*/
   __pyx_tp_clear_5freud_7density_RDF, /*tp_clear*/
   0, /*tp_richcompare*/
@@ -26490,16 +26784,15 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_b_O, __pyx_k_O, sizeof(__pyx_k_O), 0, 0, 0, 1},
   {&__pyx_kp_s_Out_of_bounds_on_buffer_access_a, __pyx_k_Out_of_bounds_on_buffer_access_a, sizeof(__pyx_k_Out_of_bounds_on_buffer_access_a), 0, 0, 1, 0},
   {&__pyx_n_s_PickleError, __pyx_k_PickleError, sizeof(__pyx_k_PickleError), 0, 0, 1, 1},
-  {&__pyx_n_s_R, __pyx_k_R, sizeof(__pyx_k_R), 0, 0, 1, 1},
   {&__pyx_n_s_RDF, __pyx_k_RDF, sizeof(__pyx_k_RDF), 0, 0, 1, 1},
   {&__pyx_n_u_RDF, __pyx_k_RDF, sizeof(__pyx_k_RDF), 0, 1, 0, 1},
-  {&__pyx_n_s_RDF_RDF, __pyx_k_RDF_RDF, sizeof(__pyx_k_RDF_RDF), 0, 0, 1, 1},
   {&__pyx_n_s_RDF___reduce_cython, __pyx_k_RDF___reduce_cython, sizeof(__pyx_k_RDF___reduce_cython), 0, 0, 1, 1},
   {&__pyx_n_s_RDF___setstate_cython, __pyx_k_RDF___setstate_cython, sizeof(__pyx_k_RDF___setstate_cython), 0, 0, 1, 1},
   {&__pyx_n_s_RDF__repr_png, __pyx_k_RDF__repr_png, sizeof(__pyx_k_RDF__repr_png), 0, 0, 1, 1},
   {&__pyx_n_s_RDF_compute, __pyx_k_RDF_compute, sizeof(__pyx_k_RDF_compute), 0, 0, 1, 1},
   {&__pyx_n_s_RDF_n_r, __pyx_k_RDF_n_r, sizeof(__pyx_k_RDF_n_r), 0, 0, 1, 1},
   {&__pyx_n_s_RDF_plot, __pyx_k_RDF_plot, sizeof(__pyx_k_RDF_plot), 0, 0, 1, 1},
+  {&__pyx_n_s_RDF_rdf, __pyx_k_RDF_rdf, sizeof(__pyx_k_RDF_rdf), 0, 0, 1, 1},
   {&__pyx_n_s_RuntimeError, __pyx_k_RuntimeError, sizeof(__pyx_k_RuntimeError), 0, 0, 1, 1},
   {&__pyx_n_s_Sequence, __pyx_k_Sequence, sizeof(__pyx_k_Sequence), 0, 0, 1, 1},
   {&__pyx_kp_u_The_width_must_be_either_a_numbe, __pyx_k_The_width_must_be_either_a_numbe, sizeof(__pyx_k_The_width_must_be_either_a_numbe), 0, 1, 0, 0},
@@ -26581,6 +26874,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_new, __pyx_k_new, sizeof(__pyx_k_new), 0, 0, 1, 1},
   {&__pyx_n_s_nlist, __pyx_k_nlist, sizeof(__pyx_k_nlist), 0, 0, 1, 1},
   {&__pyx_kp_s_no_default___reduce___due_to_non, __pyx_k_no_default___reduce___due_to_non, sizeof(__pyx_k_no_default___reduce___due_to_non), 0, 0, 1, 0},
+  {&__pyx_n_s_normalize, __pyx_k_normalize, sizeof(__pyx_k_normalize), 0, 0, 1, 1},
   {&__pyx_n_s_np, __pyx_k_np, sizeof(__pyx_k_np), 0, 0, 1, 1},
   {&__pyx_n_s_nq, __pyx_k_nq, sizeof(__pyx_k_nq), 0, 0, 1, 1},
   {&__pyx_n_s_num_neighbors, __pyx_k_num_neighbors, sizeof(__pyx_k_num_neighbors), 0, 0, 1, 1},
@@ -26610,6 +26904,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_r_max, __pyx_k_r_max, sizeof(__pyx_k_r_max), 0, 0, 1, 1},
   {&__pyx_n_s_r_min, __pyx_k_r_min, sizeof(__pyx_k_r_min), 0, 0, 1, 1},
   {&__pyx_n_s_range, __pyx_k_range, sizeof(__pyx_k_range), 0, 0, 1, 1},
+  {&__pyx_n_s_rdf, __pyx_k_rdf, sizeof(__pyx_k_rdf), 0, 0, 1, 1},
   {&__pyx_n_s_real, __pyx_k_real, sizeof(__pyx_k_real), 0, 0, 1, 1},
   {&__pyx_n_s_reduce, __pyx_k_reduce, sizeof(__pyx_k_reduce), 0, 0, 1, 1},
   {&__pyx_n_s_reduce_cython, __pyx_k_reduce_cython, sizeof(__pyx_k_reduce_cython), 0, 0, 1, 1},
@@ -26649,12 +26944,12 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {0, 0, 0, 0, 0, 0, 0}
 };
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_AttributeError = __Pyx_GetBuiltinName(__pyx_n_s_AttributeError); if (!__pyx_builtin_AttributeError) __PYX_ERR(0, 179, __pyx_L1_error)
+  __pyx_builtin_AttributeError = __Pyx_GetBuiltinName(__pyx_n_s_AttributeError); if (!__pyx_builtin_AttributeError) __PYX_ERR(0, 180, __pyx_L1_error)
+  __pyx_builtin_ImportError = __Pyx_GetBuiltinName(__pyx_n_s_ImportError); if (!__pyx_builtin_ImportError) __PYX_ERR(0, 180, __pyx_L1_error)
   __pyx_builtin_TypeError = __Pyx_GetBuiltinName(__pyx_n_s_TypeError); if (!__pyx_builtin_TypeError) __PYX_ERR(1, 2, __pyx_L1_error)
-  __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(0, 214, __pyx_L1_error)
+  __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(0, 215, __pyx_L1_error)
   __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(2, 285, __pyx_L1_error)
   __pyx_builtin_RuntimeError = __Pyx_GetBuiltinName(__pyx_n_s_RuntimeError); if (!__pyx_builtin_RuntimeError) __PYX_ERR(2, 856, __pyx_L1_error)
-  __pyx_builtin_ImportError = __Pyx_GetBuiltinName(__pyx_n_s_ImportError); if (!__pyx_builtin_ImportError) __PYX_ERR(2, 1038, __pyx_L1_error)
   __pyx_builtin_MemoryError = __Pyx_GetBuiltinName(__pyx_n_s_MemoryError); if (!__pyx_builtin_MemoryError) __PYX_ERR(1, 148, __pyx_L1_error)
   __pyx_builtin_enumerate = __Pyx_GetBuiltinName(__pyx_n_s_enumerate); if (!__pyx_builtin_enumerate) __PYX_ERR(1, 151, __pyx_L1_error)
   __pyx_builtin_Ellipsis = __Pyx_GetBuiltinName(__pyx_n_s_Ellipsis); if (!__pyx_builtin_Ellipsis) __PYX_ERR(1, 404, __pyx_L1_error)
@@ -26688,14 +26983,14 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__2);
   __Pyx_GIVEREF(__pyx_tuple__2);
 
-  /* "freud/density.pyx":214
+  /* "freud/density.pyx":215
  *             width_vector = vec3[uint](width[0], width[1], width[2])
  *         else:
  *             raise ValueError("The width must be either a number of bins or a "             # <<<<<<<<<<<<<<
  *                              "sequence indicating the widths in each spatial "
  *                              "dimension (length 2 in 2D, length 3 in 3D).")
  */
-  __pyx_tuple__3 = PyTuple_Pack(1, __pyx_kp_u_The_width_must_be_either_a_numbe); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(0, 214, __pyx_L1_error)
+  __pyx_tuple__3 = PyTuple_Pack(1, __pyx_kp_u_The_width_must_be_either_a_numbe); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(0, 215, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__3);
   __Pyx_GIVEREF(__pyx_tuple__3);
 
@@ -27039,7 +27334,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
 
   /* "freud/density.pyx":145
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def correlation(self):             # <<<<<<<<<<<<<<
  *         """(:math:`N_{bins}`) :class:`numpy.ndarray`: Expected (average)
  *         product of all values at a given radial distance."""
@@ -27061,17 +27356,17 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__39);
   __pyx_codeobj__40 = (PyObject*)__Pyx_PyCode_New(2, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__39, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_density_pyx, __pyx_n_s_plot, 157, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__40)) __PYX_ERR(0, 157, __pyx_L1_error)
 
-  /* "freud/density.pyx":175
+  /* "freud/density.pyx":176
  *                                     ax=ax)
  * 
  *     def _repr_png_(self):             # <<<<<<<<<<<<<<
- *         import freud.plot
  *         try:
+ *             import freud.plot
  */
-  __pyx_tuple__41 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_freud); if (unlikely(!__pyx_tuple__41)) __PYX_ERR(0, 175, __pyx_L1_error)
+  __pyx_tuple__41 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_freud); if (unlikely(!__pyx_tuple__41)) __PYX_ERR(0, 176, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__41);
   __Pyx_GIVEREF(__pyx_tuple__41);
-  __pyx_codeobj__42 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__41, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_density_pyx, __pyx_n_s_repr_png, 175, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__42)) __PYX_ERR(0, 175, __pyx_L1_error)
+  __pyx_codeobj__42 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__41, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_density_pyx, __pyx_n_s_repr_png, 176, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__42)) __PYX_ERR(0, 176, __pyx_L1_error)
 
   /* "(tree fragment)":1
  * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
@@ -27094,65 +27389,65 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__45);
   __pyx_codeobj__46 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__45, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 3, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__46)) __PYX_ERR(1, 3, __pyx_L1_error)
 
-  /* "freud/density.pyx":225
+  /* "freud/density.pyx":226
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def box(self):             # <<<<<<<<<<<<<<
  *         """:class:`freud.box.Box`: Box used in the calculation."""
  *         return freud.box.BoxFromCPP(self.thisptr.getBox())
  */
-  __pyx_tuple__47 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__47)) __PYX_ERR(0, 225, __pyx_L1_error)
+  __pyx_tuple__47 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__47)) __PYX_ERR(0, 226, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__47);
   __Pyx_GIVEREF(__pyx_tuple__47);
-  __pyx_codeobj__48 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__47, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_density_pyx, __pyx_n_s_box, 225, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__48)) __PYX_ERR(0, 225, __pyx_L1_error)
+  __pyx_codeobj__48 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__47, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_density_pyx, __pyx_n_s_box, 226, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__48)) __PYX_ERR(0, 226, __pyx_L1_error)
 
-  /* "freud/density.pyx":229
+  /* "freud/density.pyx":230
  *         return freud.box.BoxFromCPP(self.thisptr.getBox())
  * 
  *     def compute(self, system):             # <<<<<<<<<<<<<<
  *         R"""Calculates the Gaussian blur for the specified points.
  * 
  */
-  __pyx_tuple__49 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_system, __pyx_n_s_nq); if (unlikely(!__pyx_tuple__49)) __PYX_ERR(0, 229, __pyx_L1_error)
+  __pyx_tuple__49 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_system, __pyx_n_s_nq); if (unlikely(!__pyx_tuple__49)) __PYX_ERR(0, 230, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__49);
   __Pyx_GIVEREF(__pyx_tuple__49);
-  __pyx_codeobj__50 = (PyObject*)__Pyx_PyCode_New(2, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__49, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_density_pyx, __pyx_n_s_compute, 229, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__50)) __PYX_ERR(0, 229, __pyx_L1_error)
+  __pyx_codeobj__50 = (PyObject*)__Pyx_PyCode_New(2, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__49, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_density_pyx, __pyx_n_s_compute, 230, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__50)) __PYX_ERR(0, 230, __pyx_L1_error)
 
-  /* "freud/density.pyx":243
+  /* "freud/density.pyx":244
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def density(self):             # <<<<<<<<<<<<<<
  *         """(:math:`w_x`, :math:`w_y`, :math:`w_z`) :class:`numpy.ndarray`: The
  *         image grid with the Gaussian density."""
  */
-  __pyx_tuple__51 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__51)) __PYX_ERR(0, 243, __pyx_L1_error)
+  __pyx_tuple__51 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__51)) __PYX_ERR(0, 244, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__51);
   __Pyx_GIVEREF(__pyx_tuple__51);
-  __pyx_codeobj__52 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__51, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_density_pyx, __pyx_n_s_density, 243, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__52)) __PYX_ERR(0, 243, __pyx_L1_error)
+  __pyx_codeobj__52 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__51, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_density_pyx, __pyx_n_s_density, 244, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__52)) __PYX_ERR(0, 244, __pyx_L1_error)
 
-  /* "freud/density.pyx":278
+  /* "freud/density.pyx":279
  *                                             sigma=self.sigma)
  * 
  *     def plot(self, ax=None):             # <<<<<<<<<<<<<<
  *         """Plot Gaussian Density.
  * 
  */
-  __pyx_tuple__53 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_ax, __pyx_n_s_freud); if (unlikely(!__pyx_tuple__53)) __PYX_ERR(0, 278, __pyx_L1_error)
+  __pyx_tuple__53 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_ax, __pyx_n_s_freud); if (unlikely(!__pyx_tuple__53)) __PYX_ERR(0, 279, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__53);
   __Pyx_GIVEREF(__pyx_tuple__53);
-  __pyx_codeobj__54 = (PyObject*)__Pyx_PyCode_New(2, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__53, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_density_pyx, __pyx_n_s_plot, 278, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__54)) __PYX_ERR(0, 278, __pyx_L1_error)
+  __pyx_codeobj__54 = (PyObject*)__Pyx_PyCode_New(2, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__53, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_density_pyx, __pyx_n_s_plot, 279, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__54)) __PYX_ERR(0, 279, __pyx_L1_error)
 
-  /* "freud/density.pyx":294
+  /* "freud/density.pyx":295
  *         return freud.plot.density_plot(self.density, self.box, ax=ax)
  * 
  *     def _repr_png_(self):             # <<<<<<<<<<<<<<
- *         import freud.plot
  *         try:
+ *             import freud.plot
  */
-  __pyx_tuple__55 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_freud); if (unlikely(!__pyx_tuple__55)) __PYX_ERR(0, 294, __pyx_L1_error)
+  __pyx_tuple__55 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_freud); if (unlikely(!__pyx_tuple__55)) __PYX_ERR(0, 295, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__55);
   __Pyx_GIVEREF(__pyx_tuple__55);
-  __pyx_codeobj__56 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__55, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_density_pyx, __pyx_n_s_repr_png, 294, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__56)) __PYX_ERR(0, 294, __pyx_L1_error)
+  __pyx_codeobj__56 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__55, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_density_pyx, __pyx_n_s_repr_png, 295, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__56)) __PYX_ERR(0, 295, __pyx_L1_error)
 
   /* "(tree fragment)":1
  * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
@@ -27175,36 +27470,36 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__59);
   __pyx_codeobj__60 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__59, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 3, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__60)) __PYX_ERR(1, 3, __pyx_L1_error)
 
-  /* "freud/density.pyx":354
+  /* "freud/density.pyx":355
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def box(self):             # <<<<<<<<<<<<<<
  *         """:class:`freud.box.Box`: Box used in the calculation."""
  *         return freud.box.BoxFromCPP(self.thisptr.getBox())
  */
-  __pyx_tuple__61 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__61)) __PYX_ERR(0, 354, __pyx_L1_error)
+  __pyx_tuple__61 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__61)) __PYX_ERR(0, 355, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__61);
   __Pyx_GIVEREF(__pyx_tuple__61);
-  __pyx_codeobj__62 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__61, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_density_pyx, __pyx_n_s_box, 354, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__62)) __PYX_ERR(0, 354, __pyx_L1_error)
+  __pyx_codeobj__62 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__61, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_density_pyx, __pyx_n_s_box, 355, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__62)) __PYX_ERR(0, 355, __pyx_L1_error)
 
-  /* "freud/density.pyx":358
+  /* "freud/density.pyx":359
  *         return freud.box.BoxFromCPP(self.thisptr.getBox())
  * 
  *     def compute(self, system, query_points=None, neighbors=None):             # <<<<<<<<<<<<<<
- *         R"""Calculates the local density for the specified points. Does not
- *         accumulate (will overwrite current data).
+ *         R"""Calculates the local density for the specified points.
+ * 
  */
-  __pyx_tuple__63 = PyTuple_Pack(9, __pyx_n_s_self, __pyx_n_s_system, __pyx_n_s_query_points, __pyx_n_s_neighbors, __pyx_n_s_nq, __pyx_n_s_nlist, __pyx_n_s_qargs, __pyx_n_s_l_query_points, __pyx_n_s_num_query_points); if (unlikely(!__pyx_tuple__63)) __PYX_ERR(0, 358, __pyx_L1_error)
+  __pyx_tuple__63 = PyTuple_Pack(9, __pyx_n_s_self, __pyx_n_s_system, __pyx_n_s_query_points, __pyx_n_s_neighbors, __pyx_n_s_nq, __pyx_n_s_nlist, __pyx_n_s_qargs, __pyx_n_s_l_query_points, __pyx_n_s_num_query_points); if (unlikely(!__pyx_tuple__63)) __PYX_ERR(0, 359, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__63);
   __Pyx_GIVEREF(__pyx_tuple__63);
-  __pyx_codeobj__64 = (PyObject*)__Pyx_PyCode_New(4, 0, 9, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__63, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_density_pyx, __pyx_n_s_compute, 358, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__64)) __PYX_ERR(0, 358, __pyx_L1_error)
+  __pyx_codeobj__64 = (PyObject*)__Pyx_PyCode_New(4, 0, 9, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__63, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_density_pyx, __pyx_n_s_compute, 359, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__64)) __PYX_ERR(0, 359, __pyx_L1_error)
 
   /* "freud/density.pyx":401
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def density(self):             # <<<<<<<<<<<<<<
  *         """(:math:`N_{points}`) :class:`numpy.ndarray`: Density of points per
- *         ref_point."""
+ *         query point."""
  */
   __pyx_tuple__65 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__65)) __PYX_ERR(0, 401, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__65);
@@ -27213,10 +27508,10 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
 
   /* "freud/density.pyx":409
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def num_neighbors(self):             # <<<<<<<<<<<<<<
  *         """(:math:`N_{points}`) :class:`numpy.ndarray`: Number of neighbor
- *         points for each ref_point."""
+ *         points for each query point."""
  */
   __pyx_tuple__67 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__67)) __PYX_ERR(0, 409, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__67);
@@ -27244,65 +27539,65 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__71);
   __pyx_codeobj__72 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__71, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 3, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__72)) __PYX_ERR(1, 3, __pyx_L1_error)
 
-  /* "freud/density.pyx":468
+  /* "freud/density.pyx":485
  *             del self.thisptr
  * 
  *     def compute(self, system, query_points=None, neighbors=None,             # <<<<<<<<<<<<<<
  *                 reset=True):
  *         R"""Calculates the RDF and adds to the current RDF histogram.
  */
-  __pyx_tuple__73 = PyTuple_Pack(10, __pyx_n_s_self, __pyx_n_s_system, __pyx_n_s_query_points, __pyx_n_s_neighbors, __pyx_n_s_reset, __pyx_n_s_nq, __pyx_n_s_nlist, __pyx_n_s_qargs, __pyx_n_s_l_query_points, __pyx_n_s_num_query_points); if (unlikely(!__pyx_tuple__73)) __PYX_ERR(0, 468, __pyx_L1_error)
+  __pyx_tuple__73 = PyTuple_Pack(10, __pyx_n_s_self, __pyx_n_s_system, __pyx_n_s_query_points, __pyx_n_s_neighbors, __pyx_n_s_reset, __pyx_n_s_nq, __pyx_n_s_nlist, __pyx_n_s_qargs, __pyx_n_s_l_query_points, __pyx_n_s_num_query_points); if (unlikely(!__pyx_tuple__73)) __PYX_ERR(0, 485, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__73);
   __Pyx_GIVEREF(__pyx_tuple__73);
-  __pyx_codeobj__74 = (PyObject*)__Pyx_PyCode_New(5, 0, 10, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__73, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_density_pyx, __pyx_n_s_compute, 468, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__74)) __PYX_ERR(0, 468, __pyx_L1_error)
+  __pyx_codeobj__74 = (PyObject*)__Pyx_PyCode_New(5, 0, 10, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__73, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_density_pyx, __pyx_n_s_compute, 485, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__74)) __PYX_ERR(0, 485, __pyx_L1_error)
 
-  /* "freud/density.pyx":511
+  /* "freud/density.pyx":528
  * 
- *     @Compute._computed_property
- *     def RDF(self):             # <<<<<<<<<<<<<<
+ *     @_Compute._computed_property
+ *     def rdf(self):             # <<<<<<<<<<<<<<
  *         """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Histogram of RDF
  *         values."""
  */
-  __pyx_tuple__75 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__75)) __PYX_ERR(0, 511, __pyx_L1_error)
+  __pyx_tuple__75 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__75)) __PYX_ERR(0, 528, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__75);
   __Pyx_GIVEREF(__pyx_tuple__75);
-  __pyx_codeobj__76 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__75, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_density_pyx, __pyx_n_s_RDF, 511, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__76)) __PYX_ERR(0, 511, __pyx_L1_error)
+  __pyx_codeobj__76 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__75, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_density_pyx, __pyx_n_s_rdf, 528, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__76)) __PYX_ERR(0, 528, __pyx_L1_error)
 
-  /* "freud/density.pyx":519
+  /* "freud/density.pyx":536
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def n_r(self):             # <<<<<<<<<<<<<<
  *         """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Histogram of cumulative
  *         bin_counts values. More precisely, :code:`n_r[i]` is the average number
  */
-  __pyx_tuple__77 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__77)) __PYX_ERR(0, 519, __pyx_L1_error)
+  __pyx_tuple__77 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__77)) __PYX_ERR(0, 536, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__77);
   __Pyx_GIVEREF(__pyx_tuple__77);
-  __pyx_codeobj__78 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__77, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_density_pyx, __pyx_n_s_n_r, 519, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__78)) __PYX_ERR(0, 519, __pyx_L1_error)
+  __pyx_codeobj__78 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__77, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_density_pyx, __pyx_n_s_n_r, 536, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__78)) __PYX_ERR(0, 536, __pyx_L1_error)
 
-  /* "freud/density.pyx":536
+  /* "freud/density.pyx":553
  *                                          r_min=self.bounds[0])
  * 
  *     def plot(self, ax=None):             # <<<<<<<<<<<<<<
  *         """Plot radial distribution function.
  * 
  */
-  __pyx_tuple__79 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_ax, __pyx_n_s_freud); if (unlikely(!__pyx_tuple__79)) __PYX_ERR(0, 536, __pyx_L1_error)
+  __pyx_tuple__79 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_ax, __pyx_n_s_freud); if (unlikely(!__pyx_tuple__79)) __PYX_ERR(0, 553, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__79);
   __Pyx_GIVEREF(__pyx_tuple__79);
-  __pyx_codeobj__80 = (PyObject*)__Pyx_PyCode_New(2, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__79, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_density_pyx, __pyx_n_s_plot, 536, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__80)) __PYX_ERR(0, 536, __pyx_L1_error)
+  __pyx_codeobj__80 = (PyObject*)__Pyx_PyCode_New(2, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__79, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_density_pyx, __pyx_n_s_plot, 553, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__80)) __PYX_ERR(0, 553, __pyx_L1_error)
 
-  /* "freud/density.pyx":554
+  /* "freud/density.pyx":571
  *                                     ax=ax)
  * 
  *     def _repr_png_(self):             # <<<<<<<<<<<<<<
- *         import freud.plot
  *         try:
+ *             import freud.plot
  */
-  __pyx_tuple__81 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_freud); if (unlikely(!__pyx_tuple__81)) __PYX_ERR(0, 554, __pyx_L1_error)
+  __pyx_tuple__81 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_freud); if (unlikely(!__pyx_tuple__81)) __PYX_ERR(0, 571, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__81);
   __Pyx_GIVEREF(__pyx_tuple__81);
-  __pyx_codeobj__82 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__81, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_density_pyx, __pyx_n_s_repr_png, 554, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__82)) __PYX_ERR(0, 554, __pyx_L1_error)
+  __pyx_codeobj__82 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__81, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_density_pyx, __pyx_n_s_repr_png, 571, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__82)) __PYX_ERR(0, 571, __pyx_L1_error)
 
   /* "(tree fragment)":1
  * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
@@ -27453,9 +27748,9 @@ static int __Pyx_modinit_type_init_code(void) {
   /*--- Type init code ---*/
   __pyx_t_1 = PyImport_ImportModule("freud.locality"); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_ptype_5freud_8locality_SpatialHistogram1D = __Pyx_ImportType(__pyx_t_1, "freud.locality", "SpatialHistogram1D", sizeof(struct __pyx_obj_5freud_8locality_SpatialHistogram1D), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_5freud_8locality_SpatialHistogram1D) __PYX_ERR(0, 1, __pyx_L1_error)
-  __pyx_type_5freud_7density_CorrelationFunction.tp_base = __pyx_ptype_5freud_8locality_SpatialHistogram1D;
+  __pyx_ptype_5freud_8locality__SpatialHistogram1D = __Pyx_ImportType(__pyx_t_1, "freud.locality", "_SpatialHistogram1D", sizeof(struct __pyx_obj_5freud_8locality__SpatialHistogram1D), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_5freud_8locality__SpatialHistogram1D) __PYX_ERR(0, 1, __pyx_L1_error)
+  __pyx_type_5freud_7density_CorrelationFunction.tp_base = __pyx_ptype_5freud_8locality__SpatialHistogram1D;
   if (PyType_Ready(&__pyx_type_5freud_7density_CorrelationFunction) < 0) __PYX_ERR(0, 32, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
   __pyx_type_5freud_7density_CorrelationFunction.tp_print = 0;
@@ -27468,33 +27763,33 @@ static int __Pyx_modinit_type_init_code(void) {
   __pyx_ptype_5freud_7density_CorrelationFunction = &__pyx_type_5freud_7density_CorrelationFunction;
   __pyx_t_2 = PyImport_ImportModule("freud.util"); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_ptype_5freud_4util_Compute = __Pyx_ImportType(__pyx_t_2, "freud.util", "Compute", sizeof(struct __pyx_obj_5freud_4util_Compute), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_5freud_4util_Compute) __PYX_ERR(0, 1, __pyx_L1_error)
-  __pyx_type_5freud_7density_GaussianDensity.tp_base = __pyx_ptype_5freud_4util_Compute;
-  if (PyType_Ready(&__pyx_type_5freud_7density_GaussianDensity) < 0) __PYX_ERR(0, 183, __pyx_L1_error)
+  __pyx_ptype_5freud_4util__Compute = __Pyx_ImportType(__pyx_t_2, "freud.util", "_Compute", sizeof(struct __pyx_obj_5freud_4util__Compute), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_5freud_4util__Compute) __PYX_ERR(0, 1, __pyx_L1_error)
+  __pyx_type_5freud_7density_GaussianDensity.tp_base = __pyx_ptype_5freud_4util__Compute;
+  if (PyType_Ready(&__pyx_type_5freud_7density_GaussianDensity) < 0) __PYX_ERR(0, 184, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
   __pyx_type_5freud_7density_GaussianDensity.tp_print = 0;
   #endif
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_5freud_7density_GaussianDensity.tp_dictoffset && __pyx_type_5freud_7density_GaussianDensity.tp_getattro == PyObject_GenericGetAttr)) {
     __pyx_type_5freud_7density_GaussianDensity.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_GaussianDensity, (PyObject *)&__pyx_type_5freud_7density_GaussianDensity) < 0) __PYX_ERR(0, 183, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_5freud_7density_GaussianDensity) < 0) __PYX_ERR(0, 183, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_GaussianDensity, (PyObject *)&__pyx_type_5freud_7density_GaussianDensity) < 0) __PYX_ERR(0, 184, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_5freud_7density_GaussianDensity) < 0) __PYX_ERR(0, 184, __pyx_L1_error)
   __pyx_ptype_5freud_7density_GaussianDensity = &__pyx_type_5freud_7density_GaussianDensity;
-  __pyx_ptype_5freud_8locality_PairCompute = __Pyx_ImportType(__pyx_t_1, "freud.locality", "PairCompute", sizeof(struct __pyx_obj_5freud_8locality_PairCompute), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_5freud_8locality_PairCompute) __PYX_ERR(0, 1, __pyx_L1_error)
-  __pyx_type_5freud_7density_LocalDensity.tp_base = __pyx_ptype_5freud_8locality_PairCompute;
-  if (PyType_Ready(&__pyx_type_5freud_7density_LocalDensity) < 0) __PYX_ERR(0, 302, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality__PairCompute = __Pyx_ImportType(__pyx_t_1, "freud.locality", "_PairCompute", sizeof(struct __pyx_obj_5freud_8locality__PairCompute), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_5freud_8locality__PairCompute) __PYX_ERR(0, 1, __pyx_L1_error)
+  __pyx_type_5freud_7density_LocalDensity.tp_base = __pyx_ptype_5freud_8locality__PairCompute;
+  if (PyType_Ready(&__pyx_type_5freud_7density_LocalDensity) < 0) __PYX_ERR(0, 303, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
   __pyx_type_5freud_7density_LocalDensity.tp_print = 0;
   #endif
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_5freud_7density_LocalDensity.tp_dictoffset && __pyx_type_5freud_7density_LocalDensity.tp_getattro == PyObject_GenericGetAttr)) {
     __pyx_type_5freud_7density_LocalDensity.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_LocalDensity, (PyObject *)&__pyx_type_5freud_7density_LocalDensity) < 0) __PYX_ERR(0, 302, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_5freud_7density_LocalDensity) < 0) __PYX_ERR(0, 302, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_LocalDensity, (PyObject *)&__pyx_type_5freud_7density_LocalDensity) < 0) __PYX_ERR(0, 303, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_5freud_7density_LocalDensity) < 0) __PYX_ERR(0, 303, __pyx_L1_error)
   __pyx_ptype_5freud_7density_LocalDensity = &__pyx_type_5freud_7density_LocalDensity;
-  __pyx_type_5freud_7density_RDF.tp_base = __pyx_ptype_5freud_8locality_SpatialHistogram1D;
+  __pyx_type_5freud_7density_RDF.tp_base = __pyx_ptype_5freud_8locality__SpatialHistogram1D;
   if (PyType_Ready(&__pyx_type_5freud_7density_RDF) < 0) __PYX_ERR(0, 423, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
   __pyx_type_5freud_7density_RDF.tp_print = 0;
@@ -27616,8 +27911,6 @@ static int __Pyx_modinit_type_import_code(void) {
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_ptype_5freud_3box_Box = __Pyx_ImportType(__pyx_t_1, "freud.box", "Box", sizeof(struct __pyx_obj_5freud_3box_Box), __Pyx_ImportType_CheckSize_Warn);
    if (!__pyx_ptype_5freud_3box_Box) __PYX_ERR(8, 6, __pyx_L1_error)
-  __pyx_ptype_5freud_3box_PeriodicBuffer = __Pyx_ImportType(__pyx_t_1, "freud.box", "PeriodicBuffer", sizeof(struct __pyx_obj_5freud_3box_PeriodicBuffer), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_5freud_3box_PeriodicBuffer) __PYX_ERR(8, 11, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_1 = PyImport_ImportModule("freud.locality"); if (unlikely(!__pyx_t_1)) __PYX_ERR(4, 16, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
@@ -27636,15 +27929,17 @@ static int __Pyx_modinit_type_import_code(void) {
   __pyx_ptype_5freud_8locality_AABBQuery = __Pyx_ImportType(__pyx_t_1, "freud.locality", "AABBQuery", sizeof(struct __pyx_obj_5freud_8locality_AABBQuery), __Pyx_ImportType_CheckSize_Warn);
    if (!__pyx_ptype_5freud_8locality_AABBQuery) __PYX_ERR(4, 55, __pyx_L1_error)
   __pyx_vtabptr_5freud_8locality_AABBQuery = (struct __pyx_vtabstruct_5freud_8locality_AABBQuery*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_AABBQuery->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_AABBQuery)) __PYX_ERR(4, 55, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_RawPoints = __Pyx_ImportType(__pyx_t_1, "freud.locality", "RawPoints", sizeof(struct __pyx_obj_5freud_8locality_RawPoints), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_5freud_8locality_RawPoints) __PYX_ERR(4, 58, __pyx_L1_error)
-  __pyx_vtabptr_5freud_8locality_RawPoints = (struct __pyx_vtabstruct_5freud_8locality_RawPoints*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_RawPoints->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_RawPoints)) __PYX_ERR(4, 58, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality__RawPoints = __Pyx_ImportType(__pyx_t_1, "freud.locality", "_RawPoints", sizeof(struct __pyx_obj_5freud_8locality__RawPoints), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_5freud_8locality__RawPoints) __PYX_ERR(4, 58, __pyx_L1_error)
+  __pyx_vtabptr_5freud_8locality__RawPoints = (struct __pyx_vtabstruct_5freud_8locality__RawPoints*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality__RawPoints->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality__RawPoints)) __PYX_ERR(4, 58, __pyx_L1_error)
   __pyx_ptype_5freud_8locality__QueryArgs = __Pyx_ImportType(__pyx_t_1, "freud.locality", "_QueryArgs", sizeof(struct __pyx_obj_5freud_8locality__QueryArgs), __Pyx_ImportType_CheckSize_Warn);
    if (!__pyx_ptype_5freud_8locality__QueryArgs) __PYX_ERR(4, 61, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_SpatialHistogram = __Pyx_ImportType(__pyx_t_1, "freud.locality", "SpatialHistogram", sizeof(struct __pyx_obj_5freud_8locality_SpatialHistogram), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_5freud_8locality_SpatialHistogram) __PYX_ERR(4, 67, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality__SpatialHistogram = __Pyx_ImportType(__pyx_t_1, "freud.locality", "_SpatialHistogram", sizeof(struct __pyx_obj_5freud_8locality__SpatialHistogram), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_5freud_8locality__SpatialHistogram) __PYX_ERR(4, 67, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality_PeriodicBuffer = __Pyx_ImportType(__pyx_t_1, "freud.locality", "PeriodicBuffer", sizeof(struct __pyx_obj_5freud_8locality_PeriodicBuffer), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_5freud_8locality_PeriodicBuffer) __PYX_ERR(4, 74, __pyx_L1_error)
   __pyx_ptype_5freud_8locality_Voronoi = __Pyx_ImportType(__pyx_t_1, "freud.locality", "Voronoi", sizeof(struct __pyx_obj_5freud_8locality_Voronoi), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_5freud_8locality_Voronoi) __PYX_ERR(4, 74, __pyx_L1_error)
+   if (!__pyx_ptype_5freud_8locality_Voronoi) __PYX_ERR(4, 77, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_RefNannyFinishContext();
   return 0;
@@ -27961,7 +28256,7 @@ if (!__Pyx_RefNanny) {
 
   /* "freud/density.pyx":145
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def correlation(self):             # <<<<<<<<<<<<<<
  *         """(:math:`N_{bins}`) :class:`numpy.ndarray`: Expected (average)
  *         product of all values at a given radial distance."""
@@ -27975,16 +28270,16 @@ if (!__Pyx_RefNanny) {
   /* "freud/density.pyx":144
  *         return self
  * 
- *     @Compute._computed_property             # <<<<<<<<<<<<<<
+ *     @_Compute._computed_property             # <<<<<<<<<<<<<<
  *     def correlation(self):
  *         """(:math:`N_{bins}`) :class:`numpy.ndarray`: Expected (average)
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_4util_Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 144, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_4util__Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 144, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
 
   /* "freud/density.pyx":145
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def correlation(self):             # <<<<<<<<<<<<<<
  *         """(:math:`N_{bins}`) :class:`numpy.ndarray`: Expected (average)
  *         product of all values at a given radial distance."""
@@ -28024,16 +28319,16 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_7density_CorrelationFunction);
 
-  /* "freud/density.pyx":175
+  /* "freud/density.pyx":176
  *                                     ax=ax)
  * 
  *     def _repr_png_(self):             # <<<<<<<<<<<<<<
- *         import freud.plot
  *         try:
+ *             import freud.plot
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7density_19CorrelationFunction_13_repr_png_, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_CorrelationFunction__repr_png, NULL, __pyx_n_s_freud_density, __pyx_d, ((PyObject *)__pyx_codeobj__42)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 175, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7density_19CorrelationFunction_13_repr_png_, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_CorrelationFunction__repr_png, NULL, __pyx_n_s_freud_density, __pyx_d, ((PyObject *)__pyx_codeobj__42)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 176, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7density_CorrelationFunction->tp_dict, __pyx_n_s_repr_png, __pyx_t_2) < 0) __PYX_ERR(0, 175, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7density_CorrelationFunction->tp_dict, __pyx_n_s_repr_png, __pyx_t_2) < 0) __PYX_ERR(0, 176, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_7density_CorrelationFunction);
 
@@ -28058,37 +28353,37 @@ if (!__Pyx_RefNanny) {
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_setstate_cython, __pyx_t_2) < 0) __PYX_ERR(1, 3, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/density.pyx":225
+  /* "freud/density.pyx":226
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def box(self):             # <<<<<<<<<<<<<<
  *         """:class:`freud.box.Box`: Box used in the calculation."""
  *         return freud.box.BoxFromCPP(self.thisptr.getBox())
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7density_15GaussianDensity_5box, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_GaussianDensity_box, NULL, __pyx_n_s_freud_density, __pyx_d, ((PyObject *)__pyx_codeobj__48)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 225, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7density_15GaussianDensity_5box, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_GaussianDensity_box, NULL, __pyx_n_s_freud_density, __pyx_d, ((PyObject *)__pyx_codeobj__48)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 226, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7density_GaussianDensity->tp_dict, __pyx_n_s_box, __pyx_t_2) < 0) __PYX_ERR(0, 225, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7density_GaussianDensity->tp_dict, __pyx_n_s_box, __pyx_t_2) < 0) __PYX_ERR(0, 226, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_7density_GaussianDensity);
 
-  /* "freud/density.pyx":224
+  /* "freud/density.pyx":225
  *         del self.thisptr
  * 
- *     @Compute._computed_property             # <<<<<<<<<<<<<<
+ *     @_Compute._computed_property             # <<<<<<<<<<<<<<
  *     def box(self):
  *         """:class:`freud.box.Box`: Box used in the calculation."""
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_4util_Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 224, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_4util__Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 225, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
 
-  /* "freud/density.pyx":225
+  /* "freud/density.pyx":226
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def box(self):             # <<<<<<<<<<<<<<
  *         """:class:`freud.box.Box`: Box used in the calculation."""
  *         return freud.box.BoxFromCPP(self.thisptr.getBox())
  */
-  __Pyx_GetNameInClass(__pyx_t_4, (PyObject *)__pyx_ptype_5freud_7density_GaussianDensity, __pyx_n_s_box); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 225, __pyx_L1_error)
+  __Pyx_GetNameInClass(__pyx_t_4, (PyObject *)__pyx_ptype_5freud_7density_GaussianDensity, __pyx_n_s_box); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 226, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_1))) {
@@ -28103,57 +28398,57 @@ if (!__Pyx_RefNanny) {
   __pyx_t_2 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_1, __pyx_t_5, __pyx_t_4) : __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 224, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 225, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7density_GaussianDensity->tp_dict, __pyx_n_s_box, __pyx_t_2) < 0) __PYX_ERR(0, 225, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7density_GaussianDensity->tp_dict, __pyx_n_s_box, __pyx_t_2) < 0) __PYX_ERR(0, 226, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_7density_GaussianDensity);
 
-  /* "freud/density.pyx":229
+  /* "freud/density.pyx":230
  *         return freud.box.BoxFromCPP(self.thisptr.getBox())
  * 
  *     def compute(self, system):             # <<<<<<<<<<<<<<
  *         R"""Calculates the Gaussian blur for the specified points.
  * 
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7density_15GaussianDensity_7compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_GaussianDensity_compute, NULL, __pyx_n_s_freud_density, __pyx_d, ((PyObject *)__pyx_codeobj__50)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 229, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7density_15GaussianDensity_7compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_GaussianDensity_compute, NULL, __pyx_n_s_freud_density, __pyx_d, ((PyObject *)__pyx_codeobj__50)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 230, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7density_GaussianDensity->tp_dict, __pyx_n_s_compute, __pyx_t_2) < 0) __PYX_ERR(0, 229, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7density_GaussianDensity->tp_dict, __pyx_n_s_compute, __pyx_t_2) < 0) __PYX_ERR(0, 230, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_7density_GaussianDensity);
 
-  /* "freud/density.pyx":243
+  /* "freud/density.pyx":244
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def density(self):             # <<<<<<<<<<<<<<
  *         """(:math:`w_x`, :math:`w_y`, :math:`w_z`) :class:`numpy.ndarray`: The
  *         image grid with the Gaussian density."""
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7density_15GaussianDensity_9density, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_GaussianDensity_density, NULL, __pyx_n_s_freud_density, __pyx_d, ((PyObject *)__pyx_codeobj__52)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 243, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7density_15GaussianDensity_9density, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_GaussianDensity_density, NULL, __pyx_n_s_freud_density, __pyx_d, ((PyObject *)__pyx_codeobj__52)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 244, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7density_GaussianDensity->tp_dict, __pyx_n_s_density, __pyx_t_2) < 0) __PYX_ERR(0, 243, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7density_GaussianDensity->tp_dict, __pyx_n_s_density, __pyx_t_2) < 0) __PYX_ERR(0, 244, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_7density_GaussianDensity);
 
-  /* "freud/density.pyx":242
+  /* "freud/density.pyx":243
  *         return self
  * 
- *     @Compute._computed_property             # <<<<<<<<<<<<<<
+ *     @_Compute._computed_property             # <<<<<<<<<<<<<<
  *     def density(self):
  *         """(:math:`w_x`, :math:`w_y`, :math:`w_z`) :class:`numpy.ndarray`: The
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_4util_Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 242, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_4util__Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 243, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
 
-  /* "freud/density.pyx":243
+  /* "freud/density.pyx":244
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def density(self):             # <<<<<<<<<<<<<<
  *         """(:math:`w_x`, :math:`w_y`, :math:`w_z`) :class:`numpy.ndarray`: The
  *         image grid with the Gaussian density."""
  */
-  __Pyx_GetNameInClass(__pyx_t_4, (PyObject *)__pyx_ptype_5freud_7density_GaussianDensity, __pyx_n_s_density); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 243, __pyx_L1_error)
+  __Pyx_GetNameInClass(__pyx_t_4, (PyObject *)__pyx_ptype_5freud_7density_GaussianDensity, __pyx_n_s_density); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 244, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_1))) {
@@ -28168,36 +28463,36 @@ if (!__Pyx_RefNanny) {
   __pyx_t_2 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_1, __pyx_t_5, __pyx_t_4) : __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 242, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 243, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7density_GaussianDensity->tp_dict, __pyx_n_s_density, __pyx_t_2) < 0) __PYX_ERR(0, 243, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7density_GaussianDensity->tp_dict, __pyx_n_s_density, __pyx_t_2) < 0) __PYX_ERR(0, 244, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_7density_GaussianDensity);
 
-  /* "freud/density.pyx":278
+  /* "freud/density.pyx":279
  *                                             sigma=self.sigma)
  * 
  *     def plot(self, ax=None):             # <<<<<<<<<<<<<<
  *         """Plot Gaussian Density.
  * 
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7density_15GaussianDensity_13plot, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_GaussianDensity_plot, NULL, __pyx_n_s_freud_density, __pyx_d, ((PyObject *)__pyx_codeobj__54)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 278, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7density_15GaussianDensity_13plot, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_GaussianDensity_plot, NULL, __pyx_n_s_freud_density, __pyx_d, ((PyObject *)__pyx_codeobj__54)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 279, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7density_GaussianDensity->tp_dict, __pyx_n_s_plot, __pyx_t_2) < 0) __PYX_ERR(0, 278, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7density_GaussianDensity->tp_dict, __pyx_n_s_plot, __pyx_t_2) < 0) __PYX_ERR(0, 279, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_7density_GaussianDensity);
 
-  /* "freud/density.pyx":294
+  /* "freud/density.pyx":295
  *         return freud.plot.density_plot(self.density, self.box, ax=ax)
  * 
  *     def _repr_png_(self):             # <<<<<<<<<<<<<<
- *         import freud.plot
  *         try:
+ *             import freud.plot
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7density_15GaussianDensity_15_repr_png_, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_GaussianDensity__repr_png, NULL, __pyx_n_s_freud_density, __pyx_d, ((PyObject *)__pyx_codeobj__56)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 294, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7density_15GaussianDensity_15_repr_png_, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_GaussianDensity__repr_png, NULL, __pyx_n_s_freud_density, __pyx_d, ((PyObject *)__pyx_codeobj__56)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 295, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7density_GaussianDensity->tp_dict, __pyx_n_s_repr_png, __pyx_t_2) < 0) __PYX_ERR(0, 294, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7density_GaussianDensity->tp_dict, __pyx_n_s_repr_png, __pyx_t_2) < 0) __PYX_ERR(0, 295, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_7density_GaussianDensity);
 
@@ -28222,37 +28517,37 @@ if (!__Pyx_RefNanny) {
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_setstate_cython, __pyx_t_2) < 0) __PYX_ERR(1, 3, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/density.pyx":354
+  /* "freud/density.pyx":355
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def box(self):             # <<<<<<<<<<<<<<
  *         """:class:`freud.box.Box`: Box used in the calculation."""
  *         return freud.box.BoxFromCPP(self.thisptr.getBox())
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7density_12LocalDensity_5box, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_LocalDensity_box, NULL, __pyx_n_s_freud_density, __pyx_d, ((PyObject *)__pyx_codeobj__62)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 354, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7density_12LocalDensity_5box, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_LocalDensity_box, NULL, __pyx_n_s_freud_density, __pyx_d, ((PyObject *)__pyx_codeobj__62)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 355, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7density_LocalDensity->tp_dict, __pyx_n_s_box, __pyx_t_2) < 0) __PYX_ERR(0, 354, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7density_LocalDensity->tp_dict, __pyx_n_s_box, __pyx_t_2) < 0) __PYX_ERR(0, 355, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_7density_LocalDensity);
 
-  /* "freud/density.pyx":353
+  /* "freud/density.pyx":354
  *         return self.thisptr.getDiameter()
  * 
- *     @Compute._computed_property             # <<<<<<<<<<<<<<
+ *     @_Compute._computed_property             # <<<<<<<<<<<<<<
  *     def box(self):
  *         """:class:`freud.box.Box`: Box used in the calculation."""
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_4util_Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 353, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_4util__Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 354, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
 
-  /* "freud/density.pyx":354
+  /* "freud/density.pyx":355
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def box(self):             # <<<<<<<<<<<<<<
  *         """:class:`freud.box.Box`: Box used in the calculation."""
  *         return freud.box.BoxFromCPP(self.thisptr.getBox())
  */
-  __Pyx_GetNameInClass(__pyx_t_4, (PyObject *)__pyx_ptype_5freud_7density_LocalDensity, __pyx_n_s_box); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 354, __pyx_L1_error)
+  __Pyx_GetNameInClass(__pyx_t_4, (PyObject *)__pyx_ptype_5freud_7density_LocalDensity, __pyx_n_s_box); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 355, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_1))) {
@@ -28267,32 +28562,32 @@ if (!__Pyx_RefNanny) {
   __pyx_t_2 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_1, __pyx_t_5, __pyx_t_4) : __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 353, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 354, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7density_LocalDensity->tp_dict, __pyx_n_s_box, __pyx_t_2) < 0) __PYX_ERR(0, 354, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7density_LocalDensity->tp_dict, __pyx_n_s_box, __pyx_t_2) < 0) __PYX_ERR(0, 355, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_7density_LocalDensity);
 
-  /* "freud/density.pyx":358
+  /* "freud/density.pyx":359
  *         return freud.box.BoxFromCPP(self.thisptr.getBox())
  * 
  *     def compute(self, system, query_points=None, neighbors=None):             # <<<<<<<<<<<<<<
- *         R"""Calculates the local density for the specified points. Does not
- *         accumulate (will overwrite current data).
+ *         R"""Calculates the local density for the specified points.
+ * 
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7density_12LocalDensity_7compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_LocalDensity_compute, NULL, __pyx_n_s_freud_density, __pyx_d, ((PyObject *)__pyx_codeobj__64)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 358, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7density_12LocalDensity_7compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_LocalDensity_compute, NULL, __pyx_n_s_freud_density, __pyx_d, ((PyObject *)__pyx_codeobj__64)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 359, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7density_LocalDensity->tp_dict, __pyx_n_s_compute, __pyx_t_2) < 0) __PYX_ERR(0, 358, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7density_LocalDensity->tp_dict, __pyx_n_s_compute, __pyx_t_2) < 0) __PYX_ERR(0, 359, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_7density_LocalDensity);
 
   /* "freud/density.pyx":401
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def density(self):             # <<<<<<<<<<<<<<
  *         """(:math:`N_{points}`) :class:`numpy.ndarray`: Density of points per
- *         ref_point."""
+ *         query point."""
  */
   __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7density_12LocalDensity_9density, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_LocalDensity_density, NULL, __pyx_n_s_freud_density, __pyx_d, ((PyObject *)__pyx_codeobj__66)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 401, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -28303,19 +28598,19 @@ if (!__Pyx_RefNanny) {
   /* "freud/density.pyx":400
  *                     r_max=self.r_max + 0.5*self.diameter)
  * 
- *     @Compute._computed_property             # <<<<<<<<<<<<<<
+ *     @_Compute._computed_property             # <<<<<<<<<<<<<<
  *     def density(self):
  *         """(:math:`N_{points}`) :class:`numpy.ndarray`: Density of points per
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_4util_Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 400, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_4util__Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 400, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
 
   /* "freud/density.pyx":401
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def density(self):             # <<<<<<<<<<<<<<
  *         """(:math:`N_{points}`) :class:`numpy.ndarray`: Density of points per
- *         ref_point."""
+ *         query point."""
  */
   __Pyx_GetNameInClass(__pyx_t_4, (PyObject *)__pyx_ptype_5freud_7density_LocalDensity, __pyx_n_s_density); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 401, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
@@ -28341,10 +28636,10 @@ if (!__Pyx_RefNanny) {
 
   /* "freud/density.pyx":409
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def num_neighbors(self):             # <<<<<<<<<<<<<<
  *         """(:math:`N_{points}`) :class:`numpy.ndarray`: Number of neighbor
- *         points for each ref_point."""
+ *         points for each query point."""
  */
   __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7density_12LocalDensity_11num_neighbors, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_LocalDensity_num_neighbors, NULL, __pyx_n_s_freud_density, __pyx_d, ((PyObject *)__pyx_codeobj__68)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 409, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -28355,19 +28650,19 @@ if (!__Pyx_RefNanny) {
   /* "freud/density.pyx":408
  *             freud.util.arr_type_t.FLOAT)
  * 
- *     @Compute._computed_property             # <<<<<<<<<<<<<<
+ *     @_Compute._computed_property             # <<<<<<<<<<<<<<
  *     def num_neighbors(self):
  *         """(:math:`N_{points}`) :class:`numpy.ndarray`: Number of neighbor
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_4util_Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 408, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_4util__Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 408, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
 
   /* "freud/density.pyx":409
  * 
- *     @Compute._computed_property
+ *     @_Compute._computed_property
  *     def num_neighbors(self):             # <<<<<<<<<<<<<<
  *         """(:math:`N_{points}`) :class:`numpy.ndarray`: Number of neighbor
- *         points for each ref_point."""
+ *         points for each query point."""
  */
   __Pyx_GetNameInClass(__pyx_t_4, (PyObject *)__pyx_ptype_5freud_7density_LocalDensity, __pyx_n_s_num_neighbors); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 409, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
@@ -28412,50 +28707,50 @@ if (!__Pyx_RefNanny) {
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_setstate_cython, __pyx_t_2) < 0) __PYX_ERR(1, 3, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/density.pyx":468
+  /* "freud/density.pyx":485
  *             del self.thisptr
  * 
  *     def compute(self, system, query_points=None, neighbors=None,             # <<<<<<<<<<<<<<
  *                 reset=True):
  *         R"""Calculates the RDF and adds to the current RDF histogram.
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7density_3RDF_5compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_RDF_compute, NULL, __pyx_n_s_freud_density, __pyx_d, ((PyObject *)__pyx_codeobj__74)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 468, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7density_3RDF_5compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_RDF_compute, NULL, __pyx_n_s_freud_density, __pyx_d, ((PyObject *)__pyx_codeobj__74)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 485, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7density_RDF->tp_dict, __pyx_n_s_compute, __pyx_t_2) < 0) __PYX_ERR(0, 468, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7density_RDF->tp_dict, __pyx_n_s_compute, __pyx_t_2) < 0) __PYX_ERR(0, 485, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_7density_RDF);
 
-  /* "freud/density.pyx":511
+  /* "freud/density.pyx":528
  * 
- *     @Compute._computed_property
- *     def RDF(self):             # <<<<<<<<<<<<<<
+ *     @_Compute._computed_property
+ *     def rdf(self):             # <<<<<<<<<<<<<<
  *         """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Histogram of RDF
  *         values."""
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7density_3RDF_7RDF, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_RDF_RDF, NULL, __pyx_n_s_freud_density, __pyx_d, ((PyObject *)__pyx_codeobj__76)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 511, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7density_3RDF_7rdf, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_RDF_rdf, NULL, __pyx_n_s_freud_density, __pyx_d, ((PyObject *)__pyx_codeobj__76)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 528, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7density_RDF->tp_dict, __pyx_n_s_RDF, __pyx_t_2) < 0) __PYX_ERR(0, 511, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7density_RDF->tp_dict, __pyx_n_s_rdf, __pyx_t_2) < 0) __PYX_ERR(0, 528, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_7density_RDF);
 
-  /* "freud/density.pyx":510
+  /* "freud/density.pyx":527
  *         return self
  * 
- *     @Compute._computed_property             # <<<<<<<<<<<<<<
- *     def RDF(self):
+ *     @_Compute._computed_property             # <<<<<<<<<<<<<<
+ *     def rdf(self):
  *         """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Histogram of RDF
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_4util_Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 510, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_4util__Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 527, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
 
-  /* "freud/density.pyx":511
+  /* "freud/density.pyx":528
  * 
- *     @Compute._computed_property
- *     def RDF(self):             # <<<<<<<<<<<<<<
+ *     @_Compute._computed_property
+ *     def rdf(self):             # <<<<<<<<<<<<<<
  *         """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Histogram of RDF
  *         values."""
  */
-  __Pyx_GetNameInClass(__pyx_t_4, (PyObject *)__pyx_ptype_5freud_7density_RDF, __pyx_n_s_RDF); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 511, __pyx_L1_error)
+  __Pyx_GetNameInClass(__pyx_t_4, (PyObject *)__pyx_ptype_5freud_7density_RDF, __pyx_n_s_rdf); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 528, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_1))) {
@@ -28470,88 +28765,88 @@ if (!__Pyx_RefNanny) {
   __pyx_t_2 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_1, __pyx_t_5, __pyx_t_4) : __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 510, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 527, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7density_RDF->tp_dict, __pyx_n_s_RDF, __pyx_t_2) < 0) __PYX_ERR(0, 511, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  PyType_Modified(__pyx_ptype_5freud_7density_RDF);
-
-  /* "freud/density.pyx":519
- * 
- *     @Compute._computed_property
- *     def n_r(self):             # <<<<<<<<<<<<<<
- *         """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Histogram of cumulative
- *         bin_counts values. More precisely, :code:`n_r[i]` is the average number
- */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7density_3RDF_9n_r, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_RDF_n_r, NULL, __pyx_n_s_freud_density, __pyx_d, ((PyObject *)__pyx_codeobj__78)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 519, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7density_RDF->tp_dict, __pyx_n_s_n_r, __pyx_t_2) < 0) __PYX_ERR(0, 519, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  PyType_Modified(__pyx_ptype_5freud_7density_RDF);
-
-  /* "freud/density.pyx":518
- *             freud.util.arr_type_t.FLOAT)
- * 
- *     @Compute._computed_property             # <<<<<<<<<<<<<<
- *     def n_r(self):
- *         """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Histogram of cumulative
- */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_4util_Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 518, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-
-  /* "freud/density.pyx":519
- * 
- *     @Compute._computed_property
- *     def n_r(self):             # <<<<<<<<<<<<<<
- *         """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Histogram of cumulative
- *         bin_counts values. More precisely, :code:`n_r[i]` is the average number
- */
-  __Pyx_GetNameInClass(__pyx_t_4, (PyObject *)__pyx_ptype_5freud_7density_RDF, __pyx_n_s_n_r); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 519, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = NULL;
-  if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_1))) {
-    __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_1);
-    if (likely(__pyx_t_5)) {
-      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_1);
-      __Pyx_INCREF(__pyx_t_5);
-      __Pyx_INCREF(function);
-      __Pyx_DECREF_SET(__pyx_t_1, function);
-    }
-  }
-  __pyx_t_2 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_1, __pyx_t_5, __pyx_t_4) : __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_t_4);
-  __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 518, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7density_RDF->tp_dict, __pyx_n_s_n_r, __pyx_t_2) < 0) __PYX_ERR(0, 519, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7density_RDF->tp_dict, __pyx_n_s_rdf, __pyx_t_2) < 0) __PYX_ERR(0, 528, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_7density_RDF);
 
   /* "freud/density.pyx":536
+ * 
+ *     @_Compute._computed_property
+ *     def n_r(self):             # <<<<<<<<<<<<<<
+ *         """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Histogram of cumulative
+ *         bin_counts values. More precisely, :code:`n_r[i]` is the average number
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7density_3RDF_9n_r, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_RDF_n_r, NULL, __pyx_n_s_freud_density, __pyx_d, ((PyObject *)__pyx_codeobj__78)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 536, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7density_RDF->tp_dict, __pyx_n_s_n_r, __pyx_t_2) < 0) __PYX_ERR(0, 536, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_7density_RDF);
+
+  /* "freud/density.pyx":535
+ *             freud.util.arr_type_t.FLOAT)
+ * 
+ *     @_Compute._computed_property             # <<<<<<<<<<<<<<
+ *     def n_r(self):
+ *         """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Histogram of cumulative
+ */
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_4util__Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 535, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+
+  /* "freud/density.pyx":536
+ * 
+ *     @_Compute._computed_property
+ *     def n_r(self):             # <<<<<<<<<<<<<<
+ *         """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Histogram of cumulative
+ *         bin_counts values. More precisely, :code:`n_r[i]` is the average number
+ */
+  __Pyx_GetNameInClass(__pyx_t_4, (PyObject *)__pyx_ptype_5freud_7density_RDF, __pyx_n_s_n_r); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 536, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_5 = NULL;
+  if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_1))) {
+    __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_1);
+    if (likely(__pyx_t_5)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_1);
+      __Pyx_INCREF(__pyx_t_5);
+      __Pyx_INCREF(function);
+      __Pyx_DECREF_SET(__pyx_t_1, function);
+    }
+  }
+  __pyx_t_2 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_1, __pyx_t_5, __pyx_t_4) : __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 535, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7density_RDF->tp_dict, __pyx_n_s_n_r, __pyx_t_2) < 0) __PYX_ERR(0, 536, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_7density_RDF);
+
+  /* "freud/density.pyx":553
  *                                          r_min=self.bounds[0])
  * 
  *     def plot(self, ax=None):             # <<<<<<<<<<<<<<
  *         """Plot radial distribution function.
  * 
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7density_3RDF_13plot, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_RDF_plot, NULL, __pyx_n_s_freud_density, __pyx_d, ((PyObject *)__pyx_codeobj__80)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 536, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7density_3RDF_13plot, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_RDF_plot, NULL, __pyx_n_s_freud_density, __pyx_d, ((PyObject *)__pyx_codeobj__80)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 553, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7density_RDF->tp_dict, __pyx_n_s_plot, __pyx_t_2) < 0) __PYX_ERR(0, 536, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7density_RDF->tp_dict, __pyx_n_s_plot, __pyx_t_2) < 0) __PYX_ERR(0, 553, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_7density_RDF);
 
-  /* "freud/density.pyx":554
+  /* "freud/density.pyx":571
  *                                     ax=ax)
  * 
  *     def _repr_png_(self):             # <<<<<<<<<<<<<<
- *         import freud.plot
  *         try:
+ *             import freud.plot
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7density_3RDF_15_repr_png_, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_RDF__repr_png, NULL, __pyx_n_s_freud_density, __pyx_d, ((PyObject *)__pyx_codeobj__82)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 554, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7density_3RDF_15_repr_png_, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_RDF__repr_png, NULL, __pyx_n_s_freud_density, __pyx_d, ((PyObject *)__pyx_codeobj__82)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 571, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7density_RDF->tp_dict, __pyx_n_s_repr_png, __pyx_t_2) < 0) __PYX_ERR(0, 554, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7density_RDF->tp_dict, __pyx_n_s_repr_png, __pyx_t_2) < 0) __PYX_ERR(0, 571, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_7density_RDF);
 
@@ -29493,6 +29788,46 @@ static CYTHON_INLINE void __Pyx_XDEC_MEMVIEW(__Pyx_memviewslice *memslice,
     } else {
         memslice->memview = NULL;
     }
+}
+
+/* KeywordStringCheck */
+static int __Pyx_CheckKeywordStrings(
+    PyObject *kwdict,
+    const char* function_name,
+    int kw_allowed)
+{
+    PyObject* key = 0;
+    Py_ssize_t pos = 0;
+#if CYTHON_COMPILING_IN_PYPY
+    if (!kw_allowed && PyDict_Next(kwdict, &pos, &key, 0))
+        goto invalid_keyword;
+    return 1;
+#else
+    while (PyDict_Next(kwdict, &pos, &key, 0)) {
+        #if PY_MAJOR_VERSION < 3
+        if (unlikely(!PyString_Check(key)))
+        #endif
+            if (unlikely(!PyUnicode_Check(key)))
+                goto invalid_keyword_type;
+    }
+    if ((!kw_allowed) && unlikely(key))
+        goto invalid_keyword;
+    return 1;
+invalid_keyword_type:
+    PyErr_Format(PyExc_TypeError,
+        "%.200s() keywords must be strings", function_name);
+    return 0;
+#endif
+invalid_keyword:
+    PyErr_Format(PyExc_TypeError,
+    #if PY_MAJOR_VERSION < 3
+        "%.200s() got an unexpected keyword argument '%.200s'",
+        function_name, PyString_AsString(key));
+    #else
+        "%s() got an unexpected keyword argument '%U'",
+        function_name, key);
+    #endif
+    return 0;
 }
 
 /* Import */
