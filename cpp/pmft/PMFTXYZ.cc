@@ -70,7 +70,7 @@ void PMFTXYZ::reduce()
 /*! \brief Helper function to direct the calculation to the correct helper class
  */
 void PMFTXYZ::accumulate(const locality::NeighborQuery* neighbor_query,
-                         quat<float>* orientations, vec3<float>* query_points,
+                         quat<float>* query_orientations, vec3<float>* query_points,
                          unsigned int n_query_points, quat<float>* face_orientations,
                          unsigned int n_faces, const locality::NeighborList* nlist,
                          freud::locality::QueryArgs qargs)
@@ -80,7 +80,7 @@ void PMFTXYZ::accumulate(const locality::NeighborQuery* neighbor_query,
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
         [=](const freud::locality::NeighborBond& neighbor_bond) {
         // create the reference point quaternion
-        quat<float> ref_q(orientations[neighbor_bond.point_idx]);
+        quat<float> ref_q(query_orientations[neighbor_bond.point_idx]);
         // make sure that the particles are wrapped into the box
         vec3<float> delta(bondVector(neighbor_bond, neighbor_query, query_points));
 
