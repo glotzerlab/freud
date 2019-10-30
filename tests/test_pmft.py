@@ -705,7 +705,8 @@ class TestPMFTXYZ(unittest.TestCase):
         nbinsY = 110
         nbinsZ = 120
         myPMFT = freud.pmft.PMFTXYZ(maxX, maxY, maxZ, (nbinsX, nbinsY, nbinsZ))
-        myPMFT.compute((box, points), orientations, points, orientations,
+        myPMFT.compute(system=(box, points), query_orientations=orientations,
+                       query_points=points, face_orientations=orientations,
                        reset=False)
         npt.assert_equal(myPMFT.box, freud.box.Box.cube(boxSize))
 
@@ -776,8 +777,8 @@ class TestPMFTXYZ(unittest.TestCase):
         with self.assertRaises(AttributeError):
             myPMFT.pmft
 
-        myPMFT.compute((box, points), orientations, points, orientations,
-                       reset=False)
+        myPMFT.compute(system=(box, points), query_orientations=orientations,
+                       query_points=points, reset=False)
 
         myPMFT.bin_counts
         myPMFT.pmft
@@ -795,7 +796,8 @@ class TestPMFTXYZ(unittest.TestCase):
         box = freud.box.Box.cube(boxSize)
         points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
                           dtype=np.float32)
-        orientations = np.array([[1, 0, 0, 0], [1, 0, 0, 0]], dtype=np.float32)
+        query_orientations = np.array([[1, 0, 0, 0], [1, 0, 0, 0]],
+                                      dtype=np.float32)
         maxX = 5.23
         maxY = 6.23
         maxZ = 7.23
@@ -826,45 +828,47 @@ class TestPMFTXYZ(unittest.TestCase):
         for nq, neighbors in test_set:
             myPMFT = freud.pmft.PMFTXYZ(
                 maxX, maxY, maxZ, (nbinsX, nbinsY, nbinsZ))
-            myPMFT.compute(nq, orientations, neighbors=neighbors, reset=False)
+            myPMFT.compute(nq, query_orientations, neighbors=neighbors,
+                           reset=False)
             npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                                 atol=absoluteTolerance)
-            myPMFT.compute(nq, orientations, neighbors=neighbors)
+            myPMFT.compute(nq, query_orientations, neighbors=neighbors)
             npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                                 atol=absoluteTolerance)
 
-            # Test face orientations, shape (N_faces, 4)
+            # Test face_orientations, shape (N_faces, 4)
             face_orientations = np.array([[1., 0., 0., 0.]])
-            myPMFT.compute(nq, orientations, neighbors=neighbors,
+            myPMFT.compute(nq, query_orientations, neighbors=neighbors,
                            face_orientations=face_orientations)
             npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                                 atol=absoluteTolerance)
-            # Test face orientations, shape (1, N_faces, 4)
+            # Test face_orientations, shape (1, N_faces, 4)
             face_orientations = np.array([[[1., 0., 0., 0.]]])
-            myPMFT.compute(nq, orientations, neighbors=neighbors,
+            myPMFT.compute(nq, query_orientations, neighbors=neighbors,
                            face_orientations=face_orientations)
             npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                                 atol=absoluteTolerance)
-            # Test face orientations, shape (N_particles, N_faces, 4)
+            # Test face_orientations, shape (N_particles, N_faces, 4)
             face_orientations = np.array([[[1., 0., 0., 0.]],
                                           [[1., 0., 0., 0.]]])
-            myPMFT.compute(nq, orientations, neighbors=neighbors,
+            myPMFT.compute(nq, query_orientations, neighbors=neighbors,
                            face_orientations=face_orientations)
             npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                                 atol=absoluteTolerance)
 
-            myPMFT.compute(nq, orientations, neighbors=neighbors)
+            myPMFT.compute(nq, query_orientations, neighbors=neighbors)
             npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                                 atol=absoluteTolerance)
 
     def test_shift_two_particles_dead_pixel(self):
         points = np.array([[1, 1, 1], [0, 0, 0]], dtype=np.float32)
-        orientations = np.array([[1, 0, 0, 0], [1, 0, 0, 0]], dtype=np.float32)
+        query_orientations = np.array([[1, 0, 0, 0], [1, 0, 0, 0]],
+                                      dtype=np.float32)
         noshift = freud.pmft.PMFTXYZ(0.5, 0.5, 0.5, 3, shiftvec=[0, 0, 0])
         shift = freud.pmft.PMFTXYZ(0.5, 0.5, 0.5, 3, shiftvec=[1, 1, 1])
 
         for pm in [noshift, shift]:
-            pm.compute((freud.box.Box.cube(3), points), orientations)
+            pm.compute((freud.box.Box.cube(3), points), query_orientations)
 
         # Ignore warnings about NaNs
         warnings.simplefilter("ignore", category=RuntimeWarning)
