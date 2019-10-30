@@ -26,7 +26,8 @@ class TestReaderIntegrations(unittest.TestCase):
             ql.compute(system, neighbors={'num_neighbors': 6})
         npt.assert_allclose(rdf.rdf, LJ_RDF, rtol=1e-5, atol=1e-5)
 
-    @unittest.skipIf(sys.platform.startswith("win"))
+    @unittest.skipIf(sys.platform.startswith("win"),
+                     "Not supported on Windows.")
     def test_mdanalysis_gsd(self):
         import MDAnalysis
         reader = MDAnalysis.coordinates.GSD.GSDReader(LJ_GSD)
