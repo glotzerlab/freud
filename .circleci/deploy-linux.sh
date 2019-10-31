@@ -36,7 +36,9 @@ source tbbvars.sh
 cd ~/
 
 # Build wheels for Python 3.5+
-for PYBIN in /opt/python/cp3[5-9]*/bin; do
+PYBINS="/opt/python/cp3[5-9]*/bin"
+
+for PYBIN in $PYBINS; do
   echo "Building for $(${PYBIN}/python --version)"
 
   "${PYBIN}/python" -m pip install cython --no-deps --ignore-installed -q --progress-bar=off
@@ -56,7 +58,7 @@ for whl in ~/wheelhouse/freud*.whl; do
 done
 
 # Install from and test all wheels
-for PYBIN in /opt/python/*/bin/; do
+for PYBIN in $PYBINS; do
   "${PYBIN}/python" -m pip install freud_analysis --no-deps --no-index -f ~/ci/freud/wheelhouse
   "${PYBIN}/python" -m pip install -U -r ~/ci/freud/requirements-testing.txt
   cd ~/ci/freud/tests
