@@ -5,10 +5,10 @@
 #define LOCAL_BOND_PROJECTION_H
 
 #include "Box.h"
-#include "NeighborQuery.h"
-#include "NeighborList.h"
-#include "VectorMath.h"
 #include "ManagedArray.h"
+#include "NeighborList.h"
+#include "NeighborQuery.h"
+#include "VectorMath.h"
 
 /*! \file LocalBondProjection.h
     \brief Compute the projection of nearest neighbor bonds for each particle onto some
@@ -32,27 +32,26 @@ public:
     ~LocalBondProjection();
 
     //! Compute the maximal local bond projection
-    void compute(const locality::NeighborQuery *nq,
-        const quat<float>* orientations,
-        const vec3<float>* query_points, unsigned int n_query_points,
-        const vec3<float>* proj_vecs,  unsigned int n_proj,
-        const quat<float>* equiv_orientations, unsigned int n_equiv_orientations,
-        const freud::locality::NeighborList* nlist, locality::QueryArgs qargs);
+    void compute(const locality::NeighborQuery* nq, const quat<float>* orientations,
+                 const vec3<float>* query_points, unsigned int n_query_points, const vec3<float>* proj_vecs,
+                 unsigned int n_proj, const quat<float>* equiv_orientations,
+                 unsigned int n_equiv_orientations, const freud::locality::NeighborList* nlist,
+                 locality::QueryArgs qargs);
 
     //! Get a reference to the last computed maximal local bond projection array
-    const util::ManagedArray<float> &getProjections() const
+    const util::ManagedArray<float>& getProjections() const
     {
         return m_local_bond_proj;
     }
 
     //! Get a reference to the last computed normalized maximal local bond projection array
-    const util::ManagedArray<float> &getNormedProjections() const
+    const util::ManagedArray<float>& getNormedProjections() const
     {
         return m_local_bond_proj_norm;
     }
 
     //! Return a pointer to the NeighborList used in the last call to compute.
-    locality::NeighborList *getNList()
+    locality::NeighborList* getNList()
     {
         return &m_nlist;
     }

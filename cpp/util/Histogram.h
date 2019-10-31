@@ -1,8 +1,8 @@
 #ifndef HISTOGRAM_H
 #define HISTOGRAM_H
 
-#include <vector>
 #include <memory>
+#include <vector>
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
@@ -20,13 +20,12 @@ namespace freud { namespace util {
  * in to indicate what value should be added to a bin. If not provided,
  * defaults to 1. Templated to allow floating weights if needed.
  */
-template <typename T>
-struct Weight
+template<typename T> struct Weight
 {
     Weight() : value(1), is_default(true) {}
     Weight(T value) : value(value), is_default(false) {}
 
-    Weight &operator=(Weight other)
+    Weight& operator=(Weight other)
     {
         if (!is_default)
             throw std::runtime_error("Weight can only be assigned once.");
@@ -67,7 +66,7 @@ public:
      *
      * \return The index of the bin the value falls into.
      */
-    virtual size_t bin(const float &value) const = 0;
+    virtual size_t bin(const float& value) const = 0;
 
     //! Return the boundaries of bins.
     std::vector<float> getBinEdges() const
@@ -81,7 +80,7 @@ public:
         std::vector<float> bin_centers(m_nbins);
         for (size_t i = 0; i < m_nbins; i++)
         {
-            bin_centers[i] = (m_bin_edges[i] + m_bin_edges[i+1])/float(2.0);
+            bin_centers[i] = (m_bin_edges[i] + m_bin_edges[i + 1]) / float(2.0);
         }
         return bin_centers;
     }
@@ -99,10 +98,10 @@ public:
     static const size_t OVERFLOW_BIN = 0xffffffff;
 
 protected:
-    size_t m_nbins; //!< Number of bins
-    float m_min; //!< Lowest value allowed.
-    float m_max; //!< Highest value allowed.
-    std::vector<float> m_bin_edges;   //!< The edges of bins.
+    size_t m_nbins;                 //!< Number of bins
+    float m_min;                    //!< Lowest value allowed.
+    float m_max;                    //!< Highest value allowed.
+    std::vector<float> m_bin_edges; //!< The edges of bins.
 };
 
 //! A regularly spaced axis.
@@ -117,9 +116,9 @@ class RegularAxis : public Axis
 public:
     RegularAxis(size_t nbins, float min, float max) : Axis(nbins, min, max)
     {
-        m_bin_edges.resize(m_nbins+1);
-        m_dr = (max-min)/static_cast<float>(m_nbins);
-        m_dr_inv = float(1.0)/m_dr;
+        m_bin_edges.resize(m_nbins + 1);
+        m_dr = (max - min) / static_cast<float>(m_nbins);
+        m_dr_inv = float(1.0) / m_dr;
         float cur_location = min;
         // This must be <= because there is one extra bin boundary than the number of bins.
         for (size_t i = 0; i <= nbins; i++)
@@ -141,7 +140,7 @@ public:
      *
      * \return The index of the bin the value falls into.
      */
-    virtual size_t bin(const float &value) const
+    virtual size_t bin(const float& value) const
     {
         // Since we're using an unsigned int cast for truncation, we must
         // ensure that we will be working with a positive number or we will
@@ -165,10 +164,9 @@ public:
     }
 
 protected:
-    float m_dr; //!< Gap between bins
+    float m_dr;     //!< Gap between bins
     float m_dr_inv; //!< Inverse gap between bins
 };
-
 
 //! An n-dimensional histogram class.
 /*! The Histogram is designed to simplify the most common use of histograms in
@@ -180,8 +178,7 @@ protected:
  * to operate on the histogram directly. The underlying data is handled using a
  * ManagedArray, allowing dispatch of the multi-dimensional indexing.
  */
-template <typename T>
-class Histogram
+template<typename T> class Histogram
 {
 public:
     //! A container for thread-local copies of a provided histogram.
@@ -200,7 +197,9 @@ public:
     public:
         ThreadLocalHistogram() {}
 
-        ThreadLocalHistogram(Histogram histogram) : m_local_histograms([histogram]() { return Histogram(histogram.m_axes); }) {}
+        ThreadLocalHistogram(Histogram histogram)
+            : m_local_histograms([histogram]() { return Histogram(histogram.m_axes); })
+        {}
 
         typedef typename tbb::enumerable_thread_specific<Histogram>::const_iterator const_iterator;
         typedef typename tbb::enumerable_thread_specific<Histogram>::iterator iterator;
@@ -240,23 +239,23 @@ public:
         }
 
         //! Dispatch to thread local histogram.
-        template <typename ... FloatsOrWeight>
-        void operator()(FloatsOrWeight ... values)
+        template<typename... FloatsOrWeight> void operator()(FloatsOrWeight... values)
         {
-            m_local_histograms.local()(values ...);
+            m_local_histograms.local()(values...);
         }
 
         //! Dispatch to thread local histogram.
-        void increment(size_t value_bin, T weight=1)
+        void increment(size_t value_bin, T weight = 1)
         {
             m_local_histograms.local().increment(value_bin, weight);
         }
 
     protected:
-        tbb::enumerable_thread_specific<Histogram<T> > m_local_histograms;  //!< The thread-local copies of m_histogram.
+        tbb::enumerable_thread_specific<Histogram<T>>
+            m_local_histograms; //!< The thread-local copies of m_histogram.
     };
 
-    typedef std::vector<std::shared_ptr<Axis> > Axes;
+    typedef std::vector<std::shared_ptr<Axis>> Axes;
     typedef Axes::const_iterator AxisIterator;
 
     //! Default constructor
@@ -293,10 +292,9 @@ public:
     ~Histogram() {};
 
     //! Bin value and update the histogram count.
-    template <typename ... FloatsOrWeight>
-    void operator()(FloatsOrWeight ... values)
+    template<typename... FloatsOrWeight> void operator()(FloatsOrWeight... values)
     {
-        std::pair<std::vector<float>, Weight<T> > value_vector = getValueVector(values ...);
+        std::pair<std::vector<float>, Weight<T>> value_vector = getValueVector(values...);
         size_t value_bin = bin(value_vector.first);
         // Check for sentinel to avoid overflow.
         if (value_bin != Axis::OVERFLOW_BIN)
@@ -306,7 +304,7 @@ public:
     }
 
     //! Increment specified linear bin (with a specified weight if desired).
-    void increment(size_t value_bin, T weight=1)
+    void increment(size_t value_bin, T weight = 1)
     {
         // Check for sentinel to avoid overflow.
         if (value_bin != Axis::OVERFLOW_BIN)
@@ -325,7 +323,8 @@ public:
         if (values.size() != m_axes.size())
         {
             std::ostringstream msg;
-            msg << "This Histogram is " << m_axes.size() << "-dimensional, but " << values.size() << " values were provided in bin" << std::endl;
+            msg << "This Histogram is " << m_axes.size() << "-dimensional, but " << values.size()
+                << " values were provided in bin" << std::endl;
             throw std::invalid_argument(msg.str());
         }
         // First bin the values along each axis.
@@ -345,7 +344,7 @@ public:
     }
 
     //! Get the computed histogram.
-    const ManagedArray<T> &getBinCounts() const
+    const ManagedArray<T>& getBinCounts() const
     {
         return m_bin_counts;
     }
@@ -365,9 +364,9 @@ public:
     //! Return the edges of bins.
     /*! This vector will be of size axis.size()+1 for each axis.
      */
-    std::vector<std::vector<float> > getBinEdges() const
+    std::vector<std::vector<float>> getBinEdges() const
     {
-        std::vector<std::vector<float> > bins(m_axes.size());
+        std::vector<std::vector<float>> bins(m_axes.size());
         for (unsigned int i = 0; i < m_axes.size(); ++i)
         {
             bins[i] = m_axes[i]->getBinEdges();
@@ -378,9 +377,9 @@ public:
     //! Return the bin centers.
     /*! This vector will be of size axis.size() for each axis.
      */
-    std::vector<std::vector<float> > getBinCenters() const
+    std::vector<std::vector<float>> getBinCenters() const
     {
-        std::vector<std::vector<float> > bins(m_axes.size());
+        std::vector<std::vector<float>> bins(m_axes.size());
         for (unsigned int i = 0; i < m_axes.size(); ++i)
         {
             bins[i] = m_axes[i]->getBinCenters();
@@ -389,15 +388,12 @@ public:
     }
 
     //! Return a vector of tuples (min, max) indicating the bounds of each axis.
-    std::vector<std::pair<float, float> > getBounds() const
+    std::vector<std::pair<float, float>> getBounds() const
     {
-        std::vector<std::pair<float, float> > bounds(m_axes.size());
+        std::vector<std::pair<float, float>> bounds(m_axes.size());
         for (unsigned int i = 0; i < m_axes.size(); ++i)
         {
-            bounds[i] = std::pair<float, float>(
-                m_axes[i]->getMin(),
-                m_axes[i]->getMax()
-                );
+            bounds[i] = std::pair<float, float>(m_axes[i]->getMin(), m_axes[i]->getMax());
         }
         return bounds;
     }
@@ -421,14 +417,14 @@ public:
      * \param local_histograms The set of local histograms to reduce into this one.
      * \param cf The function to apply to each bin, must have signature (size_t i) {...}
      */
-    template <typename ComputeFunction>
-    void reduceOverThreadsPerBin(ThreadLocalHistogram &local_histograms, const ComputeFunction &cf)
+    template<typename ComputeFunction>
+    void reduceOverThreadsPerBin(ThreadLocalHistogram& local_histograms, const ComputeFunction& cf)
     {
         util::forLoopWrapper(0, m_bin_counts.size(), [=](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
                 for (typename ThreadLocalHistogram::const_iterator local_bins = local_histograms.begin();
-                    local_bins != local_histograms.end(); ++local_bins)
+                     local_bins != local_histograms.end(); ++local_bins)
                 {
                     m_bin_counts[i] += (*local_bins).m_bin_counts[i];
                 }
@@ -447,20 +443,20 @@ public:
      *
      * \param local_histograms The set of local histograms to reduce into this one.
      */
-    void reduceOverThreads(ThreadLocalHistogram &local_histograms)
+    void reduceOverThreads(ThreadLocalHistogram& local_histograms)
     {
         // Simply call the per-bin function with a nullary function.
         reduceOverThreadsPerBin(local_histograms, [](size_t i) {});
     }
 
     //! Writeable index into array.
-    T &operator[](size_t i)
+    T& operator[](size_t i)
     {
         return m_bin_counts[i];
     }
 
     //! Read-only index into array.
-    const T &operator[](size_t i) const
+    const T& operator[](size_t i) const
     {
         return m_bin_counts[i];
     }
@@ -471,17 +467,17 @@ public:
     }
 
 protected:
-    std::vector<std::shared_ptr<Axis > > m_axes; //!< The axes.
-    ManagedArray<T> m_bin_counts; //!< Counts for each bin
+    std::vector<std::shared_ptr<Axis>> m_axes; //!< The axes.
+    ManagedArray<T> m_bin_counts;              //!< Counts for each bin
 
     //! The base case for type float when constructing a vector of values provided to operator().
     /*! This function and the accompanying recursive function below employ
      * variadic templating to accept an arbitrary set of float values and
      * construct a vector out of them.
      */
-    std::pair<std::vector<float>, Weight<T> > getValueVector(float value) const
+    std::pair<std::vector<float>, Weight<T>> getValueVector(float value) const
     {
-        return {{value}, Weight<T> ()};
+        return {{value}, Weight<T>()};
     }
 
     //! The base case for type Weight when constructing a vector of values provided to operator().
@@ -489,25 +485,25 @@ protected:
      * variadic templating to accept an arbitrary set of float values and
      * construct a vector out of them.
      */
-    std::pair<std::vector<float>, Weight<T> > getValueVector(Weight<T>  weight) const
+    std::pair<std::vector<float>, Weight<T>> getValueVector(Weight<T> weight) const
     {
         return {{}, weight};
     }
 
     //! The recursive case for constructing a vector of values (see base-case function docs).
-    template <typename ... FloatsOrWeight>
-    std::pair<std::vector<float>, Weight<T> > getValueVector(float value, FloatsOrWeight ... values) const
+    template<typename... FloatsOrWeight>
+    std::pair<std::vector<float>, Weight<T>> getValueVector(float value, FloatsOrWeight... values) const
     {
-        std::pair<std::vector<float>, Weight<T> > tmp = getValueVector(values...);
+        std::pair<std::vector<float>, Weight<T>> tmp = getValueVector(values...);
         tmp.first.insert(tmp.first.begin(), value);
         return tmp;
     }
 
     //! The recursive case for constructing a vector of values (see base-case function docs).
-    template <typename ... FloatsOrWeight>
-    std::pair<std::vector<float>, Weight<T> > getValueVector(Weight<T>  weight, FloatsOrWeight ... values) const
+    template<typename... FloatsOrWeight>
+    std::pair<std::vector<float>, Weight<T>> getValueVector(Weight<T> weight, FloatsOrWeight... values) const
     {
-        std::pair<std::vector<float>, Weight<T> > tmp = getValueVector(values...);
+        std::pair<std::vector<float>, Weight<T>> tmp = getValueVector(values...);
         tmp.second = weight;
         return tmp;
     }

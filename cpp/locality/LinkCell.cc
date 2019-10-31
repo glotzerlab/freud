@@ -18,7 +18,6 @@
 
 namespace freud { namespace locality {
 
-
 /********************
  * IteratorLinkCell *
  ********************/
@@ -203,15 +202,12 @@ void IteratorCellShell::reset(unsigned int range)
     }
 }
 
-
 /********************
  * LinkCell *
  ********************/
 
 // Default constructor
-LinkCell::LinkCell()
-    : NeighborQuery(), m_n_points(0), m_cell_width(0), m_celldim(0, 0, 0)
-{}
+LinkCell::LinkCell() : NeighborQuery(), m_n_points(0), m_cell_width(0), m_celldim(0, 0, 0) {}
 
 LinkCell::LinkCell(const box::Box& box, const vec3<float>* points, unsigned int n_points, float cell_width)
     : NeighborQuery(box, points, n_points), m_n_points(0), m_cell_width(cell_width), m_celldim(0, 0, 0)
@@ -224,9 +220,9 @@ LinkCell::LinkCell(const box::Box& box, const vec3<float>* points, unsigned int 
         // This number is arbitrary because there is no way to determine an
         // appropriate cell density for an arbitrary triclinic box.
         const unsigned int num_particle_per_cell = 10;
-        unsigned int desired_num_cells = std::max(n_points/num_particle_per_cell,
-                                                  static_cast<unsigned int>(1));
-        m_cell_width = std::cbrtf(box.getVolume()/desired_num_cells);
+        unsigned int desired_num_cells
+            = std::max(n_points / num_particle_per_cell, static_cast<unsigned int>(1));
+        m_cell_width = std::cbrtf(box.getVolume() / desired_num_cells);
     }
 
     m_celldim = computeDimensions(box, m_cell_width);
@@ -236,8 +232,7 @@ LinkCell::LinkCell(const box::Box& box, const vec3<float>* points, unsigned int 
     if ((m_cell_width * 2.0 > nearest_plane_distance.x) || (m_cell_width * 2.0 > nearest_plane_distance.y)
         || (!box.is2D() && m_cell_width * 2.0 > nearest_plane_distance.z))
     {
-        throw std::runtime_error(
-            "Cannot generate a cell list where cell_width is larger than half the box.");
+        throw std::runtime_error("Cannot generate a cell list where cell_width is larger than half the box.");
     }
     // Only 1 cell deep in 2D
     if (box.is2D())
@@ -253,7 +248,6 @@ LinkCell::LinkCell(const box::Box& box, const vec3<float>* points, unsigned int 
 
     computeCellList(points, n_points);
 }
-
 
 unsigned int LinkCell::getCellIndex(const vec3<int> cellCoord) const
 {
@@ -333,8 +327,8 @@ void LinkCell::computeCellList(const vec3<float>* points, unsigned int n_points)
 
 vec3<unsigned int> LinkCell::indexToCoord(unsigned int x) const
 {
-    std::vector<size_t> coord = util::ManagedArray<unsigned int>::getMultiIndex(
-        {m_celldim.x, m_celldim.y, m_celldim.z}, x);
+    std::vector<size_t> coord
+        = util::ManagedArray<unsigned int>::getMultiIndex({m_celldim.x, m_celldim.y, m_celldim.z}, x);
     // For backwards compatibility with the Index1D layout, the indices and
     // the dimensions are passed in reverse to the indexer. Changing this would
     // also require updating the logic in IteratorCellShell.
@@ -467,17 +461,19 @@ const std::vector<unsigned int>& LinkCell::computeCellNeighbors(unsigned int cur
     return a->second;
 }
 
-std::shared_ptr<NeighborQueryPerPointIterator> LinkCell::querySingle(const vec3<float> query_point, unsigned int query_point_idx,
-                                                             QueryArgs args) const
+std::shared_ptr<NeighborQueryPerPointIterator>
+LinkCell::querySingle(const vec3<float> query_point, unsigned int query_point_idx, QueryArgs args) const
 {
     this->validateQueryArgs(args);
     if (args.mode == QueryArgs::ball)
     {
-        return std::make_shared<LinkCellQueryBallIterator>(this, query_point, query_point_idx, args.r_max, args.r_min, args.exclude_ii);
+        return std::make_shared<LinkCellQueryBallIterator>(this, query_point, query_point_idx, args.r_max,
+                                                           args.r_min, args.exclude_ii);
     }
     else if (args.mode == QueryArgs::nearest)
     {
-        return std::make_shared<LinkCellQueryIterator>(this, query_point, query_point_idx, args.num_neighbors, args.r_max, args.r_min, args.exclude_ii);
+        return std::make_shared<LinkCellQueryIterator>(this, query_point, query_point_idx, args.num_neighbors,
+                                                       args.r_max, args.r_min, args.exclude_ii);
     }
     else
     {
@@ -492,7 +488,7 @@ NeighborBond LinkCellQueryBallIterator::next()
 
     vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_query_point));
     const unsigned int point_cell_index = m_linkcell->getCellIndex(
-            vec3<int>(point_cell.x, point_cell.y, point_cell.z) + (*m_neigh_cell_iter));
+        vec3<int>(point_cell.x, point_cell.y, point_cell.z) + (*m_neigh_cell_iter));
     m_searched_cells.insert(point_cell_index);
 
     // Loop over cell list neighbor shells relative to this point's cell.
@@ -534,7 +530,7 @@ NeighborBond LinkCellQueryBallIterator::next()
             }
 
             const unsigned int neighbor_cell_index = m_linkcell->getCellIndex(
-                    vec3<int>(point_cell.x, point_cell.y, point_cell.z) + (*m_neigh_cell_iter));
+                vec3<int>(point_cell.x, point_cell.y, point_cell.z) + (*m_neigh_cell_iter));
             // Insertion to an unordered set returns a pair, the second
             // element indicates insertion success or failure (if it
             // already exists)
@@ -572,7 +568,7 @@ NeighborBond LinkCellQueryIterator::next()
 
     vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_query_point));
     const unsigned int point_cell_index = m_linkcell->getCellIndex(
-            vec3<int>(point_cell.x, point_cell.y, point_cell.z) + (*m_neigh_cell_iter));
+        vec3<int>(point_cell.x, point_cell.y, point_cell.z) + (*m_neigh_cell_iter));
     m_searched_cells.insert(point_cell_index);
 
     // Loop over cell list neighbor shells relative to this point's cell.
@@ -595,8 +591,7 @@ NeighborBond LinkCellQueryIterator::next()
                     {
                         continue;
                     }
-                    const vec3<float> r_ij(
-                        m_neighbor_query->getBox().wrap((*m_linkcell)[j] - m_query_point));
+                    const vec3<float> r_ij(m_neighbor_query->getBox().wrap((*m_linkcell)[j] - m_query_point));
                     const float r_sq(dot(r_ij, r_ij));
                     if (r_sq < r_max_sq && r_sq >= r_min_sq)
                         m_current_neighbors.emplace_back(m_query_point_idx, j, sqrt(r_sq));
@@ -613,7 +608,7 @@ NeighborBond LinkCellQueryIterator::next()
                 }
 
                 const unsigned int neighbor_cell_index = m_linkcell->getCellIndex(
-                        vec3<int>(point_cell.x, point_cell.y, point_cell.z) + (*m_neigh_cell_iter));
+                    vec3<int>(point_cell.x, point_cell.y, point_cell.z) + (*m_neigh_cell_iter));
                 // Insertion to an unordered set returns a pair, the second
                 // element indicates insertion success or failure (if it
                 // already exists)

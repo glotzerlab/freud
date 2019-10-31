@@ -5,10 +5,10 @@
 #define LOCAL_DENSITY_H
 
 #include "Box.h"
+#include "ManagedArray.h"
 #include "NeighborList.h"
 #include "NeighborQuery.h"
 #include "VectorMath.h"
-#include "ManagedArray.h"
 
 /*! \file LocalDensity.h
     \brief Routines for computing local density around a point.
@@ -52,21 +52,21 @@ public:
                  freud::locality::QueryArgs qargs);
 
     //! Get a reference to the last computed density
-    const util::ManagedArray<float> &getDensity() const
+    const util::ManagedArray<float>& getDensity() const
     {
         return m_density_array;
     }
 
     //! Get a reference to the last computed number of neighbors
-    const util::ManagedArray<float> &getNumNeighbors() const
+    const util::ManagedArray<float>& getNumNeighbors() const
     {
         return m_num_neighbors_array;
     }
 
 private:
-    box::Box m_box;       //!< Simulation box where the particles belong
-    float m_r_max;         //!< Maximum neighbor distance
-    float m_diameter;     //!< Diameter of the particles
+    box::Box m_box;   //!< Simulation box where the particles belong
+    float m_r_max;    //!< Maximum neighbor distance
+    float m_diameter; //!< Diameter of the particles
 
     util::ManagedArray<float> m_density_array;       //!< density array computed
     util::ManagedArray<float> m_num_neighbors_array; //!< number of neighbors array computed

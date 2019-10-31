@@ -32,8 +32,10 @@ struct QueryArgs
     //! Default constructor.
     /*! We set default values for all parameters here.
      */
-    QueryArgs() : mode(DEFAULT_MODE), num_neighbors(DEFAULT_NUM_NEIGHBORS), r_max(DEFAULT_R_MAX), r_min(DEFAULT_R_MIN),
-                  r_guess(DEFAULT_R_GUESS), scale(DEFAULT_SCALE), exclude_ii(DEFAULT_EXCLUDE_II) {}
+    QueryArgs()
+        : mode(DEFAULT_MODE), num_neighbors(DEFAULT_NUM_NEIGHBORS), r_max(DEFAULT_R_MAX),
+          r_min(DEFAULT_R_MIN), r_guess(DEFAULT_R_GUESS), scale(DEFAULT_SCALE), exclude_ii(DEFAULT_EXCLUDE_II)
+    {}
 
     //! Enumeration for types of queries.
     enum QueryType
@@ -43,22 +45,23 @@ struct QueryArgs
         nearest, //! Query based on number of requested neighbors.
     };
 
-    QueryType mode;    //! Whether to perform a ball or k-nearest neighbor query.
-    unsigned int num_neighbors;         //! The number of nearest neighbors to find.
-    float r_max;       //! The cutoff distance within which to find neighbors.
-    float r_min;       //! The minimum distance beyond which to find neighbors.
-    float r_guess;     //! The initial distance for finding neighbors, used by some algorithms to initialize a number of neighbors query.
+    QueryType mode;             //! Whether to perform a ball or k-nearest neighbor query.
+    unsigned int num_neighbors; //! The number of nearest neighbors to find.
+    float r_max;                //! The cutoff distance within which to find neighbors.
+    float r_min;                //! The minimum distance beyond which to find neighbors.
+    float r_guess; //! The initial distance for finding neighbors, used by some algorithms to initialize a
+                   //! number of neighbors query.
     float scale; //! The scale factor to use when performing repeated ball queries to find a specified number
                  //! of nearest neighbors.
     bool exclude_ii; //! If true, exclude self-neighbors.
 
-    static const QueryType DEFAULT_MODE;                //!< Default mode.
-    static const unsigned int DEFAULT_NUM_NEIGHBORS;    //!< Default number of neighbors.
-    static const float DEFAULT_R_MAX;                   //!< Default maximum query distance.
-    static const float DEFAULT_R_MIN;                   //!< Default minimum query distance.
-    static const float DEFAULT_R_GUESS;                 //!< Default guess query distance.
-    static const float DEFAULT_SCALE;                   //!< Default scaling parameter for AABB nearest neighbor queries.
-    static const bool DEFAULT_EXCLUDE_II;               //!< Default for whether or not to include self-neighbors.
+    static const QueryType DEFAULT_MODE;             //!< Default mode.
+    static const unsigned int DEFAULT_NUM_NEIGHBORS; //!< Default number of neighbors.
+    static const float DEFAULT_R_MAX;                //!< Default maximum query distance.
+    static const float DEFAULT_R_MIN;                //!< Default minimum query distance.
+    static const float DEFAULT_R_GUESS;              //!< Default guess query distance.
+    static const float DEFAULT_SCALE;     //!< Default scaling parameter for AABB nearest neighbor queries.
+    static const bool DEFAULT_EXCLUDE_II; //!< Default for whether or not to include self-neighbors.
 };
 
 // Forward declare the iterators
@@ -109,8 +112,8 @@ public:
      *  \param n_query_points The number of query points.
      *  \param qargs The query arguments that should be used to find neighbors.
      */
-    virtual std::shared_ptr<NeighborQueryIterator> query(const vec3<float>* query_points, unsigned int n_query_points,
-                                                                 QueryArgs query_args) const
+    virtual std::shared_ptr<NeighborQueryIterator>
+    query(const vec3<float>* query_points, unsigned int n_query_points, QueryArgs query_args) const
     {
         this->validateQueryArgs(query_args);
         return std::make_shared<NeighborQueryIterator>(this, query_points, n_query_points, query_args);
@@ -126,8 +129,8 @@ public:
      *  \param n_query_points The number of query points.
      *  \param qargs The query arguments that should be used to find neighbors.
      */
-    virtual std::shared_ptr<NeighborQueryPerPointIterator> querySingle(const vec3<float> query_point, unsigned int query_point_idx,
-                                                                 QueryArgs args) const = 0;
+    virtual std::shared_ptr<NeighborQueryPerPointIterator>
+    querySingle(const vec3<float> query_point, unsigned int query_point_idx, QueryArgs args) const = 0;
 
     //! Get the simulation box
     const box::Box& getBox() const
@@ -174,14 +177,17 @@ protected:
         if (args.mode == QueryArgs::ball)
         {
             if (args.r_max == QueryArgs::DEFAULT_R_MAX)
-                throw std::runtime_error("You must set r_max in the query arguments when performing ball queries.");
+                throw std::runtime_error(
+                    "You must set r_max in the query arguments when performing ball queries.");
             if (args.num_neighbors != QueryArgs::DEFAULT_NUM_NEIGHBORS)
-                throw std::runtime_error("You cannot set num_neighbors in the query arguments when performing ball queries.");
+                throw std::runtime_error(
+                    "You cannot set num_neighbors in the query arguments when performing ball queries.");
         }
         else if (args.mode == QueryArgs::nearest)
         {
             if (args.num_neighbors == QueryArgs::DEFAULT_NUM_NEIGHBORS)
-                throw std::runtime_error("You must set num_neighbors in the query arguments when performing number of neighbor queries.");
+                throw std::runtime_error("You must set num_neighbors in the query arguments when performing "
+                                         "number of neighbor queries.");
             if (args.r_max == QueryArgs::DEFAULT_R_MAX)
             {
                 args.r_max = std::numeric_limits<float>::infinity();
@@ -215,9 +221,9 @@ protected:
         }
     }
 
-    const box::Box m_box;            //!< Simulation box where the particles belong.
-    const vec3<float>* m_points;     //!< Point coordinates.
-    unsigned int m_n_points;         //!< Number of points.
+    const box::Box m_box;        //!< Simulation box where the particles belong.
+    const vec3<float>* m_points; //!< Point coordinates.
+    unsigned int m_n_points;     //!< Number of points.
 };
 
 //! Implementation of per-point finding logic for NeighborQuery objects.
@@ -236,9 +242,12 @@ public:
     NeighborQueryPerPointIterator() {}
 
     //! Constructor
-    NeighborQueryPerPointIterator(const NeighborQuery* neighbor_query, const vec3<float> query_point, unsigned int query_point_idx,
-                          float r_max, float r_min, bool exclude_ii)
-        : NeighborPerPointIterator(query_point_idx), m_neighbor_query(neighbor_query), m_query_point(query_point), m_finished(false), m_r_max(r_max), m_r_min(r_min), m_exclude_ii(exclude_ii) {}
+    NeighborQueryPerPointIterator(const NeighborQuery* neighbor_query, const vec3<float> query_point,
+                                  unsigned int query_point_idx, float r_max, float r_min, bool exclude_ii)
+        : NeighborPerPointIterator(query_point_idx), m_neighbor_query(neighbor_query),
+          m_query_point(query_point), m_finished(false), m_r_max(r_max), m_r_min(r_min),
+          m_exclude_ii(exclude_ii)
+    {}
 
     //! Empty Destructor
     virtual ~NeighborQueryPerPointIterator() {}
@@ -255,12 +264,12 @@ public:
     static const NeighborBond ITERATOR_TERMINATOR; //!< The object returned when iteration is complete.
 
 protected:
-    const NeighborQuery* m_neighbor_query;     //!< Link to the NeighborQuery object.
-    const vec3<float> m_query_point;           //!< Coordinates of the query point.
-    bool m_finished;                           //!< Flag to indicate that iteration is complete (must be set by next() on termination).
-    float m_r_max;                             //!< Cutoff distance for neighbors.
-    float m_r_min;                             //!< Minimum distance for neighbors.
-    bool m_exclude_ii;                         //!< Flag to indicate whether or not to include self bonds.
+    const NeighborQuery* m_neighbor_query; //!< Link to the NeighborQuery object.
+    const vec3<float> m_query_point;       //!< Coordinates of the query point.
+    bool m_finished; //!< Flag to indicate that iteration is complete (must be set by next() on termination).
+    float m_r_max;   //!< Cutoff distance for neighbors.
+    float m_r_min;   //!< Minimum distance for neighbors.
+    bool m_exclude_ii; //!< Flag to indicate whether or not to include self bonds.
 };
 
 //! The iterator class for neighbor queries on NeighborQuery objects.
@@ -282,10 +291,10 @@ public:
     NeighborQueryIterator() {}
 
     //! Constructor
-    NeighborQueryIterator(const NeighborQuery* neighbor_query, const vec3<float>* query_points, unsigned int num_query_points,
-                          QueryArgs qargs)
-        : m_neighbor_query(neighbor_query), m_query_points(query_points), m_num_query_points(num_query_points),
-          m_qargs(qargs), m_finished(false), m_cur_p(0)
+    NeighborQueryIterator(const NeighborQuery* neighbor_query, const vec3<float>* query_points,
+                          unsigned int num_query_points, QueryArgs qargs)
+        : m_neighbor_query(neighbor_query), m_query_points(query_points),
+          m_num_query_points(num_query_points), m_qargs(qargs), m_finished(false), m_cur_p(0)
     {
         m_iter = this->query(m_cur_p);
     }
@@ -391,14 +400,14 @@ public:
     static const NeighborBond ITERATOR_TERMINATOR; //!< The object returned when iteration is complete.
 
 protected:
-    const NeighborQuery* m_neighbor_query;                  //!< Link to the NeighborQuery object.
-    const vec3<float> *m_query_points;                      //!< Coordinates of the query points.
-    unsigned int m_num_query_points;                        //!< The number of query points.
-    const QueryArgs m_qargs;                                //!< The query arguments
-    std::shared_ptr<NeighborQueryPerPointIterator> m_iter;  //!< The per-point iterator being used.
+    const NeighborQuery* m_neighbor_query;                 //!< Link to the NeighborQuery object.
+    const vec3<float>* m_query_points;                     //!< Coordinates of the query points.
+    unsigned int m_num_query_points;                       //!< The number of query points.
+    const QueryArgs m_qargs;                               //!< The query arguments
+    std::shared_ptr<NeighborQueryPerPointIterator> m_iter; //!< The per-point iterator being used.
 
-    bool m_finished;                                        //!< Flag to indicate that iteration is complete (must be set by next on termination).
-    unsigned int m_cur_p;                                   //!< The current particle under consideration.
+    bool m_finished; //!< Flag to indicate that iteration is complete (must be set by next on termination).
+    unsigned int m_cur_p; //!< The current particle under consideration.
 };
 
 }; }; // end namespace freud::locality

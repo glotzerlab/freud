@@ -76,10 +76,10 @@ public:
 
 private:
     util::ManagedArray<unsigned int> m_cell_list; //!< The cell list
-    unsigned int m_Np;               //!< Number of particles in the cell list
-    unsigned int m_Nc;               //!< Number of cells in the cell list
-    unsigned int m_cur_idx;          //!< Current index
-    unsigned int m_cell;             //!< Cell being considered
+    unsigned int m_Np;                            //!< Number of particles in the cell list
+    unsigned int m_Nc;                            //!< Number of cells in the cell list
+    unsigned int m_cur_idx;                       //!< Current index
+    unsigned int m_cell;                          //!< Cell being considered
 };
 
 //! Iterates over sets of shells in a cell list
@@ -185,7 +185,7 @@ public:
     LinkCell();
 
     //! Constructor
-    LinkCell(const box::Box& box, const vec3<float>* points, unsigned int n_points, float cell_width=0);
+    LinkCell(const box::Box& box, const vec3<float>* points, unsigned int n_points, float cell_width = 0);
 
     //! Compute LinkCell dimensions
     const vec3<unsigned int> computeDimensions(const box::Box& box, float cell_width) const;
@@ -238,8 +238,8 @@ public:
      *  \param n_query_points The number of query points.
      *  \param qargs The query arguments that should be used to find neighbors.
      */
-    virtual std::shared_ptr<NeighborQueryPerPointIterator> querySingle(const vec3<float> query_point, unsigned int query_point_idx,
-                                                                 QueryArgs args) const;
+    virtual std::shared_ptr<NeighborQueryPerPointIterator>
+    querySingle(const vec3<float> query_point, unsigned int query_point_idx, QueryArgs args) const;
 
 private:
     //! Rounding helper function.
@@ -252,7 +252,7 @@ private:
     unsigned int m_Nc;            //!< Number of cells last used
     float m_cell_width;           //!< Minimum necessary cell width cutoff
     vec3<unsigned int> m_celldim; //!< Cell dimensions
-    unsigned int m_size; //!< The size of cell list.
+    unsigned int m_size;          //!< The size of cell list.
 
     util::ManagedArray<unsigned int> m_cell_list; //!< The cell list last computed
     typedef tbb::concurrent_hash_map<unsigned int, std::vector<unsigned int>> CellNeighbors;
@@ -267,10 +267,11 @@ public:
     /*! The initial state is to search shell 0, the current cell. We then
      *  iterate outwards from there.
      */
-    LinkCellIterator(const LinkCell* neighbor_query, const vec3<float> query_point, unsigned int query_point_idx,
-                     float r_max, float r_min, bool exclude_ii)
-        : NeighborQueryPerPointIterator(neighbor_query, query_point, query_point_idx, r_max, r_min, exclude_ii), m_linkcell(neighbor_query),
-          m_neigh_cell_iter(0, neighbor_query->getBox().is2D()),
+    LinkCellIterator(const LinkCell* neighbor_query, const vec3<float> query_point,
+                     unsigned int query_point_idx, float r_max, float r_min, bool exclude_ii)
+        : NeighborQueryPerPointIterator(neighbor_query, query_point, query_point_idx, r_max, r_min,
+                                        exclude_ii),
+          m_linkcell(neighbor_query), m_neigh_cell_iter(0, neighbor_query->getBox().is2D()),
           m_cell_iter(m_linkcell->itercell(m_linkcell->getCell(m_query_point)))
     {}
 
@@ -292,9 +293,11 @@ class LinkCellQueryIterator : public LinkCellIterator
 {
 public:
     //! Constructor
-    LinkCellQueryIterator(const LinkCell* neighbor_query, const vec3<float> query_point, unsigned int query_point_idx,
-                          unsigned int num_neighbors, float r_max, float r_min, bool exclude_ii)
-        : LinkCellIterator(neighbor_query, query_point, query_point_idx, r_max, r_min, exclude_ii), m_count(0), m_num_neighbors(num_neighbors)
+    LinkCellQueryIterator(const LinkCell* neighbor_query, const vec3<float> query_point,
+                          unsigned int query_point_idx, unsigned int num_neighbors, float r_max, float r_min,
+                          bool exclude_ii)
+        : LinkCellIterator(neighbor_query, query_point, query_point_idx, r_max, r_min, exclude_ii),
+          m_count(0), m_num_neighbors(num_neighbors)
     {}
 
     //! Empty Destructor
@@ -304,8 +307,8 @@ public:
     virtual NeighborBond next();
 
 protected:
-    unsigned int m_count;                           //!< Number of neighbors returned for the current point.
-    unsigned int m_num_neighbors;                               //!< Number of nearest neighbors to find
+    unsigned int m_count;                          //!< Number of neighbors returned for the current point.
+    unsigned int m_num_neighbors;                  //!< Number of nearest neighbors to find
     std::vector<NeighborBond> m_current_neighbors; //!< The current set of found neighbors.
 };
 
@@ -314,8 +317,8 @@ class LinkCellQueryBallIterator : public LinkCellIterator
 {
 public:
     //! Constructor
-    LinkCellQueryBallIterator(const LinkCell* neighbor_query, const vec3<float> query_point, unsigned int query_point_idx,
-                              float r_max, float r_min, bool exclude_ii)
+    LinkCellQueryBallIterator(const LinkCell* neighbor_query, const vec3<float> query_point,
+                              unsigned int query_point_idx, float r_max, float r_min, bool exclude_ii)
         : LinkCellIterator(neighbor_query, query_point, query_point_idx, r_max, r_min, exclude_ii)
     {
         // Upon querying, if the search radius is equal to the cell width, we

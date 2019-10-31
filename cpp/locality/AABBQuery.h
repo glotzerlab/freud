@@ -4,11 +4,11 @@
 #ifndef AABBQUERY_H
 #define AABBQUERY_H
 
+#include <cmath>
 #include <map>
 #include <memory>
-#include <vector>
-#include <cmath>
 #include <unordered_set>
+#include <vector>
 
 #include "AABBTree.h"
 #include "Box.h"
@@ -49,8 +49,8 @@ public:
      *  \param n_query_points The number of query points.
      *  \param qargs The query arguments that should be used to find neighbors.
      */
-    virtual std::shared_ptr<NeighborQueryPerPointIterator> querySingle(const vec3<float> query_point, unsigned int query_point_idx,
-                                                                 QueryArgs args) const;
+    virtual std::shared_ptr<NeighborQueryPerPointIterator>
+    querySingle(const vec3<float> query_point, unsigned int query_point_idx, QueryArgs args) const;
 
     AABBTree m_aabb_tree; //!< AABB tree of points
 
@@ -81,7 +81,8 @@ protected:
                 // the number of particles and V is the box volume, and it
                 // calculates the radius of a sphere that will contain the
                 // desired number of neighbors.
-                float r_guess = std::cbrtf((3.0*static_cast<float>(args.num_neighbors)*m_box.getVolume())/(4.0*PI*static_cast<float>(getNPoints())));
+                float r_guess = std::cbrtf((3.0 * static_cast<float>(args.num_neighbors) * m_box.getVolume())
+                                           / (4.0 * PI * static_cast<float>(getNPoints())));
 
                 // The upper bound is set by the minimum nearest plane distances.
                 vec3<float> nearest_plane_distance = m_box.getNearestPlaneDistance();
@@ -89,7 +90,7 @@ protected:
                 if (!m_box.is2D())
                     min_plane_distance = std::min(min_plane_distance, nearest_plane_distance.z);
 
-                args.r_guess = std::min(r_guess, min_plane_distance/float(2.0));
+                args.r_guess = std::min(r_guess, min_plane_distance / float(2.0));
             }
             if (args.r_guess > args.r_max)
             {
@@ -117,8 +118,11 @@ class AABBIterator : public NeighborQueryPerPointIterator
 {
 public:
     //! Constructor
-    AABBIterator(const AABBQuery* neighbor_query, const vec3<float> query_point, unsigned int query_point_idx, float r_max, float r_min, bool exclude_ii)
-        : NeighborQueryPerPointIterator(neighbor_query, query_point, query_point_idx, r_max, r_min, exclude_ii), m_aabb_query(neighbor_query)
+    AABBIterator(const AABBQuery* neighbor_query, const vec3<float> query_point, unsigned int query_point_idx,
+                 float r_max, float r_min, bool exclude_ii)
+        : NeighborQueryPerPointIterator(neighbor_query, query_point, query_point_idx, r_max, r_min,
+                                        exclude_ii),
+          m_aabb_query(neighbor_query)
     {}
 
     //! Empty Destructor
@@ -138,10 +142,12 @@ class AABBQueryIterator : public AABBIterator
 {
 public:
     //! Constructor
-    AABBQueryIterator(const AABBQuery* neighbor_query, const vec3<float> query_point, unsigned int query_point_idx,
-                      unsigned int num_neighbors, float r_guess, float r_max, float r_min, float scale, bool exclude_ii)
-        : AABBIterator(neighbor_query, query_point, query_point_idx, r_max, r_min, exclude_ii), m_count(0), m_num_neighbors(num_neighbors), m_search_extended(false), m_r_cur(r_guess),
-          m_scale(scale), m_all_distances(), m_query_points_below_r_min()
+    AABBQueryIterator(const AABBQuery* neighbor_query, const vec3<float> query_point,
+                      unsigned int query_point_idx, unsigned int num_neighbors, float r_guess, float r_max,
+                      float r_min, float scale, bool exclude_ii)
+        : AABBIterator(neighbor_query, query_point, query_point_idx, r_max, r_min, exclude_ii), m_count(0),
+          m_num_neighbors(num_neighbors), m_search_extended(false), m_r_cur(r_guess), m_scale(scale),
+          m_all_distances(), m_query_points_below_r_min()
     {
         updateImageVectors(0);
     }
@@ -153,8 +159,8 @@ public:
     virtual NeighborBond next();
 
 protected:
-    unsigned int m_count;                           //!< Number of neighbors returned for the current point.
-    unsigned int m_num_neighbors;                               //!< Number of nearest neighbors to find
+    unsigned int m_count;                          //!< Number of neighbors returned for the current point.
+    unsigned int m_num_neighbors;                  //!< Number of nearest neighbors to find
     std::vector<NeighborBond> m_current_neighbors; //!< The current set of found neighbors.
     float m_search_extended; //!< Flag to see whether we've gone past the safe cutoff distance and have to be
                              //!< worried about finding duplicates.
@@ -163,7 +169,8 @@ protected:
     float m_scale; //!< The amount to scale m_r by when the current ball is too small.
     std::map<unsigned int, float> m_all_distances; //!< Hash map of minimum distances found for a given point,
                                                    //!< used when searching beyond maximum safe AABB distance.
-    std::unordered_set<unsigned int> m_query_points_below_r_min; //!< The set of query_points that were too close based on the r_min threshold.
+    std::unordered_set<unsigned int> m_query_points_below_r_min; //!< The set of query_points that were too
+                                                                 //!< close based on the r_min threshold.
 };
 
 //! Iterator that gets neighbors in a ball of size r_max using AABB tree structures.
@@ -171,10 +178,11 @@ class AABBQueryBallIterator : public AABBIterator
 {
 public:
     //! Constructor
-    AABBQueryBallIterator(const AABBQuery* neighbor_query, const vec3<float> query_point, unsigned int query_point_idx, float r_max, float r_min, 
-                          bool exclude_ii, bool _check_r_max = true)
-        : AABBIterator(neighbor_query, query_point, query_point_idx, r_max, r_min, exclude_ii), cur_image(0), cur_node_idx(0),
-          cur_ref_p(0)
+    AABBQueryBallIterator(const AABBQuery* neighbor_query, const vec3<float> query_point,
+                          unsigned int query_point_idx, float r_max, float r_min, bool exclude_ii,
+                          bool _check_r_max = true)
+        : AABBIterator(neighbor_query, query_point, query_point_idx, r_max, r_min, exclude_ii), cur_image(0),
+          cur_node_idx(0), cur_ref_p(0)
     {
         updateImageVectors(m_r_max, _check_r_max);
     }

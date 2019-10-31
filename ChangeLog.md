@@ -4,74 +4,73 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## Upcoming: Changes for freud 2.0
+## v2.0.0 - 2019-10-31
 
 ### Added
-* Ability to specify NeighborQuery objects as points for most computes that require boxes and sets of points.
-* Various validation tests.
+* Ability to specify "system-like" objects that contain a box and set of points for most computes.
+* NeighborLists and query arguments are now accepted on equal footing by compute methods that involve neighbor finding via the `neighbors=...` argument.
+* Extensive new documentation including tutorial for new users and reference sections on crucial topics.
 * Standard method for preprocessing arguments of pair computations.
-* New internal array object that allows data persistence and improves indexing in C++.
+* New internal ManagedArray object that allows data persistence and improves indexing in C++.
 * Internal threaded storage uses the standard ManagedArray object.
-* Upper bound r\_max option for number of neighbors queries.
 * C++ Histogram class to standardize n-dimensional binning and simplify writing new methods.
+* Upper bound r\_max option for number of neighbors queries.
 * Lower bound r\_min option for all queries.
 * Steinhardt now supports l = 0, 1.
 * C++ BondHistogramCompute class encapsulates logic of histogram-based methods.
-* NeighborLists and query arguments are now accepted on equal footing by compute methods that involve neighbor finding.
 * 2D PMFTs accept quaternions as well as angles for their orientations.
-* Extensive new documentation including tutorial for new users and reference sections on crucial topics.
 * ClusterProperties computes radius of gyration from the gyration tensor for each cluster.
-* `freud.data` module.
+* `freud.data` module for generating example particle systems.
 * Optional normalization for RDF, useful for small systems.
 * `plot()` methods for `NeighborQuery` and `Box` objects.
 * Added support for reading system data directly from MDAnalysis, garnett, gsd, HOOMD-blue, and OVITO.
+* Various validation tests.
 
 ### Changed
 * All compute objects that perform neighbor computations now use NeighborQuery internally.
+* Neighbor-based compute methods now accept NeighborQuery (or "system-like") objects as the first argument.
 * All compute objects that perform neighbor computations now loop over NeighborBond objects.
 * Renamed (ref\_points, points) to (points, query\_points) to clarify their usage.
+* Bond vector directionality is standardized for all computes that use it (always from query\_point to point).
 * Standardized naming of various common parameters across freud such as the search distance r\_max.
-* Updated GaussianDensity constructor to accept tuples as width instead of having 2 distinct signatures.
-* Removed unused query\_orientations from PMFTXYZ and PMFTXY2D.
+* Accumulation is now performed with `compute(..., reset=False)`.
 * Arrays returned to Python persist even after the compute object is destroyed or resizes its arrays.
-* RDF bin centers are now strictly at the center of bins.
-* RDF no longer performs parallel accumulation of cumulative counts (provided no performance gains and was substantially more complex code).
-* Cluster now finds connected components of the neighbor graph (the cluster cutoff distance is given through query arguments).
-* Steinhardt uses query arguments.
-* APIs for several order parameters have been standardized.
-* SolidLiquid order parameter has been completely rewritten, fixing several bugs and simplifying its C++ code.
+* All class attributes are stored in the C++ members and accessed via getters wrapped as Python properties.
+* Code in the freud.common has been moved to freud.util.
 * NeighborQuery objects require z == 0 for all points if the box is 2D.
 * Renamed several Box methods, box.ParticleBuffer is now locality.PeriodicBuffer.
+* Cluster now finds connected components of the neighbor graph (the cluster cutoff distance is given through query arguments).
 * Refactored and renamed attributes of Cluster and ClusterProperties modules.
-* All class attributes are stored in the C++ members and accessed via getters wrapped as Python properties.
-* Bond vector directionality is standardized for all computes that use it (always from query\_point to point).
-* Neighbor-based compute methods now accept NeighborQuery objects as the first object, including (box, point) tuples.
-* Documentation uses automodule instead of autoclass.
-* The Voronoi class was rewritten to use voro++ for vastly improved performance and correctness in edge cases.
-* MatchEnv has been split into separate classes for the different types of computations it is capable of performing, and these classes all use v2.0-style APIs.
-* Code in the freud.common has been moved to freud.util.
-* PMFTXY2D has been renamed to PMFTXY.
-* Cubatic uses standard library random functions instead of Saru (which has been removed from the repo).
-* Improved Voronoi plotting code.
-* Citations are now included using bibtex and sphinxcontrib-bibtex.
-* PMFTXY and PMFTXYZ include the phase space volume of coordinates that are implicitly integrated out (one angle in PMFTXY, and three angles in PMFTXYZ).
-* Accumulation is now performed with `compute(..., reset=False)`.
 * CorrelationFunction of complex inputs performs the necessary conjugation of the values before computing.
+* Updated GaussianDensity constructor to accept tuples as width instead of having 2 distinct signatures.
+* RDF bin centers are now strictly at the center of bins.
+* RDF no longer performs parallel accumulation of cumulative counts (provided no performance gains and was substantially more complex code).
+* MatchEnv has been split into separate classes for the different types of computations it is capable of performing, and these classes all use v2.0-style APIs.
+* The Voronoi class was rewritten to use voro++ for vastly improved performance and correctness in edge cases.
+* Improved Voronoi plotting code.
+* Cubatic uses standard library random functions instead of Saru (which has been removed from the repo).
+* APIs for several order parameters have been standardized.
+* SolidLiquid order parameter has been completely rewritten, fixing several bugs and simplifying its C++ code.
+* Steinhardt uses query arguments.
+* PMFTXY2D has been renamed to PMFTXY.
+* Removed unused orientations from PMFTXYZ and PMFTXY.
+* PMFTXY and PMFTXYZ include the phase space volume of coordinates that are implicitly integrated out (one angle in PMFTXY, and three angles in PMFTXYZ).
+* Documentation uses automodule instead of autoclass.
+* Citations are now included using bibtex and sphinxcontrib-bibtex.
 
 ### Fixed
-* Steinhardt uses the ThreadStorage class and properly resets memory where needed.
 * Removed all neighbor exclusion logic from all classes, depends entirely on locality module now.
-* RDF no longer forces the first bin of the PCF and first two bins of the cumulative counts to be 0.
-* LinkCell nearest neighbor queries properly check the largest distance found before proceeding to next shell.
 * Compute classes requiring 2D systems check the dimensionality of their input boxes.
+* LinkCell nearest neighbor queries properly check the largest distance found before proceeding to next shell.
 * LocalDensity uses the correct number of points/query points.
+* RDF no longer forces the first bin of the PCF and first two bins of the cumulative counts to be 0.
+* Steinhardt uses the ThreadStorage class and properly resets memory where needed.
 
 ### Removed
 * The freud.util module.
 * Python 2 is no longer supported. Python 3.5+ is required.
-* Cubatic no longer returns the per-particle tensor or the constant r4 tensor.
-* Most features of freud.common are removed from the public API.
 * LinkCell no longer exposes the internals of the cell list data structure.
+* Cubatic no longer returns the per-particle tensor or the constant r4 tensor.
 
 ## v1.2.2 - 2019-08-15
 

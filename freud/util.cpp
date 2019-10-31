@@ -11,19 +11,23 @@
             [
                 "VOROPP_VERBOSE",
                 "1"
+            ],
+            [
+                "_USE_MATH_DEFINES",
+                "1"
             ]
         ],
         "depends": [
             "/usr/lib/python3.7/site-packages/numpy/core/include/numpy/arrayobject.h",
             "/usr/lib/python3.7/site-packages/numpy/core/include/numpy/ufuncobject.h",
             "cpp/box/Box.h",
-            "cpp/box/PeriodicBuffer.h",
             "cpp/locality/AABBQuery.h",
             "cpp/locality/BondHistogramCompute.h",
             "cpp/locality/LinkCell.h",
             "cpp/locality/NeighborBond.h",
             "cpp/locality/NeighborList.h",
             "cpp/locality/NeighborQuery.h",
+            "cpp/locality/PeriodicBuffer.h",
             "cpp/locality/RawPoints.h",
             "cpp/locality/Voronoi.h",
             "cpp/util/ManagedArray.h",
@@ -46,7 +50,6 @@
             "cpp/environment",
             "cpp/locality",
             "cpp/density",
-            "cpp/registration",
             "cpp/pmft",
             "/usr/include"
         ],
@@ -57,12 +60,12 @@
         "name": "freud.util",
         "sources": [
             "freud/util.pyx",
-            "cpp/locality/NeighborList.cc",
-            "cpp/locality/NeighborComputeFunctional.cc",
-            "cpp/locality/NeighborQuery.cc",
-            "cpp/locality/AABBQuery.cc",
             "cpp/util/diagonalize.cc",
-            "cpp/locality/NeighborPerPointIterator.cc"
+            "cpp/locality/NeighborQuery.cc",
+            "cpp/locality/NeighborList.cc",
+            "cpp/locality/NeighborPerPointIterator.cc",
+            "cpp/locality/NeighborComputeFunctional.cc",
+            "cpp/locality/AABBQuery.cc"
         ]
     },
     "module_name": "freud.util"
@@ -698,10 +701,10 @@ static CYTHON_INLINE float __PYX_NAN() {
 #include "NeighborList.h"
 #include "LinkCell.h"
 #include "AABBQuery.h"
-#include "Voronoi.h"
 #include "BondHistogramCompute.h"
-#include "Box.h"
 #include "PeriodicBuffer.h"
+#include "Voronoi.h"
+#include "Box.h"
 #ifdef _OPENMP
 #include <omp.h>
 #endif /* _OPENMP */
@@ -1175,9 +1178,8 @@ static CYTHON_INLINE __pyx_t_double_complex __pyx_t_double_complex_from_parts(do
 
 /*--- Type declarations ---*/
 struct __pyx_obj_5freud_3box_Box;
-struct __pyx_obj_5freud_3box_PeriodicBuffer;
 struct __pyx_obj_5freud_4util__ManagedArrayContainer;
-struct __pyx_obj_5freud_4util_Compute;
+struct __pyx_obj_5freud_4util__Compute;
 struct __pyx_obj_5freud_4util___pyx_scope_struct___computed_property;
 struct __pyx_obj_5freud_4util___pyx_scope_struct_1__convert_array;
 struct __pyx_obj_5freud_4util___pyx_scope_struct_2_genexpr;
@@ -1298,18 +1300,6 @@ struct __pyx_obj_5freud_3box_Box {
 };
 
 
-/* "freud/box.pxd":11
- * cdef BoxFromCPP(const freud._box.Box & cppbox)
- * 
- * cdef class PeriodicBuffer:             # <<<<<<<<<<<<<<
- *     cdef freud._box.PeriodicBuffer * thisptr
- */
-struct __pyx_obj_5freud_3box_PeriodicBuffer {
-  PyObject_HEAD
-  freud::box::PeriodicBuffer *thisptr;
-};
-
-
 /* "freud/util.pxd":41
  * 
  * 
@@ -1330,10 +1320,10 @@ struct __pyx_obj_5freud_4util__ManagedArrayContainer {
 /* "freud/util.pxd":97
  * 
  * 
- * cdef class Compute:             # <<<<<<<<<<<<<<
+ * cdef class _Compute:             # <<<<<<<<<<<<<<
  *     cdef public _called_compute
  */
-struct __pyx_obj_5freud_4util_Compute {
+struct __pyx_obj_5freud_4util__Compute {
   PyObject_HEAD
   PyObject *_called_compute;
 };
@@ -1526,6 +1516,9 @@ static void __Pyx_WriteUnraisable(const char *name, int clineno,
                                   int lineno, const char *filename,
                                   int full_traceback, int nogil);
 
+/* KeywordStringCheck.proto */
+static int __Pyx_CheckKeywordStrings(PyObject *kwdict, const char* function_name, int kw_allowed);
+
 /* PyDictVersioning.proto */
 #if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_TYPE_SLOTS
 #define __PYX_DICT_VERSION_INIT  ((PY_UINT64_T) -1)
@@ -1626,9 +1619,6 @@ static CYTHON_INLINE PyObject* __Pyx_PyInt_EqObjC(PyObject *op1, PyObject *op2, 
 
 /* RaiseException.proto */
 static void __Pyx_Raise(PyObject *type, PyObject *value, PyObject *tb, PyObject *cause);
-
-/* KeywordStringCheck.proto */
-static int __Pyx_CheckKeywordStrings(PyObject *kwdict, const char* function_name, int kw_allowed);
 
 /* IncludeStringH.proto */
 #include <string.h>
@@ -2236,15 +2226,14 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_array(void); /*proto*/
 
 /* Module declarations from 'freud.box' */
 static PyTypeObject *__pyx_ptype_5freud_3box_Box = 0;
-static PyTypeObject *__pyx_ptype_5freud_3box_PeriodicBuffer = 0;
 
 /* Module declarations from 'freud.util' */
 static PyTypeObject *__pyx_ptype_5freud_4util__ManagedArrayContainer = 0;
-static PyTypeObject *__pyx_ptype_5freud_4util_Compute = 0;
+static PyTypeObject *__pyx_ptype_5freud_4util__Compute = 0;
 static PyTypeObject *__pyx_ptype_5freud_4util___pyx_scope_struct___computed_property = 0;
 static PyTypeObject *__pyx_ptype_5freud_4util___pyx_scope_struct_1__convert_array = 0;
 static PyTypeObject *__pyx_ptype_5freud_4util___pyx_scope_struct_2_genexpr = 0;
-static PyObject *__pyx_convert_vector_to_py_unsigned_int(const std::vector<unsigned int>  &); /*proto*/
+static PyObject *__pyx_convert_vector_to_py_size_t(const std::vector<size_t>  &); /*proto*/
 #define __Pyx_MODULE_NAME "freud.util"
 extern int __pyx_module_is_main_freud__util;
 int __pyx_module_is_main_freud__util = 0;
@@ -2297,7 +2286,7 @@ static const char __pyx_k_import[] = "__import__";
 static const char __pyx_k_kwargs[] = "kwargs";
 static const char __pyx_k_object[] = "object";
 static const char __pyx_k_reduce[] = "__reduce__";
-static const char __pyx_k_Compute[] = "Compute";
+static const char __pyx_k_Compute[] = "_Compute";
 static const char __pyx_k_array_2[] = "__array__";
 static const char __pyx_k_asarray[] = "asarray";
 static const char __pyx_k_compute[] = "compute";
@@ -2342,10 +2331,10 @@ static const char __pyx_k_setstate_cython[] = "__setstate_cython__";
 static const char __pyx_k_computed_property[] = "_computed_property";
 static const char __pyx_k_cline_in_traceback[] = "cline_in_traceback";
 static const char __pyx_k_ManagedArrayContainer[] = "_ManagedArrayContainer";
-static const char __pyx_k_Compute___reduce_cython[] = "Compute.__reduce_cython__";
+static const char __pyx_k_Compute___reduce_cython[] = "_Compute.__reduce_cython__";
 static const char __pyx_k_array_ndim_expected_ndim[] = "array.ndim = {}; expected ndim = {}";
-static const char __pyx_k_Compute___setstate_cython[] = "Compute.__setstate_cython__";
-static const char __pyx_k_Compute__computed_property[] = "Compute._computed_property";
+static const char __pyx_k_Compute___setstate_cython[] = "_Compute.__setstate_cython__";
+static const char __pyx_k_Compute__computed_property[] = "_Compute._computed_property";
 static const char __pyx_k_array_shape_expected_shape[] = "array.shape= {}; expected shape = {}";
 static const char __pyx_k_The_box_must_be_dimensional[] = "The box must be {}-dimensional.";
 static const char __pyx_k_ndarray_is_not_C_contiguous[] = "ndarray is not C contiguous";
@@ -2475,16 +2464,16 @@ static void __pyx_pf_5freud_4util_22_ManagedArrayContainer_2__dealloc__(struct _
 static PyObject *__pyx_pf_5freud_4util_22_ManagedArrayContainer_4__array__(struct __pyx_obj_5freud_4util__ManagedArrayContainer *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_5freud_4util_22_ManagedArrayContainer_6__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_5freud_4util__ManagedArrayContainer *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_5freud_4util_22_ManagedArrayContainer_8__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_5freud_4util__ManagedArrayContainer *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
-static int __pyx_pf_5freud_4util_7Compute___cinit__(struct __pyx_obj_5freud_4util_Compute *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_5freud_4util_7Compute_2__getattribute__(struct __pyx_obj_5freud_4util_Compute *__pyx_v_self, PyObject *__pyx_v_attr); /* proto */
-static PyObject *__pyx_pf_5freud_4util_7Compute_18_computed_property_wrapper(PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_args, PyObject *__pyx_v_kwargs); /* proto */
-static PyObject *__pyx_pf_5freud_4util_7Compute_4_computed_property(PyObject *__pyx_v_prop); /* proto */
-static PyObject *__pyx_pf_5freud_4util_7Compute_6__str__(struct __pyx_obj_5freud_4util_Compute *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_5freud_4util_7Compute_15_called_compute___get__(struct __pyx_obj_5freud_4util_Compute *__pyx_v_self); /* proto */
-static int __pyx_pf_5freud_4util_7Compute_15_called_compute_2__set__(struct __pyx_obj_5freud_4util_Compute *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
-static int __pyx_pf_5freud_4util_7Compute_15_called_compute_4__del__(struct __pyx_obj_5freud_4util_Compute *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_5freud_4util_7Compute_8__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_5freud_4util_Compute *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_5freud_4util_7Compute_10__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_5freud_4util_Compute *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
+static int __pyx_pf_5freud_4util_8_Compute___cinit__(struct __pyx_obj_5freud_4util__Compute *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_5freud_4util_8_Compute_2__getattribute__(struct __pyx_obj_5freud_4util__Compute *__pyx_v_self, PyObject *__pyx_v_attr); /* proto */
+static PyObject *__pyx_pf_5freud_4util_8_Compute_18_computed_property_wrapper(PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_args, PyObject *__pyx_v_kwargs); /* proto */
+static PyObject *__pyx_pf_5freud_4util_8_Compute_4_computed_property(PyObject *__pyx_v_prop); /* proto */
+static PyObject *__pyx_pf_5freud_4util_8_Compute_6__str__(struct __pyx_obj_5freud_4util__Compute *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_5freud_4util_8_Compute_15_called_compute___get__(struct __pyx_obj_5freud_4util__Compute *__pyx_v_self); /* proto */
+static int __pyx_pf_5freud_4util_8_Compute_15_called_compute_2__set__(struct __pyx_obj_5freud_4util__Compute *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
+static int __pyx_pf_5freud_4util_8_Compute_15_called_compute_4__del__(struct __pyx_obj_5freud_4util__Compute *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_5freud_4util_8_Compute_8__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_5freud_4util__Compute *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_5freud_4util_8_Compute_10__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_5freud_4util__Compute *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
 static PyObject *__pyx_pf_5freud_4util_4__defaults__(CYTHON_UNUSED PyObject *__pyx_self); /* proto */
 static PyObject *__pyx_pf_5freud_4util_14_convert_array_genexpr(PyObject *__pyx_self); /* proto */
 static PyObject *__pyx_pf_5freud_4util__convert_array(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_array, PyObject *__pyx_v_shape, PyObject *__pyx_v_dtype); /* proto */
@@ -2492,7 +2481,7 @@ static PyObject *__pyx_pf_5freud_4util_2_convert_box(CYTHON_UNUSED PyObject *__p
 static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info, int __pyx_v_flags); /* proto */
 static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info); /* proto */
 static PyObject *__pyx_tp_new_5freud_4util__ManagedArrayContainer(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
-static PyObject *__pyx_tp_new_5freud_4util_Compute(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static PyObject *__pyx_tp_new_5freud_4util__Compute(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_5freud_4util___pyx_scope_struct___computed_property(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_5freud_4util___pyx_scope_struct_1__convert_array(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_5freud_4util___pyx_scope_struct_2_genexpr(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
@@ -2724,7 +2713,7 @@ static PyObject *__pyx_pf_5freud_4util_22_ManagedArrayContainer_5shape___get__(s
  *             return tuple(self.thisptr.float_ptr.shape())
  */
     __Pyx_XDECREF(__pyx_r);
-    __pyx_t_1 = __pyx_convert_vector_to_py_unsigned_int(__pyx_v_self->thisptr.uint_ptr->shape()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 57, __pyx_L1_error)
+    __pyx_t_1 = __pyx_convert_vector_to_py_size_t(__pyx_v_self->thisptr.uint_ptr->shape()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 57, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __pyx_t_2 = __Pyx_PySequence_Tuple(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 57, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
@@ -2751,7 +2740,7 @@ static PyObject *__pyx_pf_5freud_4util_22_ManagedArrayContainer_5shape___get__(s
  *             return tuple(self.thisptr.double_ptr.shape())
  */
     __Pyx_XDECREF(__pyx_r);
-    __pyx_t_2 = __pyx_convert_vector_to_py_unsigned_int(__pyx_v_self->thisptr.float_ptr->shape()); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 59, __pyx_L1_error)
+    __pyx_t_2 = __pyx_convert_vector_to_py_size_t(__pyx_v_self->thisptr.float_ptr->shape()); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 59, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __pyx_t_1 = __Pyx_PySequence_Tuple(__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 59, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
@@ -2778,7 +2767,7 @@ static PyObject *__pyx_pf_5freud_4util_22_ManagedArrayContainer_5shape___get__(s
  *             return tuple(self.thisptr.complex_float_ptr.shape())
  */
     __Pyx_XDECREF(__pyx_r);
-    __pyx_t_1 = __pyx_convert_vector_to_py_unsigned_int(__pyx_v_self->thisptr.double_ptr->shape()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 61, __pyx_L1_error)
+    __pyx_t_1 = __pyx_convert_vector_to_py_size_t(__pyx_v_self->thisptr.double_ptr->shape()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 61, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __pyx_t_2 = __Pyx_PySequence_Tuple(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 61, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
@@ -2805,7 +2794,7 @@ static PyObject *__pyx_pf_5freud_4util_22_ManagedArrayContainer_5shape___get__(s
  *             return tuple(self.thisptr.complex_double_ptr.shape())
  */
     __Pyx_XDECREF(__pyx_r);
-    __pyx_t_2 = __pyx_convert_vector_to_py_unsigned_int(__pyx_v_self->thisptr.complex_float_ptr->shape()); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 63, __pyx_L1_error)
+    __pyx_t_2 = __pyx_convert_vector_to_py_size_t(__pyx_v_self->thisptr.complex_float_ptr->shape()); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 63, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __pyx_t_1 = __Pyx_PySequence_Tuple(__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 63, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
@@ -2832,7 +2821,7 @@ static PyObject *__pyx_pf_5freud_4util_22_ManagedArrayContainer_5shape___get__(s
  *             return tuple(self.thisptr.bool_ptr.shape())
  */
     __Pyx_XDECREF(__pyx_r);
-    __pyx_t_1 = __pyx_convert_vector_to_py_unsigned_int(__pyx_v_self->thisptr.complex_double_ptr->shape()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 65, __pyx_L1_error)
+    __pyx_t_1 = __pyx_convert_vector_to_py_size_t(__pyx_v_self->thisptr.complex_double_ptr->shape()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 65, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __pyx_t_2 = __Pyx_PySequence_Tuple(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 65, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
@@ -2859,7 +2848,7 @@ static PyObject *__pyx_pf_5freud_4util_22_ManagedArrayContainer_5shape___get__(s
  *     @property
  */
     __Pyx_XDECREF(__pyx_r);
-    __pyx_t_2 = __pyx_convert_vector_to_py_unsigned_int(__pyx_v_self->thisptr.bool_ptr->shape()); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 67, __pyx_L1_error)
+    __pyx_t_2 = __pyx_convert_vector_to_py_size_t(__pyx_v_self->thisptr.bool_ptr->shape()); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 67, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __pyx_t_1 = __Pyx_PySequence_Tuple(__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 67, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
@@ -3336,13 +3325,16 @@ static void *__pyx_f_5freud_4util_22_ManagedArrayContainer_get(struct __pyx_obj_
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_4util_22_ManagedArrayContainer_5__array__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_5freud_4util_22_ManagedArrayContainer_5__array__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static char __pyx_doc_5freud_4util_22_ManagedArrayContainer_4__array__[] = "_ManagedArrayContainer.__array__(self)\nConvert the underlying data array into a read-only numpy array.\n\n        To simplify the code, we allocate a single linear array and then\n        reshape it on return. The reshape is just a view on the arr array\n        created below, so it creates a chain reshaped_array->arr->self that\n        ensures proper garbage collection.\n        ";
-static PyMethodDef __pyx_mdef_5freud_4util_22_ManagedArrayContainer_5__array__ = {"__array__", (PyCFunction)__pyx_pw_5freud_4util_22_ManagedArrayContainer_5__array__, METH_NOARGS, __pyx_doc_5freud_4util_22_ManagedArrayContainer_4__array__};
-static PyObject *__pyx_pw_5freud_4util_22_ManagedArrayContainer_5__array__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyMethodDef __pyx_mdef_5freud_4util_22_ManagedArrayContainer_5__array__ = {"__array__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_4util_22_ManagedArrayContainer_5__array__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_4util_22_ManagedArrayContainer_4__array__};
+static PyObject *__pyx_pw_5freud_4util_22_ManagedArrayContainer_5__array__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__array__ (wrapper)", 0);
+  if (unlikely(PyTuple_GET_SIZE(__pyx_args) > 0)) {
+    __Pyx_RaiseArgtupleInvalid("__array__", 1, 0, 0, PyTuple_GET_SIZE(__pyx_args)); return NULL;}
+  if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "__array__", 0))) return NULL;
   __pyx_r = __pyx_pf_5freud_4util_22_ManagedArrayContainer_4__array__(((struct __pyx_obj_5freud_4util__ManagedArrayContainer *)__pyx_v_self));
 
   /* function exit code */
@@ -3587,13 +3579,16 @@ static PyObject *__pyx_pf_5freud_4util_22_ManagedArrayContainer_4__array__(struc
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_4util_22_ManagedArrayContainer_7__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_5freud_4util_22_ManagedArrayContainer_7__reduce_cython__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static char __pyx_doc_5freud_4util_22_ManagedArrayContainer_6__reduce_cython__[] = "_ManagedArrayContainer.__reduce_cython__(self)";
-static PyMethodDef __pyx_mdef_5freud_4util_22_ManagedArrayContainer_7__reduce_cython__ = {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_4util_22_ManagedArrayContainer_7__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_4util_22_ManagedArrayContainer_6__reduce_cython__};
-static PyObject *__pyx_pw_5freud_4util_22_ManagedArrayContainer_7__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyMethodDef __pyx_mdef_5freud_4util_22_ManagedArrayContainer_7__reduce_cython__ = {"__reduce_cython__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_4util_22_ManagedArrayContainer_7__reduce_cython__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_4util_22_ManagedArrayContainer_6__reduce_cython__};
+static PyObject *__pyx_pw_5freud_4util_22_ManagedArrayContainer_7__reduce_cython__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__reduce_cython__ (wrapper)", 0);
+  if (unlikely(PyTuple_GET_SIZE(__pyx_args) > 0)) {
+    __Pyx_RaiseArgtupleInvalid("__reduce_cython__", 1, 0, 0, PyTuple_GET_SIZE(__pyx_args)); return NULL;}
+  if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "__reduce_cython__", 0))) return NULL;
   __pyx_r = __pyx_pf_5freud_4util_22_ManagedArrayContainer_6__reduce_cython__(((struct __pyx_obj_5freud_4util__ManagedArrayContainer *)__pyx_v_self));
 
   /* function exit code */
@@ -3643,14 +3638,51 @@ static PyObject *__pyx_pf_5freud_4util_22_ManagedArrayContainer_6__reduce_cython
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_4util_22_ManagedArrayContainer_9__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static PyObject *__pyx_pw_5freud_4util_22_ManagedArrayContainer_9__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static char __pyx_doc_5freud_4util_22_ManagedArrayContainer_8__setstate_cython__[] = "_ManagedArrayContainer.__setstate_cython__(self, __pyx_state)";
-static PyMethodDef __pyx_mdef_5freud_4util_22_ManagedArrayContainer_9__setstate_cython__ = {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_4util_22_ManagedArrayContainer_9__setstate_cython__, METH_O, __pyx_doc_5freud_4util_22_ManagedArrayContainer_8__setstate_cython__};
-static PyObject *__pyx_pw_5freud_4util_22_ManagedArrayContainer_9__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyMethodDef __pyx_mdef_5freud_4util_22_ManagedArrayContainer_9__setstate_cython__ = {"__setstate_cython__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_4util_22_ManagedArrayContainer_9__setstate_cython__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_4util_22_ManagedArrayContainer_8__setstate_cython__};
+static PyObject *__pyx_pw_5freud_4util_22_ManagedArrayContainer_9__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  CYTHON_UNUSED PyObject *__pyx_v___pyx_state = 0;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setstate_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_5freud_4util_22_ManagedArrayContainer_8__setstate_cython__(((struct __pyx_obj_5freud_4util__ManagedArrayContainer *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
+  {
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_pyx_state,0};
+    PyObject* values[1] = {0};
+    if (unlikely(__pyx_kwds)) {
+      Py_ssize_t kw_args;
+      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
+      switch (pos_args) {
+        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        CYTHON_FALLTHROUGH;
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      kw_args = PyDict_Size(__pyx_kwds);
+      switch (pos_args) {
+        case  0:
+        if (likely((values[0] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_pyx_state)) != 0)) kw_args--;
+        else goto __pyx_L5_argtuple_error;
+      }
+      if (unlikely(kw_args > 0)) {
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__setstate_cython__") < 0)) __PYX_ERR(1, 3, __pyx_L3_error)
+      }
+    } else if (PyTuple_GET_SIZE(__pyx_args) != 1) {
+      goto __pyx_L5_argtuple_error;
+    } else {
+      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+    }
+    __pyx_v___pyx_state = values[0];
+  }
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("__setstate_cython__", 1, 1, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 3, __pyx_L3_error)
+  __pyx_L3_error:;
+  __Pyx_AddTraceback("freud.util._ManagedArrayContainer.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return NULL;
+  __pyx_L4_argument_unpacking_done:;
+  __pyx_r = __pyx_pf_5freud_4util_22_ManagedArrayContainer_8__setstate_cython__(((struct __pyx_obj_5freud_4util__ManagedArrayContainer *)__pyx_v_self), __pyx_v___pyx_state);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
@@ -3700,22 +3732,22 @@ static PyObject *__pyx_pf_5freud_4util_22_ManagedArrayContainer_8__setstate_cyth
  */
 
 /* Python wrapper */
-static int __pyx_pw_5freud_4util_7Compute_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static int __pyx_pw_5freud_4util_7Compute_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static int __pyx_pw_5freud_4util_8_Compute_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static int __pyx_pw_5freud_4util_8_Compute_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__cinit__ (wrapper)", 0);
   if (unlikely(PyTuple_GET_SIZE(__pyx_args) > 0)) {
     __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 0, 0, PyTuple_GET_SIZE(__pyx_args)); return -1;}
   if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "__cinit__", 0))) return -1;
-  __pyx_r = __pyx_pf_5freud_4util_7Compute___cinit__(((struct __pyx_obj_5freud_4util_Compute *)__pyx_v_self));
+  __pyx_r = __pyx_pf_5freud_4util_8_Compute___cinit__(((struct __pyx_obj_5freud_4util__Compute *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_5freud_4util_7Compute___cinit__(struct __pyx_obj_5freud_4util_Compute *__pyx_v_self) {
+static int __pyx_pf_5freud_4util_8_Compute___cinit__(struct __pyx_obj_5freud_4util__Compute *__pyx_v_self) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__cinit__", 0);
@@ -3756,23 +3788,23 @@ static int __pyx_pf_5freud_4util_7Compute___cinit__(struct __pyx_obj_5freud_4uti
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_4util_7Compute_3__getattribute__(PyObject *__pyx_v_self, PyObject *__pyx_v_attr); /*proto*/
-static char __pyx_doc_5freud_4util_7Compute_2__getattribute__[] = "Compute methods set a flag to indicate that quantities have been\n        computed. You can never plot without having called compute.";
+static PyObject *__pyx_pw_5freud_4util_8_Compute_3__getattribute__(PyObject *__pyx_v_self, PyObject *__pyx_v_attr); /*proto*/
+static char __pyx_doc_5freud_4util_8_Compute_2__getattribute__[] = "Compute methods set a flag to indicate that quantities have been\n        computed. You can never plot without having called compute.";
 #if CYTHON_COMPILING_IN_CPYTHON
-struct wrapperbase __pyx_wrapperbase_5freud_4util_7Compute_2__getattribute__;
+struct wrapperbase __pyx_wrapperbase_5freud_4util_8_Compute_2__getattribute__;
 #endif
-static PyObject *__pyx_pw_5freud_4util_7Compute_3__getattribute__(PyObject *__pyx_v_self, PyObject *__pyx_v_attr) {
+static PyObject *__pyx_pw_5freud_4util_8_Compute_3__getattribute__(PyObject *__pyx_v_self, PyObject *__pyx_v_attr) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__getattribute__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_5freud_4util_7Compute_2__getattribute__(((struct __pyx_obj_5freud_4util_Compute *)__pyx_v_self), ((PyObject *)__pyx_v_attr));
+  __pyx_r = __pyx_pf_5freud_4util_8_Compute_2__getattribute__(((struct __pyx_obj_5freud_4util__Compute *)__pyx_v_self), ((PyObject *)__pyx_v_attr));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_5freud_4util_7Compute_2__getattribute__(struct __pyx_obj_5freud_4util_Compute *__pyx_v_self, PyObject *__pyx_v_attr) {
+static PyObject *__pyx_pf_5freud_4util_8_Compute_2__getattribute__(struct __pyx_obj_5freud_4util__Compute *__pyx_v_self, PyObject *__pyx_v_attr) {
   PyObject *__pyx_v_attribute = NULL;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
@@ -3954,7 +3986,7 @@ static PyObject *__pyx_pf_5freud_4util_7Compute_2__getattribute__(struct __pyx_o
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_AddTraceback("freud.util.Compute.__getattribute__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("freud.util._Compute.__getattribute__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_attribute);
@@ -3972,10 +4004,10 @@ static PyObject *__pyx_pf_5freud_4util_7Compute_2__getattribute__(struct __pyx_o
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_4util_7Compute_5_computed_property(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_4util_7Compute_4_computed_property[] = "Compute._computed_property(prop)\nDecorator that makes a class method to be a property with limited access.\n\n        Args:\n            prop (callable): The property function.\n\n        Returns:\n            Decorator decorating appropriate property method.\n        ";
-static PyMethodDef __pyx_mdef_5freud_4util_7Compute_5_computed_property = {"_computed_property", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_4util_7Compute_5_computed_property, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_4util_7Compute_4_computed_property};
-static PyObject *__pyx_pw_5freud_4util_7Compute_5_computed_property(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_5freud_4util_8_Compute_5_computed_property(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_5freud_4util_8_Compute_4_computed_property[] = "_Compute._computed_property(prop)\nDecorator that makes a class method to be a property with limited access.\n\n        Args:\n            prop (callable): The property function.\n\n        Returns:\n            Decorator decorating appropriate property method.\n        ";
+static PyMethodDef __pyx_mdef_5freud_4util_8_Compute_5_computed_property = {"_computed_property", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_4util_8_Compute_5_computed_property, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_4util_8_Compute_4_computed_property};
+static PyObject *__pyx_pw_5freud_4util_8_Compute_5_computed_property(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_prop = 0;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -4012,11 +4044,11 @@ static PyObject *__pyx_pw_5freud_4util_7Compute_5_computed_property(CYTHON_UNUSE
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("_computed_property", 1, 1, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 175, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("freud.util.Compute._computed_property", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("freud.util._Compute._computed_property", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_5freud_4util_7Compute_4_computed_property(__pyx_v_prop);
+  __pyx_r = __pyx_pf_5freud_4util_8_Compute_4_computed_property(__pyx_v_prop);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
@@ -4032,9 +4064,9 @@ static PyObject *__pyx_pw_5freud_4util_7Compute_5_computed_property(CYTHON_UNUSE
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_4util_7Compute_18_computed_property_1wrapper(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_5freud_4util_7Compute_18_computed_property_1wrapper = {"wrapper", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_4util_7Compute_18_computed_property_1wrapper, METH_VARARGS|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_5freud_4util_7Compute_18_computed_property_1wrapper(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_5freud_4util_8_Compute_18_computed_property_1wrapper(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_5freud_4util_8_Compute_18_computed_property_1wrapper = {"wrapper", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_4util_8_Compute_18_computed_property_1wrapper, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_5freud_4util_8_Compute_18_computed_property_1wrapper(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
   PyObject *__pyx_v_args = 0;
   PyObject *__pyx_v_kwargs = 0;
@@ -4089,11 +4121,11 @@ static PyObject *__pyx_pw_5freud_4util_7Compute_18_computed_property_1wrapper(Py
   __pyx_L3_error:;
   __Pyx_DECREF(__pyx_v_args); __pyx_v_args = 0;
   __Pyx_DECREF(__pyx_v_kwargs); __pyx_v_kwargs = 0;
-  __Pyx_AddTraceback("freud.util.Compute._computed_property.wrapper", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("freud.util._Compute._computed_property.wrapper", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_5freud_4util_7Compute_18_computed_property_wrapper(__pyx_self, __pyx_v_self, __pyx_v_args, __pyx_v_kwargs);
+  __pyx_r = __pyx_pf_5freud_4util_8_Compute_18_computed_property_wrapper(__pyx_self, __pyx_v_self, __pyx_v_args, __pyx_v_kwargs);
 
   /* function exit code */
   __Pyx_XDECREF(__pyx_v_args);
@@ -4102,7 +4134,7 @@ static PyObject *__pyx_pw_5freud_4util_7Compute_18_computed_property_1wrapper(Py
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_5freud_4util_7Compute_18_computed_property_wrapper(PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_args, PyObject *__pyx_v_kwargs) {
+static PyObject *__pyx_pf_5freud_4util_8_Compute_18_computed_property_wrapper(PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_args, PyObject *__pyx_v_kwargs) {
   struct __pyx_obj_5freud_4util___pyx_scope_struct___computed_property *__pyx_cur_scope;
   struct __pyx_obj_5freud_4util___pyx_scope_struct___computed_property *__pyx_outer_scope;
   PyObject *__pyx_r = NULL;
@@ -4187,7 +4219,7 @@ static PyObject *__pyx_pf_5freud_4util_7Compute_18_computed_property_wrapper(PyO
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_AddTraceback("freud.util.Compute._computed_property.wrapper", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("freud.util._Compute._computed_property.wrapper", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -4203,7 +4235,7 @@ static PyObject *__pyx_pf_5freud_4util_7Compute_18_computed_property_wrapper(PyO
  * 
  */
 
-static PyObject *__pyx_pf_5freud_4util_7Compute_4_computed_property(PyObject *__pyx_v_prop) {
+static PyObject *__pyx_pf_5freud_4util_8_Compute_4_computed_property(PyObject *__pyx_v_prop) {
   struct __pyx_obj_5freud_4util___pyx_scope_struct___computed_property *__pyx_cur_scope;
   PyObject *__pyx_v_wrapper = 0;
   PyObject *__pyx_r = NULL;
@@ -4257,7 +4289,7 @@ static PyObject *__pyx_pf_5freud_4util_7Compute_4_computed_property(PyObject *__
  *             if not self._called_compute:
  *                 raise AttributeError(
  */
-  __pyx_t_3 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4util_7Compute_18_computed_property_1wrapper, 0, __pyx_n_s_computed_property_locals_wrappe, ((PyObject*)__pyx_cur_scope), __pyx_n_s_freud_util, __pyx_d, ((PyObject *)__pyx_codeobj__6)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 187, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4util_8_Compute_18_computed_property_1wrapper, 0, __pyx_n_s_computed_property_locals_wrappe, ((PyObject*)__pyx_cur_scope), __pyx_n_s_freud_util, __pyx_d, ((PyObject *)__pyx_codeobj__6)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 187, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -4315,7 +4347,7 @@ static PyObject *__pyx_pf_5freud_4util_7Compute_4_computed_property(PyObject *__
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_AddTraceback("freud.util.Compute._computed_property", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("freud.util._Compute._computed_property", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_wrapper);
@@ -4334,19 +4366,19 @@ static PyObject *__pyx_pf_5freud_4util_7Compute_4_computed_property(PyObject *__
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_4util_7Compute_7__str__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_5freud_4util_7Compute_7__str__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_5freud_4util_8_Compute_7__str__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_5freud_4util_8_Compute_7__str__(PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__str__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_5freud_4util_7Compute_6__str__(((struct __pyx_obj_5freud_4util_Compute *)__pyx_v_self));
+  __pyx_r = __pyx_pf_5freud_4util_8_Compute_6__str__(((struct __pyx_obj_5freud_4util__Compute *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_5freud_4util_7Compute_6__str__(struct __pyx_obj_5freud_4util_Compute *__pyx_v_self) {
+static PyObject *__pyx_pf_5freud_4util_8_Compute_6__str__(struct __pyx_obj_5freud_4util__Compute *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -4377,7 +4409,7 @@ static PyObject *__pyx_pf_5freud_4util_7Compute_6__str__(struct __pyx_obj_5freud
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("freud.util.Compute.__str__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("freud.util._Compute.__str__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -4387,24 +4419,24 @@ static PyObject *__pyx_pf_5freud_4util_7Compute_6__str__(struct __pyx_obj_5freud
 
 /* "freud/util.pxd":98
  * 
- * cdef class Compute:
+ * cdef class _Compute:
  *     cdef public _called_compute             # <<<<<<<<<<<<<<
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_4util_7Compute_15_called_compute_1__get__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_5freud_4util_7Compute_15_called_compute_1__get__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_5freud_4util_8_Compute_15_called_compute_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_5freud_4util_8_Compute_15_called_compute_1__get__(PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_5freud_4util_7Compute_15_called_compute___get__(((struct __pyx_obj_5freud_4util_Compute *)__pyx_v_self));
+  __pyx_r = __pyx_pf_5freud_4util_8_Compute_15_called_compute___get__(((struct __pyx_obj_5freud_4util__Compute *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_5freud_4util_7Compute_15_called_compute___get__(struct __pyx_obj_5freud_4util_Compute *__pyx_v_self) {
+static PyObject *__pyx_pf_5freud_4util_8_Compute_15_called_compute___get__(struct __pyx_obj_5freud_4util__Compute *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__", 0);
@@ -4421,19 +4453,19 @@ static PyObject *__pyx_pf_5freud_4util_7Compute_15_called_compute___get__(struct
 }
 
 /* Python wrapper */
-static int __pyx_pw_5freud_4util_7Compute_15_called_compute_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value); /*proto*/
-static int __pyx_pw_5freud_4util_7Compute_15_called_compute_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value) {
+static int __pyx_pw_5freud_4util_8_Compute_15_called_compute_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value); /*proto*/
+static int __pyx_pw_5freud_4util_8_Compute_15_called_compute_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__set__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_5freud_4util_7Compute_15_called_compute_2__set__(((struct __pyx_obj_5freud_4util_Compute *)__pyx_v_self), ((PyObject *)__pyx_v_value));
+  __pyx_r = __pyx_pf_5freud_4util_8_Compute_15_called_compute_2__set__(((struct __pyx_obj_5freud_4util__Compute *)__pyx_v_self), ((PyObject *)__pyx_v_value));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_5freud_4util_7Compute_15_called_compute_2__set__(struct __pyx_obj_5freud_4util_Compute *__pyx_v_self, PyObject *__pyx_v_value) {
+static int __pyx_pf_5freud_4util_8_Compute_15_called_compute_2__set__(struct __pyx_obj_5freud_4util__Compute *__pyx_v_self, PyObject *__pyx_v_value) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__set__", 0);
@@ -4450,19 +4482,19 @@ static int __pyx_pf_5freud_4util_7Compute_15_called_compute_2__set__(struct __py
 }
 
 /* Python wrapper */
-static int __pyx_pw_5freud_4util_7Compute_15_called_compute_5__del__(PyObject *__pyx_v_self); /*proto*/
-static int __pyx_pw_5freud_4util_7Compute_15_called_compute_5__del__(PyObject *__pyx_v_self) {
+static int __pyx_pw_5freud_4util_8_Compute_15_called_compute_5__del__(PyObject *__pyx_v_self); /*proto*/
+static int __pyx_pw_5freud_4util_8_Compute_15_called_compute_5__del__(PyObject *__pyx_v_self) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__del__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_5freud_4util_7Compute_15_called_compute_4__del__(((struct __pyx_obj_5freud_4util_Compute *)__pyx_v_self));
+  __pyx_r = __pyx_pf_5freud_4util_8_Compute_15_called_compute_4__del__(((struct __pyx_obj_5freud_4util__Compute *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_5freud_4util_7Compute_15_called_compute_4__del__(struct __pyx_obj_5freud_4util_Compute *__pyx_v_self) {
+static int __pyx_pf_5freud_4util_8_Compute_15_called_compute_4__del__(struct __pyx_obj_5freud_4util__Compute *__pyx_v_self) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__del__", 0);
@@ -4485,21 +4517,24 @@ static int __pyx_pf_5freud_4util_7Compute_15_called_compute_4__del__(struct __py
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_4util_7Compute_9__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_4util_7Compute_8__reduce_cython__[] = "Compute.__reduce_cython__(self)";
-static PyMethodDef __pyx_mdef_5freud_4util_7Compute_9__reduce_cython__ = {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_4util_7Compute_9__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_4util_7Compute_8__reduce_cython__};
-static PyObject *__pyx_pw_5freud_4util_7Compute_9__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_5freud_4util_8_Compute_9__reduce_cython__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_5freud_4util_8_Compute_8__reduce_cython__[] = "_Compute.__reduce_cython__(self)";
+static PyMethodDef __pyx_mdef_5freud_4util_8_Compute_9__reduce_cython__ = {"__reduce_cython__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_4util_8_Compute_9__reduce_cython__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_4util_8_Compute_8__reduce_cython__};
+static PyObject *__pyx_pw_5freud_4util_8_Compute_9__reduce_cython__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__reduce_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_5freud_4util_7Compute_8__reduce_cython__(((struct __pyx_obj_5freud_4util_Compute *)__pyx_v_self));
+  if (unlikely(PyTuple_GET_SIZE(__pyx_args) > 0)) {
+    __Pyx_RaiseArgtupleInvalid("__reduce_cython__", 1, 0, 0, PyTuple_GET_SIZE(__pyx_args)); return NULL;}
+  if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "__reduce_cython__", 0))) return NULL;
+  __pyx_r = __pyx_pf_5freud_4util_8_Compute_8__reduce_cython__(((struct __pyx_obj_5freud_4util__Compute *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_5freud_4util_7Compute_8__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_5freud_4util_Compute *__pyx_v_self) {
+static PyObject *__pyx_pf_5freud_4util_8_Compute_8__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_5freud_4util__Compute *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -4526,7 +4561,7 @@ static PyObject *__pyx_pf_5freud_4util_7Compute_8__reduce_cython__(CYTHON_UNUSED
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("freud.util.Compute.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("freud.util._Compute.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
@@ -4541,21 +4576,58 @@ static PyObject *__pyx_pf_5freud_4util_7Compute_8__reduce_cython__(CYTHON_UNUSED
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_4util_7Compute_11__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
-static char __pyx_doc_5freud_4util_7Compute_10__setstate_cython__[] = "Compute.__setstate_cython__(self, __pyx_state)";
-static PyMethodDef __pyx_mdef_5freud_4util_7Compute_11__setstate_cython__ = {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_4util_7Compute_11__setstate_cython__, METH_O, __pyx_doc_5freud_4util_7Compute_10__setstate_cython__};
-static PyObject *__pyx_pw_5freud_4util_7Compute_11__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pw_5freud_4util_8_Compute_11__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_5freud_4util_8_Compute_10__setstate_cython__[] = "_Compute.__setstate_cython__(self, __pyx_state)";
+static PyMethodDef __pyx_mdef_5freud_4util_8_Compute_11__setstate_cython__ = {"__setstate_cython__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_4util_8_Compute_11__setstate_cython__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_4util_8_Compute_10__setstate_cython__};
+static PyObject *__pyx_pw_5freud_4util_8_Compute_11__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  CYTHON_UNUSED PyObject *__pyx_v___pyx_state = 0;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setstate_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_5freud_4util_7Compute_10__setstate_cython__(((struct __pyx_obj_5freud_4util_Compute *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
+  {
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_pyx_state,0};
+    PyObject* values[1] = {0};
+    if (unlikely(__pyx_kwds)) {
+      Py_ssize_t kw_args;
+      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
+      switch (pos_args) {
+        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        CYTHON_FALLTHROUGH;
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      kw_args = PyDict_Size(__pyx_kwds);
+      switch (pos_args) {
+        case  0:
+        if (likely((values[0] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_pyx_state)) != 0)) kw_args--;
+        else goto __pyx_L5_argtuple_error;
+      }
+      if (unlikely(kw_args > 0)) {
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__setstate_cython__") < 0)) __PYX_ERR(1, 3, __pyx_L3_error)
+      }
+    } else if (PyTuple_GET_SIZE(__pyx_args) != 1) {
+      goto __pyx_L5_argtuple_error;
+    } else {
+      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+    }
+    __pyx_v___pyx_state = values[0];
+  }
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("__setstate_cython__", 1, 1, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 3, __pyx_L3_error)
+  __pyx_L3_error:;
+  __Pyx_AddTraceback("freud.util._Compute.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return NULL;
+  __pyx_L4_argument_unpacking_done:;
+  __pyx_r = __pyx_pf_5freud_4util_8_Compute_10__setstate_cython__(((struct __pyx_obj_5freud_4util__Compute *)__pyx_v_self), __pyx_v___pyx_state);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_5freud_4util_7Compute_10__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_5freud_4util_Compute *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_5freud_4util_8_Compute_10__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_5freud_4util__Compute *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -4582,7 +4654,7 @@ static PyObject *__pyx_pf_5freud_4util_7Compute_10__setstate_cython__(CYTHON_UNU
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("freud.util.Compute.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("freud.util._Compute.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
@@ -8687,13 +8759,13 @@ static CYTHON_INLINE PyObject *__pyx_f_5freud_4util_make_managed_numpy_array(voi
 
 /* "vector.to_py":60
  * 
- * @cname("__pyx_convert_vector_to_py_unsigned_int")
- * cdef object __pyx_convert_vector_to_py_unsigned_int(vector[X]& v):             # <<<<<<<<<<<<<<
+ * @cname("__pyx_convert_vector_to_py_size_t")
+ * cdef object __pyx_convert_vector_to_py_size_t(vector[X]& v):             # <<<<<<<<<<<<<<
  *     return [v[i] for i in range(v.size())]
  * 
  */
 
-static PyObject *__pyx_convert_vector_to_py_unsigned_int(const std::vector<unsigned int>  &__pyx_v_v) {
+static PyObject *__pyx_convert_vector_to_py_size_t(const std::vector<size_t>  &__pyx_v_v) {
   size_t __pyx_v_i;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
@@ -8702,11 +8774,11 @@ static PyObject *__pyx_convert_vector_to_py_unsigned_int(const std::vector<unsig
   size_t __pyx_t_3;
   size_t __pyx_t_4;
   PyObject *__pyx_t_5 = NULL;
-  __Pyx_RefNannySetupContext("__pyx_convert_vector_to_py_unsigned_int", 0);
+  __Pyx_RefNannySetupContext("__pyx_convert_vector_to_py_size_t", 0);
 
   /* "vector.to_py":61
- * @cname("__pyx_convert_vector_to_py_unsigned_int")
- * cdef object __pyx_convert_vector_to_py_unsigned_int(vector[X]& v):
+ * @cname("__pyx_convert_vector_to_py_size_t")
+ * cdef object __pyx_convert_vector_to_py_size_t(vector[X]& v):
  *     return [v[i] for i in range(v.size())]             # <<<<<<<<<<<<<<
  * 
  * 
@@ -8718,7 +8790,7 @@ static PyObject *__pyx_convert_vector_to_py_unsigned_int(const std::vector<unsig
   __pyx_t_3 = __pyx_t_2;
   for (__pyx_t_4 = 0; __pyx_t_4 < __pyx_t_3; __pyx_t_4+=1) {
     __pyx_v_i = __pyx_t_4;
-    __pyx_t_5 = __Pyx_PyInt_From_unsigned_int((__pyx_v_v[__pyx_v_i])); if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 61, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyInt_FromSize_t((__pyx_v_v[__pyx_v_i])); if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 61, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     if (unlikely(__Pyx_ListComp_Append(__pyx_t_1, (PyObject*)__pyx_t_5))) __PYX_ERR(1, 61, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
@@ -8729,8 +8801,8 @@ static PyObject *__pyx_convert_vector_to_py_unsigned_int(const std::vector<unsig
 
   /* "vector.to_py":60
  * 
- * @cname("__pyx_convert_vector_to_py_unsigned_int")
- * cdef object __pyx_convert_vector_to_py_unsigned_int(vector[X]& v):             # <<<<<<<<<<<<<<
+ * @cname("__pyx_convert_vector_to_py_size_t")
+ * cdef object __pyx_convert_vector_to_py_size_t(vector[X]& v):             # <<<<<<<<<<<<<<
  *     return [v[i] for i in range(v.size())]
  * 
  */
@@ -8739,7 +8811,7 @@ static PyObject *__pyx_convert_vector_to_py_unsigned_int(const std::vector<unsig
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_AddTraceback("vector.to_py.__pyx_convert_vector_to_py_unsigned_int", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("vector.to_py.__pyx_convert_vector_to_py_size_t", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -8792,9 +8864,9 @@ static PyObject *__pyx_getprop_5freud_4util_22_ManagedArrayContainer_element_siz
 }
 
 static PyMethodDef __pyx_methods_5freud_4util__ManagedArrayContainer[] = {
-  {"__array__", (PyCFunction)__pyx_pw_5freud_4util_22_ManagedArrayContainer_5__array__, METH_NOARGS, __pyx_doc_5freud_4util_22_ManagedArrayContainer_4__array__},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_4util_22_ManagedArrayContainer_7__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_4util_22_ManagedArrayContainer_6__reduce_cython__},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_4util_22_ManagedArrayContainer_9__setstate_cython__, METH_O, __pyx_doc_5freud_4util_22_ManagedArrayContainer_8__setstate_cython__},
+  {"__array__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_4util_22_ManagedArrayContainer_5__array__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_4util_22_ManagedArrayContainer_4__array__},
+  {"__reduce_cython__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_4util_22_ManagedArrayContainer_7__reduce_cython__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_4util_22_ManagedArrayContainer_6__reduce_cython__},
+  {"__setstate_cython__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_4util_22_ManagedArrayContainer_9__setstate_cython__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_4util_22_ManagedArrayContainer_8__setstate_cython__},
   {0, 0, 0, 0}
 };
 
@@ -8865,8 +8937,8 @@ static PyTypeObject __pyx_type_5freud_4util__ManagedArrayContainer = {
   #endif
 };
 
-static PyObject *__pyx_tp_new_5freud_4util_Compute(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
-  struct __pyx_obj_5freud_4util_Compute *p;
+static PyObject *__pyx_tp_new_5freud_4util__Compute(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
+  struct __pyx_obj_5freud_4util__Compute *p;
   PyObject *o;
   if (likely((t->tp_flags & Py_TPFLAGS_IS_ABSTRACT) == 0)) {
     o = (*t->tp_alloc)(t, 0);
@@ -8874,17 +8946,17 @@ static PyObject *__pyx_tp_new_5freud_4util_Compute(PyTypeObject *t, CYTHON_UNUSE
     o = (PyObject *) PyBaseObject_Type.tp_new(t, __pyx_empty_tuple, 0);
   }
   if (unlikely(!o)) return 0;
-  p = ((struct __pyx_obj_5freud_4util_Compute *)o);
+  p = ((struct __pyx_obj_5freud_4util__Compute *)o);
   p->_called_compute = Py_None; Py_INCREF(Py_None);
-  if (unlikely(__pyx_pw_5freud_4util_7Compute_1__cinit__(o, __pyx_empty_tuple, NULL) < 0)) goto bad;
+  if (unlikely(__pyx_pw_5freud_4util_8_Compute_1__cinit__(o, __pyx_empty_tuple, NULL) < 0)) goto bad;
   return o;
   bad:
   Py_DECREF(o); o = 0;
   return NULL;
 }
 
-static void __pyx_tp_dealloc_5freud_4util_Compute(PyObject *o) {
-  struct __pyx_obj_5freud_4util_Compute *p = (struct __pyx_obj_5freud_4util_Compute *)o;
+static void __pyx_tp_dealloc_5freud_4util__Compute(PyObject *o) {
+  struct __pyx_obj_5freud_4util__Compute *p = (struct __pyx_obj_5freud_4util__Compute *)o;
   #if CYTHON_USE_TP_FINALIZE
   if (unlikely(PyType_HasFeature(Py_TYPE(o), Py_TPFLAGS_HAVE_FINALIZE) && Py_TYPE(o)->tp_finalize) && !_PyGC_FINALIZED(o)) {
     if (PyObject_CallFinalizerFromDealloc(o)) return;
@@ -8895,60 +8967,60 @@ static void __pyx_tp_dealloc_5freud_4util_Compute(PyObject *o) {
   (*Py_TYPE(o)->tp_free)(o);
 }
 
-static int __pyx_tp_traverse_5freud_4util_Compute(PyObject *o, visitproc v, void *a) {
+static int __pyx_tp_traverse_5freud_4util__Compute(PyObject *o, visitproc v, void *a) {
   int e;
-  struct __pyx_obj_5freud_4util_Compute *p = (struct __pyx_obj_5freud_4util_Compute *)o;
+  struct __pyx_obj_5freud_4util__Compute *p = (struct __pyx_obj_5freud_4util__Compute *)o;
   if (p->_called_compute) {
     e = (*v)(p->_called_compute, a); if (e) return e;
   }
   return 0;
 }
 
-static int __pyx_tp_clear_5freud_4util_Compute(PyObject *o) {
+static int __pyx_tp_clear_5freud_4util__Compute(PyObject *o) {
   PyObject* tmp;
-  struct __pyx_obj_5freud_4util_Compute *p = (struct __pyx_obj_5freud_4util_Compute *)o;
+  struct __pyx_obj_5freud_4util__Compute *p = (struct __pyx_obj_5freud_4util__Compute *)o;
   tmp = ((PyObject*)p->_called_compute);
   p->_called_compute = Py_None; Py_INCREF(Py_None);
   Py_XDECREF(tmp);
   return 0;
 }
 
-static PyObject *__pyx_tp_getattro_5freud_4util_Compute(PyObject *o, PyObject *n) {
-  PyObject *v = __pyx_pw_5freud_4util_7Compute_3__getattribute__(o, n);
+static PyObject *__pyx_tp_getattro_5freud_4util__Compute(PyObject *o, PyObject *n) {
+  PyObject *v = __pyx_pw_5freud_4util_8_Compute_3__getattribute__(o, n);
   return v;
 }
 
-static PyObject *__pyx_getprop_5freud_4util_7Compute__called_compute(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_5freud_4util_7Compute_15_called_compute_1__get__(o);
+static PyObject *__pyx_getprop_5freud_4util_8_Compute__called_compute(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_5freud_4util_8_Compute_15_called_compute_1__get__(o);
 }
 
-static int __pyx_setprop_5freud_4util_7Compute__called_compute(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
+static int __pyx_setprop_5freud_4util_8_Compute__called_compute(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
   if (v) {
-    return __pyx_pw_5freud_4util_7Compute_15_called_compute_3__set__(o, v);
+    return __pyx_pw_5freud_4util_8_Compute_15_called_compute_3__set__(o, v);
   }
   else {
-    return __pyx_pw_5freud_4util_7Compute_15_called_compute_5__del__(o);
+    return __pyx_pw_5freud_4util_8_Compute_15_called_compute_5__del__(o);
   }
 }
 
-static PyMethodDef __pyx_methods_5freud_4util_Compute[] = {
-  {"_computed_property", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_4util_7Compute_5_computed_property, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_4util_7Compute_4_computed_property},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_4util_7Compute_9__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_4util_7Compute_8__reduce_cython__},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_4util_7Compute_11__setstate_cython__, METH_O, __pyx_doc_5freud_4util_7Compute_10__setstate_cython__},
+static PyMethodDef __pyx_methods_5freud_4util__Compute[] = {
+  {"_computed_property", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_4util_8_Compute_5_computed_property, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_4util_8_Compute_4_computed_property},
+  {"__reduce_cython__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_4util_8_Compute_9__reduce_cython__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_4util_8_Compute_8__reduce_cython__},
+  {"__setstate_cython__", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_4util_8_Compute_11__setstate_cython__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_4util_8_Compute_10__setstate_cython__},
   {0, 0, 0, 0}
 };
 
-static struct PyGetSetDef __pyx_getsets_5freud_4util_Compute[] = {
-  {(char *)"_called_compute", __pyx_getprop_5freud_4util_7Compute__called_compute, __pyx_setprop_5freud_4util_7Compute__called_compute, (char *)"_called_compute: object", 0},
+static struct PyGetSetDef __pyx_getsets_5freud_4util__Compute[] = {
+  {(char *)"_called_compute", __pyx_getprop_5freud_4util_8_Compute__called_compute, __pyx_setprop_5freud_4util_8_Compute__called_compute, (char *)"_called_compute: object", 0},
   {0, 0, 0, 0, 0}
 };
 
-static PyTypeObject __pyx_type_5freud_4util_Compute = {
+static PyTypeObject __pyx_type_5freud_4util__Compute = {
   PyVarObject_HEAD_INIT(0, 0)
-  "freud.util.Compute", /*tp_name*/
-  sizeof(struct __pyx_obj_5freud_4util_Compute), /*tp_basicsize*/
+  "freud.util._Compute", /*tp_name*/
+  sizeof(struct __pyx_obj_5freud_4util__Compute), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_5freud_4util_Compute, /*tp_dealloc*/
+  __pyx_tp_dealloc_5freud_4util__Compute, /*tp_dealloc*/
   0, /*tp_print*/
   0, /*tp_getattr*/
   0, /*tp_setattr*/
@@ -8964,21 +9036,21 @@ static PyTypeObject __pyx_type_5freud_4util_Compute = {
   0, /*tp_as_mapping*/
   0, /*tp_hash*/
   0, /*tp_call*/
-  __pyx_pw_5freud_4util_7Compute_7__str__, /*tp_str*/
-  __pyx_tp_getattro_5freud_4util_Compute, /*tp_getattro*/
+  __pyx_pw_5freud_4util_8_Compute_7__str__, /*tp_str*/
+  __pyx_tp_getattro_5freud_4util__Compute, /*tp_getattro*/
   0, /*tp_setattro*/
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-  "Parent class for all compute classes in freud.\n\n    Currently, the primary purpose of this class is implementing functions to\n    prevent access of uncomputed values. This is accomplished by maintaining a\n    dictionary of compute functions in a class that have been called and\n    decorating class properties with the names of the compute function that\n    must be called to populate that property.\n\n    To use this class, one would do, for example,\n\n    .. code-block:: python\n        class Cluster(Compute):\n\n            def compute(...)\n                ...\n\n            @Compute._computed_property()\n            def cluster_idx(self):\n                return ...\n\n            def reset(...):\n                ...\n\n    Attributes:\n        _called_compute (dict):\n            Flags representing whether appropriate compute method was called.\n    ", /*tp_doc*/
-  __pyx_tp_traverse_5freud_4util_Compute, /*tp_traverse*/
-  __pyx_tp_clear_5freud_4util_Compute, /*tp_clear*/
+  "Parent class for all compute classes in freud.\n\n    Currently, the primary purpose of this class is implementing functions to\n    prevent access of uncomputed values. This is accomplished by maintaining a\n    dictionary of compute functions in a class that have been called and\n    decorating class properties with the names of the compute function that\n    must be called to populate that property.\n\n    To use this class, one would do, for example,\n\n    .. code-block:: python\n        class Cluster(_Compute):\n\n            def compute(...)\n                ...\n\n            @_Compute._computed_property()\n            def cluster_idx(self):\n                return ...\n\n            def reset(...):\n                ...\n\n    Attributes:\n        _called_compute (dict):\n            Flags representing whether appropriate compute method was called.\n    ", /*tp_doc*/
+  __pyx_tp_traverse_5freud_4util__Compute, /*tp_traverse*/
+  __pyx_tp_clear_5freud_4util__Compute, /*tp_clear*/
   0, /*tp_richcompare*/
   0, /*tp_weaklistoffset*/
   0, /*tp_iter*/
   0, /*tp_iternext*/
-  __pyx_methods_5freud_4util_Compute, /*tp_methods*/
+  __pyx_methods_5freud_4util__Compute, /*tp_methods*/
   0, /*tp_members*/
-  __pyx_getsets_5freud_4util_Compute, /*tp_getset*/
+  __pyx_getsets_5freud_4util__Compute, /*tp_getset*/
   0, /*tp_base*/
   0, /*tp_dict*/
   0, /*tp_descr_get*/
@@ -8986,7 +9058,7 @@ static PyTypeObject __pyx_type_5freud_4util_Compute = {
   0, /*tp_dictoffset*/
   0, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_5freud_4util_Compute, /*tp_new*/
+  __pyx_tp_new_5freud_4util__Compute, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -9800,23 +9872,23 @@ static int __Pyx_modinit_type_init_code(void) {
   if (PyObject_SetAttr(__pyx_m, __pyx_n_s_ManagedArrayContainer, (PyObject *)&__pyx_type_5freud_4util__ManagedArrayContainer) < 0) __PYX_ERR(0, 21, __pyx_L1_error)
   if (__Pyx_setup_reduce((PyObject*)&__pyx_type_5freud_4util__ManagedArrayContainer) < 0) __PYX_ERR(0, 21, __pyx_L1_error)
   __pyx_ptype_5freud_4util__ManagedArrayContainer = &__pyx_type_5freud_4util__ManagedArrayContainer;
-  if (PyType_Ready(&__pyx_type_5freud_4util_Compute) < 0) __PYX_ERR(0, 130, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_5freud_4util__Compute) < 0) __PYX_ERR(0, 130, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
-  __pyx_type_5freud_4util_Compute.tp_print = 0;
+  __pyx_type_5freud_4util__Compute.tp_print = 0;
   #endif
   #if CYTHON_COMPILING_IN_CPYTHON
   {
-    PyObject *wrapper = PyObject_GetAttrString((PyObject *)&__pyx_type_5freud_4util_Compute, "__getattribute__"); if (unlikely(!wrapper)) __PYX_ERR(0, 130, __pyx_L1_error)
+    PyObject *wrapper = PyObject_GetAttrString((PyObject *)&__pyx_type_5freud_4util__Compute, "__getattribute__"); if (unlikely(!wrapper)) __PYX_ERR(0, 130, __pyx_L1_error)
     if (Py_TYPE(wrapper) == &PyWrapperDescr_Type) {
-      __pyx_wrapperbase_5freud_4util_7Compute_2__getattribute__ = *((PyWrapperDescrObject *)wrapper)->d_base;
-      __pyx_wrapperbase_5freud_4util_7Compute_2__getattribute__.doc = __pyx_doc_5freud_4util_7Compute_2__getattribute__;
-      ((PyWrapperDescrObject *)wrapper)->d_base = &__pyx_wrapperbase_5freud_4util_7Compute_2__getattribute__;
+      __pyx_wrapperbase_5freud_4util_8_Compute_2__getattribute__ = *((PyWrapperDescrObject *)wrapper)->d_base;
+      __pyx_wrapperbase_5freud_4util_8_Compute_2__getattribute__.doc = __pyx_doc_5freud_4util_8_Compute_2__getattribute__;
+      ((PyWrapperDescrObject *)wrapper)->d_base = &__pyx_wrapperbase_5freud_4util_8_Compute_2__getattribute__;
     }
   }
   #endif
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_Compute, (PyObject *)&__pyx_type_5freud_4util_Compute) < 0) __PYX_ERR(0, 130, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_5freud_4util_Compute) < 0) __PYX_ERR(0, 130, __pyx_L1_error)
-  __pyx_ptype_5freud_4util_Compute = &__pyx_type_5freud_4util_Compute;
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_Compute, (PyObject *)&__pyx_type_5freud_4util__Compute) < 0) __PYX_ERR(0, 130, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_5freud_4util__Compute) < 0) __PYX_ERR(0, 130, __pyx_L1_error)
+  __pyx_ptype_5freud_4util__Compute = &__pyx_type_5freud_4util__Compute;
   if (PyType_Ready(&__pyx_type_5freud_4util___pyx_scope_struct___computed_property) < 0) __PYX_ERR(0, 175, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
   __pyx_type_5freud_4util___pyx_scope_struct___computed_property.tp_print = 0;
@@ -9891,8 +9963,6 @@ static int __Pyx_modinit_type_import_code(void) {
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_ptype_5freud_3box_Box = __Pyx_ImportType(__pyx_t_1, "freud.box", "Box", sizeof(struct __pyx_obj_5freud_3box_Box), __Pyx_ImportType_CheckSize_Warn);
    if (!__pyx_ptype_5freud_3box_Box) __PYX_ERR(7, 6, __pyx_L1_error)
-  __pyx_ptype_5freud_3box_PeriodicBuffer = __Pyx_ImportType(__pyx_t_1, "freud.box", "PeriodicBuffer", sizeof(struct __pyx_obj_5freud_3box_PeriodicBuffer), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_5freud_3box_PeriodicBuffer) __PYX_ERR(7, 11, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_RefNannyFinishContext();
   return 0;
@@ -10225,11 +10295,11 @@ if (!__Pyx_RefNanny) {
  *         R"""Decorator that makes a class method to be a property with limited access.
  * 
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4util_7Compute_5_computed_property, __Pyx_CYFUNCTION_STATICMETHOD | __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Compute__computed_property, NULL, __pyx_n_s_freud_util, __pyx_d, ((PyObject *)__pyx_codeobj__27)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 175, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4util_8_Compute_5_computed_property, __Pyx_CYFUNCTION_STATICMETHOD | __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Compute__computed_property, NULL, __pyx_n_s_freud_util, __pyx_d, ((PyObject *)__pyx_codeobj__27)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 175, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4util_Compute->tp_dict, __pyx_n_s_computed_property, __pyx_t_2) < 0) __PYX_ERR(0, 175, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4util__Compute->tp_dict, __pyx_n_s_computed_property, __pyx_t_2) < 0) __PYX_ERR(0, 175, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  PyType_Modified(__pyx_ptype_5freud_4util_Compute);
+  PyType_Modified(__pyx_ptype_5freud_4util__Compute);
 
   /* "freud/util.pyx":174
  *         return attribute
@@ -10238,21 +10308,21 @@ if (!__Pyx_RefNanny) {
  *     def _computed_property(prop):
  *         R"""Decorator that makes a class method to be a property with limited access.
  */
-  __Pyx_GetNameInClass(__pyx_t_2, (PyObject *)__pyx_ptype_5freud_4util_Compute, __pyx_n_s_computed_property); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 175, __pyx_L1_error)
+  __Pyx_GetNameInClass(__pyx_t_2, (PyObject *)__pyx_ptype_5freud_4util__Compute, __pyx_n_s_computed_property); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 175, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_builtin_staticmethod, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 174, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4util_Compute->tp_dict, __pyx_n_s_computed_property, __pyx_t_1) < 0) __PYX_ERR(0, 175, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4util__Compute->tp_dict, __pyx_n_s_computed_property, __pyx_t_1) < 0) __PYX_ERR(0, 175, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  PyType_Modified(__pyx_ptype_5freud_4util_Compute);
+  PyType_Modified(__pyx_ptype_5freud_4util__Compute);
 
   /* "(tree fragment)":1
  * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
  * def __setstate_cython__(self, __pyx_state):
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4util_7Compute_9__reduce_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Compute___reduce_cython, NULL, __pyx_n_s_freud_util, __pyx_d, ((PyObject *)__pyx_codeobj__29)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4util_8_Compute_9__reduce_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Compute___reduce_cython, NULL, __pyx_n_s_freud_util, __pyx_d, ((PyObject *)__pyx_codeobj__29)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_reduce_cython, __pyx_t_1) < 0) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -10263,7 +10333,7 @@ if (!__Pyx_RefNanny) {
  * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4util_7Compute_11__setstate_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Compute___setstate_cython, NULL, __pyx_n_s_freud_util, __pyx_d, ((PyObject *)__pyx_codeobj__31)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4util_8_Compute_11__setstate_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Compute___setstate_cython, NULL, __pyx_n_s_freud_util, __pyx_d, ((PyObject *)__pyx_codeobj__31)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 3, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_setstate_cython, __pyx_t_1) < 0) __PYX_ERR(1, 3, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -10315,8 +10385,8 @@ if (!__Pyx_RefNanny) {
 
   /* "vector.to_py":60
  * 
- * @cname("__pyx_convert_vector_to_py_unsigned_int")
- * cdef object __pyx_convert_vector_to_py_unsigned_int(vector[X]& v):             # <<<<<<<<<<<<<<
+ * @cname("__pyx_convert_vector_to_py_size_t")
+ * cdef object __pyx_convert_vector_to_py_size_t(vector[X]& v):             # <<<<<<<<<<<<<<
  *     return [v[i] for i in range(v.size())]
  * 
  */
@@ -10612,6 +10682,46 @@ static void __Pyx_WriteUnraisable(const char *name, CYTHON_UNUSED int clineno,
     if (nogil)
         PyGILState_Release(state);
 #endif
+}
+
+/* KeywordStringCheck */
+static int __Pyx_CheckKeywordStrings(
+    PyObject *kwdict,
+    const char* function_name,
+    int kw_allowed)
+{
+    PyObject* key = 0;
+    Py_ssize_t pos = 0;
+#if CYTHON_COMPILING_IN_PYPY
+    if (!kw_allowed && PyDict_Next(kwdict, &pos, &key, 0))
+        goto invalid_keyword;
+    return 1;
+#else
+    while (PyDict_Next(kwdict, &pos, &key, 0)) {
+        #if PY_MAJOR_VERSION < 3
+        if (unlikely(!PyString_Check(key)))
+        #endif
+            if (unlikely(!PyUnicode_Check(key)))
+                goto invalid_keyword_type;
+    }
+    if ((!kw_allowed) && unlikely(key))
+        goto invalid_keyword;
+    return 1;
+invalid_keyword_type:
+    PyErr_Format(PyExc_TypeError,
+        "%.200s() keywords must be strings", function_name);
+    return 0;
+#endif
+invalid_keyword:
+    PyErr_Format(PyExc_TypeError,
+    #if PY_MAJOR_VERSION < 3
+        "%.200s() got an unexpected keyword argument '%.200s'",
+        function_name, PyString_AsString(key));
+    #else
+        "%s() got an unexpected keyword argument '%U'",
+        function_name, key);
+    #endif
+    return 0;
 }
 
 /* PyDictVersioning */
@@ -11151,46 +11261,6 @@ bad:
     return;
 }
 #endif
-
-/* KeywordStringCheck */
-static int __Pyx_CheckKeywordStrings(
-    PyObject *kwdict,
-    const char* function_name,
-    int kw_allowed)
-{
-    PyObject* key = 0;
-    Py_ssize_t pos = 0;
-#if CYTHON_COMPILING_IN_PYPY
-    if (!kw_allowed && PyDict_Next(kwdict, &pos, &key, 0))
-        goto invalid_keyword;
-    return 1;
-#else
-    while (PyDict_Next(kwdict, &pos, &key, 0)) {
-        #if PY_MAJOR_VERSION < 3
-        if (unlikely(!PyString_Check(key)))
-        #endif
-            if (unlikely(!PyUnicode_Check(key)))
-                goto invalid_keyword_type;
-    }
-    if ((!kw_allowed) && unlikely(key))
-        goto invalid_keyword;
-    return 1;
-invalid_keyword_type:
-    PyErr_Format(PyExc_TypeError,
-        "%.200s() keywords must be strings", function_name);
-    return 0;
-#endif
-invalid_keyword:
-    PyErr_Format(PyExc_TypeError,
-    #if PY_MAJOR_VERSION < 3
-        "%.200s() got an unexpected keyword argument '%.200s'",
-        function_name, PyString_AsString(key));
-    #else
-        "%s() got an unexpected keyword argument '%U'",
-        function_name, key);
-    #endif
-    return 0;
-}
 
 /* BytesEquals */
 static CYTHON_INLINE int __Pyx_PyBytes_Equals(PyObject* s1, PyObject* s2, int equals) {

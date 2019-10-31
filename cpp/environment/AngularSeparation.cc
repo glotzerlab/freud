@@ -2,8 +2,8 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include "AngularSeparation.h"
-#include "utils.h"
 #include "NeighborComputeFunctional.h"
+#include "utils.h"
 
 #if defined _WIN32
 #undef min // std::min clashes with a Windows header
@@ -56,11 +56,12 @@ float computeMinSeparationAngle(const quat<float> ref_q, const quat<float> q, co
     return min_angle;
 }
 
-void AngularSeparationNeighbor::compute(const locality::NeighborQuery *nq, const quat<float>* orientations,
-                 const vec3<float>* query_points,
-                 const quat<float>* query_orientations, unsigned int n_query_points,
-                 const quat<float>* equiv_orientations, unsigned int n_equiv_orientations,
-                 const freud::locality::NeighborList* nlist, locality::QueryArgs qargs)
+void AngularSeparationNeighbor::compute(const locality::NeighborQuery* nq, const quat<float>* orientations,
+                                        const vec3<float>* query_points,
+                                        const quat<float>* query_orientations, unsigned int n_query_points,
+                                        const quat<float>* equiv_orientations,
+                                        unsigned int n_equiv_orientations,
+                                        const freud::locality::NeighborList* nlist, locality::QueryArgs qargs)
 {
     // This function requires a NeighborList object, so we always make one and store it locally.
     m_nlist = locality::makeDefaultNlist(nq, nlist, query_points, n_query_points, qargs);
@@ -87,8 +88,9 @@ void AngularSeparationNeighbor::compute(const locality::NeighborQuery *nq, const
 }
 
 void AngularSeparationGlobal::compute(const quat<float>* global_orientations, unsigned int n_global,
-                       const quat<float>* orientations, unsigned int n_points,
-                       const quat<float>* equiv_orientations, unsigned int n_equiv_orientations)
+                                      const quat<float>* orientations, unsigned int n_points,
+                                      const quat<float>* equiv_orientations,
+                                      unsigned int n_equiv_orientations)
 {
     m_angles.prepare({n_points, n_global});
 
@@ -99,7 +101,8 @@ void AngularSeparationGlobal::compute(const quat<float>* global_orientations, un
             for (unsigned int j = 0; j < n_global; j++)
             {
                 quat<float> global_q = global_orientations[j];
-                float theta = computeMinSeparationAngle(q, global_q, equiv_orientations, n_equiv_orientations);
+                float theta
+                    = computeMinSeparationAngle(q, global_q, equiv_orientations, n_equiv_orientations);
                 m_angles(i, j) = theta;
             }
         }

@@ -6,8 +6,8 @@
 
 #include "MatchEnv.h"
 
-#include "NeighborComputeFunctional.h"
 #include "NeighborBond.h"
+#include "NeighborComputeFunctional.h"
 
 #if defined _WIN32
 #undef min // std::min clashes with a Windows header
@@ -19,7 +19,8 @@ namespace freud { namespace environment {
 /*****************
  * EnvDisjoinSet *
  *****************/
-EnvDisjointSet::EnvDisjointSet(unsigned int Np) : rank(std::vector<unsigned int>(Np, 0)), m_max_num_neigh(0) {}
+EnvDisjointSet::EnvDisjointSet(unsigned int Np) : rank(std::vector<unsigned int>(Np, 0)), m_max_num_neigh(0)
+{}
 
 void EnvDisjointSet::merge(const unsigned int a, const unsigned int b,
                            BiMap<unsigned int, unsigned int> vec_map, rotmat3<float> rotation)
@@ -193,11 +194,11 @@ std::vector<unsigned int> EnvDisjointSet::findSet(const unsigned int m)
     return m_set;
 }
 
-std::vector<vec3<float> > EnvDisjointSet::getAvgEnv(const unsigned int m)
+std::vector<vec3<float>> EnvDisjointSet::getAvgEnv(const unsigned int m)
 {
     bool invalid_ind = true;
 
-    std::vector<vec3<float> > env(m_max_num_neigh, vec3<float>(0.0, 0.0, 0.0));
+    std::vector<vec3<float>> env(m_max_num_neigh, vec3<float>(0.0, 0.0, 0.0));
     float N = float(0);
 
     // loop over all the environments in the set
@@ -273,8 +274,8 @@ std::vector<vec3<float>> EnvDisjointSet::getIndividualEnv(const unsigned int m)
 /*************************
  * Convenience functions *
  *************************/
-std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>>
-isSimilar(Environment& e1, Environment& e2, float threshold_sq, bool registration)
+std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>> isSimilar(Environment& e1, Environment& e2,
+                                                                       float threshold_sq, bool registration)
 {
     BiMap<unsigned int, unsigned int> vec_map;
     rotmat3<float> rotation = rotmat3<float>(); // this initializes to the identity matrix
@@ -359,10 +360,9 @@ isSimilar(Environment& e1, Environment& e2, float threshold_sq, bool registratio
     }
 }
 
-std::map<unsigned int, unsigned int>
-isSimilar(const box::Box &box, const vec3<float>* refPoints1, vec3<float>*
-        refPoints2, unsigned int numRef, float threshold_sq, bool
-        registration)
+std::map<unsigned int, unsigned int> isSimilar(const box::Box& box, const vec3<float>* refPoints1,
+                                               vec3<float>* refPoints2, unsigned int numRef,
+                                               float threshold_sq, bool registration)
 {
     Environment e0, e1;
     std::tie(e0, e1) = makeEnvironments(box, refPoints1, refPoints2, numRef);
@@ -383,7 +383,7 @@ isSimilar(const box::Box &box, const vec3<float>* refPoints1, vec3<float>*
     return vec_map.asMap();
 }
 
-std::pair<Environment, Environment> makeEnvironments(const box::Box &box, const vec3<float>* refPoints1,
+std::pair<Environment, Environment> makeEnvironments(const box::Box& box, const vec3<float>* refPoints1,
                                                      vec3<float>* refPoints2, unsigned int numRef)
 {
     // create the environment characterized by refPoints1. Index it as 0.
@@ -411,9 +411,8 @@ std::pair<Environment, Environment> makeEnvironments(const box::Box &box, const 
     return std::pair<Environment, Environment>(e0, e1);
 }
 
-
-std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>>
-minimizeRMSD(Environment& e1, Environment& e2, float& min_rmsd, bool registration)
+std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>> minimizeRMSD(Environment& e1, Environment& e2,
+                                                                          float& min_rmsd, bool registration)
 {
     BiMap<unsigned int, unsigned int> vec_map;
     rotmat3<float> rotation = rotmat3<float>(); // this initializes to the identity matrix
@@ -462,7 +461,7 @@ minimizeRMSD(Environment& e1, Environment& e2, float& min_rmsd, bool registratio
     return std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>>(rotation, vec_map);
 }
 
-std::map<unsigned int, unsigned int> minimizeRMSD(const box::Box &box, const vec3<float>* refPoints1,
+std::map<unsigned int, unsigned int> minimizeRMSD(const box::Box& box, const vec3<float>* refPoints1,
                                                   vec3<float>* refPoints2, unsigned int numRef,
                                                   float& min_rmsd, bool registration)
 {
@@ -499,7 +498,8 @@ MatchEnv::~MatchEnv() {}
 
 EnvironmentCluster::~EnvironmentCluster() {}
 
-Environment MatchEnv::buildEnv(const freud::locality::NeighborQuery* nq, const freud::locality::NeighborList* nlist, size_t num_bonds, size_t& bond,
+Environment MatchEnv::buildEnv(const freud::locality::NeighborQuery* nq,
+                               const freud::locality::NeighborList* nlist, size_t num_bonds, size_t& bond,
                                unsigned int i, unsigned int env_ind)
 {
     Environment ei = Environment();
@@ -520,10 +520,16 @@ Environment MatchEnv::buildEnv(const freud::locality::NeighborQuery* nq, const f
     return ei;
 }
 
-void EnvironmentCluster::compute(const freud::locality::NeighborQuery* nq, const freud::locality::NeighborList* nlist_arg, locality::QueryArgs qargs, const freud::locality::NeighborList* env_nlist_arg, locality::QueryArgs env_qargs, float threshold, bool registration, bool global)
+void EnvironmentCluster::compute(const freud::locality::NeighborQuery* nq,
+                                 const freud::locality::NeighborList* nlist_arg, locality::QueryArgs qargs,
+                                 const freud::locality::NeighborList* env_nlist_arg,
+                                 locality::QueryArgs env_qargs, float threshold, bool registration,
+                                 bool global)
 {
-    const locality::NeighborList nlist = locality::makeDefaultNlist(nq, nlist_arg, nq->getPoints(), nq->getNPoints(), qargs);
-    const locality::NeighborList env_nlist = locality::makeDefaultNlist(nq, env_nlist_arg, nq->getPoints(), nq->getNPoints(), env_qargs);
+    const locality::NeighborList nlist
+        = locality::makeDefaultNlist(nq, nlist_arg, nq->getPoints(), nq->getNPoints(), qargs);
+    const locality::NeighborList env_nlist
+        = locality::makeDefaultNlist(nq, env_nlist_arg, nq->getPoints(), nq->getNPoints(), env_qargs);
 
     unsigned int Np = nq->getNPoints();
     m_env_index.prepare(Np);
@@ -546,7 +552,8 @@ void EnvironmentCluster::compute(const freud::locality::NeighborQuery* nq, const
     {
         Environment ei = buildEnv(nq, &env_nlist, env_num_bonds, env_bond, i, i);
         dj.s.push_back(ei);
-        dj.m_max_num_neigh = std::max(dj.m_max_num_neigh, ei.num_vecs);;
+        dj.m_max_num_neigh = std::max(dj.m_max_num_neigh, ei.num_vecs);
+        ;
     }
 
     // reallocate the m_point_environments array
@@ -611,7 +618,7 @@ void EnvironmentCluster::compute(const freud::locality::NeighborQuery* nq, const
 unsigned int EnvironmentCluster::populateEnv(EnvDisjointSet dj)
 {
     std::map<unsigned int, unsigned int> label_map;
-    std::map<unsigned int, std::vector<vec3<float> > > cluster_env;
+    std::map<unsigned int, std::vector<vec3<float>>> cluster_env;
 
     // loop over all environments
     unsigned int label_ind;
@@ -665,11 +672,13 @@ unsigned int EnvironmentCluster::populateEnv(EnvDisjointSet dj)
 /*************************
  * EnvironmentMotifMatch *
  *************************/
-void EnvironmentMotifMatch::compute(const freud::locality::NeighborQuery* nq, const freud::locality::NeighborList* nlist_arg, locality::QueryArgs qargs,
-                          const vec3<float>* motif, unsigned int motif_size, float threshold,
-                          bool registration)
+void EnvironmentMotifMatch::compute(const freud::locality::NeighborQuery* nq,
+                                    const freud::locality::NeighborList* nlist_arg, locality::QueryArgs qargs,
+                                    const vec3<float>* motif, unsigned int motif_size, float threshold,
+                                    bool registration)
 {
-    const locality::NeighborList nlist = locality::makeDefaultNlist(nq, nlist_arg, nq->getPoints(), nq->getNPoints(), qargs);
+    const locality::NeighborList nlist
+        = locality::makeDefaultNlist(nq, nlist_arg, nq->getPoints(), nq->getNPoints(), qargs);
 
     unsigned int Np = nq->getNPoints();
     float m_threshold_sq = threshold * threshold;
@@ -729,7 +738,6 @@ void EnvironmentMotifMatch::compute(const freud::locality::NeighborQuery* nq, co
         {
             dj.merge(0, dummy, vec_map, rotation);
             m_matches[i] = true;
-
         }
         // grab the set of vectors that define this individual environment
         std::vector<vec3<float>> part_vecs = dj.getIndividualEnv(dummy);
@@ -744,11 +752,13 @@ void EnvironmentMotifMatch::compute(const freud::locality::NeighborQuery* nq, co
 /****************************
  * EnvironmentRMSDMinimizer *
  ****************************/
-void EnvironmentRMSDMinimizer::compute(const freud::locality::NeighborQuery* nq, const freud::locality::NeighborList* nlist_arg, locality::QueryArgs qargs,
-                                          const vec3<float>* motif, unsigned int motif_size,
-                                          bool registration)
+void EnvironmentRMSDMinimizer::compute(const freud::locality::NeighborQuery* nq,
+                                       const freud::locality::NeighborList* nlist_arg,
+                                       locality::QueryArgs qargs, const vec3<float>* motif,
+                                       unsigned int motif_size, bool registration)
 {
-    const locality::NeighborList nlist = locality::makeDefaultNlist(nq, nlist_arg, nq->getPoints(), nq->getNPoints(), qargs);
+    const locality::NeighborList nlist
+        = locality::makeDefaultNlist(nq, nlist_arg, nq->getPoints(), nq->getNPoints(), qargs);
 
     unsigned int Np = nq->getNPoints();
 

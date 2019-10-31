@@ -1,12 +1,11 @@
 #!/bin/bash
 
 set -e
-set -u
 
 # PYPI_USERNAME - (Required) Username for the publisher's account on PyPI
 # PYPI_PASSWORD - (Required, Secret) Password for the publisher's account on PyPI
 
-cat << EOF >> ~/.pypirc
+cat << EOF > ~/.pypirc
 [distutils]
 index-servers=
     pypi
@@ -28,7 +27,7 @@ if [ -z $1 ]; then
 fi
 
 # Build TBB
-git clone https://github.com/01org/tbb.git
+git clone https://github.com/intel/tbb.git
 cd tbb
 make
 BUILD_DIR=$(find build -name linux*release)
@@ -36,12 +35,11 @@ cd ${BUILD_DIR}
 source tbbvars.sh
 cd ~/
 
-# Build wheels
-for PYBIN in /opt/python/cp3*/bin; do
-  # Split the echo command and the version since python2
-  # --version doesn't return the value, just prints it.
-  echo "Building for "
-  ${PYBIN}/python --version
+# Build wheels for Python 3.5, 3.6, 3.7
+PYBINS="/opt/python/cp3[5-7]*/bin"
+
+for PYBIN in $PYBINS; do
+  echo "Building for $(${PYBIN}/python --version)"
 
   "${PYBIN}/python" -m pip install cython --no-deps --ignore-installed -q --progress-bar=off
   rm -rf numpy-1.10.4
@@ -51,10 +49,6 @@ for PYBIN in /opt/python/cp3*/bin; do
   rm -f numpy/random/mtrand/mtrand.c
   rm -f PKG-INFO
   "${PYBIN}/python" -m pip install . --no-deps --ignore-installed -v --progress-bar=off -q
-
-  # Force installation of version of SciPy (1.2) that works with
-  # old NumPy (1.3 requires newer).
-  "${PYBIN}/pip" install scipy==1.2.1 --progress-bar=off
   "${PYBIN}/pip" wheel ~/ci/freud/ -w ~/wheelhouse/ --no-deps --no-build-isolation --no-use-pep517
 done
 
@@ -64,9 +58,11 @@ for whl in ~/wheelhouse/freud*.whl; do
 done
 
 # Install from and test all wheels
-for PYBIN in /opt/python/*/bin/; do
+for PYBIN in $PYBINS; do
+  echo "Testing for $(${PYBIN}/python --version)"
+
   "${PYBIN}/python" -m pip install freud_analysis --no-deps --no-index -f ~/ci/freud/wheelhouse
-  "${PYBIN}/python" -m pip install rowan sympy
+  "${PYBIN}/python" -m pip install -U -r ~/ci/freud/requirements-testing.txt
   cd ~/ci/freud/tests
   "${PYBIN}/python" -m unittest discover . -v
 done

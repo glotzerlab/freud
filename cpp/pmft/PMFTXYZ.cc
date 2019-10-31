@@ -1,8 +1,8 @@
 // Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#include <stdexcept>
 #include "PMFTXYZ.h"
+#include <stdexcept>
 
 /*! \file PMFTXYZ.cc
     \brief Routines for computing 3D potential of mean force in XYZ coordinates
@@ -12,8 +12,7 @@ namespace freud { namespace pmft {
 
 PMFTXYZ::PMFTXYZ(float x_max, float y_max, float z_max, unsigned int n_x, unsigned int n_y, unsigned int n_z,
                  vec3<float> shiftvec)
-    : PMFT(),
-      m_shiftvec(shiftvec)
+    : PMFT(), m_shiftvec(shiftvec)
 {
     if (n_x < 1)
         throw std::invalid_argument("PMFTXYZ requires at least 1 bin in X.");
@@ -69,34 +68,34 @@ void PMFTXYZ::reduce()
 //! \internal
 /*! \brief Helper function to direct the calculation to the correct helper class
  */
-void PMFTXYZ::accumulate(const locality::NeighborQuery* neighbor_query,
-                         quat<float>* orientations, vec3<float>* query_points,
-                         unsigned int n_query_points, quat<float>* face_orientations,
-                         unsigned int n_faces, const locality::NeighborList* nlist,
-                         freud::locality::QueryArgs qargs)
+void PMFTXYZ::accumulate(const locality::NeighborQuery* neighbor_query, quat<float>* query_orientations,
+                         vec3<float>* query_points, unsigned int n_query_points,
+                         quat<float>* face_orientations, unsigned int n_faces,
+                         const locality::NeighborList* nlist, freud::locality::QueryArgs qargs)
 {
     // precalc some values for faster computation within the loop
     neighbor_query->getBox().enforce3D();
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
-        [=](const freud::locality::NeighborBond& neighbor_bond) {
-        // create the reference point quaternion
-        quat<float> ref_q(orientations[neighbor_bond.point_idx]);
-        // make sure that the particles are wrapped into the box
-        vec3<float> delta(bondVector(neighbor_bond, neighbor_query, query_points));
+                      [=](const freud::locality::NeighborBond& neighbor_bond) {
+                          // create the reference point quaternion
+                          quat<float> ref_q(query_orientations[neighbor_bond.point_idx]);
+                          // make sure that the particles are wrapped into the box
+                          vec3<float> delta(bondVector(neighbor_bond, neighbor_query, query_points));
 
-        for (unsigned int k = 0; k < n_faces; k++)
-        {
-            // create the extra quaternion
-            quat<float> qe(face_orientations[util::ManagedArray<unsigned int>::getIndex({neighbor_query->getNPoints(), n_faces}, {neighbor_bond.point_idx, k})]);
-            // create point vector
-            vec3<float> v(delta);
-            // rotate the vector
-            v = rotate(conj(ref_q), v);
-            v = rotate(qe, v);
+                          for (unsigned int k = 0; k < n_faces; k++)
+                          {
+                              // create the extra quaternion
+                              quat<float> qe(face_orientations[util::ManagedArray<unsigned int>::getIndex(
+                                  {neighbor_query->getNPoints(), n_faces}, {neighbor_bond.point_idx, k})]);
+                              // create point vector
+                              vec3<float> v(delta);
+                              // rotate the vector
+                              v = rotate(conj(ref_q), v);
+                              v = rotate(qe, v);
 
-            m_local_histograms(v.x, v.y, v.z);
-        }
-    });
+                              m_local_histograms(v.x, v.y, v.z);
+                          }
+                      });
 }
 
 }; }; // end namespace freud::pmft

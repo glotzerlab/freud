@@ -4,8 +4,8 @@
 #include <vector>
 
 #include "LocalDescriptors.h"
-#include "diagonalize.h"
 #include "NeighborComputeFunctional.h"
+#include "diagonalize.h"
 
 /*! \file LocalDescriptors.cc
   \brief Computes local descriptors.
@@ -13,14 +13,14 @@
 
 namespace freud { namespace environment {
 
-LocalDescriptors::LocalDescriptors(unsigned int l_max, bool negative_m, LocalDescriptorOrientation orientation)
+LocalDescriptors::LocalDescriptors(unsigned int l_max, bool negative_m,
+                                   LocalDescriptorOrientation orientation)
     : m_l_max(l_max), m_negative_m(negative_m), m_nSphs(0), m_orientation(orientation)
 {}
 
-void LocalDescriptors::compute(const locality::NeighborQuery *nq,
-    const vec3<float>* query_points, unsigned int n_query_points,
-    const quat<float>* orientations, const freud::locality::NeighborList*
-    nlist, locality::QueryArgs qargs)
+void LocalDescriptors::compute(const locality::NeighborQuery* nq, const vec3<float>* query_points,
+                               unsigned int n_query_points, const quat<float>* orientations,
+                               const freud::locality::NeighborList* nlist, locality::QueryArgs qargs)
 {
     // This function requires a NeighborList object, so we always make one and store it locally.
     m_nlist = locality::makeDefaultNlist(nq, nlist, query_points, n_query_points, qargs);
@@ -40,8 +40,8 @@ void LocalDescriptors::compute(const locality::NeighborQuery *nq,
             {
                 util::ManagedArray<float> inertiaTensor = util::ManagedArray<float>({3, 3});
 
-                for (size_t bond_copy(bond); bond_copy < m_nlist.getNumBonds()
-                     && m_nlist.getNeighbors()(bond_copy, 0) == i;
+                for (size_t bond_copy(bond);
+                     bond_copy < m_nlist.getNumBonds() && m_nlist.getNeighbors()(bond_copy, 0) == i;
                      ++bond_copy)
                 {
                     const size_t j(m_nlist.getNeighbors()(bond_copy, 1));
@@ -69,12 +69,9 @@ void LocalDescriptors::compute(const locality::NeighborQuery *nq,
 
                 freud::util::diagonalize33SymmetricMatrix(inertiaTensor, eigenvalues, eigenvectors);
 
-                rotation_0
-                    = vec3<float>(eigenvectors(0, 0), eigenvectors(0, 1), eigenvectors(0, 2));
-                rotation_1
-                    = vec3<float>(eigenvectors(1, 0), eigenvectors(1, 1), eigenvectors(1, 2));
-                rotation_2
-                    = vec3<float>(eigenvectors(2, 0), eigenvectors(2, 1), eigenvectors(2, 2));
+                rotation_0 = vec3<float>(eigenvectors(0, 0), eigenvectors(0, 1), eigenvectors(0, 2));
+                rotation_1 = vec3<float>(eigenvectors(1, 0), eigenvectors(1, 1), eigenvectors(1, 2));
+                rotation_2 = vec3<float>(eigenvectors(2, 0), eigenvectors(2, 1), eigenvectors(2, 2));
             }
             else if (m_orientation == ParticleLocal)
             {
@@ -100,12 +97,13 @@ void LocalDescriptors::compute(const locality::NeighborQuery *nq,
                 const size_t j(m_nlist.getNeighbors()(bond, 1));
                 const vec3<float> r_ij(bondVector(locality::NeighborBond(i, j), nq, query_points));
                 const float r_sq(dot(r_ij, r_ij));
-                const vec3<float> bond_ij(dot(rotation_0, r_ij), dot(rotation_1, r_ij), dot(rotation_2, r_ij));
+                const vec3<float> bond_ij(dot(rotation_0, r_ij), dot(rotation_1, r_ij),
+                                          dot(rotation_2, r_ij));
 
                 const float magR(sqrt(r_sq));
                 float theta(atan2(bond_ij.y, bond_ij.x)); // theta in [-pi..pi] initially
                 if (theta < 0)
-                    theta += float(2 * M_PI);             // move theta into [0..2*pi]
+                    theta += float(2 * M_PI);      // move theta into [0..2*pi]
                 float phi(acos(bond_ij.z / magR)); // phi in [0..pi]
 
                 // catch cases where bond_ij.z/magR falls outside [-1, 1]

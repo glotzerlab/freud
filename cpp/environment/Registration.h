@@ -4,10 +4,10 @@
 #ifndef REGISTRATION_H
 #define REGISTRATION_H
 
-#include <iostream>
-#include <sstream>
 #include <chrono>
+#include <iostream>
 #include <random>
+#include <sstream>
 #include <vector>
 
 #ifdef _WIN32
@@ -28,7 +28,7 @@ namespace freud { namespace environment {
 
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> matrix;
 
-inline matrix makeEigenMatrix(const std::vector<vec3<float> >& vecs)
+inline matrix makeEigenMatrix(const std::vector<vec3<float>>& vecs)
 {
     // build the Eigen matrix
     matrix mat;
@@ -54,7 +54,8 @@ inline std::vector<vec3<float>> makeVec3Matrix(const matrix& m)
     if (m.cols() != 3)
     {
         std::ostringstream msg;
-        msg << "makeVec3Matrix requires the input matrix to have 3 columns, not " << m.cols() << "!" << std::endl;
+        msg << "makeVec3Matrix requires the input matrix to have 3 columns, not " << m.cols() << "!"
+            << std::endl;
         throw std::invalid_argument(msg.str());
     }
     std::vector<vec3<float>> vecs;
@@ -96,7 +97,8 @@ inline matrix Rotate(const matrix& R, const matrix& P)
     if (R.cols() != P.rows())
     {
         std::ostringstream msg;
-        msg << "Rotation matrix has " << R.cols() << " columns and point matrix has " << P.rows() << " rows. These must be equal to perform the rotation." << std::endl;
+        msg << "Rotation matrix has " << R.cols() << " columns and point matrix has " << P.rows()
+            << " rows. These must be equal to perform the rotation." << std::endl;
         throw std::invalid_argument(msg.str());
     }
     matrix rotated = matrix::Zero(P.rows(), P.cols());
@@ -174,7 +176,8 @@ public:
         {
             std::ostringstream msg;
             msg << "There are " << m_ref_points.rows() << " reference points and " << N << " points. ";
-            msg << "Brute force matching requires the same number of reference points and points!" << std::endl;
+            msg << "Brute force matching requires the same number of reference points and points!"
+                << std::endl;
             throw std::invalid_argument(msg.str());
         }
 

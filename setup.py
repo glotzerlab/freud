@@ -422,7 +422,7 @@ if args.use_cython:
 if platform.system() == 'Darwin':
     os.environ["MACOSX_DEPLOYMENT_TARGET"] = "10.12"
 
-version = '1.2.2'
+version = '2.0.0'
 
 # Read README for PyPI, fallback to short description if it fails.
 desc = 'Powerful, efficient trajectory analysis in scientific Python.'
@@ -457,7 +457,9 @@ try:
                 'gsd>=1.9',
                 'garnett>=0.5',
                 'matplotlib>=2.0',
+                'MDAnalysis>=0.17',
                 'rowan>=1.2',
+                'scipy>=1.1',
                 'sympy>=1.0',
             ],
             ext_modules=extensions)

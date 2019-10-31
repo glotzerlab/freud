@@ -4,9 +4,9 @@
 #ifndef BOX_H
 #define BOX_H
 
+#include "utils.h"
 #include <sstream>
 #include <stdexcept>
-#include "utils.h"
 
 #include "VectorMath.h"
 

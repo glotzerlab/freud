@@ -1,12 +1,11 @@
 #!/bin/bash
 
 set -e
-set -u
 
 # PYPI_USERNAME - (Required) Username for the publisher's account on PyPI
 # PYPI_PASSWORD - (Required, Secret) Password for the publisher's account on PyPI
 
-cat << EOF >> ~/.pypirc
+cat << EOF > ~/.pypirc
 [distutils]
 index-servers=
     pypi
@@ -31,10 +30,11 @@ export MACOSX_DEPLOYMENT_TARGET=10.12
 # Get pyenv
 brew install pyenv
 eval "$(pyenv init -)"
-PY_VERSIONS=(3.6.9 3.7.5 3.8.0)
+# Check supported versions with pyenv install --list
+PY_VERSIONS=(3.5.7 3.6.9 3.7.4)
 
 # Build TBB
-git clone https://github.com/01org/tbb.git
+git clone https://github.com/intel/tbb.git
 cd tbb
 make
 BUILD_DIR=$(find build -name mac*release)
@@ -60,10 +60,6 @@ for VERSION in ${PY_VERSIONS[@]}; do
   rm -f PKG-INFO
   pip install . --no-deps --ignore-installed -v -q --progress-bar=off
 
-  # Force installation of version of SciPy (1.2) that works with
-  # old NumPy (1.3 requires newer).  On Mac, also have to avoid
-  # version 1.2 because its voronoi is broken, so revert to 1.1.0
-  pip install scipy==1.1.0 --progress-bar=off
   pip install wheel delocate --progress-bar=off
   pip wheel ~/ci/freud/ -w ~/wheelhouse/ --no-deps --no-build-isolation --no-use-pep517
 done
@@ -75,9 +71,11 @@ done
 
 # Install from and test all wheels
 for VERSION in ${PY_VERSIONS[@]}; do
+  echo "Testing for Python ${VERSION}"
   pyenv global ${VERSION}
+
   pip install freud_analysis --no-deps --no-index -f ~/ci/freud/wheelhouse
-  pip install rowan sympy
+  pip install -U -r ~/ci/freud/requirements-testing.txt
   cd ~/ci/freud/tests
   python -m unittest discover . -v
 done

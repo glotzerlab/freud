@@ -8,8 +8,8 @@
 #include <tbb/tbb.h>
 
 #include "Box.h"
-#include "VectorMath.h"
 #include "ManagedArray.h"
+#include "VectorMath.h"
 
 /*! \file Nematic.h
     \brief Compute the nematic order parameter for each particle
@@ -34,9 +34,9 @@ public:
     //! Get the value of the last computed nematic order parameter
     float getNematicOrderParameter() const;
 
-    const util::ManagedArray<float> &getParticleTensor() const;
+    const util::ManagedArray<float>& getParticleTensor() const;
 
-    const util::ManagedArray<float> &getNematicTensor() const;
+    const util::ManagedArray<float>& getNematicTensor() const;
 
     unsigned int getNumParticles() const;
 
@@ -50,8 +50,9 @@ private:
     float m_nematic_order_parameter; //!< Current value of the order parameter
     vec3<float> m_nematic_director;  //!< The director (eigenvector corresponding to the OP)
 
-    util::ManagedArray<float> m_nematic_tensor;   //!< The computed nematic tensor.
-    util::ManagedArray<float> m_particle_tensor;  //!< The per-particle tensor that is summed up to Q. Used to allow parallelized calculation of Q
+    util::ManagedArray<float> m_nematic_tensor;  //!< The computed nematic tensor.
+    util::ManagedArray<float> m_particle_tensor; //!< The per-particle tensor that is summed up to Q. Used to
+                                                 //!< allow parallelized calculation of Q
 };
 
 }; }; // end namespace freud::order

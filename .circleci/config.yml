@@ -178,7 +178,6 @@ references:
       - *update_submodules
       - run:
           name: Compile Linux wheels
-          working_directory: ~/ci/
           command: |
             bash .circleci/deploy-linux.sh testpypi
 
@@ -192,7 +191,6 @@ references:
       - *update_submodules
       - run:
           name: Compile Linux wheels
-          working_directory: ~/ci/
           command: |
             bash .circleci/deploy-linux.sh pypi
 
@@ -202,7 +200,6 @@ references:
       - *update_submodules
       - run:
           name: Compile Mac wheels
-          working_directory: ~/ci/
           command: |
             bash .circleci/deploy-macos.sh testpypi
 
@@ -212,7 +209,6 @@ references:
       - *update_submodules
       - run:
           name: Compile Mac wheels
-          working_directory: ~/ci/
           command: |
             bash .circleci/deploy-macos.sh pypi
 

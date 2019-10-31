@@ -2,7 +2,7 @@
 freud
 =====
 
-|DOI|
+|Citing freud|
 |PyPI|
 |conda-forge|
 |ReadTheDocs|
@@ -10,8 +10,8 @@ freud
 |Codecov|
 |GitHub-Stars|
 
-.. |DOI| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.166564.svg
-   :target: https://doi.org/10.5281/zenodo.166564
+.. |Citing freud| image:: https://img.shields.io/badge/cite-freud-informational.svg
+   :target: https://freud.readthedocs.io/en/stable/citing.html
 .. |PyPI| image:: https://img.shields.io/pypi/v/freud-analysis.svg
    :target: https://pypi.org/project/freud-analysis/
 .. |conda-forge| image:: https://img.shields.io/conda/vn/conda-forge/freud.svg
@@ -24,15 +24,6 @@ freud
    :target: https://codecov.io/gh/glotzerlab/freud
 .. |GitHub-Stars| image:: https://img.shields.io/github/stars/glotzerlab/freud.svg?style=social
    :target: https://github.com/glotzerlab/freud
-
-.. danger::
-   **freud v2.0 is currently in beta on the** :code:`master` **branch.**
-   That's right -- **freud** just got a whole lot... *beta*. (Pun intended.)
-   This major rewrite of the **freud** library brings new APIs, speedups,
-   and many new features. Please
-   `report any issues <https://github.com/glotzerlab/freud/issues>`_
-   you encounter while using the beta or learning the new API.
-
 
 Overview
 ========
@@ -48,7 +39,7 @@ output, enabling integration with the scientific Python ecosystem for many
 typical materials science workflows.
 
 When using **freud** to process data for publication, please `use this citation
-<https://doi.org/10.5281/zenodo.166564>`__.
+<https://freud.readthedocs.io/en/stable/citing.html>`__.
 
 
 Installation
