@@ -4,7 +4,7 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## v2.0.0 - 2019-10-30
+## v2.0.0 - 2019-10-31
 
 ### Added
 * Ability to specify "system-like" objects that contain a box and set of points for most computes.

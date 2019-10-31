@@ -5,7 +5,7 @@ set -e
 # PYPI_USERNAME - (Required) Username for the publisher's account on PyPI
 # PYPI_PASSWORD - (Required, Secret) Password for the publisher's account on PyPI
 
-cat << EOF >> ~/.pypirc
+cat << EOF > ~/.pypirc
 [distutils]
 index-servers=
     pypi
@@ -35,8 +35,8 @@ cd ${BUILD_DIR}
 source tbbvars.sh
 cd ~/
 
-# Build wheels for Python 3.5+
-PYBINS="/opt/python/cp3[5-9]*/bin"
+# Build wheels for Python 3.5, 3.6, 3.7
+PYBINS="/opt/python/cp3[5-7]*/bin"
 
 for PYBIN in $PYBINS; do
   echo "Building for $(${PYBIN}/python --version)"
@@ -59,6 +59,8 @@ done
 
 # Install from and test all wheels
 for PYBIN in $PYBINS; do
+  echo "Testing for $(${PYBIN}/python --version)"
+
   "${PYBIN}/python" -m pip install freud_analysis --no-deps --no-index -f ~/ci/freud/wheelhouse
   "${PYBIN}/python" -m pip install -U -r ~/ci/freud/requirements-testing.txt
   cd ~/ci/freud/tests

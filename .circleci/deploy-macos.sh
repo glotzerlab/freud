@@ -5,7 +5,7 @@ set -e
 # PYPI_USERNAME - (Required) Username for the publisher's account on PyPI
 # PYPI_PASSWORD - (Required, Secret) Password for the publisher's account on PyPI
 
-cat << EOF >> ~/.pypirc
+cat << EOF > ~/.pypirc
 [distutils]
 index-servers=
     pypi
@@ -31,7 +31,7 @@ export MACOSX_DEPLOYMENT_TARGET=10.12
 brew install pyenv
 eval "$(pyenv init -)"
 # Check supported versions with pyenv install --list
-PY_VERSIONS=(3.5.7 3.6.9 3.7.4 3.8.0)
+PY_VERSIONS=(3.5.7 3.6.9 3.7.4)
 
 # Build TBB
 git clone https://github.com/intel/tbb.git
@@ -71,7 +71,9 @@ done
 
 # Install from and test all wheels
 for VERSION in ${PY_VERSIONS[@]}; do
+  echo "Testing for Python ${VERSION}"
   pyenv global ${VERSION}
+
   pip install freud_analysis --no-deps --no-index -f ~/ci/freud/wheelhouse
   pip install -U -r ~/ci/freud/requirements-testing.txt
   cd ~/ci/freud/tests
