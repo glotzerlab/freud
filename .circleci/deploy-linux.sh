@@ -47,10 +47,6 @@ for PYBIN in /opt/python/cp3[5-9]*/bin; do
   rm -f numpy/random/mtrand/mtrand.c
   rm -f PKG-INFO
   "${PYBIN}/python" -m pip install . --no-deps --ignore-installed -v --progress-bar=off -q
-
-  # Force installation of version of SciPy (1.2) that works with
-  # old NumPy (1.3 requires newer).
-  "${PYBIN}/pip" install scipy==1.2.1 --progress-bar=off
   "${PYBIN}/pip" wheel ~/ci/freud/ -w ~/wheelhouse/ --no-deps --no-build-isolation --no-use-pep517
 done
 
@@ -62,7 +58,7 @@ done
 # Install from and test all wheels
 for PYBIN in /opt/python/*/bin/; do
   "${PYBIN}/python" -m pip install freud_analysis --no-deps --no-index -f ~/ci/freud/wheelhouse
-  "${PYBIN}/python" -m pip install rowan sympy
+  "${PYBIN}/python" -m pip install -U -r ~/ci/freud/requirements-testing.txt
   cd ~/ci/freud/tests
   "${PYBIN}/python" -m unittest discover . -v
 done

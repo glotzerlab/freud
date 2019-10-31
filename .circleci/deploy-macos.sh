@@ -60,10 +60,6 @@ for VERSION in ${PY_VERSIONS[@]}; do
   rm -f PKG-INFO
   pip install . --no-deps --ignore-installed -v -q --progress-bar=off
 
-  # Force installation of version of SciPy (1.2) that works with
-  # old NumPy (1.3 requires newer).  On Mac, also have to avoid
-  # version 1.2 because its voronoi is broken, so revert to 1.1.0
-  pip install scipy==1.1.0 --progress-bar=off
   pip install wheel delocate --progress-bar=off
   pip wheel ~/ci/freud/ -w ~/wheelhouse/ --no-deps --no-build-isolation --no-use-pep517
 done
@@ -77,7 +73,7 @@ done
 for VERSION in ${PY_VERSIONS[@]}; do
   pyenv global ${VERSION}
   pip install freud_analysis --no-deps --no-index -f ~/ci/freud/wheelhouse
-  pip install rowan sympy
+  pip install -U -r ~/ci/freud/requirements-testing.txt
   cd ~/ci/freud/tests
   python -m unittest discover . -v
 done
