@@ -12,3 +12,4 @@ Contributions to **freud** are highly encouraged. The pages below offer informat
    design
    sourceconventions
    howtoadd
+   memory
