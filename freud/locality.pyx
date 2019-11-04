@@ -266,7 +266,7 @@ cdef class NeighborQuery:
             )
 
     @classmethod
-    def from_system(cls, system):
+    def from_system(cls, system, dimensions=None):
         R"""Create a :class:`~.NeighborQuery` from any system-like object.
 
         The standard concept of a system in **freud** is any object that
@@ -292,6 +292,10 @@ cdef class NeighborQuery:
         Args:
             system (system-like object):
                 Any object that can be converted to a :class:`~.NeighborQuery`.
+            dimensions (int):
+                Whether the object is 2 or 3 dimensional. It may be inferred if
+                not provided, but in some cases inference is not possible, in
+                which case it will default to 3 (Default value = None).
 
         Returns:
             :class:`freud.locality.NeighborQuery`:
@@ -311,11 +315,18 @@ cdef class NeighborQuery:
 
         # MDAnalysis compatibility
         elif match_class_path(system, 'MDAnalysis.coordinates.base.Timestep'):
+            if dimensions is None:
+                logger.warn("Assuming MDAnalysis timestep is a 3-dimensional "
+                            "system. You must specify the dimensionality in "
+                            "from_system (or manually convert the frame's box "
+                            "to a 2D freud box) if your system is 2D.")
             system = (system.triclinic_dimensions, system.positions)
 
         # GSD compatibility
         elif match_class_path(system, 'gsd.hoomd.Snapshot'):
-            system = (system.configuration.box, system.particles.position)
+            b = freud.Box.from_box(system.configuration.box,
+                                   dimensions=system.configuration.dimensions)
+            system = (b, system.particles.position)
 
         # garnett compatibility
         elif match_class_path(system, 'garnett.trajectory.Frame'):
@@ -324,7 +335,10 @@ cdef class NeighborQuery:
         # OVITO compatibility
         elif (match_class_path(system, 'ovito.data.DataCollection') or
               match_class_path(system, 'PyScript.DataCollection')):
-            system = (system.cell.matrix, system.particles.positions)
+            b = freud.Box.from_box(
+                system.cell.matrix[:, :3],
+                dimensions=2 if system.cell.is2D else 3)
+            system = (b, system.particles.positions)
 
         # HOOMD-blue snapshot compatibility
         elif (hasattr(system, 'box') and hasattr(system, 'particles') and
