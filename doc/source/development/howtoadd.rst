@@ -83,7 +83,7 @@ Each benchmark is defined by extending the ``Benchmark`` class defined in ``benc
 Subclasses just need to define a few methods to parameterize the benchmark, construct the **freud** object being benchmarked, and then call the relevant compute method.
 Rather than describing this process in detail, we consider the benchmark for the :code:`freud.density.RDF` module as an example.
 
-.. literalinclude:: ../../benchmarks/benchmark_density_RDF.py
+.. literalinclude:: ../../../benchmarks/benchmark_density_RDF.py
    :language: python
    :linenos:
 
