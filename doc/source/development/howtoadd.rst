@@ -1,6 +1,6 @@
-===============
-Adding New Code
-===============
+=========================
+Contributing to **freud**
+=========================
 
 This document details the process of adding new code into **freud**.
 
@@ -59,12 +59,6 @@ When in doubt, run :code:`clang-format -style=file FILE_WITH_YOUR_CODE` in the t
 If installing :code:`clang-format` is not a viable option, the :code:`check-style` step of continuous integration (CI) contains the information on the correctness of the style.
 
 
-Create a new branch
-===================
-
-You should branch your code from :code:`master` into a new branch. Do not add
-new code directly into the :code:`master` branch.
-
 Code Organization
 =================
 
@@ -77,6 +71,33 @@ To keep modules well-organized, **freud** implements the following structure:
 - C++ code is exposed to Python using Cython code contained in pxd files with the following convention: ``freud/_MODULENAME.pxd`` (note the preceding underscore).
 - The core Cython code for modules is contained in ``freud/MODULENAME.pyx`` (no underscore).
 - If a Cython module contains code that must be imported into other Cython modules (such as the :class:`freud.box.Box` class), the ``pyx`` file must be accompanied by a ``pxd`` file with the same name: ``freud/MODULENAME.pxd`` (distinguished from ``pxd`` files used to expose C++ code by the lack of a preceding underscore). For more information on how ``pxd`` files work, see the `Cython documentation <https://cython.readthedocs.io/en/latest/src/tutorial/pxd_files.html>`_.
+- All tests in **freud** are based on the Python standard :mod:`unittest` library and are contained in the ``tests`` folder. Test files are named by the convention ``tests/test_MODULENAME_CLASSNAME.py``.
+- Benchmarks for **freud** are contained in the ``benchmarks`` directory and are named analogously to tests: ``benchmarks/benchmark_MODULENAME_CLASSNAME.py``.
+
+Benchmarks
+----------
+
+Benchmarking in **freud** is performed by running the ``benchmarks/benchmarker.py`` script.
+This script finds all benchmarks (using the above naming convention) and attempts to run them.
+Each benchmark is defined by extending the ``Benchmark`` class defined in ``benchmarks/benchmark.py``, which provides the standard benchmarking utilities used in **freud**.
+Subclasses just need to define a few methods to parameterize the benchmark, construct the **freud** object being benchmarked, and then call the relevant compute method.
+Rather than describing this process in detail, we consider the benchmark for the :code:`freud.density.RDF` module as an example.
+
+.. literalinclude:: ../../benchmarks/benchmark_density_RDF.py
+   :language: python
+   :linenos:
+
+The ``__init__`` method defines basic parameters of the run, the ``bench_setup`` method is called to build up the :class:`~freud.density.RDF` object, and the ``bench_run`` is used to time and call ``compute``.
+More examples can be found in the :code:`benchmarks` directory.
+The runtime of :code:`BenchmarkDensityRDF.bench_run` will be timed for :code:`number` of times on the input sizes of :code:`Ns`.
+Its runtime with respect to the number of threads will also be measured.
+Benchmarks are run as a part of continuous integration, with performance comparisons between the current commit and the master branch.
+
+Steps for Adding New Code
+=========================
+
+You should branch your code from :code:`master` into a new branch.
+Do not add new code directly into the :code:`master` branch.
 
 Adding new methods to an existing module in **freud** requires creating the new C++ files in the ``cpp`` directory, modifying the corresponding ``_MODULENAME.pxd`` file in the ``freud`` directory, and creating a wrapper class in ``freud/MODULENAME.pyx``.
 If the new methods belong in a new module, you must create the corresponding ``pxd`` and ``pyx`` files accordingly.
