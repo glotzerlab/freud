@@ -7,45 +7,45 @@ Table of Contents
    :maxdepth: 2
    :caption: Getting Started
 
-   introduction
-   installation
-   gettingstarted
-   tutorial
-   examples
+   gettingstarted/introduction
+   gettingstarted/installation
+   gettingstarted/quickstart
+   gettingstarted/tutorial
+   gettingstarted/examples
 
 .. toctree::
    :maxdepth: 2
    :caption: Topic Guides
 
-   querying
-   optimizing
-   datainputs
+   topics/querying
+   topics/optimizing
+   topics/datainputs
 
 .. toctree::
    :maxdepth: 2
    :caption: API
 
-   box
-   cluster
-   data
-   density
-   environment
-   interface
-   locality
-   msd
-   order
-   parallel
-   pmft
+   modules/box
+   modules/cluster
+   modules/data
+   modules/density
+   modules/environment
+   modules/interface
+   modules/locality
+   modules/msd
+   modules/order
+   modules/parallel
+   modules/pmft
 
 .. toctree::
    :maxdepth: 2
    :caption: Reference
 
-   development
-   citing
-   zreferences
-   license
-   credits
+   reference/development
+   reference/citing
+   reference/zreferences
+   reference/license
+   reference/credits
 
 
 Indices and tables

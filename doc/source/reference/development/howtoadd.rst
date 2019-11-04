@@ -83,7 +83,7 @@ Each benchmark is defined by extending the ``Benchmark`` class defined in ``benc
 Subclasses just need to define a few methods to parameterize the benchmark, construct the **freud** object being benchmarked, and then call the relevant compute method.
 Rather than describing this process in detail, we consider the benchmark for the :code:`freud.density.RDF` module as an example.
 
-.. literalinclude:: ../../../benchmarks/benchmark_density_RDF.py
+.. literalinclude:: ../../../../benchmarks/benchmark_density_RDF.py
    :language: python
    :linenos:
 
@@ -105,7 +105,7 @@ In addition, you will need to import the new module in ``freud/__init__.py`` by 
 
 Once the code is added, appropriate tests should be added to the ``tests`` folder.
 Test files are named by the convention ``tests/test_MODULENAME_CLASSNAME.py``.
-The final step is updating documentation, which is contained in ``rst`` files named with the convention ``doc/source/MODULENAME.rst``.
+The final step is updating documentation, which is contained in ``rst`` files named with the convention ``doc/source/modules/MODULENAME.rst``.
 If you have added a class to an existing module, all you have to do is add that same class to the ``autosummary`` section of the corresponding ``rst`` file.
 If you have created a new module, you will have to create the corresponding ``rst`` file with the summary section listing classes and functions in the module followed by a more detailed description of all classes.
 All classes and functions should be documented inline in the code, which allows automatic generation of the detailed section using the ``automodule`` directive (see any of the module ``rst`` files for an example).

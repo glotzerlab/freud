@@ -3,4 +3,4 @@ License
 
 .. highlight:: none
 
-.. literalinclude:: ../../LICENSE
+.. literalinclude:: ../../../LICENSE
