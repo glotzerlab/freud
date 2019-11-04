@@ -4,6 +4,11 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## next
+
+### Added
+* Rewrote development documentation to match the conventions and logic in version 2.0 of the code.
+
 ## v2.0.0 - 2019-10-31
 
 ### Added
