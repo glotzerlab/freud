@@ -9,9 +9,9 @@ Contributions to **freud** are highly encouraged. The pages below offer informat
 .. toctree::
    :maxdepth: 2
 
-   design
-   sourceconventions
-   howtoadd
-   memory
-   neighbors
-   histograms
+   development/design
+   development/sourceconventions
+   development/howtoadd
+   development/memory
+   development/neighbors
+   development/histograms
