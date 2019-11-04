@@ -13,3 +13,4 @@ Contributions to **freud** are highly encouraged. The pages below offer informat
    sourceconventions
    howtoadd
    memory
+   neighbors
