@@ -2,9 +2,6 @@
 Neighbor Finding
 ================
 
-.. note::
-
-
 Neighbor finding is central to many methods in **freud**.
 The purpose of this page is to introduce the various C++ classes and functions involved in the neighbor finding process.
 This page focuses on aspects of the neighbor finding utilities in **freud** that are important for developers.

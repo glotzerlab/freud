@@ -14,3 +14,4 @@ Contributions to **freud** are highly encouraged. The pages below offer informat
    howtoadd
    memory
    neighbors
+   histograms
