@@ -10,7 +10,6 @@ Contributions to **freud** are highly encouraged. The pages below offer informat
    :maxdepth: 2
 
    development/design
-   development/sourceconventions
    development/howtoadd
    development/memory
    development/neighbors
