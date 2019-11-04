@@ -2,8 +2,6 @@
 Contributing to **freud**
 =========================
 
-This document details the process of adding new code into **freud**.
-
 Does my code belong in **freud**?
 =================================
 
@@ -96,9 +94,8 @@ Benchmarks are run as a part of continuous integration, with performance compari
 Steps for Adding New Code
 =========================
 
-You should branch your code from :code:`master` into a new branch.
-Do not add new code directly into the :code:`master` branch.
-
+Once you've determined to add new code to **freud**, the first step is to create a new branch off of :code:`master`.
+The process of adding code differs based on whether or not you are editing an existing module in **freud**.
 Adding new methods to an existing module in **freud** requires creating the new C++ files in the ``cpp`` directory, modifying the corresponding ``_MODULENAME.pxd`` file in the ``freud`` directory, and creating a wrapper class in ``freud/MODULENAME.pyx``.
 If the new methods belong in a new module, you must create the corresponding ``pxd`` and ``pyx`` files accordingly.
 In addition, you will need to import the new module in ``freud/__init__.py`` by adding :code:`from . import MODULENAME` so that your module is imported by default.
