@@ -324,9 +324,12 @@ cdef class NeighborQuery:
 
         # GSD compatibility
         elif match_class_path(system, 'gsd.hoomd.Snapshot'):
-            b = freud.Box.from_box(system.configuration.box,
-                                   dimensions=system.configuration.dimensions)
-            system = (b, system.particles.position)
+            # Explicitly construct the box to silence warnings from box
+            # constructor because GSD sets Lz=1 rather than 0 for 2D boxes.
+            box = system.configuration.box.copy()
+            if system.configuration.dimensions == 2:
+                box[[2, 4, 5]] = 0
+            system = (box, system.particles.position)
 
         # garnett compatibility
         elif match_class_path(system, 'garnett.trajectory.Frame'):
@@ -335,15 +338,18 @@ cdef class NeighborQuery:
         # OVITO compatibility
         elif (match_class_path(system, 'ovito.data.DataCollection') or
               match_class_path(system, 'PyScript.DataCollection')):
-            b = freud.Box.from_box(
+            box = freud.Box.from_box(
                 system.cell.matrix[:, :3],
                 dimensions=2 if system.cell.is2D else 3)
-            system = (b, system.particles.positions)
+            system = (box, system.particles.positions)
 
         # HOOMD-blue snapshot compatibility
         elif (hasattr(system, 'box') and hasattr(system, 'particles') and
               hasattr(system.particles, 'position')):
-            system = (system.box, system.particles.position)
+            # Explicitly construct the box to silence warnings from box
+            # constructor because HOOMD sets Lz=1 rather than 0 for 2D boxes.
+            box = freud.Box(system.box.Lx, system.box.Ly, xy=system.box.xy)
+            system = (box, system.particles.position)
 
         # Duck type systems with attributes into a (box, points) tuple
         elif hasattr(system, 'box') and hasattr(system, 'points'):
