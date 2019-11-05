@@ -47,6 +47,7 @@ Vyas Ramasubramani - **Lead developer**
 * Standardized PMFT normalization.
 * Enabled optional normalization of RDF.
 * Changed correlation function to properly take the complex conjugate of inputs.
+* Fixed handling of 2D systems from various data sources.
 
 Bradley Dice - **Lead developer**
 
