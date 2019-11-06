@@ -266,7 +266,7 @@ cdef class NeighborQuery:
             )
 
     @classmethod
-    def from_system(cls, system):
+    def from_system(cls, system, dimensions=None):
         R"""Create a :class:`~.NeighborQuery` from any system-like object.
 
         The standard concept of a system in **freud** is any object that
@@ -292,6 +292,10 @@ cdef class NeighborQuery:
         Args:
             system (system-like object):
                 Any object that can be converted to a :class:`~.NeighborQuery`.
+            dimensions (int):
+                Whether the object is 2 or 3 dimensional. It may be inferred if
+                not provided, but in some cases inference is not possible, in
+                which case it will default to 3 (Default value = None).
 
         Returns:
             :class:`freud.locality.NeighborQuery`:
@@ -315,7 +319,12 @@ cdef class NeighborQuery:
 
         # GSD compatibility
         elif match_class_path(system, 'gsd.hoomd.Snapshot'):
-            system = (system.configuration.box, system.particles.position)
+            # Explicitly construct the box to silence warnings from box
+            # constructor because GSD sets Lz=1 rather than 0 for 2D boxes.
+            box = system.configuration.box.copy()
+            if system.configuration.dimensions == 2:
+                box[[2, 4, 5]] = 0
+            system = (box, system.particles.position)
 
         # garnett compatibility
         elif match_class_path(system, 'garnett.trajectory.Frame'):
@@ -324,12 +333,21 @@ cdef class NeighborQuery:
         # OVITO compatibility
         elif (match_class_path(system, 'ovito.data.DataCollection') or
               match_class_path(system, 'PyScript.DataCollection')):
-            system = (system.cell.matrix, system.particles.positions)
+            box = freud.Box.from_box(
+                system.cell.matrix[:, :3],
+                dimensions=2 if system.cell.is2D else 3)
+            system = (box, system.particles.positions)
 
         # HOOMD-blue snapshot compatibility
         elif (hasattr(system, 'box') and hasattr(system, 'particles') and
               hasattr(system.particles, 'position')):
-            system = (system.box, system.particles.position)
+            # Explicitly construct the box to silence warnings from box
+            # constructor because HOOMD sets Lz=1 rather than 0 for 2D boxes.
+            if system.box.dimensions == 2:
+                box = freud.Box(system.box.Lx, system.box.Ly, xy=system.box.xy)
+            else:
+                box = system.box
+            system = (box, system.particles.position)
 
         # Duck type systems with attributes into a (box, points) tuple
         elif hasattr(system, 'box') and hasattr(system, 'points'):

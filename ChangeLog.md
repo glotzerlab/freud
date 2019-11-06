@@ -4,6 +4,11 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## next
+
+### Fixed
+* Automatic conversion of 2D systems from various data sources.
+
 ## v2.0.0 - 2019-10-31
 
 ### Added
