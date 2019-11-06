@@ -315,11 +315,6 @@ cdef class NeighborQuery:
 
         # MDAnalysis compatibility
         elif match_class_path(system, 'MDAnalysis.coordinates.base.Timestep'):
-            if dimensions is None:
-                logger.warn("Assuming MDAnalysis timestep is a 3-dimensional "
-                            "system. You must specify the dimensionality in "
-                            "from_system (or manually convert the frame's box "
-                            "to a 2D freud box) if your system is 2D.")
             system = (system.triclinic_dimensions, system.positions)
 
         # GSD compatibility
@@ -348,7 +343,10 @@ cdef class NeighborQuery:
               hasattr(system.particles, 'position')):
             # Explicitly construct the box to silence warnings from box
             # constructor because HOOMD sets Lz=1 rather than 0 for 2D boxes.
-            box = freud.Box(system.box.Lx, system.box.Ly, xy=system.box.xy)
+            if system.box.dimensions == 2:
+                box = freud.Box(system.box.Lx, system.box.Ly, xy=system.box.xy)
+            else:
+                box = system.box
             system = (box, system.particles.position)
 
         # Duck type systems with attributes into a (box, points) tuple

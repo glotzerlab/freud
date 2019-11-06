@@ -7,7 +7,7 @@ and this project adheres to
 ## next
 
 ### Fixed
-* Conversion of automatic conversion of 2D systems from various data sources.
+* Automatic conversion of 2D systems from various data sources.
 
 ## v2.0.0 - 2019-10-31
 
