@@ -38,7 +38,7 @@ Here, we provide an example that reads data from a GSD file.
     traj = gsd.hoomd.open('trajectory.gsd', 'rb')
 
     for frame in traj:
-        rdf.compute(frame, reset=False)
+        rdf.compute(system=frame, reset=False)
 
 .. _mdanalysisreaders:
 
