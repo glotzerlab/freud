@@ -40,6 +40,10 @@ and outputs `NumPy arrays <https://www.numpy.org/>`__, enabling integration
 with the scientific Python ecosystem for many typical materials science
 workflows.
 
+
+Citation
+========
+
 When using **freud** to process data for publication, please `use this citation
 <https://freud.readthedocs.io/en/stable/citing.html>`__.
 
