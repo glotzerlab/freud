@@ -40,7 +40,6 @@ inline std::complex<float> cpow(std::complex<float> base, unsigned int p)
 
 inline std::complex<float> RotationalAutocorrelation::hypersphere_harmonic(const std::complex<float> xi,
                                                                            std::complex<float> zeta,
-                                                                           const unsigned int l,
                                                                            const unsigned int a,
                                                                            const unsigned int b)
 {
@@ -49,16 +48,13 @@ inline std::complex<float> RotationalAutocorrelation::hypersphere_harmonic(const
 
     // Doing a summation over non-negative exponents, which requires the additional inner conditional.
     std::complex<float> sum_tracker(0, 0);
-    unsigned int bound = std::min(a, b);
-    for (unsigned int k = (a + b < l ? 0 : a + b - l); k <= bound; k++)
+    for (unsigned int k = (a + b < m_l ? 0 : a + b - m_l); k <= std::min(a, b); k++)
     {
         float fact_product
-            = m_factorials[k] * m_factorials[l + k - a - b] * m_factorials[a - k] * m_factorials[b - k];
+            = m_factorials[k] * m_factorials[m_l + k - a - b] * m_factorials[a - k] * m_factorials[b - k];
         sum_tracker += cpow(xi_conj, k) * cpow(zeta, b - k) * cpow(zeta_conj, a - k)
-            * cpow(-xi, l + k - a - b) / fact_product;
+            * cpow(-xi, m_l + k - a - b) / fact_product;
     }
-    sum_tracker *= std::sqrt(m_factorials[a] * m_factorials[l - a] * m_factorials[b] * m_factorials[l - b]
-                             / (float(l) + 1));
     return sum_tracker;
 }
 
@@ -74,11 +70,13 @@ void RotationalAutocorrelation::compute(const quat<float>* ref_orientations, con
     std::complex<float> xi = std::complex<float>(0, 0);
     std::complex<float> zeta = std::complex<float>(0, 1);
     std::vector<std::complex<float>> unit_harmonics;
+    std::vector<std::vector<float> > prefactors(m_l + 1, std::vector<float>(m_l + 1, float(0)));
     for (unsigned int a = 0; a <= m_l; a++)
     {
         for (unsigned int b = 0; b <= m_l; b++)
         {
-            unit_harmonics.push_back(std::conj(hypersphere_harmonic(xi, zeta, m_l, a, b)));
+            unit_harmonics.push_back(std::conj(hypersphere_harmonic(xi, zeta, a, b)));
+            prefactors[a][b] = m_factorials[a] * m_factorials[m_l - a] * m_factorials[b] * m_factorials[m_l - b] / (float(m_l) + 1);
         }
     }
 
@@ -99,8 +97,8 @@ void RotationalAutocorrelation::compute(const quat<float>* ref_orientations, con
                 for (unsigned int b = 0; b <= m_l; b++)
                 {
                     std::complex<float> combined_value
-                        = unit_harmonics[uh_index] * hypersphere_harmonic(xi, zeta, m_l, a, b);
-                    m_RA_array[i] += combined_value;
+                        = unit_harmonics[uh_index] * hypersphere_harmonic(xi, zeta, a, b);
+                    m_RA_array[i] += prefactors[a][b]*combined_value;
                     uh_index += 1;
                 }
             }

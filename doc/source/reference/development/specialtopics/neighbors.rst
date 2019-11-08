@@ -58,7 +58,7 @@ Computing With Neighbors
 ========================
 
 One of the most common operations in **freud** is performing some computation over all neighbor-bonds in the system.
-This pattern is so common, and users have multiple ways of specifying neighbors (using query arguments or by a :class:`~freud.locality.NeighborList`), so **freud** provides some utility functions to abstract the process of looping over neighbors.
+Users have multiple ways of specifying neighbors (using query arguments or by a :class:`~freud.locality.NeighborList`), so **freud** provides some utility functions to abstract the process of looping over neighbors.
 These functions are defined in ``locality/NeighborComputeFunctional.h``; the two most important ones are ``loopOverNeighbors`` and ``loopOverNeighborsIterator``.
 Compute functions that perform neighbor computations typically accept a ``NeighborQuery``, a ``QueryArgs``, and a ``NeighborList`` object.
 These objects can then be passed to either of the utility functions, which loop over the ``NeighborList`` if it was provided (if no :class:`~freud.locality.NeighborList` is provided by the Python user, a ``NULL`` pointer is passed through), and if not, perform a query on the ``NeighborQuery`` object using the provided ``QueryArgs`` to generate the required neighbors.
@@ -75,7 +75,7 @@ Default Systems
 
 There is one important implementation detail to note.
 The user is permitted to simply provide a set of points rather than a ``NeighborQuery`` object on the Python side (i.e. any valid argument to :meth:`~freud.locality.NeighborQuery.from_system`), but we need a natural way to mirror this in C++, ideally without too many method overloads.
-To implement this, we provide the ``RawPoints`` C++ class and its Python :class:`~freud.locality.RawPoints` mirror, which is essentially a plain container for a box and a set of query points.
+To implement this, we provide the ``RawPoints`` C++ class and its Python :class:`~freud.locality._RawPoints` mirror, which is essentially a plain container for a box and a set of query points.
 This object inherits from ``NeighborQuery``, allowing it to be passed directly into the C++ compute methods.
 
 However, neighbor computations still need to know how to find neighbors.

@@ -48,6 +48,7 @@ Vyas Ramasubramani - **Lead developer**
 * Enabled optional normalization of RDF.
 * Changed correlation function to properly take the complex conjugate of inputs.
 * Wrote developer documentation for version 2.0.
+* Fixed handling of 2D systems from various data sources.
 
 Bradley Dice - **Lead developer**
 

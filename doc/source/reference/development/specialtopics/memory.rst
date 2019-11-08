@@ -76,7 +76,7 @@ Essentially all the core logic is abstracted away from the user through the :fun
 This NumPy array will, in effect, take ownership of the data in the event that the user keeps a reference to it and requests a recomputation.
 Note the signature of this function: the first argument must be **a pointer to the ManagedArray** (which is why we had to return it by reference), and the second argument indicates the type of the data (the possible types can be found in ``freud/util.pxd``).
 There is one other point to note that is not covered by the above example; if the template type of the ``ManagedArray`` is not a scalar, you also need to provide a third argument indicating the size of this vector.
-The most common use-case is for methods that return an object of type ``ManagedArray<vec3<float>>``: in this case, we would call ``make_managed_numpy_array(&GETTER_FUNC, freud.util.arr_type_t.UNSIGNED_INT, 3)``.
+The most common use-case is for methods that return an object of type ``ManagedArray<vec3<float>>``: in this case, we would call ``make_managed_numpy_array(&GETTER_FUNC, freud.util.arr_type_t.FLOAT, 3)``.
 
 
 Indexing ManagedArrays
@@ -98,7 +98,7 @@ Consider the following block of code:
 
 .. code-block:: python
 
-    rdf = freud.density.RDF(nbins=100, r_max=3)
+    rdf = freud.density.RDF(bins=100, r_max=3)
 
     rdf.compute(system=(box1, points1))
     rdf1 = rdf.rdf
