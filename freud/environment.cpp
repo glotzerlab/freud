@@ -65,17 +65,17 @@
         "name": "freud.environment",
         "sources": [
             "freud/environment.pyx",
-            "cpp/util/diagonalize.cc",
+            "cpp/locality/NeighborQuery.cc",
+            "cpp/environment/LocalBondProjection.cc",
             "cpp/environment/BondOrder.cc",
             "cpp/environment/MatchEnv.cc",
-            "cpp/locality/NeighborQuery.cc",
-            "cpp/locality/NeighborList.cc",
-            "cpp/environment/AngularSeparation.cc",
-            "cpp/environment/LocalDescriptors.cc",
-            "cpp/locality/NeighborPerPointIterator.cc",
             "cpp/locality/NeighborComputeFunctional.cc",
-            "cpp/environment/LocalBondProjection.cc",
-            "cpp/locality/AABBQuery.cc"
+            "cpp/util/diagonalize.cc",
+            "cpp/environment/LocalDescriptors.cc",
+            "cpp/locality/AABBQuery.cc",
+            "cpp/environment/AngularSeparation.cc",
+            "cpp/locality/NeighborPerPointIterator.cc",
+            "cpp/locality/NeighborList.cc"
         ]
     },
     "module_name": "freud.environment"
