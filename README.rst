@@ -103,7 +103,7 @@ saved into a `GSD file <https://gsd.readthedocs.io/>`_.
    # Load a GSD trajectory (see docs for other formats)
    traj = gsd.hoomd.open('trajectory.gsd', 'rb')
    for frame in traj:
-       rdf.compute(frame, reset=False)
+       rdf.compute(system=frame, reset=False)
 
    # Get bin centers, RDF data from attributes
    r = rdf.bin_centers
