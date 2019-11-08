@@ -9,6 +9,9 @@ and this project adheres to
 ### Added
 * Rewrote development documentation to match the conventions and logic in version 2.0 of the code.
 
+### Fixed
+* Automatic conversion of 2D systems from various data sources.
+
 ## v2.0.0 - 2019-10-31
 
 ### Added

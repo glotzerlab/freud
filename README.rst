@@ -34,9 +34,15 @@ simulations. High performance, parallelized C++ is used to compute standard
 tools such as radial distribution functions, correlation functions, order
 parameters, and clusters, as well as original analysis methods including
 potentials of mean force and torque (PMFTs) and local environment matching. The
-**freud** library uses `NumPy arrays <https://www.numpy.org/>`__ for input and
-output, enabling integration with the scientific Python ecosystem for many
-typical materials science workflows.
+**freud** library supports
+`many input formats <https://freud.readthedocs.io/en/stable/datainputs.html>`__
+and outputs `NumPy arrays <https://www.numpy.org/>`__, enabling integration
+with the scientific Python ecosystem for many typical materials science
+workflows.
+
+
+Citation
+========
 
 When using **freud** to process data for publication, please `use this citation
 <https://freud.readthedocs.io/en/stable/citing.html>`__.

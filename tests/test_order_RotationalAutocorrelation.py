@@ -1,5 +1,7 @@
 import unittest
 import os
+import math
+import rowan
 
 import freud
 
@@ -82,6 +84,81 @@ class TestRotationalAutocorrelation(unittest.TestCase):
     def test_repr(self):
         ra2 = freud.order.RotationalAutocorrelation(2)
         self.assertEqual(str(ra2), str(eval(repr(ra2))))
+
+
+def quat_to_greek(q):
+    '''Converts an array of quaternions to xi and zeta form.'''
+    angle_array = np.zeros(shape=(len(q), 2), dtype=complex)
+    angle_array[:, 0] = q[:, 1] + q[:, 2]*1j
+    angle_array[:, 1] = q[:, 3] + q[:, 0]*1j
+    return angle_array
+
+
+def hypersphere_harmonic(angle_array, l, m1, m2):
+    '''Calculates a single hyperspherical harmonical.'''
+    a = - (m1 - l/2)
+    b = - (m2 - l/2)
+
+    val = 0
+    if (l-a) >= 0 and (l-b) >= 0 and a >= 0 and b >= 0:
+        for k in np.arange(0, 4*l+1):
+            if (b-k >= 0) and (a-k >= 0) and (l + k - a - b >= 0):
+                denom = (math.factorial(k) *
+                         math.factorial(l+k-a-b) *
+                         math.factorial(a-k) *
+                         math.factorial(b-k))
+
+                for xi, zeta in angle_array:
+                    val += (
+                        (xi.conjugate())**k *
+                        (zeta)**(b-k) *
+                        (zeta.conjugate())**(a-k) *
+                        (-xi)**(l+k-a-b)) / denom
+
+        val *= np.sqrt(
+            (math.factorial(a) *
+             math.factorial(l-a) *
+             math.factorial(b) *
+             math.factorial(l-b)) / (l+1))
+
+    return val/len(angle_array)
+
+
+def return_correlation(l, initial_q, orientations):
+    """Compute the rotational autocorrelation."""
+    calc_quats = rowan.multiply(rowan.conjugate(initial_q), orientations)
+    ref_quats = rowan.multiply(rowan.conjugate(initial_q), initial_q)
+
+    ref_angles = quat_to_greek(ref_quats)
+    calc_angles = quat_to_greek(calc_quats)
+
+    f_of_t = 0
+
+    for m1 in np.arange(-l/2, l/2+1):
+        for m2 in np.arange(-l/2, l/2 + 1):
+            ref_y = hypersphere_harmonic(ref_angles, l, m1, m2)
+            calc_y = hypersphere_harmonic(calc_angles, l, m1, m2)
+            f_of_t += (ref_y.conjugate() * calc_y)
+
+    return f_of_t.real
+
+
+class TestRotationalAutocorrelationReference(unittest.TestCase):
+    """Test against a reference Python implementation."""
+    N = 100
+    for seed in range(5):
+        for l in [4, 6, 8]:
+            np.random.seed(seed)
+            orientations = rowan.random.rand(N)
+            ref_orientations = rowan.random.rand(N)
+
+            ra = freud.order.RotationalAutocorrelation(l)
+            ra.compute(ref_orientations, orientations)
+
+            npt.assert_allclose(
+                ra.order,
+                return_correlation(l, ref_orientations, orientations),
+                atol=1e-6, rtol=1e-6)
 
 
 if __name__ == '__main__':
