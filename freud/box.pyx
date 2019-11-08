@@ -353,7 +353,6 @@ cdef class Box:
                 Centered vector(s).
         """  # noqa: E501
         vecs = np.asarray(vecs)
-        flatten = vecs.ndim == 1
         vecs = np.atleast_2d(vecs)
         vecs = freud.util._convert_array(vecs, shape=(None, 3)).copy()
         fractions = self.make_fractional(vecs)
