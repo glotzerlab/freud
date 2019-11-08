@@ -61,10 +61,10 @@
         "sources": [
             "freud/box.pyx",
             "cpp/locality/NeighborQuery.cc",
-            "cpp/locality/NeighborList.cc",
-            "cpp/locality/NeighborPerPointIterator.cc",
             "cpp/locality/NeighborComputeFunctional.cc",
-            "cpp/locality/AABBQuery.cc"
+            "cpp/locality/AABBQuery.cc",
+            "cpp/locality/NeighborPerPointIterator.cc",
+            "cpp/locality/NeighborList.cc"
         ]
     },
     "module_name": "freud.box"
