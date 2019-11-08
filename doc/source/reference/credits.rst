@@ -92,6 +92,7 @@ Bradley Dice - **Lead developer**
 * Revised tutorials and documentation on data inputs.
 * Updated MSD to perform accumulation with `compute(..., reset=False)`.
 * Added test PyPI support to continuous integration.
+* Added continuous integration to freud-examples.
 
 Eric Harper, University of Michigan - **Former lead developer**
 
@@ -269,6 +270,10 @@ Jin Soo Ihm
 * Created Compute parent class with decorators to ensure properties have been computed.
 * Updated common array conversion logic.
 * Added many validation tests.
+
+Mike Henry
+
+* Fixed syntax in freud-examples notebooks for v2.0.
 
 Source code
 -----------

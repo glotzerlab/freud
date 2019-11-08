@@ -4,13 +4,15 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## next
+## v2.0.1 - 2019-11-08
 
 ### Added
 * Rewrote development documentation to match the conventions and logic in version 2.0 of the code.
 
 ### Fixed
 * Automatic conversion of 2D systems from various data sources.
+* Mybinder deployment works with freud v2.0.
+* Minor errors in freud-examples have been corrected.
 
 ## v2.0.0 - 2019-10-31
 
