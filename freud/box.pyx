@@ -341,6 +341,28 @@ cdef class Box:
 
         return np.squeeze(vecs) if flatten else vecs
 
+    def center(self, vecs):
+        R"""Center an array of vectors using periodic boundaries.
+
+        Args:
+            vecs (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
+                Vector(s) to be unwrapped.
+
+        Returns:
+            :math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
+                Centered vector(s).
+        """  # noqa: E501
+        vecs = np.asarray(vecs)
+        flatten = vecs.ndim == 1
+        vecs = np.atleast_2d(vecs)
+        vecs = freud.util._convert_array(vecs, shape=(None, 3)).copy()
+        fractions = self.make_fractional(vecs)
+        thetas = 2*np.pi*fractions
+        sums = np.sum(np.exp(1j*thetas), axis=0)
+        fractions -= np.angle(sums)/2/np.pi + .5
+        fractions %= 1.0
+        return self.make_absolute(fractions)
+
     @property
     def periodic(self):
         """:math:`\\left(3, \\right)` :class:`numpy.ndarray`: Get or set the
