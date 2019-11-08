@@ -6,6 +6,9 @@ and this project adheres to
 
 ## next
 
+### Added
+* Rewrote development documentation to match the conventions and logic in version 2.0 of the code.
+
 ### Fixed
 * Automatic conversion of 2D systems from various data sources.
 

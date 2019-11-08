@@ -56,7 +56,7 @@ Benchmarks
 Modules can be benchmarked in the following way.
 The following code is an example benchmark for the :code:`freud.density.RDF` module.
 
-.. literalinclude:: ../../benchmarks/benchmark_density_RDF.py
+.. literalinclude:: ../../../../benchmarks/benchmark_density_RDF.py
    :language: python
    :linenos:
 

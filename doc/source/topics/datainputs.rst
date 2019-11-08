@@ -27,7 +27,7 @@ Other attributes, such as particle orientations, are not included automatically 
 GSD Trajectories
 ----------------
 
-Using the GSD Python API, GSD files can be easily integrated with **freud** as shown in :ref:`gettingstarted`.
+Using the GSD Python API, GSD files can be easily integrated with **freud** as shown in the :ref:`quickstart`.
 This format is natively supported by `HOOMD-blue <https://hoomd-blue.readthedocs.io/>`__.
 Note: the GSD format can also be read by :ref:`MDAnalysis <mdanalysisreaders>` and :ref:`garnett <garnetttrajectories>`.
 Here, we provide an example that reads data from a GSD file.

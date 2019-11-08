@@ -1,7 +1,7 @@
-.. _gettingstarted:
+.. _quickstart:
 
 ================
-Getting Started
+Quickstart Guide
 ================
 
 Once you have `installed freud <installation.rst>`_, you can start using **freud** with any simulation data that you have on hand.
