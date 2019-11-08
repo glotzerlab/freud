@@ -6,7 +6,7 @@ Histograms are a common type of calculation implemented in **freud** because cus
 The C++ ``Histogram`` class support weighted N-dimensional histograms with different spacings in each dimension.
 The key to this flexibility is the ``Axis`` class, which defines the range spacing along a single axis; an N-dimensional ``Histogram`` is composed of a sequence of N ``Axis`` objects.
 Binning values into the histogram is performed by binning along each axis.
-The standard ``RegularAxis`` subclass of ``Axis`` defines an evenly spaced axis with bin centers defined as the center of each bin; additional subclasses may be easily defined to add different spacing if desired.
+The standard ``RegularAxis`` subclass of ``Axis`` defines an evenly spaced axis with bin centers defined as the center of each bin; additional subclasses may be defined to add different spacing if desired.
 
 Multithreading is achieved through the ``ThreadLocalHistogram`` class, which is a simple wrapper around the ``Histogram`` that creates an equivalent histogram on each thread.
 The standard pattern for parallel histogramming is to generate a ``ThreadLocalHistogram`` and add data into it, then call the ``Histogram::reduceOverThreads`` method to accumulate these data into a single histogram.

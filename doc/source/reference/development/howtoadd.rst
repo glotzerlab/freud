@@ -2,22 +2,6 @@
 Contributing to **freud**
 =========================
 
-Does my code belong in **freud**?
-=================================
-
-As a first step, it's important to determine whether or not your desired feature makes sense to contribute to **freud**.
-As a general rule, methods in **freud** should satisfy at least one of the following requirements:
-
-- Requires nontrivial algorithms to implement efficiently.
-- Involves code patterns that are naturally inefficient in Python (e.g. loops).
-- Is of general use to other users.
-
-Conversely, methods in **freud** should not be:
-
-- Easy to implement in just a handful of lines of Python code.
-- Calculations that can be performed in a few seconds with a naive algorithm.
-- Highly specific to a particular study.
-
 Code Conventions
 ================
 
