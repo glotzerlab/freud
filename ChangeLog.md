@@ -4,6 +4,11 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## next
+
+### Fixed
+* The from\_box method correctly passes user provided dimensions to from\_matrix it if is called.
+
 ## v2.0.1 - 2019-11-08
 
 ### Added
