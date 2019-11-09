@@ -357,8 +357,6 @@ cdef class NeighborQuery:
         if cls == NeighborQuery:
             # If called from this abstract parent class, always make
             # :class:`~._RawPoints`.
-            print("The system object: ")
-            print(system)
             return _RawPoints(*system)
         else:
             # Otherwise, use the current class.
