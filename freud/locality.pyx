@@ -332,7 +332,8 @@ cdef class NeighborQuery:
 
         # OVITO compatibility
         elif (match_class_path(system, 'ovito.data.DataCollection') or
-              match_class_path(system, 'PyScript.DataCollection')):
+              match_class_path(system,
+                               'ovito.plugins.PyScript.DataCollection')):
             box = freud.Box.from_box(
                 system.cell.matrix[:, :3],
                 dimensions=2 if system.cell.is2D else 3)
@@ -356,6 +357,8 @@ cdef class NeighborQuery:
         if cls == NeighborQuery:
             # If called from this abstract parent class, always make
             # :class:`~._RawPoints`.
+            print("The system object: ")
+            print(system)
             return _RawPoints(*system)
         else:
             # Otherwise, use the current class.
