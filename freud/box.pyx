@@ -364,7 +364,7 @@ cdef class Box:
         cdef const float[::1] l_masses = masses
         cdef unsigned int Np = l_points.shape[0]
         cdef vec3[float] result = self.thisptr.centerOfMass(
-                <vec3[float]*> &l_points[0, 0], Np, <float*> &l_masses[0])
+            <vec3[float]*> &l_points[0, 0], Np, <float*> &l_masses[0])
         return np.asarray([result.x, result.y, result.z])
 
     def center(self, vecs, masses=None):
