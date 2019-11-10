@@ -10,6 +10,8 @@ and this project adheres to
 * The Box class has methods `center_of_mass` and `center` for periodic-aware center of mass and shifting points to center on the origin.
 
 ### Fixed
+* The from\_box method correctly passes user provided dimensions to from\_matrix it if is called.
+* Correctly recognize Ovito DataCollection objects in from\_system.
 * Corrected `ClusterProperties` calculation of centers of mass in specific systems (issue #552).
 
 ## v2.0.1 - 2019-11-08

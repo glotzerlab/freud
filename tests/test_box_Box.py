@@ -374,6 +374,13 @@ class TestBox(unittest.TestCase):
         box4 = freud.box.Box.from_matrix(box3.to_matrix())
         self.assertTrue(np.isclose(box3.to_matrix(), box4.to_matrix()).all())
 
+    def test_set_dimensions(self):
+        b = np.asarray([[1, 0, 0],
+                        [0, 1, 0],
+                        [0, 0, 1]])
+        box = freud.Box.from_box(b, dimensions=2)
+        self.assertTrue(box.dimensions == 2)
+
     def test_2_dimensional(self):
         box = freud.box.Box.square(L=1)
         # Setting Lz for a 2D box throws a warning that we hide with setUp()

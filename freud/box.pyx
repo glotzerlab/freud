@@ -582,7 +582,7 @@ cdef class Box:
         """
         if np.asarray(box).shape == (3, 3):
             # Handles 3x3 matrices
-            return cls.from_matrix(box)
+            return cls.from_matrix(box, dimensions=dimensions)
         try:
             # Handles freud.box.Box and objects with attributes
             Lx = box.Lx
@@ -593,11 +593,10 @@ cdef class Box:
             yz = getattr(box, 'yz', 0)
             if dimensions is None:
                 dimensions = getattr(box, 'dimensions', None)
-            else:
-                if dimensions != getattr(box, 'dimensions', dimensions):
-                    raise ValueError(
-                        "The provided dimensions argument conflicts with the "
-                        "dimensions attribute of the provided box object.")
+            elif dimensions != getattr(box, 'dimensions', dimensions):
+                raise ValueError(
+                    "The provided dimensions argument conflicts with the "
+                    "dimensions attribute of the provided box object.")
         except AttributeError:
             try:
                 # Handle dictionary-like
@@ -624,7 +623,7 @@ cdef class Box:
                 Lx = box[0]
                 Ly = box[1]
                 Lz = box[2] if len(box) > 2 else 0
-                xy, xz, yz = box[3:6] if len(box) >= 6 else (0, 0, 0)
+                xy, xz, yz = box[3:6] if len(box) == 6 else (0, 0, 0)
         except:  # noqa
             logger.debug('Supplied box cannot be converted to type '
                          'freud.box.Box.')
