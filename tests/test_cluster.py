@@ -99,6 +99,20 @@ class TestCluster(unittest.TestCase):
         npt.assert_allclose(
             props.radii_of_gyration, [0, rg_2], rtol=1e-5, atol=1e-5)
 
+    def test_cluster_com_periodic(self):
+        "Tests center of mass for symmetric, box-spanning clusters."
+        box = freud.Box.cube(3)
+
+        # Center of mass is near the periodic boundary, not near the origin
+        points = [[0.1, 0, 0],
+                  [-0.9, 0, 0], [-0.9, 0.5, 0], [-0.9, -0.5, 0],
+                  [1.1, 0, 0], [1.1, 0.5, 0], [1.1, -0.5, 0]]
+
+        clp = freud.cluster.ClusterProperties()
+        clp.compute((box, points), np.zeros(len(points)))
+
+        npt.assert_allclose(clp.centers, [[-1.4, 0, 0]], rtol=1e-5, atol=1e-5)
+
     def test_cluster_keys(self):
         Nlattice = 4
         Nrep = 5
