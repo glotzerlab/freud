@@ -30,5 +30,5 @@ Resolves: #???
 - [ ] I have updated the documentation (if relevant).
 - [ ] I have added tests that cover my changes (if relevant).
 - [ ] All new and existing tests passed.
-- [ ] I have updated the [credits](https://github.com/glotzerlab/freud/blob/master/doc/source/credits.rst).
+- [ ] I have updated the [credits](https://github.com/glotzerlab/freud/blob/master/doc/source/reference/credits.rst).
 - [ ] I have updated the [Changelog](https://github.com/glotzerlab/freud/blob/master/ChangeLog.md).

@@ -4,6 +4,14 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## next
+
+### Added
+* The Box class has methods `center_of_mass` and `center` for periodic-aware center of mass and shifting points to center on the origin.
+
+### Fixed
+* Corrected `ClusterProperties` calculation of centers of mass in specific systems (issue #552).
+
 ## v2.0.1 - 2019-11-08
 
 ### Added

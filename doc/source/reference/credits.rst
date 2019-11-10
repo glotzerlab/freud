@@ -93,6 +93,7 @@ Bradley Dice - **Lead developer**
 * Updated MSD to perform accumulation with `compute(..., reset=False)`.
 * Added test PyPI support to continuous integration.
 * Added continuous integration to freud-examples.
+* Implemented periodic center of mass computations in C++.
 
 Eric Harper, University of Michigan - **Former lead developer**
 
