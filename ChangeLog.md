@@ -8,6 +8,7 @@ and this project adheres to
 
 ### Fixed
 * The from\_box method correctly passes user provided dimensions to from\_matrix it if is called.
+* Correctly recognize Ovito DataCollection objects in from\_system.
 
 ## v2.0.1 - 2019-11-08
 
