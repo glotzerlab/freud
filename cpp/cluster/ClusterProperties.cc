@@ -33,12 +33,8 @@ void ClusterProperties::compute(const freud::locality::NeighborQuery* nq, const 
     m_cluster_gyrations.prepare({num_clusters, 3, 3});
     m_cluster_sizes.prepare(num_clusters);
 
-    // ref_pos is the first point found in a cluster, it is used as a reference
-    // to compute the center in relation to, for handling of the periodic
-    // boundary conditions
-    std::vector<vec3<float>> ref_pos(num_clusters);
-    // determine if we have seen this cluster before or not (used to initialize ref_pos)
-    std::vector<bool> cluster_seen(num_clusters, false);
+    // Create a vector to store cluster points, used to compute center of mass
+    std::vector<std::vector<vec3<float>>> cluster_points(num_clusters, std::vector<vec3<float>>());
 
     // Start by determining the center of mass of each cluster. Since we are
     // given an array of points, the easiest way to do this is to loop over
@@ -47,33 +43,15 @@ void ClusterProperties::compute(const freud::locality::NeighborQuery* nq, const 
     for (unsigned int i = 0; i < nq->getNPoints(); i++)
     {
         const unsigned int c = cluster_idx[i];
-
-        // The first time we see the cluster, mark a reference position
-        if (!cluster_seen[c])
-        {
-            ref_pos[c] = (*nq)[i];
-            cluster_seen[c] = true;
-        }
-
-        // To compute the center in periodic boundary conditions, compute all
-        // reference vectors as wrapped vectors relative to ref_pos. When we
-        // are done, we can add the computed center to ref_pos to get the
-        // center in the space frame.
-        const vec3<float> delta(bondVector(locality::NeighborBond(c, i), nq, ref_pos.data()));
-
-        // Add the vector into the center tally so far
-        m_cluster_centers[c] += delta;
-
+        cluster_points[c].push_back((*nq)[i]);
         m_cluster_sizes[c]++;
     }
 
-    // Now that we have totaled all of the cluster vectors, compute the center
-    // position by averaging and then shifting by ref_pos
+    // Now that we have located all of the cluster vectors, compute the centers
     for (unsigned int c = 0; c < num_clusters; c++)
     {
-        float s = float(m_cluster_sizes[c]);
-        vec3<float> v = m_cluster_centers[c] / s + ref_pos[c];
-        m_cluster_centers[c] = nq->getBox().wrap(v);
+        m_cluster_centers[c] = nq->getBox().centerOfMass(
+                cluster_points[c].data(), m_cluster_sizes[c]);
     }
 
     // Now that we have determined the centers of mass for each cluster, tally
