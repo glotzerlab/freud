@@ -356,15 +356,17 @@ cdef class Box:
                 Center of mass.
         """  # noqa: E501
         vecs = freud.util._convert_array(vecs, shape=(None, 3))
-        if masses is None:
-            masses = np.ones(len(vecs), dtype=np.float32)
-        masses = freud.util._convert_array(masses, shape=(len(vecs), ))
-
         cdef const float[:, ::1] l_points = vecs
-        cdef const float[::1] l_masses = masses
+
+        cdef float* l_masses_ptr = NULL
+        cdef float[::1] l_masses
+        if masses is not None:
+            l_masses = freud.util._convert_array(masses, shape=(len(vecs), ))
+            l_masses_ptr = &l_masses[0]
+
         cdef unsigned int Np = l_points.shape[0]
         cdef vec3[float] result = self.thisptr.centerOfMass(
-            <vec3[float]*> &l_points[0, 0], Np, <float*> &l_masses[0])
+            <vec3[float]*> &l_points[0, 0], Np, l_masses_ptr)
         return np.asarray([result.x, result.y, result.z])
 
     def center(self, vecs, masses=None):
@@ -382,16 +384,16 @@ cdef class Box:
                 Vectors wrapped into the box.
         """  # noqa: E501
         vecs = freud.util._convert_array(vecs, shape=(None, 3)).copy()
-        if masses is None:
-            masses = np.ones(len(vecs), dtype=np.float32)
-        masses = freud.util._convert_array(masses, shape=(len(vecs), ))
-
         cdef const float[:, ::1] l_points = vecs
-        cdef const float[::1] l_masses = masses
-        cdef unsigned int Np = l_points.shape[0]
-        self.thisptr.center(<vec3[float]*> &l_points[0, 0], Np,
-                            <float*> &l_masses[0])
 
+        cdef float* l_masses_ptr = NULL
+        cdef float[::1] l_masses
+        if masses is not None:
+            l_masses = freud.util._convert_array(masses, shape=(len(vecs), ))
+            l_masses_ptr = &l_masses[0]
+
+        cdef unsigned int Np = l_points.shape[0]
+        self.thisptr.center(<vec3[float]*> &l_points[0, 0], Np, l_masses_ptr)
         return vecs
 
     @property

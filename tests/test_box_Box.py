@@ -220,6 +220,10 @@ class TestBox(unittest.TestCase):
         npt.assert_allclose(box.center(points, masses),
                             box.wrap(points - com), atol=1e-6)
 
+        # Make sure the center of mass is not (0, 0, 0) if ignoring masses
+        assert not np.allclose(box.center_of_mass(points),
+                               [0, 0, 0], atol=1e-6)
+
     def test_absolute_coordinates(self):
         box = freud.box.Box(2, 2, 2)
         f_point = np.array([[0.5, 0.25, 0.75],
