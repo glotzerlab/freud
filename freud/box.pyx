@@ -341,6 +341,61 @@ cdef class Box:
 
         return np.squeeze(vecs) if flatten else vecs
 
+    def center_of_mass(self, vecs, masses=None):
+        R"""Compute center of mass of an array of vectors, using periodic boundaries.
+
+        Args:
+            vecs (:math:`\left(N, 3\right)` :class:`numpy.ndarray`):
+                Vectors used to find center of mass.
+            masses (:math:`\left(N, 3\right)` :class:`numpy.ndarray`):
+                Masses corresponding to each vector, defaulting to 1 if not
+                provided or :code:`None` (Default value = :code:`None`).
+
+        Returns:
+            :math:`\left(3\right)` :class:`numpy.ndarray`:
+                Center of mass.
+        """  # noqa: E501
+        vecs = freud.util._convert_array(vecs, shape=(None, 3))
+        cdef const float[:, ::1] l_points = vecs
+
+        cdef float* l_masses_ptr = NULL
+        cdef float[::1] l_masses
+        if masses is not None:
+            l_masses = freud.util._convert_array(masses, shape=(len(vecs), ))
+            l_masses_ptr = &l_masses[0]
+
+        cdef size_t Np = l_points.shape[0]
+        cdef vec3[float] result = self.thisptr.centerOfMass(
+            <vec3[float]*> &l_points[0, 0], Np, l_masses_ptr)
+        return np.asarray([result.x, result.y, result.z])
+
+    def center(self, vecs, masses=None):
+        R"""Subtract center of mass from an array of vectors, using periodic boundaries.
+
+        Args:
+            vecs (:math:`\left(N, 3\right)` :class:`numpy.ndarray`):
+                Vectors to center.
+            masses (:math:`\left(N, 3\right)` :class:`numpy.ndarray`):
+                Masses corresponding to each vector, defaulting to 1 if not
+                provided or :code:`None` (Default value = :code:`None`).
+
+        Returns:
+            :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
+                Vectors wrapped into the box.
+        """  # noqa: E501
+        vecs = freud.util._convert_array(vecs, shape=(None, 3)).copy()
+        cdef const float[:, ::1] l_points = vecs
+
+        cdef float* l_masses_ptr = NULL
+        cdef float[::1] l_masses
+        if masses is not None:
+            l_masses = freud.util._convert_array(masses, shape=(len(vecs), ))
+            l_masses_ptr = &l_masses[0]
+
+        cdef size_t Np = l_points.shape[0]
+        self.thisptr.center(<vec3[float]*> &l_points[0, 0], Np, l_masses_ptr)
+        return vecs
+
     @property
     def periodic(self):
         """:math:`\\left(3, \\right)` :class:`numpy.ndarray`: Get or set the

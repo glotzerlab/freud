@@ -171,6 +171,59 @@ class TestBox(unittest.TestCase):
                          np.array([[25, 20, 15],
                                    [-5, 0, 0]]))
 
+    def test_center_of_mass(self):
+        box = freud.box.Box.cube(5)
+
+        npt.assert_allclose(
+            box.center_of_mass([[0, 0, 0]]), [0, 0, 0], atol=1e-6)
+        npt.assert_allclose(
+            box.center_of_mass([[1, 1, 1]]), [1, 1, 1], atol=1e-6)
+        npt.assert_allclose(
+            box.center_of_mass([[1, 1, 1], [2, 2, 2]]),
+            [1.5, 1.5, 1.5], atol=1e-6)
+        npt.assert_allclose(
+            box.center_of_mass([[-2, -2, -2], [2, 2, 2]]),
+            [-2.5, -2.5, -2.5], atol=1e-6)
+        npt.assert_allclose(
+            box.center_of_mass([[-2.2, -2.2, -2.2], [2, 2, 2]]),
+            [2.4, 2.4, 2.4], atol=1e-6)
+
+    def test_center_of_mass_weighted(self):
+        box = freud.box.Box.cube(5)
+
+        points = [[0, 0, 0], -box.L/4]
+        masses = [2, 1]
+        phases = np.exp(2*np.pi*1j*box.make_fractional(points))
+        com_angle = np.angle(phases.T @ masses / np.sum(masses))
+        com = box.make_absolute(com_angle / (2*np.pi))
+        npt.assert_allclose(
+            box.center_of_mass(points, masses), com, atol=1e-6)
+
+    def test_center(self):
+        box = freud.box.Box.cube(5)
+
+        npt.assert_allclose(box.center([[0, 0, 0]]), [[0, 0, 0]], atol=1e-6)
+        npt.assert_allclose(box.center([[1, 1, 1]]), [[0, 0, 0]], atol=1e-6)
+        npt.assert_allclose(box.center([[1, 1, 1], [2, 2, 2]]),
+                            [[-0.5, -0.5, -0.5], [0.5, 0.5, 0.5]], atol=1e-6)
+        npt.assert_allclose(box.center([[-2, -2, -2], [2, 2, 2]]),
+                            [[0.5, 0.5, 0.5], [-0.5, -0.5, -0.5]], atol=1e-6)
+
+    def test_center_weighted(self):
+        box = freud.box.Box.cube(5)
+
+        points = [[0, 0, 0], -box.L/4]
+        masses = [2, 1]
+        phases = np.exp(2*np.pi*1j*box.make_fractional(points))
+        com_angle = np.angle(phases.T @ masses / np.sum(masses))
+        com = box.make_absolute(com_angle / (2*np.pi))
+        npt.assert_allclose(box.center(points, masses),
+                            box.wrap(points - com), atol=1e-6)
+
+        # Make sure the center of mass is not (0, 0, 0) if ignoring masses
+        assert not np.allclose(box.center_of_mass(points),
+                               [0, 0, 0], atol=1e-6)
+
     def test_absolute_coordinates(self):
         box = freud.box.Box(2, 2, 2)
         f_point = np.array([[0.5, 0.25, 0.75],

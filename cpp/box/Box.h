@@ -5,6 +5,7 @@
 #define BOX_H
 
 #include "utils.h"
+#include <complex>
 #include <sstream>
 #include <stdexcept>
 
@@ -15,6 +16,9 @@
 */
 
 namespace freud { namespace box {
+
+// namespace-level constant 2*pi for convenient use everywhere.
+constexpr float TWO_PI = 2.0 * M_PI;
 
 //! Stores box dimensions and provides common routines for wrapping vectors back into the box
 /*! Box stores a standard HOOMD simulation box that goes from -L/2 to L/2 in each dimension, allowing Lx, Ly,
@@ -339,6 +343,53 @@ public:
                 {
                     vecs[i] += getLatticeVector(2) * float(images[i].z);
                 }
+            }
+        });
+    }
+
+    //! Compute center of mass for vectors
+    /*! \param vecs Vectors to compute center of mass
+     *  \param Nvecs Number of vectors
+     *  \param masses Optional array of masses, of length Nvecs
+     *  \return Center of mass as a vec3<float>
+     */
+    vec3<float> centerOfMass(vec3<float>* vecs, size_t Nvecs, float* masses = NULL) const
+    {
+        // This roughly follows the implementation in
+        // https://en.wikipedia.org/wiki/Center_of_mass#Systems_with_periodic_boundary_conditions
+        float total_mass(0);
+        vec3<std::complex<float>> xi_mean;
+
+        for (size_t i = 0; i < Nvecs; ++i) {
+            vec3<float> phase(TWO_PI * makeFractional(vecs[i]));
+            vec3<std::complex<float>> xi(
+                    std::polar(float(1.0), phase.x),
+                    std::polar(float(1.0), phase.y),
+                    std::polar(float(1.0), phase.z));
+            float mass = (masses != NULL) ? masses[i] : 1.0;
+            total_mass += mass;
+            xi_mean += std::complex<float>(mass, 0) * xi;
+        }
+        xi_mean /= std::complex<float>(total_mass, 0);
+
+        return wrap(makeAbsolute(vec3<float>(
+                std::arg(xi_mean.x),
+                std::arg(xi_mean.y),
+                std::arg(xi_mean.z)) / TWO_PI));
+    }
+
+    //! Subtract center of mass from vectors
+    /*! \param vecs Vectors to center, updated to the minimum image obeying the periodic settings
+     *  \param Nvecs Number of vectors
+     *  \param masses Optional array of masses, of length Nvecs
+     */
+    void center(vec3<float>* vecs, unsigned int Nvecs, float* masses = NULL) const
+    {
+        vec3<float> com(centerOfMass(vecs, Nvecs, masses));
+        util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
+            for (size_t i = begin; i < end; ++i)
+            {
+                vecs[i] = wrap(vecs[i] - com);
             }
         });
     }

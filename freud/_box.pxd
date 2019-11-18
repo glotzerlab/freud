@@ -46,6 +46,8 @@ cdef extern from "Box.h" namespace "freud::box":
         void wrap(vec3[float]* vs, unsigned int Nv) const
         void unwrap(vec3[float]*, const vec3[int]*,
                     unsigned int) const
+        vec3[float] centerOfMass(vec3[float]*, size_t, float*) const
+        void center(vec3[float]*, size_t, float*) const
 
         vec3[bool] getPeriodic() const
         bool getPeriodicX() const
