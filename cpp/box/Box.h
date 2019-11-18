@@ -353,12 +353,12 @@ public:
      *  \param masses Optional array of masses, of length Nvecs
      *  \return Center of mass as a vec3<float>
      */
-    vec3<float> centerOfMass(vec3<float>* vecs, unsigned int Nvecs, float* masses = NULL) const
+    vec3<float> centerOfMass(vec3<float>* vecs, size_t Nvecs, float* masses = NULL) const
     {
         // This roughly follows the implementation in
         // https://en.wikipedia.org/wiki/Center_of_mass#Systems_with_periodic_boundary_conditions
         float total_mass(0);
-        vec3<std::complex<float>> xi_mean(vec3<std::complex<float>>(0.0, 0.0, 0.0));
+        vec3<std::complex<float>> xi_mean;
 
         for (size_t i = 0; i < Nvecs; ++i) {
             vec3<float> phase(TWO_PI * makeFractional(vecs[i]));

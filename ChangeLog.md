@@ -12,7 +12,7 @@ and this project adheres to
 ### Fixed
 * The from\_box method correctly passes user provided dimensions to from\_matrix it if is called.
 * Correctly recognize Ovito DataCollection objects in from\_system.
-* Corrected `ClusterProperties` calculation of centers of mass in specific systems (issue #552).
+* Corrected `ClusterProperties` calculation of centers of mass in specific systems.
 
 ## v2.0.1 - 2019-11-08
 
