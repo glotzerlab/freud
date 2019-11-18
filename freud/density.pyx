@@ -453,7 +453,7 @@ cdef class RDF(_SpatialHistogram1D):
             (Default value = :code:`0`).
         normalize (bool, optional):
             Scale the RDF values by
-            :math:`\frac{N_{query\_points}+1}{N_{query\_points}+1}`. This
+            :math:`\frac{N_{query\_points}}{N_{query\_points}-1}`. This
             argument primarily exists to deal with standard RDF calculations
             where no special ``query_points`` or ``neighbors`` are provided,
             but where the number of ``query_points`` is small enough that the
