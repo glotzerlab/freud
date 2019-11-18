@@ -8,6 +8,7 @@ Data Module
     :nosignatures:
 
     freud.data.UnitCell
+    freud.data.make_random_system
 
 .. rubric:: Details
 
