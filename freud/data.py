@@ -197,9 +197,6 @@ class UnitCell(object):
 def make_random_system(box_size, num_points, is2D=False, seed=None):
     R"""Helper function to make random points with a cubic or square box.
 
-    This function has a side effect, by setting the random seed of numpy if a
-    seed is specified.
-
     Args:
         box_size (float): Size of box.
         num_points (int): Number of points.
@@ -212,9 +209,13 @@ def make_random_system(box_size, num_points, is2D=False, seed=None):
             Generated box and points.
     """  # noqa: E501
     if seed is not None:
+        random_state = np.random.get_state()
         np.random.seed(seed)
 
     fractional_coords = np.random.random_sample((num_points, 3))
+
+    if seed is not None:
+        np.random.set_state(random_state)
 
     if is2D:
         box = freud.box.Box.square(box_size)
