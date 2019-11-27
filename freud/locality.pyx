@@ -329,7 +329,7 @@ cdef class NeighborQuery:
                 positions[:, 2] = 0
             else:
                 positions = system.particles.position
-            system = (box, position)
+            system = (box, positions)
 
         # garnett compatibility
         elif match_class_path(system, 'garnett.trajectory.Frame'):
