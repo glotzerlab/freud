@@ -9,6 +9,9 @@ and this project adheres to
 ### Added
 * The Box class has methods `center_of_mass` and `center` for periodic-aware center of mass and shifting points to center on the origin.
 
+### Changed
+* The make\_random\_box system method no longer overwrites the NumPy global random number generator state.
+
 ### Fixed
 * The from\_box method correctly passes user provided dimensions to from\_matrix it if is called.
 * Correctly recognize Ovito DataCollection objects in from\_system.
