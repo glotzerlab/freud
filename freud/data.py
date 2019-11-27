@@ -98,16 +98,12 @@ class UnitCell(object):
         positions = box.wrap(positions)
 
         if sigma_noise != 0:
-            if seed is not None:
-                random_state = np.random.get_state()
-                np.random.seed(seed)
+            rs = np.random.RandomState(seed)
             mean = [0]*3
             var = sigma_noise*sigma_noise
             cov = np.diag([var, var, var if self.dimensions == 3 else 0])
-            positions += np.random.multivariate_normal(
+            positions += rs.multivariate_normal(
                 mean, cov, size=positions.shape[:-1])
-            if seed is not None:
-                np.random.set_state(random_state)
 
         positions = box.wrap(positions)
         return box, positions
@@ -208,14 +204,9 @@ def make_random_system(box_size, num_points, is2D=False, seed=None):
         tuple (:class:`freud.box.Box`, :math:`\left(num\_points, 3\right)` :class:`numpy.ndarray`):
             Generated box and points.
     """  # noqa: E501
-    if seed is not None:
-        random_state = np.random.get_state()
-        np.random.seed(seed)
+    rs = np.random.RandomState(seed)
 
-    fractional_coords = np.random.random_sample((num_points, 3))
-
-    if seed is not None:
-        np.random.set_state(random_state)
+    fractional_coords = rs.random_sample((num_points, 3))
 
     if is2D:
         box = freud.box.Box.square(box_size)
