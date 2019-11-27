@@ -407,7 +407,7 @@ def voronoi_plot(box, polytopes, ax=None, color_by_sides=True, cmap=None):
     if color_by_sides:
         colors = np.array([len(poly) for poly in polytopes])
     else:
-        colors = np.random.permutation(np.arange(len(patches)))
+        colors = np.random.RandomState().permutation(np.arange(len(patches)))
 
     cmap = cm.get_cmap('Set1' if cmap is None else cmap,
                        np.unique(colors).size)
