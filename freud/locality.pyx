@@ -324,7 +324,12 @@ cdef class NeighborQuery:
             box = system.configuration.box.copy()
             if system.configuration.dimensions == 2:
                 box[[2, 4, 5]] = 0
-            system = (box, system.particles.position)
+                # GSD does not guarantee that the z position is 0 for 2D boxes.
+                positions = system.particles.position.copy()
+                positions[:, 2] = 0
+            else:
+                positions = system.particles.position
+            system = (box, position)
 
         # garnett compatibility
         elif match_class_path(system, 'garnett.trajectory.Frame'):
