@@ -89,7 +89,7 @@ public:
         {
             for (unsigned int i(0); i < n_points; i++)
             {
-                if (m_points[i].z != 0)
+                if (m_points[i].z > 1e-6)
                 {
                     throw std::invalid_argument("A point with z != 0 was provided in a 2D box.");
                 }
