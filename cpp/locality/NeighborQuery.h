@@ -85,11 +85,12 @@ public:
     NeighborQuery(const box::Box& box, const vec3<float>* points, unsigned int n_points)
         : m_box(box), m_points(points), m_n_points(n_points)
     {
+        // For 2D systems, check if any z-coordinates are outside some tolerance of z=0
         if (m_box.is2D())
         {
             for (unsigned int i(0); i < n_points; i++)
             {
-                if (m_points[i].z > 1e-6)
+                if (std::abs(m_points[i].z) > 1e-6)
                 {
                     throw std::invalid_argument("A point with z != 0 was provided in a 2D box.");
                 }
