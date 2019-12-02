@@ -33,7 +33,7 @@ cdef class Box:
 
     This class defines an arbitrary triclinic geometry within which all points
     are confined. For more information, see the `documentation
-    <https://freud.readthedocs.io/en/stable/tutorial/periodic.html>`_ on boxes
+    <https://freud.readthedocs.io/en/stable/gettingstarted/tutorial/periodic.html>`_ on boxes
     and periodic boundary conditions.
 
     Also available as ``freud.Box``.
