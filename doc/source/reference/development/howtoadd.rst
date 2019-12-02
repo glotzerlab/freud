@@ -5,7 +5,7 @@ Contributing to **freud**
 Code Conventions
 ================
 
-Python 
+Python
 ------
 
 Python (and Cython) code in **freud** should follow `PEP 8 <https://www.python.org/dev/peps/pep-0008/>`_.
@@ -52,6 +52,7 @@ To keep modules well-organized, **freud** implements the following structure:
 - Python code is stored in the ``freud`` folder at the root of the repository.
 - C++ code is exposed to Python using Cython code contained in pxd files with the following convention: ``freud/_MODULENAME.pxd`` (note the preceding underscore).
 - The core Cython code for modules is contained in ``freud/MODULENAME.pyx`` (no underscore).
+- Generated Cython C++ code (e.g. ``freud/MODULENAME.cpp``) should not be committed during development. These files are updated only at release time.
 - If a Cython module contains code that must be imported into other Cython modules (such as the :class:`freud.box.Box` class), the ``pyx`` file must be accompanied by a ``pxd`` file with the same name: ``freud/MODULENAME.pxd`` (distinguished from ``pxd`` files used to expose C++ code by the lack of a preceding underscore). For more information on how ``pxd`` files work, see the `Cython documentation <https://cython.readthedocs.io/en/latest/src/tutorial/pxd_files.html>`_.
 - All tests in **freud** are based on the Python standard :mod:`unittest` library and are contained in the ``tests`` folder. Test files are named by the convention ``tests/test_MODULENAME_CLASSNAME.py``.
 - Benchmarks for **freud** are contained in the ``benchmarks`` directory and are named analogously to tests: ``benchmarks/benchmark_MODULENAME_CLASSNAME.py``.
