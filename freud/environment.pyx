@@ -158,7 +158,7 @@ cdef class BondOrder(_SpatialHistogram):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
                 neighbor pairs to use in the calculation, or a dictionary of
                 `query arguments
-                <https://freud.readthedocs.io/en/next/querying.html>`_
+                <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
                 (Default value: None).
             reset (bool):
                 Whether to erase the previously computed values before adding
@@ -290,7 +290,7 @@ cdef class LocalDescriptors(_PairCompute):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
                 neighbor pairs to use in the calculation, or a dictionary of
                 `query arguments
-                <https://freud.readthedocs.io/en/next/querying.html>`_
+                <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
                 (Default value: None).
         """  # noqa: E501
         cdef:
@@ -539,13 +539,13 @@ cdef class EnvironmentCluster(_MatchEnv):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
                 neighbor pairs to use in the calculation, or a dictionary of
                 `query arguments
-                <https://freud.readthedocs.io/en/next/querying.html>`_
+                <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
                 (Default value: None).
             env_neighbors (:class:`freud.locality.NeighborList` or dict, optional):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
                 neighbor pairs to use in the calculation, or a dictionary of
                 `query arguments
-                <https://freud.readthedocs.io/en/next/querying.html>`_
+                <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
                 (Default value: None). This argument is used to define the
                 neighbors of the environment that motifs are registered
                 against.
@@ -670,7 +670,7 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
                 neighbor pairs to use in the calculation, or a dictionary of
                 `query arguments
-                <https://freud.readthedocs.io/en/next/querying.html>`_
+                <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
                 (Default value: None).
             registration (bool, optional):
                 If True, first use brute force registration to orient one set
@@ -746,7 +746,7 @@ cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
                 neighbor pairs to use in the calculation, or a dictionary of
                 `query arguments
-                <https://freud.readthedocs.io/en/next/querying.html>`_
+                <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
                 (Default value: None).
             registration (bool, optional):
                 If True, first use brute force registration to orient one set
@@ -839,7 +839,7 @@ cdef class AngularSeparationNeighbor(_PairCompute):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
                 neighbor pairs to use in the calculation, or a dictionary of
                 `query arguments
-                <https://freud.readthedocs.io/en/next/querying.html>`_
+                <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
                 (Default value: None).
         """  # noqa: E501
         cdef:
@@ -1028,7 +1028,7 @@ cdef class LocalBondProjection(_PairCompute):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
                 neighbor pairs to use in the calculation, or a dictionary of
                 `query arguments
-                <https://freud.readthedocs.io/en/next/querying.html>`_
+                <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
                 (Default value: None).
         """  # noqa: E501
         cdef:

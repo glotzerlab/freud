@@ -382,7 +382,7 @@ cdef class NeighborQuery:
             query_args (dict):
                 Query arguments determining how to find neighbors. For
                 information on valid query argument, see the `Query API
-                <https://freud.readthedocs.io/en/stable/querying.html>`_.
+                <https://freud.readthedocs.io/en/stable/topics/querying.html>`_.
 
         Returns:
             :class:`~.NeighborQueryResult`: Results object containing the

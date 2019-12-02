@@ -33,8 +33,8 @@ cdef class Box:
 
     This class defines an arbitrary triclinic geometry within which all points
     are confined. For more information, see the `documentation
-    <https://freud.readthedocs.io/en/stable/tutorial/periodic.html>`_ on boxes
-    and periodic boundary conditions.
+    <https://freud.readthedocs.io/en/stable/gettingstarted/tutorial/periodic.html>`_
+    on boxes and periodic boundary conditions.
 
     Also available as ``freud.Box``.
 
@@ -54,7 +54,7 @@ cdef class Box:
         is2D (bool, optional):
             Whether the box is 2-dimensional. Uses :code:`Lz == 0`
             if :code:`None`. (Default value = :code:`None`)
-    """
+    """  # noqa: E501
 
     def __cinit__(self, Lx, Ly, Lz=0, xy=0, xz=0, yz=0, is2D=None):
         if is2D is None:
