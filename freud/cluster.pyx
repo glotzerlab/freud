@@ -74,7 +74,7 @@ cdef class Cluster(_PairCompute):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
                 neighbor pairs to use in the calculation, or a dictionary of
                 `query arguments
-                <https://freud.readthedocs.io/en/stable/querying.html>`_
+                <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
                 (Default value: None).
         """
         cdef:
