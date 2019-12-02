@@ -83,6 +83,7 @@ Automatic Builds
 14. The conda-forge autotick bot should discover that the PyPI source distribution has changed, and will create a pull request to the `conda-forge feedstock <https://github.com/conda-forge/freud-feedstock/>`_.
     This pull request may take a few hours to appear.
     If other changes are needed in the conda-forge recipe (e.g. new dependencies), follow the conda-forge documentation to create a pull request from *your own fork* of the feedstock.
+    Merge the pull request after all continuous integration passes to trigger release builds for conda-forge.
 
 Release Announcement
 --------------------
