@@ -13,3 +13,4 @@ The pages below offer information about how the project is structured, the goals
    development/design
    development/howtoadd
    development/specialtopics
+   development/releases
