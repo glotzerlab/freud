@@ -59,9 +59,9 @@ references:
       command: |
         $PIP install --user flake8==3.7.8
 
-  check_style: &check_style
+  check_cpp_style: &check_cpp_style
     run:
-      name: clang-format and flake8
+      name: clang-format
       command: |
         for f in cpp/**/*; do
           if ! diff $f <(clang-format-6.0 -style=file $f) > /dev/null; then
@@ -69,6 +69,11 @@ references:
             diff --color $f <(clang-format-6.0 -style=file $f) || true
           fi
         done
+
+  check_python_style: &check_python_style
+    run:
+      name: flake8
+      command: |
         python${PYVER} -m flake8 --show-source .
 
   build: &build
@@ -156,7 +161,8 @@ references:
       - *load_code
       - *update_submodules
       - *get_style_requirements
-      - *check_style
+      - *check_cpp_style
+      - *check_python_style
 
   build_and_benchmark: &build_and_benchmark
     steps:
