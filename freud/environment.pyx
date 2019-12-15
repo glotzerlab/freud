@@ -11,6 +11,7 @@ characterize the particle environment.
 import numpy as np
 import warnings
 import freud.locality
+from freud.errors import NO_DEFAULT_QUERY_ARGS_MESSAGE
 
 from freud.util cimport _Compute
 from freud.locality cimport _PairCompute, _SpatialHistogram
@@ -129,9 +130,7 @@ cdef class BondOrder(_SpatialHistogram):
         """No default query arguments."""
         # Must override the generic histogram's defaults.
         raise NotImplementedError(
-            "The {} class does not provide default query arguments. You must "
-            "either provide query arguments or a neighbor list to this "
-            "compute method.".format(type(self).__name__))
+            NO_DEFAULT_QUERY_ARGS_MESSAGE.format(type(self).__name__))
 
     def compute(self, system, orientations=None, query_points=None,
                 query_orientations=None, neighbors=None, reset=True):
