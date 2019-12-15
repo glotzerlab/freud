@@ -11,6 +11,7 @@ and this project adheres to
 
 ### Changed
 * The make\_random\_box system method no longer overwrites the NumPy global random number generator state.
+* Improved documentation about query modes.
 
 ### Fixed
 * The from\_box method correctly passes user provided dimensions to from\_matrix it if is called.
