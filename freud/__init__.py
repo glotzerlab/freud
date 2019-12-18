@@ -36,7 +36,6 @@ __all__ = [
     'order',
     'parallel',
     'pmft',
-    'voronoi',
     'Box',
     'AABBQuery',
     'LinkCell',
