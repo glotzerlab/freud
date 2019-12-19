@@ -38,15 +38,31 @@ The table below describes the set of valid query arguments.
 | scale          | Scale factor for r_guess when not enough neighbors are found          | float     | scale > 1                 | :class:`freud.locality.AABBQuery`                                   |
 +----------------+-----------------------------------------------------------------------+-----------+---------------------------+---------------------------------------------------------------------+
 
+Query Modes
+===========
+
+Ball Query (Distance Cutoff)
+----------------------------
+
+A ball query finds all particles within a specified radial distance of the provided query points.
+This query is executed when ``mode='ball'``.
+As described in the table above, this mode can be coupled with filters for a minimum distance (``r_min``) and/or self-exclusion (``exclude_ii``).
+
+Nearest Neighbors Query (Fixed Number of Neighbors)
+---------------------------------------------------
+
+A nearest neighbor query (sometimes called :math:`k`-nearest neighbors) finds a desired number of neighbor points for each query point, ordered by distance to the query point.
+This query is executed when ``mode='nearest'``.
+As described in the table above, this mode can be coupled with filters for a maximum distance (``r_max``), minimum distance (``r_min``), and/or self-exclusion (``exclude_ii``).
 
 Mode Deduction
-==============
+--------------
 
 The ``mode`` query argument specifies the type of query that is being performed, and it therefore governs how other arguments are interpreted.
 In most cases, however, the query mode can be deduced from the set of query arguments.
 Specifically, any query with the ``num_neighbors`` key set is assumed to be a query with ``mode='nearest'``.
-For completeness, users may specify the mode explicitly if they wish.
-The presence of the ``mode`` key also ensures that **freud** will not have to change its promises around mode deduction as additional query modes are added.
+One of ``num_neighbors`` or ``r_max`` must always be specified to form a valid set of query arguments.
+Specifying the ``mode`` key explicitly will ensure that querying behavior is consistent if additional query modes are added to **freud**.
 
 
 Query Results
