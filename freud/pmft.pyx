@@ -550,7 +550,7 @@ cdef class PMFTXYZ(_PMFT):
             del self.pmftxyzptr
 
     def compute(self, system, query_orientations, query_points=None,
-                face_orientations=None, neighbors=None, reset=True):
+                equiv_orientations=None, neighbors=None, reset=True):
         R"""Calculates the PMFT.
 
         .. note::
@@ -570,7 +570,7 @@ cdef class PMFTXYZ(_PMFT):
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Query points used to calculate the PMFT. Uses the system's
                 points if :code:`None` (Default value = :code:`None`).
-            face_orientations ((:math:`N_{faces}`, 4) :class:`numpy.ndarray`, optional):
+            equiv_orientations ((:math:`N_{faces}`, 4) :class:`numpy.ndarray`, optional):
                 Orientations to be treated as equivalent to account for
                 symmetry of the points. For instance, if the
                 :code:`query_points` are rectangular prisms with the long axis
@@ -610,20 +610,20 @@ cdef class PMFTXYZ(_PMFT):
 
         cdef const float[:, ::1] l_query_orientations = query_orientations
 
-        if face_orientations is None:
-            face_orientations = np.array([[1, 0, 0, 0]], dtype=np.float32)
+        if equiv_orientations is None:
+            equiv_orientations = np.array([[1, 0, 0, 0]], dtype=np.float32)
         else:
-            face_orientations = freud.util._convert_array(
-                face_orientations, shape=(None, 4))
+            equiv_orientations = freud.util._convert_array(
+                equiv_orientations, shape=(None, 4))
 
-        cdef const float[:, ::1] l_face_orientations = face_orientations
-        cdef unsigned int num_faces = l_face_orientations.shape[0]
+        cdef const float[:, ::1] l_equiv_orientations = equiv_orientations
+        cdef unsigned int num_faces = l_equiv_orientations.shape[0]
         self.pmftxyzptr.accumulate(
             nq.get_ptr(),
             <quat[float]*> &l_query_orientations[0, 0],
             <vec3[float]*> &l_query_points[0, 0],
             num_query_points,
-            <quat[float]*> &l_face_orientations[0, 0],
+            <quat[float]*> &l_equiv_orientations[0, 0],
             num_faces, nlist.get_ptr(), dereference(qargs.thisptr))
         return self
 

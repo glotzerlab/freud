@@ -761,7 +761,7 @@ class TestPMFTXYZ(unittest.TestCase):
         points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
                           dtype=np.float32)
         orientations = np.array([[1, 0, 0, 0], [1, 0, 0, 0]], dtype=np.float32)
-        face_orientations = np.array([[1, 0, 0, 0]], dtype=np.float32)
+        equiv_orientations = np.array([[1, 0, 0, 0]], dtype=np.float32)
         maxX = 5.23
         maxY = 6.23
         maxZ = 7.23
@@ -771,7 +771,7 @@ class TestPMFTXYZ(unittest.TestCase):
         myPMFT = freud.pmft.PMFTXYZ(maxX, maxY, maxZ, (nbinsX, nbinsY, nbinsZ))
         myPMFT.compute(system=(box, points), query_orientations=orientations,
                        query_points=points,
-                       face_orientations=face_orientations, reset=False)
+                       equiv_orientations=equiv_orientations, reset=False)
         npt.assert_equal(myPMFT.box, freud.box.Box.cube(boxSize))
 
         # Ensure expected errors are raised
@@ -900,10 +900,10 @@ class TestPMFTXYZ(unittest.TestCase):
             npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                                 atol=absoluteTolerance)
 
-            # Test face_orientations, shape (N_faces, 4)
-            face_orientations = np.array([[1., 0., 0., 0.]])
+            # Test equiv_orientations, shape (N_faces, 4)
+            equiv_orientations = np.array([[1., 0., 0., 0.]])
             myPMFT.compute(nq, query_orientations, neighbors=neighbors,
-                           face_orientations=face_orientations)
+                           equiv_orientations=equiv_orientations)
             npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                                 atol=absoluteTolerance)
 

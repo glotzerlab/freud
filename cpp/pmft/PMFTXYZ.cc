@@ -70,7 +70,7 @@ void PMFTXYZ::reduce()
  */
 void PMFTXYZ::accumulate(const locality::NeighborQuery* neighbor_query, quat<float>* query_orientations,
                          vec3<float>* query_points, unsigned int n_query_points,
-                         quat<float>* face_orientations, unsigned int n_faces,
+                         quat<float>* equiv_orientations, unsigned int n_faces,
                          const locality::NeighborList* nlist, freud::locality::QueryArgs qargs)
 {
     // precalc some values for faster computation within the loop
@@ -88,7 +88,7 @@ void PMFTXYZ::accumulate(const locality::NeighborQuery* neighbor_query, quat<flo
                               vec3<float> v(delta);
                               // rotate the vector
                               v = rotate(conj(ref_q), v);
-                              v = rotate(face_orientations[k], v);
+                              v = rotate(equiv_orientations[k], v);
 
                               m_local_histograms(v.x, v.y, v.z);
                           }
