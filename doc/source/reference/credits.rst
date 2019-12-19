@@ -94,6 +94,7 @@ Bradley Dice - **Lead developer**
 * Added test PyPI support to continuous integration.
 * Added continuous integration to freud-examples.
 * Implemented periodic center of mass computations in C++.
+* Implemented smarter heuristics in Voronoi for voro++ block sizes, resulting in significant performance gains for large systems.
 
 Eric Harper, University of Michigan - **Former lead developer**
 
