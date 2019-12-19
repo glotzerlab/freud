@@ -574,11 +574,11 @@ cdef class PMFTXYZ(_PMFT):
                 Orientations to be treated as equivalent to account for
                 symmetry of the points. For instance, if the
                 :code:`query_points` are rectangular prisms with the long axis
-                corresponding to the x-axis, then a point at :math:`(1, 0, 0) `
-                and a point at :math:`(-1, 0, 0) ` are symmetrically equivalent
+                corresponding to the x-axis, then a point at :math:`(1, 0, 0)`
+                and a point at :math:`(-1, 0, 0)` are symmetrically equivalent
                 and can be counted towards both the positive and negative bins.
-                If not supplied by user or :code:`None`, unit quaternions will
-                be supplied (Default value = :code:`None`).
+                If not supplied by user or :code:`None`, a unit quaternion will
+                be used (Default value = :code:`None`).
             neighbors (:class:`freud.locality.NeighborList` or dict, optional):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
                 neighbor pairs to use in the calculation, or a dictionary of
