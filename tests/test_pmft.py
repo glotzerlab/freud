@@ -999,6 +999,133 @@ class TestPMFTXYZ(unittest.TestCase):
         self.assertEqual(np.sum(pmft.bin_counts), 1)
         self.assertTrue(np.all(pmft.bin_counts >= 0))
 
+    def test_orientation_with_query_points(self):
+        """The orientations should be associated with the query points if they
+        are provided."""
+        boxSize = 8
+        box = freud.box.Box.cube(boxSize)
+        # Don't place the points at exactly distances of 0/1 apart to avoid any
+        # ambiguity when the distances fall on the bin boundaries.
+        points = np.array([[0.1, 0.1, 0]],
+                          dtype=np.float32)
+        points2 = np.array([[1, 0, 0]],
+                           dtype=np.float32)
+        angles = np.array([np.deg2rad(0)]*points2.shape[0], dtype=np.float32)
+        quats = rowan.from_axis_angle([0, 0, 1], angles)
+
+        max_width = 3
+        cells_per_unit_length = 4
+        nbins = max_width * cells_per_unit_length
+        pmft = freud.pmft.PMFTXYZ(max_width, max_width, max_width, nbins)
+
+        # In this case, the only nonzero bin should be in the bin corresponding
+        # to dx=-0.9, dy=0.1, which is (4, 6).
+        pmft.compute((box, points), quats, points2,
+                     neighbors={'mode': 'nearest', 'num_neighbors': 1})
+        npt.assert_array_equal(
+            np.asarray(np.where(pmft.bin_counts)).squeeze(),
+            (4, 6, 6))
+
+        # Now the sets of points are swapped, so dx=0.9, dy=-0.1, which is
+        # (7, 5).
+        pmft.compute((box, points2), quats, points,
+                     neighbors={'mode': 'nearest', 'num_neighbors': 1})
+        npt.assert_array_equal(
+            np.asarray(np.where(pmft.bin_counts)).squeeze(),
+            (7, 5, 6))
+
+        # Apply a rotation to whichever point is provided as a query_point by
+        # 45 degrees (easiest to picture if you think of each point as a
+        # square).
+        angles = np.array([np.deg2rad(45)]*points2.shape[0], dtype=np.float32)
+        quats = rowan.from_axis_angle([0, 0, 1], angles)
+
+        # Determine the relative position of the point when points2 is rotated
+        # by 45 degrees. Since we're undoing the orientation of the orientation
+        # of the particle, we have to conjugate the quaternion.
+        bond_vector = rowan.rotate(rowan.conjugate(quats), points - points2)
+        bins = ((bond_vector+max_width)*cells_per_unit_length/2).astype(int)
+
+        pmft.compute((box, points), quats, points2,
+                     neighbors={'mode': 'nearest', 'num_neighbors': 1})
+        npt.assert_array_equal(
+            np.asarray(np.where(pmft.bin_counts)).squeeze(),
+            bins.squeeze())
+
+        # If we swap the order of the points, the angle should no longer
+        # matter.
+        bond_vector = rowan.rotate(rowan.conjugate(quats), points2 - points)
+        bins = ((bond_vector+max_width)*cells_per_unit_length/2).astype(int)
+
+        pmft.compute((box, points2), quats, points,
+                     neighbors={'mode': 'nearest', 'num_neighbors': 1})
+        npt.assert_array_equal(
+            np.asarray(np.where(pmft.bin_counts)).squeeze(),
+            bins.squeeze())
+
+    def test_orientation_with_fewer_query_points(self):
+        """The orientations should be associated with the query points if they
+        are provided. Ensure that this works when the number of points and
+        query points differ."""
+        boxSize = 8
+        box = freud.box.Box.cube(boxSize)
+        # Don't place the points at exactly distances of 0/1 apart to avoid any
+        # ambiguity when the distances fall on the bin boundaries.
+        points = np.array([[0.1, 0.1, 0], [0.89, 0.89, 0]],
+                          dtype=np.float32)
+        points2 = np.array([[1, 0, 0]],
+                           dtype=np.float32)
+        angles = np.array([np.deg2rad(0)]*points.shape[0], dtype=np.float32)
+        quats = rowan.from_axis_angle([0, 0, 1], angles)
+        angles2 = np.array([np.deg2rad(0)]*points2.shape[0], dtype=np.float32)
+        quats2 = rowan.from_axis_angle([0, 0, 1], angles2)
+
+        def points_to_set(bin_counts):
+            """Extract set of unique occupied bins from pmft bin counts."""
+            return set(list(zip(*np.asarray(np.where(bin_counts)).tolist())))
+
+        max_width = 3
+        cells_per_unit_length = 4
+        nbins = max_width * cells_per_unit_length
+        pmft = freud.pmft.PMFTXYZ(max_width, max_width, max_width, nbins)
+
+        # There should be two nonzero bins:
+        #     dx=-0.9, dy=0.1: bin (4, 6).
+        #     dx=-0.11, dy=0.89: bin (5, 7).
+        pmft.compute((box, points), quats2, points2,
+                     neighbors={'mode': 'nearest', 'num_neighbors': 2})
+        npt.assert_array_equal(
+            points_to_set(pmft.bin_counts),
+            set([(4, 6, 6), (5, 7, 6)]))
+
+        # Now the sets of points are swapped, so:
+        #     dx=0.9, dy=-0.1: bin (7, 5).
+        #     dx=0.11, dy=-0.89: bin (6, 4).
+        pmft.compute((box, points2), quats, points,
+                     neighbors={'mode': 'nearest', 'num_neighbors': 2})
+        npt.assert_array_equal(
+            points_to_set(pmft.bin_counts),
+            set([(7, 5, 6), (6, 4, 6)]))
+
+        # Apply a rotation to whichever point is provided as a query_point by
+        # 45 degrees (easiest to picture if you think of each point as a
+        # square).
+        angles2 = np.array([np.deg2rad(45)]*points2.shape[0], dtype=np.float32)
+        quats2 = rowan.from_axis_angle([0, 0, 1], angles2)
+
+        # Determine the relative position of the point when points2 is rotated
+        # by 45 degrees. Since we're undoing the orientation of the orientation
+        # of the particle, we have to conjugate the quaternion.
+        bond_vector = rowan.rotate(rowan.conjugate(quats2), points - points2)
+        bins = ((bond_vector+max_width)*cells_per_unit_length/2).astype(int)
+        bins = set([tuple(x) for x in bins])
+
+        pmft.compute((box, points), quats2, points2,
+                     neighbors={'mode': 'nearest', 'num_neighbors': 2})
+        npt.assert_array_equal(
+            points_to_set(pmft.bin_counts),
+            bins)
+
 
 class TestPMFTR12ManagedArray(TestManagedArray, unittest.TestCase):
     def build_object(self):
