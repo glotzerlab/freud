@@ -310,12 +310,12 @@ cdef class LocalDensity(_PairCompute):
     point. Also available is the number of neighbors for each query point,
     giving the user the ability to count the number of particles in that
     region. Note that the computed density is essentially a number density
-    (that allows for fractional values as described below). If your particles
-    have a specific volume, you can compute a volume density by simply
-    multiplying the output by the volume of the particles.
+    (allowing for fractional values as described below). If particles
+    have a specific volume, a volume density can be computed by simply
+    multiplying the number density by the volume of the particles.
 
     In order to provide sufficiently smooth data, data points can be
-    fractionally counted towards the density.  Rather than perform
+    fractionally counted towards the density. Rather than perform
     compute-intensive area (volume) overlap calculations to
     determine the exact amount of overlap area (volume), the LocalDensity class
     performs a simple linear interpolation relative to the centers of the data
@@ -433,11 +433,11 @@ cdef class RDF(_SpatialHistogram1D):
     In the thermodynamic limit, the fraction tends to unity and the limiting
     behavior of :math:`\lim_{r \to \infty} g(r)=1` is recovered. However, for
     very small systems the long range behavior of the radial distribution will
-    instead tend to :math:`\frac{N-1}{N}`. If you are analyzing a very small
-    system but wish to recover the more familiar behavior, you may use the
-    `normalize` flag to enforce this requirement upon construction of this
-    object. Note that this will have little to no effect on larger systems (for
-    example, for systems of 100 particles the RDF will differ by 1%).
+    instead tend to :math:`\frac{N-1}{N}`. In small systems, where this
+    deviation is noticeable, the ``normalize`` flag may be used to rescale the
+    results and force the long range behavior to 1. Note that this option will
+    have little to no effect on larger systems (for example, for systems of 100
+    particles the RDF will differ by 1%).
 
     .. note::
         **2D:** :class:`freud.density.RDF` properly handles 2D boxes.

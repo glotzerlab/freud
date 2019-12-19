@@ -161,14 +161,14 @@ cdef class _Compute(object):
 
     def __getattribute__(self, attr):
         """Compute methods set a flag to indicate that quantities have been
-        computed. You can never plot without having called compute."""
+        computed. Compute must be called before plotting."""
         attribute = object.__getattribute__(self, attr)
         if attr == 'compute':
             self._called_compute = True
         elif attr == 'plot':
             if not self._called_compute:
                 raise AttributeError(
-                    "You must compute before you call plot.")
+                    "The compute method must be called before calling plot.")
         return attribute
 
     @staticmethod

@@ -13,6 +13,7 @@ import logging
 import numpy as np
 import sys
 import warnings
+from freud.errors import NO_DEFAULT_QUERY_ARGS_MESSAGE
 
 from libcpp cimport bool as cbool
 from freud.util cimport vec3
@@ -79,7 +80,7 @@ cdef class _QueryArgs:
             if hasattr(self, arg):
                 setattr(self, arg, qargs[arg])
             else:
-                raise ValueError("You have passed an invalid query argument")
+                raise ValueError("An invalid query argument was provided.")
 
     @classmethod
     def from_dict(cls, mapping):
@@ -106,7 +107,7 @@ cdef class _QueryArgs:
         elif value == 'nearest':
             self.thisptr.mode = freud._locality.QueryType.nearest
         else:
-            raise ValueError("You have passed an invalid mode.")
+            raise ValueError("An invalid mode was provided.")
 
     @property
     def r_guess(self):
@@ -911,9 +912,7 @@ cdef class _PairCompute(_Compute):
     def default_query_args(self):
         """No default query arguments."""
         raise NotImplementedError(
-            "The {} class does not provide default query arguments. You must "
-            "either provide query arguments or a neighbor list to this "
-            "compute method.".format(type(self).__name__))
+            NO_DEFAULT_QUERY_ARGS_MESSAGE.format(type(self).__name__))
 
 
 cdef class _SpatialHistogram(_PairCompute):
