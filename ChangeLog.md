@@ -11,7 +11,7 @@ and this project adheres to
 
 ### Changed
 * The make\_random\_box system method no longer overwrites the NumPy global random number generator state.
-* The face\_orientations argument of PMFTXYZ must be provided as an Nx2 array and must be identical for all query points.
+* The face\_orientations argument of PMFTXYZ must be provided as an Mx4 array, where M is the number of symmetrically equivalent particle orientations.
 
 ### Fixed
 * The from\_box method correctly passes user provided dimensions to from\_matrix it if is called.
