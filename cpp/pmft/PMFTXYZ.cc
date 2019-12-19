@@ -84,14 +84,11 @@ void PMFTXYZ::accumulate(const locality::NeighborQuery* neighbor_query, quat<flo
 
                           for (unsigned int k = 0; k < n_faces; k++)
                           {
-                              // create the extra quaternion
-                              quat<float> qe(face_orientations[util::ManagedArray<unsigned int>::getIndex(
-                                  {neighbor_query->getNPoints(), n_faces}, {neighbor_bond.point_idx, k})]);
                               // create point vector
                               vec3<float> v(delta);
                               // rotate the vector
                               v = rotate(conj(ref_q), v);
-                              v = rotate(qe, v);
+                              v = rotate(face_orientations[k], v);
 
                               m_local_histograms(v.x, v.y, v.z);
                           }

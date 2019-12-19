@@ -616,14 +616,14 @@ cdef class PMFTXYZ(_PMFT):
             face_orientations = freud.util._convert_array(
                 face_orientations, shape=(None, 4))
 
-        cdef const float[:, :, ::1] l_face_orientations = face_orientations
-        cdef unsigned int num_faces = l_face_orientations.shape[1]
+        cdef const float[:, ::1] l_face_orientations = face_orientations
+        cdef unsigned int num_faces = l_face_orientations.shape[0]
         self.pmftxyzptr.accumulate(
             nq.get_ptr(),
             <quat[float]*> &l_query_orientations[0, 0],
             <vec3[float]*> &l_query_points[0, 0],
             num_query_points,
-            <quat[float]*> &l_face_orientations[0, 0, 0],
+            <quat[float]*> &l_face_orientations[0, 0],
             num_faces, nlist.get_ptr(), dereference(qargs.thisptr))
         return self
 
