@@ -438,7 +438,7 @@ cdef class PMFTXY(_PMFT):
                 system, query_points, neighbors)
 
         query_orientations = _gen_angle_array(
-            query_orientations, shape=(nq.points.shape[0], ))
+            query_orientations, shape=(num_query_points, ))
         cdef const float[::1] l_query_orientations = query_orientations
 
         self.pmftxyptr.accumulate(nq.get_ptr(),
