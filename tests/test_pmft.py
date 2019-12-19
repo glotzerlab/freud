@@ -11,8 +11,8 @@ from test_managedarray import TestManagedArray
 
 class TestPMFTR12(unittest.TestCase):
     def test_box(self):
-        boxSize = 16.0
-        box = freud.box.Box.square(boxSize)
+        L = 16.0
+        box = freud.box.Box.square(L)
         points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
                           dtype=np.float32)
         angles = np.array([0.0, 0.0], dtype=np.float32)
@@ -22,10 +22,10 @@ class TestPMFTR12(unittest.TestCase):
         nbinsT2 = 30
         myPMFT = freud.pmft.PMFTR12(maxR, (nbinsR, nbinsT1, nbinsT2))
         myPMFT.compute((box, points), angles, points, angles, reset=False)
-        npt.assert_equal(myPMFT.box, freud.box.Box.square(boxSize))
+        npt.assert_equal(myPMFT.box, freud.box.Box.square(L))
 
         # Ensure expected errors are raised
-        box = freud.box.Box.cube(boxSize)
+        box = freud.box.Box.cube(L)
         with self.assertRaises(ValueError):
             myPMFT.compute((box, points), angles, reset=False)
 
@@ -68,8 +68,8 @@ class TestPMFTR12(unittest.TestCase):
         npt.assert_equal(nbinsT2, myPMFT.nbins[2])
 
     def test_attribute_access(self):
-        boxSize = 16.0
-        box = freud.box.Box.square(boxSize)
+        L = 16.0
+        box = freud.box.Box.square(L)
         points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.1, 0.0]],
                           dtype=np.float32)
         points.flags['WRITEABLE'] = False
@@ -101,8 +101,8 @@ class TestPMFTR12(unittest.TestCase):
         myPMFT.box
 
     def test_two_particles(self):
-        boxSize = 16.0
-        box = freud.box.Box.square(boxSize)
+        L = 16.0
+        box = freud.box.Box.square(L)
         points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.1, 0.0]],
                           dtype=np.float32)
         points.flags['WRITEABLE'] = False
@@ -184,8 +184,8 @@ class TestPMFTR12(unittest.TestCase):
 
 class TestPMFTXYT(unittest.TestCase):
     def test_box(self):
-        boxSize = 16.0
-        box = freud.box.Box.square(boxSize)
+        L = 16.0
+        box = freud.box.Box.square(L)
         points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
                           dtype=np.float32)
         angles = np.array([0.0, 0.0], dtype=np.float32)
@@ -196,10 +196,10 @@ class TestPMFTXYT(unittest.TestCase):
         nbinsT = 40
         myPMFT = freud.pmft.PMFTXYT(maxX, maxY, (nbinsX, nbinsY, nbinsT))
         myPMFT.compute((box, points), angles, points, angles, reset=False)
-        npt.assert_equal(myPMFT.box, freud.box.Box.square(boxSize))
+        npt.assert_equal(myPMFT.box, freud.box.Box.square(L))
 
         # Ensure expected errors are raised
-        box = freud.box.Box.cube(boxSize)
+        box = freud.box.Box.cube(L)
         with self.assertRaises(ValueError):
             myPMFT.compute((box, points), angles, points, angles, reset=False)
 
@@ -245,8 +245,8 @@ class TestPMFTXYT(unittest.TestCase):
         npt.assert_equal(nbinsT, myPMFT.nbins[2])
 
     def test_attribute_access(self):
-        boxSize = 16.0
-        box = freud.box.Box.square(boxSize)
+        L = 16.0
+        box = freud.box.Box.square(L)
         points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.1, 0.0]],
                           dtype=np.float32)
         angles = np.array([0.0, np.pi/2], dtype=np.float32)
@@ -277,8 +277,8 @@ class TestPMFTXYT(unittest.TestCase):
         myPMFT.box
 
     def test_two_particles(self):
-        boxSize = 16.0
-        box = freud.box.Box.square(boxSize)
+        L = 16.0
+        box = freud.box.Box.square(L)
         points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.1, 0.0]],
                           dtype=np.float32)
         angles = np.array([0.0, np.pi/2], dtype=np.float32)
@@ -370,8 +370,8 @@ class TestPMFTXYT(unittest.TestCase):
 
 class TestPMFTXY(unittest.TestCase):
     def test_box(self):
-        boxSize = 16.0
-        box = freud.box.Box.square(boxSize)
+        L = 16.0
+        box = freud.box.Box.square(L)
         points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
                           dtype=np.float32)
         angles = np.array([0.0, 0.0], dtype=np.float32)
@@ -381,10 +381,10 @@ class TestPMFTXY(unittest.TestCase):
         nbinsY = 110
         myPMFT = freud.pmft.PMFTXY(maxX, maxY, (nbinsX, nbinsY))
         myPMFT.compute((box, points), angles, points, reset=False)
-        npt.assert_equal(myPMFT.box, freud.box.Box.square(boxSize))
+        npt.assert_equal(myPMFT.box, freud.box.Box.square(L))
 
         # Ensure expected errors are raised
-        box = freud.box.Box.cube(boxSize)
+        box = freud.box.Box.cube(L)
         with self.assertRaises(ValueError):
             myPMFT.compute((box, points), angles, points, reset=False)
 
@@ -420,8 +420,8 @@ class TestPMFTXY(unittest.TestCase):
         npt.assert_equal(nbinsY, myPMFT.nbins[1])
 
     def test_attribute_access(self):
-        boxSize = 16.0
-        box = freud.box.Box.square(boxSize)
+        L = 16.0
+        box = freud.box.Box.square(L)
         points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
                           dtype=np.float32)
         angles = np.array([0.0, 0.0], dtype=np.float32)
@@ -452,8 +452,8 @@ class TestPMFTXY(unittest.TestCase):
         myPMFT.box
 
     def test_two_particles(self):
-        boxSize = 16.0
-        box = freud.box.Box.square(boxSize)
+        L = 16.0
+        box = freud.box.Box.square(L)
         points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
                           dtype=np.float32)
         angles = np.array([0.0, 0.0], dtype=np.float32)
@@ -501,8 +501,8 @@ class TestPMFTXY(unittest.TestCase):
         self.assertEqual(str(myPMFT), str(eval(repr(myPMFT))))
 
     def test_repr_png(self):
-        boxSize = 16.0
-        box = freud.box.Box.square(boxSize)
+        L = 16.0
+        box = freud.box.Box.square(L)
         points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
                           dtype=np.float32)
         angles = np.array([0.0, 0.0], dtype=np.float32)
@@ -546,8 +546,8 @@ class TestPMFTXY(unittest.TestCase):
 
     def test_query_args_nn(self):
         """Test that using nn based query args works."""
-        boxSize = 8
-        box = freud.box.Box.square(boxSize)
+        L = 8
+        box = freud.box.Box.square(L)
         points = np.array([[0, 0, 0]],
                           dtype=np.float32)
         query_points = np.array([[1.1, 0.0, 0.0],
@@ -594,8 +594,8 @@ class TestPMFTXY(unittest.TestCase):
 
     def test_quaternions(self):
         """Test that using quaternions as angles works."""
-        boxSize = 8
-        box = freud.box.Box.square(boxSize)
+        L = 8
+        box = freud.box.Box.square(L)
         points = np.array([[0, 0, 0]],
                           dtype=np.float32)
         query_points = np.array([[1.1, 0.0, 0.0],
@@ -632,8 +632,8 @@ class TestPMFTXY(unittest.TestCase):
     def test_orientation_with_query_points(self):
         """The orientations should be associated with the query points if they
         are provided."""
-        boxSize = 8
-        box = freud.box.Box.square(boxSize)
+        L = 8
+        box = freud.box.Box.square(L)
         # Don't place the points at exactly distances of 0/1 apart to avoid any
         # ambiguity when the distances fall on the bin boundaries.
         points = np.array([[0.1, 0.1, 0]],
@@ -696,8 +696,8 @@ class TestPMFTXY(unittest.TestCase):
         """The orientations should be associated with the query points if they
         are provided. Ensure that this works when the number of points and
         query points differ."""
-        boxSize = 8
-        box = freud.box.Box.square(boxSize)
+        L = 8
+        box = freud.box.Box.square(L)
         # Don't place the points at exactly distances of 0/1 apart to avoid any
         # ambiguity when the distances fall on the bin boundaries.
         points = np.array([[0.1, 0.1, 0], [0.89, 0.89, 0]],
@@ -756,8 +756,8 @@ class TestPMFTXY(unittest.TestCase):
 
 class TestPMFTXYZ(unittest.TestCase):
     def test_box(self):
-        boxSize = 25.0
-        box = freud.box.Box.cube(boxSize)
+        L = 25.0
+        box = freud.box.Box.cube(L)
         points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
                           dtype=np.float32)
         orientations = np.array([[1, 0, 0, 0], [1, 0, 0, 0]], dtype=np.float32)
@@ -772,10 +772,10 @@ class TestPMFTXYZ(unittest.TestCase):
         myPMFT.compute(system=(box, points), query_orientations=orientations,
                        query_points=points,
                        equiv_orientations=equiv_orientations, reset=False)
-        npt.assert_equal(myPMFT.box, freud.box.Box.cube(boxSize))
+        npt.assert_equal(myPMFT.box, freud.box.Box.cube(L))
 
         # Ensure expected errors are raised
-        box = freud.box.Box.square(boxSize)
+        box = freud.box.Box.square(L)
         with self.assertRaises(ValueError):
             myPMFT.compute((box, points), orientations, points,
                            orientations, reset=False)
@@ -822,8 +822,8 @@ class TestPMFTXYZ(unittest.TestCase):
         npt.assert_equal(nbinsZ, myPMFT.nbins[2])
 
     def test_attribute_access(self):
-        boxSize = 25.0
-        box = freud.box.Box.cube(boxSize)
+        L = 25.0
+        box = freud.box.Box.cube(L)
         points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
                           dtype=np.float32)
         orientations = np.array([[1, 0, 0, 0], [1, 0, 0, 0]], dtype=np.float32)
@@ -856,8 +856,8 @@ class TestPMFTXYZ(unittest.TestCase):
         myPMFT.box
 
     def test_two_particles(self):
-        boxSize = 25.0
-        box = freud.box.Box.cube(boxSize)
+        L = 25.0
+        box = freud.box.Box.cube(L)
         points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
                           dtype=np.float32)
         query_orientations = np.array([[1, 0, 0, 0], [1, 0, 0, 0]],
@@ -946,8 +946,8 @@ class TestPMFTXYZ(unittest.TestCase):
 
     def test_query_args_nn(self):
         """Test that using nn based query args works."""
-        boxSize = 8
-        box = freud.box.Box.cube(boxSize)
+        L = 8
+        box = freud.box.Box.cube(L)
         points = np.array([[0, 0, 0]],
                           dtype=np.float32)
         query_points = np.array([[1.1, 0.0, 0.0],
@@ -991,8 +991,8 @@ class TestPMFTXYZ(unittest.TestCase):
     def test_orientation_with_query_points(self):
         """The orientations should be associated with the query points if they
         are provided."""
-        boxSize = 8
-        box = freud.box.Box.cube(boxSize)
+        L = 8
+        box = freud.box.Box.cube(L)
         # Don't place the points at exactly distances of 0/1 apart to avoid any
         # ambiguity when the distances fall on the bin boundaries.
         points = np.array([[0.1, 0.1, 0]],
@@ -1056,8 +1056,8 @@ class TestPMFTXYZ(unittest.TestCase):
         """The orientations should be associated with the query points if they
         are provided. Ensure that this works when the number of points and
         query points differ."""
-        boxSize = 8
-        box = freud.box.Box.cube(boxSize)
+        L = 8
+        box = freud.box.Box.cube(L)
         # Don't place the points at exactly distances of 0/1 apart to avoid any
         # ambiguity when the distances fall on the bin boundaries.
         points = np.array([[0.1, 0.1, 0], [0.89, 0.89, 0]],
