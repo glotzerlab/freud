@@ -45,7 +45,7 @@ Citation
 ========
 
 When using **freud** to process data for publication, please `use this citation
-<https://freud.readthedocs.io/en/stable/citing.html>`__.
+<https://freud.readthedocs.io/en/stable/reference/citing.html>`__.
 
 
 Installation
