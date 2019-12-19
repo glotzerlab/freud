@@ -530,7 +530,7 @@ class TestPMFTXY(unittest.TestCase):
         points, query_points = util.make_alternating_lattice(
             lattice_size, 0.01, 2)
 
-        orientations = np.array([0]*len(points))
+        query_orientations = np.array([0]*len(query_points))
 
         r_max = np.sqrt(x_max**2 + y_max**2)
         test_set = util.make_raw_query_nlist_test_set(
@@ -539,7 +539,7 @@ class TestPMFTXY(unittest.TestCase):
         for nq, neighbors in test_set:
             pmft = freud.pmft.PMFTXY(x_max, y_max, nbins)
             pmft.compute(
-                nq, orientations, query_points, neighbors)
+                nq, query_orientations, query_points, neighbors)
 
             self.assertEqual(np.count_nonzero(np.isinf(pmft.pmft) == 0), 12)
             self.assertEqual(len(np.unique(pmft.pmft)), 2)
@@ -561,7 +561,7 @@ class TestPMFTXY(unittest.TestCase):
         max_width = 3
         nbins = 3
         pmft = freud.pmft.PMFTXY(max_width, max_width, nbins)
-        pmft.compute((box, points), angles, query_points,
+        pmft.compute((box, points), query_angles, query_points,
                      neighbors={'mode': 'nearest', 'num_neighbors': 1})
         # Now every point in query_points will find the origin as a neighbor.
         npt.assert_array_equal(
@@ -570,7 +570,7 @@ class TestPMFTXY(unittest.TestCase):
              [1, 0, 1],
              [0, 1, 0]])
         # Now there will be only one neighbor for the single point.
-        pmft.compute((box, query_points), query_angles, points,
+        pmft.compute((box, query_points), angles, points,
                      neighbors={'mode': 'nearest', 'num_neighbors': 1})
         npt.assert_array_equal(
             pmft.bin_counts,
@@ -612,7 +612,7 @@ class TestPMFTXY(unittest.TestCase):
         max_width = 3
         nbins = 3
         pmft = freud.pmft.PMFTXY(max_width, max_width, nbins)
-        pmft.compute((box, points), orientations, query_points,
+        pmft.compute((box, points), query_orientations, query_points,
                      neighbors={'mode': 'nearest', 'num_neighbors': 1})
         # Now every point in query_points will find the origin as a neighbor.
         npt.assert_array_equal(
@@ -621,7 +621,7 @@ class TestPMFTXY(unittest.TestCase):
              [1, 0, 1],
              [0, 1, 0]])
         # Now there will be only one neighbor for the single point.
-        pmft.compute((box, query_points), query_orientations, points,
+        pmft.compute((box, query_points), orientations, points,
                      neighbors={'mode': 'nearest', 'num_neighbors': 1})
         npt.assert_array_equal(
             pmft.bin_counts,
