@@ -605,7 +605,7 @@ cdef class PMFTXYZ(_PMFT):
         l_query_points = l_query_points - self.shiftvec.reshape(1, 3)
 
         query_orientations = freud.util._convert_array(
-            np.atleast_1d(query_orientations), shape=(nq.points.shape[0], 4))
+            np.atleast_1d(query_orientations), shape=(num_query_points, 4))
 
         cdef const float[:, ::1] l_query_orientations = query_orientations
 
