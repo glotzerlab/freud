@@ -709,7 +709,7 @@ class TestPMFTXY(unittest.TestCase):
 
         def points_to_set(bin_counts):
             """Extract set of unique occupied bins from pmft bin counts."""
-            return set(list(zip(*np.asarray(np.where(bin_counts)).tolist())))
+            return set(zip(*np.asarray(np.where(bin_counts)).tolist()))
 
         max_width = 3
         cells_per_unit_length = 4
@@ -1071,7 +1071,7 @@ class TestPMFTXYZ(unittest.TestCase):
 
         def points_to_set(bin_counts):
             """Extract set of unique occupied bins from pmft bin counts."""
-            return set(list(zip(*np.asarray(np.where(bin_counts)).tolist())))
+            return set(zip(*np.asarray(np.where(bin_counts)).tolist()))
 
         max_width = 3
         cells_per_unit_length = 4
