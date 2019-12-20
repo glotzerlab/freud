@@ -50,8 +50,7 @@ void ClusterProperties::compute(const freud::locality::NeighborQuery* nq, const 
     // Now that we have located all of the cluster vectors, compute the centers
     for (unsigned int c = 0; c < num_clusters; c++)
     {
-        m_cluster_centers[c] = nq->getBox().centerOfMass(
-                cluster_points[c].data(), m_cluster_sizes[c]);
+        m_cluster_centers[c] = nq->getBox().centerOfMass(cluster_points[c].data(), m_cluster_sizes[c]);
     }
 
     // Now that we have determined the centers of mass for each cluster, tally

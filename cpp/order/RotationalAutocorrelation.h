@@ -115,8 +115,7 @@ private:
      *  m_l.
      */
     std::complex<float> hypersphere_harmonic(const std::complex<float> xi, std::complex<float> zeta,
-                                             const unsigned int m1,
-                                             const unsigned int m2);
+                                             const unsigned int m1, const unsigned int m2);
 
     unsigned int m_l; //!< Order of the hyperspherical harmonic.
     float m_Ft;       //!< Real value of calculated RA function.

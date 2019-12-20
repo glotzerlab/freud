@@ -70,13 +70,14 @@ void RotationalAutocorrelation::compute(const quat<float>* ref_orientations, con
     std::complex<float> xi = std::complex<float>(0, 0);
     std::complex<float> zeta = std::complex<float>(0, 1);
     std::vector<std::complex<float>> unit_harmonics;
-    std::vector<std::vector<float> > prefactors(m_l + 1, std::vector<float>(m_l + 1, float(0)));
+    std::vector<std::vector<float>> prefactors(m_l + 1, std::vector<float>(m_l + 1, float(0)));
     for (unsigned int a = 0; a <= m_l; a++)
     {
         for (unsigned int b = 0; b <= m_l; b++)
         {
             unit_harmonics.push_back(std::conj(hypersphere_harmonic(xi, zeta, a, b)));
-            prefactors[a][b] = m_factorials[a] * m_factorials[m_l - a] * m_factorials[b] * m_factorials[m_l - b] / (float(m_l) + 1);
+            prefactors[a][b] = m_factorials[a] * m_factorials[m_l - a] * m_factorials[b]
+                * m_factorials[m_l - b] / (float(m_l) + 1);
         }
     }
 
@@ -98,7 +99,7 @@ void RotationalAutocorrelation::compute(const quat<float>* ref_orientations, con
                 {
                     std::complex<float> combined_value
                         = unit_harmonics[uh_index] * hypersphere_harmonic(xi, zeta, a, b);
-                    m_RA_array[i] += prefactors[a][b]*combined_value;
+                    m_RA_array[i] += prefactors[a][b] * combined_value;
                     uh_index += 1;
                 }
             }

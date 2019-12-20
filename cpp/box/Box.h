@@ -360,22 +360,19 @@ public:
         float total_mass(0);
         vec3<std::complex<float>> xi_mean;
 
-        for (size_t i = 0; i < Nvecs; ++i) {
+        for (size_t i = 0; i < Nvecs; ++i)
+        {
             vec3<float> phase(TWO_PI * makeFractional(vecs[i]));
-            vec3<std::complex<float>> xi(
-                    std::polar(float(1.0), phase.x),
-                    std::polar(float(1.0), phase.y),
-                    std::polar(float(1.0), phase.z));
+            vec3<std::complex<float>> xi(std::polar(float(1.0), phase.x), std::polar(float(1.0), phase.y),
+                                         std::polar(float(1.0), phase.z));
             float mass = (masses != NULL) ? masses[i] : 1.0;
             total_mass += mass;
             xi_mean += std::complex<float>(mass, 0) * xi;
         }
         xi_mean /= std::complex<float>(total_mass, 0);
 
-        return wrap(makeAbsolute(vec3<float>(
-                std::arg(xi_mean.x),
-                std::arg(xi_mean.y),
-                std::arg(xi_mean.z)) / TWO_PI));
+        return wrap(makeAbsolute(vec3<float>(std::arg(xi_mean.x), std::arg(xi_mean.y), std::arg(xi_mean.z))
+                                 / TWO_PI));
     }
 
     //! Subtract center of mass from vectors
