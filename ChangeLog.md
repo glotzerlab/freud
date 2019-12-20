@@ -4,7 +4,7 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## next
+## v2.1.0 - 2019-12-19
 
 ### Added
 * The Box class has methods `center_of_mass` and `center` for periodic-aware center of mass and shifting points to center on the origin.
