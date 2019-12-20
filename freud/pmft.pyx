@@ -617,14 +617,16 @@ cdef class PMFTXYZ(_PMFT):
                 equiv_orientations, shape=(None, 4))
 
         cdef const float[:, ::1] l_equiv_orientations = equiv_orientations
-        cdef unsigned int num_faces = l_equiv_orientations.shape[0]
+        cdef unsigned int num_equiv_orientations = \
+            l_equiv_orientations.shape[0]
         self.pmftxyzptr.accumulate(
             nq.get_ptr(),
             <quat[float]*> &l_query_orientations[0, 0],
             <vec3[float]*> &l_query_points[0, 0],
             num_query_points,
             <quat[float]*> &l_equiv_orientations[0, 0],
-            num_faces, nlist.get_ptr(), dereference(qargs.thisptr))
+            num_equiv_orientations, nlist.get_ptr(),
+            dereference(qargs.thisptr))
         return self
 
     def __repr__(self):

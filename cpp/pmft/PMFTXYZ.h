@@ -24,7 +24,7 @@ public:
     */
     void accumulate(const locality::NeighborQuery* neighbor_query, quat<float>* query_orientations,
                     vec3<float>* query_points, unsigned int n_query_points, quat<float>* equiv_orientations,
-                    unsigned int n_faces, const locality::NeighborList* nlist,
+                    unsigned int num_equiv_orientations, const locality::NeighborList* nlist,
                     freud::locality::QueryArgs qargs);
 
     //! \internal

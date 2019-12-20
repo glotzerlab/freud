@@ -903,7 +903,7 @@ class TestPMFTXYZ(unittest.TestCase):
             npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                                 atol=absoluteTolerance)
 
-            # Test equiv_orientations, shape (N_faces, 4)
+            # Test equiv_orientations, shape (num_equiv_orientations, 4)
             equiv_orientations = np.array([[1., 0., 0., 0.]])
             myPMFT.compute(nq, query_orientations, neighbors=neighbors,
                            equiv_orientations=equiv_orientations)

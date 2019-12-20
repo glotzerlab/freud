@@ -70,7 +70,7 @@ void PMFTXYZ::reduce()
  */
 void PMFTXYZ::accumulate(const locality::NeighborQuery* neighbor_query, quat<float>* query_orientations,
                          vec3<float>* query_points, unsigned int n_query_points,
-                         quat<float>* equiv_orientations, unsigned int n_faces,
+                         quat<float>* equiv_orientations, unsigned int num_equiv_orientations,
                          const locality::NeighborList* nlist, freud::locality::QueryArgs qargs)
 {
     // precalc some values for faster computation within the loop
@@ -82,7 +82,7 @@ void PMFTXYZ::accumulate(const locality::NeighborQuery* neighbor_query, quat<flo
                           // make sure that the particles are wrapped into the box
                           vec3<float> delta(bondVector(neighbor_bond, neighbor_query, query_points));
 
-                          for (unsigned int k = 0; k < n_faces; k++)
+                          for (unsigned int k = 0; k < num_equiv_orientations; k++)
                           {
                               // create point vector
                               vec3<float> v(delta);
