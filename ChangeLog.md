@@ -11,6 +11,7 @@ and this project adheres to
 
 ### Changed
 * The make\_random\_box system method no longer overwrites the NumPy global random number generator state.
+* The face\_orientations argument of PMFTXYZ has been renamed to equiv\_orientations and must be provided as an Mx4 array, where M is the number of symmetrically equivalent particle orientations.
 * Improved documentation about query modes.
 * The Voronoi class uses smarter heuristics for its voro++ block sizes, resulting in significant performance gains for large systems.
 
@@ -19,6 +20,7 @@ and this project adheres to
 * Correctly recognize Ovito DataCollection objects in from\_system.
 * Corrected `ClusterProperties` calculation of centers of mass in specific systems.
 * Set z positions to 0 for 2D GSD systems in from\_system.
+* PMFTXY and PMFTXYZ index into query orientations using the query point index instead of the point index.
 
 ## v2.0.1 - 2019-11-08
 

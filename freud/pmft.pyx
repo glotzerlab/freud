@@ -438,7 +438,7 @@ cdef class PMFTXY(_PMFT):
                 system, query_points, neighbors)
 
         query_orientations = _gen_angle_array(
-            query_orientations, shape=(nq.points.shape[0], ))
+            query_orientations, shape=(num_query_points, ))
         cdef const float[::1] l_query_orientations = query_orientations
 
         self.pmftxyptr.accumulate(nq.get_ptr(),
@@ -550,7 +550,7 @@ cdef class PMFTXYZ(_PMFT):
             del self.pmftxyzptr
 
     def compute(self, system, query_orientations, query_points=None,
-                face_orientations=None, neighbors=None, reset=True):
+                equiv_orientations=None, neighbors=None, reset=True):
         R"""Calculates the PMFT.
 
         .. note::
@@ -570,14 +570,15 @@ cdef class PMFTXYZ(_PMFT):
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Query points used to calculate the PMFT. Uses the system's
                 points if :code:`None` (Default value = :code:`None`).
-            face_orientations ((:math:`N_{points}`, :math:`N_{faces}`, 4) :class:`numpy.ndarray`, optional):
-                Orientations of particle faces to account for symmetry of the
-                points. If not supplied by user or :code:`None`, unit
-                quaternions will be supplied. If a 2D array of shape
-                (:math:`N_{faces}`, 4) or a 3D array of shape (1,
-                :math:`N_{faces}`, 4) is supplied, the supplied quaternions
-                will be broadcast for all points.
-                (Default value = :code:`None`).
+            equiv_orientations ((:math:`N_{faces}`, 4) :class:`numpy.ndarray`, optional):
+                Orientations to be treated as equivalent to account for
+                symmetry of the points. For instance, if the
+                :code:`query_points` are rectangular prisms with the long axis
+                corresponding to the x-axis, then a point at :math:`(1, 0, 0)`
+                and a point at :math:`(-1, 0, 0)` are symmetrically equivalent
+                and can be counted towards both the positive and negative bins.
+                If not supplied by user or :code:`None`, a unit quaternion will
+                be used (Default value = :code:`None`).
             neighbors (:class:`freud.locality.NeighborList` or dict, optional):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
                 neighbor pairs to use in the calculation, or a dictionary of
@@ -605,60 +606,27 @@ cdef class PMFTXYZ(_PMFT):
         l_query_points = l_query_points - self.shiftvec.reshape(1, 3)
 
         query_orientations = freud.util._convert_array(
-            np.atleast_1d(query_orientations), shape=(nq.points.shape[0], 4))
+            np.atleast_1d(query_orientations), shape=(num_query_points, 4))
 
         cdef const float[:, ::1] l_query_orientations = query_orientations
 
-        # handle multiple ways to input
-        if face_orientations is None:
-            # set to unit quaternion, q = [1, 0, 0, 0]
-            face_orientations = np.zeros(
-                shape=(nq.points.shape[0], 1, 4), dtype=np.float32)
-            face_orientations[:, :, 0] = 1.0
+        if equiv_orientations is None:
+            equiv_orientations = np.array([[1, 0, 0, 0]], dtype=np.float32)
         else:
-            if face_orientations.ndim < 2 or face_orientations.ndim > 3:
-                raise ValueError("face_orientations must be a 2 or 3 "
-                                 "dimensional array.")
-            face_orientations = freud.util._convert_array(face_orientations)
-            if face_orientations.ndim == 2:
-                if face_orientations.shape[1] != 4:
-                    raise ValueError(
-                        "2nd dimension for face_orientations must have "
-                        "4 values: w, x, y, z.")
-                # need to broadcast into new array
-                tmp_face_orientations = np.zeros(
-                    shape=(nq.points.shape[0],
-                           face_orientations.shape[0],
-                           face_orientations.shape[1]),
-                    dtype=np.float32)
-                tmp_face_orientations[:] = face_orientations
-                face_orientations = tmp_face_orientations
-            else:
-                # Make sure that the first dimension is actually the number
-                # of particles
-                if face_orientations.shape[2] != 4:
-                    raise ValueError(
-                        "3rd dimension for face_orientations must have "
-                        "4 values: w, x, y, z.")
-                elif face_orientations.shape[0] not in (
-                        1, nq.points.shape[0]):
-                    raise ValueError(
-                        "If provided as a 3D array, the first dimension of "
-                        "the face_orientations array must be either of "
-                        "size 1 or the number of query_points.")
-                elif face_orientations.shape[0] == 1:
-                    face_orientations = np.repeat(
-                        face_orientations, nq.points.shape[0], axis=0)
+            equiv_orientations = freud.util._convert_array(
+                equiv_orientations, shape=(None, 4))
 
-        cdef const float[:, :, ::1] l_face_orientations = face_orientations
-        cdef unsigned int num_faces = l_face_orientations.shape[1]
+        cdef const float[:, ::1] l_equiv_orientations = equiv_orientations
+        cdef unsigned int num_equiv_orientations = \
+            l_equiv_orientations.shape[0]
         self.pmftxyzptr.accumulate(
             nq.get_ptr(),
             <quat[float]*> &l_query_orientations[0, 0],
             <vec3[float]*> &l_query_points[0, 0],
             num_query_points,
-            <quat[float]*> &l_face_orientations[0, 0, 0],
-            num_faces, nlist.get_ptr(), dereference(qargs.thisptr))
+            <quat[float]*> &l_equiv_orientations[0, 0],
+            num_equiv_orientations, nlist.get_ptr(),
+            dereference(qargs.thisptr))
         return self
 
     def __repr__(self):
