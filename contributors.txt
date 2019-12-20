@@ -1,5 +1,5 @@
-  1687	Vyas Ramasubramani <vramasub@umich.edu>
-  1377	Bradley Dice <bdice@bradleydice.com>
+  1731	Vyas Ramasubramani <vramasub@umich.edu>
+  1407	Bradley Dice <bdice@bradleydice.com>
   1030	Eric Harper <harperic@umich.edu>
    456	Jin Soo Ihm <jinihm@umich.edu>
    278	Joshua A. Anderson <joaander@umich.edu>
@@ -18,6 +18,7 @@
     10	Bryan VanSaders <bvansade@umich.edu>
     10	Matt Palathingal <mattjose@umich.edu>
      9	Andrew Karas <askaras@umich.edu>
+     9	Mike Henry <mikehenry@boisestate.edu>
      8	Fengyi Gao <gaofy@umich.edu>
      8	Ryan Marson <rmarson@umich.edu>
      6	Allen LaCour <alacour@umich.edu>
