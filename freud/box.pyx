@@ -343,6 +343,9 @@ cdef class Box:
 
     def center_of_mass(self, vecs, masses=None):
         R"""Compute center of mass of an array of vectors, using periodic boundaries.
+        For detail formalism of center of mass, see the definition in the `link
+        <https://en.wikipedia.org/wiki/Center_of_mass#Systems_with_periodic_boundary_conditions>`.
+
 
         Args:
             vecs (:math:`\left(N, 3\right)` :class:`numpy.ndarray`):
