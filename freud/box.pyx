@@ -343,9 +343,21 @@ cdef class Box:
 
     def center_of_mass(self, vecs, masses=None):
         R"""Compute center of mass of an array of vectors, using periodic boundaries.
-        For detail formalism of center of mass, see the definition in the `link
-        <https://en.wikipedia.org/wiki/Center_of_mass#Systems_with_periodic_boundary_conditions>`.
 
+        This calculation accounts for periodic images. `This Wikipedia page
+        <https://en.wikipedia.org/wiki/Center_of_mass#Systems_with_periodic_boundary_conditions>`_
+        describes the mathematics of this method.
+
+        Example::
+
+            >>> import freud
+            >>> import numpy as np
+            >>> box = freud.Box.cube(10)
+            >>> points = [[-1, -1, 0], [-1, 1, 0], [2, 0, 0]]
+            >>> np.mean(points, axis=0)  # Does not account for periodic images
+            array([0., 0., 0.])
+            >>> box.center_of_mass(points)  # Accounts for periodic images
+            array([-0.18459368,  0.        ,  0.        ])
 
         Args:
             vecs (:math:`\left(N, 3\right)` :class:`numpy.ndarray`):
@@ -375,6 +387,20 @@ cdef class Box:
     def center(self, vecs, masses=None):
         R"""Subtract center of mass from an array of vectors, using periodic boundaries.
 
+        This calculation accounts for periodic images. `This Wikipedia page
+        <https://en.wikipedia.org/wiki/Center_of_mass#Systems_with_periodic_boundary_conditions>`_
+        describes the mathematics of this method.
+
+        Example::
+
+            >>> import freud
+            >>> box = freud.Box.cube(10)
+            >>> points = [[-1, -1, 0], [-1, 1, 0], [2, 0, 0]]
+            >>> box.center(points)
+            array([[-0.8154063, -1.       ,  0.       ],
+                   [-0.8154063,  1.       ,  0.       ],
+                   [ 2.1845937,  0.       ,  0.       ]], dtype=float32)
+
         Args:
             vecs (:math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Vectors to center.
@@ -384,7 +410,7 @@ cdef class Box:
 
         Returns:
             :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
-                Vectors wrapped into the box.
+                Vectors with center of mass subtracted.
         """  # noqa: E501
         vecs = freud.util._convert_array(vecs, shape=(None, 3)).copy()
         cdef const float[:, ::1] l_points = vecs
