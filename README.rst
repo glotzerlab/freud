@@ -11,7 +11,7 @@ freud
 |GitHub-Stars|
 
 .. |Citing freud| image:: https://img.shields.io/badge/cite-freud-informational.svg
-   :target: https://freud.readthedocs.io/en/stable/citing.html
+   :target: https://freud.readthedocs.io/en/stable/reference/citing.html
 .. |PyPI| image:: https://img.shields.io/pypi/v/freud-analysis.svg
    :target: https://pypi.org/project/freud-analysis/
 .. |conda-forge| image:: https://img.shields.io/conda/vn/conda-forge/freud.svg
@@ -40,6 +40,15 @@ and outputs `NumPy arrays <https://www.numpy.org/>`__, enabling integration
 with the scientific Python ecosystem for many typical materials science
 workflows.
 
+Resources
+=========
+
+- `Reference Documentation <https://freud.readthedocs.io/>`__: Examples, tutorials, topic guides, and package Python APIs.
+- `Installation Guide <https://freud.readthedocs.io/en/stable/gettingstarted/installation.html>`__: Instructions for installing and compiling **freud**.
+- `freud-users Google Group <https://groups.google.com/d/forum/freud-users>`__: Ask questions to the **freud** user community.
+- `GitHub repository <https://github.com/glotzerlab/freud>`__: Download the **freud** source code.
+- `Issue tracker <https://github.com/glotzerlab/freud/issues>`__: Report issues or request features.
+
 
 Citation
 ========
@@ -64,24 +73,12 @@ or conda:
    conda install -c conda-forge freud
 
 **freud** is also available via containers for `Docker
-<https://hub.docker.com/r/glotzerlab/software>`_ or `Singularity
-<https://singularity-hub.org/collections/1663>`_.  If you need more detailed
+<https://hub.docker.com/r/glotzerlab/software>`__ or `Singularity
+<https://glotzerlab.engin.umich.edu/downloads/glotzerlab>`__.  If you need more detailed
 information or wish to install **freud** from source, please refer to the
 `Installation Guide
-<https://freud.readthedocs.io/en/stable/installation.html>`_ to compile
+<https://freud.readthedocs.io/en/stable/installation.html>`__ to compile
 **freud** from source.
-
-
-Resources
-=========
-
-Some other helpful links for working with **freud**:
-
--  Find examples of using **freud** on the `examples page <https://freud.readthedocs.io/en/stable/examples.html>`_.
--  Find detailed tutorials and reference information in the `freud documentation <https://freud.readthedocs.io/>`_.
--  View and download the code on the `GitHub repository <https://github.com/glotzerlab/freud>`_.
--  Ask for help on the `freud-users Google Group <https://groups.google.com/d/forum/freud-users>`_.
--  Report issues or request features using the `issue tracker <https://github.com/glotzerlab/freud/issues>`_.
 
 
 Examples
@@ -119,6 +116,6 @@ saved into a `GSD file <https://gsd.readthedocs.io/>`_.
 Support and Contribution
 ========================
 
-Please visit our repository on `GitHub <https://github.com/glotzerlab/freud>`_ for the library source code.
-Any issues or bugs may be reported at our `issue tracker <https://github.com/glotzerlab/freud/issues>`_, while questions and discussion can be directed to our `forum <https://groups.google.com/forum/#!forum/freud-users>`_.
+Please visit our repository on `GitHub <https://github.com/glotzerlab/freud>`__ for the library source code.
+Any issues or bugs may be reported at our `issue tracker <https://github.com/glotzerlab/freud/issues>`__, while questions and discussion can be directed to our `user forum <https://groups.google.com/forum/#!forum/freud-users>`__.
 All contributions to **freud** are welcomed via pull requests!
