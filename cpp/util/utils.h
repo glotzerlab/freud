@@ -21,8 +21,8 @@ inline float clamp(float v, float lo, float hi)
 //! Modulus operation always resulting in a positive value
 /*! \param a Dividend.
     \param b Divisor.
-    \returns The remainder of a/b, between min(0, b) and max(0, b)
-    \note This is the same behavior of the modulus operator % in Python (but not C++)
+    \returns The remainder of a/b, between min(0, b) and max(0, b).
+    \note This is the same behavior of the modulus operator % in Python (but not C++).
 */
 template<class Scalar> inline Scalar modulusPositive(Scalar a, Scalar b)
 {
