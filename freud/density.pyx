@@ -301,6 +301,116 @@ cdef class GaussianDensity(_Compute):
             return None
 
 
+cdef class Voxelization(_Compute):
+    R"""Computes the integer density of a system on a grid.
+
+    Replaces particle positions with a sphere of fixed radius and calculates the
+    contribution from each to the proscribed grid based upon the distance of
+    the grid cell from the center of the sphere. The resulting data is a
+    regular grid of particle densities with an integer for each grid cell that
+    indicates the number of particles whose spheres overlap that cell. The
+    dimensions of the image (grid) are set in the constructor, and can either
+    be set equally for all dimensions or for each dimension independently.
+
+    Args:
+        width (int or list or tuple):
+            The number of bins to make the image in each direction (identical
+            in all dimensions if a single integer value is provided).
+        r_max (float):
+            Sphere radius.
+    """  # noqa: E501
+    cdef freud._density.Voxelization * thisptr
+
+    def __cinit__(self, width, r_max):
+        cdef vec3[uint] width_vector
+        if isinstance(width, int):
+            width_vector = vec3[uint](width, width, width)
+        elif isinstance(width, Sequence) and len(width) == 2:
+            width_vector = vec3[uint](width[0], width[1], 1)
+        elif isinstance(width, Sequence) and len(width) == 3:
+            width_vector = vec3[uint](width[0], width[1], width[2])
+        else:
+            raise ValueError("The width must be either a number of bins or a "
+                             "sequence indicating the widths in each spatial "
+                             "dimension (length 2 in 2D, length 3 in 3D).")
+
+        self.thisptr = new freud._density.Voxelization(width_vector, r_max)
+
+    def __dealloc__(self):
+        del self.thisptr
+
+    @_Compute._computed_property
+    def box(self):
+        """:class:`freud.box.Box`: Box used in the calculation."""
+        return freud.box.BoxFromCPP(self.thisptr.getBox())
+
+    def compute(self, system):
+        R"""Calculates the voxelization for the specified points.
+
+        Args:
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
+        """
+        cdef freud.locality.NeighborQuery nq = \
+            freud.locality.NeighborQuery.from_system(system)
+        self.thisptr.compute(nq.get_ptr())
+        return self
+
+    @_Compute._computed_property
+    def density(self):
+        """(:math:`w_x`, :math:`w_y`, :math:`w_z`) :class:`numpy.ndarray`: The
+        image grid with the Gaussian density."""
+        if self.box.is2D:
+            return np.squeeze(freud.util.make_managed_numpy_array(
+                &self.thisptr.getDensity(), freud.util.arr_type_t.FLOAT))
+        else:
+            return freud.util.make_managed_numpy_array(
+                &self.thisptr.getDensity(), freud.util.arr_type_t.FLOAT)
+
+    @property
+    def r_max(self):
+        """float: Sphere radius used for voxelization."""
+        return self.thisptr.getRMax()
+
+    @property
+    def width(self):
+        """int or list or tuple: The number of bins to make the image in each
+        direction (identical in all dimensions if a single integer value is
+        provided)."""
+        cdef vec3[uint] width = self.thisptr.getWidth()
+        return (width.x, width.y, width.z)
+
+    def __repr__(self):
+        return ("freud.density.{cls}({width}, {r_max})").format(
+            cls=type(self).__name__,
+            width=self.width,
+            r_max=self.r_max)
+
+    def plot(self, ax=None):
+        """Plot voxelization.
+
+        Args:
+            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
+                :code:`None`, make a new figure and axis.
+                (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes.Axes`): Axis with the plot.
+        """
+        import freud.plot
+        if not self.box.is2D:
+            return None
+        return freud.plot.density_plot(self.density, self.box, ax=ax)
+
+    def _repr_png_(self):
+        try:
+            import freud.plot
+            return freud.plot._ax_to_bytes(self.plot())
+        except (AttributeError, ImportError):
+            return None
+
+
 cdef class LocalDensity(_PairCompute):
     R"""Computes the local density around a particle.
 
