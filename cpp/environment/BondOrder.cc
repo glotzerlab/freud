@@ -111,12 +111,7 @@ void BondOrder::accumulate(const locality::NeighborQuery* neighbor_query, quat<f
                           // most physics textbooks do it. get theta (azimuthal angle), phi (polar
                           // angle)
                           float theta = std::atan2(v.y, v.x); //-Pi..Pi
-
-                          theta = fmod(theta, constants::TWO_PI);
-                          while (theta < 0)
-                          {
-                              theta += constants::TWO_PI;
-                          }
+                          theta = modulusPositive(theta, constants::TWO_PI);
 
                           // NOTE that the below has replaced the commented out expression for phi.
                           float phi = std::acos(v.z / std::sqrt(dot(v, v))); // 0..Pi
