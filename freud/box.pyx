@@ -733,6 +733,10 @@ cdef class Box:
 
 
 cdef BoxFromCPP(const freud._box.Box & cppbox):
-    return Box(cppbox.getLx(), cppbox.getLy(), cppbox.getLz(),
-               cppbox.getTiltFactorXY(), cppbox.getTiltFactorXZ(),
-               cppbox.getTiltFactorYZ(), cppbox.is2D())
+    b = Box(cppbox.getLx(), cppbox.getLy(), cppbox.getLz(),
+            cppbox.getTiltFactorXY(), cppbox.getTiltFactorXZ(),
+            cppbox.getTiltFactorYZ(), cppbox.is2D())
+    b.periodic = [cppbox.getPeriodicX(),
+                  cppbox.getPeriodicY(),
+                  cppbox.getPeriodicZ()]
+    return b
