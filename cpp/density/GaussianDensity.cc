@@ -53,6 +53,7 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq)
     const float lx = m_box.getLx();
     const float ly = m_box.getLy();
     const float lz = m_box.getLz();
+    const vec3<bool> periodic = m_box.getPeriodic();
 
     const float grid_size_x = lx / m_width.x;
     const float grid_size_y = ly / m_width.y;
@@ -93,6 +94,14 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq)
 
                     for (int i = bin_x - bin_cut_x; i <= bin_x + bin_cut_x; i++)
                     {
+                        // Reject bins that are outside the box in aperiodic directions
+                        if ((!periodic.x && (i < 0 || i >= int(m_width.x))) ||
+                            (!periodic.y && (j < 0 || j >= int(m_width.y))) ||
+                            (!periodic.z && (k < 0 || k >= int(m_width.z))))
+                        {
+                            continue;
+                        }
+
                         // Calculate the distance from the particle to the grid cell
                         const float dx = float((grid_size_x * i + grid_size_x / 2.0f) - point.x - lx / 2.0f);
                         vec3<float> delta = m_box.wrap(vec3<float>(dx, dy, dz));
