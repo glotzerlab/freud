@@ -17,6 +17,17 @@ inline float clamp(float v, float lo, float hi)
     return std::max(lo, std::min(v, hi));
 }
 
+//! Modulus operation always resulting in a positive value
+/*! \param a dividend
+    \param b divisor
+    \returns the remainder of a/b, between min(0, b) and max(0, b)
+    \note This is the same behavior of the modulus operator % in Python (but not C++)
+*/
+template<class Scalar> inline Scalar modulusPositive(Scalar a, Scalar b)
+{
+    return std::fmod(std::fmod(a, b) + b, b);
+}
+
 //! Wrapper for for-loop to allow the execution in parallel or not.
 /*! \param parallel If true, run body in parallel.
  *  \param begin Beginning index.
