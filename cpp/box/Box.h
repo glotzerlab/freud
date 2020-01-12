@@ -295,6 +295,12 @@ public:
      */
     vec3<float> wrap(const vec3<float>& v) const
     {
+        // Return quickly if the box is aperiodic
+        if (!m_periodic.x && !m_periodic.y && !m_periodic.z)
+        {
+            return v;
+        }
+
         vec3<float> v_frac = makeFractional(v);
         if (m_periodic.x)
         {
