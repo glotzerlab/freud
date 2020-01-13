@@ -273,9 +273,9 @@ cdef class NeighborQuery:
         The standard concept of a system in **freud** is any object that
         provides a way to access a box-like object (anything that can be
         coerced to a box by :meth:`freud.box.Box.from_box`) and an array-like
-        (according to `NumPy's definition
+        object (according to `NumPy's definition
         <https://docs.scipy.org/doc/numpy/user/basics.creation.html#converting-python-array-like-objects-to-numpy-arrays>`_)
-        object that turns into a :math:`N\times 3` array.
+        of particle positions that turns into a :math:`N\times 3` array.
 
         Supported types for :code:`system` include:
 
