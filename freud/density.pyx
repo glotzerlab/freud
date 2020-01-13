@@ -360,13 +360,13 @@ cdef class Voxelization(_Compute):
     @_Compute._computed_property
     def density(self):
         """(:math:`w_x`, :math:`w_y`, :math:`w_z`) :class:`numpy.ndarray`: The
-        image grid with the Gaussian density."""
+        image grid with the voxelized density."""
+        data = freud.util.make_managed_numpy_array(
+            &self.thisptr.getDensity(), freud.util.arr_type_t.UNSIGNED_INT)
         if self.box.is2D:
-            return np.squeeze(freud.util.make_managed_numpy_array(
-                &self.thisptr.getDensity(), freud.util.arr_type_t.FLOAT))
+            return np.squeeze(data)
         else:
-            return freud.util.make_managed_numpy_array(
-                &self.thisptr.getDensity(), freud.util.arr_type_t.FLOAT)
+            return data
 
     @property
     def r_max(self):
