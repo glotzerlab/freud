@@ -93,7 +93,7 @@ public:
     //! \internal
     // Wrapper to do accumulation.
     /*! \param neighbor_query NeighborQuery object to iterate over
-        \param query_points Points
+        \param query_points Query points
         \param n_query_points Number of query_points
         \param nlist Neighbor List. If not NULL, loop over it. Otherwise, use neighbor_query
            appropriately with given qargs.
@@ -110,7 +110,6 @@ public:
         m_frame_counter++;
         m_n_points = neighbor_query->getNPoints();
         m_n_query_points = n_query_points;
-        // flag to reduce
         m_reduce = true;
     }
 
