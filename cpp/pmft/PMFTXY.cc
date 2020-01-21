@@ -11,9 +11,6 @@
 
 namespace freud { namespace pmft {
 
-// namespace-level constant 2*pi for convenient use everywhere.
-constexpr float TWO_PI = 2.0 * M_PI;
-
 PMFTXY::PMFTXY(float x_max, float y_max, unsigned int n_x, unsigned int n_y) : PMFT()
 {
     if (n_x < 1)
@@ -28,9 +25,9 @@ PMFTXY::PMFTXY(float x_max, float y_max, unsigned int n_x, unsigned int n_y) : P
     // Compute jacobian
     const float dx = 2.0 * x_max / float(n_x);
     const float dy = 2.0 * y_max / float(n_y);
-    m_jacobian = dx * dy * TWO_PI;
+    m_jacobian = dx * dy * constants::TWO_PI;
 
-    // create the pcf_array
+    // Create the PCF array.
     m_pcf_array.prepare({n_x, n_y});
 
     // Construct the Histogram object that will be used to keep track of counts of bond distances found.
@@ -41,17 +38,12 @@ PMFTXY::PMFTXY(float x_max, float y_max, unsigned int n_x, unsigned int n_y) : P
     m_local_histograms = BondHistogram::ThreadLocalHistogram(m_histogram);
 }
 
-//! \internal
-//! helper function to reduce the thread specific arrays into one array
 void PMFTXY::reduce()
 {
     float jacobian_factor = (float) 1.0 / m_jacobian;
     PMFT::reduce([jacobian_factor](size_t i) { return jacobian_factor; });
 }
 
-//! \internal
-/*! \brief Helper functionto direct the calculation to the correct helper class
- */
 void PMFTXY::accumulate(const locality::NeighborQuery* neighbor_query, float* query_orientations,
                         vec3<float>* query_points, unsigned int n_query_points,
                         const locality::NeighborList* nlist, freud::locality::QueryArgs qargs)

@@ -11,9 +11,6 @@
 
 namespace freud { namespace pmft {
 
-// namespace-level constant 2*pi for convenient use everywhere.
-constexpr float TWO_PI = 2.0 * M_PI;
-
 PMFTR12::PMFTR12(float r_max, unsigned int n_r, unsigned int n_t1, unsigned int n_t2) : PMFT()
 {
     if (n_r < 1)
@@ -28,17 +25,17 @@ PMFTR12::PMFTR12(float r_max, unsigned int n_r, unsigned int n_t1, unsigned int 
     // Construct the Histogram object that will be used to keep track of counts of bond distances found.
     BHAxes axes;
     axes.push_back(std::make_shared<util::RegularAxis>(n_r, 0, r_max));
-    axes.push_back(std::make_shared<util::RegularAxis>(n_t1, 0, TWO_PI));
-    axes.push_back(std::make_shared<util::RegularAxis>(n_t2, 0, TWO_PI));
+    axes.push_back(std::make_shared<util::RegularAxis>(n_t1, 0, constants::TWO_PI));
+    axes.push_back(std::make_shared<util::RegularAxis>(n_t2, 0, constants::TWO_PI));
     m_histogram = BondHistogram(axes);
     m_local_histograms = BondHistogram::ThreadLocalHistogram(m_histogram);
 
-    // calculate the jacobian array; computed as the inverse for faster use later
+    // Calculate the jacobian array; computed as the inverse for faster use later.
     m_inv_jacobian_array.prepare({n_r, n_t1, n_t2});
     std::vector<float> bins_r = m_histogram.getBinCenters()[0];
     float dr = r_max / float(n_r);
-    float dt1 = TWO_PI / float(n_t1);
-    float dt2 = TWO_PI / float(n_t2);
+    float dt1 = constants::TWO_PI / float(n_t1);
+    float dt2 = constants::TWO_PI / float(n_t2);
     float product = dr * dt1 * dt2;
     for (unsigned int i = 0; i < n_r; i++)
     {
@@ -52,12 +49,10 @@ PMFTR12::PMFTR12(float r_max, unsigned int n_r, unsigned int n_t1, unsigned int 
         }
     }
 
-    // create and populate the pcf_array
+    // Create the PCF array.
     m_pcf_array.prepare({n_r, n_t1, n_t2});
 }
 
-//! \internal
-//! helper function to reduce the thread specific arrays into one array
 void PMFTR12::reduce()
 {
     PMFT::reduce([this](size_t i) { return m_inv_jacobian_array[i]; });
@@ -77,15 +72,15 @@ void PMFTR12::accumulate(const locality::NeighborQuery* neighbor_query, float* o
                           float t1 = orientations[neighbor_bond.point_idx] - d_theta1;
                           float t2 = query_orientations[neighbor_bond.query_point_idx] - d_theta2;
                           // make sure that t1, t2 are bounded between 0 and 2PI
-                          t1 = fmod(t1, TWO_PI);
+                          t1 = fmod(t1, constants::TWO_PI);
                           if (t1 < 0)
                           {
-                              t1 += TWO_PI;
+                              t1 += constants::TWO_PI;
                           }
-                          t2 = fmod(t2, TWO_PI);
+                          t2 = fmod(t2, constants::TWO_PI);
                           if (t2 < 0)
                           {
-                              t2 += TWO_PI;
+                              t2 += constants::TWO_PI;
                           }
                           m_local_histograms(neighbor_bond.distance, t1, t2);
                       });

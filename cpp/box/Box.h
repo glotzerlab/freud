@@ -15,10 +15,13 @@
     \brief Represents simulation boxes and contains helpful wrapping functions.
 */
 
-namespace freud { namespace box {
-
-// namespace-level constant 2*pi for convenient use everywhere.
+namespace freud { namespace constants {
+// Constant 2*pi for convenient use everywhere.
 constexpr float TWO_PI = 2.0 * M_PI;
+}; }; // end namespace freud::constants
+
+
+namespace freud { namespace box {
 
 //! Stores box dimensions and provides common routines for wrapping vectors back into the box
 /*! Box stores a standard HOOMD simulation box that goes from -L/2 to L/2 in each dimension, allowing Lx, Ly,
@@ -362,7 +365,7 @@ public:
 
         for (size_t i = 0; i < Nvecs; ++i)
         {
-            vec3<float> phase(TWO_PI * makeFractional(vecs[i]));
+            vec3<float> phase(constants::TWO_PI * makeFractional(vecs[i]));
             vec3<std::complex<float>> xi(std::polar(float(1.0), phase.x), std::polar(float(1.0), phase.y),
                                          std::polar(float(1.0), phase.z));
             float mass = (masses != NULL) ? masses[i] : 1.0;
@@ -372,7 +375,7 @@ public:
         xi_mean /= std::complex<float>(total_mass, 0);
 
         return wrap(makeAbsolute(vec3<float>(std::arg(xi_mean.x), std::arg(xi_mean.y), std::arg(xi_mean.z))
-                                 / TWO_PI));
+                                 / constants::TWO_PI));
     }
 
     //! Subtract center of mass from vectors

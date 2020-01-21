@@ -17,9 +17,6 @@
 
 namespace freud { namespace environment {
 
-// namespace-level constant 2*pi for convenient use everywhere.
-constexpr float TWO_PI = 2.0 * M_PI;
-
 BondOrder::BondOrder(unsigned int n_bins_theta, unsigned int n_bins_phi, BondOrderMode mode)
     : BondHistogramCompute(), m_mode(mode)
 {
@@ -32,10 +29,10 @@ BondOrder::BondOrder(unsigned int n_bins_theta, unsigned int n_bins_phi, BondOrd
     /*
     0 < \theta < 2PI; 0 < \phi < PI
     */
-    float dt = TWO_PI / float(n_bins_theta);
+    float dt = constants::TWO_PI / float(n_bins_theta);
     float dp = M_PI / float(n_bins_phi);
     // this shouldn't be able to happen, but it's always better to check
-    if (dt > TWO_PI)
+    if (dt > constants::TWO_PI)
         throw std::invalid_argument("2PI must be greater than dt");
     if (dp > M_PI)
         throw std::invalid_argument("PI must be greater than dp");
@@ -52,7 +49,7 @@ BondOrder::BondOrder(unsigned int n_bins_theta, unsigned int n_bins_phi, BondOrd
         }
     }
     BHAxes axes;
-    axes.push_back(std::make_shared<util::RegularAxis>(n_bins_theta, 0, TWO_PI));
+    axes.push_back(std::make_shared<util::RegularAxis>(n_bins_theta, 0, constants::TWO_PI));
     axes.push_back(std::make_shared<util::RegularAxis>(n_bins_phi, 0, M_PI));
     m_histogram = BondHistogram(axes);
 
@@ -115,10 +112,10 @@ void BondOrder::accumulate(const locality::NeighborQuery* neighbor_query, quat<f
                           // angle)
                           float theta = std::atan2(v.y, v.x); //-Pi..Pi
 
-                          theta = fmod(theta, TWO_PI);
+                          theta = fmod(theta, constants::TWO_PI);
                           while (theta < 0)
                           {
-                              theta += TWO_PI;
+                              theta += constants::TWO_PI;
                           }
 
                           // NOTE that the below has replaced the commented out expression for phi.
