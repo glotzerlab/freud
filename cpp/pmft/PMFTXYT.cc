@@ -32,7 +32,7 @@ PMFTXYT::PMFTXYT(float x_max, float y_max, unsigned int n_x, unsigned int n_y, u
     const float dt = TWO_PI / float(n_t);
     m_jacobian = dx * dy * dt;
 
-    // create and populate the pcf_array
+    // Create the PCF array.
     m_pcf_array.prepare({n_x, n_y, n_t});
 
     // Construct the Histogram object that will be used to keep track of counts of bond distances found.
@@ -44,8 +44,6 @@ PMFTXYT::PMFTXYT(float x_max, float y_max, unsigned int n_x, unsigned int n_y, u
     m_local_histograms = BondHistogram::ThreadLocalHistogram(m_histogram);
 }
 
-//! \internal
-//! helper function to reduce the thread specific arrays into one array
 void PMFTXYT::reduce()
 {
     float jacobian_factor = (float) 1.0 / m_jacobian;

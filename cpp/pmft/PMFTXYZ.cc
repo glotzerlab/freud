@@ -45,10 +45,11 @@ PMFTXYZ::PMFTXYZ(float x_max, float y_max, float z_max, unsigned int n_x, unsign
     const float orientation_volume = 8 * M_PI * M_PI;
     m_jacobian = dx * dy * dz * orientation_volume;
 
-    // create and populate the pcf_array
+    // Create the PCF array.
     m_pcf_array.prepare({n_x, n_y, n_z});
 
-    // Construct the Histogram object that will be used to keep track of counts of bond distances found.
+    // Construct the Histogram object that will be used to keep track of counts
+    // of bond distances found.
     BHAxes axes;
     axes.push_back(std::make_shared<util::RegularAxis>(n_x, -x_max, x_max));
     axes.push_back(std::make_shared<util::RegularAxis>(n_y, -y_max, y_max));
@@ -57,23 +58,17 @@ PMFTXYZ::PMFTXYZ(float x_max, float y_max, float z_max, unsigned int n_x, unsign
     m_local_histograms = BondHistogram::ThreadLocalHistogram(m_histogram);
 }
 
-//! \internal
-//! helper function to reduce the thread specific arrays into one array
 void PMFTXYZ::reduce()
 {
     float jacobian_factor = (float) 1.0 / m_jacobian;
     PMFT::reduce([jacobian_factor](size_t i) { return jacobian_factor; });
 }
 
-//! \internal
-/*! \brief Helper function to direct the calculation to the correct helper class
- */
 void PMFTXYZ::accumulate(const locality::NeighborQuery* neighbor_query, quat<float>* query_orientations,
                          vec3<float>* query_points, unsigned int n_query_points,
                          quat<float>* equiv_orientations, unsigned int num_equiv_orientations,
                          const locality::NeighborList* nlist, freud::locality::QueryArgs qargs)
 {
-    // precalc some values for faster computation within the loop
     neighbor_query->getBox().enforce3D();
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
                       [=](const freud::locality::NeighborBond& neighbor_bond) {
@@ -82,8 +77,7 @@ void PMFTXYZ::accumulate(const locality::NeighborQuery* neighbor_query, quat<flo
                           // make sure that the particles are wrapped into the box
                           vec3<float> delta(bondVector(neighbor_bond, neighbor_query, query_points));
 
-                          for (unsigned int k = 0; k < num_equiv_orientations; k++)
-                          {
+                          for (unsigned int k = 0; k < num_equiv_orientations; k++) {
                               // create point vector
                               vec3<float> v(delta);
                               // rotate the vector

@@ -33,7 +33,7 @@ PMFTR12::PMFTR12(float r_max, unsigned int n_r, unsigned int n_t1, unsigned int 
     m_histogram = BondHistogram(axes);
     m_local_histograms = BondHistogram::ThreadLocalHistogram(m_histogram);
 
-    // calculate the jacobian array; computed as the inverse for faster use later
+    // Calculate the jacobian array; computed as the inverse for faster use later.
     m_inv_jacobian_array.prepare({n_r, n_t1, n_t2});
     std::vector<float> bins_r = m_histogram.getBinCenters()[0];
     float dr = r_max / float(n_r);
@@ -52,12 +52,10 @@ PMFTR12::PMFTR12(float r_max, unsigned int n_r, unsigned int n_t1, unsigned int 
         }
     }
 
-    // create and populate the pcf_array
+    // Create the PCF array.
     m_pcf_array.prepare({n_r, n_t1, n_t2});
 }
 
-//! \internal
-//! helper function to reduce the thread specific arrays into one array
 void PMFTR12::reduce()
 {
     PMFT::reduce([this](size_t i) { return m_inv_jacobian_array[i]; });
