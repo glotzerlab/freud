@@ -10,9 +10,6 @@
 
 namespace freud { namespace pmft {
 
-// namespace-level constant 2*pi for convenient use everywhere.
-constexpr float TWO_PI = 2.0 * M_PI;
-
 PMFTXYT::PMFTXYT(float x_max, float y_max, unsigned int n_x, unsigned int n_y, unsigned int n_t) : PMFT()
 {
     if (n_x < 1)
@@ -29,7 +26,7 @@ PMFTXYT::PMFTXYT(float x_max, float y_max, unsigned int n_x, unsigned int n_y, u
     // Compute Jacobian
     const float dx = 2.0 * x_max / float(n_x);
     const float dy = 2.0 * y_max / float(n_y);
-    const float dt = TWO_PI / float(n_t);
+    const float dt = constants::TWO_PI / float(n_t);
     m_jacobian = dx * dy * dt;
 
     // Create the PCF array.
@@ -39,7 +36,7 @@ PMFTXYT::PMFTXYT(float x_max, float y_max, unsigned int n_x, unsigned int n_y, u
     BondHistogram::Axes axes;
     axes.push_back(std::make_shared<util::RegularAxis>(n_x, -x_max, x_max));
     axes.push_back(std::make_shared<util::RegularAxis>(n_y, -y_max, y_max));
-    axes.push_back(std::make_shared<util::RegularAxis>(n_t, 0, TWO_PI));
+    axes.push_back(std::make_shared<util::RegularAxis>(n_t, 0, constants::TWO_PI));
     m_histogram = BondHistogram(axes);
     m_local_histograms = BondHistogram::ThreadLocalHistogram(m_histogram);
 }
@@ -68,10 +65,10 @@ void PMFTXYT::accumulate(const locality::NeighborQuery* neighbor_query, float* o
                           float d_theta = atan2(-delta.y, -delta.x);
                           float t = query_orientations[neighbor_bond.query_point_idx] - d_theta;
                           // make sure that t is bounded between 0 and 2PI
-                          t = fmod(t, TWO_PI);
+                          t = fmod(t, constants::TWO_PI);
                           if (t < 0)
                           {
-                              t += TWO_PI;
+                              t += constants::TWO_PI;
                           }
 
                           m_local_histograms(rotVec.x, rotVec.y, t);

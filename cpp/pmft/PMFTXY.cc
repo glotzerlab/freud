@@ -11,9 +11,6 @@
 
 namespace freud { namespace pmft {
 
-// namespace-level constant 2*pi for convenient use everywhere.
-constexpr float TWO_PI = 2.0 * M_PI;
-
 PMFTXY::PMFTXY(float x_max, float y_max, unsigned int n_x, unsigned int n_y) : PMFT()
 {
     if (n_x < 1)
@@ -28,7 +25,7 @@ PMFTXY::PMFTXY(float x_max, float y_max, unsigned int n_x, unsigned int n_y) : P
     // Compute jacobian
     const float dx = 2.0 * x_max / float(n_x);
     const float dy = 2.0 * y_max / float(n_y);
-    m_jacobian = dx * dy * TWO_PI;
+    m_jacobian = dx * dy * constants::TWO_PI;
 
     // Create the PCF array.
     m_pcf_array.prepare({n_x, n_y});
