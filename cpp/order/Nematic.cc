@@ -87,18 +87,12 @@ void Nematic::compute(quat<float>* orientations, unsigned int n)
         reduce_matrix(const util::ManagedArray<float> m) : m_(m)
         {
             y_.prepare({3, 3});
-            for (int i = 0; i < 3; ++i)
-                for (int j = 0; j < 3; ++j)
-                    y_(i, j) = 0.0; // prepare for accumulation
         }
 
         // splitting constructor required by TBB
         reduce_matrix(reduce_matrix& rm, tbb::split) : m_(rm.m_)
         {
             y_.prepare({3, 3});
-            for (int i = 0; i < 3; ++i)
-                for (int j = 0; j < 3; ++j)
-                    y_(i, j) = 0.0;
         }
 
         // adding the elements
