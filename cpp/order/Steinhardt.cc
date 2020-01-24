@@ -262,15 +262,7 @@ void Steinhardt::aggregatewl(util::ManagedArray<float>& target,
 
 void Steinhardt::reduce()
 {
-    util::forLoopWrapper(0, m_num_ms, [=](size_t begin, size_t end) {
-        for (size_t i = begin; i < end; ++i)
-        {
-            for (auto ql_local = m_qlm_local.begin(); ql_local != m_qlm_local.end(); ql_local++)
-            {
-                m_qlm[i] += (*ql_local)[i];
-            }
-        }
-    });
+    m_qlm = m_qlm_local.reduce();
 }
 
 }; }; // end namespace freud::order
