@@ -20,10 +20,10 @@ Voxelization::Voxelization(vec3<unsigned int> width, float r_max)
         throw std::invalid_argument("Voxelization requires r_max to be positive.");
 }
 
-//! Get a reference to the last computed Density
-const util::ManagedArray<unsigned int>& Voxelization::getDensity() const
+//! Get a reference to the last computed voxels
+const util::ManagedArray<unsigned int>& Voxelization::getVoxels() const
 {
-    return m_density_array;
+    return m_voxels_array;
 }
 
 //! Get width.
@@ -33,7 +33,7 @@ vec3<unsigned int> Voxelization::getWidth()
 }
 
 //! internal
-/*! \brief Function to compute the density array
+/*! \brief Function to compute the voxels array
  */
 void Voxelization::compute(const freud::locality::NeighborQuery* nq)
 {
@@ -46,7 +46,7 @@ void Voxelization::compute(const freud::locality::NeighborQuery* nq)
     {
         width.z = 1;
     }
-    m_density_array.prepare({width.x, width.y, width.z});
+    m_voxels_array.prepare({width.x, width.y, width.z});
     util::ThreadStorage<unsigned int> local_bin_counts({width.x, width.y, width.z});
 
     // set up some constants first
@@ -116,7 +116,7 @@ void Voxelization::compute(const freud::locality::NeighborQuery* nq)
                             const unsigned int nj = (j + m_width.y) % m_width.y;
                             const unsigned int nk = (k + m_width.z) % m_width.z;
 
-                            m_density_array(ni, nj, nk) = 1;
+                            m_voxels_array(ni, nj, nk) = 1;
                         }
                     }
                 }
@@ -126,13 +126,13 @@ void Voxelization::compute(const freud::locality::NeighborQuery* nq)
 
     // Now reduce all the arrays into one.
     /*
-    util::forLoopWrapper(0, m_density_array.size(), [=](size_t begin, size_t end) {
+    util::forLoopWrapper(0, m_voxels_array.size(), [=](size_t begin, size_t end) {
         for (size_t i = begin; i < end; ++i)
         {
             for (util::ThreadStorage<unsigned int>::const_iterator local_bins = local_bin_counts.begin();
                  local_bins != local_bin_counts.end(); ++local_bins)
             {
-                m_density_array[i] += (*local_bins)[i];
+                m_voxels_array[i] += (*local_bins)[i];
             }
         }
     });

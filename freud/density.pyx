@@ -358,11 +358,11 @@ cdef class Voxelization(_Compute):
         return self
 
     @_Compute._computed_property
-    def density(self):
+    def voxels(self):
         """(:math:`w_x`, :math:`w_y`, :math:`w_z`) :class:`numpy.ndarray`: The
-        image grid with the voxelized density."""
+        image grid with the voxelized spheres."""
         data = freud.util.make_managed_numpy_array(
-            &self.thisptr.getDensity(), freud.util.arr_type_t.UNSIGNED_INT)
+            &self.thisptr.getVoxels(), freud.util.arr_type_t.UNSIGNED_INT)
         if self.box.is2D:
             return np.squeeze(data)
         else:
@@ -401,7 +401,7 @@ cdef class Voxelization(_Compute):
         import freud.plot
         if not self.box.is2D:
             return None
-        return freud.plot.density_plot(self.density, self.box, ax=ax)
+        return freud.plot.density_plot(self.voxels, self.box, ax=ax)
 
     def _repr_png_(self):
         try:

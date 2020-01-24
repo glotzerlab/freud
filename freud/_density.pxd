@@ -67,6 +67,6 @@ cdef extern from "Voxelization.h" namespace "freud::density":
         const freud._box.Box & getBox() const
         void reset()
         void compute(const freud._locality.NeighborQuery*) except +
-        const freud.util.ManagedArray[unsigned int] &getDensity() const
+        const freud.util.ManagedArray[unsigned int] &getVoxels() const
         vec3[unsigned int] getWidth() const
         float getRMax() const
