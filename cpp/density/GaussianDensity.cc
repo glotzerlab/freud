@@ -127,67 +127,9 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq)
         }
     });
 
+    // Parallel reduction over thread storage
+    m_density_array = local_bin_counts.reduce();
 
-    typedef std::vector<util::ManagedArray<float>*> ThreadStorageVector;
-    struct reduceThreadStorage
-    {
-        const ThreadStorageVector m_;
-        const std::vector<size_t> shape_;
-        const size_t size_;
-        int body_;
-
-        reduceThreadStorage(ThreadStorageVector m) :
-            m_(m), shape_(m_[0]->shape()), size_(m_[0]->size()), body_(-1) {}
-
-        // splitting constructor required by TBB
-        reduceThreadStorage(reduceThreadStorage& rm, tbb::split) :
-            m_(rm.m_), shape_(m_[0]->shape()), size_(m_[0]->size()), body_(-1) {}
-
-        // adding the elements
-        void operator()(const tbb::blocked_range<unsigned int>& r)
-        {
-            // Tracks the first (left-most) thread used
-            if (body_ == -1)
-            {
-                body_ = r.begin();
-            }
-            for (unsigned int n = r.begin(); n < r.end(); ++n)
-            {
-                for (size_t i = 0; i < size_; ++i)
-                {
-                    (*m_[body_])[i] += (*m_[n])[i];
-                }
-            }
-        }
-
-        // reduce computations from two bodies
-        void join(reduceThreadStorage& rm)
-        {
-            for (size_t i = 0; i < size_; ++i)
-            {
-                (*m_[body_])[i] += (*rm.m_[rm.body_])[i];
-            }
-        }
-    };
-
-    // Iterate over the ThreadStorage and get pointers to each thread's data
-    ThreadStorageVector thread_stores;
-    for (util::ThreadStorage<float>::iterator local_bins = local_bin_counts.begin();
-         local_bins != local_bin_counts.end(); ++local_bins)
-    {
-        thread_stores.push_back(&(*local_bins));
-    }
-
-    reduceThreadStorage reducer(thread_stores);
-    tbb::parallel_reduce(tbb::blocked_range<unsigned int>(0, thread_stores.size()), reducer);
-
-    // Copy the final reduced array
-    util::forLoopWrapper(0, m_density_array.size(), [=](size_t begin, size_t end) {
-        for (size_t i = begin; i < end; ++i)
-        {
-            m_density_array[i] += (*thread_stores[0])[i];
-        }
-    });
 }
 
 }; }; // end namespace freud::density
