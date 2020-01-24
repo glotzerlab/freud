@@ -50,8 +50,8 @@ class TestDensity(unittest.TestCase):
 
         diff.compute((box, points))
 
-        testBox = freud.box.Box.cube(box_size)
-        diff.compute((testBox, points))
+        test_box = freud.box.Box.cube(box_size)
+        diff.compute((test_box, points))
 
     def test_repr(self):
         diff = freud.density.GaussianDensity(100, 10.0, 0.1)
@@ -79,8 +79,8 @@ class TestDensity(unittest.TestCase):
         diff.plot()
 
         diff = freud.density.GaussianDensity(width, r_max, sigma)
-        testBox = freud.box.Box.cube(box_size)
-        diff.compute((testBox, points))
+        test_box = freud.box.Box.cube(box_size)
+        diff.compute((test_box, points))
         diff.plot()
         self.assertEqual(diff._repr_png_(), None)
 
