@@ -16,9 +16,9 @@
 
 namespace freud { namespace density {
 
-//! Computes the the density of a system on a grid.
+//! Computes the density of a system on a grid.
 /*! Replaces particle positions with a gaussian and calculates the
-        contribution from the grid based upon the the distance of the grid cell
+        contribution from the grid based upon the distance of the grid cell
         from the center of the Gaussian.
 */
 class GaussianDensity

@@ -461,7 +461,7 @@ cdef class Steinhardt(_PairCompute):
 
     @property
     def average(self):
-        """bool: Whether the the averaged Steinhardt order parameter was
+        """bool: Whether the averaged Steinhardt order parameter was
         calculated."""
         return self.thisptr.isAverage()
 
