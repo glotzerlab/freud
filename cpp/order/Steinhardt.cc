@@ -69,7 +69,7 @@ void Steinhardt::compute(const freud::locality::NeighborList* nlist,
     }
 
     // Reduce qlm
-    reduce();
+    m_qlm_local.reduceInto(m_qlm);
 
     if (m_wl)
     {
@@ -258,11 +258,6 @@ void Steinhardt::aggregatewl(util::ManagedArray<float>& target,
             }
         }
     });
-}
-
-void Steinhardt::reduce()
-{
-    m_qlm = m_qlm_local.reduce();
 }
 
 }; }; // end namespace freud::order

@@ -250,22 +250,22 @@ public:
             m_local_histograms.local().increment(value_bin, weight);
         }
 
-        ManagedArray<T> reduce()
+        void reduceHistogramsInto(ManagedArray<T>& result)
         {
-            typedef std::vector<util::Histogram<T>*> ThreadStorageVector;
+            typedef std::vector<util::Histogram<T>*> HistogramVector;
             const unsigned int BODY_DEFAULT(0xffffffff);
-            struct reduceThreadStorage
+            struct reduceThreadLocalHistogram
             {
-                const ThreadStorageVector& m_;
+                const HistogramVector& m_;
                 const std::vector<size_t> shape_;
                 const size_t size_;
                 unsigned int body_;
 
-                reduceThreadStorage(ThreadStorageVector& m) :
+                reduceThreadLocalHistogram(HistogramVector& m) :
                     m_(m), shape_(m_[0]->shape()), size_(m_[0]->size()), body_(BODY_DEFAULT) {}
 
                 // splitting constructor required by TBB
-                reduceThreadStorage(reduceThreadStorage& rm, tbb::split) :
+                reduceThreadLocalHistogram(reduceThreadLocalHistogram& rm, tbb::split) :
                     m_(rm.m_), shape_(m_[0]->shape()), size_(m_[0]->size()), body_(BODY_DEFAULT) {}
 
                 // adding the elements
@@ -291,7 +291,7 @@ public:
                 }
 
                 // reduce computations from two bodies
-                void join(reduceThreadStorage& rm)
+                void join(reduceThreadLocalHistogram& rm)
                 {
                     for (size_t i = 0; i < size_; ++i)
                     {
@@ -300,18 +300,28 @@ public:
                 }
             };
 
-            // Iterate over the ThreadStorage and get pointers to each thread's data
-            ThreadStorageVector thread_stores;
-            for (auto t = m_local_histograms.begin(); t != m_local_histograms.end(); ++t)
+            if (m_local_histograms.size() == 0)
             {
-                thread_stores.push_back(&(*t));
+                // If no local histograms have been created, then no data can be reduced.
+                // We simply reset the result array so it's all zeros.
+                result.reset();
             }
+            else
+            {
+                // Reduce over histograms in parallel, into the result array.
+                // Iterate over the ThreadLocalHistogram and get pointers to each thread's data.
+                HistogramVector histogram_pointers;
+                for (auto hist = m_local_histograms.begin(); hist != m_local_histograms.end(); ++hist)
+                {
+                    histogram_pointers.push_back(&(*hist));
+                }
 
-            reduceThreadStorage reducer(thread_stores);
-            tbb::parallel_reduce(tbb::blocked_range<unsigned int>(0, thread_stores.size()), reducer);
+                reduceThreadLocalHistogram reducer(histogram_pointers);
+                tbb::parallel_reduce(tbb::blocked_range<unsigned int>(0, histogram_pointers.size()), reducer);
 
-            // Return a copy of the final reduced array
-            return thread_stores[0]->getBinCounts().copy();
+                // Set result to a copy of the final reduced array
+                result = histogram_pointers[0]->getBinCounts().copy();
+            }
         }
 
 
@@ -485,7 +495,7 @@ public:
     template<typename ComputeFunction>
     void reduceOverThreadsPerBin(ThreadLocalHistogram& local_histograms, const ComputeFunction& cf)
     {
-        m_bin_counts = local_histograms.reduce();
+        local_histograms.reduceHistogramsInto(m_bin_counts);
         util::forLoopWrapper(0, m_bin_counts.size(), [=](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {

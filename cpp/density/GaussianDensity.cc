@@ -128,8 +128,7 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq)
     });
 
     // Parallel reduction over thread storage
-    m_density_array = local_bin_counts.reduce();
-
+    local_bin_counts.reduceInto(m_density_array);
 }
 
 }; }; // end namespace freud::density
