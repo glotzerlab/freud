@@ -206,8 +206,14 @@ cdef class NeighborQueryResult:
 
         raise StopIteration
 
-    def toNeighborList(self):
+    def toNeighborList(self, sort_by_distance=False):
         """Convert query result to a freud NeighborList.
+
+        Args:
+            sort_by_distance (bool):
+                If :code:`True`, sort neighboring bonds by distance.
+                If :code:`False`, sort neighboring bonds by point index
+                (Default value = :code:`False`).
 
         Returns:
             :class:`~NeighborList`: A :mod:`freud` :class:`~NeighborList`
@@ -222,7 +228,7 @@ cdef class NeighborQueryResult:
                 dereference(self.query_args.thisptr))
 
         cdef freud._locality.NeighborList *cnlist = dereference(
-            iterator).toNeighborList()
+            iterator).toNeighborList(sort_by_distance)
         cdef NeighborList nl = _nlist_from_cnlist(cnlist)
         # Explicitly manage a manually created nlist so that it will be
         # deleted when the Python object is.

@@ -228,6 +228,27 @@ class TestNeighborList(unittest.TestCase):
         npt.assert_equal(nlist.segments, nlist2.segments)
         npt.assert_equal(nlist.neighbor_counts, nlist2.neighbor_counts)
 
+    def test_ordering_default(self):
+        # default behavior sorts by (i, j, distance)
+        tuples = list(zip(self.nlist.query_point_indices,
+                          self.nlist.point_indices,
+                          self.nlist.distances))
+        sorted_tuples = list(sorted(tuples))
+
+        self.assertEqual(tuples, sorted_tuples)
+
+    def test_ordering_distance(self):
+        nlist = self.nq.query(self.nq.points,
+                              self.query_args).toNeighborList(True)
+
+        # test sorting by (i, distance, j)
+        tuples = list(zip(nlist.query_point_indices,
+                          nlist.distances,
+                          nlist.point_indices))
+        sorted_tuples = list(sorted(tuples))
+
+        self.assertEqual(tuples, sorted_tuples)
+
 
 if __name__ == '__main__':
     unittest.main()

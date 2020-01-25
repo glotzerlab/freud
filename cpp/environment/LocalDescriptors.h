@@ -54,7 +54,8 @@ public:
     //! positions and the number of particles
     void compute(const locality::NeighborQuery* nq, const vec3<float>* query_points,
                  unsigned int n_query_points, const quat<float>* orientations,
-                 const freud::locality::NeighborList* nlist, locality::QueryArgs qargs);
+                 const freud::locality::NeighborList* nlist, locality::QueryArgs qargs,
+                 unsigned int max_num_neighbors=0);
 
     //! Get a reference to the last computed spherical harmonic array
     const util::ManagedArray<std::complex<float>>& getSph() const

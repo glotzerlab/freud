@@ -354,7 +354,7 @@ public:
      *  the primary use-case is to have this object be managed by instances
      *  of the Cython NeighborList class.
      */
-    NeighborList* toNeighborList()
+    NeighborList* toNeighborList(bool sort_by_distance=false)
     {
         typedef tbb::enumerable_thread_specific<std::vector<NeighborBond>> BondVector;
         BondVector bonds;
@@ -378,7 +378,10 @@ public:
 
         tbb::flattened2d<BondVector> flat_bonds = tbb::flatten2d(bonds);
         std::vector<NeighborBond> linear_bonds(flat_bonds.begin(), flat_bonds.end());
-        tbb::parallel_sort(linear_bonds.begin(), linear_bonds.end(), compareNeighborBond);
+        if(sort_by_distance)
+            tbb::parallel_sort(linear_bonds.begin(), linear_bonds.end(), compareNeighborDistance);
+        else
+            tbb::parallel_sort(linear_bonds.begin(), linear_bonds.end(), compareNeighborBond);
 
         unsigned int num_bonds = linear_bonds.size();
 

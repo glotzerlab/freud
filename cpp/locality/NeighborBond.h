@@ -70,6 +70,23 @@ struct NeighborBond
         return distance < n.distance;
     }
 
+    bool less_as_distance(const NeighborBond& n) const
+    {
+        if (query_point_idx != n.query_point_idx)
+        {
+            return query_point_idx < n.query_point_idx;
+        }
+        if (distance != n.distance)
+        {
+            return distance < n.distance;
+        }
+        if (point_idx != n.point_idx)
+        {
+            return point_idx < n.point_idx;
+        }
+        return weight < n.weight;
+    }
+
     unsigned int query_point_idx; //! The query point index.
     unsigned int point_idx;       //! The reference point index.
     float distance;               //! The distance between the points.

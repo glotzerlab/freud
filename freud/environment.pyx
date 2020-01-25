@@ -230,11 +230,16 @@ cdef class LocalDescriptors(_PairCompute):
     local environment.
 
     The resulting spherical harmonic array will be a complex-valued
-    array of shape `(num_bonds, num_sphs)`. Spherical harmonic
+    array of shape :code:`(num_bonds, num_sphs)`. Spherical harmonic
     calculation can be restricted to some number of nearest neighbors
-    through the `num_neighbors` argument; if a particle has more bonds
-    than this number, the last one or more rows of bond spherical
-    harmonics for each particle will not be set.
+    through the :code:`max_num_neighbors` argument; if a particle has more
+    bonds than this number, the last one or more rows of bond spherical
+    harmonics for each particle will not be set. This feature is useful for
+    computing descriptors on the same system but with different subsets of
+    neighbors; a :class:`freud.locality.NeighborList` with the correct
+    ordering can then be reused in multiple calls to :meth:`~.compute`
+    with different values of `max_num_neighbors` to compute descriptors
+    for different local neighborhoods with maximum efficiency.
 
     Args:
         l_max (unsigned int):
@@ -270,7 +275,7 @@ cdef class LocalDescriptors(_PairCompute):
         del self.thisptr
 
     def compute(self, system, query_points=None, orientations=None,
-                neighbors=None):
+                neighbors=None, max_num_neighbors=0):
         R"""Calculates the local descriptors of bonds from a set of source
         points to a set of destination points.
 
@@ -291,6 +296,10 @@ cdef class LocalDescriptors(_PairCompute):
                 `query arguments
                 <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
                 (Default value: None).
+            max_num_neighbors (unsigned int, optional):
+                Hard limit on the maximum number of neighbors to use for each
+                particle for the given neighbor-finding algorithm. Uses
+                all neighbors if set to 0 (Default value = 0).
         """  # noqa: E501
         cdef:
             freud.locality.NeighborQuery nq
@@ -321,7 +330,8 @@ cdef class LocalDescriptors(_PairCompute):
             nq.get_ptr(),
             <vec3[float]*> &l_query_points[0, 0], num_query_points,
             l_orientations_ptr,
-            nlist.get_ptr(), dereference(qargs.thisptr))
+            nlist.get_ptr(), dereference(qargs.thisptr),
+            max_num_neighbors)
         return self
 
     @_Compute._computed_property
@@ -342,8 +352,8 @@ cdef class LocalDescriptors(_PairCompute):
     def num_sphs(self):
         """unsigned int: The last number of spherical harmonics computed. This
         is equal to the number of bonds in the last computation, which is at
-        most the number of `points` multiplied by the lower of the
-        `num_neighbors` arguments passed to the last compute call or the
+        most the number of :code:`points` multiplied by the lower of the
+        :code:`num_neighbors` arguments passed to the last compute call or the
         constructor (it may be less if there are not enough neighbors for every
         particle)."""
         return self.thisptr.getNSphs()
