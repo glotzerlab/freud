@@ -50,7 +50,8 @@ cdef extern from "LocalDescriptors.h" namespace "freud::environment":
             const vec3[float]*, unsigned int,
             const quat[float]*,
             const freud._locality.NeighborList*,
-            freud._locality.QueryArgs) except +
+            freud._locality.QueryArgs,
+            unsigned int) except +
         const freud.util.ManagedArray[float complex] &getSph() const
         freud._locality.NeighborList * getNList()
         LocalDescriptorOrientation getMode() const

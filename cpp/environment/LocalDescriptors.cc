@@ -20,10 +20,14 @@ LocalDescriptors::LocalDescriptors(unsigned int l_max, bool negative_m,
 
 void LocalDescriptors::compute(const locality::NeighborQuery* nq, const vec3<float>* query_points,
                                unsigned int n_query_points, const quat<float>* orientations,
-                               const freud::locality::NeighborList* nlist, locality::QueryArgs qargs)
+                               const freud::locality::NeighborList* nlist, locality::QueryArgs qargs,
+                               unsigned int max_num_neighbors)
 {
     // This function requires a NeighborList object, so we always make one and store it locally.
     m_nlist = locality::makeDefaultNlist(nq, nlist, query_points, n_query_points, qargs);
+
+    if(max_num_neighbors == 0)
+        max_num_neighbors = std::numeric_limits<unsigned int>::max();
 
     m_sphArray.prepare({m_nlist.getNumBonds(), getSphWidth()});
 
@@ -33,6 +37,7 @@ void LocalDescriptors::compute(const locality::NeighborQuery* nq, const vec3<flo
         for (size_t i = begin; i < end; ++i)
         {
             size_t bond(m_nlist.find_first_index(i));
+            unsigned int neighbor_count(0);
 
             vec3<float> rotation_0, rotation_1, rotation_2;
 
@@ -41,8 +46,10 @@ void LocalDescriptors::compute(const locality::NeighborQuery* nq, const vec3<flo
                 util::ManagedArray<float> inertiaTensor = util::ManagedArray<float>({3, 3});
 
                 for (size_t bond_copy(bond);
-                     bond_copy < m_nlist.getNumBonds() && m_nlist.getNeighbors()(bond_copy, 0) == i;
-                     ++bond_copy)
+                     bond_copy < m_nlist.getNumBonds() &&
+                         m_nlist.getNeighbors()(bond_copy, 0) == i &&
+                         neighbor_count < max_num_neighbors;
+                     ++bond_copy, ++neighbor_count)
                 {
                     const size_t j(m_nlist.getNeighbors()(bond_copy, 1));
                     const vec3<float> r_ij(bondVector(locality::NeighborBond(i, j), nq, query_points));
@@ -91,7 +98,11 @@ void LocalDescriptors::compute(const locality::NeighborQuery* nq, const vec3<flo
                 throw std::runtime_error("Uncaught orientation mode in LocalDescriptors::compute");
             }
 
-            for (; bond < m_nlist.getNumBonds() && m_nlist.getNeighbors()(bond, 0) == i; ++bond)
+            neighbor_count = 0;
+            for (; bond < m_nlist.getNumBonds() &&
+                     m_nlist.getNeighbors()(bond, 0) == i &&
+                     neighbor_count < max_num_neighbors;
+                 ++bond, ++neighbor_count)
             {
                 const unsigned int sphCount(bond * getSphWidth());
                 const size_t j(m_nlist.getNeighbors()(bond, 1));

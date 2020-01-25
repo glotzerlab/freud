@@ -206,8 +206,14 @@ cdef class NeighborQueryResult:
 
         raise StopIteration
 
-    def toNeighborList(self):
+    def toNeighborList(self, sort_by_distance=False):
         """Convert query result to a freud NeighborList.
+
+        Args:
+            sort_by_distance (bool):
+                If :code:`True`, sort neighboring bonds by distance.
+                If :code:`False`, sort neighboring bonds by point index
+                (Default value = :code:`False`).
 
         Returns:
             :class:`~NeighborList`: A :mod:`freud` :class:`~NeighborList`
@@ -222,7 +228,7 @@ cdef class NeighborQueryResult:
                 dereference(self.query_args.thisptr))
 
         cdef freud._locality.NeighborList *cnlist = dereference(
-            iterator).toNeighborList()
+            iterator).toNeighborList(sort_by_distance)
         cdef NeighborList nl = _nlist_from_cnlist(cnlist)
         # Explicitly manage a manually created nlist so that it will be
         # deleted when the Python object is.
@@ -774,9 +780,16 @@ cdef class _RawPoints(NeighborQuery):
 
 
 cdef class AABBQuery(NeighborQuery):
-    R"""Use an AABB tree to find neighbors.
+    R"""Use an Axis-Aligned Bounding Box (AABB) tree :cite:`howard2016` to
+    find neighbors.
 
     Also available as ``freud.AABBQuery``.
+
+    Args:
+        box (:class:`freud.box.Box`):
+            Simulation box.
+        points ((:math:`N`, 3) :class:`numpy.ndarray`):
+            The points to use to build the tree.
     """
 
     def __cinit__(self, box, points):
@@ -807,7 +820,7 @@ cdef class LinkCell(NeighborQuery):
     Args:
         box (:class:`freud.box.Box`):
             Simulation box.
-        points (:class:`np.ndarray`):
+        points ((:math:`N`, 3) :class:`numpy.ndarray`):
             The points to bin into the cell list.
         cell_width (float, optional):
             Width of cells. If not provided, `~.LinkCell` will estimate a cell

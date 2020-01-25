@@ -4,6 +4,12 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## v2.2.0
+
+### Added
+* NeighborQuery objects can now create NeighborLists with neighbors sorted by bond distance.
+* LocalDescriptors `compute` takes an optional maximum number of neighbors to compute for each particle.
+
 ## v2.1.0 - 2019-12-19
 
 ### Added
