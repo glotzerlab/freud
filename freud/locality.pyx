@@ -780,9 +780,16 @@ cdef class _RawPoints(NeighborQuery):
 
 
 cdef class AABBQuery(NeighborQuery):
-    R"""Use an AABB tree to find neighbors.
+    R"""Use an Axis-Aligned Bounding Box (AABB) tree :cite:`howard2016` to
+    find neighbors.
 
     Also available as ``freud.AABBQuery``.
+
+    Args:
+        box (:class:`freud.box.Box`):
+            Simulation box.
+        points ((:math:`N`, 3) :class:`numpy.ndarray`):
+            The points to use to build the tree.
     """
 
     def __cinit__(self, box, points):
@@ -813,7 +820,7 @@ cdef class LinkCell(NeighborQuery):
     Args:
         box (:class:`freud.box.Box`):
             Simulation box.
-        points (:class:`np.ndarray`):
+        points ((:math:`N`, 3) :class:`numpy.ndarray`):
             The points to bin into the cell list.
         cell_width (float, optional):
             Width of cells. If not provided, `~.LinkCell` will estimate a cell
