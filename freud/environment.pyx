@@ -234,7 +234,12 @@ cdef class LocalDescriptors(_PairCompute):
     calculation can be restricted to some number of nearest neighbors
     through the :code:`max_num_neighbors` argument; if a particle has more
     bonds than this number, the last one or more rows of bond spherical
-    harmonics for each particle will not be set.
+    harmonics for each particle will not be set. This feature is useful for
+    computing descriptors on the same system but with different subsets of
+    neighbors; a :class:`freud.locality.NeighborList` with the correct 
+    ordering can then be reused in multiple calls to `~.compute` with
+    different values of `max_num_neighbors` to compute descriptors for
+    different local neighborhoods with maximum efficiency.
 
     Args:
         l_max (unsigned int):
