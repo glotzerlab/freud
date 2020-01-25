@@ -237,9 +237,9 @@ cdef class LocalDescriptors(_PairCompute):
     harmonics for each particle will not be set. This feature is useful for
     computing descriptors on the same system but with different subsets of
     neighbors; a :class:`freud.locality.NeighborList` with the correct
-    ordering can then be reused in multiple calls to `~.compute` with
-    different values of `max_num_neighbors` to compute descriptors for
-    different local neighborhoods with maximum efficiency.
+    ordering can then be reused in multiple calls to :meth:`~.compute`
+    with different values of `max_num_neighbors` to compute descriptors
+    for different local neighborhoods with maximum efficiency.
 
     Args:
         l_max (unsigned int):
