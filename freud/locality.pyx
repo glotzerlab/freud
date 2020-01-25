@@ -211,8 +211,9 @@ cdef class NeighborQueryResult:
 
         Args:
             sort_by_distance (bool):
-                If True, sort neighboring bonds by distance. By default, sort
-                neighboring bonds by point index.
+                If :code:`True`, sort neighboring bonds by distance.
+                If :code:`False`, sort neighboring bonds by point index
+                (Default value = :code:`False`).
 
         Returns:
             :class:`~NeighborList`: A :mod:`freud` :class:`~NeighborList`
