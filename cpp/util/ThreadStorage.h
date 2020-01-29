@@ -91,57 +91,10 @@ public:
 
     void reduceInto(ManagedArray<T>& result)
     {
-        typedef std::vector<util::ManagedArray<T>*> ThreadStorageVector;
-        const unsigned int BODY_DEFAULT(0xffffffff);
-        struct reduceThreadStorage
-        {
-            const ThreadStorageVector& m_;
-            const std::vector<size_t> shape_;
-            const size_t size_;
-            unsigned int body_;
-
-            reduceThreadStorage(ThreadStorageVector& m) :
-                m_(m), shape_(m_[0]->shape()), size_(m_[0]->size()), body_(BODY_DEFAULT) {}
-
-            // splitting constructor required by TBB
-            reduceThreadStorage(reduceThreadStorage& rm, tbb::split) :
-                m_(rm.m_), shape_(m_[0]->shape()), size_(m_[0]->size()), body_(BODY_DEFAULT) {}
-
-            // adding the elements
-            void operator()(const tbb::blocked_range<unsigned int>& r)
-            {
-                // Tracks the first (left-most) thread used by this body
-                if (body_ == BODY_DEFAULT)
-                {
-                    body_ = r.begin();
-                }
-                for (unsigned int n = r.begin(); n < r.end(); ++n)
-                {
-                    if (body_ == n)
-                    {
-                        continue;
-                    }
-                    for (size_t i = 0; i < size_; ++i)
-                    {
-                        (*m_[body_])[i] += (*m_[n])[i];
-                    }
-                    m_[n]->reset();
-                }
-            }
-
-            // reduce computations from two bodies
-            void join(reduceThreadStorage& rm)
-            {
-                for (size_t i = 0; i < size_; ++i)
-                {
-                    (*m_[body_])[i] += (*rm.m_[rm.body_])[i];
-                }
-            }
-        };
-
         if (arrays.size() == 0)
         {
-            // If no local arrays have been created, then no data can be reduced.
+            // If no local arrays have been created, then no data can be reduced
+            // and an error will occur if we attempt to iterate over arrays.
             // We simply reset the result array so it's all zeros.
             result.reset();
         }
@@ -149,17 +102,12 @@ public:
         {
             // Reduce over arrays in parallel, into the result array.
             // Iterate over the ThreadStorage and get pointers to each thread's data
-            ThreadStorageVector array_pointers;
+            std::vector<util::ManagedArray<T>*> array_pointers;
             for (auto arr = arrays.begin(); arr != arrays.end(); ++arr)
             {
                 array_pointers.push_back(&(*arr));
             }
-
-            reduceThreadStorage reducer(array_pointers);
-            tbb::parallel_reduce(tbb::blocked_range<unsigned int>(0, array_pointers.size()), reducer);
-
-            // Set result to a copy of the final reduced array
-            result = array_pointers[0]->copy();
+            util::reduceManagedArrays(array_pointers, result);
         }
     }
 

@@ -250,59 +250,12 @@ public:
             m_local_histograms.local().increment(value_bin, weight);
         }
 
-        void reduceHistogramsInto(ManagedArray<T>& result)
+        void reduceInto(ManagedArray<T>& result)
         {
-            typedef std::vector<util::Histogram<T>*> HistogramVector;
-            const unsigned int BODY_DEFAULT(0xffffffff);
-            struct reduceThreadLocalHistogram
-            {
-                const HistogramVector& m_;
-                const std::vector<size_t> shape_;
-                const size_t size_;
-                unsigned int body_;
-
-                reduceThreadLocalHistogram(HistogramVector& m) :
-                    m_(m), shape_(m_[0]->shape()), size_(m_[0]->size()), body_(BODY_DEFAULT) {}
-
-                // splitting constructor required by TBB
-                reduceThreadLocalHistogram(reduceThreadLocalHistogram& rm, tbb::split) :
-                    m_(rm.m_), shape_(m_[0]->shape()), size_(m_[0]->size()), body_(BODY_DEFAULT) {}
-
-                // adding the elements
-                void operator()(const tbb::blocked_range<unsigned int>& r)
-                {
-                    // Tracks the first (left-most) thread used by this body
-                    if (body_ == BODY_DEFAULT)
-                    {
-                        body_ = r.begin();
-                    }
-                    for (unsigned int n = r.begin(); n < r.end(); ++n)
-                    {
-                        if (body_ == n)
-                        {
-                            continue;
-                        }
-                        for (size_t i = 0; i < size_; ++i)
-                        {
-                            (*m_[body_])[i] += (*m_[n])[i];
-                        }
-                        m_[n]->reset();
-                    }
-                }
-
-                // reduce computations from two bodies
-                void join(reduceThreadLocalHistogram& rm)
-                {
-                    for (size_t i = 0; i < size_; ++i)
-                    {
-                        (*m_[body_])[i] += (*rm.m_[rm.body_])[i];
-                    }
-                }
-            };
-
             if (m_local_histograms.size() == 0)
             {
-                // If no local histograms have been created, then no data can be reduced.
+                // If no local histograms have been created, then no data can be reduced
+                // and an error will occur if we attempt to iterate over histograms.
                 // We simply reset the result array so it's all zeros.
                 result.reset();
             }
@@ -310,17 +263,12 @@ public:
             {
                 // Reduce over histograms in parallel, into the result array.
                 // Iterate over the ThreadLocalHistogram and get pointers to each thread's data.
-                HistogramVector histogram_pointers;
+                std::vector<util::ManagedArray<T>*> array_pointers;
                 for (auto hist = m_local_histograms.begin(); hist != m_local_histograms.end(); ++hist)
                 {
-                    histogram_pointers.push_back(&(*hist));
+                    array_pointers.push_back(&(hist->getBinCounts()));
                 }
-
-                reduceThreadLocalHistogram reducer(histogram_pointers);
-                tbb::parallel_reduce(tbb::blocked_range<unsigned int>(0, histogram_pointers.size()), reducer);
-
-                // Set result to a copy of the final reduced array
-                result = histogram_pointers[0]->getBinCounts().copy();
+                util::reduceManagedArrays(array_pointers, result);
             }
         }
 
@@ -419,6 +367,12 @@ public:
     }
 
     //! Get the computed histogram.
+    ManagedArray<T>& getBinCounts()
+    {
+        return m_bin_counts;
+    }
+
+    //! Get the computed histogram.
     const ManagedArray<T>& getBinCounts() const
     {
         return m_bin_counts;
@@ -495,7 +449,7 @@ public:
     template<typename ComputeFunction>
     void reduceOverThreadsPerBin(ThreadLocalHistogram& local_histograms, const ComputeFunction& cf)
     {
-        local_histograms.reduceHistogramsInto(m_bin_counts);
+        local_histograms.reduceInto(m_bin_counts);
         util::forLoopWrapper(0, m_bin_counts.size(), [=](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
