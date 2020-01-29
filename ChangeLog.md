@@ -9,7 +9,7 @@ and this project adheres to
 ### Added
 * NeighborQuery objects can now create NeighborLists with neighbors sorted by bond distance.
 * LocalDescriptors `compute` takes an optional maximum number of neighbors to compute for each particle.
-* Implemented parallel reduction for thread-local storage and histograms.
+* Implemented parallel reduction for `ThreadStorage` and `Histogram` C++ classes.
 
 ## v2.1.0 - 2019-12-19
 
