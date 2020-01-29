@@ -91,13 +91,13 @@ Bradley Dice - **Lead developer**
 * Added plotting functionality for Box and NeighborQuery objects.
 * Added support for reading system data directly from MDAnalysis, garnett, gsd, HOOMD-blue, and OVITO.
 * Revised tutorials and documentation on data inputs.
-* Updated MSD to perform accumulation with `compute(..., reset=False)`.
+* Updated MSD to perform accumulation with ``compute(..., reset=False)``.
 * Added test PyPI support to continuous integration.
 * Added continuous integration to freud-examples.
 * Implemented periodic center of mass computations in C++.
 * Revised docs about query modes.
 * Implemented smarter heuristics in Voronoi for voro++ block sizes, resulting in significant performance gains for large systems.
-* Implemented parallel reduction for thread-local storage and histograms.
+* Implemented parallel reduction for ``ThreadStorage`` and ``Histogram`` C++ classes.
 
 Eric Harper, University of Michigan - **Former lead developer**
 
