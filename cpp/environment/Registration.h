@@ -376,7 +376,7 @@ public:
         }
 
         m = vec_map;
-        return sqrt(rmsd / double(points.rows()));
+        return std::sqrt(rmsd / double(points.rows()));
     }
 
 private:

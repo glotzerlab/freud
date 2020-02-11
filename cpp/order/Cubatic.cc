@@ -171,7 +171,7 @@ template<typename T> quat<float> Cubatic::calcRandomQuaternion(T& dist, float an
     float theta = 2.0 * M_PI * dist();
     float phi = acos(2.0 * dist() - 1.0);
     vec3<float> axis = vec3<float>(cosf(theta) * sinf(phi), sinf(theta) * sinf(phi), cosf(phi));
-    float axis_norm = sqrt(dot(axis, axis));
+    float axis_norm = std::sqrt(dot(axis, axis));
     axis /= axis_norm;
     float angle = angle_multiplier * dist();
     return quat<float>::fromAxisAngle(axis, angle);
