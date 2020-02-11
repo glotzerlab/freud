@@ -2,6 +2,7 @@
 #define UTILS_H
 
 #include <algorithm>
+#include <cmath>
 #include <tbb/tbb.h>
 
 #if defined _WIN32
@@ -18,9 +19,9 @@ inline float clamp(float v, float lo, float hi)
 }
 
 //! Modulus operation always resulting in a positive value
-/*! \param a dividend
-    \param b divisor
-    \returns the remainder of a/b, between min(0, b) and max(0, b)
+/*! \param a Dividend.
+    \param b Divisor.
+    \returns The remainder of a/b, between min(0, b) and max(0, b)
     \note This is the same behavior of the modulus operator % in Python (but not C++)
 */
 template<class Scalar> inline Scalar modulusPositive(Scalar a, Scalar b)

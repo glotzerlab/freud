@@ -4,6 +4,7 @@
 #include <stdexcept>
 
 #include "PMFTR12.h"
+#include "utils.h"
 
 /*! \file PMFTR12.cc
     \brief Routines for computing potential of mean force and torque in R12 coordinates
@@ -72,8 +73,8 @@ void PMFTR12::accumulate(const locality::NeighborQuery* neighbor_query, float* o
                           float t1 = orientations[neighbor_bond.point_idx] - d_theta1;
                           float t2 = query_orientations[neighbor_bond.query_point_idx] - d_theta2;
                           // make sure that t1, t2 are bounded between 0 and 2PI
-                          t1 = modulusPositive(t1, constants::TWO_PI);
-                          t2 = modulusPositive(t2, constants::TWO_PI);
+                          t1 = util::modulusPositive(t1, constants::TWO_PI);
+                          t2 = util::modulusPositive(t2, constants::TWO_PI);
                           m_local_histograms(neighbor_bond.distance, t1, t2);
                       });
 }

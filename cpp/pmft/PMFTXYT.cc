@@ -1,8 +1,10 @@
 // Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#include "PMFTXYT.h"
 #include <stdexcept>
+
+#include "PMFTXYT.h"
+#include "utils.h"
 
 /*! \file PMFTXYT.cc
     \brief Routines for computing potential of mean force and torque in XYT coordinates
@@ -65,7 +67,7 @@ void PMFTXYT::accumulate(const locality::NeighborQuery* neighbor_query, float* o
                           float d_theta = std::atan2(-delta.y, -delta.x);
                           float t = query_orientations[neighbor_bond.query_point_idx] - d_theta;
                           // make sure that t is bounded between 0 and 2PI
-                          t = modulusPositive(t, constants::TWO_PI);
+                          t = util::modulusPositive(t, constants::TWO_PI);
                           m_local_histograms(rotVec.x, rotVec.y, t);
                       });
 }
