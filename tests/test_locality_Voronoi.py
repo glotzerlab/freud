@@ -15,9 +15,16 @@ class TestVoronoi(unittest.TestCase):
         vor = freud.locality.Voronoi()
         vor.compute((box, points))
 
+        # Verify the polytopes and volumes
         npt.assert_equal(len(vor.polytopes), len(points))
         npt.assert_equal(len(vor.volumes), len(points))
         npt.assert_almost_equal(np.sum(vor.volumes), box.volume)
+
+        # Verify the neighbor distances
+        wrapped_distances = np.linalg.norm(box.wrap(
+            points[vor.nlist.point_indices] -
+            points[vor.nlist.query_point_indices]), axis=-1)
+        npt.assert_allclose(wrapped_distances, vor.nlist.distances)
 
     def test_basic_3d(self):
         # Test that voronoi tessellations of random systems have the same
@@ -28,9 +35,16 @@ class TestVoronoi(unittest.TestCase):
         vor = freud.locality.Voronoi()
         vor.compute((box, points))
 
+        # Verify the polytopes and volumes
         npt.assert_equal(len(vor.polytopes), len(points))
         npt.assert_equal(len(vor.volumes), len(points))
         npt.assert_almost_equal(np.sum(vor.volumes), box.volume)
+
+        # Verify the neighbor distances
+        wrapped_distances = np.linalg.norm(box.wrap(
+            points[vor.nlist.point_indices] -
+            points[vor.nlist.query_point_indices]), axis=-1)
+        npt.assert_allclose(wrapped_distances, vor.nlist.distances)
 
     def test_voronoi_tess_2d(self):
         # Test that the voronoi polytope works for a 2D system
@@ -56,6 +70,12 @@ class TestVoronoi(unittest.TestCase):
         npt.assert_almost_equal(
             vor.nlist.weights[vor.nlist.query_point_indices == 4], 1)
 
+        # Verify the neighbor distances
+        wrapped_distances = np.linalg.norm(box.wrap(
+            points[vor.nlist.point_indices] -
+            points[vor.nlist.query_point_indices]), axis=-1)
+        npt.assert_allclose(wrapped_distances, vor.nlist.distances)
+
         # Double the points (still inside the box) and test again
         points *= 2
         vor.compute((box, points))
@@ -67,6 +87,12 @@ class TestVoronoi(unittest.TestCase):
         npt.assert_almost_equal(np.sum(vor.volumes), box.volume)
         npt.assert_almost_equal(
             vor.nlist.weights[vor.nlist.query_point_indices == 4], 2)
+
+        # Verify the neighbor distances
+        wrapped_distances = np.linalg.norm(box.wrap(
+            points[vor.nlist.point_indices] -
+            points[vor.nlist.query_point_indices]), axis=-1)
+        npt.assert_allclose(wrapped_distances, vor.nlist.distances)
 
     def test_voronoi_tess_3d(self):
         # Test that the voronoi polytope works for a 3D system
@@ -101,6 +127,12 @@ class TestVoronoi(unittest.TestCase):
         npt.assert_almost_equal(
             vor.nlist.weights[vor.nlist.query_point_indices == 13], 1)
 
+        # Verify the neighbor distances
+        wrapped_distances = np.linalg.norm(box.wrap(
+            points[vor.nlist.point_indices] -
+            points[vor.nlist.query_point_indices]), axis=-1)
+        npt.assert_allclose(wrapped_distances, vor.nlist.distances)
+
         # Double the points (still inside the box) and test again
         points *= 2
         vor.compute((box, points))
@@ -114,6 +146,12 @@ class TestVoronoi(unittest.TestCase):
         npt.assert_almost_equal(np.sum(vor.volumes), box.volume)
         npt.assert_almost_equal(
             vor.nlist.weights[vor.nlist.query_point_indices == 13], 4)
+
+        # Verify the neighbor distances
+        wrapped_distances = np.linalg.norm(box.wrap(
+            points[vor.nlist.point_indices] -
+            points[vor.nlist.query_point_indices]), axis=-1)
+        npt.assert_allclose(wrapped_distances, vor.nlist.distances)
 
     def test_voronoi_neighbors_wrapped(self):
         # Test that voronoi neighbors in the first shell are correct for a
@@ -138,9 +176,15 @@ class TestVoronoi(unittest.TestCase):
             unique_indices, counts = np.unique(nlist.query_point_indices,
                                                return_counts=True)
 
-            # Every particle should have six neighbors
+            # Every particle should have the specified number of neighbors
             npt.assert_equal(counts, neighbors)
             npt.assert_almost_equal(np.sum(vor.volumes), box.volume)
+
+            # Verify the neighbor distances
+            wrapped_distances = np.linalg.norm(box.wrap(
+                points[vor.nlist.point_indices] -
+                points[vor.nlist.query_point_indices]), axis=-1)
+            npt.assert_allclose(wrapped_distances, vor.nlist.distances)
 
     def test_voronoi_weights_fcc(self):
         # Test that voronoi neighbor weights are computed properly for 3D FCC
@@ -168,6 +212,12 @@ class TestVoronoi(unittest.TestCase):
         npt.assert_allclose(vor.compute((box, points)).volumes,
                             np.full(len(vor.polytopes), 2.),
                             atol=1e-5)
+
+        # Verify the neighbor distances
+        wrapped_distances = np.linalg.norm(box.wrap(
+            points[vor.nlist.point_indices] -
+            points[vor.nlist.query_point_indices]), axis=-1)
+        npt.assert_allclose(wrapped_distances, vor.nlist.distances)
 
     def test_nlist_symmetric(self):
         # Test that the voronoi neighborlist is symmetric

@@ -405,8 +405,8 @@ public:
     vec3<float> getNearestPlaneDistance() const
     {
         vec3<float> dist;
-        dist.x = m_L.x / sqrt(1.0f + m_xy * m_xy + (m_xy * m_yz - m_xz) * (m_xy * m_yz - m_xz));
-        dist.y = m_L.y / sqrt(1.0f + m_yz * m_yz);
+        dist.x = m_L.x / std::sqrt(1.0f + m_xy * m_xy + (m_xy * m_yz - m_xz) * (m_xy * m_yz - m_xz));
+        dist.y = m_L.y / std::sqrt(1.0f + m_yz * m_yz);
         dist.z = m_L.z;
 
         return dist;
