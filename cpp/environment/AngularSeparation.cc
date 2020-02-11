@@ -19,7 +19,7 @@ namespace freud { namespace environment {
 float computeSeparationAngle(const quat<float> ref_q, const quat<float> q)
 {
     quat<float> R = q * conj(ref_q);
-    float theta = float(2.0 * acos(util::clamp(R.s, -1, 1)));
+    float theta = float(2.0 * std::acos(util::clamp(R.s, -1, 1)));
     return theta;
 }
 

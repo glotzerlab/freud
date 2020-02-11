@@ -62,7 +62,7 @@ void PMFTXYT::accumulate(const locality::NeighborQuery* neighbor_query, float* o
                               = rotmat2<float>::fromAngle(-orientations[neighbor_bond.point_idx]);
                           vec2<float> rotVec = myMat * myVec;
                           // calculate angle
-                          float d_theta = atan2(-delta.y, -delta.x);
+                          float d_theta = std::atan2(-delta.y, -delta.x);
                           float t = query_orientations[neighbor_bond.query_point_idx] - d_theta;
                           // make sure that t is bounded between 0 and 2PI
                           t = fmod(t, constants::TWO_PI);
