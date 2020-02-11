@@ -10,6 +10,9 @@ and this project adheres to
 * NeighborQuery objects can now create NeighborLists with neighbors sorted by bond distance.
 * LocalDescriptors `compute` takes an optional maximum number of neighbors to compute for each particle.
 
+### Fixed
+* Corrected calculation of neighbor distances in the Voronoi NeighborList.
+
 ## v2.1.0 - 2019-12-19
 
 ### Added
