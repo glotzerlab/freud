@@ -296,24 +296,11 @@ public:
      */
     vec3<float> wrap(const vec3<float>& v) const
     {
-        vec3<float> tmp = makeFractional(v);
-        tmp.x = fmod(tmp.x, 1.0f);
-        tmp.y = fmod(tmp.y, 1.0f);
-        tmp.z = fmod(tmp.z, 1.0f);
-        // handle negative mod
-        if (tmp.x < 0)
-        {
-            tmp.x += 1;
-        }
-        if (tmp.y < 0)
-        {
-            tmp.y += 1;
-        }
-        if (tmp.z < 0)
-        {
-            tmp.z += 1;
-        }
-        return makeAbsolute(tmp);
+        vec3<float> v_frac = makeFractional(v);
+        v_frac.x = util::modulusPositive(v_frac.x, 1.0f);
+        v_frac.y = util::modulusPositive(v_frac.y, 1.0f);
+        v_frac.z = util::modulusPositive(v_frac.z, 1.0f);
+        return makeAbsolute(v_frac);
     }
 
     //! Wrap vectors back into the box in place
@@ -379,7 +366,7 @@ public:
     }
 
     //! Subtract center of mass from vectors
-    /*! \param vecs Vectors to center, updated to the minimum image obeying the periodic settings
+    /*! \param vecs Vectors to center
      *  \param Nvecs Number of vectors
      *  \param masses Optional array of masses, of length Nvecs
      */
