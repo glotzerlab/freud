@@ -118,7 +118,7 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
 
             // Save polytope vertices in system coordinates
             std::vector<vec3<double>> system_vertices;
-            vec3<double> query_point_system_coords((*nq)[query_point_id]);
+            const vec3<double> query_point_system_coords((*nq)[query_point_id]);
             for (auto vertex_iter = relative_vertices.begin(); vertex_iter != relative_vertices.end();
                  vertex_iter++)
             {
@@ -131,25 +131,24 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
 
             size_t neighbor_counter(0);
             for (auto neighbor_iterator = neighbors.begin(); neighbor_iterator != neighbors.end();
-                 neighbor_iterator++)
+                 neighbor_iterator++, neighbor_counter++)
             {
-                const int point_id = *neighbor_iterator;
-                const float weight(face_areas[neighbor_counter]);
-
                 // Get the normal to the current face
                 const vec3<double> normal(normals[3 * neighbor_counter], normals[3 * neighbor_counter + 1],
                                           normals[3 * neighbor_counter + 2]);
 
-                // Compute the distance from query_point to point.
-                vec3<double> point_system_coords((*nq)[point_id]);
-                const vec3<float> rij = box.wrap(point_system_coords - query_point_system_coords);
-                const float distance(std::sqrt(dot(rij, rij)));
-
-                neighbor_counter++;
-
                 // Ignore bonds in 2D systems that point up or down
                 if (box.is2D() && std::abs(normal.z) > 0)
                     continue;
+
+                // Fetch neighbor information
+                const int point_id = *neighbor_iterator;
+                const float weight(face_areas[neighbor_counter]);
+                const vec3<double> point_system_coords((*nq)[point_id]);
+
+                // Compute the distance from query_point to point.
+                const vec3<float> rij = box.wrap(point_system_coords - query_point_system_coords);
+                const float distance(std::sqrt(dot(rij, rij)));
 
                 bonds.push_back(NeighborBond(query_point_id, point_id, distance, weight));
             }
