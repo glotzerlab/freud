@@ -130,7 +130,6 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
             m_volumes[query_point_id] = cell.volume();
 
             size_t neighbor_counter(0);
-            size_t face_vertices_index(0);
             for (auto neighbor_iterator = neighbors.begin(); neighbor_iterator != neighbors.end();
                  neighbor_iterator++)
             {
@@ -141,27 +140,12 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
                 const vec3<double> normal(normals[3 * neighbor_counter], normals[3 * neighbor_counter + 1],
                                           normals[3 * neighbor_counter + 2]);
 
-                // Find a vertex on the current face: this leverages the
-                // structure of face_vertices, which has a count of the
-                // number of vertices for a face followed by the
-                // corresponding vertex ids for that face. We use this
-                // structure later when incrementing face_vertices_index.
-                // face_vertices_index always points to the "vertex
-                // counter" element of face_vertices for the current face.
-
-                // Get the first vertex id on this face
-                const int vertex_id_on_face = face_vertices[face_vertices_index + 1];
-
-                // Project the vertex vector onto the face normal to get a
-                // distance from query_point to the face, then double it to
-                // get the distance to the neighbor particle.
-                const vec3<double> rv(vertices[3 * vertex_id_on_face], vertices[3 * vertex_id_on_face + 1],
-                                      vertices[3 * vertex_id_on_face + 2]);
-                const vec3<double> riv(rv - query_point);
-                const float distance(2 * dot(riv, normal));
+                // Compute the distance from query_point to point.
+                vec3<double> point_system_coords((*nq)[point_id]);
+                const vec3<float> rij = box.wrap(point_system_coords - query_point_system_coords);
+                const float distance(std::sqrt(dot(rij, rij)));
 
                 neighbor_counter++;
-                face_vertices_index += face_vertices[face_vertices_index] + 1;
 
                 // Ignore bonds in 2D systems that point up or down
                 if (box.is2D() && std::abs(normal.z) > 0)
