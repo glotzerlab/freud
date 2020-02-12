@@ -14,13 +14,10 @@ import logging
 import freud.util
 
 from freud.util cimport vec3
-from cython.operator cimport dereference
 from cpython.object cimport Py_EQ, Py_NE
-from freud.util cimport _Compute
 
 cimport freud._box
 cimport numpy as np
-cimport freud.locality
 
 logger = logging.getLogger(__name__)
 
