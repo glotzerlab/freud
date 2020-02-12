@@ -296,7 +296,7 @@ void Cubatic::compute(quat<float>* orientations, unsigned int num_orientations)
                                   else
                                   {
                                       float boltzmann_factor
-                                          = exp(-(cubatic_order_parameter - new_order_parameter) / t_current);
+                                          = std::exp(-(cubatic_order_parameter - new_order_parameter) / t_current);
                                       if (boltzmann_factor >= dist())
                                       {
                                           cubatic_tensor = new_cubatic_tensor;

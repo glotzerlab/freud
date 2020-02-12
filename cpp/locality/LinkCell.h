@@ -159,7 +159,7 @@ private:
 
  *  The cell coordinate (i,j,k) itself is computed like so:
  *  \code
- *  i = floorf((x + Lx/2) / w) % Nw
+ *  i = std::floor((x + Lx/2) / w) % Nw
  *  \endcode
  *  and so on for j, k (y, z). Call getCellCoord() to do this computation for
  *  an arbitrary point.
