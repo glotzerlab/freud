@@ -242,9 +242,6 @@ public:
     querySingle(const vec3<float> query_point, unsigned int query_point_idx, QueryArgs args) const;
 
 private:
-    //! Rounding helper function.
-    static unsigned int roundDown(unsigned int v, unsigned int m);
-
     //! Helper function to compute cell neighbors
     const std::vector<unsigned int>& computeCellNeighbors(unsigned int cell) const;
 
