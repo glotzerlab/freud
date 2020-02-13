@@ -100,14 +100,16 @@ public:
         }
         else
         {
-            // Reduce over arrays in parallel, into the result array.
-            // Iterate over the ThreadStorage and get pointers to each thread's data
-            std::vector<util::ManagedArray<T>*> array_pointers;
-            for (auto arr = arrays.begin(); arr != arrays.end(); ++arr)
-            {
-                array_pointers.push_back(&(*arr));
-            }
-            util::reduceManagedArrays(array_pointers, result);
+            // Reduce over arrays into the result array.
+            util::forLoopWrapper(0, result.size(), [=](size_t begin, size_t end) {
+                for (size_t i = begin; i < end; ++i)
+                {
+                    for (auto arr = arrays.begin(); arr != arrays.end(); ++arr)
+                    {
+                        result[i] += (*arr)[i];
+                    }
+                }
+            });
         }
     }
 

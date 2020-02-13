@@ -250,26 +250,19 @@ public:
             m_local_histograms.local().increment(value_bin, weight);
         }
 
+        // Reduce over histograms into the result array.
         void reduceInto(ManagedArray<T>& result)
         {
-            if (m_local_histograms.size() == 0)
-            {
-                // If no local histograms have been created, then no data can be reduced
-                // and an error will occur if we attempt to iterate over histograms.
-                // We simply reset the result array so it's all zeros.
-                result.reset();
-            }
-            else
-            {
-                // Reduce over histograms in parallel, into the result array.
-                // Iterate over the ThreadLocalHistogram and get pointers to each thread's data.
-                std::vector<util::ManagedArray<T>*> array_pointers;
-                for (auto hist = m_local_histograms.begin(); hist != m_local_histograms.end(); ++hist)
+            result.reset();
+            util::forLoopWrapper(0, result.size(), [=](size_t begin, size_t end) {
+                for (size_t i = begin; i < end; ++i)
                 {
-                    array_pointers.push_back(&(hist->getBinCounts()));
+                    for (auto hist = m_local_histograms.begin(); hist != m_local_histograms.end(); ++hist)
+                    {
+                        result[i] += hist->m_bin_counts[i];
+                    }
                 }
-                util::reduceManagedArrays(array_pointers, result);
-            }
+            });
         }
 
 
