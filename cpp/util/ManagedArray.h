@@ -4,7 +4,6 @@
 #include <cstring>
 #include <memory>
 #include <sstream>
-#include <tbb/tbb.h>
 #include <vector>
 
 /*! \file ManagedArray.h
@@ -355,63 +354,6 @@ private:
     std::shared_ptr<std::vector<size_t>> m_shape; //!< Shape of array.
     std::shared_ptr<size_t> m_size;               //!< Size of array.
 };
-
-template<typename T> void reduceManagedArrays(std::vector<util::ManagedArray<T>*>& arrays, ManagedArray<T>& result)
-{
-    const unsigned int BODY_DEFAULT(0xffffffff);
-
-    struct ManagedArrayReducer
-    {
-        const std::vector<util::ManagedArray<T>*>& m_;
-        const size_t size_;
-        unsigned int body_;
-
-        ManagedArrayReducer(std::vector<util::ManagedArray<T>*>& m) :
-            m_(m), size_(m_[0]->size()), body_(BODY_DEFAULT) {}
-
-        // splitting constructor required by TBB
-        ManagedArrayReducer(ManagedArrayReducer& rm, tbb::split) :
-            m_(rm.m_), size_(m_[0]->size()), body_(BODY_DEFAULT) {}
-
-        // adding the elements
-        void operator()(const tbb::blocked_range<unsigned int>& r)
-        {
-            // Tracks the first (left-most) thread used by this body
-            if (body_ == BODY_DEFAULT)
-            {
-                body_ = r.begin();
-            }
-            for (unsigned int n = r.begin(); n < r.end(); ++n)
-            {
-                if (body_ == n)
-                {
-                    continue;
-                }
-                for (size_t i = 0; i < size_; ++i)
-                {
-                    (*m_[body_])[i] += (*m_[n])[i];
-                }
-                m_[n]->reset();
-            }
-        }
-
-        // reduce computations from two bodies
-        void join(ManagedArrayReducer& rm)
-        {
-            for (size_t i = 0; i < size_; ++i)
-            {
-                (*m_[body_])[i] += (*rm.m_[rm.body_])[i];
-            }
-        }
-    };
-
-    // Reduce over arrays in parallel, into the result array.
-    ManagedArrayReducer reducer(arrays);
-    tbb::parallel_reduce(tbb::blocked_range<unsigned int>(0, arrays.size()), reducer);
-
-    // Set result to a copy of the final reduced array
-    result = arrays[0]->copy();
-}
 
 }; }; // end namespace freud::util
 
