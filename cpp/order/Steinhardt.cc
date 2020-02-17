@@ -69,7 +69,7 @@ void Steinhardt::compute(const freud::locality::NeighborList* nlist,
     }
 
     // Reduce qlm
-    reduce();
+    m_qlm_local.reduceInto(m_qlm);
 
     if (m_wl)
     {
@@ -255,19 +255,6 @@ void Steinhardt::aggregatewl(util::ManagedArray<float>& target,
             {
                 const float normalization = std::sqrt(normalizationfactor) / normalization_source[i];
                 target[i] *= normalization * normalization * normalization;
-            }
-        }
-    });
-}
-
-void Steinhardt::reduce()
-{
-    util::forLoopWrapper(0, m_num_ms, [=](size_t begin, size_t end) {
-        for (size_t i = begin; i < end; ++i)
-        {
-            for (auto ql_local = m_qlm_local.begin(); ql_local != m_qlm_local.end(); ql_local++)
-            {
-                m_qlm[i] += (*ql_local)[i];
             }
         }
     });

@@ -8,7 +8,7 @@ import unittest
 class TestNematicOrder(unittest.TestCase):
     def test_perfect(self):
         """Test perfectly aligned systems with different molecular axes"""
-        N = 1000
+        N = 10000
         axes = np.zeros(shape=(N, 3), dtype=np.float32)
         angles = np.zeros(shape=N, dtype=np.float32)
         axes[:, 0] = 1.0
@@ -59,7 +59,7 @@ class TestNematicOrder(unittest.TestCase):
         We add some noise to the perfect system and see if the output is close
         to the ideal case.
         """
-        N = 1000
+        N = 10000
         np.random.seed(0)
 
         # Generate orientations close to the identity quaternion
@@ -87,7 +87,8 @@ class TestNematicOrder(unittest.TestCase):
         npt.assert_allclose(op_perp.order, 1, atol=1e-1)
         self.assertNotEqual(op_perp.order, 1)
 
-        npt.assert_allclose(op_perp.director, u, atol=1e-1)
+        # The director can be inverted so we compare absolute values
+        npt.assert_allclose(np.abs(op_perp.director), u, atol=1e-1)
         self.assertFalse(np.all(op_perp.director == u))
 
         npt.assert_allclose(

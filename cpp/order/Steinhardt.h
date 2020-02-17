@@ -151,9 +151,6 @@ public:
 
 private:
     //! \internal
-    //! helper function to reduce the thread specific arrays into one array
-    void reduce();
-
     //! Spherical harmonics calculation for Ylm filling a
     //  std::vector<std::complex<float> > with values for m = -l..l.
     void computeYlm(const float theta, const float phi, std::vector<std::complex<float>>& Ylm);

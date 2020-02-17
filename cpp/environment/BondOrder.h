@@ -10,7 +10,6 @@
 #include "ManagedArray.h"
 #include "NeighborList.h"
 #include "NeighborQuery.h"
-#include "ThreadStorage.h"
 #include "VectorMath.h"
 
 /*! \file BondOrder.h

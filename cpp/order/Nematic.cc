@@ -13,7 +13,9 @@
 namespace freud { namespace order {
 
 // m_u is the molecular axis, normalized to a unit vector
-Nematic::Nematic(vec3<float> u) : m_n(0), m_u(u / std::sqrt(dot(u, u))) {}
+Nematic::Nematic(vec3<float> u)
+    : m_n(0), m_u(u / std::sqrt(dot(u, u))), m_nematic_tensor_local({3, 3})
+{}
 
 float Nematic::getNematicOrderParameter() const
 {
@@ -49,6 +51,7 @@ void Nematic::compute(quat<float>* orientations, unsigned int n)
 {
     m_n = n;
     m_particle_tensor.prepare({m_n, 3, 3});
+    m_nematic_tensor_local.reset();
 
     // calculate per-particle tensor
     util::forLoopWrapper(0, n, [=](size_t begin, size_t end) {
@@ -70,64 +73,25 @@ void Nematic::compute(quat<float>* orientations, unsigned int n)
             Q_ab(2, 1) = 1.5f * u_i.z * u_i.y;
             Q_ab(2, 2) = 1.5f * u_i.z * u_i.z - 0.5f;
 
-            // Set the values. The per-particle array is used so that both
-            // this loop and the reduction can be done in parallel afterwards
+            // Set the values. The nematic tensor is reduced later.
             for (unsigned int j = 0; j < 3; j++)
+            {
                 for (unsigned int k = 0; k < 3; k++)
+                {
                     m_particle_tensor(i, j, k) += Q_ab(j, k);
+                    m_nematic_tensor_local.local()(j, k) += Q_ab(j, k);
+                }
+            }
         }
     });
 
-    // https://stackoverflow.com/questions/9399929/parallel-reduction-of-an-array-on-cpu
-    struct reduce_matrix
-    {
-        util::ManagedArray<float> y_;
-        const util::ManagedArray<float> m_; // reference to array of matrices per-particle
-
-        reduce_matrix(const util::ManagedArray<float> m) : m_(m)
-        {
-            y_.prepare({3, 3});
-            for (int i = 0; i < 3; ++i)
-                for (int j = 0; j < 3; ++j)
-                    y_(i, j) = 0.0; // prepare for accumulation
-        }
-
-        // splitting constructor required by TBB
-        reduce_matrix(reduce_matrix& rm, tbb::split) : m_(rm.m_)
-        {
-            y_.prepare({3, 3});
-            for (int i = 0; i < 3; ++i)
-                for (int j = 0; j < 3; ++j)
-                    y_(i, j) = 0.0;
-        }
-
-        // adding the elements
-        void operator()(const tbb::blocked_range<unsigned int>& r)
-        {
-            for (unsigned int n = r.begin(); n < r.end(); ++n)
-                for (int i = 0; i < 3; ++i)
-                    for (int j = 0; j < 3; ++j)
-                        y_(i, j) += m_(n, i, j);
-        }
-
-        // reduce computations in two matrices
-        void join(reduce_matrix& rm)
-        {
-            for (int i = 0; i < 3; ++i)
-                for (int j = 0; j < 3; ++j)
-                    y_(i, j) += rm.y_(i, j);
-        }
-    };
-
-    // now calculate the sum of Q_ab's
-    reduce_matrix matrix(m_particle_tensor);
-
-    tbb::parallel_reduce(tbb::blocked_range<unsigned int>(0, m_n), matrix);
-
-    // set the averaged Q_ab
+    // Now calculate the sum of Q_ab's
     m_nematic_tensor.prepare({3, 3});
-    for (unsigned int i = 0; i < 9; ++i)
-        m_nematic_tensor[i] = matrix.y_[i] / m_n;
+    m_nematic_tensor_local.reduceInto(m_nematic_tensor);
+
+    // Normalize by the number of particles
+    for (unsigned int i = 0; i < m_nematic_tensor.size(); ++i)
+        m_nematic_tensor[i] /= m_n;
 
     // the order parameter is the eigenvector belonging to the largest eigenvalue
     util::ManagedArray<float> eval = util::ManagedArray<float>(3);

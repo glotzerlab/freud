@@ -89,6 +89,30 @@ public:
         return arrays.local();
     }
 
+    void reduceInto(ManagedArray<T>& result)
+    {
+        if (arrays.size() == 0)
+        {
+            // If no local arrays have been created, then no data can be reduced
+            // and an error will occur if we attempt to iterate over arrays.
+            // We simply reset the result array so it's all zeros.
+            result.reset();
+        }
+        else
+        {
+            // Reduce over arrays into the result array.
+            util::forLoopWrapper(0, result.size(), [=, &result](size_t begin, size_t end) {
+                for (size_t i = begin; i < end; ++i)
+                {
+                    for (auto arr = arrays.begin(); arr != arrays.end(); ++arr)
+                    {
+                        result[i] += (*arr)[i];
+                    }
+                }
+            });
+        }
+    }
+
 private:
     tbb::enumerable_thread_specific<ManagedArray<T>> arrays; //!< thread local arrays
 };

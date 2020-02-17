@@ -151,6 +151,19 @@ class TestRDF(unittest.TestCase):
 
             npt.assert_allclose(rdf.n_r, supposed_RDF, atol=1e-6)
 
+    def test_empty_histogram(self):
+        r_max = 0.5
+        bins = 10
+        box_size = 5
+        box = freud.box.Box.cube(box_size)
+        rdf = freud.density.RDF(bins, r_max)
+        points = [[0, 0, 0], [2, 2, 2]]
+        rdf.compute(system=(box, points))
+
+        # Test that properties are accessible even though there's no data
+        npt.assert_array_equal(rdf.rdf, np.zeros(bins))
+        npt.assert_array_equal(rdf.n_r, np.zeros(bins))
+
 
 class TestRDFManagedArray(TestManagedArray, unittest.TestCase):
     def build_object(self):

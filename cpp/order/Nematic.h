@@ -9,6 +9,7 @@
 
 #include "Box.h"
 #include "ManagedArray.h"
+#include "ThreadStorage.h"
 #include "VectorMath.h"
 
 /*! \file Nematic.h
@@ -51,8 +52,8 @@ private:
     vec3<float> m_nematic_director;  //!< The director (eigenvector corresponding to the OP)
 
     util::ManagedArray<float> m_nematic_tensor;  //!< The computed nematic tensor.
-    util::ManagedArray<float> m_particle_tensor; //!< The per-particle tensor that is summed up to Q. Used to
-                                                 //!< allow parallelized calculation of Q
+    util::ThreadStorage<float> m_nematic_tensor_local;  //!< Thread-specific nematic tensor.
+    util::ManagedArray<float> m_particle_tensor; //!< The per-particle tensor that is summed up to Q.
 };
 
 }; }; // end namespace freud::order

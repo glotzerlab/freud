@@ -250,6 +250,22 @@ public:
             m_local_histograms.local().increment(value_bin, weight);
         }
 
+        // Reduce over histograms into the result array.
+        void reduceInto(ManagedArray<T>& result)
+        {
+            result.reset();
+            util::forLoopWrapper(0, result.size(), [=, &result](size_t begin, size_t end) {
+                for (size_t i = begin; i < end; ++i)
+                {
+                    for (auto hist = m_local_histograms.begin(); hist != m_local_histograms.end(); ++hist)
+                    {
+                        result[i] += hist->m_bin_counts[i];
+                    }
+                }
+            });
+        }
+
+
     protected:
         tbb::enumerable_thread_specific<Histogram<T>>
             m_local_histograms; //!< The thread-local copies of m_histogram.
@@ -420,15 +436,10 @@ public:
     template<typename ComputeFunction>
     void reduceOverThreadsPerBin(ThreadLocalHistogram& local_histograms, const ComputeFunction& cf)
     {
+        local_histograms.reduceInto(m_bin_counts);
         util::forLoopWrapper(0, m_bin_counts.size(), [=](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
-                for (typename ThreadLocalHistogram::const_iterator local_bins = local_histograms.begin();
-                     local_bins != local_histograms.end(); ++local_bins)
-                {
-                    m_bin_counts[i] += (*local_bins).m_bin_counts[i];
-                }
-
                 cf(i);
             }
         });

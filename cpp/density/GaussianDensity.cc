@@ -127,17 +127,8 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq)
         }
     });
 
-    // Now reduce all the arrays into one.
-    util::forLoopWrapper(0, m_density_array.size(), [=](size_t begin, size_t end) {
-        for (size_t i = begin; i < end; ++i)
-        {
-            for (util::ThreadStorage<float>::const_iterator local_bins = local_bin_counts.begin();
-                 local_bins != local_bin_counts.end(); ++local_bins)
-            {
-                m_density_array[i] += (*local_bins)[i];
-            }
-        }
-    });
+    // Parallel reduction over thread storage
+    local_bin_counts.reduceInto(m_density_array);
 }
 
 }; }; // end namespace freud::density
