@@ -360,12 +360,6 @@ public:
     }
 
     //! Get the computed histogram.
-    ManagedArray<T>& getBinCounts()
-    {
-        return m_bin_counts;
-    }
-
-    //! Get the computed histogram.
     const ManagedArray<T>& getBinCounts() const
     {
         return m_bin_counts;
