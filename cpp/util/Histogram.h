@@ -254,7 +254,7 @@ public:
         void reduceInto(ManagedArray<T>& result)
         {
             result.reset();
-            util::forLoopWrapper(0, result.size(), [=](size_t begin, size_t end) {
+            util::forLoopWrapper(0, result.size(), [=, &result](size_t begin, size_t end) {
                 for (size_t i = begin; i < end; ++i)
                 {
                     for (auto hist = m_local_histograms.begin(); hist != m_local_histograms.end(); ++hist)
