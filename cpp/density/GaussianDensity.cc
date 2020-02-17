@@ -105,11 +105,11 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq)
                         {
                             // Evaluate the gaussian ...
                             const float x_gaussian
-                                = A * exp((-1.0f) * (delta.x * delta.x) / (2.0f * sigmasq));
+                                = A * std::exp((-1.0f) * (delta.x * delta.x) / (2.0f * sigmasq));
                             const float y_gaussian
-                                = A * exp((-1.0f) * (delta.y * delta.y) / (2.0f * sigmasq));
+                                = A * std::exp((-1.0f) * (delta.y * delta.y) / (2.0f * sigmasq));
                             const float z_gaussian
-                                = A * exp((-1.0f) * (delta.z * delta.z) / (2.0f * sigmasq));
+                                = A * std::exp((-1.0f) * (delta.z * delta.z) / (2.0f * sigmasq));
 
                             // Assure that out of range indices are corrected for storage
                             // in the array i.e. bin -1 is actually bin 29 for nbins = 30

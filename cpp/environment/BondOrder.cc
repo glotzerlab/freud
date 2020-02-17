@@ -44,7 +44,7 @@ BondOrder::BondOrder(unsigned int n_bins_theta, unsigned int n_bins_phi, BondOrd
         for (unsigned int j = 0; j < n_bins_phi; j++)
         {
             float phi = (float) j * dp;
-            float sa = dt * (cos(phi) - cos(phi + dp));
+            float sa = dt * (std::cos(phi) - std::cos(phi + dp));
             m_sa_array(i, j) = sa;
         }
     }
@@ -111,12 +111,7 @@ void BondOrder::accumulate(const locality::NeighborQuery* neighbor_query, quat<f
                           // most physics textbooks do it. get theta (azimuthal angle), phi (polar
                           // angle)
                           float theta = std::atan2(v.y, v.x); //-Pi..Pi
-
-                          theta = fmod(theta, constants::TWO_PI);
-                          while (theta < 0)
-                          {
-                              theta += constants::TWO_PI;
-                          }
+                          theta = util::modulusPositive(theta, constants::TWO_PI);
 
                           // NOTE that the below has replaced the commented out expression for phi.
                           float phi = std::acos(v.z / std::sqrt(dot(v, v))); // 0..Pi

@@ -40,7 +40,6 @@ refer to the supplementary information of :cite:`vanAnders:2014aa`.
 
 import numpy as np
 import freud.locality
-import warnings
 import rowan
 
 from freud.util cimport _Compute
@@ -50,7 +49,6 @@ from cython.operator cimport dereference
 
 cimport freud._pmft
 cimport freud.locality
-cimport freud.box
 
 cimport numpy as np
 

@@ -13,7 +13,7 @@ build_script:
   - conda config --set always_yes yes --set changeps1 no
   - conda config --add channels conda-forge
   - conda update -q conda
-  - conda install pip cython garnett gsd matplotlib mdanalysis numpy rowan scipy sympy tbb tbb-devel
+  - conda install pip cython==0.29.13 garnett==0.5.0 gsd==1.10.0 matplotlib>=3.0.0 mdanalysis==0.20.1 numpy==1.17.2 rowan==1.2.2 scipy=1.3.1 sympy==1.4 tbb tbb-devel
   - "set TBB_INCLUDE=%MINICONDA%\\Library\\include"
   - "set TBB_LINK=%MINICONDA%\\Library\\lib"
   - python --version

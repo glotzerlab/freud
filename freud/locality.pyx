@@ -8,11 +8,8 @@ locate points based on their proximity to other points.
 import copy
 import freud.util
 import inspect
-import itertools
 import logging
 import numpy as np
-import sys
-import warnings
 from freud.errors import NO_DEFAULT_QUERY_ARGS_MESSAGE
 
 from libcpp cimport bool as cbool

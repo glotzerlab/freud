@@ -159,7 +159,7 @@ private:
 
  *  The cell coordinate (i,j,k) itself is computed like so:
  *  \code
- *  i = floorf((x + Lx/2) / w) % Nw
+ *  i = std::floor((x + Lx/2) / w) % Nw
  *  \endcode
  *  and so on for j, k (y, z). Call getCellCoord() to do this computation for
  *  an arbitrary point.
@@ -242,9 +242,6 @@ public:
     querySingle(const vec3<float> query_point, unsigned int query_point_idx, QueryArgs args) const;
 
 private:
-    //! Rounding helper function.
-    static unsigned int roundDown(unsigned int v, unsigned int m);
-
     //! Helper function to compute cell neighbors
     const std::vector<unsigned int>& computeCellNeighbors(unsigned int cell) const;
 

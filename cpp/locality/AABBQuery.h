@@ -27,9 +27,6 @@
  * many of which are trivially rejected for not intersecting the root node.
  */
 
-//! Define a constant PI.
-const float PI = 3.14159265358979323846;
-
 namespace freud { namespace locality {
 
 class AABBQuery : public NeighborQuery
@@ -82,7 +79,7 @@ protected:
                 // calculates the radius of a sphere that will contain the
                 // desired number of neighbors.
                 float r_guess = std::cbrtf((3.0 * static_cast<float>(args.num_neighbors) * m_box.getVolume())
-                                           / (4.0 * PI * static_cast<float>(getNPoints())));
+                                           / (4.0 * M_PI * static_cast<float>(getNPoints())));
 
                 // The upper bound is set by the minimum nearest plane distances.
                 vec3<float> nearest_plane_distance = m_box.getNearestPlaneDistance();

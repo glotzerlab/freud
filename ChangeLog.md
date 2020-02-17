@@ -11,6 +11,9 @@ and this project adheres to
 * LocalDescriptors `compute` takes an optional maximum number of neighbors to compute for each particle.
 * Implemented parallel reduction for `ThreadStorage` and `Histogram` C++ classes.
 
+### Fixed
+* Corrected calculation of neighbor distances in the Voronoi NeighborList.
+
 ## v2.1.0 - 2019-12-19
 
 ### Added

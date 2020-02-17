@@ -2,6 +2,7 @@
 #define UTILS_H
 
 #include <algorithm>
+#include <cmath>
 #include <tbb/tbb.h>
 
 #if defined _WIN32
@@ -15,6 +16,17 @@ namespace freud { namespace util {
 inline float clamp(float v, float lo, float hi)
 {
     return std::max(lo, std::min(v, hi));
+}
+
+//! Modulus operation always resulting in a positive value
+/*! \param a Dividend.
+    \param b Divisor.
+    \returns The remainder of a/b, between min(0, b) and max(0, b)
+    \note This is the same behavior of the modulus operator % in Python (but not C++)
+*/
+template<class Scalar> inline Scalar modulusPositive(Scalar a, Scalar b)
+{
+    return std::fmod(std::fmod(a, b) + b, b);
 }
 
 //! Wrapper for for-loop to allow the execution in parallel or not.

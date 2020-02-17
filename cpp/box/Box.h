@@ -41,8 +41,8 @@ namespace freud { namespace box {
 class Box
 {
 public:
-    //! Construct a box of length 0.
-    Box() // Lest you think of removing this, it's needed by the DCDLoader. No touching.
+    //! Nullary constructor for Cython
+    Box()
     {
         m_2d = false; // Assign before calling setL!
         setL(0, 0, 0);
@@ -50,7 +50,7 @@ public:
         m_xy = m_xz = m_yz = 0;
     }
 
-    //! Construct a cubic box
+    //! Construct a square/cubic box
     Box(float L, bool _2d = false)
     {
         m_2d = _2d; // Assign before calling setL!
@@ -296,24 +296,11 @@ public:
      */
     vec3<float> wrap(const vec3<float>& v) const
     {
-        vec3<float> tmp = makeFractional(v);
-        tmp.x = fmod(tmp.x, 1.0f);
-        tmp.y = fmod(tmp.y, 1.0f);
-        tmp.z = fmod(tmp.z, 1.0f);
-        // handle negative mod
-        if (tmp.x < 0)
-        {
-            tmp.x += 1;
-        }
-        if (tmp.y < 0)
-        {
-            tmp.y += 1;
-        }
-        if (tmp.z < 0)
-        {
-            tmp.z += 1;
-        }
-        return makeAbsolute(tmp);
+        vec3<float> v_frac = makeFractional(v);
+        v_frac.x = util::modulusPositive(v_frac.x, 1.0f);
+        v_frac.y = util::modulusPositive(v_frac.y, 1.0f);
+        v_frac.z = util::modulusPositive(v_frac.z, 1.0f);
+        return makeAbsolute(v_frac);
     }
 
     //! Wrap vectors back into the box in place
@@ -379,7 +366,7 @@ public:
     }
 
     //! Subtract center of mass from vectors
-    /*! \param vecs Vectors to center, updated to the minimum image obeying the periodic settings
+    /*! \param vecs Vectors to center
      *  \param Nvecs Number of vectors
      *  \param masses Optional array of masses, of length Nvecs
      */
@@ -405,8 +392,8 @@ public:
     vec3<float> getNearestPlaneDistance() const
     {
         vec3<float> dist;
-        dist.x = m_L.x / sqrt(1.0f + m_xy * m_xy + (m_xy * m_yz - m_xz) * (m_xy * m_yz - m_xz));
-        dist.y = m_L.y / sqrt(1.0f + m_yz * m_yz);
+        dist.x = m_L.x / std::sqrt(1.0f + m_xy * m_xy + (m_xy * m_yz - m_xz) * (m_xy * m_yz - m_xz));
+        dist.y = m_L.y / std::sqrt(1.0f + m_yz * m_yz);
         dist.z = m_L.z;
 
         return dist;
@@ -440,7 +427,6 @@ public:
     //! Set the periodic flags
     /*! \param periodic Flags to set
      *  \post Period flags are set to \a periodic
-     *  \note It is invalid to set 1 for a periodic dimension where lo != -hi. This error is not checked for.
      */
     void setPeriodic(vec3<bool> periodic)
     {
