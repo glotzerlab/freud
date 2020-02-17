@@ -169,8 +169,8 @@ float Cubatic::calcCubaticOrderParameter(const tensor4& cubatic_tensor, const te
 template<typename T> quat<float> Cubatic::calcRandomQuaternion(T& dist, float angle_multiplier) const
 {
     float theta = 2.0 * M_PI * dist();
-    float phi = acos(2.0 * dist() - 1.0);
-    vec3<float> axis = vec3<float>(cosf(theta) * sinf(phi), sinf(theta) * sinf(phi), cosf(phi));
+    float phi = std::acos(2.0 * dist() - 1.0);
+    vec3<float> axis = vec3<float>(std::cos(theta) * std::sin(phi), std::sin(theta) * std::sin(phi), std::cos(phi));
     float axis_norm = std::sqrt(dot(axis, axis));
     axis /= axis_norm;
     float angle = angle_multiplier * dist();
@@ -296,7 +296,7 @@ void Cubatic::compute(quat<float>* orientations, unsigned int num_orientations)
                                   else
                                   {
                                       float boltzmann_factor
-                                          = exp(-(cubatic_order_parameter - new_order_parameter) / t_current);
+                                          = std::exp(-(cubatic_order_parameter - new_order_parameter) / t_current);
                                       if (boltzmann_factor >= dist())
                                       {
                                           cubatic_tensor = new_cubatic_tensor;

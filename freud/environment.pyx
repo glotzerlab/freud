@@ -16,14 +16,13 @@ from freud.errors import NO_DEFAULT_QUERY_ARGS_MESSAGE
 from freud.util cimport _Compute
 from freud.locality cimport _PairCompute, _SpatialHistogram
 from freud.util cimport vec3, quat
-from libcpp.vector cimport vector
 from libcpp.map cimport map
 from cython.operator cimport dereference
+
 cimport freud.box
 cimport freud._environment
 cimport freud.locality
 cimport freud.util
-
 cimport numpy as np
 
 # numpy must be initialized. When using numpy from C or Cython you must

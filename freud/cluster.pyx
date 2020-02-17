@@ -14,12 +14,10 @@ import freud.util
 from cython.operator cimport dereference
 from freud.util cimport _Compute
 from freud.locality cimport _PairCompute
-from freud.util cimport vec3, uint
 
 cimport freud._cluster
-cimport freud.box, freud.locality
+cimport freud.locality
 cimport freud.util
-
 cimport numpy as np
 
 # numpy must be initialized. When using numpy from C or Cython you must

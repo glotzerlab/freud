@@ -11,7 +11,6 @@ from cython.operator cimport dereference
 from libcpp.vector cimport vector
 
 cimport numpy as np
-cimport freud.box
 
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults

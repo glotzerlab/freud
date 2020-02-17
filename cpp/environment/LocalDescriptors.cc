@@ -112,10 +112,10 @@ void LocalDescriptors::compute(const locality::NeighborQuery* nq, const vec3<flo
                                           dot(rotation_2, r_ij));
 
                 const float magR(std::sqrt(r_sq));
-                float theta(atan2(bond_ij.y, bond_ij.x)); // theta in [-pi..pi] initially
+                float theta(std::atan2(bond_ij.y, bond_ij.x)); // theta in [-pi..pi] initially
                 if (theta < 0)
                     theta += float(2 * M_PI);      // move theta into [0..2*pi]
-                float phi(acos(bond_ij.z / magR)); // phi in [0..pi]
+                float phi(std::acos(bond_ij.z / magR)); // phi in [0..pi]
 
                 // catch cases where bond_ij.z/magR falls outside [-1, 1]
                 // due to numerical issues

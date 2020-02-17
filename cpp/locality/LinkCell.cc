@@ -349,11 +349,11 @@ vec3<unsigned int> LinkCell::getCellCoord(const vec3<float> p) const
 {
     vec3<float> alpha = m_box.makeFractional(p);
     vec3<unsigned int> c;
-    c.x = (unsigned int) floorf(alpha.x * float(m_celldim.x));
+    c.x = (unsigned int) std::floor(alpha.x * float(m_celldim.x));
     c.x %= m_celldim.x;
-    c.y = (unsigned int) floorf(alpha.y * float(m_celldim.y));
+    c.y = (unsigned int) std::floor(alpha.y * float(m_celldim.y));
     c.y %= m_celldim.y;
-    c.z = (unsigned int) floorf(alpha.z * float(m_celldim.z));
+    c.z = (unsigned int) std::floor(alpha.z * float(m_celldim.z));
     c.z %= m_celldim.z;
     return c;
 }
@@ -564,7 +564,7 @@ NeighborBond LinkCellQueryIterator::next()
     {
         min_plane_distance = std::min(min_plane_distance, plane_distance.z);
     }
-    unsigned int max_range = ceil(min_plane_distance / (2 * m_linkcell->getCellWidth())) + 1;
+    unsigned int max_range = std::ceil(min_plane_distance / (2 * m_linkcell->getCellWidth())) + 1;
 
     vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_query_point));
     const unsigned int point_cell_index = m_linkcell->getCellIndex(

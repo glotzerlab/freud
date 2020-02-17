@@ -19,9 +19,10 @@ from freud.util cimport vec3
 from collections.abc import Sequence
 
 cimport freud._density
-cimport freud.box, freud.locality
-cimport numpy as np
+cimport freud.box
+cimport freud.locality
 cimport freud.util
+cimport numpy as np
 
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
