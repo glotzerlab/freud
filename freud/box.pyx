@@ -441,7 +441,13 @@ cdef class Box:
             raise ValueError(
                 "The shape of point and query_point arrays must be equal."
             )
-
+        points = freud.util._convert_array(points, shape=(None, 3))
+        query_points = freud.util._convert_array(query_points, shape=(None, 3))
+        cdef:
+            size_t Np = points.shape[0]
+            float* dist
+        self.thisptr.computeDistance(points, query_points, dist, Np)
+        return np.asarray(dist)
 
     @property
     def periodic(self):
