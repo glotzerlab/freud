@@ -234,7 +234,7 @@ public:
             for (size_t i = begin; i < end; ++i)
             {
                 vecs[i] = makeAbsolute(vecs[i]);
-
+            }
         });
     }
 
@@ -388,17 +388,17 @@ public:
     float computeDistance(const vec3<float>& p_i, const vec3<float>& p_j) const
     {
             vec3<float> v_ij = wrap(p_j - p_i);
-            return std::sqrt(dot(v_ij, v_ij))
+            return std::sqrt(dot(v_ij, v_ij));
     }
 
-    void computeDistance(vec3<float>* points, vec3<float>* query_points, float* dist, unsigned int Nvecs) const
+    void computeDistance(vec3<float>* points, vec3<float>* query_points, float *dist, unsigned int Nvecs) const
     {
         util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
                 dist[i] = computeDistance(points[i], query_points[i]);
             }
-        }
+        });
     }
 
     //! Get the shortest distance between opposite boundary planes of the box

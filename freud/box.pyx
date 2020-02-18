@@ -435,18 +435,23 @@ cdef class Box:
             :math:`\left(N)` :class:`numpy.ndarray`:
                 Array of distances between corresponding query points and points.
         """ # noga: E501
-        points = np.asarray(points)
-        query_points = np.asarray(query_points)
+        points = freud.util._convert_array(points, shape=(None, 3))
+        query_points = freud.util._convert_array(query_points, shape=(None, 3))
         if points.shape != query_points.shape:
             raise ValueError(
                 "The shape of point and query_point arrays must be equal."
             )
-        points = freud.util._convert_array(points, shape=(None, 3))
-        query_points = freud.util._convert_array(query_points, shape=(None, 3))
+
         cdef:
+            const float[:, ::1] l_points = points
+            const float[:, ::1] l_query_points = query_points
             size_t Np = points.shape[0]
-            float* dist
-        self.thisptr.computeDistance(points, query_points, dist, Np)
+            float[::1] dist = np.empty(points.shape[0], dtype=np.float32)
+
+
+        self.thisptr.computeDistance(<vec3[float]*> &l_points[0, 0],
+                                     <vec3[float]*> &l_query_points[0, 0],
+                                     <float *> &dist[0], Np)
         return np.asarray(dist)
 
     @property
