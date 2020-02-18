@@ -381,7 +381,7 @@ public:
         });
     }
 
-    //! Calculate distance between two points with box geometry and boundary conditions
+    //! Calculate distance between two points using boundary conditions
     /*! \param p_i Particle position
         \param p_j Particle position to calculate distances from
     */
