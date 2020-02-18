@@ -234,7 +234,7 @@ public:
             for (size_t i = begin; i < end; ++i)
             {
                 vecs[i] = makeAbsolute(vecs[i]);
-            }
+
         });
     }
 
@@ -380,6 +380,17 @@ public:
             }
         });
     }
+
+    //! Calculate distance between two points with box geometry and boundary conditions
+    /*! \param p_i Particle position
+        \param p_j Particle position to calculate distances from
+    */
+    util::ManagedArray<float> computeDistance(const vec3<float> p_i&, const vec3<float>& p_j) const
+    {
+            vec3<float> v_ij = wrap(p_j - p_i);
+            return util::ManagedArray<float> std::sqrt(std::pow(v_ij.x, 2) + std::pow(v_ij.y, 2) + std::pow(v_ij.z, 2))
+    }
+
 
     //! Get the shortest distance between opposite boundary planes of the box
     /*! The distance between two planes of the lattice is 2 Pi/|b_i|, where
