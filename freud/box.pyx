@@ -422,6 +422,27 @@ cdef class Box:
         self.thisptr.center(<vec3[float]*> &l_points[0, 0], Np, l_masses_ptr)
         return vecs
 
+    def compute_distances(self, points, query_points):
+        R"""Calculate distances between two sets of points, using periodic boundaries.
+
+        Args:
+            points (:math:`\left(N, 3 \right)` :class:`numpy.ndarray`):
+                Array of points corresponding to points in a data structure.
+            query_points (:math:`\left(N, 3 \right)` :class:`numpy.ndarray`):
+                Array of query points that corresponding to points in a set of query points.
+                
+        Returns:
+            :math:`\left(N)` :class:`numpy.ndarray`:
+                Array of distances between corresponding query points and points.
+        """ # noga: E501
+        points = np.asarray(points)
+        query_points = np.asarray(query_points)
+        if points.shape != query_points.shape:
+            raise ValueError(
+                "The shape of point and query_point arrays must be equal."
+            )
+
+
     @property
     def periodic(self):
         """:math:`\\left(3, \\right)` :class:`numpy.ndarray`: Get or set the
