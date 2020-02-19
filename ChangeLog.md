@@ -12,6 +12,7 @@ and this project adheres to
 
 ### Fixed
 * Corrected calculation of neighbor distances in the Voronoi NeighborList.
+* Added finite tolerance to ensure stability of 2D Voronoi NeighborList computations.
 
 ## v2.1.0 - 2019-12-19
 
