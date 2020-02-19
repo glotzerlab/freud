@@ -36,6 +36,11 @@ class TestVoronoi(unittest.TestCase):
         # Every (i, j) pair should have a corresponding (j, i) pair
         self.assertTrue(all((j, i) in jis for (i, j) in ijs))
 
+        # The number of vertices in each polygon should be equal to
+        # the number of neighbors (only valid in 2D).
+        npt.assert_equal([len(p) for p in vor.polytopes],
+                         vor.nlist.neighbor_counts)
+
     def test_random_3d(self):
         # Test that voronoi tessellations of random systems have the same
         # number of points and polytopes
