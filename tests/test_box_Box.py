@@ -439,6 +439,13 @@ class TestBox(unittest.TestCase):
         box = freud.box.Box(2, 3, 0, 1, 0, 0, is2D=True)
         box.plot()
 
+    def test_compute_distances_2d(self):
+        box = freud.box.Box(2, 3, 0, 1, 0, 0, is2D=True)
+        testpoints = np.array([[-2.4, -1.3, 0]])
+        testpoints_query = np.array([[-0.5, -1.3, 0]])
+        distance = box.compute_distances(testpoints, testpoints_query)
+        npt.assert_allclose(distance, 0.1, rtol=1e-6)
+
 
 if __name__ == '__main__':
     unittest.main()
