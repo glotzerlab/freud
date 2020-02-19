@@ -406,11 +406,18 @@ def voronoi_plot(box, polytopes, ax=None, color_by_sides=True, cmap=None):
 
     if color_by_sides:
         colors = np.array([len(poly) for poly in polytopes])
+        num_colors = np.ptp(colors) + 1
     else:
         colors = np.random.RandomState().permutation(np.arange(len(patches)))
+        num_colors = np.unique(colors).size
 
-    cmap = cm.get_cmap('Set1' if cmap is None else cmap,
-                       np.unique(colors).size)
+    # Ensure we have enough colors to uniquely identify the cells
+    if cmap is None:
+        if color_by_sides and num_colors <= 10:
+            cmap = 'tab10'
+        else:
+            cmap = 'tab20'
+    cmap = cm.get_cmap(cmap, num_colors)
     bounds = np.arange(np.min(colors), np.max(colors)+1)
 
     patch_collection.set_array(np.array(colors)-0.5)
