@@ -435,12 +435,20 @@ cdef class Box:
             :math:`\left(N)` :class:`numpy.ndarray`:
                 Array of distances between corresponding query points and points.
         """ # noga: E501
-        points = freud.util._convert_array(points, shape=(None, 3))
-        query_points = freud.util._convert_array(query_points, shape=(None, 3))
+        points = np.asarray(points)
+        query_points = np.asarray(query_points)
+
         if points.shape != query_points.shape:
             raise ValueError(
-                "The shape of point and query_point arrays must be equal."
+                "The shape and dimensions of point and query_point arrays must be equal."
             )
+
+        flatten = points.ndim == 1
+        points = np.atleast_2d(points)
+        query_points = np.atleast_2d(query_points)
+
+        points = freud.util._convert_array(points, shape=(None, 3))
+        query_points = freud.util._convert_array(query_points, shape=(None, 3))
 
         cdef:
             const float[:, ::1] l_points = points
@@ -452,7 +460,7 @@ cdef class Box:
         self.thisptr.computeDistance(<vec3[float]*> &l_points[0, 0],
                                      <vec3[float]*> &l_query_points[0, 0],
                                      <float *> &dist[0], Np)
-        return np.asarray(dist)
+        return np.squeeze(dist) if flatten else np.asarray(dist)
 
     @property
     def periodic(self):
