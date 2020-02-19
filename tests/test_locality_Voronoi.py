@@ -26,6 +26,19 @@ class TestVoronoi(unittest.TestCase):
             points[vor.nlist.query_point_indices]), axis=-1)
         npt.assert_allclose(wrapped_distances, vor.nlist.distances)
 
+        # Ensure every point has neighbors
+        assert np.all(vor.nlist.neighbor_counts > 0)
+
+        # Ensure neighbor list is symmetric
+        neighbors = {}
+        for i, j, w, d in zip(vor.nlist.query_point_indices,
+                              vor.nlist.point_indices,
+                              vor.nlist.weights,
+                              vor.nlist.distances):
+            neighbors[(i, j)] = (w, d)
+        for nb in neighbors:
+            assert (nb[1], nb[0]) in neighbors, (nb, neighbors[nb])
+
     def test_basic_3d(self):
         # Test that voronoi tessellations of random systems have the same
         # number of points and polytopes
@@ -219,7 +232,23 @@ class TestVoronoi(unittest.TestCase):
             points[vor.nlist.query_point_indices]), axis=-1)
         npt.assert_allclose(wrapped_distances, vor.nlist.distances)
 
-    def test_nlist_symmetric(self):
+    def test_nlist_symmetric_2d(self):
+        # Test that the voronoi neighborlist is symmetric
+        L = 10  # Box length
+        N = 40  # Number of particles
+
+        box, points = freud.data.make_random_system(L, N, is2D=True)
+        vor = freud.locality.Voronoi()
+        vor.compute((box, points))
+        nlist = vor.nlist
+
+        ijs = set(zip(nlist.query_point_indices, nlist.point_indices))
+        jis = set(zip(nlist.point_indices, nlist.query_point_indices))
+
+        # every (i, j) pair should have a corresponding (j, i) pair
+        self.assertTrue(all((j, i) in jis for (i, j) in ijs))
+
+    def test_nlist_symmetric_3d(self):
         # Test that the voronoi neighborlist is symmetric
         L = 10  # Box length
         N = 40  # Number of particles
