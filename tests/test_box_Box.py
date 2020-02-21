@@ -441,31 +441,31 @@ class TestBox(unittest.TestCase):
 
     def test_compute_distances_2d(self):
         box = freud.box.Box(2, 3, 0, 1, 0, 0, is2D=True)
-        testpoints = np.array([[-2.4, -1.3, 0]])
-        testpoints_query = np.array([[-0.5, -1.3, 0]])
+        testpoints = np.array([[-2.2, -1.3, 0], [0., 0., 0.], [0., 0., 0.]])
+        testpoints_query = np.array([[-0.5, -1.3, 0], [0.2, 0., 0.], [0., -0.4, 0.]])
         distance = box.compute_distances(testpoints, testpoints_query)
-        npt.assert_allclose(distance, 0.1, rtol=1e-6)
+        npt.assert_allclose(distance, [0.3, 0.2, 0.4], rtol=1e-6)
 
     def test_compute_distances_wrong_shape(self):
         box = freud.box.Box(2, 3, 0, 1, 0, 0, is2D=True)
-        testpoints = np.array([[-2.4, -1.3, 0]])
-        testpoints_query = np.array([[-0.5, -1.3, 0], [0, 0, 0]])
+        testpoints = np.array([[-2.2, -1.3, 0], [0., 0., 0.]])
+        testpoints_query = np.array([[-0.5, -1.3, 0], [0.2, 0., 0.], [0., -0.4, 0.]])
         with self.assertRaises(ValueError):
             box.compute_distances(testpoints, testpoints_query)
 
     def test_compute_distances_3d(self):
         box = freud.box.Box(2, 3, 4, 1, 0, 0)
-        testpoints = np.array([[-2.4, -1.3, 2]])
-        testpoints_query = np.array([[-0.5, -1.3, 2]])
+        testpoints = np.array([[-2.2, -1.3, 2], [0., 0., 1.], [0., 0., 0.1]])
+        testpoints_query = np.array([[-0.5, -1.3, 2.], [0.2, 0., 1.], [0., -0.4, 0.1]])
         distance = box.compute_distances(testpoints, testpoints_query)
-        npt.assert_allclose(distance, 0.1, rtol=1e-6)
+        npt.assert_allclose(distance, [0.3, 0.2, 0.4], rtol=1e-6)
 
     def test_compute_distances_ndim1_array(self):
         box = freud.box.Box(2, 3, 4, 1, 0, 0)
-        testpoints = np.array([-2.4, -1.3, 2])
+        testpoints = np.array([-2.2, -1.3, 2])
         testpoints_query = np.array([-0.5, -1.3, 2])
         distance = box.compute_distances(testpoints, testpoints_query)
-        npt.assert_allclose(distance, 0.1, rtol=1e-6)
+        npt.assert_allclose(distance, 0.3, rtol=1e-6)
 
 
 if __name__ == '__main__':
