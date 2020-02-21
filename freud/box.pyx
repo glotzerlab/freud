@@ -458,9 +458,9 @@ cdef class Box:
             float[::1] dist = np.empty(points.shape[0], dtype=np.float32)
 
 
-        self.thisptr.computeDistance(<vec3[float]*> &l_points[0, 0],
-                                     <vec3[float]*> &l_query_points[0, 0],
-                                     <float *> &dist[0], Np)
+        self.thisptr.computeDistances(<vec3[float]*> &l_points[0, 0],
+                                      <vec3[float]*> &l_query_points[0, 0],
+                                      <float *> &dist[0], Np)
         return np.squeeze(dist) if flatten else np.asarray(dist)
 
     @property

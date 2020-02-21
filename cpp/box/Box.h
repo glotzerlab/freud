@@ -385,13 +385,13 @@ public:
     /*! \param p_i Particle position
         \param p_j Particle position to calculate distances from
     */
-    float computeDistance(const vec3<float>& p_i, const vec3<float>& p_j) const
+    float computeDistances(const vec3<float>& p_i, const vec3<float>& p_j) const
     {
             vec3<float> v_ij = wrap(p_j - p_i);
             return std::sqrt(dot(v_ij, v_ij));
     }
 
-    void computeDistance(vec3<float>* points, vec3<float>* query_points, float *dist, unsigned int Nvecs) const
+    void computeDistances(vec3<float>* points, vec3<float>* query_points, float *dist, unsigned int Nvecs) const
     {
         util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
