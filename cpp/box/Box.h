@@ -402,7 +402,7 @@ public:
         util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
-                dist[i] = computeDistance(points[i], query_points[i]);
+                dist[i] = computeDistances(points[i], query_points[i]);
             }
         });
     }
