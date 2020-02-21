@@ -440,6 +440,7 @@ cdef class Box:
 
         if points.shape != query_points.shape:
             raise ValueError(
+                "Points and query points have shapes {} and {}".format(points.shape, query_points.shape),
                 "The shape and dimensions of point and query_point arrays must be equal."
             )
 

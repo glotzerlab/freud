@@ -180,6 +180,71 @@ class TestNeighborList(unittest.TestCase):
             nlist = freud.locality.NeighborList.from_arrays(
                 4, 4, query_point_indices, point_indices, distances, weights)
 
+    def test_from_points(self):
+        box = freud.box.Box(2, 3, 4, 1, 0, 0)
+        testpoints = np.array([[0, 0, 0], [-2.2, -1.3, 2]])
+        testpoints_query = np.array([[-0.5, -1.3, 2.], [0.5, 0, 0], [-2.2, -1.3, 2.], [0, 0, 0.2]])
+        testpoint_indices = np.array([1, 0, 1, 0])
+        testquery_point_indices = np.array([0, 1, 2, 3])
+
+        # implicit weights
+        nlist = freud.locality.NeighborList.from_points(
+            box, testpoints, testpoints_query, testquery_point_indices, testpoint_indices)
+        self.assertTrue(np.allclose(nlist.weights, 1))
+        # breakpoint()
+        print(nlist.distances)
+        self.assertTrue(np.allclose(nlist.distances, np.array([0.3, 0.5, 0.0, 0.2])))
+
+        # explicit weights
+        weights = np.ones(len(testquery_point_indices))*4.
+        nlist = freud.locality.NeighborList.from_points(
+            box, testpoints, testpoints_query, testquery_point_indices, testpoint_indices, weights)
+        self.assertTrue(np.allclose(nlist.weights, 4))
+
+        # copy of existing nlist by arrays
+        weights = np.random.rand(len(testquery_point_indices))
+        nlist = freud.locality.NeighborList.from_points(
+            box, testpoints, testpoints_query, testquery_point_indices, testpoint_indices, weights)
+        nlist2 = freud.locality.NeighborList.from_arrays(
+            box, testpoints, testpoints_query, nlist.query_point_indices, nlist.point_indices,
+            nlist.distances, nlist.weights)
+        npt.assert_equal(nlist.query_point_indices, nlist2.query_point_indices)
+        npt.assert_equal(nlist.point_indices, nlist2.point_indices)
+        npt.assert_equal(nlist.distances, nlist2.distances)
+        npt.assert_equal(nlist.weights, nlist2.weights)
+        npt.assert_equal(nlist.neighbor_counts, nlist2.neighbor_counts)
+        npt.assert_equal(nlist.segments, nlist2.segments)
+
+        # too few reference particles
+        with self.assertRaises(RuntimeError):
+            nlist = freud.locality.NeighborList.from_arrays(
+                3, 4, testquery_point_indices, testpoint_indices, distances)
+
+        # too few target particles
+        with self.assertRaises(RuntimeError):
+            nlist = freud.locality.NeighborList.from_arrays(
+                4, 3, testquery_point_indices, testpoint_indices, distances)
+
+        # query particles not sorted
+        with self.assertRaises(RuntimeError):
+            nlist = freud.locality.NeighborList.from_arrays(
+                4, 4, testpoint_indices, testquery_point_indices, distances)
+
+        # mismatched array sizes
+        with self.assertRaises(ValueError):
+            nlist = freud.locality.NeighborList.from_arrays(
+                4, 4, testquery_point_indices[:-1], testpoint_indices, distances)
+        with self.assertRaises(ValueError):
+            nlist = freud.locality.NeighborList.from_arrays(
+                4, 4, testquery_point_indices, testpoint_indices[:-1], distances)
+        with self.assertRaises(ValueError):
+            nlist = freud.locality.NeighborList.from_arrays(
+                4, 4, testquery_point_indices, testpoint_indices, distances[:-1])
+        with self.assertRaises(ValueError):
+            weights = np.ones((len(testquery_point_indices) - 1,))
+            nlist = freud.locality.NeighborList.from_arrays(
+                4, 4, testquery_point_indices, testpoint_indices, distances, weights)
+
     def test_indexing_empty(self):
         # Ensure that empty NeighborLists have the right shape
         nlist = self.nq.query(np.empty((0, 3)),
