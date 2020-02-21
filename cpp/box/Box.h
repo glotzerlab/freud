@@ -391,6 +391,12 @@ public:
             return std::sqrt(dot(v_ij, v_ij));
     }
 
+    //! Calculate distance between a set of points and query points using boundary conditions
+    /*! \param points Particle positions
+        \param query_points Particle position to calculate distances from
+        \param dist Distances between points and query_points
+        \param Nvecs The number of points to calculate distances between
+    */
     void computeDistances(vec3<float>* points, vec3<float>* query_points, float *dist, unsigned int Nvecs) const
     {
         util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
