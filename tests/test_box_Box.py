@@ -460,12 +460,6 @@ class TestBox(unittest.TestCase):
         distance = box.compute_distances(testpoints, testpoints_query)
         npt.assert_allclose(distance, [0.3, 0.2, 0.4], rtol=1e-6)
 
-    def test_compute_distances_ndim1_array(self):
-        box = freud.box.Box(2, 3, 4, 1, 0, 0)
-        testpoints = np.array([-2.2, -1.3, 2])
-        testpoints_query = np.array([-0.5, -1.3, 2])
-
-
 
 if __name__ == '__main__':
     unittest.main()
