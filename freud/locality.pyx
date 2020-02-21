@@ -524,6 +524,86 @@ cdef class NeighborList:
 
         return result
 
+    @classmethod
+    def from_points(
+            cls, box, points, query_points, query_point_indices,
+            point_indices, weights=None
+    ):
+        R"""Create a NeighborList from a set of bond information arrays
+        when distances are not known.
+
+        Args:
+            box (:class:`~.box.Box`):
+                Simulation box.
+            points (:class:`np.ndarray`):
+                Array of floats corresponding to the positions of a set of points.
+            query_points (:class:`np.ndarray`):
+                Array of floats corresponding to the positions of a set of query points.
+            query_point_indices (:class:`np.ndarray`):
+                Array of integers corresponding to indices in the set of
+                query points.
+            point_indices (:class:`np.ndarray`):
+                Array of integers corresponding to indices in the set of
+                points.
+            weights (:class:`np.ndarray`, optional):
+                Array of per-bond weights (if :code:`None` is given, use a
+                value of 1 for each weight) (Default value = :code:`None`).
+        """
+
+        query_point_indices = np.asarray(query_point_indices)
+        point_indices = np.asarray(point_indices)
+
+        if query_point_indices.shape != point_indices.shape:
+            raise ValueError(
+                "Points and query points indices have shapes {} and {}".format(points.shape, query_points.shape),
+                "The length of point index and query point index arrays must be equal."
+            )
+
+        if np.amax(query_point_indices) >= query_points.shape[0]:
+            raise RuntimeError(
+                "Query point index values must be less than number of query points."
+            )
+
+        if np.amax(point_indices) >= points.shape[0]:
+            raise RuntimeError(
+                "Point index values must be less than number of query Points."
+            )
+
+        distances = box.compute_distances(points[point_indices], query_points[query_point_indices])
+
+        points = freud.util._convert_array(
+            np.atleast_2d(points), shape=(None,3))
+        query_points = freud.util._convert_array(
+            np.atleast_2d(query_points), shape=(None,3))
+        distances = freud.util._convert_array(
+            distances, shape=(None,))
+        query_point_indices = freud.util._convert_array(
+            query_point_indices, shape=(None,), dtype=np.uint32)
+        point_indices = freud.util._convert_array(
+            point_indices, shape=(None,), dtype=np.uint32)
+
+        if weights is None:
+            weights = np.ones(query_point_indices.shape, dtype=np.float32)
+        weights = freud.util._convert_array(
+            weights, shape=query_point_indices.shape)
+
+        cdef const unsigned int[::1] l_query_point_indices = \
+            query_point_indices
+        cdef const unsigned int[::1] l_point_indices = point_indices
+        cdef const float[::1] l_distances = distances
+        cdef const float[::1] l_weights = weights
+        cdef unsigned int l_num_bonds = l_query_point_indices.shape[0]
+        cdef unsigned int l_num_query_points = query_points.shape[0]
+        cdef unsigned int l_num_points = points.shape[0]
+
+        cdef NeighborList result
+        result = cls()
+        result.thisptr = new freud._locality.NeighborList(
+            l_num_bonds, &l_query_point_indices[0], l_num_query_points,
+            &l_point_indices[0], l_num_points, &l_distances[0], &l_weights[0])
+
+        return result
+
     def __cinit__(self, _null=False):
         # Setting _null to True will create a NeighborList with no underlying
         # C++ object. This is useful for passing NULL pointers to C++ to
