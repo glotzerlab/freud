@@ -4,6 +4,7 @@
 import freud
 import io
 import numpy as np
+import warnings
 
 try:
     from matplotlib.figure import Figure
@@ -416,6 +417,10 @@ def voronoi_plot(box, polytopes, ax=None, color_by_sides=True, cmap=None):
         if color_by_sides and num_colors <= 10:
             cmap = 'tab10'
         else:
+            if num_colors > 20:
+                warnings.warn('More than 20 unique colors were requested. '
+                              'Consider providing a colormap to the cmap '
+                              'argument.', UserWarning)
             cmap = 'tab20'
     cmap = cm.get_cmap(cmap, num_colors)
     bounds = np.arange(np.min(colors), np.max(colors)+1)
