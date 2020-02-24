@@ -51,9 +51,9 @@ private:
     float m_nematic_order_parameter; //!< Current value of the order parameter
     vec3<float> m_nematic_director;  //!< The director (eigenvector corresponding to the OP)
 
-    util::ManagedArray<float> m_nematic_tensor;  //!< The computed nematic tensor.
-    util::ThreadStorage<float> m_nematic_tensor_local;  //!< Thread-specific nematic tensor.
-    util::ManagedArray<float> m_particle_tensor; //!< The per-particle tensor that is summed up to Q.
+    util::ManagedArray<float> m_nematic_tensor;        //!< The computed nematic tensor.
+    util::ThreadStorage<float> m_nematic_tensor_local; //!< Thread-specific nematic tensor.
+    util::ManagedArray<float> m_particle_tensor;       //!< The per-particle tensor that is summed up to Q.
 };
 
 }; }; // end namespace freud::order

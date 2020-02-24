@@ -26,7 +26,7 @@ void LocalDescriptors::compute(const locality::NeighborQuery* nq, const vec3<flo
     // This function requires a NeighborList object, so we always make one and store it locally.
     m_nlist = locality::makeDefaultNlist(nq, nlist, query_points, n_query_points, qargs);
 
-    if(max_num_neighbors == 0)
+    if (max_num_neighbors == 0)
         max_num_neighbors = std::numeric_limits<unsigned int>::max();
 
     m_sphArray.prepare({m_nlist.getNumBonds(), getSphWidth()});
@@ -45,10 +45,8 @@ void LocalDescriptors::compute(const locality::NeighborQuery* nq, const vec3<flo
             {
                 util::ManagedArray<float> inertiaTensor = util::ManagedArray<float>({3, 3});
 
-                for (size_t bond_copy(bond);
-                     bond_copy < m_nlist.getNumBonds() &&
-                         m_nlist.getNeighbors()(bond_copy, 0) == i &&
-                         neighbor_count < max_num_neighbors;
+                for (size_t bond_copy(bond); bond_copy < m_nlist.getNumBonds()
+                     && m_nlist.getNeighbors()(bond_copy, 0) == i && neighbor_count < max_num_neighbors;
                      ++bond_copy, ++neighbor_count)
                 {
                     const size_t j(m_nlist.getNeighbors()(bond_copy, 1));
@@ -99,9 +97,8 @@ void LocalDescriptors::compute(const locality::NeighborQuery* nq, const vec3<flo
             }
 
             neighbor_count = 0;
-            for (; bond < m_nlist.getNumBonds() &&
-                     m_nlist.getNeighbors()(bond, 0) == i &&
-                     neighbor_count < max_num_neighbors;
+            for (; bond < m_nlist.getNumBonds() && m_nlist.getNeighbors()(bond, 0) == i
+                 && neighbor_count < max_num_neighbors;
                  ++bond, ++neighbor_count)
             {
                 const unsigned int sphCount(bond * getSphWidth());
@@ -112,10 +109,13 @@ void LocalDescriptors::compute(const locality::NeighborQuery* nq, const vec3<flo
                                           dot(rotation_2, r_ij));
 
                 const float magR(std::sqrt(r_sq));
-                float theta(std::atan2(bond_ij.y, bond_ij.x)); // theta in [-pi..pi] initially
-                if (theta < 0)
-                    theta += float(2 * M_PI);      // move theta into [0..2*pi]
-                float phi(std::acos(bond_ij.z / magR)); // phi in [0..pi]
+
+                // Wrap theta into [0, 2*pi]
+                float theta(std::atan2(bond_ij.y, bond_ij.x));
+                theta = util::modulusPositive(theta, constants::TWO_PI);
+
+                // Phi in [0, pi]
+                float phi(std::acos(bond_ij.z / magR));
 
                 // catch cases where bond_ij.z/magR falls outside [-1, 1]
                 // due to numerical issues

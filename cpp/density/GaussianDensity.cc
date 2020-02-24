@@ -64,7 +64,7 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq)
     const int bin_cut_z = m_box.is2D() ? 0 : int(m_r_max / grid_size_z);
 
     const float sigmasq = m_sigma * m_sigma;
-    const float A = std::sqrt(1.0f / (2.0f * M_PI * sigmasq));
+    const float A = std::sqrt(1.0f / (constants::TWO_PI * sigmasq));
 
     util::forLoopWrapper(0, n_points, [&](size_t begin, size_t end) {
         // for each reference point
