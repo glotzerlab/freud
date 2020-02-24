@@ -463,6 +463,41 @@ cdef class Box:
                                       <float *> &dist[0], Np)
         return np.squeeze(dist) if flatten else np.asarray(dist)
 
+    def compute_all_distances(self, points, query_points):
+        R"""Calculate distances between a set of points and all query points, using periodic boundaries.
+
+        Args:
+            points (:math:`\left(N_{points}, 3 \right)` :class:`numpy.ndarray`):
+                Array of points corresponding to points in a data structure.
+            query_points (:math:`\left(N_{query_points}, 3 \right)` :class:`numpy.ndarray`):
+                Array of query points to calculate
+                
+        Returns:
+            :math:`\left(N_{points}, N_{query_points}, \right)` :class:`numpy.ndarray`:
+                Array of distances between corresponding query points and points.
+        """ # noga: E501
+        points = np.asarray(points)
+        query_points = np.asarray(query_points)
+
+        flatten = points.ndim == 1
+        points = np.atleast_2d(points)
+        query_points = np.atleast_2d(query_points)
+
+        points = freud.util._convert_array(points, shape=(None, 3))
+        query_points = freud.util._convert_array(query_points, shape=(None, 3))
+
+        cdef:
+         const float[:, ::1] l_points = points
+         const float[:, ::1] l_query_points = query_points
+         size_t Np = points.shape[0]
+         size_t Mp = query_points.shape[0]
+         float[:, ::1] dist = np.empty([points.shape[0], query_points.shape[0]], dtype=np.float32)
+
+        self.thisptr.computeAllDistances(<vec3[float]*> &l_points[0, 0],
+                                         <vec3[float]*> &l_query_points[0, 0],
+                                         <float *> &dist[0, 0], Np, Mp)
+        return np.squeeze(dist) if flatten else np.asarray(dist)
+
     @property
     def periodic(self):
         """:math:`\\left(3, \\right)` :class:`numpy.ndarray`: Get or set the

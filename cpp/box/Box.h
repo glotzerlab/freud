@@ -8,6 +8,7 @@
 #include <complex>
 #include <sstream>
 #include <stdexcept>
+#include <iostream>
 
 #include "VectorMath.h"
 
@@ -385,7 +386,7 @@ public:
     /*! \param p_i Particle position
         \param p_j Particle position to calculate distances from
     */
-    float computeDistances(const vec3<float>& p_i, const vec3<float>& p_j) const
+    float computeDistance(const vec3<float>& p_i, const vec3<float>& p_j) const
     {
             vec3<float> v_ij = wrap(p_j - p_i);
             return std::sqrt(dot(v_ij, v_ij));
@@ -402,8 +403,29 @@ public:
         util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
-                dist[i] = computeDistances(points[i], query_points[i]);
+                dist[i] = computeDistance(points[i], query_points[i]);
             }
+        });
+    }
+
+    //! Calculate distance between a set of points and query points using boundary conditions
+    /*! \param points Particle positions
+        \param query_points Particle position to calculate distances from
+    */
+    void computeAllDistances(vec3<float>* points, vec3<float>* query_points,
+        float* dist, unsigned int Nvecs, unsigned int Mvecs) const
+    {
+        util::forLoopWrapper(0, Nvecs, [=](size_t begin_n, size_t end_n) {
+            for (size_t i = begin_n; i < end_n; ++i)
+            {
+                util::forLoopWrapper(0, Mvecs, [=](size_t begin_m, size_t end_m) {
+                    for (size_t j = begin_m; j < end_m; ++j)
+                    {
+                        dist[i*Mvecs + j] = computeDistance(points[i], query_points[j]);
+                    }
+                });
+            }
+        std::cout.flush();
         });
     }
 
