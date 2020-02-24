@@ -141,7 +141,7 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
                 // Ignore bonds in 2D systems that point up or down. This check
                 // should only be dealing with bonds whose normal vectors' z
                 // components are -1, 0, or +1 (within some tolerance).
-                if (box.is2D() && std::abs(normal.z) > 1e-5)
+                if (box.is2D() && std::abs(normal.z) > 0.5)
                 {
                     continue;
                 }
