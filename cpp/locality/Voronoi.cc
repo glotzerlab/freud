@@ -129,6 +129,7 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
             // Save cell volume
             m_volumes[query_point_id] = cell.volume();
 
+            // Compute cell neighbors
             size_t neighbor_counter(0);
             for (auto neighbor_iterator = neighbors.begin(); neighbor_iterator != neighbors.end();
                  neighbor_iterator++, neighbor_counter++)
@@ -137,9 +138,13 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
                 const vec3<double> normal(normals[3 * neighbor_counter], normals[3 * neighbor_counter + 1],
                                           normals[3 * neighbor_counter + 2]);
 
-                // Ignore bonds in 2D systems that point up or down
-                if (box.is2D() && std::abs(normal.z) > 0)
+                // Ignore bonds in 2D systems that point up or down. This check
+                // should only be dealing with bonds whose normal vectors' z
+                // components are -1, 0, or +1 (within some tolerance).
+                if (box.is2D() && std::abs(normal.z) > 0.5)
+                {
                     continue;
+                }
 
                 // Fetch neighbor information
                 const int point_id = *neighbor_iterator;
