@@ -98,6 +98,7 @@ Bradley Dice - **Lead developer**
 * Revised docs about query modes.
 * Implemented smarter heuristics in Voronoi for voro++ block sizes, resulting in significant performance gains for large systems.
 * Corrected calculation of neighbor distances in the Voronoi NeighborList.
+* Added finite tolerance to ensure stability of 2D Voronoi NeighborList computations.
 
 Eric Harper, University of Michigan - **Former lead developer**
 
