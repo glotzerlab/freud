@@ -383,7 +383,7 @@ public:
     }
 
     //! Calculate distance between two points using boundary conditions
-    /*! \param p_i Particle position
+    /*! \param p_i Position of first point
         \param p_j Particle position to calculate distances from
     */
     float computeDistance(const vec3<float>& p_i, const vec3<float>& p_j) const
