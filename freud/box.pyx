@@ -427,7 +427,7 @@ cdef class Box:
 
         Args:
             points (:math:`\left(N, 3, \right)` :class:`numpy.ndarray`):
-                Array of points corresponding to points in a data structure.
+                Array of points.
             query_points (:math:`\left(N, 3, \right)` :class:`numpy.ndarray`):
                 Array of query points that corresponds to a set of points.
 
