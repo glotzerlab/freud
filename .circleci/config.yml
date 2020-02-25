@@ -1,16 +1,6 @@
 version: 2
 
 references:
-  container_ubuntu18: &test_container_config_ubuntu18
-    docker:
-      - image: glotzerlab/ci:2019.06-ubuntu18.04
-    working_directory: ~/ci/freud
-
-  container_ubuntu19: &test_container_config_ubuntu19
-    docker:
-      - image: glotzerlab/ci:2019.06-ubuntu19.04
-    working_directory: ~/ci/freud
-
   container_manylinux: &container_manylinux
     docker:
       - image: quay.io/pypa/manylinux1_x86_64
@@ -59,16 +49,16 @@ references:
       command: |
         $PIP install --user flake8==3.7.8
 
-  check_cpp_style: &check_cpp_style
-    run:
-      name: clang-format
-      command: |
-        for f in cpp/**/*; do
-          if ! diff $f <(clang-format-6.0 -style=file $f) > /dev/null; then
-            echo "$f does not match clang-format style."
-            diff --color $f <(clang-format-6.0 -style=file $f) || true
-          fi
-        done
+  #check_cpp_style: &check_cpp_style
+  #  run:
+  #    name: clang-format
+  #    command: |
+  #      for f in cpp/**/*; do
+  #        if ! diff $f <(clang-format-6.0 -style=file $f) > /dev/null; then
+  #          echo "$f does not match clang-format style."
+  #          diff --color $f <(clang-format-6.0 -style=file $f) || true
+  #        fi
+  #      done
 
   check_python_style: &check_python_style
     run:
@@ -161,7 +151,7 @@ references:
       - *load_code
       - *update_submodules
       - *get_style_requirements
-      - *check_cpp_style
+      #- *check_cpp_style
       - *check_python_style
 
   build_and_benchmark: &build_and_benchmark
@@ -220,31 +210,39 @@ references:
 
 jobs:
   check-style:
-    <<: *test_container_config_ubuntu19
+    docker:
+      - image: glotzerlab/ci:2020.01-py38
+    working_directory: ~/ci/freud
     environment:
-      PYVER: "3.7"
+      PYVER: "3.8"
       PIP: "pip3"
     <<: *load_check_style
 
-  test-py36:
-    <<: *test_container_config_ubuntu18
-    environment:
-      PYVER: "3.6"
-      PIP: "pip3.6"
-    <<: *build_and_test
-
-  test-py37:
-    <<: *test_container_config_ubuntu19
-    environment:
-      PYVER: "3.7"
-      PIP: "pip3"
-    <<: *build_and_test_with_cov
-
   test-py38:
-    <<: *test_container_config_ubuntu19
+    docker:
+      - image: glotzerlab/ci:2020.01-py38
+    working_directory: ~/ci/freud
     environment:
       PYVER: "3.8"
       PIP: "pip3.8"
+    <<: *build_and_test
+
+  test-py37:
+    docker:
+      - image: glotzerlab/ci:2020.01-py37
+    working_directory: ~/ci/freud
+    environment:
+      PYVER: "3.7"
+      PIP: "pip3.7"
+    <<: *build_and_test_with_cov
+
+  test-py36:
+    docker:
+      - image: glotzerlab/ci:2020.01-py36
+    working_directory: ~/ci/freud
+    environment:
+      PYVER: "3.6"
+      PIP: "pip3.6"
     <<: *build_and_test
 
   test-deploy-pypi-linux:
@@ -270,10 +268,12 @@ jobs:
     <<: *build_macos_wheels
 
   benchmarks:
-    <<: *test_container_config_ubuntu18
+    docker:
+      - image: glotzerlab/ci:2020.01-py38
+    working_directory: ~/ci/freud
     environment:
-      PYVER: "3.7"
-      PIP: "pip3"
+      PYVER: "3.8"
+      PIP: "pip3.8"
     <<: *build_and_benchmark
 
 workflows:
@@ -281,34 +281,35 @@ workflows:
   test:
     jobs:
       - check-style
-      - test-py36:
+      - test-py38:
           requires:
             - check-style
       - test-py37:
           requires:
             - check-style
-    #  Disabling 3.8 until it's added to the container.
-    #  - test-py38:
-    #      requires:
-    #        - check-style
+      - test-py36:
+          requires:
+            - check-style
 # Disabled benchmarks on CI - they currently take too much work
 #     - benchmarks:
 #         requires:
-#           - test-py37
+#           - test-py38
       - test-deploy-pypi-macos:
           filters:
             branches:
               only: /release\/.*/
           requires:
-            - test-py36
+            - test-py38
             - test-py37
+            - test-py36
       - test-deploy-pypi-linux:
           filters:
             branches:
               only: /release\/.*/
           requires:
-            - test-py36
+            - test-py38
             - test-py37
+            - test-py36
 
   deploy:
     jobs:

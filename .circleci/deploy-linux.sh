@@ -35,17 +35,17 @@ cd ${BUILD_DIR}
 source tbbvars.sh
 cd ~/
 
-# Build wheels for Python 3.5, 3.6, 3.7
-PYBINS="/opt/python/cp3[5-7]*/bin"
+# Build wheels for Python 3.5, 3.6, 3.7, 3.8
+PYBINS="/opt/python/cp3[5-8]*/bin"
 
 for PYBIN in $PYBINS; do
   echo "Building for $(${PYBIN}/python --version)"
 
   "${PYBIN}/python" -m pip install cython --no-deps --ignore-installed -q --progress-bar=off
-  rm -rf numpy-1.10.4
-  curl -sSLO https://github.com/numpy/numpy/archive/v1.10.4.tar.gz
-  tar -xzf v1.10.4.tar.gz
-  cd numpy-1.10.4
+  rm -rf numpy-1.14.6
+  curl -sSLO https://github.com/numpy/numpy/archive/v1.14.6.tar.gz
+  tar -xzf v1.14.6.tar.gz
+  cd numpy-1.14.6
   rm -f numpy/random/mtrand/mtrand.c
   rm -f PKG-INFO
   "${PYBIN}/python" -m pip install . --no-deps --ignore-installed -v --progress-bar=off -q
