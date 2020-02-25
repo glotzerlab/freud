@@ -4,6 +4,16 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## v2.3.0
+
+### Added
+* Custom NeighborLists can be created from a set of points using `from_points`. 
+Distances will automatically be calculated using periodic boundary conditions.
+* The Box class has methods `compute_distances` and `compute_all_distances` to 
+calculate distances from arrays of points and query points using periodic boundary conditions.
+
+### Fixed
+
 ## v2.2.0
 
 ### Added
