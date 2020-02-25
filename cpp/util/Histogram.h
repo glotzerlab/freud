@@ -265,7 +265,6 @@ public:
             });
         }
 
-
     protected:
         tbb::enumerable_thread_specific<Histogram<T>>
             m_local_histograms; //!< The thread-local copies of m_histogram.

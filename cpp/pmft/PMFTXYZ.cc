@@ -77,7 +77,8 @@ void PMFTXYZ::accumulate(const locality::NeighborQuery* neighbor_query, quat<flo
                           // make sure that the particles are wrapped into the box
                           vec3<float> delta(bondVector(neighbor_bond, neighbor_query, query_points));
 
-                          for (unsigned int k = 0; k < num_equiv_orientations; k++) {
+                          for (unsigned int k = 0; k < num_equiv_orientations; k++)
+                          {
                               // create point vector
                               vec3<float> v(delta);
                               // rotate the vector

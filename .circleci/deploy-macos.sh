@@ -31,7 +31,7 @@ export MACOSX_DEPLOYMENT_TARGET=10.12
 brew install pyenv
 eval "$(pyenv init -)"
 # Check supported versions with pyenv install --list
-PY_VERSIONS=(3.5.7 3.6.9 3.7.4)
+PY_VERSIONS=(3.5.7 3.6.9 3.7.4 3.8.1)
 
 # Build TBB
 git clone https://github.com/intel/tbb.git
@@ -52,10 +52,10 @@ for VERSION in ${PY_VERSIONS[@]}; do
 
   pip install --upgrade pip
   pip install cython --no-deps --ignore-installed -q --progress-bar=off
-  rm -rf numpy-1.10.4
-  curl -sSLO https://github.com/numpy/numpy/archive/v1.10.4.tar.gz
-  tar -xzf v1.10.4.tar.gz
-  cd numpy-1.10.4
+  rm -rf numpy-1.14.6
+  curl -sSLO https://github.com/numpy/numpy/archive/v1.14.6.tar.gz
+  tar -xzf v1.14.6.tar.gz
+  cd numpy-1.14.6
   rm -f numpy/random/mtrand/mtrand.c
   rm -f PKG-INFO
   pip install . --no-deps --ignore-installed -v -q --progress-bar=off
