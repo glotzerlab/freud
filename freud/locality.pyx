@@ -548,20 +548,21 @@ cdef class NeighborList:
             weights (:class:`np.ndarray`, optional):
                 Array of per-bond weights (if :code:`None` is given, use a
                 value of 1 for each weight) (Default value = :code:`None`).
-        """
+        """  # noqa 501
 
         query_point_indices = np.asarray(query_point_indices)
         point_indices = np.asarray(point_indices)
 
         if query_point_indices.shape != point_indices.shape:
             raise ValueError(
-                "Points and query points indices have shapes {} and {}".format(points.shape, query_points.shape),
-                "The length of point index and query point index arrays must be equal."
+                "Points and query points indices have shapes {} and {}".format(
+                    points.shape, query_points.shape),
+                "The length of point index and query point index arrays must be equal."  # noqa 501
             )
 
         if np.amax(query_point_indices) >= query_points.shape[0]:
             raise RuntimeError(
-                "Query point index values must be less than number of query points."
+                "Query point index values must be less than number of query points." # noqa 501
             )
 
         if np.amax(point_indices) >= points.shape[0]:
@@ -569,12 +570,13 @@ cdef class NeighborList:
                 "Point index values must be less than number of query Points."
             )
 
-        distances = box.compute_distances(points[point_indices], query_points[query_point_indices])
+        distances = box.compute_distances(
+            points[point_indices], query_points[query_point_indices])
 
         points = freud.util._convert_array(
-            np.atleast_2d(points), shape=(None,3))
+            np.atleast_2d(points), shape=(None, 3))
         query_points = freud.util._convert_array(
-            np.atleast_2d(query_points), shape=(None,3))
+            np.atleast_2d(query_points), shape=(None, 3))
         distances = freud.util._convert_array(
             distances, shape=(None,))
         query_point_indices = freud.util._convert_array(
