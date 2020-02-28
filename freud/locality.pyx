@@ -555,7 +555,7 @@ cdef class NeighborList:
 
         if query_point_indices.shape != point_indices.shape:
             raise ValueError(
-                "Points and query points indices have shapes {} and {}. ".format(
+                "Points and query points indices have shapes {} and {}. ".format(  # noqa 501
                     points.shape, query_points.shape),
                 "The length of point index and query point index arrays must be equal."  # noqa 501
             )
