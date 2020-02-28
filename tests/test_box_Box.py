@@ -444,12 +444,12 @@ class TestBox(unittest.TestCase):
         points = np.array([[-2.2, -1.3, 0], [0., 0., 0.], [0., 0., 0.]])
         query_points = np.array(
             [[-0.5, -1.3, 0], [0.2, 0., 0.], [0., -0.4, 0.]])
-        distance = box.compute_distances(points, query_points)
-        npt.assert_allclose(distance, [0.3, 0.2, 0.4], rtol=1e-6)
+        distances = box.compute_distances(points, query_points)
+        npt.assert_allclose(distances, [0.3, 0.2, 0.4], rtol=1e-6)
 
         # 1 dimensional array
-        distance = box.compute_distances(points[0], query_points[0])
-        npt.assert_allclose(distance, 0.3, rtol=1e-6)
+        distances = box.compute_distances(points[0], query_points[0])
+        npt.assert_allclose(distances, 0.3, rtol=1e-6)
 
         with self.assertRaises(ValueError):
             box.compute_distances(points[:-1], query_points)
@@ -459,27 +459,27 @@ class TestBox(unittest.TestCase):
         points = np.array([[-2.2, -1.3, 2], [0., 0., 1.], [0., 0., 0.1]])
         query_points = np.array(
             [[-0.5, -1.3, 2.], [0.2, 0., 1.], [0., -0.4, 0.1]])
-        distance = box.compute_distances(points, query_points)
-        npt.assert_allclose(distance, [0.3, 0.2, 0.4], rtol=1e-6)
+        distances = box.compute_distances(points, query_points)
+        npt.assert_allclose(distances, [0.3, 0.2, 0.4], rtol=1e-6)
 
     def test_compute_all_distances_2d(self):
         box = freud.box.Box(2, 3, 0, 1, 0, 0, is2D=True)
         points = np.array([[0., 0., 0.]])
         query_points = np.array(
             [[0.2, 0., 0.], [0., -0.4, 0.], [1., 1., 0.]])
-        distance = box.compute_all_distances(points, query_points)
-        npt.assert_allclose(distance, [[0.2, 0.4, np.sqrt(2)]], rtol=1e-6)
+        distances = box.compute_all_distances(points, query_points)
+        npt.assert_allclose(distances, [[0.2, 0.4, np.sqrt(2)]], rtol=1e-6)
 
         points = np.array([0., 0., 0.])
-        distance = box.compute_all_distances(points, query_points)
-        npt.assert_allclose(distance, [0.2, 0.4, np.sqrt(2)], rtol=1e-6)
+        distances = box.compute_all_distances(points, query_points)
+        npt.assert_allclose(distances, [0.2, 0.4, np.sqrt(2)], rtol=1e-6)
 
     def test_compute_all_distances_3d(self):
         box = freud.box.Box(2, 3, 4, 1, 0, 0)
         points = np.array([[0., 0., 1.], [0., 0., 0.]])
         query_points = np.array([[1., 0., 1.], [0., 0., 1.], [0., 0., 0.]])
-        distance = box.compute_all_distances(points, query_points)
-        npt.assert_allclose(distance,
+        distances = box.compute_all_distances(points, query_points)
+        npt.assert_allclose(distances,
                             [[1., 0., 1.], [np.sqrt(2), 1., 0.]], rtol=1e-6)
 
 
