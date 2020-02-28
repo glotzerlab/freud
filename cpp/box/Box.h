@@ -8,7 +8,6 @@
 #include <complex>
 #include <sstream>
 #include <stdexcept>
-#include <iostream>
 
 #include "VectorMath.h"
 
@@ -425,7 +424,6 @@ public:
                     }
                 });
             }
-        std::cout.flush();
         });
     }
 
