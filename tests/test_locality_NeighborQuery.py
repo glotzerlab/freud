@@ -35,7 +35,7 @@ class NeighborQueryTest(object):
             "subclass of NeighborQuery in a separate subclass of "
             "unittest.TestCase")
 
-    def test_query_create(self):
+    def test_query_validate_points(self):
         L = 10  # Box Dimensions
         r_max = 2.01  # Cutoff radius
         box = freud.box.Box.cube(L)
