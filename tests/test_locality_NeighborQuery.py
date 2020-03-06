@@ -55,6 +55,14 @@ class NeighborQueryTest(object):
             points = np.zeros(shape=(3), dtype=np.float32)
             self.build_query_object(box, points, r_max)
 
+        # It's not allowed to have an array without shape (N, 3)
+        with self.assertRaises(ValueError):
+            points = np.zeros(shape=(1, 2), dtype=np.float32)
+            self.build_query_object(box, points, r_max)
+        with self.assertRaises(ValueError):
+            points = np.zeros(shape=(1, 4), dtype=np.float32)
+            self.build_query_object(box, points, r_max)
+
         # Create a NeighborQuery with one point
         points = np.zeros(shape=(1, 3), dtype=np.float32)
         self.build_query_object(box, points, r_max)
