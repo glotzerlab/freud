@@ -20,7 +20,6 @@ namespace freud { namespace constants {
 constexpr float TWO_PI = 2.0 * M_PI;
 }; }; // end namespace freud::constants
 
-
 namespace freud { namespace box {
 
 //! Stores box dimensions and provides common routines for wrapping vectors back into the box

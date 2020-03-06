@@ -170,7 +170,8 @@ template<typename T> quat<float> Cubatic::calcRandomQuaternion(T& dist, float an
 {
     float theta = 2.0 * M_PI * dist();
     float phi = std::acos(2.0 * dist() - 1.0);
-    vec3<float> axis = vec3<float>(std::cos(theta) * std::sin(phi), std::sin(theta) * std::sin(phi), std::cos(phi));
+    vec3<float> axis
+        = vec3<float>(std::cos(theta) * std::sin(phi), std::sin(theta) * std::sin(phi), std::cos(phi));
     float axis_norm = std::sqrt(dot(axis, axis));
     axis /= axis_norm;
     float angle = angle_multiplier * dist();
@@ -248,75 +249,74 @@ void Cubatic::compute(quat<float>* orientations, unsigned int num_orientations)
     util::ManagedArray<float> p_cubatic_order_parameter(m_replicates);
     util::ManagedArray<quat<float>> p_cubatic_orientation(m_replicates);
 
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, m_replicates),
-                      [=, &p_cubatic_orientation, &p_cubatic_order_parameter,
-                       &p_cubatic_tensor](const tbb::blocked_range<size_t>& r) {
-                          // create thread-specific rng
-                          unsigned int thread_start = (unsigned int) r.begin();
+    tbb::parallel_for(
+        tbb::blocked_range<size_t>(0, m_replicates),
+        [=, &p_cubatic_orientation, &p_cubatic_order_parameter,
+         &p_cubatic_tensor](const tbb::blocked_range<size_t>& r) {
+            // create thread-specific rng
+            unsigned int thread_start = (unsigned int) r.begin();
 
-                          std::vector<unsigned int> seed_seq(3);
-                          seed_seq[0] = m_seed;
-                          seed_seq[1] = thread_start;
-                          seed_seq[2] = 0xffaabb;
-                          std::seed_seq seed(seed_seq.begin(), seed_seq.end());
-                          std::mt19937 rng(seed);
-                          std::uniform_real_distribution<float> base_dist(0, 1);
-                          auto dist = std::bind(base_dist, rng);
+            std::vector<unsigned int> seed_seq(3);
+            seed_seq[0] = m_seed;
+            seed_seq[1] = thread_start;
+            seed_seq[2] = 0xffaabb;
+            std::seed_seq seed(seed_seq.begin(), seed_seq.end());
+            std::mt19937 rng(seed);
+            std::uniform_real_distribution<float> base_dist(0, 1);
+            auto dist = std::bind(base_dist, rng);
 
-                          for (size_t i = r.begin(); i != r.end(); i++)
-                          {
-                              // need to generate random orientation
-                              quat<float> cubatic_orientation = calcRandomQuaternion(dist);
-                              quat<float> new_orientation = cubatic_orientation;
+            for (size_t i = r.begin(); i != r.end(); i++)
+            {
+                // need to generate random orientation
+                quat<float> cubatic_orientation = calcRandomQuaternion(dist);
+                quat<float> new_orientation = cubatic_orientation;
 
-                              // now calculate the cubatic tensor
-                              tensor4 cubatic_tensor = calcCubaticTensor(cubatic_orientation);
-                              float cubatic_order_parameter
-                                  = calcCubaticOrderParameter(cubatic_tensor, global_tensor);
-                              float new_order_parameter = cubatic_order_parameter;
+                // now calculate the cubatic tensor
+                tensor4 cubatic_tensor = calcCubaticTensor(cubatic_orientation);
+                float cubatic_order_parameter = calcCubaticOrderParameter(cubatic_tensor, global_tensor);
+                float new_order_parameter = cubatic_order_parameter;
 
-                              // set initial temperature and count
-                              float t_current = m_t_initial;
-                              unsigned int loop_count = 0;
-                              // simulated annealing loop; loop counter to prevent inf loops
-                              while ((t_current > m_t_final) && (loop_count < 10000))
-                              {
-                                  ++loop_count;
-                                  new_orientation = calcRandomQuaternion(dist, 0.1) * (cubatic_orientation);
-                                  // now calculate the cubatic tensor
-                                  tensor4 new_cubatic_tensor = calcCubaticTensor(new_orientation);
-                                  new_order_parameter
-                                      = calcCubaticOrderParameter(new_cubatic_tensor, global_tensor);
-                                  if (new_order_parameter > cubatic_order_parameter)
-                                  {
-                                      cubatic_tensor = new_cubatic_tensor;
-                                      cubatic_order_parameter = new_order_parameter;
-                                      cubatic_orientation = new_orientation;
-                                  }
-                                  else
-                                  {
-                                      float boltzmann_factor
-                                          = std::exp(-(cubatic_order_parameter - new_order_parameter) / t_current);
-                                      if (boltzmann_factor >= dist())
-                                      {
-                                          cubatic_tensor = new_cubatic_tensor;
-                                          cubatic_order_parameter = new_order_parameter;
-                                          cubatic_orientation = new_orientation;
-                                      }
-                                      else
-                                      {
-                                          continue;
-                                      }
-                                  }
-                                  t_current *= m_scale;
-                              }
-                              // set values
-                              p_cubatic_tensor[i] = cubatic_tensor;
-                              p_cubatic_orientation[i].s = cubatic_orientation.s;
-                              p_cubatic_orientation[i].v = cubatic_orientation.v;
-                              p_cubatic_order_parameter[i] = cubatic_order_parameter;
-                          }
-                      });
+                // set initial temperature and count
+                float t_current = m_t_initial;
+                unsigned int loop_count = 0;
+                // simulated annealing loop; loop counter to prevent inf loops
+                while ((t_current > m_t_final) && (loop_count < 10000))
+                {
+                    ++loop_count;
+                    new_orientation = calcRandomQuaternion(dist, 0.1) * (cubatic_orientation);
+                    // now calculate the cubatic tensor
+                    tensor4 new_cubatic_tensor = calcCubaticTensor(new_orientation);
+                    new_order_parameter = calcCubaticOrderParameter(new_cubatic_tensor, global_tensor);
+                    if (new_order_parameter > cubatic_order_parameter)
+                    {
+                        cubatic_tensor = new_cubatic_tensor;
+                        cubatic_order_parameter = new_order_parameter;
+                        cubatic_orientation = new_orientation;
+                    }
+                    else
+                    {
+                        float boltzmann_factor
+                            = std::exp(-(cubatic_order_parameter - new_order_parameter) / t_current);
+                        if (boltzmann_factor >= dist())
+                        {
+                            cubatic_tensor = new_cubatic_tensor;
+                            cubatic_order_parameter = new_order_parameter;
+                            cubatic_orientation = new_orientation;
+                        }
+                        else
+                        {
+                            continue;
+                        }
+                    }
+                    t_current *= m_scale;
+                }
+                // set values
+                p_cubatic_tensor[i] = cubatic_tensor;
+                p_cubatic_orientation[i].s = cubatic_orientation.s;
+                p_cubatic_orientation[i].v = cubatic_orientation.v;
+                p_cubatic_order_parameter[i] = cubatic_order_parameter;
+            }
+        });
 
     // Loop over threads and choose the replicate that found the highest order.
     unsigned int max_idx = 0;
