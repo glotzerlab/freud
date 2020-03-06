@@ -85,11 +85,11 @@ class TestBox(unittest.TestCase):
     def test_wrap_single_particle(self):
         box = freud.box.Box(2, 2, 2, 1, 0, 0)
 
-        testpoints = [0, -1, -1]
-        npt.assert_allclose(box.wrap(testpoints)[0], -2, rtol=1e-6)
+        points = [0, -1, -1]
+        npt.assert_allclose(box.wrap(points)[0], -2, rtol=1e-6)
 
-        testpoints = np.array(testpoints)
-        npt.assert_allclose(box.wrap(testpoints)[0], -2, rtol=1e-6)
+        points = np.array(points)
+        npt.assert_allclose(box.wrap(points)[0], -2, rtol=1e-6)
 
         with self.assertRaises(ValueError):
             box.wrap([1, 2])
@@ -97,76 +97,76 @@ class TestBox(unittest.TestCase):
     def test_wrap_multiple_particles(self):
         box = freud.box.Box(2, 2, 2, 1, 0, 0)
 
-        testpoints = [[0, -1, -1], [0, 0.5, 0]]
-        npt.assert_allclose(box.wrap(testpoints)[0, 0], -2, rtol=1e-6)
+        points = [[0, -1, -1], [0, 0.5, 0]]
+        npt.assert_allclose(box.wrap(points)[0, 0], -2, rtol=1e-6)
 
-        testpoints = np.array(testpoints)
-        npt.assert_allclose(box.wrap(testpoints)[0, 0], -2, rtol=1e-6)
+        points = np.array(points)
+        npt.assert_allclose(box.wrap(points)[0, 0], -2, rtol=1e-6)
 
     def test_wrap_multiple_images(self):
         box = freud.box.Box(2, 2, 2, 1, 0, 0)
 
-        testpoints = [[10, -5, -5], [0, 0.5, 0]]
-        npt.assert_allclose(box.wrap(testpoints)[0, 0], -2, rtol=1e-6)
+        points = [[10, -5, -5], [0, 0.5, 0]]
+        npt.assert_allclose(box.wrap(points)[0, 0], -2, rtol=1e-6)
 
-        testpoints = np.array(testpoints)
-        npt.assert_allclose(box.wrap(testpoints)[0, 0], -2, rtol=1e-6)
+        points = np.array(points)
+        npt.assert_allclose(box.wrap(points)[0, 0], -2, rtol=1e-6)
 
     def test_unwrap(self):
         box = freud.box.Box(2, 2, 2, 1, 0, 0)
 
-        testpoints = [0, -1, -1]
+        points = [0, -1, -1]
         imgs = [1, 0, 0]
         npt.assert_allclose(
-            box.unwrap(testpoints, imgs), [2, -1, -1], rtol=1e-6)
+            box.unwrap(points, imgs), [2, -1, -1], rtol=1e-6)
 
-        testpoints = [[0, -1, -1], [0, 0.5, 0]]
+        points = [[0, -1, -1], [0, 0.5, 0]]
         imgs = [[1, 0, 0], [1, 1, 0]]
-        npt.assert_allclose(box.unwrap(testpoints, imgs)[0, 0], 2, rtol=1e-6)
+        npt.assert_allclose(box.unwrap(points, imgs)[0, 0], 2, rtol=1e-6)
 
-        testpoints = np.array(testpoints)
+        points = np.array(points)
         imgs = np.array(imgs)
-        npt.assert_allclose(box.unwrap(testpoints, imgs)[0, 0], 2, rtol=1e-6)
+        npt.assert_allclose(box.unwrap(points, imgs)[0, 0], 2, rtol=1e-6)
 
         with self.assertRaises(ValueError):
-            box.unwrap(testpoints, imgs[..., np.newaxis])
+            box.unwrap(points, imgs[..., np.newaxis])
 
         with self.assertRaises(ValueError):
-            box.unwrap(testpoints[:, :2], imgs)
+            box.unwrap(points[:, :2], imgs)
 
         # Now test 2D
         box = freud.box.Box.square(1)
 
-        testpoints = [10, 0, 0]
+        points = [10, 0, 0]
         imgs = [10, 1, 2]
         npt.assert_allclose(
-            box.unwrap(testpoints, imgs), [20, 1, 0], rtol=1e-6)
+            box.unwrap(points, imgs), [20, 1, 0], rtol=1e-6)
 
         # Test broadcasting one image with multiple vectors
         box = freud.box.Box.cube(1)
 
-        testpoints = [[10, 0, 0], [11, 0, 0]]
+        points = [[10, 0, 0], [11, 0, 0]]
         imgs = [10, 1, 2]
         npt.assert_allclose(
-            box.unwrap(testpoints, imgs), [[20, 1, 2], [21, 1, 2]], rtol=1e-6)
+            box.unwrap(points, imgs), [[20, 1, 2], [21, 1, 2]], rtol=1e-6)
 
         # Test broadcasting one vector with multiple images
         box = freud.box.Box.cube(1)
 
-        testpoints = [10, 0, 0]
+        points = [10, 0, 0]
         imgs = [[10, 1, 2], [11, 1, 2]]
         npt.assert_allclose(
-            box.unwrap(testpoints, imgs), [[20, 1, 2], [21, 1, 2]], rtol=1e-6)
+            box.unwrap(points, imgs), [[20, 1, 2], [21, 1, 2]], rtol=1e-6)
 
     def test_images(self):
         box = freud.box.Box(2, 2, 2, 0, 0, 0)
-        testpoints = np.array([[50, 40, 30],
+        points = np.array([[50, 40, 30],
                                [-10, 0, 0]])
-        testimages = np.array([box.get_images(vec) for vec in testpoints])
+        testimages = np.array([box.get_images(vec) for vec in points])
         npt.assert_equal(testimages,
                          np.array([[25, 20, 15],
                                    [-5, 0, 0]]))
-        testimages = box.get_images(testpoints)
+        testimages = box.get_images(points)
         npt.assert_equal(testimages,
                          np.array([[25, 20, 15],
                                    [-5, 0, 0]]))
