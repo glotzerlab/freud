@@ -384,7 +384,7 @@ public:
     /*! \param p_i Position of first point
         \param p_j Position of second point
     */
-    float computeDistance(const vec3<float>& p_i, const vec3<float>& p_j) const
+    float computeDistance(const vec3<float>& p_j, const vec3<float>& p_i) const
     {
             vec3<float> v_ij = wrap(p_j - p_i);
             return std::sqrt(dot(v_ij, v_ij));
@@ -396,12 +396,12 @@ public:
         \param dist Distances between points and query_points
         \param Nvecs The number of points to calculate distances between
     */
-    void computeDistances(vec3<float>* points, vec3<float>* query_points, float *dist, unsigned int Nvecs) const
+    void computeDistances(vec3<float>* query_points, vec3<float>* points, float *dist, unsigned int Nvecs) const
     {
         util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
-                dist[i] = computeDistance(points[i], query_points[i]);
+                dist[i] = computeDistance(query_points[i], points[i]);
             }
         });
     }
@@ -410,16 +410,16 @@ public:
     /*! \param points Particle positions
         \param query_points Particle position to calculate distances from
     */
-    void computeAllDistances(vec3<float>* points, vec3<float>* query_points,
-        float* dist, unsigned int Nvecs, unsigned int Mvecs) const
+    void computeAllDistances(vec3<float>* query_points, vec3<float>* points,
+        float* dist, unsigned int Mvecs, unsigned int Nvecs) const
     {
-        util::forLoopWrapper(0, Nvecs, [=](size_t begin_n, size_t end_n) {
-            for (size_t i = begin_n; i < end_n; ++i)
+        util::forLoopWrapper(0, Mvecs, [=](size_t begin_m, size_t end_m) {
+            for (size_t j = begin_m; j < end_m; ++j)
             {
-                util::forLoopWrapper(0, Mvecs, [=](size_t begin_m, size_t end_m) {
-                    for (size_t j = begin_m; j < end_m; ++j)
+                util::forLoopWrapper(0, Nvecs, [=](size_t begin_n, size_t end_n) {
+                    for (size_t i = begin_n; i < end_n; ++i)
                     {
-                        dist[i*Mvecs + j] = computeDistance(points[i], query_points[j]);
+                        dist[j*Nvecs + i] = computeDistance(query_points[j], points[i]);
                     }
                 });
             }
