@@ -86,7 +86,7 @@ public:
         : m_box(box), m_points(points), m_n_points(n_points)
     {
         // Reject systems with 0 particles
-        if (n_points == 0)
+        if (m_n_points == 0)
         {
             throw std::invalid_argument("Cannot create a NeighborQuery with 0 particles.");
         }
