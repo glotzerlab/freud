@@ -15,7 +15,7 @@
 namespace freud { namespace locality {
 
 // Voronoi calculations should be kept in double precision.
-void Voronoi::compute(const freud::locality::NeighborQuery* nq, const unsigned double* radii = NULL)
+void Voronoi::compute(const freud::locality::NeighborQuery* nq)
 {
     auto box = nq->getBox();
     auto n_points = nq->getNPoints();
@@ -44,27 +44,17 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq, const unsigned d
     int voro_blocks_x = int(box.getLx() * block_scale + 1);
     int voro_blocks_y = int(box.getLy() * block_scale + 1);
     int voro_blocks_z = int(box.getLz() * block_scale + 1);
-    if (radii!=NULL){
-      voro::container_periodic_poly container(boxLatticeVectors[0].x, boxLatticeVectors[1].x, boxLatticeVectors[1].y,
-                                         boxLatticeVectors[2].x, boxLatticeVectors[2].y, boxLatticeVectors[2].z,
-                                         voro_blocks_x, voro_blocks_y, voro_blocks_z, 3);
 
-    } else {
-      voro::container_periodic container(boxLatticeVectors[0].x, boxLatticeVectors[1].x, boxLatticeVectors[1].y,
+    voro::container_periodic container(boxLatticeVectors[0].x, boxLatticeVectors[1].x, boxLatticeVectors[1].y,
                                        boxLatticeVectors[2].x, boxLatticeVectors[2].y, boxLatticeVectors[2].z,
                                        voro_blocks_x, voro_blocks_y, voro_blocks_z, 3);
-    }
 
     for (size_t query_point_id = 0; query_point_id < n_points; query_point_id++)
     {
         vec3<double> query_point((*nq)[query_point_id]);
-        if (radii!=NULL){
-          container.put(query_point_id, query_point.x, query_point.y, query_point.z, radii[query_point_id]);
-        } else{
-          container.put(query_point_id, query_point.x, query_point.y, query_point.z);
-        }
+        container.put(query_point_id, query_point.x, query_point.y, query_point.z);
     }
-
+    
     voro::voronoicell_neighbor cell;
     voro::c_loop_all_periodic voronoi_loop(container);
     std::vector<double> face_areas;
