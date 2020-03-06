@@ -438,12 +438,12 @@ cdef class Box:
         query_points = np.asarray(query_points)
         points = np.asarray(points)
 
-        if query_points.shape != points.shape:
-            raise ValueError(
-                "Points and query points have shapes {} and {}".format(
-                    query_points.shape, points.shape),
-                "The shape and dimensions of arrays must be equal."
-            )
+        # if query_points.shape != points.shape:
+        #     raise ValueError(
+        #         "Points and query points have shapes {} and {}".format(
+        #             query_points.shape, points.shape),
+        #         "The shape and dimensions of arrays must be equal."
+        #     )
 
         flatten = points.ndim == 1
         query_points = np.atleast_2d(query_points)
@@ -455,14 +455,16 @@ cdef class Box:
         cdef:
             const float[:, ::1] l_query_points = query_points
             const float[:, ::1] l_points = points
+            size_t Mp = query_points.shape[0]
             size_t Np = points.shape[0]
             float[::1] dist = np.empty(points.shape[0], dtype=np.float32)
 
         self.thisptr.computeDistances(
             <vec3[float]*> &l_query_points[0, 0],
             <vec3[float]*> &l_points[0, 0],
-            <float *> &dist[0], Np
+            <float *> &dist[0], Mp, Np
         )
+
         return np.squeeze(dist) if flatten else np.asarray(dist)
 
     def compute_all_distances(self, query_points, points):

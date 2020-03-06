@@ -451,7 +451,7 @@ class TestBox(unittest.TestCase):
         distances = box.compute_distances(points[0], query_points[0])
         npt.assert_allclose(distances, 0.3, rtol=1e-6)
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(RuntimeError):
             box.compute_distances(points[:-1], query_points)
 
     def test_compute_distances_3d(self):

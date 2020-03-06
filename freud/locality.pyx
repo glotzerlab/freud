@@ -553,23 +553,6 @@ cdef class NeighborList:
         query_point_indices = np.asarray(query_point_indices)
         point_indices = np.asarray(point_indices)
 
-        if query_point_indices.shape != point_indices.shape:
-            raise ValueError(
-                "Points and query points indices have shapes {} and {}. ".format(  # noqa 501
-                    query_points.shape, points.shape),
-                "The length of point index and query point index arrays must be equal."  # noqa 501
-            )
-
-        if np.amax(query_point_indices) >= query_points.shape[0]:
-            raise RuntimeError(
-                "Query point index values must be less than number of query points." # noqa 501
-            )
-
-        if np.amax(point_indices) >= points.shape[0]:
-            raise RuntimeError(
-                "Point index values must be less than number of query Points."
-            )
-
         distances = box.compute_distances(
              query_points[query_point_indices], points[point_indices])
 
