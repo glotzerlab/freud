@@ -40,9 +40,10 @@ class NeighborQueryTest(object):
         r_max = 2.01  # Cutoff radius
         box = freud.box.Box.cube(L)
 
-        # Create an empty NeighborQuery
-        points = np.zeros(shape=(0, 3), dtype=np.float32)
-        self.build_query_object(box, points, r_max)
+        # It's not allowed to have an empty NeighborQuery
+        with self.assertRaises(ValueError):
+            points = np.zeros(shape=(0, 3), dtype=np.float32)
+            self.build_query_object(box, points, r_max)
 
         # Create a NeighborQuery with one point
         points = np.zeros(shape=(1, 3), dtype=np.float32)
