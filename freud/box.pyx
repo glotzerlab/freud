@@ -422,82 +422,86 @@ cdef class Box:
         self.thisptr.center(<vec3[float]*> &l_points[0, 0], Np, l_masses_ptr)
         return vecs
 
-    def compute_distances(self, points, query_points):
+    def compute_distances(self, query_points, points):
         R"""Calculate distances between two sets of points, using periodic boundaries.
 
         Args:
-            points (:math:`\left(N, 3, \right)` :class:`numpy.ndarray`):
-                Array of points.
             query_points (:math:`\left(N, 3, \right)` :class:`numpy.ndarray`):
                 Array of query points that corresponds to a set of points.
+            points (:math:`\left(N, 3, \right)` :class:`numpy.ndarray`):
+                Array of points.
 
         Returns:
             :math:`\left(N, \right)` :class:`numpy.ndarray`:
                 Array of distances between query points and points.
         """
-        points = np.asarray(points)
         query_points = np.asarray(query_points)
+        points = np.asarray(points)
 
-        if points.shape != query_points.shape:
+        if query_points.shape != points.shape:
             raise ValueError(
                 "Points and query points have shapes {} and {}".format(
-                    points.shape, query_points.shape),
+                    query_points.shape, points.shape),
                 "The shape and dimensions of arrays must be equal."
             )
 
         flatten = points.ndim == 1
-        points = np.atleast_2d(points)
         query_points = np.atleast_2d(query_points)
+        points = np.atleast_2d(points)
 
-        points = freud.util._convert_array(points, shape=(None, 3))
         query_points = freud.util._convert_array(query_points, shape=(None, 3))
+        points = freud.util._convert_array(points, shape=(None, 3))
 
         cdef:
-            const float[:, ::1] l_points = points
             const float[:, ::1] l_query_points = query_points
+            const float[:, ::1] l_points = points
             size_t Np = points.shape[0]
             float[::1] dist = np.empty(points.shape[0], dtype=np.float32)
 
-        self.thisptr.computeDistances(<vec3[float]*> &l_points[0, 0],
-                                      <vec3[float]*> &l_query_points[0, 0],
-                                      <float *> &dist[0], Np)
+        self.thisptr.computeDistances(
+            <vec3[float]*> &l_query_points[0, 0],
+            <vec3[float]*> &l_points[0, 0],
+            <float *> &dist[0], Np
+        )
         return np.squeeze(dist) if flatten else np.asarray(dist)
 
-    def compute_all_distances(self, points, query_points):
+    def compute_all_distances(self, query_points, points):
         R"""Calculate distances between a set of points and all query points,
         with periodic boundary conditions.
 
         Args:
-            points (:math:`\left(N_{points}, 3 \right)` :class:`numpy.ndarray`):
-                Array of points corresponding to points in a data structure.
             query_points (:math:`\left(N_{query_points}, 3 \right)` :class:`numpy.ndarray`):
                 Array of query points to calculate
+            points (:math:`\left(N_{points}, 3 \right)` :class:`numpy.ndarray`):
+                Array of points corresponding to points in a data structure.
 
         Returns:
             :math:`\left(N_{points}, N_{query_points}, \right)` :class:`numpy.ndarray`:
                 Array of distances between corresponding query points and points.
         """  # noqa: E501
-        points = np.asarray(points)
         query_points = np.asarray(query_points)
+        points = np.asarray(points)
 
-        flatten = points.ndim == 1
-        points = np.atleast_2d(points)
+        flatten = query_points.ndim == 1
         query_points = np.atleast_2d(query_points)
+        points = np.atleast_2d(points)
 
-        points = freud.util._convert_array(points, shape=(None, 3))
         query_points = freud.util._convert_array(query_points, shape=(None, 3))
+        points = freud.util._convert_array(points, shape=(None, 3))
 
         cdef:
-            const float[:, ::1] l_points = points
             const float[:, ::1] l_query_points = query_points
-            size_t Np = points.shape[0]
+            const float[:, ::1] l_points = points
             size_t Mp = query_points.shape[0]
+            size_t Np = points.shape[0]
             float[:, ::1] dist = np.empty(
-                [points.shape[0], query_points.shape[0]], dtype=np.float32)
+                [query_points.shape[0], points.shape[0]], dtype=np.float32)
 
-        self.thisptr.computeAllDistances(<vec3[float]*> &l_points[0, 0],
-                                         <vec3[float]*> &l_query_points[0, 0],
-                                         <float *> &dist[0, 0], Np, Mp)
+        self.thisptr.computeAllDistances(
+            <vec3[float]*> &l_query_points[0, 0],
+            <vec3[float]*> &l_points[0, 0],
+            <float *> &dist[0, 0], Mp, Np
+        )
         return np.squeeze(dist) if flatten else np.asarray(dist)
 
     @property

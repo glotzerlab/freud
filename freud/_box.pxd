@@ -48,11 +48,11 @@ cdef extern from "Box.h" namespace "freud::box":
                     unsigned int) const
         vec3[float] centerOfMass(vec3[float]*, size_t, float*) const
         void center(vec3[float]*, size_t, float*) const
-        void computeDistances(vec3[float]* points, vec3[float]* query_points,
+        void computeDistances(vec3[float]* query_points, vec3[float]* points,
                               float* dist, unsigned int Nvecs) const
-        void computeAllDistances(vec3[float]* points,
-                                 vec3[float]* query_points, float* dist,
-                                 unsigned int Nvecs, unsigned int Mvecs) const
+        void computeAllDistances(vec3[float]* query_points,
+                                 vec3[float]* points, float* dist,
+                                 unsigned int Mvecs, unsigned int Nvecs) const
 
         vec3[bool] getPeriodic() const
         bool getPeriodicX() const
