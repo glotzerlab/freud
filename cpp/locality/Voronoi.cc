@@ -15,7 +15,7 @@
 namespace freud { namespace locality {
 
 // Voronoi calculations should be kept in double precision.
-void Voronoi::compute(const freud::locality::NeighborQuery* nq, const double* radii = NULL)
+void Voronoi::compute(const freud::locality::NeighborQuery* nq, const double* radii)
 {
     auto box = nq->getBox();
     auto n_points = nq->getNPoints();
@@ -44,9 +44,12 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq, const double* ra
     int voro_blocks_x = int(box.getLx() * block_scale + 1);
     int voro_blocks_y = int(box.getLy() * block_scale + 1);
     int voro_blocks_z = int(box.getLz() * block_scale + 1);
+
+    voro::container_periodic_base *container;
+
     if (radii != NULL)
     {
-        voro::container_periodic_poly container(boxLatticeVectors[0].x, boxLatticeVectors[1].x, boxLatticeVectors[1].y,
+        container = new voro::container_periodic_poly(boxLatticeVectors[0].x, boxLatticeVectors[1].x, boxLatticeVectors[1].y,
                                          boxLatticeVectors[2].x, boxLatticeVectors[2].y, boxLatticeVectors[2].z,
                                          voro_blocks_x, voro_blocks_y, voro_blocks_z, 3);
         for (size_t query_point_id = 0; query_point_id < n_points; query_point_id++)
@@ -57,7 +60,7 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq, const double* ra
     }
     else
     {
-        voro::container_periodic container(boxLatticeVectors[0].x, boxLatticeVectors[1].x, boxLatticeVectors[1].y,
+        container = new voro::container_periodic(boxLatticeVectors[0].x, boxLatticeVectors[1].x, boxLatticeVectors[1].y,
                                          boxLatticeVectors[2].x, boxLatticeVectors[2].y, boxLatticeVectors[2].z,
                                          voro_blocks_x, voro_blocks_y, voro_blocks_z, 3);
         for (size_t query_point_id = 0; query_point_id < n_points; query_point_id++)
@@ -68,7 +71,7 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq, const double* ra
     }
 
     voro::voronoicell_neighbor cell;
-    voro::c_loop_all_periodic voronoi_loop(container);
+    voro::c_loop_all_periodic voronoi_loop(*container);
     std::vector<double> face_areas;
     std::vector<int> face_vertices;
     std::vector<int> neighbors;
@@ -80,7 +83,7 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq, const double* ra
     {
         do
         {
-            container.compute_cell(cell, voronoi_loop);
+            container->compute_cell(cell, voronoi_loop);
 
             // Get id and position of current particle
             const int query_point_id(voronoi_loop.pid());
@@ -191,6 +194,8 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq, const double* ra
             m_neighbor_list->getWeights()[bond] = bonds[bond].weight;
         }
     });
+
+    delete container;
 }
 
 }; }; // end namespace freud::locality
