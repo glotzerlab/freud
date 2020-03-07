@@ -49,24 +49,21 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq, const double* ra
         voro::container_periodic_poly container(boxLatticeVectors[0].x, boxLatticeVectors[1].x, boxLatticeVectors[1].y,
                                          boxLatticeVectors[2].x, boxLatticeVectors[2].y, boxLatticeVectors[2].z,
                                          voro_blocks_x, voro_blocks_y, voro_blocks_z, 3);
+        for (size_t query_point_id = 0; query_point_id < n_points; query_point_id++)
+        {
+            vec3<double> query_point((*nq)[query_point_id]);
+            container.put(query_point_id, query_point.x, query_point.y, query_point.z, radii[query_point_id]);
+        }
     }
     else
     {
         voro::container_periodic container(boxLatticeVectors[0].x, boxLatticeVectors[1].x, boxLatticeVectors[1].y,
                                          boxLatticeVectors[2].x, boxLatticeVectors[2].y, boxLatticeVectors[2].z,
                                          voro_blocks_x, voro_blocks_y, voro_blocks_z, 3);
-    }
-
-    for (size_t query_point_id = 0; query_point_id < n_points; query_point_id++)
-    {
-        vec3<double> query_point((*nq)[query_point_id]);
-        if (radii != NULL)
+        for (size_t query_point_id = 0; query_point_id < n_points; query_point_id++)
         {
-            container.put(query_point_id, query_point.x, query_point.y, query_point.z, radii[query_point_id]);
-        }
-        else
-        {
-          container.put(query_point_id, query_point.x, query_point.y, query_point.z);
+            vec3<double> query_point((*nq)[query_point_id]);
+            container.put(query_point_id, query_point.x, query_point.y, query_point.z);
         }
     }
 
