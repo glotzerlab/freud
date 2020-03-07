@@ -55,7 +55,7 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq, const double* ra
         for (size_t query_point_id = 0; query_point_id < n_points; query_point_id++)
         {
             vec3<double> query_point((*nq)[query_point_id]);
-            container.put(query_point_id, query_point.x, query_point.y, query_point.z, radii[query_point_id]);
+            container->put(query_point_id, query_point.x, query_point.y, query_point.z, radii[query_point_id]);
         }
     }
     else
@@ -66,7 +66,7 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq, const double* ra
         for (size_t query_point_id = 0; query_point_id < n_points; query_point_id++)
         {
             vec3<double> query_point((*nq)[query_point_id]);
-            container.put(query_point_id, query_point.x, query_point.y, query_point.z);
+            container->put(query_point_id, query_point.x, query_point.y, query_point.z);
         }
     }
 
