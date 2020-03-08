@@ -40,38 +40,51 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq, const double* ra
     // having to create a pre_container. This saves time because the
     // pre_container cannot be used to set up container_periodic (only
     // non-periodic containers are compatible).
+    // Also, we enable the weighted voronoi diagram if the weights of different
+    // points are provided; otherwise, the default is unbiased voronoi shapes
+    // calculations.
     float block_scale = std::pow(n_points / (voro::optimal_particles * box.getVolume()), 1.0 / 3.0);
     int voro_blocks_x = int(box.getLx() * block_scale + 1);
     int voro_blocks_y = int(box.getLy() * block_scale + 1);
     int voro_blocks_z = int(box.getLz() * block_scale + 1);
 
-    voro::container_periodic_base *container;
+    // voro::container_periodic_poly *container;
+    voro::container_periodic_poly container(boxLatticeVectors[0].x, boxLatticeVectors[1].x, boxLatticeVectors[1].y,
+                                         boxLatticeVectors[2].x, boxLatticeVectors[2].y, boxLatticeVectors[2].z,
+                                         voro_blocks_x, voro_blocks_y, voro_blocks_z, 3);
+    for (size_t query_point_id = 0; query_point_id < n_points; query_point_id++)
+    {
+        vec3<double> query_point((*nq)[query_point_id]);
+        double radius = (radii != NULL) ? radii[query_point_id] : 0.0;
+        container.put(query_point_id, query_point.x, query_point.y, query_point.z, radius);
+        }
 
-    if (radii != NULL)
-    {
-        container = new voro::container_periodic_poly(boxLatticeVectors[0].x, boxLatticeVectors[1].x, boxLatticeVectors[1].y,
-                                         boxLatticeVectors[2].x, boxLatticeVectors[2].y, boxLatticeVectors[2].z,
-                                         voro_blocks_x, voro_blocks_y, voro_blocks_z, 3);
-        for (size_t query_point_id = 0; query_point_id < n_points; query_point_id++)
-        {
-            vec3<double> query_point((*nq)[query_point_id]);
-            container->put(query_point_id, query_point.x, query_point.y, query_point.z, radii[query_point_id]);
-        }
-    }
-    else
-    {
-        container = new voro::container_periodic(boxLatticeVectors[0].x, boxLatticeVectors[1].x, boxLatticeVectors[1].y,
-                                         boxLatticeVectors[2].x, boxLatticeVectors[2].y, boxLatticeVectors[2].z,
-                                         voro_blocks_x, voro_blocks_y, voro_blocks_z, 3);
-        for (size_t query_point_id = 0; query_point_id < n_points; query_point_id++)
-        {
-            vec3<double> query_point((*nq)[query_point_id]);
-            container->put(query_point_id, query_point.x, query_point.y, query_point.z);
-        }
-    }
+    // if (radii != NULL)
+    // {
+    //     container = new voro::container_periodic_poly(boxLatticeVectors[0].x, boxLatticeVectors[1].x, boxLatticeVectors[1].y,
+    //                                      boxLatticeVectors[2].x, boxLatticeVectors[2].y, boxLatticeVectors[2].z,
+    //                                      voro_blocks_x, voro_blocks_y, voro_blocks_z, 3);
+    //     voro::container_periodic_poly* container_poly(dynamic_cast<voro::container_periodic_poly*>(container));
+    //     for (size_t query_point_id = 0; query_point_id < n_points; query_point_id++)
+    //     {
+    //         vec3<double> query_point((*nq)[query_point_id]);
+    //         container_poly->put(query_point_id, query_point.x, query_point.y, query_point.z, radii[query_point_id]);
+    //     }
+    // }
+    // else
+    // {
+    //     container = new voro::container_periodic(boxLatticeVectors[0].x, boxLatticeVectors[1].x, boxLatticeVectors[1].y,
+    //                                      boxLatticeVectors[2].x, boxLatticeVectors[2].y, boxLatticeVectors[2].z,
+    //                                      voro_blocks_x, voro_blocks_y, voro_blocks_z, 3);
+    //     for (size_t query_point_id = 0; query_point_id < n_points; query_point_id++)
+    //     {
+    //         vec3<double> query_point((*nq)[query_point_id]);
+    //         container->put(query_point_id, query_point.x, query_point.y, query_point.z);
+    //     }
+    // }
 
     voro::voronoicell_neighbor cell;
-    voro::c_loop_all_periodic voronoi_loop(*container);
+    voro::c_loop_all_periodic voronoi_loop(container);
     std::vector<double> face_areas;
     std::vector<int> face_vertices;
     std::vector<int> neighbors;
@@ -83,7 +96,7 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq, const double* ra
     {
         do
         {
-            container->compute_cell(cell, voronoi_loop);
+            container.compute_cell(cell, voronoi_loop);
 
             // Get id and position of current particle
             const int query_point_id(voronoi_loop.pid());
@@ -195,7 +208,7 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq, const double* ra
         }
     });
 
-    delete container;
+    // delete container;
 }
 
 }; }; // end namespace freud::locality
