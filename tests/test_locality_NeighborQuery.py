@@ -35,6 +35,42 @@ class NeighborQueryTest(object):
             "subclass of NeighborQuery in a separate subclass of "
             "unittest.TestCase")
 
+    def test_query_validate_points(self):
+        L = 10  # Box Dimensions
+        r_max = 2.01  # Cutoff radius
+        box = freud.box.Box.cube(L)
+
+        # It's not allowed to have an empty NeighborQuery
+        for empty_points in (
+            [],
+            [[]],
+            np.zeros(0, dtype=np.float32),
+            np.zeros(shape=(0, 3), dtype=np.float32)
+        ):
+            with self.assertRaises(ValueError):
+                self.build_query_object(box, empty_points, r_max)
+
+        # It's not allowed to have one point as a 1D array
+        with self.assertRaises(ValueError):
+            points = np.zeros(shape=(3), dtype=np.float32)
+            self.build_query_object(box, points, r_max)
+
+        # It's not allowed to have an array without shape (N, 3)
+        with self.assertRaises(ValueError):
+            points = np.zeros(shape=(1, 2), dtype=np.float32)
+            self.build_query_object(box, points, r_max)
+        with self.assertRaises(ValueError):
+            points = np.zeros(shape=(1, 4), dtype=np.float32)
+            self.build_query_object(box, points, r_max)
+
+        # Create a NeighborQuery with one point
+        points = np.zeros(shape=(1, 3), dtype=np.float32)
+        self.build_query_object(box, points, r_max)
+
+        # Create a NeighborQuery with ten points
+        points = np.zeros(shape=(10, 3), dtype=np.float32)
+        self.build_query_object(box, points, r_max)
+
     def test_query_ball(self):
         L = 10  # Box Dimensions
         r_max = 2.01  # Cutoff radius

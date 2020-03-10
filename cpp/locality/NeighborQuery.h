@@ -85,6 +85,12 @@ public:
     NeighborQuery(const box::Box& box, const vec3<float>* points, unsigned int n_points)
         : m_box(box), m_points(points), m_n_points(n_points)
     {
+        // Reject systems with 0 particles
+        if (m_n_points == 0)
+        {
+            throw std::invalid_argument("Cannot create a NeighborQuery with 0 particles.");
+        }
+
         // For 2D systems, check if any z-coordinates are outside some tolerance of z=0
         if (m_box.is2D())
         {

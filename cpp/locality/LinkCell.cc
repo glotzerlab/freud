@@ -299,11 +299,6 @@ const vec3<unsigned int> LinkCell::computeDimensions(const box::Box& box, float 
 
 void LinkCell::computeCellList(const vec3<float>* points, unsigned int n_points)
 {
-    if (n_points == 0)
-    {
-        throw std::runtime_error("Cannot generate a cell list of 0 particles.");
-    }
-
     // determine the number of cells and allocate memory
     unsigned int Nc = getNumCells();
     m_cell_list.prepare(n_points + Nc);
