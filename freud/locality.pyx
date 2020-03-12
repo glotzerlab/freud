@@ -1120,7 +1120,7 @@ cdef class Voronoi(_Compute):
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, system):
+    def compute(self, system, radii=None):
         R"""Compute Voronoi diagram.
 
         Args:
@@ -1129,8 +1129,10 @@ cdef class Voronoi(_Compute):
                 :class:`freud.locality.NeighborQuery.from_system`.
         """
         cdef NeighborQuery nq = NeighborQuery.from_system(system)
-        self.thisptr.compute(nq.get_ptr())
         self._box = nq.box
+        radii = self.radii if radii is not None else np.zeros(nq.positions.shape[0])
+        cdef np.float32_t[::1] l_radii = radii
+        self.thisptr.compute(nq.get_ptr(), <np.float32_t *> &l_radii[0])
         return self
 
     @_Compute._computed_property
