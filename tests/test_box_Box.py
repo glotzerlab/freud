@@ -453,21 +453,21 @@ class TestBox(unittest.TestCase):
         # # 1 dimensional array
         distances = box.compute_distances(
             query_points, points,
-            np.asarray(query_point_indices[0]), np.asarray(point_indices[0]))
+            query_point_indices[0], point_indices[0])
         npt.assert_allclose(distances, 0.3, rtol=1e-6)
 
         with self.assertRaises(IndexError):
             box.compute_distances(
-                query_points, points, query_point_indices, query_points*2)
+                query_points, points, query_point_indices, point_indices + 1)
         with self.assertRaises(IndexError):
             box.compute_distances(
-                query_points, points, query_point_indices*2, query_points)
+                query_points, points, query_point_indices + 1, point_indices)
         with self.assertRaises(RuntimeError):
             box.compute_distances(
-                query_points, points, query_point_indices, query_points[:-1])
+                query_points, points, query_point_indices, point_indices[:-1])
         with self.assertRaises(RuntimeError):
             box.compute_distances(
-                query_points, points, query_point_indices[:-1], query_points)
+                query_points, points, query_point_indices[:-1], point_indices)
 
     def test_compute_distances_3d(self):
         box = freud.box.Box(2, 3, 4, 1, 0, 0)

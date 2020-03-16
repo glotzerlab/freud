@@ -9,6 +9,8 @@
 #include <sstream>
 #include <stdexcept>
 
+#include <iostream>
+
 #include "VectorMath.h"
 
 /*! \file Box.h
@@ -396,18 +398,30 @@ public:
         \param dist Distances between points and query_points
         \param Nvecs The number of points to calculate distances between
     */
+
+//        if (Mvecs != Nvecs)
+//        {
+//            throw std::runtime_error("Inconsistent array sizes.");
+//        }
     void computeDistances(vec3<float>* query_points, vec3<float>* points, const unsigned int* query_point_indices,
-        const unsigned int* point_indices, float *dist, unsigned int Mvecs, unsigned int Nvecs) const
+        const unsigned int* point_indices, float *dist, unsigned int n_query_points, unsigned int n_points,
+        unsigned int n_query_indices, unsigned int n_point_indices) const
     {
-        if (Mvecs != Nvecs)
-            throw std::runtime_error("Inconsistent array sizes.");
-        util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
+        if (n_query_indices != n_point_indices)
+        {
+            throw std::runtime_error("Index mismatch.");
+        }
+        util::forLoopWrapper(0, n_query_indices, [=](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
-                if (query_point_indices[i] > Mvecs)
-                    throw std::out_of_range("Index too big.");
-                if (point_indices[i] > Nvecs)
-                    throw std::out_of_range("Index too big.");
+                if (query_point_indices[i] >= n_query_points)
+                {
+                    throw std::out_of_range("Query point indices exceed array dimensions.");
+                }
+                if (point_indices[i] >= n_points)
+                {
+                    throw std::out_of_range("Point indices exceed array dimensions.");
+                }
                 dist[i] = computeDistance(query_points[query_point_indices[i]], points[point_indices[i]]);
             }
         });
@@ -418,15 +432,15 @@ public:
         \param query_points Particle position to calculate distances from
     */
     void computeAllDistances(vec3<float>* query_points, vec3<float>* points,
-        float* dist, unsigned int Mvecs, unsigned int Nvecs) const
+        float* dist, unsigned int n_query_points, unsigned int n_points) const
     {
-        util::forLoopWrapper(0, Mvecs, [=](size_t begin_m, size_t end_m) {
+        util::forLoopWrapper(0, n_query_points, [=](size_t begin_m, size_t end_m) {
             for (size_t j = begin_m; j < end_m; ++j)
             {
-                util::forLoopWrapper(0, Nvecs, [=](size_t begin_n, size_t end_n) {
+                util::forLoopWrapper(0, n_points, [=](size_t begin_n, size_t end_n) {
                     for (size_t i = begin_n; i < end_n; ++i)
                     {
-                        dist[j*Nvecs + i] = computeDistance(query_points[j], points[i]);
+                        dist[j*n_points+ i] = computeDistance(query_points[j], points[i]);
                     }
                 });
             }

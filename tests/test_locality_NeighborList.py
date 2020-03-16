@@ -216,24 +216,27 @@ class TestNeighborList(unittest.TestCase):
         npt.assert_equal(nlist.weights, nlist2.weights)
         npt.assert_equal(nlist.neighbor_counts, nlist2.neighbor_counts)
         npt.assert_equal(nlist.segments, nlist2.segments)
-
         # mismatched array sizes
         with self.assertRaises(RuntimeError):
             freud.locality.NeighborList.from_points(
-                box, query_points[:-1], points,
-                query_point_indices, point_indices)
+                box, query_points, points,
+                query_point_indices[:-1], point_indices)
         with self.assertRaises(RuntimeError):
             freud.locality.NeighborList.from_points(
-                box, query_points, points[:-1],
-                query_point_indices, point_indices)
+                box, query_points, points,
+                query_point_indices, point_indices[:-1])
         with self.assertRaises(IndexError):
             freud.locality.NeighborList.from_points(
                 box, query_points, points,
-                query_point_indices*3, point_indices)
+                query_point_indices + 1, point_indices)
         with self.assertRaises(IndexError):
             freud.locality.NeighborList.from_points(
                 box, query_points, points,
-                query_point_indices, (point_indices + 1)*3)
+                query_point_indices, point_indices + 1)
+        with self.assertRaises(RuntimeError):
+            freud.locality.NeighborList.from_points(
+                box, query_points, points,
+                query_point_indices[::-1], point_indices[::-1])
 
     def test_indexing_empty(self):
         # Ensure that empty NeighborLists have the right shape
