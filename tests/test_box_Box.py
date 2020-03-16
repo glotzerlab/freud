@@ -161,7 +161,7 @@ class TestBox(unittest.TestCase):
     def test_images(self):
         box = freud.box.Box(2, 2, 2, 0, 0, 0)
         points = np.array([[50, 40, 30],
-                               [-10, 0, 0]])
+                           [-10, 0, 0]])
         testimages = np.array([box.get_images(vec) for vec in points])
         npt.assert_equal(testimages,
                          np.array([[25, 20, 15],
@@ -446,22 +446,28 @@ class TestBox(unittest.TestCase):
             [[-0.5, -1.3, 0.], [0.5, 0, 0], [-2.2, -1.3, 0.], [0, 0.4, 0]])
         point_indices = np.array([1, 0, 1, 0])
         query_point_indices = np.array([0, 1, 2, 3])
-        distances = box.compute_distances(query_points, points, query_point_indices, point_indices)
+        distances = box.compute_distances(
+            query_points, points, query_point_indices, point_indices)
         npt.assert_allclose(distances, [0.3, 0.5, 0.0, 0.4], rtol=1e-6)
 
         # # 1 dimensional array
-        distances = box.compute_distances(query_points, points,
-                                          np.asarray(query_point_indices[0]), np.asarray(point_indices[0]))
+        distances = box.compute_distances(
+            query_points, points,
+            np.asarray(query_point_indices[0]), np.asarray(point_indices[0]))
         npt.assert_allclose(distances, 0.3, rtol=1e-6)
 
         with self.assertRaises(IndexError):
-            box.compute_distances(query_points, points, query_point_indices, query_points*2)
+            box.compute_distances(
+                query_points, points, query_point_indices, query_points*2)
         with self.assertRaises(IndexError):
-            box.compute_distances(query_points, points, query_point_indices*2, query_points)
+            box.compute_distances(
+                query_points, points, query_point_indices*2, query_points)
         with self.assertRaises(RuntimeError):
-            box.compute_distances(query_points, points, query_point_indices, query_points[:-1])
+            box.compute_distances(
+                query_points, points, query_point_indices, query_points[:-1])
         with self.assertRaises(RuntimeError):
-            box.compute_distances(query_points, points, query_point_indices[:-1], query_points)
+            box.compute_distances(
+                query_points, points, query_point_indices[:-1], query_points)
 
     def test_compute_distances_3d(self):
         box = freud.box.Box(2, 3, 4, 1, 0, 0)
@@ -470,7 +476,8 @@ class TestBox(unittest.TestCase):
             [[-0.5, -1.3, 2.], [0.5, 0, 0], [-2.2, -1.3, 2.], [0, 0, 0.2]])
         point_indices = np.array([1, 0, 1, 0])
         query_point_indices = np.array([0, 1, 2, 3])
-        distances = box.compute_distances(query_points, points, query_point_indices, point_indices)
+        distances = box.compute_distances(
+            query_points, points, query_point_indices, point_indices)
         npt.assert_allclose(distances, [0.3, 0.5, 0.0, 0.2], rtol=1e-6)
 
     def test_compute_all_distances_2d(self):
