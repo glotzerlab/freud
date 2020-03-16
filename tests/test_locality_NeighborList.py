@@ -204,7 +204,6 @@ class TestNeighborList(unittest.TestCase):
         self.assertTrue(np.allclose(nlist.weights, 4))
 
         # copy of existing nlist by arrays
-        weights = np.random.rand(len(query_point_indices))
         nlist = freud.locality.NeighborList.from_points(
             box, query_points, points,
             query_point_indices, point_indices)
