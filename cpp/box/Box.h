@@ -9,8 +9,6 @@
 #include <sstream>
 #include <stdexcept>
 
-#include <iostream>
-
 #include "VectorMath.h"
 
 /*! \file Box.h
