@@ -396,14 +396,19 @@ public:
         \param dist Distances between points and query_points
         \param Nvecs The number of points to calculate distances between
     */
-    void computeDistances(vec3<float>* query_points, vec3<float>* points, float *dist, unsigned int Mvecs, unsigned int Nvecs) const
+    void computeDistances(vec3<float>* query_points, vec3<float>* points, const unsigned int* query_point_indices,
+        const unsigned int* point_indices, float *dist, unsigned int Mvecs, unsigned int Nvecs) const
     {
         if (Mvecs != Nvecs)
             throw std::runtime_error("Inconsistent array sizes.");
         util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
-                dist[i] = computeDistance(query_points[i], points[i]);
+                if (query_point_indices[i] > Mvecs)
+                    throw std::out_of_range("Index too big.");
+                if (point_indices[i] > Nvecs)
+                    throw std::out_of_range("Index too big.");
+                dist[i] = computeDistance(query_points[query_point_indices[i]], points[point_indices[i]]);
             }
         });
     }

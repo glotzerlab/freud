@@ -554,7 +554,7 @@ cdef class NeighborList:
         point_indices = np.asarray(point_indices)
 
         distances = box.compute_distances(
-             query_points[query_point_indices], points[point_indices])
+             query_points, points, query_point_indices, point_indices)
 
         query_points = freud.util._convert_array(
             np.atleast_2d(query_points), shape=(None, 3))

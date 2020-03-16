@@ -422,7 +422,7 @@ cdef class Box:
         self.thisptr.center(<vec3[float]*> &l_points[0, 0], Np, l_masses_ptr)
         return vecs
 
-    def compute_distances(self, query_points, points):
+    def compute_distances(self, query_points, points, query_point_indices, point_indices):
         R"""Calculate distances between two sets of points, using periodic boundaries.
 
         Args:
@@ -452,16 +452,25 @@ cdef class Box:
         query_points = freud.util._convert_array(query_points, shape=(None, 3))
         points = freud.util._convert_array(points, shape=(None, 3))
 
+        query_point_indices = freud.util._convert_array(
+            query_point_indices, shape=(None,), dtype=np.uint32)
+        point_indices = freud.util._convert_array(
+            point_indices, shape=(None,), dtype=np.uint32)
+
         cdef:
             const float[:, ::1] l_query_points = query_points
             const float[:, ::1] l_points = points
-            size_t Mp = query_points.shape[0]
-            size_t Np = points.shape[0]
-            float[::1] dist = np.empty(points.shape[0], dtype=np.float32)
+            const unsigned int[::1] l_query_point_indices = \
+            query_point_indices
+            const unsigned int[::1] l_point_indices = point_indices
+            size_t Mp = query_point_indices.shape[0]
+            size_t Np = point_indices.shape[0]
+            float[::1] dist = np.empty(query_point_indices.shape[0], dtype=np.float32)
 
         self.thisptr.computeDistances(
             <vec3[float]*> &l_query_points[0, 0],
             <vec3[float]*> &l_points[0, 0],
+            &l_query_point_indices[0], &l_point_indices[0],
             <float *> &dist[0], Mp, Np
         )
 
