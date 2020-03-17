@@ -402,9 +402,10 @@ public:
         \param n_point_indices The number of points indices.
     */
 
-    void computeDistances(vec3<float>* query_points, vec3<float>* points, const unsigned int* query_point_indices,
-        const unsigned int* point_indices, float *dist, unsigned int n_query_points, unsigned int n_points,
-        unsigned int n_query_indices, unsigned int n_point_indices) const
+    void computeDistances(const vec3<float>* query_points, const vec3<float>* points,
+        const unsigned int* query_point_indices, const unsigned int* point_indices,
+        float *dist, const unsigned int n_query_points, const unsigned int n_points,
+        const unsigned int n_query_indices, const unsigned int n_point_indices) const
 
         if (n_query_indices != n_point_indices)
         {
