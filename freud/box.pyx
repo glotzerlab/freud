@@ -439,7 +439,7 @@ cdef class Box:
         Returns:
             :math:`\left(N, \right)` :class:`numpy.ndarray`:
                 Array of distances between query points and points.
-        """  #noqa: 501E
+        """   # noqa: E501
         query_points = np.asarray(query_points)
         points = np.asarray(points)
         query_point_indices = np.atleast_1d(query_point_indices)
