@@ -432,9 +432,9 @@ cdef class Box:
             points (:math:`\left(N, 3, \right)` :class:`numpy.ndarray`):
                 Array of points.
             query_points_indices (:math:`\left(N, \right)` :class:`numpy.ndarray`):
-                Array of indices that correspond to a set of query points, of the same length as points_indices.
+                Array of indices that correspond to a set of query points.
             points_indices (:math:`\left(N, \right)` :class:`numpy.ndarray`):
-                Array of indices that correspond to a set of points.
+                Array of indices that correspond to a set of points, of same length and query_points_indices.
 
         Returns:
             :math:`\left(N, \right)` :class:`numpy.ndarray`:
@@ -486,9 +486,9 @@ cdef class Box:
 
         Args:
             query_points (:math:`\left(N_{query_points}, 3 \right)` :class:`numpy.ndarray`):
-                Array of query points of the same length as points."
+                Array of query points.
             points (:math:`\left(N_{points}, 3 \right)` :class:`numpy.ndarray`):
-                Array of points corresponding to points in a data structure.
+                Array of points with same length as query_points.
 
         Returns:
             :math:`\left(N_{points}, N_{query_points}, \right)` :class:`numpy.ndarray`:
