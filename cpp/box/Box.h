@@ -390,17 +390,22 @@ public:
             return std::sqrt(dot(v_ij, v_ij));
     }
 
-    //! Calculate distance between a set of points and query points using boundary conditions
-    /*! \param points Particle positions
-        \param query_points Particle position to calculate distances from
-        \param dist Distances between points and query_points
-        \param Nvecs The number of points to calculate distances between
+    //! Calculate distance between a set of points and query points using boundary conditions.
+     /*!\param query_points Particle position to query.
+        \param points Particle positions.
+        \param query_point_indices Array of indices that correspond to a set of query points.
+        \param point_indices Array of indices that correspond to a set of points.
+        \param dist Distances between points and query_points.
+        \param n_query_points The number of query points.
+        \param n_points The number of points.
+        \param n_query_indices The number of query points indices.
+        \param n_point_indices The number of points indices.
     */
 
     void computeDistances(vec3<float>* query_points, vec3<float>* points, const unsigned int* query_point_indices,
         const unsigned int* point_indices, float *dist, unsigned int n_query_points, unsigned int n_points,
         unsigned int n_query_indices, unsigned int n_point_indices) const
-    {
+
         if (n_query_indices != n_point_indices)
         {
             throw std::runtime_error("Query point and point index array dimesnsions must match.");
@@ -424,6 +429,8 @@ public:
     //! Calculate distance between a set of points and query points using boundary conditions
     /*! \param points Particle positions
         \param query_points Particle position to calculate distances from
+        \param n_query_points The number of query points.
+        \param n_points The number of points.
     */
     void computeAllDistances(vec3<float>* query_points, vec3<float>* points,
         float* dist, unsigned int n_query_points, unsigned int n_points) const
