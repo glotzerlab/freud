@@ -436,17 +436,17 @@ public:
     void computeAllDistances(const vec3<float>* query_points, const vec3<float>* points,
         float* distances, const unsigned int n_query_points, const unsigned int n_points) const
     {
-        util::forLoopWrapper(0, n_query_points, [=](size_t begin_m, size_t end_m) {
-            for (size_t j = begin_m; j < end_m; ++j)
-            {
-                util::forLoopWrapper(0, n_points, [=](size_t begin_n, size_t end_n) {
-                    for (size_t i = begin_n; i < end_n; ++i)
+        util::forLoopWrapper2D(0, n_query_points, 0, n_points, [=](
+            size_t begin_n, size_t end_n, size_t begin_m, size_t end_m) {
+                for (size_t i = begin_n; i < end_n; ++i)
+                {
+                    for (size_t j = begin_m; j < end_m; ++j)
                     {
-                        distances[j*n_points+ i] = computeDistance(query_points[j], points[i]);
+                        distances[i*n_points + j] = computeDistance(query_points[i], points[j]);
                     }
-                });
+                }
             }
-        });
+        );
     }
 
     //! Get the shortest distance between opposite boundary planes of the box

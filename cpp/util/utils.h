@@ -49,6 +49,28 @@ inline void forLoopWrapper(size_t begin, size_t end, const Body& body, bool para
     }
 }
 
-}; }; // namespace freud::util
+template<typename Body>
+inline void forLoopWrapper2D(
+    size_t begin_row, size_t end_row, size_t begin_col, size_t end_col,
+    const Body& body, bool parallel = true)
+{
+    if (parallel)
+    {
+        tbb::parallel_for(tbb::blocked_range2d<size_t>(begin_row, end_row, begin_col, end_col),
+                [&body](const tbb::blocked_range2d<size_t>& r) {
+                    body(r.rows().begin(), r.rows().end(), r.cols().begin(), r.cols().end());
+                }
+        );
+    }
+    else
+    {
+        body(begin_row, end_row, begin_col, end_col);
+    }
+}
+
+
+};
+
+}; // namespace freud::util
 
 #endif
