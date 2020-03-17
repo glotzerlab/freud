@@ -433,8 +433,8 @@ public:
         \param n_query_points The number of query points.
         \param n_points The number of points.
     */
-    void computeAllDistances(vec3<float>* query_points, vec3<float>* points,
-        float* dist, unsigned int n_query_points, unsigned int n_points) const
+    void computeAllDistances(const vec3<float>* query_points, const vec3<float>* points,
+        float* dist, const unsigned int n_query_points, const unsigned int n_points) const
     {
         util::forLoopWrapper(0, n_query_points, [=](size_t begin_m, size_t end_m) {
             for (size_t j = begin_m; j < end_m; ++j)
