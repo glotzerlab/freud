@@ -428,14 +428,18 @@ cdef class Box:
 
         Args:
             query_points (:math:`\left(N, 3, \right)` :class:`numpy.ndarray`):
-                Array of query points that corresponds to a set of points.
+                Array of query points.
             points (:math:`\left(N, 3, \right)` :class:`numpy.ndarray`):
                 Array of points.
+            query_points_indices (:math:`\left(N, \right)` :class:`numpy.ndarray`):
+                Array of indices that correspond to a set of query points.
+            points_indices (:math:`\left(N, \right)` :class:`numpy.ndarray`):
+                Array of indices that correspond to a set of points.
 
         Returns:
             :math:`\left(N, \right)` :class:`numpy.ndarray`:
                 Array of distances between query points and points.
-        """
+        """  #noqa: 501E
         query_points = np.asarray(query_points)
         points = np.asarray(points)
         query_point_indices = np.atleast_1d(query_point_indices)
