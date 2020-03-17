@@ -404,7 +404,7 @@ public:
 
     void computeDistances(const vec3<float>* query_points, const vec3<float>* points,
         const unsigned int* query_point_indices, const unsigned int* point_indices,
-        float *dist, const unsigned int n_query_points, const unsigned int n_points,
+        float *distances, const unsigned int n_query_points, const unsigned int n_points,
         const unsigned int n_query_indices, const unsigned int n_point_indices) const
 
         if (n_query_indices != n_point_indices)
@@ -422,7 +422,7 @@ public:
                 {
                     throw std::out_of_range("Point indices exceed array dimensions.");
                 }
-                dist[i] = computeDistance(query_points[query_point_indices[i]], points[point_indices[i]]);
+                distances[i] = computeDistance(query_points[query_point_indices[i]], points[point_indices[i]]);
             }
         });
     }
@@ -434,7 +434,7 @@ public:
         \param n_points The number of points.
     */
     void computeAllDistances(const vec3<float>* query_points, const vec3<float>* points,
-        float* dist, const unsigned int n_query_points, const unsigned int n_points) const
+        float* distances, const unsigned int n_query_points, const unsigned int n_points) const
     {
         util::forLoopWrapper(0, n_query_points, [=](size_t begin_m, size_t end_m) {
             for (size_t j = begin_m; j < end_m; ++j)
@@ -442,7 +442,7 @@ public:
                 util::forLoopWrapper(0, n_points, [=](size_t begin_n, size_t end_n) {
                     for (size_t i = begin_n; i < end_n; ++i)
                     {
-                        dist[j*n_points+ i] = computeDistance(query_points[j], points[i]);
+                        distances[j*n_points+ i] = computeDistance(query_points[j], points[i]);
                     }
                 });
             }
