@@ -409,18 +409,18 @@ public:
 
         if (n_query_indices != n_point_indices)
         {
-            throw std::runtime_error("Query point and point index array dimesnsions must match.");
+            throw std::runtime_error("The length of query point indices and point indices must match.");
         }
         util::forLoopWrapper(0, n_query_indices, [=](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
                 if (query_point_indices[i] >= n_query_points)
                 {
-                    throw std::out_of_range("Query point indices exceed array dimensions.");
+                    throw std::out_of_range("Query point indices exceed number of query points.");
                 }
                 if (point_indices[i] >= n_points)
                 {
-                    throw std::out_of_range("Point indices exceed array dimensions.");
+                    throw std::out_of_range("Point indices exceed number of points.");
                 }
                 distances[i] = computeDistance(query_points[query_point_indices[i]], points[point_indices[i]]);
             }
