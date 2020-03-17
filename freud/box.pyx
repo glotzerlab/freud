@@ -486,7 +486,7 @@ cdef class Box:
 
         Args:
             query_points (:math:`\left(N_{query_points}, 3 \right)` :class:`numpy.ndarray`):
-                Array of query points to calculate
+                Array of query points of the same length as points."
             points (:math:`\left(N_{points}, 3 \right)` :class:`numpy.ndarray`):
                 Array of points corresponding to points in a data structure.
 
