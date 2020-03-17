@@ -384,9 +384,9 @@ public:
     /*! \param p_i Position of first point
         \param p_j Position of second point
     */
-    float computeDistance(const vec3<float>& p_j, const vec3<float>& p_i) const
+    float computeDistance(const vec3<float>& r_j, const vec3<float>& r_i) const
     {
-            vec3<float> v_ij = wrap(p_j - p_i);
+            vec3<float> v_ij = wrap(r_j - r_i);
             return std::sqrt(dot(v_ij, v_ij));
     }
 
