@@ -406,7 +406,7 @@ public:
         const unsigned int* query_point_indices, const unsigned int* point_indices,
         float *distances, const unsigned int n_query_points, const unsigned int n_points,
         const unsigned int n_query_indices, const unsigned int n_point_indices) const
-
+    {
         if (n_query_indices != n_point_indices)
         {
             throw std::runtime_error("The length of query point indices and point indices must match.");
