@@ -381,13 +381,13 @@ public:
     }
 
     //! Calculate distance between two points using boundary conditions
-    /*! \param p_i Position of first point
-        \param p_j Position of second point
+    /*! \param r_i Position of first point
+        \param r_j Position of second point
     */
     float computeDistance(const vec3<float>& r_j, const vec3<float>& r_i) const
     {
-            vec3<float> v_ij = wrap(r_j - r_i);
-            return std::sqrt(dot(v_ij, v_ij));
+            vec3<float> r_ij = wrap(r_j - r_i);
+            return std::sqrt(dot(r_ij, r_ij));
     }
 
     //! Calculate distance between a set of points and query points using boundary conditions.
