@@ -543,8 +543,8 @@ cdef class NeighborList:
                 Array of integers corresponding to indices in the set of
                 query points.
             point_indices (:class:`np.ndarray`):
-                Array of integers corresponding to indices in the set of
-                points.
+                Array of indices corresponding to ``points``. Must match the
+                length of ``query_point_indices``.
             weights (:class:`np.ndarray`, optional):
                 Array of per-bond weights (if :code:`None` is given, use a
                 value of 1 for each weight) (Default value = :code:`None`).
