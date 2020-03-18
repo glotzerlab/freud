@@ -427,7 +427,8 @@ public:
     }
 
     //! Calculate distance between a set of points and query points using boundary conditions
-    /*! \param points Particle positions
+     /*!\param query_points Particle position to query.
+        \param points Particle positions.
         \param query_points Particle position to calculate distances from
         \param n_query_points The number of query points.
         \param n_points The number of points.
