@@ -478,7 +478,7 @@ cdef class Box:
             n_query_indices, n_point_indices
         )
 
-        return np.squeeze(dist) if flatten else np.asarray(dist)
+        return np.squeeze(distances) if flatten else np.asarray(distances)
 
     def compute_all_distances(self, query_points, points):
         R"""Calculate distances between a set of points and all query points.
