@@ -427,7 +427,7 @@ cdef class Box:
         R"""Calculate distances between two sets of points, using periodic boundaries.
 
         Args:
-            query_points (:math:`\left(N, 3, \right)` :class:`numpy.ndarray`):
+            query_points (:math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Array of query points.
             points (:math:`\left(N, 3, \right)` :class:`numpy.ndarray`):
                 Array of points.

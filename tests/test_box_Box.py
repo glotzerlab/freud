@@ -450,7 +450,7 @@ class TestBox(unittest.TestCase):
             query_points, points, query_point_indices, point_indices)
         npt.assert_allclose(distances, [0.3, 0.5, 0.0, 0.4], rtol=1e-6)
 
-        # # 1 dimensional array
+        # 1 dimensional array
         distances = box.compute_distances(
             query_points, points,
             query_point_indices[0], point_indices[0])
