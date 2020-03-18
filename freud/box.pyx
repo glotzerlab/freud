@@ -485,7 +485,7 @@ cdef class Box:
         with periodic boundary conditions.
 
         Args:
-            query_points (:math:`\left(N_{query_points}, 3 \right)` :class:`numpy.ndarray`):
+            query_points (:math:`\left(N_{query\_points}, 3 \right)` :class:`numpy.ndarray`):
                 Array of query points.
             points (:math:`\left(N_{points}, 3 \right)` :class:`numpy.ndarray`):
                 Array of points with same length as query_points.
