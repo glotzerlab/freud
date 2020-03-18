@@ -467,14 +467,14 @@ cdef class Box:
             size_t n_points = points.shape[0]
             size_t n_query_indices = query_point_indices.shape[0]
             size_t n_point_indices = point_indices.shape[0]
-            float[::1] dist = np.empty(
-                query_point_indices.shape[0], dtype=np.float32)
+            float[::1] distances = np.empty(
+                n_query_indices, dtype=np.float32)
 
         self.thisptr.computeDistances(
             <vec3[float]*> &l_query_points[0, 0],
             <vec3[float]*> &l_points[0, 0],
             &l_query_point_indices[0], &l_point_indices[0],
-            <float *> &dist[0], n_query_points, n_points,
+            <float *> &distances[0], n_query_points, n_points,
             n_query_indices, n_point_indices
         )
 
