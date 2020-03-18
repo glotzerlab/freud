@@ -429,7 +429,7 @@ cdef class Box:
         Args:
             query_points (:math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Array of query points.
-            points (:math:`\left(N, 3, \right)` :class:`numpy.ndarray`):
+            points (:math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Array of points.
             query_points_indices (:math:`\left(N, \right)` :class:`numpy.ndarray`):
                 Array of indices that correspond to a set of query points.
