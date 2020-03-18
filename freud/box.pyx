@@ -429,7 +429,7 @@ cdef class Box:
         Args:
             query_points (:math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Array of query points.
-            points (:math:`\left(N, 3, \right)` :class:`numpy.ndarray`):
+            points (:math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Array of points.
             query_points_indices (:math:`\left(N, \right)` :class:`numpy.ndarray`):
                 Array of indices that correspond to a set of query points.
@@ -481,17 +481,16 @@ cdef class Box:
         return np.squeeze(dist) if flatten else np.asarray(dist)
 
     def compute_all_distances(self, query_points, points):
-        R"""Calculate distances between a set of points and all query points,
-        with periodic boundary conditions.
+        R"""Calculate distances between a set of points and all query points.
 
         Args:
-            query_points (:math:`\left(N_{query_points}, 3 \right)` :class:`numpy.ndarray`):
+            query_points (:math:`\left(N_{query\_points}, 3 \right)` :class:`numpy.ndarray`):
                 Array of query points.
             points (:math:`\left(N_{points}, 3 \right)` :class:`numpy.ndarray`):
                 Array of points with same length as query_points.
 
         Returns:
-            :math:`\left(N_{points}, N_{query_points}, \right)` :class:`numpy.ndarray`:
+            :math:`\left(N_{points}, N_{query\_points}, \right)` :class:`numpy.ndarray`:
                 Array of distances between corresponding query points and points.
         """  # noqa: E501
         query_points = np.asarray(query_points)
