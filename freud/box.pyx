@@ -491,7 +491,7 @@ cdef class Box:
                 Array of points with same length as query_points.
 
         Returns:
-            :math:`\left(N_{points}, N_{query_points}, \right)` :class:`numpy.ndarray`:
+            :math:`\left(N_{points}, N_{query\_points}, \right)` :class:`numpy.ndarray`:
                 Array of distances between corresponding query points and points.
         """  # noqa: E501
         query_points = np.asarray(query_points)
