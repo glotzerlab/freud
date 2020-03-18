@@ -395,7 +395,7 @@ public:
         \param points Particle positions.
         \param query_point_indices Array of indices that correspond to a set of query points.
         \param point_indices Array of indices that correspond to a set of points.
-        \param dist Distances between points and query_points.
+        \param distances Distances between points and query_points.
         \param n_query_points The number of query points.
         \param n_points The number of points.
         \param n_query_indices The number of query points indices.
