@@ -440,14 +440,10 @@ cdef class Box:
             :math:`\left(N, \right)` :class:`numpy.ndarray`:
                 Array of distances between query points and points.
         """   # noqa: E501
-        query_points = np.asarray(query_points)
-        points = np.asarray(points)
-        query_point_indices = np.atleast_1d(query_point_indices)
-        point_indices = np.atleast_1d(point_indices)
-
-        flatten = query_point_indices.ndim == 1
         query_points = np.atleast_2d(query_points)
         points = np.atleast_2d(points)
+        query_point_indices = np.atleast_1d(query_point_indices)
+        point_indices = np.atleast_1d(point_indices)
 
         query_points = freud.util._convert_array(query_points, shape=(None, 3))
         points = freud.util._convert_array(points, shape=(None, 3))
@@ -478,7 +474,7 @@ cdef class Box:
             n_query_indices, n_point_indices
         )
 
-        return np.squeeze(distances) if flatten else np.asarray(distances)
+        return np.asarray(distances)
 
     def compute_all_distances(self, query_points, points):
         R"""Calculate distances between a set of points and all query points.
@@ -509,15 +505,15 @@ cdef class Box:
             const float[:, ::1] l_points = points
             size_t n_query_points = query_points.shape[0]
             size_t n_points = points.shape[0]
-            float[:, ::1] dist = np.empty(
-                [query_points.shape[0], points.shape[0]], dtype=np.float32)
+            float[:, ::1] distances = np.empty(
+                [n_query_points, n_points], dtype=np.float32)
 
         self.thisptr.computeAllDistances(
             <vec3[float]*> &l_query_points[0, 0],
             <vec3[float]*> &l_points[0, 0],
-            <float *> &dist[0, 0], n_query_points, n_points
+            <float *> &distances[0, 0], n_query_points, n_points
         )
-        return np.asarray(dist)
+        return np.squeeze(distances) if flatten else np.asarray(distances)
 
     @property
     def periodic(self):
