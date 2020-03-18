@@ -535,16 +535,16 @@ cdef class NeighborList:
         Args:
             box (:class:`~.box.Box`):
                 Simulation box.
-            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`):
+            query_points (:math:`\left(N_{query\_points}, 3 \right)` :class:`numpy.ndarray`):
                 Query points to construct the ``NeighborList``.
-            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
+            points (:math:`\left(N_{points}, 3 \right)` :class:`numpy.ndarray`):
                 Points for the neighborlist.
-            query_point_indices (:class:`np.ndarray`):
+            query_point_indices (:math:`\left(N_{indices}, \right)` :class:`numpy.ndarray`):
                 Array of indices corresponding to ``query_points``.
-            point_indices (:class:`np.ndarray`):
+            point_indices (:math:`\left(N_{indices}, \right)` :class:`numpy.ndarray`):
                 Array of indices corresponding to ``points``. Must match the
                 length of ``query_point_indices``.
-            weights (:class:`np.ndarray`, optional):
+            weights (:math:`\left(N_{indices}, \right)` :class:`numpy.ndarray`):
                 Array of per-bond weights (if :code:`None` is given, use a
                 value of 1 for each weight) (Default value = :code:`None`).
         """  # noqa 501
