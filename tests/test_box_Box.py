@@ -462,10 +462,10 @@ class TestBox(unittest.TestCase):
         with self.assertRaises(IndexError):
             box.compute_distances(
                 query_points, points, query_point_indices + 1, point_indices)
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(ValueError):
             box.compute_distances(
                 query_points, points, query_point_indices, point_indices[:-1])
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(ValueError):
             box.compute_distances(
                 query_points, points, query_point_indices[:-1], point_indices)
 
