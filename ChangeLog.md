@@ -7,8 +7,7 @@ and this project adheres to
 ## v2.3.0 - 2020-xx-xx
 
 ### Added
-* Custom NeighborLists can be created from a set of points using `from_points`.
-Distances will automatically be calculated using periodic boundary conditions.
+* Custom NeighborLists can be created from a set of points using `from_points`. Distances will be calculated automatically.
 * The Box class has methods `compute_distances` and `compute_all_distances` to calculate distances from arrays of points and query points using periodic boundary conditions.
 
 ### Fixed
