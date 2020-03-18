@@ -552,26 +552,27 @@ cdef class NeighborList:
 
         query_point_indices = np.asarray(query_point_indices)
         point_indices = np.asarray(point_indices)
-
-        distances = box.compute_distances(
-            query_points, points,
-            query_point_indices, point_indices)
-
-        query_points = freud.util._convert_array(
-            np.atleast_2d(query_points), shape=(None, 3))
-        points = freud.util._convert_array(
-            np.atleast_2d(points), shape=(None, 3))
-        distances = freud.util._convert_array(
-            distances, shape=(None,))
-        query_point_indices = freud.util._convert_array(
-            query_point_indices, shape=(None,), dtype=np.uint32)
-        point_indices = freud.util._convert_array(
-            point_indices, shape=(None,), dtype=np.uint32)
+        b = freud.util._convert_array(box)
 
         if weights is None:
             weights = np.ones(query_point_indices.shape, dtype=np.float32)
         weights = freud.util._convert_array(
             weights, shape=query_point_indices.shape)
+
+        query_points = freud.util._convert_array(
+            np.atleast_2d(query_points), shape=(None, 3))
+        points = freud.util._convert_array(
+            np.atleast_2d(points), shape=(None, 3))
+        query_point_indices = freud.util._convert_array(
+            query_point_indices, shape=(None,), dtype=np.uint32)
+        point_indices = freud.util._convert_array(
+            point_indices, shape=(None,), dtype=np.uint32)
+
+        distances = b.compute_distances(
+            query_points, points,
+            query_point_indices, point_indices)
+        distances = freud.util._convert_array(
+            distances, shape=(None,))
 
         cdef const unsigned int[::1] l_query_point_indices = \
             query_point_indices
