@@ -481,8 +481,7 @@ cdef class Box:
         return np.squeeze(dist) if flatten else np.asarray(dist)
 
     def compute_all_distances(self, query_points, points):
-        R"""Calculate distances between a set of points and all query points,
-        with periodic boundary conditions.
+        R"""Calculate distances between a set of points and all query points.
 
         Args:
             query_points (:math:`\left(N_{query\_points}, 3 \right)` :class:`numpy.ndarray`):
