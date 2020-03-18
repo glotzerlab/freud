@@ -535,10 +535,10 @@ cdef class NeighborList:
         Args:
             box (:class:`~.box.Box`):
                 Simulation box.
-            query_points (:class:`np.ndarray`):
-                Array of floats corresponding to the positions of a set of query points.
-            points (:class:`np.ndarray`):
-                Array of floats corresponding to the positions of a set of points.
+            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`):
+                Query points to construct the ``NeighborList``.
+            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
+                Points for the neighborlist.
             query_point_indices (:class:`np.ndarray`):
                 Array of indices corresponding to ``query_points``.
             point_indices (:class:`np.ndarray`):
