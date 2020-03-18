@@ -540,8 +540,7 @@ cdef class NeighborList:
             points (:class:`np.ndarray`):
                 Array of floats corresponding to the positions of a set of points.
             query_point_indices (:class:`np.ndarray`):
-                Array of integers corresponding to indices in the set of
-                query points.
+                Array of indices corresponding to ``query_points``.
             point_indices (:class:`np.ndarray`):
                 Array of indices corresponding to ``points``. Must match the
                 length of ``query_point_indices``.
