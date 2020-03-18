@@ -401,7 +401,6 @@ public:
         \param n_query_indices The number of query points indices.
         \param n_point_indices The number of points indices.
     */
-
     void computeDistances(const vec3<float>* query_points, const vec3<float>* points,
         const unsigned int* query_point_indices, const unsigned int* point_indices,
         float *distances, const unsigned int n_query_points, const unsigned int n_points,
