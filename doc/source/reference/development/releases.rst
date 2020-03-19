@@ -38,6 +38,11 @@ Generate Cythonized C++
 
 6. Rebuild the project with ``--ENABLE-CYTHON`` so that the files in ``freud/*.cpp`` are updated.
    Ideally, do this on a system with a relatively clean ``PATH`` and a system-provided Python, or else some user paths (including usernames) may be included in the result.
+   The generated ``freud/*.cpp`` files are ignored in ``.gitignore`` to prevent accidental commits from developers and must be force-added:
+
+.. code-block:: bash
+
+    git add --force freud/*.cpp
 
 Contributors
 ------------
