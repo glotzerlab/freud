@@ -1127,6 +1127,10 @@ cdef class Voronoi(_Compute):
             system:
                 Any object that is a valid argument to
                 :class:`freud.locality.NeighborQuery.from_system`.
+            radii:
+                A list of :class:`numpy.ndarray` defining radii of points in
+                the system. (Default value = :code:`None`, meaning unbiased
+                Voronoi diagram.)
         """
         cdef NeighborQuery nq = NeighborQuery.from_system(system)
         self._box = nq.box
