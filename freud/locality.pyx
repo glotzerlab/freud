@@ -1131,7 +1131,7 @@ cdef class Voronoi(_Compute):
         cdef NeighborQuery nq = NeighborQuery.from_system(system)
         self._box = nq.box
         radii = self.radii if radii is not None\
-            else np.zeros(nq.positions.shape[0], dtype=np.float32)
+            else np.zeros(nq.points.shape[0], dtype = np.float64)
         cdef double[::1] l_radii = radii
         self.thisptr.compute(nq.get_ptr(), <double *> &l_radii[0])
         return self
