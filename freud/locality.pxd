@@ -78,4 +78,3 @@ cdef class Voronoi(_Compute):
     cdef freud._locality.Voronoi * thisptr
     cdef NeighborList _nlist
     cdef freud.box.Box _box
-    cdef double radii
