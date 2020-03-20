@@ -428,8 +428,8 @@ try:
                 'rowan>=1.2'
             ],
             tests_require=[
-                'gsd>=1.9',
-                'garnett>=0.5',
+                'gsd>=2.0',
+                'garnett>=0.7.1',
                 'matplotlib>=2.0',
                 'MDAnalysis>=0.17',
                 'rowan>=1.2',

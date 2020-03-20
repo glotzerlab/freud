@@ -330,9 +330,13 @@ cdef class NeighborQuery:
                 box[[2, 4, 5]] = 0
             system = (box, system.particles.position)
 
-        # garnett compatibility
+        # garnett compatibility (garnett >=0.5)
         elif match_class_path(system, 'garnett.trajectory.Frame'):
-            system = (system.box, system.positions)
+            try:
+                position = system.position
+            except AttributeError:
+                position = system.positions
+            system = (system.box, position)
 
         # OVITO compatibility
         elif (match_class_path(system, 'ovito.data.DataCollection') or
