@@ -243,7 +243,7 @@ cdef class MSD(_Compute):
     @_Compute._computed_property
     def particle_msd(self):
         """:math:`\\left(N_{frames}, N_{particles} \\right)` :class:`numpy.ndarray`:
-        The per particle based mean squared displacement.""" # noqa: E501
+        The per particle based mean squared displacement."""  # noqa: E501
         return np.concatenate(self._particle_msd, axis=1)
 
     def __repr__(self):
