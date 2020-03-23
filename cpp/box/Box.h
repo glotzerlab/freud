@@ -408,7 +408,7 @@ public:
     {
         if (n_query_indices != n_point_indices)
         {
-            throw std::invalid_argument("The length of query point indices and point indices must match.");
+            throw std::invalid_argument("The number of query point indices and point indices must match.");
         }
         util::forLoopWrapper(0, n_query_indices, [=](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
