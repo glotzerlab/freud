@@ -49,7 +49,7 @@ inline void forLoopWrapper(size_t begin, size_t end, const Body& body, bool para
     }
 }
 
-//! Wrapper for 2 for-loops to allow the execution in parallel or not.
+//! Wrapper for 2 for loops to allow the execution in parallel or not.
 /*! \param parallel If true, run body in parallel.
  *  \param begin_row Beginning index for 1st for-loop.
  *  \param end_row Ending index for 1st for-loop.
