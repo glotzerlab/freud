@@ -174,7 +174,7 @@ cdef class NeighborQueryResult:
     .. warning::
 
         This class should not be instantiated directly, it is the
-        return value of all `query*` functions of
+        return value of the :meth:`~.NeighborQuery.query` method of
         :class:`~NeighborQuery`. The class provides a convenient
         interface for iterating over query results, and can be
         transparently converted into a list or a
@@ -204,7 +204,7 @@ cdef class NeighborQueryResult:
         raise StopIteration
 
     def toNeighborList(self, sort_by_distance=False):
-        """Convert query result to a freud NeighborList.
+        """Convert query result to a freud :class:`~NeighborList`.
 
         Args:
             sort_by_distance (bool):
@@ -820,9 +820,9 @@ cdef class LinkCell(NeighborQuery):
         points ((:math:`N`, 3) :class:`numpy.ndarray`):
             The points to bin into the cell list.
         cell_width (float, optional):
-            Width of cells. If not provided, `~.LinkCell` will estimate a cell
-            width based on the number of points and the box size assuming
-            constant density of points throughout the box.
+            Width of cells. If not provided, :class:`~.LinkCell` will
+            estimate a cell width based on the number of points and the box
+            size assuming constant density of points throughout the box.
     """
 
     def __cinit__(self, box, points, cell_width=0):
