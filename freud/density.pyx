@@ -537,9 +537,9 @@ cdef class RDF(_SpatialHistogram1D):
     def n_r(self):
         """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Histogram of cumulative
         bin_counts values. More precisely, :code:`n_r[i]` is the average number
-        of points contained within a ball of radius :code:`R[i]+dr/2` centered
-        at a given :code:`query_point` averaged over all :code:`query_points`
-        in the last call to :meth:`~.compute`."""
+        of points contained within a ball of radius :code:`bin_edges[i+1]`
+        centered at a given :code:`query_point` averaged over all
+        :code:`query_points` in the last call to :meth:`~.compute`."""
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getNr(),
             freud.util.arr_type_t.FLOAT)
