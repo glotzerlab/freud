@@ -388,7 +388,7 @@ cdef class Translational(_PairCompute):
 
     @property
     def k(self):
-        """unsigned int: Normalization of the order parameter."""
+        """float: Normalization of the order parameter."""
         return self.thisptr.getK()
 
     def __repr__(self):
@@ -398,15 +398,14 @@ cdef class Translational(_PairCompute):
 
 cdef class Steinhardt(_PairCompute):
     R"""Compute the local Steinhardt :cite:`Steinhardt:1983aa` rotationally invariant
-    :math:`Q_l` :math:`W_l` order parameter for a set of points.
+    :math:`q_l` :math:`w_l` order parameter for a set of points.
 
     Implements the local rotationally invariant :math:`q_l` or :math:`w_l`
     order parameter described by Steinhardt. For a particle i, we calculate the
     average order parameter by summing the spherical harmonics between particle
     :math:`i` and its neighbors :math:`j` in a local region:
     :math:`\overline{q}_{lm}(i) = \frac{1}{N_b} \displaystyle\sum_{j=1}^{N_b}
-    Y_{lm}(\theta(\vec{r}_{ij}), \phi(\vec{r}_{ij}))`. The particles included
-    in the sum are determined by the r_max argument to the constructor.
+    Y_{lm}(\theta(\vec{r}_{ij}), \phi(\vec{r}_{ij}))`.
 
     For :math:`q_l`, this is then combined in a rotationally invariant fashion
     to remove local orientational order as follows:
