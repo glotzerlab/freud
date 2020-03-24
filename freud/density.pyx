@@ -462,7 +462,7 @@ cdef class RDF(_SpatialHistogram1D):
             :math:`1`. It should not be used if :code:`query_points` is
             provided as a different set of points, or if unusual query
             arguments are provided to :meth:`~.compute`, specifically if
-            :code`exclude_ii` is set to :code:`False`. This normalization is
+            :code:`exclude_ii` is set to :code:`False`. This normalization is
             not meaningful in such cases and will simply convolute the data.
 
     """

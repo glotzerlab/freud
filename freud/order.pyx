@@ -374,8 +374,8 @@ cdef class Translational(_PairCompute):
 
     @property
     def default_query_args(self):
-        """The default query arguments are :code:`{'mode': 'nearest',
-        'num_neighbors': int(self.k)}`."""
+        """The default query arguments are
+        :code:`{'mode': 'nearest', 'num_neighbors': int(self.k)}`."""
         return dict(mode="nearest", num_neighbors=int(self.k))
 
     @_Compute._computed_property
