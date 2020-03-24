@@ -1007,8 +1007,8 @@ cdef class _SpatialHistogram1D(_SpatialHistogram):
     @property
     def bin_edges(self):
         """:math:`(N_{bins}+1, )` :class:`numpy.ndarray`: The edges of each bin
-        in the histogram. Is one element larger becauseeach bin has a lower and
-        upper bound."""
+        in the histogram. It is one element larger because each bin has a lower
+        and an upper bound."""
         # Must create a local reference or Cython tries to access an rvalue by
         # reference in the list comprehension.
         vec = self.histptr.getBinEdges()
