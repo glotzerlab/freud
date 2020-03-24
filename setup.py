@@ -407,72 +407,75 @@ try:
 except ImportError:
     readme = desc
 
-# Using a temporary file as a buffer to hold stderr output allows us
-# to parse error messages from the underlying compiler and parse them
-# for known errors.
-tfile = tempfile.TemporaryFile(mode='w+b')
-try:
-    with stderr_manager(tfile):
-        setup(
-            name='freud-analysis',
-            version=version,
-            description=desc,
-            long_description=readme,
-            long_description_content_type='text/x-rst',
-            url='https://github.com/glotzerlab/freud',
-            packages=['freud'],
-            python_requires='>=3.5',
-            install_requires=[
-                'cython>=0.29',
-                'numpy>=1.14',
-                'rowan>=1.2'
-            ],
-            tests_require=[
-                'gsd>=2.0',
-                'garnett>=0.7.1',
-                'matplotlib>=2.0',
-                'MDAnalysis>=0.17',
-                'rowan>=1.2',
-                'scipy>=1.1',
-                'sympy>=1.0',
-            ],
-            ext_modules=extensions)
-except SystemExit:
-    # The errors we're explicitly checking for are whether or not
-    # TBB is missing, and whether a parallel compile resulted in a
-    # distutils-caused race condition.
-    # See these threads for more info:
-    # https://github.com/scipy/scipy/issues/7112#issuecomment-369993514
-    # https://github.com/numpy/numpy/issues/13080
-    # And here's the original introduction of parallelism to setup(...)
-    # https://bugs.python.org/issue5309
-    parallel_err = "file not recognized: file truncated"
-    tbb_err = "'tbb/tbb.h' file not found"
 
-    err_out = tfile.read().decode('utf-8')
-    sys.stderr.write(err_out)
-    if tbb_err in err_out:
-        sys.stderr.write("\n\033[1mUnable to find tbb. If you have TBB on "
-                         "your system, try specifying the location using the "
-                         "--TBB-ROOT or the --TBB-INCLUDE/--TBB-LINK "
-                         "arguments to setup.py.\033[0m\n")
-    elif parallel_err in err_out and args.nthreads > 1:
-        sys.stderr.write("\n\033[1mYou attempted parallel compilation on a "
-                         "Python version where this leads to a race "
-                         "in distutils. Please recompile without the -j "
-                         "option and try again.\033[0m\n")
-    else:
-        raise
-except: # noqa
-    sys.stderr.write(tfile.read().decode('utf-8'))
-    raise
-else:
-    if args.print_warnings:
-        sys.stderr.write("Printing warnings: ")
+if __name__ == '__main__':
+    # Using a temporary file as a buffer to hold stderr output allows us
+    # to parse error messages from the underlying compiler and parse them
+    # for known errors.
+    tfile = tempfile.TemporaryFile(mode='w+b')
+    try:
+        with stderr_manager(tfile):
+            setup(
+                name='freud-analysis',
+                version=version,
+                description=desc,
+                long_description=readme,
+                long_description_content_type='text/x-rst',
+                url='https://github.com/glotzerlab/freud',
+                packages=['freud'],
+                python_requires='>=3.5',
+                install_requires=[
+                    'cython>=0.29',
+                    'numpy>=1.14',
+                    'rowan>=1.2'
+                ],
+                tests_require=[
+                    'gsd>=2.0',
+                    'garnett>=0.7.1',
+                    'matplotlib>=2.0',
+                    'MDAnalysis>=0.17',
+                    'rowan>=1.2',
+                    'scipy>=1.1',
+                    'sympy>=1.0',
+                ],
+                ext_modules=extensions)
+    except SystemExit:
+        # The errors we're explicitly checking for are whether or not
+        # TBB is missing, and whether a parallel compile resulted in a
+        # distutils-caused race condition.
+        # See these threads for more info:
+        # https://github.com/scipy/scipy/issues/7112#issuecomment-369993514
+        # https://github.com/numpy/numpy/issues/13080
+        # And here's the original introduction of parallelism to setup(...)
+        # https://bugs.python.org/issue5309
+        parallel_err = "file not recognized: file truncated"
+        tbb_err = "'tbb/tbb.h' file not found"
+
+        err_out = tfile.read().decode('utf-8')
+        sys.stderr.write(err_out)
+        if tbb_err in err_out:
+            sys.stderr.write("\n\033[1mUnable to find tbb. If you have TBB on "
+                             "your system, try specifying the location using "
+                             "the --TBB-ROOT or the --TBB-INCLUDE/--TBB-LINK "
+                             "arguments to setup.py.\033[0m\n")
+        elif parallel_err in err_out and args.nthreads > 1:
+            sys.stderr.write("\n\033[1mYou attempted parallel compilation on "
+                             "a Python version where this leads to a race "
+                             "in distutils. Please recompile without the -j "
+                             "option and try again.\033[0m\n")
+        else:
+            raise
+    except: # noqa
         sys.stderr.write(tfile.read().decode('utf-8'))
+        raise
     else:
-        out = tfile.read().decode('utf-8')
-        if out:
-            sys.stdout.write("Some warnings were emitted during compilations. "
-                             "Call setup.py with the {} argument "
-                             "to see these warnings.\n".format(warnings_str))
+        if args.print_warnings:
+            sys.stderr.write("Printing warnings: ")
+            sys.stderr.write(tfile.read().decode('utf-8'))
+        else:
+            out = tfile.read().decode('utf-8')
+            if out:
+                sys.stdout.write("Some warnings were emitted during "
+                                 "compilations. Call setup.py with the {} "
+                                 "argument to see these warnings.\n".format(
+                                     warnings_str))
