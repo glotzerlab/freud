@@ -74,7 +74,7 @@ class TestMSD(unittest.TestCase):
             solution = msd.compute(positions).msd
             solution_particle = msd.compute(positions).particle_msd
             npt.assert_allclose(solution, simple, atol=1e-6)
-            npt.assert_allclose(solution_particle, simple_particle, atol=1e-6)
+            npt.assert_allclose(solution_particle, simple_particle, atol=1e-5)
 
     def test_repr(self):
         msd = freud.msd.MSD()
