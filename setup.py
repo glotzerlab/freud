@@ -9,6 +9,7 @@ import multiprocessing.pool
 import logging
 import argparse
 import numpy as np
+import traceback
 from Cython.Build import cythonize
 try:
     from setuptools import Extension, setup, distutils
@@ -411,6 +412,7 @@ except ImportError:
 # to parse error messages from the underlying compiler and parse them
 # for known errors.
 tfile = tempfile.TemporaryFile(mode='w+b')
+
 try:
     with stderr_manager(tfile):
         setup(
@@ -462,10 +464,10 @@ except SystemExit:
                          "in distutils. Please recompile without the -j "
                          "option and try again.\033[0m\n")
     else:
-        raise
+        traceback.print_exc(limit=1)
 except: # noqa
     sys.stderr.write(tfile.read().decode('utf-8'))
-    raise
+    traceback.print_exc(limit=1)
 else:
     if args.print_warnings:
         sys.stderr.write("Printing warnings: ")
