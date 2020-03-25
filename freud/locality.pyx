@@ -174,7 +174,7 @@ cdef class NeighborQueryResult:
     .. warning::
 
         This class should not be instantiated directly, it is the
-        return value of the :meth:`~.NeighborQuery.query` method of
+        return value of the :meth:`~NeighborQuery.query` method of
         :class:`~NeighborQuery`. The class provides a convenient
         interface for iterating over query results, and can be
         transparently converted into a list or a
@@ -213,9 +213,8 @@ cdef class NeighborQueryResult:
                 (Default value = :code:`False`).
 
         Returns:
-            :class:`~NeighborList`: A :mod:`freud` :class:`~NeighborList`
-            containing all neighbor pairs found by the query generating this
-            result object.
+            :class:`~NeighborList`: A :class:`~NeighborList` containing all
+            neighbor pairs found by the query generating this result object.
         """
         cdef const float[:, ::1] l_points = self.points
         cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator = \
@@ -822,7 +821,7 @@ cdef class LinkCell(NeighborQuery):
         cell_width (float, optional):
             Width of cells. If not provided, :class:`~.LinkCell` will
             estimate a cell width based on the number of points and the box
-            size assuming constant density of points throughout the box.
+            size, assuming a constant density of points in the box.
     """
 
     def __cinit__(self, box, points, cell_width=0):
