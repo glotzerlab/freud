@@ -10,7 +10,7 @@ and this project adheres to
 - Support for garnett 0.7.
 
 ### Changed
-- Cython is no longer an optional dependency. Cythonized `.cpp` files have been removed.
+- Cython is now a required dependency (not optional). Cythonized `.cpp` files have been removed.
 
 ## v2.2.0 - 2020-02-24
 
