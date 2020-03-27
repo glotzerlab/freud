@@ -6,6 +6,7 @@
 
 #include <cstring>
 #include <stack>
+#include <stdexcept>
 #include <vector>
 
 #include "AABB.h"
