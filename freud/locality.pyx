@@ -333,8 +333,10 @@ cdef class NeighborQuery:
         # garnett compatibility (garnett >=0.5)
         elif match_class_path(system, 'garnett.trajectory.Frame'):
             try:
+                # garnett >= 0.7
                 position = system.position
             except AttributeError:
+                # garnett < 0.7
                 position = system.positions
             system = (system.box, position)
 
