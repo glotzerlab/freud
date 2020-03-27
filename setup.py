@@ -387,7 +387,8 @@ for f, m in zip(files, modules):
 nthreads = args.nthreads
 if nthreads:
     if multiprocessing.get_start_method() == 'spawn':
-        print('Disabling parallel cythonization for "spawn" process start method.')
+        print('Disabling parallel cythonization for "spawn" process start '
+              'method.')
         nthreads = 0
 
 extensions = cythonize(extensions,
