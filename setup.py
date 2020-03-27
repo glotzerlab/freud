@@ -5,7 +5,7 @@ import os
 import sys
 import platform
 import glob
-import multiprocessing.pool
+import multiprocessing
 import logging
 import argparse
 import numpy as np
@@ -382,9 +382,17 @@ for f, m in zip(files, modules):
 
     extensions.append(Extension(m, sources=list(sources), **ext_args))
 
+# Disable Cython parallel compilation on Windows
+# https://github.com/cython/cython/issues/3262
+nthreads = args.nthreads
+if nthreads:
+    if multiprocessing.get_start_method() == 'spawn':
+        print('Disabling parallel cythonization for "spawn" process start method.')
+        nthreads = 0
+
 extensions = cythonize(extensions,
                        compiler_directives=directives,
-                       nthreads=args.nthreads,
+                       nthreads=nthreads,
                        gdb_debug=args.gdb_debug)
 
 
