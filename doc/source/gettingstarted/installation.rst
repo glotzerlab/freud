@@ -33,12 +33,12 @@ Compile from source
 The following are **required** for installing **freud**:
 
 - `Python <https://www.python.org/>`_ (3.5+ required)
-- `NumPy <http://www.numpy.org/>`_
+- `NumPy <https://www.numpy.org/>`_
 - `Intel Threading Building Blocks <https://www.threadingbuildingblocks.org/>`_ (TBB)
+- `Cython <https://cython.org/>`_ (0.29+ required)
 
 The following are **optional** for installing **freud**:
 
-- `Cython <http://cython.org/>`_ (0.28+ required): The **freud** repository contains Cython-generated :code:`*.cpp` files in the :code:`freud/` directory that can be used directly. However, Cython is necessary if you wish to recompile these files.
 
 For conda users, these requirements can be met by installing the following packages from the `conda-forge channel <https://conda-forge.org/>`_:
 
@@ -70,11 +70,6 @@ In general, the following options are available for setup.py in addition to the 
 
     -\\-PRINT-WARNINGS
       Specify whether or not to print compilation warnings resulting from the build even if the build succeeds with no errors.
-
-    -\\-ENABLE-CYTHON
-      Rebuild the Cython-generated C++ files.
-      If there are any unexpected issues with compiling the C++ shipped with the build, using this flag may help.
-      It is also necessary any time modifications are made to the Cython files.
 
     -j
       Compile in parallel.
