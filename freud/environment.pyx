@@ -237,7 +237,7 @@ cdef class LocalDescriptors(_PairCompute):
     computing descriptors on the same system but with different subsets of
     neighbors; a :class:`freud.locality.NeighborList` with the correct
     ordering can then be reused in multiple calls to :meth:`~.compute`
-    with different values of `max_num_neighbors` to compute descriptors
+    with different values of :code:`max_num_neighbors` to compute descriptors
     for different local neighborhoods with maximum efficiency.
 
     Args:

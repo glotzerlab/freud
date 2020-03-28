@@ -174,7 +174,7 @@ cdef class NeighborQueryResult:
     .. warning::
 
         This class should not be instantiated directly, it is the
-        return value of all `query*` functions of
+        return value of the :meth:`~NeighborQuery.query` method of
         :class:`~NeighborQuery`. The class provides a convenient
         interface for iterating over query results, and can be
         transparently converted into a list or a
@@ -204,7 +204,7 @@ cdef class NeighborQueryResult:
         raise StopIteration
 
     def toNeighborList(self, sort_by_distance=False):
-        """Convert query result to a freud NeighborList.
+        """Convert query result to a freud :class:`~NeighborList`.
 
         Args:
             sort_by_distance (bool):
@@ -213,9 +213,8 @@ cdef class NeighborQueryResult:
                 (Default value = :code:`False`).
 
         Returns:
-            :class:`~NeighborList`: A :mod:`freud` :class:`~NeighborList`
-            containing all neighbor pairs found by the query generating this
-            result object.
+            :class:`~NeighborList`: A :class:`~NeighborList` containing all
+            neighbor pairs found by the query generating this result object.
         """
         cdef const float[:, ::1] l_points = self.points
         cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator = \
@@ -826,9 +825,9 @@ cdef class LinkCell(NeighborQuery):
         points ((:math:`N`, 3) :class:`numpy.ndarray`):
             The points to bin into the cell list.
         cell_width (float, optional):
-            Width of cells. If not provided, `~.LinkCell` will estimate a cell
-            width based on the number of points and the box size assuming
-            constant density of points throughout the box.
+            Width of cells. If not provided, :class:`~.LinkCell` will
+            estimate a cell width based on the number of points and the box
+            size, assuming a constant density of points in the box.
     """
 
     def __cinit__(self, box, points, cell_width=0):
@@ -1013,8 +1012,8 @@ cdef class _SpatialHistogram1D(_SpatialHistogram):
     @property
     def bin_edges(self):
         """:math:`(N_{bins}+1, )` :class:`numpy.ndarray`: The edges of each bin
-        in the histogram. Is one element larger becauseeach bin has a lower and
-        upper bound."""
+        in the histogram. It is one element larger because each bin has a lower
+        and an upper bound."""
         # Must create a local reference or Cython tries to access an rvalue by
         # reference in the list comprehension.
         vec = self.histptr.getBinEdges()
