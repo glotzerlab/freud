@@ -179,8 +179,8 @@ cdef class ClusterProperties(_Compute):
     def compute(self, system, cluster_idx):
         R"""Compute properties of the point clusters.
         Loops over all points in the given array and determines the center of
-        mass of the cluster as well as the gyration tensor. These can be
-        accessed after the call to :meth:`~.compute()` with the
+        mass of the cluster as well as the gyration tensor. After calling
+        this method, these properties can be accessed with the
         :code:`centers` and :code:`gyrations` attributes.
 
         Args:

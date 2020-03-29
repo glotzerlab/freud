@@ -4,6 +4,14 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## next
+
+### Added
+- Support for garnett 0.7.
+
+### Changed
+- Cython is now a required dependency (not optional). Cythonized `.cpp` files have been removed.
+
 ## v2.2.0 - 2020-02-24
 
 ### Added
