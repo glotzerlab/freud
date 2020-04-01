@@ -386,7 +386,7 @@ public:
     */
     inline float computeDistance(const vec3<float>& r_i, const vec3<float>& r_j) const
     {
-            vec3<float> r_ij = wrap(r_j - r_i);
+            const vec3<float> r_ij = wrap(r_j - r_i);
             return std::sqrt(dot(r_ij, r_ij));
     }
 
