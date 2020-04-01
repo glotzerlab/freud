@@ -426,7 +426,7 @@ public:
         });
     }
 
-    //! Calculate distance between a set of points and query points using boundary conditions
+    //! Calculate distance between a set of points and query points using periodic boundary conditions
      /*!\param query_points Particle position to query.
         \param points Particle positions.
         \param query_points Particle position to calculate distances from
