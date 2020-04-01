@@ -26,7 +26,7 @@ class TestMinkowski(unittest.TestCase):
                     '{}.gsd'.format(structure))) as traj:
                 frame = traj[0]
                 box = frame.box
-                positions = frame.positions.copy()
+                positions = frame.position.copy()
 
             voro = freud.locality.Voronoi()
             voro.compute((box, positions))
