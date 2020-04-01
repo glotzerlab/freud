@@ -54,7 +54,7 @@ cdef extern from "Box.h" namespace "freud::box":
                               ) except +
         void computeAllDistances(vec3[float]*, vec3[float]*, float*,
                                  unsigned int, unsigned int
-                                 ) except +
+                                 )
 
         vec3[bool] getPeriodic() const
         bool getPeriodicX() const
