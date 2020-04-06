@@ -422,8 +422,7 @@ cdef class Box:
         self.thisptr.center(<vec3[float]*> &l_points[0, 0], Np, l_masses_ptr)
         return vecs
 
-    def compute_distances(
-            self, query_points, points, query_point_indices, point_indices):
+    def compute_distances(self, query_points, points):
         R"""Calculate distances between two sets of points, using periodic boundaries.
 
         Args:
@@ -431,47 +430,29 @@ cdef class Box:
                 Array of query points.
             points (:math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Array of points.
-            query_points_indices (:math:`\left(N, \right)` :class:`numpy.ndarray`):
-                Array of indices that correspond to a set of query points.
-            points_indices (:math:`\left(N, \right)` :class:`numpy.ndarray`):
-                Array of indices that correspond to a set of points, of same length and query_points_indices.
 
         Returns:
             :math:`\left(N, \right)` :class:`numpy.ndarray`:
                 Array of distances between query points and points.
         """   # noqa: E501
-        query_points = np.atleast_2d(query_points)
-        points = np.atleast_2d(points)
-        query_point_indices = np.atleast_1d(query_point_indices)
-        point_indices = np.atleast_1d(point_indices)
 
-        query_points = freud.util._convert_array(query_points, shape=(None, 3))
-        points = freud.util._convert_array(points, shape=(None, 3))
-
-        query_point_indices = freud.util._convert_array(
-            query_point_indices, shape=(None,), dtype=np.uint32)
-        point_indices = freud.util._convert_array(
-            point_indices, shape=(None,), dtype=np.uint32)
+        query_points = freud.util._convert_array(
+            np.atleast_2d(query_points), shape=(None, 3))
+        points = freud.util._convert_array(
+            np.atleast_2d(points), shape=(None, 3))
 
         cdef:
             const float[:, ::1] l_query_points = query_points
             const float[:, ::1] l_points = points
-            const unsigned int[::1] l_query_point_indices = \
-                query_point_indices
-            const unsigned int[::1] l_point_indices = point_indices
             size_t n_query_points = query_points.shape[0]
             size_t n_points = points.shape[0]
-            size_t n_query_indices = query_point_indices.shape[0]
-            size_t n_point_indices = point_indices.shape[0]
             float[::1] distances = np.empty(
-                n_query_indices, dtype=np.float32)
+                n_query_points, dtype=np.float32)
 
         self.thisptr.computeDistances(
             <vec3[float]*> &l_query_points[0, 0],
             <vec3[float]*> &l_points[0, 0],
-            &l_query_point_indices[0], &l_point_indices[0],
             <float *> &distances[0], n_query_points, n_points,
-            n_query_indices, n_point_indices
         )
 
         return np.asarray(distances)

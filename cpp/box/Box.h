@@ -393,35 +393,21 @@ public:
     //! Calculate distance between a set of points and query points using boundary conditions.
      /*!\param query_points Particle position to query.
         \param points Particle positions.
-        \param query_point_indices Array of indices that correspond to a set of query points.
-        \param point_indices Array of indices that correspond to a set of points.
         \param distances Distances between points and query_points.
         \param n_query_points The number of query points.
         \param n_points The number of points.
-        \param n_query_indices The number of query points indices.
-        \param n_point_indices The number of points indices.
     */
     void computeDistances(const vec3<float>* query_points, const vec3<float>* points,
-        const unsigned int* query_point_indices, const unsigned int* point_indices,
-        float *distances, const unsigned int n_query_points, const unsigned int n_points,
-        const unsigned int n_query_indices, const unsigned int n_point_indices) const
+        float *distances, const unsigned int n_query_points, const unsigned int n_points) const
     {
-        if (n_query_indices != n_point_indices)
+        if (n_query_points != n_points)
         {
-            throw std::invalid_argument("The number of query point indices and point indices must match.");
+            throw std::invalid_argument("The number of query points and points must match.");
         }
-        util::forLoopWrapper(0, n_query_indices, [=](size_t begin, size_t end) {
+        util::forLoopWrapper(0, n_query_points, [=](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
-                if (query_point_indices[i] >= n_query_points)
-                {
-                    throw std::out_of_range("Query point indices exceed number of query points.");
-                }
-                if (point_indices[i] >= n_points)
-                {
-                    throw std::out_of_range("Point indices exceed number of points.");
-                }
-                distances[i] = computeDistance(query_points[query_point_indices[i]], points[point_indices[i]]);
+                distances[i] = computeDistance(query_points[i], points[i]);
             }
         });
     }

@@ -48,9 +48,8 @@ cdef extern from "Box.h" namespace "freud::box":
                     unsigned int) const
         vec3[float] centerOfMass(vec3[float]*, size_t, float*) const
         void center(vec3[float]*, size_t, float*) const
-        void computeDistances(vec3[float]*, vec3[float]*, unsigned int*,
-                              unsigned int*, float*, unsigned int,
-                              unsigned int, unsigned int, unsigned int
+        void computeDistances(vec3[float]*, vec3[float]*,
+                              float*, unsigned int, unsigned int
                               ) except +
         void computeAllDistances(vec3[float]*, vec3[float]*, float*,
                                  unsigned int, unsigned int
