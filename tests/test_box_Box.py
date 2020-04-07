@@ -446,7 +446,8 @@ class TestBox(unittest.TestCase):
             [[-0.5, -1.3, 0.], [0.5, 0, 0], [-2.2, -1.3, 0.], [0, 0.4, 0]])
         point_indices = np.array([1, 0, 1, 0])
         query_point_indices = np.array([0, 1, 2, 3])
-        distances = box.compute_distances(query_points[query_point_indices], points[point_indices])
+        distances = box.compute_distances(
+            query_points[query_point_indices], points[point_indices])
         npt.assert_allclose(distances, [0.3, 0.5, 0.0, 0.4], rtol=1e-6)
 
         # 1 dimensional array
@@ -467,7 +468,8 @@ class TestBox(unittest.TestCase):
             [[-0.5, -1.3, 2.], [0.5, 0, 0], [-2.2, -1.3, 2.], [0, 0, 0.2]])
         point_indices = np.array([1, 0, 1, 0])
         query_point_indices = np.array([0, 1, 2, 3])
-        distances = box.compute_distances(query_points[query_point_indices], points[point_indices])
+        distances = box.compute_distances(
+            query_points[query_point_indices], points[point_indices])
         npt.assert_allclose(distances, [0.3, 0.5, 0.0, 0.2], rtol=1e-6)
 
     def test_compute_all_distances_2d(self):
