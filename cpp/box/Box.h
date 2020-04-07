@@ -397,8 +397,8 @@ public:
         \param n_query_points The number of query points.
         \param n_points The number of points.
     */
-    void computeDistances(const vec3<float>* query_points, const vec3<float>* points,
-        float *distances, const unsigned int n_query_points, const unsigned int n_points) const
+    void computeDistances(const vec3<float>* query_points, const unsigned int n_query_points,
+        const vec3<float>* points, const unsigned int n_points, float *distances) const
     {
         if (n_query_points != n_points)
         {
@@ -415,13 +415,11 @@ public:
     //! Calculate distance between a set of points and query points using periodic boundary conditions
      /*!\param query_points Particle position to query.
         \param points Particle positions.
-        \param query_points Particle position to calculate distances from
-        \param n_query_points The number of query points.
+        \param query_points Particle position to calculate distances from \param n_query_points The number of query points.
         \param n_points The number of points.
     */
-    void computeAllDistances(const vec3<float>* query_points, const vec3<float>* points,
-        float* distances, const unsigned int n_query_points, const unsigned int n_points) const
-    {
+    void computeAllDistances(const vec3<float>* query_points, const unsigned int n_query_points,
+        const vec3<float>* points, const unsigned int n_points, float* distances) const {
         util::forLoopWrapper2D(0, n_query_points, 0, n_points, [=](
             size_t begin_n, size_t end_n, size_t begin_m, size_t end_m) {
                 for (size_t i = begin_n; i < end_n; ++i)
