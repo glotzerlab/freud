@@ -474,11 +474,13 @@ class TestBox(unittest.TestCase):
 
     def test_compute_all_distances_2d(self):
         box = freud.box.Box(2, 3, 0, 1, 0, 0, is2D=True)
-        points = np.array([[0., 0., 0.]])
+        points = np.array([[0., 0., 0.], [0., 0., 0.]])
         query_points = np.array(
             [[0.2, 0., 0.], [0., -0.4, 0.], [1., 1., 0.]])
         distances = box.compute_all_distances(points, query_points)
-        npt.assert_allclose(distances, [[0.2, 0.4, np.sqrt(2)]], rtol=1e-6)
+        npt.assert_allclose(distances, [
+            [0.2, 0.4, np.sqrt(2)],
+            [0.2, 0.4, np.sqrt(2)]], rtol=1e-6)
 
         points = np.array([0., 0., 0.])
         distances = box.compute_all_distances(points, query_points)
