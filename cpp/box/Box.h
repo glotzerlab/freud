@@ -395,7 +395,7 @@ public:
         \param n_query_points The number of query points.
         \param points Point positions.
         \param n_points The number of points.
-        \param distances Distances between points and query_points (length is n_query_points).
+        \param distances Pointer to array of length n_query_points containing distances between each point and query_point (overwritten in place).
     */
     void computeDistances(const vec3<float>* query_points, const unsigned int n_query_points,
         const vec3<float>* points, const unsigned int n_points, float *distances) const
@@ -404,7 +404,7 @@ public:
         {
             throw std::invalid_argument("The number of query points and points must match.");
         }
-        util::forLoopWrapper(0, n_query_points, [=](size_t begin, size_t end) {
+        util::forLoopWrapper(0, n_query_points, [&](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
                 distances[i] = computeDistance(query_points[i], points[i]);
@@ -417,12 +417,12 @@ public:
         \param n_query_points The number of query points.
         \param points Point positions.
         \param n_points The number of points.
-        \param distances Distances between points and query_points (length is n_query_points*n_points).
+        \param distances Pointer to array of length n_query_points*n_points containing distances between points and query_points (overwritten in place).
     */
     void computeAllDistances(const vec3<float>* query_points, const unsigned int n_query_points,
         const vec3<float>* points, const unsigned int n_points, float* distances) const
     {
-        util::forLoopWrapper2D(0, n_query_points, 0, n_points, [=](
+        util::forLoopWrapper2D(0, n_query_points, 0, n_points, [&](
             size_t begin_n, size_t end_n, size_t begin_m, size_t end_m) {
                 for (size_t i = begin_n; i < end_n; ++i)
                 {
