@@ -474,12 +474,10 @@ cdef class Box:
             :math:`\left(N_{query\_points}, N_{points}, \right)` :class:`numpy.ndarray`:
                 Array of distances between query points and points.
         """  # noqa: E501
-        query_points = np.atleast_2d(query_points)
-        points = np.atleast_2d(points)
-
-        query_points = freud.util._convert_array(query_points, shape=(None, 3))
+        query_points = freud.util._convert_array(
+            np.atleast_2d(query_points), shape=(None, 3))
         points = freud.util._convert_array(
-            points, shape=(None, 3))
+            np.atleast_2d(points), shape=(None, 3))
 
         cdef:
             const float[:, ::1] l_query_points = query_points
