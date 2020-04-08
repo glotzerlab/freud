@@ -162,12 +162,12 @@ class TestBox(unittest.TestCase):
         box = freud.box.Box(2, 2, 2, 0, 0, 0)
         points = np.array([[50, 40, 30],
                            [-10, 0, 0]])
-        testimages = np.array([box.get_images(vec) for vec in points])
-        npt.assert_equal(testimages,
+        images = np.array([box.get_images(vec) for vec in points])
+        npt.assert_equal(images,
                          np.array([[25, 20, 15],
                                    [-5, 0, 0]]))
-        testimages = box.get_images(points)
-        npt.assert_equal(testimages,
+        images = box.get_images(points)
+        npt.assert_equal(images,
                          np.array([[25, 20, 15],
                                    [-5, 0, 0]]))
 
