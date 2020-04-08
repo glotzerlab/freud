@@ -481,13 +481,19 @@ cdef class NeighborList:
         R"""Create a NeighborList from a set of bond information arrays.
 
         Example::
-            box = freud.Box.box(2, 3, 4, 0, 0, 0)
-            # Assume positions and bond information is known.
+            import freud
+            import numpy as np
+            box = freud.box.Box(2, 3, 4, 0, 0, 0)
+            query_points = np.array([[0, 0, 0], [0, 0, 1]])
+            points = np.array([[0, 0, -1], [0.5, -1, 0]])
+            query_point_indices = np.array([0, 0, 1])
+            point_indices = np.array([0, 1, 1])
             distances = box.compute_distances(query_points[query_point_indices], points[point_indices])
             num_query_points = len(query_points)
             num_points = len(points)
-            nl = freud.locality.NeighborList.from_arrays(num_query_points,
-                num_points, query_point_indices, point_indices, distances)
+            nlist = freud.locality.NeighborList.from_arrays(
+                num_query_points, num_points, query_point_indices,
+                point_indices, distances)
 
 
         Args:
@@ -508,7 +514,7 @@ cdef class NeighborList:
             weights (:class:`np.ndarray`, optional):
                 Array of per-bond weights (if :code:`None` is given, use a
                 value of 1 for each weight) (Default value = :code:`None`).
-        """ # noqa 501
+        """  # noqa 501
         query_point_indices = freud.util._convert_array(
             query_point_indices, shape=(None,), dtype=np.uint32)
         point_indices = freud.util._convert_array(
