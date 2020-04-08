@@ -422,6 +422,78 @@ cdef class Box:
         self.thisptr.center(<vec3[float]*> &l_points[0, 0], Np, l_masses_ptr)
         return vecs
 
+    def compute_distances(self, query_points, points):
+        R"""Calculate distances between two sets of points, using periodic boundaries.
+
+        Distances are calculated row-wise, i.e. ``distances[i]`` is the
+        distance from ``query_points[i]`` to ``points[i]``.
+
+        Args:
+            query_points (:math:`\left(N, 3\right)` :class:`numpy.ndarray`):
+                Array of query points.
+            points (:math:`\left(N, 3\right)` :class:`numpy.ndarray`):
+                Array of points.
+
+        Returns:
+            :math:`\left(N, \right)` :class:`numpy.ndarray`:
+                Array of distances between query points and points.
+        """   # noqa: E501
+
+        query_points = freud.util._convert_array(
+            np.atleast_2d(query_points), shape=(None, 3))
+        points = freud.util._convert_array(
+            np.atleast_2d(points), shape=(None, 3))
+
+        cdef:
+            const float[:, ::1] l_query_points = query_points
+            const float[:, ::1] l_points = points
+            size_t n_query_points = query_points.shape[0]
+            size_t n_points = points.shape[0]
+            float[::1] distances = np.empty(
+                n_query_points, dtype=np.float32)
+
+        self.thisptr.computeDistances(
+            <vec3[float]*> &l_query_points[0, 0], n_query_points,
+            <vec3[float]*> &l_points[0, 0], n_points,
+            <float *> &distances[0])
+        return np.asarray(distances)
+
+    def compute_all_distances(self, query_points, points):
+        R"""Calculate distances between all pairs of query points and points.
+
+        Distances are calculated pairwise, i.e. ``distances[i, j]`` is the
+        distance from ``query_points[i]`` to ``points[j]``.
+
+        Args:
+            query_points (:math:`\left(N_{query\_points}, 3 \right)` :class:`numpy.ndarray`):
+                Array of query points.
+            points (:math:`\left(N_{points}, 3 \right)` :class:`numpy.ndarray`):
+                Array of points with same length as ``query_points``.
+
+        Returns:
+            :math:`\left(N_{query\_points}, N_{points}, \right)` :class:`numpy.ndarray`:
+                Array of distances between query points and points.
+        """  # noqa: E501
+        query_points = freud.util._convert_array(
+            np.atleast_2d(query_points), shape=(None, 3))
+        points = freud.util._convert_array(
+            np.atleast_2d(points), shape=(None, 3))
+
+        cdef:
+            const float[:, ::1] l_query_points = query_points
+            const float[:, ::1] l_points = points
+            size_t n_query_points = query_points.shape[0]
+            size_t n_points = points.shape[0]
+            float[:, ::1] distances = np.empty(
+                [n_query_points, n_points], dtype=np.float32)
+
+        self.thisptr.computeAllDistances(
+            <vec3[float]*> &l_query_points[0, 0], n_query_points,
+            <vec3[float]*> &l_points[0, 0], n_points,
+            <float *> &distances[0, 0])
+
+        return np.asarray(distances)
+
     @property
     def periodic(self):
         """:math:`\\left(3, \\right)` :class:`numpy.ndarray`: Get or set the
