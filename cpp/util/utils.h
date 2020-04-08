@@ -49,12 +49,12 @@ inline void forLoopWrapper(size_t begin, size_t end, const Body& body, bool para
     }
 }
 
-//! Wrapper for 2 for loops to allow the execution in parallel or not.
+//! Wrapper for 2D nested for loops to allow the execution in parallel or not.
 /*! \param parallel If true, run body in parallel.
- *  \param begin_row Beginning index for 1st for-loop.
- *  \param end_row Ending index for 1st for-loop.
- *  \param begin_col Beginning index for 2nd for loop (nested in 1st for-loop).
- *  \param end_col Ending index 2nd for loop (nested in 1st for-loop).
+ *  \param begin_row Beginning index of outer loop.
+ *  \param end_row Ending index of outer loop.
+ *  \param begin_col Beginning index of inner loop.
+ *  \param end_col Ending index of inner loop.
  *  \param body An object with operator(size_t begin_row, size_t end_row, size_t begin_col, size_t end_col).
  */
 template<typename Body>
@@ -75,7 +75,6 @@ inline void forLoopWrapper2D(
         body(begin_row, end_row, begin_col, end_col);
     }
 }
-
 
 };
 
