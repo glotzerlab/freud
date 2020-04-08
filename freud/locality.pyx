@@ -5,7 +5,6 @@ R"""
 The :mod:`freud.locality` module contains data structures to efficiently
 locate points based on their proximity to other points.
 """
-import copy
 import freud.util
 import inspect
 import logging

@@ -6,6 +6,7 @@ import sys
 import platform
 import glob
 import multiprocessing
+import multiprocessing.pool
 import logging
 import argparse
 import numpy as np
@@ -432,6 +433,7 @@ try:
             long_description_content_type='text/x-rst',
             url='https://github.com/glotzerlab/freud',
             packages=['freud'],
+            zip_safe=False,
             python_requires='>=3.5',
             install_requires=[
                 'cython>=0.29',
@@ -479,7 +481,7 @@ except: # noqa
     traceback.print_exc(limit=1)
 else:
     if args.print_warnings:
-        sys.stderr.write("Printing warnings: ")
+        sys.stderr.write("Printing warnings:\n")
         sys.stderr.write(tfile.read().decode('utf-8'))
     else:
         out = tfile.read().decode('utf-8')
