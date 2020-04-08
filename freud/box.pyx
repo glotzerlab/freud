@@ -425,6 +425,9 @@ cdef class Box:
     def compute_distances(self, query_points, points):
         R"""Calculate distances between two sets of points, using periodic boundaries.
 
+        Distances are calculated row-wise, i.e. ``distances[i]`` is the
+        distance from ``query_points[i]`` to ``points[i]``.
+
         Args:
             query_points (:math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Array of query points.
@@ -456,17 +459,20 @@ cdef class Box:
         return np.asarray(distances)
 
     def compute_all_distances(self, query_points, points):
-        R"""Calculate distances between a set of points and all query points.
+        R"""Calculate distances between all pairs of query points and points.
+
+        Distances are calculated pairwise, i.e. ``distances[i, j]`` is the
+        distance from ``query_points[i]`` to ``points[j]``.
 
         Args:
             query_points (:math:`\left(N_{query\_points}, 3 \right)` :class:`numpy.ndarray`):
                 Array of query points.
             points (:math:`\left(N_{points}, 3 \right)` :class:`numpy.ndarray`):
-                Array of points with same length as query_points.
+                Array of points with same length as ``query_points``.
 
         Returns:
-            :math:`\left(N_{points}, N_{query\_points}, \right)` :class:`numpy.ndarray`:
-                Array of distances between corresponding query points and points.
+            :math:`\left(N_{query\_points}, N_{points}, \right)` :class:`numpy.ndarray`:
+                Array of distances between query points and points.
         """  # noqa: E501
         query_points = np.atleast_2d(query_points)
         points = np.atleast_2d(points)
