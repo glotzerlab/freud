@@ -492,7 +492,7 @@ cdef class Box:
             <vec3[float]*> &l_points[0, 0], n_points,
             <float *> &distances[0, 0])
 
-        return np.squeeze(distances)
+        return np.asarray(distances)
 
     @property
     def periodic(self):

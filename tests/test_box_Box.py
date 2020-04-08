@@ -484,7 +484,7 @@ class TestBox(unittest.TestCase):
 
         points = np.array([0., 0., 0.])
         distances = box.compute_all_distances(points, query_points)
-        npt.assert_allclose(distances, [0.2, 0.4, np.sqrt(2)], rtol=1e-6)
+        npt.assert_allclose(distances, [[0.2, 0.4, np.sqrt(2)]], rtol=1e-6)
 
     def test_compute_all_distances_3d(self):
         box = freud.box.Box(2, 3, 4, 1, 0, 0)
