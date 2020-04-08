@@ -481,7 +481,7 @@ except: # noqa
     traceback.print_exc(limit=1)
 else:
     if args.print_warnings:
-        sys.stderr.write("Printing warnings: ")
+        sys.stderr.write("Printing warnings:\n")
         sys.stderr.write(tfile.read().decode('utf-8'))
     else:
         out = tfile.read().decode('utf-8')
