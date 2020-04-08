@@ -85,11 +85,11 @@ class TestBox(unittest.TestCase):
     def test_wrap_single_particle(self):
         box = freud.box.Box(2, 2, 2, 1, 0, 0)
 
-        testpoints = [0, -1, -1]
-        npt.assert_allclose(box.wrap(testpoints)[0], -2, rtol=1e-6)
+        points = [0, -1, -1]
+        npt.assert_allclose(box.wrap(points)[0], -2, rtol=1e-6)
 
-        testpoints = np.array(testpoints)
-        npt.assert_allclose(box.wrap(testpoints)[0], -2, rtol=1e-6)
+        points = np.array(points)
+        npt.assert_allclose(box.wrap(points)[0], -2, rtol=1e-6)
 
         with self.assertRaises(ValueError):
             box.wrap([1, 2])
@@ -97,77 +97,77 @@ class TestBox(unittest.TestCase):
     def test_wrap_multiple_particles(self):
         box = freud.box.Box(2, 2, 2, 1, 0, 0)
 
-        testpoints = [[0, -1, -1], [0, 0.5, 0]]
-        npt.assert_allclose(box.wrap(testpoints)[0, 0], -2, rtol=1e-6)
+        points = [[0, -1, -1], [0, 0.5, 0]]
+        npt.assert_allclose(box.wrap(points)[0, 0], -2, rtol=1e-6)
 
-        testpoints = np.array(testpoints)
-        npt.assert_allclose(box.wrap(testpoints)[0, 0], -2, rtol=1e-6)
+        points = np.array(points)
+        npt.assert_allclose(box.wrap(points)[0, 0], -2, rtol=1e-6)
 
     def test_wrap_multiple_images(self):
         box = freud.box.Box(2, 2, 2, 1, 0, 0)
 
-        testpoints = [[10, -5, -5], [0, 0.5, 0]]
-        npt.assert_allclose(box.wrap(testpoints)[0, 0], -2, rtol=1e-6)
+        points = [[10, -5, -5], [0, 0.5, 0]]
+        npt.assert_allclose(box.wrap(points)[0, 0], -2, rtol=1e-6)
 
-        testpoints = np.array(testpoints)
-        npt.assert_allclose(box.wrap(testpoints)[0, 0], -2, rtol=1e-6)
+        points = np.array(points)
+        npt.assert_allclose(box.wrap(points)[0, 0], -2, rtol=1e-6)
 
     def test_unwrap(self):
         box = freud.box.Box(2, 2, 2, 1, 0, 0)
 
-        testpoints = [0, -1, -1]
+        points = [0, -1, -1]
         imgs = [1, 0, 0]
         npt.assert_allclose(
-            box.unwrap(testpoints, imgs), [2, -1, -1], rtol=1e-6)
+            box.unwrap(points, imgs), [2, -1, -1], rtol=1e-6)
 
-        testpoints = [[0, -1, -1], [0, 0.5, 0]]
+        points = [[0, -1, -1], [0, 0.5, 0]]
         imgs = [[1, 0, 0], [1, 1, 0]]
-        npt.assert_allclose(box.unwrap(testpoints, imgs)[0, 0], 2, rtol=1e-6)
+        npt.assert_allclose(box.unwrap(points, imgs)[0, 0], 2, rtol=1e-6)
 
-        testpoints = np.array(testpoints)
+        points = np.array(points)
         imgs = np.array(imgs)
-        npt.assert_allclose(box.unwrap(testpoints, imgs)[0, 0], 2, rtol=1e-6)
+        npt.assert_allclose(box.unwrap(points, imgs)[0, 0], 2, rtol=1e-6)
 
         with self.assertRaises(ValueError):
-            box.unwrap(testpoints, imgs[..., np.newaxis])
+            box.unwrap(points, imgs[..., np.newaxis])
 
         with self.assertRaises(ValueError):
-            box.unwrap(testpoints[:, :2], imgs)
+            box.unwrap(points[:, :2], imgs)
 
         # Now test 2D
         box = freud.box.Box.square(1)
 
-        testpoints = [10, 0, 0]
+        points = [10, 0, 0]
         imgs = [10, 1, 2]
         npt.assert_allclose(
-            box.unwrap(testpoints, imgs), [20, 1, 0], rtol=1e-6)
+            box.unwrap(points, imgs), [20, 1, 0], rtol=1e-6)
 
         # Test broadcasting one image with multiple vectors
         box = freud.box.Box.cube(1)
 
-        testpoints = [[10, 0, 0], [11, 0, 0]]
+        points = [[10, 0, 0], [11, 0, 0]]
         imgs = [10, 1, 2]
         npt.assert_allclose(
-            box.unwrap(testpoints, imgs), [[20, 1, 2], [21, 1, 2]], rtol=1e-6)
+            box.unwrap(points, imgs), [[20, 1, 2], [21, 1, 2]], rtol=1e-6)
 
         # Test broadcasting one vector with multiple images
         box = freud.box.Box.cube(1)
 
-        testpoints = [10, 0, 0]
+        points = [10, 0, 0]
         imgs = [[10, 1, 2], [11, 1, 2]]
         npt.assert_allclose(
-            box.unwrap(testpoints, imgs), [[20, 1, 2], [21, 1, 2]], rtol=1e-6)
+            box.unwrap(points, imgs), [[20, 1, 2], [21, 1, 2]], rtol=1e-6)
 
     def test_images(self):
         box = freud.box.Box(2, 2, 2, 0, 0, 0)
-        testpoints = np.array([[50, 40, 30],
-                               [-10, 0, 0]])
-        testimages = np.array([box.get_images(vec) for vec in testpoints])
-        npt.assert_equal(testimages,
+        points = np.array([[50, 40, 30],
+                           [-10, 0, 0]])
+        images = np.array([box.get_images(vec) for vec in points])
+        npt.assert_equal(images,
                          np.array([[25, 20, 15],
                                    [-5, 0, 0]]))
-        testimages = box.get_images(testpoints)
-        npt.assert_equal(testimages,
+        images = box.get_images(points)
+        npt.assert_equal(images,
                          np.array([[25, 20, 15],
                                    [-5, 0, 0]]))
 
@@ -438,6 +438,61 @@ class TestBox(unittest.TestCase):
     def test_plot_2d(self):
         box = freud.box.Box(2, 3, 0, 1, 0, 0, is2D=True)
         box.plot()
+
+    def test_compute_distances_2d(self):
+        box = freud.box.Box(2, 3, 0, 1, 0, 0, is2D=True)
+        points = np.array([[0, 0, 0], [-2.2, -1.3, 0]])
+        query_points = np.array(
+            [[-0.5, -1.3, 0.], [0.5, 0, 0], [-2.2, -1.3, 0.], [0, 0.4, 0]])
+        point_indices = np.array([1, 0, 1, 0])
+        query_point_indices = np.array([0, 1, 2, 3])
+        distances = box.compute_distances(
+            query_points[query_point_indices], points[point_indices])
+        npt.assert_allclose(distances, [0.3, 0.5, 0.0, 0.4], rtol=1e-6)
+
+        # 1 dimensional array
+        distances = box.compute_distances(query_points[0], points[1])
+        npt.assert_allclose(distances, [0.3], rtol=1e-6)
+
+        with self.assertRaises(ValueError):
+            box.compute_distances(
+                query_points[query_point_indices[:-1]], points[point_indices])
+        with self.assertRaises(ValueError):
+            box.compute_distances(
+                query_points[query_point_indices], points[point_indices[:-1]])
+
+    def test_compute_distances_3d(self):
+        box = freud.box.Box(2, 3, 4, 1, 0, 0)
+        points = np.array([[0, 0, 0], [-2.2, -1.3, 2]])
+        query_points = np.array(
+            [[-0.5, -1.3, 2.], [0.5, 0, 0], [-2.2, -1.3, 2.], [0, 0, 0.2]])
+        point_indices = np.array([1, 0, 1, 0])
+        query_point_indices = np.array([0, 1, 2, 3])
+        distances = box.compute_distances(
+            query_points[query_point_indices], points[point_indices])
+        npt.assert_allclose(distances, [0.3, 0.5, 0.0, 0.2], rtol=1e-6)
+
+    def test_compute_all_distances_2d(self):
+        box = freud.box.Box(2, 3, 0, 1, 0, 0, is2D=True)
+        points = np.array([[0., 0., 0.], [0., 0., 0.]])
+        query_points = np.array(
+            [[0.2, 0., 0.], [0., -0.4, 0.], [1., 1., 0.]])
+        distances = box.compute_all_distances(points, query_points)
+        npt.assert_allclose(distances, [
+            [0.2, 0.4, np.sqrt(2)],
+            [0.2, 0.4, np.sqrt(2)]], rtol=1e-6)
+
+        points = np.array([0., 0., 0.])
+        distances = box.compute_all_distances(points, query_points)
+        npt.assert_allclose(distances, [[0.2, 0.4, np.sqrt(2)]], rtol=1e-6)
+
+    def test_compute_all_distances_3d(self):
+        box = freud.box.Box(2, 3, 4, 1, 0, 0)
+        points = np.array([[0., 0., 1.], [0., 0., 0.]])
+        query_points = np.array([[1., 0., 1.], [0., 0., 1.], [0., 0., 0.]])
+        distances = box.compute_all_distances(points, query_points)
+        npt.assert_allclose(distances,
+                            [[1., 0., 1.], [np.sqrt(2), 1., 0.]], rtol=1e-6)
 
 
 if __name__ == '__main__':
