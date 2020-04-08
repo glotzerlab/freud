@@ -433,6 +433,7 @@ try:
             long_description_content_type='text/x-rst',
             url='https://github.com/glotzerlab/freud',
             packages=['freud'],
+            zip_safe=False,
             python_requires='>=3.5',
             install_requires=[
                 'cython>=0.29',
