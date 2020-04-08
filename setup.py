@@ -6,6 +6,7 @@ import sys
 import platform
 import glob
 import multiprocessing
+import multiprocessing.pool
 import logging
 import argparse
 import numpy as np
