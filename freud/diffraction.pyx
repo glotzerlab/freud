@@ -2,22 +2,14 @@ import numpy as np
 from scipy import interpolate, ndimage
 import rowan
 
-# from cme_utils.manip import pbc
-# from cme_utils.manip.utilities import rotation_matrix_from_to as cme_rot
+from freud.util import _Compute
 
 
-class Diffraction:
-    def __init__(
-        self,
-        grid_size=512,
-        zoom=4,
-        peak_width=1,
-        length_scale=3.905,
-        bot=4e-6,
-        top=0.7
-    ):
+class Diffraction(_Compute):
+    def __init__(self, grid_size=512, zoom=4, peak_width=1,
+                 length_scale=3.905, bot=4e-6, top=0.7):
         """
-        Initialize the diffractometer class
+        Initialize the diffraction class
         Parameters
         ----------
         grid_size : int, size of the diffraction grid (default 512)
@@ -34,28 +26,6 @@ class Diffraction:
         self.length_scale = length_scale
         self.bot = bot
         self.top = top
-
-    def load(self, system):
-        """
-        def load(self, xyz, L):
-            Loads the particle positions and box dimensions for diffraction.
-            Note: only supports orthorhombic boxes
-            Parameters
-            ----------
-            xyz: np.ndarray (N,3), positions of each particle
-            L: iterable object, lengths of box vectors
-            self.box = np.array(
-                    [[L[0], 0.0, 0.0],
-                     [0.0, L[1], 0.0],
-                     [0.0, 0.0, L[2]]]
-                    )
-            self.orig = np.copy(xyz)
-            self.orig, self.image =
-                pbc.shift_pbc(xyz, np.array([L[0], L[1], L[2]]))
-        """
-        box, positions = system
-        self.box = box.to_matrix()
-        self.orig = np.copy(positions)
 
     def pbc_2d(self, xy, N):
         """
@@ -214,8 +184,8 @@ class Diffraction:
         -------
         numpy.ndarray (N,N), diffraction pattern
         """
-        box, positions = system
-        box = box.to_matrix()
+        self.box, self.positions = system
+        self.box = self.box.to_matrix()
         N = self.N / self.zoom
         inv_shear = self.calc_proj(rot)
         xy = np.copy(rowan.rotate(rot, self.orig)[:, 0:2])
@@ -247,8 +217,15 @@ class Diffraction:
         # dp[np.unravel_index(idbig, (self.N, self.N))] = np.log(self.bot)
         return self.dp
 
-    def diffraction_pattern(self):
+    @_Compute._computed_property
+    def diffraction(self):
         return self.dp
+
+    def __repr__(self):
+        return f"freud.diffraction.{type(self).__name__}, (N={self.N}, \
+                 zoom={self.zoom}, peak_width={self.peak_width}, \
+                 length_scale={self.length_scale}, bot={self.bot}, \
+                 top={self.top})"
 
     def plot(self, ax=None):
         """Plot Diffraction Pattern.
@@ -261,88 +238,12 @@ class Diffraction:
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        # import freud.plot
+        import freud.plot
+        return freud.plot.diffraction_plot(self.dp)
 
-
-def vector_projection(u, v):
-    """
-    Projection of u onto v
-    Parameters
-    ----------
-    u,v : numpy.ndarray (3,), vectors
-    Returns
-    -------
-    numpy.ndarray (3,), projection of u onto v
-    """
-    return v * np.dot(u, v)/np.linalg.norm(v)
-
-
-def unit_vector(vector):
-    """
-    Returns the unit vector of the vector.
-    """
-    return vector / np.linalg.norm(vector)
-
-
-def get_angle(u, v):
-    """
-    Find angle between u and v
-    Parameters
-    ----------
-    u,v : numpy.ndarray (3,), vectors
-    Returns
-    -------
-    float, angle between u and v in radians
-    """
-    u = unit_vector(u)
-    v = unit_vector(v)
-    angle = np.arccos(np.clip(np.dot(u, v), -1.0, 1.0))
-    if angle != angle:
-        # Catches nan values
-        return 0.0
-    return angle
-
-
-# def camera_to_rot(camera):
-#     """
-#     Given a fresnel camera object, compute the rotation matrix
-#     Parameters
-#     ----------
-#     camera : fresnel.camera, camera in fresnel scene
-#     Returns
-#     -------
-#     numpy.ndarray (3,3), rotation matrix
-#     """
-#     pos = camera.position
-#     look_at = camera.look_at
-
-#     cam_vec = np.array(pos)-np.array(look_at)
-
-#     return cme_rot(cam_vec, np.array([0,0,1]))
-
-# def rot_mat(alpha, beta, gamma):
-#     """
-#     Given angles alpha, beta, and gamma, compute the rotation matrix
-#     Parameters
-#     ----------
-#     alpha, beta, gamma : float, angles about the x, y, and z axes in radians
-#     Returns
-#     -------
-#     numpy.ndarray (3,3), rotation matrix
-#     """
-#     Rx = np.array([
-#         [1, 0, 0],
-#         [0, np.cos(alpha), -np.sin(alpha)],
-#         [0, np.sin(alpha), np.cos(alpha)]
-#     ])
-#     Ry = np.array([
-#         [np.cos(beta), 0, np.sin(beta)],
-#         [0, 1, 0],
-#         [-np.sin(beta), 0, np.cos(beta)]
-#     ])
-#     Rz = np.array([
-#         [np.cos(gamma), -np.sin(gamma), 0],
-#         [np.sin(gamma), np.cos(gamma), 0],
-#         [0, 0, 1]
-#     ])
-#     return np.dot(np.dot(Rx,Ry),Rz)
+    def _repr_png_(self):
+        try:
+            import freud.plot
+            return freud.plot._ax_to_bytes(self.plot())
+        except (AttributeError, ImportError):
+            return None

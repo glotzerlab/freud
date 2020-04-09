@@ -5,6 +5,7 @@ from . import box
 from . import cluster
 from . import data
 from . import density
+from . import diffraction
 from . import environment
 from . import interface
 from . import locality
@@ -12,7 +13,6 @@ from . import msd
 from . import order
 from . import parallel
 from . import pmft
-from . import diffraction
 
 from .box import Box
 from .locality import AABBQuery, LinkCell, NeighborList
@@ -30,6 +30,7 @@ __all__ = [
     'cluster',
     'data',
     'density',
+    'diffraction',
     'environment',
     'interface',
     'locality',
@@ -44,7 +45,6 @@ __all__ = [
     'get_num_threads',
     'set_num_threads',
     'NumThreads',
-    'diffraction'
 ]
 
 __citation__ = """@misc{freud,
