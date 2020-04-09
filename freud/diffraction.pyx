@@ -6,7 +6,7 @@ import rowan
 # from cme_utils.manip.utilities import rotation_matrix_from_to as cme_rot
 
 
-class Diffractometer:
+class Diffraction:
     def __init__(
         self,
         grid_size=512,
@@ -202,7 +202,7 @@ class Diffractometer:
                                                      mode="constant")
         return img
 
-    def compute(self, rot, cutout=True):
+    def compute(self, system, rot, cutout=True):
         """
         2D FFT to get diffraction pattern from intensity matrix.
         Parameters
@@ -214,6 +214,8 @@ class Diffractometer:
         -------
         numpy.ndarray (N,N), diffraction pattern
         """
+        box, positions = system
+        box = box.to_matrix()
         N = self.N / self.zoom
         inv_shear = self.calc_proj(rot)
         xy = np.copy(rowan.rotate(rot, self.orig)[:, 0:2])
@@ -221,18 +223,19 @@ class Diffractometer:
         xy = self.pbc_2d(xy, N)
         im = self.bin(xy, N)
 
-        dp = np.fft.fft2(im)
-        dp = ndimage.fourier.fourier_gaussian(dp, self.peak_width / self.zoom)
-        dp = np.fft.fftshift(dp)
-        dp = np.absolute(dp)
-        dp *= dp
+        self.dp = np.fft.fft2(im)
+        self.dp = ndimage.fourier.fourier_gaussian(self.dp,
+                                                   self.peak_width / self.zoom)
+        self.dp = np.fft.fftshift(self.dp)
+        self.dp = np.absolute(self.dp)
+        self.dp *= self.dp
 
-        dp = self.scale(dp)
-        dp = self.shear_back(dp, inv_shear)
-        dp /= dp.max()
-        dp[dp < self.bot] = self.bot
-        dp[dp > self.top] = self.top
-        dp = np.log(dp)
+        self.dp = self.scale(self.dp)
+        self.dp = self.shear_back(self.dp, inv_shear)
+        self.dp /= self.dp.max()
+        self.dp[self.dp < self.bot] = self.bot
+        self.dp[self.dp > self.top] = self.top
+        self.dp = np.log10(self.dp)
 
         """
         NOTE: cut into a circle, not sure if needed-YJ
@@ -242,7 +245,23 @@ class Diffractometer:
 
         # idbig = self.circle_cutout(dp)
         # dp[np.unravel_index(idbig, (self.N, self.N))] = np.log(self.bot)
-        return dp
+        return self.dp
+
+    def diffraction_pattern(self):
+        return self.dp
+
+    def plot(self, ax=None):
+        """Plot Diffraction Pattern.
+
+        Args:
+            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
+                :code:`None`, make a new figure and axis.
+                (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes.Axes`): Axis with the plot.
+        """
+        # import freud.plot
 
 
 def vector_projection(u, v):
