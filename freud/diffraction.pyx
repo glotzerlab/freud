@@ -3,6 +3,7 @@ from scipy import interpolate, ndimage
 import rowan
 
 from freud.util import _Compute
+from freud import locality
 
 
 class Diffraction(_Compute):
@@ -27,7 +28,7 @@ class Diffraction(_Compute):
         self.bot = bot
         self.top = top
 
-    def pbc_2d(self, xy, N):
+    def _pbc_2d(self, xy, N):
         """
         Reasonably fast periodic boundary conditions in two dimensions.
         Normalizes xy coordinates to the grid size, N.
@@ -46,7 +47,7 @@ class Diffraction(_Compute):
         xy %= N
         return xy.astype(int)
 
-    def bin(self, xy, N):
+    def _bin(self, xy, N):
         """
         Quickly counts intensities for particles on 2D grid.
         Parameters
@@ -66,7 +67,7 @@ class Diffraction(_Compute):
             im[x[1], x[0]] = c
         return im
 
-    def calc_proj(self, rot):
+    def _calc_proj(self, rot):
         """
         TODO
         Note: orthorhombic boxes only
@@ -78,29 +79,25 @@ class Diffraction(_Compute):
         numpy.ndarray (2,2), inverse shear matrix
         """
         # s = np.dot(rot.T, self.box)  # rotated box vectors
-        s = rowan.rotate(rot, self.box)
-        xy = np.absolute(s[0, 0] * s[1, 1] - s[0, 1] * s[1, 0])
-        zx = np.absolute(s[0, 2] * s[1, 0] - s[0, 0] * s[1, 2])
-        yz = np.absolute(s[0, 1] * s[1, 2] - s[0, 2] * s[1, 1])
-        if (yz >= xy) and (yz >= zx):
+        s = rowan.rotate(rot, self.box.to_matrix())
+        if (s.yz >= s.xy) and (s.yz >= s.zx):
             shear = np.array(
-                [[s[0, 1], s[0, 2]], [s[1, 1], s[1, 2]]])
-        elif (zx >= xy) and (zx >= yz):
+                [[s.xy * s.Ly, s.xz * s.Lz], [s.Ly, s.yz * s.Lz]])
+        elif (s.zx >= s.xy) and (s.zx >= s.yz):
             shear = np.array(
-                [[s[0, 2], s[0, 0]], [s[1, 2], s[1, 0]]])
+                [[s.xz * s.Lz, s.Lx], [s.yz * s.Lz, 0]])
         else:
             shear = np.array(
-                [[s[0, 0], s[0, 1]], [s[1, 0], s[1, 1]]])
+                [[s.Lx, s.xy * s.Ly], [0, s.Ly]])
         s_det = np.linalg.det(shear)
         if s_det == 0:
-            print("\nSingular rotation matrix. Bye Bye.")
-            return
+            raise ValueError
         self.Lx = np.linalg.norm(shear[:, 0])
         self.Ly = np.linalg.norm(shear[:, 1])
         inv_shear = np.linalg.inv(shear)
         return inv_shear
 
-    def circle_cutout(self, p):
+    def _circle_cutout(self, p):
         """
         Find pixel indices in diffraction intensity array outside of the circle
         Note: taken from Diffractometer.prep_sq()
@@ -123,7 +120,7 @@ class Diffraction(_Compute):
         r_sort = r.flat[i]
         return i[r_sort > rmax]
 
-    def scale(self, a):
+    def _scale(self, a):
         """
         Scales up a matrix around middle particle
         Note: Doesn't handle atoms on periodic boundaries perfectly --
@@ -144,7 +141,7 @@ class Diffraction(_Compute):
         d = d(x, y)
         return d
 
-    def shear_back(self, img, inv_shear):
+    def _shear_back(self, img, inv_shear):
         """
         TODO
         Parameters
@@ -158,12 +155,12 @@ class Diffraction(_Compute):
         roll = img.shape[0] / 2 - 1
         ss = np.max(self.box) * inv_shear
         A1 = np.array([[1, 0, -roll],
-                      [0, 1, -roll],
-                      [0, 0, 1]])
+                       [0, 1, -roll],
+                       [0, 0, 1]])
 
         A2 = np.array([[ss[1, 0], ss[0, 0], roll],
-                      [ss[1, 1], ss[0, 1], roll],
-                      [0, 0, 1]])
+                       [ss[1, 1], ss[0, 1], roll],
+                       [0, 0, 1]])
 
         A3 = np.linalg.inv(np.dot(A2, A1))
         A4 = A3[0:2, 0:2]
@@ -184,14 +181,15 @@ class Diffraction(_Compute):
         -------
         numpy.ndarray (N,N), diffraction pattern
         """
-        self.box, self.positions = system
-        self.box = self.box.to_matrix()
+        self.nq = locality._make_default_nq(system)
+        self.box = self.nq.box
+
         N = self.N / self.zoom
-        inv_shear = self.calc_proj(rot)
-        xy = np.copy(rowan.rotate(rot, self.orig)[:, 0:2])
+        inv_shear = self._calc_proj(rot)
+        xy = np.copy(rowan.rotate(rot, self.box)[:, 0:2])
         xy = np.dot(xy, inv_shear.T)
-        xy = self.pbc_2d(xy, N)
-        im = self.bin(xy, N)
+        xy = self._pbc_2d(xy, N)
+        im = self._bin(xy, N)
 
         self.dp = np.fft.fft2(im)
         self.dp = ndimage.fourier.fourier_gaussian(self.dp,
@@ -200,8 +198,8 @@ class Diffraction(_Compute):
         self.dp = np.absolute(self.dp)
         self.dp *= self.dp
 
-        self.dp = self.scale(self.dp)
-        self.dp = self.shear_back(self.dp, inv_shear)
+        self.dp = self._scale(self.dp)
+        self.dp = self._shear_back(self.dp, inv_shear)
         self.dp /= self.dp.max()
         self.dp[self.dp < self.bot] = self.bot
         self.dp[self.dp > self.top] = self.top
