@@ -451,7 +451,8 @@ try:
             python_requires='>=3.5',
             install_requires=[
                 'numpy>=1.10',
-                'rowan>=1.2'
+                'rowan>=1.2',
+                'scipy>=1.1'
             ],
             tests_require=[
                 'gsd>=1.9',

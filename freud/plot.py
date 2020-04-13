@@ -453,18 +453,15 @@ def voronoi_plot(box, polytopes, ax=None, color_by_sides=True, cmap=None):
     return ax
 
 
-def diffraction_plot(diffraction, ax=None, cmap='afmhot'):
+def diffraction_plot(diffraction, ax=None, cmap='None'):
     """Helper function to plot diffraction pattern.
 
     Args:
-        x (list): x values of the line graph.
-        y (list): y values corresponding to :code:`x`.
-        title (str): Title of the graph. (Default value = :code:`None`).
-        xlabel (str): Label of x axis. (Default value = :code:`None`).
-        ylabel (str): Label of y axis. (Default value = :code:`None`).
         ax (:class:`matplotlib.axes.Axes`): Axes object to plot.
             If :code:`None`, make a new axes and figure object.
             (Default value = :code:`None`).
+        cmap (str):
+            Colormap name to use (Default value = :code:`None`).
 
     Returns:
         :class:`matplotlib.axes.Axes`: Axes object with the diagram.

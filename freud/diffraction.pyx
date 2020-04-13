@@ -1,3 +1,11 @@
+# Copyright (c) 2010-2019 The Regents of the University of Michigan
+# This file is from the freud project, released under the BSD 3-Clause License.
+
+R"""
+The :class:`freud.diffraction` module provides functions for computing the
+diffraction pattern of particles in periodic systems.
+"""
+
 import numpy as np
 from scipy import interpolate, ndimage
 import rowan
@@ -9,16 +17,37 @@ from freud import locality
 class Diffraction(_Compute):
     def __init__(self, grid_size=512, zoom=4, peak_width=1,
                  length_scale=3.905, bot=4e-6, top=0.7):
-        """
-        Initialize the diffraction class
-        Parameters
-        ----------
-        grid_size : int, size of the diffraction grid (default 512)
-        zoom : (default 1)
-        peak_width : (default 1)
-        length_scale : (default 3.905)
-        bot : (default 4e-6)
-        top : (default 0.7)
+        R"""Computes a 2D diffraction pattern.
+
+        The diffraction image represents the scattering of incident radiation,
+        and is useful for identifying translational order present in the
+        system. This class computes the static
+        `structure factor <https://en.wikipedia.org/wiki/Structure_factor>`_
+        :math:`S(\vec{q})` for a plane of wavevectors :math:`\vec{q}`
+        orthogonal to a view plane. The view orientation :math:`(1, 0, 0, 0)`
+        defaults to looking down the :math:`z` axis (at the :math:`xy` plane).
+        The points in the system are converted to fractional coordinates, then
+        binned into a grid whose resolution is given by ``grid_size``. The
+        points are convolved with a Gaussian of width :math:`\sigma`, given by
+        ``peak_width``. This convolution is performed as a multiplication in
+        Fourier space.
+
+        Args:
+            grid_size (unsigned int):
+                Size of the diffraction grid (Default value = 512).
+            zoom (float):
+                Scaling factor for incident wavevectors (Default value = 1).
+            peak_width (float):
+                Width of Gaussian convolved with points, in system length
+                units (Default value = 1).
+            length_scale (float):
+                Not sure what this does (Default value = 3.905).
+            bot (float):
+                Plotting quantity -- should be removed (Default value
+                = 4e-6).
+            top (float):
+                Plotting quantity -- should be removed (Default value
+                = 0.7).
         """
         self.N = grid_size
         self.zoom = zoom
@@ -29,18 +58,18 @@ class Diffraction(_Compute):
         self.top = top
 
     def _pbc_2d(self, xy, N):
-        """
-        Reasonably fast periodic boundary conditions in two dimensions.
-        Normalizes xy coordinates to the grid size, N.
-        Parameters
-        ----------
-        xy : numpy.ndarray (N,2), cartesian coordinates from [-0.5, 0.5)
-        to be mapped to [0, N)
-        N : int, grid size
-        Returns
-        -------
-        numpy.ndarray (N,2), particle bins indices
-        in the x and y directions.
+        """Reasonably fast periodic boundary conditions in two dimensions.
+           Normalizes xy coordinates to the grid size, N.
+
+        Args:
+            xy ((:math:`N_{bins}`, 2) :class:`numpy.ndarray`):
+                Cartesian coordinates from [-0.5, 0.5) to be mapped to [0, N).
+            N (unsigned int) :
+                Size of the diffraction grid.
+
+        Returns:
+            (:math:`N_{bins}`, 2) :class:`numpy.ndarray`:
+                Particle bins indices in the x and y directions.
         """
         xy -= np.rint(xy) - 0.5
         xy *= N
@@ -48,15 +77,17 @@ class Diffraction(_Compute):
         return xy.astype(int)
 
     def _bin(self, xy, N):
-        """
-        Quickly counts intensities for particles on 2D grid.
-        Parameters
-        ----------
-        xy : numpy.ndarray (N,2), array of bin indices
-        N : int, grid size
-        Returns
-        -------
-        im : numpy.ndarray (N,N), grid of intensities.
+        """Quickly counts intensities for particles on 2D grid.
+
+        Args:
+            xy ((:math:`N_{bins}`, 2) :class:`numpy.ndarray`):
+                Array of bin indices.
+            N (unsigned int):
+                Size of the diffraction grid.
+
+        Returns:
+            im ((:math:`N_{bins}`, :math:`N_{bins}`) :class:`numpy.ndarray`):
+                Grid of intensities.
         """
         t = xy.view(np.dtype((np.void, xy.dtype.itemsize * xy.shape[1])))
         _, ids, counts = np.unique(t, return_index=True, return_counts=True)
@@ -67,19 +98,23 @@ class Diffraction(_Compute):
             im[x[1], x[0]] = c
         return im
 
-    def _calc_proj(self, rot):
+    def _calc_proj(self, view_orientation, box):
+        """Calculate the inverse shear matrix from finding the projected box
+           vectors whose area of parallogram is the largest for
+           orthorhombic boxes only.
+
+        Args:
+            view_orientation ((:math:`4`) :class:`numpy.ndarray`, optional):
+                View orientation. Uses :math:`(1, 0, 0, 0)` if not provided
+                or :code:`None` (Default value = :code:`None`).
+            box (:class:`~.box.Box`):
+                Simulation box.
+
+        Returns:
+            (2, 2) :class:`numpy.ndarray`:
+                Inverse shear matrix.
         """
-        TODO
-        Note: orthorhombic boxes only
-        Parameters
-        ----------
-        rot : numpy.ndarray (3,3), rotation matrix
-        Returns
-        -------
-        numpy.ndarray (2,2), inverse shear matrix
-        """
-        # s = np.dot(rot.T, self.box)  # rotated box vectors
-        s = rowan.rotate(rot, self.box.to_matrix())
+        s = rowan.rotate(view_orientation, box.to_matrix())
         if (s.yz >= s.xy) and (s.yz >= s.zx):
             shear = np.array(
                 [[s.xy * s.Ly, s.xz * s.Lz], [s.Ly, s.yz * s.Lz]])
@@ -98,16 +133,17 @@ class Diffraction(_Compute):
         return inv_shear
 
     def _circle_cutout(self, p):
-        """
-        Find pixel indices in diffraction intensity array outside of the circle
-        Note: taken from Diffractometer.prep_sq()
-        Parameters
-        -------
-        p : numpy.ndarray (N,N), diffraction intensity array
-        Returns
-        -------
-        numpy.ndarray (N,), indices of particles outside the circle
-        note: N != to N in p.shape
+        """Find pixel indices in diffraction intensity array outside of the circle
+           Note: taken from Diffractometer.prep_sq()
+
+        Args:
+            p ((:math:`N`, :math:`N`) :class:`numpy.ndarray`):
+                The array of diffraction intensity.
+
+        Returns:
+            (:math:`N`,) :class:`numpy.ndarray`:
+                Indices of particles outside the circle.
+                note: N != to N in p.shape
         """
         y, x = np.indices(p.shape)
         rmax = len(x) / 2 - 1
@@ -121,16 +157,15 @@ class Diffraction(_Compute):
         return i[r_sort > rmax]
 
     def _scale(self, a):
-        """
-        Scales up a matrix around middle particle
-        Note: Doesn't handle atoms on periodic boundaries perfectly --
-        intensity only on one half of boundary.
-        Parameters
-        -------
-        a : numpy.ndarray (N,N), input array
-        Returns
-        -------
-        numpy.ndarray (N,N), scaled array
+        """Scales up a matrix around middle particle.
+            Note: Doesn't handle atoms on periodic boundaries perfectly --
+            intensity only on one half of boundary.
+
+        Args:
+            a ((:math:`N`, :math:`N`) :class:`numpy.ndarray`): Input array.
+
+        Returns:
+            (:math:`N`, :math:`N`) :class:`numpy.ndarray`: Scaled array
         """
         ny, nx = np.shape(a)
         y = np.array([list(range(ny))])
@@ -141,19 +176,23 @@ class Diffraction(_Compute):
         d = d(x, y)
         return d
 
-    def _shear_back(self, img, inv_shear):
-        """
-        TODO
-        Parameters
-        ----------
-        img : numpy.ndarray (N,N), array of diffraction intensities
-        inv_shear : numpy.ndarray (2,2), inverse shear matrix
+    def _shear_back(self, img, box, inv_shear):
+        """Transform the inverse shear matrix back to the sheared matrix
+
+        Args:
+            img ((:math:`N`, :math:`N`) :class:`numpy.ndarray`):
+                Array of diffraction intensities.
+            box (:class:`~.box.Box`):
+                Simulation box.
+            inv_shear ((2, 2) :class:`numpy.ndarray`):
+                Inverse shear matrix.
+
         Returns
-        -------
-        numpy.ndarray (N,N), sheared array of diffraction intensities
+            (:math:`N`, :math:`N`) :class:`numpy.ndarray`:
+                Sheared array of diffraction intensities
         """
         roll = img.shape[0] / 2 - 1
-        ss = np.max(self.box) * inv_shear
+        ss = np.max(box) * inv_shear
         A1 = np.array([[1, 0, -roll],
                        [0, 1, -roll],
                        [0, 0, 1]])
@@ -169,41 +208,43 @@ class Diffraction(_Compute):
                                                      mode="constant")
         return img
 
-    def compute(self, system, rot, cutout=True):
+    def compute(self, system, view_orientation=None, cutout=True):
+        R""" 2D FFT to get diffraction pattern from intensity matrix.
+
+        Args:
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
+            view_orientation ((:math:`4`) :class:`numpy.ndarray`, optional):
+                View orientation. Uses :math:`(1, 0, 0, 0)` if not provided
+                or :code:`None` (Default value = :code:`None`).
+            cutout (bool, optional):
+                diffraction pattern with circle cutout
+                (Default value = :code:`True`).
         """
-        2D FFT to get diffraction pattern from intensity matrix.
-        Parameters
-        ----------
-        rot: numpy.ndarray (3, 3), rotation matrix
-        cutout: bool, return diffraction pattern with circle cutout
-        (default True)
-        Returns
-        -------
-        numpy.ndarray (N,N), diffraction pattern
-        """
-        self.nq = locality._make_default_nq(system)
-        self.box = self.nq.box
+        system = locality._make_default_nq(system)
 
         N = self.N / self.zoom
-        inv_shear = self._calc_proj(rot)
-        xy = np.copy(rowan.rotate(rot, self.box)[:, 0:2])
+        inv_shear = self._calc_proj(view_orientation, system.box)
+        xy = np.copy(rowan.rotate(view_orientation, system.points)[:, 0:2])
         xy = np.dot(xy, inv_shear.T)
         xy = self._pbc_2d(xy, N)
         im = self._bin(xy, N)
 
-        self.dp = np.fft.fft2(im)
-        self.dp = ndimage.fourier.fourier_gaussian(self.dp,
-                                                   self.peak_width / self.zoom)
-        self.dp = np.fft.fftshift(self.dp)
-        self.dp = np.absolute(self.dp)
-        self.dp *= self.dp
+        self._diffraction = np.fft.fft2(im)
+        self._diffraction = ndimage.fourier.fourier_gaussian(
+            self._diffraction, self.peak_width / self.zoom)
+        self._diffraction = np.fft.fftshift(self._diffraction)
+        self._diffraction = np.absolute(self._diffraction)
+        self._diffraction *= self._diffraction
 
-        self.dp = self._scale(self.dp)
-        self.dp = self._shear_back(self.dp, inv_shear)
-        self.dp /= self.dp.max()
-        self.dp[self.dp < self.bot] = self.bot
-        self.dp[self.dp > self.top] = self.top
-        self.dp = np.log10(self.dp)
+        self._diffraction = self._scale(self._diffraction)
+        self._diffraction = self._shear_back(
+            self._diffraction, system.box, inv_shear)
+        self._diffraction /= self._diffraction.max()
+        self._diffraction[self._diffraction < self.bot] = self.bot
+        self._diffraction[self._diffraction > self.top] = self.top
+        self._diffraction = np.log10(self._diffraction)
 
         """
         NOTE: cut into a circle, not sure if needed-YJ
@@ -213,11 +254,12 @@ class Diffraction(_Compute):
 
         # idbig = self.circle_cutout(dp)
         # dp[np.unravel_index(idbig, (self.N, self.N))] = np.log(self.bot)
-        return self.dp
+        return self._diffraction
 
     @_Compute._computed_property
     def diffraction(self):
-        return self.dp
+        """(:class:`numpy.ndarray`): diffraction pattern. """
+        return self._diffraction
 
     def __repr__(self):
         return f"freud.diffraction.{type(self).__name__}, (N={self.N}, \
@@ -237,7 +279,7 @@ class Diffraction(_Compute):
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         import freud.plot
-        return freud.plot.diffraction_plot(self.dp)
+        return freud.plot.diffraction_plot(self.diffraction)
 
     def _repr_png_(self):
         try:
