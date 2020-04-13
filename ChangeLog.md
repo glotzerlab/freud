@@ -4,6 +4,16 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## v2.3.0 - 2020-xx-xx
+
+### Added
+* Support for garnett 0.7.
+* Custom NeighborLists can be created from a set of points using `from_points`. Distances will be calculated automatically.
+* The Box class has methods `compute_distances` and `compute_all_distances` to calculate distances between arrays of points and query points.
+
+### Changed
+* Cython is now a required dependency (not optional). Cythonized `.cpp` files have been removed.
+
 ## v2.2.0 - 2020-02-24
 
 ### Added

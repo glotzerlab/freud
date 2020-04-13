@@ -5,10 +5,13 @@ import os
 import sys
 import platform
 import glob
+import multiprocessing
 import multiprocessing.pool
 import logging
 import argparse
 import numpy as np
+import traceback
+from Cython.Build import cythonize
 try:
     from setuptools import Extension, setup, distutils
 except ImportError:
@@ -65,7 +68,6 @@ def stderr_manager(f):
 
 warnings_str = "--PRINT-WARNINGS"
 coverage_str = "--COVERAGE"
-cython_str = "--ENABLE-CYTHON"
 debug_str = "--DEBUG"
 parallel_str = "-j"
 thread_str = "--NTHREAD"
@@ -97,17 +99,16 @@ parser.add_argument(
     help="Compile Cython with coverage."
 )
 parser.add_argument(
-    cython_str,
+    '--ENABLE-CYTHON',
     action="store_true",
     dest="use_cython",
-    help="Compile with Cython instead of using precompiled C++ files."
+    help="Deprecated: Cython is always enabled."
 )
 parser.add_argument(
     debug_str,
     action="store_true",
     dest="gdb_debug",
-    help="Enable GDB debug symbols in Cython. Cython compilation must be "
-         "enabled."
+    help="Enable GDB debug symbols in Cython."
 )
 parser.add_argument(
     parallel_str,
@@ -172,34 +173,9 @@ if args.help:
 sys.argv = ['setup.py'] + extras
 
 
-#######################
-# Configure ReadTheDocs
-#######################
-
-on_rtd = os.environ.get('READTHEDOCS') == 'True'
-if on_rtd:
-    logger.warning('Building on Read the Docs with Cython enabled.')
-    args.use_cython = True
-    for cython_cpp_file in glob.glob('freud/*.cpp'):
-        logger.warning('Deleting {}'.format(cython_cpp_file))
-        os.remove(cython_cpp_file)
-
-
 ################################
 # Modifications to setup process
 ################################
-
-# Decide whether or not to use Cython
-if args.use_cython:
-    try:
-        from Cython.Build import cythonize
-    except ImportError:
-        raise RuntimeError("Could not find cython so cannot build with "
-                           "cython. Try again without the --ENABLE-CYTHON "
-                           "option.")
-    ext = '.pyx'
-else:
-    ext = '.cpp'
 
 # Set directives and macros
 directives = {
@@ -212,8 +188,8 @@ directives = {
 }
 macros = [
     ('NPY_NO_DEPRECATED_API', 'NPY_1_10_API_VERSION'),
-    ('VOROPP_VERBOSE', '1'),
-    ('_USE_MATH_DEFINES', '1'),  # for Windows to define M_PI in <cmath>
+    ('VOROPP_VERBOSE', '1'),     # To keep voro++ quieter
+    ('_USE_MATH_DEFINES', '1'),  # Force Windows to define M_PI in <cmath>
 ]
 
 # Decide whether or not to compile with coverage support
@@ -359,8 +335,8 @@ ext_args = dict(
 
 # Need to find files manually; cythonize accepts glob syntax, but basic
 # extension modules with C++ do not
-files = glob.glob(os.path.join('freud', '*') + ext)
-modules = [f.replace(ext, '') for f in files]
+files = glob.glob(os.path.join('freud', '*') + '.pyx')
+modules = [f.replace('.pyx', '') for f in files]
 modules = [m.replace(os.path.sep, '.') for m in modules]
 
 # Source files required for all modules.
@@ -407,11 +383,19 @@ for f, m in zip(files, modules):
 
     extensions.append(Extension(m, sources=list(sources), **ext_args))
 
-if args.use_cython:
-    extensions = cythonize(extensions,
-                           compiler_directives=directives,
-                           nthreads=args.nthreads,
-                           gdb_debug=args.gdb_debug)
+# Disable Cython parallel compilation on Windows
+# https://github.com/cython/cython/issues/3262
+nthreads = args.nthreads
+if nthreads:
+    if multiprocessing.get_start_method() == 'spawn':
+        print('Disabling parallel cythonization for "spawn" process start '
+              'method.')
+        nthreads = 0
+
+extensions = cythonize(extensions,
+                       compiler_directives=directives,
+                       nthreads=nthreads,
+                       gdb_debug=args.gdb_debug)
 
 
 ####################################
@@ -438,6 +422,7 @@ except ImportError:
 # to parse error messages from the underlying compiler and parse them
 # for known errors.
 tfile = tempfile.TemporaryFile(mode='w+b')
+
 try:
     with stderr_manager(tfile):
         setup(
@@ -448,15 +433,17 @@ try:
             long_description_content_type='text/x-rst',
             url='https://github.com/glotzerlab/freud',
             packages=['freud'],
+            zip_safe=False,
             python_requires='>=3.5',
             install_requires=[
-                'numpy>=1.10',
+                'cython>=0.29',
+                'numpy>=1.14',
                 'rowan>=1.2',
-                'scipy>=1.1'
+                'scipy>=1.1',
             ],
             tests_require=[
-                'gsd>=1.9',
-                'garnett>=0.5',
+                'gsd>=2.0',
+                'garnett>=0.7.1',
                 'matplotlib>=2.0',
                 'MDAnalysis>=0.17',
                 'rowan>=1.2',
@@ -489,13 +476,13 @@ except SystemExit:
                          "in distutils. Please recompile without the -j "
                          "option and try again.\033[0m\n")
     else:
-        raise
+        traceback.print_exc(limit=1)
 except: # noqa
     sys.stderr.write(tfile.read().decode('utf-8'))
-    raise
+    traceback.print_exc(limit=1)
 else:
     if args.print_warnings:
-        sys.stderr.write("Printing warnings: ")
+        sys.stderr.write("Printing warnings:\n")
         sys.stderr.write(tfile.read().decode('utf-8'))
     else:
         out = tfile.read().decode('utf-8')

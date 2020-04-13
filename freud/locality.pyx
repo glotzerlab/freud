@@ -5,7 +5,6 @@ R"""
 The :mod:`freud.locality` module contains data structures to efficiently
 locate points based on their proximity to other points.
 """
-import copy
 import freud.util
 import inspect
 import logging
@@ -174,7 +173,7 @@ cdef class NeighborQueryResult:
     .. warning::
 
         This class should not be instantiated directly, it is the
-        return value of all `query*` functions of
+        return value of the :meth:`~NeighborQuery.query` method of
         :class:`~NeighborQuery`. The class provides a convenient
         interface for iterating over query results, and can be
         transparently converted into a list or a
@@ -204,7 +203,7 @@ cdef class NeighborQueryResult:
         raise StopIteration
 
     def toNeighborList(self, sort_by_distance=False):
-        """Convert query result to a freud NeighborList.
+        """Convert query result to a freud :class:`~NeighborList`.
 
         Args:
             sort_by_distance (bool):
@@ -213,9 +212,8 @@ cdef class NeighborQueryResult:
                 (Default value = :code:`False`).
 
         Returns:
-            :class:`~NeighborList`: A :mod:`freud` :class:`~NeighborList`
-            containing all neighbor pairs found by the query generating this
-            result object.
+            :class:`~NeighborList`: A :class:`~NeighborList` containing all
+            neighbor pairs found by the query generating this result object.
         """
         cdef const float[:, ::1] l_points = self.points
         cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator = \
@@ -330,9 +328,15 @@ cdef class NeighborQuery:
                 box[[2, 4, 5]] = 0
             system = (box, system.particles.position)
 
-        # garnett compatibility
+        # garnett compatibility (garnett >=0.5)
         elif match_class_path(system, 'garnett.trajectory.Frame'):
-            system = (system.box, system.positions)
+            try:
+                # garnett >= 0.7
+                position = system.position
+            except AttributeError:
+                # garnett < 0.7
+                position = system.positions
+            system = (system.box, position)
 
         # OVITO compatibility
         elif (match_class_path(system, 'ovito.data.DataCollection') or
@@ -475,6 +479,22 @@ cdef class NeighborList:
                     point_indices, distances, weights=None):
         R"""Create a NeighborList from a set of bond information arrays.
 
+        Example::
+            import freud
+            import numpy as np
+            box = freud.box.Box(2, 3, 4, 0, 0, 0)
+            query_points = np.array([[0, 0, 0], [0, 0, 1]])
+            points = np.array([[0, 0, -1], [0.5, -1, 0]])
+            query_point_indices = np.array([0, 0, 1])
+            point_indices = np.array([0, 1, 1])
+            distances = box.compute_distances(query_points[query_point_indices], points[point_indices])
+            num_query_points = len(query_points)
+            num_points = len(points)
+            nlist = freud.locality.NeighborList.from_arrays(
+                num_query_points, num_points, query_point_indices,
+                point_indices, distances)
+
+
         Args:
             num_query_points (int):
                 Number of query points (corresponding to
@@ -493,7 +513,7 @@ cdef class NeighborList:
             weights (:class:`np.ndarray`, optional):
                 Array of per-bond weights (if :code:`None` is given, use a
                 value of 1 for each weight) (Default value = :code:`None`).
-        """
+        """  # noqa 501
         query_point_indices = freud.util._convert_array(
             query_point_indices, shape=(None,), dtype=np.uint32)
         point_indices = freud.util._convert_array(
@@ -820,9 +840,9 @@ cdef class LinkCell(NeighborQuery):
         points ((:math:`N`, 3) :class:`numpy.ndarray`):
             The points to bin into the cell list.
         cell_width (float, optional):
-            Width of cells. If not provided, `~.LinkCell` will estimate a cell
-            width based on the number of points and the box size assuming
-            constant density of points throughout the box.
+            Width of cells. If not provided, :class:`~.LinkCell` will
+            estimate a cell width based on the number of points and the box
+            size, assuming a constant density of points in the box.
     """
 
     def __cinit__(self, box, points, cell_width=0):
@@ -1007,8 +1027,8 @@ cdef class _SpatialHistogram1D(_SpatialHistogram):
     @property
     def bin_edges(self):
         """:math:`(N_{bins}+1, )` :class:`numpy.ndarray`: The edges of each bin
-        in the histogram. Is one element larger becauseeach bin has a lower and
-        upper bound."""
+        in the histogram. It is one element larger because each bin has a lower
+        and an upper bound."""
         # Must create a local reference or Cython tries to access an rvalue by
         # reference in the list comprehension.
         vec = self.histptr.getBinEdges()

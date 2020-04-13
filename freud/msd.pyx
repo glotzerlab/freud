@@ -140,7 +140,7 @@ cdef class MSD(_Compute):
             :code:`'direct'`.  (Default value = :code:`'window'`).
     """   # noqa: E501
     cdef freud.box.Box _box
-    cdef particle_msd
+    cdef _particle_msd
     cdef str mode
 
     def __cinit__(self, box=None, mode='window'):
@@ -149,7 +149,7 @@ cdef class MSD(_Compute):
         else:
             self._box = None
 
-        self.particle_msd = []
+        self._particle_msd = []
 
         if mode not in ['window', 'direct']:
             raise ValueError("Invalid mode")
@@ -186,7 +186,7 @@ cdef class MSD(_Compute):
                 value: True).
         """  # noqa: E501
         if reset:
-            self.particle_msd = []
+            self._particle_msd = []
 
         self._called_compute = True
 
@@ -221,9 +221,9 @@ cdef class MSD(_Compute):
                 corrs.append(_autocorrelation(positions[:, :, i]))
             S2 = np.sum(corrs, axis=0)
 
-            self.particle_msd.append(S1 - 2*S2)
+            self._particle_msd.append(S1 - 2*S2)
         elif self.mode == 'direct':
-            self.particle_msd.append(
+            self._particle_msd.append(
                 np.linalg.norm(
                     positions - positions[[0], :, :], axis=-1)**2)
 
@@ -238,7 +238,13 @@ cdef class MSD(_Compute):
     def msd(self):
         """:math:`\\left(N_{frames}, \\right)` :class:`numpy.ndarray`: The mean
         squared displacement."""
-        return np.concatenate(self.particle_msd, axis=1).mean(axis=-1)
+        return np.concatenate(self._particle_msd, axis=1).mean(axis=-1)
+
+    @_Compute._computed_property
+    def particle_msd(self):
+        """:math:`\\left(N_{frames}, N_{particles} \\right)` :class:`numpy.ndarray`: The per
+        particle based mean squared displacement."""  # noqa: E501
+        return np.concatenate(self._particle_msd, axis=1)
 
     def __repr__(self):
         return "freud.msd.{cls}(box={box}, mode={mode})".format(
