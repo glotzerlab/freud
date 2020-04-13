@@ -4,56 +4,63 @@
 R"""
 The :class:`freud.diffraction` module provides functions for computing the
 diffraction pattern of particles in periodic systems.
+
+.. rubric:: Stability
+
+:mod:`freud.diffraction` is **unstable**. When upgrading from version 2.x to
+2.y (y > x), existing freud scripts may need to be updated. The API will be
+finalized in a future release.
 """
 
+import freud.locality
+import logging
 import numpy as np
-from scipy import interpolate, ndimage
+import scipy.interpolate
+import scipy.ndimage
 import rowan
 
-from freud.util import _Compute
-from freud import locality
+from freud.util cimport _Compute
+cimport numpy as np
 
 
-class Diffraction(_Compute):
+logger = logging.getLogger(__name__)
+
+
+class DiffractionPattern(_Compute):
+    R"""Computes a 2D diffraction pattern.
+
+    The diffraction image represents the scattering of incident radiation,
+    and is useful for identifying translational order present in the system.
+    This class computes the static `structure factor
+    <https://en.wikipedia.org/wiki/Structure_factor>`_ :math:`S(\vec{q})` for
+    a plane of wavevectors :math:`\vec{q}` orthogonal to a view plane. The
+    view orientation :math:`(1, 0, 0, 0)` defaults to looking down the
+    :math:`z` axis (at the :math:`xy` plane). The points in the system are
+    converted to fractional coordinates, then binned into a grid whose
+    resolution is given by ``grid_size``. The points are convolved with a
+    Gaussian of width :math:`\sigma`, given by ``peak_width``. This
+    convolution is performed as a multiplication in Fourier space.
+
+    Args:
+        grid_size (unsigned int):
+            Size of the diffraction grid (Default value = 512).
+        zoom (float):
+            Scaling factor for incident wavevectors (Default value = 1).
+        peak_width (float):
+            Width of Gaussian convolved with points, in system length units
+            (Default value = 1).
+        bot (float):
+            Plotting quantity -- should be removed (Default value = 4e-6).
+        top (float):
+            Plotting quantity -- should be removed (Default value = 0.7).
+    """
+
     def __init__(self, grid_size=512, zoom=4, peak_width=1,
-                 length_scale=3.905, bot=4e-6, top=0.7):
-        R"""Computes a 2D diffraction pattern.
-
-        The diffraction image represents the scattering of incident radiation,
-        and is useful for identifying translational order present in the
-        system. This class computes the static
-        `structure factor <https://en.wikipedia.org/wiki/Structure_factor>`_
-        :math:`S(\vec{q})` for a plane of wavevectors :math:`\vec{q}`
-        orthogonal to a view plane. The view orientation :math:`(1, 0, 0, 0)`
-        defaults to looking down the :math:`z` axis (at the :math:`xy` plane).
-        The points in the system are converted to fractional coordinates, then
-        binned into a grid whose resolution is given by ``grid_size``. The
-        points are convolved with a Gaussian of width :math:`\sigma`, given by
-        ``peak_width``. This convolution is performed as a multiplication in
-        Fourier space.
-
-        Args:
-            grid_size (unsigned int):
-                Size of the diffraction grid (Default value = 512).
-            zoom (float):
-                Scaling factor for incident wavevectors (Default value = 1).
-            peak_width (float):
-                Width of Gaussian convolved with points, in system length
-                units (Default value = 1).
-            length_scale (float):
-                Not sure what this does (Default value = 3.905).
-            bot (float):
-                Plotting quantity -- should be removed (Default value
-                = 4e-6).
-            top (float):
-                Plotting quantity -- should be removed (Default value
-                = 0.7).
-        """
+                 bot=4e-6, top=0.7):
         self.N = grid_size
         self.zoom = zoom
         self.peak_width = peak_width
         self.bin_w = 2.0
-        self.length_scale = length_scale
         self.bot = bot
         self.top = top
 
@@ -170,7 +177,7 @@ class Diffraction(_Compute):
         ny, nx = np.shape(a)
         y = np.array([list(range(ny))])
         x = np.array([list(range(nx))])
-        d = interpolate.RectBivariateSpline(x, y, a, kx=1, ky=1)
+        d = scipy.interpolate.RectBivariateSpline(x, y, a, kx=1, ky=1)
         x = np.linspace(0, nx, self.N)
         y = np.linspace(0, ny, self.N)
         d = d(x, y)
@@ -204,8 +211,8 @@ class Diffraction(_Compute):
         A3 = np.linalg.inv(np.dot(A2, A1))
         A4 = A3[0:2, 0:2]
         A5 = A3[0:2, 2]
-        img = ndimage.interpolation.affine_transform(img, A4, A5,
-                                                     mode="constant")
+        img = scipy.ndimage.interpolation.affine_transform(
+            img, A4, A5, mode="constant")
         return img
 
     def compute(self, system, view_orientation=None, cutout=True):
@@ -222,7 +229,7 @@ class Diffraction(_Compute):
                 diffraction pattern with circle cutout
                 (Default value = :code:`True`).
         """
-        system = locality._make_default_nq(system)
+        system = freud.locality._make_default_nq(system)
 
         N = self.N / self.zoom
         inv_shear = self._calc_proj(view_orientation, system.box)
@@ -232,7 +239,7 @@ class Diffraction(_Compute):
         im = self._bin(xy, N)
 
         self._diffraction = np.fft.fft2(im)
-        self._diffraction = ndimage.fourier.fourier_gaussian(
+        self._diffraction = scipy.ndimage.fourier.fourier_gaussian(
             self._diffraction, self.peak_width / self.zoom)
         self._diffraction = np.fft.fftshift(self._diffraction)
         self._diffraction = np.absolute(self._diffraction)
@@ -264,8 +271,7 @@ class Diffraction(_Compute):
     def __repr__(self):
         return f"freud.diffraction.{type(self).__name__}, (N={self.N}, \
                  zoom={self.zoom}, peak_width={self.peak_width}, \
-                 length_scale={self.length_scale}, bot={self.bot}, \
-                 top={self.top})"
+                 bot={self.bot}, top={self.top})"
 
     def plot(self, ax=None):
         """Plot Diffraction Pattern.
