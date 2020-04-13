@@ -9,16 +9,37 @@ from freud import locality
 class Diffraction(_Compute):
     def __init__(self, grid_size=512, zoom=4, peak_width=1,
                  length_scale=3.905, bot=4e-6, top=0.7):
-        """
-        Initialize the diffraction class
-        Parameters
-        ----------
-        grid_size : int, size of the diffraction grid (default 512)
-        zoom : (default 1)
-        peak_width : (default 1)
-        length_scale : (default 3.905)
-        bot : (default 4e-6)
-        top : (default 0.7)
+        R"""Computes a 2D diffraction pattern.
+        
+        The diffraction image represents the scattering of incident radiation,
+        and is useful for identifying translational order present in the
+        system. This class computes the static
+        `structure factor <https://en.wikipedia.org/wiki/Structure_factor>`_
+        :math:`S(\vec{q})` for a plane of wavevectors :math:`\vec{q}`
+        orthogonal to a view plane. The view orientation :math:`(1, 0, 0, 0)`
+        defaults to looking down the :math:`z` axis (at the :math:`xy` plane).
+        The points in the system are converted to fractional coordinates, then
+        binned into a grid whose resolution is given by ``grid_size``. The
+        points are convolved with a Gaussian of width :math:`\sigma`, given by
+        ``peak_width``. This convolution is performed as a multiplication in
+        Fourier space.
+        
+        Args:
+            grid_size (unsigned int):
+                Size of the diffraction grid (Default value = 512).
+            zoom (float):
+                Scaling factor for incident wavevectors (Default value = 1).
+            peak_width (float):
+                Width of Gaussian convolved with points, in system length
+                units (Default value = 1).
+            length_scale (float):
+                Not sure what this does (Default value = 3.905).
+            bot (float):
+                Plotting quantity -- should be removed (Default value
+                = 4e-6).
+            top (float):
+                Plotting quantity -- should be removed (Default value
+                = 0.7).
         """
         self.N = grid_size
         self.zoom = zoom
