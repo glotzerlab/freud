@@ -107,13 +107,11 @@ class DiffractionPattern(_Compute):
 
     def _calc_proj(self, view_orientation, box):
         """Calculate the inverse shear matrix from finding the projected box
-           vectors whose area of parallogram is the largest for
-           orthorhombic boxes only.
+        vectors whose area of parallogram is the largest.
 
         Args:
-            view_orientation ((:math:`4`) :class:`numpy.ndarray`, optional):
-                View orientation. Uses :math:`(1, 0, 0, 0)` if not provided
-                or :code:`None` (Default value = :code:`None`).
+            view_orientation ((:math:`4`) :class:`numpy.ndarray`):
+                View orientation.
             box (:class:`~.box.Box`):
                 Simulation box.
 
@@ -121,21 +119,29 @@ class DiffractionPattern(_Compute):
             (2, 2) :class:`numpy.ndarray`:
                 Inverse shear matrix.
         """
-        s = rowan.rotate(view_orientation, box.to_matrix())
-        if (s.yz >= s.xy) and (s.yz >= s.zx):
-            shear = np.array(
-                [[s.xy * s.Ly, s.xz * s.Lz], [s.Ly, s.yz * s.Lz]])
-        elif (s.zx >= s.xy) and (s.zx >= s.yz):
-            shear = np.array(
-                [[s.xz * s.Lz, s.Lx], [s.yz * s.Lz, 0]])
-        else:
-            shear = np.array(
-                [[s.Lx, s.xy * s.Ly], [0, s.Ly]])
-        s_det = np.linalg.det(shear)
-        if s_det == 0:
-            raise ValueError
-        self.Lx = np.linalg.norm(shear[:, 0])
-        self.Ly = np.linalg.norm(shear[:, 1])
+        # Rotate the box matrix by the view orientation.
+        box_matrix = rowan.rotate(view_orientation, box.to_matrix())
+
+        # Compute normals for each box face.
+        # The area of the face is the length of the vector.
+        box_face_normals = np.cross(
+            np.roll(box_matrix, 1, axis=-1),
+            np.roll(box_matrix, -1, axis=-1),
+            axis=0)
+
+        # Compute view axis projections.
+        projections = np.abs(box_face_normals.T @ np.array([0., 0., 1.]))
+
+        # Determine the largest projection area along the view axis and use
+        # that face for the projection into 2D.
+        best_projection_axis = np.argmax(projections)
+        secondary_axes = np.array([
+            best_projection_axis + 1, best_projection_axis + 2]) % 3
+
+        # Figure out appropriate shear matrix
+        shear = box_matrix[np.ix_([0, 1], secondary_axes)]
+
+        # Return the inverse shear matrix
         inv_shear = np.linalg.inv(shear)
         return inv_shear
 
@@ -230,6 +236,9 @@ class DiffractionPattern(_Compute):
                 (Default value = :code:`True`).
         """
         system = freud.locality._make_default_nq(system)
+
+        if view_orientation is None:
+            view_orientation = np.array([1., 0., 0., 0.])
 
         N = self.N / self.zoom
         inv_shear = self._calc_proj(view_orientation, system.box)
