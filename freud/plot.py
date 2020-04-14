@@ -453,24 +453,34 @@ def voronoi_plot(box, polytopes, ax=None, color_by_sides=True, cmap=None):
     return ax
 
 
-def diffraction_plot(diffraction, ax=None, cmap='None'):
+def diffraction_plot(diffraction, ax=None, cmap='afmhot'):
     """Helper function to plot diffraction pattern.
 
     Args:
-        ax (:class:`matplotlib.axes.Axes`): Axes object to plot.
-            If :code:`None`, make a new axes and figure object.
-            (Default value = :code:`None`).
+        diffraction (:class:`numpy.ndarray`):
+            Diffraction image data.
+        ax (:class:`matplotlib.axes.Axes`):
+            Axes object to plot. If :code:`None`, make a new axes and figure
+            object (Default value = :code:`None`).
         cmap (str):
-            Colormap name to use (Default value = :code:`None`).
+            Colormap name to use (Default value = :code:`'afmhot'`).
 
     Returns:
         :class:`matplotlib.axes.Axes`: Axes object with the diagram.
     """
+    from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
+    from matplotlib.colorbar import Colorbar
+
     if ax is None:
         fig = Figure()
         ax = fig.subplots()
 
     ax.set_title('Diffraction Pattern')
-    ax.imshow(diffraction, cmap=cmap)
-    ax.colorbar()
+    im = ax.imshow(diffraction, interpolation='nearest', cmap=cmap)
+    ax_divider = make_axes_locatable(ax)
+    cax = ax_divider.append_axes("right", size="7%", pad="10%")
+
+    cb = Colorbar(cax, im)
+    cb.set_label(r"$S(\vec{q})$")
+
     return ax

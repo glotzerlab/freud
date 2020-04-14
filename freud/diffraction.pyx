@@ -205,7 +205,8 @@ class DiffractionPattern(_Compute):
                 Sheared array of diffraction intensities
         """
         roll = img.shape[0] / 2 - 1
-        ss = np.max(box) * inv_shear
+        box_matrix = box.to_matrix()
+        ss = np.max(box_matrix) * inv_shear
         A1 = np.array([[1, 0, -roll],
                        [0, 1, -roll],
                        [0, 0, 1]])
@@ -270,7 +271,7 @@ class DiffractionPattern(_Compute):
 
         # idbig = self.circle_cutout(dp)
         # dp[np.unravel_index(idbig, (self.N, self.N))] = np.log(self.bot)
-        return self._diffraction
+        return self
 
     @_Compute._computed_property
     def diffraction(self):
@@ -282,19 +283,21 @@ class DiffractionPattern(_Compute):
                  zoom={self.zoom}, peak_width={self.peak_width}, \
                  bot={self.bot}, top={self.top})"
 
-    def plot(self, ax=None):
+    def plot(self, ax=None, cmap='afmhot'):
         """Plot Diffraction Pattern.
 
         Args:
             ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
                 :code:`None`, make a new figure and axis.
                 (Default value = :code:`None`)
+            cmap (str):
+                Colormap name to use (Default value = :code:`'afmhot'`).
 
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         import freud.plot
-        return freud.plot.diffraction_plot(self.diffraction)
+        return freud.plot.diffraction_plot(self.diffraction, ax, cmap)
 
     def _repr_png_(self):
         try:
