@@ -43,8 +43,8 @@ references:
   update_certs: &update_certs
     run:
       name: Update certificates
-        command: |
-          conda update certifi
+      command: |
+        conda update certifi
 
   get_requirements: &get_requirements
     run:
