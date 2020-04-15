@@ -316,7 +316,7 @@ workflows:
       - linux-python-36:
           requires:
             - check-style
-      - windows-python-37
+      - windows-python-37:
           requires:
             - check-style
 # Disabled benchmarks on CI - they currently take too much work
