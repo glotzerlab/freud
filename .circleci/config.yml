@@ -226,7 +226,6 @@ jobs:
     working_directory: ~/ci/freud
     environment:
       PYVER: "3.8"
-      PIP: "pip3"
     <<: *load_check_style
 
   linux-python-38:
@@ -235,7 +234,6 @@ jobs:
     working_directory: ~/ci/freud
     environment:
       PYVER: "3.8"
-      PIP: "pip3.8"
     <<: *build_and_test_linux
 
   linux-python-37:
@@ -244,7 +242,6 @@ jobs:
     working_directory: ~/ci/freud
     environment:
       PYVER: "3.7"
-      PIP: "pip3.7"
     <<: *build_and_test_linux_with_cov
 
   linux-python-36:
@@ -253,7 +250,6 @@ jobs:
     working_directory: ~/ci/freud
     environment:
       PYVER: "3.6"
-      PIP: "pip3.6"
     <<: *build_and_test_linux
 
   windows-python-37:
@@ -261,8 +257,7 @@ jobs:
       name: win/default
       shell: bash.exe
     environment:
-      PYVER: "3.7"
-      PIP: "pip3.7"
+      PYVER: ""  # Windows doesn't have aliases for python3.7
     <<: *build_and_test_windows
 
   test-deploy-pypi-linux:
@@ -293,7 +288,6 @@ jobs:
     working_directory: ~/ci/freud
     environment:
       PYVER: "3.8"
-      PIP: "pip3.8"
     <<: *build_and_benchmark
 
 workflows:
