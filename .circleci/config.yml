@@ -260,6 +260,9 @@ jobs:
     executor:
       name: win/default
       shell: bash.exe
+    environment:
+      PYVER: "3.7"
+      PIP: "pip3.7"
     <<: *build_and_test_windows
 
   test-deploy-pypi-linux:
@@ -298,40 +301,40 @@ workflows:
   test:
     jobs:
       - check-style
-      - linux-python-38:
-          requires:
-            - check-style
-      - linux-python-37:
-          requires:
-            - check-style
-      - linux-python-36:
-          requires:
-            - check-style
-      - windows-python-37:
-          requires:
-            - check-style
+#      - linux-python-38:
+#          requires:
+#            - check-style
+#      - linux-python-37:
+#          requires:
+#            - check-style
+#      - linux-python-36:
+#          requires:
+#            - check-style
+      - windows-python-37
+#          requires:
+#            - check-style
 # Disabled benchmarks on CI - they currently take too much work
 #     - benchmarks:
 #         requires:
 #           - linux-python-38
-      - test-deploy-pypi-macos:
-          filters:
-            branches:
-              only: /release\/.*/
-          requires:
-            - linux-python-38
-            - linux-python-37
-            - linux-python-36
-            - windows-python-37
-      - test-deploy-pypi-linux:
-          filters:
-            branches:
-              only: /release\/.*/
-          requires:
-            - linux-python-38
-            - linux-python-37
-            - linux-python-36
-            - windows-python-37
+#      - test-deploy-pypi-macos:
+#          filters:
+#            branches:
+#              only: /release\/.*/
+#          requires:
+#            - linux-python-38
+#            - linux-python-37
+#            - linux-python-36
+#            - windows-python-37
+#      - test-deploy-pypi-linux:
+#          filters:
+#            branches:
+#              only: /release\/.*/
+#          requires:
+#            - linux-python-38
+#            - linux-python-37
+#            - linux-python-36
+#            - windows-python-37
 
   deploy:
     jobs:
