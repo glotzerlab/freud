@@ -44,7 +44,7 @@ references:
     run:
       name: Install dependencies
       command: |
-        python${PYVER} -m pip install certifi
+        python${PYVER} -m pip install certifi --upgrade
         python${PYVER} -m pip install --user -r requirements-testing.txt
 
   get_style_requirements: &get_style_requirements
@@ -295,7 +295,7 @@ workflows:
   version: 2
   test:
     jobs:
-      - check-style
+#      - check-style
 #      - linux-python-38:
 #          requires:
 #            - check-style
