@@ -46,7 +46,7 @@ references:
       command: |
         python${PYVER} -m pip install --user -r requirements-testing.txt
 
-  get_conda_requirements: &configure_conda
+  get_conda_requirements: &get_conda_requirements
     run:
       name: Install dependencies with conda
       command: |
