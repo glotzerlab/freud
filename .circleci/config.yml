@@ -40,11 +40,16 @@ references:
       command: |
         git submodule update --init
 
+  update_certs: &update_certs
+    run:
+      name: Update certificates
+        command: |
+          conda update certifi
+
   get_requirements: &get_requirements
     run:
       name: Install dependencies
       command: |
-        python${PYVER} -m pip install certifi --upgrade
         python${PYVER} -m pip install --user -r requirements-testing.txt
 
   get_style_requirements: &get_style_requirements
@@ -153,6 +158,7 @@ references:
     steps:
       - *load_code
       - *update_submodules
+      - *update_certs
       - *get_requirements
       - *build
       - *test_cov
