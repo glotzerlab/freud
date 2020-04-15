@@ -1,4 +1,7 @@
-version: 2
+version: 2.1
+
+orbs:
+  win: circleci/windows@2.2.0  # Enables Windows executors
 
 references:
   container_manylinux: &container_manylinux
@@ -127,7 +130,7 @@ references:
       path: benchmarks/reports
       destination: benchmarks-reports
 
-  build_and_test: &build_and_test
+  build_and_test_linux: &build_and_test_linux
     steps:
       - *load_code
       - *update_submodules
@@ -136,7 +139,16 @@ references:
       - *test
       - *store
 
-  build_and_test_with_cov: &build_and_test_with_cov
+  build_and_test_linux_with_cov: &build_and_test_linux_with_cov
+    steps:
+      - *load_code
+      - *update_submodules
+      - *get_requirements
+      - *build
+      - *test_cov
+      - *store
+
+  build_and_test_windows: &build_and_test_windows
     steps:
       - *load_code
       - *update_submodules
@@ -217,32 +229,38 @@ jobs:
       PIP: "pip3"
     <<: *load_check_style
 
-  test-py38:
+  linux-python-38:
     docker:
       - image: glotzerlab/ci:2020.01-py38
     working_directory: ~/ci/freud
     environment:
       PYVER: "3.8"
       PIP: "pip3.8"
-    <<: *build_and_test
+    <<: *build_and_test_linux
 
-  test-py37:
+  linux-python-37:
     docker:
       - image: glotzerlab/ci:2020.01-py37
     working_directory: ~/ci/freud
     environment:
       PYVER: "3.7"
       PIP: "pip3.7"
-    <<: *build_and_test_with_cov
+    <<: *build_and_test_linux_with_cov
 
-  test-py36:
+  linux-python-36:
     docker:
       - image: glotzerlab/ci:2020.01-py36
     working_directory: ~/ci/freud
     environment:
       PYVER: "3.6"
       PIP: "pip3.6"
-    <<: *build_and_test
+    <<: *build_and_test_linux
+
+  windows-python-37:
+    executor:
+      name: win/default
+      shell: bash.exe
+    <<: *build_and_test_windows
 
   test-deploy-pypi-linux:
     environment:
@@ -280,35 +298,40 @@ workflows:
   test:
     jobs:
       - check-style
-      - test-py38:
+      - linux-python-38:
           requires:
             - check-style
-      - test-py37:
+      - linux-python-37:
           requires:
             - check-style
-      - test-py36:
+      - linux-python-36:
+          requires:
+            - check-style
+      - windows-python-37:
           requires:
             - check-style
 # Disabled benchmarks on CI - they currently take too much work
 #     - benchmarks:
 #         requires:
-#           - test-py38
+#           - linux-python-38
       - test-deploy-pypi-macos:
           filters:
             branches:
               only: /release\/.*/
           requires:
-            - test-py38
-            - test-py37
-            - test-py36
+            - linux-python-38
+            - linux-python-37
+            - linux-python-36
+            - windows-python-37
       - test-deploy-pypi-linux:
           filters:
             branches:
               only: /release\/.*/
           requires:
-            - test-py38
-            - test-py37
-            - test-py36
+            - linux-python-38
+            - linux-python-37
+            - linux-python-36
+            - windows-python-37
 
   deploy:
     jobs:
