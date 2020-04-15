@@ -44,13 +44,13 @@ references:
     run:
       name: Install dependencies
       command: |
-        $PIP install --user -r requirements-testing.txt
+        python${PYVER} -m pip install --user -r requirements-testing.txt
 
   get_style_requirements: &get_style_requirements
     run:
       name: Install style check dependencies
       command: |
-        $PIP install --user flake8==3.7.8
+        python${PYVER} -m pip install --user flake8==3.7.8
 
   #check_cpp_style: &check_cpp_style
   #  run:
@@ -99,7 +99,7 @@ references:
     run:
       name: Run benchmarks
       command: |
-          $PIP install --user -r requirements-testing.txt
+          python${PYVER} -m pip install --user -r requirements-testing.txt
           echo 'export PYTHONPATH=$PYTHONPATH:.' >> $BASH_ENV
           echo 'export BENCHMARK_NPROC=2' >> $BASH_ENV
           source $BASH_ENV
