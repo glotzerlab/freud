@@ -40,11 +40,14 @@ references:
       command: |
         git submodule update --init
 
-  update_certs: &update_certs
+  configure_conda: &configure_conda
     run:
-      name: Update certificates
+      name: Update conda and certificates
       command: |
-        conda update certifi
+        conda config --set always_yes yes --set changeps1 no
+        conda config --add channels conda-forge
+        conda update -q conda certifi
+        conda install pip tbb tbb-devel
 
   get_requirements: &get_requirements
     run:
@@ -158,7 +161,7 @@ references:
     steps:
       - *load_code
       - *update_submodules
-      - *update_certs
+      - *configure_conda
       - *get_requirements
       - *build
       - *test_cov
