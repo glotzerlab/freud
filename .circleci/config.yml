@@ -83,7 +83,7 @@ references:
     run:
       name: Build
       command: |
-        echo "PYVER=${PYVER}"
+        python${PYVER} --version
         python${PYVER} setup.py build_ext --inplace --COVERAGE
 
   test: &test
@@ -267,7 +267,9 @@ jobs:
       name: win/default
       shell: bash.exe
     environment:
-      PYVER: ""  # Windows doesn't have aliases for python3.7
+      PYVER: ""  # Windows CI image doesn't have aliases for python3.7
+      TBB_INCLUDE: "C:\\tools\\miniconda3\\Library\\include"
+      TBB_LINK: "C:\\tools\\miniconda3\\Library\\lib"
     <<: *build_and_test_windows
 
   test-deploy-pypi-linux:
