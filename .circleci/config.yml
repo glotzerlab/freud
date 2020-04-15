@@ -44,6 +44,7 @@ references:
     run:
       name: Install dependencies
       command: |
+        python${PYVER} -m pip install certifi
         python${PYVER} -m pip install --user -r requirements-testing.txt
 
   get_style_requirements: &get_style_requirements
