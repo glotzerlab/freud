@@ -47,7 +47,9 @@ references:
         conda config --set always_yes yes --set changeps1 no
         conda config --add channels conda-forge
         conda update -q conda certifi
-        conda install pip tbb tbb-devel
+        conda install python pip tbb tbb-devel
+        python --version
+        python -m pip --version
 
   get_requirements: &get_requirements
     run:
