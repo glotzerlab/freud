@@ -236,7 +236,7 @@ class DiffractionPattern(_Compute):
                 diffraction pattern with circle cutout
                 (Default value = :code:`True`).
         """
-        system = freud.locality._make_default_nq(system)
+        system = freud.locality.NeighborQuery.from_system(system)
 
         if view_orientation is None:
             view_orientation = np.array([1., 0., 0., 0.])
