@@ -314,11 +314,11 @@ cdef class NeighborQuery:
             return system
 
         # MDAnalysis compatibility
-        elif match_class_path(system, 'MDAnalysis.coordinates.base.Timestep'):
+        elif _match_class_path(system, 'MDAnalysis.coordinates.base.Timestep'):
             system = (system.triclinic_dimensions, system.positions)
 
         # GSD compatibility
-        elif match_class_path(system, 'gsd.hoomd.Snapshot'):
+        elif _match_class_path(system, 'gsd.hoomd.Snapshot'):
             # Explicitly construct the box to silence warnings from box
             # constructor because GSD sets Lz=1 rather than 0 for 2D boxes.
             box = system.configuration.box.copy()
@@ -327,7 +327,7 @@ cdef class NeighborQuery:
             system = (box, system.particles.position)
 
         # garnett compatibility (garnett >=0.5)
-        elif match_class_path(system, 'garnett.trajectory.Frame'):
+        elif _match_class_path(system, 'garnett.trajectory.Frame'):
             try:
                 # garnett >= 0.7
                 position = system.position
@@ -337,7 +337,7 @@ cdef class NeighborQuery:
             system = (system.box, position)
 
         # OVITO compatibility
-        elif match_class_path(system,
+        elif _match_class_path(system,
                 'ovito.data.DataCollection',
                 'ovito.plugins.PyScript.DataCollection',
                 'PyScript.DataCollection'):
