@@ -146,30 +146,6 @@ class DiffractionPattern(_Compute):
         inv_shear = np.linalg.inv(shear)
         return inv_shear
 
-    def _circle_cutout(self, p):
-        """Find pixel indices in diffraction intensity array outside of the circle
-           Note: taken from Diffractometer.prep_sq()
-
-        Args:
-            p ((:math:`N`, :math:`N`) :class:`numpy.ndarray`):
-                The array of diffraction intensity.
-
-        Returns:
-            (:math:`N`,) :class:`numpy.ndarray`:
-                Indices of particles outside the circle.
-                note: N != to N in p.shape
-        """
-        y, x = np.indices(p.shape)
-        rmax = len(x) / 2 - 1
-        center = np.array([rmax, rmax])
-        # radii, constant for a single zoom
-        r = np.hypot(x - center[1], y - center[0]).flatten()
-        # array index into p corresponding to r
-        i = np.argsort(r.flat)
-        # sorted radius indices
-        r_sort = r.flat[i]
-        return i[r_sort > rmax]
-
     def _scale(self, a):
         """Scales up a matrix around middle particle.
             Note: Doesn't handle atoms on periodic boundaries perfectly --
@@ -264,6 +240,10 @@ class DiffractionPattern(_Compute):
         self._diffraction[self._diffraction > self.top] = self.top
         self._diffraction = np.log10(self._diffraction)
 
+        # TODO: FIXME
+        self._k_vectors = np.zeros((int(self._diffraction.shape[0]),
+                                    int(self._diffraction.shape[1]), 3))
+
         """
         NOTE: cut into a circle, not sure if needed-YJ
         """
@@ -271,13 +251,19 @@ class DiffractionPattern(_Compute):
         #     return dp
 
         # idbig = self.circle_cutout(dp)
-        # dp[np.unravel_index(idbig, (self.grid_size, self.grid_size))] = np.log(self.bot)
+        # dp[np.unravel_index(idbig, (self.grid_size, self.grid_size))] =
+        #   np.log(self.bot)
         return self
 
     @_Compute._computed_property
     def diffraction(self):
-        """(:class:`numpy.ndarray`): diffraction pattern. """
+        """:class:`numpy.ndarray`: diffraction pattern. """
         return self._diffraction
+
+    @_Compute._computed_property
+    def k_vectors(self):
+        """(:math:`N`, :math:`N`, 3) :class:`numpy.ndarray`: k-vectors. """
+        return self._k_vectors
 
     def __repr__(self):
         return ("freud.diffraction.{cls}(grid_size={grid_size}, "
