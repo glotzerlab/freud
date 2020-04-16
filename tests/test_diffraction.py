@@ -1,21 +1,29 @@
 import freud
 import unittest
+import numpy.testing as npt
 
 
 class TestDiffractionPattern(unittest.TestCase):
     def test_compute(self):
-        box, positions = freud.data.UnitCell.fcc().generate_system(4)
-
-    def test_attribute_access(self):
         dp = freud.diffraction.DiffractionPattern()
-
-        with self.assertRaises(AttributeError):
-            dp.diffraction
-
         box, positions = freud.data.UnitCell.fcc().generate_system(4)
         dp.compute((box, positions))
 
+    def test_attribute_access(self):
+        dp = freud.diffraction.DiffractionPattern()
+        box, positions = freud.data.UnitCell.fcc().generate_system(4)
+
+        with self.assertRaises(AttributeError):
+            dp.diffraction
+        with self.assertRaises(AttributeError):
+            dp.k_vectors
+        with self.assertRaises(AttributeError):
+            dp.plot()
+
+        dp.compute((box, positions))
         dp.diffraction
+        dp.k_vectors
+        dp._repr_png_()
 
     def test_repr(self):
         dp = freud.diffraction.DiffractionPattern()
@@ -26,6 +34,15 @@ class TestDiffractionPattern(unittest.TestCase):
                                                   peak_width=2, bot=1e-6,
                                                   top=0.1)
         self.assertEqual(str(dp), str(eval(repr(dp))))
+
+    def test_k_vector(self):
+        dp = freud.diffraction.DiffractionPattern()
+        box, positions = freud.data.UnitCell.fcc().generate_system(4)
+        dp.compute((box, positions))
+
+        default_size = dp.diffraction.shape[0]
+        default_shape = (default_size, default_size, 3)
+        npt.assert_equal(dp.k_vectors.shape, default_shape)
 
 
 if __name__ == '__main__':
