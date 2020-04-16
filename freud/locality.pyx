@@ -306,11 +306,9 @@ cdef class NeighborQuery:
                 :code:`box` and :code:`points`.
         """
 
-        def match_class_path(obj, match):
-            for cls in inspect.getmro(type(obj)):
-                if cls.__module__ + '.' + cls.__name__ == match:
-                    return True
-            return False
+        def _match_class_path(obj, *matches):
+            return any(cls.__module__ + '.' + cls.__name__ in matches
+                       for cls in inspect.getmro(type(obj)))
 
         if isinstance(system, cls):
             return system
@@ -339,10 +337,10 @@ cdef class NeighborQuery:
             system = (system.box, position)
 
         # OVITO compatibility
-        elif (match_class_path(system, 'ovito.data.DataCollection') or
-              match_class_path(system,
-                               'ovito.plugins.PyScript.DataCollection') or
-              match_class_path(system, 'PyScript.DataCollection')):
+        elif match_class_path(system,
+                'ovito.data.DataCollection',
+                'ovito.plugins.PyScript.DataCollection',
+                'PyScript.DataCollection'):
             box = freud.Box.from_box(
                 system.cell.matrix[:, :3],
                 dimensions=2 if system.cell.is2D else 3)
