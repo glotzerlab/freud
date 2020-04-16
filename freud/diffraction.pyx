@@ -45,7 +45,7 @@ class DiffractionPattern(_Compute):
         grid_size (unsigned int):
             Size of the diffraction grid (Default value = 512).
         zoom (float):
-            Scaling factor for incident wavevectors (Default value = 1).
+            Scaling factor for incident wavevectors (Default value = 4).
         peak_width (float):
             Width of Gaussian convolved with points, in system length units
             (Default value = 1).
@@ -57,21 +57,22 @@ class DiffractionPattern(_Compute):
 
     def __init__(self, grid_size=512, zoom=4, peak_width=1,
                  bot=4e-6, top=0.7):
-        self.N = grid_size
+        self.grid_size = grid_size
         self.zoom = zoom
         self.peak_width = peak_width
         self.bin_w = 2.0
         self.bot = bot
         self.top = top
 
-    def _pbc_2d(self, xy, N):
+    def _pbc_2d(self, xy, grid_size):
         """Reasonably fast periodic boundary conditions in two dimensions.
-           Normalizes xy coordinates to the grid size, N.
+           Normalizes xy coordinates to the grid size.
 
         Args:
             xy ((:math:`N_{bins}`, 2) :class:`numpy.ndarray`):
-                Cartesian coordinates from [-0.5, 0.5) to be mapped to [0, N).
-            N (unsigned int) :
+                Cartesian coordinates from [-0.5, 0.5) to be mapped to
+                [0, grid_size).
+            grid_size (unsigned int) :
                 Size of the diffraction grid.
 
         Returns:
@@ -79,28 +80,28 @@ class DiffractionPattern(_Compute):
                 Particle bins indices in the x and y directions.
         """
         xy -= np.rint(xy) - 0.5
-        xy *= N
-        xy %= N
+        xy *= grid_size
+        xy %= grid_size
         return xy.astype(int)
 
-    def _bin(self, xy, N):
+    def _bin(self, xy, grid_size):
         """Quickly counts intensities for particles on 2D grid.
 
         Args:
             xy ((:math:`N_{bins}`, 2) :class:`numpy.ndarray`):
                 Array of bin indices.
-            N (unsigned int):
+            grid_size (unsigned int):
                 Size of the diffraction grid.
 
         Returns:
-            im ((:math:`N_{bins}`, :math:`N_{bins}`) :class:`numpy.ndarray`):
+            im ((grid_size, grid_size) :class:`numpy.ndarray`):
                 Grid of intensities.
         """
         t = xy.view(np.dtype((np.void, xy.dtype.itemsize * xy.shape[1])))
         _, ids, counts = np.unique(t, return_index=True, return_counts=True)
         unique_xy = xy[ids]
-        N = int(N)
-        im = np.zeros((N, N))
+        grid_size = int(grid_size)
+        im = np.zeros((grid_size, grid_size))
         for x, c in zip(unique_xy, counts):
             im[x[1], x[0]] = c
         return im
@@ -184,8 +185,8 @@ class DiffractionPattern(_Compute):
         y = np.array([list(range(ny))])
         x = np.array([list(range(nx))])
         d = scipy.interpolate.RectBivariateSpline(x, y, a, kx=1, ky=1)
-        x = np.linspace(0, nx, self.N)
-        y = np.linspace(0, ny, self.N)
+        x = np.linspace(0, nx, self.grid_size)
+        y = np.linspace(0, ny, self.grid_size)
         d = d(x, y)
         return d
 
@@ -223,7 +224,7 @@ class DiffractionPattern(_Compute):
         return img
 
     def compute(self, system, view_orientation=None, cutout=True):
-        R""" 2D FFT to get diffraction pattern from intensity matrix.
+        R"""2D FFT to get diffraction pattern from intensity matrix.
 
         Args:
             system:
@@ -241,12 +242,12 @@ class DiffractionPattern(_Compute):
         if view_orientation is None:
             view_orientation = np.array([1., 0., 0., 0.])
 
-        N = self.N / self.zoom
+        grid_size = self.grid_size / self.zoom
         inv_shear = self._calc_proj(view_orientation, system.box)
         xy = np.copy(rowan.rotate(view_orientation, system.points)[:, 0:2])
         xy = np.dot(xy, inv_shear.T)
-        xy = self._pbc_2d(xy, N)
-        im = self._bin(xy, N)
+        xy = self._pbc_2d(xy, grid_size)
+        im = self._bin(xy, grid_size)
 
         self._diffraction = np.fft.fft2(im)
         self._diffraction = scipy.ndimage.fourier.fourier_gaussian(
@@ -270,7 +271,7 @@ class DiffractionPattern(_Compute):
         #     return dp
 
         # idbig = self.circle_cutout(dp)
-        # dp[np.unravel_index(idbig, (self.N, self.N))] = np.log(self.bot)
+        # dp[np.unravel_index(idbig, (self.grid_size, self.grid_size))] = np.log(self.bot)
         return self
 
     @_Compute._computed_property
