@@ -57,13 +57,14 @@ class DiffractionPattern(_Compute):
     """
 
     def __init__(self, grid_size=512, zoom=4, peak_width=1,
-                 bot=4e-6, top=0.7, debug=False):
+                 bot=4e-6, top=0.7, debug=True):
         self.grid_size = grid_size
         self.zoom = zoom
         self.peak_width = peak_width
         self.bin_w = 2.0
         self.bot = bot
         self.top = top
+        self.debug = debug
 
     def _pbc_2d(self, xy, grid_size):
         """Reasonably fast periodic boundary conditions in two dimensions.
@@ -184,6 +185,7 @@ class DiffractionPattern(_Compute):
         """
         roll = img.shape[0] / 2 - 1
         box_matrix = box.to_matrix()
+
         ss = np.max(box_matrix) * inv_shear
         A1 = np.array([[1, 0, -roll],
                        [0, 1, -roll],
@@ -196,8 +198,13 @@ class DiffractionPattern(_Compute):
         A3 = np.linalg.inv(np.dot(A2, A1))
         A4 = A3[0:2, 0:2]
         A5 = A3[0:2, 2]
+
+        start = time.time()
         img = scipy.ndimage.interpolation.affine_transform(
             img, A4, A5, mode="constant")
+        end = time.time()
+        if debug:
+            print('shear interpolation: ', end-start)
         return img
 
     def compute(self, system, view_orientation=None, cutout=True):
@@ -228,26 +235,26 @@ class DiffractionPattern(_Compute):
         start = time.time()
         im = self._bin(xy, grid_size)
         end = time.time()
-        if debug:
+        if self.debug:
             print('binning took: ', end - start)
 
         start = time.time()
         self._diffraction = np.fft.fft2(im)
         end = time.time()
-        if debug:
+        if self.debug:
             print('np fft2 took: ', end - start)
 
         start = time.time()
         self._diffraction = scipy.ndimage.fourier.fourier_gaussian(
             self._diffraction, self.peak_width / self.zoom)
         end = time.time()
-        if debug:
+        if self.debug:
             print('fourier_gaussian took: ', end - start)
 
         start = time.time()
         self._diffraction = np.fft.fftshift(self._diffraction)
         end = time.time()
-        if debug:
+        if self.debug:
             print('fftshift took: ', end - start)
 
         self._diffraction = np.absolute(self._diffraction)
@@ -256,14 +263,14 @@ class DiffractionPattern(_Compute):
         start = time.time()
         self._diffraction = self._scale(self._diffraction)
         end = time.time()
-        if debug:
+        if self.debug:
             print('scaling took: ', end - start)
 
         start = time.time()
         self._diffraction = self._shear_back(
             self._diffraction, system.box, inv_shear)
         end = time.time()
-        if debug:
+        if self.debug:
             print('shearing took: ', end - start)
 
         self._diffraction /= self._diffraction.max()
