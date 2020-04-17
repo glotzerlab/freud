@@ -18,6 +18,7 @@ import numpy as np
 import scipy.interpolate
 import scipy.ndimage
 import rowan
+import time
 
 from freud.util cimport _Compute
 cimport numpy as np
@@ -56,7 +57,7 @@ class DiffractionPattern(_Compute):
     """
 
     def __init__(self, grid_size=512, zoom=4, peak_width=1,
-                 bot=4e-6, top=0.7):
+                 bot=4e-6, top=0.7, debug=False):
         self.grid_size = grid_size
         self.zoom = zoom
         self.peak_width = peak_width
@@ -223,18 +224,48 @@ class DiffractionPattern(_Compute):
         xy = np.copy(rowan.rotate(view_orientation, system.points)[:, 0:2])
         xy = np.dot(xy, inv_shear.T)
         xy = self._pbc_2d(xy, grid_size)
-        im = self._bin(xy, grid_size)
 
+        start = time.time()
+        im = self._bin(xy, grid_size)
+        end = time.time()
+        if debug:
+            print('binning took: ', end - start)
+
+        start = time.time()
         self._diffraction = np.fft.fft2(im)
+        end = time.time()
+        if debug:
+            print('np fft2 took: ', end - start)
+
+        start = time.time()
         self._diffraction = scipy.ndimage.fourier.fourier_gaussian(
             self._diffraction, self.peak_width / self.zoom)
+        end = time.time()
+        if debug:
+            print('fourier_gaussian took: ', end - start)
+
+        start = time.time()
         self._diffraction = np.fft.fftshift(self._diffraction)
+        end = time.time()
+        if debug:
+            print('fftshift took: ', end - start)
+
         self._diffraction = np.absolute(self._diffraction)
         self._diffraction *= self._diffraction
 
+        start = time.time()
         self._diffraction = self._scale(self._diffraction)
+        end = time.time()
+        if debug:
+            print('scaling took: ', end - start)
+
+        start = time.time()
         self._diffraction = self._shear_back(
             self._diffraction, system.box, inv_shear)
+        end = time.time()
+        if debug:
+            print('shearing took: ', end - start)
+
         self._diffraction /= self._diffraction.max()
         self._diffraction[self._diffraction < self.bot] = self.bot
         self._diffraction[self._diffraction > self.top] = self.top
