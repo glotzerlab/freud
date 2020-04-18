@@ -199,7 +199,7 @@ class DiffractionPattern(_Compute):
             print('shear interpolation: ', end-start)
         return img
 
-    def compute(self, system, view_orientation=None, cutout=True):
+    def compute(self, system, view_orientation=None):
         R"""2D FFT to get diffraction pattern from intensity matrix.
 
         Args:
@@ -209,9 +209,6 @@ class DiffractionPattern(_Compute):
             view_orientation ((:math:`4`) :class:`numpy.ndarray`, optional):
                 View orientation. Uses :math:`(1, 0, 0, 0)` if not provided
                 or :code:`None` (Default value = :code:`None`).
-            cutout (bool, optional):
-                diffraction pattern with circle cutout
-                (Default value = :code:`True`).
         """
         system = freud.locality.NeighborQuery.from_system(system)
 
@@ -270,15 +267,6 @@ class DiffractionPattern(_Compute):
         self._k_vectors = np.zeros((int(self._diffraction.shape[0]),
                                     int(self._diffraction.shape[1]), 3))
 
-        """
-        NOTE: cut into a circle, not sure if needed-YJ
-        """
-        # if not cutout:
-        #     return dp
-
-        # idbig = self.circle_cutout(dp)
-        # dp[np.unravel_index(idbig, (self.grid_size, self.grid_size))] =
-        #   np.log(self.bot)
         return self
 
     @_Compute._computed_property
