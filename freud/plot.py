@@ -453,7 +453,7 @@ def voronoi_plot(box, polytopes, ax=None, color_by_sides=True, cmap=None):
     return ax
 
 
-def diffraction_plot(diffraction, ax=None, cmap='afmhot'):
+def diffraction_plot(diffraction, ax=None, cmap='afmhot', vmin=4e-6, vmax=0.7):
     """Helper function to plot diffraction pattern.
 
     Args:
@@ -464,10 +464,15 @@ def diffraction_plot(diffraction, ax=None, cmap='afmhot'):
             object (Default value = :code:`None`).
         cmap (str):
             Colormap name to use (Default value = :code:`'afmhot'`).
+        vmin (float):
+            Minimum of the color scale (Default value = 4e-6).
+        vmax (float):
+            Maximum of the color scale (Default value = 0.7).
 
     Returns:
         :class:`matplotlib.axes.Axes`: Axes object with the diagram.
     """
+    import matplotlib.colors
     from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
     from matplotlib.colorbar import Colorbar
 
@@ -476,7 +481,9 @@ def diffraction_plot(diffraction, ax=None, cmap='afmhot'):
         ax = fig.subplots()
 
     ax.set_title('Diffraction Pattern')
-    im = ax.imshow(diffraction, interpolation='nearest', cmap=cmap)
+    norm = matplotlib.colors.LogNorm(vmin=vmin, vmax=vmax)
+    im = ax.imshow(np.clip(diffraction, vmin, vmax),
+                   interpolation='nearest', cmap=cmap, norm=norm)
     ax_divider = make_axes_locatable(ax)
     cax = ax_divider.append_axes("right", size="7%", pad="10%")
 

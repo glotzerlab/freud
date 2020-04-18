@@ -50,21 +50,12 @@ class DiffractionPattern(_Compute):
         peak_width (float):
             Width of Gaussian convolved with points, in system length units
             (Default value = 1).
-        bot (float):
-            Plotting quantity -- should be removed (Default value = 4e-6).
-        top (float):
-            Plotting quantity -- should be removed (Default value = 0.7).
     """
 
-    def __init__(self, grid_size=512, zoom=4, peak_width=1,
-                 bot=4e-6, top=0.7, debug=True):
+    def __init__(self, grid_size=512, zoom=4, peak_width=1):
         self.grid_size = grid_size
         self.zoom = zoom
         self.peak_width = peak_width
-        self.bin_w = 2.0
-        self.bot = bot
-        self.top = top
-        self.debug = debug
 
     def _pbc_2d(self, xy, grid_size):
         """Reasonably fast periodic boundary conditions in two dimensions.
@@ -256,7 +247,6 @@ class DiffractionPattern(_Compute):
         end = time.time()
         if self.debug:
             print('fftshift took: ', end - start)
-
         self._diffraction = np.absolute(self._diffraction)
         self._diffraction *= self._diffraction
 
@@ -274,9 +264,6 @@ class DiffractionPattern(_Compute):
             print('shearing took: ', end - start)
 
         self._diffraction /= self._diffraction.max()
-        self._diffraction[self._diffraction < self.bot] = self.bot
-        self._diffraction[self._diffraction > self.top] = self.top
-        self._diffraction = np.log10(self._diffraction)
 
         # TODO: FIXME
         self._k_vectors = np.zeros((int(self._diffraction.shape[0]),
@@ -313,7 +300,7 @@ class DiffractionPattern(_Compute):
                                                 bot=self.bot,
                                                 top=self.top)
 
-    def plot(self, ax=None, cmap='afmhot'):
+    def plot(self, ax=None, cmap='afmhot', vmin=4e-6, vmax=0.7):
         """Plot Diffraction Pattern.
 
         Args:
@@ -322,12 +309,16 @@ class DiffractionPattern(_Compute):
                 (Default value = :code:`None`)
             cmap (str):
                 Colormap name to use (Default value = :code:`'afmhot'`).
+            vmin (float):
+                Minimum of the color scale (Default value = 4e-6).
+            vmax (float):
+                Maximum of the color scale (Default value = 0.7).
 
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         import freud.plot
-        return freud.plot.diffraction_plot(self.diffraction, ax, cmap)
+        return freud.plot.diffraction_plot(self.diffraction, ax, cmap, vmin, vmax)
 
     def _repr_png_(self):
         try:
