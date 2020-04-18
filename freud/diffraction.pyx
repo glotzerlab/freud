@@ -307,7 +307,8 @@ class DiffractionPattern(_Compute):
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         import freud.plot
-        return freud.plot.diffraction_plot(self.diffraction, ax, cmap, vmin, vmax)
+        return freud.plot.diffraction_plot(
+            self.diffraction, ax, cmap, vmin, vmax)
 
     def _repr_png_(self):
         try:

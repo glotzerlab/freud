@@ -337,7 +337,8 @@ cdef class NeighborQuery:
             system = (system.box, position)
 
         # OVITO compatibility
-        elif _match_class_path(system,
+        elif _match_class_path(
+                system,
                 'ovito.data.DataCollection',
                 'ovito.plugins.PyScript.DataCollection',
                 'PyScript.DataCollection'):
