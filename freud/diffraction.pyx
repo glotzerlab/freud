@@ -286,13 +286,11 @@ class DiffractionPattern(_Compute):
 
     def __repr__(self):
         return ("freud.diffraction.{cls}(grid_size={grid_size}, "
-                "zoom={zoom}, peak_width={peak_width}, "
-                "bot={bot}, top={top})").format(cls=type(self).__name__,
-                                                grid_size=self.grid_size,
-                                                zoom=self.zoom,
-                                                peak_width=self.peak_width,
-                                                bot=self.bot,
-                                                top=self.top)
+                "zoom={zoom}, peak_width={peak_width})").format(
+                    cls=type(self).__name__,
+                    grid_size=self.grid_size,
+                    zoom=self.zoom,
+                    peak_width=self.peak_width)
 
     def plot(self, ax=None, cmap='afmhot', vmin=4e-6, vmax=0.7):
         """Plot Diffraction Pattern.

@@ -23,6 +23,7 @@ class TestDiffractionPattern(unittest.TestCase):
         dp.compute((box, positions))
         dp.diffraction
         dp.k_vectors
+        dp.plot()
         dp._repr_png_()
 
     def test_repr(self):
@@ -30,9 +31,8 @@ class TestDiffractionPattern(unittest.TestCase):
         self.assertEqual(str(dp), str(eval(repr(dp))))
 
         # Use non-default arguments for all parameters
-        dp = freud.diffraction.DiffractionPattern(grid_size=500, zoom=1,
-                                                  peak_width=2, bot=1e-6,
-                                                  top=0.1)
+        dp = freud.diffraction.DiffractionPattern(
+            grid_size=500, zoom=1, peak_width=2)
         self.assertEqual(str(dp), str(eval(repr(dp))))
 
     def test_k_vector(self):
