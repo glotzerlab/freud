@@ -52,10 +52,11 @@ class DiffractionPattern(_Compute):
             (Default value = 1).
     """
 
-    def __init__(self, grid_size=512, zoom=4, peak_width=1):
+    def __init__(self, grid_size=512, zoom=4, peak_width=1, debug=False):
         self.grid_size = grid_size
         self.zoom = zoom
         self.peak_width = peak_width
+        self.debug = debug
 
     def _pbc_2d(self, xy, grid_size):
         """Reasonably fast periodic boundary conditions in two dimensions.
@@ -194,7 +195,7 @@ class DiffractionPattern(_Compute):
         img = scipy.ndimage.interpolation.affine_transform(
             img, A4, A5, mode="constant")
         end = time.time()
-        if debug:
+        if self.debug:
             print('shear interpolation: ', end-start)
         return img
 
