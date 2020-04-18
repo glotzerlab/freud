@@ -276,12 +276,12 @@ class DiffractionPattern(_Compute):
 
     @_Compute._computed_property
     def diffraction(self):
-        """:class:`numpy.ndarray`: diffraction pattern. """
+        """:class:`numpy.ndarray`: diffraction pattern."""
         return self._diffraction
 
     @_Compute._computed_property
     def k_vectors(self):
-        """(:math:`N`, :math:`N`, 3) :class:`numpy.ndarray`: k-vectors. """
+        """(:math:`N`, :math:`N`, 3) :class:`numpy.ndarray`: k-vectors."""
         return self._k_vectors
 
     def __repr__(self):
