@@ -175,6 +175,7 @@ class DiffractionPattern(_Compute):
                 Sheared array of diffraction intensities
         """
         roll = img.shape[0] / 2 - 1
+
         box_matrix = box.to_matrix()
 
         ss = np.max(box_matrix) * inv_shear
@@ -263,7 +264,9 @@ class DiffractionPattern(_Compute):
         if self.debug:
             print('shearing took: ', end - start)
 
-        self._diffraction /= self._diffraction.max()
+        # Normalize by N^2
+        N = len(system.points)
+        self._diffraction /= N*N
 
         # TODO: FIXME
         self._k_vectors = np.zeros((int(self._diffraction.shape[0]),
