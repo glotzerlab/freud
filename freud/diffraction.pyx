@@ -140,25 +140,24 @@ class DiffractionPattern(_Compute):
         inv_shear = np.linalg.inv(shear)
         return inv_shear
 
-    def _scale(self, a):
+    def _scale(self, img):
         """Scales up a matrix around middle particle.
-            Note: Doesn't handle atoms on periodic boundaries perfectly --
-            intensity only on one half of boundary.
 
         Args:
-            a ((:math:`N`, :math:`N`) :class:`numpy.ndarray`): Input array.
+            img ((:math:`N`, :math:`N`) :class:`numpy.ndarray`):
+                Array of diffraction intensities.
 
         Returns:
             (:math:`N`, :math:`N`) :class:`numpy.ndarray`: Scaled array
         """
-        ny, nx = np.shape(a)
-        y = np.array([list(range(ny))])
-        x = np.array([list(range(nx))])
-        d = scipy.interpolate.RectBivariateSpline(x, y, a, kx=1, ky=1)
-        x = np.linspace(0, nx, self.grid_size)
-        y = np.linspace(0, ny, self.grid_size)
-        d = d(x, y)
-        return d
+        img_width, img_height = img.shape
+        img_x = np.arange(img_width)
+        img_y = np.arange(img_height)
+        spline = scipy.interpolate.RectBivariateSpline(
+            img_x, img_y, img, kx=1, ky=1)
+        x = np.linspace(0, img_width, self.grid_size)
+        y = np.linspace(0, img_height, self.grid_size)
+        return spline(x, y)
 
     def _shear_back(self, img, box, inv_shear):
         """Transform the inverse shear matrix back to the sheared matrix
@@ -192,8 +191,11 @@ class DiffractionPattern(_Compute):
         A5 = A3[0:2, 2]
 
         start = time.time()
-        img = scipy.ndimage.interpolation.affine_transform(
-            img, A4, A5, mode="constant")
+        img = scipy.ndimage.affine_transform(
+            input=img,
+            matrix=A4,
+            offset=A5,
+            mode="constant")
         end = time.time()
         if self.debug:
             print('shear interpolation: ', end-start)
