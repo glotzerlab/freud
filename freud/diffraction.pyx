@@ -155,16 +155,8 @@ class DiffractionPattern(_Compute):
             (:math:`N`, :math:`N`) :class:`numpy.ndarray`:
                 Transformed array of diffraction intensities.
         """
-        img_width, img_height = img.shape
-        img_x = np.arange(img_width)
-        img_y = np.arange(img_height)
-        spline = scipy.interpolate.RectBivariateSpline(
-            img_x, img_y, img, kx=1, ky=1)
-
         roll = img.shape[0] / 2 - 1
-
         box_matrix = box.to_matrix()
-
         ss = np.max(box_matrix) * inv_shear
         shift_matrix = np.array(
             [[1, 0, -roll],
@@ -177,36 +169,19 @@ class DiffractionPattern(_Compute):
              [0, 0, 1]])
 
         shift_shear = np.dot(shear_matrix, shift_matrix)
-        inverse_transform = np.linalg.inv(shift_shear)
-        matrix = inverse_transform[0:2, 0:2]
-        offset = inverse_transform[0:2, 2]
-
-        """
-        print('shift_matrix =', shift_matrix)
-        print('shear_matrix =', shear_matrix)
-        print('inverse_transform =', inverse_transform)
-        print('matrix =', matrix)
-        print('offset =', offset)
-        """
-
-        grid_points = np.mgrid[0:img_width:self.grid_size*1j,
-                               0:img_height:self.grid_size*1j]
-        grid_points = grid_points.T.reshape(-1, 2)
-        grid_points = np.dot(grid_points, matrix) + offset
-        x = grid_points[:, 0]
-        y = grid_points[:, 1]
+        zoom_matrix = np.array(
+            [[self.zoom, 0, 0],
+             [0, self.zoom, 0],
+             [0, 0, 1]])
+        inverse_transform = np.linalg.inv(np.dot(zoom_matrix, shift_shear))
 
         start = time.time()
-        img = spline(x, y, grid=False)
-        img = img.reshape(self.grid_size, self.grid_size)
-        """
         img = scipy.ndimage.affine_transform(
             input=img,
-            matrix=matrix,
-            offset=offset,
+            matrix=inverse_transform,
+            output_shape=(self.grid_size, self.grid_size),
             order=1,
             mode="constant")
-        """
         end = time.time()
         if self.debug:
             print('shear interpolation: ', end-start)
@@ -231,7 +206,8 @@ class DiffractionPattern(_Compute):
         grid_size = self.grid_size / self.zoom
         inv_shear = self._calc_proj(view_orientation, system.box)
         xy = np.copy(rowan.rotate(view_orientation, system.points)[:, 0:2])
-        print('inv_shear:', inv_shear)
+        if self.debug:
+            print('inv_shear:', inv_shear)
         xy = np.dot(xy, inv_shear.T)
         xy = self._pbc_2d(xy, grid_size)
 
