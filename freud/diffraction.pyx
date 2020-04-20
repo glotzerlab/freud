@@ -52,53 +52,10 @@ class DiffractionPattern(_Compute):
             (Default value = 1).
     """
 
-    def __init__(self, grid_size=512, zoom=4, peak_width=1, debug=False):
+    def __init__(self, grid_size=512, zoom=4, peak_width=1):
         self.grid_size = grid_size
         self.zoom = zoom
         self.peak_width = peak_width
-        self.debug = debug
-
-    def _pbc_2d(self, xy, grid_size):
-        """Reasonably fast periodic boundary conditions in two dimensions.
-           Normalizes xy coordinates to the grid size.
-
-        Args:
-            xy ((:math:`N_{bins}`, 2) :class:`numpy.ndarray`):
-                Cartesian coordinates from [-0.5, 0.5) to be mapped to
-                [0, grid_size).
-            grid_size (unsigned int) :
-                Size of the diffraction grid.
-
-        Returns:
-            (:math:`N_{bins}`, 2) :class:`numpy.ndarray`:
-                Particle bins indices in the x and y directions.
-        """
-        xy -= np.rint(xy) - 0.5
-        xy *= grid_size
-        xy %= grid_size
-        return xy.astype(int)
-
-    def _bin(self, xy, grid_size):
-        """Quickly counts intensities for particles on 2D grid.
-
-        Args:
-            xy ((:math:`N_{bins}`, 2) :class:`numpy.ndarray`):
-                Array of bin indices.
-            grid_size (unsigned int):
-                Size of the diffraction grid.
-
-        Returns:
-            im ((grid_size, grid_size) :class:`numpy.ndarray`):
-                Grid of intensities.
-        """
-        t = xy.view(np.dtype((np.void, xy.dtype.itemsize * xy.shape[1])))
-        _, ids, counts = np.unique(t, return_index=True, return_counts=True)
-        unique_xy = xy[ids]
-        grid_size = int(grid_size)
-        im = np.zeros((grid_size, grid_size))
-        for x, c in zip(unique_xy, counts):
-            im[x[1], x[0]] = c
-        return im
 
     def _calc_proj(self, view_orientation, box):
         """Calculate the inverse shear matrix from finding the projected box
@@ -158,6 +115,7 @@ class DiffractionPattern(_Compute):
         roll = img.shape[0] / 2 - 1
         box_matrix = box.to_matrix()
         ss = np.max(box_matrix) * inv_shear
+
         shift_matrix = np.array(
             [[1, 0, -roll],
              [0, 1, -roll],
@@ -168,27 +126,23 @@ class DiffractionPattern(_Compute):
              [ss[1, 1], ss[0, 1], roll],
              [0, 0, 1]])
 
-        shift_shear = np.dot(shear_matrix, shift_matrix)
-        zoom_matrix = np.array(
-            [[self.zoom, 0, 0],
-             [0, self.zoom, 0],
-             [0, 0, 1]])
-        inverse_transform = np.linalg.inv(np.dot(zoom_matrix, shift_shear))
+        zoom_matrix = np.diag((self.zoom, self.zoom, 1))
 
-        start = time.time()
+        # This matrix uses homogeneous coordinates. It is a 3x3 matrix that
+        # transforms 2D points and adds an offset.
+        inverse_transform = np.linalg.inv(
+            zoom_matrix @ shear_matrix @ shift_matrix)
+
         img = scipy.ndimage.affine_transform(
             input=img,
             matrix=inverse_transform,
             output_shape=(self.grid_size, self.grid_size),
             order=1,
             mode="constant")
-        end = time.time()
-        if self.debug:
-            print('shear interpolation: ', end-start)
         return img
 
     def compute(self, system, view_orientation=None):
-        R"""2D FFT to get diffraction pattern from intensity matrix.
+        R"""Computes diffraction pattern.
 
         Args:
             system:
@@ -203,50 +157,25 @@ class DiffractionPattern(_Compute):
         if view_orientation is None:
             view_orientation = np.array([1., 0., 0., 0.])
 
-        grid_size = self.grid_size / self.zoom
+        grid_size = int(self.grid_size / self.zoom)
         inv_shear = self._calc_proj(view_orientation, system.box)
-        xy = np.copy(rowan.rotate(view_orientation, system.points)[:, 0:2])
-        if self.debug:
-            print('inv_shear:', inv_shear)
-        xy = np.dot(xy, inv_shear.T)
-        xy = self._pbc_2d(xy, grid_size)
+        xy = rowan.rotate(view_orientation, system.points)[:, 0:2]
+        xy = xy @ inv_shear.T
 
-        start = time.time()
-        im = self._bin(xy, grid_size)
-        end = time.time()
-        if self.debug:
-            print('binning took: ', end - start)
+        # Map positions to [0, 1] and compute the histogram
+        xy += 0.5
+        xy %= 1
+        im, _, _ = np.histogram2d(xy[:, 0], xy[:, 1], bins=np.linspace(0, 1, grid_size))
 
-        start = time.time()
         self._diffraction = np.fft.fft2(im)
-        end = time.time()
-        if self.debug:
-            print('np fft2 took: ', end - start)
-
-        start = time.time()
         self._diffraction = scipy.ndimage.fourier.fourier_gaussian(
             self._diffraction, self.peak_width / self.zoom)
-        end = time.time()
-        if self.debug:
-            print('fourier_gaussian took: ', end - start)
-
-        start = time.time()
         self._diffraction = np.fft.fftshift(self._diffraction)
-        end = time.time()
-        if self.debug:
-            print('fftshift took: ', end - start)
         self._diffraction = np.absolute(self._diffraction)
         self._diffraction *= self._diffraction
-
-        if self.debug:
-            print('shape before shearing: {}'.format(self._diffraction.shape))
         start = time.time()
         self._diffraction = self._scale_and_shear(
             self._diffraction, system.box, inv_shear)
-        end = time.time()
-        if self.debug:
-            print('shearing took: ', end - start)
-            print('shape after shearing: {}'.format(self._diffraction.shape))
 
         # Normalize by N^2
         N = len(system.points)
