@@ -181,11 +181,13 @@ class DiffractionPattern(_Compute):
         matrix = inverse_transform[0:2, 0:2]
         offset = inverse_transform[0:2, 2]
 
-        #print('shift_matrix =', shift_matrix)
-        #print('shear_matrix =', shear_matrix)
-        #print('inverse_transform =', inverse_transform)
-        #print('matrix =', matrix)
-        #print('offset =', offset)
+        """
+        print('shift_matrix =', shift_matrix)
+        print('shear_matrix =', shear_matrix)
+        print('inverse_transform =', inverse_transform)
+        print('matrix =', matrix)
+        print('offset =', offset)
+        """
 
         grid_points = np.mgrid[0:img_width:self.grid_size*1j,
                                0:img_height:self.grid_size*1j]
@@ -197,12 +199,14 @@ class DiffractionPattern(_Compute):
         start = time.time()
         img = spline(x, y, grid=False)
         img = img.reshape(self.grid_size, self.grid_size)
-        #img = scipy.ndimage.affine_transform(
-        #    input=img,
-        #    matrix=matrix,
-        #    offset=offset,
-        #    order=1,
-        #    mode="constant")
+        """
+        img = scipy.ndimage.affine_transform(
+            input=img,
+            matrix=matrix,
+            offset=offset,
+            order=1,
+            mode="constant")
+        """
         end = time.time()
         if self.debug:
             print('shear interpolation: ', end-start)
