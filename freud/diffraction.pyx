@@ -159,6 +159,7 @@ class DiffractionPattern(_Compute):
 
         grid_size = int(self.grid_size / self.zoom)
         inv_shear = self._calc_proj(view_orientation, system.box)
+
         xy = rowan.rotate(view_orientation, system.points)[:, 0:2]
         xy = xy @ inv_shear.T
 
@@ -167,14 +168,12 @@ class DiffractionPattern(_Compute):
         xy %= 1
         im, _, _ = np.histogram2d(
             xy[:, 0], xy[:, 1], bins=np.linspace(0, 1, grid_size))
-
         self._diffraction = np.fft.fft2(im)
         self._diffraction = scipy.ndimage.fourier.fourier_gaussian(
             self._diffraction, self.peak_width / self.zoom)
         self._diffraction = np.fft.fftshift(self._diffraction)
         self._diffraction = np.absolute(self._diffraction)
         self._diffraction *= self._diffraction
-        start = time.time()
         self._diffraction = self._scale_and_shear(
             self._diffraction, system.box, inv_shear)
 
@@ -182,9 +181,20 @@ class DiffractionPattern(_Compute):
         N = len(system.points)
         self._diffraction /= N*N
 
-        # TODO: FIXME
-        self._k_vectors = np.zeros((int(self._diffraction.shape[0]),
-                                    int(self._diffraction.shape[1]), 3))
+        # Compute k-vectors
+        if self._k_vectors_orig is None:
+            ks = np.fft.fftshift(np.fft.fftfreq(
+                n=self.grid_size,
+                d=np.max(system.box.to_matrix()) / self.grid_size))
+
+            self._k_vectors_orig = np.asarray(np.meshgrid(ks, ks)).T
+            # Add a column of zeros, so it has shape (N, N, 3)
+            zaxis = np.zeros((self._k_vectors_orig.shape[0],
+                              self._k_vectors_orig.shape[1], 1))
+            self._k_vectors_orig = np.concatenate(
+                (self._k_vectors, zaxis), axis=2)
+        self._k_vectors = self._k_vectors_orig
+        self._k_vectors = rowan.rotate(view_orientation, self._k_vectors)
 
         return self
 
@@ -225,7 +235,7 @@ class DiffractionPattern(_Compute):
         """
         import freud.plot
         return freud.plot.diffraction_plot(
-            self.diffraction, ax, cmap, vmin, vmax)
+            self.diffraction, self.k_vectors, ax, cmap, vmin, vmax)
 
     def _repr_png_(self):
         try:
