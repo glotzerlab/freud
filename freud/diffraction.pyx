@@ -165,7 +165,8 @@ class DiffractionPattern(_Compute):
         # Map positions to [0, 1] and compute the histogram
         xy += 0.5
         xy %= 1
-        im, _, _ = np.histogram2d(xy[:, 0], xy[:, 1], bins=np.linspace(0, 1, grid_size))
+        im, _, _ = np.histogram2d(
+            xy[:, 0], xy[:, 1], bins=np.linspace(0, 1, grid_size))
 
         self._diffraction = np.fft.fft2(im)
         self._diffraction = scipy.ndimage.fourier.fourier_gaussian(
