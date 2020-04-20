@@ -56,6 +56,7 @@ class DiffractionPattern(_Compute):
         self.grid_size = grid_size
         self.zoom = zoom
         self.peak_width = peak_width
+        self._k_vectors_orig = None
 
     def _calc_proj(self, view_orientation, box):
         """Calculate the inverse shear matrix from finding the projected box
@@ -192,7 +193,7 @@ class DiffractionPattern(_Compute):
             zaxis = np.zeros((self._k_vectors_orig.shape[0],
                               self._k_vectors_orig.shape[1], 1))
             self._k_vectors_orig = np.concatenate(
-                (self._k_vectors, zaxis), axis=2)
+                (self._k_vectors_orig, zaxis), axis=2)
         self._k_vectors = self._k_vectors_orig
         self._k_vectors = rowan.rotate(view_orientation, self._k_vectors)
 

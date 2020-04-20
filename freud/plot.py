@@ -453,12 +453,15 @@ def voronoi_plot(box, polytopes, ax=None, color_by_sides=True, cmap=None):
     return ax
 
 
-def diffraction_plot(diffraction, ax=None, cmap='afmhot', vmin=4e-6, vmax=0.7):
+def diffraction_plot(diffraction, k_vectors, ax=None, cmap='afmhot',
+                     vmin=4e-6, vmax=0.7):
     """Helper function to plot diffraction pattern.
 
     Args:
         diffraction (:class:`numpy.ndarray`):
             Diffraction image data.
+        k_vectors():
+
         ax (:class:`matplotlib.axes.Axes`):
             Axes object to plot. If :code:`None`, make a new axes and figure
             object (Default value = :code:`None`).
@@ -481,6 +484,14 @@ def diffraction_plot(diffraction, ax=None, cmap='afmhot', vmin=4e-6, vmax=0.7):
         ax = fig.subplots()
 
     ax.set_title('Diffraction Pattern')
+    x_stepsize = (k_vectors[-1, 0, 0] - k_vectors[0, 0, 0])/5
+    y_stepsize = (k_vectors[0, -1, 0] - k_vectors[0, 0, 0])/5
+    ax.xaxis.set_ticks(np.arange(
+        k_vectors[0, 0, 0], k_vectors[-1, 0, 0], x_stepsize))
+    ax.yaxis.set_ticks(np.arange(
+        k_vectors[0, 0, 0], k_vectors[0, -1, 0], y_stepsize))
+    # ax.set_xticks(k_vectors[:,0,0])
+    # ax.set_yticks(k_vectors[0,:,0])
     norm = matplotlib.colors.LogNorm(vmin=vmin, vmax=vmax)
     im = ax.imshow(np.clip(diffraction, vmin, vmax),
                    interpolation='nearest', cmap=cmap, norm=norm)
