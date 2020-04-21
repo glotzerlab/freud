@@ -217,6 +217,11 @@ class DiffractionPattern(_Compute):
         return self._diffraction
 
     @_Compute._computed_property
+    def k_values(self):
+        """(:math:`N`, ) :class:`numpy.ndarray`: k-values."""
+        return self._k_values
+
+    @_Compute._computed_property
     def k_vectors(self):
         """(:math:`N`, :math:`N`, 3) :class:`numpy.ndarray`: k-vectors."""
         return self._k_vectors
@@ -270,7 +275,7 @@ class DiffractionPattern(_Compute):
         """
         import freud.plot
         return freud.plot.diffraction_plot(
-            self.diffraction, self.k_vectors, ax, cmap, vmin, vmax)
+            self.diffraction, self.k_values, ax, cmap, vmin, vmax)
 
     def _repr_png_(self):
         try:
