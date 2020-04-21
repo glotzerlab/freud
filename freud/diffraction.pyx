@@ -174,10 +174,11 @@ class DiffractionPattern(_Compute):
         im, _, _ = np.histogram2d(
             xy[:, 0], xy[:, 1], bins=np.linspace(0, 1, grid_size))
 
-
+        # Compute FFT and convolve with Gaussian
         self._diffraction = np.fft.fft2(im)
         self._diffraction = scipy.ndimage.fourier.fourier_gaussian(
             self._diffraction, self.peak_width / self.zoom)
+        self._diffraction = np.fft.fftshift(self._diffraction)
 
         # Compute the squared modulus of the FFT, which is S(q)
         self._diffraction = np.real(
@@ -196,13 +197,13 @@ class DiffractionPattern(_Compute):
             # Create a 1D axis of k-vector magnitudes
             self._k_values_orig = np.fft.fftshift(np.fft.fftfreq(
                 n=self.grid_size,
-                d=1 / self.grid_size))
+                d=1/self.grid_size))
 
             # Create a 3D meshgrid of k-vectors, shape (N, N, 3)
             self._k_vectors_orig = np.asarray(np.meshgrid(
                 self._k_values_orig, self._k_values_orig, [0])).T
             self._k_vectors_orig = self._k_vectors_orig.reshape(-1, 3)
-        
+
         # Compute the rotated and scaled k-values and k-vectors
         self._k_values = self._k_values_orig / np.max(system.box.to_matrix())
         self._k_vectors = rowan.rotate(view_orientation, self._k_vectors_orig)
