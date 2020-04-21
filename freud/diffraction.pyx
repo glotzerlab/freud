@@ -53,9 +53,10 @@ class DiffractionPattern(_Compute):
     """
 
     def __init__(self, grid_size=512, zoom=4, peak_width=1):
-        self.grid_size = grid_size
+        self.grid_size = int(grid_size)
         self.zoom = zoom
         self.peak_width = peak_width
+        self._k_values_orig = None
         self._k_vectors_orig = None
 
     def _calc_proj(self, view_orientation, box):
@@ -98,8 +99,8 @@ class DiffractionPattern(_Compute):
         inv_shear = np.linalg.inv(shear)
         return inv_shear
 
-    def _scale_and_shear(self, img, box, inv_shear):
-        """Scales and shears interpolated matrix.
+    def _transform(self, img, box, inv_shear):
+        """Zoom, shear, and scale diffraction intensities.
 
         Args:
             img ((:math:`N`, :math:`N`) :class:`numpy.ndarray`):
@@ -113,7 +114,7 @@ class DiffractionPattern(_Compute):
             (:math:`N`, :math:`N`) :class:`numpy.ndarray`:
                 Transformed array of diffraction intensities.
         """
-        roll = img.shape[0] / 2 - 1
+        roll = img.shape[0] / 2
         box_matrix = box.to_matrix()
         ss = np.max(box_matrix) * inv_shear
 
@@ -159,43 +160,53 @@ class DiffractionPattern(_Compute):
             view_orientation = np.array([1., 0., 0., 0.])
 
         grid_size = int(self.grid_size / self.zoom)
+
+        # Compute the box projection matrix
         inv_shear = self._calc_proj(view_orientation, system.box)
 
+        # Rotate points by the view quaternion and shear by the box projection
         xy = rowan.rotate(view_orientation, system.points)[:, 0:2]
         xy = xy @ inv_shear.T
 
-        # Map positions to [0, 1] and compute the histogram
+        # Map positions to [0, 1] and compute a histogram "image"
         xy += 0.5
         xy %= 1
         im, _, _ = np.histogram2d(
             xy[:, 0], xy[:, 1], bins=np.linspace(0, 1, grid_size))
+
+
         self._diffraction = np.fft.fft2(im)
         self._diffraction = scipy.ndimage.fourier.fourier_gaussian(
             self._diffraction, self.peak_width / self.zoom)
-        self._diffraction = np.fft.fftshift(self._diffraction)
-        self._diffraction = np.absolute(self._diffraction)
-        self._diffraction *= self._diffraction
-        self._diffraction = self._scale_and_shear(
+
+        # Compute the squared modulus of the FFT, which is S(q)
+        self._diffraction = np.real(
+            self._diffraction * np.conjugate(self._diffraction))
+
+        # Transform the image (scale, shear, and zoom)
+        self._diffraction = self._transform(
             self._diffraction, system.box, inv_shear)
 
-        # Normalize by N^2
+        # Normalize S(q) by N^2
         N = len(system.points)
         self._diffraction /= N*N
 
-        # Compute k-vectors
-        if self._k_vectors_orig is None:
-            ks = np.fft.fftshift(np.fft.fftfreq(
+        # Compute a cached array of k-vectors that can be rotated and scaled
+        if self._k_values_orig is None or self._k_vectors_orig is None:
+            # Create a 1D axis of k-vector magnitudes
+            self._k_values_orig = np.fft.fftshift(np.fft.fftfreq(
                 n=self.grid_size,
-                d=np.max(system.box.to_matrix()) / self.grid_size))
+                d=1 / self.grid_size))
 
-            self._k_vectors_orig = np.asarray(np.meshgrid(ks, ks)).T
-            # Add a column of zeros, so it has shape (N, N, 3)
-            zaxis = np.zeros((self._k_vectors_orig.shape[0],
-                              self._k_vectors_orig.shape[1], 1))
-            self._k_vectors_orig = np.concatenate(
-                (self._k_vectors_orig, zaxis), axis=2)
-        self._k_vectors = self._k_vectors_orig
-        self._k_vectors = rowan.rotate(view_orientation, self._k_vectors)
+            # Create a 3D meshgrid of k-vectors, shape (N, N, 3)
+            self._k_vectors_orig = np.asarray(np.meshgrid(
+                self._k_values_orig, self._k_values_orig, [0])).T
+            self._k_vectors_orig = self._k_vectors_orig.reshape(-1, 3)
+        
+        # Compute the rotated and scaled k-values and k-vectors
+        self._k_values = self._k_values_orig / np.max(system.box.to_matrix())
+        self._k_vectors = rowan.rotate(view_orientation, self._k_vectors_orig)
+        self._k_vectors /= np.max(system.box.to_matrix())
 
         return self
 
@@ -216,6 +227,28 @@ class DiffractionPattern(_Compute):
                     grid_size=self.grid_size,
                     zoom=self.zoom,
                     peak_width=self.peak_width)
+
+    def to_image(self, cmap='afmhot', vmin=4e-6, vmax=0.7):
+        """Generates image of diffraction pattern.
+
+        Args:
+            cmap (str):
+                Colormap name to use (Default value = :code:`'afmhot'`).
+            vmin (float):
+                Minimum of the color scale (Default value = 4e-6).
+            vmax (float):
+                Maximum of the color scale (Default value = 0.7).
+
+        Returns:
+            ((grid_size, grid_size, 4) :class:`numpy.ndarray`):
+                RGBA array of pixels.
+        """
+        import matplotlib.cm
+        import matplotlib.colors
+        norm = matplotlib.colors.LogNorm(vmin=vmin, vmax=vmax)
+        cmap = matplotlib.cm.get_cmap(cmap)
+        image = cmap(norm(np.clip(self.diffraction, vmin, vmax)))
+        return (image * 255).astype(np.uint8)
 
     def plot(self, ax=None, cmap='afmhot', vmin=4e-6, vmax=0.7):
         """Plot Diffraction Pattern.
