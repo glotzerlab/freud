@@ -114,7 +114,10 @@ class DiffractionPattern(_Compute):
             (:math:`N`, :math:`N`) :class:`numpy.ndarray`:
                 Transformed array of diffraction intensities.
         """
-        roll = img.shape[0] / 2 - 0.5
+        if img.shape[0] % 2 == 0:
+            roll = img.shape[0] / 2 - 0.5
+        else:
+            roll = img.shape[0]
         box_matrix = box.to_matrix()
         ss = np.max(box_matrix) * inv_shear
 
