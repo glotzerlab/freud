@@ -117,7 +117,7 @@ class DiffractionPattern(_Compute):
         if img.shape[0] % 2 == 0:
             roll = img.shape[0] / 2 - 0.5
         else:
-            roll = img.shape[0]
+            roll = img.shape[0] / 2
         box_matrix = box.to_matrix()
         ss = np.max(box_matrix) * inv_shear
 
