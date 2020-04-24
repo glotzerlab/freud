@@ -119,12 +119,12 @@ public:
         m_bin_edges.resize(m_nbins + 1);
         m_dr = (max - min) / static_cast<float>(m_nbins);
         m_dr_inv = float(1.0) / m_dr;
-        float cur_location = min;
         // This must be <= because there is one extra bin boundary than the number of bins.
         for (size_t i = 0; i <= nbins; i++)
         {
-            m_bin_edges[i] = (cur_location);
-            cur_location += m_dr;
+            // Spacing this way is more numerically stable than adding m_dr repeatedly
+            float t = static_cast<float>(i) / static_cast<float>(m_nbins);
+            m_bin_edges[i] = min * (1.0 - t) + max * t;
         }
     }
 
