@@ -117,14 +117,14 @@ public:
     RegularAxis(size_t nbins, float min, float max) : Axis(nbins, min, max)
     {
         m_bin_edges.resize(m_nbins + 1);
-        m_inverse_bin_width = static_cast<float>(m_nbins) / (max - min);
+        m_bin_width = (max - min) / static_cast<float>(m_nbins);
+        m_inverse_bin_width = float(1.0) / m_bin_width;
         // This must be <= because there is one more bin boundary than the number of bins.
         for (size_t i = 0; i <= nbins; i++)
         {
-            // Spacing via interpolation is more numerically stable than adding
-            // the bin width repeatedly
-            float t = static_cast<float>(i) / static_cast<float>(m_nbins);
-            m_bin_edges[i] = min * (1.0 - t) + max * t;
+            // Spacing via multiplication is more numerically stable than
+            // adding the bin width repeatedly
+            m_bin_edges[i] = min + i * m_bin_width;
         }
     }
 
@@ -164,7 +164,8 @@ public:
     }
 
 protected:
-    float m_inverse_bin_width; //!< Inverse of bin width
+    float m_bin_width;          //!< Bin width
+    float m_inverse_bin_width;  //!< Inverse of bin width
 };
 
 //! An n-dimensional histogram class.
