@@ -164,6 +164,16 @@ class TestRDF(unittest.TestCase):
         npt.assert_array_equal(rdf.rdf, np.zeros(bins))
         npt.assert_array_equal(rdf.n_r, np.zeros(bins))
 
+    def test_bin_precision(self):
+        # Ensure bin edges are precise
+        bins = 500
+        r_min = 0
+        r_max = 50
+        rdf = freud.density.RDF(bins=bins, r_max=r_max, r_min=r_min)
+        expected_bin_edges = np.histogram_bin_edges(
+            np.array([0], dtype=np.float32), bins=bins, range=[r_min, r_max])
+        npt.assert_allclose(rdf.bin_edges, expected_bin_edges, atol=1e-6)
+
 
 class TestRDFManagedArray(TestManagedArray, unittest.TestCase):
     def build_object(self):
