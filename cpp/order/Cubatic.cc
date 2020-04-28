@@ -2,7 +2,7 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <cstring>
-#include <utility.h>
+#include <functional>
 #include <stdexcept>
 #include <tbb/parallel_for.h>
 #include <tbb/blocked_range.h>
