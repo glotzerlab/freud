@@ -2,7 +2,7 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <cmath>
-#include <tbb/tbb.h>
+#include <tbb/parallel_sort.h>
 #include <vector>
 
 #include "NeighborBond.h"

@@ -2,7 +2,6 @@
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 from libcpp cimport bool
-from libcpp.memory cimport shared_ptr
 from libcpp.vector cimport vector
 
 cimport numpy

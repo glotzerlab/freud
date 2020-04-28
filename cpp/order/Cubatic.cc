@@ -2,8 +2,10 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <cstring>
+#include <functional>
 #include <stdexcept>
-#include <tbb/tbb.h>
+#include <tbb/parallel_for.h>
+#include <tbb/blocked_range.h>
 
 #include "Cubatic.h"
 #include "utils.h"

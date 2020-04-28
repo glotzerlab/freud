@@ -4,7 +4,7 @@
 #ifndef TBB_CONFIG_H
 #define TBB_CONFIG_H
 
-#include <tbb/tbb.h>
+#include <tbb/task_scheduler_init.h>
 
 /*! \file tbb_config.h
     \brief Helper functions to configure tbb
