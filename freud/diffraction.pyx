@@ -45,6 +45,8 @@ class DiffractionPattern(_Compute):
     Args:
         grid_size (unsigned int):
             Size of the diffraction grid (Default value = 512).
+        output_size (unsigned int):
+            Size of the diffraction grid (Default value = 512).
         zoom (float):
             Scaling factor for incident wavevectors (Default value = 4).
         peak_width (float):
@@ -52,8 +54,9 @@ class DiffractionPattern(_Compute):
             (Default value = 1).
     """
 
-    def __init__(self, grid_size=512, zoom=4, peak_width=1):
+    def __init__(self, grid_size=512, output_size=512, zoom=4, peak_width=1):
         self.grid_size = int(grid_size)
+        self.output_size = int(output_size)
         self.zoom = zoom
         self.peak_width = peak_width
         self._k_values_orig = None
@@ -117,6 +120,11 @@ class DiffractionPattern(_Compute):
         roll = img.shape[0] / 2
         if img.shape[0] % 2 == 0:
             roll -= 0.5
+
+        roll_shift = self.output_size / self.zoom / 2
+        if (self.output_size / self.zoom) % 2 == 0:
+            roll_shift -= 0.5
+
         box_matrix = box.to_matrix()
         ss = np.max(box_matrix) * inv_shear
 
@@ -125,9 +133,11 @@ class DiffractionPattern(_Compute):
              [0, 1, -roll],
              [0, 0, 1]])
 
+        # Translation for [roll_shift, roll_shift]
+        # Then shift using ss
         shear_matrix = np.array(
-            [[ss[1, 0], ss[0, 0], roll],
-             [ss[1, 1], ss[0, 1], roll],
+            [[ss[1, 0], ss[0, 0], roll_shift],
+             [ss[1, 1], ss[0, 1], roll_shift],
              [0, 0, 1]])
 
         zoom_matrix = np.diag((self.zoom, self.zoom, 1))
@@ -140,7 +150,7 @@ class DiffractionPattern(_Compute):
         img = scipy.ndimage.affine_transform(
             input=img,
             matrix=inverse_transform,
-            output_shape=(self.grid_size, self.grid_size),
+            output_shape=(self.output_size, self.output_size),
             order=1,
             mode="constant")
         return img
@@ -198,8 +208,8 @@ class DiffractionPattern(_Compute):
         if self._k_values_orig is None or self._k_vectors_orig is None:
             # Create a 1D axis of k-vector magnitudes
             self._k_values_orig = np.fft.fftshift(np.fft.fftfreq(
-                n=self.grid_size,
-                d=1/self.grid_size))
+                n=self.output_size,
+                d=1/self.output_size))
 
             # Create a 3D meshgrid of k-vectors, shape (N, N, 3)
             self._k_vectors_orig = np.asarray(np.meshgrid(
@@ -230,9 +240,11 @@ class DiffractionPattern(_Compute):
 
     def __repr__(self):
         return ("freud.diffraction.{cls}(grid_size={grid_size}, "
-                "zoom={zoom}, peak_width={peak_width})").format(
+                "output_size={output_size}, zoom={zoom}, "
+                "peak_width={peak_width})").format(
                     cls=type(self).__name__,
                     grid_size=self.grid_size,
+                    output_size=self.output_size,
                     zoom=self.zoom,
                     peak_width=self.peak_width)
 
