@@ -14,6 +14,9 @@ and this project adheres to
 ### Changed
 * Cython is now a required dependency (not optional). Cythonized `.cpp` files have been removed.
 
+### Fixed
+* Histogram bin locations are computed in a more numerically stable way.
+
 ## v2.2.0 - 2020-02-24
 
 ### Added
