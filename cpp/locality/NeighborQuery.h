@@ -6,7 +6,8 @@
 
 #include <memory>
 #include <stdexcept>
-#include <tbb/tbb.h>
+#include <tbb/enumerable_thread_specific.h>
+#include <tbb/parallel_sort.h>
 
 #include "Box.h"
 #include "NeighborBond.h"

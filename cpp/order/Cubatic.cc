@@ -3,7 +3,8 @@
 
 #include <cstring>
 #include <stdexcept>
-#include <tbb/tbb.h>
+#include <tbb/parallel_for.h>
+#include <tbb/blocked_range.h>
 
 #include "Cubatic.h"
 #include "utils.h"

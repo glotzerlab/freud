@@ -7,7 +7,7 @@
 #include <emmintrin.h>
 #endif
 #include <sstream>
-#include <tbb/tbb.h>
+#include <tbb/enumerable_thread_specific.h>
 #include <utility>
 
 #include "ManagedArray.h"

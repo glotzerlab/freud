@@ -3,7 +3,6 @@
 
 #include <cmath>
 #include <stdexcept>
-#include <tbb/tbb.h>
 
 #include "GaussianDensity.h"
 

@@ -3,7 +3,6 @@
 
 #include <complex>
 #include <stdexcept>
-#include <tbb/tbb.h>
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
