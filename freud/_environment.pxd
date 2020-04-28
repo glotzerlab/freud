@@ -3,7 +3,6 @@
 
 from libcpp cimport bool
 from freud.util cimport vec3, quat
-from libcpp.memory cimport shared_ptr
 from libcpp.complex cimport complex
 from libcpp.vector cimport vector
 from libcpp.map cimport map

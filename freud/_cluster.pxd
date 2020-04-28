@@ -3,7 +3,6 @@
 
 from freud.util cimport vec3, uint
 from libcpp.vector cimport vector
-cimport freud._box
 cimport freud._locality
 cimport freud.util
 
