@@ -38,15 +38,17 @@ class DiffractionPattern(_Compute):
     view orientation :math:`(1, 0, 0, 0)` defaults to looking down the
     :math:`z` axis (at the :math:`xy` plane). The points in the system are
     converted to fractional coordinates, then binned into a grid whose
-    resolution is given by ``grid_size``. The points are convolved with a
-    Gaussian of width :math:`\sigma`, given by ``peak_width``. This
-    convolution is performed as a multiplication in Fourier space.
+    resolution is given by ``grid_size``. A higher ``grid_size`` will lead to
+    a higher resolution. The points are convolved with a Gaussian of width
+    :math:`\sigma`, given by ``peak_width``. This convolution is performed
+    as a multiplication in Fourier space. The computed diffraction pattern
+    is returned as a squared image of ``output_size``.
 
     Args:
         grid_size (unsigned int):
-            Size of the diffraction grid (Default value = 512).
+            Resolution of the diffraction grid. (Default value = 512).
         output_size (unsigned int):
-            Size of the diffraction grid (Default value = 512).
+            Size of the output diffraction image (Default value = 512).
         zoom (float):
             Scaling factor for incident wavevectors (Default value = 4).
         peak_width (float):
