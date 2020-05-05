@@ -3,7 +3,9 @@
 
 #include <algorithm>
 #include <cmath>
-#include <tbb/tbb.h>
+#include <tbb/parallel_for.h>
+#include <tbb/blocked_range.h>
+#include <tbb/blocked_range2d.h>
 
 #if defined _WIN32
 #undef min // std::min clashes with a Windows header
@@ -49,6 +51,35 @@ inline void forLoopWrapper(size_t begin, size_t end, const Body& body, bool para
     }
 }
 
-}; }; // namespace freud::util
+//! Wrapper for 2D nested for loops to allow the execution in parallel or not.
+/*! \param parallel If true, run body in parallel.
+ *  \param begin_row Beginning index of outer loop.
+ *  \param end_row Ending index of outer loop.
+ *  \param begin_col Beginning index of inner loop.
+ *  \param end_col Ending index of inner loop.
+ *  \param body An object with operator(size_t begin_row, size_t end_row, size_t begin_col, size_t end_col).
+ */
+template<typename Body>
+inline void forLoopWrapper2D(
+    size_t begin_row, size_t end_row, size_t begin_col, size_t end_col,
+    const Body& body, bool parallel = true)
+{
+    if (parallel)
+    {
+        tbb::parallel_for(tbb::blocked_range2d<size_t>(begin_row, end_row, begin_col, end_col),
+                [&body](const tbb::blocked_range2d<size_t>& r) {
+                    body(r.rows().begin(), r.rows().end(), r.cols().begin(), r.cols().end());
+                }
+        );
+    }
+    else
+    {
+        body(begin_row, end_row, begin_col, end_col);
+    }
+}
+
+};
+
+}; // namespace freud::util
 
 #endif

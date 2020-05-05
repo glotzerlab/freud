@@ -1,30 +1,25 @@
-# Copyright (c) 2010-2019 The Regents of the University of Michigan
+# Copyright (c) 2010-2020 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 R"""
 The :mod:`freud.locality` module contains data structures to efficiently
 locate points based on their proximity to other points.
 """
-import copy
 import freud.util
 import inspect
-import logging
 import numpy as np
 from freud.errors import NO_DEFAULT_QUERY_ARGS_MESSAGE
 
 from libcpp cimport bool as cbool
-from freud.util cimport vec3
+from freud.util cimport vec3, _Compute
 from cython.operator cimport dereference
 from libcpp.memory cimport shared_ptr
 from libcpp.vector cimport vector
 from freud._locality cimport ITERATOR_TERMINATOR
-from freud.util cimport _Compute
 
 cimport freud._locality
 cimport freud.box
 cimport numpy as np
-
-logger = logging.getLogger(__name__)
 
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
@@ -480,6 +475,22 @@ cdef class NeighborList:
                     point_indices, distances, weights=None):
         R"""Create a NeighborList from a set of bond information arrays.
 
+        Example::
+            import freud
+            import numpy as np
+            box = freud.box.Box(2, 3, 4, 0, 0, 0)
+            query_points = np.array([[0, 0, 0], [0, 0, 1]])
+            points = np.array([[0, 0, -1], [0.5, -1, 0]])
+            query_point_indices = np.array([0, 0, 1])
+            point_indices = np.array([0, 1, 1])
+            distances = box.compute_distances(query_points[query_point_indices], points[point_indices])
+            num_query_points = len(query_points)
+            num_points = len(points)
+            nlist = freud.locality.NeighborList.from_arrays(
+                num_query_points, num_points, query_point_indices,
+                point_indices, distances)
+
+
         Args:
             num_query_points (int):
                 Number of query points (corresponding to
@@ -498,7 +509,7 @@ cdef class NeighborList:
             weights (:class:`np.ndarray`, optional):
                 Array of per-bond weights (if :code:`None` is given, use a
                 value of 1 for each weight) (Default value = :code:`None`).
-        """
+        """  # noqa 501
         query_point_indices = freud.util._convert_array(
             query_point_indices, shape=(None,), dtype=np.uint32)
         point_indices = freud.util._convert_array(

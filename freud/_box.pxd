@@ -1,13 +1,8 @@
-# Copyright (c) 2010-2019 The Regents of the University of Michigan
+# Copyright (c) 2010-2020 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
-from libcpp.memory cimport shared_ptr
-from libcpp.vector cimport vector
 from libcpp cimport bool
 from freud.util cimport vec3
-from libcpp.vector cimport vector
-from libcpp.string cimport string
-cimport freud._locality
 
 ctypedef unsigned int uint
 
@@ -48,6 +43,11 @@ cdef extern from "Box.h" namespace "freud::box":
                     unsigned int) const
         vec3[float] centerOfMass(vec3[float]*, size_t, float*) const
         void center(vec3[float]*, size_t, float*) const
+        void computeDistances(vec3[float]*, unsigned int,
+                              vec3[float]*, unsigned int, float*
+                              ) except +
+        void computeAllDistances(vec3[float]*, unsigned int,
+                                 vec3[float]*, unsigned int, float*)
 
         vec3[bool] getPeriodic() const
         bool getPeriodicX() const

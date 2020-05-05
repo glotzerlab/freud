@@ -1,10 +1,8 @@
-// Copyright (c) 2010-2019 The Regents of the University of Michigan
+// Copyright (c) 2010-2020 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef PMFT_H
 #define PMFT_H
-
-#include <tbb/tbb.h>
 
 #include "BondHistogramCompute.h"
 #include "Box.h"
