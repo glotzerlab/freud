@@ -3,7 +3,7 @@ import freud
 import unittest
 
 
-class TestVoxelization(unittest.TestCase):
+class TestSphereVoxelization(unittest.TestCase):
     def test_random_points_2d(self):
         width = 100
         r_max = 10.0
@@ -12,7 +12,7 @@ class TestVoxelization(unittest.TestCase):
         box, points = freud.data.make_random_system(
             box_size, num_points, is2D=True)
         for w in (width, (width, width), [width, width]):
-            vox = freud.density.Voxelization(w, r_max)
+            vox = freud.density.SphereVoxelization(w, r_max)
 
             # Test access
             with self.assertRaises(AttributeError):
@@ -46,7 +46,7 @@ class TestVoxelization(unittest.TestCase):
         box, points = freud.data.make_random_system(
             box_size, num_points, is2D=False)
         for w in (width, (width, width, width), [width, width, width]):
-            vox = freud.density.Voxelization(w, r_max)
+            vox = freud.density.SphereVoxelization(w, r_max)
 
             # Test access
             with self.assertRaises(AttributeError):
@@ -79,7 +79,7 @@ class TestVoxelization(unittest.TestCase):
         box_size = r_max*3.1
         box, points = freud.data.make_random_system(
             box_size, num_points, is2D=True)
-        vox = freud.density.Voxelization(width, r_max)
+        vox = freud.density.SphereVoxelization(width, r_max)
 
         vox.compute(system=(box, points))
 
@@ -87,11 +87,11 @@ class TestVoxelization(unittest.TestCase):
         vox.compute((test_box, points))
 
     def test_repr(self):
-        vox = freud.density.Voxelization(100, 10.0)
+        vox = freud.density.SphereVoxelization(100, 10.0)
         self.assertEqual(str(vox), str(eval(repr(vox))))
 
         # Use both signatures
-        vox3 = freud.density.Voxelization((98, 99, 100), 10.0)
+        vox3 = freud.density.SphereVoxelization((98, 99, 100), 10.0)
         self.assertEqual(str(vox3), str(eval(repr(vox3))))
 
     def test_repr_png(self):
@@ -101,7 +101,7 @@ class TestVoxelization(unittest.TestCase):
         box_size = r_max*3.1
         box, points = freud.data.make_random_system(
             box_size, num_points, is2D=True)
-        vox = freud.density.Voxelization(width, r_max)
+        vox = freud.density.SphereVoxelization(width, r_max)
 
         with self.assertRaises(AttributeError):
             vox.plot()
@@ -110,7 +110,7 @@ class TestVoxelization(unittest.TestCase):
         vox.compute((box, points))
         vox.plot()
 
-        vox = freud.density.Voxelization(width, r_max)
+        vox = freud.density.SphereVoxelization(width, r_max)
         test_box = freud.box.Box.cube(box_size)
         vox.compute((test_box, points))
         vox.plot()
