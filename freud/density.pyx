@@ -301,7 +301,7 @@ cdef class GaussianDensity(_Compute):
             return None
 
 
-cdef class Voxelization(_Compute):
+cdef class SphereVoxelization(_Compute):
     R"""Computes the integer density of a system on a grid.
 
     Replaces particle positions with a sphere of fixed radius and calculates the
@@ -319,7 +319,7 @@ cdef class Voxelization(_Compute):
         r_max (float):
             Sphere radius.
     """  # noqa: E501
-    cdef freud._density.Voxelization * thisptr
+    cdef freud._density.SphereVoxelization * thisptr
 
     def __cinit__(self, width, r_max):
         cdef vec3[uint] width_vector
@@ -334,7 +334,7 @@ cdef class Voxelization(_Compute):
                              "sequence indicating the widths in each spatial "
                              "dimension (length 2 in 2D, length 3 in 3D).")
 
-        self.thisptr = new freud._density.Voxelization(width_vector, r_max)
+        self.thisptr = new freud._density.SphereVoxelization(width_vector, r_max)
 
     def __dealloc__(self):
         del self.thisptr
@@ -345,7 +345,7 @@ cdef class Voxelization(_Compute):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     def compute(self, system):
-        R"""Calculates the voxelization for the specified points.
+        R"""Calculates the voxelization of spheres about the specified points.
 
         Args:
             system:

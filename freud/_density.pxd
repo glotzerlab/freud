@@ -58,9 +58,9 @@ cdef extern from "RDF.h" namespace "freud::density":
         const freud.util.ManagedArray[float] &getRDF()
         const freud.util.ManagedArray[float] &getNr()
 
-cdef extern from "Voxelization.h" namespace "freud::density":
-    cdef cppclass Voxelization:
-        Voxelization(vec3[unsigned int], float) except +
+cdef extern from "SphereVoxelization.h" namespace "freud::density":
+    cdef cppclass SphereVoxelization:
+        SphereVoxelization(vec3[unsigned int], float) except +
         const freud._box.Box & getBox() const
         void reset()
         void compute(const freud._locality.NeighborQuery*) except +

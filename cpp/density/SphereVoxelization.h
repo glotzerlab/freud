@@ -1,8 +1,8 @@
 // Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#ifndef VOXELIZATION_H
-#define VOXELIZATION_H
+#ifndef SPHERE_VOXELIZATION_H
+#define SPHERE_VOXELIZATION_H
 
 #include "Box.h"
 #include "ManagedArray.h"
@@ -10,8 +10,8 @@
 #include "ThreadStorage.h"
 #include "VectorMath.h"
 
-/*! \file Voxelization.h
-    \brief Routines for computing voxelized densities from points.
+/*! \file SphereVoxelization.h
+    \brief Routines for computing voxelized densities from spheres centered at points.
 */
 
 namespace freud { namespace density {
@@ -21,14 +21,14 @@ namespace freud { namespace density {
         contribution from the grid based upon the distance of the grid cell
         from the center of the sphere.
 */
-class Voxelization
+class SphereVoxelization
 {
 public:
     //! Constructor
-    Voxelization(vec3<unsigned int> width, float r_max);
+    SphereVoxelization(vec3<unsigned int> width, float r_max);
 
     // Destructor
-    ~Voxelization() {}
+    ~SphereVoxelization() {}
 
     //! Get the simulation box
     const box::Box& getBox() const
@@ -60,4 +60,4 @@ private:
 
 }; }; // end namespace freud::density
 
-#endif // VOXELIZATION_H
+#endif // SPHERE_VOXELIZATION_H

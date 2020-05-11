@@ -5,29 +5,29 @@
 #include <stdexcept>
 #include <tbb/tbb.h>
 
-#include "Voxelization.h"
+#include "SphereVoxelization.h"
 
-/*! \file Voxelization.cc
-    \brief Routines for computing Gaussian smeared densities from points.
+/*! \file SphereVoxelization.cc
+    \brief Routines for computing voxelized densities from spheres centered at points.
 */
 
 namespace freud { namespace density {
 
-Voxelization::Voxelization(vec3<unsigned int> width, float r_max)
+SphereVoxelization::SphereVoxelization(vec3<unsigned int> width, float r_max)
     : m_box(box::Box()), m_width(width), m_r_max(r_max)
 {
     if (r_max <= 0.0f)
-        throw std::invalid_argument("Voxelization requires r_max to be positive.");
+        throw std::invalid_argument("Sphere Voxelization requires r_max to be positive.");
 }
 
 //! Get a reference to the last computed voxels
-const util::ManagedArray<unsigned int>& Voxelization::getVoxels() const
+const util::ManagedArray<unsigned int>& SphereVoxelization::getVoxels() const
 {
     return m_voxels_array;
 }
 
 //! Get width.
-vec3<unsigned int> Voxelization::getWidth()
+vec3<unsigned int> SphereVoxelization::getWidth()
 {
     return m_width;
 }
@@ -35,7 +35,7 @@ vec3<unsigned int> Voxelization::getWidth()
 //! internal
 /*! \brief Function to compute the voxels array
  */
-void Voxelization::compute(const freud::locality::NeighborQuery* nq)
+void SphereVoxelization::compute(const freud::locality::NeighborQuery* nq)
 {
     auto box = nq->getBox();
     auto n_points = nq->getNPoints();
