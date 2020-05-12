@@ -14,8 +14,6 @@
 
 #if defined _WIN32
 #define CACHE_ALIGN __declspec(align(32))
-#undef min // std::min clashes with a Windows header
-#undef max // std::max clashes with a Windows header
 #else
 #define CACHE_ALIGN __attribute__((aligned(32)))
 #endif
