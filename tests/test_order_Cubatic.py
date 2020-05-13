@@ -96,6 +96,31 @@ class TestCubatic(unittest.TestCase):
             op_max, 0.2,
             err_msg="per particle order parameter value is too high")
 
+    def test_valid_inputs(self):
+        with self.assertRaises(ValueError):
+            # t_initial must be greater than t_final
+            freud.order.Cubatic(
+                t_initial=0.001,
+                t_final=5.0,
+                scale=0.95,
+                n_replicates=10)
+
+        with self.assertRaises(ValueError):
+            # t_final must be greater than 1e-6
+            freud.order.Cubatic(
+                t_initial=5.0,
+                t_final=1e-7,
+                scale=0.95,
+                n_replicates=10)
+
+        with self.assertRaises(ValueError):
+            # scale must be less than 1
+            freud.order.Cubatic(
+                t_initial=5.0,
+                t_final=0.001,
+                scale=1.1,
+                n_replicates=10)
+
     def test_repr(self):
         cubatic = freud.order.Cubatic(5.0, 0.001, 0.95, 10)
         self.assertEqual(str(cubatic), str(eval(repr(cubatic))))

@@ -133,15 +133,15 @@ tensor4 genR4Tensor()
     return r4;
 }
 
-Cubatic::Cubatic(float t_initial, float t_final, float scale, unsigned int replicates, unsigned int seed)
-    : m_t_initial(t_initial), m_t_final(t_final), m_scale(scale), m_n(0), m_replicates(replicates),
+Cubatic::Cubatic(float t_initial, float t_final, float scale, unsigned int n_replicates, unsigned int seed)
+    : m_t_initial(t_initial), m_t_final(t_final), m_scale(scale), m_n(0), m_n_replicates(n_replicates),
       m_seed(seed)
 {
     if (m_t_initial < m_t_final)
         throw std::invalid_argument("Cubatic requires that t_initial must be greater than t_final.");
     if (t_final < 1e-6)
         throw std::invalid_argument("Cubatic requires that t_final must be >= 1e-6.");
-    if ((scale > 1) || (scale < 0))
+    if ((scale >= 1) || (scale <= 0))
         throw std::invalid_argument("Cubatic requires that scale must be between 0 and 1.");
 
     m_gen_r4_tensor = genR4Tensor();
@@ -247,12 +247,12 @@ void Cubatic::compute(quat<float>* orientations, unsigned int num_orientations)
     // parameter, but in practice we find that simulated annealing performs
     // much better, so we perform replicates of the process and choose the best
     // one.
-    util::ManagedArray<tensor4> p_cubatic_tensor(m_replicates);
-    util::ManagedArray<float> p_cubatic_order_parameter(m_replicates);
-    util::ManagedArray<quat<float>> p_cubatic_orientation(m_replicates);
+    util::ManagedArray<tensor4> p_cubatic_tensor(m_n_replicates);
+    util::ManagedArray<float> p_cubatic_order_parameter(m_n_replicates);
+    util::ManagedArray<quat<float>> p_cubatic_orientation(m_n_replicates);
 
     tbb::parallel_for(
-        tbb::blocked_range<size_t>(0, m_replicates),
+        tbb::blocked_range<size_t>(0, m_n_replicates),
         [=, &p_cubatic_orientation, &p_cubatic_order_parameter,
          &p_cubatic_tensor](const tbb::blocked_range<size_t>& r) {
             // create thread-specific rng
@@ -323,7 +323,7 @@ void Cubatic::compute(quat<float>* orientations, unsigned int num_orientations)
     // Loop over threads and choose the replicate that found the highest order.
     unsigned int max_idx = 0;
     float max_cubatic_order_parameter = p_cubatic_order_parameter[max_idx];
-    for (unsigned int i = 1; i < m_replicates; ++i)
+    for (unsigned int i = 1; i < m_n_replicates; ++i)
     {
         if (p_cubatic_order_parameter[i] > max_cubatic_order_parameter)
         {
