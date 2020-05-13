@@ -100,6 +100,7 @@ Bradley Dice - **Lead developer**
 * Corrected calculation of neighbor distances in the Voronoi NeighborList.
 * Added finite tolerance to ensure stability of 2D Voronoi NeighborList computations.
 * Improved stability of Histogram bin calculations.
+* Improved error handling of Cubatic input parameters.
 
 Eric Harper, University of Michigan - **Former lead developer**
 
