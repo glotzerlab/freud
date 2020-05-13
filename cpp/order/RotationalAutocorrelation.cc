@@ -10,12 +10,6 @@
     \brief Implements the RotationalAutocorrelation class.
 */
 
-// Avoid known stdlib clashes with Windows headers.
-#if defined _WIN32
-#undef min
-#undef max
-#endif
-
 namespace freud { namespace order {
 
 // This function wraps exponentiation for complex numbers to avoid

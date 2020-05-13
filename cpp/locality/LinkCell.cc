@@ -7,11 +7,6 @@
 
 #include "LinkCell.h"
 
-#if defined _WIN32
-#undef min // std::min clashes with a Windows header
-#undef max // std::max clashes with a Windows header
-#endif
-
 /*! \file LinkCell.cc
     \brief Build a cell list from a set of points.
 */
