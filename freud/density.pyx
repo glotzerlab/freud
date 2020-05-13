@@ -334,7 +334,8 @@ cdef class SphereVoxelization(_Compute):
                              "sequence indicating the widths in each spatial "
                              "dimension (length 2 in 2D, length 3 in 3D).")
 
-        self.thisptr = new freud._density.SphereVoxelization(width_vector, r_max)
+        self.thisptr = new freud._density.SphereVoxelization(width_vector,
+                                                             r_max)
 
     def __dealloc__(self):
         del self.thisptr
