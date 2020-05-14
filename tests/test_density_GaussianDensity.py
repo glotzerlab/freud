@@ -53,6 +53,34 @@ class TestDensity(unittest.TestCase):
         test_box = freud.box.Box.cube(box_size)
         diff.compute((test_box, points))
 
+    def test_sum_2d(self):
+        # Ensure that the Gaussian sums to 1
+        width = 100
+        r_max = 49
+        sigma = 10
+        num_points = 1
+        box_size = width
+        box, points = freud.data.make_random_system(
+            box_size, num_points, is2D=True)
+
+        gd = freud.density.GaussianDensity(width, r_max, sigma)
+        gd.compute(system=(box, points))
+        assert np.isclose(np.sum(gd.density), 1, atol=1e-6)
+
+    def test_sum_3d(self):
+        # Ensure that the Gaussian sums to 1
+        width = 100
+        r_max = 49
+        sigma = 10
+        num_points = 1
+        box_size = width
+        box, points = freud.data.make_random_system(
+            box_size, num_points, is2D=False)
+
+        gd = freud.density.GaussianDensity(width, r_max, sigma)
+        gd.compute(system=(box, points))
+        assert np.isclose(np.sum(gd.density), 1, atol=1e-6)
+
     def test_repr(self):
         diff = freud.density.GaussianDensity(100, 10.0, 0.1)
         self.assertEqual(str(diff), str(eval(repr(diff))))

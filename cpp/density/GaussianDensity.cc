@@ -63,7 +63,9 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq)
     const int bin_cut_z = m_box.is2D() ? 0 : int(m_r_max / grid_size_z);
     const float r_max_sq = m_r_max * m_r_max;
     const float sigmasq = m_sigma * m_sigma;
-    const float A = std::sqrt(1.0f / (constants::TWO_PI * sigmasq));
+    const float normalization_base = 1.0f / std::sqrt(constants::TWO_PI * sigmasq);
+    const float dimensions = m_box.is2D() ? 2.0f : 3.0f;
+    const float normalization = std::pow(normalization_base, dimensions);
 
     util::forLoopWrapper(0, n_points, [&](size_t begin, size_t end) {
         // for each reference point
@@ -116,7 +118,7 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq)
                         if (r_sq < r_max_sq)
                         {
                             // Evaluate the gaussian
-                            const float gaussian = A * std::exp(-r_sq / (2 * sigmasq));
+                            const float gaussian = normalization * std::exp(-r_sq / (2 * sigmasq));
 
                             // Assure that out of range indices are corrected for storage
                             // in the array i.e. bin -1 is actually bin 29 for nbins = 30
