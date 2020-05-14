@@ -45,7 +45,6 @@ void SphereVoxelization::compute(const freud::locality::NeighborQuery* nq)
         width.z = 1;
     }
     m_voxels_array.prepare({width.x, width.y, width.z});
-    util::ThreadStorage<unsigned int> local_bin_counts({width.x, width.y, width.z});
 
     // set up some constants first
     const float lx = m_box.getLx();
