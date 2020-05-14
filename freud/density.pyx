@@ -190,12 +190,12 @@ cdef class GaussianDensity(_Compute):
     the grid cell from the center of the Gaussian. The resulting data is a
     regular grid of particle densities that can be used in standard algorithms
     requiring evenly spaced point, such as Fast Fourier Transforms. The
-    dimensions of the image (grid) are set in the constructor, and can either
-    be set equally for all dimensions or for each dimension independently.
+    dimensions of the grid are set in the constructor, and can either be set
+    equally for all dimensions or for each dimension independently.
 
     Args:
         width (int or Sequence[int]):
-            The number of bins to make the image in each dimension (identical
+            The number of bins to make the grid in each dimension (identical
             in all dimensions if a single integer value is provided).
         r_max (float):
             Distance over which to blur.
@@ -244,7 +244,7 @@ cdef class GaussianDensity(_Compute):
     @_Compute._computed_property
     def density(self):
         """(:math:`w_x`, :math:`w_y`, :math:`w_z`) :class:`numpy.ndarray`: The
-        image grid with the Gaussian density."""
+        grid with the Gaussian density contributions from each point."""
         if self.box.is2D:
             return np.squeeze(freud.util.make_managed_numpy_array(
                 &self.thisptr.getDensity(), freud.util.arr_type_t.FLOAT))
@@ -264,7 +264,7 @@ cdef class GaussianDensity(_Compute):
 
     @property
     def width(self):
-        """tuple[int]: The number of bins to make the image in each dimension
+        """tuple[int]: The number of bins in the grid in each dimension
         (identical in all dimensions if a single integer value is provided)."""
         cdef vec3[uint] width = self.thisptr.getWidth()
         return (width.x, width.y, width.z)
@@ -303,17 +303,16 @@ cdef class GaussianDensity(_Compute):
 cdef class SphereVoxelization(_Compute):
     R"""Computes a grid of voxels occupied by spheres placed at a set of points.
 
-    Replaces particle positions with a sphere of fixed radius and calculates the
-    contribution from each to the proscribed grid based upon the distance of
-    the grid cell from the center of the sphere. The resulting data is a
-    regular grid of particle densities with an integer, either a 1 or a 0, for
-    each grid cell that indicates whether a sphere is located in that cell. The
-    dimensions of the image (grid) are set in the constructor, and can either
-    be set equally for all dimensions or for each dimension independently.
+    This class constructs a grid of voxels. From a given set of points and a
+    desired radius, a set of spheres are created. The voxels are assigned a
+    value of 1 if their center is contained in one or more spheres and 0
+    otherwise. The dimensions of the grid are set in the constructor, and can
+    either be set equally for all dimensions or for each dimension
+    independently.
 
     Args:
         width (int or Sequence[int]):
-            The number of bins to make the image in each dimension (identical
+            The number of bins to make the grid in each dimension (identical
             in all dimensions if a single integer value is provided).
         r_max (float):
             Sphere radius.
@@ -360,7 +359,7 @@ cdef class SphereVoxelization(_Compute):
     @_Compute._computed_property
     def voxels(self):
         """(:math:`w_x`, :math:`w_y`, :math:`w_z`) :class:`numpy.ndarray`: The
-        image grid with the voxelized spheres."""
+        voxel grid indicating overlap with the computed spheres."""
         data = freud.util.make_managed_numpy_array(
             &self.thisptr.getVoxels(), freud.util.arr_type_t.UNSIGNED_INT)
         if self.box.is2D:
@@ -375,7 +374,7 @@ cdef class SphereVoxelization(_Compute):
 
     @property
     def width(self):
-        """tuple[int]: The number of bins in the image in each dimension
+        """tuple[int]: The number of bins in the grid in each dimension
         (identical in all dimensions if a single integer value is provided)."""
         cdef vec3[uint] width = self.thisptr.getWidth()
         return (width.x, width.y, width.z)
