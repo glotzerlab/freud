@@ -113,8 +113,8 @@ void SphereVoxelization::compute(const freud::locality::NeighborQuery* nq)
                             const unsigned int nj = (j + m_width.y) % m_width.y;
                             const unsigned int nk = (k + m_width.z) % m_width.z;
 
-                            // this array could be written to by multiple threads in parallel
-                            // this is only safe because we only ever write a 1
+                            // This array value could be written by multiple threads in parallel.
+                            // This is only safe because all threads are writing the same value (1).
                             m_voxels_array(ni, nj, nk) = 1;
                         }
                     }
