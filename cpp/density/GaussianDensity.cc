@@ -62,7 +62,7 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq)
     const int bin_cut_x = int(m_r_max / grid_size_x);
     const int bin_cut_y = int(m_r_max / grid_size_y);
     const int bin_cut_z = m_box.is2D() ? 0 : int(m_r_max / grid_size_z);
-
+    const float r_max_sq = m_r_max * m_r_max;
     const float sigmasq = m_sigma * m_sigma;
     const float A = std::sqrt(1.0f / (constants::TWO_PI * sigmasq));
 
@@ -82,42 +82,42 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq)
                 bin_z = 0;
             }
 
+            // Reject bins that are outside the box in aperiodic directions
             // Only evaluate over bins that are within the cutoff
             for (int k = bin_z - bin_cut_z; k <= bin_z + bin_cut_z; k++)
             {
+                if (!periodic.z && (k < 0 || k >= int(m_width.z)))
+                {
+                    continue;
+                }
                 const float dz = float((grid_size_z * k + grid_size_z / 2.0f) - point.z - lz / 2.0f);
 
                 for (int j = bin_y - bin_cut_y; j <= bin_y + bin_cut_y; j++)
                 {
+                    if (!periodic.y && (j < 0 || j >= int(m_width.y)))
+                    {
+                        continue;
+                    }
                     const float dy = float((grid_size_y * j + grid_size_y / 2.0f) - point.y - ly / 2.0f);
 
                     for (int i = bin_x - bin_cut_x; i <= bin_x + bin_cut_x; i++)
                     {
-                        // Reject bins that are outside the box in aperiodic directions
-                        if ((!periodic.x && (i < 0 || i >= int(m_width.x))) ||
-                            (!periodic.y && (j < 0 || j >= int(m_width.y))) ||
-                            (!periodic.z && (k < 0 || k >= int(m_width.z))))
+                        if (!periodic.x && (i < 0 || i >= int(m_width.x)))
                         {
                             continue;
                         }
+                        const float dx = float((grid_size_x * i + grid_size_x / 2.0f) - point.x - lx / 2.0f);
 
                         // Calculate the distance from the particle to the grid cell
-                        const float dx = float((grid_size_x * i + grid_size_x / 2.0f) - point.x - lx / 2.0f);
-                        vec3<float> delta = m_box.wrap(vec3<float>(dx, dy, dz));
+                        const vec3<float> delta = m_box.wrap(vec3<float>(dx, dy, dz));
 
                         const float r_sq = dot(delta, delta);
-                        const float r_sqrt = std::sqrt(r_sq);
 
                         // Check to see if this distance is within the specified r_max
-                        if (r_sqrt < m_r_max)
+                        if (r_sq < r_max_sq)
                         {
-                            // Evaluate the gaussian ...
-                            const float x_gaussian
-                                = A * std::exp((-1.0f) * (delta.x * delta.x) / (2.0f * sigmasq));
-                            const float y_gaussian
-                                = A * std::exp((-1.0f) * (delta.y * delta.y) / (2.0f * sigmasq));
-                            const float z_gaussian
-                                = A * std::exp((-1.0f) * (delta.z * delta.z) / (2.0f * sigmasq));
+                            // Evaluate the gaussian
+                            const float gaussian = A * std::exp(-r_sq / (2 * sigmasq));
 
                             // Assure that out of range indices are corrected for storage
                             // in the array i.e. bin -1 is actually bin 29 for nbins = 30
@@ -125,9 +125,8 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq)
                             const unsigned int nj = (j + m_width.y) % m_width.y;
                             const unsigned int nk = (k + m_width.z) % m_width.z;
 
-                            // store the product of these values in an array - n[i, j, k]
-                            // = gx*gy*gz
-                            local_bin_counts.local()(ni, nj, nk) += x_gaussian * y_gaussian * z_gaussian;
+                            // Store the gaussian contribution
+                            local_bin_counts.local()(ni, nj, nk) += gaussian;
                         }
                     }
                 }
