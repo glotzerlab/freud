@@ -28,6 +28,7 @@ class TestSphereVoxelization(unittest.TestCase):
 
             # Verify the output dimensions are correct
             self.assertEqual(vox.voxels.shape, (width, width))
+            self.assertEqual(np.prod(vox.voxels.shape), np.prod(vox.width))
 
             # Verify that the voxels are all 1's and 0's
             num_zeros = len(np.where(np.isclose(
@@ -84,7 +85,8 @@ class TestSphereVoxelization(unittest.TestCase):
         vox.compute(system=(box, points))
 
         test_box = freud.box.Box.cube(box_size)
-        vox.compute((test_box, points))
+        with self.assertRaises(ValueError):
+            vox.compute((test_box, points))
 
     def test_repr(self):
         vox = freud.density.SphereVoxelization(100, 10.0)

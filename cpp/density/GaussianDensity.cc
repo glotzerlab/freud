@@ -39,6 +39,7 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq)
     {
         throw std::invalid_argument("SphereVoxelization cannot compute on 3D boxes after computing 2D boxes.");
     }
+
     m_box = nq->getBox();
     auto n_points = nq->getNPoints();
 
