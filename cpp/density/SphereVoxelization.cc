@@ -16,7 +16,7 @@ SphereVoxelization::SphereVoxelization(vec3<unsigned int> width, float r_max)
     : m_box(box::Box()), m_width(width), m_r_max(r_max)
 {
     if (r_max <= 0.0f)
-        throw std::invalid_argument("Sphere Voxelization requires r_max to be positive.");
+        throw std::invalid_argument("SphereVoxelization requires r_max to be positive.");
 }
 
 //! Get a reference to the last computed voxels
@@ -31,20 +31,22 @@ vec3<unsigned int> SphereVoxelization::getWidth()
     return m_width;
 }
 
-//! internal
-/*! \brief Function to compute the voxels array
- */
+//! Compute the voxels array.
 void SphereVoxelization::compute(const freud::locality::NeighborQuery* nq)
 {
+    // Don't allow 3D boxes after computing in 2D (m_width is altered)
+    if (!nq->getBox().is2D() && m_box.is2D())
+    {
+        throw std::invalid_argument("SphereVoxelization cannot compute on 3D boxes after computing 2D boxes.");
+    }
     m_box = nq->getBox();
     auto n_points = nq->getNPoints();
 
-    vec3<unsigned int> width(m_width);
     if (m_box.is2D())
     {
-        width.z = 1;
+        m_width.z = 1;
     }
-    m_voxels_array.prepare({width.x, width.y, width.z});
+    m_voxels_array.prepare({m_width.x, m_width.y, m_width.z});
 
     // set up some constants first
     const float Lx = m_box.getLx();

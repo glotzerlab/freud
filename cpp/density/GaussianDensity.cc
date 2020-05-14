@@ -31,21 +31,23 @@ vec3<unsigned int> GaussianDensity::getWidth()
     return m_width;
 }
 
-//! internal
-/*! \brief Function to compute the density array
- */
+//! Compute the density array.
 void GaussianDensity::compute(const freud::locality::NeighborQuery* nq)
 {
+    // Don't allow 3D boxes after computing in 2D (m_width is altered)
+    if (!nq->getBox().is2D() && m_box.is2D())
+    {
+        throw std::invalid_argument("SphereVoxelization cannot compute on 3D boxes after computing 2D boxes.");
+    }
     m_box = nq->getBox();
     auto n_points = nq->getNPoints();
 
-    vec3<unsigned int> width(m_width);
     if (m_box.is2D())
     {
-        width.z = 1;
+        m_width.z = 1;
     }
-    m_density_array.prepare({width.x, width.y, width.z});
-    util::ThreadStorage<float> local_bin_counts({width.x, width.y, width.z});
+    m_density_array.prepare({m_width.x, m_width.y, m_width.z});
+    util::ThreadStorage<float> local_bin_counts({m_width.x, m_width.y, m_width.z});
 
     // set up some constants first
     const float Lx = m_box.getLx();

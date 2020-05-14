@@ -15,10 +15,13 @@
 
 namespace freud { namespace density {
 
-//! Computes the voxels of a system on a grid.
-/*! Replaces particle positions with a sphere and calculates the
-        contribution from the grid based upon the distance of the grid cell
-        from the center of the sphere.
+//! Computes a grid of voxels occupied by spheres placed at a set of points.
+/*! This class constructs a grid of voxels. From a given set of points and a
+    desired radius, a set of spheres are created. The voxels are assigned a
+    value of 1 if their center is contained in one or more spheres and 0
+    otherwise. The dimensions of the grid are set in the constructor, and can
+    either be set equally for all dimensions or for each dimension
+    independently.
 */
 class SphereVoxelization
 {
@@ -29,32 +32,32 @@ public:
     // Destructor
     ~SphereVoxelization() {}
 
-    //! Get the simulation box
+    //! Get the simulation box.
     const box::Box& getBox() const
     {
         return m_box;
     }
 
-    //! Return the cutoff distance.
+    //! Get sphere radius used for voxelization.
     float getRMax() const
     {
         return m_r_max;
     }
 
-    //! Compute the voxelization
+    //! Compute the voxelization.
     void compute(const freud::locality::NeighborQuery* nq);
 
-    //! Get a reference to the last computed voxels
+    //! Get a reference to the last computed voxels.
     const util::ManagedArray<unsigned int>& getVoxels() const;
 
     vec3<unsigned int> getWidth();
 
 private:
-    box::Box m_box;             //!< Simulation box where the particles belong
-    vec3<unsigned int> m_width; //!< Num of bins on each side of the cube
-    float m_r_max;              //!< Max r at which to compute voxels
+    box::Box m_box;             //!< Simulation box containing the points.
+    vec3<unsigned int> m_width; //!< Number of bins in the grid in each dimension.
+    float m_r_max;              //!< Sphere radius used for voxelization.
 
-    util::ManagedArray<unsigned int> m_voxels_array; //! computed voxels array
+    util::ManagedArray<unsigned int> m_voxels_array; //! Computed voxels array.
 };
 
 }; }; // end namespace freud::density
