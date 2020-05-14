@@ -194,8 +194,8 @@ cdef class GaussianDensity(_Compute):
     be set equally for all dimensions or for each dimension independently.
 
     Args:
-        width (int or list or tuple):
-            The number of bins to make the image in each direction (identical
+        width (int or Sequence[int]):
+            The number of bins to make the image in each dimension (identical
             in all dimensions if a single integer value is provided).
         r_max (float):
             Distance over which to blur.
@@ -264,9 +264,8 @@ cdef class GaussianDensity(_Compute):
 
     @property
     def width(self):
-        """int or list or tuple: The number of bins to make the image in each
-        direction (identical in all dimensions if a single integer value is
-        provided)."""
+        """tuple[int]: The number of bins to make the image in each dimension
+        (identical in all dimensions if a single integer value is provided)."""
         cdef vec3[uint] width = self.thisptr.getWidth()
         return (width.x, width.y, width.z)
 
@@ -302,19 +301,19 @@ cdef class GaussianDensity(_Compute):
 
 
 cdef class SphereVoxelization(_Compute):
-    R"""Computes the integer density of a system on a grid.
+    R"""Computes a grid of voxels occupied by spheres placed at a set of points.
 
     Replaces particle positions with a sphere of fixed radius and calculates the
     contribution from each to the proscribed grid based upon the distance of
     the grid cell from the center of the sphere. The resulting data is a
-    regular grid of particle densities with an integer for each grid cell that
-    indicates the number of particles whose spheres overlap that cell. The
+    regular grid of particle densities with an integer, either a 1 or a 0, for
+    each grid cell that indicates whether a sphere is located in that cell. The
     dimensions of the image (grid) are set in the constructor, and can either
     be set equally for all dimensions or for each dimension independently.
 
     Args:
-        width (int or list or tuple):
-            The number of bins to make the image in each direction (identical
+        width (int or Sequence[int]):
+            The number of bins to make the image in each dimension (identical
             in all dimensions if a single integer value is provided).
         r_max (float):
             Sphere radius.
@@ -376,9 +375,8 @@ cdef class SphereVoxelization(_Compute):
 
     @property
     def width(self):
-        """int or list or tuple: The number of bins to make the image in each
-        direction (identical in all dimensions if a single integer value is
-        provided)."""
+        """tuple[int]: The number of bins in the image in each dimension
+        (identical in all dimensions if a single integer value is provided)."""
         cdef vec3[uint] width = self.thisptr.getWidth()
         return (width.x, width.y, width.z)
 

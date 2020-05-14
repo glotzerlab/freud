@@ -1,9 +1,8 @@
-// Copyright (c) 2010-2019 The Regents of the University of Michigan
+// Copyright (c) 2010-2020 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <cmath>
 #include <stdexcept>
-#include <tbb/tbb.h>
 
 #include "SphereVoxelization.h"
 
@@ -37,12 +36,11 @@ vec3<unsigned int> SphereVoxelization::getWidth()
  */
 void SphereVoxelization::compute(const freud::locality::NeighborQuery* nq)
 {
-    auto box = nq->getBox();
+    m_box = nq->getBox();
     auto n_points = nq->getNPoints();
-    m_box = box;
 
     vec3<unsigned int> width(m_width);
-    if (box.is2D())
+    if (m_box.is2D())
     {
         width.z = 1;
     }
@@ -116,6 +114,8 @@ void SphereVoxelization::compute(const freud::locality::NeighborQuery* nq)
                             const unsigned int nj = (j + m_width.y) % m_width.y;
                             const unsigned int nk = (k + m_width.z) % m_width.z;
 
+                            // this array could be written to by multiple threads in parallel
+                            // this is only safe because we only ever write a 1
                             m_voxels_array(ni, nj, nk) = 1;
                         }
                     }
@@ -123,20 +123,6 @@ void SphereVoxelization::compute(const freud::locality::NeighborQuery* nq)
             }
         }
     });
-
-    // Now reduce all the arrays into one.
-    /*
-    util::forLoopWrapper(0, m_voxels_array.size(), [=](size_t begin, size_t end) {
-        for (size_t i = begin; i < end; ++i)
-        {
-            for (util::ThreadStorage<unsigned int>::const_iterator local_bins = local_bin_counts.begin();
-                 local_bins != local_bin_counts.end(); ++local_bins)
-            {
-                m_voxels_array[i] += (*local_bins)[i];
-            }
-        }
-    });
-    */
 }
 
 }; }; // end namespace freud::density
