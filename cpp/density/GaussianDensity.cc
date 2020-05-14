@@ -48,14 +48,14 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq)
     util::ThreadStorage<float> local_bin_counts({width.x, width.y, width.z});
 
     // set up some constants first
-    const float lx = m_box.getLx();
-    const float ly = m_box.getLy();
-    const float lz = m_box.getLz();
+    const float Lx = m_box.getLx();
+    const float Ly = m_box.getLy();
+    const float Lz = m_box.getLz();
     const vec3<bool> periodic = m_box.getPeriodic();
 
-    const float grid_size_x = lx / m_width.x;
-    const float grid_size_y = ly / m_width.y;
-    const float grid_size_z = m_box.is2D() ? 0 : lz / m_width.z;
+    const float grid_size_x = Lx / m_width.x;
+    const float grid_size_y = Ly / m_width.y;
+    const float grid_size_z = m_box.is2D() ? 0 : Lz / m_width.z;
 
     // Find the number of bins within r_max
     const int bin_cut_x = int(m_r_max / grid_size_x);
@@ -73,9 +73,9 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq)
         {
             const vec3<float> point = (*nq)[idx];
             // Find which bin the particle is in
-            int bin_x = int((point.x + lx / 2.0f) / grid_size_x);
-            int bin_y = int((point.y + ly / 2.0f) / grid_size_y);
-            int bin_z = int((point.z + lz / 2.0f) / grid_size_z);
+            int bin_x = int((point.x + Lx / 2.0f) / grid_size_x);
+            int bin_y = int((point.y + Ly / 2.0f) / grid_size_y);
+            int bin_z = int((point.z + Lz / 2.0f) / grid_size_z);
 
             // In 2D, only loop over the z=0 plane
             if (m_box.is2D())
@@ -91,7 +91,7 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq)
                 {
                     continue;
                 }
-                const float dz = float((grid_size_z * k + grid_size_z / 2.0f) - point.z - lz / 2.0f);
+                const float dz = float((grid_size_z * k + grid_size_z / 2.0f) - point.z - Lz / 2.0f);
 
                 for (int j = bin_y - bin_cut_y; j <= bin_y + bin_cut_y; j++)
                 {
@@ -99,7 +99,7 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq)
                     {
                         continue;
                     }
-                    const float dy = float((grid_size_y * j + grid_size_y / 2.0f) - point.y - ly / 2.0f);
+                    const float dy = float((grid_size_y * j + grid_size_y / 2.0f) - point.y - Ly / 2.0f);
 
                     for (int i = bin_x - bin_cut_x; i <= bin_x + bin_cut_x; i++)
                     {
@@ -107,7 +107,7 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq)
                         {
                             continue;
                         }
-                        const float dx = float((grid_size_x * i + grid_size_x / 2.0f) - point.x - lx / 2.0f);
+                        const float dx = float((grid_size_x * i + grid_size_x / 2.0f) - point.x - Lx / 2.0f);
 
                         // Calculate the distance from the particle to the grid cell
                         const vec3<float> delta = m_box.wrap(vec3<float>(dx, dy, dz));
