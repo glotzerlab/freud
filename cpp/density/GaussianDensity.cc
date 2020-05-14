@@ -36,12 +36,11 @@ vec3<unsigned int> GaussianDensity::getWidth()
  */
 void GaussianDensity::compute(const freud::locality::NeighborQuery* nq)
 {
-    auto box = nq->getBox();
+    m_box = nq->getBox();
     auto n_points = nq->getNPoints();
-    m_box = box;
 
     vec3<unsigned int> width(m_width);
-    if (box.is2D())
+    if (m_box.is2D())
     {
         width.z = 1;
     }
