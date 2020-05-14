@@ -82,26 +82,30 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq)
                 bin_z = 0;
             }
 
+            // reject bins that are outside the box in aperiodic conditions
             // Only evaluate over bins that are within the cutoff
             for (int k = bin_z - bin_cut_z; k <= bin_z + bin_cut_z; k++)
             {
+                if (!periodic.z && (k < 0 || k >= int(m_width.z)))
+                {
+                    continue;
+                }
                 const float dz = float((grid_size_z * k + grid_size_z / 2.0f) - point.z - lz / 2.0f);
 
                 for (int j = bin_y - bin_cut_y; j <= bin_y + bin_cut_y; j++)
                 {
+                    if (!periodic.y && (j < 0 || j >= int(m_width.y)))
+                    {
+                        continue;
+                    }
                     const float dy = float((grid_size_y * j + grid_size_y / 2.0f) - point.y - ly / 2.0f);
 
                     for (int i = bin_x - bin_cut_x; i <= bin_x + bin_cut_x; i++)
                     {
-                        // Reject bins that are outside the box in aperiodic directions
-                        if ((!periodic.x && (i < 0 || i >= int(m_width.x))) ||
-                            (!periodic.y && (j < 0 || j >= int(m_width.y))) ||
-                            (!periodic.z && (k < 0 || k >= int(m_width.z))))
+                        if (!periodic.x && (i < 0 || i >= int(m_width.x)))
                         {
                             continue;
                         }
-
-                        // Calculate the distance from the particle to the grid cell
                         const float dx = float((grid_size_x * i + grid_size_x / 2.0f) - point.x - lx / 2.0f);
                         vec3<float> delta = m_box.wrap(vec3<float>(dx, dy, dz));
 
