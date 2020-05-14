@@ -70,7 +70,8 @@ class TestGaussianDensity(unittest.TestCase):
 
         gd = freud.density.GaussianDensity(width, r_max, sigma)
         gd.compute(system=(box, points))
-        assert np.isclose(np.sum(gd.density), 1, atol=1e-6)
+        # This has discretization error as well as single-precision error
+        assert np.isclose(np.sum(gd.density), 1, atol=1e-4)
 
     def test_sum_3d(self):
         # Ensure that the Gaussian sums to 1
@@ -84,7 +85,8 @@ class TestGaussianDensity(unittest.TestCase):
 
         gd = freud.density.GaussianDensity(width, r_max, sigma)
         gd.compute(system=(box, points))
-        assert np.isclose(np.sum(gd.density), 1, atol=1e-6)
+        # This has discretization error as well as single-precision error
+        assert np.isclose(np.sum(gd.density), 1, atol=1e-4)
 
     def test_repr(self):
         gd = freud.density.GaussianDensity(100, 10.0, 0.1)
