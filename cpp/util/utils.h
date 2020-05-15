@@ -28,10 +28,10 @@ template<class Scalar> inline Scalar modulusPositive(Scalar a, Scalar b)
 }
 
 //! Wrapper for for-loop to allow the execution in parallel or not.
-/*! \param parallel If true, run body in parallel.
- *  \param begin Beginning index.
+/*! \param begin Beginning index.
  *  \param end Ending index.
  *  \param body An object with operator(size_t begin, size_t end).
+ *  \param parallel If true, run body in parallel.
  */
 template<typename Body>
 inline void forLoopWrapper(size_t begin, size_t end, const Body& body, bool parallel = true)
@@ -48,12 +48,12 @@ inline void forLoopWrapper(size_t begin, size_t end, const Body& body, bool para
 }
 
 //! Wrapper for 2D nested for loops to allow the execution in parallel or not.
-/*! \param parallel If true, run body in parallel.
- *  \param begin_row Beginning index of outer loop.
+/*! \param begin_row Beginning index of outer loop.
  *  \param end_row Ending index of outer loop.
  *  \param begin_col Beginning index of inner loop.
  *  \param end_col Ending index of inner loop.
  *  \param body An object with operator(size_t begin_row, size_t end_row, size_t begin_col, size_t end_col).
+ *  \param parallel If true, run body in parallel.
  */
 template<typename Body>
 inline void forLoopWrapper2D(size_t begin_row, size_t end_row, size_t begin_col, size_t end_col,
@@ -73,17 +73,17 @@ inline void forLoopWrapper2D(size_t begin_row, size_t end_row, size_t begin_col,
 }
 
 //! Wrapper for 3D nested for loops to allow the execution in parallel or not.
-/*! \param parallel If true, run body in parallel.
- *  \param begin_page Beginning index of outer loop.
+/*! \param begin_page Beginning index of outer loop.
  *  \param end_page Ending index of outer loop.
  *  \param begin_row Beginning index of middle loop.
  *  \param end_row Ending index of middle loop.
  *  \param begin_col Beginning index of inner loop.
  *  \param end_col Ending index of inner loop.
- *  \param body An object with operator(size_t begin_row, size_t end_row, size_t begin_col, size_t end_col).
+ *  \param body An object with operator(size_t begin_page, size_t end_page, size_t begin_row, size_t end_row, size_t begin_col, size_t end_col).
+ *  \param parallel If true, run body in parallel.
  */
 template<typename Body>
-inline void forLoopWrapper2D(size_t begin_page, size_t end_page, size_t begin_row, size_t end_row,
+inline void forLoopWrapper3D(size_t begin_page, size_t end_page, size_t begin_row, size_t end_row,
                              size_t begin_col, size_t end_col, const Body& body, bool parallel = true)
 {
     if (parallel)
