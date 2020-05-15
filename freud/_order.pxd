@@ -25,10 +25,11 @@ cdef extern from "Cubatic.h" namespace "freud::order":
         const freud.util.ManagedArray[float] &getParticleOrderParameter() const
         const freud.util.ManagedArray[float] &getGlobalTensor() const
         const freud.util.ManagedArray[float] &getCubaticTensor() const
+        quat[float] getCubaticOrientation() const
         float getTInitial() const
         float getTFinal() const
         float getScale() const
-        quat[float] getCubaticOrientation() const
+        unsigned int getNReplicates() const
         unsigned int getSeed() const
 
 
