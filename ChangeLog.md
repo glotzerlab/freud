@@ -10,13 +10,16 @@ and this project adheres to
 * Support for garnett 0.7.
 * Custom NeighborLists can be created from a set of points using `from_points`. Distances will be calculated automatically.
 * The Box class has methods `compute_distances` and `compute_all_distances` to calculate distances between arrays of points and query points.
+* SphereVoxelization class in the `density` module computes a grid of voxels occupied by spheres.
 
 ### Changed
 * Cython is now a required dependency (not optional). Cythonized `.cpp` files have been removed.
+* An instance of GaussianDensity cannot compute 3D systems if it has been previously computed 2D systems.
 
 ### Fixed
 * Histogram bin locations are computed in a more numerically stable way.
 * Improved error handling of Cubatic input parameters.
+* GaussianDensity gaussian normalization in 2D systems has been corrected.
 
 ## v2.2.0 - 2020-02-24
 

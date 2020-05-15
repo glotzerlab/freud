@@ -101,6 +101,9 @@ Bradley Dice - **Lead developer**
 * Added finite tolerance to ensure stability of 2D Voronoi NeighborList computations.
 * Improved stability of Histogram bin calculations.
 * Improved error handling of Cubatic input parameters.
+* Added SphereVoxelization feature.
+* Fixed GaussianDensity normalization in 2D systems.
+* Prevented GaussianDensity from computing 3D systems after it has computed 2D systems.
 
 Eric Harper, University of Michigan - **Former lead developer**
 
@@ -284,6 +287,10 @@ Mike Henry
 
 * Fixed syntax in freud-examples notebooks for v2.0.
 * Updated documentation links
+
+Tommy Waltmann
+
+* Added SphereVoxelization feature.
 
 Source code
 -----------
