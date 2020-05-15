@@ -16,6 +16,7 @@ and this project adheres to
 
 ### Fixed
 * Histogram bin locations are computed in a more numerically stable way.
+* Improved error handling of Cubatic input parameters.
 
 ## v2.2.0 - 2020-02-24
 
