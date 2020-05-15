@@ -301,7 +301,7 @@ cdef class GaussianDensity(_Compute):
 
 
 cdef class SphereVoxelization(_Compute):
-    R"""Computes a grid of voxels occupied by spheres placed at a set of points.
+    R"""Computes a grid of voxels occupied by spheres.
 
     This class constructs a grid of voxels. From a given set of points and a
     desired radius, a set of spheres are created. The voxels are assigned a

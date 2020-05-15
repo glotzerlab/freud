@@ -37,7 +37,8 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq)
     // Don't allow 3D boxes after computing in 2D (m_width is altered)
     if (!nq->getBox().is2D() && m_box.is2D())
     {
-        throw std::invalid_argument("SphereVoxelization cannot compute on 3D boxes after computing 2D boxes.");
+        throw std::invalid_argument(
+            "GaussianDensity cannot compute on 3D boxes after computing 2D boxes.");
     }
 
     m_box = nq->getBox();

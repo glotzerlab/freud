@@ -10,12 +10,12 @@
 #include "VectorMath.h"
 
 /*! \file SphereVoxelization.h
-    \brief Routines for computing voxelized densities from spheres centered at points.
+    \brief Computes a grid of voxels occupied by spheres.
 */
 
 namespace freud { namespace density {
 
-//! Computes a grid of voxels occupied by spheres placed at a set of points.
+//! Computes a grid of voxels occupied by spheres.
 /*! This class constructs a grid of voxels. From a given set of points and a
     desired radius, a set of spheres are created. The voxels are assigned a
     value of 1 if their center is contained in one or more spheres and 0

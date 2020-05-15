@@ -3,9 +3,10 @@
 
 #include <algorithm>
 #include <cmath>
-#include <tbb/parallel_for.h>
 #include <tbb/blocked_range.h>
 #include <tbb/blocked_range2d.h>
+#include <tbb/blocked_range3d.h>
+#include <tbb/parallel_for.h>
 
 namespace freud { namespace util {
 
@@ -55,17 +56,15 @@ inline void forLoopWrapper(size_t begin, size_t end, const Body& body, bool para
  *  \param body An object with operator(size_t begin_row, size_t end_row, size_t begin_col, size_t end_col).
  */
 template<typename Body>
-inline void forLoopWrapper2D(
-    size_t begin_row, size_t end_row, size_t begin_col, size_t end_col,
-    const Body& body, bool parallel = true)
+inline void forLoopWrapper2D(size_t begin_row, size_t end_row, size_t begin_col, size_t end_col,
+                             const Body& body, bool parallel = true)
 {
     if (parallel)
     {
         tbb::parallel_for(tbb::blocked_range2d<size_t>(begin_row, end_row, begin_col, end_col),
-                [&body](const tbb::blocked_range2d<size_t>& r) {
-                    body(r.rows().begin(), r.rows().end(), r.cols().begin(), r.cols().end());
-                }
-        );
+                          [&body](const tbb::blocked_range2d<size_t>& r) {
+                              body(r.rows().begin(), r.rows().end(), r.cols().begin(), r.cols().end());
+                          });
     }
     else
     {
@@ -73,8 +72,35 @@ inline void forLoopWrapper2D(
     }
 }
 
-};
+//! Wrapper for 3D nested for loops to allow the execution in parallel or not.
+/*! \param parallel If true, run body in parallel.
+ *  \param begin_page Beginning index of outer loop.
+ *  \param end_page Ending index of outer loop.
+ *  \param begin_row Beginning index of middle loop.
+ *  \param end_row Ending index of middle loop.
+ *  \param begin_col Beginning index of inner loop.
+ *  \param end_col Ending index of inner loop.
+ *  \param body An object with operator(size_t begin_row, size_t end_row, size_t begin_col, size_t end_col).
+ */
+template<typename Body>
+inline void forLoopWrapper2D(size_t begin_page, size_t end_page, size_t begin_row, size_t end_row,
+                             size_t begin_col, size_t end_col, const Body& body, bool parallel = true)
+{
+    if (parallel)
+    {
+        tbb::parallel_for(
+            tbb::blocked_range3d<size_t>(begin_page, end_page, begin_row, end_row, begin_col, end_col),
+            [&body](const tbb::blocked_range3d<size_t>& r) {
+                body(r.pages().begin(), r.pages().end(), r.rows().begin(), r.rows().end(), r.cols().begin(),
+                     r.cols().end());
+            });
+    }
+    else
+    {
+        body(begin_page, end_page, begin_row, end_row, begin_col, end_col);
+    }
+}
 
-}; // namespace freud::util
+}; }; // namespace freud::util
 
 #endif
