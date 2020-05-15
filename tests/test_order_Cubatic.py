@@ -118,7 +118,15 @@ class TestCubatic(unittest.TestCase):
             freud.order.Cubatic(
                 t_initial=5.0,
                 t_final=0.001,
-                scale=1.1,
+                scale=1,
+                n_replicates=10)
+
+        with self.assertRaises(ValueError):
+            # scale must be greater than 0
+            freud.order.Cubatic(
+                t_initial=5.0,
+                t_final=0.001,
+                scale=0,
                 n_replicates=10)
 
     def test_repr(self):
