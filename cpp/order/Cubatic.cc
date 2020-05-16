@@ -134,8 +134,8 @@ tensor4 genR4Tensor()
 }
 
 Cubatic::Cubatic(float t_initial, float t_final, float scale, unsigned int n_replicates, unsigned int seed)
-    : m_t_initial(t_initial), m_t_final(t_final), m_scale(scale), m_n(0), m_n_replicates(n_replicates),
-      m_seed(seed)
+    : m_t_initial(t_initial), m_t_final(t_final), m_scale(scale), m_n_replicates(n_replicates),
+      m_seed(seed), m_n(0)
 {
     if (m_t_initial < m_t_final)
         throw std::invalid_argument("Cubatic requires that t_initial must be greater than t_final.");
