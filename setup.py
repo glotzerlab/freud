@@ -438,7 +438,7 @@ try:
             long_description_content_type='text/x-rst',
             url='https://github.com/glotzerlab/freud',
             download_url='https://pypi.org/project/freud-analysis/',
-            keywords=('simulation analysis molecular dynamics soft matter'
+            keywords=('simulation analysis molecular dynamics soft matter '
                       'particle system computational physics'),
             classifiers=[
                 "Development Status :: 5 - Production/Stable",
