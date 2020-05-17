@@ -25,10 +25,14 @@ PMFTXYT::PMFTXYT(float x_max, float y_max, unsigned int n_x, unsigned int n_y, u
     if (y_max < 0.0f)
         throw std::invalid_argument("PMFTXYT requires that y_max must be positive.");
 
-    // Compute Jacobian
+    // Note: There is an additional implicit volume factor of 2*pi
+    // corresponding to the rotational degree of freedom in the system (i.e. dt
+    // technically has 2*pi in the numerator). However, this factor is
+    // implicitly canceled out since we also do not include it in the number
+    // density computed for the system, see PMFT::reduce for more information.
     const float dx = 2.0 * x_max / float(n_x);
     const float dy = 2.0 * y_max / float(n_y);
-    const float dt = constants::TWO_PI / float(n_t);
+    const float dt = 1 / float(n_t);
     m_jacobian = dx * dy * dt;
 
     // Create the PCF array.

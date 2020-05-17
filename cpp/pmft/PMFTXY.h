@@ -25,11 +25,11 @@ public:
                     vec3<float>* query_points, unsigned int n_query_points,
                     const locality::NeighborList* nlist, freud::locality::QueryArgs qargs);
 
+protected:
     //! \internal
     //! helper function to reduce the thread specific arrays into one array
     virtual void reduce();
 
-private:
     float m_jacobian; //!< Determinant of Jacobian, bin area
 };
 
