@@ -9,25 +9,38 @@ import rowan
 from test_managedarray import TestManagedArray
 
 
-class TestPMFTR12(unittest.TestCase):
+class TestPMFT:
+    @classmethod
+    def get_cubic_box(cls, L, ndim=None):
+        if ndim is None:
+            ndim = cls.ndim
+
+        if ndim == 2:
+            return freud.box.Box.square(L)
+        else:
+            return freud.box.Box.cube(L)
+
     def test_box(self):
-        L = 16.0
-        box = freud.box.Box.square(L)
+        box = self.get_cubic_box(self.L)
         points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
                           dtype=np.float32)
-        angles = np.array([0.0, 0.0], dtype=np.float32)
-        max_r = 5.23
-        nbins_r = 10
-        nbins_t1 = 20
-        nbins_t2 = 30
-        myPMFT = freud.pmft.PMFTR12(max_r, (nbins_r, nbins_t1, nbins_t2))
-        myPMFT.compute((box, points), angles, points, angles, reset=False)
-        npt.assert_equal(myPMFT.box, freud.box.Box.square(L))
+        orientations = np.array([[1, 0, 0, 0], [1, 0, 0, 0]], dtype=np.float32)
+        pmft = self.cl(*self.limits, bins=self.bins)
+        pmft.compute((box, points), orientations)
+        npt.assert_equal(pmft.box, self.get_cubic_box(self.L))
 
         # Ensure expected errors are raised
-        box = freud.box.Box.cube(L)
+        box = self.get_cubic_box(self.L, ndim=2 if self.ndim == 3 else 3)
         with self.assertRaises(ValueError):
-            myPMFT.compute((box, points), angles, reset=False)
+            pmft.compute((box, points), orientations)
+
+
+class TestPMFTR12(TestPMFT, unittest.TestCase):
+    limits = (5.23, )
+    bins = (10, 20, 30)
+    ndim = 2
+    L = 16
+    cl = freud.pmft.PMFTR12
 
     def test_bins(self):
         max_r = 5.23
@@ -182,26 +195,12 @@ class TestPMFTR12(unittest.TestCase):
             self.assertEqual(len(np.unique(pmft.pmft)), 3)
 
 
-class TestPMFTXYT(unittest.TestCase):
-    def test_box(self):
-        L = 16.0
-        box = freud.box.Box.square(L)
-        points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
-                          dtype=np.float32)
-        angles = np.array([0.0, 0.0], dtype=np.float32)
-        max_x = 3.6
-        max_y = 4.2
-        nbins_x = 20
-        nbins_y = 30
-        nbins_t = 40
-        myPMFT = freud.pmft.PMFTXYT(max_x, max_y, (nbins_x, nbins_y, nbins_t))
-        myPMFT.compute((box, points), angles, points, angles, reset=False)
-        npt.assert_equal(myPMFT.box, freud.box.Box.square(L))
-
-        # Ensure expected errors are raised
-        box = freud.box.Box.cube(L)
-        with self.assertRaises(ValueError):
-            myPMFT.compute((box, points), angles, points, angles, reset=False)
+class TestPMFTXYT(TestPMFT, unittest.TestCase):
+    limits = (3.6, 4.2)
+    bins = (20, 30, 40)
+    ndim = 2
+    L = 16
+    cl = freud.pmft.PMFTXYT
 
     def test_bins(self):
         max_x = 3.6
@@ -369,25 +368,12 @@ class TestPMFTXYT(unittest.TestCase):
             self.assertEqual(len(np.unique(pmft.pmft)), 2)
 
 
-class TestPMFTXY(unittest.TestCase):
-    def test_box(self):
-        L = 16.0
-        box = freud.box.Box.square(L)
-        points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
-                          dtype=np.float32)
-        angles = np.array([0.0, 0.0], dtype=np.float32)
-        max_x = 3.6
-        max_y = 4.2
-        nbins_x = 100
-        nbins_y = 110
-        myPMFT = freud.pmft.PMFTXY(max_x, max_y, (nbins_x, nbins_y))
-        myPMFT.compute((box, points), angles, points, reset=False)
-        npt.assert_equal(myPMFT.box, freud.box.Box.square(L))
-
-        # Ensure expected errors are raised
-        box = freud.box.Box.cube(L)
-        with self.assertRaises(ValueError):
-            myPMFT.compute((box, points), angles, points, reset=False)
+class TestPMFTXY(TestPMFT, unittest.TestCase):
+    limits = (3.6, 4.2)
+    bins = (100, 110)
+    ndim = 2
+    L = 16
+    cl = freud.pmft.PMFTXY
 
     def test_bins(self):
         max_x = 3.6
@@ -755,32 +741,12 @@ class TestPMFTXY(unittest.TestCase):
             bins)
 
 
-class TestPMFTXYZ(unittest.TestCase):
-    def test_box(self):
-        L = 25.0
-        box = freud.box.Box.cube(L)
-        points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
-                          dtype=np.float32)
-        orientations = np.array([[1, 0, 0, 0], [1, 0, 0, 0]], dtype=np.float32)
-        equiv_orientations = np.array([[1, 0, 0, 0]], dtype=np.float32)
-        max_x = 5.23
-        max_y = 6.23
-        max_z = 7.23
-        nbins_x = 100
-        nbins_y = 110
-        nbins_z = 120
-        myPMFT = freud.pmft.PMFTXYZ(max_x, max_y, max_z,
-                                    (nbins_x, nbins_y, nbins_z))
-        myPMFT.compute(system=(box, points), query_orientations=orientations,
-                       query_points=points,
-                       equiv_orientations=equiv_orientations, reset=False)
-        npt.assert_equal(myPMFT.box, freud.box.Box.cube(L))
-
-        # Ensure expected errors are raised
-        box = freud.box.Box.square(L)
-        with self.assertRaises(ValueError):
-            myPMFT.compute((box, points), orientations, points,
-                           orientations, reset=False)
+class TestPMFTXYZ(TestPMFT, unittest.TestCase):
+    limits = (5.23, 6.23, 7.23)
+    bins = (100, 110, 120)
+    ndim = 3
+    L = 25
+    cl = freud.pmft.PMFTXYZ
 
     def test_bins(self):
         max_x = 5.23
