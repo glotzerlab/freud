@@ -32,17 +32,18 @@ PMFTR12::PMFTR12(float r_max, unsigned int n_r, unsigned int n_t1, unsigned int 
     m_local_histograms = BondHistogram::ThreadLocalHistogram(m_histogram);
 
     // Note: There is an additional implicit volume factor of 2*pi
-    // corresponding to the rotational degree of freedom in the system (i.e.
-    // both dt1 and dt2 technically have 2*pi in the numerator). However, this
+    // corresponding to the rotational degree of freedom of the second particle
+    // (i.e. both dt1 and dt2 technically have 2*pi in the numerator). This
     // factor is implicitly canceled out since we also do not include it in the
-    // number density computed for the system, see PMFT::reduce for more
-    // information.
+    // number density computed for the system. However, we do have to include
+    // this factor for dt1 because it is part of the real space volume for the
+    // central particle, see PMFT::reduce for more information.
     //
     // The array is computed as the inverse for faster use later.
     m_inv_jacobian_array.prepare({n_r, n_t1, n_t2});
     std::vector<float> bins_r = m_histogram.getBinCenters()[0];
     float dr = r_max / float(n_r);
-    float dt1 = 1 / float(n_t1);
+    float dt1 = constants::TWO_PI / float(n_t1);
     float dt2 = 1 / float(n_t2);
     float product = dr * dt1 * dt2;
     for (unsigned int i = 0; i < n_r; i++)
