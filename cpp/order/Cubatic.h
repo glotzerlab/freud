@@ -66,6 +66,11 @@ public:
     //! Compute the cubatic order parameter
     void compute(quat<float>* orientations, unsigned int num_orientations);
 
+    unsigned int getNumParticles() const
+    {
+        return m_n;
+    }
+
     //! Get a reference to the last computed cubatic order parameter
     float getCubaticOrderParameter() const
     {
@@ -87,9 +92,9 @@ public:
         return m_cubatic_tensor;
     }
 
-    unsigned int getNumParticles() const
+    quat<float> getCubaticOrientation() const
     {
-        return m_n;
+        return m_cubatic_orientation;
     }
 
     float getTInitial() const
@@ -107,9 +112,9 @@ public:
         return m_scale;
     }
 
-    quat<float> getCubaticOrientation() const
+    unsigned int getNReplicates() const
     {
-        return m_cubatic_orientation;
+        return m_n_replicates;
     }
 
     unsigned int getSeed() const
@@ -161,11 +166,12 @@ private:
      */
     template<typename T> quat<float> calcRandomQuaternion(T& dist, float angle_multiplier = 1.0) const;
 
-    float m_t_initial;         //!< Initial temperature for simulated annealing.
-    float m_t_final;           //!< Final temperature for simulated annealing.
-    float m_scale;             //!< Scaling factor to reduce temperature.
-    unsigned int m_n;          //!< Last number of points computed.
-    unsigned int m_replicates; //!< Number of replicates.
+    float m_t_initial;           //!< Initial temperature for simulated annealing.
+    float m_t_final;             //!< Final temperature for simulated annealing.
+    float m_scale;               //!< Scaling factor to reduce temperature.
+    unsigned int m_n_replicates; //!< Number of replicates.
+    unsigned int m_seed;         //!< Random seed.
+    unsigned int m_n;            //!< Last number of points computed.
 
     float m_cubatic_order_parameter;   //!< The value of the order parameter.
     quat<float> m_cubatic_orientation; //!< The cubatic orientation.
@@ -177,7 +183,6 @@ private:
     util::ManagedArray<float>
         m_global_tensor; //!< The system-averaged homogeneous tensor encoding all particle orientations.
     util::ManagedArray<float> m_cubatic_tensor; //!< The output tensor computed via simulated annealing.
-    unsigned int m_seed;                        //!< Random seed.
 
     vec3<float> m_system_vectors[3]; //!< The global coordinate system, always use a simple Euclidean basis.
 };

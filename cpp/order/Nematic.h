@@ -5,7 +5,6 @@
 #define NEMATIC_H
 
 #include <memory>
-#include <tbb/tbb.h>
 
 #include "Box.h"
 #include "ManagedArray.h"

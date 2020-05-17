@@ -3,12 +3,9 @@
 
 #include <algorithm>
 #include <cmath>
-#include <tbb/tbb.h>
-
-#if defined _WIN32
-#undef min // std::min clashes with a Windows header
-#undef max // std::max clashes with a Windows header
-#endif
+#include <tbb/parallel_for.h>
+#include <tbb/blocked_range.h>
+#include <tbb/blocked_range2d.h>
 
 namespace freud { namespace util {
 

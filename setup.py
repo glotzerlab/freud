@@ -188,9 +188,14 @@ directives = {
 }
 macros = [
     ('NPY_NO_DEPRECATED_API', 'NPY_1_10_API_VERSION'),
-    ('VOROPP_VERBOSE', '1'),     # To keep voro++ quieter
-    ('_USE_MATH_DEFINES', '1'),  # Force Windows to define M_PI in <cmath>
+    ('VOROPP_VERBOSE', '1'),  # Keeps voro++ outputs quiet
 ]
+
+if platform.system() == 'Windows':
+    macros.extend([
+        ('_USE_MATH_DEFINES', '1'),  # Force Windows to define M_PI in <cmath>
+        ('NOMINMAX', '1'),  # Prevent Windows from defining min/max as macros
+    ])
 
 # Decide whether or not to compile with coverage support
 if args.use_coverage:

@@ -5,11 +5,6 @@
 #include "NeighborComputeFunctional.h"
 #include "utils.h"
 
-#if defined _WIN32
-#undef min // std::min clashes with a Windows header
-#undef max // std::max clashes with a Windows header
-#endif
-
 /*! \file AngularSeparation.cc
     \brief Compute the angular separation for each particle.
 */

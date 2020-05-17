@@ -1,13 +1,8 @@
 # Copyright (c) 2010-2020 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
-from libcpp.memory cimport shared_ptr
-from libcpp.vector cimport vector
 from libcpp cimport bool
 from freud.util cimport vec3
-from libcpp.vector cimport vector
-from libcpp.string cimport string
-cimport freud._locality
 
 ctypedef unsigned int uint
 

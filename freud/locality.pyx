@@ -7,23 +7,19 @@ locate points based on their proximity to other points.
 """
 import freud.util
 import inspect
-import logging
 import numpy as np
 from freud.errors import NO_DEFAULT_QUERY_ARGS_MESSAGE
 
 from libcpp cimport bool as cbool
-from freud.util cimport vec3
+from freud.util cimport vec3, _Compute
 from cython.operator cimport dereference
 from libcpp.memory cimport shared_ptr
 from libcpp.vector cimport vector
 from freud._locality cimport ITERATOR_TERMINATOR
-from freud.util cimport _Compute
 
 cimport freud._locality
 cimport freud.box
 cimport numpy as np
-
-logger = logging.getLogger(__name__)
 
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults

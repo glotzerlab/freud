@@ -4,8 +4,6 @@
 #ifndef PMFT_H
 #define PMFT_H
 
-#include <tbb/tbb.h>
-
 #include "BondHistogramCompute.h"
 #include "Box.h"
 #include "Histogram.h"

@@ -1,4 +1,7 @@
-version: 2
+version: 2.1
+
+orbs:
+  win: circleci/windows@2.2.0  # Enables Windows executors
 
 references:
   container_manylinux: &container_manylinux
@@ -41,13 +44,23 @@ references:
     run:
       name: Install dependencies
       command: |
-        $PIP install --user -r requirements-testing.txt
+        python${PYVER} -m pip install --user -r requirements-testing.txt
+
+  get_conda_requirements: &get_conda_requirements
+    run:
+      name: Install dependencies with conda
+      command: |
+        conda config --set always_yes yes --set changeps1 no
+        conda config --add channels conda-forge
+        conda update -q conda certifi
+        conda install python pip tbb tbb-devel
+        conda install --file requirements-testing.txt
 
   get_style_requirements: &get_style_requirements
     run:
       name: Install style check dependencies
       command: |
-        $PIP install --user flake8==3.7.8
+        python${PYVER} -m pip install --user flake8==3.7.8
 
   #check_cpp_style: &check_cpp_style
   #  run:
@@ -70,7 +83,7 @@ references:
     run:
       name: Build
       command: |
-        echo "PYVER=${PYVER}"
+        python${PYVER} --version
         python${PYVER} setup.py build_ext --inplace --COVERAGE
 
   test: &test
@@ -96,7 +109,7 @@ references:
     run:
       name: Run benchmarks
       command: |
-          $PIP install --user -r requirements-testing.txt
+          python${PYVER} -m pip install --user -r requirements-testing.txt
           echo 'export PYTHONPATH=$PYTHONPATH:.' >> $BASH_ENV
           echo 'export BENCHMARK_NPROC=2' >> $BASH_ENV
           source $BASH_ENV
@@ -127,7 +140,7 @@ references:
       path: benchmarks/reports
       destination: benchmarks-reports
 
-  build_and_test: &build_and_test
+  build_and_test_linux: &build_and_test_linux
     steps:
       - *load_code
       - *update_submodules
@@ -136,11 +149,20 @@ references:
       - *test
       - *store
 
-  build_and_test_with_cov: &build_and_test_with_cov
+  build_and_test_linux_with_cov: &build_and_test_linux_with_cov
     steps:
       - *load_code
       - *update_submodules
       - *get_requirements
+      - *build
+      - *test_cov
+      - *store
+
+  build_and_test_windows: &build_and_test_windows
+    steps:
+      - *load_code
+      - *update_submodules
+      - *get_conda_requirements
       - *build
       - *test_cov
       - *store
@@ -214,35 +236,41 @@ jobs:
     working_directory: ~/ci/freud
     environment:
       PYVER: "3.8"
-      PIP: "pip3"
     <<: *load_check_style
 
-  test-py38:
+  linux-python-38:
     docker:
       - image: glotzerlab/ci:2020.01-py38
     working_directory: ~/ci/freud
     environment:
       PYVER: "3.8"
-      PIP: "pip3.8"
-    <<: *build_and_test
+    <<: *build_and_test_linux
 
-  test-py37:
+  linux-python-37:
     docker:
       - image: glotzerlab/ci:2020.01-py37
     working_directory: ~/ci/freud
     environment:
       PYVER: "3.7"
-      PIP: "pip3.7"
-    <<: *build_and_test_with_cov
+    <<: *build_and_test_linux_with_cov
 
-  test-py36:
+  linux-python-36:
     docker:
       - image: glotzerlab/ci:2020.01-py36
     working_directory: ~/ci/freud
     environment:
       PYVER: "3.6"
-      PIP: "pip3.6"
-    <<: *build_and_test
+    <<: *build_and_test_linux
+
+  windows-python-37:
+    executor:
+      name: win/default
+      shell: bash.exe
+    environment:
+      PYVER: ""  # Windows CI image doesn't have aliases for python3.7
+      TBB_INCLUDE: "C:\\tools\\miniconda3\\Library\\include"
+      TBB_LINK: "C:\\tools\\miniconda3\\Library\\lib"
+    <<: *build_and_test_windows
 
   test-deploy-pypi-linux:
     environment:
@@ -272,7 +300,6 @@ jobs:
     working_directory: ~/ci/freud
     environment:
       PYVER: "3.8"
-      PIP: "pip3.8"
     <<: *build_and_benchmark
 
 workflows:
@@ -280,35 +307,40 @@ workflows:
   test:
     jobs:
       - check-style
-      - test-py38:
+      - linux-python-38:
           requires:
             - check-style
-      - test-py37:
+      - linux-python-37:
           requires:
             - check-style
-      - test-py36:
+      - linux-python-36:
+          requires:
+            - check-style
+      - windows-python-37:
           requires:
             - check-style
 # Disabled benchmarks on CI - they currently take too much work
 #     - benchmarks:
 #         requires:
-#           - test-py38
+#           - linux-python-38
       - test-deploy-pypi-macos:
           filters:
             branches:
               only: /release\/.*/
           requires:
-            - test-py38
-            - test-py37
-            - test-py36
+            - linux-python-38
+            - linux-python-37
+            - linux-python-36
+            - windows-python-37
       - test-deploy-pypi-linux:
           filters:
             branches:
               only: /release\/.*/
           requires:
-            - test-py38
-            - test-py37
-            - test-py36
+            - linux-python-38
+            - linux-python-37
+            - linux-python-36
+            - windows-python-37
 
   deploy:
     jobs:

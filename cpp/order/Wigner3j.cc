@@ -6,11 +6,6 @@
 
 #include "Wigner3j.h"
 
-#if defined _WIN32
-#undef min // std::min clashes with a Windows header
-#undef max // std::max clashes with a Windows header
-#endif
-
 /*! \file Wigner3j.cc
  *  \brief Stores and reduces over Wigner 3j coefficients for l from 0 to 20
  */

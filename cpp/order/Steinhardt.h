@@ -5,7 +5,6 @@
 #define STEINHARDT_H
 
 #include <complex>
-#include <tbb/tbb.h>
 
 #include "Box.h"
 #include "ManagedArray.h"
