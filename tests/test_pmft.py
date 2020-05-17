@@ -867,7 +867,7 @@ class TestCompare(unittest.TestCase):
         # NeighborQuery objects). The denominator comes from the 8pi^2 of
         # orientational phase space in PMFTXYZ divided by the 2pi in theta
         # space in PMFTXY.
-        scale_factor = ((nbins/2)*L)/(4*np.pi)
+        scale_factor = ((nbins/2)*L)
         npt.assert_allclose(np.exp(pmft2d.pmft),
                             np.exp(pmft3d.pmft[:, :, nbins//2])*scale_factor,
                             atol=1e-6)
