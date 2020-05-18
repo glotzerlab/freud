@@ -324,6 +324,36 @@ cdef class Hexatic(_PairCompute):
         return "freud.order.{cls}(k={k}, weighted={weighted})".format(
             cls=type(self).__name__, k=self.k, weighted=self.weighted)
 
+    def plot(self, ax=None):
+        """Plot order parameter distribution.
+
+        Args:
+            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
+                :code:`None`, make a new figure and axis.
+                (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes.Axes`): Axis with the plot.
+        """
+        import freud.plot
+        xlabel = r"$\left|\psi{prime}_{k}\right|$".format(
+            prime='\'' if self.weighted else '',
+            k=self.k)
+
+        return freud.plot.histogram_plot(
+            np.absolute(self.particle_order),
+            title="Hexatic Order Parameter " + xlabel,
+            xlabel=xlabel,
+            ylabel=r"Number of particles",
+            ax=ax)
+
+    def _repr_png_(self):
+        try:
+            import freud.plot
+            return freud.plot._ax_to_bytes(self.plot())
+        except (AttributeError, ImportError):
+            return None
+
 
 cdef class Translational(_PairCompute):
     R"""Compute the translational order parameter for each particle.
