@@ -112,6 +112,10 @@ class TestPMFT:
             npt.assert_allclose(pmft.bin_counts, correct_bin_counts,
                                 atol=absoluteTolerance)
 
+    def test_repr(self):
+        pmft = self.make_pmft()
+        self.assertEqual(str(pmft), str(eval(repr(pmft))))
+
 
 class TestPMFTR12(TestPMFT, unittest.TestCase):
     limits = (5.23, )
@@ -155,12 +159,6 @@ class TestPMFTR12(TestPMFT, unittest.TestCase):
         t2_bin = np.floor(((query_point_angle - delta_t2) % twopi) *
                           self.bins[2] / twopi).astype(int)
         return (r_bin, t1_bin, t2_bin)
-
-    def test_repr(self):
-        max_r = 5.23
-        nbins = 10
-        pmft = freud.pmft.PMFTR12(max_r, nbins)
-        self.assertEqual(str(pmft), str(eval(repr(pmft))))
 
     def test_points_ne_query_points(self):
         r_max = 2.3
@@ -227,13 +225,6 @@ class TestPMFTXYT(TestPMFT, unittest.TestCase):
                 twopi) * self.bins[2] / twopi).astype(np.int32)
         return xy_bins + (angle_bin, )
 
-    def test_repr(self):
-        max_x = 3.0
-        max_y = 4.0
-        nbins = 20
-        pmft = freud.pmft.PMFTXYT(max_x, max_y, nbins)
-        self.assertEqual(str(pmft), str(eval(repr(pmft))))
-
     def test_points_ne_query_points(self):
         x_max = 2.5
         y_max = 2.5
@@ -299,13 +290,6 @@ class TestPMFTXY(TestPMFT, unittest.TestCase):
         return tuple(np.floor((
             rot_r_ij[:2] + limits) * np.asarray(self.bins) /
             (2*limits)).astype(np.int32))
-
-    def test_repr(self):
-        max_x = 3.0
-        max_y = 4.0
-        nbins = 100
-        pmft = freud.pmft.PMFTXY(max_x, max_y, nbins)
-        self.assertEqual(str(pmft), str(eval(repr(pmft))))
 
     def test_repr_png(self):
         L = 16.0
@@ -651,17 +635,6 @@ class TestPMFTXYZ(TestPMFT, unittest.TestCase):
 
         npt.assert_equal(infcheck_noshift, 0)
         npt.assert_equal(infcheck_shift, 1)
-
-    def test_repr(self):
-        max_x = 5.23
-        max_y = 6.23
-        max_z = 7.23
-        nbins_x = 100
-        nbins_y = 110
-        nbins_z = 120
-        pmft = freud.pmft.PMFTXYZ(max_x, max_y, max_z,
-                                  (nbins_x, nbins_y, nbins_z))
-        self.assertEqual(str(pmft), str(eval(repr(pmft))))
 
     def test_query_args_nn(self):
         """Test that using nn based query args works."""
