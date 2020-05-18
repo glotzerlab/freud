@@ -137,7 +137,7 @@ class TestPMFT:
             npt.assert_allclose(pmft.bin_counts, correct_bin_counts,
                                 atol=absoluteTolerance)
 
-            # Test with angles
+            # Test with angles.
             pmft.compute(nq, rowan.geometry.angle(orientations),
                          neighbors=neighbors)
             npt.assert_allclose(pmft.bin_counts, correct_bin_counts,
@@ -647,16 +647,14 @@ class TestPMFTXYZ(TestPMFT, unittest.TestCase):
             npt.assert_allclose(pmft.bin_counts, correct_bin_counts,
                                 atol=absoluteTolerance)
 
+            # Test with resetting.
             pmft.compute(nq, orientations, neighbors=neighbors)
             npt.assert_allclose(pmft.bin_counts, correct_bin_counts,
                                 atol=absoluteTolerance)
 
-            pmft.compute(nq, orientations, neighbors=neighbors)
-            npt.assert_allclose(pmft.bin_counts, correct_bin_counts,
-                                atol=absoluteTolerance)
-
-            # Test without face orientations.
-            pmft.compute(nq, orientations, neighbors=neighbors)
+            # Test with equivalent orientations.
+            pmft.compute(nq, orientations, neighbors=neighbors,
+                         equiv_orientations=[[1, 0, 0, 0]]*2)
             npt.assert_allclose(pmft.bin_counts, correct_bin_counts,
                                 atol=absoluteTolerance)
 
