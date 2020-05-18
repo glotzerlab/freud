@@ -103,7 +103,7 @@ void PMFTXYZ::accumulate(const locality::NeighborQuery* neighbor_query, quat<flo
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
                       [=](const freud::locality::NeighborBond& neighbor_bond) {
                           // create the reference point quaternion
-                          quat<float> ref_q(query_orientations[neighbor_bond.query_point_idx]);
+                          quat<float> query_orientation(query_orientations[neighbor_bond.query_point_idx]);
                           // make sure that the particles are wrapped into the box
                           vec3<float> delta(bondVector(neighbor_bond, neighbor_query, query_points));
 
@@ -112,7 +112,7 @@ void PMFTXYZ::accumulate(const locality::NeighborQuery* neighbor_query, quat<flo
                               // create point vector
                               vec3<float> v(delta);
                               // rotate the vector
-                              v = rotate(conj(ref_q), v);
+                              v = rotate(conj(query_orientation), v);
                               v = rotate(equiv_orientations[k], v);
 
                               m_local_histograms(v.x, v.y, v.z);
