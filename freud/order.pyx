@@ -568,7 +568,7 @@ cdef class Steinhardt(_PairCompute):
             average=',ave' if self.average else '')
 
         return freud.plot.histogram_plot(
-            self.order,
+            self.particle_order,
             title="Steinhardt Order Parameter " + xlabel,
             xlabel=xlabel,
             ylabel=r"Number of particles",
