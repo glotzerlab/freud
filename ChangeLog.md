@@ -18,6 +18,7 @@ and this project adheres to
 * Histogram bin locations are computed in a more numerically stable way.
 * Improved error handling of Cubatic input parameters.
 * PMFT's are now properly normalized such that the pair correlation function tends to unity for an ideal ga.
+* PMFTXYT uses the correct orientations when points and query\_points differ.
 
 ## v2.2.0 - 2020-02-24
 
