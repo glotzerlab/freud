@@ -12,7 +12,7 @@ namespace freud { namespace pmft {
 
 PMFTXYZ::PMFTXYZ(float x_max, float y_max, float z_max, unsigned int n_x, unsigned int n_y, unsigned int n_z,
                  vec3<float> shiftvec)
-    : PMFT(), m_shiftvec(shiftvec)
+    : PMFT(), m_shiftvec(shiftvec), m_num_equiv_orientations(0xffffffff)
 {
     if (n_x < 1)
         throw std::invalid_argument("PMFTXYZ requires at least 1 bin in X.");
@@ -67,11 +67,25 @@ void PMFTXYZ::reduce()
     PMFT::reduce([jacobian_factor](size_t i) { return jacobian_factor; });
 }
 
+void PMFTXYZ::reset()
+{
+    BondHistogramCompute::reset();
+    m_num_equiv_orientations = 0xffffffff;
+}
+
 void PMFTXYZ::accumulate(const locality::NeighborQuery* neighbor_query, quat<float>* query_orientations,
                          vec3<float>* query_points, unsigned int n_query_points,
                          quat<float>* equiv_orientations, unsigned int num_equiv_orientations,
                          const locality::NeighborList* nlist, freud::locality::QueryArgs qargs)
 {
+    if (m_num_equiv_orientations == 0xffffffff)
+    {
+        m_num_equiv_orientations = num_equiv_orientations;
+    }
+    else
+    {
+        throw std::runtime_error("The number of equivalent orientations must be constant while accumulating data into PMFTXYZ.");
+    }
     neighbor_query->getBox().enforce3D();
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
                       [=](const freud::locality::NeighborBond& neighbor_bond) {

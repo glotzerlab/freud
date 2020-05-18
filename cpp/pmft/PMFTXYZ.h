@@ -27,6 +27,11 @@ public:
                     unsigned int num_equiv_orientations, const locality::NeighborList* nlist,
                     freud::locality::QueryArgs qargs);
 
+    //! Reset the PMFT
+    /*! Override the parent method to also reset the number of equivalent orientations.
+     */
+    virtual void reset();
+
 protected:
     //! \internal
     //! helper function to reduce the thread specific arrays into one array
@@ -34,6 +39,7 @@ protected:
 
     float m_jacobian;
     vec3<float> m_shiftvec; //!< vector that points from [0,0,0] to the origin of the pmft
+    unsigned int m_num_equiv_orientations; //!< The number of equivalent orientations used in the current calls to compute.
 };
 
 }; }; // end namespace freud::pmft
