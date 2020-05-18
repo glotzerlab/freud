@@ -40,6 +40,8 @@ Please refer to `Clang Format 6 <http://releases.llvm.org/6.0.1/tools/clang/docs
 When in doubt, run :code:`clang-format -style=file FILE_WITH_YOUR_CODE` in the top directory of the **freud** repository.
 If installing :code:`clang-format` is not a viable option, the :code:`check-style` step of continuous integration (CI) contains the information on the correctness of the style.
 
+Doxygen docstrings should be used for classes, functions, etc.
+
 
 Code Organization
 =================

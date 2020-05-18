@@ -24,9 +24,9 @@ In order to make _freud_ as widely available as possible, we try to keep the num
 If you need a feature present in an external library, follow the following steps:
 
 1. Add to _freud_ itself if it's simple or if other modules would benefit:
-    * Example: Added simple tensor math for CubaticOrderParameter
+    * Example: Added simple tensor math for Cubatic order parameter.
 2. Add via submodule if the code exists externally:
-    * Example: _fsph_
+    * Example: _fsph_ for spherical harmonics in the Steinhardt order parameter.
 3. Contact _freud_ developers to inquire if the library you'd like as a dependency fits in with the overall design/goals
 of _freud_.
 
@@ -48,8 +48,7 @@ into a temporary integration branch during testing.
 
 ## Keep changes to a minimum
 
-Don't go and "fix" spelling errors all over the code, or make lots of whitespace changes along with a new feature.
-If there are spelling errors to fix, propose that in a separate pull request :)
+Avoid whitespace changes and use separate pull requests to propose fixes in spelling, grammar, etc. :)
 
 ## Agree to the contributor agreement
 
@@ -65,8 +64,7 @@ Follow the source conventions defined in the documentation for all code.
 
 ## Document code with comments
 
-Use doxygen header comments for classes, functions, etc.
-Also comment complex sections of code so that other developers can understand them.
+Add comments to code so that other developers can understand it.
 
 ## Compiles without warnings
 
@@ -93,15 +91,9 @@ ensure that it behaves as intended.
 User documentation for the user facing script commands should be documented with docstrings in [Google format](https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html).
 Include examples on using new functionality.
 
-## Document version status
-
-Each user-facing Python class, method, etc... with a docstring should have [versionadded, versionchanged, and
-deprecated sphinx paragraphs](https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#directive-versionadded) so that users will be aware of
-how functionality changes from version to version.
-
 ## Add developer to the credits
 
-Developers need to be credited for their work. Update the [credits documentation](doc/source/credits.rst)
+Developers need to be credited for their work. Update the [credits documentation](doc/source/reference/credits.rst)
 to reference what each developer has contributed to the code.
 
 ## Update Change Log
