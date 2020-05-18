@@ -83,6 +83,35 @@ class TestPMFT:
         pmft.pmft
         pmft.box
 
+    def test_two_particles(self):
+        (box, points), orientations = self.make_two_particle_system()
+
+        correct_bin_counts = np.zeros(self.bins, dtype=np.int32)
+        correct_bin_counts[self.get_bin(
+            points[0], points[1], orientations[0], orientations[1])] = 1
+        correct_bin_counts[self.get_bin(
+            points[1], points[0], orientations[1], orientations[0])] = 1
+        absoluteTolerance = 0.1
+
+        # No angular terms should have entries in the limits array, so this
+        # should work in all cases.
+        r_max = np.sqrt(np.sum(np.asarray(self.limits)**2))
+        test_set = util.make_raw_query_nlist_test_set(
+            box, points, points, 'ball', r_max, 0, True)
+        for nq, neighbors in test_set:
+            pmft = self.make_pmft()
+            pmft.compute(nq, orientations, neighbors=neighbors, reset=False)
+            npt.assert_allclose(pmft.bin_counts, correct_bin_counts,
+                                atol=absoluteTolerance)
+
+            pmft.compute(nq, orientations, neighbors=neighbors)
+            npt.assert_allclose(pmft.bin_counts, correct_bin_counts,
+                                atol=absoluteTolerance)
+
+            pmft.compute(nq, orientations, neighbors=neighbors)
+            npt.assert_allclose(pmft.bin_counts, correct_bin_counts,
+                                atol=absoluteTolerance)
+
 
 class TestPMFTR12(TestPMFT, unittest.TestCase):
     limits = (5.23, )
@@ -99,57 +128,33 @@ class TestPMFTR12(TestPMFT, unittest.TestCase):
         listT2 = np.linspace(0, 2*np.pi, self.bins[2] + 1, dtype=np.float32)
         return (listR, listT1, listT2)
 
-    def test_two_particles(self):
-        L = 16.0
-        box = freud.box.Box.square(L)
+    def make_two_particle_system(self):
+        box = self.get_cubic_box(self.L)
         points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.1, 0.0]],
                           dtype=np.float32)
-        points.flags['WRITEABLE'] = False
-        angles = np.array([0.0, np.pi/2], dtype=np.float32)
-        angles.flags['WRITEABLE'] = False
-        max_r = 5.23
-        nbins_r = 10
-        nbins_t1 = 20
-        nbins_t2 = 30
-        dr = (max_r / float(nbins_r))
-        dT1 = (2.0 * np.pi / float(nbins_t1))
-        dT2 = (2.0 * np.pi / float(nbins_t2))
+        orientations = np.array([[1, 0, 0, 0], [1, 0, 0, 0]], dtype=np.float32)
 
-        # calculation for array idxs
-        def get_bin(query_point, point, query_point_angle, point_angle):
-            r_ij = point - query_point
-            r_bin = np.floor(np.linalg.norm(r_ij) / dr)
-            delta_t1 = np.arctan2(r_ij[1], r_ij[0])
-            delta_t2 = np.arctan2(-r_ij[1], -r_ij[0])
-            t1_bin = np.floor(
-                ((point_angle - delta_t1) % (2. * np.pi)) / dT1)
-            t2_bin = np.floor(
-                ((query_point_angle - delta_t2) % (2. * np.pi)) / dT2)
-            return np.array([r_bin, t1_bin, t2_bin], dtype=np.int32)
+        return (box, points), orientations
 
-        correct_bin_counts = np.zeros(shape=(nbins_r, nbins_t1, nbins_t2),
-                                      dtype=np.int32)
-        bins = get_bin(points[0], points[1], angles[0], angles[1])
-        correct_bin_counts[bins[0], bins[1], bins[2]] = 1
-        bins = get_bin(points[1], points[0], angles[1], angles[0])
-        correct_bin_counts[bins[0], bins[1], bins[2]] = 1
-        absoluteTolerance = 0.1
+    def get_bin(self, query_point, point, query_point_orientation,
+                point_orientation):
+        query_point_angle = rowan.geometry.angle(query_point_orientation)
+        point_angle = rowan.geometry.angle(point_orientation)
 
-        r_max = max_r
-        test_set = util.make_raw_query_nlist_test_set(
-            box, points, points, 'ball', r_max, 0, True)
-        for nq, neighbors in test_set:
-            pmft = freud.pmft.PMFTR12(max_r, (nbins_r, nbins_t1, nbins_t2))
-            pmft.compute(nq, angles, neighbors=neighbors, reset=False)
-            npt.assert_allclose(pmft.bin_counts, correct_bin_counts,
-                                atol=absoluteTolerance)
-            pmft.compute(nq, angles, neighbors=neighbors)
-            npt.assert_allclose(pmft.bin_counts, correct_bin_counts,
-                                atol=absoluteTolerance)
+        r_ij = point - query_point
+        r_bin = np.floor(np.linalg.norm(r_ij) * self.bins[0] / self.limits[0]
+                         ).astype(int)
 
-            pmft.compute(nq, angles, neighbors=neighbors)
-            npt.assert_allclose(pmft.bin_counts, correct_bin_counts,
-                                atol=absoluteTolerance)
+        twopi = 2*np.pi
+
+        delta_t1 = np.arctan2(r_ij[1], r_ij[0])
+        t1_bin = np.floor(((point_angle - delta_t1) % twopi) * self.bins[1] /
+                          twopi).astype(int)
+
+        delta_t2 = np.arctan2(-r_ij[1], -r_ij[0])
+        t2_bin = np.floor(((query_point_angle - delta_t2) % twopi) *
+                          self.bins[2] / twopi).astype(int)
+        return (r_bin, t1_bin, t2_bin)
 
     def test_repr(self):
         max_r = 5.23
@@ -196,57 +201,31 @@ class TestPMFTXYT(TestPMFT, unittest.TestCase):
         listT = np.linspace(0, 2*np.pi, self.bins[2] + 1, dtype=np.float32)
         return (listX, listY, listT)
 
-    def test_two_particles(self):
-        L = 16.0
-        box = freud.box.Box.square(L)
+    def make_two_particle_system(self):
+        box = self.get_cubic_box(self.L)
         points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.1, 0.0]],
                           dtype=np.float32)
-        angles = np.array([0.0, np.pi/2], dtype=np.float32)
-        max_x = 3.6
-        max_y = 4.2
-        nbins_x = 20
-        nbins_y = 30
-        nbins_t = 40
-        dx = (2.0 * max_x / float(nbins_x))
-        dy = (2.0 * max_y / float(nbins_y))
-        dT = (2.0 * np.pi / float(nbins_t))
+        orientations = np.array([[1, 0, 0, 0], [1, 0, 0, 0]], dtype=np.float32)
 
-        # calculation for array idxs
-        def get_bin(query_point, point, query_point_angle, point_angle):
-            r_ij = point - query_point
-            orientation = rowan.from_axis_angle([0, 0, 1], -point_angle)
-            rot_r_ij = rowan.rotate(orientation, r_ij)
-            xy_bins = np.floor((rot_r_ij[:2] + [max_x, max_y]) /
-                               [dx, dy]).astype(np.int32)
-            angle_bin = np.floor(
-                ((query_point_angle - np.arctan2(-r_ij[1], -r_ij[0])) %
-                 (2. * np.pi)) / dT).astype(np.int32)
-            return [xy_bins[0], xy_bins[1], angle_bin]
+        return (box, points), orientations
 
-        correct_bin_counts = np.zeros(shape=(nbins_x, nbins_y, nbins_t),
-                                      dtype=np.int32)
-        bins = get_bin(points[0], points[1], angles[0], angles[1])
-        correct_bin_counts[bins[0], bins[1], bins[2]] = 1
-        bins = get_bin(points[1], points[0], angles[1], angles[0])
-        correct_bin_counts[bins[0], bins[1], bins[2]] = 1
-        absoluteTolerance = 0.1
+    def get_bin(self, query_point, point, query_point_orientation,
+                point_orientation):
 
-        r_max = np.sqrt(max_x**2 + max_y**2)
-        test_set = util.make_raw_query_nlist_test_set(
-            box, points, points, 'ball', r_max, 0, True)
-        for nq, neighbors in test_set:
-            pmft = freud.pmft.PMFTXYT(max_x, max_y,
-                                      (nbins_x, nbins_y, nbins_t))
-            pmft.compute(nq, angles, neighbors=neighbors, reset=False)
-            npt.assert_allclose(pmft.bin_counts, correct_bin_counts,
-                                atol=absoluteTolerance)
-            pmft.compute(nq, angles, neighbors=neighbors)
-            npt.assert_allclose(pmft.bin_counts, correct_bin_counts,
-                                atol=absoluteTolerance)
+        r_ij = point - query_point
+        rot_r_ij = rowan.rotate(query_point_orientation, r_ij)
 
-            pmft.compute(nq, angles, neighbors=neighbors)
-            npt.assert_allclose(pmft.bin_counts, correct_bin_counts,
-                                atol=absoluteTolerance)
+        limits = np.asarray(self.limits)
+        xy_bins = tuple(np.floor((
+            rot_r_ij[:2] + limits) * np.asarray(self.bins[:2]) /
+            (2*limits)).astype(np.int32))
+
+        twopi = 2*np.pi
+        point_angle = rowan.geometry.angle(point_orientation)
+        angle_bin = np.floor(
+            ((point_angle - np.arctan2(-r_ij[1], -r_ij[0])) %
+                twopi) * self.bins[2] / twopi).astype(np.int32)
+        return xy_bins + (angle_bin, )
 
     def test_repr(self):
         max_x = 3.0
@@ -303,47 +282,23 @@ class TestPMFTXY(TestPMFT, unittest.TestCase):
                             dtype=np.float32)
         return (listX, listY)
 
-    def test_two_particles(self):
-        L = 16.0
-        box = freud.box.Box.square(L)
-        points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
+    def make_two_particle_system(self):
+        box = self.get_cubic_box(self.L)
+        points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.1, 0.0]],
                           dtype=np.float32)
-        angles = np.array([0.0, 0.0], dtype=np.float32)
-        max_x = 3.6
-        max_y = 4.2
-        nbins_x = 100
-        nbins_y = 110
-        dx = (2.0 * max_x / float(nbins_x))
-        dy = (2.0 * max_y / float(nbins_y))
+        orientations = np.array([[1, 0, 0, 0], [1, 0, 0, 0]], dtype=np.float32)
 
-        correct_bin_counts = np.zeros(shape=(nbins_x, nbins_y), dtype=np.int32)
+        return (box, points), orientations
 
-        # calculation for array idxs
-        def get_bin(query_point, point):
-            return np.floor((query_point - point + [max_x, max_y, 0]) /
-                            [dx, dy, 1]).astype(np.int32)[:2]
+    def get_bin(self, query_point, point, query_point_orientation,
+                point_orientation):
+        r_ij = point - query_point
+        rot_r_ij = rowan.rotate(query_point_orientation, r_ij)
 
-        bins = get_bin(points[0], points[1])
-        correct_bin_counts[bins[0], bins[1]] = 1
-        bins = get_bin(points[1], points[0])
-        correct_bin_counts[bins[0], bins[1]] = 1
-        absoluteTolerance = 0.1
-
-        r_max = np.sqrt(max_x**2 + max_y**2)
-        test_set = util.make_raw_query_nlist_test_set(
-            box, points, points, 'ball', r_max, 0, True)
-        for nq, neighbors in test_set:
-            pmft = freud.pmft.PMFTXY(max_x, max_y, (nbins_x, nbins_y))
-            pmft.compute(nq, angles, neighbors=neighbors, reset=False)
-            npt.assert_allclose(pmft.bin_counts, correct_bin_counts,
-                                atol=absoluteTolerance)
-            pmft.compute(nq, angles, neighbors=neighbors)
-            npt.assert_allclose(pmft.bin_counts, correct_bin_counts,
-                                atol=absoluteTolerance)
-
-            pmft.compute(nq, angles, neighbors=neighbors)
-            npt.assert_allclose(pmft.bin_counts, correct_bin_counts,
-                                atol=absoluteTolerance)
+        limits = np.asarray(self.limits)
+        return tuple(np.floor((
+            rot_r_ij[:2] + limits) * np.asarray(self.bins) /
+            (2*limits)).astype(np.int32))
 
     def test_repr(self):
         max_x = 3.0
@@ -622,60 +577,56 @@ class TestPMFTXYZ(TestPMFT, unittest.TestCase):
                             dtype=np.float32)
         return (listX, listY, listZ)
 
-    def test_two_particles(self):
-        L = 25.0
-        box = freud.box.Box.cube(L)
-        points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
+    def get_bin(self, query_point, point, query_point_orientation,
+                point_orientation):
+        r_ij = point - query_point
+        rot_r_ij = rowan.rotate(point_orientation, r_ij)
+
+        limits = np.asarray(self.limits)
+        return tuple(np.floor((
+            rot_r_ij + limits) * np.asarray(self.bins) /
+            (2*limits)).astype(np.int32))
+
+    def make_two_particle_system(self):
+        box = self.get_cubic_box(self.L)
+        points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.1, 0.0]],
                           dtype=np.float32)
-        query_orientations = np.array([[1, 0, 0, 0], [1, 0, 0, 0]],
-                                      dtype=np.float32)
-        max_x = 5.23
-        max_y = 6.23
-        max_z = 7.23
-        nbins_x = 100
-        nbins_y = 110
-        nbins_z = 120
-        dx = (2.0 * max_x / float(nbins_x))
-        dy = (2.0 * max_y / float(nbins_y))
-        dz = (2.0 * max_z / float(nbins_z))
+        orientations = np.array([[1, 0, 0, 0], [1, 0, 0, 0]], dtype=np.float32)
 
-        correct_bin_counts = np.zeros(shape=(nbins_x, nbins_y, nbins_z),
-                                      dtype=np.int32)
+        return (box, points), orientations
 
-        # calculation for array idxs
-        def get_bin(query_point, point):
-            return np.floor((query_point - point + [max_x, max_y, max_z]) /
-                            [dx, dy, dz]).astype(np.int32)
+    def test_two_particles(self):
+        """Override base class function to also test equiv orientations."""
+        (box, points), orientations = self.make_two_particle_system()
 
-        bins = get_bin(points[0], points[1])
-        correct_bin_counts[bins[0], bins[1], bins[2]] = 1
-        bins = get_bin(points[1], points[0])
-        correct_bin_counts[bins[0], bins[1], bins[2]] = 1
+        correct_bin_counts = np.zeros(self.bins, dtype=np.int32)
+        correct_bin_counts[self.get_bin(
+            points[0], points[1], orientations[0], orientations[1])] = 1
+        correct_bin_counts[self.get_bin(
+            points[1], points[0], orientations[1], orientations[0])] = 1
         absoluteTolerance = 0.1
 
-        r_max = np.sqrt(max_x**2 + max_y**2 + max_z**2)
+        # No angular terms should have entries in the limits array, so this
+        # should work in all cases.
+        r_max = np.sqrt(np.sum(np.asarray(self.limits)**2))
         test_set = util.make_raw_query_nlist_test_set(
             box, points, points, 'ball', r_max, 0, True)
         for nq, neighbors in test_set:
-            pmft = freud.pmft.PMFTXYZ(
-                max_x, max_y, max_z, (nbins_x, nbins_y, nbins_z))
-            pmft.compute(nq, query_orientations, neighbors=neighbors,
-                         reset=False)
-            npt.assert_allclose(pmft.bin_counts, correct_bin_counts,
-                                atol=absoluteTolerance)
-            pmft.compute(nq, query_orientations, neighbors=neighbors)
+            pmft = self.make_pmft()
+            pmft.compute(nq, orientations, neighbors=neighbors, reset=False)
             npt.assert_allclose(pmft.bin_counts, correct_bin_counts,
                                 atol=absoluteTolerance)
 
-            # Test equiv_orientations, shape (num_equiv_orientations, 4)
-            equiv_orientations = np.array([[1., 0., 0., 0.]])
-            pmft.compute(nq, query_orientations, neighbors=neighbors,
-                         equiv_orientations=equiv_orientations)
+            pmft.compute(nq, orientations, neighbors=neighbors)
+            npt.assert_allclose(pmft.bin_counts, correct_bin_counts,
+                                atol=absoluteTolerance)
+
+            pmft.compute(nq, orientations, neighbors=neighbors)
             npt.assert_allclose(pmft.bin_counts, correct_bin_counts,
                                 atol=absoluteTolerance)
 
             # Test without face orientations.
-            pmft.compute(nq, query_orientations, neighbors=neighbors)
+            pmft.compute(nq, orientations, neighbors=neighbors)
             npt.assert_allclose(pmft.bin_counts, correct_bin_counts,
                                 atol=absoluteTolerance)
 
