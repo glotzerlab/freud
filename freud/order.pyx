@@ -321,8 +321,8 @@ cdef class Hexatic(_PairCompute):
         return self.thisptr.isWeighted()
 
     def __repr__(self):
-        return "freud.order.{cls}(k={k})".format(
-            cls=type(self).__name__, k=self.k)
+        return "freud.order.{cls}(k={k}, weighted={weighted})".format(
+            cls=type(self).__name__, k=self.k, weighted=self.weighted)
 
 
 cdef class Translational(_PairCompute):

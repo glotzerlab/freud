@@ -61,6 +61,30 @@ class TestHexatic(unittest.TestCase):
 
             npt.assert_allclose(hop.particle_order[0], 1. + 0.j, atol=1e-1)
 
+    def test_weighted(self):
+        boxlen = 10
+        N = 500
+        box, points = freud.data.make_random_system(boxlen, N, is2D=True)
+        voro = freud.locality.Voronoi()
+        voro.compute(system=(box, points))
+
+        # Ensure that \psi'_0 is 1
+        hop = freud.order.Hexatic(k=0, weighted=True)
+        hop.compute(system=(box, points), neighbors=voro.nlist)
+        npt.assert_allclose(hop.particle_order, 1., atol=1e-6)
+
+        # Ensure that \psi'_1 is 0
+        hop = freud.order.Hexatic(k=1, weighted=True)
+        hop.compute(system=(box, points), neighbors=voro.nlist)
+        npt.assert_allclose(np.absolute(hop.particle_order), 0., atol=1e-4)
+
+        # Ensure that \psi'_k is between 0 and 1
+        for k in range(2, 10):
+            hop = freud.order.Hexatic(k=1, weighted=True)
+            hop.compute(system=(box, points), neighbors=voro.nlist)
+            order = np.absolute(hop.particle_order)
+            assert (order >= 0).all() and (order <= 1).all()
+
     def test_3d_box(self):
         boxlen = 10
         N = 500
@@ -71,6 +95,9 @@ class TestHexatic(unittest.TestCase):
 
     def test_repr(self):
         hop = freud.order.Hexatic(3)
+        self.assertEqual(str(hop), str(eval(repr(hop))))
+
+        hop = freud.order.Hexatic(7, weighted=True)
         self.assertEqual(str(hop), str(eval(repr(hop))))
 
 
