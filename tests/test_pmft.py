@@ -23,7 +23,7 @@ class TestPMFT:
     @classmethod
     def make_pmft(cls):
         """Create a PMFT object."""
-        return cls.cl(*cls.limits, bins=cls.bins)
+        return cls.pmft_cls(*cls.limits, bins=cls.bins)
 
     def test_box(self):
         (box, points), orientations = self.make_two_particle_system()
@@ -119,7 +119,7 @@ class TestPMFTR12(TestPMFT, unittest.TestCase):
     bins = (10, 20, 30)
     ndim = 2
     L = 16
-    cl = freud.pmft.PMFTR12
+    pmft_cls = freud.pmft.PMFTR12
 
     def get_bin_edges(self):
         # make sure the radius for each bin is generated correctly
@@ -186,7 +186,7 @@ class TestPMFTXYT(TestPMFT, unittest.TestCase):
     bins = (20, 30, 40)
     ndim = 2
     L = 16
-    cl = freud.pmft.PMFTXYT
+    pmft_cls = freud.pmft.PMFTXYT
 
     def get_bin_edges(self):
         listX = np.linspace(-self.limits[0], self.limits[0], self.bins[0] + 1,
@@ -261,7 +261,7 @@ class TestPMFTXY(TestPMFT, unittest.TestCase):
     bins = (100, 110)
     ndim = 2
     L = 16
-    cl = freud.pmft.PMFTXY
+    pmft_cls = freud.pmft.PMFTXY
 
     def get_bin_edges(self):
         listX = np.linspace(-self.limits[0], self.limits[0], self.bins[0] + 1,
@@ -547,7 +547,7 @@ class TestPMFTXYZ(TestPMFT, unittest.TestCase):
     bins = (100, 110, 120)
     ndim = 3
     L = 25
-    cl = freud.pmft.PMFTXYZ
+    pmft_cls = freud.pmft.PMFTXYZ
 
     def get_bin_edges(self):
         listX = np.linspace(-self.limits[0], self.limits[0], self.bins[0] + 1,
