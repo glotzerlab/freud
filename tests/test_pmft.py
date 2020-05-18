@@ -114,7 +114,18 @@ class TestPMFT:
         self.assertEqual(str(pmft), str(eval(repr(pmft))))
 
 
-class TestPMFTR12(TestPMFT, unittest.TestCase):
+class TestPMFT2D(TestPMFT):
+    def test_2d_box_3d_points(self):
+        """Test that points with z != 0 fail if the box is 2D."""
+        (box, points), orientations = self.make_two_particle_system()
+        points[:, 2] = 1
+        pmft = self.make_pmft()
+        with self.assertRaises(ValueError):
+            pmft.compute((box, points), orientations,
+                         neighbors={'mode': 'nearest', 'num_neighbors': 1})
+
+
+class TestPMFTR12(TestPMFT2D, unittest.TestCase):
     limits = (5.23, )
     bins = (10, 20, 30)
     ndim = 2
@@ -181,7 +192,7 @@ class TestPMFTR12(TestPMFT, unittest.TestCase):
             self.assertEqual(len(np.unique(pmft.pmft)), 3)
 
 
-class TestPMFTXYT(TestPMFT, unittest.TestCase):
+class TestPMFTXYT(TestPMFT2D, unittest.TestCase):
     limits = (3.6, 4.2)
     bins = (20, 30, 40)
     ndim = 2
@@ -256,7 +267,7 @@ class TestPMFTXYT(TestPMFT, unittest.TestCase):
             self.assertEqual(len(np.unique(pmft.pmft)), 2)
 
 
-class TestPMFTXY(TestPMFT, unittest.TestCase):
+class TestPMFTXY(TestPMFT2D, unittest.TestCase):
     limits = (3.6, 4.2)
     bins = (100, 110)
     ndim = 2
@@ -365,20 +376,6 @@ class TestPMFTXY(TestPMFT, unittest.TestCase):
             [[0, 0, 0],
              [0, 0, 0],
              [0, 1, 0]])
-
-    def test_2d_box_3d_points(self):
-        """Test that points with z != 0 fail if the box is 2D."""
-        L = 10  # Box Dimensions
-
-        box = freud.box.Box.square(L)  # Initialize Box
-        points = np.array([[0, 0, 0], [0, 1, 1]])
-        angles = np.zeros(points.shape[0])
-        max_width = 3
-        nbins = 3
-        pmft = freud.pmft.PMFTXY(max_width, max_width, nbins)
-        with self.assertRaises(ValueError):
-            pmft.compute((box, points), angles,
-                         neighbors={'mode': 'nearest', 'num_neighbors': 1})
 
     def test_quaternions(self):
         """Test that using quaternions as angles works."""
