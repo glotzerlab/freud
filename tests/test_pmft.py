@@ -9,6 +9,9 @@ import rowan
 from test_managedarray import TestManagedArray
 
 
+TWO_PI = 2*np.pi
+
+
 class TestPMFT:
     @classmethod
     def get_cubic_box(cls, L, ndim=None):
@@ -157,15 +160,13 @@ class TestPMFTR12(TestPMFT2D, unittest.TestCase):
         r_bin = np.floor(np.linalg.norm(r_ij) * self.bins[0] / self.limits[0]
                          ).astype(int)
 
-        twopi = 2*np.pi
-
         delta_t1 = np.arctan2(r_ij[1], r_ij[0])
-        t1_bin = np.floor(((point_angle - delta_t1) % twopi) * self.bins[1] /
-                          twopi).astype(int)
+        t1_bin = np.floor(((point_angle - delta_t1) % TWO_PI) * self.bins[1] /
+                          TWO_PI).astype(int)
 
         delta_t2 = np.arctan2(-r_ij[1], -r_ij[0])
-        t2_bin = np.floor(((query_point_angle - delta_t2) % twopi) *
-                          self.bins[2] / twopi).astype(int)
+        t2_bin = np.floor(((query_point_angle - delta_t2) % TWO_PI) *
+                          self.bins[2] / TWO_PI).astype(int)
         return (r_bin, t1_bin, t2_bin)
 
     def test_points_ne_query_points(self):
@@ -226,11 +227,10 @@ class TestPMFTXYT(TestPMFT2D, unittest.TestCase):
             rot_r_ij[:2] + limits) * np.asarray(self.bins[:2]) /
             (2*limits)).astype(np.int32))
 
-        twopi = 2*np.pi
         point_angle = rowan.geometry.angle(point_orientation)
         angle_bin = np.floor(
             ((point_angle - np.arctan2(-r_ij[1], -r_ij[0])) %
-                twopi) * self.bins[2] / twopi).astype(np.int32)
+                TWO_PI) * self.bins[2] / TWO_PI).astype(np.int32)
         return xy_bins + (angle_bin, )
 
     def test_points_ne_query_points(self):
