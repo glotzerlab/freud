@@ -26,10 +26,7 @@ class TestPMFT:
         return cls.cl(*cls.limits, bins=cls.bins)
 
     def test_box(self):
-        box = self.get_cubic_box(self.L)
-        points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
-                          dtype=np.float32)
-        orientations = np.array([[1, 0, 0, 0], [1, 0, 0, 0]], dtype=np.float32)
+        (box, points), orientations = self.make_two_particle_system()
         pmft = self.make_pmft()
         pmft.compute((box, points), orientations)
         npt.assert_equal(pmft.box, self.get_cubic_box(self.L))
