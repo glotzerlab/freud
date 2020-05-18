@@ -6,6 +6,7 @@ import sys
 import platform
 import glob
 import multiprocessing
+import multiprocessing.pool
 import logging
 import argparse
 import numpy as np
@@ -187,9 +188,14 @@ directives = {
 }
 macros = [
     ('NPY_NO_DEPRECATED_API', 'NPY_1_10_API_VERSION'),
-    ('VOROPP_VERBOSE', '1'),     # To keep voro++ quieter
-    ('_USE_MATH_DEFINES', '1'),  # Force Windows to define M_PI in <cmath>
+    ('VOROPP_VERBOSE', '1'),  # Keeps voro++ outputs quiet
 ]
+
+if platform.system() == 'Windows':
+    macros.extend([
+        ('_USE_MATH_DEFINES', '1'),  # Force Windows to define M_PI in <cmath>
+        ('NOMINMAX', '1'),  # Prevent Windows from defining min/max as macros
+    ])
 
 # Decide whether or not to compile with coverage support
 if args.use_coverage:
@@ -432,6 +438,7 @@ try:
             long_description_content_type='text/x-rst',
             url='https://github.com/glotzerlab/freud',
             packages=['freud'],
+            zip_safe=False,
             python_requires='>=3.5',
             install_requires=[
                 'cython>=0.29',
@@ -479,7 +486,7 @@ except: # noqa
     traceback.print_exc(limit=1)
 else:
     if args.print_warnings:
-        sys.stderr.write("Printing warnings: ")
+        sys.stderr.write("Printing warnings:\n")
         sys.stderr.write(tfile.read().decode('utf-8'))
     else:
         out = tfile.read().decode('utf-8')

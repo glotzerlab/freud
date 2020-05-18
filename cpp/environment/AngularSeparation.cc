@@ -1,14 +1,9 @@
-// Copyright (c) 2010-2019 The Regents of the University of Michigan
+// Copyright (c) 2010-2020 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include "AngularSeparation.h"
 #include "NeighborComputeFunctional.h"
 #include "utils.h"
-
-#if defined _WIN32
-#undef min // std::min clashes with a Windows header
-#undef max // std::max clashes with a Windows header
-#endif
 
 /*! \file AngularSeparation.cc
     \brief Compute the angular separation for each particle.

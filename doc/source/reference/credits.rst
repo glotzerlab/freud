@@ -99,6 +99,8 @@ Bradley Dice - **Lead developer**
 * Implemented smarter heuristics in Voronoi for voro++ block sizes, resulting in significant performance gains for large systems.
 * Corrected calculation of neighbor distances in the Voronoi NeighborList.
 * Added finite tolerance to ensure stability of 2D Voronoi NeighborList computations.
+* Improved stability of Histogram bin calculations.
+* Improved error handling of Cubatic input parameters.
 
 Eric Harper, University of Michigan - **Former lead developer**
 
@@ -255,6 +257,7 @@ Matthew Palathingal
 Kelly Wang
 
 * Enabled NeighborList indexing.
+* Added methods ``compute_distances`` and ``compute_all_distances`` to Box.
 
 Yezhi Jin
 

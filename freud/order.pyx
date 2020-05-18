@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2019 The Regents of the University of Michigan
+# Copyright (c) 2010-2020 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 R"""
@@ -50,28 +50,13 @@ cdef class Cubatic(_Compute):
             (Default value = :code:`None`).
     """  # noqa: E501
     cdef freud._order.Cubatic * thisptr
-    cdef n_replicates
-    cdef seed
 
     def __cinit__(self, t_initial, t_final, scale, n_replicates=1, seed=None):
-        # run checks
-        if (t_final >= t_initial):
-            raise ValueError("t_final must be less than t_initial")
-        if (scale >= 1.0):
-            raise ValueError("scale must be less than 1")
         if seed is None:
             seed = int(time.time())
-        elif not isinstance(seed, int):
-            try:
-                seed = int(seed)
-            except (OverflowError, TypeError, ValueError):
-                logger.warning("The supplied seed could not be used. "
-                               "Using current time as seed.")
-                seed = int(time.time())
 
         self.thisptr = new freud._order.Cubatic(
             t_initial, t_final, scale, n_replicates, seed)
-        self.n_replicates = n_replicates
 
     def __dealloc__(self):
         del self.thisptr
@@ -107,6 +92,11 @@ cdef class Cubatic(_Compute):
     def scale(self):
         """float: The scale."""
         return self.thisptr.getScale()
+
+    @property
+    def n_replicates(self):
+        """unsigned int: Number of replicate simulated annealing runs."""
+        return self.thisptr.getNReplicates()
 
     @property
     def seed(self):

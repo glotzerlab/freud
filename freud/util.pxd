@@ -1,16 +1,14 @@
-# Copyright (c) 2010-2019 The Regents of the University of Michigan
+# Copyright (c) 2010-2020 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 # Directly expose vec3 and quat since they're ubiquitous in constructing
 # arguments to interface with the C++ implementations of all methods.
-import freud
 import numpy as np
 
 from freud._util cimport vec3, quat, ManagedArray, PyArray_SetBaseObject
 from cpython cimport Py_INCREF
 from libcpp.complex cimport complex
 from cython.operator cimport dereference
-from libcpp.memory cimport shared_ptr
 from libcpp cimport bool
 
 cimport numpy as np

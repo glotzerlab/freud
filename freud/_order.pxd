@@ -1,12 +1,11 @@
-# Copyright (c) 2010-2019 The Regents of the University of Michigan
+# Copyright (c) 2010-2020 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 from libcpp cimport bool
 from freud.util cimport vec3, quat
-from libcpp.memory cimport shared_ptr
 from libcpp.complex cimport complex
 from libcpp.vector cimport vector
-from libcpp.map cimport map
+
 cimport freud._box
 cimport freud._locality
 cimport freud.util
@@ -26,10 +25,11 @@ cdef extern from "Cubatic.h" namespace "freud::order":
         const freud.util.ManagedArray[float] &getParticleOrderParameter() const
         const freud.util.ManagedArray[float] &getGlobalTensor() const
         const freud.util.ManagedArray[float] &getCubaticTensor() const
+        quat[float] getCubaticOrientation() const
         float getTInitial() const
         float getTFinal() const
         float getScale() const
-        quat[float] getCubaticOrientation() const
+        unsigned int getNReplicates() const
         unsigned int getSeed() const
 
 

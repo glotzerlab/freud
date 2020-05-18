@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2019 The Regents of the University of Michigan
+// Copyright (c) 2010-2020 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include "RotationalAutocorrelation.h"
@@ -9,12 +9,6 @@
 /*! \file RotationalAutocorrelation.cc
     \brief Implements the RotationalAutocorrelation class.
 */
-
-// Avoid known stdlib clashes with Windows headers.
-#if defined _WIN32
-#undef min
-#undef max
-#endif
 
 namespace freud { namespace order {
 

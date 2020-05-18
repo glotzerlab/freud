@@ -58,6 +58,24 @@ Here, we provide an example that reads data from a DCD file.
     for frame in reader:
         rdf.compute(system=frame, reset=False)
 
+.. _mdtrajreaders:
+
+MDTraj Readers
+--------------
+
+The `MDTraj <http://mdtraj.org/>`__ package can read `many popular trajectory formats <http://mdtraj.org/latest/load_functions.html#format-specific-loading-functions>`__, including common output formats from AMBER, MSMBuilder2, Protein Data Bank files, OpenMM, Tinker, Gromacs, LAMMPS, HOOMD-blue, and more.
+
+To use data read with MDTraj in freud, a system-like object must be manually constructed because it does not have a "frame-like" object containing information about the periodic box and particle positions (both quantities are provided as arrays over the whole trajectory).
+Here, we provide an example of how to construct a system:
+
+.. code-block:: python
+
+    import mdtraj
+    traj = mdtraj.load_xtc('output/prd.xtc', top='output/prd.gro')
+
+    for system in zip(np.asarray(traj.unitcell_vectors), traj.xyz):
+        rdf.compute(system=system, reset=False)
+
 .. _garnetttrajectories:
 
 garnett Trajectories

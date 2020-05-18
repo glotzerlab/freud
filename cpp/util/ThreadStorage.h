@@ -2,7 +2,7 @@
 #define THREADSTORAGE_H
 
 #include "ManagedArray.h"
-#include <tbb/tbb.h>
+#include <tbb/enumerable_thread_specific.h>
 #include <vector>
 
 namespace freud { namespace util {
