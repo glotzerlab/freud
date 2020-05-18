@@ -246,7 +246,7 @@ cdef class Hexatic(_PairCompute):
     The parameter :math:`k` governs the symmetry of the order parameter and
     typically matches the number of neighbors to be found for each particle.
     The quantity :math:`\phi_{ij}` is the angle between the
-    vector :math:`r_{ij}` and :math:`\left( 1,0 \right)`.
+    vector :math:`r_{ij}` and :math:`\left(1, 0\right)`.
 
     .. note::
         **2D:** :class:`freud.order.Hexatic` is only defined for 2D systems.
@@ -258,8 +258,8 @@ cdef class Hexatic(_PairCompute):
         weighted (bool, optional):
             Determines whether to use neighbor weights in the computation of
             spherical harmonics over neighbors. If enabled and used with a
-            Voronoi neighbor list, this results in the Minkowski Structure
-            Metrics :math:`q'_l`. (Default value = :code:`False`)
+            Voronoi neighbor list, this results in the 2D Minkowski Structure
+            Metrics :math:`\psi'_k`. (Default value = :code:`False`)
     """  # noqa: E501
     cdef freud._order.Hexatic * thisptr
 
@@ -443,7 +443,7 @@ cdef class Steinhardt(_PairCompute):
         weighted (bool, optional):
             Determines whether to use neighbor weights in the computation of
             spherical harmonics over neighbors. If enabled and used with a
-            Voronoi neighbor list, this results in the Minkowski Structure
+            Voronoi neighbor list, this results in the 3D Minkowski Structure
             Metrics :math:`q'_l`. (Default value = :code:`False`)
         wl_normalize (bool, optional):
             Determines whether to normalize the :math:`w_l` version
