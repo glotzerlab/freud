@@ -12,6 +12,34 @@ from test_managedarray import TestManagedArray
 TWO_PI = 2*np.pi
 
 
+def build_radii(bin_centers):
+    """Given bin centers in Cartesian coordinates, calculate distances from the
+    origin."""
+    radii = np.zeros([len(b) for b in bin_centers])
+    for i, centers in enumerate(bin_centers):
+        sl = tuple(slice(None, None, None) if i == j else None
+                   for j in range(len(bin_centers)))
+        radii += (centers**2)[sl]
+    return np.sqrt(radii)
+
+
+def pmft_to_rdf(pmft, radii):
+    """Convert a PMFT to an RDF."""
+    r_max = np.sqrt(sum(x[1]**2 for x in pmft.bounds))
+    bin_edges = np.linspace(0, r_max, 100)
+    bin_centers = 0.5 * (bin_edges[1:] + bin_edges[:-1])
+    rdf = np.zeros_like(bin_centers)
+
+    with warnings.catch_warnings():
+        # Ignore div by 0 and empty slice warnings
+        warnings.simplefilter("ignore", category=RuntimeWarning)
+        for i, (left, right) in enumerate(zip(bin_edges[:-1], bin_edges[1:])):
+            subset = np.where(np.logical_and(left < radii, radii < right))
+            rdf[i] = np.mean(pmft._pcf[subset])
+
+    return rdf
+
+
 class TestPMFT:
     @classmethod
     def get_cubic_box(cls, L, ndim=None):
@@ -118,6 +146,38 @@ class TestPMFT:
     def test_repr(self):
         pmft = self.make_pmft()
         self.assertEqual(str(pmft), str(eval(repr(pmft))))
+
+    def test_pcf(self):
+        """Verify that integrating a PMFT to generate an RDF for an ideal gas
+        produces approximately unity everywhere."""
+
+        def get_pmft_bydist(r_max, nbins):
+            """Get a PMFT with a specified radial cutoff."""
+            limit = np.sqrt(r_max**2/self.ndim)
+            return self.pmft_cls(*(limit, )*len(self.limits), bins=nbins)
+
+        L = 10
+        N = 2500
+        nbins = 100
+        r_max = 3
+
+        system = freud.data.make_random_system(L, N, self.ndim == 2, seed=3)
+        orientations = rowan.random.rand(N) if self.ndim == 3 else \
+            np.random.rand(N)*2*np.pi
+
+        pmft = get_pmft_bydist(r_max, nbins)
+        pmft.compute(system, orientations)
+
+        def get_bin_centers(pmft):
+            if len(self.limits) > 1:
+                return pmft.bin_centers[:len(self.limits)]
+            else:
+                return [pmft.bin_centers[0]]
+
+        radii = build_radii(get_bin_centers(pmft))
+        rdf = pmft_to_rdf(pmft, radii)
+
+        assert np.isclose(np.nanmean(rdf), 1, rtol=1e-2, atol=1e-2)
 
 
 class TestPMFT2D(TestPMFT):
