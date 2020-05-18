@@ -90,9 +90,8 @@ def _gen_angle_array(orientations, shape):
     orientations. It performs the conversion of quaternion inputs if needed and
     ensures that singleton arrays are treated correctly."""
 
-    return freud.util._convert_array(
-        np.atleast_1d(_quat_to_z_angle(orientations.squeeze(), shape[0])),
-        shape=shape)
+    return freud.util._convert_array(np.atleast_1d(_quat_to_z_angle(
+        np.asarray(orientations).squeeze(), shape[0])), shape=shape)
 
 
 cdef class _PMFT(_SpatialHistogram):
