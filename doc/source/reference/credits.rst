@@ -101,6 +101,7 @@ Bradley Dice - **Lead developer**
 * Added finite tolerance to ensure stability of 2D Voronoi NeighborList computations.
 * Improved stability of Histogram bin calculations.
 * Improved error handling of Cubatic input parameters.
+* Added 2D Minkowski Structure Metrics to Hexatic, enabled by using ``weighted=True`` along with a Voronoi NeighborList.
 
 Eric Harper, University of Michigan - **Former lead developer**
 
