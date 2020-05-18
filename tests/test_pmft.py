@@ -651,11 +651,14 @@ class TestPMFTXYZ(TestPMFT, unittest.TestCase):
             pmft.compute(nq, orientations, neighbors=neighbors)
             npt.assert_allclose(pmft.bin_counts, correct_bin_counts,
                                 atol=absoluteTolerance)
+            orig_pmft = pmft.pmft
 
             # Test with equivalent orientations.
             pmft.compute(nq, orientations, neighbors=neighbors,
                          equiv_orientations=[[1, 0, 0, 0]]*2)
-            npt.assert_allclose(pmft.bin_counts, correct_bin_counts,
+            npt.assert_allclose(pmft.bin_counts, 2*correct_bin_counts,
+                                atol=absoluteTolerance)
+            npt.assert_allclose(pmft.pmft, orig_pmft,
                                 atol=absoluteTolerance)
 
     def test_shift_two_particles_dead_pixel(self):
