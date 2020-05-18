@@ -32,9 +32,33 @@ logger = logging.getLogger(__name__)
 np.import_array()
 
 cdef class Cubatic(_Compute):
-    R"""Compute the cubatic order parameter :cite:`Haji_Akbari_2015` for a system of
-    particles using simulated annealing instead of Newton-Raphson root finding.
+    R"""Compute the cubatic order parameter :cite:`Haji_Akbari_2015`.
 
+    A cubatic phase is characterized by particles exhibiting orientational 
+    similarity without necessarily having long-range translational order. The 
+    scalar value used to quantify the degree of cubatic order in a system is 
+    found by optimizing the scalar product of the orientational order estimator,  
+    :math:`\overline{M}=\frac{1}{n}\sum_{i=1}^{n}M(H_{4_{i}})`, averaged over all
+    particles in the system, with the ensemble average of the tensorial function 
+    :math:`m(\Omega)=\langle M(H_4) \rangle_0`. Explicitly: 
+
+    .. math::
+      \min_{\Omega}\overline{M} \circ m_{\Omega}
+
+    Here, :math:`H_4` is the so called strong orientational coordinate of a cube, 
+    expressed in terms of Cartesian basis vectors. :math:`H_4` is a rank 4 
+    homogeneous tensor which is invariant under orthogonal transformations of 
+    the basis vectors, and which maps directly onto a given set of vectors 
+    describing cubes orientation. :math:`\Omega` defines the geometric features
+    which characterize the cubatic phase, and is comprised of the vectors
+    :math:`M`, :math:`\overline{M}`, :math:`m`. A distribution function 
+    describing the the system's orientational phase, :math:`p_0(H_4;\Omega)`,
+    can then be constructed using this orientational coordinate. Thus, solving 
+    the optimization problem indicated above yields a scalar value which 
+    quantifies the degree of cubatic ordering for the system. Freud solves this 
+    optimization problem using simulated annealing as opposed to the 
+    Newton-Raphson root finding method.  
+   
     Args:
         t_initial (float):
             Starting temperature.
