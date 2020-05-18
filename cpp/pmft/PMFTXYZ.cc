@@ -61,10 +61,21 @@ PMFTXYZ::PMFTXYZ(float x_max, float y_max, float z_max, unsigned int n_x, unsign
     m_local_histograms = BondHistogram::ThreadLocalHistogram(m_histogram);
 }
 
+// Almost identical to the parent method, except that the normalization factor
+// in this class also includes the number of equivalent orientations.
 void PMFTXYZ::reduce()
 {
+    m_pcf_array.prepare(m_histogram.shape());
+    m_histogram.prepare(m_histogram.shape());
+
+    float inv_num_dens = m_box.getVolume() / (float) m_n_query_points;
+    float norm_factor = (float) 1.0 / ((float) m_frame_counter * (float) m_n_points * (float) m_num_equiv_orientations);
+    float prefactor = inv_num_dens * norm_factor;
+
     float jacobian_factor = (float) 1.0 / m_jacobian;
-    PMFT::reduce([jacobian_factor](size_t i) { return jacobian_factor; });
+    m_histogram.reduceOverThreadsPerBin(m_local_histograms, [this, &prefactor, &jacobian_factor](size_t i) {
+        m_pcf_array[i] = m_histogram[i] * prefactor * jacobian_factor;
+    });
 }
 
 void PMFTXYZ::reset()
@@ -78,11 +89,13 @@ void PMFTXYZ::accumulate(const locality::NeighborQuery* neighbor_query, quat<flo
                          quat<float>* equiv_orientations, unsigned int num_equiv_orientations,
                          const locality::NeighborList* nlist, freud::locality::QueryArgs qargs)
 {
+    // Set the number of equivalent orientations the first time we compute
+    // (after a reset), then error on subsequent calls if it changes.
     if (m_num_equiv_orientations == 0xffffffff)
     {
         m_num_equiv_orientations = num_equiv_orientations;
     }
-    else
+    else if (m_num_equiv_orientations != num_equiv_orientations)
     {
         throw std::runtime_error("The number of equivalent orientations must be constant while accumulating data into PMFTXYZ.");
     }
