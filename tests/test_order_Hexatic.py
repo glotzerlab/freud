@@ -80,12 +80,30 @@ class TestHexatic(unittest.TestCase):
         hop.compute(system=(box, points), neighbors=voro.nlist)
         npt.assert_allclose(np.absolute(hop.particle_order), 0., atol=1e-4)
 
-        # Ensure that \psi'_k is between 0 and 1
-        for k in range(2, 10):
-            hop = freud.order.Hexatic(k=1, weighted=True)
+        for k in range(0, 12):
+            # Ensure that \psi'_k is between 0 and 1
+            hop = freud.order.Hexatic(k=k, weighted=True)
             hop.compute(system=(box, points), neighbors=voro.nlist)
             order = np.absolute(hop.particle_order)
             assert (order >= 0).all() and (order <= 1).all()
+
+            # Perform an explicit calculation in NumPy to verify results
+            psi_k_weighted = np.zeros(len(points), dtype=np.complex)
+            total_weights = np.zeros(len(points))
+            rijs = box.wrap(points[voro.nlist.point_indices] -
+                            points[voro.nlist.query_point_indices])
+            thetas = np.arctan2(rijs[:, 1], rijs[:, 0])
+            total_weights, _ = np.histogram(
+                voro.nlist.query_point_indices,
+                bins=len(points),
+                weights=voro.nlist.weights)
+            psi_k_weighted, _ = np.histogram(
+                voro.nlist.query_point_indices,
+                bins=len(points),
+                weights=voro.nlist.weights * np.exp(thetas * k * 1.0j))
+            psi_k_weighted /= total_weights
+
+            npt.assert_allclose(hop.particle_order, psi_k_weighted, atol=1e-5)
 
     def test_weighted_square(self):
         unitcell = freud.data.UnitCell.square()
