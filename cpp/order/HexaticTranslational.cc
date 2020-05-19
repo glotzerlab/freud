@@ -53,8 +53,8 @@ void Hexatic::compute(const freud::locality::NeighborList* nlist,
 {
     computeGeneral(
         [this](const vec3<float>& delta) {
-            const float psi_ij = std::atan2(delta.y, delta.x);
-            return std::exp(std::complex<float>(0, m_k * psi_ij));
+            const float theta_ij = std::atan2(delta.y, delta.x);
+            return std::exp(std::complex<float>(0, m_k * theta_ij));
         },
         nlist, points, qargs);
 }
