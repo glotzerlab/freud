@@ -433,11 +433,10 @@ try:
         setup(
             name='freud-analysis',
             version=version,
+            packages=['freud'],
             description=desc,
             long_description=readme,
             long_description_content_type='text/x-rst',
-            url='https://github.com/glotzerlab/freud',
-            download_url='https://pypi.org/project/freud-analysis/',
             keywords=('simulation analysis molecular dynamics soft matter '
                       'particle system computational physics'),
             classifiers=[
@@ -453,18 +452,25 @@ try:
                 "Programming Language :: Python :: 3.7",
                 "Programming Language :: Python :: 3.8",
             ],
-            packages=['freud'],
             zip_safe=False,
             maintainer='freud Developers',
             maintainer_email='freud-developers@umich.edu',
             # See documentation credits for current and former lead developers
             author='Vyas Ramasubramani et al.',
             author_email='vramasub@umich.edu',
+            url='https://github.com/glotzerlab/freud',
+            download_url='https://pypi.org/project/freud-analysis/',
+            project_urls={
+                'Homepage': 'https://github.com/glotzerlab/freud',
+                'Documentation': 'https://freud.readthedocs.io/',
+                'Source Code': 'https://github.com/glotzerlab/freud',
+                'Issue Tracker': 'https://github.com/glotzerlab/freud/issues',
+            },
             python_requires='>=3.5',
             install_requires=[
                 'cython>=0.29',
                 'numpy>=1.14',
-                'rowan>=1.2'
+                'rowan>=1.2',
             ],
             tests_require=[
                 'gsd>=2.0',
