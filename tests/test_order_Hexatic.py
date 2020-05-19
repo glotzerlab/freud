@@ -1,8 +1,10 @@
 import numpy.testing as npt
 import numpy as np
 import freud
+import matplotlib
 import unittest
 import util
+matplotlib.use('agg')
 
 
 class TestHexatic(unittest.TestCase):
@@ -99,6 +101,19 @@ class TestHexatic(unittest.TestCase):
 
         hop = freud.order.Hexatic(7, weighted=True)
         self.assertEqual(str(hop), str(eval(repr(hop))))
+
+    def test_repr_png(self):
+        boxlen = 10
+        N = 500
+        box, points = freud.data.make_random_system(boxlen, N, is2D=True)
+        hop = freud.order.Hexatic()
+        with self.assertRaises(AttributeError):
+            hop.plot()
+        self.assertEqual(hop._repr_png_(), None)
+
+        hop.compute((box, points))
+        hop._repr_png_()
+        hop.plot()
 
 
 if __name__ == '__main__':

@@ -1,12 +1,13 @@
 import numpy as np
 import numpy.testing as npt
 import freud
+import matplotlib
 import unittest
 import warnings
 import util
 import rowan
-
 from test_managedarray import TestManagedArray
+matplotlib.use('agg')
 
 
 class TestPMFTR12(unittest.TestCase):
