@@ -77,7 +77,7 @@ or conda:
 <https://glotzerlab.engin.umich.edu/downloads/glotzerlab>`__.  If you need more detailed
 information or wish to install **freud** from source, please refer to the
 `Installation Guide
-<https://freud.readthedocs.io/en/stable/installation.html>`__ to compile
+<https://freud.readthedocs.io/en/stable/gettingstarted/installation.html>`__ to compile
 **freud** from source.
 
 
