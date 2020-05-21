@@ -24,9 +24,9 @@ In order to make _freud_ as widely available as possible, we try to keep the num
 If you need a feature present in an external library, follow the following steps:
 
 1. Add to _freud_ itself if it's simple or if other modules would benefit:
-    * Example: Added simple tensor math for Cubatic order parameter.
+    * Example: Added simple tensor math for cubatic order parameter.
 2. Add via submodule if the code exists externally:
-    * Example: _fsph_ for spherical harmonics in the Steinhardt order parameter.
+    * Example: _fsph_ for spherical harmonics.
 3. Contact _freud_ developers to inquire if the library you'd like as a dependency fits in with the overall design/goals
 of _freud_.
 
