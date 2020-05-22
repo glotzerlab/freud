@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def compute_3d(box_size, width, points, r_max, periodic=True):
     """
     Does voxelization by doing an aperiodic fft of the sphere over the
@@ -28,7 +29,8 @@ def compute_3d(box_size, width, points, r_max, periodic=True):
     new_width = 2*buf_size + width
 
     # make the grid with the points on it
-    arr = _put_points_on_grid(points, new_width, box_size, width, buf_size, ndim=3)
+    arr = _put_points_on_grid(points, new_width, box_size,
+                              width, buf_size, ndim=3)
 
     # make the sphere
     sphere = _make_sphere_3d(new_width, eff_rad)
@@ -47,6 +49,7 @@ def compute_3d(box_size, width, points, r_max, periodic=True):
     # set the overlaps to 1, instead of larger integers
     np.clip(image, 0, 1, out=image)
     return image
+
 
 def compute_2d(box_size, width, points, r_max, periodic=True):
     """
@@ -76,7 +79,8 @@ def compute_2d(box_size, width, points, r_max, periodic=True):
     new_width = 2*buf_size + width
 
     # make the grid with the points on it
-    arr = _put_points_on_grid(points, new_width, box_size, width, buf_size, ndim=2)
+    arr = _put_points_on_grid(points, new_width, box_size,
+                              width, buf_size, ndim=2)
 
     # make the sphere
     sphere = _make_sphere_2d(new_width, eff_rad)
@@ -95,6 +99,7 @@ def compute_2d(box_size, width, points, r_max, periodic=True):
     np.clip(image, 0, 1, out=image)
     return image
 
+
 def _put_points_on_grid(points, new_width, box_size, width, buf_size, ndim):
     """
     Creates a grid where the voxels are 1 if there is a point there (else 0)
@@ -109,6 +114,7 @@ def _put_points_on_grid(points, new_width, box_size, width, buf_size, ndim):
         arr[tuple(shifted_pt)] = 1
     return arr
 
+
 def _make_sphere_3d(new_width, eff_rad):
     """makes a grid in 3D with voxels that are within eff_rad of the center
     having value 1 (else 0)"""
@@ -119,9 +125,10 @@ def _make_sphere_3d(new_width, eff_rad):
     for i in range(-r_rad, r_rad):
         for j in range(-r_rad, r_rad):
             for k in range(-r_rad, r_rad):
-                if np.linalg.norm([i,j,k]) < eff_rad:
+                if np.linalg.norm([i, j, k]) < eff_rad:
                     arr[ctr+i, ctr+j, ctr+k] = 1
     return arr
+
 
 def _make_sphere_2d(new_width, eff_rad):
     """makes a grid in 2D with voxels that are within eff_rad of the center
@@ -132,6 +139,6 @@ def _make_sphere_2d(new_width, eff_rad):
 
     for i in range(-r_rad, r_rad):
         for j in range(-r_rad, r_rad):
-            if np.linalg.norm([i,j]) <= eff_rad:
-                arr[(ctr+i)%new_width, (ctr+j)%new_width] = 1
+            if np.linalg.norm([i, j]) <= eff_rad:
+                arr[(ctr+i) % new_width, (ctr+j) % new_width] = 1
     return arr
