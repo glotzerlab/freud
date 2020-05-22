@@ -1,6 +1,7 @@
 import numpy as np
 import freud
 import unittest
+from SphereVoxelization_fft import compute_3d, compute_2d
 
 
 class TestSphereVoxelization(unittest.TestCase):
@@ -29,6 +30,15 @@ class TestSphereVoxelization(unittest.TestCase):
             # Verify the output dimensions are correct
             self.assertEqual(vox.voxels.shape, (width, width))
             self.assertEqual(np.prod(vox.voxels.shape), np.prod(vox.width))
+
+            # Verify the calculation is correct
+            # here we assert that the calculations (from two different methods)
+            # are the same up to rounding error
+            fft_vox = compute_2d(box_size, width, points, r_max)
+            num_same = len(np.where(np.isclose(vox.voxels - fft_vox,
+                                               np.zeros(fft_vox.shape)))[0])
+            total_num = np.prod(fft_vox.shape)
+            self.assertGreater(num_same / total_num, .95)
 
             # Verify that the voxels are all 1's and 0's
             num_zeros = len(np.where(np.isclose(
@@ -63,6 +73,15 @@ class TestSphereVoxelization(unittest.TestCase):
 
             # Verify the output dimensions are correct
             self.assertEqual(vox.voxels.shape, (width, width, width))
+
+            # Verify the calculation is correct
+            # here we assert that the calculations (from two different methods)
+            # are the same up to rounding error
+            fft_vox = compute_3d(box_size, width, points, r_max)
+            num_same = len(np.where(np.isclose(vox.voxels - fft_vox,
+                                               np.zeros(fft_vox.shape)))[0])
+            total_num = np.prod(fft_vox.shape)
+            self.assertGreater(num_same / total_num, .95)
 
             # Verify that the voxels are all 1's and 0's
             num_zeros = len(np.where(np.isclose(
