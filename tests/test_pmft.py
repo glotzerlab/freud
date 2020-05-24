@@ -540,7 +540,7 @@ class TestPMFTXYZ(TestPMFT, unittest.TestCase):
         return (box, points), orientations
 
     def test_two_particles(self):
-        """Override base class function to also test equivalent orientations."""
+        """Override base class function to test equivalent orientations."""
         (box, points), orientations = self.make_two_particle_system()
 
         correct_bin_counts = np.zeros(self.bins, dtype=np.int32)
