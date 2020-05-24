@@ -50,6 +50,7 @@ Vyas Ramasubramani - **Lead developer**
 * Wrote developer documentation for version 2.0.
 * Fixed handling of 2D systems from various data sources.
 * Fixed usage of query orientations in PMFTXY and PMFTXYZ when points and query points are not identical.
+* Refactored and standardized PMFT tests.
 
 Bradley Dice - **Lead developer**
 
