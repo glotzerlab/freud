@@ -1,12 +1,13 @@
 import numpy as np
 import numpy.testing as npt
 import freud
+import matplotlib
 import unittest
 import warnings
 import util
 import rowan
-
 from test_managedarray import TestManagedArray
+matplotlib.use('agg')
 
 
 TWO_PI = 2*np.pi
@@ -123,7 +124,7 @@ class TestPMFT:
 
         # No angular terms should have entries in the limits array, so this
         # should work in all cases.
-        r_max = np.sqrt(np.sum(np.asarray(self.limits)**2))
+        r_max = np.linalg.norm(self.limits)
         test_set = util.make_raw_query_nlist_test_set(
             box, points, points, 'ball', r_max, 0, True)
         for nq, neighbors in test_set:
@@ -626,7 +627,7 @@ class TestPMFTXYZ(TestPMFT, unittest.TestCase):
         return (box, points), orientations
 
     def test_two_particles(self):
-        """Override base class function to also test equiv orientations."""
+        """Override base class function to test equivalent orientations."""
         (box, points), orientations = self.make_two_particle_system()
 
         correct_bin_counts = np.zeros(self.bins, dtype=np.int32)
@@ -638,7 +639,7 @@ class TestPMFTXYZ(TestPMFT, unittest.TestCase):
 
         # No angular terms should have entries in the limits array, so this
         # should work in all cases.
-        r_max = np.sqrt(np.sum(np.asarray(self.limits)**2))
+        r_max = np.linalg.norm(self.limits)
         test_set = util.make_raw_query_nlist_test_set(
             box, points, points, 'ball', r_max, 0, True)
         for nq, neighbors in test_set:

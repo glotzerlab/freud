@@ -139,7 +139,8 @@ This build will place the necessary files alongside the **freud** source files s
 Documentation
 =============
 
-The documentation for **freud** is hosted online at `ReadTheDocs <https://freud.readthedocs.io/>`_, but you may also build the documentation yourself:
+The documentation for **freud** is `hosted online at ReadTheDocs <https://freud.readthedocs.io/>`_.
+You may also build the documentation yourself.
 
 Building the documentation
 --------------------------
@@ -147,18 +148,22 @@ Building the documentation
 The following are **required** for building **freud** documentation:
 
 - `Sphinx <http://www.sphinx-doc.org/>`_
+- `Read the Docs Sphinx Theme <https://sphinx-rtd-theme.readthedocs.io/>`_
+- `nbsphinx <https://nbsphinx.readthedocs.io/>`_
+- `jupyter_sphinx <https://jupyter-sphinx.readthedocs.io/>`_
+- `sphinxcontrib-bibtex <https://sphinxcontrib-bibtex.readthedocs.io/>`_
 
-You can install sphinx using conda:
+You can install these dependencies using conda:
 
 .. code-block:: bash
 
-    conda install sphinx
+    conda install -c conda-forge sphinx sphinx_rtd_theme nbsphinx jupyter_sphinx sphinxcontrib-bibtex
 
 or pip:
 
 .. code-block:: bash
 
-    pip install sphinx
+    pip install sphinx sphinx-rtd-theme nbsphinx jupyter-sphinx sphinxcontrib-bibtex
 
 To build the documentation, run the following commands in the source directory:
 
