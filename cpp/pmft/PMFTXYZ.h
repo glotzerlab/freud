@@ -27,11 +27,11 @@ public:
                     unsigned int num_equiv_orientations, const locality::NeighborList* nlist,
                     freud::locality::QueryArgs qargs);
 
+protected:
     //! \internal
     //! helper function to reduce the thread specific arrays into one array
     virtual void reduce();
 
-private:
     float m_jacobian;
     vec3<float> m_shiftvec; //!< vector that points from [0,0,0] to the origin of the pmft
 };

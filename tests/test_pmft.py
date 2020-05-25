@@ -13,6 +13,34 @@ matplotlib.use('agg')
 TWO_PI = 2*np.pi
 
 
+def build_radii(bin_centers):
+    """Given bin centers in Cartesian coordinates, calculate distances from the
+    origin."""
+    radii = np.zeros([len(b) for b in bin_centers])
+    for i, centers in enumerate(bin_centers):
+        sl = tuple(slice(None, None, None) if i == j else None
+                   for j in range(len(bin_centers)))
+        radii += (centers**2)[sl]
+    return np.sqrt(radii)
+
+
+def pmft_to_rdf(pmft, radii):
+    """Convert a PMFT to an RDF."""
+    r_max = np.sqrt(sum(x[1]**2 for x in pmft.bounds))
+    bin_edges = np.linspace(0, r_max, 100)
+    bin_centers = 0.5 * (bin_edges[1:] + bin_edges[:-1])
+    rdf = np.zeros_like(bin_centers)
+
+    with warnings.catch_warnings():
+        # Ignore div by 0 and empty slice warnings
+        warnings.simplefilter("ignore", category=RuntimeWarning)
+        for i, (left, right) in enumerate(zip(bin_edges[:-1], bin_edges[1:])):
+            subset = np.where(np.logical_and(left < radii, radii < right))
+            rdf[i] = np.mean(pmft._pcf[subset])
+
+    return rdf
+
+
 class TestPMFT:
     @classmethod
     def get_cubic_box(cls, L, ndim=None):
@@ -120,6 +148,38 @@ class TestPMFT:
         pmft = self.make_pmft()
         self.assertEqual(str(pmft), str(eval(repr(pmft))))
 
+    def test_pcf(self):
+        """Verify that integrating a PMFT to generate an RDF for an ideal gas
+        produces approximately unity everywhere."""
+
+        def get_pmft_bydist(r_max, nbins):
+            """Get a PMFT with a specified radial cutoff."""
+            limit = np.sqrt(r_max**2/self.ndim)
+            return self.pmft_cls(*(limit, )*len(self.limits), bins=nbins)
+
+        L = 10
+        N = 2500
+        nbins = 100
+        r_max = 3
+
+        system = freud.data.make_random_system(L, N, self.ndim == 2, seed=3)
+        orientations = rowan.random.rand(N) if self.ndim == 3 else \
+            np.random.rand(N)*2*np.pi
+
+        pmft = get_pmft_bydist(r_max, nbins)
+        pmft.compute(system, orientations)
+
+        def get_bin_centers(pmft):
+            if len(self.limits) > 1:
+                return pmft.bin_centers[:len(self.limits)]
+            else:
+                return [pmft.bin_centers[0]]
+
+        radii = build_radii(get_bin_centers(pmft))
+        rdf = pmft_to_rdf(pmft, radii)
+
+        assert np.isclose(np.nanmean(rdf), 1, rtol=1e-2, atol=1e-2)
+
 
 class TestPMFT2D(TestPMFT):
     def test_2d_box_3d_points(self):
@@ -222,9 +282,8 @@ class TestPMFTXYT(TestPMFT2D, unittest.TestCase):
 
     def get_bin(self, query_point, point, query_point_orientation,
                 point_orientation):
-
         r_ij = point - query_point
-        rot_r_ij = rowan.rotate(query_point_orientation, r_ij)
+        rot_r_ij = rowan.rotate(rowan.conjugate(query_point_orientation), r_ij)
 
         limits = np.asarray(self.limits)
         xy_bins = tuple(np.floor((
@@ -270,6 +329,33 @@ class TestPMFTXYT(TestPMFT2D, unittest.TestCase):
 
             self.assertEqual(len(np.unique(pmft.pmft)), 2)
 
+    def test_nontrivial_orientations(self):
+        """Ensure that orientations are applied to the right particles."""
+        box = self.get_cubic_box(6)
+        points = np.array([[-1.0, 0.0, 0.0]], dtype=np.float32)
+        query_points = np.array([[0.9, 0.1, 0.0]], dtype=np.float32)
+
+        for angles in ([0], [np.pi/4]):
+            for query_angles in ([0.01], [np.pi/4 + 0.01]):
+                max_width = 2
+                nbins = 4
+                self.limits = (max_width, )*2
+                self.bins = (nbins, nbins, nbins)
+
+                pmft = freud.pmft.PMFTXYT(max_width, max_width, nbins)
+                pmft.compute((box, points), angles, query_points, query_angles)
+
+                query_orientation = rowan.from_axis_angle(
+                    [0, 0, 1], query_angles[0])
+                orientation = rowan.from_axis_angle([0, 0, 1], angles[0])
+
+                self.assertEqual(
+                    tuple(np.asarray(np.where(pmft.bin_counts)).flatten()),
+                    self.get_bin(query_points[0], points[0],
+                                 query_orientation, orientation)
+                )
+                self.assertEqual(np.sum(pmft.bin_counts), 1)
+
 
 class TestPMFTXY(TestPMFT2D, unittest.TestCase):
     limits = (3.6, 4.2)
@@ -296,7 +382,7 @@ class TestPMFTXY(TestPMFT2D, unittest.TestCase):
     def get_bin(self, query_point, point, query_point_orientation,
                 point_orientation):
         r_ij = point - query_point
-        rot_r_ij = rowan.rotate(query_point_orientation, r_ij)
+        rot_r_ij = rowan.rotate(rowan.conjugate(query_point_orientation), r_ij)
 
         limits = np.asarray(self.limits)
         return tuple(np.floor((
@@ -868,7 +954,7 @@ class TestCompare(unittest.TestCase):
         # NeighborQuery objects). The denominator comes from the 8pi^2 of
         # orientational phase space in PMFTXYZ divided by the 2pi in theta
         # space in PMFTXY.
-        scale_factor = ((nbins/2)*L)/(4*np.pi)
+        scale_factor = ((nbins/2)*L)
         npt.assert_allclose(np.exp(pmft2d.pmft),
                             np.exp(pmft3d.pmft[:, :, nbins//2])*scale_factor,
                             atol=1e-6)
