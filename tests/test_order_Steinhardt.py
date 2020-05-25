@@ -1,9 +1,11 @@
 import numpy as np
 import numpy.testing as npt
 import freud
+import matplotlib
 import rowan
 import unittest
 import util
+matplotlib.use('agg')
 
 # Validated against manual calculation and pyboo
 PERFECT_FCC_Q6 = 0.57452416
@@ -290,6 +292,20 @@ class TestSteinhardt(unittest.TestCase):
         # Use non-default arguments for all parameters
         comp = freud.order.Steinhardt(6, average=True, wl=True, weighted=True)
         self.assertEqual(str(comp), str(eval(repr(comp))))
+
+    def test_repr_png(self):
+        L = 5
+        num_points = 100
+        box, points = freud.data.make_random_system(L, num_points, seed=0)
+        st = freud.order.Steinhardt(6)
+
+        with self.assertRaises(AttributeError):
+            st.plot()
+        self.assertEqual(st._repr_png_(), None)
+
+        st.compute(system=(box, points), neighbors={'r_max': 1.5})
+
+        st._repr_png_()
 
 
 if __name__ == '__main__':

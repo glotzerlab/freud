@@ -4,6 +4,8 @@
 #ifndef PMFT_H
 #define PMFT_H
 
+#include <tbb/tbb.h>
+
 #include "BondHistogramCompute.h"
 #include "Box.h"
 #include "Histogram.h"
@@ -58,7 +60,7 @@ protected:
      *  least one angular term, but that term should not contain a factor of
      *  2*PI since that factor is effectively divided out of the volume here.
      *
-     *  \param JacobFactor A function with one parameter (the histogram bind index) that returns the volume of the element in the histogram bin corresponding to the index.
+     *  \param JacobFactor A function with one parameter (the histogram bin index) that returns the volume of the element in the histogram bin corresponding to the index.
      */
     template<typename JacobFactor> void reduce(JacobFactor jf)
     {

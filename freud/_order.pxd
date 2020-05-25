@@ -49,22 +49,22 @@ cdef extern from "Nematic.h" namespace "freud::order":
 
 cdef extern from "HexaticTranslational.h" namespace "freud::order":
     cdef cppclass Hexatic:
-        Hexatic(unsigned int)
-        const freud._box.Box & getBox() const
+        Hexatic(unsigned int, bool)
         void compute(const freud._locality.NeighborList*,
                      const freud._locality.NeighborQuery*,
                      freud._locality.QueryArgs) except +
         const freud.util.ManagedArray[float complex] &getOrder()
         unsigned int getK()
+        bool isWeighted() const
 
     cdef cppclass Translational:
-        Translational(float)
-        const freud._box.Box & getBox() const,
+        Translational(float, bool)
         void compute(const freud._locality.NeighborList*,
                      const freud._locality.NeighborQuery*,
                      freud._locality.QueryArgs) except +
         const freud.util.ManagedArray[float complex] &getOrder() const
         float getK() const
+        bool isWeighted() const
 
 
 cdef extern from "Steinhardt.h" namespace "freud::order":

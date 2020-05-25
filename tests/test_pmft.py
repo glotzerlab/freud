@@ -1,12 +1,13 @@
 import numpy as np
 import numpy.testing as npt
 import freud
+import matplotlib
 import unittest
 import warnings
 import util
 import rowan
-
 from test_managedarray import TestManagedArray
+matplotlib.use('agg')
 
 
 TWO_PI = 2*np.pi
@@ -281,9 +282,8 @@ class TestPMFTXYT(TestPMFT2D, unittest.TestCase):
 
     def get_bin(self, query_point, point, query_point_orientation,
                 point_orientation):
-
         r_ij = point - query_point
-        rot_r_ij = rowan.rotate(query_point_orientation, r_ij)
+        rot_r_ij = rowan.rotate(rowan.conjugate(query_point_orientation), r_ij)
 
         limits = np.asarray(self.limits)
         xy_bins = tuple(np.floor((
@@ -329,6 +329,33 @@ class TestPMFTXYT(TestPMFT2D, unittest.TestCase):
 
             self.assertEqual(len(np.unique(pmft.pmft)), 2)
 
+    def test_nontrivial_orientations(self):
+        """Ensure that orientations are applied to the right particles."""
+        box = self.get_cubic_box(6)
+        points = np.array([[-1.0, 0.0, 0.0]], dtype=np.float32)
+        query_points = np.array([[0.9, 0.1, 0.0]], dtype=np.float32)
+
+        for angles in ([0], [np.pi/4]):
+            for query_angles in ([0.01], [np.pi/4 + 0.01]):
+                max_width = 2
+                nbins = 4
+                self.limits = (max_width, )*2
+                self.bins = (nbins, nbins, nbins)
+
+                pmft = freud.pmft.PMFTXYT(max_width, max_width, nbins)
+                pmft.compute((box, points), angles, query_points, query_angles)
+
+                query_orientation = rowan.from_axis_angle(
+                    [0, 0, 1], query_angles[0])
+                orientation = rowan.from_axis_angle([0, 0, 1], angles[0])
+
+                self.assertEqual(
+                    tuple(np.asarray(np.where(pmft.bin_counts)).flatten()),
+                    self.get_bin(query_points[0], points[0],
+                                 query_orientation, orientation)
+                )
+                self.assertEqual(np.sum(pmft.bin_counts), 1)
+
 
 class TestPMFTXY(TestPMFT2D, unittest.TestCase):
     limits = (3.6, 4.2)
@@ -355,7 +382,7 @@ class TestPMFTXY(TestPMFT2D, unittest.TestCase):
     def get_bin(self, query_point, point, query_point_orientation,
                 point_orientation):
         r_ij = point - query_point
-        rot_r_ij = rowan.rotate(query_point_orientation, r_ij)
+        rot_r_ij = rowan.rotate(rowan.conjugate(query_point_orientation), r_ij)
 
         limits = np.asarray(self.limits)
         return tuple(np.floor((
