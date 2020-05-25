@@ -10,6 +10,7 @@ and this project adheres to
 * Support for garnett 0.7.
 * Custom NeighborLists can be created from a set of points using `from_points`. Distances will be calculated automatically.
 * The Box class has methods `compute_distances` and `compute_all_distances` to calculate distances between arrays of points and query points.
+* Hexatic can now compute 2D Minkowski Structure Metrics, using `weighted=True` along with a Voronoi NeighborList.
 
 ### Changed
 * Cython is now a required dependency (not optional). Cythonized `.cpp` files have been removed.

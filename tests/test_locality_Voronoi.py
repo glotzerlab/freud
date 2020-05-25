@@ -1,8 +1,10 @@
 import numpy as np
 import numpy.testing as npt
 import freud
+import matplotlib
 import unittest
 from util import sort_rounded_xyz_array
+matplotlib.use('agg')
 
 
 class TestVoronoi(unittest.TestCase):

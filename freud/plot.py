@@ -7,7 +7,7 @@ import numpy as np
 import warnings
 
 try:
-    from matplotlib.figure import Figure
+    import matplotlib.pyplot as plt
     from matplotlib.backends.backend_agg import FigureCanvasAgg
 except ImportError:
     raise ImportError('matplotlib must be installed for freud.plot.')
@@ -81,7 +81,7 @@ def box_plot(box, title=None, ax=None, image=[0, 0, 0], *args, **kwargs):
     box = freud.box.Box.from_box(box)
 
     if ax is None:
-        fig = Figure()
+        fig = plt.figure()
         if box.is2D:
             ax = fig.subplots()
         else:
@@ -142,7 +142,7 @@ def system_plot(system, title=None, ax=None, *args, **kwargs):
     system = freud.locality.NeighborQuery.from_system(system)
 
     if ax is None:
-        fig = Figure()
+        fig = plt.figure()
         if system.box.is2D:
             ax = fig.subplots()
         else:
@@ -190,7 +190,7 @@ def bar_plot(x, height, title=None, xlabel=None, ylabel=None, ax=None):
         :class:`matplotlib.axes.Axes`: Axes object with the diagram.
     """
     if ax is None:
-        fig = Figure()
+        fig = plt.figure()
         ax = fig.subplots()
 
     ax.bar(x=x, height=height)
@@ -245,7 +245,7 @@ def line_plot(x, y, title=None, xlabel=None, ylabel=None, ax=None):
         :class:`matplotlib.axes.Axes`: Axes object with the diagram.
     """
     if ax is None:
-        fig = Figure()
+        fig = plt.figure()
         ax = fig.subplots()
 
     ax.plot(x, y)
@@ -271,7 +271,7 @@ def histogram_plot(values, title=None, xlabel=None, ylabel=None, ax=None):
         :class:`matplotlib.axes.Axes`: Axes object with the diagram.
     """
     if ax is None:
-        fig = Figure()
+        fig = plt.figure()
         ax = fig.subplots()
 
     ax.hist(values)
@@ -299,7 +299,7 @@ def pmft_plot(pmft, ax=None):
 
     # Plot figures
     if ax is None:
-        fig = Figure()
+        fig = plt.figure()
         ax = fig.subplots()
 
     pmft_arr = np.copy(pmft.PMFT)
@@ -348,7 +348,7 @@ def density_plot(density, box, ax=None):
     from matplotlib.colorbar import Colorbar
 
     if ax is None:
-        fig = Figure()
+        fig = plt.figure()
         ax = fig.subplots()
 
     xlims = (-box.Lx/2, box.Lx/2)
@@ -398,7 +398,7 @@ def voronoi_plot(box, polytopes, ax=None, color_by_sides=True, cmap=None):
     from matplotlib.colorbar import Colorbar
 
     if ax is None:
-        fig = Figure()
+        fig = plt.figure()
         ax = fig.subplots()
 
     # Draw Voronoi polytopes
