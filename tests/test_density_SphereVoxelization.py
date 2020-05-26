@@ -98,27 +98,27 @@ class TestSphereVoxelization(unittest.TestCase):
         num_points = 100
         box_size = r_max*3.1
 
-        # going from 2D to 3D
+        # test that computing a 3D system after computing a 2D system will fail
         box, points = freud.data.make_random_system(
             box_size, num_points, is2D=True)
         vox = freud.density.SphereVoxelization(width, r_max)
-
         vox.compute(system=(box, points))
 
-        test_box = freud.box.Box.cube(box_size)
+        test_box, test_points = freud.data.make_random_system(
+            box_size, num_points, is2D=False)
         with self.assertRaises(ValueError):
-            vox.compute((test_box, points))
+            vox.compute((test_box, test_points))
 
-        # going from 3D to 2D
+        # test that computing a 2D system after computing a 3D system will fail
         box, points = freud.data.make_random_system(
             box_size, num_points, is2D=False)
         vox = freud.density.SphereVoxelization(width, r_max)
-
         vox.compute(system=(box, points))
 
-        test_box = freud.box.Box.square(box_size)
+        test_box, test_points = freud.data.make_random_system(
+            box_size, num_points, is2D=True)
         with self.assertRaises(ValueError):
-            vox.compute((test_box, points))
+            vox.compute((test_box, test_points))
 
     def test_repr(self):
         vox = freud.density.SphereVoxelization(100, 10.0)
