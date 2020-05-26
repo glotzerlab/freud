@@ -122,7 +122,7 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq)
                         if (r_sq < r_max_sq)
                         {
                             // Evaluate the gaussian
-                            const float gaussian = normalization * std::exp(-r_sq / (2 * sigmasq));
+                            const float gaussian = normalization * std::exp(-r_sq / (float(2.0) * sigmasq));
 
                             // Assure that out of range indices are corrected for storage
                             // in the array i.e. bin -1 is actually bin 29 for nbins = 30

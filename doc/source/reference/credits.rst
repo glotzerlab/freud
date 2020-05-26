@@ -101,7 +101,7 @@ Bradley Dice - **Lead developer**
 * Added finite tolerance to ensure stability of 2D Voronoi NeighborList computations.
 * Improved stability of Histogram bin calculations.
 * Improved error handling of Cubatic input parameters.
-* Added SphereVoxelization feature.
+* Worked with Tommy Waltmann to add the SphereVoxelization feature.
 * Fixed GaussianDensity normalization in 2D systems.
 * Prevented GaussianDensity from computing 3D systems after it has computed 2D systems.
 
@@ -290,7 +290,7 @@ Mike Henry
 
 Tommy Waltmann
 
-* Added SphereVoxelization feature.
+* Worked with Bradley Dice to add the SphereVoxelization feature.
 
 Source code
 -----------

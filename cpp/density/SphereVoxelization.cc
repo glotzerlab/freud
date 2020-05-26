@@ -19,14 +19,14 @@ SphereVoxelization::SphereVoxelization(vec3<unsigned int> width, float r_max)
         throw std::invalid_argument("SphereVoxelization requires r_max to be positive.");
 }
 
-//! Get a reference to the last computed voxels
+//! Get a reference to the last computed voxels.
 const util::ManagedArray<unsigned int>& SphereVoxelization::getVoxels() const
 {
     return m_voxels_array;
 }
 
 //! Get width.
-vec3<unsigned int> SphereVoxelization::getWidth()
+vec3<unsigned int> SphereVoxelization::getWidth() const
 {
     return m_width;
 }
@@ -77,8 +77,8 @@ void SphereVoxelization::compute(const freud::locality::NeighborQuery* nq)
             // In 2D, only loop over the z=0 plane
             const int bin_z = m_box.is2D() ? 0 : int((point.z + Lz / 2.0f) / grid_size_z);
 
-            // Reject bins that are outside the box in aperiodic directions
-            // Only evaluate over bins that are within the cutoff
+            // Only evaluate over bins that are within the cutoff, rejecting bins
+            // that are outside the box in aperiodic directions.
             for (int k = bin_z - bin_cut_z; k <= bin_z + bin_cut_z; k++)
             {
                 if (!periodic.z && (k < 0 || k >= int(m_width.z)))

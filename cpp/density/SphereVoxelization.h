@@ -50,7 +50,7 @@ public:
     //! Get a reference to the last computed voxels.
     const util::ManagedArray<unsigned int>& getVoxels() const;
 
-    vec3<unsigned int> getWidth();
+    vec3<unsigned int> getWidth() const;
 
 private:
     box::Box m_box;             //!< Simulation box containing the points.
