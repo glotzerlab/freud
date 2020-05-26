@@ -50,15 +50,28 @@ class TestGaussianDensity(unittest.TestCase):
         sigma = 0.1
         num_points = 100
         box_size = r_max*3.1
+
+        # test that a 3D system computed after computing a 2D system will fail
         box, points = freud.data.make_random_system(
             box_size, num_points, is2D=True)
         gd = freud.density.GaussianDensity(width, r_max, sigma)
-
         gd.compute((box, points))
 
-        test_box = freud.box.Box.cube(box_size)
+        test_box, test_points = freud.data.make_random_system(
+            box_size, num_points, is2D=False)
         with self.assertRaises(ValueError):
-            gd.compute((test_box, points))
+            gd.compute((test_box, test_points))
+
+        # test that a 2D system computed after computing a 3D system will fail
+        box, points = freud.data.make_random_system(
+            box_size, num_points, is2D=False)
+        gd = freud.density.GaussianDensity(width, r_max, sigma)
+        gd.compute((box, points))
+
+        test_box, test_points = freud.data.make_random_system(
+            box_size, num_points, is2D=True)
+        with self.assertRaises(ValueError):
+            gd.compute((test_box, test_points))
 
     def test_sum_2d(self):
         # Ensure that the Gaussian sums to 1

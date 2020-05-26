@@ -61,6 +61,7 @@ void SphereVoxelization::compute(const freud::locality::NeighborQuery* nq)
     {
         m_width.z = 1;
     }
+
     m_voxels_array.prepare({m_width.x, m_width.y, m_width.z});
 
     // set up some constants first
