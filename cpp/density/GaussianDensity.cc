@@ -34,9 +34,8 @@ vec3<unsigned int> GaussianDensity::getWidth()
 //! Compute the density array.
 void GaussianDensity::compute(const freud::locality::NeighborQuery* nq)
 {
-    // Don't allow box dimensions to change afer a calculation has
-    // already been done (m_width is altered)
-    if (nq->getBox().is2D() != m_box.is2D())
+    // Don't allow 3D boxes after computing in 2D (m_width is altered)
+    if (!nq->getBox().is2D() && m_box.is2D())
     {
         throw std::invalid_argument(
             "GaussianDensity cannot compute on 3D boxes after computing 2D boxes.");
