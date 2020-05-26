@@ -49,7 +49,8 @@ Vyas Ramasubramani - **Lead developer**
 * Changed correlation function to properly take the complex conjugate of inputs.
 * Wrote developer documentation for version 2.0.
 * Fixed handling of 2D systems from various data sources.
-* Fixed usage of query orientations in PMFTXY and PMFTXYZ when points and query points are not identical.
+* Fixed usage of query orientations in PMFTXY, PMFTXYT and PMFTXYZ when points and query points are not identical.
+* Refactored and standardized PMFT tests.
 
 Bradley Dice - **Lead developer**
 
@@ -101,6 +102,7 @@ Bradley Dice - **Lead developer**
 * Added finite tolerance to ensure stability of 2D Voronoi NeighborList computations.
 * Improved stability of Histogram bin calculations.
 * Improved error handling of Cubatic input parameters.
+* Added 2D Minkowski Structure Metrics to Hexatic, enabled by using ``weighted=True`` along with a Voronoi NeighborList.
 * Worked with Tommy Waltmann to add the SphereVoxelization feature.
 * Fixed GaussianDensity normalization in 2D systems.
 * Prevented GaussianDensity from computing 3D systems after it has computed 2D systems.

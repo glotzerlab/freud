@@ -1,10 +1,11 @@
 import numpy as np
 import numpy.testing as npt
 import freud
+import matplotlib
 import unittest
 import util
-
 from test_managedarray import TestManagedArray
+matplotlib.use('agg')
 
 
 class TestRDF(unittest.TestCase):
