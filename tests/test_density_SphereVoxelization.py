@@ -97,6 +97,8 @@ class TestSphereVoxelization(unittest.TestCase):
         r_max = 10.0
         num_points = 100
         box_size = r_max*3.1
+
+        # going from 2D to 3D
         box, points = freud.data.make_random_system(
             box_size, num_points, is2D=True)
         vox = freud.density.SphereVoxelization(width, r_max)
@@ -104,6 +106,17 @@ class TestSphereVoxelization(unittest.TestCase):
         vox.compute(system=(box, points))
 
         test_box = freud.box.Box.cube(box_size)
+        with self.assertRaises(ValueError):
+            vox.compute((test_box, points))
+
+        # going from 3D to 2D
+        box, points = freud.data.make_random_system(
+            box_size, num_points, is2D=False)
+        vox = freud.density.SphereVoxelization(width, r_max)
+
+        vox.compute(system=(box, points))
+
+        test_box = freud.box.Box.square(box_size)
         with self.assertRaises(ValueError):
             vox.compute((test_box, points))
 

@@ -13,8 +13,12 @@
 namespace freud { namespace density {
 
 SphereVoxelization::SphereVoxelization(vec3<unsigned int> width, float r_max)
-    : m_box(box::Box()), m_width(width), m_r_max(r_max)
+    : m_width(width), m_r_max(r_max)
 {
+    // dummy initial box, dimensionality of the calculation will be defined by
+    // the first neighbor query passed to the compute method
+    m_box = NULL;
+
     if (r_max <= 0.0f)
         throw std::invalid_argument("SphereVoxelization requires r_max to be positive.");
 }
@@ -34,16 +38,25 @@ vec3<unsigned int> SphereVoxelization::getWidth() const
 //! Compute the voxels array.
 void SphereVoxelization::compute(const freud::locality::NeighborQuery* nq)
 {
-    // Don't allow 3D boxes after computing in 2D (m_width is altered)
-    if (!nq->getBox().is2D() && m_box.is2D())
+    // set the number of dimensions for the calculation the first time it is done
+    if (m_box == NULL)
+        m_box = nq->getBox();
+
+    // Don't allow changes in the number of dimensions for the calculation
+    // after its been set.
+    if (nq->getBox().is2D() != m_box.is2D())
     {
         throw std::invalid_argument(
-            "SphereVoxelization cannot compute on 3D boxes after computing 2D boxes.");
+            "Each SphereVoxelization instance should be used to do calculations "
+            "in a fixed number of dimensions. You have changed the number of "
+            "dimensions used going from one calculation to another.");
     }
 
     m_box = nq->getBox();
     auto n_points = nq->getNPoints();
 
+    // if the user gives a single number for width, but the nq box is 2D, and
+    // we want a 2D calculation
     if (m_box.is2D())
     {
         m_width.z = 1;
