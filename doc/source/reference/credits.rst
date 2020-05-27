@@ -287,6 +287,10 @@ Mike Henry
 * Fixed syntax in freud-examples notebooks for v2.0.
 * Updated documentation links
 
+Maya Martirossyan
+
+* Fixed Steinhardt for particles without neighbors.
+
 Source code
 -----------
 
