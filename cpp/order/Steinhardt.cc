@@ -135,7 +135,8 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
             {
                 // Cache the index for efficiency.
                 const unsigned int index = m_qlmi.getIndex({static_cast<unsigned int>(i), k});
-                m_qlmi[index] /= total_weight;
+                if (total_weight > 0)
+                    m_qlmi[index] /= total_weight;
                 // Add the norm, which is the (complex) squared magnitude
                 m_qli[i] += norm(m_qlmi[index]);
                 // This array gets populated by computeAve in the averaging case.
