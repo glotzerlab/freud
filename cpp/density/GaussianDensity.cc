@@ -13,12 +13,8 @@
 namespace freud { namespace density {
 
 GaussianDensity::GaussianDensity(vec3<unsigned int> width, float r_max, float sigma)
-    : m_width(width), m_r_max(r_max), m_sigma(sigma)
+    : m_box(box::Box()), m_width(width), m_r_max(r_max), m_sigma(sigma), m_has_computed(false)
 {
-    // dummy initial box, dimensionality of the calculation will be defined by
-    // the first neighbor query passed to the compute method
-    m_box = NULL;
-
     if (r_max <= 0.0f)
         throw std::invalid_argument("GaussianDensity requires r_max to be positive.");
 }
@@ -39,20 +35,19 @@ vec3<unsigned int> GaussianDensity::getWidth()
 void GaussianDensity::compute(const freud::locality::NeighborQuery* nq)
 {
     // set the number of dimensions for the calculation the first time it is done
-    if (m_box == NULL)
+    if (!m_has_computed || nq->getBox().is2D() == m_box.is2D())
+    {
         m_box = nq->getBox();
-
-    // Don't allow changes in the number of dimensions for the calculation
-    // after its been set.
-    if (nq->getBox().is2D() != m_box.is2D())
+        m_has_computed = true;
+    }
+    else
     {
         throw std::invalid_argument(
-            "Each GaussianDensity instance should be used to do calculations "
-            "in a fixed number of dimensions. You have changed the number of "
-            "dimensions used going from one calculation to another.");
+            "The dimensionality of the box passed to GaussianDensity has "
+            "changed. A ne instance must be created to handle a different "
+            "number of dimensions.");
     }
 
-    m_box = nq->getBox();
     auto n_points = nq->getNPoints();
 
     // if the user gives a single number for width, but the nq box is 2D, and

@@ -61,6 +61,7 @@ private:
     vec3<unsigned int> m_width; //!< Number of bins in the grid in each dimension.
     float m_r_max;              //!< Max distance at which to compute density.
     float m_sigma;              //!< Gaussian width sigma.
+    bool m_has_computed;        //!< Tracks whether a call to compute has been made.
 
     util::ManagedArray<float> m_density_array; //! Computed density array.
 };
