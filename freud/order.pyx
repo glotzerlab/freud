@@ -175,6 +175,21 @@ cdef class Nematic(_Compute):
     def compute(self, orientations):
         R"""Calculates the per-particle and global order parameter.
 
+        Example::
+
+            >>> # Assuming the user has manually set director = np.array[x,y,z] and box,
+            >>> # points/positions, and system (box, points) have already been defined
+            >>> # Recommend visualizing the data with the particle_property below
+            >>> import freud
+            >>> from ovito.data import *
+            >>> import numpy as np
+            >>> order_param = freud.order.Nematic(director)
+            >>> order_param.compute(points.orientations)
+            >>> data.create_user_particle_property(name='NematicOrderParameter',
+            >>> data_type=float, data=order_param.particle_tensor
+
+      Steinhardt Order:
+
         Args:
             orientations (:math:`\left(N_{particles}, 4 \right)` :class:`numpy.ndarray`):
                 Orientations to calculate the order parameter.
@@ -271,6 +286,22 @@ cdef class Hexatic(_PairCompute):
 
     def compute(self, system, neighbors=None):
         R"""Calculates the hexatic order parameter.
+
+        Example::
+
+            >>> # Assuming the user has defined a k value and box, points/positions,
+            >>> # and system(box, points) have already been defined
+            >>> # Compute the K-atic order for the 2 D system
+            >>> # Recommend visualizing the data with the particle_property below
+            >>> import freud
+            >>> from ovito.data import *
+            >>> import numpy as np
+            >>> order_param = freud.order.Hexatic(k)
+            >>> order_param.compute(system)
+            >>> psi_k = np.copy(order_param.particle_order)
+            >>> psi_k -= np.mean(psi_k)
+            >>> data.create_user_particle_property(name='HexaticOrderParameter',
+            >>> data_type=float, data=np.angle(psi_k, deg=True)/order_param.k)
 
         Args:
             system:
@@ -542,6 +573,19 @@ cdef class Steinhardt(_PairCompute):
 
     def compute(self, system, neighbors=None):
         R"""Compute the order parameter.
+
+        Example::
+
+            >>> # Assuming box, points/positions, and system (box, points) are defined
+            >>> # Recommend visualizing the data with the particle_property below
+            >>> # r_max and 1 can be changed as desired
+            >>> import freud
+            >>> from ovito.data import *
+            >>> import numpy as np
+            >>> ql = freud.order.Steinhardt(l=6)
+            >>> ql.compute(system, {'r_max': 3})
+            >>> ql_property = data.create_user_particle_property(name='Ql',
+            >>> data_type=float, data=ql.particle_order)
 
         Args:
             system:
