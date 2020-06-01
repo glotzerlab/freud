@@ -183,6 +183,19 @@ cdef class ClusterProperties(_Compute):
         this method, these properties can be accessed with the
         :code:`centers` and :code:`gyrations` attributes.
 
+        Example::
+
+            >>> #Assuming box, positions, and nlist have already been defined
+            >>> #Compute clusters using box, positions, and nlist data
+            >>> import freud
+            >>> import numpy as np
+            >>> cl = freud.cluster.Cluster()
+            >>> cl.compute(box, positions, neighbors=nlist)
+            >>> # Compute Cluster properties (size, position, center, etc)
+            >>> cl_props = freud.cluster.ClusterProperties()
+            >>> cl_props.compute(box, positions, cl.cluster_idx)
+
+
         Args:
             system:
                 Any object that is a valid argument to
