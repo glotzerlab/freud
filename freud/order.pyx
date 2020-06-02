@@ -596,7 +596,7 @@ cdef class Steinhardt(_PairCompute):
                 `query arguments
                 <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
                 (Default value: None).
-        """
+        """ noqa 501
         cdef:
             freud.locality.NeighborQuery nq
             freud.locality.NeighborList nlist
