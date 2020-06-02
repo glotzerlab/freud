@@ -177,8 +177,9 @@ cdef class Nematic(_Compute):
 
         Example::
 
-            >>> # Assuming the user has manually set director = np.array[x,y,z] and box,
-            >>> # points/positions, and system (box, points) have already been defined
+            >>> # Assuming user has set director = np.array[x,y,z]
+            >>> # Assuming box, points/positions, and system (box, points)
+            >>> # have already been defined
             >>> # Recommend visualizing the data with the particle_property below
             >>> import freud
             >>> from ovito.data import *
@@ -287,7 +288,7 @@ cdef class Hexatic(_PairCompute):
 
         Example::
 
-            >>> # Assuming the user has defined a k value and box, points/positions,
+            >>> # Assuming user has defined a k value and box, points/positions,
             >>> # and system(box, points) have already been defined
             >>> # Compute the K-atic order for the 2 D system
             >>> # Recommend visualizing the data with the particle_property below
@@ -574,8 +575,8 @@ cdef class Steinhardt(_PairCompute):
 
         Example::
 
-            >>> # Assuming box, points/positions, and system (box, points) are defined
-            >>> # Recommend visualizing the data with the particle_property below
+            >>> # Assuming box, points, and system (box, points) are defined
+            >>> # Recommend visualizing data with the particle_property below
             >>> # r_max and 1 can be changed as desired
             >>> import freud
             >>> from ovito.data import *
