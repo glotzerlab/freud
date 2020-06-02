@@ -192,7 +192,7 @@ cdef class Nematic(_Compute):
         Args:
             orientations (:math:`\left(N_{particles}, 4 \right)` :class:`numpy.ndarray`):
                 Orientations to calculate the order parameter.
-        """  # noqa: E501
+        """   # noqa: E501
         orientations = freud.util._convert_array(
             orientations, shape=(None, 4))
 
@@ -312,7 +312,7 @@ cdef class Hexatic(_PairCompute):
                 `query arguments
                 <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
                 (Default value: None).
-        """
+        """  noqa: E501
         cdef:
             freud.locality.NeighborQuery nq
             freud.locality.NeighborList nlist
