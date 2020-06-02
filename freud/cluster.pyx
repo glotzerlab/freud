@@ -195,7 +195,6 @@ cdef class ClusterProperties(_Compute):
             >>> cl_props = freud.cluster.ClusterProperties()
             >>> cl_props.compute(box, positions, cl.cluster_idx)
 
-
         Args:
             system:
                 Any object that is a valid argument to
