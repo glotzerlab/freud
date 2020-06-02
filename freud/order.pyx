@@ -188,8 +188,6 @@ cdef class Nematic(_Compute):
             >>> data.create_user_particle_property(name='NematicOrderParameter',
             >>> data_type=float, data=order_param.particle_tensor
 
-      Steinhardt Order:
-
         Args:
             orientations (:math:`\left(N_{particles}, 4 \right)` :class:`numpy.ndarray`):
                 Orientations to calculate the order parameter.
