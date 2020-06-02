@@ -288,10 +288,10 @@ cdef class Hexatic(_PairCompute):
 
         Example::
 
-            >>> # Assuming user has defined a k value and box, points/positions,
+            >>> # Assuming user has defined k and box, points/positions,
             >>> # and system(box, points) have already been defined
             >>> # Compute the K-atic order for the 2 D system
-            >>> # Recommend visualizing the data with the particle_property below
+            >>> # Recommend visualizing data with the particle_property below
             >>> import freud
             >>> from ovito.data import *
             >>> import numpy as np
