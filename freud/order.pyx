@@ -560,8 +560,7 @@ cdef class Steinhardt(_PairCompute):
         Example::
             >>> box, points = freud.data.make_random_system(10, 100, seed=0)
             >>> ql = freud.order.Steinhardt(l=6)
-            >>> ql.compute((box, points), {'r_max': 3})
-            
+            >>> ql.compute((box, points), {'r_max':3})
         Args:
             system:
                 Any object that is a valid argument to
