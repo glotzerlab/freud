@@ -362,7 +362,7 @@ cdef class LocalDensity(_PairCompute):
 
         Example::
 
-            >>> # Assuming box, positions, and system (box, points) have already been defined
+            >>> box, points = freud.data.make_random_system(10, 100, seed=0)
             >>> # Compute Local Density
             >>> ld = freud.density.LocalDensity(r_max=3, diameter=0.05)
             >>> ld.compute(system)
