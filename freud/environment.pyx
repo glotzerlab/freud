@@ -535,13 +535,11 @@ cdef class EnvironmentCluster(_MatchEnv):
         required neighbor is just outside the cutoff.
 
         Example::
-
             >>> # Recommend setting registration and global_search = False
-            >>> # Assuming box, points/positions, and system (box, points)
-            >>> # have already been defined
             >>> # Compute clusters of particles with matching environments
+            >>> box, points = freud.data.make_random_system(10, 100, seed=0)
             >>> env_cluster = freud.environment.EnvironmentCluster()
-            >>> env_cluster.compute(system, threshold=0.2,
+            >>> env_cluster.compute((box, points), threshold=0.2,
             >>> neighbors={'num_neighbors': 6 },
             >>> registration=False, global_search=False)
 
