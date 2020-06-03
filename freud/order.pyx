@@ -176,10 +176,9 @@ cdef class Nematic(_Compute):
         R"""Calculates the per-particle and global order parameter.
 
         Example::
-
-            >>> # Assuming box, points/positions, and system (box, points)
-            >>> # have already been defined
-            >>> # Assume orientations had a preassigned value 
+        
+            >>> box, points = freud.data.make_random_system(10, 100, seed=0)
+            >>> orientations = np.array([[1, 0, 0, 0]] * 100)
             >>> director = np.array([1, 1, 0])
             >>> nematic = freud.order.Nematic(director)
             >>> nematic.compute(points.orientations)
@@ -282,12 +281,11 @@ cdef class Hexatic(_PairCompute):
         R"""Calculates the hexatic order parameter.
 
         Example::
-
-            >>> # Assuming user has defined k and box, points/positions,
-            >>> # and system(box, points) have already been defined
-            >>> # Compute the K-atic order for the 2-D system
-            >>> k_order = freud.order.Hexatic(k)
-            >>> k_order.compute(system)
+        
+            >>> box, points = freud.data.make_random_system(10, 100, seed=0)
+            >>> # Compute the K-atic (6) order for the 2-D system
+            >>> hex_order = freud.order.Hexatic(6)
+            >>> hex_order.compute((box, points))
             >>> print(order_param.particle_order)
 
         Args:
@@ -562,10 +560,10 @@ cdef class Steinhardt(_PairCompute):
         R"""Compute the order parameter.
 
         Example::
-
-            >>> # Assuming box, points, and system (box, points) are defined
+        
+            >>> box, points = freud.data.make_random_system(10, 100, seed=0)
             >>> ql = freud.order.Steinhardt(l=6)
-            >>> ql.compute(system, {'r_max': 3})
+            >>> ql.compute((box, points), {'r_max': 3})
 
 
         Args:
