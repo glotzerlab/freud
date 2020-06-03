@@ -177,17 +177,12 @@ cdef class Nematic(_Compute):
 
         Example::
 
-            >>> # Assuming user has set director = np.array[x,y,z]
             >>> # Assuming box, points/positions, and system (box, points)
             >>> # have already been defined
-            >>> # Recommend visualizing the data with the particle_property below
-            >>> import freud
-            >>> from ovito.data import *
-            >>> import numpy as np
-            >>> order_param = freud.order.Nematic(director)
-            >>> order_param.compute(points.orientations)
-            >>> data.create_user_particle_property(name='NematicOrderParameter',
-            >>> data_type=float, data=order_param.particle_tensor
+            >>> # Assume orientations had a preassigned value 
+            >>> director = [1, 1, 0]
+            >>> nematic = freud.order.Nematic(director)
+            >>> nematic.compute(points.orientations)
 
         Args:
             orientations (:math:`\left(N_{particles}, 4 \right)` :class:`numpy.ndarray`):
@@ -290,17 +285,10 @@ cdef class Hexatic(_PairCompute):
 
             >>> # Assuming user has defined k and box, points/positions,
             >>> # and system(box, points) have already been defined
-            >>> # Compute the K-atic order for the 2 D system
-            >>> # Recommend visualizing data with the particle_property below
-            >>> import freud
-            >>> from ovito.data import *
-            >>> import numpy as np
-            >>> order_param = freud.order.Hexatic(k)
-            >>> order_param.compute(system)
-            >>> psi_k = np.copy(order_param.particle_order)
-            >>> psi_k -= np.mean(psi_k)
-            >>> data.create_user_particle_property(name='HexaticOrderParameter',
-            >>> data_type=float, data=np.angle(psi_k, deg=True)/order_param.k)
+            >>> # Compute the K-atic order for the 2-D system
+            >>> k_order = freud.order.Hexatic(k)
+            >>> k_order.compute(system)
+            >>> print(order_param.particle_order)
 
         Args:
             system:
@@ -576,15 +564,9 @@ cdef class Steinhardt(_PairCompute):
         Example::
 
             >>> # Assuming box, points, and system (box, points) are defined
-            >>> # Recommend visualizing data with the particle_property below
-            >>> # r_max and 1 can be changed as desired
-            >>> import freud
-            >>> from ovito.data import *
-            >>> import numpy as np
             >>> ql = freud.order.Steinhardt(l=6)
             >>> ql.compute(system, {'r_max': 3})
-            >>> ql_property = data.create_user_particle_property(name='Ql',
-            >>> data_type=float, data=ql.particle_order)
+
 
         Args:
             system:
