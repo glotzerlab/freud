@@ -184,7 +184,6 @@ cdef class ClusterProperties(_Compute):
         :code:`centers` and :code:`gyrations` attributes.
 
         Example::
-
             >>> # Compute clusters using box, positions, and nlist data
             >>> box, points = freud.data.make_random_system(10, 100, seed=0)
             >>> cl = freud.cluster.Cluster()
