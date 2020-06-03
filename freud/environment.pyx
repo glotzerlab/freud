@@ -540,11 +540,10 @@ cdef class EnvironmentCluster(_MatchEnv):
             >>> # Assuming box, points/positions, system (box, points),
             >>> # r_max, num_neighbors and threshold have already been defined
             >>> # Compute clusters of particle with matching environments
-            >>> import freud
             >>> env_cluster = freud.environment.EnvironmentCluster()
-            >>> env_cluster.compute(system, threshold=threshold,
-            >>> neighbors={'num_neighbors': num_neighbors},
-            >>> registration=registration, global_search=global_search)
+            >>> env_cluster.compute(system, threshold=0.2,
+            >>> neighbors={'num_neighbors': 6 },
+            >>> registration=False, global_search=False)
 
         Args:
             system:
