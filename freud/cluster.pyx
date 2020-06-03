@@ -185,13 +185,14 @@ cdef class ClusterProperties(_Compute):
 
         Example::
 
-            >>> # Assuming box, positions, and nlist have already been defined
+          
             >>> # Compute clusters using box, positions, and nlist data
+            >>> box, points = freud.data.make_random_system(10, 100, seed=0)
             >>> cl = freud.cluster.Cluster()
-            >>> cl.compute(box, positions, neighbors=nlist)
+            >>> cl.compute(box, points, neighbors={'r_max': 1.0}))
             >>> # Compute cluster properties based on identified clusters
             >>> cl_props = freud.cluster.ClusterProperties()
-            >>> cl_props.compute(box, positions, cl.cluster_idx)
+            >>> cl_props.compute(box, points, cl.cluster_idx)
 
         Args:
             system:
