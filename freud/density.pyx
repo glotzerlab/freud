@@ -361,7 +361,6 @@ cdef class LocalDensity(_PairCompute):
         R"""Calculates the local density for the specified points.
 
         Example::
-
             >>> box, points = freud.data.make_random_system(10, 100, seed=0)
             >>> # Compute Local Density
             >>> ld = freud.density.LocalDensity(r_max=3, diameter=0.05)
