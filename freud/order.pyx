@@ -180,7 +180,7 @@ cdef class Nematic(_Compute):
             >>> # Assuming box, points/positions, and system (box, points)
             >>> # have already been defined
             >>> # Assume orientations had a preassigned value 
-            >>> director = [1, 1, 0]
+            >>> director = np.array([1, 1, 0])
             >>> nematic = freud.order.Nematic(director)
             >>> nematic.compute(points.orientations)
 
