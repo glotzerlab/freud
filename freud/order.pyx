@@ -176,6 +176,7 @@ cdef class Nematic(_Compute):
         R"""Calculates the per-particle and global order parameter.
 
         Example::
+        
             >>> box, points = freud.data.make_random_system(10, 100, seed=0)
             >>> orientations = np.array([[1, 0, 0, 0]] * 100)
             >>> director = np.array([1, 1, 0])
@@ -280,6 +281,7 @@ cdef class Hexatic(_PairCompute):
         R"""Calculates the hexatic order parameter.
 
         Example::
+        
             >>> box, points = freud.data.make_random_system(10, 100, seed=0)
             >>> # Compute the K-atic (6) order for the 2-D system
             >>> hex_order = freud.order.Hexatic(6)
@@ -558,6 +560,7 @@ cdef class Steinhardt(_PairCompute):
         R"""Compute the order parameter.
 
         Example::
+        
             >>> box, points = freud.data.make_random_system(10, 100, seed=0)
             >>> ql = freud.order.Steinhardt(l=6)
             >>> ql.compute((box, points), {'r_max':3})
