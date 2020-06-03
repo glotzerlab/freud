@@ -187,11 +187,9 @@ cdef class ClusterProperties(_Compute):
 
             >>> # Assuming box, positions, and nlist have already been defined
             >>> # Compute clusters using box, positions, and nlist data
-            >>> import freud
-            >>> import numpy as np
             >>> cl = freud.cluster.Cluster()
             >>> cl.compute(box, positions, neighbors=nlist)
-            >>> # Compute Cluster properties (size, position, center, etc)
+            >>> # Compute cluster properties based on identified clusters
             >>> cl_props = freud.cluster.ClusterProperties()
             >>> cl_props.compute(box, positions, cl.cluster_idx)
 
