@@ -280,11 +280,14 @@ cdef class Hexatic(_PairCompute):
         R"""Calculates the hexatic order parameter.
 
         Example::
-            >>> box, points = freud.data.make_random_system(10, 100, seed=0)
-            >>> # Compute the K-atic (6) order for the 2-D system
-            >>> hex_order = freud.order.Hexatic(6)
-            >>> hex_order.compute((box, points))
-            >>> print(order_param.particle_order)
+            >>> box, points = freud.data.make_random_system(
+            ...     box_size=10, num_points=100, is2D=True, seed=0)
+            >>> # Compute the hexatic (6-fold) order for the 2D system
+            >>> hex_order = freud.order.Hexatic(k=6)
+            >>> hex_order.compute(system=(box, points))
+            freud.order.Hexatic(...)
+            >>> print(hex_order.particle_order)
+            [...]
 
         Args:
             system:
