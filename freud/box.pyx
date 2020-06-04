@@ -354,7 +354,7 @@ cdef class Box:
             >>> np.mean(points, axis=0)  # Does not account for periodic images
             array([0., 0., 0.])
             >>> box.center_of_mass(points)  # Accounts for periodic images
-            array([-0.18459368,  0.        ,  0.        ])
+            array([-0.1845932,  0.       ,  0.       ])
 
         Args:
             vecs (:math:`\left(N, 3\right)` :class:`numpy.ndarray`):
@@ -394,8 +394,8 @@ cdef class Box:
             >>> box = freud.Box.cube(10)
             >>> points = [[-1, -1, 0], [-1, 1, 0], [2, 0, 0]]
             >>> box.center(points)
-            array([[-0.8154063, -1.       ,  0.       ],
-                   [-0.8154063,  1.       ,  0.       ],
+            array([[-0.8154068, -1.0000002,  0.       ],
+                   [-0.8154068,  1.       ,  0.       ],
                    [ 2.1845937,  0.       ,  0.       ]], dtype=float32)
 
         Args:
@@ -543,12 +543,11 @@ cdef class Box:
         Example::
             >>> box = freud.box.Box.cube(L=10)
             >>> box.to_dict()
-            {'Lx': 10.0, 'Ly': 10.0, 'Lz': 10.0,
-             'xy': 0.0, 'xz': 0.0, 'yz': 0.0, 'dimensions': 3}
+            {'Lx': 10.0, 'Ly': 10.0, 'Lz': 10.0, 'xy': 0.0, 'xz': 0.0, 'yz': 0.0, 'dimensions': 3}
 
         Returns:
           dict: Box parameters
-        """
+        """  # noqa: E501
         return {
             'Lx': self.Lx,
             'Ly': self.Ly,
