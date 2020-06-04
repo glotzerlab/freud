@@ -536,13 +536,16 @@ cdef class EnvironmentCluster(_MatchEnv):
 
         Example::
             >>> import freud
-            >>> # Recommend setting registration and global_search = False
             >>> # Compute clusters of particles with matching environments
             >>> box, points = freud.data.make_random_system(10, 100, seed=0)
             >>> env_cluster = freud.environment.EnvironmentCluster()
-            >>> env_cluster.compute((box, points), threshold=0.2,
-            >>> neighbors={'num_neighbors': 6 },
-            >>> registration=False, global_search=False)
+            >>> env_cluster.compute(
+            ...     system = (box, points),
+            ...     threshold=0.2,
+            ...     neighbors={'num_neighbors': 6},
+            ...     registration=False,
+            ...     global_search=False)
+            freud.environment.EnvironmentCluster()
 
         Args:
             system:
@@ -564,19 +567,22 @@ cdef class EnvironmentCluster(_MatchEnv):
                 neighbor pairs to use in the calculation, or a dictionary of
                 `query arguments
                 <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
-                (Default value: None). This argument is used to define the
-                neighbors of the environment that motifs are registered
-                against.
+                This argument is used to define the neighbors of the
+                environment that motifs are registered against. If ``None``,
+                the value provided for ``neighbors`` will be used. (Default
+                value: None).
             registration (bool, optional):
                 If True, first use brute force registration to orient one set
                 of environment vectors with respect to the other set such that
-                it minimizes the RMSD between the two sets.
+                it minimizes the RMSD between the two sets. Enabling this
+                option incurs a significant performance penalty.
                 (Default value = :code:`False`)
             global_search (bool, optional):
                  If True, do an exhaustive search wherein the environments of
                 every single pair of particles in the simulation are compared.
                 If False, only compare the environments of neighboring
-                particles. (Default value = :code:`False`)
+                particles. Enabling this option incurs a significant
+                performance penalty. (Default value = :code:`False`)
         """  # noqa: E501
         cdef:
             freud.locality.NeighborQuery nq
