@@ -27,14 +27,14 @@ cimport numpy as np
 logger = logging.getLogger(__name__)
 
 
-class DiffractionPattern(_Compute):
+cdef class DiffractionPattern(_Compute):
     R"""Computes a 2D diffraction pattern.
 
     The diffraction image represents the scattering of incident radiation,
     and is useful for identifying translational order present in the system.
     This class computes the static `structure factor
     <https://en.wikipedia.org/wiki/Structure_factor>`_ :math:`S(\vec{q})` for
-    a plane of wavevectors :math:`\vec{q}` orthogonal to a view plane. The
+    a plane of wavevectors :math:`\vec{q}` orthogonal to a view axis. The
     view orientation :math:`(1, 0, 0, 0)` defaults to looking down the
     :math:`z` axis (at the :math:`xy` plane). The points in the system are
     converted to fractional coordinates, then binned into a grid whose
@@ -42,7 +42,7 @@ class DiffractionPattern(_Compute):
     a higher resolution. The points are convolved with a Gaussian of width
     :math:`\sigma`, given by ``peak_width``. This convolution is performed
     as a multiplication in Fourier space. The computed diffraction pattern
-    is returned as a squared image of ``output_size``.
+    is returned as a square array of shape ``(output_size, output_size)`.
 
     Args:
         grid_size (unsigned int):
@@ -55,12 +55,16 @@ class DiffractionPattern(_Compute):
             Width of Gaussian convolved with points, in system length units
             (Default value = 1).
     """
+    cdef int grid_size
+    cdef int output_size
+    cdef float zoom
+    cdef float peak_width
 
     def __init__(self, grid_size=512, output_size=512, zoom=4, peak_width=1):
         self.grid_size = int(grid_size)
         self.output_size = int(output_size)
-        self.zoom = zoom
-        self.peak_width = peak_width
+        self.zoom = float(zoom)
+        self.peak_width = float(peak_width)
         self._k_values_orig = None
         self._k_vectors_orig = None
 
