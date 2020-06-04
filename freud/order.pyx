@@ -176,11 +176,11 @@ cdef class Nematic(_Compute):
         R"""Calculates the per-particle and global order parameter.
 
         Example::
-            >>> box, points = freud.data.make_random_system(10, 100, seed=0)
             >>> orientations = np.array([[1, 0, 0, 0]] * 100)
             >>> director = np.array([1, 1, 0])
             >>> nematic = freud.order.Nematic(director)
-            >>> nematic.compute(points.orientations)
+            >>> nematic.compute(orientations)
+            freud.order.Nematic(u=[...])
 
         Args:
             orientations (:math:`\left(N_{particles}, 4 \right)` :class:`numpy.ndarray`):
