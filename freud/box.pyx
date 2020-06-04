@@ -543,11 +543,12 @@ cdef class Box:
         Example::
             >>> box = freud.box.Box.cube(L=10)
             >>> box.to_dict()
-            {'Lx': 10.0, 'Ly': 10.0, 'Lz': 10.0, 'xy': 0.0, 'xz': 0.0, 'yz': 0.0, 'dimensions': 3}
+            {'Lx': 10.0, 'Ly': 10.0, 'Lz': 10.0,
+             'xy': 0.0, 'xz': 0.0, 'yz': 0.0, 'dimensions': 3}
 
         Returns:
           dict: Box parameters
-        """  # noqa: E501
+        """
         return {
             'Lx': self.Lx,
             'Ly': self.Ly,
