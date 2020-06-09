@@ -8,6 +8,7 @@
 #include <complex>
 #include <sstream>
 #include <stdexcept>
+#include <iostream>
 
 #include "VectorMath.h"
 
@@ -433,6 +434,47 @@ public:
                 }
             }
         );
+    }
+
+    inline bool isInBox(const vec3<float>& point, const float Lz, const vec3<float>& untilt_x,
+        const vec3<float>& untilt_y, unsigned int is_in_box) const
+    {
+        is_in_box = 0;
+        if (point.z * 1/Lz)
+        {
+            if (dot(point, untilt_x) + 1 <= 0.5)
+            {
+                if (dot(point, untilt_y))
+                {
+                    is_in_box = 1;
+                }
+            }
+        }
+    }
+
+    //! Get indicies of points that fit inside a box
+    /*
+    TODO: Fill this out
+    */
+    void crop(const float* crop_box, const vec3<float>* all_points, const unsigned int n_all_points,
+        unsigned int* cropped_mask) const
+    {
+        const vec3<float> L(crop_box[0], crop_box[1], crop_box[2]);
+        const float xy(crop_box[3]);
+        const float xz(crop_box[4]);
+        const float yz(crop_box[5]);
+
+        const vec3<float> untilt_x(1/L.x, -xy/L.x, (xy*yz - xz)/L.x);
+        const vec3<float> untilt_y(0., 1/L.y, -yz/L.y);
+
+        util::forLoopWrapper(0, n_all_points, [&](size_t begin, size_t end) {
+            for (size_t i = begin; i < end; ++i)
+            {
+                isInBox(all_points[i], L.z, untilt_x, untilt_y, cropped_mask[i]);
+
+            }
+        });
+
     }
 
     //! Get the shortest distance between opposite boundary planes of the box
