@@ -494,6 +494,24 @@ cdef class Box:
 
         return np.asarray(distances)
 
+    def crop(self, cropped_box, points):
+        box_matrix = freud.util._convert_array(
+            list(cropped_box.values())[0:6], shape=(6, ))
+        points = freud.util._convert_array(
+            np.atleast_2d(points), shape=(None, 3))
+
+        cdef:
+            const float[::1] l_box_matrix = box_matrix
+            const float[:, ::1] l_points = points
+            size_t n_all_points = points.shape[0]
+            bint[::1] l_cropped_mask = np.empty(n_all_points, dtype=bool)
+
+        self.thisptr.crop(
+            <float *> &l_box_matrix[0], <vec3[float]*> &l_points[0, 0], n_all_points,
+            <unsigned int*> &l_cropped_mask[0])
+
+        return np.array(l_cropped_mask)
+
     @property
     def periodic(self):
         """:math:`\\left(3, \\right)` :class:`numpy.ndarray`: Get or set the
