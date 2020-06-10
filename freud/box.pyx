@@ -495,6 +495,17 @@ cdef class Box:
         return np.asarray(distances)
 
     def crop(self, points):
+        R"""Returns mask corresponding to particle membership in a box.
+        
+        Args:
+            points (:math:`\left(N, 3\right)` :class:`numpy.ndarray`):
+                Array of points.
+        
+        Returns:
+            :math:`\left(N, \right)` :class:`numpy.ndarray`:
+                Array of booleans, where `True` corresponds to points within the box,
+                and `False` corresponds to points outside the box.
+        """  #noqa: E501
         points = freud.util._convert_array(
             np.atleast_2d(points), shape=(None, 3))
 
