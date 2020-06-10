@@ -497,7 +497,6 @@ class TestBox(unittest.TestCase):
                             [[1., 0., 1.], [np.sqrt(2), 1., 0.]], rtol=1e-6)
 
     def test_crop(self):
-        freud.parallel.NumThreads(1)
         box = freud.box.Box(2, 3, 4, 1, 0.1, 0.3)
         points = np.random.uniform(-0.5, 0.5, size=(100, 3)).astype(np.float32)
         points[:50] = np.random.uniform(0.50001, 0.6, size=(50, 3)).astype(np.float32)
