@@ -467,10 +467,12 @@ public:
     void crop(const vec3<float>* all_points, const unsigned int n_all_points,
         unsigned char* cropped_mask) const
     {
-        for (size_t i = 0; i < n_all_points; ++i)
-        {
-            cropped_mask[i] = isInBox(all_points[i]);
-        }
+        util::forLoopWrapper(0, n_all_points, [&](size_t begin, size_t end) {
+            for (size_t i = 0; i < n_all_points; ++i)
+            {
+                cropped_mask[i] = isInBox(all_points[i]);
+            }
+        });
     }
 
     //! Get the shortest distance between opposite boundary planes of the box
