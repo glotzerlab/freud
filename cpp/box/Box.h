@@ -271,9 +271,8 @@ public:
         });
     }
 
-    //! Get periodic image of a particle
-    /*! \param
-        TODO: Fill this out
+    //! Get periodic image of a vector.
+    /*! \param v The vector to check.
     */
     inline vec3<int> getImage(const vec3<float>& v) const
     {
@@ -446,9 +445,10 @@ public:
         );
     }
 
-    //! Get indicies of points that fit inside a box
-    /*
-    TODO: Fill this out
+    //! Get mask of points that fit inside the box.
+    /*! \param points Point positions.
+        \param n_points The number of points.
+        \param cropped_mask Mask of points inside the box.
     */
     void crop(const vec3<float>* points, const unsigned int n_points,
         unsigned char* cropped_mask) const
