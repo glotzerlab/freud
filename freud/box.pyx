@@ -242,7 +242,7 @@ cdef class Box:
         cdef const int[:, ::1] l_result = images
         cdef unsigned int Np = l_points.shape[0]
         self.thisptr.getImages(<vec3[float]*> &l_points[0, 0], Np,
-                              <vec3[int]*> &l_result[0, 0])
+                               <vec3[int]*> &l_result[0, 0])
 
         return np.squeeze(images) if flatten else images
 
@@ -505,7 +505,7 @@ cdef class Box:
             :math:`\left(N, \right)` :class:`numpy.ndarray`:
                 Array of booleans, where `True` corresponds to points within the box,
                 and `False` corresponds to points outside the box.
-        """  #noqa: E501
+        """  # noqa: E501
         points = freud.util._convert_array(
             np.atleast_2d(points), shape=(None, 3))
 
