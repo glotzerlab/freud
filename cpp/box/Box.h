@@ -271,20 +271,31 @@ public:
         });
     }
 
+    //! Get periodic image of a particle
+    /*! \param
+        TODO: Fill this out
+    */
+    inline vec3<int> getImage(const vec3<float>& v) const
+    {
+            vec3<float> f = makeFractional(v) - vec3<float>(0.5, 0.5, 0.5);
+            vec3<int> image(0, 0, 0);
+            image.x = (int) ((f.x >= 0.0f) ? f.x + 0.5f : f.x - 0.5f);
+            image.y = (int) ((f.y >= 0.0f) ? f.y + 0.5f : f.y - 0.5f);
+            image.z = (int) ((f.z >= 0.0f) ? f.z + 0.5f : f.z - 0.5f);
+            return image;
+    }
+
     //! Get the periodic image vectors belongs to
     /*! \param vecs The vectors to check
      *  \param Nvecs Number of vectors
         \param res Array to save the images
      */
-    void getImage(vec3<float>* vecs, unsigned int Nvecs, vec3<int>* res) const
+    void getImages(vec3<float>* vecs, unsigned int Nvecs, vec3<int>* res) const
     {
         util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
-                vec3<float> f = makeFractional(vecs[i]) - vec3<float>(0.5, 0.5, 0.5);
-                res[i].x = (int) ((f.x >= 0.0f) ? f.x + 0.5f : f.x - 0.5f);
-                res[i].y = (int) ((f.y >= 0.0f) ? f.y + 0.5f : f.y - 0.5f);
-                res[i].z = (int) ((f.z >= 0.0f) ? f.z + 0.5f : f.z - 0.5f);
+                res[i] = getImage(vecs[i]);
             }
         });
     }
@@ -440,22 +451,16 @@ public:
     *   \param
     *   TODO: Fill this out
     */
-    inline unsigned int isInBox(const vec3<float>& point) const
+    inline unsigned char isInBox(const vec3<int>& image) const
     {
-        vec3<float> no_tilt_point = point*m_Linv;
-        no_tilt_point.x *= 1 - m_xy + m_xy*m_yz - m_xz;
-        no_tilt_point.y *= 1 - m_yz;
-        //! Squared instead of taking absolute value
-        no_tilt_point *= no_tilt_point;
-
         unsigned char is_in_box;
-        if ((no_tilt_point.x > 0.25) || (no_tilt_point.y > 0.25) || (no_tilt_point.z > 0.25))
+        if (image == vec3<int>(0, 0, 0))
         {
-            is_in_box = 0;
+            is_in_box = 1;
         }
         else
         {
-            is_in_box = 1;
+            is_in_box = 0;
         }
         return is_in_box;
     }
@@ -470,7 +475,8 @@ public:
         util::forLoopWrapper(0, n_all_points, [&](size_t begin, size_t end) {
             for (size_t i = 0; i < n_all_points; ++i)
             {
-                cropped_mask[i] = isInBox(all_points[i]);
+                vec3<int> image = getImage(all_points[i]);
+                cropped_mask[i] = isInBox(image);
             }
         });
     }

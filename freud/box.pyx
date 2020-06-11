@@ -241,7 +241,7 @@ cdef class Box:
         cdef const float[:, ::1] l_points = vecs
         cdef const int[:, ::1] l_result = images
         cdef unsigned int Np = l_points.shape[0]
-        self.thisptr.getImage(<vec3[float]*> &l_points[0, 0], Np,
+        self.thisptr.getImages(<vec3[float]*> &l_points[0, 0], Np,
                               <vec3[int]*> &l_result[0, 0])
 
         return np.squeeze(images) if flatten else images
@@ -496,11 +496,11 @@ cdef class Box:
 
     def crop(self, points):
         R"""Returns mask corresponding to particle membership in a box.
-        
+
         Args:
             points (:math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Array of points.
-        
+
         Returns:
             :math:`\left(N, \right)` :class:`numpy.ndarray`:
                 Array of booleans, where `True` corresponds to points within the box,

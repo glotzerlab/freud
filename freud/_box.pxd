@@ -37,7 +37,7 @@ cdef extern from "Box.h" namespace "freud::box":
         float getVolume() const
         void makeAbsolute(vec3[float]*, unsigned int) const
         void makeFractional(vec3[float]*, unsigned int) const
-        void getImage(vec3[float]*, unsigned int, vec3[int]*) const
+        void getImages(vec3[float]*, unsigned int, vec3[int]*) const
         void wrap(vec3[float]* vs, unsigned int Nv) const
         void unwrap(vec3[float]*, const vec3[int]*,
                     unsigned int) const
