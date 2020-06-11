@@ -450,13 +450,13 @@ public:
     /*
     TODO: Fill this out
     */
-    void crop(const vec3<float>* all_points, const unsigned int n_all_points,
+    void crop(const vec3<float>* points, const unsigned int n_points,
         unsigned char* cropped_mask) const
     {
-        util::forLoopWrapper(0, n_all_points, [&](size_t begin, size_t end) {
-            for (size_t i = 0; i < n_all_points; ++i)
+        util::forLoopWrapper(0, n_points, [&](size_t begin, size_t end) {
+            for (size_t i = 0; i < n_points; ++i)
             {
-                vec3<int> image = getImage(all_points[i]);
+                vec3<int> image = getImage(points[i]);
                 unsigned char is_in_box = 0;
                 if (image == vec3<int>(0, 0, 0))
                 {
