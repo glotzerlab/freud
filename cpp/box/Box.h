@@ -446,25 +446,6 @@ public:
         );
     }
 
-    //! TODO: Title
-    /*! \param
-    *   \param
-    *   TODO: Fill this out
-    */
-    inline unsigned char isInBox(const vec3<int>& image) const
-    {
-        unsigned char is_in_box;
-        if (image == vec3<int>(0, 0, 0))
-        {
-            is_in_box = 1;
-        }
-        else
-        {
-            is_in_box = 0;
-        }
-        return is_in_box;
-    }
-
     //! Get indicies of points that fit inside a box
     /*
     TODO: Fill this out
@@ -476,7 +457,15 @@ public:
             for (size_t i = 0; i < n_all_points; ++i)
             {
                 vec3<int> image = getImage(all_points[i]);
-                cropped_mask[i] = isInBox(image);
+                unsigned char is_in_box = 0;
+                if (image == vec3<int>(0, 0, 0))
+                {
+                    cropped_mask[i] = 1;
+                }
+                else
+                {
+                    cropped_mask[i] = 0;
+                }
             }
         });
     }
