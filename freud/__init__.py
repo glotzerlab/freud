@@ -55,6 +55,7 @@ __citation__ = """@article{freud2020,
               Joshua A. Anderson and
               Sharon C. Glotzer},
     journal = {Computer Physics Communications},
+    volume = {254},
     pages = {107275},
     year = {2020},
     issn = {0010-4655},
