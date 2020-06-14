@@ -1,6 +1,8 @@
 import numpy.testing as npt
 import freud
+import matplotlib
 import unittest
+matplotlib.use('agg')
 
 
 class TestSolidLiquid(unittest.TestCase):

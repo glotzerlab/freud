@@ -1,8 +1,10 @@
 import numpy as np
 import numpy.testing as npt
 import freud
+import matplotlib
 import unittest
 import os
+matplotlib.use('agg')
 
 
 class TestCluster(unittest.TestCase):
