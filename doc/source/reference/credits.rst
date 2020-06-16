@@ -290,7 +290,6 @@ Mike Henry
 Michael Stryk
 
 * Added short examples into Cluster, Density, Environment, and Order Modules.
-* Updated old API in freud ovito-scripts.
 
 Source code
 -----------
