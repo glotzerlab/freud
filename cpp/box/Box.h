@@ -456,7 +456,7 @@ public:
         util::forLoopWrapper(0, n_points, [&](size_t begin, size_t end) {
             for (size_t i = 0; i < n_points; ++i)
             {
-                vec3<int> image = getImage(points[i]);
+                const vec3<int> image = getImage(points[i]);
                 unsigned char is_in_box = 0;
                 if (image == vec3<int>(0, 0, 0))
                 {
