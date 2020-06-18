@@ -123,6 +123,11 @@ public:
     virtual std::shared_ptr<NeighborQueryIterator>
     query(const vec3<float>* query_points, unsigned int n_query_points, QueryArgs query_args) const
     {
+        // pair calculations using non-periodic boxes should fail
+        vec3<bool> periodic = m_box.getPeriodic();
+        if (! (periodic.x && periodic.y && periodic.z))
+            std::domain_error("Cannot execute pair queries in a non-periodic box");
+
         this->validateQueryArgs(query_args);
         return std::make_shared<NeighborQueryIterator>(this, query_points, n_query_points, query_args);
     }
