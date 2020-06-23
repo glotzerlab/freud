@@ -13,7 +13,7 @@
 namespace freud { namespace density {
 
 SphereVoxelization::SphereVoxelization(vec3<unsigned int> width, float r_max)
-    : m_box(box::Box()), m_width(width), m_r_max(r_max), m_has_computed(false)
+    : m_box(), m_width(width), m_r_max(r_max), m_has_computed(false)
 {
     if (r_max <= 0.0f)
         throw std::invalid_argument("SphereVoxelization requires r_max to be positive.");
@@ -34,7 +34,7 @@ vec3<unsigned int> SphereVoxelization::getWidth() const
 //! Compute the voxels array.
 void SphereVoxelization::compute(const freud::locality::NeighborQuery* nq)
 {
-    // set the number of dimensions for the calculation the first time it is done
+    // Set the number of dimensions for the calculation the first time it is done.
     if (!m_has_computed || nq->getBox().is2D() == m_box.is2D())
     {
         m_box = nq->getBox();

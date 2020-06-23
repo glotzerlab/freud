@@ -22,7 +22,7 @@ and this project adheres to
 * Improved error handling of Cubatic input parameters.
 * PMFTs are now properly normalized such that the pair correlation function tends to unity for an ideal gas.
 * PMFTXYT uses the correct orientations when points and query\_points differ.
-* GaussianDensity gaussian normalization in 2D systems has been corrected.
+* GaussianDensity Gaussian normalization in 2D systems has been corrected.
 
 ## v2.2.0 - 2020-02-24
 

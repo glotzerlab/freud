@@ -11,7 +11,7 @@ def compute_3d(box_size, width, points, r_max, periodic=True):
             Length of the (assuemd cubic) box for the calculation.
         width (int):
             Number of grid spaces in each direction of the box
-        points (:np.ndarray: (N,3)):
+        points (:np.ndarray: (N, 3)):
             Points within the box to compute the voxelization of
         r_max (float):
             Radius of the spheres centered at each point
@@ -22,10 +22,7 @@ def compute_3d(box_size, width, points, r_max, periodic=True):
 
     # enlarge the box for the fft by adding more segments of the same length
     # we will cut the extra off later so the fft will be aperiodic.
-    if periodic:
-        buf_size = 0
-    else:
-        buf_size = int(round(eff_rad + 1))
+    buf_size = 0 if periodic else int(round(eff_rad + 1))
     new_width = 2*buf_size + width
 
     # make the grid with the points on it
@@ -36,8 +33,7 @@ def compute_3d(box_size, width, points, r_max, periodic=True):
     sphere = _make_sphere_3d(new_width, eff_rad)
 
     # do the ffts
-    fft_arr = np.fft.fftn(arr)
-    fft_arr *= np.fft.fftn(sphere)
+    fft_arr = np.fft.fftn(arr) * np.fft.fftn(sphere)
     image = np.rint(np.real(np.fft.ifftn(fft_arr))).astype(np.uint32)
 
     # get rid of the buffer
@@ -61,7 +57,7 @@ def compute_2d(box_size, width, points, r_max, periodic=True):
             Length of the (assuemd cubic) box for the calculation.
         width (int):
             Number of grid spaces in each direction of the box
-        points (:np.ndarray: (N,3)):
+        points (:np.ndarray: (N, 3)):
             Points within the box to compute the voxelization of
         r_max (float):
             Radius of the spheres centered at each point
@@ -72,11 +68,8 @@ def compute_2d(box_size, width, points, r_max, periodic=True):
 
     # enlarge the box for the fft by adding more segments of the same length
     # we will cut the extra off later so the fft will be aperiodic.
-    if periodic:
-        buf_size = 0
-    else:
-        buf_size = int(round(eff_rad + 1))
-    new_width = 2*buf_size + width
+    buf_size = 0 if periodic else int(round(eff_rad + 1))
+    new_width = 2 * buf_size + width
 
     # make the grid with the points on it
     arr = _put_points_on_grid(points, new_width, box_size,
@@ -86,8 +79,7 @@ def compute_2d(box_size, width, points, r_max, periodic=True):
     sphere = _make_sphere_2d(new_width, eff_rad)
 
     # do the ffts
-    fft_arr = np.fft.fft2(arr)
-    fft_arr *= np.fft.fft2(sphere)
+    fft_arr = np.fft.fft2(arr) * np.fft.fft2(sphere)
     image = np.rint(np.real(np.fft.ifft2(fft_arr))).astype(np.uint32)
 
     # get rid of the buffer
@@ -102,22 +94,20 @@ def compute_2d(box_size, width, points, r_max, periodic=True):
 
 def _put_points_on_grid(points, new_width, box_size, width, buf_size, ndim):
     """
-    Creates a grid where the voxels are 1 if there is a point there (else 0)
+    Creates a grid where the voxels are 1 if there is a point there and 0 if not.
     """
-    d = tuple(new_width for _ in range(ndim))
+    d = (new_width, )*ndim
     arr = np.zeros(d)
     img_points = points / (box_size / width)  # points in units of grid spacing
     for pt in img_points:
-        shifted_pt = list()
-        for i in range(ndim):
-            shifted_pt.append(int(round(pt[i])))
-        arr[tuple(shifted_pt)] = 1
+        shifted_pt = tuple(int(round(pt[i])) for i in range(ndim))
+        arr[shifted_pt] = 1
     return arr
 
 
 def _make_sphere_3d(new_width, eff_rad):
-    """makes a grid in 3D with voxels that are within eff_rad of the center
-    having value 1 (else 0)"""
+    """Makes a grid in 3D with voxels that are within ``eff_rad`` of the
+    center having value 1 and other voxels having value 0."""
     r_rad = int(round(eff_rad))
     ctr = new_width // 2
     arr = np.zeros((new_width, new_width, new_width))

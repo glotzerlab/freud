@@ -5,7 +5,6 @@
 #include <cmath>
 #include <tbb/blocked_range.h>
 #include <tbb/blocked_range2d.h>
-#include <tbb/blocked_range3d.h>
 #include <tbb/parallel_for.h>
 
 namespace freud { namespace util {

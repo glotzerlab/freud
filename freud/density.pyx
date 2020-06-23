@@ -316,7 +316,7 @@ cdef class SphereVoxelization(_Compute):
             in all dimensions if a single integer value is provided).
         r_max (float):
             Sphere radius.
-    """  # noqa: E501
+    """
     cdef freud._density.SphereVoxelization * thisptr
 
     def __cinit__(self, width, r_max):

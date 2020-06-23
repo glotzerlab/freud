@@ -13,7 +13,7 @@
 namespace freud { namespace density {
 
 GaussianDensity::GaussianDensity(vec3<unsigned int> width, float r_max, float sigma)
-    : m_box(box::Box()), m_width(width), m_r_max(r_max), m_sigma(sigma), m_has_computed(false)
+    : m_box(), m_width(width), m_r_max(r_max), m_sigma(sigma), m_has_computed(false)
 {
     if (r_max <= 0.0f)
         throw std::invalid_argument("GaussianDensity requires r_max to be positive.");
@@ -44,7 +44,7 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq)
     {
         throw std::invalid_argument(
             "The dimensionality of the box passed to GaussianDensity has "
-            "changed. A ne instance must be created to handle a different "
+            "changed. A new instance must be created to handle a different "
             "number of dimensions.");
     }
 
