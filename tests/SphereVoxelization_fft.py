@@ -94,7 +94,8 @@ def compute_2d(box_size, width, points, r_max, periodic=True):
 
 def _put_points_on_grid(points, new_width, box_size, width, buf_size, ndim):
     """
-    Creates a grid where the voxels are 1 if there is a point there and 0 if not.
+    Creates a grid where the voxels are 1 if there is a point there and 0 if
+    not.
     """
     d = (new_width, )*ndim
     arr = np.zeros(d)
