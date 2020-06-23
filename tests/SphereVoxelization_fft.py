@@ -140,5 +140,5 @@ def _make_sphere_2d(new_width, eff_rad):
     for i in range(-r_rad, r_rad):
         for j in range(-r_rad, r_rad):
             if np.linalg.norm([i, j]) <= eff_rad:
-                arr[(ctr+i) % new_width, (ctr+j) % new_width] = 1
+                arr[ctr+i, ctr+j] = 1
     return arr
