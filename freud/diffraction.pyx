@@ -228,7 +228,8 @@ cdef class DiffractionPattern(_Compute):
                 n=self.output_size,
                 d=1/self.output_size))
 
-            # Create a 3D meshgrid of k-vectors, shape (N, N, 3)
+            # Create a 3D meshgrid of k-vectors with shape
+            # (output_size, output_size, 3)
             self._k_vectors_orig = np.asarray(np.meshgrid(
                 self._k_values_orig, self._k_values_orig, [0])).T[0]
 
