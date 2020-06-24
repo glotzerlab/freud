@@ -360,6 +360,14 @@ cdef class LocalDensity(_PairCompute):
     def compute(self, system, query_points=None, neighbors=None):
         R"""Calculates the local density for the specified points.
 
+        Example::
+            >>> import freud
+            >>> box, points = freud.data.make_random_system(10, 100, seed=0)
+            >>> # Compute Local Density
+            >>> ld = freud.density.LocalDensity(r_max=3, diameter=0.05)
+            >>> ld.compute(system=(box, points))
+            freud.density.LocalDensity(...)
+
         Args:
             system:
                 Any object that is a valid argument to
