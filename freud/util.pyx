@@ -146,6 +146,7 @@ cdef class _Compute(object):
         _called_compute (bool):
             Flag representing whether the compute method has been called.
     """
+
     def __cinit__(self):
         self._called_compute = False
 

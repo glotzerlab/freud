@@ -494,7 +494,8 @@ def diffraction_plot(diffraction, k_values, ax=None, cmap='afmhot',
 
     # Determine the number of ticks on the axis
     grid_size = diffraction.shape[0]
-    num_ticks = len([i for i in ax.xaxis.get_ticklocs() if 0 <= i <= grid_size])
+    num_ticks = len([i for i in ax.xaxis.get_ticklocs()
+                     if 0 <= i <= grid_size])
 
     # Ensure there are an odd number of ticks, so that there is a tick at zero
     num_ticks += (1 - num_ticks % 2)
