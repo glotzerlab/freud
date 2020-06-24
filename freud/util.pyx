@@ -157,11 +157,13 @@ cdef class _Compute(object):
         if attr == 'compute':
             # Set the attribute *after* computing. This enables
             # self._called_compute to be used in the compute method itself.
-            @wraps(attribute)
-            def wrapper(*args, **kwargs):
-                attribute(*args, **kwargs)
+            compute = attribute
+
+            @wraps(compute)
+            def compute_wrapper(*args, **kwargs):
+                compute(*args, **kwargs)
                 self._called_compute = True
-            return wrapper
+            return compute_wrapper
         elif attr == 'plot':
             if not self._called_compute:
                 raise AttributeError(
