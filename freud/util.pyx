@@ -161,8 +161,9 @@ cdef class _Compute(object):
 
             @wraps(compute)
             def compute_wrapper(*args, **kwargs):
-                compute(*args, **kwargs)
+                return_value = compute(*args, **kwargs)
                 self._called_compute = True
+                return return_value
             return compute_wrapper
         elif attr == 'plot':
             if not self._called_compute:
