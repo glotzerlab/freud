@@ -64,23 +64,21 @@ cdef class DiffractionPattern(_Compute):
     cdef np.ndarray _k_values
     cdef np.ndarray _k_vectors
     cdef np.ndarray _diffraction
-    cdef bint _has_computed
 
     def __init__(self, grid_size=512, output_size=512, zoom=4, peak_width=1):
         self.grid_size = int(grid_size)
         self.output_size = int(output_size)
         self.zoom = float(zoom)
         self.peak_width = float(peak_width)
-        self._has_computed = False
 
-        # Cache these because they can be computed independent of system.
-        self._k_values_orig = np.zeros(grid_size)
-        self._k_vectors_orig = np.zeros((grid_size, grid_size))
+        # Cache these because they are system-independent.
+        self._k_values_orig = np.empty(grid_size)
+        self._k_vectors_orig = np.empty((grid_size, grid_size, 3))
 
-        # Cache these because they are exposed as properties.
-        self._k_values = np.zeros(grid_size)
-        self._k_vectors = np.zeros((grid_size, grid_size))
-        self._diffraction = np.zeros((grid_size, grid_size))
+        # Store these computed arrays which are exposed as properties.
+        self._k_values = np.empty_like(self._k_values_orig)
+        self._k_vectors = np.empty_like(self._k_vectors_orig)
+        self._diffraction = np.empty((grid_size, grid_size))
 
     def _calc_proj(self, view_orientation, box):
         """Calculate the inverse shear matrix from finding the projected box
@@ -225,7 +223,7 @@ cdef class DiffractionPattern(_Compute):
         self._diffraction /= N*N
 
         # Compute a cached array of k-vectors that can be rotated and scaled
-        if not self._has_computed:
+        if not self._called_compute:
             # Create a 1D axis of k-vector magnitudes
             self._k_values_orig = np.fft.fftshift(np.fft.fftfreq(
                 n=self.output_size,
@@ -233,9 +231,7 @@ cdef class DiffractionPattern(_Compute):
 
             # Create a 3D meshgrid of k-vectors, shape (N, N, 3)
             self._k_vectors_orig = np.asarray(np.meshgrid(
-                self._k_values_orig, self._k_values_orig, [0])).T
-            self._k_vectors_orig = self._k_vectors_orig.reshape(-1, 3)
-            self._has_computed = True
+                self._k_values_orig, self._k_values_orig, [0])).T[0]
 
         # Compute the rotated and scaled k-values and k-vectors
         self._k_values = self._k_values_orig / np.max(system.box.to_matrix())

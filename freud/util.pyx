@@ -125,13 +125,12 @@ cdef class _ManagedArrayContainer:
 cdef class _Compute(object):
     R"""Parent class for all compute classes in freud.
 
-    Currently, the primary purpose of this class is implementing functions to
-    prevent access of uncomputed values. This is accomplished by maintaining a
-    dictionary of compute functions in a class that have been called and
-    decorating class properties with the names of the compute function that
-    must be called to populate that property.
+    The primary purpose of this class is to prevent access of uncomputed
+    values. This is accomplished by maintaining a boolean flag to track whether
+    the compute method in a class has been called and decorating class
+    properties that rely on compute having been called.
 
-    To use this class, one would do, for example,
+    To use this class, one would write, for example,
 
     .. code-block:: python
         class Cluster(_Compute):
@@ -139,18 +138,14 @@ cdef class _Compute(object):
             def compute(...)
                 ...
 
-            @_Compute._computed_property()
+            @_Compute._computed_property
             def cluster_idx(self):
                 return ...
 
-            def reset(...):
-                ...
-
     Attributes:
-        _called_compute (dict):
-            Flags representing whether appropriate compute method was called.
+        _called_compute (bool):
+            Flag representing whether the compute method has been called.
     """
-
     def __cinit__(self):
         self._called_compute = False
 
@@ -159,7 +154,13 @@ cdef class _Compute(object):
         computed. Compute must be called before plotting."""
         attribute = object.__getattribute__(self, attr)
         if attr == 'compute':
-            self._called_compute = True
+            # Set the attribute *after* computing. This enables
+            # self._called_compute to be used in the compute method itself.
+            @wraps(attribute)
+            def wrapper(*args, **kwargs):
+                attribute(*args, **kwargs)
+                self._called_compute = True
+            return wrapper
         elif attr == 'plot':
             if not self._called_compute:
                 raise AttributeError(
