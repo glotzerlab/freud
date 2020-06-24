@@ -452,13 +452,13 @@ public:
         \param cropped_mask Mask of points inside the box.
     */
     void crop(const vec3<float>* points, const unsigned int n_points,
-        unsigned char* cropped_mask) const
+        bool* cropped_mask) const
     {
         util::forLoopWrapper(0, n_points, [&](size_t begin, size_t end) {
             for (size_t i = begin; i < n_points; ++i)
             {
                 std::transform(&points[begin], &points[end], &cropped_mask[begin], 
-                [this](vec3<float> point) -> unsigned char {
+                [this](vec3<float> point) -> bool {
                     return getImage(point) == vec3<int>(0, 0, 0);
                 });
             }
