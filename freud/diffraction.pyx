@@ -277,7 +277,7 @@ cdef class DiffractionPattern(_Compute):
                 Maximum of the color scale (Default value = 0.7).
 
         Returns:
-            ((grid_size, grid_size, 4) :class:`numpy.ndarray`):
+            ((output_size, output_size, 4) :class:`numpy.ndarray`):
                 RGBA array of pixels.
         """
         import matplotlib.cm
