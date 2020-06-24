@@ -8,6 +8,7 @@
 #include <complex>
 #include <sstream>
 #include <stdexcept>
+#include <algorithm>
 
 #include "VectorMath.h"
 
@@ -454,17 +455,12 @@ public:
         unsigned char* cropped_mask) const
     {
         util::forLoopWrapper(0, n_points, [&](size_t begin, size_t end) {
-            for (size_t i = 0; i < n_points; ++i)
+            for (size_t i = begin; i < n_points; ++i)
             {
-                const vec3<int> image = getImage(points[i]);
-                if (image == vec3<int>(0, 0, 0))
-                {
-                    cropped_mask[i] = 1;
-                }
-                else
-                {
-                    cropped_mask[i] = 0;
-                }
+                std::transform(&points[begin], &points[end], &cropped_mask[begin], 
+                [this](vec3<float> point) -> unsigned char {
+                    return getImage(point) == vec3<int>(0, 0, 0);
+                });
             }
         });
     }
