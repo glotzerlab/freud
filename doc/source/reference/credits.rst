@@ -103,6 +103,7 @@ Bradley Dice - **Lead developer**
 * Improved stability of Histogram bin calculations.
 * Improved error handling of Cubatic input parameters.
 * Added 2D Minkowski Structure Metrics to Hexatic, enabled by using ``weighted=True`` along with a Voronoi NeighborList.
+* Contributed code, design, and testing for ``DiffractionPattern`` class.
 
 Eric Harper, University of Michigan - **Former lead developer**
 
@@ -266,6 +267,7 @@ Yezhi Jin
 * Added support for 2D arrays in the Python interface to Box functions.
 * Rewrote Voronoi implementation to leverage voro++.
 * Implemented Voronoi bond weighting to enable Minkowski structure metrics.
+* Contributed code, design, and testing for ``DiffractionPattern`` class.
 
 Brandon Butler
 
