@@ -457,7 +457,6 @@ public:
             for (size_t i = 0; i < n_points; ++i)
             {
                 const vec3<int> image = getImage(points[i]);
-                unsigned char is_in_box = 0;
                 if (image == vec3<int>(0, 0, 0))
                 {
                     cropped_mask[i] = 1;
