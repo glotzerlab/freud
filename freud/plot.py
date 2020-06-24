@@ -480,7 +480,7 @@ def diffraction_plot(diffraction, k_values, ax=None, cmap='afmhot',
     from matplotlib.colorbar import Colorbar
 
     if ax is None:
-        fig = Figure()
+        fig = plt.figure()
         ax = fig.subplots()
 
     # Plot the diffraction image and color bar

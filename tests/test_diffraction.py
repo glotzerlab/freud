@@ -1,6 +1,8 @@
 import freud
+import matplotlib
 import unittest
 import numpy.testing as npt
+matplotlib.use('agg')
 
 
 class TestDiffractionPattern(unittest.TestCase):

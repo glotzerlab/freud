@@ -21,6 +21,7 @@ import rowan
 import time
 
 from freud.util cimport _Compute
+cimport freud.util
 cimport numpy as np
 
 
@@ -57,19 +58,19 @@ cdef class DiffractionPattern(_Compute):
     """
     cdef int grid_size
     cdef int output_size
-    cdef float zoom
-    cdef float peak_width
-    cdef np.ndarray _k_values_orig
-    cdef np.ndarray _k_vectors_orig
-    cdef np.ndarray _k_values
-    cdef np.ndarray _k_vectors
-    cdef np.ndarray _diffraction
+    cdef double zoom
+    cdef double peak_width
+    cdef double[:] _k_values_orig
+    cdef double[:, :, :] _k_vectors_orig
+    cdef double[:] _k_values
+    cdef double[:, :, :] _k_vectors
+    cdef double[:, :] _diffraction
 
     def __init__(self, grid_size=512, output_size=512, zoom=4, peak_width=1):
         self.grid_size = int(grid_size)
         self.output_size = int(output_size)
-        self.zoom = float(zoom)
-        self.peak_width = float(peak_width)
+        self.zoom = np.double(zoom)
+        self.peak_width = np.double(peak_width)
 
         # Cache these because they are system-independent.
         self._k_values_orig = np.empty(grid_size)
@@ -205,22 +206,20 @@ cdef class DiffractionPattern(_Compute):
             xy[:, 0], xy[:, 1], bins=np.linspace(0, 1, grid_size))
 
         # Compute FFT and convolve with Gaussian
-        self._diffraction = np.fft.fft2(im)
-        self._diffraction = scipy.ndimage.fourier.fourier_gaussian(
-            self._diffraction, self.peak_width / self.zoom)
-        self._diffraction = np.fft.fftshift(self._diffraction)
+        cdef double complex[:, :] diffraction_fft
+        diffraction_fft = np.fft.fft2(im)
+        diffraction_fft = scipy.ndimage.fourier.fourier_gaussian(
+            diffraction_fft, self.peak_width / self.zoom)
+        diffraction_fft = np.fft.fftshift(diffraction_fft)
 
         # Compute the squared modulus of the FFT, which is S(q)
         self._diffraction = np.real(
-            self._diffraction * np.conjugate(self._diffraction))
+            diffraction_fft * np.conjugate(diffraction_fft))
 
-        # Transform the image (scale, shear, and zoom)
-        self._diffraction = self._transform(
-            self._diffraction, system.box, inv_shear)
-
-        # Normalize S(q) by N^2
+        # Transform the image (scale, shear, zoom) and normalize S(q) by N^2
         N = len(system.points)
-        self._diffraction /= N*N
+        self._diffraction = self._transform(
+            self._diffraction, system.box, inv_shear) / (N*N)
 
         # Compute a cached array of k-vectors that can be rotated and scaled
         if not self._called_compute:
