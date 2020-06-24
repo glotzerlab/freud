@@ -26,7 +26,7 @@ template<typename T> class HexaticTranslational
 {
 public:
     //! Constructor
-    HexaticTranslational(T k) : m_k(k) {}
+    HexaticTranslational(T k, bool weighted = false) : m_k(k), m_weighted(weighted) {}
 
     //! Destructor
     virtual ~HexaticTranslational() {}
@@ -34,6 +34,11 @@ public:
     T getK() const
     {
         return m_k;
+    }
+
+    bool isWeighted() const
+    {
+        return m_weighted;
     }
 
     //! Get a reference to the order parameter array
@@ -48,25 +53,9 @@ protected:
     void computeGeneral(Func func, const freud::locality::NeighborList* nlist,
                         const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
 
-    const T m_k;
+    const T m_k;     //!< The symmetry order for Hexatic, or normalization for Translational
+    const bool m_weighted; //!< Whether to use neighbor weights in computing the order parameter (default false)
     util::ManagedArray<std::complex<float>> m_psi_array; //!< psi array computed
-};
-
-//! Compute the translational order parameter for a set of points
-/*!
- */
-class Translational : public HexaticTranslational<float>
-{
-public:
-    //! Constructor
-    Translational(float k = 6);
-
-    //! Destructor
-    ~Translational();
-
-    //! Compute the translational order parameter
-    void compute(const freud::locality::NeighborList* nlist, const freud::locality::NeighborQuery* points,
-                 freud::locality::QueryArgs qargs);
 };
 
 //! Compute the hexatic order parameter for a set of points
@@ -76,12 +65,29 @@ class Hexatic : public HexaticTranslational<unsigned int>
 {
 public:
     //! Constructor
-    Hexatic(unsigned int k = 6);
+    Hexatic(unsigned int k = 6, bool weighted = false);
 
     //! Destructor
     ~Hexatic();
 
     //! Compute the hexatic order parameter
+    void compute(const freud::locality::NeighborList* nlist, const freud::locality::NeighborQuery* points,
+                 freud::locality::QueryArgs qargs);
+};
+
+//! Compute the translational order parameter for a set of points
+/*!
+ */
+class Translational : public HexaticTranslational<float>
+{
+public:
+    //! Constructor
+    Translational(float k = 6, bool weighted = false);
+
+    //! Destructor
+    ~Translational();
+
+    //! Compute the translational order parameter
     void compute(const freud::locality::NeighborList* nlist, const freud::locality::NeighborQuery* points,
                  freud::locality::QueryArgs qargs);
 };

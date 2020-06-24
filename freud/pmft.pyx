@@ -90,9 +90,8 @@ def _gen_angle_array(orientations, shape):
     orientations. It performs the conversion of quaternion inputs if needed and
     ensures that singleton arrays are treated correctly."""
 
-    return freud.util._convert_array(
-        np.atleast_1d(_quat_to_z_angle(orientations.squeeze(), shape[0])),
-        shape=shape)
+    return freud.util._convert_array(np.atleast_1d(_quat_to_z_angle(
+        np.asarray(orientations).squeeze(), shape[0])), shape=shape)
 
 
 cdef class _PMFT(_SpatialHistogram):
@@ -349,12 +348,9 @@ cdef class PMFTXY(_PMFT):
     R"""Computes the PMFT :cite:`vanAnders:2014aa,van_Anders_2013` in
     coordinates :math:`x`, :math:`y`.
 
-    Since there are 3 degrees of translational and rotational freedom in 2
-    dimensions, this class is implicitly integrating out one of them.
-    Specifically, by comparison to :class:`~.PMFTXYT` we see that the missing
-    dimension is the relative orientation of the second particle. Note that
-    this degree of freedom is still accounted for in the Jacobian of this
-    calculation.
+    There are 3 degrees of translational and rotational freedom in 2
+    dimensions, so this class implicitly integrates over the rotational degree
+    of freedom of the second particle.
 
     .. note::
         **2D:** :class:`freud.pmft.PMFTXY` is only defined for 2D systems.
@@ -489,24 +485,10 @@ cdef class PMFTXYZ(_PMFT):
     R"""Computes the PMFT :cite:`vanAnders:2014aa,van_Anders_2013` in
     coordinates :math:`x`, :math:`y`, :math:`z`.
 
-    Since there are 6 degrees of translational and rotational freedom in 3
-    dimensions, this class is implicitly integrating out three of them.
-    In particular, we are disregarding the orientational degrees of freedom in
-    the system. The simplest parameterization of these degrees is using Euler
-    angles. The total volume of orientations that are implicitly integrated out
-    by this calculation can be computed by an explicit integral over the Euler
-    angles:
-
-    .. math::
-
-        \int_0^{2\pi} \int_0^\pi \int_0^{2\pi} \sin \theta d\phi d\theta
-        d\psi = 8 \pi^2
-
-    For more information on this calculation, see :cite:`gelfand1963` (the
-    equation is also reproduced without proof at
-    https://en.wikipedia.org/wiki/3D_rotation_group#Spherical_harmonics).
-    This prefactor of :math:`8 \pi^2` is accounted for in the Jacobian used to
-    compute the :class:`PMFTXYZ`.
+    There are 6 degrees of translational and rotational freedom in 3
+    dimensions, so this class is implicitly integrates out the orientational
+    degrees of freedom in the system associated with the points. All
+    calculations are done in the reference from of the query points.
 
     Args:
         x_max (float):

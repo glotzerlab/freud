@@ -1,7 +1,9 @@
 import numpy as np
 import numpy.testing as npt
 import freud
+import matplotlib
 import unittest
+matplotlib.use('agg')
 
 
 class TestMSD(unittest.TestCase):
