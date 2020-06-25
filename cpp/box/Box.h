@@ -458,7 +458,9 @@ public:
             {
                 std::transform(&points[begin], &points[end], &cropped_mask[begin], 
                 [this](const vec3<float> point) -> bool {
-                    return getImage(point) == vec3<int>(0, 0, 0);
+                    vec3<int> image(0, 0, 0);
+                    getImage(point, image);
+                    return image == vec3<int>(0, 0, 0);
                 });
             }
         });
