@@ -514,8 +514,6 @@ cdef class Box:
             const float[:, ::1] l_points = points
             size_t n_all_points = points.shape[0]
 
-        # cropped_mask = freud.util._convert_array(
-        #    np.ones(n_all_points), dtype=np.uint8)
         cropped_mask = freud.util._convert_array(
             np.ones(n_all_points), dtype=np.bool)
         cdef cpp_bool[::1] l_cropped_mask = cropped_mask
