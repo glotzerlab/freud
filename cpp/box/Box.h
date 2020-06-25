@@ -274,15 +274,14 @@ public:
 
     //! Get periodic image of a vector.
     /*! \param v The vector to check.
-    */
-    inline vec3<int> getImage(const vec3<float>& v) const
+     *  \param image The image of a given point.
+     */
+    inline void getImage(const vec3<float>& v, vec3<int> &image) const
     {
             vec3<float> f = makeFractional(v) - vec3<float>(0.5, 0.5, 0.5);
-            vec3<int> image(0, 0, 0);
             image.x = (int) ((f.x >= 0.0f) ? f.x + 0.5f : f.x - 0.5f);
             image.y = (int) ((f.y >= 0.0f) ? f.y + 0.5f : f.y - 0.5f);
             image.z = (int) ((f.z >= 0.0f) ? f.z + 0.5f : f.z - 0.5f);
-            return image;
     }
 
     //! Get the periodic image vectors belongs to
@@ -295,7 +294,7 @@ public:
         util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
-                res[i] = getImage(vecs[i]);
+                res[i] = getImage(vecs[i], res[i]);
             }
         });
     }
