@@ -495,7 +495,7 @@ cdef class Box:
 
         return np.asarray(distances)
 
-    def crop(self, points):
+    def contains(self, points):
         R"""Returns boolean array (mask) corresponding to particle membership in a box.
 
         Args:

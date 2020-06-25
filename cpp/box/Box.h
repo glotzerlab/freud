@@ -450,7 +450,7 @@ public:
         \param n_points The number of points.
         \param cropped_mask Mask of points inside the box.
     */
-    void crop(const vec3<float>* points, const unsigned int n_points,
+    void contains(const vec3<float>* points, const unsigned int n_points,
         bool* cropped_mask) const
     {
         util::forLoopWrapper(0, n_points, [&](size_t begin, size_t end) {
