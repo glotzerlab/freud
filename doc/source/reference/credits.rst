@@ -290,6 +290,10 @@ Mike Henry
 * Fixed syntax in freud-examples notebooks for v2.0.
 * Updated documentation links
 
+Michael Stryk
+
+* Added short examples into Cluster, Density, Environment, and Order Modules.
+
 Tommy Waltmann
 
 * Worked with Bradley Dice to add the SphereVoxelization feature.

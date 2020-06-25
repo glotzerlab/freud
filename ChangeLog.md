@@ -11,6 +11,8 @@ and this project adheres to
 * Custom NeighborLists can be created from a set of points using `from_points`. Distances will be calculated automatically.
 * The Box class has methods `compute_distances` and `compute_all_distances` to calculate distances between arrays of points and query points.
 * Hexatic can now compute 2D Minkowski Structure Metrics, using `weighted=True` along with a Voronoi NeighborList.
+* Examples have been added to the Cluster, Density, Environment, and Order Modules.
+* Module examples have been integrated with doctests to ensure they are up to date with API
 * SphereVoxelization class in the `density` module computes a grid of voxels occupied by spheres.
 
 ### Changed
