@@ -498,7 +498,11 @@ cdef class Box:
     def contains(self, points):
         R"""Returns boolean array (mask) corresponding to point membership in a box.
 
-        TODO:: Address Vyas comment + add cropping example.
+        This calculation computes particle membership based on conventions defined by :class:~.Box,
+        ignoring periodicity, where the origin is defined as the center of the box.
+        More information about coordinate conventions can be found `here
+        <https://freud.readthedocs.io/en/latest/gettingstarted/examples/module_intros/box.Box.html?highlight=origin#Using-boxes>`_
+        and `here <https://freud.readthedocs.io/en/latest/gettingstarted/tutorial/periodic.html?highlight=origin#periodic-boundary-conditions>`_.
 
         Args:
             points (:math:`\left(N, 3\right)` :class:`numpy.ndarray`):
