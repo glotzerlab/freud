@@ -46,7 +46,8 @@ cdef class DiffractionPattern(_Compute):
         grid_size (unsigned int):
             Resolution of the diffraction grid (Default value = 512).
         output_size (unsigned int):
-            Size of the output diffraction image (Default value = 512).
+            Size of the output diffraction image, uses ``grid_size`` if
+            not provided or ``None`` (Default value = :code:`None`).
     """
     cdef int grid_size
     cdef int output_size
@@ -56,18 +57,20 @@ cdef class DiffractionPattern(_Compute):
     cdef double[:, :, :] _k_vectors
     cdef double[:, :] _diffraction
 
-    def __init__(self, grid_size=512, output_size=512):
+    def __init__(self, grid_size=512, output_size=None):
         self.grid_size = int(grid_size)
-        self.output_size = int(output_size)
+        self.output_size = int(grid_size) if output_size is None \
+            else int(output_size)
 
         # Cache these because they are system-independent.
-        self._k_values_orig = np.empty(output_size)
-        self._k_vectors_orig = np.empty((output_size, output_size, 3))
+        self._k_values_orig = np.empty(self.output_size)
+        self._k_vectors_orig = np.empty((
+            self.output_size, self.output_size, 3))
 
         # Store these computed arrays which are exposed as properties.
         self._k_values = np.empty_like(self._k_values_orig)
         self._k_vectors = np.empty_like(self._k_vectors_orig)
-        self._diffraction = np.empty((output_size, output_size))
+        self._diffraction = np.empty((self.output_size, self.output_size))
 
     def _calc_proj(self, view_orientation, box):
         """Calculate the inverse shear matrix from finding the projected box
