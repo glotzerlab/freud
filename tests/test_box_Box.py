@@ -496,7 +496,7 @@ class TestBox(unittest.TestCase):
         npt.assert_allclose(distances,
                             [[1., 0., 1.], [np.sqrt(2), 1., 0.]], rtol=1e-6)
 
-    def test_crop(self):
+    def test_contains(self):
         box = freud.box.Box(2, 3, 4, 1, 0.1, 0.3)
         points = np.random.uniform(-0.5, 0.5, size=(100, 3)).astype(np.float32)
         points[:50] = np.random.uniform(
@@ -506,7 +506,7 @@ class TestBox(unittest.TestCase):
 
         in_box_mask = np.ones(points.shape[0]).astype(bool)
         in_box_mask[:50] = False
-        npt.assert_array_equal(in_box_mask, box.crop(points))
+        npt.assert_array_equal(in_box_mask, box.contains(points))
 
 
 if __name__ == '__main__':

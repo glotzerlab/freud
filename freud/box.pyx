@@ -496,7 +496,9 @@ cdef class Box:
         return np.asarray(distances)
 
     def contains(self, points):
-        R"""Returns boolean array (mask) corresponding to particle membership in a box.
+        R"""Returns boolean array (mask) corresponding to point membership in a box.
+
+        TODO:: Address Vyas comment + add cropping example.
 
         Args:
             points (:math:`\left(N, 3\right)` :class:`numpy.ndarray`):
@@ -518,7 +520,7 @@ cdef class Box:
             np.ones(n_all_points), dtype=np.bool)
         cdef cpp_bool[::1] l_cropped_mask = cropped_mask
 
-        self.thisptr.crop(
+        self.thisptr.contains(
             <vec3[float]*> &l_points[0, 0], n_all_points,
             <cpp_bool*> &l_cropped_mask[0])
 
