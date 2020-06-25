@@ -496,7 +496,7 @@ cdef class Box:
         return np.asarray(distances)
 
     def crop(self, points):
-        R"""Returns mask corresponding to particle membership in a box.
+        R"""Returns boolean array (mask) corresponding to particle membership in a box.
 
         Args:
             points (:math:`\left(N, 3\right)` :class:`numpy.ndarray`):
