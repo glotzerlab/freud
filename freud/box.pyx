@@ -504,6 +504,14 @@ cdef class Box:
         <https://freud.readthedocs.io/en/latest/gettingstarted/examples/module_intros/box.Box.html?highlight=origin#Using-boxes>`_
         and `here <https://freud.readthedocs.io/en/latest/gettingstarted/tutorial/periodic.html?highlight=origin#periodic-boundary-conditions>`_.
 
+        Example::
+
+            >>> import freud
+            >>> box = freud.Box.cube(10)
+            >>> points = [[-4, 0, 0], [10, 0, 0], [0, -7, 0]]
+            >>> box.contains(points)
+            array([ True, False, False])
+
         Args:
             points (:math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Array of points.
@@ -513,6 +521,7 @@ cdef class Box:
                 Array of booleans, where `True` corresponds to points within the box,
                 and `False` corresponds to points outside the box.
         """  # noqa: E501
+
         points = freud.util._convert_array(
             np.atleast_2d(points), shape=(None, 3))
 
