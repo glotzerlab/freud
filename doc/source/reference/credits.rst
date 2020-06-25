@@ -103,6 +103,9 @@ Bradley Dice - **Lead developer**
 * Improved stability of Histogram bin calculations.
 * Improved error handling of Cubatic input parameters.
 * Added 2D Minkowski Structure Metrics to Hexatic, enabled by using ``weighted=True`` along with a Voronoi NeighborList.
+* Worked with Tommy Waltmann to add the SphereVoxelization feature.
+* Fixed GaussianDensity normalization in 2D systems.
+* Prevented GaussianDensity from computing 3D systems after it has computed 2D systems.
 
 Eric Harper, University of Michigan - **Former lead developer**
 
@@ -290,6 +293,10 @@ Mike Henry
 Michael Stryk
 
 * Added short examples into Cluster, Density, Environment, and Order Modules.
+
+Tommy Waltmann
+
+* Worked with Bradley Dice to add the SphereVoxelization feature.
 
 Source code
 -----------

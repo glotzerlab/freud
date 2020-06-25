@@ -11,17 +11,20 @@ and this project adheres to
 * Custom NeighborLists can be created from a set of points using `from_points`. Distances will be calculated automatically.
 * The Box class has methods `compute_distances` and `compute_all_distances` to calculate distances between arrays of points and query points.
 * Hexatic can now compute 2D Minkowski Structure Metrics, using `weighted=True` along with a Voronoi NeighborList.
-* Examples have been added to the Cluster, Density, Environment, and Order Modules. 
+* Examples have been added to the Cluster, Density, Environment, and Order Modules.
 * Module examples have been integrated with doctests to ensure they are up to date with API
+* SphereVoxelization class in the `density` module computes a grid of voxels occupied by spheres.
 
 ### Changed
 * Cython is now a required dependency (not optional). Cythonized `.cpp` files have been removed.
+* An instance of GaussianDensity cannot compute 3D systems if it has been previously computed 2D systems.
 
 ### Fixed
 * Histogram bin locations are computed in a more numerically stable way.
 * Improved error handling of Cubatic input parameters.
 * PMFTs are now properly normalized such that the pair correlation function tends to unity for an ideal gas.
 * PMFTXYT uses the correct orientations when points and query\_points differ.
+* GaussianDensity Gaussian normalization in 2D systems has been corrected.
 
 ## v2.2.0 - 2020-02-24
 

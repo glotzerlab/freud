@@ -11,7 +11,7 @@ class BenchmarkDensityGaussianDensity(Benchmark):
         self.sigma = sigma
 
     def bench_setup(self, N):
-        self.box_size = self.r_max*3.1
+        self.box_size = self.r_max*20
         self.box = freud.box.Box.square(self.box_size)
         np.random.seed(0)
         self.points = np.random.random_sample((N, 3)).astype(np.float32) \
@@ -27,7 +27,7 @@ class BenchmarkDensityGaussianDensity(Benchmark):
 def run():
     Ns = [1000, 10000]
     width = 100
-    r_max = 10
+    r_max = 1
     sigma = 0.1
     name = 'freud.density.GaussianDensity'
     classobj = BenchmarkDensityGaussianDensity
