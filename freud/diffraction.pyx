@@ -15,13 +15,10 @@ finalized in a future release.
 import freud.locality
 import logging
 import numpy as np
-import scipy.interpolate
 import scipy.ndimage
 import rowan
-import time
 
 from freud.util cimport _Compute
-cimport freud.util
 cimport numpy as np
 
 
