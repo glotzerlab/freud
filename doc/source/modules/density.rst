@@ -11,6 +11,7 @@ Density Module
     freud.density.GaussianDensity
     freud.density.LocalDensity
     freud.density.RDF
+    freud.density.SphereVoxelization
 
 .. rubric:: Details
 

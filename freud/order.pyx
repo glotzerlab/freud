@@ -175,10 +175,17 @@ cdef class Nematic(_Compute):
     def compute(self, orientations):
         R"""Calculates the per-particle and global order parameter.
 
+        Example::
+            >>> orientations = np.array([[1, 0, 0, 0]] * 100)
+            >>> director = np.array([1, 1, 0])
+            >>> nematic = freud.order.Nematic(director)
+            >>> nematic.compute(orientations)
+            freud.order.Nematic(u=[...])
+
         Args:
             orientations (:math:`\left(N_{particles}, 4 \right)` :class:`numpy.ndarray`):
                 Orientations to calculate the order parameter.
-        """  # noqa: E501
+        """   # noqa: E501
         orientations = freud.util._convert_array(
             orientations, shape=(None, 4))
 
@@ -272,6 +279,16 @@ cdef class Hexatic(_PairCompute):
     def compute(self, system, neighbors=None):
         R"""Calculates the hexatic order parameter.
 
+        Example::
+            >>> box, points = freud.data.make_random_system(
+            ...     box_size=10, num_points=100, is2D=True, seed=0)
+            >>> # Compute the hexatic (6-fold) order for the 2D system
+            >>> hex_order = freud.order.Hexatic(k=6)
+            >>> hex_order.compute(system=(box, points))
+            freud.order.Hexatic(...)
+            >>> print(hex_order.particle_order)
+            [...]
+
         Args:
             system:
                 Any object that is a valid argument to
@@ -282,7 +299,7 @@ cdef class Hexatic(_PairCompute):
                 `query arguments
                 <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
                 (Default value: None).
-        """
+        """   # noqa: E501
         cdef:
             freud.locality.NeighborQuery nq
             freud.locality.NeighborList nlist
@@ -543,6 +560,12 @@ cdef class Steinhardt(_PairCompute):
     def compute(self, system, neighbors=None):
         R"""Compute the order parameter.
 
+        Example::
+            >>> box, points = freud.data.make_random_system(10, 100, seed=0)
+            >>> ql = freud.order.Steinhardt(l=6)
+            >>> ql.compute((box, points), {'r_max':3})
+            freud.order.Steinhardt(l=6, ...)
+
         Args:
             system:
                 Any object that is a valid argument to
@@ -553,7 +576,7 @@ cdef class Steinhardt(_PairCompute):
                 `query arguments
                 <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
                 (Default value: None).
-        """
+        """   # noqa: E501
         cdef:
             freud.locality.NeighborQuery nq
             freud.locality.NeighborList nlist
