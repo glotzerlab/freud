@@ -3,7 +3,7 @@
 
 R"""
 The :class:`freud.diffraction` module provides functions for computing the
-diffraction pattern of particles in periodic systems.
+diffraction pattern of particles in systems with long range order.
 
 .. rubric:: Stability
 
@@ -29,8 +29,8 @@ cdef class DiffractionPattern(_Compute):
     R"""Computes a 2D diffraction pattern.
 
     The diffraction image represents the scattering of incident radiation,
-    and is useful for identifying translational order present in the system.
-    This class computes the static `structure factor
+    and is useful for identifying translational and/or rotational symmetry
+    present in the system. This class computes the static `structure factor
     <https://en.wikipedia.org/wiki/Structure_factor>`_ :math:`S(\vec{q})` for
     a plane of wavevectors :math:`\vec{q}` orthogonal to a view axis. The
     view orientation :math:`(1, 0, 0, 0)` defaults to looking down the
