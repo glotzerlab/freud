@@ -44,7 +44,7 @@ cdef class DiffractionPattern(_Compute):
 
     Args:
         grid_size (unsigned int):
-            Resolution of the diffraction grid. (Default value = 512).
+            Resolution of the diffraction grid (Default value = 512).
         output_size (unsigned int):
             Size of the output diffraction image (Default value = 512).
         zoom (float):
