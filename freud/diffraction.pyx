@@ -70,13 +70,13 @@ cdef class DiffractionPattern(_Compute):
         self.peak_width = np.double(peak_width)
 
         # Cache these because they are system-independent.
-        self._k_values_orig = np.empty(grid_size)
-        self._k_vectors_orig = np.empty((grid_size, grid_size, 3))
+        self._k_values_orig = np.empty(output_size)
+        self._k_vectors_orig = np.empty((output_size, output_size, 3))
 
         # Store these computed arrays which are exposed as properties.
         self._k_values = np.empty_like(self._k_values_orig)
         self._k_vectors = np.empty_like(self._k_vectors_orig)
-        self._diffraction = np.empty((grid_size, grid_size))
+        self._diffraction = np.empty((output_size, output_size))
 
     def _calc_proj(self, view_orientation, box):
         """Calculate the inverse shear matrix from finding the projected box
