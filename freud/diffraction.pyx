@@ -40,7 +40,7 @@ cdef class DiffractionPattern(_Compute):
     a higher resolution. The points are convolved with a Gaussian of width
     :math:`\sigma`, given by ``peak_width``. This convolution is performed
     as a multiplication in Fourier space. The computed diffraction pattern
-    is returned as a square array of shape ``(output_size, output_size)``.
+    can be accessed as a square array of shape ``(output_size, output_size)``.
 
     Args:
         grid_size (unsigned int):
