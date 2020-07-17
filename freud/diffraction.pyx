@@ -47,27 +47,18 @@ cdef class DiffractionPattern(_Compute):
             Resolution of the diffraction grid (Default value = 512).
         output_size (unsigned int):
             Size of the output diffraction image (Default value = 512).
-        zoom (float):
-            Scaling factor for incident wavevectors (Default value = 4).
-        peak_width (float):
-            Width of Gaussian convolved with points, in system length units
-            (Default value = 1).
     """
     cdef int grid_size
     cdef int output_size
-    cdef double zoom
-    cdef double peak_width
     cdef double[:] _k_values_orig
     cdef double[:, :, :] _k_vectors_orig
     cdef double[:] _k_values
     cdef double[:, :, :] _k_vectors
     cdef double[:, :] _diffraction
 
-    def __init__(self, grid_size=512, output_size=512, zoom=4, peak_width=1):
+    def __init__(self, grid_size=512, output_size=512):
         self.grid_size = int(grid_size)
         self.output_size = int(output_size)
-        self.zoom = np.double(zoom)
-        self.peak_width = np.double(peak_width)
 
         # Cache these because they are system-independent.
         self._k_values_orig = np.empty(output_size)
@@ -118,7 +109,7 @@ cdef class DiffractionPattern(_Compute):
         inv_shear = np.linalg.inv(shear)
         return inv_shear
 
-    def _transform(self, img, box, inv_shear):
+    def _transform(self, img, box, inv_shear, zoom):
         """Zoom, shear, and scale diffraction intensities.
 
         Args:
@@ -128,6 +119,8 @@ cdef class DiffractionPattern(_Compute):
                 Simulation box.
             inv_shear ((2, 2) :class:`numpy.ndarray`):
                 Inverse shear matrix.
+            zoom (float):
+                Scaling factor for incident wavevectors.
 
         Returns:
             (:math:`N`, :math:`N`) :class:`numpy.ndarray`:
@@ -137,8 +130,8 @@ cdef class DiffractionPattern(_Compute):
         if img.shape[0] % 2 == 0:
             roll -= 0.5
 
-        roll_shift = self.output_size / self.zoom / 2
-        if (self.output_size / self.zoom) % 2 == 0:
+        roll_shift = self.output_size / zoom / 2
+        if (self.output_size / zoom) % 2 == 0:
             roll_shift -= 0.5
 
         box_matrix = box.to_matrix()
@@ -156,7 +149,7 @@ cdef class DiffractionPattern(_Compute):
              [ss[1, 1], ss[0, 1], roll_shift],
              [0, 0, 1]])
 
-        zoom_matrix = np.diag((self.zoom, self.zoom, 1))
+        zoom_matrix = np.diag((zoom, zoom, 1))
 
         # This matrix uses homogeneous coordinates. It is a 3x3 matrix that
         # transforms 2D points and adds an offset.
@@ -171,7 +164,7 @@ cdef class DiffractionPattern(_Compute):
             mode="constant")
         return img
 
-    def compute(self, system, view_orientation=None):
+    def compute(self, system, view_orientation=None, zoom=4, peak_width=1):
         R"""Computes diffraction pattern.
 
         Args:
@@ -181,13 +174,18 @@ cdef class DiffractionPattern(_Compute):
             view_orientation ((:math:`4`) :class:`numpy.ndarray`, optional):
                 View orientation. Uses :math:`(1, 0, 0, 0)` if not provided
                 or :code:`None` (Default value = :code:`None`).
+            zoom (float):
+                Scaling factor for incident wavevectors (Default value = 4).
+            peak_width (float):
+                Width of Gaussian convolved with points, in system length units
+                (Default value = 1).
         """
         system = freud.locality.NeighborQuery.from_system(system)
 
         if view_orientation is None:
             view_orientation = np.array([1., 0., 0., 0.])
 
-        grid_size = int(self.grid_size / self.zoom)
+        grid_size = int(self.grid_size / zoom)
 
         # Compute the box projection matrix
         inv_shear = self._calc_proj(view_orientation, system.box)
@@ -206,7 +204,7 @@ cdef class DiffractionPattern(_Compute):
         cdef double complex[:, :] diffraction_fft
         diffraction_fft = np.fft.fft2(im)
         diffraction_fft = scipy.ndimage.fourier.fourier_gaussian(
-            diffraction_fft, self.peak_width / self.zoom)
+            diffraction_fft, peak_width / zoom)
         diffraction_fft = np.fft.fftshift(diffraction_fft)
 
         # Compute the squared modulus of the FFT, which is S(q)
@@ -216,7 +214,7 @@ cdef class DiffractionPattern(_Compute):
         # Transform the image (scale, shear, zoom) and normalize S(q) by N^2
         N = len(system.points)
         self._diffraction = self._transform(
-            self._diffraction, system.box, inv_shear) / (N*N)
+            self._diffraction, system.box, inv_shear, zoom) / (N*N)
 
         # Compute a cached array of k-vectors that can be rotated and scaled
         if not self._called_compute:
@@ -239,7 +237,10 @@ cdef class DiffractionPattern(_Compute):
 
     @_Compute._computed_property
     def diffraction(self):
-        """(``output_size``, ``output_size``) :class:`numpy.ndarray`: diffraction pattern."""
+        """
+        (``output_size``, ``output_size``) :class:`numpy.ndarray`:
+            diffraction pattern.
+        """
         return self._diffraction
 
     @_Compute._computed_property
@@ -249,18 +250,18 @@ cdef class DiffractionPattern(_Compute):
 
     @_Compute._computed_property
     def k_vectors(self):
-        """(``output_size``, ``output_size``, 3) :class:`numpy.ndarray`: k-vectors."""
+        """
+        (``output_size``, ``output_size``, 3) :class:`numpy.ndarray`:
+            k-vectors.
+        """
         return self._k_vectors
 
     def __repr__(self):
         return ("freud.diffraction.{cls}(grid_size={grid_size}, "
-                "output_size={output_size}, zoom={zoom}, "
-                "peak_width={peak_width})").format(
+                "output_size={output_size})").format(
                     cls=type(self).__name__,
                     grid_size=self.grid_size,
-                    output_size=self.output_size,
-                    zoom=self.zoom,
-                    peak_width=self.peak_width)
+                    output_size=self.output_size)
 
     def to_image(self, cmap='afmhot', vmin=4e-6, vmax=0.7):
         """Generates image of diffraction pattern.

@@ -22,7 +22,7 @@ class TestDiffractionPattern(unittest.TestCase):
         with self.assertRaises(AttributeError):
             dp.plot()
 
-        dp.compute((box, positions))
+        dp.compute((box, positions), zoom=1, peak_width=4)
         dp.diffraction
         dp.k_vectors
         dp.plot()
@@ -34,7 +34,7 @@ class TestDiffractionPattern(unittest.TestCase):
 
         # Use non-default arguments for all parameters
         dp = freud.diffraction.DiffractionPattern(
-            grid_size=500, zoom=1, peak_width=2)
+            grid_size=500)
         self.assertEqual(str(dp), str(eval(repr(dp))))
 
     def test_k_vector(self):
