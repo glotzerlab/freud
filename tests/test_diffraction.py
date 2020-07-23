@@ -29,21 +29,34 @@ class TestDiffractionPattern(unittest.TestCase):
         dp.plot()
         dp._repr_png_()
 
-    def test_center_value(self):
+    def test_center_unordered(self):
         """
-        Assert the center value in the image is the largest for odd image size.
+        Assert the center of the image is an intensity peak for an unordered
+        system.
         """
-        dp = freud.diffraction.DiffractionPattern(output_size=101)
-        box, positions = freud.data.UnitCell.bcc().generate_system(10)
+        dp = freud.diffraction.DiffractionPattern(output_size=99)
+        box, positions = freud.data.make_random_system(10, 100)
         dp.compute(system=(box, positions))
-        pattern = dp.diffraction
+        pattern = np.asarray(dp.diffraction)
 
-        npt.assert_almost_equal(pattern[50, 50], np.max(pattern))
+        # make sure the pixel at the center is part of a peak at the origin,
+        # meaning its value is of the same order of magnitude as the max value
+        self.assertTrue(pattern[49, 49] > .1 * np.max(pattern))
 
-    def test_center_values(self):
+        # assert the group of pixels in the center has the highest intensity
+        group_sum = np.zeros((9, 9))
+        for i in range(9):
+            for j in range(9):
+                indices = [(m, n) for m in range(11*i, 11*(i+1))
+                                  for n in range(11*j, 11*(j+1))]
+                group_sum[i, j] = pattern[indices].sum()
+
+        npt.assert_almost_equal(group_sum[4, 4], np.max(group_sum))
+
+    def test_center_ordered(self):
         """
-        Assert the 4 values in the center of the image are the largest for
-        even image size.
+        Assert the center of the image is an intensity peak for an ordered
+        system.
         """
         dp = freud.diffraction.DiffractionPattern(output_size=100)
         box, positions = freud.data.UnitCell.bcc().generate_system(10)
@@ -51,10 +64,11 @@ class TestDiffractionPattern(unittest.TestCase):
         pattern = dp.diffraction
         max_val = np.max(pattern)
 
-        npt.assert_almost_equal(pattern[50, 50], max_val)
-        npt.assert_almost_equal(pattern[49, 49], max_val)
-        npt.assert_almost_equal(pattern[49, 50], max_val)
-        npt.assert_alomst_equal(pattern[50, 49], max_val)
+        # similar assertion as the above test
+        self.assertTrue(pattern[50, 50] > .1 * max_val)
+        self.assertTrue(pattern[49, 49] > .1 * max_val)
+        self.assertTrue(pattern[49, 50] > .1 * max_val)
+        self.assertTrue(pattern[50, 49] > .1 * max_val)
 
     def test_zero_particles(self):
         """Assert that all values are equal if there are no particles."""
