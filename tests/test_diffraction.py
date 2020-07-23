@@ -47,8 +47,9 @@ class TestDiffractionPattern(unittest.TestCase):
         group_sum = np.zeros((9, 9))
         for i in range(9):
             for j in range(9):
-                indices = [(m, n) for m in range(11*i, 11*(i+1))
-                                  for n in range(11*j, 11*(j+1))]
+                indices = [(m, n)
+                           for m in range(11*i, 11*(i+1))
+                           for n in range(11*j, 11*(j+1))]
                 group_sum[i, j] = pattern[indices].sum()
 
         npt.assert_almost_equal(group_sum[4, 4], np.max(group_sum))
