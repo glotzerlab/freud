@@ -77,16 +77,17 @@ class TestDiffractionPattern(unittest.TestCase):
         self.assertTrue(pattern[49, 50] > .1 * max_val)
         self.assertTrue(pattern[50, 49] > .1 * max_val)
 
-    def test_zero_particles(self):
-        """Assert that all values are equal if there are no particles."""
-        dp = freud.diffraction.DiffractionPattern()
-        box = freud.box.Box(10, 10, 10)
+    def test_one_particle(self):
+        """Assert that all values are close to one with only one point."""
+        dp = freud.diffraction.DiffractionPattern(output_size=101)
+        box = freud.box.Box(100, 100, 100)
+        points = [[0, 0, 0]]
 
-        # trying to get freud to accept an empty box
-        dp.compute(system=(box, None))
+        dp.compute(system=(box, points))
         pattern = dp.diffraction
 
-        npt.testing.assert_almost_equal(np.max(pattern), np.min(pattern))
+        # pattern should basically be 1 everywhere
+        self.assertTrue(np.min(pattern) > .95)
 
     def test_repr(self):
         dp = freud.diffraction.DiffractionPattern()
