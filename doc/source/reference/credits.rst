@@ -299,6 +299,7 @@ Michael Stryk
 Tommy Waltmann
 
 * Worked with Bradley Dice to add the SphereVoxelization feature.
+* Contributed code, design, and testing for ``DiffractionPattern`` class.
 
 Source code
 -----------
