@@ -241,12 +241,12 @@ cdef class DiffractionPattern(_Compute):
         (``output_size``, ``output_size``) :class:`numpy.ndarray`:
             diffraction pattern.
         """
-        return self._diffraction
+        return np.asarray(self._diffraction)
 
     @_Compute._computed_property
     def k_values(self):
         """(``output_size``, ) :class:`numpy.ndarray`: k-values."""
-        return self._k_values
+        return np.asarray(self._k_values)
 
     @_Compute._computed_property
     def k_vectors(self):
@@ -254,7 +254,7 @@ cdef class DiffractionPattern(_Compute):
         (``output_size``, ``output_size``, 3) :class:`numpy.ndarray`:
             k-vectors.
         """
-        return self._k_vectors
+        return np.asarray(self._k_vectors)
 
     def __repr__(self):
         return ("freud.diffraction.{cls}(grid_size={grid_size}, "

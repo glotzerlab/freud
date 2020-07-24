@@ -24,10 +24,16 @@ class TestDiffractionPattern(unittest.TestCase):
             dp.plot()
 
         dp.compute((box, positions), zoom=1, peak_width=4)
-        dp.diffraction
-        dp.k_vectors
+        diff = dp.diffraction
+        vecs = dp.k_vectors
         dp.plot()
         dp._repr_png_()
+
+        # make sure old data is not invalidated by new call to compute()
+        box2, positions2 = freud.data.UnitCell.bcc().generate_system(3)
+        dp.compute((box2, positions2), zoom=1, peak_width=4)
+        self.assertFalse(np.array_equal(dp.diffraction, diff))
+        self.assertFalse(np.array_equal(dp.k_vectors, vecs))
 
     def test_center_unordered(self):
         """
