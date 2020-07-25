@@ -80,8 +80,8 @@ class TestDiffractionPattern(unittest.TestCase):
     def test_one_particle(self):
         """Assert that all values are close to one with only one point."""
         dp = freud.diffraction.DiffractionPattern(output_size=101)
-        box = freud.box.Box(100, 100, 100)
-        points = [[0, 0, 0]]
+        box = freud.Box.cube(100)
+        points = [[0., 0., 0.]]
 
         dp.compute(system=(box, points))
         pattern = dp.diffraction
