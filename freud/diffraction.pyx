@@ -75,7 +75,7 @@ cdef class DiffractionPattern(_Compute):
 
         Args:
             view_orientation ((:math:`4`) :class:`numpy.ndarray`):
-                View orientation.
+                View orientation as a quaternion.
             box (:class:`~.box.Box`):
                 Simulation box.
 
@@ -195,10 +195,11 @@ cdef class DiffractionPattern(_Compute):
         xy = xy @ inv_shear.T
 
         # Map positions to [0, 1] and compute a histogram "image"
+        # Use grid_size+1 bin edges so that there are grid_size bins
         xy += 0.5
         xy %= 1
         im, _, _ = np.histogram2d(
-            xy[:, 0], xy[:, 1], bins=np.linspace(0, 1, grid_size))
+            xy[:, 0], xy[:, 1], bins=np.linspace(0, 1, grid_size+1))
 
         # Compute FFT and convolve with Gaussian
         cdef double complex[:, :] diffraction_fft
