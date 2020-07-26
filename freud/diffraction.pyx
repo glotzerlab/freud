@@ -44,6 +44,10 @@ cdef class DiffractionPattern(_Compute):
     as a multiplication in Fourier space. The computed diffraction pattern
     can be accessed as a square array of shape ``(output_size, output_size)``.
 
+    This method is based on the implementations in the open-source
+    `GIXStapose application <https://github.com/cmelab/GIXStapose>`_ and its
+    predecessor, diffractometer :cite:`Jankowski2017`.
+
     Args:
         grid_size (unsigned int):
             Resolution of the diffraction grid (Default value = 512).
