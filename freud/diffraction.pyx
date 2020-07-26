@@ -122,7 +122,7 @@ cdef class DiffractionPattern(_Compute):
         """Zoom, shear, and scale diffraction intensities.
 
         Args:
-            img ((:math:`N`, :math:`N`) :class:`numpy.ndarray`):
+            img ((``grid_size//zoom, grid_size//zoom``) :class:`numpy.ndarray`):
                 Array of diffraction intensities.
             box (:class:`~.box.Box`):
                 Simulation box.
@@ -132,9 +132,14 @@ cdef class DiffractionPattern(_Compute):
                 Scaling factor for incident wavevectors.
 
         Returns:
-            (:math:`N`, :math:`N`) :class:`numpy.ndarray`:
+            (``output_size, output_size``) :class:`numpy.ndarray`:
                 Transformed array of diffraction intensities.
-        """
+        """  # noqa: E501
+
+        # The adjustments to roll and roll_shift ensure that the peak
+        # corresponding to k=0 is located at exactly
+        # (output_size//2, output_size//2), regardless of whether the grid_size
+        # and output_size are odd or even.
 
         roll = img.shape[0] / 2
         if img.shape[0] % 2 == 1:
