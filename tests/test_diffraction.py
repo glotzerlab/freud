@@ -13,11 +13,22 @@ class TestDiffractionPattern(unittest.TestCase):
         dp.compute((box, positions))
 
     def test_attribute_access(self):
-        dp = freud.diffraction.DiffractionPattern()
+        grid_size = 234
+        output_size = 123
+        dp = freud.diffraction.DiffractionPattern(grid_size=grid_size)
+        self.assertEqual(dp.grid_size, grid_size)
+        self.assertEqual(dp.output_size, grid_size)
+        dp = freud.diffraction.DiffractionPattern(
+            grid_size=grid_size, output_size=output_size)
+        self.assertEqual(dp.grid_size, grid_size)
+        self.assertEqual(dp.output_size, output_size)
+
         box, positions = freud.data.UnitCell.fcc().generate_system(4)
 
         with self.assertRaises(AttributeError):
             dp.diffraction
+        with self.assertRaises(AttributeError):
+            dp.k_values
         with self.assertRaises(AttributeError):
             dp.k_vectors
         with self.assertRaises(AttributeError):
@@ -25,14 +36,16 @@ class TestDiffractionPattern(unittest.TestCase):
 
         dp.compute((box, positions), zoom=1, peak_width=4)
         diff = dp.diffraction
+        vals = dp.k_values
         vecs = dp.k_vectors
         dp.plot()
         dp._repr_png_()
 
-        # make sure old data is not invalidated by new call to compute()
+        # Make sure old data is not invalidated by new call to compute()
         box2, positions2 = freud.data.UnitCell.bcc().generate_system(3)
         dp.compute((box2, positions2), zoom=1, peak_width=4)
         self.assertFalse(np.array_equal(dp.diffraction, diff))
+        self.assertFalse(np.array_equal(dp.k_values, vals))
         self.assertFalse(np.array_equal(dp.k_vectors, vecs))
 
     def test_center_unordered(self):
