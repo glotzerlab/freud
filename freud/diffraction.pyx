@@ -33,8 +33,8 @@ cdef class DiffractionPattern(_Compute):
     The diffraction image represents the scattering of incident radiation,
     and is useful for identifying translational and/or rotational symmetry
     present in the system. This class computes the static `structure factor
-    <https://en.wikipedia.org/wiki/Structure_factor>`_ :math:`S(\vec{q})` for
-    a plane of wavevectors :math:`\vec{q}` orthogonal to a view axis. The
+    <https://en.wikipedia.org/wiki/Structure_factor>`_ :math:`S(\vec{k})` for
+    a plane of wavevectors :math:`\vec{k}` orthogonal to a view axis. The
     view orientation :math:`(1, 0, 0, 0)` defaults to looking down the
     :math:`z` axis (at the :math:`xy` plane). The points in the system are
     converted to fractional coordinates, then binned into a grid whose
@@ -229,11 +229,11 @@ cdef class DiffractionPattern(_Compute):
             diffraction_fft, peak_width / zoom)
         diffraction_fft = np.fft.fftshift(diffraction_fft)
 
-        # Compute the squared modulus of the FFT, which is S(q)
+        # Compute the squared modulus of the FFT, which is S(k)
         self._diffraction = np.real(
             diffraction_fft * np.conjugate(diffraction_fft))
 
-        # Transform the image (scale, shear, zoom) and normalize S(q) by N^2
+        # Transform the image (scale, shear, zoom) and normalize S(k) by N^2
         N = len(system.points)
         self._diffraction = self._transform(
             self._diffraction, system.box, inv_shear, zoom) / (N*N)
