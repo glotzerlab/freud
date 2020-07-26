@@ -46,11 +46,11 @@ cdef class DiffractionPattern(_Compute):
         grid_size (unsigned int):
             Resolution of the diffraction grid (Default value = 512).
         output_size (unsigned int):
-            Size of the output diffraction image, uses ``grid_size`` if
+            Resolution of the output diffraction image, uses ``grid_size`` if
             not provided or ``None`` (Default value = :code:`None`).
     """
-    cdef int grid_size
-    cdef int output_size
+    cdef int _grid_size
+    cdef int _output_size
     cdef double[:] _k_values_orig
     cdef double[:, :, :] _k_vectors_orig
     cdef double[:] _k_values
@@ -58,8 +58,8 @@ cdef class DiffractionPattern(_Compute):
     cdef double[:, :] _diffraction
 
     def __init__(self, grid_size=512, output_size=None):
-        self.grid_size = int(grid_size)
-        self.output_size = int(grid_size) if output_size is None \
+        self._grid_size = int(grid_size)
+        self._output_size = int(grid_size) if output_size is None \
             else int(output_size)
 
         # Cache these because they are system-independent.
@@ -238,6 +238,16 @@ cdef class DiffractionPattern(_Compute):
         self._k_vectors /= np.max(system.box.to_matrix())
 
         return self
+
+    @property
+    def grid_size(self):
+        """int: Resolution of the diffraction grid."""
+        return self._grid_size
+
+    @property
+    def output_size(self):
+        """int: Resolution of the output diffraction image."""
+        return self._output_size
 
     @_Compute._computed_property
     def diffraction(self):
