@@ -91,7 +91,7 @@ class TestDiffractionPattern(unittest.TestCase):
 
                     # The value at k=0 should be 1 because of normalization
                     # by (number of points)**2
-                    self.assertEqual(dp.diffraction[center_index], 1)
+                    npt.assert_allclose(dp.diffraction[center_index], 1)
 
     def test_center_ordered(self):
         """Assert the center of the image is an intensity peak for an ordered
@@ -120,7 +120,7 @@ class TestDiffractionPattern(unittest.TestCase):
 
                     # The value at k=0 should be 1 because of normalization
                     # by (number of points)**2
-                    self.assertEqual(dp.diffraction[center_index], 1)
+                    npt.assert_allclose(dp.diffraction[center_index], 1)
 
     def test_repr(self):
         dp = freud.diffraction.DiffractionPattern()
@@ -128,17 +128,18 @@ class TestDiffractionPattern(unittest.TestCase):
 
         # Use non-default arguments for all parameters
         dp = freud.diffraction.DiffractionPattern(
-            grid_size=500)
+            grid_size=123, output_size=234)
         self.assertEqual(str(dp), str(eval(repr(dp))))
 
-    def test_k_vector(self):
+    def test_k_values_and_k_vectors(self):
         dp = freud.diffraction.DiffractionPattern()
         box, positions = freud.data.UnitCell.fcc().generate_system(4)
         dp.compute((box, positions))
 
-        default_size = dp.diffraction.shape[0]
-        default_shape = (default_size, default_size, 3)
-        npt.assert_equal(dp.k_vectors.shape, default_shape)
+        output_size = dp.output_size
+        npt.assert_allclose(dp.k_values[output_size//2], 0)
+        center_index = (output_size//2, output_size//2)
+        npt.assert_allclose(dp.k_vectors[center_index], [0, 0, 0])
 
 
 if __name__ == '__main__':
