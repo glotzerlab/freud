@@ -476,6 +476,7 @@ cdef class NeighborList:
         R"""Create a NeighborList from a set of bond information arrays.
 
         Example::
+
             import freud
             import numpy as np
             box = freud.box.Box(2, 3, 4, 0, 0, 0)
@@ -483,7 +484,8 @@ cdef class NeighborList:
             points = np.array([[0, 0, -1], [0.5, -1, 0]])
             query_point_indices = np.array([0, 0, 1])
             point_indices = np.array([0, 1, 1])
-            distances = box.compute_distances(query_points[query_point_indices], points[point_indices])
+            distances = box.compute_distances(
+                query_points[query_point_indices], points[point_indices])
             num_query_points = len(query_points)
             num_points = len(points)
             nlist = freud.locality.NeighborList.from_arrays(
