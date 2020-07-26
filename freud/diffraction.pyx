@@ -18,6 +18,7 @@ import numpy as np
 import scipy.ndimage
 import rowan
 
+from libcpp cimport bool as cbool
 from freud.util cimport _Compute
 cimport numpy as np
 
@@ -56,6 +57,10 @@ cdef class DiffractionPattern(_Compute):
     cdef double[:] _k_values
     cdef double[:, :, :] _k_vectors
     cdef double[:, :] _diffraction
+    cdef double _box_matrix_scale_factor
+    cdef double[:] _view_orientation
+    cdef cbool _k_values_cached
+    cdef cbool _k_vectors_cached
 
     def __init__(self, grid_size=512, output_size=None):
         self._grid_size = int(grid_size)
@@ -233,10 +238,12 @@ cdef class DiffractionPattern(_Compute):
             self._k_vectors_orig = np.asarray(np.meshgrid(
                 self._k_values_orig, self._k_values_orig, [0])).T[0]
 
-        # Compute the rotated and scaled k-values and k-vectors
-        self._k_values = self._k_values_orig / np.max(system.box.to_matrix())
-        self._k_vectors = rowan.rotate(view_orientation, self._k_vectors_orig)
-        self._k_vectors /= np.max(system.box.to_matrix())
+        # Cache the view orientation and box matrix scale factor for
+        # lazy evaluation of k-values and k-vectors
+        self._box_matrix_scale_factor = np.max(system.box.to_matrix())
+        self._view_orientation = view_orientation
+        self._k_values_cached = False
+        self._k_vectors_cached = False
 
         return self
 
@@ -261,6 +268,10 @@ cdef class DiffractionPattern(_Compute):
     @_Compute._computed_property
     def k_values(self):
         """(``output_size``, ) :class:`numpy.ndarray`: k-values."""
+        if not self._k_values_cached:
+            self._k_values = np.asarray(
+                self._k_values_orig) / self._box_matrix_scale_factor
+            self._k_values_cached = True
         return np.asarray(self._k_values)
 
     @_Compute._computed_property
@@ -269,6 +280,11 @@ cdef class DiffractionPattern(_Compute):
         (``output_size``, ``output_size``, 3) :class:`numpy.ndarray`:
             k-vectors.
         """
+        if not self._k_vectors_cached:
+            self._k_vectors = rowan.rotate(
+                self._view_orientation,
+                self._k_vectors_orig) / self._box_matrix_scale_factor
+            self._k_vectors_cached = True
         return np.asarray(self._k_vectors)
 
     def __repr__(self):
