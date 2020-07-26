@@ -48,6 +48,19 @@ class TestDiffractionPattern(unittest.TestCase):
         self.assertFalse(np.array_equal(dp.k_values, vals))
         self.assertFalse(np.array_equal(dp.k_vectors, vecs))
 
+    def test_attribute_shapes(self):
+        grid_size = 234
+        output_size = 123
+        dp = freud.diffraction.DiffractionPattern(
+            grid_size=grid_size, output_size=output_size)
+        box, positions = freud.data.UnitCell.fcc().generate_system(4)
+        dp.compute((box, positions))
+
+        self.assertEqual(dp.diffraction.shape, (output_size, output_size))
+        self.assertEqual(dp.k_values.shape, (output_size,))
+        self.assertEqual(dp.k_vectors.shape, (output_size, output_size, 3))
+        self.assertEqual(dp.to_image().shape, (output_size, output_size, 4))
+
     def test_center_unordered(self):
         """
         Assert the center of the image is an intensity peak for an unordered
