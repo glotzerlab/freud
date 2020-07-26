@@ -490,7 +490,7 @@ def diffraction_plot(diffraction, k_values, ax=None, cmap='afmhot',
     ax_divider = make_axes_locatable(ax)
     cax = ax_divider.append_axes("right", size="7%", pad="10%")
     cb = Colorbar(cax, im)
-    cb.set_label(r"$S(\vec{q})$")
+    cb.set_label(r"$S(\vec{k})$")
 
     # Determine the number of ticks on the axis
     grid_size = diffraction.shape[0]
