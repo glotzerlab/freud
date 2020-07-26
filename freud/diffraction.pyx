@@ -20,6 +20,7 @@ import rowan
 
 from libcpp cimport bool as cbool
 from freud.util cimport _Compute
+cimport freud.util
 cimport numpy as np
 
 
@@ -193,6 +194,8 @@ cdef class DiffractionPattern(_Compute):
 
         if view_orientation is None:
             view_orientation = np.array([1., 0., 0., 0.])
+        view_orientation = freud.util._convert_array(
+            view_orientation, (4,), np.double)
 
         grid_size = int(self.grid_size / zoom)
 
