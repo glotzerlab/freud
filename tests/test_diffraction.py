@@ -69,54 +69,58 @@ class TestDiffractionPattern(unittest.TestCase):
         box, positions = freud.data.make_random_system(
             box_size=10, num_points=1000)
 
-        # Test different parities (odd/even)
+        # Test different parities (odd/even) of grid_size and output_size
         for grid_size in [255, 256]:
             for output_size in [255, 256]:
                 dp = freud.diffraction.DiffractionPattern(
                     grid_size=grid_size, output_size=output_size)
 
                 # Use a random view orientation and a random zoom
-                for view_orientation in rowan.random.rand(100):
+                for view_orientation in rowan.random.rand(10):
                     zoom = 1 + 10*np.random.rand()
                     dp.compute(
                         system=(box, positions),
                         view_orientation=view_orientation,
                         zoom=zoom)
 
-                    # The pixel at the center (k=0) is the maximum value
+                    # Assert the pixel at the center (k=0) is the maximum value
                     diff = dp.diffraction
                     max_index = np.unravel_index(np.argmax(diff), diff.shape)
-                    self.assertEqual(
-                        max_index, (output_size//2, output_size//2))
+                    center_index = (output_size//2, output_size//2)
+                    self.assertEqual(max_index, center_index)
+
+                    # The value at k=0 should be 1 because of normalization
+                    # by (number of points)**2
+                    self.assertEqual(dp.diffraction[center_index], 1)
 
     def test_center_ordered(self):
-        """
-        Assert the center of the image is an intensity peak for an ordered
+        """Assert the center of the image is an intensity peak for an ordered
         system.
         """
-        dp = freud.diffraction.DiffractionPattern(output_size=100)
         box, positions = freud.data.UnitCell.bcc().generate_system(10)
-        dp.compute(system=(box, positions))
-        pattern = dp.diffraction
-        max_val = np.max(pattern)
 
-        # similar assertion as the above test
-        self.assertTrue(pattern[50, 50] > .1 * max_val)
-        self.assertTrue(pattern[49, 49] > .1 * max_val)
-        self.assertTrue(pattern[49, 50] > .1 * max_val)
-        self.assertTrue(pattern[50, 49] > .1 * max_val)
+        # Test different parities (odd/even) of grid_size and output_size
+        for grid_size in [255, 256]:
+            for output_size in [255, 256]:
+                dp = freud.diffraction.DiffractionPattern(
+                    grid_size=grid_size, output_size=output_size)
+                # Use a random view orientation and a random zoom
+                for view_orientation in rowan.random.rand(10):
+                    zoom = 1 + 10*np.random.rand()
+                    dp.compute(
+                        system=(box, positions),
+                        view_orientation=view_orientation,
+                        zoom=zoom)
 
-    def test_one_particle(self):
-        """Assert that all values are close to one with only one point."""
-        dp = freud.diffraction.DiffractionPattern(output_size=101)
-        box = freud.Box.cube(100)
-        points = [[0., 0., 0.]]
+                    # Assert the pixel at the center (k=0) is the maximum value
+                    diff = dp.diffraction
+                    max_index = np.unravel_index(np.argmax(diff), diff.shape)
+                    center_index = (output_size//2, output_size//2)
+                    self.assertEqual(max_index, center_index)
 
-        dp.compute(system=(box, points))
-        pattern = dp.diffraction
-
-        # pattern should basically be 1 everywhere
-        self.assertTrue(np.min(pattern) > .95)
+                    # The value at k=0 should be 1 because of normalization
+                    # by (number of points)**2
+                    self.assertEqual(dp.diffraction[center_index], 1)
 
     def test_repr(self):
         dp = freud.diffraction.DiffractionPattern()
