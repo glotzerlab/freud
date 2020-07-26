@@ -129,13 +129,14 @@ cdef class DiffractionPattern(_Compute):
             (:math:`N`, :math:`N`) :class:`numpy.ndarray`:
                 Transformed array of diffraction intensities.
         """
+
         roll = img.shape[0] / 2
-        if img.shape[0] % 2 == 0:
+        if img.shape[0] % 2 == 1:
             roll -= 0.5
 
         roll_shift = self.output_size / zoom / 2
-        if (self.output_size / zoom) % 2 == 0:
-            roll_shift -= 0.5
+        if self.output_size % 2 == 1:
+            roll_shift -= 0.5 / zoom
 
         box_matrix = box.to_matrix()
         ss = np.max(box_matrix) * inv_shear
