@@ -3,6 +3,7 @@ import matplotlib
 import unittest
 import numpy as np
 import numpy.testing as npt
+import rowan
 matplotlib.use('agg')
 
 
@@ -62,29 +63,31 @@ class TestDiffractionPattern(unittest.TestCase):
         self.assertEqual(dp.to_image().shape, (output_size, output_size, 4))
 
     def test_center_unordered(self):
+        """Assert the center of the image is an intensity peak for an
+        unordered system.
         """
-        Assert the center of the image is an intensity peak for an unordered
-        system.
-        """
-        dp = freud.diffraction.DiffractionPattern(output_size=99)
-        box, positions = freud.data.make_random_system(10, 100)
-        dp.compute(system=(box, positions))
-        pattern = np.asarray(dp.diffraction)
+        box, positions = freud.data.make_random_system(
+            box_size=10, num_points=1000)
 
-        # make sure the pixel at the center is part of a peak at the origin,
-        # meaning its value is of the same order of magnitude as the max value
-        self.assertTrue(pattern[49, 49] > .1 * np.max(pattern))
+        # Test different parities (odd/even)
+        for grid_size in [255, 256]:
+            for output_size in [255, 256]:
+                dp = freud.diffraction.DiffractionPattern(
+                    grid_size=grid_size, output_size=output_size)
 
-        # assert the group of pixels in the center has the highest intensity
-        group_sum = np.zeros((9, 9))
-        for i in range(9):
-            for j in range(9):
-                indices = [(m, n)
-                           for m in range(11*i, 11*(i+1))
-                           for n in range(11*j, 11*(j+1))]
-                group_sum[i, j] = pattern[indices].sum()
+                # Use a random view orientation and a random zoom
+                for view_orientation in rowan.random.rand(100):
+                    zoom = 1 + 10*np.random.rand()
+                    dp.compute(
+                        system=(box, positions),
+                        view_orientation=view_orientation,
+                        zoom=zoom)
 
-        npt.assert_almost_equal(group_sum[4, 4], np.max(group_sum))
+                    # The pixel at the center (k=0) is the maximum value
+                    diff = dp.diffraction
+                    max_index = np.unravel_index(np.argmax(diff), diff.shape)
+                    self.assertEqual(
+                        max_index, (output_size//2, output_size//2))
 
     def test_center_ordered(self):
         """
