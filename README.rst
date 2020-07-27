@@ -35,8 +35,8 @@ tools such as radial distribution functions, correlation functions, order
 parameters, and clusters, as well as original analysis methods including
 potentials of mean force and torque (PMFTs) and local environment matching. The
 **freud** library supports
-`many input formats <https://freud.readthedocs.io/en/stable/datainputs.html>`__
-and outputs `NumPy arrays <https://www.numpy.org/>`__, enabling integration
+`many input formats <https://freud.readthedocs.io/en/stable/topics/datainputs.html>`__
+and outputs `NumPy arrays <https://numpy.org/>`__, enabling integration
 with the scientific Python ecosystem for many typical materials science
 workflows.
 
