@@ -10,10 +10,12 @@ NeighborList makeDefaultNlist(const NeighborQuery* nq, const NeighborList* nlist
                               const vec3<float>* query_points, unsigned int num_query_points,
                               locality::QueryArgs qargs)
 {
+    bool requires_delete(false);
     if (nlist == NULL)
     {
         auto nqiter(nq->query(query_points, num_query_points, qargs));
         nlist = nqiter->toNeighborList();
+        requires_delete = true;
     }
     // Ideally we wouldn't allocate a new NeighborList at all, but we don't want to force
     // calling code to manage the memory of a raw pointer, so we prefer to return by value
@@ -22,7 +24,10 @@ NeighborList makeDefaultNlist(const NeighborQuery* nq, const NeighborList* nlist
     // solution until we can refactor these internalsa little more cleanly.
     locality::NeighborList new_nlist = NeighborList(*nlist);
     new_nlist.validate(num_query_points, nq->getNPoints());
-    delete nlist;
+    if (requires_delete)
+        {
+        delete nlist;
+        }
     return new_nlist;
 }
 
