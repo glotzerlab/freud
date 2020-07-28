@@ -133,13 +133,16 @@ class TestDiffractionPattern(unittest.TestCase):
 
     def test_k_values_and_k_vectors(self):
         dp = freud.diffraction.DiffractionPattern()
-        box, positions = freud.data.UnitCell.fcc().generate_system(4)
-        dp.compute((box, positions))
 
-        output_size = dp.output_size
-        npt.assert_allclose(dp.k_values[output_size//2], 0)
-        center_index = (output_size//2, output_size//2)
-        npt.assert_allclose(dp.k_vectors[center_index], [0, 0, 0])
+        for size in [2, 5, 10]:
+            for npoints in [10, 20, 75]:
+                box, positions = freud.data.make_random_system(npoints, size)
+                dp.compute((box, positions))
+
+                output_size = dp.output_size
+                npt.assert_allclose(dp.k_values[output_size//2], 0)
+                center_index = (output_size//2, output_size//2)
+                npt.assert_allclose(dp.k_vectors[center_index], [0, 0, 0])
 
 
 if __name__ == '__main__':
