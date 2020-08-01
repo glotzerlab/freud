@@ -27,6 +27,9 @@ and this project adheres to
 * PMFTXYT uses the correct orientations when `points` and `query_points` differ.
 * GaussianDensity Gaussian normalization in 2D systems has been corrected.
 
+### Removed
+* Python 3.5 is no longer supported. Python 3.6+ is required.
+
 ## v2.2.0 - 2020-02-24
 
 ### Added
