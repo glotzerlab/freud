@@ -125,7 +125,7 @@ public:
     {
         // pair calculations using non-periodic boxes should fail
         vec3<bool> periodic = m_box.getPeriodic();
-        if (! (periodic.x && periodic.y && periodic.z))
+        if (!(periodic.x && periodic.y && periodic.z))
             std::domain_error("Cannot execute pair queries in a non-periodic box");
 
         this->validateQueryArgs(query_args);

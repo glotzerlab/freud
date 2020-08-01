@@ -42,10 +42,9 @@ void SphereVoxelization::compute(const freud::locality::NeighborQuery* nq)
     }
     else
     {
-        throw std::invalid_argument(
-            "The dimensionality of the box passed to SphereVoxelization has "
-            "changed. A new instance must be created to handle a different "
-            "number of dimensions.");
+        throw std::invalid_argument("The dimensionality of the box passed to SphereVoxelization has "
+                                    "changed. A new instance must be created to handle a different "
+                                    "number of dimensions.");
     }
 
     auto n_points = nq->getNPoints();
