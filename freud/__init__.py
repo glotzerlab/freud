@@ -5,6 +5,7 @@ from . import box
 from . import cluster
 from . import data
 from . import density
+from . import diffraction
 from . import environment
 from . import interface
 from . import locality
@@ -29,6 +30,7 @@ __all__ = [
     'cluster',
     'data',
     'density',
+    'diffraction',
     'environment',
     'interface',
     'locality',

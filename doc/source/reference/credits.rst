@@ -106,6 +106,7 @@ Bradley Dice - **Lead developer**
 * Worked with Tommy Waltmann to add the SphereVoxelization feature.
 * Fixed GaussianDensity normalization in 2D systems.
 * Prevented GaussianDensity from computing 3D systems after it has computed 2D systems.
+* Contributed code, design, and testing for ``DiffractionPattern`` class.
 
 Eric Harper, University of Michigan - **Former lead developer**
 
@@ -269,6 +270,7 @@ Yezhi Jin
 * Added support for 2D arrays in the Python interface to Box functions.
 * Rewrote Voronoi implementation to leverage voro++.
 * Implemented Voronoi bond weighting to enable Minkowski structure metrics.
+* Contributed code, design, and testing for ``DiffractionPattern`` class.
 
 Brandon Butler
 
@@ -297,6 +299,7 @@ Michael Stryk
 Tommy Waltmann
 
 * Worked with Bradley Dice to add the SphereVoxelization feature.
+* Contributed code, design, and testing for ``DiffractionPattern`` class.
 
 Source code
 -----------

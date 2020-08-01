@@ -14,6 +14,7 @@ and this project adheres to
 * Examples have been added to the Cluster, Density, Environment, and Order Modules.
 * Module examples have been integrated with doctests to ensure they are up to date with API
 * SphereVoxelization class in the `density` module computes a grid of voxels occupied by spheres.
+* `freud.diffraction.DiffractionPattern` class (unstable) can be used to compute 2D diffraction patterns.
 
 ### Changed
 * Cython is now a required dependency (not optional). Cythonized `.cpp` files have been removed.
