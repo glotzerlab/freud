@@ -54,13 +54,14 @@ references:
         conda config --add channels conda-forge
         conda update -q conda certifi
         conda install python pip tbb tbb-devel
-        conda install --file requirements-testing.txt
+        # Install from PyPI instead of conda-forge for consistency with Linux
+        python${PYVER} -m pip install -r requirements-testing.txt
 
   get_style_requirements: &get_style_requirements
     run:
       name: Install style check dependencies
       command: |
-        python${PYVER} -m pip install --user flake8==3.7.8
+        python${PYVER} -m pip install --user flake8==3.8.3
 
   #check_cpp_style: &check_cpp_style
   #  run:
