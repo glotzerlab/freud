@@ -476,10 +476,9 @@ try:
             tests_require=[
                 'gsd>=2.0',
                 'garnett>=0.7.1',
-                'matplotlib>=2.0',
-                'MDAnalysis>=0.17',
+                'matplotlib>=3.0',
+                'MDAnalysis>=0.20.1',
                 'rowan>=1.2',
-                'scipy>=1.1',
                 'sympy>=1.0',
             ],
             ext_modules=extensions)
