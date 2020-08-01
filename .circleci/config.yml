@@ -56,7 +56,7 @@ references:
         conda install python pip tbb tbb-devel
         python${PYVER} -m pip install --progress-bar off -U certifi
         # Install from PyPI instead of conda-forge for consistency with Linux
-        python${PYVER} -m pip install --progress-bar off -U -r requirements-testing.txt
+        python${PYVER} -m pip install --trusted-host=pypi.python.org --trusted-host=pypi.org --trusted-host=files.pythonhosted.org --progress-bar off -U -r requirements-testing.txt
 
   get_style_requirements: &get_style_requirements
     run:
