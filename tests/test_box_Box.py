@@ -2,8 +2,10 @@ import numpy as np
 import numpy.testing as npt
 import freud
 from collections import namedtuple
+import matplotlib
 import unittest
 import warnings
+matplotlib.use('agg')
 
 
 class TestBox(unittest.TestCase):

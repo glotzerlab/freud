@@ -1,11 +1,12 @@
 import numpy as np
 import numpy.testing as npt
 import freud
+import matplotlib
 from collections import Counter
 import itertools
 import unittest
-
 import util
+matplotlib.use('agg')
 
 """
 Define helper functions for getting the neighbors of a point. Note that

@@ -5,6 +5,7 @@ from . import box
 from . import cluster
 from . import data
 from . import density
+from . import diffraction
 from . import environment
 from . import interface
 from . import locality
@@ -29,6 +30,7 @@ __all__ = [
     'cluster',
     'data',
     'density',
+    'diffraction',
     'environment',
     'interface',
     'locality',
@@ -45,15 +47,22 @@ __all__ = [
     'NumThreads',
 ]
 
-__citation__ = """@misc{freud,
+__citation__ = """@article{freud2020,
+    title = {freud: A Software Suite for High Throughput
+             Analysis of Particle Simulation Data},
     author = {Vyas Ramasubramani and
               Bradley D. Dice and
               Eric S. Harper and
               Matthew P. Spellings and
               Joshua A. Anderson and
               Sharon C. Glotzer},
-    title = {freud: A Software Suite for High Throughput
-             Analysis of Particle Simulation Data},
-    year = {2019},
-    eprint = {arXiv:1906.06317},
+    journal = {Computer Physics Communications},
+    volume = {254},
+    pages = {107275},
+    year = {2020},
+    issn = {0010-4655},
+    doi = {https://doi.org/10.1016/j.cpc.2020.107275},
+    url = {http://www.sciencedirect.com/science/article/pii/S0010465520300916},
+    keywords = {Simulation analysis, Molecular dynamics, Monte Carlo,
+                Computational materials science},
 }"""

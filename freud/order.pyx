@@ -199,10 +199,17 @@ cdef class Nematic(_Compute):
     def compute(self, orientations):
         R"""Calculates the per-particle and global order parameter.
 
+        Example::
+            >>> orientations = np.array([[1, 0, 0, 0]] * 100)
+            >>> director = np.array([1, 1, 0])
+            >>> nematic = freud.order.Nematic(director)
+            >>> nematic.compute(orientations)
+            freud.order.Nematic(u=[...])
+
         Args:
             orientations (:math:`\left(N_{particles}, 4 \right)` :class:`numpy.ndarray`):
                 Orientations to calculate the order parameter.
-        """  # noqa: E501
+        """   # noqa: E501
         orientations = freud.util._convert_array(
             orientations, shape=(None, 4))
 
@@ -270,7 +277,7 @@ cdef class Hexatic(_PairCompute):
     The parameter :math:`k` governs the symmetry of the order parameter and
     typically matches the number of neighbors to be found for each particle.
     The quantity :math:`\phi_{ij}` is the angle between the
-    vector :math:`r_{ij}` and :math:`\left( 1,0 \right)`.
+    vector :math:`r_{ij}` and :math:`\left(1, 0\right)`.
 
     .. note::
         **2D:** :class:`freud.order.Hexatic` is only defined for 2D systems.
@@ -279,17 +286,32 @@ cdef class Hexatic(_PairCompute):
     Args:
         k (unsigned int, optional):
             Symmetry of order parameter. (Default value = :code:`6`).
+        weighted (bool, optional):
+            Determines whether to use neighbor weights in the computation of
+            spherical harmonics over neighbors. If enabled and used with a
+            Voronoi neighbor list, this results in the 2D Minkowski Structure
+            Metrics :math:`\psi'_k`. (Default value = :code:`False`)
     """  # noqa: E501
     cdef freud._order.Hexatic * thisptr
 
-    def __cinit__(self, k=6):
-        self.thisptr = new freud._order.Hexatic(k)
+    def __cinit__(self, k=6, weighted=False):
+        self.thisptr = new freud._order.Hexatic(k, weighted)
 
     def __dealloc__(self):
         del self.thisptr
 
     def compute(self, system, neighbors=None):
         R"""Calculates the hexatic order parameter.
+
+        Example::
+            >>> box, points = freud.data.make_random_system(
+            ...     box_size=10, num_points=100, is2D=True, seed=0)
+            >>> # Compute the hexatic (6-fold) order for the 2D system
+            >>> hex_order = freud.order.Hexatic(k=6)
+            >>> hex_order.compute(system=(box, points))
+            freud.order.Hexatic(...)
+            >>> print(hex_order.particle_order)
+            [...]
 
         Args:
             system:
@@ -301,7 +323,7 @@ cdef class Hexatic(_PairCompute):
                 `query arguments
                 <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
                 (Default value: None).
-        """
+        """   # noqa: E501
         cdef:
             freud.locality.NeighborQuery nq
             freud.locality.NeighborList nlist
@@ -334,9 +356,44 @@ cdef class Hexatic(_PairCompute):
         """unsigned int: Symmetry of the order parameter."""
         return self.thisptr.getK()
 
+    @property
+    def weighted(self):
+        """bool: Whether neighbor weights were used in the computation."""
+        return self.thisptr.isWeighted()
+
     def __repr__(self):
-        return "freud.order.{cls}(k={k})".format(
-            cls=type(self).__name__, k=self.k)
+        return "freud.order.{cls}(k={k}, weighted={weighted})".format(
+            cls=type(self).__name__, k=self.k, weighted=self.weighted)
+
+    def plot(self, ax=None):
+        """Plot order parameter distribution.
+
+        Args:
+            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
+                :code:`None`, make a new figure and axis.
+                (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes.Axes`): Axis with the plot.
+        """
+        import freud.plot
+        xlabel = r"$\left|\psi{prime}_{k}\right|$".format(
+            prime='\'' if self.weighted else '',
+            k=self.k)
+
+        return freud.plot.histogram_plot(
+            np.absolute(self.particle_order),
+            title="Hexatic Order Parameter " + xlabel,
+            xlabel=xlabel,
+            ylabel=r"Number of particles",
+            ax=ax)
+
+    def _repr_png_(self):
+        try:
+            import freud.plot
+            return freud.plot._ax_to_bytes(self.plot())
+        except (AttributeError, ImportError):
+            return None
 
 
 cdef class Translational(_PairCompute):
@@ -353,7 +410,7 @@ cdef class Translational(_PairCompute):
     cdef freud._order.Translational * thisptr
 
     def __cinit__(self, k=6.0):
-        self.thisptr = new freud._order.Translational(k)
+        self.thisptr = new freud._order.Translational(k, False)
 
     def __dealloc__(self):
         del self.thisptr
@@ -457,7 +514,7 @@ cdef class Steinhardt(_PairCompute):
         weighted (bool, optional):
             Determines whether to use neighbor weights in the computation of
             spherical harmonics over neighbors. If enabled and used with a
-            Voronoi neighbor list, this results in the Minkowski Structure
+            Voronoi neighbor list, this results in the 3D Minkowski Structure
             Metrics :math:`q'_l`. (Default value = :code:`False`)
         wl_normalize (bool, optional):
             Determines whether to normalize the :math:`w_l` version
@@ -475,7 +532,7 @@ cdef class Steinhardt(_PairCompute):
 
     @property
     def average(self):
-        """bool: Whether the the averaged Steinhardt order parameter was
+        """bool: Whether the averaged Steinhardt order parameter was
         calculated."""
         return self.thisptr.isAverage()
 
@@ -487,8 +544,7 @@ cdef class Steinhardt(_PairCompute):
 
     @property
     def weighted(self):
-        """bool: Whether neighbor weights were used in the computation of
-        spherical harmonics over neighbors."""
+        """bool: Whether neighbor weights were used in the computation."""
         return self.thisptr.isWeighted()
 
     @property
@@ -528,6 +584,12 @@ cdef class Steinhardt(_PairCompute):
     def compute(self, system, neighbors=None):
         R"""Compute the order parameter.
 
+        Example::
+            >>> box, points = freud.data.make_random_system(10, 100, seed=0)
+            >>> ql = freud.order.Steinhardt(l=6)
+            >>> ql.compute((box, points), {'r_max':3})
+            freud.order.Steinhardt(l=6, ...)
+
         Args:
             system:
                 Any object that is a valid argument to
@@ -538,7 +600,7 @@ cdef class Steinhardt(_PairCompute):
                 `query arguments
                 <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
                 (Default value: None).
-        """
+        """   # noqa: E501
         cdef:
             freud.locality.NeighborQuery nq
             freud.locality.NeighborList nlist
@@ -583,7 +645,7 @@ cdef class Steinhardt(_PairCompute):
             average=',ave' if self.average else '')
 
         return freud.plot.histogram_plot(
-            self.order,
+            self.particle_order,
             title="Steinhardt Order Parameter " + xlabel,
             xlabel=xlabel,
             ylabel=r"Number of particles",

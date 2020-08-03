@@ -1,14 +1,15 @@
 import numpy as np
 import numpy.testing as npt
 import freud
+import matplotlib
 import unittest
 import util
-
 from test_managedarray import TestManagedArray
+matplotlib.use('agg')
 
 
 class TestCorrelationFunction(unittest.TestCase):
-    def test_generateR(self):
+    def test_generate_bins(self):
         r_max = 5
         dr = 0.1
         bins = round(r_max / dr)

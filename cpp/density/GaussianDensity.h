@@ -16,9 +16,9 @@
 
 namespace freud { namespace density {
 
-//! Computes the the density of a system on a grid.
+//! Computes the density of a system on a grid.
 /*! Replaces particle positions with a gaussian and calculates the
-        contribution from the grid based upon the the distance of the grid cell
+        contribution from the grid based upon the distance of the grid cell
         from the center of the Gaussian.
 */
 class GaussianDensity
@@ -30,7 +30,7 @@ public:
     // Destructor
     ~GaussianDensity() {}
 
-    //! Get the simulation box
+    //! Get the simulation box.
     const box::Box& getBox() const
     {
         return m_box;
@@ -48,21 +48,22 @@ public:
         return m_r_max;
     }
 
-    //! Compute the Density
+    //! Compute the density.
     void compute(const freud::locality::NeighborQuery* nq);
 
-    //! Get a reference to the last computed Density
+    //! Get a reference to the last computed density.
     const util::ManagedArray<float>& getDensity() const;
 
     vec3<unsigned int> getWidth();
 
 private:
-    box::Box m_box;             //!< Simulation box where the particles belong
-    vec3<unsigned int> m_width; //!< Num of bins on each side of the cube
-    float m_r_max;              //!< Max r at which to compute density
-    float m_sigma;              //!< Variance
+    box::Box m_box;             //!< Simulation box containing the points.
+    vec3<unsigned int> m_width; //!< Number of bins in the grid in each dimension.
+    float m_r_max;              //!< Max distance at which to compute density.
+    float m_sigma;              //!< Gaussian width sigma.
+    bool m_has_computed;        //!< Tracks whether a call to compute has been made.
 
-    util::ManagedArray<float> m_density_array; //! computed density array
+    util::ManagedArray<float> m_density_array; //! Computed density array.
 };
 
 }; }; // end namespace freud::density
