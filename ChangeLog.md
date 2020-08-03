@@ -4,7 +4,7 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## v2.3.0 - 2020-08-01
+## v2.3.0 - 2020-08-03
 
 ### Added
 * Support for garnett 0.7.
