@@ -407,7 +407,7 @@ extensions = cythonize(extensions,
 if platform.system() == 'Darwin':
     os.environ["MACOSX_DEPLOYMENT_TARGET"] = "10.12"
 
-version = '2.2.0'
+version = '2.3.0'
 
 # Read README for PyPI, fallback to short description if it fails.
 desc = 'Powerful, efficient trajectory analysis in scientific Python.'
