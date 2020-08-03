@@ -55,8 +55,9 @@ references:
         conda update -q conda certifi
         conda install python pip tbb tbb-devel
         # Install from PyPI instead of conda-forge for consistency with Linux.
-        # For some reason, the SSL certificates used by pip aren't correct and must be manually set to use certifi's certificate.
-        python${PYVER} -m pip install --cert $(python${PYVER} -m certifi) --progress-bar off -U -r requirements-testing.txt
+        # For some reason, the SSL certificates used by pip aren't correct, even with certifi.
+        curl -O https://curl.haxx.se/ca/cacert.pem
+        python${PYVER} -m pip install --cert cacert.pem --progress-bar off -U -r requirements-testing.txt
 
   get_style_requirements: &get_style_requirements
     run:
