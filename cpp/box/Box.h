@@ -401,8 +401,8 @@ public:
     */
     inline float computeDistance(const vec3<float>& r_i, const vec3<float>& r_j) const
     {
-            const vec3<float> r_ij = wrap(r_j - r_i);
-            return std::sqrt(dot(r_ij, r_ij));
+        const vec3<float> r_ij = wrap(r_j - r_i);
+        return std::sqrt(dot(r_ij, r_ij));
     }
 
     //! Calculate distances between a set of query points and points.
@@ -410,10 +410,11 @@ public:
         \param n_query_points The number of query points.
         \param points Point positions.
         \param n_points The number of points.
-        \param distances Pointer to array of length n_query_points containing distances between each point and query_point (overwritten in place).
+        \param distances Pointer to array of length n_query_points containing distances between each point and
+       query_point (overwritten in place).
     */
     void computeDistances(const vec3<float>* query_points, const unsigned int n_query_points,
-        const vec3<float>* points, const unsigned int n_points, float *distances) const
+                          const vec3<float>* points, const unsigned int n_points, float* distances) const
     {
         if (n_query_points != n_points)
         {
@@ -432,22 +433,22 @@ public:
         \param n_query_points The number of query points.
         \param points Point positions.
         \param n_points The number of points.
-        \param distances Pointer to array of length n_query_points*n_points containing distances between points and query_points (overwritten in place).
+        \param distances Pointer to array of length n_query_points*n_points containing distances between
+       points and query_points (overwritten in place).
     */
     void computeAllDistances(const vec3<float>* query_points, const unsigned int n_query_points,
-        const vec3<float>* points, const unsigned int n_points, float* distances) const
+                             const vec3<float>* points, const unsigned int n_points, float* distances) const
     {
-        util::forLoopWrapper2D(0, n_query_points, 0, n_points, [&](
-            size_t begin_n, size_t end_n, size_t begin_m, size_t end_m) {
+        util::forLoopWrapper2D(
+            0, n_query_points, 0, n_points, [&](size_t begin_n, size_t end_n, size_t begin_m, size_t end_m) {
                 for (size_t i = begin_n; i < end_n; ++i)
                 {
                     for (size_t j = begin_m; j < end_m; ++j)
                     {
-                        distances[i*n_points + j] = computeDistance(query_points[i], points[j]);
+                        distances[i * n_points + j] = computeDistance(query_points[i], points[j]);
                     }
                 }
-            }
-        );
+            });
     }
 
     //! Get the shortest distance between opposite boundary planes of the box

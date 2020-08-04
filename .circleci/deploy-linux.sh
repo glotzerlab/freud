@@ -35,8 +35,8 @@ cd ${BUILD_DIR}
 source tbbvars.sh
 cd ~/
 
-# Build wheels for Python 3.5, 3.6, 3.7, 3.8
-PYBINS="/opt/python/cp3[5-8]*/bin"
+# Build wheels for Python 3.6, 3.7, 3.8
+PYBINS="/opt/python/cp3[6-8]*/bin"
 
 for PYBIN in $PYBINS; do
   echo "Building for $(${PYBIN}/python --version)"

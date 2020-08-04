@@ -18,7 +18,6 @@ except ImportError:
     # Compatibility with distutils
     import distutils
     from distutils import Extension, setup
-import distutils.ccompiler  # Handles old versions of Python 2.7
 
 logger = logging.getLogger(__name__)
 
@@ -48,10 +47,7 @@ def stderr_manager(f):
         """Redirect stderr to the given file descriptor."""
         sys.stderr.close()
         os.dup2(to_fd, original_stderr_fd)
-        if sys.version_info > (3, 0):
-            sys.stderr = io.TextIOWrapper(os.fdopen(original_stderr_fd, 'wb'))
-        else:
-            sys.stderr = os.fdopen(original_stderr_fd, 'wb')
+        sys.stderr = io.TextIOWrapper(os.fdopen(original_stderr_fd, 'wb'))
 
     try:
         _redirect_stderr(f.fileno(), stderr_fd)
@@ -411,7 +407,7 @@ extensions = cythonize(extensions,
 if platform.system() == 'Darwin':
     os.environ["MACOSX_DEPLOYMENT_TARGET"] = "10.12"
 
-version = '2.2.0'
+version = '2.3.0'
 
 # Read README for PyPI, fallback to short description if it fails.
 desc = 'Powerful, efficient trajectory analysis in scientific Python.'
@@ -447,7 +443,6 @@ try:
                 "Topic :: Scientific/Engineering :: Physics",
                 "Programming Language :: C++",
                 "Programming Language :: Cython",
-                "Programming Language :: Python :: 3.5",
                 "Programming Language :: Python :: 3.6",
                 "Programming Language :: Python :: 3.7",
                 "Programming Language :: Python :: 3.8",
@@ -476,10 +471,9 @@ try:
             tests_require=[
                 'gsd>=2.0',
                 'garnett>=0.7.1',
-                'matplotlib>=2.0',
-                'MDAnalysis>=0.17',
+                'matplotlib>=3.0',
+                'MDAnalysis>=0.20.1',
                 'rowan>=1.2',
-                'scipy>=1.1',
                 'sympy>=1.0',
             ],
             ext_modules=extensions)
