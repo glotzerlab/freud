@@ -461,7 +461,7 @@ try:
                 'Source Code': 'https://github.com/glotzerlab/freud',
                 'Issue Tracker': 'https://github.com/glotzerlab/freud/issues',
             },
-            python_requires='>=3.5',
+            python_requires='>=3.6',
             install_requires=[
                 'cython>=0.29',
                 'numpy>=1.14',
