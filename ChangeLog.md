@@ -4,6 +4,11 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## v2.x.x - 2020-0x-xx
+
+### Added
+* The Box class has a method `crop` to determine particle membership in a box.
+
 ## v2.3.0 - 2020-08-03
 
 ### Added
@@ -15,7 +20,6 @@ and this project adheres to
 * Module examples have been integrated with doctests to ensure they are up to date with API.
 * SphereVoxelization class in the `density` module computes a grid of voxels occupied by spheres.
 * `freud.diffraction.DiffractionPattern` class (unstable) can be used to compute 2D diffraction patterns.
-* The Box class has a method `crop` to determine particle membership in a box.
 
 ### Changed
 * Cython is now a required dependency (not optional). Cythonized `.cpp` files have been removed.
