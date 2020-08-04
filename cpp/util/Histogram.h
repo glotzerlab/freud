@@ -164,8 +164,8 @@ public:
     }
 
 protected:
-    float m_bin_width;          //!< Bin width
-    float m_inverse_bin_width;  //!< Inverse of bin width
+    float m_bin_width;         //!< Bin width
+    float m_inverse_bin_width; //!< Inverse of bin width
 };
 
 //! An n-dimensional histogram class.
