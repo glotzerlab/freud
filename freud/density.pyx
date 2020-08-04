@@ -190,12 +190,12 @@ cdef class GaussianDensity(_Compute):
     the grid cell from the center of the Gaussian. The resulting data is a
     regular grid of particle densities that can be used in standard algorithms
     requiring evenly spaced point, such as Fast Fourier Transforms. The
-    dimensions of the image (grid) are set in the constructor, and can either
-    be set equally for all dimensions or for each dimension independently.
+    dimensions of the grid are set in the constructor, and can either be set
+    equally for all dimensions or for each dimension independently.
 
     Args:
-        width (int or list or tuple):
-            The number of bins to make the image in each direction (identical
+        width (int or Sequence[int]):
+            The number of bins to make the grid in each dimension (identical
             in all dimensions if a single integer value is provided).
         r_max (float):
             Distance over which to blur.
@@ -244,7 +244,7 @@ cdef class GaussianDensity(_Compute):
     @_Compute._computed_property
     def density(self):
         """(:math:`w_x`, :math:`w_y`, :math:`w_z`) :class:`numpy.ndarray`: The
-        image grid with the Gaussian density."""
+        grid with the Gaussian density contributions from each point."""
         if self.box.is2D:
             return np.squeeze(freud.util.make_managed_numpy_array(
                 &self.thisptr.getDensity(), freud.util.arr_type_t.FLOAT))
@@ -264,9 +264,8 @@ cdef class GaussianDensity(_Compute):
 
     @property
     def width(self):
-        """int or list or tuple: The number of bins to make the image in each
-        direction (identical in all dimensions if a single integer value is
-        provided)."""
+        """tuple[int]: The number of bins in the grid in each dimension
+        (identical in all dimensions if a single integer value is provided)."""
         cdef vec3[uint] width = self.thisptr.getWidth()
         return (width.x, width.y, width.z)
 
@@ -292,6 +291,115 @@ cdef class GaussianDensity(_Compute):
         if not self.box.is2D:
             return None
         return freud.plot.density_plot(self.density, self.box, ax=ax)
+
+    def _repr_png_(self):
+        try:
+            import freud.plot
+            return freud.plot._ax_to_bytes(self.plot())
+        except (AttributeError, ImportError):
+            return None
+
+
+cdef class SphereVoxelization(_Compute):
+    R"""Computes a grid of voxels occupied by spheres.
+
+    This class constructs a grid of voxels. From a given set of points and a
+    desired radius, a set of spheres are created. The voxels are assigned a
+    value of 1 if their center is contained in one or more spheres and 0
+    otherwise. The dimensions of the grid are set in the constructor, and can
+    either be set equally for all dimensions or for each dimension
+    independently.
+
+    Args:
+        width (int or Sequence[int]):
+            The number of bins to make the grid in each dimension (identical
+            in all dimensions if a single integer value is provided).
+        r_max (float):
+            Sphere radius.
+    """
+    cdef freud._density.SphereVoxelization * thisptr
+
+    def __cinit__(self, width, r_max):
+        cdef vec3[uint] width_vector
+        if isinstance(width, int):
+            width_vector = vec3[uint](width, width, width)
+        elif isinstance(width, Sequence) and len(width) == 2:
+            width_vector = vec3[uint](width[0], width[1], 1)
+        elif isinstance(width, Sequence) and len(width) == 3:
+            width_vector = vec3[uint](width[0], width[1], width[2])
+        else:
+            raise ValueError("The width must be either a number of bins or a "
+                             "sequence indicating the widths in each spatial "
+                             "dimension (length 2 in 2D, length 3 in 3D).")
+
+        self.thisptr = new freud._density.SphereVoxelization(width_vector,
+                                                             r_max)
+
+    def __dealloc__(self):
+        del self.thisptr
+
+    @_Compute._computed_property
+    def box(self):
+        """:class:`freud.box.Box`: Box used in the calculation."""
+        return freud.box.BoxFromCPP(self.thisptr.getBox())
+
+    def compute(self, system):
+        R"""Calculates the voxelization of spheres about the specified points.
+
+        Args:
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
+        """
+        cdef freud.locality.NeighborQuery nq = \
+            freud.locality.NeighborQuery.from_system(system)
+        self.thisptr.compute(nq.get_ptr())
+        return self
+
+    @_Compute._computed_property
+    def voxels(self):
+        """(:math:`w_x`, :math:`w_y`, :math:`w_z`) :class:`numpy.ndarray`: The
+        voxel grid indicating overlap with the computed spheres."""
+        data = freud.util.make_managed_numpy_array(
+            &self.thisptr.getVoxels(), freud.util.arr_type_t.UNSIGNED_INT)
+        if self.box.is2D:
+            return np.squeeze(data)
+        else:
+            return data
+
+    @property
+    def r_max(self):
+        """float: Sphere radius used for voxelization."""
+        return self.thisptr.getRMax()
+
+    @property
+    def width(self):
+        """tuple[int]: The number of bins in the grid in each dimension
+        (identical in all dimensions if a single integer value is provided)."""
+        cdef vec3[uint] width = self.thisptr.getWidth()
+        return (width.x, width.y, width.z)
+
+    def __repr__(self):
+        return ("freud.density.{cls}({width}, {r_max})").format(
+            cls=type(self).__name__,
+            width=self.width,
+            r_max=self.r_max)
+
+    def plot(self, ax=None):
+        """Plot voxelization.
+
+        Args:
+            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
+                :code:`None`, make a new figure and axis.
+                (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes.Axes`): Axis with the plot.
+        """
+        import freud.plot
+        if not self.box.is2D:
+            return None
+        return freud.plot.density_plot(self.voxels, self.box, ax=ax)
 
     def _repr_png_(self):
         try:

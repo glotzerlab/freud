@@ -305,10 +305,25 @@ public:
      */
     vec3<float> wrap(const vec3<float>& v) const
     {
+        // Return quickly if the box is aperiodic
+        if (!m_periodic.x && !m_periodic.y && !m_periodic.z)
+        {
+            return v;
+        }
+
         vec3<float> v_frac = makeFractional(v);
-        v_frac.x = util::modulusPositive(v_frac.x, 1.0f);
-        v_frac.y = util::modulusPositive(v_frac.y, 1.0f);
-        v_frac.z = util::modulusPositive(v_frac.z, 1.0f);
+        if (m_periodic.x)
+        {
+            v_frac.x = util::modulusPositive(v_frac.x, 1.0f);
+        }
+        if (m_periodic.y)
+        {
+            v_frac.y = util::modulusPositive(v_frac.y, 1.0f);
+        }
+        if (m_periodic.z)
+        {
+            v_frac.z = util::modulusPositive(v_frac.z, 1.0f);
+        }
         return makeAbsolute(v_frac);
     }
 

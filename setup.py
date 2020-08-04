@@ -471,6 +471,7 @@ try:
                 'cython>=0.29',
                 'numpy>=1.14',
                 'rowan>=1.2',
+                'scipy>=1.1',
             ],
             tests_require=[
                 'gsd>=2.0',
