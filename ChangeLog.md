@@ -7,7 +7,7 @@ and this project adheres to
 ## v2.x.x - 2020-0x-xx
 
 ### Added
-* The Box class has a method `crop` to determine particle membership in a box.
+* The Box class has a method `contains` to determine particle membership in a box.
 
 ## v2.3.0 - 2020-08-03
 

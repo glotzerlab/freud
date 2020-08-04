@@ -529,15 +529,15 @@ cdef class Box:
             const float[:, ::1] l_points = points
             size_t n_all_points = points.shape[0]
 
-        cropped_mask = freud.util._convert_array(
+        contains_mask = freud.util._convert_array(
             np.ones(n_all_points), dtype=np.bool)
-        cdef cpp_bool[::1] l_cropped_mask = cropped_mask
+        cdef cpp_bool[::1] l_contains_mask = contains_mask
 
         self.thisptr.contains(
             <vec3[float]*> &l_points[0, 0], n_all_points,
-            <cpp_bool*> &l_cropped_mask[0])
+            <cpp_bool*> &l_contains_mask[0])
 
-        return np.array(l_cropped_mask).astype(np.bool)
+        return np.array(l_contains_mask).astype(np.bool)
 
     @property
     def periodic(self):
