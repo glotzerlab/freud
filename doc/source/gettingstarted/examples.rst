@@ -35,6 +35,7 @@ These introductory examples showcase the functionality of specific modules in **
     :glob:
 
     examples/module_intros/cluster*
+    examples/module_intros/diffraction*
     examples/module_intros/density*
     examples/module_intros/environment*
     examples/module_intros/interface*
