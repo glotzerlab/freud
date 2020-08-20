@@ -499,7 +499,7 @@ cdef class Box:
         R"""Returns boolean array (mask) corresponding to point membership in a box.
 
         This calculation computes particle membership based on conventions defined by :class:`Box`,
-        ignoring periodicity, where the origin, ``[0, 0, 0]`` is defined as the center of the box.
+        ignoring periodicity, where the origin, ``[0, 0, 0]``, is defined as the center of the box.
         This means that in a cubic (3D) box with dimensions ``L``, particles would be considered inside the box if their coordinates are between
         ``[-L/2, L/2]``.
         Particles laying at a coordinate such as ``[0, L, 0]`` would be considered outside the box.
