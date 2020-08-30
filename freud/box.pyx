@@ -31,7 +31,7 @@ cdef class Box:
 
     This class defines an arbitrary triclinic geometry within which all points are confined.
     By convention, the freud Box is centered at the origin (``[0, 0, 0]``),
-    with the extent in each dimension described by the half-closed interval ``[-L/2, L/2]``.
+    with the extent in each dimension described by the half-open interval ``[-L/2, L/2)``.
     For more information, see the `documentation
     <https://freud.readthedocs.io/en/stable/gettingstarted/tutorial/periodic.html>`_
     on boxes and periodic boundary conditions.
