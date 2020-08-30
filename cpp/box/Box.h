@@ -8,6 +8,7 @@
 #include <complex>
 #include <sstream>
 #include <stdexcept>
+#include <algorithm>
 
 #include "VectorMath.h"
 
@@ -271,20 +272,29 @@ public:
         });
     }
 
+    //! Get periodic image of a vector.
+    /*! \param v The vector to check.
+     *  \param image The image of a given point.
+     */
+    inline void getImage(const vec3<float>& v, vec3<int> &image) const
+    {
+            vec3<float> f = makeFractional(v) - vec3<float>(0.5, 0.5, 0.5);
+            image.x = (int) ((f.x >= 0.0f) ? f.x + 0.5f : f.x - 0.5f);
+            image.y = (int) ((f.y >= 0.0f) ? f.y + 0.5f : f.y - 0.5f);
+            image.z = (int) ((f.z >= 0.0f) ? f.z + 0.5f : f.z - 0.5f);
+    }
+
     //! Get the periodic image vectors belongs to
     /*! \param vecs The vectors to check
      *  \param Nvecs Number of vectors
         \param res Array to save the images
      */
-    void getImage(vec3<float>* vecs, unsigned int Nvecs, vec3<int>* res) const
+    void getImages(vec3<float>* vecs, unsigned int Nvecs, vec3<int>* res) const
     {
         util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
-                vec3<float> f = makeFractional(vecs[i]) - vec3<float>(0.5, 0.5, 0.5);
-                res[i].x = (int) ((f.x >= 0.0f) ? f.x + 0.5f : f.x - 0.5f);
-                res[i].y = (int) ((f.y >= 0.0f) ? f.y + 0.5f : f.y - 0.5f);
-                res[i].z = (int) ((f.z >= 0.0f) ? f.z + 0.5f : f.z - 0.5f);
+                getImage(vecs[i], res[i]);
             }
         });
     }
@@ -449,6 +459,27 @@ public:
                     }
                 }
             });
+    }
+
+    //! Get mask of points that fit inside the box.
+    /*! \param points Point positions.
+        \param n_points The number of points.
+        \param contains_mask Mask of points inside the box.
+    */
+    void contains(const vec3<float>* points, const unsigned int n_points,
+        bool* contains_mask) const
+    {
+        util::forLoopWrapper(0, n_points, [&](size_t begin, size_t end) {
+            for (size_t i = begin; i < n_points; ++i)
+            {
+                std::transform(&points[begin], &points[end], &contains_mask[begin],
+                [this](const vec3<float> point) -> bool {
+                    vec3<int> image(0, 0, 0);
+                    getImage(point, image);
+                    return image == vec3<int>(0, 0, 0);
+                });
+            }
+        });
     }
 
     //! Get the shortest distance between opposite boundary planes of the box
