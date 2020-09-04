@@ -264,6 +264,7 @@ Kelly Wang
 
 * Enabled NeighborList indexing.
 * Added methods ``compute_distances`` and ``compute_all_distances`` to Box.
+* Added method ``crop`` to Box.
 
 Yezhi Jin
 

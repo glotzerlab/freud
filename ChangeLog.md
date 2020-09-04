@@ -4,6 +4,11 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## v2.x.x - 2020-0x-xx
+
+### Added
+* The Box class has a method `contains` to determine particle membership in a box.
+
 ## v2.3.0 - 2020-08-03
 
 ### Added
