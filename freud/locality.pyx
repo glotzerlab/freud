@@ -996,7 +996,7 @@ cdef class _SpatialHistogram(_PairCompute):
     @property
     def nbins(self):
         """:class:`list`: The number of bins in each dimension of the
-        histogram"""
+        histogram."""
         return list(self.histptr.getAxisSizes())
 
     def _reset(self):
@@ -1043,7 +1043,7 @@ cdef class _SpatialHistogram1D(_SpatialHistogram):
 
     @property
     def nbins(self):
-        """int: The number of bins in the histogram"""
+        """int: The number of bins in the histogram."""
         return self.histptr.getAxisSizes()[0]
 
 
