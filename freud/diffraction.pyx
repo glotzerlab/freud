@@ -26,6 +26,128 @@ cimport numpy as np
 
 logger = logging.getLogger(__name__)
 
+cdef class StaticStructureFactor(_Compute):
+    R"""Computes a 1D static structure factor."""
+    cdef unsigned int _bins
+    cdef float _k_max
+    cdef float _k_min
+    cdef float _k_min_characteristic
+    cdef int _n_frames
+    cdef float[::1] _ks
+    cdef float[::1] _S_k
+
+    def __cinit__(self, unsigned int bins, float k_max, float k_min=0):
+        self._bins = bins
+        self._k_max = k_max
+        self._k_min = k_min
+        self._n_frames = 0
+        self._ks = np.linspace(
+            self._k_min, self._k_max, self._bins, dtype=np.float32)
+        self._S_k = np.zeros_like(self._ks)
+
+    def compute(self, system, query_points=None, reset=True):
+        R"""Computes diffraction pattern.
+
+        Args:
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
+            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
+                Query points used to calculate the structure factor. Uses the
+                system's points if :code:`None` (Default value =
+                :code:`None`).
+        """  # noqa E501
+        system = freud.locality.NeighborQuery.from_system(system)
+
+        # Get the minimal valid k-value for this box
+        min_box_length = np.min(system.box.L)
+        self._k_min_characteristic = 2 * np.pi / (0.5 * min_box_length)
+
+        # Compute all pairwise distances
+        if query_points is None:
+            query_points = system.points
+        cdef float[::1] distances
+        distances = system.box.compute_all_distances(
+            system.points, query_points).flatten()
+
+        cdef:
+            float normalization
+            int k_index
+            float k
+            float[:, ::1] k_dot_rij
+
+        normalization = len(system.points)
+
+        if reset:
+            self._S_k = np.zeros_like(self._ks)
+        self._n_frames += 1
+
+        for k_index, k in enumerate(self._ks):
+            self._S_k[k_index] += np.sum(np.sinc(
+                k * np.asarray(distances) / np.pi)) / normalization
+
+        return self
+
+    @property
+    def bins(self):
+        """int: The number of bins in k-space."""
+        return self._bins
+
+    @property
+    def k_max(self):
+        """float: Maximum value of k at which to calculate the structure
+        factor."""
+        return self._k_max
+
+    @property
+    def k_min(self):
+        """float: Minimum value of k at which to calculate the structure
+        factor."""
+        return self._k_min
+
+    @_Compute._computed_property
+    def k_min_characteristic(self):
+        """float: Minimum valid value of k for the computed system box, equal
+        to :math:`2\\pi/(L/2)` where :math:`L` is the minimum side length."""
+        return self._k_min_characteristic
+
+    @_Compute._computed_property
+    def ks(self):
+        """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Static
+        structure factor :math:`k` values."""
+        return np.asarray(self._ks)
+
+    @_Compute._computed_property
+    def S_k(self):
+        """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Static
+        structure factor :math:`S(k)` values."""
+        return np.asarray(self._S_k) / self._n_frames
+
+    def plot(self, ax=None, **kwargs):
+        """Plot static structure factor.
+
+        Args:
+            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
+                :code:`None`, make a new figure and axis.
+                (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes.Axes`): Axis with the plot.
+        """
+        import freud.plot
+        return freud.plot.line_plot(self.ks, self.S_k,
+                                    title="Static Structure Factor",
+                                    xlabel=r"$k$",
+                                    ylabel=r"$S(k)$",
+                                    ax=ax)
+
+    def _repr_png_(self):
+        try:
+            import freud.plot
+            return freud.plot._ax_to_bytes(self.plot())
+        except (AttributeError, ImportError):
+            return None
+
 
 cdef class DiffractionPattern(_Compute):
     R"""Computes a 2D diffraction pattern.
