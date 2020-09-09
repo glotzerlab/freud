@@ -9,6 +9,9 @@ and this project adheres to
 ### Added
 * The Box class has a method `contains` to determine particle membership in a box.
 
+### Fixed
+* Source distributions now include Cython source files.
+
 ## v2.3.0 - 2020-08-03
 
 ### Added
