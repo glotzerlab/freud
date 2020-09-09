@@ -41,7 +41,7 @@ dependencies:
   - libcblas=3.8.0=16_openblas
   - libffi=3.2.1=he1b5a44_1007
   - libgcc-ng=9.2.0=h24d8f2e_2
-  - libgfortran-ng=7.5.0=hdf63c60_6
+  - libgfortran-ng=7.5.0=hdf63c60_16
   - liblapack=3.8.0=16_openblas
   - libopenblas=0.3.9=h5ec1e0e_0
   - libsodium=1.0.17=h516909a_0
