@@ -4,37 +4,37 @@
 #include <cmath>
 #include <stdexcept>
 
-#include "GaussianDensity.h"
+#include "SphereVoxelization.h"
 
-/*! \file GaussianDensity.cc
-    \brief Routines for computing Gaussian smeared densities from points.
+/*! \file SphereVoxelization.cc
+    \brief Routines for computing voxelized densities from spheres centered at points.
 */
 
 namespace freud { namespace density {
 
-GaussianDensity::GaussianDensity(vec3<unsigned int> width, float r_max, float sigma)
-    : m_box(), m_width(width), m_r_max(r_max), m_sigma(sigma), m_has_computed(false)
+SphereVoxelization::SphereVoxelization(vec3<unsigned int> width, float r_max)
+    : m_box(), m_width(width), m_r_max(r_max), m_has_computed(false)
 {
     if (r_max <= 0.0f)
-        throw std::invalid_argument("GaussianDensity requires r_max to be positive.");
+        throw std::invalid_argument("SphereVoxelization requires r_max to be positive.");
 }
 
-//! Get a reference to the last computed Density
-const util::ManagedArray<float>& GaussianDensity::getDensity() const
+//! Get a reference to the last computed voxels.
+const util::ManagedArray<unsigned int>& SphereVoxelization::getVoxels() const
 {
-    return m_density_array;
+    return m_voxels_array;
 }
 
 //! Get width.
-vec3<unsigned int> GaussianDensity::getWidth()
+vec3<unsigned int> SphereVoxelization::getWidth() const
 {
     return m_width;
 }
 
-//! Compute the density array.
-void GaussianDensity::compute(const freud::locality::NeighborQuery* nq)
+//! Compute the voxels array.
+void SphereVoxelization::compute(const freud::locality::NeighborQuery* nq)
 {
-    // set the number of dimensions for the calculation the first time it is done
+    // Set the number of dimensions for the calculation the first time it is done.
     if (!m_has_computed || nq->getBox().is2D() == m_box.is2D())
     {
         m_box = nq->getBox();
@@ -42,7 +42,7 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq)
     }
     else
     {
-        throw std::invalid_argument("The dimensionality of the box passed to GaussianDensity has "
+        throw std::invalid_argument("The dimensionality of the box passed to SphereVoxelization has "
                                     "changed. A new instance must be created to handle a different "
                                     "number of dimensions.");
     }
@@ -56,8 +56,7 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq)
         m_width.z = 1;
     }
 
-    m_density_array.prepare({m_width.x, m_width.y, m_width.z});
-    util::ThreadStorage<float> local_bin_counts({m_width.x, m_width.y, m_width.z});
+    m_voxels_array.prepare({m_width.x, m_width.y, m_width.z});
 
     // set up some constants first
     const float Lx = m_box.getLx();
@@ -74,10 +73,6 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq)
     const int bin_cut_y = int(m_r_max / grid_size_y);
     const int bin_cut_z = m_box.is2D() ? 0 : int(m_r_max / grid_size_z);
     const float r_max_sq = m_r_max * m_r_max;
-    const float sigmasq = m_sigma * m_sigma;
-    const float normalization_base = 1.0f / std::sqrt(constants::TWO_PI * sigmasq);
-    const float dimensions = m_box.is2D() ? 2.0f : 3.0f;
-    const float normalization = std::pow(normalization_base, dimensions);
 
     util::forLoopWrapper(0, n_points, [&](size_t begin, size_t end) {
         // for each reference point
@@ -85,18 +80,13 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq)
         {
             const vec3<float> point = (*nq)[idx];
             // Find which bin the particle is in
-            int bin_x = int((point.x + Lx / 2.0f) / grid_size_x);
-            int bin_y = int((point.y + Ly / 2.0f) / grid_size_y);
-            int bin_z = int((point.z + Lz / 2.0f) / grid_size_z);
-
+            const int bin_x = int((point.x + Lx / 2.0f) / grid_size_x);
+            const int bin_y = int((point.y + Ly / 2.0f) / grid_size_y);
             // In 2D, only loop over the z=0 plane
-            if (m_box.is2D())
-            {
-                bin_z = 0;
-            }
+            const int bin_z = m_box.is2D() ? 0 : int((point.z + Lz / 2.0f) / grid_size_z);
 
-            // Reject bins that are outside the box in aperiodic directions
-            // Only evaluate over bins that are within the cutoff
+            // Only evaluate over bins that are within the cutoff, rejecting bins
+            // that are outside the box in aperiodic directions.
             for (int k = bin_z - bin_cut_z; k <= bin_z + bin_cut_z; k++)
             {
                 if (!periodic.z && (k < 0 || k >= int(m_width.z)))
@@ -129,26 +119,21 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq)
                         // Check to see if this distance is within the specified r_max
                         if (r_sq < r_max_sq)
                         {
-                            // Evaluate the gaussian
-                            const float gaussian = normalization * std::exp(-r_sq / (float(2.0) * sigmasq));
-
                             // Assure that out of range indices are corrected for storage
                             // in the array i.e. bin -1 is actually bin 29 for nbins = 30
                             const unsigned int ni = (i + m_width.x) % m_width.x;
                             const unsigned int nj = (j + m_width.y) % m_width.y;
                             const unsigned int nk = (k + m_width.z) % m_width.z;
 
-                            // Store the gaussian contribution
-                            local_bin_counts.local()(ni, nj, nk) += gaussian;
+                            // This array value could be written by multiple threads in parallel.
+                            // This is only safe because all threads are writing the same value (1).
+                            m_voxels_array(ni, nj, nk) = 1;
                         }
                     }
                 }
             }
         }
     });
-
-    // Parallel reduction over thread storage
-    local_bin_counts.reduceInto(m_density_array);
 }
 
 }; }; // end namespace freud::density

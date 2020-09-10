@@ -93,4 +93,4 @@ cdef inline make_managed_numpy_array(
 
 
 cdef class _Compute:
-    cdef public _called_compute
+    cdef public bool _called_compute

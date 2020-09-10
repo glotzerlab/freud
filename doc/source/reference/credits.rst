@@ -103,6 +103,10 @@ Bradley Dice - **Lead developer**
 * Improved stability of Histogram bin calculations.
 * Improved error handling of Cubatic input parameters.
 * Added 2D Minkowski Structure Metrics to Hexatic, enabled by using ``weighted=True`` along with a Voronoi NeighborList.
+* Worked with Tommy Waltmann to add the SphereVoxelization feature.
+* Fixed GaussianDensity normalization in 2D systems.
+* Prevented GaussianDensity from computing 3D systems after it has computed 2D systems.
+* Contributed code, design, and testing for ``DiffractionPattern`` class.
 
 Eric Harper, University of Michigan - **Former lead developer**
 
@@ -260,12 +264,14 @@ Kelly Wang
 
 * Enabled NeighborList indexing.
 * Added methods ``compute_distances`` and ``compute_all_distances`` to Box.
+* Added method ``crop`` to Box.
 
 Yezhi Jin
 
 * Added support for 2D arrays in the Python interface to Box functions.
 * Rewrote Voronoi implementation to leverage voro++.
 * Implemented Voronoi bond weighting to enable Minkowski structure metrics.
+* Contributed code, design, and testing for ``DiffractionPattern`` class.
 
 Brandon Butler
 
@@ -286,6 +292,15 @@ Mike Henry
 
 * Fixed syntax in freud-examples notebooks for v2.0.
 * Updated documentation links
+
+Michael Stryk
+
+* Added short examples into Cluster, Density, Environment, and Order Modules.
+
+Tommy Waltmann
+
+* Worked with Bradley Dice to add the SphereVoxelization feature.
+* Contributed code, design, and testing for ``DiffractionPattern`` class.
 
 Source code
 -----------
