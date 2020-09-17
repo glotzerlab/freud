@@ -11,6 +11,7 @@ and this project adheres to
 
 ### Fixed
 * Source distributions now include Cython source files.
+* Hexatic order parameter (unweighted) normalizes by number of neighbors instead of the symmetry order k.
 
 ## v2.3.0 - 2020-08-03
 
