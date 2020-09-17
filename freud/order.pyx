@@ -483,11 +483,13 @@ cdef class Steinhardt(_PairCompute):
     order parameter described by Steinhardt. For a particle :math:`i`, we
     calculate the average order parameter by summing the spherical harmonics
     between particle :math:`i` and its neighbors :math:`j` in a local region:
+
     :math:`\overline{q}_{lm}(i) = \frac{1}{N_b} \displaystyle\sum_{j=1}^{N_b}
     Y_{lm}(\theta(\vec{r}_{ij}), \phi(\vec{r}_{ij}))`.
 
     For :math:`q_l`, this is then combined in a rotationally invariant fashion
     to remove local orientational order as follows:
+
     :math:`q_l(i)=\sqrt{\frac{4\pi}{2l+1} \displaystyle\sum_{m=-l}^{l}
     |\overline{q}_{lm}|^2 }`.
 
@@ -504,6 +506,18 @@ cdef class Steinhardt(_PairCompute):
     performed by replacing the value :math:`\overline{q}_{lm}(i)` in the
     original definition by the average value of :math:`\overline{q}_{lm}(k)`
     over all the :math:`k` neighbors of particle :math:`i` as well as itself.
+
+    If the weighted mode is enabled in the constructor, the contributions of
+    each neighbor are weighted. Neighbor weights :math:`w_j` default to 1 but
+    are defined for a :class:`freud.locality.NeighborList` from
+    :class:`freud.locality.Voronoi` or one with user-provided weights. The
+    formula is modified as follows:
+
+    :math:`\overline{q}'_{lm}(i) = \frac{1}{\sum_j^n w_j} \displaystyle\sum_{j=1}^{N_b}
+    w_j Y_{lm}(\theta(\vec{r}_{ij}), \phi(\vec{r}_{ij}))`.
+
+    :math:`q'_l(i)=\sqrt{\frac{4\pi}{2l+1} \displaystyle\sum_{m=-l}^{l}
+    |\overline{q}'_{lm}|^2 }`.
 
     The :code:`norm` attribute argument provides normalized versions of the
     order parameter, where the normalization is performed by averaging the
