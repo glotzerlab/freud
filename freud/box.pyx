@@ -505,8 +505,8 @@ cdef class Box:
         ``[-L/2, L/2]``.
         Particles laying at a coordinate such as ``[0, L, 0]`` would be considered outside the box.
         More information about coordinate conventions can be found `here
-        <https://freud.readthedocs.io/en/latest/gettingstarted/examples/module_intros/box.Box.html?highlight=origin#Using-boxes>`_
-        and `here <https://freud.readthedocs.io/en/latest/gettingstarted/tutorial/periodic.html?highlight=origin#periodic-boundary-conditions>`_.
+        <https://freud.readthedocs.io/en/latest/gettingstarted/examples/module_intros/box.Box.html?highlight=origin#Using-boxes>`__
+        and `here <https://freud.readthedocs.io/en/latest/gettingstarted/tutorial/periodic.html?highlight=origin#periodic-boundary-conditions>`__.
 
         Example::
 
