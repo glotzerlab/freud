@@ -395,13 +395,25 @@ cdef class Hexatic(_PairCompute):
 cdef class Translational(_PairCompute):
     R"""Compute the translational order parameter for each particle.
 
+    The translational order parameter is used to measure order in the bonds
+    of 2D systems. The translational order parameter for a particle :math:`i`
+    and its :math:`n` neighbors :math:`j` is given by a sum over the
+    neighbors, treating the 2D vectors between each pair of particles as a
+    complex number with real part corresponding to the x-component of the
+    vector and imaginary part corresponding to the y-component of the vector,
+    divided by a normalization constant :math:`k`:
+
+    :math:`\psi\left( i \right) = \frac{1}{k} \sum_j^n x_{ij} + y_{ij} i`
+
+    The translational order parameter as written above is **complex-valued**.
+
     .. note::
         **2D:** :class:`freud.order.Translational` is only defined for 2D
         systems. The points must be passed in as :code:`[x, y, 0]`.
 
     Args:
         k (float, optional):
-            Symmetry of order parameter. (Default value = :code:`6.0`).
+            Normalization of order parameter. (Default value = :code:`6.0`).
     """  # noqa E501
     cdef freud._order.Translational * thisptr
 
