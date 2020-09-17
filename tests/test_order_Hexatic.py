@@ -137,6 +137,43 @@ class TestHexatic(unittest.TestCase):
         hop.compute(system=(box, points), neighbors=voro.nlist)
         npt.assert_allclose(np.absolute(hop.particle_order), 0., atol=1e-5)
 
+    def test_normalization(self):
+        """Verify normalizations for weighted and unweighted systems."""
+        box = freud.Box.square(L=10)
+        points = np.array([
+            [0.0, 0.0, 0.0],
+            [1.0, 0.31, 0.0],
+            [0.17, 1.0, 0.0],
+            [-1.0, 0.25, 0.0],
+            [0.13, -1.0, 0.0]
+        ])
+        point_indices = np.array([0, 0, 0, 0])
+        query_point_indices = np.array([1, 2, 3, 4])
+        rijs = box.wrap(points[point_indices] -
+                        points[query_point_indices])
+        distances = np.linalg.norm(rijs, axis=-1)
+        weights = np.array([1, 0.7, 0.3, 0])
+        nlist = freud.NeighborList.from_arrays(
+            len(points), len(points),
+            point_indices, query_point_indices,
+            distances, weights)
+        rijs = box.wrap(points[nlist.point_indices] -
+                        points[nlist.query_point_indices])
+        thetas = np.arctan2(rijs[:, 1], rijs[:, 0])
+        for k in range(0, 12):
+            # Unweighted calculation - normalized by number of neighbors
+            psi_k = np.sum(np.exp(thetas * k * 1.0j)) / len(nlist)
+            hop = freud.order.Hexatic(k=k)
+            hop.compute(system=(box, points), neighbors=nlist)
+            npt.assert_allclose(psi_k, hop.particle_order[0], atol=1e-5)
+            # Weighted calculation - normalized by total neighbor weight
+            psi_k_weighted = np.sum(nlist.weights * np.exp(thetas * k * 1.0j))
+            psi_k_weighted /= np.sum(nlist.weights)
+            hop_weighted = freud.order.Hexatic(k=k, weighted=True)
+            hop_weighted.compute(system=(box, points), neighbors=nlist)
+            npt.assert_allclose(
+                psi_k_weighted, hop_weighted.particle_order[0], atol=1e-5)
+
     def test_3d_box(self):
         boxlen = 10
         N = 500
