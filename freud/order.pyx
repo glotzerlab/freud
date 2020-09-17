@@ -265,13 +265,12 @@ cdef class Hexatic(_PairCompute):
 
     The hexatic order parameter as written above is **complex-valued**. The
     **magnitude** of the complex value,
-    *:code:`np.abs(hex_order.particle_order)`, is
-    frequently what users will want to use when determining the
-    :math:`k`-atic order for each particle. The complex phase angle
-    :code:`np.angle(hex_order.particle_order)` indicates the orientation of
-    the bonds as an angle measured counterclockwise from the vector
-    :math:`\left(1, 0\right)`. The complex valued order parameter is not
-    rotationally invariant because of this phase angle, but the magnitude
+    :code:`np.abs(hex_order.particle_order)`, is frequently what is desired
+    when determining the :math:`k`-atic order for each particle. The complex
+    phase angle :code:`np.angle(hex_order.particle_order)` indicates the
+    orientation of the bonds as an angle measured counterclockwise from the
+    vector :math:`\left(1, 0\right)`. The complex valued order parameter is
+    not rotationally invariant because of this phase angle, but the magnitude
     *is* rotationally invariant.
 
     .. note::
