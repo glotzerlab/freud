@@ -248,12 +248,31 @@ cdef class Hexatic(_PairCompute):
     :math:`n` neighbors :math:`j` is given by:
 
     :math:`\psi_k \left( i \right) = \frac{1}{n}
-    \sum_j^n e^{k i \phi_{ij}}`
+    \sum_j^n e^{i k \phi_{ij}}`
 
     The parameter :math:`k` governs the symmetry of the order parameter and
     typically matches the number of neighbors to be found for each particle.
     The quantity :math:`\phi_{ij}` is the angle between the
     vector :math:`r_{ij}` and :math:`\left(1, 0\right)`.
+
+    If the weighted mode is enabled, contributions of each neighbor are
+    weighted. Neighbor weights :math:`w_j` default to 1 but are defined for a
+    :class:`freud.locality.NeighborList` from :class:`freud.locality.Voronoi`
+    or one with user-provided weights. The formula is modified as follows:
+
+    :math:`\psi'_k \left( i \right) = \frac{1}{\sum_j^n w_j}
+    \sum_j^n w_j e^{i k \phi_{ij}}`
+
+    The hexatic order parameter as written above is **complex-valued**. The
+    **magnitude** of the complex value,
+    *:code:`np.abs(hex_order.particle_order)`, is
+    frequently what users will want to use when determining the
+    :math:`k`-atic order for each particle. The complex phase angle
+    :code:`np.angle(hex_order.particle_order)` indicates the orientation of
+    the bonds as an angle measured counterclockwise from the vector
+    :math:`\left(1, 0\right)`. The complex valued order parameter is not
+    rotationally invariant because of this phase angle, but the magnitude
+    *is* rotationally invariant.
 
     .. note::
         **2D:** :class:`freud.order.Hexatic` is only defined for 2D systems.
