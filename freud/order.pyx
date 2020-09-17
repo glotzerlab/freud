@@ -279,13 +279,13 @@ cdef class Hexatic(_PairCompute):
 
     Args:
         k (unsigned int, optional):
-            Symmetry of order parameter. (Default value = :code:`6`).
+            Symmetry of order parameter (Default value = :code:`6`).
         weighted (bool, optional):
             Determines whether to use neighbor weights in the computation of
             spherical harmonics over neighbors. If enabled and used with a
             Voronoi neighbor list, this results in the 2D Minkowski Structure
-            Metrics :math:`\psi'_k` :cite:`Mickel2013`. (Default value =
-            :code:`False`)
+            Metrics :math:`\psi'_k` :cite:`Mickel2013` (Default value =
+            :code:`False`).
     """  # noqa: E501
     cdef freud._order.Hexatic * thisptr
 
@@ -365,8 +365,8 @@ cdef class Hexatic(_PairCompute):
 
         Args:
             ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
-                :code:`None`, make a new figure and axis.
-                (Default value = :code:`None`)
+                :code:`None`, make a new figure and axis
+                (Default value = :code:`None`).
 
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
@@ -412,7 +412,7 @@ cdef class Translational(_PairCompute):
 
     Args:
         k (float, optional):
-            Normalization of order parameter. (Default value = :code:`6.0`).
+            Normalization of order parameter (Default value = :code:`6.0`).
     """  # noqa E501
     cdef freud._order.Translational * thisptr
 
@@ -528,19 +528,19 @@ cdef class Steinhardt(_PairCompute):
             Spherical harmonic quantum number l.
         average (bool, optional):
             Determines whether to calculate the averaged Steinhardt order
-            parameter. (Default value = :code:`False`)
+            parameter (Default value = :code:`False`).
         wl (bool, optional):
             Determines whether to use the :math:`w_l` version of the Steinhardt
-            order parameter. (Default value = :code:`False`)
+            order parameter (Default value = :code:`False`).
         weighted (bool, optional):
             Determines whether to use neighbor weights in the computation of
             spherical harmonics over neighbors. If enabled and used with a
             Voronoi neighbor list, this results in the 3D Minkowski Structure
-            Metrics :math:`q'_l` :cite:`Mickel2013`. (Default value =
-            :code:`False`)
+            Metrics :math:`q'_l` :cite:`Mickel2013` (Default value =
+            :code:`False`).
         wl_normalize (bool, optional):
             Determines whether to normalize the :math:`w_l` version
-            of the Steinhardt order parameter. (Default value = :code:`False`)
+            of the Steinhardt order parameter (Default value = :code:`False`).
     """  # noqa: E501
     cdef freud._order.Steinhardt * thisptr
 
@@ -653,8 +653,8 @@ cdef class Steinhardt(_PairCompute):
 
         Args:
             ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
-                :code:`None`, make a new figure and axis.
-                (Default value = :code:`None`)
+                :code:`None`, make a new figure and axis
+                (Default value = :code:`None`).
 
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
@@ -832,8 +832,8 @@ cdef class SolidLiquid(_PairCompute):
 
         Args:
             ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
-                :code:`None`, make a new figure and axis.
-                (Default value = :code:`None`)
+                :code:`None`, make a new figure and axis
+                (Default value = :code:`None`).
 
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
