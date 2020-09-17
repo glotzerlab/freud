@@ -266,7 +266,8 @@ cdef class Hexatic(_PairCompute):
             Determines whether to use neighbor weights in the computation of
             spherical harmonics over neighbors. If enabled and used with a
             Voronoi neighbor list, this results in the 2D Minkowski Structure
-            Metrics :math:`\psi'_k`. (Default value = :code:`False`)
+            Metrics :math:`\psi'_k` :cite:`Mickel2013`. (Default value =
+            :code:`False`)
     """  # noqa: E501
     cdef freud._order.Hexatic * thisptr
 
@@ -491,7 +492,8 @@ cdef class Steinhardt(_PairCompute):
             Determines whether to use neighbor weights in the computation of
             spherical harmonics over neighbors. If enabled and used with a
             Voronoi neighbor list, this results in the 3D Minkowski Structure
-            Metrics :math:`q'_l`. (Default value = :code:`False`)
+            Metrics :math:`q'_l` :cite:`Mickel2013`. (Default value =
+            :code:`False`)
         wl_normalize (bool, optional):
             Determines whether to normalize the :math:`w_l` version
             of the Steinhardt order parameter. (Default value = :code:`False`)
