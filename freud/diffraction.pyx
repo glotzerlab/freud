@@ -18,13 +18,123 @@ import numpy as np
 import scipy.ndimage
 import rowan
 
+from cython.operator cimport dereference
+from freud.util cimport vec3, _Compute
+from freud.locality cimport _SpatialHistogram1D
 from libcpp cimport bool as cbool
-from freud.util cimport _Compute
+
+cimport freud._diffraction
+cimport freud.locality
 cimport freud.util
 cimport numpy as np
 
 
 logger = logging.getLogger(__name__)
+
+cdef class StaticStructureFactor2(_SpatialHistogram1D):
+    R"""Computes a 1D static structure factor."""
+    cdef freud._diffraction.StructureFactor * thisptr
+
+    def __cinit__(self, unsigned int bins, float k_max, float k_min=0):
+        if type(self) == StaticStructureFactor2:
+            self.thisptr = new freud._diffraction.StructureFactor(
+                bins, k_max, k_min)
+
+    def __dealloc__(self):
+        if type(self) == StaticStructureFactor2:
+            del self.thisptr
+
+    def compute(self, system, query_points=None, neighbors=None, reset=True):
+        R"""Computes diffraction pattern.
+
+        Args:
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
+            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
+                Query points used to calculate the structure factor. Uses the
+                system's points if :code:`None` (Default value =
+                :code:`None`).
+            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
+                Either a :class:`NeighborList <freud.locality.NeighborList>` of
+                neighbor pairs to use in the calculation, or a dictionary of
+                `query arguments
+                <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
+                (Default value: None).
+            reset (bool):
+                Whether to erase the previously computed values before adding
+                the new computation; if False, will accumulate data (Default
+                value: True).
+        """  # noqa E501
+        # if reset:
+        #    self._reset()
+
+        cdef:
+            freud.locality.NeighborQuery nq
+            freud.locality.NeighborList nlist
+            freud.locality._QueryArgs qargs
+            const float[:, ::1] l_query_points
+            unsigned int num_query_points
+        nq, nlist, qargs, l_query_points, num_query_points = \
+            self._preprocess_arguments(system, query_points, neighbors)
+
+        self.thisptr.accumulate(
+            nq.get_ptr(),
+            <vec3[float]*> &l_query_points[0, 0],
+            num_query_points, nlist.get_ptr(),
+            dereference(qargs.thisptr))
+        return self
+
+    @_Compute._computed_property
+    def min_valid_k(self):
+        """float: Minimum valid value of k for the computed system box, equal
+        to :math:`2\\pi/(L/2)` where :math:`L` is the minimum side length."""
+        return self.thisptr.getMinValidK()
+
+    @_Compute._computed_property
+    def S_k(self):
+        """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Static
+        structure factor :math:`S(k)` values."""
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getStructureFactor(),
+            freud.util.arr_type_t.FLOAT)
+
+    @property
+    def bin_centers(self):
+        """:class:`numpy.ndarray`: The centers of each bin of :math:`k`."""
+        return np.array(self.thisptr.getBinCenters(), copy=True)
+
+    @property
+    def bin_edges(self):
+        """:class:`numpy.ndarray`: The edges of each bin of :math:`k`."""
+        return np.array(self.thisptr.getBinEdges(), copy=True)
+
+    def plot(self, ax=None, **kwargs):
+        """Plot static structure factor.
+
+        Args:
+            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
+                :code:`None`, make a new figure and axis.
+                (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes.Axes`): Axis with the plot.
+        """
+        import freud.plot
+        return freud.plot.line_plot(self.bin_edges[:len(self.bin_edges)-1],
+                                    self.S_k,
+                                    title="Static Structure Factor",
+                                    xlabel=r"$k$",
+                                    ylabel=r"$S(k)$",
+                                    ax=ax)
+
+    def _repr_png_(self):
+        try:
+            import freud.plot
+            return freud.plot._ax_to_bytes(self.plot())
+        except (AttributeError, ImportError):
+            return None
+
 
 cdef class StaticStructureFactor(_Compute):
     R"""Computes a 1D static structure factor."""

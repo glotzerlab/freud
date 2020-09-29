@@ -12,9 +12,8 @@ import warnings
 import numpy as np
 
 from cython.operator cimport dereference
-from freud.util cimport _Compute
 from freud.locality cimport _PairCompute, _SpatialHistogram1D
-from freud.util cimport vec3
+from freud.util cimport vec3, _Compute
 
 from collections.abc import Sequence
 
