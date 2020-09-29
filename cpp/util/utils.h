@@ -26,6 +26,20 @@ template<class Scalar> inline Scalar modulusPositive(Scalar a, Scalar b)
     return std::fmod(std::fmod(a, b) + b, b);
 }
 
+//! Unnormalized sinc function
+/*! \param x Argument.
+    \returns sin(x) / x
+    \note This does not include a factor of pi, as some implementations do.
+*/
+template<class Scalar> inline Scalar sinc(Scalar x)
+{
+    if (x == 0) {
+        return 1.0;
+    } else {
+        return std::sin(x) / x;
+    }
+}
+
 //! Wrapper for for-loop to allow the execution in parallel or not.
 /*! \param begin Beginning index.
  *  \param end Ending index.
