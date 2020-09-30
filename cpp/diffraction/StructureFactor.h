@@ -64,6 +64,7 @@ private:
         m_local_histograms;                       //!< Thread local histograms for TBB parallelism
     util::ManagedArray<float> m_structure_factor; //!< The computed structure factor
     float m_min_valid_k;                          //!< The minimum valid k-vector based on the computed box
+    float m_normalization;                        //!< Prefactor used for normalization
     bool m_reduce;                                //!< Whether to reduce
 };
 

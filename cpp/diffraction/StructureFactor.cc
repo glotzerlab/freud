@@ -41,7 +41,7 @@ void StructureFactor::accumulate(const freud::locality::NeighborQuery* neighbor_
     auto const& box = neighbor_query->getBox();
 
     // Normalization is 4 * pi * N / V
-    auto const normalization = 2 * freud::constants::TWO_PI * n_query_points / box.getVolume();
+    m_normalization = 2.0 * freud::constants::TWO_PI * static_cast<float>(n_query_points) / box.getVolume();
 
     // The RDF r_max should be just less than half of the smallest side length of the box
     auto const box_L = box.getL();
