@@ -57,46 +57,25 @@ void StructureFactor::accumulate(const freud::locality::NeighborQuery* neighbor_
     static_assert(rdf_bins % 2 == 0, "RDF bins must be even for the Simpson's rule calculation.");
     auto rdf = freud::density::RDF(rdf_bins, r_max);
     rdf.accumulate(neighbor_query, query_points, n_query_points, nlist, qargs);
-    auto const& rdf_values = rdf.getRDF();
 
-    util::forLoopWrapper(0, m_histogram.getAxisSizes()[0], [&](size_t begin_k, size_t end_k) {
-        for (size_t k = begin_k; k < end_k; k++)
+    auto const rdf_centers = rdf.getBinCenters()[0];
+    auto const rdf_values = rdf.getRDF();
+    auto const k_bin_centers = m_histogram.getBinCenters()[0];
+
+    util::forLoopWrapper(0, m_histogram.getAxisSizes()[0], [&](size_t begin_k_index, size_t end_k_index) {
+        for (size_t k_index = begin_k_index; k_index < end_k_index; ++k_index)
         {
-            // Integrate using Simpson's rule
-            auto integral = 0.0;
-
-            // Simpson's rule uses prefactors 1, 4, 2, 4, 2, ..., 4, 1
-            auto simpson_prefactor = [=](size_t bin) {
-                if (bin == 0 || bin == rdf_bins - 1)
-                {
-                    return 1;
-                }
-                else if (bin % 2 == 0)
-                {
-                    return 2;
-                }
-                else
-                {
-                    return 4;
-                }
+            auto integrand = [&](size_t rdf_index) {
+                auto const r = rdf_centers[rdf_index];
+                auto const g_r = rdf_values[rdf_index];
+                auto const k = k_bin_centers[k_index];
+                return r * r * (g_r - 1.0) * util::sinc(k * r);
             };
 
-            auto const k_bin_edges = m_histogram.getBinEdges()[0];
-
-            auto integrand = [&](size_t k, size_t rdf_index) {
-                auto r_value = rdf.getBinEdges()[0][rdf_index];
-                auto rdf_value = rdf.getRDF()[rdf_index];
-                auto k_value = k_bin_edges[k];
-                return r_value * r_value * (rdf_value - 1) * util::sinc(k_value * r_value);
-            };
-
-            for (size_t rdf_index = 0; rdf_index < rdf_bins; rdf_index++)
-            {
-                integral += simpson_prefactor(rdf_index) * integrand(k, rdf_index);
-            }
-            auto const dk = (k_bin_edges.back() - k_bin_edges.front()) / k_bin_edges.size();
-            integral *= dk / 3;
-            m_local_histograms.increment(k, integral);
+            auto const dr
+                = (rdf_centers.back() - rdf_centers.front()) / static_cast<float>(rdf_centers.size() - 1);
+            auto const integral = util::simpson_integrate(integrand, rdf_bins, dr);
+            m_local_histograms.increment(k_index, integral);
         }
     });
 
@@ -109,6 +88,12 @@ const util::ManagedArray<float>& StructureFactor::getStructureFactor()
     {
         m_local_histograms.reduceInto(m_structure_factor);
     }
+    util::forLoopWrapper(0, m_structure_factor.size(), [this](size_t begin, size_t end) {
+        for (size_t i = begin; i < end; ++i)
+        {
+            m_structure_factor[i] = 1.0 + m_normalization * m_structure_factor[i];
+        }
+    });
     return m_structure_factor;
 }
 

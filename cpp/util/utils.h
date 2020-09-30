@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <stdexcept>
 #include <tbb/blocked_range.h>
 #include <tbb/blocked_range2d.h>
 #include <tbb/parallel_for.h>
@@ -41,6 +42,46 @@ template<class Scalar> inline Scalar sinc(Scalar x)
     {
         return std::sin(x) / x;
     }
+}
+
+//! Simpson's Rule numerical integration
+/*! \param integrand Callable that returns the integrand value for a provided bin index.
+    \param num_bins Number of bins to integrate over. Must be even.
+    \note The integration summation is performed in double-precision regardless of Scalar type.
+*/
+template<typename Integrand, typename Scalar>
+inline Scalar simpson_integrate(Integrand& integrand, size_t num_bins, Scalar dx)
+{
+    if (num_bins % 2 != 0)
+    {
+        throw std::invalid_argument("The number of integration bins must be even.");
+    }
+
+    double integral = 0.0;
+
+    // Simpson's rule uses prefactors 1, 4, 2, 4, 2, ..., 4, 1
+    auto simpson_prefactor = [=](size_t bin) {
+        if (bin == 0 || bin == num_bins - 1)
+        {
+            return 1.0;
+        }
+        else if (bin % 2 == 0)
+        {
+            return 2.0;
+        }
+        else
+        {
+            return 4.0;
+        }
+    };
+
+    for (size_t bin_index = 0; bin_index < num_bins; bin_index++)
+    {
+        integral += simpson_prefactor(bin_index) * integrand(bin_index);
+    }
+
+    integral *= dx / 3.0;
+    return integral;
 }
 
 //! Wrapper for for-loop to allow the execution in parallel or not.
