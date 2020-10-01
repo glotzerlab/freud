@@ -95,8 +95,8 @@ void StructureFactor::accumulateRDF(const freud::locality::NeighborQuery* neighb
     // smallest side length. This is equal to 2 * pi / r_max.
     m_min_valid_k = std::min(m_min_valid_k, freud::constants::TWO_PI / r_max);
 
-    auto const rdf_bins = 1000;
-    static_assert(rdf_bins % 2 == 0, "RDF bins must be even for the Simpson's rule calculation.");
+    auto const rdf_bins = 1001;
+    static_assert(rdf_bins % 2 == 1, "RDF bins must be odd for the Simpson's rule calculation.");
     auto rdf = freud::density::RDF(rdf_bins, r_max);
     rdf.accumulate(neighbor_query, query_points, n_query_points, nlist, qargs);
 
@@ -104,18 +104,19 @@ void StructureFactor::accumulateRDF(const freud::locality::NeighborQuery* neighb
     auto const rdf_values = rdf.getRDF();
     auto const k_bin_centers = m_histogram.getBinCenters()[0];
 
-    util::forLoopWrapper(0, m_histogram.getAxisSizes()[0], [&](size_t begin_k_index, size_t end_k_index) {
+    util::forLoopWrapper(0, k_bin_centers.size(), [&](size_t begin_k_index, size_t end_k_index) {
         for (size_t k_index = begin_k_index; k_index < end_k_index; ++k_index)
         {
+            auto const k = k_bin_centers[k_index];
+
             auto integrand = [&](size_t rdf_index) {
                 auto const r = rdf_centers[rdf_index];
                 auto const g_r = rdf_values[rdf_index];
-                auto const k = k_bin_centers[k_index];
                 return r * r * (g_r - 1.0) * util::sinc(k * r);
             };
 
             auto const dr
-                = (rdf_centers.back() - rdf_centers.front()) / static_cast<float>(rdf_centers.size() - 1);
+                = (rdf_centers.back() - rdf_centers.front()) / static_cast<float>(rdf_centers.size());
             auto const integral = util::simpson_integrate(integrand, rdf_bins, dr);
             m_local_histograms.increment(k_index, integral);
         }

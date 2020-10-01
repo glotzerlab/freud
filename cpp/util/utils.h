@@ -46,15 +46,17 @@ template<typename Scalar> inline Scalar sinc(Scalar x)
 
 //! Simpson's Rule numerical integration
 /*! \param integrand Callable that returns the integrand value for a provided bin index.
-    \param num_bins Number of bins to integrate over. Must be even.
+    \param num_bins Number of bins to integrate over. Must be odd.
+    \param dx Step size between bins.
     \note The integration summation is performed in double-precision regardless of Scalar type.
 */
-template<typename Integrand, typename Scalar>
-inline Scalar simpson_integrate(Integrand& integrand, size_t num_bins, Scalar dx)
+template<typename Integrand> inline double simpson_integrate(Integrand& integrand, size_t num_bins, double dx)
 {
-    if (num_bins % 2 != 0)
+    if (num_bins % 2 != 1)
     {
-        throw std::invalid_argument("The number of integration bins must be even.");
+        // This only implements the easiest case of Simpson's rule.
+        // Even numbers of bins require additional logic.
+        throw std::invalid_argument("The number of integration bins must be odd.");
     }
 
     double integral = 0.0;
