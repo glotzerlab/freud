@@ -14,7 +14,7 @@ ctypedef unsigned int uint
 
 cdef extern from "StructureFactor.h" namespace "freud::diffraction":
     cdef cppclass StructureFactor:
-        StructureFactor(uint, float, float) except +
+        StructureFactor(uint, float, float, bool) except +
         void accumulate(const freud._locality.NeighborQuery*,
                         const vec3[float]*,
                         unsigned int, const freud._locality.NeighborList*,

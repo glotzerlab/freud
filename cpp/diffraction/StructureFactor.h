@@ -24,18 +24,25 @@ class StructureFactor
 
 public:
     //! Constructor
-    StructureFactor(unsigned int bins, float k_max, float k_min = 0);
+    StructureFactor(unsigned int bins, float k_max, float k_min = 0, bool direct = false);
 
     //! Destructor
     virtual ~StructureFactor() {};
 
-    //! Compute the structure factor
-    /*! Computes an RDF and integrates the RDF to get the structure factor S(k).
-     *  Both steps are parallelized.
-     */
+    //! Compute the structure factor S(k) using the direct or RDF methods
     void accumulate(const freud::locality::NeighborQuery* neighbor_query, const vec3<float>* query_points,
                     unsigned int n_query_points, const freud::locality::NeighborList* nlist,
                     freud::locality::QueryArgs qargs);
+
+    //! Compute the structure factor using all pairwise distances
+    void accumulateDirect(const freud::locality::NeighborQuery* neighbor_query,
+                          const vec3<float>* query_points, unsigned int n_query_points,
+                          const freud::locality::NeighborList* nlist, freud::locality::QueryArgs qargs);
+
+    //! Compute the structure factor using the RDF
+    void accumulateRDF(const freud::locality::NeighborQuery* neighbor_query, const vec3<float>* query_points,
+                       unsigned int n_query_points, const freud::locality::NeighborList* nlist,
+                       freud::locality::QueryArgs qargs);
 
     //! Get the structure factor
     const util::ManagedArray<float>& getStructureFactor();
@@ -59,6 +66,7 @@ public:
     }
 
 private:
+    const bool m_direct; //!< Whether to perform a direct summation (defaults to Fourier transform of the RDF)
     StructureFactorHistogram m_histogram; //!< Histogram to hold computed structure factor
     StructureFactorHistogram::ThreadLocalHistogram
         m_local_histograms;                       //!< Thread local histograms for TBB parallelism

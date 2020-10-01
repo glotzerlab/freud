@@ -35,10 +35,11 @@ cdef class StaticStructureFactor2(_SpatialHistogram1D):
     R"""Computes a 1D static structure factor."""
     cdef freud._diffraction.StructureFactor * thisptr
 
-    def __cinit__(self, unsigned int bins, float k_max, float k_min=0):
+    def __cinit__(self, unsigned int bins, float k_max, float k_min=0,
+                  cbool direct=False):
         if type(self) == StaticStructureFactor2:
             self.thisptr = new freud._diffraction.StructureFactor(
-                bins, k_max, k_min)
+                bins, k_max, k_min, direct)
 
     def __dealloc__(self):
         if type(self) == StaticStructureFactor2:

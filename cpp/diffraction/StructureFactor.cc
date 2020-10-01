@@ -7,6 +7,7 @@
 #include <stdexcept>
 
 #include "Box.h"
+#include "ManagedArray.h"
 #include "RDF.h"
 #include "StructureFactor.h"
 #include "utils.h"
@@ -17,7 +18,7 @@
 
 namespace freud { namespace diffraction {
 
-StructureFactor::StructureFactor(unsigned int bins, float k_max, float k_min)
+StructureFactor::StructureFactor(unsigned int bins, float k_max, float k_min, bool direct) : m_direct(direct)
 {
     if (bins == 0)
         throw std::invalid_argument("StructureFactor requires a nonzero number of bins.");
@@ -37,6 +38,47 @@ StructureFactor::StructureFactor(unsigned int bins, float k_max, float k_min)
 void StructureFactor::accumulate(const freud::locality::NeighborQuery* neighbor_query,
                                  const vec3<float>* query_points, unsigned int n_query_points,
                                  const freud::locality::NeighborList* nlist, freud::locality::QueryArgs qargs)
+{
+    if (m_direct)
+    {
+        accumulateDirect(neighbor_query, query_points, n_query_points, nlist, qargs);
+    }
+    else
+    {
+        accumulateRDF(neighbor_query, query_points, n_query_points, nlist, qargs);
+    }
+    m_reduce = true;
+}
+
+void StructureFactor::accumulateDirect(const freud::locality::NeighborQuery* neighbor_query,
+                                       const vec3<float>* query_points, unsigned int n_query_points,
+                                       const freud::locality::NeighborList* nlist,
+                                       freud::locality::QueryArgs qargs)
+{
+    auto const& box = neighbor_query->getBox();
+    auto distances = std::vector<float>(n_query_points * n_query_points);
+    box.computeAllDistances(query_points, n_query_points, query_points, n_query_points, distances.data());
+
+    auto const k_bin_centers = m_histogram.getBinCenters()[0];
+
+    util::forLoopWrapper(0, m_histogram.getAxisSizes()[0], [&](size_t begin_k_index, size_t end_k_index) {
+        auto sinc_values = std::vector<float>(n_query_points * n_query_points);
+        for (size_t k_index = begin_k_index; k_index < end_k_index; ++k_index)
+        {
+            auto const k = k_bin_centers[k_index];
+            double S_k = 0.0;
+            std::for_each(distances.cbegin(), distances.cend(),
+                          [&S_k, k](float const& distance) { S_k += util::sinc(k * distance); });
+            S_k /= static_cast<double>(n_query_points);
+            m_local_histograms.increment(k_index, S_k);
+        };
+    });
+}
+
+void StructureFactor::accumulateRDF(const freud::locality::NeighborQuery* neighbor_query,
+                                    const vec3<float>* query_points, unsigned int n_query_points,
+                                    const freud::locality::NeighborList* nlist,
+                                    freud::locality::QueryArgs qargs)
 {
     auto const& box = neighbor_query->getBox();
 
@@ -78,8 +120,6 @@ void StructureFactor::accumulate(const freud::locality::NeighborQuery* neighbor_
             m_local_histograms.increment(k_index, integral);
         }
     });
-
-    m_reduce = true;
 }
 
 const util::ManagedArray<float>& StructureFactor::getStructureFactor()
@@ -88,12 +128,16 @@ const util::ManagedArray<float>& StructureFactor::getStructureFactor()
     {
         m_local_histograms.reduceInto(m_structure_factor);
     }
-    util::forLoopWrapper(0, m_structure_factor.size(), [this](size_t begin, size_t end) {
-        for (size_t i = begin; i < end; ++i)
-        {
-            m_structure_factor[i] = 1.0 + m_normalization * m_structure_factor[i];
-        }
-    });
+
+    if (!m_direct)
+    {
+        util::forLoopWrapper(0, m_structure_factor.size(), [this](size_t begin, size_t end) {
+            for (size_t i = begin; i < end; ++i)
+            {
+                m_structure_factor[i] = 1.0 + m_normalization * m_structure_factor[i];
+            }
+        });
+    }
     return m_structure_factor;
 }
 
