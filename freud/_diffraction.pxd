@@ -22,4 +22,4 @@ cdef extern from "StaticStructureFactor.h" namespace "freud::diffraction":
         const freud.util.ManagedArray[float] &getStructureFactor()
         const vector[float] getBinEdges() const
         const vector[float] getBinCenters() const
-        float &getMinValidK() const
+        float getMinValidK() const
