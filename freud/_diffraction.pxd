@@ -18,6 +18,7 @@ cdef extern from "StaticStructureFactor.h" namespace "freud::diffraction":
         void accumulate(const freud._locality.NeighborQuery*,
                         const vec3[float]*,
                         unsigned int) except +
+        void reset()
         const freud.util.ManagedArray[float] &getStructureFactor()
         const vector[float] getBinEdges() const
         const vector[float] getBinCenters() const

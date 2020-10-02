@@ -20,7 +20,7 @@
 namespace freud { namespace diffraction {
 
 StaticStructureFactor::StaticStructureFactor(unsigned int bins, float k_max, float k_min, bool direct)
-    : m_direct(direct)
+    : m_direct(direct), m_frame_counter(0)
 {
     if (bins == 0)
         throw std::invalid_argument("StaticStructureFactor requires a nonzero number of bins.");
@@ -49,6 +49,7 @@ void StaticStructureFactor::accumulate(const freud::locality::NeighborQuery* nei
     {
         accumulateRDF(neighbor_query, query_points, n_query_points);
     }
+    m_frame_counter++;
     m_reduce = true;
 }
 
@@ -81,13 +82,15 @@ void StaticStructureFactor::accumulateRDF(const freud::locality::NeighborQuery* 
     auto const& box = neighbor_query->getBox();
 
     // Normalization is 4 * pi * N / V
-    m_normalization = 2.0 * freud::constants::TWO_PI * static_cast<float>(n_query_points) / box.getVolume();
+    auto const normalization
+        = 2.0 * freud::constants::TWO_PI * static_cast<float>(n_query_points) / box.getVolume();
 
     // The RDF r_max should be just less than half of the smallest side length of the box
     auto const box_L = box.getL();
     auto const min_box_length
         = box.is2D() ? std::min(box_L.x, box_L.y) : std::min(box_L.x, std::min(box_L.y, box_L.z));
     auto const r_max = std::nextafter(0.5f * min_box_length, 0.0f);
+    auto const qargs = freud::locality::QueryArgs::make_ball(r_max);
 
     // The minimum k value of validity for the RDF Fourier Transform method is 4 * pi / L, where L is the
     // smallest side length. This is equal to 2 * pi / r_max.
@@ -96,7 +99,6 @@ void StaticStructureFactor::accumulateRDF(const freud::locality::NeighborQuery* 
     auto const rdf_bins = 1001;
     static_assert(rdf_bins % 2 == 1, "RDF bins must be odd for the Simpson's rule calculation.");
     auto rdf = freud::density::RDF(rdf_bins, r_max);
-    auto qargs = freud::locality::QueryArgs::make_ball(r_max);
     rdf.accumulate(neighbor_query, query_points, n_query_points, nullptr, qargs);
 
     auto const rdf_centers = rdf.getBinCenters()[0];
@@ -117,28 +119,38 @@ void StaticStructureFactor::accumulateRDF(const freud::locality::NeighborQuery* 
             auto const dr
                 = (rdf_centers.back() - rdf_centers.front()) / static_cast<float>(rdf_centers.size());
             auto const integral = util::simpson_integrate(integrand, rdf_bins, dr);
-            m_local_histograms.increment(k_index, integral);
+            m_local_histograms.increment(k_index, normalization * integral);
         }
     });
 }
 
-const util::ManagedArray<float>& StaticStructureFactor::getStructureFactor()
+void StaticStructureFactor::reduce()
 {
-    if (m_reduce)
-    {
-        m_local_histograms.reduceInto(m_structure_factor);
-    }
+    m_local_histograms.reduceInto(m_structure_factor);
 
-    if (!m_direct)
+    if (m_direct)
     {
+        // Normalize by the frame count if necessary
+        if (m_frame_counter > 1)
+        {
+            util::forLoopWrapper(0, m_structure_factor.size(), [this](size_t begin, size_t end) {
+                for (size_t i = begin; i < end; ++i)
+                {
+                    m_structure_factor[i] /= static_cast<float>(m_frame_counter);
+                }
+            });
+        }
+    }
+    else
+    {
+        // RDF needs a correction
         util::forLoopWrapper(0, m_structure_factor.size(), [this](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
-                m_structure_factor[i] = 1.0 + m_normalization * m_structure_factor[i];
+                m_structure_factor[i] = 1.0 + m_structure_factor[i] / static_cast<float>(m_frame_counter);
             }
         });
     }
-    return m_structure_factor;
 }
 
 }; }; // namespace freud::diffraction

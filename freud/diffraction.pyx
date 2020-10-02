@@ -90,6 +90,10 @@ cdef class StaticStructureFactor(_SpatialHistogram1D):
             num_query_points)
         return self
 
+    def _reset(self):
+        # Resets the values of StaticStructureFactor in memory.
+        self.thisptr.reset()
+
     @_Compute._computed_property
     def min_valid_k(self):
         """float: Minimum valid value of k for the computed system box, equal

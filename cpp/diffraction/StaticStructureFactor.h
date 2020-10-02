@@ -41,8 +41,33 @@ public:
     void accumulateRDF(const freud::locality::NeighborQuery* neighbor_query, const vec3<float>* query_points,
                        unsigned int n_query_points);
 
+    //! Reduce thread-local arrays onto the primary data arrays.
+    void reduce();
+
+    //! Return thing_to_return after reducing if necessary.
+    template<typename U> U& reduceAndReturn(U& thing_to_return)
+    {
+        if (m_reduce == true)
+        {
+            reduce();
+        }
+        m_reduce = false;
+        return thing_to_return;
+    }
+
+    //! Reset the histogram to all zeros
+    void reset()
+    {
+        m_local_histograms.reset();
+        m_frame_counter = 0;
+        m_reduce = true;
+    }
+
     //! Get the structure factor
-    const util::ManagedArray<float>& getStructureFactor();
+    const util::ManagedArray<float>& getStructureFactor()
+    {
+        return reduceAndReturn(m_structure_factor);
+    }
 
     //! Get the k bin edges
     const std::vector<float> getBinEdges() const
@@ -68,8 +93,8 @@ private:
     StaticStructureFactorHistogram::ThreadLocalHistogram
         m_local_histograms;                       //!< Thread local histograms for TBB parallelism
     util::ManagedArray<float> m_structure_factor; //!< The computed structure factor
+    unsigned int m_frame_counter;                 //!< Number of frames calculated.
     float m_min_valid_k;                          //!< The minimum valid k-vector based on the computed box
-    float m_normalization;                        //!< Prefactor used for normalization
     bool m_reduce;                                //!< Whether to reduce
 };
 
