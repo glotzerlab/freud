@@ -31,7 +31,7 @@ cimport numpy as np
 
 logger = logging.getLogger(__name__)
 
-cdef class StaticStructureFactor:
+cdef class StaticStructureFactor(_Compute):
     R"""Computes a 1D static structure factor.
 
     This computes the static `structure factor
@@ -72,7 +72,6 @@ cdef class StaticStructureFactor:
         k_max (float):
             Maximum :math:`k` value to include in the calculation.
         k_min (float, optional):
-            Minimum interparticle distance to include in the calculation
             Minimum :math:`k` value include in the calculation. Note that
             there are practical restrictions on the validity of the
             calculation in the long-wavelength regime, see ``min_valid_k``
