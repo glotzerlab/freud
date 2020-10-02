@@ -12,13 +12,12 @@ cimport freud.util
 
 ctypedef unsigned int uint
 
-cdef extern from "StructureFactor.h" namespace "freud::diffraction":
-    cdef cppclass StructureFactor:
-        StructureFactor(uint, float, float, bool) except +
+cdef extern from "StaticStructureFactor.h" namespace "freud::diffraction":
+    cdef cppclass StaticStructureFactor:
+        StaticStructureFactor(uint, float, float, bool) except +
         void accumulate(const freud._locality.NeighborQuery*,
                         const vec3[float]*,
-                        unsigned int, const freud._locality.NeighborList*,
-                        freud._locality.QueryArgs) except +
+                        unsigned int) except +
         const freud.util.ManagedArray[float] &getStructureFactor()
         const vector[float] getBinEdges() const
         const vector[float] getBinCenters() const

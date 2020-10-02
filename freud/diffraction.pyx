@@ -31,22 +31,22 @@ cimport numpy as np
 
 logger = logging.getLogger(__name__)
 
-cdef class StaticStructureFactor2(_SpatialHistogram1D):
+cdef class StaticStructureFactor(_SpatialHistogram1D):
     R"""Computes a 1D static structure factor."""
-    cdef freud._diffraction.StructureFactor * thisptr
+    cdef freud._diffraction.StaticStructureFactor * thisptr
 
     def __cinit__(self, unsigned int bins, float k_max, float k_min=0,
                   cbool direct=False):
-        if type(self) == StaticStructureFactor2:
-            self.thisptr = new freud._diffraction.StructureFactor(
+        if type(self) == StaticStructureFactor:
+            self.thisptr = new freud._diffraction.StaticStructureFactor(
                 bins, k_max, k_min, direct)
 
     def __dealloc__(self):
-        if type(self) == StaticStructureFactor2:
+        if type(self) == StaticStructureFactor:
             del self.thisptr
 
-    def compute(self, system, query_points=None, neighbors=None, reset=True):
-        R"""Computes diffraction pattern.
+    def compute(self, system, query_points=None, reset=True):
+        R"""Computes static structure factor.
 
         Args:
             system:
@@ -56,19 +56,13 @@ cdef class StaticStructureFactor2(_SpatialHistogram1D):
                 Query points used to calculate the structure factor. Uses the
                 system's points if :code:`None` (Default value =
                 :code:`None`).
-            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
-                Either a :class:`NeighborList <freud.locality.NeighborList>` of
-                neighbor pairs to use in the calculation, or a dictionary of
-                `query arguments
-                <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
-                (Default value: None).
             reset (bool):
                 Whether to erase the previously computed values before adding
                 the new computation; if False, will accumulate data (Default
                 value: True).
         """  # noqa E501
-        # if reset:
-        #    self._reset()
+        if reset:
+            self._reset()
 
         cdef:
             freud.locality.NeighborQuery nq
@@ -76,14 +70,24 @@ cdef class StaticStructureFactor2(_SpatialHistogram1D):
             freud.locality._QueryArgs qargs
             const float[:, ::1] l_query_points
             unsigned int num_query_points
-        nq, nlist, qargs, l_query_points, num_query_points = \
-            self._preprocess_arguments(system, query_points, neighbors)
+
+        # This is identical to _preprocess_arguments except with no
+        # neighbors/qargs. The C++ class builds the largest allowed ball query
+        # (r_max = L/2) if using the RDF method.
+        nq = freud.locality.NeighborQuery.from_system(system)
+
+        if query_points is None:
+            query_points = nq.points
+        else:
+            query_points = freud.util._convert_array(
+                query_points, shape=(None, 3))
+        l_query_points = query_points
+        num_query_points = l_query_points.shape[0]
 
         self.thisptr.accumulate(
             nq.get_ptr(),
             <vec3[float]*> &l_query_points[0, 0],
-            num_query_points, nlist.get_ptr(),
-            dereference(qargs.thisptr))
+            num_query_points)
         return self
 
     @_Compute._computed_property
@@ -137,7 +141,7 @@ cdef class StaticStructureFactor2(_SpatialHistogram1D):
             return None
 
 
-cdef class StaticStructureFactor(_Compute):
+cdef class StaticStructureFactorDirect(_Compute):
     R"""Computes a 1D static structure factor."""
     cdef unsigned int _bins
     cdef float _k_max

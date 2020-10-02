@@ -8,52 +8,52 @@
 
 #include "Box.h"
 #include "ManagedArray.h"
+#include "NeighborQuery.h"
 #include "RDF.h"
-#include "StructureFactor.h"
+#include "StaticStructureFactor.h"
 #include "utils.h"
 
-/*! \file StructureFactor.cc
+/*! \file StaticStructureFactor.cc
     \brief Routines for computing static structure factors.
 */
 
 namespace freud { namespace diffraction {
 
-StructureFactor::StructureFactor(unsigned int bins, float k_max, float k_min, bool direct) : m_direct(direct)
+StaticStructureFactor::StaticStructureFactor(unsigned int bins, float k_max, float k_min, bool direct)
+    : m_direct(direct)
 {
     if (bins == 0)
-        throw std::invalid_argument("StructureFactor requires a nonzero number of bins.");
+        throw std::invalid_argument("StaticStructureFactor requires a nonzero number of bins.");
     if (k_max <= 0.0f)
-        throw std::invalid_argument("StructureFactor requires k_max to be positive.");
+        throw std::invalid_argument("StaticStructureFactor requires k_max to be positive.");
     if (k_max <= k_min)
-        throw std::invalid_argument("StructureFactor requires that k_max must be greater than k_min.");
+        throw std::invalid_argument("StaticStructureFactor requires that k_max must be greater than k_min.");
 
     // Construct the Histogram object that will be used to track the structure factor
-    auto axes = StructureFactorHistogram::Axes {std::make_shared<util::RegularAxis>(bins, k_min, k_max)};
-    m_histogram = StructureFactorHistogram(axes);
-    m_local_histograms = StructureFactorHistogram::ThreadLocalHistogram(m_histogram);
+    auto axes
+        = StaticStructureFactorHistogram::Axes {std::make_shared<util::RegularAxis>(bins, k_min, k_max)};
+    m_histogram = StaticStructureFactorHistogram(axes);
+    m_local_histograms = StaticStructureFactorHistogram::ThreadLocalHistogram(m_histogram);
     m_min_valid_k = std::numeric_limits<float>::infinity();
     m_structure_factor.prepare(bins);
 }
 
-void StructureFactor::accumulate(const freud::locality::NeighborQuery* neighbor_query,
-                                 const vec3<float>* query_points, unsigned int n_query_points,
-                                 const freud::locality::NeighborList* nlist, freud::locality::QueryArgs qargs)
+void StaticStructureFactor::accumulate(const freud::locality::NeighborQuery* neighbor_query,
+                                       const vec3<float>* query_points, unsigned int n_query_points)
 {
     if (m_direct)
     {
-        accumulateDirect(neighbor_query, query_points, n_query_points, nlist, qargs);
+        accumulateDirect(neighbor_query, query_points, n_query_points);
     }
     else
     {
-        accumulateRDF(neighbor_query, query_points, n_query_points, nlist, qargs);
+        accumulateRDF(neighbor_query, query_points, n_query_points);
     }
     m_reduce = true;
 }
 
-void StructureFactor::accumulateDirect(const freud::locality::NeighborQuery* neighbor_query,
-                                       const vec3<float>* query_points, unsigned int n_query_points,
-                                       const freud::locality::NeighborList* nlist,
-                                       freud::locality::QueryArgs qargs)
+void StaticStructureFactor::accumulateDirect(const freud::locality::NeighborQuery* neighbor_query,
+                                             const vec3<float>* query_points, unsigned int n_query_points)
 {
     auto const& box = neighbor_query->getBox();
     auto distances = std::vector<float>(n_query_points * n_query_points);
@@ -75,10 +75,8 @@ void StructureFactor::accumulateDirect(const freud::locality::NeighborQuery* nei
     });
 }
 
-void StructureFactor::accumulateRDF(const freud::locality::NeighborQuery* neighbor_query,
-                                    const vec3<float>* query_points, unsigned int n_query_points,
-                                    const freud::locality::NeighborList* nlist,
-                                    freud::locality::QueryArgs qargs)
+void StaticStructureFactor::accumulateRDF(const freud::locality::NeighborQuery* neighbor_query,
+                                          const vec3<float>* query_points, unsigned int n_query_points)
 {
     auto const& box = neighbor_query->getBox();
 
@@ -98,7 +96,8 @@ void StructureFactor::accumulateRDF(const freud::locality::NeighborQuery* neighb
     auto const rdf_bins = 1001;
     static_assert(rdf_bins % 2 == 1, "RDF bins must be odd for the Simpson's rule calculation.");
     auto rdf = freud::density::RDF(rdf_bins, r_max);
-    rdf.accumulate(neighbor_query, query_points, n_query_points, nlist, qargs);
+    auto qargs = freud::locality::QueryArgs::make_ball(r_max);
+    rdf.accumulate(neighbor_query, query_points, n_query_points, nullptr, qargs);
 
     auto const rdf_centers = rdf.getBinCenters()[0];
     auto const rdf_values = rdf.getRDF();
@@ -123,7 +122,7 @@ void StructureFactor::accumulateRDF(const freud::locality::NeighborQuery* neighb
     });
 }
 
-const util::ManagedArray<float>& StructureFactor::getStructureFactor()
+const util::ManagedArray<float>& StaticStructureFactor::getStructureFactor()
 {
     if (m_reduce)
     {
