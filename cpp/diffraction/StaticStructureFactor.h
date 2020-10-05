@@ -24,7 +24,7 @@ class StaticStructureFactor
 
 public:
     //! Constructor
-    StaticStructureFactor(unsigned int bins, float k_max, float k_min = 0, bool direct = false);
+    StaticStructureFactor(unsigned int bins, float k_max, float k_min = 0, bool direct = true);
 
     //! Destructor
     virtual ~StaticStructureFactor() {};

@@ -39,8 +39,8 @@ cdef class StaticStructureFactor(_Compute):
     assuming an isotropic system (averaging over all :math:`k` vectors of the
     same magnitude). This is implemented using the Debye scattering equation.
     This class offers a *direct* method and an *RDF Fourier Transform* method
-    that is considerably faster but less accurate in some regimes (low values
-    of :math:`k`). The direct method is computed as:
+    that is faster but less accurate for some values of :math:`k`. The direct
+    method is computed as:
 
     .. math::
 
@@ -78,13 +78,13 @@ cdef class StaticStructureFactor(_Compute):
             (Default value = :code:`0`).
         direct (bool, optional):
             If ``True``, the structure factor is calculated by the *direct*
-            method. By default, the *RDF Fourier Transform* method is used
-            (Default value = :code:`False`).
+            method. If ``False``, the *RDF Fourier Transform* method is used
+            (Default value = :code:`True`).
     """
     cdef freud._diffraction.StaticStructureFactor * thisptr
 
     def __cinit__(self, unsigned int bins, float k_max, float k_min=0,
-                  cbool direct=False):
+                  cbool direct=True):
         if type(self) == StaticStructureFactor:
             self.thisptr = new freud._diffraction.StaticStructureFactor(
                 bins, k_max, k_min, direct)
