@@ -148,19 +148,17 @@ class TestHexatic(unittest.TestCase):
             [-1.0, 0.25, 0.0],
             [0.13, -1.0, 0.0]
         ])
-        point_indices = np.array([0, 0, 0, 0])
-        query_point_indices = np.array([1, 2, 3, 4])
+        query_point_indices = np.array([0, 0, 0, 0])
+        point_indices = np.array([1, 2, 3, 4])
         rijs = box.wrap(points[point_indices] -
                         points[query_point_indices])
         distances = np.linalg.norm(rijs, axis=-1)
+        thetas = np.arctan2(rijs[:, 1], rijs[:, 0])
         weights = np.array([1, 0.7, 0.3, 0])
         nlist = freud.NeighborList.from_arrays(
             len(points), len(points),
-            point_indices, query_point_indices,
+            query_point_indices, point_indices,
             distances, weights)
-        rijs = box.wrap(points[nlist.point_indices] -
-                        points[nlist.query_point_indices])
-        thetas = np.arctan2(rijs[:, 1], rijs[:, 0])
         for k in range(0, 12):
             # Unweighted calculation - normalized by number of neighbors
             psi_k = np.sum(np.exp(thetas * k * 1.0j)) / len(nlist)
