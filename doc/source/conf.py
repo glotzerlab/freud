@@ -305,12 +305,12 @@ texinfo_documents = [
 
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
-    'numpy': ('https://docs.scipy.org/doc/numpy', None),
+    'numpy': ('https://numpy.org/doc/stable', None),
     'matplotlib': ('https://matplotlib.org', None),
     'hoomd': ('https://hoomd-blue.readthedocs.io/en/stable/', None),
     'gsd': ('https://gsd.readthedocs.io/en/stable/', None),
     'garnett': ('https://garnett.readthedocs.io/en/stable/', None),
-    'MDAnalysis': ('https://www.mdanalysis.org/docs/', None),
+    'MDAnalysis': ('https://docs.mdanalysis.org/1.0.0', None),
     'ovito': ('https://www.ovito.org/docs/current/python/', None),
 }
 

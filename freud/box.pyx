@@ -590,6 +590,7 @@ cdef class Box:
         R"""Return box as dictionary.
 
         Example::
+
             >>> box = freud.box.Box.cube(L=10)
             >>> box.to_dict()
             {'Lx': 10.0, 'Ly': 10.0, 'Lz': 10.0,
@@ -611,6 +612,7 @@ cdef class Box:
         R"""Returns the box matrix (3x3).
 
         Example::
+
             >>> box = freud.box.Box.cube(L=10)
             >>> box.to_matrix()
             array([[10.,  0.,  0.],

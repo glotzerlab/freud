@@ -469,6 +469,7 @@ cdef class LocalDensity(_PairCompute):
         R"""Calculates the local density for the specified points.
 
         Example::
+
             >>> import freud
             >>> box, points = freud.data.make_random_system(10, 100, seed=0)
             >>> # Compute Local Density
@@ -543,9 +544,9 @@ cdef class RDF(_SpatialHistogram1D):
     Note that the RDF is defined strictly according to the pair correlation
     function, i.e.
 
-     .. math::
+    .. math::
 
-         g(r) = V\frac{N-1}{N} \langle \delta(r) \rangle
+        g(r) = V\frac{N-1}{N} \langle \delta(r) \rangle
 
     In the thermodynamic limit, the fraction tends to unity and the limiting
     behavior of :math:`\lim_{r \to \infty} g(r)=1` is recovered. However, for
