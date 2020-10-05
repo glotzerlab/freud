@@ -65,8 +65,9 @@ class TestHexatic(unittest.TestCase):
 
     def test_weighted_random(self):
         boxlen = 10
-        N = 500
-        box, points = freud.data.make_random_system(boxlen, N, is2D=True)
+        N = 5000
+        box, points = freud.data.make_random_system(
+            boxlen, N, is2D=True, seed=100)
         voro = freud.locality.Voronoi()
         voro.compute(system=(box, points))
 
