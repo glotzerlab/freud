@@ -639,6 +639,23 @@ cdef class NeighborList:
         R"""Returns the number of bonds stored in this object."""
         return self.thisptr.getNumBonds()
 
+    @property
+    def num_query_points(self):
+        """Returns the number of query points.
+
+        All query point indices must be less than this value.
+        """
+
+        return self.thisptr.getNumQueryPoints()
+
+    @property
+    def num_points(self):
+        """Returns the number of points.
+
+        All point indices are less than this value.
+        """
+        return self.thisptr.getNumPoints()
+
     def find_first_index(self, unsigned int i):
         R"""Returns the lowest bond index corresponding to a query particle
         with an index :math:`\geq i`.
