@@ -34,12 +34,12 @@ NeighborList::NeighborList(unsigned int num_bonds, const unsigned int* query_poi
     {
         index = query_point_index[i];
         if (index < last_index)
-            throw std::runtime_error("NeighborList query_point_index must be sorted.");
+            throw std::invalid_argument("NeighborList query_point_index must be sorted.");
         if (index >= m_num_query_points)
-            throw std::runtime_error(
+            throw std::invalid_argument(
                 "NeighborList query_point_index values must be less than num_query_points.");
         if (point_index[i] >= m_num_points)
-            throw std::runtime_error("NeighborList point_index values must be less than num_points.");
+            throw std::invalid_argument("NeighborList point_index values must be less than num_points.");
         m_neighbors(i, 0) = index;
         m_neighbors(i, 1) = point_index[i];
         m_weights[i] = weights[i];
