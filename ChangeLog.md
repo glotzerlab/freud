@@ -8,6 +8,10 @@ and this project adheres to
 
 ### Added
 * The Box class has a method `contains` to determine particle membership in a box.
+* NeighborList class exposes `num_points` and `num_query_points` attributes.
+
+### Changed
+* NeighborList raises a `ValueError` instead of a `RuntimeError` if provided invalid constructor arguments.
 
 ### Fixed
 * Source distributions now include Cython source files.
