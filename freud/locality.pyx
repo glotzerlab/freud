@@ -643,7 +643,7 @@ cdef class NeighborList:
     def num_query_points(self):
         """Returns the number of query points.
 
-        All query point indices must be less than this value.
+        All query point indices are less than this value.
         """
         return self.thisptr.getNumQueryPoints()
 
