@@ -641,7 +641,7 @@ cdef class NeighborList:
 
     @property
     def num_query_points(self):
-        """Returns the number of query points.
+        """unsigned int: The number of query points.
 
         All query point indices are less than this value.
         """
@@ -649,7 +649,7 @@ cdef class NeighborList:
 
     @property
     def num_points(self):
-        """Returns the number of points.
+        """unsigned int: The number of points.
 
         All point indices are less than this value.
         """
