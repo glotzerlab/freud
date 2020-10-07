@@ -151,17 +151,17 @@ class TestNeighborList(unittest.TestCase):
         npt.assert_equal(nlist.segments, nlist2.segments)
 
         # too few reference particles
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(ValueError):
             freud.locality.NeighborList.from_arrays(
                 3, 4, query_point_indices, point_indices, distances)
 
         # too few target particles
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(ValueError):
             freud.locality.NeighborList.from_arrays(
                 4, 3, query_point_indices, point_indices, distances)
 
         # query particles not sorted
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(ValueError):
             freud.locality.NeighborList.from_arrays(
                 4, 4, point_indices, query_point_indices, distances)
 
