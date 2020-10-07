@@ -645,7 +645,6 @@ cdef class NeighborList:
 
         All query point indices must be less than this value.
         """
-
         return self.thisptr.getNumQueryPoints()
 
     @property
