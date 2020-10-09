@@ -11,6 +11,7 @@ set(cython_modules
     density
     environment
     order
+    parallel
     pmft
     locality
     )
