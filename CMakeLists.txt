@@ -15,6 +15,7 @@ include_directories(
     /Users/vyasramasubramani/local/freud/cpp/box
 	/Users/vyasramasubramani/local/freud/cpp/parallel
     /Users/vyasramasubramani/local/freud/extern
+    /Users/vyasramasubramani/local/freud/extern/voro++/src
 	${TBB_INCLUDE_DIR}
     )
 
@@ -30,5 +31,6 @@ include_directories(
 get_filename_component(TBB_LIBRARY_DIR ${TBB_LIBRARY} DIRECTORY)
 link_directories(${TBB_LIBRARY_DIR})
 
-add_subdirectory(cpp)
-add_subdirectory(freud)
+# add_subdirectory(cpp)
+# add_subdirectory(freud)
+add_subdirectory(extern/voro++)
