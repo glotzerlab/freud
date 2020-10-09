@@ -17,3 +17,4 @@ freud/*.cpp
 .coverage
 coverage_html_report
 cython_debug
+_skbuild
