@@ -7,8 +7,9 @@ include_directories(${NumPy_INCLUDE_DIRS})
 # Construct all Cython extension modules.
 set(cython_modules
     box
-    locality
     cluster
+    density
+    locality
     )
 
 foreach(cython_module ${cython_modules})
