@@ -10,6 +10,7 @@ set(cython_modules
     cluster
     density
     environment
+    order
     pmft
     locality
     )
@@ -40,7 +41,10 @@ endforeach(cython_module)
 # Any additional module-specific libraries.
 
 # Not sure why this is necessary; I'm requesting a public link to _diagonalize
-# in _environment, so it should propagate up to environment. Something to check
-# later. It might be because _environment is an object library, so these
-# settings don't actually propagate meaningfully.
+# in _environment and _order, so it should propagate up. Something to check
+# later. It might be because _environment and _order are object libraries, so
+# these settings don't actually propagate meaningfully.
 target_link_libraries(environment _diagonalize)
+target_link_libraries(order _diagonalize)
+
+target_link_libraries(order _cluster)
