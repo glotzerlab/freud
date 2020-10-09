@@ -4,27 +4,33 @@ find_package(PythonExtensions REQUIRED)
 
 include_directories(${NumPy_INCLUDE_DIRS})
 
-add_cython_target(box CXX)
-add_library(box MODULE ${box})
-python_extension_module(box)
+# Construct all Cython extension modules.
+set(cython_modules
+    box
+    locality
+    cluster
+    )
 
-target_link_libraries(box TBB)
+foreach(cython_module ${cython_modules})
+    add_cython_target(${cython_module} CXX)
+    add_library(${cython_module} MODULE ${${cython_module}})
+    python_extension_module(${cython_module})
 
-add_cython_target(locality CXX)
-add_library(locality MODULE ${locality})
-python_extension_module(locality)
+    # Since almost all modules use TBB, linking all of them is easier.
+    target_link_libraries(${cython_module} TBB)
 
-target_link_libraries(locality TBB)
-target_link_libraries(locality _locality)
+    # Everything links to locality
+    target_link_libraries(${cython_module} _locality)
 
-add_cython_target(cluster CXX)
-add_library(cluster MODULE ${cluster})
-python_extension_module(cluster)
+    # Link Cython modules to C++ libraries where appropiate.
+    if(NOT ${cython_module} STREQUAL box AND NOT ${cython_module} STREQUAL locality)
+        target_link_libraries(${cython_module} _${cython_module})
+    endif()
 
-include_directories(
-	${CMAKE_SOURCE_DIR}/cpp/cluster
-)
-target_link_libraries(cluster _locality)
-target_link_libraries(cluster _cluster)
+    target_include_directories(
+        ${cython_module}
+        PUBLIC ${CMAKE_SOURCE_DIR}/cpp/${cython_module}
+        )
+    install(TARGETS ${cython_module} DESTINATION freud)
+endforeach(cython_module)
 
-install(TARGETS box cluster locality DESTINATION freud)
