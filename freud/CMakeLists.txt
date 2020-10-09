@@ -10,6 +10,7 @@ set(cython_modules
     cluster
     density
     environment
+    pmft
     locality
     )
 
