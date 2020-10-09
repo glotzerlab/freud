@@ -5,19 +5,19 @@ find_package(PythonExtensions REQUIRED)
 include_directories(${NumPy_INCLUDE_DIRS})
 
 # Construct all Cython extension modules.
-set(cython_modules
+set(cython_modules_with_cpp
     box
     cluster
     density
     environment
+    locality
     order
     parallel
     pmft
-    locality
     )
 
-foreach(cython_module ${cython_modules})
-    add_cython_target(${cython_module} CXX)
+foreach(cython_module ${cython_modules_with_cpp})
+    add_cython_target(${cython_module} PY3 CXX)
     add_library(${cython_module} MODULE ${${cython_module}})
     python_extension_module(${cython_module})
 
@@ -49,3 +49,9 @@ target_link_libraries(environment _diagonalize)
 target_link_libraries(order _diagonalize)
 
 target_link_libraries(order _cluster)
+
+# Util module doesn't need to link to CPP sources or add separate includes.
+add_cython_target(util PY3 CXX)
+add_library(util MODULE ${util})
+python_extension_module(util)
+install(TARGETS util DESTINATION freud)
