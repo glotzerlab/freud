@@ -16,3 +16,4 @@ include_directories(
     )
 
 add_subdirectory(cpp)
+add_subdirectory(freud)
