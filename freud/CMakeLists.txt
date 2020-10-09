@@ -9,6 +9,7 @@ set(cython_modules
     box
     cluster
     density
+    environment
     locality
     )
 
@@ -35,3 +36,10 @@ foreach(cython_module ${cython_modules})
     install(TARGETS ${cython_module} DESTINATION freud)
 endforeach(cython_module)
 
+# Any additional module-specific libraries.
+
+# Not sure why this is necessary; I'm requesting a public link to _diagonalize
+# in _environment, so it should propagate up to environment. Something to check
+# later. It might be because _environment is an object library, so these
+# settings don't actually propagate meaningfully.
+target_link_libraries(environment _diagonalize)
