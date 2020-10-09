@@ -1,0 +1,9 @@
+find_path(TBB_INCLUDE_DIR tbb/tbb.h)
+
+find_library(TBB_LIBRARY tbb
+             HINTS ${TBB_INCLUDE_DIR}/../lib )
+
+add_library(TBB UNKNOWN IMPORTED)
+set_target_properties(TBB PROPERTIES
+	IMPORTED_LOCATION "${TBB_LIBRARY}"
+	INTERFACE_INCLUDE_DIRECTORIES "${TBB_INCLUDE_DIR}")

@@ -2,11 +2,7 @@ find_package(Cython REQUIRED)
 find_package(NumPy REQUIRED)
 find_package(PythonExtensions REQUIRED)
 
-# Currently using FindTBB from HOOMD.
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
-find_package(TBB REQUIRED)
-
-include_directories(${TBB_INCLUDE_DIR})
+include_directories(${NumPy_INCLUDE_DIRS})
 
 add_cython_target(locality CXX)
 add_library(locality MODULE ${locality})
