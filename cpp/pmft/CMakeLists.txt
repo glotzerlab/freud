@@ -11,4 +11,4 @@ add_library(
     PMFTXYZ.cc
     )
 
-target_link_libraries(_pmft tbb)
+target_link_libraries(_pmft TBB)

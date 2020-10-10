@@ -5,4 +5,4 @@ add_library(
     tbb_config.cc
     )
 
-target_link_libraries(_parallel tbb)
+target_link_libraries(_parallel TBB)

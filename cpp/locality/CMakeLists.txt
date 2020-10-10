@@ -25,7 +25,7 @@
     Voronoi.h
     )
 
-target_link_libraries(_locality tbb voro++)
+target_link_libraries(_locality TBB voro++)
 # Unclear if this is the best way to set the rpath (for voro++). Moreover, I'm
 # suspecting it will be easier to just directly build all the voro++ files into
 # it. Currently this solution is working, but rebuilding (running setup.py multiple

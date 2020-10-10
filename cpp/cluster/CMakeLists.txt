@@ -7,4 +7,4 @@ add_library(
     ClusterProperties.cc
     )
 
-target_link_libraries(_cluster tbb)
+target_link_libraries(_cluster TBB)

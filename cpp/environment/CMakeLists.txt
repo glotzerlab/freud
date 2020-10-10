@@ -13,4 +13,4 @@ add_library(
     MatchEnv.cc
     )
 
-target_link_libraries(_environment PUBLIC tbb _diagonalize)
+target_link_libraries(_environment TBB)
