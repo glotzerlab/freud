@@ -14,10 +14,8 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/cpp/locality
     ${PROJECT_SOURCE_DIR}/cpp/box
     ${PROJECT_SOURCE_DIR}/extern
-    ${PROJECT_SOURCE_DIR}/extern/voro++/src
 	${TBB_INCLUDE_DIR}
     )
 
-add_subdirectory(extern/voro++)
 add_subdirectory(cpp)
 add_subdirectory(freud)

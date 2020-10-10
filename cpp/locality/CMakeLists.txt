@@ -1,4 +1,8 @@
-  add_library(
+set(VOROPP_SOURCE_DIR
+    "${PROJECT_SOURCE_DIR}/extern/voro++/src"
+    )
+
+add_library(
     _locality
     OBJECT
     AABB.h
@@ -23,12 +27,18 @@
     RawPoints.h
     Voronoi.cc
     Voronoi.h
+
+    # For now, compile voro++ object in directly.
+    ${VOROPP_SOURCE_DIR}/cell.cc
+    ${VOROPP_SOURCE_DIR}/common.cc
+    ${VOROPP_SOURCE_DIR}/container.cc
+    ${VOROPP_SOURCE_DIR}/unitcell.cc
+    ${VOROPP_SOURCE_DIR}/v_compute.cc
+    ${VOROPP_SOURCE_DIR}/c_loops.cc
+    ${VOROPP_SOURCE_DIR}/v_base.cc
+    ${VOROPP_SOURCE_DIR}/wall.cc
+    ${VOROPP_SOURCE_DIR}/pre_container.cc
+    ${VOROPP_SOURCE_DIR}/container_prd.cc
     )
 
-target_link_libraries(_locality PUBLIC TBB voro++)
-# Unclear if this is the best way to set the rpath (for voro++). Moreover, I'm
-# suspecting it will be easier to just directly build all the voro++ files into
-# it. Currently this solution is working, but rebuilding (running setup.py multiple
-# times) prints some install_name_tool errors due to trying to delete rpaths. Note
-# that these have no practical effect right now.
-target_link_options(_locality INTERFACE -Wl,-rpath,${CMAKE_INSTALL_PREFIX}/lib)
+target_link_libraries(_locality PUBLIC TBB)
