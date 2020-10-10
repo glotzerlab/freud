@@ -1,7 +1,15 @@
-find_package(Cython REQUIRED)
-find_package(NumPy REQUIRED)
 find_package(PythonExtensions REQUIRED)
 
+# Cython flags must be set before we run find_package for Cython since the
+# compiler command is created immediately.
+set(CYTHON_FLAGS
+    "--directive binding=True,boundscheck=False,wraparound=False,embedsignature=True,always_allow_keywords=True"
+    CACHE STRING "The directives for Cython compilation."
+    )
+
+find_package(Cython REQUIRED)
+
+find_package(NumPy REQUIRED)
 include_directories(${NumPy_INCLUDE_DIRS})
 
 set(cython_modules_with_cpp
