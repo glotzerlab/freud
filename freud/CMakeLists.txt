@@ -16,6 +16,9 @@ set(cython_modules_with_cpp
     )
 
 set(cython_modules_without_cpp
+    diffraction
+    interface
+    msd
     util
     )
 
