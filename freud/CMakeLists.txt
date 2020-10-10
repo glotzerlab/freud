@@ -12,6 +12,15 @@ find_package(Cython REQUIRED)
 find_package(NumPy REQUIRED)
 include_directories(${NumPy_INCLUDE_DIRS})
 
+# Avoid Cython/Python3.8 minor incompatibility warnings, see
+# https://github.com/cython/cython/issues/3474. Note that this option is a bit
+# expansive, but it's a temporary fix and we'll be testing on other Python
+# versions concurrently so it shouldn't hide any real issues.
+find_package(Python REQUIRED)
+if (${Python_VERSION_MAJOR} EQUAL 3 AND ${Python_VERSION_MINOR} EQUAL 8)
+    add_compile_options("-Wno-deprecated-declarations")
+endif()
+
 set(cython_modules_with_cpp
     box
     cluster
