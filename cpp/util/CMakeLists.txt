@@ -4,3 +4,7 @@ add_library(
     diagonalize.h
     diagonalize.cc
     )
+target_include_directories(
+    _util
+    PUBLIC ${PROJECT_SOURCE_DIR}/extern/
+    )

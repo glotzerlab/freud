@@ -23,7 +23,6 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/cpp/util
     ${PROJECT_SOURCE_DIR}/cpp/locality
     ${PROJECT_SOURCE_DIR}/cpp/box
-    ${PROJECT_SOURCE_DIR}/extern
 	${TBB_INCLUDE_DIR}
     )
 

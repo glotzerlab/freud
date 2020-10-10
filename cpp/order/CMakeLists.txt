@@ -20,6 +20,7 @@ add_library(
 target_include_directories(
     _order
     PUBLIC ${PROJECT_SOURCE_DIR}/cpp/cluster
+    PUBLIC ${PROJECT_SOURCE_DIR}/extern/
     )
 target_link_libraries(
     _order

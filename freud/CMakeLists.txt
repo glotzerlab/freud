@@ -102,3 +102,6 @@ endforeach(cython_module)
 # them to the Cython libraries here.
 target_link_libraries(environment _util)
 target_link_libraries(order _util)
+
+# Interface is pure Python but relies on the C++ locality classes.
+target_link_libraries(interface _locality)
