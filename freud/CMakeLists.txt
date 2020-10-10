@@ -74,7 +74,7 @@ foreach(cython_module ${cython_modules_with_cpp} ${cython_modules_without_cpp})
 
         target_include_directories(
             ${cython_module}
-            PUBLIC ${CMAKE_SOURCE_DIR}/cpp/${cython_module}
+            PRIVATE ${PROJECT_SOURCE_DIR}/cpp/${cython_module}
             )
     endif()
 
@@ -82,16 +82,16 @@ foreach(cython_module ${cython_modules_with_cpp} ${cython_modules_without_cpp})
         ${cython_module}
         # Avoid deprecation warnings for unsupported NumPy API versions.
         # See https://numpy.org/doc/1.19/reference/c-api/deprecations.html
-        PUBLIC "NPY_NO_DEPRECATED_API=NPY_1_10_API_VERSION"
+        PRIVATE "NPY_NO_DEPRECATED_API=NPY_1_10_API_VERSION"
         # Default voro++ verbosity is high.
-        PUBLIC "VOROPP_VERBOSE=1"
+        PRIVATE "VOROPP_VERBOSE=1"
         )
 
     if (COVERAGE)
         target_compile_definitions(
             ${cython_module}
             #  Enable line tracing for coverage purposes if requested.
-            "CYTHON_TRACE_NOGIL=1"
+            PRIVATE "CYTHON_TRACE_NOGIL=1"
             )
     endif()
 

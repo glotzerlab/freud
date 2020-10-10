@@ -19,7 +19,7 @@ add_library(
 
 target_include_directories(
     _order
-    PUBLIC ${CMAKE_SOURCE_DIR}/cpp/cluster
+    PUBLIC ${PROJECT_SOURCE_DIR}/cpp/cluster
     )
 target_link_libraries(
     _order
