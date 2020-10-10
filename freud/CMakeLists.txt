@@ -1,5 +1,3 @@
-find_package(PythonExtensions REQUIRED)
-
 # Need to figure out coverage before CYTHON_FLAGS are set.
 option(COVERAGE "Enable coverage" OFF)
 
@@ -17,9 +15,10 @@ if (COVERAGE)
         )
 endif()
 
+find_package(PythonExtensions REQUIRED)
 find_package(Cython REQUIRED)
-
 find_package(NumPy REQUIRED)
+
 include_directories(${NumPy_INCLUDE_DIRS})
 
 # Avoid Cython/Python3.8 minor incompatibility warnings, see
@@ -63,6 +62,23 @@ foreach(cython_module ${cython_modules_with_cpp} ${cython_modules_without_cpp})
     # Would be good to suppress if possible.
     python_extension_module(${cython_module})
 
+    target_compile_definitions(
+        ${cython_module}
+        # Avoid deprecation warnings for unsupported NumPy API versions.
+        # See https://numpy.org/doc/1.19/reference/c-api/deprecations.html
+        PRIVATE "NPY_NO_DEPRECATED_API=NPY_1_10_API_VERSION"
+        # Default voro++ verbosity is high.
+        PRIVATE "VOROPP_VERBOSE=1"
+        )
+    if (COVERAGE)
+        target_compile_definitions(
+            ${cython_module}
+            #  Enable line tracing for coverage purposes if requested.
+            PRIVATE "CYTHON_TRACE_NOGIL=1"
+            )
+    endif()
+
+    # Separate logic required for targets with C++ code.
     if ("${cython_module}" IN_LIST cython_modules_with_cpp)
         # Everything links to locality
         target_link_libraries(${cython_module} _locality)
@@ -75,23 +91,6 @@ foreach(cython_module ${cython_modules_with_cpp} ${cython_modules_without_cpp})
         target_include_directories(
             ${cython_module}
             PRIVATE ${PROJECT_SOURCE_DIR}/cpp/${cython_module}
-            )
-    endif()
-
-    target_compile_definitions(
-        ${cython_module}
-        # Avoid deprecation warnings for unsupported NumPy API versions.
-        # See https://numpy.org/doc/1.19/reference/c-api/deprecations.html
-        PRIVATE "NPY_NO_DEPRECATED_API=NPY_1_10_API_VERSION"
-        # Default voro++ verbosity is high.
-        PRIVATE "VOROPP_VERBOSE=1"
-        )
-
-    if (COVERAGE)
-        target_compile_definitions(
-            ${cython_module}
-            #  Enable line tracing for coverage purposes if requested.
-            PRIVATE "CYTHON_TRACE_NOGIL=1"
             )
     endif()
 
