@@ -55,6 +55,15 @@ foreach(cython_module ${cython_modules_with_cpp} ${cython_modules_without_cpp})
             )
     endif()
 
+    target_compile_definitions(
+        ${cython_module}
+        # Avoid deprecation warnings for unsupported NumPy API versions.
+        # See https://numpy.org/doc/1.19/reference/c-api/deprecations.html
+        PUBLIC "NPY_NO_DEPRECATED_API=NPY_1_10_API_VERSION"
+        # Default voro++ verbosity is high.
+        PUBLIC "VOROPP_VERBOSE=1"
+        )
+
     install(TARGETS ${cython_module} DESTINATION freud)
 endforeach(cython_module)
 
