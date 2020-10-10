@@ -98,17 +98,8 @@ foreach(cython_module ${cython_modules_with_cpp} ${cython_modules_without_cpp})
     install(TARGETS ${cython_module} DESTINATION freud)
 endforeach(cython_module)
 
-# CMake should allow linking and inheriting linkage from object libraries
-# according to
-# https://cmake.org/cmake/help/latest/command/target_link_libraries.html#linking-object-libraries
-# but that doesn't seem to be working right now because _environment and _order
-# are both using target_link_libraries but it's not propagating up. Note that
-# TBB linking is being correctly propagated, so I assume it has something to do
-# with object library setup (I'm trying to environment to _environment, which
-# requires _util; maybe it can't handle two levels of indirection correctly for
-# object libraries), but I'm not sure how to fix it right now.  Note that
-# because of the dynamic linking of the Python runtime environment, having
-# environment linked will technically be sufficient (because the freud library
-# will import environment before order), but we can't rely on that detail.
+# Because _util is a PRIVATE link for the corresponding cpp modules (because
+# it's only used in their source files, not their headers) we need to relink
+# them to the Cython libraries here.
 target_link_libraries(environment _util)
-target_link_libraries(order _util _cluster)
+target_link_libraries(order _util)

@@ -13,6 +13,7 @@ add_library(
     MatchEnv.cc
     )
 
-# Note that at the moment the _util link doesn't appeear to propagate upward to
-# things linking to _environment.
-target_link_libraries(_environment PUBLIC TBB _util)
+target_link_libraries(
+    _environment
+    PUBLIC TBB
+    PRIVATE _util)
