@@ -1,11 +1,21 @@
 find_package(PythonExtensions REQUIRED)
 
+# Need to figure out coverage before CYTHON_FLAGS are set.
+option(COVERAGE "Enable coverage" OFF)
+
 # Cython flags must be set before we run find_package for Cython since the
 # compiler command is created immediately.
 set(CYTHON_FLAGS
     "--directive binding=True,boundscheck=False,wraparound=False,embedsignature=True,always_allow_keywords=True"
     CACHE STRING "The directives for Cython compilation."
     )
+
+if (COVERAGE)
+    set(CYTHON_FLAGS
+        "${CYTHON_FLAGS},linetrace=True"
+        CACHE STRING "The directives for Cython compilation."
+        )
+endif()
 
 find_package(Cython REQUIRED)
 
@@ -21,14 +31,12 @@ if (${Python_VERSION_MAJOR} EQUAL 3 AND ${Python_VERSION_MINOR} EQUAL 8)
     add_compile_options("-Wno-deprecated-declarations")
 endif()
 
-
 if (WIN32)
     # Force Windows to define M_PI in <cmath>
     add_compile_options("_USE_MATH_DEFINES=1")
     # Prevent Windows from defining min/max as macros
     add_compile_options("NOMINMAX=1")
 endif()
-
 
 set(cython_modules_with_cpp
     box
@@ -81,6 +89,14 @@ foreach(cython_module ${cython_modules_with_cpp} ${cython_modules_without_cpp})
         # Default voro++ verbosity is high.
         PUBLIC "VOROPP_VERBOSE=1"
         )
+
+    if (COVERAGE)
+        target_compile_definitions(
+            ${cython_module}
+            #  Enable line tracing for coverage purposes if requested.
+            "CYTHON_TRACE_NOGIL=1"
+            )
+    endif()
 
     install(TARGETS ${cython_module} DESTINATION freud)
 endforeach(cython_module)
