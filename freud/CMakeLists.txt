@@ -21,6 +21,15 @@ if (${Python_VERSION_MAJOR} EQUAL 3 AND ${Python_VERSION_MINOR} EQUAL 8)
     add_compile_options("-Wno-deprecated-declarations")
 endif()
 
+
+if (WIN32)
+    # Force Windows to define M_PI in <cmath>
+    add_compile_options("_USE_MATH_DEFINES=1")
+    # Prevent Windows from defining min/max as macros
+    add_compile_options("NOMINMAX=1")
+endif()
+
+
 set(cython_modules_with_cpp
     box
     cluster
