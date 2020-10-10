@@ -25,10 +25,10 @@
     Voronoi.h
     )
 
-target_link_libraries(_locality TBB voro++)
+target_link_libraries(_locality PUBLIC TBB voro++)
 # Unclear if this is the best way to set the rpath (for voro++). Moreover, I'm
 # suspecting it will be easier to just directly build all the voro++ files into
 # it. Currently this solution is working, but rebuilding (running setup.py multiple
-# times) prints some install_name_tool errors due to trying to detel rpaths. Note
+# times) prints some install_name_tool errors due to trying to delete rpaths. Note
 # that these have no practical effect right now.
 target_link_options(_locality INTERFACE -Wl,-rpath,${CMAKE_INSTALL_PREFIX}/lib)

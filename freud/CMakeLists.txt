@@ -64,9 +64,6 @@ foreach(cython_module ${cython_modules_with_cpp} ${cython_modules_without_cpp})
     python_extension_module(${cython_module})
 
     if ("${cython_module}" IN_LIST cython_modules_with_cpp)
-        # Since almost all modules use TBB, linking all of them is easier.
-        target_link_libraries(${cython_module} TBB)
-
         # Everything links to locality
         target_link_libraries(${cython_module} _locality)
 
@@ -101,13 +98,17 @@ foreach(cython_module ${cython_modules_with_cpp} ${cython_modules_without_cpp})
     install(TARGETS ${cython_module} DESTINATION freud)
 endforeach(cython_module)
 
-# Any additional module-specific libraries.
-
-# Not sure why this is necessary; I'm requesting a public link to _diagonalize
-# in _environment and _order, so it should propagate up. Something to check
-# later. It might be because _environment and _order are object libraries, so
-# these settings don't actually propagate meaningfully.
-target_link_libraries(environment _diagonalize)
-target_link_libraries(order _diagonalize)
-
-target_link_libraries(order _cluster)
+# CMake should allow linking and inheriting linkage from object libraries
+# according to
+# https://cmake.org/cmake/help/latest/command/target_link_libraries.html#linking-object-libraries
+# but that doesn't seem to be working right now because _environment and _order
+# are both using target_link_libraries but it's not propagating up. Note that
+# TBB linking is being correctly propagated, so I assume it has something to do
+# with object library setup (I'm trying to environment to _environment, which
+# requires _util; maybe it can't handle two levels of indirection correctly for
+# object libraries), but I'm not sure how to fix it right now.  Note that
+# because of the dynamic linking of the Python runtime environment, having
+# environment linked will technically be sufficient (because the freud library
+# will import environment before order), but we can't rely on that detail.
+target_link_libraries(environment _util)
+target_link_libraries(order _util _cluster)

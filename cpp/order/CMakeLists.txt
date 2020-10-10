@@ -21,4 +21,6 @@ target_include_directories(
     _order
     PUBLIC ${CMAKE_SOURCE_DIR}/cpp/cluster
     )
-target_link_libraries(_order TBB _diagonalize)
+# Note that at the moment the _util link doesn't appeear to propagate upward to
+# things linking to _order.
+target_link_libraries(_order PUBLIC TBB _util _cluster)

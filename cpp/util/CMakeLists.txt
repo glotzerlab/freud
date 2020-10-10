@@ -1,5 +1,5 @@
 add_library(
-    _diagonalize
+    _util
     OBJECT
     diagonalize.h
     diagonalize.cc
