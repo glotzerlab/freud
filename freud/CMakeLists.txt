@@ -55,6 +55,9 @@ set(cython_modules_without_cpp
     util
     )
 
+# Copy the C++ library in.
+install(TARGETS libfreud DESTINATION freud)
+
 foreach(cython_module ${cython_modules_with_cpp} ${cython_modules_without_cpp})
     add_cython_target(${cython_module} PY3 CXX)
     add_library(${cython_module} MODULE ${${cython_module}})
@@ -80,13 +83,8 @@ foreach(cython_module ${cython_modules_with_cpp} ${cython_modules_without_cpp})
 
     # Separate logic required for targets with C++ code.
     if ("${cython_module}" IN_LIST cython_modules_with_cpp)
-        # Everything links to locality
+        target_link_libraries(${cython_module} libfreud)
         target_link_libraries(${cython_module} _locality)
-
-        # Link Cython modules to C++ libraries where appropiate.
-        if(NOT ${cython_module} STREQUAL box AND NOT ${cython_module} STREQUAL locality)
-            target_link_libraries(${cython_module} _${cython_module})
-        endif()
 
         target_include_directories(
             ${cython_module}
@@ -95,13 +93,22 @@ foreach(cython_module ${cython_modules_with_cpp} ${cython_modules_without_cpp})
     endif()
 
     install(TARGETS ${cython_module} DESTINATION freud)
-endforeach(cython_module)
 
-# Because _util is a PRIVATE link for the corresponding cpp modules (because
-# it's only used in their source files, not their headers) we need to relink
-# them to the Cython libraries here.
-target_link_libraries(environment _util)
-target_link_libraries(order _util)
+    if (APPLE)
+        set_target_properties(${cython_module} PROPERTIES INSTALL_RPATH "@loader_path")
+    else()
+        set_target_properties(${cython_module} PROPERTIES INSTALL_RPATH "$ORIGIN")
+    endif()
+endforeach(cython_module)
 
 # Interface is pure Python but relies on the C++ locality classes.
 target_link_libraries(interface _locality)
+
+# The SolidLiquid class has an instance of cluster::Cluster as a member, so
+# including the header requires the Cluster.h header. Would prefer to inherit
+# this information from the _order library, but that's not possible since we're
+# linking to libfreud.
+target_include_directories(
+    order
+    PUBLIC ${PROJECT_SOURCE_DIR}/cpp/cluster
+    )
