@@ -11,7 +11,7 @@ set(CYTHON_FLAGS
 if (COVERAGE)
     set(CYTHON_FLAGS
         "${CYTHON_FLAGS},linetrace=True"
-        CACHE STRING "The directives for Cython compilation."
+        CACHE STRING "The directives for Cython compilation." FORCE
         )
 endif()
 
@@ -93,6 +93,11 @@ foreach(cython_module ${cython_modules_with_cpp} ${cython_modules_without_cpp})
     endif()
 
     install(TARGETS ${cython_module} DESTINATION freud)
+
+    # Coverage requires the Cython-compiled C++ files for line coverage.
+    if (COVERAGE)
+        install(FILES ${${cython_module}} DESTINATION freud)
+	endif()
 
     if (APPLE)
         set_target_properties(${cython_module} PROPERTIES INSTALL_RPATH "@loader_path")
