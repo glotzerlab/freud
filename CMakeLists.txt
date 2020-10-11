@@ -18,6 +18,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/CMake")
 find_package(TBB REQUIRED)
+include(UpdateSubmodules)
 
 include_directories(
     ${PROJECT_SOURCE_DIR}/cpp/util
