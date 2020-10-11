@@ -11,6 +11,7 @@ add_library(
     LocalDescriptors.cc
     MatchEnv.h
     MatchEnv.cc
+    Registration.h
     )
 
 target_link_libraries(
