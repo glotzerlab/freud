@@ -87,7 +87,8 @@ references:
       name: Build
       command: |
         python${PYVER} --version
-        python${PYVER} setup.py build_ext --inplace -- -DCOVERAGE=ON
+        # Max 4 threads to not overtax CI.
+        python${PYVER} setup.py build_ext --inplace -- -DCOVERAGE=ON -- -j 4
 
   test: &test
     run:
@@ -131,7 +132,8 @@ references:
           echo 'export BENCHMARK_NPROC=2' >> $BASH_ENV
           source $BASH_ENV
           rm freud/*.cpp
-          python${PYVER} setup.py build_ext --inplace -- -DCOVERAGE=ON
+          # Max 4 threads to not overtax CI.
+          python${PYVER} setup.py build_ext --inplace -- -DCOVERAGE=ON -- -j 4
           git checkout "${CIRCLE_SHA1}" -- benchmarks/
           BENCHSCR="benchmarks/benchmarker.py"
           echo "Running benchmark on origin/master"
