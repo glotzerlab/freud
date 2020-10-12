@@ -88,7 +88,7 @@ references:
       command: |
         python${PYVER} --version
         # Max 4 threads to not overtax CI.
-        python${PYVER} setup.py build_ext --inplace -- -DCOVERAGE=ON -- -j 4
+        python${PYVER} setup.py build_ext --inplace -- -DCOVERAGE=ON -- -j 4 -v
 
   test: &test
     run:
