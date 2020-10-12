@@ -18,7 +18,24 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/CMake")
 find_package(TBB REQUIRED)
-include(UpdateSubmodules)
+
+# Fail fast if users have not cloned submodules.
+if(NOT WIN32)
+  string(ASCII 27 Esc)
+  set(Red         "${Esc}[31m")
+  set(DefaultColor "${Esc}[m")
+endif()
+set(submodules
+    Eigen
+    fsph
+    voro++)
+foreach (submodule ${submodules})
+    message("Checking ${PROJECT_SOURCE_DIR}/extern/${submodule}/.git")
+    if( NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/${submodule}/.git" )
+        message( FATAL_ERROR "${Red}The git submodules are not available. Please run git submodule update --init --recursive.${DefaultColor}"
+        )
+    endif()
+endforeach(submodule)
 
 include_directories(
     ${PROJECT_SOURCE_DIR}/cpp/util
