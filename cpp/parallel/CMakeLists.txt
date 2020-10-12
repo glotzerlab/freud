@@ -4,5 +4,3 @@ add_library(
     tbb_config.h
     tbb_config.cc
     )
-
-target_link_libraries(_parallel PUBLIC TBB)

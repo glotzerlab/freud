@@ -25,8 +25,10 @@ include_directories(${NumPy_INCLUDE_DIRS})
 # https://github.com/cython/cython/issues/3474. Note that this option is a bit
 # expansive, but it's a temporary fix and we'll be testing on other Python
 # versions concurrently so it shouldn't hide any real issues.
-find_package(Python REQUIRED)
-if (${Python_VERSION_MAJOR} EQUAL 3 AND ${Python_VERSION_MINOR} EQUAL 8)
+# For backwards compatibility with older CMake, I'm using PythonInterp; when we
+# drop support for CMake < 3.12, we should switch to find_package(Python).
+find_package(PythonInterp REQUIRED)
+if (${PYTHON_VERSION_MAJOR} EQUAL 3 AND ${PYTHON_VERSION_MINOR} EQUAL 8)
     add_compile_options("-Wno-deprecated-declarations")
 endif()
 
@@ -55,9 +57,6 @@ set(cython_modules_without_cpp
     util
     )
 
-# Copy the C++ library in.
-install(TARGETS libfreud DESTINATION freud)
-
 foreach(cython_module ${cython_modules_with_cpp} ${cython_modules_without_cpp})
     add_cython_target(${cython_module} PY3 CXX)
     add_library(${cython_module} MODULE ${${cython_module}})
@@ -84,7 +83,6 @@ foreach(cython_module ${cython_modules_with_cpp} ${cython_modules_without_cpp})
     # Separate logic required for targets with C++ code.
     if ("${cython_module}" IN_LIST cython_modules_with_cpp)
         target_link_libraries(${cython_module} libfreud)
-        target_link_libraries(${cython_module} _locality)
 
         target_include_directories(
             ${cython_module}
@@ -107,7 +105,7 @@ foreach(cython_module ${cython_modules_with_cpp} ${cython_modules_without_cpp})
 endforeach(cython_module)
 
 # Interface is pure Python but relies on the C++ locality classes.
-target_link_libraries(interface _locality)
+target_link_libraries(interface libfreud)
 
 # The SolidLiquid class has an instance of cluster::Cluster as a member, so
 # including the header requires the Cluster.h header. Would prefer to inherit

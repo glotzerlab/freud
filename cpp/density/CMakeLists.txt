@@ -12,5 +12,3 @@ add_library(
     SphereVoxelization.h
     SphereVoxelization.cc
     )
-
-target_link_libraries(_density PUBLIC TBB)

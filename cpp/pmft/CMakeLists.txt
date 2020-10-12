@@ -10,5 +10,3 @@ add_library(
     PMFTXYZ.h
     PMFTXYZ.cc
     )
-
-target_link_libraries(_pmft PUBLIC TBB)

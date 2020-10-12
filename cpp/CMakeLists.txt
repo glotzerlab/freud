@@ -24,8 +24,16 @@ target_link_libraries(
     PUBLIC TBB
     )
 
+target_include_directories(
+    libfreud
+    PUBLIC ${PROJECT_SOURCE_DIR}/extern/
+    )
+
 # Set the name of the library to just freud.
 set_target_properties(
     libfreud
     PROPERTIES OUTPUT_NAME freud
     )
+
+# Copy the C++ library into the built version.
+install(TARGETS libfreud DESTINATION freud)

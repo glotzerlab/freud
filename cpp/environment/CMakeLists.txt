@@ -13,13 +13,3 @@ add_library(
     MatchEnv.cc
     Registration.h
     )
-
-target_link_libraries(
-    _environment
-    PUBLIC TBB
-    PRIVATE _util
-    )
-target_include_directories(
-    _environment
-    PUBLIC ${PROJECT_SOURCE_DIR}/extern/
-    )

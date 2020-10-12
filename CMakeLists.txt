@@ -1,4 +1,8 @@
-cmake_minimum_required(VERSION 3.10)
+# We use the IN_LIST operator, which is first supported in 3.3.0. This is the
+# oldest version of CMake that this build script has been tested with. However,
+# the oldest CMake actively tested against will be determined by the oldest
+# CMake available on PyPI (which is 3.6.3).
+cmake_minimum_required(VERSION 3.3.0)
 
 project(freud)
 
@@ -29,7 +33,6 @@ set(submodules
     fsph
     voro++)
 foreach (submodule ${submodules})
-    message("Checking ${PROJECT_SOURCE_DIR}/extern/${submodule}/.git")
     if( NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/${submodule}/.git" )
         message( FATAL_ERROR "${Red}The git submodules are not available. Please run git submodule update --init --recursive.${DefaultColor}"
         )
@@ -40,6 +43,9 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/cpp/util
     ${PROJECT_SOURCE_DIR}/cpp/locality
     ${PROJECT_SOURCE_DIR}/cpp/box
+    ${PROJECT_SOURCE_DIR}/extern
+    # For the order module
+    ${PROJECT_SOURCE_DIR}/cpp/cluster
 	${TBB_INCLUDE_DIR}
     )
 
