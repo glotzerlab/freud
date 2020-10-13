@@ -28,7 +28,7 @@ fi
 
 export MACOSX_DEPLOYMENT_TARGET=10.12
 # Get pyenv
-brew install pyenv
+HOMEBREW_NO_AUTOUPDATE=1 brew install pyenv
 eval "$(pyenv init -)"
 # Check supported versions with pyenv install --list
 PY_VERSIONS=(3.6.9 3.7.4 3.8.1)
@@ -51,7 +51,7 @@ for VERSION in ${PY_VERSIONS[@]}; do
   pyenv global ${VERSION}
 
   pip install --upgrade pip
-  pip install cython distro packaging scikit-build cmake --no-deps --ignore-installed -q --progress-bar=off
+  pip install cython scikit-build cmake --ignore-installed -q --progress-bar=off
   rm -rf numpy-1.14.6
   curl -sSLO https://github.com/numpy/numpy/archive/v1.14.6.tar.gz
   tar -xzf v1.14.6.tar.gz
