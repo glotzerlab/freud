@@ -60,7 +60,7 @@ references:
         conda config --add channels conda-forge
         conda update -q conda certifi
         conda install python pip tbb tbb-devel
-        conda install --file requirements-testing.txt
+        conda install coverage cython garnett GitPython gsd matplotlib-base MDAnalysis numpy rowan scipy sympy
         # Install cmake 3.14 to support Visual Studio 2019 generator
         conda install scikit-build=0.10 cmake=3.14
 
