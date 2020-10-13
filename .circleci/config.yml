@@ -341,14 +341,15 @@ workflows:
             - linux-python-36
             - windows-python-37
       - test-deploy-pypi-linux:
-          filters:
-            branches:
-              only: /release\/.*/
+          #filters:
+          #  branches:
+          #    only: /release\/.*/
           requires:
-            - linux-python-38
-            - linux-python-37
-            - linux-python-36
-            - windows-python-37
+            - check-style
+            #- linux-python-38
+            #- linux-python-37
+            #- linux-python-36
+            #- windows-python-37
 
   deploy:
     jobs:
