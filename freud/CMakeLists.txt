@@ -75,7 +75,7 @@ foreach(cython_module ${cython_modules_with_cpp} ${cython_modules_without_cpp})
     if (COVERAGE)
         target_compile_definitions(
             ${cython_module}
-            #  Enable line tracing for coverage purposes if requested.
+            # Enable line tracing for coverage purposes if requested.
             PRIVATE "CYTHON_TRACE_NOGIL=1"
             )
     endif()
@@ -95,7 +95,7 @@ foreach(cython_module ${cython_modules_with_cpp} ${cython_modules_without_cpp})
     # Coverage requires the Cython-compiled C++ files for line coverage.
     if (COVERAGE)
         install(FILES ${${cython_module}} DESTINATION freud)
-	endif()
+    endif()
 
     if (APPLE)
         set_target_properties(${cython_module} PROPERTIES INSTALL_RPATH "@loader_path")
