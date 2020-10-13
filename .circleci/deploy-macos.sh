@@ -51,7 +51,7 @@ for VERSION in ${PY_VERSIONS[@]}; do
   pyenv global ${VERSION}
 
   pip install --upgrade pip
-  pip install cython scikit-build cmake --no-deps --ignore-installed -q --progress-bar=off
+  pip install cython distro packaging scikit-build cmake --no-deps --ignore-installed -q --progress-bar=off
   rm -rf numpy-1.14.6
   curl -sSLO https://github.com/numpy/numpy/archive/v1.14.6.tar.gz
   tar -xzf v1.14.6.tar.gz
