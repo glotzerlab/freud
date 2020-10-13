@@ -314,7 +314,7 @@ workflows:
   version: 2
   test:
     jobs:
-      - check-style
+      #- check-style
       #- linux-python-38:
       #    requires:
       #      - check-style
@@ -335,22 +335,22 @@ workflows:
           #filters:
           #  branches:
           #    only: /release\/.*/
-          requires:
-            - check-style
+          #requires:
+          #  - check-style
           #  - linux-python-38
           #  - linux-python-37
           #  - linux-python-36
           #  - windows-python-37
-      - test-deploy-pypi-linux:
-          #filters:
-          #  branches:
-          #    only: /release\/.*/
-          requires:
-            - check-style
-            #- linux-python-38
-            #- linux-python-37
-            #- linux-python-36
-            #- windows-python-37
+      #- test-deploy-pypi-linux:
+      #    #filters:
+      #    #  branches:
+      #    #    only: /release\/.*/
+      #    requires:
+      #      - check-style
+      #      #- linux-python-38
+      #      #- linux-python-37
+      #      #- linux-python-36
+      #      #- windows-python-37
 
   deploy:
     jobs:

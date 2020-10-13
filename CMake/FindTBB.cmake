@@ -1,7 +1,12 @@
 find_path(TBB_INCLUDE_DIR tbb/tbb.h
           HINTS $ENV{TBBROOT}/include )
 
-string(REPLACE ":" ";" LD_LIBRARY_DIR_LIST $ENV{LD_LIBRARY_PATH})
+if (DEFINED $ENV{LD_LIBRARY_PATH})
+    string(REPLACE ":" ";" LD_LIBRARY_DIR_LIST $ENV{LD_LIBRARY_PATH})
+else()
+    set(LD_LIBRARY_DIR_LIST "")
+endif()
+
 find_library(TBB_LIBRARY tbb
              HINTS ${TBB_INCLUDE_DIR}/../lib ${LD_LIBRARY_DIR_LIST} )
 
