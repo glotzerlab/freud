@@ -45,9 +45,6 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/cpp/util
     ${PROJECT_SOURCE_DIR}/cpp/locality
     ${PROJECT_SOURCE_DIR}/cpp/box
-    ${PROJECT_SOURCE_DIR}/extern
-    # For the order module
-    ${PROJECT_SOURCE_DIR}/cpp/cluster
 	${TBB_INCLUDE_DIR}
     )
 

@@ -40,3 +40,8 @@ add_library(
     ${VOROPP_SOURCE_DIR}/pre_container.cc
     ${VOROPP_SOURCE_DIR}/container_prd.cc
     )
+
+target_include_directories(
+    _locality
+    PUBLIC ${PROJECT_SOURCE_DIR}/extern/
+    )

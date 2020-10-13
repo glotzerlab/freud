@@ -6,3 +6,8 @@ add_library(
     ClusterProperties.h
     ClusterProperties.cc
     )
+
+target_include_directories(
+    _cluster
+    PUBLIC ${PROJECT_SOURCE_DIR}/extern/
+    )

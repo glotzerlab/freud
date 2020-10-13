@@ -16,3 +16,9 @@ add_library(
     Wigner3j.cc
     Wigner3j.h
     )
+
+target_include_directories(
+    _order
+    PUBLIC ${PROJECT_SOURCE_DIR}/cpp/cluster
+    PUBLIC ${PROJECT_SOURCE_DIR}/extern/
+    )
