@@ -62,7 +62,7 @@ references:
         conda install python pip tbb tbb-devel ninja
         # Install from PyPI instead of conda-forge for consistency with Linux.
         # For some reason, the SSL certificates used by pip aren't correct, even with certifi.
-        Invoke-RestMethod -Uri https://curl.haxx.se/ca/cacert.pem -Method Get | Out-File cacert.pem
+        # Invoke-RestMethod -Uri https://curl.haxx.se/ca/cacert.pem -Method Get | Out-File cacert.pem
         python -m pip install --cert cacert.pem --progress-bar off -U -r requirements-testing.txt
 
   get_style_requirements: &get_style_requirements
