@@ -15,7 +15,6 @@ from freud.util cimport vec3, _Compute
 from cython.operator cimport dereference
 from libcpp.memory cimport shared_ptr
 from libcpp.vector cimport vector
-from freud._locality cimport ITERATOR_TERMINATOR
 
 cimport freud._locality
 cimport freud.box
@@ -183,6 +182,8 @@ cdef class NeighborQueryResult:
 
     def __iter__(self):
         cdef freud._locality.NeighborBond npoint
+        cdef freud._locality.NeighborBond ITERATOR_TERMINATOR
+        ITERATOR_TERMINATOR = freud._locality.NeighborBond(-1, -1, 0.0, 1.0)
 
         cdef const float[:, ::1] l_points = self.points
         cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator = \
