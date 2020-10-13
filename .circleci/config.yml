@@ -118,6 +118,12 @@ references:
           coverage run -m unittest discover tests -v
           bash <(curl -s https://codecov.io/bash)
 
+  test_windows: &test_windows
+    run:
+      name: Run unit tests
+      command: |
+          python -m unittest discover tests -v
+
   store: &store
     store_artifacts:
       path: test-reports
@@ -183,7 +189,7 @@ references:
       - *update_submodules
       - *get_conda_requirements
       - *build_windows
-      - *test_cov
+      - *test_windows
       - *store
 
   load_check_style: &load_check_style
