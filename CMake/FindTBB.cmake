@@ -1,8 +1,12 @@
 find_path(TBB_INCLUDE_DIR tbb/tbb.h
           HINTS $ENV{TBBROOT}/include )
 
-if (DEFINED $ENV{LD_LIBRARY_PATH})
+if (DEFINED ENV{LD_LIBRARY_PATH})
+    # For Linux.
     string(REPLACE ":" ";" LD_LIBRARY_DIR_LIST $ENV{LD_LIBRARY_PATH})
+elseif (DEFINED ENV{LD_LIBRARY_PATH})
+    # For Mac.
+    string(REPLACE ":" ";" LD_LIBRARY_DIR_LIST $ENV{DYLD_LIBRARY_PATH})
 else()
     set(LD_LIBRARY_DIR_LIST "")
 endif()
