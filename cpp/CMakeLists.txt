@@ -29,7 +29,11 @@ target_include_directories(
     PUBLIC ${PROJECT_SOURCE_DIR}/extern/
     )
 
-# Set the name of the library to just freud.
+# CMake will automatically prepend any library name with "lib" when creating
+# shared libraries, so a CMake library named libfreud will result in
+# liblibfreud.so object. This rename gives the more expected name of
+# libfreud.so. Note that we choose not to name the CMake target "freud" to
+# avoid conflicting with the project name.
 set_target_properties(
     libfreud
     PROPERTIES OUTPUT_NAME freud

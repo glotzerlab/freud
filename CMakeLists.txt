@@ -18,7 +18,8 @@ endif()
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-# This setting appears to be required by older versions of CMake for object libraries.
+# This setting appears to be required by older versions of CMake for object
+# libraries.
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/CMake")
@@ -27,7 +28,7 @@ find_package(TBB REQUIRED)
 # Fail fast if users have not cloned submodules.
 if(NOT WIN32)
   string(ASCII 27 Esc)
-  set(Red         "${Esc}[31m")
+  set(Red          "${Esc}[31m")
   set(DefaultColor "${Esc}[m")
 endif()
 set(submodules
@@ -36,7 +37,7 @@ set(submodules
     voro++)
 foreach (submodule ${submodules})
     if( NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/${submodule}/.git" )
-        message( FATAL_ERROR "${Red}The git submodules are not available. Please run git submodule update --init --recursive.${DefaultColor}"
+        message( FATAL_ERROR "${Red}Not all git submodules are available. Please run git submodule update --init --recursive.${DefaultColor}"
         )
     endif()
 endforeach(submodule)

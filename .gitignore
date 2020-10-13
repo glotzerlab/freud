@@ -15,7 +15,7 @@ doc/_build/*
 freud/*.so
 freud/*.cpp
 freud/*.cxx
-freud/libfreud.dylib
+freud/*.dylib
 .coverage
 coverage_html_report
 cython_debug
