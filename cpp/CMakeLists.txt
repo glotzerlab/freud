@@ -1,3 +1,11 @@
+if (WIN32)
+    # Use add_compile_definitions when dropping support for CMake < 3.12
+    # Force Windows to define M_PI in <cmath>
+    add_compile_options(/D_USE_MATH_DEFINES)
+    # Prevent Windows from defining min/max as macros
+    add_compile_options(/DNOMINMAX)
+endif()
+
 add_subdirectory(cluster)
 add_subdirectory(density)
 add_subdirectory(environment)
