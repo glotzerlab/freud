@@ -15,14 +15,12 @@ const float QueryArgs::DEFAULT_R_GUESS(-1.0);
 const float QueryArgs::DEFAULT_SCALE(-1.0);
 const bool QueryArgs::DEFAULT_EXCLUDE_II(false);
 
-QueryArgs::QueryArgs() : mode(DEFAULT_MODE),
-    num_neighbors(DEFAULT_NUM_NEIGHBORS), r_max(DEFAULT_R_MAX),
-    r_min(DEFAULT_R_MIN), r_guess(DEFAULT_R_GUESS), scale(DEFAULT_SCALE),
-    exclude_ii(DEFAULT_EXCLUDE_II)
+QueryArgs::QueryArgs()
+    : mode(DEFAULT_MODE), num_neighbors(DEFAULT_NUM_NEIGHBORS), r_max(DEFAULT_R_MAX), r_min(DEFAULT_R_MIN),
+      r_guess(DEFAULT_R_GUESS), scale(DEFAULT_SCALE), exclude_ii(DEFAULT_EXCLUDE_II)
 {}
 
-NeighborQuery::NeighborQuery()
-{}
+NeighborQuery::NeighborQuery() {}
 
 NeighborQuery::NeighborQuery(const box::Box& box, const vec3<float>* points, unsigned int n_points)
     : m_box(box), m_points(points), m_n_points(n_points)
@@ -46,7 +44,6 @@ NeighborQuery::NeighborQuery(const box::Box& box, const vec3<float>* points, uns
     }
 }
 
-
 void NeighborQuery::validateQueryArgs(QueryArgs& args) const
 {
     inferMode(args);
@@ -64,7 +61,7 @@ void NeighborQuery::validateQueryArgs(QueryArgs& args) const
     {
         if (args.num_neighbors == QueryArgs::DEFAULT_NUM_NEIGHBORS)
             throw std::runtime_error("You must set num_neighbors in the query arguments when performing "
-                                        "number of neighbor queries.");
+                                     "number of neighbor queries.");
         if (args.r_max == QueryArgs::DEFAULT_R_MAX)
         {
             args.r_max = std::numeric_limits<float>::infinity();
@@ -92,14 +89,14 @@ void NeighborQuery::inferMode(QueryArgs& args) const
     }
 }
 
-NeighborQueryPerPointIterator::NeighborQueryPerPointIterator()
-{}
+NeighborQueryPerPointIterator::NeighborQueryPerPointIterator() {}
 
-NeighborQueryPerPointIterator::NeighborQueryPerPointIterator(const NeighborQuery* neighbor_query, const vec3<float> query_point,
-                                unsigned int query_point_idx, float r_max, float r_min, bool exclude_ii)
-    : NeighborPerPointIterator(query_point_idx), m_neighbor_query(neighbor_query),
-        m_query_point(query_point), m_finished(false), m_r_max(r_max), m_r_min(r_min),
-        m_exclude_ii(exclude_ii)
+NeighborQueryPerPointIterator::NeighborQueryPerPointIterator(const NeighborQuery* neighbor_query,
+                                                             const vec3<float> query_point,
+                                                             unsigned int query_point_idx, float r_max,
+                                                             float r_min, bool exclude_ii)
+    : NeighborPerPointIterator(query_point_idx), m_neighbor_query(neighbor_query), m_query_point(query_point),
+      m_finished(false), m_r_max(r_max), m_r_min(r_min), m_exclude_ii(exclude_ii)
 {}
 
 NeighborQueryPerPointIterator::~NeighborQueryPerPointIterator() {}
@@ -109,19 +106,18 @@ bool NeighborQueryPerPointIterator::end()
     return m_finished;
 }
 
-NeighborQueryIterator::NeighborQueryIterator()
-{}
+NeighborQueryIterator::NeighborQueryIterator() {}
 
-NeighborQueryIterator::NeighborQueryIterator(const NeighborQuery* neighbor_query, const vec3<float>* query_points,
-                    unsigned int num_query_points, QueryArgs qargs)
-    : m_neighbor_query(neighbor_query), m_query_points(query_points),
-        m_num_query_points(num_query_points), m_qargs(qargs), m_finished(false), m_cur_p(0)
+NeighborQueryIterator::NeighborQueryIterator(const NeighborQuery* neighbor_query,
+                                             const vec3<float>* query_points, unsigned int num_query_points,
+                                             QueryArgs qargs)
+    : m_neighbor_query(neighbor_query), m_query_points(query_points), m_num_query_points(num_query_points),
+      m_qargs(qargs), m_finished(false), m_cur_p(0)
 {
     m_iter = this->query(m_cur_p);
 }
 
-NeighborQueryIterator::~NeighborQueryIterator()
-{}
+NeighborQueryIterator::~NeighborQueryIterator() {}
 
 bool NeighborQueryIterator::end()
 {
@@ -204,6 +200,5 @@ NeighborList* NeighborQueryIterator::toNeighborList(bool sort_by_distance)
 
     return nl;
 }
-
 
 }; }; // end namespace freud::locality
