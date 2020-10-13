@@ -59,13 +59,10 @@ references:
         conda config --set always_yes yes --set changeps1 no
         conda config --add channels conda-forge
         conda update -q conda certifi
-        conda install python pip tbb tbb-devel ninja
-        # Install from PyPI instead of conda-forge for consistency with Linux.
-        # For some reason, the SSL certificates used by pip aren't correct, even with certifi.
-        # Invoke-RestMethod -Uri https://curl.haxx.se/ca/cacert.pem -Method Get | Out-File cacert.pem
-        python -m pip install --progress-bar off -U -r requirements-testing.txt
-        # Update cmake to support Visual Studio 2019 generator
-        python -m pip install -U scikit-build==0.10.0 cmake==3.14.4post1
+        conda install python pip tbb tbb-devel
+        conda install --file requirements-testing.txt
+        # Install cmake 3.14 to support Visual Studio 2019 generator
+        conda install scikit-build=0.10 cmake=3.14
 
   get_style_requirements: &get_style_requirements
     run:
@@ -296,7 +293,6 @@ jobs:
       PYVER: ""  # Windows CI image doesn't have aliases for python3.7
       TBB_INCLUDE: "C:\\tools\\miniconda3\\Library\\include"
       TBB_LINK: "C:\\tools\\miniconda3\\Library\\lib"
-      VCVARSALL: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\Build\\vcvarsall.bat"
     <<: *build_and_test_windows
 
   test-deploy-pypi-linux:
