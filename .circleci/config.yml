@@ -331,7 +331,7 @@ workflows:
 #     - benchmarks:
 #         requires:
 #           - linux-python-38
-      - test-deploy-pypi-macos:
+      - test-deploy-pypi-macos
           #filters:
           #  branches:
           #    only: /release\/.*/
