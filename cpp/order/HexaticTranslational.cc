@@ -10,7 +10,7 @@ template<typename T>
 template<typename Func>
 void HexaticTranslational<T>::computeGeneral(Func func, const freud::locality::NeighborList* nlist,
                                              const freud::locality::NeighborQuery* points,
-                                             freud::locality::QueryArgs qargs)
+                                             freud::locality::QueryArgs qargs, bool normalize_by_k)
 {
     const auto box = points->getBox();
     box.enforce2D();
@@ -35,13 +35,13 @@ void HexaticTranslational<T>::computeGeneral(Func func, const freud::locality::N
                 m_psi_array[i] += weight * func(delta);
                 total_weight += weight;
             }
-            if (m_weighted)
+            if (normalize_by_k)
             {
-                m_psi_array[i] /= std::complex<float>(total_weight);
+                m_psi_array[i] /= std::complex<float>(m_k);
             }
             else
             {
-                m_psi_array[i] /= std::complex<float>(m_k);
+                m_psi_array[i] /= std::complex<float>(total_weight);
             }
         });
 }
@@ -58,7 +58,7 @@ void Hexatic::compute(const freud::locality::NeighborList* nlist,
             const float theta_ij = std::atan2(delta.y, delta.x);
             return std::exp(std::complex<float>(0, m_k * theta_ij));
         },
-        nlist, points, qargs);
+        nlist, points, qargs, false);
 }
 
 Translational::Translational(float k, bool weighted) : HexaticTranslational<float>(k, weighted) {}
@@ -69,7 +69,7 @@ void Translational::compute(const freud::locality::NeighborList* nlist,
                             const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs)
 {
     computeGeneral([](const vec3<float>& delta) { return std::complex<float>(delta.x, delta.y); }, nlist,
-                   points, qargs);
+                   points, qargs, true);
 }
 
 }; }; // namespace freud::order

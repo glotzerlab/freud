@@ -249,12 +249,30 @@ cdef class Hexatic(_PairCompute):
     :math:`n` neighbors :math:`j` is given by:
 
     :math:`\psi_k \left( i \right) = \frac{1}{n}
-    \sum_j^n e^{k i \phi_{ij}}`
+    \sum_j^n e^{i k \phi_{ij}}`
 
     The parameter :math:`k` governs the symmetry of the order parameter and
     typically matches the number of neighbors to be found for each particle.
     The quantity :math:`\phi_{ij}` is the angle between the
     vector :math:`r_{ij}` and :math:`\left(1, 0\right)`.
+
+    If the weighted mode is enabled, contributions of each neighbor are
+    weighted. Neighbor weights :math:`w_j` default to 1 but are defined for a
+    :class:`freud.locality.NeighborList` from :class:`freud.locality.Voronoi`
+    or one with user-provided weights. The formula is modified as follows:
+
+    :math:`\psi'_k \left( i \right) = \frac{1}{\sum_j^n w_j}
+    \sum_j^n w_j e^{i k \phi_{ij}}`
+
+    The hexatic order parameter as written above is **complex-valued**. The
+    **magnitude** of the complex value,
+    :code:`np.abs(hex_order.particle_order)`, is frequently what is desired
+    when determining the :math:`k`-atic order for each particle. The complex
+    phase angle :code:`np.angle(hex_order.particle_order)` indicates the
+    orientation of the bonds as an angle measured counterclockwise from the
+    vector :math:`\left(1, 0\right)`. The complex valued order parameter is
+    not rotationally invariant because of this phase angle, but the magnitude
+    *is* rotationally invariant.
 
     .. note::
         **2D:** :class:`freud.order.Hexatic` is only defined for 2D systems.
@@ -262,12 +280,13 @@ cdef class Hexatic(_PairCompute):
 
     Args:
         k (unsigned int, optional):
-            Symmetry of order parameter. (Default value = :code:`6`).
+            Symmetry of order parameter (Default value = :code:`6`).
         weighted (bool, optional):
             Determines whether to use neighbor weights in the computation of
             spherical harmonics over neighbors. If enabled and used with a
             Voronoi neighbor list, this results in the 2D Minkowski Structure
-            Metrics :math:`\psi'_k`. (Default value = :code:`False`)
+            Metrics :math:`\psi'_k` :cite:`Mickel2013` (Default value =
+            :code:`False`).
     """  # noqa: E501
     cdef freud._order.Hexatic * thisptr
 
@@ -348,8 +367,8 @@ cdef class Hexatic(_PairCompute):
 
         Args:
             ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
-                :code:`None`, make a new figure and axis.
-                (Default value = :code:`None`)
+                :code:`None`, make a new figure and axis
+                (Default value = :code:`None`).
 
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
@@ -377,13 +396,25 @@ cdef class Hexatic(_PairCompute):
 cdef class Translational(_PairCompute):
     R"""Compute the translational order parameter for each particle.
 
+    The translational order parameter is used to measure order in the bonds
+    of 2D systems. The translational order parameter for a particle :math:`i`
+    and its :math:`n` neighbors :math:`j` is given by a sum over the
+    neighbors, treating the 2D vectors between each pair of particles as a
+    complex number with real part corresponding to the x-component of the
+    vector and imaginary part corresponding to the y-component of the vector,
+    divided by a normalization constant :math:`k`:
+
+    :math:`\psi\left( i \right) = \frac{1}{k} \sum_j^n x_{ij} + y_{ij} i`
+
+    The translational order parameter as written above is **complex-valued**.
+
     .. note::
         **2D:** :class:`freud.order.Translational` is only defined for 2D
         systems. The points must be passed in as :code:`[x, y, 0]`.
 
     Args:
         k (float, optional):
-            Symmetry of order parameter. (Default value = :code:`6.0`).
+            Normalization of order parameter (Default value = :code:`6.0`).
     """  # noqa E501
     cdef freud._order.Translational * thisptr
 
@@ -453,11 +484,13 @@ cdef class Steinhardt(_PairCompute):
     order parameter described by Steinhardt. For a particle :math:`i`, we
     calculate the average order parameter by summing the spherical harmonics
     between particle :math:`i` and its neighbors :math:`j` in a local region:
+
     :math:`\overline{q}_{lm}(i) = \frac{1}{N_b} \displaystyle\sum_{j=1}^{N_b}
     Y_{lm}(\theta(\vec{r}_{ij}), \phi(\vec{r}_{ij}))`.
 
     For :math:`q_l`, this is then combined in a rotationally invariant fashion
     to remove local orientational order as follows:
+
     :math:`q_l(i)=\sqrt{\frac{4\pi}{2l+1} \displaystyle\sum_{m=-l}^{l}
     |\overline{q}_{lm}|^2 }`.
 
@@ -475,6 +508,18 @@ cdef class Steinhardt(_PairCompute):
     original definition by the average value of :math:`\overline{q}_{lm}(k)`
     over all the :math:`k` neighbors of particle :math:`i` as well as itself.
 
+    If the weighted mode is enabled in the constructor, the contributions of
+    each neighbor are weighted. Neighbor weights :math:`w_j` default to 1 but
+    are defined for a :class:`freud.locality.NeighborList` from
+    :class:`freud.locality.Voronoi` or one with user-provided weights. The
+    formula is modified as follows:
+
+    :math:`\overline{q}'_{lm}(i) = \frac{1}{\sum_j^n w_j} \displaystyle\sum_{j=1}^{N_b}
+    w_j Y_{lm}(\theta(\vec{r}_{ij}), \phi(\vec{r}_{ij}))`.
+
+    :math:`q'_l(i)=\sqrt{\frac{4\pi}{2l+1} \displaystyle\sum_{m=-l}^{l}
+    |\overline{q}'_{lm}|^2 }`.
+
     The :code:`norm` attribute argument provides normalized versions of the
     order parameter, where the normalization is performed by averaging the
     :math:`q_{lm}` values over all particles before computing the order
@@ -485,18 +530,19 @@ cdef class Steinhardt(_PairCompute):
             Spherical harmonic quantum number l.
         average (bool, optional):
             Determines whether to calculate the averaged Steinhardt order
-            parameter. (Default value = :code:`False`)
+            parameter (Default value = :code:`False`).
         wl (bool, optional):
             Determines whether to use the :math:`w_l` version of the Steinhardt
-            order parameter. (Default value = :code:`False`)
+            order parameter (Default value = :code:`False`).
         weighted (bool, optional):
             Determines whether to use neighbor weights in the computation of
             spherical harmonics over neighbors. If enabled and used with a
             Voronoi neighbor list, this results in the 3D Minkowski Structure
-            Metrics :math:`q'_l`. (Default value = :code:`False`)
+            Metrics :math:`q'_l` :cite:`Mickel2013` (Default value =
+            :code:`False`).
         wl_normalize (bool, optional):
             Determines whether to normalize the :math:`w_l` version
-            of the Steinhardt order parameter. (Default value = :code:`False`)
+            of the Steinhardt order parameter (Default value = :code:`False`).
     """  # noqa: E501
     cdef freud._order.Steinhardt * thisptr
 
@@ -610,8 +656,8 @@ cdef class Steinhardt(_PairCompute):
 
         Args:
             ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
-                :code:`None`, make a new figure and axis.
-                (Default value = :code:`None`)
+                :code:`None`, make a new figure and axis
+                (Default value = :code:`None`).
 
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
@@ -789,8 +835,8 @@ cdef class SolidLiquid(_PairCompute):
 
         Args:
             ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
-                :code:`None`, make a new figure and axis.
-                (Default value = :code:`None`)
+                :code:`None`, make a new figure and axis
+                (Default value = :code:`None`).
 
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
