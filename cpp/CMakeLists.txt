@@ -19,6 +19,16 @@ add_library(
     $<TARGET_OBJECTS:_pmft>
     $<TARGET_OBJECTS:_util>)
 
+if(WIN32)
+    target_compile_definitions(
+        libfreud
+        # Export API - required for static data members to have external
+        # linkage with MSVC. This is in addition to
+        # CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS.
+        PRIVATE "LIBFREUD_EXPORTS"
+        )
+endif()
+
 target_link_libraries(
     libfreud
     PUBLIC TBB::tbb

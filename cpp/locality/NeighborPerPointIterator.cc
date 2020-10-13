@@ -5,6 +5,14 @@
 
 namespace freud { namespace locality {
 
+NeighborPerPointIterator::NeighborPerPointIterator() {}
+
+NeighborPerPointIterator::NeighborPerPointIterator(unsigned int query_point_idx) : m_query_point_idx(query_point_idx)
+{}
+
+NeighborPerPointIterator::~NeighborPerPointIterator() {}
+
+
 const NeighborBond NeighborPerPointIterator::ITERATOR_TERMINATOR(-1, -1, 0);
 
 }; }; // end namespace freud::locality
