@@ -101,7 +101,7 @@ references:
       name: Build with MSVC
       # Load MSVC environment variables before building
       command: |
-        %comspec% /k "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" x64
+        "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" x64
         python${PYVER} --version
         python${PYVER} setup.py build_ext --inplace -- -DCOVERAGE=ON
       shell: cmd.exe
