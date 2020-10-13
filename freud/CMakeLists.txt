@@ -100,6 +100,9 @@ endforeach(cython_module)
 # Interface is pure Python but relies on the C++ locality classes.
 target_link_libraries(interface libfreud)
 
+# MSD is pure Python but relies on the C++ parallel classes.
+target_link_libraries(msd libfreud)
+
 # The SolidLiquid class has an instance of cluster::Cluster as a member, so
 # including the header requires the Cluster.h header. Would prefer to inherit
 # this information from the _order library, but that's not possible since we're
