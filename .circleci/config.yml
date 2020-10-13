@@ -287,7 +287,7 @@ jobs:
   windows-python-37:
     executor:
       name: win/default
-      shell: cmd.exe
+      shell: powershell.exe
     environment:
       PYVER: ""  # Windows CI image doesn't have aliases for python3.7
       TBB_INCLUDE: "C:\\tools\\miniconda3\\Library\\include"
