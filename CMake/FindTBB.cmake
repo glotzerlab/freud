@@ -4,7 +4,7 @@ find_path(TBB_INCLUDE_DIR tbb/tbb.h
 if (DEFINED ENV{LD_LIBRARY_PATH})
     # For Linux.
     string(REPLACE ":" ";" LD_LIBRARY_DIR_LIST $ENV{LD_LIBRARY_PATH})
-elseif (DEFINED ENV{LD_LIBRARY_PATH})
+elseif (DEFINED ENV{DYLD_LIBRARY_PATH})
     # For Mac.
     string(REPLACE ":" ";" LD_LIBRARY_DIR_LIST $ENV{DYLD_LIBRARY_PATH})
 else()
