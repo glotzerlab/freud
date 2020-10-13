@@ -13,7 +13,6 @@
     \brief Defines interface for iterator looping over sets of neighbors.
 */
 
-
 namespace freud { namespace locality {
 
 //! Parent class for all per-point neighbor finding iteration.
