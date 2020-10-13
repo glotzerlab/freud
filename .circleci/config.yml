@@ -101,7 +101,6 @@ references:
       name: Build with MSVC
       # Load MSVC environment variables before building
       command: |
-        "%VCVARSALL%" x64
         python --version
         python setup.py build_ext --inplace -- -DCOVERAGE=ON
       shell: cmd.exe
