@@ -59,7 +59,7 @@ references:
         conda config --set always_yes yes --set changeps1 no
         conda config --add channels conda-forge
         conda update -q conda certifi
-        conda install python pip tbb tbb-devel
+        conda install python pip tbb tbb-devel ninja
         # Install from PyPI instead of conda-forge for consistency with Linux.
         # For some reason, the SSL certificates used by pip aren't correct, even with certifi.
         curl -O https://curl.haxx.se/ca/cacert.pem
@@ -179,9 +179,9 @@ references:
   build_and_test_windows: &build_and_test_windows
     steps:
       - *load_code
-      - *build_windows
       - *update_submodules
       - *get_conda_requirements
+      - *build_windows
       - *test_cov
       - *store
 
