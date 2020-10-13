@@ -64,11 +64,16 @@ foreach(cython_module ${cython_modules_with_cpp} ${cython_modules_without_cpp})
         PRIVATE "NPY_NO_DEPRECATED_API=NPY_1_10_API_VERSION"
         # Default voro++ verbosity is high.
         PRIVATE "VOROPP_VERBOSE=1"
-        # Export API - required for static data members to have external
-        # linkage with MSVC. This is in addition to
-        # CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS.
-        PRIVATE "LIBFREUD_EXPORTS"
         )
+    if (WIN32)
+        target_compile_definitions(
+            ${cython_module}
+            # Export API - required for static data members to have external
+            # linkage with MSVC. This is in addition to
+            # CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS.
+            PRIVATE "LIBFREUD_EXPORTS"
+            )
+    endif()
     if (COVERAGE)
         target_compile_definitions(
             ${cython_module}

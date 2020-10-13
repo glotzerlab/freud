@@ -19,7 +19,7 @@ add_library(
     $<TARGET_OBJECTS:_pmft>
     $<TARGET_OBJECTS:_util>)
 
-if(WIN32)
+if (WIN32)
     target_compile_definitions(
         libfreud
         # Export API - required for static data members to have external
