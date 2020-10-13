@@ -27,8 +27,7 @@ if [ -z $1 ]; then
 fi
 
 export MACOSX_DEPLOYMENT_TARGET=10.12
-# Get pyenv
-HOMEBREW_NO_AUTOUPDATE=1 brew install pyenv
+brew install pyenv
 eval "$(pyenv init -)"
 # Check supported versions with pyenv install --list
 PY_VERSIONS=(3.6.9 3.7.4 3.8.1)
