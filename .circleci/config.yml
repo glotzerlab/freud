@@ -63,7 +63,7 @@ references:
         # Install from PyPI instead of conda-forge for consistency with Linux.
         # For some reason, the SSL certificates used by pip aren't correct, even with certifi.
         curl -O https://curl.haxx.se/ca/cacert.pem
-        python${PYVER} -m pip install --cert cacert.pem --progress-bar off -U -r requirements-testing.txt
+        python -m pip install --cert cacert.pem --progress-bar off -U -r requirements-testing.txt
 
   get_style_requirements: &get_style_requirements
     run:
@@ -103,7 +103,6 @@ references:
       command: |
         python --version
         python setup.py build_ext --inplace -- -DCOVERAGE=ON
-      shell: cmd.exe
 
   test: &test
     run:
@@ -282,12 +281,12 @@ jobs:
   windows-python-37:
     executor:
       name: win/default
-      shell: bash.exe
+      shell: cmd.exe
     environment:
       PYVER: ""  # Windows CI image doesn't have aliases for python3.7
       TBB_INCLUDE: "C:\\tools\\miniconda3\\Library\\include"
       TBB_LINK: "C:\\tools\\miniconda3\\Library\\lib"
-      VCVARSALL: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Auxiliary/Build/vcvarsall.bat"
+      VCVARSALL: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\Build\\vcvarsall.bat"
     <<: *build_and_test_windows
 
   test-deploy-pypi-linux:
