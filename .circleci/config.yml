@@ -88,13 +88,6 @@ references:
       command: |
         python${PYVER} -m flake8 --show-source .
 
-  prepare_msvc: &prepare_msvc
-    run:
-      name: Prepare MSVC
-      command: |
-        %comspec% /k "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" x64
-      shell: cmd.exe
-
   build: &build
     run:
       name: Build
@@ -102,6 +95,16 @@ references:
         python${PYVER} --version
         # Max 4 threads to not overtax CI.
         python${PYVER} setup.py build_ext --inplace -- -DCOVERAGE=ON -- -j 4 -v
+
+  build_windows: &build_windows
+    run:
+      name: Build with MSVC
+      # Load MSVC environment variables before building
+      command: |
+        %comspec% /k "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" x64
+        python${PYVER} --version
+        python${PYVER} setup.py build_ext --inplace -- -DCOVERAGE=ON
+      shell: cmd.exe
 
   test: &test
     run:
@@ -181,8 +184,7 @@ references:
       - *load_code
       - *update_submodules
       - *get_conda_requirements
-      - *prepare_msvc
-      - *build
+      - *build_windows
       - *test_cov
       - *store
 
