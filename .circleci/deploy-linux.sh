@@ -41,7 +41,7 @@ PYBINS="/opt/python/cp3[6-8]*/bin"
 for PYBIN in $PYBINS; do
   echo "Building for $(${PYBIN}/python --version)"
 
-  "${PYBIN}/python" -m pip install cython --no-deps --ignore-installed -q --progress-bar=off
+  "${PYBIN}/python" -m pip install cython scikit-build cmake --no-deps --ignore-installed -q --progress-bar=off
   rm -rf numpy-1.14.6
   curl -sSLO https://github.com/numpy/numpy/archive/v1.14.6.tar.gz
   tar -xzf v1.14.6.tar.gz
