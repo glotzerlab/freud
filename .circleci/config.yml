@@ -11,7 +11,7 @@ references:
 
   container_macos: &container_macos
     macos:
-      xcode: "10.3.0"
+      xcode: "12.0.0"
     working_directory: ~/ci/freud
 
   load_code: &load_code
