@@ -28,7 +28,7 @@ find_package(TBB REQUIRED)
 # Fail fast if users have not cloned submodules.
 if(NOT WIN32)
   string(ASCII 27 Esc)
-  set(Red          "${Esc}[31m")
+  set(Red "${Esc}[31m")
   set(DefaultColor "${Esc}[m")
 endif()
 set(submodules
