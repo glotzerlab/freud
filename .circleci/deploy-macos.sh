@@ -33,6 +33,8 @@ echo "Running doctor"
 brew doctor
 echo "Cellar contents: "
 ls /usr/local/Cellar/ | grep python
+echo "Cellar python contents: "
+ls /usr/local/Cellar/python@3.8 | grep python
 echo "Installing pyenv"
 brew install pyenv
 eval "$(pyenv init -)"
