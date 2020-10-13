@@ -65,7 +65,7 @@ references:
         # Invoke-RestMethod -Uri https://curl.haxx.se/ca/cacert.pem -Method Get | Out-File cacert.pem
         python -m pip install --progress-bar off -U -r requirements-testing.txt
         # Update cmake to support Visual Studio 2019 generator
-        python -m pip install -U cmake==3.14.4post1
+        python -m pip install -U scikit-build==0.10.0 cmake==3.14.4post1
 
   get_style_requirements: &get_style_requirements
     run:
