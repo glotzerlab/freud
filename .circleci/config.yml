@@ -106,8 +106,7 @@ references:
     run:
       name: Run unit tests with coverage
       command: |
-          export PATH=~/.local/bin:${PATH}
-          coverage run -m unittest discover tests -v
+          python${PYVER} -m coverage run -m unittest discover tests -v
           bash <(curl -s https://codecov.io/bash)
 
   store: &store
@@ -119,7 +118,6 @@ references:
     run:
       name: Run benchmarks
       command: |
-          python${PYVER} -m pip install --user -r requirements-testing.txt
           echo 'export PYTHONPATH=$PYTHONPATH:.' >> $BASH_ENV
           echo 'export BENCHMARK_NPROC=2' >> $BASH_ENV
           source $BASH_ENV
@@ -137,7 +135,6 @@ references:
           echo 'export PYTHONPATH=$PYTHONPATH:.' >> $BASH_ENV
           echo 'export BENCHMARK_NPROC=2' >> $BASH_ENV
           source $BASH_ENV
-          rm freud/*.cpp
           # Max 4 threads to not overtax CI.
           python${PYVER} setup.py build_ext --inplace -- -DCOVERAGE=ON -- -j 4
           git checkout "${CIRCLE_SHA1}" -- benchmarks/
