@@ -21,7 +21,7 @@ add_library(
 
 target_link_libraries(
     libfreud
-    PUBLIC TBB
+    PUBLIC TBB::tbb
     )
 
 target_include_directories(
