@@ -27,19 +27,16 @@ if [ -z $1 ]; then
 fi
 
 export MACOSX_DEPLOYMENT_TARGET=10.12
-echo "Running cleanup"
-brew cleanup
-echo "Running doctor"
-brew doctor
-echo "Cellar contents: "
-ls /usr/local/Cellar/ | grep python
-echo "Cellar python contents: "
-ls /usr/local/Cellar/python@3.8 | grep python
-echo "Installing pyenv"
+# When homebrew installs pyenv it tries to update the Python patch versions to
+# the latest. Those updates automatically delete the older versions (e.g.
+# 3.6.1->3.6.2 leads to the 3.6.1 folder being deleted), but then homebrew
+# tries to delete them again and causes errors. To avoid this issue, we update
+# manually here.
+brew upgrade python@3.6 python@3.7 python@3.8
 brew install pyenv
 eval "$(pyenv init -)"
 # Check supported versions with pyenv install --list
-PY_VERSIONS=(3.6.9 3.7.4 3.8.1)
+PY_VERSIONS=(3.6.12 3.7.9 3.8.6)
 
 # Build TBB
 git clone https://github.com/intel/tbb.git
