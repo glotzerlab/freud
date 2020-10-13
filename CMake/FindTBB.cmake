@@ -1,7 +1,9 @@
-find_path(TBB_INCLUDE_DIR tbb/tbb.h)
+find_path(TBB_INCLUDE_DIR tbb/tbb.h
+          HINTS $ENV{TBBROOT}/include )
 
+string(REPLACE ":" ";" LD_LIBRARY_DIR_LIST $ENV{LD_LIBRARY_PATH})
 find_library(TBB_LIBRARY tbb
-             HINTS ${TBB_INCLUDE_DIR}/../lib )
+             HINTS ${TBB_INCLUDE_DIR}/../lib ${LD_LIBRARY_DIR_LIST} )
 
 if(TBB_INCLUDE_DIR AND EXISTS "${TBB_INCLUDE_DIR}/tbb/tbb_stddef.h")
     file(STRINGS "${TBB_INCLUDE_DIR}/tbb/tbb_stddef.h" TBB_H REGEX "^#define TBB_VERSION_.*$")
