@@ -80,7 +80,8 @@ for VERSION in ${PY_VERSIONS[@]}; do
   pyenv global ${VERSION}
 
   pip install freud_analysis --no-deps --no-index -f ~/ci/freud/wheelhouse
-  pip install -U -r ~/ci/freud/requirements-testing.txt
+  # Don't install MDAnalysis and skip the relevant tests.
+  cat ~/ci/freud/requirements-testing.txt | grep -v MDAnalysis | xargs -n 1 pip install -U
   cd ~/ci/freud/tests
   python -m unittest discover . -v
 done
