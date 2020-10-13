@@ -88,6 +88,13 @@ references:
       command: |
         python${PYVER} -m flake8 --show-source .
 
+  prepare_msvc: &prepare_msvc
+    run:
+      name: Prepare MSVC
+      command: |
+        %comspec% /k "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" x64
+      shell: cmd.exe
+
   build: &build
     run:
       name: Build
@@ -174,6 +181,7 @@ references:
       - *load_code
       - *update_submodules
       - *get_conda_requirements
+      - *prepare_msvc
       - *build
       - *test_cov
       - *store
