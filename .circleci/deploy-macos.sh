@@ -27,6 +27,13 @@ if [ -z $1 ]; then
 fi
 
 export MACOSX_DEPLOYMENT_TARGET=10.12
+echo "Running cleanup"
+brew cleanup
+echo "Running doctor"
+brew doctor
+echo "Cellar contents: "
+ls /usr/local/Cellar/ | grep python
+echo "Installing pyenv"
 brew install pyenv
 eval "$(pyenv init -)"
 # Check supported versions with pyenv install --list
