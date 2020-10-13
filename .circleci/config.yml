@@ -180,9 +180,9 @@ references:
   build_and_test_windows: &build_and_test_windows
     steps:
       - *load_code
+      - *build_windows
       - *update_submodules
       - *get_conda_requirements
-      - *build_windows
       - *test_cov
       - *store
 
@@ -326,19 +326,19 @@ workflows:
   version: 2
   test:
     jobs:
-      - check-style
-      - linux-python-38:
-          requires:
-            - check-style
-      - linux-python-37:
-          requires:
-            - check-style
-      - linux-python-36:
-          requires:
-            - check-style
-      - windows-python-37:
-          requires:
-            - check-style
+      #- check-style
+      #- linux-python-38:
+      #    requires:
+      #      - check-style
+      #- linux-python-37:
+      #    requires:
+      #      - check-style
+      #- linux-python-36:
+      #    requires:
+      #      - check-style
+      - windows-python-37
+      #    requires:
+      #      - check-style
 # Disabled benchmarks on CI - they currently take too much work
 #     - benchmarks:
 #         requires:
