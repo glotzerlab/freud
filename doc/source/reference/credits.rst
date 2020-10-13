@@ -108,6 +108,7 @@ Bradley Dice - **Lead developer**
 * Prevented GaussianDensity from computing 3D systems after it has computed 2D systems.
 * Contributed code, design, and testing for ``DiffractionPattern`` class.
 * Fixed ``Hexatic`` order parameter (unweighted) to normalize by number of neighbors instead of the symmetry order k.
+* Added ``num_query_points`` and ``num_points`` attributes to NeighborList class.
 
 Eric Harper, University of Michigan - **Former lead developer**
 
