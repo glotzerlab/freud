@@ -107,6 +107,7 @@ Bradley Dice - **Lead developer**
 * Fixed GaussianDensity normalization in 2D systems.
 * Prevented GaussianDensity from computing 3D systems after it has computed 2D systems.
 * Contributed code, design, and testing for ``DiffractionPattern`` class.
+* Added ``num_query_points`` and ``num_points`` attributes to NeighborList class.
 
 Eric Harper, University of Michigan - **Former lead developer**
 
