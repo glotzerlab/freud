@@ -326,53 +326,53 @@ workflows:
   version: 2
   test:
     jobs:
-      #- check-style
-      #- linux-python-38:
-      #    requires:
-      #      - check-style
-      #- linux-python-37:
-      #    requires:
-      #      - check-style
-      #- linux-python-36:
-      #    requires:
-      #      - check-style
-      - windows-python-37
-      #    requires:
-      #      - check-style
+      - check-style
+      - linux-python-38:
+          requires:
+            - check-style
+      - linux-python-37:
+          requires:
+            - check-style
+      - linux-python-36:
+          requires:
+            - check-style
+      - windows-python-37:
+          requires:
+            - check-style
 # Disabled benchmarks on CI - they currently take too much work
 #     - benchmarks:
 #         requires:
 #           - linux-python-38
-      #- test-deploy-pypi-macos:
-      #    filters:
-      #      branches:
-      #        only: /release\/.*/
-      #    requires:
-      #      - linux-python-38
-      #      - linux-python-37
-      #      - linux-python-36
-      #      - windows-python-37
-      #- test-deploy-pypi-linux:
-      #    filters:
-      #      branches:
-      #        only: /release\/.*/
-      #    requires:
-      #      - linux-python-38
-      #      - linux-python-37
-      #      - linux-python-36
-      #      - windows-python-37
+      - test-deploy-pypi-macos:
+          filters:
+            branches:
+              only: /release\/.*/
+          requires:
+            - linux-python-38
+            - linux-python-37
+            - linux-python-36
+            - windows-python-37
+      - test-deploy-pypi-linux:
+          filters:
+            branches:
+              only: /release\/.*/
+          requires:
+            - linux-python-38
+            - linux-python-37
+            - linux-python-36
+            - windows-python-37
 
-  #deploy:
-  #  jobs:
-  #    - deploy-pypi-macos:
-  #        filters:
-  #            tags:
-  #              only: /^v.*/
-  #            branches:
-  #              ignore: /.*/
-  #    - deploy-pypi-linux:
-  #        filters:
-  #            tags:
-  #              only: /^v.*/
-  #            branches:
-  #              ignore: /.*/
+  deploy:
+    jobs:
+      - deploy-pypi-macos:
+          filters:
+              tags:
+                only: /^v.*/
+              branches:
+                ignore: /.*/
+      - deploy-pypi-linux:
+          filters:
+              tags:
+                only: /^v.*/
+              branches:
+                ignore: /.*/
