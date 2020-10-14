@@ -13,6 +13,9 @@ and this project adheres to
 ### Changed
 * NeighborList raises a `ValueError` instead of a `RuntimeError` if provided invalid constructor arguments.
 
+### Deprecated
+* `freud.order.Translational`
+
 ### Fixed
 * Source distributions now include Cython source files.
 * Hexatic order parameter (unweighted) normalizes by number of neighbors instead of the symmetry order k.
