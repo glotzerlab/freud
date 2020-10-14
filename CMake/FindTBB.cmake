@@ -1,6 +1,7 @@
 find_path(TBB_INCLUDE_DIR tbb/tbb.h
           HINTS $ENV{TBBROOT}/include )
 
+# Check OS-specific env variables for libraries.
 if (DEFINED ENV{LD_LIBRARY_PATH})
     # For Linux.
     string(REPLACE ":" ";" LD_LIBRARY_DIR_LIST $ENV{LD_LIBRARY_PATH})

@@ -73,9 +73,10 @@ foreach(cython_module ${cython_modules_with_cpp} ${cython_modules_without_cpp})
             )
     endif()
 
+    target_link_libraries(${cython_module} libfreud)
+
     # Separate logic required for targets with C++ code.
     if ("${cython_module}" IN_LIST cython_modules_with_cpp)
-        target_link_libraries(${cython_module} libfreud)
 
         target_include_directories(
             ${cython_module}
@@ -96,9 +97,6 @@ foreach(cython_module ${cython_modules_with_cpp} ${cython_modules_without_cpp})
         set_target_properties(${cython_module} PROPERTIES INSTALL_RPATH "$ORIGIN")
     endif()
 endforeach(cython_module)
-
-# Interface is pure Python but relies on the C++ locality classes.
-target_link_libraries(interface libfreud)
 
 # The SolidLiquid class has an instance of cluster::Cluster as a member, so
 # including the header requires the Cluster.h header. Would prefer to inherit
