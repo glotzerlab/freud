@@ -18,6 +18,10 @@ endif()
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+# This setting is required when building shared libraries from object
+# libraries.
+# https://stackoverflow.com/questions/50600708/combining-cmake-object-libraries-with-shared-libraries
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/CMake")
 find_package(TBB REQUIRED)
