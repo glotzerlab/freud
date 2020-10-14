@@ -46,7 +46,7 @@ endforeach(submodule)
 
 # Define preprocessor directives for Windows
 if (WIN32)
-    # Export all symbols (forces creation of .lib file)
+    # Export all symbols (forces creation of .def file)
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
     # Use add_compile_definitions when dropping support for CMake < 3.12
     # Force Windows to define M_PI in <cmath>
