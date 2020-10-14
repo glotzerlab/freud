@@ -1,7 +1,7 @@
 import os
 from skbuild import setup
 
-version = '2.3.0.dev1'
+version = '2.3.0'
 
 # Read README for PyPI, fallback to short description if it fails.
 desc = 'Powerful, efficient trajectory analysis in scientific Python.'

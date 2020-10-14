@@ -324,17 +324,17 @@ workflows:
       - linux-python-36:
           requires:
             - check-style
-      #- windows-python-37:
-      #    requires:
-      #      - check-style
+      - windows-python-37:
+          requires:
+            - check-style
 # Disabled benchmarks on CI - they currently take too much work
 #     - benchmarks:
 #         requires:
 #           - linux-python-38
       - test-deploy-pypi-macos:
-          #filters:
-          #  branches:
-          #    only: /release\/.*/
+          filters:
+            branches:
+              only: /release\/.*/
           requires:
             - check-style
             - linux-python-38
@@ -342,9 +342,9 @@ workflows:
             - linux-python-36
             #- windows-python-37
       - test-deploy-pypi-linux:
-          #filters:
-          #  branches:
-          #    only: /release\/.*/
+          filters:
+            branches:
+              only: /release\/.*/
           requires:
             - check-style
             - linux-python-38
