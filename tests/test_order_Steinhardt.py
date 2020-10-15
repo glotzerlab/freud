@@ -26,6 +26,7 @@ class TestSteinhardt(unittest.TestCase):
 
     def test_l_zero(self):
         # Points should always have Q_0 = 1.
+        from scipy.special import sph_harm
         N = 1000
         L = 10
 
@@ -35,6 +36,13 @@ class TestSteinhardt(unittest.TestCase):
         comp.compute((box, positions), neighbors={'r_max': 1.5})
 
         npt.assert_allclose(comp.particle_order, 1, atol=1e-5)
+        assert np.all(np.logical_or(
+            np.isclose(comp.particle_harmonics, 0),
+            # The values used for phi and theta (the third and fourth arguments) are
+            # irrelevant because when l=m=0 the spherical harmonic is no longer a
+            # function of the angles.
+            np.isclose(comp.particle_harmonics, sph_harm(0, 0, 0, 0))
+        ))
 
     def test_l_axis_aligned(self):
         # This test has three points along the z-axis. By construction, the
