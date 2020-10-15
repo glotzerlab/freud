@@ -11,6 +11,7 @@ and this project adheres to
 * NeighborList class exposes `num_points` and `num_query_points` attributes.
 * `compute` method of `GaussianDensity` class has a `values` argument.
 * Support for pre-commit hooks.
+* The Steinhardt and SolidLiquid classes expose the raw qlmi arrays.
 
 ### Changed
 * NeighborList raises a `ValueError` instead of a `RuntimeError` if provided invalid constructor arguments.
