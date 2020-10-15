@@ -78,7 +78,7 @@ public:
 };
 
 //! Compute the translational order parameter for a set of points
-/*!
+/*! THIS CLASS IS DEPRECATED AND WILL BE REMOVED IN THE NEXT MAJOR RELEASE OF FREUD.
  */
 class Translational : public HexaticTranslational<float>
 {
