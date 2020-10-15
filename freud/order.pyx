@@ -414,7 +414,7 @@ cdef class Translational(_PairCompute):
         systems. The points must be passed in as :code:`[x, y, 0]`.
 
     .. note::
-        This class is slated for deprecation and will be removed in freud 3.0
+        This class is slated for deprecation and will be removed in freud 3.0.
 
     Args:
         k (float, optional):
