@@ -75,6 +75,7 @@ cdef extern from "Steinhardt.h" namespace "freud::order":
                      const freud._locality.NeighborQuery*,
                      freud._locality.QueryArgs) except +
         const freud.util.ManagedArray[float] &getQl() const
+        const freud.util.ManagedArray[float] &getQlm() const
         const freud.util.ManagedArray[float] &getParticleOrder() const
         float getOrder() const
         bool isAverage() const

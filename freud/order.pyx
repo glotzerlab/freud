@@ -605,6 +605,14 @@ cdef class Steinhardt(_PairCompute):
             &self.thisptr.getQl(),
             freud.util.arr_type_t.FLOAT)
 
+    @_Compute._computed_property
+    def particle_harmonics(self):
+        """:math:`\\left(N_{particles}, 2*l+1\\right)` :class:`numpy.ndarray`:
+        The raw array of \overline{q}_{lm}(i)."""
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getParticleOrder(),
+            freud.util.arr_type_t.FLOAT)
+
     def compute(self, system, neighbors=None):
         R"""Compute the order parameter.
 
