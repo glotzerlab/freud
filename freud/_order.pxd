@@ -101,6 +101,7 @@ cdef extern from "SolidLiquid.h" namespace "freud::order":
         const freud.util.ManagedArray[unsigned int] &getNumberOfConnections() \
             const
         unsigned int getNumClusters() const
+        const freud.util.ManagedArray[float] &getQlm() const
         freud._locality.NeighborList * getNList()
         const freud.util.ManagedArray[float] &getQlij() const
 
