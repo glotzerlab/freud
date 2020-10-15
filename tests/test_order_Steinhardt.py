@@ -38,9 +38,9 @@ class TestSteinhardt(unittest.TestCase):
         npt.assert_allclose(comp.particle_order, 1, atol=1e-5)
         assert np.all(np.logical_or(
             np.isclose(comp.particle_harmonics, 0),
-            # The values used for phi and theta (the third and fourth arguments) are
-            # irrelevant because when l=m=0 the spherical harmonic is no longer a
-            # function of the angles.
+            # The values used for phi and theta (the third and fourth arguments)
+            # are irrelevant because when l=m=0 the spherical harmonic is no
+            # longer a function of the angles.
             np.isclose(comp.particle_harmonics, sph_harm(0, 0, 0, 0))
         ))
 
