@@ -531,6 +531,16 @@ cdef class Steinhardt(_PairCompute):
     :math:`q_{lm}` values over all particles before computing the order
     parameter of choice.
 
+    .. note::
+        The value of per-particle order parameter will be set to NaN for
+        particles with no neighbors. We choose this value rather than setting
+        the order parameter to 0 because in more complex order parameter
+        calculations (such as when computing the :math:`w_l`), it is possible
+        to observe a value of 0 for the per-particle order parameter even with
+        a finite number of neighbors. If you would like to ignore this
+        distinction, you can mask the output order parameter values using
+        NumPy: :code:`particle_order[numpy.isnan[particle_order]] = 0`.
+
     Args:
         l (unsigned int):
             Spherical harmonic quantum number l.
