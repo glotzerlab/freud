@@ -624,7 +624,7 @@ cdef class Steinhardt(_PairCompute):
     @_Compute._computed_property
     def particle_harmonics(self):
         """:math:`\\left(N_{particles}, 2*l+1\\right)` :class:`numpy.ndarray`:
-        The raw array of \overline{q}_{lm}(i)."""
+        The raw array of \\overline{q}_{lm}(i)."""
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getQlm(),
             freud.util.arr_type_t.FLOAT)
@@ -822,7 +822,7 @@ cdef class SolidLiquid(_PairCompute):
     @_Compute._computed_property
     def particle_harmonics(self):
         """:math:`\\left(N_{particles}, 2*l+1\\right)` :class:`numpy.ndarray`:
-        The raw array of \overline{q}_{lm}(i)."""
+        The raw array of \\overline{q}_{lm}(i)."""
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getQlm(),
             freud.util.arr_type_t.FLOAT)
