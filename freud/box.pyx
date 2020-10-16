@@ -281,7 +281,7 @@ cdef class Box:
         :math:`(xz*L_z, yz*L_z, L_z)`."""
         return self.get_box_vector(2)
 
-    def wrap(self, vecs):
+    def wrap(self, vecs, inplace=False):
         R"""Wrap an array of vectors into the box, using periodic boundaries.
 
         .. note:: Since the origin of the box is in the center, wrapping is
@@ -291,6 +291,7 @@ cdef class Box:
         Args:
             vecs (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Unwrapped vector(s).
+            inplace
 
         Returns:
             :math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
@@ -301,9 +302,13 @@ cdef class Box:
         vecs = np.atleast_2d(vecs)
         vecs = freud.util._convert_array(vecs, shape=(None, 3)).copy()
 
-        cdef const float[:, ::1] l_points = vecs
-        cdef unsigned int Np = l_points.shape[0]
-        self.thisptr.wrap(<vec3[float]*> &l_points[0, 0], Np)
+        if inplace is False:
+            cdef const float[:, ::1] l_points = vecs
+            cdef unsigned int Np = l_points.shape[0]
+            self.thisptr.wrap(<vec3[float]*> &l_points[0, 0], Np)
+        else:
+            cdef unsigned int Np = vecs.shape[0]
+            self.thisptr.wrap(<vec3[float]*> &vecs[0, 0], Np)
 
         return np.squeeze(vecs) if flatten else vecs
 
