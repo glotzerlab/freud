@@ -62,5 +62,8 @@ include_directories(
 	${TBB_INCLUDE_DIR}
     )
 
+# Ignore unused variable warning from scikit-build
+set(ignoreMe "${SKBUILD}")
+
 add_subdirectory(cpp)
 add_subdirectory(freud)
