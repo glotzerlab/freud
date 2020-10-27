@@ -32,7 +32,7 @@ vec3<unsigned int> GaussianDensity::getWidth()
 }
 
 //! Compute the density array.
-void GaussianDensity::compute(const freud::locality::NeighborQuery* nq)
+void GaussianDensity::compute(const freud::locality::NeighborQuery* nq, const T* values)
 {
     // set the number of dimensions for the calculation the first time it is done
     if (!m_has_computed || nq->getBox().is2D() == m_box.is2D())
