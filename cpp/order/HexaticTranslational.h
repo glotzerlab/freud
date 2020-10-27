@@ -51,7 +51,8 @@ protected:
     //! Compute the order parameter
     template<typename Func>
     void computeGeneral(Func func, const freud::locality::NeighborList* nlist,
-                        const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
+                        const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs,
+                        bool normalize_by_k);
 
     const T m_k; //!< The symmetry order for Hexatic, or normalization for Translational
     const bool
@@ -77,7 +78,7 @@ public:
 };
 
 //! Compute the translational order parameter for a set of points
-/*!
+/*! THIS CLASS IS DEPRECATED AND WILL BE REMOVED IN THE NEXT MAJOR RELEASE OF FREUD.
  */
 class Translational : public HexaticTranslational<float>
 {
