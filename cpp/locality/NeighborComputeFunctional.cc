@@ -38,20 +38,4 @@ NeighborList makeDefaultNlist(const NeighborQuery* nq, const NeighborList* nlist
     return new_nlist;
 }
 
-NeighborBond NeighborListPerPointIterator::next()
-{
-    if (m_current_index == m_nlist->getNumBonds())
-    {
-        m_finished = true;
-        return ITERATOR_TERMINATOR;
-    }
-
-    NeighborBond nb = NeighborBond(
-        m_nlist->getNeighbors()(m_current_index, 0), m_nlist->getNeighbors()(m_current_index, 1),
-        m_nlist->getDistances()[m_current_index], m_nlist->getWeights()[m_current_index]);
-    ++m_current_index;
-    m_returned_point_index = nb.query_point_idx;
-    return nb;
-}
-
 }; }; // end namespace freud::locality

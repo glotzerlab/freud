@@ -1,17 +1,11 @@
 #ifndef NEIGHBOR_PER_POINT_ITERATOR_H
 #define NEIGHBOR_PER_POINT_ITERATOR_H
 
-#include "NeighborBond.h"
-
-#ifdef LIBFREUD_EXPORTS
-#define DECLSPEC __declspec(dllexport)
-#else
-#define DECLSPEC
-#endif
-
 /*! \file NeighborPerPointIterator.h
     \brief Defines interface for iterator looping over sets of neighbors.
 */
+
+#include "NeighborBond.h"
 
 namespace freud { namespace locality {
 
@@ -39,17 +33,17 @@ namespace freud { namespace locality {
  *  after the last neighbor is found in order to guarantee that the correct set
  *  of neighbors is considered.
  */
-class DECLSPEC NeighborPerPointIterator
+class NeighborPerPointIterator
 {
 public:
     //! Nullary constructor for Cython
-    NeighborPerPointIterator();
+    NeighborPerPointIterator() {}
 
     //! Constructor
-    NeighborPerPointIterator(unsigned int query_point_idx);
+    NeighborPerPointIterator(unsigned int query_point_idx) : m_query_point_idx(query_point_idx) {}
 
     //! Empty Destructor
-    virtual ~NeighborPerPointIterator();
+    virtual ~NeighborPerPointIterator() {}
 
     //! Indicate when done.
     virtual bool end() = 0;

@@ -1,3 +1,11 @@
+if (WIN32)
+    # Use add_compile_definitions when dropping support for CMake < 3.12
+    # Force Windows to define M_PI in <cmath>
+    add_compile_options(/D_USE_MATH_DEFINES)
+    # Prevent Windows from defining min/max as macros
+    add_compile_options(/DNOMINMAX)
+endif()
+
 add_subdirectory(cluster)
 add_subdirectory(density)
 add_subdirectory(environment)
@@ -18,16 +26,6 @@ add_library(
     $<TARGET_OBJECTS:_parallel>
     $<TARGET_OBJECTS:_pmft>
     $<TARGET_OBJECTS:_util>)
-
-if (WIN32)
-    target_compile_definitions(
-        libfreud
-        # Export API - required for static data members to have external
-        # linkage with MSVC. This is in addition to
-        # CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS.
-        PRIVATE "LIBFREUD_EXPORTS"
-        )
-endif()
 
 target_link_libraries(
     libfreud
