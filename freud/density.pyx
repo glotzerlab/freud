@@ -237,25 +237,24 @@ cdef class GaussianDensity(_Compute):
                 :class:`freud.locality.NeighborQuery.from_system`.
             values ((:math:`N_{points}`) :class:`numpy.ndarray`):
                 Values associated with the system points used to calculate the
-                convolution. Calculates Gaussian blur if :code:`None`.  (Default value
-                = :code:`None`).
+                convolution. Calculates Gaussian blur if :code:`None`.
+                (Default value = :code:`None`).
         """
-
         cdef freud.locality.NeighborQuery nq = \
             freud.locality.NeighborQuery.from_system(system)
 
         if values is None:
             values = freud.util._convert_array(
-            np.ones(nq.points.shape[0]), shape=(nq.points.shape[0], ), 
-            dtype=np.float32)
+                np.ones(nq.points.shape[0]), shape=(nq.points.shape[0], ),
+                dtype=np.float32)
         else:
             values = freud.util._convert_array(
-            values, shape=(nq.points.shape[0], ), dtype=np.float32)
+                values, shape=(nq.points.shape[0], ), dtype=np.float32)
 
         cdef float[::1] l_values = values
-        
+
         self.thisptr.compute(nq.get_ptr(),
-            <float*> &l_values[0])
+                             <float*> &l_values[0])
         return self
 
     @_Compute._computed_property
