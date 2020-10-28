@@ -246,18 +246,18 @@ cdef class GaussianDensity(_Compute):
         if values == None:
             values = freud.util._convert_array(
             np.ones(nq.points.shape[0]), shape=(nq.points.shape[0], ), 
-            dtype=np.float64)
+            dtype=np.float32)
         else:
             values = freud.util._convert_array(
-            values, shape=(nq.points.shape[0], ), dtype=np.float64)
+            values, shape=(nq.points.shape[0], ), dtype=np.float32)
 
-        cdef np.float64_t[::1] l_values = values
+        cdef float[::1] l_values = values
 
         cdef freud.locality.NeighborQuery nq = \
             freud.locality.NeighborQuery.from_system(system)
         
         self.thisptr.compute(nq.get_ptr(),
-            <np.float64_t*> &l_values[0])
+            <float*> &l_values[0])
         return self
 
     @_Compute._computed_property
