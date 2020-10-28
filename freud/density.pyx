@@ -241,9 +241,10 @@ cdef class GaussianDensity(_Compute):
                 = :code:`None`).
         """
 
-        # Should the parameter be float or complex???
+        cdef freud.locality.NeighborQuery nq = \
+            freud.locality.NeighborQuery.from_system(system)
 
-        if values == None:
+        if values is None:
             values = freud.util._convert_array(
             np.ones(nq.points.shape[0]), shape=(nq.points.shape[0], ), 
             dtype=np.float32)
@@ -252,9 +253,6 @@ cdef class GaussianDensity(_Compute):
             values, shape=(nq.points.shape[0], ), dtype=np.float32)
 
         cdef float[::1] l_values = values
-
-        cdef freud.locality.NeighborQuery nq = \
-            freud.locality.NeighborQuery.from_system(system)
         
         self.thisptr.compute(nq.get_ptr(),
             <float*> &l_values[0])

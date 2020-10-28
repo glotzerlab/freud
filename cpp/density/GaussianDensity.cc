@@ -84,7 +84,7 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq, const fl
         for (size_t idx = begin; idx < end; ++idx)
         {
             const vec3<float> point = (*nq)[idx];
-            const float value = (*values)[idx]
+            const float value = values[idx];
 
             // Find which bin the particle is in
             int bin_x = int((point.x + Lx / 2.0f) / grid_size_x);
