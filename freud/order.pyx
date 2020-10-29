@@ -539,7 +539,7 @@ cdef class Steinhardt(_PairCompute):
         to observe a value of 0 for the per-particle order parameter even with
         a finite number of neighbors. If you would like to ignore this
         distinction, you can mask the output order parameter values using
-        NumPy: :code:`particle_order[numpy.isnan[particle_order]] = 0`.
+        NumPy: :code:`numpy.nan_to_num(particle_order)`.
 
     Args:
         l (unsigned int):
