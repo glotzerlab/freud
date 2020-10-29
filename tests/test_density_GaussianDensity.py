@@ -133,7 +133,7 @@ class TestGaussianDensity(unittest.TestCase):
         gd = freud.density.GaussianDensity(width, r_max, sigma)
         gd.compute(system, values)
         # This has discretization error as well as single-precision error
-        assert np.isclose(np.sum(gd.density), np.mean(values), atol=1e-4)
+        assert np.isclose(np.sum(gd.density), np.sum(values), atol=1e-4)
 
     def test_repr(self):
         gd = freud.density.GaussianDensity(100, 10.0, 0.1)
