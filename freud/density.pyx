@@ -193,8 +193,8 @@ cdef class GaussianDensity(_Compute):
 
     .. math::
 
-        p(r) = \sum_i \frac{1}{2\pi \sigma^2}
-        \exp \left(-\frac{(r-r_i)^2}{2\sigma^2}\right) p_i
+        p(\vec{r}) = \sum_i \frac{1}{2\pi \sigma^2}
+        \exp \left(-\frac{(\vec{r}-\vec{r}_i)^2}{2\sigma^2}\right) p_i
 
     The resulting data is a regular grid of particle densities or
     convolved parameter that can be used in standard algorithms
