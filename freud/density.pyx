@@ -187,8 +187,17 @@ cdef class GaussianDensity(_Compute):
 
     Replaces particle positions with a Gaussian blur and calculates the
     contribution from each to the proscribed grid based upon the distance of
-    the grid cell from the center of the Gaussian. The resulting data is a
-    regular grid of particle densities that can be used in standard algorithms
+    the grid cell from the center of the Gaussian. The weights for the
+    Gaussians could be additionally specified in the compute method. The
+    convolution of the weights with the Gaussians is calculated in this case:
+
+    .. math::
+
+        p(r) = \sum_i \frac{1}{2\pi \sigma^2}
+        \exp \left(-\frac{(r-r_i)^2}{2\sigma^2}\right) p_i
+
+    The resulting data is a regular grid of particle densities or
+    convolved parameter that can be used in standard algorithms
     requiring evenly spaced point, such as Fast Fourier Transforms. The
     dimensions of the grid are set in the constructor, and can either be set
     equally for all dimensions or for each dimension independently.
