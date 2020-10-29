@@ -12,6 +12,7 @@ and this project adheres to
 
 ### Changed
 * NeighborList raises a `ValueError` instead of a `RuntimeError` if provided invalid constructor arguments.
+* freud now builds using scikit-build.
 
 ### Deprecated
 * `freud.order.Translational`

@@ -51,6 +51,7 @@ Vyas Ramasubramani - **Lead developer**
 * Fixed handling of 2D systems from various data sources.
 * Fixed usage of query orientations in PMFTXY, PMFTXYT and PMFTXYZ when points and query points are not identical.
 * Refactored and standardized PMFT tests.
+* Rewrote build system to use scikit-build.
 
 Bradley Dice - **Lead developer**
 
