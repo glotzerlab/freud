@@ -32,7 +32,7 @@ vec3<unsigned int> GaussianDensity::getWidth()
 }
 
 //! Compute the density array.
-void GaussianDensity::compute(const freud::locality::NeighborQuery* nq, const float* values)
+void GaussianDensity::compute(const freud::locality::NeighborQuery* nq, float* values)
 {
     // set the number of dimensions for the calculation the first time it is done
     if (!m_has_computed || nq->getBox().is2D() == m_box.is2D())
@@ -83,8 +83,8 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq, const fl
         // for each reference point
         for (size_t idx = begin; idx < end; ++idx)
         {
-            const vec3<float> point = (*nq)[idx];
-            const float value = values[idx];
+            const vec3<float> point = (*nq)[idx]; 
+            float value = (values != NULL) ? values[idx] : 1.0;
 
             // Find which bin the particle is in
             int bin_x = int((point.x + Lx / 2.0f) / grid_size_x);
