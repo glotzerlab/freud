@@ -237,8 +237,9 @@ cdef class GaussianDensity(_Compute):
                 :class:`freud.locality.NeighborQuery.from_system`.
             values ((:math:`N_{points}`) :class:`numpy.ndarray`):
                 Values associated with the system points used to calculate the
-                convolution. Calculates Gaussian blur if :code:`None`.
-                (Default value = :code:`None`).
+                convolution. Calculates Gaussian blur (equivalent to providing
+                a value of 1 for every point) if :code:`None`. (Default value
+                = :code:`None`).
         """
         cdef freud.locality.NeighborQuery nq = \
             freud.locality.NeighborQuery.from_system(system)
