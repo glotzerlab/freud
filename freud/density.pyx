@@ -257,7 +257,7 @@ cdef class GaussianDensity(_Compute):
         cdef float[::1] l_values
         if values is not None:
             l_values = freud.util._convert_array(
-                values, shape=(nq.points.shape[0], ), dtype=np.float32)
+                values, shape=(nq.points.shape[0], ))
             l_values_ptr = &l_values[0]
 
         self.thisptr.compute(nq.get_ptr(),
