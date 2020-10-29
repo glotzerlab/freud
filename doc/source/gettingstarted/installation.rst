@@ -40,6 +40,12 @@ The following are **required** for installing **freud**:
 - `scikit-build <https://scikit-build.readthedocs.io/>`__ (>=0.10.0)
 - `CMake <https://cmake.org/>`__ (>=3.3.0)
 
+.. note::
+
+    Depending on the generator you are using, you may require a newer version of CMake.
+    In particular, on Windows Visual Studio 2017 requires at least CMake 3.7.1, while Visual Studio 2019 requires CMake 3.14.
+    For more information on specific generators, see the `CMake generator documentation <https://cmake.org/cmake/help/git-stage/manual/cmake-generators.7.html>`__.
+
 The **freud** library uses scikit-build and CMake to handle the build process itself, while the other requirements are required for compiling code in **freud**.
 These requirements can be met by installing the following packages from the `conda-forge channel <https://conda-forge.org/>`__:
 
