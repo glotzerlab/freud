@@ -117,7 +117,7 @@ class TestGaussianDensity(unittest.TestCase):
         gd = freud.density.GaussianDensity(width, r_max, sigma)
         gd.compute(system, values)
         # This has discretization error as well as single-precision error
-        assert np.isclose(np.sum(gd.density), np.mean(values), atol=1e-4)
+        assert np.isclose(np.sum(gd.density), np.sum(values), atol=1e-4)
 
     def test_sum_val_3d(self):
         # Ensure that the Gaussian convolution sums to average of the values
