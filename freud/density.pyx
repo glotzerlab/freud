@@ -246,8 +246,7 @@ cdef class GaussianDensity(_Compute):
 
         if values is None:
             values = freud.util._convert_array(
-                np.ones(nq.points.shape[0]), shape=(nq.points.shape[0], ),
-                dtype=np.float32)
+                np.ones(nq.points.shape[0], dtype=np.float32))
         else:
             values = freud.util._convert_array(
                 values, shape=(nq.points.shape[0], ), dtype=np.float32)
