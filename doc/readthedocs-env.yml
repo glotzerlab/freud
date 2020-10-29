@@ -1,7 +1,7 @@
 name: freud-rtd
 channels:
-  - conda-forge
   - defaults
+  - conda-forge
 dependencies:
   - python
   - pip
