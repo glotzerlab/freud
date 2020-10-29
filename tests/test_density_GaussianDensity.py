@@ -110,12 +110,12 @@ class TestGaussianDensity(unittest.TestCase):
         sigma = 10
         num_points = 1
         box_size = width
-        box, points = freud.data.make_random_system(
+        system = freud.data.make_random_system(
             box_size, num_points, is2D=True)
         values = np.random.rand(num_points)
 
         gd = freud.density.GaussianDensity(width, r_max, sigma)
-        gd.compute(system=(box, points), values)
+        gd.compute(system, values)
         # This has discretization error as well as single-precision error
         assert np.isclose(np.sum(gd.density), np.mean(values), atol=1e-4)
 
@@ -126,12 +126,12 @@ class TestGaussianDensity(unittest.TestCase):
         sigma = 10
         num_points = 1
         box_size = width
-        box, points = freud.data.make_random_system(
+        system = freud.data.make_random_system(
             box_size, num_points, is2D=False)
         values = np.random.rand(num_points)
 
         gd = freud.density.GaussianDensity(width, r_max, sigma)
-        gd.compute(system=(box, points), values)
+        gd.compute(system, values)
         # This has discretization error as well as single-precision error
         assert np.isclose(np.sum(gd.density), np.mean(values), atol=1e-4)
 

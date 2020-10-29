@@ -27,7 +27,7 @@ cdef extern from "GaussianDensity.h" namespace "freud::density":
         const freud._box.Box & getBox() const
         void reset()
         void compute(const freud._locality.NeighborQuery*,
-                     float*) except +
+                     const float*) except +
         const freud.util.ManagedArray[float] &getDensity() const
         vec3[unsigned int] getWidth() const
         float getSigma() const
