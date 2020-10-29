@@ -44,12 +44,26 @@ foreach (submodule ${submodules})
     endif()
 endforeach(submodule)
 
+# Define preprocessor directives for Windows
+if (WIN32)
+    # Export all symbols (forces creation of .def file)
+    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+    # Use add_compile_definitions when dropping support for CMake < 3.12
+    # Force Windows to define M_PI in <cmath>
+    add_compile_options(/D_USE_MATH_DEFINES)
+    # Prevent Windows from defining min/max as macros
+    add_compile_options(/DNOMINMAX)
+endif()
+
 include_directories(
     ${PROJECT_SOURCE_DIR}/cpp/util
     ${PROJECT_SOURCE_DIR}/cpp/locality
     ${PROJECT_SOURCE_DIR}/cpp/box
 	${TBB_INCLUDE_DIR}
     )
+
+# Ignore unused variable warning from scikit-build
+set(ignoreMe "${SKBUILD}")
 
 add_subdirectory(cpp)
 add_subdirectory(freud)

@@ -18,9 +18,7 @@ add_library(
     NeighborComputeFunctional.h
     NeighborList.cc
     NeighborList.h
-    NeighborPerPointIterator.cc
     NeighborPerPointIterator.h
-    NeighborQuery.cc
     NeighborQuery.h
     PeriodicBuffer.cc
     PeriodicBuffer.h

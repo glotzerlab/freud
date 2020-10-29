@@ -27,10 +27,18 @@ add_library(
     $<TARGET_OBJECTS:_pmft>
     $<TARGET_OBJECTS:_util>)
 
-target_link_libraries(
-    libfreud
-    PUBLIC TBB::tbb
-    )
+# For some reason, the namespaced TBB::tbb fails on Windows.
+if(WIN32)
+    target_link_libraries(
+        libfreud
+        PUBLIC ${TBB_LIBRARY}
+        )
+else()
+    target_link_libraries(
+        libfreud
+        PUBLIC TBB::tbb
+        )
+endif()
 
 target_include_directories(
     libfreud

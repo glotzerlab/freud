@@ -64,6 +64,8 @@ references:
         # For some reason, the SSL certificates used by pip aren't correct, even with certifi.
         curl -O https://curl.haxx.se/ca/cacert.pem
         python${PYVER} -m pip install --cert cacert.pem --progress-bar off -U -r requirements-testing.txt
+        # Install cmake 3.14 to support Visual Studio 2019 generator
+        python${PYVER} -m pip install --cert cacert.pem --progress-bar off -U cmake~=3.14
 
   get_style_requirements: &get_style_requirements
     run:
@@ -95,6 +97,13 @@ references:
         python${PYVER} --version
         # Max 4 threads to not overtax CI.
         python${PYVER} setup.py build_ext --inplace -- -DCOVERAGE=ON -- -j 4 -v
+
+  build_windows: &build_windows
+    run:
+      name: Build with MSVC
+      command: |
+        python${PYVER} --version
+        python${PYVER} setup.py build_ext --inplace -- -G "Visual Studio 16 2019" -DCOVERAGE=ON
 
   test: &test
     run:
@@ -171,7 +180,7 @@ references:
       - *load_code
       - *update_submodules
       - *get_conda_requirements
-      - *build
+      - *build_windows
       - *test_cov
       - *store
 
@@ -340,7 +349,7 @@ workflows:
             - linux-python-38
             - linux-python-37
             - linux-python-36
-            #- windows-python-37
+            - windows-python-37
       - test-deploy-pypi-linux:
           filters:
             branches:
@@ -350,7 +359,7 @@ workflows:
             - linux-python-38
             - linux-python-37
             - linux-python-36
-            #- windows-python-37
+            - windows-python-37
 
   deploy:
     jobs:
