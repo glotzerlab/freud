@@ -31,7 +31,7 @@ add_library(
 if(WIN32)
     target_link_libraries(
         libfreud
-        PUBLIC ${TBB_LIBRARY}
+        PUBLIC TBB::tbb
         )
 else()
     target_link_libraries(
