@@ -27,11 +27,13 @@ add_library(
     $<TARGET_OBJECTS:_pmft>
     $<TARGET_OBJECTS:_util>)
 
-# For some reason, the namespaced TBB::tbb fails on Windows.
-if(WIN32)
+# The namespaced TBB::tbb currently fails on Windows when discovered via
+# FindTBB rather than the config, and it's unclear why. It seems to be
+# related to issues with the namespacing.
+if(WIN32 AND NOT TBB_USING_CONFIG)
     target_link_libraries(
         libfreud
-        PUBLIC TBB::tbb
+        PUBLIC ${TBB_LIBRARY}
         )
 else()
     target_link_libraries(

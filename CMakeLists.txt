@@ -28,11 +28,13 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/CMake")
 include(${CMAKE_CURRENT_LIST_DIR}/CMake/freud-macros.cmake)
 find_package_config_first(TBB)
 
-# The TBB config may not define this variable, which is what we use below to
-# add include directories.
+# The TBB config doesn't define these variable, which we use later.
 if (NOT DEFINED TBB_INCLUDE_DIR OR NOT DEFINED TBB_LIBRARY)
     get_target_property(TBB_INCLUDE_DIR TBB::tbb INTERFACE_INCLUDE_DIRECTORIES)
     get_target_property(TBB_LIBRARY TBB::tbb IMPORTED_LOCATION_RELEASE)
+    set(TBB_USING_CONFIG "TRUE")
+else()
+    set(TBB_USING_CONFIG "FALSE")
 endif()
 
 # Fail fast if users have not cloned submodules.
