@@ -25,7 +25,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/CMake")
-find_package(TBB REQUIRED)
+include(${CMAKE_CURRENT_LIST_DIR}/CMake/freud-macros.cmake)
+find_package_config_first(TBB)
 
 # Fail fast if users have not cloned submodules.
 if(NOT WIN32)
