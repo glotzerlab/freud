@@ -8,7 +8,7 @@ set(CYTHON_FLAGS
     CACHE STRING "The directives for Cython compilation."
     )
 
-if (COVERAGE)
+if(COVERAGE)
     set(CYTHON_FLAGS
         "${CYTHON_FLAGS},linetrace=True"
         CACHE STRING "The directives for Cython compilation." FORCE
@@ -28,7 +28,7 @@ include_directories(${NumPy_INCLUDE_DIRS})
 # For backwards compatibility with older CMake, I'm using PythonInterp; when we
 # drop support for CMake < 3.12, we should switch to find_package(Python).
 find_package(PythonInterp REQUIRED)
-if (${PYTHON_VERSION_MAJOR} EQUAL 3 AND ${PYTHON_VERSION_MINOR} EQUAL 8)
+if(${PYTHON_VERSION_MAJOR} EQUAL 3 AND ${PYTHON_VERSION_MINOR} EQUAL 8)
     add_compile_options("-Wno-deprecated-declarations")
 endif()
 
@@ -65,7 +65,7 @@ foreach(cython_module ${cython_modules_with_cpp} ${cython_modules_without_cpp})
         # Default voro++ verbosity is high.
         PRIVATE "VOROPP_VERBOSE=1"
         )
-    if (COVERAGE)
+    if(COVERAGE)
         target_compile_definitions(
             ${cython_module}
             # Enable line tracing for coverage purposes if requested.
@@ -76,7 +76,7 @@ foreach(cython_module ${cython_modules_with_cpp} ${cython_modules_without_cpp})
     target_link_libraries(${cython_module} libfreud)
 
     # Separate logic required for targets with C++ code.
-    if ("${cython_module}" IN_LIST cython_modules_with_cpp)
+    if("${cython_module}" IN_LIST cython_modules_with_cpp)
 
         target_include_directories(
             ${cython_module}
@@ -87,16 +87,18 @@ foreach(cython_module ${cython_modules_with_cpp} ${cython_modules_without_cpp})
     install(TARGETS ${cython_module} DESTINATION freud)
 
     # Coverage requires the Cython-compiled C++ files for line coverage.
-    if (COVERAGE)
+    if(COVERAGE)
         install(FILES ${${cython_module}} DESTINATION freud)
     endif()
 
-    if (APPLE)
-        set_target_properties(${cython_module} PROPERTIES INSTALL_RPATH "@loader_path")
+    if(APPLE)
+        set_target_properties(
+            ${cython_module} PROPERTIES INSTALL_RPATH "@loader_path")
     else()
-        set_target_properties(${cython_module} PROPERTIES INSTALL_RPATH "$ORIGIN")
+        set_target_properties(
+            ${cython_module} PROPERTIES INSTALL_RPATH "$ORIGIN")
     endif()
-endforeach(cython_module)
+endforeach()
 
 # The SolidLiquid class has an instance of cluster::Cluster as a member, so
 # including the header requires the Cluster.h header. Would prefer to inherit

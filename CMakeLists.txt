@@ -9,7 +9,7 @@ project(freud)
 set(DEFAULT_BUILD_TYPE "Release")
 
 # Set a default build type if none was specified
-if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     message(STATUS "Setting build type to '${DEFAULT_BUILD_TYPE}' since none was specified.")
     set(CMAKE_BUILD_TYPE "${DEFAULT_BUILD_TYPE}" CACHE
         STRING "Choose the type of build." FORCE)
@@ -29,7 +29,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/CMake/freud-macros.cmake)
 find_package_config_first(TBB)
 
 # The TBB config doesn't define these variable, which we use later.
-if (NOT DEFINED TBB_INCLUDE_DIR OR NOT DEFINED TBB_LIBRARY)
+if(NOT DEFINED TBB_INCLUDE_DIR OR NOT DEFINED TBB_LIBRARY)
     get_target_property(TBB_INCLUDE_DIR TBB::tbb INTERFACE_INCLUDE_DIRECTORIES)
     get_target_property(TBB_LIBRARY TBB::tbb IMPORTED_LOCATION_RELEASE)
     set(TBB_USING_CONFIG "TRUE")
@@ -47,15 +47,15 @@ set(submodules
     Eigen
     fsph
     voro++)
-foreach (submodule ${submodules})
-    if( NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/${submodule}/.git" )
-        message( FATAL_ERROR "${Red}Not all git submodules are available. Please run git submodule update --init --recursive.${DefaultColor}"
+foreach(submodule ${submodules})
+    if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/${submodule}/.git")
+        message(FATAL_ERROR "${Red}Not all git submodules are available. Please run git submodule update --init --recursive.${DefaultColor}"
         )
     endif()
-endforeach(submodule)
+endforeach()
 
 # Define preprocessor directives for Windows
-if (WIN32)
+if(WIN32)
     # Export all symbols (forces creation of .def file)
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
     # Use add_compile_definitions when dropping support for CMake < 3.12
@@ -69,7 +69,7 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/cpp/util
     ${PROJECT_SOURCE_DIR}/cpp/locality
     ${PROJECT_SOURCE_DIR}/cpp/box
-	${TBB_INCLUDE_DIR}
+    ${TBB_INCLUDE_DIR}
     )
 
 # Ignore unused variable warning from scikit-build
