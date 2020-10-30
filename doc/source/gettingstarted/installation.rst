@@ -85,7 +85,7 @@ As a result, it will be faster to manually run build_ext and then install (which
 CMake Options
 +++++++++++++
 
-The scikit-built tool allows setup.py to accept three different sets of options separated by ``--``, where each set is provided directly to scikit-build, to CMake, or to the code generator of choice, respectively.
+The scikit-build tool allows setup.py to accept three different sets of options separated by ``--``, where each set is provided directly to scikit-build, to CMake, or to the code generator of choice, respectively.
 For example, the command ``python setup.py build_ext --inplace -- -DCOVERAGE=ON -G Ninja -- -j 4`` tell scikit-build to perform an in-place build, it tells CMake to turn on the ``COVERAGE`` option and use Ninja for compilation, and it tells Ninja to compile with 4 parallel threads.
 For more information on these options, see the `scikit-build docs <scikit-build.readthedocs.io/>`__.
 

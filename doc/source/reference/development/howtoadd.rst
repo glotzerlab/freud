@@ -87,8 +87,8 @@ Adding new methods to an existing module in **freud** requires creating the new 
 If the new methods belong in a new module, you must create the corresponding ``cpp`` directory and the ``pxd`` and ``pyx`` files accordingly.
 
 In order for code to compile, it must be added to the relevant ``CMakeLists.txt`` file.
-New C++ files for existing modules must be added to the corresponding ``cpp/MODULENAME/CmakeLists.txt`` file.
-For new modules, a ``cpp/NEWMODULENAME/CMakeLists.txt`` file must be created, and in addition the new module must be added to the ``cpp/CMakeLists`` file in the form of both an ``add_subdirectory`` command and addition to the ``libfreud`` library in the form of an additional source in the ``add_library`` command.
+New C++ files for existing modules must be added to the corresponding ``cpp/MODULENAME/CMakeLists.txt`` file.
+For new modules, a ``cpp/NEWMODULENAME/CMakeLists.txt`` file must be created, and in addition the new module must be added to the ``cpp/CMakeLists.txt`` file in the form of both an ``add_subdirectory`` command and addition to the ``libfreud`` library in the form of an additional source in the ``add_library`` command.
 Similarly, new Cython modules must be added to the appropriate list in the ``freud/CMakeLists.txt`` file depending on whether or not there is C++ code associated with the module.
 Finally, you will need to import the new module in ``freud/__init__.py`` by adding :code:`from . import MODULENAME` so that your module is usable as ``freud.MODULENAME``.
 
