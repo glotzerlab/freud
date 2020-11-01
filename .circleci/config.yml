@@ -72,6 +72,7 @@ references:
       name: Install pre-commit dependencies
       command: |
         python${PYVER} -m pip install --user -r requirements-precommit.txt
+        export PATH="`python${PYVER} -m site --user-base`/bin":${PATH}
 
   pre-test-checks: &pre-test-checks
     run:
