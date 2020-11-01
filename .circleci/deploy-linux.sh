@@ -41,7 +41,10 @@ PYBINS="/opt/python/cp3[6-8]*/bin"
 for PYBIN in $PYBINS; do
   echo "Building for $(${PYBIN}/python --version)"
 
-  "${PYBIN}/python" -m pip install cython --no-deps --ignore-installed -q --progress-bar=off
+  # Need to export the current bin path so that scikit-build can find the pip
+  # installed cmake binary.
+  export PATH=${PYBIN}:${PATH}
+  "${PYBIN}/python" -m pip install cython scikit-build cmake --ignore-installed -q --progress-bar=off
   rm -rf numpy-1.14.6
   curl -sSLO https://github.com/numpy/numpy/archive/v1.14.6.tar.gz
   tar -xzf v1.14.6.tar.gz

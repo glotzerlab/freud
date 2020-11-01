@@ -11,7 +11,7 @@ references:
 
   container_macos: &container_macos
     macos:
-      xcode: "9.0"
+      xcode: "12.0.0"
     working_directory: ~/ci/freud
 
   load_code: &load_code
@@ -44,6 +44,12 @@ references:
     run:
       name: Install dependencies
       command: |
+        # Since we're testing against a very old skbuild, wheels may not exist
+        # for newer Python versions (currently this is true for Python3.8, will
+        # be true for 3.9 as well). We will need to build the cmake wheels from
+        # a tarball in this case, and cmake depends on scikit-build, so we
+        # install skbuild separately here.
+        python${PYVER} -m pip install --user scikit-build==0.10.0
         python${PYVER} -m pip install --user -r requirements-testing.txt
 
   get_conda_requirements: &get_conda_requirements
@@ -58,6 +64,8 @@ references:
         # For some reason, the SSL certificates used by pip aren't correct, even with certifi.
         curl -O https://curl.haxx.se/ca/cacert.pem
         python${PYVER} -m pip install --cert cacert.pem --progress-bar off -U -r requirements-testing.txt
+        # Install cmake 3.14 to support Visual Studio 2019 generator
+        python${PYVER} -m pip install --cert cacert.pem --progress-bar off -U cmake~=3.14
 
   get_style_requirements: &get_style_requirements
     run:
@@ -87,7 +95,15 @@ references:
       name: Build
       command: |
         python${PYVER} --version
-        python${PYVER} setup.py build_ext --inplace --COVERAGE
+        # Max 4 threads to not overtax CI.
+        python${PYVER} setup.py build_ext --inplace -- -DCOVERAGE=ON -- -j 4 -v
+
+  build_windows: &build_windows
+    run:
+      name: Build with MSVC
+      command: |
+        python${PYVER} --version
+        python${PYVER} setup.py build_ext --inplace -- -G "Visual Studio 16 2019" -DCOVERAGE=ON
 
   test: &test
     run:
@@ -99,8 +115,7 @@ references:
     run:
       name: Run unit tests with coverage
       command: |
-          export PATH=~/.local/bin:${PATH}
-          coverage run -m unittest discover tests -v
+          python${PYVER} -m coverage run -m unittest discover tests -v
           bash <(curl -s https://codecov.io/bash)
 
   store: &store
@@ -112,7 +127,6 @@ references:
     run:
       name: Run benchmarks
       command: |
-          python${PYVER} -m pip install --user -r requirements-testing.txt
           echo 'export PYTHONPATH=$PYTHONPATH:.' >> $BASH_ENV
           echo 'export BENCHMARK_NPROC=2' >> $BASH_ENV
           source $BASH_ENV
@@ -130,8 +144,8 @@ references:
           echo 'export PYTHONPATH=$PYTHONPATH:.' >> $BASH_ENV
           echo 'export BENCHMARK_NPROC=2' >> $BASH_ENV
           source $BASH_ENV
-          rm freud/*.cpp
-          python${PYVER} setup.py build_ext --inplace --COVERAGE --ENABLE-CYTHON
+          # Max 4 threads to not overtax CI.
+          python${PYVER} setup.py build_ext --inplace -- -DCOVERAGE=ON -- -j 4
           git checkout "${CIRCLE_SHA1}" -- benchmarks/
           BENCHSCR="benchmarks/benchmarker.py"
           echo "Running benchmark on origin/master"
@@ -166,7 +180,7 @@ references:
       - *load_code
       - *update_submodules
       - *get_conda_requirements
-      - *build
+      - *build_windows
       - *test_cov
       - *store
 
@@ -331,6 +345,7 @@ workflows:
             branches:
               only: /release\/.*/
           requires:
+            - check-style
             - linux-python-38
             - linux-python-37
             - linux-python-36
@@ -340,6 +355,7 @@ workflows:
             branches:
               only: /release\/.*/
           requires:
+            - check-style
             - linux-python-38
             - linux-python-37
             - linux-python-36

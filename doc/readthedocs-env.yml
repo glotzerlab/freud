@@ -5,6 +5,8 @@ channels:
 dependencies:
   - python
   - pip
+  - scikit-build
+  - cmake
   - cython
   - tbb
   - tbb-devel
