@@ -44,7 +44,7 @@ references:
     run:
       name: Install dependencies
       command: |
-        # Since we're testing against a very old skbuild, wheels may not exist
+        # Since we're testing against a very old cmake, wheels may not exist
         # for newer Python versions (currently this is true for Python3.8, will
         # be true for 3.9 as well). We will need to build the cmake wheels from
         # a tarball in this case, and cmake depends on scikit-build, so we
