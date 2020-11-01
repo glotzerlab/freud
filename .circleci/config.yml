@@ -239,7 +239,7 @@ references:
 jobs:
   check-style:
     docker:
-      - image: glotzerlab/ci:2020.01-py38
+      - image: glotzerlab/ci:2020.10-clang10_py38
     working_directory: ~/ci/freud
     environment:
       PYVER: "3.8"
@@ -247,7 +247,7 @@ jobs:
 
   linux-python-38:
     docker:
-      - image: glotzerlab/ci:2020.01-py38
+      - image: glotzerlab/ci:2020.10-py38
     working_directory: ~/ci/freud
     environment:
       PYVER: "3.8"
@@ -255,7 +255,7 @@ jobs:
 
   linux-python-37:
     docker:
-      - image: glotzerlab/ci:2020.01-py37
+      - image: glotzerlab/ci:2020.10-py37
     working_directory: ~/ci/freud
     environment:
       PYVER: "3.7"
@@ -263,7 +263,7 @@ jobs:
 
   linux-python-36:
     docker:
-      - image: glotzerlab/ci:2020.01-py36
+      - image: glotzerlab/ci:2020.10-py36
     working_directory: ~/ci/freud
     environment:
       PYVER: "3.6"
