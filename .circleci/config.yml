@@ -71,7 +71,7 @@ references:
     run:
       name: Install style check dependencies
       command: |
-        python${PYVER} -m pip install --user flake8==3.8.3
+        python${PYVER} -m pip install --user -r requirements-precommit.txt
 
   #check_cpp_style: &check_cpp_style
   #  run:
@@ -88,7 +88,7 @@ references:
     run:
       name: flake8
       command: |
-        python${PYVER} -m flake8 --show-source .
+        pre-commit run --all-files
 
   build: &build
     run:
