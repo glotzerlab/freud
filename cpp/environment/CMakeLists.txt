@@ -1,19 +1,14 @@
 add_library(
-    _environment
-    OBJECT
-    AngularSeparation.h
-    AngularSeparation.cc
-    BondOrder.h
-    BondOrder.cc
-    LocalBondProjection.h
-    LocalBondProjection.cc
-    LocalDescriptors.h
-    LocalDescriptors.cc
-    MatchEnv.h
-    MatchEnv.cc
-    Registration.h
-    )
-target_include_directories(
-    _environment
-    PUBLIC ${PROJECT_SOURCE_DIR}/extern/
-    )
+  _environment OBJECT
+  AngularSeparation.h
+  AngularSeparation.cc
+  BondOrder.h
+  BondOrder.cc
+  LocalBondProjection.h
+  LocalBondProjection.cc
+  LocalDescriptors.h
+  LocalDescriptors.cc
+  MatchEnv.h
+  MatchEnv.cc
+  Registration.h)
+target_include_directories(_environment PUBLIC ${PROJECT_SOURCE_DIR}/extern/)
