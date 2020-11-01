@@ -67,26 +67,15 @@ references:
         # Install cmake 3.14 to support Visual Studio 2019 generator
         python${PYVER} -m pip install --cert cacert.pem --progress-bar off -U cmake~=3.14
 
-  get_style_requirements: &get_style_requirements
+  get_pre_commit_requirements: &get_pre_commit_requirements
     run:
-      name: Install style check dependencies
+      name: Install pre-commit dependencies
       command: |
         python${PYVER} -m pip install --user -r requirements-precommit.txt
 
-  #check_cpp_style: &check_cpp_style
-  #  run:
-  #    name: clang-format
-  #    command: |
-  #      for f in cpp/**/*; do
-  #        if ! diff $f <(clang-format-6.0 -style=file $f) > /dev/null; then
-  #          echo "$f does not match clang-format style."
-  #          diff --color $f <(clang-format-6.0 -style=file $f) || true
-  #        fi
-  #      done
-
-  check_python_style: &check_python_style
+  pre-test-checks: &pre-test-checks
     run:
-      name: flake8
+      name: Run all static checks
       command: |
         pre-commit run --all-files
 
@@ -188,9 +177,8 @@ references:
     steps:
       - *load_code
       - *update_submodules
-      - *get_style_requirements
-      #- *check_cpp_style
-      - *check_python_style
+      - *get_pre_commit_requirements
+      - *pre-test-checks
 
   build_and_benchmark: &build_and_benchmark
     steps:
