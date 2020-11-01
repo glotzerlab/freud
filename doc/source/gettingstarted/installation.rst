@@ -93,7 +93,7 @@ In addition to standard CMake flags, the following CMake options are available f
 
 .. glossary::
 
-    --COVERAGE
+    \--COVERAGE
       Build the Cython files with coverage support to check unit test coverage.
 
 
@@ -101,15 +101,15 @@ The **freud** CMake configuration also respects the following environment variab
 
 .. glossary::
 
-    --TBB-ROOT
+    \--TBB-ROOT
       The root directory where TBB is installed.
       Useful if TBB is installed in a non-standard location or cannot be located by Python for some other reason.
 
-    --TBB-INCLUDE
+    \--TBB-INCLUDE
       The directory where the TBB headers (e.g. ``tbb.h``) are located.
       Useful if TBB is installed in a non-standard location or cannot be located by Python for some other reason.
 
-    --TBB-LINK
+    \--TBB-LINK
       The directory where the TBB shared library (e.g. ``libtbb.so`` or ``libtbb.dylib``) is located.
       Useful if TBB is installed in a non-standard location or cannot be located by Python for some other reason.
 
