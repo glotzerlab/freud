@@ -16,8 +16,12 @@ repos:
         types: [python]
         args:
         - --show-source
-repos:
-  - repo: https://github.com/cheshirekow/cmake-format-precommit
+-   repo: https://github.com/cheshirekow/cmake-format-precommit
     rev: v0.6.13
     hooks:
-    - id: cmake-format
+    -   id: cmake-format
+-   repo: git://github.com/doublify/pre-commit-clang-format
+    rev: master
+    hooks:
+    -   id: clang-format
+        exclude: 'extern/*'

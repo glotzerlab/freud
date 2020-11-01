@@ -38,8 +38,9 @@ protected:
     virtual void reduce();
 
     float m_jacobian;
-    vec3<float> m_shiftvec; //!< vector that points from [0,0,0] to the origin of the pmft
-    unsigned int m_num_equiv_orientations; //!< The number of equivalent orientations used in the current calls to compute.
+    vec3<float> m_shiftvec;                //!< vector that points from [0,0,0] to the origin of the pmft
+    unsigned int m_num_equiv_orientations; //!< The number of equivalent orientations used in the current
+                                           //!< calls to compute.
 };
 
 }; }; // end namespace freud::pmft
