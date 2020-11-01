@@ -13,4 +13,3 @@ macro(find_package_config_first package)
 		endif()
 	endif()
 endmacro()
-
