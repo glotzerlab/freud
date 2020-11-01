@@ -21,6 +21,7 @@ and this project adheres to
 * Source distributions now include Cython source files.
 * Hexatic order parameter (unweighted) normalizes by number of neighbors instead of the symmetry order k.
 * Particles with an i-j normal vector of [0, 0, 0] are excluded from 2D Voronoi NeighborList computations for numerical stability reasons.
+* Memory leak in `makeDefaultNlist` function where a NeighborList was being allocated and not freed.
 
 ## v2.3.0 - 2020-08-03
 
