@@ -27,9 +27,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # to specify this.
 # https://stackoverflow.com/questions/50600708/combining-cmake-object-libraries-with-shared-libraries
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/CMake")
-include(${CMAKE_CURRENT_LIST_DIR}/CMake/freud-macros.cmake)
+add_subdirectory(CMake)
 find_package_config_first(TBB)
 
 # The TBB config doesn't define these variable, which we use later.
