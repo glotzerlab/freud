@@ -29,9 +29,8 @@ namespace freud { namespace locality {
  *  the underlying data structure), the end() method will not return true until
  *  the next method reaches the end of control flow at least once without
  *  finding a next neighbor. As a result, the next() method is required to
- *  return NeighborPerPointIterator::ITERATOR_TERMINATOR on all calls
- *  after the last neighbor is found in order to guarantee that the correct set
- *  of neighbors is considered.
+ *  return ITERATOR_TERMINATOR on all calls after the last neighbor is found in
+ *  order to guarantee that the correct set of neighbors is considered.
  */
 class NeighborPerPointIterator
 {
@@ -50,8 +49,6 @@ public:
 
     //! Get the next element.
     virtual NeighborBond next() = 0;
-
-    static const NeighborBond ITERATOR_TERMINATOR; //!< The object returned when iteration is complete.
 
 protected:
     unsigned int m_query_point_idx; //!< The index of the query point.
