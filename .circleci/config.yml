@@ -79,7 +79,7 @@ references:
       command: |
         # Modifying path in previous steps doesn't seem to hold, so specifying
         # the full path explicitly here seems cleaner.
-        "`python${PYVER} -m site --user-base`/bin pre-commit" run --all-files
+        "`python${PYVER} -m site --user-base`/bin/pre-commit" run --all-files
 
   build: &build
     run:
