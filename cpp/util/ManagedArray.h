@@ -205,6 +205,8 @@ public:
     {
         size_t cur_prod = 1;
         size_t idx = 0;
+        // Index using a signed int so that i < 0 is a valid case (otherwise
+        // the condition will never be true due to wraparound).
         for (int i = indices.size() - 1; i >= 0; --i)
         {
             idx += indices[i] * cur_prod;
@@ -236,9 +238,9 @@ public:
     static inline std::vector<size_t> getMultiIndex(std::vector<size_t> shape, size_t index)
     {
         size_t cur_prod = 1;
-        for (auto it = shape.begin(); it != shape.end(); ++it)
+        for (unsigned long & it : shape)
         {
-            cur_prod *= *it;
+            cur_prod *= it;
         }
 
         std::vector<size_t> indices(shape.size());
@@ -323,7 +325,9 @@ public:
     {
         ManagedArray newarray(shape());
         for (unsigned int i = 0; i < size(); ++i)
+        {
             newarray[i] = get()[i];
+        }
         return newarray;
     }
 

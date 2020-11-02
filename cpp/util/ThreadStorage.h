@@ -33,7 +33,7 @@ public:
     {}
 
     //! Destructor
-    ~ThreadStorage() {}
+    ~ThreadStorage() = default;
 
     //! Update size of the thread local arrays
     /*! \param size New size of the thread local arrays
@@ -61,9 +61,9 @@ public:
         }
     }
 
-    typedef typename tbb::enumerable_thread_specific<ManagedArray<T>>::const_iterator const_iterator;
-    typedef typename tbb::enumerable_thread_specific<ManagedArray<T>>::iterator iterator;
-    typedef typename tbb::enumerable_thread_specific<ManagedArray<T>>::reference reference;
+    using const_iterator = typename tbb::enumerable_thread_specific<ManagedArray<T> >::const_iterator;
+    using iterator = typename tbb::enumerable_thread_specific<ManagedArray<T> >::iterator;
+    using reference = typename tbb::enumerable_thread_specific<ManagedArray<T> >::reference;
 
     const_iterator begin() const
     {

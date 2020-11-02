@@ -28,7 +28,9 @@ template<typename T> struct Weight
     Weight& operator=(Weight other)
     {
         if (!is_default)
+        {
             throw std::runtime_error("Weight can only be assigned once.");
+        }
         value = other.value;
         is_default = false;
         return *this;
@@ -48,7 +50,7 @@ class Axis
 public:
     Axis() : m_nbins(0) {}
 
-    virtual ~Axis() {}
+    virtual ~Axis() = default;
 
     Axis(size_t nbins, float min, float max) : m_nbins(nbins), m_min(min), m_max(max) {}
 
@@ -128,7 +130,7 @@ public:
         }
     }
 
-    virtual ~RegularAxis() {}
+    ~RegularAxis() override = default;
 
     //! Find the bin of a value along this axis.
     /*! The linear spacing allows the binning process to be computed especially
@@ -140,7 +142,7 @@ public:
      *
      * \return The index of the bin the value falls into.
      */
-    virtual size_t bin(const float& value) const
+    size_t bin(const float& value) const override
     {
         // Since we're using an unsigned int cast for truncation, we must
         // ensure that we will be working with a positive number or we will
@@ -158,9 +160,10 @@ public:
 #endif
         // Avoid rounding leading to overflow.
         if (bin == m_nbins)
+        {
             return bin - 1;
-        else
-            return bin;
+        }
+        return bin;
     }
 
 protected:
@@ -195,15 +198,15 @@ public:
     class ThreadLocalHistogram
     {
     public:
-        ThreadLocalHistogram() {}
+        ThreadLocalHistogram() = default;
 
         ThreadLocalHistogram(Histogram histogram)
             : m_local_histograms([histogram]() { return Histogram(histogram.m_axes); })
         {}
 
-        typedef typename tbb::enumerable_thread_specific<Histogram>::const_iterator const_iterator;
-        typedef typename tbb::enumerable_thread_specific<Histogram>::iterator iterator;
-        typedef typename tbb::enumerable_thread_specific<Histogram>::reference reference;
+        using const_iterator = typename tbb::enumerable_thread_specific<Histogram<T>>::const_iterator;
+        using iterator = typename tbb::enumerable_thread_specific<Histogram>::iterator;
+        using reference = typename tbb::enumerable_thread_specific<Histogram>::reference;
 
         const_iterator begin() const
         {
@@ -270,18 +273,20 @@ public:
             m_local_histograms; //!< The thread-local copies of m_histogram.
     };
 
-    typedef std::vector<std::shared_ptr<Axis>> Axes;
-    typedef Axes::const_iterator AxisIterator;
+    using Axes = std::vector<std::shared_ptr<Axis>>;
+    using AxisIterator = Axes::const_iterator;
 
     //! Default constructor
-    Histogram() {}
+    Histogram() = default;
 
     //! Constructor
     Histogram(std::vector<std::shared_ptr<Axis>> axes) : m_axes(axes)
     {
         std::vector<size_t> sizes;
         for (AxisIterator it = m_axes.begin(); it != m_axes.end(); it++)
+        {
             sizes.push_back((*it)->size());
+        }
         m_bin_counts = ManagedArray<T>(sizes);
     }
 
@@ -304,7 +309,7 @@ public:
     }
 
     //! Destructor
-    ~Histogram() {};
+    ~Histogram() = default;
 
     //! Bin value and update the histogram count.
     template<typename... FloatsOrWeight> void operator()(FloatsOrWeight... values)
