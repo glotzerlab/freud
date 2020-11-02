@@ -11,4 +11,9 @@ add_library(
   MatchEnv.h
   MatchEnv.cc
   Registration.h)
-target_include_directories(_environment PUBLIC ${PROJECT_SOURCE_DIR}/extern/)
+
+# We treat the extern folder as a SYSTEM library to avoid getting any diagnostic
+# information from it. In particular, this avoids clang-tidy throwing errors due
+# to any issues in external code.
+target_include_directories(_environment SYSTEM
+                           PUBLIC ${PROJECT_SOURCE_DIR}/extern/)

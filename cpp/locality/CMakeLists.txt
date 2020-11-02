@@ -34,4 +34,8 @@ add_library(
   ${VOROPP_SOURCE_DIR}/pre_container.cc
   ${VOROPP_SOURCE_DIR}/container_prd.cc)
 
-target_include_directories(_locality PUBLIC ${PROJECT_SOURCE_DIR}/extern/)
+# We treat the extern folder as a SYSTEM library to avoid getting any diagnostic
+# information from it. In particular, this avoids clang-tidy throwing errors due
+# to any issues in external code.
+target_include_directories(_locality SYSTEM
+                           PUBLIC ${PROJECT_SOURCE_DIR}/extern/)
