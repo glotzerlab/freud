@@ -304,13 +304,14 @@ cdef class Box:
         vecs = np.atleast_2d(vecs)
         vecs = freud.util._convert_array(vecs, shape=(None, 3)).copy()
 
-        if inplace is False:
-            cdef const float[:, ::1] l_points = vecs
-            cdef unsigned int Np = l_points.shape[0]
-            self.thisptr.wrap(<vec3[float]*> &l_points[0, 0], Np)
-        else:
+        cdef const float[:, ::1] l_points
+        if inplace:
             cdef unsigned int Np = vecs.shape[0]
             self.thisptr.wrap(<vec3[float]*> &vecs[0, 0], Np)
+        else:
+            l_points = vecs  # Need to make sure this copies exactly once
+            cdef unsigned int Np = l_points.shape[0]
+            self.thisptr.wrap(<vec3[float]*> &l_points[0, 0], Np)
 
         return np.squeeze(vecs) if flatten else vecs
 
