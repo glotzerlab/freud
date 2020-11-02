@@ -10,5 +10,8 @@ repos:
         # .clang-format if found by default, at least for newer versions. I'll
         # specify this here just in case.
         args: [--style=file]
-        exclude: 'extern/.*'
+        exclude: '.*extern/.*'
       - id: clang-tidy
+        # Ignore external files and those taken verbatim from HOOMD.
+        exclude: '.*AABB\.h|.*extern.*|.*AABBTree\.(h|cc)|VectorMath.h'
+        args: [--warnings-as-errors=*]

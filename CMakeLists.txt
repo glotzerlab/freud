@@ -72,7 +72,12 @@ endif()
 
 include_directories(
   ${PROJECT_SOURCE_DIR}/cpp/util ${PROJECT_SOURCE_DIR}/cpp/locality
-  ${PROJECT_SOURCE_DIR}/cpp/box ${TBB_INCLUDE_DIR})
+  ${PROJECT_SOURCE_DIR}/cpp/box)
+
+# We treat the extern folder as a SYSTEM library to avoid getting any diagnostic
+# information from it. In particular, this avoids clang-tidy throwing errors due
+# to any issues in external code.
+include_directories(SYSTEM ${TBB_INCLUDE_DIR})
 
 # Ignore unused variable warning from scikit-build
 set(ignoreMe "${SKBUILD}")

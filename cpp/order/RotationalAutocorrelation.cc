@@ -21,7 +21,7 @@ inline std::complex<float> cpow(std::complex<float> base, unsigned int p)
 {
     if (p == 0)
     {
-        return std::complex<float>(1, 0);
+        return {1, 0};
     }
     std::complex<float> val(base);
     for (unsigned int i = 1; i < p; i++)

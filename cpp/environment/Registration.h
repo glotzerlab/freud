@@ -172,7 +172,9 @@ public:
     void Fit(std::vector<vec3<float>>& pts)
     {
         matrix points;
-        matrix p, q, r;
+        matrix p;
+        matrix q;
+        matrix r;
         // make the Eigen matrix from pts
         points = makeEigenMatrix(pts);
         int num_pts;
@@ -191,7 +193,9 @@ public:
         double rmsd_min = -1.0;
         for (size_t shuffles = 0; shuffles < m_shuffles; shuffles++)
         {
-            int p0 = 0, p1 = 0, p2 = 0;
+            int p0 = 0;
+            int p1 = 0;
+            int p2 = 0;
             while (p0 == p1 || p0 == p2 || p1 == p2)
             {
                 p0 = rng.random_int(0, N - 1);

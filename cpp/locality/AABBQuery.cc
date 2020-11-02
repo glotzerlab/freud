@@ -183,7 +183,7 @@ NeighborBond AABBQueryBallIterator::next()
                         // Check ii exclusion before including the pair.
                         if (r_sq < r_max_sq && r_sq >= r_min_sq)
                         {
-                            return NeighborBond(m_query_point_idx, j, std::sqrt(r_sq));
+                            return {m_query_point_idx, j, std::sqrt(r_sq)};
                         }
                     }
                 }

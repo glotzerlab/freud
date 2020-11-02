@@ -52,7 +52,7 @@ const unsigned int LINK_CELL_TERMINATOR = 0xffffffff;
 class IteratorLinkCell
 {
 public:
-    IteratorLinkCell() : m_Np(0), m_Nc(0), m_cur_idx(LINK_CELL_TERMINATOR), m_cell(0) {}
+    IteratorLinkCell() = default;
 
     IteratorLinkCell(const util::ManagedArray<unsigned int> &cell_list, unsigned int Np, unsigned int Nc,
                      unsigned int cell)
@@ -76,10 +76,10 @@ public:
 
 private:
     util::ManagedArray<unsigned int> m_cell_list; //!< The cell list
-    unsigned int m_Np;                            //!< Number of particles in the cell list
-    unsigned int m_Nc;                            //!< Number of cells in the cell list
-    unsigned int m_cur_idx;                       //!< Current index
-    unsigned int m_cell;                          //!< Cell being considered
+    unsigned int m_Np{0};                            //!< Number of particles in the cell list
+    unsigned int m_Nc{0};                            //!< Number of cells in the cell list
+    unsigned int m_cur_idx{LINK_CELL_TERMINATOR};    //!< Current index
+    unsigned int m_cell{0};                          //!< Cell being considered
 };
 
 //! Iterates over sets of shells in a cell list
@@ -115,7 +115,7 @@ public:
     //! Get the integral coordinates of the current cell.
     vec3<int> operator*() const
     {
-        return vec3<int>(m_current_x, m_current_y, m_current_z);
+        return {m_current_x, m_current_y, m_current_z};
     }
 
     bool operator==(const IteratorCellShell& other) const

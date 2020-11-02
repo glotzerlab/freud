@@ -22,7 +22,7 @@ namespace freud { namespace util {
  */
 template<typename T> struct Weight
 {
-    Weight() : value(1), is_default(true) {}
+    Weight() : value(1) {}
     Weight(T value) : value(value), is_default(false) {}
 
     Weight& operator=(Weight other)
@@ -37,7 +37,7 @@ template<typename T> struct Weight
     }
 
     T value;
-    bool is_default;
+    bool is_default{true};
 };
 
 //! Class defining an axis of a histogram.
@@ -48,7 +48,7 @@ template<typename T> struct Weight
 class Axis
 {
 public:
-    Axis() : m_nbins(0) {}
+    Axis() = default;
 
     virtual ~Axis() = default;
 
@@ -100,7 +100,7 @@ public:
     static const size_t OVERFLOW_BIN = 0xffffffff;
 
 protected:
-    size_t m_nbins;                 //!< Number of bins
+    size_t m_nbins {0};                 //!< Number of bins
     float m_min;                    //!< Lowest value allowed.
     float m_max;                    //!< Highest value allowed.
     std::vector<float> m_bin_edges; //!< The edges of bins.

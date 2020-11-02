@@ -556,7 +556,7 @@ public:
     //! Get the periodic flags
     vec3<bool> getPeriodic() const
     {
-        return vec3<bool>(m_periodic.x, m_periodic.y, m_periodic.z);
+        return {m_periodic.x, m_periodic.y, m_periodic.z};
     }
 
     //! Get the periodic flag along x

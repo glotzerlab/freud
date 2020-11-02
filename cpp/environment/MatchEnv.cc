@@ -352,7 +352,8 @@ std::map<unsigned int, unsigned int> isSimilar(const box::Box& box, const vec3<f
                                                vec3<float>* refPoints2, unsigned int numRef,
                                                float threshold_sq, bool registration)
 {
-    Environment e0, e1;
+    Environment e0;
+    Environment e1;
     std::tie(e0, e1) = makeEnvironments(box, refPoints1, refPoints2, numRef);
 
     // call isSimilar for e0 and e1
@@ -453,7 +454,8 @@ std::map<unsigned int, unsigned int> minimizeRMSD(const box::Box& box, const vec
                                                   vec3<float>* refPoints2, unsigned int numRef,
                                                   float& min_rmsd, bool registration)
 {
-    Environment e0, e1;
+    Environment e0;
+    Environment e1;
     std::tie(e0, e1) = makeEnvironments(box, refPoints1, refPoints2, numRef);
 
     float tmp_min_rmsd = -1.0;

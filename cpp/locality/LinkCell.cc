@@ -337,7 +337,7 @@ vec3<unsigned int> LinkCell::indexToCoord(unsigned int x) const
     // For backwards compatibility with the Index1D layout, the indices and
     // the dimensions are passed in reverse to the indexer. Changing this would
     // also require updating the logic in IteratorCellShell.
-    return vec3<unsigned int>(coord[2], coord[1], coord[0]);
+    return {coord[2], coord[1], coord[0]};
 }
 
 unsigned int LinkCell::coordToIndex(unsigned int x, unsigned int y, unsigned int z) const
@@ -385,8 +385,12 @@ const std::vector<unsigned int>& LinkCell::computeCellNeighbors(unsigned int cur
     const int k = static_cast<int>(l_idx.z);
 
     // loop over the neighbor cells
-    int starti, startj, startk;
-    int endi, endj, endk;
+    int starti;
+    int startj;
+    int startk;
+    int endi;
+    int endj;
+    int endk;
     if (m_celldim.x < 3)
     {
         starti = i;
@@ -515,7 +519,7 @@ NeighborBond LinkCellQueryBallIterator::next()
 
             if (r_sq < r_max_sq && r_sq >= r_min_sq)
             {
-                return NeighborBond(m_query_point_idx, j, std::sqrt(r_sq));
+                return {m_query_point_idx, j, std::sqrt(r_sq)};
             }
         }
 

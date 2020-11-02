@@ -1,3 +1,8 @@
+# Specific checks ignored:
+# readability-avoid-const-params-in-decls: While it may be semantically confusing, it's easier to read when declaration and definition consts match.
+# readability-redundant-member-init: If the constructor changes or if there are multiple constructor signatures, prefer to be explicit.
+# modernize-use-trailing-return-type: This syntax is still generally unfamiliar to many developers and will make the code harder to maintain.
+
 Checks: 'bugprone-*,
          cert-*,
          clang-analyzer-*,
@@ -8,15 +13,12 @@ Checks: 'bugprone-*,
          portability-*,
          readability-*,
          -readability-avoid-const-params-in-decls,
-         -readability-isolate-declaration,
          -readability-magic-numbers,
          -readability-redundant-member-init,
-         -modernize-use-default-member-init,
          -readability-convert-member-functions-to-static,
          -performance-unnecessary-value-param,
          -misc-non-private-member-variables-in-classes,
          -misc-no-recursion,
          -modernize-avoid-c-arrays,
          -modernize-use-trailing-return-type,
-         -modernize-pass-by-value,
-         -modernize-return-braced-init-list'
+         -modernize-pass-by-value'
