@@ -11,9 +11,9 @@
 
 namespace freud { namespace environment {
 
-LocalBondProjection::LocalBondProjection() {}
+LocalBondProjection::LocalBondProjection() = default;
 
-LocalBondProjection::~LocalBondProjection() {}
+LocalBondProjection::~LocalBondProjection() = default;
 
 // The set of all equivalent quaternions equiv_qs is the set that takes the particle as it
 // is defined to some global reference orientation. Thus, to be safe, we must include
