@@ -11,6 +11,8 @@ Checks: 'bugprone-*,
          -readability-isolate-declaration,
          -readability-magic-numbers,
          -readability-redundant-member-init,
+         -readability-convert-member-functions-to-static,
          -performance-unnecessary-value-param,
+         -misc-non-private-member-variables-in-classes,
          -modernize-use-trailing-return-type,
          -modernize-return-braced-init-list'

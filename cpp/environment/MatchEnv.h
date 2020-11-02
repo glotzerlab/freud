@@ -31,7 +31,7 @@ struct Environment
     {}
 
     //! Add a vector to define the local environment
-    void addVec(vec3<float> vec)
+    void addVec(const vec3<float>& vec)
     {
         vecs.push_back(vec);
         vec_ind.push_back(num_vecs);
@@ -63,7 +63,7 @@ struct EnvDisjointSet
      * and rotate them to match the set of PROPERLY ROTATED vectors a
      */
     void merge(const unsigned int a, const unsigned int b, BiMap<unsigned int, unsigned int> vec_map,
-               rotmat3<float> rotation);
+               rotmat3<float>& rotation);
 
     //! Find the set with a given element (taken mostly from Cluster.cc).
     unsigned int find(const unsigned int c);
@@ -285,7 +285,7 @@ public:
         return m_cluster_environments;
     }
 
-    unsigned int getNumClusters()
+    unsigned int getNumClusters() const
     {
         return m_num_clusters;
     }
