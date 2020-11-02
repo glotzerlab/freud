@@ -10,5 +10,6 @@ Checks: 'bugprone-*,
          -readability-avoid-const-params-in-decls,
          -readability-isolate-declaration,
          -readability-magic-numbers,
+         -readability-redundant-member-init,
          -modernize-use-trailing-return-type,
          -modernize-return-braced-init-list'
