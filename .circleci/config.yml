@@ -80,6 +80,11 @@ references:
         # Modifying path in previous steps doesn't seem to hold, so specifying
         # the full path explicitly here seems cleaner.
         "`python${PYVER} -m site --user-base`/bin/pre-commit" run --all-files
+        # We need to generate the compile_commands.json database, but we don't
+        # want to actually build, so we call cmake directly. This will fail due
+        # to some libraries being missing, but it will successfully generate
+        # the necessary file, so we just fake that it succeeded.
+        cmake . || true
         "`python${PYVER} -m site --user-base`/bin/pre-commit" run -c pre-commit-config-cpp.yaml --all-files
 
   build: &build
