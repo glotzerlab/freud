@@ -28,7 +28,7 @@ public:
     GaussianDensity(vec3<unsigned int> width, float r_max, float sigma);
 
     // Destructor
-    ~GaussianDensity() {}
+    ~GaussianDensity() = default;
 
     //! Get the simulation box.
     const box::Box& getBox() const
