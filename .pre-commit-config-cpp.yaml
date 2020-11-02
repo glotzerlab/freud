@@ -11,3 +11,4 @@ repos:
         # specify this here just in case.
         args: [--style=file]
         exclude: 'extern/*'
+      - id: clang-tidy
