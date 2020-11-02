@@ -33,7 +33,7 @@ public:
     PMFT() : BondHistogramCompute() {}
 
     //! Destructor
-    virtual ~PMFT() {};
+    ~PMFT() override = default;
 
     //! Get a reference to the PCF array
     const util::ManagedArray<float>& getPCF()

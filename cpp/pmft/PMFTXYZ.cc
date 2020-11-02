@@ -15,17 +15,29 @@ PMFTXYZ::PMFTXYZ(float x_max, float y_max, float z_max, unsigned int n_x, unsign
     : PMFT(), m_shiftvec(shiftvec), m_num_equiv_orientations(0xffffffff)
 {
     if (n_x < 1)
+    {
         throw std::invalid_argument("PMFTXYZ requires at least 1 bin in X.");
+    }
     if (n_y < 1)
+    {
         throw std::invalid_argument("PMFTXYZ requires at least 1 bin in Y.");
+    }
     if (n_z < 1)
+    {
         throw std::invalid_argument("PMFTXYZ requires at least 1 bin in Z.");
-    if (x_max < 0.0f)
+    }
+    if (x_max < 0)
+    {
         throw std::invalid_argument("PMFTXYZ requires that x_max must be positive.");
-    if (y_max < 0.0f)
+    }
+    if (y_max < 0)
+    {
         throw std::invalid_argument("PMFTXYZ requires that y_max must be positive.");
-    if (z_max < 0.0f)
+    }
+    if (z_max < 0)
+    {
         throw std::invalid_argument("PMFTXYZ requires that z_max must be positive.");
+    }
 
     // Compute Jacobian
     const float dx = float(2.0) * x_max / float(n_x);
@@ -85,9 +97,9 @@ void PMFTXYZ::reset()
     m_num_equiv_orientations = 0xffffffff;
 }
 
-void PMFTXYZ::accumulate(const locality::NeighborQuery* neighbor_query, quat<float>* query_orientations,
-                         vec3<float>* query_points, unsigned int n_query_points,
-                         quat<float>* equiv_orientations, unsigned int num_equiv_orientations,
+void PMFTXYZ::accumulate(const locality::NeighborQuery* neighbor_query, const quat<float>* query_orientations,
+                         const vec3<float>* query_points, unsigned int n_query_points,
+                         const quat<float>* equiv_orientations, unsigned int num_equiv_orientations,
                          const locality::NeighborList* nlist, freud::locality::QueryArgs qargs)
 {
     // Set the number of equivalent orientations the first time we compute
