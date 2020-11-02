@@ -22,9 +22,13 @@ BondOrder::BondOrder(unsigned int n_bins_theta, unsigned int n_bins_phi, BondOrd
 {
     // sanity checks, but this is actually kinda dumb if these values are 1
     if (n_bins_theta < 2)
+    {
         throw std::invalid_argument("BondOrder requires at least 2 bins in theta.");
+    }
     if (n_bins_phi < 2)
+    {
         throw std::invalid_argument("BondOrder requires at least 2 bins in phi.");
+    }
     // calculate dt, dp
     /*
     0 < \theta < 2PI; 0 < \phi < PI
@@ -33,9 +37,13 @@ BondOrder::BondOrder(unsigned int n_bins_theta, unsigned int n_bins_phi, BondOrd
     float dp = M_PI / float(n_bins_phi);
     // this shouldn't be able to happen, but it's always better to check
     if (dt > constants::TWO_PI)
+    {
         throw std::invalid_argument("2PI must be greater than dt");
+    }
     if (dp > M_PI)
+    {
         throw std::invalid_argument("PI must be greater than dp");
+    }
 
     // precompute the surface area array
     m_sa_array.prepare({n_bins_theta, n_bins_phi});
