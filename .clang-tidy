@@ -11,5 +11,6 @@ Checks: 'bugprone-*,
          -readability-isolate-declaration,
          -readability-magic-numbers,
          -readability-redundant-member-init,
+         -performance-unnecessary-value-param,
          -modernize-use-trailing-return-type,
          -modernize-return-braced-init-list'
