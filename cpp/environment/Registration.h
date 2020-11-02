@@ -416,7 +416,7 @@ private:
 
         for (int i = k - 1; i >= 0; i--)
         {
-            if (comb[i] + 1 < size_t(N + i - k + 1))
+            if (comb[i] + 1 < (N + i - k + 1))
             {
                 comb[i]++;
                 for (int j = i + 1; j < k; j++)
@@ -434,7 +434,7 @@ private:
     template<class RNG> class RandomNumber
     {
     public:
-        RandomNumber()
+        RandomNumber() // NOLINT(cert-msc32-c,cert-msc51-cpp)
         {
             seed_generator();
         }

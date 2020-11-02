@@ -19,7 +19,7 @@
 namespace freud { namespace environment {
 
 // this is needed for conversion of the type of bond order calculation to be made in accumulate.
-typedef enum
+typedef enum // NOLINT(modernize-use-using)
 {
     bod = 0,
     lbod = 1,

@@ -199,7 +199,7 @@ std::vector<vec3<float>> EnvDisjointSet::getAvgEnv(const unsigned int m)
     for (auto & i : s)
     {
         // if this environment is NOT a ghost (i.e. non-physical):
-        if (i.ghost == false)
+        if (!i.ghost)
         {
             // get the head environment index
             unsigned int head_env = find(i.env_ind);
@@ -291,7 +291,7 @@ std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>> isSimilar(Environme
 
     // If we have to register, first find the rotated set of v2 that best maps
     // to v1. The Fit operation CHANGES v2.
-    if (registration == true)
+    if (registration)
     {
         RegisterBruteForce r = RegisterBruteForce(v1);
         r.Fit(v2);
@@ -429,7 +429,7 @@ std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>> minimizeRMSD(Enviro
     RegisterBruteForce r = RegisterBruteForce(v1);
     // If we have to register, first find the rotated set of v2 that best
     // maps to v1. The Fit operation CHANGES v2.
-    if (registration == true)
+    if (registration)
     {
         r.Fit(v2);
         // get the optimal rotation to take v2 to v1
@@ -551,7 +551,7 @@ void EnvironmentCluster::compute(const freud::locality::NeighborQuery* nq,
     // loop through points
     for (unsigned int i = 0; i < Np; i++)
     {
-        if (global == false)
+        if (!global)
         {
             // loop over the neighbors
             for (; bond < nlist.getNumBonds() && nlist.getNeighbors()(bond, 0) == i; ++bond)
@@ -619,7 +619,7 @@ unsigned int EnvironmentCluster::populateEnv(EnvDisjointSet dj)
     for (unsigned int i = 0; i < dj.s.size(); i++)
     {
         // only count this if the environment is physical
-        if (dj.s[i].ghost == false)
+        if (!dj.s[i].ghost)
         {
             // grab the set of vectors that define this individual environment
             std::vector<vec3<float>> part_vecs = dj.getIndividualEnv(i);

@@ -319,8 +319,10 @@ void LinkCell::computeCellList(const vec3<float>* points, unsigned int n_points)
         m_cell_list[n_points + cell] = LINK_CELL_TERMINATOR;
     }
 
-    // generate the cell list
-    for (unsigned int i = n_points - 1; i >= 0; i--)
+    // Generate the cell list. The condition in the for loop exploits the fact
+    // that i-- returns the pre-decrement value, so when i first reaches 0 the
+    // comparison will be 1 > 0 and ensure that the 0 case runs.
+    for (unsigned int i = n_points; i --> 0;)
     {
         unsigned int cell = getCell(points[i]);
         m_cell_list[i] = m_cell_list[n_points + cell];

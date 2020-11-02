@@ -63,7 +63,7 @@ public:
     ManagedArray(size_t size) : ManagedArray(std::vector<size_t> {size}) {}
 
     //! Destructor (currently empty because data is managed by shared pointer).
-    ~ManagedArray() {}
+    ~ManagedArray() = default;
 
     //! Simple convenience for 1D arrays that calls through to the shape based `prepare` function.
     /*! \param new_size Size of the 1D array to allocate.
@@ -205,9 +205,13 @@ public:
     {
         size_t cur_prod = 1;
         size_t idx = 0;
-        // Index using a signed int so that i < 0 is a valid case (otherwise
-        // the condition will never be true due to wraparound).
-        for (int i = indices.size() - 1; i >= 0; --i)
+        // In getting the linear bin, we must iterate over bins in reverse
+        // order to build up the value of cur_prod because each subsequent axis
+        // contributes less according to row-major ordering. The condition in
+        // the for loop exploits the fact that i-- returns the pre-decrement
+        // value, so when i first reaches 0 the comparison will be 1 > 0 and
+        // ensure that the 0 case runs.
+        for (unsigned int i = indices.size(); i --> 0; )
         {
             idx += indices[i] * cur_prod;
             cur_prod *= (*m_shape)[i];
@@ -220,7 +224,13 @@ public:
     {
         size_t cur_prod = 1;
         size_t idx = 0;
-        for (int i = indices.size() - 1; i >= 0; --i)
+        // In getting the linear bin, we must iterate over bins in reverse
+        // order to build up the value of cur_prod because each subsequent axis
+        // contributes less according to row-major ordering.  The condition in
+        // the for loop exploits the fact that i-- returns the pre-decrement
+        // value, so when i first reaches 0 the comparison will be 1 > 0 and
+        // ensure that the 0 case runs.
+        for (unsigned int i = indices.size(); i --> 0; )
         {
             idx += indices[i] * cur_prod;
             cur_prod *= (*m_shape)[i];
@@ -263,12 +273,15 @@ public:
      */
     static inline size_t getIndex(std::vector<size_t> shape, std::vector<size_t> indices)
     {
-        // In getting the linear bin, we must iterate over bins in reverse
-        // order to build up the value of cur_prod because each subsequent axis
-        // contributes less according to row-major ordering.
         size_t cur_prod = 1;
         size_t idx = 0;
-        for (int i = indices.size() - 1; i >= 0; --i)
+        // In getting the linear bin, we must iterate over bins in reverse
+        // order to build up the value of cur_prod because each subsequent axis
+        // contributes less according to row-major ordering.  The condition in
+        // the for loop exploits the fact that i-- returns the pre-decrement
+        // value, so when i first reaches 0 the comparison will be 1 > 0 and
+        // ensure that the 0 case runs.
+        for (unsigned int i = indices.size(); i --> 0; )
         {
             idx += indices[i] * cur_prod;
             cur_prod *= shape[i];
@@ -302,12 +315,15 @@ public:
             }
         }
 
-        // In getting the linear bin, we must iterate over bins in reverse
-        // order to build up the value of cur_prod because each subsequent axis
-        // contributes less according to row-major ordering.
         size_t cur_prod = 1;
         size_t idx = 0;
-        for (int i = indices.size() - 1; i >= 0; --i)
+        // In getting the linear bin, we must iterate over bins in reverse
+        // order to build up the value of cur_prod because each subsequent axis
+        // contributes less according to row-major ordering.  The condition in
+        // the for loop exploits the fact that i-- returns the pre-decrement
+        // value, so when i first reaches 0 the comparison will be 1 > 0 and
+        // ensure that the 0 case runs.
+        for (unsigned int i = indices.size(); i --> 0; )
         {
             idx += indices[i] * cur_prod;
             cur_prod *= (*m_shape)[i];

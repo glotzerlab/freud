@@ -48,7 +48,7 @@ public:
     //! Return thing_to_return after reducing if necessary.
     template<typename U> U& reduceAndReturn(U& thing_to_return)
     {
-        if (m_reduce == true)
+        if (m_reduce)
         {
             reduce();
         }

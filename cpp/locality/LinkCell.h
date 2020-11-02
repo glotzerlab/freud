@@ -179,7 +179,7 @@ class LinkCell : public NeighborQuery
 {
 public:
     //! iterator to iterate over particles in the cell
-    typedef IteratorLinkCell iteratorcell;
+    using iteratorcell = IteratorLinkCell;
 
     //! Null Constructor
     LinkCell();
@@ -273,7 +273,7 @@ public:
     {}
 
     //! Empty Destructor
-    virtual ~LinkCellIterator() = default;
+    ~LinkCellIterator() override = default;
 
 protected:
     const LinkCell* m_linkcell; //!< Link to the LinkCell object
@@ -298,7 +298,7 @@ public:
     {}
 
     //! Empty Destructor
-    virtual ~LinkCellQueryIterator() = default;
+    ~LinkCellQueryIterator() override = default;
 
     //! Get the next element.
     NeighborBond next() override;

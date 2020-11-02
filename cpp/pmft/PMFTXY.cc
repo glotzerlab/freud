@@ -53,7 +53,7 @@ PMFTXY::PMFTXY(float x_max, float y_max, unsigned int n_x, unsigned int n_y) : P
 void PMFTXY::reduce()
 {
     float jacobian_factor = (float) 1.0 / m_jacobian;
-    PMFT::reduce([jacobian_factor](size_t i) { return jacobian_factor; });
+    PMFT::reduce([jacobian_factor](size_t i) { return jacobian_factor; }); // NOLINT (misc-unused-parameters)
 }
 
 void PMFTXY::accumulate(const locality::NeighborQuery* neighbor_query, const float* query_orientations,
