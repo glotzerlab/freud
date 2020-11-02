@@ -49,3 +49,12 @@ set_target_properties(libfreud PROPERTIES OUTPUT_NAME freud)
 
 # Copy the C++ library into the built version.
 install(TARGETS libfreud DESTINATION freud)
+
+if(CMAKE_EXPORT_COMPILE_COMMANDS)
+  # Copy the compile commands into the root of the project.
+  add_custom_command(
+    TARGET libfreud
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/compile_commands.json
+            ${PROJECT_SOURCE_DIR})
+endif()

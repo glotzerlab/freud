@@ -23,9 +23,6 @@ endif()
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Export compile_commands.json
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
 # This setting is required when building shared libraries from object libraries.
 # CMake intentionally chooses not to infer such information, so we should expect
 # to specify this.
