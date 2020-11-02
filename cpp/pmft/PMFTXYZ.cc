@@ -11,7 +11,7 @@
 namespace freud { namespace pmft {
 
 PMFTXYZ::PMFTXYZ(float x_max, float y_max, float z_max, unsigned int n_x, unsigned int n_y, unsigned int n_z,
-                 vec3<float> shiftvec)
+                 const vec3<float> &shiftvec)
     : PMFT(), m_shiftvec(shiftvec), m_num_equiv_orientations(0xffffffff)
 {
     if (n_x < 1)

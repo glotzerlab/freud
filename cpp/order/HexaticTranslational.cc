@@ -21,7 +21,7 @@ void HexaticTranslational<T>::computeGeneral(Func func, const freud::locality::N
 
     freud::locality::loopOverNeighborsIterator(
         points, points->getPoints(), Np, qargs, nlist,
-        [=](size_t i, std::shared_ptr<freud::locality::NeighborPerPointIterator> ppiter) {
+        [=](size_t i, const std::shared_ptr<freud::locality::NeighborPerPointIterator>& ppiter) {
             float total_weight(0);
             const vec3<float> ref((*points)[i]);
 

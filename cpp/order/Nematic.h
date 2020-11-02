@@ -23,7 +23,7 @@ class Nematic
 {
 public:
     //! Constructor
-    Nematic(vec3<float> u);
+    Nematic(const vec3<float>& u);
 
     //! Destructor
     virtual ~Nematic() = default;;

@@ -6,6 +6,7 @@
 
 #include "ManagedArray.h"
 #include "VectorMath.h"
+#include "array"
 #include <random>
 
 /*! \file Cubatic.h
@@ -23,8 +24,8 @@ namespace freud { namespace order {
  */
 struct tensor4
 {
-    tensor4();
-    tensor4(vec3<float> _vector);
+    tensor4() = default;
+    tensor4(const vec3<float>& vector);
     tensor4 operator+=(const tensor4& b);
     tensor4 operator-(const tensor4& b) const;
     tensor4 operator*(const float& b) const;
@@ -32,7 +33,7 @@ struct tensor4
 
     void copyToManagedArray(util::ManagedArray<float>& ma);
 
-    float data[81];
+    std::array<float, 81> data {0};
 };
 
 //! Compute the cubatic order parameter for a set of points
@@ -184,7 +185,7 @@ private:
         m_global_tensor; //!< The system-averaged homogeneous tensor encoding all particle orientations.
     util::ManagedArray<float> m_cubatic_tensor; //!< The output tensor computed via simulated annealing.
 
-    vec3<float> m_system_vectors[3]; //!< The global coordinate system, always use a simple Euclidean basis.
+    std::array<vec3<float>, 3> m_system_vectors; //!< The global coordinate system, always use a simple Euclidean basis.
 };
 
 }; }; // end namespace freud::order

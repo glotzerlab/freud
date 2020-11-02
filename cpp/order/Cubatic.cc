@@ -17,12 +17,7 @@
 
 namespace freud { namespace order {
 
-tensor4::tensor4()
-{
-    memset((void*) &data, 0, sizeof(float) * 81);
-}
-
-tensor4::tensor4(vec3<float> vector)
+tensor4::tensor4(const vec3<float> &vector)
 {
     unsigned int cnt = 0;
     std::array<float, 3> v;
@@ -160,9 +155,6 @@ Cubatic::Cubatic(float t_initial, float t_final, float scale, unsigned int n_rep
     m_gen_r4_tensor = genR4Tensor();
 
     // Initialize the system vectors using Euclidean vectors.
-    m_system_vectors[0] = vec3<float>(1, 0, 0);
-    m_system_vectors[1] = vec3<float>(0, 1, 0);
-    m_system_vectors[2] = vec3<float>(0, 0, 1);
 }
 
 tensor4 Cubatic::calcCubaticTensor(quat<float>& orientation)

@@ -19,7 +19,7 @@ namespace freud { namespace environment {
 
 //! Project the local bond onto all symmetrically equivalent vectors to proj_vec.
 //! Return the maximal projection value.
-float computeMaxProjection(const vec3<float> proj_vec, const vec3<float> local_bond,
+float computeMaxProjection(const vec3<float>& proj_vec, const vec3<float>& local_bond,
                            const quat<float>* equiv_qs, unsigned int n_equiv_qs);
 
 class LocalBondProjection

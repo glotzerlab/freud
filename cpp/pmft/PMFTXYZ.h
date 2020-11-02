@@ -17,7 +17,7 @@ class PMFTXYZ : public PMFT
 public:
     //! Constructor
     PMFTXYZ(float x_max, float y_max, float z_max, unsigned int n_x, unsigned int n_y, unsigned int n_z,
-            vec3<float> shiftvec);
+            const vec3<float>& shiftvec);
 
     /*! Compute the PCF for the passed in set of points. The function will be added to previous values
         of the pcf

@@ -23,7 +23,7 @@ LocalBondProjection::~LocalBondProjection() = default;
 // the chiral symmetry group of the particle shape.
 // q and -q effect the same rotation on vectors, and here we just use equiv_quats to
 // find all symmetrically equivalent vectors to proj_vec.
-float computeMaxProjection(const vec3<float> proj_vec, const vec3<float> local_bond,
+float computeMaxProjection(const vec3<float>& proj_vec, const vec3<float>& local_bond,
                            const quat<float>* equiv_qs, unsigned int n_equiv_qs)
 {
     quat<float> qconst = equiv_qs[0];

@@ -96,7 +96,7 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
     m_qlm_local.reset();
     freud::locality::loopOverNeighborsIterator(
         points, points->getPoints(), m_Np, qargs, nlist,
-        [=](size_t i, std::shared_ptr<freud::locality::NeighborPerPointIterator> ppiter) {
+        [=](size_t i, const std::shared_ptr<freud::locality::NeighborPerPointIterator>& ppiter) {
             float total_weight(0);
             const vec3<float> ref((*points)[i]);
             for (freud::locality::NeighborBond nb = ppiter->next(); !ppiter->end(); nb = ppiter->next())
@@ -164,7 +164,7 @@ void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
 
     freud::locality::loopOverNeighborsIterator(
         points, points->getPoints(), m_Np, qargs, nlist,
-        [=](size_t i, std::shared_ptr<freud::locality::NeighborPerPointIterator> ppiter) {
+        [=](size_t i, const std::shared_ptr<freud::locality::NeighborPerPointIterator>& ppiter) {
             unsigned int neighborcount(1);
             for (freud::locality::NeighborBond nb1 = ppiter->next(); !ppiter->end(); nb1 = ppiter->next())
             {

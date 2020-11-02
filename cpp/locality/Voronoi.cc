@@ -102,7 +102,7 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
             if (box.is2D())
             {
                 std::sort(relative_vertices.begin(), relative_vertices.end(),
-                          [](const vec3<double> a, const vec3<double> b) {
+                          [](const vec3<double>& a, const vec3<double>& b) {
                               return std::atan2(a.y, a.x) < std::atan2(b.y, b.x);
                           });
             }
