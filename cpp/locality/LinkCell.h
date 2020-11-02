@@ -188,7 +188,7 @@ public:
     LinkCell(const box::Box& box, const vec3<float>* points, unsigned int n_points, float cell_width = 0);
 
     //! Compute LinkCell dimensions
-    vec3<unsigned int> computeDimensions(const box::Box& box, float cell_width) const;
+    static vec3<unsigned int> computeDimensions(const box::Box& box, float cell_width);
 
     //! Compute cell id from cell coordinates
     unsigned int getCellIndex(const vec3<int> cellCoord) const;

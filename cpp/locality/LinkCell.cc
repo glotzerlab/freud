@@ -267,7 +267,7 @@ unsigned int LinkCell::getCellIndex(const vec3<int> cellCoord) const
     return coordToIndex(x, y, z);
 }
 
-vec3<unsigned int> LinkCell::computeDimensions(const box::Box& box, float cell_width) const
+vec3<unsigned int> LinkCell::computeDimensions(const box::Box& box, float cell_width)
 {
     vec3<unsigned int> dim;
 

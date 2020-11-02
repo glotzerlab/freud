@@ -6,6 +6,7 @@
 
 #include <memory>
 #include <stdexcept>
+#include <utility>
 #include <tbb/enumerable_thread_specific.h>
 #include <tbb/parallel_sort.h>
 
@@ -85,8 +86,8 @@ public:
     NeighborQuery() = default;
 
     //! Constructor
-    NeighborQuery(const box::Box& box, const vec3<float>* points, unsigned int n_points)
-        : m_box(box), m_points(points), m_n_points(n_points)
+    NeighborQuery(box::Box box, const vec3<float>* points, unsigned int n_points)
+        : m_box(std::move(box)), m_points(points), m_n_points(n_points)
     {
         // Reject systems with 0 particles
         if (m_n_points == 0)

@@ -23,17 +23,9 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
     m_polytopes.resize(n_points);
     m_volumes.prepare(n_points);
 
-    vec3<float> boxLatticeVectors[3];
-    boxLatticeVectors[0] = box.getLatticeVector(0);
-    boxLatticeVectors[1] = box.getLatticeVector(1);
-    if (box.is2D())
-    {
-        boxLatticeVectors[2] = vec3<float>(0, 0, 1);
-    }
-    else
-    {
-        boxLatticeVectors[2] = box.getLatticeVector(2);
-    }
+    vec3<float> v1 = box.getLatticeVector(0);
+    vec3<float> v2 = box.getLatticeVector(1);
+    vec3<float> v3 = (box.is2D() ? vec3<float>(0, 0, 1) : box.getLatticeVector(2));
 
     // This heuristic for choosing blocks is based on the voro::pre_container
     // guess_optimal method. By computing the heuristic directly, we avoid
@@ -45,8 +37,7 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
     int voro_blocks_y = int(box.getLy() * block_scale + 1);
     int voro_blocks_z = int(box.getLz() * block_scale + 1);
 
-    voro::container_periodic container(boxLatticeVectors[0].x, boxLatticeVectors[1].x, boxLatticeVectors[1].y,
-                                       boxLatticeVectors[2].x, boxLatticeVectors[2].y, boxLatticeVectors[2].z,
+    voro::container_periodic container(v1.x, v2.x, v2.y, v3.x, v3.y, v3.z,
                                        voro_blocks_x, voro_blocks_y, voro_blocks_z, 3);
 
     for (size_t query_point_id = 0; query_point_id < n_points; query_point_id++)

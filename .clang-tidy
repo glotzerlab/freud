@@ -2,6 +2,7 @@
 # readability-avoid-const-params-in-decls: While it may be semantically confusing, it's easier to read when declaration and definition consts match.
 # readability-redundant-member-init: If the constructor changes or if there are multiple constructor signatures, prefer to be explicit.
 # modernize-use-trailing-return-type: This syntax is still generally unfamiliar to many developers and will make the code harder to maintain.
+# misc-no-recursion: Rewriting things like the NeighborList to avoid recursion is out of scope for now.
 
 Checks: 'bugprone-*,
          cert-*,
@@ -13,12 +14,9 @@ Checks: 'bugprone-*,
          portability-*,
          readability-*,
          -readability-avoid-const-params-in-decls,
-         -readability-magic-numbers,
          -readability-redundant-member-init,
-         -readability-convert-member-functions-to-static,
-         -performance-unnecessary-value-param,
-         -misc-non-private-member-variables-in-classes,
-         -misc-no-recursion,
-         -modernize-avoid-c-arrays,
          -modernize-use-trailing-return-type,
-         -modernize-pass-by-value'
+         -misc-no-recursion,
+         -readability-magic-numbers,
+         -performance-unnecessary-value-param,
+         -misc-non-private-member-variables-in-classes'

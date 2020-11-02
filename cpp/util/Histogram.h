@@ -2,6 +2,7 @@
 #define HISTOGRAM_H
 
 #include <memory>
+#include <utility>
 #include <vector>
 #ifdef __SSE2__
 #include <emmintrin.h>
@@ -280,7 +281,7 @@ public:
     Histogram() = default;
 
     //! Constructor
-    Histogram(std::vector<std::shared_ptr<Axis>> axes) : m_axes(axes)
+    Histogram(std::vector<std::shared_ptr<Axis>> axes) : m_axes(std::move(axes))
     {
         std::vector<size_t> sizes;
         for (AxisIterator it = m_axes.begin(); it != m_axes.end(); it++)
