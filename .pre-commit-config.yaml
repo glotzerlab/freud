@@ -20,12 +20,3 @@ repos:
     rev: v0.6.13
     hooks:
     -   id: cmake-format
--   repo: https://github.com/pocc/pre-commit-hooks
-    rev: python
-    hooks:
-      - id: clang-format
-        # Unclear if this is necessary, it seems like clang-format uses
-        # .clang-format if found by default, at least for newer versions. I'll
-        # specify this here just in case.
-        args: [--style=file]
-        exclude: 'extern/*'
