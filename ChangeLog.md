@@ -9,6 +9,7 @@ and this project adheres to
 ### Added
 * The Box class has a method `contains` to determine particle membership in a box.
 * NeighborList class exposes `num_points` and `num_query_points` attributes.
+* `compute` method of `GaussianDensity` class has a `values` argument.
 * Support for pre-commit hooks.
 
 ### Changed

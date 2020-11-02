@@ -311,6 +311,10 @@ Maya Martirossyan
 
 * Added test for Steinhardt for particles without neighbors.
 
+Pavel Buslaev
+
+* Added ``values`` argument to compute method of ``GaussianDensity`` class.
+
 Source code
 -----------
 
