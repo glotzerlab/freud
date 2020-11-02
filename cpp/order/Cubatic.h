@@ -141,7 +141,7 @@ private:
      *
      *  \return The value of the cubatic order parameter.
      */
-    float calcCubaticOrderParameter(const tensor4& cubatic_tensor, const tensor4& global_tensor) const;
+    static float calcCubaticOrderParameter(const tensor4& cubatic_tensor, const tensor4& global_tensor);
 
     //! Calculate the per-particle tensor.
     /*! Implements the first line of eq. 27, the calculation of M.

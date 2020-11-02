@@ -96,8 +96,14 @@ public:
                 (*m_size) *= (*m_shape)[i];
             }
 
+            // We make use of C-style arrays here rather than any alternative
+            // because we need the underlying data representation to be
+            // compatible with numpy on the Python side. We _could_ do this
+            // with a different data structure like std::vector, but it would
+            // require writing additional gymnastics to ensure proper reference
+            // management and should be carefully considered before any rewrite.
             m_data = std::shared_ptr<std::shared_ptr<T>>(
-                new std::shared_ptr<T>(new T[size()], std::default_delete<T[]>()));
+                new std::shared_ptr<T>(new T[size()], std::default_delete<T[]>())); // NOLINT(modernize-avoid-c-arrays)
         }
         reset();
     }

@@ -218,7 +218,10 @@ public:
                 }
             }
 
-            size_t comb[3] = {0, 1, 2};
+            // We should switch this to using something other than C-style
+            // arrays, but we need to be careful to preserve the right behavior
+            // (particularly wrt NextCombination).
+            size_t comb[3] = {0, 1, 2}; // NOLINT(modernize-avoid-c-arrays)
             if (N == 2)
             {
                 num_pts = 2;
@@ -389,7 +392,7 @@ public:
     }
 
 private:
-    vec3<float> make_point(const Eigen::VectorXd& row)
+    static vec3<float> make_point(const Eigen::VectorXd& row)
     {
         if (row.rows() == 2)
         {
@@ -408,7 +411,7 @@ private:
         return (a.second < b.second);
     }
 
-    inline bool NextCombination(size_t* comb, int N, int k)
+    static inline bool NextCombination(size_t* comb, int N, int k)
     {
         // returns next combination.
         if (k == 0 || N == 0 || (comb == nullptr))

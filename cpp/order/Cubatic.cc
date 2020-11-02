@@ -1,6 +1,7 @@
 // Copyright (c) 2010-2020 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
+#include <array>
 #include <cstring>
 #include <functional>
 #include <stdexcept>
@@ -24,7 +25,7 @@ tensor4::tensor4()
 tensor4::tensor4(vec3<float> vector)
 {
     unsigned int cnt = 0;
-    float v[3];
+    std::array<float, 3> v;
     v[0] = vector.x;
     v[1] = vector.y;
     v[2] = vector.z;
@@ -174,7 +175,7 @@ tensor4 Cubatic::calcCubaticTensor(quat<float>& orientation)
     return calculated_tensor * float(2.0) - m_gen_r4_tensor;
 }
 
-float Cubatic::calcCubaticOrderParameter(const tensor4& cubatic_tensor, const tensor4& global_tensor) const
+float Cubatic::calcCubaticOrderParameter(const tensor4& cubatic_tensor, const tensor4& global_tensor)
 {
     tensor4 diff = global_tensor - cubatic_tensor;
     return float(1.0) - dot(diff, diff) / dot(cubatic_tensor, cubatic_tensor);
