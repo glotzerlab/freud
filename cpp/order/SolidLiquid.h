@@ -98,9 +98,10 @@ public:
     {
         std::vector<unsigned int> sizes;
         auto keys = m_cluster.getClusterKeys();
-        for (auto cluster = keys.begin(); cluster != keys.end(); cluster++)
+        sizes.reserve(keys.size());
+        for (auto & key : keys)
         {
-            sizes.push_back(cluster->size());
+            sizes.push_back(key.size());
         }
         return sizes;
     }

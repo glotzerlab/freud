@@ -58,7 +58,7 @@ public:
     Cubatic(float t_initial, float t_final, float scale, unsigned int replicates, unsigned int seed);
 
     //! Destructor
-    ~Cubatic() {}
+    ~Cubatic() = default;
 
     //! Reset the bond order array to all zeros
     void reset();

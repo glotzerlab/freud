@@ -26,7 +26,7 @@ public:
     Nematic(vec3<float> u);
 
     //! Destructor
-    virtual ~Nematic() {};
+    virtual ~Nematic() = default;;
 
     //! Compute the nematic order parameter
     void compute(quat<float>* orientations, unsigned int n);

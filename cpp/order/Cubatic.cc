@@ -28,15 +28,15 @@ tensor4::tensor4(vec3<float> vector)
     v[0] = vector.x;
     v[1] = vector.y;
     v[2] = vector.z;
-    for (unsigned int i = 0; i < 3; i++)
+    for (float vi : v)
     {
-        for (unsigned int j = 0; j < 3; j++)
+        for (float vj : v)
         {
-            for (unsigned int k = 0; k < 3; k++)
+            for (float vk : v)
             {
-                for (unsigned int l = 0; l < 3; l++)
+                for (float vl : v)
                 {
-                    data[cnt] = v[i] * v[j] * v[k] * v[l];
+                    data[cnt] = vi * vj * vk * vl;
                     cnt++;
                 }
             }
@@ -117,8 +117,11 @@ tensor4 genR4Tensor()
     unsigned int cnt = 0;
     tensor4 r4 = tensor4();
     for (unsigned int i = 0; i < 3; ++i)
+    {
         for (unsigned int j = 0; j < 3; ++j)
+        {
             for (unsigned int k = 0; k < 3; ++k)
+            {
                 for (unsigned int l = 0; l < 3; ++l)
                 {
                     // ijkl term
@@ -130,6 +133,9 @@ tensor4 genR4Tensor()
                     r4[cnt] *= 2.0 / 5.0;
                     ++cnt;
                 }
+            }
+        }
+    }
     return r4;
 }
 
@@ -138,11 +144,17 @@ Cubatic::Cubatic(float t_initial, float t_final, float scale, unsigned int n_rep
       m_n(0)
 {
     if (m_t_initial < m_t_final)
+    {
         throw std::invalid_argument("Cubatic requires that t_initial must be greater than t_final.");
+    }
     if (t_final < 1e-6)
+    {
         throw std::invalid_argument("Cubatic requires that t_final must be >= 1e-6.");
+    }
     if ((scale >= 1) || (scale <= 0))
+    {
         throw std::invalid_argument("Cubatic requires that scale must be between 0 and 1.");
+    }
 
     m_gen_r4_tensor = genR4Tensor();
 
@@ -155,9 +167,9 @@ Cubatic::Cubatic(float t_initial, float t_final, float scale, unsigned int n_rep
 tensor4 Cubatic::calcCubaticTensor(quat<float>& orientation)
 {
     tensor4 calculated_tensor = tensor4();
-    for (unsigned int i = 0; i < 3; i++)
+    for (auto & m_system_vector : m_system_vectors)
     {
-        calculated_tensor += tensor4(rotate(orientation, m_system_vectors[i]));
+        calculated_tensor += tensor4(rotate(orientation, m_system_vector));
     }
     return calculated_tensor * float(2.0) - m_gen_r4_tensor;
 }
@@ -189,11 +201,11 @@ util::ManagedArray<tensor4> Cubatic::calculatePerParticleTensor(const quat<float
         for (size_t i = begin; i < end; ++i)
         {
             tensor4 l_mbar = tensor4();
-            for (unsigned int j = 0; j < 3; ++j)
+            for (const auto & m_system_vector : m_system_vectors)
             {
                 // Calculate the homogeneous tensor H for each vector then add
                 // to the per-particle value.
-                vec3<float> v_r = rotate(orientations[i], m_system_vectors[j]);
+                vec3<float> v_r = rotate(orientations[i], m_system_vector);
                 tensor4 r4_tensor(v_r);
                 l_mbar += r4_tensor;
             }
@@ -211,7 +223,7 @@ tensor4 Cubatic::calculateGlobalTensor(quat<float>* orientations) const
     util::ManagedArray<tensor4> particle_tensor = calculatePerParticleTensor(orientations);
 
     // now calculate the global tensor
-    float n_inv = 1.0 / (float) m_n;
+    float n_inv = float(1.0) / static_cast<float>(m_n);
 
     tbb::parallel_for(tbb::blocked_range<size_t>(0, 81),
                       [=, &global_tensor, &n_inv, &particle_tensor](const tbb::blocked_range<size_t>& r) {
@@ -256,7 +268,7 @@ void Cubatic::compute(quat<float>* orientations, unsigned int num_orientations)
         [=, &p_cubatic_orientation, &p_cubatic_order_parameter,
          &p_cubatic_tensor](const tbb::blocked_range<size_t>& r) {
             // create thread-specific rng
-            unsigned int thread_start = (unsigned int) r.begin();
+            unsigned int thread_start = r.begin();
 
             std::vector<unsigned int> seed_seq(3);
             seed_seq[0] = m_seed;
@@ -265,7 +277,7 @@ void Cubatic::compute(quat<float>* orientations, unsigned int num_orientations)
             std::seed_seq seed(seed_seq.begin(), seed_seq.end());
             std::mt19937 rng(seed);
             std::uniform_real_distribution<float> base_dist(0, 1);
-            auto dist = std::bind(base_dist, rng);
+            auto dist = [&] () { return base_dist(rng); };
 
             for (size_t i = r.begin(); i != r.end(); i++)
             {

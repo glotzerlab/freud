@@ -89,7 +89,9 @@ void Nematic::compute(quat<float>* orientations, unsigned int n)
 
     // Normalize by the number of particles
     for (unsigned int i = 0; i < m_nematic_tensor.size(); ++i)
-        m_nematic_tensor[i] /= m_n;
+    {
+        m_nematic_tensor[i] /= static_cast<float>(m_n);
+    }
 
     // the order parameter is the eigenvector belonging to the largest eigenvalue
     util::ManagedArray<float> eval = util::ManagedArray<float>(3);

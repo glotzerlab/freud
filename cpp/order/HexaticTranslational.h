@@ -29,7 +29,7 @@ public:
     HexaticTranslational(T k, bool weighted = false) : m_k(k), m_weighted(weighted) {}
 
     //! Destructor
-    virtual ~HexaticTranslational() {}
+    virtual ~HexaticTranslational() = default;
 
     T getK() const
     {
@@ -70,7 +70,7 @@ public:
     Hexatic(unsigned int k = 6, bool weighted = false);
 
     //! Destructor
-    ~Hexatic();
+    ~Hexatic() override = default;
 
     //! Compute the hexatic order parameter
     void compute(const freud::locality::NeighborList* nlist, const freud::locality::NeighborQuery* points,
@@ -87,7 +87,7 @@ public:
     Translational(float k = 6, bool weighted = false);
 
     //! Destructor
-    ~Translational();
+    ~Translational() override = default;
 
     //! Compute the translational order parameter
     void compute(const freud::locality::NeighborList* nlist, const freud::locality::NeighborQuery* points,

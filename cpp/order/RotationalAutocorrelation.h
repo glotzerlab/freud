@@ -45,7 +45,7 @@ class RotationalAutocorrelation
 {
 public:
     //! Explicit default constructor for Cython.
-    RotationalAutocorrelation() {}
+    RotationalAutocorrelation() = default;
 
     //! Constructor
     /*! \param l The order of the spherical harmonic.
@@ -63,7 +63,7 @@ public:
     }
 
     //! Destructor
-    ~RotationalAutocorrelation() {}
+    ~RotationalAutocorrelation() = default;
 
     //! Get the quantum number l used in calculations.
     unsigned int getL() const

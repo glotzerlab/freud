@@ -69,7 +69,7 @@ public:
     {}
 
     //! Empty destructor
-    ~Steinhardt() {};
+    ~Steinhardt() = default;
 
     //! Get the number of particles used in the last compute
     unsigned int getNP() const
@@ -84,10 +84,7 @@ public:
         {
             return m_wli;
         }
-        else
-        {
-            return getQl();
-        }
+        return getQl();
     }
 
     //! Get the last calculated ql
@@ -97,10 +94,7 @@ public:
         {
             return m_qliAve;
         }
-        else
-        {
-            return m_qli;
-        }
+        return m_qli;
     }
 
     //! Get the last calculated qlm for each particle
@@ -152,7 +146,7 @@ private:
     //! \internal
     //! Spherical harmonics calculation for Ylm filling a
     //  std::vector<std::complex<float> > with values for m = -l..l.
-    void computeYlm(const float theta, const float phi, std::vector<std::complex<float>>& Ylm);
+    void computeYlm(const float theta, const float phi, std::vector<std::complex<float>>& Ylm) const;
 
     template<typename T> std::shared_ptr<T> makeArray(size_t size);
 
@@ -175,7 +169,7 @@ private:
     //! Sum over Wigner 3j coefficients to compute third-order invariants
     //  wl from second-order invariants ql
     void aggregatewl(util::ManagedArray<float>& target, util::ManagedArray<std::complex<float>>& source,
-                     util::ManagedArray<float>& normalization_source);
+                     util::ManagedArray<float>& normalization_source) const;
 
     // Member variables used for compute
     unsigned int m_Np;     //!< Last number of points computed

@@ -33,7 +33,7 @@ void SolidLiquid::compute(const freud::locality::NeighborList* nlist,
     const auto& ql = m_steinhardt.getQl();
 
     // Compute (normalized) dot products for each bond in the neighbor list
-    const float normalizationfactor = float(4 * M_PI / m_num_ms);
+    const auto normalizationfactor = float(4.0 * M_PI / m_num_ms);
     const unsigned int num_bonds(m_nlist.getNumBonds());
     m_ql_ij.prepare(num_bonds);
 

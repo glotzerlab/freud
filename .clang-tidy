@@ -14,5 +14,7 @@ Checks: 'bugprone-*,
          -readability-convert-member-functions-to-static,
          -performance-unnecessary-value-param,
          -misc-non-private-member-variables-in-classes,
+         -modernize-avoid-c-arrays,
          -modernize-use-trailing-return-type,
+         -modernize-pass-by-value,
          -modernize-return-braced-init-list'
