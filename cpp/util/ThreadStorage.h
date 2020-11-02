@@ -2,6 +2,7 @@
 #define THREADSTORAGE_H
 
 #include "ManagedArray.h"
+#include "utils.h"
 #include <tbb/enumerable_thread_specific.h>
 #include <vector>
 
