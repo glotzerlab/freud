@@ -11,10 +11,10 @@
 
 namespace freud { namespace environment {
 
-float computeSeparationAngle(const quat<float> ref_q, const quat<float> q)
+float computeSeparationAngle(const quat<float> &ref_q, const quat<float> &q)
 {
     quat<float> R = q * conj(ref_q);
-    float theta = float(2.0 * std::acos(util::clamp(R.s, -1, 1)));
+    auto theta = float(2.0 * std::acos(util::clamp(R.s, -1, 1)));
     return theta;
 }
 
@@ -22,7 +22,7 @@ float computeSeparationAngle(const quat<float> ref_q, const quat<float> q)
 // is defined to some global reference orientation. Thus, to be safe, we must include
 // a rotation by qconst as defined below when doing the calculation.
 // Important: equiv_qs must include both q and -q, for all included quaternions
-float computeMinSeparationAngle(const quat<float> ref_q, const quat<float> q, const quat<float>* equiv_qs,
+float computeMinSeparationAngle(const quat<float> &ref_q, const quat<float> &q, const quat<float>* equiv_qs,
                                 unsigned int n_equiv_quats)
 {
     quat<float> qconst = equiv_qs[0];
