@@ -34,12 +34,18 @@ NeighborList::NeighborList(unsigned int num_bonds, const unsigned int* query_poi
     {
         index = query_point_index[i];
         if (index < last_index)
+        {
             throw std::invalid_argument("NeighborList query_point_index must be sorted.");
+        }
         if (index >= m_num_query_points)
+        {
             throw std::invalid_argument(
                 "NeighborList query_point_index values must be less than num_query_points.");
+        }
         if (point_index[i] >= m_num_points)
+        {
             throw std::invalid_argument("NeighborList point_index values must be less than num_points.");
+        }
         m_neighbors(i, 0) = index;
         m_neighbors(i, 1) = point_index[i];
         m_weights[i] = weights[i];
@@ -140,10 +146,11 @@ unsigned int NeighborList::filter_r(float r_max, float r_min)
 
 unsigned int NeighborList::find_first_index(unsigned int i) const
 {
-    if (getNumBonds())
-        return bisection_search(i, 0, getNumBonds()) + (i > m_neighbors(0, 0));
-    else
-        return 0;
+    if (getNumBonds() != 0)
+    {
+        return bisection_search(i, 0, getNumBonds()) + (i > m_neighbors(0, 0) ? 1 : 0);
+    }
+    return 0;
 }
 
 void NeighborList::resize(unsigned int num_bonds)
@@ -182,22 +189,29 @@ void NeighborList::copy(const NeighborList& other)
 void NeighborList::validate(unsigned int num_query_points, unsigned int num_points) const
 {
     if (num_query_points != m_num_query_points)
+    {
         throw std::runtime_error("NeighborList found inconsistent array sizes.");
+    }
     if (num_points != m_num_points)
+    {
         throw std::runtime_error("NeighborList found inconsistent array sizes.");
+    }
 }
 
 unsigned int NeighborList::bisection_search(unsigned int val, unsigned int left, unsigned int right) const
 {
     if (left + 1 >= right)
+    {
         return left;
+    }
 
     unsigned int middle((left + right) / 2);
 
     if (m_neighbors(middle, 0) < val)
+    {
         return bisection_search(val, middle, right);
-    else
-        return bisection_search(val, left, middle);
+    }
+    return bisection_search(val, left, middle);
 }
 
 bool compareNeighborBond(const NeighborBond& left, const NeighborBond& right)
@@ -212,14 +226,11 @@ bool compareNeighborDistance(const NeighborBond& left, const NeighborBond& right
 
 bool compareFirstNeighborPairs(const std::vector<NeighborBond>& left, const std::vector<NeighborBond>& right)
 {
-    if (left.size() && right.size())
+    if (!left.empty() && !right.empty())
     {
         return compareNeighborBond(left[0], right[0]);
     }
-    else
-    {
-        return left.size() < right.size();
-    }
+    return left.size() < right.size();
 }
 
 }; }; // end namespace freud::locality

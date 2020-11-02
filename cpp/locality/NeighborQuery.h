@@ -82,7 +82,7 @@ class NeighborQuery
 {
 public:
     //! Nullary constructor for Cython
-    NeighborQuery() {}
+    NeighborQuery() = default;
 
     //! Constructor
     NeighborQuery(const box::Box& box, const vec3<float>* points, unsigned int n_points)
@@ -108,7 +108,7 @@ public:
     }
 
     //! Empty Destructor
-    virtual ~NeighborQuery() {}
+    virtual ~NeighborQuery() = default;
 
     //! Perform a query based on a set of query parameters.
     /*! Given a QueryArgs object and a set of points to perform a query
@@ -128,7 +128,9 @@ public:
         // pair calculations using non-periodic boxes should fail
         vec3<bool> periodic = m_box.getPeriodic();
         if (!(periodic.x && periodic.y && periodic.z))
-            std::domain_error("Cannot execute pair queries in a non-periodic box");
+        {
+            throw std::domain_error("Cannot execute pair queries in a non-periodic box");
+        }
 
         this->validateQueryArgs(query_args);
         return std::make_shared<NeighborQueryIterator>(this, query_points, n_query_points, query_args);
@@ -168,7 +170,7 @@ public:
     //! Get a point's coordinates using index operator notation
     /*! \param index The point index to return.
      */
-    const vec3<float> operator[](unsigned int index) const
+    vec3<float> operator[](unsigned int index) const
     {
         if (index >= m_n_points)
         {
@@ -192,17 +194,23 @@ protected:
         if (args.mode == QueryType::ball)
         {
             if (args.r_max == DEFAULT_R_MAX)
+            {
                 throw std::runtime_error(
                     "You must set r_max in the query arguments when performing ball queries.");
+            }
             if (args.num_neighbors != DEFAULT_NUM_NEIGHBORS)
+            {
                 throw std::runtime_error(
                     "You cannot set num_neighbors in the query arguments when performing ball queries.");
+            }
         }
         else if (args.mode == QueryType::nearest)
         {
             if (args.num_neighbors == DEFAULT_NUM_NEIGHBORS)
+            {
                 throw std::runtime_error("You must set num_neighbors in the query arguments when performing "
                                          "number of neighbor queries.");
+            }
             if (args.r_max == DEFAULT_R_MAX)
             {
                 args.r_max = std::numeric_limits<float>::infinity();
@@ -254,10 +262,10 @@ class NeighborQueryPerPointIterator : public NeighborPerPointIterator
 {
 public:
     //! Nullary constructor for Cython
-    NeighborQueryPerPointIterator() {}
+    NeighborQueryPerPointIterator() = default;
 
     //! Constructor
-    NeighborQueryPerPointIterator(const NeighborQuery* neighbor_query, const vec3<float> query_point,
+    NeighborQueryPerPointIterator(const NeighborQuery* neighbor_query, const vec3<float>& query_point,
                                   unsigned int query_point_idx, float r_max, float r_min, bool exclude_ii)
         : NeighborPerPointIterator(query_point_idx), m_neighbor_query(neighbor_query),
           m_query_point(query_point), m_finished(false), m_r_max(r_max), m_r_min(r_min),
@@ -265,16 +273,16 @@ public:
     {}
 
     //! Empty Destructor
-    virtual ~NeighborQueryPerPointIterator() {}
+    ~NeighborQueryPerPointIterator() override = default;
 
     //! Indicate when done.
-    virtual bool end()
+    bool end() override
     {
         return m_finished;
     }
 
     //! Get the next element.
-    virtual NeighborBond next() = 0;
+    NeighborBond next() override = 0;
 
 protected:
     const NeighborQuery* m_neighbor_query; //!< Link to the NeighborQuery object.
@@ -301,7 +309,7 @@ class NeighborQueryIterator
 {
 public:
     //! Nullary constructor for Cython
-    NeighborQueryIterator() {}
+    NeighborQueryIterator() = default;
 
     //! Constructor
     NeighborQueryIterator(const NeighborQuery* neighbor_query, const vec3<float>* query_points,
@@ -313,10 +321,10 @@ public:
     }
 
     //! Empty Destructor
-    ~NeighborQueryIterator() {}
+    ~NeighborQueryIterator() = default;
 
     //! Indicate when done.
-    bool end()
+    bool end() const
     {
         return m_finished;
     }
@@ -331,7 +339,9 @@ public:
     NeighborBond next()
     {
         if (m_finished)
+        {
             return ITERATOR_TERMINATOR;
+        }
         NeighborBond nb;
         while (true)
         {
@@ -346,7 +356,9 @@ public:
             }
             m_cur_p++;
             if (m_cur_p >= m_num_query_points)
+            {
                 break;
+            }
             m_iter = this->query(m_cur_p);
         }
         m_finished = true;
@@ -368,7 +380,7 @@ public:
      */
     NeighborList* toNeighborList(bool sort_by_distance = false)
     {
-        typedef tbb::enumerable_thread_specific<std::vector<NeighborBond>> BondVector;
+        using BondVector = tbb::enumerable_thread_specific<std::vector<NeighborBond> >;
         BondVector bonds;
         util::forLoopWrapper(0, m_num_query_points, [&](size_t begin, size_t end) {
             BondVector::reference local_bonds(bonds.local());
@@ -391,13 +403,17 @@ public:
         tbb::flattened2d<BondVector> flat_bonds = tbb::flatten2d(bonds);
         std::vector<NeighborBond> linear_bonds(flat_bonds.begin(), flat_bonds.end());
         if (sort_by_distance)
+        {
             tbb::parallel_sort(linear_bonds.begin(), linear_bonds.end(), compareNeighborDistance);
+        }
         else
+        {
             tbb::parallel_sort(linear_bonds.begin(), linear_bonds.end(), compareNeighborBond);
+        }
 
         unsigned int num_bonds = linear_bonds.size();
 
-        NeighborList* nl = new NeighborList();
+        auto* nl = new NeighborList();
         nl->setNumBonds(num_bonds, m_num_query_points, m_neighbor_query->getNPoints());
 
         util::forLoopWrapper(0, num_bonds, [&](size_t begin, size_t end) {

@@ -40,7 +40,7 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
     // having to create a pre_container. This saves time because the
     // pre_container cannot be used to set up container_periodic (only
     // non-periodic containers are compatible).
-    float block_scale = std::pow(n_points / (voro::optimal_particles * box.getVolume()), 1.0 / 3.0);
+    float block_scale = std::pow(n_points / (voro::optimal_particles * box.getVolume()), float(1.0 / 3.0));
     int voro_blocks_x = int(box.getLx() * block_scale + 1);
     int voro_blocks_y = int(box.getLy() * block_scale + 1);
     int voro_blocks_z = int(box.getLz() * block_scale + 1);
@@ -119,10 +119,11 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
             // Save polytope vertices in system coordinates
             std::vector<vec3<double>> system_vertices;
             const vec3<double> query_point_system_coords((*nq)[query_point_id]);
-            for (auto vertex_iter = relative_vertices.begin(); vertex_iter != relative_vertices.end();
-                 vertex_iter++)
+
+            system_vertices.reserve(relative_vertices.size());
+            for (auto & relative_vertice : relative_vertices)
             {
-                system_vertices.push_back((*vertex_iter) + query_point_system_coords);
+                system_vertices.push_back(relative_vertice + query_point_system_coords);
             }
             m_polytopes[query_point_id] = system_vertices;
 
@@ -161,7 +162,7 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
                 const vec3<float> rij = box.wrap(point_system_coords - query_point_system_coords);
                 const float distance(std::sqrt(dot(rij, rij)));
 
-                bonds.push_back(NeighborBond(query_point_id, point_id, distance, weight));
+                bonds.emplace_back(query_point_id, point_id, distance, weight);
             }
 
         } while (voronoi_loop.inc());

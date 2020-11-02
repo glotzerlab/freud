@@ -54,7 +54,7 @@ class IteratorLinkCell
 public:
     IteratorLinkCell() : m_Np(0), m_Nc(0), m_cur_idx(LINK_CELL_TERMINATOR), m_cell(0) {}
 
-    IteratorLinkCell(const util::ManagedArray<unsigned int> cell_list, unsigned int Np, unsigned int Nc,
+    IteratorLinkCell(const util::ManagedArray<unsigned int> &cell_list, unsigned int Np, unsigned int Nc,
                      unsigned int cell)
         : m_cell_list(cell_list), m_Np(Np), m_Nc(Nc)
     {
@@ -66,7 +66,7 @@ public:
     void copy(const IteratorLinkCell& rhs);
 
     //! Test if the iteration over the cell is complete
-    bool atEnd();
+    bool atEnd() const;
 
     //! Get the next particle index in the list
     unsigned int next();
@@ -113,19 +113,19 @@ public:
     void operator++();
 
     //! Get the integral coordinates of the current cell.
-    vec3<int> operator*()
+    vec3<int> operator*() const
     {
         return vec3<int>(m_current_x, m_current_y, m_current_z);
     }
 
-    bool operator==(const IteratorCellShell& other)
+    bool operator==(const IteratorCellShell& other) const
     {
         return m_range == other.m_range && m_current_x == other.m_current_x
             && m_current_y == other.m_current_y && m_current_z == other.m_current_z
             && m_stage == other.m_stage && m_is2D == other.m_is2D;
     }
 
-    bool operator!=(const IteratorCellShell& other)
+    bool operator!=(const IteratorCellShell& other) const
     {
         return !(*this == other);
     }
@@ -188,7 +188,7 @@ public:
     LinkCell(const box::Box& box, const vec3<float>* points, unsigned int n_points, float cell_width = 0);
 
     //! Compute LinkCell dimensions
-    const vec3<unsigned int> computeDimensions(const box::Box& box, float cell_width) const;
+    vec3<unsigned int> computeDimensions(const box::Box& box, float cell_width) const;
 
     //! Compute cell id from cell coordinates
     unsigned int getCellIndex(const vec3<int> cellCoord) const;
@@ -216,10 +216,10 @@ public:
     vec3<unsigned int> indexToCoord(unsigned int x) const;
 
     //! Convert xyz coordinates to a linear index.
-    unsigned int coordToIndex(int x, int y, int z) const;
+    unsigned int coordToIndex(unsigned int x, unsigned int y, unsigned int z) const;
 
     //! Compute cell coordinates for a given position
-    vec3<unsigned int> getCellCoord(const vec3<float> p) const;
+    vec3<unsigned int> getCellCoord(const vec3<float> &p) const;
 
     //! Iterate over particles in a cell
     iteratorcell itercell(unsigned int cell) const
@@ -238,8 +238,8 @@ public:
      *  \param n_query_points The number of query points.
      *  \param qargs The query arguments that should be used to find neighbors.
      */
-    virtual std::shared_ptr<NeighborQueryPerPointIterator>
-    querySingle(const vec3<float> query_point, unsigned int query_point_idx, QueryArgs args) const;
+    std::shared_ptr<NeighborQueryPerPointIterator>
+    querySingle(const vec3<float> query_point, unsigned int query_point_idx, QueryArgs args) const override;
 
 private:
     //! Helper function to compute cell neighbors
@@ -252,7 +252,7 @@ private:
     unsigned int m_size;          //!< The size of cell list.
 
     util::ManagedArray<unsigned int> m_cell_list; //!< The cell list last computed
-    typedef tbb::concurrent_hash_map<unsigned int, std::vector<unsigned int>> CellNeighbors;
+    using CellNeighbors = tbb::concurrent_hash_map<unsigned int, std::vector<unsigned int> >;
     mutable CellNeighbors m_cell_neighbors; //!< Hash map of cell neighbors for each cell
 };
 
@@ -264,7 +264,7 @@ public:
     /*! The initial state is to search shell 0, the current cell. We then
      *  iterate outwards from there.
      */
-    LinkCellIterator(const LinkCell* neighbor_query, const vec3<float> query_point,
+    LinkCellIterator(const LinkCell* neighbor_query, const vec3<float> &query_point,
                      unsigned int query_point_idx, float r_max, float r_min, bool exclude_ii)
         : NeighborQueryPerPointIterator(neighbor_query, query_point, query_point_idx, r_max, r_min,
                                         exclude_ii),
@@ -273,7 +273,7 @@ public:
     {}
 
     //! Empty Destructor
-    virtual ~LinkCellIterator() {}
+    virtual ~LinkCellIterator() = default;
 
 protected:
     const LinkCell* m_linkcell; //!< Link to the LinkCell object
@@ -290,7 +290,7 @@ class LinkCellQueryIterator : public LinkCellIterator
 {
 public:
     //! Constructor
-    LinkCellQueryIterator(const LinkCell* neighbor_query, const vec3<float> query_point,
+    LinkCellQueryIterator(const LinkCell* neighbor_query, const vec3<float> &query_point,
                           unsigned int query_point_idx, unsigned int num_neighbors, float r_max, float r_min,
                           bool exclude_ii)
         : LinkCellIterator(neighbor_query, query_point, query_point_idx, r_max, r_min, exclude_ii),
@@ -298,10 +298,10 @@ public:
     {}
 
     //! Empty Destructor
-    virtual ~LinkCellQueryIterator() {}
+    virtual ~LinkCellQueryIterator() = default;
 
     //! Get the next element.
-    virtual NeighborBond next();
+    NeighborBond next() override;
 
 protected:
     unsigned int m_count;                          //!< Number of neighbors returned for the current point.
@@ -314,7 +314,7 @@ class LinkCellQueryBallIterator : public LinkCellIterator
 {
 public:
     //! Constructor
-    LinkCellQueryBallIterator(const LinkCell* neighbor_query, const vec3<float> query_point,
+    LinkCellQueryBallIterator(const LinkCell* neighbor_query, const vec3<float> &query_point,
                               unsigned int query_point_idx, float r_max, float r_min, bool exclude_ii)
         : LinkCellIterator(neighbor_query, query_point, query_point_idx, r_max, r_min, exclude_ii)
     {
@@ -332,10 +332,10 @@ public:
     }
 
     //! Empty Destructor
-    virtual ~LinkCellQueryBallIterator() {}
+    ~LinkCellQueryBallIterator() override = default;
 
     //! Get the next element.
-    virtual NeighborBond next();
+    NeighborBond next() override;
 
 protected:
     int m_extra_search_width; //!< The extra shell distance to search, always 0 or 1.

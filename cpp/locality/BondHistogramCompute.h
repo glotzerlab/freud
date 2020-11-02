@@ -26,7 +26,7 @@ public:
     {}
 
     //! Destructor
-    virtual ~BondHistogramCompute() {};
+    virtual ~BondHistogramCompute() = default;;
 
     //! Reset the RDF array to all zeros
     virtual void reset()
@@ -124,8 +124,8 @@ protected:
     util::Histogram<unsigned int>::ThreadLocalHistogram
         m_local_histograms; //!< Thread local bin counts for TBB parallelism
 
-    typedef util::Histogram<unsigned int> BondHistogram;
-    typedef typename BondHistogram::Axes BHAxes;
+    using BondHistogram = util::Histogram<unsigned int>;
+    using BHAxes = typename BondHistogram::Axes;
 };
 
 }; }; // namespace freud::locality

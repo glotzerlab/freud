@@ -30,7 +30,7 @@ public:
     //! Default constructor
     NeighborList();
     //! Create a NeighborList that can hold up to the given number of bonds
-    NeighborList(unsigned int max_bonds);
+    NeighborList(unsigned int num_bonds);
     //! Copy constructor (makes a deep copy)
     NeighborList(const NeighborList& other);
     //! Construct from arrays
@@ -124,7 +124,7 @@ public:
     void copy(const NeighborList& other);
     //! Throw a runtime_error if num_points and num_query_points do not match
     //  the stored value
-    void validate(unsigned int num_points, unsigned int num_query_points) const;
+    void validate(unsigned int num_query_points, unsigned int num_points) const;
 
 private:
     //! Helper method for bisection search of the neighbor list, used in find_first_index

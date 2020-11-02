@@ -56,9 +56,9 @@ public:
         }
     }
 
-    ~NeighborListPerPointIterator() {}
+    ~NeighborListPerPointIterator() override = default;
 
-    virtual NeighborBond next()
+    NeighborBond next() override
     {
         if (m_current_index == m_nlist->getNumBonds())
         {
@@ -74,7 +74,7 @@ public:
         return nb;
     }
 
-    virtual bool end()
+    bool end() override
     {
         return (m_returned_point_index != m_query_point_idx) || m_finished;
     }
@@ -116,7 +116,7 @@ void loopOverNeighborsIterator(const NeighborQuery* neighbor_query, const vec3<f
                                const ComputePairType& cf, bool parallel = true)
 {
     // check if nlist exists
-    if (nlist != NULL)
+    if (nlist != nullptr)
     {
         util::forLoopWrapper(
             0, n_query_points,
@@ -176,7 +176,7 @@ void loopOverNeighbors(const NeighborQuery* neighbor_query, const vec3<float>* q
                        const ComputePairType& cf, bool parallel = true)
 {
     // check if nlist exists
-    if (nlist != NULL)
+    if (nlist != nullptr)
     {
         util::forLoopWrapper(
             0, nlist->getNumBonds(),
