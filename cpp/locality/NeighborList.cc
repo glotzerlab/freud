@@ -112,15 +112,22 @@ void NeighborList::updateSegmentCounts() const
     }
 }
 
-unsigned int NeighborList::filter(const bool* filt)
+// We are currently assuming that the input iterator has the correct length;
+// however, this is compatible with the original assumptions of this function
+// (pre-iterator syntax), so we'll accept that level of type-safety for now. In
+// the future, if we expose a more appropriate iterator API then we'll need to
+// accept an "end" parameter as well.
+template <typename Iterator>
+unsigned int NeighborList::filter(const Iterator begin)
 {
     // number of good (unfiltered-out) elements so far
     unsigned int num_good(0);
     const unsigned int old_size(getNumBonds());
 
+    auto current_element = begin;
     for (unsigned int i(0); i < old_size; ++i)
     {
-        if (filt[i])
+        if (*current_element)
         {
             m_neighbors(num_good, 0) = m_neighbors(i, 0);
             m_neighbors(num_good, 1) = m_neighbors(i, 1);
@@ -128,20 +135,24 @@ unsigned int NeighborList::filter(const bool* filt)
             m_distances[num_good] = m_distances[i];
             ++num_good;
         }
+        ++current_element;
     }
     resize(num_good);
     return old_size - num_good;
 }
 
+// Explicit template instantiation required for usage in dynamically linked
+// Cython code.
+template unsigned int NeighborList::filter(const bool *);
+
 unsigned int NeighborList::filter_r(float r_max, float r_min)
 {
-    // Can't use vector<bool> because that is specialized for compact storage
-    std::unique_ptr<bool[]> dist_filter(new bool[getNumBonds()]);
+    std::vector<bool> dist_filter(getNumBonds());
     for (unsigned int i(0); i < getNumBonds(); ++i)
     {
         dist_filter[i] = (m_distances[i] >= r_min && m_distances[i] < r_max);
     }
-    return filter(dist_filter.get());
+    return filter(dist_filter.begin());
 }
 
 unsigned int NeighborList::find_first_index(unsigned int i) const

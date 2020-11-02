@@ -109,7 +109,8 @@ public:
     //! Remove bonds in this object based on an array of boolean values. The
     //  array must be at least as long as the number of neighbor bonds.
     //  Returns the number of bonds removed.
-    unsigned int filter(const bool* filt);
+    template <typename Iterator>
+    unsigned int filter(const Iterator begin);
     //! Remove bonds in this object based on minimum and maximum distance
     //  constraints. Returns the number of bonds removed.
     unsigned int filter_r(float r_max, float r_min = 0);
