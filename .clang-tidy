@@ -6,4 +6,9 @@ Checks: 'bugprone-*,
          modernize-*,
          performance-*,
          portability-*,
-         readability-*'
+         readability-*,
+         -readability-avoid-const-params-in-decls,
+         -readability-isolate-declaration,
+         -readability-magic-numbers,
+         -modernize-use-trailing-return-type,
+         -modernize-return-braced-init-list'

@@ -94,7 +94,7 @@ public:
     }
 
     //! Set L, box lengths, inverses.  Box is also centered at zero.
-    void setL(const vec3<float> L)
+    void setL(const vec3<float>& L)
     {
         setL(L.x, L.y, L.z);
     }
@@ -113,7 +113,7 @@ public:
             m_Linv = vec3<float>(1 / m_L.x, 1 / m_L.y, 1 / m_L.z);
         }
 
-        m_hi = m_L / 2.0f;
+        m_hi = m_L / float(2.0);
         m_lo = -m_hi;
     }
 
@@ -201,9 +201,10 @@ public:
     float getVolume() const
     {
         if (m_2d)
+        {
             return m_L.x * m_L.y;
-        else
-            return m_L.x * m_L.y * m_L.z;
+        }
+        return m_L.x * m_L.y * m_L.z;
     }
 
     //! Convert fractional coordinates into absolute coordinates
@@ -218,7 +219,7 @@ public:
         v.y += m_yz * v.z;
         if (m_2d)
         {
-            v.z = 0.0f;
+            v.z = float(0.0);
         }
         return v;
     }
@@ -253,11 +254,11 @@ public:
         vec3<float> delta = v - m_lo;
         delta.x -= (m_xz - m_yz * m_xy) * v.z + m_xy * v.y;
         delta.y -= m_yz * v.z;
-        delta = (delta + ghost_width) / (m_L + 2.0f * ghost_width);
+        delta = (delta + ghost_width) / (m_L + float(2.0) * ghost_width);
 
         if (m_2d)
         {
-            delta.z = 0.0f;
+            delta.z = float(0.0);
         }
         return delta;
     }
@@ -279,9 +280,9 @@ public:
     inline void getImage(const vec3<float>& v, vec3<int>& image) const
     {
         vec3<float> f = makeFractional(v) - vec3<float>(0.5, 0.5, 0.5);
-        image.x = (int) ((f.x >= 0.0f) ? f.x + 0.5f : f.x - 0.5f);
-        image.y = (int) ((f.y >= 0.0f) ? f.y + 0.5f : f.y - 0.5f);
-        image.z = (int) ((f.z >= 0.0f) ? f.z + 0.5f : f.z - 0.5f);
+        image.x = (int) ((f.x >= float(0.0)) ? f.x + float(0.5) : f.x - float(0.5));
+        image.y = (int) ((f.y >= float(0.0)) ? f.y + float(0.5) : f.y - float(0.5));
+        image.z = (int) ((f.z >= float(0.0)) ? f.z + float(0.5) : f.z - float(0.5));
     }
 
     //! Get the periodic image vectors belongs to
@@ -314,15 +315,15 @@ public:
         vec3<float> v_frac = makeFractional(v);
         if (m_periodic.x)
         {
-            v_frac.x = util::modulusPositive(v_frac.x, 1.0f);
+            v_frac.x = util::modulusPositive(v_frac.x, float(1.0));
         }
         if (m_periodic.y)
         {
-            v_frac.y = util::modulusPositive(v_frac.y, 1.0f);
+            v_frac.y = util::modulusPositive(v_frac.y, float(1.0));
         }
         if (m_periodic.z)
         {
-            v_frac.z = util::modulusPositive(v_frac.z, 1.0f);
+            v_frac.z = util::modulusPositive(v_frac.z, float(1.0));
         }
         return makeAbsolute(v_frac);
     }
@@ -367,7 +368,7 @@ public:
      *  \param masses Optional array of masses, of length Nvecs
      *  \return Center of mass as a vec3<float>
      */
-    vec3<float> centerOfMass(vec3<float>* vecs, size_t Nvecs, float* masses = NULL) const
+    vec3<float> centerOfMass(vec3<float>* vecs, size_t Nvecs, const float* masses = nullptr) const
     {
         // This roughly follows the implementation in
         // https://en.wikipedia.org/wiki/Center_of_mass#Systems_with_periodic_boundary_conditions
@@ -379,7 +380,7 @@ public:
             vec3<float> phase(constants::TWO_PI * makeFractional(vecs[i]));
             vec3<std::complex<float>> xi(std::polar(float(1.0), phase.x), std::polar(float(1.0), phase.y),
                                          std::polar(float(1.0), phase.z));
-            float mass = (masses != NULL) ? masses[i] : 1.0;
+            float mass = (masses != nullptr) ? masses[i] : float(1.0);
             total_mass += mass;
             xi_mean += std::complex<float>(mass, 0) * xi;
         }
@@ -394,7 +395,7 @@ public:
      *  \param Nvecs Number of vectors
      *  \param masses Optional array of masses, of length Nvecs
      */
-    void center(vec3<float>* vecs, unsigned int Nvecs, float* masses = NULL) const
+    void center(vec3<float>* vecs, unsigned int Nvecs, const float* masses = nullptr) const
     {
         vec3<float> com(centerOfMass(vecs, Nvecs, masses));
         util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
@@ -472,7 +473,7 @@ public:
             for (size_t i = begin; i < n_points; ++i)
             {
                 std::transform(&points[begin], &points[end], &contains_mask[begin],
-                               [this](const vec3<float> point) -> bool {
+                               [this](const vec3<float> &point) -> bool {
                                    vec3<int> image(0, 0, 0);
                                    getImage(point, image);
                                    return image == vec3<int>(0, 0, 0);
@@ -492,8 +493,8 @@ public:
     vec3<float> getNearestPlaneDistance() const
     {
         vec3<float> dist;
-        dist.x = m_L.x / std::sqrt(1.0f + m_xy * m_xy + (m_xy * m_yz - m_xz) * (m_xy * m_yz - m_xz));
-        dist.y = m_L.y / std::sqrt(1.0f + m_yz * m_yz);
+        dist.x = m_L.x / std::sqrt(float(1.0) + m_xy * m_xy + (m_xy * m_yz - m_xz) * (m_xy * m_yz - m_xz));
+        dist.y = m_L.y / std::sqrt(float(1.0) + m_yz * m_yz);
         dist.z = m_L.z;
 
         return dist;
@@ -509,19 +510,15 @@ public:
         {
             return vec3<float>(m_L.x, 0.0, 0.0);
         }
-        else if (i == 1)
+        if (i == 1)
         {
             return vec3<float>(m_L.y * m_xy, m_L.y, 0.0);
         }
-        else if (i == 2 && !m_2d)
+        if (i == 2 && !m_2d)
         {
             return vec3<float>(m_L.z * m_xz, m_L.z * m_yz, m_L.z);
         }
-        else
-        {
-            throw std::out_of_range("Box lattice vector index requested does not exist.");
-        }
-        return vec3<float>(0.0, 0.0, 0.0);
+        throw std::out_of_range("Box lattice vector index requested does not exist.");
     }
 
     //! Set the periodic flags
