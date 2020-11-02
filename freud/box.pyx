@@ -291,7 +291,9 @@ cdef class Box:
         Args:
             vecs (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Unwrapped vector(s).
-            inplace
+            inplace (bool):
+                Whether to operate on vectors in place and overwrite input
+                data (Default value: False).
 
         Returns:
             :math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
