@@ -2,6 +2,7 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <cmath>
+#include <iterator>
 #include <tbb/parallel_sort.h>
 #include <vector>
 
@@ -108,12 +109,12 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
             }
 
             // Save polytope vertices in system coordinates
-            std::vector<vec3<double>> system_vertices;
-            const vec3<double> query_point_system_coords((*nq)[query_point_id]);
+            const vec3<double>& query_point_system_coords((*nq)[query_point_id]);
 
+            std::vector<vec3<double>> system_vertices;
             system_vertices.reserve(relative_vertices.size());
             std::transform(
-                relative_vertices.begin(), relative_vertices.end(), system_vertices.begin(),
+                relative_vertices.begin(), relative_vertices.end(), std::back_inserter(system_vertices),
                 [&](const auto& relative_vertex) { return relative_vertex + query_point_system_coords; });
             m_polytopes[query_point_id] = system_vertices;
 
