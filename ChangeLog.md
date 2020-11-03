@@ -9,9 +9,11 @@ and this project adheres to
 ### Added
 * The Box class has a method `contains` to determine particle membership in a box.
 * NeighborList class exposes `num_points` and `num_query_points` attributes.
+* `compute` method of `GaussianDensity` class has a `values` argument.
 
 ### Changed
 * NeighborList raises a `ValueError` instead of a `RuntimeError` if provided invalid constructor arguments.
+* freud now builds using scikit-build (requires CMake).
 
 ### Deprecated
 * `freud.order.Translational`
@@ -20,6 +22,7 @@ and this project adheres to
 * Source distributions now include Cython source files.
 * Hexatic order parameter (unweighted) normalizes by number of neighbors instead of the symmetry order k.
 * Particles with an i-j normal vector of [0, 0, 0] are excluded from 2D Voronoi NeighborList computations for numerical stability reasons.
+* Memory leak in `makeDefaultNlist` function where a NeighborList was being allocated and not freed.
 
 ## v2.3.0 - 2020-08-03
 

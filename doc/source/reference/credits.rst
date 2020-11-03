@@ -51,6 +51,7 @@ Vyas Ramasubramani - **Lead developer**
 * Fixed handling of 2D systems from various data sources.
 * Fixed usage of query orientations in PMFTXY, PMFTXYT and PMFTXYZ when points and query points are not identical.
 * Refactored and standardized PMFT tests.
+* Rewrote build system to use scikit-build.
 
 Bradley Dice - **Lead developer**
 
@@ -109,6 +110,7 @@ Bradley Dice - **Lead developer**
 * Contributed code, design, and testing for ``DiffractionPattern`` class.
 * Fixed ``Hexatic`` order parameter (unweighted) to normalize by number of neighbors instead of the symmetry order k.
 * Added ``num_query_points`` and ``num_points`` attributes to NeighborList class.
+* Added scikit-build support for Windows.
 
 Eric Harper, University of Michigan - **Former lead developer**
 
@@ -303,6 +305,14 @@ Tommy Waltmann
 
 * Worked with Bradley Dice to add the SphereVoxelization feature.
 * Contributed code, design, and testing for ``DiffractionPattern`` class.
+
+Maya Martirossyan
+
+* Added test for Steinhardt for particles without neighbors.
+
+Pavel Buslaev
+
+* Added ``values`` argument to compute method of ``GaussianDensity`` class.
 
 Source code
 -----------
