@@ -301,7 +301,7 @@ std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>> isSimilar(Environme
         rotation = rotmat3<float>(rot[0], rot[1], rot[2]);
         BiMap<unsigned int, unsigned int> tmp_vec_map = r.getVecMap();
 
-        for (const auto *registered_pair : tmp_vec_map)
+        for (const auto* registered_pair : tmp_vec_map)
         {
             // RegisterBruteForce has found the vector mapping that results in
             // minimal RMSD, as best as it can figure out.

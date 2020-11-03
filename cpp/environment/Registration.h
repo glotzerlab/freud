@@ -475,7 +475,10 @@ private:
     float m_rmsd {0.0};
     double m_tol {1e-6};
     size_t m_shuffles {1};
-    BiMap<unsigned int, unsigned int> m_vec_map; //! The mapping between indices of the two sets of points ref_points->points (where "ref_points" are those that RegisterBruteForce was constructed with and "points" are those passed to Fit).
+    BiMap<unsigned int, unsigned int>
+        m_vec_map; //! The mapping between indices of the two sets of points ref_points->points (where
+                   //! "ref_points" are those that RegisterBruteForce was constructed with and "points" are
+                   //! those passed to Fit).
 };
 
 }; }; // end namespace freud::environment
