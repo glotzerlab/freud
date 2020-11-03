@@ -71,6 +71,10 @@ references:
     run:
       name: Install pre-commit dependencies
       command: |
+        # We don't actually need to build, so we don't need any of the normal
+        # dependencies, but we need to initialize the build system far enough
+        # to generate a compile database.
+        python${PYVER} -m pip install --user scikit-build==0.10.0 cmake==3.6.3.post1
         python${PYVER} -m pip install --user -r requirements-precommit.txt
 
   pre-test-checks: &pre-test-checks
