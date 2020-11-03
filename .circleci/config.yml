@@ -85,7 +85,7 @@ references:
         # to some libraries being missing, but it will successfully generate
         # the necessary file, so we just fake that it succeeded.
         cmake . || true
-        "`python${PYVER} -m site --user-base`/bin/pre-commit" run -c pre-commit-config-cpp.yaml --all-files
+        "`python${PYVER} -m site --user-base`/bin/pre-commit" run -c .pre-commit-config-cpp.yaml --all-files
 
   build: &build
     run:
