@@ -226,12 +226,12 @@ def _convert_array(array, shape=None, dtype=np.float32, inplace=False):
                     array.shape, shape_str))
 
     if inplace:
-        if array.dtype == dtype and array.flags['C_CONTIGUOUS'] == True:
+        if array.dtype == dtype and array.flags['C_CONTIGUOUS'] is True:
             pass
         elif array.dtype != dtype:
             raise ValueError("array.dtype = {}; expected dtype = {}".format(
                 array.dtype, dtype))
-        elif array.flags['C_CONTIGUOUS'] == False:
+        elif array.flags['C_CONTIGUOUS'] is False:
             raise ValueError("array is not C-contiguous")
 
     else:
