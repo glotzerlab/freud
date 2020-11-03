@@ -207,7 +207,10 @@ def _convert_array(array, shape=None, dtype=np.float32, inplace=False):
         dtype: :code:`dtype` to convert the array to if :code:`array.dtype`
             is different. If :code:`None`, :code:`dtype` will not be changed
             (Default value = :class:`numpy.float32`).
-        inplace
+        inplace (bool):
+            If True, checks if the array satisfies the requirements and does
+            not operate on the input array. If False, checks the requirements
+            and makes a copy if necessary (Default value: False).
 
     Returns:
         :class:`numpy.ndarray`: Array.
