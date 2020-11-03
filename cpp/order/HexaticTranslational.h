@@ -26,7 +26,7 @@ template<typename T> class HexaticTranslational
 {
 public:
     //! Constructor
-    HexaticTranslational(T k, bool weighted = false) : m_k(k), m_weighted(weighted) {}
+    explicit HexaticTranslational(T k, bool weighted = false) : m_k(k), m_weighted(weighted) {}
 
     //! Destructor
     virtual ~HexaticTranslational() = default;

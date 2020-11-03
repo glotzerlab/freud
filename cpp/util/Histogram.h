@@ -24,7 +24,7 @@ namespace freud { namespace util {
 template<typename T> struct Weight
 {
     Weight() : value(1) {}
-    Weight(T value) : value(value), is_default(false) {}
+    explicit Weight(T value) : value(value), is_default(false) {}
 
     Weight& operator=(Weight other)
     {
@@ -201,7 +201,7 @@ public:
     public:
         ThreadLocalHistogram() = default;
 
-        ThreadLocalHistogram(Histogram histogram)
+        explicit ThreadLocalHistogram(const Histogram& histogram)
             : m_local_histograms([histogram]() { return Histogram(histogram.m_axes); })
         {}
 
@@ -281,10 +281,10 @@ public:
     Histogram() = default;
 
     //! Constructor
-    Histogram(std::vector<std::shared_ptr<Axis>> axes) : m_axes(std::move(axes))
+    explicit Histogram(std::vector<std::shared_ptr<Axis>> axes) : m_axes(std::move(axes))
     {
         std::vector<size_t> sizes;
-        for (AxisIterator it = m_axes.begin(); it != m_axes.end(); it++)
+        for (AxisIterator it = m_axes.begin(); it != m_axes.end(); ++it)
         {
             sizes.push_back((*it)->size());
         }

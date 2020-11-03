@@ -51,7 +51,7 @@ public:
     }
 
     //! Construct a square/cubic box
-    Box(float L, bool _2d = false)
+    explicit Box(float L, bool _2d = false)
     {
         m_2d = _2d; // Assign before calling setL!
         setL(L, L, L);

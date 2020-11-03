@@ -6,7 +6,7 @@
 
 #include "ManagedArray.h"
 #include "VectorMath.h"
-#include "array"
+#include <array>
 #include <random>
 
 /*! \file Cubatic.h
@@ -25,7 +25,7 @@ namespace freud { namespace order {
 struct tensor4
 {
     tensor4() = default;
-    tensor4(const vec3<float>& vector);
+    explicit tensor4(const vec3<float>& vector);
     tensor4 operator+=(const tensor4& b);
     tensor4 operator-(const tensor4& b) const;
     tensor4 operator*(const float& b) const;
@@ -172,10 +172,10 @@ private:
     float m_scale;               //!< Scaling factor to reduce temperature.
     unsigned int m_n_replicates; //!< Number of replicates.
     unsigned int m_seed;         //!< Random seed.
-    unsigned int m_n;            //!< Last number of points computed.
+    unsigned int m_n {0};            //!< Last number of points computed.
 
-    float m_cubatic_order_parameter;   //!< The value of the order parameter.
-    quat<float> m_cubatic_orientation; //!< The cubatic orientation.
+    float m_cubatic_order_parameter {0};   //!< The value of the order parameter.
+    quat<float> m_cubatic_orientation;     //!< The cubatic orientation.
 
     tensor4 m_gen_r4_tensor; //!< The sum of various products of Kronecker deltas that is stored as a member
                              //!< for convenient reuse.

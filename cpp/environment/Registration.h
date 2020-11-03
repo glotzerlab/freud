@@ -105,10 +105,8 @@ inline matrix Rotate(const matrix& R, const matrix& P)
             << " rows. These must be equal to perform the rotation." << std::endl;
         throw std::invalid_argument(msg.str());
     }
-    matrix rotated = matrix::Zero(P.rows(), P.cols());
     // Apply the rotation R.
-    rotated = R * P;
-    return rotated;
+    return R * P;
 }
 
 // some helpful references:
@@ -161,11 +159,7 @@ inline void AlignVectorSets(matrix& P, matrix& Q, matrix* pRotation = nullptr)
 class RegisterBruteForce
 {
 public:
-    RegisterBruteForce(std::vector<vec3<float>>& vecs) : m_rmsd(0.0), m_tol(1e-6), m_shuffles(1)
-    {
-        // make the Eigen matrix from vecs
-        m_ref_points = makeEigenMatrix(vecs);
-    }
+    explicit RegisterBruteForce(std::vector<vec3<float>>& vecs) : m_ref_points(makeEigenMatrix(vecs)) {};
 
     ~RegisterBruteForce() = default;
 
@@ -478,9 +472,9 @@ private:
     matrix m_ref_points;
     matrix m_rotation;
     matrix m_translation;
-    float m_rmsd;
-    double m_tol;
-    size_t m_shuffles;
+    float m_rmsd {0.0};
+    double m_tol {1e-6};
+    size_t m_shuffles {1};
     BiMap<unsigned int, unsigned int> m_vec_map;
 };
 

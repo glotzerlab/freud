@@ -29,10 +29,9 @@ NeighborList::NeighborList(unsigned int num_bonds, const unsigned int* query_poi
       m_distances(num_bonds), m_weights(num_bonds), m_segments_counts_updated(false)
 {
     unsigned int last_index(0);
-    unsigned int index(0);
     for (unsigned int i = 0; i < num_bonds; i++)
     {
-        index = query_point_index[i];
+        unsigned int index = query_point_index[i];
         if (index < last_index)
         {
             throw std::invalid_argument("NeighborList query_point_index must be sorted.");
@@ -83,12 +82,11 @@ void NeighborList::updateSegmentCounts() const
     {
         m_counts.prepare(m_num_query_points);
         m_segments.prepare(m_num_query_points);
-        int index(-1);
         int last_index(-1);
         unsigned int counter(0);
         for (unsigned int i = 0; i < getNumBonds(); i++)
         {
-            index = m_neighbors(i, 0);
+            int index = m_neighbors(i, 0);
             if (index != last_index)
             {
                 m_segments[index] = i;
@@ -241,6 +239,9 @@ bool compareFirstNeighborPairs(const std::vector<NeighborBond>& left, const std:
     {
         return compareNeighborBond(left[0], right[0]);
     }
+    // cppcheck erroneously flags this check as redundant because it follows
+    // both branches independently.
+    // cppcheck-suppress [knownConditionTrueFalse,unsignedLessThanZero]
     return left.size() < right.size();
 }
 

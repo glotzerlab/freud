@@ -23,7 +23,7 @@ class Nematic
 {
 public:
     //! Constructor
-    Nematic(const vec3<float>& u);
+    explicit Nematic(const vec3<float>& u);
 
     //! Destructor
     virtual ~Nematic() = default;;
@@ -47,7 +47,7 @@ public:
 private:
     unsigned int m_n;                //!< Last number of points computed
     vec3<float> m_u;                 //!< The molecular axis
-    float m_nematic_order_parameter; //!< Current value of the order parameter
+    float m_nematic_order_parameter {0}; //!< Current value of the order parameter
     vec3<float> m_nematic_director;  //!< The director (eigenvector corresponding to the OP)
 
     util::ManagedArray<float> m_nematic_tensor;        //!< The computed nematic tensor.

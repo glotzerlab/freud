@@ -209,10 +209,10 @@ void IteratorCellShell::reset(unsigned int range)
  ********************/
 
 // Default constructor
-LinkCell::LinkCell() : NeighborQuery(), m_n_points(0), m_cell_width(0), m_celldim(0, 0, 0) {}
+LinkCell::LinkCell() : NeighborQuery() {}
 
 LinkCell::LinkCell(const box::Box& box, const vec3<float>* points, unsigned int n_points, float cell_width)
-    : NeighborQuery(box, points, n_points), m_n_points(0), m_cell_width(cell_width), m_celldim(0, 0, 0)
+    : NeighborQuery(box, points, n_points), m_cell_width(cell_width)
 {
     // If no cell width is provided, we calculate the system density and
     // estimate the number of cells that would lead to 10 particles per cell.
@@ -311,7 +311,6 @@ void LinkCell::computeCellList(const vec3<float>* points, unsigned int n_points)
     unsigned int Nc = getNumCells();
     m_cell_list.prepare(n_points + Nc);
     m_n_points = n_points;
-    m_Nc = Nc;
 
     // initialize memory
     for (unsigned int cell = 0; cell < Nc; cell++)

@@ -131,9 +131,9 @@ public:
     void updateImageVectors(float r_max, bool _check_r_max = true);
 
 protected:
-    const AABBQuery* m_aabb_query;         //!< Link to the AABBQuery object
-    std::vector<vec3<float>> m_image_list; //!< List of translation vectors
-    unsigned int m_n_images;               //!< The number of image vectors to check
+    const AABBQuery* m_aabb_query;             //!< Link to the AABBQuery object
+    std::vector<vec3<float>> m_image_list;     //!< List of translation vectors
+    unsigned int m_n_images {0};               //!< The number of image vectors to check
 };
 
 //! Iterator that gets a specified number of nearest neighbors from AABB tree structures.

@@ -29,7 +29,6 @@ float computeMaxProjection(const vec3<float>& proj_vec, const vec3<float>& local
     quat<float> qconst = equiv_qs[0];
 
     // start with the reference vector before it has been rotated by equivalent quaternions
-    vec3<float> max_proj_vec = proj_vec;
     float max_proj = dot(proj_vec, local_bond);
 
     // loop through all equivalent rotations and see if they have a larger projection onto local_bond
@@ -45,7 +44,6 @@ float computeMaxProjection(const vec3<float>& proj_vec, const vec3<float>& local
         if (proj_test > max_proj)
         {
             max_proj = proj_test;
-            max_proj_vec = equiv_proj_vec;
         }
     }
 

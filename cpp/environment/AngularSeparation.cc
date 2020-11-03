@@ -30,7 +30,6 @@ float computeMinSeparationAngle(const quat<float> &ref_q, const quat<float> &q, 
     quat<float> qtemp = q * conj(qconst);
 
     // start with the quaternion before it has been rotated by equivalent rotations
-    quat<float> min_quat = q;
     float min_angle = computeSeparationAngle(ref_q, q);
 
     // loop through all equivalent rotations and see if they have smaller angles with ref_q
@@ -44,7 +43,6 @@ float computeMinSeparationAngle(const quat<float> &ref_q, const quat<float> &q, 
         if (angle_test < min_angle)
         {
             min_angle = angle_test;
-            min_quat = qtest;
         }
     }
 

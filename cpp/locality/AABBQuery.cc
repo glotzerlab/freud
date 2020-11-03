@@ -288,7 +288,7 @@ NeighborBond AABBQueryIterator::next()
                 // condition or we conclude that there are not enough
                 // neighbors left in the system.
                 for (std::map<unsigned int, float>::const_iterator it(m_all_distances.begin());
-                     it != m_all_distances.end(); it++)
+                     it != m_all_distances.end(); ++it)
                 {
                     if (it->second >= m_r_min)
                     {

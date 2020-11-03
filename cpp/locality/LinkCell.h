@@ -245,11 +245,9 @@ private:
     //! Helper function to compute cell neighbors
     const std::vector<unsigned int>& computeCellNeighbors(unsigned int cell) const;
 
-    unsigned int m_n_points;      //!< Number of particles last placed into the cell list
-    unsigned int m_Nc;            //!< Number of cells last used
-    float m_cell_width;           //!< Minimum necessary cell width cutoff
-    vec3<unsigned int> m_celldim; //!< Cell dimensions
-    unsigned int m_size;          //!< The size of cell list.
+    float m_cell_width {0};           //!< Minimum necessary cell width cutoff
+    vec3<unsigned int> m_celldim {0, 0, 0}; //!< Cell dimensions
+    unsigned int m_size {0};          //!< The size of cell list.
 
     util::ManagedArray<unsigned int> m_cell_list; //!< The cell list last computed
     using CellNeighbors = tbb::concurrent_hash_map<unsigned int, std::vector<unsigned int> >;

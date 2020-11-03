@@ -1,7 +1,6 @@
 // Copyright (c) 2010-2020 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#include <array>
 #include <cstring>
 #include <functional>
 #include <stdexcept>
@@ -136,8 +135,7 @@ tensor4 genR4Tensor()
 }
 
 Cubatic::Cubatic(float t_initial, float t_final, float scale, unsigned int n_replicates, unsigned int seed)
-    : m_t_initial(t_initial), m_t_final(t_final), m_scale(scale), m_n_replicates(n_replicates), m_seed(seed),
-      m_n(0)
+    : m_t_initial(t_initial), m_t_final(t_final), m_scale(scale), m_n_replicates(n_replicates), m_seed(seed)
 {
     if (m_t_initial < m_t_final)
     {
@@ -147,6 +145,9 @@ Cubatic::Cubatic(float t_initial, float t_final, float scale, unsigned int n_rep
     {
         throw std::invalid_argument("Cubatic requires that t_final must be >= 1e-6.");
     }
+    // cppcheck erroneously flags this check as redundant because it follows
+    // both branches independently.
+    // cppcheck-suppress knownConditionTrueFalse
     if ((scale >= 1) || (scale <= 0))
     {
         throw std::invalid_argument("Cubatic requires that scale must be between 0 and 1.");

@@ -112,10 +112,8 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
             const vec3<double> query_point_system_coords((*nq)[query_point_id]);
 
             system_vertices.reserve(relative_vertices.size());
-            for (auto & relative_vertice : relative_vertices)
-            {
-                system_vertices.push_back(relative_vertice + query_point_system_coords);
-            }
+            std::transform(relative_vertices.begin(), relative_vertices.end(), system_vertices.begin(),
+                    [&] (const auto & relative_vertex) { return relative_vertex + query_point_system_coords; });
             m_polytopes[query_point_id] = system_vertices;
 
             // Save cell volume

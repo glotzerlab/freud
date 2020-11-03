@@ -21,7 +21,7 @@ namespace freud { namespace util {
  *  \param eigen_vecs Matrix with eigenvectors as the rows (set to the identity if the solver fails).
  */
 void diagonalize33SymmetricMatrix(const util::ManagedArray<float>& mat, util::ManagedArray<float>& eigen_vals,
-                                  util::ManagedArray<float>& eigen_vecs);
+                                  const util::ManagedArray<float>& eigen_vecs);
 
 }; }; // namespace freud::util
 #endif

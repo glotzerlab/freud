@@ -54,7 +54,7 @@ struct Environment
 struct EnvDisjointSet
 {
     //! Constructor (taken partially from Cluster.cc).
-    EnvDisjointSet(unsigned int Np);
+    explicit EnvDisjointSet(unsigned int Np);
     //! Merge two sets
     /*! Merge the two sets that elements a and b belong to. Taken partially
      * from Cluster.cc. The vec_map must be a bimap of PROPERLY ORDERED vector
@@ -309,7 +309,7 @@ private:
      */
     unsigned int populateEnv(EnvDisjointSet dj);
 
-    unsigned int m_num_clusters;                  //!< Last number of local environments computed
+    unsigned int m_num_clusters {0};                  //!< Last number of local environments computed
     util::ManagedArray<unsigned int> m_env_index; //!< Cluster index determined for each particle
     std::vector<std::vector<vec3<float>>>
         m_cluster_environments; //!< Dictionary of (cluster id, vectors) pairs

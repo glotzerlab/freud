@@ -99,10 +99,7 @@ public:
         std::vector<unsigned int> sizes;
         auto keys = m_cluster.getClusterKeys();
         sizes.reserve(keys.size());
-        for (auto & key : keys)
-        {
-            sizes.push_back(key.size());
-        }
+        std::transform(keys.begin(), keys.end(), sizes.begin(), [](auto & key) { return key.size(); });
         return sizes;
     }
 

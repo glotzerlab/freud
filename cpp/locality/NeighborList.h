@@ -30,7 +30,7 @@ public:
     //! Default constructor
     NeighborList();
     //! Create a NeighborList that can hold up to the given number of bonds
-    NeighborList(unsigned int num_bonds);
+    explicit NeighborList(unsigned int num_bonds);
     //! Copy constructor (makes a deep copy)
     NeighborList(const NeighborList& other);
     //! Construct from arrays

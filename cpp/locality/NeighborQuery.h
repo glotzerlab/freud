@@ -49,23 +49,17 @@ constexpr auto ITERATOR_TERMINATOR
  */
 struct QueryArgs
 {
-    //! Default constructor.
-    /*! We set default values for all parameters here.
-     */
-    QueryArgs()
-        : mode(DEFAULT_MODE), num_neighbors(DEFAULT_NUM_NEIGHBORS), r_max(DEFAULT_R_MAX),
-          r_min(DEFAULT_R_MIN), r_guess(DEFAULT_R_GUESS), scale(DEFAULT_SCALE), exclude_ii(DEFAULT_EXCLUDE_II)
-    {}
+    QueryArgs() = default;
 
-    QueryType mode;             //! Whether to perform a ball or k-nearest neighbor query.
-    unsigned int num_neighbors; //! The number of nearest neighbors to find.
-    float r_max;                //! The cutoff distance within which to find neighbors.
-    float r_min;                //! The minimum distance beyond which to find neighbors.
-    float r_guess; //! The initial distance for finding neighbors, used by some algorithms to initialize a
-                   //! number of neighbors query.
-    float scale; //! The scale factor to use when performing repeated ball queries to find a specified number
-                 //! of nearest neighbors.
-    bool exclude_ii; //! If true, exclude self-neighbors.
+    QueryType mode {DEFAULT_MODE};                      //! Whether to perform a ball or k-nearest neighbor query.
+    unsigned int num_neighbors {DEFAULT_NUM_NEIGHBORS}; //! The number of nearest neighbors to find.
+    float r_max {DEFAULT_R_MAX};                        //! The cutoff distance within which to find neighbors.
+    float r_min {DEFAULT_R_MIN};                        //! The minimum distance beyond which to find neighbors.
+    float r_guess {DEFAULT_R_GUESS};                    //! The initial distance for finding neighbors, used by some
+                                                        //! algorithms to initialize a number of neighbors query.
+    float scale {DEFAULT_SCALE};                        //! The scale factor to use when performing repeated ball queries
+                                                        //! to find a specified number of nearest neighbors.
+    bool exclude_ii {DEFAULT_EXCLUDE_II};               //! If true, exclude self-neighbors.
 };
 
 // Forward declare the iterators
@@ -309,12 +303,9 @@ protected:
 class NeighborQueryIterator
 {
 public:
-    //! Nullary constructor for Cython
-    NeighborQueryIterator() = default;
-
     //! Constructor
     NeighborQueryIterator(const NeighborQuery* neighbor_query, const vec3<float>* query_points,
-                          unsigned int num_query_points, QueryArgs qargs)
+                          unsigned int num_query_points, QueryArgs& qargs)
         : m_neighbor_query(neighbor_query), m_query_points(query_points),
           m_num_query_points(num_query_points), m_qargs(qargs), m_finished(false), m_cur_p(0)
     {

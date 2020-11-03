@@ -50,7 +50,7 @@ public:
     //! Constructor
     /*! \param l The order of the spherical harmonic.
      */
-    RotationalAutocorrelation(unsigned int l) : m_l(l), m_Ft(0)
+    explicit RotationalAutocorrelation(unsigned int l) : m_l(l)
     {
         // For efficiency, we precompute all required factorials for use during
         // the per-particle computation.
@@ -118,7 +118,7 @@ private:
                                              const unsigned int m1, const unsigned int m2);
 
     unsigned int m_l; //!< Order of the hyperspherical harmonic.
-    float m_Ft;       //!< Real value of calculated RA function.
+    float m_Ft {0};       //!< Real value of calculated RA function.
 
     util::ManagedArray<std::complex<float>> m_RA_array; //!< Array of RA values per particle
     util::ManagedArray<unsigned int> m_factorials;      //!< Array of cached factorials

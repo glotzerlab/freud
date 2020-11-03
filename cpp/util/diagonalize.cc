@@ -3,7 +3,7 @@
 namespace freud { namespace util {
 
 void diagonalize33SymmetricMatrix(const util::ManagedArray<float>& mat, util::ManagedArray<float>& eigen_vals,
-                                  util::ManagedArray<float>& eigen_vecs)
+                                  const util::ManagedArray<float>& eigen_vecs)
 {
     Eigen::Matrix3f m = Eigen::Map<Eigen::Matrix3f>(mat.get());
 

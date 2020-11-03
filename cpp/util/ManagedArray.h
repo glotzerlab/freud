@@ -2,7 +2,9 @@
 #define MANAGED_ARRAY_H
 
 #include <cstring>
+#include <functional>
 #include <memory>
+#include <numeric>
 #include <sstream>
 #include <vector>
 
@@ -49,7 +51,7 @@ public:
      *
      *  \param shape Shape of the array to allocate.
      */
-    ManagedArray(std::vector<size_t> shape = {0})
+    ManagedArray(const std::vector<size_t>& shape = {0})
     {
         prepare(shape, true);
     }
@@ -60,7 +62,7 @@ public:
      *
      *  \param shape Shape of the array to allocate.
      */
-    ManagedArray(size_t size) : ManagedArray(std::vector<size_t> {size}) {}
+    explicit ManagedArray(size_t size) : ManagedArray(std::vector<size_t> {size}) {}
 
     //! Destructor (currently empty because data is managed by shared pointer).
     ~ManagedArray() = default;
@@ -82,7 +84,7 @@ public:
      *  \param new_shape Shape of the array to allocate.
      *  \param force Reallocate regardless of whether anything changed or needs to be persisted.
      */
-    void prepare(std::vector<size_t> new_shape, bool force = false)
+    void prepare(const std::vector<size_t>& new_shape, bool force = false)
     {
         // If we resized, or if there are outstanding references, we create a new array. No matter what,
         // reset.
@@ -253,11 +255,7 @@ public:
      */
     static inline std::vector<size_t> getMultiIndex(std::vector<size_t> shape, size_t index)
     {
-        size_t cur_prod = 1;
-        for (unsigned long & it : shape)
-        {
-            cur_prod *= it;
-        }
+        size_t cur_prod = std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<>());
 
         std::vector<size_t> indices(shape.size());
         for (unsigned int i = 0; i < shape.size(); ++i)
