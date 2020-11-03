@@ -195,7 +195,7 @@ cdef class _Compute(object):
         return repr(self)
 
 
-def _convert_array(array, shape=None, dtype=np.float32):
+def _convert_array(array, shape=None, dtype=np.float32, inplace=False):
     """Function which takes a given array, checks the dimensions and shape,
     and converts to a supplied dtype.
 
@@ -207,25 +207,36 @@ def _convert_array(array, shape=None, dtype=np.float32):
         dtype: :code:`dtype` to convert the array to if :code:`array.dtype`
             is different. If :code:`None`, :code:`dtype` will not be changed
             (Default value = :class:`numpy.float32`).
+        inplace
 
     Returns:
         :class:`numpy.ndarray`: Array.
     """
     array = np.asarray(array)
-    return_arr = np.require(array, dtype=dtype, requirements=['C'])
     if shape is not None:
         if array.ndim != len(shape):
             raise ValueError("array.ndim = {}; expected ndim = {}".format(
-                return_arr.ndim, len(shape)))
+                array.ndim, len(shape)))
 
         for i, s in enumerate(shape):
             if s is not None and return_arr.shape[i] != s:
                 shape_str = "(" + ", ".join(str(i) if i is not None
                                             else "..." for i in shape) + ")"
                 raise ValueError('array.shape= {}; expected shape = {}'.format(
-                    return_arr.shape, shape_str))
+                    array.shape, shape_str))
 
-    return return_arr
+    if inplace:
+        if array.dtype == dtype and array.flags['C_CONTIGUOUS'] == True:
+            pass
+        elif array.dtype != dtype:
+            raise ValueError("array.dtype = {}; expected dtype = {}".format(
+                array.dtype, dtype))
+        elif array.flags['C_CONTIGUOUS'] == False:
+            raise ValueError("array is not C-contiguous")
+
+    else:
+        return_arr = np.require(array, dtype=dtype, requirements=['C'])
+        return return_arr
 
 
 def _convert_box(box, dimensions=None):

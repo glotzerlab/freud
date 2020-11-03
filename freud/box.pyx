@@ -302,18 +302,18 @@ cdef class Box:
         vecs = np.asarray(vecs)
         flatten = vecs.ndim == 1
         vecs = np.atleast_2d(vecs)
-        vecs = freud.util._convert_array(vecs, shape=(None, 3)).copy()
 
         cdef const float[:, ::1] l_points
+        cdef unsigned int Np
         if inplace:
-            cdef unsigned int Np = vecs.shape[0]
-            self.thisptr.wrap(<vec3[float]*> &vecs[0, 0], Np)
-        else:
-            l_points = vecs  # Need to make sure this copies exactly once
-            cdef unsigned int Np = l_points.shape[0]
+            vecs = freud.util._convert_array(vecs, shape=(None, 3), inplace=inplace) 
+            Np = vecs.shape[0]
+            self.thisptr.wrap(<vec3[float]*> &vecs[0, 0], Np) 
+        else: 
+            l_points = freud.util._convert_array(vecs, shape=(None, 3)).copy()  # Need to make sure this copies exactly once
+            Np = l_points.shape[0]
             self.thisptr.wrap(<vec3[float]*> &l_points[0, 0], Np)
-
-        return np.squeeze(vecs) if flatten else vecs
+            return np.squeeze(l_points) if flatten else l_points
 
     def unwrap(self, vecs, imgs):
         R"""Unwrap an array of vectors inside the box back into real space,
