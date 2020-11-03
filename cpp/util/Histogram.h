@@ -283,11 +283,9 @@ public:
     //! Constructor
     explicit Histogram(std::vector<std::shared_ptr<Axis>> axes) : m_axes(std::move(axes))
     {
-        std::vector<size_t> sizes;
-        for (const std::shared_ptr<Axis>& ax : m_axes)
-        {
-            sizes.push_back(ax->size());
-        }
+        std::vector<size_t> sizes(m_axes.size());
+        std::transform(m_axes.begin(), m_axes.end(), sizes.begin(),
+                       [](const auto& ax) { return ax->size(); });
         m_bin_counts = ManagedArray<T>(sizes);
     }
 
