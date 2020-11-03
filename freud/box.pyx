@@ -314,7 +314,7 @@ cdef class Box:
             l_points = freud.util._convert_array(vecs, shape=(None, 3)).copy()
             Np = vecs.shape[0]
             self.thisptr.wrap(<vec3[float]*> &l_points[0, 0], Np)
-            return np.squeeze(vecs) if flatten else l_points
+            return np.squeeze(vecs) if flatten else vecs
 
     def unwrap(self, vecs, imgs):
         R"""Unwrap an array of vectors inside the box back into real space,
