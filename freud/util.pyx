@@ -223,7 +223,7 @@ def _convert_array(array, shape=None, dtype=np.float32, copy='default'):
         array = np.require(array, dtype=dtype, requirements=['C'])
         if return_arr is not array:
             raise Exception("Requirements dtype = {}".format(dtype),
-                            "and C-contiguous are not satisfied. A copy was made")
+                            "and C-contiguous not satisfied. A copy was made")
     if copy is 'copy':
         array = np.array(array, dtype=dtype, order='C')
     if shape is not None:
