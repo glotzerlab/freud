@@ -60,12 +60,14 @@ references:
         conda config --add channels conda-forge
         conda update -q conda certifi
         conda install python pip tbb tbb-devel
+        conda update --all
         # Install from PyPI instead of conda-forge for consistency with Linux.
         # For some reason, the SSL certificates used by pip aren't correct, even with certifi.
         curl -O https://curl.haxx.se/ca/cacert.pem
-        python${PYVER} -m pip install --cert cacert.pem --progress-bar off -U -r requirements-testing.txt
-        # Install cmake 3.14 to support Visual Studio 2019 generator
-        python${PYVER} -m pip install --cert cacert.pem --progress-bar off -U cmake~=3.14
+        export PIP_CERT="$PWD/cacert.pem"
+        python${PYVER} -m pip install --progress-bar off -U -r requirements-testing.txt
+        # Install cmake >=3.14 to support Visual Studio 2019 generator
+        python${PYVER} -m pip install --progress-bar off -U cmake~=3.14
 
   get_style_requirements: &get_style_requirements
     run:
