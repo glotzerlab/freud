@@ -155,6 +155,9 @@ Cubatic::Cubatic(float t_initial, float t_final, float scale, unsigned int n_rep
     m_gen_r4_tensor = genR4Tensor();
 
     // Initialize the system vectors using Euclidean vectors.
+    m_system_vectors[0] = vec3<float>(1, 0, 0);
+    m_system_vectors[1] = vec3<float>(0, 1, 0);
+    m_system_vectors[2] = vec3<float>(0, 0, 1);
 }
 
 tensor4 Cubatic::calcCubaticTensor(quat<float>& orientation)
