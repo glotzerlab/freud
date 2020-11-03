@@ -168,8 +168,8 @@ private:
 
     //! Sum over Wigner 3j coefficients to compute third-order invariants
     //  wl from second-order invariants ql
-    void aggregatewl(util::ManagedArray<float>& target, util::ManagedArray<std::complex<float>>& source,
-                     util::ManagedArray<float>& normalization_source) const;
+    void aggregatewl(util::ManagedArray<float>& target, const util::ManagedArray<std::complex<float>>& source,
+                     const util::ManagedArray<float>& normalization_source) const;
 
     // Member variables used for compute
     unsigned int m_Np {0}; //!< Last number of points computed
