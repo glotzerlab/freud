@@ -195,7 +195,7 @@ cdef class _Compute(object):
         return repr(self)
 
 
-def _convert_array(array, shape=None, dtype=np.float32, inplace=False):
+def _convert_array(array, shape=None, dtype=np.float32, copy='default'):
     """Function which takes a given array, checks the dimensions and shape,
     and converts to a supplied dtype.
 
@@ -207,15 +207,25 @@ def _convert_array(array, shape=None, dtype=np.float32, inplace=False):
         dtype: :code:`dtype` to convert the array to if :code:`array.dtype`
             is different. If :code:`None`, :code:`dtype` will not be changed
             (Default value = :class:`numpy.float32`).
-        inplace (bool):
-            If True, checks if the array satisfies the requirements and does
-            not operate on the input array. If False, checks the requirements
-            and makes a copy if necessary (Default value: False).
+        copy (str):
+            If :code:'default', whether to make a copy of the input array
+            is determined by :class:`numpy.require` internally.
+            If :code:'inplace', never makes a copy.
+            If :code:'copy', always returns a copy of the input array.
+            (Default value = :code:'default').
 
     Returns:
         :class:`numpy.ndarray`: Array.
     """
-    array = np.asarray(array)
+    if copy is 'default':
+        array = np.require(array, dtype=dtype, requirements=['C'])
+    if copy is 'inplace':
+        array = np.require(array, dtype=dtype, requirements=['C'])
+        if return_arr is not array:
+            raise Exception('Requirements: dtype = {} and C-contiguous are not satisfied. A copy was made'.format(
+                dtype))
+    if copy is 'copy':
+        array = np.array(array, dtype=dtype, order='C')
     if shape is not None:
         if array.ndim != len(shape):
             raise ValueError("array.ndim = {}; expected ndim = {}".format(
@@ -228,18 +238,7 @@ def _convert_array(array, shape=None, dtype=np.float32, inplace=False):
                 raise ValueError('array.shape= {}; expected shape = {}'.format(
                     array.shape, shape_str))
 
-    if inplace:
-        if array.dtype == dtype and array.flags['C_CONTIGUOUS'] is True:
-            pass
-        elif array.dtype != dtype:
-            raise ValueError("array.dtype = {}; expected dtype = {}".format(
-                array.dtype, dtype))
-        elif array.flags['C_CONTIGUOUS'] is False:
-            raise ValueError("array is not C-contiguous")
-
-    else:
-        return_arr = np.require(array, dtype=dtype, requirements=['C'])
-        return return_arr
+    return array
 
 
 def _convert_box(box, dimensions=None):
