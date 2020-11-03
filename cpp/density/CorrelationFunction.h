@@ -53,7 +53,7 @@ public:
     ~CorrelationFunction() override = default;
 
     //! Reset the PCF array to all zeros
-     void reset() override;
+    void reset() override;
 
     //! accumulate the correlation function
     void accumulate(const freud::locality::NeighborQuery* neighbor_query, const T* values,
@@ -62,7 +62,7 @@ public:
 
     //! \internal
     //! helper function to reduce the thread specific arrays into one array
-     void reduce() override;
+    void reduce() override;
 
     //! Get a reference to the last computed correlation function.
     const util::ManagedArray<T>& getCorrelation()

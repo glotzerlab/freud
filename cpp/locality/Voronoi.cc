@@ -37,8 +37,8 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
     int voro_blocks_y = int(box.getLy() * block_scale + 1);
     int voro_blocks_z = int(box.getLz() * block_scale + 1);
 
-    voro::container_periodic container(v1.x, v2.x, v2.y, v3.x, v3.y, v3.z,
-                                       voro_blocks_x, voro_blocks_y, voro_blocks_z, 3);
+    voro::container_periodic container(v1.x, v2.x, v2.y, v3.x, v3.y, v3.z, voro_blocks_x, voro_blocks_y,
+                                       voro_blocks_z, 3);
 
     for (size_t query_point_id = 0; query_point_id < n_points; query_point_id++)
     {
@@ -112,8 +112,9 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
             const vec3<double> query_point_system_coords((*nq)[query_point_id]);
 
             system_vertices.reserve(relative_vertices.size());
-            std::transform(relative_vertices.begin(), relative_vertices.end(), system_vertices.begin(),
-                    [&] (const auto & relative_vertex) { return relative_vertex + query_point_system_coords; });
+            std::transform(
+                relative_vertices.begin(), relative_vertices.end(), system_vertices.begin(),
+                [&](const auto& relative_vertex) { return relative_vertex + query_point_system_coords; });
             m_polytopes[query_point_id] = system_vertices;
 
             // Save cell volume

@@ -78,7 +78,7 @@ private:
 
 public:
     using Pair = std::pair<T, U>;
-    using Container_t = std::vector<Pair *>;
+    using Container_t = std::vector<Pair*>;
     template<typename I> using Pointer_Set_t = std::set<const I*, Comp<I>>;
     using iterator = typename Container_t::iterator;
     using const_iterator = typename Container_t::const_iterator;

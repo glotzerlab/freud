@@ -46,7 +46,7 @@ public:
      *  \param n_query_points The number of query points.
      *  \param qargs The query arguments that should be used to find neighbors.
      */
-     std::shared_ptr<NeighborQueryPerPointIterator>
+    std::shared_ptr<NeighborQueryPerPointIterator>
     querySingle(const vec3<float> query_point, unsigned int query_point_idx, QueryArgs args) const override;
 
     AABBTree m_aabb_tree; //!< AABB tree of points
@@ -56,7 +56,7 @@ protected:
     /*! Add to parent function to account for the various arguments
      *  specifically required for AABBQuery nearest neighbor queries.
      */
-     void validateQueryArgs(QueryArgs& args) const override
+    void validateQueryArgs(QueryArgs& args) const override
     {
         NeighborQuery::validateQueryArgs(args);
         if (args.mode == QueryType::nearest)
@@ -78,8 +78,9 @@ protected:
                 // the number of particles and V is the box volume, and it
                 // calculates the radius of a sphere that will contain the
                 // desired number of neighbors.
-                float r_guess = std::cbrtf((float(3.0) * static_cast<float>(args.num_neighbors) * m_box.getVolume())
-                                           / (float(4.0) * static_cast<float>(M_PI) * static_cast<float>(getNPoints())));
+                float r_guess = std::cbrtf(
+                    (float(3.0) * static_cast<float>(args.num_neighbors) * m_box.getVolume())
+                    / (float(4.0) * static_cast<float>(M_PI) * static_cast<float>(getNPoints())));
 
                 // The upper bound is set by the minimum nearest plane distances.
                 vec3<float> nearest_plane_distance = m_box.getNearestPlaneDistance();
@@ -117,8 +118,8 @@ class AABBIterator : public NeighborQueryPerPointIterator
 {
 public:
     //! Constructor
-    AABBIterator(const AABBQuery* neighbor_query, const vec3<float>& query_point, unsigned int query_point_idx,
-                 float r_max, float r_min, bool exclude_ii)
+    AABBIterator(const AABBQuery* neighbor_query, const vec3<float>& query_point,
+                 unsigned int query_point_idx, float r_max, float r_min, bool exclude_ii)
         : NeighborQueryPerPointIterator(neighbor_query, query_point, query_point_idx, r_max, r_min,
                                         exclude_ii),
           m_aabb_query(neighbor_query)
@@ -131,9 +132,9 @@ public:
     void updateImageVectors(float r_max, bool _check_r_max = true);
 
 protected:
-    const AABBQuery* m_aabb_query;             //!< Link to the AABBQuery object
-    std::vector<vec3<float>> m_image_list;     //!< List of translation vectors
-    unsigned int m_n_images {0};               //!< The number of image vectors to check
+    const AABBQuery* m_aabb_query;         //!< Link to the AABBQuery object
+    std::vector<vec3<float>> m_image_list; //!< List of translation vectors
+    unsigned int m_n_images {0};           //!< The number of image vectors to check
 };
 
 //! Iterator that gets a specified number of nearest neighbors from AABB tree structures.

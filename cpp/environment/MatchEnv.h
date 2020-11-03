@@ -27,8 +27,7 @@ namespace freud { namespace environment {
 struct Environment
 {
     //! Constructor.
-    Environment(bool ghost = false) : vecs(0), ghost(ghost), vec_ind(0), proper_rot()
-    {}
+    Environment(bool ghost = false) : vecs(0), ghost(ghost), vec_ind(0), proper_rot() {}
 
     //! Add a vector to define the local environment
     void addVec(const vec3<float>& vec)
@@ -38,12 +37,12 @@ struct Environment
         num_vecs++;
     }
 
-    unsigned int env_ind{0};          //!< The index of the environment
+    unsigned int env_ind {0};      //!< The index of the environment
     std::vector<vec3<float>> vecs; //!< The vectors that define the environment
     //! Is this environment a ghost? Do we ignore it when we compute actual
     //  physical quantities associated with all environments?
     bool ghost;
-    unsigned int num_vecs{0}; //!< The number of vectors defining the environment currently
+    unsigned int num_vecs {0}; //!< The number of vectors defining the environment currently
     //! The order that the vectors must be in to define the environment
     std::vector<unsigned int> vec_ind;
     //! The rotation that defines the proper orientation of the environment
@@ -206,8 +205,9 @@ public:
 
     //! Construct and return a local environment surrounding the particle indexed by i. Set the environment
     //! index to env_ind.
-    static Environment buildEnv(const freud::locality::NeighborQuery* nq, const freud::locality::NeighborList* nlist,
-                         size_t num_bonds, size_t& bond, unsigned int i, unsigned int env_ind);
+    static Environment buildEnv(const freud::locality::NeighborQuery* nq,
+                                const freud::locality::NeighborList* nlist, size_t num_bonds, size_t& bond,
+                                unsigned int i, unsigned int env_ind);
 
     //! Returns the entire Np by m_num_neighbors by 3 matrix of all environments for all particles
     const util::ManagedArray<vec3<float>>& getPointEnvironments()
@@ -309,7 +309,7 @@ private:
      */
     unsigned int populateEnv(EnvDisjointSet dj);
 
-    unsigned int m_num_clusters {0};                  //!< Last number of local environments computed
+    unsigned int m_num_clusters {0};              //!< Last number of local environments computed
     util::ManagedArray<unsigned int> m_env_index; //!< Cluster index determined for each particle
     std::vector<std::vector<vec3<float>>>
         m_cluster_environments; //!< Dictionary of (cluster id, vectors) pairs

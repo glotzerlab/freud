@@ -104,8 +104,8 @@ public:
             // with a different data structure like std::vector, but it would
             // require writing additional gymnastics to ensure proper reference
             // management and should be carefully considered before any rewrite.
-            m_data = std::shared_ptr<std::shared_ptr<T>>(
-                new std::shared_ptr<T>(new T[size()], std::default_delete<T[]>())); // NOLINT(modernize-avoid-c-arrays)
+            m_data = std::shared_ptr<std::shared_ptr<T>>(new std::shared_ptr<T>(
+                new T[size()], std::default_delete<T[]>())); // NOLINT(modernize-avoid-c-arrays)
         }
         reset();
     }
@@ -219,7 +219,7 @@ public:
         // the for loop exploits the fact that i-- returns the pre-decrement
         // value, so when i first reaches 0 the comparison will be 1 > 0 and
         // ensure that the 0 case runs.
-        for (unsigned int i = indices.size(); i --> 0; )
+        for (unsigned int i = indices.size(); i-- > 0;)
         {
             idx += indices[i] * cur_prod;
             cur_prod *= (*m_shape)[i];
@@ -238,7 +238,7 @@ public:
         // the for loop exploits the fact that i-- returns the pre-decrement
         // value, so when i first reaches 0 the comparison will be 1 > 0 and
         // ensure that the 0 case runs.
-        for (unsigned int i = indices.size(); i --> 0; )
+        for (unsigned int i = indices.size(); i-- > 0;)
         {
             idx += indices[i] * cur_prod;
             cur_prod *= (*m_shape)[i];
@@ -285,7 +285,7 @@ public:
         // the for loop exploits the fact that i-- returns the pre-decrement
         // value, so when i first reaches 0 the comparison will be 1 > 0 and
         // ensure that the 0 case runs.
-        for (unsigned int i = indices.size(); i --> 0; )
+        for (unsigned int i = indices.size(); i-- > 0;)
         {
             idx += indices[i] * cur_prod;
             cur_prod *= shape[i];
@@ -327,7 +327,7 @@ public:
         // the for loop exploits the fact that i-- returns the pre-decrement
         // value, so when i first reaches 0 the comparison will be 1 > 0 and
         // ensure that the 0 case runs.
-        for (unsigned int i = indices.size(); i --> 0; )
+        for (unsigned int i = indices.size(); i-- > 0;)
         {
             idx += indices[i] * cur_prod;
             cur_prod *= (*m_shape)[i];

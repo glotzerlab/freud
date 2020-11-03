@@ -16,7 +16,7 @@
 
 namespace freud { namespace order {
 
-tensor4::tensor4(const vec3<float> &vector)
+tensor4::tensor4(const vec3<float>& vector)
 {
     unsigned int cnt = 0;
     std::array<float, 3> v;
@@ -164,7 +164,7 @@ Cubatic::Cubatic(float t_initial, float t_final, float scale, unsigned int n_rep
 tensor4 Cubatic::calcCubaticTensor(quat<float>& orientation)
 {
     tensor4 calculated_tensor = tensor4();
-    for (auto & m_system_vector : m_system_vectors)
+    for (auto& m_system_vector : m_system_vectors)
     {
         calculated_tensor += tensor4(rotate(orientation, m_system_vector));
     }
@@ -198,7 +198,7 @@ util::ManagedArray<tensor4> Cubatic::calculatePerParticleTensor(const quat<float
         for (size_t i = begin; i < end; ++i)
         {
             tensor4 l_mbar = tensor4();
-            for (const auto & m_system_vector : m_system_vectors)
+            for (const auto& m_system_vector : m_system_vectors)
             {
                 // Calculate the homogeneous tensor H for each vector then add
                 // to the per-particle value.
@@ -274,7 +274,7 @@ void Cubatic::compute(quat<float>* orientations, unsigned int num_orientations)
             std::seed_seq seed(seed_seq.begin(), seed_seq.end());
             std::mt19937 rng(seed);
             std::uniform_real_distribution<float> base_dist(0, 1);
-            auto dist = [&] () { return base_dist(rng); };
+            auto dist = [&]() { return base_dist(rng); };
 
             for (size_t i = r.begin(); i != r.end(); i++)
             {

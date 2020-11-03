@@ -23,9 +23,9 @@ public:
         of the pcf
     */
     void accumulate(const locality::NeighborQuery* neighbor_query, const quat<float>* query_orientations,
-                    const vec3<float>* query_points, unsigned int n_query_points, const quat<float>* equiv_orientations,
-                    unsigned int num_equiv_orientations, const locality::NeighborList* nlist,
-                    freud::locality::QueryArgs qargs);
+                    const vec3<float>* query_points, unsigned int n_query_points,
+                    const quat<float>* equiv_orientations, unsigned int num_equiv_orientations,
+                    const locality::NeighborList* nlist, freud::locality::QueryArgs qargs);
 
     //! Reset the PMFT
     /*! Override the parent method to also reset the number of equivalent orientations.

@@ -115,8 +115,7 @@ void NeighborList::updateSegmentCounts() const
 // (pre-iterator syntax), so we'll accept that level of type-safety for now. In
 // the future, if we expose a more appropriate iterator API then we'll need to
 // accept an "end" parameter as well.
-template <typename Iterator>
-unsigned int NeighborList::filter(const Iterator begin)
+template<typename Iterator> unsigned int NeighborList::filter(const Iterator begin)
 {
     // number of good (unfiltered-out) elements so far
     unsigned int num_good(0);
@@ -141,7 +140,7 @@ unsigned int NeighborList::filter(const Iterator begin)
 
 // Explicit template instantiation required for usage in dynamically linked
 // Cython code.
-template unsigned int NeighborList::filter(const bool *);
+template unsigned int NeighborList::filter(const bool*);
 
 unsigned int NeighborList::filter_r(float r_max, float r_min)
 {

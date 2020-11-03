@@ -172,10 +172,10 @@ private:
     float m_scale;               //!< Scaling factor to reduce temperature.
     unsigned int m_n_replicates; //!< Number of replicates.
     unsigned int m_seed;         //!< Random seed.
-    unsigned int m_n {0};            //!< Last number of points computed.
+    unsigned int m_n {0};        //!< Last number of points computed.
 
-    float m_cubatic_order_parameter {0};   //!< The value of the order parameter.
-    quat<float> m_cubatic_orientation;     //!< The cubatic orientation.
+    float m_cubatic_order_parameter {0}; //!< The value of the order parameter.
+    quat<float> m_cubatic_orientation;   //!< The cubatic orientation.
 
     tensor4 m_gen_r4_tensor; //!< The sum of various products of Kronecker deltas that is stored as a member
                              //!< for convenient reuse.
@@ -185,7 +185,8 @@ private:
         m_global_tensor; //!< The system-averaged homogeneous tensor encoding all particle orientations.
     util::ManagedArray<float> m_cubatic_tensor; //!< The output tensor computed via simulated annealing.
 
-    std::array<vec3<float>, 3> m_system_vectors; //!< The global coordinate system, always use a simple Euclidean basis.
+    std::array<vec3<float>, 3>
+        m_system_vectors; //!< The global coordinate system, always use a simple Euclidean basis.
 };
 
 }; }; // end namespace freud::order

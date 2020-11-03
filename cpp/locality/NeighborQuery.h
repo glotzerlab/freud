@@ -6,9 +6,9 @@
 
 #include <memory>
 #include <stdexcept>
-#include <utility>
 #include <tbb/enumerable_thread_specific.h>
 #include <tbb/parallel_sort.h>
+#include <utility>
 
 #include "Box.h"
 #include "NeighborBond.h"
@@ -51,15 +51,15 @@ struct QueryArgs
 {
     QueryArgs() = default;
 
-    QueryType mode {DEFAULT_MODE};                      //! Whether to perform a ball or k-nearest neighbor query.
+    QueryType mode {DEFAULT_MODE}; //! Whether to perform a ball or k-nearest neighbor query.
     unsigned int num_neighbors {DEFAULT_NUM_NEIGHBORS}; //! The number of nearest neighbors to find.
-    float r_max {DEFAULT_R_MAX};                        //! The cutoff distance within which to find neighbors.
-    float r_min {DEFAULT_R_MIN};                        //! The minimum distance beyond which to find neighbors.
-    float r_guess {DEFAULT_R_GUESS};                    //! The initial distance for finding neighbors, used by some
-                                                        //! algorithms to initialize a number of neighbors query.
-    float scale {DEFAULT_SCALE};                        //! The scale factor to use when performing repeated ball queries
-                                                        //! to find a specified number of nearest neighbors.
-    bool exclude_ii {DEFAULT_EXCLUDE_II};               //! If true, exclude self-neighbors.
+    float r_max {DEFAULT_R_MAX};          //! The cutoff distance within which to find neighbors.
+    float r_min {DEFAULT_R_MIN};          //! The minimum distance beyond which to find neighbors.
+    float r_guess {DEFAULT_R_GUESS};      //! The initial distance for finding neighbors, used by some
+                                          //! algorithms to initialize a number of neighbors query.
+    float scale {DEFAULT_SCALE};          //! The scale factor to use when performing repeated ball queries
+                                          //! to find a specified number of nearest neighbors.
+    bool exclude_ii {DEFAULT_EXCLUDE_II}; //! If true, exclude self-neighbors.
 };
 
 // Forward declare the iterators
@@ -372,7 +372,7 @@ public:
      */
     NeighborList* toNeighborList(bool sort_by_distance = false)
     {
-        using BondVector = tbb::enumerable_thread_specific<std::vector<NeighborBond> >;
+        using BondVector = tbb::enumerable_thread_specific<std::vector<NeighborBond>>;
         BondVector bonds;
         util::forLoopWrapper(0, m_num_query_points, [&](size_t begin, size_t end) {
             BondVector::reference local_bonds(bonds.local());

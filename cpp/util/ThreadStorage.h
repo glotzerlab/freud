@@ -61,9 +61,9 @@ public:
         }
     }
 
-    using const_iterator = typename tbb::enumerable_thread_specific<ManagedArray<T> >::const_iterator;
-    using iterator = typename tbb::enumerable_thread_specific<ManagedArray<T> >::iterator;
-    using reference = typename tbb::enumerable_thread_specific<ManagedArray<T> >::reference;
+    using const_iterator = typename tbb::enumerable_thread_specific<ManagedArray<T>>::const_iterator;
+    using iterator = typename tbb::enumerable_thread_specific<ManagedArray<T>>::iterator;
+    using reference = typename tbb::enumerable_thread_specific<ManagedArray<T>>::reference;
 
     const_iterator begin() const
     {

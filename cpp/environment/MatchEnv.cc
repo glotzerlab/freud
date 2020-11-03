@@ -68,7 +68,7 @@ void EnvDisjointSet::merge(const unsigned int a, const unsigned int b,
             for (unsigned int node : m_set)
             {
                 // Go through the entire tree/set.
-                 // Make a copy of the old set of vector indices for this
+                // Make a copy of the old set of vector indices for this
                 // particular node. This is complicated and weird.
                 std::vector<unsigned int> old_node_vec_ind = s[node].vec_ind;
 
@@ -104,7 +104,7 @@ void EnvDisjointSet::merge(const unsigned int a, const unsigned int b,
             for (unsigned int node : m_set)
             {
                 // Go through the entire tree/set.
-                 // Make a copy of the old set of vector indices for this
+                // Make a copy of the old set of vector indices for this
                 // particular node. This is complicated and weird.
                 std::vector<unsigned int> old_node_vec_ind = s[node].vec_ind;
 
@@ -196,7 +196,7 @@ std::vector<vec3<float>> EnvDisjointSet::getAvgEnv(const unsigned int m)
     unsigned int N = 0;
 
     // loop over all the environments in the set
-    for (auto & i : s)
+    for (auto& i : s)
     {
         // if this environment is NOT a ghost (i.e. non-physical):
         if (!i.ghost)
@@ -654,7 +654,7 @@ unsigned int EnvironmentCluster::populateEnv(EnvDisjointSet dj)
 
     // Now update the vector of environments from the map.
     m_cluster_environments.resize(cluster_env.size());
-    for (auto & it : cluster_env)
+    for (auto& it : cluster_env)
     {
         m_cluster_environments[it.first] = it.second;
     }

@@ -2,20 +2,22 @@
 # hooks require tools that may not trivial to install (unlike the Python hooks
 # like flake8), we keep these in a separate file to be applied manually.
 repos:
-#-   repo: https://github.com/pocc/pre-commit-hooks
-#    rev: python
-#    hooks:
-      #- id: clang-format
-      #  # Unclear if this is necessary, it seems like clang-format uses
-      #  # .clang-format if found by default, at least for newer versions. I'll
-      #  # specify this here just in case.
-      #  args: [--style=file]
-      #  exclude: '.*extern/.*'
-      #- id: clang-tidy
-      #  # Ignore external files and those taken verbatim from HOOMD.
-      #  exclude: '.*AABB\.h|.*extern.*|.*AABBTree\.(h|cc)|VectorMath.h'
-      #  args: [--warnings-as-errors=*]
- #Set up the cppcheck hook manually, the one provided by the above repo is configured too rigidly.
+-   repo: https://github.com/pocc/pre-commit-hooks
+    rev: python
+    hooks:
+      - id: clang-format
+        # Unclear if this is necessary, it seems like clang-format uses
+        # .clang-format if found by default, at least for newer versions. I'll
+        # specify this here just in case.
+        args:
+        - --style=file
+        - -i
+        exclude: '.*extern/.*'
+      - id: clang-tidy
+        # Ignore external files and those taken verbatim from HOOMD.
+        exclude: '.*AABB\.h|.*extern.*|.*AABBTree\.(h|cc)|VectorMath.h'
+        args: [--warnings-as-errors=*]
+# Set up the cppcheck hook manually, the one provided by the above repo is configured too rigidly.
 -   repo: local
     hooks:
       - id: cppcheck

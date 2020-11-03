@@ -38,7 +38,7 @@ template<typename T> struct Weight
     }
 
     T value;
-    bool is_default{true};
+    bool is_default {true};
 };
 
 //! Class defining an axis of a histogram.
@@ -101,7 +101,7 @@ public:
     static const size_t OVERFLOW_BIN = 0xffffffff;
 
 protected:
-    size_t m_nbins {0};                 //!< Number of bins
+    size_t m_nbins {0};             //!< Number of bins
     float m_min;                    //!< Lowest value allowed.
     float m_max;                    //!< Highest value allowed.
     std::vector<float> m_bin_edges; //!< The edges of bins.

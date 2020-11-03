@@ -45,8 +45,8 @@ public:
      *  \param n_query_points The number of query points.
      *  \param qargs The query arguments that should be used to find neighbors.
      */
-     std::shared_ptr<NeighborQueryIterator>
-    query(const vec3<float>* query_points, unsigned int n_query_points, QueryArgs query_args) const override
+    std::shared_ptr<NeighborQueryIterator> query(const vec3<float>* query_points, unsigned int n_query_points,
+                                                 QueryArgs query_args) const override
     {
         if (!aq)
         {
@@ -58,7 +58,7 @@ public:
     }
 
     // dummy implementation for pure virtual function in the parent class
-     std::shared_ptr<NeighborQueryPerPointIterator>
+    std::shared_ptr<NeighborQueryPerPointIterator>
     querySingle(const vec3<float> query_point, unsigned int query_point_idx, QueryArgs qargs) const override
     {
         if (!aq)

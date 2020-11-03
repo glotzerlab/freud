@@ -76,8 +76,9 @@ void PMFTR12::reduce()
 }
 
 void PMFTR12::accumulate(const locality::NeighborQuery* neighbor_query, const float* orientations,
-                         const vec3<float>* query_points, const float* query_orientations, unsigned int n_query_points,
-                         const locality::NeighborList* nlist, freud::locality::QueryArgs qargs)
+                         const vec3<float>* query_points, const float* query_orientations,
+                         unsigned int n_query_points, const locality::NeighborList* nlist,
+                         freud::locality::QueryArgs qargs)
 {
     neighbor_query->getBox().enforce2D();
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,

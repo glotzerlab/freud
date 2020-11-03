@@ -321,7 +321,7 @@ void LinkCell::computeCellList(const vec3<float>* points, unsigned int n_points)
     // Generate the cell list. The condition in the for loop exploits the fact
     // that i-- returns the pre-decrement value, so when i first reaches 0 the
     // comparison will be 1 > 0 and ensure that the 0 case runs.
-    for (unsigned int i = n_points; i --> 0;)
+    for (unsigned int i = n_points; i-- > 0;)
     {
         unsigned int cell = getCell(points[i]);
         m_cell_list[i] = m_cell_list[n_points + cell];
@@ -349,7 +349,7 @@ unsigned int LinkCell::coordToIndex(unsigned int x, unsigned int y, unsigned int
         {static_cast<unsigned int>(z), static_cast<unsigned int>(y), static_cast<unsigned int>(x)});
 }
 
-vec3<unsigned int> LinkCell::getCellCoord(const vec3<float> &p) const
+vec3<unsigned int> LinkCell::getCellCoord(const vec3<float>& p) const
 {
     vec3<float> alpha = m_box.makeFractional(p);
     vec3<unsigned int> c;
@@ -531,7 +531,9 @@ NeighborBond LinkCellQueryBallIterator::next()
             // shell is greater than our r_max.
             ++m_neigh_cell_iter;
 
-            if (static_cast<float>(m_neigh_cell_iter.getRange() - m_extra_search_width) * m_linkcell->getCellWidth() > m_r_max)
+            if (static_cast<float>(m_neigh_cell_iter.getRange() - m_extra_search_width)
+                    * m_linkcell->getCellWidth()
+                > m_r_max)
             {
                 out_of_range = true;
                 break;
@@ -572,7 +574,8 @@ NeighborBond LinkCellQueryIterator::next()
     {
         min_plane_distance = std::min(min_plane_distance, plane_distance.z);
     }
-    unsigned int max_range = static_cast<unsigned int>(std::ceil(min_plane_distance / (2 * m_linkcell->getCellWidth()))) + 1;
+    unsigned int max_range
+        = static_cast<unsigned int>(std::ceil(min_plane_distance / (2 * m_linkcell->getCellWidth()))) + 1;
 
     vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_query_point));
     const unsigned int point_cell_index = m_linkcell->getCellIndex(

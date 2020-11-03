@@ -69,7 +69,8 @@ protected:
         m_histogram.prepare(m_histogram.shape());
 
         float inv_num_dens = m_box.getVolume() / static_cast<float>(m_n_query_points);
-        float norm_factor = float(1.0) / (static_cast<float>(m_frame_counter) * static_cast<float>(m_n_points));
+        float norm_factor
+            = float(1.0) / (static_cast<float>(m_frame_counter) * static_cast<float>(m_n_points));
         float prefactor = inv_num_dens * norm_factor;
 
         m_histogram.reduceOverThreadsPerBin(m_local_histograms, [this, &prefactor, &jf](size_t i) {
