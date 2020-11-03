@@ -304,6 +304,7 @@ cdef class Box:
         vecs = np.atleast_2d(vecs)
 
         cdef const float[:, ::1] l_points
+        cdef const float[:, ::1] vecs
         cdef unsigned int Np
         if inplace:
             vecs = freud.util._convert_array(vecs, shape=(None, 3),

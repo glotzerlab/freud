@@ -222,7 +222,7 @@ def _convert_array(array, shape=None, dtype=np.float32, inplace=False):
                 array.ndim, len(shape)))
 
         for i, s in enumerate(shape):
-            if s is not None and return_arr.shape[i] != s:
+            if s is not None and array.shape[i] != s:
                 shape_str = "(" + ", ".join(str(i) if i is not None
                                             else "..." for i in shape) + ")"
                 raise ValueError('array.shape= {}; expected shape = {}'.format(
