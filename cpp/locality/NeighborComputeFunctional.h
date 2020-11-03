@@ -80,10 +80,10 @@ public:
     }
 
 private:
-    const NeighborList* m_nlist;
-    size_t m_current_index;
-    size_t m_returned_point_index;
-    bool m_finished;
+    const NeighborList* m_nlist; //! The NeighborList being iterated over.
+    size_t m_current_index; //! The row of m_nlist where the iterator is currently located.
+    size_t m_returned_point_index {0xffffffff}; //! The index of the last returned point (i.e. the value of m_nlist.getNeighbors()(m_current_index, 0)). Initialized to an arbitrary sentinel in case the user ever tries to access this for an iterator built from an empty nlist.
+    bool m_finished; //! Flag to indicate that the iterator has been exhausted.
 };
 
 //! Wrapper iterating looping over NeighborQuery or NeighborList.

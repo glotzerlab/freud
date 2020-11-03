@@ -301,18 +301,17 @@ std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>> isSimilar(Environme
         rotation = rotmat3<float>(rot[0], rot[1], rot[2]);
         BiMap<unsigned int, unsigned int> tmp_vec_map = r.getVecMap();
 
-        for (BiMap<unsigned int, unsigned int>::const_iterator it = tmp_vec_map.begin();
-             it != tmp_vec_map.end(); ++it)
+        for (const auto *registered_pair : tmp_vec_map)
         {
             // RegisterBruteForce has found the vector mapping that results in
             // minimal RMSD, as best as it can figure out.
             // Does this vector mapping pass the more stringent criterion
             // imposed by the threshold?
-            vec3<float> delta = v1[(*it)->first] - v2[(*it)->second];
+            vec3<float> delta = v1[registered_pair->first] - v2[registered_pair->second];
             float r_sq = dot(delta, delta);
             if (r_sq < threshold_sq)
             {
-                vec_map.emplace((*it)->first, (*it)->second);
+                vec_map.emplace(registered_pair->first, registered_pair->second);
             }
         }
     }
