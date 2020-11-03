@@ -208,10 +208,10 @@ def _convert_array(array, shape=None, dtype=np.float32, copy='default'):
             is different. If :code:`None`, :code:`dtype` will not be changed
             (Default value = :class:`numpy.float32`).
         copy (str):
-            If :code:'default', whether to make a copy of the input array
+            If :code:''default'', whether to make a copy of the input array
             is determined by :class:`numpy.require` internally.
-            If :code:'inplace', never makes a copy.
-            If :code:'copy', always returns a copy of the input array.
+            If :code:''inplace'', never makes a copy.
+            If :code:''copy'', always returns a copy of the input array.
             (Default value = :code:'default').
 
     Returns:
@@ -222,8 +222,8 @@ def _convert_array(array, shape=None, dtype=np.float32, copy='default'):
     if copy is 'inplace':
         array = np.require(array, dtype=dtype, requirements=['C'])
         if return_arr is not array:
-            raise Exception('Requirements: dtype = {} and C-contiguous are not satisfied. A copy was made'.format(
-                dtype))
+            raise Exception("Requirements dtype = {}".format(dtype),
+                "and C-contiguous are not satisfied. A copy was made")
     if copy is 'copy':
         array = np.array(array, dtype=dtype, order='C')
     if shape is not None:

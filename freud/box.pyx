@@ -307,7 +307,7 @@ cdef class Box:
         cdef unsigned int Np
         if inplace:
             l_points = freud.util._convert_array(vecs, shape=(None, 3),
-                                                 inplace=True)
+                                                 cope='inplace')
             Np = vecs.shape[0]
             self.thisptr.wrap(<vec3[float]*> &l_points[0, 0], Np)
         else:
