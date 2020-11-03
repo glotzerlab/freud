@@ -218,27 +218,28 @@ def _convert_array(array, shape=None, dtype=np.float32, copy='default'):
         :class:`numpy.ndarray`: Array.
     """
     if copy is 'default':
-        array = np.require(array, dtype=dtype, requirements=['C'])
-    if copy is 'inplace':
-        array = np.require(array, dtype=dtype, requirements=['C'])
+        return_arr = np.require(array, dtype=dtype, requirements=['C'])
+    elif copy is 'inplace':
+        return_arr = np.require(array, dtype=dtype, requirements=['C'])
         if return_arr is not array:
             raise Exception("Requirements dtype = {}".format(dtype),
                             "and C-contiguous not satisfied. A copy was made")
-    if copy is 'copy':
-        array = np.array(array, dtype=dtype, order='C')
+    elif copy is 'copy':
+        return_arr = np.array(array, dtype=dtype, order='C')
+
     if shape is not None:
-        if array.ndim != len(shape):
+        if return_arr.ndim != len(shape):
             raise ValueError("array.ndim = {}; expected ndim = {}".format(
-                array.ndim, len(shape)))
+                return_arr.ndim, len(shape)))
 
         for i, s in enumerate(shape):
-            if s is not None and array.shape[i] != s:
+            if s is not None and return_arr.shape[i] != s:
                 shape_str = "(" + ", ".join(str(i) if i is not None
                                             else "..." for i in shape) + ")"
                 raise ValueError('array.shape= {}; expected shape = {}'.format(
-                    array.shape, shape_str))
+                    return_arr.shape, shape_str))
 
-    return array
+    return return_arr
 
 
 def _convert_box(box, dimensions=None):
