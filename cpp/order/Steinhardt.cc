@@ -242,8 +242,8 @@ float Steinhardt::normalizeSystem()
 }
 
 void Steinhardt::aggregatewl(util::ManagedArray<float>& target,
-                             util::ManagedArray<std::complex<float>>& source,
-                             util::ManagedArray<float>& normalization_source) const
+                             const util::ManagedArray<std::complex<float>>& source,
+                             const util::ManagedArray<float>& normalization_source) const
 {
     auto wigner3jvalues = getWigner3j(m_l);
     const auto normalizationfactor = float(4.0 * M_PI / m_num_ms);
