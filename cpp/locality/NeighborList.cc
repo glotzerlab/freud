@@ -86,7 +86,7 @@ void NeighborList::updateSegmentCounts() const
         unsigned int counter(0);
         for (unsigned int i = 0; i < getNumBonds(); i++)
         {
-            int index = m_neighbors(i, 0);
+            const int index = m_neighbors(i, 0);
             if (index != last_index)
             {
                 m_segments[index] = i;
@@ -149,7 +149,7 @@ unsigned int NeighborList::filter_r(float r_max, float r_min)
     {
         dist_filter[i] = (m_distances[i] >= r_min && m_distances[i] < r_max);
     }
-    return filter(dist_filter.begin());
+    return filter(dist_filter.cbegin());
 }
 
 unsigned int NeighborList::find_first_index(unsigned int i) const

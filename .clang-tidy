@@ -3,7 +3,7 @@
 # readability-redundant-member-init: If the constructor changes or if there are multiple constructor signatures, prefer to be explicit.
 # modernize-use-trailing-return-type: This syntax is still generally unfamiliar to many developers and will make the code harder to maintain.
 # misc-no-recursion: Rewriting things like the NeighborList to avoid recursion is out of scope for now.
-# readability-magic-numbers: Wigner3j.
+# readability-magic-numbers: Wigner3j contains (necessary) magic numbers.
 # misc-non-private-member-variables-in-classes: We make extensive use of protected members, for instance in PMFT* classes from BondHistogramCompute, and the argument that this is _never_ OK is not terribly convincing.
 
 Checks: 'bugprone-*,

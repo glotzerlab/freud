@@ -1,6 +1,6 @@
 # This file contains pre-commit hooks for checking the C++ code. Since these
-# hooks require tools that may not trivial to install (unlike the Python hooks
-# like flake8), we keep these in a separate file to be applied manually.
+# hooks require tools that may not be trivial to install (unlike the Python
+# hooks like flake8), we keep these in a separate file to be applied manually.
 repos:
 -   repo: https://github.com/pocc/pre-commit-hooks
     rev: python
@@ -12,7 +12,7 @@ repos:
         args:
         - --style=file
         - -i
-        exclude: '.*extern/.*'
+        exclude: 'extern/.*'
       - id: clang-tidy
         # Ignore external files and those taken verbatim from HOOMD.
         exclude: '.*AABB\.h|.*extern.*|.*AABBTree\.(h|cc)|VectorMath.h'
@@ -26,7 +26,7 @@ repos:
         entry: cppcheck
         language: system
         files: '.*\.(h|cc)'
-        exclude: '.*AABB\.h|.*extern.*|.*AABBTree\.(h|cc)|VectorMath.h'
+        exclude: '.*AABB\.h|extern.*|.*AABBTree\.(h|cc)|VectorMath.h'
         args:
         - cpp/
         - --enable=warning,style,performance,portability # Ignore unused (could be used by Cython).
@@ -36,5 +36,5 @@ repos:
         - -icpp/locality/AABBTree.cc
         - --suppress=*:cpp/locality/AABB.h
         - --suppress=*:cpp/locality/AABBTree.h
-        - --suppress=*:*extern/*
+        - --suppress=*:extern/*
         - --error-exitcode=1
