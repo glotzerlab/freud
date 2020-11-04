@@ -15,7 +15,7 @@ repos:
         exclude: 'extern/.*'
       - id: clang-tidy
         # Ignore external files and those taken verbatim from HOOMD.
-        exclude: '.*AABB\.h|.*extern.*|.*AABBTree\.(h|cc)|VectorMath.h'
+        exclude: 'AABB\.h|extern.*'
         args: [--warnings-as-errors=*]
 # Set up the cppcheck hook manually, the one provided by the above repo is configured too rigidly.
 -   repo: local
@@ -26,7 +26,7 @@ repos:
         entry: cppcheck
         language: system
         files: '.*\.(h|cc)'
-        exclude: '.*AABB\.h|extern.*|.*AABBTree\.(h|cc)|VectorMath.h'
+        exclude: '.*AABB\.h|extern.*'
         args:
         - cpp/
         - --enable=warning,style,performance,portability # Ignore unused (could be used by Cython).

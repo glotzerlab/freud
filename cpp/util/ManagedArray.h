@@ -270,15 +270,15 @@ public:
      */
     static inline std::vector<size_t> getMultiIndex(const std::vector<size_t>& shape, size_t index)
     {
-        size_t size = std::accumulate(shape.cbegin(), shape.cend(), 1, std::multiplies<>());
+        size_t index_size = std::accumulate(shape.cbegin(), shape.cend(), 1, std::multiplies<>());
 
         std::vector<size_t> indices(shape.size());
         for (unsigned int i = 0; i < shape.size(); ++i)
         {
-            size /= shape[i];
+            index_size /= shape[i];
             // Integer division should cast away extras.
-            indices[i] = index / size;
-            index %= size;
+            indices[i] = index / index_size;
+            index %= index_size;
         }
         return indices;
     }
