@@ -11,7 +11,7 @@ Python
 Python (and Cython) code in **freud** should follow `PEP 8 <https://www.python.org/dev/peps/pep-0008/>`_.
 
 During continuous integration (CI), all Python and Cython code in **freud** is tested with `flake8 <http://flake8.pycqa.org/>`_ to ensure PEP 8 compliance.
-Additionally, all CMake code is tested using `cmakelang <https://cmake-format.readthedocs.io/en/latest/index.html>`__.
+Additionally, all CMake code is tested using `cmakelang's cmake-format <https://cmake-format.readthedocs.io/en/latest/index.html>`__.
 It is strongly recommended to `set up a pre-commit hook <https://pre-commit.com/>`_ to ensure code is compliant before pushing to the repository:
 
 .. code-block:: bash
@@ -19,7 +19,7 @@ It is strongly recommended to `set up a pre-commit hook <https://pre-commit.com/
     pip install -r requirements-precommit.txt
     pre-commit install
 
-To manually run `Pre-commit`_ for all the files present in the repository, run the following command:
+To manually run `pre-commit <https://pre-commit.com/>`__ for all the files present in the repository, run the following command:
 
 .. code-block:: bash
 
