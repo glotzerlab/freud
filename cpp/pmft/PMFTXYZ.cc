@@ -69,7 +69,8 @@ void PMFTXYZ::reduce()
     m_histogram.prepare(m_histogram.shape());
 
     float inv_num_dens = m_box.getVolume() / (float) m_n_query_points;
-    float norm_factor = (float) 1.0 / ((float) m_frame_counter * (float) m_n_points * (float) m_num_equiv_orientations);
+    float norm_factor
+        = (float) 1.0 / ((float) m_frame_counter * (float) m_n_points * (float) m_num_equiv_orientations);
     float prefactor = inv_num_dens * norm_factor;
 
     float jacobian_factor = (float) 1.0 / m_jacobian;
@@ -97,7 +98,8 @@ void PMFTXYZ::accumulate(const locality::NeighborQuery* neighbor_query, quat<flo
     }
     else if (m_num_equiv_orientations != num_equiv_orientations)
     {
-        throw std::runtime_error("The number of equivalent orientations must be constant while accumulating data into PMFTXYZ.");
+        throw std::runtime_error(
+            "The number of equivalent orientations must be constant while accumulating data into PMFTXYZ.");
     }
     neighbor_query->getBox().enforce3D();
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,

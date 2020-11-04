@@ -30,14 +30,15 @@ enum QueryType
     nearest, //! Query based on number of requested neighbors.
 };
 
-constexpr auto DEFAULT_MODE = QueryType::none;  //!< Default mode.
+constexpr auto DEFAULT_MODE = QueryType::none;            //!< Default mode.
 constexpr unsigned int DEFAULT_NUM_NEIGHBORS(0xffffffff); //!< Default number of neighbors.
-constexpr float DEFAULT_R_MAX(-1.0);  //!< Default maximum query distance.
-constexpr float DEFAULT_R_MIN(0);  //!< Default minimum query distance.
-constexpr float DEFAULT_R_GUESS(-1.0);  //!< Default guess query distance.
-constexpr float DEFAULT_SCALE(-1.0);  //!< Default scaling parameter for AABB nearest neighbor queries.
-constexpr bool DEFAULT_EXCLUDE_II(false);  //!< Default for whether or not to include self-neighbors.
-constexpr auto ITERATOR_TERMINATOR = NeighborBond(-1, -1, 0);  //!< The object returned when iteration is complete.
+constexpr float DEFAULT_R_MAX(-1.0);                      //!< Default maximum query distance.
+constexpr float DEFAULT_R_MIN(0);                         //!< Default minimum query distance.
+constexpr float DEFAULT_R_GUESS(-1.0);                    //!< Default guess query distance.
+constexpr float DEFAULT_SCALE(-1.0);      //!< Default scaling parameter for AABB nearest neighbor queries.
+constexpr bool DEFAULT_EXCLUDE_II(false); //!< Default for whether or not to include self-neighbors.
+constexpr auto ITERATOR_TERMINATOR
+    = NeighborBond(-1, -1, 0); //!< The object returned when iteration is complete.
 
 //! POD class to hold information about generic queries.
 /*! This class provides a standard method for specifying the type of query to

@@ -11,12 +11,19 @@ Python
 Python (and Cython) code in **freud** should follow `PEP 8 <https://www.python.org/dev/peps/pep-0008/>`_.
 
 During continuous integration (CI), all Python and Cython code in **freud** is tested with `flake8 <http://flake8.pycqa.org/>`_ to ensure PEP 8 compliance.
-It is strongly recommended to `set up a pre-commit hook <http://flake8.pycqa.org/en/latest/user/using-hooks.html>`_ to ensure code is compliant before pushing to the repository:
+Additionally, all CMake code is tested using `cmakelang's cmake-format <https://cmake-format.readthedocs.io/en/latest/index.html>`__.
+It is strongly recommended to `set up a pre-commit hook <https://pre-commit.com/>`_ to ensure code is compliant before pushing to the repository:
 
 .. code-block:: bash
 
-    flake8 --install-hook git
-    git config --bool flake8.strict true
+    pip install -r requirements-precommit.txt
+    pre-commit install
+
+To manually run `pre-commit <https://pre-commit.com/>`__ for all the files present in the repository, run the following command:
+
+.. code-block:: bash
+
+    pre-commit run --all-files
 
 Documentation is written in reStructuredText and generated using `Sphinx <http://www.sphinx-doc.org/en/stable/index.html>`_.
 It should be written according to the `Google Python Style Guide <https://github.com/google/styleguide/blob/gh-pages/pyguide.md#38-comments-and-docstrings>`_.

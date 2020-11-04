@@ -52,6 +52,7 @@ Vyas Ramasubramani - **Lead developer**
 * Fixed usage of query orientations in PMFTXY, PMFTXYT and PMFTXYZ when points and query points are not identical.
 * Refactored and standardized PMFT tests.
 * Rewrote build system to use scikit-build.
+* Added support for pre-commit hooks.
 
 Bradley Dice - **Lead developer**
 
