@@ -76,7 +76,7 @@ tensor4 tensor4::operator*(const float& b) const
 
 void tensor4::copyToManagedArray(util::ManagedArray<float>& ma)
 {
-    std::copy(ma.get(), ma.get() + sizeof(float) * 81, data.begin());
+    std::copy(data.begin(), data.end(), ma.get());
 }
 
 //! Complete tensor contraction.
