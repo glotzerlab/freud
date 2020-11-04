@@ -11,7 +11,6 @@ repos:
         # specify this here just in case.
         args:
         - --style=file
-        - -i
         exclude: 'extern/.*'
       - id: clang-tidy
         # Ignore external files and those taken verbatim from HOOMD.

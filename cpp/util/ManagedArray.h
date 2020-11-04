@@ -142,7 +142,6 @@ public:
         return (*tmp).get();
     }
 
-
     //! Writeable index into array.
     T& operator[](size_t index)
     {

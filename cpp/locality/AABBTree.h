@@ -50,9 +50,10 @@ struct CACHE_ALIGN AABBNode
     unsigned int parent; //!< Index of the parent node
     unsigned int skip;   //!< Number of array indices to skip to get to the next node in an in order traversal
 
-    std::array<unsigned int, NODE_CAPACITY> particles;     //!< Indices of the particles contained in the node
-    std::array<unsigned int, NODE_CAPACITY> particle_tags; //!< Corresponding particle tags for particles in node
-    unsigned int num_particles;                //!< Number of particles contained in the node
+    std::array<unsigned int, NODE_CAPACITY> particles; //!< Indices of the particles contained in the node
+    std::array<unsigned int, NODE_CAPACITY>
+        particle_tags;          //!< Corresponding particle tags for particles in node
+    unsigned int num_particles; //!< Number of particles contained in the node
 };
 
 //! AABB Tree
@@ -237,10 +238,10 @@ public:
     }
 
 private:
-    AABBNode* m_nodes {nullptr};                   //!< The nodes of the tree
-    unsigned int m_num_nodes {0};            //!< Number of nodes
-    unsigned int m_node_capacity {0};        //!< Capacity of the nodes array
-    unsigned int m_root {0};                 //!< Index to the root node of the tree
+    AABBNode* m_nodes {nullptr};         //!< The nodes of the tree
+    unsigned int m_num_nodes {0};        //!< Number of nodes
+    unsigned int m_node_capacity {0};    //!< Capacity of the nodes array
+    unsigned int m_root {0};             //!< Index to the root node of the tree
     std::vector<unsigned int> m_mapping; //!< Reverse mapping to find node given a particle index
 
     //! Initialize the tree to hold N particles

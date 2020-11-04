@@ -28,7 +28,6 @@ public:
     //! Destructor
     ~LocalDensity() = default;
 
-
     //! Get the simulation box
     const box::Box& getBox() const
     {

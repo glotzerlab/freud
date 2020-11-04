@@ -273,9 +273,8 @@ public:
 protected:
     const LinkCell* m_linkcell; //!< Link to the LinkCell object
     IteratorCellShell
-        m_neigh_cell_iter; //!< The shell iterator indicating how far out we're currently searching.
-    IteratorLinkCell
-        m_cell_iter; //!< The cell iterator indicating which cell we're currently searching.
+        m_neigh_cell_iter;        //!< The shell iterator indicating how far out we're currently searching.
+    IteratorLinkCell m_cell_iter; //!< The cell iterator indicating which cell we're currently searching.
     std::unordered_set<unsigned int>
         m_searched_cells; //!< Set of cells that have already been searched by the cell shell iterator.
 };
