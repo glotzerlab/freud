@@ -287,12 +287,11 @@ NeighborBond AABBQueryIterator::next()
                 // neighbors beyond the normal min_plane_distance
                 // condition or we conclude that there are not enough
                 // neighbors left in the system.
-                for (std::map<unsigned int, float>::const_iterator it(m_all_distances.begin());
-                     it != m_all_distances.end(); ++it)
+                for (const auto &bond_distance : m_all_distances)
                 {
-                    if (it->second >= m_r_min)
+                    if (bond_distance.second >= m_r_min)
                     {
-                        m_current_neighbors.emplace_back(m_query_point_idx, it->first, it->second);
+                        m_current_neighbors.emplace_back(m_query_point_idx, bond_distance.first, bond_distance.second);
                     }
                 }
                 std::sort(m_current_neighbors.begin(), m_current_neighbors.end());
