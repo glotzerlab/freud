@@ -73,7 +73,7 @@ void SolidLiquid::compute(const freud::locality::NeighborList* nlist,
         solid_filter[bond] = (m_ql_ij[bond] > m_q_threshold);
     }
     freud::locality::NeighborList solid_nlist(m_nlist);
-    solid_nlist.filter(solid_filter.begin());
+    solid_nlist.filter(solid_filter.cbegin());
 
     // Save the neighbor counts of solid-like bonds for each query point
     m_number_of_connections.prepare(num_query_points);
@@ -94,7 +94,7 @@ void SolidLiquid::compute(const freud::locality::NeighborList* nlist,
                                        && m_number_of_connections[j] >= m_solid_threshold);
     }
     freud::locality::NeighborList solid_neighbor_nlist(solid_nlist);
-    solid_neighbor_nlist.filter(neighbor_count_filter.begin());
+    solid_neighbor_nlist.filter(neighbor_count_filter.cbegin());
 
     // Find clusters of solid-like particles
     m_cluster.compute(points, &solid_neighbor_nlist, qargs);

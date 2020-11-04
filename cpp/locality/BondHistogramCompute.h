@@ -24,7 +24,6 @@ public:
 
     //! Destructor
     virtual ~BondHistogramCompute() = default;
-    ;
 
     //! Reset the RDF array to all zeros
     virtual void reset()

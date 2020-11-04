@@ -14,8 +14,6 @@ LocalDensity::LocalDensity(float r_max, float diameter)
     : m_box(box::Box()), m_r_max(r_max), m_diameter(diameter)
 {}
 
-LocalDensity::~LocalDensity() = default;
-
 void LocalDensity::compute(const freud::locality::NeighborQuery* neighbor_query,
                            const vec3<float>* query_points, unsigned int n_query_points,
                            const freud::locality::NeighborList* nlist, freud::locality::QueryArgs qargs)

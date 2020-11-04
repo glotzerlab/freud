@@ -11,10 +11,6 @@
 
 namespace freud { namespace environment {
 
-LocalBondProjection::LocalBondProjection() = default;
-
-LocalBondProjection::~LocalBondProjection() = default;
-
 // The set of all equivalent quaternions equiv_qs is the set that takes the particle as it
 // is defined to some global reference orientation. Thus, to be safe, we must include
 // a rotation by qconst as defined below when doing the calculation.

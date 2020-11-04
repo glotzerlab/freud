@@ -26,10 +26,10 @@ class LocalBondProjection
 {
 public:
     //! Constructor
-    LocalBondProjection();
+    LocalBondProjection() = default;
 
     //! Destructor
-    ~LocalBondProjection();
+    ~LocalBondProjection() = default;
 
     //! Compute the maximal local bond projection
     void compute(const locality::NeighborQuery* nq, const quat<float>* orientations,

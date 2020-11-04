@@ -39,7 +39,7 @@ const unsigned int LINK_CELL_TERMINATOR = 0xffffffff;
  *  A loop over all of the particles in a cell can be accomplished with the
  *   following code in C++.
  * \code
- * LinkCell::iteratorcell it = lc.itercell(cell);
+ * LinkCell::IteratorLinkCell it = lc.itercell(cell);
  * for (unsigned int i = it.next(); !it.atEnd(); i=it.next())
  *     {
  *     // do something with particle i
@@ -178,9 +178,6 @@ private:
 class LinkCell : public NeighborQuery
 {
 public:
-    //! iterator to iterate over particles in the cell
-    using iteratorcell = IteratorLinkCell;
-
     //! Null Constructor
     LinkCell();
 
@@ -222,9 +219,9 @@ public:
     vec3<unsigned int> getCellCoord(const vec3<float>& p) const;
 
     //! Iterate over particles in a cell
-    iteratorcell itercell(unsigned int cell) const
+    IteratorLinkCell itercell(unsigned int cell) const
     {
-        return iteratorcell(m_cell_list, m_n_points, getNumCells(), cell);
+        return IteratorLinkCell(m_cell_list, m_n_points, getNumCells(), cell);
     }
 
     //! Get a list of neighbors to a cell
@@ -277,7 +274,7 @@ protected:
     const LinkCell* m_linkcell; //!< Link to the LinkCell object
     IteratorCellShell
         m_neigh_cell_iter; //!< The shell iterator indicating how far out we're currently searching.
-    LinkCell::iteratorcell
+    IteratorLinkCell
         m_cell_iter; //!< The cell iterator indicating which cell we're currently searching.
     std::unordered_set<unsigned int>
         m_searched_cells; //!< Set of cells that have already been searched by the cell shell iterator.

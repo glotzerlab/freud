@@ -23,7 +23,7 @@ namespace freud { namespace util {
  */
 template<typename T> struct Weight
 {
-    Weight() : value(1) {}
+    Weight() = default;
     explicit Weight(T value) : value(value), is_default(false) {}
 
     Weight& operator=(Weight other)
@@ -37,7 +37,7 @@ template<typename T> struct Weight
         return *this;
     }
 
-    T value;
+    T value {1};
     bool is_default {true};
 };
 

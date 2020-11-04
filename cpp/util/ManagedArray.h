@@ -259,17 +259,17 @@ public:
      *  \param shape The shape to map indexes to.
      *  \param indices The index in each dimension.
      */
-    static inline std::vector<size_t> getMultiIndex(std::vector<size_t> shape, size_t index)
+    static inline std::vector<size_t> getMultiIndex(const std::vector<size_t>& shape, size_t index)
     {
-        size_t cur_prod = std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<>());
+        size_t size = std::accumulate(shape.cbegin(), shape.cend(), 1, std::multiplies<>());
 
         std::vector<size_t> indices(shape.size());
         for (unsigned int i = 0; i < shape.size(); ++i)
         {
-            cur_prod /= shape[i];
+            size /= shape[i];
             // Integer division should cast away extras.
-            indices[i] = index / cur_prod;
-            index %= cur_prod;
+            indices[i] = index / size;
+            index %= size;
         }
         return indices;
     }
