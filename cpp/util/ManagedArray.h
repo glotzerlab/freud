@@ -119,20 +119,29 @@ public:
         }
     }
 
+    //! Return a constant pointer to the underlying data (requires two levels of indirection).
+    const T* get() const
+    {
+        std::shared_ptr<T>* tmp = m_data.get();
+        return (*tmp).get();
+    }
+
     //! Return the underlying pointer (requires two levels of indirection).
     /*! This function should only be used by client code when a raw pointer is
      * absolutely required. It is primarily part of the public API for the
      * purpose of freud's Python API, which requires a non-const pointer to the
      * data to construct a numpy array. There are specific use-cases (e.g.
-     * interacting with Eigen) where directly accessing the underlying data
-     * pointer is valuable, but users should be cautious about overusing calls
-     * to get() rather than using the various operators provided by the class.
+     * interacting with Eigen) where directly accessing a mutable version of
+     * the underlying data pointer is necessary, but users should be cautious
+     * about overusing calls to get() rather than using the various operators
+     * provided by the class.
      */
-    T* get() const
+    T* get()
     {
         std::shared_ptr<T>* tmp = m_data.get();
         return (*tmp).get();
     }
+
 
     //! Writeable index into array.
     T& operator[](size_t index)
