@@ -5,6 +5,7 @@
 # misc-no-recursion: Rewriting things like the NeighborList to avoid recursion is out of scope for now.
 # readability-magic-numbers: Wigner3j contains (necessary) magic numbers.
 # misc-non-private-member-variables-in-classes: We make extensive use of protected members, for instance in PMFT* classes from BondHistogramCompute, and the argument that this is _never_ OK is not terribly convincing.
+# modernize-return-braced-init-list: This format for returning is less readable for inexperienced C++ programmers.
 
 Checks: 'bugprone-*,
          cert-*,
@@ -20,4 +21,5 @@ Checks: 'bugprone-*,
          -modernize-use-trailing-return-type,
          -misc-no-recursion,
          -readability-magic-numbers,
-         -misc-non-private-member-variables-in-classes'
+         -misc-non-private-member-variables-in-classes,
+         -modernize-return-braced-init-list'
