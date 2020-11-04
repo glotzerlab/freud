@@ -230,11 +230,8 @@ public:
         size_t idx = 0;
         // In getting the linear bin, we must iterate over bins in reverse
         // order to build up the value of cur_prod because each subsequent axis
-        // contributes less according to row-major ordering. The condition in
-        // the for loop exploits the fact that i-- returns the pre-decrement
-        // value, so when i first reaches 0 the comparison will be 1 > 0 and
-        // ensure that the 0 case runs.
-        for (unsigned int i = indices.size(); i-- > 0;)
+        // contributes less according to row-major ordering.
+        for (unsigned int i = indices.size(); i != static_cast<unsigned>(-1); --i)
         {
             idx += indices[i] * cur_prod;
             cur_prod *= (*m_shape)[i];
@@ -249,11 +246,8 @@ public:
         size_t idx = 0;
         // In getting the linear bin, we must iterate over bins in reverse
         // order to build up the value of cur_prod because each subsequent axis
-        // contributes less according to row-major ordering.  The condition in
-        // the for loop exploits the fact that i-- returns the pre-decrement
-        // value, so when i first reaches 0 the comparison will be 1 > 0 and
-        // ensure that the 0 case runs.
-        for (unsigned int i = indices.size(); i-- > 0;)
+        // contributes less according to row-major ordering.
+        for (unsigned int i = indices.size(); i != static_cast<unsigned>(-1); --i)
         {
             idx += indices[i] * cur_prod;
             cur_prod *= (*m_shape)[i];
@@ -296,11 +290,8 @@ public:
         size_t idx = 0;
         // In getting the linear bin, we must iterate over bins in reverse
         // order to build up the value of cur_prod because each subsequent axis
-        // contributes less according to row-major ordering.  The condition in
-        // the for loop exploits the fact that i-- returns the pre-decrement
-        // value, so when i first reaches 0 the comparison will be 1 > 0 and
-        // ensure that the 0 case runs.
-        for (unsigned int i = indices.size(); i-- > 0;)
+        // contributes less according to row-major ordering.
+        for (unsigned int i = indices.size(); i != static_cast<unsigned>(-1); --i)
         {
             idx += indices[i] * cur_prod;
             cur_prod *= shape[i];
@@ -338,11 +329,8 @@ public:
         size_t idx = 0;
         // In getting the linear bin, we must iterate over bins in reverse
         // order to build up the value of cur_prod because each subsequent axis
-        // contributes less according to row-major ordering.  The condition in
-        // the for loop exploits the fact that i-- returns the pre-decrement
-        // value, so when i first reaches 0 the comparison will be 1 > 0 and
-        // ensure that the 0 case runs.
-        for (unsigned int i = indices.size(); i-- > 0;)
+        // contributes less according to row-major ordering.
+        for (unsigned int i = indices.size(); i != static_cast<unsigned>(-1); --i)
         {
             idx += indices[i] * cur_prod;
             cur_prod *= (*m_shape)[i];
