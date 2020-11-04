@@ -93,7 +93,7 @@ public:
             m_shape = std::make_shared<std::vector<size_t>>(new_shape);
 
             m_size = std::make_shared<size_t>(1);
-            for (int i = m_shape->size() - 1; i >= 0; --i)
+            for (unsigned int i = m_shape->size() - 1; i != static_cast<unsigned int>(-1); --i)
             {
                 (*m_size) *= (*m_shape)[i];
             }
@@ -230,7 +230,7 @@ public:
         // In getting the linear bin, we must iterate over bins in reverse
         // order to build up the value of cur_prod because each subsequent axis
         // contributes less according to row-major ordering.
-        for (unsigned int i = indices.size(); i != static_cast<unsigned>(-1); --i)
+        for (unsigned int i = indices.size() - 1; i != static_cast<unsigned int>(-1); --i)
         {
             idx += indices[i] * cur_prod;
             cur_prod *= (*m_shape)[i];
@@ -246,7 +246,7 @@ public:
         // In getting the linear bin, we must iterate over bins in reverse
         // order to build up the value of cur_prod because each subsequent axis
         // contributes less according to row-major ordering.
-        for (unsigned int i = indices.size(); i != static_cast<unsigned>(-1); --i)
+        for (unsigned int i = indices.size() - 1; i != static_cast<unsigned int>(-1); --i)
         {
             idx += indices[i] * cur_prod;
             cur_prod *= (*m_shape)[i];
@@ -290,7 +290,7 @@ public:
         // In getting the linear bin, we must iterate over bins in reverse
         // order to build up the value of cur_prod because each subsequent axis
         // contributes less according to row-major ordering.
-        for (unsigned int i = indices.size(); i != static_cast<unsigned>(-1); --i)
+        for (unsigned int i = indices.size() - 1; i != static_cast<unsigned int>(-1); --i)
         {
             idx += indices[i] * cur_prod;
             cur_prod *= shape[i];
@@ -329,7 +329,7 @@ public:
         // In getting the linear bin, we must iterate over bins in reverse
         // order to build up the value of cur_prod because each subsequent axis
         // contributes less according to row-major ordering.
-        for (unsigned int i = indices.size(); i != static_cast<unsigned>(-1); --i)
+        for (unsigned int i = indices.size() - 1; i != static_cast<unsigned>(-1); --i)
         {
             idx += indices[i] * cur_prod;
             cur_prod *= (*m_shape)[i];

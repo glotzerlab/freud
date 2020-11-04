@@ -319,7 +319,7 @@ void LinkCell::computeCellList(const vec3<float>* points, unsigned int n_points)
     }
 
     // Generate the cell list.
-    for (unsigned int i = n_points; i != static_cast<unsigned>(-1); --i)
+    for (unsigned int i = n_points - 1; i != static_cast<unsigned int>(-1); --i)
     {
         unsigned int cell = getCell(points[i]);
         m_cell_list[i] = m_cell_list[n_points + cell];
