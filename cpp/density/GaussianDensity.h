@@ -49,7 +49,7 @@ public:
     }
 
     //! Compute the density.
-    void compute(const freud::locality::NeighborQuery* nq, const float* values = NULL);
+    void compute(const freud::locality::NeighborQuery* nq, const float* values = nullptr);
 
     //! Get a reference to the last computed density.
     const util::ManagedArray<float>& getDensity() const;
