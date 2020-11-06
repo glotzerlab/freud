@@ -48,14 +48,6 @@ constexpr auto ITERATOR_TERMINATOR
  */
 struct QueryArgs
 {
-    //! Enumeration for types of queries.
-    enum QueryType
-    {
-        none,    //! Default query type to avoid implicit default types.
-        ball,    //! Query based on distance cutoff.
-        nearest, //! Query based on number of requested neighbors.
-    };
-
     //! Default constructor.
     /*! We set default values for all parameters here.
      */
