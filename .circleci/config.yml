@@ -84,7 +84,7 @@ references:
         # Changes to environment variables (like PATH) don't persist between
         # run steps in CircleCI, so we specify the full path to pre-commit
         # explicitly here.
-        python${PYVER} -m pre_commit run --all-files
+        python${PYVER} -m pre_commit run --all-files --show-diff-on-failure
 
   build: &build
     run:
