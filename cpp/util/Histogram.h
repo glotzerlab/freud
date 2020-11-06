@@ -7,7 +7,7 @@
 #include <emmintrin.h>
 #endif
 #include <sstream>
-#include <tbb/tbb.h>
+#include <tbb/enumerable_thread_specific.h>
 #include <utility>
 
 #include "ManagedArray.h"
@@ -106,10 +106,10 @@ protected:
 
 //! A regularly spaced axis.
 /*! A RegularAxis is the most common type of axis, representing a series of
- * linearly spaced bins between two boundaries. These axes can be specified a
- * relatively small set of parameter and are very efficient to bin with
- * defining them. Given a value along the Axis, the Axis can compute the bin
- * within which this value falls.
+ * linearly spaced bins between two boundaries. These axes can be specified
+ * with a small set of parameters and are very efficient when computing the
+ * desired bin for a value. Given a value along the Axis, the Axis can compute
+ * the bin within which this value falls.
  */
 class RegularAxis : public Axis
 {
@@ -117,14 +117,14 @@ public:
     RegularAxis(size_t nbins, float min, float max) : Axis(nbins, min, max)
     {
         m_bin_edges.resize(m_nbins + 1);
-        m_dr = (max - min) / static_cast<float>(m_nbins);
-        m_dr_inv = float(1.0) / m_dr;
-        float cur_location = min;
-        // This must be <= because there is one extra bin boundary than the number of bins.
+        m_bin_width = (max - min) / static_cast<float>(m_nbins);
+        m_inverse_bin_width = float(1.0) / m_bin_width;
+        // This must be <= because there is one more bin boundary than the number of bins.
         for (size_t i = 0; i <= nbins; i++)
         {
-            m_bin_edges[i] = (cur_location);
-            cur_location += m_dr;
+            // Spacing via multiplication is more numerically stable than
+            // adding the bin width repeatedly
+            m_bin_edges[i] = min + i * m_bin_width;
         }
     }
 
@@ -149,7 +149,7 @@ public:
         {
             return OVERFLOW_BIN;
         }
-        float val = (value - m_min) * m_dr_inv;
+        float val = (value - m_min) * m_inverse_bin_width;
         // fast float to int conversion with truncation
 #ifdef __SSE2__
         size_t bin = _mm_cvtt_ss2si(_mm_load_ss(&val));
@@ -164,8 +164,8 @@ public:
     }
 
 protected:
-    float m_dr;     //!< Gap between bins
-    float m_dr_inv; //!< Inverse gap between bins
+    float m_bin_width;         //!< Bin width
+    float m_inverse_bin_width; //!< Inverse of bin width
 };
 
 //! An n-dimensional histogram class.

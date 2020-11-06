@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2019 The Regents of the University of Michigan
+# Copyright (c) 2010-2020 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 R"""
@@ -237,7 +237,7 @@ cdef class LocalDescriptors(_PairCompute):
     computing descriptors on the same system but with different subsets of
     neighbors; a :class:`freud.locality.NeighborList` with the correct
     ordering can then be reused in multiple calls to :meth:`~.compute`
-    with different values of `max_num_neighbors` to compute descriptors
+    with different values of :code:`max_num_neighbors` to compute descriptors
     for different local neighborhoods with maximum efficiency.
 
     Args:
@@ -534,6 +534,20 @@ cdef class EnvironmentCluster(_MatchEnv):
         lead to situations where a point doesn't match a cluster because a
         required neighbor is just outside the cutoff.
 
+        Example::
+
+            >>> import freud
+            >>> # Compute clusters of particles with matching environments
+            >>> box, points = freud.data.make_random_system(10, 100, seed=0)
+            >>> env_cluster = freud.environment.EnvironmentCluster()
+            >>> env_cluster.compute(
+            ...     system = (box, points),
+            ...     threshold=0.2,
+            ...     neighbors={'num_neighbors': 6},
+            ...     registration=False,
+            ...     global_search=False)
+            freud.environment.EnvironmentCluster()
+
         Args:
             system:
                 Any object that is a valid argument to
@@ -554,19 +568,22 @@ cdef class EnvironmentCluster(_MatchEnv):
                 neighbor pairs to use in the calculation, or a dictionary of
                 `query arguments
                 <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
-                (Default value: None). This argument is used to define the
-                neighbors of the environment that motifs are registered
-                against.
+                This argument is used to define the neighbors of the
+                environment that motifs are registered against. If ``None``,
+                the value provided for ``neighbors`` will be used. (Default
+                value: None).
             registration (bool, optional):
                 If True, first use brute force registration to orient one set
                 of environment vectors with respect to the other set such that
-                it minimizes the RMSD between the two sets.
+                it minimizes the RMSD between the two sets. Enabling this
+                option incurs a significant performance penalty.
                 (Default value = :code:`False`)
             global_search (bool, optional):
                  If True, do an exhaustive search wherein the environments of
                 every single pair of particles in the simulation are compared.
                 If False, only compare the environments of neighboring
-                particles. (Default value = :code:`False`)
+                particles. Enabling this option incurs a significant
+                performance penalty. (Default value = :code:`False`)
         """  # noqa: E501
         cdef:
             freud.locality.NeighborQuery nq

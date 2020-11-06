@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2019 The Regents of the University of Michigan
+// Copyright (c) 2010-2020 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <algorithm>
@@ -6,11 +6,6 @@
 #include <stdexcept>
 
 #include "LinkCell.h"
-
-#if defined _WIN32
-#undef min // std::min clashes with a Windows header
-#undef max // std::max clashes with a Windows header
-#endif
 
 /*! \file LinkCell.cc
     \brief Build a cell list from a set of points.
@@ -460,12 +455,12 @@ std::shared_ptr<NeighborQueryPerPointIterator>
 LinkCell::querySingle(const vec3<float> query_point, unsigned int query_point_idx, QueryArgs args) const
 {
     this->validateQueryArgs(args);
-    if (args.mode == QueryArgs::ball)
+    if (args.mode == QueryType::ball)
     {
         return std::make_shared<LinkCellQueryBallIterator>(this, query_point, query_point_idx, args.r_max,
                                                            args.r_min, args.exclude_ii);
     }
-    else if (args.mode == QueryArgs::nearest)
+    else if (args.mode == QueryType::nearest)
     {
         return std::make_shared<LinkCellQueryIterator>(this, query_point, query_point_idx, args.num_neighbors,
                                                        args.r_max, args.r_min, args.exclude_ii);
@@ -545,7 +540,7 @@ NeighborBond LinkCellQueryBallIterator::next()
     }
 
     m_finished = true;
-    return NeighborQueryIterator::ITERATOR_TERMINATOR;
+    return ITERATOR_TERMINATOR;
 }
 
 NeighborBond LinkCellQueryIterator::next()
@@ -637,13 +632,13 @@ NeighborBond LinkCellQueryIterator::next()
         if (m_current_neighbors[m_count - 1].distance > m_r_max)
         {
             m_finished = true;
-            return NeighborQueryIterator::ITERATOR_TERMINATOR;
+            return ITERATOR_TERMINATOR;
         }
         return m_current_neighbors[m_count - 1];
     }
 
     m_finished = true;
-    return NeighborQueryIterator::ITERATOR_TERMINATOR;
+    return ITERATOR_TERMINATOR;
 }
 
 }; }; // end namespace freud::locality

@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2019 The Regents of the University of Michigan
+# Copyright (c) 2010-2020 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 R"""
@@ -179,9 +179,22 @@ cdef class ClusterProperties(_Compute):
     def compute(self, system, cluster_idx):
         R"""Compute properties of the point clusters.
         Loops over all points in the given array and determines the center of
-        mass of the cluster as well as the gyration tensor. These can be
-        accessed after the call to :meth:`~.compute()` with the
+        mass of the cluster as well as the gyration tensor. After calling
+        this method, these properties can be accessed with the
         :code:`centers` and :code:`gyrations` attributes.
+
+        Example::
+
+            >>> import freud
+            >>> # Compute clusters using box, positions, and nlist data
+            >>> box, points = freud.data.make_random_system(10, 100)
+            >>> cl = freud.cluster.Cluster()
+            >>> cl.compute((box, points), neighbors={'r_max': 1.0})
+            freud.cluster.Cluster()
+            >>> # Compute cluster properties based on identified clusters
+            >>> cl_props = freud.cluster.ClusterProperties()
+            >>> cl_props.compute((box, points), cl.cluster_idx)
+            freud.cluster.ClusterProperties()
 
         Args:
             system:

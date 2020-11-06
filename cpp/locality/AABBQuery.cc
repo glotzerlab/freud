@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2019 The Regents of the University of Michigan
+// Copyright (c) 2010-2020 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <algorithm>
@@ -24,12 +24,12 @@ std::shared_ptr<NeighborQueryPerPointIterator>
 AABBQuery::querySingle(const vec3<float> query_point, unsigned int query_point_idx, QueryArgs args) const
 {
     this->validateQueryArgs(args);
-    if (args.mode == QueryArgs::ball)
+    if (args.mode == QueryType::ball)
     {
         return std::make_shared<AABBQueryBallIterator>(this, query_point, query_point_idx, args.r_max,
                                                        args.r_min, args.exclude_ii);
     }
-    else if (args.mode == QueryArgs::nearest)
+    else if (args.mode == QueryType::nearest)
     {
         return std::make_shared<AABBQueryIterator>(this, query_point, query_point_idx, args.num_neighbors,
                                                    args.r_guess, args.r_max, args.r_min, args.scale,
@@ -201,7 +201,7 @@ NeighborBond AABBQueryBallIterator::next()
     } // end loop over images
 
     m_finished = true;
-    return NeighborQueryIterator::ITERATOR_TERMINATOR;
+    return ITERATOR_TERMINATOR;
 }
 
 NeighborBond AABBQueryIterator::next()
@@ -238,7 +238,7 @@ NeighborBond AABBQueryIterator::next()
             while (!ball_it->end())
             {
                 NeighborBond nb = ball_it->next();
-                if (nb == NeighborQueryIterator::ITERATOR_TERMINATOR)
+                if (nb == ITERATOR_TERMINATOR)
                     continue;
 
                 if (!m_exclude_ii || m_query_point_idx != nb.point_idx)
@@ -317,13 +317,13 @@ NeighborBond AABBQueryIterator::next()
         if (m_current_neighbors[m_count - 1].distance > m_r_max)
         {
             m_finished = true;
-            return NeighborQueryIterator::ITERATOR_TERMINATOR;
+            return ITERATOR_TERMINATOR;
         }
         return m_current_neighbors[m_count - 1];
     }
 
     m_finished = true;
-    return NeighborQueryIterator::ITERATOR_TERMINATOR;
+    return ITERATOR_TERMINATOR;
 }
 
 }; }; // end namespace freud::locality

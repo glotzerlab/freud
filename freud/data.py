@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2019 The Regents of the University of Michigan
+# Copyright (c) 2010-2020 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 R"""
@@ -147,10 +147,10 @@ class UnitCell(object):
 
     @classmethod
     def fcc(cls):
-        """Create a face-centered cubic crystal.
+        """Create a face-centered cubic (fcc) unit cell.
 
         Returns:
-            :class:`~.UnitCell`: An fcc unit cell.
+            :class:`~.UnitCell`: A face-centered cubic unit cell.
         """
         fractions = np.array([[.5, .5, 0],
                               [.5, 0, .5],
@@ -160,10 +160,10 @@ class UnitCell(object):
 
     @classmethod
     def bcc(cls):
-        """Create a body-centered cubic crystal.
+        """Create a body-centered cubic (bcc) unit cell.
 
         Returns:
-            :class:`~.UnitCell`: A bcc unit cell.
+            :class:`~.UnitCell`: A body-centered cubic unit cell.
         """
         fractions = np.array([[.5, .5, .5],
                               [0, 0, 0]])
@@ -171,23 +171,33 @@ class UnitCell(object):
 
     @classmethod
     def sc(cls):
-        """Create a simple cubic crystal.
+        """Create a simple cubic (sc) unit cell.
 
         Returns:
-            :class:`~.UnitCell`: An sc unit cell.
+            :class:`~.UnitCell`: A simple cubic unit cell.
         """
         fractions = np.array([[0, 0, 0]])
         return cls([1, 1, 1], fractions)
 
     @classmethod
     def square(cls):
-        """Create a square crystal.
+        """Create a square unit cell.
 
         Returns:
             :class:`~.UnitCell`: A square unit cell.
         """
         fractions = np.array([[0, 0, 0]])
         return cls([1, 1], fractions)
+
+    @classmethod
+    def hex(cls):
+        """Create a hexagonal unit cell.
+
+        Returns:
+            :class:`~.UnitCell`: A hexagonal unit cell.
+        """
+        fractions = np.array([[0, 0, 0], [0.5, 0.5, 0]])
+        return cls([1, np.sqrt(3)], fractions)
 
 
 def make_random_system(box_size, num_points, is2D=False, seed=None):

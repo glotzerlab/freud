@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2019 The Regents of the University of Michigan
+# Copyright (c) 2010-2020 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 R"""
@@ -15,6 +15,7 @@ import freud.util
 
 from freud.util cimport vec3
 from cpython.object cimport Py_EQ, Py_NE
+from libcpp cimport bool as cpp_bool
 
 cimport freud._box
 cimport numpy as np
@@ -28,8 +29,10 @@ np.import_array()
 cdef class Box:
     R"""The freud Box class for simulation boxes.
 
-    This class defines an arbitrary triclinic geometry within which all points
-    are confined. For more information, see the `documentation
+    This class defines an arbitrary triclinic geometry within which all points are confined.
+    By convention, the freud Box is centered at the origin (``[0, 0, 0]``),
+    with the extent in each dimension described by the half-open interval ``[-L/2, L/2)``.
+    For more information, see the `documentation
     <https://freud.readthedocs.io/en/stable/gettingstarted/tutorial/periodic.html>`_
     on boxes and periodic boundary conditions.
 
@@ -241,8 +244,8 @@ cdef class Box:
         cdef const float[:, ::1] l_points = vecs
         cdef const int[:, ::1] l_result = images
         cdef unsigned int Np = l_points.shape[0]
-        self.thisptr.getImage(<vec3[float]*> &l_points[0, 0], Np,
-                              <vec3[int]*> &l_result[0, 0])
+        self.thisptr.getImages(<vec3[float]*> &l_points[0, 0], Np,
+                               <vec3[int]*> &l_result[0, 0])
 
         return np.squeeze(images) if flatten else images
 
@@ -354,7 +357,7 @@ cdef class Box:
             >>> np.mean(points, axis=0)  # Does not account for periodic images
             array([0., 0., 0.])
             >>> box.center_of_mass(points)  # Accounts for periodic images
-            array([-0.18459368,  0.        ,  0.        ])
+            array([-0.1845932,  0.       ,  0.       ])
 
         Args:
             vecs (:math:`\left(N, 3\right)` :class:`numpy.ndarray`):
@@ -394,8 +397,8 @@ cdef class Box:
             >>> box = freud.Box.cube(10)
             >>> points = [[-1, -1, 0], [-1, 1, 0], [2, 0, 0]]
             >>> box.center(points)
-            array([[-0.8154063, -1.       ,  0.       ],
-                   [-0.8154063,  1.       ,  0.       ],
+            array([[-0.8154068, -1.0000002,  0.       ],
+                   [-0.8154068,  1.       ,  0.       ],
                    [ 2.1845937,  0.       ,  0.       ]], dtype=float32)
 
         Args:
@@ -421,6 +424,124 @@ cdef class Box:
         cdef size_t Np = l_points.shape[0]
         self.thisptr.center(<vec3[float]*> &l_points[0, 0], Np, l_masses_ptr)
         return vecs
+
+    def compute_distances(self, query_points, points):
+        R"""Calculate distances between two sets of points, using periodic boundaries.
+
+        Distances are calculated row-wise, i.e. ``distances[i]`` is the
+        distance from ``query_points[i]`` to ``points[i]``.
+
+        Args:
+            query_points (:math:`\left(N, 3\right)` :class:`numpy.ndarray`):
+                Array of query points.
+            points (:math:`\left(N, 3\right)` :class:`numpy.ndarray`):
+                Array of points.
+
+        Returns:
+            :math:`\left(N, \right)` :class:`numpy.ndarray`:
+                Array of distances between query points and points.
+        """   # noqa: E501
+
+        query_points = freud.util._convert_array(
+            np.atleast_2d(query_points), shape=(None, 3))
+        points = freud.util._convert_array(
+            np.atleast_2d(points), shape=(None, 3))
+
+        cdef:
+            const float[:, ::1] l_query_points = query_points
+            const float[:, ::1] l_points = points
+            size_t n_query_points = query_points.shape[0]
+            size_t n_points = points.shape[0]
+            float[::1] distances = np.empty(
+                n_query_points, dtype=np.float32)
+
+        self.thisptr.computeDistances(
+            <vec3[float]*> &l_query_points[0, 0], n_query_points,
+            <vec3[float]*> &l_points[0, 0], n_points,
+            <float *> &distances[0])
+        return np.asarray(distances)
+
+    def compute_all_distances(self, query_points, points):
+        R"""Calculate distances between all pairs of query points and points.
+
+        Distances are calculated pairwise, i.e. ``distances[i, j]`` is the
+        distance from ``query_points[i]`` to ``points[j]``.
+
+        Args:
+            query_points (:math:`\left(N_{query\_points}, 3 \right)` :class:`numpy.ndarray`):
+                Array of query points.
+            points (:math:`\left(N_{points}, 3 \right)` :class:`numpy.ndarray`):
+                Array of points with same length as ``query_points``.
+
+        Returns:
+            :math:`\left(N_{query\_points}, N_{points}, \right)` :class:`numpy.ndarray`:
+                Array of distances between query points and points.
+        """  # noqa: E501
+        query_points = freud.util._convert_array(
+            np.atleast_2d(query_points), shape=(None, 3))
+        points = freud.util._convert_array(
+            np.atleast_2d(points), shape=(None, 3))
+
+        cdef:
+            const float[:, ::1] l_query_points = query_points
+            const float[:, ::1] l_points = points
+            size_t n_query_points = query_points.shape[0]
+            size_t n_points = points.shape[0]
+            float[:, ::1] distances = np.empty(
+                [n_query_points, n_points], dtype=np.float32)
+
+        self.thisptr.computeAllDistances(
+            <vec3[float]*> &l_query_points[0, 0], n_query_points,
+            <vec3[float]*> &l_points[0, 0], n_points,
+            <float *> &distances[0, 0])
+
+        return np.asarray(distances)
+
+    def contains(self, points):
+        R"""Returns boolean array (mask) corresponding to point membership in a box.
+
+        This calculation computes particle membership based on conventions defined by :class:`Box`, ignoring periodicity.
+        This means that in a cubic (3D) box with dimensions ``L``, particles would be considered inside the box if their coordinates are between
+        ``[-L/2, L/2]``.
+        Particles laying at a coordinate such as ``[0, L, 0]`` would be considered outside the box.
+        More information about coordinate conventions can be found `here
+        <https://freud.readthedocs.io/en/latest/gettingstarted/examples/module_intros/box.Box.html?highlight=origin#Using-boxes>`__
+        and `here <https://freud.readthedocs.io/en/latest/gettingstarted/tutorial/periodic.html?highlight=origin#periodic-boundary-conditions>`__.
+
+        Example::
+
+            >>> import freud
+            >>> box = freud.Box.cube(10)
+            >>> points = [[-4, 0, 0], [10, 0, 0], [0, -7, 0]]
+            >>> box.contains(points)
+            array([ True, False, False])
+
+        Args:
+            points (:math:`\left(N, 3\right)` :class:`numpy.ndarray`):
+                Array of points.
+
+        Returns:
+            :math:`\left(N, \right)` :class:`numpy.ndarray`:
+                Array of booleans, where `True` corresponds to points within the box,
+                and `False` corresponds to points outside the box.
+        """  # noqa: E501
+
+        points = freud.util._convert_array(
+            np.atleast_2d(points), shape=(None, 3))
+
+        cdef:
+            const float[:, ::1] l_points = points
+            size_t n_all_points = points.shape[0]
+
+        contains_mask = freud.util._convert_array(
+            np.ones(n_all_points), dtype=np.bool)
+        cdef cpp_bool[::1] l_contains_mask = contains_mask
+
+        self.thisptr.contains(
+            <vec3[float]*> &l_points[0, 0], n_all_points,
+            <cpp_bool*> &l_contains_mask[0])
+
+        return np.array(l_contains_mask).astype(np.bool)
 
     @property
     def periodic(self):
@@ -469,6 +590,7 @@ cdef class Box:
         R"""Return box as dictionary.
 
         Example::
+
             >>> box = freud.box.Box.cube(L=10)
             >>> box.to_dict()
             {'Lx': 10.0, 'Ly': 10.0, 'Lz': 10.0,
@@ -490,6 +612,7 @@ cdef class Box:
         R"""Returns the box matrix (3x3).
 
         Example::
+
             >>> box = freud.box.Box.cube(L=10)
             >>> box.to_matrix()
             array([[10.,  0.,  0.],
@@ -588,7 +711,7 @@ cdef class Box:
                   :code:`'Lx', 'Ly', 'Lz', 'xy', 'xz', 'yz', 'dimensions'`,
                   objects with attributes
                   :code:`Lx, Ly, Lz, xy, xz, yz, dimensions`,
-                  3x3 matrices (see :meth:`~.from_matrix()`),
+                  3x3 matrices (see :meth:`~.from_matrix`),
                   or existing :class:`freud.box.Box` objects.
 
                   If any of :code:`Lz, xy, xz, yz` are not provided, they will

@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2019 The Regents of the University of Michigan
+// Copyright (c) 2010-2020 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <stdexcept>
@@ -25,10 +25,14 @@ PMFTXYT::PMFTXYT(float x_max, float y_max, unsigned int n_x, unsigned int n_y, u
     if (y_max < 0.0f)
         throw std::invalid_argument("PMFTXYT requires that y_max must be positive.");
 
-    // Compute Jacobian
+    // Note: There is an additional implicit volume factor of 2*pi
+    // corresponding to the rotational degree of freedom in the system (i.e. dt
+    // technically has 2*pi in the numerator). However, this factor is
+    // implicitly canceled out since we also do not include it in the number
+    // density computed for the system, see PMFT::reduce for more information.
     const float dx = 2.0 * x_max / float(n_x);
     const float dy = 2.0 * y_max / float(n_y);
-    const float dt = constants::TWO_PI / float(n_t);
+    const float dt = 1 / float(n_t);
     m_jacobian = dx * dy * dt;
 
     // Create the PCF array.
@@ -61,11 +65,11 @@ void PMFTXYT::accumulate(const locality::NeighborQuery* neighbor_query, float* o
                           // rotate interparticle vector
                           vec2<float> myVec(delta.x, delta.y);
                           rotmat2<float> myMat
-                              = rotmat2<float>::fromAngle(-orientations[neighbor_bond.point_idx]);
+                              = rotmat2<float>::fromAngle(-query_orientations[neighbor_bond.query_point_idx]);
                           vec2<float> rotVec = myMat * myVec;
                           // calculate angle
                           float d_theta = std::atan2(-delta.y, -delta.x);
-                          float t = query_orientations[neighbor_bond.query_point_idx] - d_theta;
+                          float t = orientations[neighbor_bond.point_idx] - d_theta;
                           // make sure that t is bounded between 0 and 2PI
                           t = util::modulusPositive(t, constants::TWO_PI);
                           m_local_histograms(rotVec.x, rotVec.y, t);

@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2019 The Regents of the University of Michigan
+// Copyright (c) 2010-2020 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef AABBQUERY_H
@@ -59,9 +59,9 @@ protected:
     virtual void validateQueryArgs(QueryArgs& args) const
     {
         NeighborQuery::validateQueryArgs(args);
-        if (args.mode == QueryArgs::nearest)
+        if (args.mode == QueryType::nearest)
         {
-            if (args.scale == QueryArgs::DEFAULT_SCALE)
+            if (args.scale == DEFAULT_SCALE)
             {
                 args.scale = float(1.1);
             }
@@ -70,7 +70,7 @@ protected:
                 throw std::runtime_error("The scale query argument must be greater than 1.");
             }
 
-            if (args.r_guess == QueryArgs::DEFAULT_R_GUESS)
+            if (args.r_guess == DEFAULT_R_GUESS)
             {
                 // By default, we assume a homogeneous system density and use
                 // that to estimate the distance we need to query. This

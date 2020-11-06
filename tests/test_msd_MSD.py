@@ -1,7 +1,9 @@
 import numpy as np
 import numpy.testing as npt
 import freud
+import matplotlib
 import unittest
+matplotlib.use('agg')
 
 
 class TestMSD(unittest.TestCase):
@@ -64,15 +66,17 @@ class TestMSD(unittest.TestCase):
                 sqdist = np.square(diffs).sum(axis=2)
                 msds.append(sqdist.mean(axis=0))
 
-            return np.array(msds).mean(axis=1)
+            return np.array(msds).mean(axis=1), np.array(msds)
 
         num_tests = 5
         np.random.seed(10)
         for _ in range(num_tests):
             positions = np.random.rand(10, 10, 3)
-            simple = simple_msd(positions)
+            simple, simple_particle = simple_msd(positions)
             solution = msd.compute(positions).msd
+            solution_particle = msd.compute(positions).particle_msd
             npt.assert_allclose(solution, simple, atol=1e-6)
+            npt.assert_allclose(solution_particle, simple_particle, atol=1e-5)
 
     def test_repr(self):
         msd = freud.msd.MSD()

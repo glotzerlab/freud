@@ -1,8 +1,8 @@
-// Copyright (c) 2010-2019 The Regents of the University of Michigan
+// Copyright (c) 2010-2020 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <cmath>
-#include <tbb/tbb.h>
+#include <tbb/parallel_sort.h>
 #include <vector>
 
 #include "NeighborBond.h"
@@ -143,8 +143,14 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq, const double* ra
 
                 // Ignore bonds in 2D systems that point up or down. This check
                 // should only be dealing with bonds whose normal vectors' z
-                // components are -1, 0, or +1 (within some tolerance).
-                if (box.is2D() && std::abs(normal.z) > 0.5)
+                // components are -1, 0, or +1 (within some tolerance). This
+                // also skips bonds where the normal vector is exactly zero.
+                // A normal vector of exactly zero seems to appear for certain
+                // particles in 2D systems where the neighbors are very close.
+                // It seems like an issue of numerical imprecision but could be
+                // some other pathological case.
+                if (box.is2D() && std::abs(normal.z) > 0.5
+                    || (normal.x == 0 && normal.y == 0 && normal.z == 0))
                 {
                     continue;
                 }

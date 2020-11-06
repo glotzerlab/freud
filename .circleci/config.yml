@@ -1,4 +1,7 @@
-version: 2
+version: 2.1
+
+orbs:
+  win: circleci/windows@2.2.0  # Enables Windows executors
 
 references:
   container_manylinux: &container_manylinux
@@ -8,7 +11,7 @@ references:
 
   container_macos: &container_macos
     macos:
-      xcode: "9.0"
+      xcode: "12.0.0"
     working_directory: ~/ci/freud
 
   load_code: &load_code
@@ -41,38 +44,62 @@ references:
     run:
       name: Install dependencies
       command: |
-        $PIP install --user -r requirements-testing.txt
+        # Since we're testing against a very old cmake, wheels may not exist
+        # for newer Python versions (currently this is true for Python3.8, will
+        # be true for 3.9 as well). We will need to build the cmake wheels from
+        # a tarball in this case, and cmake depends on scikit-build, so we
+        # install skbuild separately here. Note that newer cmake versions build
+        # universal wheels instead, so once we upgrade to cmake >= 3.14 we won't
+        # be dependent on them updating wheels for specific new Python versions.
+        python${PYVER} -m pip install --user scikit-build==0.10.0
+        python${PYVER} -m pip install --user -r requirements-testing.txt
 
-  get_style_requirements: &get_style_requirements
+  get_conda_requirements: &get_conda_requirements
     run:
-      name: Install style check dependencies
+      name: Install dependencies with conda
       command: |
-        $PIP install --user flake8==3.7.8
+        conda config --set always_yes yes --set changeps1 no
+        conda config --add channels conda-forge
+        conda update -q conda certifi
+        conda install python pip tbb tbb-devel
+        conda update --all
+        # Install from PyPI instead of conda-forge for consistency with Linux.
+        # For some reason, the SSL certificates used by pip aren't correct, even with certifi.
+        curl -O https://curl.haxx.se/ca/cacert.pem
+        export PIP_CERT="$PWD/cacert.pem"
+        python${PYVER} -m pip install --progress-bar off -U -r requirements-testing.txt
+        # Install cmake >=3.14 to support Visual Studio 2019 generator
+        python${PYVER} -m pip install --progress-bar off -U cmake~=3.14
 
-  #check_cpp_style: &check_cpp_style
-  #  run:
-  #    name: clang-format
-  #    command: |
-  #      for f in cpp/**/*; do
-  #        if ! diff $f <(clang-format-6.0 -style=file $f) > /dev/null; then
-  #          echo "$f does not match clang-format style."
-  #          diff --color $f <(clang-format-6.0 -style=file $f) || true
-  #        fi
-  #      done
-
-  check_python_style: &check_python_style
+  get_pre_commit_requirements: &get_pre_commit_requirements
     run:
-      name: flake8
+      name: Install pre-commit dependencies
       command: |
-        python${PYVER} -m flake8 --show-source .
+        python${PYVER} -m pip install --user -r requirements-precommit.txt
+
+  pre-test-checks: &pre-test-checks
+    run:
+      name: Run all static checks
+      command: |
+        # Changes to environment variables (like PATH) don't persist between
+        # run steps in CircleCI, so we specify the full path to pre-commit
+        # explicitly here.
+        python${PYVER} -m pre_commit run --all-files --show-diff-on-failure
 
   build: &build
     run:
       name: Build
       command: |
-        echo "PYVER=${PYVER}"
-        rm freud/*.cpp
-        python${PYVER} setup.py build_ext --inplace --COVERAGE --ENABLE-CYTHON
+        python${PYVER} --version
+        # Max 4 threads to not overtax CI.
+        python${PYVER} setup.py build_ext --inplace -- -DCOVERAGE=ON -- -j 4 -v
+
+  build_windows: &build_windows
+    run:
+      name: Build with MSVC
+      command: |
+        python${PYVER} --version
+        python${PYVER} setup.py build_ext --inplace -- -G "Visual Studio 16 2019" -DCOVERAGE=ON
 
   test: &test
     run:
@@ -84,8 +111,7 @@ references:
     run:
       name: Run unit tests with coverage
       command: |
-          export PATH=~/.local/bin:${PATH}
-          coverage run -m unittest discover tests -v
+          python${PYVER} -m coverage run -m unittest discover tests -v
           bash <(curl -s https://codecov.io/bash)
 
   store: &store
@@ -97,7 +123,6 @@ references:
     run:
       name: Run benchmarks
       command: |
-          $PIP install --user -r requirements-testing.txt
           echo 'export PYTHONPATH=$PYTHONPATH:.' >> $BASH_ENV
           echo 'export BENCHMARK_NPROC=2' >> $BASH_ENV
           source $BASH_ENV
@@ -115,8 +140,8 @@ references:
           echo 'export PYTHONPATH=$PYTHONPATH:.' >> $BASH_ENV
           echo 'export BENCHMARK_NPROC=2' >> $BASH_ENV
           source $BASH_ENV
-          rm freud/*.cpp
-          python${PYVER} setup.py build_ext --inplace --COVERAGE --ENABLE-CYTHON
+          # Max 4 threads to not overtax CI.
+          python${PYVER} setup.py build_ext --inplace -- -DCOVERAGE=ON -- -j 4
           git checkout "${CIRCLE_SHA1}" -- benchmarks/
           BENCHSCR="benchmarks/benchmarker.py"
           echo "Running benchmark on origin/master"
@@ -128,7 +153,7 @@ references:
       path: benchmarks/reports
       destination: benchmarks-reports
 
-  build_and_test: &build_and_test
+  build_and_test_linux: &build_and_test_linux
     steps:
       - *load_code
       - *update_submodules
@@ -137,7 +162,7 @@ references:
       - *test
       - *store
 
-  build_and_test_with_cov: &build_and_test_with_cov
+  build_and_test_linux_with_cov: &build_and_test_linux_with_cov
     steps:
       - *load_code
       - *update_submodules
@@ -146,13 +171,21 @@ references:
       - *test_cov
       - *store
 
+  build_and_test_windows: &build_and_test_windows
+    steps:
+      - *load_code
+      - *update_submodules
+      - *get_conda_requirements
+      - *build_windows
+      - *test_cov
+      - *store
+
   load_check_style: &load_check_style
     steps:
       - *load_code
       - *update_submodules
-      - *get_style_requirements
-      #- *check_cpp_style
-      - *check_python_style
+      - *get_pre_commit_requirements
+      - *pre-test-checks
 
   build_and_benchmark: &build_and_benchmark
     steps:
@@ -211,39 +244,45 @@ references:
 jobs:
   check-style:
     docker:
-      - image: glotzerlab/ci:2020.01-py38
+      - image: glotzerlab/ci:2020.10-clang10_py38
     working_directory: ~/ci/freud
     environment:
       PYVER: "3.8"
-      PIP: "pip3"
     <<: *load_check_style
 
-  test-py38:
+  linux-python-38:
     docker:
-      - image: glotzerlab/ci:2020.01-py38
+      - image: glotzerlab/ci:2020.10-py38
     working_directory: ~/ci/freud
     environment:
       PYVER: "3.8"
-      PIP: "pip3.8"
-    <<: *build_and_test
+    <<: *build_and_test_linux
 
-  test-py37:
+  linux-python-37:
     docker:
-      - image: glotzerlab/ci:2020.01-py37
+      - image: glotzerlab/ci:2020.10-py37
     working_directory: ~/ci/freud
     environment:
       PYVER: "3.7"
-      PIP: "pip3.7"
-    <<: *build_and_test_with_cov
+    <<: *build_and_test_linux_with_cov
 
-  test-py36:
+  linux-python-36:
     docker:
-      - image: glotzerlab/ci:2020.01-py36
+      - image: glotzerlab/ci:2020.10-py36
     working_directory: ~/ci/freud
     environment:
       PYVER: "3.6"
-      PIP: "pip3.6"
-    <<: *build_and_test
+    <<: *build_and_test_linux
+
+  windows-python-37:
+    executor:
+      name: win/default
+      shell: bash.exe
+    environment:
+      PYVER: ""  # Windows CI image doesn't have aliases for python3.7
+      TBB_INCLUDE: "C:\\tools\\miniconda3\\Library\\include"
+      TBB_LINK: "C:\\tools\\miniconda3\\Library\\lib"
+    <<: *build_and_test_windows
 
   test-deploy-pypi-linux:
     environment:
@@ -273,7 +312,6 @@ jobs:
     working_directory: ~/ci/freud
     environment:
       PYVER: "3.8"
-      PIP: "pip3.8"
     <<: *build_and_benchmark
 
 workflows:
@@ -281,35 +319,42 @@ workflows:
   test:
     jobs:
       - check-style
-      - test-py38:
+      - linux-python-38:
           requires:
             - check-style
-      - test-py37:
+      - linux-python-37:
           requires:
             - check-style
-      - test-py36:
+      - linux-python-36:
+          requires:
+            - check-style
+      - windows-python-37:
           requires:
             - check-style
 # Disabled benchmarks on CI - they currently take too much work
 #     - benchmarks:
 #         requires:
-#           - test-py38
+#           - linux-python-38
       - test-deploy-pypi-macos:
           filters:
             branches:
               only: /release\/.*/
           requires:
-            - test-py38
-            - test-py37
-            - test-py36
+            - check-style
+            - linux-python-38
+            - linux-python-37
+            - linux-python-36
+            - windows-python-37
       - test-deploy-pypi-linux:
           filters:
             branches:
               only: /release\/.*/
           requires:
-            - test-py38
-            - test-py37
-            - test-py36
+            - check-style
+            - linux-python-38
+            - linux-python-37
+            - linux-python-36
+            - windows-python-37
 
   deploy:
     jobs:

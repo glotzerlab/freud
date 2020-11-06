@@ -1,30 +1,25 @@
-# Copyright (c) 2010-2019 The Regents of the University of Michigan
+# Copyright (c) 2010-2020 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 R"""
 The :mod:`freud.locality` module contains data structures to efficiently
 locate points based on their proximity to other points.
 """
-import copy
 import freud.util
 import inspect
-import logging
 import numpy as np
 from freud.errors import NO_DEFAULT_QUERY_ARGS_MESSAGE
 
 from libcpp cimport bool as cbool
-from freud.util cimport vec3
+from freud.util cimport vec3, _Compute
 from cython.operator cimport dereference
 from libcpp.memory cimport shared_ptr
 from libcpp.vector cimport vector
 from freud._locality cimport ITERATOR_TERMINATOR
-from freud.util cimport _Compute
 
 cimport freud._locality
 cimport freud.box
 cimport numpy as np
-
-logger = logging.getLogger(__name__)
 
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
@@ -174,7 +169,7 @@ cdef class NeighborQueryResult:
     .. warning::
 
         This class should not be instantiated directly, it is the
-        return value of all `query*` functions of
+        return value of the :meth:`~NeighborQuery.query` method of
         :class:`~NeighborQuery`. The class provides a convenient
         interface for iterating over query results, and can be
         transparently converted into a list or a
@@ -204,7 +199,7 @@ cdef class NeighborQueryResult:
         raise StopIteration
 
     def toNeighborList(self, sort_by_distance=False):
-        """Convert query result to a freud NeighborList.
+        """Convert query result to a freud :class:`~NeighborList`.
 
         Args:
             sort_by_distance (bool):
@@ -213,9 +208,8 @@ cdef class NeighborQueryResult:
                 (Default value = :code:`False`).
 
         Returns:
-            :class:`~NeighborList`: A :mod:`freud` :class:`~NeighborList`
-            containing all neighbor pairs found by the query generating this
-            result object.
+            :class:`~NeighborList`: A :class:`~NeighborList` containing all
+            neighbor pairs found by the query generating this result object.
         """
         cdef const float[:, ::1] l_points = self.points
         cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator = \
@@ -308,21 +302,19 @@ cdef class NeighborQuery:
                 :code:`box` and :code:`points`.
         """
 
-        def match_class_path(obj, match):
-            for cls in inspect.getmro(type(obj)):
-                if cls.__module__ + '.' + cls.__name__ == match:
-                    return True
-            return False
+        def _match_class_path(obj, *matches):
+            return any(cls.__module__ + '.' + cls.__name__ in matches
+                       for cls in inspect.getmro(type(obj)))
 
         if isinstance(system, cls):
             return system
 
         # MDAnalysis compatibility
-        elif match_class_path(system, 'MDAnalysis.coordinates.base.Timestep'):
+        elif _match_class_path(system, 'MDAnalysis.coordinates.base.Timestep'):
             system = (system.triclinic_dimensions, system.positions)
 
         # GSD compatibility
-        elif match_class_path(system, 'gsd.hoomd.Snapshot'):
+        elif _match_class_path(system, 'gsd.hoomd.Snapshot'):
             # Explicitly construct the box to silence warnings from box
             # constructor because GSD sets Lz=1 rather than 0 for 2D boxes.
             box = system.configuration.box.copy()
@@ -330,14 +322,22 @@ cdef class NeighborQuery:
                 box[[2, 4, 5]] = 0
             system = (box, system.particles.position)
 
-        # garnett compatibility
-        elif match_class_path(system, 'garnett.trajectory.Frame'):
-            system = (system.box, system.positions)
+        # garnett compatibility (garnett >=0.5)
+        elif _match_class_path(system, 'garnett.trajectory.Frame'):
+            try:
+                # garnett >= 0.7
+                position = system.position
+            except AttributeError:
+                # garnett < 0.7
+                position = system.positions
+            system = (system.box, position)
 
         # OVITO compatibility
-        elif (match_class_path(system, 'ovito.data.DataCollection') or
-              match_class_path(system,
-                               'ovito.plugins.PyScript.DataCollection')):
+        elif _match_class_path(
+                system,
+                'ovito.data.DataCollection',
+                'ovito.plugins.PyScript.DataCollection',
+                'PyScript.DataCollection'):
             box = freud.Box.from_box(
                 system.cell.matrix[:, :3],
                 dimensions=2 if system.cell.is2D else 3)
@@ -475,6 +475,24 @@ cdef class NeighborList:
                     point_indices, distances, weights=None):
         R"""Create a NeighborList from a set of bond information arrays.
 
+        Example::
+
+            import freud
+            import numpy as np
+            box = freud.box.Box(2, 3, 4, 0, 0, 0)
+            query_points = np.array([[0, 0, 0], [0, 0, 1]])
+            points = np.array([[0, 0, -1], [0.5, -1, 0]])
+            query_point_indices = np.array([0, 0, 1])
+            point_indices = np.array([0, 1, 1])
+            distances = box.compute_distances(
+                query_points[query_point_indices], points[point_indices])
+            num_query_points = len(query_points)
+            num_points = len(points)
+            nlist = freud.locality.NeighborList.from_arrays(
+                num_query_points, num_points, query_point_indices,
+                point_indices, distances)
+
+
         Args:
             num_query_points (int):
                 Number of query points (corresponding to
@@ -493,7 +511,7 @@ cdef class NeighborList:
             weights (:class:`np.ndarray`, optional):
                 Array of per-bond weights (if :code:`None` is given, use a
                 value of 1 for each weight) (Default value = :code:`None`).
-        """
+        """  # noqa 501
         query_point_indices = freud.util._convert_array(
             query_point_indices, shape=(None,), dtype=np.uint32)
         point_indices = freud.util._convert_array(
@@ -620,6 +638,22 @@ cdef class NeighborList:
     def __len__(self):
         R"""Returns the number of bonds stored in this object."""
         return self.thisptr.getNumBonds()
+
+    @property
+    def num_query_points(self):
+        """unsigned int: The number of query points.
+
+        All query point indices are less than this value.
+        """
+        return self.thisptr.getNumQueryPoints()
+
+    @property
+    def num_points(self):
+        """unsigned int: The number of points.
+
+        All point indices are less than this value.
+        """
+        return self.thisptr.getNumPoints()
 
     def find_first_index(self, unsigned int i):
         R"""Returns the lowest bond index corresponding to a query particle
@@ -820,9 +854,9 @@ cdef class LinkCell(NeighborQuery):
         points ((:math:`N`, 3) :class:`numpy.ndarray`):
             The points to bin into the cell list.
         cell_width (float, optional):
-            Width of cells. If not provided, `~.LinkCell` will estimate a cell
-            width based on the number of points and the box size assuming
-            constant density of points throughout the box.
+            Width of cells. If not provided, :class:`~.LinkCell` will
+            estimate a cell width based on the number of points and the box
+            size, assuming a constant density of points in the box.
     """
 
     def __cinit__(self, box, points, cell_width=0):
@@ -978,7 +1012,7 @@ cdef class _SpatialHistogram(_PairCompute):
     @property
     def nbins(self):
         """:class:`list`: The number of bins in each dimension of the
-        histogram"""
+        histogram."""
         return list(self.histptr.getAxisSizes())
 
     def _reset(self):
@@ -1007,8 +1041,8 @@ cdef class _SpatialHistogram1D(_SpatialHistogram):
     @property
     def bin_edges(self):
         """:math:`(N_{bins}+1, )` :class:`numpy.ndarray`: The edges of each bin
-        in the histogram. Is one element larger becauseeach bin has a lower and
-        upper bound."""
+        in the histogram. It is one element larger because each bin has a lower
+        and an upper bound."""
         # Must create a local reference or Cython tries to access an rvalue by
         # reference in the list comprehension.
         vec = self.histptr.getBinEdges()
@@ -1025,7 +1059,7 @@ cdef class _SpatialHistogram1D(_SpatialHistogram):
 
     @property
     def nbins(self):
-        """int: The number of bins in the histogram"""
+        """int: The number of bins in the histogram."""
         return self.histptr.getAxisSizes()[0]
 
 

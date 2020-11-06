@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2019 The Regents of the University of Michigan
+# Copyright (c) 2010-2020 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 R"""
@@ -14,10 +14,11 @@ import numpy as np
 import time
 import freud.locality
 import logging
+import warnings
 
-from freud.util cimport _Compute
+from freud.util cimport _Compute, vec3, quat
+from freud.errors import FreudDeprecationWarning
 from freud.locality cimport _PairCompute
-from freud.util cimport vec3, quat
 from cython.operator cimport dereference
 
 cimport freud._order
@@ -50,28 +51,13 @@ cdef class Cubatic(_Compute):
             (Default value = :code:`None`).
     """  # noqa: E501
     cdef freud._order.Cubatic * thisptr
-    cdef n_replicates
-    cdef seed
 
     def __cinit__(self, t_initial, t_final, scale, n_replicates=1, seed=None):
-        # run checks
-        if (t_final >= t_initial):
-            raise ValueError("t_final must be less than t_initial")
-        if (scale >= 1.0):
-            raise ValueError("scale must be less than 1")
         if seed is None:
             seed = int(time.time())
-        elif not isinstance(seed, int):
-            try:
-                seed = int(seed)
-            except (OverflowError, TypeError, ValueError):
-                logger.warning("The supplied seed could not be used. "
-                               "Using current time as seed.")
-                seed = int(time.time())
 
         self.thisptr = new freud._order.Cubatic(
             t_initial, t_final, scale, n_replicates, seed)
-        self.n_replicates = n_replicates
 
     def __dealloc__(self):
         del self.thisptr
@@ -107,6 +93,11 @@ cdef class Cubatic(_Compute):
     def scale(self):
         """float: The scale."""
         return self.thisptr.getScale()
+
+    @property
+    def n_replicates(self):
+        """unsigned int: Number of replicate simulated annealing runs."""
+        return self.thisptr.getNReplicates()
 
     @property
     def seed(self):
@@ -185,10 +176,18 @@ cdef class Nematic(_Compute):
     def compute(self, orientations):
         R"""Calculates the per-particle and global order parameter.
 
+        Example::
+
+            >>> orientations = np.array([[1, 0, 0, 0]] * 100)
+            >>> director = np.array([1, 1, 0])
+            >>> nematic = freud.order.Nematic(director)
+            >>> nematic.compute(orientations)
+            freud.order.Nematic(u=[...])
+
         Args:
             orientations (:math:`\left(N_{particles}, 4 \right)` :class:`numpy.ndarray`):
                 Orientations to calculate the order parameter.
-        """  # noqa: E501
+        """   # noqa: E501
         orientations = freud.util._convert_array(
             orientations, shape=(None, 4))
 
@@ -251,12 +250,30 @@ cdef class Hexatic(_PairCompute):
     :math:`n` neighbors :math:`j` is given by:
 
     :math:`\psi_k \left( i \right) = \frac{1}{n}
-    \sum_j^n e^{k i \phi_{ij}}`
+    \sum_j^n e^{i k \phi_{ij}}`
 
     The parameter :math:`k` governs the symmetry of the order parameter and
     typically matches the number of neighbors to be found for each particle.
     The quantity :math:`\phi_{ij}` is the angle between the
-    vector :math:`r_{ij}` and :math:`\left( 1,0 \right)`.
+    vector :math:`r_{ij}` and :math:`\left(1, 0\right)`.
+
+    If the weighted mode is enabled, contributions of each neighbor are
+    weighted. Neighbor weights :math:`w_j` default to 1 but are defined for a
+    :class:`freud.locality.NeighborList` from :class:`freud.locality.Voronoi`
+    or one with user-provided weights. The formula is modified as follows:
+
+    :math:`\psi'_k \left( i \right) = \frac{1}{\sum_j^n w_j}
+    \sum_j^n w_j e^{i k \phi_{ij}}`
+
+    The hexatic order parameter as written above is **complex-valued**. The
+    **magnitude** of the complex value,
+    :code:`np.abs(hex_order.particle_order)`, is frequently what is desired
+    when determining the :math:`k`-atic order for each particle. The complex
+    phase angle :code:`np.angle(hex_order.particle_order)` indicates the
+    orientation of the bonds as an angle measured counterclockwise from the
+    vector :math:`\left(1, 0\right)`. The complex valued order parameter is
+    not rotationally invariant because of this phase angle, but the magnitude
+    *is* rotationally invariant.
 
     .. note::
         **2D:** :class:`freud.order.Hexatic` is only defined for 2D systems.
@@ -264,18 +281,35 @@ cdef class Hexatic(_PairCompute):
 
     Args:
         k (unsigned int, optional):
-            Symmetry of order parameter. (Default value = :code:`6`).
+            Symmetry of order parameter (Default value = :code:`6`).
+        weighted (bool, optional):
+            Determines whether to use neighbor weights in the computation of
+            spherical harmonics over neighbors. If enabled and used with a
+            Voronoi neighbor list, this results in the 2D Minkowski Structure
+            Metrics :math:`\psi'_k` :cite:`Mickel2013` (Default value =
+            :code:`False`).
     """  # noqa: E501
     cdef freud._order.Hexatic * thisptr
 
-    def __cinit__(self, k=6):
-        self.thisptr = new freud._order.Hexatic(k)
+    def __cinit__(self, k=6, weighted=False):
+        self.thisptr = new freud._order.Hexatic(k, weighted)
 
     def __dealloc__(self):
         del self.thisptr
 
     def compute(self, system, neighbors=None):
         R"""Calculates the hexatic order parameter.
+
+        Example::
+
+            >>> box, points = freud.data.make_random_system(
+            ...     box_size=10, num_points=100, is2D=True, seed=0)
+            >>> # Compute the hexatic (6-fold) order for the 2D system
+            >>> hex_order = freud.order.Hexatic(k=6)
+            >>> hex_order.compute(system=(box, points))
+            freud.order.Hexatic(...)
+            >>> print(hex_order.particle_order)
+            [...]
 
         Args:
             system:
@@ -287,7 +321,7 @@ cdef class Hexatic(_PairCompute):
                 `query arguments
                 <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
                 (Default value: None).
-        """
+        """   # noqa: E501
         cdef:
             freud.locality.NeighborQuery nq
             freud.locality.NeighborList nlist
@@ -320,26 +354,78 @@ cdef class Hexatic(_PairCompute):
         """unsigned int: Symmetry of the order parameter."""
         return self.thisptr.getK()
 
+    @property
+    def weighted(self):
+        """bool: Whether neighbor weights were used in the computation."""
+        return self.thisptr.isWeighted()
+
     def __repr__(self):
-        return "freud.order.{cls}(k={k})".format(
-            cls=type(self).__name__, k=self.k)
+        return "freud.order.{cls}(k={k}, weighted={weighted})".format(
+            cls=type(self).__name__, k=self.k, weighted=self.weighted)
+
+    def plot(self, ax=None):
+        """Plot order parameter distribution.
+
+        Args:
+            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
+                :code:`None`, make a new figure and axis
+                (Default value = :code:`None`).
+
+        Returns:
+            (:class:`matplotlib.axes.Axes`): Axis with the plot.
+        """
+        import freud.plot
+        xlabel = r"$\left|\psi{prime}_{k}\right|$".format(
+            prime='\'' if self.weighted else '',
+            k=self.k)
+
+        return freud.plot.histogram_plot(
+            np.absolute(self.particle_order),
+            title="Hexatic Order Parameter " + xlabel,
+            xlabel=xlabel,
+            ylabel=r"Number of particles",
+            ax=ax)
+
+    def _repr_png_(self):
+        try:
+            import freud.plot
+            return freud.plot._ax_to_bytes(self.plot())
+        except (AttributeError, ImportError):
+            return None
 
 
 cdef class Translational(_PairCompute):
     R"""Compute the translational order parameter for each particle.
 
+    The translational order parameter is used to measure order in the bonds
+    of 2D systems. The translational order parameter for a particle :math:`i`
+    and its :math:`n` neighbors :math:`j` is given by a sum over the
+    neighbors, treating the 2D vectors between each pair of particles as a
+    complex number with real part corresponding to the x-component of the
+    vector and imaginary part corresponding to the y-component of the vector,
+    divided by a normalization constant :math:`k`:
+
+    :math:`\psi\left( i \right) = \frac{1}{k} \sum_j^n x_{ij} + y_{ij} i`
+
+    The translational order parameter as written above is **complex-valued**.
+
     .. note::
         **2D:** :class:`freud.order.Translational` is only defined for 2D
         systems. The points must be passed in as :code:`[x, y, 0]`.
 
+    .. note::
+        This class is slated for deprecation and will be removed in freud 3.0.
+
     Args:
         k (float, optional):
-            Symmetry of order parameter. (Default value = :code:`6.0`).
+            Normalization of order parameter (Default value = :code:`6.0`).
     """  # noqa E501
     cdef freud._order.Translational * thisptr
 
     def __cinit__(self, k=6.0):
-        self.thisptr = new freud._order.Translational(k)
+        warnings.warn("This class is deprecated and will be removed in "
+                      "version 3.0", FreudDeprecationWarning)
+        self.thisptr = new freud._order.Translational(k, False)
 
     def __dealloc__(self):
         del self.thisptr
@@ -374,8 +460,8 @@ cdef class Translational(_PairCompute):
 
     @property
     def default_query_args(self):
-        """The default query arguments are :code:`{'mode': 'nearest',
-        'num_neighbors': int(self.k)}`."""
+        """The default query arguments are
+        :code:`{'mode': 'nearest', 'num_neighbors': int(self.k)}`."""
         return dict(mode="nearest", num_neighbors=int(self.k))
 
     @_Compute._computed_property
@@ -388,7 +474,7 @@ cdef class Translational(_PairCompute):
 
     @property
     def k(self):
-        """unsigned int: Normalization of the order parameter."""
+        """float: Normalization of the order parameter."""
         return self.thisptr.getK()
 
     def __repr__(self):
@@ -397,19 +483,20 @@ cdef class Translational(_PairCompute):
 
 
 cdef class Steinhardt(_PairCompute):
-    R"""Compute the local Steinhardt :cite:`Steinhardt:1983aa` rotationally invariant
-    :math:`Q_l` :math:`W_l` order parameter for a set of points.
+    R"""Compute the rotationally invariant Steinhardt order parameter
+    :math:`q_l` or :math:`w_l` for a set of points :cite:`Steinhardt:1983aa`.
 
     Implements the local rotationally invariant :math:`q_l` or :math:`w_l`
-    order parameter described by Steinhardt. For a particle i, we calculate the
-    average order parameter by summing the spherical harmonics between particle
-    :math:`i` and its neighbors :math:`j` in a local region:
+    order parameter described by Steinhardt. For a particle :math:`i`, we
+    calculate the average order parameter by summing the spherical harmonics
+    between particle :math:`i` and its neighbors :math:`j` in a local region:
+
     :math:`\overline{q}_{lm}(i) = \frac{1}{N_b} \displaystyle\sum_{j=1}^{N_b}
-    Y_{lm}(\theta(\vec{r}_{ij}), \phi(\vec{r}_{ij}))`. The particles included
-    in the sum are determined by the r_max argument to the constructor.
+    Y_{lm}(\theta(\vec{r}_{ij}), \phi(\vec{r}_{ij}))`.
 
     For :math:`q_l`, this is then combined in a rotationally invariant fashion
     to remove local orientational order as follows:
+
     :math:`q_l(i)=\sqrt{\frac{4\pi}{2l+1} \displaystyle\sum_{m=-l}^{l}
     |\overline{q}_{lm}|^2 }`.
 
@@ -427,28 +514,51 @@ cdef class Steinhardt(_PairCompute):
     original definition by the average value of :math:`\overline{q}_{lm}(k)`
     over all the :math:`k` neighbors of particle :math:`i` as well as itself.
 
+    If the weighted mode is enabled in the constructor, the contributions of
+    each neighbor are weighted. Neighbor weights :math:`w_j` default to 1 but
+    are defined for a :class:`freud.locality.NeighborList` from
+    :class:`freud.locality.Voronoi` or one with user-provided weights. The
+    formula is modified as follows:
+
+    :math:`\overline{q}'_{lm}(i) = \frac{1}{\sum_j^n w_j} \displaystyle\sum_{j=1}^{N_b}
+    w_j Y_{lm}(\theta(\vec{r}_{ij}), \phi(\vec{r}_{ij}))`.
+
+    :math:`q'_l(i)=\sqrt{\frac{4\pi}{2l+1} \displaystyle\sum_{m=-l}^{l}
+    |\overline{q}'_{lm}|^2 }`.
+
     The :code:`norm` attribute argument provides normalized versions of the
     order parameter, where the normalization is performed by averaging the
     :math:`q_{lm}` values over all particles before computing the order
     parameter of choice.
+
+    .. note::
+        The value of per-particle order parameter will be set to NaN for
+        particles with no neighbors. We choose this value rather than setting
+        the order parameter to 0 because in more complex order parameter
+        calculations (such as when computing the :math:`w_l`), it is possible
+        to observe a value of 0 for the per-particle order parameter even with
+        a finite number of neighbors. If you would like to ignore this
+        distinction, you can mask the output order parameter values using
+        NumPy: :code:`numpy.nan_to_num(particle_order)`.
 
     Args:
         l (unsigned int):
             Spherical harmonic quantum number l.
         average (bool, optional):
             Determines whether to calculate the averaged Steinhardt order
-            parameter. (Default value = :code:`False`)
+            parameter (Default value = :code:`False`).
         wl (bool, optional):
             Determines whether to use the :math:`w_l` version of the Steinhardt
-            order parameter. (Default value = :code:`False`)
+            order parameter (Default value = :code:`False`).
         weighted (bool, optional):
             Determines whether to use neighbor weights in the computation of
             spherical harmonics over neighbors. If enabled and used with a
-            Voronoi neighbor list, this results in the Minkowski Structure
-            Metrics :math:`q'_l`. (Default value = :code:`False`)
+            Voronoi neighbor list, this results in the 3D Minkowski Structure
+            Metrics :math:`q'_l` :cite:`Mickel2013` (Default value =
+            :code:`False`).
         wl_normalize (bool, optional):
             Determines whether to normalize the :math:`w_l` version
-            of the Steinhardt order parameter. (Default value = :code:`False`)
+            of the Steinhardt order parameter (Default value = :code:`False`).
     """  # noqa: E501
     cdef freud._order.Steinhardt * thisptr
 
@@ -462,7 +572,7 @@ cdef class Steinhardt(_PairCompute):
 
     @property
     def average(self):
-        """bool: Whether the the averaged Steinhardt order parameter was
+        """bool: Whether the averaged Steinhardt order parameter was
         calculated."""
         return self.thisptr.isAverage()
 
@@ -474,8 +584,7 @@ cdef class Steinhardt(_PairCompute):
 
     @property
     def weighted(self):
-        """bool: Whether neighbor weights were used in the computation of
-        spherical harmonics over neighbors."""
+        """bool: Whether neighbor weights were used in the computation."""
         return self.thisptr.isWeighted()
 
     @property
@@ -515,6 +624,13 @@ cdef class Steinhardt(_PairCompute):
     def compute(self, system, neighbors=None):
         R"""Compute the order parameter.
 
+        Example::
+
+            >>> box, points = freud.data.make_random_system(10, 100, seed=0)
+            >>> ql = freud.order.Steinhardt(l=6)
+            >>> ql.compute((box, points), {'r_max':3})
+            freud.order.Steinhardt(l=6, ...)
+
         Args:
             system:
                 Any object that is a valid argument to
@@ -525,7 +641,7 @@ cdef class Steinhardt(_PairCompute):
                 `query arguments
                 <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
                 (Default value: None).
-        """
+        """   # noqa: E501
         cdef:
             freud.locality.NeighborQuery nq
             freud.locality.NeighborList nlist
@@ -556,8 +672,8 @@ cdef class Steinhardt(_PairCompute):
 
         Args:
             ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
-                :code:`None`, make a new figure and axis.
-                (Default value = :code:`None`)
+                :code:`None`, make a new figure and axis
+                (Default value = :code:`None`).
 
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
@@ -570,7 +686,7 @@ cdef class Steinhardt(_PairCompute):
             average=',ave' if self.average else '')
 
         return freud.plot.histogram_plot(
-            self.order,
+            self.particle_order,
             title="Steinhardt Order Parameter " + xlabel,
             xlabel=xlabel,
             ylabel=r"Number of particles",
@@ -735,8 +851,8 @@ cdef class SolidLiquid(_PairCompute):
 
         Args:
             ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
-                :code:`None`, make a new figure and axis.
-                (Default value = :code:`None`)
+                :code:`None`, make a new figure and axis
+                (Default value = :code:`None`).
 
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.

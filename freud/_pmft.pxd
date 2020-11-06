@@ -1,13 +1,9 @@
-# Copyright (c) 2010-2019 The Regents of the University of Michigan
+# Copyright (c) 2010-2020 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 from freud.util cimport vec3, quat
-from libcpp.memory cimport shared_ptr
-from libcpp.vector cimport vector
-from libcpp.pair cimport pair
 from freud._locality cimport BondHistogramCompute
 
-cimport freud._box
 cimport freud._locality
 cimport freud.util
 

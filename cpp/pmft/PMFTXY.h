@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2019 The Regents of the University of Michigan
+// Copyright (c) 2010-2020 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef PMFTXY_H
@@ -25,11 +25,11 @@ public:
                     vec3<float>* query_points, unsigned int n_query_points,
                     const locality::NeighborList* nlist, freud::locality::QueryArgs qargs);
 
+protected:
     //! \internal
     //! helper function to reduce the thread specific arrays into one array
     virtual void reduce();
 
-private:
     float m_jacobian; //!< Determinant of Jacobian, bin area
 };
 

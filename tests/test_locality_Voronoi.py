@@ -1,8 +1,10 @@
 import numpy as np
 import numpy.testing as npt
 import freud
+import matplotlib
 import unittest
 from util import sort_rounded_xyz_array
+matplotlib.use('agg')
 
 
 class TestVoronoi(unittest.TestCase):
@@ -10,8 +12,8 @@ class TestVoronoi(unittest.TestCase):
         # Test that voronoi tessellations of random systems have the same
         # number of points and polytopes
         L = 10  # Box length
-        N = 50  # Number of particles
-        box, points = freud.data.make_random_system(L, N, is2D=True)
+        N = 5000  # Number of particles
+        box, points = freud.data.make_random_system(L, N, is2D=True, seed=100)
         vor = freud.locality.Voronoi()
         vor.compute((box, points))
 
@@ -45,8 +47,8 @@ class TestVoronoi(unittest.TestCase):
         # Test that voronoi tessellations of random systems have the same
         # number of points and polytopes
         L = 10  # Box length
-        N = 50  # Number of particles
-        box, points = freud.data.make_random_system(L, N, is2D=False)
+        N = 5000  # Number of particles
+        box, points = freud.data.make_random_system(L, N, is2D=False, seed=100)
         vor = freud.locality.Voronoi()
         vor.compute((box, points))
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2019 The Regents of the University of Michigan
+// Copyright (c) 2010-2020 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <stdexcept>
@@ -22,10 +22,14 @@ PMFTXY::PMFTXY(float x_max, float y_max, unsigned int n_x, unsigned int n_y) : P
     if (y_max < 0.0f)
         throw std::invalid_argument("PMFTXY requires that y_max must be positive.");
 
-    // Compute jacobian
+    // Note: There is an additional implicit volume factor of 2*pi
+    // corresponding to the one rotational degree of freedom in the system.
+    // However, this factor is implicitly canceled out since we also do not
+    // include it in the number density computed for the system, see
+    // PMFT::reduce for more information.
     const float dx = 2.0 * x_max / float(n_x);
     const float dy = 2.0 * y_max / float(n_y);
-    m_jacobian = dx * dy * constants::TWO_PI;
+    m_jacobian = dx * dy;
 
     // Create the PCF array.
     m_pcf_array.prepare({n_x, n_y});

@@ -35,6 +35,7 @@ These introductory examples showcase the functionality of specific modules in **
     :glob:
 
     examples/module_intros/cluster*
+    examples/module_intros/diffraction*
     examples/module_intros/density*
     examples/module_intros/environment*
     examples/module_intros/interface*
@@ -52,6 +53,7 @@ The examples below go into greater detail about specific applications of **freud
 
     examples/examples/NetworkX-CNA
     examples/examples/HOOMD-MC-W6/HOOMD-MC-W6
+    examples/examples/GROMACS-MDTRAJ-WATER-RDF/Compute_RDF
     examples/examples/LAMMPS-LJ-MSD/LAMMPS-LJ-MSD
     examples/examples/Using Machine Learning for Structural Identification
     examples/examples/Calculating Strain via Voxelization

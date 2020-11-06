@@ -1,10 +1,7 @@
-# Copyright (c) 2010-2019 The Regents of the University of Michigan
+# Copyright (c) 2010-2020 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 from freud.util cimport vec3
-from libcpp.memory cimport shared_ptr
-from libcpp.complex cimport complex
-from libcpp.vector cimport vector
 from freud._locality cimport BondHistogramCompute
 from libcpp cimport bool
 
@@ -29,7 +26,8 @@ cdef extern from "GaussianDensity.h" namespace "freud::density":
         GaussianDensity(vec3[unsigned int], float, float) except +
         const freud._box.Box & getBox() const
         void reset()
-        void compute(const freud._locality.NeighborQuery*) except +
+        void compute(const freud._locality.NeighborQuery*,
+                     const float*) except +
         const freud.util.ManagedArray[float] &getDensity() const
         vec3[unsigned int] getWidth() const
         float getSigma() const
@@ -60,3 +58,13 @@ cdef extern from "RDF.h" namespace "freud::density":
                         freud._locality.QueryArgs) except +
         const freud.util.ManagedArray[float] &getRDF()
         const freud.util.ManagedArray[float] &getNr()
+
+cdef extern from "SphereVoxelization.h" namespace "freud::density":
+    cdef cppclass SphereVoxelization:
+        SphereVoxelization(vec3[unsigned int], float) except +
+        const freud._box.Box & getBox() const
+        void reset()
+        void compute(const freud._locality.NeighborQuery*) except +
+        const freud.util.ManagedArray[unsigned int] &getVoxels() const
+        vec3[unsigned int] getWidth() const
+        float getRMax() const

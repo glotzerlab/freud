@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2019 The Regents of the University of Michigan
+// Copyright (c) 2010-2020 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef AABB_TREE_H
@@ -6,6 +6,7 @@
 
 #include <cstring>
 #include <stack>
+#include <stdexcept>
 #include <vector>
 
 #include "AABB.h"
