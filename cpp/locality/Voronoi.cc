@@ -40,23 +40,24 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq, const double* ra
     // having to create a pre_container. This saves time because the
     // pre_container cannot be used to set up container_periodic (only
     // non-periodic containers are compatible).
-    // Also, we enable the weighted voronoi diagram if the sizes of different
-    // points are provided; otherwise, the default is unbiased voronoi shapes
-    // calculations.
     float block_scale = std::pow(n_points / (voro::optimal_particles * box.getVolume()), 1.0 / 3.0);
     int voro_blocks_x = int(box.getLx() * block_scale + 1);
     int voro_blocks_y = int(box.getLy() * block_scale + 1);
     int voro_blocks_z = int(box.getLz() * block_scale + 1);
 
-    voro::container_periodic_poly container(boxLatticeVectors[0].x, boxLatticeVectors[1].x, boxLatticeVectors[1].y,
-                                         boxLatticeVectors[2].x, boxLatticeVectors[2].y, boxLatticeVectors[2].z,
-                                         voro_blocks_x, voro_blocks_y, voro_blocks_z, 3);
+    voro::container_periodic_poly container(
+        boxLatticeVectors[0].x, boxLatticeVectors[1].x, boxLatticeVectors[1].y, boxLatticeVectors[2].x,
+        boxLatticeVectors[2].y, boxLatticeVectors[2].z, voro_blocks_x, voro_blocks_y, voro_blocks_z, 3);
     for (size_t query_point_id = 0; query_point_id < n_points; query_point_id++)
     {
+        // If an array of radii is provided, those radii are used to compute
+        // the power diagram (also called the radical Voronoi tessellation). If
+        // a nullptr is provided, then the points are assumed to have zero
+        // radius.
         vec3<double> query_point((*nq)[query_point_id]);
         double radius = (radii != nullptr) ? radii[query_point_id] : 0.0;
         container.put(query_point_id, query_point.x, query_point.y, query_point.z, radius);
-        }
+    }
 
     voro::voronoicell_neighbor cell;
     voro::c_loop_all_periodic voronoi_loop(container);
