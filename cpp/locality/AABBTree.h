@@ -97,15 +97,8 @@ public:
     }
 
     //! Copy constructor
-    AABBTree(const AABBTree& from)
+    AABBTree(const AABBTree& from) : m_num_nodes(from.m_num_nodes), m_node_capacity(from.m_node_capacity), m_root(from.m_root), m_mapping(from.m_mapping)
     {
-        m_num_nodes = from.m_num_nodes;
-        m_node_capacity = from.m_node_capacity;
-        m_root = from.m_root;
-        m_mapping = from.m_mapping;
-
-        m_nodes = nullptr;
-
         if (from.m_nodes != nullptr)
         {
             // allocate memory
@@ -575,7 +568,7 @@ inline unsigned int AABBTree::updateSkip(unsigned int idx)
     return skip + 1;
 }
 
-/*! Allocates a new node in the tree
+/*! Allocates a new node in the tree and return its index.
  */
 inline unsigned int AABBTree::allocateNode()
 {
@@ -600,6 +593,8 @@ inline unsigned int AABBTree::allocateNode()
         // if we have old memory, copy it over
         if (m_nodes != nullptr)
         {
+            // cppcheck doesn't recognize that posix_memalign allocates memory for m_new_nodes above.
+            // cppcheck-suppress [nullPointer]
             std::memcpy((void*) m_new_nodes, (void*) m_nodes, sizeof(AABBNode) * m_num_nodes);
             posix_memalign_free(m_nodes);
         }

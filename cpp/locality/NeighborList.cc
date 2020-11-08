@@ -234,11 +234,15 @@ bool compareNeighborDistance(const NeighborBond& left, const NeighborBond& right
 
 bool compareFirstNeighborPairs(const std::vector<NeighborBond>& left, const std::vector<NeighborBond>& right)
 {
-    if (!left.empty() && !right.empty())
+    if (right.empty())
     {
-        return compareNeighborBond(left[0], right[0]);
+        return false;
     }
-    return !right.empty();
+    if (left.empty())
+    {
+        return true;
+    }
+    return compareNeighborBond(left[0], right[0]);
 }
 
 }; }; // end namespace freud::locality

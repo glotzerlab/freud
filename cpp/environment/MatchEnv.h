@@ -37,12 +37,12 @@ struct Environment
         num_vecs++;
     }
 
-    unsigned int env_ind;          //!< The index of the environment
+    unsigned int env_ind {0};          //!< The index of the environment
     std::vector<vec3<float>> vecs; //!< The vectors that define the environment
     //! Is this environment a ghost? Do we ignore it when we compute actual
     //  physical quantities associated with all environments?
     bool ghost;
-    unsigned int num_vecs; //!< The number of vectors currently defining the environment
+    unsigned int num_vecs {0}; //!< The number of vectors currently defining the environment
     //! The order that the vectors must be in to define the environment
     std::vector<unsigned int> vec_ind;
     //! The rotation that defines the proper orientation of the environment
