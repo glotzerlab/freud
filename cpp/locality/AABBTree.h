@@ -451,11 +451,7 @@ inline unsigned int AABBTree::buildNode(AABB* aabbs, std::vector<unsigned int>& 
     unsigned int start_right = len;
 
     // if there are only 2 aabbs, put one on each side
-    if (len == 2)
-    {
-        // nothing to do, already partitioned
-    }
-    else
+    if (len != 2)
     {
         // otherwise, we need to split them based on a heuristic. split the longest dimension in half
         if (my_radius.x > my_radius.y && my_radius.x > my_radius.z)
