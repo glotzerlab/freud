@@ -223,7 +223,7 @@ public:
      * become a performance bottleneck when used in highly performance critical
      * code paths.
      */
-    inline T& operator()(std::vector<size_t> indices)
+    inline T& operator()(const std::vector<size_t>& indices)
     {
         size_t cur_prod = 1;
         size_t idx = 0;
@@ -239,7 +239,7 @@ public:
     }
 
     //! Const version of core function for multidimensional indexing.
-    inline const T& operator()(std::vector<size_t> indices) const
+    inline const T& operator()(const std::vector<size_t>& indices) const
     {
         size_t cur_prod = 1;
         size_t idx = 0;
@@ -283,7 +283,7 @@ public:
      *  \param shape The shape to map indexes to.
      *  \param indices The index in each dimension.
      */
-    static inline size_t getIndex(std::vector<size_t> shape, std::vector<size_t> indices)
+    static inline size_t getIndex(const std::vector<size_t>& shape, const std::vector<size_t>& indices)
     {
         size_t cur_prod = 1;
         size_t idx = 0;
@@ -306,7 +306,7 @@ public:
      *
      *  \param indices The index in each dimension.
      */
-    inline size_t getIndex(std::vector<size_t> indices) const
+    inline size_t getIndex(const std::vector<size_t>& indices) const
     {
         if (indices.size() != m_shape->size())
         {
@@ -324,17 +324,7 @@ public:
             }
         }
 
-        size_t cur_prod = 1;
-        size_t idx = 0;
-        // In getting the linear bin, we must iterate over bins in reverse
-        // order to build up the value of cur_prod because each subsequent axis
-        // contributes less according to row-major ordering.
-        for (unsigned int i = indices.size() - 1; i != static_cast<unsigned>(-1); --i)
-        {
-            idx += indices[i] * cur_prod;
-            cur_prod *= (*m_shape)[i];
-        }
-        return idx;
+        return getIndex(*m_shape, indices);
     }
 
     //! Return a copy of this array.

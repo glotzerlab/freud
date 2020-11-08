@@ -74,7 +74,7 @@ public:
         return nb;
     }
 
-    bool end() override
+    bool end() const override
     {
         return (m_returned_point_index != m_query_point_idx) || m_finished;
     }

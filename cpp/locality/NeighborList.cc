@@ -238,10 +238,7 @@ bool compareFirstNeighborPairs(const std::vector<NeighborBond>& left, const std:
     {
         return compareNeighborBond(left[0], right[0]);
     }
-    // cppcheck erroneously flags this check as redundant because it follows
-    // both branches independently.
-    // cppcheck-suppress [knownConditionTrueFalse,unsignedLessThanZero]
-    return left.size() < right.size();
+    return !right.empty();
 }
 
 }; }; // end namespace freud::locality

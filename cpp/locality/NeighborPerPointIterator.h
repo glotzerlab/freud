@@ -45,7 +45,7 @@ public:
     virtual ~NeighborPerPointIterator() = default;
 
     //! Indicate when done.
-    virtual bool end() = 0;
+    virtual bool end() const = 0;
 
     //! Get the next element.
     virtual NeighborBond next() = 0;

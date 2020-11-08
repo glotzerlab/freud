@@ -19,10 +19,7 @@ namespace freud { namespace order {
 tensor4::tensor4(const vec3<float>& vector)
 {
     unsigned int cnt = 0;
-    std::array<float, 3> v;
-    v[0] = vector.x;
-    v[1] = vector.y;
-    v[2] = vector.z;
+    std::array<float, 3> v = {vector.x, vector.y, vector.z};
     for (float vi : v)
     {
         for (float vj : v)

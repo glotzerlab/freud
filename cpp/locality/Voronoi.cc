@@ -18,25 +18,25 @@ namespace freud { namespace locality {
 // Voronoi calculations should be kept in double precision.
 void Voronoi::compute(const freud::locality::NeighborQuery* nq)
 {
-    auto box = nq->getBox();
-    auto n_points = nq->getNPoints();
+    const auto box = nq->getBox();
+    const auto n_points = nq->getNPoints();
 
     m_polytopes.resize(n_points);
     m_volumes.prepare(n_points);
 
-    vec3<float> v1 = box.getLatticeVector(0);
-    vec3<float> v2 = box.getLatticeVector(1);
-    vec3<float> v3 = (box.is2D() ? vec3<float>(0, 0, 1) : box.getLatticeVector(2));
+    const vec3<float> v1 = box.getLatticeVector(0);
+    const vec3<float> v2 = box.getLatticeVector(1);
+    const vec3<float> v3 = (box.is2D() ? vec3<float>(0, 0, 1) : box.getLatticeVector(2));
 
     // This heuristic for choosing blocks is based on the voro::pre_container
     // guess_optimal method. By computing the heuristic directly, we avoid
     // having to create a pre_container. This saves time because the
     // pre_container cannot be used to set up container_periodic (only
     // non-periodic containers are compatible).
-    float block_scale = std::pow(n_points / (voro::optimal_particles * box.getVolume()), float(1.0 / 3.0));
-    int voro_blocks_x = int(box.getLx() * block_scale + 1);
-    int voro_blocks_y = int(box.getLy() * block_scale + 1);
-    int voro_blocks_z = int(box.getLz() * block_scale + 1);
+    const float block_scale = std::pow(n_points / (voro::optimal_particles * box.getVolume()), float(1.0 / 3.0));
+    const int voro_blocks_x = int(box.getLx() * block_scale + 1);
+    const int voro_blocks_y = int(box.getLy() * block_scale + 1);
+    const int voro_blocks_z = int(box.getLz() * block_scale + 1);
 
     voro::container_periodic container(v1.x, v2.x, v2.y, v3.x, v3.y, v3.z, voro_blocks_x, voro_blocks_y,
                                        voro_blocks_z, 3);

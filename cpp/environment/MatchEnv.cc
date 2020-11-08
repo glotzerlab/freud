@@ -653,7 +653,7 @@ unsigned int EnvironmentCluster::populateEnv(EnvDisjointSet dj)
 
     // Now update the vector of environments from the map.
     m_cluster_environments.resize(cluster_env.size());
-    for (auto& it : cluster_env)
+    for (const auto& it : cluster_env)
     {
         m_cluster_environments[it.first] = it.second;
     }

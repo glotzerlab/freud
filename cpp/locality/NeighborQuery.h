@@ -124,7 +124,7 @@ public:
         vec3<bool> periodic = m_box.getPeriodic();
         if (!(periodic.x && periodic.y && periodic.z))
         {
-            throw std::domain_error("Cannot execute pair queries in a non-periodic box");
+            throw std::domain_error("Pair queries in a non-periodic box are not implemented.");
         }
 
         this->validateQueryArgs(query_args);
@@ -271,7 +271,7 @@ public:
     ~NeighborQueryPerPointIterator() override = default;
 
     //! Indicate when done.
-    bool end() override
+    bool end() const override
     {
         return m_finished;
     }
@@ -281,7 +281,7 @@ public:
 
 protected:
     const NeighborQuery* m_neighbor_query; //!< Link to the NeighborQuery object.
-    const vec3<float> m_query_point;       //!< Coordinates of the query point.
+    const vec3<float> m_query_point = {0, 0, 0};       //!< Coordinates of the query point.
     bool m_finished; //!< Flag to indicate that iteration is complete (must be set by next() on termination).
     float m_r_max;   //!< Cutoff distance for neighbors.
     float m_r_min;   //!< Minimum distance for neighbors.

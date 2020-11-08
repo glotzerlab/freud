@@ -40,28 +40,19 @@ template<class Real> struct vec3
     vec3(const vec3<float>& a) : x(a.x), y(a.y), z(a.z) {}
 
     //! Default construct a 0 vector
-    vec3() : x(0), y(0), z(0) {}
+    vec3() = default;
 
     //! Swap with another vector
     void swap(vec3<Real>& v)
     {
-        Real tx;
-        Real ty;
-        Real tz;
-        tx = v.x;
-        ty = v.y;
-        tz = v.z;
-        v.x = x;
-        v.y = y;
-        v.z = z;
-        x = tx;
-        y = ty;
-        z = tz;
+        std::swap(x, v.x);
+        std::swap(y, v.y);
+        std::swap(z, v.z);
     }
 
-    Real x; //!< x-component of the vector
-    Real y; //!< y-component of the vector
-    Real z; //!< z-component of the vector
+    Real x {0}; //!< x-component of the vector
+    Real y {0}; //!< y-component of the vector
+    Real z {0}; //!< z-component of the vector
 };
 
 //! Addition of two vec3s

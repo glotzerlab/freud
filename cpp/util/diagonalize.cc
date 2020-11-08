@@ -2,10 +2,10 @@
 
 namespace freud { namespace util {
 
-void diagonalize33SymmetricMatrix(util::ManagedArray<float>& mat, util::ManagedArray<float>& eigen_vals,
+void diagonalize33SymmetricMatrix(const util::ManagedArray<float>& mat, util::ManagedArray<float>& eigen_vals,
                                   util::ManagedArray<float>& eigen_vecs)
 {
-    Eigen::Matrix3f m = Eigen::Map<Eigen::Matrix3f>(mat.get());
+    const Eigen::Matrix3f m = Eigen::Map<const Eigen::Matrix3f>(mat.get());
 
     Eigen::SelfAdjointEigenSolver<Eigen::Matrix3f> es;
     es.compute(m);

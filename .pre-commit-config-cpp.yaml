@@ -34,6 +34,5 @@ repos:
         - --inline-suppr # Enable inline suppresions of warnings.
         - -icpp/locality/AABBTree.cc
         - --suppress=*:cpp/locality/AABB.h
-        - --suppress=*:cpp/locality/AABBTree.h
         - --suppress=*:extern/*
         - --error-exitcode=1

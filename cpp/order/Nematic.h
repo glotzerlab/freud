@@ -27,7 +27,6 @@ public:
 
     //! Destructor
     virtual ~Nematic() = default;
-    ;
 
     //! Compute the nematic order parameter
     void compute(quat<float>* orientations, unsigned int n);
@@ -46,13 +45,13 @@ public:
     vec3<float> getU() const;
 
 private:
-    unsigned int m_n;                    //!< Last number of points computed
+    unsigned int m_n {0};                    //!< Last number of points computed
     vec3<float> m_u;                     //!< The molecular axis
     float m_nematic_order_parameter {0}; //!< Current value of the order parameter
     vec3<float> m_nematic_director;      //!< The director (eigenvector corresponding to the OP)
 
-    util::ManagedArray<float> m_nematic_tensor;        //!< The computed nematic tensor.
-    util::ThreadStorage<float> m_nematic_tensor_local; //!< Thread-specific nematic tensor.
+    util::ManagedArray<float> m_nematic_tensor {{3, 3}};        //!< The computed nematic tensor.
+    util::ThreadStorage<float> m_nematic_tensor_local {{3, 3}}; //!< Thread-specific nematic tensor.
     util::ManagedArray<float> m_particle_tensor;       //!< The per-particle tensor that is summed up to Q.
 };
 
