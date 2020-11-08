@@ -280,8 +280,8 @@ public:
     NeighborBond next() override = 0;
 
 protected:
-    const NeighborQuery* m_neighbor_query; //!< Link to the NeighborQuery object.
-    const vec3<float> m_query_point = {0, 0, 0};       //!< Coordinates of the query point.
+    const NeighborQuery* m_neighbor_query;       //!< Link to the NeighborQuery object.
+    const vec3<float> m_query_point = {0, 0, 0}; //!< Coordinates of the query point.
     bool m_finished; //!< Flag to indicate that iteration is complete (must be set by next() on termination).
     float m_r_max;   //!< Cutoff distance for neighbors.
     float m_r_min;   //!< Minimum distance for neighbors.

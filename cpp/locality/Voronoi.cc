@@ -33,7 +33,8 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
     // having to create a pre_container. This saves time because the
     // pre_container cannot be used to set up container_periodic (only
     // non-periodic containers are compatible).
-    const float block_scale = std::pow(n_points / (voro::optimal_particles * box.getVolume()), float(1.0 / 3.0));
+    const float block_scale
+        = std::pow(n_points / (voro::optimal_particles * box.getVolume()), float(1.0 / 3.0));
     const int voro_blocks_x = int(box.getLx() * block_scale + 1);
     const int voro_blocks_y = int(box.getLy() * block_scale + 1);
     const int voro_blocks_z = int(box.getLz() * block_scale + 1);

@@ -13,8 +13,7 @@
 namespace freud { namespace order {
 
 // m_u is the molecular axis, normalized to a unit vector
-Nematic::Nematic(const vec3<float>& u) : m_u(u / std::sqrt(dot(u, u)))
-{}
+Nematic::Nematic(const vec3<float>& u) : m_u(u / std::sqrt(dot(u, u))) {}
 
 float Nematic::getNematicOrderParameter() const
 {

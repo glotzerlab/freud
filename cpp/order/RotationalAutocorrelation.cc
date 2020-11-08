@@ -70,7 +70,8 @@ void RotationalAutocorrelation::compute(const quat<float>* ref_orientations, con
         {
             unit_harmonics.push_back(std::conj(hypersphere_harmonic(xi, zeta, a, b)));
             prefactors[a][b] = static_cast<float>(m_factorials[a] * m_factorials[m_l - a] * m_factorials[b]
-                * m_factorials[m_l - b]) / (static_cast<float>(m_l + 1));
+                                                  * m_factorials[m_l - b])
+                / (static_cast<float>(m_l + 1));
         }
     }
 
