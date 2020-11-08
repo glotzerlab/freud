@@ -6,6 +6,7 @@
 #define VECTOR_MATH_H
 
 #include <cmath>
+#include <utility>
 
 /*! \file VectorMath.h
     \brief Vector and quaternion math operations

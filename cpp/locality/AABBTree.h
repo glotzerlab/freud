@@ -108,7 +108,7 @@ public:
             // This problem has either been fixed in newer versions of cppcheck
             // or no longer arises on newer machines, but we observe this
             // failure on our CI rigs.
-            // cppcheck-suppress [AssignmentAddressToInteger]
+            // cppcheck-suppress AssignmentAddressToInteger
             int retval = posix_memalign((void**) &m_nodes, 32, m_node_capacity * sizeof(AABBNode));
             if (retval != 0)
             {
@@ -142,7 +142,7 @@ public:
         if (from.m_nodes != nullptr)
         {
             // allocate memory
-            // cppcheck-suppress [AssignmentAddressToInteger]
+            // cppcheck-suppress AssignmentAddressToInteger
             int retval = posix_memalign((void**) &m_nodes, 32, m_node_capacity * sizeof(AABBNode));
             if (retval != 0)
             {
@@ -592,7 +592,7 @@ inline unsigned int AABBTree::allocateNode()
         }
 
         // allocate new memory
-        // cppcheck-suppress [AssignmentAddressToInteger]
+        // cppcheck-suppress AssignmentAddressToInteger
         int retval = posix_memalign((void**) &m_new_nodes, 32, m_new_node_capacity * sizeof(AABBNode));
         if (retval != 0)
         {
@@ -603,7 +603,7 @@ inline unsigned int AABBTree::allocateNode()
         if (m_nodes != nullptr)
         {
             // cppcheck doesn't recognize that posix_memalign allocates memory for m_new_nodes above.
-            // cppcheck-suppress [nullPointer]
+            // cppcheck-suppress nullPointer
             std::memcpy((void*) m_new_nodes, (void*) m_nodes, sizeof(AABBNode) * m_num_nodes);
             posix_memalign_free(m_nodes);
         }
