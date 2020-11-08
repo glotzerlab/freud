@@ -451,6 +451,10 @@ inline unsigned int AABBTree::buildNode(AABB* aabbs, std::vector<unsigned int>& 
     unsigned int start_right = len;
 
     // if there are only 2 aabbs, put one on each side
+    // cppcheck knows that NODE_CAPACITY is defined as 16, so it sees this
+    // check as redundant. However, if we ever defined NODE_CAPACITY to be 1
+    // then this check would be meaningful, so it's safer to leave it.
+    // cppcheck-suppress knownConditionTrueFalse
     if (len != 2)
     {
         // otherwise, we need to split them based on a heuristic. split the longest dimension in half
