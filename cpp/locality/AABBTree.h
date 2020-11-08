@@ -97,7 +97,9 @@ public:
     }
 
     //! Copy constructor
-    AABBTree(const AABBTree& from) : m_num_nodes(from.m_num_nodes), m_node_capacity(from.m_node_capacity), m_root(from.m_root), m_mapping(from.m_mapping)
+    AABBTree(const AABBTree& from)
+        : m_num_nodes(from.m_num_nodes), m_node_capacity(from.m_node_capacity), m_root(from.m_root),
+          m_mapping(from.m_mapping)
     {
         if (from.m_nodes != nullptr)
         {

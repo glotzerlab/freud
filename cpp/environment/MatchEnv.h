@@ -37,7 +37,7 @@ struct Environment
         num_vecs++;
     }
 
-    unsigned int env_ind {0};          //!< The index of the environment
+    unsigned int env_ind {0};      //!< The index of the environment
     std::vector<vec3<float>> vecs; //!< The vectors that define the environment
     //! Is this environment a ghost? Do we ignore it when we compute actual
     //  physical quantities associated with all environments?
