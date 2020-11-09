@@ -252,11 +252,19 @@ references:
 jobs:
   check-style:
     docker:
-      - image: glotzerlab/ci:2020.10-clang10_py38
+      - image: glotzerlab/ci:2020.10-clang11_py39
     working_directory: ~/ci/freud
     environment:
-      PYVER: "3.8"
+      PYVER: "3.9"
     <<: *load_check_style
+
+  linux-python-39:
+    docker:
+      - image: glotzerlab/ci:2020.10-py39
+    working_directory: ~/ci/freud
+    environment:
+      PYVER: "3.9"
+    <<: *build_and_test_linux_with_cov
 
   linux-python-38:
     docker:
@@ -272,7 +280,7 @@ jobs:
     working_directory: ~/ci/freud
     environment:
       PYVER: "3.7"
-    <<: *build_and_test_linux_with_cov
+    <<: *build_and_test_linux
 
   linux-python-36:
     docker:
@@ -327,6 +335,9 @@ workflows:
   test:
     jobs:
       - check-style
+      - linux-python-39:
+          requires:
+            - check-style
       - linux-python-38:
           requires:
             - check-style
@@ -349,6 +360,7 @@ workflows:
               only: /release\/.*/
           requires:
             - check-style
+            - linux-python-39
             - linux-python-38
             - linux-python-37
             - linux-python-36
@@ -359,6 +371,7 @@ workflows:
               only: /release\/.*/
           requires:
             - check-style
+            - linux-python-39
             - linux-python-38
             - linux-python-37
             - linux-python-36
