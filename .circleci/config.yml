@@ -73,19 +73,20 @@ references:
         python${PYVER} setup.py build_ext --inplace -- -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -- -j 4
         python${PYVER} -m pre_commit run -c .pre-commit-config-cpp.yaml --all-files --show-diff-on-failure
 
-  default_environment: &default_environment
-    CMAKE_FLAGS: "-DCOVERAGE=ON"
-    # Max 4 threads to not overtax CI.
-    BUILD_FLAGS: "-j 4 -v"
-
   build: &build
     run:
       name: Build
       command: |
         python${PYVER} --version
-        echo "Using CMAKE_FLAGS: ${CMAKE_FLAGS}"
-        echo "Using BUILD_FLAGS: ${BUILD_FLAGS}"
-        python${PYVER} setup.py build_ext --inplace -- "${CMAKE_FLAGS}" -- "${BUILD_FLAGS}"
+        # Max 4 threads to not overtax CI.
+        python${PYVER} setup.py build_ext --inplace -- -DCOVERAGE=ON -- -j 4 -v
+
+  build_windows: &build_windows
+    run:
+      name: Build for Windows
+      command: |
+        python${PYVER} --version
+        python${PYVER} setup.py build_ext --inplace -- -G "Visual Studio 2019" -DCOVERAGE=ON -- -MP
 
   test: &test
     run:
@@ -162,7 +163,7 @@ references:
       - *load_code
       - *update_submodules
       - *get_conda_requirements
-      - *build
+      - *build_windows
       - *test_cov
       - *store
 
@@ -234,7 +235,6 @@ jobs:
     working_directory: ~/ci/freud
     environment:
       PYVER: "3.9"
-      <<: *default_environment
     <<: *load_check_style
 
   linux-python-39:
@@ -243,7 +243,6 @@ jobs:
     working_directory: ~/ci/freud
     environment:
       PYVER: "3.9"
-      <<: *default_environment
     <<: *build_and_test_linux_with_cov
 
   linux-python-38:
@@ -252,7 +251,6 @@ jobs:
     working_directory: ~/ci/freud
     environment:
       PYVER: "3.8"
-      <<: *default_environment
     <<: *build_and_test_linux
 
   linux-python-37:
@@ -261,7 +259,6 @@ jobs:
     working_directory: ~/ci/freud
     environment:
       PYVER: "3.7"
-      <<: *default_environment
     <<: *build_and_test_linux
 
   linux-python-36:
@@ -270,7 +267,6 @@ jobs:
     working_directory: ~/ci/freud
     environment:
       PYVER: "3.6"
-      <<: *default_environment
     <<: *build_and_test_linux
 
   windows-python-37:
@@ -281,9 +277,6 @@ jobs:
       PYVER: ""  # Windows CI image doesn't have aliases for python3.7
       TBB_INCLUDE: "C:\\tools\\miniconda3\\Library\\include"
       TBB_LINK: "C:\\tools\\miniconda3\\Library\\lib"
-      CMAKE_FLAGS: "-G \"Visual Studio 16 2019\" -DCOVERAGE=ON"
-      BUILD_FLAGS: "/MP"
-      <<: *default_environment
     <<: *build_and_test_windows
 
   test-deploy-pypi-linux:
