@@ -43,7 +43,7 @@ references:
       command: |
         conda config --set always_yes yes --set changeps1 no
         conda config --add channels conda-forge
-        conda update -q conda certifi wincertstore
+        conda update -q conda
         conda install python pip tbb tbb-devel
         conda update --all
         python${PYVER} -m pip install --progress-bar off -U -r requirements-testing.txt
