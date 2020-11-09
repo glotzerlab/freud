@@ -2,19 +2,21 @@
 # hooks require tools that may not be trivial to install (unlike the Python
 # hooks like flake8), we keep these in a separate file to be applied manually.
 repos:
--   repo: https://github.com/pocc/pre-commit-hooks
-    rev: python
+-   repo: local
     hooks:
       - id: clang-format
+        name: clang-format
+        entry: clang-format
+        language: system
+        types: [c++]
+        # Ignore external files. Also include AABB.h because it uses intrinsics
+        # heavily and these are not considered portable.
+        exclude: 'extern/.*'
         # Unclear if this is necessary, it seems like clang-format uses
         # .clang-format if found by default, at least for newer versions. I'll
         # specify this here just in case.
         args:
         - --style=file
-        exclude: 'extern/.*'
-# Set up the cppcheck hook manually, the one provided by the above repo is configured too rigidly.
--   repo: local
-    hooks:
       - id: clang-tidy
         name: clang-tidy
         entry: clang-tidy
