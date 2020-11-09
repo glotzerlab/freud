@@ -186,10 +186,6 @@ references:
 
   build_linux_test_wheels: &build_linux_test_wheels
     steps:
-      - run:
-          name: Install software
-          working_directory: /root/code
-          command: yum install -y openssh-clients
       - *load_code
       - *update_submodules
       - run:
@@ -199,10 +195,6 @@ references:
 
   build_linux_wheels: &build_linux_wheels
     steps:
-      - run:
-          name: Install software
-          working_directory: /root/code
-          command: yum install -y openssh-clients
       - *load_code
       - *update_submodules
       - run:
