@@ -28,12 +28,12 @@ references:
       name: Install dependencies
       command: |
         # Since we're testing against a very old cmake, wheels may not exist
-        # for newer Python versions (currently this is true for Python3.8, will
-        # be true for 3.9 as well). We will need to build the cmake wheels from
-        # a tarball in this case, and cmake depends on scikit-build, so we
+        # for Python versions >=3.8. We will need to build the cmake wheels
+        # from a tarball in this case, and cmake depends on scikit-build, so we
         # install skbuild separately here. Note that newer cmake versions build
-        # universal wheels instead, so once we upgrade to cmake >= 3.14 we won't
-        # be dependent on them updating wheels for specific new Python versions.
+        # universal wheels instead, so once we upgrade to cmake >=3.14 we
+        # won't be dependent on them updating wheels for specific new Python
+        # versions.
         python${PYVER} -m pip install --user scikit-build==0.10.0
         python${PYVER} -m pip install --user -r requirements-testing.txt
 
