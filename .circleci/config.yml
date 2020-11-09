@@ -6,7 +6,7 @@ orbs:
 references:
   container_manylinux: &container_manylinux
     docker:
-      - image: quay.io/pypa/manylinux1_x86_64
+      - image: quay.io/pypa/manylinux2010_x86_64
     working_directory: ~/ci/freud
 
   container_macos: &container_macos
@@ -16,23 +16,6 @@ references:
 
   load_code: &load_code
     checkout
-
-  load_code_centos: &load_code_centos
-    # For use with old OS that doesn't support clone over ssh
-    run:
-      name: Checkout repository without ssh
-      command: |
-        cd ~/ci/freud
-        git clone ${CIRCLE_REPOSITORY_URL} .
-        if [ -n "$CIRCLE_TAG" ]
-        then
-          git reset --hard "$CIRCLE_SHA1"
-          git checkout -q "$CIRCLE_TAG"
-        elif [ -n "$CIRCLE_BRANCH" ]
-        then
-          git reset --hard "$CIRCLE_SHA1"
-          git checkout -q -B "$CIRCLE_BRANCH"
-        fi
 
   update_submodules: &update_submodules
     run:
@@ -45,12 +28,12 @@ references:
       name: Install dependencies
       command: |
         # Since we're testing against a very old cmake, wheels may not exist
-        # for newer Python versions (currently this is true for Python3.8, will
-        # be true for 3.9 as well). We will need to build the cmake wheels from
-        # a tarball in this case, and cmake depends on scikit-build, so we
+        # for Python versions >=3.8. We will need to build the cmake wheels
+        # from a tarball in this case, and cmake depends on scikit-build, so we
         # install skbuild separately here. Note that newer cmake versions build
-        # universal wheels instead, so once we upgrade to cmake >= 3.14 we won't
-        # be dependent on them updating wheels for specific new Python versions.
+        # universal wheels instead, so once we upgrade to cmake >=3.14 we
+        # won't be dependent on them updating wheels for specific new Python
+        # versions.
         python${PYVER} -m pip install --user scikit-build==0.10.0
         python${PYVER} -m pip install --user -r requirements-testing.txt
 
@@ -60,13 +43,9 @@ references:
       command: |
         conda config --set always_yes yes --set changeps1 no
         conda config --add channels conda-forge
-        conda update -q conda certifi
+        conda update -q conda
         conda install python pip tbb tbb-devel
         conda update --all
-        # Install from PyPI instead of conda-forge for consistency with Linux.
-        # For some reason, the SSL certificates used by pip aren't correct, even with certifi.
-        curl -O https://curl.haxx.se/ca/cacert.pem
-        export PIP_CERT="$PWD/cacert.pem"
         python${PYVER} -m pip install --progress-bar off -U -r requirements-testing.txt
         # Install cmake >=3.14 to support Visual Studio 2019 generator
         python${PYVER} -m pip install --progress-bar off -U cmake~=3.14
@@ -211,7 +190,7 @@ references:
           name: Install software
           working_directory: /root/code
           command: yum install -y openssh-clients
-      - *load_code_centos
+      - *load_code
       - *update_submodules
       - run:
           name: Compile Linux wheels
@@ -224,7 +203,7 @@ references:
           name: Install software
           working_directory: /root/code
           command: yum install -y openssh-clients
-      - *load_code_centos
+      - *load_code
       - *update_submodules
       - run:
           name: Compile Linux wheels
@@ -252,11 +231,19 @@ references:
 jobs:
   check-style:
     docker:
-      - image: glotzerlab/ci:2020.10-clang10_py38
+      - image: glotzerlab/ci:2020.10-clang11_py39
     working_directory: ~/ci/freud
     environment:
-      PYVER: "3.8"
+      PYVER: "3.9"
     <<: *load_check_style
+
+  linux-python-39:
+    docker:
+      - image: glotzerlab/ci:2020.10-py39
+    working_directory: ~/ci/freud
+    environment:
+      PYVER: "3.9"
+    <<: *build_and_test_linux_with_cov
 
   linux-python-38:
     docker:
@@ -272,7 +259,7 @@ jobs:
     working_directory: ~/ci/freud
     environment:
       PYVER: "3.7"
-    <<: *build_and_test_linux_with_cov
+    <<: *build_and_test_linux
 
   linux-python-36:
     docker:
@@ -327,6 +314,9 @@ workflows:
   test:
     jobs:
       - check-style
+      - linux-python-39:
+          requires:
+            - check-style
       - linux-python-38:
           requires:
             - check-style
@@ -349,6 +339,7 @@ workflows:
               only: /release\/.*/
           requires:
             - check-style
+            - linux-python-39
             - linux-python-38
             - linux-python-37
             - linux-python-36
@@ -359,6 +350,7 @@ workflows:
               only: /release\/.*/
           requires:
             - check-style
+            - linux-python-39
             - linux-python-38
             - linux-python-37
             - linux-python-36

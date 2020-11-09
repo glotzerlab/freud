@@ -140,6 +140,8 @@ template<typename Iterator> unsigned int NeighborList::filter(Iterator begin)
 
 // Explicit template instantiation required for usage in dynamically linked
 // Cython code.
+template unsigned int NeighborList::filter(std::vector<bool>::const_iterator);
+template unsigned int NeighborList::filter(std::vector<bool>::iterator);
 template unsigned int NeighborList::filter(const bool*);
 template unsigned int NeighborList::filter(bool*);
 
