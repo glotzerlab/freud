@@ -6,7 +6,7 @@ orbs:
 references:
   container_manylinux: &container_manylinux
     docker:
-      - image: quay.io/pypa/manylinux1_x86_64
+      - image: quay.io/pypa/manylinux2010_x86_64
     working_directory: ~/ci/freud
 
   container_macos: &container_macos
@@ -16,23 +16,6 @@ references:
 
   load_code: &load_code
     checkout
-
-  load_code_centos: &load_code_centos
-    # For use with old OS that doesn't support clone over ssh
-    run:
-      name: Checkout repository without ssh
-      command: |
-        cd ~/ci/freud
-        git clone ${CIRCLE_REPOSITORY_URL} .
-        if [ -n "$CIRCLE_TAG" ]
-        then
-          git reset --hard "$CIRCLE_SHA1"
-          git checkout -q "$CIRCLE_TAG"
-        elif [ -n "$CIRCLE_BRANCH" ]
-        then
-          git reset --hard "$CIRCLE_SHA1"
-          git checkout -q -B "$CIRCLE_BRANCH"
-        fi
 
   update_submodules: &update_submodules
     run:
@@ -206,7 +189,7 @@ references:
           name: Install software
           working_directory: /root/code
           command: yum install -y openssh-clients
-      - *load_code_centos
+      - *load_code
       - *update_submodules
       - run:
           name: Compile Linux wheels
@@ -219,7 +202,7 @@ references:
           name: Install software
           working_directory: /root/code
           command: yum install -y openssh-clients
-      - *load_code_centos
+      - *load_code
       - *update_submodules
       - run:
           name: Compile Linux wheels
