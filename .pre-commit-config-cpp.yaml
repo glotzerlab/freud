@@ -9,10 +9,9 @@ repos:
         entry: clang-format
         language: system
         types: [c++]
-        # Ignore external files. Also include AABB.h because it uses intrinsics
-        # heavily and these are not considered portable.
+        # Exclude external files.
         exclude: 'extern/.*'
-        # Unclear if this is necessary, it seems like clang-format uses
+        # Unclear if --style=file is necessary, it seems like clang-format uses
         # .clang-format if found by default, at least for newer versions. I'll
         # specify this here just in case.
         args:
@@ -22,8 +21,8 @@ repos:
         entry: clang-tidy
         language: system
         types: [c++]
-        # Ignore external files. Also include AABB.h because it uses intrinsics
-        # heavily and these are not considered portable.
+        # Exclude external files. Also exclude AABB.h because it uses
+        # intrinsics heavily and these are not considered portable.
         exclude: 'cpp/locality/AABB\.h|extern/.*'
         args:
         - --warnings-as-errors=*
@@ -33,6 +32,8 @@ repos:
         entry: cppcheck
         language: system
         types: [c++]
+        # Exclude external files. Also exclude AABB.h because it uses
+        # intrinsics heavily and these are not considered portable.
         exclude: 'cpp/locality/AABB\.h|extern/.*'
         args:
         - cpp/
