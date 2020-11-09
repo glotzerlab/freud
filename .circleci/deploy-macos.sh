@@ -32,6 +32,7 @@ export MACOSX_DEPLOYMENT_TARGET=10.12
 # 3.8.5->3.8.6 leads to the 3.8.5 folder being deleted), but then homebrew
 # tries to delete them again and causes errors. To avoid this issue, we update
 # manually here for the current main version of Python (required by pyenv).
+brew update
 brew upgrade python@3.9
 brew install pyenv
 eval "$(pyenv init -)"
