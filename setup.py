@@ -60,6 +60,5 @@ setup(
         'garnett>=0.7.1',
         'matplotlib>=3.0',
         'MDAnalysis>=0.20.1',
-        'rowan>=1.2',
         'sympy>=1.0',
     ])
