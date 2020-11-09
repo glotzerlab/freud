@@ -12,13 +12,19 @@ repos:
         args:
         - --style=file
         exclude: 'extern/.*'
-      - id: clang-tidy
-        # Ignore external files and those taken verbatim from HOOMD.
-        exclude: 'cpp/locality/AABB\.h|extern/.*'
-        args: [--warnings-as-errors=*]
 # Set up the cppcheck hook manually, the one provided by the above repo is configured too rigidly.
 -   repo: local
     hooks:
+      - id: clang-tidy
+        name: clang-tidy
+        entry: clang-tidy
+        language: system
+        types: [c++]
+        # Ignore external files. Also include AABB.h because it uses intrinsics
+        # heavily and these are not considered portable.
+        exclude: 'cpp/locality/AABB\.h|extern/.*'
+        args:
+        - --warnings-as-errors=*
       - id: cppcheck
         # Ignore external files and those taken verbatim from HOOMD.
         name: cppcheck
