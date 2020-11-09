@@ -75,16 +75,24 @@ references:
     run:
       name: Install pre-commit dependencies
       command: |
+        # We don't actually need to build, so we don't need any of the normal
+        # dependencies, but we need to initialize the build system far enough
+        # to generate a compile database. For convenience, just use the latest
+        # wheels for these; the actual build steps will test against our older
+        # supported versions.
+        python${PYVER} -m pip install --user scikit-build cmake
         python${PYVER} -m pip install --user -r requirements-precommit.txt
 
   pre-test-checks: &pre-test-checks
     run:
       name: Run all static checks
       command: |
-        # Changes to environment variables (like PATH) don't persist between
-        # run steps in CircleCI, so we specify the full path to pre-commit
-        # explicitly here.
+        # Run the standard pre-commit checks first
         python${PYVER} -m pre_commit run --all-files --show-diff-on-failure
+        # Next, run the C++ pre-commit checks.  We need to generate the
+        # compile_commands.json database, which requires building.
+        python${PYVER} setup.py build_ext --inplace -- -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -- -j 4
+        python${PYVER} -m pre_commit run -c .pre-commit-config-cpp.yaml --all-files --show-diff-on-failure
 
   build: &build
     run:

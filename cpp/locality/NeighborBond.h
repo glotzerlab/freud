@@ -12,7 +12,7 @@ namespace freud { namespace locality {
 struct NeighborBond
 {
     // For now, id = query_point_idx and ref_id = point_idx (into the NeighborQuery).
-    constexpr NeighborBond() : query_point_idx(0), point_idx(0), distance(0), weight(0) {}
+    constexpr NeighborBond() = default;
 
     constexpr NeighborBond(unsigned int query_point_idx, unsigned int point_idx, float d = 0, float w = 1)
         : query_point_idx(query_point_idx), point_idx(point_idx), distance(d), weight(w)
@@ -87,10 +87,10 @@ struct NeighborBond
         return weight < n.weight;
     }
 
-    unsigned int query_point_idx; //! The query point index.
-    unsigned int point_idx;       //! The reference point index.
-    float distance;               //! The distance between the points.
-    float weight;                 //! The weight of this bond.
+    unsigned int query_point_idx {0}; //! The query point index.
+    unsigned int point_idx {0};       //! The reference point index.
+    float distance {0};               //! The distance between the points.
+    float weight {0};                 //! The weight of this bond.
 };
 
 }; }; // end namespace freud::locality

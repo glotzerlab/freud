@@ -19,4 +19,5 @@ freud/*.dylib
 .coverage
 coverage_html_report
 cython_debug
+compile_commands.json
 _skbuild
