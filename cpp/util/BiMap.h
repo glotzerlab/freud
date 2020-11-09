@@ -5,6 +5,7 @@
 #include <cstddef> // Needed for offsetof
 #include <map>
 #include <set>
+#include <stdexcept>
 #include <vector>
 
 /* BiMap container modelled after Boost::BiMap with templatization.

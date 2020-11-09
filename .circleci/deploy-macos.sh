@@ -32,11 +32,11 @@ export MACOSX_DEPLOYMENT_TARGET=10.12
 # 3.8.5->3.8.6 leads to the 3.8.5 folder being deleted), but then homebrew
 # tries to delete them again and causes errors. To avoid this issue, we update
 # manually here for the current main version of Python (required by pyenv).
-brew upgrade python@3.8
+brew upgrade python@3.9
 brew install pyenv
 eval "$(pyenv init -)"
 # Check supported versions with pyenv install --list
-PY_VERSIONS=(3.6.12 3.7.9 3.8.6)
+PY_VERSIONS=(3.6.12 3.7.9 3.8.6 3.9.0)
 
 # Build TBB
 git clone https://github.com/intel/tbb.git
