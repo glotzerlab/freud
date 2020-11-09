@@ -104,6 +104,8 @@ references:
       name: Build
       command: |
         python${PYVER} --version
+        echo "Using CMAKE_FLAGS: ${CMAKE_FLAGS}"
+        echo "Using BUILD_FLAGS: ${BUILD_FLAGS}"
         python${PYVER} setup.py build_ext --inplace -- ${CMAKE_FLAGS} -- ${BUILD_FLAGS}
 
   test: &test
@@ -300,8 +302,8 @@ jobs:
       PYVER: ""  # Windows CI image doesn't have aliases for python3.7
       TBB_INCLUDE: "C:\\tools\\miniconda3\\Library\\include"
       TBB_LINK: "C:\\tools\\miniconda3\\Library\\lib"
-      CMAKE_FLAGS: "-G \"Visual Studio 16 2019\" -DCOVERAGE=ON"
-      BUILD_FLAGS: "/MP"
+      CMAKE_FLAGS: -G "Visual Studio 16 2019" -DCOVERAGE=ON
+      BUILD_FLAGS: /MP
       <<: *default_environment
     <<: *build_and_test_windows
 
