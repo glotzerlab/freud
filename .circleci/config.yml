@@ -86,7 +86,7 @@ references:
       name: Build with MSVC
       command: |
         python${PYVER} --version
-        python${PYVER} setup.py build_ext --inplace -- -G "Visual Studio 16 2019" -DCOVERAGE=ON -- -MP
+        python${PYVER} setup.py build_ext --inplace -- -G "Visual Studio 16 2019" -DCOVERAGE=ON -- /MP
 
   test: &test
     run:
