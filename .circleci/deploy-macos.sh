@@ -32,7 +32,7 @@ export MACOSX_DEPLOYMENT_TARGET=10.12
 # 3.8.5->3.8.6 leads to the 3.8.5 folder being deleted), but then homebrew
 # tries to delete them again and causes errors. To avoid this issue, we update
 # manually here for the current main version of Python (required by pyenv).
-brew upgrade python@3.9
+brew upgrade python@3.8
 brew install pyenv
 eval "$(pyenv init -)"
 # Check supported versions with pyenv install --list
@@ -81,7 +81,7 @@ for VERSION in ${PY_VERSIONS[@]}; do
 
   pip install freud_analysis --no-deps --no-index -f ~/ci/freud/wheelhouse
   # Don't install MDAnalysis and skip the relevant tests.
-  cat ~/ci/freud/requirements-testing.txt | grep -v MDAnalysis | xargs -n 1 pip install -U
+  cat ~/ci/freud/requirements-testing.txt | grep -v MDAnalysis | xargs -n 1 pip install -U --progress-bar=off
   cd ~/ci/freud/tests
   python -m unittest discover . -v
 done

@@ -4,13 +4,14 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## v2.x.x - 2020-0x-xx
+## v2.4.0 - 2020-11-09
 
 ### Added
 * The Box class has a method `contains` to determine particle membership in a box.
 * NeighborList class exposes `num_points` and `num_query_points` attributes.
 * `compute` method of `GaussianDensity` class has a `values` argument.
 * Support for pre-commit hooks.
+* Python 3.9 is supported.
 
 ### Changed
 * NeighborList raises a `ValueError` instead of a `RuntimeError` if provided invalid constructor arguments.
