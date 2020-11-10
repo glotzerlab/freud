@@ -51,7 +51,7 @@ for PYBIN in $PYBINS; do
   cd numpy-1.14.6
   rm -f numpy/random/mtrand/mtrand.c
   rm -f PKG-INFO
-  "${PYBIN}/python" -m pip install . --no-deps --ignore-installed -v --progress-bar=off -q -- -- -j 4 -v
+  "${PYBIN}/python" -m pip install . --no-deps --ignore-installed -v --progress-bar=off -q
   "${PYBIN}/pip" wheel ~/ci/freud/ -w ~/wheelhouse/ --no-deps --no-build-isolation --no-use-pep517
 done
 

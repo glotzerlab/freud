@@ -63,7 +63,7 @@ for VERSION in ${PY_VERSIONS[@]}; do
   cd numpy-1.14.6
   rm -f numpy/random/mtrand/mtrand.c
   rm -f PKG-INFO
-  pip install . --no-deps --ignore-installed -v -q --progress-bar=off -- -- -j 4 -v
+  pip install . --no-deps --ignore-installed -v -q --progress-bar=off
 
   pip install wheel delocate --progress-bar=off
   pip wheel ~/ci/freud/ -w ~/wheelhouse/ --no-deps --no-build-isolation --no-use-pep517
