@@ -26,7 +26,9 @@ include_directories(${NumPy_INCLUDE_DIRS})
 # compatibility with older CMake, I'm using PythonInterp; when we drop support
 # for CMake < 3.12, we should switch to find_package(Python).
 find_package(PythonInterp REQUIRED)
-if(${PYTHON_VERSION_MAJOR} EQUAL 3 AND ${PYTHON_VERSION_MINOR} EQUAL 8)
+if(${PYTHON_VERSION_MAJOR} EQUAL 3
+   AND ${PYTHON_VERSION_MINOR} EQUAL 8
+   AND NOT WIN32)
   add_compile_options("-Wno-deprecated-declarations")
 endif()
 
