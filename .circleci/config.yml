@@ -305,22 +305,22 @@ workflows:
   version: 2
   test:
     jobs:
-      #- check-style
-      #- linux-python-39:
-      #    requires:
-      #      - check-style
-      #- linux-python-38:
-      #    requires:
-      #      - check-style
-      #- linux-python-37:
-      #    requires:
-      #      - check-style
-      #- linux-python-36:
-      #    requires:
-      #      - check-style
-      #- windows-python-37:
-      #    requires:
-      #      - check-style
+      - check-style
+      - linux-python-39:
+          requires:
+            - check-style
+      - linux-python-38:
+          requires:
+            - check-style
+      - linux-python-37:
+          requires:
+            - check-style
+      - linux-python-36:
+          requires:
+            - check-style
+      - windows-python-37:
+          requires:
+            - check-style
 # Disabled benchmarks on CI - they currently take too much work
 #     - benchmarks:
 #         requires:
@@ -329,24 +329,24 @@ workflows:
           filters:
             branches:
               only: /release\/.*/
-          # requires:
-          #   - check-style
-          #   - linux-python-39
-          #   - linux-python-38
-          #   - linux-python-37
-          #   - linux-python-36
-          #   - windows-python-37
+          requires:
+            - check-style
+            - linux-python-39
+            - linux-python-38
+            - linux-python-37
+            - linux-python-36
+            - windows-python-37
       - test-deploy-pypi-linux:
           filters:
             branches:
               only: /release\/.*/
-          # requires:
-          #   - check-style
-          #   - linux-python-39
-          #   - linux-python-38
-          #   - linux-python-37
-          #   - linux-python-36
-          #   - windows-python-37
+          requires:
+            - check-style
+            - linux-python-39
+            - linux-python-38
+            - linux-python-37
+            - linux-python-36
+            - windows-python-37
 
   deploy:
     jobs:
