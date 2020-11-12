@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.3.0)
 
 project(freud)
 
-set(DEFAULT_BUILD_TYPE "Release")
+set(DEFAULT_BUILD_TYPE "ReleaseWithDocs")
 
 # Set a default build type if none was specified
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
@@ -16,8 +16,9 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set(CMAKE_BUILD_TYPE
       "${DEFAULT_BUILD_TYPE}"
       CACHE STRING "Choose the type of build." FORCE)
-  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release"
-                                               "MinSizeRel" "RelWithDebInfo")
+  set_property(
+    CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "ReleaseWithDocs"
+                                    "MinSizeRel" "RelWithDebInfo")
 endif()
 
 set(CMAKE_CXX_STANDARD 14)
