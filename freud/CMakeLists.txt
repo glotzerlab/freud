@@ -84,7 +84,7 @@ foreach(cython_module ${cython_modules_with_cpp} ${cython_modules_without_cpp})
     set_target_properties(${cython_module} PROPERTIES INSTALL_RPATH
                                                       "@loader_path")
   else()
-    set_target_properties(${cython_module} PROPERTIES INSTALL_RPATH "$ORIGIN")
+    set_target_properties(${cython_module} PROPERTIES INSTALL_RPATH "\$ORIGIN")
   endif()
 endforeach()
 
