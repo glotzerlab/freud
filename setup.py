@@ -29,13 +29,15 @@ def setup(*args, **kwargs):
         if arg == '--':
             # Insert at the end of the options that go to scikit-build
             break
-        elif arg.startswith('--build-type') and arg != BUILD_TYPE:
-            raise RuntimeError(f'Specifying --build-type is not allowed. '
-                               f'freud requires {BUILD_TYPE}')
+        elif arg.startswith('--build-type'):
+            # Don't override user-specified build type
+            index = False
+            break
     else:
         # Insert at the end of the provided arguments
         index = len(sys.argv)
-    sys.argv.insert(index, BUILD_TYPE)
+    if index:
+        sys.argv.insert(index, BUILD_TYPE)
     skbuild_setup(*args, **kwargs)
 
 
