@@ -1,5 +1,6 @@
+import sys
 import os
-from skbuild import setup
+from skbuild import setup as skbuild_setup
 
 version = '2.4.0'
 
@@ -12,6 +13,31 @@ try:
         readme = f.read()
 except ImportError:
     readme = desc
+
+
+def setup(*args, **kwargs):
+    """This wrapper exists to force the option --build-type=ReleaseWithDocs.
+
+    Neither Release nor RelWithDebInfo will work, due to hard-coded options in
+    scikit-build's UseCython.cmake that disable docstrings. The choice of
+    ReleaseWithDocs is arbitrary, as a string that won't overlap with any build
+    type handled in UseCython.cmake. See this issue for details:
+    https://github.com/scikit-build/scikit-build/issues/518
+    """
+    BUILD_TYPE = '--build-type=ReleaseWithDocs'
+    for index, arg in enumerate(sys.argv):
+        if arg == '--':
+            # Insert at the end of the options that go to scikit-build
+            break
+        elif arg.startswith('--build-type') and arg != BUILD_TYPE:
+            raise RuntimeError(f'Specifying --build-type is not allowed. '
+                               f'freud requires {BUILD_TYPE}')
+    else:
+        # Insert at the end of the provided arguments
+        index = len(sys.argv)
+    sys.argv.insert(index, BUILD_TYPE)
+    skbuild_setup(*args, **kwargs)
+
 
 setup(
     name='freud-analysis',
