@@ -92,7 +92,7 @@ references:
       name: Build with MSVC
       command: |
         ${PYTHON} --version
-        ${PYTHON} setup.py build_ext --inplace -- -G "Visual Studio 16 2019" -DCOVERAGE=ON -- /m
+        ${PYTHON} setup.py build_ext --inplace -- -G "Visual Studio 16 2019" -DCOVERAGE=ON
 
   test: &test
     run:
