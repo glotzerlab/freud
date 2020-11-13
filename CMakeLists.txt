@@ -10,6 +10,9 @@ set(DEFAULT_BUILD_TYPE "ReleaseWithDocs")
 
 # Set a default build type if none was specified
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  set(CMAKE_CONFIGURATION_TYPES
+      "Debug;Release;ReleaseWithDocs;MinSizeRel;RelWithDebInfo"
+      CACHE STRING "List of supported configurations." FORCE)
   message(
     STATUS
       "Setting build type to '${DEFAULT_BUILD_TYPE}' since none was specified.")
