@@ -4,15 +4,11 @@
 # CMake available on PyPI (which is 3.6.3).
 cmake_minimum_required(VERSION 3.3.0)
 
-project(freud)
 
 set(DEFAULT_BUILD_TYPE "ReleaseWithDocs")
 
 # Set a default build type if none was specified
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-  set(CMAKE_CONFIGURATION_TYPES
-      "Debug;Release;ReleaseWithDocs;MinSizeRel;RelWithDebInfo"
-      CACHE STRING "List of supported configurations." FORCE)
   message(
     STATUS
       "Setting build type to '${DEFAULT_BUILD_TYPE}' since none was specified.")
@@ -23,6 +19,27 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "ReleaseWithDocs"
                                     "MinSizeRel" "RelWithDebInfo")
 endif()
+
+# We define a custom ReleaseWithDocs configuration, to avoid overlap with any
+# configuration handled in UseCython.cmake. See this issue for details:
+# https://github.com/scikit-build/scikit-build/issues/518
+set(CMAKE_CONFIGURATION_TYPES
+  "ReleaseWithDocs;Debug;Release;MinSizeRel;RelWithDebInfo"
+  CACHE STRING "List of supported configurations." FORCE)
+
+# CMake looks for these variables to be defined for the custom configuration.
+set(CMAKE_CXX_FLAGS_RELEASEWITHDOCS ${CMAKE_CXX_FLAGS_RELEASE} CACHE STRING "")
+set(CMAKE_C_FLAGS_RELEASEWITHDOCS ${CMAKE_C_FLAGS_RELEASE} CACHE STRING "")
+set(CMAKE_EXE_LINKER_FLAGS_RELEASEWITHDOCS ${CMAKE_EXE_LINKER_FLAGS_RELEASE} CACHE STRING "")
+set(CMAKE_SHARED_LINKER_FLAGS_RELEASEWITHDOCS ${CMAKE_SHARED_LINKER_FLAGS_RELEASE} CACHE STRING "")
+mark_as_advanced(
+  CMAKE_CXX_FLAGS_RELEASEWITHDOCS
+  CMAKE_C_FLAGS_RELEASEWITHDOCS
+  CMAKE_EXE_LINKER_FLAGS_RELEASEWITHDOCS
+  CMAKE_SHARED_LINKER_FLAGS_RELEASEWITHDOCS)
+
+# We must define the project after adding the custom configuration.
+project(freud)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
