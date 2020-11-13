@@ -9,6 +9,7 @@ and this project adheres to
 ### Fixed
 * Python 3.8 builds with Windows MSVC were broken due to an unrecognized CMake compiler option.
 * Fixed broken documentation by overriding scikit-build options.
+* RPATH on Linux is now set correctly to find TBB libraries not on the global search path.
 
 ## v2.4.0 - 2020-11-09
 
