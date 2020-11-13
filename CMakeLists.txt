@@ -4,7 +4,6 @@
 # CMake available on PyPI (which is 3.6.3).
 cmake_minimum_required(VERSION 3.3.0)
 
-
 set(DEFAULT_BUILD_TYPE "ReleaseWithDocs")
 
 # Set a default build type if none was specified
@@ -24,17 +23,24 @@ endif()
 # configuration handled in UseCython.cmake. See this issue for details:
 # https://github.com/scikit-build/scikit-build/issues/518
 set(CMAKE_CONFIGURATION_TYPES
-  "ReleaseWithDocs;Debug;Release;MinSizeRel;RelWithDebInfo"
-  CACHE STRING "List of supported configurations." FORCE)
+    "ReleaseWithDocs;Debug;Release;MinSizeRel;RelWithDebInfo"
+    CACHE STRING "List of supported configurations." FORCE)
 
 # CMake looks for these variables to be defined for the custom configuration.
-set(CMAKE_CXX_FLAGS_RELEASEWITHDOCS ${CMAKE_CXX_FLAGS_RELEASE} CACHE STRING "")
-set(CMAKE_C_FLAGS_RELEASEWITHDOCS ${CMAKE_C_FLAGS_RELEASE} CACHE STRING "")
-set(CMAKE_EXE_LINKER_FLAGS_RELEASEWITHDOCS ${CMAKE_EXE_LINKER_FLAGS_RELEASE} CACHE STRING "")
-set(CMAKE_SHARED_LINKER_FLAGS_RELEASEWITHDOCS ${CMAKE_SHARED_LINKER_FLAGS_RELEASE} CACHE STRING "")
+set(CMAKE_CXX_FLAGS_RELEASEWITHDOCS
+    ${CMAKE_CXX_FLAGS_RELEASE}
+    CACHE STRING "")
+set(CMAKE_C_FLAGS_RELEASEWITHDOCS
+    ${CMAKE_C_FLAGS_RELEASE}
+    CACHE STRING "")
+set(CMAKE_EXE_LINKER_FLAGS_RELEASEWITHDOCS
+    ${CMAKE_EXE_LINKER_FLAGS_RELEASE}
+    CACHE STRING "")
+set(CMAKE_SHARED_LINKER_FLAGS_RELEASEWITHDOCS
+    ${CMAKE_SHARED_LINKER_FLAGS_RELEASE}
+    CACHE STRING "")
 mark_as_advanced(
-  CMAKE_CXX_FLAGS_RELEASEWITHDOCS
-  CMAKE_C_FLAGS_RELEASEWITHDOCS
+  CMAKE_CXX_FLAGS_RELEASEWITHDOCS CMAKE_C_FLAGS_RELEASEWITHDOCS
   CMAKE_EXE_LINKER_FLAGS_RELEASEWITHDOCS
   CMAKE_SHARED_LINKER_FLAGS_RELEASEWITHDOCS)
 
