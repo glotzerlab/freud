@@ -13,9 +13,11 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
       "Setting build type to '${DEFAULT_BUILD_TYPE}' since none was specified.")
   set(CMAKE_BUILD_TYPE
       "${DEFAULT_BUILD_TYPE}"
-      CACHE STRING "Choose the type of build." FORCE)
+      CACHE STRING
+            "Choose the type of build. The default value is ReleaseWithDocs."
+            FORCE)
   set_property(
-    CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "ReleaseWithDocs"
+    CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "ReleaseWithDocs" "Debug" "Release"
                                     "MinSizeRel" "RelWithDebInfo")
 endif()
 
