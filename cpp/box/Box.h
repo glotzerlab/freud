@@ -280,6 +280,10 @@ public:
     inline void getImage(const vec3<float>& v, vec3<int>& image) const
     {
         vec3<float> f = makeFractional(v) - vec3<float>(0.5, 0.5, 0.5);
+        if (m_2d)
+        {
+            f.z = float(0.0);
+        }
         image.x = (int) ((f.x >= float(0.0)) ? f.x + float(0.5) : f.x - float(0.5));
         image.y = (int) ((f.y >= float(0.0)) ? f.y + float(0.5) : f.y - float(0.5));
         image.z = (int) ((f.z >= float(0.0)) ? f.z + float(0.5) : f.z - float(0.5));
