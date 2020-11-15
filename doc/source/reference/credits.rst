@@ -112,7 +112,7 @@ Bradley Dice - **Lead developer**
 * Fixed ``Hexatic`` order parameter (unweighted) to normalize by number of neighbors instead of the symmetry order k.
 * Added ``num_query_points`` and ``num_points`` attributes to NeighborList class.
 * Added scikit-build support for Windows.
-* Fixed 2D image calculations. 
+* Fixed 2D image calculations.
 
 Eric Harper, University of Michigan - **Former lead developer**
 
