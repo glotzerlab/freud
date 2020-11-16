@@ -10,6 +10,7 @@ and this project adheres to
 * Python 3.8 builds with Windows MSVC were broken due to an unrecognized CMake compiler option.
 * Fixed broken documentation by overriding scikit-build options.
 * RPATH on Linux is now set correctly to find TBB libraries not on the global search path.
+* 2D box image calculations now return zero for the image z value.
 
 ## v2.4.0 - 2020-11-09
 

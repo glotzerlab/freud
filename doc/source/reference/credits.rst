@@ -112,6 +112,7 @@ Bradley Dice - **Lead developer**
 * Fixed ``Hexatic`` order parameter (unweighted) to normalize by number of neighbors instead of the symmetry order k.
 * Added ``num_query_points`` and ``num_points`` attributes to NeighborList class.
 * Added scikit-build support for Windows.
+* Fixed 2D image calculations.
 
 Eric Harper, University of Michigan - **Former lead developer**
 
@@ -270,6 +271,7 @@ Kelly Wang
 * Enabled NeighborList indexing.
 * Added methods ``compute_distances`` and ``compute_all_distances`` to Box.
 * Added method ``crop`` to Box.
+* Added 2D Box tests for ``get_image`` and ``contains``.
 
 Yezhi Jin
 
