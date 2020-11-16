@@ -10,6 +10,7 @@ and this project adheres to
 * Python 3.8 builds with Windows MSVC were broken due to an unrecognized CMake compiler option.
 * Fixed broken documentation by overriding scikit-build options.
 * RPATH on Linux is now set correctly to find TBB libraries not on the global search path.
+* 2D box image calculations now return zero for the image z value.
 
 ## v2.4.0 - 2020-11-09
 
@@ -32,7 +33,6 @@ and this project adheres to
 * Hexatic order parameter (unweighted) normalizes by number of neighbors instead of the symmetry order k.
 * Particles with an i-j normal vector of [0, 0, 0] are excluded from 2D Voronoi NeighborList computations for numerical stability reasons.
 * Memory leak in `makeDefaultNlist` function where a NeighborList was being allocated and not freed.
-* Forced fractional offset ot zero for 2D image calculations.
 
 ## v2.3.0 - 2020-08-03
 
