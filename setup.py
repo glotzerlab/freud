@@ -2,7 +2,7 @@ import sys
 import os
 from skbuild import setup as skbuild_setup
 
-version = '2.4.0'
+version = '2.4.1'
 
 # Read README for PyPI, fallback to short description if it fails.
 desc = 'Powerful, efficient trajectory analysis in scientific Python.'
