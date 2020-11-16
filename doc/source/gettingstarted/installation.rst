@@ -79,8 +79,6 @@ You can also build **freud** in place so that you can run from within the folder
     python setup.py build_ext --inplace
 
 Building **freud** in place has certain advantages, since it does not affect your Python behavior except within the **freud** directory itself (where **freud** can be imported after building).
-Additionally, due to limitations inherent to the distutils/setuptools infrastructure, building extension modules can only be parallelized using the build_ext subcommand of setup.py, not with install.
-As a result, it will be faster to manually run build_ext and then install (which normally calls build_ext under the hood anyway) the built packages.
 
 CMake Options
 +++++++++++++
@@ -109,15 +107,15 @@ The **freud** CMake configuration also respects the following environment variab
 
     TBB_ROOT
       The root directory where TBB is installed.
-      Useful if TBB is installed in a non-standard location or cannot be located by Python for some other reason.
+      Useful if TBB is installed in a non-standard location or cannot be located for some other reason.
 
     TBB_INCLUDE
       The directory where the TBB headers (e.g. ``tbb.h``) are located.
-      Useful if TBB is installed in a non-standard location or cannot be located by Python for some other reason.
+      Useful if TBB is installed in a non-standard location or cannot be located for some other reason.
 
     TBB_LINK
       The directory where the TBB shared library (e.g. ``libtbb.so`` or ``libtbb.dylib``) is located.
-      Useful if TBB is installed in a non-standard location or cannot be located by Python for some other reason.
+      Useful if TBB is installed in a non-standard location or cannot be located for some other reason.
 
 .. note::
 
