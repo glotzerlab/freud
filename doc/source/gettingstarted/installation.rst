@@ -105,16 +105,13 @@ The **freud** CMake configuration also respects the following environment variab
 
 .. glossary::
 
-    TBB_ROOT
+    TBBROOT
       The root directory where TBB is installed.
       Useful if TBB is installed in a non-standard location or cannot be located for some other reason.
+      This variable is set by the ``tbbvars.sh`` script included with TBB when building from source.
 
-    TBB_INCLUDE
+    TBB_INCLUDE_DIR
       The directory where the TBB headers (e.g. ``tbb.h``) are located.
-      Useful if TBB is installed in a non-standard location or cannot be located for some other reason.
-
-    TBB_LINK
-      The directory where the TBB shared library (e.g. ``libtbb.so`` or ``libtbb.dylib``) is located.
       Useful if TBB is installed in a non-standard location or cannot be located for some other reason.
 
 .. note::
