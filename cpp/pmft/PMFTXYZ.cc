@@ -11,21 +11,33 @@
 namespace freud { namespace pmft {
 
 PMFTXYZ::PMFTXYZ(float x_max, float y_max, float z_max, unsigned int n_x, unsigned int n_y, unsigned int n_z,
-                 vec3<float> shiftvec)
+                 const vec3<float>& shiftvec)
     : PMFT(), m_shiftvec(shiftvec), m_num_equiv_orientations(0xffffffff)
 {
     if (n_x < 1)
+    {
         throw std::invalid_argument("PMFTXYZ requires at least 1 bin in X.");
+    }
     if (n_y < 1)
+    {
         throw std::invalid_argument("PMFTXYZ requires at least 1 bin in Y.");
+    }
     if (n_z < 1)
+    {
         throw std::invalid_argument("PMFTXYZ requires at least 1 bin in Z.");
-    if (x_max < 0.0f)
+    }
+    if (x_max < 0)
+    {
         throw std::invalid_argument("PMFTXYZ requires that x_max must be positive.");
-    if (y_max < 0.0f)
+    }
+    if (y_max < 0)
+    {
         throw std::invalid_argument("PMFTXYZ requires that y_max must be positive.");
-    if (z_max < 0.0f)
+    }
+    if (z_max < 0)
+    {
         throw std::invalid_argument("PMFTXYZ requires that z_max must be positive.");
+    }
 
     // Compute Jacobian
     const float dx = float(2.0) * x_max / float(n_x);
@@ -69,7 +81,8 @@ void PMFTXYZ::reduce()
     m_histogram.prepare(m_histogram.shape());
 
     float inv_num_dens = m_box.getVolume() / (float) m_n_query_points;
-    float norm_factor = (float) 1.0 / ((float) m_frame_counter * (float) m_n_points * (float) m_num_equiv_orientations);
+    float norm_factor
+        = (float) 1.0 / ((float) m_frame_counter * (float) m_n_points * (float) m_num_equiv_orientations);
     float prefactor = inv_num_dens * norm_factor;
 
     float jacobian_factor = (float) 1.0 / m_jacobian;
@@ -84,9 +97,9 @@ void PMFTXYZ::reset()
     m_num_equiv_orientations = 0xffffffff;
 }
 
-void PMFTXYZ::accumulate(const locality::NeighborQuery* neighbor_query, quat<float>* query_orientations,
-                         vec3<float>* query_points, unsigned int n_query_points,
-                         quat<float>* equiv_orientations, unsigned int num_equiv_orientations,
+void PMFTXYZ::accumulate(const locality::NeighborQuery* neighbor_query, const quat<float>* query_orientations,
+                         const vec3<float>* query_points, unsigned int n_query_points,
+                         const quat<float>* equiv_orientations, unsigned int num_equiv_orientations,
                          const locality::NeighborList* nlist, freud::locality::QueryArgs qargs)
 {
     // Set the number of equivalent orientations the first time we compute
@@ -97,7 +110,8 @@ void PMFTXYZ::accumulate(const locality::NeighborQuery* neighbor_query, quat<flo
     }
     else if (m_num_equiv_orientations != num_equiv_orientations)
     {
-        throw std::runtime_error("The number of equivalent orientations must be constant while accumulating data into PMFTXYZ.");
+        throw std::runtime_error(
+            "The number of equivalent orientations must be constant while accumulating data into PMFTXYZ.");
     }
     neighbor_query->getBox().enforce3D();
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,

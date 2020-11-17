@@ -11,7 +11,7 @@ NeighborList makeDefaultNlist(const NeighborQuery* nq, const NeighborList* nlist
                               locality::QueryArgs qargs)
 {
     bool requires_delete(false);
-    if (nlist == NULL)
+    if (nlist == nullptr)
     {
         auto nqiter(nq->query(query_points, num_query_points, qargs));
         nlist = nqiter->toNeighborList();
@@ -32,9 +32,9 @@ NeighborList makeDefaultNlist(const NeighborQuery* nq, const NeighborList* nlist
     locality::NeighborList new_nlist = NeighborList(*nlist);
     new_nlist.validate(num_query_points, nq->getNPoints());
     if (requires_delete)
-        {
+    {
         delete nlist;
-        }
+    }
     return new_nlist;
 }
 

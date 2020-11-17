@@ -313,11 +313,13 @@ cdef class NeighborQuery:
         elif _match_class_path(system, 'MDAnalysis.coordinates.base.Timestep'):
             system = (system.triclinic_dimensions, system.positions)
 
-        # GSD compatibility
-        elif _match_class_path(system, 'gsd.hoomd.Snapshot'):
+        # GSD and HOOMD-blue 3 snapshot compatibility
+        elif _match_class_path(system,
+                               'gsd.hoomd.Snapshot',
+                               'hoomd.snapshot.Snapshot'):
             # Explicitly construct the box to silence warnings from box
-            # constructor because GSD sets Lz=1 rather than 0 for 2D boxes.
-            box = system.configuration.box.copy()
+            # constructor, HOOMD simulations often have Lz=1 for 2D boxes.
+            box = np.array(system.configuration.box)
             if system.configuration.dimensions == 2:
                 box[[2, 4, 5]] = 0
             system = (box, system.particles.position)
@@ -343,7 +345,7 @@ cdef class NeighborQuery:
                 dimensions=2 if system.cell.is2D else 3)
             system = (box, system.particles.positions)
 
-        # HOOMD-blue snapshot compatibility
+        # HOOMD-blue 2 snapshot compatibility
         elif (hasattr(system, 'box') and hasattr(system, 'particles') and
               hasattr(system.particles, 'position')):
             # Explicitly construct the box to silence warnings from box
@@ -681,7 +683,7 @@ cdef class NeighborList:
         """  # noqa E501
         filt = np.ascontiguousarray(filt, dtype=np.bool)
         cdef np.ndarray[np.uint8_t, ndim=1, cast=True] filt_c = filt
-        cdef cbool * filt_ptr = <cbool*> &filt_c[0]
+        cdef const cbool * filt_ptr = <cbool*> &filt_c[0]
         self.thisptr.filter(filt_ptr)
         return self
 

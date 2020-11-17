@@ -26,7 +26,9 @@ include_directories(${NumPy_INCLUDE_DIRS})
 # compatibility with older CMake, I'm using PythonInterp; when we drop support
 # for CMake < 3.12, we should switch to find_package(Python).
 find_package(PythonInterp REQUIRED)
-if(${PYTHON_VERSION_MAJOR} EQUAL 3 AND ${PYTHON_VERSION_MINOR} EQUAL 8)
+if(${PYTHON_VERSION_MAJOR} EQUAL 3
+   AND ${PYTHON_VERSION_MINOR} EQUAL 8
+   AND NOT WIN32)
   add_compile_options("-Wno-deprecated-declarations")
 endif()
 
@@ -82,8 +84,10 @@ foreach(cython_module ${cython_modules_with_cpp} ${cython_modules_without_cpp})
     set_target_properties(${cython_module} PROPERTIES INSTALL_RPATH
                                                       "@loader_path")
   else()
-    set_target_properties(${cython_module} PROPERTIES INSTALL_RPATH "$ORIGIN")
+    set_target_properties(${cython_module} PROPERTIES INSTALL_RPATH "\$ORIGIN")
   endif()
+  set_target_properties(${cython_module} PROPERTIES INSTALL_RPATH_USE_LINK_PATH
+                                                    True)
 endforeach()
 
 # The SolidLiquid class has an instance of cluster::Cluster as a member, so

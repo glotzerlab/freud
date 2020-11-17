@@ -83,7 +83,7 @@ cdef extern from "NeighborList.h" namespace "freud::locality":
         unsigned int getNumPoints() const
         unsigned int getNumQueryPoints() const
         void setNumBonds(unsigned int, unsigned int, unsigned int)
-        unsigned int filter(const bool*) except +
+        unsigned int filter[Iterator](const Iterator) except +
         unsigned int filter_r(float, float) except +
 
         unsigned int find_first_index(unsigned int)

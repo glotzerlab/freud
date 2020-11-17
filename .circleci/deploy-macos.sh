@@ -36,7 +36,7 @@ brew upgrade python@3.8
 brew install pyenv
 eval "$(pyenv init -)"
 # Check supported versions with pyenv install --list
-PY_VERSIONS=(3.6.12 3.7.9 3.8.6)
+PY_VERSIONS=(3.6.12 3.7.9 3.8.6 3.9.0)
 
 # Build TBB
 git clone https://github.com/intel/tbb.git
@@ -81,7 +81,7 @@ for VERSION in ${PY_VERSIONS[@]}; do
 
   pip install freud_analysis --no-deps --no-index -f ~/ci/freud/wheelhouse
   # Don't install MDAnalysis and skip the relevant tests.
-  cat ~/ci/freud/requirements-testing.txt | grep -v MDAnalysis | xargs -n 1 pip install -U
+  cat ~/ci/freud/requirements-testing.txt | grep -v MDAnalysis | xargs -n 1 pip install -U --progress-bar=off
   cd ~/ci/freud/tests
   python -m unittest discover . -v
 done

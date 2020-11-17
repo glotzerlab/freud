@@ -1,7 +1,8 @@
+import sys
 import os
-from skbuild import setup
+from skbuild import setup as skbuild_setup
 
-version = '2.3.0'
+version = '2.4.0'
 
 # Read README for PyPI, fallback to short description if it fails.
 desc = 'Powerful, efficient trajectory analysis in scientific Python.'
@@ -12,6 +13,33 @@ try:
         readme = f.read()
 except ImportError:
     readme = desc
+
+
+def setup(*args, **kwargs):
+    """This wrapper exists to force the option --build-type=ReleaseWithDocs.
+
+    Neither Release nor RelWithDebInfo will work, due to hard-coded options in
+    scikit-build's UseCython.cmake that disable docstrings. The choice of
+    ReleaseWithDocs is arbitrary, as a string that won't overlap with any build
+    type handled in UseCython.cmake. See this issue for details:
+    https://github.com/scikit-build/scikit-build/issues/518
+    """
+    BUILD_TYPE = '--build-type=ReleaseWithDocs'
+    for index, arg in enumerate(sys.argv):
+        if arg == '--':
+            # Insert at the end of the options that go to scikit-build
+            break
+        elif arg.startswith('--build-type'):
+            # Don't override user-specified build type
+            index = False
+            break
+    else:
+        # Insert at the end of the provided arguments
+        index = len(sys.argv)
+    if index:
+        sys.argv.insert(index, BUILD_TYPE)
+    skbuild_setup(*args, **kwargs)
+
 
 setup(
     name='freud-analysis',
@@ -33,6 +61,7 @@ setup(
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
     ],
     zip_safe=False,
     maintainer='freud Developers',
@@ -60,6 +89,5 @@ setup(
         'garnett>=0.7.1',
         'matplotlib>=3.0',
         'MDAnalysis>=0.20.1',
-        'rowan>=1.2',
         'sympy>=1.0',
     ])

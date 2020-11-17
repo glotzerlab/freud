@@ -35,8 +35,8 @@ cd ${BUILD_DIR}
 source tbbvars.sh
 cd ~/
 
-# Build wheels for Python 3.6, 3.7, 3.8
-PYBINS="/opt/python/cp3[6-8]*/bin"
+# Build wheels for Python 3.6, 3.7, 3.8, 3.9
+PYBINS="/opt/python/cp3[6-9]*/bin"
 
 for PYBIN in $PYBINS; do
   echo "Building for $(${PYBIN}/python --version)"
@@ -65,7 +65,7 @@ for PYBIN in $PYBINS; do
   echo "Testing for $(${PYBIN}/python --version)"
 
   "${PYBIN}/python" -m pip install freud_analysis --no-deps --no-index -f ~/ci/freud/wheelhouse
-  "${PYBIN}/python" -m pip install -U -r ~/ci/freud/requirements-testing.txt
+  "${PYBIN}/python" -m pip install -U -r ~/ci/freud/requirements-testing.txt --progress-bar=off
   cd ~/ci/freud/tests
   "${PYBIN}/python" -m unittest discover . -v
 done

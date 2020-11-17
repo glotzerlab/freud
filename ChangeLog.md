@@ -4,12 +4,22 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## v2.x.x - 2020-0x-xx
+## v2.x.x - 20xx-xx-xx
+
+### Fixed
+* Python 3.8 builds with Windows MSVC were broken due to an unrecognized CMake compiler option.
+* Fixed broken documentation by overriding scikit-build options.
+* RPATH on Linux is now set correctly to find TBB libraries not on the global search path.
+* 2D box image calculations now return zero for the image z value.
+
+## v2.4.0 - 2020-11-09
 
 ### Added
 * The Box class has a method `contains` to determine particle membership in a box.
 * NeighborList class exposes `num_points` and `num_query_points` attributes.
 * `compute` method of `GaussianDensity` class has a `values` argument.
+* Support for pre-commit hooks.
+* Python 3.9 is supported.
 
 ### Changed
 * NeighborList raises a `ValueError` instead of a `RuntimeError` if provided invalid constructor arguments.
