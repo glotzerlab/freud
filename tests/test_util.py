@@ -25,12 +25,12 @@ class TestCommon(unittest.TestCase):
         # now test default copy argument
         z = freud.util._convert_array(y, (None, None))
         npt.assert_equal((z is y), False)
-        # now test copy=inplace
-        z = freud.util._convert_array(y, (None, None), copy='inplace')
-        npt.assert_equal((z is y), True)
         # now test copy=copy
         z = freud.util._convert_array(y, (None, None), copy='copy')
         npt.assert_equal((z is y), False)
+        # now test copy=inplace
+        with self.assertRaises(Exception):
+            z = freud.util._convert_array(y, (None, None), copy='inplace')
 
         # test dimension checking
         with self.assertRaises(ValueError):
