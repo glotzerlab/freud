@@ -84,8 +84,7 @@ references:
 
   windows_env: &windows_env
     PYTHON: "python"
-    TBB_INCLUDE: "C:\\tools\\miniconda3\\Library\\include"
-    TBB_LINK: "C:\\tools\\miniconda3\\Library\\lib"
+    TBBROOT: "C:\\tools\\miniconda3\\Library"
 
   build_windows: &build_windows
     run:

@@ -4,7 +4,7 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## v2.x.x - 20xx-xx-xx
+## v2.4.1 - 2020-11-16
 
 ### Fixed
 * Python 3.8 builds with Windows MSVC were broken due to an unrecognized CMake compiler option.
