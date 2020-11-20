@@ -116,7 +116,11 @@ class TestBox(unittest.TestCase):
     def test_wrap_inplace(self):
         box = freud.box.Box(2, 2, 2, 1, 0, 0)
 
-        points = np.array([[10, -5, -5], [0, 0.5, 0]], dtype=np.float32)
+        points = [[10, -5, -5], [0, 0.5, 0]]
+        with self.assertRaises(Exception):
+            box.wrap(points, inplace=True)
+
+        points = np.array(points, dtype=np.float32)
         npt.assert_equal((box.wrap(points, inplace=True) is points), True)
 
     def test_unwrap(self):
