@@ -44,6 +44,9 @@ extensions = [
     'sphinxcontrib.bibtex',
 ]
 
+# For sphinxcontrib.bibtex (as of v2.0).
+bibtex_bibfiles = ["reference/freud.bib"]
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
