@@ -52,7 +52,8 @@ references:
             # pip 20.3's dependency resolver should install compatible versions
             matplotlib \
             gsd \
-            garnett
+            garnett \
+            sympy
         else
           ${PYTHON} -m pip install --progress-bar off -U -r requirements-testing.txt
         fi
