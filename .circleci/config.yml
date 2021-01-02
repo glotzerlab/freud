@@ -41,7 +41,7 @@ references:
           # universal wheels instead, so once we upgrade to cmake >=3.14 we
           # won't be dependent on them updating wheels for specific new Python
           # versions.
-          ${PYTHON} -m pip install --user --progress-bar off \
+          ${PYTHON} -m pip install --progress-bar off \
             scikit-build==0.10.0 \
             cmake==3.6.3.post1 \
             cython==0.29.0 \
@@ -49,7 +49,7 @@ references:
             rowan==1.2.0 \
             scipy==1.1.0
         else
-          ${PYTHON} -m pip install --user --progress-bar off -U -r requirements-testing.txt
+          ${PYTHON} -m pip install --progress-bar off -U -r requirements-testing.txt
         fi
 
   get_conda_requirements: &get_conda_requirements
