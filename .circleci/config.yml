@@ -47,10 +47,11 @@ references:
             cython==0.29.14 \
             numpy==1.14.0 \
             rowan==1.2.0 \
-            scipy==1.1.0 \
-            # The requirements below are not strictly the lowest versions, and
-            # are only needed for testing. pip 20.3's dependency resolver
-            # should install compatible versions.
+            scipy==1.1.0
+          # The requirements below are not strictly the lowest versions, and
+          # are only needed for testing. pip 20.3's dependency resolver
+          # should install compatible versions.
+          ${PYTHON} -m pip install --progress-bar off \
             matplotlib \
             gsd \
             garnett \
