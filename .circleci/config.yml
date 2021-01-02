@@ -371,82 +371,82 @@ workflows:
   test:
     jobs:
       - check-style
-#     - linux-python-39
-#     - linux-python-38:
-#         requires:
-#           - check-style
-#           - linux-python-39
-#     - linux-python-37:
-#         requires:
-#           - check-style
-#           - linux-python-39
-#     - linux-python-36:
-#         requires:
-#           - check-style
-#           - linux-python-39
-      - linux-python-36-oldest
-#         requires:
-#           - check-style
-#           - linux-python-39
-#     - windows-python-39
-#     - windows-python-38:
-#         requires:
-#           - check-style
-#           - windows-python-39
-#     - windows-python-37:
-#         requires:
-#           - check-style
-#           - windows-python-39
-#     - windows-python-36:
-#         requires:
-#           - check-style
-#           - windows-python-39
+      - linux-python-39
+      - linux-python-38:
+          requires:
+            - check-style
+            - linux-python-39
+      - linux-python-37:
+          requires:
+            - check-style
+            - linux-python-39
+      - linux-python-36:
+          requires:
+            - check-style
+            - linux-python-39
+      - linux-python-36-oldest:
+          requires:
+            - check-style
+            - linux-python-39
+      - windows-python-39
+      - windows-python-38:
+          requires:
+            - check-style
+            - windows-python-39
+      - windows-python-37:
+          requires:
+            - check-style
+            - windows-python-39
+      - windows-python-36:
+          requires:
+            - check-style
+            - windows-python-39
 # Disabled benchmarks on CI - they currently take too much work
 #     - benchmarks:
 #         requires:
 #           - linux-python-38
-#     - test-deploy-pypi-macos:
-#         filters:
-#           branches:
-#             only: /release\/.*/
-#         requires:
-#           - check-style
-#           - linux-python-39
-#           - linux-python-38
-#           - linux-python-37
-#           - linux-python-36
-#           - linux-python-36-oldest
-#           - windows-python-39
-#           - windows-python-38
-#           - windows-python-37
-#           - windows-python-36
-#     - test-deploy-pypi-linux:
-#         filters:
-#           branches:
-#             only: /release\/.*/
-#         requires:
-#           - check-style
-#           - linux-python-39
-#           - linux-python-38
-#           - linux-python-37
-#           - linux-python-36
-#           - linux-python-36-oldest
-#           - windows-python-39
-#           - windows-python-38
-#           - windows-python-37
-#           - windows-python-36
+      - test-deploy-pypi-macos:
+          filters:
+            branches:
+              only: /release\/.*/
+          requires:
+            - check-style
+            - linux-python-39
+            - linux-python-38
+            - linux-python-37
+            - linux-python-36
+            - linux-python-36-oldest
+            - windows-python-39
+            - windows-python-38
+            - windows-python-37
+            - windows-python-36
+      - test-deploy-pypi-linux:
+          filters:
+            branches:
+              only: /release\/.*/
+          requires:
+            - check-style
+            - linux-python-39
+            - linux-python-38
+            - linux-python-37
+            - linux-python-36
+            - linux-python-36-oldest
+            - windows-python-39
+            - windows-python-38
+            - windows-python-37
+            - windows-python-36
 
-# deploy:
-#   jobs:
-#     - deploy-pypi-macos:
-#         filters:
-#             tags:
-#               only: /^v.*/
-#             branches:
-#               ignore: /.*/
-#     - deploy-pypi-linux:
-#         filters:
-#             tags:
-#               only: /^v.*/
-#             branches:
-#               ignore: /.*/
+  deploy:
+    jobs:
+      - deploy-pypi-macos:
+          filters:
+              tags:
+                only: /^v.*/
+              branches:
+                ignore: /.*/
+      - deploy-pypi-linux:
+          filters:
+              tags:
+                only: /^v.*/
+              branches:
+                ignore: /.*/
