@@ -58,6 +58,8 @@ references:
         else
           ${PYTHON} -m pip install --progress-bar off -U -r requirements-testing.txt
         fi
+        # Show the installed package versions
+        ${PYTHON} -m pip list
 
   get_conda_requirements: &get_conda_requirements
     run:
