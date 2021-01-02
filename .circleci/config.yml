@@ -27,6 +27,8 @@ references:
     run:
       name: Install dependencies
       command: |
+        # Use latest pip
+        ${PYTHON} -m pip install --user --progress-bar off --upgrade pip
         if [ "${DEPENDENCIES}" == "OLDEST" ]; then
           # Since we're testing against a very old cmake, wheels may not exist
           # for Python versions >=3.8. We will need to build the cmake wheels
@@ -350,36 +352,36 @@ workflows:
   test:
     jobs:
       - check-style
-      - linux-python-39
-      - linux-python-38:
-          requires:
-            - check-style
-            - linux-python-39
-      - linux-python-37:
-          requires:
-            - check-style
-            - linux-python-39
-      - linux-python-36:
-          requires:
-            - check-style
-            - linux-python-39
-      - linux-python-36-oldest:
-          requires:
-            - check-style
-            - linux-python-39
-      - windows-python-39
-      - windows-python-38:
-          requires:
-            - check-style
-            - windows-python-39
-      - windows-python-37:
-          requires:
-            - check-style
-            - windows-python-39
-      - windows-python-36:
-          requires:
-            - check-style
-            - windows-python-39
+#     - linux-python-39
+#     - linux-python-38:
+#         requires:
+#           - check-style
+#           - linux-python-39
+#     - linux-python-37:
+#         requires:
+#           - check-style
+#           - linux-python-39
+#     - linux-python-36:
+#         requires:
+#           - check-style
+#           - linux-python-39
+      - linux-python-36-oldest
+#         requires:
+#           - check-style
+#           - linux-python-39
+#     - windows-python-39
+#     - windows-python-38:
+#         requires:
+#           - check-style
+#           - windows-python-39
+#     - windows-python-37:
+#         requires:
+#           - check-style
+#           - windows-python-39
+#     - windows-python-36:
+#         requires:
+#           - check-style
+#           - windows-python-39
 # Disabled benchmarks on CI - they currently take too much work
 #     - benchmarks:
 #         requires:
