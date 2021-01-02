@@ -409,6 +409,7 @@ workflows:
             - linux-python-38
             - linux-python-37
             - linux-python-36
+            - linux-python-36-oldest
             - windows-python-39
             - windows-python-38
             - windows-python-37
