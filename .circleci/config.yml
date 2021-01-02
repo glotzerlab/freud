@@ -28,7 +28,7 @@ references:
       name: Install dependencies
       command: |
         # Use latest pip
-        ${PYTHON} -m pip install --user --progress-bar off --upgrade pip
+        ${PYTHON} -m pip install --progress-bar off --upgrade pip
         if [ "${DEPENDENCIES}" == "OLDEST" ]; then
           # Since we're testing against a very old cmake, wheels may not exist
           # for Python versions >=3.8. We will need to build the cmake wheels
