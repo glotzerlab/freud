@@ -16,6 +16,7 @@ freud/*.so
 freud/*.cpp
 freud/*.cxx
 freud/*.dylib
+.cache
 .coverage
 coverage_html_report
 cython_debug
