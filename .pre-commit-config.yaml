@@ -5,7 +5,7 @@ repos:
     -   id: end-of-file-fixer
         exclude: '(?:.*\.(ai|txt)|extern/.*)'
     -   id: trailing-whitespace
-        exclude: '(?:.*\.(ai|txt)|extern/|setup.cfg.*)'
+        exclude: '(?:.*\.(ai|txt)|extern/.*|setup\.cfg)'
     -   id: debug-statements
 -   repo: local
     hooks:
