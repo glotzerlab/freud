@@ -49,7 +49,7 @@ references:
             cmake==3.6.3.post1 \
             cython==0.29.14 \
             numpy==1.14.0 \
-            rowan==1.2.0 \
+            rowan==1.2.1 \
             scipy==1.1.0 \
             matplotlib==3.0.0 \
             gsd==2.0.0 \
