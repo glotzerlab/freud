@@ -44,7 +44,7 @@ references:
           ${PYTHON} -m pip install --progress-bar off \
             scikit-build==0.10.0 \
             cmake==3.6.3.post1 \
-            cython==0.29.0 \
+            cython==0.29.14 \
             numpy==1.14.0 \
             rowan==1.2.0 \
             scipy==1.1.0
