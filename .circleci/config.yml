@@ -297,14 +297,6 @@ jobs:
       PYTHON: "python3.7"
     <<: *build_and_test_linux
 
-  linux-python-36:
-    docker:
-      - image: glotzerlab/ci:2020.10-py36
-    environment:
-      PYVER: "3.6"
-      PYTHON: "python3.6"
-    <<: *build_and_test_linux
-
   linux-python-36-oldest:
     docker:
       - image: glotzerlab/ci:2020.10-py36
@@ -329,12 +321,6 @@ jobs:
   windows-python-37:
     environment:
       PYVER: "3.7"
-      <<: *windows_env
-    <<: *build_and_test_windows
-
-  windows-python-36:
-    environment:
-      PYVER: "3.6"
       <<: *windows_env
     <<: *build_and_test_windows
 
@@ -383,10 +369,6 @@ workflows:
           requires:
             - check-style
             - linux-python-39
-      - linux-python-36:
-          requires:
-            - check-style
-            - linux-python-39
       - linux-python-36-oldest:
           requires:
             - check-style
@@ -397,10 +379,6 @@ workflows:
             - check-style
             - windows-python-39
       - windows-python-37:
-          requires:
-            - check-style
-            - windows-python-39
-      - windows-python-36:
           requires:
             - check-style
             - windows-python-39
@@ -417,12 +395,10 @@ workflows:
             - linux-python-39
             - linux-python-38
             - linux-python-37
-            - linux-python-36
             - linux-python-36-oldest
             - windows-python-39
             - windows-python-38
             - windows-python-37
-            - windows-python-36
       - test-deploy-pypi-linux:
           filters:
             branches:
@@ -432,12 +408,10 @@ workflows:
             - linux-python-39
             - linux-python-38
             - linux-python-37
-            - linux-python-36
             - linux-python-36-oldest
             - windows-python-39
             - windows-python-38
             - windows-python-37
-            - windows-python-36
 
   deploy:
     jobs:
