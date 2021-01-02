@@ -27,8 +27,12 @@ references:
     run:
       name: Install dependencies
       command: |
-        # Use latest pip
-        ${PYTHON} -m pip install --progress-bar off --upgrade pip
+        # Create a virtual environment to ignore the CI image's pre-installed packages
+        ${PYTHON} -m pip install --progress-bar off --upgrade virtualenv --user
+        mkdir -p ./venv
+        ${PYTHON} -m virtualenv ./venv --clear
+        . venv/bin/activate
+        ${PYTHON} -m pip install --progress-bar off --upgrade pip virtualenv
         if [ "${DEPENDENCIES}" == "OLDEST" ]; then
           # Since we're testing against a very old cmake, wheels may not exist
           # for Python versions >=3.8. We will need to build the cmake wheels
@@ -89,6 +93,9 @@ references:
     run:
       name: Build
       command: |
+        if [ -d "venv" ]; then
+          . venv/bin/activate
+        fi
         ${PYTHON} --version
         # Max 4 threads to not overtax CI.
         ${PYTHON} setup.py build_ext --inplace -- -DCOVERAGE=ON -- -j 4 -v
@@ -108,14 +115,17 @@ references:
     run:
       name: Run unit tests
       command: |
-          ${PYTHON} -m unittest discover tests -v
+        if [ -d "venv" ]; then
+          . venv/bin/activate
+        fi
+        ${PYTHON} -m unittest discover tests -v
 
   test_cov: &test_cov
     run:
       name: Run unit tests with coverage
       command: |
-          ${PYTHON} -m coverage run -m unittest discover tests -v
-          bash <(curl -s https://codecov.io/bash)
+        ${PYTHON} -m coverage run -m unittest discover tests -v
+        bash <(curl -s https://codecov.io/bash)
 
   store: &store
     store_artifacts:
@@ -126,30 +136,30 @@ references:
     run:
       name: Run benchmarks
       command: |
-          echo 'export PYTHONPATH=$PYTHONPATH:.' >> $BASH_ENV
-          echo 'export BENCHMARK_NPROC=2' >> $BASH_ENV
-          source $BASH_ENV
-          BENCHSCR="benchmarks/benchmarker.py"
-          echo "Running benchmark on current HEAD"
-          ${PYTHON} "$BENCHSCR" run
+        echo 'export PYTHONPATH=$PYTHONPATH:.' >> $BASH_ENV
+        echo 'export BENCHMARK_NPROC=2' >> $BASH_ENV
+        source $BASH_ENV
+        BENCHSCR="benchmarks/benchmarker.py"
+        echo "Running benchmark on current HEAD"
+        ${PYTHON} "$BENCHSCR" run
 
   comparison: &comparison
     run:
       name: Compare benchmark with origin/master
       command: |
-          echo "Comparing with origin/master"
-          git reset --hard origin/master
-          echo "PYVER=${PYVER}"
-          echo 'export PYTHONPATH=$PYTHONPATH:.' >> $BASH_ENV
-          echo 'export BENCHMARK_NPROC=2' >> $BASH_ENV
-          source $BASH_ENV
-          # Max 4 threads to not overtax CI.
-          ${PYTHON} setup.py build_ext --inplace -- -DCOVERAGE=ON -- -j 4
-          git checkout "${CIRCLE_SHA1}" -- benchmarks/
-          BENCHSCR="benchmarks/benchmarker.py"
-          echo "Running benchmark on origin/master"
-          ${PYTHON} "$BENCHSCR" run
-          ${PYTHON} "$BENCHSCR" compare origin/master "${CIRCLE_SHA1}"
+        echo "Comparing with origin/master"
+        git reset --hard origin/master
+        echo "PYVER=${PYVER}"
+        echo 'export PYTHONPATH=$PYTHONPATH:.' >> $BASH_ENV
+        echo 'export BENCHMARK_NPROC=2' >> $BASH_ENV
+        source $BASH_ENV
+        # Max 4 threads to not overtax CI.
+        ${PYTHON} setup.py build_ext --inplace -- -DCOVERAGE=ON -- -j 4
+        git checkout "${CIRCLE_SHA1}" -- benchmarks/
+        BENCHSCR="benchmarks/benchmarker.py"
+        echo "Running benchmark on origin/master"
+        ${PYTHON} "$BENCHSCR" run
+        ${PYTHON} "$BENCHSCR" compare origin/master "${CIRCLE_SHA1}"
 
   store_benchmarks: &store_benchmarks
     store_artifacts:
