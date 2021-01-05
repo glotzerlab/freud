@@ -32,7 +32,7 @@ references:
         mkdir -p ./venv
         ${PYTHON} -m virtualenv ./venv --clear
         . venv/bin/activate
-        ${PYTHON} -m pip install --progress-bar off --upgrade pip virtualenv
+        ${PYTHON} -m pip install --progress-bar off --upgrade pip
         if [ "${DEPENDENCIES}" == "OLDEST" ]; then
           # Since we're testing against a very old cmake, wheels may not exist
           # for Python versions >=3.8. We will need to build the cmake wheels
