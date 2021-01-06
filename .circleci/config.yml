@@ -27,15 +27,39 @@ references:
     run:
       name: Install dependencies
       command: |
-        # Since we're testing against a very old cmake, wheels may not exist
-        # for Python versions >=3.8. We will need to build the cmake wheels
-        # from a tarball in this case, and cmake depends on scikit-build, so we
-        # install skbuild separately here. Note that newer cmake versions build
-        # universal wheels instead, so once we upgrade to cmake >=3.14 we
-        # won't be dependent on them updating wheels for specific new Python
-        # versions.
-        ${PYTHON} -m pip install --user --progress-bar off scikit-build==0.10.0
-        ${PYTHON} -m pip install --user --progress-bar off -U -r requirements-testing.txt
+        # Create a virtual environment to ignore the CI image's pre-installed packages
+        ${PYTHON} -m pip install --progress-bar off --upgrade virtualenv --user
+        mkdir -p ./venv
+        ${PYTHON} -m virtualenv ./venv --clear
+        . venv/bin/activate
+        ${PYTHON} -m pip install --progress-bar off --upgrade pip
+        if [ "${DEPENDENCIES}" == "OLDEST" ]; then
+          # Since we're testing against a very old cmake, wheels may not exist
+          # for Python versions >=3.8. We will need to build the cmake wheels
+          # from a tarball in this case, and cmake depends on scikit-build, so we
+          # install skbuild separately here. Note that newer cmake versions build
+          # universal wheels instead, so once we upgrade to cmake >=3.14 we
+          # won't be dependent on them updating wheels for specific new Python
+          # versions.
+          #
+          # Some requirements below are not strictly the lowest versions, and
+          # are only needed for testing.
+          ${PYTHON} -m pip install --progress-bar off \
+            scikit-build==0.10.0 \
+            cmake==3.6.3.post1 \
+            cython==0.29.14 \
+            numpy==1.14.0 \
+            rowan==1.2.1 \
+            scipy==1.1.0 \
+            matplotlib==3.0.0 \
+            gsd==2.0.0 \
+            garnett==0.7.1 \
+            sympy==1.0
+        else
+          ${PYTHON} -m pip install --progress-bar off -U -r requirements-testing.txt
+        fi
+        # Show the installed package versions
+        ${PYTHON} -m pip list
 
   get_conda_requirements: &get_conda_requirements
     run:
@@ -78,6 +102,9 @@ references:
     run:
       name: Build
       command: |
+        if [ -d "venv" ]; then
+          . venv/bin/activate
+        fi
         ${PYTHON} --version
         # Max 4 threads to not overtax CI.
         ${PYTHON} setup.py build_ext --inplace -- -DCOVERAGE=ON -- -j 4 -v
@@ -97,14 +124,20 @@ references:
     run:
       name: Run unit tests
       command: |
-          ${PYTHON} -m unittest discover tests -v
+        if [ -d "venv" ]; then
+          . venv/bin/activate
+        fi
+        ${PYTHON} -m unittest discover tests -v
 
   test_cov: &test_cov
     run:
       name: Run unit tests with coverage
       command: |
-          ${PYTHON} -m coverage run -m unittest discover tests -v
-          bash <(curl -s https://codecov.io/bash)
+        if [ -d "venv" ]; then
+          . venv/bin/activate
+        fi
+        ${PYTHON} -m coverage run -m unittest discover tests -v
+        bash <(curl -s https://codecov.io/bash)
 
   store: &store
     store_artifacts:
@@ -115,30 +148,30 @@ references:
     run:
       name: Run benchmarks
       command: |
-          echo 'export PYTHONPATH=$PYTHONPATH:.' >> $BASH_ENV
-          echo 'export BENCHMARK_NPROC=2' >> $BASH_ENV
-          source $BASH_ENV
-          BENCHSCR="benchmarks/benchmarker.py"
-          echo "Running benchmark on current HEAD"
-          ${PYTHON} "$BENCHSCR" run
+        echo 'export PYTHONPATH=$PYTHONPATH:.' >> $BASH_ENV
+        echo 'export BENCHMARK_NPROC=2' >> $BASH_ENV
+        source $BASH_ENV
+        BENCHSCR="benchmarks/benchmarker.py"
+        echo "Running benchmark on current HEAD"
+        ${PYTHON} "$BENCHSCR" run
 
   comparison: &comparison
     run:
       name: Compare benchmark with origin/master
       command: |
-          echo "Comparing with origin/master"
-          git reset --hard origin/master
-          echo "PYVER=${PYVER}"
-          echo 'export PYTHONPATH=$PYTHONPATH:.' >> $BASH_ENV
-          echo 'export BENCHMARK_NPROC=2' >> $BASH_ENV
-          source $BASH_ENV
-          # Max 4 threads to not overtax CI.
-          ${PYTHON} setup.py build_ext --inplace -- -DCOVERAGE=ON -- -j 4
-          git checkout "${CIRCLE_SHA1}" -- benchmarks/
-          BENCHSCR="benchmarks/benchmarker.py"
-          echo "Running benchmark on origin/master"
-          ${PYTHON} "$BENCHSCR" run
-          ${PYTHON} "$BENCHSCR" compare origin/master "${CIRCLE_SHA1}"
+        echo "Comparing with origin/master"
+        git reset --hard origin/master
+        echo "PYVER=${PYVER}"
+        echo 'export PYTHONPATH=$PYTHONPATH:.' >> $BASH_ENV
+        echo 'export BENCHMARK_NPROC=2' >> $BASH_ENV
+        source $BASH_ENV
+        # Max 4 threads to not overtax CI.
+        ${PYTHON} setup.py build_ext --inplace -- -DCOVERAGE=ON -- -j 4
+        git checkout "${CIRCLE_SHA1}" -- benchmarks/
+        BENCHSCR="benchmarks/benchmarker.py"
+        echo "Running benchmark on origin/master"
+        ${PYTHON} "$BENCHSCR" run
+        ${PYTHON} "$BENCHSCR" compare origin/master "${CIRCLE_SHA1}"
 
   store_benchmarks: &store_benchmarks
     store_artifacts:
@@ -264,12 +297,13 @@ jobs:
       PYTHON: "python3.7"
     <<: *build_and_test_linux
 
-  linux-python-36:
+  linux-python-36-oldest:
     docker:
       - image: glotzerlab/ci:2020.10-py36
     environment:
       PYVER: "3.6"
       PYTHON: "python3.6"
+      DEPENDENCIES: "OLDEST"
     <<: *build_and_test_linux
 
   windows-python-39:
@@ -287,12 +321,6 @@ jobs:
   windows-python-37:
     environment:
       PYVER: "3.7"
-      <<: *windows_env
-    <<: *build_and_test_windows
-
-  windows-python-36:
-    environment:
-      PYVER: "3.6"
       <<: *windows_env
     <<: *build_and_test_windows
 
@@ -341,7 +369,7 @@ workflows:
           requires:
             - check-style
             - linux-python-39
-      - linux-python-36:
+      - linux-python-36-oldest:
           requires:
             - check-style
             - linux-python-39
@@ -351,10 +379,6 @@ workflows:
             - check-style
             - windows-python-39
       - windows-python-37:
-          requires:
-            - check-style
-            - windows-python-39
-      - windows-python-36:
           requires:
             - check-style
             - windows-python-39
@@ -371,11 +395,10 @@ workflows:
             - linux-python-39
             - linux-python-38
             - linux-python-37
-            - linux-python-36
+            - linux-python-36-oldest
             - windows-python-39
             - windows-python-38
             - windows-python-37
-            - windows-python-36
       - test-deploy-pypi-linux:
           filters:
             branches:
@@ -385,11 +408,10 @@ workflows:
             - linux-python-39
             - linux-python-38
             - linux-python-37
-            - linux-python-36
+            - linux-python-36-oldest
             - windows-python-39
             - windows-python-38
             - windows-python-37
-            - windows-python-36
 
   deploy:
     jobs:
