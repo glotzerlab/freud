@@ -132,7 +132,7 @@ template<typename Iterator> unsigned int NeighborList::filter(Iterator begin)
     auto new_weights = util::ManagedArray<float>(new_size);
 
     auto current_element = begin;
-    auto num_good = 0;
+    unsigned int num_good(0);
     for (unsigned int i(0); i < old_size; ++i)
     {
         if (*current_element)
