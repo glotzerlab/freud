@@ -33,12 +33,12 @@ Compile from source
 The following are **required** for installing **freud**:
 
 - A C++14-compliant compiler
-- `Python <https://www.python.org/>`__ (>=Python 3.6)
-- `NumPy <https://www.numpy.org/>`__
+- `Python <https://www.python.org/>`__ (>=3.6)
+- `NumPy <https://www.numpy.org/>`__ (>=1.14)
 - `Intel Threading Building Blocks <https://www.threadingbuildingblocks.org/>`__
-- `Cython <https://cython.org/>`__ (>=0.29)
+- `Cython <https://cython.org/>`__ (>=0.29.14)
 - `scikit-build <https://scikit-build.readthedocs.io/>`__ (>=0.10.0)
-- `CMake <https://cmake.org/>`__ (>=3.3.0)
+- `CMake <https://cmake.org/>`__ (>=3.6.3)
 
 .. note::
 
@@ -79,8 +79,6 @@ You can also build **freud** in place so that you can run from within the folder
     python setup.py build_ext --inplace
 
 Building **freud** in place has certain advantages, since it does not affect your Python behavior except within the **freud** directory itself (where **freud** can be imported after building).
-Additionally, due to limitations inherent to the distutils/setuptools infrastructure, building extension modules can only be parallelized using the build_ext subcommand of setup.py, not with install.
-As a result, it will be faster to manually run build_ext and then install (which normally calls build_ext under the hood anyway) the built packages.
 
 CMake Options
 +++++++++++++
@@ -107,17 +105,14 @@ The **freud** CMake configuration also respects the following environment variab
 
 .. glossary::
 
-    TBB_ROOT
+    TBBROOT
       The root directory where TBB is installed.
-      Useful if TBB is installed in a non-standard location or cannot be located by Python for some other reason.
+      Useful if TBB is installed in a non-standard location or cannot be located for some other reason.
+      This variable is set by the ``tbbvars.sh`` script included with TBB when building from source.
 
-    TBB_INCLUDE
+    TBB_INCLUDE_DIR
       The directory where the TBB headers (e.g. ``tbb.h``) are located.
-      Useful if TBB is installed in a non-standard location or cannot be located by Python for some other reason.
-
-    TBB_LINK
-      The directory where the TBB shared library (e.g. ``libtbb.so`` or ``libtbb.dylib``) is located.
-      Useful if TBB is installed in a non-standard location or cannot be located by Python for some other reason.
+      Useful if TBB is installed in a non-standard location or cannot be located for some other reason.
 
 .. note::
 

@@ -57,6 +57,7 @@ The examples below go into greater detail about specific applications of **freud
     examples/examples/LAMMPS-LJ-MSD/LAMMPS-LJ-MSD
     examples/examples/Using Machine Learning for Structural Identification
     examples/examples/Handling Multiple Particle Types (A-B Bonds)
+    examples/examples/Calculating RDF from GSD files
     examples/examples/Calculating Strain via Voxelization
     examples/examples/Visualization with fresnel
     examples/examples/Visualization with plato

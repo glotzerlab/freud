@@ -1236,12 +1236,12 @@ cdef class Voronoi(_Compute):
             ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
                 :code:`None`, make a new figure and axis.
                 (Default value = :code:`None`)
-        color_by_sides (bool):
-            If :code:`True`, color cells by the number of sides.
-            If :code:`False`, random colors are used for each cell.
-            (Default value = :code:`True`)
-        cmap (str):
-            Colormap name to use (Default value = :code:`None`).
+            color_by_sides (bool):
+                If :code:`True`, color cells by the number of sides.
+                If :code:`False`, random colors are used for each cell.
+                (Default value = :code:`True`)
+            cmap (str):
+                Colormap name to use (Default value = :code:`None`).
 
         Returns:
             :class:`matplotlib.axes.Axes`: Axis with the plot.

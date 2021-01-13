@@ -1,10 +1,10 @@
-  2060	Vyas Ramasubramani <vramasub@umich.edu>
-  1729	Bradley Dice <bdice@bradleydice.com>
+  2066	Vyas Ramasubramani <vramasub@umich.edu>
+  1773	Bradley Dice <bdice@bradleydice.com>
   1030	Eric Harper <harperic@umich.edu>
    456	Jin Soo Ihm <jinihm@umich.edu>
    278	Joshua A. Anderson <joaander@umich.edu>
    240	Matthew Spellings <mspells@umich.edu>
-   155	Kelly Wang <kelwang@umich.edu>
+   159	Kelly Wang <kelwang@umich.edu>
    110	Erin Teich <erteich@umich.edu>
     66	M. Eric Irrgang <eirrgang@umich.edu>
     53	Chrisy Du <xiyudu@umich.edu>
