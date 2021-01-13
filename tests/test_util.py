@@ -29,6 +29,10 @@ class TestCommon(unittest.TestCase):
         z = freud.util._convert_array(y, (None, None), copy='copy')
         npt.assert_equal((z is y), False)
         # now test copy=inplace
+        y_new = y.T.astype(np.float32)
+        z = freud.util._convert_array(y_new, (None, None), copy='inplace')
+        npt.assert_equal((z is y_new), True)
+        # now check the exception of copy=inplace
         with self.assertRaises(Exception):
             z = freud.util._convert_array(y, (None, None), copy='inplace')
 
