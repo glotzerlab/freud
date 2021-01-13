@@ -133,7 +133,7 @@ class TestBox(unittest.TestCase):
 
         points = np.array(points, dtype=np.float32)
         npt.assert_equal(box.wrap(points), box.wrap(points, inplace=True))
-
+    
     def test_unwrap(self):
         box = freud.box.Box(2, 2, 2, 1, 0, 0)
 
