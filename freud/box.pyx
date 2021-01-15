@@ -310,7 +310,7 @@ cdef class Box:
                                                  copy='inplace')
             Np = vecs.shape[0]
             self.thisptr.wrap(<vec3[float]*> &l_points[0, 0], Np)
-            return vecs
+
         else:
             vecs = freud.util._convert_array(vecs, shape=(None, 3)).copy()
             Np = vecs.shape[0]
