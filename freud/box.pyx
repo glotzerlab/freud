@@ -316,7 +316,7 @@ cdef class Box:
             Np = vecs.shape[0]
             l_points = vecs
             self.thisptr.wrap(<vec3[float]*> &l_points[0, 0], Np)
-            
+
         return np.squeeze(vecs) if flatten else vecs
 
     def unwrap(self, vecs, imgs):
