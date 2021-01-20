@@ -281,7 +281,7 @@ cdef class Box:
         :math:`(xz*L_z, yz*L_z, L_z)`."""
         return self.get_box_vector(2)
 
-    def wrap(self, vecs):
+    def wrap(self, vecs, out=None):
         R"""Wrap an array of vectors into the box, using periodic boundaries.
 
         .. note:: Since the origin of the box is in the center, wrapping is
@@ -291,6 +291,9 @@ cdef class Box:
         Args:
             vecs (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Unwrapped vector(s).
+            out (:class:`numpy.ndarray` or :code:`None`):
+                If None, a new allocation is used for the returned array.
+                The array provided must have the same shape as the input array.
 
         Returns:
             :math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
@@ -299,13 +302,22 @@ cdef class Box:
         vecs = np.asarray(vecs)
         flatten = vecs.ndim == 1
         vecs = np.atleast_2d(vecs)
-        vecs = freud.util._convert_array(vecs, shape=(None, 3)).copy()
 
-        cdef const float[:, ::1] l_points = vecs
-        cdef unsigned int Np = l_points.shape[0]
-        self.thisptr.wrap(<vec3[float]*> &l_points[0, 0], Np)
+        cdef const float[:, ::1] l_points
+        cdef unsigned int Np
 
-        return np.squeeze(vecs) if flatten else vecs
+        if out is not None:
+            l_points = freud.util._convert_array(vecs, shape=(None, 3),
+                                                out=vecs)
+            np.copyto(out, l_points)
+            Np = l_points.shape[0]
+            self.thisptr.wrap(<vec3[float]*> &l_points[0, 0], Np)
+        else:
+            l_points = freud.util._convert_array(vecs, shape=(None, 3))
+            Np = l_points.shape[0]
+            self.thisptr.wrap(<vec3[float]*> &l_points[0, 0], Np)
+    
+        return np.squeeze(l_points) if flatten else l_points
 
     def unwrap(self, vecs, imgs):
         R"""Unwrap an array of vectors inside the box back into real space,

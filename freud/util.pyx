@@ -195,7 +195,7 @@ cdef class _Compute(object):
         return repr(self)
 
 
-def _convert_array(array, shape=None, dtype=np.float32):
+def _convert_array(array, shape=None, out=None, dtype=np.float32):
     """Function which takes a given array, checks the dimensions and shape,
     and converts to a supplied dtype.
 
@@ -204,6 +204,10 @@ def _convert_array(array, shape=None, dtype=np.float32):
         shape: (tuple of int and :code:`None`): Expected shape of the array.
             Only the dimensions that are not :code:`None` are checked.
             (Default value = :code:`None`).
+        out (:class:`numpy.ndarray` or :code:`None`):
+            If None, a new allocation is used for the returned array.
+            The array provided must have the same shape as the input array.
+
         dtype: :code:`dtype` to convert the array to if :code:`array.dtype`
             is different. If :code:`None`, :code:`dtype` will not be changed
             (Default value = :class:`numpy.float32`).
@@ -211,10 +215,14 @@ def _convert_array(array, shape=None, dtype=np.float32):
     Returns:
         :class:`numpy.ndarray`: Array.
     """
-    array = np.asarray(array)
+    if out is None:
+        out = np.empty_like(array, dtype=dtype, order='C')
+
     return_arr = np.require(array, dtype=dtype, requirements=['C'])
+    np.copyto(out, return_arr)
+
     if shape is not None:
-        if array.ndim != len(shape):
+        if return_arr.ndim != len(shape):
             raise ValueError("array.ndim = {}; expected ndim = {}".format(
                 return_arr.ndim, len(shape)))
 
@@ -225,7 +233,7 @@ def _convert_array(array, shape=None, dtype=np.float32):
                 raise ValueError('array.shape= {}; expected shape = {}'.format(
                     return_arr.shape, shape_str))
 
-    return return_arr
+    return out
 
 
 def _convert_box(box, dimensions=None):

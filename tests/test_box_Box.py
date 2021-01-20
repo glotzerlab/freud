@@ -114,6 +114,12 @@ class TestBox(unittest.TestCase):
         points = np.array(points)
         npt.assert_allclose(box.wrap(points)[0, 0], -2, rtol=1e-6)
 
+    def test_out_is_input_array(self):
+        box = freud.box.Box(2, 2, 2, 1, 0, 0)
+        points = [[10, -5, -5], [0, 0.5, 0]]
+        points = np.array(points, dtype=np.float32)
+        npt.assert_allclose(box.wrap(points, out=points)[0, 0], -2, rtol=1e-6)
+
     def test_unwrap(self):
         box = freud.box.Box(2, 2, 2, 1, 0, 0)
 
