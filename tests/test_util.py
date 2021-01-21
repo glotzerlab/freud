@@ -39,6 +39,29 @@ class TestCommon(unittest.TestCase):
         # test dimension checking
         with self.assertRaises(ValueError):
             z = freud.util._convert_array(y, (None, ), dtype=np.float32)
+        
+        # test for out argument provided with the input array
+        y_new = y.T.astype(np.float32)
+        z = freud.util._convert_array(y_new, (None, None), out=y_new)
+        npt.assert_equal((z is y_new), True)
+
+        # test for out argument provided with a different array
+        a = np.arange(100, 200, 1).reshape(10, 10).astype(np.float32)
+        y_new = y.T.astype(np.float32)
+        z = freud.util._convert_array(y_new, (None, None), out=a)
+        npt.assert_equal(z, a)
+
+        # test for out argument provided with an array of wrong shape
+        a = np.arange(100, 200, 1).astype(np.float32)
+        y_new = y.T.astype(np.float32)
+        with self.assertRaises(ValueError):
+            z = freud.util._convert_array(y_new, (None, None), out=a)
+
+        # test for out argument provided with an array of wrong data type
+        a = np.arange(100, 200, 1).reshape(10, 10)
+        y_new = y.T.astype(np.float32)
+        with self.assertRaises(TypeError):
+            z = freud.util._convert_array(y_new, (None, None), out=a)
 
         # test for non-default dtype
         z = freud.util._convert_array(y, dtype=np.float64)

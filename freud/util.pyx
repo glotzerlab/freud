@@ -195,7 +195,7 @@ cdef class _Compute(object):
         return repr(self)
 
 
-def _convert_array(array, shape=None, dtype=np.float32, copy='default'):
+def _convert_array(array, shape=None, out=None, dtype=np.float32):
     """Function which takes a given array, checks the dimensions and shape,
     and converts to a supplied dtype.
 
@@ -204,28 +204,22 @@ def _convert_array(array, shape=None, dtype=np.float32, copy='default'):
         shape: (tuple of int and :code:`None`): Expected shape of the array.
             Only the dimensions that are not :code:`None` are checked.
             (Default value = :code:`None`).
+        out (:class:`numpy.ndarray` or :code:`None`):
+            If None, a new allocation is used for the returned array.
+            The array provided must have the same shape as the input array.
+
         dtype: :code:`dtype` to convert the array to if :code:`array.dtype`
             is different. If :code:`None`, :code:`dtype` will not be changed
             (Default value = :class:`numpy.float32`).
-        copy (str):
-            If :code:''default'', whether to make a copy of the input array
-            is determined by :class:`numpy.require` internally.
-            If :code:''inplace'', never makes a copy.
-            If :code:''copy'', always returns a copy of the input array.
-            (Default value = :code:'default').
 
     Returns:
         :class:`numpy.ndarray`: Array.
     """
-    if copy is 'default':
-        return_arr = np.require(array, dtype=dtype, requirements=['C'])
-    elif copy is 'inplace':
-        return_arr = np.require(array, dtype=dtype, requirements=['C'])
-        if return_arr is not array:
-            raise Exception("Requirements dtype = {}".format(dtype),
-                            "and C-contiguous not satisfied. A copy was made")
-    elif copy is 'copy':
-        return_arr = np.array(array, dtype=dtype, order='C')
+    if out is None:
+        out = np.empty_like(array, dtype=dtype, order='C')
+
+    return_arr = np.require(array, dtype=dtype, requirements=['C'])
+    np.copyto(out, return_arr)
 
     if shape is not None:
         if return_arr.ndim != len(shape):
@@ -239,7 +233,7 @@ def _convert_array(array, shape=None, dtype=np.float32, copy='default'):
                 raise ValueError('array.shape= {}; expected shape = {}'.format(
                     return_arr.shape, shape_str))
 
-    return return_arr
+    return out
 
 
 def _convert_box(box, dimensions=None):

@@ -113,26 +113,11 @@ class TestBox(unittest.TestCase):
         points = np.array(points)
         npt.assert_allclose(box.wrap(points)[0, 0], -2, rtol=1e-6)
 
-    def test_wrap_inplace(self):
-        # Test inplace = True modifies the input array
+    def test_out_is_input_array(self):
         box = freud.box.Box(2, 2, 2, 1, 0, 0)
-
         points = [[10, -5, -5], [0, 0.5, 0]]
-        with self.assertRaises(Exception):
-            box.wrap(points, inplace=True)
-
         points = np.array(points, dtype=np.float32)
-        npt.assert_equal((box.wrap(points, inplace=True) is points), True)
-
-        # Test inplace = True gives the same results as inplace = False
-        box = freud.box.Box(2, 2, 2, 1, 0, 0)
-
-        points = [[10, -5, -5], [0, 0.5, 0]]
-        with self.assertRaises(Exception):
-            box.wrap(points, inplace=True)
-
-        points = np.array(points, dtype=np.float32)
-        npt.assert_equal(box.wrap(points), box.wrap(points, inplace=True))
+        npt.assert_allclose(box.wrap(points, out=points)[0, 0], -2, rtol=1e-6)
 
     def test_unwrap(self):
         box = freud.box.Box(2, 2, 2, 1, 0, 0)

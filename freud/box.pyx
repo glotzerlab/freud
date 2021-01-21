@@ -281,7 +281,7 @@ cdef class Box:
         :math:`(xz*L_z, yz*L_z, L_z)`."""
         return self.get_box_vector(2)
 
-    def wrap(self, vecs, inplace=False):
+    def wrap(self, vecs, out=None):
         R"""Wrap an array of vectors into the box, using periodic boundaries.
 
         .. note:: Since the origin of the box is in the center, wrapping is
@@ -291,9 +291,9 @@ cdef class Box:
         Args:
             vecs (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Unwrapped vector(s).
-            inplace (bool):
-                Whether to operate on vectors in place and overwrite input
-                data (Default value: False).
+            out (:class:`numpy.ndarray` or :code:`None`):
+                If None, a new allocation is used for the returned array.
+                The array provided must have the same shape as the input array.
 
         Returns:
             :math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
@@ -305,19 +305,19 @@ cdef class Box:
 
         cdef const float[:, ::1] l_points
         cdef unsigned int Np
-        if inplace:
+
+        if out is not None:
             l_points = freud.util._convert_array(vecs, shape=(None, 3),
-                                                 copy='inplace')
-            Np = vecs.shape[0]
+                                                out=vecs)
+            np.copyto(out, l_points)
+            Np = l_points.shape[0]
             self.thisptr.wrap(<vec3[float]*> &l_points[0, 0], Np)
-
         else:
-            vecs = freud.util._convert_array(vecs, shape=(None, 3)).copy()
-            Np = vecs.shape[0]
-            l_points = vecs
+            l_points = freud.util._convert_array(vecs, shape=(None, 3))
+            Np = l_points.shape[0]
             self.thisptr.wrap(<vec3[float]*> &l_points[0, 0], Np)
-
-        return np.squeeze(vecs) if flatten else vecs
+    
+        return np.squeeze(l_points) if flatten else l_points
 
     def unwrap(self, vecs, imgs):
         R"""Unwrap an array of vectors inside the box back into real space,
