@@ -39,7 +39,7 @@ class TestCommon(unittest.TestCase):
         # test dimension checking
         with self.assertRaises(ValueError):
             z = freud.util._convert_array(y, (None, ), dtype=np.float32)
-        
+
         # test for out argument provided with the input array
         y_new = y.T.astype(np.float32)
         z = freud.util._convert_array(y_new, (None, None), out=y_new)

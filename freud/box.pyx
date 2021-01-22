@@ -308,7 +308,7 @@ cdef class Box:
 
         if out is not None:
             l_points = freud.util._convert_array(vecs, shape=(None, 3),
-                                                out=vecs)
+                                                 out=vecs)
             np.copyto(out, l_points)
             Np = l_points.shape[0]
             self.thisptr.wrap(<vec3[float]*> &l_points[0, 0], Np)
@@ -316,7 +316,7 @@ cdef class Box:
             l_points = freud.util._convert_array(vecs, shape=(None, 3))
             Np = l_points.shape[0]
             self.thisptr.wrap(<vec3[float]*> &l_points[0, 0], Np)
-    
+
         return np.squeeze(l_points) if flatten else l_points
 
     def unwrap(self, vecs, imgs):
