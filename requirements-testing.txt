@@ -1,5 +1,5 @@
 cmake==3.18.4.post1
-coverage==5.3.1
+coverage==5.4
 cython==0.29.21
 garnett==0.7.1
 GitPython==3.1.11
