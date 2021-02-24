@@ -42,10 +42,11 @@ cdef class CorrelationFunction(_SpatialHistogram1D):
     given radial distance :math:`r`.
 
     The values of :math:`r` where the correlation function is computed are
-    controlled by the :code:`r_max` and :code:`dr` parameters to the
-    constructor. :code:`r_max` determines the maximum distance at which to
-    compute the correlation function and :code:`dr` is the step size for each
-    bin.
+    controlled by the :code:`bins` and :code:`r_max` parameters to the
+    constructor.
+    :code:`bins` is the number of bins in the histogram used to construct the
+    correlation function and :code:`r_max` determines the maximum distance at
+    which to compute the correlation function.
 
     .. note::
         **Self-correlation:** It is often the case that we wish to compute the
