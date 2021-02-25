@@ -40,13 +40,10 @@ cdef class CorrelationFunction(_SpatialHistogram1D):
     and :math:`s_2` (:code:`query_values`). Computing the correlation function
     results in an array of the expected (average) product of all values at a
     given radial distance :math:`r`.
-
     The values of :math:`r` where the correlation function is computed are
     controlled by the :code:`bins` and :code:`r_max` parameters to the
-    constructor.
-    :code:`bins` is the number of bins in the histogram used to construct the
-    correlation function and :code:`r_max` determines the maximum distance at
-    which to compute the correlation function.
+    constructor, and the spacing between the bins is given by
+    :code:`dr = r_max / bins`.
 
     .. note::
         **Self-correlation:** It is often the case that we wish to compute the
@@ -57,7 +54,7 @@ cdef class CorrelationFunction(_SpatialHistogram1D):
 
     Args:
         bins (unsigned int):
-            The number of bins in the RDF.
+            The number of bins in the correlation function.
         r_max (float):
             Maximum pointwise distance to include in the calculation.
     """  # noqa E501
