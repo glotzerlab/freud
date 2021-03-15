@@ -42,11 +42,11 @@ def lm_index(l, m):
 
 
 @lru_cache(maxsize=None)
-def get_wigner3j(l, m1, m2, m3, wigner):
-    return float(wigner.wigner_3j(l, l, l, m1, m2, m3))
+def get_wigner3j(l, m1, m2, m3):
+    return float(wigner_3j(l, l, l, m1, m2, m3))
 
 
-def get_wl(p, descriptors, nlist, wigner):
+def get_wl(p, descriptors, nlist):
     """Given a set of points and a LocalDescriptors object (and the
     underlying neighborlist), compute the per-particle Steinhardt wl
     order parameter for all :math:`l` values up to the maximum quantum
@@ -71,7 +71,7 @@ def get_wl(p, descriptors, nlist, wigner):
                             phase *= -1
                     wl[i, l] += (
                         phase
-                        * get_wigner3j(l, m1, m2, m3, wigner)
+                        * get_wigner3j(l, m1, m2, m3)
                         * qbar_lm[i, lm_index(l, m1)]
                         * qbar_lm[i, lm_index(l, m2)]
                         * qbar_lm[i, lm_index(l, m3)]
@@ -300,7 +300,6 @@ class TestLocalDescriptors:
 
     def test_wl(self):
         """Check if we can reproduce Steinhardt wl."""
-        wigner = pytest.importorskip('sympy.physics.wigner')
         # These exact parameter values aren't important; they won't necessarily
         # give useful outputs for some of the structures, but that's fine since
         # we just want to check that LocalDescriptors is consistent with
@@ -324,7 +323,7 @@ class TestLocalDescriptors:
             ld = freud.environment.LocalDescriptors(l_max, mode="global")
             ld.compute((box, points), neighbors=nl)
 
-            wl = get_wl(points, ld, nl, wigner)
+            wl = get_wl(points, ld, nl)
 
             # Test all allowable values of l.
             for L in range(2, l_max + 1):

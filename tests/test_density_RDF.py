@@ -176,7 +176,9 @@ class TestRDF:
         npt.assert_array_equal(rdf.rdf, np.zeros(bins))
         npt.assert_array_equal(rdf.n_r, np.zeros(bins))
 
-    @pytest.mark.skipif(NumpyVersion(np.__version__) < "1.15.0", reason="Requires numpy>=1.15.0.")
+    @pytest.mark.skipif(
+        NumpyVersion(np.__version__) < "1.15.0", reason="Requires numpy>=1.15.0."
+    )
     def test_bin_precision(self):
         # Ensure bin edges are precise
         bins = 500

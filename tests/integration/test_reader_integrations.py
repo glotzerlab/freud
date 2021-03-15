@@ -1,9 +1,9 @@
 import os
 import sys
 
-import pytest
 import numpy as np
 import numpy.testing as npt
+import pytest
 
 import freud
 
@@ -34,7 +34,9 @@ class TestReaderIntegrations:
             ql.compute(system, neighbors={"num_neighbors": 6})
         npt.assert_allclose(rdf.rdf, LJ_RDF, rtol=1e-5, atol=1e-5)
 
-    @pytest.mark.skipif(sys.platform.startswith("win"), reason="Not supported on Windows.")
+    @pytest.mark.skipif(
+        sys.platform.startswith("win"), reason="Not supported on Windows."
+    )
     @pytest.mark.skipif(not MDANALYSIS, reason="MDAnalysis is not installed.")
     def test_mdanalysis_gsd(self):
         reader = MDAnalysis.coordinates.GSD.GSDReader(LJ_GSD)

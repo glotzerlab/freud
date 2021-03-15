@@ -12,7 +12,6 @@ matplotlib.use("agg")
 
 
 class TestBox:
-
     def test_construct(self):
         """Test correct behavior for various constructor signatures"""
         with pytest.raises(ValueError):
