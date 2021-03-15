@@ -328,23 +328,19 @@ jobs:
     environment:
       # Force clone over https instead of ssh.
       CIRCLE_REPOSITORY_URL: https://github.com/glotzerlab/freud
-    <<: *container_manylinux
-    <<: *build_linux_test_wheels
+    <<: [*container_manylinux, *build_linux_test_wheels]
 
   test-deploy-pypi-macos:
-    <<: *container_macos
-    <<: *build_macos_test_wheels
+    <<: [*container_macos, *build_macos_test_wheels]
 
   deploy-pypi-linux:
     environment:
       # Force clone over https instead of ssh.
       CIRCLE_REPOSITORY_URL: https://github.com/glotzerlab/freud
-    <<: *container_manylinux
-    <<: *build_linux_wheels
+    <<: [*container_manylinux, *build_linux_wheels]
 
   deploy-pypi-macos:
-    <<: *container_macos
-    <<: *build_macos_wheels
+    <<: [*container_macos, *build_macos_wheels]
 
   benchmarks:
     docker:

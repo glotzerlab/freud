@@ -9,7 +9,8 @@ and this project adheres to
 ### Changed
 * NeighborList `filter` method has been optimized.
 * TBB 2021 is now supported (removed use of deprecated TBB features).
-* Added new pre-commit hooks for black, isort, and pyupgrade.
+* Added new pre-commit hooks for `black`, `isort`, and `pyupgrade`.
+* Testing framework now uses `pytest`.
 
 ## v2.4.1 - 2020-11-16
 

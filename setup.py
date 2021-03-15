@@ -1,3 +1,6 @@
+# Copyright (c) 2010-2020 The Regents of the University of Michigan
+# This file is from the freud project, released under the BSD 3-Clause License.
+
 import os
 import sys
 
@@ -6,13 +9,13 @@ from skbuild import setup as skbuild_setup
 version = "2.4.1"
 
 # Read README for PyPI, fallback to short description if it fails.
-desc = "Powerful, efficient trajectory analysis in scientific Python."
+description = "Powerful, efficient trajectory analysis in scientific Python."
 try:
     readme_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "README.rst")
     with open(readme_file) as f:
         readme = f.read()
 except ImportError:
-    readme = desc
+    readme = description
 
 
 def setup(*args, **kwargs):
@@ -45,7 +48,7 @@ setup(
     name="freud-analysis",
     version=version,
     packages=["freud"],
-    description=desc,
+    description=description,
     long_description=readme,
     long_description_content_type="text/x-rst",
     keywords=(

@@ -6,7 +6,12 @@ repos:
         exclude: '(?:.*\.(ai|txt)|extern/.*)'
       - id: trailing-whitespace
         exclude: '(?:.*\.(ai|txt)|extern/.*|setup\.cfg)'
+      - id: check-builtin-literals
+      - id: check-executables-have-shebangs
+      - id: check-json
+      - id: check-yaml
       - id: debug-statements
+      - id: requirements-txt-fixer
   - repo: https://github.com/asottile/pyupgrade
     rev: 'v2.10.0'
     hooks:
