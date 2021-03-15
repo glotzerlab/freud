@@ -4,11 +4,12 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## v2.5.0 - 2021-03-15
+## v2.5.0 - 2021-03-xx
 
 ### Changed
 * NeighborList `filter` method has been optimized.
 * TBB 2021 is now supported (removed use of deprecated TBB features).
+* Added new pre-commit hooks for black, isort, and pyupgrade.
 
 ## v2.4.1 - 2020-11-16
 
