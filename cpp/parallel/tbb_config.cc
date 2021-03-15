@@ -3,13 +3,15 @@
 
 #include "tbb_config.h"
 
+#include <thread>
+
 /*! \file tbb_config.cc
     \brief Helper functions to configure tbb
 */
 
 namespace freud { namespace parallel {
 
-tbb::task_scheduler_init* ts = nullptr;
+std::unique_ptr<tbb::global_control> tbb_thread_control;
 
 /*! \param N Number of threads to use for TBB computations
 
@@ -20,17 +22,13 @@ tbb::task_scheduler_init* ts = nullptr;
 */
 void setNumThreads(unsigned int N)
 {
-    tbb::task_scheduler_init* old_ts(ts);
-
     if (N == 0)
     {
-        N = tbb::task_scheduler_init::automatic;
+        N = std::thread::hardware_concurrency();
     }
 
-    delete old_ts;
-
     // then recreate it
-    ts = new tbb::task_scheduler_init(static_cast<int>(N));
+    tbb_thread_control = std::make_unique<tbb::global_control>(tbb::global_control::parameter::max_allowed_parallelism, N);
 }
 
 }; }; // end namespace freud::parallel
