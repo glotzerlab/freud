@@ -56,7 +56,7 @@ references:
             garnett==0.7.1 \
             sympy==1.0
         else
-          ${PYTHON} -m pip install --progress-bar off -U -r requirements-testing.txt
+          ${PYTHON} -m pip install --progress-bar off -U -r requirements/requirements-testing.txt
         fi
         # Show the installed package versions
         ${PYTHON} -m pip list
@@ -71,7 +71,7 @@ references:
         conda install python=${PYVER} pip tbb tbb-devel
         conda update --all
         ${PYTHON} -m pip install --progress-bar off scikit-build==0.10.0
-        ${PYTHON} -m pip install --progress-bar off -U -r requirements-testing.txt
+        ${PYTHON} -m pip install --progress-bar off -U -r requirements/requirements-testing.txt
         # Install cmake >=3.14 to support Visual Studio 2019 generator
         ${PYTHON} -m pip install --progress-bar off -U cmake~=3.14
 
@@ -85,7 +85,7 @@ references:
         # wheels for these; the actual build steps will test against our older
         # supported versions.
         ${PYTHON} -m pip install --user scikit-build cmake
-        ${PYTHON} -m pip install --user -r requirements-precommit.txt
+        ${PYTHON} -m pip install --user -r requirements/requirements-precommit.txt
 
   pre-test-checks: &pre-test-checks
     run:
