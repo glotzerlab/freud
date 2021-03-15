@@ -3,7 +3,6 @@ from functools import lru_cache
 import numpy as np
 import numpy.testing as npt
 import pytest
-import util
 from sympy.physics.wigner import wigner_3j
 
 import freud
@@ -331,11 +330,10 @@ class TestLocalDescriptors:
                 steinhardt.compute((box, points), neighbors=nl)
                 npt.assert_array_almost_equal(steinhardt.particle_order, wl[:, L])
 
-    @util.skipIfMissing("scipy.special")
     def test_ld(self):
         """Verify the behavior of LocalDescriptors by explicitly calculating
         spherical harmonics manually and verifying them."""
-        from scipy.special import sph_harm
+        sph_harm = pytest.importorskip("scipy.special.sph_harm")
 
         atol = 1e-5
         L = 8
@@ -386,11 +384,10 @@ class TestLocalDescriptors:
                     ).format(l, m, scipy_val, ld_val, theta, phi)
                     count += 1
 
-    @util.skipIfMissing("scipy.special")
     def test_query_point_ne_points(self):
         """Verify the behavior of LocalDescriptors by explicitly calculating
         spherical harmonics manually and verifying them."""
-        from scipy.special import sph_harm
+        sph_harm = pytest.importorskip("scipy.special.sph_harm")
 
         atol = 1e-5
         L = 8

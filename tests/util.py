@@ -119,13 +119,3 @@ def sort_rounded_xyz_array(arr, decimals=4):
     arr = arr.round(decimals)
     indices = np.lexsort((arr[:, 2], arr[:, 1], arr[:, 0]))
     return arr[indices]
-
-
-def skipIfMissing(library):
-    try:
-        import importlib
-
-        importlib.import_module(library)
-        return lambda func: func
-    except ImportError:
-        return unittest.skip(f"You must have {library} installed to run this test")

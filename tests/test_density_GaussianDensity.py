@@ -2,7 +2,6 @@ import matplotlib
 import numpy as np
 import numpy.testing as npt
 import pytest
-import util
 
 import freud
 
@@ -10,9 +9,9 @@ matplotlib.use("agg")
 
 
 class TestGaussianDensity:
-    @util.skipIfMissing("scipy.fftpack")
     def test_random_point_with_cell_list(self):
-        from scipy.fftpack import fft, fftshift
+        fft = pytest.importorskip("scipy.fftpack.fft")
+        fftshift = pytest.importorskip("scipy.fftpack.fftshift")
 
         width = 100
         r_max = 10.0
