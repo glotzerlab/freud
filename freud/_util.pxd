@@ -1,10 +1,10 @@
 # Copyright (c) 2010-2020 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
+cimport numpy
 from libcpp cimport bool
 from libcpp.vector cimport vector
 
-cimport numpy
 
 cdef extern from "VectorMath.h":
     cdef cppclass vec3[Real]:

@@ -13,10 +13,11 @@ a future release.
 """
 
 import numpy as np
+
 import freud
 
 
-class UnitCell(object):
+class UnitCell:
     """Class to represent the unit cell of a crystal structure.
 
     This class represents the unit cell of a crystal structure, which is
@@ -32,12 +33,12 @@ class UnitCell(object):
             The basis of the unit cell in fractional coordinates
             (Default value = ``[[0, 0, 0]]``).
     """
+
     def __init__(self, box, basis_positions=[[0, 0, 0]]):
         self._box = freud.box.Box.from_box(box)
         self._basis_positions = basis_positions
 
-    def generate_system(self, num_replicas=1, scale=1, sigma_noise=0,
-                        seed=None):
+    def generate_system(self, num_replicas=1, scale=1, sigma_noise=0, seed=None):
         """Generate a system from the unit cell.
 
         The box and the positions are expanded by ``scale``, and then Gaussian
@@ -71,24 +72,27 @@ class UnitCell(object):
             nx = ny = num_replicas
             nz = 1 if self.box.is2D else num_replicas
 
-        if not all((int(n) == n and n > 0 for n in (nx, ny, nz))):
-            raise ValueError("The number of replicas must be a positive "
-                             "integer in each dimension.")
+        if not all(int(n) == n and n > 0 for n in (nx, ny, nz)):
+            raise ValueError(
+                "The number of replicas must be a positive "
+                "integer in each dimension."
+            )
 
         if self.box.is2D and nz != 1:
-            raise ValueError("The number of replicas in z must be 1 for a "
-                             "2D unit cell.")
+            raise ValueError(
+                "The number of replicas in z must be 1 for a " "2D unit cell."
+            )
 
         if any([n > 1 for n in (nx, ny, nz)]):
             pbuff = freud.locality.PeriodicBuffer()
             abs_positions = self.box.make_absolute(self.basis_positions)
-            pbuff.compute((self.box, abs_positions),
-                          buffer=(nx-1, ny-1, nz-1),
-                          images=True)
-            box = pbuff.buffer_box*scale
+            pbuff.compute(
+                (self.box, abs_positions), buffer=(nx - 1, ny - 1, nz - 1), images=True
+            )
+            box = pbuff.buffer_box * scale
             positions = np.concatenate((abs_positions, pbuff.buffer_points))
         else:
-            box = self.box*scale
+            box = self.box * scale
             positions = self.box.make_absolute(self.basis_positions)
 
         # Even numbers of repeats shift the box by L/2
@@ -99,11 +103,10 @@ class UnitCell(object):
 
         if sigma_noise != 0:
             rs = np.random.RandomState(seed)
-            mean = [0]*3
-            var = sigma_noise*sigma_noise
+            mean = [0] * 3
+            var = sigma_noise * sigma_noise
             cov = np.diag([var, var, var if self.dimensions == 3 else 0])
-            positions += rs.multivariate_normal(
-                mean, cov, size=positions.shape[:-1])
+            positions += rs.multivariate_normal(mean, cov, size=positions.shape[:-1])
 
         positions = box.wrap(positions)
         return box, positions
@@ -152,10 +155,7 @@ class UnitCell(object):
         Returns:
             :class:`~.UnitCell`: A face-centered cubic unit cell.
         """
-        fractions = np.array([[.5, .5, 0],
-                              [.5, 0, .5],
-                              [0, .5, .5],
-                              [0, 0, 0]])
+        fractions = np.array([[0.5, 0.5, 0], [0.5, 0, 0.5], [0, 0.5, 0.5], [0, 0, 0]])
         return cls([1, 1, 1], fractions)
 
     @classmethod
@@ -165,8 +165,7 @@ class UnitCell(object):
         Returns:
             :class:`~.UnitCell`: A body-centered cubic unit cell.
         """
-        fractions = np.array([[.5, .5, .5],
-                              [0, 0, 0]])
+        fractions = np.array([[0.5, 0.5, 0.5], [0, 0, 0]])
         return cls([1, 1, 1], fractions)
 
     @classmethod

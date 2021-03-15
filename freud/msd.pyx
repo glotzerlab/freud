@@ -6,14 +6,16 @@ The :class:`freud.msd` module provides functions for computing the
 mean-squared-displacement (MSD) of particles in periodic systems.
 """
 
-import numpy as np
-import freud.parallel
 import logging
 
-from freud.util cimport _Compute
-cimport freud.box
+import numpy as np
+
+import freud.parallel
+
 cimport numpy as np
 
+cimport freud.box
+from freud.util cimport _Compute
 
 logger = logging.getLogger(__name__)
 

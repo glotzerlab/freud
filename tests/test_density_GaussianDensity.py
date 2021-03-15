@@ -1,30 +1,32 @@
+import matplotlib
 import numpy as np
 import numpy.testing as npt
-import freud
-import matplotlib
-import unittest
+import pytest
 import util
-matplotlib.use('agg')
+
+import freud
+
+matplotlib.use("agg")
 
 
-class TestGaussianDensity(unittest.TestCase):
-    @util.skipIfMissing('scipy.fftpack')
+class TestGaussianDensity:
+    @util.skipIfMissing("scipy.fftpack")
     def test_random_point_with_cell_list(self):
         from scipy.fftpack import fft, fftshift
+
         width = 100
         r_max = 10.0
         sigma = 0.1
         num_points = 10000
-        box_size = r_max*3.1
-        box, points = freud.data.make_random_system(
-            box_size, num_points, is2D=True)
+        box_size = r_max * 3.1
+        box, points = freud.data.make_random_system(box_size, num_points, is2D=True)
         for w in (width, (width, width), [width, width]):
             gd = freud.density.GaussianDensity(w, r_max, sigma)
 
             # Test access
-            with self.assertRaises(AttributeError):
+            with pytest.raises(AttributeError):
                 gd.box
-            with self.assertRaises(AttributeError):
+            with pytest.raises(AttributeError):
                 gd.density
 
             gd.compute((box, points))
@@ -34,43 +36,44 @@ class TestGaussianDensity(unittest.TestCase):
             gd.density
 
             # Verify the output dimensions are correct
-            self.assertEqual(gd.density.shape, (width, width))
-            self.assertEqual(np.prod(gd.density.shape), np.prod(gd.width))
+            assert gd.density.shape == (width, width)
+            assert np.prod(gd.density.shape) == np.prod(gd.width)
 
             myDiff = gd.density
             myFFT = fft(fft(myDiff[:, :], axis=1), axis=0)
             myDiff = (myFFT * np.conj(myFFT)).real
             myDiff = fftshift(myDiff)[:, :]
-            npt.assert_equal(np.where(myDiff == np.max(myDiff)),
-                             (np.array([50]), np.array([50])))
+            npt.assert_equal(
+                np.where(myDiff == np.max(myDiff)), (np.array([50]), np.array([50]))
+            )
 
     def test_change_box_dimension(self):
         width = 100
         r_max = 10.0
         sigma = 0.1
         num_points = 100
-        box_size = r_max*3.1
+        box_size = r_max * 3.1
 
         # test that a 3D system computed after computing a 2D system will fail
-        box, points = freud.data.make_random_system(
-            box_size, num_points, is2D=True)
+        box, points = freud.data.make_random_system(box_size, num_points, is2D=True)
         gd = freud.density.GaussianDensity(width, r_max, sigma)
         gd.compute((box, points))
 
         test_box, test_points = freud.data.make_random_system(
-            box_size, num_points, is2D=False)
-        with self.assertRaises(ValueError):
+            box_size, num_points, is2D=False
+        )
+        with pytest.raises(ValueError):
             gd.compute((test_box, test_points))
 
         # test that a 2D system computed after computing a 3D system will fail
-        box, points = freud.data.make_random_system(
-            box_size, num_points, is2D=False)
+        box, points = freud.data.make_random_system(box_size, num_points, is2D=False)
         gd = freud.density.GaussianDensity(width, r_max, sigma)
         gd.compute((box, points))
 
         test_box, test_points = freud.data.make_random_system(
-            box_size, num_points, is2D=True)
-        with self.assertRaises(ValueError):
+            box_size, num_points, is2D=True
+        )
+        with pytest.raises(ValueError):
             gd.compute((test_box, test_points))
 
     def test_sum_2d(self):
@@ -81,8 +84,7 @@ class TestGaussianDensity(unittest.TestCase):
         box_size = width
         gd = freud.density.GaussianDensity(width, r_max, sigma)
         for num_points in [1, 10, 100]:
-            box, points = freud.data.make_random_system(
-                box_size, num_points, is2D=True)
+            box, points = freud.data.make_random_system(box_size, num_points, is2D=True)
             gd.compute(system=(box, points))
             # This has discretization error as well as single-precision error
             assert np.isclose(np.sum(gd.density), num_points, rtol=1e-4)
@@ -96,7 +98,8 @@ class TestGaussianDensity(unittest.TestCase):
         gd = freud.density.GaussianDensity(width, r_max, sigma)
         for num_points in [1, 10, 100]:
             box, points = freud.data.make_random_system(
-                box_size, num_points, is2D=False)
+                box_size, num_points, is2D=False
+            )
             gd.compute(system=(box, points))
             # This has discretization error as well as single-precision error
             assert np.isclose(np.sum(gd.density), num_points, rtol=1e-4)
@@ -109,8 +112,7 @@ class TestGaussianDensity(unittest.TestCase):
         box_size = width
         gd = freud.density.GaussianDensity(width, r_max, sigma)
         for num_points in [1, 10, 100]:
-            system = freud.data.make_random_system(
-                box_size, num_points, is2D=True)
+            system = freud.data.make_random_system(box_size, num_points, is2D=True)
             values = np.random.rand(num_points)
             gd.compute(system, values)
             # This has discretization error as well as single-precision error
@@ -124,8 +126,7 @@ class TestGaussianDensity(unittest.TestCase):
         box_size = width
         gd = freud.density.GaussianDensity(width, r_max, sigma)
         for num_points in [1, 10, 100]:
-            system = freud.data.make_random_system(
-                box_size, num_points, is2D=False)
+            system = freud.data.make_random_system(box_size, num_points, is2D=False)
             values = np.random.rand(num_points)
             gd.compute(system, values)
             # This has discretization error as well as single-precision error
@@ -133,25 +134,24 @@ class TestGaussianDensity(unittest.TestCase):
 
     def test_repr(self):
         gd = freud.density.GaussianDensity(100, 10.0, 0.1)
-        self.assertEqual(str(gd), str(eval(repr(gd))))
+        assert str(gd) == str(eval(repr(gd)))
 
         # Use both signatures
         gd3 = freud.density.GaussianDensity((98, 99, 100), 10.0, 0.1)
-        self.assertEqual(str(gd3), str(eval(repr(gd3))))
+        assert str(gd3) == str(eval(repr(gd3)))
 
     def test_repr_png(self):
         width = 100
         r_max = 10.0
         sigma = 0.1
         num_points = 100
-        box_size = r_max*3.1
-        box, points = freud.data.make_random_system(
-            box_size, num_points, is2D=True)
+        box_size = r_max * 3.1
+        box, points = freud.data.make_random_system(box_size, num_points, is2D=True)
         gd = freud.density.GaussianDensity(width, r_max, sigma)
 
-        with self.assertRaises(AttributeError):
+        with pytest.raises(AttributeError):
             gd.plot()
-        self.assertEqual(gd._repr_png_(), None)
+        assert gd._repr_png_() is None
 
         gd.compute((box, points))
         gd.plot()
@@ -160,8 +160,4 @@ class TestGaussianDensity(unittest.TestCase):
         test_box = freud.box.Box.cube(box_size)
         gd.compute((test_box, points))
         gd.plot()
-        self.assertEqual(gd._repr_png_(), None)
-
-
-if __name__ == '__main__':
-    unittest.main()
+        assert gd._repr_png_() is None

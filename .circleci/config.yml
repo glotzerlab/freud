@@ -127,7 +127,7 @@ references:
         if [ -d "venv" ]; then
           . venv/bin/activate
         fi
-        ${PYTHON} -m unittest discover tests -v
+        ${PYTHON} -m pytest tests/ -v
 
   test_cov: &test_cov
     run:
@@ -136,8 +136,8 @@ references:
         if [ -d "venv" ]; then
           . venv/bin/activate
         fi
-        ${PYTHON} -m coverage run -m unittest discover tests -v
-        bash <(curl -s https://codecov.io/bash)
+        ${PYTHON} -m pytest --cov freud --cov-config=setup.cfg --cov-report=xml tests/ -v
+        codecov
 
   store: &store
     store_artifacts:

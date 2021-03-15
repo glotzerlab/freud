@@ -1,7 +1,8 @@
 import numpy as np
-import freud
 from benchmark import Benchmark
 from benchmarker import run_benchmarks
+
+import freud
 
 
 class BenchmarkPMFTPMFTXYT(Benchmark):
@@ -15,9 +16,9 @@ class BenchmarkPMFTPMFTXYT(Benchmark):
         self.box = freud.box.Box.square(self.L)
         seed = 0
         np.random.seed(seed)
-        self.points = np.random.uniform(-self.L/2, self.L/2, (N, 3))
+        self.points = np.random.uniform(-self.L / 2, self.L / 2, (N, 3))
         self.points[:, 2] = 0
-        self.orientations = np.random.uniform(0.0, 2*np.pi, (N, 1))
+        self.orientations = np.random.uniform(0.0, 2 * np.pi, (N, 1))
         self.pmft = freud.pmft.PMFTXYT(self.x_max, self.y_max, self.bins)
 
     def bench_run(self, N):
@@ -28,17 +29,17 @@ class BenchmarkPMFTPMFTXYT(Benchmark):
 def run():
     Ns = [100, 500, 1000, 2000]
     number = 100
-    name = 'freud.PMFT.PMFTXYT'
+    name = "freud.PMFT.PMFTXYT"
 
-    kwargs = {"L": 16.0,
-              "x_max": 3.6,
-              "y_max": 4.2,
-              "bins": (20, 30, 40),
-              }
+    kwargs = {
+        "L": 16.0,
+        "x_max": 3.6,
+        "y_max": 4.2,
+        "bins": (20, 30, 40),
+    }
 
-    return run_benchmarks(name, Ns, number, BenchmarkPMFTPMFTXYT,
-                          **kwargs)
+    return run_benchmarks(name, Ns, number, BenchmarkPMFTPMFTXYT, **kwargs)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run()

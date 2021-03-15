@@ -1,11 +1,12 @@
-import unittest
-import numpy.testing as npt
 import numpy as np
-import freud
+import numpy.testing as npt
+import pytest
 import rowan
 
+import freud
 
-class TestLocalBondProjection(unittest.TestCase):
+
+class TestLocalBondProjection:
     def test_nlist(self):
         """Check that the internally generated NeighborList is correct."""
         boxlen = 10
@@ -14,17 +15,15 @@ class TestLocalBondProjection(unittest.TestCase):
         r_guess = 3
         query_args = dict(num_neighbors=num_neighbors, r_guess=r_guess)
 
-        N_query = N//3
+        N_query = N // 3
 
         box, points = freud.data.make_random_system(boxlen, N, is2D=True)
-        _, query_points = freud.data.make_random_system(
-            boxlen, N_query, is2D=True)
+        _, query_points = freud.data.make_random_system(boxlen, N_query, is2D=True)
         ors = rowan.random.rand(N)
         proj_vecs = np.asarray([[0, 0, 1]])
 
         ang = freud.environment.LocalBondProjection()
-        ang.compute((box, points), ors, proj_vecs, query_points,
-                    neighbors=query_args)
+        ang.compute((box, points), ors, proj_vecs, query_points, neighbors=query_args)
 
         aq = freud.locality.AABBQuery(box, points)
         nlist = aq.query(query_points, query_args).toNeighborList()
@@ -44,11 +43,11 @@ class TestLocalBondProjection(unittest.TestCase):
 
         ang = freud.environment.LocalBondProjection()
 
-        with self.assertRaises(AttributeError):
+        with pytest.raises(AttributeError):
             ang.nlist
-        with self.assertRaises(AttributeError):
+        with pytest.raises(AttributeError):
             ang.projections
-        with self.assertRaises(AttributeError):
+        with pytest.raises(AttributeError):
             ang.normed_projections
 
         ang.compute((box, points), ors, proj_vecs, neighbors=query_args)
@@ -75,9 +74,9 @@ class TestLocalBondProjection(unittest.TestCase):
         # 1. The identity
         ors = [[1, 0, 0, 0]]
         # 2. A rotation about the y axis by pi/2
-        ors.append([np.cos(np.pi/4), 0, np.sin(np.pi/4), 0])
+        ors.append([np.cos(np.pi / 4), 0, np.sin(np.pi / 4), 0])
         # 3. A rotation about the z axis by pi/2
-        ors.append([np.cos(np.pi/4), 0, 0, np.sin(np.pi/4)])
+        ors.append([np.cos(np.pi / 4), 0, 0, np.sin(np.pi / 4)])
 
         ors = np.asarray(ors, dtype=np.float32)
         points = np.asarray(points, dtype=np.float32)
@@ -87,10 +86,9 @@ class TestLocalBondProjection(unittest.TestCase):
         ang = freud.environment.LocalBondProjection()
         ang.compute((box, points), ors, proj_vecs, neighbors=query_args)
 
-        dnlist = freud.locality.AABBQuery(
-            box, points).query(
-                points, dict(num_neighbors=num_neighbors, r_guess=r_guess,
-                             exclude_ii=True))
+        dnlist = freud.locality.AABBQuery(box, points).query(
+            points, dict(num_neighbors=num_neighbors, r_guess=r_guess, exclude_ii=True)
+        )
         bonds = [(i[0], i[1]) for i in dnlist]
 
         # We will look at the bond between [1, 0, 0] as query_point
@@ -126,9 +124,11 @@ class TestLocalBondProjection(unittest.TestCase):
 
         # Specify that rotations about y by +/-pi/2 and rotations about x by pi
         # result in equivalent particle shapes
-        qs = [[1, 0, 0, 0],
-              [np.cos(np.pi/4), 0, np.sin(np.pi/4), 0],
-              [np.cos(np.pi/2), np.sin(np.pi/2), 0, 0]]
+        qs = [
+            [1, 0, 0, 0],
+            [np.cos(np.pi / 4), 0, np.sin(np.pi / 4), 0],
+            [np.cos(np.pi / 2), np.sin(np.pi / 2), 0, 0],
+        ]
 
         equiv_quats = []
         for q in qs:
@@ -137,8 +137,7 @@ class TestLocalBondProjection(unittest.TestCase):
             equiv_quats.append(np.array([q[0], -q[1], -q[2], -q[3]]))
         equiv_quats = np.asarray(equiv_quats, dtype=np.float32)
 
-        ang.compute((box, points), ors, proj_vecs, None, equiv_quats,
-                    query_args)
+        ang.compute((box, points), ors, proj_vecs, None, equiv_quats, query_args)
 
         # Now all projections should be cos(0)=1
         npt.assert_allclose(ang.projections[1], 1, atol=1e-6)
@@ -150,8 +149,4 @@ class TestLocalBondProjection(unittest.TestCase):
 
     def test_repr(self):
         ang = freud.environment.LocalBondProjection()
-        self.assertEqual(str(ang), str(eval(repr(ang))))
-
-
-if __name__ == '__main__':
-    unittest.main()
+        assert str(ang) == str(eval(repr(ang)))

@@ -7,22 +7,25 @@ density of the system. These functions allow evaluation of particle
 distributions with respect to other particles.
 """
 
-import freud.locality
 import warnings
+
 import numpy as np
 
+import freud.locality
+
 from cython.operator cimport dereference
-from freud.util cimport _Compute
+
 from freud.locality cimport _PairCompute, _SpatialHistogram1D
-from freud.util cimport vec3
+from freud.util cimport _Compute, vec3
 
 from collections.abc import Sequence
+
+cimport numpy as np
 
 cimport freud._density
 cimport freud.box
 cimport freud.locality
 cimport freud.util
-cimport numpy as np
 
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults

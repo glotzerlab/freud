@@ -7,18 +7,19 @@ natively supports periodicity by providing the fundamental features for
 wrapping vectors outside the box back into it.
 """
 
-import warnings
-import numpy as np
 import logging
+import warnings
+
+import numpy as np
 
 import freud.util
 
-from freud.util cimport vec3
+cimport numpy as np
 from cpython.object cimport Py_EQ, Py_NE
 from libcpp cimport bool as cpp_bool
 
 cimport freud._box
-cimport numpy as np
+from freud.util cimport vec3
 
 logger = logging.getLogger(__name__)
 

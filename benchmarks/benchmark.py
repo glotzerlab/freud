@@ -1,18 +1,16 @@
-from __future__ import print_function
-from __future__ import division
-
 import cProfile
+import multiprocessing
 import os
 import pstats
 import sys
-import multiprocessing
-import numpy
 import timeit
+
+import numpy
 
 import freud
 
 
-class Benchmark(object):
+class Benchmark:
     """The freud Benchmark class for running benchmarks and showing results.
 
     The benchmark class sets up and runs benchmarks of given functions and/or
@@ -91,8 +89,9 @@ class Benchmark(object):
         varmapping = {"self": self, "N": N, "num_threads": num_threads}
         return timeit.Timer(stmt=stmt, setup=setup, globals=varmapping)
 
-    def run_benchmark(self, N=None, number=100, print_stats=False, repeat=1,
-                      num_threads=0):
+    def run_benchmark(
+        self, N=None, number=100, print_stats=False, repeat=1, num_threads=0
+    ):
         """Perform the benchmark.
 
         Args:
@@ -135,10 +134,13 @@ class Benchmark(object):
         printed for the results of the last call to :py:meth:`~.run_benchmark`.
         """
         if self._N is not None:
-            print('{0:8.3f} ms | {1:8.3f} ns per item'.format(
-                self._t/1e-3, self._t/self._N/1e-9))
+            print(
+                "{:8.3f} ms | {:8.3f} ns per item".format(
+                    self._t / 1e-3, self._t / self._N / 1e-9
+                )
+            )
         else:
-            print('{0:8.3f} ms'.format(self._t/1e-3))
+            print("{:8.3f} ms".format(self._t / 1e-3))
 
     def run_profile(self, N=None, number=100):
         """Profile a benchmark run.
@@ -156,13 +158,13 @@ class Benchmark(object):
         timer = self.setup_timer(N)
 
         # Run the profile
-        cProfile.runctx("timer.timeit(number)",
-                        globals(), locals(), "Profile.prof")
+        cProfile.runctx("timer.timeit(number)", globals(), locals(), "Profile.prof")
         s = pstats.Stats("Profile.prof")
         s.strip_dirs().sort_stats("time").print_stats()
 
-    def run_size_scaling_benchmark(self, N_list, number=1000, print_stats=True,
-                                   repeat=1):
+    def run_size_scaling_benchmark(
+        self, N_list, number=1000, print_stats=True, repeat=1
+    ):
         """Problem size scaling benchmark with all available threads.
 
         The size scaling benchmark autoscales number down linearly with problem
@@ -184,7 +186,7 @@ class Benchmark(object):
             list of float: A list of average runtimes following N (in seconds)
         """
         if len(N_list) == 0:
-            raise TypeError('N_list must be iterable')
+            raise TypeError("N_list must be iterable")
 
         # Compute benchmark size
         size = number * N_list[0]
@@ -193,7 +195,7 @@ class Benchmark(object):
         results = []
         for N in N_list:
             if print_stats:
-                print('{0:10d}'.format(N), end=': ')
+                print(f"{N:10d}", end=": ")
                 sys.stdout.flush()
 
             current_number = max(int(size // N), 1)
@@ -202,8 +204,9 @@ class Benchmark(object):
 
         return results
 
-    def run_thread_scaling_benchmark(self, N_list, number=1000,
-                                     print_stats=True, repeat=1):
+    def run_thread_scaling_benchmark(
+        self, N_list, number=1000, print_stats=True, repeat=1
+    ):
         """Thread scaling benchmark.
 
         The size scaling benchmark autoscales number down linearly with problem
@@ -227,28 +230,27 @@ class Benchmark(object):
                 cores used (in seconds).
         """  # noqa: E501
         if len(N_list) == 0:
-            raise TypeError('N_list must be iterable')
+            raise TypeError("N_list must be iterable")
 
         # compute benchmark size
-        size = number*N_list[0]
+        size = number * N_list[0]
 
         # print the header
         if print_stats:
-            print('Threads ', end='')
+            print("Threads ", end="")
             for N in N_list:
-                print('{0:^22d}'.format(N), end=' | ')
+                print(f"{N:^22d}", end=" | ")
             print()
 
-        nproc_increment = int(os.environ.get('BENCHMARK_NPROC_INCREMENT', 1))
-        nprocs = int(os.environ.get('BENCHMARK_NPROC',
-                                    multiprocessing.cpu_count()))
+        nproc_increment = int(os.environ.get("BENCHMARK_NPROC_INCREMENT", 1))
+        nprocs = int(os.environ.get("BENCHMARK_NPROC", multiprocessing.cpu_count()))
 
         # loop over the cores
-        times = numpy.zeros(shape=(nprocs+1, len(N_list)))
+        times = numpy.zeros(shape=(nprocs + 1, len(N_list)))
 
-        for ncores in range(1, nprocs+1, nproc_increment):
+        for ncores in range(1, nprocs + 1, nproc_increment):
             if print_stats:
-                print('{0:7d}'.format(ncores), end=' ')
+                print(f"{ncores:7d}", end=" ")
 
             # Loop over N and run the benchmarks
             for j, N in enumerate(N_list):
@@ -256,13 +258,19 @@ class Benchmark(object):
 
                 with freud.parallel.NumThreads(ncores):
                     times[ncores, j] = self.run_benchmark(
-                        N, number=current_number, print_stats=False,
-                        repeat=repeat, num_threads=ncores)
+                        N,
+                        number=current_number,
+                        print_stats=False,
+                        repeat=repeat,
+                        num_threads=ncores,
+                    )
 
                 if print_stats:
                     speedup = times[1, j] / times[ncores, j]
-                    print('{0:8.3f} ms {1:9.2f}x'.format(
-                        times[ncores, j]*1000, speedup), end=' | ')
+                    print(
+                        "{:8.3f} ms {:9.2f}x".format(times[ncores, j] * 1000, speedup),
+                        end=" | ",
+                    )
                     sys.stdout.flush()
 
             if print_stats:

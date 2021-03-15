@@ -1,20 +1,22 @@
+import matplotlib
 import numpy as np
 import numpy.testing as npt
+import pytest
+
 import freud
-import matplotlib
-import unittest
-matplotlib.use('agg')
+
+matplotlib.use("agg")
 
 
-class TestMSD(unittest.TestCase):
+class TestMSD:
     def test_attribute_access(self):
         positions = np.array([[[1, 0, 0]]])
         msd = freud.msd.MSD()
-        with self.assertRaises(AttributeError):
+        with pytest.raises(AttributeError):
             msd.msd
-        with self.assertRaises(AttributeError):
+        with pytest.raises(AttributeError):
             msd.plot()
-        self.assertEqual(msd._repr_png_(), None)
+        assert msd._repr_png_() is None
 
         msd.compute(positions)
         msd.msd
@@ -25,29 +27,27 @@ class TestMSD(unittest.TestCase):
         """Test correct behavior for various constructor signatures"""
         positions = np.array([[[1, 0, 0]]])
         msd = freud.msd.MSD()
-        msd_direct = freud.msd.MSD(mode='direct')
-        self.assertTrue(msd.compute(positions).msd == [0])
-        self.assertTrue(msd_direct.compute(positions).msd == [0])
+        msd_direct = freud.msd.MSD(mode="direct")
+        assert msd.compute(positions).msd == [0]
+        assert msd_direct.compute(positions).msd == [0]
 
         positions = positions.repeat(10, axis=0)
         npt.assert_allclose(msd.compute(positions).msd, 0, atol=1e-4)
         npt.assert_allclose(msd_direct.compute(positions).msd, 0, atol=1e-4)
 
         positions[:, 0, 0] = np.arange(10)
-        npt.assert_allclose(
-            msd.compute(positions).msd, np.arange(10)**2, atol=1e-4)
-        npt.assert_allclose(
-            msd_direct.compute(positions).msd, np.arange(10)**2)
+        npt.assert_allclose(msd.compute(positions).msd, np.arange(10) ** 2, atol=1e-4)
+        npt.assert_allclose(msd_direct.compute(positions).msd, np.arange(10) ** 2)
 
         positions = positions.repeat(2, axis=1)
         positions[:, 1, :] = 0
         npt.assert_allclose(
-            msd.compute(positions).msd, np.arange(10)**2/2, atol=1e-4)
-        npt.assert_allclose(
-            msd_direct.compute(positions).msd, np.arange(10)**2/2)
+            msd.compute(positions).msd, np.arange(10) ** 2 / 2, atol=1e-4
+        )
+        npt.assert_allclose(msd_direct.compute(positions).msd, np.arange(10) ** 2 / 2)
 
         # Test accumulation
-        positions.flags['WRITEABLE'] = False
+        positions.flags["WRITEABLE"] = False
         msd.compute(positions[:, [0], :])
         msd.compute(positions[:, [1], :], reset=False)
         msd_accumulated = msd.msd.copy()
@@ -80,11 +80,6 @@ class TestMSD(unittest.TestCase):
 
     def test_repr(self):
         msd = freud.msd.MSD()
-        self.assertEqual(str(msd), str(eval(repr(msd))))
-        msd2 = freud.msd.MSD(box=freud.box.Box(1, 2, 3, 4, 5, 6),
-                             mode='direct')
-        self.assertEqual(str(msd2), str(eval(repr(msd2))))
-
-
-if __name__ == '__main__':
-    unittest.main()
+        assert str(msd) == str(eval(repr(msd)))
+        msd2 = freud.msd.MSD(box=freud.box.Box(1, 2, 3, 4, 5, 6), mode="direct")
+        assert str(msd2) == str(eval(repr(msd2)))
