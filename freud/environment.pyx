@@ -639,7 +639,7 @@ cdef class EnvironmentCluster(_MatchEnv):
         """
         import freud.plot
         try:
-            values, counts = np.unique(self.clusters, return_counts=True)
+            values, counts = np.unique(self.cluster_idx, return_counts=True)
         except ValueError:
             return None
         else:

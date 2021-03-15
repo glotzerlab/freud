@@ -16,6 +16,7 @@ and this project adheres to
 * Fixed broken documentation by overriding scikit-build options.
 * RPATH on Linux is now set correctly to find TBB libraries not on the global search path.
 * 2D box image calculations now return zero for the image z value.
+* Fixed wrong attribute name in `EnvironmentCluster.plot`.
 
 ## v2.4.0 - 2020-11-09
 
