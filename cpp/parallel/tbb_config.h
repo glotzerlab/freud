@@ -4,6 +4,7 @@
 #ifndef TBB_CONFIG_H
 #define TBB_CONFIG_H
 
+#define TBB_PREVIEW_GLOBAL_CONTROL 1
 #include <tbb/global_control.h>
 
 /*! \file tbb_config.h
