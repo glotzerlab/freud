@@ -7,7 +7,6 @@ freud
 |conda-forge|
 |ReadTheDocs|
 |Binder|
-|Codecov|
 |GitHub-Stars|
 
 .. |Citing freud| image:: https://img.shields.io/badge/cite-freud-informational.svg
