@@ -1,10 +1,11 @@
 # Copyright (c) 2010-2020 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
-import numpy as np
-import freud.box
-
 from functools import wraps
+
+import numpy as np
+
+import freud.box
 
 cimport numpy as np
 

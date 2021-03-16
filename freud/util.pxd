@@ -5,13 +5,13 @@
 # arguments to interface with the C++ implementations of all methods.
 import numpy as np
 
-from freud._util cimport vec3, quat, ManagedArray, PyArray_SetBaseObject
+cimport numpy as np
 from cpython cimport Py_INCREF
-from libcpp.complex cimport complex
 from cython.operator cimport dereference
 from libcpp cimport bool
+from libcpp.complex cimport complex
 
-cimport numpy as np
+from freud._util cimport ManagedArray, PyArray_SetBaseObject, quat, vec3
 
 ctypedef unsigned int uint
 ctypedef float complex fcomplex

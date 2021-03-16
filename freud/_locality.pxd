@@ -2,12 +2,14 @@
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 from libcpp cimport bool
-from freud.util cimport vec3
 from libcpp.memory cimport shared_ptr
-from libcpp.vector cimport vector
 from libcpp.pair cimport pair
+from libcpp.vector cimport vector
+
 cimport freud._box
 cimport freud.util
+from freud.util cimport vec3
+
 
 cdef extern from "NeighborBond.h" namespace "freud::locality":
     cdef cppclass NeighborBond:

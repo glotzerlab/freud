@@ -2,6 +2,7 @@
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 from libcpp cimport bool
+
 from freud.util cimport vec3
 
 ctypedef unsigned int uint

@@ -1,6 +1,8 @@
 // Copyright (c) 2010-2020 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
+#include <algorithm>
+
 #include "NeighborList.h"
 
 namespace freud { namespace locality {
@@ -117,25 +119,38 @@ void NeighborList::updateSegmentCounts() const
 // accept an "end" parameter as well.
 template<typename Iterator> unsigned int NeighborList::filter(Iterator begin)
 {
-    // number of good (unfiltered-out) elements so far
-    unsigned int num_good(0);
     const unsigned int old_size(getNumBonds());
+    const auto end = begin + old_size;
+
+    // new_size is the number of good (unfiltered-out) elements
+    const unsigned int new_size(std::count(begin, end, true));
+
+    // Arrays to hold filtered data - we use new arrays instead of writing over
+    // existing data to avoid requiring a second pass in resize().
+    auto new_neighbors = util::ManagedArray<unsigned int>({new_size, 2});
+    auto new_distances = util::ManagedArray<float>(new_size);
+    auto new_weights = util::ManagedArray<float>(new_size);
 
     auto current_element = begin;
+    unsigned int num_good(0);
     for (unsigned int i(0); i < old_size; ++i)
     {
         if (*current_element)
         {
-            m_neighbors(num_good, 0) = m_neighbors(i, 0);
-            m_neighbors(num_good, 1) = m_neighbors(i, 1);
-            m_weights[num_good] = m_weights[i];
-            m_distances[num_good] = m_distances[i];
+            new_neighbors(num_good, 0) = m_neighbors(i, 0);
+            new_neighbors(num_good, 1) = m_neighbors(i, 1);
+            new_weights[num_good] = m_weights[i];
+            new_distances[num_good] = m_distances[i];
             ++num_good;
         }
         ++current_element;
     }
-    resize(num_good);
-    return old_size - num_good;
+
+    m_neighbors = new_neighbors;
+    m_distances = new_distances;
+    m_weights = new_weights;
+    m_segments_counts_updated = false;
+    return old_size - new_size;
 }
 
 // Explicit template instantiation required for usage in dynamically linked

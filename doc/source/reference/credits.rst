@@ -113,6 +113,7 @@ Bradley Dice - **Lead developer**
 * Added ``num_query_points`` and ``num_points`` attributes to NeighborList class.
 * Added scikit-build support for Windows.
 * Fixed 2D image calculations.
+* Optimized NeighborList ``filter`` method.
 
 Eric Harper, University of Michigan - **Former lead developer**
 

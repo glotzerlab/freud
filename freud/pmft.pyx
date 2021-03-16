@@ -39,19 +39,17 @@ refer to the supplementary information of :cite:`vanAnders:2014aa`.
 """
 
 import numpy as np
-import freud.locality
 import rowan
 
-from freud.util cimport _Compute
-from freud.locality cimport _SpatialHistogram
-from freud.util cimport vec3, quat
+import freud.locality
+
+cimport numpy as np
 from cython.operator cimport dereference
 
 cimport freud._pmft
 cimport freud.locality
-
-cimport numpy as np
-
+from freud.locality cimport _SpatialHistogram
+from freud.util cimport _Compute, quat, vec3
 
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
