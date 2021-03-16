@@ -292,8 +292,9 @@ cdef class Box:
             vecs (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Unwrapped vector(s).
             out (:class:`numpy.ndarray` or :code:`None`):
-                If None, a new allocation is used for the returned array.
-                The array provided must have the same shape as the input array.
+                The array in which to place the wrapped vectors. It must be of
+                dtype `np.float32` or larger. If ``None``, this function will
+                return a newly allocated array (Default value = None).
 
         Returns:
             :math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
