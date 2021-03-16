@@ -205,8 +205,8 @@ def _convert_array(array, shape=None, out=None, dtype=np.float32):
             Only the dimensions that are not :code:`None` are checked.
             (Default value = :code:`None`).
             out (:class:`numpy.ndarray` or :code:`None`):
-                The array in which to place the wrapped vectors. The dtype
-                of the array must be at least as large as the provided ``dtype``
+                The array in which to place the wrapped vectors. The dtype of
+                the array must be at least as large as the provided ``dtype``
                 argument. If ``None``, this function will return a newly
                 allocated array (Default value = None).
         dtype: :code:`dtype` to convert the array to if :code:`array.dtype`
