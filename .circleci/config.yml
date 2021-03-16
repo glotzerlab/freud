@@ -44,19 +44,9 @@ references:
           #
           # Some requirements below are not strictly the lowest versions, and
           # are only needed for testing.
-          ${PYTHON} -m pip install --progress-bar off \
-            scikit-build==0.10.0 \
-            cmake==3.6.3.post1 \
-            cython==0.29.14 \
-            numpy==1.14.0 \
-            rowan==1.2.1 \
-            scipy==1.1.0 \
-            matplotlib==3.0.0 \
-            gsd==2.0.0 \
-            garnett==0.7.1 \
-            sympy==1.0
+          ${PYTHON} -m pip install --progress-bar off -r .circleci/ci-oldest-reqs.txt
         else
-          ${PYTHON} -m pip install --progress-bar off -U -r requirements-testing.txt
+          ${PYTHON} -m pip install --progress-bar off -U -r requirements/requirements-test.txt
         fi
         # Show the installed package versions
         ${PYTHON} -m pip list
@@ -71,7 +61,7 @@ references:
         conda install python=${PYVER} pip tbb tbb-devel
         conda update --all
         ${PYTHON} -m pip install --progress-bar off scikit-build==0.10.0
-        ${PYTHON} -m pip install --progress-bar off -U -r requirements-testing.txt
+        ${PYTHON} -m pip install --progress-bar off -U -r requirements/requirements-test.txt
         # Install cmake >=3.14 to support Visual Studio 2019 generator
         ${PYTHON} -m pip install --progress-bar off -U cmake~=3.14
 
@@ -85,7 +75,7 @@ references:
         # wheels for these; the actual build steps will test against our older
         # supported versions.
         ${PYTHON} -m pip install --user scikit-build cmake
-        ${PYTHON} -m pip install --user -r requirements-precommit.txt
+        ${PYTHON} -m pip install --user -r requirements/requirements-precommit.txt
 
   pre-test-checks: &pre-test-checks
     run:
@@ -127,7 +117,7 @@ references:
         if [ -d "venv" ]; then
           . venv/bin/activate
         fi
-        ${PYTHON} -m unittest discover tests -v
+        ${PYTHON} -m pytest tests/ -v
 
   test_cov: &test_cov
     run:
@@ -136,8 +126,8 @@ references:
         if [ -d "venv" ]; then
           . venv/bin/activate
         fi
-        ${PYTHON} -m coverage run -m unittest discover tests -v
-        bash <(curl -s https://codecov.io/bash)
+        ${PYTHON} -m pytest --cov --cov-config=setup.cfg --cov-report=xml tests/ -v
+        codecov
 
   store: &store
     store_artifacts:
@@ -287,7 +277,7 @@ jobs:
     environment:
       PYVER: "3.8"
       PYTHON: "python3.8"
-    <<: *build_and_test_linux
+    <<: *build_and_test_linux_with_cov
 
   linux-python-37:
     docker:
@@ -295,7 +285,7 @@ jobs:
     environment:
       PYVER: "3.7"
       PYTHON: "python3.7"
-    <<: *build_and_test_linux
+    <<: *build_and_test_linux_with_cov
 
   linux-python-36-oldest:
     docker:
@@ -328,23 +318,19 @@ jobs:
     environment:
       # Force clone over https instead of ssh.
       CIRCLE_REPOSITORY_URL: https://github.com/glotzerlab/freud
-    <<: *container_manylinux
-    <<: *build_linux_test_wheels
+    <<: [*container_manylinux, *build_linux_test_wheels]
 
   test-deploy-pypi-macos:
-    <<: *container_macos
-    <<: *build_macos_test_wheels
+    <<: [*container_macos, *build_macos_test_wheels]
 
   deploy-pypi-linux:
     environment:
       # Force clone over https instead of ssh.
       CIRCLE_REPOSITORY_URL: https://github.com/glotzerlab/freud
-    <<: *container_manylinux
-    <<: *build_linux_wheels
+    <<: [*container_manylinux, *build_linux_wheels]
 
   deploy-pypi-macos:
-    <<: *container_macos
-    <<: *build_macos_wheels
+    <<: [*container_macos, *build_macos_wheels]
 
   benchmarks:
     docker:

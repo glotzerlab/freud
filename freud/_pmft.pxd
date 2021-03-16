@@ -1,11 +1,11 @@
 # Copyright (c) 2010-2020 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
-from freud.util cimport vec3, quat
-from freud._locality cimport BondHistogramCompute
-
 cimport freud._locality
 cimport freud.util
+from freud._locality cimport BondHistogramCompute
+from freud.util cimport quat, vec3
+
 
 cdef extern from "PMFT.h" namespace "freud::pmft":
     cdef cppclass PMFT(BondHistogramCompute):

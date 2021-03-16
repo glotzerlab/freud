@@ -1,7 +1,8 @@
 import numpy as np
-import freud
 from benchmark import Benchmark
 from benchmarker import run_benchmarks
+
+import freud
 
 
 class BenchmarkPMFTPMFTR12(Benchmark):
@@ -14,31 +15,29 @@ class BenchmarkPMFTPMFTR12(Benchmark):
         self.box = freud.box.Box.square(self.L)
         seed = 0
         np.random.seed(seed)
-        self.points = np.random.uniform(-self.L/2, self.L/2, (N, 3))
+        self.points = np.random.uniform(-self.L / 2, self.L / 2, (N, 3))
         self.points[:, 2] = 0
-        self.orientations = np.random.uniform(0.0, 2*np.pi, (N, 1))
-        self.pmft = freud.pmft.PMFTR12(
-            self.r_max, self.bins)
+        self.orientations = np.random.uniform(0.0, 2 * np.pi, (N, 1))
+        self.pmft = freud.pmft.PMFTR12(self.r_max, self.bins)
 
     def bench_run(self, N):
-        self.pmft.compute((self.box, self.points),
-                          orientations=self.orientations)
+        self.pmft.compute((self.box, self.points), orientations=self.orientations)
         self.pmft.bin_counts
 
 
 def run():
     Ns = [100, 500, 1000, 2000]
     number = 100
-    name = 'freud.PMFT.PMFTR12'
+    name = "freud.PMFT.PMFTR12"
 
-    kwargs = {"L": 16.0,
-              "r_max": 5.23,
-              "bins": (10, 20, 30),
-              }
+    kwargs = {
+        "L": 16.0,
+        "r_max": 5.23,
+        "bins": (10, 20, 30),
+    }
 
-    return run_benchmarks(name, Ns, number, BenchmarkPMFTPMFTR12,
-                          **kwargs)
+    return run_benchmarks(name, Ns, number, BenchmarkPMFTPMFTR12, **kwargs)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run()

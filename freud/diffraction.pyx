@@ -12,17 +12,19 @@ diffraction pattern of particles in systems with long range order.
 finalized in a future release.
 """
 
-import freud.locality
 import logging
+
 import numpy as np
-import scipy.ndimage
 import rowan
+import scipy.ndimage
 
-from libcpp cimport bool as cbool
-from freud.util cimport _Compute
-cimport freud.util
+import freud.locality
+
 cimport numpy as np
+from libcpp cimport bool as cbool
 
+cimport freud.util
+from freud.util cimport _Compute
 
 logger = logging.getLogger(__name__)
 

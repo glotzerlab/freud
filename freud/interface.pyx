@@ -8,12 +8,14 @@ between sets of points.
 
 import numpy as np
 
-from freud.util cimport _Compute
 from freud.locality cimport _PairCompute
+from freud.util cimport _Compute
+
 import freud.locality
 
-cimport freud.locality
 cimport numpy as np
+
+cimport freud.locality
 
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults

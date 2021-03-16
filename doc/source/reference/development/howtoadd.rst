@@ -16,7 +16,7 @@ It is strongly recommended to `set up a pre-commit hook <https://pre-commit.com/
 
 .. code-block:: bash
 
-    pip install -r requirements-precommit.txt
+    pip install -r requirements/requirements-precommit.txt
     pre-commit install
 
 To manually run `pre-commit <https://pre-commit.com/>`__ for all the files present in the repository, run the following command:

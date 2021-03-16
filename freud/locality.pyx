@@ -5,21 +5,23 @@ R"""
 The :mod:`freud.locality` module contains data structures to efficiently
 locate points based on their proximity to other points.
 """
-import freud.util
 import inspect
+
 import numpy as np
+
+import freud.util
 from freud.errors import NO_DEFAULT_QUERY_ARGS_MESSAGE
 
-from libcpp cimport bool as cbool
-from freud.util cimport vec3, _Compute
+cimport numpy as np
 from cython.operator cimport dereference
+from libcpp cimport bool as cbool
 from libcpp.memory cimport shared_ptr
 from libcpp.vector cimport vector
-from freud._locality cimport ITERATOR_TERMINATOR
 
 cimport freud._locality
 cimport freud.box
-cimport numpy as np
+from freud._locality cimport ITERATOR_TERMINATOR
+from freud.util cimport _Compute, vec3
 
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
@@ -681,7 +683,7 @@ cdef class NeighborList:
             # Keep only the bonds between particles of type A and type B
             nlist.filter(types[nlist.query_point_indices] != types[nlist.point_indices])
         """  # noqa E501
-        filt = np.ascontiguousarray(filt, dtype=np.bool)
+        filt = np.ascontiguousarray(filt, dtype=bool)
         cdef np.ndarray[np.uint8_t, ndim=1, cast=True] filt_c = filt
         cdef const cbool * filt_ptr = <cbool*> &filt_c[0]
         self.thisptr.filter(filt_ptr)
