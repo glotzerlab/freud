@@ -33,6 +33,7 @@ export MACOSX_DEPLOYMENT_TARGET=10.12
 # tries to delete them again and causes errors. To avoid this issue, we update
 # manually here for the current main version of Python (required by pyenv).
 brew upgrade python@3.8
+brew install cmake
 brew install pyenv
 eval "$(pyenv init -)"
 # Check supported versions with pyenv install --list
