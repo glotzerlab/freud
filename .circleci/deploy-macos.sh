@@ -36,15 +36,21 @@ brew upgrade python@3.8
 brew install pyenv
 eval "$(pyenv init -)"
 # Check supported versions with pyenv install --list
-PY_VERSIONS=(3.6.12 3.7.9 3.8.6 3.9.0)
+PY_VERSIONS=(3.6.13 3.7.10 3.8.8 3.9.2)
 
 # Build TBB
-git clone https://github.com/intel/tbb.git
-cd tbb
+cd ~/
+git clone https://github.com/oneapi-src/oneTBB.git
+cd oneTBB
+mkdir -p build
+cd build
+cmake ../ -DTBB_TEST=OFF
 make
-BUILD_DIR=$(find build -name mac*release)
+cmake -DCOMPONENT=runtime -P cmake_install.cmake
+cmake -DCOMPONENT=devel -P cmake_install.cmake
+BUILD_DIR=$(dirname $(find -name vars.sh))
 cd ${BUILD_DIR}
-source tbbvars.sh
+source vars.sh
 # Force the TBB path to use an absolute path to itself for others to find.
 install_name_tool -id "${PWD}/libtbb.dylib" libtbb.dylib
 cd ~/
@@ -69,7 +75,7 @@ for VERSION in ${PY_VERSIONS[@]}; do
   pip wheel ~/ci/freud/ -w ~/wheelhouse/ --no-deps --no-build-isolation --no-use-pep517
 done
 
-# Update RPath for wheels
+# Update RPATH for wheels
 for whl in ~/wheelhouse/freud*.whl; do
   delocate-wheel "$whl" -w ~/ci/freud/wheelhouse/
 done
@@ -83,7 +89,7 @@ for VERSION in ${PY_VERSIONS[@]}; do
   # Don't install MDAnalysis and skip the relevant tests.
   cat ~/ci/freud/requirements/requirements-test.txt | grep -v MDAnalysis | xargs -n 1 pip install -U --progress-bar=off
   cd ~/ci/freud/tests
-  python -m unittest discover . -v
+  python -m pytest . -v
 done
 
 pip install --user twine
