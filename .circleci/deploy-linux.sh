@@ -65,7 +65,7 @@ for PYBIN in $PYBINS; do
   echo "Testing for $(${PYBIN}/python --version)"
 
   "${PYBIN}/python" -m pip install freud_analysis --no-deps --no-index -f ~/ci/freud/wheelhouse
-  "${PYBIN}/python" -m pip install -U -r ~/ci/freud/requirements/requirements-testing.txt --progress-bar=off
+  "${PYBIN}/python" -m pip install -U -r ~/ci/freud/requirements/requirements-test.txt --progress-bar=off
   cd ~/ci/freud/tests
   "${PYBIN}/python" -m unittest discover . -v
 done
