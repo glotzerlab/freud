@@ -11,8 +11,9 @@ matplotlib.use("agg")
 
 class TestGaussianDensity:
     def test_random_point_with_cell_list(self):
-        fft = pytest.importorskip("scipy.fftpack.fft")
-        fftshift = pytest.importorskip("scipy.fftpack.fftshift")
+        fftpack = pytest.importorskip("scipy.fftpack")
+        fft = fftpack.fft
+        fftshift = fftpack.fftshift
 
         width = 100
         r_max = 10.0

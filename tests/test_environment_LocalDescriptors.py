@@ -333,7 +333,8 @@ class TestLocalDescriptors:
     def test_ld(self):
         """Verify the behavior of LocalDescriptors by explicitly calculating
         spherical harmonics manually and verifying them."""
-        sph_harm = pytest.importorskip("scipy.special.sph_harm")
+        special = pytest.importorskip("scipy.special")
+        sph_harm = special.sph_harm
 
         atol = 1e-5
         L = 8
@@ -387,7 +388,8 @@ class TestLocalDescriptors:
     def test_query_point_ne_points(self):
         """Verify the behavior of LocalDescriptors by explicitly calculating
         spherical harmonics manually and verifying them."""
-        sph_harm = pytest.importorskip("scipy.special.sph_harm")
+        special = pytest.importorskip("scipy.special")
+        sph_harm = special.sph_harm
 
         atol = 1e-5
         L = 8
