@@ -1,4 +1,5 @@
 import matplotlib
+import matplotlib.pyplot as plt
 import numpy as np
 import numpy.testing as npt
 import pytest
@@ -315,8 +316,8 @@ class TestSteinhardt:
         assert st._repr_png_() is None
 
         st.compute(system=(box, points), neighbors={"r_max": 1.5})
-
         st._repr_png_()
+        plt.close("all")
 
     def test_no_neighbors(self):
         """Ensure that particles without neighbors are assigned NaN."""

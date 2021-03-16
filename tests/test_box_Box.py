@@ -366,14 +366,15 @@ class TestBox:
 
     def test_set_dimensions(self):
         b = np.asarray([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
-        box = freud.Box.from_box(b, dimensions=2)
+        with pytest.warns(UserWarning):
+            box = freud.Box.from_box(b, dimensions=2)
         assert box.dimensions == 2
 
     def test_2_dimensional(self):
         # Setting Lz for a 2D box throws a warning that we hide
-        warnings.simplefilter("ignore")
         box = freud.box.Box.square(L=1)
-        box.Lz = 1.0
+        with pytest.warns(UserWarning):
+            box.Lz = 1.0
         assert box.Lz == 0.0
         assert box.dimensions == 2
         box.dimensions = 3

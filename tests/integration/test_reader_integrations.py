@@ -59,6 +59,7 @@ class TestReaderIntegrations:
         with garnett.read(LJ_GSD) as traj:
             self.run_analyses(traj)
 
+    @pytest.mark.filterwarnings("ignore:Failed to import dcdreader")
     def test_garnett_dcd(self):
         import garnett
 

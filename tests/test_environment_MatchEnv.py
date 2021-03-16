@@ -1,6 +1,7 @@
 import os
 
 import matplotlib
+import matplotlib.pyplot as plt
 import numpy as np
 import numpy.testing as npt
 import pytest
@@ -420,6 +421,7 @@ class TestCluster:
         query_args = dict(r_guess=r_max, num_neighbors=num_neighbors)
         match.compute((box, xyz), threshold, neighbors=query_args)
         match._repr_png_()
+        plt.close("all")
 
 
 class TestEnvironmentMotifMatch:

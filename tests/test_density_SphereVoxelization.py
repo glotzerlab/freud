@@ -1,8 +1,12 @@
+import matplotlib
+import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 from SphereVoxelization_fft import compute_2d, compute_3d
 
 import freud
+
+matplotlib.use("agg")
 
 
 class TestSphereVoxelization:
@@ -153,3 +157,4 @@ class TestSphereVoxelization:
         vox.compute((test_box, points))
         vox.plot()
         assert vox._repr_png_() is None
+        plt.close("all")

@@ -1,6 +1,7 @@
 import warnings
 
 import matplotlib
+import matplotlib.pyplot as plt
 import numpy as np
 import numpy.testing as npt
 import pytest
@@ -420,6 +421,7 @@ class TestPMFTXY(PMFT2DTestBase):
 
         pmft.compute((box, points), angles, points, reset=False)
         pmft._repr_png_()
+        plt.close("all")
 
     def test_points_ne_query_points(self):
         x_max = 2.5

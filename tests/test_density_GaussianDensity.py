@@ -1,4 +1,5 @@
 import matplotlib
+import matplotlib.pyplot as plt
 import numpy as np
 import numpy.testing as npt
 import pytest
@@ -160,3 +161,4 @@ class TestGaussianDensity:
         gd.compute((test_box, points))
         gd.plot()
         assert gd._repr_png_() is None
+        plt.close("all")

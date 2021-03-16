@@ -1,4 +1,5 @@
 import matplotlib
+import matplotlib.pyplot as plt
 import numpy as np
 import numpy.testing as npt
 import pytest
@@ -224,6 +225,7 @@ class TestCorrelationFunction:
             neighbors={"r_max": r_max, "exclude_ii": True},
         )
         ocf._repr_png_()
+        plt.close("all")
 
     def test_query_nn_complex(self):
         """Test nearest-neighbor-based querying."""

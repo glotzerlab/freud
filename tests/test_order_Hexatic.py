@@ -1,4 +1,5 @@
 import matplotlib
+import matplotlib.pyplot as plt
 import numpy as np
 import numpy.testing as npt
 import pytest
@@ -95,7 +96,7 @@ class TestHexatic:
             assert (order >= 0).all() and (order <= 1).all()
 
             # Perform an explicit calculation in NumPy to verify results
-            psi_k_weighted = np.zeros(len(points), dtype=np.complex)
+            psi_k_weighted = np.zeros(len(points), dtype=np.complex128)
             total_weights = np.zeros(len(points))
             rijs = box.wrap(
                 points[voro.nlist.point_indices]
@@ -216,3 +217,4 @@ class TestHexatic:
         hop.compute((box, points))
         hop._repr_png_()
         hop.plot()
+        plt.close("all")

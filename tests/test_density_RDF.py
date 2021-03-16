@@ -1,4 +1,5 @@
 import matplotlib
+import matplotlib.pyplot as plt
 import numpy as np
 import numpy.testing as npt
 import pytest
@@ -126,6 +127,7 @@ class TestRDF:
         rdf.compute((box, points), reset=False)
         rdf.plot()
         rdf._repr_png_()
+        plt.close("all")
 
     def test_points_ne_query_points(self):
         r_max = 100.0

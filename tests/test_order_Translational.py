@@ -6,6 +6,7 @@ import pytest
 import util
 
 import freud
+from freud.errors import FreudDeprecationWarning
 
 
 class TestTranslational:
@@ -19,7 +20,8 @@ class TestTranslational:
 
         r_max = 1.1
         n = 4
-        trans = freud.order.Translational(4)
+        with pytest.warns(FreudDeprecationWarning):
+            trans = freud.order.Translational(4)
         # Test access
         with pytest.raises(AttributeError):
             trans.particle_order
@@ -35,5 +37,6 @@ class TestTranslational:
             npt.assert_allclose(trans.particle_order, 0, atol=1e-6)
 
     def test_repr(self):
-        trans = freud.order.Translational(4)
-        assert str(trans) == str(eval(repr(trans)))
+        with pytest.warns(FreudDeprecationWarning):
+            trans = freud.order.Translational(4)
+            assert str(trans) == str(eval(repr(trans)))

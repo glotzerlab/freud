@@ -1,4 +1,5 @@
 import matplotlib
+import matplotlib.pyplot as plt
 import numpy as np
 import numpy.testing as npt
 import pytest
@@ -413,3 +414,4 @@ class TestVoronoi:
         ).astype(np.float32)
         vor.compute((box, points))
         assert vor._repr_png_() is None
+        plt.close("all")
