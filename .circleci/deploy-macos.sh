@@ -37,7 +37,7 @@ brew install cmake
 brew install pyenv
 eval "$(pyenv init -)"
 # Check supported versions with pyenv install --list
-PY_VERSIONS=(3.6.13 3.7.10 3.8.8 3.9.2)
+PY_VERSIONS=(3.6.13 3.7.10 3.8.7 3.9.1)
 
 # Build TBB
 cd ~/
