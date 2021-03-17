@@ -80,10 +80,10 @@ for VERSION in ${PY_VERSIONS[@]}; do
   pip install freud_analysis --no-deps --no-index -f ~/ci/freud/wheelhouse
   if [[ $(python --version 2>&1) == *"3.6."* ]]; then
     # Python 3.6 is only supported with oldest requirements
-    pip install -U -r ~/ci/freud/.circleci/ci-oldest-reqs.txt --progress-bar=off
+    pip install -U -r ~/ci/freud/.circleci/ci-oldest-reqs.txt --progress-bar=off --no-use-pep517 --no-build-isolation
   else
     # Don't install MDAnalysis and skip the relevant tests
-    cat ~/ci/freud/requirements/requirements-test.txt | grep -v MDAnalysis | xargs -n 1 pip install -U --progress-bar=off
+    cat ~/ci/freud/requirements/requirements-test.txt | grep -v MDAnalysis | xargs -n 1 pip install -U --progress-bar=off --no-use-pep517 --no-build-isolation
   fi
   cd ~/ci/freud/tests/
   python -m pytest . -v
