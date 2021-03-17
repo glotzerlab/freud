@@ -63,16 +63,7 @@ for VERSION in ${PY_VERSIONS[@]}; do
   pyenv global ${VERSION}
 
   pip install --upgrade pip
-  pip install cython scikit-build cmake --ignore-installed -q --progress-bar=off
-  rm -rf numpy-1.14.6
-  curl -sSLO https://github.com/numpy/numpy/archive/v1.14.6.tar.gz
-  tar -xzf v1.14.6.tar.gz
-  cd numpy-1.14.6
-  rm -f numpy/random/mtrand/mtrand.c
-  rm -f PKG-INFO
-  pip install . --no-deps --ignore-installed -v -q --progress-bar=off
-
-  pip install wheel delocate --progress-bar=off
+  pip install cython scikit-build cmake oldest-supported-numpy wheel delocate --ignore-installed -q --progress-bar=off
   pip wheel ~/ci/freud/ -w ~/wheelhouse/ --no-deps --no-build-isolation --no-use-pep517
 done
 

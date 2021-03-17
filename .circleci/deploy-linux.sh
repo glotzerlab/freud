@@ -50,14 +50,7 @@ for PYBIN in $PYBINS; do
   # Need to export the current bin path so that scikit-build can find the pip
   # installed cmake binary.
   export PATH=${PYBIN}:${PATH}
-  "${PYBIN}/python" -m pip install cython scikit-build cmake --ignore-installed -q --progress-bar=off
-  rm -rf numpy-1.14.6
-  curl -sSLO https://github.com/numpy/numpy/archive/v1.14.6.tar.gz
-  tar -xzf v1.14.6.tar.gz
-  cd numpy-1.14.6
-  rm -f numpy/random/mtrand/mtrand.c
-  rm -f PKG-INFO
-  "${PYBIN}/python" -m pip install . --no-deps --ignore-installed -v --progress-bar=off -q
+  "${PYBIN}/python" -m pip install cython scikit-build cmake oldest-supported-numpy --ignore-installed -q --progress-bar=off
   "${PYBIN}/pip" wheel ~/ci/freud/ -w ~/wheelhouse/ --no-deps --no-build-isolation --no-use-pep517
 done
 
