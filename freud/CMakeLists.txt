@@ -32,6 +32,18 @@ if(${PYTHON_VERSION_MAJOR} EQUAL 3
   add_compile_options("-Wno-deprecated-declarations")
 endif()
 
+# Detect when building against a conda environment
+# set the _using_conda variable for use both in this file and in the parent
+get_filename_component(_python_bin_dir ${PYTHON_EXECUTABLE} DIRECTORY)
+if (EXISTS "${_python_bin_dir}/conda")
+    message("-- Detected conda python, setting INSTALL_RPATH_USE_LINK_PATH")
+    set(_using_conda On)
+    set(_using_conda On PARENT_SCOPE)
+else()
+    set(_using_conda Off)
+    set(_using_conda Off PARENT_SCOPE)
+endif()
+
 set(cython_modules_with_cpp
     box
     cluster
@@ -85,6 +97,11 @@ foreach(cython_module ${cython_modules_with_cpp} ${cython_modules_without_cpp})
                                                       "@loader_path")
   else()
     set_target_properties(${cython_module} PROPERTIES INSTALL_RPATH "\$ORIGIN")
+  endif()
+
+  if(_using_conda)
+    set_target_properties(${cython_module} PROPERTIES INSTALL_RPATH_USE_LINK_PATH
+                                                    True)
   endif()
 endforeach()
 
