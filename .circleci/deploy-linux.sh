@@ -56,7 +56,7 @@ done
 
 # Install patched auditwheel (fixes RPATHs for libfreud/libtbb, issue #136).
 cd ~/
-git clone https://github.com/mayeut/auditwheel.git -b issue136 auditwheel
+git clone https://github.com/pypa/auditwheel.git -b master auditwheel
 cd auditwheel
 /opt/_internal/tools/bin/pip install -e .
 
