@@ -26,7 +26,7 @@ In order to achieve this goal, **freud** takes the following viewpoints:
   standard for code, stressing explicitly written code which is easy
   to read.
 * To ensure correctness, **freud** employs unit testing using the
-  Python unittest framework. In addition, **freud** utilizes
+  Python :mod:`pytest` framework. In addition, **freud** utilizes
   `CircleCI <https://circleci.com>`_ for continuous integration to
   ensure that all of its code works correctly and that any changes or
   new features do not break existing functionality.

@@ -125,13 +125,13 @@ The **freud** CMake configuration also respects the following environment variab
 Unit Tests
 ==========
 
-The unit tests for **freud** are included in the repository and are configured to be run using the Python :mod:`unittest` library:
+The unit tests for **freud** are included in the repository and are configured to be run using the Python :mod:`pytest` library:
 
 .. code-block:: bash
 
     # Run tests from the tests directory
     cd tests
-    python -m unittest discover .
+    python -m pytest .
 
 Note that because **freud** is designed to require installation to run (i.e. it cannot be run directly out of the build directory), importing **freud** from the root of the repository will fail because it will try and import the package folder.
 As a result, unit tests must be run from outside the root directory if you wish to test the installed version of **freud**.

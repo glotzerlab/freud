@@ -6,7 +6,7 @@ import sys
 
 from skbuild import setup as skbuild_setup
 
-version = "2.4.1"
+version = "2.5.0"
 
 # Read README for PyPI, fallback to short description if it fails.
 description = "Powerful, efficient trajectory analysis in scientific Python."
@@ -84,9 +84,9 @@ setup(
     },
     python_requires=">=3.6",
     install_requires=[
-        "cython>=0.29",
+        "cython>=0.29.14",
         "numpy>=1.14",
-        "rowan>=1.2",
+        "rowan>=1.2.1",
         "scipy>=1.1",
     ],
     tests_require=[
