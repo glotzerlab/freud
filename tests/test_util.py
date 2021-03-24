@@ -29,7 +29,6 @@ class TestCommon:
         with pytest.raises(ValueError):
             z = freud.util._convert_array(y, (None,), dtype=np.float32)
 
-
         # test for non-default dtype
         z = freud.util._convert_array(y, dtype=np.float64)
         npt.assert_equal(z.dtype, np.float64)
