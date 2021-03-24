@@ -4,7 +4,7 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## v2.5.0 - 2021-03-xx
+## v2.5.0 - 2021-03-16
 
 ### Changed
 * NeighborList `filter` method has been optimized.

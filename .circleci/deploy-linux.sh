@@ -27,12 +27,18 @@ if [ -z $1 ]; then
 fi
 
 # Build TBB
-git clone https://github.com/intel/tbb.git
-cd tbb
+cd ~/
+git clone https://github.com/oneapi-src/oneTBB.git
+cd oneTBB
+mkdir -p build
+cd build
+cmake ../ -DTBB_TEST=OFF
 make
-BUILD_DIR=$(find build -name linux*release)
+cmake -DCOMPONENT=runtime -P cmake_install.cmake
+cmake -DCOMPONENT=devel -P cmake_install.cmake
+BUILD_DIR=$(dirname $(find . -name vars.sh))
 cd ${BUILD_DIR}
-source tbbvars.sh
+source vars.sh
 cd ~/
 
 # Build wheels for Python 3.6, 3.7, 3.8, 3.9
@@ -44,18 +50,17 @@ for PYBIN in $PYBINS; do
   # Need to export the current bin path so that scikit-build can find the pip
   # installed cmake binary.
   export PATH=${PYBIN}:${PATH}
-  "${PYBIN}/python" -m pip install cython scikit-build cmake --ignore-installed -q --progress-bar=off
-  rm -rf numpy-1.14.6
-  curl -sSLO https://github.com/numpy/numpy/archive/v1.14.6.tar.gz
-  tar -xzf v1.14.6.tar.gz
-  cd numpy-1.14.6
-  rm -f numpy/random/mtrand/mtrand.c
-  rm -f PKG-INFO
-  "${PYBIN}/python" -m pip install . --no-deps --ignore-installed -v --progress-bar=off -q
+  "${PYBIN}/python" -m pip install cython scikit-build cmake oldest-supported-numpy --ignore-installed -q --progress-bar=off
   "${PYBIN}/pip" wheel ~/ci/freud/ -w ~/wheelhouse/ --no-deps --no-build-isolation --no-use-pep517
 done
 
-# Update RPath for wheels
+# Install patched auditwheel (fixes RPATHs for libfreud/libtbb, issue #136).
+cd ~/
+git clone https://github.com/pypa/auditwheel.git -b master auditwheel
+cd auditwheel
+/opt/_internal/tools/bin/pip install -e .
+
+# Update RPATH for wheels
 for whl in ~/wheelhouse/freud*.whl; do
   auditwheel repair "$whl" -w ~/ci/freud/wheelhouse/
 done
@@ -65,9 +70,14 @@ for PYBIN in $PYBINS; do
   echo "Testing for $(${PYBIN}/python --version)"
 
   "${PYBIN}/python" -m pip install freud_analysis --no-deps --no-index -f ~/ci/freud/wheelhouse
-  "${PYBIN}/python" -m pip install -U -r ~/ci/freud/requirements/requirements-test.txt --progress-bar=off
-  cd ~/ci/freud/tests
-  "${PYBIN}/python" -m unittest discover . -v
+  if [[ $("${PYBIN}/python" --version 2>&1) == *"3.6."* ]]; then
+    # Python 3.6 is only supported with oldest requirements
+    "${PYBIN}/python" -m pip install -U -r ~/ci/freud/.circleci/ci-oldest-reqs.txt --progress-bar=off
+  else
+    "${PYBIN}/python" -m pip install -U -r ~/ci/freud/requirements/requirements-test.txt --progress-bar=off
+  fi
+  cd ~/ci/freud/tests/
+  "${PYBIN}/python" -m pytest . -v
 done
 
 # Build source distribution using whichever Python appears last

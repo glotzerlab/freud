@@ -63,7 +63,7 @@ To keep modules well-organized, **freud** implements the following structure:
 - The core Cython code for modules is contained in ``freud/MODULENAME.pyx`` (no underscore).
 - Generated Cython C++ code (e.g. ``freud/MODULENAME.cxx``) should not be committed during development. These files are generated using Cython when building from source, and are unnecessary when installing compiled binaries.
 - If a Cython module contains code that must be imported into other Cython modules (such as the :class:`freud.box.Box` class), the ``pyx`` file must be accompanied by a ``pxd`` file with the same name: ``freud/MODULENAME.pxd`` (distinguished from ``pxd`` files used to expose C++ code by the lack of a preceding underscore). For more information on how ``pxd`` files work, see the `Cython documentation <https://cython.readthedocs.io/en/latest/src/tutorial/pxd_files.html>`_.
-- All tests in **freud** are based on the Python standard :mod:`unittest` library and are contained in the ``tests`` folder. Test files are named by the convention ``tests/test_MODULENAME_CLASSNAME.py``.
+- All tests in **freud** are based on the Python :mod:`pytest` library and are contained in the ``tests`` folder. Test files are named by the convention ``tests/test_MODULENAME_CLASSNAME.py``.
 - Benchmarks for **freud** are contained in the ``benchmarks`` directory and are named analogously to tests: ``benchmarks/benchmark_MODULENAME_CLASSNAME.py``.
 
 Benchmarks

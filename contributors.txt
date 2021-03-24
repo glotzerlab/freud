@@ -1,8 +1,8 @@
   2066	Vyas Ramasubramani <vramasub@umich.edu>
-  1773	Bradley Dice <bdice@bradleydice.com>
+  1862	Bradley Dice <bdice@bradleydice.com>
   1030	Eric Harper <harperic@umich.edu>
    456	Jin Soo Ihm <jinihm@umich.edu>
-   278	Joshua A. Anderson <joaander@umich.edu>
+   281	Joshua A. Anderson <joaander@umich.edu>
    240	Matthew Spellings <mspells@umich.edu>
    159	Kelly Wang <kelwang@umich.edu>
    110	Erin Teich <erteich@umich.edu>
@@ -12,13 +12,13 @@
     41	Yezhi Jin <jinyezhi@umich.edu>
     40	Antonio Osorio <aosorio@umich.edu>
     35	Michael Stryk <mstryk@umich.edu>
+    35	dependabot <dependabot[bot]@users.noreply.github.com>
     31	Richmond Newman <newmanrs@umich.edu>
     30	Tommy Waltmann <tomwalt@umich.edu>
     25	Carl Simon Adorf <csadorf@umich.edu>
     22	Jens Glaser <jsglaser@umich.edu>
-    17	dependabot <dependabot[bot]@users.noreply.github.com>
+    14	Tim Moore <mtimc@umich.edu>
     13	Pavel Buslaev <pbuslaev@gmail.com>
-    12	Tim Moore <mootimot@umich.edu>
     10	Benjamin Schultz <baschult@umich.edu>
     10	Bryan VanSaders <bvansade@umich.edu>
     10	Matt Palathingal <mattjose@umich.edu>
