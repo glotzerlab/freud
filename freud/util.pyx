@@ -196,7 +196,7 @@ cdef class _Compute(object):
         return repr(self)
 
 
-def _convert_array(array, shape=None, out=None, dtype=np.float32):
+def _convert_array(array, shape=None, dtype=np.float32):
     """Function which takes a given array, checks the dimensions and shape,
     and converts to a supplied dtype.
 
@@ -217,14 +217,14 @@ def _convert_array(array, shape=None, out=None, dtype=np.float32):
     Returns:
         :class:`numpy.ndarray`: Array.
     """
-    if out is None:
-        out = np.empty_like(array, dtype=dtype, order='C')
+    if array is None:
+        return np.empty(shape, dtype=dtype)
 
+    array = np.asarray(array)
     return_arr = np.require(array, dtype=dtype, requirements=['C'])
-    np.copyto(out, return_arr)
 
     if shape is not None:
-        if return_arr.ndim != len(shape):
+        if array.ndim != len(shape):
             raise ValueError("array.ndim = {}; expected ndim = {}".format(
                 return_arr.ndim, len(shape)))
 
@@ -235,7 +235,7 @@ def _convert_array(array, shape=None, out=None, dtype=np.float32):
                 raise ValueError('array.shape= {}; expected shape = {}'.format(
                     return_arr.shape, shape_str))
 
-    return out
+    return return_arr
 
 
 def _convert_box(box, dimensions=None):

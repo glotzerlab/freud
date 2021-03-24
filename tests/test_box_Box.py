@@ -115,20 +115,24 @@ class TestBox(unittest.TestCase):
         points = np.array(points)
         npt.assert_allclose(box.wrap(points)[0, 0], -2, rtol=1e-6)
 
-    def test_out_is_input_array(self):
+    def test_out_default(self):
         box = freud.box.Box(2, 2, 2, 1, 0, 0)
         points = [[10, -5, -5], [0, 0.5, 0]]
-        points = np.array(points, dtype=np.float32)
+        npt.assert_allclose(box.wrap(points)[0, 0], -2, rtol=1e-6)
+
+    def test_out_provided_with_input_array(self):
+        box = freud.box.Box(2, 2, 2, 1, 0, 0)
+        points = [[10, -5, -5], [0, 0.5, 0]]
         npt.assert_allclose(box.wrap(points, out=points)[0, 0], -2, rtol=1e-6)
 
-    def test_out_is_new_array(self):
+    def test_out_provided_with_new_array(self):
         box = freud.box.Box(2, 2, 2, 1, 0, 0)
         points = [[10, -5, -5], [0, 0.5, 0]]
         points = np.array(points, dtype=np.float32)
         new_array = np.zeros(points.shape, dtype=np.float32)
         npt.assert_allclose(box.wrap(points, out=new_array)[0, 0], -2, rtol=1e-6)
 
-    def test_out_is_array_with_wrong_shape(self):
+    def test_out_provided_with_array_with_wrong_shape(self):
         box = freud.box.Box(2, 2, 2, 1, 0, 0)
         points = [[10, -5, -5], [0, 0.5, 0]]
         points = np.array(points, dtype=np.float32)
@@ -136,13 +140,12 @@ class TestBox(unittest.TestCase):
         with self.assertRaises(ValueError):
             npt.assert_allclose(box.wrap(points, out=new_array)[0, 0], -2, rtol=1e-6)
 
-    def test_out_is_array_with_wrong_dtype(self):
+    def test_out_provided_with_array_with_wrong_dtype(self):
         box = freud.box.Box(2, 2, 2, 1, 0, 0)
         points = [[10, -5, -5], [0, 0.5, 0]]
         points = np.array(points, dtype=np.int)
         new_array = np.zeros(points.shape, dtype=np.int64)
-        with self.assertRaises(TypeError):
-            npt.assert_allclose(box.wrap(points, out=new_array)[0, 0], -2, rtol=1e-6)
+        npt.assert_allclose(box.wrap(points, out=new_array)[0, 0], -2, rtol=1e-6)
 
     def test_unwrap(self):
         box = freud.box.Box(2, 2, 2, 1, 0, 0)

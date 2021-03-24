@@ -336,12 +336,17 @@ public:
     /*! \param vecs Vectors to wrap, updated to the minimum image obeying the periodic settings
      *  \param Nvecs Number of vectors
      */
-    void wrap(vec3<float>* vecs, unsigned int Nvecs) const
+    void wrap(vec3<float>* vecs, unsigned int Nvecs, vec3<float> *out = nullptr) const
     {
+        if (out == nullptr)
+        {
+            out = vecs;
+        }
+
         util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
-                vecs[i] = wrap(vecs[i]);
+                out[i] = wrap(vecs[i]);
             }
         });
     }
