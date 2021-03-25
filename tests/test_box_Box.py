@@ -1,36 +1,32 @@
-import unittest
 import warnings
 from collections import namedtuple
 
 import matplotlib
 import numpy as np
 import numpy.testing as npt
+import pytest
 
 import freud
 
 matplotlib.use("agg")
 
 
-class TestBox(unittest.TestCase):
-    def setUp(self):
-        # We ignore warnings for test_2_dimensional
-        warnings.simplefilter("ignore")
-
+class TestBox:
     def test_construct(self):
         """Test correct behavior for various constructor signatures"""
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             freud.box.Box(0, 0)
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             freud.box.Box(1, 2, is2D=False)
 
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
             freud.box.Box(1, 2, 3, is2D=True)
-            self.assertTrue(len(w) == 1)
+            assert len(w) == 1
 
         box = freud.box.Box(1, 2)
-        self.assertTrue(box.dimensions == 2)
+        assert box.dimensions == 2
 
     def test_get_length(self):
         box = freud.box.Box(2, 4, 5, 1, 0, 0)
@@ -56,10 +52,10 @@ class TestBox(unittest.TestCase):
         box.L = [7, 8, 9]
         npt.assert_allclose(box.L, [7, 8, 9], rtol=1e-6)
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             box.L = [1, 2, 3, 4]
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             box.L = [1, 2]
 
     def test_get_tilt_factor(self):
@@ -94,7 +90,8 @@ class TestBox(unittest.TestCase):
 
         points = np.array(points)
         npt.assert_allclose(box.wrap(points)[0], -2, rtol=1e-6)
-        with self.assertRaises(ValueError):
+
+        with pytest.raises(ValueError):
             box.wrap([1, 2])
 
     def test_wrap_multiple_particles(self):
@@ -114,7 +111,7 @@ class TestBox(unittest.TestCase):
 
         points = np.array(points)
         npt.assert_allclose(box.wrap(points)[0, 0], -2, rtol=1e-6)
-
+    
     def test_out_default(self):
         box = freud.box.Box(2, 2, 2, 1, 0, 0)
         points = [[10, -5, -5], [0, 0.5, 0]]
@@ -137,7 +134,7 @@ class TestBox(unittest.TestCase):
         points = [[10, -5, -5], [0, 0.5, 0]]
         points = np.array(points, dtype=np.float32)
         new_array = np.zeros((np.asarray(points.shape) - 1), dtype=np.float32)
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             npt.assert_allclose(box.wrap(points, out=new_array)[0, 0], -2, rtol=1e-6)
 
     def test_out_provided_with_array_with_wrong_dtype(self):
@@ -162,10 +159,10 @@ class TestBox(unittest.TestCase):
         imgs = np.array(imgs)
         npt.assert_allclose(box.unwrap(points, imgs)[0, 0], 2, rtol=1e-6)
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             box.unwrap(points, imgs[..., np.newaxis])
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             box.unwrap(points[:, :2], imgs)
 
         # Now test 2D
@@ -306,16 +303,16 @@ class TestBox(unittest.TestCase):
     def test_periodic(self):
         box = freud.box.Box(1, 2, 3, 0, 0, 0)
         npt.assert_array_equal(box.periodic, True)
-        self.assertTrue(box.periodic_x)
-        self.assertTrue(box.periodic_y)
-        self.assertTrue(box.periodic_z)
+        assert box.periodic_x
+        assert box.periodic_y
+        assert box.periodic_z
 
         # Test setting all flags together
         box.periodic = False
         npt.assert_array_equal(box.periodic, False)
-        self.assertFalse(box.periodic_x)
-        self.assertFalse(box.periodic_y)
-        self.assertFalse(box.periodic_z)
+        assert not box.periodic_x
+        assert not box.periodic_y
+        assert not box.periodic_z
 
         # Test setting flags as a list
         box.periodic = [True, True, True]
@@ -325,9 +322,9 @@ class TestBox(unittest.TestCase):
         box.periodic_x = False
         box.periodic_y = False
         box.periodic_z = False
-        self.assertEqual(box.periodic_x, False)
-        self.assertEqual(box.periodic_y, False)
-        self.assertEqual(box.periodic_z, False)
+        assert not box.periodic_x
+        assert not box.periodic_y
+        assert not box.periodic_z
 
         box.periodic = True
         npt.assert_array_equal(box.periodic, True)
@@ -335,17 +332,17 @@ class TestBox(unittest.TestCase):
     def test_equal(self):
         box = freud.box.Box(2, 2, 2, 1, 0.5, 0.1)
         box2 = freud.box.Box(2, 2, 2, 1, 0, 0)
-        self.assertEqual(box, box)
-        self.assertNotEqual(box, box2)
+        assert box == box
+        assert box != box2
 
     def test_repr(self):
         box = freud.box.Box(2, 2, 2, 1, 0.5, 0.1)
-        self.assertEqual(box, eval(repr(box)))
+        assert box == eval(repr(box))
 
     def test_str(self):
         box = freud.box.Box(2, 2, 2, 1, 0.5, 0.1)
         box2 = freud.box.Box(2, 2, 2, 1, 0.5, 0.1)
-        self.assertEqual(str(box), str(box2))
+        assert str(box) == str(box2)
 
     def test_to_dict(self):
         """Test converting box to dict"""
@@ -359,13 +356,13 @@ class TestBox(unittest.TestCase):
         """Test various methods of initializing a box"""
         box = freud.box.Box(2, 2, 2, 1, 0.5, 0.1)
         box2 = freud.box.Box.from_box(box)
-        self.assertEqual(box, box2)
+        assert box == box2
 
         box_dict = {"Lx": 2, "Ly": 2, "Lz": 2, "xy": 1, "xz": 0.5, "yz": 0.1}
         box3 = freud.box.Box.from_box(box_dict)
-        self.assertEqual(box, box3)
+        assert box == box3
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             box_dict["dimensions"] = 3
             freud.box.Box.from_box(box_dict, 2)
 
@@ -373,82 +370,84 @@ class TestBox(unittest.TestCase):
             "BoxTuple", ["Lx", "Ly", "Lz", "xy", "xz", "yz", "dimensions"]
         )
         box4 = freud.box.Box.from_box(BoxTuple(2, 2, 2, 1, 0.5, 0.1, 3))
-        self.assertEqual(box, box4)
+        assert box == box4
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             freud.box.Box.from_box(BoxTuple(2, 2, 2, 1, 0.5, 0.1, 2), 3)
 
         box5 = freud.box.Box.from_box([2, 2, 2, 1, 0.5, 0.1])
-        self.assertEqual(box, box5)
+        assert box == box5
 
         box6 = freud.box.Box.from_box(np.array([2, 2, 2, 1, 0.5, 0.1]))
-        self.assertEqual(box, box6)
+        assert box == box6
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             freud.box.Box.from_box([2, 2, 2, 1, 0.5])
 
         box7 = freud.box.Box.from_matrix(box.to_matrix())
-        self.assertTrue(np.isclose(box.to_matrix(), box7.to_matrix()).all())
+        assert np.isclose(box.to_matrix(), box7.to_matrix()).all()
 
     def test_matrix(self):
         box = freud.box.Box(2, 2, 2, 1, 0.5, 0.1)
         box2 = freud.box.Box.from_matrix(box.to_matrix())
-        self.assertTrue(np.isclose(box.to_matrix(), box2.to_matrix()).all())
+        assert np.isclose(box.to_matrix(), box2.to_matrix()).all()
 
         box3 = freud.box.Box(2, 2, 0, 0.5, 0, 0)
         box4 = freud.box.Box.from_matrix(box3.to_matrix())
-        self.assertTrue(np.isclose(box3.to_matrix(), box4.to_matrix()).all())
+        assert np.isclose(box3.to_matrix(), box4.to_matrix()).all()
 
     def test_set_dimensions(self):
         b = np.asarray([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
-        box = freud.Box.from_box(b, dimensions=2)
-        self.assertTrue(box.dimensions == 2)
+        with pytest.warns(UserWarning):
+            box = freud.Box.from_box(b, dimensions=2)
+        assert box.dimensions == 2
 
     def test_2_dimensional(self):
+        # Setting Lz for a 2D box throws a warning that we hide
         box = freud.box.Box.square(L=1)
-        # Setting Lz for a 2D box throws a warning that we hide with setUp()
-        box.Lz = 1.0
-        self.assertEqual(box.Lz, 0.0)
-        self.assertTrue(box.dimensions == 2)
+        with pytest.warns(UserWarning):
+            box.Lz = 1.0
+        assert box.Lz == 0.0
+        assert box.dimensions == 2
         box.dimensions = 3
-        self.assertEqual(box.Lz, 0.0)
-        self.assertTrue(box.dimensions == 3)
+        assert box.Lz == 0.0
+        assert box.dimensions == 3
         box.Lz = 1.0
-        self.assertEqual(box.Lz, 1.0)
+        assert box.Lz == 1.0
 
     def test_cube(self):
         L = 10.0
         cube = freud.box.Box.cube(L=L)
-        self.assertEqual(cube.Lx, L)
-        self.assertEqual(cube.Ly, L)
-        self.assertEqual(cube.Lz, L)
-        self.assertEqual(cube.xy, 0)
-        self.assertEqual(cube.xz, 0)
-        self.assertEqual(cube.yz, 0)
-        self.assertEqual(cube.dimensions, 3)
+        assert cube.Lx == L
+        assert cube.Ly == L
+        assert cube.Lz == L
+        assert cube.xy == 0
+        assert cube.xz == 0
+        assert cube.yz == 0
+        assert cube.dimensions == 3
 
     def test_square(self):
         L = 10.0
         square = freud.box.Box.square(L=L)
-        self.assertEqual(square.Lx, L)
-        self.assertEqual(square.Ly, L)
-        self.assertEqual(square.Lz, 0)
-        self.assertEqual(square.xy, 0)
-        self.assertEqual(square.xz, 0)
-        self.assertEqual(square.yz, 0)
-        self.assertEqual(square.dimensions, 2)
+        assert square.Lx == L
+        assert square.Ly == L
+        assert square.Lz == 0
+        assert square.xy == 0
+        assert square.xz == 0
+        assert square.yz == 0
+        assert square.dimensions == 2
 
     def test_multiply(self):
         box = freud.box.Box(2, 3, 4, 1, 0.5, 0.1)
         box2 = box * 2
-        self.assertTrue(np.isclose(box2.Lx, 4))
-        self.assertTrue(np.isclose(box2.Ly, 6))
-        self.assertTrue(np.isclose(box2.Lz, 8))
-        self.assertTrue(np.isclose(box2.xy, 1))
-        self.assertTrue(np.isclose(box2.xz, 0.5))
-        self.assertTrue(np.isclose(box2.yz, 0.1))
+        assert np.isclose(box2.Lx, 4)
+        assert np.isclose(box2.Ly, 6)
+        assert np.isclose(box2.Lz, 8)
+        assert np.isclose(box2.xy, 1)
+        assert np.isclose(box2.xz, 0.5)
+        assert np.isclose(box2.yz, 0.1)
         box3 = 2 * box
-        self.assertEqual(box2, box3)
+        assert box2 == box3
 
     def test_plot_3d(self):
         box = freud.box.Box(2, 3, 4, 1, 0.5, 0.1)
@@ -475,11 +474,11 @@ class TestBox(unittest.TestCase):
         distances = box.compute_distances(query_points[0], points[1])
         npt.assert_allclose(distances, [0.3], rtol=1e-6)
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             box.compute_distances(
                 query_points[query_point_indices[:-1]], points[point_indices]
             )
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             box.compute_distances(
                 query_points[query_point_indices], points[point_indices[:-1]]
             )
@@ -544,5 +543,3 @@ class TestBox(unittest.TestCase):
         npt.assert_array_equal(in_box_mask, box.contains(points))
 
 
-if __name__ == "__main__":
-    unittest.main()
