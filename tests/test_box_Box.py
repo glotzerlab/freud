@@ -111,7 +111,7 @@ class TestBox:
 
         points = np.array(points)
         npt.assert_allclose(box.wrap(points)[0, 0], -2, rtol=1e-6)
-    
+
     def test_out_default(self):
         box = freud.box.Box(2, 2, 2, 1, 0, 0)
         points = [[10, -5, -5], [0, 0.5, 0]]
@@ -541,5 +541,3 @@ class TestBox:
         in_box_mask = np.ones(points.shape[0]).astype(bool)
         in_box_mask[:50] = False
         npt.assert_array_equal(in_box_mask, box.contains(points))
-
-
