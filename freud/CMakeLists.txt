@@ -35,9 +35,6 @@ endif()
 # Detect when building against a conda environment set the _using_conda variable
 # for use both in this file and in the parent
 get_filename_component(_python_bin_dir ${PYTHON_EXECUTABLE} DIRECTORY)
-message("PYTHON_EXECUTABLE: ${PYTHON_EXECUTABLE}")
-message("_python_bin_dir: ${_python_bin_dir}")
-execute_process(COMMAND ls "${_python_bin_dir}/..")
 if(EXISTS "${_python_bin_dir}/../conda-meta")
   message("-- Detected conda environment, setting INSTALL_RPATH_USE_LINK_PATH")
   set(_using_conda On)
