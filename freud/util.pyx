@@ -201,7 +201,8 @@ def _convert_array(array, shape=None, dtype=np.float32):
     and converts to a supplied dtype.
 
     Args:
-        array (:class:`numpy.ndarray`): Array to check and convert.
+        array (:class:`numpy.ndarray` or :code:`None`): Array to check and convert.
+            If :code:`None`, an empty array of given shape and type will be initialized.
         shape: (tuple of int and :code:`None`): Expected shape of the array.
             Only the dimensions that are not :code:`None` are checked.
             (Default value = :code:`None`).

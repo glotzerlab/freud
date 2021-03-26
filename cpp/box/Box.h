@@ -336,7 +336,7 @@ public:
     /*! \param vecs Vectors to wrap, updated to the minimum image obeying the periodic settings
      *  \param Nvecs Number of vectors
      */
-    void wrap(vec3<float>* vecs, unsigned int Nvecs, vec3<float> *out = nullptr) const
+    void wrap(vec3<float>* vecs, unsigned int Nvecs, vec3<float>* out = nullptr) const
     {
         if (out == nullptr)
         {

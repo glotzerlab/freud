@@ -292,9 +292,9 @@ cdef class Box:
         Args:
             vecs (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Unwrapped vector(s).
-            out (:class:`numpy.ndarray` or :code:`None`):
+            out (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray` or :code:`None`):
                 The array in which to place the wrapped vectors. It must be of
-                dtype `np.float32` or larger. If ``None``, this function will
+                dtype `np.float32`. If ``None``, this function will
                 return a newly allocated array (Default value = None).
 
         Returns:
@@ -305,6 +305,10 @@ cdef class Box:
         flatten = vecs.ndim == 1
         vecs = np.atleast_2d(vecs)
         vecs = freud.util._convert_array(vecs, shape=(None, 3))
+        if out is not None:
+            if out.dtype != np.float32:
+                raise ValueError('expected out array type: np.float32)
+
         out = freud.util._convert_array(out, shape=vecs.shape)
 
         cdef const float[:, ::1] l_points = vecs
@@ -313,9 +317,8 @@ cdef class Box:
 
         self.thisptr.wrap(<vec3[float]*> &l_points[0, 0],
                           Np, <vec3[float]*> &l_out[0, 0])
-        if flatten:
-            out = np.squeeze(out)
-        return out
+
+        return np.squeeze(out) if flatten else out
 
     def unwrap(self, vecs, imgs):
         R"""Unwrap an array of vectors inside the box back into real space,
