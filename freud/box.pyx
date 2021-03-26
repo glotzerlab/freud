@@ -307,7 +307,7 @@ cdef class Box:
         vecs = freud.util._convert_array(vecs, shape=(None, 3))
         if out is not None:
             if out.dtype != np.float32:
-                raise ValueError('expected out array type: np.float32)
+                raise ValueError('expected out array type: np.float32')
 
         out = freud.util._convert_array(out, shape=vecs.shape)
 
