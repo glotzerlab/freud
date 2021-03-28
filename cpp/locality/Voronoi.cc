@@ -154,7 +154,7 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
                 const vec3<float> rij = box.wrap(point_system_coords - query_point_system_coords);
                 const float distance(std::sqrt(dot(rij, rij)));
 
-                bonds.emplace_back(query_point_id, point_id, distance, weight);
+                bonds.emplace_back(query_point_id, point_id, distance, weight, rij);
             }
 
         } while (voronoi_loop.inc());
@@ -176,6 +176,7 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
             m_neighbor_list->getNeighbors()(bond, 1) = bonds[bond].point_idx;
             m_neighbor_list->getDistances()[bond] = bonds[bond].distance;
             m_neighbor_list->getWeights()[bond] = bonds[bond].weight;
+            m_neighbor_list->getVectors()[bond] = bonds[bond].vector;
         }
     });
 }

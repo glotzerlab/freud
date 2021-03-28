@@ -27,8 +27,7 @@ NeighborList::NeighborList(const NeighborList& other)
 
 NeighborList::NeighborList(unsigned int num_bonds, const unsigned int* query_point_index,
                            unsigned int num_query_points, const unsigned int* point_index,
-                           unsigned int num_points, const float* distances, const float* weights,
-                           const vec3<float>* vectors)
+                           unsigned int num_points, const vec3<float>* vectors, const float* weights)
     : m_num_query_points(num_query_points), m_num_points(num_points), m_neighbors({num_bonds, 2}),
       m_distances(num_bonds), m_weights(num_bonds), m_vectors(num_bonds), m_segments_counts_updated(false)
 {
@@ -51,9 +50,9 @@ NeighborList::NeighborList(unsigned int num_bonds, const unsigned int* query_poi
         }
         m_neighbors(i, 0) = index;
         m_neighbors(i, 1) = point_index[i];
-        m_distances[i] = distances[i];
-        m_weights[i] = weights[i];
         m_vectors[i] = vectors[i];
+        m_distances[i] = std::sqrt(dot(vectors[i], vectors[i]));
+        m_weights[i] = weights[i];
         last_index = index;
     }
 }

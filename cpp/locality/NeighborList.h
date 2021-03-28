@@ -35,7 +35,7 @@ public:
     NeighborList(const NeighborList& other);
     //! Construct from arrays
     NeighborList(unsigned int num_bonds, const unsigned int* query_point_index, unsigned int num_query_points,
-                 const unsigned int* point_index, unsigned int num_points, const float* distances,
+                 const unsigned int* point_index, unsigned int num_points, const vec3<float>* vectors,
                  const float* weights);
 
     //! Return the number of bonds stored in this NeighborList

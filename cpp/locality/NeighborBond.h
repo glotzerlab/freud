@@ -19,7 +19,7 @@ struct NeighborBond
     // For now, id = query_point_idx and ref_id = point_idx (into the NeighborQuery).
     constexpr NeighborBond() = default;
 
-    constexpr NeighborBond(unsigned int query_point_idx, unsigned int point_idx, float d = 0, float w = 1, vec3<float> v = vec3<float>(0, 0, 0))
+    constexpr NeighborBond(unsigned int query_point_idx, unsigned int point_idx, float d, float w, vec3<float> v)
         : query_point_idx(query_point_idx), point_idx(point_idx), distance(d), weight(w), vector(v)
     {}
 
@@ -27,7 +27,7 @@ struct NeighborBond
     bool operator==(const NeighborBond& other) const
     {
         return (query_point_idx == other.query_point_idx) && (point_idx == other.point_idx)
-            && (distance == other.distance);
+            && (distance == other.distance) && (vector == other.vector);
     }
 
     //! Not equals checks inverse of equality.
@@ -96,7 +96,7 @@ struct NeighborBond
     unsigned int point_idx {0};       //! The reference point index.
     float distance {0};               //! The distance between the points.
     float weight {0};                 //! The weight of this bond.
-    vec3<float> vector {0, 0, 0};     //! The directed vector from query point to reference point
+    vec3<float> vector;               //! The directed vector from query point to reference point
 };
 
 }; }; // end namespace freud::locality
