@@ -185,21 +185,24 @@ class TestNeighborList:
 
         # mismatched array sizes
         with pytest.raises(ValueError):
+            # wrong number of query point indices
             freud.locality.NeighborList.from_arrays(
                 4, 4, query_point_indices[:-1], point_indices, vectors
             )
         with pytest.raises(ValueError):
+            # wrong number of point indices
             freud.locality.NeighborList.from_arrays(
                 4, 4, query_point_indices, point_indices[:-1], vectors
             )
         with pytest.raises(ValueError):
+            # wrong number of vectors
             freud.locality.NeighborList.from_arrays(
                 4, 4, query_point_indices, point_indices, vectors[:-1]
             )
         with pytest.raises(ValueError):
-            weights = np.ones((len(query_point_indices) - 1,))
+            # wrong number of weights
             freud.locality.NeighborList.from_arrays(
-                4, 4, query_point_indices, point_indices, vectors, weights
+                4, 4, query_point_indices, point_indices, vectors, weights[:-1]
             )
 
     def test_indexing_empty(self):
