@@ -66,9 +66,9 @@ void SphereVoxelization::compute(const freud::locality::NeighborQuery* nq)
     const float Lz = m_box.getLz();
     const vec3<bool> periodic = m_box.getPeriodic();
 
-    const float grid_size_x = Lx / m_width.x;
-    const float grid_size_y = Ly / m_width.y;
-    const float grid_size_z = m_box.is2D() ? 0 : Lz / m_width.z;
+    const float grid_size_x = Lx / static_cast<float>(m_width.x);
+    const float grid_size_y = Ly / static_cast<float>(m_width.y);
+    const float grid_size_z = m_box.is2D() ? 0 : Lz / static_cast<float>(m_width.z);
 
     // Find the number of bins within r_max
     const int bin_cut_x = int(m_r_max / grid_size_x);

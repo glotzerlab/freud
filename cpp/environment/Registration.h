@@ -61,11 +61,7 @@ inline std::vector<vec3<float>> makeVec3Matrix(const matrix& m)
     std::vector<vec3<float>> vecs;
     for (unsigned int i = 0; i < m.rows(); i++)
     {
-        vec3<float> v;
-        v.x = m(i, 0);
-        v.y = m(i, 1);
-        v.z = m(i, 2);
-        vecs.push_back(v);
+        vecs.emplace_back(m(i, 0), m(i, 1), m(i, 2));
     }
     return vecs;
 }
