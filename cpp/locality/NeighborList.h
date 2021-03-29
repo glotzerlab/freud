@@ -98,7 +98,7 @@ public:
     {
         return m_weights;
     }
-    //! Access the vectors array for reading and writing
+    //! Access the vectors array for reading
     const util::ManagedArray<vec3<float>>& getVectors() const
     {
         return m_vectors;
