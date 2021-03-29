@@ -412,7 +412,6 @@ class TestLocalDescriptors:
 
         # Loop over the sphs and compute them explicitly.
         for idx, bond in enumerate(nl.vectors):
-            bond = nl.vectors[idx]
             r = np.linalg.norm(bond)
             theta = np.arccos(bond[2] / r)
             phi = np.arctan2(bond[1], bond[0])
