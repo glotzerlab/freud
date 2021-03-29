@@ -305,9 +305,11 @@ cdef class Box:
         flatten = vecs.ndim == 1
         vecs = np.atleast_2d(vecs)
         vecs = freud.util._convert_array(vecs, shape=(None, 3))
-        if out is not None:
-            if out.dtype != np.float32:
-                raise ValueError('expected out array type: np.float32')
+        if out is not None and isinstance(out, np.ndarray):
+            if out.dtype != np.float32 or out.flags['C_CONTIGUOUS'] == 0:
+                raise ValueError('output array is not acceptable '
+                                 '(must have the right type, nr dimensions, '
+                                 'and be a C-Array)')
 
         out = freud.util._convert_array(out, shape=vecs.shape)
 

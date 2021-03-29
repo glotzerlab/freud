@@ -123,6 +123,13 @@ class TestBox:
         points = np.array(points, dtype=np.float32)
         box.wrap(points, out=points)
         npt.assert_allclose(points, [[-2, -1, -1], [0, 0.5, 0]], rtol=1e-6)
+        # test with read-only input array
+        points = [[10, -5, -5], [0, 0.5, 0]]
+        points = np.array(points, dtype=np.float32).setflags(write=0)
+        with pytest.raises(ValueError):
+            npt.assert_allclose(
+                box.wrap(points, out=points), [[-2, -1, -1], [0, 0.5, 0]], rtol=1e-6
+            )
 
     def test_out_provided_with_new_array(self):
         box = freud.box.Box(2, 2, 2, 1, 0, 0)
@@ -149,6 +156,17 @@ class TestBox:
         points = [[10, -5, -5], [0, 0.5, 0]]
         points = np.array(points, dtype=np.float32)
         new_array = np.zeros(points.shape, dtype=np.float64)
+        with pytest.raises(ValueError):
+            npt.assert_allclose(
+                box.wrap(points, out=new_array), [[-2, -1, -1], [0, 0.5, 0]], rtol=1e-6
+            )
+        npt.assert_equal(points, [[10, -5, -5], [0, 0.5, 0]])
+
+    def test_out_provided_with_array_with_wrong_order(self):
+        box = freud.box.Box(2, 2, 2, 1, 0, 0)
+        points = [[10, -5, -5], [0, 0.5, 0]]
+        points = np.array(points, dtype=np.float32)
+        new_array = np.zeros(points.shape, dtype=np.float32, order="F")
         with pytest.raises(ValueError):
             npt.assert_allclose(
                 box.wrap(points, out=new_array), [[-2, -1, -1], [0, 0.5, 0]], rtol=1e-6
