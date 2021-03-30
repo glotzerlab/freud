@@ -127,7 +127,7 @@ public:
         {
             // Spacing via multiplication is more numerically stable than
             // adding the bin width repeatedly
-            m_bin_edges[i] = min + i * m_bin_width;
+            m_bin_edges[i] = min + static_cast<float>(i) * m_bin_width;
         }
     }
 

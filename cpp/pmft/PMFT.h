@@ -74,7 +74,7 @@ protected:
         float prefactor = inv_num_dens * norm_factor;
 
         m_histogram.reduceOverThreadsPerBin(m_local_histograms, [this, &prefactor, &jf](size_t i) {
-            m_pcf_array[i] = m_histogram[i] * prefactor * jf(i);
+            m_pcf_array[i] = static_cast<float>(m_histogram[i]) * prefactor * jf(i);
         });
     }
 

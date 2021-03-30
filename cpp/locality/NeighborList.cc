@@ -84,17 +84,18 @@ void NeighborList::updateSegmentCounts() const
     {
         m_counts.prepare(m_num_query_points);
         m_segments.prepare(m_num_query_points);
-        int last_index(-1);
+        const unsigned int INDEX_TERMINATOR(0xffffffff);
+        unsigned int last_index(INDEX_TERMINATOR);
         unsigned int counter(0);
         for (unsigned int i = 0; i < getNumBonds(); i++)
         {
-            const int index = m_neighbors(i, 0);
+            const unsigned int index(m_neighbors(i, 0));
             if (index != last_index)
             {
                 m_segments[index] = i;
                 if (index > 0)
                 {
-                    if (last_index >= 0)
+                    if (last_index != INDEX_TERMINATOR)
                     {
                         m_counts[last_index] = counter;
                     }
@@ -104,7 +105,7 @@ void NeighborList::updateSegmentCounts() const
             last_index = index;
             counter++;
         }
-        if (last_index >= 0)
+        if (last_index != INDEX_TERMINATOR)
         {
             m_counts[last_index] = counter;
         }
