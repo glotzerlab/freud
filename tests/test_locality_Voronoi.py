@@ -334,6 +334,26 @@ class TestVoronoi:
         )
         npt.assert_allclose(wrapped_distances, vor.nlist.distances)
 
+    def test_diamond(self):
+        box = freud.box.Box(
+            Lx=0.9075878262519836,
+            Ly=1.0908596515655518,
+            Lz=0.7142124772071838,
+            xy=0.6126953363418579,
+            xz=0.17466391623020172,
+            yz=0.16529279947280884,
+        )
+        points = np.array(
+            [
+                [0.6287098, 0.39470837, 0.33198223],
+                [-0.6287098, -0.39470834, -0.33198214],
+            ]
+        )
+        vor = freud.locality.Voronoi()
+        vor.compute((box, points))
+        nlist = vor.nlist
+        assert not np.any(np.all(np.isclose(nlist.vectors, [0, 0, 0]), axis=-1))
+
     def test_repr(self):
         vor = freud.locality.Voronoi()
         assert str(vor) == str(eval(repr(vor)))
