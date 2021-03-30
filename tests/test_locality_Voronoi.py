@@ -29,7 +29,7 @@ class TestVoronoi:
         wrapped_points = box.wrap(
             points[vor.nlist.query_point_indices] + vor.nlist.vectors
         )
-        npt.assert_allclose(wrapped_points, points[vor.nlist.point_indices], atol=1e-6)
+        npt.assert_allclose(wrapped_points, points[vor.nlist.point_indices], atol=1e-5)
 
         # Verify the neighbor distances
         vector_lengths = np.linalg.norm(vor.nlist.vectors, axis=-1)
@@ -67,7 +67,7 @@ class TestVoronoi:
         wrapped_points = box.wrap(
             points[vor.nlist.query_point_indices] + vor.nlist.vectors
         )
-        npt.assert_allclose(wrapped_points, points[vor.nlist.point_indices], atol=1e-6)
+        npt.assert_allclose(wrapped_points, points[vor.nlist.point_indices], atol=1e-5)
 
         # Verify the neighbor distances
         vector_lengths = np.linalg.norm(vor.nlist.vectors, axis=-1)
@@ -122,7 +122,7 @@ class TestVoronoi:
         wrapped_points = box.wrap(
             points[vor.nlist.query_point_indices] + vor.nlist.vectors
         )
-        npt.assert_allclose(wrapped_points, points[vor.nlist.point_indices], atol=1e-6)
+        npt.assert_allclose(wrapped_points, points[vor.nlist.point_indices], atol=1e-5)
 
         # Verify the neighbor distances
         vector_lengths = np.linalg.norm(vor.nlist.vectors, axis=-1)
@@ -146,7 +146,7 @@ class TestVoronoi:
         wrapped_points = box.wrap(
             points[vor.nlist.query_point_indices] + vor.nlist.vectors
         )
-        npt.assert_allclose(wrapped_points, points[vor.nlist.point_indices], atol=1e-6)
+        npt.assert_allclose(wrapped_points, points[vor.nlist.point_indices], atol=1e-5)
 
         # Verify the neighbor distances
         vector_lengths = np.linalg.norm(vor.nlist.vectors, axis=-1)
@@ -219,7 +219,7 @@ class TestVoronoi:
         wrapped_points = box.wrap(
             points[vor.nlist.query_point_indices] + vor.nlist.vectors
         )
-        npt.assert_allclose(wrapped_points, points[vor.nlist.point_indices], atol=1e-6)
+        npt.assert_allclose(wrapped_points, points[vor.nlist.point_indices], atol=1e-5)
 
         # Verify the neighbor distances
         vector_lengths = np.linalg.norm(vor.nlist.vectors, axis=-1)
@@ -252,7 +252,7 @@ class TestVoronoi:
         wrapped_points = box.wrap(
             points[vor.nlist.query_point_indices] + vor.nlist.vectors
         )
-        npt.assert_allclose(wrapped_points, points[vor.nlist.point_indices], atol=1e-6)
+        npt.assert_allclose(wrapped_points, points[vor.nlist.point_indices], atol=1e-5)
 
         # Verify the neighbor distances
         vector_lengths = np.linalg.norm(vor.nlist.vectors, axis=-1)
@@ -294,7 +294,7 @@ class TestVoronoi:
                 ),
                 axis=-1,
             )
-            npt.assert_allclose(wrapped_distances, vor.nlist.distances, atol=1e-6)
+            npt.assert_allclose(wrapped_distances, vor.nlist.distances, atol=1e-5)
 
     def test_voronoi_weights_fcc(self):
         # Test that voronoi neighbor weights are computed properly for 3D FCC
