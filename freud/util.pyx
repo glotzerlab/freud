@@ -203,7 +203,8 @@ def _convert_array(array, shape=None, dtype=np.float32, requirements=("C", ),
 
     Args:
         array (:class:`numpy.ndarray` or :code:`None`): Array to check and convert.
-            If :code:`None`, an empty array of given shape and type will be initialized.
+            If :code:`None`, an empty array of given shape and type will be initialized
+            (Default value: :code:`None`).
         shape: (tuple of int and :code:`None`): Expected shape of the array.
             Only the dimensions that are not :code:`None` are checked.
             (Default value = :code:`None`).
@@ -224,7 +225,7 @@ def _convert_array(array, shape=None, dtype=np.float32, requirements=("C", ),
         return np.empty(shape, dtype=dtype)
 
     return_arr = np.require(array, dtype=dtype, requirements=requirements)
-    
+
     if not allow_copy and return_arr is not array:
         raise ValueError("The provided output array must have dtype "
                          f"{dtype}, and have the following array flags: "
