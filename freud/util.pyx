@@ -232,7 +232,7 @@ def _convert_array(array, shape=None, dtype=np.float32, requirements=("C", ),
                          f"{', '.join(requirements)}.")
 
     if shape is not None:
-        if array.ndim != len(shape):
+        if return_arr.ndim != len(shape):
             raise ValueError("array.ndim = {}; expected ndim = {}".format(
                 return_arr.ndim, len(shape)))
 
