@@ -4,7 +4,7 @@ coverage==5.5
 cython==0.29.22
 garnett==0.7.1
 GitPython==3.1.14
-gsd==2.4.0
+gsd==2.4.1
 matplotlib>=3.0.0
 MDAnalysis==1.0.0
 numpy==1.20.1
