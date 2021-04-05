@@ -7,6 +7,14 @@ Release Process
 
 Documented below are the steps needed to make a new release of **freud**.
 
+Starting the Release
+--------------------
+
+- Review open pull requests, issues, and milestones.
+  Before making a release, every issue or pull request assigned to that release version should be completed or moved to a later milestone.
+  Additionally, all resolved issues and merged pull requests since the last release should be assigned to the current milestone.
+  Some exceptions can be made for simplicity, e.g. automated updates from Dependabot don't need to be assigned to the milestone.
+
 - Create a release branch, numbered according to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`__:
 
 .. code-block:: bash
