@@ -318,6 +318,10 @@ Pavel Buslaev
 
 * Added ``values`` argument to compute method of ``GaussianDensity`` class.
 
+Charlotte Zhao
+
+* Worked with Vyas Ramasubramani and Bradley Dice to add the ``out`` option for ``box.Box.wrap``.
+
 Source code
 -----------
 
