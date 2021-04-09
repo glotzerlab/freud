@@ -1,4 +1,6 @@
 #!/bin/bash
+set -x
+env
 if [ -z $1 ]; then
     echo "A platform (\"lin\" or \"mac\" or \"win\") must be provided as the first argument."
     exit 1
