@@ -39,7 +39,7 @@ jobs:
           CIBW_PROJECT_REQUIRES_PYTHON: ">=3.6"
           CIBW_SKIP: pp*
 
-          CIBW_ENVIRONMENT: "TBBROOT=/project/tbb"
+          CIBW_ENVIRONMENT: "TBBROOT=/project/tbb TBB_INCLUDE_DIR=/project/tbb/include"
 
           # Set up submodules and TBB
           CIBW_BEFORE_BUILD_LINUX: source .github/workflows/cibuildwheel-before-build.sh lin
