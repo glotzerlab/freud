@@ -1,6 +1,5 @@
 #!/bin/bash
-set -x
-env
+echo $(pwd)
 if [ -z $1 ]; then
     echo "A platform (\"lin\" or \"mac\" or \"win\") must be provided as the first argument."
     exit 1
@@ -17,6 +16,8 @@ else
 fi
 curl -L -O "https://github.com/oneapi-src/oneTBB/releases/download/v${TBB_VERSION}/${TBB_ZIP}"
 tar -zxvf "${TBB_ZIP}"
-source "oneapi-tbb-${TBB_VERSION}/env/vars.sh"
+
+# Move to a hard-coded path (defined by CIBW_ENVIRONMENT)
+mv "oneapi-tbb-${TBB_VERSION}" tbb
+source tbb/env/vars.sh
 echo "TBBROOT: ${TBBROOT:-"not found"}"
-echo "TBBROOT=${TBBROOT}" >> $GITHUB_ENV
