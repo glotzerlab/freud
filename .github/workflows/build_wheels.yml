@@ -38,7 +38,9 @@ jobs:
           CIBW_SKIP: pp*
 
           # Set up submodules and TBB
-          CIBW_BEFORE_BUILD_LINUX: source .github/workflows/cibuildwheel-lin.sh
+          CIBW_BEFORE_BUILD_LINUX: source .github/workflows/cibuildwheel-before-build.sh lin
+          CIBW_BEFORE_BUILD_MAC: source .github/workflows/cibuildwheel-before-build.sh mac
+          CIBW_BEFORE_BUILD_WINDOWS: source .github/workflows/cibuildwheel-before-build.sh win
 
           # Build only on 64-bit architectures.
           CIBW_ARCHS_MACOS: x86_64
