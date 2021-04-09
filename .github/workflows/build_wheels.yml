@@ -29,6 +29,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2.3.4
+        with:
+          submodules: "recursive"
 
       - name: Build wheels
         uses: joerick/cibuildwheel@v1.10.0

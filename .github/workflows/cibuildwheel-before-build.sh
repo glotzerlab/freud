@@ -5,8 +5,6 @@ if [ -z $1 ]; then
     exit 1
 fi
 
-git submodule update --init
-
 TBB_PLATFORM=$1
 TBB_VERSION="2021.2.0"
 if [[ "${TBB_PLATFORM}" == "win" ]]; then
