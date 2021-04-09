@@ -1,4 +1,4 @@
-name: PyPI
+name: Build and test
 
 on:
   # Trigger on pull requests.
@@ -61,8 +61,8 @@ jobs:
         with:
           python-version: '3.9'
 
-      - name: Install numpy
-        run: python3 -m pip --disable-pip-version-check install numpy cython --upgrade --progress-bar=off
+      - name: Install build requirements
+        run: python3 -m pip --disable-pip-version-check install scikit-build cmake -r requirements.txt --upgrade --progress-bar=off
 
       - name: Build sdist
         run: python setup.py sdist
