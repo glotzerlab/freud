@@ -17,3 +17,4 @@ curl -L -O "https://github.com/oneapi-src/oneTBB/releases/download/v${TBB_VERSIO
 tar -zxvf "${TBB_ZIP}"
 source "oneapi-tbb-${TBB_VERSION}/env/vars.sh"
 echo "TBBROOT: ${TBBROOT:-"not found"}"
+echo "TBBROOT=${TBBROOT}" >> $GITHUB_ENV
