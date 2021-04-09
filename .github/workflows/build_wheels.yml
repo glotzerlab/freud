@@ -37,8 +37,8 @@ jobs:
           CIBW_PROJECT_REQUIRES_PYTHON: ">=3.6"
           CIBW_SKIP: pp*
 
-          # Fetch git submodule dependencies
-          CIBW_BEFORE_BUILD: git submodule update --init
+          # Set up submodules and TBB
+          CIBW_BEFORE_BUILD_LINUX: source .github/workflows/cibuildwheel-lin.sh
 
           # Build only on 64-bit architectures.
           CIBW_ARCHS_MACOS: x86_64
