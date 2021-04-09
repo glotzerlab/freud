@@ -1,0 +1,99 @@
+name: PyPI
+
+on:
+  # Trigger on pull requests.
+  pull_request:
+
+  # Trigger on pushes to the mainline branches and version tags. This prevents building commits
+  # twice when the pull request source branch is in the same repository.
+  push:
+    branches:
+      - "maint"
+      - "master"
+    tags:
+      - "v*"
+
+  # Trigger on request.
+  workflow_dispatch:
+
+env:
+  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+jobs:
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, windows-2019, macos-10.15]
+
+    steps:
+      - uses: actions/checkout@v2.3.4
+
+      - name: Build wheels
+        uses: joerick/cibuildwheel@v1.10.0
+        env:
+          # Build for cpython >= 3.6.
+          CIBW_PROJECT_REQUIRES_PYTHON: ">=3.6"
+          CIBW_SKIP: pp*
+
+          # Build only on 64-bit architectures.
+          CIBW_ARCHS_MACOS: x86_64
+          CIBW_ARCHS_LINUX: auto64
+          CIBW_ARCHS_WINDOWS: auto64
+
+          # Test the wheels.
+          CIBW_TEST_COMMAND: pytest -v --log-level=DEBUG
+          CIBW_TEST_REQUIRES: pytest
+
+#     - uses: actions/upload-artifact@v2.2.2
+#       with:
+#         path: ./wheelhouse/*.whl
+
+  build_sdist:
+    name: Build source distribution
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2.3.4
+
+      - uses: actions/setup-python@v2.2.1
+        name: Install Python
+        with:
+          python-version: '3.9'
+
+      - name: Install numpy
+        run: python3 -m pip --disable-pip-version-check install numpy cython --upgrade --progress-bar=off
+
+      - name: Build sdist
+        run: python setup.py sdist
+
+#     - uses: actions/upload-artifact@v2.2.2
+#       with:
+#         path: dist/*.tar.gz
+
+# upload_pypi:
+#   name: Upload to PyPI
+#   needs: [build_wheels, build_sdist]
+#   runs-on: ubuntu-latest
+
+#   # upload to PyPI on every tag starting with 'v'
+#   if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/v')
+#   steps:
+#     - name: Download artifacts
+#       uses: actions/download-artifact@v2.0.8
+#       with:
+#         name: artifact
+#         path: dist
+
+#     - name: Upload
+#       uses: pypa/gh-action-pypi-publish@v1.4.2
+#       with:
+#         user: __token__
+#         password: ${{ secrets.PYPI_PASSWORD }}
+
+#     - name: Slack notification
+#       uses: act10ns/slack@v1.2.2
+#       with:
+#         status: ${{ job.status }}
+#         channel: '#dev-freud'
+#       if: always()
