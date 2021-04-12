@@ -26,10 +26,6 @@ if(TBB_INCLUDE_DIR AND EXISTS "${TBB_INCLUDE_DIR}/tbb/tbb_stddef.h")
   set(TBB_VERSION_STRING "${TBB_VERSION_MAJOR}.${TBB_VERSION_MINOR}")
 endif()
 
-message("Debugging env: TBBROOT=$ENV{TBBROOT} TBB_INCLUDE_DIR=$ENV{TBB_INCLUDE_DIR}")
-message("Debugging vars: TBB_INCLUDE_DIR=${TBB_INCLUDE_DIR} TBB_LIBRARY=${TBB_LIBRARY}")
-execute_process(COMMAND ls -lR /project/tbb)
-
 # handle the QUIETLY and REQUIRED arguments and set TBB_FOUND to TRUE if all
 # listed variables are TRUE
 include(FindPackageHandleStandardArgs)
