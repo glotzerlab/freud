@@ -6,9 +6,9 @@
 
 # Install a modern version of CMake for compatibility with TBB 2021
 # (manylinux image includes CMake 2.8)
-python3 --version
-python3 -m pip --version
-python3 -m pip install cmake
+python --version
+pip --version
+pip install cmake
 
 #TBB_PLATFORM=$1
 TBB_VERSION="2021.2.0"

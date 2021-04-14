@@ -42,9 +42,9 @@ jobs:
           CIBW_ENVIRONMENT: "CMAKE_PREFIX_PATH=/project/tbb LD_LIBRARY_PATH=/project/tbb/lib/intel64/gcc4.8:$LD_LIBRARY_PATH"
 
           # Set up submodules and TBB
-          CIBW_BEFORE_BUILD_LINUX: source .github/workflows/cibuildwheel-before-build.sh lin
-          CIBW_BEFORE_BUILD_MAC: source .github/workflows/cibuildwheel-before-build.sh mac
-          CIBW_BEFORE_BUILD_WINDOWS: source .github/workflows/cibuildwheel-before-build.sh win
+          CIBW_BEFORE_BUILD_LINUX: source .github/workflows/cibuildwheel-before-build.sh
+          CIBW_BEFORE_BUILD_MAC: source .github/workflows/cibuildwheel-before-build.sh
+          CIBW_BEFORE_BUILD_WINDOWS: source .github/workflows/cibuildwheel-before-build.sh
 
           # Build only on 64-bit architectures.
           CIBW_ARCHS_MACOS: x86_64
@@ -52,8 +52,8 @@ jobs:
           CIBW_ARCHS_WINDOWS: auto64
 
           # Test the wheels.
-          CIBW_TEST_COMMAND: cd /project && pytest -v --log-level=DEBUG
-          CIBW_TEST_REQUIRES: garnett gsd matplotlib MDAnalysis pytest sympy
+          CIBW_BEFORE_TEST_LINUX: source .github/workflows/cibuildwheel-before-build.sh
+          CIBW_TEST_COMMAND: cd /project/tests && pytest . -v --log-level=DEBUG
 
 #     - uses: actions/upload-artifact@v2.2.2
 #       with:
