@@ -1,8 +1,8 @@
 #!/bin/bash
-#if [ -z $1 ]; then
-#    echo "A platform (\"lin\" or \"mac\" or \"win\") must be provided as the first argument."
-#    exit 1
-#fi
+if [ -z $1 ]; then
+    echo "A package directory must be provided as the first argument."
+    exit 1
+fi
 
 # Install a modern version of CMake for compatibility with TBB 2021
 # (manylinux image includes CMake 2.8)
@@ -10,6 +10,7 @@ python --version
 pip --version
 pip install cmake
 
+PACKAGE_DIR=$1
 #TBB_PLATFORM=$1
 TBB_VERSION="2021.2.0"
 #if [[ "${TBB_PLATFORM}" == "win" ]]; then
@@ -23,14 +24,11 @@ curl -L -O "https://github.com/oneapi-src/oneTBB/archive/refs/tags/${TBB_ZIP}"
 unzip -q "${TBB_ZIP}"
 
 # Move to a hard-coded path (defined by CIBW_ENVIRONMENT)
-echo "PWDPWDPWD: $PWD"
-mkdir -p /project
-mv "oneTBB-${TBB_VERSION}" /project/tbb
-cd /project/tbb
+mv "oneTBB-${TBB_VERSION}" "${PACKAGE_DIR}/tbb"
+cd "${PACKAGE_DIR}/tbb"
 mkdir -p build
 cd build
 cmake ../ -DTBB_TEST=OFF
-echo "PWD: $PWD"
 make
 cmake -DCOMPONENT=runtime -P cmake_install.cmake
 cmake -DCOMPONENT=devel -P cmake_install.cmake
