@@ -22,6 +22,7 @@ cd /project/tbb
 mkdir -p build
 cd build
 cmake ../ -DTBB_TEST=OFF
+echo "PWD: $PWD"
 make
 cmake -DCOMPONENT=runtime -P cmake_install.cmake
 cmake -DCOMPONENT=devel -P cmake_install.cmake
