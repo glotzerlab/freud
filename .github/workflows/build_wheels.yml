@@ -53,7 +53,7 @@ jobs:
 
           # Test the wheels.
           CIBW_TEST_COMMAND: cd /project && pytest -v --log-level=DEBUG
-          CIBW_TEST_REQUIRES: pytest
+          CIBW_TEST_REQUIRES: garnett gsd matplotlib MDAnalysis pytest sympy
 
 #     - uses: actions/upload-artifact@v2.2.2
 #       with:
