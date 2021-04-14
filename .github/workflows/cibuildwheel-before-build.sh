@@ -20,7 +20,7 @@ TBB_VERSION="2021.2.0"
 TBB_ZIP="v${TBB_VERSION}.zip"
 #curl -L -O "https://github.com/oneapi-src/oneTBB/releases/download/v${TBB_VERSION}/${TBB_ZIP}"
 curl -L -O "https://github.com/oneapi-src/oneTBB/archive/refs/tags/${TBB_ZIP}"
-unzip "${TBB_ZIP}"
+unzip -q "${TBB_ZIP}"
 
 # Move to a hard-coded path (defined by CIBW_ENVIRONMENT)
 echo "PWDPWDPWD: $PWD"
