@@ -30,7 +30,3 @@ cmake ../ -DTBB_TEST=OFF
 make
 cmake -DCOMPONENT=runtime -P cmake_install.cmake
 cmake -DCOMPONENT=devel -P cmake_install.cmake
-BUILD_DIR=$(dirname $(find . -name vars.sh))
-cd "${BUILD_DIR}"
-source vars.sh
-echo "TBBROOT: ${TBBROOT:-"not found"}"
