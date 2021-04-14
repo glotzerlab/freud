@@ -23,6 +23,8 @@ curl -L -O "https://github.com/oneapi-src/oneTBB/archive/refs/tags/${TBB_ZIP}"
 unzip "${TBB_ZIP}"
 
 # Move to a hard-coded path (defined by CIBW_ENVIRONMENT)
+echo "PWDPWDPWD: $PWD"
+mkdir -p /project
 mv "oneTBB-${TBB_VERSION}" /project/tbb
 cd /project/tbb
 mkdir -p build
