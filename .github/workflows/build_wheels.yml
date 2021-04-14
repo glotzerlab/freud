@@ -52,7 +52,7 @@ jobs:
           CIBW_ARCHS_WINDOWS: auto64
 
           # Test the wheels.
-          CIBW_BEFORE_TEST_LINUX: source .github/workflows/cibuildwheel-before-build.sh
+          CIBW_BEFORE_TEST_LINUX: source .github/workflows/cibuildwheel-before-test.sh
           CIBW_TEST_COMMAND: cd /project/tests && pytest . -v --log-level=DEBUG
 
 #     - uses: actions/upload-artifact@v2.2.2
