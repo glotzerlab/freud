@@ -54,7 +54,7 @@ jobs:
           # Test the wheels.
           CIBW_BEFORE_TEST_LINUX: source .github/workflows/cibuildwheel-before-test.sh
           CIBW_BEFORE_TEST_MAC: source .github/workflows/cibuildwheel-before-test.sh
-          CIBW_TEST_COMMAND: cd /project/tests && pytest . -v --log-level=DEBUG
+          CIBW_TEST_COMMAND: cd /project/tests && pytest . -v --log-level=DEBUG -k Box
 
 #     - uses: actions/upload-artifact@v2.2.2
 #       with:
