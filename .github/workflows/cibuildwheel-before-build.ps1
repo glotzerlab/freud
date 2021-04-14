@@ -6,11 +6,10 @@ $PackageDir = $args[0]
 
 $TBB_VERSION = "2021.2.0"
 $TBB_ZIP = "v${TBB_VERSION}.zip"
-curl -L -O "https://github.com/oneapi-src/oneTBB/archive/refs/tags/${TBB_ZIP}"
-unzip -q "${TBB_ZIP}"
+Invoke-WebRequest -Uri "https://github.com/oneapi-src/oneTBB/archive/refs/tags/${TBB_ZIP}" -OutFile "${TBB_ZIP}"
 
 # Move to a hard-coded path (defined by CIBW_ENVIRONMENT)
-mv "oneTBB-${TBB_VERSION}" "${PACKAGE_DIR}/tbb"
+Expand-Archive -Path "${TBB_ZIP}" -DestinationPath "${PACKAGE_DIR}/tbb"
 cd "${PACKAGE_DIR}/tbb"
 mkdir -p build
 cd build
