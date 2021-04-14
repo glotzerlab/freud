@@ -6,8 +6,6 @@ fi
 
 # Install a modern version of CMake for compatibility with TBB 2021
 # (manylinux image includes CMake 2.8)
-python --version
-pip --version
 pip install cmake
 
 PACKAGE_DIR=$1
