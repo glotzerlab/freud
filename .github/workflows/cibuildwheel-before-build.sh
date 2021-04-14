@@ -4,6 +4,10 @@
 #    exit 1
 #fi
 
+python3 --version
+python3 -m pip --version
+python3 -m pip install cmake
+
 #TBB_PLATFORM=$1
 TBB_VERSION="2021.2.0"
 #if [[ "${TBB_PLATFORM}" == "win" ]]; then
