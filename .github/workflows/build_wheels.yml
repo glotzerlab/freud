@@ -52,7 +52,7 @@ jobs:
           CIBW_ARCHS_WINDOWS: auto64
 
           # Test the wheels.
-          CIBW_TEST_COMMAND: pytest -v --log-level=DEBUG
+          CIBW_TEST_COMMAND: cd /project && pytest -v --log-level=DEBUG
           CIBW_TEST_REQUIRES: pytest
 
 #     - uses: actions/upload-artifact@v2.2.2
