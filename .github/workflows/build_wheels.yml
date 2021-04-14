@@ -45,7 +45,7 @@ jobs:
           # Set up submodules and TBB
           CIBW_BEFORE_BUILD_LINUX: "source .github/workflows/cibuildwheel-before-build.sh {package}"
           CIBW_BEFORE_BUILD_MACOS: "source .github/workflows/cibuildwheel-before-build.sh {package}"
-          CIBW_BEFORE_BUILD_WINDOWS: "source .github/workflows/cibuildwheel-before-build.ps1 {package}"
+          CIBW_BEFORE_BUILD_WINDOWS: "powershell .github/workflows/cibuildwheel-before-build.ps1 {package}"
 
           # Build only on 64-bit architectures.
           CIBW_ARCHS_MACOS: x86_64
@@ -55,7 +55,7 @@ jobs:
           # Test the wheels.
           CIBW_BEFORE_TEST_LINUX: "source .github/workflows/cibuildwheel-before-test.sh {package}"
           CIBW_BEFORE_TEST_MACOS: "source .github/workflows/cibuildwheel-before-test.sh {package}"
-          CIBW_BEFORE_TEST_WINDOWS: "source .github/workflows/cibuildwheel-before-test.ps1 {package}"
+          CIBW_BEFORE_TEST_WINDOWS: "powershell .github/workflows/cibuildwheel-before-test.ps1 {package}"
           CIBW_TEST_COMMAND: "cd {package}/tests && pytest . -v --log-level=DEBUG -k Box"
 
 #     - uses: actions/upload-artifact@v2.2.2
