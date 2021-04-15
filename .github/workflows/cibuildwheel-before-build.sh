@@ -27,6 +27,6 @@ cd "${PACKAGE_DIR}/tbb"
 mkdir -p build
 cd build
 cmake ../ -DTBB_TEST=OFF
-make
+cmake --build .
 cmake -DCOMPONENT=runtime -P cmake_install.cmake
 cmake -DCOMPONENT=devel -P cmake_install.cmake
