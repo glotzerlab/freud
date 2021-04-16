@@ -99,6 +99,8 @@ foreach(cython_module ${cython_modules_with_cpp} ${cython_modules_without_cpp})
   if(APPLE)
     set_target_properties(${cython_module} PROPERTIES INSTALL_RPATH
                                                       "@loader_path")
+    set_target_properties(${cython_module}
+                          PROPERTIES INSTALL_RPATH_USE_LINK_PATH True)
   else()
     set_target_properties(${cython_module} PROPERTIES INSTALL_RPATH "\$ORIGIN")
   endif()
