@@ -34,4 +34,3 @@ cmake ../ -DTBB_TEST=OFF
 cmake --build . --clean-first
 cmake -DCOMPONENT=runtime -P cmake_install.cmake
 cmake -DCOMPONENT=devel -P cmake_install.cmake
-
