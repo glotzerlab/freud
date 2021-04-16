@@ -3,13 +3,17 @@ if [ -z $1 ]; then
     echo "A package directory must be provided as the first argument."
     exit 1
 fi
+if [ -z $2 ]; then
+    echo "A platform {linux,macos} must be provided as the second argument."
+    exit 1
+fi
 
 # Install a modern version of CMake for compatibility with TBB 2021
 # (manylinux image includes CMake 2.8)
 pip install cmake
 
 PACKAGE_DIR=$1
-#TBB_PLATFORM=$1
+PLATFORM=$2
 TBB_VERSION="2021.2.0"
 #if [[ "${TBB_PLATFORM}" == "win" ]]; then
 #    TBB_ZIP="oneapi-tbb-${TBB_VERSION}-${TBB_PLATFORM}.zip"
@@ -27,6 +31,7 @@ cd "${PACKAGE_DIR}/tbb"
 mkdir -p build
 cd build
 cmake ../ -DTBB_TEST=OFF
-cmake --build .
+cmake --build . --clean-first
 cmake -DCOMPONENT=runtime -P cmake_install.cmake
 cmake -DCOMPONENT=devel -P cmake_install.cmake
+

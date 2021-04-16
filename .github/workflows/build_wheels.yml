@@ -36,15 +36,15 @@ jobs:
         uses: joerick/cibuildwheel@v1.10.0
         env:
           # Build for cpython >= 3.6.
-          CIBW_PROJECT_REQUIRES_PYTHON: ">=3.6"
+          CIBW_PROJECT_REQUIRES_PYTHON: ">=3.8"
           CIBW_SKIP: pp*
 
           CIBW_ENVIRONMENT_LINUX: "CMAKE_PREFIX_PATH=/project/tbb LD_LIBRARY_PATH=/project/tbb/lib/intel64/gcc4.8:$LD_LIBRARY_PATH"
           CIBW_ENVIRONMENT_MACOS: "CMAKE_PREFIX_PATH=/Users/runner/work/freud/freud/tbb LD_LIBRARY_PATH=/Users/runner/work/freud/freud/tbb/lib/intel64/gcc4.8:$LD_LIBRARY_PATH"
 
           # Set up submodules and TBB
-          CIBW_BEFORE_BUILD_LINUX: "source .github/workflows/cibuildwheel-before-build.sh {package}"
-          CIBW_BEFORE_BUILD_MACOS: "source .github/workflows/cibuildwheel-before-build.sh {package}"
+          CIBW_BEFORE_BUILD_LINUX: "source .github/workflows/cibuildwheel-before-build.sh {package} linux"
+          CIBW_BEFORE_BUILD_MACOS: "source .github/workflows/cibuildwheel-before-build.sh {package} macos"
           CIBW_BEFORE_BUILD_WINDOWS: "powershell .github/workflows/cibuildwheel-before-build.ps1 {package}"
 
           # Build only on 64-bit architectures.
