@@ -36,7 +36,7 @@ jobs:
         uses: joerick/cibuildwheel@v1.10.0
         env:
           # Build for cpython >= 3.6.
-          CIBW_PROJECT_REQUIRES_PYTHON: ">=3.8"
+          CIBW_PROJECT_REQUIRES_PYTHON: ">=3.6"
           CIBW_SKIP: pp*
 
           CIBW_ENVIRONMENT_LINUX: "CMAKE_PREFIX_PATH=/project/tbb LD_LIBRARY_PATH=/project/tbb/lib/intel64/gcc4.8:$LD_LIBRARY_PATH"
@@ -56,7 +56,7 @@ jobs:
           CIBW_BEFORE_TEST_LINUX: "source .github/workflows/cibuildwheel-before-test.sh {package}"
           CIBW_BEFORE_TEST_MACOS: "source .github/workflows/cibuildwheel-before-test.sh {package}"
           CIBW_BEFORE_TEST_WINDOWS: "powershell .github/workflows/cibuildwheel-before-test.ps1 {package}"
-          CIBW_TEST_COMMAND: "cd {package}/tests && pytest . -v --log-level=DEBUG -k Box"
+          CIBW_TEST_COMMAND: "cd {package}/tests && pytest . -v --log-level=DEBUG"
 
 #     - uses: actions/upload-artifact@v2.2.2
 #       with:
