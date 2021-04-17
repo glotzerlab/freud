@@ -6,9 +6,6 @@ import sys
 
 from skbuild import setup as skbuild_setup
 
-print("OS ENVIRONMENT:")
-print(os.environ)
-
 version = "2.5.1"
 
 # Read README for PyPI, fallback to short description if it fails.
