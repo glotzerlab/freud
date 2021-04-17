@@ -12,3 +12,6 @@ if [[ $(python --version 2>&1) == *"3.6."* ]]; then
 else
   pip install -U -r "${PACKAGE_DIR}/requirements/requirements-test.txt" --progress-bar=off
 fi
+
+# Allow parallel tests to speed up CI
+pip install -U pytest-xdist --progress-bar=off

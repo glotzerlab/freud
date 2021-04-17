@@ -6,3 +6,6 @@ If ("$PyVer" -Match "Python 3\.6\.") {
 } Else {
     pip install -U -r $PackageDir/requirements/requirements-test.txt --progress-bar=off
 }
+
+# Allow parallel tests to speed up CI
+pip install -U pytest-xdist --progress-bar=off
