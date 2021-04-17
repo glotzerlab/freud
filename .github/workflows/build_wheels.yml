@@ -1,4 +1,4 @@
-name: Build and test
+name: Build wheels
 
 on:
   # Trigger on pull requests.
@@ -21,7 +21,7 @@ env:
 
 jobs:
   build_wheels:
-    name: Build wheels on ${{ matrix.os }}, Python ${{ matrix.pyver }}
+    name: Build wheel for ${{ matrix.os }}, Python ${{ matrix.pyver }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -40,18 +40,19 @@ jobs:
           CIBW_PROJECT_REQUIRES_PYTHON: "==${{ matrix.pyver }}.*"
           CIBW_SKIP: pp*
 
-          CIBW_ENVIRONMENT_LINUX: "CMAKE_PREFIX_PATH=/project/tbb LD_LIBRARY_PATH=/project/tbb/lib/intel64/gcc4.8:$LD_LIBRARY_PATH"
-          CIBW_ENVIRONMENT_MACOS: "CMAKE_PREFIX_PATH=/Users/runner/work/freud/freud/tbb LD_LIBRARY_PATH=/Users/runner/work/freud/freud/tbb/lib/intel64/gcc4.8:$LD_LIBRARY_PATH"
-
-          # Set up submodules and TBB
-          CIBW_BEFORE_BUILD_LINUX: "source .github/workflows/cibuildwheel-before-build.sh {package} linux"
-          CIBW_BEFORE_BUILD_MACOS: "source .github/workflows/cibuildwheel-before-build.sh {package} macos"
-          CIBW_BEFORE_BUILD_WINDOWS: "powershell .github/workflows/cibuildwheel-before-build.ps1 {package}"
-
           # Build only on 64-bit architectures.
           CIBW_ARCHS_MACOS: x86_64
           CIBW_ARCHS_LINUX: auto64
           CIBW_ARCHS_WINDOWS: auto64
+
+          # Configure environment variables.
+          CIBW_ENVIRONMENT_LINUX: "CMAKE_PREFIX_PATH=/project/tbb LD_LIBRARY_PATH=/project/tbb/lib/intel64/gcc4.8:$LD_LIBRARY_PATH"
+          CIBW_ENVIRONMENT_MACOS: "CMAKE_PREFIX_PATH=/Users/runner/work/freud/freud/tbb LD_LIBRARY_PATH=/Users/runner/work/freud/freud/tbb/lib/intel64/gcc4.8:$LD_LIBRARY_PATH"
+
+          # Set up TBB.
+          CIBW_BEFORE_BUILD_LINUX: "source .github/workflows/cibuildwheel-before-build.sh {package} linux"
+          CIBW_BEFORE_BUILD_MACOS: "source .github/workflows/cibuildwheel-before-build.sh {package} macos"
+          CIBW_BEFORE_BUILD_WINDOWS: "powershell .github/workflows/cibuildwheel-before-build.ps1 {package}"
 
           # Test the wheels.
           CIBW_BEFORE_TEST_LINUX: "source .github/workflows/cibuildwheel-before-test.sh {package}"
