@@ -33,6 +33,12 @@ jobs:
         with:
           submodules: "recursive"
 
+      - name: Set up Visual Studio shell
+        if: matrix.os == "windows-2019"
+        uses: egor-tensin/vs-shell@v2
+        with:
+          arch: x64
+
       - name: Build wheels
         uses: joerick/cibuildwheel@v1.10.0
         env:
