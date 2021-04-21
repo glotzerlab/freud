@@ -20,12 +20,12 @@ class TestDiffractionPattern:
         box, positions = freud.data.UnitCell.fcc().generate_system(4)
 
         n_frames = 3
-        quaternions = rowan.random.rand(n_frames)
+        np.random.seed(42)
+        noises = np.random.normal(scale=1e-7, size=(n_frames, len(positions), 3))
 
-        for quaternion in quaternions:
-            rotated_positions = rowan.rotate(quaternion, positions)
-            dp.compute((box, rotated_positions), reset=False)
-        assert dp.diffraction.shape[0] == n_frames
+        for noise in noises:
+            noisy_positions = positions + noise
+            dp.compute((box, noisy_positions), reset=False)
 
     def test_reset_true(self):
         dp = freud.diffraction.DiffractionPattern()
@@ -33,12 +33,13 @@ class TestDiffractionPattern:
         box, positions = freud.data.UnitCell.fcc().generate_system(4)
 
         n_frames = 3
-        quaternions = rowan.random.rand(n_frames)
+        np.random.seed(42)
+        noises = np.random.normal(scale=1e-7, size=(n_frames, len(positions), 3))
 
-        for quaternion in quaternions:
-            rotated_positions = rowan.rotate(quaternion, positions)
-            dp.compute((box, rotated_positions), reset=True)
-        dp_reference.compute((box, rotated_positions), reset=True)
+        for noise in noises:
+            noisy_positions = positions + noise
+            dp.compute((box, noisy_positions), reset=True)
+        dp_reference.compute((box, positions + noises[-1]), reset=True)
         npt.assert_array_almost_equal(dp.diffraction, dp_reference.diffraction)
 
     def test_attribute_access(self):
