@@ -41,7 +41,6 @@ class TestDiffractionPattern:
         dp_reference.compute((box, rotated_positions), reset=True)
         npt.assert_array_almost_equal(dp.diffraction, dp_reference.diffraction)
 
-
     def test_attribute_access(self):
         grid_size = 234
         output_size = 123
