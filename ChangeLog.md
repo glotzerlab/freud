@@ -6,6 +6,9 @@ and this project adheres to
 
 ## v2.5.1 - 2021-04-06
 
+### Added
+* The `compute` method of `DiffractionPattern` class has a `reset` argument.
+
 ### Fixed
 * Documentation on ReadTheDocs builds and renders.
 

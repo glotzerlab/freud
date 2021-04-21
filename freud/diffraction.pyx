@@ -63,7 +63,7 @@ cdef class DiffractionPattern(_Compute):
     cdef double[:, :, :] _k_vectors_orig
     cdef double[:] _k_values
     cdef double[:, :, :] _k_vectors
-    cdef double[:, :] _diffraction
+    cdef list _diffraction
     cdef double _box_matrix_scale_factor
     cdef double[:] _view_orientation
     cdef cbool _k_values_cached
@@ -82,7 +82,8 @@ cdef class DiffractionPattern(_Compute):
         # Store these computed arrays which are exposed as properties.
         self._k_values = np.empty_like(self._k_values_orig)
         self._k_vectors = np.empty_like(self._k_vectors_orig)
-        self._diffraction = np.empty((self.output_size, self.output_size))
+        # self._diffraction = np.empty((self.output_size, self.output_size))
+        self._diffraction = []
 
     def _calc_proj(self, view_orientation, box):
         """Calculate the inverse shear matrix from finding the projected box
@@ -185,7 +186,7 @@ cdef class DiffractionPattern(_Compute):
             mode="constant")
         return img
 
-    def compute(self, system, view_orientation=None, zoom=4, peak_width=1):
+    def compute(self, system, view_orientation=None, zoom=4, peak_width=1, reset=True):
         R"""Computes diffraction pattern.
 
         Args:
@@ -200,7 +201,14 @@ cdef class DiffractionPattern(_Compute):
             peak_width (float):
                 Width of Gaussian convolved with points, in system length units
                 (Default value = 1).
+            reset (bool):
+                Whether to erase the previously computed valuse before adding
+                the new computations; if False, will accumulate data (Default
+                value: True).
         """
+        if reset:
+            self._diffraction = []
+
         system = freud.locality.NeighborQuery.from_system(system)
 
         if view_orientation is None:
@@ -232,13 +240,13 @@ cdef class DiffractionPattern(_Compute):
         diffraction_fft = np.fft.fftshift(diffraction_fft)
 
         # Compute the squared modulus of the FFT, which is S(k)
-        self._diffraction = np.real(
+        _diffraction = np.real(
             diffraction_fft * np.conjugate(diffraction_fft))
 
         # Transform the image (scale, shear, zoom) and normalize S(k) by N^2
         N = len(system.points)
-        self._diffraction = self._transform(
-            self._diffraction, system.box, inv_shear, zoom) / (N*N)
+        self._diffraction.append(self._transform(
+            _diffraction, system.box, inv_shear, zoom) / (N*N))
 
         # Compute a cached array of k-vectors that can be rotated and scaled
         if not self._called_compute:
@@ -277,7 +285,7 @@ cdef class DiffractionPattern(_Compute):
         (``output_size``, ``output_size``) :class:`numpy.ndarray`:
             diffraction pattern.
         """
-        return np.asarray(self._diffraction)
+        return np.squeeze(self._diffraction)
 
     @_Compute._computed_property
     def k_values(self):
