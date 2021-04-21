@@ -7,7 +7,7 @@ and this project adheres to
 ## next
 
 ### Fixed
-* Fix broken arXiv links
+* Fix broken arXiv links in bibliography.
 
 ## v2.5.1 - 2021-04-06
 
