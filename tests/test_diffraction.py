@@ -19,11 +19,28 @@ class TestDiffractionPattern:
         dp = freud.diffraction.DiffractionPattern()
         box, positions = freud.data.UnitCell.fcc().generate_system(4)
 
-        quaternions = rowan.random.rand(3)
+        n_frames = 3
+        quaternions = rowan.random.rand(n_frames)
 
         for quaternion in quaternions:
             rotated_positions = rowan.rotate(quaternion, positions)
             dp.compute((box, rotated_positions), reset=False)
+        assert dp.diffraction.shape[0] == n_frames
+
+    def test_reset_true(self):
+        dp = freud.diffraction.DiffractionPattern()
+        dp_reference = freud.diffraction.DiffractionPattern()
+        box, positions = freud.data.UnitCell.fcc().generate_system(4)
+
+        n_frames = 3
+        quaternions = rowan.random.rand(n_frames)
+
+        for quaternion in quaternions:
+            rotated_positions = rowan.rotate(quaternion, positions)
+            dp.compute((box, rotated_positions), reset=True)
+        dp_reference.compute((box, rotated_positions), reset=True)
+        npt.assert_array_almost_equal(dp.diffraction, dp_reference.diffraction)
+
 
     def test_attribute_access(self):
         grid_size = 234
