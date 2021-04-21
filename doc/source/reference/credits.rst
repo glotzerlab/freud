@@ -257,7 +257,7 @@ Tim Moore
 
 * Added optional rmin argument to density.RDF.
 * Enabled NeighborList indexing.
-* Doc fixes
+* Documentation fixes.
 
 Alex Dutton
 
