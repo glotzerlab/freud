@@ -4,6 +4,11 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## next
+
+### Fixed
+* Fix broken arXiv links in bibliography.
+
 ## v2.5.1 - 2021-04-06
 
 ### Fixed
