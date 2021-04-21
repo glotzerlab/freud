@@ -73,11 +73,13 @@ Contributors
 
     git shortlog -sne > contributors.txt
 
+- Check the ``git diff`` for that file. If any contributors are listed twice, update the ``.mailmap`` file so that all contributors are recognized under a canonical name and email. Then re-run the previous command.
+
 Bump version
 ------------
 
 - Commit previous changes before running ``bumpversion``.
-- Use the `bumpversion package <https://pypi.org/project/bumpversion/>`_ to increase the version number and automatically generate a git tag:
+- Use the `bumpversion package <https://pypi.org/project/bumpversion/>`_ to increase the version number:
 
 .. code-block:: bash
 
@@ -97,10 +99,12 @@ Bump version
   Pushing the release branch will cause CircleCI to create a release for TestPyPI automatically (see automation in ``.circleci/config.yml``).
   Make sure this succeeds -- it takes a while to run.
   Review the `TestPyPI builds <https://test.pypi.org/project/freud-analysis/>`__ to ensure the README looks correct.
-  Then push the tag:
+
+- Create and push a tag for the release.
 
 .. code-block:: bash
 
+    git tag -a vX.Y.Z
     git push --tags
 
 Automatic Builds
