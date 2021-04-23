@@ -15,32 +15,24 @@ class TestDiffractionPattern:
         box, positions = freud.data.UnitCell.fcc().generate_system(4)
         dp.compute((box, positions))
 
-    def test_reset_false(self):
-        dp = freud.diffraction.DiffractionPattern()
-        box, positions = freud.data.UnitCell.fcc().generate_system(4)
-
-        n_frames = 3
-        np.random.seed(42)
-        noises = np.random.normal(scale=1e-7, size=(n_frames, len(positions), 3))
-
-        for noise in noises:
-            noisy_positions = positions + noise
-            dp.compute((box, noisy_positions), reset=False)
-
-    def test_reset_true(self):
-        dp = freud.diffraction.DiffractionPattern()
+    @pytest.mark.parametrize("reset", [True, False])
+    def test_reset(self, reset):
+        dp_check = freud.diffraction.DiffractionPattern()
         dp_reference = freud.diffraction.DiffractionPattern()
-        box, positions = freud.data.UnitCell.fcc().generate_system(4)
+        fcc = freud.data.UnitCell.fcc()
+        box, positions = fcc.generate_system(4)
 
-        n_frames = 3
-        np.random.seed(42)
-        noises = np.random.normal(scale=1e-7, size=(n_frames, len(positions), 3))
+        for seed in range(2):
+            # The check instance computes twice without resetting
+            box, positions = fcc.generate_system(sigma_noise=1e-3, seed=seed)
+            dp_check.compute((box, positions), reset=reset)
 
-        for noise in noises:
-            noisy_positions = positions + noise
-            dp.compute((box, noisy_positions), reset=True)
-        dp_reference.compute((box, positions + noises[-1]), reset=True)
-        npt.assert_array_almost_equal(dp.diffraction, dp_reference.diffraction)
+        # The reference instance computes once on the last system
+        dp_reference.compute((box, positions))
+
+        # If reset, then the data should be close. If not reset, the data
+        # should be different.
+        assert reset == np.allclose(dp_check.diffraction, dp_reference.diffraction)
 
     def test_attribute_access(self):
         grid_size = 234
