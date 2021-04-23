@@ -203,7 +203,7 @@ cdef class DiffractionPattern(_Compute):
                 Width of Gaussian convolved with points, in system length units
                 (Default value = 1).
             reset (bool):
-                Whether to erase the previously computed valuse before adding
+                Whether to erase the previously computed values before adding
                 the new computations; if False, will accumulate data (Default
                 value: True).
         """
