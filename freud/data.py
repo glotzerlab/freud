@@ -200,7 +200,7 @@ class UnitCell:
 
 
 def make_random_system(box_size, num_points, is2D=False, seed=None):
-    R"""Helper function to make random points with a cubic or square box.
+    r"""Helper function to make random points with a cubic or square box.
 
     Args:
         box_size (float): Size of box.
