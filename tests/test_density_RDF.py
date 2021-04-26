@@ -81,6 +81,9 @@ class TestRDF:
 
         for r_min in (0, 0.1, 3.0):
             box, points = freud.data.make_random_system(box_size, num_points)
+            # This test is slow, and since it's a validation of the underlying
+            # algorithm and not the API we don't need to test all possible
+            # inputs, so we only test the fastest one (AABBQuery).
             nq = freud.locality.AABBQuery(box, points)
             neighbors = {"mode": "ball", "r_max": r_max, "exclude_ii": True}
 
