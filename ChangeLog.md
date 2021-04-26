@@ -4,7 +4,10 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## next
+## v2.6.0
+
+### Added
+* Added `out` option for storing wrapped vectors in `box.Box.wrap`.
 
 ### Fixed
 * Fix broken arXiv links in bibliography.
