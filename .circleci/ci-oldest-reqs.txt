@@ -1,7 +1,7 @@
 cmake==3.6.3.post1
 cython==0.29.14
 garnett==0.7.1
-gsd==2.0.0
+gsd==2.4.2
 matplotlib==3.0.0
 numpy==1.14.0
 pytest==6.2.2
