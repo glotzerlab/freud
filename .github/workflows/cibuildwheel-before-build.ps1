@@ -11,5 +11,6 @@ Expand-Archive -Path "${TBB_ZIP}" -DestinationPath .
 # Move to a hard-coded path (defined by CIBW_ENVIRONMENT)
 mv "oneTBB-${TBB_VERSION}" "${PACKAGE_DIR}/tbb"
 cd "${PACKAGE_DIR}/tbb"
+mkdir -p build
 cmake --build build -j --config Release
 cmake --install build
