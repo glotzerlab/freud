@@ -274,6 +274,7 @@ Kelly Wang
 * Added methods ``compute_distances`` and ``compute_all_distances`` to Box.
 * Added method ``crop`` to Box.
 * Added 2D Box tests for ``get_image`` and ``contains``.
+* Added the `reset` argument to the `compute` method of `DiffractionPattern` class.
 
 Yezhi Jin
 
