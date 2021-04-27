@@ -7,8 +7,6 @@ updates:
     open-pull-requests-limit: 10
   - package-ecosystem: "github-actions"
     directory: "/"
-    target-branch: maint
     schedule:
       interval: "monthly"
-    pull-request-branch-name:
-      separator: "-"
+    open-pull-requests-limit: 10
