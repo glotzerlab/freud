@@ -15,13 +15,7 @@ pip install cmake
 PACKAGE_DIR=$1
 PLATFORM=$2
 TBB_VERSION="2021.2.0"
-#if [[ "${TBB_PLATFORM}" == "win" ]]; then
-#    TBB_ZIP="oneapi-tbb-${TBB_VERSION}-${TBB_PLATFORM}.zip"
-#else
-#    TBB_ZIP="oneapi-tbb-${TBB_VERSION}-${TBB_PLATFORM}.tgz"
-#fi
 TBB_ZIP="v${TBB_VERSION}.zip"
-#curl -L -O "https://github.com/oneapi-src/oneTBB/releases/download/v${TBB_VERSION}/${TBB_ZIP}"
 curl -L -O "https://github.com/oneapi-src/oneTBB/archive/refs/tags/${TBB_ZIP}"
 unzip -q "${TBB_ZIP}"
 
