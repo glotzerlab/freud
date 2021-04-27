@@ -15,6 +15,25 @@ class TestDiffractionPattern:
         box, positions = freud.data.UnitCell.fcc().generate_system(4)
         dp.compute((box, positions))
 
+    @pytest.mark.parametrize("reset", [True, False])
+    def test_reset(self, reset):
+        dp_check = freud.diffraction.DiffractionPattern()
+        dp_reference = freud.diffraction.DiffractionPattern()
+        fcc = freud.data.UnitCell.fcc()
+        box, positions = fcc.generate_system(4)
+
+        for seed in range(2):
+            # The check instance computes twice without resetting
+            box, positions = fcc.generate_system(sigma_noise=1e-3, seed=seed)
+            dp_check.compute((box, positions), reset=reset)
+
+        # The reference instance computes once on the last system
+        dp_reference.compute((box, positions))
+
+        # If reset, then the data should be close. If not reset, the data
+        # should be different.
+        assert reset == np.allclose(dp_check.diffraction, dp_reference.diffraction)
+
     def test_attribute_access(self):
         grid_size = 234
         output_size = 123
