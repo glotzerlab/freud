@@ -103,7 +103,7 @@ foreach(cython_module ${cython_modules_with_cpp} ${cython_modules_without_cpp})
     set_target_properties(${cython_module} PROPERTIES INSTALL_RPATH "\$ORIGIN")
   endif()
 
-  if(_using_conda)
+  if(_using_conda OR DEFINED ENV{CIBUILDWHEEL})
     set_target_properties(${cython_module}
                           PROPERTIES INSTALL_RPATH_USE_LINK_PATH True)
   endif()

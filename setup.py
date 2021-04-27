@@ -93,7 +93,6 @@ setup(
         "gsd>=2.0",
         "garnett>=0.7.1",
         "matplotlib>=3.0",
-        "MDAnalysis>=0.20.1",
         "sympy>=1.0",
     ],
 )
