@@ -1,4 +1,4 @@
-$PackageDir = $args[0]
+$PACKAGE_DIR = $args[0]
 
 # Install a modern version of CMake for compatibility with modern Visual Studio
 pip install cmake
