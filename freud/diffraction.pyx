@@ -67,6 +67,7 @@ cdef class DiffractionPattern(_Compute):
     cdef unsigned int _frame_counter
     cdef double _box_matrix_scale_factor
     cdef double[:] _view_orientation
+    cdef double _zoom
     cdef cbool _k_values_cached
     cdef cbool _k_vectors_cached
 
@@ -88,7 +89,7 @@ cdef class DiffractionPattern(_Compute):
 
     def _calc_proj(self, view_orientation, box):
         """Calculate the inverse shear matrix from finding the projected box
-        vectors whose area of parallogram is the largest.
+        vectors whose parallelogram area is the largest.
 
         Args:
             view_orientation ((:math:`4`) :class:`numpy.ndarray`):
@@ -158,6 +159,8 @@ cdef class DiffractionPattern(_Compute):
             roll_shift -= 0.5 / zoom
 
         box_matrix = box.to_matrix()
+        # TODO: Should this use the max of the secondary indices?  (i.e.
+        # should a big Lz affect this?)
         ss = np.max(box_matrix) * inv_shear
 
         shift_matrix = np.array(
@@ -271,6 +274,7 @@ cdef class DiffractionPattern(_Compute):
         # lazy evaluation of k-values and k-vectors
         self._box_matrix_scale_factor = np.max(system.box.to_matrix())
         self._view_orientation = view_orientation
+        self._zoom = zoom
         self._k_values_cached = False
         self._k_vectors_cached = False
 
