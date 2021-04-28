@@ -52,7 +52,7 @@ def benchmark_desc(name, params):
 
     """
     s = name + ": \n\t"
-    s += ", ".join("{} = {}".format(str(k), str(v)) for k, v in params.items())
+    s += ", ".join(f"{str(k)} = {str(v)}" for k, v in params.items())
     return s
 
 
