@@ -14,5 +14,5 @@ cd "${PACKAGE_DIR}/tbb"
 mkdir -p build
 cd build
 cmake ../ -DTBB_TEST=OFF
-cmake --build . -j
-cmake --install .
+cmake --build . -j --config Release
+cmake --install . --config Release
