@@ -61,7 +61,7 @@ def make_raw_query_nlist_test_set(
 
 
 def make_alternating_lattice(lattice_size, angle=0, extra_shell=2):
-    R"""Make 2D integer lattice of alternating set of points.
+    r"""Make 2D integer lattice of alternating set of points.
 
     Setting extra_shell to 1 will give 4 neighboring points in points_2 at
     distance 1 for each point in points_1. Setting extra_shell to 2 will give

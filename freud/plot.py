@@ -362,7 +362,7 @@ def pmft_plot(pmft, ax=None):
 
 
 def density_plot(density, box, ax=None):
-    R"""Helper function to plot density diagram.
+    r"""Helper function to plot density diagram.
 
     Args:
         density (:math:`\left(N_x, N_y\right)` :class:`numpy.ndarray`):

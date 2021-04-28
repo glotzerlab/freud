@@ -140,7 +140,7 @@ class Benchmark:
                 )
             )
         else:
-            print("{:8.3f} ms".format(self._t / 1e-3))
+            print(f"{self._t / 1e-3:8.3f} ms")
 
     def run_profile(self, N=None, number=100):
         """Profile a benchmark run.
@@ -268,7 +268,7 @@ class Benchmark:
                 if print_stats:
                     speedup = times[1, j] / times[ncores, j]
                     print(
-                        "{:8.3f} ms {:9.2f}x".format(times[ncores, j] * 1000, speedup),
+                        f"{times[ncores, j] * 1000:8.3f} ms {speedup:9.2f}x",
                         end=" | ",
                     )
                     sys.stdout.flush()
