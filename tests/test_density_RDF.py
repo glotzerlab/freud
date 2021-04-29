@@ -94,6 +94,7 @@ class TestRDF:
             else:
                 rdf.compute(nq, neighbors=neighbors)
 
+            assert rdf.box == box
             correct = np.ones(bins, dtype=np.float32)
             npt.assert_allclose(rdf.rdf, correct, atol=tolerance)
 
