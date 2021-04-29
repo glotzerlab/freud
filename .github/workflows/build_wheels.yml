@@ -62,7 +62,7 @@ jobs:
           CIBW_BEFORE_TEST_LINUX: "source .github/workflows/cibuildwheel-before-test.sh {package}"
           CIBW_BEFORE_TEST_MACOS: "source .github/workflows/cibuildwheel-before-test.sh {package}"
           CIBW_BEFORE_TEST_WINDOWS: "powershell .github/workflows/cibuildwheel-before-test.ps1 {package}"
-          CIBW_TEST_COMMAND: "cd {package}/tests && pytest . -v --log-level=DEBUG"
+          CIBW_TEST_COMMAND: "cd {package}/tests && pytest . -v --log-level=DEBUG --rootdir={package}/tests"
 
       - uses: actions/upload-artifact@v2.2.3
         with:
