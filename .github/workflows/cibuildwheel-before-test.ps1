@@ -9,4 +9,4 @@ If ("${PYTHON_VERSION}" -Match "Python 3\.6\.") {
 }
 
 # Allow parallel tests to speed up CI
-pip install -U pytest-xdist --progress-bar=off
+#pip install -U pytest-xdist --progress-bar=off
