@@ -186,7 +186,7 @@ class PMFTTestBase:
         radii = build_radii(get_bin_centers(pmft))
         rdf = pmft_to_rdf(pmft, radii)
 
-        assert np.isclose(np.nanmean(rdf), 1, rtol=1e-2, atol=1e-2)
+        assert np.isclose(np.nanmean(rdf), 1, rtol=2e-2, atol=2e-2)
 
 
 class PMFT2DTestBase(PMFTTestBase):
