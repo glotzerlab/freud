@@ -79,34 +79,37 @@ class TestRDF:
         tolerance = 0.1
         box_size = r_max * 3.1
 
-        for i, r_min in enumerate([0, 0.05, 0.1, 1.0, 3.0]):
+        for r_min in (0, 0.1, 3.0):
             box, points = freud.data.make_random_system(box_size, num_points)
-            test_set = util.make_raw_query_nlist_test_set(
-                box, points, points, "ball", r_max, 0, True
+            # This test is slow, and since it's a validation of the underlying
+            # algorithm and not the API we don't need to test all possible
+            # inputs, so we only test the fastest one (AABBQuery).
+            nq = freud.locality.AABBQuery(box, points)
+            neighbors = {"mode": "ball", "r_max": r_max, "exclude_ii": True}
+
+            rdf = freud.density.RDF(bins, r_max, r_min)
+
+            if r_min != 3.0:
+                rdf.compute(nq, neighbors=neighbors, reset=False)
+            else:
+                rdf.compute(nq, neighbors=neighbors)
+
+            assert rdf.box == box
+            correct = np.ones(bins, dtype=np.float32)
+            npt.assert_allclose(rdf.rdf, correct, atol=tolerance)
+
+            # Numerical integration to compute the running coordination
+            # number will be highly inaccurate, so we can only test up to
+            # a limited precision. Also, since dealing with nonzero r_min
+            # values requires extrapolation, we only test when r_min=0.
+            ndens = points.shape[0] / box.volume
+            dr = (r_max - r_min) / bins
+            bin_boundaries = np.array(
+                [r_min + dr * i for i in range(bins + 1) if r_min + dr * i <= r_max]
             )
-            for nq, neighbors in test_set:
-                rdf = freud.density.RDF(bins, r_max, r_min)
-
-                if i < 3:
-                    rdf.compute(nq, neighbors=neighbors, reset=False)
-                else:
-                    rdf.compute(nq, neighbors=neighbors)
-                assert rdf.box == box
-                correct = np.ones(bins, dtype=np.float32)
-                npt.assert_allclose(rdf.rdf, correct, atol=tolerance)
-
-                # Numerical integration to compute the running coordination
-                # number will be highly inaccurate, so we can only test up to
-                # a limited precision. Also, since dealing with nonzero r_min
-                # values requires extrapolation, we only test when r_min=0.
-                ndens = points.shape[0] / box.volume
-                dr = (r_max - r_min) / bins
-                bin_boundaries = np.array(
-                    [r_min + dr * i for i in range(bins + 1) if r_min + dr * i <= r_max]
-                )
-                bin_volumes = 4 / 3 * np.pi * np.diff(bin_boundaries ** 3)
-                avg_counts = rdf.rdf * ndens * bin_volumes
-                npt.assert_allclose(rdf.n_r, np.cumsum(avg_counts), rtol=tolerance)
+            bin_volumes = 4 / 3 * np.pi * np.diff(bin_boundaries ** 3)
+            avg_counts = rdf.rdf * ndens * bin_volumes
+            npt.assert_allclose(rdf.n_r, np.cumsum(avg_counts), rtol=tolerance)
 
     def test_repr(self):
         rdf = freud.density.RDF(r_max=10, bins=100, r_min=0.5)
