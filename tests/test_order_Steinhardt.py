@@ -29,7 +29,8 @@ class TestSteinhardt:
 
     def test_l_zero(self):
         # Points should always have Q_0 = 1.
-        from scipy.special import sph_harm
+        special = pytest.importorskip("scipy.special")
+        sph_harm = special.sph_harm
 
         N = 1000
         L = 10
@@ -49,6 +50,55 @@ class TestSteinhardt:
                 np.isclose(comp.particle_harmonics, sph_harm(0, 0, 0, 0)),
             )
         )
+
+    def test_l_nonzero(self):
+        special = pytest.importorskip("scipy.special")
+        sph_harm = special.sph_harm
+
+        atol = 1e-5
+        L = 8
+        N = 100
+        box, points = freud.data.make_random_system(L, N)
+
+        num_neighbors = 4
+        sph_l = 2
+
+        aq = freud.locality.AABBQuery(box, points)
+        nl = aq.query(
+            points, {"exclude_ii": True, "num_neighbors": num_neighbors}
+        ).toNeighborList()
+
+        comp = freud.order.Steinhardt(sph_l)
+        comp.compute(aq, neighbors=nl)
+        qlmi = np.zeros([N, 2 * sph_l + 1], dtype=complex)
+
+        # Loop over the sphs and compute them explicitly.
+        for i in range(N):
+            neighbors_i = nl[nl.query_point_indices == i]
+            bonds = box.wrap(points[neighbors_i[:, 1]] - points[neighbors_i[:, 0]])
+            r = np.linalg.norm(bonds, axis=-1)
+            thetas = np.arccos(bonds[:, 2] / r)
+            phis = np.arctan2(bonds[:, 1], bonds[:, 0])
+
+            count = 0
+            for m in range(sph_l + 1):
+                for bond_idx in range(bonds.shape[0]):
+                    qlmi[i, count] += sph_harm(
+                        m, sph_l, phis[bond_idx], thetas[bond_idx]
+                    )
+                qlmi[i, count] /= num_neighbors
+                count += 1
+
+            for neg_m in range(1, sph_l + 1):
+                for bond_idx in range(bonds.shape[0]):
+                    m = -neg_m
+                    qlmi[i, count] += sph_harm(
+                        m, sph_l, phis[bond_idx], thetas[bond_idx]
+                    )
+                qlmi[i, count] /= num_neighbors
+                count += 1
+
+        assert np.allclose(comp.particle_harmonics, qlmi, atol=atol)
 
     def test_l_axis_aligned(self):
         # This test has three points along the z-axis. By construction, the

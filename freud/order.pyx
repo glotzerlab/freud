@@ -632,7 +632,7 @@ cdef class Steinhardt(_PairCompute):
         order given by fsph: :math:`0, 1, ..., l, -1, ..., -l`."""
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getQlm(),
-            freud.util.arr_type_t.FLOAT)
+            freud.util.arr_type_t.COMPLEX_FLOAT)
 
     def compute(self, system, neighbors=None):
         R"""Compute the order parameter.
@@ -831,7 +831,7 @@ cdef class SolidLiquid(_PairCompute):
         order given by fsph: :math:`0, 1, ..., l, -1, ..., -l`."""
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getQlm(),
-            freud.util.arr_type_t.FLOAT)
+            freud.util.arr_type_t.COMPLEX_FLOAT)
 
     @_Compute._computed_property
     def cluster_sizes(self):
