@@ -11,7 +11,7 @@ references:
 
   container_macos: &container_macos
     macos:
-      xcode: "9.0"
+      xcode: "12.0.0"
     working_directory: ~/ci/freud
 
   load_code: &load_code
@@ -44,6 +44,14 @@ references:
     run:
       name: Install dependencies
       command: |
+        # Since we're testing against a very old cmake, wheels may not exist
+        # for newer Python versions (currently this is true for Python3.8, will
+        # be true for 3.9 as well). We will need to build the cmake wheels from
+        # a tarball in this case, and cmake depends on scikit-build, so we
+        # install skbuild separately here. Note that newer cmake versions build
+        # universal wheels instead, so once we upgrade to cmake >= 3.14 we won't
+        # be dependent on them updating wheels for specific new Python versions.
+        python${PYVER} -m pip install --user scikit-build==0.10.0
         python${PYVER} -m pip install --user -r requirements-testing.txt
 
   get_conda_requirements: &get_conda_requirements
@@ -54,40 +62,44 @@ references:
         conda config --add channels conda-forge
         conda update -q conda certifi
         conda install python pip tbb tbb-devel
+        conda update --all
         # Install from PyPI instead of conda-forge for consistency with Linux.
         # For some reason, the SSL certificates used by pip aren't correct, even with certifi.
         curl -O https://curl.haxx.se/ca/cacert.pem
-        python${PYVER} -m pip install --cert cacert.pem --progress-bar off -U -r requirements-testing.txt
+        export PIP_CERT="$PWD/cacert.pem"
+        python${PYVER} -m pip install --progress-bar off -U -r requirements-testing.txt
+        # Install cmake >=3.14 to support Visual Studio 2019 generator
+        python${PYVER} -m pip install --progress-bar off -U cmake~=3.14
 
-  get_style_requirements: &get_style_requirements
+  get_pre_commit_requirements: &get_pre_commit_requirements
     run:
-      name: Install style check dependencies
+      name: Install pre-commit dependencies
       command: |
-        python${PYVER} -m pip install --user flake8==3.8.3
+        python${PYVER} -m pip install --user -r requirements-precommit.txt
 
-  #check_cpp_style: &check_cpp_style
-  #  run:
-  #    name: clang-format
-  #    command: |
-  #      for f in cpp/**/*; do
-  #        if ! diff $f <(clang-format-6.0 -style=file $f) > /dev/null; then
-  #          echo "$f does not match clang-format style."
-  #          diff --color $f <(clang-format-6.0 -style=file $f) || true
-  #        fi
-  #      done
-
-  check_python_style: &check_python_style
+  pre-test-checks: &pre-test-checks
     run:
-      name: flake8
+      name: Run all static checks
       command: |
-        python${PYVER} -m flake8 --show-source .
+        # Changes to environment variables (like PATH) don't persist between
+        # run steps in CircleCI, so we specify the full path to pre-commit
+        # explicitly here.
+        python${PYVER} -m pre_commit run --all-files
 
   build: &build
     run:
       name: Build
       command: |
         python${PYVER} --version
-        python${PYVER} setup.py build_ext --inplace --COVERAGE
+        # Max 4 threads to not overtax CI.
+        python${PYVER} setup.py build_ext --inplace -- -DCOVERAGE=ON -- -j 4 -v
+
+  build_windows: &build_windows
+    run:
+      name: Build with MSVC
+      command: |
+        python${PYVER} --version
+        python${PYVER} setup.py build_ext --inplace -- -G "Visual Studio 16 2019" -DCOVERAGE=ON
 
   test: &test
     run:
@@ -99,8 +111,7 @@ references:
     run:
       name: Run unit tests with coverage
       command: |
-          export PATH=~/.local/bin:${PATH}
-          coverage run -m unittest discover tests -v
+          python${PYVER} -m coverage run -m unittest discover tests -v
           bash <(curl -s https://codecov.io/bash)
 
   store: &store
@@ -112,7 +123,6 @@ references:
     run:
       name: Run benchmarks
       command: |
-          python${PYVER} -m pip install --user -r requirements-testing.txt
           echo 'export PYTHONPATH=$PYTHONPATH:.' >> $BASH_ENV
           echo 'export BENCHMARK_NPROC=2' >> $BASH_ENV
           source $BASH_ENV
@@ -130,8 +140,8 @@ references:
           echo 'export PYTHONPATH=$PYTHONPATH:.' >> $BASH_ENV
           echo 'export BENCHMARK_NPROC=2' >> $BASH_ENV
           source $BASH_ENV
-          rm freud/*.cpp
-          python${PYVER} setup.py build_ext --inplace --COVERAGE --ENABLE-CYTHON
+          # Max 4 threads to not overtax CI.
+          python${PYVER} setup.py build_ext --inplace -- -DCOVERAGE=ON -- -j 4
           git checkout "${CIRCLE_SHA1}" -- benchmarks/
           BENCHSCR="benchmarks/benchmarker.py"
           echo "Running benchmark on origin/master"
@@ -166,7 +176,7 @@ references:
       - *load_code
       - *update_submodules
       - *get_conda_requirements
-      - *build
+      - *build_windows
       - *test_cov
       - *store
 
@@ -174,9 +184,8 @@ references:
     steps:
       - *load_code
       - *update_submodules
-      - *get_style_requirements
-      #- *check_cpp_style
-      - *check_python_style
+      - *get_pre_commit_requirements
+      - *pre-test-checks
 
   build_and_benchmark: &build_and_benchmark
     steps:
@@ -235,7 +244,7 @@ references:
 jobs:
   check-style:
     docker:
-      - image: glotzerlab/ci:2020.01-py38
+      - image: glotzerlab/ci:2020.10-clang10_py38
     working_directory: ~/ci/freud
     environment:
       PYVER: "3.8"
@@ -243,7 +252,7 @@ jobs:
 
   linux-python-38:
     docker:
-      - image: glotzerlab/ci:2020.01-py38
+      - image: glotzerlab/ci:2020.10-py38
     working_directory: ~/ci/freud
     environment:
       PYVER: "3.8"
@@ -251,7 +260,7 @@ jobs:
 
   linux-python-37:
     docker:
-      - image: glotzerlab/ci:2020.01-py37
+      - image: glotzerlab/ci:2020.10-py37
     working_directory: ~/ci/freud
     environment:
       PYVER: "3.7"
@@ -259,7 +268,7 @@ jobs:
 
   linux-python-36:
     docker:
-      - image: glotzerlab/ci:2020.01-py36
+      - image: glotzerlab/ci:2020.10-py36
     working_directory: ~/ci/freud
     environment:
       PYVER: "3.6"
@@ -331,6 +340,7 @@ workflows:
             branches:
               only: /release\/.*/
           requires:
+            - check-style
             - linux-python-38
             - linux-python-37
             - linux-python-36
@@ -340,6 +350,7 @@ workflows:
             branches:
               only: /release\/.*/
           requires:
+            - check-style
             - linux-python-38
             - linux-python-37
             - linux-python-36

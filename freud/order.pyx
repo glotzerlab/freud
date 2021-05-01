@@ -14,10 +14,11 @@ import numpy as np
 import time
 import freud.locality
 import logging
+import warnings
 
-from freud.util cimport _Compute
+from freud.util cimport _Compute, vec3, quat
+from freud.errors import FreudDeprecationWarning
 from freud.locality cimport _PairCompute
-from freud.util cimport vec3, quat
 from cython.operator cimport dereference
 
 cimport freud._order
@@ -412,6 +413,9 @@ cdef class Translational(_PairCompute):
         **2D:** :class:`freud.order.Translational` is only defined for 2D
         systems. The points must be passed in as :code:`[x, y, 0]`.
 
+    .. note::
+        This class is slated for deprecation and will be removed in freud 3.0.
+
     Args:
         k (float, optional):
             Normalization of order parameter (Default value = :code:`6.0`).
@@ -419,6 +423,8 @@ cdef class Translational(_PairCompute):
     cdef freud._order.Translational * thisptr
 
     def __cinit__(self, k=6.0):
+        warnings.warn("This class is deprecated and will be removed in "
+                      "version 3.0", FreudDeprecationWarning)
         self.thisptr = new freud._order.Translational(k, False)
 
     def __dealloc__(self):
@@ -524,6 +530,16 @@ cdef class Steinhardt(_PairCompute):
     order parameter, where the normalization is performed by averaging the
     :math:`q_{lm}` values over all particles before computing the order
     parameter of choice.
+
+    .. note::
+        The value of per-particle order parameter will be set to NaN for
+        particles with no neighbors. We choose this value rather than setting
+        the order parameter to 0 because in more complex order parameter
+        calculations (such as when computing the :math:`w_l`), it is possible
+        to observe a value of 0 for the per-particle order parameter even with
+        a finite number of neighbors. If you would like to ignore this
+        distinction, you can mask the output order parameter values using
+        NumPy: :code:`numpy.nan_to_num(particle_order)`.
 
     Args:
         l (unsigned int):

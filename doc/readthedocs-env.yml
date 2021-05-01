@@ -5,10 +5,14 @@ channels:
 dependencies:
   - python
   - pip
+  - scikit-build
+  - cmake
   - cython
   - tbb
   - tbb-devel
   - numpy
+  - rowan
+  - scipy
   - sphinx
   - sphinx_rtd_theme
   - nbsphinx
