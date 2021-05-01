@@ -27,41 +27,23 @@ class TestSteinhardt:
 
         npt.assert_equal(comp.particle_order.shape[0], N)
 
-    def test_l_zero(self):
-        # Points should always have Q_0 = 1.
+    @pytest.mark.parametrize("sph_l", range(3, 8))
+    def test_l_nonzero(self, sph_l):
+        """Test th calculated qlmi."""
         special = pytest.importorskip("scipy.special")
         sph_harm = special.sph_harm
 
-        N = 1000
-        L = 10
-
-        box, positions = freud.data.make_random_system(L, N)
-
-        comp = freud.order.Steinhardt(0)
-        comp.compute((box, positions), neighbors={"r_max": 1.5})
-
-        npt.assert_allclose(comp.particle_order, 1, atol=1e-5)
-        assert np.all(
-            np.logical_or(
-                np.isclose(comp.particle_harmonics, 0),
-                # The values used for phi and theta (the third and fourth
-                # arguments) are irrelevant because when l=m=0 the spherical
-                # harmonic is no longer a function of the angles.
-                np.isclose(comp.particle_harmonics, sph_harm(0, 0, 0, 0)),
-            )
-        )
-
-    def test_l_nonzero(self):
-        special = pytest.importorskip("scipy.special")
-        sph_harm = special.sph_harm
-
-        atol = 1e-5
+        atol = 1e-4
         L = 8
         N = 100
         box, points = freud.data.make_random_system(L, N)
 
         num_neighbors = 4
-        sph_l = 2
+
+        # Note the order of m values provided by fsph.
+        ms = np.array(list(range(sph_l + 1)) + [-m for m in range(1, sph_l + 1)])[
+            :, np.newaxis
+        ]
 
         aq = freud.locality.AABBQuery(box, points)
         nl = aq.query(
@@ -72,7 +54,9 @@ class TestSteinhardt:
         comp.compute(aq, neighbors=nl)
         qlmi = np.zeros([N, 2 * sph_l + 1], dtype=complex)
 
-        # Loop over the sphs and compute them explicitly.
+        # Loop over the particles and compute the qlmis for each (the
+        # broadcasting syntax becomes rather abstruse for 3D arrays, and we
+        # have to match the indices to the NeighborList anyway).
         for i in range(N):
             neighbors_i = nl[nl.query_point_indices == i]
             bonds = box.wrap(points[neighbors_i[:, 1]] - points[neighbors_i[:, 0]])
@@ -80,24 +64,11 @@ class TestSteinhardt:
             thetas = np.arccos(bonds[:, 2] / r)
             phis = np.arctan2(bonds[:, 1], bonds[:, 0])
 
-            count = 0
-            for m in range(sph_l + 1):
-                for bond_idx in range(bonds.shape[0]):
-                    qlmi[i, count] += sph_harm(
-                        m, sph_l, phis[bond_idx], thetas[bond_idx]
-                    )
-                qlmi[i, count] /= num_neighbors
-                count += 1
+            qlmi[i, :] = np.sum(
+                sph_harm(ms, sph_l, phis[np.newaxis, :], thetas[np.newaxis, :]), axis=-1
+            )
 
-            for neg_m in range(1, sph_l + 1):
-                for bond_idx in range(bonds.shape[0]):
-                    m = -neg_m
-                    qlmi[i, count] += sph_harm(
-                        m, sph_l, phis[bond_idx], thetas[bond_idx]
-                    )
-                qlmi[i, count] /= num_neighbors
-                count += 1
-
+        qlmi /= num_neighbors
         assert np.allclose(comp.particle_harmonics, qlmi, atol=atol)
 
     def test_l_axis_aligned(self):
