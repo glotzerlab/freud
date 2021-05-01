@@ -1,8 +1,9 @@
 import numpy as np
-import freud
+import rowan
 from benchmark import Benchmark
 from benchmarker import run_benchmarks
-import rowan
+
+import freud
 
 
 class BenchmarkOrderCubatic(Benchmark):
@@ -15,12 +16,10 @@ class BenchmarkOrderCubatic(Benchmark):
 
     def bench_setup(self, N):
         np.random.seed(0)
-        self.orientations = rowan.random.random_sample((N, ))
-        self.cop = freud.order.Cubatic(self.t_initial,
-                                       self.t_final,
-                                       self.scale,
-                                       self.n_replicates,
-                                       self.seed)
+        self.orientations = rowan.random.random_sample((N,))
+        self.cop = freud.order.Cubatic(
+            self.t_initial, self.t_final, self.scale, self.n_replicates, self.seed
+        )
 
     def bench_run(self, N):
         self.cop.compute(self.orientations)
@@ -29,18 +28,18 @@ class BenchmarkOrderCubatic(Benchmark):
 def run():
     Ns = [1000, 5000, 10000]
     number = 100
-    name = 'freud.order.Cubatic'
+    name = "freud.order.Cubatic"
 
-    kwargs = {"t_initial": 5.0,
-              "t_final": 0.001,
-              "scale": 0.95,
-              "n_replicates": 10,
-              "seed": 0}
+    kwargs = {
+        "t_initial": 5.0,
+        "t_final": 0.001,
+        "scale": 0.95,
+        "n_replicates": 10,
+        "seed": 0,
+    }
 
-    return run_benchmarks(name, Ns, number,
-                          BenchmarkOrderCubatic,
-                          **kwargs)
+    return run_benchmarks(name, Ns, number, BenchmarkOrderCubatic, **kwargs)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run()

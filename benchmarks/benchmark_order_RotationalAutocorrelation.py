@@ -1,8 +1,9 @@
 import numpy as np
-import freud
+import rowan
 from benchmark import Benchmark
 from benchmarker import run_benchmarks
-import rowan
+
+import freud
 
 
 class BenchmarkOrderRotationalAutocorrelation(Benchmark):
@@ -12,7 +13,7 @@ class BenchmarkOrderRotationalAutocorrelation(Benchmark):
     def bench_setup(self, N):
         seed = 0
         np.random.seed(seed)
-        self.orientations = rowan.random.random_sample((N, ))
+        self.orientations = rowan.random.random_sample((N,))
         self.ra = freud.order.RotationalAutocorrelation(self.sph_l)
 
     def bench_run(self, N):
@@ -22,14 +23,14 @@ class BenchmarkOrderRotationalAutocorrelation(Benchmark):
 def run():
     Ns = [1000, 5000, 10000]
     number = 100
-    name = 'freud.order.RotationalAutocorrelation'
+    name = "freud.order.RotationalAutocorrelation"
 
     kwargs = {"sph_l": 2}
 
-    return run_benchmarks(name, Ns, number,
-                          BenchmarkOrderRotationalAutocorrelation,
-                          **kwargs)
+    return run_benchmarks(
+        name, Ns, number, BenchmarkOrderRotationalAutocorrelation, **kwargs
+    )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run()

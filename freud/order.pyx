@@ -10,21 +10,25 @@ harmonics of the bond order diagram, which are the spherical analogue of
 Fourier Transforms.
 """
 
-import numpy as np
-import time
-import freud.locality
 import logging
+import time
 import warnings
 
-from freud.util cimport _Compute, vec3, quat
+import numpy as np
+
+import freud.locality
+
+from freud.util cimport _Compute, quat, vec3
+
 from freud.errors import FreudDeprecationWarning
-from freud.locality cimport _PairCompute
+
+cimport numpy as np
 from cython.operator cimport dereference
 
 cimport freud._order
 cimport freud.locality
 cimport freud.util
-cimport numpy as np
+from freud.locality cimport _PairCompute
 
 logger = logging.getLogger(__name__)
 

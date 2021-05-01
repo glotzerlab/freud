@@ -33,7 +33,7 @@ public:
     PMFT() : BondHistogramCompute() {}
 
     //! Destructor
-    virtual ~PMFT() {};
+    ~PMFT() override = default;
 
     //! Get a reference to the PCF array
     const util::ManagedArray<float>& getPCF()
@@ -68,12 +68,13 @@ protected:
         m_pcf_array.prepare(m_histogram.shape());
         m_histogram.prepare(m_histogram.shape());
 
-        float inv_num_dens = m_box.getVolume() / (float) m_n_query_points;
-        float norm_factor = (float) 1.0 / ((float) m_frame_counter * (float) m_n_points);
+        float inv_num_dens = m_box.getVolume() / static_cast<float>(m_n_query_points);
+        float norm_factor
+            = float(1.0) / (static_cast<float>(m_frame_counter) * static_cast<float>(m_n_points));
         float prefactor = inv_num_dens * norm_factor;
 
         m_histogram.reduceOverThreadsPerBin(m_local_histograms, [this, &prefactor, &jf](size_t i) {
-            m_pcf_array[i] = m_histogram[i] * prefactor * jf(i);
+            m_pcf_array[i] = static_cast<float>(m_histogram[i]) * prefactor * jf(i);
         });
     }
 

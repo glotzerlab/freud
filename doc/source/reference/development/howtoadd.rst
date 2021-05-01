@@ -12,18 +12,18 @@ Python (and Cython) code in **freud** should follow `PEP 8 <https://www.python.o
 
 During continuous integration (CI), all Python and Cython code in **freud** is tested with `flake8 <http://flake8.pycqa.org/>`_ to ensure PEP 8 compliance.
 Additionally, all CMake code is tested using `cmakelang's cmake-format <https://cmake-format.readthedocs.io/en/latest/index.html>`__.
-It is strongly recommended to `set up a pre-commit hook <https://pre-commit.com/>`_ to ensure code is compliant before pushing to the repository:
+It is strongly recommended to `set up a pre-commit hook <https://pre-commit.com/>`__ to ensure code is compliant before pushing to the repository:
 
 .. code-block:: bash
 
-    pip install -r requirements-precommit.txt
+    pip install -r requirements/requirements-precommit.txt
     pre-commit install
 
 To manually run `pre-commit <https://pre-commit.com/>`__ for all the files present in the repository, run the following command:
 
 .. code-block:: bash
 
-    pre-commit run --all-files
+    pre-commit run --all-files --show-diff-on-failure
 
 Documentation is written in reStructuredText and generated using `Sphinx <http://www.sphinx-doc.org/en/stable/index.html>`_.
 It should be written according to the `Google Python Style Guide <https://github.com/google/styleguide/blob/gh-pages/pyguide.md#38-comments-and-docstrings>`_.
@@ -63,7 +63,7 @@ To keep modules well-organized, **freud** implements the following structure:
 - The core Cython code for modules is contained in ``freud/MODULENAME.pyx`` (no underscore).
 - Generated Cython C++ code (e.g. ``freud/MODULENAME.cxx``) should not be committed during development. These files are generated using Cython when building from source, and are unnecessary when installing compiled binaries.
 - If a Cython module contains code that must be imported into other Cython modules (such as the :class:`freud.box.Box` class), the ``pyx`` file must be accompanied by a ``pxd`` file with the same name: ``freud/MODULENAME.pxd`` (distinguished from ``pxd`` files used to expose C++ code by the lack of a preceding underscore). For more information on how ``pxd`` files work, see the `Cython documentation <https://cython.readthedocs.io/en/latest/src/tutorial/pxd_files.html>`_.
-- All tests in **freud** are based on the Python standard :mod:`unittest` library and are contained in the ``tests`` folder. Test files are named by the convention ``tests/test_MODULENAME_CLASSNAME.py``.
+- All tests in **freud** are based on the Python :mod:`pytest` library and are contained in the ``tests`` folder. Test files are named by the convention ``tests/test_MODULENAME_CLASSNAME.py``.
 - Benchmarks for **freud** are contained in the ``benchmarks`` directory and are named analogously to tests: ``benchmarks/benchmark_MODULENAME_CLASSNAME.py``.
 
 Benchmarks

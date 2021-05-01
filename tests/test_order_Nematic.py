@@ -1,11 +1,12 @@
 import numpy as np
 import numpy.testing as npt
-import freud
+import pytest
 import rowan
-import unittest
+
+import freud
 
 
-class TestNematicOrder(unittest.TestCase):
+class TestNematicOrder:
     def test_perfect(self):
         """Test perfectly aligned systems with different molecular axes"""
         N = 10000
@@ -19,13 +20,13 @@ class TestNematicOrder(unittest.TestCase):
         op_parallel = freud.order.Nematic(u)
 
         # Test access
-        with self.assertRaises(AttributeError):
+        with pytest.raises(AttributeError):
             op_parallel.order
-        with self.assertRaises(AttributeError):
+        with pytest.raises(AttributeError):
             op_parallel.director
-        with self.assertRaises(AttributeError):
+        with pytest.raises(AttributeError):
             op_parallel.particle_tensor
-        with self.assertRaises(AttributeError):
+        with pytest.raises(AttributeError):
             op_parallel.nematic_tensor
 
         op_parallel.compute(orientations)
@@ -36,23 +37,21 @@ class TestNematicOrder(unittest.TestCase):
         op_parallel.particle_tensor
         op_parallel.nematic_tensor
 
-        self.assertTrue(op_parallel.order == 1)
+        assert op_parallel.order == 1
         npt.assert_equal(op_parallel.director, u)
+        npt.assert_equal(op_parallel.nematic_tensor, np.diag([1, -0.5, -0.5]))
         npt.assert_equal(
-            op_parallel.nematic_tensor, np.diag([1, -0.5, -0.5]))
-        npt.assert_equal(
-            op_parallel.nematic_tensor, np.mean(
-                op_parallel.particle_tensor, axis=0))
+            op_parallel.nematic_tensor, np.mean(op_parallel.particle_tensor, axis=0)
+        )
 
         # Test for perpendicular to molecular axis
         u = np.array([0, 1, 0])
         op_perp = freud.order.Nematic(u)
         op_perp.compute(orientations)
 
-        self.assertEqual(op_perp.order, 1)
+        assert op_perp.order == 1
         npt.assert_equal(op_perp.director, u)
-        npt.assert_equal(
-            op_perp.nematic_tensor, np.diag([-0.5, 1, -0.5]))
+        npt.assert_equal(op_perp.nematic_tensor, np.diag([-0.5, 1, -0.5]))
 
     def test_imperfect(self):
         """Test imperfectly aligned systems.
@@ -63,44 +62,36 @@ class TestNematicOrder(unittest.TestCase):
         np.random.seed(0)
 
         # Generate orientations close to the identity quaternion
-        orientations = \
-            rowan.interpolate.slerp([1, 0, 0, 0], rowan.random.rand(N), 0.1)
+        orientations = rowan.interpolate.slerp([1, 0, 0, 0], rowan.random.rand(N), 0.1)
 
         u = np.array([1, 0, 0])
         op = freud.order.Nematic(u)
         op.compute(orientations)
 
         npt.assert_allclose(op.order, 1, atol=1e-1)
-        self.assertNotEqual(op.order, 1)
+        assert op.order != 1
 
         npt.assert_allclose(op.director, u, atol=1e-1)
-        self.assertFalse(np.all(op.director == u))
+        assert not np.all(op.director == u)
 
-        npt.assert_allclose(
-            op.nematic_tensor, np.diag([1, -0.5, -0.5]), atol=1e-1)
-        self.assertFalse(np.all(op.nematic_tensor == np.diag([1, -0.5, -0.5])))
+        npt.assert_allclose(op.nematic_tensor, np.diag([1, -0.5, -0.5]), atol=1e-1)
+        assert not np.all(op.nematic_tensor == np.diag([1, -0.5, -0.5]))
 
         u = np.array([0, 1, 0])
         op_perp = freud.order.Nematic(u)
         op_perp.compute(orientations)
 
         npt.assert_allclose(op_perp.order, 1, atol=1e-1)
-        self.assertNotEqual(op_perp.order, 1)
+        assert op_perp.order != 1
 
         # The director can be inverted so we compare absolute values
         npt.assert_allclose(np.abs(op_perp.director), u, atol=1e-1)
-        self.assertFalse(np.all(op_perp.director == u))
+        assert not np.all(op_perp.director == u)
 
-        npt.assert_allclose(
-            op_perp.nematic_tensor, np.diag([-0.5, 1, -0.5]), atol=1e-1)
-        self.assertFalse(np.all(
-            op_perp.nematic_tensor == np.diag([-0.5, 1, -0.5])))
+        npt.assert_allclose(op_perp.nematic_tensor, np.diag([-0.5, 1, -0.5]), atol=1e-1)
+        assert not np.all(op_perp.nematic_tensor == np.diag([-0.5, 1, -0.5]))
 
     def test_repr(self):
         u = np.array([1, 0, 0])
         op = freud.order.Nematic(u)
-        self.assertEqual(str(op), str(eval(repr(op))))
-
-
-if __name__ == '__main__':
-    unittest.main()
+        assert str(op) == str(eval(repr(op)))

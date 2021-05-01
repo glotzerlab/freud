@@ -1,37 +1,32 @@
 import freud
-import unittest
 
 
-class TestParallel(unittest.TestCase):
+class TestParallel:
     """Ensure that setting threads is appropriately reflected in Python."""
 
-    # The setUp and tearDown ensure that these tests don't affect others.
-    def setUp(self):
+    # The setup and teardown ensure that these tests don't affect others.
+    def setup_method(self):
         freud.parallel.set_num_threads(0)
 
-    def tearDown(self):
+    def teardown_method(self):
         freud.parallel.set_num_threads(0)
 
     def test_set(self):
         """Test setting the number of threads."""
-        self.assertEqual(freud.parallel.get_num_threads(), 0)
+        assert freud.parallel.get_num_threads() == 0
         freud.parallel.set_num_threads(3)
-        self.assertEqual(freud.parallel.get_num_threads(), 3)
+        assert freud.parallel.get_num_threads() == 3
 
     def test_NumThreads(self):
         """Test the NumThreads context manager."""
-        self.assertEqual(freud.parallel.get_num_threads(), 0)
+        assert freud.parallel.get_num_threads() == 0
 
         freud.parallel.set_num_threads(1)
-        self.assertEqual(freud.parallel.get_num_threads(), 1)
+        assert freud.parallel.get_num_threads() == 1
 
         with freud.parallel.NumThreads(2):
-            self.assertEqual(freud.parallel.get_num_threads(), 2)
+            assert freud.parallel.get_num_threads() == 2
 
         # After the context manager, the number of threads should revert
         # to its previous value.
-        self.assertEqual(freud.parallel.get_num_threads(), 1)
-
-
-if __name__ == '__main__':
-    unittest.main()
+        assert freud.parallel.get_num_threads() == 1

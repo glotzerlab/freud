@@ -1,9 +1,11 @@
 import numpy as np
+
 import freud
 
 
-def make_raw_query_nlist_test_set(box, points, query_points, mode, r_max,
-                                  num_neighbors, exclude_ii):
+def make_raw_query_nlist_test_set(
+    box, points, query_points, mode, r_max, num_neighbors, exclude_ii
+):
     """Helper function to test multiple neighbor-finding data structures.
 
     Args:
@@ -31,36 +33,35 @@ def make_raw_query_nlist_test_set(box, points, query_points, mode, r_max,
             query_args :class:`dict` or :code:`None`.
     """  # noqa: E501
     test_set = []
-    query_args = {'mode': mode, 'exclude_ii': exclude_ii}
+    query_args = {"mode": mode, "exclude_ii": exclude_ii}
     if mode == "ball":
-        query_args['r_max'] = r_max
+        query_args["r_max"] = r_max
 
-    if mode == 'nearest':
-        query_args['num_neighbors'] = num_neighbors
-        query_args['r_guess'] = r_max
+    if mode == "nearest":
+        query_args["num_neighbors"] = num_neighbors
+        query_args["r_guess"] = r_max
 
     test_set.append(((box, points), query_args))
     test_set.append((freud.locality._RawPoints(box, points), query_args))
     test_set.append((freud.locality.AABBQuery(box, points), query_args))
-    test_set.append(
-        (freud.locality.LinkCell(box, points, r_max), query_args))
+    test_set.append((freud.locality.LinkCell(box, points, r_max), query_args))
 
     aq = freud.locality.AABBQuery(box, points)
     if mode == "ball":
-        nlist = aq.query(query_points,
-                         dict(r_max=r_max, exclude_ii=exclude_ii)
-                         ).toNeighborList()
+        nlist = aq.query(
+            query_points, dict(r_max=r_max, exclude_ii=exclude_ii)
+        ).toNeighborList()
     if mode == "nearest":
-        nlist = aq.query(query_points,
-                         dict(num_neighbors=num_neighbors,
-                              exclude_ii=exclude_ii, r_guess=r_max)
-                         ).toNeighborList()
+        nlist = aq.query(
+            query_points,
+            dict(num_neighbors=num_neighbors, exclude_ii=exclude_ii, r_guess=r_max),
+        ).toNeighborList()
     test_set.append(((box, points), nlist))
     return test_set
 
 
 def make_alternating_lattice(lattice_size, angle=0, extra_shell=2):
-    R"""Make 2D integer lattice of alternating set of points.
+    r"""Make 2D integer lattice of alternating set of points.
 
     Setting extra_shell to 1 will give 4 neighboring points in points_2 at
     distance 1 for each point in points_1. Setting extra_shell to 2 will give
@@ -85,9 +86,13 @@ def make_alternating_lattice(lattice_size, angle=0, extra_shell=2):
     # Sometimes, we need to rotate the points to avoid the
     # boundary of bins. Due to numeric precision, boundaries are not
     # handled well in a convoluted input like this.
-    rotation_matrix = np.array([[np.cos(angle), -np.sin(angle), 0],
-                                [np.sin(angle), np.cos(angle), 0],
-                                [0, 0, 1]])
+    rotation_matrix = np.array(
+        [
+            [np.cos(angle), -np.sin(angle), 0],
+            [np.sin(angle), np.cos(angle), 0],
+            [0, 0, 1],
+        ]
+    )
 
     # make alternating lattice of points_2 and points_1
     for i in range(-extra_shell, lattice_size + extra_shell):
@@ -114,15 +119,3 @@ def sort_rounded_xyz_array(arr, decimals=4):
     arr = arr.round(decimals)
     indices = np.lexsort((arr[:, 2], arr[:, 1], arr[:, 0]))
     return arr[indices]
-
-
-def skipIfMissing(library):
-    try:
-        import importlib
-        import unittest
-        importlib.import_module(library)
-        return lambda func: func
-    except ImportError:
-        return unittest.skip(
-            "You must have {library} installed to run this test".format(
-                library=library))

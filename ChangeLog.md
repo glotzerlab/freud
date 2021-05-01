@@ -4,14 +4,48 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## v2.x.x - 2020-0x-xx
+## v2.6.0
+
+### Added
+* Added `out` option for storing wrapped vectors in `box.Box.wrap`.
+* The Steinhardt and SolidLiquid classes expose the raw qlmi arrays.
+
+### Fixed
+* Fix broken arXiv links in bibliography.
+
+## v2.5.1 - 2021-04-06
+
+### Added
+* The `compute` method of `DiffractionPattern` class has a `reset` argument.
+
+### Fixed
+* Documentation on ReadTheDocs builds and renders.
+
+## v2.5.0 - 2021-03-16
+
+### Changed
+* NeighborList `filter` method has been optimized.
+* TBB 2021 is now supported (removed use of deprecated TBB features).
+* Added new pre-commit hooks for `black`, `isort`, and `pyupgrade`.
+* Testing framework now uses `pytest`.
+
+## v2.4.1 - 2020-11-16
+
+### Fixed
+* Python 3.8 builds with Windows MSVC were broken due to an unrecognized CMake compiler option.
+* Fixed broken documentation by overriding scikit-build options.
+* RPATH on Linux is now set correctly to find TBB libraries not on the global search path.
+* 2D box image calculations now return zero for the image z value.
+* Fixed wrong attribute name in `EnvironmentCluster.plot`.
+
+## v2.4.0 - 2020-11-09
 
 ### Added
 * The Box class has a method `contains` to determine particle membership in a box.
 * NeighborList class exposes `num_points` and `num_query_points` attributes.
 * `compute` method of `GaussianDensity` class has a `values` argument.
 * Support for pre-commit hooks.
-* The Steinhardt and SolidLiquid classes expose the raw qlmi arrays.
+* Python 3.9 is supported.
 
 ### Changed
 * NeighborList raises a `ValueError` instead of a `RuntimeError` if provided invalid constructor arguments.

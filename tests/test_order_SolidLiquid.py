@@ -1,19 +1,21 @@
+import matplotlib
 import numpy as np
 import numpy.testing as npt
+import pytest
+
 import freud
-import matplotlib
-import unittest
-matplotlib.use('agg')
+
+matplotlib.use("agg")
 
 
-class TestSolidLiquid(unittest.TestCase):
+class TestSolidLiquid:
     def test_shape(self):
         N = 1000
         L = 10
 
         box, positions = freud.data.make_random_system(L, N)
 
-        comp = freud.order.SolidLiquid(6, q_threshold=.7, solid_threshold=6)
+        comp = freud.order.SolidLiquid(6, q_threshold=0.7, solid_threshold=6)
         comp.compute((box, positions), neighbors=dict(r_max=2.0))
 
         npt.assert_equal(comp.cluster_idx.shape, (N,))
@@ -26,7 +28,7 @@ class TestSolidLiquid(unittest.TestCase):
         box, positions = freud.data.make_random_system(L, N)
 
         query_args = dict(r_max=2.0, exclude_ii=True)
-        comp = freud.order.SolidLiquid(6, q_threshold=.7, solid_threshold=6)
+        comp = freud.order.SolidLiquid(6, q_threshold=0.7, solid_threshold=6)
         comp.compute((box, positions), neighbors=query_args)
 
         aq = freud.locality.AABBQuery(box, positions)
@@ -37,21 +39,22 @@ class TestSolidLiquid(unittest.TestCase):
     def test_identical_environments(self):
         box, positions = freud.data.UnitCell.fcc().generate_system(4, scale=2)
 
-        comp_default = freud.order.SolidLiquid(
-            6, q_threshold=.7, solid_threshold=6)
+        comp_default = freud.order.SolidLiquid(6, q_threshold=0.7, solid_threshold=6)
         comp_no_norm = freud.order.SolidLiquid(
-            6, q_threshold=.3, solid_threshold=6, normalize_q=False)
+            6, q_threshold=0.3, solid_threshold=6, normalize_q=False
+        )
 
         for comp in (comp_default, comp_no_norm):
             for query_args in (dict(r_max=2.0), dict(num_neighbors=12)):
                 comp.compute((box, positions), neighbors=query_args)
-                self.assertEqual(comp.largest_cluster_size, len(positions))
-                self.assertEqual(len(comp.cluster_sizes), 1)
-                self.assertEqual(comp.cluster_sizes[0], len(positions))
+                assert comp.largest_cluster_size == len(positions)
+                assert len(comp.cluster_sizes) == 1
+                assert comp.cluster_sizes[0] == len(positions)
                 npt.assert_array_equal(comp.num_connections, 12)
 
     def test_l_zero(self):
         from scipy.special import sph_harm
+
         N = 1000
         L = 10
         sph_l = 0
@@ -62,17 +65,22 @@ class TestSolidLiquid(unittest.TestCase):
         box, positions = freud.data.make_random_system(L, N)
 
         comp = freud.order.SolidLiquid(
-            sph_l, q_threshold=q_threshold, solid_threshold=solid_threshold,
-            normalize_q=normalize_q)
-        comp.compute((box, positions), neighbors={'r_max': 1.5})
+            sph_l,
+            q_threshold=q_threshold,
+            solid_threshold=solid_threshold,
+            normalize_q=normalize_q,
+        )
+        comp.compute((box, positions), neighbors={"r_max": 1.5})
 
-        assert np.all(np.logical_or(
-            np.isclose(comp.particle_harmonics, 0),
-            # The values used for phi and theta (the third and fourth
-            # arguments) are irrelevant because when l=m=0 the spherical
-            # harmonic is no longer a function of the angles.
-            np.isclose(comp.particle_harmonics, sph_harm(0, 0, 0, 0))
-        ))
+        assert np.all(
+            np.logical_or(
+                np.isclose(comp.particle_harmonics, 0),
+                # The values used for phi and theta (the third and fourth
+                # arguments) are irrelevant because when l=m=0 the spherical
+                # harmonic is no longer a function of the angles.
+                np.isclose(comp.particle_harmonics, sph_harm(0, 0, 0, 0)),
+            )
+        )
 
     def test_attribute_access(self):
         box, positions = freud.data.UnitCell.fcc().generate_system(4, scale=2)
@@ -82,25 +90,28 @@ class TestSolidLiquid(unittest.TestCase):
         normalize_q = False
 
         comp = freud.order.SolidLiquid(
-            sph_l, q_threshold=q_threshold, solid_threshold=solid_threshold,
-            normalize_q=normalize_q)
+            sph_l,
+            q_threshold=q_threshold,
+            solid_threshold=solid_threshold,
+            normalize_q=normalize_q,
+        )
 
-        self.assertEqual(comp.l, sph_l)
+        assert comp.l == sph_l
         npt.assert_allclose(comp.q_threshold, q_threshold)
         npt.assert_allclose(comp.solid_threshold, solid_threshold)
-        self.assertEqual(comp.normalize_q, normalize_q)
+        assert comp.normalize_q == normalize_q
 
-        with self.assertRaises(AttributeError):
+        with pytest.raises(AttributeError):
             comp.largest_cluster_size
-        with self.assertRaises(AttributeError):
+        with pytest.raises(AttributeError):
             comp.cluster_sizes
-        with self.assertRaises(AttributeError):
+        with pytest.raises(AttributeError):
             comp.cluster_idx
-        with self.assertRaises(AttributeError):
+        with pytest.raises(AttributeError):
             comp.num_connections
-        with self.assertRaises(AttributeError):
+        with pytest.raises(AttributeError):
             comp.ql_ij
-        with self.assertRaises(AttributeError):
+        with pytest.raises(AttributeError):
             comp.plot()
 
         comp.compute((box, positions), neighbors=dict(r_max=2.0))
@@ -113,9 +124,5 @@ class TestSolidLiquid(unittest.TestCase):
         comp._repr_png_()
 
     def test_repr(self):
-        comp = freud.order.SolidLiquid(6, q_threshold=.7, solid_threshold=6)
-        self.assertEqual(str(comp), str(eval(repr(comp))))
-
-
-if __name__ == '__main__':
-    unittest.main()
+        comp = freud.order.SolidLiquid(6, q_threshold=0.7, solid_threshold=6)
+        assert str(comp) == str(eval(repr(comp)))

@@ -15,8 +15,10 @@ namespace freud { namespace density {
 SphereVoxelization::SphereVoxelization(vec3<unsigned int> width, float r_max)
     : m_box(), m_width(width), m_r_max(r_max), m_has_computed(false)
 {
-    if (r_max <= 0.0f)
+    if (r_max <= 0)
+    {
         throw std::invalid_argument("SphereVoxelization requires r_max to be positive.");
+    }
 }
 
 //! Get a reference to the last computed voxels.
@@ -64,9 +66,9 @@ void SphereVoxelization::compute(const freud::locality::NeighborQuery* nq)
     const float Lz = m_box.getLz();
     const vec3<bool> periodic = m_box.getPeriodic();
 
-    const float grid_size_x = Lx / m_width.x;
-    const float grid_size_y = Ly / m_width.y;
-    const float grid_size_z = m_box.is2D() ? 0 : Lz / m_width.z;
+    const float grid_size_x = Lx / static_cast<float>(m_width.x);
+    const float grid_size_y = Ly / static_cast<float>(m_width.y);
+    const float grid_size_z = m_box.is2D() ? 0 : Lz / static_cast<float>(m_width.z);
 
     // Find the number of bins within r_max
     const int bin_cut_x = int(m_r_max / grid_size_x);
@@ -80,10 +82,10 @@ void SphereVoxelization::compute(const freud::locality::NeighborQuery* nq)
         {
             const vec3<float> point = (*nq)[idx];
             // Find which bin the particle is in
-            const int bin_x = int((point.x + Lx / 2.0f) / grid_size_x);
-            const int bin_y = int((point.y + Ly / 2.0f) / grid_size_y);
+            const int bin_x = int((point.x + Lx / float(2.0)) / grid_size_x);
+            const int bin_y = int((point.y + Ly / float(2.0)) / grid_size_y);
             // In 2D, only loop over the z=0 plane
-            const int bin_z = m_box.is2D() ? 0 : int((point.z + Lz / 2.0f) / grid_size_z);
+            const int bin_z = m_box.is2D() ? 0 : int((point.z + Lz / float(2.0)) / grid_size_z);
 
             // Only evaluate over bins that are within the cutoff, rejecting bins
             // that are outside the box in aperiodic directions.
@@ -93,7 +95,8 @@ void SphereVoxelization::compute(const freud::locality::NeighborQuery* nq)
                 {
                     continue;
                 }
-                const float dz = float((grid_size_z * k + grid_size_z / 2.0f) - point.z - Lz / 2.0f);
+                const float dz = (grid_size_z * static_cast<float>(k)) + (grid_size_z / float(2.0)) - point.z
+                    - (Lz / float(2.0));
 
                 for (int j = bin_y - bin_cut_y; j <= bin_y + bin_cut_y; j++)
                 {
@@ -101,7 +104,8 @@ void SphereVoxelization::compute(const freud::locality::NeighborQuery* nq)
                     {
                         continue;
                     }
-                    const float dy = float((grid_size_y * j + grid_size_y / 2.0f) - point.y - Ly / 2.0f);
+                    const float dy = (grid_size_y * static_cast<float>(j)) + (grid_size_y / float(2.0))
+                        - point.y - (Ly / float(2.0));
 
                     for (int i = bin_x - bin_cut_x; i <= bin_x + bin_cut_x; i++)
                     {
@@ -109,7 +113,8 @@ void SphereVoxelization::compute(const freud::locality::NeighborQuery* nq)
                         {
                             continue;
                         }
-                        const float dx = float((grid_size_x * i + grid_size_x / 2.0f) - point.x - Lx / 2.0f);
+                        const float dx = ((grid_size_x * static_cast<float>(i)) + (grid_size_x / 2.0f)
+                                          - point.x - (Lx / float(2.0)));
 
                         // Calculate the distance from the particle to the grid cell
                         const vec3<float> delta = m_box.wrap(vec3<float>(dx, dy, dz));

@@ -1,9 +1,10 @@
-import git
+import argparse
+import importlib
 import json
 import os
-import argparse
 import sys
-import importlib
+
+import git
 
 
 def get_report_filename(filename):
@@ -34,8 +35,7 @@ def try_importing(module):
     try:
         return importlib.import_module(module)
     except ImportError:
-        print("{} does not exist and thus cannot"
-              " be benchmarked".format(module))
+        print("{} does not exist and thus cannot" " be benchmarked".format(module))
         return None
 
 
@@ -52,12 +52,11 @@ def benchmark_desc(name, params):
 
     """
     s = name + ": \n\t"
-    s += ", ".join("{} = {}".format(str(k), str(v)) for k, v in params.items())
+    s += ", ".join(f"{str(k)} = {str(v)}" for k, v in params.items())
     return s
 
 
-def run_benchmarks(name, Ns, number, classobj, print_stats=True,
-                   **kwargs):
+def run_benchmarks(name, Ns, number, classobj, print_stats=True, **kwargs):
     """Function to run benchmark.
 
     Args:
@@ -79,23 +78,29 @@ def run_benchmarks(name, Ns, number, classobj, print_stats=True,
     try:
         b = classobj(**kwargs)
     except TypeError:
-        print("Wrong set of initialization keyword \
-            arguments for {}".format(str(classobj)))
+        print(
+            "Wrong set of initialization keyword \
+            arguments for {}".format(
+                str(classobj)
+            )
+        )
         return {"name": name, "misc": "No result"}
 
     # run benchmark with repeat
     repeat = 5
-    ssr = b.run_size_scaling_benchmark(Ns, number, print_stats,
-                                       repeat)
-    tsr = b.run_thread_scaling_benchmark(Ns, number, print_stats,
-                                         repeat)
+    ssr = b.run_size_scaling_benchmark(Ns, number, print_stats, repeat)
+    tsr = b.run_thread_scaling_benchmark(Ns, number, print_stats, repeat)
 
     if print_stats:
-        print('\n ----------------')
+        print("\n ----------------")
 
-    return {"name": name, "params": kwargs, "Ns": Ns,
-            "size_scale": {N: r for N, r in zip(Ns, ssr)},
-            "thread_scale": tsr.tolist()}
+    return {
+        "name": name,
+        "params": kwargs,
+        "Ns": Ns,
+        "size_scale": {N: r for N, r in zip(Ns, ssr)},
+        "thread_scale": tsr.tolist(),
+    }
 
 
 def main_report(args):
@@ -110,12 +115,12 @@ def main_report(args):
     """
     filename = get_report_filename(args.filename)
 
-    with open(filename, 'r') as infile:
+    with open(filename) as infile:
         data = json.load(infile)
     for commit in data:
-        print("Commit {}:".format(commit))
+        print(f"Commit {commit}:")
         print_benchmark_results_in_human_readable_way(data[commit])
-        print('\n ----------------')
+        print("\n ----------------")
 
 
 def print_benchmark_results_in_human_readable_way(data):
@@ -136,22 +141,25 @@ def print_benchmark_results_in_human_readable_way(data):
         for N, r in bresult["size_scale"].items():
             N = int(N)
             r = float(r)
-            print('{0:10d}'.format(N), end=': ')
-            print('{0:8.3f} ms | {1:8.3f} ns per item'.format(
-                float(r)/1e-3, float(r)/int(N)/1e-9))
+            print(f"{N:10d}", end=": ")
+            print(
+                "{:8.3f} ms | {:8.3f} ns per item".format(
+                    float(r) / 1e-3, float(r) / int(N) / 1e-9
+                )
+            )
 
         # print thread scaling benchmark
-        print('Threads ', end='')
+        print("Threads ", end="")
         for N in bresult["Ns"]:
-            print('{0:10d}'.format(N), end=' | ')
+            print(f"{N:10d}", end=" | ")
         print()
         times = bresult["thread_scale"]
         num_threads = len(times) - 1
         for i in range(1, num_threads + 1):
-            print('{0:7d}'.format(i), end=' ')
+            print(f"{i:7d}", end=" ")
             for j, N in enumerate(bresult["Ns"]):
                 speedup = times[1][j] / times[i][j]
-                print('{0:9.2f}x'.format(speedup), end=' | ')
+                print(f"{speedup:9.2f}x", end=" | ")
             print()
 
 
@@ -180,13 +188,13 @@ def save_benchmark_result(bresults, filename):
 
     # check if the file already exists
     if os.path.exists(filename):
-        with open(filename, 'r') as infile:
+        with open(filename) as infile:
             data = json.load(infile)
             data[str(repo.head.commit)] = bresults
     else:
         data = {str(repo.head.commit): bresults}
 
-    with open(filename, 'w') as outfile:
+    with open(filename, "w") as outfile:
         json.dump(data, outfile, indent=4)
 
 
@@ -209,12 +217,12 @@ def save_comparison_result(rev_this, rev_other, slowers, fasters, sames):
         None.
 
     """
-    data = {"runtime": "{} / {}".format(rev_this, rev_other)}
+    data = {"runtime": f"{rev_this} / {rev_other}"}
     data["slowers"] = slowers
     data["fasters"] = fasters
     data["sames"] = sames
     filename = get_report_filename("benchmark_comp.json")
-    with open(filename, 'w') as outfile:
+    with open(filename, "w") as outfile:
         json.dump(data, outfile, indent=4)
 
 
@@ -227,10 +235,10 @@ def list_benchmark_modules():
 
     """
     import glob
-    modules = glob.glob(os.path.join(os.path.dirname(__file__),
-                                     "benchmark_*"))
+
+    modules = glob.glob(os.path.join(os.path.dirname(__file__), "benchmark_*"))
     prefixdir = "benchmarks/"
-    modules = [f[len(prefixdir):-3] for f in modules]
+    modules = [f[len(prefixdir) : -3] for f in modules]
     return modules
 
 
@@ -250,7 +258,7 @@ def main_run(args):
                 r = m.run()
                 results.append(r)
             except AttributeError:
-                print("Something is wrong with {}".format(m))
+                print(f"Something is wrong with {m}")
 
     save_benchmark_result(results, args.output)
 
@@ -275,7 +283,7 @@ def main_compare(args):
 
     filename = get_report_filename(args.filename)
 
-    with open(filename, 'r') as infile:
+    with open(filename) as infile:
         data = json.load(infile)
 
     rev_this_benchmark = data[rev_this]
@@ -288,41 +296,47 @@ def main_compare(args):
 
     # helper function to print and store results
     def compare_helper(_this_t, _other_t, _N, _thread):
-        ratio = _other_t/_this_t
-        info = {"name": this_res["name"],
-                "params": this_res["params"],
-                "N": _N,
-                "ratio": ratio}
+        ratio = _other_t / _this_t
+        info = {
+            "name": this_res["name"],
+            "params": this_res["params"],
+            "N": _N,
+            "ratio": ratio,
+        }
         if _thread:
             info["threads"] = _thread
-            print("Threads: {}, N: {}, "
-                  "ratio: {:0.2f}".format(str(_thread), _N, ratio))
+            print(
+                "Threads: {}, N: {}, " "ratio: {:0.2f}".format(str(_thread), _N, ratio)
+            )
         else:
-            print("N: {}, ratio: {:0.2f}".format(_N, ratio))
+            print(f"N: {_N}, ratio: {ratio:0.2f}")
 
         if ratio < 1:
-            print("\t{:6.6} is {:0.2f} times "
-                  "slower than {:6.6}".format(rt, ratio, ro))
+            print(
+                "\t{:6.6} is {:0.2f} times " "slower than {:6.6}".format(rt, ratio, ro)
+            )
             slowers.append(info)
         if ratio > 1:
-            print("\t{:6.6} is {:0.2f} times "
-                  "faster than {:6.6}".format(rt, ratio, ro))
+            print(
+                "\t{:6.6} is {:0.2f} times " "faster than {:6.6}".format(rt, ratio, ro)
+            )
             fasters.append(info)
         if ratio == 1:
-            print("\t{:6.6} and {:6.6} "
-                  "have the same speed".format(rt, ro))
+            print("\t{:6.6} and {:6.6} " "have the same speed".format(rt, ro))
             sames.append(info)
 
     for this_res in rev_this_benchmark:
         for other_res in rev_other_benchmark:
-            if this_res["name"] == other_res["name"] \
-                    and this_res["params"] == other_res["params"]:
-                print(benchmark_desc(this_res["name"],
-                                     this_res["params"]))
-                print("\nShowing runtime "
-                      "{:6.6} ({:6.6}) / "
-                      "{:6.6} ({:6.6})".format(ro, rev_other,
-                                               rt, rev_this))
+            if (
+                this_res["name"] == other_res["name"]
+                and this_res["params"] == other_res["params"]
+            ):
+                print(benchmark_desc(this_res["name"], this_res["params"]))
+                print(
+                    "\nShowing runtime "
+                    "{:6.6} ({:6.6}) / "
+                    "{:6.6} ({:6.6})".format(ro, rev_other, rt, rev_this)
+                )
                 print()
 
                 # compare size scaling behavior
@@ -340,7 +354,7 @@ def main_compare(args):
                         other_t = other_res["thread_scale"][i][j]
                         compare_helper(this_t, other_t, N, i)
 
-                print('\n ----------------')
+                print("\n ----------------")
 
     save_comparison_result(rt, ro, slowers, fasters, sames)
 
@@ -349,72 +363,92 @@ def main_compare(args):
     for info in slowers:
         if info["ratio"] < threshold:
             desc = benchmark_desc(info["name"], info["params"])
-            print("TOO SLOW (beyond threshold of {})".format(threshold))
+            print(f"TOO SLOW (beyond threshold of {threshold})")
             print("\t" + desc)
             print("\t\tratio = {}".format(info["ratio"]))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers()
 
     parser_run = subparsers.add_parser(
-        name='run',
+        name="run",
         description="Execute performance tests in various categories for "
-                    "specific data space sizes (N).")
+        "specific data space sizes (N).",
+    )
     parser_run.add_argument(
-        '-o', '--output', nargs='?', default='benchmark.json',
+        "-o",
+        "--output",
+        nargs="?",
+        default="benchmark.json",
         help="Specify which collection file to store results "
-             "to or '-' for None, "
-             "default='benchmark.json'.")
+        "to or '-' for None, "
+        "default='benchmark.json'.",
+    )
     parser_run.set_defaults(func=main_run)
 
     parser_report = subparsers.add_parser(
-        name='report',
-        description="Display results from previous runs.")
+        name="report", description="Display results from previous runs."
+    )
     parser_report.add_argument(
-        'filename', default='benchmark.json', nargs='?',
+        "filename",
+        default="benchmark.json",
+        nargs="?",
         help="The collection that contains the benchmark data"
-             "default='benchmark.json'.")
+        "default='benchmark.json'.",
+    )
     parser_report.set_defaults(func=main_report)
 
     parser_compare = subparsers.add_parser(
-        name='compare',
+        name="compare",
         description="Compare performance between two "
-                    "git-revisions of this repository. "
-                    "For example, to compare the current revision "
-                    "(HEAD) with the "
-                    "'master' branch revision, execute `{} compare "
-                    "master HEAD`. In this specific "
-                    "case one could omit both arguments, since 'master'"
-                    " and 'HEAD' are the two "
-                    "default arguments.".format(sys.argv[0]))
+        "git-revisions of this repository. "
+        "For example, to compare the current revision "
+        "(HEAD) with the "
+        "'master' branch revision, execute `{} compare "
+        "master HEAD`. In this specific "
+        "case one could omit both arguments, since 'master'"
+        " and 'HEAD' are the two "
+        "default arguments.".format(sys.argv[0]),
+    )
     parser_compare.add_argument(
-        'rev_other', default='master', nargs='?',
+        "rev_other",
+        default="master",
+        nargs="?",
         help="The git revision to compare against. "
-             "Valid arguments are  for example "
-             "a branch name, a tag, a specific commit id, "
-             "or 'HEAD', defaults to 'master'.")
+        "Valid arguments are  for example "
+        "a branch name, a tag, a specific commit id, "
+        "or 'HEAD', defaults to 'master'.",
+    )
     parser_compare.add_argument(
-        'rev_this', default='HEAD', nargs='?',
+        "rev_this",
+        default="HEAD",
+        nargs="?",
         help="The git revision that is benchmarked. "
-             "Valid arguments are  for example "
-             "a branch name, a tag, a specific commit id, "
-             "or 'HEAD', defaults to 'HEAD'.")
+        "Valid arguments are  for example "
+        "a branch name, a tag, a specific commit id, "
+        "or 'HEAD', defaults to 'HEAD'.",
+    )
     parser_compare.add_argument(
-        '--filename', default='benchmark.json', nargs='?',
+        "--filename",
+        default="benchmark.json",
+        nargs="?",
         help="The collection that contains the benchmark data"
-             "default='benchmark.json'.")
+        "default='benchmark.json'.",
+    )
     parser_compare.add_argument(
-        '-f', '--fail-above',
+        "-f",
+        "--fail-above",
         type=float,
         help="Exit with error code in case that the runtime ratio of "
-             "the worst tested category between this and the other revision "
-             "is above this value.")
+        "the worst tested category between this and the other revision "
+        "is above this value.",
+    )
     parser_compare.set_defaults(func=main_compare)
 
     args = parser.parse_args()
-    if not hasattr(args, 'func'):
+    if not hasattr(args, "func"):
         parser.print_usage()
         sys.exit(2)
     args.func(args)

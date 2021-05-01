@@ -1,8 +1,9 @@
 import numpy as np
-import freud
+import rowan
 from benchmark import Benchmark
 from benchmarker import run_benchmarks
-import rowan
+
+import freud
 
 
 class BenchmarkOrderNematic(Benchmark):
@@ -12,7 +13,7 @@ class BenchmarkOrderNematic(Benchmark):
     def bench_setup(self, N):
         seed = 0
         np.random.seed(seed)
-        self.orientations = rowan.random.random_sample((N, ))
+        self.orientations = rowan.random.random_sample((N,))
         self.nop = freud.order.Nematic(np.array(self.u))
 
     def bench_run(self, N):
@@ -22,14 +23,12 @@ class BenchmarkOrderNematic(Benchmark):
 def run():
     Ns = [1000, 5000, 10000]
     number = 100
-    name = 'freud.order.Nematic'
+    name = "freud.order.Nematic"
 
     kwargs = {"u": [1, 0, 0]}
 
-    return run_benchmarks(name, Ns, number,
-                          BenchmarkOrderNematic,
-                          **kwargs)
+    return run_benchmarks(name, Ns, number, BenchmarkOrderNematic, **kwargs)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run()
