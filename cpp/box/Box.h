@@ -228,33 +228,33 @@ public:
     /*! \param vecs Vectors of fractional coordinates between 0 and 1 within
      *         parallelepipedal box
      *  \param Nvecs Number of vectors
+     *  \param out The array in which to place the wrapped vectors.
      */
-    void makeAbsolute(vec3<float>* vecs, unsigned int Nvecs) const
+    void makeAbsolute(vec3<float>* vecs, unsigned int Nvecs, vec3<float>* out) const
     {
         util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
-                vecs[i] = makeAbsolute(vecs[i]);
+                out[i] = makeAbsolute(vecs[i]);
             }
         });
     }
 
-    //! Compute the position of the particle in box relative coordinates
-    /*! \param p point
-     *  \returns alpha
+    //! Convert a point's coordinate from absolute to relative box coordinates.
+    /*! \param v The vector of the point in absolute coordinates.
+     *  \returns The vector of the point in relative coordinates.
      *
      *  alpha.x is 0 when \a x is on the far left side of the box and
      *  1.0 when it is on the far right. If x is outside of the box in
      *  either direction, it will go larger than 1 or less than 0
      *  keeping the same scaling.
      */
-    vec3<float> makeFractional(const vec3<float>& v,
-                               const vec3<float>& ghost_width = vec3<float>(0.0, 0.0, 0.0)) const
+    vec3<float> makeFractional(const vec3<float>& v) const
     {
         vec3<float> delta = v - m_lo;
         delta.x -= (m_xz - m_yz * m_xy) * v.z + m_xy * v.y;
         delta.y -= m_yz * v.z;
-        delta = (delta + ghost_width) / (m_L + float(2.0) * ghost_width);
+        delta = delta / m_L;
 
         if (m_2d)
         {
@@ -263,13 +263,18 @@ public:
         return delta;
     }
 
-    void makeFractional(vec3<float>* vecs, unsigned int Nvecs) const
+    //! Convert point coordinates from absolute to relative box coordinates.
+    /*! \param vecs Vectors to convert
+     *  \param Nvecs Number of vectors
+     *  \param out The array in which to place the wrapped vectors.
+     */
+    void makeFractional(vec3<float>* vecs, unsigned int Nvecs, vec3<float>* out) const
     {
         util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
-            for (size_t i = begin; i < end; ++i)
-            {
-                vecs[i] = makeFractional(vecs[i]);
-            }
+                for (size_t i = begin; i < end; ++i)
+                {
+                    out[i] = makeFractional(vecs[i]);
+                }
         });
     }
 
@@ -351,6 +356,7 @@ public:
     /*! \param vecs Vectors of coordinates to unwrap
      *  \param images images flags for this point
         \param Nvecs Number of vectors
+     *  \param out The array in which to place the wrapped vectors.
     */
     void unwrap(vec3<float>* vecs, const vec3<int>* images, unsigned int Nvecs, vec3<float>* out) const
     {

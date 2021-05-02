@@ -180,48 +180,70 @@ cdef class Box:
         """float: The box volume (area in 2D)."""
         return self.thisptr.getVolume()
 
-    def make_absolute(self, fractional_coordinates):
+    def make_absolute(self, fractional_coordinates, out=None):
         R"""Convert fractional coordinates into absolute coordinates.
 
         Args:
             fractional_coordinates (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Fractional coordinate vector(s), between 0 and 1 within
                 parallelepipedal box.
+            out (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray` or :code:`None`):
+                The array in which to place the absolute positions. It must be
+                of dtype `np.float32`. If ``None``, this function will return a
+                newly allocated array (Default value = None).
 
         Returns:
             :math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
-                Absolute coordinate vector(s).
+                Absolute coordinate vector(s). If `out` is provided, a
+                reference to it is returned.
         """  # noqa: E501
         fractions = np.asarray(fractional_coordinates).copy()
         flatten = fractions.ndim == 1
         fractions = np.atleast_2d(fractions)
         fractions = freud.util._convert_array(fractions, shape=(None, 3))
+        out = freud.util._convert_array(
+                out, shape=fractions.shape, allow_copy=False)
 
         cdef const float[:, ::1] l_points = fractions
         cdef unsigned int Np = l_points.shape[0]
-        self.thisptr.makeAbsolute(<vec3[float]*> &l_points[0, 0], Np)
+        cdef const float[:, ::1] l_out = out
+
+        self.thisptr.makeAbsolute(
+                <vec3[float]*> &l_points[0, 0], Np,
+                <vec3[float]*> &l_out[0, 0])
 
         return np.squeeze(fractions) if flatten else fractions
 
-    def make_fractional(self, absolute_coordinates):
+    def make_fractional(self, absolute_coordinates, out=None):
         R"""Convert absolute coordinates into fractional coordinates.
 
         Args:
             absolute_coordinates (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Absolute coordinate vector(s).
+            out (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray` or :code:`None`):
+                The array in which to place the absolute positions. It must be
+                of dtype `np.float32`. If ``None``, this function will return a
+                newly allocated array (Default value = None).
 
         Returns:
             :math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
-                Fractional coordinate vector(s).
+                Fractional coordinate vector(s). If `out` is provided, a
+                reference to it is returned.
         """  # noqa: E501
         vecs = np.asarray(absolute_coordinates).copy()
         flatten = vecs.ndim == 1
         vecs = np.atleast_2d(vecs)
         vecs = freud.util._convert_array(vecs, shape=(None, 3))
+        out = freud.util._convert_array(
+                out, shape=vecs.shape, allow_copy=False)
 
         cdef const float[:, ::1] l_points = vecs
         cdef unsigned int Np = l_points.shape[0]
-        self.thisptr.makeFractional(<vec3[float]*> &l_points[0, 0], Np)
+        cdef const float[:, ::1] l_out = out
+
+        self.thisptr.makeFractional(
+                <vec3[float]*> &l_points[0, 0], Np,
+                <vec3[float]*> &l_out[0, 0])
 
         return np.squeeze(vecs) if flatten else vecs
 
