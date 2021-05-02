@@ -41,7 +41,7 @@ cdef extern from "Box.h" namespace "freud::box":
         void getImages(vec3[float]*, unsigned int, vec3[int]*) const
         void wrap(vec3[float]*, unsigned int, vec3[float]*) const
         void unwrap(vec3[float]*, const vec3[int]*,
-                    unsigned int) const
+                    unsigned int, vec3[float]*) const
         vec3[float] centerOfMass(vec3[float]*, size_t, float*) const
         void center(vec3[float]*, size_t, float*) const
         void computeDistances(vec3[float]*, unsigned int,

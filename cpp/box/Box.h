@@ -352,16 +352,15 @@ public:
      *  \param images images flags for this point
         \param Nvecs Number of vectors
     */
-    void unwrap(vec3<float>* vecs, const vec3<int>* images, unsigned int Nvecs) const
+    void unwrap(vec3<float>* vecs, const vec3<int>* images, unsigned int Nvecs, vec3<float>* out) const
     {
         util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
-                vecs[i] += getLatticeVector(0) * float(images[i].x);
-                vecs[i] += getLatticeVector(1) * float(images[i].y);
+                out[i] = vecs[i] + getLatticeVector(0) * float(images[i].x) + getLatticeVector(1) * float(images[i].y);
                 if (!m_2d)
                 {
-                    vecs[i] += getLatticeVector(2) * float(images[i].z);
+                    out[i] += getLatticeVector(2) * float(images[i].z);
                 }
             }
         });

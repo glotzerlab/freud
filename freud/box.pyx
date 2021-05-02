@@ -299,13 +299,15 @@ cdef class Box:
 
         Returns:
             :math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
-                Vector(s) wrapped into the box.
+                Vector(s) wrapped into the box. If `out` is provided, a
+                reference to it is returned.
         """  # noqa: E501
         vecs = np.asarray(vecs)
         flatten = vecs.ndim == 1
         vecs = np.atleast_2d(vecs)
         vecs = freud.util._convert_array(vecs, shape=(None, 3))
-        out = freud.util._convert_array(out, shape=vecs.shape, allow_copy=False)
+        out = freud.util._convert_array(
+                out, shape=vecs.shape, allow_copy=False)
 
         cdef const float[:, ::1] l_points = vecs
         cdef unsigned int Np = l_points.shape[0]
@@ -316,7 +318,7 @@ cdef class Box:
 
         return np.squeeze(out) if flatten else out
 
-    def unwrap(self, vecs, imgs):
+    def unwrap(self, vecs, imgs, out=None):
         R"""Unwrap an array of vectors inside the box back into real space,
         using an array of image indices that determine how many times to unwrap
         in each dimension.
@@ -326,10 +328,15 @@ cdef class Box:
                 Vector(s) to be unwrapped.
             imgs (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Image indices for vector(s).
+            out (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray` or :code:`None`):
+                The array in which to place the unwrapped vectors. It must be of
+                dtype `np.float32`. If ``None``, this function will
+                return a newly allocated array (Default value = None).
 
         Returns:
             :math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
-                Unwrapped vector(s).
+                Unwrapped vector(s). If `out` is provided, a reference to it is
+                returned.
         """  # noqa: E501
         vecs = np.asarray(vecs)
         flatten = vecs.ndim == 1
@@ -339,16 +346,21 @@ cdef class Box:
             # Broadcasts (1, 3) to (N, 3) for both arrays
             vecs, imgs = np.broadcast_arrays(vecs, imgs)
         vecs = freud.util._convert_array(vecs, shape=(None, 3)).copy()
-        imgs = freud.util._convert_array(imgs, shape=vecs.shape,
-                                         dtype=np.int32)
+        imgs = freud.util._convert_array(
+                imgs, shape=vecs.shape, dtype=np.int32)
+        out = freud.util._convert_array(
+                out, shape=vecs.shape, allow_copy=False)
 
         cdef const float[:, ::1] l_points = vecs
         cdef const int[:, ::1] l_imgs = imgs
         cdef unsigned int Np = l_points.shape[0]
-        self.thisptr.unwrap(<vec3[float]*> &l_points[0, 0],
-                            <vec3[int]*> &l_imgs[0, 0], Np)
+        cdef const float[:, ::1] l_out = out
 
-        return np.squeeze(vecs) if flatten else vecs
+        self.thisptr.unwrap(<vec3[float]*> &l_points[0, 0],
+                            <vec3[int]*> &l_imgs[0, 0], Np,
+                            <vec3[float]*> &l_out[0, 0])
+
+        return np.squeeze(out) if flatten else out
 
     def center_of_mass(self, vecs, masses=None):
         R"""Compute center of mass of an array of vectors, using periodic boundaries.
