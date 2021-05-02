@@ -112,17 +112,18 @@ class TestBox:
         points = np.array(points)
         npt.assert_allclose(box.wrap(points)[0, 0], -2, rtol=1e-6)
 
-    def test_out_default(self):
+    def test_wrap(self):
         box = freud.box.Box(2, 2, 2, 1, 0, 0)
         points = [[10, -5, -5], [0, 0.5, 0]]
         npt.assert_allclose(box.wrap(points), [[-2, -1, -1], [0, 0.5, 0]], rtol=1e-6)
 
-    def test_out_provided_with_input_array(self):
+    def test_wrap_out_provided_with_input_array(self):
         box = freud.box.Box(2, 2, 2, 1, 0, 0)
         points = [[10, -5, -5], [0, 0.5, 0]]
         points = np.array(points, dtype=np.float32)
         box.wrap(points, out=points)
         npt.assert_allclose(points, [[-2, -1, -1], [0, 0.5, 0]], rtol=1e-6)
+
         # test with read-only input array
         points = [[10, -5, -5], [0, 0.5, 0]]
         points = np.array(points, dtype=np.float32).setflags(write=0)
@@ -131,7 +132,7 @@ class TestBox:
                 box.wrap(points, out=points), [[-2, -1, -1], [0, 0.5, 0]], rtol=1e-6
             )
 
-    def test_out_provided_with_new_array(self):
+    def test_wrap_out_provided_with_new_array(self):
         box = freud.box.Box(2, 2, 2, 1, 0, 0)
         points = [[10, -5, -5], [0, 0.5, 0]]
         points = np.array(points, dtype=np.float32)
@@ -140,7 +141,7 @@ class TestBox:
         npt.assert_allclose(new_array, [[-2, -1, -1], [0, 0.5, 0]], rtol=1e-6)
         npt.assert_equal(points, [[10, -5, -5], [0, 0.5, 0]])
 
-    def test_out_provided_with_array_with_wrong_shape(self):
+    def test_wrap_out_provided_with_array_with_wrong_shape(self):
         box = freud.box.Box(2, 2, 2, 1, 0, 0)
         points = [[10, -5, -5], [0, 0.5, 0]]
         points = np.array(points, dtype=np.float32)
@@ -151,7 +152,7 @@ class TestBox:
             )
         npt.assert_equal(points, [[10, -5, -5], [0, 0.5, 0]])
 
-    def test_out_provided_with_array_with_wrong_dtype(self):
+    def test_wrap_out_provided_with_array_with_wrong_dtype(self):
         box = freud.box.Box(2, 2, 2, 1, 0, 0)
         points = [[10, -5, -5], [0, 0.5, 0]]
         points = np.array(points, dtype=np.float32)
@@ -162,7 +163,7 @@ class TestBox:
             )
         npt.assert_equal(points, [[10, -5, -5], [0, 0.5, 0]])
 
-    def test_out_provided_with_array_with_wrong_order(self):
+    def test_wrap_out_provided_with_array_with_wrong_order(self):
         box = freud.box.Box(2, 2, 2, 1, 0, 0)
         points = [[10, -5, -5], [0, 0.5, 0]]
         points = np.array(points, dtype=np.float32)
@@ -218,6 +219,22 @@ class TestBox:
         npt.assert_allclose(
             box.unwrap(points, imgs), [[20, 1, 2], [21, 1, 2]], rtol=1e-6
         )
+
+    def test_unwrap_with_out(self):
+        box = freud.box.Box(2, 2, 2, 1, 0, 0)
+
+        points = np.array([[0, -1, -1]], dtype=np.float32)
+        imgs = [1, 0, 0]
+        expected = [[2, -1, -1]]
+        npt.assert_allclose(box.unwrap(points, imgs, out=points), expected, rtol=1e-6)
+        npt.assert_allclose(points, expected, rtol=1e-6)
+
+        points = np.array([[0, -1, -1], [0, 0.5, 0]], dtype=np.float32)
+        imgs = [[1, 0, 0], [1, 1, 0]]
+        output = np.empty_like(points)
+        expected = [[2, -1, -1], [4, 2.5, 0]]
+        npt.assert_allclose(box.unwrap(points, imgs, out=output), expected, rtol=1e-6)
+        npt.assert_allclose(output, expected, rtol=1e-6)
 
     def test_images_3d(self):
         box = freud.box.Box(2, 2, 2, 0, 0, 0)
