@@ -212,7 +212,7 @@ cdef class Box:
                 <vec3[float]*> &l_points[0, 0], Np,
                 <vec3[float]*> &l_out[0, 0])
 
-        return np.squeeze(fractions) if flatten else fractions
+        return np.squeeze(out) if flatten else out
 
     def make_fractional(self, absolute_coordinates, out=None):
         R"""Convert absolute coordinates into fractional coordinates.
@@ -245,7 +245,7 @@ cdef class Box:
                 <vec3[float]*> &l_points[0, 0], Np,
                 <vec3[float]*> &l_out[0, 0])
 
-        return np.squeeze(vecs) if flatten else vecs
+        return np.squeeze(out) if flatten else out
 
     def get_images(self, vecs):
         R"""Returns the images corresponding to unwrapped vectors.
