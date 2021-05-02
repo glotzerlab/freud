@@ -230,7 +230,7 @@ public:
      *  \param Nvecs Number of vectors
      *  \param out The array in which to place the wrapped vectors.
      */
-    void makeAbsolute(vec3<float>* vecs, unsigned int Nvecs, vec3<float>* out) const
+    void makeAbsolute(const vec3<float>* vecs, unsigned int Nvecs, vec3<float>* out) const
     {
         util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
@@ -268,7 +268,7 @@ public:
      *  \param Nvecs Number of vectors
      *  \param out The array in which to place the wrapped vectors.
      */
-    void makeFractional(vec3<float>* vecs, unsigned int Nvecs, vec3<float>* out) const
+    void makeFractional(const vec3<float>* vecs, unsigned int Nvecs, vec3<float>* out) const
     {
         util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
                 for (size_t i = begin; i < end; ++i)
@@ -342,7 +342,7 @@ public:
      *  \param Nvecs Number of vectors
      *  \param out The array in which to place the wrapped vectors.
      */
-    void wrap(vec3<float>* vecs, unsigned int Nvecs, vec3<float>* out) const
+    void wrap(const vec3<float>* vecs, unsigned int Nvecs, vec3<float>* out) const
     {
         util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
@@ -358,7 +358,7 @@ public:
         \param Nvecs Number of vectors
      *  \param out The array in which to place the wrapped vectors.
     */
-    void unwrap(vec3<float>* vecs, const vec3<int>* images, unsigned int Nvecs, vec3<float>* out) const
+    void unwrap(const vec3<float>* vecs, const vec3<int>* images, unsigned int Nvecs, vec3<float>* out) const
     {
         util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
