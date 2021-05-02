@@ -322,6 +322,20 @@ class TestBox:
 
         npt.assert_equal(testcoordinates, point)
 
+    def test_absolute_coordinates_out(self):
+        box = freud.box.Box(2, 2, 2)
+        f_point = np.array(
+            [[0.5, 0.25, 0.75], [0, 0, 0], [0.5, 0.5, 0.5]], dtype=np.float32
+        )
+        point = np.array([[0, -0.5, 0.5], [-1, -1, -1], [0, 0, 0]])
+
+        output = np.empty_like(f_point)
+        box.make_absolute(f_point, out=output)
+        npt.assert_equal(output, point)
+
+        npt.assert_equal(box.make_absolute(f_point, out=f_point), point)
+        npt.assert_equal(f_point, point)
+
     def test_fractional_coordinates(self):
         box = freud.box.Box(2, 2, 2)
         f_point = np.array([[0.5, 0.25, 0.75], [0, 0, 0], [0.5, 0.5, 0.5]])
@@ -333,6 +347,20 @@ class TestBox:
         testfraction = box.make_fractional(point)
 
         npt.assert_equal(testfraction, f_point)
+
+    def test_fractional_coordinates_out(self):
+        box = freud.box.Box(2, 2, 2)
+        f_point = np.array(
+            [[0.5, 0.25, 0.75], [0, 0, 0], [0.5, 0.5, 0.5]], dtype=np.float32
+        )
+        point = np.array([[0, -0.5, 0.5], [-1, -1, -1], [0, 0, 0]])
+
+        output = np.empty_like(f_point)
+        box.make_fractional(point, out=output)
+        npt.assert_equal(output, f_point)
+
+        npt.assert_equal(box.make_fractional(f_point, out=f_point), f_point)
+        npt.assert_equal(f_point, f_point)
 
     def test_vectors(self):
         """Test getting lattice vectors"""
