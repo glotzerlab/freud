@@ -224,6 +224,7 @@ def _convert_array(array, shape=None, dtype=np.float32, requirements=("C", ),
     if array is None:
         return np.empty(shape, dtype=dtype)
 
+    array = np.asarray(array)
     return_arr = np.require(array, dtype=dtype, requirements=requirements)
 
     if not allow_copy and return_arr is not array:
