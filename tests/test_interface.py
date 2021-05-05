@@ -1,60 +1,83 @@
 import numpy as np
-import numpy.testing as npt
+import pytest
+
 import freud
-import unittest
-import util
 
 
-class TestInterface(unittest.TestCase):
-    def test_initial_zero(self):
-        """Test that the initial point counts are zero."""
-        (box, positions) = util.make_fcc(4, 4, 4, noise=1e-2)
-        inter = freud.interface.InterfaceMeasure(1.5)
-        self.assertEqual(inter.ref_point_count, 0)
-        self.assertEqual(inter.point_count, 0)
-        npt.assert_equal(inter.ref_point_ids, np.array([], dtype=np.uint32))
-        npt.assert_equal(inter.point_ids, np.array([], dtype=np.uint32))
+class TestInterface:
+    def test_constructor(self):
+        """Ensure no arguments are accepted to the constructor."""
+        freud.interface.Interface()
+        with pytest.raises(TypeError):
+            freud.interface.Interface(0)
 
     def test_take_one(self):
         """Test that there is exactly 1 or 12 particles at the interface when
         one particle is removed from an FCC structure"""
         np.random.seed(0)
-        (box, positions) = util.make_fcc(4, 4, 4, noise=1e-2)
+        (box, positions) = freud.data.UnitCell.fcc().generate_system(
+            4, scale=2, sigma_noise=1e-2
+        )
+        positions.flags["WRITEABLE"] = False
 
         index = np.random.randint(0, len(positions))
 
         point = positions[index].reshape((1, 3))
-        others = np.concatenate([positions[:index], positions[index + 1:]])
+        others = np.concatenate([positions[:index], positions[index + 1 :]])
 
-        inter = freud.interface.InterfaceMeasure(1.5)
+        inter = freud.interface.Interface()
 
-        test_one = inter.compute(box, point, others)
-        self.assertEqual(test_one.ref_point_count, 1)
-        self.assertEqual(len(test_one.ref_point_ids), 1)
+        # Test attribute access
+        with pytest.raises(AttributeError):
+            inter.point_count
+        with pytest.raises(AttributeError):
+            inter.point_ids
+        with pytest.raises(AttributeError):
+            inter.query_point_count
+        with pytest.raises(AttributeError):
+            inter.query_point_ids
 
-        test_twelve = inter.compute(box, others, point)
-        self.assertEqual(test_twelve.ref_point_count, 12)
-        self.assertEqual(len(test_twelve.ref_point_ids), 12)
+        test_one = inter.compute((box, point), others, neighbors=dict(r_max=1.5))
+
+        # Test attribute access
+        inter.point_count
+        inter.point_ids
+        inter.query_point_count
+        inter.query_point_ids
+
+        assert test_one.point_count == 1
+        assert len(test_one.point_ids) == 1
+
+        test_twelve = inter.compute((box, others), point, neighbors=dict(r_max=1.5))
+        assert test_twelve.point_count == 12
+        assert len(test_twelve.point_ids) == 12
 
     def test_filter_r(self):
-        """Test that nlists are filtered to the correct rmax."""
+        """Test that nlists are filtered to the correct r_max."""
         np.random.seed(0)
-        (box, positions) = util.make_fcc(4, 4, 4, noise=1e-2)
+        r_max = 3.0
+        (box, positions) = freud.data.UnitCell.fcc().generate_system(
+            4, scale=2, sigma_noise=1e-2
+        )
 
         index = np.random.randint(0, len(positions))
 
         point = positions[index].reshape((1, 3))
-        others = np.concatenate([positions[:index], positions[index + 1:]])
+        others = np.concatenate([positions[:index], positions[index + 1 :]])
 
-        # Creates a neighborlist with rmax larger than the interface rmax
-        lc = freud.locality.LinkCell(box, 3.0).compute(box, others, point)
+        # Creates a NeighborList with r_max larger than the interface size
+        aq = freud.locality.AABBQuery(box, others)
+        nlist = aq.query(point, dict(r_max=r_max)).toNeighborList()
 
-        inter = freud.interface.InterfaceMeasure(1.5)
+        # Filter NeighborList
+        nlist.filter_r(1.5)
 
-        test_twelve = inter.compute(box, others, point, lc.nlist)
-        self.assertEqual(test_twelve.ref_point_count, 12)
-        self.assertEqual(len(test_twelve.ref_point_ids), 12)
+        inter = freud.interface.Interface()
 
+        test_twelve = inter.compute((box, others), point, nlist)
+        assert test_twelve.point_count == 12
+        assert len(test_twelve.point_ids) == 12
 
-if __name__ == '__main__':
-    unittest.main()
+    def test_repr(self):
+        inter = freud.interface.Interface()
+        assert str(inter) == str(eval(repr(inter)))

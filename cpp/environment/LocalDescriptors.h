@@ -1,17 +1,17 @@
-// Copyright (c) 2010-2019 The Regents of the University of Michigan
+// Copyright (c) 2010-2020 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef LOCAL_DESCRIPTORS_H
 #define LOCAL_DESCRIPTORS_H
 
-#include <memory>
+#include <complex>
 
 #include "Box.h"
+#include "ManagedArray.h"
+#include "NeighborList.h"
+#include "NeighborQuery.h"
 #include "VectorMath.h"
-#include "NearestNeighbors.h"
 #include "fsph/src/spherical_harmonics.hpp"
-
-#include "tbb/atomic.h"
 
 /*! \file LocalDescriptors.h
   \brief Computes local descriptors.
@@ -19,87 +19,82 @@
 
 namespace freud { namespace environment {
 
-enum LocalDescriptorOrientation {
+enum LocalDescriptorOrientation
+{
     LocalNeighborhood,
     Global,
-    ParticleLocal};
+    ParticleLocal
+};
 
 /*! Compute a set of descriptors (a numerical "fingerprint") of a
-*  particle's local environment.
-*/
+ *  particle's local environment.
+ */
 class LocalDescriptors
-    {
+{
 public:
     //! Constructor
     //!
-    //! \param neighmax Maximum number of neighbors to compute descriptors for
-    //! \param lmax Maximum spherical harmonic l to consider
-    //! \param rmax Initial guess of the maximum radius to look for n_neigh neighbors
+    //! \param l_max Maximum spherical harmonic l to consider
     //! \param negative_m whether to calculate Ylm for negative m
-    LocalDescriptors(unsigned int neighmax,
-                     unsigned int lmax, float rmax, bool negative_m);
-
-    //! Get the maximum number of neighbors
-    unsigned int getNeighmax() const
-        {
-        return m_neighmax;
-        }
+    LocalDescriptors(unsigned int l_max, bool negative_m, LocalDescriptorOrientation orientation);
 
     //! Get the last number of spherical harmonics computed
     unsigned int getNSphs() const
-        {
+    {
         return m_nSphs;
-        }
+    }
 
     //! Get the maximum spherical harmonic l to calculate for
     unsigned int getLMax() const
-        {
-        return m_lmax;
-        }
-
-    //! Get the number of particles
-    unsigned int getNP() const
-        {
-        return m_Nref;
-        }
-
-    //! Compute the nearest neighbors for each particle
-    void computeNList(const box::Box& box, const vec3<float> *r_ref,
-                      unsigned int Nref, const vec3<float> *r, unsigned int Np);
+    {
+        return m_l_max;
+    }
 
     //! Compute the local neighborhood descriptors given some
     //! positions and the number of particles
-    void compute(const box::Box& box,
-                 const freud::locality::NeighborList *nlist,
-                 unsigned int nNeigh,
-                 const vec3<float> *r_ref, unsigned int Nref,
-                 const vec3<float> *r, unsigned int Np,
-                 const quat<float> *q_ref,
-                 LocalDescriptorOrientation orientation);
+    void compute(const locality::NeighborQuery* nq, const vec3<float>* query_points,
+                 unsigned int n_query_points, const quat<float>* orientations,
+                 const freud::locality::NeighborList* nlist, locality::QueryArgs qargs,
+                 unsigned int max_num_neighbors = 0);
 
     //! Get a reference to the last computed spherical harmonic array
-    std::shared_ptr<std::complex<float> > getSph()
-        {
+    const util::ManagedArray<std::complex<float>>& getSph() const
+    {
         return m_sphArray;
-        }
+    }
 
+    //! Return the number of spherical harmonics that will be computed for each bond.
     unsigned int getSphWidth() const
-        {
-        return fsph::sphCount(m_lmax) +
-            (m_lmax > 0 && m_negative_m ? fsph::sphCount(m_lmax - 1): 0);
-        }
+    {
+        return fsph::sphCount(m_l_max) + (m_l_max > 0 && m_negative_m ? fsph::sphCount(m_l_max - 1) : 0);
+    }
+
+    //! Return a pointer to the NeighborList used in the last call to compute.
+    locality::NeighborList* getNList()
+    {
+        return &m_nlist;
+    }
+
+    bool getNegativeM() const
+    {
+        return m_negative_m;
+    }
+
+    LocalDescriptorOrientation getMode() const
+    {
+        return m_orientation;
+    }
 
 private:
-    unsigned int m_neighmax;          //!< Maximum number of neighbors to calculate
-    unsigned int m_lmax;              //!< Maximum spherical harmonic l to calculate
-    bool m_negative_m;                //!< true if we should compute Ylm for negative m
-    locality::NearestNeighbors m_nn;  //!< NearestNeighbors to find neighbors with
-    unsigned int m_Nref;              //!< Last number of points computed
-    unsigned int m_nSphs;             //!< Last number of bond spherical harmonics computed
+    unsigned int m_l_max;                     //!< Maximum spherical harmonic l to calculate
+    bool m_negative_m;                        //!< true if we should compute Ylm for negative m
+    unsigned int m_nSphs;                     //!< Last number of bond spherical harmonics computed
+    locality::NeighborList m_nlist;           //!< The NeighborList used in the last call to compute.
+    LocalDescriptorOrientation m_orientation; //!< The orientation mode to compute with.
 
     //! Spherical harmonics for each neighbor
-    std::shared_ptr<std::complex<float> > m_sphArray;
-    };
+    util::ManagedArray<std::complex<float>> m_sphArray;
+};
 
 }; }; // end namespace freud::environment
 

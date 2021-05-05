@@ -1,15 +1,14 @@
-// Copyright (c) 2010-2019 The Regents of the University of Michigan
+// Copyright (c) 2010-2020 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef GAUSSIAN_DENSITY_H
 #define GAUSSIAN_DENSITY_H
 
-#include <memory>
-#include <tbb/tbb.h>
-
 #include "Box.h"
+#include "ManagedArray.h"
+#include "NeighborQuery.h"
+#include "ThreadStorage.h"
 #include "VectorMath.h"
-#include "Index1D.h"
 
 /*! \file GaussianDensity.h
     \brief Routines for computing Gaussian smeared densities from points.
@@ -17,63 +16,55 @@
 
 namespace freud { namespace density {
 
-//! Computes the the density of a system on a grid.
+//! Computes the density of a system on a grid.
 /*! Replaces particle positions with a gaussian and calculates the
-        contribution from the grid based upon the the distance of the grid cell
+        contribution from the grid based upon the distance of the grid cell
         from the center of the Gaussian.
 */
 class GaussianDensity
+{
+public:
+    //! Constructor
+    GaussianDensity(vec3<unsigned int> width, float r_max, float sigma);
+
+    // Destructor
+    ~GaussianDensity() = default;
+
+    //! Get the simulation box.
+    const box::Box& getBox() const
     {
-    public:
-        //! Constructor
-        GaussianDensity(unsigned int width,
-                        float r_cut,
-                        float sigma);
-        GaussianDensity(unsigned int width_x,
-                        unsigned int width_y,
-                        unsigned int width_z,
-                        float r_cut,
-                        float sigma);
+        return m_box;
+    }
 
-        // Destructor
-        ~GaussianDensity();
+    //! Get the width of the gaussian distributions.
+    float getSigma() const
+    {
+        return m_sigma;
+    }
 
-        //! Get the simulation box
-        const box::Box& getBox() const
-                {
-                return m_box;
-                }
+    //! Return the cutoff distance.
+    float getRMax() const
+    {
+        return m_r_max;
+    }
 
-        //! Reset the gaussian array to all zeros
-        void reset();
+    //! Compute the density.
+    void compute(const freud::locality::NeighborQuery* nq, const float* values = nullptr);
 
-        //! \internal
-        //! helper function to reduce the thread specific arrays into one array
-        void reduceDensity();
+    //! Get a reference to the last computed density.
+    const util::ManagedArray<float>& getDensity() const;
 
-        //! Compute the Density
-        void compute(const box::Box& box, const vec3<float> *points, unsigned int Np);
+    vec3<unsigned int> getWidth();
 
-        //!Get a reference to the last computed Density
-        std::shared_ptr<float> getDensity();
+private:
+    box::Box m_box;             //!< Simulation box containing the points.
+    vec3<unsigned int> m_width; //!< Number of bins in the grid in each dimension.
+    float m_r_max;              //!< Max distance at which to compute density.
+    float m_sigma;              //!< Gaussian width sigma.
+    bool m_has_computed;        //!< Tracks whether a call to compute has been made.
 
-        unsigned int getWidthX();
-
-        unsigned int getWidthY();
-
-        unsigned int getWidthZ();
-
-    private:
-        box::Box m_box;    //!< Simulation box where the particles belong
-        unsigned int m_width_x, m_width_y, m_width_z;  //!< Num of bins on one side of the cube
-        float m_rcut;      //!< Max r at which to compute density
-        float m_sigma;     //!< Variance
-        Index3D m_bi;      //!< Bin indexer
-        bool m_reduce;     //!< Whether arrays need to be reduced across threads
-
-        std::shared_ptr<float> m_density_array;            //! computed density array
-        tbb::enumerable_thread_specific<float *> m_local_bin_counts;
-    };
+    util::ManagedArray<float> m_density_array; //! Computed density array.
+};
 
 }; }; // end namespace freud::density
 

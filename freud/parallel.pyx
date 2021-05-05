@@ -1,67 +1,62 @@
-# Copyright (c) 2010-2019 The Regents of the University of Michigan
+# Copyright (c) 2010-2020 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 R"""
 The :class:`freud.parallel` module controls the parallelization behavior of
 freud, determining how many threads the TBB-enabled parts of freud will use.
-By default, freud tries to use all available threads for parallelization unless
-directed otherwise, with one exception.
+freud uses all available threads for parallelization unless directed otherwise.
 """
 
-import platform
-import re
 cimport freud._parallel
 
-# Override TBB's default autoselection. This is necessary because once the
-# automatic selection runs, the user cannot change it.
-
-# On nyx/flux, default to 1 thread. On all other systems, default to as many
-# cores as are available. Users on nyx/flux can opt in to more threads by
-# calling setNumThreads again after initialization.
-
-_numThreads = 0
+_num_threads = 0
 
 
-def setNumThreads(nthreads=None):
+def get_num_threads():
+    R"""Get the number of threads for parallel computation.
+
+    Returns:
+        (int): Number of threads.
+    """
+    global _num_threads
+    return _num_threads
+
+
+def set_num_threads(nthreads=None):
     R"""Set the number of threads for parallel computation.
 
-    .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
-
     Args:
-        nthreads(int, optional):
-            Number of threads to use. If None (default), use all threads
-            available.
+        nthreads (int, optional):
+            Number of threads to use. If :code:`None`, use all threads
+            available. (Default value = :code:`None`).
     """
+    global _num_threads
     if nthreads is None or nthreads < 0:
         nthreads = 0
 
-    _numThreads = nthreads
+    _num_threads = nthreads
 
     cdef unsigned int cNthreads = nthreads
     freud._parallel.setNumThreads(cNthreads)
 
 
-if (re.match("flux.", platform.node()) is not None) or (
-        re.match("nyx.", platform.node()) is not None):
-    setNumThreads(1)
-
-
 class NumThreads:
     R"""Context manager for managing the number of threads to use.
 
-    .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
-
     Args:
-        N (int): Number of threads to use in this context. Defaults to
-                 None, which will use all available threads.
+        N (int, optional): Number of threads to use in this context. If
+            :code:`None`, which will use all available threads.
+            (Default value = :code:`None`).
     """
 
     def __init__(self, N=None):
-        self.restore_N = _numThreads
+        global _num_threads
+        self.restore_N = _num_threads
         self.N = N
 
     def __enter__(self):
-        setNumThreads(self.N)
+        set_num_threads(self.N)
+        return self
 
     def __exit__(self, *args):
-        setNumThreads(self.restore_N)
+        set_num_threads(self.restore_N)

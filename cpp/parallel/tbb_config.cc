@@ -1,9 +1,9 @@
-// Copyright (c) 2010-2019 The Regents of the University of Michigan
+// Copyright (c) 2010-2020 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include "tbb_config.h"
 
-using namespace tbb;
+#include <thread>
 
 /*! \file tbb_config.cc
     \brief Helper functions to configure tbb
@@ -11,26 +11,24 @@ using namespace tbb;
 
 namespace freud { namespace parallel {
 
-task_scheduler_init *ts = NULL;
+std::unique_ptr<tbb::global_control> tbb_thread_control;
 
 /*! \param N Number of threads to use for TBB computations
 
-    You do not need to call setTBBNumThreads. The default is to use the number of threads in the system. Use \a N=0 to
-    set back to the default.
+    You do not need to call setTBBNumThreads. The default is to use the number of threads in the system. Use
+   \a N=0 to set back to the default.
 
     \note setTBBNumThreads should only be called from the main thread.
 */
 void setNumThreads(unsigned int N)
-    {
-    task_scheduler_init *old_ts(ts);
-
+{
     if (N == 0)
-        N = task_scheduler_init::automatic;
-
-    delete old_ts;
+    {
+        N = std::thread::hardware_concurrency();
+    }
 
     // then recreate it
-    ts = new task_scheduler_init(N);
-    }
+    tbb_thread_control = std::make_unique<tbb::global_control>(tbb::global_control::parameter::max_allowed_parallelism, N);
+}
 
 }; }; // end namespace freud::parallel

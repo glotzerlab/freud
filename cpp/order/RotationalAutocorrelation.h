@@ -1,17 +1,13 @@
-// Copyright (c) 2010-2019 The Regents of the University of Michigan
+// Copyright (c) 2010-2020 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef ROTATIONAL_AUTOCORRELATION_H
 #define ROTATIONAL_AUTOCORRELATION_H
 
 #include <complex>
-#include <memory>
-#include <cassert>
-#include <tbb/tbb.h>
 
+#include "ManagedArray.h"
 #include "VectorMath.h"
-#include "HOOMDMath.h"
-#include "Index1D.h"
 
 /*! \file RotationalAutocorrelation.h
     \brief Defines the RotationalAutocorrelation class, which computes the total
@@ -33,23 +29,7 @@ namespace freud { namespace order {
  *  complex numbers that map out hyperspherical coordinates in 3 dimensions.
  *  This function generates that mapping.
  */
-std::pair<std::complex<float>, std::complex<float> > quat_to_greek(const quat<float> &q);
-
-//! Compute a hyperspherical harmonic.
-/*! \param xi The first complex number coordinate.
- *  \param zeta The second complex number coordinate.
- *  \param l The azimuthal quantum number.
- *  \param m1 The first magnetic quantum number.
- *  \param m2 The second magnetic quantum number.
- *  \return The value of the hyperspherical harmonic (l, m1, m2) at (xi, zeta).
- *
- *  The hyperspherical harmonic function is a generalization of spherical
- *  harmonics from the 2-sphere to the 3-sphere. For details, see Harmonic
- *  functions and matrix elements for hyperspherical quantum field models
- *  (https://doi.org/10.1063/1.526210).
- */
-std::complex<float> hypersphere_harmonic(const std::complex<float> xi, std::complex<float> zeta,
-                                          const int l, const int m1, const int m2);
+std::pair<std::complex<float>, std::complex<float>> quat_to_greek(const quat<float>& q);
 
 //! Compute the total rotational autocorrelation for a set of orientations.
 /*! The desired autocorrelation function is the rotational analog of the
@@ -62,65 +42,87 @@ std::complex<float> hypersphere_harmonic(const std::complex<float> xi, std::comp
  *  and directional entropic forces" by Karas et al. (currently in preparation).
  */
 class RotationalAutocorrelation
+{
+public:
+    //! Explicit default constructor for Cython.
+    RotationalAutocorrelation() = default;
+
+    //! Constructor
+    /*! \param l The order of the spherical harmonic.
+     */
+    explicit RotationalAutocorrelation(unsigned int l) : m_l(l)
     {
-    public:
-        //! Explicit default constructor for Cython.
-        RotationalAutocorrelation() {}
+        // For efficiency, we precompute all required factorials for use during
+        // the per-particle computation.
+        m_factorials.prepare(m_l + 1);
+        m_factorials[0] = 1;
+        for (unsigned int i = 1; i <= m_l; i++)
+        {
+            m_factorials[i] = i * m_factorials[i - 1];
+        }
+    }
 
-        //! Constructor
-        /*! \param l The order of the spherical harmonic.
-         */
-        RotationalAutocorrelation(int l) : m_l(l), m_N(0), m_Ft(0) {}
+    //! Destructor
+    ~RotationalAutocorrelation() = default;
 
-        //! Destructor
-        ~RotationalAutocorrelation() {}
+    //! Get the quantum number l used in calculations.
+    unsigned int getL() const
+    {
+        return m_l;
+    }
 
-        //! Get the quantum number l used in calculations.
-        unsigned int getL()
-            {
-            return m_l;
-            }
+    //! Get a reference to the last computed rotational autocorrelation array.
+    const util::ManagedArray<std::complex<float>>& getRAArray() const
+    {
+        return m_RA_array;
+    }
 
-        //! Get the number of orientations used in the last call to compute.
-        unsigned int getN()
-            {
-              return m_N;
-            }
+    //! Get a reference to the last computed value of the rotational autocorrelation.
+    float getRotationalAutocorrelation() const
+    {
+        return m_Ft;
+    }
 
-        //! Get a reference to the last computed rotational autocorrelation array.
-        std::shared_ptr<std::complex <float> > getRAArray()
-            {
-            return m_RA_array;
-            }
+    //! Compute the rotational autocorrelation.
+    /*! \param ref_orientations Quaternions in initial frame.
+     *  \param orientations Quaternions in current frame.
+     *  \param N The number of orientations.
+     *
+     *  This function loops over all provided orientations and reference
+     *  orientations and computes their hyperspherical harmonics for the
+     *  desired range of quantum numbers. For each orientation/reference
+     *  pair, the autocorrelation value is computed as the inner product of
+     *  these two hyperspherical harmonics. The value of the autocorrelation
+     *  for the whole system is then the average of the real parts of the
+     *  autocorrelation for the whole system.
+     */
+    void compute(const quat<float>* ref_orientations, const quat<float>* orientations, unsigned int N);
 
-        //! Get a reference to the last computed value of the rotational autocorrelation.
-        float getRotationalAutocorrelation()
-            {
-            return m_Ft;
-            }
+private:
+    //! Compute a hyperspherical harmonic.
+    /*! \param xi The first complex number coordinate.
+     *  \param zeta The second complex number coordinate.
+     *  \param l The azimuthal quantum number.
+     *  \param m1 The first magnetic quantum number.
+     *  \param m2 The second magnetic quantum number.
+     *  \return The value of the hyperspherical harmonic (l, m1, m2) at (xi, zeta).
+     *
+     *  The hyperspherical harmonic function is a generalization of spherical
+     *  harmonics from the 2-sphere to the 3-sphere. For details, see Harmonic
+     *  functions and matrix elements for hyperspherical quantum field models
+     *  (https://doi.org/10.1063/1.526210). The function needs to be a class
+     *  method to access the cached factorial values for the class's value of
+     *  m_l.
+     */
+    std::complex<float> hypersphere_harmonic(const std::complex<float> xi, std::complex<float> zeta,
+                                             const unsigned int m1, const unsigned int m2);
 
-        //! Compute the rotational autocorrelation.
-        /*! \param ref_ors Quaternions in initial frame.
-         *  \param ors Quaternions in current frame.
-         *  \param N The number of orientations.
-         *
-         *  This function loops over all provided orientations and reference
-         *  orientations and computes their hyperspherical harmonics for the
-         *  desired range of quantum numbers. For each orientation/reference
-         *  pair, the autocorrelation value is computed as the inner product of
-         *  these two hyperspherical harmonics. The value of the autocorrelation
-         *  for the whole system is then the average of the real parts of the
-         *  autocorrelation for the whole system.
-         */
-        void compute(const quat<float> *ref_ors, const quat<float> *ors, unsigned int N);
+    unsigned int m_l; //!< Order of the hyperspherical harmonic.
+    float m_Ft {0};   //!< Real value of calculated RA function.
 
-    private:
-        int m_l;                   //!< Order of the hyperspherical harmonic.
-        unsigned int m_N;          //!< Last number of orientations used in compute.
-        float m_Ft;                //!< Real value of calculated RA function.
-
-        std::shared_ptr< std::complex<float> > m_RA_array; //!< Array of RA values per particle
-    };
+    util::ManagedArray<std::complex<float>> m_RA_array; //!< Array of RA values per particle
+    util::ManagedArray<unsigned int> m_factorials;      //!< Array of cached factorials
+};
 
 }; }; // end namespace freud::order
 

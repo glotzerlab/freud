@@ -1,39 +1,29 @@
-# Copyright (c) 2010-2019 The Regents of the University of Michigan
+# Copyright (c) 2010-2020 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
-from libcpp cimport bool
-from freud.util._VectorMath cimport vec3
-from libcpp.memory cimport shared_ptr
 from libcpp.vector cimport vector
-from libc.stdint cimport uint32_t
-cimport freud._box
-cimport freud._locality
 
-ctypedef unsigned int uint
+cimport freud._locality
+cimport freud.util
+from freud.util cimport uint, vec3
+
 
 cdef extern from "Cluster.h" namespace "freud::cluster":
     cdef cppclass Cluster:
-        Cluster(float) except +
-        void computeClusters(
-            const freud._box.Box &,
-            const freud._locality.NeighborList*,
-            const vec3[float]*,
-            unsigned int) nogil except +
-        void computeClusterMembership(const unsigned int*) nogil except +
-        unsigned int getNumClusters()
-        unsigned int getNumParticles()
-        shared_ptr[unsigned int] getClusterIdx()
-        const vector[vector[uint]] getClusterKeys()
+        Cluster() except +
+        void compute(const freud._locality.NeighborQuery*,
+                     const freud._locality.NeighborList*,
+                     freud._locality.QueryArgs,
+                     const unsigned int*) except +
+        unsigned int getNumClusters() const
+        const freud.util.ManagedArray[unsigned int] &getClusterIdx() const
+        const vector[vector[uint]] getClusterKeys() const
 
 cdef extern from "ClusterProperties.h" namespace "freud::cluster":
     cdef cppclass ClusterProperties:
         ClusterProperties()
-        void computeProperties(
-            const freud._box.Box &,
-            const vec3[float]*,
-            const unsigned int*,
-            unsigned int) nogil except +
-        unsigned int getNumClusters()
-        shared_ptr[vec3[float]] getClusterCOM()
-        shared_ptr[float] getClusterG()
-        shared_ptr[unsigned int] getClusterSize()
+        void compute(const freud._locality.NeighborQuery*,
+                     const unsigned int*) except +
+        const freud.util.ManagedArray[vec3[float]] &getClusterCenters() const
+        const freud.util.ManagedArray[float] &getClusterGyrations() const
+        const freud.util.ManagedArray[unsigned int] &getClusterSizes() const

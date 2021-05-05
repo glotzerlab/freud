@@ -1,15 +1,16 @@
-// Copyright (c) 2010-2019 The Regents of the University of Michigan
+// Copyright (c) 2010-2020 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef CORRELATION_FUNCTION_H
 #define CORRELATION_FUNCTION_H
 
-#include <memory>
-#include <tbb/tbb.h>
-
+#include "BondHistogramCompute.h"
 #include "Box.h"
+#include "Histogram.h"
+#include "ManagedArray.h"
+#include "NeighborList.h"
+#include "NeighborQuery.h"
 #include "VectorMath.h"
-#include "LinkCell.h"
 
 /*! \file CorrelationFunction.h
     \brief Generic pairwise correlation functions.
@@ -17,14 +18,15 @@
 
 namespace freud { namespace density {
 
-//! Computes the pairwise correlation function <p*q>(r) between two sets of points with associated values p and q.
+//! Computes the pairwise correlation function <p*q>(r) between two sets of points with associated values p
+//! and q.
 /*! Two sets of points and two sets of values associated with those
     points are given. Computing the correlation function results in an
     array of the expected (average) product of all values at a given
     radial distance.
 
     The values of r at which to compute the correlation function are
-    controlled by the rmax and dr parameters to the constructor. rmax
+    controlled by the r_max and dr parameters to the constructor. r_max
     determines the maximum r at which to compute the correlation
     function and dr is the step size for each bin.
 
@@ -41,76 +43,40 @@ namespace freud { namespace density {
     self-correlation value in the first bin.
 
 */
-template<typename T>
-class CorrelationFunction
+template<typename T> class CorrelationFunction : public locality::BondHistogramCompute
+{
+public:
+    //! Constructor
+    CorrelationFunction(unsigned int bins, float r_max);
+
+    //! Destructor
+    ~CorrelationFunction() override = default;
+
+    //! Reset the PCF array to all zeros
+    void reset() override;
+
+    //! accumulate the correlation function
+    void accumulate(const freud::locality::NeighborQuery* neighbor_query, const T* values,
+                    const vec3<float>* query_points, const T* query_values, unsigned int n_query_points,
+                    const freud::locality::NeighborList* nlist, freud::locality::QueryArgs qargs);
+
+    //! \internal
+    //! helper function to reduce the thread specific arrays into one array
+    void reduce() override;
+
+    //! Get a reference to the last computed correlation function.
+    const util::ManagedArray<T>& getCorrelation()
     {
-    public:
-        //! Constructor
-        CorrelationFunction(float rmax, float dr);
+        return reduceAndReturn(m_correlation_function.getBinCounts());
+    }
 
-        //! Destructor
-        ~CorrelationFunction();
+private:
+    // Typedef thread local histogram type for use in code.
+    using CFThreadHistogram = typename util::Histogram<T>::ThreadLocalHistogram;
 
-        //! Get the simulation box
-        const box::Box& getBox() const
-            {
-            return m_box;
-            }
-
-        //! Reset the PCF array to all zeros
-        void reset();
-
-        //! accumulate the correlation function
-        void accumulate(const box::Box &box,
-                        const freud::locality::NeighborList *nlist,
-                        const vec3<float> *ref_points,
-                        const T *ref_values,
-                        unsigned int n_ref,
-                        const vec3<float> *points,
-                        const T *point_values,
-                        unsigned int Np);
-
-        //! \internal
-        //! helper function to reduce the thread specific arrays into one array
-        void reduceCorrelationFunction();
-
-        //! Get a reference to the last computed rdf
-        std::shared_ptr<T> getRDF();
-
-        //! Get a reference to the bin counts array
-        std::shared_ptr<unsigned int> getCounts()
-            {
-            reduceCorrelationFunction();
-            return m_bin_counts;
-            }
-
-        //! Get a reference to the r array
-        std::shared_ptr<float> getR()
-            {
-            return m_r_array;
-            }
-
-        unsigned int getNBins() const
-            {
-            return m_nbins;
-            }
-
-    private:
-        box::Box m_box;                //!< Simulation box where the particles belong
-        float m_rmax;                  //!< Maximum r at which to compute g(r)
-        float m_dr;                    //!< Step size for r in the computation
-        unsigned int m_nbins;          //!< Number of r bins to compute g(r) over
-        unsigned int m_n_ref;          //!< number of reference particles
-        unsigned int m_Np;             //!< number of check particles
-        unsigned int m_frame_counter;  //!< number of frames calc'd
-        bool m_reduce;                 //!< Whether arrays need to be reduced across threads
-
-        std::shared_ptr<T> m_rdf_array;             //!< rdf array computed
-        std::shared_ptr<unsigned int> m_bin_counts; //!< bin counts that go into computing the rdf array
-        std::shared_ptr<float> m_r_array;           //!< array of r values where the rdf is computed
-        tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts;
-        tbb::enumerable_thread_specific<T *> m_local_rdf_array;
-    };
+    util::Histogram<T> m_correlation_function;      //!< The correlation function
+    CFThreadHistogram m_local_correlation_function; //!< Thread local copy of the correlation function
+};
 
 }; }; // end namespace freud::density
 

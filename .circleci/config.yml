@@ -1,241 +1,356 @@
-version: 2
+version: 2.1
+
+orbs:
+  win: circleci/windows@2.2.0  # Enables Windows executors
 
 references:
-  container_ubuntu: &test_container_config_ubuntu
-    docker:
-      - image: vramasub/freud_py35_ubuntu:20180723
-    working_directory: ~/ci/freud
-
-  container_arch: &test_container_config_arch
-    docker:
-      - image: vramasub/freud_py36_arch:20180124
-    working_directory: ~/ci/freud
-
   container_manylinux: &container_manylinux
     docker:
-      - image: quay.io/pypa/manylinux1_x86_64
+      - image: quay.io/pypa/manylinux2010_x86_64
     working_directory: ~/ci/freud
 
-  container_osx: &container_osx
+  container_macos: &container_macos
     macos:
-      xcode: "9.0"
+      xcode: "12.0.0"
     working_directory: ~/ci/freud
 
   load_code: &load_code
     checkout
 
+  update_submodules: &update_submodules
+    run:
+      name: Update submodules
+      command: |
+        git submodule update --init
+
   get_requirements: &get_requirements
     run:
       name: Install dependencies
       command: |
-        git submodule update --init
-        pip${PYVER} install --user -r requirements.txt
-        pip${PYVER} install --user flake8==3.7.1
-        pip${PYVER} install --user coverage
+        # Create a virtual environment to ignore the CI image's pre-installed packages
+        ${PYTHON} -m pip install --progress-bar off --upgrade virtualenv --user
+        mkdir -p ./venv
+        ${PYTHON} -m virtualenv ./venv --clear
+        . venv/bin/activate
+        ${PYTHON} -m pip install --progress-bar off --upgrade pip
+        if [ "${DEPENDENCIES}" == "OLDEST" ]; then
+          # Since we're testing against a very old cmake, wheels may not exist
+          # for Python versions >=3.8. We will need to build the cmake wheels
+          # from a tarball in this case, and cmake depends on scikit-build, so we
+          # install skbuild separately here. Note that newer cmake versions build
+          # universal wheels instead, so once we upgrade to cmake >=3.14 we
+          # won't be dependent on them updating wheels for specific new Python
+          # versions.
+          #
+          # Some requirements below are not strictly the lowest versions, and
+          # are only needed for testing.
+          ${PYTHON} -m pip install --progress-bar off -r .circleci/ci-oldest-reqs.txt
+        else
+          ${PYTHON} -m pip install --progress-bar off -U -r requirements/requirements-test.txt
+        fi
+        # Show the installed package versions
+        ${PYTHON} -m pip list
 
-  check_source: &check_source
+  get_conda_requirements: &get_conda_requirements
     run:
-      name: flake8
+      name: Install dependencies with conda
       command: |
-        python${PYVER} -m flake8 --show-source .
+        conda config --set always_yes yes --set changeps1 no
+        conda config --add channels conda-forge
+        conda update -q conda
+        conda install python=${PYVER} pip tbb tbb-devel
+        conda update --all
+        ${PYTHON} -m pip install --progress-bar off scikit-build==0.10.0
+        ${PYTHON} -m pip install --progress-bar off -U -r requirements/requirements-test.txt
+        # Install cmake >=3.14 to support Visual Studio 2019 generator
+        ${PYTHON} -m pip install --progress-bar off -U cmake~=3.14
+
+  get_pre_commit_requirements: &get_pre_commit_requirements
+    run:
+      name: Install pre-commit dependencies
+      command: |
+        # We don't actually need to build, so we don't need any of the normal
+        # dependencies, but we need to initialize the build system far enough
+        # to generate a compile database. For convenience, just use the latest
+        # wheels for these; the actual build steps will test against our older
+        # supported versions.
+        ${PYTHON} -m pip install --user scikit-build cmake
+        ${PYTHON} -m pip install --user -r requirements/requirements-precommit.txt
+
+  pre-test-checks: &pre-test-checks
+    run:
+      name: Run all static checks
+      command: |
+        # Run the standard pre-commit checks first
+        ${PYTHON} -m pre_commit run --all-files --show-diff-on-failure
+        # Next, run the C++ pre-commit checks.  We need to generate the
+        # compile_commands.json database, which requires building.
+        ${PYTHON} setup.py build_ext --inplace -- -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -- -j 4
+        ${PYTHON} -m pre_commit run -c .pre-commit-config-cpp.yaml --all-files --show-diff-on-failure
 
   build: &build
     run:
       name: Build
       command: |
-        echo "PYVER=${PYVER}"
-        rm freud/*.cpp
-        python${PYVER} setup.py build_ext --inplace --COVERAGE --ENABLE-CYTHON
+        if [ -d "venv" ]; then
+          . venv/bin/activate
+        fi
+        ${PYTHON} --version
+        # Max 4 threads to not overtax CI.
+        ${PYTHON} setup.py build_ext --inplace -- -DCOVERAGE=ON -- -j 4 -v
+
+  windows_env: &windows_env
+    PYTHON: "python"
+    TBBROOT: "C:\\tools\\miniconda3\\Library"
+
+  build_windows: &build_windows
+    run:
+      name: Build with MSVC
+      command: |
+        ${PYTHON} --version
+        ${PYTHON} setup.py build_ext --inplace -- -G "Visual Studio 16 2019" -DCOVERAGE=ON
 
   test: &test
     run:
       name: Run unit tests
       command: |
-          python${PYVER} -m unittest discover tests -v
+        if [ -d "venv" ]; then
+          . venv/bin/activate
+        fi
+        ${PYTHON} -m pytest tests/ -v
 
   test_cov: &test_cov
     run:
       name: Run unit tests with coverage
       command: |
-          export PATH=~/.local/bin:${PATH}
-          coverage run -m unittest discover tests -v
-          bash <(curl -s https://codecov.io/bash)
+        if [ -d "venv" ]; then
+          . venv/bin/activate
+        fi
+        ${PYTHON} -m pytest --cov --cov-config=setup.cfg --cov-report=xml tests/ -v
+        codecov
 
   store: &store
     store_artifacts:
       path: test-reports
       destination: test-reports
 
-  build_and_test: &build_and_test
+  benchmark: &benchmark
+    run:
+      name: Run benchmarks
+      command: |
+        echo 'export PYTHONPATH=$PYTHONPATH:.' >> $BASH_ENV
+        echo 'export BENCHMARK_NPROC=2' >> $BASH_ENV
+        source $BASH_ENV
+        BENCHSCR="benchmarks/benchmarker.py"
+        echo "Running benchmark on current HEAD"
+        ${PYTHON} "$BENCHSCR" run
+
+  comparison: &comparison
+    run:
+      name: Compare benchmark with origin/master
+      command: |
+        echo "Comparing with origin/master"
+        git reset --hard origin/master
+        echo "PYVER=${PYVER}"
+        echo 'export PYTHONPATH=$PYTHONPATH:.' >> $BASH_ENV
+        echo 'export BENCHMARK_NPROC=2' >> $BASH_ENV
+        source $BASH_ENV
+        # Max 4 threads to not overtax CI.
+        ${PYTHON} setup.py build_ext --inplace -- -DCOVERAGE=ON -- -j 4
+        git checkout "${CIRCLE_SHA1}" -- benchmarks/
+        BENCHSCR="benchmarks/benchmarker.py"
+        echo "Running benchmark on origin/master"
+        ${PYTHON} "$BENCHSCR" run
+        ${PYTHON} "$BENCHSCR" compare origin/master "${CIRCLE_SHA1}"
+
+  store_benchmarks: &store_benchmarks
+    store_artifacts:
+      path: benchmarks/reports
+      destination: benchmarks-reports
+
+  load_check_style: &load_check_style
+    working_directory: ~/ci/freud
     steps:
       - *load_code
+      - *update_submodules
+      - *get_pre_commit_requirements
+      - *pre-test-checks
+
+  build_and_test_linux: &build_and_test_linux
+    working_directory: ~/ci/freud
+    steps:
+      - *load_code
+      - *update_submodules
       - *get_requirements
-      - *check_source
       - *build
       - *test
       - *store
 
-  build_and_test_with_cov: &build_and_test_with_cov
+  build_and_test_linux_with_cov: &build_and_test_linux_with_cov
+    <<: *build_and_test_linux
     steps:
       - *load_code
+      - *update_submodules
       - *get_requirements
-      - *check_source
       - *build
       - *test_cov
       - *store
 
+  build_and_test_windows: &build_and_test_windows
+    executor:
+      name: win/default
+      shell: bash.exe
+    steps:
+      - *load_code
+      - *update_submodules
+      - *get_conda_requirements
+      - *build_windows
+      - *test_cov
+      - *store
+
+  build_and_benchmark: &build_and_benchmark
+    steps:
+      - *load_code
+      - *update_submodules
+      - *get_requirements
+      - *build
+      - *benchmark
+      - *comparison
+      - *store_benchmarks
+
+  build_linux_test_wheels: &build_linux_test_wheels
+    steps:
+      - *load_code
+      - *update_submodules
+      - run:
+          name: Compile Linux wheels
+          command: |
+            bash .circleci/deploy-linux.sh testpypi
+
   build_linux_wheels: &build_linux_wheels
     steps:
-      - run:
-          name: Install software
-          working_directory: /root/code
-          command: yum install -y openssh-clients
       - *load_code
+      - *update_submodules
       - run:
-          name: Update freud submodules
+          name: Compile Linux wheels
           command: |
-            # Update submodules
-            git submodule update --init
-      - run:
-          name: Install TBB and compile Linux wheels
-          working_directory: ~/ci/
-          command: |
-            # Build TBB
-            git clone https://github.com/01org/tbb.git
-            cd tbb
-            make
-            BUILD_DIR=$(find build -name linux*release)
-            cd ${BUILD_DIR}
-            source tbbvars.sh
-            cd ~/
+            bash .circleci/deploy-linux.sh pypi
 
-            # Build wheels
-            for PYBIN in /opt/python/*/bin; do
-                echo "Building for `${PYBIN}/python --version`"
-                "${PYBIN}/pip" install -r ~/ci/freud/requirements.txt --progress-bar=off
-                "${PYBIN}/pip" wheel ~/ci/freud/ -w ~/wheelhouse/ --no-deps
-            done
-
-            # Update RPath for wheels
-            for whl in ~/wheelhouse/freud*.whl; do
-                auditwheel repair "$whl" -w ~/ci/freud/wheelhouse/
-            done
-
-            # Install from and test all wheels
-            for PYBIN in /opt/python/*/bin/; do
-                "${PYBIN}/pip" install freud_analysis --no-index -f ~/ci/freud/wheelhouse
-                cd ~/ci/freud/tests
-                "${PYBIN}/python" -m unittest discover . -v
-            done
-
-            # Build source distribution using whichever Python appears last
-            cd ..
-            "${PYBIN}/python" setup.py sdist --dist-dir ~/ci/freud/wheelhouse/
-
-            "${PYBIN}/pip" install --user twine
-            "${PYBIN}/python" -m twine upload --username vramasub --password ${PYPI_PASSWORD} ~/ci/freud/wheelhouse/*
-
-  build_osx_wheels: &build_osx_wheels
+  build_macos_test_wheels: &build_macos_test_wheels
     steps:
       - *load_code
+      - *update_submodules
       - run:
-          name: Update freud submodules
+          name: Compile Mac wheels
           command: |
-            # Update submodules
-            git submodule update --init
+            bash .circleci/deploy-macos.sh testpypi
+
+  build_macos_wheels: &build_macos_wheels
+    steps:
+      - *load_code
+      - *update_submodules
       - run:
-          name: Install TBB and compile Mac wheels
-          working_directory: ~/ci/
+          name: Compile Mac wheels
           command: |
-            export MACOSX_DEPLOYMENT_TARGET=10.12
-            # Get pyenv
-            brew install pyenv
-            eval "$(pyenv init -)"
-            PY_VERSIONS=(2.7.15 3.5.6 3.6.6 3.7.0)
-
-            # Build TBB
-            git clone https://github.com/01org/tbb.git
-            cd tbb
-            make
-            BUILD_DIR=$(find build -name mac*release)
-            cd ${BUILD_DIR}
-            source tbbvars.sh
-            # Force the TBB path to use an absolute path to itself for others to find.
-            install_name_tool -id "${PWD}/libtbb.dylib" libtbb.dylib
-            cd ~/
-
-            # Build wheels
-            for VERSION in ${PY_VERSIONS[@]}; do
-                echo "Building for Python ${VERSION}"
-                pyenv install ${VERSION}
-                pyenv global ${VERSION}
-                pip install -r ~/ci/freud/requirements.txt
-                pip install wheel delocate
-                pip wheel ~/ci/freud/ -w ~/wheelhouse/ --no-deps
-            done
-
-            # Update RPath for wheels
-            for whl in ~/wheelhouse/freud*.whl; do
-                delocate-wheel "$whl" -w ~/ci/freud/wheelhouse/
-            done
-
-            # Install from and test all wheels
-            for VERSION in ${PY_VERSIONS[@]}; do
-                pip install freud_analysis --no-index -f ~/ci/freud/wheelhouse
-                cd ~/ci/freud/tests
-                python -m unittest discover . -v
-            done
-
-            pip install --user twine
-            python -m twine upload --username vramasub --password ${PYPI_PASSWORD} ~/ci/freud/wheelhouse/*
-
+            bash .circleci/deploy-macos.sh pypi
 
 jobs:
-  test-py27:
-    <<: *test_container_config_ubuntu
+  check-style:
+    docker:
+      - image: glotzerlab/ci:2020.10-clang11_py39
     environment:
-      PYVER: "2.7"
-    <<: *build_and_test
+      PYVER: "3.9"
+      PYTHON: "python3.9"
+    <<: *load_check_style
 
-  test-py35:
-    <<: *test_container_config_ubuntu
+  linux-python-39:
+    docker:
+      - image: glotzerlab/ci:2020.10-py39
     environment:
-      PYVER: "3.5"
-    <<: *build_and_test
+      PYVER: "3.9"
+      PYTHON: "python3.9"
+    <<: *build_and_test_linux_with_cov
 
-  test-py36:
-    <<: *test_container_config_arch
+  linux-python-38:
+    docker:
+      - image: glotzerlab/ci:2020.10-py38
+    environment:
+      PYVER: "3.8"
+      PYTHON: "python3.8"
+    <<: *build_and_test_linux_with_cov
+
+  linux-python-37:
+    docker:
+      - image: glotzerlab/ci:2020.10-py37
+    environment:
+      PYVER: "3.7"
+      PYTHON: "python3.7"
+    <<: *build_and_test_linux_with_cov
+
+  linux-python-36-oldest:
+    docker:
+      - image: glotzerlab/ci:2020.10-py36
     environment:
       PYVER: "3.6"
-    <<: *build_and_test_with_cov
+      PYTHON: "python3.6"
+      DEPENDENCIES: "OLDEST"
+    <<: *build_and_test_linux
 
-  pypi-linux-wheels:
-    <<: *container_manylinux
-    <<: *build_linux_wheels
+  windows-python-39:
+    environment:
+      PYVER: "3.9"
+      <<: *windows_env
+    <<: *build_and_test_windows
 
-  pypi-osx-wheels:
-    <<: *container_osx
-    <<: *build_osx_wheels
+  windows-python-38:
+    environment:
+      PYVER: "3.8"
+      <<: *windows_env
+    <<: *build_and_test_windows
+
+  windows-python-37:
+    environment:
+      PYVER: "3.7"
+      <<: *windows_env
+    <<: *build_and_test_windows
+
+  benchmarks:
+    docker:
+      - image: glotzerlab/ci:2020.01-py38
+    working_directory: ~/ci/freud
+    environment:
+      PYVER: "3.8"
+      PYTHON: "python3.8"
+    <<: *build_and_benchmark
 
 workflows:
   version: 2
   test:
     jobs:
-      - test-py27
-      - test-py35
-      - test-py36
-  deploy:
-    jobs:
-      - pypi-osx-wheels:
-          filters:
-              tags:
-                only: /^v.*/
-              branches:
-                ignore: /.*/
-      - pypi-linux-wheels:
-          filters:
-              tags:
-                only: /^v.*/
-              branches:
-                ignore: /.*/
-
+      - check-style
+      - linux-python-39
+      - linux-python-38:
+          requires:
+            - check-style
+            - linux-python-39
+      - linux-python-37:
+          requires:
+            - check-style
+            - linux-python-39
+      - linux-python-36-oldest:
+          requires:
+            - check-style
+            - linux-python-39
+      - windows-python-39
+      - windows-python-38:
+          requires:
+            - check-style
+            - windows-python-39
+      - windows-python-37:
+          requires:
+            - check-style
+            - windows-python-39
+# Disabled benchmarks on CI - they currently take too much work
+#     - benchmarks:
+#         requires:
+#           - linux-python-38

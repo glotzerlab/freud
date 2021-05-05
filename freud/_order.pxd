@@ -1,141 +1,115 @@
-# Copyright (c) 2010-2019 The Regents of the University of Michigan
+# Copyright (c) 2010-2020 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 from libcpp cimport bool
-from freud.util._VectorMath cimport vec3
-from freud.util._VectorMath cimport quat
-from libcpp.memory cimport shared_ptr
 from libcpp.complex cimport complex
 from libcpp.vector cimport vector
-from libcpp.map cimport map
+
 cimport freud._box
 cimport freud._locality
+cimport freud.util
+from freud.util cimport quat, vec3
 
-cdef extern from "CubaticOrderParameter.h" namespace "freud::order":
-    cdef cppclass CubaticOrderParameter:
-        CubaticOrderParameter(float,
-                              float,
-                              float,
-                              float*,
-                              unsigned int,
-                              unsigned int) except +
+
+cdef extern from "Cubatic.h" namespace "freud::order":
+    cdef cppclass Cubatic:
+        Cubatic(float,
+                float,
+                float,
+                unsigned int,
+                unsigned int) except +
         void reset()
         void compute(quat[float]*,
-                     unsigned int,
-                     unsigned int) nogil except +
-        unsigned int getNumParticles()
-        float getCubaticOrderParameter()
-        shared_ptr[float] getParticleCubaticOrderParameter()
-        shared_ptr[float] getParticleTensor()
-        shared_ptr[float] getGlobalTensor()
-        shared_ptr[float] getCubaticTensor()
-        shared_ptr[float] getGenR4Tensor()
-        float getTInitial()
-        float getTFinal()
-        float getScale()
-        quat[float] getCubaticOrientation()
+                     unsigned int) except +
+        unsigned int getNumParticles() const
+        float getCubaticOrderParameter() const
+        const freud.util.ManagedArray[float] &getParticleOrderParameter() const
+        const freud.util.ManagedArray[float] &getGlobalTensor() const
+        const freud.util.ManagedArray[float] &getCubaticTensor() const
+        quat[float] getCubaticOrientation() const
+        float getTInitial() const
+        float getTFinal() const
+        float getScale() const
+        unsigned int getNReplicates() const
+        unsigned int getSeed() const
 
-cdef extern from "NematicOrderParameter.h" namespace "freud::order":
-    cdef cppclass NematicOrderParameter:
-        NematicOrderParameter(vec3[float])
+
+cdef extern from "Nematic.h" namespace "freud::order":
+    cdef cppclass Nematic:
+        Nematic(vec3[float])
         void reset()
         void compute(quat[float]*,
-                     unsigned int) nogil except +
-        unsigned int getNumParticles()
-        float getNematicOrderParameter()
-        shared_ptr[float] getParticleTensor()
-        shared_ptr[float] getNematicTensor()
-        vec3[float] getNematicDirector()
+                     unsigned int) except +
+        unsigned int getNumParticles() const
+        float getNematicOrderParameter() const
+        const freud.util.ManagedArray[float] &getParticleTensor() const
+        const freud.util.ManagedArray[float] &getNematicTensor() const
+        vec3[float] getNematicDirector() const
+        vec3[float] getU() const
 
 
-cdef extern from "HexOrderParameter.h" namespace "freud::order":
-    cdef cppclass HexOrderParameter:
-        HexOrderParameter(float, unsigned int, unsigned int)
-        const freud._box.Box & getBox() const
-        void compute(freud._box.Box &,
-                     const freud._locality.NeighborList*,
-                     const vec3[float]*,
-                     unsigned int) nogil except +
-        # unsure how to pass back the std::complex,
-        # but this seems to compile...
-        shared_ptr[float complex] getPsi()
-        unsigned int getNP()
+cdef extern from "HexaticTranslational.h" namespace "freud::order":
+    cdef cppclass Hexatic:
+        Hexatic(unsigned int, bool)
+        void compute(const freud._locality.NeighborList*,
+                     const freud._locality.NeighborQuery*,
+                     freud._locality.QueryArgs) except +
+        const freud.util.ManagedArray[float complex] &getOrder()
         unsigned int getK()
+        bool isWeighted() const
 
-cdef extern from "TransOrderParameter.h" namespace "freud::order":
-    cdef cppclass TransOrderParameter:
-        TransOrderParameter(float, float)
-        const freud._box.Box & getBox() const,
-        void compute(freud._box.Box &,
-                     const freud._locality.NeighborList*,
-                     const vec3[float]*,
-                     unsigned int) nogil except +
-        shared_ptr[float complex] getDr()
-        unsigned int getNP()
+    cdef cppclass Translational:
+        Translational(float, bool)
+        void compute(const freud._locality.NeighborList*,
+                     const freud._locality.NeighborQuery*,
+                     freud._locality.QueryArgs) except +
+        const freud.util.ManagedArray[float complex] &getOrder() const
+        float getK() const
+        bool isWeighted() const
 
-cdef extern from "LocalQl.h" namespace "freud::order":
-    cdef cppclass LocalQl:
-        LocalQl(const freud._box.Box &, float, unsigned int, float) except +
-        const freud._box.Box & getBox() const
-        unsigned int getNP()
-        void setBox(const freud._box.Box)
-        shared_ptr[float] getQl()
 
-        void compute(const freud._locality.NeighborList *,
-                     const vec3[float]*,
-                     unsigned int) nogil except +
-        void computeAve(const freud._locality.NeighborList *,
-                        const vec3[float]*,
-                        unsigned int) nogil except +
-        void computeNorm(const vec3[float]*,
-                         unsigned int) nogil except +
-        void computeAveNorm(const vec3[float]*,
-                            unsigned int) nogil except +
-        shared_ptr[float] getAveQl()
-        shared_ptr[float] getQlNorm()
-        shared_ptr[float] getQlAveNorm()
+cdef extern from "Steinhardt.h" namespace "freud::order":
+    cdef cppclass Steinhardt:
+        Steinhardt(unsigned int, bool, bool, bool, bool) except +
+        unsigned int getNP() const
+        void compute(const freud._locality.NeighborList*,
+                     const freud._locality.NeighborQuery*,
+                     freud._locality.QueryArgs) except +
+        const freud.util.ManagedArray[float] &getQl() const
+        const freud.util.ManagedArray[float] &getParticleOrder() const
+        float getOrder() const
+        bool isAverage() const
+        bool isWl() const
+        bool isWeighted() const
+        bool isWlNormalized() const
+        unsigned int getL() const
 
-cdef extern from "LocalWl.h" namespace "freud::order":
-    cdef cppclass LocalWl(LocalQl):
-        LocalWl(const freud._box.Box &, float, unsigned int, float)
-        shared_ptr[float complex] getWl()
-        shared_ptr[float complex] getAveWl()
-        shared_ptr[float complex] getWlNorm()
-        shared_ptr[float complex] getAveNormWl()
-        void enableNormalization()
-        void disableNormalization()
 
-cdef extern from "SolLiq.h" namespace "freud::order":
-    cdef cppclass SolLiq:
-        SolLiq(const freud._box.Box &, float,
-               float, unsigned int, unsigned int) except +
-        const freud._box.Box & getBox() const
-        void setBox(const freud._box.Box)
-        void setClusteringRadius(float) except +
-        void compute(const freud._locality.NeighborList *,
-                     const vec3[float]*,
-                     unsigned int) nogil except +
-        void computeSolLiqVariant(const freud._locality.NeighborList *,
-                                  const vec3[float]*,
-                                  unsigned int) nogil except +
-        void computeSolLiqNoNorm(const freud._locality.NeighborList *,
-                                 const vec3[float]*,
-                                 unsigned int) nogil except +
-        unsigned int getLargestClusterSize()
-        vector[unsigned int] getClusterSizes()
-        shared_ptr[float complex] getQlmi()
-        shared_ptr[unsigned int] getClusters()
-        shared_ptr[unsigned int] getNumberOfConnections()
-        vector[float complex] getQldot_ij()
-        unsigned int getNP()
-        unsigned int getNumClusters()
+cdef extern from "SolidLiquid.h" namespace "freud::order":
+    cdef cppclass SolidLiquid:
+        SolidLiquid(unsigned int, float, unsigned int, bool) except +
+        unsigned int getL() const
+        float getQThreshold() const
+        unsigned int getSolidThreshold() const
+        bool getNormalizeQ() const
+        void compute(const freud._locality.NeighborList*,
+                     const freud._locality.NeighborQuery*,
+                     freud._locality.QueryArgs) nogil except +
+        unsigned int getLargestClusterSize() const
+        vector[unsigned int] getClusterSizes() const
+        const freud.util.ManagedArray[unsigned int] &getClusterIdx() const
+        const freud.util.ManagedArray[unsigned int] &getNumberOfConnections() \
+            const
+        unsigned int getNumClusters() const
+        freud._locality.NeighborList * getNList()
+        const freud.util.ManagedArray[float] &getQlij() const
+
 
 cdef extern from "RotationalAutocorrelation.h" namespace "freud::order":
     cdef cppclass RotationalAutocorrelation:
         RotationalAutocorrelation()
-        RotationalAutocorrelation(int)
-        unsigned int getL()
-        unsigned int getN()
-        shared_ptr[float complex] getRAArray()
-        float getRotationalAutocorrelation()
-        void compute(quat[float]*, quat[float]*, unsigned int) nogil except +
+        RotationalAutocorrelation(unsigned int)
+        unsigned int getL() const
+        const freud.util.ManagedArray[float complex] &getRAArray() const
+        float getRotationalAutocorrelation() const
+        void compute(quat[float]*, quat[float]*, unsigned int) except +

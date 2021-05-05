@@ -1,94 +1,97 @@
 import numpy as np
 import numpy.testing as npt
-from freud.order import NematicOrderParameter as nop
-import warnings
-import unittest
+import pytest
+import rowan
+
+import freud
 
 
-def gen_quaternions(n, axes, angles):
-    q = np.zeros(shape=(n, 4), dtype=np.float32)
-    for i, (axis, angle) in enumerate(zip(axes, angles)):
-        q[i] = [np.cos(angle/2.0),
-                np.sin(angle/2.0) * axis[0],
-                np.sin(angle/2.0) * axis[1],
-                np.sin(angle/2.0) * axis[2]]
-        q[i] /= np.linalg.norm(q[i])
-    return q
-
-
-class TestNematicOrder(unittest.TestCase):
+class TestNematicOrder:
     def test_perfect(self):
         """Test perfectly aligned systems with different molecular axes"""
-        N = 1000
+        N = 10000
         axes = np.zeros(shape=(N, 3), dtype=np.float32)
         angles = np.zeros(shape=N, dtype=np.float32)
         axes[:, 0] = 1.0
-        orientations = gen_quaternions(N, axes, angles)
+        orientations = rowan.from_axis_angle(axes, angles)
 
         # Test for parallel to molecular axis
         u = np.array([1, 0, 0])
-        op_parallel = nop(u)
+        op_parallel = freud.order.Nematic(u)
+
+        # Test access
+        with pytest.raises(AttributeError):
+            op_parallel.order
+        with pytest.raises(AttributeError):
+            op_parallel.director
+        with pytest.raises(AttributeError):
+            op_parallel.particle_tensor
+        with pytest.raises(AttributeError):
+            op_parallel.nematic_tensor
+
         op_parallel.compute(orientations)
 
-        self.assertTrue(op_parallel.nematic_order_parameter == 1)
+        # Test access
+        op_parallel.order
+        op_parallel.director
+        op_parallel.particle_tensor
+        op_parallel.nematic_tensor
+
+        assert op_parallel.order == 1
         npt.assert_equal(op_parallel.director, u)
+        npt.assert_equal(op_parallel.nematic_tensor, np.diag([1, -0.5, -0.5]))
         npt.assert_equal(
-            op_parallel.nematic_tensor, np.diag([1, -0.5, -0.5]))
-        npt.assert_equal(
-            op_parallel.nematic_tensor, np.mean(
-                op_parallel.particle_tensor, axis=0))
+            op_parallel.nematic_tensor, np.mean(op_parallel.particle_tensor, axis=0)
+        )
 
         # Test for perpendicular to molecular axis
         u = np.array([0, 1, 0])
-        op_perp = nop(u)
+        op_perp = freud.order.Nematic(u)
         op_perp.compute(orientations)
 
-        self.assertEqual(op_perp.nematic_order_parameter, 1)
+        assert op_perp.order == 1
         npt.assert_equal(op_perp.director, u)
-        npt.assert_equal(
-            op_perp.nematic_tensor, np.diag([-0.5, 1, -0.5]))
+        npt.assert_equal(op_perp.nematic_tensor, np.diag([-0.5, 1, -0.5]))
 
     def test_imperfect(self):
         """Test imperfectly aligned systems.
-        Note that since two evals for the tests below, there are two possible
-        choices of director. This test is currently assuming that the internal
-        logic for choosing which one is the director does not change.
+        We add some noise to the perfect system and see if the output is close
+        to the ideal case.
         """
-        N = 1000
-        axes = np.zeros(shape=(N, 3), dtype=np.float32)
-        angles = np.zeros(shape=N, dtype=np.float32)
-        # Rotating 90 about y gives some tensor components in z
-        axes[::2, 0] = 1.0
-        axes[1::2, 1] = 1.0
-        angles[:] = np.pi/2
-        orientations = gen_quaternions(N, axes, angles)
+        N = 10000
+        np.random.seed(0)
+
+        # Generate orientations close to the identity quaternion
+        orientations = rowan.interpolate.slerp([1, 0, 0, 0], rowan.random.rand(N), 0.1)
 
         u = np.array([1, 0, 0])
-        op = nop(u)
+        op = freud.order.Nematic(u)
         op.compute(orientations)
 
-        self.assertTrue(np.allclose(op.nematic_order_parameter, 0.25))
-        self.assertTrue(np.all(op.director == u))
-        npt.assert_allclose(
-            op.nematic_tensor, np.diag([0.25, -0.5, 0.25]), rtol=1e-5)
+        npt.assert_allclose(op.order, 1, atol=1e-1)
+        assert op.order != 1
 
-        # Rotating 90 about z gives some tensor components in y
-        axes = np.zeros(shape=(N, 3), dtype=np.float32)
-        angles = np.zeros(shape=N, dtype=np.float32)
-        axes[1::2, 1] = 0.0
-        axes[1::2, 2] = 1.0
-        angles[:] = np.pi/2
-        orientations = gen_quaternions(N, axes, angles)
+        npt.assert_allclose(op.director, u, atol=1e-1)
+        assert not np.all(op.director == u)
 
+        npt.assert_allclose(op.nematic_tensor, np.diag([1, -0.5, -0.5]), atol=1e-1)
+        assert not np.all(op.nematic_tensor == np.diag([1, -0.5, -0.5]))
+
+        u = np.array([0, 1, 0])
+        op_perp = freud.order.Nematic(u)
+        op_perp.compute(orientations)
+
+        npt.assert_allclose(op_perp.order, 1, atol=1e-1)
+        assert op_perp.order != 1
+
+        # The director can be inverted so we compare absolute values
+        npt.assert_allclose(np.abs(op_perp.director), u, atol=1e-1)
+        assert not np.all(op_perp.director == u)
+
+        npt.assert_allclose(op_perp.nematic_tensor, np.diag([-0.5, 1, -0.5]), atol=1e-1)
+        assert not np.all(op_perp.nematic_tensor == np.diag([-0.5, 1, -0.5]))
+
+    def test_repr(self):
         u = np.array([1, 0, 0])
-        op = nop(u)
-        op.compute(orientations)
-
-        npt.assert_allclose(op.nematic_order_parameter, 0.25, rtol=1e-5)
-        npt.assert_equal(op.director, np.array([0, 1, 0]))
-        npt.assert_almost_equal(
-            op.nematic_tensor, np.diag([0.25, 0.25, -0.5]))
-
-
-if __name__ == '__main__':
-    unittest.main()
+        op = freud.order.Nematic(u)
+        assert str(op) == str(eval(repr(op)))

@@ -1,50 +1,451 @@
-# Copyright (c) 2010-2019 The Regents of the University of Michigan
+# Copyright (c) 2010-2020 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 R"""
-The :class:`freud.locality` module contains data structures to efficiently
+The :mod:`freud.locality` module contains data structures to efficiently
 locate points based on their proximity to other points.
 """
+import inspect
 
-import sys
 import numpy as np
-import freud.common
-import warnings
 
-from libcpp cimport bool as cbool
-from freud.util._VectorMath cimport vec3
-from cython.operator cimport dereference
-cimport freud._locality
-cimport freud.box
+import freud.util
+from freud.errors import NO_DEFAULT_QUERY_ARGS_MESSAGE
 
 cimport numpy as np
+from cython.operator cimport dereference
+from libcpp cimport bool as cbool
+from libcpp.memory cimport shared_ptr
+from libcpp.vector cimport vector
+
+cimport freud._locality
+cimport freud.box
+from freud._locality cimport ITERATOR_TERMINATOR
+from freud.util cimport _Compute, vec3
 
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
 np.import_array()
 
+cdef class _QueryArgs:
+    R"""Container for query arguments.
+
+    This class is use internally throughout freud to provide a nice interface
+    between keyword- or dict-style query arguments and the C++ QueryArgs
+    object. All arguments are funneled through this interface, which constructs
+    the appropriate C++ QueryArgs object that can then be used in C++ compute
+    calls.
+    """
+
+    def __cinit__(self, mode=None, r_min=None, r_max=None, r_guess=None,
+                  num_neighbors=None, exclude_ii=None,
+                  scale=None, **kwargs):
+        if type(self) == _QueryArgs:
+            self.thisptr = new freud._locality.QueryArgs()
+            self.mode = mode
+            if r_max is not None:
+                self.r_max = r_max
+            if r_min is not None:
+                self.r_min = r_min
+            if r_guess is not None:
+                self.r_guess = r_guess
+            if num_neighbors is not None:
+                self.num_neighbors = num_neighbors
+            if exclude_ii is not None:
+                self.exclude_ii = exclude_ii
+            if scale is not None:
+                self.scale = scale
+            if len(kwargs):
+                err_str = ", ".join(
+                    "{} = {}".format(k, v) for k, v in kwargs.items())
+                raise ValueError(
+                    "The following invalid query "
+                    "arguments were provided: " +
+                    err_str)
+
+    def __dealloc__(self):
+        if type(self) == _QueryArgs:
+            del self.thisptr
+
+    def update(self, qargs):
+        if qargs is None:
+            return
+        for arg in qargs:
+            if hasattr(self, arg):
+                setattr(self, arg, qargs[arg])
+            else:
+                raise ValueError("An invalid query argument was provided.")
+
+    @classmethod
+    def from_dict(cls, mapping):
+        """Create _QueryArgs from mapping."""
+        return cls(**mapping)
+
+    @property
+    def mode(self):
+        if self.thisptr.mode == freud._locality.QueryType.none:
+            return None
+        elif self.thisptr.mode == freud._locality.QueryType.ball:
+            return 'ball'
+        elif self.thisptr.mode == freud._locality.QueryType.nearest:
+            return 'nearest'
+        else:
+            raise ValueError("Unknown mode {} set!".format(self.thisptr.mode))
+
+    @mode.setter
+    def mode(self, value):
+        if value == 'none' or value is None:
+            self.thisptr.mode = freud._locality.QueryType.none
+        elif value == 'ball':
+            self.thisptr.mode = freud._locality.QueryType.ball
+        elif value == 'nearest':
+            self.thisptr.mode = freud._locality.QueryType.nearest
+        else:
+            raise ValueError("An invalid mode was provided.")
+
+    @property
+    def r_guess(self):
+        return self.thisptr.r_guess
+
+    @r_guess.setter
+    def r_guess(self, value):
+        self.thisptr.r_guess = value
+
+    @property
+    def r_min(self):
+        return self.thisptr.r_min
+
+    @r_min.setter
+    def r_min(self, value):
+        self.thisptr.r_min = value
+
+    @property
+    def r_max(self):
+        return self.thisptr.r_max
+
+    @r_max.setter
+    def r_max(self, value):
+        self.thisptr.r_max = value
+
+    @property
+    def num_neighbors(self):
+        return self.thisptr.num_neighbors
+
+    @num_neighbors.setter
+    def num_neighbors(self, value):
+        self.thisptr.num_neighbors = value
+
+    @property
+    def exclude_ii(self):
+        return self.thisptr.exclude_ii
+
+    @exclude_ii.setter
+    def exclude_ii(self, value):
+        self.thisptr.exclude_ii = value
+
+    @property
+    def scale(self):
+        return self.thisptr.scale
+
+    @scale.setter
+    def scale(self, value):
+        self.thisptr.scale = value
+
+    def __repr__(self):
+        return ("freud.locality.{cls}(mode={mode}, r_max={r_max}, "
+                "num_neighbors={num_neighbors}, exclude_ii={exclude_ii}, "
+                "scale={scale})").format(
+                    cls=type(self).__name__,
+                    mode=self.mode, r_max=self.r_max,
+                    num_neighbors=self.num_neighbors,
+                    exclude_ii=self.exclude_ii,
+                    scale=self.scale)
+
+    def __str__(self):
+        return repr(self)
+
+
+cdef class NeighborQueryResult:
+    R"""Class encapsulating the output of queries of NeighborQuery objects.
+
+    .. warning::
+
+        This class should not be instantiated directly, it is the
+        return value of the :meth:`~NeighborQuery.query` method of
+        :class:`~NeighborQuery`. The class provides a convenient
+        interface for iterating over query results, and can be
+        transparently converted into a list or a
+        :class:`~NeighborList` object.
+
+    The :class:`~NeighborQueryResult` makes it easy to work with the results of
+    queries and convert them to various natural objects. Additionally, the
+    result is a generator, making it easy for users to lazily iterate over the
+    object.
+    """
+
+    def __iter__(self):
+        cdef freud._locality.NeighborBond npoint
+
+        cdef const float[:, ::1] l_points = self.points
+        cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator = \
+            self.nq.nqptr.query(
+                <vec3[float]*> &l_points[0, 0],
+                self.points.shape[0],
+                dereference(self.query_args.thisptr))
+
+        npoint = dereference(iterator).next()
+        while npoint != ITERATOR_TERMINATOR:
+            yield (npoint.query_point_idx, npoint.point_idx, npoint.distance)
+            npoint = dereference(iterator).next()
+
+        raise StopIteration
+
+    def toNeighborList(self, sort_by_distance=False):
+        """Convert query result to a freud :class:`~NeighborList`.
+
+        Args:
+            sort_by_distance (bool):
+                If :code:`True`, sort neighboring bonds by distance.
+                If :code:`False`, sort neighboring bonds by point index
+                (Default value = :code:`False`).
+
+        Returns:
+            :class:`~NeighborList`: A :class:`~NeighborList` containing all
+            neighbor pairs found by the query generating this result object.
+        """
+        cdef const float[:, ::1] l_points = self.points
+        cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator = \
+            self.nq.nqptr.query(
+                <vec3[float]*> &l_points[0, 0],
+                self.points.shape[0],
+                dereference(self.query_args.thisptr))
+
+        cdef freud._locality.NeighborList *cnlist = dereference(
+            iterator).toNeighborList(sort_by_distance)
+        cdef NeighborList nl = _nlist_from_cnlist(cnlist)
+        # Explicitly manage a manually created nlist so that it will be
+        # deleted when the Python object is.
+        nl._managed = True
+
+        return nl
+
+
+cdef class NeighborQuery:
+    R"""Class representing a set of points along with the ability to query for
+    neighbors of these points.
+
+    .. warning::
+
+        This class should not be instantiated directly. The subclasses
+        :class:`~AABBQuery` and :class:`~LinkCell` provide the
+        intended interfaces.
+
+    The :class:`~.NeighborQuery` class represents the abstract interface for
+    neighbor finding. The class contains a set of points and a simulation box,
+    the latter of which is used to define the system and the periodic boundary
+    conditions required for finding neighbors of these points. The primary mode
+    of interacting with the :class:`~.NeighborQuery` is through the
+    :meth:`~NeighborQuery.query` and :meth:`~NeighborQuery.queryBall`
+    functions, which enable finding either the nearest neighbors of a point or
+    all points within a distance cutoff, respectively.  Subclasses of
+    NeighborQuery implement these methods based on the nature of the underlying
+    data structure.
+
+    Args:
+        box (:class:`freud.box.Box`):
+            Simulation box.
+        points ((:math:`N`, 3) :class:`numpy.ndarray`):
+            Point coordinates to build the structure.
+    """
+
+    def __cinit__(self):
+        if type(self) is NeighborQuery:
+            raise RuntimeError(
+                "The NeighborQuery class is abstract, and should not be "
+                "directly instantiated"
+            )
+
+    @classmethod
+    def from_system(cls, system, dimensions=None):
+        R"""Create a :class:`~.NeighborQuery` from any system-like object.
+
+        The standard concept of a system in **freud** is any object that
+        provides a way to access a box-like object (anything that can be
+        coerced to a box by :meth:`freud.box.Box.from_box`) and an array-like
+        object (according to `NumPy's definition
+        <https://docs.scipy.org/doc/numpy/user/basics.creation.html#converting-python-array-like-objects-to-numpy-arrays>`_)
+        of particle positions that turns into a :math:`N\times 3` array.
+
+        Supported types for :code:`system` include:
+
+        * :class:`~.locality.AABBQuery`
+        * :class:`~.locality.LinkCell`
+        * A sequence of :code:`(box, points)` where :code:`box` is a
+          :class:`~.box.Box` and :code:`points` is a :class:`numpy.ndarray`.
+        * Objects with attributes :code:`box` and :code:`points`.
+        * :class:`MDAnalysis.coordinates.base.Timestep`
+        * :class:`gsd.hoomd.Snapshot`
+        * :class:`garnett.trajectory.Frame`
+        * :class:`ovito.data.DataCollection`
+        * :mod:`hoomd.data` snapshot
+
+        Args:
+            system (system-like object):
+                Any object that can be converted to a :class:`~.NeighborQuery`.
+            dimensions (int):
+                Whether the object is 2 or 3 dimensional. It may be inferred if
+                not provided, but in some cases inference is not possible, in
+                which case it will default to 3 (Default value = None).
+
+        Returns:
+            :class:`freud.locality.NeighborQuery`:
+                The same :class:`~.NeighborQuery` object if one is given, or an
+                instance of :class:`~.NeighborQuery` built from an inferred
+                :code:`box` and :code:`points`.
+        """
+
+        def _match_class_path(obj, *matches):
+            return any(cls.__module__ + '.' + cls.__name__ in matches
+                       for cls in inspect.getmro(type(obj)))
+
+        if isinstance(system, cls):
+            return system
+
+        # MDAnalysis compatibility
+        elif _match_class_path(system, 'MDAnalysis.coordinates.base.Timestep'):
+            system = (system.triclinic_dimensions, system.positions)
+
+        # GSD and HOOMD-blue 3 snapshot compatibility
+        elif _match_class_path(system,
+                               'gsd.hoomd.Snapshot',
+                               'hoomd.snapshot.Snapshot'):
+            # Explicitly construct the box to silence warnings from box
+            # constructor, HOOMD simulations often have Lz=1 for 2D boxes.
+            box = np.array(system.configuration.box)
+            if system.configuration.dimensions == 2:
+                box[[2, 4, 5]] = 0
+            system = (box, system.particles.position)
+
+        # garnett compatibility (garnett >=0.5)
+        elif _match_class_path(system, 'garnett.trajectory.Frame'):
+            try:
+                # garnett >= 0.7
+                position = system.position
+            except AttributeError:
+                # garnett < 0.7
+                position = system.positions
+            system = (system.box, position)
+
+        # OVITO compatibility
+        elif _match_class_path(
+                system,
+                'ovito.data.DataCollection',
+                'ovito.plugins.PyScript.DataCollection',
+                'PyScript.DataCollection'):
+            box = freud.Box.from_box(
+                system.cell.matrix[:, :3],
+                dimensions=2 if system.cell.is2D else 3)
+            system = (box, system.particles.positions)
+
+        # HOOMD-blue 2 snapshot compatibility
+        elif (hasattr(system, 'box') and hasattr(system, 'particles') and
+              hasattr(system.particles, 'position')):
+            # Explicitly construct the box to silence warnings from box
+            # constructor because HOOMD sets Lz=1 rather than 0 for 2D boxes.
+            if system.box.dimensions == 2:
+                box = freud.Box(system.box.Lx, system.box.Ly, xy=system.box.xy)
+            else:
+                box = system.box
+            system = (box, system.particles.position)
+
+        # Duck type systems with attributes into a (box, points) tuple
+        elif hasattr(system, 'box') and hasattr(system, 'points'):
+            system = (system.box, system.points)
+
+        if cls == NeighborQuery:
+            # If called from this abstract parent class, always make
+            # :class:`~._RawPoints`.
+            return _RawPoints(*system)
+        else:
+            # Otherwise, use the current class.
+            return cls(*system)
+
+    @property
+    def box(self):
+        """:class:`freud.box.Box`: The box object used by this data
+        structure."""
+        return freud.box.BoxFromCPP(self.nqptr.getBox())
+
+    @property
+    def points(self):
+        """:class:`np.ndarray`: The array of points in this data structure."""
+        return np.asarray(self.points)
+
+    def query(self, query_points, query_args):
+        R"""Query for nearest neighbors of the provided point.
+
+        Args:
+            query_points ((:math:`N`, 3) :class:`numpy.ndarray`):
+                Points to query for.
+            query_args (dict):
+                Query arguments determining how to find neighbors. For
+                information on valid query argument, see the `Query API
+                <https://freud.readthedocs.io/en/stable/topics/querying.html>`_.
+
+        Returns:
+            :class:`~.NeighborQueryResult`: Results object containing the
+            output of this query.
+        """
+        query_points = freud.util._convert_array(
+            np.atleast_2d(query_points), shape=(None, 3))
+
+        cdef _QueryArgs args = _QueryArgs.from_dict(query_args)
+        return NeighborQueryResult.init(self, query_points, args)
+
+    cdef freud._locality.NeighborQuery * get_ptr(self):
+        R"""Returns a pointer to the raw C++ object we are wrapping."""
+        return self.nqptr
+
+    def plot(self, ax=None, title=None, *args, **kwargs):
+        """Plot system box and points.
+
+        Args:
+            ax (:class:`matplotlib.axes.Axes`):
+                Axis to plot on. If :code:`None`, make a new figure and axis.
+                The axis projection (2D or 3D) must match the dimensionality of
+                the system (Default value = :code:`None`).
+            title (str):
+                Title of the plot (Default value = :code:`None`).
+            *args:
+                Passed on to :meth:`mpl_toolkits.mplot3d.Axes3D.plot` or
+                :meth:`matplotlib.axes.Axes.plot`.
+            **kwargs:
+                Passed on to :meth:`mpl_toolkits.mplot3d.Axes3D.plot` or
+                :meth:`matplotlib.axes.Axes.plot`.
+
+        Returns:
+            :class:`matplotlib.axes.Axes`: Axis with the plot.
+        """
+        import freud.plot
+        return freud.plot.system_plot(
+            self, ax=ax, title=title, *args, **kwargs)
+
 
 cdef class NeighborList:
-    R"""Class representing a certain number of "bonds" between
-    particles. Computation methods will iterate over these bonds when
-    searching for neighboring particles.
+    R"""Class representing bonds between two sets of points.
 
-    NeighborList objects are constructed for two sets of position
-    arrays A (alternatively *reference points*; of length :math:`n_A`)
-    and B (alternatively *target points*; of length :math:`n_B`) and
-    hold a set of :math:`\left(i, j\right): i < n_A, j < n_B` index
-    pairs corresponding to near-neighbor points in A and B,
-    respectively.
+    Compute classes contain a set of bonds between two sets of position
+    arrays ("query points" and "points") and hold a list of index pairs
+    :math:`\left(i, j\right)` where
+    :math:`i < N_{query\_points}, j < N_{points}` corresponding to neighbor
+    pairs between the two sets.
 
-    For efficiency, all bonds for a particular reference particle :math:`i`
-    are contiguous and bonds are stored in order based on reference
-    particle index :math:`i`. The first bond index corresponding to a given
-    particle can be found in :math:`\log(n_{bonds})` time using
-    :meth:`find_first_index`.
-
-    .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
-
-    .. versionadded:: 0.6.4
+    For efficiency, all bonds must be sorted by the query point index, from
+    least to greatest. Bonds have an query point index :math:`i` and a point
+    index :math:`j`. The first bond index corresponding to a given query point
+    can be found in :math:`\log(N_{bonds})` time using
+    :meth:`find_first_index`, because bonds are ordered by the query point
+    index.
 
     .. note::
 
@@ -52,138 +453,113 @@ cdef class NeighborList:
        In most cases, users should manipulate
        :class:`freud.locality.NeighborList` objects received from a
        neighbor search algorithm, such as :class:`freud.locality.LinkCell`,
-       :class:`freud.locality.NearestNeighbors`, or
-       :class:`freud.voronoi.Voronoi`.
+       :class:`freud.locality.AABBQuery`, or :class:`freud.locality.Voronoi`.
 
-    Attributes:
-        index_i (:class:`np.ndarray`):
-            The reference point indices from the last set of points this object
-            was evaluated with. This array is read-only to prevent breakage of
-            :meth:`~.find_first_index()`.
-        index_j (:class:`np.ndarray`):
-            The reference point indices from the last set of points this object
-            was evaluated with. This array is read-only to prevent breakage of
-            :meth:`~.find_first_index()`.
-        weights ((:math:`N_{bonds}`) :class:`np.ndarray`):
-            The per-bond weights from the last set of points this object was
-            evaluated with.
-        segments ((:math:`N_{ref\_points}`) :class:`np.ndarray`):
-            A segment array, which is an array of length :math:`N_{ref}`
-            indicating the first bond index for each reference particle from
-            the last set of points this object was evaluated with.
-        neighbor_counts ((:math:`N_{ref\_points}`) :class:`np.ndarray`):
-            A neighbor count array, which is an array of length
-            :math:`N_{ref}` indicating the number of neighbors for each
-            reference particle from the last set of points this object was
-            evaluated with.
+    Also available as ``freud.NeighborList``.
 
     Example::
 
        # Assume we have position as Nx3 array
-       lc = LinkCell(box, 1.5).compute(box, positions)
-       nlist = lc.nlist
+       aq = freud.locality.AABBQuery(box, positions)
+       nlist = aq.query(positions, {'r_max': 3}).toNeighborList()
 
        # Get all vectors from central particles to their neighbors
-       rijs = positions[nlist.index_j] - positions[nlist.index_i]
-       box.wrap(rijs)
+       rijs = (positions[nlist.point_indices] -
+              positions[nlist.query_point_indices])
+       rijs = box.wrap(rijs)
+
+    The NeighborList can be indexed to access bond particle indices. Example::
+
+       for i, j in nlist[:]:
+           print(i, j)
     """
 
     @classmethod
-    def from_arrays(cls, Nref, Ntarget, index_i, index_j, weights=None):
+    def from_arrays(cls, num_query_points, num_points, query_point_indices,
+                    point_indices, distances, weights=None):
         R"""Create a NeighborList from a set of bond information arrays.
 
+        Example::
+
+            import freud
+            import numpy as np
+            box = freud.box.Box(2, 3, 4, 0, 0, 0)
+            query_points = np.array([[0, 0, 0], [0, 0, 1]])
+            points = np.array([[0, 0, -1], [0.5, -1, 0]])
+            query_point_indices = np.array([0, 0, 1])
+            point_indices = np.array([0, 1, 1])
+            distances = box.compute_distances(
+                query_points[query_point_indices], points[point_indices])
+            num_query_points = len(query_points)
+            num_points = len(points)
+            nlist = freud.locality.NeighborList.from_arrays(
+                num_query_points, num_points, query_point_indices,
+                point_indices, distances)
+
+
         Args:
-            Nref (int):
-                Number of reference points (corresponding to :code:`index_i`).
-            Ntarget (int):
-                Number of target points (corresponding to :code:`index_j`).
-            index_i (:class:`np.ndarray`):
+            num_query_points (int):
+                Number of query points (corresponding to
+                :code:`query_point_indices`).
+            num_points (int):
+                Number of points (corresponding to :code:`point_indices`).
+            query_point_indices (:class:`np.ndarray`):
                 Array of integers corresponding to indices in the set of
-                reference points.
-            index_j (:class:`np.ndarray`):
+                query points.
+            point_indices (:class:`np.ndarray`):
                 Array of integers corresponding to indices in the set of
-                target points.
+                points.
+            distances (:class:`np.ndarray`):
+                Array of distances between corresponding query points and
+                points.
             weights (:class:`np.ndarray`, optional):
                 Array of per-bond weights (if :code:`None` is given, use a
                 value of 1 for each weight) (Default value = :code:`None`).
-        """
-        index_i = freud.common.convert_array(index_i, dimensions=1,
-                                             dtype=np.uint64, contiguous=True,
-                                             array_name='index_i')
-        index_j = freud.common.convert_array(index_j, dimensions=1,
-                                             dtype=np.uint64, contiguous=True,
-                                             array_name='index_j')
+        """  # noqa 501
+        query_point_indices = freud.util._convert_array(
+            query_point_indices, shape=(None,), dtype=np.uint32)
+        point_indices = freud.util._convert_array(
+            point_indices, shape=query_point_indices.shape, dtype=np.uint32)
 
-        if index_i.shape != index_j.shape:
-            raise TypeError('index_i and index_j should be the same size')
+        distances = freud.util._convert_array(
+            distances, shape=query_point_indices.shape)
 
         if weights is None:
-            weights = np.ones(index_i.shape, dtype=np.float32)
-        else:
-            weights = freud.common.convert_array(
-                weights, dimensions=1, dtype=np.float32, contiguous=True,
-                array_name='weights')
+            weights = np.ones(query_point_indices.shape, dtype=np.float32)
+        weights = freud.util._convert_array(
+            weights, shape=query_point_indices.shape)
 
-        if weights.shape != index_i.shape:
-            raise TypeError('weights and index_i should be the same size')
+        cdef const unsigned int[::1] l_query_point_indices = \
+            query_point_indices
+        cdef const unsigned int[::1] l_point_indices = point_indices
+        cdef const float[::1] l_distances = distances
+        cdef const float[::1] l_weights = weights
+        cdef unsigned int l_num_bonds = l_query_point_indices.shape[0]
+        cdef unsigned int l_num_query_points = num_query_points
+        cdef unsigned int l_num_points = num_points
 
-        cdef size_t[::1] c_index_i = index_i
-        cdef size_t[::1] c_index_j = index_j
-        cdef float[::1] c_weights = weights
-        cdef size_t n_bonds = c_index_i.shape[0]
-        cdef size_t c_Nref = Nref
-        cdef size_t c_Ntarget = Ntarget
-
-        cdef size_t bond
-        cdef size_t last_i
-        cdef size_t i
-        if n_bonds > 0:
-            last_i = c_index_i[0]
-            for bond in range(n_bonds):
-                i = c_index_i[bond]
-                if i < last_i:
-                    raise RuntimeError('index_i is not sorted')
-                if c_Nref <= i:
-                    raise RuntimeError(
-                        'Nref is too small for a value found in index_i')
-                if c_Ntarget <= c_index_j[bond]:
-                    raise RuntimeError(
-                        'Ntarget is too small for a value found in index_j')
-                last_i = i
-
+        cdef NeighborList result
         result = cls()
-        cdef NeighborList c_result = result
-        c_result.thisptr.resize(n_bonds)
-        cdef size_t * c_neighbors_ptr = c_result.thisptr.getNeighbors()
-        cdef float * c_weights_ptr = c_result.thisptr.getWeights()
-
-        for bond in range(n_bonds):
-            c_neighbors_ptr[2*bond] = c_index_i[bond]
-            c_neighbors_ptr[2*bond + 1] = c_index_j[bond]
-            c_weights_ptr[bond] = c_weights[bond]
-
-        c_result.thisptr.setNumBonds(n_bonds, c_Nref, c_Ntarget)
+        result.thisptr = new freud._locality.NeighborList(
+            l_num_bonds, &l_query_point_indices[0], l_num_query_points,
+            &l_point_indices[0], l_num_points, &l_distances[0], &l_weights[0])
 
         return result
 
-    cdef refer_to(self, freud._locality.NeighborList * other):
-        R"""Makes this cython wrapper object point to a different C++ object,
-        deleting the one we are already holding if necessary. We do not
-        own the memory of the other C++ object."""
-        if self._managed:
-            del self.thisptr
-        self._managed = False
-        self.thisptr = other
-
-    def __cinit__(self):
-        self._managed = True
-        self.thisptr = new freud._locality.NeighborList()
+    def __cinit__(self, _null=False):
+        # Setting _null to True will create a NeighborList with no underlying
+        # C++ object. This is useful for passing NULL pointers to C++ to
+        # indicate the lack of a NeighborList
+        self._managed = not _null
+        # Cython won't assign NULL without cast
+        self.thisptr = <freud._locality.NeighborList *> NULL if _null \
+            else new freud._locality.NeighborList()
 
     def __dealloc__(self):
         if self._managed:
             del self.thisptr
 
-    cdef freud._locality.NeighborList * get_ptr(self) nogil:
+    cdef freud._locality.NeighborList * get_ptr(self):
         R"""Returns a pointer to the raw C++ object we are wrapping."""
         return self.thisptr
 
@@ -209,91 +585,82 @@ cdef class NeighborList:
             new_copy.copy(self)
             return new_copy
 
-    @property
-    def index_i(self):
-        cdef size_t n_bonds = self.thisptr.getNumBonds()
-        cdef size_t[:, ::1] neighbors
-        if not n_bonds:
-            result = np.asarray([], dtype=np.uint64)
-        else:
-            neighbors = <size_t[:n_bonds, :2]> self.thisptr.getNeighbors()
-            result = np.asarray(neighbors[:, 0], dtype=np.uint64)
-        result.flags.writeable = False
-        return result
+    def __getitem__(self, key):
+        R"""Access the bond array by index or slice."""
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getNeighbors(),
+            freud.util.arr_type_t.UNSIGNED_INT)[key]
 
     @property
-    def index_j(self):
-        cdef size_t n_bonds = self.thisptr.getNumBonds()
-        cdef size_t[:, ::1] neighbors
-        if not n_bonds:
-            result = np.asarray([], dtype=np.uint64)
-        else:
-            neighbors = <size_t[:n_bonds, :2]> self.thisptr.getNeighbors()
-            result = np.asarray(neighbors[:, 1], dtype=np.uint64)
-        result.flags.writeable = False
-        return result
+    def query_point_indices(self):
+        """(:math:`N_{bonds}`) :class:`np.ndarray`: The query point indices for
+        each bond. This array is read-only to prevent breakage of
+        :meth:`~.find_first_index()`. Equivalent to indexing with
+        :code:`[:, 0]`."""
+        return self[:, 0]
+
+    @property
+    def point_indices(self):
+        """(:math:`N_{bonds}`) :class:`np.ndarray`: The point indices for each
+        bond. This array is read-only to prevent breakage of
+        :meth:`~.find_first_index()`. Equivalent to indexing with :code:`[:,
+        1]`."""
+        return self[:, 1]
 
     @property
     def weights(self):
-        cdef size_t n_bonds = self.thisptr.getNumBonds()
-        if not n_bonds:
-            return np.asarray([], dtype=np.float32)
-        cdef float[::1] weights = \
-            <float[:n_bonds]> self.thisptr.getWeights()
-        return np.asarray(weights)
+        """(:math:`N_{bonds}`) :class:`np.ndarray`: The weights for each bond.
+        By default, bonds have a weight of 1."""
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getWeights(),
+            freud.util.arr_type_t.FLOAT)
+
+    @property
+    def distances(self):
+        """(:math:`N_{bonds}`) :class:`np.ndarray`: The distances for each
+        bond."""
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getDistances(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def segments(self):
-        cdef np.ndarray[np.int64_t, ndim=1] result = np.zeros(
-            (self.thisptr.getNumI(),), dtype=np.int64)
-        cdef size_t n_bonds = self.thisptr.getNumBonds()
-        if not n_bonds:
-            return result
-        cdef size_t[:, ::1] neighbors = \
-            <size_t[:n_bonds, :2]> self.thisptr.getNeighbors()
-        cdef int last_i = -1
-        cdef int i = -1
-        cdef size_t bond
-        for bond in range(n_bonds):
-            i = neighbors[bond, 0]
-            if i != last_i:
-                result[i] = bond
-            last_i = i
-        return result
+        """(:math:`N_{query\\_points}`) :class:`np.ndarray`: A segment array
+        indicating the first bond index for each query point."""
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getSegments(),
+            freud.util.arr_type_t.UNSIGNED_INT)
 
     @property
     def neighbor_counts(self):
-        cdef np.ndarray[np.int64_t, ndim=1] result = np.zeros(
-            (self.thisptr.getNumI(),), dtype=np.int64)
-        cdef size_t n_bonds = self.thisptr.getNumBonds()
-        if not n_bonds:
-            return result
-        cdef size_t[:, ::1] neighbors = \
-            <size_t[:n_bonds, :2]> self.thisptr.getNeighbors()
-        cdef int last_i = -1
-        cdef int i = -1
-        cdef size_t n = 0
-        cdef size_t bond
-        for bond in range(n_bonds):
-            i = neighbors[bond, 0]
-            if i != last_i and i > 0:
-                if last_i >= 0:
-                    result[last_i] = n
-                n = 0
-            last_i = i
-            n += 1
-
-        if last_i >= 0:
-            result[last_i] = n
-
-        return result
+        """(:math:`N_{query\\_points}`) :class:`np.ndarray`: A neighbor count
+        array indicating the number of neighbors for each query point."""
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getCounts(),
+            freud.util.arr_type_t.UNSIGNED_INT)
 
     def __len__(self):
         R"""Returns the number of bonds stored in this object."""
         return self.thisptr.getNumBonds()
 
+    @property
+    def num_query_points(self):
+        """unsigned int: The number of query points.
+
+        All query point indices are less than this value.
+        """
+        return self.thisptr.getNumQueryPoints()
+
+    @property
+    def num_points(self):
+        """unsigned int: The number of points.
+
+        All point indices are less than this value.
+        """
+        return self.thisptr.getNumPoints()
+
     def find_first_index(self, unsigned int i):
-        R"""Returns the lowest bond index corresponding to a reference particle
+        R"""Returns the lowest bond index corresponding to a query particle
         with an index :math:`\geq i`.
 
         Args:
@@ -314,708 +681,583 @@ cdef class NeighborList:
         Example::
 
             # Keep only the bonds between particles of type A and type B
-            nlist.filter(types[nlist.index_i] != types[nlist.index_j])
-        """
-        filt = np.ascontiguousarray(filt, dtype=np.bool)
+            nlist.filter(types[nlist.query_point_indices] != types[nlist.point_indices])
+        """  # noqa E501
+        filt = np.ascontiguousarray(filt, dtype=bool)
         cdef np.ndarray[np.uint8_t, ndim=1, cast=True] filt_c = filt
-        cdef cbool * filt_ptr = <cbool*> filt_c.data
+        cdef const cbool * filt_ptr = <cbool*> &filt_c[0]
         self.thisptr.filter(filt_ptr)
         return self
 
-    def filter_r(self, box, ref_points, points, float rmax, float rmin=0):
+    def filter_r(self, float r_max, float r_min=0):
         R"""Removes bonds that are outside of a given radius range.
 
         Args:
-            box (:class:`freud.box.Box`):
-                Simulation box.
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Reference points to use for filtering.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Target points to use for filtering.
-            rmax (float):
+            r_max (float):
                 Maximum bond distance in the resulting neighbor list.
-            rmin (float, optional):
+            r_min (float, optional):
                 Minimum bond distance in the resulting neighbor list
-                (Default value = 0).
+                (Default value = :code:`0`).
         """
-        cdef freud.box.Box b = freud.common.convert_box(box)
-        ref_points = freud.common.convert_array(
-            ref_points, 2, dtype=np.float32, contiguous=True,
-            array_name="ref_points")
-        if ref_points.shape[1] != 3:
-            raise TypeError('ref_points should be an Nx3 array')
-
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
-
-        cdef np.ndarray cRef_points = ref_points
-        cdef np.ndarray cPoints = points
-        cdef size_t nRef = ref_points.shape[0]
-        cdef size_t nP = points.shape[0]
-
-        self.thisptr.validate(nRef, nP)
-        self.thisptr.filter_r(
-            dereference(b.thisptr),
-            <vec3[float]*> cRef_points.data,
-            <vec3[float]*> cPoints.data,
-            rmax,
-            rmin)
+        self.thisptr.filter_r(r_max, r_min)
         return self
 
 
-def make_default_nlist(box, ref_points, points, rmax, nlist=None,
-                       exclude_ii=None):
+cdef NeighborList _nlist_from_cnlist(freud._locality.NeighborList *c_nlist):
+    """Create a Python NeighborList object that points to an existing C++
+    NeighborList object.
+
+    This functions generally serves two purposes. Any special locality
+    NeighborList generators, like :class:`~.Voronoi`, should use this as a way
+    to point to the C++ NeighborList they generate internally. Additionally,
+    any compute method that requires a :class:`~.NeighborList` (i.e. cannot do
+    with just a :class:`~.NeighborQuery`) should also expose the internally
+    computed :class:`~.NeighborList` using this method.
+    """
+    cdef NeighborList result
+    result = NeighborList()
+    del result.thisptr
+    result._managed = False
+    result.thisptr = c_nlist
+    return result
+
+
+def _make_default_nq(neighbor_query):
+    R"""Helper function to return a NeighborQuery object.
+
+    Currently the resolution for NeighborQuery objects is such that if Python
+    users pass in a NumPy array of points and a box, we always make a
+    _RawPoints object. On the C++ side, the _RawPoints object internally
+    constructs an AABBQuery object to find neighbors if needed. On the Python
+    side, making the _RawPoints object is just so that compute functions on the
+    C++ side don't require overloads to work.
+
+    Supported types for :code:`neighbor_query` include:
+    - :class:`~.locality.AABBQuery`
+    - :class:`~.locality.LinkCell`
+    - A tuple of :code:`(box, points)` where :code:`box` is a
+      :class:`~.box.Box` and :code:`points` is a :class:`numpy.ndarray`.
+
+    Args:
+        neighbor_query (:class:`~.locality.NeighborQuery` - like object):
+            A :class:`~.locality.NeighborQuery` or object that can be
+            duck-typed into one.
+
+    Returns:
+        :class:`freud.locality.NeighborQuery`
+            The same :class:`NeighborQuery` object if one is given or
+            :class:`_RawPoints` built from an inferred :code:`box` and
+            :code:`points`.
+    """
+    if not isinstance(neighbor_query, NeighborQuery):
+        nq = _RawPoints(*neighbor_query)
+    else:
+        nq = neighbor_query
+    return nq
+
+
+def _make_default_nlist(system, neighbors, query_points=None):
     R"""Helper function to return a neighbor list object if is given, or to
-    construct one using _AABBQuery if it is not.
+    construct one using AABBQuery if it is not.
 
     Args:
         box (:class:`freud.box.Box`):
             Simulation box.
-        ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-            Reference points for the neighborlist.
         points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-            Points to construct the neighborlist.
-        rmax (float):
-            The radius within which to find neighbors.
+            Points for the neighborlist.
+        query_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            Query points to construct the neighborlist.
+        query_args (dict):
+            Query arguments to use. Note that, if it is not one of the provided
+            query arguments, :code:`exclude_ii` will be set to :code:`False` if
+            query_points is :code:`None` and :code:`True` otherwise.
         nlist (:class:`freud.locality.NeighborList`, optional):
             NeighborList to use to find bonds (Default value = :code:`None`).
-        exclude_ii (bool, optional):
-            Set this to :code:`True` if pairs of points with identical
-            indices should be excluded. If this is :code:`None`, it will be
-            treated as :code:`True` if :code:`points` is :code:`None` or
-            the same object as :code:`ref_points` (Defaults to
-            :code:`None`).
 
     Returns:
-        tuple (:class:`freud.locality.NeighborList`, :class:`freud.locality._AABBQuery`):
-            The neighborlist and the owning _AABBQuery object.
+        :class:`freud.locality.NeighborList`:
+            The neighbor list.
     """  # noqa: E501
-    if nlist is not None:
-        return nlist, nlist
+    cdef:
+        NeighborQuery nq
+        NeighborList nlist
 
-    cdef _AABBQuery aq = _AABBQuery().compute(
-        box, rmax, ref_points, points, exclude_ii)
-
-    # Python does not appear to garbage collect appropriately in this case.
-    # If a new neighbor list is created, the associated owner keeps the
-    # reference to it alive even if it goes out of scope in the calling
-    # program, and since the neighbor list also references the link cell the
-    # resulting cycle causes a memory leak. The below block explicitly breaks
-    # this cycle. Alternatively, we could force garbage collection using the
-    # gc module, but this is simpler.
-    cdef NeighborList cnlist = aq.nlist
-    if nlist is None:
-        cnlist.base = None
-
-    # Return the owner of the neighbor list as well to prevent gc problems
-    return aq.nlist, aq
+    if type(neighbors) == NeighborList:
+        return neighbors
+    else:
+        query_args = neighbors.copy()
+        query_args.setdefault('exclude_ii', query_points is None)
+        nq = _make_default_nq(system)
+        qp = query_points if query_points is not None else nq.points
+        return nq.query(qp, query_args).toNeighborList()
 
 
-def make_default_nlist_nn(box, ref_points, points, n_neigh, nlist=None,
-                          exclude_ii=None, rmax_guess=2.0):
-    R"""Helper function to return a neighbor list object if is given, or to
-    construct one using NearestNeighbors if it is not.
+cdef class _RawPoints(NeighborQuery):
+    R"""Class containing :class:`~.box.Box` and points with no spatial data
+    structures for accelerating neighbor queries."""
 
-    Args:
-        box (:class:`freud.box.Box`):
-            Simulation box.
-        ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-            Reference points for the neighborlist.
-        points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-            Points to construct the neighborlist.
-        n_neigh (int):
-            The number of nearest neighbors to consider.
-        nlist (:class:`freud.locality.NeighborList`, optional):
-            NeighborList to use to find bonds (Default value = :code:`None`).
-        exclude_ii (bool, optional):
-            Set this to :code:`True` if pairs of points with identical
-            indices should be excluded. If this is :code:`None`, it will be
-            treated as :code:`True` if :code:`points` is :code:`None` or
-            the same object as :code:`ref_points` (Defaults to
-            :code:`None`).
-        rmax_guess (float):
-            Estimate of rmax, speeds up search if chosen properly.
-
-    Returns:
-        tuple (:class:`freud.locality.NeighborList`, :class:`freud.locality:NearestNeighbors`):
-            The neighborlist and the owning NearestNeighbors object.
-    """  # noqa: E501
-    if nlist is not None:
-        return nlist, nlist
-
-    cdef NearestNeighbors nn = NearestNeighbors(rmax_guess, n_neigh).compute(
-        box, ref_points, points)
-
-    # Python does not appear to garbage collect appropriately in this case.
-    # If a new neighbor list is created, the associated link cell keeps the
-    # reference to it alive even if it goes out of scope in the calling
-    # program, and since the neighbor list also references the link cell the
-    # resulting cycle causes a memory leak. The below block explicitly breaks
-    # this cycle. Alternatively, we could force garbage collection using the
-    # gc module, but this is simpler.
-    cdef NeighborList cnlist = nn.nlist
-    if nlist is None:
-        cnlist.base = None
-
-    # Return the owner of the neighbor list as well to prevent gc problems
-    return nn.nlist, nn
-
-
-cdef class _AABBQuery:
-    R"""Use an AABB tree to find neighbors. *This API is experimental and
-    subject to change without warning.*
-
-    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
-
-    Attributes:
-        nlist (:class:`freud.locality.NeighborList`):
-            The neighbor list stored by this object, generated by
-            :meth:`~.compute()`.
-    """  # noqa: E501
-
-    def __cinit__(self):
-        self.thisptr = new freud._locality.AABBQuery()
-        self._nlist = NeighborList()
+    def __cinit__(self, box, points):
+        cdef const float[:, ::1] l_points
+        cdef freud.box.Box b
+        if type(self) is _RawPoints:
+            # Assume valid set of arguments is passed
+            b = freud.util._convert_box(box)
+            self.points = freud.util._convert_array(points, shape=(None, 3))
+            l_points = self.points
+            self.thisptr = self.nqptr = new freud._locality.RawPoints(
+                dereference(b.thisptr),
+                <vec3[float]*> &l_points[0, 0],
+                self.points.shape[0])
 
     def __dealloc__(self):
-        del self.thisptr
-
-    def compute(self, box, rcut, ref_points, points=None, exclude_ii=None):
-        R"""Update the data structure for the given set of points.
-
-        Args:
-            box (:class:`freud.box.Box`):
-                Simulation box.
-            rcut (float)
-                The maximum cutoff distance between neighboring particles.
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Reference point coordinates.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
-                Point coordinates. Defaults to :code:`ref_points` if not
-                provided or :code:`None`.
-            exclude_ii (bool, optional):
-                Set this to :code:`True` if pairs of points with identical
-                indices should be excluded. If this is :code:`None`, it will be
-                treated as :code:`True` if :code:`points` is :code:`None` or
-                the same object as :code:`ref_points` (Defaults to
-                :code:`None`).
-        """  # noqa: E501
-        cdef freud.box.Box b = freud.common.convert_box(box)
-        exclude_ii = (
-            points is ref_points or points is None) \
-            if exclude_ii is None else exclude_ii
-
-        ref_points = freud.common.convert_array(
-            ref_points, 2, dtype=np.float32, contiguous=True,
-            array_name="ref_points")
-        if ref_points.shape[1] != 3:
-            raise TypeError('ref_points should be an Nx3 array')
-
-        if points is None:
-            points = ref_points
-        else:
-            points = freud.common.convert_array(
-                points, 2, dtype=np.float32, contiguous=True,
-                array_name="points")
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
-
-        cdef float c_rcut = rcut
-        cdef np.ndarray cRef_points = ref_points
-        cdef unsigned int n_ref = ref_points.shape[0]
-        cdef np.ndarray cPoints = points
-        cdef unsigned int Np = points.shape[0]
-        cdef cbool c_exclude_ii = exclude_ii
-        with nogil:
-            self.thisptr.compute(
-                dereference(b.thisptr),
-                c_rcut,
-                <vec3[float]*> cRef_points.data,
-                n_ref,
-                <vec3[float]*> cPoints.data,
-                Np,
-                c_exclude_ii)
-
-        cdef freud._locality.NeighborList * nlist
-        nlist = self.thisptr.getNeighborList()
-        self._nlist.refer_to(nlist)
-        self._nlist.base = self
-        return self
-
-    @property
-    def nlist(self):
-        return self._nlist
+        if type(self) is _RawPoints:
+            del self.thisptr
 
 
-cdef class IteratorLinkCell:
-    R"""Iterates over the particles in a cell.
+cdef class AABBQuery(NeighborQuery):
+    R"""Use an Axis-Aligned Bounding Box (AABB) tree :cite:`howard2016` to
+    find neighbors.
 
-    .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
+    Also available as ``freud.AABBQuery``.
 
-    Example::
-
-       # Grab particles in cell 0
-       for j in linkcell.itercell(0):
-           print(positions[j])
+    Args:
+        box (:class:`freud.box.Box`):
+            Simulation box.
+        points ((:math:`N`, 3) :class:`numpy.ndarray`):
+            The points to use to build the tree.
     """
 
-    def __cinit__(self):
-        # Must be running python 3.x
-        current_version = sys.version_info
-        if current_version.major < 3:
-            raise RuntimeError(
-                "Must use python 3.x or greater to use IteratorLinkCell")
-        else:
-            self.thisptr = new freud._locality.IteratorLinkCell()
+    def __cinit__(self, box, points):
+        cdef const float[:, ::1] l_points
+        cdef freud.box.Box b
+        if type(self) is AABBQuery:
+            # Assume valid set of arguments is passed
+            b = freud.util._convert_box(box)
+            self.points = freud.util._convert_array(
+                points, shape=(None, 3)).copy()
+            l_points = self.points
+            self.thisptr = self.nqptr = new freud._locality.AABBQuery(
+                dereference(b.thisptr),
+                <vec3[float]*> &l_points[0, 0],
+                self.points.shape[0])
 
     def __dealloc__(self):
-        del self.thisptr
+        if type(self) is AABBQuery:
+            del self.thisptr
 
-    cdef void copy(self, const freud._locality.IteratorLinkCell & rhs):
-        self.thisptr.copy(rhs)
 
-    def next(self):
-        R"""Implements iterator interface"""
-        cdef unsigned int result = self.thisptr.next()
-        if self.thisptr.atEnd():
-            raise StopIteration()
-        return result
-
-    def __next__(self):
-        return self.next()
-
-    def __iter__(self):
-        return self
-
-cdef class LinkCell:
+cdef class LinkCell(NeighborQuery):
     R"""Supports efficiently finding all points in a set within a certain
     distance from a given point.
 
-    .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
+    Also available as ``freud.LinkCell``.
 
     Args:
         box (:class:`freud.box.Box`):
             Simulation box.
-        cell_width (float):
-            Maximum distance to find particles within.
-
-    Attributes:
-        box (:class:`freud.box.Box`):
-            Simulation box.
-        num_cells (unsigned int):
-            The number of cells in the box.
-        nlist (:class:`freud.locality.NeighborList`):
-            The neighbor list stored by this object, generated by
-            :meth:`~.compute()`.
-
-    .. note::
-        **2D:** :class:`freud.locality.LinkCell` properly handles 2D boxes.
-        The points must be passed in as :code:`[x, y, 0]`.
-        Failing to set z=0 will lead to undefined behavior.
-
-    Example::
-
-       # Assume positions are an Nx3 array
-       lc = LinkCell(box, 1.5)
-       lc.compute(box, positions)
-       for i in range(positions.shape[0]):
-           # Cell containing particle i
-           cell = lc.getCell(positions[0])
-           # List of cell's neighboring cells
-           cellNeighbors = lc.getCellNeighbors(cell)
-           # Iterate over neighboring cells (including our own)
-           for neighborCell in cellNeighbors:
-               # Iterate over particles in each neighboring cell
-               for neighbor in lc.itercell(neighborCell):
-                   pass # Do something with neighbor index
-
-       # Using NeighborList API
-       dens = density.LocalDensity(1.5, 1, 1)
-       dens.compute(box, positions, nlist=lc.nlist)
+        points ((:math:`N`, 3) :class:`numpy.ndarray`):
+            The points to bin into the cell list.
+        cell_width (float, optional):
+            Width of cells. If not provided, :class:`~.LinkCell` will
+            estimate a cell width based on the number of points and the box
+            size, assuming a constant density of points in the box.
     """
 
-    def __cinit__(self, box, cell_width):
-        cdef freud.box.Box b = freud.common.convert_box(box)
-        self.thisptr = new freud._locality.LinkCell(
-            dereference(b.thisptr), float(cell_width))
-        self._nlist = NeighborList()
+    def __cinit__(self, box, points, cell_width=0):
+        cdef freud.box.Box b = freud.util._convert_box(box)
+        cdef const float[:, ::1] l_points
+        self.points = freud.util._convert_array(
+            points, shape=(None, 3)).copy()
+        l_points = self.points
+        self.thisptr = self.nqptr = new freud._locality.LinkCell(
+            dereference(b.thisptr),
+            <vec3[float]*> &l_points[0, 0],
+            self.points.shape[0], cell_width)
 
     def __dealloc__(self):
         del self.thisptr
 
     @property
-    def box(self):
-        return freud.box.BoxFromCPP(self.thisptr.getBox())
+    def cell_width(self):
+        """float: Cell width."""
+        return self.thisptr.getCellWidth()
+
+
+cdef class _PairCompute(_Compute):
+    R"""Parent class for all compute classes in freud that depend on finding
+    nearest neighbors.
+
+    The purpose of this class is to consolidate some of the logic for parsing
+    the numerous possible inputs to the compute calls of such classes. In
+    particular, this class contains a helper function that calls the necessary
+    functions to create NeighborQuery and NeighborList classes as needed, as
+    well as dealing with boxes and query arguments.
+    """
+
+    def _preprocess_arguments(self, system, query_points=None,
+                              neighbors=None):
+        """Process standard compute arguments into freud's internal types by
+        calling all the required internal functions.
+
+        This function handles the preprocessing of boxes and points into
+        :class:`freud.locality.NeighborQuery` objects, the determination of how
+        to handle the NeighborList object, the creation of default query
+        arguments as needed, deciding what `query_points` are, and setting the
+        appropriate `exclude_ii` flag.
+
+        Args:
+            system (:class:`freud.locality.NeighborQuery` or tuple):
+                If a tuple, must be of the form (box_like, array_like), i.e. it
+                must be an object that can be converted into a
+                :class:`freud.locality.NeighborQuery`.
+            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
+                Query points for preprocessing. Uses :code:`points` if
+                :code:`None` (Default value = :code:`None`).
+            neighbors (:class:`freud.locality.NeighborList` or :class:`dict`, optional):
+                :class:`~.locality.NeighborList` or dictionary of query
+                arguments to use to find bonds (Default value = :code:`None`).
+        """  # noqa E501
+        cdef NeighborQuery nq = NeighborQuery.from_system(system)
+
+        # Resolve the two possible ways of passing neighbors (query arguments
+        # or neighbor lists) based on the type of the neighbors argument.
+        cdef NeighborList nlist
+        cdef _QueryArgs qargs
+
+        nlist, qargs = self._resolve_neighbors(neighbors, query_points)
+
+        if query_points is None:
+            query_points = nq.points
+        else:
+            query_points = freud.util._convert_array(
+                query_points, shape=(None, 3))
+        cdef const float[:, ::1] l_query_points = query_points
+        cdef unsigned int num_query_points = l_query_points.shape[0]
+        return (nq, nlist, qargs, l_query_points, num_query_points)
+
+    def _resolve_neighbors(self, neighbors, query_points=None):
+        if type(neighbors) == NeighborList:
+            nlist = neighbors
+            qargs = _QueryArgs()
+        elif neighbors is None or type(neighbors) == dict:
+            # The default_query_args property must raise a NotImplementedError
+            # if no query arguments were passed in and the class has no
+            # reasonable choice of defaults.
+            try:
+                query_args = self.default_query_args if neighbors is None \
+                    else neighbors.copy()
+                query_args.setdefault('exclude_ii', query_points is None)
+                qargs = _QueryArgs.from_dict(query_args)
+                nlist = NeighborList(_null=True)
+            except NotImplementedError:
+                raise
+        else:
+            raise ValueError('An invalid value was provided for neighbors, '
+                             'which must be a dict or NeighborList object.')
+        return nlist, qargs
 
     @property
-    def num_cells(self):
-        return self.thisptr.getNumCells()
+    def default_query_args(self):
+        """No default query arguments."""
+        raise NotImplementedError(
+            NO_DEFAULT_QUERY_ARGS_MESSAGE.format(type(self).__name__))
 
-    def getCell(self, point):
-        R"""Returns the index of the cell containing the given point.
+
+cdef class _SpatialHistogram(_PairCompute):
+    R"""Parent class for all compute classes in freud that perform a spatial
+    binning of particle bonds by distance.
+    """
+
+    def __cinit__(self):
+        # Abstract class
+        pass
+
+    @property
+    def default_query_args(self):
+        """The default query arguments are
+        :code:`{'mode': 'ball', 'r_max': self.r_max}`."""
+        return dict(mode="ball", r_max=self.r_max)
+
+    @_Compute._computed_property
+    def box(self):
+        """:class:`freud.box.Box`: The box object used in the last
+        computation."""
+        return freud.box.BoxFromCPP(self.histptr.getBox())
+
+    @_Compute._computed_property
+    def bin_counts(self):
+        """:class:`numpy.ndarray`: The bin counts in the histogram."""
+        return freud.util.make_managed_numpy_array(
+            &self.histptr.getBinCounts(),
+            freud.util.arr_type_t.UNSIGNED_INT)
+
+    @property
+    def bin_centers(self):
+        """:class:`numpy.ndarray`: The centers of each bin in the histogram
+        (has the same shape as the histogram itself)."""
+        vec = self.histptr.getBinCenters()
+        return [np.array(b, copy=True) for b in vec]
+
+    @property
+    def bin_edges(self):
+        """:class:`numpy.ndarray`: The edges of each bin in the histogram (is
+        one element larger in each dimension than the histogram because each
+        bin has a lower and upper bound)."""
+        vec = self.histptr.getBinEdges()
+        return [np.array(b, copy=True) for b in vec]
+
+    @property
+    def bounds(self):
+        """:class:`list` (:class:`tuple`): A list of tuples indicating upper and
+        lower bounds of each axis of the histogram."""
+        vec = self.histptr.getBounds()
+        return [tuple(b) for b in vec]
+
+    @property
+    def nbins(self):
+        """:class:`list`: The number of bins in each dimension of the
+        histogram."""
+        return list(self.histptr.getAxisSizes())
+
+    def _reset(self):
+        # Resets the values of RDF in memory.
+        self.histptr.reset()
+
+
+cdef class _SpatialHistogram1D(_SpatialHistogram):
+    R"""Subclasses _SpatialHistogram to provide a simplified API for
+    properties of 1-dimensional histograms.
+    """
+
+    def __cinit__(self):
+        # Abstract class
+        pass
+
+    @property
+    def bin_centers(self):
+        """:math:`(N_{bins}, )` :class:`numpy.ndarray`: The centers of each bin
+        in the histogram."""
+        # Must create a local reference or Cython tries to access an rvalue by
+        # reference in the list comprehension.
+        vec = self.histptr.getBinCenters()
+        return np.array(vec[0], copy=True)
+
+    @property
+    def bin_edges(self):
+        """:math:`(N_{bins}+1, )` :class:`numpy.ndarray`: The edges of each bin
+        in the histogram. It is one element larger because each bin has a lower
+        and an upper bound."""
+        # Must create a local reference or Cython tries to access an rvalue by
+        # reference in the list comprehension.
+        vec = self.histptr.getBinEdges()
+        return np.array(vec[0], copy=True)
+
+    @property
+    def bounds(self):
+        """tuple: A tuple indicating upper and lower bounds of the
+        histogram."""
+        # Must create a local reference or Cython tries to access an rvalue by
+        # reference in the list comprehension.
+        vec = self.histptr.getBounds()
+        return vec[0]
+
+    @property
+    def nbins(self):
+        """int: The number of bins in the histogram."""
+        return self.histptr.getAxisSizes()[0]
+
+
+cdef class PeriodicBuffer(_Compute):
+    R"""Replicate periodic images of points inside a box."""
+
+    def __cinit__(self):
+        self.thisptr = new freud._locality.PeriodicBuffer()
+
+    def __init__(self):
+        pass
+
+    def __dealloc__(self):
+        del self.thisptr
+
+    def compute(self, system, buffer, cbool images=False):
+        R"""Compute the periodic buffer.
 
         Args:
-            point(:math:`\left(3\right)` :class:`numpy.ndarray`):
-                Point coordinates :math:`\left(x,y,z\right)`.
-
-        Returns:
-            unsigned int: Cell index.
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
+            buffer (float or list of 3 floats):
+                Buffer distance for replication outside the box.
+            images (bool, optional):
+                If ``False``, ``buffer`` is a distance. If ``True``,
+                ``buffer`` is a number of images to replicate in each
+                dimension. Note that one image adds half of a box length to
+                each side, meaning that one image doubles the box side lengths,
+                two images triples the box side lengths, and so on.
+                (Default value = :code:`False`).
         """
-        point = freud.common.convert_array(
-            point, 1, dtype=np.float32, contiguous=True, array_name="point")
+        cdef NeighborQuery nq = _make_default_nq(system)
+        cdef vec3[float] buffer_vec
+        if np.ndim(buffer) == 0:
+            # catches more cases than np.isscalar
+            buffer_vec = vec3[float](buffer, buffer, buffer)
+        elif len(buffer) == 3:
+            buffer_vec = vec3[float](buffer[0], buffer[1], buffer[2])
+        else:
+            raise ValueError('buffer must be a scalar or have length 3.')
 
-        cdef float[::1] cPoint = point
-
-        return self.thisptr.getCell(dereference(<vec3[float]*> &cPoint[0]))
-
-    def itercell(self, unsigned int cell):
-        R"""Return an iterator over all particles in the given cell.
-
-        Args:
-            cell (unsigned int): Cell index.
-
-        Returns:
-            iter: Iterator to particle indices in specified cell.
-        """
-        current_version = sys.version_info
-        if current_version.major < 3:
-            raise RuntimeError(
-                "Must use python 3.x or greater to use itercell")
-        result = IteratorLinkCell()
-        cdef freud._locality.IteratorLinkCell cResult = self.thisptr.itercell(
-            cell)
-        result.copy(cResult)
-        return iter(result)
-
-    def getCellNeighbors(self, cell):
-        R"""Returns the neighboring cell indices of the given cell.
-
-        Args:
-            cell (unsigned int): Cell index.
-
-        Returns:
-            :math:`\left(N_{neighbors}\right)` :class:`numpy.ndarray`:
-                Array of cell neighbors.
-        """
-        neighbors = self.thisptr.getCellNeighbors(int(cell))
-        result = np.zeros(neighbors.size(), dtype=np.uint32)
-        for i in range(neighbors.size()):
-            result[i] = neighbors[i]
-        return result
-
-    def compute(self, box, ref_points, points=None, exclude_ii=None):
-        R"""Update the data structure for the given set of points and compute a
-        NeighborList.
-
-        Args:
-            box (:class:`freud.box.Box`):
-                Simulation box.
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Reference point coordinates.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
-                Point coordinates (Default value = :code:`None`).
-            exclude_ii (bool, optional):
-                Set this to :code:`True` if pairs of points with identical
-                indices should be excluded. If this is :code:`None`, it will be
-                treated as :code:`True` if :code:`points` is :code:`None` or
-                the same object as :code:`ref_points` (Defaults to
-                :code:`None`).
-        """  # noqa: E501
-        cdef freud.box.Box b = freud.common.convert_box(box)
-        exclude_ii = (
-            points is ref_points or points is None) \
-            if exclude_ii is None else exclude_ii
-
-        ref_points = freud.common.convert_array(
-            ref_points, 2, dtype=np.float32, contiguous=True,
-            array_name="ref_points")
-        if ref_points.shape[1] != 3:
-            raise TypeError('ref_points should be an Nx3 array')
-
-        if points is None:
-            points = ref_points
-
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
-
-        cdef np.ndarray cRef_points = ref_points
-        cdef unsigned int n_ref = ref_points.shape[0]
-        cdef np.ndarray cPoints = points
-        cdef unsigned int Np = points.shape[0]
-        cdef cbool c_exclude_ii = exclude_ii
-        with nogil:
-            self.thisptr.compute(
-                dereference(b.thisptr),
-                <vec3[float]*> cRef_points.data,
-                n_ref,
-                <vec3[float]*> cPoints.data,
-                Np,
-                c_exclude_ii)
-
-        cdef freud._locality.NeighborList * nlist
-        nlist = self.thisptr.getNeighborList()
-        self._nlist.refer_to(nlist)
-        self._nlist.base = self
+        self.thisptr.compute(nq.get_ptr(), buffer_vec, images)
         return self
 
-    @property
-    def nlist(self):
-        return self._nlist
+    @_Compute._computed_property
+    def buffer_points(self):
+        """:math:`\\left(N_{buffer}, 3\\right)` :class:`numpy.ndarray`: The
+        buffer point positions."""
+        points = self.thisptr.getBufferPoints()
+        return np.asarray([[p.x, p.y, p.z] for p in points])
 
-cdef class NearestNeighbors:
-    R"""Supports efficiently finding the :math:`N` nearest neighbors of each
-    point in a set for some fixed integer :math:`N`.
+    @_Compute._computed_property
+    def buffer_ids(self):
+        """:math:`\\left(N_{buffer}\\right)` :class:`numpy.ndarray`: The buffer
+        point ids."""
+        return np.asarray(self.thisptr.getBufferIds())
 
-    * :code:`strict_cut == True`: :code:`rmax` will be strictly obeyed, and any
-      particle which has fewer than :math:`N` neighbors will have values of
-      :code:`UINT_MAX` assigned.
-    * :code:`strict_cut == False` (default): :code:`rmax` will be expanded to
-      find the requested number of neighbors. If :code:`rmax` increases to the
-      point that a cell list cannot be constructed, a warning will be raised
-      and the neighbors already found will be returned.
+    @_Compute._computed_property
+    def buffer_box(self):
+        """:class:`freud.box.Box`: The buffer box, expanded to hold the
+        replicated points."""
+        return freud.box.BoxFromCPP(
+            <freud._box.Box> self.thisptr.getBufferBox())
 
-    .. moduleauthor:: Eric Harper <harperic@umich.edu>
+    def __repr__(self):
+        return "freud.locality.{cls}()".format(cls=type(self).__name__)
 
-    Args:
-        rmax (float):
-            Initial guess of a distance to search within to find N neighbors.
-        n_neigh (unsigned int):
-            Number of neighbors to find for each point.
-        scale (float):
-            Multiplier by which to automatically increase :code:`rmax` value if
-            the requested number of neighbors is not found. Only utilized if
-            :code:`strict_cut` is False. Scale must be greater than 1.
-        strict_cut (bool):
-            Whether to use a strict :code:`rmax` or allow for automatic
-            expansion, default is False.
+    def __str__(self):
+        return repr(self)
 
-    Attributes:
-        UINTMAX (unsigned int):
-            Value of C++ UINTMAX used to pad the arrays.
-        box (:class:`freud.box.Box`):
-            Simulation box.
-        num_neighbors (unsigned int):
-            The number of neighbors this object will find.
-        n_ref (unsigned int):
-            The number of particles this object found neighbors of.
-        r_max (float):
-            Current nearest neighbors search radius guess.
-        wrapped_vectors (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
-            The wrapped vectors padded with -1 for empty neighbors.
-        r_sq_list (:math:`\left(N_{particles}, N_{neighbors}\right)` :class:`numpy.ndarray`):
-            The Rsq values list.
-        nlist (:class:`freud.locality.NeighborList`):
-            The neighbor list stored by this object, generated by
-            :meth:`~.compute()`.
 
-    Example::
+cdef class Voronoi(_Compute):
+    R"""Computes Voronoi diagrams using voro++.
 
-       nn = NearestNeighbors(2, 6)
-       nn.compute(box, positions, positions)
-       hexatic = order.HexOrderParameter(2)
-       hexatic.compute(box, positions, nlist=nn.nlist)
-    """  # noqa: E501
+    Voronoi diagrams (`Wikipedia
+    <https://en.wikipedia.org/wiki/Voronoi_diagram>`_) are composed of convex
+    polytopes (polyhedra in 3D, polygons in 2D) called cells, corresponding to
+    each input point. The cells bound a region of Euclidean space for which all
+    contained points are closer to a corresponding input point than any other
+    input point. A ridge is defined as a boundary between cells, which contains
+    points equally close to two or more input points.
 
-    def __cinit__(self, float rmax, unsigned int n_neigh, float scale=1.1,
-                  strict_cut=False):
-        if scale < 1:
-            raise RuntimeError("scale must be greater than 1")
-        self.thisptr = new freud._locality.NearestNeighbors(
-            float(rmax), int(n_neigh), float(scale), bool(strict_cut))
+    The voro++ library :cite:`Rycroft2009` is used for fast computations of the
+    Voronoi diagram.
+    """
+
+    def __cinit__(self):
+        self.thisptr = new freud._locality.Voronoi()
         self._nlist = NeighborList()
 
     def __dealloc__(self):
         del self.thisptr
 
-    @property
-    def UINTMAX(self):
-        return self.thisptr.getUINTMAX()
-
-    @property
-    def box(self):
-        return freud.box.BoxFromCPP(self.thisptr.getBox())
-
-    @property
-    def num_neighbors(self):
-        return self.thisptr.getNumNeighbors()
-
-    @property
-    def n_ref(self):
-        return self.thisptr.getNref()
-
-    def r_max(self):
-        return self.thisptr.getRMax()
-
-    def getNeighbors(self, unsigned int i):
-        R"""Return the :math:`N` nearest neighbors of the reference point with
-        index :math:`i`.
+    def compute(self, system):
+        R"""Compute Voronoi diagram.
 
         Args:
-            i (unsigned int):
-                Index of the reference point whose neighbors will be returned.
-        Returns:
-            :math:`\left(N_{neighbors}\right)` :class:`numpy.ndarray`:
-                Indices of points that are neighbors of reference point
-                :math:`i`, padded with UINTMAX if fewer neighbors than
-                requested were found.
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
         """
-        cdef unsigned int nNeigh = self.thisptr.getNumNeighbors()
-        result = np.empty(nNeigh, dtype=np.uint32)
-        result[:] = self.UINTMAX
-        cdef unsigned int start_idx = self.nlist.find_first_index(i)
-        cdef unsigned int end_idx = self.nlist.find_first_index(i + 1)
-        result[:end_idx - start_idx] = self.nlist.index_j[start_idx:end_idx]
-
-        return result
-
-    def getNeighborList(self):
-        R"""Return the entire neighbor list.
-
-        Returns:
-            :math:`\left(N_{particles}, N_{neighbors}\right)` :class:`numpy.ndarray`:
-                Indices of up to :math:`N_{neighbors}` points that are
-                neighbors of the :math:`N_{particles}` reference points, padded
-                with UINTMAX if fewer neighbors than requested were found.
-        """  # noqa: E501
-        result = np.empty(
-            (self.thisptr.getNref(), self.thisptr.getNumNeighbors()),
-            dtype=np.uint32)
-        result[:] = self.UINTMAX
-        idx_i, idx_j = self.nlist.index_i, self.nlist.index_j
-        cdef size_t num_bonds = len(self.nlist.index_i)
-        cdef size_t bond
-        cdef size_t last_i = 0
-        cdef size_t current_j = 0
-        for bond in range(num_bonds):
-            current_j *= last_i == idx_i[bond]
-            last_i = idx_i[bond]
-            result[last_i, current_j] = idx_j[bond]
-            current_j += 1
-
-        return result
-
-    def getRsq(self, unsigned int i):
-        R"""Return the squared distances to the :math:`N` nearest neighbors of
-        the reference point with index :math:`i`.
-
-        Args:
-            i (unsigned int):
-                Index of the reference point of which to fetch the neighboring
-                point distances.
-
-        Returns:
-            :math:`\left(N_{particles}\right)` :class:`numpy.ndarray`:
-                Squared distances to the :math:`N` nearest neighbors.
-        """
-        cdef unsigned int start_idx = self.nlist.find_first_index(i)
-        cdef unsigned int end_idx = self.nlist.find_first_index(i + 1)
-        rijs = (self._cached_points[self.nlist.index_j[start_idx:end_idx]] -
-                self._cached_ref_points[self.nlist.index_i[start_idx:end_idx]])
-        self._cached_box.wrap(rijs)
-        result = -np.ones((self.thisptr.getNumNeighbors(),), dtype=np.float32)
-        result[:len(rijs)] = np.sum(rijs**2, axis=-1)
-        return result
-
-    @property
-    def wrapped_vectors(self):
-        return self._getWrappedVectors()[0]
-
-    def _getWrappedVectors(self):
-        result = np.empty(
-            (self.thisptr.getNref(), self.thisptr.getNumNeighbors(), 3),
-            dtype=np.float32)
-        blank_mask = np.ones(
-            (self.thisptr.getNref(), self.thisptr.getNumNeighbors()),
-            dtype=np.bool)
-        idx_i, idx_j = self.nlist.index_i, self.nlist.index_j
-        cdef size_t num_bonds = len(self.nlist.index_i)
-        cdef size_t last_i = 0
-        cdef size_t current_j = 0
-        for bond in range(num_bonds):
-            current_j *= last_i == idx_i[bond]
-            last_i = idx_i[bond]
-            result[last_i, current_j] = \
-                self._cached_points[idx_j[bond]] - \
-                self._cached_ref_points[last_i]
-            blank_mask[last_i, current_j] = False
-            current_j += 1
-
-        self._cached_box.wrap(result.reshape((-1, 3)))
-        result[blank_mask] = -1
-        return result, blank_mask
-
-    @property
-    def r_sq_list(self):
-        (vecs, blank_mask) = self._getWrappedVectors()
-        result = np.sum(vecs**2, axis=-1)
-        result[blank_mask] = -1
-        return result
-
-    def compute(self, box, ref_points, points=None, exclude_ii=None):
-        R"""Update the data structure for the given set of points.
-
-        Args:
-            box (:class:`freud.box.Box`):
-                Simulation box.
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Reference point coordinates.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
-                Point coordinates. Defaults to :code:`ref_points` if not
-                provided or :code:`None`.
-            exclude_ii (bool, optional):
-                Set this to :code:`True` if pairs of points with identical
-                indices should be excluded. If this is :code:`None`, it will be
-                treated as :code:`True` if :code:`points` is :code:`None` or
-                the same object as :code:`ref_points` (Defaults to
-                :code:`None`).
-        """  # noqa: E501
-        cdef freud.box.Box b = freud.common.convert_box(box)
-        exclude_ii = (
-            points is ref_points or points is None) \
-            if exclude_ii is None else exclude_ii
-
-        ref_points = freud.common.convert_array(
-            ref_points, 2, dtype=np.float32, contiguous=True,
-            array_name="ref_points")
-        if ref_points.shape[1] != 3:
-            raise TypeError('ref_points should be an Nx3 array')
-
-        if points is None:
-            points = ref_points
-
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
-
-        self._cached_ref_points = ref_points
-        self._cached_points = points
-        self._cached_box = b
-
-        cdef np.ndarray cRef_points = ref_points
-        cdef unsigned int n_ref = ref_points.shape[0]
-        cdef np.ndarray cPoints = points
-        cdef unsigned int Np = points.shape[0]
-        cdef cbool c_exclude_ii = exclude_ii
-        with nogil:
-            self.thisptr.compute(
-                dereference(b.thisptr),
-                <vec3[float]*> cRef_points.data,
-                n_ref,
-                <vec3[float]*> cPoints.data,
-                Np,
-                c_exclude_ii)
-
-        cdef freud._locality.NeighborList * nlist
-        nlist = self.thisptr.getNeighborList()
-        self._nlist.refer_to(nlist)
-        self._nlist.base = self
+        cdef NeighborQuery nq = NeighborQuery.from_system(system)
+        self.thisptr.compute(nq.get_ptr())
+        self._box = nq.box
         return self
 
-    @property
+    @_Compute._computed_property
+    def polytopes(self):
+        """list[:class:`numpy.ndarray`]: A list of :class:`numpy.ndarray`
+        defining Voronoi polytope vertices for each cell."""
+        polytopes = []
+        cdef vector[vector[vec3[double]]] raw_polytopes = \
+            self.thisptr.getPolytopes()
+        cdef size_t i
+        cdef size_t j
+        cdef size_t num_verts
+        cdef vector[vec3[double]] raw_vertices
+        cdef double[:, ::1] polytope_vertices
+        for i in range(raw_polytopes.size()):
+            raw_vertices = raw_polytopes[i]
+            num_verts = raw_vertices.size()
+            polytope_vertices = np.empty((num_verts, 3), dtype=np.float64)
+            for j in range(num_verts):
+                polytope_vertices[j, 0] = raw_vertices[j].x
+                polytope_vertices[j, 1] = raw_vertices[j].y
+                polytope_vertices[j, 2] = raw_vertices[j].z
+            polytopes.append(np.asarray(polytope_vertices))
+        return polytopes
+
+    @_Compute._computed_property
+    def volumes(self):
+        """:math:`\\left(N_{points} \\right)` :class:`numpy.ndarray`: Returns
+        an array of Voronoi cell volumes (areas in 2D)."""
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getVolumes(),
+            freud.util.arr_type_t.DOUBLE)
+
+    @_Compute._computed_property
     def nlist(self):
+        R"""Returns the computed :class:`~.locality.NeighborList`.
+
+        The :class:`~.locality.NeighborList` computed by this class is
+        weighted. In 2D systems, the bond weight is the length of the ridge
+        (boundary line) between the neighboring points' Voronoi cells. In 3D
+        systems, the bond weight is the area of the ridge (boundary polygon)
+        between the neighboring points' Voronoi cells. The weights are not
+        normalized, and the weights for each query point sum to the surface
+        area (perimeter in 2D) of the polytope.
+
+        It is possible for pairs of points to appear multiple times in the
+        neighbor list. For example, in a small unit cell, points may neighbor
+        one another on multiple sides because of periodic boundary conditions.
+
+        Returns:
+            :class:`~.locality.NeighborList`: Neighbor list.
+        """
+        self._nlist = _nlist_from_cnlist(self.thisptr.getNeighborList().get())
         return self._nlist
+
+    def __repr__(self):
+        return "freud.locality.{cls}()".format(
+            cls=type(self).__name__)
+
+    def __str__(self):
+        return repr(self)
+
+    def plot(self, ax=None, color_by_sides=True, cmap=None):
+        """Plot Voronoi diagram.
+
+        Args:
+            ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
+                :code:`None`, make a new figure and axis.
+                (Default value = :code:`None`)
+            color_by_sides (bool):
+                If :code:`True`, color cells by the number of sides.
+                If :code:`False`, random colors are used for each cell.
+                (Default value = :code:`True`)
+            cmap (str):
+                Colormap name to use (Default value = :code:`None`).
+
+        Returns:
+            :class:`matplotlib.axes.Axes`: Axis with the plot.
+        """
+        import freud.plot
+        if not self._box.is2D:
+            return None
+        else:
+            return freud.plot.voronoi_plot(
+                self._box, self.polytopes, ax, color_by_sides, cmap)
+
+    def _repr_png_(self):
+        try:
+            import freud.plot
+            return freud.plot._ax_to_bytes(self.plot())
+        except (AttributeError, ImportError):
+            return None
