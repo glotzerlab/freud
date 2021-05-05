@@ -1,7 +1,6 @@
 import numpy as np
 import numpy.testing as npt
 import pytest
-import util
 
 import freud
 
@@ -42,22 +41,23 @@ class TestLocalDensity:
         """Test that LocalDensity computes the correct density at each point"""
 
         r_max = self.r_max + 0.5 * self.diameter
-        test_set = util.make_raw_query_nlist_test_set(
-            self.box, self.pos, self.pos, "ball", r_max, 0, True
-        )
-        for nq, neighbors in test_set:
-            self.ld.compute(nq, neighbors=neighbors)
 
-            # Test attribute access after calling compute
-            self.ld.density
-            self.ld.num_neighbors
-            self.ld.box
+        # This test is slow, so we only test AABBQuery.
+        nq = freud.locality.AABBQuery(self.box, self.pos)
+        neighbors = {"mode": "ball", "r_max": r_max, "exclude_ii": True}
 
-            assert self.ld.box == freud.box.Box.cube(10)
+        self.ld.compute(nq, neighbors=neighbors)
 
-            npt.assert_array_less(np.fabs(self.ld.density - 10.0), 1.5)
+        # Test attribute access after calling compute
+        self.ld.density
+        self.ld.num_neighbors
+        self.ld.box
 
-            npt.assert_array_less(np.fabs(self.ld.num_neighbors - 1130.973355292), 200)
+        assert self.ld.box == freud.box.Box.cube(10)
+
+        npt.assert_array_less(np.fabs(self.ld.density - 10.0), 1.5)
+
+        npt.assert_array_less(np.fabs(self.ld.num_neighbors - 1130.973355292), 200)
 
     def test_ref_points(self):
         """Test that LocalDensity can compute a correct density at each point
