@@ -1,8 +1,10 @@
+import unittest
+
 import numpy as np
 import numpy.testing as npt
-import freud
-import unittest
 import util
+
+import freud
 
 
 class TestSymmetryCollection(unittest.TestCase):
@@ -55,7 +57,7 @@ class TestSymmetryCollection(unittest.TestCase):
         sc.compute(box, positions, nlist)
 
         # Ensure the Laue Group of an FCC crystal is m-3m
-        assert sc.laue_group == 'm-3m'
+        assert sc.laue_group == "m-3m"
 
     def test_crystal_system(self):
         # Make an FCC lattice
@@ -66,8 +68,8 @@ class TestSymmetryCollection(unittest.TestCase):
         sc.compute(box, positions, nlist)
 
         # Ensure the crystal system of an FCC crystal is cubic
-        assert sc.crystal_system == 'Cubic'
+        assert sc.crystal_system == "Cubic"
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

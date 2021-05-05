@@ -5,21 +5,22 @@ R"""
 The symmetry module computes symmetries of a system.
 """
 
-import numpy as np
 import logging
+
+import numpy as np
+
 import freud.common
 
-from libcpp.vector cimport vector
+cimport numpy as np
+from cython.operator cimport dereference
 from libcpp.pair cimport pair
 from libcpp.unordered_set cimport unordered_set
-from freud.util._VectorMath cimport vec3
-from freud.util._VectorMath cimport quat
-from cython.operator cimport dereference
+from libcpp.vector cimport vector
 
 cimport freud._symmetry
 cimport freud.box
 cimport freud.locality
-cimport numpy as np
+from freud.util._VectorMath cimport quat, vec3
 
 logger = logging.getLogger(__name__)
 
