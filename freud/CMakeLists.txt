@@ -26,8 +26,26 @@ include_directories(${NumPy_INCLUDE_DIRS})
 # compatibility with older CMake, I'm using PythonInterp; when we drop support
 # for CMake < 3.12, we should switch to find_package(Python).
 find_package(PythonInterp REQUIRED)
-if(${PYTHON_VERSION_MAJOR} EQUAL 3 AND ${PYTHON_VERSION_MINOR} EQUAL 8)
+if(${PYTHON_VERSION_MAJOR} EQUAL 3
+   AND ${PYTHON_VERSION_MINOR} EQUAL 8
+   AND NOT WIN32)
   add_compile_options("-Wno-deprecated-declarations")
+endif()
+
+# Detect when building against a conda environment set the _using_conda variable
+# for use both in this file and in the parent
+get_filename_component(_python_bin_dir ${PYTHON_EXECUTABLE} DIRECTORY)
+if(EXISTS "${_python_bin_dir}/../conda-meta")
+  message("-- Detected conda environment, setting INSTALL_RPATH_USE_LINK_PATH")
+  set(_using_conda On)
+  set(_using_conda
+      On
+      PARENT_SCOPE)
+else()
+  set(_using_conda Off)
+  set(_using_conda
+      Off
+      PARENT_SCOPE)
 endif()
 
 set(cython_modules_with_cpp
@@ -83,7 +101,12 @@ foreach(cython_module ${cython_modules_with_cpp} ${cython_modules_without_cpp})
     set_target_properties(${cython_module} PROPERTIES INSTALL_RPATH
                                                       "@loader_path")
   else()
-    set_target_properties(${cython_module} PROPERTIES INSTALL_RPATH "$ORIGIN")
+    set_target_properties(${cython_module} PROPERTIES INSTALL_RPATH "\$ORIGIN")
+  endif()
+
+  if(_using_conda OR DEFINED ENV{CIBUILDWHEEL})
+    set_target_properties(${cython_module}
+                          PROPERTIES INSTALL_RPATH_USE_LINK_PATH True)
   endif()
 endforeach()
 

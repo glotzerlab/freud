@@ -2,13 +2,14 @@
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 from libcpp cimport bool
-from freud.util cimport vec3, quat
 from libcpp.complex cimport complex
 from libcpp.vector cimport vector
 
 cimport freud._box
 cimport freud._locality
 cimport freud.util
+from freud.util cimport quat, vec3
+
 
 cdef extern from "Cubatic.h" namespace "freud::order":
     cdef cppclass Cubatic:
@@ -75,6 +76,7 @@ cdef extern from "Steinhardt.h" namespace "freud::order":
                      const freud._locality.NeighborQuery*,
                      freud._locality.QueryArgs) except +
         const freud.util.ManagedArray[float] &getQl() const
+        const freud.util.ManagedArray[float] &getQlm() const
         const freud.util.ManagedArray[float] &getParticleOrder() const
         float getOrder() const
         bool isAverage() const
@@ -100,6 +102,7 @@ cdef extern from "SolidLiquid.h" namespace "freud::order":
         const freud.util.ManagedArray[unsigned int] &getNumberOfConnections() \
             const
         unsigned int getNumClusters() const
+        const freud.util.ManagedArray[float] &getQlm() const
         freud._locality.NeighborList * getNList()
         const freud.util.ManagedArray[float] &getQlij() const
 

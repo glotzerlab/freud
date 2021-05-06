@@ -1,7 +1,8 @@
 import numpy as np
-import freud
 from benchmark import Benchmark
 from benchmarker import run_benchmarks
+
+import freud
 
 
 class BenchmarkDensityRDF(Benchmark):
@@ -11,10 +12,12 @@ class BenchmarkDensityRDF(Benchmark):
         self.r_min = r_min
 
     def bench_setup(self, N):
-        self.box_size = self.r_max*3.1
+        self.box_size = self.r_max * 3.1
         np.random.seed(0)
-        self.points = np.random.random_sample((N, 3)).astype(np.float32) \
-            * self.box_size - self.box_size/2
+        self.points = (
+            np.random.random_sample((N, 3)).astype(np.float32) * self.box_size
+            - self.box_size / 2
+        )
         self.rdf = freud.density.RDF(self.bins, self.r_max, r_min=self.r_min)
         self.box = freud.box.Box.cube(self.box_size)
 
@@ -29,12 +32,13 @@ def run():
     bins = 10
     r_min = 0
     number = 100
-    name = 'freud.density.RDF'
+    name = "freud.density.RDF"
     classobj = BenchmarkDensityRDF
 
-    return run_benchmarks(name, Ns, number, classobj,
-                          r_max=r_max, bins=bins, r_min=r_min)
+    return run_benchmarks(
+        name, Ns, number, classobj, r_max=r_max, bins=bins, r_min=r_min
+    )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run()

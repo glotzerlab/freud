@@ -7,18 +7,19 @@ natively supports periodicity by providing the fundamental features for
 wrapping vectors outside the box back into it.
 """
 
-import warnings
-import numpy as np
 import logging
+import warnings
+
+import numpy as np
 
 import freud.util
 
-from freud.util cimport vec3
+cimport numpy as np
 from cpython.object cimport Py_EQ, Py_NE
 from libcpp cimport bool as cpp_bool
 
 cimport freud._box
-cimport numpy as np
+from freud.util cimport vec3
 
 logger = logging.getLogger(__name__)
 
@@ -281,7 +282,7 @@ cdef class Box:
         :math:`(xz*L_z, yz*L_z, L_z)`."""
         return self.get_box_vector(2)
 
-    def wrap(self, vecs):
+    def wrap(self, vecs, out=None):
         R"""Wrap an array of vectors into the box, using periodic boundaries.
 
         .. note:: Since the origin of the box is in the center, wrapping is
@@ -291,6 +292,10 @@ cdef class Box:
         Args:
             vecs (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Unwrapped vector(s).
+            out (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray` or :code:`None`):
+                The array in which to place the wrapped vectors. It must be of
+                dtype `np.float32`. If ``None``, this function will
+                return a newly allocated array (Default value = None).
 
         Returns:
             :math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
@@ -299,13 +304,17 @@ cdef class Box:
         vecs = np.asarray(vecs)
         flatten = vecs.ndim == 1
         vecs = np.atleast_2d(vecs)
-        vecs = freud.util._convert_array(vecs, shape=(None, 3)).copy()
+        vecs = freud.util._convert_array(vecs, shape=(None, 3))
+        out = freud.util._convert_array(out, shape=vecs.shape, allow_copy=False)
 
         cdef const float[:, ::1] l_points = vecs
         cdef unsigned int Np = l_points.shape[0]
-        self.thisptr.wrap(<vec3[float]*> &l_points[0, 0], Np)
+        cdef const float[:, ::1] l_out = out
 
-        return np.squeeze(vecs) if flatten else vecs
+        self.thisptr.wrap(<vec3[float]*> &l_points[0, 0],
+                          Np, <vec3[float]*> &l_out[0, 0])
+
+        return np.squeeze(out) if flatten else out
 
     def unwrap(self, vecs, imgs):
         R"""Unwrap an array of vectors inside the box back into real space,
@@ -534,14 +543,14 @@ cdef class Box:
             size_t n_all_points = points.shape[0]
 
         contains_mask = freud.util._convert_array(
-            np.ones(n_all_points), dtype=np.bool)
+            np.ones(n_all_points), dtype=bool)
         cdef cpp_bool[::1] l_contains_mask = contains_mask
 
         self.thisptr.contains(
             <vec3[float]*> &l_points[0, 0], n_all_points,
             <cpp_bool*> &l_contains_mask[0])
 
-        return np.array(l_contains_mask).astype(np.bool)
+        return np.array(l_contains_mask).astype(bool)
 
     @property
     def periodic(self):

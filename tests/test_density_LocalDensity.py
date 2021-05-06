@@ -1,62 +1,63 @@
 import numpy as np
 import numpy.testing as npt
+import pytest
+
 import freud
-import unittest
-import util
 
 
 def get_fraction(dist, r_max, diameter):
     """Compute what fraction of a point of the provided diameter at distance
     dist is contained in a sphere of radius r_max."""
-    if dist < r_max - diameter/2:
+    if dist < r_max - diameter / 2:
         return 1
-    if dist > r_max + diameter/2:
+    if dist > r_max + diameter / 2:
         return 0
     else:
-        return -dist/diameter + r_max/diameter + 0.5
+        return -dist / diameter + r_max / diameter + 0.5
 
 
-class TestLD(unittest.TestCase):
+class TestLocalDensity:
     """Test fixture for LocalDensity"""
 
-    def setUp(self):
+    def setup_method(self):
         """Initialize a box with randomly placed particles"""
         box_size = 10
         num_points = 10000
-        self.box, self.pos = freud.data.make_random_system(
-            box_size, num_points)
+        self.box, self.pos = freud.data.make_random_system(box_size, num_points)
         self.r_max = 3
         self.diameter = 1
         self.ld = freud.density.LocalDensity(self.r_max, self.diameter)
 
-        # Test access
-        with self.assertRaises(AttributeError):
+    def test_attribute_access(self):
+        # Test attribute access before calling compute
+        with pytest.raises(AttributeError):
             self.ld.density
-        with self.assertRaises(AttributeError):
+        with pytest.raises(AttributeError):
             self.ld.num_neighbors
-        with self.assertRaises(AttributeError):
+        with pytest.raises(AttributeError):
             self.ld.box
 
     def test_density(self):
         """Test that LocalDensity computes the correct density at each point"""
 
-        r_max = self.r_max + 0.5*self.diameter
-        test_set = util.make_raw_query_nlist_test_set(
-            self.box, self.pos, self.pos, "ball", r_max, 0, True)
-        for nq, neighbors in test_set:
-            self.ld.compute(nq, neighbors=neighbors)
+        r_max = self.r_max + 0.5 * self.diameter
 
-            # Test access
-            self.ld.density
-            self.ld.num_neighbors
-            self.ld.box
+        # This test is slow, so we only test AABBQuery.
+        nq = freud.locality.AABBQuery(self.box, self.pos)
+        neighbors = {"mode": "ball", "r_max": r_max, "exclude_ii": True}
 
-            self.assertTrue(self.ld.box == freud.box.Box.cube(10))
+        self.ld.compute(nq, neighbors=neighbors)
 
-            npt.assert_array_less(np.fabs(self.ld.density - 10.0), 1.5)
+        # Test attribute access after calling compute
+        self.ld.density
+        self.ld.num_neighbors
+        self.ld.box
 
-            npt.assert_array_less(
-                np.fabs(self.ld.num_neighbors - 1130.973355292), 200)
+        assert self.ld.box == freud.box.Box.cube(10)
+
+        npt.assert_array_less(np.fabs(self.ld.density - 10.0), 1.5)
+
+        npt.assert_array_less(np.fabs(self.ld.num_neighbors - 1130.973355292), 200)
 
     def test_ref_points(self):
         """Test that LocalDensity can compute a correct density at each point
@@ -70,7 +71,7 @@ class TestLD(unittest.TestCase):
         npt.assert_array_less(np.fabs(neighbors - 1130.973355292), 200)
 
     def test_repr(self):
-        self.assertEqual(str(self.ld), str(eval(repr(self.ld))))
+        assert str(self.ld) == str(eval(repr(self.ld)))
 
     def test_points_ne_query_points(self):
         box = freud.box.Box.cube(10)
@@ -79,17 +80,15 @@ class TestLD(unittest.TestCase):
         diameter = 1
         r_max = 2
 
-        v_around = 4/3 * (r_max**3) * np.pi
+        v_around = 4 / 3 * (r_max ** 3) * np.pi
 
         ld = freud.density.LocalDensity(r_max, diameter)
         ld.compute((box, points), query_points)
 
-        cd0 = 2/v_around
-        cd1 = (1 + get_fraction(np.linalg.norm(points[1] - query_points[1]),
-                                r_max, diameter)) / v_around
+        cd0 = 2 / v_around
+        cd1 = (
+            1
+            + get_fraction(np.linalg.norm(points[1] - query_points[1]), r_max, diameter)
+        ) / v_around
         correct_density = [cd0, cd1, 0]
         npt.assert_allclose(ld.density, correct_density, rtol=1e-4)
-
-
-if __name__ == '__main__':
-    unittest.main()

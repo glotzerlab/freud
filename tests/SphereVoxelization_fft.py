@@ -23,11 +23,10 @@ def compute_3d(box_size, width, points, r_max, periodic=True):
     # enlarge the box for the fft by adding more segments of the same length
     # we will cut the extra off later so the fft will be aperiodic.
     buf_size = 0 if periodic else int(round(eff_rad + 1))
-    new_width = 2*buf_size + width
+    new_width = 2 * buf_size + width
 
     # make the grid with the points on it
-    arr = _put_points_on_grid(points, new_width, box_size,
-                              width, buf_size, ndim=3)
+    arr = _put_points_on_grid(points, new_width, box_size, width, buf_size, ndim=3)
 
     # make the sphere
     sphere = _make_sphere_3d(new_width, eff_rad)
@@ -38,9 +37,7 @@ def compute_3d(box_size, width, points, r_max, periodic=True):
 
     # get rid of the buffer
     if not periodic:
-        image = image[buf_size:-buf_size,
-                      buf_size:-buf_size,
-                      buf_size:-buf_size]
+        image = image[buf_size:-buf_size, buf_size:-buf_size, buf_size:-buf_size]
 
     # set the overlaps to 1, instead of larger integers
     np.clip(image, 0, 1, out=image)
@@ -72,8 +69,7 @@ def compute_2d(box_size, width, points, r_max, periodic=True):
     new_width = 2 * buf_size + width
 
     # make the grid with the points on it
-    arr = _put_points_on_grid(points, new_width, box_size,
-                              width, buf_size, ndim=2)
+    arr = _put_points_on_grid(points, new_width, box_size, width, buf_size, ndim=2)
 
     # make the sphere
     sphere = _make_sphere_2d(new_width, eff_rad)
@@ -84,8 +80,7 @@ def compute_2d(box_size, width, points, r_max, periodic=True):
 
     # get rid of the buffer
     if not periodic:
-        image = image[buf_size:-buf_size,
-                      buf_size:-buf_size]
+        image = image[buf_size:-buf_size, buf_size:-buf_size]
 
     # set the overlaps to 1, instead of larger integers
     np.clip(image, 0, 1, out=image)
@@ -97,7 +92,7 @@ def _put_points_on_grid(points, new_width, box_size, width, buf_size, ndim):
     Creates a grid where the voxels are 1 if there is a point there and 0 if
     not.
     """
-    d = (new_width, )*ndim
+    d = (new_width,) * ndim
     arr = np.zeros(d)
     img_points = points / (box_size / width)  # points in units of grid spacing
     for pt in img_points:
@@ -117,7 +112,7 @@ def _make_sphere_3d(new_width, eff_rad):
         for j in range(-r_rad, r_rad):
             for k in range(-r_rad, r_rad):
                 if np.linalg.norm([i, j, k]) < eff_rad:
-                    arr[ctr+i, ctr+j, ctr+k] = 1
+                    arr[ctr + i, ctr + j, ctr + k] = 1
     return arr
 
 
@@ -131,5 +126,5 @@ def _make_sphere_2d(new_width, eff_rad):
     for i in range(-r_rad, r_rad):
         for j in range(-r_rad, r_rad):
             if np.linalg.norm([i, j]) <= eff_rad:
-                arr[ctr+i, ctr+j] = 1
+                arr[ctr + i, ctr + j] = 1
     return arr

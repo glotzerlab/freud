@@ -10,21 +10,25 @@ harmonics of the bond order diagram, which are the spherical analogue of
 Fourier Transforms.
 """
 
-import numpy as np
-import time
-import freud.locality
 import logging
+import time
 import warnings
 
-from freud.util cimport _Compute, vec3, quat
+import numpy as np
+
+import freud.locality
+
+from freud.util cimport _Compute, quat, vec3
+
 from freud.errors import FreudDeprecationWarning
-from freud.locality cimport _PairCompute
+
+cimport numpy as np
 from cython.operator cimport dereference
 
 cimport freud._order
 cimport freud.locality
 cimport freud.util
-cimport numpy as np
+from freud.locality cimport _PairCompute
 
 logger = logging.getLogger(__name__)
 
@@ -621,6 +625,15 @@ cdef class Steinhardt(_PairCompute):
             &self.thisptr.getQl(),
             freud.util.arr_type_t.FLOAT)
 
+    @_Compute._computed_property
+    def particle_harmonics(self):
+        """:math:`\\left(N_{particles}, 2*l+1\\right)` :class:`numpy.ndarray`:
+        The raw array of \\overline{q}_{lm}(i). The array is provided in the
+        order given by fsph: :math:`m = 0, 1, ..., l, -1, ..., -l`."""
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getQlm(),
+            freud.util.arr_type_t.COMPLEX_FLOAT)
+
     def compute(self, system, neighbors=None):
         R"""Compute the order parameter.
 
@@ -810,6 +823,15 @@ cdef class SolidLiquid(_PairCompute):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getQlij(),
             freud.util.arr_type_t.FLOAT)
+
+    @_Compute._computed_property
+    def particle_harmonics(self):
+        """:math:`\\left(N_{particles}, 2*l+1\\right)` :class:`numpy.ndarray`:
+        The raw array of \\overline{q}_{lm}(i). The array is provided in the
+        order given by fsph: :math:`m = 0, 1, ..., l, -1, ..., -l`."""
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getQlm(),
+            freud.util.arr_type_t.COMPLEX_FLOAT)
 
     @_Compute._computed_property
     def cluster_sizes(self):

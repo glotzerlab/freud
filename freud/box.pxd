@@ -3,6 +3,7 @@
 
 cimport freud._box
 
+
 cdef class Box:
     cdef freud._box.Box * thisptr
 

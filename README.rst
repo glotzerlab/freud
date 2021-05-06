@@ -7,7 +7,6 @@ freud
 |conda-forge|
 |ReadTheDocs|
 |Binder|
-|Codecov|
 |GitHub-Stars|
 
 .. |Citing freud| image:: https://img.shields.io/badge/cite-freud-informational.svg
@@ -20,8 +19,6 @@ freud
    :target: https://freud.readthedocs.io/en/latest/?badge=latest
 .. |Binder| image:: https://mybinder.org/badge_logo.svg
    :target: https://mybinder.org/v2/gh/glotzerlab/freud-examples/master?filepath=index.ipynb
-.. |Codecov| image:: https://codecov.io/gh/glotzerlab/freud/branch/master/graph/badge.svg
-   :target: https://codecov.io/gh/glotzerlab/freud
 .. |GitHub-Stars| image:: https://img.shields.io/github/stars/glotzerlab/freud.svg?style=social
    :target: https://github.com/glotzerlab/freud
 

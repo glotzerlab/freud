@@ -53,6 +53,7 @@ Vyas Ramasubramani - **Lead developer**
 * Refactored and standardized PMFT tests.
 * Rewrote build system to use scikit-build.
 * Added support for pre-commit hooks.
+* Enabled access to the qlmi arrays in Steinhardt and SolidLiquid and added rigorous tests of correctness.
 
 Bradley Dice - **Lead developer**
 
@@ -112,6 +113,8 @@ Bradley Dice - **Lead developer**
 * Fixed ``Hexatic`` order parameter (unweighted) to normalize by number of neighbors instead of the symmetry order k.
 * Added ``num_query_points`` and ``num_points`` attributes to NeighborList class.
 * Added scikit-build support for Windows.
+* Fixed 2D image calculations.
+* Optimized NeighborList ``filter`` method.
 
 Eric Harper, University of Michigan - **Former lead developer**
 
@@ -255,6 +258,7 @@ Tim Moore
 
 * Added optional rmin argument to density.RDF.
 * Enabled NeighborList indexing.
+* Documentation fixes.
 
 Alex Dutton
 
@@ -270,6 +274,8 @@ Kelly Wang
 * Enabled NeighborList indexing.
 * Added methods ``compute_distances`` and ``compute_all_distances`` to Box.
 * Added method ``crop`` to Box.
+* Added 2D Box tests for ``get_image`` and ``contains``.
+* Added the `reset` argument to the `compute` method of `DiffractionPattern` class.
 
 Yezhi Jin
 
@@ -314,6 +320,10 @@ Maya Martirossyan
 Pavel Buslaev
 
 * Added ``values`` argument to compute method of ``GaussianDensity`` class.
+
+Charlotte Zhao
+
+* Worked with Vyas Ramasubramani and Bradley Dice to add the ``out`` option for ``box.Box.wrap``.
 
 Source code
 -----------
