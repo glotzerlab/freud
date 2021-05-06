@@ -7,7 +7,7 @@ and this project adheres to
 ## v2.6.0
 
 ### Added
-* Added `out` option for storing wrapped vectors in `box.Box.wrap`.
+* Added `out` option for the `wrap`, `unwrap`, `make_absolute`, and `make_fractional` methods of `Box`.
 
 ### Fixed
 * Fix broken arXiv links in bibliography.
