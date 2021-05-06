@@ -29,7 +29,7 @@ class TestSteinhardt:
 
     @pytest.mark.parametrize("sph_l", range(3, 8))
     def test_l_nonzero(self, sph_l):
-        """Test th calculated qlmi."""
+        """Test the calculated qlmi."""
         special = pytest.importorskip("scipy.special")
         sph_harm = special.sph_harm
 
