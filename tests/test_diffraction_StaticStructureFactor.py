@@ -1,10 +1,13 @@
-import freud
-import matplotlib
 import unittest
+
+import matplotlib
 import numpy as np
 import numpy.testing as npt
 from scipy.integrate import simps
-matplotlib.use('agg')
+
+import freud
+
+matplotlib.use("agg")
 
 
 def validate_method(system, bins, k_max, k_min, direct):
@@ -39,7 +42,8 @@ def validate_method(system, bins, k_max, k_min, direct):
 
         # Compute all pairwise distances
         distances = system.box.compute_all_distances(
-            system.points, system.points).flatten()
+            system.points, system.points
+        ).flatten()
 
         for i, q in enumerate(Q):
             S[i] += np.sum(np.sinc(q * distances / np.pi)) / N
@@ -75,10 +79,8 @@ class TestStaticStructureFactor(unittest.TestCase):
         k_max = 100
         k_min = 0
         direct = True
-        sf = freud.diffraction.StaticStructureFactor(
-            bins, k_max, k_min, direct)
-        box, positions = freud.data.UnitCell.fcc().generate_system(
-            4, sigma_noise=0.01)
+        sf = freud.diffraction.StaticStructureFactor(bins, k_max, k_min, direct)
+        box, positions = freud.data.UnitCell.fcc().generate_system(4, sigma_noise=0.01)
         sf.compute((box, positions))
         Q, S = validate_method((box, positions), bins, k_max, k_min, direct)
         npt.assert_allclose(sf.bin_centers, Q)
@@ -90,10 +92,8 @@ class TestStaticStructureFactor(unittest.TestCase):
         k_max = 100
         k_min = 0
         direct = False
-        sf = freud.diffraction.StaticStructureFactor(
-            bins, k_max, k_min, direct)
-        box, positions = freud.data.UnitCell.fcc().generate_system(
-            4, sigma_noise=0.01)
+        sf = freud.diffraction.StaticStructureFactor(bins, k_max, k_min, direct)
+        box, positions = freud.data.UnitCell.fcc().generate_system(4, sigma_noise=0.01)
         sf.compute((box, positions))
         Q, S = validate_method((box, positions), bins, k_max, k_min, direct)
         npt.assert_allclose(sf.bin_centers, Q)
@@ -175,5 +175,5 @@ class TestStaticStructureFactor(unittest.TestCase):
 #                center_index = (output_size//2, output_size//2)
 #                npt.assert_allclose(sf.k_vectors[center_index], [0, 0, 0])
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
