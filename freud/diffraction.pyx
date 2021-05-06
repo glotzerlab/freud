@@ -21,12 +21,201 @@ import scipy.ndimage
 import freud.locality
 
 cimport numpy as np
+from cython.operator cimport dereference
 from libcpp cimport bool as cbool
 
+cimport freud._diffraction
+cimport freud.locality
 cimport freud.util
-from freud.util cimport _Compute
+from freud.locality cimport _SpatialHistogram1D
+from freud.util cimport _Compute, vec3
 
 logger = logging.getLogger(__name__)
+
+cdef class StaticStructureFactor(_Compute):
+    R"""Computes a 1D static structure factor.
+
+    This computes the static `structure factor
+    <https://en.wikipedia.org/wiki/Structure_factor>`__ :math:`S(k)`,
+    assuming an isotropic system (averaging over all :math:`k` vectors of the
+    same magnitude). This is implemented using the Debye scattering equation.
+    This class offers a *direct* method and an *RDF Fourier Transform* method
+    that is faster but less accurate for some values of :math:`k`. The direct
+    method is computed as:
+
+    .. math::
+
+        S(k) = \frac{1}{N} \sum_{i=0}^{N} \sum_{j=0}^{N} \text{sinc}(k r_{ij})
+
+    The RDF method is computed as:
+
+    .. math::
+
+        S(k) = 1 + 4 \pi \frac{N}{V} \int_0^R r^2 (g(r) - 1) \text{sinc}(k r)
+        dr
+
+    where :math:`N` is the number of particles, :math:`V` is the box volume,
+    :math:`g(r)` is the radial distribution function, :math:`R` is the upper
+    limit of the RDF (half of the minimum box side length) and the
+    :math:`\text{sinc}` function is defined as :math:`\sin x / x` (no factor
+    of :math:`\pi` as in some conventions).
+
+    .. note::
+        This code assumes all particles have a form factor :math:`f` of 1.
+
+    This class is based on the MIT licensed `scattering library
+    <https://github.com/mattwthompson/scattering/>`__ and literature references
+    :cite:`Liu2016`.
+
+    Args:
+        bins (unsigned int):
+            Number of bins in :math:`k` space.
+        k_max (float):
+            Maximum :math:`k` value to include in the calculation.
+        k_min (float, optional):
+            Minimum :math:`k` value include in the calculation. Note that
+            there are practical restrictions on the validity of the
+            calculation in the long-wavelength regime, see ``min_valid_k``
+            (Default value = :code:`0`).
+        direct (bool, optional):
+            If ``True``, the structure factor is calculated by the *direct*
+            method. If ``False``, the *RDF Fourier Transform* method is used
+            (Default value = :code:`True`).
+    """
+    cdef freud._diffraction.StaticStructureFactor * thisptr
+
+    def __cinit__(self, unsigned int bins, float k_max, float k_min=0,
+                  cbool direct=True):
+        if type(self) == StaticStructureFactor:
+            self.thisptr = new freud._diffraction.StaticStructureFactor(
+                bins, k_max, k_min, direct)
+
+    def __dealloc__(self):
+        if type(self) == StaticStructureFactor:
+            del self.thisptr
+
+    def compute(self, system, query_points=None, reset=True):
+        R"""Computes static structure factor.
+
+        Args:
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
+            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
+                Query points used to calculate the structure factor. Uses the
+                system's points if :code:`None` (Default value =
+                :code:`None`).
+            reset (bool):
+                Whether to erase the previously computed values before adding
+                the new computation; if False, will accumulate data (Default
+                value: True).
+        """  # noqa E501
+        if reset:
+            self._reset()
+
+        cdef:
+            freud.locality.NeighborQuery nq
+            freud.locality.NeighborList nlist
+            freud.locality._QueryArgs qargs
+            const float[:, ::1] l_query_points
+            unsigned int num_query_points
+
+        # This is identical to _preprocess_arguments except with no
+        # neighbors/qargs. The C++ class builds the largest allowed ball query
+        # (r_max = L/2) if using the RDF method.
+        nq = freud.locality.NeighborQuery.from_system(system)
+
+        if query_points is None:
+            query_points = nq.points
+        else:
+            query_points = freud.util._convert_array(
+                query_points, shape=(None, 3))
+        l_query_points = query_points
+        num_query_points = l_query_points.shape[0]
+
+        self.thisptr.accumulate(
+            nq.get_ptr(),
+            <vec3[float]*> &l_query_points[0, 0],
+            num_query_points)
+        return self
+
+    def _reset(self):
+        # Resets the values of StaticStructureFactor in memory.
+        self.thisptr.reset()
+
+    @property
+    def bin_centers(self):
+        """:class:`numpy.ndarray`: The centers of each bin of :math:`k`."""
+        return np.array(self.thisptr.getBinCenters(), copy=True)
+
+    @property
+    def bin_edges(self):
+        """:class:`numpy.ndarray`: The edges of each bin of :math:`k`."""
+        return np.array(self.thisptr.getBinEdges(), copy=True)
+
+    @property
+    def bounds(self):
+        """:class:`tuple`: A list of tuples indicating upper and lower bounds
+        of the histogram."""
+        bin_edges = self.bin_edges
+        return (bin_edges[0], bin_edges[len(bin_edges)])
+
+    @property
+    def nbins(self):
+        """int: The number of bins in the histogram."""
+        return len(self.bin_centers)
+
+    @property
+    def k_max(self):
+        """float: Maximum value of k at which to calculate the structure
+        factor."""
+        return self.bounds[1]
+
+    @property
+    def k_min(self):
+        """float: Minimum value of k at which to calculate the structure
+        factor."""
+        return self.bounds[0]
+
+    @_Compute._computed_property
+    def min_valid_k(self):
+        """float: Minimum valid value of k for the computed system box, equal
+        to :math:`2\\pi/(L/2)` where :math:`L` is the minimum side length."""
+        return self.thisptr.getMinValidK()
+
+    @_Compute._computed_property
+    def S_k(self):
+        """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Static
+        structure factor :math:`S(k)` values."""
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getStructureFactor(),
+            freud.util.arr_type_t.FLOAT)
+
+    def plot(self, ax=None, **kwargs):
+        """Plot static structure factor.
+
+        Args:
+            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
+                :code:`None`, make a new figure and axis.
+                (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes.Axes`): Axis with the plot.
+        """
+        import freud.plot
+        return freud.plot.line_plot(self.bin_edges[:len(self.bin_edges)-1],
+                                    self.S_k,
+                                    title="Static Structure Factor",
+                                    xlabel=r"$k$",
+                                    ylabel=r"$S(k)$",
+                                    ax=ax)
+
+    def _repr_png_(self):
+        try:
+            import freud.plot
+            return freud.plot._ax_to_bytes(self.plot())
+        except (AttributeError, ImportError):
+            return None
 
 
 cdef class DiffractionPattern(_Compute):
@@ -35,7 +224,7 @@ cdef class DiffractionPattern(_Compute):
     The diffraction image represents the scattering of incident radiation,
     and is useful for identifying translational and/or rotational symmetry
     present in the system. This class computes the static `structure factor
-    <https://en.wikipedia.org/wiki/Structure_factor>`_ :math:`S(\vec{k})` for
+    <https://en.wikipedia.org/wiki/Structure_factor>`__ :math:`S(\vec{k})` for
     a plane of wavevectors :math:`\vec{k}` orthogonal to a view axis. The
     view orientation :math:`(1, 0, 0, 0)` defaults to looking down the
     :math:`z` axis (at the :math:`xy` plane). The points in the system are
