@@ -28,8 +28,8 @@ class TestSteinhardt:
         npt.assert_equal(comp.particle_order.shape[0], N)
 
     @pytest.mark.parametrize("sph_l", range(3, 8))
-    def test_l_nonzero(self, sph_l):
-        """Test the calculated qlmi."""
+    def test_qlmi(self, sph_l):
+        """Test the raw calculated qlmi."""
         special = pytest.importorskip("scipy.special")
         sph_harm = special.sph_harm
 

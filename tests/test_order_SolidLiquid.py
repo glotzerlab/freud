@@ -1,5 +1,4 @@
 import matplotlib
-import numpy as np
 import numpy.testing as npt
 import pytest
 
@@ -51,36 +50,6 @@ class TestSolidLiquid:
                 assert len(comp.cluster_sizes) == 1
                 assert comp.cluster_sizes[0] == len(positions)
                 npt.assert_array_equal(comp.num_connections, 12)
-
-    def test_l_zero(self):
-        from scipy.special import sph_harm
-
-        N = 1000
-        L = 10
-        sph_l = 0
-        q_threshold = 0.7
-        solid_threshold = 4
-        normalize_q = False
-
-        box, positions = freud.data.make_random_system(L, N)
-
-        comp = freud.order.SolidLiquid(
-            sph_l,
-            q_threshold=q_threshold,
-            solid_threshold=solid_threshold,
-            normalize_q=normalize_q,
-        )
-        comp.compute((box, positions), neighbors={"r_max": 1.5})
-
-        assert np.all(
-            np.logical_or(
-                np.isclose(comp.particle_harmonics, 0),
-                # The values used for phi and theta (the third and fourth
-                # arguments) are irrelevant because when l=m=0 the spherical
-                # harmonic is no longer a function of the angles.
-                np.isclose(comp.particle_harmonics, sph_harm(0, 0, 0, 0)),
-            )
-        )
 
     def test_attribute_access(self):
         box, positions = freud.data.UnitCell.fcc().generate_system(4, scale=2)
