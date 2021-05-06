@@ -121,7 +121,7 @@ public:
     {
         m_bin_edges.resize(m_nbins + 1);
         m_bin_width = (max - min) / static_cast<float>(m_nbins);
-        m_inverse_bin_width = float(1.0) / m_bin_width;
+        m_inverse_bin_width = static_cast<float>(1.0) / m_bin_width;
         // This must be <= because there is one more bin boundary than the number of bins.
         for (size_t i = 0; i <= nbins; i++)
         {
