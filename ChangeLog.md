@@ -8,6 +8,7 @@ and this project adheres to
 
 ### Added
 * Added `out` option for storing wrapped vectors in `box.Box.wrap`.
+* The Steinhardt and SolidLiquid classes expose the raw qlmi arrays.
 
 ### Fixed
 * Fix broken arXiv links in bibliography.

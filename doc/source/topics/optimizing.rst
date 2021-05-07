@@ -48,7 +48,7 @@ If the user in fact expects to perform computations with the exact same pairs of
 
     r_max = 3
     nq = freud.locality.AABBQuery(box=box, points=points)
-    nlist = nq.query(points, dict(r_max=r_max))
+    nlist = nq.query(points, dict(r_max=r_max)).toNeighborList()
     q6_arrays = []
     for l in range(3, 6):
         ql = freud.order.Steinhardt(l=l)

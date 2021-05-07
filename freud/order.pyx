@@ -625,6 +625,15 @@ cdef class Steinhardt(_PairCompute):
             &self.thisptr.getQl(),
             freud.util.arr_type_t.FLOAT)
 
+    @_Compute._computed_property
+    def particle_harmonics(self):
+        """:math:`\\left(N_{particles}, 2*l+1\\right)` :class:`numpy.ndarray`:
+        The raw array of \\overline{q}_{lm}(i). The array is provided in the
+        order given by fsph: :math:`m = 0, 1, ..., l, -1, ..., -l`."""
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getQlm(),
+            freud.util.arr_type_t.COMPLEX_FLOAT)
+
     def compute(self, system, neighbors=None):
         R"""Compute the order parameter.
 
@@ -814,6 +823,15 @@ cdef class SolidLiquid(_PairCompute):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getQlij(),
             freud.util.arr_type_t.FLOAT)
+
+    @_Compute._computed_property
+    def particle_harmonics(self):
+        """:math:`\\left(N_{particles}, 2*l+1\\right)` :class:`numpy.ndarray`:
+        The raw array of \\overline{q}_{lm}(i). The array is provided in the
+        order given by fsph: :math:`m = 0, 1, ..., l, -1, ..., -l`."""
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getQlm(),
+            freud.util.arr_type_t.COMPLEX_FLOAT)
 
     @_Compute._computed_property
     def cluster_sizes(self):
