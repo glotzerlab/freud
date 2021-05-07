@@ -14,6 +14,7 @@ from . import (
     order,
     parallel,
     pmft,
+    symmetry,
 )
 from .box import Box
 from .locality import AABBQuery, LinkCell, NeighborList
@@ -39,6 +40,7 @@ __all__ = [
     "order",
     "parallel",
     "pmft",
+    "symmetry",
     "Box",
     "AABBQuery",
     "LinkCell",

@@ -37,6 +37,7 @@ Table of Contents
    modules/order
    modules/parallel
    modules/pmft
+   modules/symmetry
 
 .. toctree::
    :maxdepth: 2
