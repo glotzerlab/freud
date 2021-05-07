@@ -37,6 +37,10 @@ jobs:
       - name: Enable Developer Command Prompt
         uses: ilammy/msvc-dev-cmd@v1
 
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        timeout-minutes: 60
+
       - name: Build wheels
         uses: joerick/cibuildwheel@v1.10.0
         env:
