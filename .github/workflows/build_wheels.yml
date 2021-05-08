@@ -60,7 +60,7 @@ jobs:
 
           # Repair the wheels.
           # This is only needed on Windows; cibuildwheel repairs correctly on Linux/Mac.
-          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: "powershell .github/workflows/cibuildwheel-repair-wheel.ps1 {dest_dir} {wheel}"
+          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: "powershell .github/workflows/cibuildwheel-repair-wheel.ps1 \"{dest_dir}\" \"{wheel}\""
 
           # Test the wheels.
           CIBW_BEFORE_TEST_LINUX: "source .github/workflows/cibuildwheel-before-test.sh {package}"
@@ -75,10 +75,10 @@ jobs:
           name: dist
           path: ./wheelhouse/*.whl
 
-      - name: Setup tmate session
-        if: ${{ failure() }}
-        uses: mxschmitt/action-tmate@v3
-        timeout-minutes: 60
+#     - name: Setup tmate session
+#       if: ${{ failure() }}
+#       uses: mxschmitt/action-tmate@v3
+#       timeout-minutes: 60
 
   build_sdist:
     name: Build source distribution
