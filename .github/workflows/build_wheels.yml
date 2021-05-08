@@ -60,14 +60,15 @@ jobs:
 
           # Repair the wheels.
           # This is only needed on Windows; cibuildwheel repairs correctly on Linux/Mac.
-          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: "delvewheel repair -w {dest_dir} {wheel}"
+          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: "powershell .github/workflows/cibuildwheel-repair-wheel.ps1 {dest_dir} {wheel}"
 
           # Test the wheels.
           CIBW_BEFORE_TEST_LINUX: "source .github/workflows/cibuildwheel-before-test.sh {package}"
           CIBW_BEFORE_TEST_MACOS: "source .github/workflows/cibuildwheel-before-test.sh {package}"
           CIBW_BEFORE_TEST_WINDOWS: "powershell .github/workflows/cibuildwheel-before-test.ps1 {package}"
-          CIBW_TEST_COMMAND: "cd {project}/tests && python -c \"import freud; print(freud.__version__)\""
-          #CIBW_TEST_COMMAND: "cd {project}/tests && python -m pytest . -v --log-level=DEBUG --rootdir={project}/tests"
+          CIBW_TEST_COMMAND_LINUX: "cd {project}/tests && python -m pytest . -v --log-level=DEBUG --rootdir={project}/tests"
+          CIBW_TEST_COMMAND_MACOS: "cd {project}/tests && python -m pytest . -v --log-level=DEBUG --rootdir={project}/tests"
+          CIBW_TEST_COMMAND_WINDOWS: "cd {project}/tests && python -c \"import freud; print(freud.__version__)\""
 
       - uses: actions/upload-artifact@v2.2.3
         with:
