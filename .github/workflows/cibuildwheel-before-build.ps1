@@ -1,8 +1,7 @@
 $PACKAGE_DIR = $args[0]
 
 # Install a modern version of CMake for compatibility with modern Visual Studio
-# Install delvewheel for Windows wheel repairs
-pip install cmake delvewheel
+pip install cmake
 
 $TBB_VERSION = "2021.2.0"
 $TBB_ZIP = "v${TBB_VERSION}.zip"
