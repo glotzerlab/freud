@@ -240,14 +240,9 @@ public:
         });
     }
 
-    //! Convert a point's coordinate from absolute to relative box coordinates.
+    //! Convert a point's coordinate from absolute to fractional box coordinates.
     /*! \param v The vector of the point in absolute coordinates.
-     *  \returns The vector of the point in relative coordinates.
-     *
-     *  alpha.x is 0 when \a x is on the far left side of the box and
-     *  1.0 when it is on the far right. If x is outside of the box in
-     *  either direction, it will go larger than 1 or less than 0
-     *  keeping the same scaling.
+     *  \returns The vector of the point in fractional coordinates.
      */
     vec3<float> makeFractional(const vec3<float>& v) const
     {
@@ -263,7 +258,7 @@ public:
         return delta;
     }
 
-    //! Convert point coordinates from absolute to relative box coordinates.
+    //! Convert point coordinates from absolute to fractional box coordinates.
     /*! \param vecs Vectors to convert
      *  \param Nvecs Number of vectors
      *  \param out The array in which to place the wrapped vectors.
@@ -271,10 +266,10 @@ public:
     void makeFractional(const vec3<float>* vecs, unsigned int Nvecs, vec3<float>* out) const
     {
         util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
-                for (size_t i = begin; i < end; ++i)
-                {
-                    out[i] = makeFractional(vecs[i]);
-                }
+            for (size_t i = begin; i < end; ++i)
+            {
+                out[i] = makeFractional(vecs[i]);
+            }
         });
     }
 

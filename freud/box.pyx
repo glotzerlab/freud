@@ -188,13 +188,13 @@ cdef class Box:
                 Fractional coordinate vector(s), between 0 and 1 within
                 parallelepipedal box.
             out (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray` or :code:`None`):
-                The array in which to place the absolute positions. It must be
+                The array in which to place the absolute coordinates. It must be
                 of dtype `np.float32`. If ``None``, this function will return a
                 newly allocated array (Default value = None).
 
         Returns:
             :math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
-                Absolute coordinate vector(s). If `out` is provided, a
+                Absolute coordinate vector(s). If ``out`` is provided, a
                 reference to it is returned.
         """  # noqa: E501
         fractions = np.asarray(fractional_coordinates).copy()
@@ -221,13 +221,13 @@ cdef class Box:
             absolute_coordinates (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Absolute coordinate vector(s).
             out (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray` or :code:`None`):
-                The array in which to place the absolute positions. It must be
+                The array in which to place the fractional positions. It must be
                 of dtype `np.float32`. If ``None``, this function will return a
                 newly allocated array (Default value = None).
 
         Returns:
             :math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
-                Fractional coordinate vector(s). If `out` is provided, a
+                Fractional coordinate vector(s). If ``out`` is provided, a
                 reference to it is returned.
         """  # noqa: E501
         vecs = np.asarray(absolute_coordinates).copy()
@@ -321,7 +321,7 @@ cdef class Box:
 
         Returns:
             :math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
-                Vector(s) wrapped into the box. If `out` is provided, a
+                Vector(s) wrapped into the box. If ``out`` is provided, a
                 reference to it is returned.
         """  # noqa: E501
         vecs = np.asarray(vecs)
@@ -357,7 +357,7 @@ cdef class Box:
 
         Returns:
             :math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
-                Unwrapped vector(s). If `out` is provided, a reference to it is
+                Unwrapped vector(s). If ``out`` is provided, a reference to it is
                 returned.
         """  # noqa: E501
         vecs = np.asarray(vecs)
