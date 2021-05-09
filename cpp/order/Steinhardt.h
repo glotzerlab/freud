@@ -145,7 +145,7 @@ public:
 private:
     //! \internal
     //! Spherical harmonics calculation for Ylm filling a
-    //  std::vector<std::complex<float> > with values for m = -l..l.
+    //  std::vector<std::complex<float> > with values for m = 0, 1, ..., l, -1, ..., -l
     void computeYlm(const float theta, const float phi, std::vector<std::complex<float>>& Ylm) const;
 
     template<typename T> std::shared_ptr<T> makeArray(size_t size);

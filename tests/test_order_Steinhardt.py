@@ -27,17 +27,49 @@ class TestSteinhardt:
 
         npt.assert_equal(comp.particle_order.shape[0], N)
 
-    def test_l_zero(self):
-        # Points should always have Q_0 = 1.
-        N = 1000
-        L = 10
+    @pytest.mark.parametrize("sph_l", range(3, 8))
+    def test_qlmi(self, sph_l):
+        """Test the raw calculated qlmi."""
+        special = pytest.importorskip("scipy.special")
+        sph_harm = special.sph_harm
 
-        box, positions = freud.data.make_random_system(L, N)
+        atol = 1e-4
+        L = 8
+        N = 100
+        box, points = freud.data.make_random_system(L, N)
 
-        comp = freud.order.Steinhardt(0)
-        comp.compute((box, positions), neighbors={"r_max": 1.5})
+        num_neighbors = 4
 
-        npt.assert_allclose(comp.particle_order, 1, atol=1e-5)
+        # Note the order of m values provided by fsph.
+        ms = np.array(list(range(sph_l + 1)) + [-m for m in range(1, sph_l + 1)])[
+            :, np.newaxis
+        ]
+
+        aq = freud.locality.AABBQuery(box, points)
+        nl = aq.query(
+            points, {"exclude_ii": True, "num_neighbors": num_neighbors}
+        ).toNeighborList()
+
+        comp = freud.order.Steinhardt(sph_l)
+        comp.compute(aq, neighbors=nl)
+        qlmi = np.zeros([N, 2 * sph_l + 1], dtype=complex)
+
+        # Loop over the particles and compute the qlmis for each (the
+        # broadcasting syntax becomes rather abstruse for 3D arrays, and we
+        # have to match the indices to the NeighborList anyway).
+        for i in range(N):
+            neighbors_i = nl[nl.query_point_indices == i]
+            bonds = box.wrap(points[neighbors_i[:, 1]] - points[neighbors_i[:, 0]])
+            r = np.linalg.norm(bonds, axis=-1)
+            thetas = np.arccos(bonds[:, 2] / r)
+            phis = np.arctan2(bonds[:, 1], bonds[:, 0])
+
+            qlmi[i, :] = np.sum(
+                sph_harm(ms, sph_l, phis[np.newaxis, :], thetas[np.newaxis, :]), axis=-1
+            )
+
+        qlmi /= num_neighbors
+        assert np.allclose(comp.particle_harmonics, qlmi, atol=atol)
 
     def test_l_axis_aligned(self):
         # This test has three points along the z-axis. By construction, the

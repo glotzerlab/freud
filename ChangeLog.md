@@ -8,6 +8,7 @@ and this project adheres to
 
 ### Added
 * Added `out` option for the `wrap`, `unwrap`, `make_absolute`, and `make_fractional` methods of `Box`.
+* The Steinhardt and SolidLiquid classes expose the raw qlmi arrays.
 
 ### Fixed
 * Fix broken arXiv links in bibliography.
