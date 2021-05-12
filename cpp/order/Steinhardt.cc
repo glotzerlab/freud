@@ -12,20 +12,12 @@
 namespace freud { namespace order {
 
 // Calculating Ylm using fsph module
-void Steinhardt::computeYlm(const float theta, const float phi, std::vector<std::vector<std::complex<float>>>& Ylms) const
+void Steinhardt::computeYlm(fsph::PointSPHEvaluator<float>& sph_eval, const float theta, const float phi, std::vector<std::vector<std::complex<float>>>& Ylms) const
 {
     if (Ylms.size() != m_ls.size())
     {
         Ylms.resize(m_ls.size());
     }
-
-    auto max_l = std::max_element(m_ls.begin(), m_ls.end());
-    if (max_l == m_ls.end())
-    {
-        throw std::invalid_argument("Selected l's do not have a maximum.");
-    }
-    fsph::PointSPHEvaluator<float> sph_eval(*max_l);
-
     sph_eval.compute(theta, phi);
 
     for (auto i = 0; i < m_ls.size(); ++i)
@@ -131,6 +123,14 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
         [=](size_t i, const std::shared_ptr<freud::locality::NeighborPerPointIterator>& ppiter) {
             float total_weight(0);
             const vec3<float> ref((*points)[i]);
+            // Construct PointSPHEvaluator outside loop since the construction is costly.
+            auto max_l = std::max_element(m_ls.begin(), m_ls.end());
+            if (max_l == m_ls.end())
+            {
+                throw std::invalid_argument("Selected l's do not have a maximum.");
+            }
+            fsph::PointSPHEvaluator<float> sph_eval(*max_l);
+
             for (freud::locality::NeighborBond nb = ppiter->next(); !ppiter->end(); nb = ppiter->next())
             {
                 const vec3<float> delta = points->getBox().wrap((*points)[nb.point_idx] - ref);
@@ -155,7 +155,7 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
                 }
 
                 std::vector<std::vector<std::complex<float>>> Ylms(m_ls.size());
-                computeYlm(theta, phi, Ylms); // Fill up Ylm
+                computeYlm(sph_eval, theta, phi, Ylms); // Fill up Ylm
 
                 for (auto l_index = 0; l_index < m_ls.size(); ++l_index)
                 {
