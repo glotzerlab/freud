@@ -568,6 +568,8 @@ cdef class Steinhardt(_PairCompute):
 
     def __cinit__(self, l, average=False, wl=False, weighted=False,
                   wl_normalize=False):
+        if not hasattr(l, "__len__"):
+            l = [l]
         self.thisptr = new freud._order.Steinhardt(l, average, wl, weighted,
                                                    wl_normalize)
 
@@ -598,22 +600,32 @@ cdef class Steinhardt(_PairCompute):
     @property
     def l(self):  # noqa: E743
         """unsigned int: Spherical harmonic quantum number l."""
-        return self.thisptr.getL()
+        ls = self.thisptr.getL()
+        if ls.size() == 1:
+            return ls[0]
+        return ls
 
     @_Compute._computed_property
     def order(self):
         """float: The system wide normalization of the :math:`q_l` or
         :math:`w_l` order parameter."""
-        return self.thisptr.getOrder()
+        order = self.thisptr.getOrder()
+        if order.size() == 1:
+            return order[0]
+        return order
 
     @_Compute._computed_property
     def particle_order(self):
         """:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`: Variant
         of the Steinhardt order parameter for each particle (filled with
         :code:`nan` for particles with no neighbors)."""
-        return freud.util.make_managed_numpy_array(
-            &self.thisptr.getParticleOrder(),
-            freud.util.arr_type_t.FLOAT)
+        order_arrays = self.thisptr.getParticleOrder()
+        if order_arrays.size() == 1:
+            return freud.util.make_managed_numpy_array(
+                &order_arrays[0], freud.util.arr_type_t.FLOAT)
+        return [freud.util.make_managed_numpy_array(&order_arrays[i],
+                                                    freud.util.arr_type_t.FLOAT)
+                for i in range(order_arrays.size())]
 
     @_Compute._computed_property
     def ql(self):
@@ -621,18 +633,26 @@ cdef class Steinhardt(_PairCompute):
         :math:`q_l` Steinhardt order parameter for each particle (filled with
         :code:`nan` for particles with no neighbors). This is always available,
         no matter which options are selected."""
-        return freud.util.make_managed_numpy_array(
-            &self.thisptr.getQl(),
-            freud.util.arr_type_t.FLOAT)
+        ql_arrays = self.thisptr.getQl()
+        if ql_arrays.size() == 1:
+            return freud.util.make_managed_numpy_array(
+                &ql_arrays[0], freud.util.arr_type_t.FLOAT)
+        return [freud.util.make_managed_numpy_array(&ql_arrays[i],
+                                                    freud.util.arr_type_t.FLOAT)
+                for i in range(ql_arrays.size())]
 
     @_Compute._computed_property
     def particle_harmonics(self):
         """:math:`\\left(N_{particles}, 2*l+1\\right)` :class:`numpy.ndarray`:
         The raw array of \\overline{q}_{lm}(i). The array is provided in the
         order given by fsph: :math:`m = 0, 1, ..., l, -1, ..., -l`."""
-        return freud.util.make_managed_numpy_array(
-            &self.thisptr.getQlm(),
-            freud.util.arr_type_t.COMPLEX_FLOAT)
+        qlm_arrays = self.thisptr.getQlm()
+        if qlm_arrays.size() == 1:
+            return freud.util.make_managed_numpy_array(
+                &qlm_arrays[0], freud.util.arr_type_t.COMPLEX_FLOAT)
+        return [freud.util.make_managed_numpy_array(
+                    &qlm_arrays[i], freud.util.arr_type_t.COMPLEX_FLOAT)
+                for i in range(qlm_arrays.size())]
 
     def compute(self, system, neighbors=None):
         R"""Compute the order parameter.

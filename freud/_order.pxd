@@ -70,20 +70,20 @@ cdef extern from "HexaticTranslational.h" namespace "freud::order":
 
 cdef extern from "Steinhardt.h" namespace "freud::order":
     cdef cppclass Steinhardt:
-        Steinhardt(unsigned int, bool, bool, bool, bool) except +
+        Steinhardt(vector[unsigned int], bool, bool, bool, bool) except +
         unsigned int getNP() const
         void compute(const freud._locality.NeighborList*,
                      const freud._locality.NeighborQuery*,
                      freud._locality.QueryArgs) except +
-        const freud.util.ManagedArray[float] &getQl() const
-        const freud.util.ManagedArray[float] &getQlm() const
-        const freud.util.ManagedArray[float] &getParticleOrder() const
-        float getOrder() const
+        const vector[freud.util.ManagedArray[float]] &getQl() const
+        const vector[freud.util.ManagedArray[float complex]] &getQlm() const
+        const vector[freud.util.ManagedArray[float]] &getParticleOrder() const
+        vector[float] getOrder() const
         bool isAverage() const
         bool isWl() const
         bool isWeighted() const
         bool isWlNormalized() const
-        unsigned int getL() const
+        vector[unsigned int] getL() const
 
 
 cdef extern from "SolidLiquid.h" namespace "freud::order":

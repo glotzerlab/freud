@@ -10,7 +10,7 @@ namespace freud { namespace order {
 
 SolidLiquid::SolidLiquid(unsigned int l, float q_threshold, unsigned int solid_threshold, bool normalize_q)
     : m_l(l), m_num_ms(2 * l + 1), m_q_threshold(q_threshold), m_solid_threshold(solid_threshold),
-      m_normalize_q(normalize_q), m_steinhardt(l), m_cluster()
+      m_normalize_q(normalize_q), m_steinhardt({l}), m_cluster()
 {
     if (m_q_threshold < 0.0)
     {
@@ -29,8 +29,8 @@ void SolidLiquid::compute(const freud::locality::NeighborList* nlist,
 
     // Compute Steinhardt using neighbor list (also gets ql for normalization)
     m_steinhardt.compute(&m_nlist, points, qargs);
-    const auto& qlm = m_steinhardt.getQlm();
-    const auto& ql = m_steinhardt.getQl();
+    const auto& qlm = m_steinhardt.getQlm()[0];
+    const auto& ql = m_steinhardt.getQl()[0];
 
     // Compute (normalized) dot products for each bond in the neighbor list
     const auto normalizationfactor = float(4.0 * M_PI / m_num_ms);
