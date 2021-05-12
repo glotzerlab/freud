@@ -60,6 +60,11 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 add_subdirectory(CMake)
 find_package_config_first(TBB)
 
+if (TBB_FOUND)
+  include(FindPackageMessage)
+  find_package_message(tbb "Found TBB: ${TBB_DIR} ${_tbb_library} ${_tbb_include_dir}" "[${_tbb_library}][${_tbb_include_dir}]")
+endif()
+
 # The TBB config doesn't define these variable, which we use later.
 if(NOT DEFINED TBB_INCLUDE_DIR OR NOT DEFINED TBB_LIBRARY)
   get_target_property(TBB_INCLUDE_DIR TBB::tbb INTERFACE_INCLUDE_DIRECTORIES)
