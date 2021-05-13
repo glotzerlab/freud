@@ -69,6 +69,7 @@ cdef extern from "HexaticTranslational.h" namespace "freud::order":
 
 
 cdef extern from "Steinhardt.h" namespace "freud::order":
+    ctypedef float complex fcomplex
     cdef cppclass Steinhardt:
         Steinhardt(vector[unsigned int], bool, bool, bool, bool) except +
         unsigned int getNP() const
@@ -76,7 +77,7 @@ cdef extern from "Steinhardt.h" namespace "freud::order":
                      const freud._locality.NeighborQuery*,
                      freud._locality.QueryArgs) except +
         const vector[freud.util.ManagedArray[float]] &getQl() const
-        const vector[freud.util.ManagedArray[float complex]] &getQlm() const
+        const vector[freud.util.ManagedArray[fcomplex]] &getQlm() const
         const vector[freud.util.ManagedArray[float]] &getParticleOrder() const
         vector[float] getOrder() const
         bool isAverage() const
