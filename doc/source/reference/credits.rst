@@ -286,6 +286,7 @@ Yezhi Jin
 
 Brandon Butler
 
+* Added support for multiple ``l`` in ``Steinhardt`` along with performance improvements.
 * Rewrote Steinhardt order parameter.
 
 Jin Soo Ihm
