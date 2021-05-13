@@ -544,12 +544,12 @@ cdef class Steinhardt(_PairCompute):
         to observe a value of 0 for the per-particle order parameter even with
         a finite number of neighbors. If you would like to ignore this
         distinction, you can mask the output order parameter values using
-        NumPy: :code:`numpy.nan_to_num(particle_order[0])`.
+        NumPy: :code:`numpy.nan_to_num(particle_order)`.
 
     Args:
-        l (unsigned int or list of unsigned int):
-            One or more spherical harmonic quantum number l's to compute the
-            Steinhardt order parameter for.
+        l (unsigned int or sequence of unsigned int):
+            One or more spherical harmonic quantum number l's used to compute
+            the Steinhardt order parameter.
         average (bool, optional):
             Determines whether to calculate the averaged Steinhardt order
             parameter (Default value = :code:`False`).
@@ -603,9 +603,7 @@ cdef class Steinhardt(_PairCompute):
     def l(self):  # noqa: E743
         """unsigned int: Spherical harmonic quantum number l."""
         ls = self.thisptr.getL()
-        if ls.size() == 1:
-            return ls[0]
-        return ls
+        return ls[0] if ls.size() == 1 else ls
 
     @_Compute._computed_property
     def order(self):
@@ -613,9 +611,7 @@ cdef class Steinhardt(_PairCompute):
         :math:`q_l` or :math:`w_l` order parameter for each ``l`` selected. If
         only 1 ``l`` was selected returns a list of normalizations."""
         order = self.thisptr.getOrder()
-        if order.size() == 1:
-            return order[0]
-        return order
+        return order[0] if order.size() == 1 else order
 
     @_Compute._computed_property
     def particle_order(self):
