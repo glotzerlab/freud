@@ -9,6 +9,7 @@ and this project adheres to
 ### Added
 * Added `out` option for storing wrapped vectors in `box.Box.wrap`.
 * The Steinhardt and SolidLiquid classes expose the raw qlmi arrays.
+* The `Steinhardt` class supports computing order parameters for multiple `l`.
 
 ### Fixed
 * Fix broken arXiv links in bibliography.
