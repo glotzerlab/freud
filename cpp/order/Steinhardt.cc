@@ -117,12 +117,8 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
             float total_weight(0);
             const vec3<float> ref((*points)[i]);
             // Construct PointSPHEvaluator outside loop since the construction is costly.
-            auto max_l = std::max_element(m_ls.begin(), m_ls.end());
-            if (max_l == m_ls.end())
-            {
-                throw std::invalid_argument("Selected l's do not have a maximum.");
-            }
-            fsph::PointSPHEvaluator<float> sph_eval(*max_l);
+            auto max_l = *std::max_element(m_ls.begin(), m_ls.end());
+            fsph::PointSPHEvaluator<float> sph_eval(max_l);
 
             std::vector<std::vector<std::complex<float>>> Ylms(m_ls.size());
             for (auto l_index = 0; l_index < m_ls.size(); ++l_index)

@@ -10,6 +10,7 @@ harmonics of the bond order diagram, which are the spherical analogue of
 Fourier Transforms.
 """
 
+import collections.abc
 import logging
 import time
 import warnings
@@ -570,8 +571,10 @@ cdef class Steinhardt(_PairCompute):
 
     def __cinit__(self, l, average=False, wl=False, weighted=False,
                   wl_normalize=False):
-        if not hasattr(l, "__len__"):
+        if not isinstance(l, collections.abc.Sequence):
             l = [l]
+        if len(l) == 0:
+            raise ValueError("At least one l must be specified.")
         self.thisptr = new freud._order.Steinhardt(l, average, wl, weighted,
                                                    wl_normalize)
 
