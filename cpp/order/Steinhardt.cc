@@ -253,17 +253,17 @@ void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
                 auto& qlmi = m_qlmi[l_index];
                 auto& qlm_local = m_qlm_local[l_index];
                 auto& qliAve = m_qliAve[l_index];
+                const size_t index = qlmiAve.getIndex({static_cast<unsigned int>(i), 0});
 
                 for (unsigned int k = 0; k < m_num_ms[l_index]; ++k)
                 {
                     // Cache the index for efficiency.
-                    const size_t index = qlmiAve.getIndex({static_cast<unsigned int>(i), k});
                     // Adding the qlm of the particle i itself
-                    qlmiAve[index] += qlmi[index];
-                    qlmiAve[index] /= static_cast<float>(neighborcount);
-                    qlm_local.local()[k] += qlmiAve[index] / float(m_Np);
+                    qlmiAve[index + k] += qlmi[index + k];
+                    qlmiAve[index + k] /= static_cast<float>(neighborcount);
+                    qlm_local.local()[k] += qlmiAve[index + k] / float(m_Np);
                     // Add the norm, which is the complex squared magnitude
-                    qliAve[i] += norm(qlmiAve[index]);
+                    qliAve[i] += norm(qlmiAve[index + k]);
                 }
                 qliAve[i] *= normalizationfactor[l_index];
                 qliAve[i] = std::sqrt(qliAve[i]);
