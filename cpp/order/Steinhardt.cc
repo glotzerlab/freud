@@ -14,19 +14,11 @@ namespace freud { namespace order {
 // Calculating Ylm using fsph module
 void Steinhardt::computeYlm(fsph::PointSPHEvaluator<float>& sph_eval, const float theta, const float phi, std::vector<std::vector<std::complex<float>>>& Ylms) const
 {
-    if (Ylms.size() != m_ls.size())
-    {
-        Ylms.resize(m_ls.size());
-    }
     sph_eval.compute(theta, phi);
 
     for (auto i = 0; i < m_ls.size(); ++i)
     {
         auto& Ylm = Ylms[i];
-        if (Ylm.size() != m_num_ms[i])
-        {
-            Ylm.resize(m_num_ms[i]);
-        }
         auto l = m_ls[i];
         unsigned int m_index(0);
 
@@ -131,6 +123,12 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
             }
             fsph::PointSPHEvaluator<float> sph_eval(*max_l);
 
+            std::vector<std::vector<std::complex<float>>> Ylms(m_ls.size());
+            for (auto l_index = 0; l_index < m_ls.size(); ++l_index)
+            {
+                Ylms[l_index].resize(m_num_ms[l_index]);
+            }
+
             for (freud::locality::NeighborBond nb = ppiter->next(); !ppiter->end(); nb = ppiter->next())
             {
                 const vec3<float> delta = points->getBox().wrap((*points)[nb.point_idx] - ref);
@@ -154,7 +152,6 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
                     theta = 0;
                 }
 
-                std::vector<std::vector<std::complex<float>>> Ylms(m_ls.size());
                 computeYlm(sph_eval, theta, phi, Ylms); // Fill up Ylm
 
                 for (auto l_index = 0; l_index < m_ls.size(); ++l_index)
