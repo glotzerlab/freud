@@ -12,7 +12,8 @@
 namespace freud { namespace order {
 
 // Calculating Ylm using fsph module
-void Steinhardt::computeYlm(fsph::PointSPHEvaluator<float>& sph_eval, const float theta, const float phi, std::vector<std::vector<std::complex<float>>>& Ylms) const
+void Steinhardt::computeYlm(fsph::PointSPHEvaluator<float>& sph_eval, const float theta, const float phi,
+                            std::vector<std::vector<std::complex<float>>>& Ylms) const
 {
     sph_eval.compute(theta, phi);
 
@@ -236,7 +237,6 @@ void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
                 for (freud::locality::NeighborBond nb2 = ns_neighbors_iter->next(); !ns_neighbors_iter->end();
                      nb2 = ns_neighbors_iter->next())
                 {
-
                     for (auto l_index = 0; l_index < m_ls.size(); ++l_index)
                     {
                         auto& qlmiAve = m_qlmiAve[l_index];
@@ -311,7 +311,7 @@ std::vector<float> Steinhardt::normalizeSystem()
         }
         else
         {
-        system_norms.push_back(ql_system_norm);
+            system_norms.push_back(ql_system_norm);
         }
     }
     return system_norms;
@@ -334,7 +334,8 @@ void Steinhardt::aggregatewl(std::vector<util::ManagedArray<float>>& target,
         util::forLoopWrapper(0, m_Np, [&](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
-                target_l[i] = reduceWigner3j(&(source_l({static_cast<unsigned int>(i), 0})), l, wigner3jvalues);
+                target_l[i]
+                    = reduceWigner3j(&(source_l({static_cast<unsigned int>(i), 0})), l, wigner3jvalues);
                 if (m_wl_normalize)
                 {
                     const float normalization = std::sqrt(normalizationfactor) / normalization_l[i];

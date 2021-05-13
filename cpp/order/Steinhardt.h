@@ -4,8 +4,8 @@
 #ifndef STEINHARDT_H
 #define STEINHARDT_H
 
-#include <complex>
 #include <algorithm>
+#include <complex>
 
 #include "Box.h"
 #include "ManagedArray.h"
@@ -64,17 +64,17 @@ public:
      *  \param l Spherical harmonic numbers l.
      *           They must all be a positive number.
      */
-    explicit Steinhardt(std::vector<unsigned int> ls, bool average = false, bool wl = false, bool weighted = false,
-                        bool wl_normalize = false)
+    explicit Steinhardt(std::vector<unsigned int> ls, bool average = false, bool wl = false,
+                        bool weighted = false, bool wl_normalize = false)
         : m_ls(ls), m_num_ms(m_ls.size()), m_average(average), m_wl(wl), m_weighted(weighted),
-        m_wl_normalize(wl_normalize), m_qlm_local(0), m_qlmi(ls.size()), m_qlm(ls.size()), m_qli(ls.size()),
-        m_qliAve(ls.size()), m_qlmiAve(ls.size()), m_qlmAve(ls.size()), m_wli(ls.size())
+          m_wl_normalize(wl_normalize), m_qlm_local(0), m_qlmi(ls.size()), m_qlm(ls.size()), m_qli(ls.size()),
+          m_qliAve(ls.size()), m_qlmiAve(ls.size()), m_qlmAve(ls.size()), m_wli(ls.size())
 
     {
-    std::transform(m_ls.begin(), m_ls.end(), m_num_ms.begin(), [](auto l) { return 2 * l + 1; });
-    for (auto l : m_ls)
+        std::transform(m_ls.begin(), m_ls.end(), m_num_ms.begin(), [](auto l) { return 2 * l + 1; });
+        for (auto l : m_ls)
         {
-        m_qlm_local.emplace_back(util::ThreadStorage<std::complex<float>>(2 * l + 1));
+            m_qlm_local.emplace_back(util::ThreadStorage<std::complex<float>>(2 * l + 1));
         }
     }
 
@@ -157,7 +157,8 @@ private:
     //! Spherical harmonics calculation for Ylm filling a
     //  std::vector<std::vector<std::complex<float> > > with values for m = 0, 1, ..., l, -1, ..., -l
     //  for all l in m_ls
-    void computeYlm(fsph::PointSPHEvaluator<float>& sph_eval, const float theta, const float phi, std::vector<std::vector<std::complex<float>>>& Ylms) const;
+    void computeYlm(fsph::PointSPHEvaluator<float>& sph_eval, const float theta, const float phi,
+                    std::vector<std::vector<std::complex<float>>>& Ylms) const;
 
     template<typename T> std::shared_ptr<T> makeArray(size_t size);
 
@@ -179,12 +180,13 @@ private:
 
     //! Sum over Wigner 3j coefficients to compute third-order invariants
     //  wl from second-order invariants ql
-    void aggregatewl(std::vector<util::ManagedArray<float>>& target, const std::vector<util::ManagedArray<std::complex<float>>>& source,
+    void aggregatewl(std::vector<util::ManagedArray<float>>& target,
+                     const std::vector<util::ManagedArray<std::complex<float>>>& source,
                      const std::vector<util::ManagedArray<float>>& normalization_source) const;
 
     // Member variables used for compute
-    unsigned int m_Np {0}; //!< Last number of points computed
-    std::vector<unsigned int> m_ls;      //!< Spherical harmonic l values.
+    unsigned int m_Np {0};              //!< Last number of points computed
+    std::vector<unsigned int> m_ls;     //!< Spherical harmonic l values.
     std::vector<unsigned int> m_num_ms; //!< The number of magnetic quantum numbers for each l (2*l+1).
 
     // Flags
@@ -193,16 +195,19 @@ private:
     bool m_weighted;     //!< Whether to use neighbor weights in computing qlmi (default false)
     bool m_wl_normalize; //!< Whether to normalize the third-order invariant wl (default false)
 
-    std::vector<util::ManagedArray<std::complex<float>>> m_qlmi;       //!< qlm for each particle i
-    std::vector<util::ManagedArray<std::complex<float>>> m_qlm;        //!< Normalized qlm(Ave) for the whole system
+    std::vector<util::ManagedArray<std::complex<float>>> m_qlmi; //!< qlm for each particle i
+    std::vector<util::ManagedArray<std::complex<float>>> m_qlm;  //!< Normalized qlm(Ave) for the whole system
     std::vector<util::ThreadStorage<std::complex<float>>>
         m_qlm_local; //!< Thread-specific m_qlm(Ave) for each l
-    std::vector<util::ManagedArray<float>> m_qli;    //!< ql locally invariant order parameter for each particle i
-    std::vector<util::ManagedArray<float>> m_qliAve; //!< Averaged ql with 2nd neighbor shell for each particle i
+    std::vector<util::ManagedArray<float>>
+        m_qli; //!< ql locally invariant order parameter for each particle i
+    std::vector<util::ManagedArray<float>>
+        m_qliAve; //!< Averaged ql with 2nd neighbor shell for each particle i
     std::vector<util::ManagedArray<std::complex<float>>>
         m_qlmiAve; //!< Averaged qlm with 2nd neighbor shell for each particle i
-    std::vector<util::ManagedArray<std::complex<float>>> m_qlmAve; //!< Normalized qlmiAve for the whole system
-    std::vector<float> m_norm {0};                            //!< System normalized order parameter
+    std::vector<util::ManagedArray<std::complex<float>>>
+        m_qlmAve;                  //!< Normalized qlmiAve for the whole system
+    std::vector<float> m_norm {0}; //!< System normalized order parameter
     std::vector<util::ManagedArray<float>>
         m_wli; //!< wl order parameter for each particle i, also used for wl averaged data
 };
