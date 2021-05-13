@@ -158,9 +158,13 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
                 {
                     auto& qlmi = m_qlmi[l_index];
                     auto& Ylm = Ylms[l_index];
+                    // Get the initial index and iterate using ++ for faster iteration
+                    // Profling showed using operator() to slow the code significantly.
+                    auto index = qlmi.getIndex({static_cast<unsigned int>(i), 0});
                     for (unsigned int k = 0; k < m_num_ms[l_index]; ++k)
                     {
-                        qlmi({static_cast<unsigned int>(i), k}) += weight * Ylm[k];
+                        qlmi[index] += weight * Ylm[k];
+                        ++index;
                     }
                 }
                 // Accumulate weight for normalization
@@ -174,11 +178,11 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
                 auto& qlmi = m_qlmi[l_index];
                 auto& qli = m_qli[l_index];
                 auto& qlm_local = m_qlm_local[l_index];
+                unsigned int index = qlmi.getIndex({static_cast<unsigned int>(i), 0});
 
                 for (unsigned int k = 0; k < m_num_ms[l_index]; ++k)
                 {
                     // Cache the index for efficiency.
-                    const unsigned int index = qlmi.getIndex({static_cast<unsigned int>(i), k});
                     qlmi[index] /= total_weight;
                     // Add the norm, which is the (complex) squared magnitude
                     qli[i] += norm(qlmi[index]);
@@ -187,6 +191,7 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
                     {
                         qlm_local.local()[k] += qlmi[index] / float(m_Np);
                     }
+                    ++index;
                 }
                 qli[i] *= normalizationfactor[l_index];
                 qli[i] = std::sqrt(qli[i]);
