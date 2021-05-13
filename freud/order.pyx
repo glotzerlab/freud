@@ -623,12 +623,11 @@ cdef class Steinhardt(_PairCompute):
         particle (filled with :code:`nan` for particles with no neighbors).
         Is a list of NumPy arrays if more than one ``l`` was specified."""
         order_arrays = self.thisptr.getParticleOrder()
-        if order_arrays.size() == 1:
-            return freud.util.make_managed_numpy_array(
-                &order_arrays[0], freud.util.arr_type_t.FLOAT)
-        return [freud.util.make_managed_numpy_array(&order_arrays[i],
-                                                    freud.util.arr_type_t.FLOAT)
-                for i in range(order_arrays.size())]
+        order_list = [
+            freud.util.make_managed_numpy_array(&order_arrays[i],
+                                                freud.util.arr_type_t.FLOAT)
+            for i in range(order_arrays.size())]
+        return order_list if len(order_list) > 1 else order_list[0]
 
     @_Compute._computed_property
     def ql(self):
@@ -638,12 +637,10 @@ cdef class Steinhardt(_PairCompute):
         is always available, no matter which options are selected. Is a list of
         NumPy arrays if more than one ``l`` was selected."""
         ql_arrays = self.thisptr.getQl()
-        if ql_arrays.size() == 1:
-            return freud.util.make_managed_numpy_array(
-                &ql_arrays[0], freud.util.arr_type_t.FLOAT)
-        return [freud.util.make_managed_numpy_array(&ql_arrays[i],
-                                                    freud.util.arr_type_t.FLOAT)
-                for i in range(ql_arrays.size())]
+        ql_list = [freud.util.make_managed_numpy_array(
+            &ql_arrays[i], freud.util.arr_type_t.FLOAT)
+            for i in range(ql_arrays.size())]
+        return ql_list if len(ql_list) > 1 else ql_list[0]
 
     @_Compute._computed_property
     def particle_harmonics(self):
@@ -653,12 +650,10 @@ cdef class Steinhardt(_PairCompute):
         -1, ..., -l`. Is a list of NumPy arrays if more than one ``l`` was
         selected."""
         qlm_arrays = self.thisptr.getQlm()
-        if qlm_arrays.size() == 1:
-            return freud.util.make_managed_numpy_array(
-                &qlm_arrays[0], freud.util.arr_type_t.COMPLEX_FLOAT)
-        return [freud.util.make_managed_numpy_array(
-                    &qlm_arrays[i], freud.util.arr_type_t.COMPLEX_FLOAT)
-                for i in range(qlm_arrays.size())]
+        qlm_list = [freud.util.make_managed_numpy_array(
+            &qlm_arrays[i], freud.util.arr_type_t.COMPLEX_FLOAT)
+            for i in range(qlm_arrays.size())]
+        return qlm_list if len(qlm_list) > 1 else qlm_list[0]
 
     def compute(self, system, neighbors=None):
         R"""Compute the order parameter.
