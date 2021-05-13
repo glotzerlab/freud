@@ -10,6 +10,7 @@ cimport freud._locality
 cimport freud.util
 from freud.util cimport quat, vec3
 
+ctypedef float complex fcomplex
 
 cdef extern from "Cubatic.h" namespace "freud::order":
     cdef cppclass Cubatic:
@@ -54,7 +55,7 @@ cdef extern from "HexaticTranslational.h" namespace "freud::order":
         void compute(const freud._locality.NeighborList*,
                      const freud._locality.NeighborQuery*,
                      freud._locality.QueryArgs) except +
-        const freud.util.ManagedArray[float complex] &getOrder()
+        const freud.util.ManagedArray[fcomplex] &getOrder()
         unsigned int getK()
         bool isWeighted() const
 
@@ -63,13 +64,12 @@ cdef extern from "HexaticTranslational.h" namespace "freud::order":
         void compute(const freud._locality.NeighborList*,
                      const freud._locality.NeighborQuery*,
                      freud._locality.QueryArgs) except +
-        const freud.util.ManagedArray[float complex] &getOrder() const
+        const freud.util.ManagedArray[fcomplex] &getOrder() const
         float getK() const
         bool isWeighted() const
 
 
 cdef extern from "Steinhardt.h" namespace "freud::order":
-    ctypedef float complex fcomplex
     cdef cppclass Steinhardt:
         Steinhardt(vector[unsigned int], bool, bool, bool, bool) except +
         unsigned int getNP() const
@@ -113,6 +113,6 @@ cdef extern from "RotationalAutocorrelation.h" namespace "freud::order":
         RotationalAutocorrelation()
         RotationalAutocorrelation(unsigned int)
         unsigned int getL() const
-        const freud.util.ManagedArray[float complex] &getRAArray() const
+        const freud.util.ManagedArray[fcomplex] &getRAArray() const
         float getRotationalAutocorrelation() const
         void compute(quat[float]*, quat[float]*, unsigned int) except +
