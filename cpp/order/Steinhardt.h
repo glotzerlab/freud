@@ -49,6 +49,8 @@ namespace freud { namespace order {
  * If the flag wl_normalize is set, the third-order invariant wl order parameter
  * will be normalized.
  *
+ * We compute the Steinhardt order parameter for one or more l specified in m_ls.
+ *
  * For more details see:
  * - PJ Steinhardt (1983) (DOI: 10.1103/PhysRevB.28.784)
  * - Wolfgang Lechner (2008) (DOI: 10.1063/Journal of Chemical Physics 129.114707)
@@ -59,8 +61,8 @@ class Steinhardt
 public:
     //! Steinhardt Class Constructor
     /*! Constructor for Steinhardt analysis class.
-     *  \param l Spherical harmonic number l.
-     *           Must be a positive number.
+     *  \param l Spherical harmonic numbers l.
+     *           They must all be a positive number.
      */
     explicit Steinhardt(std::vector<unsigned int> ls, bool average = false, bool wl = false, bool weighted = false,
                         bool wl_normalize = false)
@@ -85,7 +87,7 @@ public:
         return m_Np;
     }
 
-    //! Get the last calculated order parameter
+    //! Get the last calculated order parameter for each l
     const std::vector<util::ManagedArray<float>>& getParticleOrder() const
     {
         if (m_wl)
@@ -95,7 +97,7 @@ public:
         return getQl();
     }
 
-    //! Get the last calculated ql
+    //! Get the last calculated ql for each l
     const std::vector<util::ManagedArray<float>>& getQl() const
     {
         if (m_average)
@@ -105,13 +107,13 @@ public:
         return m_qli;
     }
 
-    //! Get the last calculated qlm for each particle
+    //! Get the last calculated qlm for each particle and l
     const std::vector<util::ManagedArray<std::complex<float>>>& getQlm() const
     {
         return m_qlmi;
     }
 
-    //! Get system-normalized order
+    //! Get system-normalized order for each l
     std::vector<float> getOrder() const
     {
         return m_norm;
@@ -153,7 +155,8 @@ public:
 private:
     //! \internal
     //! Spherical harmonics calculation for Ylm filling a
-    //  std::vector<std::complex<float> > with values for m = 0, 1, ..., l, -1, ..., -l
+    //  std::vector<std::vector<std::complex<float> > > with values for m = 0, 1, ..., l, -1, ..., -l
+    //  for all l in m_ls
     void computeYlm(fsph::PointSPHEvaluator<float>& sph_eval, const float theta, const float phi, std::vector<std::vector<std::complex<float>>>& Ylms) const;
 
     template<typename T> std::shared_ptr<T> makeArray(size_t size);

@@ -487,8 +487,9 @@ cdef class Translational(_PairCompute):
 
 
 cdef class Steinhardt(_PairCompute):
-    R"""Compute the rotationally invariant Steinhardt order parameter
-    :math:`q_l` or :math:`w_l` for a set of points :cite:`Steinhardt:1983aa`.
+    R"""Compute one or more of the rotationally invariant Steinhardt order
+    parameter :math:`q_l` or :math:`w_l` for a set of points
+    :cite:`Steinhardt:1983aa`.
 
     Implements the local rotationally invariant :math:`q_l` or :math:`w_l`
     order parameter described by Steinhardt. For a particle :math:`i`, we
@@ -543,11 +544,12 @@ cdef class Steinhardt(_PairCompute):
         to observe a value of 0 for the per-particle order parameter even with
         a finite number of neighbors. If you would like to ignore this
         distinction, you can mask the output order parameter values using
-        NumPy: :code:`numpy.nan_to_num(particle_order)`.
+        NumPy: :code:`numpy.nan_to_num(particle_order[0])`.
 
     Args:
-        l (unsigned int):
-            Spherical harmonic quantum number l.
+        l (unsigned int or list of unsigned int):
+            One or more spherical harmonic quantum number l's to compute the
+            Steinhardt order parameter for.
         average (bool, optional):
             Determines whether to calculate the averaged Steinhardt order
             parameter (Default value = :code:`False`).
@@ -607,8 +609,9 @@ cdef class Steinhardt(_PairCompute):
 
     @_Compute._computed_property
     def order(self):
-        """float: The system wide normalization of the :math:`q_l` or
-        :math:`w_l` order parameter."""
+        """float or list of float: The system wide normalization of the
+        :math:`q_l` or :math:`w_l` order parameter for each ``l`` selected. If
+        only 1 ``l`` was selected returns a list of normalizations."""
         order = self.thisptr.getOrder()
         if order.size() == 1:
             return order[0]
@@ -616,9 +619,10 @@ cdef class Steinhardt(_PairCompute):
 
     @_Compute._computed_property
     def particle_order(self):
-        """:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`: Variant
-        of the Steinhardt order parameter for each particle (filled with
-        :code:`nan` for particles with no neighbors)."""
+        """:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray` or list
+        of `numpy.ndarray`: Variant of the Steinhardt order parameter for each
+        particle (filled with :code:`nan` for particles with no neighbors).
+        Is a list of NumPy arrays if more than one ``l`` was specified."""
         order_arrays = self.thisptr.getParticleOrder()
         if order_arrays.size() == 1:
             return freud.util.make_managed_numpy_array(
@@ -629,10 +633,11 @@ cdef class Steinhardt(_PairCompute):
 
     @_Compute._computed_property
     def ql(self):
-        """:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:
-        :math:`q_l` Steinhardt order parameter for each particle (filled with
-        :code:`nan` for particles with no neighbors). This is always available,
-        no matter which options are selected."""
+        """:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray` or list
+        of `numpy.ndarray`: :math:`q_l` Steinhardt order parameter for each
+        particle (filled with :code:`nan` for particles with no neighbors). This
+        is always available, no matter which options are selected. Is a list of
+        NumPy arrays if more than one ``l`` was selected."""
         ql_arrays = self.thisptr.getQl()
         if ql_arrays.size() == 1:
             return freud.util.make_managed_numpy_array(
@@ -643,9 +648,11 @@ cdef class Steinhardt(_PairCompute):
 
     @_Compute._computed_property
     def particle_harmonics(self):
-        """:math:`\\left(N_{particles}, 2*l+1\\right)` :class:`numpy.ndarray`:
-        The raw array of \\overline{q}_{lm}(i). The array is provided in the
-        order given by fsph: :math:`m = 0, 1, ..., l, -1, ..., -l`."""
+        """:math:`\\left(N_{particles}, 2*l+1\\right)` :class:`numpy.ndarray` or
+        list of `numpy.ndarray`: The raw array of \\overline{q}_{lm}(i). The
+        array is provided in the order given by fsph: :math:`m = 0, 1, ..., l,
+        -1, ..., -l`. Is a list of NumPy arrays if more than one ``l`` was
+        selected."""
         qlm_arrays = self.thisptr.getQlm()
         if qlm_arrays.size() == 1:
             return freud.util.make_managed_numpy_array(
