@@ -58,3 +58,9 @@ class TestReaderIntegrations:
 
         with garnett.read(LJ_DCD) as traj:
             self.run_analyses(traj)
+
+    def test_ovito_gsd(self):
+        import_file = pytest.importorskip("ovito.io").import_file
+        pipeline = import_file(LJ_GSD)
+        traj = [pipeline.compute(i) for i in range(pipeline.source.num_frames)]
+        self.run_analyses(traj)
