@@ -35,7 +35,7 @@ cdef class DiffractionPattern(_Compute):
     The diffraction image represents the scattering of incident radiation,
     and is useful for identifying translational and/or rotational symmetry
     present in the system. This class computes the static `structure factor
-    <https://en.wikipedia.org/wiki/Structure_factor>`_ :math:`S(\vec{k})` for
+    <https://en.wikipedia.org/wiki/Structure_factor>`__ :math:`S(\vec{k})` for
     a plane of wavevectors :math:`\vec{k}` orthogonal to a view axis. The
     view orientation :math:`(1, 0, 0, 0)` defaults to looking down the
     :math:`z` axis (at the :math:`xy` plane). The points in the system are
