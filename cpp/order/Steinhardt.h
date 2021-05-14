@@ -63,18 +63,16 @@ public:
     /*! Constructor for Steinhardt analysis class.
      *  \param l Spherical harmonic numbers l. Must be non-negative integers.
      */
-    explicit Steinhardt(std::vector<unsigned int> ls, bool average = false, bool wl = false,
+    explicit Steinhardt(const std::vector<unsigned int>& ls, bool average = false, bool wl = false,
                         bool weighted = false, bool wl_normalize = false)
         : m_ls(ls), m_num_ms(m_ls.size()), m_average(average), m_wl(wl), m_weighted(weighted),
-          m_wl_normalize(wl_normalize), m_qlm_local(0), m_qlmi(ls.size()), m_qlm(ls.size()), m_qli(ls.size()),
-          m_qliAve(ls.size()), m_qlmiAve(ls.size()), m_qlmAve(ls.size()), m_wli(ls.size())
+          m_wl_normalize(wl_normalize), m_qlm_local(m_ls.size()), m_qlmi(ls.size()), m_qlm(ls.size()),
+          m_qli(ls.size()), m_qliAve(ls.size()), m_qlmiAve(ls.size()), m_qlmAve(ls.size()), m_wli(ls.size())
 
     {
         std::transform(m_ls.cbegin(), m_ls.cend(), m_num_ms.begin(), [](const auto& l) { return 2 * l + 1; });
-        for (const auto& l : m_ls)
-        {
-            m_qlm_local.emplace_back(util::ThreadStorage<std::complex<float>>(2 * l + 1));
-        }
+        std::transform(m_ls.cbegin(), m_ls.cend(), m_qlm_local.begin(),
+                       [](const auto& l) { return util::ThreadStorage<std::complex<float>>(2 * l + 1); });
     }
 
     //! Empty destructor
