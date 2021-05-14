@@ -606,7 +606,9 @@ cdef class Steinhardt(_PairCompute):
     def l(self):  # noqa: E743
         """unsigned int: Spherical harmonic quantum number l."""
         ls = self.thisptr.getL()
-        return ls[0] if ls.size() == 1 else ls
+        # list conversion is necessarily explicit as otherwise CI Cython
+        # complains about compiling the expression with two different types.
+        return ls[0] if ls.size() == 1 else list(ls)
 
     @_Compute._computed_property
     def order(self):
@@ -614,7 +616,9 @@ cdef class Steinhardt(_PairCompute):
         :math:`q_l` or :math:`w_l` order parameter for each ``l`` selected. If
         only 1 ``l`` was selected returns a list of normalizations."""
         order = self.thisptr.getOrder()
-        return order[0] if order.size() == 1 else order
+        # list conversion is necessarily explicit as otherwise CI Cython
+        # complains about compiling the expression with two different types.
+        return order[0] if order.size() == 1 else list(order)
 
     @_Compute._computed_property
     def particle_order(self):
