@@ -622,29 +622,27 @@ cdef class Steinhardt(_PairCompute):
 
     @_Compute._computed_property
     def particle_order(self):
-        """:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray` or list
-        of `numpy.ndarray`: Variant of the Steinhardt order parameter for each
-        particle (filled with :code:`nan` for particles with no neighbors).
-        Is a list of NumPy arrays if more than one ``l`` was specified."""
-        order_arrays = self.thisptr.getParticleOrder()
-        order_list = [
-            freud.util.make_managed_numpy_array(&order_arrays[i],
-                                                freud.util.arr_type_t.FLOAT)
-            for i in range(order_arrays.size())]
-        return order_list if len(order_list) > 1 else order_list[0]
+        """:math:`\\left(N_{particles}, N_l \\right)` :class:`numpy.ndarray`:
+        Variant of the Steinhardt order parameter for each particle (filled with
+        :code:`nan` for particles with no neighbors)."""
+        array = freud.util.make_managed_numpy_array(
+            &self.thisptr.getParticleOrder(), freud.util.arr_type_t.FLOAT)
+        if array.shape[1] == 1:
+            return np.ravel(array)
+        return array
 
     @_Compute._computed_property
     def ql(self):
-        """:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray` or list
-        of `numpy.ndarray`: :math:`q_l` Steinhardt order parameter for each
-        particle (filled with :code:`nan` for particles with no neighbors). This
-        is always available, no matter which options are selected. Is a list of
-        NumPy arrays if more than one ``l`` was selected."""
-        ql_arrays = self.thisptr.getQl()
-        ql_list = [freud.util.make_managed_numpy_array(
-            &ql_arrays[i], freud.util.arr_type_t.FLOAT)
-            for i in range(ql_arrays.size())]
-        return ql_list if len(ql_list) > 1 else ql_list[0]
+        """:math:`\\left(N_{particles}, N_l\\right)` :class:`numpy.ndarray`:
+        :math:`q_l` Steinhardt order parameter for each particle (filled with
+        :code:`nan` for particles with no neighbors). This is always available,
+        no matter which options are selected. Is a list of NumPy arrays if more
+        than one ``l`` was selected."""
+        array = freud.util.make_managed_numpy_array(
+            &self.thisptr.getQl(), freud.util.arr_type_t.FLOAT)
+        if array.shape[1] == 1:
+            return np.ravel(array)
+        return array
 
     @_Compute._computed_property
     def particle_harmonics(self):
@@ -652,7 +650,7 @@ cdef class Steinhardt(_PairCompute):
         list of `numpy.ndarray`: The raw array of \\overline{q}_{lm}(i). The
         array is provided in the order given by fsph: :math:`m = 0, 1, ..., l,
         -1, ..., -l`. Is a list of NumPy arrays if more than one ``l`` was
-        selected."""
+        selected in the order of specified :math:`l` from the constructor."""
         qlm_arrays = self.thisptr.getQlm()
         qlm_list = [freud.util.make_managed_numpy_array(
             &qlm_arrays[i], freud.util.arr_type_t.COMPLEX_FLOAT)

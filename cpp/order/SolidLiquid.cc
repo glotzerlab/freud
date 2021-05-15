@@ -30,7 +30,9 @@ void SolidLiquid::compute(const freud::locality::NeighborList* nlist,
     // Compute Steinhardt using neighbor list (also gets ql for normalization)
     m_steinhardt.compute(&m_nlist, points, qargs);
     const auto& qlm = m_steinhardt.getQlm()[0];
-    const auto& ql = m_steinhardt.getQl()[0];
+    // Even though this is a 2-D array since Steinhardt can compute multiple l the second dimension is always
+    // 1 since we only allow one l for SolidLiquid.
+    const auto& ql = m_steinhardt.getQl();
 
     // Compute (normalized) dot products for each bond in the neighbor list
     const auto normalizationfactor = float(4.0 * M_PI / m_num_ms);

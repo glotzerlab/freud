@@ -67,7 +67,7 @@ public:
                         bool weighted = false, bool wl_normalize = false)
         : m_ls(ls), m_num_ms(m_ls.size()), m_average(average), m_wl(wl), m_weighted(weighted),
           m_wl_normalize(wl_normalize), m_qlm_local(m_ls.size()), m_qlmi(ls.size()), m_qlm(ls.size()),
-          m_qli(ls.size()), m_qliAve(ls.size()), m_qlmiAve(ls.size()), m_qlmAve(ls.size()), m_wli(ls.size())
+          m_qlmiAve(ls.size()), m_qlmAve(ls.size())
 
     {
         std::transform(m_ls.cbegin(), m_ls.cend(), m_num_ms.begin(), [](const auto& l) { return 2 * l + 1; });
@@ -85,7 +85,7 @@ public:
     }
 
     //! Get the last calculated order parameter for each l
-    const std::vector<util::ManagedArray<float>>& getParticleOrder() const
+    const util::ManagedArray<float>& getParticleOrder() const
     {
         if (m_wl)
         {
@@ -95,7 +95,7 @@ public:
     }
 
     //! Get the last calculated ql for each l
-    const std::vector<util::ManagedArray<float>>& getQl() const
+    const util::ManagedArray<float>& getQl() const
     {
         if (m_average)
         {
@@ -177,9 +177,9 @@ private:
 
     //! Sum over Wigner 3j coefficients to compute third-order invariants
     //  wl from second-order invariants ql
-    void aggregatewl(std::vector<util::ManagedArray<float>>& target,
+    void aggregatewl(util::ManagedArray<float>& target,
                      const std::vector<util::ManagedArray<std::complex<float>>>& source,
-                     const std::vector<util::ManagedArray<float>>& normalization_source) const;
+                     const util::ManagedArray<float>& normalization_source) const;
 
     // Member variables used for compute
     unsigned int m_Np {0};              //!< Last number of points computed
@@ -196,16 +196,16 @@ private:
     std::vector<util::ManagedArray<std::complex<float>>> m_qlm;  //!< Normalized qlm(Ave) for the whole system
     std::vector<util::ThreadStorage<std::complex<float>>>
         m_qlm_local; //!< Thread-specific m_qlm(Ave) for each l
-    std::vector<util::ManagedArray<float>>
+    util::ManagedArray<float>
         m_qli; //!< ql locally invariant order parameter for each particle i
-    std::vector<util::ManagedArray<float>>
+    util::ManagedArray<float>
         m_qliAve; //!< Averaged ql with 2nd neighbor shell for each particle i
     std::vector<util::ManagedArray<std::complex<float>>>
         m_qlmiAve; //!< Averaged qlm with 2nd neighbor shell for each particle i
     std::vector<util::ManagedArray<std::complex<float>>>
         m_qlmAve;                  //!< Normalized qlmiAve for the whole system
     std::vector<float> m_norm {0}; //!< System normalized order parameter
-    std::vector<util::ManagedArray<float>>
+    util::ManagedArray<float>
         m_wli; //!< wl order parameter for each particle i, also used for wl averaged data
 };
 
