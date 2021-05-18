@@ -605,20 +605,20 @@ cdef class Steinhardt(_PairCompute):
     @property
     def l(self):  # noqa: E743
         """unsigned int: Spherical harmonic quantum number l."""
-        ls = self.thisptr.getL()
-        # list conversion is necessarily explicit as otherwise CI Cython
-        # complains about compiling the expression with two different types.
-        return ls[0] if ls.size() == 1 else list(ls)
+        # list conversion is necessary as otherwise CI Cython complains about
+        # compiling the below expression with two different types.
+        ls = list(self.thisptr.getL())
+        return ls[0] if len(ls) == 1 else ls
 
     @_Compute._computed_property
     def order(self):
         """float or list of float: The system wide normalization of the
         :math:`q_l` or :math:`w_l` order parameter for each ``l`` selected. If
         only 1 ``l`` was selected returns a list of normalizations."""
-        order = self.thisptr.getOrder()
-        # list conversion is necessarily explicit as otherwise CI Cython
-        # complains about compiling the expression with two different types.
-        return order[0] if order.size() == 1 else list(order)
+        # list conversion is necessary as otherwise CI Cython complains about
+        # compiling the below expression with two different types.
+        order = list(self.thisptr.getOrder())
+        return order[0] if len(order) == 1 else order
 
     @_Compute._computed_property
     def particle_order(self):
@@ -652,6 +652,8 @@ cdef class Steinhardt(_PairCompute):
         -1, ..., -l`. Is a list of NumPy arrays if more than one ``l`` was
         selected in the order of specified :math:`l` from the constructor."""
         qlm_arrays = self.thisptr.getQlm()
+        # Since Cython does not really support const iteration, we must iterate
+        # using range and not use the for array in qlm_arrays style for loop.
         qlm_list = [freud.util.make_managed_numpy_array(
             &qlm_arrays[i], freud.util.arr_type_t.COMPLEX_FLOAT)
             for i in range(qlm_arrays.size())]
