@@ -717,18 +717,32 @@ cdef class Steinhardt(_PairCompute):
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         import freud.plot
-        xlabel = r"${mode_letter}{prime}_{{{sph_l}{average}}}$".format(
-            mode_letter='w' if self.wl else 'q',
-            prime='\'' if self.weighted else '',
-            sph_l=self.l,
-            average=',ave' if self.average else '')
+
+        ls = self.l
+        if not isinstance(ls, list):
+            ls = [ls]
+
+        legend_labels = [
+            r"${mode_letter}{prime}_{{{sph_l}{average}}}$".format(
+                mode_letter='w' if self.wl else 'q',
+                prime='\'' if self.weighted else '',
+                sph_l=sph_l,
+                average=',ave' if self.average else '')
+            for sph_l in ls
+        ]
+        xlabel = ', '.join(legend_labels)
+
+        # Don't print legend if only one l requested.
+        if len(legend_labels) == 1:
+            legend_labels = None
 
         return freud.plot.histogram_plot(
             self.particle_order,
             title="Steinhardt Order Parameter " + xlabel,
             xlabel=xlabel,
             ylabel=r"Number of particles",
-            ax=ax)
+            ax=ax,
+            legend_labels=legend_labels)
 
     def _repr_png_(self):
         try:
