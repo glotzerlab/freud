@@ -808,6 +808,7 @@ cdef class SolidLiquid(_PairCompute):
         self.thisptr.compute(nlist.get_ptr(),
                              nq.get_ptr(),
                              dereference(qargs.thisptr))
+        return self
 
     @property
     def l(self):  # noqa: E743
