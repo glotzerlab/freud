@@ -60,8 +60,8 @@ cdef class StaticStructureFactor(_Compute):
     :math:`\text{sinc}` function is defined as :math:`\sin x / x` (no factor
     of :math:`\pi` as in some conventions). The derivation of the equation for RDF method
     can be found `here<https://en.wikipedia.org/wiki/Radial_distribution_function>`.
-    The equation 7 from the link can be obtained by replacing :math:`\text{sinc} (k r)` with
-    :math:`\text{sin}(k r)/kr`.
+    The equation 7 from the link can be obtained by replacing :math:`\text{sinc}(k r)` with
+    :math:`\frac{\text{sin}(k r)}{kr}`.
 
     .. note::
         This code assumes all particles have a form factor :math:`f` of 1.
