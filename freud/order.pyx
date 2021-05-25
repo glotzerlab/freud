@@ -430,8 +430,14 @@ cdef class Translational(_PairCompute):
         This class is slated for deprecation and will be removed in freud 3.0.
 
     .. note::
-        The value of per-particle order parameter will be set to 0 for
-        particles with no neighbors.
+        The value of per-particle order parameter will be set to NaN for
+        particles with no neighbors. We choose this value rather than setting
+        the order parameter to 0 because in more complex order parameter
+        calculations, it is possible to observe a value of 0 for the
+        per-particle order parameter even with a finite number of neighbors.
+        If you would like to ignore this distinction, you can mask the output
+        order parameter values using NumPy: :code:`numpy.nan_to_num(particle_order)`.
+
 
     Args:
         k (float, optional):
