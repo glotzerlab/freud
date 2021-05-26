@@ -67,6 +67,7 @@ cdef class DiffractionPattern(_Compute):
     cdef unsigned int _frame_counter
     cdef double _box_matrix_scale_factor
     cdef double[:] _view_orientation
+    cdef double _zoom
     cdef cbool _k_values_cached
     cdef cbool _k_vectors_cached
 
@@ -259,8 +260,7 @@ cdef class DiffractionPattern(_Compute):
         if not self._called_compute:
             # Create a 1D axis of k-vector magnitudes
             self._k_values_orig = np.fft.fftshift(np.fft.fftfreq(
-                n=self.output_size,
-                d=1/self.output_size))
+                n=self.output_size))
 
             # Create a 3D meshgrid of k-vectors with shape
             # (output_size, output_size, 3)
@@ -271,6 +271,7 @@ cdef class DiffractionPattern(_Compute):
         # lazy evaluation of k-values and k-vectors
         self._box_matrix_scale_factor = np.max(system.box.to_matrix())
         self._view_orientation = view_orientation
+        self._zoom = zoom
         self._k_values_cached = False
         self._k_vectors_cached = False
 
@@ -299,7 +300,7 @@ cdef class DiffractionPattern(_Compute):
         """(``output_size``, ) :class:`numpy.ndarray`: k-values."""
         if not self._k_values_cached:
             self._k_values = np.asarray(
-                self._k_values_orig) / self._box_matrix_scale_factor
+                self._k_values_orig) * (2 * np.pi * self.output_size / (self._box_matrix_scale_factor * self._zoom))
             self._k_values_cached = True
         return np.asarray(self._k_values)
 
