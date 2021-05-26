@@ -131,7 +131,7 @@ cdef class DiffractionPattern(_Compute):
         """Zoom, shear, and scale diffraction intensities.
 
         Args:
-            img ((``grid_size//zoom, grid_size//zoom``) :class:`numpy.ndarray`):
+            img ((``grid_size, grid_size``) :class:`numpy.ndarray`):
                 Array of diffraction intensities.
             box (:class:`~.box.Box`):
                 Simulation box.
@@ -219,8 +219,6 @@ cdef class DiffractionPattern(_Compute):
         view_orientation = freud.util._convert_array(
             view_orientation, (4,), np.double)
 
-        grid_size = int(self.grid_size / zoom)
-
         # Compute the box projection matrix
         inv_shear = self._calc_proj(view_orientation, system.box)
 
@@ -233,7 +231,7 @@ cdef class DiffractionPattern(_Compute):
         xy += 0.5
         xy %= 1
         im, _, _ = np.histogram2d(
-            xy[:, 0], xy[:, 1], bins=np.linspace(0, 1, grid_size+1))
+            xy[:, 0], xy[:, 1], bins=np.linspace(0, 1, self.grid_size+1))
 
         # Compute FFT and convolve with Gaussian
         cdef double complex[:, :] diffraction_fft
