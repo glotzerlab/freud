@@ -67,7 +67,7 @@ cdef class DiffractionPattern(_Compute):
     cdef unsigned int _frame_counter
     cdef double _box_matrix_scale_factor
     cdef double[:] _view_orientation
-    cdef double _zoom
+    cdef double _k_scale_factor
     cdef cbool _k_values_cached
     cdef cbool _k_vectors_cached
 
@@ -269,7 +269,7 @@ cdef class DiffractionPattern(_Compute):
         # lazy evaluation of k-values and k-vectors
         self._box_matrix_scale_factor = np.max(system.box.to_matrix())
         self._view_orientation = view_orientation
-        self._zoom = zoom
+        self._k_scale_factor = 2 * np.pi * self.output_size / (self._box_matrix_scale_factor * zoom)
         self._k_values_cached = False
         self._k_vectors_cached = False
 
@@ -297,8 +297,7 @@ cdef class DiffractionPattern(_Compute):
     def k_values(self):
         """(``output_size``, ) :class:`numpy.ndarray`: k-values."""
         if not self._k_values_cached:
-            self._k_values = np.asarray(
-                self._k_values_orig) * (2 * np.pi * self.output_size / (self._box_matrix_scale_factor * self._zoom))
+            self._k_values = np.asarray(self._k_values_orig) * self._k_scale_factor
             self._k_values_cached = True
         return np.asarray(self._k_values)
 
@@ -311,7 +310,7 @@ cdef class DiffractionPattern(_Compute):
         if not self._k_vectors_cached:
             self._k_vectors = rowan.rotate(
                 self._view_orientation,
-                self._k_vectors_orig) / self._box_matrix_scale_factor
+                self._k_vectors_orig) * self._k_scale_factor
             self._k_vectors_cached = True
         return np.asarray(self._k_vectors)
 
