@@ -122,6 +122,8 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
             auto max_l = *std::max_element(m_ls.begin(), m_ls.end());
             fsph::PointSPHEvaluator<float> sph_eval(max_l);
 
+            // Alocate and instantiate this array before looping over particles to prevent N instantiations
+            // and N * m_l.size() allocations.
             YlmsType Ylms(m_ls.size());
             for (size_t l_index = 0; l_index < m_ls.size(); ++l_index)
             {
