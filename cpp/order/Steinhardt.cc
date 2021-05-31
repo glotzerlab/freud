@@ -24,7 +24,7 @@ void Steinhardt::computeYlm(fsph::PointSPHEvaluator<float>& sph_eval, const floa
     {
         auto& Ylm = Ylms[i];
         const auto l = m_ls[i];
-        unsigned int m_index(0);
+        size_t m_index(0);
 
         const auto end_iter(sph_eval.begin_l(l + 1, 0, true));
         for (auto iter(sph_eval.begin_l(l, 0, true)); iter != end_iter; ++iter, ++m_index)
@@ -159,7 +159,7 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
                     auto& Ylm = Ylms[l_index];
                     // Get the initial index and iterate using ++ for faster iteration
                     // Profiling showed using operator() to slow the code significantly.
-                    const size_t index = qlmi.getIndex({static_cast<unsigned int>(i), 0});
+                    const size_t index = qlmi.getIndex({i, 0});
                     for (size_t k = 0; k < m_num_ms[l_index]; ++k)
                     {
                         qlmi[index + k] += weight * Ylm[k];
@@ -176,10 +176,10 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
                 // get l specific vectors/arrays
                 auto& qlmi = m_qlmi[l_index];
                 auto& qlm_local = m_qlm_local[l_index];
-                const size_t index = qlmi.getIndex({static_cast<unsigned int>(i), 0});
+                const size_t index = qlmi.getIndex({i, 0});
                 const size_t qli_index = qli_i_start + l_index;
 
-                for (unsigned int k = 0; k < m_num_ms[l_index]; ++k)
+                for (size_t k = 0; k < m_num_ms[l_index]; ++k)
                 {
                     // Cache the index for efficiency.
                     qlmi[index + k] /= total_weight;
@@ -238,7 +238,7 @@ void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
                     {
                         auto& qlmiAve = m_qlmiAve[l_index];
                         auto& qlmi = m_qlmi[l_index];
-                        const auto ave_index = qlmiAve.getIndex({static_cast<unsigned int>(i), 0});
+                        const auto ave_index = qlmiAve.getIndex({i, 0});
                         const auto nb2_index = qlmi.getIndex({nb2.point_idx, 0});
                         for (size_t k = 0; k < m_num_ms[l_index]; ++k)
                         {
@@ -254,13 +254,13 @@ void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
 
             // Normalize!
 
-            const size_t qliAve_i_start = m_qliAve.getIndex({static_cast<unsigned int>(i), 0});
+            const size_t qliAve_i_start = m_qliAve.getIndex({i, 0});
             for (size_t l_index = 0; l_index < m_ls.size(); ++l_index)
             {
                 auto& qlmiAve = m_qlmiAve[l_index];
                 auto& qlmi = m_qlmi[l_index];
                 auto& qlm_local = m_qlm_local[l_index];
-                const size_t index = qlmiAve.getIndex({static_cast<unsigned int>(i), 0});
+                const size_t index = qlmiAve.getIndex({i, 0});
                 const size_t qliAve_index = qliAve_i_start + l_index;
 
                 for (size_t k = 0; k < m_num_ms[l_index]; ++k)
@@ -288,7 +288,7 @@ std::vector<float> Steinhardt::normalizeSystem()
         auto l = m_ls[l_index];
         float calc_norm(0);
         const auto normalizationfactor = static_cast<float>(4.0 * M_PI / m_num_ms[l_index]);
-        for (unsigned int k = 0; k < m_num_ms[l_index]; ++k)
+        for (size_t k = 0; k < m_num_ms[l_index]; ++k)
         {
             // Add the norm, which is the complex squared magnitude
             calc_norm += norm(qlm[k]);
@@ -335,7 +335,7 @@ void Steinhardt::aggregatewl(util::ManagedArray<float>& target,
                 const auto wigner3j_values = getWigner3j(l);
 
                 target[target_particle_index + l_index]
-                    = reduceWigner3j(&(source_l({static_cast<unsigned int>(i), 0})), l, wigner3j_values);
+                    = reduceWigner3j(&(source_l({i, 0})), l, wigner3j_values);
                 if (m_wl_normalize)
                 {
                     const float normalization = std::sqrt(normalizationfactor) /
