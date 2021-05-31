@@ -240,7 +240,7 @@ void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
                         auto& qlmi = m_qlmi[l_index];
                         const auto ave_index = qlmiAve.getIndex({static_cast<unsigned int>(i), 0});
                         const auto nb2_index = qlmi.getIndex({nb2.point_idx, 0});
-                        for (unsigned int k = 0; k < m_num_ms[l_index]; ++k)
+                        for (size_t k = 0; k < m_num_ms[l_index]; ++k)
                         {
                             // Adding all the qlm of the neighbors. We use the
                             // vector function signature for indexing into the
@@ -263,7 +263,7 @@ void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
                 const size_t index = qlmiAve.getIndex({static_cast<unsigned int>(i), 0});
                 const size_t qliAve_index = qliAve_i_start + l_index;
 
-                for (unsigned int k = 0; k < m_num_ms[l_index]; ++k)
+                for (size_t k = 0; k < m_num_ms[l_index]; ++k)
                 {
                     // Cache the index for efficiency.
                     // Adding the qlm of the particle i itself
