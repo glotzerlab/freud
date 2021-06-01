@@ -51,8 +51,6 @@ using YlmsType = std::vector<std::vector<std::complex<float>>>;
  * If the flag wl_normalize is set, the third-order invariant wl order parameter
  * will be normalized.
  *
- * We compute the Steinhardt order parameter for one or more l specified in m_ls.
- *
  * For more details see:
  * - PJ Steinhardt (1983) (DOI: 10.1103/PhysRevB.28.784)
  * - Wolfgang Lechner (2008) (DOI: 10.1063/Journal of Chemical Physics 129.114707)
