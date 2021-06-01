@@ -53,6 +53,7 @@ Vyas Ramasubramani - **Lead developer**
 * Refactored and standardized PMFT tests.
 * Rewrote build system to use scikit-build.
 * Added support for pre-commit hooks.
+* Added the `out` option for the `unwrap`, `make_fractional`, and `make_absolute` methods of `Box`.
 * Enabled access to the qlmi arrays in Steinhardt and SolidLiquid and added rigorous tests of correctness.
 
 Bradley Dice - **Lead developer**
