@@ -12,7 +12,6 @@
 
 namespace freud { namespace order {
 
-
 // Calculating Ylm using fsph module
 void Steinhardt::computeYlm(fsph::PointSPHEvaluator<float>& sph_eval, const float theta, const float phi,
                             YlmsType& Ylms) const
