@@ -63,7 +63,7 @@ class Steinhardt
 public:
     //! Steinhardt Class Constructor
     /*! Constructor for Steinhardt analysis class.
-     *  \param l One or more values of the spherical harmonic parameter `l`. Must be non-negative integers.
+     *  \param ls Spherical harmonic numbers l. Must be non-negative integers.
      */
     explicit Steinhardt(const std::vector<unsigned int>& ls, bool average = false, bool wl = false,
                         bool weighted = false, bool wl_normalize = false)
@@ -76,6 +76,14 @@ public:
         std::transform(m_ls.cbegin(), m_ls.cend(), m_qlm_local.begin(),
                        [](const auto& l) { return util::ThreadStorage<std::complex<float>>(2 * l + 1); });
     }
+
+    //! Steinhardt Class Constructor
+    /*! Constructor for Steinhardt analysis class.
+     *  \param l Spherical harmonic number l. Must be non-negative integers.
+     */
+    explicit Steinhardt(const unsigned int l, bool average = false, bool wl = false,
+                        bool weighted = false, bool wl_normalize = false)
+        : Steinhardt(std::vector<unsigned int>{l}, average, wl, weighted, wl_normalize) {}
 
     //! Empty destructor
     ~Steinhardt() = default;
