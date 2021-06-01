@@ -22,6 +22,8 @@
 
 namespace freud { namespace order {
 
+using YlmsType = std::vector<std::vector<std::complex<float>>>;
+
 //! Compute the Steinhardt local rotationally invariant ql or wl order parameter for a set of points
 /*!
  * Implements the rotationally invariant ql or wl order parameter described
@@ -155,7 +157,7 @@ private:
     //  std::vector<std::vector<std::complex<float> > > with values for m = 0, 1, ..., l, -1, ..., -l
     //  for all l in m_ls
     void computeYlm(fsph::PointSPHEvaluator<float>& sph_eval, const float theta, const float phi,
-                    std::vector<std::vector<std::complex<float>>>& Ylms) const;
+                    YlmsType& Ylms) const;
 
     template<typename T> std::shared_ptr<T> makeArray(size_t size);
 
