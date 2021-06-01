@@ -206,7 +206,7 @@ cdef class Box:
 
         cdef const float[:, ::1] l_points = fractions
         cdef unsigned int Np = l_points.shape[0]
-        cdef const float[:, ::1] l_out = out
+        cdef float[:, ::1] l_out = out
 
         self.thisptr.makeAbsolute(
                 <vec3[float]*> &l_points[0, 0], Np,
@@ -239,7 +239,7 @@ cdef class Box:
 
         cdef const float[:, ::1] l_points = vecs
         cdef unsigned int Np = l_points.shape[0]
-        cdef const float[:, ::1] l_out = out
+        cdef float[:, ::1] l_out = out
 
         self.thisptr.makeFractional(
                 <vec3[float]*> &l_points[0, 0], Np,
@@ -333,7 +333,7 @@ cdef class Box:
 
         cdef const float[:, ::1] l_points = vecs
         cdef unsigned int Np = l_points.shape[0]
-        cdef const float[:, ::1] l_out = out
+        cdef float[:, ::1] l_out = out
 
         self.thisptr.wrap(<vec3[float]*> &l_points[0, 0],
                           Np, <vec3[float]*> &l_out[0, 0])
@@ -376,7 +376,7 @@ cdef class Box:
         cdef const float[:, ::1] l_points = vecs
         cdef const int[:, ::1] l_imgs = imgs
         cdef unsigned int Np = l_points.shape[0]
-        cdef const float[:, ::1] l_out = out
+        cdef float[:, ::1] l_out = out
 
         self.thisptr.unwrap(<vec3[float]*> &l_points[0, 0],
                             <vec3[int]*> &l_imgs[0, 0], Np,
