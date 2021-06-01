@@ -61,7 +61,7 @@ class Steinhardt
 public:
     //! Steinhardt Class Constructor
     /*! Constructor for Steinhardt analysis class.
-     *  \param l Spherical harmonic numbers l. Must be non-negative integers.
+     *  \param l One or more values of the spherical harmonic parameter `l`. Must be non-negative integers.
      */
     explicit Steinhardt(const std::vector<unsigned int>& ls, bool average = false, bool wl = false,
                         bool weighted = false, bool wl_normalize = false)
