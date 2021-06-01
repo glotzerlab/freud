@@ -137,7 +137,7 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
                 // phi is usually in range 0..2Pi, but
                 // it only appears in Ylm as exp(im\phi),
                 // so range -Pi..Pi will give same results.
-                float phi = std::atan2(delta.y, delta.x); // -Pi..Pi
+                const float phi = std::atan2(delta.y, delta.x); // -Pi..Pi
 
                 // This value must be clamped in cases where the particles are
                 // aligned along z, otherwise due to floating point error we
@@ -157,7 +157,7 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
                 for (size_t l_index = 0; l_index < m_ls.size(); ++l_index)
                 {
                     auto& qlmi = m_qlmi[l_index];
-                    auto& Ylm = Ylms[l_index];
+                    const auto& Ylm = Ylms[l_index];
                     // Get the initial index and iterate using ++ for faster iteration
                     // Profiling showed using operator() to slow the code significantly.
                     const size_t index = qlmi.getIndex({i, 0});
