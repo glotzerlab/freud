@@ -161,10 +161,9 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
                     // Get the initial index and iterate using ++ for faster iteration
                     // Profiling showed using operator() to slow the code significantly.
                     const size_t index = qlmi.getIndex({i, 0});
-                    const size_t max_index = index + m_num_ms[l_index];
-                    for (size_t k = index; k < max_index; ++k)
+                    for (size_t k = 0; k < m_num_ms[l_index]; ++k)
                     {
-                        qlmi[k] += weight * Ylm[k];
+                        qlmi[index + k] += weight * Ylm[k];
                     }
                 }
                 // Accumulate weight for normalization
