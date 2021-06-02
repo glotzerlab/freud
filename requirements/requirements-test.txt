@@ -1,4 +1,4 @@
-cmake==3.18.4.post1
+cmake==3.20.2
 codecov==2.1.11
 coverage==5.5
 cython==0.29.23
