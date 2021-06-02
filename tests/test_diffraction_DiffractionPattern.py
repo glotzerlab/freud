@@ -160,7 +160,10 @@ class TestDiffractionPattern:
         dp = freud.diffraction.DiffractionPattern()
 
         for size in [2, 5, 10]:
+            # TODO: npoints doesn't actually matter, just use one point.
             for npoints in [10, 20, 75]:
+                # TODO: This isn't using the correct signature for
+                # make_random_system. Flip npoints and size.
                 box, positions = freud.data.make_random_system(npoints, size)
                 dp.compute((box, positions))
 
@@ -168,3 +171,30 @@ class TestDiffractionPattern:
                 npt.assert_allclose(dp.k_values[output_size // 2], 0)
                 center_index = (output_size // 2, output_size // 2)
                 npt.assert_allclose(dp.k_vectors[center_index], [0, 0, 0])
+                # Add tests for the left and right bins. Use the math for
+                # fftfreq and the _k_scale_factor to write an expression for
+                # the first and last bins' k-values and k-vectors.
+
+    def test_cubic_system(self):
+        box, positions = freud.data.UnitCell.sc().generate_system(10)
+        dp = freud.diffraction.DiffractionPattern()
+        dp.compute((box, positions))
+        # Make sure that the peaks are where we expect them.
+        # Identify the indices of the highest values in dp.diffraction
+        # and test that k * R == 2*pi*N for some integer N, all peak vectors k,
+        # and lattice vectors R. This will be inexact because of binning.
+        # Perhaps try with a larger resolution like 1024.
+        # Use npt.assert_allclose.
+
+    def test_cubic_system_parameterized(self):
+        pass
+        # Second PR: Same as above test but with different grid_size,
+        # output_size, and zoom values.
+        for grid_size in (256, 1024):
+            for output_size in (255, 256, 1023, 1024):
+                for zoom in (1, 2.5, 4):
+                    # Ensure that peaks are in the correct locations like above.
+                    # Identify the indices of the highest values in
+                    # dp.diffraction and test that k * R == 2*pi*N for some
+                    # integer N, all peak vectors k, and lattice vectors R.
+                    pass
