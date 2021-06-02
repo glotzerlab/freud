@@ -46,6 +46,10 @@ cdef class DiffractionPattern(_Compute):
     as a multiplication in Fourier space. The computed diffraction pattern
     can be accessed as a square array of shape ``(output_size, output_size)``.
 
+    The :math:`\vec{k}=0` peak is always located at index
+    ``(output_size // 2, output_size // 2)`` and is normalized to have a value
+    of :math:`S(\vec{k}=0) = 1` (not :math:`N`, a common convention).
+
     This method is based on the implementations in the open-source
     `GIXStapose application <https://github.com/cmelab/GIXStapose>`_ and its
     predecessor, diffractometer :cite:`Jankowski2017`.
@@ -148,7 +152,8 @@ cdef class DiffractionPattern(_Compute):
         # The adjustments to roll and roll_shift ensure that the peak
         # corresponding to k=0 is located at exactly
         # (output_size//2, output_size//2), regardless of whether the grid_size
-        # and output_size are odd or even.
+        # and output_size are odd or even. This keeps the peak aligned at the
+        # center of a single pixel, which should always have the maximum value.
 
         roll = img.shape[0] / 2
         if img.shape[0] % 2 == 1:
@@ -289,7 +294,7 @@ cdef class DiffractionPattern(_Compute):
     def diffraction(self):
         """
         (``output_size``, ``output_size``) :class:`numpy.ndarray`:
-            diffraction pattern.
+            Diffraction pattern.
         """
         return np.asarray(self._diffraction) / self._frame_counter
 
