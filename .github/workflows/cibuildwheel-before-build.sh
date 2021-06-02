@@ -24,6 +24,6 @@ mv "oneTBB-${TBB_VERSION}" "${PACKAGE_DIR}/tbb"
 cd "${PACKAGE_DIR}/tbb"
 mkdir -p build
 cd build
-cmake ../ -DTBB_TEST=OFF
+cmake ../ -DTBB_TEST=OFF -DTBB_STRICT=OFF
 cmake --build . -j
 cmake --install .
