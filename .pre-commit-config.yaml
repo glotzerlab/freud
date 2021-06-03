@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: 'v3.4.0'
+    rev: 'v4.0.1'
     hooks:
       - id: end-of-file-fixer
         exclude: '(?:.*\.(ai|txt)|extern/.*)'
@@ -13,7 +13,7 @@ repos:
       - id: debug-statements
       - id: requirements-txt-fixer
   - repo: https://github.com/asottile/pyupgrade
-    rev: 'v2.15.0'
+    rev: 'v2.19.0'
     hooks:
       - id: pyupgrade
         args:
@@ -23,7 +23,7 @@ repos:
     hooks:
       - id: isort
   - repo: https://github.com/psf/black
-    rev: '21.5b1'
+    rev: '21.5b2'
     hooks:
       - id: black
   - repo: https://github.com/PyCQA/flake8
