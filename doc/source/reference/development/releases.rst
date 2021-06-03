@@ -61,8 +61,8 @@ Code Formatting
     # Apply default pre-commit hooks (Python and generic formatters)
     pre-commit run --all-files
 
-    # Apply C++ pre-commit hooks (requires clang-format and other tools)
-    pre-commit run --all-files -c .pre-commit-config-cpp.yaml
+    # Apply C++ pre-commit hooks (requires local installation of clang-format and other tools)
+    pre-commit run --all-files --hook-stage manual
 
 Contributors
 ------------
