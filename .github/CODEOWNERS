@@ -1,1 +1,8 @@
+# Request a freud developer on each pull request.
 * @glotzerlab/freud-developers
+# Request maintainers for changes to requirements or CI
+requirements/* @glotzerlab/freud-maintainers
+requirements.txt @glotzerlab/freud-maintainers
+.github @glotzerlab/freud-maintainers
+.pre-commit-config.yaml @glotzerlab/freud-maintainers
+.pre-commit-config-cpp.yaml @glotzerlab/freud-maintainers
