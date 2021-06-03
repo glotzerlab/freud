@@ -43,8 +43,9 @@ inline std::complex<float> RotationalAutocorrelation::hypersphere_harmonic(const
     std::complex<float> sum_tracker(0, 0);
     for (unsigned int k = (m1 + m2 < m_l ? 0 : m1 + m2 - m_l); k <= std::min(m1, m2); k++)
     {
-        float fact_product = static_cast<float>(m_factorials[k]) * static_cast<float>(m_factorials[m_l + k - m1 - m2])
-            * static_cast<float>(m_factorials[m1 - k]) * static_cast<float>(m_factorials[m2 - k]);
+        float fact_product = static_cast<float>(m_factorials[k])
+            * static_cast<float>(m_factorials[m_l + k - m1 - m2]) * static_cast<float>(m_factorials[m1 - k])
+            * static_cast<float>(m_factorials[m2 - k]);
         sum_tracker += cpow(xi_conj, k) * cpow(zeta, m2 - k) * cpow(zeta_conj, m1 - k)
             * cpow(-xi, m_l + k - m1 - m2) / fact_product;
     }
