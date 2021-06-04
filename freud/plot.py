@@ -241,7 +241,7 @@ def clusters_plot(keys, freqs, num_clusters_to_plot=10, ax=None):
         :class:`matplotlib.axes.Axes`: Axes object with the diagram.
     """
     count_sorted = sorted(
-        [(freq, key) for key, freq in zip(keys, freqs)], key=lambda x: -x[0]
+        ((freq, key) for key, freq in zip(keys, freqs)), key=lambda x: -x[0]
     )
     sorted_freqs = [i[0] for i in count_sorted[:num_clusters_to_plot]]
     sorted_keys = [str(i[1]) for i in count_sorted[:num_clusters_to_plot]]
