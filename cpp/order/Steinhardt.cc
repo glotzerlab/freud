@@ -176,19 +176,21 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
                 // get l specific vectors/arrays
                 auto& qlmi = m_qlmi[l_index];
                 auto& qlm_local = m_qlm_local[l_index];
-                const size_t index = qlmi.getIndex({i, 0});
+                const size_t first_qlmi_index = qlmi.getIndex({i, 0});
                 const size_t qli_index = qli_i_start + l_index;
 
                 for (size_t k = 0; k < m_num_ms[l_index]; ++k)
                 {
                     // Cache the index for efficiency.
-                    qlmi[index + k] /= total_weight;
+                    const size_t qlmi_index = first_qlmi_index + k;
+
+                    qlmi[qlmi_index] /= total_weight;
                     // Add the norm, which is the (complex) squared magnitude
-                    m_qli[qli_index] += norm(qlmi[index + k]);
+                    m_qli[qli_index] += norm(qlmi[qlmi_index]);
                     // This array gets populated by computeAve in the averaging case.
                     if (!m_average)
                     {
-                        qlm_local.local()[k] += qlmi[index + k] / float(m_Np);
+                        qlm_local.local()[k] += qlmi[qlmi_index] / float(m_Np);
                     }
                 }
                 m_qli[qli_index] *= normalizationfactor[l_index];
@@ -260,18 +262,19 @@ void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
                 auto& qlmiAve = m_qlmiAve[l_index];
                 auto& qlmi = m_qlmi[l_index];
                 auto& qlm_local = m_qlm_local[l_index];
-                const size_t index = qlmiAve.getIndex({i, 0});
+                const size_t first_qlmi_index = qlmiAve.getIndex({i, 0});
                 const size_t qliAve_index = qliAve_i_start + l_index;
 
                 for (size_t k = 0; k < m_num_ms[l_index]; ++k)
                 {
                     // Cache the index for efficiency.
+                    const size_t qlmi_index = first_qlmi_index + k;
                     // Adding the qlm of the particle i itself
-                    qlmiAve[index + k] += qlmi[index + k];
-                    qlmiAve[index + k] /= static_cast<float>(neighborcount);
-                    qlm_local.local()[k] += qlmiAve[index + k] / float(m_Np);
+                    qlmiAve[qlmi_index] += qlmi[qlmi_index];
+                    qlmiAve[qlmi_index] /= static_cast<float>(neighborcount);
+                    qlm_local.local()[k] += qlmiAve[qlmi_index] / float(m_Np);
                     // Add the norm, which is the complex squared magnitude
-                    m_qliAve[qliAve_index] += norm(qlmiAve[index + k]);
+                    m_qliAve[qliAve_index] += norm(qlmiAve[qlmi_index]);
                 }
                 m_qliAve[qliAve_index] *= normalizationfactor[l_index];
                 m_qliAve[qliAve_index] = std::sqrt(m_qliAve[qliAve_index]);
