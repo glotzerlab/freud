@@ -11,7 +11,7 @@ import freud
 try:
     import matplotlib.pyplot as plt
     from matplotlib.backends.backend_agg import FigureCanvasAgg
-    from matplotlib.ticker import MaxNLocator, FormatStrFormatter
+    from matplotlib.ticker import FormatStrFormatter, MaxNLocator
 except ImportError:
     raise ImportError("matplotlib must be installed for freud.plot.")
 
@@ -523,8 +523,7 @@ def diffraction_plot(
 
     # Plot the diffraction image and color bar
     norm = matplotlib.colors.LogNorm(vmin=vmin, vmax=vmax)
-    extent = (np.min(k_values), np.max(k_values),
-            np.min(k_values), np.max(k_values))
+    extent = (np.min(k_values), np.max(k_values), np.min(k_values), np.max(k_values))
     im = ax.imshow(
         np.clip(diffraction, vmin, vmax),
         interpolation="nearest",
@@ -548,7 +547,7 @@ def diffraction_plot(
     # Set tick locations and labels
     ax.xaxis.set_major_locator(MaxNLocator(nbins=6, symmetric=True, min_n_ticks=7))
     ax.yaxis.set_major_locator(MaxNLocator(nbins=6, symmetric=True, min_n_ticks=7))
-    formatter = FormatStrFormatter('%.3g')
+    formatter = FormatStrFormatter("%.3g")
     ax.xaxis.set_major_formatter(formatter)
     ax.yaxis.set_major_formatter(formatter)
 
