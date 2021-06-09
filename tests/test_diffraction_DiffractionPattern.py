@@ -172,7 +172,7 @@ class TestDiffractionPattern:
 
             # Tests for the left and right k_value bins. Uses the math for
             # np.fft.n
-            #fftfreq and the _k_scale_factor to write an expression for
+            # fftfreq and the _k_scale_factor to write an expression for
             # the first and last bins' k-values and k-vectors.
 
             scale_factor = 2 * np.pi * output_size / (np.max(box.to_matrix()) * zoom)
@@ -185,8 +185,12 @@ class TestDiffractionPattern:
                 npt.assert_allclose(dp.k_values[0], first_k_bin)
                 npt.assert_allclose(dp.k_values[-1], last_k_bin)
 
-                first_k_vector = rowan.rotate(view_orientation, [first_k_bin, first_k_bin, 0])
-                last_k_vector = rowan.rotate(view_orientation, [last_k_bin, last_k_bin, 0])
+                first_k_vector = rowan.rotate(
+                    view_orientation, [first_k_bin, first_k_bin, 0]
+                )
+                last_k_vector = rowan.rotate(
+                    view_orientation, [last_k_bin, last_k_bin, 0]
+                )
 
                 npt.assert_allclose(dp.k_vectors[0, 0], first_k_vector)
                 npt.assert_allclose(dp.k_vectors[-1, -1], last_k_vector)
@@ -199,8 +203,12 @@ class TestDiffractionPattern:
                 npt.assert_allclose(dp.k_values[0], first_k_bin)
                 npt.assert_allclose(dp.k_values[-1], last_k_bin)
 
-                first_k_vector = rowan.rotate(view_orientation, [first_k_bin, first_k_bin, 0])
-                last_k_vector = rowan.rotate(view_orientation, [last_k_bin, last_k_bin, 0])
+                first_k_vector = rowan.rotate(
+                    view_orientation, [first_k_bin, first_k_bin, 0]
+                )
+                last_k_vector = rowan.rotate(
+                    view_orientation, [last_k_bin, last_k_bin, 0]
+                )
 
                 npt.assert_allclose(dp.k_vectors[0, 0], first_k_vector)
                 npt.assert_allclose(dp.k_vectors[-1, -1], last_k_vector)
