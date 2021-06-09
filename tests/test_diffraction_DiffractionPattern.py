@@ -160,20 +160,50 @@ class TestDiffractionPattern:
         dp = freud.diffraction.DiffractionPattern()
 
         for size in [2, 5, 10]:
-            # TODO: npoints doesn't actually matter, just use one point.
-            for npoints in [10, 20, 75]:
-                # TODO: This isn't using the correct signature for
-                # make_random_system. Flip npoints and size.
-                box, positions = freud.data.make_random_system(npoints, size)
-                dp.compute((box, positions))
+            box, positions = freud.data.make_random_system(size, 1)
+            zoom = 4
+            view_orientation = np.asarray([1, 0, 0, 0])
+            dp.compute((box, positions), view_orientation=view_orientation, zoom=zoom)
 
-                output_size = dp.output_size
-                npt.assert_allclose(dp.k_values[output_size // 2], 0)
-                center_index = (output_size // 2, output_size // 2)
-                npt.assert_allclose(dp.k_vectors[center_index], [0, 0, 0])
-                # Add tests for the left and right bins. Use the math for
-                # fftfreq and the _k_scale_factor to write an expression for
-                # the first and last bins' k-values and k-vectors.
+            output_size = dp.output_size
+            npt.assert_allclose(dp.k_values[output_size // 2], 0)
+            center_index = (output_size // 2, output_size // 2)
+            npt.assert_allclose(dp.k_vectors[center_index], [0, 0, 0])
+
+            # Tests for the left and right k_value bins. Uses the math for
+            # np.fft.n
+            #fftfreq and the _k_scale_factor to write an expression for
+            # the first and last bins' k-values and k-vectors.
+
+            scale_factor = 2 * np.pi * output_size / (np.max(box.to_matrix()) * zoom)
+
+            if output_size % 2 == 0:
+
+                first_k_bin = -0.5 * scale_factor
+                last_k_bin = (0.5 - (1 / output_size)) * scale_factor
+
+                npt.assert_allclose(dp.k_values[0], first_k_bin)
+                npt.assert_allclose(dp.k_values[-1], last_k_bin)
+
+                first_k_vector = rowan.rotate(view_orientation, [first_k_bin, first_k_bin, 0])
+                last_k_vector = rowan.rotate(view_orientation, [last_k_bin, last_k_bin, 0])
+
+                npt.assert_allclose(dp.k_vectors[0, 0], first_k_vector)
+                npt.assert_allclose(dp.k_vectors[-1, -1], last_k_vector)
+
+            if output_size % 2 == 1:
+
+                first_k_bin = (-0.5 + 1 / (2 * output_size)) * scale_factor
+                last_k_bin = (0.5 - 1 / (2 * output_size)) * scale_factor
+
+                npt.assert_allclose(dp.k_values[0], first_k_bin)
+                npt.assert_allclose(dp.k_values[-1], last_k_bin)
+
+                first_k_vector = rowan.rotate(view_orientation, [first_k_bin, first_k_bin, 0])
+                last_k_vector = rowan.rotate(view_orientation, [last_k_bin, last_k_bin, 0])
+
+                npt.assert_allclose(dp.k_vectors[0, 0], first_k_vector)
+                npt.assert_allclose(dp.k_vectors[-1, -1], last_k_vector)
 
     def test_cubic_system(self):
         box, positions = freud.data.UnitCell.sc().generate_system(10)
