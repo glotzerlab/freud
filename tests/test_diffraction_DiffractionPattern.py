@@ -3,6 +3,7 @@ import numpy as np
 import numpy.testing as npt
 import pytest
 import rowan
+from scipy.cluster import vq
 
 import freud
 
@@ -267,17 +268,28 @@ class TestDiffractionPattern:
                 npt.assert_allclose(dp.k_vectors[-1, centre], right_centre_k_vector)
 
     def test_cubic_system(self):
-        pass
-
-        box, positions = freud.data.UnitCell.sc().generate_system(10)
+        length = 1
+        box, positions = freud.data.UnitCell.sc().generate_system(num_replicas=16, scale=length, sigma_noise=0.1*length)
         dp = freud.diffraction.DiffractionPattern()
         dp.compute((box, positions))
+
         # Make sure that the peaks are where we expect them.
         # Identify the indices of the highest values in dp.diffraction
-        # and test that k * R == 2*pi*N for some integer N, all peak vectors k,
+        # and test that k * R == 2*pi*N for some integer N, for the corresponding peak k vectors
         # and lattice vectors R. This will be inexact because of binning.
-        # Perhaps try with a larger resolution like 1024.
-        # Use npt.assert_allclose.
+        threshold = np.partition(dp.diffraction, -50)[-50]
+        xs, ys = np.nonzero(dp.diffraction > threshold)
+        xy = np.dstack((xs, ys))[0]
+
+        peaks, _ = vq.kmeans(xy.astype(float), 9)
+        peaks = peaks.astype(int)
+
+        for peak in peaks:
+            peak_k_vector = dp.k_vectors[peak[0], peak[1]]
+            lattice_vector = [length, length, length]
+            dot_prod = np.dot(peak_k_vector, lattice_vector)
+
+            npt.assert_allclose(dot_prod % (2 * np.pi), 0)
 
     def test_cubic_system_parameterized(self):
         pass
