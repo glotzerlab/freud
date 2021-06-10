@@ -238,7 +238,7 @@ class TestDiffractionPattern:
         pass
 
         box, positions = freud.data.UnitCell.sc().generate_system(10)
-        dp = freud.diffraction.DiffractionPattern(grid_size = 1024)
+        dp = freud.diffraction.DiffractionPattern()
         dp.compute((box, positions))
         # Make sure that the peaks are where we expect them.
         # Identify the indices of the highest values in dp.diffraction
