@@ -269,7 +269,9 @@ class TestDiffractionPattern:
 
     def test_cubic_system(self):
         length = 1
-        box, positions = freud.data.UnitCell.sc().generate_system(num_replicas=16, scale=length, sigma_noise=0.1*length)
+        box, positions = freud.data.UnitCell.sc().generate_system(
+            num_replicas=16, scale=length, sigma_noise=0.1 * length
+        )
         dp = freud.diffraction.DiffractionPattern()
         dp.compute((box, positions))
 
