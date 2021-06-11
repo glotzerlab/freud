@@ -203,24 +203,24 @@ class TestDiffractionPattern:
                 npt.assert_allclose(dp.k_vectors[0, -1], top_right_k_vector)
                 npt.assert_allclose(dp.k_vectors[-1, 0], bottom_left_k_vector)
 
-                centre = output_size // 2
-                top_centre_k_vector = rowan.rotate(
+                center = output_size // 2
+                top_center_k_vector = rowan.rotate(
                     view_orientation, [0, first_k_value, 0]
                 )
-                bottom_centre_k_vector = rowan.rotate(
+                bottom_center_k_vector = rowan.rotate(
                     view_orientation, [0, last_k_value, 0]
                 )
-                left_centre_k_vector = rowan.rotate(
+                left_center_k_vector = rowan.rotate(
                     view_orientation, [first_k_value, 0, 0]
                 )
-                right_centre_k_vector = rowan.rotate(
+                right_center_k_vector = rowan.rotate(
                     view_orientation, [last_k_value, 0, 0]
                 )
 
-                npt.assert_allclose(dp.k_vectors[centre, 0], top_centre_k_vector)
-                npt.assert_allclose(dp.k_vectors[centre, -1], bottom_centre_k_vector)
-                npt.assert_allclose(dp.k_vectors[0, centre], left_centre_k_vector)
-                npt.assert_allclose(dp.k_vectors[-1, centre], right_centre_k_vector)
+                npt.assert_allclose(dp.k_vectors[center, 0], top_center_k_vector)
+                npt.assert_allclose(dp.k_vectors[center, -1], bottom_center_k_vector)
+                npt.assert_allclose(dp.k_vectors[0, center], left_center_k_vector)
+                npt.assert_allclose(dp.k_vectors[-1, center], right_center_k_vector)
 
             else:
 
@@ -248,58 +248,88 @@ class TestDiffractionPattern:
                 npt.assert_allclose(dp.k_vectors[0, -1], top_right_k_vector)
                 npt.assert_allclose(dp.k_vectors[-1, 0], bottom_left_k_vector)
 
-                centre = output_size // 2
-                top_centre_k_vector = rowan.rotate(
+                center = output_size // 2
+                top_center_k_vector = rowan.rotate(
                     view_orientation, [0, first_k_value, 0]
                 )
-                bottom_centre_k_vector = rowan.rotate(
+                bottom_center_k_vector = rowan.rotate(
                     view_orientation, [0, last_k_value, 0]
                 )
-                left_centre_k_vector = rowan.rotate(
+                left_center_k_vector = rowan.rotate(
                     view_orientation, [first_k_value, 0, 0]
                 )
-                right_centre_k_vector = rowan.rotate(
+                right_center_k_vector = rowan.rotate(
                     view_orientation, [last_k_value, 0, 0]
                 )
 
-                npt.assert_allclose(dp.k_vectors[centre, 0], top_centre_k_vector)
-                npt.assert_allclose(dp.k_vectors[centre, -1], bottom_centre_k_vector)
-                npt.assert_allclose(dp.k_vectors[0, centre], left_centre_k_vector)
-                npt.assert_allclose(dp.k_vectors[-1, centre], right_centre_k_vector)
+                npt.assert_allclose(dp.k_vectors[center, 0], top_center_k_vector)
+                npt.assert_allclose(dp.k_vectors[center, -1], bottom_center_k_vector)
+                npt.assert_allclose(dp.k_vectors[0, center], left_center_k_vector)
+                npt.assert_allclose(dp.k_vectors[-1, center], right_center_k_vector)
 
     def test_cubic_system(self):
         length = 1
-        box, positions = freud.data.UnitCell.sc().generate_system(num_replicas=16, scale=length, sigma_noise=0.1*length)
+        box, positions = freud.data.UnitCell.sc().generate_system(
+            num_replicas=16, scale=length, sigma_noise=0.1*length
+        )
         dp = freud.diffraction.DiffractionPattern()
-        dp.compute((box, positions))
+        dp.compute((box, positions), zoom=2)
 
         # Make sure that the peaks are where we expect them.
         # Identify the indices of the highest values in dp.diffraction
         # and test that k * R == 2*pi*N for some integer N, for the corresponding peak k vectors
         # and lattice vectors R. This will be inexact because of binning.
-        threshold = np.partition(dp.diffraction, -50)[-50]
+        threshold = np.partition(dp.diffraction.flatten(), -50)[-50]
         xs, ys = np.nonzero(dp.diffraction > threshold)
         xy = np.dstack((xs, ys))[0]
 
-        peaks, _ = vq.kmeans(xy.astype(float), 9)
-        peaks = peaks.astype(int)
+        centers, _ = vq.kmeans(xy.astype(float), 9)
+        centers = centers.astype(int)
 
-        for peak in peaks:
-            peak_k_vector = dp.k_vectors[peak[0], peak[1]]
+        for center in centers:
+            peak_k_vector = dp.k_vectors[center[0], center[1]]
             lattice_vector = [length, length, length]
             dot_prod = np.dot(peak_k_vector, lattice_vector)
 
             npt.assert_allclose(dot_prod % (2 * np.pi), 0)
 
     def test_cubic_system_parameterized(self):
-        pass
-        # Second PR: Same as above test but with different grid_size,
+        length = 1
+        box, positions = freud.data.UnitCell.sc().generate_system(
+            num_replicas=16, scale=length, sigma_noise=0.1*length
+        )
+        #Same as above test but with different grid_size,
         # output_size, and zoom values.
         for grid_size in (256, 1024):
             for output_size in (255, 256, 1023, 1024):
                 for zoom in (1, 2.5, 4):
-                    # Ensure that peaks are in the correct locations like above.
-                    # Identify the indices of the highest values in
-                    # dp.diffraction and test that k * R == 2*pi*N for some
-                    # integer N, all peak vectors k, and lattice vectors R.
-                    pass
+                    dp = freud.diffraction.DiffractionPattern(
+                        grid_size=grid_size, output_size=output_size,
+                        )
+                    dp.compute((box, positions), zoom=zoom)
+
+                    # Locate brightest areas of diffraction pattern (intensity > threshold),
+                    # and check that the ideal diffraction peak locations, given by
+                    # k * R = 2*pi*N for some lattice vector R and integer N, are contained
+                    # within these regions. This test only checks N in range [-2, 2].
+                    threshold = 0.2
+                    xs, ys = np.nonzero(dp.diffraction > threshold)
+                    xy = np.dstack((xs, ys))[0]
+
+                    ideal_peaks = {-2:'f', -1:'f', 0:'f', 1:'f', 2:'f'}
+                    all_peaks = True
+
+                    for peak in ideal_peaks:
+                        for x, y in xy:
+                            k_vector = dp.k_vectors[x, y]
+                            lattice_vector = [1, 1, 1]
+                            dot_prod = np.dot(k_vector, lattice_vector)
+                                            
+                            if dot_prod == (peak * 2 * np.pi):
+                                ideal_peaks[peak] = 't'
+                                
+                    for peak in ideal_peaks:
+                        if ideal_peaks[peak] == 'f':
+                            all_peaks = False
+
+                    assert all_peaks == True
