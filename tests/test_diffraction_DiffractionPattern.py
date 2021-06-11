@@ -324,10 +324,10 @@ class TestDiffractionPattern:
                             k_vector = dp.k_vectors[x, y]
                             lattice_vector = [1, 1, 1]
                             dot_prod = np.dot(k_vector, lattice_vector)
-                                            
+
                             if dot_prod == (peak * 2 * np.pi):
                                 ideal_peaks[peak] = 't'
-                                
+
                     for peak in ideal_peaks:
                         if ideal_peaks[peak] == 'f':
                             all_peaks = False
