@@ -185,7 +185,7 @@ class TestDiffractionPattern:
                 npt.assert_allclose(dp.k_values[0], first_k_value)
                 npt.assert_allclose(dp.k_values[-1], last_k_value)
 
-                first_k_vector = rowan.rotate(
+                top_left_k_vector = rowan.rotate(
                     view_orientation, [first_k_value, first_k_value, 0]
                 )
                 last_k_vector = rowan.rotate(
