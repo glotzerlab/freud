@@ -188,7 +188,7 @@ class TestDiffractionPattern:
                 top_left_k_vector = rowan.rotate(
                     view_orientation, [first_k_value, first_k_value, 0]
                 )
-                last_k_vector = rowan.rotate(
+                bottom_right_k_vector = rowan.rotate(
                     view_orientation, [last_k_value, last_k_value, 0]
                 )
                 top_right_k_vector = rowan.rotate(
