@@ -296,16 +296,17 @@ class TestDiffractionPattern:
     def test_cubic_system_parameterized(self):
         length = 1
         box, positions = freud.data.UnitCell.sc().generate_system(
-            num_replicas=16, scale=length, sigma_noise=0.1*length
+            num_replicas=16, scale=length, sigma_noise=0.1 * length
         )
-        #Same as above test but with different grid_size,
+        # Same as above test but with different grid_size,
         # output_size, and zoom values.
         for grid_size in (256, 1024):
             for output_size in (255, 256, 1023, 1024):
                 for zoom in (1, 2.5, 4):
                     dp = freud.diffraction.DiffractionPattern(
-                        grid_size=grid_size, output_size=output_size,
-                        )
+                        grid_size=grid_size,
+                        output_size=output_size,
+                    )
                     dp.compute((box, positions), zoom=zoom)
 
                     # Locate brightest areas of diffraction pattern (intensity > threshold),
@@ -316,7 +317,7 @@ class TestDiffractionPattern:
                     xs, ys = np.nonzero(dp.diffraction > threshold)
                     xy = np.dstack((xs, ys))[0]
 
-                    ideal_peaks = {-2:'f', -1:'f', 0:'f', 1:'f', 2:'f'}
+                    ideal_peaks = {-2: "f", -1: "f", 0: "f", 1: "f", 2: "f"}
                     all_peaks = True
 
                     for peak in ideal_peaks:
@@ -326,10 +327,10 @@ class TestDiffractionPattern:
                             dot_prod = np.dot(k_vector, lattice_vector)
 
                             if dot_prod == (peak * 2 * np.pi):
-                                ideal_peaks[peak] = 't'
+                                ideal_peaks[peak] = "t"
 
                     for peak in ideal_peaks:
-                        if ideal_peaks[peak] == 'f':
+                        if ideal_peaks[peak] == "f":
                             all_peaks = False
 
                     assert all_peaks == True
