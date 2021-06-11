@@ -204,11 +204,7 @@ class TestDiffractionPattern:
                 npt.assert_allclose(dp.k_vectors[-1, 0], bottom_left_k_vector)
 
                 center = output_size // 2
-<<<<<<< HEAD
                 top_center_k_vector = rowan.rotate(
-=======
-                top_centre_k_vector = rowan.rotate(
->>>>>>> c9d9c9715ff7045ad6520709e052d46c3bab3f95
                     view_orientation, [0, first_k_value, 0]
                 )
                 bottom_center_k_vector = rowan.rotate(
@@ -274,11 +270,7 @@ class TestDiffractionPattern:
     def test_cubic_system(self):
         length = 1
         box, positions = freud.data.UnitCell.sc().generate_system(
-<<<<<<< HEAD
-            num_replicas=16, scale=length, sigma_noise=0.1*length
-=======
             num_replicas=16, scale=length, sigma_noise=0.1 * length
->>>>>>> c9d9c9715ff7045ad6520709e052d46c3bab3f95
         )
         dp = freud.diffraction.DiffractionPattern()
         dp.compute((box, positions), zoom=2)
