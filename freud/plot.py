@@ -536,14 +536,6 @@ def diffraction_plot(
     cb = Colorbar(cax, im)
     cb.set_label(r"$S(\vec{k})$")
 
-    # Determine the number of ticks on the axis
-    grid_size = diffraction.shape[0]
-    num_ticks = len([i for i in ax.xaxis.get_ticklocs() if 0 <= i <= grid_size])
-
-    # Ensure there are an odd number of ticks, so that there is a tick at zero
-    num_ticks += 1 - num_ticks % 2
-    ticks = np.linspace(0, grid_size, num_ticks)
-
     # Set tick locations and labels
     ax.xaxis.set_major_locator(MaxNLocator(nbins=6, symmetric=True, min_n_ticks=7))
     ax.yaxis.set_major_locator(MaxNLocator(nbins=6, symmetric=True, min_n_ticks=7))
