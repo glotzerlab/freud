@@ -206,18 +206,12 @@ class TestDiffractionPattern:
             npt.assert_allclose(dp.k_vectors[-1, 0], bottom_left_k_vector)
 
             center = output_size // 2
-            top_center_k_vector = rowan.rotate(
-                view_orientation, [0, first_k_value, 0]
-            )
+            top_center_k_vector = rowan.rotate(view_orientation, [0, first_k_value, 0])
             bottom_center_k_vector = rowan.rotate(
                 view_orientation, [0, last_k_value, 0]
             )
-            left_center_k_vector = rowan.rotate(
-                view_orientation, [first_k_value, 0, 0]
-            )
-            right_center_k_vector = rowan.rotate(
-                view_orientation, [last_k_value, 0, 0]
-            )
+            left_center_k_vector = rowan.rotate(view_orientation, [first_k_value, 0, 0])
+            right_center_k_vector = rowan.rotate(view_orientation, [last_k_value, 0, 0])
 
             npt.assert_allclose(dp.k_vectors[center, 0], top_center_k_vector)
             npt.assert_allclose(dp.k_vectors[center, -1], bottom_center_k_vector)
