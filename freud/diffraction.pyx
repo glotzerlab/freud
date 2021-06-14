@@ -65,7 +65,7 @@ cdef class DiffractionPattern(_Compute):
         output_size (unsigned int):
             Resolution of the output diffraction image, uses ``grid_size`` if
             not provided or ``None`` (Default value = :code:`None`).
-    """ # noqa: E501
+    """
     cdef int _grid_size
     cdef int _output_size
     cdef double[:] _k_values_orig
