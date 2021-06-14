@@ -170,16 +170,15 @@ class TestDiffractionPattern:
             center_index = (output_size // 2, output_size // 2)
             npt.assert_allclose(dp.k_vectors[center_index], [0, 0, 0])
 
-            # Tests for the left and right k_value bins. Uses the math for
+            # Tests for the first and last k value bins. Uses the math for
             # np.fft.fftfreq and the _k_scale_factor to write an expression for
-            # the first and last bins' k-values and k-vectors.
+            # the first and last bins' k values and k vectors.
 
             scale_factor = 2 * np.pi * output_size / (np.max(box.to_matrix()) * zoom)
 
             if output_size % 2 == 0:
                 first_k_value = -0.5 * scale_factor
                 last_k_value = (0.5 - (1 / output_size)) * scale_factor
-
             else:
                 first_k_value = (-0.5 + 1 / (2 * output_size)) * scale_factor
                 last_k_value = (0.5 - 1 / (2 * output_size)) * scale_factor
@@ -223,8 +222,10 @@ class TestDiffractionPattern:
         box, positions = freud.data.UnitCell.sc().generate_system(
             num_replicas=16, scale=length, sigma_noise=0.1 * length
         )
-        dp = freud.diffraction.DiffractionPattern()
-        dp.compute((box, positions), zoom=2)
+        # Pick a non-integer value for zoom, to ensure that peaks besides k=0
+        # are not perfectly aligned on pixels.
+        dp = freud.diffraction.DiffractionPattern(grid_size=512)
+        dp.compute((box, positions), zoom=4.123)
 
         # Locate brightest areas of diffraction pattern
         # (intensity > threshold), and check that the ideal
@@ -238,13 +239,13 @@ class TestDiffractionPattern:
 
         ideal_peaks = {i: False for i in [-2, -1, 0, 1, 2]}
 
+        lattice_vector = np.array([length, length, length])
         for peak in ideal_peaks:
             for x, y in xy:
                 k_vector = dp.k_vectors[x, y]
-                lattice_vector = [1, 1, 1]
                 dot_prod = np.dot(k_vector, lattice_vector)
 
-                if dot_prod == (peak * 2 * np.pi):
+                if np.isclose(dot_prod, peak * 2 * np.pi, atol=1e-2):
                     ideal_peaks[peak] = True
 
         assert all(ideal_peaks.values())
