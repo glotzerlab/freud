@@ -254,16 +254,17 @@ class TestDiffractionPattern:
     def test_cubic_system_parameterized(self):
         length = 1
         box, positions = freud.data.UnitCell.sc().generate_system(
-            num_replicas=16, scale=length, sigma_noise=0.1*length
+            num_replicas=16, scale=length, sigma_noise=0.1 * length
         )
-        #Same as above test but with different grid_size,
+        # Same as above test but with different grid_size,
         # output_size, and zoom values.
         for grid_size in (256, 1024):
             for output_size in (255, 256, 1023, 1024):
                 for zoom in (1, 2.5, 4):
                     dp = freud.diffraction.DiffractionPattern(
-                        grid_size=grid_size, output_size=output_size,
-                        )
+                        grid_size=grid_size,
+                        output_size=output_size,
+                    )
                     dp.compute((box, positions), zoom=zoom)
 
                     # Locate brightest areas of diffraction pattern (intensity > threshold),
