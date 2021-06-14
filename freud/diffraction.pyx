@@ -52,7 +52,7 @@ cdef class DiffractionPattern(_Compute):
     remaining :math:`\vec{k}` vectors are computed such that each peak in the
     diffraction pattern satisfies the relationship :math:`\vec{k} \cdot
     \vec{R} = 2 \pi N` for some integer :math:`N` and lattice vector of
-    the system :math:`R`. See the `reciprocal lattice Wikipedia page
+    the system :math:`\vec{R}`. See the `reciprocal lattice Wikipedia page
     <https://en.wikipedia.org/wiki/Reciprocal_lattice>`__ for more information.
 
     This method is based on the implementations in the open-source
