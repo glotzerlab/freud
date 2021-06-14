@@ -49,11 +49,11 @@ cdef class DiffractionPattern(_Compute):
     The :math:`\vec{k}=0` peak is always located at index
     ``(output_size // 2, output_size // 2)`` and is normalized to have a value
     of :math:`S(\vec{k}=0) = 1` (not :math:`N`, a common convention). The
-    remaining :math:`\vec{k}`-vectors are computed such that each peak in the
+    remaining :math:`\vec{k}` vectors are computed such that each peak in the
     diffraction pattern satisfies the relationship :math:`\vec{k} \cdot
-    \vec{R} = 2\piN` for some integer :math: `N` and lattice vector of
-    the system :math: `R` (see
-    `this article <https://en.wikipedia.org/wiki/Reciprocal_lattice>`).
+    \vec{R} = 2 \pi N` for some integer :math:`N` and lattice vector of
+    the system :math:`R`. See the `reciprocal lattice Wikipedia page
+    <https://en.wikipedia.org/wiki/Reciprocal_lattice>`__ for more information.
 
     This method is based on the implementations in the open-source
     `GIXStapose application <https://github.com/cmelab/GIXStapose>`_ and its
@@ -65,7 +65,7 @@ cdef class DiffractionPattern(_Compute):
         output_size (unsigned int):
             Resolution of the output diffraction image, uses ``grid_size`` if
             not provided or ``None`` (Default value = :code:`None`).
-    """
+    """ # noqa: E501
     cdef int _grid_size
     cdef int _output_size
     cdef double[:] _k_values_orig

@@ -178,94 +178,52 @@ class TestDiffractionPattern:
             scale_factor = 2 * np.pi * output_size / (np.max(box.to_matrix()) * zoom)
 
             if output_size % 2 == 0:
-
                 first_k_value = -0.5 * scale_factor
                 last_k_value = (0.5 - (1 / output_size)) * scale_factor
 
-                npt.assert_allclose(dp.k_values[0], first_k_value)
-                npt.assert_allclose(dp.k_values[-1], last_k_value)
-
-                top_left_k_vector = rowan.rotate(
-                    view_orientation, [first_k_value, first_k_value, 0]
-                )
-                bottom_right_k_vector = rowan.rotate(
-                    view_orientation, [last_k_value, last_k_value, 0]
-                )
-                top_right_k_vector = rowan.rotate(
-                    view_orientation, [first_k_value, last_k_value, 0]
-                )
-                bottom_left_k_vector = rowan.rotate(
-                    view_orientation, [last_k_value, first_k_value, 0]
-                )
-
-                npt.assert_allclose(dp.k_vectors[0, 0], first_k_vector)
-                npt.assert_allclose(dp.k_vectors[-1, -1], last_k_vector)
-                npt.assert_allclose(dp.k_vectors[0, -1], top_right_k_vector)
-                npt.assert_allclose(dp.k_vectors[-1, 0], bottom_left_k_vector)
-
-                center = output_size // 2
-                top_center_k_vector = rowan.rotate(
-                    view_orientation, [0, first_k_value, 0]
-                )
-                bottom_center_k_vector = rowan.rotate(
-                    view_orientation, [0, last_k_value, 0]
-                )
-                left_center_k_vector = rowan.rotate(
-                    view_orientation, [first_k_value, 0, 0]
-                )
-                right_center_k_vector = rowan.rotate(
-                    view_orientation, [last_k_value, 0, 0]
-                )
-
-                npt.assert_allclose(dp.k_vectors[center, 0], top_center_k_vector)
-                npt.assert_allclose(dp.k_vectors[center, -1], bottom_center_k_vector)
-                npt.assert_allclose(dp.k_vectors[0, center], left_center_k_vector)
-                npt.assert_allclose(dp.k_vectors[-1, center], right_center_k_vector)
-
             else:
-
                 first_k_value = (-0.5 + 1 / (2 * output_size)) * scale_factor
                 last_k_value = (0.5 - 1 / (2 * output_size)) * scale_factor
 
-                npt.assert_allclose(dp.k_values[0], first_k_value)
-                npt.assert_allclose(dp.k_values[-1], last_k_value)
+            npt.assert_allclose(dp.k_values[0], first_k_value)
+            npt.assert_allclose(dp.k_values[-1], last_k_value)
 
-                first_k_vector = rowan.rotate(
-                    view_orientation, [first_k_value, first_k_value, 0]
-                )
-                last_k_vector = rowan.rotate(
-                    view_orientation, [last_k_value, last_k_value, 0]
-                )
-                top_right_k_vector = rowan.rotate(
-                    view_orientation, [first_k_value, last_k_value, 0]
-                )
-                bottom_left_k_vector = rowan.rotate(
-                    view_orientation, [last_k_value, first_k_value, 0]
-                )
+            first_k_vector = rowan.rotate(
+                view_orientation, [first_k_value, first_k_value, 0]
+            )
+            last_k_vector = rowan.rotate(
+                view_orientation, [last_k_value, last_k_value, 0]
+            )
+            top_right_k_vector = rowan.rotate(
+                view_orientation, [first_k_value, last_k_value, 0]
+            )
+            bottom_left_k_vector = rowan.rotate(
+                view_orientation, [last_k_value, first_k_value, 0]
+            )
 
-                npt.assert_allclose(dp.k_vectors[0, 0], first_k_vector)
-                npt.assert_allclose(dp.k_vectors[-1, -1], last_k_vector)
-                npt.assert_allclose(dp.k_vectors[0, -1], top_right_k_vector)
-                npt.assert_allclose(dp.k_vectors[-1, 0], bottom_left_k_vector)
+            npt.assert_allclose(dp.k_vectors[0, 0], first_k_vector)
+            npt.assert_allclose(dp.k_vectors[-1, -1], last_k_vector)
+            npt.assert_allclose(dp.k_vectors[0, -1], top_right_k_vector)
+            npt.assert_allclose(dp.k_vectors[-1, 0], bottom_left_k_vector)
 
-                center = output_size // 2
-                top_center_k_vector = rowan.rotate(
-                    view_orientation, [0, first_k_value, 0]
-                )
-                bottom_center_k_vector = rowan.rotate(
-                    view_orientation, [0, last_k_value, 0]
-                )
-                left_center_k_vector = rowan.rotate(
-                    view_orientation, [first_k_value, 0, 0]
-                )
-                right_center_k_vector = rowan.rotate(
-                    view_orientation, [last_k_value, 0, 0]
-                )
+            center = output_size // 2
+            top_center_k_vector = rowan.rotate(
+                view_orientation, [0, first_k_value, 0]
+            )
+            bottom_center_k_vector = rowan.rotate(
+                view_orientation, [0, last_k_value, 0]
+            )
+            left_center_k_vector = rowan.rotate(
+                view_orientation, [first_k_value, 0, 0]
+            )
+            right_center_k_vector = rowan.rotate(
+                view_orientation, [last_k_value, 0, 0]
+            )
 
-                npt.assert_allclose(dp.k_vectors[center, 0], top_center_k_vector)
-                npt.assert_allclose(dp.k_vectors[center, -1], bottom_center_k_vector)
-                npt.assert_allclose(dp.k_vectors[0, center], left_center_k_vector)
-                npt.assert_allclose(dp.k_vectors[-1, center], right_center_k_vector)
+            npt.assert_allclose(dp.k_vectors[center, 0], top_center_k_vector)
+            npt.assert_allclose(dp.k_vectors[center, -1], bottom_center_k_vector)
+            npt.assert_allclose(dp.k_vectors[0, center], left_center_k_vector)
+            npt.assert_allclose(dp.k_vectors[-1, center], right_center_k_vector)
 
     def test_cubic_system(self):
         length = 1
@@ -316,7 +274,7 @@ class TestDiffractionPattern:
                     xs, ys = np.nonzero(dp.diffraction > threshold)
                     xy = np.dstack((xs, ys))[0]
 
-                    ideal_peaks = {-2:'f', -1:'f', 0:'f', 1:'f', 2:'f'}
+                    ideal_peaks = {i: False for i in [-2, -1, 0, 1, 2]}
                     all_peaks = True
 
                     for peak in ideal_peaks:
@@ -326,10 +284,6 @@ class TestDiffractionPattern:
                             dot_prod = np.dot(k_vector, lattice_vector)
 
                             if dot_prod == (peak * 2 * np.pi):
-                                ideal_peaks[peak] = 't'
+                                ideal_peaks[peak] = True
 
-                    for peak in ideal_peaks:
-                        if ideal_peaks[peak] == 'f':
-                            all_peaks = False
-
-                    assert all_peaks == True
+                    assert all(ideal_peaks.values())
