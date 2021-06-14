@@ -3,7 +3,6 @@ import numpy as np
 import numpy.testing as npt
 import pytest
 import rowan
-from scipy.cluster import vq
 
 import freud
 
@@ -233,23 +232,28 @@ class TestDiffractionPattern:
         dp = freud.diffraction.DiffractionPattern()
         dp.compute((box, positions), zoom=2)
 
-        # Make sure that the peaks are where we expect them.
-        # Identify the indices of the highest values in dp.diffraction
-        # and test that k * R == 2*pi*N for some integer N, for the corresponding peak k vectors
-        # and lattice vectors R. This will be inexact because of binning.
-        threshold = np.partition(dp.diffraction.flatten(), -50)[-50]
+        # Locate brightest areas of diffraction pattern
+        # (intensity > threshold), and check that the ideal
+        # diffraction peak locations, given by k * R = 2*pi*N
+        # for some lattice vector R and integer N, are contained
+        # within these regions.
+        # This test only checks N in range [-2, 2].
+        threshold = 0.2
         xs, ys = np.nonzero(dp.diffraction > threshold)
         xy = np.dstack((xs, ys))[0]
 
-        centers, _ = vq.kmeans(xy.astype(float), 9)
-        centers = centers.astype(int)
+        ideal_peaks = {i: False for i in [-2, -1, 0, 1, 2]}
 
-        for center in centers:
-            peak_k_vector = dp.k_vectors[center[0], center[1]]
-            lattice_vector = [length, length, length]
-            dot_prod = np.dot(peak_k_vector, lattice_vector)
+        for peak in ideal_peaks:
+            for x, y in xy:
+                k_vector = dp.k_vectors[x, y]
+                lattice_vector = [1, 1, 1]
+                dot_prod = np.dot(k_vector, lattice_vector)
 
-            npt.assert_allclose(dot_prod % (2 * np.pi), 0)
+                if dot_prod == (peak * 2 * np.pi):
+                    ideal_peaks[peak] = True
+
+        assert all(ideal_peaks.values())
 
     def test_cubic_system_parameterized(self):
         length = 1
@@ -267,16 +271,11 @@ class TestDiffractionPattern:
                     )
                     dp.compute((box, positions), zoom=zoom)
 
-                    # Locate brightest areas of diffraction pattern (intensity > threshold),
-                    # and check that the ideal diffraction peak locations, given by
-                    # k * R = 2*pi*N for some lattice vector R and integer N, are contained
-                    # within these regions. This test only checks N in range [-2, 2].
                     threshold = 0.2
                     xs, ys = np.nonzero(dp.diffraction > threshold)
                     xy = np.dstack((xs, ys))[0]
 
                     ideal_peaks = {i: False for i in [-2, -1, 0, 1, 2]}
-                    all_peaks = True
 
                     for peak in ideal_peaks:
                         for x, y in xy:
