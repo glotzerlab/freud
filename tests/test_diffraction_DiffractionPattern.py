@@ -259,7 +259,7 @@ class TestDiffractionPattern:
         # output_size, and zoom values.
         for grid_size in (256, 1024):
             for output_size in (255, 256, 1023, 1024):
-                for zoom in (1, 2.5, 4):
+                for zoom in (1, 2.5, 4.123):
                     dp = freud.diffraction.DiffractionPattern(
                         grid_size=grid_size,
                         output_size=output_size,
@@ -272,13 +272,13 @@ class TestDiffractionPattern:
 
                     ideal_peaks = {i: False for i in [-2, -1, 0, 1, 2]}
 
+                    lattice_vector = np.array([length, length, length])
                     for peak in ideal_peaks:
                         for x, y in xy:
                             k_vector = dp.k_vectors[x, y]
-                            lattice_vector = [1, 1, 1]
                             dot_prod = np.dot(k_vector, lattice_vector)
 
-                            if dot_prod == (peak * 2 * np.pi):
+                            if np.isclose(dot_prod, peak * 2 * np.pi, atol=1e-2):
                                 ideal_peaks[peak] = True
 
                     assert all(ideal_peaks.values())
