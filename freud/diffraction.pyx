@@ -218,18 +218,18 @@ cdef class DiffractionPattern(_Compute):
                 the new computations; if False, will accumulate data (Default
                 value: True).
 
-            For a target view axis in Cartesian coordinates,
-            `rowan <https://rowan.readthedocs.io/en/latest/index.html>`__ provides
-            ``vector_vector_rotation()``, a function that will return the necessary
-            quaternion for rotating the default view orientation to the desired axis.
+        For a target view axis in Cartesian coordinates,
+        `rowan <https://rowan.readthedocs.io/en/latest/index.html>`__ provides
+        ``vector_vector_rotation()``, a function that will return the necessary
+        quaternion for rotating the default view orientation to the desired axis.
 
-            Example::
+        Example::
 
-                >>> import rowan
-                >>> import numpy as np
-                >>> default_view_axis = np.array([0, 0, 1])
-                >>> desired_view_axis = np.array([1, 1, 1])
-                >>> quaternion = rowan.vector_vector_rotation(desired_view_axis, default_view_axis) # use for view_orientation
+            >>> import rowan
+            >>> import numpy as np
+            >>> default_view_axis = np.array([0, 0, 1])
+            >>> desired_view_axis = np.array([1, 1, 1])
+            >>> quaternion = rowan.vector_vector_rotation(desired_view_axis, default_view_axis) # use for view_orientation
 
         """ # noqa: E501
         if reset:
