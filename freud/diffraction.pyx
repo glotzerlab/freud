@@ -219,7 +219,7 @@ cdef class DiffractionPattern(_Compute):
                 value: True).
 
             For a target view axis in Cartesian coordinates,
-            `rowan <https://rowan.readthedocs.io/en/latest/index.html>__` provides
+            `rowan <https://rowan.readthedocs.io/en/latest/index.html>`__ provides
             ``vector_vector_rotation()``, a function that will return the necessary
             quaternion for rotating the default view orientation to the desired axis.
 
