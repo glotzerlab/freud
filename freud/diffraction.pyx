@@ -229,7 +229,9 @@ cdef class DiffractionPattern(_Compute):
             >>> import numpy as np
             >>> default_view_axis = np.array([0, 0, 1])
             >>> desired_view_axis = np.array([1, 1, 1])
-            >>> quaternion = rowan.vector_vector_rotation(desired_view_axis, default_view_axis) # use for view_orientation
+            >>> quaternion = rowan.vector_vector_rotation(
+                default_view_axis, desired_view_axis
+                ) # use for view_orientation
 
         """ # noqa: E501
         if reset:
