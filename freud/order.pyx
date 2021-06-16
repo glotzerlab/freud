@@ -613,7 +613,7 @@ cdef class Steinhardt(_PairCompute):
 
     @property
     def wl(self):
-        """bool: Whether the :math:`W_l` version of the Steinhardt order
+        """bool: Whether the :math:`w_l` version of the Steinhardt order
         parameter was used."""
         return self.thisptr.isWl()
 
@@ -664,7 +664,7 @@ cdef class Steinhardt(_PairCompute):
     @_Compute._computed_property
     def particle_harmonics(self):
         """:math:`\\left(N_{particles}, 2l+1\\right)` :class:`numpy.ndarray`:
-        The raw array of \\overline{q}_{lm}(i). The array is provided in the
+        The raw array of :math:`q_{lm}(i)`. The array is provided in the
         order given by fsph: :math:`m = 0, 1, ..., l, -1, ..., -l`."""
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getQlm(),
