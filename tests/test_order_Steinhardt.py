@@ -69,7 +69,7 @@ class TestSteinhardt:
             )
 
         qlmi /= num_neighbors
-        assert np.allclose(comp.particle_harmonics, qlmi, atol=atol)
+        npt.assert_allclose(comp.particle_harmonics, qlmi, atol=atol)
 
     def test_l_axis_aligned(self):
         # This test has three points along the z-axis. By construction, the
