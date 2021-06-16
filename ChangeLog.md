@@ -12,6 +12,7 @@ and this project adheres to
 
 ### Fixed
 * Fix broken arXiv links in bibliography.
+* Fix documented formulas for `Steinhardt` class.
 
 ## v2.5.1 - 2021-04-06
 
