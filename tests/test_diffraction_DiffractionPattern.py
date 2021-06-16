@@ -289,7 +289,7 @@ class TestDiffractionPattern:
         # This should produce a diffraction pattern identical to the
         # simple cubic case.
 
-        dp = freud.diffraction.DiffractionPattern(grid_size = 512)
+        dp = freud.diffraction.DiffractionPattern(grid_size=512)
 
         for Lz in [0.5, 2, 3.456]:
             Lx, Ly = 1, 1
