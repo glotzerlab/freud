@@ -529,7 +529,7 @@ cdef class Steinhardt(_PairCompute):
         q_{lm_1}(i) q_{lm_2}(i) q_{lm_3}(i)
 
     If ``wl`` is ``True``, then setting the ``wl_normalize`` parameter to ``True`` will
-    normalize the :math:`w_l` order parameter as follows (if ``wl=False``, 
+    normalize the :math:`w_l` order parameter as follows (if ``wl=False``,
     ``wl_normalize`` has no effect):
 
     .. math::
