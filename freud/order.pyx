@@ -10,6 +10,7 @@ harmonics of the bond order diagram, which are the spherical analogue of
 Fourier Transforms.
 """
 
+import collections.abc
 import logging
 import time
 import warnings
@@ -487,8 +488,9 @@ cdef class Translational(_PairCompute):
 
 
 cdef class Steinhardt(_PairCompute):
-    R"""Compute the rotationally invariant Steinhardt order parameter
-    :math:`q_l` or :math:`w_l` for a set of points :cite:`Steinhardt:1983aa`.
+    R"""Compute one or more of the rotationally invariant Steinhardt order
+    parameter :math:`q_l` or :math:`w_l` for a set of points
+    :cite:`Steinhardt:1983aa`.
 
     Implements the local rotationally invariant :math:`q_l` or :math:`w_l`
     order parameter described by Steinhardt. For a particle :math:`i`, we
@@ -546,8 +548,9 @@ cdef class Steinhardt(_PairCompute):
         NumPy: :code:`numpy.nan_to_num(particle_order)`.
 
     Args:
-        l (unsigned int):
-            Spherical harmonic quantum number l.
+        l (unsigned int or sequence of unsigned int):
+            One or more spherical harmonic quantum number l's used to compute
+            the Steinhardt order parameter.
         average (bool, optional):
             Determines whether to calculate the averaged Steinhardt order
             parameter (Default value = :code:`False`).
@@ -568,6 +571,10 @@ cdef class Steinhardt(_PairCompute):
 
     def __cinit__(self, l, average=False, wl=False, weighted=False,
                   wl_normalize=False):
+        if not isinstance(l, collections.abc.Sequence):
+            l = [l]
+        if len(l) == 0:
+            raise ValueError("At least one l must be specified.")
         self.thisptr = new freud._order.Steinhardt(l, average, wl, weighted,
                                                    wl_normalize)
 
@@ -598,41 +605,59 @@ cdef class Steinhardt(_PairCompute):
     @property
     def l(self):  # noqa: E743
         """unsigned int: Spherical harmonic quantum number l."""
-        return self.thisptr.getL()
+        # list conversion is necessary as otherwise CI Cython complains about
+        # compiling the below expression with two different types.
+        ls = list(self.thisptr.getL())
+        return ls[0] if len(ls) == 1 else ls
 
     @_Compute._computed_property
     def order(self):
-        """float: The system wide normalization of the :math:`q_l` or
-        :math:`w_l` order parameter."""
-        return self.thisptr.getOrder()
+        """float or list of float: The system wide normalization of the
+        :math:`q_l` or :math:`w_l` order parameter for each ``l`` selected. If
+        only 1 ``l`` was selected returns a list of normalizations."""
+        # list conversion is necessary as otherwise CI Cython complains about
+        # compiling the below expression with two different types.
+        order = list(self.thisptr.getOrder())
+        return order[0] if len(order) == 1 else order
 
     @_Compute._computed_property
     def particle_order(self):
-        """:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`: Variant
-        of the Steinhardt order parameter for each particle (filled with
+        """:math:`\\left(N_{particles}, N_l \\right)` :class:`numpy.ndarray`:
+        Variant of the Steinhardt order parameter for each particle (filled with
         :code:`nan` for particles with no neighbors)."""
-        return freud.util.make_managed_numpy_array(
-            &self.thisptr.getParticleOrder(),
-            freud.util.arr_type_t.FLOAT)
+        array = freud.util.make_managed_numpy_array(
+            &self.thisptr.getParticleOrder(), freud.util.arr_type_t.FLOAT)
+        if array.shape[1] == 1:
+            return np.ravel(array)
+        return array
 
     @_Compute._computed_property
     def ql(self):
-        """:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:
+        """:math:`\\left(N_{particles}, N_l\\right)` :class:`numpy.ndarray`:
         :math:`q_l` Steinhardt order parameter for each particle (filled with
         :code:`nan` for particles with no neighbors). This is always available,
-        no matter which options are selected."""
-        return freud.util.make_managed_numpy_array(
-            &self.thisptr.getQl(),
-            freud.util.arr_type_t.FLOAT)
+        no matter which options are selected. Is a list of NumPy arrays if more
+        than one ``l`` was selected."""
+        array = freud.util.make_managed_numpy_array(
+            &self.thisptr.getQl(), freud.util.arr_type_t.FLOAT)
+        if array.shape[1] == 1:
+            return np.ravel(array)
+        return array
 
     @_Compute._computed_property
     def particle_harmonics(self):
-        """:math:`\\left(N_{particles}, 2*l+1\\right)` :class:`numpy.ndarray`:
-        The raw array of \\overline{q}_{lm}(i). The array is provided in the
-        order given by fsph: :math:`m = 0, 1, ..., l, -1, ..., -l`."""
-        return freud.util.make_managed_numpy_array(
-            &self.thisptr.getQlm(),
-            freud.util.arr_type_t.COMPLEX_FLOAT)
+        """:math:`\\left(N_{particles}, 2*l+1\\right)` :class:`numpy.ndarray` or
+        list of `numpy.ndarray`: The raw array of \\overline{q}_{lm}(i). The
+        array is provided in the order given by fsph: :math:`m = 0, 1, ..., l,
+        -1, ..., -l`. Is a list of NumPy arrays if more than one ``l`` was
+        selected in the order of specified :math:`l` from the constructor."""
+        qlm_arrays = self.thisptr.getQlm()
+        # Since Cython does not really support const iteration, we must iterate
+        # using range and not use the for array in qlm_arrays style for loop.
+        qlm_list = [freud.util.make_managed_numpy_array(
+            &qlm_arrays[i], freud.util.arr_type_t.COMPLEX_FLOAT)
+            for i in range(qlm_arrays.size())]
+        return qlm_list if len(qlm_list) > 1 else qlm_list[0]
 
     def compute(self, system, neighbors=None):
         R"""Compute the order parameter.
@@ -692,18 +717,32 @@ cdef class Steinhardt(_PairCompute):
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         import freud.plot
-        xlabel = r"${mode_letter}{prime}_{{{sph_l}{average}}}$".format(
-            mode_letter='w' if self.wl else 'q',
-            prime='\'' if self.weighted else '',
-            sph_l=self.l,
-            average=',ave' if self.average else '')
+
+        ls = self.l
+        if not isinstance(ls, list):
+            ls = [ls]
+
+        legend_labels = [
+            r"${mode_letter}{prime}_{{{sph_l}{average}}}$".format(
+                mode_letter='w' if self.wl else 'q',
+                prime='\'' if self.weighted else '',
+                sph_l=sph_l,
+                average=',ave' if self.average else '')
+            for sph_l in ls
+        ]
+        xlabel = ', '.join(legend_labels)
+
+        # Don't print legend if only one l requested.
+        if len(legend_labels) == 1:
+            legend_labels = None
 
         return freud.plot.histogram_plot(
             self.particle_order,
             title="Steinhardt Order Parameter " + xlabel,
             xlabel=xlabel,
             ylabel=r"Number of particles",
-            ax=ax)
+            ax=ax,
+            legend_labels=legend_labels)
 
     def _repr_png_(self):
         try:

@@ -360,3 +360,53 @@ class TestSteinhardt:
 
         assert np.all(np.isnan(comp.particle_order))
         npt.assert_allclose(np.nan_to_num(comp.particle_order), 0)
+
+    def test_multiple_l(self):
+        """Test the raw calculated qlmi."""
+        special = pytest.importorskip("scipy.special")
+        sph_harm = special.sph_harm
+
+        atol = 1e-4
+        L = 8
+        N = 100
+        box, points = freud.data.make_random_system(L, N)
+
+        num_neighbors = 4
+
+        sph_l = list(range(3, 8))
+
+        # Note the order of m values provided by fsph.
+        ms_per_l = [
+            np.array(list(range(l + 1)) + [-m for m in range(1, l + 1)])[:, np.newaxis]
+            for l in sph_l
+        ]
+
+        aq = freud.locality.AABBQuery(box, points)
+        nl = aq.query(
+            points, {"exclude_ii": True, "num_neighbors": num_neighbors}
+        ).toNeighborList()
+
+        comp = freud.order.Steinhardt(sph_l)
+        comp.compute(aq, neighbors=nl)
+        qlmis = [np.zeros([N, 2 * l + 1], dtype=complex) for l in sph_l]
+
+        # Loop over the particles and compute the qlmis for each (the
+        # broadcasting syntax becomes rather abstruse for 3D arrays, and we
+        # have to match the indices to the NeighborList anyway).
+        for l, ms, qlmi in zip(sph_l, ms_per_l, qlmis):
+            for i in range(N):
+                neighbors_i = nl[nl.query_point_indices == i]
+                bonds = box.wrap(points[neighbors_i[:, 1]] - points[neighbors_i[:, 0]])
+                r = np.linalg.norm(bonds, axis=-1)
+                thetas = np.arccos(bonds[:, 2] / r)
+                phis = np.arctan2(bonds[:, 1], bonds[:, 0])
+
+                qlmi[i, :] = np.sum(
+                    sph_harm(ms, l, phis[np.newaxis, :], thetas[np.newaxis, :]), axis=-1
+                )
+
+            qlmi /= num_neighbors
+        assert all(
+            np.allclose(comp.particle_harmonics[i], qlmis[i], atol=atol)
+            for i in range(len(sph_l))
+        )
