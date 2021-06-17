@@ -1,5 +1,4 @@
 version: 2
-formats: all
 conda:
     environment: doc/readthedocs-env.yml
 python:
