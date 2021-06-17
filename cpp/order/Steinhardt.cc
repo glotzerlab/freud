@@ -166,33 +166,16 @@ void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
         points, points->getPoints(), m_Np, qargs, nlist,
         [=](size_t i, const std::shared_ptr<freud::locality::NeighborPerPointIterator>& ppiter) {
             unsigned int neighborcount(1);
-            for (freud::locality::NeighborBond nb1 = ppiter->next(); !ppiter->end(); nb1 = ppiter->next())
+            for (freud::locality::NeighborBond nb = ppiter->next(); !ppiter->end(); nb = ppiter->next())
             {
-                // Since we need to find neighbors of neighbors, we need to add some extra logic here to
-                // create the appropriate iterators.
-                std::shared_ptr<freud::locality::NeighborPerPointIterator> ns_neighbors_iter;
-                if (nlist != nullptr)
+                for (unsigned int k = 0; k < m_num_ms; ++k)
                 {
-                    ns_neighbors_iter
-                        = std::make_shared<locality::NeighborListPerPointIterator>(nlist, nb1.point_idx);
+                    // Adding all the qlm of the neighbors. We use the
+                    // vector function signature for indexing into the
+                    // arrays for speed.
+                    m_qlmiAve({static_cast<unsigned int>(i), k}) += m_qlmi({nb.point_idx, k});
                 }
-                else
-                {
-                    ns_neighbors_iter = iter->query(nb1.point_idx);
-                }
-
-                for (freud::locality::NeighborBond nb2 = ns_neighbors_iter->next(); !ns_neighbors_iter->end();
-                     nb2 = ns_neighbors_iter->next())
-                {
-                    for (unsigned int k = 0; k < m_num_ms; ++k)
-                    {
-                        // Adding all the qlm of the neighbors. We use the
-                        // vector function signature for indexing into the
-                        // arrays for speed.
-                        m_qlmiAve({static_cast<unsigned int>(i), k}) += m_qlmi({nb2.point_idx, k});
-                    }
-                    neighborcount++;
-                } // End loop over particle neighbor's bonds
+                neighborcount++;
             }     // End loop over particle's bonds
 
             // Normalize!
@@ -200,7 +183,7 @@ void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
             {
                 // Cache the index for efficiency.
                 const unsigned int index = m_qlmiAve.getIndex({static_cast<unsigned int>(i), k});
-                // Adding the qlm of the particle i itself
+                // Add the qlm of the particle i itself
                 m_qlmiAve[index] += m_qlmi[index];
                 m_qlmiAve[index] /= static_cast<float>(neighborcount);
                 m_qlm_local.local()[k] += m_qlmiAve[index] / float(m_Np);
