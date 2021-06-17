@@ -493,49 +493,81 @@ cdef class Steinhardt(_PairCompute):
     :cite:`Steinhardt:1983aa`.
 
     Implements the local rotationally invariant :math:`q_l` or :math:`w_l`
-    order parameter described by Steinhardt. For a particle :math:`i`, we
-    calculate the average order parameter by summing the spherical harmonics
+    order parameter described by Steinhardt.
+
+    First, we describe the computation of :math:`q_l(i)`.  For a particle :math:`i`,
+    we calculate the quantity :math:`q_{lm}` by summing the spherical harmonics
     between particle :math:`i` and its neighbors :math:`j` in a local region:
 
-    :math:`\overline{q}_{lm}(i) = \frac{1}{N_b} \displaystyle\sum_{j=1}^{N_b}
-    Y_{lm}(\theta(\vec{r}_{ij}), \phi(\vec{r}_{ij}))`.
+    .. math::
 
-    For :math:`q_l`, this is then combined in a rotationally invariant fashion
-    to remove local orientational order as follows:
+        q_{lm}(i) = \frac{1}{N_b} \displaystyle\sum_{j=1}^{N_b}
+        Y_{lm}(\theta(\vec{r}_{ij}), \phi(\vec{r}_{ij}))
 
-    :math:`q_l(i)=\sqrt{\frac{4\pi}{2l+1} \displaystyle\sum_{m=-l}^{l}
-    |\overline{q}_{lm}|^2 }`.
+    Then the :math:`q_l` order parameter is computed by combining the :math:`q_{lm}`
+    in a rotationally invariant fashion to remove local orientational order:
 
-    For :math:`w_l`, it is then defined as a weighted average over the
-    :math:`\overline{q}_{lm}(i)` values using Wigner 3j symbols (Clebsch-Gordan
-    coefficients). The resulting combination is rotationally (i.e. frame)
-    invariant.
+    .. math::
 
-    The average argument in the constructor provides access to a variant of
-    this parameter that performs a average over the first and second shell
-    combined :cite:`Lechner_2008`. To compute this parameter, we perform a second
+        q_l(i) = \sqrt{\frac{4\pi}{2l+1} \displaystyle\sum_{m=-l}^{l}
+        |q_{lm}(i)|^2 }
+
+    If the ``wl`` parameter is ``True``, this class computes the quantity
+    :math:`w_l`, defined as a weighted average over the
+    :math:`q_{lm}(i)` values using `Wigner 3-j symbols
+    <https://en.wikipedia.org/wiki/3-j_symbol>`__ (related to `Clebsch-Gordan
+    coefficients
+    <https://en.wikipedia.org/wiki/Clebsch%E2%80%93Gordan_coefficients>`__).
+    The resulting combination is rotationally invariant:
+
+    .. math::
+
+        w_l(i) = \sum_{m_1 + m_2 + m_3 = 0} \begin{pmatrix}
+            l & l & l \\
+            m_1 & m_2 & m_3
+        \end{pmatrix}
+        q_{lm_1}(i) q_{lm_2}(i) q_{lm_3}(i)
+
+    If ``wl`` is ``True``, then setting the ``wl_normalize`` parameter to ``True`` will
+    normalize the :math:`w_l` order parameter as follows (if ``wl=False``,
+    ``wl_normalize`` has no effect):
+
+    .. math::
+
+        w_l(i) = \frac{
+            \sum_{m_1 + m_2 + m_3 = 0} \begin{pmatrix}
+                l & l & l \\
+                m_1 & m_2 & m_3
+            \end{pmatrix}
+            q_{lm_1}(i) q_{lm_2}(i) q_{lm_3}(i)}
+            {\left(\sum_{m=-l}^{l} |q_{lm}(i)|^2 \right)^{3/2}}
+
+    If ``average`` is ``True``, the class computes a variant of this order
+    parameter that performs an average over the first and second shell combined
+    :cite:`Lechner_2008`. To compute this parameter, we perform a second
     averaging over the first neighbor shell of the particle to implicitly
     include information about the second neighbor shell. This averaging is
-    performed by replacing the value :math:`\overline{q}_{lm}(i)` in the
-    original definition by the average value of :math:`\overline{q}_{lm}(k)`
-    over all the :math:`k` neighbors of particle :math:`i` as well as itself.
+    performed by replacing the value :math:`q_{lm}(i)` in the original
+    definition by :math:`\overline{q}_{lm}(i)`, the average value of
+    :math:`q_{lm}(k)` over all the :math:`N_b` neighbors :math:`k`
+    of particle :math:`i`, including particle :math:`i` itself:
 
-    If the weighted mode is enabled in the constructor, the contributions of
-    each neighbor are weighted. Neighbor weights :math:`w_j` default to 1 but
-    are defined for a :class:`freud.locality.NeighborList` from
-    :class:`freud.locality.Voronoi` or one with user-provided weights. The
-    formula is modified as follows:
+    .. math::
+        \overline{q}_{lm}(i) = \frac{1}{N_b} \displaystyle\sum_{k=0}^{N_b}
+        q_{lm}(k)
 
-    :math:`\overline{q}'_{lm}(i) = \frac{1}{\sum_j^n w_j} \displaystyle\sum_{j=1}^{N_b}
-    w_j Y_{lm}(\theta(\vec{r}_{ij}), \phi(\vec{r}_{ij}))`.
+    If ``weighted`` is True, the contributions of each neighbor are weighted.
+    Neighbor weights :math:`w_j` are defined for a
+    :class:`freud.locality.NeighborList` obtained from
+    :class:`freud.locality.Voronoi` or one with user-provided weights, and
+    default to 1 if not otherwise provided. The formulas are modified as
+    follows, replacing :math:`q_{lm}(i)` with the weighted value
+    :math:`q'_{lm}(i)`:
 
-    :math:`q'_l(i)=\sqrt{\frac{4\pi}{2l+1} \displaystyle\sum_{m=-l}^{l}
-    |\overline{q}'_{lm}|^2 }`.
+    .. math::
 
-    The :code:`norm` attribute argument provides normalized versions of the
-    order parameter, where the normalization is performed by averaging the
-    :math:`q_{lm}` values over all particles before computing the order
-    parameter of choice.
+        q'_{lm}(i) = \frac{1}{\sum_j^n w_j} \displaystyle\sum_{j=1}^{N_b} w_j
+        Y_{lm}(\theta(\vec{r}_{ij}), \phi(\vec{r}_{ij}))
 
     .. note::
         The value of per-particle order parameter will be set to NaN for
@@ -589,7 +621,7 @@ cdef class Steinhardt(_PairCompute):
 
     @property
     def wl(self):
-        """bool: Whether the :math:`W_l` version of the Steinhardt order
+        """bool: Whether the :math:`w_l` version of the Steinhardt order
         parameter was used."""
         return self.thisptr.isWl()
 
@@ -612,9 +644,11 @@ cdef class Steinhardt(_PairCompute):
 
     @_Compute._computed_property
     def order(self):
-        """float or list of float: The system wide normalization of the
-        :math:`q_l` or :math:`w_l` order parameter for each ``l`` selected. If
-        only 1 ``l`` was selected returns a list of normalizations."""
+        """float: The system wide normalization of the order parameter,
+        computed by averaging the :math:`q_{lm}` values (or
+        :math:`\overline{q}_{lm}` values if ``average`` is enabled) over all
+        particles before computing the rotationally-invariant order
+        parameter."""
         # list conversion is necessary as otherwise CI Cython complains about
         # compiling the below expression with two different types.
         order = list(self.thisptr.getOrder())
@@ -636,8 +670,9 @@ cdef class Steinhardt(_PairCompute):
         """:math:`\\left(N_{particles}, N_l\\right)` :class:`numpy.ndarray`:
         :math:`q_l` Steinhardt order parameter for each particle (filled with
         :code:`nan` for particles with no neighbors). This is always available,
-        no matter which options are selected. Is a list of NumPy arrays if more
-        than one ``l`` was selected."""
+        no matter which other options are selected. It obeys the ``weighted``
+        argument but otherwise returns the "plain" :math:`q_l` regardless of
+        ``average``, ``wl``, ``wl_normalize``."""
         array = freud.util.make_managed_numpy_array(
             &self.thisptr.getQl(), freud.util.arr_type_t.FLOAT)
         if array.shape[1] == 1:
@@ -646,11 +681,9 @@ cdef class Steinhardt(_PairCompute):
 
     @_Compute._computed_property
     def particle_harmonics(self):
-        """:math:`\\left(N_{particles}, 2*l+1\\right)` :class:`numpy.ndarray` or
-        list of `numpy.ndarray`: The raw array of \\overline{q}_{lm}(i). The
-        array is provided in the order given by fsph: :math:`m = 0, 1, ..., l,
-        -1, ..., -l`. Is a list of NumPy arrays if more than one ``l`` was
-        selected in the order of specified :math:`l` from the constructor."""
+        """:math:`\\left(N_{particles}, 2l+1\\right)` :class:`numpy.ndarray`:
+        The raw array of :math:`q_{lm}(i)`. The array is provided in the
+        order given by fsph: :math:`m = 0, 1, ..., l, -1, ..., -l`."""
         qlm_arrays = self.thisptr.getQlm()
         # Since Cython does not really support const iteration, we must iterate
         # using range and not use the for array in qlm_arrays style for loop.

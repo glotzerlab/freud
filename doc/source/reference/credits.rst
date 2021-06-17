@@ -116,6 +116,7 @@ Bradley Dice - **Lead developer**
 * Added scikit-build support for Windows.
 * Fixed 2D image calculations.
 * Optimized NeighborList ``filter`` method.
+* Fixed documented formulas for ``Steinhardt`` class.
 
 Eric Harper, University of Michigan - **Former lead developer**
 
