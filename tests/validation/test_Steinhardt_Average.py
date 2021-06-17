@@ -40,20 +40,8 @@ def _compute_steinhardts(system, steinhardt_params, neighbors):
     return np.array(qls).T
 
 
-def _compute_qls(system, neighbors, average=False, weighted=False):
-    return _compute_steinhardts(
-        system,
-        [
-            dict(average=average, weighted=weighted, l=4),
-            dict(average=average, weighted=weighted, l=6),
-            dict(average=average, weighted=weighted, l=4, wl=True, wl_normalize=True),
-            dict(average=average, weighted=weighted, l=6, wl=True, wl_normalize=True),
-        ],
-        neighbors,
-    )
-
-
-def _compute_qls_and_neighbors(system, average=False, weighted=False):
+def _compute_comparison_data(system, average=False, weighted=False):
+    """Computes q4, q6, w4, w6 with or without averaging and weighting."""
     if weighted:
         # Use Voronoi neighbors
         voro = freud.locality.Voronoi().compute(system=system)
@@ -67,12 +55,20 @@ def _compute_qls_and_neighbors(system, average=False, weighted=False):
             .query(system.particles.position, nbQueryDict)
             .toNeighborList()
         )
-    return _compute_qls(system, nlist, average, weighted)
+    return _compute_steinhardts(
+        system,
+        [
+            dict(average=average, weighted=weighted, l=4),
+            dict(average=average, weighted=weighted, l=6),
+            dict(average=average, weighted=weighted, l=4, wl=True, wl_normalize=True),
+            dict(average=average, weighted=weighted, l=6, wl=True, wl_normalize=True),
+        ],
+        nlist,
+    )
 
 
 def _compute_msms(system, lmax, average=False, wl=False):
     """Returns Minkowski Structure Metrics up to a maximum l value."""
-    # Use Voronoi neighbors
     voro = freud.locality.Voronoi().compute(system=system)
     return _compute_steinhardts(
         system,
@@ -92,9 +88,7 @@ class TestSteinhardtReferenceValues:
         """
         gc_data = _get_reference_data("GC_rc1.4_q4q6w4w6")
         gsd_frame = _read_gsd_snapshot("Test_Configuration.gsd")
-        freud_data = _compute_qls_and_neighbors(
-            gsd_frame, average=False, weighted=False
-        )
+        freud_data = _compute_comparison_data(gsd_frame, average=False, weighted=False)
         names = ["q4", "q6", "w4", "w6"]
         for i, name in enumerate(names):
             npt.assert_allclose(
@@ -108,7 +102,7 @@ class TestSteinhardtReferenceValues:
         """
         gc_data = _get_reference_data("GC_rc1.4_avq4avq6avw4avw6")
         gsd_frame = _read_gsd_snapshot("Test_Configuration.gsd")
-        freud_data = _compute_qls_and_neighbors(gsd_frame, average=True, weighted=False)
+        freud_data = _compute_comparison_data(gsd_frame, average=True, weighted=False)
         names = ["ave. q4", "ave. q6", "ave. w4", "ave. w6"]
         for i, name in enumerate(names):
             npt.assert_allclose(
@@ -122,7 +116,7 @@ class TestSteinhardtReferenceValues:
         """
         rvd_data = _get_reference_data("RvD_MSM_q4q6w4w6")
         gsd_frame = _read_gsd_snapshot("Test_Configuration.gsd")
-        freud_data = _compute_qls_and_neighbors(gsd_frame, average=False, weighted=True)
+        freud_data = _compute_comparison_data(gsd_frame, average=False, weighted=True)
         names = ["q'4", "q'6", "w'4", "w'6"]
         for i, name in enumerate(names):
             npt.assert_allclose(
@@ -136,7 +130,7 @@ class TestSteinhardtReferenceValues:
         """
         rvd_data = _get_reference_data("RvD_MSM_avq4avq6avw4avw6")
         gsd_frame = _read_gsd_snapshot("Test_Configuration.gsd")
-        freud_data = _compute_qls_and_neighbors(gsd_frame, average=True, weighted=True)
+        freud_data = _compute_comparison_data(gsd_frame, average=True, weighted=True)
         names = ["ave. q'4", "ave. q'6", "ave. w'4", "ave. w'6"]
         for i, name in enumerate(names):
             # If most of the particles agree, this test is probably correct.
