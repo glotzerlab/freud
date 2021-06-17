@@ -505,7 +505,7 @@ cdef class Box:
         return np.asarray(distances)
 
     def compute_all_distances(self, query_points, points):
-        R"""Calculate distances between all pairs of query points and points.
+        R"""Calculate distances between all pairs of query points and points, using periodic boundaries.
 
         Distances are calculated pairwise, i.e. ``distances[i, j]`` is the
         distance from ``query_points[i]`` to ``points[j]``.

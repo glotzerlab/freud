@@ -284,7 +284,9 @@ def line_plot(x, y, title=None, xlabel=None, ylabel=None, ax=None):
     return ax
 
 
-def histogram_plot(values, title=None, xlabel=None, ylabel=None, ax=None):
+def histogram_plot(
+    values, title=None, xlabel=None, ylabel=None, ax=None, legend_labels=None
+):
     """Helper function to draw a histogram graph.
 
     Args:
@@ -307,6 +309,8 @@ def histogram_plot(values, title=None, xlabel=None, ylabel=None, ax=None):
     ax.set_title(title)
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
+    if legend_labels is not None:
+        ax.legend(legend_labels)
     return ax
 
 
