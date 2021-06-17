@@ -495,7 +495,7 @@ cdef class Steinhardt(_PairCompute):
     Implements the local rotationally invariant :math:`q_l` or :math:`w_l`
     order parameter described by Steinhardt.
 
-    First, we describe the computation of `q_l(i)`.  For a particle :math:`i`,
+    First, we describe the computation of :math:`q_l(i)`.  For a particle :math:`i`,
     we calculate the quantity :math:`q_{lm}` by summing the spherical harmonics
     between particle :math:`i` and its neighbors :math:`j` in a local region:
 
@@ -504,7 +504,7 @@ cdef class Steinhardt(_PairCompute):
         q_{lm}(i) = \frac{1}{N_b} \displaystyle\sum_{j=1}^{N_b}
         Y_{lm}(\theta(\vec{r}_{ij}), \phi(\vec{r}_{ij}))
 
-    Then the :math:`q_l` order parameter is computed by combining the `q_{lm}`
+    Then the :math:`q_l` order parameter is computed by combining the :math:`q_{lm}`
     in a rotationally invariant fashion to remove local orientational order:
 
     .. math::
@@ -512,9 +512,9 @@ cdef class Steinhardt(_PairCompute):
         q_l(i) = \sqrt{\frac{4\pi}{2l+1} \displaystyle\sum_{m=-l}^{l}
         |q_{lm}(i)|^2 }
 
-    If the ``wl`` parameter is True, this class computes the quantity
+    If the ``wl`` parameter is ``True``, this class computes the quantity
     :math:`w_l`, defined as a weighted average over the
-    :math:`\overline{q}_{lm}(i)` values using `Wigner 3-j symbols
+    :math:`q_{lm}(i)` values using `Wigner 3-j symbols
     <https://en.wikipedia.org/wiki/3-j_symbol>`__ (related to `Clebsch-Gordan
     coefficients
     <https://en.wikipedia.org/wiki/Clebsch%E2%80%93Gordan_coefficients>`__).
@@ -528,8 +528,9 @@ cdef class Steinhardt(_PairCompute):
         \end{pmatrix}
         q_{lm_1}(i) q_{lm_2}(i) q_{lm_3}(i)
 
-    If ``wl`` is True, then setting the ``wl_normalize`` parameter to True will
-    normalize the :math:`w_l` order parameter as follows:
+    If ``wl`` is ``True``, then setting the ``wl_normalize`` parameter to ``True`` will
+    normalize the :math:`w_l` order parameter as follows (if ``wl=False``, 
+    ``wl_normalize`` has no effect):
 
     .. math::
 
@@ -541,14 +542,14 @@ cdef class Steinhardt(_PairCompute):
             q_{lm_1}(i) q_{lm_2}(i) q_{lm_3}(i)}
             {\left(\sum_{m=-l}^{l} |q_{lm}(i)|^2 \right)^{3/2}}
 
-    If ``average`` is True, the class computes a variant of this order
+    If ``average`` is ``True``, the class computes a variant of this order
     parameter that performs an average over the first and second shell combined
     :cite:`Lechner_2008`. To compute this parameter, we perform a second
     averaging over the first neighbor shell of the particle to implicitly
     include information about the second neighbor shell. This averaging is
     performed by replacing the value :math:`q_{lm}(i)` in the original
     definition by :math:`\overline{q}_{lm}(i)`, the average value of
-    :math:`\overline{q}_{lm}(k)` over all the :math:`N_b` neighbors :math:`k`
+    :math:`q_{lm}(k)` over all the :math:`N_b` neighbors :math:`k`
     of particle :math:`i`, including particle :math:`i` itself:
 
     .. math::
