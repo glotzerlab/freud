@@ -11,6 +11,7 @@ import freud
 try:
     import matplotlib.pyplot as plt
     from matplotlib.backends.backend_agg import FigureCanvasAgg
+    from matplotlib.ticker import FormatStrFormatter, MaxNLocator
 except ImportError:
     raise ImportError("matplotlib must be installed for freud.plot.")
 
@@ -526,29 +527,25 @@ def diffraction_plot(
 
     # Plot the diffraction image and color bar
     norm = matplotlib.colors.LogNorm(vmin=vmin, vmax=vmax)
+    extent = (np.min(k_values), np.max(k_values), np.min(k_values), np.max(k_values))
     im = ax.imshow(
-        np.clip(diffraction, vmin, vmax), interpolation="nearest", cmap=cmap, norm=norm
+        np.clip(diffraction, vmin, vmax),
+        interpolation="nearest",
+        cmap=cmap,
+        norm=norm,
+        extent=extent,
     )
     ax_divider = make_axes_locatable(ax)
     cax = ax_divider.append_axes("right", size="7%", pad="10%")
     cb = Colorbar(cax, im)
     cb.set_label(r"$S(\vec{k})$")
 
-    # Determine the number of ticks on the axis
-    grid_size = diffraction.shape[0]
-    num_ticks = len([i for i in ax.xaxis.get_ticklocs() if 0 <= i <= grid_size])
-
-    # Ensure there are an odd number of ticks, so that there is a tick at zero
-    num_ticks += 1 - num_ticks % 2
-    ticks = np.linspace(0, grid_size, num_ticks)
-
     # Set tick locations and labels
-    tick_labels = np.interp(ticks, range(grid_size), k_values)
-    tick_labels = [f"{x:.3g}" for x in tick_labels]
-    ax.xaxis.set_ticks(ticks)
-    ax.xaxis.set_ticklabels(tick_labels)
-    ax.yaxis.set_ticks(ticks)
-    ax.yaxis.set_ticklabels(tick_labels)
+    ax.xaxis.set_major_locator(MaxNLocator(nbins=6, symmetric=True, min_n_ticks=7))
+    ax.yaxis.set_major_locator(MaxNLocator(nbins=6, symmetric=True, min_n_ticks=7))
+    formatter = FormatStrFormatter("%.3g")
+    ax.xaxis.set_major_formatter(formatter)
+    ax.yaxis.set_major_formatter(formatter)
 
     # Set title, limits, aspect
     ax.set_title("Diffraction Pattern")
