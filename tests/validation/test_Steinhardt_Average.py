@@ -137,7 +137,7 @@ class TestSteinhardtReferenceValues:
             # affected the averaged ql values. This affected 37 out of 3288
             # particles in the sample data for one of the cases checked.
             close_values = np.isclose(rvd_data[:, i], freud_data[:, i], atol=5e-5)
-            assert sum(close_values) > (0.985 * len(freud_data)), f"{name} failed"
+            assert np.sum(close_values) > (0.985 * len(freud_data)), f"{name} failed"
 
     @pytest.mark.parametrize(
         "reference,average,wl",
@@ -171,4 +171,4 @@ class TestSteinhardtReferenceValues:
             close_values = np.isclose(
                 msm_data[:, sph_l], freud_data[:, sph_l], atol=1e-5
             )
-            assert sum(close_values) > (0.985 * len(freud_data)), f"{name} failed"
+            assert np.sum(close_values) > (0.985 * len(freud_data)), f"{name} failed"
