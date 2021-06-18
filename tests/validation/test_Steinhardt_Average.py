@@ -70,14 +70,11 @@ def _compute_comparison_data(system, average=False, weighted=False):
 def _compute_msms(system, lmax, average=False, wl=False):
     """Returns Minkowski Structure Metrics up to a maximum l value."""
     voro = freud.locality.Voronoi().compute(system=system)
-    return _compute_steinhardts(
-        system,
-        [
-            dict(average=average, weighted=True, l=i, wl=wl, wl_normalize=wl)
-            for i in range(lmax + 1)
-        ],
-        voro.nlist,
+    op = freud.order.Steinhardt(
+        l=list(range(lmax + 1)), average=average, weighted=True, wl=wl, wl_normalize=wl
     )
+    op.compute(system, neighbors=voro.nlist)
+    return op.particle_order
 
 
 class TestSteinhardtReferenceValues:
