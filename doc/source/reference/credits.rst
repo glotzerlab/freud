@@ -117,6 +117,7 @@ Bradley Dice - **Lead developer**
 * Fixed 2D image calculations.
 * Optimized NeighborList ``filter`` method.
 * Fixed documented formulas for ``Steinhardt`` class.
+* Fixed incorrect computation of ``Steinhardt`` averaged quantities.
 
 Eric Harper, University of Michigan - **Former lead developer**
 

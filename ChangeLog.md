@@ -12,8 +12,9 @@ and this project adheres to
 * The `Steinhardt` class supports computing order parameters for multiple `l`.
 
 ### Fixed
-* Fix broken arXiv links in bibliography.
-* Fix documented formulas for `Steinhardt` class.
+* Fixed incorrect computation of `Steinhardt` averaged quantities. Affects all previous versions of freud 2.
+* Fixed documented formulas for `Steinhardt` class.
+* Fixed broken arXiv links in bibliography.
 
 ## v2.5.1 - 2021-04-06
 
