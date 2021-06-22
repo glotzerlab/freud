@@ -4,11 +4,11 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## v2.6.0
+## v2.6.0 - 2021-06-22
 
 ### Added
 * Added `out` option for the `wrap`, `unwrap`, `make_absolute`, and `make_fractional` methods of `Box`.
-* The Steinhardt and SolidLiquid classes expose the raw qlmi arrays.
+* The `Steinhardt` and `SolidLiquid` classes expose the raw `qlmi` arrays.
 * The `Steinhardt` class supports computing order parameters for multiple `l`.
 
 ### Fixed
