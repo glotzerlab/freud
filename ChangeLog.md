@@ -11,7 +11,12 @@ and this project adheres to
 * The `Steinhardt` and `SolidLiquid` classes expose the raw `qlmi` arrays.
 * The `Steinhardt` class supports computing order parameters for multiple `l`.
 
+### Changed
+* Improvements to plotting for the `DiffractionPattern`.
+* Wheels are now built with cibuildwheel.
+
 ### Fixed
+* Fixed/Improved the `k` values and vectors in the `DiffractionPattern` (more improvement needed).
 * Fixed incorrect computation of `Steinhardt` averaged quantities. Affects all previous versions of freud 2.
 * Fixed documented formulas for `Steinhardt` class.
 * Fixed broken arXiv links in bibliography.
