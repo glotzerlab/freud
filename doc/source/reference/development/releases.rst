@@ -19,7 +19,7 @@ Starting the Release
 
 .. code-block:: bash
 
-    git checkout -b release/vX.Y.Z
+    git checkout -b release/X.Y.Z
 
 Changelog
 ---------
@@ -91,7 +91,7 @@ Bump version
 
 .. code-block:: bash
 
-    git push -u origin release/vX.Y.Z
+    git push -u origin release/X.Y.Z
 
 - Create a pull request for that branch.
 
