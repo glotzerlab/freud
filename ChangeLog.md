@@ -4,6 +4,11 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## v2.6.1 -- 2021-06-23
+
+### Fixed
+* Added missing git submodules to source distribution.
+
 ## v2.6.0 - 2021-06-22
 
 ### Added
