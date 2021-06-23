@@ -1,12 +1,12 @@
   2122	Vyas Ramasubramani <vramasub@umich.edu>
-  2042	Bradley Dice <bdice@bradleydice.com>
+  2047	Bradley Dice <bdice@bradleydice.com>
   1030	Eric Harper <harperic@umich.edu>
    456	Jin Soo Ihm <jinihm@umich.edu>
    294	Joshua A. Anderson <joaander@umich.edu>
    240	Matthew Spellings <mspells@umich.edu>
    166	Kelly Wang <kelwang@umich.edu>
    110	Erin Teich <erteich@umich.edu>
-    83	Brandon Butler <butlerbr@umich.edu>
+    86	Brandon Butler <butlerbr@umich.edu>
     66	M. Eric Irrgang <eirrgang@umich.edu>
     61	Charlotte Shiqi Zhao <zshiqi@umich.edu>
     53	Chrisy Du <xiyudu@umich.edu>
@@ -44,7 +44,7 @@
      3	Rose Cersonsky <rosecers@umich.edu>
      3	Wenbo Shen <shenwb@umich.edu>
      2	Maya Martirossyan <mmm457@cornell.edu>
+     1	Emily Siew <esiew@umich.edu>
      1	Jiwoong Yu <jiwoongs0510@gmail.com>
      1	Patrick Lawton <plawton@umich.edu>
      1	Paul Dodd <pdodd@umich.edu>
-     1	Emily Siew <esiew@umich.edu>
