@@ -70,6 +70,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2.3.4
+        with:
+          submodules: "recursive"
 
       - uses: actions/setup-python@v2.2.2
         name: Install Python
