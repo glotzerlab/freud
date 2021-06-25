@@ -34,11 +34,15 @@ jobs:
           submodules: "recursive"
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v1.11.1
+        uses: pypa/cibuildwheel@v1.12.0
         env:
           # Build for cpython >= 3.6.
           CIBW_PROJECT_REQUIRES_PYTHON: "==${{ matrix.pyver }}.*"
           CIBW_SKIP: pp*
+          
+          # Pin to a manylinux image that contains auditwheel >=4.0.0.
+          # This pinning can be removed once cibuildwheel 2.0.0 is released, since it will use a newer image.
+          CIBW_MANYLINUX_X86_64_IMAGE: "quay.io/pypa/manylinux2010_x86_64:2021-06-07-00faba2"
 
           # Build only on 64-bit architectures.
           CIBW_ARCHS_MACOS: x86_64
