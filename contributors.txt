@@ -1,5 +1,5 @@
   2122	Vyas Ramasubramani <vramasub@umich.edu>
-  2047	Bradley Dice <bdice@bradleydice.com>
+  2054	Bradley Dice <bdice@bradleydice.com>
   1030	Eric Harper <harperic@umich.edu>
    456	Jin Soo Ihm <jinihm@umich.edu>
    294	Joshua A. Anderson <joaander@umich.edu>
@@ -20,7 +20,7 @@
     22	Jens Glaser <jsglaser@umich.edu>
     19	Andrew Kerr <andrewghkerr@gmail.com>
     19	Tim Moore <mtimc@umich.edu>
-    14	pre-commit-ci[bot] <66853113+pre-commit-ci[bot]@users.noreply.github.com>
+    15	pre-commit-ci[bot] <66853113+pre-commit-ci[bot]@users.noreply.github.com>
     13	Pavel Buslaev <pbuslaev@gmail.com>
     10	Benjamin Schultz <baschult@umich.edu>
     10	Bryan VanSaders <bvansade@umich.edu>
