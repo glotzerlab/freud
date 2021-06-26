@@ -118,6 +118,7 @@ Bradley Dice - **Lead developer**
 * Optimized NeighborList ``filter`` method.
 * Fixed documented formulas for ``Steinhardt`` class.
 * Fixed incorrect computation of ``Steinhardt`` averaged quantities.
+* Fixed RPATH problems affecting ``libfreud.so`` in Linux wheels.
 
 Eric Harper, University of Michigan - **Former lead developer**
 

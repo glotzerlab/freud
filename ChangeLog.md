@@ -4,6 +4,11 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v2.6.2 -- 2021-06-26
+
+### Fixed
+* Upgrade to auditwheel 4.0.0 in cibuildwheel to ensure RPATH is patched properly for `libfreud.so` in Linux wheels.
+
 ## v2.6.1 -- 2021-06-23
 
 ### Fixed
