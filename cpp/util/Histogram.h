@@ -157,7 +157,7 @@ public:
 #ifdef __SSE2__
         size_t bin = _mm_cvtt_ss2si(_mm_load_ss(&val));
 #else
-        size_t bin = (size_t)(val);
+        size_t bin = (size_t) (val);
 #endif
         // Avoid rounding leading to overflow.
         if (bin == m_nbins)

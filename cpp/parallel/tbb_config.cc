@@ -28,7 +28,8 @@ void setNumThreads(unsigned int N)
     }
 
     // then recreate it
-    tbb_thread_control = std::make_unique<tbb::global_control>(tbb::global_control::parameter::max_allowed_parallelism, N);
+    tbb_thread_control
+        = std::make_unique<tbb::global_control>(tbb::global_control::parameter::max_allowed_parallelism, N);
 }
 
 }; }; // end namespace freud::parallel

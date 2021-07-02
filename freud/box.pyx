@@ -180,50 +180,72 @@ cdef class Box:
         """float: The box volume (area in 2D)."""
         return self.thisptr.getVolume()
 
-    def make_absolute(self, fractional_coordinates):
+    def make_absolute(self, fractional_coordinates, out=None):
         R"""Convert fractional coordinates into absolute coordinates.
 
         Args:
             fractional_coordinates (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Fractional coordinate vector(s), between 0 and 1 within
                 parallelepipedal box.
+            out (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray` or :code:`None`):
+                The array in which to place the absolute coordinates. It must be
+                of dtype `np.float32`. If ``None``, this function will return a
+                newly allocated array (Default value = None).
 
         Returns:
             :math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
-                Absolute coordinate vector(s).
+                Absolute coordinate vector(s). If ``out`` is provided, a
+                reference to it is returned.
         """  # noqa: E501
         fractions = np.asarray(fractional_coordinates).copy()
         flatten = fractions.ndim == 1
         fractions = np.atleast_2d(fractions)
         fractions = freud.util._convert_array(fractions, shape=(None, 3))
+        out = freud.util._convert_array(
+                out, shape=fractions.shape, allow_copy=False)
 
         cdef const float[:, ::1] l_points = fractions
         cdef unsigned int Np = l_points.shape[0]
-        self.thisptr.makeAbsolute(<vec3[float]*> &l_points[0, 0], Np)
+        cdef float[:, ::1] l_out = out
 
-        return np.squeeze(fractions) if flatten else fractions
+        self.thisptr.makeAbsolute(
+                <vec3[float]*> &l_points[0, 0], Np,
+                <vec3[float]*> &l_out[0, 0])
 
-    def make_fractional(self, absolute_coordinates):
+        return np.squeeze(out) if flatten else out
+
+    def make_fractional(self, absolute_coordinates, out=None):
         R"""Convert absolute coordinates into fractional coordinates.
 
         Args:
             absolute_coordinates (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Absolute coordinate vector(s).
+            out (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray` or :code:`None`):
+                The array in which to place the fractional positions. It must be
+                of dtype `np.float32`. If ``None``, this function will return a
+                newly allocated array (Default value = None).
 
         Returns:
             :math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
-                Fractional coordinate vector(s).
+                Fractional coordinate vector(s). If ``out`` is provided, a
+                reference to it is returned.
         """  # noqa: E501
         vecs = np.asarray(absolute_coordinates).copy()
         flatten = vecs.ndim == 1
         vecs = np.atleast_2d(vecs)
         vecs = freud.util._convert_array(vecs, shape=(None, 3))
+        out = freud.util._convert_array(
+                out, shape=vecs.shape, allow_copy=False)
 
         cdef const float[:, ::1] l_points = vecs
         cdef unsigned int Np = l_points.shape[0]
-        self.thisptr.makeFractional(<vec3[float]*> &l_points[0, 0], Np)
+        cdef float[:, ::1] l_out = out
 
-        return np.squeeze(vecs) if flatten else vecs
+        self.thisptr.makeFractional(
+                <vec3[float]*> &l_points[0, 0], Np,
+                <vec3[float]*> &l_out[0, 0])
+
+        return np.squeeze(out) if flatten else out
 
     def get_images(self, vecs):
         R"""Returns the images corresponding to unwrapped vectors.
@@ -299,24 +321,26 @@ cdef class Box:
 
         Returns:
             :math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
-                Vector(s) wrapped into the box.
+                Vector(s) wrapped into the box. If ``out`` is provided, a
+                reference to it is returned.
         """  # noqa: E501
         vecs = np.asarray(vecs)
         flatten = vecs.ndim == 1
         vecs = np.atleast_2d(vecs)
         vecs = freud.util._convert_array(vecs, shape=(None, 3))
-        out = freud.util._convert_array(out, shape=vecs.shape, allow_copy=False)
+        out = freud.util._convert_array(
+                out, shape=vecs.shape, allow_copy=False)
 
         cdef const float[:, ::1] l_points = vecs
         cdef unsigned int Np = l_points.shape[0]
-        cdef const float[:, ::1] l_out = out
+        cdef float[:, ::1] l_out = out
 
         self.thisptr.wrap(<vec3[float]*> &l_points[0, 0],
                           Np, <vec3[float]*> &l_out[0, 0])
 
         return np.squeeze(out) if flatten else out
 
-    def unwrap(self, vecs, imgs):
+    def unwrap(self, vecs, imgs, out=None):
         R"""Unwrap an array of vectors inside the box back into real space,
         using an array of image indices that determine how many times to unwrap
         in each dimension.
@@ -326,10 +350,15 @@ cdef class Box:
                 Vector(s) to be unwrapped.
             imgs (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Image indices for vector(s).
+            out (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray` or :code:`None`):
+                The array in which to place the unwrapped vectors. It must be of
+                dtype `np.float32`. If ``None``, this function will
+                return a newly allocated array (Default value = None).
 
         Returns:
             :math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
-                Unwrapped vector(s).
+                Unwrapped vector(s). If ``out`` is provided, a reference to it is
+                returned.
         """  # noqa: E501
         vecs = np.asarray(vecs)
         flatten = vecs.ndim == 1
@@ -339,16 +368,21 @@ cdef class Box:
             # Broadcasts (1, 3) to (N, 3) for both arrays
             vecs, imgs = np.broadcast_arrays(vecs, imgs)
         vecs = freud.util._convert_array(vecs, shape=(None, 3)).copy()
-        imgs = freud.util._convert_array(imgs, shape=vecs.shape,
-                                         dtype=np.int32)
+        imgs = freud.util._convert_array(
+                imgs, shape=vecs.shape, dtype=np.int32)
+        out = freud.util._convert_array(
+                out, shape=vecs.shape, allow_copy=False)
 
         cdef const float[:, ::1] l_points = vecs
         cdef const int[:, ::1] l_imgs = imgs
         cdef unsigned int Np = l_points.shape[0]
-        self.thisptr.unwrap(<vec3[float]*> &l_points[0, 0],
-                            <vec3[int]*> &l_imgs[0, 0], Np)
+        cdef float[:, ::1] l_out = out
 
-        return np.squeeze(vecs) if flatten else vecs
+        self.thisptr.unwrap(<vec3[float]*> &l_points[0, 0],
+                            <vec3[int]*> &l_imgs[0, 0], Np,
+                            <vec3[float]*> &l_out[0, 0])
+
+        return np.squeeze(out) if flatten else out
 
     def center_of_mass(self, vecs, masses=None):
         R"""Compute center of mass of an array of vectors, using periodic boundaries.
@@ -471,7 +505,7 @@ cdef class Box:
         return np.asarray(distances)
 
     def compute_all_distances(self, query_points, points):
-        R"""Calculate distances between all pairs of query points and points.
+        R"""Calculate distances between all pairs of query points and points, using periodic boundaries.
 
         Distances are calculated pairwise, i.e. ``distances[i, j]`` is the
         distance from ``query_points[i]`` to ``points[j]``.

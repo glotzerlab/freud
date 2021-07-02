@@ -238,6 +238,15 @@ cdef class DiffractionPattern(_Compute):
     as a multiplication in Fourier space. The computed diffraction pattern
     can be accessed as a square array of shape ``(output_size, output_size)``.
 
+    The :math:`\vec{k}=0` peak is always located at index
+    ``(output_size // 2, output_size // 2)`` and is normalized to have a value
+    of :math:`S(\vec{k}=0) = 1` (not :math:`N`, a common convention). The
+    remaining :math:`\vec{k}` vectors are computed such that each peak in the
+    diffraction pattern satisfies the relationship :math:`\vec{k} \cdot
+    \vec{R} = 2 \pi N` for some integer :math:`N` and lattice vector of
+    the system :math:`\vec{R}`. See the `reciprocal lattice Wikipedia page
+    <https://en.wikipedia.org/wiki/Reciprocal_lattice>`__ for more information.
+
     This method is based on the implementations in the open-source
     `GIXStapose application <https://github.com/cmelab/GIXStapose>`_ and its
     predecessor, diffractometer :cite:`Jankowski2017`.
@@ -259,6 +268,7 @@ cdef class DiffractionPattern(_Compute):
     cdef unsigned int _frame_counter
     cdef double _box_matrix_scale_factor
     cdef double[:] _view_orientation
+    cdef double _k_scale_factor
     cdef cbool _k_values_cached
     cdef cbool _k_vectors_cached
 
@@ -322,7 +332,7 @@ cdef class DiffractionPattern(_Compute):
         """Zoom, shear, and scale diffraction intensities.
 
         Args:
-            img ((``grid_size//zoom, grid_size//zoom``) :class:`numpy.ndarray`):
+            img ((``grid_size, grid_size``) :class:`numpy.ndarray`):
                 Array of diffraction intensities.
             box (:class:`~.box.Box`):
                 Simulation box.
@@ -339,7 +349,8 @@ cdef class DiffractionPattern(_Compute):
         # The adjustments to roll and roll_shift ensure that the peak
         # corresponding to k=0 is located at exactly
         # (output_size//2, output_size//2), regardless of whether the grid_size
-        # and output_size are odd or even.
+        # and output_size are odd or even. This keeps the peak aligned at the
+        # center of a single pixel, which should always have the maximum value.
 
         roll = img.shape[0] / 2
         if img.shape[0] % 2 == 1:
@@ -410,8 +421,6 @@ cdef class DiffractionPattern(_Compute):
         view_orientation = freud.util._convert_array(
             view_orientation, (4,), np.double)
 
-        grid_size = int(self.grid_size / zoom)
-
         # Compute the box projection matrix
         inv_shear = self._calc_proj(view_orientation, system.box)
 
@@ -424,7 +433,7 @@ cdef class DiffractionPattern(_Compute):
         xy += 0.5
         xy %= 1
         im, _, _ = np.histogram2d(
-            xy[:, 0], xy[:, 1], bins=np.linspace(0, 1, grid_size+1))
+            xy[:, 0], xy[:, 1], bins=np.linspace(0, 1, self.grid_size+1))
 
         # Compute FFT and convolve with Gaussian
         cdef double complex[:, :] diffraction_fft
@@ -451,8 +460,7 @@ cdef class DiffractionPattern(_Compute):
         if not self._called_compute:
             # Create a 1D axis of k-vector magnitudes
             self._k_values_orig = np.fft.fftshift(np.fft.fftfreq(
-                n=self.output_size,
-                d=1/self.output_size))
+                n=self.output_size))
 
             # Create a 3D meshgrid of k-vectors with shape
             # (output_size, output_size, 3)
@@ -463,6 +471,7 @@ cdef class DiffractionPattern(_Compute):
         # lazy evaluation of k-values and k-vectors
         self._box_matrix_scale_factor = np.max(system.box.to_matrix())
         self._view_orientation = view_orientation
+        self._k_scale_factor = 2 * np.pi * self.output_size / (self._box_matrix_scale_factor * zoom)
         self._k_values_cached = False
         self._k_vectors_cached = False
 
@@ -482,7 +491,7 @@ cdef class DiffractionPattern(_Compute):
     def diffraction(self):
         """
         (``output_size``, ``output_size``) :class:`numpy.ndarray`:
-            diffraction pattern.
+            Diffraction pattern.
         """
         return np.asarray(self._diffraction) / self._frame_counter
 
@@ -490,8 +499,7 @@ cdef class DiffractionPattern(_Compute):
     def k_values(self):
         """(``output_size``, ) :class:`numpy.ndarray`: k-values."""
         if not self._k_values_cached:
-            self._k_values = np.asarray(
-                self._k_values_orig) / self._box_matrix_scale_factor
+            self._k_values = np.asarray(self._k_values_orig) * self._k_scale_factor
             self._k_values_cached = True
         return np.asarray(self._k_values)
 
@@ -504,7 +512,7 @@ cdef class DiffractionPattern(_Compute):
         if not self._k_vectors_cached:
             self._k_vectors = rowan.rotate(
                 self._view_orientation,
-                self._k_vectors_orig) / self._box_matrix_scale_factor
+                self._k_vectors_orig) * self._k_scale_factor
             self._k_vectors_cached = True
         return np.asarray(self._k_vectors)
 

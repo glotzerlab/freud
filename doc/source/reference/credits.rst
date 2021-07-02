@@ -53,6 +53,7 @@ Vyas Ramasubramani - **Lead developer**
 * Refactored and standardized PMFT tests.
 * Rewrote build system to use scikit-build.
 * Added support for pre-commit hooks.
+* Added the `out` option for the `unwrap`, `make_fractional`, and `make_absolute` methods of `Box`.
 * Enabled access to the qlmi arrays in Steinhardt and SolidLiquid and added rigorous tests of correctness.
 
 Bradley Dice - **Lead developer**
@@ -115,6 +116,9 @@ Bradley Dice - **Lead developer**
 * Added scikit-build support for Windows.
 * Fixed 2D image calculations.
 * Optimized NeighborList ``filter`` method.
+* Fixed documented formulas for ``Steinhardt`` class.
+* Fixed incorrect computation of ``Steinhardt`` averaged quantities.
+* Fixed RPATH problems affecting ``libfreud.so`` in Linux wheels.
 
 Eric Harper, University of Michigan - **Former lead developer**
 
@@ -286,6 +290,7 @@ Yezhi Jin
 
 Brandon Butler
 
+* Added support for multiple ``l`` in ``Steinhardt`` along with performance improvements.
 * Rewrote Steinhardt order parameter.
 
 Jin Soo Ihm
