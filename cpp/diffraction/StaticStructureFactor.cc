@@ -8,6 +8,7 @@
 
 #include "Box.h"
 #include "ManagedArray.h"
+#include "NeighborComputeFunctional.h"
 #include "NeighborQuery.h"
 #include "RDF.h"
 #include "StaticStructureFactor.h"
@@ -57,8 +58,21 @@ void StaticStructureFactor::accumulateDirect(const freud::locality::NeighborQuer
                                              const vec3<float>* query_points, unsigned int n_query_points)
 {
     auto const& box = neighbor_query->getBox();
-    auto distances = std::vector<float>(n_query_points * n_query_points);
-    box.computeAllDistances(query_points, n_query_points, query_points, n_query_points, distances.data());
+
+    // The r_max should be just less than half of the smallest side length of the box
+    auto const box_L = box.getL();
+    auto const min_box_length
+        = box.is2D() ? std::min(box_L.x, box_L.y) : std::min(box_L.x, std::min(box_L.y, box_L.z));
+    auto const r_max = std::nextafter(0.5f * min_box_length, 0.0f);
+    auto const qargs = freud::locality::QueryArgs::make_ball(r_max, 0.0, true);
+
+    // The minimum k value of validity for the RDF Fourier Transform method is 4 * pi / L, where L is the
+    // smallest side length. This is equal to 2 * pi / r_max.
+    m_min_valid_k = std::min(m_min_valid_k, freud::constants::TWO_PI / r_max);
+
+    // This function requires a NeighborList object, so we always make one and store it locally.
+    auto const nlist = locality::makeDefaultNlist(neighbor_query, nullptr, query_points, n_query_points, qargs);
+    auto const& distances = nlist.getDistances();
 
     auto const k_bin_centers = m_histogram.getBinCenters()[0];
 
@@ -68,8 +82,12 @@ void StaticStructureFactor::accumulateDirect(const freud::locality::NeighborQuer
         {
             auto const k = k_bin_centers[k_index];
             double S_k = 0.0;
-            std::for_each(distances.cbegin(), distances.cend(),
-                          [&S_k, k](float const& distance) { S_k += util::sinc(k * distance); });
+            for (size_t distance_index = 0; distance_index < distances.size(); ++distance_index)
+            {
+                auto const distance = distances[distance_index];
+                S_k += util::sinc(k * distance);
+            }
+            // TODO: Support partial structure factors in this normalization
             S_k /= static_cast<double>(n_query_points);
             m_local_histograms.increment(k_index, S_k);
         };
