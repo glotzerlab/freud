@@ -39,29 +39,16 @@ cdef class StaticStructureFactor(_Compute):
     <https://en.wikipedia.org/wiki/Structure_factor>`__ :math:`S(k)`,
     assuming an isotropic system (averaging over all :math:`k` vectors of the
     same magnitude). This is implemented using the Debye scattering equation.
-    This class offers a *direct* method and an *RDF Fourier Transform* method
-    that is faster but less accurate for some values of :math:`k`. The direct
-    method is computed as:
 
     .. math::
 
         S(k) = \frac{1}{N} \sum_{i=0}^{N} \sum_{j=0}^{N} \text{sinc}(k r_{ij})
 
-    The RDF method is computed as:
-
-    .. math::
-
-        S(k) = 1 + 4 \pi \frac{N}{V} \int_0^R r^2 (g(r) - 1) \text{sinc}(k r)
-        dr
-
-    where :math:`N` is the number of particles, :math:`V` is the box volume,
-    :math:`g(r)` is the radial distribution function, :math:`R` is the upper
-    limit of the RDF (half of the minimum box side length) and the
-    :math:`\text{sinc}` function is defined as :math:`\sin x / x` (no factor
-    of :math:`\pi` as in some conventions). The derivation of the equation for RDF method
-    can be found `here<https://en.wikipedia.org/wiki/Radial_distribution_function>`.
-    The equation 7 from the link can be obtained by replacing :math:`\text{sinc}(k r)` with
-    :math:`\frac{\text{sin}(k r)}{kr}`.
+    where :math:`N` is the number of particles, :math:`\text{sinc}` function is defined
+    as :math:`\sin x / x` (no factor of :math:`\pi` as in some conventions). For more
+    information see `here<https://en.wikipedia.org/wiki/Structure_factor>`.
+    The equation 4 from the link can be obtained by replacing
+    :math:`\frac{\text{sin}(k r)}{kr}` with math:`\text{sinc}(k r)`.
 
     .. note::
         This code assumes all particles have a form factor :math:`f` of 1.
@@ -80,18 +67,13 @@ cdef class StaticStructureFactor(_Compute):
             there are practical restrictions on the validity of the
             calculation in the long-wavelength regime, see ``min_valid_k``
             (Default value = :code:`0`).
-        direct (bool, optional):
-            If ``True``, the structure factor is calculated by the *direct*
-            method. If ``False``, the *RDF Fourier Transform* method is used
-            (Default value = :code:`True`).
     """
     cdef freud._diffraction.StaticStructureFactor * thisptr
 
-    def __cinit__(self, unsigned int bins, float k_max, float k_min=0,
-                  cbool direct=True):
+    def __cinit__(self, unsigned int bins, float k_max, float k_min=0):
         if type(self) == StaticStructureFactor:
             self.thisptr = new freud._diffraction.StaticStructureFactor(
-                bins, k_max, k_min, direct)
+                bins, k_max, k_min)
 
     def __dealloc__(self):
         if type(self) == StaticStructureFactor:

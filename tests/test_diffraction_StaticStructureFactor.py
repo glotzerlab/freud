@@ -3,17 +3,16 @@ import unittest
 import matplotlib
 import numpy as np
 import numpy.testing as npt
-from scipy.integrate import simps
 
 import freud
 
 matplotlib.use("agg")
 
 
-def validate_method(system, bins, k_max, k_min, direct):
+def validate_method(system, bins, k_max, k_min):
     """Validation of the static structure calculation.
 
-    This method is a pure Python reference implementation of the direct
+    This method is a pure Python reference implementation of the debye
     method implemented in C++ in freud.
 
     Args:
@@ -26,9 +25,6 @@ def validate_method(system, bins, k_max, k_min, direct):
             Maximum :math:`k` value to include in the calculation.
         k_min (float):
             Minimum :math:`k` value to include in the calculation.
-        direct (bool):
-            If ``True``, the structure factor is calculated by the *direct*
-            method. If ``False``, the *RDF Fourier Transform* method is used.
     """
     system = freud.locality.NeighborQuery.from_system(system)
     N = len(system.points)
@@ -37,32 +33,11 @@ def validate_method(system, bins, k_max, k_min, direct):
     Q += (k_max - k_min) / bins / 2
     S = np.zeros_like(Q)
 
-    if direct:
-        # Direct method
+    # Compute all pairwise distances
+    distances = system.box.compute_all_distances(system.points, system.points).flatten()
 
-        # Compute all pairwise distances
-        distances = system.box.compute_all_distances(
-            system.points, system.points
-        ).flatten()
-
-        for i, q in enumerate(Q):
-            S[i] += np.sum(np.sinc(q * distances / np.pi)) / N
-    else:
-        # RDF Fourier Transform method
-        min_L = np.min(system.box.L)
-        r_max = np.nextafter(min_L / 2.0, 0.0, dtype=np.float32)
-        rdf = freud.density.RDF(bins, r_max)
-        rdf.compute(system)
-
-        def integrate_rdf(rdf, q):
-            r = rdf.bin_centers
-            g_r = rdf.rdf
-            integrand = r ** 2 * (g_r - 1) * np.sinc(q * r / np.pi)
-            return simps(integrand, r)
-
-        for i, q in enumerate(Q):
-            rdf_integrated = integrate_rdf(rdf, q)
-            S[i] = 1 + (4 * np.pi * N / system.box.volume) * rdf_integrated
+    for i, q in enumerate(Q):
+        S[i] += np.sum(np.sinc(q * distances / np.pi)) / N
 
     return Q, S
 
@@ -73,32 +48,17 @@ class TestStaticStructureFactor(unittest.TestCase):
         box, positions = freud.data.UnitCell.fcc().generate_system(4)
         sf.compute((box, positions))
 
-    def test_direct_validation(self):
-        """Validate the direct method against a Python implementation."""
+    def test_debye_validation(self):
+        """Validate the Debye method against a Python implementation."""
         bins = 1000
         k_max = 100
         k_min = 0
-        direct = True
-        sf = freud.diffraction.StaticStructureFactor(bins, k_max, k_min, direct)
+        sf = freud.diffraction.StaticStructureFactor(bins, k_max, k_min)
         box, positions = freud.data.UnitCell.fcc().generate_system(4, sigma_noise=0.01)
         sf.compute((box, positions))
-        Q, S = validate_method((box, positions), bins, k_max, k_min, direct)
+        Q, S = validate_method((box, positions), bins, k_max, k_min)
         npt.assert_allclose(sf.bin_centers, Q)
         npt.assert_allclose(sf.S_k, S, rtol=1e-4, atol=1e-4)
-
-    def test_rdf_validation(self):
-        """Validate the RDF method against a Python implementation."""
-        bins = 1000
-        k_max = 100
-        k_min = 0
-        direct = False
-        sf = freud.diffraction.StaticStructureFactor(bins, k_max, k_min, direct)
-        box, positions = freud.data.UnitCell.fcc().generate_system(4, sigma_noise=0.01)
-        sf.compute((box, positions))
-        Q, S = validate_method((box, positions), bins, k_max, k_min, direct)
-        npt.assert_allclose(sf.bin_centers, Q)
-        # TODO: Fix failing test
-        # npt.assert_allclose(sf.S_k, S, rtol=1e-4, atol=1e-4)
 
 
 # TODO: All the below tests were copied from DiffractionPattern and need to be

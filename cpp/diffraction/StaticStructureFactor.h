@@ -24,22 +24,14 @@ class StaticStructureFactor
 
 public:
     //! Constructor
-    StaticStructureFactor(unsigned int bins, float k_max, float k_min = 0, bool direct = true);
+    StaticStructureFactor(unsigned int bins, float k_max, float k_min = 0);
 
     //! Destructor
     virtual ~StaticStructureFactor() {};
 
-    //! Compute the structure factor S(k) using the direct or RDF methods
+    //! Compute the structure factor S(k) using the Debye formula
     void accumulate(const freud::locality::NeighborQuery* neighbor_query, const vec3<float>* query_points,
                     unsigned int n_query_points);
-
-    //! Compute the structure factor using all pairwise distances
-    void accumulateDirect(const freud::locality::NeighborQuery* neighbor_query,
-                          const vec3<float>* query_points, unsigned int n_query_points);
-
-    //! Compute the structure factor using the RDF
-    void accumulateRDF(const freud::locality::NeighborQuery* neighbor_query, const vec3<float>* query_points,
-                       unsigned int n_query_points);
 
     //! Reduce thread-local arrays onto the primary data arrays.
     void reduce();
@@ -88,7 +80,6 @@ public:
     }
 
 private:
-    const bool m_direct; //!< Whether to perform a direct summation (defaults to Fourier transform of the RDF)
     StaticStructureFactorHistogram m_histogram; //!< Histogram to hold computed structure factor
     StaticStructureFactorHistogram::ThreadLocalHistogram
         m_local_histograms;                       //!< Thread local histograms for TBB parallelism
