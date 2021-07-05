@@ -26,6 +26,7 @@ def validate_method(system, bins, k_max, k_min):
         k_min (float):
             Minimum :math:`k` value to include in the calculation.
     """
+    rmax = np.min(system[0].L) * 0.5 - 0.0000001
     system = freud.locality.NeighborQuery.from_system(system)
     N = len(system.points)
 
@@ -34,7 +35,8 @@ def validate_method(system, bins, k_max, k_min):
     S = np.zeros_like(Q)
 
     # Compute all pairwise distances
-    distances = system.box.compute_all_distances(system.points, system.points).flatten()
+    query_args = dict(mode="ball", r_max=rmax, exclude_ii=True)
+    distances = system.query(system.points, query_args).toNeighborList().distances
 
     for i, q in enumerate(Q):
         S[i] += np.sum(np.sinc(q * distances / np.pi)) / N
@@ -58,7 +60,7 @@ class TestStaticStructureFactor(unittest.TestCase):
         sf.compute((box, positions))
         Q, S = validate_method((box, positions), bins, k_max, k_min)
         npt.assert_allclose(sf.bin_centers, Q)
-        npt.assert_allclose(sf.S_k, S, rtol=1e-4, atol=1e-4)
+        npt.assert_allclose(sf.S_k, S, rtol=1e-5, atol=1e-5)
 
 
 # TODO: All the below tests were copied from DiffractionPattern and need to be
