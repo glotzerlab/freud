@@ -43,6 +43,7 @@ void StaticStructureFactor::accumulate(const freud::locality::NeighborQuery* nei
                                              const vec3<float>* query_points, unsigned int n_query_points)
 {
     auto const& box = neighbor_query->getBox();
+    auto const n_total = neighbor_query->getNPoints();
 
     // The r_max should be just less than half of the smallest side length of the box
     auto const box_L = box.getL();
@@ -51,8 +52,8 @@ void StaticStructureFactor::accumulate(const freud::locality::NeighborQuery* nei
     auto const r_max = std::nextafter(0.5f * min_box_length, 0.0f);
     auto const qargs = freud::locality::QueryArgs::make_ball(r_max, 0.0, true);
 
-    // The minimum k value of validity for the RDF Fourier Transform method is 4 * pi / L, where L is the
-    // smallest side length. This is equal to 2 * pi / r_max.
+    // The minimum k value of validity is 4 * pi / L, where L is the smallest side length. 
+    // This is equal to 2 * pi / r_max.
     m_min_valid_k = std::min(m_min_valid_k, freud::constants::TWO_PI / r_max);
 
     // This function requires a NeighborList object, so we always make one and store it locally.
@@ -73,7 +74,7 @@ void StaticStructureFactor::accumulate(const freud::locality::NeighborQuery* nei
                 S_k += util::sinc(k * distance);
             }
             // TODO: Support partial structure factors in this normalization
-            S_k /= static_cast<double>(n_query_points);
+            S_k /= static_cast<double>(n_total);
             m_local_histograms.increment(k_index, S_k);
         };
     });
