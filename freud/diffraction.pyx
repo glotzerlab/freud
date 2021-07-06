@@ -87,9 +87,9 @@ cdef class StaticStructureFactor(_Compute):
                 Any object that is a valid argument to
                 :class:`freud.locality.NeighborQuery.from_system`.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
-                Query points used to calculate the partial cross-term structure factor. Use 
-                this option only for partial cross-term calculation. Uses the system's points 
-                if :code:`None` This assumes that you are calculating non cross-terms. 
+                Query points used to calculate the partial cross-term structure factor. Use
+                this option only for partial cross-term calculation. Uses the system's points
+                if :code:`None` This assumes that you are calculating non cross-terms.
                 (Default value = :code:`None`).
             reset (bool):
                 Whether to erase the previously computed values before adding

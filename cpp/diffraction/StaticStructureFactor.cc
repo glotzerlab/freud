@@ -52,7 +52,7 @@ void StaticStructureFactor::accumulate(const freud::locality::NeighborQuery* nei
     auto const r_max = std::nextafter(0.5f * min_box_length, 0.0f);
     auto const qargs = freud::locality::QueryArgs::make_ball(r_max, 0.0, true);
 
-    // The minimum k value of validity is 4 * pi / L, where L is the smallest side length. 
+    // The minimum k value of validity is 4 * pi / L, where L is the smallest side length.
     // This is equal to 2 * pi / r_max.
     m_min_valid_k = std::min(m_min_valid_k, freud::constants::TWO_PI / r_max);
 
