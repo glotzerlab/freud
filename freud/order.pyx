@@ -267,8 +267,8 @@ cdef class Hexatic(_PairCompute):
     :class:`freud.locality.NeighborList` from :class:`freud.locality.Voronoi`
     or one with user-provided weights. The formula is modified as follows:
 
-    :math:`\psi'_k \left( i \right) = \frac{1}{\sum_j^n w_j}
-    \sum_j^n w_j e^{i k \phi_{ij}}`
+    :math:`\psi'_k \left( i \right) = \frac{1}{\sum_{j=1}^n w_j}
+    \sum_{j=1}^n w_j e^{i k \phi_{ij}}`
 
     The hexatic order parameter as written above is **complex-valued**. The
     **magnitude** of the complex value,
@@ -566,8 +566,9 @@ cdef class Steinhardt(_PairCompute):
 
     .. math::
 
-        q'_{lm}(i) = \frac{1}{\sum_j^n w_j} \displaystyle\sum_{j=1}^{N_b} w_j
-        Y_{lm}(\theta(\vec{r}_{ij}), \phi(\vec{r}_{ij}))
+        q'_{lm}(i) = \frac{1}{\sum_{j=1}^{N_b} w_j}
+        \displaystyle\sum_{j=1}^{N_b} w_j Y_{lm}(\theta(\vec{r}_{ij}),
+        \phi(\vec{r}_{ij}))
 
     .. note::
         The value of per-particle order parameter will be set to NaN for
