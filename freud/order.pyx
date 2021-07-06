@@ -263,12 +263,12 @@ cdef class Hexatic(_PairCompute):
     vector :math:`r_{ij}` and :math:`\left(1, 0\right)`.
 
     If the weighted mode is enabled, contributions of each neighbor are
-    weighted. Neighbor weights :math:`w_j` default to 1 but are defined for a
+    weighted. Neighbor weights :math:`w_{ij}` default to 1 but are defined for a
     :class:`freud.locality.NeighborList` from :class:`freud.locality.Voronoi`
     or one with user-provided weights. The formula is modified as follows:
 
-    :math:`\psi'_k \left( i \right) = \frac{1}{\sum_{j=1}^n w_j}
-    \sum_{j=1}^n w_j e^{i k \phi_{ij}}`
+    :math:`\psi'_k \left( i \right) = \frac{1}{\sum_{j=1}^n w_{ij}}
+    \sum_{j=1}^n w_{ij} e^{i k \phi_{ij}}`
 
     The hexatic order parameter as written above is **complex-valued**. The
     **magnitude** of the complex value,
@@ -557,7 +557,7 @@ cdef class Steinhardt(_PairCompute):
         q_{lm}(k)
 
     If ``weighted`` is True, the contributions of each neighbor are weighted.
-    Neighbor weights :math:`w_j` are defined for a
+    Neighbor weights :math:`w_{ij}` are defined for a
     :class:`freud.locality.NeighborList` obtained from
     :class:`freud.locality.Voronoi` or one with user-provided weights, and
     default to 1 if not otherwise provided. The formulas are modified as
@@ -566,8 +566,8 @@ cdef class Steinhardt(_PairCompute):
 
     .. math::
 
-        q'_{lm}(i) = \frac{1}{\sum_{j=1}^{N_b} w_j}
-        \displaystyle\sum_{j=1}^{N_b} w_j Y_{lm}(\theta(\vec{r}_{ij}),
+        q'_{lm}(i) = \frac{1}{\sum_{j=1}^{N_b} w_{ij}}
+        \displaystyle\sum_{j=1}^{N_b} w_{ij} Y_{lm}(\theta(\vec{r}_{ij}),
         \phi(\vec{r}_{ij}))
 
     .. note::
