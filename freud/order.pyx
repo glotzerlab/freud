@@ -404,13 +404,13 @@ cdef class Translational(_PairCompute):
 
     The translational order parameter is used to measure order in the bonds
     of 2D systems. The translational order parameter for a particle :math:`i`
-    and its :math:`n` neighbors :math:`j` is given by a sum over the
+    and its :math:`N_b` neighbors :math:`j` is given by a sum over the
     neighbors, treating the 2D vectors between each pair of particles as a
     complex number with real part corresponding to the x-component of the
     vector and imaginary part corresponding to the y-component of the vector,
     divided by a normalization constant :math:`k`:
 
-    :math:`\psi\left( i \right) = \frac{1}{k} \sum_j^n x_{ij} + y_{ij} i`
+    :math:`\psi\left( i \right) = \frac{1}{k} \sum \limits_{j=1}^{N_b} x_{ij} + y_{ij} i`
 
     The translational order parameter as written above is **complex-valued**.
 
@@ -501,7 +501,7 @@ cdef class Steinhardt(_PairCompute):
 
     .. math::
 
-        q_{lm}(i) = \frac{1}{N_b} \displaystyle\sum_{j=1}^{N_b}
+        q_{lm}(i) = \frac{1}{N_b} \sum \limits_{j=1}^{N_b}
         Y_{lm}(\theta(\vec{r}_{ij}), \phi(\vec{r}_{ij}))
 
     Then the :math:`q_l` order parameter is computed by combining the :math:`q_{lm}`
@@ -509,7 +509,7 @@ cdef class Steinhardt(_PairCompute):
 
     .. math::
 
-        q_l(i) = \sqrt{\frac{4\pi}{2l+1} \displaystyle\sum_{m=-l}^{l}
+        q_l(i) = \sqrt{\frac{4\pi}{2l+1} \sum \limits_{m=-l}^{l}
         |q_{lm}(i)|^2 }
 
     If the ``wl`` parameter is ``True``, this class computes the quantity
@@ -522,7 +522,7 @@ cdef class Steinhardt(_PairCompute):
 
     .. math::
 
-        w_l(i) = \sum_{m_1 + m_2 + m_3 = 0} \begin{pmatrix}
+        w_l(i) = \sum \limits_{m_1 + m_2 + m_3 = 0} \begin{pmatrix}
             l & l & l \\
             m_1 & m_2 & m_3
         \end{pmatrix}
@@ -535,12 +535,12 @@ cdef class Steinhardt(_PairCompute):
     .. math::
 
         w_l(i) = \frac{
-            \sum_{m_1 + m_2 + m_3 = 0} \begin{pmatrix}
+            \sum \limits_{m_1 + m_2 + m_3 = 0} \begin{pmatrix}
                 l & l & l \\
                 m_1 & m_2 & m_3
             \end{pmatrix}
             q_{lm_1}(i) q_{lm_2}(i) q_{lm_3}(i)}
-            {\left(\sum_{m=-l}^{l} |q_{lm}(i)|^2 \right)^{3/2}}
+            {\left(\sum \limits_{m=-l}^{l} |q_{lm}(i)|^2 \right)^{3/2}}
 
     If ``average`` is ``True``, the class computes a variant of this order
     parameter that performs an average over the first and second shell combined
@@ -553,7 +553,7 @@ cdef class Steinhardt(_PairCompute):
     of particle :math:`i`, including particle :math:`i` itself:
 
     .. math::
-        \overline{q}_{lm}(i) = \frac{1}{N_b} \displaystyle\sum_{k=0}^{N_b}
+        \overline{q}_{lm}(i) = \frac{1}{N_b} \sum \limits_{k=0}^{N_b}
         q_{lm}(k)
 
     If ``weighted`` is True, the contributions of each neighbor are weighted.
@@ -567,7 +567,7 @@ cdef class Steinhardt(_PairCompute):
     .. math::
 
         q'_{lm}(i) = \frac{1}{\sum_{j=1}^{N_b} w_{ij}}
-        \displaystyle\sum_{j=1}^{N_b} w_{ij} Y_{lm}(\theta(\vec{r}_{ij}),
+        \sum \limits_{j=1}^{N_b} w_{ij} Y_{lm}(\theta(\vec{r}_{ij}),
         \phi(\vec{r}_{ij}))
 
     .. note::
@@ -794,9 +794,9 @@ cdef class SolidLiquid(_PairCompute):
     parameter :math:`q_l(i, j)` is computed for each neighbor bond.
 
     If :code:`normalize_q` is true (default), the bond parameter is given by
-    :math:`q_l(i, j) = \frac{\sum_{m=-l}^{l} \text{Re}~q_{lm}(i) q_{lm}^*(j)}
-    {\sqrt{\sum_{m=-l}^{l} \lvert q_{lm}(i) \rvert^2}
-    \sqrt{\sum_{m=-l}^{l} \lvert q_{lm}(j) \rvert^2}}`
+    :math:`q_l(i, j) = \frac{\sum \limits_{m=-l}^{l} \text{Re}~q_{lm}(i) q_{lm}^*(j)}
+    {\sqrt{\sum \limits_{m=-l}^{l} \lvert q_{lm}(i) \rvert^2}
+    \sqrt{\sum \limits_{m=-l}^{l} \lvert q_{lm}(j) \rvert^2}}`
 
     If :code:`normalize_q` is false, then the denominator of the above
     expression is left out.
