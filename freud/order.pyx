@@ -252,10 +252,10 @@ cdef class Hexatic(_PairCompute):
     measure order in the bonds of 2D systems.
 
     The :math:`k`-atic order parameter for a particle :math:`i` and its
-    :math:`n` neighbors :math:`j` is given by:
+    :math:`N_b` neighbors :math:`j` is given by:
 
-    :math:`\psi_k \left( i \right) = \frac{1}{n}
-    \sum_j^n e^{i k \phi_{ij}}`
+    :math:`\psi_k \left( i \right) = \frac{1}{N_b}
+    \sum \limits_{j=1}^{N_b} e^{i k \phi_{ij}}`
 
     The parameter :math:`k` governs the symmetry of the order parameter and
     typically matches the number of neighbors to be found for each particle.
@@ -267,8 +267,8 @@ cdef class Hexatic(_PairCompute):
     :class:`freud.locality.NeighborList` from :class:`freud.locality.Voronoi`
     or one with user-provided weights. The formula is modified as follows:
 
-    :math:`\psi'_k \left( i \right) = \frac{1}{\sum_{j=1}^n w_{ij}}
-    \sum_{j=1}^n w_{ij} e^{i k \phi_{ij}}`
+    :math:`\psi'_k \left( i \right) = \frac{1}{\sum_{j=1}^{N_b} w_{ij}}
+    \sum \limits_{j=1}^{N_b} w_{ij} e^{i k \phi_{ij}}`
 
     The hexatic order parameter as written above is **complex-valued**. The
     **magnitude** of the complex value,
