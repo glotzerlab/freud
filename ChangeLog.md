@@ -1,8 +1,43 @@
 # Change Log
 The format is based on
-[Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
+[Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to
-[Semantic Versioning](http://semver.org/spec/v2.0.0.html).
+[Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## v2.6.2 -- 2021-06-26
+
+### Fixed
+* Upgrade to auditwheel 4.0.0 in cibuildwheel to ensure RPATH is patched properly for `libfreud.so` in Linux wheels.
+
+## v2.6.1 -- 2021-06-23
+
+### Fixed
+* Added missing git submodules to source distribution.
+
+## v2.6.0 - 2021-06-22
+
+### Added
+* Added `out` option for the `wrap`, `unwrap`, `make_absolute`, and `make_fractional` methods of `Box`.
+* The `Steinhardt` and `SolidLiquid` classes expose the raw `qlmi` arrays.
+* The `Steinhardt` class supports computing order parameters for multiple `l`.
+
+### Changed
+* Improvements to plotting for the `DiffractionPattern`.
+* Wheels are now built with cibuildwheel.
+
+### Fixed
+* Fixed/Improved the `k` values and vectors in the `DiffractionPattern` (more improvement needed).
+* Fixed incorrect computation of `Steinhardt` averaged quantities. Affects all previous versions of freud 2.
+* Fixed documented formulas for `Steinhardt` class.
+* Fixed broken arXiv links in bibliography.
+
+## v2.5.1 - 2021-04-06
+
+### Added
+* The `compute` method of `DiffractionPattern` class has a `reset` argument.
+
+### Fixed
+* Documentation on ReadTheDocs builds and renders.
 
 ## v2.5.0 - 2021-03-16
 

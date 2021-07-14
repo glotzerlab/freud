@@ -35,7 +35,7 @@ cdef class DiffractionPattern(_Compute):
     The diffraction image represents the scattering of incident radiation,
     and is useful for identifying translational and/or rotational symmetry
     present in the system. This class computes the static `structure factor
-    <https://en.wikipedia.org/wiki/Structure_factor>`_ :math:`S(\vec{k})` for
+    <https://en.wikipedia.org/wiki/Structure_factor>`__ :math:`S(\vec{k})` for
     a plane of wavevectors :math:`\vec{k}` orthogonal to a view axis. The
     view orientation :math:`(1, 0, 0, 0)` defaults to looking down the
     :math:`z` axis (at the :math:`xy` plane). The points in the system are
@@ -45,6 +45,15 @@ cdef class DiffractionPattern(_Compute):
     :math:`\sigma`, given by ``peak_width``. This convolution is performed
     as a multiplication in Fourier space. The computed diffraction pattern
     can be accessed as a square array of shape ``(output_size, output_size)``.
+
+    The :math:`\vec{k}=0` peak is always located at index
+    ``(output_size // 2, output_size // 2)`` and is normalized to have a value
+    of :math:`S(\vec{k}=0) = 1` (not :math:`N`, a common convention). The
+    remaining :math:`\vec{k}` vectors are computed such that each peak in the
+    diffraction pattern satisfies the relationship :math:`\vec{k} \cdot
+    \vec{R} = 2 \pi N` for some integer :math:`N` and lattice vector of
+    the system :math:`\vec{R}`. See the `reciprocal lattice Wikipedia page
+    <https://en.wikipedia.org/wiki/Reciprocal_lattice>`__ for more information.
 
     This method is based on the implementations in the open-source
     `GIXStapose application <https://github.com/cmelab/GIXStapose>`_ and its
@@ -64,8 +73,10 @@ cdef class DiffractionPattern(_Compute):
     cdef double[:] _k_values
     cdef double[:, :, :] _k_vectors
     cdef double[:, :] _diffraction
+    cdef unsigned int _frame_counter
     cdef double _box_matrix_scale_factor
     cdef double[:] _view_orientation
+    cdef double _k_scale_factor
     cdef cbool _k_values_cached
     cdef cbool _k_vectors_cached
 
@@ -82,7 +93,8 @@ cdef class DiffractionPattern(_Compute):
         # Store these computed arrays which are exposed as properties.
         self._k_values = np.empty_like(self._k_values_orig)
         self._k_vectors = np.empty_like(self._k_vectors_orig)
-        self._diffraction = np.empty((self.output_size, self.output_size))
+        self._diffraction = np.zeros((self.output_size, self.output_size))
+        self._frame_counter = 0
 
     def _calc_proj(self, view_orientation, box):
         """Calculate the inverse shear matrix from finding the projected box
@@ -128,7 +140,7 @@ cdef class DiffractionPattern(_Compute):
         """Zoom, shear, and scale diffraction intensities.
 
         Args:
-            img ((``grid_size//zoom, grid_size//zoom``) :class:`numpy.ndarray`):
+            img ((``grid_size, grid_size``) :class:`numpy.ndarray`):
                 Array of diffraction intensities.
             box (:class:`~.box.Box`):
                 Simulation box.
@@ -145,7 +157,8 @@ cdef class DiffractionPattern(_Compute):
         # The adjustments to roll and roll_shift ensure that the peak
         # corresponding to k=0 is located at exactly
         # (output_size//2, output_size//2), regardless of whether the grid_size
-        # and output_size are odd or even.
+        # and output_size are odd or even. This keeps the peak aligned at the
+        # center of a single pixel, which should always have the maximum value.
 
         roll = img.shape[0] / 2
         if img.shape[0] % 2 == 1:
@@ -185,7 +198,7 @@ cdef class DiffractionPattern(_Compute):
             mode="constant")
         return img
 
-    def compute(self, system, view_orientation=None, zoom=4, peak_width=1):
+    def compute(self, system, view_orientation=None, zoom=4, peak_width=1, reset=True):
         R"""Computes diffraction pattern.
 
         Args:
@@ -200,15 +213,21 @@ cdef class DiffractionPattern(_Compute):
             peak_width (float):
                 Width of Gaussian convolved with points, in system length units
                 (Default value = 1).
+            reset (bool):
+                Whether to erase the previously computed values before adding
+                the new computations; if False, will accumulate data (Default
+                value: True).
         """
+        if reset:
+            self._diffraction = np.zeros((self.output_size, self.output_size))
+            self._frame_counter = 0
+
         system = freud.locality.NeighborQuery.from_system(system)
 
         if view_orientation is None:
             view_orientation = np.array([1., 0., 0., 0.])
         view_orientation = freud.util._convert_array(
             view_orientation, (4,), np.double)
-
-        grid_size = int(self.grid_size / zoom)
 
         # Compute the box projection matrix
         inv_shear = self._calc_proj(view_orientation, system.box)
@@ -222,7 +241,7 @@ cdef class DiffractionPattern(_Compute):
         xy += 0.5
         xy %= 1
         im, _, _ = np.histogram2d(
-            xy[:, 0], xy[:, 1], bins=np.linspace(0, 1, grid_size+1))
+            xy[:, 0], xy[:, 1], bins=np.linspace(0, 1, self.grid_size+1))
 
         # Compute FFT and convolve with Gaussian
         cdef double complex[:, :] diffraction_fft
@@ -232,20 +251,24 @@ cdef class DiffractionPattern(_Compute):
         diffraction_fft = np.fft.fftshift(diffraction_fft)
 
         # Compute the squared modulus of the FFT, which is S(k)
-        self._diffraction = np.real(
+        cdef double[:, :] diffraction_frame
+        diffraction_frame = np.real(
             diffraction_fft * np.conjugate(diffraction_fft))
 
         # Transform the image (scale, shear, zoom) and normalize S(k) by N^2
         N = len(system.points)
-        self._diffraction = self._transform(
-            self._diffraction, system.box, inv_shear, zoom) / (N*N)
+        diffraction_frame = self._transform(
+            diffraction_frame, system.box, inv_shear, zoom) / (N*N)
+
+        # Add to the diffraction pattern and increment the frame counter
+        self._diffraction += np.asarray(diffraction_frame)
+        self._frame_counter += 1
 
         # Compute a cached array of k-vectors that can be rotated and scaled
         if not self._called_compute:
             # Create a 1D axis of k-vector magnitudes
             self._k_values_orig = np.fft.fftshift(np.fft.fftfreq(
-                n=self.output_size,
-                d=1/self.output_size))
+                n=self.output_size))
 
             # Create a 3D meshgrid of k-vectors with shape
             # (output_size, output_size, 3)
@@ -256,6 +279,7 @@ cdef class DiffractionPattern(_Compute):
         # lazy evaluation of k-values and k-vectors
         self._box_matrix_scale_factor = np.max(system.box.to_matrix())
         self._view_orientation = view_orientation
+        self._k_scale_factor = 2 * np.pi * self.output_size / (self._box_matrix_scale_factor * zoom)
         self._k_values_cached = False
         self._k_vectors_cached = False
 
@@ -275,16 +299,15 @@ cdef class DiffractionPattern(_Compute):
     def diffraction(self):
         """
         (``output_size``, ``output_size``) :class:`numpy.ndarray`:
-            diffraction pattern.
+            Diffraction pattern.
         """
-        return np.asarray(self._diffraction)
+        return np.asarray(self._diffraction) / self._frame_counter
 
     @_Compute._computed_property
     def k_values(self):
         """(``output_size``, ) :class:`numpy.ndarray`: k-values."""
         if not self._k_values_cached:
-            self._k_values = np.asarray(
-                self._k_values_orig) / self._box_matrix_scale_factor
+            self._k_values = np.asarray(self._k_values_orig) * self._k_scale_factor
             self._k_values_cached = True
         return np.asarray(self._k_values)
 
@@ -297,7 +320,7 @@ cdef class DiffractionPattern(_Compute):
         if not self._k_vectors_cached:
             self._k_vectors = rowan.rotate(
                 self._view_orientation,
-                self._k_vectors_orig) / self._box_matrix_scale_factor
+                self._k_vectors_orig) * self._k_scale_factor
             self._k_vectors_cached = True
         return np.asarray(self._k_vectors)
 

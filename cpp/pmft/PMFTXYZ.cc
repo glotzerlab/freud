@@ -87,7 +87,7 @@ void PMFTXYZ::reduce()
 
     float jacobian_factor = (float) 1.0 / m_jacobian;
     m_histogram.reduceOverThreadsPerBin(m_local_histograms, [this, &prefactor, &jacobian_factor](size_t i) {
-        m_pcf_array[i] = m_histogram[i] * prefactor * jacobian_factor;
+        m_pcf_array[i] = static_cast<float>(m_histogram[i]) * prefactor * jacobian_factor;
     });
 }
 

@@ -15,7 +15,7 @@ class TestGaussianDensity:
         fft = fftpack.fft
         fftshift = fftpack.fftshift
 
-        width = 100
+        width = 20
         r_max = 10.0
         sigma = 0.1
         num_points = 10000
@@ -45,13 +45,14 @@ class TestGaussianDensity:
             myDiff = (myFFT * np.conj(myFFT)).real
             myDiff = fftshift(myDiff)[:, :]
             npt.assert_equal(
-                np.where(myDiff == np.max(myDiff)), (np.array([50]), np.array([50]))
+                np.where(myDiff == np.max(myDiff)),
+                (np.array([width // 2]), np.array([width // 2])),
             )
 
     def test_change_box_dimension(self):
-        width = 100
-        r_max = 10.0
-        sigma = 0.1
+        width = 20
+        r_max = 9.9
+        sigma = 0.01
         num_points = 100
         box_size = r_max * 3.1
 
@@ -79,9 +80,9 @@ class TestGaussianDensity:
 
     def test_sum_2d(self):
         # Ensure that each point's Gaussian sums to 1
-        width = 100
-        r_max = 49
-        sigma = 10
+        width = 20
+        r_max = 9.9
+        sigma = 2
         box_size = width
         gd = freud.density.GaussianDensity(width, r_max, sigma)
         for num_points in [1, 10, 100]:
@@ -92,9 +93,9 @@ class TestGaussianDensity:
 
     def test_sum_3d(self):
         # Ensure that each point's Gaussian sums to 1
-        width = 100
-        r_max = 49
-        sigma = 10
+        width = 20
+        r_max = 9.9
+        sigma = 2
         box_size = width
         gd = freud.density.GaussianDensity(width, r_max, sigma)
         for num_points in [1, 10, 100]:
@@ -107,9 +108,9 @@ class TestGaussianDensity:
 
     def test_sum_values_2d(self):
         # Ensure that the Gaussian convolution sums to the sum of the values
-        width = 100
-        r_max = 49
-        sigma = 10
+        width = 20
+        r_max = 9.9
+        sigma = 2
         box_size = width
         gd = freud.density.GaussianDensity(width, r_max, sigma)
         for num_points in [1, 10, 100]:
@@ -121,9 +122,9 @@ class TestGaussianDensity:
 
     def test_sum_values_3d(self):
         # Ensure that the Gaussian convolution sums to the sum of the values
-        width = 100
-        r_max = 49
-        sigma = 10
+        width = 20
+        r_max = 9.9
+        sigma = 2
         box_size = width
         gd = freud.density.GaussianDensity(width, r_max, sigma)
         for num_points in [1, 10, 100]:
@@ -142,9 +143,9 @@ class TestGaussianDensity:
         assert str(gd3) == str(eval(repr(gd3)))
 
     def test_repr_png(self):
-        width = 100
-        r_max = 10.0
-        sigma = 0.1
+        width = 20
+        r_max = 2.0
+        sigma = 0.01
         num_points = 100
         box_size = r_max * 3.1
         box, points = freud.data.make_random_system(box_size, num_points, is2D=True)

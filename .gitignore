@@ -17,7 +17,7 @@ cython_debug
 dist
 doc/_build/*
 doc/build/*
-freud.egg-info
+*.egg-info
 freud/*.cpp
 freud/*.cxx
 freud/*.dylib

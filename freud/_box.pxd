@@ -36,12 +36,12 @@ cdef extern from "Box.h" namespace "freud::box":
         void setTiltFactorYZ(float)
 
         float getVolume() const
-        void makeAbsolute(vec3[float]*, unsigned int) const
-        void makeFractional(vec3[float]*, unsigned int) const
+        void makeAbsolute(const vec3[float]*, unsigned int, vec3[float]*) const
+        void makeFractional(const vec3[float]*, unsigned int, vec3[float]*) const
         void getImages(vec3[float]*, unsigned int, vec3[int]*) const
-        void wrap(vec3[float]* vs, unsigned int Nv) const
-        void unwrap(vec3[float]*, const vec3[int]*,
-                    unsigned int) const
+        void wrap(const vec3[float]*, unsigned int, vec3[float]*) const
+        void unwrap(const vec3[float]*, const vec3[int]*,
+                    unsigned int, vec3[float]*) const
         vec3[float] centerOfMass(vec3[float]*, size_t, float*) const
         void center(vec3[float]*, size_t, float*) const
         void computeDistances(vec3[float]*, unsigned int,

@@ -18,7 +18,7 @@ a Python interpreter.
 
 In order to achieve this goal, **freud** takes the following viewpoints:
 
-* **freud** works directly with `NumPy <http://www.numpy.org/>_`
+* **freud** works directly with `NumPy <https://numpy.org/>`__
   arrays to retain maximum flexibility. Integrations with other tools
   should be performed via the common data representations of NumPy arrays.
 * For ease of maintenance, **freud** uses Git for version control;
@@ -27,7 +27,7 @@ In order to achieve this goal, **freud** takes the following viewpoints:
   to read.
 * To ensure correctness, **freud** employs unit testing using the
   Python :mod:`pytest` framework. In addition, **freud** utilizes
-  `CircleCI <https://circleci.com>`_ for continuous integration to
+  `CircleCI <https://circleci.com>`__ for continuous integration to
   ensure that all of its code works correctly and that any changes or
   new features do not break existing functionality.
 

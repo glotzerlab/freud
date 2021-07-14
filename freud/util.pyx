@@ -196,26 +196,44 @@ cdef class _Compute(object):
         return repr(self)
 
 
-def _convert_array(array, shape=None, dtype=np.float32):
+def _convert_array(array, shape=None, dtype=np.float32, requirements=("C", ),
+                   allow_copy=True):
     """Function which takes a given array, checks the dimensions and shape,
     and converts to a supplied dtype.
 
     Args:
-        array (:class:`numpy.ndarray`): Array to check and convert.
+        array (:class:`numpy.ndarray` or :code:`None`): Array to check and convert.
+            If :code:`None`, an empty array of given shape and type will be initialized
+            (Default value: :code:`None`).
         shape: (tuple of int and :code:`None`): Expected shape of the array.
             Only the dimensions that are not :code:`None` are checked.
             (Default value = :code:`None`).
         dtype: :code:`dtype` to convert the array to if :code:`array.dtype`
             is different. If :code:`None`, :code:`dtype` will not be changed
             (Default value = :class:`numpy.float32`).
+        requirements (Sequence[str]): A sequence of string flags to be passed to
+            :func:`numpy.require`.
+        allow_copy (bool): If :code:`False` and the input array does not already
+            conform to the required dtype and other requirements, this function
+            will raise an error rather than coercing the array into a copy that
+            does satisfy the requirements (Default value = :code:`True`).
 
     Returns:
         :class:`numpy.ndarray`: Array.
     """
+    if array is None:
+        return np.empty(shape, dtype=dtype)
+
     array = np.asarray(array)
-    return_arr = np.require(array, dtype=dtype, requirements=['C'])
+    return_arr = np.require(array, dtype=dtype, requirements=requirements)
+
+    if not allow_copy and return_arr is not array:
+        raise ValueError("The provided output array must have dtype "
+                         f"{dtype}, and have the following array flags: "
+                         f"{', '.join(requirements)}.")
+
     if shape is not None:
-        if array.ndim != len(shape):
+        if return_arr.ndim != len(shape):
             raise ValueError("array.ndim = {}; expected ndim = {}".format(
                 return_arr.ndim, len(shape)))
 
