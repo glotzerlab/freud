@@ -11,35 +11,35 @@
 #include "NeighborComputeFunctional.h"
 #include "NeighborQuery.h"
 #include "RDF.h"
-#include "StaticStructureFactor.h"
+#include "StaticStructureFactorDebye.h"
 #include "utils.h"
 
-/*! \file StaticStructureFactor.cc
+/*! \file StaticStructureFactorDebye.cc
     \brief Routines for computing static structure factors.
 */
 
 namespace freud { namespace diffraction {
 
-StaticStructureFactor::StaticStructureFactor(unsigned int bins, float k_max, float k_min)
+StaticStructureFactorDebye::StaticStructureFactorDebye(unsigned int bins, float k_max, float k_min)
     : m_frame_counter(0)
 {
     if (bins == 0)
-        throw std::invalid_argument("StaticStructureFactor requires a nonzero number of bins.");
+        throw std::invalid_argument("StaticStructureFactorDebye requires a nonzero number of bins.");
     if (k_max <= 0.0f)
-        throw std::invalid_argument("StaticStructureFactor requires k_max to be positive.");
+        throw std::invalid_argument("StaticStructureFactorDebye requires k_max to be positive.");
     if (k_max <= k_min)
-        throw std::invalid_argument("StaticStructureFactor requires that k_max must be greater than k_min.");
+        throw std::invalid_argument("StaticStructureFactorDebye requires that k_max must be greater than k_min.");
 
     // Construct the Histogram object that will be used to track the structure factor
     auto axes
-        = StaticStructureFactorHistogram::Axes {std::make_shared<util::RegularAxis>(bins, k_min, k_max)};
-    m_histogram = StaticStructureFactorHistogram(axes);
-    m_local_histograms = StaticStructureFactorHistogram::ThreadLocalHistogram(m_histogram);
+        = StaticStructureFactorDebyeHistogram::Axes {std::make_shared<util::RegularAxis>(bins, k_min, k_max)};
+    m_histogram = StaticStructureFactorDebyeHistogram(axes);
+    m_local_histograms = StaticStructureFactorDebyeHistogram::ThreadLocalHistogram(m_histogram);
     m_min_valid_k = std::numeric_limits<float>::infinity();
     m_structure_factor.prepare(bins);
 }
 
-void StaticStructureFactor::accumulate(const freud::locality::NeighborQuery* neighbor_query,
+void StaticStructureFactorDebye::accumulate(const freud::locality::NeighborQuery* neighbor_query,
                                              const vec3<float>* query_points, unsigned int n_query_points)
 {
     auto const& box = neighbor_query->getBox();
@@ -52,7 +52,7 @@ void StaticStructureFactor::accumulate(const freud::locality::NeighborQuery* nei
     auto const r_max = std::nextafter(0.5f * min_box_length, 0.0f);
     auto const qargs = freud::locality::QueryArgs::make_ball(r_max, 0.0, true);
 
-    // The minimum k value of validity is 4 * pi / L, where L is the smallest side length. 
+    // The minimum k value of validity is 4 * pi / L, where L is the smallest side length.
     // This is equal to 2 * pi / r_max.
     m_min_valid_k = std::min(m_min_valid_k, freud::constants::TWO_PI / r_max);
 
@@ -82,7 +82,7 @@ void StaticStructureFactor::accumulate(const freud::locality::NeighborQuery* nei
     m_reduce = true;
 }
 
-void StaticStructureFactor::reduce()
+void StaticStructureFactorDebye::reduce()
 {
     m_local_histograms.reduceInto(m_structure_factor);
 

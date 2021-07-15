@@ -8,7 +8,7 @@
 #include "Histogram.h"
 #include "NeighborQuery.h"
 
-/*! \file StaticStructureFactor.h
+/*! \file StaticStructureFactorDebye.h
     \brief Routines for computing static structure factors.
 
     Computes structure factors from the Fourier transform of a radial distribution function (RDF).
@@ -18,16 +18,16 @@
 
 namespace freud { namespace diffraction {
 
-class StaticStructureFactor
+class StaticStructureFactorDebye
 {
-    using StaticStructureFactorHistogram = util::Histogram<float>;
+    using StaticStructureFactorDebyeHistogram = util::Histogram<float>;
 
 public:
     //! Constructor
-    StaticStructureFactor(unsigned int bins, float k_max, float k_min = 0);
+    StaticStructureFactorDebye(unsigned int bins, float k_max, float k_min = 0);
 
     //! Destructor
-    virtual ~StaticStructureFactor() {};
+    virtual ~StaticStructureFactorDebye() {};
 
     //! Compute the structure factor S(k) using the Debye formula
     void accumulate(const freud::locality::NeighborQuery* neighbor_query, const vec3<float>* query_points,
@@ -80,8 +80,8 @@ public:
     }
 
 private:
-    StaticStructureFactorHistogram m_histogram; //!< Histogram to hold computed structure factor
-    StaticStructureFactorHistogram::ThreadLocalHistogram
+    StaticStructureFactorDebyeHistogram m_histogram; //!< Histogram to hold computed structure factor
+    StaticStructureFactorDebyeHistogram::ThreadLocalHistogram
         m_local_histograms;                       //!< Thread local histograms for TBB parallelism
     util::ManagedArray<float> m_structure_factor; //!< The computed structure factor
     unsigned int m_frame_counter;                 //!< Number of frames calculated.

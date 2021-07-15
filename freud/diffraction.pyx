@@ -32,7 +32,7 @@ from freud.util cimport _Compute, vec3
 
 logger = logging.getLogger(__name__)
 
-cdef class StaticStructureFactor(_Compute):
+cdef class StaticStructureFactorDebye(_Compute):
     R"""Computes a 1D static structure factor.
 
     This computes the static `structure factor
@@ -68,15 +68,15 @@ cdef class StaticStructureFactor(_Compute):
             calculation in the long-wavelength regime, see ``min_valid_k``
             (Default value = :code:`0`).
     """
-    cdef freud._diffraction.StaticStructureFactor * thisptr
+    cdef freud._diffraction.StaticStructureFactorDebye * thisptr
 
     def __cinit__(self, unsigned int bins, float k_max, float k_min=0):
-        if type(self) == StaticStructureFactor:
-            self.thisptr = new freud._diffraction.StaticStructureFactor(
+        if type(self) == StaticStructureFactorDebye:
+            self.thisptr = new freud._diffraction.StaticStructureFactorDebye(
                 bins, k_max, k_min)
 
     def __dealloc__(self):
-        if type(self) == StaticStructureFactor:
+        if type(self) == StaticStructureFactorDebye:
             del self.thisptr
 
     def compute(self, system, query_points=None, reset=True):
@@ -87,9 +87,9 @@ cdef class StaticStructureFactor(_Compute):
                 Any object that is a valid argument to
                 :class:`freud.locality.NeighborQuery.from_system`.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
-                Query points used to calculate the partial cross-term structure factor. Use 
-                this option only for partial cross-term calculation. Uses the system's points 
-                if :code:`None` This assumes that you are calculating non cross-terms. 
+                Query points used to calculate the partial cross-term structure factor. Use
+                this option only for partial cross-term calculation. Uses the system's points
+                if :code:`None` This assumes that you are calculating non cross-terms.
                 (Default value = :code:`None`).
             reset (bool):
                 Whether to erase the previously computed values before adding
@@ -126,7 +126,7 @@ cdef class StaticStructureFactor(_Compute):
         return self
 
     def _reset(self):
-        # Resets the values of StaticStructureFactor in memory.
+        # Resets the values of StaticStructureFactorDebye in memory.
         self.thisptr.reset()
 
     @property

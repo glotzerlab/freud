@@ -12,9 +12,9 @@ from freud.util cimport vec3
 
 ctypedef unsigned int uint
 
-cdef extern from "StaticStructureFactor.h" namespace "freud::diffraction":
-    cdef cppclass StaticStructureFactor:
-        StaticStructureFactor(uint, float, float) except +
+cdef extern from "StaticStructureFactorDebye.h" namespace "freud::diffraction":
+    cdef cppclass StaticStructureFactorDebye:
+        StaticStructureFactorDebye(uint, float, float) except +
         void accumulate(const freud._locality.NeighborQuery*,
                         const vec3[float]*,
                         unsigned int) except +

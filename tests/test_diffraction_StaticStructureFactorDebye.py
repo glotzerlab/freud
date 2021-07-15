@@ -44,9 +44,9 @@ def validate_method(system, bins, k_max, k_min):
     return Q, S
 
 
-class TestStaticStructureFactor(unittest.TestCase):
+class TestStaticStructureFactorDebye(unittest.TestCase):
     def test_compute(self):
-        sf = freud.diffraction.StaticStructureFactor(1000, 100)
+        sf = freud.diffraction.StaticStructureFactorDebye(1000, 100)
         box, positions = freud.data.UnitCell.fcc().generate_system(4)
         sf.compute((box, positions))
 
@@ -55,7 +55,7 @@ class TestStaticStructureFactor(unittest.TestCase):
         bins = 1000
         k_max = 100
         k_min = 0
-        sf = freud.diffraction.StaticStructureFactor(bins, k_max, k_min)
+        sf = freud.diffraction.StaticStructureFactorDebye(bins, k_max, k_min)
         box, positions = freud.data.UnitCell.fcc().generate_system(4, sigma_noise=0.01)
         sf.compute((box, positions))
         Q, S = validate_method((box, positions), bins, k_max, k_min)
@@ -69,10 +69,10 @@ class TestStaticStructureFactor(unittest.TestCase):
 #    def test_attribute_access(self):
 #        grid_size = 234
 #        output_size = 123
-#        sf = freud.diffraction.StaticStructureFactor(1000, 100)
+#        sf = freud.diffraction.StaticStructureFactorDebye(1000, 100)
 #        self.assertEqual(sf.grid_size, grid_size)
 #        self.assertEqual(sf.output_size, grid_size)
-#        sf = freud.diffraction.StaticStructureFactor(
+#        sf = freud.diffraction.StaticStructureFactorDebye(
 #            grid_size=grid_size, output_size=output_size)
 #        self.assertEqual(sf.grid_size, grid_size)
 #        self.assertEqual(sf.output_size, output_size)
@@ -105,7 +105,7 @@ class TestStaticStructureFactor(unittest.TestCase):
 #    def test_attribute_shapes(self):
 #        grid_size = 234
 #        output_size = 123
-#        sf = freud.diffraction.StaticStructureFactor(
+#        sf = freud.diffraction.StaticStructureFactorDebye(
 #            grid_size=grid_size, output_size=output_size)
 #        box, positions = freud.data.UnitCell.fcc().generate_system(4)
 #        sf.compute((box, positions))
@@ -116,16 +116,16 @@ class TestStaticStructureFactor(unittest.TestCase):
 #        self.assertEqual(sf.to_image().shape, (output_size, output_size, 4))
 #
 #    def test_repr(self):
-#        sf = freud.diffraction.StaticStructureFactor()
+#        sf = freud.diffraction.StaticStructureFactorDebye()
 #        self.assertEqual(str(sf), str(eval(repr(sf))))
 #
 #        # Use non-default arguments for all parameters
-#        sf = freud.diffraction.StaticStructureFactor(
+#        sf = freud.diffraction.StaticStructureFactorDebye(
 #            grid_size=123, output_size=234)
 #        self.assertEqual(str(sf), str(eval(repr(sf))))
 #
 #    def test_k_values_and_k_vectors(self):
-#        sf = freud.diffraction.StaticStructureFactor()
+#        sf = freud.diffraction.StaticStructureFactorDebye()
 #
 #        for size in [2, 5, 10]:
 #            for npoints in [10, 20, 75]:
