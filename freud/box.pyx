@@ -34,7 +34,7 @@ cdef class Box:
     By convention, the freud Box is centered at the origin (``[0, 0, 0]``),
     with the extent in each dimension described by the half-open interval ``[-L/2, L/2)``.
     For more information, see the `documentation
-    <https://freud.readthedocs.io/en/stable/gettingstarted/tutorial/periodic.html>`_
+    <https://freud.readthedocs.io/en/stable/gettingstarted/tutorial/periodic.html>`__
     on boxes and periodic boundary conditions.
 
     Also available as ``freud.Box``.
@@ -188,9 +188,9 @@ cdef class Box:
                 Fractional coordinate vector(s), between 0 and 1 within
                 parallelepipedal box.
             out (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray` or :code:`None`):
-                The array in which to place the absolute coordinates. It must be
-                of dtype `np.float32`. If ``None``, this function will return a
-                newly allocated array (Default value = None).
+                The array in which to place the absolute coordinates. It must
+                be of dtype :attr:`numpy.float32`. If ``None``, this function
+                will return a newly allocated array (Default value = None).
 
         Returns:
             :math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
@@ -221,9 +221,9 @@ cdef class Box:
             absolute_coordinates (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Absolute coordinate vector(s).
             out (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray` or :code:`None`):
-                The array in which to place the fractional positions. It must be
-                of dtype `np.float32`. If ``None``, this function will return a
-                newly allocated array (Default value = None).
+                The array in which to place the fractional positions. It must
+                be of dtype :attr:`numpy.float32`. If ``None``, this function
+                will return a newly allocated array (Default value = None).
 
         Returns:
             :math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
@@ -316,7 +316,7 @@ cdef class Box:
                 Unwrapped vector(s).
             out (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray` or :code:`None`):
                 The array in which to place the wrapped vectors. It must be of
-                dtype `np.float32`. If ``None``, this function will
+                dtype :attr:`numpy.float32`. If ``None``, this function will
                 return a newly allocated array (Default value = None).
 
         Returns:
@@ -351,9 +351,9 @@ cdef class Box:
             imgs (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Image indices for vector(s).
             out (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray` or :code:`None`):
-                The array in which to place the unwrapped vectors. It must be of
-                dtype `np.float32`. If ``None``, this function will
-                return a newly allocated array (Default value = None).
+                The array in which to place the unwrapped vectors. It must be
+                of dtype :attr:`numpy.float32`. If ``None``, this function
+                will return a newly allocated array (Default value = None).
 
         Returns:
             :math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
@@ -388,7 +388,7 @@ cdef class Box:
         r"""Compute center of mass of an array of vectors, using periodic boundaries.
 
         This calculation accounts for periodic images. `This Wikipedia page
-        <https://en.wikipedia.org/wiki/Center_of_mass#Systems_with_periodic_boundary_conditions>`_
+        <https://en.wikipedia.org/wiki/Center_of_mass#Systems_with_periodic_boundary_conditions>`__
         describes the mathematics of this method.
 
         Example::
@@ -431,7 +431,7 @@ cdef class Box:
         r"""Subtract center of mass from an array of vectors, using periodic boundaries.
 
         This calculation accounts for periodic images. `This Wikipedia page
-        <https://en.wikipedia.org/wiki/Center_of_mass#Systems_with_periodic_boundary_conditions>`_
+        <https://en.wikipedia.org/wiki/Center_of_mass#Systems_with_periodic_boundary_conditions>`__
         describes the mathematics of this method.
 
         Example::
