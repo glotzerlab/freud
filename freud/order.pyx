@@ -1,7 +1,7 @@
 # Copyright (c) 2010-2020 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
-R"""
+r"""
 The :class:`freud.order` module contains functions which compute order
 parameters for the whole system or individual particles. Order parameters take
 bond order data and interpret it in some way to quantify the degree of order in
@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 np.import_array()
 
 cdef class Cubatic(_Compute):
-    R"""Compute the cubatic order parameter :cite:`Haji_Akbari_2015` for a system of
+    r"""Compute the cubatic order parameter :cite:`Haji_Akbari_2015` for a system of
     particles using simulated annealing instead of Newton-Raphson root finding.
 
     Args:
@@ -68,7 +68,7 @@ cdef class Cubatic(_Compute):
         del self.thisptr
 
     def compute(self, orientations):
-        R"""Calculates the per-particle and global order parameter.
+        r"""Calculates the per-particle and global order parameter.
 
         Args:
             orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
@@ -158,7 +158,7 @@ cdef class Cubatic(_Compute):
 
 
 cdef class Nematic(_Compute):
-    R"""Compute the nematic order parameter for a system of particles.
+    r"""Compute the nematic order parameter for a system of particles.
 
     Args:
         u (:math:`\left(3 \right)` :class:`numpy.ndarray`):
@@ -179,7 +179,7 @@ cdef class Nematic(_Compute):
         del self.thisptr
 
     def compute(self, orientations):
-        R"""Calculates the per-particle and global order parameter.
+        r"""Calculates the per-particle and global order parameter.
 
         Example::
 
@@ -245,7 +245,7 @@ cdef class Nematic(_Compute):
 
 
 cdef class Hexatic(_PairCompute):
-    R"""Calculates the :math:`k`-atic order parameter for 2D systems.
+    r"""Calculates the :math:`k`-atic order parameter for 2D systems.
 
     The :math:`k`-atic order parameter (called the hexatic order parameter for
     :math:`k = 6`) is analogous to Steinhardt order parameters, and is used to
@@ -303,7 +303,7 @@ cdef class Hexatic(_PairCompute):
         del self.thisptr
 
     def compute(self, system, neighbors=None):
-        R"""Calculates the hexatic order parameter.
+        r"""Calculates the hexatic order parameter.
 
         Example::
 
@@ -400,7 +400,7 @@ cdef class Hexatic(_PairCompute):
 
 
 cdef class Translational(_PairCompute):
-    R"""Compute the translational order parameter for each particle.
+    r"""Compute the translational order parameter for each particle.
 
     The translational order parameter is used to measure order in the bonds
     of 2D systems. The translational order parameter for a particle :math:`i`
@@ -436,7 +436,7 @@ cdef class Translational(_PairCompute):
         del self.thisptr
 
     def compute(self, system, neighbors=None):
-        R"""Calculates the local descriptors.
+        r"""Calculates the local descriptors.
 
         Args:
             system:
@@ -488,7 +488,7 @@ cdef class Translational(_PairCompute):
 
 
 cdef class Steinhardt(_PairCompute):
-    R"""Compute one or more of the rotationally invariant Steinhardt order
+    r"""Compute one or more of the rotationally invariant Steinhardt order
     parameter :math:`q_l` or :math:`w_l` for a set of points
     :cite:`Steinhardt:1983aa`.
 
@@ -694,7 +694,7 @@ cdef class Steinhardt(_PairCompute):
         return qlm_list if len(qlm_list) > 1 else qlm_list[0]
 
     def compute(self, system, neighbors=None):
-        R"""Compute the order parameter.
+        r"""Compute the order parameter.
 
         Example::
 
@@ -787,7 +787,7 @@ cdef class Steinhardt(_PairCompute):
 
 
 cdef class SolidLiquid(_PairCompute):
-    R"""Identifies solid-like clusters using dot products of :math:`q_{lm}`.
+    r"""Identifies solid-like clusters using dot products of :math:`q_{lm}`.
 
     The solid-liquid order parameter :cite:`Wolde:1995aa,Filion_2010` uses a
     Steinhardt-like approach to identify solid-like particles. First, a bond
@@ -834,7 +834,7 @@ cdef class SolidLiquid(_PairCompute):
         del self.thisptr
 
     def compute(self, system, neighbors=None):
-        R"""Compute the order parameter.
+        r"""Compute the order parameter.
 
         Args:
             system:

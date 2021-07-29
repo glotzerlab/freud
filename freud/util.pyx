@@ -124,7 +124,7 @@ cdef class _ManagedArrayContainer:
 
 
 cdef class _Compute(object):
-    R"""Parent class for all compute classes in freud.
+    r"""Parent class for all compute classes in freud.
 
     The primary purpose of this class is to prevent access of uncomputed
     values. This is accomplished by maintaining a boolean flag to track whether
@@ -174,7 +174,7 @@ cdef class _Compute(object):
 
     @staticmethod
     def _computed_property(prop):
-        R"""Decorator that makes a class method to be a property with limited access.
+        r"""Decorator that makes a class method to be a property with limited access.
 
         Args:
             prop (callable): The property function.
