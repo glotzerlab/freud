@@ -1,7 +1,7 @@
 # Copyright (c) 2010-2020 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
-R"""
+r"""
 The :class:`freud.parallel` module controls the parallelization behavior of
 freud, determining how many threads the TBB-enabled parts of freud will use.
 freud uses all available threads for parallelization unless directed otherwise.
@@ -13,7 +13,7 @@ _num_threads = 0
 
 
 def get_num_threads():
-    R"""Get the number of threads for parallel computation.
+    r"""Get the number of threads for parallel computation.
 
     Returns:
         (int): Number of threads.
@@ -23,7 +23,7 @@ def get_num_threads():
 
 
 def set_num_threads(nthreads=None):
-    R"""Set the number of threads for parallel computation.
+    r"""Set the number of threads for parallel computation.
 
     Args:
         nthreads (int, optional):
@@ -41,7 +41,7 @@ def set_num_threads(nthreads=None):
 
 
 class NumThreads:
-    R"""Context manager for managing the number of threads to use.
+    r"""Context manager for managing the number of threads to use.
 
     Args:
         N (int, optional): Number of threads to use in this context. If
