@@ -210,7 +210,7 @@ def _convert_array(array, shape=None, dtype=np.float32, requirements=("C", ),
             (Default value = :code:`None`).
         dtype: :code:`dtype` to convert the array to if :code:`array.dtype`
             is different. If :code:`None`, :code:`dtype` will not be changed
-            (Default value = :class:`numpy.float32`).
+            (Default value = :attr:`numpy.float32`).
         requirements (Sequence[str]): A sequence of string flags to be passed to
             :func:`numpy.require`.
         allow_copy (bool): If :code:`False` and the input array does not already
