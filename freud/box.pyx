@@ -78,7 +78,7 @@ cdef class Box:
 
     @property
     def L(self):
-        """:math:`\\left(3, \\right)` :class:`numpy.ndarray`: Get or set the
+        R""":math:`\left(3, \right)` :class:`numpy.ndarray`: Get or set the
         box lengths along x, y, and z."""
         cdef vec3[float] result = self.thisptr.getL()
         return np.asarray([result.x, result.y, result.z])
@@ -170,7 +170,7 @@ cdef class Box:
 
     @property
     def L_inv(self):
-        """:math:`\\left(3, \\right)` :class:`numpy.ndarray`: The inverse box
+        R""":math:`\left(3, \right)` :class:`numpy.ndarray`: The inverse box
         lengths."""
         cdef vec3[float] result = self.thisptr.getLinv()
         return np.asarray([result.x, result.y, result.z])
@@ -294,14 +294,14 @@ cdef class Box:
 
     @property
     def v2(self):
-        """:math:`(3, )` :class:`np.ndarray`: The second box vector
-        :math:`(xy*L_y, L_y, 0)`."""
+        r""":math:`(3, )` :class:`np.ndarray`: The second box vector
+        :math:`(xy \times L_y, L_y, 0)`."""
         return self.get_box_vector(1)
 
     @property
     def v3(self):
-        """:math:`(3, )` :class:`np.ndarray`: The third box vector
-        :math:`(xz*L_z, yz*L_z, L_z)`."""
+        r""":math:`(3, )` :class:`np.ndarray`: The third box vector
+        :math:`(xz \times L_z, yz \times L_z, L_z)`."""
         return self.get_box_vector(2)
 
     def wrap(self, vecs, out=None):
@@ -405,12 +405,12 @@ cdef class Box:
         Args:
             vecs (:math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Vectors used to find center of mass.
-            masses (:math:`\left(N, 3\right)` :class:`numpy.ndarray`):
+            masses (:math:`\left(N,\right)` :class:`numpy.ndarray`):
                 Masses corresponding to each vector, defaulting to 1 if not
                 provided or :code:`None` (Default value = :code:`None`).
 
         Returns:
-            :math:`\left(3\right)` :class:`numpy.ndarray`:
+            :math:`\left(3, \right)` :class:`numpy.ndarray`:
                 Center of mass.
         """  # noqa: E501
         vecs = freud.util._convert_array(vecs, shape=(None, 3))
@@ -588,7 +588,7 @@ cdef class Box:
 
     @property
     def periodic(self):
-        """:math:`\\left(3, \\right)` :class:`numpy.ndarray`: Get or set the
+        R""":math:`\left(3, \right)` :class:`numpy.ndarray`: Get or set the
         periodicity of the box in each dimension."""
         periodic = self.thisptr.getPeriodic()
         return np.asarray([periodic.x, periodic.y, periodic.z])
@@ -841,6 +841,9 @@ cdef class Box:
                 A 3x3 matrix or list of lists
             dimensions (int):
                 Number of dimensions (Default value = :code:`None`)
+
+        Returns:
+            :class:`freud.box.Box`: The resulting box object.
         """
         box_matrix = np.asarray(box_matrix, dtype=np.float32)
         v0 = box_matrix[:, 0]
@@ -871,6 +874,9 @@ cdef class Box:
 
         Args:
             L (float): The edge length
+
+        Returns:
+            :class:`freud.box.Box`: The resulting box object.
         """
         # classmethods compiled with cython don't appear to support
         # named access to positional arguments, so we keep this to
@@ -885,6 +891,9 @@ cdef class Box:
 
         Args:
             L (float): The edge length
+
+        Returns:
+            :class:`freud.box.Box`: The resulting box object.
         """
         # classmethods compiled with cython don't appear to support
         # named access to positional arguments, so we keep this to
