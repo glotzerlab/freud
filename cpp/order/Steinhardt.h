@@ -27,18 +27,18 @@ using YlmsType = std::vector<std::vector<std::complex<float>>>;
 //! Compute the Steinhardt local rotationally invariant ql or wl order parameter for a set of points
 /*!
  * Implements the rotationally invariant ql or wl order parameter described
- * by Steinhardt. For a particle i, we calculate the average Q_l by summing
+ * by Steinhardt. For a particle i, we calculate the average q_l by summing
  * the spherical harmonics between particle i and its neighbors j in a local
  * region:
- * \f$ \overline{Q}_{lm}(i) = \frac{1}{N_b} \displaystyle\sum_{j=1}^{N_b}
+ * \f$ \overline{q}_{lm}(i) = \frac{1}{N_b} \sum \limits_{j=1}^{N_b}
  * Y_{lm}(\theta(\vec{r}_{ij}),\phi(\vec{r}_{ij})) \f$
  *
  * This is then combined in a rotationally invariant fashion to remove local
  * orientational order as follows:
- * \f$ Q_l(i)=\sqrt{\frac{4\pi}{2l+1} \displaystyle\sum_{m=-l}^{l} |\overline{Q}_{lm}|^2 }  \f$
+ * \f$ q_l(i)=\sqrt{\frac{4\pi}{2l+1} \sum \limits_{m=-l}^{l} |\overline{q}_{lm}|^2 }  \f$
  *
  * If the average flag is set, the order parameters averages over the second neighbor shell.
- * For a particle i, we calculate the average Q_l by summing the spherical
+ * For a particle i, we calculate the average q_l by summing the spherical
  * harmonics between particle i and its neighbors j and the neighbors k of
  * neighbor j in a local region.
  *
