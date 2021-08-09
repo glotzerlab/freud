@@ -51,15 +51,6 @@ class TestStaticStructureFactorDebye(unittest.TestCase):
         box, positions = freud.data.UnitCell.fcc().generate_system(4)
         sf.compute((box, positions))
 
-    def test_compute_partial_arguments(self):
-        sf = freud.diffraction.StaticStructureFactorDebye(1000, 100)
-        box, positions = freud.data.UnitCell.fcc().generate_system(4)
-        # Require N_total if and only if query_points are provided
-        with pytest.raises(ValueError):
-            sf.compute((box, positions), query_points=positions)
-        with pytest.raises(ValueError):
-            sf.compute((box, positions), N_total=123)
-
     def test_debye_validation(self):
         """Validate the Debye method against a Python implementation."""
         bins = 1000
@@ -72,6 +63,95 @@ class TestStaticStructureFactorDebye(unittest.TestCase):
         Q, S = _validate_debye_method(system, bins, k_max, k_min)
         npt.assert_allclose(sf.bin_centers, Q)
         npt.assert_allclose(sf.S_k, S, rtol=1e-5, atol=1e-5)
+
+    def test_partial_structure_factor_arguments(self):
+        sf = freud.diffraction.StaticStructureFactorDebye(1000, 100)
+        box, positions = freud.data.UnitCell.fcc().generate_system(4)
+        # Require N_total if and only if query_points are provided
+        with pytest.raises(ValueError):
+            sf.compute((box, positions), query_points=positions)
+        with pytest.raises(ValueError):
+            sf.compute((box, positions), N_total=123)
+
+    def test_partial_structure_factor_symmetry(self):
+        """Compute a partial structure factor and ensure it is symmetric under
+        type exchange."""
+        L = 10
+        N = 1000
+        box, points = freud.data.make_random_system(L, N)
+        system = freud.AABBQuery.from_system((box, points))
+        A_points = system.points[: N // 3]
+        B_points = system.points[N // 3 :]
+        sf = freud.diffraction.StaticStructureFactorDebye(bins=100, k_max=10)
+        sf.compute((system.box, B_points), query_points=A_points, N_total=N)
+        S_AB = sf.S_k
+        sf.compute((system.box, A_points), query_points=B_points, N_total=N)
+        S_BA = sf.S_k
+        npt.assert_allclose(S_AB, S_BA)
+
+    def test_partial_structure_factor_sum_normalization(self):
+        """Ensure that the weighted sum of the partial structure factors is
+        equal to the full scattering."""
+        L = 10
+        N = 1000
+        box, points = freud.data.make_random_system(L, N)
+        system = freud.AABBQuery.from_system((box, points))
+        N_A = N // 3
+        N_B = N - N_A
+        A_points = system.points[:N_A]
+        B_points = system.points[N_A:]
+        sf = freud.diffraction.StaticStructureFactorDebye(bins=100, k_max=10)
+        S_total = sf.compute(system).S_k
+        S_total_as_partial = sf.compute(
+            system, query_points=system.points, N_total=N
+        ).S_k
+        npt.assert_allclose(S_total, S_total_as_partial)
+        S_AA = sf.compute((system.box, A_points), query_points=A_points, N_total=N).S_k
+        S_AB = sf.compute((system.box, B_points), query_points=A_points, N_total=N).S_k
+        S_BA = sf.compute((system.box, A_points), query_points=B_points, N_total=N).S_k
+        S_BB = sf.compute((system.box, B_points), query_points=B_points, N_total=N).S_k
+        S_partial_sum = (
+            1
+            + (N_A / N) ** 2 * (S_AA - 1)
+            + (N_A / N) * (N_B / N) * (S_AB - 1)
+            + (N_B / N) * (N_A / N) * (S_BA - 1)
+            + (N_B / N) ** 2 * (S_BB - 1)
+        )
+        npt.assert_allclose(S_total, S_partial_sum, rtol=1e-5, atol=1e-5)
+
+    def test_large_k_partial_cross_term_goes_to_zero(self):
+        """Ensure S_{AB}(k) goes to zero at large k."""
+        L = 10
+        N = 1000
+        box, points = freud.data.make_random_system(L, N)
+        system = freud.AABBQuery.from_system((box, points))
+        A_points = system.points[: N // 3]
+        B_points = system.points[N // 3 :]
+        sf = freud.diffraction.StaticStructureFactorDebye(bins=5, k_max=1e6, k_min=1e5)
+        S_AB = sf.compute((system.box, B_points), query_points=A_points, N_total=N).S_k
+        npt.assert_allclose(S_AB, 0, rtol=1e-5, atol=1e-5)
+
+    def test_large_k_partial_self_term_goes_to_fraction(self):
+        """Ensure S_{AA}(k) goes to N_A / N_total at large k."""
+        L = 10
+        N = 1000
+        box, points = freud.data.make_random_system(L, N)
+        system = freud.AABBQuery.from_system((box, points))
+        N_A = N // 3
+        A_points = system.points[:N_A]
+        sf = freud.diffraction.StaticStructureFactorDebye(bins=5, k_max=1e6, k_min=1e5)
+        S_AA = sf.compute((system.box, A_points), query_points=A_points, N_total=N).S_k
+        npt.assert_allclose(S_AA, N_A / N, rtol=1e-5, atol=1e-5)
+
+    def test_large_k_scattering_goes_to_one(self):
+        """Ensure S(k) goes to one at large k."""
+        L = 10
+        N = 1000
+        box, points = freud.data.make_random_system(L, N)
+        system = freud.AABBQuery.from_system((box, points))
+        sf = freud.diffraction.StaticStructureFactorDebye(bins=5, k_max=1e6, k_min=1e5)
+        sf.compute(system)
+        npt.assert_allclose(sf.S_k, 1, rtol=1e-5, atol=1e-5)
 
 
 # TODO: All the below tests were copied from DiffractionPattern and need to be
