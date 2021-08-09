@@ -31,7 +31,7 @@ public:
 
     //! Compute the structure factor S(k) using the Debye formula
     void accumulate(const freud::locality::NeighborQuery* neighbor_query, const vec3<float>* query_points,
-                    unsigned int n_query_points);
+                    unsigned int n_query_points, unsigned int n_total);
 
     //! Reduce thread-local arrays onto the primary data arrays.
     void reduce();

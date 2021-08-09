@@ -40,10 +40,9 @@ StaticStructureFactorDebye::StaticStructureFactorDebye(unsigned int bins, float 
 }
 
 void StaticStructureFactorDebye::accumulate(const freud::locality::NeighborQuery* neighbor_query,
-                                             const vec3<float>* query_points, unsigned int n_query_points)
+                                             const vec3<float>* query_points, unsigned int n_query_points, unsigned int n_total)
 {
     auto const& box = neighbor_query->getBox();
-    auto const n_total = neighbor_query->getNPoints();
 
     // The r_max should be just less than half of the smallest side length of the box
     auto const box_L = box.getL();
@@ -73,7 +72,6 @@ void StaticStructureFactorDebye::accumulate(const freud::locality::NeighborQuery
                 auto const distance = distances[distance_index];
                 S_k += util::sinc(k * distance);
             }
-            // TODO: Support partial structure factors in this normalization
             S_k /= static_cast<double>(n_total);
             m_local_histograms.increment(k_index, S_k);
         };
