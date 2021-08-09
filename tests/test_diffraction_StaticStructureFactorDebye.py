@@ -3,17 +3,18 @@ import unittest
 import matplotlib
 import numpy as np
 import numpy.testing as npt
+import pytest
 
 import freud
 
 matplotlib.use("agg")
 
 
-def validate_method(system, bins, k_max, k_min):
+def _validate_debye_method(system, bins, k_max, k_min):
     """Validation of the static structure calculation.
 
-    This method is a pure Python reference implementation of the debye
-    method implemented in C++ in freud.
+    This method is a pure Python reference implementation of the Debye method
+    implemented in C++ in freud.
 
     Args:
         system:
@@ -26,8 +27,8 @@ def validate_method(system, bins, k_max, k_min):
         k_min (float):
             Minimum :math:`k` value to include in the calculation.
     """
-    rmax = np.min(system[0].L) * 0.5 - 0.0000001
     system = freud.locality.NeighborQuery.from_system(system)
+    r_max = np.nextafter(np.min(system.box.L) * 0.5, 0, dtype=np.float32)
     N = len(system.points)
 
     Q = np.linspace(k_min, k_max, bins, endpoint=False)
@@ -35,7 +36,7 @@ def validate_method(system, bins, k_max, k_min):
     S = np.zeros_like(Q)
 
     # Compute all pairwise distances
-    query_args = dict(mode="ball", r_max=rmax, exclude_ii=True)
+    query_args = dict(mode="ball", r_max=r_max, exclude_ii=False)
     distances = system.query(system.points, query_args).toNeighborList().distances
 
     for i, q in enumerate(Q):
@@ -50,15 +51,25 @@ class TestStaticStructureFactorDebye(unittest.TestCase):
         box, positions = freud.data.UnitCell.fcc().generate_system(4)
         sf.compute((box, positions))
 
+    def test_compute_partial_arguments(self):
+        sf = freud.diffraction.StaticStructureFactorDebye(1000, 100)
+        box, positions = freud.data.UnitCell.fcc().generate_system(4)
+        # Require N_total if and only if query_points are provided
+        with pytest.raises(ValueError):
+            sf.compute((box, positions), query_points=positions)
+        with pytest.raises(ValueError):
+            sf.compute((box, positions), N_total=123)
+
     def test_debye_validation(self):
         """Validate the Debye method against a Python implementation."""
         bins = 1000
         k_max = 100
         k_min = 0
         sf = freud.diffraction.StaticStructureFactorDebye(bins, k_max, k_min)
-        box, positions = freud.data.UnitCell.fcc().generate_system(4, sigma_noise=0.01)
-        sf.compute((box, positions))
-        Q, S = validate_method((box, positions), bins, k_max, k_min)
+        box, points = freud.data.UnitCell.fcc().generate_system(4, sigma_noise=0.01)
+        system = freud.locality.NeighborQuery.from_system((box, points))
+        sf.compute(system)
+        Q, S = _validate_debye_method(system, bins, k_max, k_min)
         npt.assert_allclose(sf.bin_centers, Q)
         npt.assert_allclose(sf.S_k, S, rtol=1e-5, atol=1e-5)
 

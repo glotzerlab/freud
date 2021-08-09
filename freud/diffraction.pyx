@@ -145,6 +145,9 @@ cdef class StaticStructureFactorDebye(_Compute):
         l_query_points = query_points
         num_query_points = l_query_points.shape[0]
 
+        if N_total is None:
+            N_total = num_query_points
+
         self.thisptr.accumulate(
             nq.get_ptr(),
             <vec3[float]*> &l_query_points[0, 0],
