@@ -1,7 +1,7 @@
 # Copyright (c) 2010-2020 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
-R"""
+r"""
 The :class:`freud.diffraction` module provides functions for computing the
 diffraction pattern of particles in systems with long range order.
 
@@ -231,7 +231,7 @@ cdef class StaticStructureFactorDebye(_Compute):
 
 
 cdef class DiffractionPattern(_Compute):
-    R"""Computes a 2D diffraction pattern.
+    r"""Computes a 2D diffraction pattern.
 
     The diffraction image represents the scattering of incident radiation,
     and is useful for identifying translational and/or rotational symmetry
@@ -400,7 +400,7 @@ cdef class DiffractionPattern(_Compute):
         return img
 
     def compute(self, system, view_orientation=None, zoom=4, peak_width=1, reset=True):
-        R"""Computes diffraction pattern.
+        r"""Computes diffraction pattern.
 
         Args:
             system:
