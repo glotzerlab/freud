@@ -36,22 +36,35 @@ cdef class StaticStructureFactorDebye(_Compute):
     R"""Computes a 1D static structure factor.
 
     This computes the static `structure factor
-    <https://en.wikipedia.org/wiki/Structure_factor>`__ :math:`S(k)`,
-    assuming an isotropic system (averaging over all :math:`k` vectors of the
-    same magnitude). This is implemented using the Debye scattering equation:
+    <https://en.wikipedia.org/wiki/Structure_factor>`__ :math:`S(k)`, assuming
+    an isotropic system (averaging over all :math:`k` vectors of the same
+    magnitude). This is implemented using the Debye scattering equation:
 
     .. math::
 
         S(k) = \frac{1}{N} \sum_{i=0}^{N} \sum_{j=0}^{N} \text{sinc}(k r_{ij})
 
-    where :math:`N` is the number of particles, :math:`\text{sinc}` function is defined
-    as :math:`\sin x / x` (no factor of :math:`\pi` as in some conventions). For more
-    information see `here <https://en.wikipedia.org/wiki/Structure_factor>`__.
-    The equation 4 from the link can be obtained by replacing
-    :math:`\frac{\sin(k r)}{kr}` with math:`\text{sinc}(k r)`.
+    where :math:`N` is the number of particles, :math:`\text{sinc}` function is
+    defined as :math:`\sin x / x` (no factor of :math:`\pi` as in some
+    conventions). For more information see `here
+    <https://en.wikipedia.org/wiki/Structure_factor>`__. The equation 4 from
+    the link can be obtained by replacing :math:`\frac{\sin(k r)}{kr}` with
+    :math:`\text{sinc}(k r)`.
 
     .. note::
         This code assumes all particles have a form factor :math:`f` of 1.
+
+    Partial structure factors can be computed by providing ``query_points`` to the
+    :py:meth:`compute` method. When computing a partial structure factor, the
+    total number of points in the system must be specified. The normalization
+    criterion is based on the Faber-Ziman formalism. For particle types
+    :math:`\alpha` and :math:`\beta`, we compute the total scattering function
+    as a sum of the partial scattering functions as:
+
+    .. math::
+
+        S(k) - 1 = \sum_{\alpha}\sum_{\beta} \frac{N_{\alpha}
+        N_{\beta}}{N_{total}^2} \left(S_{\alpha \beta}(k) - 1\right)
 
     This class is based on the MIT licensed `scattering library
     <https://github.com/mattwthompson/scattering/>`__ and literature references
@@ -79,7 +92,7 @@ cdef class StaticStructureFactorDebye(_Compute):
         if type(self) == StaticStructureFactorDebye:
             del self.thisptr
 
-    def compute(self, system, query_points=None, reset=True):
+    def compute(self, system, query_points=None, N_total=None, reset=True):
         R"""Computes static structure factor.
 
         Args:
@@ -87,15 +100,28 @@ cdef class StaticStructureFactorDebye(_Compute):
                 Any object that is a valid argument to
                 :class:`freud.locality.NeighborQuery.from_system`.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
-                Query points used to calculate the partial cross-term structure factor. Use
-                this option only for partial cross-term calculation. Uses the system's points
-                if :code:`None`. This assumes that you are calculating non cross-terms.
-                (Default value = :code:`None`).
+                Query points used to calculate the partial structure factor.
+                Uses the system's points if :code:`None`. See class
+                documentation for information about the normalization of partial
+                structure factors. If :code:`None`, the full scattering is
+                computed. (Default value = :code:`None`).
+            N_total (int):
+                Total number of points in the system. This is required if
+                ``query_points`` are provided. See class documentation for
+                information about the normalization of partial structure
+                factors.
             reset (bool):
                 Whether to erase the previously computed values before adding
                 the new computation; if False, will accumulate data (Default
                 value: True).
         """  # noqa E501
+        if (query_points is None) != (N_total is None):
+            raise ValueError(
+                "If query_points are provided, N_total must also be provided "
+                "in order to correctly compute the normalization of the "
+                "partial structure factor."
+            )
+
         if reset:
             self._reset()
 
