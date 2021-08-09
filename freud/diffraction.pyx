@@ -38,7 +38,7 @@ cdef class StaticStructureFactorDebye(_Compute):
     This computes the static `structure factor
     <https://en.wikipedia.org/wiki/Structure_factor>`__ :math:`S(k)`,
     assuming an isotropic system (averaging over all :math:`k` vectors of the
-    same magnitude). This is implemented using the Debye scattering equation.
+    same magnitude). This is implemented using the Debye scattering equation:
 
     .. math::
 
@@ -46,9 +46,9 @@ cdef class StaticStructureFactorDebye(_Compute):
 
     where :math:`N` is the number of particles, :math:`\text{sinc}` function is defined
     as :math:`\sin x / x` (no factor of :math:`\pi` as in some conventions). For more
-    information see `here<https://en.wikipedia.org/wiki/Structure_factor>`.
+    information see `here <https://en.wikipedia.org/wiki/Structure_factor>`__.
     The equation 4 from the link can be obtained by replacing
-    :math:`\frac{\text{sin}(k r)}{kr}` with math:`\text{sinc}(k r)`.
+    :math:`\frac{\sin(k r)}{kr}` with math:`\text{sinc}(k r)`.
 
     .. note::
         This code assumes all particles have a form factor :math:`f` of 1.
@@ -63,10 +63,10 @@ cdef class StaticStructureFactorDebye(_Compute):
         k_max (float):
             Maximum :math:`k` value to include in the calculation.
         k_min (float, optional):
-            Minimum :math:`k` value include in the calculation. Note that
+            Minimum :math:`k` value included in the calculation. Note that
             there are practical restrictions on the validity of the
-            calculation in the long-wavelength regime, see ``min_valid_k``
-            (Default value = :code:`0`).
+            calculation in the long-wavelength regime, see :py:attr:`min_valid_k`
+            (Default value = 0).
     """
     cdef freud._diffraction.StaticStructureFactorDebye * thisptr
 
@@ -89,7 +89,7 @@ cdef class StaticStructureFactorDebye(_Compute):
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Query points used to calculate the partial cross-term structure factor. Use
                 this option only for partial cross-term calculation. Uses the system's points
-                if :code:`None` This assumes that you are calculating non cross-terms.
+                if :code:`None`. This assumes that you are calculating non cross-terms.
                 (Default value = :code:`None`).
             reset (bool):
                 Whether to erase the previously computed values before adding
