@@ -23,11 +23,17 @@ namespace freud { namespace diffraction {
 StaticStructureFactorDebye::StaticStructureFactorDebye(unsigned int bins, float k_max, float k_min)
 {
     if (bins == 0)
+    {
         throw std::invalid_argument("StaticStructureFactorDebye requires a nonzero number of bins.");
-    if (k_max <= 0.0f)
+    }
+    if (k_max <= 0)
+    {
         throw std::invalid_argument("StaticStructureFactorDebye requires k_max to be positive.");
+    }
     if (k_max <= k_min)
+    {
         throw std::invalid_argument("StaticStructureFactorDebye requires that k_max must be greater than k_min.");
+    }
 
     // Construct the Histogram object that will be used to track the structure factor
     auto axes
@@ -47,7 +53,7 @@ void StaticStructureFactorDebye::accumulate(const freud::locality::NeighborQuery
     auto const box_L = box.getL();
     auto const min_box_length
         = box.is2D() ? std::min(box_L.x, box_L.y) : std::min(box_L.x, std::min(box_L.y, box_L.z));
-    auto const r_max = std::nextafter(0.5f * min_box_length, 0.0f);
+    auto const r_max = std::nextafter(float(0.5) * min_box_length, float(0));
     auto const qargs = freud::locality::QueryArgs::make_ball(r_max, 0.0, false);
 
     // The minimum k value of validity is 4 * pi / L, where L is the smallest side length.

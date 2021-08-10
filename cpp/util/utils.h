@@ -38,10 +38,7 @@ template<typename Scalar> inline Scalar sinc(Scalar x)
     {
         return 1;
     }
-    else
-    {
-        return std::sin(x) / x;
-    }
+    return std::sin(x) / x;
 }
 
 //! Simpson's Rule numerical integration

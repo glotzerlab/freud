@@ -39,7 +39,7 @@ public:
     //! Return thing_to_return after reducing if necessary.
     template<typename U> U& reduceAndReturn(U& thing_to_return)
     {
-        if (m_reduce == true)
+        if (m_reduce)
         {
             reduce();
         }
@@ -62,13 +62,13 @@ public:
     }
 
     //! Get the k bin edges
-    const std::vector<float> getBinEdges() const
+    std::vector<float> getBinEdges() const
     {
         return m_histogram.getBinEdges()[0];
     }
 
     //! Get the k bin centers
-    const std::vector<float> getBinCenters() const
+    std::vector<float> getBinCenters() const
     {
         return m_histogram.getBinCenters()[0];
     }
