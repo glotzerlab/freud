@@ -84,9 +84,9 @@ private:
     StaticStructureFactorDebyeHistogram::ThreadLocalHistogram
         m_local_histograms;                       //!< Thread local histograms for TBB parallelism
     util::ManagedArray<float> m_structure_factor; //!< The computed structure factor
-    unsigned int m_frame_counter;                 //!< Number of frames calculated
-    float m_min_valid_k;                          //!< The minimum valid k-value based on the computed box
-    bool m_reduce;                                //!< Whether to reduce
+    unsigned int m_frame_counter {0};                 //!< Number of frames calculated
+    float m_min_valid_k {0};                          //!< The minimum valid k-value based on the computed box
+    bool m_reduce {true};                                //!< Whether to reduce
 };
 
 }; }; // namespace freud::diffraction

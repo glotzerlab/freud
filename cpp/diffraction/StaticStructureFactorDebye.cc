@@ -21,7 +21,6 @@
 namespace freud { namespace diffraction {
 
 StaticStructureFactorDebye::StaticStructureFactorDebye(unsigned int bins, float k_max, float k_min)
-    : m_frame_counter(0)
 {
     if (bins == 0)
         throw std::invalid_argument("StaticStructureFactorDebye requires a nonzero number of bins.");
