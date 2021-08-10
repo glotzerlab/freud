@@ -170,10 +170,10 @@ cdef class StaticStructureFactorDebye(_Compute):
 
     @property
     def bounds(self):
-        """:class:`tuple`: A list of tuples indicating upper and lower bounds
-        of the histogram."""
+        """tuple: A tuple indicating upper and lower bounds of the
+        histogram."""
         bin_edges = self.bin_edges
-        return (bin_edges[0], bin_edges[len(bin_edges)])
+        return (bin_edges[0], bin_edges[len(bin_edges)-1])
 
     @property
     def nbins(self):
@@ -224,6 +224,14 @@ cdef class StaticStructureFactorDebye(_Compute):
                                     xlabel=r"$k$",
                                     ylabel=r"$S(k)$",
                                     ax=ax)
+
+    def __repr__(self):
+        return ("freud.diffraction.{cls}(bins={bins}, "
+                "k_max={k_max}, k_min={k_min})").format(
+                    cls=type(self).__name__,
+                    bins=self.nbins,
+                    k_max=self.k_max,
+                    k_min=self.k_min)
 
     def _repr_png_(self):
         try:
