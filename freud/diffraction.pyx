@@ -210,7 +210,7 @@ cdef class StaticStructureFactorDebye(_Compute):
             return None
 
 
-cdef class StaticStructureFactor(_Compute):
+cdef class StaticStructureFactor():
     R"""Computes a 1D static structure factor.
 
     This computes the static `structure factor
@@ -243,7 +243,7 @@ cdef class StaticStructureFactor(_Compute):
             Maximum :math:`k` value to include in the calculation.
         max_k_points (unsigned int, optional):
             The maximum number of k-points to use when constructing k-space grid.
-            The code wil prune the number of grid points fo optimize the bin widhts
+            The code wil prune the number of grid points fo optimize the bin widths
             and performance.
     """
     def __init__(self, bins, k_max, max_k_points):
@@ -256,6 +256,22 @@ cdef class StaticStructureFactor(_Compute):
         self._N_frames = 0
 ​
     def compute(self, system, query_points=None, reset=True):
+        R"""Computes static structure factor.
+
+        Args:
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
+            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
+                Query points used to calculate the partial cross-term structure factor. Use
+                this option only for partial cross-term calculation. Uses the system's points
+                if :code:`None` This assumes that you are calculating non cross-terms.
+                (Default value = :code:`None`).
+            reset (bool):
+                Whether to erase the previously computed values before adding
+                the new computation; if False, will accumulate data (Default
+                value: True).
+        """  # noqa E501
         if reset:
             self._reset()
 ​
@@ -263,6 +279,10 @@ cdef class StaticStructureFactor(_Compute):
         box_matrix = system.box.to_matrix()
 ​
         # Sample k-space without preference to direction
+        # ? should this only be called the first time compute is called?
+        # that would likely save computational time
+        # we could have self.rec = None in constructor and in compute
+        # we could have if self.rec == None: rec=reciprocal_isotropic
         rec = reciprocal_isotropic(box_matrix, max_points=self.max_k_points, max_k=self.k_max)
 ​
         points_rho_ks = calc_rho_k(system.points.T, rec.k_points, ftype=rec.ftype)
@@ -285,13 +305,68 @@ cdef class StaticStructureFactor(_Compute):
         self._N_frames += 1
         return self
 ​
-    @property
-    def S_k(self):
-        return self._S_k / self._N_frames
-​
     def _reset(self):
         self._S_k = np.zeros(self.bins)
         self._N_frames = 0
+
+    @property
+    def bin_centers(self):
+        """:class:`numpy.ndarray`: The centers of each bin of :math:`k`."""
+        return self._k_bin_centers
+
+    @property
+    def bin_edges(self):
+        """:class:`numpy.ndarray`: The edges of each bin of :math:`k`."""
+        return self._k_bin_edges
+
+    @property
+    def bounds(self):
+        """:class:`tuple`: A list of tuples indicating upper and lower bounds
+        of the histogram."""
+        bin_edges = self._k_bin_edges
+        return (bin_edges[0], bin_edges[-1])
+
+    @property
+    def nbins(self):
+        """int: The number of bins in the histogram."""
+        return self.bins
+
+    @property
+    def k_max(self):
+        """float: Maximum value of k at which to calculate the structure
+        factor."""
+        return self._k_bin_centers[-1]
+
+    @property
+    def k_min(self):
+        """float: Minimum value of k at which to calculate the structure
+        factor."""
+        return self._k_bin_centers[0]
+
+    @property
+    def S_k(self):
+        """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Static structure factor
+        :math:`S(k)` values."""
+        return self._S_k / self._N_frames
+​
+    def plot(self, ax=None, **kwargs):
+        """Plot static structure factor.
+
+        Args:
+            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
+                :code:`None`, make a new figure and axis.
+                (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes.Axes`): Axis with the plot.
+        """
+        import freud.plot
+        return freud.plot.line_plot(self.bin_edges[:len(self.bin_edges)-1],
+                                self.S_k,
+                                title="Static Structure Factor",
+                                xlabel=r"$k$",
+                                ylabel=r"$S(k)$",
+                                ax=ax)
 
 
 cdef class DiffractionPattern(_Compute):
