@@ -17,6 +17,7 @@ import logging
 import numpy as np
 import rowan
 import scipy.ndimage
+from scipy.stats import binned_statistic
 
 import freud.locality
 
@@ -29,6 +30,11 @@ cimport freud.locality
 cimport freud.util
 from freud.locality cimport _SpatialHistogram1D
 from freud.util cimport _Compute, vec3
+
+​
+from dsf.reciprocal import calc_rho_k, reciprocal_isotropic
+
+​
 
 logger = logging.getLogger(__name__)
 
@@ -202,6 +208,90 @@ cdef class StaticStructureFactorDebye(_Compute):
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None
+
+
+cdef class StaticStructureFactor(_Compute):
+    R"""Computes a 1D static structure factor.
+
+    This computes the static `structure factor
+    <https://en.wikipedia.org/wiki/Structure_factor>`__ :math:`S(k)`,
+    assuming an isotropic system (averaging over all :math:`k` vectors of the
+    same magnitude). This is implemented using the direct summation formula.
+
+    .. math::
+
+        S(k) = \frac{1}{N}  \sum_{m=0}^{N} \sum_{n=0}^N
+        (\cos{(\boldsymbol{q}\cdot\boldsymbol{R}_m)} -
+        i \sin{(\boldsymbol{q}\cdot\boldsymbol{R}_m)})*
+        (\cos{(\boldsymbol{q}\cdot\boldsymbol{R}_n)} +
+        i \sin{(\boldsymbol{q}\cdot\boldsymbol{R}_n)})
+
+    where :math:`N` is the number of particles. The above equation can be obtained
+    by applying Euler's formula to the definition of :math:`S(k)` For more
+    information see `here<https://en.wikipedia.org/wiki/Structure_factor>`.
+
+    .. note::
+        This code assumes all particles have a form factor :math:`f` of 1.
+
+    This class is based on the MIT licensed `Dynasor library
+    <https://gitlab.com/materials-modeling/dynasor/>`__ .
+
+    Args:
+        bins (unsigned int):
+            Number of bins in :math:`k` space.
+        k_max (float):
+            Maximum :math:`k` value to include in the calculation.
+        max_k_points (unsigned int, optional):
+            The maximum number of k-points to use when constructing k-space grid.
+            The code wil prune the number of grid points fo optimize the bin widhts
+            and performance.
+    """
+    def __init__(self, bins, k_max, max_k_points):
+        self.max_k_points = max_k_points
+        self.k_max = k_max
+        self.bins = bins
+        self._k_bin_edges = np.linspace(0, self.k_max, self.bins+1)
+        self._k_bin_centers = (self._k_bin_edges[:-1] + self._k_bin_edges[1:]) / 2
+        self._S_k = np.zeros(self.bins)
+        self._N_frames = 0
+​
+    def compute(self, system, query_points=None, reset=True):
+        if reset:
+            self._reset()
+​
+        system = freud.locality.NeighborQuery.from_system(system)
+        box_matrix = system.box.to_matrix()
+​
+        # Sample k-space without preference to direction
+        rec = reciprocal_isotropic(box_matrix, max_points=self.max_k_points, max_k=self.k_max)
+​
+        points_rho_ks = calc_rho_k(system.points.T, rec.k_points, ftype=rec.ftype)
+​
+        if query_points is None:
+            query_points_rho_ks = points_rho_ks
+        else:
+            query_points_rho_ks = calc_rho_k(query_points.T, rec.k_points, ftype=rec.ftype)
+​
+        S_k_all = np.real(query_points_rho_ks * points_rho_ks.conjugate())
+​
+        # Extract correlation (all k-point) averages and calculate average for each k-bin
+        S_k_binned, _, _ = binned_statistic(
+            x=rec.k_distance,
+            values=S_k_all,
+            statistic="mean",
+            bins=self._k_bin_edges,
+        )
+        self._S_k += S_k_binned
+        self._N_frames += 1
+        return self
+​
+    @property
+    def S_k(self):
+        return self._S_k / self._N_frames
+​
+    def _reset(self):
+        self._S_k = np.zeros(self.bins)
+        self._N_frames = 0
 
 
 cdef class DiffractionPattern(_Compute):
