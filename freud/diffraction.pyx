@@ -210,7 +210,7 @@ cdef class StaticStructureFactorDebye(_Compute):
             return None
 
 
-cdef class StaticStructureFactor():
+cdef class StaticStructureFactorDynasor():
     R"""Computes a 1D static structure factor.
 
     This computes the static `structure factor
