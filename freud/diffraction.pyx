@@ -1,7 +1,7 @@
 # Copyright (c) 2010-2020 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
-R"""
+r"""
 The :class:`freud.diffraction` module provides functions for computing the
 diffraction pattern of particles in systems with long range order.
 
@@ -42,22 +42,35 @@ cdef class StaticStructureFactorDebye(_Compute):
     R"""Computes a 1D static structure factor.
 
     This computes the static `structure factor
-    <https://en.wikipedia.org/wiki/Structure_factor>`__ :math:`S(k)`,
-    assuming an isotropic system (averaging over all :math:`k` vectors of the
-    same magnitude). This is implemented using the Debye scattering equation.
+    <https://en.wikipedia.org/wiki/Structure_factor>`__ :math:`S(k)`, assuming
+    an isotropic system (averaging over all :math:`k` vectors of the same
+    magnitude). This is implemented using the Debye scattering equation:
 
     .. math::
 
         S(k) = \frac{1}{N} \sum_{i=0}^{N} \sum_{j=0}^{N} \text{sinc}(k r_{ij})
 
-    where :math:`N` is the number of particles, :math:`\text{sinc}` function is defined
-    as :math:`\sin x / x` (no factor of :math:`\pi` as in some conventions). For more
-    information see `here<https://en.wikipedia.org/wiki/Structure_factor>`.
-    The equation 4 from the link can be obtained by replacing
-    :math:`\frac{\text{sin}(k r)}{kr}` with math:`\text{sinc}(k r)`.
+    where :math:`N` is the number of particles, :math:`\text{sinc}` function is
+    defined as :math:`\sin x / x` (no factor of :math:`\pi` as in some
+    conventions). For more information see `here
+    <https://en.wikipedia.org/wiki/Structure_factor>`__. The equation 4 from
+    the link can be obtained by replacing :math:`\frac{\sin(k r)}{kr}` with
+    :math:`\text{sinc}(k r)`.
 
     .. note::
         This code assumes all particles have a form factor :math:`f` of 1.
+
+    Partial structure factors can be computed by providing ``query_points`` to the
+    :py:meth:`compute` method. When computing a partial structure factor, the
+    total number of points in the system must be specified. The normalization
+    criterion is based on the Faber-Ziman formalism. For particle types
+    :math:`\alpha` and :math:`\beta`, we compute the total scattering function
+    as a sum of the partial scattering functions as:
+
+    .. math::
+
+        S(k) - 1 = \sum_{\alpha}\sum_{\beta} \frac{N_{\alpha}
+        N_{\beta}}{N_{total}^2} \left(S_{\alpha \beta}(k) - 1\right)
 
     This class is based on the MIT licensed `scattering library
     <https://github.com/mattwthompson/scattering/>`__ and literature references
@@ -69,10 +82,10 @@ cdef class StaticStructureFactorDebye(_Compute):
         k_max (float):
             Maximum :math:`k` value to include in the calculation.
         k_min (float, optional):
-            Minimum :math:`k` value include in the calculation. Note that
+            Minimum :math:`k` value included in the calculation. Note that
             there are practical restrictions on the validity of the
-            calculation in the long-wavelength regime, see ``min_valid_k``
-            (Default value = :code:`0`).
+            calculation in the long-wavelength regime, see :py:attr:`min_valid_k`
+            (Default value = 0).
     """
     cdef freud._diffraction.StaticStructureFactorDebye * thisptr
 
@@ -85,7 +98,7 @@ cdef class StaticStructureFactorDebye(_Compute):
         if type(self) == StaticStructureFactorDebye:
             del self.thisptr
 
-    def compute(self, system, query_points=None, reset=True):
+    def compute(self, system, query_points=None, N_total=None, reset=True):
         R"""Computes static structure factor.
 
         Args:
@@ -93,15 +106,28 @@ cdef class StaticStructureFactorDebye(_Compute):
                 Any object that is a valid argument to
                 :class:`freud.locality.NeighborQuery.from_system`.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
-                Query points used to calculate the partial cross-term structure factor. Use
-                this option only for partial cross-term calculation. Uses the system's points
-                if :code:`None` This assumes that you are calculating non cross-terms.
-                (Default value = :code:`None`).
+                Query points used to calculate the partial structure factor.
+                Uses the system's points if :code:`None`. See class
+                documentation for information about the normalization of partial
+                structure factors. If :code:`None`, the full scattering is
+                computed. (Default value = :code:`None`).
+            N_total (int):
+                Total number of points in the system. This is required if
+                ``query_points`` are provided. See class documentation for
+                information about the normalization of partial structure
+                factors.
             reset (bool):
                 Whether to erase the previously computed values before adding
                 the new computation; if False, will accumulate data (Default
                 value: True).
         """  # noqa E501
+        if (query_points is None) != (N_total is None):
+            raise ValueError(
+                "If query_points are provided, N_total must also be provided "
+                "in order to correctly compute the normalization of the "
+                "partial structure factor."
+            )
+
         if reset:
             self._reset()
 
@@ -125,10 +151,13 @@ cdef class StaticStructureFactorDebye(_Compute):
         l_query_points = query_points
         num_query_points = l_query_points.shape[0]
 
+        if N_total is None:
+            N_total = num_query_points
+
         self.thisptr.accumulate(
             nq.get_ptr(),
             <vec3[float]*> &l_query_points[0, 0],
-            num_query_points)
+            num_query_points, N_total)
         return self
 
     def _reset(self):
@@ -147,10 +176,10 @@ cdef class StaticStructureFactorDebye(_Compute):
 
     @property
     def bounds(self):
-        """:class:`tuple`: A list of tuples indicating upper and lower bounds
-        of the histogram."""
+        """tuple: A tuple indicating upper and lower bounds of the
+        histogram."""
         bin_edges = self.bin_edges
-        return (bin_edges[0], bin_edges[len(bin_edges)])
+        return (bin_edges[0], bin_edges[len(bin_edges)-1])
 
     @property
     def nbins(self):
@@ -201,6 +230,14 @@ cdef class StaticStructureFactorDebye(_Compute):
                                     xlabel=r"$k$",
                                     ylabel=r"$S(k)$",
                                     ax=ax)
+
+    def __repr__(self):
+        return ("freud.diffraction.{cls}(bins={bins}, "
+                "k_max={k_max}, k_min={k_min})").format(
+                    cls=type(self).__name__,
+                    bins=self.nbins,
+                    k_max=self.k_max,
+                    k_min=self.k_min)
 
     def _repr_png_(self):
         try:
@@ -370,7 +407,7 @@ cdef class StaticStructureFactorDynasor():
 
 
 cdef class DiffractionPattern(_Compute):
-    R"""Computes a 2D diffraction pattern.
+    r"""Computes a 2D diffraction pattern.
 
     The diffraction image represents the scattering of incident radiation,
     and is useful for identifying translational and/or rotational symmetry
@@ -539,7 +576,7 @@ cdef class DiffractionPattern(_Compute):
         return img
 
     def compute(self, system, view_orientation=None, zoom=4, peak_width=1, reset=True):
-        R"""Computes diffraction pattern.
+        r"""Computes diffraction pattern.
 
         Args:
             system:

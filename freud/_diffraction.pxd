@@ -10,14 +10,13 @@ cimport freud.util
 from freud._locality cimport BondHistogramCompute
 from freud.util cimport vec3
 
-ctypedef unsigned int uint
 
 cdef extern from "StaticStructureFactorDebye.h" namespace "freud::diffraction":
     cdef cppclass StaticStructureFactorDebye:
-        StaticStructureFactorDebye(uint, float, float) except +
+        StaticStructureFactorDebye(unsigned int, float, float) except +
         void accumulate(const freud._locality.NeighborQuery*,
                         const vec3[float]*,
-                        unsigned int) except +
+                        unsigned int, unsigned int) except +
         void reset()
         const freud.util.ManagedArray[float] &getStructureFactor()
         const vector[float] getBinEdges() const
