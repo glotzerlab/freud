@@ -8,9 +8,9 @@ import freud
 matplotlib.use("agg")
 
 
-class TestStaticStructureFactorDynasor:
+class TestStaticStructureFactorDirect:
     def test_compute(self):
-        sf = freud.diffraction.StaticStructureFactorDynasor(1000, 100, 80000)
+        sf = freud.diffraction.StaticStructureFactorDirect(1000, 100, 80000)
         box, positions = freud.data.UnitCell.fcc().generate_system(4)
         sf.compute((box, positions))
 
@@ -19,7 +19,7 @@ class TestStaticStructureFactorDynasor:
         bins = 1000
         k_max = 100
         max_k_points = 80000
-        sfn = freud.diffraction.StaticStructureFactorDynasor(bins, k_max, max_k_points)
+        sfn = freud.diffraction.StaticStructureFactorDirect(bins, k_max, max_k_points)
         sfb = freud.diffraction.StaticStructureFactorDebye(bins, k_max, sfn.k_min)
         box, points = freud.data.UnitCell.fcc().generate_system(4, sigma_noise=0.01)
         system = freud.locality.NeighborQuery.from_system((box, points))
@@ -30,7 +30,7 @@ class TestStaticStructureFactorDynasor:
 
     # TODO: enable if N_total is needed
     #    def test_partial_structure_factor_arguments(self):
-    #        sf = freud.diffraction.StaticStructureFactorDynasor(1000, 100, 80000)
+    #        sf = freud.diffraction.StaticStructureFactorDirect(1000, 100, 80000)
     #        box, positions = freud.data.UnitCell.fcc().generate_system(4)
     #        # Require N_total if and only if query_points are provided
     #        with pytest.raises(ValueError):
@@ -48,7 +48,7 @@ class TestStaticStructureFactorDynasor:
         system = freud.AABBQuery.from_system((box, points))
         A_points = system.points[: N // 3]
         B_points = system.points[N // 3 :]
-        sf = freud.diffraction.StaticStructureFactorDynasor(
+        sf = freud.diffraction.StaticStructureFactorDirect(
             bins=100, k_max=10, max_k_points=max_k_points
         )
         sf.compute((system.box, B_points), query_points=A_points)
@@ -69,7 +69,7 @@ class TestStaticStructureFactorDynasor:
         N_B = N - N_A
         A_points = system.points[:N_A]
         B_points = system.points[N_A:]
-        sf = freud.diffraction.StaticStructureFactorDynasor(
+        sf = freud.diffraction.StaticStructureFactorDirect(
             bins=100, k_max=10, max_k_points=max_k_points
         )
         S_total = sf.compute(system).S_k
@@ -97,7 +97,7 @@ class TestStaticStructureFactorDynasor:
         system = freud.AABBQuery.from_system((box, points))
         A_points = system.points[: N // 3]
         B_points = system.points[N // 3 :]
-        sf = freud.diffraction.StaticStructureFactorDynasor(
+        sf = freud.diffraction.StaticStructureFactorDirect(
             bins=5, k_max=1e6, max_k_points=max_k_points
         )
         S_AB = sf.compute((system.box, B_points), query_points=A_points).S_k
@@ -112,7 +112,7 @@ class TestStaticStructureFactorDynasor:
         system = freud.AABBQuery.from_system((box, points))
         N_A = N // 3
         A_points = system.points[:N_A]
-        sf = freud.diffraction.StaticStructureFactorDynasor(
+        sf = freud.diffraction.StaticStructureFactorDirect(
             bins=5, k_max=1e6, max_k_points=max_k_points
         )
         S_AA = sf.compute((system.box, A_points), query_points=A_points).S_k
@@ -125,7 +125,7 @@ class TestStaticStructureFactorDynasor:
         max_k_points = 80000
         box, points = freud.data.make_random_system(L, N)
         system = freud.AABBQuery.from_system((box, points))
-        sf = freud.diffraction.StaticStructureFactorDynasor(
+        sf = freud.diffraction.StaticStructureFactorDirect(
             bins=5, k_max=1e6, max_k_points=max_k_points
         )
         sf.compute(system)
@@ -135,7 +135,7 @@ class TestStaticStructureFactorDynasor:
         bins = 100
         k_max = 123
         max_k_points = 80000
-        sf = freud.diffraction.StaticStructureFactorDynasor(bins, k_max, max_k_points)
+        sf = freud.diffraction.StaticStructureFactorDirect(bins, k_max, max_k_points)
         assert sf.nbins == bins
         assert np.isclose(sf.k_max, k_max)
 
@@ -160,7 +160,7 @@ class TestStaticStructureFactorDynasor:
         bins = 100
         k_max = 123
         max_k_points = 80000
-        sf = freud.diffraction.StaticStructureFactorDynasor(bins, k_max, max_k_points)
+        sf = freud.diffraction.StaticStructureFactorDirect(bins, k_max, max_k_points)
         assert sf.bin_centers.shape == (bins,)
         assert sf.bin_edges.shape == (bins + 1,)
         npt.assert_allclose(sf.bounds, (sf.k_min, k_max))
@@ -172,5 +172,5 @@ class TestStaticStructureFactorDynasor:
         bins = 100
         k_max = 123
         max_k_points = 80000
-        sf = freud.diffraction.StaticStructureFactorDynasor(bins, k_max, max_k_points)
+        sf = freud.diffraction.StaticStructureFactorDirect(bins, k_max, max_k_points)
         assert str(sf) == str(eval(repr(sf)))

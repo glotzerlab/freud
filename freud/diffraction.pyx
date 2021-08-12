@@ -243,7 +243,7 @@ cdef class StaticStructureFactorDebye(_Compute):
             return None
 
 
-cdef class StaticStructureFactorDynasor(_Compute):
+cdef class StaticStructureFactorDirect(_Compute):
     R"""Computes a 1D static structure factor.
 
     This computes the static `structure factor
@@ -299,7 +299,6 @@ cdef class StaticStructureFactorDynasor(_Compute):
     cdef int _N_frames
     cdef double k_max
     cdef double[:] _k_bin_centers
-    # cython complaines about the following two lines
     cdef double[:] _k_bin_edges
     cdef double[:] _S_k
 
@@ -307,9 +306,6 @@ cdef class StaticStructureFactorDynasor(_Compute):
         self.max_k_points = max_k_points
         self.k_max = k_max
         self.bins = bins
-#        self._k_bin_edges = np.empty(self.bins+1)
-#        self._k_bin_centers = np.empty(self.bins//2)
-#        self._S_k = np.empty(self.bins)
         self._k_bin_edges = np.linspace(0, self.k_max, self.bins+1)
         self._k_bin_centers = (np.asarray(self._k_bin_edges[:len(self._k_bin_edges)-1]) + np.asarray(self._k_bin_edges[1:])) / 2
         self._S_k = np.zeros(self.bins)
