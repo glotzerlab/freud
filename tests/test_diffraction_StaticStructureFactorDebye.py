@@ -85,7 +85,7 @@ class TestStaticStructureFactorDebye:
         S_AB = sf.S_k
         sf.compute((system.box, A_points), query_points=B_points, N_total=N)
         S_BA = sf.S_k
-        npt.assert_allclose(S_AB, S_BA)
+        npt.assert_allclose(S_AB, S_BA, atol=1e-6)
 
     def test_partial_structure_factor_sum_normalization(self):
         """Ensure that the weighted sum of the partial structure factors is
