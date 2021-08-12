@@ -62,6 +62,15 @@ class TestStaticStructureFactorDebye:
         npt.assert_allclose(sf.bin_centers, Q)
         npt.assert_allclose(sf.S_k, S, rtol=1e-5, atol=1e-5)
 
+    def test_S_0_is_N(self):
+        L = 10
+        N = 1000
+        box, points = freud.data.make_random_system(L, N)
+        system = freud.AABBQuery.from_system((box, points))
+        sf = freud.diffraction.StaticStructureFactorDebye(bins=100, k_max=10)
+        sf.compute(system)
+        assert np.isclose(sf.S_k[0], N)
+
     def test_partial_structure_factor_arguments(self):
         sf = freud.diffraction.StaticStructureFactorDebye(1000, 100)
         box, positions = freud.data.UnitCell.fcc().generate_system(4)

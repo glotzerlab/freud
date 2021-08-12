@@ -15,18 +15,23 @@ class TestStaticStructureFactorDirect:
         sf.compute((box, positions))
 
     def test_debye_validation(self):
-        """Validate the Dynasor method against Debye method implementation."""
-        bins = 1000
+        """Validate the Direct method against Debye method implementation."""
+        bins = 100
         k_max = 100
-        max_k_points = 80000
-        sfn = freud.diffraction.StaticStructureFactorDirect(bins, k_max, max_k_points)
-        sfb = freud.diffraction.StaticStructureFactorDebye(bins, k_max, sfn.k_min)
+        max_k_points = 20000
+        sf_direct = freud.diffraction.StaticStructureFactorDirect(
+            bins=bins, k_max=k_max, max_k_points=max_k_points
+        )
+        sf_debye = freud.diffraction.StaticStructureFactorDebye(
+            bins=bins, k_max=k_max, k_min=0
+        )
         box, points = freud.data.UnitCell.fcc().generate_system(4, sigma_noise=0.01)
         system = freud.locality.NeighborQuery.from_system((box, points))
-        sfn.compute(system)
-        sfb.compute(system)
-        npt.assert_allclose(sfn.bin_centers, sfb.bin_centers)
-        npt.assert_allclose(sfn.S_k, sfb.S_k, rtol=1e-5, atol=1e-5)
+        sf_direct.compute(system)
+        sf_debye.compute(system)
+        npt.assert_allclose(sf_direct.bin_centers, sf_debye.bin_centers)
+        npt.assert_allclose(sf_direct.bin_edges, sf_debye.bin_edges)
+        npt.assert_allclose(sf_direct.S_k[0], sf_debye.S_k[0], rtol=1e-5, atol=1e-5)
 
     # TODO: enable if N_total is needed
     #    def test_partial_structure_factor_arguments(self):

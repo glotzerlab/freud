@@ -107,12 +107,12 @@ cdef class StaticStructureFactorDebye(_Compute):
                 documentation for information about the normalization of partial
                 structure factors. If :code:`None`, the full scattering is
                 computed. (Default value = :code:`None`).
-            N_total (int):
+            N_total (int, optional):
                 Total number of points in the system. This is required if
                 ``query_points`` are provided. See class documentation for
                 information about the normalization of partial structure
                 factors.
-            reset (bool):
+            reset (bool, optional):
                 Whether to erase the previously computed values before adding
                 the new computation; if False, will accumulate data (Default
                 value: True).
@@ -208,7 +208,7 @@ cdef class StaticStructureFactorDebye(_Compute):
             &self.thisptr.getStructureFactor(),
             freud.util.arr_type_t.FLOAT)
 
-    def plot(self, ax=None, **kwargs):
+    def plot(self, ax=None):
         """Plot static structure factor.
 
         Args:
@@ -220,7 +220,7 @@ cdef class StaticStructureFactorDebye(_Compute):
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         import freud.plot
-        return freud.plot.line_plot(self.bin_edges[:len(self.bin_edges)-1],
+        return freud.plot.line_plot(self.bin_edges[:self.nbins],
                                     self.S_k,
                                     title="Static Structure Factor",
                                     xlabel=r"$k$",
@@ -247,32 +247,30 @@ cdef class StaticStructureFactorDirect(_Compute):
     R"""Computes a 1D static structure factor.
 
     This computes the static `structure factor
-    <https://en.wikipedia.org/wiki/Structure_factor>`__ :math:`S(k)`,
-    assuming an isotropic system (averaging over all :math:`k` vectors of the
-    same magnitude). This is implemented using the direct summation formula.
+    <https://en.wikipedia.org/wiki/Structure_factor>`__ :math:`S(k)`, assuming
+    an isotropic system (averaging over all :math:`k` vectors of the same
+    magnitude). This is implemented using the direct summation formula:
 
     .. math::
 
-        S(k) = \frac{1}{N}  \sum_{m=0}^{N} \sum_{n=0}^N
-        (\cos{(\boldsymbol{q}\cdot\boldsymbol{R}_m)} -
-        i \sin{(\boldsymbol{q}\cdot\boldsymbol{R}_m)})*
-        (\cos{(\boldsymbol{q}\cdot\boldsymbol{R}_n)} +
-        i \sin{(\boldsymbol{q}\cdot\boldsymbol{R}_n)})
+        S(\vec{k}) = \frac{1}{N}  \sum_{i=0}^{N} \sum_{j=0}^N e^{i\vec{k} \cdot \vec{r}_{ij}}
 
-    where :math:`N` is the number of particles. The above equation can be obtained
-    by applying Euler's formula to the definition of :math:`S(k)` For more
-    information see `here<https://en.wikipedia.org/wiki/Structure_factor>`.
+    where :math:`N` is the number of particles. The above equation can be
+    obtained by applying Euler's formula to the definition of :math:`S(k)`. For
+    more information see `here
+    <https://en.wikipedia.org/wiki/Structure_factor>`__.
 
     .. note::
         This code assumes all particles have a form factor :math:`f` of 1.
 
-    TODO: Test weather partials are correctly normalised.
-    Partial structure factors can be computed by providing ``query_points`` to the
-    :py:meth:`compute` method. When computing a partial structure factor, the
-    total number of points in the system must be specified. The normalization
-    criterion is based on the Faber-Ziman formalism. For particle types
-    :math:`\alpha` and :math:`\beta`, we compute the total scattering function
-    as a sum of the partial scattering functions as:
+    TODO: Test whether partials are correctly normalised.
+
+    Partial structure factors can be computed by providing ``query_points`` to
+    the :py:meth:`compute` method. When computing a partial structure factor,
+    the total number of points in the system must be specified. The
+    normalization criterion is based on the Faber-Ziman formalism. For particle
+    types :math:`\alpha` and :math:`\beta`, we compute the total scattering
+    function as a sum of the partial scattering functions as:
 
     .. math::
 
@@ -288,28 +286,31 @@ cdef class StaticStructureFactorDirect(_Compute):
         k_max (float):
             Maximum :math:`k` value to include in the calculation.
         max_k_points (unsigned int, optional):
-            The maximum number of k-points to use when constructing k-space grid.
-            The code wil prune the number of grid points fo optimize the bin widths
-            and performance.
-            TODO: Make a default for this? How do users know what is reasonable for this?
+            The maximum number of k-points to use when constructing k-space
+            grid. The code will prune the number of grid points to optimize the
+            bin widths and performance. (Default value = 20000).
     """
 
-    cdef int bins
-    cdef int max_k_points
-    cdef int _N_frames
-    cdef double k_max
-    cdef double[:] _k_bin_centers
-    cdef double[:] _k_bin_edges
-    cdef double[:] _S_k
+    cdef:
+        int _bins
+        int _max_k_points
+        int _N_frames
+        double _k_max
+        double[:] _k_bin_centers
+        double[:] _k_bin_edges
+        double[:] _S_k
+        _reciprocal_points
 
-    def __init__(self, bins=100, k_max=20, max_k_points=20000):
-        self.max_k_points = max_k_points
-        self.k_max = k_max
-        self.bins = bins
-        self._k_bin_edges = np.linspace(0, self.k_max, self.bins+1)
-        self._k_bin_centers = (np.asarray(self._k_bin_edges[:len(self._k_bin_edges)-1]) + np.asarray(self._k_bin_edges[1:])) / 2
-        self._S_k = np.zeros(self.bins)
+    def __init__(self, unsigned int bins, float k_max, unsigned int max_k_points=20000):
+        self._max_k_points = max_k_points
+        self._k_max = k_max
+        self._bins = bins
+        self._k_bin_edges = np.linspace(0, self.k_max, self.nbins+1)
+        edges = np.asarray(self._k_bin_edges)
+        self._k_bin_centers = (edges[:self.nbins] + edges[1:]) / 2
+        self._S_k = np.zeros(self.nbins)
         self._N_frames = 0
+        self._reciprocal_points = None
 
     def compute(self, system, query_points=None, reset=True):
         R"""Computes static structure factor.
@@ -324,7 +325,7 @@ cdef class StaticStructureFactorDirect(_Compute):
                 documentation for information about the normalization of partial
                 structure factors. If :code:`None`, the full scattering is
                 computed. (Default value = :code:`None`).
-            reset (bool):
+            reset (bool, optional):
                 Whether to erase the previously computed values before adding
                 the new computation; if False, will accumulate data (Default
                 value: True).
@@ -336,27 +337,35 @@ cdef class StaticStructureFactorDirect(_Compute):
         box_matrix = system.box.to_matrix()
 
         # Sample k-space without preference to direction
-        # TODO: fix below
-        # ? should this only be called the first time compute is called?
-        # that would likely save computational time
-        # we could have self.rec = None in constructor and in compute
-        # we could have if self.rec == None: rec=reciprocal_isotropic
-        # or an if _N_frames==0
-        rec = reciprocal_isotropic(box_matrix, max_points=self.max_k_points, max_k=self.k_max)
+        if self._reciprocal_points is None:
+            self._reciprocal_points = reciprocal_isotropic(
+                box=box_matrix,
+                max_points=self.max_k_points,
+                max_k=self.k_max,
+            )
 
-        points_rho_ks = calc_rho_k(system.points.T, rec.k_points, ftype=rec.ftype)
+        # Note that the arrays must be (3, N) for calc_rho_k
+        points_rho_ks = calc_rho_k(
+            x=system.points.T,
+            k=self._reciprocal_points.k_points,
+            ftype=self._reciprocal_points.ftype,
+        )
 
         if query_points is None:
             query_points_rho_ks = points_rho_ks
         else:
-            query_points_rho_ks = calc_rho_k(query_points.T, rec.k_points, ftype=rec.ftype)
+            query_points_rho_ks = calc_rho_k(
+                x=query_points.T,
+                k=self._reciprocal_points.k_points,
+                ftype=self._reciprocal_points.ftype,
+            )
 
-        S_k_all = np.real(query_points_rho_ks * points_rho_ks.conjugate())
+        S_k_all_points = np.real(query_points_rho_ks * points_rho_ks.conjugate())
 
         # Extract correlation (all k-point) averages and calculate average for each k-bin
         S_k_binned, _, _ = binned_statistic(
-            x=rec.k_distance,
-            values=S_k_all,
+            x=self._reciprocal_points.k_distance,
+            values=S_k_all_points,
             statistic="mean",
             bins=self._k_bin_edges,
         )
@@ -365,8 +374,20 @@ cdef class StaticStructureFactorDirect(_Compute):
         return self
 
     def _reset(self):
-        self._S_k = np.zeros(self.bins)
+        self._S_k = np.zeros(self.nbins)
         self._N_frames = 0
+        self._reciprocal_points = None
+
+    @property
+    def k_max(self):
+        """float: Maximum :math:`k` values to include in the calculation."""
+        return self._k_max
+
+    @property
+    def max_k_points(self):
+        """int: The maximum number of k-points to use when constructing k-space
+        grid."""
+        return self._max_k_points
 
     @property
     def bin_centers(self):
@@ -383,24 +404,18 @@ cdef class StaticStructureFactorDirect(_Compute):
         """:class:`tuple`: A list of tuples indicating upper and lower bounds
         of the histogram."""
         bin_edges = self._k_bin_edges
-        return (bin_edges[0], bin_edges[len(bin_edges)-1])
+        return (bin_edges[0], bin_edges[self.nbins])
 
     @property
     def nbins(self):
         """int: The number of bins in the histogram."""
-        return self.bins
+        return self._bins
 
     @property
     def k_max(self):
         """float: Maximum value of k at which to calculate the structure
         factor."""
-        return self._k_bin_centers[len(self._k_bin_centers)-1]
-
-    @property
-    def k_min(self):
-        """float: Minimum value of k at which to calculate the structure
-        factor."""
-        return self._k_bin_centers[0]
+        return self._k_max
 
     @property
     def S_k(self):
@@ -408,7 +423,7 @@ cdef class StaticStructureFactorDirect(_Compute):
         :math:`S(k)` values."""
         return np.asarray(self._S_k) / self._N_frames
 
-    def plot(self, ax=None, **kwargs):
+    def plot(self, ax=None):
         """Plot static structure factor.
 
         Args:
@@ -420,7 +435,7 @@ cdef class StaticStructureFactorDirect(_Compute):
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         import freud.plot
-        return freud.plot.line_plot(self.bin_edges[:len(self.bin_edges)-1],
+        return freud.plot.line_plot(self.bin_edges[:self.nbins],
                                 self.S_k,
                                 title="Static Structure Factor",
                                 xlabel=r"$k$",
@@ -429,7 +444,7 @@ cdef class StaticStructureFactorDirect(_Compute):
 
     def __repr__(self):
         return ("freud.diffraction.{cls}(bins={bins}, "
-                "k_max={k_max}, max_k_points={k_min})").format(
+                "k_max={k_max}, max_k_points={max_k_points})").format(
                     cls=type(self).__name__,
                     bins=self.nbins,
                     k_max=self.k_max,
@@ -622,15 +637,15 @@ cdef class DiffractionPattern(_Compute):
             view_orientation ((:math:`4`) :class:`numpy.ndarray`, optional):
                 View orientation. Uses :math:`(1, 0, 0, 0)` if not provided
                 or :code:`None` (Default value = :code:`None`).
-            zoom (float):
+            zoom (float, optional):
                 Scaling factor for incident wavevectors (Default value = 4).
-            peak_width (float):
+            peak_width (float, optional):
                 Width of Gaussian convolved with points, in system length units
                 (Default value = 1).
-            reset (bool):
+            reset (bool, optional):
                 Whether to erase the previously computed values before adding
                 the new computations; if False, will accumulate data (Default
-                value: True).
+                value = True).
         """
         if reset:
             self._diffraction = np.zeros((self.output_size, self.output_size))
@@ -749,11 +764,11 @@ cdef class DiffractionPattern(_Compute):
         """Generates image of diffraction pattern.
 
         Args:
-            cmap (str):
+            cmap (str, optional):
                 Colormap name to use (Default value = :code:`'afmhot'`).
-            vmin (float):
+            vmin (float, optional):
                 Minimum of the color scale (Default value = 4e-6).
-            vmax (float):
+            vmax (float, optional):
                 Maximum of the color scale (Default value = 0.7).
 
         Returns:
@@ -774,11 +789,11 @@ cdef class DiffractionPattern(_Compute):
             ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
                 :code:`None`, make a new figure and axis.
                 (Default value = :code:`None`)
-            cmap (str):
+            cmap (str, optional):
                 Colormap name to use (Default value = :code:`'afmhot'`).
-            vmin (float):
+            vmin (float, optional):
                 Minimum of the color scale (Default value = 4e-6).
-            vmax (float):
+            vmax (float, optional):
                 Maximum of the color scale (Default value = 0.7).
 
         Returns:
