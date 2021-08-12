@@ -30,11 +30,7 @@ cimport freud.locality
 cimport freud.util
 from freud.locality cimport _SpatialHistogram1D
 from freud.util cimport _Compute, vec3
-
-​
 from dsf.reciprocal import calc_rho_k, reciprocal_isotropic
-
-​
 
 logger = logging.getLogger(__name__)
 
@@ -295,15 +291,17 @@ cdef class StaticStructureFactorDynasor(_Compute):
             The maximum number of k-points to use when constructing k-space grid.
             The code wil prune the number of grid points fo optimize the bin widths
             and performance.
+            TODO: Make a default for this? How do users know what is reasonable for this?
     """
 
     cdef int bins
     cdef int max_k_points
     cdef int _N_frames
     cdef double k_max
-    cdef double[:] _k_bin_edges
     cdef double[:] _k_bin_centers
-    cdef double[:] _S_k
+    # cython complaines about the following two lines
+#    cdef double[:] _k_bin_edges
+#    cdef double[:] _S_k
 
     def __init__(self, bins, k_max, max_k_points):
         self.max_k_points = max_k_points
@@ -313,7 +311,7 @@ cdef class StaticStructureFactorDynasor(_Compute):
         self._k_bin_centers = (self._k_bin_edges[:-1] + self._k_bin_edges[1:]) / 2
         self._S_k = np.zeros(self.bins)
         self._N_frames = 0
-​
+
     def compute(self, system, query_points=None, reset=True):
         R"""Computes static structure factor.
 
@@ -334,10 +332,10 @@ cdef class StaticStructureFactorDynasor(_Compute):
         """  # noqa E501
         if reset:
             self._reset()
-​
+
         system = freud.locality.NeighborQuery.from_system(system)
         box_matrix = system.box.to_matrix()
-​
+
         # Sample k-space without preference to direction
         # TODO: fix below
         # ? should this only be called the first time compute is called?
@@ -346,16 +344,16 @@ cdef class StaticStructureFactorDynasor(_Compute):
         # we could have if self.rec == None: rec=reciprocal_isotropic
         # or an if _N_frames==0
         rec = reciprocal_isotropic(box_matrix, max_points=self.max_k_points, max_k=self.k_max)
-​
+
         points_rho_ks = calc_rho_k(system.points.T, rec.k_points, ftype=rec.ftype)
-​
+
         if query_points is None:
             query_points_rho_ks = points_rho_ks
         else:
             query_points_rho_ks = calc_rho_k(query_points.T, rec.k_points, ftype=rec.ftype)
-​
+
         S_k_all = np.real(query_points_rho_ks * points_rho_ks.conjugate())
-​
+
         # Extract correlation (all k-point) averages and calculate average for each k-bin
         S_k_binned, _, _ = binned_statistic(
             x=rec.k_distance,
@@ -366,7 +364,7 @@ cdef class StaticStructureFactorDynasor(_Compute):
         self._S_k += S_k_binned
         self._N_frames += 1
         return self
-​
+
     def _reset(self):
         self._S_k = np.zeros(self.bins)
         self._N_frames = 0
@@ -410,7 +408,7 @@ cdef class StaticStructureFactorDynasor(_Compute):
         """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Static structure factor
         :math:`S(k)` values."""
         return self._S_k / self._N_frames
-​
+
     def plot(self, ax=None, **kwargs):
         """Plot static structure factor.
 
@@ -429,6 +427,21 @@ cdef class StaticStructureFactorDynasor(_Compute):
                                 xlabel=r"$k$",
                                 ylabel=r"$S(k)$",
                                 ax=ax)
+
+    def __repr__(self):
+        return ("freud.diffraction.{cls}(bins={bins}, "
+                "k_max={k_max}, max_k_points={k_min})").format(
+                    cls=type(self).__name__,
+                    bins=self.nbins,
+                    k_max=self.k_max,
+                    max_k_points=self.max_k_points)
+
+    def _repr_png_(self):
+        try:
+            import freud.plot
+            return freud.plot._ax_to_bytes(self.plot())
+        except (AttributeError, ImportError):
+            return None
 
 
 cdef class DiffractionPattern(_Compute):
