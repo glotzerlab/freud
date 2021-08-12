@@ -247,7 +247,7 @@ cdef class StaticStructureFactorDebye(_Compute):
             return None
 
 
-cdef class StaticStructureFactorDynasor():
+cdef class StaticStructureFactorDynasor(_Compute):
     R"""Computes a 1D static structure factor.
 
     This computes the static `structure factor
@@ -270,6 +270,19 @@ cdef class StaticStructureFactorDynasor():
     .. note::
         This code assumes all particles have a form factor :math:`f` of 1.
 
+    TODO: Test weather partials are correctly normalised.
+    Partial structure factors can be computed by providing ``query_points`` to the
+    :py:meth:`compute` method. When computing a partial structure factor, the
+    total number of points in the system must be specified. The normalization
+    criterion is based on the Faber-Ziman formalism. For particle types
+    :math:`\alpha` and :math:`\beta`, we compute the total scattering function
+    as a sum of the partial scattering functions as:
+
+    .. math::
+
+        S(k) - 1 = \sum_{\alpha}\sum_{\beta} \frac{N_{\alpha}
+        N_{\beta}}{N_{total}^2} \left(S_{\alpha \beta}(k) - 1\right)
+
     This class is based on the MIT licensed `Dynasor library
     <https://gitlab.com/materials-modeling/dynasor/>`__ .
 
@@ -283,6 +296,15 @@ cdef class StaticStructureFactorDynasor():
             The code wil prune the number of grid points fo optimize the bin widths
             and performance.
     """
+
+    cdef int bins
+    cdef int max_k_points
+    cdef int _N_frames
+    cdef double k_max
+    cdef double[:] _k_bin_edges
+    cdef double[:] _k_bin_centers
+    cdef double[:] _S_k
+
     def __init__(self, bins, k_max, max_k_points):
         self.max_k_points = max_k_points
         self.k_max = k_max
@@ -300,10 +322,11 @@ cdef class StaticStructureFactorDynasor():
                 Any object that is a valid argument to
                 :class:`freud.locality.NeighborQuery.from_system`.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
-                Query points used to calculate the partial cross-term structure factor. Use
-                this option only for partial cross-term calculation. Uses the system's points
-                if :code:`None` This assumes that you are calculating non cross-terms.
-                (Default value = :code:`None`).
+                Query points used to calculate the partial structure factor.
+                Uses the system's points if :code:`None`. See class
+                documentation for information about the normalization of partial
+                structure factors. If :code:`None`, the full scattering is
+                computed. (Default value = :code:`None`).
             reset (bool):
                 Whether to erase the previously computed values before adding
                 the new computation; if False, will accumulate data (Default
@@ -316,10 +339,12 @@ cdef class StaticStructureFactorDynasor():
         box_matrix = system.box.to_matrix()
 ​
         # Sample k-space without preference to direction
+        # TODO: fix below
         # ? should this only be called the first time compute is called?
         # that would likely save computational time
         # we could have self.rec = None in constructor and in compute
         # we could have if self.rec == None: rec=reciprocal_isotropic
+        # or an if _N_frames==0
         rec = reciprocal_isotropic(box_matrix, max_points=self.max_k_points, max_k=self.k_max)
 ​
         points_rho_ks = calc_rho_k(system.points.T, rec.k_points, ftype=rec.ftype)
