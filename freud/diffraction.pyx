@@ -300,15 +300,18 @@ cdef class StaticStructureFactorDynasor(_Compute):
     cdef double k_max
     cdef double[:] _k_bin_centers
     # cython complaines about the following two lines
-#    cdef double[:] _k_bin_edges
-#    cdef double[:] _S_k
+    cdef double[:] _k_bin_edges
+    cdef double[:] _S_k
 
-    def __init__(self, bins, k_max, max_k_points):
+    def __init__(self, bins=100, k_max=20, max_k_points=20000):
         self.max_k_points = max_k_points
         self.k_max = k_max
         self.bins = bins
+#        self._k_bin_edges = np.empty(self.bins+1)
+#        self._k_bin_centers = np.empty(self.bins//2)
+#        self._S_k = np.empty(self.bins)
         self._k_bin_edges = np.linspace(0, self.k_max, self.bins+1)
-        self._k_bin_centers = (self._k_bin_edges[:-1] + self._k_bin_edges[1:]) / 2
+        self._k_bin_centers = (np.asarray(self._k_bin_edges[:len(self._k_bin_edges)-1]) + np.asarray(self._k_bin_edges[1:])) / 2
         self._S_k = np.zeros(self.bins)
         self._N_frames = 0
 
@@ -384,7 +387,7 @@ cdef class StaticStructureFactorDynasor(_Compute):
         """:class:`tuple`: A list of tuples indicating upper and lower bounds
         of the histogram."""
         bin_edges = self._k_bin_edges
-        return (bin_edges[0], bin_edges[-1])
+        return (bin_edges[0], bin_edges[len(bin_edges)-1])
 
     @property
     def nbins(self):
@@ -395,7 +398,7 @@ cdef class StaticStructureFactorDynasor(_Compute):
     def k_max(self):
         """float: Maximum value of k at which to calculate the structure
         factor."""
-        return self._k_bin_centers[-1]
+        return self._k_bin_centers[len(self._k_bin_centers)-1]
 
     @property
     def k_min(self):
@@ -407,7 +410,7 @@ cdef class StaticStructureFactorDynasor(_Compute):
     def S_k(self):
         """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Static structure factor
         :math:`S(k)` values."""
-        return self._S_k / self._N_frames
+        return np.asarray(self._S_k) / self._N_frames
 
     def plot(self, ax=None, **kwargs):
         """Plot static structure factor.
