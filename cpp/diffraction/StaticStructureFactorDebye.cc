@@ -87,6 +87,7 @@ void StaticStructureFactorDebye::accumulate(const freud::locality::NeighborQuery
 
 void StaticStructureFactorDebye::reduce()
 {
+    m_structure_factor.prepare(m_histogram.shape());
     m_local_histograms.reduceInto(m_structure_factor);
 
     // Normalize by the frame count if necessary
