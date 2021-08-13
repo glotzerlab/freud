@@ -31,6 +31,17 @@ class TestStaticStructureFactorDirect:
         sf_debye.compute(system)
         npt.assert_allclose(sf_direct.bin_centers, sf_debye.bin_centers)
         npt.assert_allclose(sf_direct.bin_edges, sf_debye.bin_edges)
+        # bdice: Currently this test fails. The first bin disagrees. I don't
+        # expect for the Debye method to agree with this isotropic grid
+        # sampling method for most k-values. However, I think the first bin
+        # disagrees because the Debye method's first bin is not centered at
+        # k=0. I am reconsidering the conversation Dom and I had earlier about
+        # whether the k-space histogram should be centered at k=0. It seems
+        # natural for the first bin S(0) to be equal to N. Additionally, it
+        # makes some physical sense to have a difference between histograms in
+        # real space (which have their first bin's left edge at 0) and
+        # histograms in k-space (which might have the first bin's *center* at
+        # 0).
         npt.assert_allclose(sf_direct.S_k[0], sf_debye.S_k[0], rtol=1e-5, atol=1e-5)
 
     # TODO: enable if N_total is needed
