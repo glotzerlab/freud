@@ -417,7 +417,7 @@ cdef class StaticStructureFactorDirect(_Compute):
         factor."""
         return self._k_max
 
-    @property
+    @_Compute._computed_property
     def S_k(self):
         """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Static structure factor
         :math:`S(k)` values."""
