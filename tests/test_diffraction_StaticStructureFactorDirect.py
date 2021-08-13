@@ -103,7 +103,7 @@ class TestStaticStructureFactorDirect:
         A_points = system.points[: N // 3]
         B_points = system.points[N // 3 :]
         sf = freud.diffraction.StaticStructureFactorDirect(
-            bins=5, k_max=1e6, max_k_points=max_k_points
+            bins=100, k_max=1e3, max_k_points=max_k_points
         )
         S_AB = sf.compute((system.box, B_points), query_points=A_points).S_k
         npt.assert_allclose(S_AB, 0, rtol=1e-5, atol=1e-5)
@@ -112,13 +112,13 @@ class TestStaticStructureFactorDirect:
         """Ensure S_{AA}(k) goes to N_A / N_total at large k."""
         L = 10
         N = 1000
-        max_k_points = 80000
+        max_k_points = 10000
         box, points = freud.data.make_random_system(L, N)
         system = freud.AABBQuery.from_system((box, points))
         N_A = N // 3
         A_points = system.points[:N_A]
         sf = freud.diffraction.StaticStructureFactorDirect(
-            bins=5, k_max=1e6, max_k_points=max_k_points
+            bins=100, k_max=1e3, max_k_points=max_k_points
         )
         S_AA = sf.compute((system.box, A_points), query_points=A_points).S_k
         npt.assert_allclose(S_AA, N_A / N, rtol=1e-5, atol=1e-5)
@@ -127,19 +127,19 @@ class TestStaticStructureFactorDirect:
         """Ensure S(k) goes to one at large k."""
         L = 10
         N = 1000
-        max_k_points = 80000
+        max_k_points = 10000
         box, points = freud.data.make_random_system(L, N)
         system = freud.AABBQuery.from_system((box, points))
         sf = freud.diffraction.StaticStructureFactorDirect(
-            bins=5, k_max=1e6, max_k_points=max_k_points
+            bins=100, k_max=5e2, max_k_points=max_k_points
         )
         sf.compute(system)
-        npt.assert_allclose(sf.S_k, 1, rtol=1e-5, atol=1e-5)
+        npt.assert_allclose(sf.S_k[-5:], 1, rtol=1e-5, atol=1e-5)
 
     def test_attribute_access(self):
         bins = 100
         k_max = 123
-        max_k_points = 80000
+        max_k_points = 10000
         sf = freud.diffraction.StaticStructureFactorDirect(bins, k_max, max_k_points)
         assert sf.nbins == bins
         assert np.isclose(sf.k_max, k_max)
@@ -164,11 +164,11 @@ class TestStaticStructureFactorDirect:
     def test_attribute_shapes(self):
         bins = 100
         k_max = 123
-        max_k_points = 80000
+        max_k_points = 10000
         sf = freud.diffraction.StaticStructureFactorDirect(bins, k_max, max_k_points)
         assert sf.bin_centers.shape == (bins,)
         assert sf.bin_edges.shape == (bins + 1,)
-        npt.assert_allclose(sf.bounds, (sf.k_min, k_max))
+        npt.assert_allclose(sf.bounds, (0, k_max))
         box, positions = freud.data.UnitCell.fcc().generate_system(4)
         sf.compute((box, positions))
         assert sf.S_k.shape == (bins,)
@@ -176,6 +176,6 @@ class TestStaticStructureFactorDirect:
     def test_repr(self):
         bins = 100
         k_max = 123
-        max_k_points = 80000
+        max_k_points = 10000
         sf = freud.diffraction.StaticStructureFactorDirect(bins, k_max, max_k_points)
         assert str(sf) == str(eval(repr(sf)))
