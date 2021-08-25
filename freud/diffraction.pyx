@@ -263,8 +263,6 @@ cdef class StaticStructureFactorDirect(_Compute):
     .. note::
         This code assumes all particles have a form factor :math:`f` of 1.
 
-    TODO: Test whether partials are correctly normalised.
-
     Partial structure factors can be computed by providing ``query_points`` to
     the :py:meth:`compute` method. When computing a partial structure factor,
     the total number of points in the system must be specified. The
@@ -278,7 +276,7 @@ cdef class StaticStructureFactorDirect(_Compute):
         N_{\beta}}{N_{total}^2} \left(S_{\alpha \beta}(k) - 1\right)
 
     This class is based on the MIT licensed `Dynasor library
-    <https://gitlab.com/materials-modeling/dynasor/>`__ .
+    <https://gitlab.com/materials-modeling/dynasor/>`__.
 
     Args:
         bins (unsigned int):
