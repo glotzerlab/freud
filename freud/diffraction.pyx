@@ -30,7 +30,7 @@ cimport freud.locality
 cimport freud.util
 from freud.locality cimport _SpatialHistogram1D
 from freud.util cimport _Compute, vec3
-from dsf.reciprocal import calc_rho_k, reciprocal_isotropic
+from dsf.reciprocal import reciprocal_isotropic
 
 logger = logging.getLogger(__name__)
 
@@ -351,21 +351,32 @@ cdef class StaticStructureFactorDirect(_Compute):
                 max_k=self.k_max,
             )
 
-        # Note that the arrays must be (3, N) for calc_rho_k
-        points_rho_ks = calc_rho_k(
-            x=system.points.T,
-            k=self._reciprocal_points.k_points,
-            ftype=self._reciprocal_points.ftype,
-        )
+        k_points = freud.util._convert_array(self._reciprocal_points.k_points.T,
+                                             shape=(None, 3))
+        cdef const float[:, ::1] l_points = system.points
+        cdef unsigned int num_points = l_points.shape[0]
+        cdef const float[:, ::1] l_k_points = k_points
+        cdef unsigned int num_k_points = l_k_points.shape[0]
+
+        points_rho_ks = np.zeros(num_k_points, dtype=np.complex64)
+        cdef np.complex64_t[::1] l_points_rho_ks = points_rho_ks
+        freud._diffraction.compute_F_k(<vec3[float]*> &l_points[0, 0], num_points,
+                                       <vec3[float]*> &l_k_points[0, 0], num_k_points,
+                                       N_total, &l_points_rho_ks[0])
+
+        cdef const float[:, ::1] l_query_points
+        cdef unsigned int num_query_points
+        query_points_rho_ks = np.zeros(num_k_points, dtype=np.complex64)
+        cdef np.complex64_t[::1] l_query_points_rho_ks = query_points_rho_ks
 
         if query_points is None:
             query_points_rho_ks = points_rho_ks
         else:
-            query_points_rho_ks = calc_rho_k(
-                x=query_points.T,
-                k=self._reciprocal_points.k_points,
-                ftype=self._reciprocal_points.ftype,
-            )
+            l_query_points = query_points
+            num_query_points = l_query_points.shape[0]
+            freud._diffraction.compute_F_k(<vec3[float]*> &l_query_points[0, 0], num_query_points,
+                                           <vec3[float]*> &l_k_points[0, 0], num_k_points,
+                                           N_total, &l_query_points_rho_ks[0])
 
         S_k_all_points = np.real(query_points_rho_ks * points_rho_ks.conjugate())
 
