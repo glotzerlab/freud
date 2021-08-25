@@ -312,7 +312,7 @@ cdef class StaticStructureFactorDirect(_Compute):
         self._N_frames = 0
         self._reciprocal_points = None
 
-    def compute(self, system, query_points=None, reset=True):
+    def compute(self, system, query_points=None, N_total=None, reset=True):
         R"""Computes static structure factor.
 
         Args:
@@ -330,6 +330,13 @@ cdef class StaticStructureFactorDirect(_Compute):
                 the new computation; if False, will accumulate data (Default
                 value: True).
         """  # noqa E501
+        if (query_points is None) != (N_total is None):
+            raise ValueError(
+                "If query_points are provided, N_total must also be provided "
+                "in order to correctly compute the normalization of the "
+                "partial structure factor."
+            )
+
         if reset:
             self._reset()
 

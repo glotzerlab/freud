@@ -22,4 +22,5 @@ cdef extern from "StaticStructureFactorDebye.h" namespace "freud::diffraction":
         float getMinValidK() const
 
 cdef extern from "StaticStructureFactorUtil.h" namespace "freud::diffraction":
-    void compute_F_k(const vec3[float]*, unsigned int, const vec3[float]*, unsigned int, float complex*) except +
+    void compute_F_k(const vec3[float]*, unsigned int, const vec3[float]*,
+                     unsigned int, unsigned int, float complex*) except +
