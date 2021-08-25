@@ -15,7 +15,9 @@ namespace freud { namespace diffraction {
 
 void compute_F_k(const vec3<float>* points, const unsigned int n_points,
         const vec3<float>* k_points, const unsigned int n_k_points, std::complex<float>* F_k){
-    auto const normalization = std::sqrt(n_points);
+
+    std::complex<float> const normalization(float(1.) / std::sqrt(n_points));
+
     util::forLoopWrapper(
         0, n_k_points, [&](size_t begin, size_t end) {
             for (size_t k_index = begin; k_index < end; ++k_index)
@@ -24,10 +26,11 @@ void compute_F_k(const vec3<float>* points, const unsigned int n_points,
                 for (size_t r_index = 0; r_index < n_points; ++r_index)
                 {
                     auto const k_vec(k_points[k_index]);
-                    auto const r_vec(points[x_index]);
+                    auto const r_vec(points[r_index]);
                     auto const alpha(dot(k_vec, r_vec));
                     F_ki += std::exp(std::complex<float>(0, alpha));
                 }
+                F_k[k_index] = F_ki * normalization;
             }
         });
 }
