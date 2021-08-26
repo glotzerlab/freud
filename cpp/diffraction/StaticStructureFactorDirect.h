@@ -1,8 +1,8 @@
 // Copyright (c) 2010-2020 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#ifndef STATIC_STRUCTURE_FACTOR_DEBYE_H
-#define STATIC_STRUCTURE_FACTOR_DEBYE_H
+#ifndef STATIC_STRUCTURE_FACTOR_DIRECT_H
+#define STATIC_STRUCTURE_FACTOR_DIRECT_H
 
 #include "Box.h"
 #include "Histogram.h"
