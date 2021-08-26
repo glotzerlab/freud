@@ -242,7 +242,7 @@ cdef class StaticStructureFactorDebye(_Compute):
 
 
 cdef class StaticStructureFactorDirect(_Compute):
-    R"""Computes a 1D static structure factor.
+    r"""Computes a 1D static structure factor.
 
     This computes the static `structure factor
     <https://en.wikipedia.org/wiki/Structure_factor>`__ :math:`S(k)`, assuming
@@ -325,7 +325,7 @@ cdef class StaticStructureFactorDirect(_Compute):
             del self.thisptr
 
     def compute(self, system, query_points=None, N_total=None, reset=True):
-        R"""Computes static structure factor.
+        r"""Computes static structure factor.
 
         Args:
             system:
@@ -340,7 +340,8 @@ cdef class StaticStructureFactorDirect(_Compute):
             reset (bool, optional):
                 Whether to erase the previously computed values before adding
                 the new computation; if False, will accumulate data (Default
-                value: True).
+                value: True). When accumulating, the :math:`\vec{k}` vectors
+                are generated for the initial system box and re-used.
         """  # noqa E501
         if (query_points is None) != (N_total is None):
             raise ValueError(
@@ -361,9 +362,9 @@ cdef class StaticStructureFactorDirect(_Compute):
         box_matrix = nq.box.to_matrix()
 
         # Sample k-space without preference to direction
-        if self._reciprocal_points is None:
+        if self._reciprocal_points is None or reset:
             self._reciprocal_points = reciprocal_isotropic(
-                box=box_matrix,
+                box=nq.box.to_matrix(),
                 max_points=self.max_k_points,
                 max_k=self.k_max,
             )
@@ -413,6 +414,8 @@ cdef class StaticStructureFactorDirect(_Compute):
         self._S_k = np.zeros(self.nbins)
         self._N_frames = 0
         self._reciprocal_points = None
+        # Resets the values of StaticStructureFactorDirect in memory.
+        self.thisptr.reset()
 
     @property
     def k_max(self):
