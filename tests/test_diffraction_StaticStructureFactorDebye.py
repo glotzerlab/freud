@@ -62,7 +62,13 @@ class TestStaticStructureFactorDebye:
         npt.assert_allclose(sf.bin_centers, Q)
         npt.assert_allclose(sf.S_k, S, rtol=1e-5, atol=1e-5)
 
+    @pytest.mark.xfail(reason="The current Debye implementation cannot evaluate S(0).")
     def test_S_0_is_N(self):
+        # The Debye method evaluates S(k) at k bin centers, not k bin edges.
+        # Thus the smallest k-value evaluated is a small finite value rather
+        # than zero, which means that S(0) cannot be measured. If we choose to
+        # change the format of the k bins, it should be possible to make this
+        # test pass.
         L = 10
         N = 1000
         box, points = freud.data.make_random_system(L, N)

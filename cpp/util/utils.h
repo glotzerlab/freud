@@ -64,14 +64,11 @@ template<typename Integrand> inline double simpson_integrate(Integrand& integran
         {
             return 1.0;
         }
-        else if (bin % 2 == 0)
+        if (bin % 2 == 0)
         {
             return 2.0;
         }
-        else
-        {
-            return 4.0;
-        }
+        return 4.0;
     };
 
     for (size_t bin_index = 0; bin_index < num_bins; bin_index++)
