@@ -33,7 +33,7 @@ from freud.util cimport _Compute, vec3
 logger = logging.getLogger(__name__)
 
 cdef class StaticStructureFactorDebye(_Compute):
-    R"""Computes a 1D static structure factor.
+    r"""Computes a 1D static structure factor.
 
     This computes the static `structure factor
     <https://en.wikipedia.org/wiki/Structure_factor>`__ :math:`S(k)`, assuming
@@ -93,7 +93,7 @@ cdef class StaticStructureFactorDebye(_Compute):
             del self.thisptr
 
     def compute(self, system, query_points=None, N_total=None, reset=True):
-        R"""Computes static structure factor.
+        r"""Computes static structure factor.
 
         Args:
             system:
