@@ -45,6 +45,18 @@ class TestStaticStructureFactorDirect:
         # 0).
         npt.assert_allclose(sf_direct.S_k[0], sf_debye.S_k[0], rtol=1e-5, atol=1e-5)
 
+    def test_S_0_is_N(self):
+        # The Direct method evaluates S(k) in bins. Here, we choose the binning
+        # parameters such that the first bin contains only the origin in k-space
+        # and no other k-points. Thus the smallest bin is measuring S(0) = N.
+        L = 10
+        N = 1000
+        box, points = freud.data.make_random_system(L, N)
+        system = freud.AABBQuery.from_system((box, points))
+        sf = freud.diffraction.StaticStructureFactorDirect(bins=100, k_max=10)
+        sf.compute(system)
+        assert np.isclose(sf.S_k[0], N)
+
     def test_partial_structure_factor_arguments(self):
         sf = freud.diffraction.StaticStructureFactorDirect(1000, 100, 80000)
         box, positions = freud.data.UnitCell.fcc().generate_system(4)
@@ -161,10 +173,13 @@ class TestStaticStructureFactorDirect:
         with pytest.raises(AttributeError):
             sf.S_k
         with pytest.raises(AttributeError):
+            sf.k_points
+        with pytest.raises(AttributeError):
             sf.plot()
 
         sf.compute((box, positions))
         S_k = sf.S_k
+        sf.k_points
         sf.plot()
         sf._repr_png_()
 
@@ -184,6 +199,7 @@ class TestStaticStructureFactorDirect:
         box, positions = freud.data.UnitCell.fcc().generate_system(4)
         sf.compute((box, positions))
         assert sf.S_k.shape == (bins,)
+        assert sf.k_points.shape[1] == 3
 
     def test_repr(self):
         bins = 100

@@ -296,6 +296,7 @@ cdef class StaticStructureFactorDirect(_Compute):
         double[:] _k_bin_edges
         double[:] _S_k
         _reciprocal_points
+        float[:, ::1] _k_points
 
     def __init__(self, unsigned int bins, float k_max, unsigned int max_k_points=20000):
         self._max_k_points = max_k_points
@@ -352,11 +353,11 @@ cdef class StaticStructureFactorDirect(_Compute):
                 max_k=self.k_max,
             )
 
-        k_points = freud.util._convert_array(self._reciprocal_points.k_points.T,
+        self._k_points = freud.util._convert_array(self._reciprocal_points.k_points.T,
                                              shape=(None, 3))
         cdef const float[:, ::1] l_points = nq.points
         cdef unsigned int num_points = l_points.shape[0]
-        cdef const float[:, ::1] l_k_points = k_points
+        cdef const float[:, ::1] l_k_points = self._k_points
         cdef unsigned int num_k_points = l_k_points.shape[0]
 
         if N_total is None:
@@ -400,14 +401,19 @@ cdef class StaticStructureFactorDirect(_Compute):
 
     @property
     def k_max(self):
-        """float: Maximum :math:`k` values to include in the calculation."""
+        r"""float: Maximum :math:`\vec{k}` magnitude to include in the calculation."""
         return self._k_max
 
     @property
     def max_k_points(self):
-        """int: The maximum number of k-points to use when constructing k-space
+        r"""int: The maximum number of :math:`\vec{k}` points to use when constructing :math:`k`-space
         grid."""
         return self._max_k_points
+
+    @_Compute._computed_property
+    def k_points(self):
+        r""":class:`numpy.ndarray`: The :math:`\vec{k}` points used in the calculation."""
+        return np.asarray(self._k_points)
 
     @property
     def bin_centers(self):
