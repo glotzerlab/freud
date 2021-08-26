@@ -338,8 +338,13 @@ cdef class StaticStructureFactorDirect(_Compute):
         if reset:
             self._reset()
 
-        system = freud.locality.NeighborQuery.from_system(system)
-        box_matrix = system.box.to_matrix()
+        cdef:
+            freud.locality.NeighborQuery nq
+            const float[:, ::1] l_query_points
+            unsigned int num_query_points
+
+        nq = freud.locality.NeighborQuery.from_system(system)
+        box_matrix = nq.box.to_matrix()
 
         # Sample k-space without preference to direction
         if self._reciprocal_points is None:
@@ -351,10 +356,13 @@ cdef class StaticStructureFactorDirect(_Compute):
 
         k_points = freud.util._convert_array(self._reciprocal_points.k_points.T,
                                              shape=(None, 3))
-        cdef const float[:, ::1] l_points = system.points
+        cdef const float[:, ::1] l_points = nq.points
         cdef unsigned int num_points = l_points.shape[0]
         cdef const float[:, ::1] l_k_points = k_points
         cdef unsigned int num_k_points = l_k_points.shape[0]
+
+        if N_total is None:
+            N_total = num_points
 
         points_rho_ks = np.zeros(num_k_points, dtype=np.complex64)
         cdef np.complex64_t[::1] l_points_rho_ks = points_rho_ks
@@ -362,8 +370,6 @@ cdef class StaticStructureFactorDirect(_Compute):
                                        <vec3[float]*> &l_k_points[0, 0], num_k_points,
                                        N_total, &l_points_rho_ks[0])
 
-        cdef const float[:, ::1] l_query_points
-        cdef unsigned int num_query_points
         query_points_rho_ks = np.zeros(num_k_points, dtype=np.complex64)
         cdef np.complex64_t[::1] l_query_points_rho_ks = query_points_rho_ks
 

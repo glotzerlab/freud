@@ -52,7 +52,7 @@ class TestStaticStructureFactorDirect:
         with pytest.raises(ValueError):
             sf.compute((box, positions), query_points=positions)
         with pytest.raises(ValueError):
-            sf.compute((box, positions))
+            sf.compute((box, positions), N_total=len(positions))
 
     def test_partial_structure_factor_symmetry(self):
         """Compute a partial structure factor and ensure it is symmetric under
@@ -67,9 +67,9 @@ class TestStaticStructureFactorDirect:
         sf = freud.diffraction.StaticStructureFactorDirect(
             bins=100, k_max=10, max_k_points=max_k_points
         )
-        sf.compute((system.box, B_points), query_points=A_points)
+        sf.compute((system.box, B_points), query_points=A_points, N_total=N)
         S_AB = sf.S_k
-        sf.compute((system.box, A_points), query_points=B_points)
+        sf.compute((system.box, A_points), query_points=B_points, N_total=N)
         S_BA = sf.S_k
         npt.assert_allclose(S_AB, S_BA)
 
@@ -81,27 +81,19 @@ class TestStaticStructureFactorDirect:
         max_k_points = 80000
         box, points = freud.data.make_random_system(L, N)
         system = freud.AABBQuery.from_system((box, points))
-        N_A = N // 3
-        N_B = N - N_A
-        A_points = system.points[:N_A]
-        B_points = system.points[N_A:]
+        A_points = system.points[: N // 3]
+        B_points = system.points[N // 3 :]
         sf = freud.diffraction.StaticStructureFactorDirect(
             bins=100, k_max=10, max_k_points=max_k_points
         )
         S_total = sf.compute(system).S_k
-        S_total_as_partial = sf.compute(system, query_points=system.points).S_k
+        S_total_as_partial = sf.compute(system).S_k
         npt.assert_allclose(S_total, S_total_as_partial)
-        S_AA = sf.compute((system.box, A_points), query_points=A_points).S_k
-        S_AB = sf.compute((system.box, B_points), query_points=A_points).S_k
-        S_BA = sf.compute((system.box, A_points), query_points=B_points).S_k
-        S_BB = sf.compute((system.box, B_points), query_points=B_points).S_k
-        S_partial_sum = (
-            1
-            + (N_A / N) ** 2 * (S_AA - 1)
-            + (N_A / N) * (N_B / N) * (S_AB - 1)
-            + (N_B / N) * (N_A / N) * (S_BA - 1)
-            + (N_B / N) ** 2 * (S_BB - 1)
-        )
+        S_AA = sf.compute((system.box, A_points), query_points=A_points, N_total=N).S_k
+        S_AB = sf.compute((system.box, B_points), query_points=A_points, N_total=N).S_k
+        S_BA = sf.compute((system.box, A_points), query_points=B_points, N_total=N).S_k
+        S_BB = sf.compute((system.box, B_points), query_points=B_points, N_total=N).S_k
+        S_partial_sum = S_AA + S_AB + S_BA + S_BB
         npt.assert_allclose(S_total, S_partial_sum, rtol=1e-5, atol=1e-5)
 
     @pytest.mark.skip(
