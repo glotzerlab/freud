@@ -67,7 +67,6 @@ void StaticStructureFactorDebye::accumulate(const freud::locality::NeighborQuery
     auto const k_bin_centers = m_histogram.getBinCenters()[0];
 
     util::forLoopWrapper(0, m_histogram.getAxisSizes()[0], [&](size_t begin_k_index, size_t end_k_index) {
-        auto sinc_values = std::vector<float>(n_query_points * n_query_points);
         for (size_t k_index = begin_k_index; k_index < end_k_index; ++k_index)
         {
             auto const k = k_bin_centers[k_index];
