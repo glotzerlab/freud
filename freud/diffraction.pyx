@@ -281,6 +281,11 @@ cdef class StaticStructureFactorDirect(_Compute):
             Number of bins in :math:`k` space.
         k_max (float):
             Maximum :math:`k` value to include in the calculation.
+        k_min (float, optional):
+            Minimum :math:`k` value included in the calculation. Note that
+            there are practical restrictions on the validity of the
+            calculation in the long-wavelength regime, see :py:attr:`min_valid_k`
+            (Default value = 0).
         max_k_points (unsigned int, optional):
             The maximum number of k-points to use when constructing k-space
             grid. The code will prune the number of grid points to optimize the
@@ -288,26 +293,36 @@ cdef class StaticStructureFactorDirect(_Compute):
     """
 
     cdef:
+        freud._diffraction.StaticStructureFactorDirect * thisptr
         int _bins
+        double _k_max
+        double _k_min
         int _max_k_points
         int _N_frames
-        double _k_max
         double[:] _k_bin_centers
         double[:] _k_bin_edges
         double[:] _S_k
         _reciprocal_points
         float[:, ::1] _k_points
 
-    def __init__(self, unsigned int bins, float k_max, unsigned int max_k_points=20000):
-        self._max_k_points = max_k_points
+    def __cinit__(self, unsigned int bins, float k_max, float k_min=0, unsigned int max_k_points=20000):
         self._k_max = k_max
+        self._k_min = k_min
+        self._max_k_points = max_k_points
         self._bins = bins
-        self._k_bin_edges = np.linspace(0, self.k_max, self.nbins+1)
+        self._k_bin_edges = np.linspace(self.k_min, self.k_max, self.nbins+1)
         edges = np.asarray(self._k_bin_edges)
         self._k_bin_centers = (edges[:self.nbins] + edges[1:]) / 2
         self._S_k = np.zeros(self.nbins)
         self._N_frames = 0
         self._reciprocal_points = None
+        if type(self) == StaticStructureFactorDirect:
+            self.thisptr = new freud._diffraction.StaticStructureFactorDirect(
+                bins, k_max, k_min)
+
+    def __dealloc__(self):
+        if type(self) == StaticStructureFactorDirect:
+            del self.thisptr
 
     def compute(self, system, query_points=None, N_total=None, reset=True):
         R"""Computes static structure factor.
@@ -401,8 +416,15 @@ cdef class StaticStructureFactorDirect(_Compute):
 
     @property
     def k_max(self):
-        r"""float: Maximum :math:`\vec{k}` magnitude to include in the calculation."""
+        """float: Maximum value of k at which to calculate the structure
+        factor."""
         return self._k_max
+
+    @property
+    def k_min(self):
+        """float: Minimum value of k at which to calculate the structure
+        factor."""
+        return self._k_min
 
     @property
     def max_k_points(self):
@@ -410,20 +432,15 @@ cdef class StaticStructureFactorDirect(_Compute):
         grid."""
         return self._max_k_points
 
-    @_Compute._computed_property
-    def k_points(self):
-        r""":class:`numpy.ndarray`: The :math:`\vec{k}` points used in the calculation."""
-        return np.asarray(self._k_points)
-
     @property
     def bin_centers(self):
         """:class:`numpy.ndarray`: The centers of each bin of :math:`k`."""
-        return self._k_bin_centers
+        return np.asarray(self._k_bin_centers)
 
     @property
     def bin_edges(self):
         """:class:`numpy.ndarray`: The edges of each bin of :math:`k`."""
-        return self._k_bin_edges
+        return np.asarray(self._k_bin_edges)
 
     @property
     def bounds(self):
@@ -437,17 +454,16 @@ cdef class StaticStructureFactorDirect(_Compute):
         """int: The number of bins in the histogram."""
         return self._bins
 
-    @property
-    def k_max(self):
-        """float: Maximum value of k at which to calculate the structure
-        factor."""
-        return self._k_max
-
     @_Compute._computed_property
     def S_k(self):
         """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Static structure factor
         :math:`S(k)` values."""
         return np.asarray(self._S_k) / self._N_frames
+
+    @_Compute._computed_property
+    def k_points(self):
+        r""":class:`numpy.ndarray`: The :math:`\vec{k}` points used in the calculation."""
+        return np.asarray(self._k_points)
 
     def plot(self, ax=None):
         """Plot static structure factor.
@@ -470,10 +486,12 @@ cdef class StaticStructureFactorDirect(_Compute):
 
     def __repr__(self):
         return ("freud.diffraction.{cls}(bins={bins}, "
-                "k_max={k_max}, max_k_points={max_k_points})").format(
+                "k_max={k_max}, k_min={k_min}, "
+                "max_k_points={max_k_points})").format(
                     cls=type(self).__name__,
                     bins=self.nbins,
                     k_max=self.k_max,
+                    k_min=self.k_min,
                     max_k_points=self.max_k_points)
 
     def _repr_png_(self):
