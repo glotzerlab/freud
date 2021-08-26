@@ -129,8 +129,6 @@ cdef class StaticStructureFactorDebye(_Compute):
 
         cdef:
             freud.locality.NeighborQuery nq
-            freud.locality.NeighborList nlist
-            freud.locality._QueryArgs qargs
             const float[:, ::1] l_query_points
             unsigned int num_query_points
 
