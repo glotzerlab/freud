@@ -6,6 +6,7 @@
 
 #include "Box.h"
 #include "Histogram.h"
+#include "ManagedArray.h"
 #include "NeighborQuery.h"
 
 /*! \file StaticStructureFactorDirect.h

@@ -8,9 +8,7 @@
 
 #include "Box.h"
 #include "ManagedArray.h"
-#include "NeighborComputeFunctional.h"
 #include "NeighborQuery.h"
-#include "RDF.h"
 #include "StaticStructureFactorDirect.h"
 #include "utils.h"
 
@@ -29,6 +27,10 @@ StaticStructureFactorDirect::StaticStructureFactorDirect(unsigned int bins, floa
     if (k_max <= 0)
     {
         throw std::invalid_argument("StaticStructureFactorDirect requires k_max to be positive.");
+    }
+    if (k_min < 0)
+    {
+        throw std::invalid_argument("StaticStructureFactorDirect requires k_min to be non-negative.");
     }
     if (k_max <= k_min)
     {

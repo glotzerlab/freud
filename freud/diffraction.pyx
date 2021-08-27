@@ -306,6 +306,9 @@ cdef class StaticStructureFactorDirect(_Compute):
         float[:, ::1] _k_points
 
     def __cinit__(self, unsigned int bins, float k_max, float k_min=0, unsigned int max_k_points=20000):
+        if type(self) == StaticStructureFactorDirect:
+            self.thisptr = new freud._diffraction.StaticStructureFactorDirect(
+                bins, k_max, k_min)
         self._k_max = k_max
         self._k_min = k_min
         self._max_k_points = max_k_points
@@ -316,9 +319,6 @@ cdef class StaticStructureFactorDirect(_Compute):
         self._S_k = np.zeros(self.nbins)
         self._N_frames = 0
         self._reciprocal_points = None
-        if type(self) == StaticStructureFactorDirect:
-            self.thisptr = new freud._diffraction.StaticStructureFactorDirect(
-                bins, k_max, k_min)
 
     def __dealloc__(self):
         if type(self) == StaticStructureFactorDirect:
@@ -355,11 +355,11 @@ cdef class StaticStructureFactorDirect(_Compute):
 
         cdef:
             freud.locality.NeighborQuery nq
-            const float[:, ::1] l_query_points
             unsigned int num_query_points
+            const vec3[float]* l_query_points_ptr = NULL
+            const float[:, ::1] l_query_points
 
         nq = freud.locality.NeighborQuery.from_system(system)
-        box_matrix = nq.box.to_matrix()
 
         # Sample k-space without preference to direction
         if self._reciprocal_points is None or reset:
@@ -368,66 +368,101 @@ cdef class StaticStructureFactorDirect(_Compute):
                 max_points=self.max_k_points,
                 max_k=self.k_max,
             )
+        self._k_points = freud.util._convert_array(
+            self._reciprocal_points.k_points.T, shape=(None, 3))
 
-        self._k_points = freud.util._convert_array(self._reciprocal_points.k_points.T,
-                                             shape=(None, 3))
-        cdef const float[:, ::1] l_points = nq.points
-        cdef unsigned int num_points = l_points.shape[0]
-        cdef const float[:, ::1] l_k_points = self._k_points
-        cdef unsigned int num_k_points = l_k_points.shape[0]
+        cdef:
+            const float[:, ::1] l_points = nq.points
+            unsigned int num_points = l_points.shape[0]
+            const float[:, ::1] l_k_points = self._k_points
+            unsigned int num_k_points = l_k_points.shape[0]
 
         if N_total is None:
             N_total = num_points
 
-        points_rho_ks = np.zeros(num_k_points, dtype=np.complex64)
-        cdef np.complex64_t[::1] l_points_rho_ks = points_rho_ks
-        freud._diffraction.compute_F_k(<vec3[float]*> &l_points[0, 0], num_points,
-                                       <vec3[float]*> &l_k_points[0, 0], num_k_points,
-                                       N_total, &l_points_rho_ks[0])
-
-        query_points_rho_ks = np.zeros(num_k_points, dtype=np.complex64)
-        cdef np.complex64_t[::1] l_query_points_rho_ks = query_points_rho_ks
-
-        if query_points is None:
-            query_points_rho_ks = points_rho_ks
-        else:
+        if query_points is not None:
             l_query_points = query_points
             num_query_points = l_query_points.shape[0]
-            freud._diffraction.compute_F_k(<vec3[float]*> &l_query_points[0, 0], num_query_points,
-                                           <vec3[float]*> &l_k_points[0, 0], num_k_points,
-                                           N_total, &l_query_points_rho_ks[0])
+            l_query_points_ptr = <vec3[float]*> &l_query_points[0, 0]
 
-        S_k_all_points = np.real(query_points_rho_ks * points_rho_ks.conjugate())
+        self.thisptr.accumulate(
+            nq.get_ptr(),
+            l_query_points_ptr, num_query_points, N_total,
+            <vec3[float]*> &l_k_points[0, 0], num_k_points
+        )
+
+        #points_rho_ks = np.zeros(num_k_points, dtype=np.complex64)
+        #cdef np.complex64_t[::1] l_points_rho_ks = points_rho_ks
+        #freud._diffraction.compute_F_k(<vec3[float]*> &l_points[0, 0], num_points,
+        #                               <vec3[float]*> &l_k_points[0, 0], num_k_points,
+        #                               N_total, &l_points_rho_ks[0])
+
+        # query_points_rho_ks = np.zeros(num_k_points, dtype=np.complex64)
+        # cdef np.complex64_t[::1] l_query_points_rho_ks = query_points_rho_ks
+
+        # freud._diffraction.compute_F_k(<vec3[float]*> &l_query_points[0, 0], num_query_points,
+        #                                <vec3[float]*> &l_k_points[0, 0], num_k_points,
+        #                                N_total, &l_query_points_rho_ks[0])
+
+        # S_k_all_points = np.real(query_points_rho_ks * points_rho_ks.conjugate())
 
         # Extract correlation (all k-point) averages and calculate average for each k-bin
-        S_k_binned, _, _ = binned_statistic(
-            x=self._reciprocal_points.k_distance,
-            values=S_k_all_points,
-            statistic="mean",
-            bins=self._k_bin_edges,
-        )
-        self._S_k += S_k_binned
-        self._N_frames += 1
+        # S_k_binned, _, _ = binned_statistic(
+        #     x=self._reciprocal_points.k_distance,
+        #     values=S_k_all_points,
+        #     statistic="mean",
+        #     bins=self._k_bin_edges,
+        # )
+        # self._S_k += S_k_binned
+        # self._N_frames += 1
         return self
 
     def _reset(self):
-        self._S_k = np.zeros(self.nbins)
-        self._N_frames = 0
+        # self._S_k = np.zeros(self.nbins)
+        # self._N_frames = 0
         self._reciprocal_points = None
         # Resets the values of StaticStructureFactorDirect in memory.
         self.thisptr.reset()
 
     @property
+    def bin_centers(self):
+        """:class:`numpy.ndarray`: The centers of each bin of :math:`k`."""
+        return np.array(self.thisptr.getBinCenters(), copy=True)
+
+    @property
+    def bin_edges(self):
+        """:class:`numpy.ndarray`: The edges of each bin of :math:`k`."""
+        return np.array(self.thisptr.getBinEdges(), copy=True)
+
+    @property
+    def bounds(self):
+        """tuple: A tuple indicating upper and lower bounds of the
+        histogram."""
+        bin_edges = self.bin_edges
+        return (bin_edges[0], bin_edges[len(bin_edges)-1])
+
+    @property
+    def nbins(self):
+        """int: The number of bins in the histogram."""
+        return len(self.bin_centers)
+
+    @property
     def k_max(self):
         """float: Maximum value of k at which to calculate the structure
         factor."""
-        return self._k_max
+        return self.bounds[1]
 
     @property
     def k_min(self):
         """float: Minimum value of k at which to calculate the structure
         factor."""
-        return self._k_min
+        return self.bounds[0]
+
+    @_Compute._computed_property
+    def min_valid_k(self):
+        """float: Minimum valid value of k for the computed system box, equal
+        to :math:`2\\pi/(L/2)` where :math:`L` is the minimum side length."""
+        return self.thisptr.getMinValidK()
 
     @property
     def max_k_points(self):
@@ -435,33 +470,13 @@ cdef class StaticStructureFactorDirect(_Compute):
         grid."""
         return self._max_k_points
 
-    @property
-    def bin_centers(self):
-        """:class:`numpy.ndarray`: The centers of each bin of :math:`k`."""
-        return np.asarray(self._k_bin_centers)
-
-    @property
-    def bin_edges(self):
-        """:class:`numpy.ndarray`: The edges of each bin of :math:`k`."""
-        return np.asarray(self._k_bin_edges)
-
-    @property
-    def bounds(self):
-        """:class:`tuple`: A list of tuples indicating upper and lower bounds
-        of the histogram."""
-        bin_edges = self._k_bin_edges
-        return (bin_edges[0], bin_edges[self.nbins])
-
-    @property
-    def nbins(self):
-        """int: The number of bins in the histogram."""
-        return self._bins
-
     @_Compute._computed_property
     def S_k(self):
-        """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Static structure factor
-        :math:`S(k)` values."""
-        return np.asarray(self._S_k) / self._N_frames
+        """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Static
+        structure factor :math:`S(k)` values."""
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getStructureFactor(),
+            freud.util.arr_type_t.FLOAT)
 
     @_Compute._computed_property
     def k_points(self):

@@ -72,9 +72,11 @@ class TestStaticStructureFactorDirect:
         sf1.compute(system)
         sf2 = freud.diffraction.StaticStructureFactorDirect(bins=50, k_max=10, k_min=5)
         sf2.compute(system)
-        npt.assert_allclose(sf1.bin_centers[50:], sf2.bin_centers)
-        npt.assert_allclose(sf1.bin_edges[50:], sf2.bin_edges)
-        npt.assert_allclose(sf1.S_k[50:], sf2.S_k)
+        npt.assert_allclose(sf1.bin_centers[50:], sf2.bin_centers, rtol=1e-6, atol=1e-6)
+        npt.assert_allclose(sf1.bin_edges[50:], sf2.bin_edges, rtol=1e-6, atol=1e-6)
+        npt.assert_allclose(sf1.S_k[50:], sf2.S_k, rtol=1e-6, atol=1e-6)
+        with pytest.raises(ValueError):
+            freud.diffraction.StaticStructureFactorDirect(bins=100, k_max=10, k_min=-1)
 
     def test_partial_structure_factor_arguments(self):
         sf = freud.diffraction.StaticStructureFactorDirect(bins=1000, k_max=100)
@@ -99,7 +101,7 @@ class TestStaticStructureFactorDirect:
         S_AB = sf.S_k
         sf.compute((system.box, A_points), query_points=B_points, N_total=N)
         S_BA = sf.S_k
-        npt.assert_allclose(S_AB, S_BA)
+        npt.assert_allclose(S_AB, S_BA, rtol=1e-6, atol=1e-6)
 
     def test_partial_structure_factor_sum_normalization(self):
         """Ensure that the weighted sum of the partial structure factors is
@@ -116,7 +118,7 @@ class TestStaticStructureFactorDirect:
         )
         S_total = sf.compute(system).S_k
         S_total_as_partial = sf.compute(system).S_k
-        npt.assert_allclose(S_total, S_total_as_partial)
+        npt.assert_allclose(S_total, S_total_as_partial, rtol=1e-6, atol=1e-6)
         S_AA = sf.compute((system.box, A_points), query_points=A_points, N_total=N).S_k
         S_AB = sf.compute((system.box, B_points), query_points=A_points, N_total=N).S_k
         S_BA = sf.compute((system.box, A_points), query_points=B_points, N_total=N).S_k
