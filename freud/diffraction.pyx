@@ -294,14 +294,7 @@ cdef class StaticStructureFactorDirect(_Compute):
 
     cdef:
         freud._diffraction.StaticStructureFactorDirect * thisptr
-        int _bins
-        double _k_max
-        double _k_min
         int _max_k_points
-        int _N_frames
-        double[:] _k_bin_centers
-        double[:] _k_bin_edges
-        double[:] _S_k
         _reciprocal_points
         float[:, ::1] _k_points
 
@@ -309,15 +302,7 @@ cdef class StaticStructureFactorDirect(_Compute):
         if type(self) == StaticStructureFactorDirect:
             self.thisptr = new freud._diffraction.StaticStructureFactorDirect(
                 bins, k_max, k_min)
-        self._k_max = k_max
-        self._k_min = k_min
         self._max_k_points = max_k_points
-        self._bins = bins
-        self._k_bin_edges = np.linspace(self.k_min, self.k_max, self.nbins+1)
-        edges = np.asarray(self._k_bin_edges)
-        self._k_bin_centers = (edges[:self.nbins] + edges[1:]) / 2
-        self._S_k = np.zeros(self.nbins)
-        self._N_frames = 0
         self._reciprocal_points = None
 
     def __dealloc__(self):
@@ -353,13 +338,7 @@ cdef class StaticStructureFactorDirect(_Compute):
         if reset:
             self._reset()
 
-        cdef:
-            freud.locality.NeighborQuery nq
-            unsigned int num_query_points
-            const vec3[float]* l_query_points_ptr = NULL
-            const float[:, ::1] l_query_points
-
-        nq = freud.locality.NeighborQuery.from_system(system)
+        cdef freud.locality.NeighborQuery nq = freud.locality.NeighborQuery.from_system(system)
 
         # Sample k-space without preference to direction
         if self._reciprocal_points is None or reset:
@@ -376,50 +355,26 @@ cdef class StaticStructureFactorDirect(_Compute):
             unsigned int num_points = l_points.shape[0]
             const float[:, ::1] l_k_points = self._k_points
             unsigned int num_k_points = l_k_points.shape[0]
-
-        if N_total is None:
-            N_total = num_points
+            const vec3[float]* l_query_points_ptr = NULL
+            const float[:, ::1] l_query_points
+            unsigned int num_query_points
 
         if query_points is not None:
             l_query_points = query_points
             num_query_points = l_query_points.shape[0]
             l_query_points_ptr = <vec3[float]*> &l_query_points[0, 0]
 
+        if N_total is None:
+            N_total = num_points
+
         self.thisptr.accumulate(
             nq.get_ptr(),
             l_query_points_ptr, num_query_points, N_total,
             <vec3[float]*> &l_k_points[0, 0], num_k_points
         )
-
-        #points_rho_ks = np.zeros(num_k_points, dtype=np.complex64)
-        #cdef np.complex64_t[::1] l_points_rho_ks = points_rho_ks
-        #freud._diffraction.compute_F_k(<vec3[float]*> &l_points[0, 0], num_points,
-        #                               <vec3[float]*> &l_k_points[0, 0], num_k_points,
-        #                               N_total, &l_points_rho_ks[0])
-
-        # query_points_rho_ks = np.zeros(num_k_points, dtype=np.complex64)
-        # cdef np.complex64_t[::1] l_query_points_rho_ks = query_points_rho_ks
-
-        # freud._diffraction.compute_F_k(<vec3[float]*> &l_query_points[0, 0], num_query_points,
-        #                                <vec3[float]*> &l_k_points[0, 0], num_k_points,
-        #                                N_total, &l_query_points_rho_ks[0])
-
-        # S_k_all_points = np.real(query_points_rho_ks * points_rho_ks.conjugate())
-
-        # Extract correlation (all k-point) averages and calculate average for each k-bin
-        # S_k_binned, _, _ = binned_statistic(
-        #     x=self._reciprocal_points.k_distance,
-        #     values=S_k_all_points,
-        #     statistic="mean",
-        #     bins=self._k_bin_edges,
-        # )
-        # self._S_k += S_k_binned
-        # self._N_frames += 1
         return self
 
     def _reset(self):
-        # self._S_k = np.zeros(self.nbins)
-        # self._N_frames = 0
         self._reciprocal_points = None
         # Resets the values of StaticStructureFactorDirect in memory.
         self.thisptr.reset()
