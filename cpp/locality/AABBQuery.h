@@ -149,7 +149,26 @@ public:
         : AABBIterator(neighbor_query, query_point, query_point_idx, r_max, r_min, exclude_ii), m_count(0),
           m_num_neighbors(num_neighbors), m_search_extended(false), m_r_cur(r_guess), m_scale(scale),
           m_all_distances(), m_query_points_below_r_min()
+<<<<<<< HEAD
     
+=======
+    {
+
+        if (r_max <= 0)
+    {
+        throw std::invalid_argument("RDF requires r_max to be positive.");
+    }
+    if (r_min < 0)
+    {
+        throw std::invalid_argument("RDF requires r_min to be non negetive.");
+    }
+    if (r_max <= r_min)
+    {
+        throw std::invalid_argument("RDF requires that r_max must be greater than r_min.");
+    }
+        updateImageVectors(0);
+    }
+>>>>>>> 29913d84743c299167eeca4d0f12e06591380b08
 
     //! Empty Destructor
     ~AABBQueryIterator() override = default;
@@ -183,7 +202,23 @@ public:
         : AABBIterator(neighbor_query, query_point, query_point_idx, r_max, r_min, exclude_ii), cur_image(0),
           cur_node_idx(0), cur_ref_p(0)
     {
+<<<<<<< HEAD
         
+=======
+
+        if (r_max <= 0)
+    {
+        throw std::invalid_argument("RDF requires r_max to be positive.");
+    }
+    if (r_min < 0)
+    {
+        throw std::invalid_argument("RDF requires r_min to be non negetive.");
+    }
+    if (r_max <= r_min)
+    {
+        throw std::invalid_argument("RDF requires that r_max must be greater than r_min.");
+    }
+>>>>>>> 29913d84743c299167eeca4d0f12e06591380b08
         updateImageVectors(m_r_max, _check_r_max);
     }
 

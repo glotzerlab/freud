@@ -311,7 +311,24 @@ public:
     LinkCellQueryBallIterator(const LinkCell* neighbor_query, const vec3<float>& query_point,
                               unsigned int query_point_idx, float r_max, float r_min, bool exclude_ii)
         : LinkCellIterator(neighbor_query, query_point, query_point_idx, r_max, r_min, exclude_ii)
+<<<<<<< HEAD
     
+=======
+    {
+
+        if (r_max <= 0)
+    {
+        throw std::invalid_argument("RDF requires r_max to be positive.");
+    }
+    if (r_min < 0)
+    {
+        throw std::invalid_argument("RDF requires r_min to be non negetive.");
+    }
+    if (r_max <= r_min)
+    {
+        throw std::invalid_argument("RDF requires that r_max must be greater than r_min.");
+    }
+>>>>>>> 29913d84743c299167eeca4d0f12e06591380b08
         // Upon querying, if the search radius is equal to the cell width, we
         // can guarantee that we don't need to search the cell shell past the
         // query radius. For simplicity, we store this value as an integer.
