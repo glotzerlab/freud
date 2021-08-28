@@ -66,6 +66,13 @@ void AABBIterator::updateImageVectors(float r_max, bool _check_r_max)
     box::Box box = m_neighbor_query->getBox();
     vec3<float> nearest_plane_distance = box.getNearestPlaneDistance();
     vec3<bool> periodic = box.getPeriodic();
+
+    
+        if (r_max <= 0)
+    {
+        throw std::invalid_argument("RDF requires r_max to be positive.");
+    }
+    
     if (_check_r_max)
     {
         if ((periodic.x && nearest_plane_distance.x <= r_max * 2.0)

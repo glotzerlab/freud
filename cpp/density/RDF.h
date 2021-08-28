@@ -17,7 +17,24 @@ class RDF : public locality::BondHistogramCompute
 {
 public:
     //! Constructor
-    RDF(unsigned int bins, float r_max, float r_min = 0, bool normalize = false);
+    RDF(unsigned int bins, float r_max, float r_min = 0, bool normalize = false){
+        if (bins == 0) 
+    { 
+     throw std::invalid_argument("RDF requires a nonzero number of bins."); 
+    } 
+        if (r_max <= 0)
+    {
+        throw std::invalid_argument("RDF requires r_max to be positive.");
+    }
+    if (r_min < 0)
+    {
+        throw std::invalid_argument("RDF requires r_min to be non negetive.");
+    }
+    if (r_max <= r_min)
+    {
+        throw std::invalid_argument("RDF requires that r_max must be greater than r_min.");
+    }
+    }
 
     //! Destructor
     ~RDF() override = default;

@@ -265,7 +265,20 @@ public:
                                         exclude_ii),
           m_linkcell(neighbor_query), m_neigh_cell_iter(0, neighbor_query->getBox().is2D()),
           m_cell_iter(m_linkcell->itercell(m_linkcell->getCell(m_query_point)))
-    {}
+    {
+        if (r_max <= 0)
+    {
+        throw std::invalid_argument("RDF requires r_max to be positive.");
+    }
+    if (r_min < 0)
+    {
+        throw std::invalid_argument("RDF requires r_min to be non negetive.");
+    }
+    if (r_max <= r_min)
+    {
+        throw std::invalid_argument("RDF requires that r_max must be greater than r_min.");
+    }
+    }
 
     //! Empty Destructor
     ~LinkCellIterator() override = default;
@@ -289,7 +302,20 @@ public:
                           bool exclude_ii)
         : LinkCellIterator(neighbor_query, query_point, query_point_idx, r_max, r_min, exclude_ii),
           m_count(0), m_num_neighbors(num_neighbors)
-    {}
+    {
+        if (r_max <= 0)
+    {
+        throw std::invalid_argument("RDF requires r_max to be positive.");
+    }
+    if (r_min < 0)
+    {
+        throw std::invalid_argument("RDF requires r_min to be non negetive.");
+    }
+    if (r_max <= r_min)
+    {
+        throw std::invalid_argument("RDF requires that r_max must be greater than r_min.");
+    }
+    }
 
     //! Empty Destructor
     ~LinkCellQueryIterator() override = default;
@@ -312,6 +338,19 @@ public:
                               unsigned int query_point_idx, float r_max, float r_min, bool exclude_ii)
         : LinkCellIterator(neighbor_query, query_point, query_point_idx, r_max, r_min, exclude_ii)
     {
+        
+        if (r_max <= 0)
+    {
+        throw std::invalid_argument("RDF requires r_max to be positive.");
+    }
+    if (r_min < 0)
+    {
+        throw std::invalid_argument("RDF requires r_min to be non negetive.");
+    }
+    if (r_max <= r_min)
+    {
+        throw std::invalid_argument("RDF requires that r_max must be greater than r_min.");
+    }
         // Upon querying, if the search radius is equal to the cell width, we
         // can guarantee that we don't need to search the cell shell past the
         // query radius. For simplicity, we store this value as an integer.
