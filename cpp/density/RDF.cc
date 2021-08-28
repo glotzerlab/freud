@@ -24,7 +24,7 @@ RDF::RDF(unsigned int bins, float r_max, float r_min, bool normalize)
     }
     if (r_min < 0)
     {
-        throw std::invalid_argument("RDF requires r_min to be zero or positive.");
+        throw std::invalid_argument("RDF requires r_min to be non negetive.");
     }
     if (r_max <= r_min)
     {
