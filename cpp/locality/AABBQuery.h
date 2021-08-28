@@ -162,7 +162,7 @@ public:
           m_num_neighbors(num_neighbors), m_search_extended(false), m_r_cur(r_guess), m_scale(scale),
           m_all_distances(), m_query_points_below_r_min()
     {
-        
+
         if (r_max <= 0)
     {
         throw std::invalid_argument("RDF requires r_max to be positive.");
@@ -210,7 +210,7 @@ public:
         : AABBIterator(neighbor_query, query_point, query_point_idx, r_max, r_min, exclude_ii), cur_image(0),
           cur_node_idx(0), cur_ref_p(0)
     {
-        
+
         if (r_max <= 0)
     {
         throw std::invalid_argument("RDF requires r_max to be positive.");

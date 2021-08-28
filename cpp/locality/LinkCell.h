@@ -338,7 +338,7 @@ public:
                               unsigned int query_point_idx, float r_max, float r_min, bool exclude_ii)
         : LinkCellIterator(neighbor_query, query_point, query_point_idx, r_max, r_min, exclude_ii)
     {
-        
+
         if (r_max <= 0)
     {
         throw std::invalid_argument("RDF requires r_max to be positive.");

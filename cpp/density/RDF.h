@@ -18,10 +18,10 @@ class RDF : public locality::BondHistogramCompute
 public:
     //! Constructor
     RDF(unsigned int bins, float r_max, float r_min = 0, bool normalize = false){
-        if (bins == 0) 
-    { 
-     throw std::invalid_argument("RDF requires a nonzero number of bins."); 
-    } 
+        if (bins == 0)
+    {
+     throw std::invalid_argument("RDF requires a nonzero number of bins.");
+    }
         if (r_max <= 0)
     {
         throw std::invalid_argument("RDF requires r_max to be positive.");

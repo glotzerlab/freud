@@ -113,7 +113,7 @@ public:
     //! Remove bonds in this object based on minimum and maximum distance
     //  constraints. Returns the number of bonds removed.
     unsigned int filter_r(float r_max, float r_min = 0){
-        
+
         if (r_max <= 0)
     {
         throw std::invalid_argument("RDF requires r_max to be positive.");
