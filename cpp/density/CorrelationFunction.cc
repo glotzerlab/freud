@@ -28,7 +28,7 @@ CorrelationFunction<T>::CorrelationFunction(unsigned int bins, float r_max) : Bo
     {
         throw std::invalid_argument("CorrelationFunction requires r_max to be positive.");
     }
-    
+
 
     // We must construct two separate histograms, one for the counts and one
     // for the actual correlation function. The counts are used to normalize

@@ -24,7 +24,7 @@ class LocalDensity
 public:
     //! Constructor
     LocalDensity(float r_max, float diameter);
-    
+
     //! Destructor
     ~LocalDensity() = default;
 

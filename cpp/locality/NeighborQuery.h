@@ -265,7 +265,7 @@ public:
         : NeighborPerPointIterator(query_point_idx), m_neighbor_query(neighbor_query),
           m_query_point(query_point), m_finished(false), m_r_max(r_max), m_r_min(r_min),
           m_exclude_ii(exclude_ii)
-    
+
 
     //! Empty Destructor
     ~NeighborQueryPerPointIterator() override = default;

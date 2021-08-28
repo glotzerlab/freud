@@ -15,12 +15,12 @@ namespace freud { namespace density {
 GaussianDensity::GaussianDensity(vec3<unsigned int> width, float r_max, float sigma)
     : m_box(), m_width(width), m_r_max(r_max), m_sigma(sigma), m_has_computed(false)
 {
-    
+
     if (r_max <= 0)
     {
         throw std::invalid_argument("GaussianDensity requires r_max to be positive.");
     }
-    
+
 }
 
 

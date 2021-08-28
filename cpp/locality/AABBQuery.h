@@ -123,8 +123,8 @@ public:
         : NeighborQueryPerPointIterator(neighbor_query, query_point, query_point_idx, r_max, r_min,
                                         exclude_ii),
           m_aabb_query(neighbor_query)
-  
-    
+
+
 
     //! Empty Destructor
     ~AABBIterator() override = default;
@@ -150,7 +150,7 @@ public:
           m_num_neighbors(num_neighbors), m_search_extended(false), m_r_cur(r_guess), m_scale(scale),
           m_all_distances(), m_query_points_below_r_min()
 <<<<<<< HEAD
-    
+
 =======
     {
 
@@ -203,7 +203,7 @@ public:
           cur_node_idx(0), cur_ref_p(0)
     {
 <<<<<<< HEAD
-        
+
 =======
 
         if (r_max <= 0)

@@ -48,7 +48,7 @@ template<typename T> class CorrelationFunction : public locality::BondHistogramC
 public:
     //! Constructor
     CorrelationFunction(unsigned int bins, float r_max);
-    
+
 
     //! Destructor
     ~CorrelationFunction() override = default;
