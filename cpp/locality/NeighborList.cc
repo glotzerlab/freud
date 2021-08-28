@@ -165,15 +165,15 @@ unsigned int NeighborList::filter_r(float r_max, float r_min)
 {
     if (r_max <= 0) 
  { 
-     throw std::invalid_argument("RDF requires r_max to be positive."); 
+     throw std::invalid_argument("NeighborList.filter_r requires r_max to be positive."); 
  } 
     if ( r_min < 0)
  {
-     throw std::invalid_argument("RDF requires r_min to be non-negative.");
+     throw std::invalid_argument("NeighborList.filter_r requires r_min to be non-negative.");
  }
  if (r_max <= r_min) 
  { 
-     throw std::invalid_argument("RDF requires that r_max must be greater than r_min."); 
+     throw std::invalid_argument("NeighborList.filter_r requires that r_max must be greater than r_min."); 
  } 
     std::vector<bool> dist_filter(getNumBonds());
     for (unsigned int i(0); i < getNumBonds(); ++i)

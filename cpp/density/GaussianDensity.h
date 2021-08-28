@@ -26,6 +26,7 @@ class GaussianDensity
 public:
     //! Constructor
     GaussianDensity(vec3<unsigned int> width, float r_max, float sigma);
+    
 
     // Destructor
     ~GaussianDensity() = default;

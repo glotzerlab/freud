@@ -70,7 +70,7 @@ void AABBIterator::updateImageVectors(float r_max, bool _check_r_max)
     
         if (r_max <= 0)
     {
-        throw std::invalid_argument("RDF requires r_max to be positive.");
+        throw std::invalid_argument("AABBIterator requires r_max to be positive.");
     }
     
     if (_check_r_max)

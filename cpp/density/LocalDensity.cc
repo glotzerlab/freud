@@ -12,7 +12,14 @@ namespace freud { namespace density {
 
 LocalDensity::LocalDensity(float r_max, float diameter)
     : m_box(box::Box()), m_r_max(r_max), m_diameter(diameter)
-{}
+{
+    
+    if (r_max <= 0)
+    {
+        throw std::invalid_argument("LocalDensity requires r_max to be positive.");
+    }
+    
+}
 
 void LocalDensity::compute(const freud::locality::NeighborQuery* neighbor_query,
                            const vec3<float>* query_points, unsigned int n_query_points,
