@@ -41,8 +41,8 @@ A few specific notes:
 C++
 ---
 
-C++ code should follow the result of running :code:`clang-format-6.0` with the style specified in the file :code:`.clang-format`.
-Please refer to `Clang Format 6 <http://releases.llvm.org/6.0.1/tools/clang/docs/ClangFormatStyleOptions.html>`_ for details.
+C++ code should follow the result of running :code:`clang-format` with the style specified in the file :code:`.clang-format`.
+Please refer to the `clang-format documentation <https://clang.llvm.org/docs/ClangFormat.html>`__ for details.
 
 When in doubt, run :code:`clang-format -style=file FILE_WITH_YOUR_CODE` in the top directory of the **freud** repository.
 If installing :code:`clang-format` is not a viable option, the :code:`check-style` step of continuous integration (CI) contains the information on the correctness of the style.
