@@ -20,14 +20,7 @@ namespace freud { namespace density {
 template<typename T>
 CorrelationFunction<T>::CorrelationFunction(unsigned int bins, float r_max) : BondHistogramCompute()
 {
-    if (bins == 0)
-    {
-        throw std::invalid_argument("CorrelationFunction  requires a nonzero number of bins.");
-    }
-    if (r_max <= 0)
-    {
-        throw std::invalid_argument("CorrelationFunction requires r_max to be positive.");
-    }
+    
 
     // We must construct two separate histograms, one for the counts and one
     // for the actual correlation function. The counts are used to normalize

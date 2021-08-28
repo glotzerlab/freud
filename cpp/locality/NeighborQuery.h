@@ -265,20 +265,7 @@ public:
         : NeighborPerPointIterator(query_point_idx), m_neighbor_query(neighbor_query),
           m_query_point(query_point), m_finished(false), m_r_max(r_max), m_r_min(r_min),
           m_exclude_ii(exclude_ii)
-    {
-        if (r_max <= 0)
-    {
-        throw std::invalid_argument("RDF requires r_max to be positive.");
-    }
-    if (r_min < 0)
-    {
-        throw std::invalid_argument("RDF requires r_min to be non negetive.");
-    }
-    if (r_max <= r_min)
-    {
-        throw std::invalid_argument("RDF requires that r_max must be greater than r_min.");
-    }
-    }
+    
 
     //! Empty Destructor
     ~NeighborQueryPerPointIterator() override = default;
