@@ -24,13 +24,14 @@ import freud.locality
 cimport numpy as np
 from cython.operator cimport dereference
 from libcpp cimport bool as cbool
+from libcpp.vector cimport vector
 
 cimport freud._diffraction
 cimport freud.locality
 cimport freud.util
 from freud.locality cimport _SpatialHistogram1D
 from freud.util cimport _Compute, vec3
-from dsf.reciprocal import reciprocal_isotropic
+from dsf.reciprocal import reciprocal_isotropic as reciprocal_isotropic_dsf
 
 logger = logging.getLogger(__name__)
 
@@ -342,11 +343,12 @@ cdef class StaticStructureFactorDirect(_Compute):
 
         # Sample k-space without preference to direction
         if self._reciprocal_points is None or reset:
-            self._reciprocal_points = reciprocal_isotropic(
+            self._reciprocal_points = reciprocal_isotropic_dsf(
                 box=nq.box.to_matrix(),
                 max_points=self.max_k_points,
                 max_k=self.k_max,
             )
+            print(reciprocal_isotropic(nq.box, self.k_max, self.max_k_points))
         self._k_points = freud.util._convert_array(
             self._reciprocal_points.k_points.T, shape=(None, 3))
 
@@ -826,3 +828,28 @@ cdef class DiffractionPattern(_Compute):
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None
+
+def reciprocal_isotropic(box, k_max, k_min=0, max_k_points=10000):
+    """Sample a grid of k-points isotropically.
+
+    This method is based on the MIT licensed `Dynasor library
+    <https://gitlab.com/materials-modeling/dynasor/>`__.
+
+    Args:
+        box (:class:`freud.box.Box`):
+            Simulation box used to compute the reciprocal lattice vectors.
+        k_max (float):
+            Maximum :math:`k` value to include in the calculation.
+        k_min (float, optional):
+            Minimum :math:`k` value included in the calculation. Note that
+            there are practical restrictions on the validity of the
+            calculation in the long-wavelength regime, see :py:attr:`min_valid_k`
+            (Default value = 0).
+        max_k_points (unsigned int, optional):
+            The maximum number of k-points to use when constructing k-space
+            grid. The code will prune the number of grid points to optimize the
+            bin widths and performance. (Default value = 10000).
+    """
+    cdef freud.box.Box b = freud.util._convert_box(box)
+    cdef vector[vec3[float]] k_points = freud._diffraction.reciprocal_isotropic(dereference(b.thisptr), k_max, k_min, max_k_points)
+    return np.asarray([[k.x, k.y, k.z] for k in k_points])

@@ -4,5 +4,7 @@ add_library(
   StaticStructureFactorDirect.h StaticStructureFactorDirect.cc
   StaticStructureFactorUtil.h StaticStructureFactorUtil.cc)
 
-target_include_directories(_diffraction
-                           PUBLIC ${PROJECT_SOURCE_DIR}/cpp/density)
+target_include_directories(
+  _diffraction
+  PUBLIC ${PROJECT_SOURCE_DIR}/cpp/density
+  PUBLIC ${PROJECT_SOURCE_DIR}/extern/)

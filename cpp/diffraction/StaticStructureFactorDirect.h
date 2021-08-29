@@ -101,6 +101,9 @@ private:
     bool m_reduce {true};                                //!< Whether to reduce
 };
 
+std::vector<vec3<float>> reciprocal_isotropic(const box::Box& box, float k_max, float k_min=0, unsigned int max_k_points=10000);
+float get_prune_distance(unsigned int max_points, float q_max, float q_volume);
+
 }; }; // namespace freud::diffraction
 
 #endif // STATIC_STRUCTURE_FACTOR_DIRECT_H
