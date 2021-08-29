@@ -63,6 +63,20 @@ class TestStaticStructureFactorDirect:
         sf.compute(system)
         assert np.isclose(sf.S_k[0], N)
 
+    def test_accumulation(self):
+        # This test ensures that accumulation and resetting works as expected.
+        # See notes on test_S_0_is_N.
+        L = 10
+        N = 1000
+        sf = freud.diffraction.StaticStructureFactorDirect(bins=100, k_max=10)
+        for _ in range(5):
+            box, points = freud.data.make_random_system(L, N)
+            sf.compute((box, points), reset=False)
+        assert np.isclose(sf.S_k[0], N)
+        box, points = freud.data.make_random_system(L, N * 2)
+        sf.compute((box, points), reset=True)
+        assert np.isclose(sf.S_k[0], N * 2)
+
     def test_k_min(self):
         L = 10
         N = 1000
