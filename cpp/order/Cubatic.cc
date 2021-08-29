@@ -4,8 +4,6 @@
 #include <cstring>
 #include <functional>
 #include <stdexcept>
-#include <tbb/blocked_range.h>
-#include <tbb/parallel_for.h>
 
 #include "Cubatic.h"
 #include "utils.h"
@@ -219,23 +217,22 @@ tensor4 Cubatic::calculateGlobalTensor(quat<float>* orientations) const
     // now calculate the global tensor
     float n_inv = float(1.0) / static_cast<float>(m_n);
 
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, 81),
-                      [=, &global_tensor, &n_inv, &particle_tensor](const tbb::blocked_range<size_t>& r) {
-                          for (size_t i = r.begin(); i != r.end(); i++)
-                          {
-                              float tensor_value = 0;
-                              for (unsigned int j = 0; j < m_n; j++)
-                              {
-                                  tensor_value += particle_tensor[j][i];
-                              }
-                              // Note that in the third equation in eq. 27, the prefactor of the
-                              // sum is 2/N, but the factor of 2 is already accounted for in the
-                              // calculation of per particle calculation in
-                              // calculatePerParticleTensor, so here we just need to apply the
-                              // 1/N scaling.
-                              global_tensor[i] = tensor_value * n_inv;
-                          }
-                      });
+    util::forLoopWrapper(0, 81, [=, &global_tensor, &n_inv, &particle_tensor](size_t begin, size_t end) {
+        for (size_t i = begin; i < end; i++)
+        {
+            float tensor_value = 0;
+            for (unsigned int j = 0; j < m_n; j++)
+            {
+                tensor_value += particle_tensor[j][i];
+            }
+            // Note that in the third equation in eq. 27, the prefactor of the
+            // sum is 2/N, but the factor of 2 is already accounted for in the
+            // calculation of per particle calculation in
+            // calculatePerParticleTensor, so here we just need to apply the
+            // 1/N scaling.
+            global_tensor[i] = tensor_value * n_inv;
+        }
+    });
     return global_tensor - m_gen_r4_tensor;
 }
 
@@ -257,12 +254,11 @@ void Cubatic::compute(quat<float>* orientations, unsigned int num_orientations)
     util::ManagedArray<float> p_cubatic_order_parameter(m_n_replicates);
     util::ManagedArray<quat<float>> p_cubatic_orientation(m_n_replicates);
 
-    tbb::parallel_for(
-        tbb::blocked_range<size_t>(0, m_n_replicates),
-        [=, &p_cubatic_orientation, &p_cubatic_order_parameter,
-         &p_cubatic_tensor](const tbb::blocked_range<size_t>& r) {
+    util::forLoopWrapper(
+        0, m_n_replicates,
+        [=, &p_cubatic_orientation, &p_cubatic_order_parameter, &p_cubatic_tensor](size_t begin, size_t end) {
             // create thread-specific rng
-            unsigned int thread_start = r.begin();
+            unsigned int thread_start = static_cast<unsigned int>(begin);
 
             std::vector<unsigned int> seed_seq(3);
             seed_seq[0] = m_seed;
@@ -273,7 +269,7 @@ void Cubatic::compute(quat<float>* orientations, unsigned int num_orientations)
             std::uniform_real_distribution<float> base_dist(0, 1);
             auto dist = [&]() { return base_dist(rng); };
 
-            for (size_t i = r.begin(); i != r.end(); i++)
+            for (size_t i = begin; i < end; i++)
             {
                 // need to generate random orientation
                 quat<float> cubatic_orientation = calcRandomQuaternion(dist);
@@ -344,8 +340,8 @@ void Cubatic::compute(quat<float>* orientations, unsigned int num_orientations)
     m_cubatic_order_parameter = p_cubatic_order_parameter[max_idx];
 
     // Now calculate the per-particle order parameters
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, m_n), [=](const tbb::blocked_range<size_t>& r) {
-        for (size_t i = r.begin(); i != r.end(); i++)
+    util::forLoopWrapper(0, m_n, [=](size_t begin, size_t end) {
+        for (size_t i = begin; i < end; i++)
         {
             // The per-particle order parameter is defined as the value of the
             // cubatic order parameter if the global orientation was the
