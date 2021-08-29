@@ -3,9 +3,9 @@
 
 #include <algorithm>
 #include <cmath>
-#include <iostream>
 #include <limits>
 #include <stdexcept>
+#include <tbb/concurrent_vector.h>
 #include <random>
 
 #include "Eigen/Eigen/Dense"
@@ -194,7 +194,6 @@ std::vector<vec3<float>> reciprocal_isotropic(const box::Box& box, float k_max, 
     auto const q_prune_distance = get_prune_distance(max_k_points, q_max, q_volume);
     auto const q_prune_distance_sq = q_prune_distance * q_prune_distance;
 
-    std::vector<vec3<float>> k_points;
     auto const bx = freud::constants::TWO_PI * vec3<float>(B(0, 0), B(0, 1), B(0, 2));
     auto const by = freud::constants::TWO_PI * vec3<float>(B(1, 0), B(1, 1), B(1, 2));
     auto const bz = freud::constants::TWO_PI * vec3<float>(B(2, 0), B(2, 1), B(2, 2));
@@ -202,31 +201,44 @@ std::vector<vec3<float>> reciprocal_isotropic(const box::Box& box, float k_max, 
     auto const N_ky = static_cast<unsigned int>(std::ceil(q_max / dq_y));
     auto const N_kz = static_cast<unsigned int>(std::ceil(q_max / dq_z));
 
-    // Set up random number generator for k point pruning.
-    std::random_device rd;
-    std::seed_seq seed {rd(), rd(), rd()};
-    std::mt19937 rng(seed);
-    std::uniform_real_distribution<float> base_dist(0, 1);
-    auto random_prune = [&]() { return base_dist(rng); };
+    // The maximum number of k points is a guideline. The true number of sampled
+    // k points can be less or greater than max_k_points, depending on the
+    // result of the random pruning procedure. Therefore, we cannot allocate a
+    // fixed size for the data. Also, reserving capacity for the concurrent
+    // vector had no measureable effect on performance.
+    tbb::concurrent_vector<vec3<float>> k_points;
 
-    for (unsigned int kx = 0; kx < N_kx; ++kx){
-        for (unsigned int ky = 0; ky < N_ky; ++ky){
-            for (unsigned int kz = 0; kz < N_kz; ++kz){
-                auto const k_vec = static_cast<float>(kx) * bx + static_cast<float>(ky) * by + static_cast<float>(kz) * bz;
-                auto const q_distance_sq = dot(k_vec, k_vec) / freud::constants::TWO_PI / freud::constants::TWO_PI;
+    // This is a 3D loop but we parallelize in 1D because we only need to seed
+    // the random number generators once per block and there is no benefit of
+    // locality if we parallelize in 2D or 3D.
+    util::forLoopWrapper(0, N_kx, [&](size_t begin, size_t end) {
+        // Set up thread-local random number generator for k point pruning.
+        auto const thread_start = static_cast<unsigned int>(begin);
+        std::random_device rd;
+        std::seed_seq seed {thread_start, rd(), rd(), rd()};
+        std::mt19937 rng(seed);
+        std::uniform_real_distribution<float> base_dist(0, 1);
+        auto random_prune = [&]() { return base_dist(rng); };
 
-                // The k vector is kept with probability min(1, (q_prune_distance / q_distance)^2).
-                // This sampling scheme aims to have a constant density of k vectors with respect to radial distance.
-                if (q_distance_sq <= q_max_sq && q_distance_sq >= q_min_sq){
-                    auto const prune_probability = q_prune_distance_sq / q_distance_sq;
-                    if (prune_probability > random_prune()){
-                        k_points.emplace_back(k_vec);
+        for (unsigned int kx = begin; kx < end; ++kx){
+            for (unsigned int ky = 0; ky < N_ky; ++ky){
+                for (unsigned int kz = 0; kz < N_kz; ++kz){
+                    auto const k_vec = static_cast<float>(kx) * bx + static_cast<float>(ky) * by + static_cast<float>(kz) * bz;
+                    auto const q_distance_sq = dot(k_vec, k_vec) / freud::constants::TWO_PI / freud::constants::TWO_PI;
+
+                    // The k vector is kept with probability min(1, (q_prune_distance / q_distance)^2).
+                    // This sampling scheme aims to have a constant density of k vectors with respect to radial distance.
+                    if (q_distance_sq <= q_max_sq && q_distance_sq >= q_min_sq){
+                        auto const prune_probability = q_prune_distance_sq / q_distance_sq;
+                        if (prune_probability > random_prune()){
+                            k_points.emplace_back(k_vec);
+                        }
                     }
                 }
             }
         }
-    }
-    return k_points;
+    });
+    return std::vector<vec3<float>>(k_points.cbegin(), k_points.cend());
 }
 
 }; }; // namespace freud::diffraction
