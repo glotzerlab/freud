@@ -163,6 +163,20 @@ template unsigned int NeighborList::filter(bool*);
 
 unsigned int NeighborList::filter_r(float r_max, float r_min)
 {
+   
+    if (r_max <= 0)
+    {
+        throw std::invalid_argument("NeighborList requires r_max to be positive.");
+    }
+        if (r_min < 0)
+    {
+        throw std::invalid_argument("NeighborList requires r_min to be non-negetive.");
+    }
+    if (r_max <= r_min)
+    {
+        throw std::invalid_argument("NeighborList requires that r_max must be greater than r_min.");
+    }
+
     std::vector<bool> dist_filter(getNumBonds());
     for (unsigned int i(0); i < getNumBonds(); ++i)
     {
