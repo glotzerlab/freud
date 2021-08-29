@@ -170,7 +170,7 @@ unsigned int NeighborList::filter_r(float r_max, float r_min)
     }
         if (r_min < 0)
     {
-        throw std::invalid_argument("NeighborList requires r_min to be non-negetive.");
+        throw std::invalid_argument("NeighborList requires r_min to be non-negative.");
     }
     if (r_max <= r_min)
     {
