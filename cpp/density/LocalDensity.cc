@@ -15,7 +15,7 @@ LocalDensity::LocalDensity(float r_max, float diameter)
 {
     if (r_max <= 0)
     {
-        throw std::invalid_argument("RDF requires r_max to be positive.");
+        throw std::invalid_argument("LocalDensity requires r_max to be positive.");
     }
     
 }
