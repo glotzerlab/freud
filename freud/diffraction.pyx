@@ -31,7 +31,6 @@ cimport freud.locality
 cimport freud.util
 from freud.locality cimport _SpatialHistogram1D
 from freud.util cimport _Compute, vec3
-from dsf.reciprocal import reciprocal_isotropic as reciprocal_isotropic_dsf
 
 logger = logging.getLogger(__name__)
 
@@ -296,7 +295,6 @@ cdef class StaticStructureFactorDirect(_Compute):
     cdef:
         freud._diffraction.StaticStructureFactorDirect * thisptr
         int _max_k_points
-        _reciprocal_points
         float[:, ::1] _k_points
 
     def __cinit__(self, unsigned int bins, float k_max, float k_min=0, unsigned int max_k_points=20000):
@@ -304,7 +302,6 @@ cdef class StaticStructureFactorDirect(_Compute):
             self.thisptr = new freud._diffraction.StaticStructureFactorDirect(
                 bins, k_max, k_min)
         self._max_k_points = max_k_points
-        self._reciprocal_points = None
 
     def __dealloc__(self):
         if type(self) == StaticStructureFactorDirect:
@@ -336,21 +333,14 @@ cdef class StaticStructureFactorDirect(_Compute):
                 "partial structure factor."
             )
 
+        cdef freud.locality.NeighborQuery nq = freud.locality.NeighborQuery.from_system(system)
+
         if reset:
             self._reset()
 
-        cdef freud.locality.NeighborQuery nq = freud.locality.NeighborQuery.from_system(system)
-
         # Sample k-space without preference to direction
-        if self._reciprocal_points is None or reset:
-            self._reciprocal_points = reciprocal_isotropic_dsf(
-                box=nq.box.to_matrix(),
-                max_points=self.max_k_points,
-                max_k=self.k_max,
-            )
-            print(reciprocal_isotropic(nq.box, self.k_max, self.max_k_points))
         self._k_points = freud.util._convert_array(
-            self._reciprocal_points.k_points.T, shape=(None, 3))
+            reciprocal_isotropic(nq.box, self.k_max, self.k_min, self.max_k_points), shape=(None, 3))
 
         cdef:
             const float[:, ::1] l_points = nq.points
@@ -377,7 +367,6 @@ cdef class StaticStructureFactorDirect(_Compute):
         return self
 
     def _reset(self):
-        self._reciprocal_points = None
         # Resets the values of StaticStructureFactorDirect in memory.
         self.thisptr.reset()
 
