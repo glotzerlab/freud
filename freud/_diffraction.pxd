@@ -34,7 +34,3 @@ cdef extern from "StaticStructureFactorDirect.h" namespace "freud::diffraction":
         float getMinValidK() const
 
     vector[vec3[float]] reciprocal_isotropic(const freud._box.Box &, float, float, unsigned int)
-
-cdef extern from "StaticStructureFactorUtil.h" namespace "freud::diffraction":
-    void compute_F_k(const vec3[float]*, unsigned int, const vec3[float]*,
-                     unsigned int, unsigned int, float complex*) except +

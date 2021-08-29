@@ -16,10 +16,28 @@
 /*! \file StaticStructureFactorDirect.h
     \brief Routines for computing static structure factors.
 
-    Computes structure factors from the Fourier transform of a radial distribution function (RDF).
-    This method is not capable of resolving k-vectors smaller than the magnitude 4 * pi / L, where L is the
-    smallest side length of the system's periodic box.
+    This computes the static structure factor S(k) between sets of points and
+    query points. First, k-vectors are sampled isotropically, with each radial
+    bin containing an equal density of k points. Next, the k-vectors are used to
+    compute complex scattering amplitudes F(k) by summing over the scattering
+    contribution of all particle positions (atomic form factors are assumed to
+    be 1) at every k-vector. The complex conjugate of the scattering amplitudes
+    of the points at each k-vector are multiplied by the scattering amplitudes
+    of the query points at each k-vector. Finally, the results are binned
+    according to their k-vector's magnitude and normalized by the number of
+    samples in each radial bin in k-space.
+
+    Note that k-vectors are in the physics convention, and q-vectors are in the
+    crystallographic convention. These conventions differ by a factor of 2\pi.
+
+    The methods in this class are based on algorithms in the MIT-licensed
+    dynasor package available here:
+    https://dynasor.materialsmodeling.org/
+
+    See also:
+    https://en.wikipedia.org/wiki/Reciprocal_lattice#Arbitrary_collection_of_atoms
 */
+
 
 namespace freud { namespace diffraction {
 
