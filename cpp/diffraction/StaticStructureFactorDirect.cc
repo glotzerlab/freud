@@ -5,9 +5,9 @@
 #include <cmath>
 #include <complex>
 #include <limits>
+#include <random>
 #include <stdexcept>
 #include <tbb/concurrent_vector.h>
-#include <random>
 
 #include "Eigen/Eigen/Dense"
 
@@ -39,22 +39,24 @@ StaticStructureFactorDirect::StaticStructureFactorDirect(unsigned int bins, floa
     }
     if (k_max <= k_min)
     {
-        throw std::invalid_argument("StaticStructureFactorDirect requires that k_max must be greater than k_min.");
+        throw std::invalid_argument(
+            "StaticStructureFactorDirect requires that k_max must be greater than k_min.");
     }
 
-    // Construct the Histogram object that will be used to track the structure factor
-    auto axes
-        = StructureFactorHistogram::Axes {std::make_shared<util::RegularAxis>(bins, k_min, k_max)};
-    m_histogram = StructureFactorHistogram(axes);
-    m_local_histograms = StructureFactorHistogram::ThreadLocalHistogram(m_histogram);
+    // We must construct two separate histograms, one for the counts and one
+    // for the actual correlation function. The counts are used to normalize
+    // the correlation function.
+    auto axes = StructureFactorHistogram::Axes {std::make_shared<util::RegularAxis>(bins, k_min, k_max)};
+    m_structure_factor = StructureFactorHistogram(axes);
+    m_local_structure_factor = StructureFactorHistogram::ThreadLocalHistogram(m_structure_factor);
     m_k_bin_histogram = KBinHistogram(axes);
     m_k_bin_local_histograms = KBinHistogram::ThreadLocalHistogram(m_k_bin_histogram);
-    m_structure_factor.prepare(bins);
 }
 
 void StaticStructureFactorDirect::accumulate(const freud::locality::NeighborQuery* neighbor_query,
-                                             const vec3<float>* query_points, unsigned int n_query_points, unsigned int n_total,
-                                             const vec3<float>* k_points, unsigned int n_k_points)
+                                             const vec3<float>* query_points, unsigned int n_query_points,
+                                             unsigned int n_total, const vec3<float>* k_points,
+                                             unsigned int n_k_points)
 {
     auto const& box = neighbor_query->getBox();
 
@@ -66,13 +68,15 @@ void StaticStructureFactorDirect::accumulate(const freud::locality::NeighborQuer
     m_min_valid_k = 2 * freud::constants::TWO_PI / min_box_length;
 
     // Compute F_k for the points
-    auto const F_k_points = StaticStructureFactorDirect::compute_F_k(neighbor_query->getPoints(), neighbor_query->getNPoints(), n_total, k_points, n_k_points);
+    auto const F_k_points = StaticStructureFactorDirect::compute_F_k(
+        neighbor_query->getPoints(), neighbor_query->getNPoints(), n_total, k_points, n_k_points);
 
     // Compute F_k for the query points (if necessary) and compute the product S_k
     std::vector<float> S_k_all_points;
     if (query_points != nullptr)
     {
-        auto const F_k_query_points = StaticStructureFactorDirect::compute_F_k(query_points, n_query_points, n_total, k_points, n_k_points);
+        auto const F_k_query_points = StaticStructureFactorDirect::compute_F_k(query_points, n_query_points,
+                                                                               n_total, k_points, n_k_points);
         S_k_all_points = StaticStructureFactorDirect::compute_S_k(F_k_points, F_k_query_points);
     }
     else
@@ -86,8 +90,8 @@ void StaticStructureFactorDirect::accumulate(const freud::locality::NeighborQuer
         {
             auto const k_vec = k_points[k_index];
             auto const k_magnitude = std::sqrt(dot(k_vec, k_vec));
-            auto const k_bin = m_histogram.bin({k_magnitude});
-            m_local_histograms.increment(k_bin, S_k_all_points[k_index]);
+            auto const k_bin = m_structure_factor.bin({k_magnitude});
+            m_local_structure_factor.increment(k_bin, S_k_all_points[k_index]);
             m_k_bin_local_histograms.increment(k_bin);
         };
     });
@@ -96,52 +100,54 @@ void StaticStructureFactorDirect::accumulate(const freud::locality::NeighborQuer
 
 void StaticStructureFactorDirect::reduce()
 {
-    m_structure_factor.prepare(m_histogram.shape());
-    m_local_histograms.reduceInto(m_structure_factor);
-    auto k_bin_counts = util::ManagedArray<unsigned int>(m_histogram.size());
-    m_k_bin_local_histograms.reduceInto(k_bin_counts);
+    auto const axis_size = m_structure_factor.getAxisSizes()[0];
+    m_k_bin_histogram.prepare(axis_size);
+    m_structure_factor.prepare(axis_size);
 
-    // Normalize by the k bin counts and frame count. This computes a "binned mean" over all k points.
-    // Unlike other methods in freud, no "frame counter" is needed because the
-    // binned mean accounts for accumulation by averaging over frames.
-    util::forLoopWrapper(0, m_structure_factor.size(), [&](size_t begin, size_t end) {
-        for (size_t i = begin; i < end; ++i)
-        {
-            m_structure_factor[i] /= k_bin_counts[i];
-        }
-    });
+    // Reduce the bin counts over all threads, then use them to normalize the
+    // structure factor when computing. This computes a "binned mean" over all k
+    // points. Unlike some other methods in freud, no "frame counter" is needed
+    // because the binned mean accounts for accumulation over frames.
+    m_k_bin_histogram.reduceOverThreads(m_k_bin_local_histograms);
+    m_structure_factor.reduceOverThreadsPerBin(
+        m_local_structure_factor, [&](size_t i) { m_structure_factor[i] /= m_k_bin_histogram[i]; });
 }
 
-std::vector<std::complex<float>> StaticStructureFactorDirect::compute_F_k(const vec3<float>* points, unsigned int n_points,
-        unsigned int n_total, const vec3<float>* k_points, unsigned int n_k_points){
-
+std::vector<std::complex<float>> StaticStructureFactorDirect::compute_F_k(const vec3<float>* points,
+                                                                          unsigned int n_points,
+                                                                          unsigned int n_total,
+                                                                          const vec3<float>* k_points,
+                                                                          unsigned int n_k_points)
+{
     auto F_k = std::vector<std::complex<float>>(n_k_points);
     std::complex<float> const normalization(1.0f / std::sqrt(n_total));
 
-    util::forLoopWrapper(
-        0, n_k_points, [&](size_t begin, size_t end) {
-            for (size_t k_index = begin; k_index < end; ++k_index)
+    util::forLoopWrapper(0, n_k_points, [&](size_t begin, size_t end) {
+        for (size_t k_index = begin; k_index < end; ++k_index)
+        {
+            std::complex<float> F_ki(0);
+            for (size_t r_index = 0; r_index < n_points; ++r_index)
             {
-                std::complex<float> F_ki(0);
-                for (size_t r_index = 0; r_index < n_points; ++r_index)
-                {
-                    auto const k_vec(k_points[k_index]);
-                    auto const r_vec(points[r_index]);
-                    auto const alpha(dot(k_vec, r_vec));
-                    F_ki += std::exp(std::complex<float>(0, alpha));
-                }
-                F_k[k_index] = F_ki * normalization;
+                auto const k_vec(k_points[k_index]);
+                auto const r_vec(points[r_index]);
+                auto const alpha(dot(k_vec, r_vec));
+                F_ki += std::exp(std::complex<float>(0, alpha));
             }
-        });
+            F_k[k_index] = F_ki * normalization;
+        }
+    });
     return F_k;
 }
 
-std::vector<float> StaticStructureFactorDirect::compute_S_k(const std::vector<std::complex<float>>& F_k_points,
-        const std::vector<std::complex<float>>& F_k_query_points){
+std::vector<float>
+StaticStructureFactorDirect::compute_S_k(const std::vector<std::complex<float>>& F_k_points,
+                                         const std::vector<std::complex<float>>& F_k_query_points)
+{
     auto const n_k_points = F_k_points.size();
     auto S_k = std::vector<float>(n_k_points);
     util::forLoopWrapper(0, n_k_points, [&](size_t begin, size_t end) {
-        for (size_t k_index = begin; k_index < end; ++k_index){
+        for (size_t k_index = begin; k_index < end; ++k_index)
+        {
             S_k[k_index] = std::real(std::conj(F_k_points[k_index]) * F_k_query_points[k_index]);
         }
     });
@@ -162,14 +168,17 @@ inline Eigen::Matrix3f box_to_matrix(const box::Box& box)
     return mat;
 }
 
-inline float get_prune_distance(unsigned int max_k_points, float q_max, float q_volume){
-    if (max_k_points > M_PI * std::pow(q_max, 3.0) / (6 * q_volume)){
+inline float get_prune_distance(unsigned int max_k_points, float q_max, float q_volume)
+{
+    if (max_k_points > M_PI * std::pow(q_max, 3.0) / (6 * q_volume))
+    {
         // Above this limit, all points are used and no pruning occurs.
         return std::numeric_limits<float>::infinity();
     }
     // We use Cardano's formula to compute the pruning distance.
     auto const p = -0.75f * q_max * q_max;
-    auto const q = 3.0f * static_cast<float>(max_k_points) * q_volume / static_cast<float>(M_PI) - q_max * q_max * q_max / 4.0f;
+    auto const q = 3.0f * static_cast<float>(max_k_points) * q_volume / static_cast<float>(M_PI)
+        - q_max * q_max * q_max / 4.0f;
     auto const D = p * p * p / 27.0f + q * q / 4.0f;
 
     auto const u = std::pow(-std::complex<float>(q / 2.0f) + std::sqrt(std::complex<float>(D)), 1.0f / 3.0f);
@@ -178,7 +187,9 @@ inline float get_prune_distance(unsigned int max_k_points, float q_max, float q_
     return std::real(x) + q_max / 2.0f;
 }
 
-std::vector<vec3<float>> reciprocal_isotropic(const box::Box& box, float k_max, float k_min, unsigned int max_k_points){
+std::vector<vec3<float>> reciprocal_isotropic(const box::Box& box, float k_max, float k_min,
+                                              unsigned int max_k_points)
+{
     auto const box_matrix = box_to_matrix(box);
     // B holds "crystallographic" reciprocal box vectors that lack the factor of 2 pi.
     auto const B = box_matrix.transpose().inverse();
@@ -224,9 +235,11 @@ std::vector<vec3<float>> reciprocal_isotropic(const box::Box& box, float k_max, 
 
         auto const add_all_k_points = std::isinf(q_prune_distance);
 
-        for (unsigned int kx = begin; kx < end; ++kx){
+        for (unsigned int kx = begin; kx < end; ++kx)
+        {
             auto const k_vec_x = static_cast<float>(kx) * bx;
-            for (unsigned int ky = 0; ky < N_ky; ++ky){
+            for (unsigned int ky = 0; ky < N_ky; ++ky)
+            {
                 auto const k_vec_xy = k_vec_x + static_cast<float>(ky) * by;
 
                 // Solve the quadratic equation for kz to limit which kz values we must sample:
@@ -244,21 +257,24 @@ std::vector<vec3<float>> reciprocal_isotropic(const box::Box& box, float k_max, 
                 auto const coef_c_min = dot(k_vec_xy, k_vec_xy) - k_min * k_min;
                 auto const coef_c_max = dot(k_vec_xy, k_vec_xy) - k_max * k_max;
                 auto const b_over_2a = coef_b / (2 * coef_a);
-                auto const kz_min = static_cast<unsigned int>(std::floor(
-                    -b_over_2a + std::sqrt(b_over_2a * b_over_2a - coef_c_min / coef_a)
-                ));
-                auto const kz_max = static_cast<unsigned int>(std::ceil(
-                    -b_over_2a + std::sqrt(b_over_2a * b_over_2a - coef_c_max / coef_a)
-                ));
-                for (unsigned int kz = kz_min; kz < std::min(kz_max, N_kz); ++kz){
+                auto const kz_min = static_cast<unsigned int>(
+                    std::floor(-b_over_2a + std::sqrt(b_over_2a * b_over_2a - coef_c_min / coef_a)));
+                auto const kz_max = static_cast<unsigned int>(
+                    std::ceil(-b_over_2a + std::sqrt(b_over_2a * b_over_2a - coef_c_max / coef_a)));
+                for (unsigned int kz = kz_min; kz < std::min(kz_max, N_kz); ++kz)
+                {
                     auto const k_vec = k_vec_xy + static_cast<float>(kz) * bz;
-                    auto const q_distance_sq = dot(k_vec, k_vec) / freud::constants::TWO_PI / freud::constants::TWO_PI;
+                    auto const q_distance_sq
+                        = dot(k_vec, k_vec) / freud::constants::TWO_PI / freud::constants::TWO_PI;
 
                     // The k vector is kept with probability min(1, (q_prune_distance / q_distance)^2).
-                    // This sampling scheme aims to have a constant density of k vectors with respect to radial distance.
-                    if (q_distance_sq <= q_max_sq && q_distance_sq >= q_min_sq){
+                    // This sampling scheme aims to have a constant density of k vectors with respect to
+                    // radial distance.
+                    if (q_distance_sq <= q_max_sq && q_distance_sq >= q_min_sq)
+                    {
                         auto const prune_probability = q_prune_distance_sq / q_distance_sq;
-                        if (add_all_k_points || prune_probability > random_prune()){
+                        if (add_all_k_points || prune_probability > random_prune())
+                        {
                             k_points.emplace_back(k_vec);
                         }
                     }
