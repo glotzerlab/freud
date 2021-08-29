@@ -139,7 +139,7 @@ class TestStaticStructureFactorDirect:
             bins=100, k_max=500, k_min=400, max_k_points=max_k_points
         )
         S_AB = sf.compute((system.box, B_points), query_points=A_points, N_total=N).S_k
-        npt.assert_allclose(np.mean(S_AB), 0, atol=1e-2)
+        npt.assert_allclose(np.mean(S_AB), 0, atol=2e-2)
 
     def test_large_k_partial_self_term_goes_to_fraction(self):
         """Ensure S_{AA}(k) goes to N_A / N_total at large k."""
@@ -154,7 +154,7 @@ class TestStaticStructureFactorDirect:
             bins=100, k_max=500, k_min=400, max_k_points=max_k_points
         )
         S_AA = sf.compute((system.box, A_points), query_points=A_points, N_total=N).S_k
-        npt.assert_allclose(np.mean(S_AA), N_A / N, atol=1e-2)
+        npt.assert_allclose(np.mean(S_AA), N_A / N, atol=2e-2)
 
     def test_large_k_scattering_goes_to_one(self):
         """Ensure S(k) goes to one at large k."""
@@ -167,7 +167,7 @@ class TestStaticStructureFactorDirect:
             bins=100, k_max=500, k_min=400, max_k_points=max_k_points
         )
         sf.compute(system)
-        npt.assert_allclose(np.mean(sf.S_k), 1, atol=1e-2)
+        npt.assert_allclose(np.mean(sf.S_k), 1, atol=2e-2)
 
     def test_attribute_access(self):
         bins = 100
