@@ -163,7 +163,7 @@ template unsigned int NeighborList::filter(bool*);
 
 unsigned int NeighborList::filter_r(float r_max, float r_min)
 {
-   
+
     if (r_max <= 0)
     {
         throw std::invalid_argument("NeighborList requires r_max to be positive.");
