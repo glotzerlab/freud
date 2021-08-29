@@ -59,7 +59,6 @@ public:
         m_local_histograms.reset();
         m_k_bin_local_histograms.reset();
         m_min_valid_k = std::numeric_limits<float>::infinity();
-        m_frame_counter = 0;
         m_reduce = true;
     }
 
@@ -101,7 +100,6 @@ private:
     KBinHistogram m_k_bin_histogram; //!< Histogram of sampled k bins
     KBinHistogram::ThreadLocalHistogram m_k_bin_local_histograms; //!< Thread local histograms of sampled k bins for TBB parallelism
     util::ManagedArray<float> m_structure_factor; //!< The computed structure factor
-    unsigned int m_frame_counter {0};                 //!< Number of frames calculated
     float m_min_valid_k {std::numeric_limits<float>::infinity()}; //!< The minimum valid k-value based on the computed box
     bool m_reduce {true};                                //!< Whether to reduce
 };

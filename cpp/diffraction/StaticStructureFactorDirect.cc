@@ -91,7 +91,6 @@ void StaticStructureFactorDirect::accumulate(const freud::locality::NeighborQuer
             m_k_bin_local_histograms.increment(k_bin);
         };
     });
-    m_frame_counter++;
     m_reduce = true;
 }
 
@@ -103,10 +102,12 @@ void StaticStructureFactorDirect::reduce()
     m_k_bin_local_histograms.reduceInto(k_bin_counts);
 
     // Normalize by the k bin counts and frame count. This computes a "binned mean" over all k points.
+    // Unlike other methods in freud, no "frame counter" is needed because the
+    // binned mean accounts for accumulation by averaging over frames.
     util::forLoopWrapper(0, m_structure_factor.size(), [&](size_t begin, size_t end) {
         for (size_t i = begin; i < end; ++i)
         {
-            m_structure_factor[i] /= k_bin_counts[i] * static_cast<float>(m_frame_counter);
+            m_structure_factor[i] /= k_bin_counts[i];
         }
     });
 }
