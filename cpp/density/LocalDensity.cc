@@ -17,7 +17,7 @@ LocalDensity::LocalDensity(float r_max, float diameter)
     {
         throw std::invalid_argument("LocalDensity requires r_max to be positive.");
     }
-    
+
 }
 
 void LocalDensity::compute(const freud::locality::NeighborQuery* neighbor_query,
