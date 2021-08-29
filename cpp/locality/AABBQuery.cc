@@ -63,7 +63,7 @@ void AABBQuery::buildTree(const vec3<float>* points, unsigned int Np)
 
 void AABBIterator::updateImageVectors(float r_max, bool _check_r_max)
 {
-    
+
     box::Box box = m_neighbor_query->getBox();
     vec3<float> nearest_plane_distance = box.getNearestPlaneDistance();
     vec3<bool> periodic = box.getPeriodic();
