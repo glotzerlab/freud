@@ -63,10 +63,7 @@ void AABBQuery::buildTree(const vec3<float>* points, unsigned int Np)
 
 void AABBIterator::updateImageVectors(float r_max, bool _check_r_max)
 {
-    if (r_max <= 0)
-    {
-        throw std::invalid_argument("AABBIterator requires r_max to be positive.");
-    }
+    
     box::Box box = m_neighbor_query->getBox();
     vec3<float> nearest_plane_distance = box.getNearestPlaneDistance();
     vec3<bool> periodic = box.getPeriodic();
