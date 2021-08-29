@@ -224,9 +224,33 @@ std::vector<vec3<float>> reciprocal_isotropic(const box::Box& box, float k_max, 
         auto const add_all_k_points = std::isinf(q_prune_distance);
 
         for (unsigned int kx = begin; kx < end; ++kx){
+            auto const k_vec_x = static_cast<float>(kx) * bx;
             for (unsigned int ky = 0; ky < N_ky; ++ky){
-                for (unsigned int kz = 0; kz < N_kz; ++kz){
-                    auto const k_vec = static_cast<float>(kx) * bx + static_cast<float>(ky) * by + static_cast<float>(kz) * bz;
+                auto const k_vec_xy = k_vec_x + static_cast<float>(ky) * by;
+
+                // Solve the quadratic equation for kz to limit which kz values we must sample:
+                // k_min^2 <= |k_vec_xy|^2 + kz^2 |bz|^2 - 2 kz (k_vec_xy \cdot bz) <= k_max^2
+                // 0 <= kz^2 (|bz|^2) + kz (-2 (k_vec_xy \cdot bz)) + (|k_vec_xy|^2 - k_min^2)
+                // 0 >= kz^2 (|bz|^2) + kz (-2 (k_vec_xy \cdot bz)) + (|k_vec_xy|^2 - k_max^2)
+                // This step improves performance significantly when k_min > 0
+                // by eliminating a large portion of the search space. Likewise,
+                // it eliminates the portion of search space outside a sphere
+                // with radius k_max. We round kz_min down and kz_max up to
+                // ensure that we don't accidentally throw out valid k points in
+                // the range (k_min, k_max) due to rounding error.
+                auto const coef_a = dot(bz, bz);
+                auto const coef_b = -2.0f * dot(k_vec_xy, bz);
+                auto const coef_c_min = dot(k_vec_xy, k_vec_xy) - k_min * k_min;
+                auto const coef_c_max = dot(k_vec_xy, k_vec_xy) - k_max * k_max;
+                auto const b_over_2a = coef_b / (2 * coef_a);
+                auto const kz_min = static_cast<unsigned int>(std::floor(
+                    -b_over_2a + std::sqrt(b_over_2a * b_over_2a - coef_c_min / coef_a)
+                ));
+                auto const kz_max = static_cast<unsigned int>(std::ceil(
+                    -b_over_2a + std::sqrt(b_over_2a * b_over_2a - coef_c_max / coef_a)
+                ));
+                for (unsigned int kz = kz_min; kz < std::min(kz_max, N_kz); ++kz){
+                    auto const k_vec = k_vec_xy + static_cast<float>(kz) * bz;
                     auto const q_distance_sq = dot(k_vec, k_vec) / freud::constants::TWO_PI / freud::constants::TWO_PI;
 
                     // The k vector is kept with probability min(1, (q_prune_distance / q_distance)^2).
