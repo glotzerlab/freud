@@ -4,6 +4,10 @@
 #ifndef STATIC_STRUCTURE_FACTOR_DIRECT_H
 #define STATIC_STRUCTURE_FACTOR_DIRECT_H
 
+#include <complex>
+#include <limits>
+#include <vector>
+
 #include "Box.h"
 #include "Histogram.h"
 #include "ManagedArray.h"
@@ -54,6 +58,7 @@ public:
     {
         m_local_histograms.reset();
         m_k_bin_local_histograms.reset();
+        m_min_valid_k = std::numeric_limits<float>::infinity();
         m_frame_counter = 0;
         m_reduce = true;
     }
@@ -102,7 +107,6 @@ private:
 };
 
 std::vector<vec3<float>> reciprocal_isotropic(const box::Box& box, float k_max, float k_min=0, unsigned int max_k_points=10000);
-float get_prune_distance(unsigned int max_points, float q_max, float q_volume);
 
 }; }; // namespace freud::diffraction
 

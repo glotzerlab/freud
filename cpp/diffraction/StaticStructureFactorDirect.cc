@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <complex>
 #include <limits>
 #include <stdexcept>
 #include <tbb/concurrent_vector.h>
@@ -167,7 +168,7 @@ inline float get_prune_distance(unsigned int max_k_points, float q_max, float q_
     }
     // We use Cardano's formula to compute the pruning distance.
     auto const p = -0.75f * q_max * q_max;
-    auto const q = 3.0f * max_k_points * q_volume / M_PI - q_max * q_max * q_max / 4.0f;
+    auto const q = 3.0f * static_cast<float>(max_k_points) * q_volume / static_cast<float>(M_PI) - q_max * q_max * q_max / 4.0f;
     auto const D = p * p * p / 27.0f + q * q / 4.0f;
 
     auto const u = std::pow(-std::complex<float>(q / 2.0f) + std::sqrt(std::complex<float>(D)), 1.0f / 3.0f);
