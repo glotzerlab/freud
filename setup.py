@@ -88,13 +88,11 @@ setup(
         "numpy>=1.14",
         "rowan>=1.2.1",
         "scipy>=1.1",
-        "dynasor>=1.0",
     ],
     tests_require=[
         "gsd>=2.0",
         "garnett>=0.7.1",
         "matplotlib>=3.0",
         "sympy>=1.0",
-        "dynasor>=1.0",
     ],
 )
