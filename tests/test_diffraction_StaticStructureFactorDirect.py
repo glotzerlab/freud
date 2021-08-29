@@ -126,57 +126,48 @@ class TestStaticStructureFactorDirect:
         S_partial_sum = S_AA + S_AB + S_BA + S_BB
         npt.assert_allclose(S_total, S_partial_sum, rtol=1e-5, atol=1e-5)
 
-    @pytest.mark.skip(
-        reason="This test requires too much memory for allocating k-points."
-    )
     def test_large_k_partial_cross_term_goes_to_zero(self):
         """Ensure S_{AB}(k) goes to zero at large k."""
         L = 10
         N = 1000
-        max_k_points = 80000
+        max_k_points = 200000
         box, points = freud.data.make_random_system(L, N)
         system = freud.AABBQuery.from_system((box, points))
         A_points = system.points[: N // 3]
         B_points = system.points[N // 3 :]
         sf = freud.diffraction.StaticStructureFactorDirect(
-            bins=100, k_max=1e3, max_k_points=max_k_points
+            bins=100, k_max=500, k_min=400, max_k_points=max_k_points
         )
-        S_AB = sf.compute((system.box, B_points), query_points=A_points).S_k
-        npt.assert_allclose(S_AB, 0, rtol=1e-5, atol=1e-5)
+        S_AB = sf.compute((system.box, B_points), query_points=A_points, N_total=N).S_k
+        npt.assert_allclose(np.mean(S_AB), 0, atol=1e-2)
 
-    @pytest.mark.skip(
-        reason="This test requires too much memory for allocating k-points."
-    )
     def test_large_k_partial_self_term_goes_to_fraction(self):
         """Ensure S_{AA}(k) goes to N_A / N_total at large k."""
         L = 10
         N = 1000
-        max_k_points = 10000
+        max_k_points = 200000
         box, points = freud.data.make_random_system(L, N)
         system = freud.AABBQuery.from_system((box, points))
         N_A = N // 3
         A_points = system.points[:N_A]
         sf = freud.diffraction.StaticStructureFactorDirect(
-            bins=100, k_max=1e3, max_k_points=max_k_points
+            bins=100, k_max=500, k_min=400, max_k_points=max_k_points
         )
-        S_AA = sf.compute((system.box, A_points), query_points=A_points).S_k
-        npt.assert_allclose(S_AA, N_A / N, rtol=1e-5, atol=1e-5)
+        S_AA = sf.compute((system.box, A_points), query_points=A_points, N_total=N).S_k
+        npt.assert_allclose(np.mean(S_AA), N_A / N, atol=1e-2)
 
-    @pytest.mark.skip(
-        reason="This test requires too much memory for allocating k-points."
-    )
     def test_large_k_scattering_goes_to_one(self):
         """Ensure S(k) goes to one at large k."""
         L = 10
         N = 1000
-        max_k_points = 10000
+        max_k_points = 200000
         box, points = freud.data.make_random_system(L, N)
         system = freud.AABBQuery.from_system((box, points))
         sf = freud.diffraction.StaticStructureFactorDirect(
-            bins=100, k_max=5e2, max_k_points=max_k_points
+            bins=100, k_max=500, k_min=400, max_k_points=max_k_points
         )
         sf.compute(system)
-        npt.assert_allclose(sf.S_k[-5:], 1, rtol=1e-5, atol=1e-5)
+        npt.assert_allclose(np.mean(sf.S_k), 1, atol=1e-2)
 
     def test_attribute_access(self):
         bins = 100
