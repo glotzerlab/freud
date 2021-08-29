@@ -166,13 +166,13 @@ inline float get_prune_distance(unsigned int max_k_points, float q_max, float q_
         return std::numeric_limits<float>::infinity();
     }
     // We use Cardano's formula to compute the pruning distance.
-    auto const p = -0.75f * std::pow(q_max, 2.0f);
-    auto const q = 3.0f * max_k_points * q_volume / M_PI - std::pow(q_max, 3.0f) / 4.0f;
-    auto const D = std::pow(p / 3.0f, 3.0f) + std::pow(q / 2.0f, 2.0f);
+    auto const p = -0.75f * q_max * q_max;
+    auto const q = 3.0f * max_k_points * q_volume / M_PI - q_max * q_max * q_max / 4.0f;
+    auto const D = p * p * p / 27.0f + q * q / 4.0f;
 
     auto const u = std::pow(-std::complex<float>(q / 2.0f) + std::sqrt(std::complex<float>(D)), 1.0f / 3.0f);
     auto const v = std::pow(-std::complex<float>(q / 2.0f) - std::sqrt(std::complex<float>(D)), 1.0f / 3.0f);
-    auto const x = -(u + v) / 2.0f - std::complex<float>(0.0f, -1.0f) * (u - v) * std::sqrt(3.0f) / 2.0f;
+    auto const x = -(u + v) / 2.0f - std::complex<float>(0.0f, 1.0f) * (u - v) * std::sqrt(3.0f) / 2.0f;
     return std::real(x) + q_max / 2.0f;
 }
 
@@ -220,6 +220,8 @@ std::vector<vec3<float>> reciprocal_isotropic(const box::Box& box, float k_max, 
         std::uniform_real_distribution<float> base_dist(0, 1);
         auto random_prune = [&]() { return base_dist(rng); };
 
+        auto const add_all_k_points = std::isinf(q_prune_distance);
+
         for (unsigned int kx = begin; kx < end; ++kx){
             for (unsigned int ky = 0; ky < N_ky; ++ky){
                 for (unsigned int kz = 0; kz < N_kz; ++kz){
@@ -230,7 +232,7 @@ std::vector<vec3<float>> reciprocal_isotropic(const box::Box& box, float k_max, 
                     // This sampling scheme aims to have a constant density of k vectors with respect to radial distance.
                     if (q_distance_sq <= q_max_sq && q_distance_sq >= q_min_sq){
                         auto const prune_probability = q_prune_distance_sq / q_distance_sq;
-                        if (prune_probability > random_prune()){
+                        if (add_all_k_points || prune_probability > random_prune()){
                             k_points.emplace_back(k_vec);
                         }
                     }
