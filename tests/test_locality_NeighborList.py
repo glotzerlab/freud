@@ -34,14 +34,14 @@ class TestNeighborList:
         # TODO: weights aren't writable since changing to ManagedArray
         with pytest.raises(ValueError):
             self.nlist.weights[18] = 3
-            
+
     def test_filter_r_invalid_arguments(self):
         # Make sure that invalid NeighborList.filter_r objects raise errors
         with pytest.raises(ValueError):
             freud.locality.NeighborList.filter_r(r_max=-1)
         with pytest.raises(ValueError):
             freud.locality.NeighborList.filter_r(r_max=1, r_min=2)
-            
+
     def test_filter_r_max(self):
         points2 = self.nq.points[: self.N // 2]
         filter_max_distance = 2.5
