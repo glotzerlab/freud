@@ -300,7 +300,7 @@ cdef class StaticStructureFactorDirect(_Compute):
     def __cinit__(self, unsigned int bins, float k_max, float k_min=0, unsigned int max_k_points=20000):
         if type(self) == StaticStructureFactorDirect:
             self.thisptr = new freud._diffraction.StaticStructureFactorDirect(
-                bins, k_max, k_min)
+                bins, k_max, k_min, max_k_points)
         self._max_k_points = max_k_points
 
     def __dealloc__(self):
@@ -361,8 +361,7 @@ cdef class StaticStructureFactorDirect(_Compute):
 
         self.thisptr.accumulate(
             nq.get_ptr(),
-            l_query_points_ptr, num_query_points, N_total,
-            <vec3[float]*> &l_k_points[0, 0], num_k_points
+            l_query_points_ptr, num_query_points, N_total
         )
         return self
 

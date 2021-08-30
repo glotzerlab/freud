@@ -48,15 +48,14 @@ class StaticStructureFactorDirect
 
 public:
     //! Constructor
-    StaticStructureFactorDirect(unsigned int bins, float k_max, float k_min = 0);
+    StaticStructureFactorDirect(unsigned int bins, float k_max, float k_min = 0, unsigned int max_k_points = 10000);
 
     //! Destructor
     virtual ~StaticStructureFactorDirect() = default;
 
     //! Compute the structure factor S(k) using the direct formula
     void accumulate(const freud::locality::NeighborQuery* neighbor_query, const vec3<float>* query_points,
-                    unsigned int n_query_points, unsigned int n_total, const vec3<float>* k_points,
-                    unsigned int n_k_points);
+                    unsigned int n_query_points, unsigned int n_total);
 
     //! Reduce thread-local arrays onto the primary data arrays.
     void reduce();
@@ -76,7 +75,7 @@ public:
     void reset()
     {
         m_local_structure_factor.reset();
-        m_local_histogram.reset();
+        m_local_histograms.reset();
         m_min_valid_k = std::numeric_limits<float>::infinity();
         m_reduce = true;
     }
@@ -115,12 +114,16 @@ private:
     static std::vector<float> compute_S_k(const std::vector<std::complex<float>>& F_k_points,
                                           const std::vector<std::complex<float>>& F_k_query_points);
 
+    void reciprocal_isotropic(const box::Box& box);
+
+    unsigned int m_max_k_points;                 //!< Target number of k-vectors to sample
+    std::vector<vec3<float>> m_k_vectors;        //!< k-vectors used for sampling
     StructureFactorHistogram m_structure_factor; //!< Histogram to hold computed structure factor
     StructureFactorHistogram::ThreadLocalHistogram
         m_local_structure_factor; //!< Thread local histograms for TBB parallelism
     KBinHistogram m_histogram;    //!< Histogram of sampled k bins
     KBinHistogram::ThreadLocalHistogram
-        m_local_histogram; //!< Thread local histograms of sampled k bins for TBB parallelism
+        m_local_histograms; //!< Thread local histograms of sampled k bins for TBB parallelism
     float m_min_valid_k {
         std::numeric_limits<float>::infinity()}; //!< The minimum valid k-value based on the computed box
     bool m_reduce {true};                        //!< Whether to reduce

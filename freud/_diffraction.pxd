@@ -23,10 +23,9 @@ cdef extern from "StaticStructureFactorDebye.h" namespace "freud::diffraction":
 
 cdef extern from "StaticStructureFactorDirect.h" namespace "freud::diffraction":
     cdef cppclass StaticStructureFactorDirect:
-        StaticStructureFactorDirect(unsigned int, float, float) except +
+        StaticStructureFactorDirect(unsigned int, float, float, unsigned int) except +
         void accumulate(const freud._locality.NeighborQuery*,
-                        const vec3[float]*, unsigned int, unsigned int,
-                        const vec3[float]*, unsigned int) except +
+                        const vec3[float]*, unsigned int, unsigned int) except +
         void reset()
         const freud.util.ManagedArray[float] &getStructureFactor()
         const vector[float] getBinEdges() const
