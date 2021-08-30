@@ -1,14 +1,16 @@
+import itertools
+import time
+
 import matplotlib
 import numpy as np
 import numpy.testing as npt
 import pytest
 import rowan
-import itertools
-import time
 
 import freud
 
 matplotlib.use("agg")
+
 
 class TestDiffractionPattern:
     def test_compute(self):
@@ -158,9 +160,9 @@ class TestDiffractionPattern:
         assert str(dp) == str(eval(repr(dp)))
 
     # based on the implimentation in the current Freud release
-    @pytest.mark.parametrize("size, zoom", [
-        (size, zoom) for size in (2, 5, 10) for zoom in (2, 3.4)
-        ])
+    @pytest.mark.parametrize(
+        "size, zoom", [(size, zoom) for size in (2, 5, 10) for zoom in (2, 3.4)]
+    )
     def test_k_values_and_k_vectors(self, size, zoom):
         dp = freud.diffraction.DiffractionPattern()
 
@@ -198,9 +200,7 @@ class TestDiffractionPattern:
         first_k_vector = rowan.rotate(
             view_orientation, [first_k_value, first_k_value, 0]
         )
-        last_k_vector = rowan.rotate(
-            view_orientation, [last_k_value, last_k_value, 0]
-        )
+        last_k_vector = rowan.rotate(view_orientation, [last_k_value, last_k_value, 0])
         top_right_k_vector = rowan.rotate(
             view_orientation, [first_k_value, last_k_value, 0]
         )
@@ -215,9 +215,7 @@ class TestDiffractionPattern:
 
         center = output_size // 2
         top_center_k_vector = rowan.rotate(view_orientation, [0, first_k_value, 0])
-        bottom_center_k_vector = rowan.rotate(
-            view_orientation, [0, last_k_value, 0]
-        )
+        bottom_center_k_vector = rowan.rotate(view_orientation, [0, last_k_value, 0])
         left_center_k_vector = rowan.rotate(view_orientation, [first_k_value, 0, 0])
         right_center_k_vector = rowan.rotate(view_orientation, [last_k_value, 0, 0])
 
@@ -275,7 +273,7 @@ class TestDiffractionPattern:
         v2_proj_original = np.copy(v2_proj)
 
         rot_angle = -np.arctan2(v1_proj_original[1], v1_proj_original[0])
-        system_rotation = rowan.from_axis_angle([0,0,1], rot_angle)
+        system_rotation = rowan.from_axis_angle([0, 0, 1], rot_angle)
         v1_proj = rowan.rotate(system_rotation, v1_proj_original)
         v2_proj = rowan.rotate(system_rotation, v2_proj_original)
         # make sure system is right-handed, which means the y-component of
@@ -284,7 +282,7 @@ class TestDiffractionPattern:
         # so that what we call v1 is the one that lies along +x
         if v2_proj[1] < 0:
             rot_angle = np.arctan2(v2_proj_original[1], v2_proj_original[0])
-            system_rotation = rowan.from_axis_angle([0,0,1], rot_angle)
+            system_rotation = rowan.from_axis_angle([0, 0, 1], rot_angle)
             v1_proj = rowan.rotate(system_rotation, v2_proj_original)
             v2_proj = rowan.rotate(system_rotation, v1_proj_original)
         assert v2_proj[1] > 0
@@ -315,7 +313,6 @@ class TestDiffractionPattern:
         # tests to verify kx and ky bins go here. These are difficult to write
         # until the dp object has separate arrays for kx and ky bins. See
         # temp_k_test.py
-
 
     # TODO: add tests for each of:
     # diamond(?), and
@@ -357,9 +354,7 @@ class TestDiffractionPattern:
     # failing tuple multiple times produces nearly idential errors
     # (same number of mismatched elements, nearly same maximum
     # rel. and abs. difference).
-    @pytest.mark.parametrize("Lx, Ly, Lz",
-    [(16, 16, 16), (16, 8, 4), (16, 14, 15)
-    ])
+    @pytest.mark.parametrize("Lx, Ly, Lz", [(16, 16, 16), (16, 8, 4), (16, 14, 15)])
     def test_ideal_gas(self, Lx, Ly, Lz):
 
         dp = freud.diffraction.DiffractionPattern()
@@ -370,7 +365,7 @@ class TestDiffractionPattern:
             milliseconds = int(round(time.time() * 1000))
 
             _, points = freud.data.make_random_system(
-                16.0, 16**5, seed=(i*milliseconds)%(2**32-1)
+                16.0, 16 ** 5, seed=(i * milliseconds) % (2 ** 32 - 1)
             )
             wrapped_points = box.wrap(points)
             dp.compute((box, wrapped_points), zoom=zoom, reset=False)
@@ -380,12 +375,15 @@ class TestDiffractionPattern:
 
         npt.assert_allclose(dp.diffraction[dp.diffraction < cutoff], avg, atol=1e-4)
 
-    @pytest.mark.parametrize("grid_size, output_size, zoom", [
-        (grid_size, output_size, zoom)
-        for grid_size in (256, 1024)
-        for output_size in (255,256, 1023, 1024)
-        for zoom in (1, 2.5, 4.123)
-    ])
+    @pytest.mark.parametrize(
+        "grid_size, output_size, zoom",
+        [
+            (grid_size, output_size, zoom)
+            for grid_size in (256, 1024)
+            for output_size in (255, 256, 1023, 1024)
+            for zoom in (1, 2.5, 4.123)
+        ],
+    )
     def test_cubic_system_parameterized(self, grid_size, output_size, zoom):
         length = 1
         box, positions = freud.data.UnitCell.sc().generate_system(
@@ -449,7 +447,10 @@ class TestDiffractionPattern:
 
             assert all(ideal_peaks.values())
 
-    @pytest.mark.parametrize("Lx, Ly, Lz", [permutation for permutation in itertools.permutations((0.6, 1.1, 2))])
+    @pytest.mark.parametrize(
+        "Lx, Ly, Lz",
+        [permutation for permutation in itertools.permutations((0.6, 1.1, 2))],
+    )
     def test_unique_box_vector_lengths(self, Lx, Ly, Lz):
         dp = freud.diffraction.DiffractionPattern(grid_size=512)
 
@@ -485,8 +486,8 @@ class TestDiffractionPattern:
         )
         # Pick a non-integer value for zoom, to ensure that peaks besides k=0
         # are not perfectly aligned on pixels.
-        dp = freud.diffraction.DiffractionPattern(grid_size = 512)
-        dp.compute((box, positions), zoom = 4.123)
+        dp = freud.diffraction.DiffractionPattern(grid_size=512)
+        dp.compute((box, positions), zoom=4.123)
 
         threshold = 0.2
         xs, ys = np.nonzero(dp.diffraction > threshold)
@@ -512,8 +513,8 @@ class TestDiffractionPattern:
         )
         # Pick a non-integer value for zoom, to ensure that peaks besides k=0
         # are not perfectly aligned on pixels.
-        dp = freud.diffraction.DiffractionPattern(grid_size = 512)
-        dp.compute((box, positions), zoom = 4.123)
+        dp = freud.diffraction.DiffractionPattern(grid_size=512)
+        dp.compute((box, positions), zoom=4.123)
 
         threshold = 0.2
         xs, ys = np.nonzero(dp.diffraction > threshold)
@@ -539,8 +540,8 @@ class TestDiffractionPattern:
         )
         # Pick a non-integer value for zoom, to ensure that peaks besides k=0
         # are not perfectly aligned on pixels.
-        dp = freud.diffraction.DiffractionPattern(grid_size = 512)
-        dp.compute((box, positions), zoom = 4.123)
+        dp = freud.diffraction.DiffractionPattern(grid_size=512)
+        dp.compute((box, positions), zoom=4.123)
 
         threshold = 0.2
         xs, ys = np.nonzero(dp.diffraction > threshold)
@@ -548,7 +549,9 @@ class TestDiffractionPattern:
 
         ideal_peaks = {i: False for i in [-2, -1, 0, 1, 2]}
 
-        lattice_vector = np.array([length * np.cos(np.pi / 3), length * np.sin(np.pi / 3), 0])
+        lattice_vector = np.array(
+            [length * np.cos(np.pi / 3), length * np.sin(np.pi / 3), 0]
+        )
         for peak in ideal_peaks:
             for x, y in xy:
                 k_vector = dp.k_vectors[x, y]
@@ -558,7 +561,6 @@ class TestDiffractionPattern:
                     ideal_peaks[peak] = True
 
         assert all(ideal_peaks.values())
-
 
     def test_rotated_system(self):
         dp = freud.diffraction.DiffractionPattern(grid_size=512)
