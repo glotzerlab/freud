@@ -116,6 +116,8 @@ Bradley Dice - **Lead developer**
 * Added scikit-build support for Windows.
 * Fixed 2D image calculations.
 * Optimized NeighborList ``filter`` method.
+* Fixed documented formulas for ``Steinhardt`` class.
+* Fixed incorrect computation of ``Steinhardt`` averaged quantities.
 
 Eric Harper, University of Michigan - **Former lead developer**
 
@@ -287,6 +289,7 @@ Yezhi Jin
 
 Brandon Butler
 
+* Added support for multiple ``l`` in ``Steinhardt`` along with performance improvements.
 * Rewrote Steinhardt order parameter.
 
 Jin Soo Ihm
