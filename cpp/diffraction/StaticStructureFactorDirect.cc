@@ -58,10 +58,12 @@ void StaticStructureFactorDirect::accumulate(const freud::locality::NeighborQuer
                                              const vec3<float>* query_points, unsigned int n_query_points,
                                              unsigned int n_total)
 {
+    // Compute k vectors by sampling reciprocal space
     auto const& box = neighbor_query->getBox();
-    reciprocal_isotropic(box);
-    auto* const k_points = m_k_vectors.data();
-    auto const n_k_points = m_k_vectors.size();
+    auto const k_bin_edges = m_structure_factor.getBinEdges()[0];
+    auto const k_min = k_bin_edges.front();
+    auto const k_max = k_bin_edges.back();
+    m_k_points = reciprocal_isotropic(box, k_max, k_min, m_max_k_points);
 
     // The minimum k value of validity is 4 * pi / L, where L is the smallest side length.
     // This is equal to 2 * pi / r_max.
@@ -72,14 +74,14 @@ void StaticStructureFactorDirect::accumulate(const freud::locality::NeighborQuer
 
     // Compute F_k for the points
     auto const F_k_points = StaticStructureFactorDirect::compute_F_k(
-        neighbor_query->getPoints(), neighbor_query->getNPoints(), n_total, k_points, n_k_points);
+        neighbor_query->getPoints(), neighbor_query->getNPoints(), n_total, m_k_points);
 
     // Compute F_k for the query points (if necessary) and compute the product S_k
     std::vector<float> S_k_all_points;
     if (query_points != nullptr)
     {
         auto const F_k_query_points = StaticStructureFactorDirect::compute_F_k(query_points, n_query_points,
-                                                                               n_total, k_points, n_k_points);
+                                                                               n_total, m_k_points);
         S_k_all_points = StaticStructureFactorDirect::compute_S_k(F_k_points, F_k_query_points);
     }
     else
@@ -88,10 +90,10 @@ void StaticStructureFactorDirect::accumulate(const freud::locality::NeighborQuer
     }
 
     // Bin the S_k values and track the number of k values in each bin
-    util::forLoopWrapper(0, n_k_points, [&](size_t begin_k_index, size_t end_k_index) {
+    util::forLoopWrapper(0, m_k_points.size(), [&](size_t begin_k_index, size_t end_k_index) {
         for (size_t k_index = begin_k_index; k_index < end_k_index; ++k_index)
         {
-            auto const k_vec = k_points[k_index];
+            auto const k_vec = m_k_points[k_index];
             auto const k_magnitude = std::sqrt(dot(k_vec, k_vec));
             auto const k_bin = m_structure_factor.bin({k_magnitude});
             m_local_structure_factor.increment(k_bin, S_k_all_points[k_index]);
@@ -119,9 +121,9 @@ void StaticStructureFactorDirect::reduce()
 std::vector<std::complex<float>> StaticStructureFactorDirect::compute_F_k(const vec3<float>* points,
                                                                           unsigned int n_points,
                                                                           unsigned int n_total,
-                                                                          const vec3<float>* k_points,
-                                                                          unsigned int n_k_points)
+                                                                          const std::vector<vec3<float>>& k_points)
 {
+    auto const n_k_points = k_points.size();
     auto F_k = std::vector<std::complex<float>>(n_k_points);
     std::complex<float> const normalization(1.0f / std::sqrt(n_total));
 
@@ -155,14 +157,6 @@ StaticStructureFactorDirect::compute_S_k(const std::vector<std::complex<float>>&
         }
     });
     return S_k;
-}
-
-void StaticStructureFactorDirect::reciprocal_isotropic(const box::Box& box)
-{
-    auto const k_bin_edges = m_structure_factor.getBinEdges()[0];
-    auto const k_min = k_bin_edges.front();
-    auto const k_max = k_bin_edges.back();
-    m_k_vectors = ::freud::diffraction::reciprocal_isotropic(box, k_max, k_min, m_max_k_points);
 }
 
 inline Eigen::Matrix3f box_to_matrix(const box::Box& box)

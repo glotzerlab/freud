@@ -31,5 +31,6 @@ cdef extern from "StaticStructureFactorDirect.h" namespace "freud::diffraction":
         const vector[float] getBinEdges() const
         const vector[float] getBinCenters() const
         float getMinValidK() const
+        vector[vec3[float]] getKPoints() const
 
     vector[vec3[float]] reciprocal_isotropic(const freud._box.Box &, float, float, unsigned int)

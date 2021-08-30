@@ -338,10 +338,6 @@ cdef class StaticStructureFactorDirect(_Compute):
         if reset:
             self._reset()
 
-        # Sample k-space without preference to direction
-        self._k_points = freud.util._convert_array(
-            reciprocal_isotropic(nq.box, self.k_max, self.k_min, self.max_k_points), shape=(None, 3))
-
         cdef:
             const float[:, ::1] l_points = nq.points
             unsigned int num_points = l_points.shape[0]
@@ -426,7 +422,8 @@ cdef class StaticStructureFactorDirect(_Compute):
     @_Compute._computed_property
     def k_points(self):
         r""":class:`numpy.ndarray`: The :math:`\vec{k}` points used in the calculation."""
-        return np.asarray(self._k_points)
+        cdef vector[vec3[float]] k_points = self.thisptr.getKPoints()
+        return np.asarray([[k.x, k.y, k.z] for k in k_points])
 
     def plot(self, ax=None):
         """Plot static structure factor.

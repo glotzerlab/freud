@@ -104,20 +104,23 @@ public:
         return m_min_valid_k;
     }
 
+    //! Get the k points last used
+    std::vector<vec3<float>> getKPoints() const
+    {
+        return m_k_points;
+    }
+
 private:
     //! Compute the complex amplitude F(k) for a set of points and k points
     static std::vector<std::complex<float>> compute_F_k(const vec3<float>* points, unsigned int n_points,
-                                                        unsigned int n_total, const vec3<float>* k_points,
-                                                        unsigned int n_k_points);
+                                                        unsigned int n_total, const std::vector<vec3<float>>& k_points);
 
     //! Compute the static structure factor S(k) for all k points
     static std::vector<float> compute_S_k(const std::vector<std::complex<float>>& F_k_points,
                                           const std::vector<std::complex<float>>& F_k_query_points);
 
-    void reciprocal_isotropic(const box::Box& box);
-
     unsigned int m_max_k_points;                 //!< Target number of k-vectors to sample
-    std::vector<vec3<float>> m_k_vectors;        //!< k-vectors used for sampling
+    std::vector<vec3<float>> m_k_points;        //!< k-vectors used for sampling
     StructureFactorHistogram m_structure_factor; //!< Histogram to hold computed structure factor
     StructureFactorHistogram::ThreadLocalHistogram
         m_local_structure_factor; //!< Thread local histograms for TBB parallelism
