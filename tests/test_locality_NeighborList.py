@@ -38,7 +38,9 @@ class TestNeighborList:
     def test_filter_r_invalid_arguments(self):
         # Make sure that invalid NeighborList.filter_r objects raise errors
         with pytest.raises(ValueError):
-            freud.locality.NeighborList.filter_r(r_max=-1)
+            freud.locality.NeighborList.filter_r(r_max=-1, r_min=1)
+        with pytest.raises(ValueError):
+            freud.locality.NeighborList.filter_r(r_max=1, r_min=-1)    
         with pytest.raises(ValueError):
             freud.locality.NeighborList.filter_r(r_max=1, r_min=2)
 
