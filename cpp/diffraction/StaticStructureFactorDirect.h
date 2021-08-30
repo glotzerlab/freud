@@ -98,6 +98,12 @@ public:
         return m_structure_factor.getBinCenters()[0];
     }
 
+    //! Get the maximum number of k points
+    unsigned int getMaxKPoints() const
+    {
+        return m_max_k_points;
+    }
+
     //! Get the minimum valid k value
     float getMinValidK() const
     {

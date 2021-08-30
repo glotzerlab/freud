@@ -294,14 +294,11 @@ cdef class StaticStructureFactorDirect(_Compute):
 
     cdef:
         freud._diffraction.StaticStructureFactorDirect * thisptr
-        int _max_k_points
-        float[:, ::1] _k_points
 
     def __cinit__(self, unsigned int bins, float k_max, float k_min=0, unsigned int max_k_points=20000):
         if type(self) == StaticStructureFactorDirect:
             self.thisptr = new freud._diffraction.StaticStructureFactorDirect(
                 bins, k_max, k_min, max_k_points)
-        self._max_k_points = max_k_points
 
     def __dealloc__(self):
         if type(self) == StaticStructureFactorDirect:
@@ -341,8 +338,6 @@ cdef class StaticStructureFactorDirect(_Compute):
         cdef:
             const float[:, ::1] l_points = nq.points
             unsigned int num_points = l_points.shape[0]
-            const float[:, ::1] l_k_points = self._k_points
-            unsigned int num_k_points = l_k_points.shape[0]
             const vec3[float]* l_query_points_ptr = NULL
             const float[:, ::1] l_query_points
             unsigned int num_query_points
@@ -409,7 +404,7 @@ cdef class StaticStructureFactorDirect(_Compute):
     def max_k_points(self):
         r"""int: The maximum number of :math:`\vec{k}` points to use when constructing :math:`k`-space
         grid."""
-        return self._max_k_points
+        return self.thisptr.getMaxKPoints()
 
     @_Compute._computed_property
     def S_k(self):
