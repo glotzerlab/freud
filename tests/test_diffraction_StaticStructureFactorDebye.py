@@ -26,6 +26,9 @@ def _validate_debye_method(system, bins, k_max, k_min):
             Minimum :math:`k` value to include in the calculation.
     """
     system = freud.locality.NeighborQuery.from_system(system)
+    new_box = system.box
+    new_box.periodic = False
+    system = freud.locality.NeighborQuery.from_system((new_box, system.points))
     r_max = np.nextafter(np.min(system.box.L) * 0.5, 0, dtype=np.float32)
     N = len(system.points)
 
