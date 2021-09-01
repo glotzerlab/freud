@@ -134,6 +134,10 @@ cdef class StaticStructureFactorDebye(_Compute):
         # neighbors/qargs. The C++ class builds the largest allowed ball query
         # (r_max = L/2).
         nq = freud.locality.NeighborQuery.from_system(system)
+        # Debeye method needs PBC=False
+        new_box = nq.box
+        new_box.periodic = False
+        nq = freud.locality.NeighborQuery.from_system((new_box, nq.points))
 
         if query_points is None:
             query_points = nq.points
