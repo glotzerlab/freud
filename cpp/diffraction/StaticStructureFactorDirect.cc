@@ -125,7 +125,7 @@ std::vector<std::complex<float>> StaticStructureFactorDirect::compute_F_k(const 
 {
     auto const n_k_points = k_points.size();
     auto F_k = std::vector<std::complex<float>>(n_k_points);
-    std::complex<float> const normalization(1.0F / std::sqrtf(n_total));
+    std::complex<float> const normalization(1.0F / (float)std::sqrt(n_total));
 
     util::forLoopWrapper(0, n_k_points, [&](size_t begin, size_t end) {
         for (size_t k_index = begin; k_index < end; ++k_index)
