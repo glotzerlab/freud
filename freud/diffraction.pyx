@@ -33,7 +33,7 @@ from freud.util cimport _Compute, vec3
 logger = logging.getLogger(__name__)
 
 cdef class StaticStructureFactorDebye(_Compute):
-    r"""Computes a 1D static structure factor.
+    r"""Computes a 1D static structure factor using Debye scattering equation.
 
     This computes the static `structure factor
     <https://en.wikipedia.org/wiki/Structure_factor>`__ :math:`S(k)`, assuming
