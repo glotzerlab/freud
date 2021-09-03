@@ -26,10 +26,6 @@ def _validate_debye_method(system, bins, k_max, k_min):
             Minimum :math:`k` value to include in the calculation.
     """
     system = freud.locality.NeighborQuery.from_system(system)
-    new_box = system.box
-    new_box.periodic = False
-    system = freud.locality.NeighborQuery.from_system((new_box, system.points))
-    r_max = np.nextafter(np.min(system.box.L) * 0.5, 0, dtype=np.float32)
     N = len(system.points)
 
     Q = np.linspace(k_min, k_max, bins, endpoint=False)
@@ -37,8 +33,7 @@ def _validate_debye_method(system, bins, k_max, k_min):
     S = np.zeros_like(Q)
 
     # Compute all pairwise distances
-    query_args = dict(mode="ball", r_max=r_max, exclude_ii=False)
-    distances = system.query(system.points, query_args).toNeighborList().distances
+    distances = system.box.compute_all_distances(system.points, system.points).flatten()
 
     for i, q in enumerate(Q):
         S[i] += np.sum(np.sinc(q * distances / np.pi)) / N
@@ -98,7 +93,9 @@ class TestStaticStructureFactorDebye:
         system = freud.AABBQuery.from_system((box, points))
         A_points = system.points[: N // 3]
         B_points = system.points[N // 3 :]
-        sf = freud.diffraction.StaticStructureFactorDebye(bins=100, k_max=10)
+        sf = freud.diffraction.StaticStructureFactorDebye(
+            bins=100, k_min=np.pi / L, k_max=30
+        )
         sf.compute((system.box, B_points), query_points=A_points, N_total=N)
         S_AB = sf.S_k
         sf.compute((system.box, A_points), query_points=B_points, N_total=N)
