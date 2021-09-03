@@ -125,7 +125,7 @@ std::vector<std::complex<float>> StaticStructureFactorDirect::compute_F_k(const 
 {
     auto const n_k_points = k_points.size();
     auto F_k = std::vector<std::complex<float>>(n_k_points);
-    std::complex<float> const normalization(1.0f / std::sqrt(n_total));
+    std::complex<float> const normalization(1.0 / std::sqrt(n_total));
 
     util::forLoopWrapper(0, n_k_points, [&](size_t begin, size_t end) {
         for (size_t k_index = begin; k_index < end; ++k_index)
@@ -181,15 +181,15 @@ inline float get_prune_distance(unsigned int max_k_points, float q_max, float q_
         return std::numeric_limits<float>::infinity();
     }
     // We use Cardano's formula to compute the pruning distance.
-    auto const p = -0.75f * q_max * q_max;
-    auto const q = 3.0f * static_cast<float>(max_k_points) * q_volume / static_cast<float>(M_PI)
-        - q_max * q_max * q_max / 4.0f;
-    auto const D = p * p * p / 27.0f + q * q / 4.0f;
+    auto const p = -0.75F * q_max * q_max;
+    auto const q = 3.0F * static_cast<float>(max_k_points) * q_volume / static_cast<float>(M_PI)
+        - q_max * q_max * q_max / 4.0F;
+    auto const D = p * p * p / 27.0F + q * q / 4.0F;
 
-    auto const u = std::pow(-std::complex<float>(q / 2.0f) + std::sqrt(std::complex<float>(D)), 1.0f / 3.0f);
-    auto const v = std::pow(-std::complex<float>(q / 2.0f) - std::sqrt(std::complex<float>(D)), 1.0f / 3.0f);
-    auto const x = -(u + v) / 2.0f - std::complex<float>(0.0f, 1.0f) * (u - v) * std::sqrt(3.0f) / 2.0f;
-    return std::real(x) + q_max / 2.0f;
+    auto const u = std::pow(-std::complex<float>(q / 2.0F) + std::sqrt(std::complex<float>(D)), 1.0F / 3.0F);
+    auto const v = std::pow(-std::complex<float>(q / 2.0F) - std::sqrt(std::complex<float>(D)), 1.0F / 3.0F);
+    auto const x = -(u + v) / 2.0F - std::complex<float>(0.0F, 1.0F) * (u - v) * std::sqrt(3.0F) / 2.0F;
+    return std::real(x) + q_max / 2.0F;
 }
 
 std::vector<vec3<float>> reciprocal_isotropic(const box::Box& box, float k_max, float k_min,
