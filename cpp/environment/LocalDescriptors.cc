@@ -32,7 +32,7 @@ void LocalDescriptors::compute(const locality::NeighborQuery* nq, const vec3<flo
     }
     m_sphArray.prepare({m_nlist.getNumBonds(), getSphWidth()});
 
-    util::forLoopWrapper(0, nq->getNPoints(), [=](size_t begin, size_t end) {
+    util::forLoopWrapper(0, nq->getNPoints(), [&](size_t begin, size_t end) {
         fsph::PointSPHEvaluator<float> sph_eval(m_l_max);
 
         for (size_t i = begin; i < end; ++i)
