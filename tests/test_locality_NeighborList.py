@@ -36,7 +36,7 @@ class TestNeighborList:
             self.nlist.weights[18] = 3
 
     def test_filter_r_invalid_arguments(self):
-        # Make sure that invalid NeighborList.filter_r objects raise errors
+        # Make sure that invalid NeighborList.filter_r arguments raise errors
         with pytest.raises(ValueError):
             self.nlist.filter_r(r_max=-1, r_min=1)
         with pytest.raises(ValueError):
