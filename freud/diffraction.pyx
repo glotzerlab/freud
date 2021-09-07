@@ -258,7 +258,7 @@ cdef class DiffractionPattern(_Compute):
         # Transform the image (scale, shear, zoom) and normalize S(k) by N^2
         N = len(system.points)
         diffraction_frame = self._transform(
-            diffraction_frame, system.box, inv_shear, zoom) / (N)
+            diffraction_frame, system.box, inv_shear, zoom) / N
 
         # Add to the diffraction pattern and increment the frame counter
         self._diffraction += np.asarray(diffraction_frame)
