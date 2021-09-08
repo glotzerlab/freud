@@ -20,36 +20,32 @@ class TestStaticStructureFactorDirect:
         box, positions = freud.data.UnitCell.fcc().generate_system(4)
         sf.compute((box, positions))
 
-    @pytest.mark.xfail(reason="The Debye method appears to be inaccurate.")
-    def test_debye_validation(self):
-        """Validate the Direct method against Debye method implementation."""
+    def test_against_dyansor(self):
+        """Validate the direct method agains dynasor package."""
         bins = 100
-        k_max = 100
-        max_k_points = 20000
+        k_max = 30
+        max_k_points = 100000
         sf_direct = freud.diffraction.StaticStructureFactorDirect(
             bins=bins, k_max=k_max, max_k_points=max_k_points
-        )
-        sf_debye = freud.diffraction.StaticStructureFactorDebye(
-            bins=bins, k_max=k_max, k_min=0
         )
         box, points = freud.data.UnitCell.fcc().generate_system(4, sigma_noise=0.01)
         system = freud.locality.NeighborQuery.from_system((box, points))
         sf_direct.compute(system)
-        sf_debye.compute(system)
-        npt.assert_allclose(sf_direct.bin_centers, sf_debye.bin_centers)
-        npt.assert_allclose(sf_direct.bin_edges, sf_debye.bin_edges)
-        # bdice: Currently this test fails. The first bin disagrees. I don't
-        # expect for the Debye method to agree with this isotropic grid
-        # sampling method for most k-values. However, I think the first bin
-        # disagrees because the Debye method's first bin is not centered at
-        # k=0. I am reconsidering the conversation Dom and I had earlier about
-        # whether the k-space histogram should be centered at k=0. It seems
-        # natural for the first bin S(0) to be equal to N. Additionally, it
-        # makes some physical sense to have a difference between histograms in
-        # real space (which have their first bin's left edge at 0) and
-        # histograms in k-space (which might have the first bin's *center* at
-        # 0).
-        npt.assert_allclose(sf_direct.S_k[0], sf_debye.S_k[0], rtol=1e-5, atol=1e-5)
+        from dsf.reciprocal import calc_rho_k, reciprocal_isotropic
+        from scipy.stats import binned_statistic
+
+        system = freud.locality.NeighborQuery.from_system(system)
+        box_matrix = system.box.to_matrix()
+        rec = reciprocal_isotropic(box_matrix, max_points=max_k_points, max_k=k_max)
+        points_rho_ks = calc_rho_k(system.points.T, rec.k_points, ftype=rec.ftype)
+        S_k_all = np.real(points_rho_ks * points_rho_ks.conjugate())
+        S_k_binned, _, _ = binned_statistic(
+            x=rec.k_distance,
+            values=S_k_all,
+            statistic="mean",
+            bins=sf_direct.bin_edges,
+        )
+        npt.assert_allclose(sf_direct.S_k, S_k_binned, rtol=1e-5, atol=1e-5)
 
     def test_S_0_is_N(self):
         # The Direct method evaluates S(k) in bins. Here, we choose the binning
