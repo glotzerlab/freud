@@ -815,6 +815,9 @@ def reciprocal_isotropic(box, k_max, k_min=0, max_k_points=10000):
     This method is based on the MIT licensed `Dynasor library
     <https://gitlab.com/materials-modeling/dynasor/>`__.
 
+    This implementation approaches Dynasor implementation for number of
+    max_k_points around 50000, but is also faster.
+
     Args:
         box (:class:`freud.box.Box`):
             Simulation box used to compute the reciprocal lattice vectors.
