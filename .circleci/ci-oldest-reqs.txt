@@ -1,4 +1,4 @@
-ase==3.22.0
+ase==3.21.1
 cmake==3.6.3.post1
 cython==0.29.14
 garnett==0.7.1

@@ -90,7 +90,7 @@ setup(
         "scipy>=1.1",
     ],
     tests_require=[
-        "ase==3.22.0",
+        "ase==3.21.1",
         "gsd>=2.0",
         "garnett>=0.7.1",
         "matplotlib>=3.0",
