@@ -90,7 +90,8 @@ setup(
         "scipy>=1.1",
     ],
     tests_require=[
-        "dynasor @ git+https://gitlab.com/materials-modeling/dynasor.git",
+        "dynasor @ https://gitlab.com/materials-modeling/dynasor/-/archive/1.1/"
+        "dynasor-1.1.tar.gz",
         "gsd>=2.0",
         "garnett>=0.7.1",
         "matplotlib>=3.0",
