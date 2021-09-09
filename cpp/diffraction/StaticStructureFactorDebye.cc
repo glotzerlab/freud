@@ -54,15 +54,15 @@ void StaticStructureFactorDebye::accumulate(const freud::locality::NeighborQuery
     auto const min_box_length
         = box.is2D() ? std::min(box_L.x, box_L.y) : std::min(box_L.x, std::min(box_L.y, box_L.z));
     auto const r_max = std::nextafter(float(0.5) * min_box_length, float(0));
-    auto const qargs = freud::locality::QueryArgs::make_ball(r_max, 0.0, false);
+    auto const points= neighbor_query->getPoints();
+    auto const n_points= neighbor_query->getNPoints();
 
     // The minimum k value of validity is 4 * pi / L, where L is the smallest side length.
     // This is equal to 2 * pi / r_max.
     m_min_valid_k = std::min(m_min_valid_k, freud::constants::TWO_PI / r_max);
 
-    // This function requires a NeighborList object, so we always make one and store it locally.
-    auto const nlist = locality::makeDefaultNlist(neighbor_query, nullptr, query_points, n_query_points, qargs);
-    auto const& distances = nlist.getDistances();
+    auto distances = std::vector<float>(n_points * n_query_points);
+    box.computeAllDistances(points, n_points, query_points, n_query_points, distances.data());
 
     auto const k_bin_centers = m_histogram.getBinCenters()[0];
 

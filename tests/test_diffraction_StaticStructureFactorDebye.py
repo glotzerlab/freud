@@ -26,7 +26,6 @@ def _validate_debye_method(system, bins, k_max, k_min):
             Minimum :math:`k` value to include in the calculation.
     """
     system = freud.locality.NeighborQuery.from_system(system)
-    r_max = np.nextafter(np.min(system.box.L) * 0.5, 0, dtype=np.float32)
     N = len(system.points)
 
     Q = np.linspace(k_min, k_max, bins, endpoint=False)
@@ -34,8 +33,7 @@ def _validate_debye_method(system, bins, k_max, k_min):
     S = np.zeros_like(Q)
 
     # Compute all pairwise distances
-    query_args = dict(mode="ball", r_max=r_max, exclude_ii=False)
-    distances = system.query(system.points, query_args).toNeighborList().distances
+    distances = system.box.compute_all_distances(system.points, system.points).flatten()
 
     for i, q in enumerate(Q):
         S[i] += np.sum(np.sinc(q * distances / np.pi)) / N
@@ -62,20 +60,29 @@ class TestStaticStructureFactorDebye:
         npt.assert_allclose(sf.bin_centers, Q)
         npt.assert_allclose(sf.S_k, S, rtol=1e-5, atol=1e-5)
 
-    @pytest.mark.xfail(reason="The current Debye implementation cannot evaluate S(0).")
-    def test_S_0_is_N(self):
-        # The Debye method evaluates S(k) at k bin centers, not k bin edges.
-        # Thus the smallest k-value evaluated is a small finite value rather
-        # than zero, which means that S(0) cannot be measured. If we choose to
-        # change the format of the k bins, it should be possible to make this
-        # test pass.
-        L = 10
-        N = 1000
-        box, points = freud.data.make_random_system(L, N)
-        system = freud.AABBQuery.from_system((box, points))
-        sf = freud.diffraction.StaticStructureFactorDebye(bins=100, k_max=10)
+    def test_debye_ase(self):
+        """Validate Debye method agains ASE implementation"""
+        bins = 1000
+        k_max = 100
+        k_min = 0
+        box, points = freud.data.UnitCell.fcc().generate_system(4, sigma_noise=0.01)
+        box.periodic = False
+        print(box)
+        system = freud.locality.NeighborQuery.from_system((box, points))
+        sf = freud.diffraction.StaticStructureFactorDebye(bins, k_max, k_min)
         sf.compute(system)
-        assert np.isclose(sf.S_k[0], N)
+        import ase
+        from ase.utils.xrdebye import XrDebye
+
+        atoms = ase.Atoms(
+            positions=points, pbc=True, cell=box.L, numbers=np.ones(len(points))
+        )
+        xrd = XrDebye(atoms=atoms, wavelength=1.0, method="??", damping=0)
+        S_ase = []
+        for i in sf.bin_centers / (2 * np.pi):
+            S_ase.append(xrd.get(i))
+        S_ase = np.asarray(S_ase) / len(points)
+        npt.assert_allclose(sf.S_k, S_ase, rtol=1e-5, atol=1e-5)
 
     def test_partial_structure_factor_arguments(self):
         sf = freud.diffraction.StaticStructureFactorDebye(1000, 100)
@@ -95,7 +102,9 @@ class TestStaticStructureFactorDebye:
         system = freud.AABBQuery.from_system((box, points))
         A_points = system.points[: N // 3]
         B_points = system.points[N // 3 :]
-        sf = freud.diffraction.StaticStructureFactorDebye(bins=100, k_max=10)
+        sf = freud.diffraction.StaticStructureFactorDebye(
+            bins=100, k_min=np.pi / L, k_max=30
+        )
         sf.compute((system.box, B_points), query_points=A_points, N_total=N)
         S_AB = sf.S_k
         sf.compute((system.box, A_points), query_points=B_points, N_total=N)

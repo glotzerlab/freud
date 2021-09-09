@@ -35,7 +35,7 @@ from freud.util cimport _Compute, vec3
 logger = logging.getLogger(__name__)
 
 cdef class StaticStructureFactorDebye(_Compute):
-    r"""Computes a 1D static structure factor.
+    r"""Computes a 1D static structure factor using Debye scattering equation.
 
     This computes the static `structure factor
     <https://en.wikipedia.org/wiki/Structure_factor>`__ :math:`S(k)`, assuming
@@ -132,9 +132,6 @@ cdef class StaticStructureFactorDebye(_Compute):
             const float[:, ::1] l_query_points
             unsigned int num_query_points
 
-        # This is identical to _preprocess_arguments except with no
-        # neighbors/qargs. The C++ class builds the largest allowed ball query
-        # (r_max = L/2).
         nq = freud.locality.NeighborQuery.from_system(system)
 
         if query_points is None:
