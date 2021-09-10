@@ -37,9 +37,9 @@ StaticStructureFactorDebye::StaticStructureFactorDebye(unsigned int bins, float 
 
     // Construct the Histogram object that will be used to track the structure factor
     auto axes
-        = StaticStructureFactorDebyeHistogram::Axes {std::make_shared<util::RegularAxis>(bins, k_min, k_max)};
-    m_histogram = StaticStructureFactorDebyeHistogram(axes);
-    m_local_histograms = StaticStructureFactorDebyeHistogram::ThreadLocalHistogram(m_histogram);
+        = S_kHistogram::Axes {std::make_shared<util::RegularAxis>(bins, k_min, k_max)};
+    m_histogram = S_kHistogram(axes);
+    m_local_histograms = S_kHistogram::ThreadLocalHistogram(m_histogram);
     m_min_valid_k = std::numeric_limits<float>::infinity();
     m_structure_factor.prepare(bins);
 }
