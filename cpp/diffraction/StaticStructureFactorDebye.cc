@@ -61,7 +61,7 @@ void StaticStructureFactorDebye::accumulate(const freud::locality::NeighborQuery
     // This is equal to 2 * pi / r_max.
     m_min_valid_k = std::min(m_min_valid_k, freud::constants::TWO_PI / r_max);
 
-    auto distances = std::vector<float>(n_points * n_query_points);
+    std::vector<float> distances(n_points * n_query_points);
     box.computeAllDistances(points, n_points, query_points, n_query_points, distances.data());
 
     auto const k_bin_centers = m_histogram.getBinCenters()[0];
