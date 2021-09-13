@@ -38,7 +38,10 @@ cdef class StaticStructureFactorDebye(_Compute):
     This computes the static `structure factor
     <https://en.wikipedia.org/wiki/Structure_factor>`__ :math:`S(k)`, assuming
     an isotropic system (averaging over all :math:`k` vectors of the same
-    magnitude). This is implemented using the Debye scattering equation:
+    magnitude). Note that freud employs the physics convention in which
+    :math: `k` is used, as opposed to the crystallographic one where :math: `q`
+    is used. The relation is :math:`k=2 \pi q`. This is implemented using the
+    Debye scattering equation:
 
     .. math::
 
@@ -49,7 +52,7 @@ cdef class StaticStructureFactorDebye(_Compute):
     conventions). For more information see `here
     <https://en.wikipedia.org/wiki/Structure_factor>`__. The equation 4 from
     the link can be obtained by replacing :math:`\frac{\sin(k r)}{kr}` with
-    :math:`\text{sinc}(k r)`.
+    :math:`\text{sinc}(k r)`. Note that the definition requires :math:`S(0) = N`.
 
     .. note::
         This code assumes all particles have a form factor :math:`f` of 1.
@@ -95,10 +98,22 @@ cdef class StaticStructureFactorDebye(_Compute):
     def compute(self, system, query_points=None, N_total=None, reset=True):
         r"""Computes static structure factor.
 
+        Example for a single component system::
+
+            >>> sf = freud.diffraction.StaticStructureFactorDebye(bins=100, k_max=10, k_min=0)
+            >>> sf.compute((box, points))
+
+        Example for partial mixed structure factor for multiple component system AB::
+
+            >>> sf = freud.diffraction.StaticStructureFactorDebye(bins=100, k_max=10, k_min=0)
+            >>> sf.compute((box, A_points), query_points=B_points, N_total=N_particles)
+
         Args:
             system:
                 Any object that is a valid argument to
-                :class:`freud.locality.NeighborQuery.from_system`.
+                :class:`freud.locality.NeighborQuery.from_system`. Note that box is
+                allowed to change when calculating trajectory average static structure
+                factor.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Query points used to calculate the partial structure factor.
                 Uses the system's points if :code:`None`. See class
