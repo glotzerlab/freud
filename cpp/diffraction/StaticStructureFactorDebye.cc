@@ -96,7 +96,7 @@ void StaticStructureFactorDebye::reduce()
     // Normalize by the frame count if necessary
     if (m_frame_counter > 1)
     {
-        util::forLoopWrapper(0, m_structure_factor.size(), [this](size_t begin, size_t end) {
+        util::forLoopWrapper(0, m_structure_factor.size(), [&](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
                 m_structure_factor[i] /= static_cast<float>(m_frame_counter);
