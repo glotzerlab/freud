@@ -77,13 +77,11 @@ class TestStaticStructureFactorDebye:
         atoms = ase.Atoms(
             positions=points, pbc=True, cell=box.L, numbers=np.ones(len(points))
         )
-        xrd = asexrd.XrDebye(atoms=atoms, wavelength=1.0, method=None, damping=0.0, alpha=1.0)
-        S_ase = []
-        # collect S_k at desired k values
-        for i in sf.bin_centers / (2 * np.pi):
-            S_ase.append(xrd.get(i))
-        # normalize
-        S_ase = np.asarray(S_ase) / len(points)
+        xrd = asexrd.XrDebye(
+            atoms=atoms, wavelength=1.0, method=None, damping=0.0, alpha=1.0
+        )
+        # calculate S_k for given set of k values
+        S_ase = xrd.calc_pattern(sf.bin_centers, mode="SAXS") / len(points)
         npt.assert_allclose(sf.S_k, S_ase, rtol=1e-5, atol=1e-5)
 
     def test_partial_structure_factor_arguments(self):
