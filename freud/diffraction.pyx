@@ -33,15 +33,15 @@ from freud.util cimport _Compute, vec3
 logger = logging.getLogger(__name__)
 
 cdef class StaticStructureFactorDebye(_Compute):
-    r"""Computes a 1D static structure factor using Debye scattering equation.
+    r"""Computes a 1D static structure factor using the Debye scattering equation.
 
     This computes the static `structure factor
     <https://en.wikipedia.org/wiki/Structure_factor>`__ :math:`S(k)`, assuming
     an isotropic system (averaging over all :math:`k` vectors of the same
     magnitude). Note that freud employs the physics convention in which
-    :math: `k` is used, as opposed to the crystallographic one where :math: `q`
-    is used. The relation is :math:`k=2 \pi q`. This is implemented using the
-    Debye scattering equation:
+    :math:`k` is used, as opposed to the crystallographic one where :math:`q`
+    is used. The relation is :math:`k=2 \pi q`. The static structure factor
+    calculation is implemented using the Debye scattering equation:
 
     .. math::
 
@@ -57,21 +57,16 @@ cdef class StaticStructureFactorDebye(_Compute):
     .. note::
         This code assumes all particles have a form factor :math:`f` of 1.
 
-    Partial structure factors can be computed by providing ``query_points`` to the
-    :py:meth:`compute` method. When computing a partial structure factor, the
-    total number of points in the system must be specified. The normalization
-    criterion is based on the Faber-Ziman formalism. For particle types
-    :math:`\alpha` and :math:`\beta`, we compute the total scattering function
-    as a sum of the partial scattering functions as:
+    Partial structure factors can be computed by providing ``query_points`` and
+    total number of points in the system ``N_total`` to the :py:meth:`compute`
+    method. The normalization criterion is based on the Faber-Ziman formalism.
+    For particle types :math:`\alpha` and :math:`\beta`, we compute the total
+    scattering function as a sum of the partial scattering functions as:
 
     .. math::
 
         S(k) - 1 = \sum_{\alpha}\sum_{\beta} \frac{N_{\alpha}
         N_{\beta}}{N_{total}^2} \left(S_{\alpha \beta}(k) - 1\right)
-
-    This class is based on the MIT licensed `scattering library
-    <https://github.com/mattwthompson/scattering/>`__ and literature references
-    :cite:`Liu2016`.
 
     Args:
         bins (unsigned int):
@@ -205,7 +200,8 @@ cdef class StaticStructureFactorDebye(_Compute):
     @_Compute._computed_property
     def min_valid_k(self):
         """float: Minimum valid value of k for the computed system box, equal
-        to :math:`2\\pi/(L/2)` where :math:`L` is the minimum side length."""
+        to :math:`2\\pi/(L/2)=4\\pi/L` where :math:`L` is the minimum side length.
+        For more information see :cite:`Liu2016`."""
         return self.thisptr.getMinValidK()
 
     @_Compute._computed_property
