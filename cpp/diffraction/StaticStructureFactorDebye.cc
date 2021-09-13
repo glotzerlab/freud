@@ -30,6 +30,10 @@ StaticStructureFactorDebye::StaticStructureFactorDebye(unsigned int bins, float 
     {
         throw std::invalid_argument("StaticStructureFactorDebye requires k_max to be positive.");
     }
+    if (k_min < 0)
+    {
+        throw std::invalid_argument("StaticStructureFactorDebye requires k_min to be non-negative.");
+    }
     if (k_max <= k_min)
     {
         throw std::invalid_argument("StaticStructureFactorDebye requires that k_max must be greater than k_min.");
