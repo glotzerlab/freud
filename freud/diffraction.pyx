@@ -217,6 +217,10 @@ cdef class StaticStructureFactorDebye(_Compute):
     def plot(self, ax=None):
         """Plot static structure factor.
 
+    .. note::
+        This function plots :math:`S(k)` for :math:`k>min_valid_k`.
+        See :py:attr:`min_valid_k` for more information.
+
         Args:
             ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
                 :code:`None`, make a new figure and axis.
@@ -226,9 +230,9 @@ cdef class StaticStructureFactorDebye(_Compute):
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         import freud.plot
-        return freud.plot.line_plot(self.bin_edges[:self.nbins],
-                                    self.S_k,
-                                    title="Static Structure Factor",
+        return freud.plot.line_plot(self.bin_centers[self.bin_centers>self.min_valid_k],
+                                    self.S_k[self.bin_centers>self.min_valid_k],
+
                                     xlabel=r"$k$",
                                     ylabel=r"$S(k)$",
                                     ax=ax)
@@ -440,12 +444,12 @@ cdef class StaticStructureFactorDirect(_Compute):
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         import freud.plot
-        return freud.plot.line_plot(self.bin_edges[:self.nbins],
-                                self.S_k,
-                                title="Static Structure Factor",
-                                xlabel=r"$k$",
-                                ylabel=r"$S(k)$",
-                                ax=ax)
+        return freud.plot.line_plot(self.bin_centers[self.bin_centers>self.min_valid_k],
+                                    self.S_k[self.bin_centers>self.min_valid_k],
+                                    title="Static Structure Factor",
+                                    xlabel=r"$k$",
+                                    ylabel=r"$S(k)$",
+                                    ax=ax)
 
     def __repr__(self):
         return ("freud.diffraction.{cls}(bins={bins}, "
