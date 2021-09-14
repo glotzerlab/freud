@@ -409,7 +409,7 @@ cdef class StaticStructureFactorDirect(_Compute):
     @_Compute._computed_property
     def min_valid_k(self):
         """float: Minimum valid value of k for the computed system box, equal
-        to :math:`2\\pi/(L/2)` where :math:`L` is the minimum side length."""
+        to :math:`2\\pi/L` where :math:`L` is the minimum side length."""
         return self.thisptr.getMinValidK()
 
     @property
