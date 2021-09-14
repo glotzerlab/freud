@@ -70,7 +70,8 @@ void StaticStructureFactorDirect::accumulate(const freud::locality::NeighborQuer
     auto const box_L = box.getL();
     auto const min_box_length
         = box.is2D() ? std::min(box_L.x, box_L.y) : std::min(box_L.x, std::min(box_L.y, box_L.z));
-    m_min_valid_k = 2 * freud::constants::TWO_PI / min_box_length;
+    m_min_valid_k = std::min(m_min_valid_k, freud::constants::TWO_PI / min_box_length);
+
 
     // Compute F_k for the points
     auto const F_k_points = StaticStructureFactorDirect::compute_F_k(
