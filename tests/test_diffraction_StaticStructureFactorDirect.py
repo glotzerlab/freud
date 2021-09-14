@@ -22,6 +22,8 @@ class TestStaticStructureFactorDirect:
 
     def test_against_dyansor(self):
         """Validate the direct method agains dynasor package."""
+        dsfr = pytest.importorskip("dsf.reciprocal")
+        scs = pytest.importorskip("scipy.stats")
         bins = 100
         k_max = 30
         max_k_points = 100000
@@ -31,15 +33,16 @@ class TestStaticStructureFactorDirect:
         box, points = freud.data.UnitCell.fcc().generate_system(4, sigma_noise=0.01)
         system = freud.locality.NeighborQuery.from_system((box, points))
         sf_direct.compute(system)
-        from dsf.reciprocal import calc_rho_k, reciprocal_isotropic
-        from scipy.stats import binned_statistic
 
         system = freud.locality.NeighborQuery.from_system(system)
         box_matrix = system.box.to_matrix()
-        rec = reciprocal_isotropic(box_matrix, max_points=max_k_points, max_k=k_max)
-        points_rho_ks = calc_rho_k(system.points.T, rec.k_points, ftype=rec.ftype)
+        # dynasor
+        rec = dsfr.reciprocal_isotropic(
+            box_matrix, max_points=max_k_points, max_k=k_max
+        )
+        points_rho_ks = dsfr.calc_rho_k(system.points.T, rec.k_points, ftype=rec.ftype)
         S_k_all = np.real(points_rho_ks * points_rho_ks.conjugate())
-        S_k_binned, _, _ = binned_statistic(
+        S_k_binned, _, _ = scs.binned_statistic(
             x=rec.k_distance,
             values=S_k_all,
             statistic="mean",
