@@ -60,6 +60,9 @@ void StaticStructureFactorDirect::accumulate(const freud::locality::NeighborQuer
 {
     // Compute k vectors by sampling reciprocal space
     auto const& box = neighbor_query->getBox();
+    if (box.is2D()) {
+        throw std::invalid_argument("2D boxes are not currently supported.");
+    }
     auto const k_bin_edges = m_structure_factor.getBinEdges()[0];
     auto const k_min = k_bin_edges.front();
     auto const k_max = k_bin_edges.back();
