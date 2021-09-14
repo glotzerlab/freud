@@ -20,14 +20,11 @@ namespace freud { namespace diffraction {
 
 class StaticStructureFactorDebye
 {
-    using StaticStructureFactorDebyeHistogram = util::Histogram<float>;
+    using S_kHistogram = util::Histogram<float>;
 
 public:
     //! Constructor
     StaticStructureFactorDebye(unsigned int bins, float k_max, float k_min = 0);
-
-    //! Destructor
-    virtual ~StaticStructureFactorDebye() = default;
 
     //! Compute the structure factor S(k) using the Debye formula
     void accumulate(const freud::locality::NeighborQuery* neighbor_query, const vec3<float>* query_points,
@@ -80,8 +77,8 @@ public:
     }
 
 private:
-    StaticStructureFactorDebyeHistogram m_histogram; //!< Histogram to hold computed structure factor
-    StaticStructureFactorDebyeHistogram::ThreadLocalHistogram
+    S_kHistogram m_histogram; //!< Histogram to hold computed structure factor
+    S_kHistogram::ThreadLocalHistogram
         m_local_histograms;                       //!< Thread local histograms for TBB parallelism
     util::ManagedArray<float> m_structure_factor; //!< The computed structure factor
     unsigned int m_frame_counter {0};                 //!< Number of frames calculated

@@ -62,26 +62,26 @@ class TestStaticStructureFactorDebye:
 
     def test_debye_ase(self):
         """Validate Debye method agains ASE implementation"""
+        ase = pytest.importorskip("ase")
+        asexrd = pytest.importorskip("ase.utils.xrdebye")
         bins = 1000
         k_max = 100
         k_min = 0
         box, points = freud.data.UnitCell.fcc().generate_system(4, sigma_noise=0.01)
+        # ase implementation has no PBC taken into account
         box.periodic = False
-        print(box)
         system = freud.locality.NeighborQuery.from_system((box, points))
         sf = freud.diffraction.StaticStructureFactorDebye(bins, k_max, k_min)
         sf.compute(system)
-        import ase
-        from ase.utils.xrdebye import XrDebye
-
+        # ASE system generation as atoms object
         atoms = ase.Atoms(
             positions=points, pbc=True, cell=box.L, numbers=np.ones(len(points))
         )
-        xrd = XrDebye(atoms=atoms, wavelength=1.0, method="??", damping=0)
-        S_ase = []
-        for i in sf.bin_centers / (2 * np.pi):
-            S_ase.append(xrd.get(i))
-        S_ase = np.asarray(S_ase) / len(points)
+        xrd = asexrd.XrDebye(
+            atoms=atoms, wavelength=1.0, method=None, damping=0.0, alpha=1.0
+        )
+        # calculate S_k for given set of k values
+        S_ase = xrd.calc_pattern(sf.bin_centers, mode="SAXS") / len(points)
         npt.assert_allclose(sf.S_k, S_ase, rtol=1e-5, atol=1e-5)
 
     def test_partial_structure_factor_arguments(self):
