@@ -342,7 +342,15 @@ cdef class StaticStructureFactorDirect(_Compute):
                 "partial structure factor."
             )
 
-        cdef freud.locality.NeighborQuery nq = freud.locality.NeighborQuery.from_system(system)
+        # convert box to orthorombic and wrap points inside this new box
+        temp_nq = freud.locality.NeighborQuery.from_system(system)
+        box = temp_nq.box
+        box.xy = 0.0
+        box.xz = 0.0
+        box.yz = 0.0
+        points = np.asarray(box.wrap(temp_nq.points)).astype(np.float32)
+
+        cdef freud.locality.NeighborQuery nq = freud.locality.NeighborQuery.from_system((box,points))
 
         if reset:
             self._reset()
@@ -354,8 +362,9 @@ cdef class StaticStructureFactorDirect(_Compute):
             const float[:, ::1] l_query_points
             unsigned int num_query_points
 
+
         if query_points is not None:
-            l_query_points = query_points
+            l_query_points = np.asarray(query_points).astype(np.float32)
             num_query_points = l_query_points.shape[0]
             l_query_points_ptr = <vec3[float]*> &l_query_points[0, 0]
 
