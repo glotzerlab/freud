@@ -77,7 +77,7 @@ void RotationalAutocorrelation::compute(const quat<float>* ref_orientations, con
     }
 
     // Parallel loop is over orientations (technically (ref_or, or) pairs).
-    util::forLoopWrapper(0, N, [=](size_t begin, size_t end) {
+    util::forLoopWrapper(0, N, [&](size_t begin, size_t end) {
         for (size_t i = begin; i < end; ++i)
         {
             // Transform the orientation quaternions into Xi/Zeta coordinates;

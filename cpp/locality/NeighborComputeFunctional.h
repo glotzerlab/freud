@@ -123,7 +123,7 @@ void loopOverNeighborsIterator(const NeighborQuery* neighbor_query, const vec3<f
     {
         util::forLoopWrapper(
             0, n_query_points,
-            [=](size_t begin, size_t end) {
+            [&](size_t begin, size_t end) {
                 for (size_t i = begin; i != end; ++i)
                 {
                     std::shared_ptr<NeighborListPerPointIterator> niter
@@ -141,7 +141,7 @@ void loopOverNeighborsIterator(const NeighborQuery* neighbor_query, const vec3<f
         // iterate over the query object in parallel
         util::forLoopWrapper(
             0, n_query_points,
-            [=](size_t begin, size_t end) {
+            [&](size_t begin, size_t end) {
                 for (size_t i = begin; i != end; ++i)
                 {
                     std::shared_ptr<NeighborQueryPerPointIterator> it = iter->query(i);
@@ -183,7 +183,7 @@ void loopOverNeighbors(const NeighborQuery* neighbor_query, const vec3<float>* q
     {
         util::forLoopWrapper(
             0, nlist->getNumBonds(),
-            [=](size_t begin, size_t end) {
+            [&](size_t begin, size_t end) {
                 for (size_t bond = begin; bond != end; ++bond)
                 {
                     const NeighborBond nb(nlist->getNeighbors()(bond, 0), nlist->getNeighbors()(bond, 1),

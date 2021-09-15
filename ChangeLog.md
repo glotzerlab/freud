@@ -4,6 +4,11 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## next
+
+### Fixed
+* Updated lambda functions to capture `this` by reference, to ensure compatibility with C++20 and above.
+
 ## v2.6.2 -- 2021-06-26
 
 ### Fixed
