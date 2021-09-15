@@ -68,8 +68,7 @@ void StaticStructureFactorDirect::accumulate(const freud::locality::NeighborQuer
     auto const k_max = k_bin_edges.back();
     m_k_points = reciprocal_isotropic(box, k_max, k_min, m_max_k_points);
 
-    // The minimum k value of validity is 4 * pi / L, where L is the smallest side length.
-    // This is equal to 2 * pi / r_max.
+    // The minimum k value of validity is 2 * pi / L, where L is the smallest side length.
     auto const box_L = box.getL();
     auto const min_box_length
         = box.is2D() ? std::min(box_L.x, box_L.y) : std::min(box_L.x, std::min(box_L.y, box_L.z));
