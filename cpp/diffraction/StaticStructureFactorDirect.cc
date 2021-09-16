@@ -56,7 +56,7 @@ StaticStructureFactorDirect::StaticStructureFactorDirect(unsigned int bins, floa
 
 void StaticStructureFactorDirect::accumulate(const freud::locality::NeighborQuery* neighbor_query,
                                              const vec3<float>* query_points, unsigned int n_query_points,
-                                             unsigned int n_total)
+                                             unsigned int n_total, bool reuse_box)
 {
     // Compute k vectors by sampling reciprocal space
     auto const& box = neighbor_query->getBox();
@@ -66,7 +66,9 @@ void StaticStructureFactorDirect::accumulate(const freud::locality::NeighborQuer
     auto const k_bin_edges = m_structure_factor.getBinEdges()[0];
     auto const k_min = k_bin_edges.front();
     auto const k_max = k_bin_edges.back();
-    m_k_points = reciprocal_isotropic(box, k_max, k_min, m_max_k_points);
+    if ((reuse_box && !m_k_grid_assigned) || (!reuse_box)){
+        m_k_points = reciprocal_isotropic(box, k_max, k_min, m_max_k_points);
+    }
 
     // The minimum k value of validity is 2 * pi / L, where L is the smallest side length.
     auto const box_L = box.getL();

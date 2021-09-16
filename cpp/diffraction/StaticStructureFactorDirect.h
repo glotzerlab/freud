@@ -55,7 +55,7 @@ public:
 
     //! Compute the structure factor S(k) using the direct formula
     void accumulate(const freud::locality::NeighborQuery* neighbor_query, const vec3<float>* query_points,
-                    unsigned int n_query_points, unsigned int n_total);
+                    unsigned int n_query_points, unsigned int n_total, bool reuse_box);
 
     //! Reduce thread-local arrays onto the primary data arrays.
     void reduce();
@@ -78,6 +78,7 @@ public:
         m_local_histograms.reset();
         m_min_valid_k = std::numeric_limits<float>::infinity();
         m_reduce = true;
+        m_k_grid_assigned = false;
     }
 
     //! Get the structure factor
@@ -136,6 +137,7 @@ private:
     float m_min_valid_k {
         std::numeric_limits<float>::infinity()}; //!< The minimum valid k-value based on the computed box
     bool m_reduce {true};                        //!< Whether to reduce
+    bool m_k_grid_assigned {false};                    //!< Whether to reuse the box
 };
 
 std::vector<vec3<float>> reciprocal_isotropic(const box::Box& box, float k_max, float k_min = 0,

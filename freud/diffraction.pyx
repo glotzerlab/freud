@@ -316,7 +316,7 @@ cdef class StaticStructureFactorDirect(_Compute):
         if type(self) == StaticStructureFactorDirect:
             del self.thisptr
 
-    def compute(self, system, query_points=None, N_total=None, reset=True):
+    def compute(self, system, query_points=None, N_total=None, reuse_box=False, reset=True):
         r"""Computes static structure factor.
 
         Args:
@@ -329,6 +329,15 @@ cdef class StaticStructureFactorDirect(_Compute):
                 documentation for information about the normalization of partial
                 structure factors. If :code:`None`, the full scattering is
                 computed. (Default value = :code:`None`).
+            N_total (int, optional):
+                Total number of points in the system. This is required if
+                ``query_points`` are provided. See class documentation for
+                information about the normalization of partial structure
+                factors.
+            reuse_box (bool, optional):
+                wether to reuse the box from the last call. Note that box still has to be
+                provided as part of the system. If box doesn't change this saves
+                a lot of computational time. Must be used with :code:`reset = False`.
             reset (bool, optional):
                 Whether to erase the previously computed values before adding
                 the new computation; if False, will accumulate data (Default
@@ -341,7 +350,10 @@ cdef class StaticStructureFactorDirect(_Compute):
                 "in order to correctly compute the normalization of the "
                 "partial structure factor."
             )
-
+        if reuse_box and reset:
+            raise ValueError(
+                "The reuse_box option has to be used with reset = False"
+            )
         # convert box to orthorombic and wrap points inside this new box
         temp_nq = freud.locality.NeighborQuery.from_system(system)
         box = temp_nq.box
@@ -373,7 +385,7 @@ cdef class StaticStructureFactorDirect(_Compute):
 
         self.thisptr.accumulate(
             nq.get_ptr(),
-            l_query_points_ptr, num_query_points, N_total
+            l_query_points_ptr, num_query_points, N_total, reuse_box
         )
         return self
 
