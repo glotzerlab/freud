@@ -283,10 +283,9 @@ cdef class StaticStructureFactorDirect(_Compute):
 
         S(\vec{k}) = \frac{1}{N}  \sum_{i=0}^{N} \sum_{j=0}^N e^{i\vec{k} \cdot \vec{r}_{ij}}
 
-    where :math:`N` is the number of particles. The above equation can be
-    obtained by applying Euler's formula to the definition of :math:`S(k)`. For
-    more information see `here
-    <https://en.wikipedia.org/wiki/Structure_factor>`__.
+    where :math:`N` is the number of particles. Note that freud employs the physics convention in which
+    :math:`k` is used, as opposed to the crystallographic one where :math:`q`
+    is used. The relation is :math:`k=2 \pi q`. Note that the definition requires :math:`S(0) = N`.
 
     This implementation provides a much slower algorithm, but gives better results than the Debye :py:attr:`freud.diffraction.StaticStructureFactorDebye` method
     at low-k values.
@@ -294,9 +293,9 @@ cdef class StaticStructureFactorDirect(_Compute):
     .. note::
         This code assumes all particles have a form factor :math:`f` of 1.
 
-    Partial structure factors can be computed by providing ``query_points`` to
-    the :py:meth:`compute` method. When computing a partial structure factor,
-    the total number of points in the system must be specified. The
+    Partial structure factors can be computed by providing ``query_points`` and
+    total number of points in the system ``N_total`` to the :py:meth:`compute`
+    method. The
     normalization criterion is based on the Faber-Ziman formalism. For particle
     types :math:`\alpha` and :math:`\beta`, we compute the total scattering
     function as a sum of the partial scattering functions as:
@@ -340,12 +339,31 @@ cdef class StaticStructureFactorDirect(_Compute):
     def compute(self, system, query_points=None, N_total=None, reuse_box=False, reset=True):
         r"""Computes static structure factor.
 
+        Example for a single component system::
+
+            >>> sf = freud.diffraction.StaticStructureFactorDirect(
+                    bins=100, k_max=10, k_min=0
+                )
+            >>> sf.compute((box, points))
+
+        Example for partial mixed structure factor for multiple component
+        system AB::
+
+            >>> sf = freud.diffraction.StaticStructureFactorDirect(
+                    bins=100, k_max=10, k_min=0
+                )
+            >>> sf.compute(
+                    (box, A_points),
+                    query_points=B_points, N_total=N_particles
+                )
+
         Args:
             system:
                 Any object that is a valid argument to
-                :class:`freud.locality.NeighborQuery.from_system`. For
-                non-orthorombic boxes the points are wrapped into a
-                orthorombic box.
+                :class:`freud.locality.NeighborQuery.from_system`. Note that box is
+                allowed to change when calculating trajectory average static
+                structure factor. For non-orthorombic boxes the points are wrapped
+                into a orthorombic box.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Query points used to calculate the partial structure factor.
                 Uses the system's points if :code:`None`. See class
@@ -477,6 +495,10 @@ cdef class StaticStructureFactorDirect(_Compute):
 
     def plot(self, ax=None):
         """Plot static structure factor.
+
+        .. note::
+        This function plots :math:`S(k)` for :math:`k>` ``min_valid_k``.
+        See :py:attr:`min_valid_k` for more information.
 
         Args:
             ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
