@@ -33,12 +33,13 @@ from freud.util cimport _Compute, vec3
 logger = logging.getLogger(__name__)
 
 cdef class StaticStructureFactorDebye(_Compute):
-    r"""Computes a 1D static structure factor using the Debye scattering equation.
+    r"""Computes a 1D static structure factor using the
+    Debye scattering equation.
 
     This computes the static `structure factor
-    <https://en.wikipedia.org/wiki/Structure_factor>`__ :math:`S(k)`, assuming
-    an isotropic system (averaging over all :math:`k` vectors of the same
-    magnitude). Note that freud employs the physics convention in which
+    <https://en.wikipedia.org/wiki/Structure_factor>`__ :math:`S(k)`at given
+    :math:`k`-values by averaging over all :math:`k`-vectors of the same
+    magnitude. Note that freud employs the physics convention in which
     :math:`k` is used, as opposed to the crystallographic one where :math:`q`
     is used. The relation is :math:`k=2 \pi q`. The static structure factor
     calculation is implemented using the Debye scattering equation:
@@ -52,7 +53,12 @@ cdef class StaticStructureFactorDebye(_Compute):
     conventions). For more information see `here
     <https://en.wikipedia.org/wiki/Structure_factor>`__. The equation 4 from
     the link can be obtained by replacing :math:`\frac{\sin(k r)}{kr}` with
-    :math:`\text{sinc}(k r)`. Note that the definition requires :math:`S(0) = N`.
+    :math:`\text{sinc}(k r)`. For the full derivation see :cite:`Farrow2009`.
+    Note that the definition requires :math:`S(0) = N`.
+
+    The Debye implementation provides a much faster algorithm, but gives worse
+    results than :py:attr:`freud.diffraction.StaticStructureDirect`
+    at low-k values.
 
     .. note::
         This code assumes all particles have a form factor :math:`f` of 1.
@@ -76,7 +82,8 @@ cdef class StaticStructureFactorDebye(_Compute):
         k_min (float, optional):
             Minimum :math:`k` value included in the calculation. Note that
             there are practical restrictions on the validity of the
-            calculation in the long-wavelength regime, see :py:attr:`min_valid_k`
+            calculation in the long-wavelength regime,
+            see :py:attr:`min_valid_k`
             (Default value = 0).
     """
     cdef freud._diffraction.StaticStructureFactorDebye * thisptr
@@ -95,21 +102,32 @@ cdef class StaticStructureFactorDebye(_Compute):
 
         Example for a single component system::
 
-            >>> sf = freud.diffraction.StaticStructureFactorDebye(bins=100, k_max=10, k_min=0)
+            >>> sf = freud.diffraction.StaticStructureFactorDebye(
+                    bins=100, k_max=10, k_min=0
+                )
             >>> sf.compute((box, points))
 
-        Example for partial mixed structure factor for multiple component system AB::
+        Example for partial mixed structure factor for multiple component
+        system AB::
 
-            >>> sf = freud.diffraction.StaticStructureFactorDebye(bins=100, k_max=10, k_min=0)
-            >>> sf.compute((box, A_points), query_points=B_points, N_total=N_particles)
+            >>> sf = freud.diffraction.StaticStructureFactorDebye(
+                    bins=100, k_max=10, k_min=0
+                )
+            >>> sf.compute(
+                    (box, A_points),
+                    query_points=B_points, N_total=N_particles
+                )
 
         Args:
             system:
                 Any object that is a valid argument to
-                :class:`freud.locality.NeighborQuery.from_system`. Note that box is
-                allowed to change when calculating trajectory average static structure
-                factor.
-            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
+                :class:`freud.locality.NeighborQuery.from_system`.
+                Note that box is allowed to change when calculating trajectory
+                average static structure factor. For non-orthorhombic boxes
+                the points are wrapped into an orthorhombic box.
+            query_points (
+                (:math:`N_{query\_points}`, 3)
+                :class:`numpy.ndarray`, optional):
                 Query points used to calculate the partial structure factor.
                 Uses the system's points if :code:`None`. See class
                 documentation for information about the normalization of partial
@@ -213,9 +231,9 @@ cdef class StaticStructureFactorDebye(_Compute):
             freud.util.arr_type_t.FLOAT)
 
     def plot(self, ax=None, **kwargs):
-        """Plot static structure factor.
+        r"""Plot static structure factor.
 
-    .. note::
+        .. note::
         This function plots :math:`S(k)` for :math:`k>min_valid_k`.
         See :py:attr:`min_valid_k` for more information.
 
