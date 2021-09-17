@@ -123,8 +123,7 @@ cdef class StaticStructureFactorDebye(_Compute):
                 Any object that is a valid argument to
                 :class:`freud.locality.NeighborQuery.from_system`.
                 Note that box is allowed to change when calculating trajectory
-                average static structure factor. For non-orthorhombic boxes
-                the points are wrapped into an orthorhombic box.
+                average static structure factor.
             query_points ((:math:`N_{query\_points}`, 3):class:`numpy.ndarray`, optional):
                 Query points used to calculate the partial structure factor.
                 Uses the system's points if :code:`None`. See class
