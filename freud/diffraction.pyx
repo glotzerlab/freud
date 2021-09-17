@@ -277,7 +277,7 @@ cdef class StaticStructureFactorDirect(_Compute):
 
     This computes the static `structure factor
     <https://en.wikipedia.org/wiki/Structure_factor>`__ :math:`S(k)` at given :math:`k`-values by
-    averaging over all :math:`k`-vectors directions of the same magnitude.  Note that freud employs
+    averaging over all :math:`k`-vectors directions of the same magnitude. Note that freud employs
     the physics convention in which :math:`k` is used, as opposed to the crystallographic one where
     :math:`q` is used. The relation is :math:`k=2 \pi q`. This is implemented using the following
     formula:
@@ -288,7 +288,7 @@ cdef class StaticStructureFactorDirect(_Compute):
 
     where :math:`N` is the number of particles. Note that the definition requires :math:`S(0) = N`.
 
-    This implementation provides a much slower algorithm, but gives better results than the Debye
+    This implementation provides a much slower algorithm, but gives better results than the
     :py:attr:`freud.diffraction.StaticStructureFactorDebye` method at low-k values.
 
     .. note::
@@ -471,7 +471,8 @@ cdef class StaticStructureFactorDirect(_Compute):
     @_Compute._computed_property
     def min_valid_k(self):
         """float: Minimum valid value of k for the computed system box, equal
-        to :math:`2\\pi/L` where :math:`L` is the minimum side length."""
+        to :math:`2\\pi/L` where :math:`L` is the minimum side length.
+        For more information see :cite:`Liu2016`."""
         return self.thisptr.getMinValidK()
 
     @property
