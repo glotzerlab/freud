@@ -276,19 +276,20 @@ cdef class StaticStructureFactorDirect(_Compute):
     :math:`k`-space grid.
 
     This computes the static `structure factor
-    <https://en.wikipedia.org/wiki/Structure_factor>`__ :math:`S(k)` at given :math:`k`-values by averaging over all :math:`k`-vectors directions of the
-    same magnitude. This is implemented using the direct summation formula:
+    <https://en.wikipedia.org/wiki/Structure_factor>`__ :math:`S(k)` at given :math:`k`-values by
+    averaging over all :math:`k`-vectors directions of the same magnitude.  Note that freud employs
+    the physics convention in which :math:`k` is used, as opposed to the crystallographic one where
+    :math:`q` is used. The relation is :math:`k=2 \pi q`. This is implemented using the following
+    formula:
 
     .. math::
 
         S(\vec{k}) = \frac{1}{N}  \sum_{i=0}^{N} \sum_{j=0}^N e^{i\vec{k} \cdot \vec{r}_{ij}}
 
-    where :math:`N` is the number of particles. Note that freud employs the physics convention in which
-    :math:`k` is used, as opposed to the crystallographic one where :math:`q`
-    is used. The relation is :math:`k=2 \pi q`. Note that the definition requires :math:`S(0) = N`.
+    where :math:`N` is the number of particles. Note that the definition requires :math:`S(0) = N`.
 
-    This implementation provides a much slower algorithm, but gives better results than the Debye :py:attr:`freud.diffraction.StaticStructureFactorDebye` method
-    at low-k values.
+    This implementation provides a much slower algorithm, but gives better results than the Debye
+    :py:attr:`freud.diffraction.StaticStructureFactorDebye` method at low-k values.
 
     .. note::
         This code assumes all particles have a form factor :math:`f` of 1.
