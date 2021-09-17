@@ -124,7 +124,7 @@ cdef class StaticStructureFactorDebye(_Compute):
                 :class:`freud.locality.NeighborQuery.from_system`.
                 Note that box is allowed to change when calculating trajectory
                 average static structure factor.
-            query_points ((:math:`N_{query\_points}`, 3):class:`numpy.ndarray`, optional):
+            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Query points used to calculate the partial structure factor.
                 Uses the system's points if :code:`None`. See class
                 documentation for information about the normalization of partial
