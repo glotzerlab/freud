@@ -234,7 +234,7 @@ cdef class StaticStructureFactorDebye(_Compute):
         r"""Plot static structure factor.
 
         .. note::
-        This function plots :math:`S(k)` for :math:`k>min_valid_k`.
+        This function plots :math:`S(k)` for :math:`k>\text{min_valid_k}`.
         See :py:attr:`min_valid_k` for more information.
 
         Args:
