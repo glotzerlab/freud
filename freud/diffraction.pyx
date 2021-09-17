@@ -254,12 +254,12 @@ cdef class StaticStructureFactorDebye(_Compute):
 
 
 cdef class StaticStructureFactorDirect(_Compute):
-    r"""Computes a 1D static structure factor.
+    r"""Computes a 1D static structure factor by operating on a
+    :math:`k`-space grid.
 
     This computes the static `structure factor
-    <https://en.wikipedia.org/wiki/Structure_factor>`__ :math:`S(k)`, assuming
-    an isotropic system (averaging over all :math:`k` vectors of the same
-    magnitude). This is implemented using the direct summation formula:
+    <https://en.wikipedia.org/wiki/Structure_factor>`__ :math:`S(k)` at given :math:`k`-values by averaging over all :math:`k`-vectors directions of the
+    same magnitude. This is implemented using the direct summation formula:
 
     .. math::
 
@@ -269,6 +269,9 @@ cdef class StaticStructureFactorDirect(_Compute):
     obtained by applying Euler's formula to the definition of :math:`S(k)`. For
     more information see `here
     <https://en.wikipedia.org/wiki/Structure_factor>`__.
+
+    This implementation provides a much slower algorithm, but gives better results than the Debye :py:attr:`freud.diffraction.StaticStructureFactorDebye` method
+    at low-k values.
 
     .. note::
         This code assumes all particles have a form factor :math:`f` of 1.
@@ -322,7 +325,9 @@ cdef class StaticStructureFactorDirect(_Compute):
         Args:
             system:
                 Any object that is a valid argument to
-                :class:`freud.locality.NeighborQuery.from_system`.
+                :class:`freud.locality.NeighborQuery.from_system`. For
+                non-orthorombic boxes the points are wrapped into a
+                orthorombic box.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Query points used to calculate the partial structure factor.
                 Uses the system's points if :code:`None`. See class
@@ -337,12 +342,11 @@ cdef class StaticStructureFactorDirect(_Compute):
             reuse_box (bool, optional):
                 wether to reuse the box from the last call. Note that box still has to be
                 provided as part of the system. If box doesn't change this saves
-                a lot of computational time. Must be used with :code:`reset = False`.
+                computational time. Must be used with :code:`reset = False`.
             reset (bool, optional):
                 Whether to erase the previously computed values before adding
                 the new computation; if False, will accumulate data (Default
-                value: True). When accumulating, the :math:`\vec{k}` vectors
-                are generated for the initial system box and re-used.
+                value: True).
         """  # noqa E501
         if (query_points is None) != (N_total is None):
             raise ValueError(
