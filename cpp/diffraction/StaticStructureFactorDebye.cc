@@ -36,12 +36,12 @@ StaticStructureFactorDebye::StaticStructureFactorDebye(unsigned int bins, float 
     }
     if (k_max <= k_min)
     {
-        throw std::invalid_argument("StaticStructureFactorDebye requires that k_max must be greater than k_min.");
+        throw std::invalid_argument(
+            "StaticStructureFactorDebye requires that k_max must be greater than k_min.");
     }
 
     // Construct the Histogram object that will be used to track the structure factor
-    auto axes
-        = S_kHistogram::Axes {std::make_shared<util::RegularAxis>(bins, k_min, k_max)};
+    auto axes = S_kHistogram::Axes {std::make_shared<util::RegularAxis>(bins, k_min, k_max)};
     m_histogram = S_kHistogram(axes);
     m_local_histograms = S_kHistogram::ThreadLocalHistogram(m_histogram);
     m_min_valid_k = std::numeric_limits<float>::infinity();
@@ -49,7 +49,8 @@ StaticStructureFactorDebye::StaticStructureFactorDebye(unsigned int bins, float 
 }
 
 void StaticStructureFactorDebye::accumulate(const freud::locality::NeighborQuery* neighbor_query,
-                                             const vec3<float>* query_points, unsigned int n_query_points, unsigned int n_total)
+                                            const vec3<float>* query_points, unsigned int n_query_points,
+                                            unsigned int n_total)
 {
     const auto& box = neighbor_query->getBox();
 
@@ -58,8 +59,8 @@ void StaticStructureFactorDebye::accumulate(const freud::locality::NeighborQuery
     const auto min_box_length
         = box.is2D() ? std::min(box_L.x, box_L.y) : std::min(box_L.x, std::min(box_L.y, box_L.z));
     const auto r_max = std::nextafter(float(0.5) * min_box_length, float(0));
-    const auto points= neighbor_query->getPoints();
-    const auto n_points= neighbor_query->getNPoints();
+    const auto points = neighbor_query->getPoints();
+    const auto n_points = neighbor_query->getNPoints();
 
     // The minimum k value of validity is 4 * pi / L, where L is the smallest side length.
     // This is equal to 2 * pi / r_max.
@@ -75,9 +76,8 @@ void StaticStructureFactorDebye::accumulate(const freud::locality::NeighborQuery
         {
             const auto k = k_bin_centers[k_index];
             double S_k = 0.0;
-            for (size_t distance_index = 0; distance_index < distances.size(); ++distance_index)
+            for (const auto distance: distances)
             {
-                const auto distance = distances[distance_index];
                 S_k += util::sinc(k * distance);
             }
             S_k /= static_cast<double>(n_total);
