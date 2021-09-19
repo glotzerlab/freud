@@ -21,6 +21,7 @@ import scipy.ndimage
 import freud.locality
 
 cimport numpy as np
+from cython.operator cimport dereference
 from libcpp cimport bool as cbool
 from libcpp.vector cimport vector
 
