@@ -20,13 +20,15 @@ class TestStaticStructureFactorDirect:
         box, positions = freud.data.UnitCell.fcc().generate_system(4)
         sf.compute((box, positions))
 
-    def test_against_dyansor(self):
+    def test_against_dynasor(self):
         """Validate the direct method agains dynasor package."""
-        dsfr = pytest.importorskip("dsf.reciprocal")
-        scs = pytest.importorskip("scipy.stats")
+        dsf_reciprocal = pytest.importorskip("dsf.reciprocal")
+        binned_statistic = pytest.importorskip("scipy.stats").binned_statistic
         bins = 100
         k_max = 30
         max_k_points = 100000
+
+        # Compute structure factor from freud
         sf_direct = freud.diffraction.StaticStructureFactorDirect(
             bins=bins, k_max=k_max, max_k_points=max_k_points
         )
@@ -34,15 +36,16 @@ class TestStaticStructureFactorDirect:
         system = freud.locality.NeighborQuery.from_system((box, points))
         sf_direct.compute(system)
 
-        system = freud.locality.NeighborQuery.from_system(system)
+        # Compute reference structure factor from dynasor package
         box_matrix = system.box.to_matrix()
-        # dynasor
-        rec = dsfr.reciprocal_isotropic(
+        rec = dsf_reciprocal.reciprocal_isotropic(
             box_matrix, max_points=max_k_points, max_k=k_max
         )
-        points_rho_ks = dsfr.calc_rho_k(system.points.T, rec.k_points, ftype=rec.ftype)
+        points_rho_ks = dsf_reciprocal.calc_rho_k(
+            system.points.T, rec.k_points, ftype=rec.ftype
+        )
         S_k_all = np.real(points_rho_ks * points_rho_ks.conjugate())
-        S_k_binned, _, _ = scs.binned_statistic(
+        S_k_binned, _, _ = binned_statistic(
             x=rec.k_distance,
             values=S_k_all,
             statistic="mean",
@@ -68,10 +71,13 @@ class TestStaticStructureFactorDirect:
         L = 10
         N = 1000
         sf = freud.diffraction.StaticStructureFactorDirect(bins=100, k_max=10)
-        for _ in range(5):
-            box, points = freud.data.make_random_system(L, N)
+        # Ensure that accumulation averages correctly over different numbers of
+        # points. We test N points, N*2 points, and N*3 points. On average, the
+        # number of points is N * 2.
+        for i in range(1, 4):
+            box, points = freud.data.make_random_system(L, N * i)
             sf.compute((box, points), reset=False)
-        assert np.isclose(sf.S_k[0], N)
+        assert np.isclose(sf.S_k[0], N * 2)
         box, points = freud.data.make_random_system(L, N * 2)
         sf.compute((box, points), reset=True)
         assert np.isclose(sf.S_k[0], N * 2)
