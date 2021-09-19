@@ -17,7 +17,6 @@ import logging
 import numpy as np
 import rowan
 import scipy.ndimage
-from scipy.stats import binned_statistic
 
 import freud.locality
 
