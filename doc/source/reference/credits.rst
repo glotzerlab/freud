@@ -119,6 +119,7 @@ Bradley Dice - **Lead developer**
 * Fixed documented formulas for ``Steinhardt`` class.
 * Fixed incorrect computation of ``Steinhardt`` averaged quantities.
 * Fixed RPATH problems affecting ``libfreud.so`` in Linux wheels.
+* Updated lambda functions to capture ``this`` by reference, to ensure compatibility with C++20 and above.
 
 Eric Harper, University of Michigan - **Former lead developer**
 

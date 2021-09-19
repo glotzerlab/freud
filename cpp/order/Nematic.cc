@@ -52,7 +52,7 @@ void Nematic::compute(quat<float>* orientations, unsigned int n)
     m_nematic_tensor_local.reset();
 
     // calculate per-particle tensor
-    util::forLoopWrapper(0, n, [=](size_t begin, size_t end) {
+    util::forLoopWrapper(0, n, [&](size_t begin, size_t end) {
         for (size_t i = begin; i < end; ++i)
         {
             // get the director of the particle

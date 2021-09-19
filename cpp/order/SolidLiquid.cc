@@ -40,7 +40,7 @@ void SolidLiquid::compute(const freud::locality::NeighborList* nlist,
 
     util::forLoopWrapper(
         0, num_query_points,
-        [=](size_t begin, size_t end) {
+        [&](size_t begin, size_t end) {
             for (unsigned int i = begin; i != end; ++i)
             {
                 unsigned int bond(m_nlist.find_first_index(i));
