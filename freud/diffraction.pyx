@@ -21,13 +21,11 @@ import scipy.ndimage
 import freud.locality
 
 cimport numpy as np
-from cython.operator cimport dereference
 from libcpp cimport bool as cbool
 
 cimport freud._diffraction
 cimport freud.locality
 cimport freud.util
-from freud.locality cimport _SpatialHistogram1D
 from freud.util cimport _Compute, vec3
 
 logger = logging.getLogger(__name__)
