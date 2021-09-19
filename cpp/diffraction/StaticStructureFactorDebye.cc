@@ -59,7 +59,7 @@ void StaticStructureFactorDebye::accumulate(const freud::locality::NeighborQuery
     const auto min_box_length
         = box.is2D() ? std::min(box_L.x, box_L.y) : std::min(box_L.x, std::min(box_L.y, box_L.z));
     const auto r_max = std::nextafter(float(0.5) * min_box_length, float(0));
-    const auto points = neighbor_query->getPoints();
+    const auto* const points = neighbor_query->getPoints();
     const auto n_points = neighbor_query->getNPoints();
 
     // The minimum k value of validity is 4 * pi / L, where L is the smallest side length.
