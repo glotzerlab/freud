@@ -41,7 +41,7 @@ StaticStructureFactorDebye::StaticStructureFactorDebye(unsigned int bins, float 
     }
 
     // Construct the Histogram object that will be used to track the structure factor
-    auto axes = S_kHistogram::Axes {std::make_shared<util::RegularAxis>(bins, k_min, k_max)};
+    const auto axes = S_kHistogram::Axes {std::make_shared<util::RegularAxis>(bins, k_min, k_max)};
     m_histogram = S_kHistogram(axes);
     m_local_histograms = S_kHistogram::ThreadLocalHistogram(m_histogram);
     m_min_valid_k = std::numeric_limits<float>::infinity();
@@ -59,7 +59,7 @@ void StaticStructureFactorDebye::accumulate(const freud::locality::NeighborQuery
     const auto min_box_length
         = box.is2D() ? std::min(box_L.x, box_L.y) : std::min(box_L.x, std::min(box_L.y, box_L.z));
     const auto r_max = std::nextafter(float(0.5) * min_box_length, float(0));
-    const auto points = neighbor_query->getPoints();
+    const auto* const points = neighbor_query->getPoints();
     const auto n_points = neighbor_query->getNPoints();
 
     // The minimum k value of validity is 4 * pi / L, where L is the smallest side length.
@@ -71,12 +71,12 @@ void StaticStructureFactorDebye::accumulate(const freud::locality::NeighborQuery
 
     const auto k_bin_centers = m_histogram.getBinCenters()[0];
 
-    util::forLoopWrapper(0, m_histogram.getAxisSizes()[0], [&](size_t begin_k_index, size_t end_k_index) {
-        for (size_t k_index = begin_k_index; k_index < end_k_index; ++k_index)
+    util::forLoopWrapper(0, m_histogram.getAxisSizes()[0], [&](size_t begin, size_t end) {
+        for (size_t k_index = begin; k_index < end; ++k_index)
         {
             const auto k = k_bin_centers[k_index];
             double S_k = 0.0;
-            for (const auto distance: distances)
+            for (const auto& distance : distances)
             {
                 S_k += util::sinc(k * distance);
             }
@@ -97,9 +97,9 @@ void StaticStructureFactorDebye::reduce()
     if (m_frame_counter > 1)
     {
         util::forLoopWrapper(0, m_structure_factor.size(), [&](size_t begin, size_t end) {
-            for (size_t i = begin; i < end; ++i)
+            for (size_t k_index = begin; k_index < end; ++k_index)
             {
-                m_structure_factor[i] /= static_cast<float>(m_frame_counter);
+                m_structure_factor[k_index] /= static_cast<float>(m_frame_counter);
             }
         });
     }

@@ -258,7 +258,7 @@ public:
         void reduceInto(ManagedArray<T>& result)
         {
             result.reset();
-            util::forLoopWrapper(0, result.size(), [=, &result](size_t begin, size_t end) {
+            util::forLoopWrapper(0, result.size(), [&](size_t begin, size_t end) {
                 for (size_t i = begin; i < end; ++i)
                 {
                     for (auto hist = m_local_histograms.begin(); hist != m_local_histograms.end(); ++hist)
@@ -440,7 +440,7 @@ public:
     void reduceOverThreadsPerBin(ThreadLocalHistogram& local_histograms, const ComputeFunction& cf)
     {
         local_histograms.reduceInto(m_bin_counts);
-        util::forLoopWrapper(0, m_bin_counts.size(), [=](size_t begin, size_t end) {
+        util::forLoopWrapper(0, m_bin_counts.size(), [&](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
                 cf(i);
@@ -489,7 +489,7 @@ protected:
      * variadic templating to accept an arbitrary set of float values and
      * construct a vector out of them.
      */
-    const std::pair<std::vector<float>, Weight<T>> getValueVector(float value) const
+    std::pair<std::vector<float>, Weight<T>> getValueVector(float value) const
     {
         return {{value}, Weight<T>()};
     }
@@ -499,14 +499,14 @@ protected:
      * variadic templating to accept an arbitrary set of float values and
      * construct a vector out of them.
      */
-    const std::pair<std::vector<float>, Weight<T>> getValueVector(Weight<T> weight) const
+    std::pair<std::vector<float>, Weight<T>> getValueVector(Weight<T> weight) const
     {
         return {{}, weight};
     }
 
     //! The recursive case for constructing a vector of values (see base-case function docs).
     template<typename... FloatsOrWeight>
-    const std::pair<std::vector<float>, Weight<T>> getValueVector(float value, FloatsOrWeight... values) const
+    std::pair<std::vector<float>, Weight<T>> getValueVector(float value, FloatsOrWeight... values) const
     {
         std::pair<std::vector<float>, Weight<T>> tmp = getValueVector(values...);
         tmp.first.insert(tmp.first.begin(), value);
@@ -515,8 +515,7 @@ protected:
 
     //! The recursive case for constructing a vector of values (see base-case function docs).
     template<typename... FloatsOrWeight>
-    const std::pair<std::vector<float>, Weight<T>> getValueVector(Weight<T> weight,
-                                                                  FloatsOrWeight... values) const
+    std::pair<std::vector<float>, Weight<T>> getValueVector(Weight<T> weight, FloatsOrWeight... values) const
     {
         std::pair<std::vector<float>, Weight<T>> tmp = getValueVector(values...);
         tmp.second = weight;

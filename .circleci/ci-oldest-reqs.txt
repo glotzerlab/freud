@@ -1,4 +1,4 @@
-ase==3.21.1
+ase==3.16.0
 cmake==3.6.3.post1
 cython==0.29.14
 https://gitlab.com/materials-modeling/dynasor/-/archive/1.1/dynasor-1.1.tar.gz
