@@ -51,7 +51,6 @@ public:
                                 unsigned int max_k_points = 10000);
 
     //! Destructor
-    virtual ~StaticStructureFactorDirect() = default;
 
     //! Compute the structure factor S(k) using the direct formula
     void accumulate(const freud::locality::NeighborQuery* neighbor_query, const vec3<float>* query_points,
