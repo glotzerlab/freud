@@ -36,7 +36,7 @@ cdef class StaticStructureFactorDebye(_Compute):
 
     This computes the static `structure factor
     <https://en.wikipedia.org/wiki/Structure_factor>`__ :math:`S(k)` at given
-    :math:`k`-values by averaging over all :math:`k`-vectors of the same
+    :math:`k` values by averaging over all :math:`\vec{k}` vectors of the same
     magnitude. Note that freud employs the physics convention in which
     :math:`k` is used, as opposed to the crystallographic one where :math:`q`
     is used. The relation is :math:`k=2 \pi q`. The static structure factor
@@ -49,14 +49,12 @@ cdef class StaticStructureFactorDebye(_Compute):
     where :math:`N` is the number of particles, :math:`\text{sinc}` function is
     defined as :math:`\sin x / x` (no factor of :math:`\pi` as in some
     conventions). For more information see `this Wikipedia article
-    <https://en.wikipedia.org/wiki/Structure_factor>`__. The equation 4 from
-    the link can be obtained by replacing :math:`\frac{\sin(k r)}{kr}` with
-    :math:`\text{sinc}(k r)`. For a full derivation see :cite:`Farrow2009`.
-    Note that the definition requires :math:`S(0) = N`.
+    <https://en.wikipedia.org/wiki/Structure_factor>`__. For a full derivation
+    see :cite:`Farrow2009`. Note that the definition requires :math:`S(0) = N`.
 
     The Debye implementation provides a much faster algorithm, but gives worse
     results than :py:attr:`freud.diffraction.StaticStructureFactorDirect`
-    at low-k values.
+    at low k values.
 
     .. note::
         This code assumes all particles have a form factor :math:`f` of 1.
@@ -79,11 +77,10 @@ cdef class StaticStructureFactorDebye(_Compute):
         k_max (float):
             Maximum :math:`k` value to include in the calculation.
         k_min (float, optional):
-            Minimum :math:`k` value included in the calculation. Note that
-            there are practical restrictions on the validity of the
-            calculation in the long-wavelength regime,
-            see :py:attr:`min_valid_k`
-            (Default value = 0).
+            Minimum :math:`k` value included in the calculation. Note that there
+            are practical restrictions on the validity of the calculation in the
+            long wavelength regime, see :py:attr:`min_valid_k` (Default value =
+            0).
     """
     cdef freud._diffraction.StaticStructureFactorDebye * thisptr
 
