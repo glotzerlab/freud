@@ -72,6 +72,7 @@ void StaticStructureFactorDirect::accumulate(const freud::locality::NeighborQuer
     if (!reuse_box || !m_k_grid_assigned)
     {
         m_k_points = reciprocal_isotropic(box, k_max, k_min, m_max_k_points);
+        m_k_grid_assigned = true;
     }
 
     // The minimum valid k value is 2 * pi / L, where L is the smallest side length.
