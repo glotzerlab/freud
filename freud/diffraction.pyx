@@ -267,14 +267,15 @@ cdef class StaticStructureFactorDebye(_Compute):
 
 cdef class StaticStructureFactorDirect(_Compute):
     r"""Computes a 1D static structure factor by operating on a
-    :math:`k`-space grid.
+    :math:`k` space grid.
 
     This computes the static `structure factor
-    <https://en.wikipedia.org/wiki/Structure_factor>`__ :math:`S(k)` at given :math:`k`-values by
-    averaging over all :math:`k`-vectors directions of the same magnitude. Note that freud employs
-    the physics convention in which :math:`k` is used, as opposed to the crystallographic one where
-    :math:`q` is used. The relation is :math:`k=2 \pi q`. This is implemented using the following
-    formula:
+    <https://en.wikipedia.org/wiki/Structure_factor>`__ :math:`S(k)` at given
+    :math:`k` values by averaging over all :math:`\vec{k}` vectors directions of
+    the same magnitude. Note that freud employs the physics convention in which
+    :math:`k` is used, as opposed to the crystallographic one where :math:`q` is
+    used. The relation is :math:`k=2 \pi q`. This is implemented using the
+    following formula:
 
     .. math::
 
@@ -283,17 +284,22 @@ cdef class StaticStructureFactorDirect(_Compute):
     where :math:`N` is the number of particles. Note that the definition requires :math:`S(0) = N`.
 
     This implementation provides a much slower algorithm, but gives better results than the
-    :py:attr:`freud.diffraction.StaticStructureFactorDebye` method at low-k values.
+    :py:attr:`freud.diffraction.StaticStructureFactorDebye` method at low k values.
+
+    The :math:`\vec{k}` vectors are sampled isotropically from a grid defined by
+    the box's reciprocal lattice vectors. This sampling of reciprocal space is
+    based on the MIT licensed `Dynasor library
+    <https://gitlab.com/materials-modeling/dynasor/>`__, modified to use
+    parallelized C++ and to support larger ranges of :math:`k` values.
 
     .. note::
         This code assumes all particles have a form factor :math:`f` of 1.
 
     Partial structure factors can be computed by providing ``query_points`` and
     total number of points in the system ``N_total`` to the :py:meth:`compute`
-    method. The
-    normalization criterion is based on the Faber-Ziman formalism. For particle
-    types :math:`\alpha` and :math:`\beta`, we compute the total scattering
-    function as a sum of the partial scattering functions as:
+    method. The normalization criterion is based on the Faber-Ziman formalism.
+    For particle types :math:`\alpha` and :math:`\beta`, we compute the total
+    scattering function as a sum of the partial scattering functions as:
 
     .. math::
 
