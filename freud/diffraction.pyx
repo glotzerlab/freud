@@ -317,10 +317,10 @@ cdef class StaticStructureFactorDirect(_Compute):
         k_min (float, optional):
             Minimum :math:`k` value included in the calculation. Note that
             there are practical restrictions on the validity of the
-            calculation in the long-wavelength regime, see :py:attr:`min_valid_k`
+            calculation in the long wavelength regime, see :py:attr:`min_valid_k`
             (Default value = 0).
         max_k_points (unsigned int, optional):
-            The maximum number of k-points to use when constructing k-space
+            The maximum number of k points to use when constructing k space
             grid. The code will prune the number of grid points to optimize the
             bin widths and performance. (Default value = 20000).
     """
@@ -363,8 +363,8 @@ cdef class StaticStructureFactorDirect(_Compute):
                 Any object that is a valid argument to
                 :class:`freud.locality.NeighborQuery.from_system`. Note that box is
                 allowed to change when calculating trajectory average static
-                structure factor. For non-orthorombic boxes the points are wrapped
-                into a orthorombic box.
+                structure factor. For non-orthorhombic boxes the points are wrapped
+                into a orthorhombic box.
             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
                 Query points used to calculate the partial structure factor.
                 Uses the system's points if :code:`None`. See class
@@ -383,7 +383,7 @@ cdef class StaticStructureFactorDirect(_Compute):
             reset (bool, optional):
                 Whether to erase the previously computed values before adding
                 the new computation; if False, will accumulate data (Default
-                value: True).
+                value = True).
         """  # noqa E501
         if (query_points is None) != (N_total is None):
             raise ValueError(
@@ -395,7 +395,7 @@ cdef class StaticStructureFactorDirect(_Compute):
             raise ValueError(
                 "The reuse_box option has to be used with reset = False"
             )
-        # convert box to orthorombic and wrap points inside this new box
+        # Convert box to orthorhombic and wrap points inside this new box.
         temp_nq = freud.locality.NeighborQuery.from_system(system)
         box = temp_nq.box
         box.xy = 0.0
@@ -477,7 +477,7 @@ cdef class StaticStructureFactorDirect(_Compute):
 
     @property
     def max_k_points(self):
-        r"""int: The maximum number of :math:`\vec{k}` points to use when constructing :math:`k`-space
+        r"""int: The maximum number of :math:`\vec{k}` points to use when constructing :math:`k` space
         grid."""
         return self.thisptr.getMaxKPoints()
 
@@ -499,8 +499,8 @@ cdef class StaticStructureFactorDirect(_Compute):
         """Plot static structure factor.
 
         .. note::
-        This function plots :math:`S(k)` for :math:`k>` ``min_valid_k``.
-        See :py:attr:`min_valid_k` for more information.
+            This function plots :math:`S(k)` for values above
+            :py:attr:`min_valid_k`.
 
         Args:
             ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
