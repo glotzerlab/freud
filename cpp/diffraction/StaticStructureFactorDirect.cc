@@ -23,8 +23,9 @@
 
 namespace freud { namespace diffraction {
 
-StaticStructureFactorDirect::StaticStructureFactorDirect(unsigned int bins, float k_max, float k_min, unsigned int max_k_points)
-: m_max_k_points(max_k_points)
+StaticStructureFactorDirect::StaticStructureFactorDirect(unsigned int bins, float k_max, float k_min,
+                                                         unsigned int max_k_points)
+    : m_max_k_points(max_k_points)
 {
     if (bins == 0)
     {
@@ -47,7 +48,8 @@ StaticStructureFactorDirect::StaticStructureFactorDirect(unsigned int bins, floa
     // We must construct two separate histograms, one for the counts and one
     // for the actual correlation function. The counts are used to normalize
     // the correlation function.
-    const auto axes = StructureFactorHistogram::Axes {std::make_shared<util::RegularAxis>(bins, k_min, k_max)};
+    const auto axes
+        = StructureFactorHistogram::Axes {std::make_shared<util::RegularAxis>(bins, k_min, k_max)};
     m_structure_factor = StructureFactorHistogram(axes);
     m_local_structure_factor = StructureFactorHistogram::ThreadLocalHistogram(m_structure_factor);
     m_histogram = KBinHistogram(axes);
@@ -60,13 +62,15 @@ void StaticStructureFactorDirect::accumulate(const freud::locality::NeighborQuer
 {
     // Compute k vectors by sampling reciprocal space.
     const auto& box = neighbor_query->getBox();
-    if (box.is2D()) {
+    if (box.is2D())
+    {
         throw std::invalid_argument("2D boxes are not currently supported.");
     }
     const auto k_bin_edges = m_structure_factor.getBinEdges()[0];
     const auto k_min = k_bin_edges.front();
     const auto k_max = k_bin_edges.back();
-    if (!reuse_box || !m_k_grid_assigned) {
+    if (!reuse_box || !m_k_grid_assigned)
+    {
         m_k_points = reciprocal_isotropic(box, k_max, k_min, m_max_k_points);
     }
 
@@ -76,7 +80,6 @@ void StaticStructureFactorDirect::accumulate(const freud::locality::NeighborQuer
         = box.is2D() ? std::min(box_L.x, box_L.y) : std::min(box_L.x, std::min(box_L.y, box_L.z));
     m_min_valid_k = std::min(m_min_valid_k, freud::constants::TWO_PI / min_box_length);
 
-
     // Compute F_k for the points.
     const auto F_k_points = StaticStructureFactorDirect::compute_F_k(
         neighbor_query->getPoints(), neighbor_query->getNPoints(), n_total, m_k_points);
@@ -85,8 +88,8 @@ void StaticStructureFactorDirect::accumulate(const freud::locality::NeighborQuer
     std::vector<float> S_k_all_points;
     if (query_points != nullptr)
     {
-        const auto F_k_query_points = StaticStructureFactorDirect::compute_F_k(query_points, n_query_points,
-                                                                               n_total, m_k_points);
+        const auto F_k_query_points
+            = StaticStructureFactorDirect::compute_F_k(query_points, n_query_points, n_total, m_k_points);
         S_k_all_points = StaticStructureFactorDirect::compute_S_k(F_k_points, F_k_query_points);
     }
     else
@@ -119,14 +122,13 @@ void StaticStructureFactorDirect::reduce()
     // points. Unlike some other methods in freud, no frame counter is needed
     // because the binned mean accounts for accumulation over frames.
     m_histogram.reduceOverThreads(m_local_histograms);
-    m_structure_factor.reduceOverThreadsPerBin(
-        m_local_structure_factor, [&](size_t i) { m_structure_factor[i] /= m_histogram[i]; });
+    m_structure_factor.reduceOverThreadsPerBin(m_local_structure_factor,
+                                               [&](size_t i) { m_structure_factor[i] /= m_histogram[i]; });
 }
 
-std::vector<std::complex<float>> StaticStructureFactorDirect::compute_F_k(const vec3<float>* points,
-                                                                          unsigned int n_points,
-                                                                          unsigned int n_total,
-                                                                          const std::vector<vec3<float>>& k_points)
+std::vector<std::complex<float>>
+StaticStructureFactorDirect::compute_F_k(const vec3<float>* points, unsigned int n_points,
+                                         unsigned int n_total, const std::vector<vec3<float>>& k_points)
 {
     const auto n_k_points = k_points.size();
     auto F_k = std::vector<std::complex<float>>(n_k_points);
@@ -197,8 +199,9 @@ inline float get_prune_distance(unsigned int max_k_points, float q_max, float q_
     return std::real(x) + q_max / 2.0F;
 }
 
-std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const box::Box& box, float k_max, float k_min,
-                                              unsigned int max_k_points)
+std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const box::Box& box, float k_max,
+                                                                           float k_min,
+                                                                           unsigned int max_k_points)
 {
     const auto box_matrix = box_to_matrix(box);
     // B holds "crystallographic" reciprocal box vectors that lack the factor of 2 pi.

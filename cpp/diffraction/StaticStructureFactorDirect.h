@@ -38,7 +38,6 @@
     https://en.wikipedia.org/wiki/Reciprocal_lattice#Arbitrary_collection_of_atoms
 */
 
-
 namespace freud { namespace diffraction {
 
 class StaticStructureFactorDirect
@@ -48,7 +47,8 @@ class StaticStructureFactorDirect
 
 public:
     //! Constructor
-    StaticStructureFactorDirect(unsigned int bins, float k_max, float k_min = 0, unsigned int max_k_points = 10000);
+    StaticStructureFactorDirect(unsigned int bins, float k_max, float k_min = 0,
+                                unsigned int max_k_points = 10000);
 
     //! Destructor
     virtual ~StaticStructureFactorDirect() = default;
@@ -120,7 +120,8 @@ public:
 private:
     //! Compute the complex amplitude F(k) for a set of points and k points
     static std::vector<std::complex<float>> compute_F_k(const vec3<float>* points, unsigned int n_points,
-                                                        unsigned int n_total, const std::vector<vec3<float>>& k_points);
+                                                        unsigned int n_total,
+                                                        const std::vector<vec3<float>>& k_points);
 
     //! Compute the static structure factor S(k) for all k points
     static std::vector<float> compute_S_k(const std::vector<std::complex<float>>& F_k_points,
@@ -131,7 +132,7 @@ private:
                                                          unsigned int max_k_points = 10000);
 
     unsigned int m_max_k_points;                 //!< Target number of k-vectors to sample
-    std::vector<vec3<float>> m_k_points;        //!< k-vectors used for sampling
+    std::vector<vec3<float>> m_k_points;         //!< k-vectors used for sampling
     StructureFactorHistogram m_structure_factor; //!< Histogram to hold computed structure factor
     StructureFactorHistogram::ThreadLocalHistogram
         m_local_structure_factor; //!< Thread local histograms for TBB parallelism
@@ -141,9 +142,8 @@ private:
     float m_min_valid_k {
         std::numeric_limits<float>::infinity()}; //!< The minimum valid k-value based on the computed box
     bool m_reduce {true};                        //!< Whether to reduce
-    bool m_k_grid_assigned {false};                    //!< Whether to reuse the box
+    bool m_k_grid_assigned {false};              //!< Whether to reuse the box
 };
-
 
 }; }; // namespace freud::diffraction
 
