@@ -6,6 +6,9 @@ and this project adheres to
 
 ## next
 
+### Added
+* `freud.diffraction.StaticStructureFactorDebye` class (unstable) can be used to compute the static structure factor S(k) using the Debye formula.
+
 ### Fixed
 * Updated lambda functions to capture `this` by reference, to ensure compatibility with C++20 and above.
 
