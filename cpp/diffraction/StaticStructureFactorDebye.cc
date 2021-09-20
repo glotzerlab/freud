@@ -53,6 +53,9 @@ void StaticStructureFactorDebye::accumulate(const freud::locality::NeighborQuery
                                             unsigned int n_total)
 {
     const auto& box = neighbor_query->getBox();
+    if (box.is2D()) {
+        throw std::invalid_argument("2D boxes are not currently supported.");
+    }
 
     // The r_max should be just less than half of the smallest side length of the box
     const auto box_L = box.getL();

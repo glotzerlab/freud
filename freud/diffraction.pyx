@@ -128,12 +128,12 @@ cdef class StaticStructureFactorDebye(_Compute):
                 documentation for information about the normalization of partial
                 structure factors. If :code:`None`, the full scattering is
                 computed. (Default value = :code:`None`).
-            N_total (int):
+            N_total (int, optional):
                 Total number of points in the system. This is required if
                 ``query_points`` are provided. See class documentation for
                 information about the normalization of partial structure
                 factors.
-            reset (bool):
+            reset (bool, optional):
                 Whether to erase the previously computed values before adding
                 the new computation; if False, will accumulate data (Default
                 value: True).
@@ -443,15 +443,15 @@ cdef class DiffractionPattern(_Compute):
             view_orientation ((:math:`4`) :class:`numpy.ndarray`, optional):
                 View orientation. Uses :math:`(1, 0, 0, 0)` if not provided
                 or :code:`None` (Default value = :code:`None`).
-            zoom (float):
+            zoom (float, optional):
                 Scaling factor for incident wavevectors (Default value = 4).
-            peak_width (float):
+            peak_width (float, optional):
                 Width of Gaussian convolved with points, in system length units
                 (Default value = 1).
-            reset (bool):
+            reset (bool, optional):
                 Whether to erase the previously computed values before adding
                 the new computations; if False, will accumulate data (Default
-                value: True).
+                value = True).
         """
         if reset:
             self._diffraction = np.zeros((self.output_size, self.output_size))
@@ -570,11 +570,11 @@ cdef class DiffractionPattern(_Compute):
         """Generates image of diffraction pattern.
 
         Args:
-            cmap (str):
+            cmap (str, optional):
                 Colormap name to use (Default value = :code:`'afmhot'`).
-            vmin (float):
+            vmin (float, optional):
                 Minimum of the color scale (Default value = 4e-6).
-            vmax (float):
+            vmax (float, optional):
                 Maximum of the color scale (Default value = 0.7).
 
         Returns:
@@ -595,11 +595,11 @@ cdef class DiffractionPattern(_Compute):
             ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
                 :code:`None`, make a new figure and axis.
                 (Default value = :code:`None`)
-            cmap (str):
+            cmap (str, optional):
                 Colormap name to use (Default value = :code:`'afmhot'`).
-            vmin (float):
+            vmin (float, optional):
                 Minimum of the color scale (Default value = 4e-6).
-            vmax (float):
+            vmax (float, optional):
                 Maximum of the color scale (Default value = 0.7).
 
         Returns:
