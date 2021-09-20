@@ -35,7 +35,7 @@ cdef class StaticStructureFactorDebye(_Compute):
     Debye scattering equation.
 
     This computes the static `structure factor
-    <https://en.wikipedia.org/wiki/Structure_factor>`__ :math:`S(k)`at given
+    <https://en.wikipedia.org/wiki/Structure_factor>`__ :math:`S(k)` at given
     :math:`k`-values by averaging over all :math:`k`-vectors of the same
     magnitude. Note that freud employs the physics convention in which
     :math:`k` is used, as opposed to the crystallographic one where :math:`q`
@@ -48,24 +48,25 @@ cdef class StaticStructureFactorDebye(_Compute):
 
     where :math:`N` is the number of particles, :math:`\text{sinc}` function is
     defined as :math:`\sin x / x` (no factor of :math:`\pi` as in some
-    conventions). For more information see `here
+    conventions). For more information see `this Wikipedia article
     <https://en.wikipedia.org/wiki/Structure_factor>`__. The equation 4 from
     the link can be obtained by replacing :math:`\frac{\sin(k r)}{kr}` with
-    :math:`\text{sinc}(k r)`. For the full derivation see :cite:`Farrow2009`.
+    :math:`\text{sinc}(k r)`. For a full derivation see :cite:`Farrow2009`.
     Note that the definition requires :math:`S(0) = N`.
 
     The Debye implementation provides a much faster algorithm, but gives worse
-    results than :py:attr:`freud.diffraction.StaticStructureDirect`
+    results than :py:attr:`freud.diffraction.StaticStructureFactorDirect`
     at low-k values.
 
     .. note::
         This code assumes all particles have a form factor :math:`f` of 1.
 
-    Partial structure factors can be computed by providing ``query_points`` and
-    total number of points in the system ``N_total`` to the :py:meth:`compute`
-    method. The normalization criterion is based on the Faber-Ziman formalism.
-    For particle types :math:`\alpha` and :math:`\beta`, we compute the total
-    scattering function as a sum of the partial scattering functions as:
+    Partial structure factors can be computed by providing a set of
+    ``query_points`` and the total number of points in the system ``N_total`` to
+    the :py:meth:`compute` method. The normalization criterion is based on the
+    Faber-Ziman formalism. For particle types :math:`\alpha` and :math:`\beta`,
+    we compute the total scattering function as a sum of the partial scattering
+    functions as:
 
     .. math::
 
@@ -101,20 +102,21 @@ cdef class StaticStructureFactorDebye(_Compute):
         Example for a single component system::
 
             >>> sf = freud.diffraction.StaticStructureFactorDebye(
-                    bins=100, k_max=10, k_min=0
-                )
+            ...     bins=100, k_max=10, k_min=0
+            ... )
             >>> sf.compute((box, points))
 
-        Example for partial mixed structure factor for multiple component
-        system AB::
+        Example for partial mixed structure factor for a multiple component
+        system with types A and B::
 
             >>> sf = freud.diffraction.StaticStructureFactorDebye(
-                    bins=100, k_max=10, k_min=0
-                )
+            ...     bins=100, k_max=10, k_min=0
+            ... )
             >>> sf.compute(
-                    (box, A_points),
-                    query_points=B_points, N_total=N_particles
-                )
+            ...     system=(box, A_points),
+            ...     query_points=B_points,
+            ...     N_total=N_particles
+            ... )
 
         Args:
             system:
@@ -229,8 +231,8 @@ cdef class StaticStructureFactorDebye(_Compute):
         r"""Plot static structure factor.
 
         .. note::
-        This function plots :math:`S(k)` for :math:`k>` ``min_valid_k``.
-        See :py:attr:`min_valid_k` for more information.
+            This function plots :math:`S(k)` for values above
+            :py:attr:`min_valid_k`.
 
         Args:
             ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
