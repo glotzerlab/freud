@@ -881,31 +881,3 @@ cdef class DiffractionPattern(_Compute):
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None
-
-def reciprocal_isotropic(box, k_max, k_min=0, max_k_points=10000):
-    """Sample a grid of k-points isotropically.
-
-    This method is based on the MIT licensed `Dynasor library
-    <https://gitlab.com/materials-modeling/dynasor/>`__.
-
-    This implementation approaches Dynasor implementation for number of
-    max_k_points around 50000, but is also faster.
-
-    Args:
-        box (:class:`freud.box.Box`):
-            Simulation box used to compute the reciprocal lattice vectors.
-        k_max (float):
-            Maximum :math:`k` value to include in the calculation.
-        k_min (float, optional):
-            Minimum :math:`k` value included in the calculation. Note that
-            there are practical restrictions on the validity of the
-            calculation in the long-wavelength regime, see :py:attr:`min_valid_k`
-            (Default value = 0).
-        max_k_points (unsigned int, optional):
-            The maximum number of k-points to use when constructing k-space
-            grid. The code will prune the number of grid points to optimize the
-            bin widths and performance. (Default value = 10000).
-    """
-    cdef freud.box.Box b = freud.util._convert_box(box)
-    cdef vector[vec3[float]] k_points = freud._diffraction.reciprocal_isotropic(dereference(b.thisptr), k_max, k_min, max_k_points)
-    return np.asarray([[k.x, k.y, k.z] for k in k_points])

@@ -126,6 +126,10 @@ private:
     static std::vector<float> compute_S_k(const std::vector<std::complex<float>>& F_k_points,
                                           const std::vector<std::complex<float>>& F_k_query_points);
 
+    //! Sample reciprocal space isotropically to get k points
+    static std::vector<vec3<float>> reciprocal_isotropic(const box::Box& box, float k_max, float k_min = 0,
+                                                         unsigned int max_k_points = 10000);
+
     unsigned int m_max_k_points;                 //!< Target number of k-vectors to sample
     std::vector<vec3<float>> m_k_points;        //!< k-vectors used for sampling
     StructureFactorHistogram m_structure_factor; //!< Histogram to hold computed structure factor
@@ -140,8 +144,6 @@ private:
     bool m_k_grid_assigned {false};                    //!< Whether to reuse the box
 };
 
-std::vector<vec3<float>> reciprocal_isotropic(const box::Box& box, float k_max, float k_min = 0,
-                                              unsigned int max_k_points = 10000);
 
 }; }; // namespace freud::diffraction
 

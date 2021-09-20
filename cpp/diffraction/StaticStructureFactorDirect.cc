@@ -166,7 +166,7 @@ StaticStructureFactorDirect::compute_S_k(const std::vector<std::complex<float>>&
 
 inline Eigen::Matrix3f box_to_matrix(const box::Box& box)
 {
-    // build the Eigen matrix
+    // Build an Eigen matrix from the provided box.
     Eigen::Matrix3f mat;
     for (unsigned int i = 0; i < 3; i++)
     {
@@ -197,7 +197,7 @@ inline float get_prune_distance(unsigned int max_k_points, float q_max, float q_
     return std::real(x) + q_max / 2.0F;
 }
 
-std::vector<vec3<float>> reciprocal_isotropic(const box::Box& box, float k_max, float k_min,
+std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const box::Box& box, float k_max, float k_min,
                                               unsigned int max_k_points)
 {
     const auto box_matrix = box_to_matrix(box);
