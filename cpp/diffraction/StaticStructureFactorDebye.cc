@@ -1,16 +1,11 @@
 // Copyright (c) 2010-2020 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#include <algorithm>
 #include <cmath>
 #include <limits>
 #include <stdexcept>
 
-#include "Box.h"
-#include "ManagedArray.h"
-#include "NeighborComputeFunctional.h"
 #include "NeighborQuery.h"
-#include "RDF.h"
 #include "StaticStructureFactorDebye.h"
 #include "utils.h"
 

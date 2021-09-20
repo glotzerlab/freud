@@ -4,7 +4,6 @@
 #ifndef STATIC_STRUCTURE_FACTOR_DEBYE_H
 #define STATIC_STRUCTURE_FACTOR_DEBYE_H
 
-#include "Box.h"
 #include "Histogram.h"
 #include "NeighborQuery.h"
 
