@@ -71,7 +71,7 @@ void StaticStructureFactorDirect::accumulate(const freud::locality::NeighborQuer
     const auto k_max = k_bin_edges.back();
     if (!reuse_box || !m_k_grid_assigned)
     {
-        m_k_points = reciprocal_isotropic(box, k_max, k_min, m_max_k_points);
+        m_k_points = StaticStructureFactorDirect::reciprocal_isotropic(box, k_max, k_min, m_max_k_points);
         m_k_grid_assigned = true;
     }
 
