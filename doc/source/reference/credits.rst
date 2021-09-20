@@ -120,6 +120,7 @@ Bradley Dice - **Lead developer**
 * Fixed incorrect computation of ``Steinhardt`` averaged quantities.
 * Fixed RPATH problems affecting ``libfreud.so`` in Linux wheels.
 * Updated lambda functions to capture ``this`` by reference, to ensure compatibility with C++20 and above.
+* Contributed code, design, documentation, and testing for ``StaticStructureFactorDebye`` class.
 
 Eric Harper, University of Michigan - **Former lead developer**
 
@@ -280,7 +281,7 @@ Kelly Wang
 * Added methods ``compute_distances`` and ``compute_all_distances`` to Box.
 * Added method ``crop`` to Box.
 * Added 2D Box tests for ``get_image`` and ``contains``.
-* Added the `reset` argument to the `compute` method of `DiffractionPattern` class.
+* Added the ``reset`` argument to the ``compute`` method of ``DiffractionPattern`` class.
 
 Yezhi Jin
 
@@ -330,6 +331,18 @@ Pavel Buslaev
 Charlotte Zhao
 
 * Worked with Vyas Ramasubramani and Bradley Dice to add the ``out`` option for ``box.Box.wrap``.
+
+Domagoj Fijan
+
+* Contributed code, design, documentation, and testing for ``StaticStructureFactorDebye`` class.
+
+Andrew Kerr
+
+* Contributed documentation for ``StaticStructureFactorDebye`` class.
+
+Emily Siew
+
+* Contributed documentation for ``StaticStructureFactorDebye`` class.
 
 Source code
 -----------

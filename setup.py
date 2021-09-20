@@ -90,7 +90,7 @@ setup(
         "scipy>=1.1",
     ],
     tests_require=[
-        "ase==3.21.1",
+        "ase>=3.16",
         "dynasor @ https://gitlab.com/materials-modeling/dynasor/-/archive/1.1/"
         "dynasor-1.1.tar.gz",
         "gsd>=2.0",

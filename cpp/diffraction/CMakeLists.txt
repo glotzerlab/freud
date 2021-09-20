@@ -5,5 +5,4 @@ add_library(
 
 target_include_directories(
   _diffraction
-  PUBLIC ${PROJECT_SOURCE_DIR}/cpp/density
   PUBLIC ${PROJECT_SOURCE_DIR}/extern/)
