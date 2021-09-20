@@ -47,7 +47,8 @@ void StaticStructureFactorDebye::accumulate(const freud::locality::NeighborQuery
                                             unsigned int n_total)
 {
     const auto& box = neighbor_query->getBox();
-    if (box.is2D()) {
+    if (box.is2D())
+    {
         throw std::invalid_argument("2D boxes are not currently supported.");
     }
 
@@ -59,7 +60,6 @@ void StaticStructureFactorDebye::accumulate(const freud::locality::NeighborQuery
 
     const auto* const points = neighbor_query->getPoints();
     const auto n_points = neighbor_query->getNPoints();
-
 
     std::vector<float> distances(n_points * n_query_points);
     box.computeAllDistances(points, n_points, query_points, n_query_points, distances.data());
