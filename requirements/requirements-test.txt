@@ -1,4 +1,4 @@
-ase==3.21.1
+ase==3.22.0
 cmake==3.21.2
 codecov==2.1.12
 coverage==5.5
