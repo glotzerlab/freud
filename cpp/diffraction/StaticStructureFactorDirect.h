@@ -128,8 +128,8 @@ private:
                                           const std::vector<std::complex<float>>& F_k_query_points);
 
     //! Sample reciprocal space isotropically to get k points
-    static std::vector<vec3<float>> reciprocal_isotropic(const box::Box& box, float k_max, float k_min = 0,
-                                                         unsigned int max_k_points = 10000);
+    static std::vector<vec3<float>> reciprocal_isotropic(const box::Box& box, float k_max, float k_min,
+                                                         unsigned int max_k_points);
 
     unsigned int m_max_k_points;                 //!< Target number of k-vectors to sample
     std::vector<vec3<float>> m_k_points;         //!< k-vectors used for sampling
