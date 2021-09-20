@@ -289,8 +289,9 @@ cdef class StaticStructureFactorDirect(_Compute):
     The :math:`\vec{k}` vectors are sampled isotropically from a grid defined by
     the box's reciprocal lattice vectors. This sampling of reciprocal space is
     based on the MIT licensed `Dynasor library
-    <https://gitlab.com/materials-modeling/dynasor/>`__, modified to use
+    <https://gitlab.com/materials-modeling/dynasor/>`__,   modified to use
     parallelized C++ and to support larger ranges of :math:`k` values.
+    For more information see :cite:`Fransson2021`
 
     .. note::
         This code assumes all particles have a form factor :math:`f` of 1.
