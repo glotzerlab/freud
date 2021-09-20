@@ -39,7 +39,6 @@ StaticStructureFactorDebye::StaticStructureFactorDebye(unsigned int bins, float 
     const auto axes = S_kHistogram::Axes {std::make_shared<util::RegularAxis>(bins, k_min, k_max)};
     m_histogram = S_kHistogram(axes);
     m_local_histograms = S_kHistogram::ThreadLocalHistogram(m_histogram);
-    m_min_valid_k = std::numeric_limits<float>::infinity();
     m_structure_factor.prepare(bins);
 }
 
@@ -52,17 +51,15 @@ void StaticStructureFactorDebye::accumulate(const freud::locality::NeighborQuery
         throw std::invalid_argument("2D boxes are not currently supported.");
     }
 
-    // The r_max should be just less than half of the smallest side length of the box
+    // The minimum valid k value is 4 * pi / L, where L is the smallest side length.
     const auto box_L = box.getL();
     const auto min_box_length
         = box.is2D() ? std::min(box_L.x, box_L.y) : std::min(box_L.x, std::min(box_L.y, box_L.z));
-    const auto r_max = std::nextafter(float(0.5) * min_box_length, float(0));
+    m_min_valid_k = std::min(m_min_valid_k, 2 * freud::constants::TWO_PI / min_box_length);
+
     const auto* const points = neighbor_query->getPoints();
     const auto n_points = neighbor_query->getNPoints();
 
-    // The minimum k value of validity is 4 * pi / L, where L is the smallest side length.
-    // This is equal to 2 * pi / r_max.
-    m_min_valid_k = std::min(m_min_valid_k, freud::constants::TWO_PI / r_max);
 
     std::vector<float> distances(n_points * n_query_points);
     box.computeAllDistances(points, n_points, query_points, n_query_points, distances.data());
