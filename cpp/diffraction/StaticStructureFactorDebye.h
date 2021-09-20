@@ -10,9 +10,8 @@
 #include "NeighborQuery.h"
 
 /*! \file StaticStructureFactorDebye.h
-    \brief Routines for computing static structure factors.
+    \brief Computes structure factor using the Debye scattering equation.
 
-    Computes structure factors from the Fourier transform of a radial distribution function (RDF).
     This method is not capable of resolving k-vectors smaller than the magnitude 4 * pi / L, where L is the
     smallest side length of the system's periodic box.
 */
