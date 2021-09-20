@@ -3,6 +3,4 @@ add_library(
   StaticStructureFactorDebye.h StaticStructureFactorDebye.cc
   StaticStructureFactorDirect.h StaticStructureFactorDirect.cc)
 
-target_include_directories(
-  _diffraction
-  PUBLIC ${PROJECT_SOURCE_DIR}/extern/)
+target_include_directories(_diffraction PUBLIC ${PROJECT_SOURCE_DIR}/extern/)
