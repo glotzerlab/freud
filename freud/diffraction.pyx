@@ -245,7 +245,7 @@ cdef class StaticStructureFactorDebye(_Compute):
         import freud.plot
         return freud.plot.line_plot(self.bin_centers[self.bin_centers>self.min_valid_k],
                                     self.S_k[self.bin_centers>self.min_valid_k],
-
+                                    title="Static Structure Factor",
                                     xlabel=r"$k$",
                                     ylabel=r"$S(k)$",
                                     ax=ax)
