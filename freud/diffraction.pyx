@@ -388,13 +388,10 @@ cdef class StaticStructureFactorDirect(_Compute):
                 "in order to correctly compute the normalization of the "
                 "partial structure factor."
             )
-        # Convert box to orthorhombic and wrap points inside this new box.
+        # Convert points to float32 to avoid errors when float64 is passed
         temp_nq = freud.locality.NeighborQuery.from_system(system)
         box = temp_nq.box
-        box.xy = 0.0
-        box.xz = 0.0
-        box.yz = 0.0
-        points = np.asarray(box.wrap(temp_nq.points)).astype(np.float32)
+        points = np.asarray(temp_nq.points).astype(np.float32)
 
         cdef freud.locality.NeighborQuery nq = freud.locality.NeighborQuery.from_system((box,points))
 
