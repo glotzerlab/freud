@@ -338,7 +338,7 @@ cdef class StaticStructureFactorDirect(_Compute):
         if type(self) == StaticStructureFactorDirect:
             del self.thisptr
 
-    def compute(self, system, query_points=None, N_total=None, reuse_box=False, reset=True):
+    def compute(self, system, query_points=None, N_total=None, reset=True):
         r"""Computes static structure factor.
 
         Example for a single component system::
@@ -377,10 +377,6 @@ cdef class StaticStructureFactorDirect(_Compute):
                 ``query_points`` are provided. See class documentation for
                 information about the normalization of partial structure
                 factors.
-            reuse_box (bool, optional):
-                wether to reuse the box from the last call. Note that box still has to be
-                provided as part of the system. If box doesn't change this saves
-                computational time. Must be used with :code:`reset = False`.
             reset (bool, optional):
                 Whether to erase the previously computed values before adding
                 the new computation; if False, will accumulate data (Default
@@ -391,10 +387,6 @@ cdef class StaticStructureFactorDirect(_Compute):
                 "If query_points are provided, N_total must also be provided "
                 "in order to correctly compute the normalization of the "
                 "partial structure factor."
-            )
-        if reuse_box and reset:
-            raise ValueError(
-                "The reuse_box option has to be used with reset = False"
             )
         # Convert box to orthorhombic and wrap points inside this new box.
         temp_nq = freud.locality.NeighborQuery.from_system(system)
@@ -427,7 +419,7 @@ cdef class StaticStructureFactorDirect(_Compute):
 
         self.thisptr.accumulate(
             nq.get_ptr(),
-            l_query_points_ptr, num_query_points, N_total, reuse_box
+            l_query_points_ptr, num_query_points, N_total
         )
         return self
 

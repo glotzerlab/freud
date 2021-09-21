@@ -58,7 +58,7 @@ StaticStructureFactorDirect::StaticStructureFactorDirect(unsigned int bins, floa
 
 void StaticStructureFactorDirect::accumulate(const freud::locality::NeighborQuery* neighbor_query,
                                              const vec3<float>* query_points, unsigned int n_query_points,
-                                             unsigned int n_total, bool reuse_box)
+                                             unsigned int n_total)
 {
     // Compute k vectors by sampling reciprocal space.
     const auto& box = neighbor_query->getBox();
@@ -69,10 +69,15 @@ void StaticStructureFactorDirect::accumulate(const freud::locality::NeighborQuer
     const auto k_bin_edges = m_structure_factor.getBinEdges()[0];
     const auto k_min = k_bin_edges.front();
     const auto k_max = k_bin_edges.back();
-    if (!reuse_box || !m_k_grid_assigned)
+    if ((!box_assigned)
+        || (box_assigned
+            && (box != previous_box && box.getPeriodicX() != previous_box.getPeriodicX()
+                && box.getPeriodicY() != previous_box.getPeriodicY()
+                && box.getPeriodicZ() != previous_box.getPeriodicZ())))
     {
+        previous_box = box;
         m_k_points = StaticStructureFactorDirect::reciprocal_isotropic(box, k_max, k_min, m_max_k_points);
-        m_k_grid_assigned = true;
+        box_assigned = true;
     }
 
     // The minimum valid k value is 2 * pi / L, where L is the smallest side length.

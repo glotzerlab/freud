@@ -54,7 +54,7 @@ public:
 
     //! Compute the structure factor S(k) using the direct formula
     void accumulate(const freud::locality::NeighborQuery* neighbor_query, const vec3<float>* query_points,
-                    unsigned int n_query_points, unsigned int n_total, bool reuse_box);
+                    unsigned int n_query_points, unsigned int n_total);
 
     //! Reduce thread-local arrays onto the primary data arrays.
     void reduce();
@@ -77,7 +77,7 @@ public:
         m_local_histograms.reset();
         m_min_valid_k = std::numeric_limits<float>::infinity();
         m_reduce = true;
-        m_k_grid_assigned = false;
+        box_assigned = false;
     }
 
     //! Get the structure factor
@@ -141,7 +141,8 @@ private:
     float m_min_valid_k {
         std::numeric_limits<float>::infinity()}; //!< The minimum valid k-value based on the computed box
     bool m_reduce {true};                        //!< Whether to reduce
-    bool m_k_grid_assigned {false};              //!< Whether to reuse the box
+    box::Box previous_box;                       //!< box assigned to the system
+    bool box_assigned {false};                   //!< Whether to reuse the box
 };
 
 }; }; // namespace freud::diffraction
