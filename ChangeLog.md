@@ -11,7 +11,7 @@ and this project adheres to
 
 ### Fixed
 * Updated lambda functions to capture `this` by reference, to ensure compatibility with C++20 and above.
-* `Box.contains` runs in linear time, `O(num_points)`.
+* Fixed ``Box.contains`` to run in linear time, ``O(num_points)``.
 
 ## v2.6.2 -- 2021-06-26
 
