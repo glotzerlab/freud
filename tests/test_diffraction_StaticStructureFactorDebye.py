@@ -175,6 +175,7 @@ class TestStaticStructureFactorDebye:
         assert sf.nbins == bins
         assert np.isclose(sf.k_max, k_max)
         assert np.isclose(sf.k_min, k_min)
+        npt.assert_allclose(sf.bounds, (k_min, k_max))
 
         box, positions = freud.data.UnitCell.fcc().generate_system(4)
 
@@ -194,6 +195,46 @@ class TestStaticStructureFactorDebye:
         box2, positions2 = freud.data.UnitCell.bcc().generate_system(3)
         sf.compute((box2, positions2))
         assert not np.array_equal(sf.S_k, S_k)
+
+    def test_bin_precision(self):
+        # Ensure bin edges and bounds are precise
+        bins = 100
+        k_max = 123
+        k_min = 0.1
+        ssf = freud.diffraction.StaticStructureFactorDebye(
+            bins=bins, k_max=k_max, k_min=k_min
+        )
+        expected_bin_edges = np.histogram_bin_edges(
+            np.array([0], dtype=np.float32), bins=bins, range=[k_min, k_max]
+        )
+        expected_bin_centers = (expected_bin_edges[:-1] + expected_bin_edges[1:]) / 2
+        npt.assert_allclose(ssf.bin_edges, expected_bin_edges, atol=1e-5, rtol=1e-5)
+        npt.assert_allclose(ssf.bin_centers, expected_bin_centers, atol=1e-5, rtol=1e-5)
+        npt.assert_allclose(
+            ssf.bounds,
+            ([expected_bin_edges[0], expected_bin_edges[-1]]),
+            atol=1e-5,
+            rtol=1e-5,
+        )
+
+    def test_min_valid_k(self):
+        # test if minvalid K is correct
+        Lx = 10
+        Ly = 8
+        Lz = 7
+        min_valid_k = 4 * np.pi / Lz
+        box, points = freud.data.UnitCell(
+            [Lx / 10, Ly / 10, Lz / 10, 0, 0, 0],
+            basis_positions=[[0, 0, 0], [0.3, 0.25, 0.35]],
+        ).generate_system(10)
+        bins = 100
+        k_max = 30
+        k_min = 1
+        sf = freud.diffraction.StaticStructureFactorDebye(
+            bins=bins, k_min=k_min, k_max=k_max
+        )
+        sf.compute((box, points))
+        assert np.isclose(sf.min_valid_k, min_valid_k)
 
     def test_attribute_shapes(self):
         bins = 100
