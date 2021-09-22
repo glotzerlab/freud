@@ -476,15 +476,12 @@ public:
     void contains(const vec3<float>* points, const unsigned int n_points, bool* contains_mask) const
     {
         util::forLoopWrapper(0, n_points, [&](size_t begin, size_t end) {
-            for (size_t i = begin; i < n_points; ++i)
-            {
-                std::transform(&points[begin], &points[end], &contains_mask[begin],
-                               [this](const vec3<float>& point) -> bool {
-                                   vec3<int> image(0, 0, 0);
-                                   getImage(point, image);
-                                   return image == vec3<int>(0, 0, 0);
-                               });
-            }
+            std::transform(&points[begin], &points[end], &contains_mask[begin],
+                           [this](const vec3<float>& point) -> bool {
+                               vec3<int> image(0, 0, 0);
+                               getImage(point, image);
+                               return image == vec3<int>(0, 0, 0);
+                           });
         });
     }
 
