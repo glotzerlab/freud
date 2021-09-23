@@ -495,7 +495,8 @@ def voronoi_plot(box, polytopes, ax=None, color_by_sides=True, cmap=None):
 
 
 def diffraction_plot(
-    diffraction, k_values, ax=None, cmap="afmhot", vmin=4e-6, vmax=0.7
+    diffraction, k_values, N_points,
+    ax=None, cmap="afmhot", vmin=4e-6, vmax=None
 ):
     """Helper function to plot diffraction pattern.
 
@@ -504,6 +505,8 @@ def diffraction_plot(
             Diffraction image data.
         k_values (:class:`numpy.ndarray`):
             :math:`k` value magnitudes for each bin of the diffraction image.
+        N_points (int):
+            Number of points in the system.
         ax (:class:`matplotlib.axes.Axes`):
             Axes object to plot. If :code:`None`, make a new axes and figure
             object (Default value = :code:`None`).
@@ -512,13 +515,17 @@ def diffraction_plot(
         vmin (float):
             Minimum of the color scale (Default value = 4e-6).
         vmax (float):
-            Maximum of the color scale (Default value = 0.7).
+            Maximum of the color scale. Uses 0.7 * N for a system of N
+            particles if not provided or `None` (Default value = `None`).
 
     Returns:
         :class:`matplotlib.axes.Axes`: Axes object with the diagram.
     """
+    # TODO: Make final decision on how to label color bar ticks (symbolic
+    # fractions of N, integer fractions of N, float fractions of N, log scale,
+    # etc.), decided if N_points should be displayed in the plot title
+    import matplotlib.pyplot as plt
     import matplotlib.colors
-    from matplotlib.colorbar import Colorbar
     from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
 
     if ax is None:
@@ -526,7 +533,7 @@ def diffraction_plot(
         ax = fig.subplots()
 
     # Plot the diffraction image and color bar
-    norm = matplotlib.colors.LogNorm(vmin=vmin, vmax=vmax)
+    norm = matplotlib.colors.Normalize(vmin=vmin, vmax=vmax)
     extent = (np.min(k_values), np.max(k_values), np.min(k_values), np.max(k_values))
     im = ax.imshow(
         np.clip(diffraction, vmin, vmax),
@@ -537,7 +544,10 @@ def diffraction_plot(
     )
     ax_divider = make_axes_locatable(ax)
     cax = ax_divider.append_axes("right", size="7%", pad="10%")
-    cb = Colorbar(cax, im)
+    # ticks are placed at bottom, middle, and top of color bar
+    cb = plt.colorbar(im, cax=cax, ax=ax, ticks=[vmin, vmax/2, vmax])
+    # ...and labelled as fractions of the number of points
+    cb.ax.set_yticklabels([0, int(N_points/2), int(N_points)])
     cb.set_label(r"$S(\vec{k})$")
 
     # Set tick locations and labels
@@ -548,7 +558,7 @@ def diffraction_plot(
     ax.yaxis.set_major_formatter(formatter)
 
     # Set title, limits, aspect
-    ax.set_title("Diffraction Pattern")
+    ax.set_title(f"Diffraction Pattern ({N_points} points)")
     ax.set_aspect("equal", "datalim")
     ax.set_xlabel("$k_x$")
     ax.set_ylabel("$k_y$")

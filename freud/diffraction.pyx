@@ -68,6 +68,7 @@ cdef class DiffractionPattern(_Compute):
     """
     cdef int _grid_size
     cdef int _output_size
+    cdef int _N_points
     cdef double[:] _k_values_orig
     cdef double[:, :, :] _k_vectors_orig
     cdef double[:] _k_values
@@ -255,10 +256,10 @@ cdef class DiffractionPattern(_Compute):
         diffraction_frame = np.real(
             diffraction_fft * np.conjugate(diffraction_fft))
 
-        # Transform the image (scale, shear, zoom) and normalize S(k) by N^2
-        N = len(system.points)
+        # Transform the image (scale, shear, zoom) and normalize S(k) by N
+        self._N_points = len(system.points)
         diffraction_frame = self._transform(
-            diffraction_frame, system.box, inv_shear, zoom) / N
+            diffraction_frame, system.box, inv_shear, zoom) / self._N_points
 
         # Add to the diffraction pattern and increment the frame counter
         self._diffraction += np.asarray(diffraction_frame)
@@ -353,7 +354,7 @@ cdef class DiffractionPattern(_Compute):
         image = cmap(norm(np.clip(self.diffraction, vmin, vmax)))
         return (image * 255).astype(np.uint8)
 
-    def plot(self, ax=None, cmap='afmhot', vmin=4e-6, vmax=0.7):
+    def plot(self, ax=None, cmap='afmhot', vmin=4e-6, vmax=None):
         """Plot Diffraction Pattern.
 
         Args:
@@ -365,14 +366,19 @@ cdef class DiffractionPattern(_Compute):
             vmin (float):
                 Minimum of the color scale (Default value = 4e-6).
             vmax (float):
-                Maximum of the color scale (Default value = 0.7).
+                Maximum of the color scale. Uses 0.7 * N for a system of N
+                particles if not provided or `None` (Default value = `None`).
 
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
+        if vmax is None:
+            vmax = 0.7 * self._N_points
+
         import freud.plot
         return freud.plot.diffraction_plot(
-            self.diffraction, self.k_values, ax, cmap, vmin, vmax)
+            self.diffraction, self.k_values, self._N_points,
+            ax, cmap, vmin, vmax)
 
     def _repr_png_(self):
         try:
