@@ -115,7 +115,7 @@ class TestDiffractionPattern:
 
                     # The value at k=0 should be 1 because of normalization
                     # by (number of points)**2
-                    npt.assert_allclose(dp.diffraction[center_index], 1)
+                    npt.assert_allclose(dp.diffraction[center_index], len(positions))
 
     def test_center_ordered(self):
         """Assert the center of the image is an intensity peak for an ordered
@@ -146,7 +146,7 @@ class TestDiffractionPattern:
 
                     # The value at k=0 should be 1 because of normalization
                     # by (number of points)**2
-                    npt.assert_allclose(dp.diffraction[center_index], 1)
+                    npt.assert_allclose(dp.diffraction[center_index], len(positions))
 
     def test_repr(self):
         dp = freud.diffraction.DiffractionPattern()
