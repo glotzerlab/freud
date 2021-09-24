@@ -541,15 +541,18 @@ cdef class Box:
         return np.asarray(distances)
 
     def contains(self, points):
-        r"""Returns boolean array (mask) corresponding to point membership in a box.
+        r"""Compute a boolean array (mask) corresponding to point membership in a box.
 
-        This calculation computes particle membership based on conventions defined by :class:`Box`, ignoring periodicity.
-        This means that in a cubic (3D) box with dimensions ``L``, particles would be considered inside the box if their coordinates are between
-        ``[-L/2, L/2]``.
-        Particles laying at a coordinate such as ``[0, L, 0]`` would be considered outside the box.
-        More information about coordinate conventions can be found `here
-        <https://freud.readthedocs.io/en/latest/gettingstarted/examples/module_intros/box.Box.html?highlight=origin#Using-boxes>`__
-        and `here <https://freud.readthedocs.io/en/latest/gettingstarted/tutorial/periodic.html?highlight=origin#periodic-boundary-conditions>`__.
+        This calculation computes particle membership based on conventions
+        defined by :class:`Box`, ignoring periodicity. This means that in a
+        cubic (3D) box with dimensions ``L``, particles would be considered
+        inside the box if their coordinates are between ``[-L/2, L/2]``.
+        Particles laying at a coordinate such as ``[0, L, 0]`` would be
+        considered outside the box.  More information about coordinate
+        conventions can be found in the documentation on `Using boxes
+        <https://freud.readthedocs.io/en/latest/gettingstarted/examples/module_intros/box.Box.html#Using-boxes>`__
+        and `periodic boundary conditions
+        <https://freud.readthedocs.io/en/latest/gettingstarted/tutorial/periodic.html#periodic-boundary-conditions>`__.
 
         Example::
 
@@ -565,8 +568,8 @@ cdef class Box:
 
         Returns:
             :math:`\left(N, \right)` :class:`numpy.ndarray`:
-                Array of booleans, where `True` corresponds to points within the box,
-                and `False` corresponds to points outside the box.
+                Array of booleans, where ``True`` corresponds to points within
+                the box, and ``False`` corresponds to points outside the box.
         """  # noqa: E501
 
         points = freud.util._convert_array(
@@ -574,14 +577,14 @@ cdef class Box:
 
         cdef:
             const float[:, ::1] l_points = points
-            size_t n_all_points = points.shape[0]
+            size_t n_points = points.shape[0]
 
         contains_mask = freud.util._convert_array(
-            np.ones(n_all_points), dtype=bool)
+            np.ones(n_points), dtype=bool)
         cdef cpp_bool[::1] l_contains_mask = contains_mask
 
         self.thisptr.contains(
-            <vec3[float]*> &l_points[0, 0], n_all_points,
+            <vec3[float]*> &l_points[0, 0], n_points,
             <cpp_bool*> &l_contains_mask[0])
 
         return np.array(l_contains_mask).astype(bool)
