@@ -4,6 +4,15 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## next
+
+### Added
+* `freud.diffraction.StaticStructureFactorDebye` class (unstable) can be used to compute the static structure factor S(k) using the Debye formula.
+
+### Fixed
+* Updated lambda functions to capture `this` by reference, to ensure compatibility with C++20 and above.
+* Fixed ``Box.contains`` to run in linear time, ``O(num_points)``.
+
 ## v2.6.2 -- 2021-06-26
 
 ### Fixed
