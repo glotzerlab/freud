@@ -30,7 +30,7 @@ set(CMAKE_CONFIGURATION_TYPES
 
 # CMake looks for these variables to be defined for the custom configuration.
 set(CMAKE_CXX_FLAGS_RELEASEWITHDOCS
-    ${CMAKE_CXX_FLAGS_RELEASE}
+    "${CMAKE_CXX_FLAGS_RELEASE} -O3"
     CACHE STRING "")
 set(CMAKE_C_FLAGS_RELEASEWITHDOCS
     ${CMAKE_C_FLAGS_RELEASE}
