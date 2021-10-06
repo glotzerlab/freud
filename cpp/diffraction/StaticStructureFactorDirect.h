@@ -12,6 +12,7 @@
 #include "Histogram.h"
 #include "ManagedArray.h"
 #include "NeighborQuery.h"
+#include "StaticStructureFactor.h"
 
 /*! \file StaticStructureFactorDirect.h
     \brief Routines for computing static structure factors.
@@ -40,7 +41,7 @@
 
 namespace freud { namespace diffraction {
 
-class StaticStructureFactorDirect
+class StaticStructureFactorDirect : public StaticStructureFactor
 {
     using StructureFactorHistogram = util::Histogram<float>;
     using KBinHistogram = util::Histogram<unsigned int>;

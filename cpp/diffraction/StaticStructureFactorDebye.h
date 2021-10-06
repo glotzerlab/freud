@@ -8,6 +8,7 @@
 
 #include "Histogram.h"
 #include "NeighborQuery.h"
+#include "StaticStructureFactor.h"
 
 /*! \file StaticStructureFactorDebye.h
     \brief Computes structure factor using the Debye scattering equation.
@@ -18,7 +19,7 @@
 
 namespace freud { namespace diffraction {
 
-class StaticStructureFactorDebye
+class StaticStructureFactorDebye : public StaticStructureFactor
 {
     using S_kHistogram = util::Histogram<float>;
 
