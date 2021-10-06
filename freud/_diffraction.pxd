@@ -9,8 +9,15 @@ cimport freud.util
 from freud.util cimport vec3
 
 
+cdef extern from "StaticStructureFactor.h" namespace "freud::diffraction":
+    cdef cppclass StaticStructureFactor:
+        void reset()
+        const freud.util.ManagedArray[float] &getStructureFactor()
+        const vector[float] getBinEdges() const
+        const vector[float] getBinCenters() const
+
 cdef extern from "StaticStructureFactorDebye.h" namespace "freud::diffraction":
-    cdef cppclass StaticStructureFactorDebye:
+    cdef cppclass StaticStructureFactorDebye(StaticStructureFactor):
         StaticStructureFactorDebye(unsigned int, float, float) except +
         void accumulate(const freud._locality.NeighborQuery*,
                         const vec3[float]*,
@@ -22,7 +29,7 @@ cdef extern from "StaticStructureFactorDebye.h" namespace "freud::diffraction":
         float getMinValidK() const
 
 cdef extern from "StaticStructureFactorDirect.h" namespace "freud::diffraction":
-    cdef cppclass StaticStructureFactorDirect:
+    cdef cppclass StaticStructureFactorDirect(StaticStructureFactor):
         StaticStructureFactorDirect(unsigned int, float, float, unsigned int) except +
         void accumulate(const freud._locality.NeighborQuery*,
                         const vec3[float]*, unsigned int, unsigned int) except +

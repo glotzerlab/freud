@@ -32,7 +32,94 @@ from freud.util cimport _Compute, vec3
 
 logger = logging.getLogger(__name__)
 
-cdef class StaticStructureFactorDebye(_Compute):
+
+cdef class _StaticStructureFactor(_Compute):
+
+    cdef freud._diffraction.StaticStructureFactor * ssfptr
+
+    def __dealloc__(self):
+        if type(self) is _StaticStructureFactor:
+            del self.ssfptr
+
+    @_Compute._computed_property
+    def S_k(self):
+        """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Static
+        structure factor :math:`S(k)` values."""
+        return freud.util.make_managed_numpy_array(
+            &self.ssfptr.getStructureFactor(),
+            freud.util.arr_type_t.FLOAT)
+
+    def _reset(self):
+        # Resets the values of StaticStructureFactor in memory.
+        self.ssfptr.reset()
+
+    @property
+    def bin_centers(self):
+        """:class:`numpy.ndarray`: The centers of each bin of :math:`k`."""
+        return np.array(self.ssfptr.getBinCenters(), copy=True)
+
+    @property
+    def bin_edges(self):
+        """:class:`numpy.ndarray`: The edges of each bin of :math:`k`."""
+        return np.array(self.ssfptr.getBinEdges(), copy=True)
+
+    @property
+    def bounds(self):
+        """tuple: A tuple indicating upper and lower bounds of the
+        histogram."""
+        bin_edges = self.bin_edges
+        return (bin_edges[0], bin_edges[len(bin_edges)-1])
+
+    @property
+    def nbins(self):
+        """int: The number of bins in the histogram."""
+        return len(self.bin_centers)
+
+    @property
+    def k_max(self):
+        """float: Maximum value of k at which to calculate the structure
+        factor."""
+        return self.bounds[1]
+
+    @property
+    def k_min(self):
+        """float: Minimum value of k at which to calculate the structure
+        factor."""
+        return self.bounds[0]
+
+    def plot(self, ax=None, **kwargs):
+        r"""Plot static structure factor.
+
+        .. note::
+            This function plots :math:`S(k)` for values above
+            :py:attr:`min_valid_k`.
+
+        Args:
+            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
+                :code:`None`, make a new figure and axis.
+                (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes.Axes`): Axis with the plot.
+        """
+        import freud.plot
+        return freud.plot.line_plot(self.bin_centers[self.bin_centers>self.min_valid_k],
+                                    self.S_k[self.bin_centers>self.min_valid_k],
+                                    title="Static Structure Factor",
+                                    xlabel=r"$k$",
+                                    ylabel=r"$S(k)$",
+                                    ax=ax)
+
+    def _repr_png_(self):
+        try:
+            import freud.plot
+            return freud.plot._ax_to_bytes(self.plot())
+        except (AttributeError, ImportError):
+            return None
+
+
+
+cdef class StaticStructureFactorDebye(_StaticStructureFactor):
     r"""Computes a 1D static structure factor using the
     Debye scattering equation.
 
@@ -88,8 +175,7 @@ cdef class StaticStructureFactorDebye(_Compute):
 
     def __cinit__(self, unsigned int bins, float k_max, float k_min=0):
         if type(self) == StaticStructureFactorDebye:
-            self.thisptr = new freud._diffraction.StaticStructureFactorDebye(
-                bins, k_max, k_min)
+            self.thisptr = self.ssfptr = new freud._diffraction.StaticStructureFactorDebye(bins, k_max, k_min)
 
     def __dealloc__(self):
         if type(self) == StaticStructureFactorDebye:
@@ -173,81 +259,12 @@ cdef class StaticStructureFactorDebye(_Compute):
             num_query_points, N_total)
         return self
 
-    def _reset(self):
-        # Resets the values of StaticStructureFactorDebye in memory.
-        self.thisptr.reset()
-
-    @property
-    def bin_centers(self):
-        """:class:`numpy.ndarray`: The centers of each bin of :math:`k`."""
-        return np.array(self.thisptr.getBinCenters(), copy=True)
-
-    @property
-    def bin_edges(self):
-        """:class:`numpy.ndarray`: The edges of each bin of :math:`k`."""
-        return np.array(self.thisptr.getBinEdges(), copy=True)
-
-    @property
-    def bounds(self):
-        """tuple: A tuple indicating upper and lower bounds of the
-        histogram."""
-        bin_edges = self.bin_edges
-        return (bin_edges[0], bin_edges[len(bin_edges)-1])
-
-    @property
-    def nbins(self):
-        """int: The number of bins in the histogram."""
-        return len(self.bin_centers)
-
-    @property
-    def k_max(self):
-        """float: Maximum value of k at which to calculate the structure
-        factor."""
-        return self.bounds[1]
-
-    @property
-    def k_min(self):
-        """float: Minimum value of k at which to calculate the structure
-        factor."""
-        return self.bounds[0]
-
     @_Compute._computed_property
     def min_valid_k(self):
         """float: Minimum valid value of k for the computed system box, equal
         to :math:`2\\pi/(L/2)=4\\pi/L` where :math:`L` is the minimum side length.
         For more information see :cite:`Liu2016`."""
         return self.thisptr.getMinValidK()
-
-    @_Compute._computed_property
-    def S_k(self):
-        """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Static
-        structure factor :math:`S(k)` values."""
-        return freud.util.make_managed_numpy_array(
-            &self.thisptr.getStructureFactor(),
-            freud.util.arr_type_t.FLOAT)
-
-    def plot(self, ax=None, **kwargs):
-        r"""Plot static structure factor.
-
-        .. note::
-            This function plots :math:`S(k)` for values above
-            :py:attr:`min_valid_k`.
-
-        Args:
-            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
-                :code:`None`, make a new figure and axis.
-                (Default value = :code:`None`)
-
-        Returns:
-            (:class:`matplotlib.axes.Axes`): Axis with the plot.
-        """
-        import freud.plot
-        return freud.plot.line_plot(self.bin_centers[self.bin_centers>self.min_valid_k],
-                                    self.S_k[self.bin_centers>self.min_valid_k],
-                                    title="Static Structure Factor",
-                                    xlabel=r"$k$",
-                                    ylabel=r"$S(k)$",
-                                    ax=ax)
 
     def __repr__(self):
         return ("freud.diffraction.{cls}(bins={bins}, "
@@ -257,15 +274,8 @@ cdef class StaticStructureFactorDebye(_Compute):
                     k_max=self.k_max,
                     k_min=self.k_min)
 
-    def _repr_png_(self):
-        try:
-            import freud.plot
-            return freud.plot._ax_to_bytes(self.plot())
-        except (AttributeError, ImportError):
-            return None
 
-
-cdef class StaticStructureFactorDirect(_Compute):
+cdef class StaticStructureFactorDirect(_StaticStructureFactor):
     r"""Computes a 1D static structure factor by operating on a
     :math:`k` space grid.
 
@@ -331,8 +341,7 @@ cdef class StaticStructureFactorDirect(_Compute):
 
     def __cinit__(self, unsigned int bins, float k_max, float k_min=0, unsigned int max_k_points=20000):
         if type(self) == StaticStructureFactorDirect:
-            self.thisptr = new freud._diffraction.StaticStructureFactorDirect(
-                bins, k_max, k_min, max_k_points)
+            self.thisptr = self.ssfptr = new freud._diffraction.StaticStructureFactorDirect(bins, k_max, k_min, max_k_points)
 
     def __dealloc__(self):
         if type(self) == StaticStructureFactorDirect:
@@ -420,44 +429,6 @@ cdef class StaticStructureFactorDirect(_Compute):
         )
         return self
 
-    def _reset(self):
-        # Resets the values of StaticStructureFactorDirect in memory.
-        self.thisptr.reset()
-
-    @property
-    def bin_centers(self):
-        """:class:`numpy.ndarray`: The centers of each bin of :math:`k`."""
-        return np.array(self.thisptr.getBinCenters(), copy=True)
-
-    @property
-    def bin_edges(self):
-        """:class:`numpy.ndarray`: The edges of each bin of :math:`k`."""
-        return np.array(self.thisptr.getBinEdges(), copy=True)
-
-    @property
-    def bounds(self):
-        """tuple: A tuple indicating upper and lower bounds of the
-        histogram."""
-        bin_edges = self.bin_edges
-        return (bin_edges[0], bin_edges[len(bin_edges)-1])
-
-    @property
-    def nbins(self):
-        """int: The number of bins in the histogram."""
-        return len(self.bin_centers)
-
-    @property
-    def k_max(self):
-        """float: Maximum value of k at which to calculate the structure
-        factor."""
-        return self.bounds[1]
-
-    @property
-    def k_min(self):
-        """float: Minimum value of k at which to calculate the structure
-        factor."""
-        return self.bounds[0]
-
     @_Compute._computed_property
     def min_valid_k(self):
         """float: Minimum valid value of k for the computed system box, equal
@@ -472,41 +443,10 @@ cdef class StaticStructureFactorDirect(_Compute):
         return self.thisptr.getMaxKPoints()
 
     @_Compute._computed_property
-    def S_k(self):
-        """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Static
-        structure factor :math:`S(k)` values."""
-        return freud.util.make_managed_numpy_array(
-            &self.thisptr.getStructureFactor(),
-            freud.util.arr_type_t.FLOAT)
-
-    @_Compute._computed_property
     def k_points(self):
         r""":class:`numpy.ndarray`: The :math:`\vec{k}` points used in the calculation."""
         cdef vector[vec3[float]] k_points = self.thisptr.getKPoints()
         return np.asarray([[k.x, k.y, k.z] for k in k_points])
-
-    def plot(self, ax=None):
-        """Plot static structure factor.
-
-        .. note::
-            This function plots :math:`S(k)` for values above
-            :py:attr:`min_valid_k`.
-
-        Args:
-            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
-                :code:`None`, make a new figure and axis.
-                (Default value = :code:`None`)
-
-        Returns:
-            (:class:`matplotlib.axes.Axes`): Axis with the plot.
-        """
-        import freud.plot
-        return freud.plot.line_plot(self.bin_centers[self.bin_centers>self.min_valid_k],
-                                    self.S_k[self.bin_centers>self.min_valid_k],
-                                    title="Static Structure Factor",
-                                    xlabel=r"$k$",
-                                    ylabel=r"$S(k)$",
-                                    ax=ax)
 
     def __repr__(self):
         return ("freud.diffraction.{cls}(bins={bins}, "
@@ -517,13 +457,6 @@ cdef class StaticStructureFactorDirect(_Compute):
                     k_max=self.k_max,
                     k_min=self.k_min,
                     max_k_points=self.max_k_points)
-
-    def _repr_png_(self):
-        try:
-            import freud.plot
-            return freud.plot._ax_to_bytes(self.plot())
-        except (AttributeError, ImportError):
-            return None
 
 
 cdef class DiffractionPattern(_Compute):
