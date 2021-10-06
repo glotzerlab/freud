@@ -4,6 +4,11 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## next -- yyyy-mm-dd
+
+### Fixed
+* Added error checking for `r_min`, `r_max` arguments in `freud.density.RDF` and `freud.locality.NeighborList`.
+
 ## v2.7.0 -- 2021-10-01
 
 ### Added
