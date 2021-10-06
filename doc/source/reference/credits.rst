@@ -121,6 +121,7 @@ Bradley Dice - **Lead developer**
 * Fixed RPATH problems affecting ``libfreud.so`` in Linux wheels.
 * Updated lambda functions to capture ``this`` by reference, to ensure compatibility with C++20 and above.
 * Contributed code, design, documentation, and testing for ``StaticStructureFactorDebye`` class.
+* Fixed ``Box.contains`` to run in linear time, ``O(num_points)``.
 * Contributed code, design, documentation, and testing for ``StaticStructureFactorDirect`` class.
 
 Eric Harper, University of Michigan - **Former lead developer**
