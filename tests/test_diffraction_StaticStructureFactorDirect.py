@@ -2,6 +2,7 @@ import matplotlib
 import numpy as np
 import numpy.testing as npt
 import pytest
+from numpy.lib import NumpyVersion
 
 import freud
 
@@ -222,6 +223,9 @@ class TestStaticStructureFactorDirect:
         sf.compute((box2, positions2))
         assert not np.array_equal(sf.S_k, S_k)
 
+    @pytest.mark.skipif(
+        NumpyVersion(np.__version__) < "1.15.0", reason="Requires numpy>=1.15.0."
+    )
     def test_bin_precision(self):
         # Ensure bin edges and bounds are precise
         bins = 100
