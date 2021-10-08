@@ -4,6 +4,7 @@
 #include <limits>
 #include <vector>
 
+#include "NeighborQuery.h"
 #include "Histogram.h"
 #include "ManagedArray.h"
 
