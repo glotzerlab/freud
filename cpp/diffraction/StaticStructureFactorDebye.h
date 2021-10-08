@@ -34,17 +34,6 @@ public:
     //! Reduce thread-local arrays onto the primary data arrays.
     void reduce();
 
-    //! Return thing_to_return after reducing if necessary.
-    template<typename U> U& reduceAndReturn(U& thing_to_return)
-    {
-        if (m_reduce)
-        {
-            reduce();
-        }
-        m_reduce = false;
-        return thing_to_return;
-    }
-
     //! Reset the histogram to all zeros
     void reset()
     {
@@ -54,37 +43,8 @@ public:
         m_reduce = true;
     }
 
-    //! Get the structure factor
-    const util::ManagedArray<float>& getStructureFactor()
-    {
-        return reduceAndReturn(m_structure_factor.getBinCounts());
-    }
-
-    //! Get the k bin edges
-    std::vector<float> getBinEdges() const
-    {
-        return m_structure_factor.getBinEdges()[0];
-    }
-
-    //! Get the k bin centers
-    std::vector<float> getBinCenters() const
-    {
-        return m_structure_factor.getBinCenters()[0];
-    }
-
-    //! Get the minimum valid k value
-    float getMinValidK() const
-    {
-        return m_min_valid_k;
-    }
-
 private:
-    StructureFactorHistogram m_structure_factor;                              //!< Histogram to hold computed structure factor
-    StructureFactorHistogram::ThreadLocalHistogram m_local_structure_factor; //!< Thread local histograms for TBB parallelism
     unsigned int m_frame_counter {0};                      //!< Number of frames calculated
-    float m_min_valid_k {
-        std::numeric_limits<float>::infinity()}; //!< The minimum valid k-value based on the computed box
-    bool m_reduce {true};                        //!< Whether to reduce
 };
 
 }; }; // namespace freud::diffraction

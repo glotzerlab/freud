@@ -1,6 +1,12 @@
 #ifndef STATIC_STRUCTURE_FACTOR_H
 #define STATIC_STRUCTURE_FACTOR_H
 
+#include <limits>
+#include <vector>
+
+#include "Histogram.h"
+#include "ManagedArray.h"
+
 namespace freud { namespace diffraction {
 
 class StaticStructureFactor
@@ -22,7 +28,9 @@ public:
 
     virtual void reset() = 0;
 
-    /*
+    virtual void reduce() = 0;
+
+    //! Return thing_to_return after reducing if necessary.
     template<typename U> U& reduceAndReturn(U& thing_to_return)
     {
         if (m_reduce)
@@ -32,40 +40,38 @@ public:
         m_reduce = false;
         return thing_to_return;
     }
-    */
 
-    virtual const util::ManagedArray<float>& getStructureFactor() = 0;
+    //! Get the structure factor
+    const util::ManagedArray<float>& getStructureFactor()
+    {
+        return reduceAndReturn(m_structure_factor.getBinCounts());
+    }
 
-    virtual std::vector<float> getBinEdges() const = 0;
-    /*
+    //! Get the k bin edges
+    std::vector<float> getBinEdges() const
     {
         return m_structure_factor.getBinEdges()[0];
     }
-    */
 
-    virtual std::vector<float> getBinCenters() const = 0;
-    /*
+    //! Get the k bin centers
+    std::vector<float> getBinCenters() const
     {
         return m_structure_factor.getBinCenters()[0];
     }
-    */
 
-    /*
+    //! Get the minimum valid k value
     float getMinValidK() const
     {
         return m_min_valid_k;
     }
-    */
 
 protected:
     // histogram of values for the structure factor
-    //StructureFactorHistogram m_structure_factor;
-    //StructureFactorHistogram::ThreadLocalHistogram m_local_structure_factor;
+    StructureFactorHistogram m_structure_factor; //!< Histogram to hold computed structure factor
+    StructureFactorHistogram::ThreadLocalHistogram m_local_structure_factor; //!< Thread local histograms for TBB parallelism
 
-    //bool m_reduce {true};  //! whether to reduce local histograms
-    //float m_min_valid_k { std::numeric_limits<float>::infinity() }; //! min valid k-vector
-
-
+    bool m_reduce {true};  //! whether to reduce local histograms
+    float m_min_valid_k { std::numeric_limits<float>::infinity() }; //! min valid k-vector
 };
 
 }; };

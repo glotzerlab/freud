@@ -60,17 +60,6 @@ public:
     //! Reduce thread-local arrays onto the primary data arrays.
     void reduce();
 
-    //! Return thing_to_return after reducing if necessary.
-    template<typename U> U& reduceAndReturn(U& thing_to_return)
-    {
-        if (m_reduce)
-        {
-            reduce();
-        }
-        m_reduce = false;
-        return thing_to_return;
-    }
-
     //! Reset the histogram to all zeros
     void reset()
     {
@@ -81,34 +70,10 @@ public:
         box_assigned = false;
     }
 
-    //! Get the structure factor
-    const util::ManagedArray<float>& getStructureFactor()
-    {
-        return reduceAndReturn(m_structure_factor.getBinCounts());
-    }
-
-    //! Get the k bin edges
-    std::vector<float> getBinEdges() const
-    {
-        return m_structure_factor.getBinEdges()[0];
-    }
-
-    //! Get the k bin centers
-    std::vector<float> getBinCenters() const
-    {
-        return m_structure_factor.getBinCenters()[0];
-    }
-
     //! Get the maximum number of k points
     unsigned int getMaxKPoints() const
     {
         return m_max_k_points;
-    }
-
-    //! Get the minimum valid k value
-    float getMinValidK() const
-    {
-        return m_min_valid_k;
     }
 
     //! Get the k points last used
@@ -133,15 +98,9 @@ private:
 
     unsigned int m_max_k_points;                 //!< Target number of k-vectors to sample
     std::vector<vec3<float>> m_k_points;         //!< k-vectors used for sampling
-    StructureFactorHistogram m_structure_factor; //!< Histogram to hold computed structure factor
-    StructureFactorHistogram::ThreadLocalHistogram
-        m_local_structure_factor; //!< Thread local histograms for TBB parallelism
     KBinHistogram m_k_histogram;    //!< Histogram of sampled k bins
     KBinHistogram::ThreadLocalHistogram
         m_local_k_histograms; //!< Thread local histograms of sampled k bins for TBB parallelism
-    float m_min_valid_k {
-        std::numeric_limits<float>::infinity()}; //!< The minimum valid k-value based on the computed box
-    bool m_reduce {true};                        //!< Whether to reduce
     box::Box previous_box;                       //!< box assigned to the system
     bool box_assigned {false};                   //!< Whether to reuse the box
 };
