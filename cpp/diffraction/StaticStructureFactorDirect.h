@@ -75,7 +75,7 @@ public:
     void reset()
     {
         m_local_structure_factor.reset();
-        m_local_histograms.reset();
+        m_local_k_histograms.reset();
         m_min_valid_k = std::numeric_limits<float>::infinity();
         m_reduce = true;
         box_assigned = false;
@@ -136,9 +136,9 @@ private:
     StructureFactorHistogram m_structure_factor; //!< Histogram to hold computed structure factor
     StructureFactorHistogram::ThreadLocalHistogram
         m_local_structure_factor; //!< Thread local histograms for TBB parallelism
-    KBinHistogram m_histogram;    //!< Histogram of sampled k bins
+    KBinHistogram m_k_histogram;    //!< Histogram of sampled k bins
     KBinHistogram::ThreadLocalHistogram
-        m_local_histograms; //!< Thread local histograms of sampled k bins for TBB parallelism
+        m_local_k_histograms; //!< Thread local histograms of sampled k bins for TBB parallelism
     float m_min_valid_k {
         std::numeric_limits<float>::infinity()}; //!< The minimum valid k-value based on the computed box
     bool m_reduce {true};                        //!< Whether to reduce

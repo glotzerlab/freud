@@ -52,8 +52,8 @@ StaticStructureFactorDirect::StaticStructureFactorDirect(unsigned int bins, floa
         = StructureFactorHistogram::Axes {std::make_shared<util::RegularAxis>(bins, k_min, k_max)};
     m_structure_factor = StructureFactorHistogram(axes);
     m_local_structure_factor = StructureFactorHistogram::ThreadLocalHistogram(m_structure_factor);
-    m_histogram = KBinHistogram(axes);
-    m_local_histograms = KBinHistogram::ThreadLocalHistogram(m_histogram);
+    m_k_histogram = KBinHistogram(axes);
+    m_local_k_histograms = KBinHistogram::ThreadLocalHistogram(m_k_histogram);
 }
 
 void StaticStructureFactorDirect::accumulate(const freud::locality::NeighborQuery* neighbor_query,
@@ -107,7 +107,7 @@ void StaticStructureFactorDirect::accumulate(const freud::locality::NeighborQuer
             const auto k_magnitude = std::sqrt(dot(k_vec, k_vec));
             const auto k_bin = m_structure_factor.bin({k_magnitude});
             m_local_structure_factor.increment(k_bin, S_k_all_points[k_index]);
-            m_local_histograms.increment(k_bin);
+            m_local_k_histograms.increment(k_bin);
         };
     });
     m_reduce = true;
@@ -116,16 +116,16 @@ void StaticStructureFactorDirect::accumulate(const freud::locality::NeighborQuer
 void StaticStructureFactorDirect::reduce()
 {
     const auto axis_size = m_structure_factor.getAxisSizes()[0];
-    m_histogram.prepare(axis_size);
+    m_k_histogram.prepare(axis_size);
     m_structure_factor.prepare(axis_size);
 
     // Reduce the bin counts over all threads, then use them to normalize the
     // structure factor when computing. This computes a binned mean over all k
     // points. Unlike some other methods in freud, no frame counter is needed
     // because the binned mean accounts for accumulation over frames.
-    m_histogram.reduceOverThreads(m_local_histograms);
+    m_k_histogram.reduceOverThreads(m_local_k_histograms);
     m_structure_factor.reduceOverThreadsPerBin(m_local_structure_factor,
-                                               [&](size_t i) { m_structure_factor[i] /= m_histogram[i]; });
+                                               [&](size_t i) { m_structure_factor[i] /= m_k_histogram[i]; });
 }
 
 std::vector<std::complex<float>>

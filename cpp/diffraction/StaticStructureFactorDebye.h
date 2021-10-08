@@ -21,7 +21,7 @@ namespace freud { namespace diffraction {
 
 class StaticStructureFactorDebye : public StaticStructureFactor
 {
-    using S_kHistogram = util::Histogram<float>;
+    using StructureFactorHistogram = util::Histogram<float>;
 
 public:
     //! Constructor
@@ -48,7 +48,7 @@ public:
     //! Reset the histogram to all zeros
     void reset()
     {
-        m_local_histograms.reset();
+        m_local_structure_factor.reset();
         m_frame_counter = 0;
         m_min_valid_k = std::numeric_limits<float>::infinity();
         m_reduce = true;
@@ -57,19 +57,19 @@ public:
     //! Get the structure factor
     const util::ManagedArray<float>& getStructureFactor()
     {
-        return reduceAndReturn(m_structure_factor);
+        return reduceAndReturn(m_structure_factor.getBinCounts());
     }
 
     //! Get the k bin edges
     std::vector<float> getBinEdges() const
     {
-        return m_histogram.getBinEdges()[0];
+        return m_structure_factor.getBinEdges()[0];
     }
 
     //! Get the k bin centers
     std::vector<float> getBinCenters() const
     {
-        return m_histogram.getBinCenters()[0];
+        return m_structure_factor.getBinCenters()[0];
     }
 
     //! Get the minimum valid k value
@@ -79,9 +79,8 @@ public:
     }
 
 private:
-    S_kHistogram m_histogram;                              //!< Histogram to hold computed structure factor
-    S_kHistogram::ThreadLocalHistogram m_local_histograms; //!< Thread local histograms for TBB parallelism
-    util::ManagedArray<float> m_structure_factor;          //!< The computed structure factor
+    StructureFactorHistogram m_structure_factor;                              //!< Histogram to hold computed structure factor
+    StructureFactorHistogram::ThreadLocalHistogram m_local_structure_factor; //!< Thread local histograms for TBB parallelism
     unsigned int m_frame_counter {0};                      //!< Number of frames calculated
     float m_min_valid_k {
         std::numeric_limits<float>::infinity()}; //!< The minimum valid k-value based on the computed box
