@@ -3,7 +3,21 @@ import numpy as np
 import numpy.testing as npt
 import pytest
 from numpy.lib import NumpyVersion
-from StructureFactor_helper import helper_partial_structure_factor_arguments
+from StructureFactor_helper import (
+    helper_partial_structure_factor_arguments,
+    helper_test_attribute_access,
+    helper_test_attribute_shapes,
+    helper_test_bin_precission,
+    helper_test_compute,
+    helper_test_k_min,
+    helper_test_large_k_partial_cross_term_goes_to_fraction,
+    helper_test_large_k_partial_cross_term_goes_to_one,
+    helper_test_large_k_partial_cross_term_goes_to_zero,
+    helper_test_min_valid_k,
+    helper_test_partial_structure_factor_sum_normalization,
+    helper_test_partial_structure_factor_symmetry,
+    helper_test_repr,
+)
 
 import freud
 
@@ -12,18 +26,10 @@ matplotlib.use("agg")
 
 class TestStaticStructureFactorDirect:
     def test_compute(self):
-        bins = 1000
-        k_max = 100
-        k_min = 0
-        num_sampled_k_points = 80000
         sf = freud.diffraction.StaticStructureFactorDirect(
-            bins=bins,
-            k_max=k_max,
-            k_min=k_min,
-            num_sampled_k_points=num_sampled_k_points,
+            bins=1000, k_max=100, k_min=0, num_sampled_k_points=80000
         )
-        box, positions = freud.data.UnitCell.fcc().generate_system(4)
-        sf.compute((box, positions))
+        helper_test_compute(sf)
 
     def test_against_dynasor(self):
         """Validate the direct method agains dynasor package."""
@@ -62,43 +68,37 @@ class TestStaticStructureFactorDirect:
         # The Direct method evaluates S(k) in bins. Here, we choose the binning
         # parameters such that the first bin contains only the origin in k-space
         # and no other k-points. Thus the smallest bin is measuring S(0) = N.
+        sf = freud.diffraction.StaticStructureFactorDirect(bins=100, k_max=10)
         L = 10
         N = 1000
         box, points = freud.data.make_random_system(L, N)
         system = freud.AABBQuery.from_system((box, points))
-        sf = freud.diffraction.StaticStructureFactorDirect(bins=100, k_max=10)
         sf.compute(system)
         assert np.isclose(sf.S_k[0], N)
 
     def test_accumulation(self):
         # This test ensures that accumulation and resetting works as expected.
         # See notes on test_S_0_is_N.
+        sf = freud.diffraction.StaticStructureFactorDirect(bins=100, k_max=10)
         L = 10
         N = 1000
-        sf = freud.diffraction.StaticStructureFactorDirect(bins=100, k_max=10)
         # Ensure that accumulation averages correctly over different numbers of
         # points. We test N points, N*2 points, and N*3 points. On average, the
         # number of points is N * 2.
         for i in range(1, 4):
             box, points = freud.data.make_random_system(L, N * i)
             sf.compute((box, points), reset=False)
+        print(sf.S_k[0], N * 2)
         assert np.isclose(sf.S_k[0], N * 2)
         box, points = freud.data.make_random_system(L, N * 2)
         sf.compute((box, points), reset=True)
+        print(sf.S_k[0], N * 2)
         assert np.isclose(sf.S_k[0], N * 2)
 
     def test_k_min(self):
-        L = 10
-        N = 1000
-        box, points = freud.data.make_random_system(L, N)
-        system = freud.AABBQuery.from_system((box, points))
         sf1 = freud.diffraction.StaticStructureFactorDirect(bins=100, k_max=10)
-        sf1.compute(system)
         sf2 = freud.diffraction.StaticStructureFactorDirect(bins=50, k_max=10, k_min=5)
-        sf2.compute(system)
-        npt.assert_allclose(sf1.bin_centers[50:], sf2.bin_centers, rtol=1e-6, atol=1e-6)
-        npt.assert_allclose(sf1.bin_edges[50:], sf2.bin_edges, rtol=1e-6, atol=1e-6)
-        npt.assert_allclose(sf1.S_k[50:], sf2.S_k, rtol=1e-6, atol=1e-6)
+        helper_test_k_min(sf1, sf2)
         with pytest.raises(ValueError):
             freud.diffraction.StaticStructureFactorDirect(bins=100, k_max=10, k_min=-1)
 
@@ -109,84 +109,37 @@ class TestStaticStructureFactorDirect:
     def test_partial_structure_factor_symmetry(self):
         """Compute a partial structure factor and ensure it is symmetric under
         type exchange."""
-        L = 10
-        N = 1000
-        box, points = freud.data.make_random_system(L, N)
-        system = freud.AABBQuery.from_system((box, points))
-        A_points = system.points[: N // 3]
-        B_points = system.points[N // 3 :]
-        sf = freud.diffraction.StaticStructureFactorDirect(bins=100, k_max=10)
-        sf.compute((system.box, B_points), query_points=A_points, N_total=N)
-        S_AB = sf.S_k
-        sf.compute((system.box, A_points), query_points=B_points, N_total=N)
-        S_BA = sf.S_k
-        npt.assert_allclose(S_AB, S_BA, rtol=1e-5, atol=1e-5)
+        sf = freud.diffraction.StaticStructureFactorDirect(bins=100, k_max=10, k_min=0)
+        helper_test_partial_structure_factor_symmetry(sf)
 
     def test_partial_structure_factor_sum_normalization(self):
         """Ensure that the weighted sum of the partial structure factors is
         equal to the full scattering."""
-        L = 10
-        N = 1000
-        num_sampled_k_points = 80000
-        box, points = freud.data.make_random_system(L, N)
-        system = freud.AABBQuery.from_system((box, points))
-        A_points = system.points[: N // 3]
-        B_points = system.points[N // 3 :]
         sf = freud.diffraction.StaticStructureFactorDirect(
-            bins=100, k_max=10, num_sampled_k_points=num_sampled_k_points
+            bins=100, k_max=10, num_sampled_k_points=80000
         )
-        S_total = sf.compute(system).S_k
-        S_total_as_partial = sf.compute(system).S_k
-        npt.assert_allclose(S_total, S_total_as_partial, rtol=1e-6, atol=1e-6)
-        S_AA = sf.compute((system.box, A_points), query_points=A_points, N_total=N).S_k
-        S_AB = sf.compute((system.box, B_points), query_points=A_points, N_total=N).S_k
-        S_BA = sf.compute((system.box, A_points), query_points=B_points, N_total=N).S_k
-        S_BB = sf.compute((system.box, B_points), query_points=B_points, N_total=N).S_k
-        S_partial_sum = S_AA + S_AB + S_BA + S_BB
-        npt.assert_allclose(S_total, S_partial_sum, rtol=1e-5, atol=1e-5)
+        helper_test_partial_structure_factor_sum_normalization(sf)
 
     def test_large_k_partial_cross_term_goes_to_zero(self):
         """Ensure S_{AB}(k) goes to zero at large k."""
-        L = 10
-        N = 1000
-        num_sampled_k_points = 200000
-        box, points = freud.data.make_random_system(L, N)
-        system = freud.AABBQuery.from_system((box, points))
-        A_points = system.points[: N // 3]
-        B_points = system.points[N // 3 :]
         sf = freud.diffraction.StaticStructureFactorDirect(
-            bins=100, k_max=500, k_min=400, num_sampled_k_points=num_sampled_k_points
+            bins=100, k_max=500, k_min=400, num_sampled_k_points=200000
         )
-        S_AB = sf.compute((system.box, B_points), query_points=A_points, N_total=N).S_k
-        npt.assert_allclose(np.mean(S_AB), 0, atol=2e-2)
+        helper_test_large_k_partial_cross_term_goes_to_zero(sf)
 
     def test_large_k_partial_self_term_goes_to_fraction(self):
         """Ensure S_{AA}(k) goes to N_A / N_total at large k."""
-        L = 10
-        N = 1000
-        num_sampled_k_points = 200000
-        box, points = freud.data.make_random_system(L, N)
-        system = freud.AABBQuery.from_system((box, points))
-        N_A = N // 3
-        A_points = system.points[:N_A]
         sf = freud.diffraction.StaticStructureFactorDirect(
-            bins=100, k_max=500, k_min=400, num_sampled_k_points=num_sampled_k_points
+            bins=100, k_max=500, k_min=400, num_sampled_k_points=200000
         )
-        S_AA = sf.compute((system.box, A_points), query_points=A_points, N_total=N).S_k
-        npt.assert_allclose(np.mean(S_AA), N_A / N, atol=2e-2)
+        helper_test_large_k_partial_cross_term_goes_to_fraction(sf)
 
     def test_large_k_scattering_goes_to_one(self):
         """Ensure S(k) goes to one at large k."""
-        L = 10
-        N = 1000
-        num_sampled_k_points = 200000
-        box, points = freud.data.make_random_system(L, N)
-        system = freud.AABBQuery.from_system((box, points))
         sf = freud.diffraction.StaticStructureFactorDirect(
-            bins=100, k_max=500, k_min=400, num_sampled_k_points=num_sampled_k_points
+            bins=100, k_max=500, k_min=400, num_sampled_k_points=200000
         )
-        sf.compute(system)
-        npt.assert_allclose(np.mean(sf.S_k), 1, atol=2e-2)
+        helper_test_large_k_partial_cross_term_goes_to_one(sf)
 
     def test_attribute_access(self):
         bins = 100
@@ -199,31 +152,10 @@ class TestStaticStructureFactorDirect:
             k_min=k_min,
             num_sampled_k_points=num_sampled_k_points,
         )
-        assert sf.nbins == bins
-        assert np.isclose(sf.k_max, k_max)
-        assert np.isclose(sf.k_min, k_min)
         assert np.isclose(sf.num_sampled_k_points, num_sampled_k_points)
-        npt.assert_allclose(sf.bounds, (k_min, k_max))
-
-        box, positions = freud.data.UnitCell.fcc().generate_system(4)
-
-        with pytest.raises(AttributeError):
-            sf.S_k
         with pytest.raises(AttributeError):
             sf.k_points
-        with pytest.raises(AttributeError):
-            sf.plot()
-
-        sf.compute((box, positions))
-        S_k = sf.S_k
-        sf.k_points
-        sf.plot()
-        sf._repr_png_()
-
-        # Make sure old data is not invalidated by new call to compute()
-        box2, positions2 = freud.data.UnitCell.bcc().generate_system(3)
-        sf.compute((box2, positions2))
-        assert not np.array_equal(sf.S_k, S_k)
+        helper_test_attribute_access(sf, bins, k_max, k_min)
 
     @pytest.mark.skipif(
         NumpyVersion(np.__version__) < "1.15.0", reason="Requires numpy>=1.15.0."
@@ -234,47 +166,31 @@ class TestStaticStructureFactorDirect:
         k_max = 123
         k_min = 0.1
         num_sampled_k_points = 10000
-        ssf = freud.diffraction.StaticStructureFactorDirect(
+        sf = freud.diffraction.StaticStructureFactorDirect(
             bins=bins,
             k_max=k_max,
             k_min=k_min,
             num_sampled_k_points=num_sampled_k_points,
         )
-        expected_bin_edges = np.histogram_bin_edges(
-            np.array([0], dtype=np.float32), bins=bins, range=[k_min, k_max]
-        )
-        expected_bin_centers = (expected_bin_edges[:-1] + expected_bin_edges[1:]) / 2
-        npt.assert_allclose(ssf.bin_edges, expected_bin_edges, atol=1e-5, rtol=1e-5)
-        npt.assert_allclose(ssf.bin_centers, expected_bin_centers, atol=1e-5, rtol=1e-5)
-        npt.assert_allclose(
-            ssf.bounds,
-            ([expected_bin_edges[0], expected_bin_edges[-1]]),
-            atol=1e-5,
-            rtol=1e-5,
-        )
+        helper_test_bin_precission(sf, bins, k_max, k_min)
 
     def test_min_valid_k(self):
         # test if minvalid K is correct
         Lx = 10
         Ly = 8
         Lz = 7
-        min_valid_k = 2 * np.pi / Lz
-        box, points = freud.data.UnitCell(
-            [Lx / 10, Ly / 10, Lz / 10, 0, 0, 0],
-            basis_positions=[[0, 0, 0], [0.3, 0.25, 0.35]],
-        ).generate_system(10)
         bins = 100
         k_max = 30
         k_min = 1
         num_sampled_k_points = 100000
+        min_valid_k = 2 * np.pi / Lz
         sf = freud.diffraction.StaticStructureFactorDirect(
             bins=bins,
             k_min=k_min,
             k_max=k_max,
             num_sampled_k_points=num_sampled_k_points,
         )
-        sf.compute((box, points))
-        assert np.isclose(sf.min_valid_k, min_valid_k)
+        helper_test_min_valid_k(sf, min_valid_k, Lx, Ly, Lz)
 
     def test_attribute_shapes(self):
         bins = 100
@@ -284,20 +200,8 @@ class TestStaticStructureFactorDirect:
         sf = freud.diffraction.StaticStructureFactorDirect(
             bins, k_max, k_min, num_sampled_k_points
         )
-        assert sf.bin_centers.shape == (bins,)
-        assert sf.bin_edges.shape == (bins + 1,)
-        npt.assert_allclose(sf.bounds, (k_min, k_max))
-        box, positions = freud.data.UnitCell.fcc().generate_system(4)
-        sf.compute((box, positions))
-        assert sf.S_k.shape == (bins,)
-        assert sf.k_points.shape[1] == 3
+        helper_test_attribute_shapes(sf, bins, k_max, k_min)
 
     def test_repr(self):
-        bins = 100
-        k_max = 123
-        k_min = 0.1
-        num_sampled_k_points = 10000
-        sf = freud.diffraction.StaticStructureFactorDirect(
-            bins, k_max, k_min, num_sampled_k_points
-        )
-        assert str(sf) == str(eval(repr(sf)))
+        sf = freud.diffraction.StaticStructureFactorDirect(100, 123, 0.1, 10000)
+        helper_test_repr(sf)
