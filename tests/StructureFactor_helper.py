@@ -1,4 +1,5 @@
 import pytest
+
 import freud
 
 
@@ -8,4 +9,3 @@ def helper_partial_structure_factor_arguments(sf):
         sf.compute((box, positions), query_points=positions)
     with pytest.raises(ValueError):
         sf.compute((box, positions), N_total=len(positions))
-

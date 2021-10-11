@@ -3,10 +3,9 @@ import numpy as np
 import numpy.testing as npt
 import pytest
 from numpy.lib import NumpyVersion
+from StructureFactor_helper import helper_partial_structure_factor_arguments
 
 import freud
-
-from StructureFactor_helper import (helper_partial_structure_factor_arguments)
 
 matplotlib.use("agg")
 
