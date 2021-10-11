@@ -55,13 +55,13 @@ public:
 
     //! Compute the structure factor S(k) using the direct formula
     void accumulate(const freud::locality::NeighborQuery* neighbor_query, const vec3<float>* query_points,
-                    unsigned int n_query_points, unsigned int n_total);
+                    unsigned int n_query_points, unsigned int n_total) override;
 
     //! Reduce thread-local arrays onto the primary data arrays.
-    void reduce();
+    void reduce() override;
 
     //! Reset the histogram to all zeros
-    void reset()
+    void reset() override
     {
         m_local_structure_factor.reset();
         m_local_k_histograms.reset();
