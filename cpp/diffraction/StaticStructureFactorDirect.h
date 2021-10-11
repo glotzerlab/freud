@@ -49,7 +49,7 @@ class StaticStructureFactorDirect : public StaticStructureFactor
 public:
     //! Constructor
     StaticStructureFactorDirect(unsigned int bins, float k_max, float k_min = 0,
-                                unsigned int max_k_points = 0);
+                                unsigned int num_sampled_k_points = 0);
 
     //! Destructor
 
@@ -70,10 +70,10 @@ public:
         box_assigned = false;
     }
 
-    //! Get the maximum number of k points
-    unsigned int getMaxKPoints() const
+    //! Get the number of sampled k points
+    unsigned int getNumSampledKPoints() const
     {
-        return m_max_k_points;
+        return m_num_sampled_k_points;
     }
 
     //! Get the k points last used
@@ -94,9 +94,9 @@ private:
 
     //! Sample reciprocal space isotropically to get k points
     static std::vector<vec3<float>> reciprocal_isotropic(const box::Box& box, float k_max, float k_min,
-                                                         unsigned int max_k_points);
+                                                         unsigned int num_sampled_k_points);
 
-    unsigned int m_max_k_points;                 //!< Target number of k-vectors to sample
+    unsigned int m_num_sampled_k_points;                 //!< Target number of k-vectors to sample
     std::vector<vec3<float>> m_k_points;         //!< k-vectors used for sampling
     KBinHistogram m_k_histogram;    //!< Histogram of sampled k bins
     KBinHistogram::ThreadLocalHistogram

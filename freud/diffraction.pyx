@@ -330,19 +330,22 @@ cdef class StaticStructureFactorDirect(_StaticStructureFactor):
             there are practical restrictions on the validity of the
             calculation in the long wavelength regime, see :py:attr:`min_valid_k`
             (Default value = 0).
-        max_k_points (unsigned int, optional):
+        num_sampled_k_points (unsigned int, optional):
             The maximum number of k points to use when constructing k space
             grid. The code will prune the number of grid points to optimize the
             bin widths and performance. By default no pruning is done and all
-            k-points are used. (Default value = 0).
+            k-points are used. If greater then zero, the k-points used will be
+            sampled from the full grid of k-points with uniform radial density,
+            resulting in a sample of ``num_sampled_k_points`` on average.
+            (Default value = 0).
     """
 
     cdef:
         freud._diffraction.StaticStructureFactorDirect * thisptr
 
-    def __cinit__(self, unsigned int bins, float k_max, float k_min=0, unsigned int max_k_points=20000):
+    def __cinit__(self, unsigned int bins, float k_max, float k_min=0, unsigned int num_sampled_k_points = 0):
         if type(self) == StaticStructureFactorDirect:
-            self.thisptr = self.ssfptr = new freud._diffraction.StaticStructureFactorDirect(bins, k_max, k_min, max_k_points)
+            self.thisptr = self.ssfptr = new freud._diffraction.StaticStructureFactorDirect(bins, k_max, k_min, num_sampled_k_points)
 
     def __dealloc__(self):
         if type(self) == StaticStructureFactorDirect:
@@ -439,10 +442,10 @@ cdef class StaticStructureFactorDirect(_StaticStructureFactor):
         return self.thisptr.getMinValidK()
 
     @property
-    def max_k_points(self):
+    def num_sampled_k_points(self):
         r"""int: The maximum number of :math:`\vec{k}` points to use when constructing :math:`k` space
         grid."""
-        return self.thisptr.getMaxKPoints()
+        return self.thisptr.getNumSampledKPoints()
 
     @_Compute._computed_property
     def k_points(self):
@@ -453,12 +456,12 @@ cdef class StaticStructureFactorDirect(_StaticStructureFactor):
     def __repr__(self):
         return ("freud.diffraction.{cls}(bins={bins}, "
                 "k_max={k_max}, k_min={k_min}, "
-                "max_k_points={max_k_points})").format(
+                "num_sampled_k_points={num_sampled_k_points})").format(
                     cls=type(self).__name__,
                     bins=self.nbins,
                     k_max=self.k_max,
                     k_min=self.k_min,
-                    max_k_points=self.max_k_points)
+                    num_sampled_k_points=self.num_sampled_k_points)
 
 
 cdef class DiffractionPattern(_Compute):

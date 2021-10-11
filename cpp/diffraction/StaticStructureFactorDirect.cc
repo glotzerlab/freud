@@ -24,8 +24,8 @@
 namespace freud { namespace diffraction {
 
 StaticStructureFactorDirect::StaticStructureFactorDirect(unsigned int bins, float k_max, float k_min,
-                                                         unsigned int max_k_points)
-    : m_max_k_points(max_k_points)
+                                                         unsigned int num_sampled_k_points)
+    : m_num_sampled_k_points(num_sampled_k_points)
 {
     if (bins == 0)
     {
@@ -72,7 +72,7 @@ void StaticStructureFactorDirect::accumulate(const freud::locality::NeighborQuer
     if ((!box_assigned) || (box != previous_box))
     {
         previous_box = box;
-        m_k_points = StaticStructureFactorDirect::reciprocal_isotropic(box, k_max, k_min, m_max_k_points);
+        m_k_points = StaticStructureFactorDirect::reciprocal_isotropic(box, k_max, k_min, m_num_sampled_k_points);
         box_assigned = true;
     }
 
@@ -182,16 +182,16 @@ inline Eigen::Matrix3f box_to_matrix(const box::Box& box)
     return mat;
 }
 
-inline float get_prune_distance(unsigned int max_k_points, float q_max, float q_volume)
+inline float get_prune_distance(unsigned int num_sampled_k_points, float q_max, float q_volume)
 {
-    if ((max_k_points > M_PI * std::pow(q_max, 3.0) / (6 * q_volume)) || (max_k_points == 0))
+    if ((num_sampled_k_points > M_PI * std::pow(q_max, 3.0) / (6 * q_volume)) || (num_sampled_k_points == 0))
     {
         // Above this limit, all points are used and no pruning occurs.
         return std::numeric_limits<float>::infinity();
     }
     // We use Cardano's formula to compute the pruning distance.
     const auto p = -0.75F * q_max * q_max;
-    const auto q = 3.0F * static_cast<float>(max_k_points) * q_volume / static_cast<float>(M_PI)
+    const auto q = 3.0F * static_cast<float>(num_sampled_k_points) * q_volume / static_cast<float>(M_PI)
         - q_max * q_max * q_max / 4.0F;
     const auto D = p * p * p / 27.0F + q * q / 4.0F;
 
@@ -203,7 +203,7 @@ inline float get_prune_distance(unsigned int max_k_points, float q_max, float q_
 
 std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const box::Box& box, float k_max,
                                                                            float k_min,
-                                                                           unsigned int max_k_points)
+                                                                           unsigned int num_sampled_k_points)
 {
     const auto box_matrix = box_to_matrix(box);
     // B holds "crystallographic" reciprocal box vectors that lack the factor of 2 pi.
@@ -219,7 +219,7 @@ std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const
 
     // Above the pruning distance, the grid of k points is sampled isotropically
     // at a lower density.
-    const auto q_prune_distance = get_prune_distance(max_k_points, q_max, q_volume);
+    const auto q_prune_distance = get_prune_distance(num_sampled_k_points, q_max, q_volume);
     const auto q_prune_distance_sq = q_prune_distance * q_prune_distance;
 
     const auto bx = freud::constants::TWO_PI * vec3<float>(B(0, 0), B(0, 1), B(0, 2));
@@ -230,7 +230,7 @@ std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const
     const auto N_kz = static_cast<unsigned int>(std::ceil(q_max / dq_z));
 
     // The maximum number of k points is a guideline. The true number of sampled
-    // k points can be less or greater than max_k_points, depending on the
+    // k points can be less or greater than num_sampled_k_points, depending on the
     // result of the random pruning procedure. Therefore, we cannot allocate a
     // fixed size for the data. Also, reserving capacity for the concurrent
     // vector had no measureable effect on performance.

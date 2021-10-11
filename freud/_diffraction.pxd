@@ -37,6 +37,6 @@ cdef extern from "StaticStructureFactorDirect.h" namespace "freud::diffraction":
         const freud.util.ManagedArray[float] &getStructureFactor()
         const vector[float] getBinEdges() const
         const vector[float] getBinCenters() const
-        unsigned int getMaxKPoints() const
+        unsigned int getNumSampledKPoints() const
         float getMinValidK() const
         vector[vec3[float]] getKPoints() const
