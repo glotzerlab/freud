@@ -21,7 +21,6 @@ namespace freud { namespace diffraction {
 
 class StaticStructureFactorDebye : public StaticStructureFactor
 {
-    using StructureFactorHistogram = util::Histogram<float>;
 
 public:
     //! Constructor

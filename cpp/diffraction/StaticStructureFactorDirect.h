@@ -43,7 +43,6 @@ namespace freud { namespace diffraction {
 
 class StaticStructureFactorDirect : public StaticStructureFactor
 {
-    using StructureFactorHistogram = util::Histogram<float>;
     using KBinHistogram = util::Histogram<unsigned int>;
 
 public:
