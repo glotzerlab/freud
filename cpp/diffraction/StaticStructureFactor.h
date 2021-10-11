@@ -72,12 +72,11 @@ protected:
         return thing_to_return;
     }
 
-    // histogram of values for the structure factor
     StructureFactorHistogram m_structure_factor; //!< Histogram to hold computed structure factor
     StructureFactorHistogram::ThreadLocalHistogram m_local_structure_factor; //!< Thread local histograms for TBB parallelism
 
-    bool m_reduce {true};  //! whether to reduce local histograms
-    float m_min_valid_k { std::numeric_limits<float>::infinity() }; //! min valid k-vector
+    bool m_reduce {true};  //! Whether to reduce local histograms
+    float m_min_valid_k { std::numeric_limits<float>::infinity() }; //! Minimum valid k-vector magnitude
 };
 
 }; };
