@@ -56,9 +56,6 @@ public:
     void accumulate(const freud::locality::NeighborQuery* neighbor_query, const vec3<float>* query_points,
                     unsigned int n_query_points, unsigned int n_total) override;
 
-    //! Reduce thread-local arrays onto the primary data arrays.
-    void reduce() override;
-
     //! Reset the histogram to all zeros
     void reset() override
     {
@@ -82,6 +79,9 @@ public:
     }
 
 private:
+    //! Reduce thread-local arrays onto the primary data arrays.
+    void reduce() override;
+
     //! Compute the complex amplitude F(k) for a set of points and k points
     static std::vector<std::complex<float>> compute_F_k(const vec3<float>* points, unsigned int n_points,
                                                         unsigned int n_total,

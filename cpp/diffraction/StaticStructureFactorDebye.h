@@ -30,9 +30,6 @@ public:
     void accumulate(const freud::locality::NeighborQuery* neighbor_query, const vec3<float>* query_points,
                     unsigned int n_query_points, unsigned int n_total) override;
 
-    //! Reduce thread-local arrays onto the primary data arrays.
-    void reduce() override;
-
     //! Reset the histogram to all zeros
     void reset() override
     {
@@ -43,6 +40,9 @@ public:
     }
 
 private:
+    //! Reduce thread-local arrays onto the primary data arrays.
+    void reduce() override;
+
     unsigned int m_frame_counter {0};                      //!< Number of frames calculated
 };
 

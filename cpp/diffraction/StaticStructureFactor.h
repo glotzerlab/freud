@@ -22,8 +22,6 @@ class StaticStructureFactor
 protected:
     using StructureFactorHistogram = util::Histogram<float>;
 
-    StaticStructureFactor() = default;
-
     StaticStructureFactor(unsigned int bins, float k_max, float k_min = 0);
 
 public:
@@ -35,19 +33,6 @@ public:
                             unsigned int n_total) = 0;
 
     virtual void reset() = 0;
-
-    virtual void reduce() = 0;
-
-    //! Return thing_to_return after reducing if necessary.
-    template<typename U> U& reduceAndReturn(U& thing_to_return)
-    {
-        if (m_reduce)
-        {
-            reduce();
-        }
-        m_reduce = false;
-        return thing_to_return;
-    }
 
     //! Get the structure factor
     const util::ManagedArray<float>& getStructureFactor()
@@ -74,6 +59,19 @@ public:
     }
 
 protected:
+    virtual void reduce() = 0;
+
+    //! Return thing_to_return after reducing if necessary.
+    template<typename U> U& reduceAndReturn(U& thing_to_return)
+    {
+        if (m_reduce)
+        {
+            reduce();
+        }
+        m_reduce = false;
+        return thing_to_return;
+    }
+
     // histogram of values for the structure factor
     StructureFactorHistogram m_structure_factor; //!< Histogram to hold computed structure factor
     StructureFactorHistogram::ThreadLocalHistogram m_local_structure_factor; //!< Thread local histograms for TBB parallelism
