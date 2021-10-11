@@ -91,7 +91,7 @@ public:
 
     inline bool operator!=(const Box& b) const
     {
-        return !(b == *this);
+        return !(*this == b);
     }
 
     //! Set L, box lengths, inverses.  Box is also centered at zero.

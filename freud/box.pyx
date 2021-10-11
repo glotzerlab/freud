@@ -16,6 +16,7 @@ import freud.util
 
 cimport numpy as np
 from cpython.object cimport Py_EQ, Py_NE
+from cython.operator cimport dereference
 from libcpp cimport bool as cpp_bool
 
 cimport freud._box
@@ -687,17 +688,19 @@ cdef class Box:
     def __str__(self):
         return repr(self)
 
-    def _eq(self, other):
-        return self.to_dict() == other.to_dict()
-
     def __richcmp__(self, other, int op):
         r"""Implement all comparisons for Cython extension classes"""
-        if op == Py_EQ:
-            return self._eq(other)
-        if op == Py_NE:
-            return not self._eq(other)
-        else:
-            raise NotImplementedError("This comparison is not implemented")
+        cdef Box c_other
+        try:
+            c_other = <Box?> other
+            if op == Py_EQ:
+                return dereference(self.thisptr) == dereference(c_other.thisptr)
+            if op == Py_NE:
+                return dereference(self.thisptr) != dereference(c_other.thisptr)
+        except TypeError:
+            # Cython cast to Box failed
+            pass
+        return NotImplemented
 
     def __mul__(arg1, arg2):
         # Note Cython treats __mul__ and __rmul__ as one operation, so
