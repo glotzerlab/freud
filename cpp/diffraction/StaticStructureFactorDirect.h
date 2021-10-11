@@ -49,7 +49,7 @@ class StaticStructureFactorDirect : public StaticStructureFactor
 public:
     //! Constructor
     StaticStructureFactorDirect(unsigned int bins, float k_max, float k_min = 0,
-                                unsigned int max_k_points = 10000);
+                                unsigned int max_k_points = 0);
 
     //! Destructor
 

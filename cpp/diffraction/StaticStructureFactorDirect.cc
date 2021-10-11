@@ -184,7 +184,7 @@ inline Eigen::Matrix3f box_to_matrix(const box::Box& box)
 
 inline float get_prune_distance(unsigned int max_k_points, float q_max, float q_volume)
 {
-    if (max_k_points > M_PI * std::pow(q_max, 3.0) / (6 * q_volume))
+    if ((max_k_points > M_PI * std::pow(q_max, 3.0) / (6 * q_volume)) || (max_k_points == 0))
     {
         // Above this limit, all points are used and no pruning occurs.
         return std::numeric_limits<float>::infinity();

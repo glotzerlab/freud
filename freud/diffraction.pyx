@@ -333,7 +333,8 @@ cdef class StaticStructureFactorDirect(_StaticStructureFactor):
         max_k_points (unsigned int, optional):
             The maximum number of k points to use when constructing k space
             grid. The code will prune the number of grid points to optimize the
-            bin widths and performance. (Default value = 20000).
+            bin widths and performance. By default no pruning is done and all
+            k-points are used. (Default value = 0).
     """
 
     cdef:
