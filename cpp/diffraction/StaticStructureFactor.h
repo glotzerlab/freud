@@ -1,3 +1,6 @@
+// Copyright (c) 2010-2020 The Regents of the University of Michigan
+// This file is from the freud project, released under the BSD 3-Clause License.
+
 #ifndef STATIC_STRUCTURE_FACTOR_H
 #define STATIC_STRUCTURE_FACTOR_H
 
@@ -7,6 +10,10 @@
 #include "NeighborQuery.h"
 #include "Histogram.h"
 #include "ManagedArray.h"
+
+/*! \file StaticStructureFactor.h
+    \brief Base class for structure factor classes.
+*/
 
 namespace freud { namespace diffraction {
 
