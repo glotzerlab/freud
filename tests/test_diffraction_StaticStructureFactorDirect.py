@@ -6,6 +6,8 @@ from numpy.lib import NumpyVersion
 
 import freud
 
+from StructureFactor_helper import (helper_partial_structure_factor_arguments)
+
 matplotlib.use("agg")
 
 
@@ -103,12 +105,7 @@ class TestStaticStructureFactorDirect:
 
     def test_partial_structure_factor_arguments(self):
         sf = freud.diffraction.StaticStructureFactorDirect(bins=1000, k_max=100)
-        box, positions = freud.data.UnitCell.fcc().generate_system(4)
-        # Require N_total if and only if query_points are provided
-        with pytest.raises(ValueError):
-            sf.compute((box, positions), query_points=positions)
-        with pytest.raises(ValueError):
-            sf.compute((box, positions), N_total=len(positions))
+        helper_partial_structure_factor_arguments(sf)
 
     def test_partial_structure_factor_symmetry(self):
         """Compute a partial structure factor and ensure it is symmetric under
