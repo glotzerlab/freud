@@ -25,34 +25,12 @@ namespace freud { namespace diffraction {
 
 StaticStructureFactorDirect::StaticStructureFactorDirect(unsigned int bins, float k_max, float k_min,
                                                          unsigned int num_sampled_k_points)
-    : m_num_sampled_k_points(num_sampled_k_points)
+    : StaticStructureFactor(bins, k_max, k_min), m_num_sampled_k_points(num_sampled_k_points)
 {
-    if (bins == 0)
-    {
-        throw std::invalid_argument("StaticStructureFactorDirect requires a nonzero number of bins.");
-    }
-    if (k_max <= 0)
-    {
-        throw std::invalid_argument("StaticStructureFactorDirect requires k_max to be positive.");
-    }
-    if (k_min < 0)
-    {
-        throw std::invalid_argument("StaticStructureFactorDirect requires k_min to be non-negative.");
-    }
-    if (k_max <= k_min)
-    {
-        throw std::invalid_argument(
-            "StaticStructureFactorDirect requires that k_max must be greater than k_min.");
-    }
-
     // We must construct two separate histograms, one for the counts and one
-    // for the actual correlation function. The counts are used to normalize
-    // the correlation function.
-    const auto axes
-        = StructureFactorHistogram::Axes {std::make_shared<util::RegularAxis>(bins, k_min, k_max)};
-    m_structure_factor = StructureFactorHistogram(axes);
-    m_local_structure_factor = StructureFactorHistogram::ThreadLocalHistogram(m_structure_factor);
-    m_k_histogram = KBinHistogram(axes);
+    // for the actual S(Q). The counts are used to normalize the S(Q) function.
+    // move semantics in Histogram constructor might cause issues? @bdice
+    m_k_histogram = KBinHistogram(m_structure_factor.getAxes());
     m_local_k_histograms = KBinHistogram::ThreadLocalHistogram(m_k_histogram);
 }
 
