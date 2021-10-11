@@ -2,7 +2,7 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 /*! \file StaticStructureFactor.cc
-    \brief Routines for computing static structure factors.
+    \brief Base class for structure factor classes.
 */
 
 #include "StaticStructureFactor.h"
@@ -11,5 +11,4 @@ namespace freud { namespace diffraction {
 
     StaticStructureFactor::StaticStructureFactor()
 
-
-}; };
+}; }; // namespace freud::diffraction
