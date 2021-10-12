@@ -175,7 +175,6 @@ class TestStaticStructureFactorDirect:
         helper_test_bin_precission(sf, bins, k_max, k_min)
 
     def test_min_valid_k(self):
-        # test if minvalid K is correct
         Lx = 10
         Ly = 8
         Lz = 7

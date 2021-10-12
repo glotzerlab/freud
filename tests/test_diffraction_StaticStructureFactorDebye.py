@@ -161,7 +161,6 @@ class TestStaticStructureFactorDebye:
         Lx = 10
         Ly = 8
         Lz = 7
-        # test if minvalid K is correct
         bins = 100
         k_max = 30
         k_min = 1
