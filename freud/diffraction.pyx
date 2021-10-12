@@ -118,7 +118,6 @@ cdef class _StaticStructureFactor(_Compute):
             return None
 
 
-
 cdef class StaticStructureFactorDebye(_StaticStructureFactor):
     r"""Computes a 1D static structure factor using the
     Debye scattering equation.
@@ -299,9 +298,9 @@ cdef class StaticStructureFactorDirect(_StaticStructureFactor):
     The :math:`\vec{k}` vectors are sampled isotropically from a grid defined by
     the box's reciprocal lattice vectors. This sampling of reciprocal space is
     based on the MIT licensed `Dynasor library
-    <https://gitlab.com/materials-modeling/dynasor/>`__,   modified to use
+    <https://gitlab.com/materials-modeling/dynasor/>`__, modified to use
     parallelized C++ and to support larger ranges of :math:`k` values.
-    For more information see :cite:`Fransson2021`
+    For more information see :cite:`Fransson2021`.
 
     .. note::
         This code assumes all particles have a form factor :math:`f` of 1.
@@ -331,13 +330,12 @@ cdef class StaticStructureFactorDirect(_StaticStructureFactor):
             calculation in the long wavelength regime, see :py:attr:`min_valid_k`
             (Default value = 0).
         num_sampled_k_points (unsigned int, optional):
-            The maximum number of k points to use when constructing k space
-            grid. The code will prune the number of grid points to optimize the
-            bin widths and performance. By default no pruning is done and all
-            k-points are used. If greater then zero, the k-points used will be
-            sampled from the full grid of k-points with uniform radial density,
-            resulting in a sample of ``num_sampled_k_points`` on average.
-            (Default value = 0).
+            The desired number of :math:`\vec{k}` vectors to sample from the
+            reciprocal lattice grid. If set to 0, all :math:`\vec{k}` vectors
+            are used. If greater than 0, the :math:`\vec{k}` vectors are sampled
+            from the full grid with uniform radial density, resulting in a
+            sample of ``num_sampled_k_points`` vectors on average (Default
+            value = 0).
     """
 
     cdef:
@@ -417,7 +415,6 @@ cdef class StaticStructureFactorDirect(_StaticStructureFactor):
             const vec3[float]* l_query_points_ptr = NULL
             const float[:, ::1] l_query_points
             unsigned int num_query_points
-
 
         if query_points is not None:
             # Convert points to float32 to avoid errors when float64 is passed
