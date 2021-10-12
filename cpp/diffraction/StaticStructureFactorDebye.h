@@ -21,7 +21,6 @@ namespace freud { namespace diffraction {
 
 class StaticStructureFactorDebye : public StaticStructureFactor
 {
-
 public:
     //! Constructor
     StaticStructureFactorDebye(unsigned int bins, float k_max, float k_min = 0);
@@ -43,7 +42,7 @@ private:
     //! Reduce thread-local arrays onto the primary data arrays.
     void reduce() override;
 
-    unsigned int m_frame_counter {0};                      //!< Number of frames calculated
+    unsigned int m_frame_counter {0}; //!< Number of frames calculated
 };
 
 }; }; // namespace freud::diffraction

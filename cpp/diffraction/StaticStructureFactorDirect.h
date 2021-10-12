@@ -95,13 +95,13 @@ private:
     static std::vector<vec3<float>> reciprocal_isotropic(const box::Box& box, float k_max, float k_min,
                                                          unsigned int num_sampled_k_points);
 
-    unsigned int m_num_sampled_k_points;                 //!< Target number of k-vectors to sample
-    std::vector<vec3<float>> m_k_points;         //!< k-vectors used for sampling
-    KBinHistogram m_k_histogram;    //!< Histogram of sampled k bins
+    unsigned int m_num_sampled_k_points; //!< Target number of k-vectors to sample
+    std::vector<vec3<float>> m_k_points; //!< k-vectors used for sampling
+    KBinHistogram m_k_histogram;         //!< Histogram of sampled k bins
     KBinHistogram::ThreadLocalHistogram
-        m_local_k_histograms; //!< Thread local histograms of sampled k bins for TBB parallelism
-    box::Box previous_box;                       //!< box assigned to the system
-    bool box_assigned {false};                   //!< Whether to reuse the box
+        m_local_k_histograms;  //!< Thread local histograms of sampled k bins for TBB parallelism
+    box::Box previous_box;     //!< box assigned to the system
+    bool box_assigned {false}; //!< Whether to reuse the box
 };
 
 }; }; // namespace freud::diffraction

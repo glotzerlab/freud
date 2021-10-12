@@ -7,9 +7,9 @@
 #include <limits>
 #include <vector>
 
-#include "NeighborQuery.h"
 #include "Histogram.h"
 #include "ManagedArray.h"
+#include "NeighborQuery.h"
 
 /*! \file StaticStructureFactor.h
     \brief Base class for structure factor classes.
@@ -28,9 +28,9 @@ public:
     virtual ~StaticStructureFactor() = default;
 
     virtual void accumulate(const freud::locality::NeighborQuery* neighbor_query,
-                            const vec3<float>* query_points,
-                            unsigned int n_query_points,
-                            unsigned int n_total) = 0;
+                            const vec3<float>* query_points, unsigned int n_query_points,
+                            unsigned int n_total)
+        = 0;
 
     virtual void reset() = 0;
 
@@ -73,12 +73,13 @@ protected:
     }
 
     StructureFactorHistogram m_structure_factor; //!< Histogram to hold computed structure factor
-    StructureFactorHistogram::ThreadLocalHistogram m_local_structure_factor; //!< Thread local histograms for TBB parallelism
+    StructureFactorHistogram::ThreadLocalHistogram
+        m_local_structure_factor; //!< Thread local histograms for TBB parallelism
 
-    bool m_reduce {true};  //! Whether to reduce local histograms
-    float m_min_valid_k { std::numeric_limits<float>::infinity() }; //! Minimum valid k-vector magnitude
+    bool m_reduce {true};                                         //! Whether to reduce local histograms
+    float m_min_valid_k {std::numeric_limits<float>::infinity()}; //! Minimum valid k-vector magnitude
 };
 
-}; };
+}; }; // namespace freud::diffraction
 
 #endif // STATIC_STRUCTURE_FACTOR_H

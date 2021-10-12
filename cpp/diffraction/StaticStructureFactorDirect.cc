@@ -49,7 +49,8 @@ void StaticStructureFactorDirect::accumulate(const freud::locality::NeighborQuer
     if ((!box_assigned) || (box != previous_box))
     {
         previous_box = box;
-        m_k_points = StaticStructureFactorDirect::reciprocal_isotropic(box, k_max, k_min, m_num_sampled_k_points);
+        m_k_points
+            = StaticStructureFactorDirect::reciprocal_isotropic(box, k_max, k_min, m_num_sampled_k_points);
         box_assigned = true;
     }
 
