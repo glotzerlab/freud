@@ -79,9 +79,10 @@ public:
     /*! Constructor for Steinhardt analysis class.
      *  \param l Spherical harmonic number l. Must be non-negative integers.
      */
-    explicit Steinhardt(const unsigned int l, bool average = false, bool wl = false,
-                        bool weighted = false, bool wl_normalize = false)
-        : Steinhardt(std::vector<unsigned int>{l}, average, wl, weighted, wl_normalize) {}
+    explicit Steinhardt(const unsigned int l, bool average = false, bool wl = false, bool weighted = false,
+                        bool wl_normalize = false)
+        : Steinhardt(std::vector<unsigned int> {l}, average, wl, weighted, wl_normalize)
+    {}
 
     //! Empty destructor
     ~Steinhardt() = default;
@@ -203,11 +204,9 @@ private:
     std::vector<util::ManagedArray<std::complex<float>>> m_qlmi; //!< qlm for each particle i
     std::vector<util::ManagedArray<std::complex<float>>> m_qlm;  //!< Normalized qlm(Ave) for the whole system
     std::vector<util::ThreadStorage<std::complex<float>>>
-        m_qlm_local; //!< Thread-specific m_qlm(Ave) for each l
-    util::ManagedArray<float>
-        m_qli; //!< ql locally invariant order parameter for each particle i
-    util::ManagedArray<float>
-        m_qliAve; //!< Averaged ql with 2nd neighbor shell for each particle i
+        m_qlm_local;                    //!< Thread-specific m_qlm(Ave) for each l
+    util::ManagedArray<float> m_qli;    //!< ql locally invariant order parameter for each particle i
+    util::ManagedArray<float> m_qliAve; //!< Averaged ql with 2nd neighbor shell for each particle i
     std::vector<util::ManagedArray<std::complex<float>>>
         m_qlmiAve; //!< Averaged qlm with 2nd neighbor shell for each particle i
     std::vector<util::ManagedArray<std::complex<float>>>
