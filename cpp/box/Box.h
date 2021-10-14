@@ -84,8 +84,7 @@ public:
         return ((this->getL() == b.getL()) && (this->getTiltFactorXY() == b.getTiltFactorXY())
                 && (this->getTiltFactorXZ() == b.getTiltFactorXZ())
                 && (this->getTiltFactorYZ() == b.getTiltFactorYZ())
-                && (this->getPeriodicX() == b.getPeriodicX())
-                && (this->getPeriodicY() == b.getPeriodicY())
+                && (this->getPeriodicX() == b.getPeriodicX()) && (this->getPeriodicY() == b.getPeriodicY())
                 && (this->getPeriodicZ() == b.getPeriodicZ()));
     }
 
