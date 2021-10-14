@@ -401,10 +401,7 @@ cdef class StaticStructureFactorDirect(_StaticStructureFactor):
             )
         # Convert points to float32 to avoid errors when float64 is passed
         temp_nq = freud.locality.NeighborQuery.from_system(system)
-        box = temp_nq.box
-        points = np.asarray(temp_nq.points).astype(np.float32)
-
-        cdef freud.locality.NeighborQuery nq = freud.locality.NeighborQuery.from_system((box,points))
+        cdef freud.locality.NeighborQuery nq = freud.locality.NeighborQuery.from_system((temp_nq.box,freud.util._convert_array(temp_nq.points)))
 
         if reset:
             self._reset()
@@ -417,8 +414,7 @@ cdef class StaticStructureFactorDirect(_StaticStructureFactor):
             unsigned int num_query_points
 
         if query_points is not None:
-            # Convert points to float32 to avoid errors when float64 is passed
-            l_query_points = np.asarray(query_points).astype(np.float32)
+            l_query_points = freud.util._convert_array(query_points)
             num_query_points = l_query_points.shape[0]
             l_query_points_ptr = <vec3[float]*> &l_query_points[0, 0]
 
