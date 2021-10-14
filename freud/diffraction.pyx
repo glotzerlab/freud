@@ -440,7 +440,7 @@ cdef class StaticStructureFactorDirect(_StaticStructureFactor):
 
     @property
     def num_sampled_k_points(self):
-        r"""int: The maximum number of :math:`\vec{k}` points to use when constructing :math:`k` space
+        r"""int: The target number of :math:`\vec{k}` points to use when constructing :math:`k` space
         grid."""
         return self.thisptr.getNumSampledKPoints()
 
