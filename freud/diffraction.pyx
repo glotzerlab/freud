@@ -342,8 +342,7 @@ cdef class StaticStructureFactorDirect(_StaticStructureFactor):
             value = 0).
     """
 
-    cdef:
-        freud._diffraction.StaticStructureFactorDirect * thisptr
+    cdef freud._diffraction.StaticStructureFactorDirect * thisptr
 
     def __cinit__(self, unsigned int bins, float k_max, float k_min=0, unsigned int num_sampled_k_points = 0):
         if type(self) == StaticStructureFactorDirect:
