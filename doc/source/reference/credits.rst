@@ -321,6 +321,8 @@ Tommy Waltmann
 
 * Worked with Bradley Dice to add the SphereVoxelization feature.
 * Contributed code, design, and testing for ``DiffractionPattern`` class.
+* Contributed code, design, and testing for ``StaticStructureFactorDebye`` class.
+* Contributed code, design, and testing for ``StaticStructureFactorDirect`` class.
 
 Maya Martirossyan
 
