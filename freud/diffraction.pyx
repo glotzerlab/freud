@@ -322,9 +322,6 @@ cdef class StaticStructureFactorDirect(_StaticStructureFactor):
         S(k) - 1 = \sum_{\alpha}\sum_{\beta} \frac{N_{\alpha}
         N_{\beta}}{N_{total}^2} \left(S_{\alpha \beta}(k) - 1\right)
 
-    This class is based on the MIT licensed `Dynasor library
-    <https://gitlab.com/materials-modeling/dynasor/>`__.
-
     Args:
         bins (unsigned int):
             Number of bins in :math:`k` space.
