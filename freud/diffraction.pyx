@@ -87,11 +87,9 @@ cdef class _StaticStructureFactor(_Compute):
         factor."""
         return self.bounds[0]
 
-
     @_Compute._computed_property
     def min_valid_k(self):
         return self.thisptr.getMinValidK()
-
 
     def plot(self, ax=None, **kwargs):
         r"""Plot static structure factor.
@@ -341,8 +339,7 @@ cdef class StaticStructureFactorDirect(_StaticStructureFactor):
             value = 0).
     """
 
-    cdef:
-        freud._diffraction.StaticStructureFactorDirect * thisptr
+    cdef freud._diffraction.StaticStructureFactorDirect * thisptr
 
     def __cinit__(self, unsigned int bins, float k_max, float k_min=0, unsigned int num_sampled_k_points = 0):
         if type(self) == StaticStructureFactorDirect:
