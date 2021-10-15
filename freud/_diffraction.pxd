@@ -22,10 +22,6 @@ cdef extern from "StaticStructureFactorDebye.h" namespace "freud::diffraction":
         void accumulate(const freud._locality.NeighborQuery*,
                         const vec3[float]*,
                         unsigned int, unsigned int) except +
-        void reset()
-        const freud.util.ManagedArray[float] &getStructureFactor()
-        const vector[float] getBinEdges() const
-        const vector[float] getBinCenters() const
         float getMinValidK() const
 
 cdef extern from "StaticStructureFactorDirect.h" namespace "freud::diffraction":
@@ -33,10 +29,6 @@ cdef extern from "StaticStructureFactorDirect.h" namespace "freud::diffraction":
         StaticStructureFactorDirect(unsigned int, float, float, unsigned int) except +
         void accumulate(const freud._locality.NeighborQuery*,
                         const vec3[float]*, unsigned int, unsigned int) except +
-        void reset()
-        const freud.util.ManagedArray[float] &getStructureFactor()
-        const vector[float] getBinEdges() const
-        const vector[float] getBinCenters() const
         unsigned int getNumSampledKPoints() const
         float getMinValidK() const
         vector[vec3[float]] getKPoints() const
