@@ -87,7 +87,6 @@ cdef class _StaticStructureFactor(_Compute):
         factor."""
         return self.bounds[0]
 
-
     @_Compute._computed_property
     def min_valid_k(self):
         return self.thisptr.getMinValidK()
