@@ -50,7 +50,6 @@ public:
     StaticStructureFactorDirect(unsigned int bins, float k_max, float k_min = 0,
                                 unsigned int num_sampled_k_points = 0);
 
-    //! Destructor
 
     //! Compute the structure factor S(k) using the direct formula
     void accumulate(const freud::locality::NeighborQuery* neighbor_query, const vec3<float>* query_points,
