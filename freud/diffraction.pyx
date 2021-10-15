@@ -92,7 +92,6 @@ cdef class _StaticStructureFactor(_Compute):
     def min_valid_k(self):
         return self.thisptr.getMinValidK()
 
-
     def plot(self, ax=None, **kwargs):
         r"""Plot static structure factor.
 
