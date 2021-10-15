@@ -10,6 +10,30 @@ def helper_test_compute(sf):
     sf.compute((box, positions))
 
 
+def helper_test_S_0_is_N(sf):
+    L = 10
+    N = 1000
+    box, points = freud.data.make_random_system(L, N)
+    system = freud.AABBQuery.from_system((box, points))
+    sf.compute(system)
+    assert np.isclose(sf.S_k[0], N)
+
+
+def helper_test_accumulation(sf):
+    L = 10
+    N = 1000
+    # Ensure that accumulation averages correctly over different numbers of
+    # points. We test N points, N*2 points, and N*3 points. On average, the
+    # number of points is N * 2.
+    for i in range(1, 4):
+        box, points = freud.data.make_random_system(L, N * i)
+        sf.compute((box, points), reset=False)
+    assert np.isclose(sf.S_k[0], N * 2)
+    box, points = freud.data.make_random_system(L, N * 2)
+    sf.compute((box, points), reset=True)
+    assert np.isclose(sf.S_k[0], N * 2)
+
+
 def helper_test_k_min(sf1, sf2):
     L = 10
     N = 1000

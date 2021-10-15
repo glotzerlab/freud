@@ -5,6 +5,7 @@ import pytest
 from numpy.lib import NumpyVersion
 from StructureFactor_helper import (
     helper_partial_structure_factor_arguments,
+    helper_test_accumulation,
     helper_test_attribute_access,
     helper_test_attribute_shapes,
     helper_test_bin_precission,
@@ -17,6 +18,7 @@ from StructureFactor_helper import (
     helper_test_partial_structure_factor_sum_normalization,
     helper_test_partial_structure_factor_symmetry,
     helper_test_repr,
+    helper_test_S_0_is_N,
 )
 
 import freud
@@ -69,31 +71,13 @@ class TestStaticStructureFactorDirect:
         # parameters such that the first bin contains only the origin in k-space
         # and no other k-points. Thus the smallest bin is measuring S(0) = N.
         sf = freud.diffraction.StaticStructureFactorDirect(bins=100, k_max=10)
-        L = 10
-        N = 1000
-        box, points = freud.data.make_random_system(L, N)
-        system = freud.AABBQuery.from_system((box, points))
-        sf.compute(system)
-        assert np.isclose(sf.S_k[0], N)
+        helper_test_S_0_is_N(sf)
 
     def test_accumulation(self):
         # This test ensures that accumulation and resetting works as expected.
         # See notes on test_S_0_is_N.
         sf = freud.diffraction.StaticStructureFactorDirect(bins=100, k_max=10)
-        L = 10
-        N = 1000
-        # Ensure that accumulation averages correctly over different numbers of
-        # points. We test N points, N*2 points, and N*3 points. On average, the
-        # number of points is N * 2.
-        for i in range(1, 4):
-            box, points = freud.data.make_random_system(L, N * i)
-            sf.compute((box, points), reset=False)
-        print(sf.S_k[0], N * 2)
-        assert np.isclose(sf.S_k[0], N * 2)
-        box, points = freud.data.make_random_system(L, N * 2)
-        sf.compute((box, points), reset=True)
-        print(sf.S_k[0], N * 2)
-        assert np.isclose(sf.S_k[0], N * 2)
+        helper_test_accumulation(sf)
 
     def test_k_min(self):
         sf1 = freud.diffraction.StaticStructureFactorDirect(bins=100, k_max=10)
