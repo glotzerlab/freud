@@ -25,13 +25,10 @@ namespace freud { namespace diffraction {
 
 StaticStructureFactorDirect::StaticStructureFactorDirect(unsigned int bins, float k_max, float k_min,
                                                          unsigned int num_sampled_k_points)
-    : StaticStructureFactor(bins, k_max, k_min), m_num_sampled_k_points(num_sampled_k_points)
-{
-    // We must construct two separate histograms, one for the counts and one
-    // for the actual S(q). The counts are used to normalize the S(q) function.
-    m_k_histogram = KBinHistogram(m_structure_factor.getAxes());
-    m_local_k_histograms = KBinHistogram::ThreadLocalHistogram(m_k_histogram);
-}
+    : StaticStructureFactor(bins, k_max, k_min), m_num_sampled_k_points(num_sampled_k_points),
+      m_k_histogram(KBinHistogram(m_structure_factor.getAxes())),
+      m_local_k_histograms(KBinHistogram::ThreadLocalHistogram(m_k_histogram))
+{}
 
 void StaticStructureFactorDirect::accumulate(const freud::locality::NeighborQuery* neighbor_query,
                                              const vec3<float>* query_points, unsigned int n_query_points,
