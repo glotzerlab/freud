@@ -324,13 +324,13 @@ void Steinhardt::aggregatewl(util::ManagedArray<float>& target,
                     = reduceWigner3j(&(source_l({i, 0})), l, wigner3j_values);
                 if (m_wl_normalize)
                 {
-                    const float normalization = std::sqrt(normalizationfactor) /
-                        normalization_source[norm_particle_index + l_index];
+                    const float normalization = std::sqrt(normalizationfactor)
+                        / normalization_source[norm_particle_index + l_index];
                     target[target_particle_index + l_index] *= normalization * normalization * normalization;
                 }
             }
         }
-        });
+    });
 }
 
 }; }; // end namespace freud::order

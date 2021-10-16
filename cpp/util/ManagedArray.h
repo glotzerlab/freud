@@ -201,7 +201,7 @@ public:
         // cppcheck generates a false positive here on old machines (CI),
         // probably due to limited template support on those compilers.
         // cppcheck-suppress returnTempReference
-        return (*this) (buildIndex(indices...));
+        return (*this)(buildIndex(indices...));
     }
 
     //! Constant implementation of variadic indexing function.
@@ -210,7 +210,7 @@ public:
         // cppcheck generates a false positive here on old machines (CI),
         // probably due to limited template support on those compilers.
         // cppcheck-suppress returnTempReference
-        return (*this) (buildIndex(indices...));
+        return (*this)(buildIndex(indices...));
     }
 
     //! Core function for multidimensional indexing.
