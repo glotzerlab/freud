@@ -49,10 +49,6 @@ cdef class _StaticStructureFactor(_Compute):
             &self.ssfptr.getStructureFactor(),
             freud.util.arr_type_t.FLOAT)
 
-    def _reset(self):
-        # Resets the values of StaticStructureFactor in memory.
-        self.ssfptr.reset()
-
     @property
     def bin_centers(self):
         """:class:`numpy.ndarray`: The centers of each bin of :math:`k`."""
@@ -262,6 +258,9 @@ cdef class StaticStructureFactorDebye(_StaticStructureFactor):
             num_query_points, N_total)
         return self
 
+    def _reset(self):
+        self.thisptr.reset()
+
     @_Compute._computed_property
     def min_valid_k(self):
         """float: Minimum valid value of k for the computed system box, equal
@@ -426,6 +425,9 @@ cdef class StaticStructureFactorDirect(_StaticStructureFactor):
             l_query_points_ptr, num_query_points, N_total
         )
         return self
+
+    def _reset(self):
+        self.thisptr.reset()
 
     @_Compute._computed_property
     def min_valid_k(self):
