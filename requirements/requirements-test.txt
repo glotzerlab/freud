@@ -3,10 +3,10 @@ cmake==3.21.3
 codecov==2.1.12
 coverage==5.5
 cython==0.29.24
+dynasor==1.1b0; platform_system != "Windows"
 garnett==0.7.1
 GitPython==3.1.24
 gsd==2.4.2
-https://gitlab.com/materials-modeling/dynasor/-/archive/1.1/dynasor-1.1.tar.gz; platform_system != "Windows"
 matplotlib>=3.0.0
 numpy==1.21.2
 pillow==8.3.2
