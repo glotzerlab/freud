@@ -11,7 +11,6 @@ from freud.util cimport vec3
 
 cdef extern from "StaticStructureFactor.h" namespace "freud::diffraction":
     cdef cppclass StaticStructureFactor:
-        void reset()
         const freud.util.ManagedArray[float] &getStructureFactor()
         const vector[float] getBinEdges() const
         const vector[float] getBinCenters() const
@@ -22,11 +21,13 @@ cdef extern from "StaticStructureFactorDebye.h" namespace "freud::diffraction":
         StaticStructureFactorDebye(unsigned int, float, float) except +
         void accumulate(const freud._locality.NeighborQuery*,
                         const vec3[float]*, unsigned int, unsigned int) except +
+        void reset()
 
 cdef extern from "StaticStructureFactorDirect.h" namespace "freud::diffraction":
     cdef cppclass StaticStructureFactorDirect(StaticStructureFactor):
         StaticStructureFactorDirect(unsigned int, float, float, unsigned int) except +
         void accumulate(const freud._locality.NeighborQuery*,
                         const vec3[float]*, unsigned int, unsigned int) except +
+        void reset()
         unsigned int getNumSampledKPoints() const
         vector[vec3[float]] getKPoints() const
