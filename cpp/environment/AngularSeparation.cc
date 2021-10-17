@@ -62,7 +62,7 @@ void AngularSeparationNeighbor::compute(const locality::NeighborQuery* nq, const
     const size_t tot_num_neigh = m_nlist.getNumBonds();
     m_angles.prepare(tot_num_neigh);
 
-    util::forLoopWrapper(0, nq->getNPoints(), [=](size_t begin, size_t end) {
+    util::forLoopWrapper(0, nq->getNPoints(), [&](size_t begin, size_t end) {
         size_t bond(m_nlist.find_first_index(begin));
         for (size_t i = begin; i < end; ++i)
         {
@@ -87,7 +87,7 @@ void AngularSeparationGlobal::compute(const quat<float>* global_orientations, un
 {
     m_angles.prepare({n_points, n_global});
 
-    util::forLoopWrapper(0, n_points, [=](size_t begin, size_t end) {
+    util::forLoopWrapper(0, n_points, [&](size_t begin, size_t end) {
         for (size_t i = begin; i < end; ++i)
         {
             quat<float> q = orientations[i];

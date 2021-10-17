@@ -34,7 +34,7 @@ jobs:
           submodules: "recursive"
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v1.11.1
+        uses: pypa/cibuildwheel@v2.1.2
         env:
           # Build for cpython >= 3.6.
           CIBW_PROJECT_REQUIRES_PYTHON: "==${{ matrix.pyver }}.*"
@@ -60,7 +60,7 @@ jobs:
           CIBW_BEFORE_TEST_WINDOWS: "powershell .github/workflows/cibuildwheel-before-test.ps1 {package}"
           CIBW_TEST_COMMAND: "cd {package}/tests && pytest . -v --log-level=DEBUG -n auto"
 
-      - uses: actions/upload-artifact@v2.2.3
+      - uses: actions/upload-artifact@v2.2.4
         with:
           name: dist
           path: ./wheelhouse/*.whl
@@ -84,7 +84,7 @@ jobs:
       - name: Build sdist
         run: python setup.py sdist
 
-      - uses: actions/upload-artifact@v2.2.3
+      - uses: actions/upload-artifact@v2.2.4
         with:
           name: dist
           path: dist/*.tar.gz
@@ -96,7 +96,7 @@ jobs:
 
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v2.0.9
+        uses: actions/download-artifact@v2.0.10
         with:
           name: dist
           path: dist

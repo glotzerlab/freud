@@ -20,7 +20,7 @@ class TestSteinhardt:
         N = 1000
         L = 10
 
-        box, positions = freud.data.make_random_system(L, N)
+        box, positions = freud.data.make_random_system(L, N, seed=0)
 
         comp = freud.order.Steinhardt(6)
         comp.compute((box, positions), neighbors={"r_max": 1.5})
@@ -36,7 +36,7 @@ class TestSteinhardt:
         atol = 1e-4
         L = 8
         N = 100
-        box, points = freud.data.make_random_system(L, N)
+        box, points = freud.data.make_random_system(L, N, seed=0)
 
         num_neighbors = 4
 
@@ -369,7 +369,7 @@ class TestSteinhardt:
         atol = 1e-4
         L = 8
         N = 100
-        box, points = freud.data.make_random_system(L, N)
+        box, points = freud.data.make_random_system(L, N, seed=0)
 
         num_neighbors = 4
 

@@ -27,18 +27,18 @@ using YlmsType = std::vector<std::vector<std::complex<float>>>;
 //! Compute the Steinhardt local rotationally invariant ql or wl order parameter for a set of points
 /*!
  * Implements the rotationally invariant ql or wl order parameter described
- * by Steinhardt. For a particle i, we calculate the average Q_l by summing
+ * by Steinhardt. For a particle i, we calculate the average q_l by summing
  * the spherical harmonics between particle i and its neighbors j in a local
  * region:
- * \f$ \overline{Q}_{lm}(i) = \frac{1}{N_b} \displaystyle\sum_{j=1}^{N_b}
+ * \f$ \overline{q}_{lm}(i) = \frac{1}{N_b} \sum \limits_{j=1}^{N_b}
  * Y_{lm}(\theta(\vec{r}_{ij}),\phi(\vec{r}_{ij})) \f$
  *
  * This is then combined in a rotationally invariant fashion to remove local
  * orientational order as follows:
- * \f$ Q_l(i)=\sqrt{\frac{4\pi}{2l+1} \displaystyle\sum_{m=-l}^{l} |\overline{Q}_{lm}|^2 }  \f$
+ * \f$ q_l(i)=\sqrt{\frac{4\pi}{2l+1} \sum \limits_{m=-l}^{l} |\overline{q}_{lm}|^2 }  \f$
  *
  * If the average flag is set, the order parameters averages over the second neighbor shell.
- * For a particle i, we calculate the average Q_l by summing the spherical
+ * For a particle i, we calculate the average q_l by summing the spherical
  * harmonics between particle i and its neighbors j and the neighbors k of
  * neighbor j in a local region.
  *
@@ -79,9 +79,10 @@ public:
     /*! Constructor for Steinhardt analysis class.
      *  \param l Spherical harmonic number l. Must be non-negative integers.
      */
-    explicit Steinhardt(const unsigned int l, bool average = false, bool wl = false,
-                        bool weighted = false, bool wl_normalize = false)
-        : Steinhardt(std::vector<unsigned int>{l}, average, wl, weighted, wl_normalize) {}
+    explicit Steinhardt(const unsigned int l, bool average = false, bool wl = false, bool weighted = false,
+                        bool wl_normalize = false)
+        : Steinhardt(std::vector<unsigned int> {l}, average, wl, weighted, wl_normalize)
+    {}
 
     //! Empty destructor
     ~Steinhardt() = default;
@@ -203,11 +204,9 @@ private:
     std::vector<util::ManagedArray<std::complex<float>>> m_qlmi; //!< qlm for each particle i
     std::vector<util::ManagedArray<std::complex<float>>> m_qlm;  //!< Normalized qlm(Ave) for the whole system
     std::vector<util::ThreadStorage<std::complex<float>>>
-        m_qlm_local; //!< Thread-specific m_qlm(Ave) for each l
-    util::ManagedArray<float>
-        m_qli; //!< ql locally invariant order parameter for each particle i
-    util::ManagedArray<float>
-        m_qliAve; //!< Averaged ql with 2nd neighbor shell for each particle i
+        m_qlm_local;                    //!< Thread-specific m_qlm(Ave) for each l
+    util::ManagedArray<float> m_qli;    //!< ql locally invariant order parameter for each particle i
+    util::ManagedArray<float> m_qliAve; //!< Averaged ql with 2nd neighbor shell for each particle i
     std::vector<util::ManagedArray<std::complex<float>>>
         m_qlmiAve; //!< Averaged qlm with 2nd neighbor shell for each particle i
     std::vector<util::ManagedArray<std::complex<float>>>

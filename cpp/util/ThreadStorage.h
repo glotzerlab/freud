@@ -102,7 +102,7 @@ public:
         else
         {
             // Reduce over arrays into the result array.
-            util::forLoopWrapper(0, result.size(), [=, &result](size_t begin, size_t end) {
+            util::forLoopWrapper(0, result.size(), [&](size_t begin, size_t end) {
                 for (size_t i = begin; i < end; ++i)
                 {
                     for (auto arr = arrays.begin(); arr != arrays.end(); ++arr)

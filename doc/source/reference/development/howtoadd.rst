@@ -5,14 +5,10 @@ Contributing to **freud**
 Code Conventions
 ================
 
-Python
-------
+Pre-commit
+----------
 
-Python (and Cython) code in **freud** should follow `PEP 8 <https://www.python.org/dev/peps/pep-0008/>`_.
-
-During continuous integration (CI), all Python and Cython code in **freud** is tested with `flake8 <http://flake8.pycqa.org/>`_ to ensure PEP 8 compliance.
-Additionally, all CMake code is tested using `cmakelang's cmake-format <https://cmake-format.readthedocs.io/en/latest/index.html>`__.
-It is strongly recommended to `set up a pre-commit hook <https://pre-commit.com/>`__ to ensure code is compliant before pushing to the repository:
+It is strongly recommended to `set up a pre-commit hook <https://pre-commit.com/>`__ to ensure code is compliant with all automated linters and style checks before pushing to the repository:
 
 .. code-block:: bash
 
@@ -25,6 +21,13 @@ To manually run `pre-commit <https://pre-commit.com/>`__ for all the files prese
 
     pre-commit run --all-files --show-diff-on-failure
 
+
+Python
+------
+
+Python (and Cython) code in **freud** should follow `PEP 8 <https://www.python.org/dev/peps/pep-0008/>`_.
+
+During continuous integration (CI), all Python and Cython code in **freud** is analyzed using automated linters and formatters including :code:`flake8`, :code:`black`, :code:`isort`, and :code:`pyupgrade`.
 Documentation is written in reStructuredText and generated using `Sphinx <http://www.sphinx-doc.org/en/stable/index.html>`_.
 It should be written according to the `Google Python Style Guide <https://github.com/google/styleguide/blob/gh-pages/pyguide.md#38-comments-and-docstrings>`_.
 A few specific notes:
@@ -41,11 +44,15 @@ A few specific notes:
 C++
 ---
 
-C++ code should follow the result of running :code:`clang-format-6.0` with the style specified in the file :code:`.clang-format`.
-Please refer to `Clang Format 6 <http://releases.llvm.org/6.0.1/tools/clang/docs/ClangFormatStyleOptions.html>`_ for details.
-
+C++ code should follow the result of running :code:`clang-format` with the style specified in the file :code:`.clang-format`.
+Please refer to the `clang-format documentation <https://clang.llvm.org/docs/ClangFormat.html>`__ for details.
+The :code:`clang-format` style will be automatically enforced by pre-commit via CI.
 When in doubt, run :code:`clang-format -style=file FILE_WITH_YOUR_CODE` in the top directory of the **freud** repository.
-If installing :code:`clang-format` is not a viable option, the :code:`check-style` step of continuous integration (CI) contains the information on the correctness of the style.
+
+The :code:`check-style` step of continuous integration (CI) runs :code:`clang-tidy` and :code:`cppcheck`.
+If the :code:`check-style` CI fails, please read the output log for information on what to fix.
+
+Additionally, all CMake code is tested using `cmakelang's cmake-format <https://cmake-format.readthedocs.io/en/latest/index.html>`__.
 
 Doxygen docstrings should be used for classes, functions, etc.
 

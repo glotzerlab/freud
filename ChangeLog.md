@@ -4,10 +4,27 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## next -- 2021-xx-xx
+## next -- yyyy-mm-dd
 
 ### Fixed
+* Added error checking for `r_min`, `r_max` arguments in `freud.density.RDF` and `freud.locality.NeighborList`.
 * Doctests are now run with pytest.
+
+## v2.7.0 -- 2021-10-01
+
+### Added
+* `freud.diffraction.StaticStructureFactorDebye` class (unstable) can be used to compute the static structure factor S(k) using the Debye formula.
+
+### Fixed
+* Updated lambda functions to capture `this` by reference, to ensure compatibility with C++20 and above.
+* Fixed ``Box.contains`` to run in linear time, ``O(num_points)``.
+* Fixed compilation to pass compiler optimization flags when build type is ReleaseWithDocs (major perf regression since 2.4.1).
+
+## v2.6.2 -- 2021-06-26
+
+### Fixed
+* Upgrade to auditwheel 4.0.0 in cibuildwheel to ensure RPATH is patched properly for `libfreud.so` in Linux wheels.
+>>>>>>> origin/master
 
 ## v2.6.1 -- 2021-06-23
 

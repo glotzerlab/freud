@@ -1,7 +1,7 @@
 # Copyright (c) 2010-2020 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
-R"""
+r"""
 The :class:`freud.diffraction` module provides functions for computing the
 diffraction pattern of particles in systems with long range order.
 
@@ -23,14 +23,248 @@ import freud.locality
 cimport numpy as np
 from libcpp cimport bool as cbool
 
+cimport freud._diffraction
+cimport freud.locality
 cimport freud.util
-from freud.util cimport _Compute
+from freud.util cimport _Compute, vec3
 
 logger = logging.getLogger(__name__)
 
+cdef class StaticStructureFactorDebye(_Compute):
+    r"""Computes a 1D static structure factor using the
+    Debye scattering equation.
+
+    This computes the static `structure factor
+    <https://en.wikipedia.org/wiki/Structure_factor>`__ :math:`S(k)` at given
+    :math:`k` values by averaging over all :math:`\vec{k}` vectors of the same
+    magnitude. Note that freud employs the physics convention in which
+    :math:`k` is used, as opposed to the crystallographic one where :math:`q`
+    is used. The relation is :math:`k=2 \pi q`. The static structure factor
+    calculation is implemented using the Debye scattering equation:
+
+    .. math::
+
+        S(k) = \frac{1}{N} \sum_{i=0}^{N} \sum_{j=0}^{N} \text{sinc}(k r_{ij})
+
+    where :math:`N` is the number of particles, :math:`\text{sinc}` function is
+    defined as :math:`\sin x / x` (no factor of :math:`\pi` as in some
+    conventions). For more information see `this Wikipedia article
+    <https://en.wikipedia.org/wiki/Structure_factor>`__. For a full derivation
+    see :cite:`Farrow2009`. Note that the definition requires :math:`S(0) = N`.
+
+    The Debye implementation provides a much faster algorithm, but gives worse
+    results than :py:attr:`freud.diffraction.StaticStructureFactorDirect`
+    at low k values.
+
+    .. note::
+        This code assumes all particles have a form factor :math:`f` of 1.
+
+    Partial structure factors can be computed by providing a set of
+    ``query_points`` and the total number of points in the system ``N_total`` to
+    the :py:meth:`compute` method. The normalization criterion is based on the
+    Faber-Ziman formalism. For particle types :math:`\alpha` and :math:`\beta`,
+    we compute the total scattering function as a sum of the partial scattering
+    functions as:
+
+    .. math::
+
+        S(k) - 1 = \sum_{\alpha}\sum_{\beta} \frac{N_{\alpha}
+        N_{\beta}}{N_{total}^2} \left(S_{\alpha \beta}(k) - 1\right)
+
+    Args:
+        bins (unsigned int):
+            Number of bins in :math:`k` space.
+        k_max (float):
+            Maximum :math:`k` value to include in the calculation.
+        k_min (float, optional):
+            Minimum :math:`k` value included in the calculation. Note that there
+            are practical restrictions on the validity of the calculation in the
+            long wavelength regime, see :py:attr:`min_valid_k` (Default value =
+            0).
+    """
+    cdef freud._diffraction.StaticStructureFactorDebye * thisptr
+
+    def __cinit__(self, unsigned int bins, float k_max, float k_min=0):
+        if type(self) == StaticStructureFactorDebye:
+            self.thisptr = new freud._diffraction.StaticStructureFactorDebye(
+                bins, k_max, k_min)
+
+    def __dealloc__(self):
+        if type(self) == StaticStructureFactorDebye:
+            del self.thisptr
+
+    def compute(self, system, query_points=None, N_total=None, reset=True):
+        r"""Computes static structure factor.
+
+        Example for a single component system::
+
+            >>> sf = freud.diffraction.StaticStructureFactorDebye(
+            ...     bins=100, k_max=10, k_min=0
+            ... )
+            >>> sf.compute((box, points))
+
+        Example for partial mixed structure factor for a multiple component
+        system with types A and B::
+
+            >>> sf = freud.diffraction.StaticStructureFactorDebye(
+            ...     bins=100, k_max=10, k_min=0
+            ... )
+            >>> sf.compute(
+            ...     system=(box, A_points),
+            ...     query_points=B_points,
+            ...     N_total=N_particles
+            ... )
+
+        Args:
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
+                Note that box is allowed to change when calculating trajectory
+                average static structure factor.
+            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
+                Query points used to calculate the partial structure factor.
+                Uses the system's points if :code:`None`. See class
+                documentation for information about the normalization of partial
+                structure factors. If :code:`None`, the full scattering is
+                computed. (Default value = :code:`None`).
+            N_total (int, optional):
+                Total number of points in the system. This is required if
+                ``query_points`` are provided. See class documentation for
+                information about the normalization of partial structure
+                factors.
+            reset (bool, optional):
+                Whether to erase the previously computed values before adding
+                the new computation; if False, will accumulate data (Default
+                value: True).
+        """  # noqa E501
+        if (query_points is None) != (N_total is None):
+            raise ValueError(
+                "If query_points are provided, N_total must also be provided "
+                "in order to correctly compute the normalization of the "
+                "partial structure factor."
+            )
+
+        if reset:
+            self._reset()
+
+        cdef:
+            freud.locality.NeighborQuery nq
+            const float[:, ::1] l_query_points
+            unsigned int num_query_points
+
+        nq = freud.locality.NeighborQuery.from_system(system)
+
+        if query_points is None:
+            query_points = nq.points
+        else:
+            query_points = freud.util._convert_array(
+                query_points, shape=(None, 3))
+        l_query_points = query_points
+        num_query_points = l_query_points.shape[0]
+
+        if N_total is None:
+            N_total = num_query_points
+
+        self.thisptr.accumulate(
+            nq.get_ptr(),
+            <vec3[float]*> &l_query_points[0, 0],
+            num_query_points, N_total)
+        return self
+
+    def _reset(self):
+        # Resets the values of StaticStructureFactorDebye in memory.
+        self.thisptr.reset()
+
+    @property
+    def bin_centers(self):
+        """:class:`numpy.ndarray`: The centers of each bin of :math:`k`."""
+        return np.array(self.thisptr.getBinCenters(), copy=True)
+
+    @property
+    def bin_edges(self):
+        """:class:`numpy.ndarray`: The edges of each bin of :math:`k`."""
+        return np.array(self.thisptr.getBinEdges(), copy=True)
+
+    @property
+    def bounds(self):
+        """tuple: A tuple indicating upper and lower bounds of the
+        histogram."""
+        bin_edges = self.bin_edges
+        return (bin_edges[0], bin_edges[len(bin_edges)-1])
+
+    @property
+    def nbins(self):
+        """int: The number of bins in the histogram."""
+        return len(self.bin_centers)
+
+    @property
+    def k_max(self):
+        """float: Maximum value of k at which to calculate the structure
+        factor."""
+        return self.bounds[1]
+
+    @property
+    def k_min(self):
+        """float: Minimum value of k at which to calculate the structure
+        factor."""
+        return self.bounds[0]
+
+    @_Compute._computed_property
+    def min_valid_k(self):
+        """float: Minimum valid value of k for the computed system box, equal
+        to :math:`2\\pi/(L/2)=4\\pi/L` where :math:`L` is the minimum side length.
+        For more information see :cite:`Liu2016`."""
+        return self.thisptr.getMinValidK()
+
+    @_Compute._computed_property
+    def S_k(self):
+        """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Static
+        structure factor :math:`S(k)` values."""
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getStructureFactor(),
+            freud.util.arr_type_t.FLOAT)
+
+    def plot(self, ax=None, **kwargs):
+        r"""Plot static structure factor.
+
+        .. note::
+            This function plots :math:`S(k)` for values above
+            :py:attr:`min_valid_k`.
+
+        Args:
+            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
+                :code:`None`, make a new figure and axis.
+                (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes.Axes`): Axis with the plot.
+        """
+        import freud.plot
+        return freud.plot.line_plot(self.bin_centers[self.bin_centers>self.min_valid_k],
+                                    self.S_k[self.bin_centers>self.min_valid_k],
+                                    title="Static Structure Factor",
+                                    xlabel=r"$k$",
+                                    ylabel=r"$S(k)$",
+                                    ax=ax)
+
+    def __repr__(self):
+        return ("freud.diffraction.{cls}(bins={bins}, "
+                "k_max={k_max}, k_min={k_min})").format(
+                    cls=type(self).__name__,
+                    bins=self.nbins,
+                    k_max=self.k_max,
+                    k_min=self.k_min)
+
+    def _repr_png_(self):
+        try:
+            import freud.plot
+            return freud.plot._ax_to_bytes(self.plot())
+        except (AttributeError, ImportError):
+            return None
+
 
 cdef class DiffractionPattern(_Compute):
-    R"""Computes a 2D diffraction pattern.
+    r"""Computes a 2D diffraction pattern.
 
     The diffraction image represents the scattering of incident radiation,
     and is useful for identifying translational and/or rotational symmetry
@@ -199,7 +433,7 @@ cdef class DiffractionPattern(_Compute):
         return img
 
     def compute(self, system, view_orientation=None, zoom=4, peak_width=1, reset=True):
-        R"""Computes diffraction pattern.
+        r"""Computes diffraction pattern.
 
         Args:
             system:
@@ -208,15 +442,15 @@ cdef class DiffractionPattern(_Compute):
             view_orientation ((:math:`4`) :class:`numpy.ndarray`, optional):
                 View orientation. Uses :math:`(1, 0, 0, 0)` if not provided
                 or :code:`None` (Default value = :code:`None`).
-            zoom (float):
+            zoom (float, optional):
                 Scaling factor for incident wavevectors (Default value = 4).
-            peak_width (float):
+            peak_width (float, optional):
                 Width of Gaussian convolved with points, in system length units
                 (Default value = 1).
-            reset (bool):
+            reset (bool, optional):
                 Whether to erase the previously computed values before adding
                 the new computations; if False, will accumulate data (Default
-                value: True).
+                value = True).
         """
         if reset:
             self._diffraction = np.zeros((self.output_size, self.output_size))
@@ -335,11 +569,11 @@ cdef class DiffractionPattern(_Compute):
         """Generates image of diffraction pattern.
 
         Args:
-            cmap (str):
+            cmap (str, optional):
                 Colormap name to use (Default value = :code:`'afmhot'`).
-            vmin (float):
+            vmin (float, optional):
                 Minimum of the color scale (Default value = 4e-6).
-            vmax (float):
+            vmax (float, optional):
                 Maximum of the color scale (Default value = 0.7).
 
         Returns:
@@ -360,11 +594,11 @@ cdef class DiffractionPattern(_Compute):
             ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
                 :code:`None`, make a new figure and axis.
                 (Default value = :code:`None`)
-            cmap (str):
+            cmap (str, optional):
                 Colormap name to use (Default value = :code:`'afmhot'`).
-            vmin (float):
+            vmin (float, optional):
                 Minimum of the color scale (Default value = 4e-6).
-            vmax (float):
+            vmax (float, optional):
                 Maximum of the color scale (Default value = 0.7).
 
         Returns:

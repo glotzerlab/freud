@@ -1,7 +1,7 @@
 # Copyright (c) 2010-2020 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
-R"""
+r"""
 The :class:`~.Box` class defines the geometry of a simulation box. The class
 natively supports periodicity by providing the fundamental features for
 wrapping vectors outside the box back into it.
@@ -28,13 +28,13 @@ logger = logging.getLogger(__name__)
 np.import_array()
 
 cdef class Box:
-    R"""The freud Box class for simulation boxes.
+    r"""The freud Box class for simulation boxes.
 
     This class defines an arbitrary triclinic geometry within which all points are confined.
     By convention, the freud Box is centered at the origin (``[0, 0, 0]``),
     with the extent in each dimension described by the half-open interval ``[-L/2, L/2)``.
     For more information, see the `documentation
-    <https://freud.readthedocs.io/en/stable/gettingstarted/tutorial/periodic.html>`_
+    <https://freud.readthedocs.io/en/stable/gettingstarted/tutorial/periodic.html>`__
     on boxes and periodic boundary conditions.
 
     Also available as ``freud.Box``.
@@ -78,7 +78,7 @@ cdef class Box:
 
     @property
     def L(self):
-        """:math:`\\left(3, \\right)` :class:`numpy.ndarray`: Get or set the
+        r""":math:`\left(3, \right)` :class:`numpy.ndarray`: Get or set the
         box lengths along x, y, and z."""
         cdef vec3[float] result = self.thisptr.getL()
         return np.asarray([result.x, result.y, result.z])
@@ -170,7 +170,7 @@ cdef class Box:
 
     @property
     def L_inv(self):
-        """:math:`\\left(3, \\right)` :class:`numpy.ndarray`: The inverse box
+        r""":math:`\left(3, \right)` :class:`numpy.ndarray`: The inverse box
         lengths."""
         cdef vec3[float] result = self.thisptr.getLinv()
         return np.asarray([result.x, result.y, result.z])
@@ -181,16 +181,16 @@ cdef class Box:
         return self.thisptr.getVolume()
 
     def make_absolute(self, fractional_coordinates, out=None):
-        R"""Convert fractional coordinates into absolute coordinates.
+        r"""Convert fractional coordinates into absolute coordinates.
 
         Args:
             fractional_coordinates (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Fractional coordinate vector(s), between 0 and 1 within
                 parallelepipedal box.
             out (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray` or :code:`None`):
-                The array in which to place the absolute coordinates. It must be
-                of dtype `np.float32`. If ``None``, this function will return a
-                newly allocated array (Default value = None).
+                The array in which to place the absolute coordinates. It must
+                be of dtype :attr:`numpy.float32`. If ``None``, this function
+                will return a newly allocated array (Default value = None).
 
         Returns:
             :math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
@@ -215,15 +215,15 @@ cdef class Box:
         return np.squeeze(out) if flatten else out
 
     def make_fractional(self, absolute_coordinates, out=None):
-        R"""Convert absolute coordinates into fractional coordinates.
+        r"""Convert absolute coordinates into fractional coordinates.
 
         Args:
             absolute_coordinates (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Absolute coordinate vector(s).
             out (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray` or :code:`None`):
-                The array in which to place the fractional positions. It must be
-                of dtype `np.float32`. If ``None``, this function will return a
-                newly allocated array (Default value = None).
+                The array in which to place the fractional positions. It must
+                be of dtype :attr:`numpy.float32`. If ``None``, this function
+                will return a newly allocated array (Default value = None).
 
         Returns:
             :math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
@@ -248,7 +248,7 @@ cdef class Box:
         return np.squeeze(out) if flatten else out
 
     def get_images(self, vecs):
-        R"""Returns the images corresponding to unwrapped vectors.
+        r"""Returns the images corresponding to unwrapped vectors.
 
         Args:
             vecs (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
@@ -273,7 +273,7 @@ cdef class Box:
         return np.squeeze(images) if flatten else images
 
     def get_box_vector(self, i):
-        R"""Get the box vector with index :math:`i`.
+        r"""Get the box vector with index :math:`i`.
 
         Args:
             i (unsigned int):
@@ -294,18 +294,18 @@ cdef class Box:
 
     @property
     def v2(self):
-        """:math:`(3, )` :class:`np.ndarray`: The second box vector
-        :math:`(xy*L_y, L_y, 0)`."""
+        r""":math:`(3, )` :class:`np.ndarray`: The second box vector
+        :math:`(xy \times L_y, L_y, 0)`."""
         return self.get_box_vector(1)
 
     @property
     def v3(self):
-        """:math:`(3, )` :class:`np.ndarray`: The third box vector
-        :math:`(xz*L_z, yz*L_z, L_z)`."""
+        r""":math:`(3, )` :class:`np.ndarray`: The third box vector
+        :math:`(xz \times L_z, yz \times L_z, L_z)`."""
         return self.get_box_vector(2)
 
     def wrap(self, vecs, out=None):
-        R"""Wrap an array of vectors into the box, using periodic boundaries.
+        r"""Wrap an array of vectors into the box, using periodic boundaries.
 
         .. note:: Since the origin of the box is in the center, wrapping is
                   equivalent to applying the minimum image convention to the
@@ -316,7 +316,7 @@ cdef class Box:
                 Unwrapped vector(s).
             out (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray` or :code:`None`):
                 The array in which to place the wrapped vectors. It must be of
-                dtype `np.float32`. If ``None``, this function will
+                dtype :attr:`numpy.float32`. If ``None``, this function will
                 return a newly allocated array (Default value = None).
 
         Returns:
@@ -341,7 +341,7 @@ cdef class Box:
         return np.squeeze(out) if flatten else out
 
     def unwrap(self, vecs, imgs, out=None):
-        R"""Unwrap an array of vectors inside the box back into real space,
+        r"""Unwrap an array of vectors inside the box back into real space,
         using an array of image indices that determine how many times to unwrap
         in each dimension.
 
@@ -351,9 +351,9 @@ cdef class Box:
             imgs (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Image indices for vector(s).
             out (:math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray` or :code:`None`):
-                The array in which to place the unwrapped vectors. It must be of
-                dtype `np.float32`. If ``None``, this function will
-                return a newly allocated array (Default value = None).
+                The array in which to place the unwrapped vectors. It must be
+                of dtype :attr:`numpy.float32`. If ``None``, this function
+                will return a newly allocated array (Default value = None).
 
         Returns:
             :math:`\left(3, \right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
@@ -385,10 +385,10 @@ cdef class Box:
         return np.squeeze(out) if flatten else out
 
     def center_of_mass(self, vecs, masses=None):
-        R"""Compute center of mass of an array of vectors, using periodic boundaries.
+        r"""Compute center of mass of an array of vectors, using periodic boundaries.
 
         This calculation accounts for periodic images. `This Wikipedia page
-        <https://en.wikipedia.org/wiki/Center_of_mass#Systems_with_periodic_boundary_conditions>`_
+        <https://en.wikipedia.org/wiki/Center_of_mass#Systems_with_periodic_boundary_conditions>`__
         describes the mathematics of this method.
 
         Example::
@@ -405,12 +405,12 @@ cdef class Box:
         Args:
             vecs (:math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Vectors used to find center of mass.
-            masses (:math:`\left(N, 3\right)` :class:`numpy.ndarray`):
+            masses (:math:`\left(N,\right)` :class:`numpy.ndarray`):
                 Masses corresponding to each vector, defaulting to 1 if not
                 provided or :code:`None` (Default value = :code:`None`).
 
         Returns:
-            :math:`\left(3\right)` :class:`numpy.ndarray`:
+            :math:`\left(3, \right)` :class:`numpy.ndarray`:
                 Center of mass.
         """  # noqa: E501
         vecs = freud.util._convert_array(vecs, shape=(None, 3))
@@ -428,10 +428,10 @@ cdef class Box:
         return np.asarray([result.x, result.y, result.z])
 
     def center(self, vecs, masses=None):
-        R"""Subtract center of mass from an array of vectors, using periodic boundaries.
+        r"""Subtract center of mass from an array of vectors, using periodic boundaries.
 
         This calculation accounts for periodic images. `This Wikipedia page
-        <https://en.wikipedia.org/wiki/Center_of_mass#Systems_with_periodic_boundary_conditions>`_
+        <https://en.wikipedia.org/wiki/Center_of_mass#Systems_with_periodic_boundary_conditions>`__
         describes the mathematics of this method.
 
         Example::
@@ -469,7 +469,7 @@ cdef class Box:
         return vecs
 
     def compute_distances(self, query_points, points):
-        R"""Calculate distances between two sets of points, using periodic boundaries.
+        r"""Calculate distances between two sets of points, using periodic boundaries.
 
         Distances are calculated row-wise, i.e. ``distances[i]`` is the
         distance from ``query_points[i]`` to ``points[i]``.
@@ -505,7 +505,7 @@ cdef class Box:
         return np.asarray(distances)
 
     def compute_all_distances(self, query_points, points):
-        R"""Calculate distances between all pairs of query points and points, using periodic boundaries.
+        r"""Calculate distances between all pairs of query points and points, using periodic boundaries.
 
         Distances are calculated pairwise, i.e. ``distances[i, j]`` is the
         distance from ``query_points[i]`` to ``points[j]``.
@@ -541,15 +541,18 @@ cdef class Box:
         return np.asarray(distances)
 
     def contains(self, points):
-        R"""Returns boolean array (mask) corresponding to point membership in a box.
+        r"""Compute a boolean array (mask) corresponding to point membership in a box.
 
-        This calculation computes particle membership based on conventions defined by :class:`Box`, ignoring periodicity.
-        This means that in a cubic (3D) box with dimensions ``L``, particles would be considered inside the box if their coordinates are between
-        ``[-L/2, L/2]``.
-        Particles laying at a coordinate such as ``[0, L, 0]`` would be considered outside the box.
-        More information about coordinate conventions can be found `here
-        <https://freud.readthedocs.io/en/latest/gettingstarted/examples/module_intros/box.Box.html?highlight=origin#Using-boxes>`__
-        and `here <https://freud.readthedocs.io/en/latest/gettingstarted/tutorial/periodic.html?highlight=origin#periodic-boundary-conditions>`__.
+        This calculation computes particle membership based on conventions
+        defined by :class:`Box`, ignoring periodicity. This means that in a
+        cubic (3D) box with dimensions ``L``, particles would be considered
+        inside the box if their coordinates are between ``[-L/2, L/2]``.
+        Particles laying at a coordinate such as ``[0, L, 0]`` would be
+        considered outside the box.  More information about coordinate
+        conventions can be found in the documentation on `Using boxes
+        <https://freud.readthedocs.io/en/latest/gettingstarted/examples/module_intros/box.Box.html#Using-boxes>`__
+        and `periodic boundary conditions
+        <https://freud.readthedocs.io/en/latest/gettingstarted/tutorial/periodic.html#periodic-boundary-conditions>`__.
 
         Example::
 
@@ -565,8 +568,8 @@ cdef class Box:
 
         Returns:
             :math:`\left(N, \right)` :class:`numpy.ndarray`:
-                Array of booleans, where `True` corresponds to points within the box,
-                and `False` corresponds to points outside the box.
+                Array of booleans, where ``True`` corresponds to points within
+                the box, and ``False`` corresponds to points outside the box.
         """  # noqa: E501
 
         points = freud.util._convert_array(
@@ -574,21 +577,21 @@ cdef class Box:
 
         cdef:
             const float[:, ::1] l_points = points
-            size_t n_all_points = points.shape[0]
+            size_t n_points = points.shape[0]
 
         contains_mask = freud.util._convert_array(
-            np.ones(n_all_points), dtype=bool)
+            np.ones(n_points), dtype=bool)
         cdef cpp_bool[::1] l_contains_mask = contains_mask
 
         self.thisptr.contains(
-            <vec3[float]*> &l_points[0, 0], n_all_points,
+            <vec3[float]*> &l_points[0, 0], n_points,
             <cpp_bool*> &l_contains_mask[0])
 
         return np.array(l_contains_mask).astype(bool)
 
     @property
     def periodic(self):
-        """:math:`\\left(3, \\right)` :class:`numpy.ndarray`: Get or set the
+        r""":math:`\left(3, \right)` :class:`numpy.ndarray`: Get or set the
         periodicity of the box in each dimension."""
         periodic = self.thisptr.getPeriodic()
         return np.asarray([periodic.x, periodic.y, periodic.z])
@@ -630,7 +633,7 @@ cdef class Box:
         self.thisptr.setPeriodicZ(periodic)
 
     def to_dict(self):
-        R"""Return box as dictionary.
+        r"""Return box as dictionary.
 
         Example::
 
@@ -652,7 +655,7 @@ cdef class Box:
             'dimensions': self.dimensions}
 
     def to_matrix(self):
-        R"""Returns the box matrix (3x3).
+        r"""Returns the box matrix (3x3).
 
         Example::
 
@@ -688,7 +691,7 @@ cdef class Box:
         return self.to_dict() == other.to_dict()
 
     def __richcmp__(self, other, int op):
-        R"""Implement all comparisons for Cython extension classes"""
+        r"""Implement all comparisons for Cython extension classes"""
         if op == Py_EQ:
             return self._eq(other)
         if op == Py_NE:
@@ -740,7 +743,7 @@ cdef class Box:
 
     @classmethod
     def from_box(cls, box, dimensions=None):
-        R"""Initialize a Box instance from a box-like object.
+        r"""Initialize a Box instance from a box-like object.
 
         Args:
             box:
@@ -831,7 +834,7 @@ cdef class Box:
 
     @classmethod
     def from_matrix(cls, box_matrix, dimensions=None):
-        R"""Initialize a Box instance from a box matrix.
+        r"""Initialize a Box instance from a box matrix.
 
         For more information and the source for this code,
         see: https://hoomd-blue.readthedocs.io/en/stable/box.html
@@ -841,6 +844,9 @@ cdef class Box:
                 A 3x3 matrix or list of lists
             dimensions (int):
                 Number of dimensions (Default value = :code:`None`)
+
+        Returns:
+            :class:`freud.box.Box`: The resulting box object.
         """
         box_matrix = np.asarray(box_matrix, dtype=np.float32)
         v0 = box_matrix[:, 0]
@@ -867,10 +873,13 @@ cdef class Box:
 
     @classmethod
     def cube(cls, L=None):
-        R"""Construct a cubic box with equal lengths.
+        r"""Construct a cubic box with equal lengths.
 
         Args:
             L (float): The edge length
+
+        Returns:
+            :class:`freud.box.Box`: The resulting box object.
         """
         # classmethods compiled with cython don't appear to support
         # named access to positional arguments, so we keep this to
@@ -881,10 +890,13 @@ cdef class Box:
 
     @classmethod
     def square(cls, L=None):
-        R"""Construct a 2-dimensional (square) box with equal lengths.
+        r"""Construct a 2-dimensional (square) box with equal lengths.
 
         Args:
             L (float): The edge length
+
+        Returns:
+            :class:`freud.box.Box`: The resulting box object.
         """
         # classmethods compiled with cython don't appear to support
         # named access to positional arguments, so we keep this to

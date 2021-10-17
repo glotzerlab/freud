@@ -232,7 +232,7 @@ public:
      */
     void makeAbsolute(const vec3<float>* vecs, unsigned int Nvecs, vec3<float>* out) const
     {
-        util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
+        util::forLoopWrapper(0, Nvecs, [&](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
                 out[i] = makeAbsolute(vecs[i]);
@@ -265,7 +265,7 @@ public:
      */
     void makeFractional(const vec3<float>* vecs, unsigned int Nvecs, vec3<float>* out) const
     {
-        util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
+        util::forLoopWrapper(0, Nvecs, [&](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
                 out[i] = makeFractional(vecs[i]);
@@ -296,7 +296,7 @@ public:
      */
     void getImages(vec3<float>* vecs, unsigned int Nvecs, vec3<int>* res) const
     {
-        util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
+        util::forLoopWrapper(0, Nvecs, [&](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
                 getImage(vecs[i], res[i]);
@@ -339,7 +339,7 @@ public:
      */
     void wrap(const vec3<float>* vecs, unsigned int Nvecs, vec3<float>* out) const
     {
-        util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
+        util::forLoopWrapper(0, Nvecs, [&](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
                 out[i] = wrap(vecs[i]);
@@ -355,7 +355,7 @@ public:
     */
     void unwrap(const vec3<float>* vecs, const vec3<int>* images, unsigned int Nvecs, vec3<float>* out) const
     {
-        util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
+        util::forLoopWrapper(0, Nvecs, [&](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
                 out[i] = vecs[i] + getLatticeVector(0) * float(images[i].x)
@@ -404,7 +404,7 @@ public:
     void center(vec3<float>* vecs, unsigned int Nvecs, const float* masses = nullptr) const
     {
         vec3<float> com(centerOfMass(vecs, Nvecs, masses));
-        util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
+        util::forLoopWrapper(0, Nvecs, [&](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
                 vecs[i] = wrap(vecs[i] - com);
@@ -476,15 +476,12 @@ public:
     void contains(const vec3<float>* points, const unsigned int n_points, bool* contains_mask) const
     {
         util::forLoopWrapper(0, n_points, [&](size_t begin, size_t end) {
-            for (size_t i = begin; i < n_points; ++i)
-            {
-                std::transform(&points[begin], &points[end], &contains_mask[begin],
-                               [this](const vec3<float>& point) -> bool {
-                                   vec3<int> image(0, 0, 0);
-                                   getImage(point, image);
-                                   return image == vec3<int>(0, 0, 0);
-                               });
-            }
+            std::transform(&points[begin], &points[end], &contains_mask[begin],
+                           [this](const vec3<float>& point) -> bool {
+                               vec3<int> image(0, 0, 0);
+                               getImage(point, image);
+                               return image == vec3<int>(0, 0, 0);
+                           });
         });
     }
 
