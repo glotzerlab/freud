@@ -6,6 +6,9 @@ and this project adheres to
 
 ## next -- yyyy-mm-dd
 
+### Added
+* `freud.diffraction.StaticStructureFactorDirect` class (unstable) can be used to compute the static structure factor S(k) by sampling reciprocal space vectors.
+
 ### Fixed
 * Added error checking for `r_min`, `r_max` arguments in `freud.density.RDF` and `freud.locality.NeighborList`.
 * Doctests are now run with pytest.
@@ -24,7 +27,6 @@ and this project adheres to
 
 ### Fixed
 * Upgrade to auditwheel 4.0.0 in cibuildwheel to ensure RPATH is patched properly for `libfreud.so` in Linux wheels.
->>>>>>> origin/master
 
 ## v2.6.1 -- 2021-06-23
 

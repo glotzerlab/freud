@@ -16,31 +16,8 @@
 namespace freud { namespace diffraction {
 
 StaticStructureFactorDebye::StaticStructureFactorDebye(unsigned int bins, float k_max, float k_min)
-{
-    if (bins == 0)
-    {
-        throw std::invalid_argument("StaticStructureFactorDebye requires a nonzero number of bins.");
-    }
-    if (k_max <= 0)
-    {
-        throw std::invalid_argument("StaticStructureFactorDebye requires k_max to be positive.");
-    }
-    if (k_min < 0)
-    {
-        throw std::invalid_argument("StaticStructureFactorDebye requires k_min to be non-negative.");
-    }
-    if (k_max <= k_min)
-    {
-        throw std::invalid_argument(
-            "StaticStructureFactorDebye requires that k_max must be greater than k_min.");
-    }
-
-    // Construct the Histogram object that will be used to track the structure factor
-    const auto axes = S_kHistogram::Axes {std::make_shared<util::RegularAxis>(bins, k_min, k_max)};
-    m_histogram = S_kHistogram(axes);
-    m_local_histograms = S_kHistogram::ThreadLocalHistogram(m_histogram);
-    m_structure_factor.prepare(bins);
-}
+    : StaticStructureFactor(bins, k_max, k_min)
+{}
 
 void StaticStructureFactorDebye::accumulate(const freud::locality::NeighborQuery* neighbor_query,
                                             const vec3<float>* query_points, unsigned int n_query_points,
@@ -64,9 +41,9 @@ void StaticStructureFactorDebye::accumulate(const freud::locality::NeighborQuery
     std::vector<float> distances(n_points * n_query_points);
     box.computeAllDistances(points, n_points, query_points, n_query_points, distances.data());
 
-    const auto k_bin_centers = m_histogram.getBinCenters()[0];
+    const auto k_bin_centers = m_structure_factor.getBinCenters()[0];
 
-    util::forLoopWrapper(0, m_histogram.getAxisSizes()[0], [&](size_t begin, size_t end) {
+    util::forLoopWrapper(0, m_structure_factor.getAxisSizes()[0], [&](size_t begin, size_t end) {
         for (size_t k_index = begin; k_index < end; ++k_index)
         {
             const auto k = k_bin_centers[k_index];
@@ -76,7 +53,7 @@ void StaticStructureFactorDebye::accumulate(const freud::locality::NeighborQuery
                 S_k += util::sinc(k * distance);
             }
             S_k /= static_cast<double>(n_total);
-            m_local_histograms.increment(k_index, S_k);
+            m_local_structure_factor.increment(k_index, S_k);
         };
     });
     m_frame_counter++;
@@ -85,19 +62,10 @@ void StaticStructureFactorDebye::accumulate(const freud::locality::NeighborQuery
 
 void StaticStructureFactorDebye::reduce()
 {
-    m_structure_factor.prepare(m_histogram.shape());
-    m_local_histograms.reduceInto(m_structure_factor);
-
-    // Normalize by the frame count if necessary
-    if (m_frame_counter > 1)
-    {
-        util::forLoopWrapper(0, m_structure_factor.size(), [&](size_t begin, size_t end) {
-            for (size_t k_index = begin; k_index < end; ++k_index)
-            {
-                m_structure_factor[k_index] /= static_cast<float>(m_frame_counter);
-            }
-        });
-    }
+    m_structure_factor.prepare(m_structure_factor.getAxisSizes()[0]);
+    m_structure_factor.reduceOverThreadsPerBin(m_local_structure_factor, [&](size_t i) {
+        m_structure_factor[i] /= static_cast<float>(m_frame_counter);
+    });
 }
 
 }; }; // namespace freud::diffraction

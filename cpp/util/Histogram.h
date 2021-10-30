@@ -362,6 +362,12 @@ public:
         return m_bin_counts.getIndex(ax_bins);
     }
 
+    //! Return the axes.
+    const std::vector<std::shared_ptr<Axis>>& getAxes() const
+    {
+        return m_axes;
+    }
+
     //! Get the computed histogram.
     const ManagedArray<T>& getBinCounts() const
     {

@@ -9,6 +9,7 @@ Diffraction Module
 
     freud.diffraction.DiffractionPattern
     freud.diffraction.StaticStructureFactorDebye
+    freud.diffraction.StaticStructureFactorDirect
 
 .. rubric:: Details
 

@@ -83,14 +83,14 @@ public:
     {
         return ((this->getL() == b.getL()) && (this->getTiltFactorXY() == b.getTiltFactorXY())
                 && (this->getTiltFactorXZ() == b.getTiltFactorXZ())
-                && (this->getTiltFactorYZ() == b.getTiltFactorYZ()));
+                && (this->getTiltFactorYZ() == b.getTiltFactorYZ())
+                && (this->getPeriodicX() == b.getPeriodicX()) && (this->getPeriodicY() == b.getPeriodicY())
+                && (this->getPeriodicZ() == b.getPeriodicZ()));
     }
 
     inline bool operator!=(const Box& b) const
     {
-        return ((this->getL() != b.getL()) || (this->getTiltFactorXY() != b.getTiltFactorXY())
-                || (this->getTiltFactorXZ() != b.getTiltFactorXZ())
-                || (this->getTiltFactorYZ() != b.getTiltFactorYZ()));
+        return !(*this == b);
     }
 
     //! Set L, box lengths, inverses.  Box is also centered at zero.
