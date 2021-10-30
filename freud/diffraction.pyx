@@ -361,21 +361,31 @@ cdef class StaticStructureFactorDirect(_StaticStructureFactor):
 
         Example for a single component system::
 
+            >>> box, points = freud.data.make_random_system(10, 100, seed=0)
             >>> sf = freud.diffraction.StaticStructureFactorDirect(
             ...     bins=100, k_max=10, k_min=0
             ... )
             >>> sf.compute((box, points))
+            freud.diffraction.StaticStructureFactorDirect(...)
 
         Example for partial mixed structure factor for multiple component
-        system AB::
+        system with types A and B::
 
+            >>> N_particles = 100
+            >>> box, points = freud.data.make_random_system(
+            ...     10, N_particles, seed=0
+            ... )
+            >>> A_points = points[:N_particles//2]
+            >>> B_points = points[N_particles//2:]
             >>> sf = freud.diffraction.StaticStructureFactorDirect(
             ...     bins=100, k_max=10, k_min=0
             ... )
             >>> sf.compute(
             ...     (box, A_points),
-            ...     query_points=B_points, N_total=N_particles
+            ...     query_points=B_points,
+            ...     N_total=N_particles
             ... )
+            freud.diffraction.StaticStructureFactorDirect(...)
 
         Args:
             system:
