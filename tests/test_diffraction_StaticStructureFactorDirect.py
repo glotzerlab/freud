@@ -27,12 +27,6 @@ matplotlib.use("agg")
 
 
 class TestStaticStructureFactorDirect:
-    def test_compute(self):
-        sf = freud.diffraction.StaticStructureFactorDirect(
-            bins=1000, k_max=100, k_min=0, num_sampled_k_points=80000
-        )
-        helper_test_compute(sf)
-
     def test_against_dynasor(self):
         """Validate the direct method agains dynasor package."""
         dsf_reciprocal = pytest.importorskip("dsf.reciprocal")
@@ -65,44 +59,6 @@ class TestStaticStructureFactorDirect:
             bins=sf_direct.bin_edges,
         )
         npt.assert_allclose(sf_direct.S_k, S_k_binned, rtol=1e-5, atol=1e-5)
-
-    def test_S_0_is_N(self):
-        # The Direct method evaluates S(k) in bins. Here, we choose the binning
-        # parameters such that the first bin contains only the origin in k-space
-        # and no other k-points. Thus the smallest bin is measuring S(0) = N.
-        sf = freud.diffraction.StaticStructureFactorDirect(bins=100, k_max=10)
-        helper_test_S_0_is_N(sf)
-
-    def test_accumulation(self):
-        # This test ensures that accumulation and resetting works as expected.
-        # See notes on test_S_0_is_N.
-        sf = freud.diffraction.StaticStructureFactorDirect(bins=100, k_max=10)
-        helper_test_accumulation(sf)
-
-    def test_k_min(self):
-        sf1 = freud.diffraction.StaticStructureFactorDirect(bins=100, k_max=10)
-        sf2 = freud.diffraction.StaticStructureFactorDirect(bins=50, k_max=10, k_min=5)
-        helper_test_k_min(sf1, sf2)
-        with pytest.raises(ValueError):
-            freud.diffraction.StaticStructureFactorDirect(bins=100, k_max=10, k_min=-1)
-
-    def test_partial_structure_factor_arguments(self):
-        sf = freud.diffraction.StaticStructureFactorDirect(bins=1000, k_max=100)
-        helper_partial_structure_factor_arguments(sf)
-
-    def test_partial_structure_factor_symmetry(self):
-        """Compute a partial structure factor and ensure it is symmetric under
-        type exchange."""
-        sf = freud.diffraction.StaticStructureFactorDirect(bins=100, k_max=10, k_min=0)
-        helper_test_partial_structure_factor_symmetry(sf)
-
-    def test_partial_structure_factor_sum_normalization(self):
-        """Ensure that the weighted sum of the partial structure factors is
-        equal to the full scattering."""
-        sf = freud.diffraction.StaticStructureFactorDirect(
-            bins=100, k_max=10, num_sampled_k_points=80000
-        )
-        helper_test_partial_structure_factor_sum_normalization(sf)
 
     def test_large_k_partial_cross_term_goes_to_zero(self):
         """Ensure S_{AB}(k) goes to zero at large k."""

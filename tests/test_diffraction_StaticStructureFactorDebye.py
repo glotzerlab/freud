@@ -58,10 +58,6 @@ def _validate_debye_method(system, bins, k_max, k_min):
 
 
 class TestStaticStructureFactorDebye:
-    def test_compute(self):
-        sf = freud.diffraction.StaticStructureFactorDebye(1000, 100, 0)
-        helper_test_compute(sf)
-
     def test_debye_validation(self):
         """Validate the Debye method against a Python implementation."""
         bins = 1000
@@ -98,29 +94,6 @@ class TestStaticStructureFactorDebye:
         # calculate S_k for given set of k values
         S_ase = xrd.calc_pattern(sf.bin_centers, mode="SAXS") / len(points)
         npt.assert_allclose(sf.S_k, S_ase, rtol=1e-5, atol=1e-5)
-
-    def test_k_min(self):
-        sf1 = freud.diffraction.StaticStructureFactorDebye(bins=100, k_max=10)
-        sf2 = freud.diffraction.StaticStructureFactorDebye(bins=50, k_max=10, k_min=5)
-        helper_test_k_min(sf1, sf2)
-        with pytest.raises(ValueError):
-            freud.diffraction.StaticStructureFactorDebye(bins=100, k_max=10, k_min=-1)
-
-    def test_partial_structure_factor_arguments(self):
-        sf = freud.diffraction.StaticStructureFactorDebye(1000, 100)
-        helper_partial_structure_factor_arguments(sf)
-
-    def test_partial_structure_factor_symmetry(self):
-        """Compute a partial structure factor and ensure it is symmetric under
-        type exchange."""
-        sf = freud.diffraction.StaticStructureFactorDebye(bins=100, k_max=10, k_min=0)
-        helper_test_partial_structure_factor_symmetry(sf)
-
-    def test_partial_structure_factor_sum_normalization(self):
-        """Ensure that the weighted sum of the partial structure factors is
-        equal to the full scattering."""
-        sf = freud.diffraction.StaticStructureFactorDebye(bins=100, k_max=10)
-        helper_test_partial_structure_factor_sum_normalization(sf)
 
     def test_large_k_partial_cross_term_goes_to_zero(self):
         """Ensure S_{AB}(k) goes to zero at large k."""
