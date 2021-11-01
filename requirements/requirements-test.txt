@@ -6,7 +6,7 @@ cython==0.29.24
 dynasor==1.1.1; platform_system != "Windows"
 garnett==0.7.1
 GitPython==3.1.24
-gsd==2.4.2
+gsd==2.5.0
 matplotlib>=3.0.0
 numpy==1.21.2
 pillow==8.3.2
