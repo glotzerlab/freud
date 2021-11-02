@@ -8,6 +8,8 @@ and this project adheres to
 
 ### Added
 * `freud.diffraction.StaticStructureFactorDirect` class (unstable) can be used to compute the static structure factor S(k) by sampling reciprocal space vectors.
+* Python 3.10 is supported.
+
 
 ### Fixed
 * Added error checking for `r_min`, `r_max` arguments in `freud.density.RDF` and `freud.locality.NeighborList`.
