@@ -38,7 +38,7 @@ jobs:
         env:
           # Build for cpython >= 3.6.
           CIBW_PROJECT_REQUIRES_PYTHON: "==${{ matrix.pyver }}.*"
-          CIBW_SKIP: pp*
+          CIBW_SKIP: "{pp*,*-musllinux_*}"
 
           # Build only on 64-bit architectures.
           CIBW_ARCHS_MACOS: x86_64
