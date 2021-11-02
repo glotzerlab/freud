@@ -11,6 +11,7 @@ and this project adheres to
 
 ### Fixed
 * Added error checking for `r_min`, `r_max` arguments in `freud.density.RDF` and `freud.locality.NeighborList`.
+* Cleaned up tests for the static structure factor classes.
 
 ## v2.7.0 -- 2021-10-01
 
