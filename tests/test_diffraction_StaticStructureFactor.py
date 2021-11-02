@@ -7,9 +7,10 @@ import freud
 
 
 class StaticStructureFactorTest:
-
     @classmethod
-    def build_structure_factor_object(cls, bins, k_max, k_min=0, num_sampled_k_points=None):
+    def build_structure_factor_object(
+        cls, bins, k_max, k_min=0, num_sampled_k_points=None
+    ):
         raise RuntimeError(
             "The build_structure_factor_object method must be implemented for"
             "each inheriting class."
@@ -64,14 +65,15 @@ class StaticStructureFactorTest:
         equal to the full scattering."""
         L = 10
         N = 1000
-        sf = self.build_structure_factor_object(100, 10,
-                                                num_sampled_k_points=80000)
+        sf = self.build_structure_factor_object(100, 10, num_sampled_k_points=80000)
         box, points = freud.data.make_random_system(L, N, seed=123)
         system = freud.AABBQuery.from_system((box, points))
         A_points = system.points[: N // 3]
         B_points = system.points[N // 3 :]
         S_total = sf.compute(system).S_k
-        S_total_as_partial = sf.compute(system, query_points=system.points, N_total=N).S_k
+        S_total_as_partial = sf.compute(
+            system, query_points=system.points, N_total=N
+        ).S_k
         npt.assert_allclose(S_total, S_total_as_partial, rtol=1e-5, atol=1e-5)
         S_AA = sf.compute((system.box, A_points), query_points=A_points, N_total=N).S_k
         S_AB = sf.compute((system.box, B_points), query_points=A_points, N_total=N).S_k
@@ -122,8 +124,9 @@ class StaticStructureFactorTest:
         k_max = 123
         k_min = 0.1
         num_sampled_k_points = 10000
-        sf = self.build_structure_factor_object(bins, k_max, k_min,
-                                                num_sampled_k_points)
+        sf = self.build_structure_factor_object(
+            bins, k_max, k_min, num_sampled_k_points
+        )
         assert sf.nbins == bins
         assert np.isclose(sf.k_max, k_max)
         assert np.isclose(sf.k_min, k_min)
@@ -157,8 +160,9 @@ class StaticStructureFactorTest:
         k_max = 123
         k_min = 0.1
         num_sampled_k_points = 10000
-        sf = self.build_structure_factor_object(bins, k_max, k_min,
-                                                num_sampled_k_points)
+        sf = self.build_structure_factor_object(
+            bins, k_max, k_min, num_sampled_k_points
+        )
         expected_bin_edges = np.histogram_bin_edges(
             np.array([0], dtype=np.float32), bins=bins, range=[k_min, k_max]
         )
@@ -180,7 +184,9 @@ class StaticStructureFactorTest:
         k_max = 30
         k_min = 1
         num_sampled_k_points = 100000
-        sf = self.build_structure_factor_object(bins, k_max, k_min, num_sampled_k_points)
+        sf = self.build_structure_factor_object(
+            bins, k_max, k_min, num_sampled_k_points
+        )
         min_valid_k = self.get_min_valid_k(Lx, Ly, Lz)
         box, points = freud.data.UnitCell(
             [Lx / 10, Ly / 10, Lz / 10, 0, 0, 0],
@@ -194,8 +200,9 @@ class StaticStructureFactorTest:
         k_max = 123
         k_min = 0.456
         num_sampled_k_points = 10000
-        sf = self.build_structure_factor_object(bins, k_max, k_min,
-                                                num_sampled_k_points)
+        sf = self.build_structure_factor_object(
+            bins, k_max, k_min, num_sampled_k_points
+        )
         assert sf.bin_centers.shape == (bins,)
         assert sf.bin_edges.shape == (bins + 1,)
         npt.assert_allclose(sf.bounds, (k_min, k_max))
@@ -208,20 +215,22 @@ class StaticStructureFactorTest:
         k_max = 123
         k_min = 0.1
         num_sampled_k_points = 10000
-        sf = self.build_structure_factor_object(bins, k_max, k_min,
-                                                num_sampled_k_points)
+        sf = self.build_structure_factor_object(
+            bins, k_max, k_min, num_sampled_k_points
+        )
         assert str(sf) == str(eval(repr(sf)))
 
 
 class TestStaticStructureFactorDebye(StaticStructureFactorTest):
-
     @classmethod
-    def build_structure_factor_object(cls, bins, k_max, k_min=0, num_sampled_k_points=None):
+    def build_structure_factor_object(
+        cls, bins, k_max, k_min=0, num_sampled_k_points=None
+    ):
         return freud.diffraction.StaticStructureFactorDebye(bins, k_max, k_min)
 
     @classmethod
     def get_large_k_params(cls):
-        return {'bins': 5, 'k_max': 1e6, 'k_min': 1e5}
+        return {"bins": 5, "k_max": 1e6, "k_min": 1e5}
 
     @classmethod
     def get_min_valid_k(cls, Lx, Ly, Lz=None):
@@ -256,7 +265,9 @@ class TestStaticStructureFactorDebye(StaticStructureFactorTest):
         S = np.zeros_like(Q)
 
         # Compute all pairwise distances
-        distances = system.box.compute_all_distances(system.points, system.points).flatten()
+        distances = system.box.compute_all_distances(
+            system.points, system.points
+        ).flatten()
 
         for i, q in enumerate(Q):
             S[i] += np.sum(np.sinc(q * distances / np.pi)) / N
@@ -302,15 +313,17 @@ class TestStaticStructureFactorDebye(StaticStructureFactorTest):
 
 
 class TestStaticStructureFactorDirect(StaticStructureFactorTest):
-
     @classmethod
-    def build_structure_factor_object(cls, bins, k_max, k_min=0, num_sampled_k_points=0):
-        return freud.diffraction.StaticStructureFactorDirect(bins, k_max, k_min, num_sampled_k_points)
+    def build_structure_factor_object(
+        cls, bins, k_max, k_min=0, num_sampled_k_points=0
+    ):
+        return freud.diffraction.StaticStructureFactorDirect(
+            bins, k_max, k_min, num_sampled_k_points
+        )
 
     @classmethod
     def get_large_k_params(cls):
-        return {'bins': 100, 'k_max': 500, 'k_min': 400,
-                'num_sampled_k_points': 200000}
+        return {"bins": 100, "k_max": 500, "k_min": 400, "num_sampled_k_points": 200000}
 
     @classmethod
     def get_min_valid_k(cls, Lx, Ly, Lz=None):
@@ -379,4 +392,3 @@ class TestStaticStructureFactorDirect(StaticStructureFactorTest):
             bins=sf_direct.bin_edges,
         )
         npt.assert_allclose(sf_direct.S_k, S_k_binned, rtol=1e-5, atol=1e-5)
-
