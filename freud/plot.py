@@ -494,10 +494,7 @@ def voronoi_plot(box, polytopes, ax=None, color_by_sides=True, cmap=None):
     return ax
 
 
-def diffraction_plot(
-    diffraction, k_values, N_points,
-    ax=None, cmap="afmhot", vmin=None, vmax=None
-):
+def diffraction_plot(diffraction, k_values, N_points, ax=None, cmap="afmhot", vmin=None, vmax=None):
     """Helper function to plot diffraction pattern.
 
     Args:
@@ -521,8 +518,8 @@ def diffraction_plot(
     Returns:
         :class:`matplotlib.axes.Axes`: Axes object with the diagram.
     """
-    import matplotlib.pyplot as plt
     import matplotlib.colors
+    import matplotlib.pyplot as plt
     from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
 
     if vmin is None:
@@ -530,7 +527,7 @@ def diffraction_plot(
 
     if vmax is None:
         vmax = 0.7 * N_points
-        
+
     if ax is None:
         fig = plt.figure()
         ax = fig.subplots()
