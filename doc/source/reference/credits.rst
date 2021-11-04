@@ -323,7 +323,7 @@ Tommy Waltmann
 * Contributed code, design, and testing for ``DiffractionPattern`` class.
 * Contributed code, design, and testing for ``StaticStructureFactorDebye`` class.
 * Contributed code, design, and testing for ``StaticStructureFactorDirect`` class.
-* Refactor tests for Static Structure Factor classes
+* Refactor tests for ``StaticStructureFactor`` classes.
 
 Maya Martirossyan
 

@@ -12,7 +12,7 @@ class StaticStructureFactorTest:
         cls, bins, k_max, k_min=0, num_sampled_k_points=None
     ):
         raise RuntimeError(
-            "The build_structure_factor_object method must be implemented for"
+            "The build_structure_factor_object method must be implemented for "
             "each inheriting class."
         )
 
@@ -288,7 +288,7 @@ class TestStaticStructureFactorDebye(StaticStructureFactorTest):
         npt.assert_allclose(sf.S_k, S, rtol=1e-5, atol=1e-5)
 
     def test_debye_ase(self):
-        """Validate Debye method agains ASE implementation"""
+        """Validate Debye method agains ASE implementation."""
         ase = pytest.importorskip("ase")
         asexrd = pytest.importorskip("ase.utils.xrdebye")
         bins = 1000
