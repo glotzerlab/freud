@@ -233,7 +233,7 @@ class TestDiffractionPattern:
         # for some lattice vector R and integer N, are contained
         # within these regions.
         # This test only checks N in range [-2, 2].
-        threshold = 0.2
+        threshold = 0.2 * dp.N_points
         xs, ys = np.nonzero(dp.diffraction > threshold)
         xy = np.dstack((xs, ys))[0]
 
@@ -266,7 +266,7 @@ class TestDiffractionPattern:
                     )
                     dp.compute((box, positions), zoom=zoom)
 
-                    threshold = 0.2
+                    threshold = 0.2 * dp.N_points
                     xs, ys = np.nonzero(dp.diffraction > threshold)
                     xy = np.dstack((xs, ys))[0]
 
