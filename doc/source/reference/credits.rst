@@ -123,6 +123,7 @@ Bradley Dice - **Lead developer**
 * Contributed code, design, documentation, and testing for ``StaticStructureFactorDebye`` class.
 * Fixed ``Box.contains`` to run in linear time, ``O(num_points)``.
 * Contributed code, design, documentation, and testing for ``StaticStructureFactorDirect`` class.
+* Fixed doctests to run with pytest.
 
 Eric Harper, University of Michigan - **Former lead developer**
 
