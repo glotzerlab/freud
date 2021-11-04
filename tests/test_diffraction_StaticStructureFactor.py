@@ -311,7 +311,12 @@ class TestStaticStructureFactorDebye(StaticStructureFactorTest):
 
 class TestStaticStructureFactorDirect(StaticStructureFactorTest):
 
-    LARGE_K_PARAMS = {"bins": 100, "k_max": 500, "k_min": 400, "num_sampled_k_points": 200000}
+    LARGE_K_PARAMS = {
+        "bins": 100,
+        "k_max": 500,
+        "k_min": 400,
+        "num_sampled_k_points": 200000,
+    }
 
     @classmethod
     def build_structure_factor_object(
