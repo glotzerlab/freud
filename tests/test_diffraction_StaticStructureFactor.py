@@ -240,7 +240,8 @@ class TestStaticStructureFactorDebye(StaticStructureFactorTest):
             min_length = np.min([Lx, Ly, Lz])
         return 4 * np.pi / min_length
 
-    def _validate_debye_method(self, system, bins, k_max, k_min):
+    @staticmethod
+    def _validate_debye_method(system, bins, k_max, k_min):
         """Validation of the static structure calculation.
 
         This method is a pure Python reference implementation of the Debye method
