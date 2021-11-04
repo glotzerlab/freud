@@ -113,8 +113,8 @@ class TestDiffractionPattern:
                     center_index = (output_size // 2, output_size // 2)
                     assert max_index == center_index
 
-                    # The value at k=0 should be 1 because of normalization
-                    # by (number of points)**2
+                    # The value at k=0 should be N because of normalization
+                    # by the number of points
                     npt.assert_allclose(dp.diffraction[center_index], len(positions))
 
     def test_center_ordered(self):
@@ -144,8 +144,8 @@ class TestDiffractionPattern:
                     center_index = (output_size // 2, output_size // 2)
                     assert max_index == center_index
 
-                    # The value at k=0 should be 1 because of normalization
-                    # by (number of points)**2
+                    # The value at k=0 should be N because of normalization
+                    # by the number of points
                     npt.assert_allclose(dp.diffraction[center_index], len(positions))
 
     def test_repr(self):
