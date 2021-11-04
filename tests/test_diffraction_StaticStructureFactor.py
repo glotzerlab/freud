@@ -7,6 +7,9 @@ import freud
 
 
 class StaticStructureFactorTest:
+
+    LARGE_K_PARAMS = {}
+
     @classmethod
     def build_structure_factor_object(
         cls, bins, k_max, k_min=0, num_sampled_k_points=None
@@ -86,8 +89,7 @@ class StaticStructureFactorTest:
         """Ensure S_{AB}(k) goes to 0 at large k."""
         L = 10
         N = 1000
-        params = self.get_large_k_params()
-        sf = self.build_structure_factor_object(**params)
+        sf = self.build_structure_factor_object(**self.LARGE_K_PARAMS)
         box, points = freud.data.make_random_system(L, N)
         system = freud.AABBQuery.from_system((box, points))
         A_points = system.points[: N // 3]
@@ -99,8 +101,7 @@ class StaticStructureFactorTest:
         """Ensure S_{AA}(k) goes to N_A / N_total at large k."""
         L = 10
         N = 1000
-        params = self.get_large_k_params()
-        sf = self.build_structure_factor_object(**params)
+        sf = self.build_structure_factor_object(**self.LARGE_K_PARAMS)
         box, points = freud.data.make_random_system(L, N)
         system = freud.AABBQuery.from_system((box, points))
         N_A = N // 3
@@ -112,8 +113,7 @@ class StaticStructureFactorTest:
         """Ensure S(k) goes to one at large k."""
         L = 10
         N = 1000
-        params = self.get_large_k_params()
-        sf = self.build_structure_factor_object(**params)
+        sf = self.build_structure_factor_object(**self.LARGE_K_PARAMS)
         box, points = freud.data.make_random_system(L, N)
         system = freud.AABBQuery.from_system((box, points))
         sf.compute(system)
@@ -222,6 +222,9 @@ class StaticStructureFactorTest:
 
 
 class TestStaticStructureFactorDebye(StaticStructureFactorTest):
+
+    LARGE_K_PARAMS = {"bins": 5, "k_max": 1e6, "k_min": 1e5}
+
     @classmethod
     def build_structure_factor_object(
         cls, bins, k_max, k_min=0, num_sampled_k_points=None
@@ -229,15 +232,8 @@ class TestStaticStructureFactorDebye(StaticStructureFactorTest):
         return freud.diffraction.StaticStructureFactorDebye(bins, k_max, k_min)
 
     @classmethod
-    def get_large_k_params(cls):
-        return {"bins": 5, "k_max": 1e6, "k_min": 1e5}
-
-    @classmethod
     def get_min_valid_k(cls, Lx, Ly, Lz=None):
-        if Lz == None:
-            min_length = np.min([Lx, Ly])
-        else:
-            min_length = np.min([Lx, Ly, Lz])
+        min_length = np.min([Lx, Ly]) if Lz is None else np.min([Lx, Ly, Lz])
         return 4 * np.pi / min_length
 
     @staticmethod
@@ -314,6 +310,9 @@ class TestStaticStructureFactorDebye(StaticStructureFactorTest):
 
 
 class TestStaticStructureFactorDirect(StaticStructureFactorTest):
+
+    LARGE_K_PARAMS = {"bins": 100, "k_max": 500, "k_min": 400, "num_sampled_k_points": 200000}
+
     @classmethod
     def build_structure_factor_object(
         cls, bins, k_max, k_min=0, num_sampled_k_points=0
@@ -323,15 +322,8 @@ class TestStaticStructureFactorDirect(StaticStructureFactorTest):
         )
 
     @classmethod
-    def get_large_k_params(cls):
-        return {"bins": 100, "k_max": 500, "k_min": 400, "num_sampled_k_points": 200000}
-
-    @classmethod
     def get_min_valid_k(cls, Lx, Ly, Lz=None):
-        if Lz == None:
-            min_length = np.min([Lx, Ly])
-        else:
-            min_length = np.min([Lx, Ly, Lz])
+        min_length = np.min([Lx, Ly]) if Lz is None else np.min([Lx, Ly, Lz])
         return 2 * np.pi / min_length
 
     def test_S_0_is_N(self):
