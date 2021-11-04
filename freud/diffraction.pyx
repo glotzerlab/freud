@@ -257,9 +257,9 @@ cdef class DiffractionPattern(_Compute):
             diffraction_fft * np.conjugate(diffraction_fft))
 
         # Transform the image (scale, shear, zoom) and normalize S(k) by N
-        self._N_points = len(system.points)
+        N_points = len(system.points)
         diffraction_frame = self._transform(
-            diffraction_frame, system.box, inv_shear, zoom) / self._N_points
+            diffraction_frame, system.box, inv_shear, zoom) / N_points
 
         # Add to the diffraction pattern and increment the frame counter
         self._diffraction += np.asarray(diffraction_frame)
@@ -283,6 +283,7 @@ cdef class DiffractionPattern(_Compute):
         self._k_scale_factor = 2 * np.pi * self.output_size / (self._box_matrix_scale_factor * zoom)
         self._k_values_cached = False
         self._k_vectors_cached = False
+        self._N_points = N_points
 
         return self
 
@@ -303,6 +304,11 @@ cdef class DiffractionPattern(_Compute):
             Diffraction pattern.
         """
         return np.asarray(self._diffraction) / self._frame_counter
+
+    @_Compute._computed_property
+    def N_points(self):
+        """int: Number of points in the system."""
+        return self._N_points
 
     @_Compute._computed_property
     def k_values(self):
@@ -332,16 +338,18 @@ cdef class DiffractionPattern(_Compute):
                     grid_size=self.grid_size,
                     output_size=self.output_size)
 
-    def to_image(self, cmap='afmhot', vmin=4e-6, vmax=0.7):
+    def to_image(self, cmap='afmhot', vmin=None, vmax=None):
         """Generates image of diffraction pattern.
 
         Args:
             cmap (str):
                 Colormap name to use (Default value = :code:`'afmhot'`).
             vmin (float):
-                Minimum of the color scale (Default value = 4e-6).
+                Minimum of the color scale. Uses 4e-6 * N_points if not
+                provided or :code: `None` (Default value = :code: `None`).
             vmax (float):
-                Maximum of the color scale (Default value = 0.7).
+                Maximum of the color scale. Uses 0.7 * N_points if not
+                provided or :code: `None` (Default value = :code: `None`).
 
         Returns:
             ((output_size, output_size, 4) :class:`numpy.ndarray`):
@@ -349,12 +357,19 @@ cdef class DiffractionPattern(_Compute):
         """
         import matplotlib.cm
         import matplotlib.colors
+
+        if vmin is None:
+            vmin = 4e-6 * self._N_points
+
+        if vmax is None:
+            vmax = 0.7 * self._N_points
+
         norm = matplotlib.colors.LogNorm(vmin=vmin, vmax=vmax)
         cmap = matplotlib.cm.get_cmap(cmap)
         image = cmap(norm(np.clip(self.diffraction, vmin, vmax)))
         return (image * 255).astype(np.uint8)
 
-    def plot(self, ax=None, cmap='afmhot', vmin=4e-6, vmax=None):
+    def plot(self, ax=None, cmap='afmhot', vmin=None, vmax=None):
         """Plot Diffraction Pattern.
 
         Args:
@@ -364,14 +379,18 @@ cdef class DiffractionPattern(_Compute):
             cmap (str):
                 Colormap name to use (Default value = :code:`'afmhot'`).
             vmin (float):
-                Minimum of the color scale (Default value = 4e-6).
+                Minimum of the color scale. Uses 4e-6 * N_points if not
+                provided or :code: `None` (Default value = :code: `None`).
             vmax (float):
-                Maximum of the color scale. Uses 0.7 * N for a system of N
-                particles if not provided or `None` (Default value = `None`).
+                Maximum of the color scale. Uses 0.7 * N_points if not
+                provided or :code: `None` (Default value = :code: `None`).
 
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
+        if vmin is None:
+            vmin = 4e-6 * self._N_points
+
         if vmax is None:
             vmax = 0.7 * self._N_points
 
