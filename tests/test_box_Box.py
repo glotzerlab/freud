@@ -404,10 +404,16 @@ class TestBox:
         npt.assert_array_equal(box.periodic, True)
 
     def test_equal(self):
-        box = freud.box.Box(2, 2, 2, 1, 0.5, 0.1)
+        box1 = freud.box.Box(2, 2, 2, 1, 0.5, 0.1)
+        box1_copy = freud.box.Box(2, 2, 2, 1, 0.5, 0.1)
+        assert box1 == box1_copy
         box2 = freud.box.Box(2, 2, 2, 1, 0, 0)
-        assert box == box
-        assert box != box2
+        assert box1 != box2
+        box1_nonperiodic = freud.box.Box(2, 2, 2, 1, 0.5, 0.1)
+        box1_nonperiodic.periodic = [False, False, False]
+        assert box1 != box1_nonperiodic
+        assert box1 != 3
+        assert 3 != box1
 
     def test_repr(self):
         box = freud.box.Box(2, 2, 2, 1, 0.5, 0.1)

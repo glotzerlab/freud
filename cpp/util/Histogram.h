@@ -258,7 +258,7 @@ public:
         void reduceInto(ManagedArray<T>& result)
         {
             result.reset();
-            util::forLoopWrapper(0, result.size(), [=, &result](size_t begin, size_t end) {
+            util::forLoopWrapper(0, result.size(), [&](size_t begin, size_t end) {
                 for (size_t i = begin; i < end; ++i)
                 {
                     for (auto hist = m_local_histograms.begin(); hist != m_local_histograms.end(); ++hist)
@@ -362,6 +362,12 @@ public:
         return m_bin_counts.getIndex(ax_bins);
     }
 
+    //! Return the axes.
+    const std::vector<std::shared_ptr<Axis>>& getAxes() const
+    {
+        return m_axes;
+    }
+
     //! Get the computed histogram.
     const ManagedArray<T>& getBinCounts() const
     {
@@ -440,7 +446,7 @@ public:
     void reduceOverThreadsPerBin(ThreadLocalHistogram& local_histograms, const ComputeFunction& cf)
     {
         local_histograms.reduceInto(m_bin_counts);
-        util::forLoopWrapper(0, m_bin_counts.size(), [=](size_t begin, size_t end) {
+        util::forLoopWrapper(0, m_bin_counts.size(), [&](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
                 cf(i);

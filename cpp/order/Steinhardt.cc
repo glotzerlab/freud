@@ -113,7 +113,7 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
 
     freud::locality::loopOverNeighborsIterator(
         points, points->getPoints(), m_Np, qargs, nlist,
-        [=](size_t i, const std::shared_ptr<freud::locality::NeighborPerPointIterator>& ppiter) {
+        [&](size_t i, const std::shared_ptr<freud::locality::NeighborPerPointIterator>& ppiter) {
             float total_weight(0);
             const vec3<float> ref((*points)[i]);
             // Construct PointSPHEvaluator outside loop since the construction is costly.
@@ -216,7 +216,7 @@ void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
 
     freud::locality::loopOverNeighborsIterator(
         points, points->getPoints(), m_Np, qargs, nlist,
-        [=](size_t i, const std::shared_ptr<freud::locality::NeighborPerPointIterator>& ppiter) {
+        [&](size_t i, const std::shared_ptr<freud::locality::NeighborPerPointIterator>& ppiter) {
             unsigned int neighborcount(1);
             for (freud::locality::NeighborBond nb = ppiter->next(); !ppiter->end(); nb = ppiter->next())
             {
@@ -324,13 +324,13 @@ void Steinhardt::aggregatewl(util::ManagedArray<float>& target,
                     = reduceWigner3j(&(source_l({i, 0})), l, wigner3j_values);
                 if (m_wl_normalize)
                 {
-                    const float normalization = std::sqrt(normalizationfactor) /
-                        normalization_source[norm_particle_index + l_index];
+                    const float normalization = std::sqrt(normalizationfactor)
+                        / normalization_source[norm_particle_index + l_index];
                     target[target_particle_index + l_index] *= normalization * normalization * normalization;
                 }
             }
         }
-        });
+    });
 }
 
 }; }; // end namespace freud::order

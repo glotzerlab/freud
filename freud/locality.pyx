@@ -1054,8 +1054,7 @@ cdef class _SpatialHistogram1D(_SpatialHistogram):
 
     @property
     def bounds(self):
-        """tuple: A tuple indicating upper and lower bounds of the
-        histogram."""
+        """tuple: A tuple indicating upper and lower bounds of the histogram."""
         # Must create a local reference or Cython tries to access an rvalue by
         # reference in the list comprehension.
         vec = self.histptr.getBounds()

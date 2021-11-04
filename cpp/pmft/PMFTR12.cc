@@ -82,7 +82,7 @@ void PMFTR12::accumulate(const locality::NeighborQuery* neighbor_query, const fl
 {
     neighbor_query->getBox().enforce2D();
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
-                      [=](const freud::locality::NeighborBond& neighbor_bond) {
+                      [&](const freud::locality::NeighborBond& neighbor_bond) {
                           vec3<float> delta(bondVector(neighbor_bond, neighbor_query, query_points));
                           // calculate angles
                           float d_theta1 = std::atan2(delta.y, delta.x);
