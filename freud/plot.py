@@ -494,7 +494,9 @@ def voronoi_plot(box, polytopes, ax=None, color_by_sides=True, cmap=None):
     return ax
 
 
-def diffraction_plot(diffraction, k_values, N_points, ax=None, cmap="afmhot", vmin=None, vmax=None):
+def diffraction_plot(
+    diffraction, k_values, N_points, ax=None, cmap="afmhot", vmin=None, vmax=None
+):
     """Helper function to plot diffraction pattern.
 
     Args:
