@@ -61,6 +61,7 @@ class TestDiffractionPattern:
         diff = dp.diffraction
         vals = dp.k_values
         vecs = dp.k_vectors
+        N = dp.N_points
         dp.plot()
         dp._repr_png_()
 
@@ -70,6 +71,7 @@ class TestDiffractionPattern:
         assert not np.array_equal(dp.diffraction, diff)
         assert not np.array_equal(dp.k_values, vals)
         assert not np.array_equal(dp.k_vectors, vecs)
+        assert not np.array_equal(dp.N_points, N)
 
     def test_attribute_shapes(self):
         grid_size = 234
