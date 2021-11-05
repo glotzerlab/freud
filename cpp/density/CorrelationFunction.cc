@@ -37,9 +37,8 @@ CorrelationFunction<T>::CorrelationFunction(unsigned int bins, float r_max) : Bo
     m_histogram = util::Histogram<unsigned int>(axes);
     m_local_histograms = util::Histogram<unsigned int>::ThreadLocalHistogram(m_histogram);
 
-    typename util::Axes axes_rdf;
-    axes_rdf.push_back(std::make_shared<util::RegularAxis>(bins, 0, r_max));
-    m_correlation_function = util::Histogram<T>(axes_rdf);
+    axes.push_back(std::make_shared<util::RegularAxis>(bins, 0, r_max));
+    m_correlation_function = util::Histogram<T>(axes);
     m_local_correlation_function = CFThreadHistogram(m_correlation_function);
 }
 
