@@ -32,12 +32,12 @@ CorrelationFunction<T>::CorrelationFunction(unsigned int bins, float r_max) : Bo
     // We must construct two separate histograms, one for the counts and one
     // for the actual correlation function. The counts are used to normalize
     // the correlation function.
-    util::Histogram<unsigned int>::Axes axes;
+    util::Axes axes;
     axes.push_back(std::make_shared<util::RegularAxis>(bins, 0, r_max));
     m_histogram = util::Histogram<unsigned int>(axes);
     m_local_histograms = util::Histogram<unsigned int>::ThreadLocalHistogram(m_histogram);
 
-    typename util::Histogram<T>::Axes axes_rdf;
+    typename util::Axes axes_rdf;
     axes_rdf.push_back(std::make_shared<util::RegularAxis>(bins, 0, r_max));
     m_correlation_function = util::Histogram<T>(axes_rdf);
     m_local_correlation_function = CFThreadHistogram(m_correlation_function);
