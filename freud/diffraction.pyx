@@ -704,7 +704,7 @@ cdef class DiffractionPattern(_Compute):
         diffraction_frame = np.real(
             diffraction_fft * np.conjugate(diffraction_fft))
 
-        # Transform the image (scale, shear, zoom) and normalize S(k) by N
+        # Transform the image (scale, shear, zoom) and normalize S(k) by N_points
         N_points = len(system.points)
         diffraction_frame = self._transform(
             diffraction_frame, system.box, inv_shear, zoom) / N_points
@@ -793,11 +793,11 @@ cdef class DiffractionPattern(_Compute):
             cmap (str, optional):
                 Colormap name to use (Default value = :code:`'afmhot'`).
             vmin (float):
-                Minimum of the color scale. Uses 4e-6 * N_points if not
-                provided or :code: `None` (Default value = :code: `None`).
+                Minimum of the color scale. Uses :code:`4e-6 * N_points` if
+                not provided or :code:`None` (Default value = :code:`None`).
             vmax (float):
-                Maximum of the color scale. Uses 0.7 * N_points if not
-                provided or :code: `None` (Default value = :code: `None`).
+                Maximum of the color scale. Uses :code:`0.7 * N_points` if
+                not provided or :code:`None` (Default value = :code:`None`).
 
         Returns:
             ((output_size, output_size, 4) :class:`numpy.ndarray`):
@@ -807,10 +807,10 @@ cdef class DiffractionPattern(_Compute):
         import matplotlib.colors
 
         if vmin is None:
-            vmin = 4e-6 * self._N_points
+            vmin = 4e-6 * self.N_points
 
         if vmax is None:
-            vmax = 0.7 * self._N_points
+            vmax = 0.7 * self.N_points
 
         norm = matplotlib.colors.LogNorm(vmin=vmin, vmax=vmax)
         cmap = matplotlib.cm.get_cmap(cmap)
@@ -827,24 +827,24 @@ cdef class DiffractionPattern(_Compute):
             cmap (str, optional):
                 Colormap name to use (Default value = :code:`'afmhot'`).
             vmin (float):
-                Minimum of the color scale. Uses 4e-6 * N_points if not
-                provided or :code: `None` (Default value = :code: `None`).
+                Minimum of the color scale. Uses :code:`4e-6 * N_points` if
+                not provided or :code:`None` (Default value = :code:`None`).
             vmax (float):
-                Maximum of the color scale. Uses 0.7 * N_points if not
-                provided or :code: `None` (Default value = :code: `None`).
+                Maximum of the color scale. Uses :code:`0.7 * N_points` if
+                not provided or :code:`None` (Default value = :code:`None`).
 
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         if vmin is None:
-            vmin = 4e-6 * self._N_points
+            vmin = 4e-6 * self.N_points
 
         if vmax is None:
-            vmax = 0.7 * self._N_points
+            vmax = 0.7 * self.N_points
 
         import freud.plot
         return freud.plot.diffraction_plot(
-            self.diffraction, self.k_values, self._N_points,
+            self.diffraction, self.k_values, self.N_points,
             ax, cmap, vmin, vmax)
 
     def _repr_png_(self):

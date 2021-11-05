@@ -512,16 +512,17 @@ def diffraction_plot(
         cmap (str):
             Colormap name to use (Default value = :code:`'afmhot'`).
         vmin (float):
-            Minimum of the color scale (Default value = 4e-6).
+            Minimum of the color scale Uses :code:`4e-6 * N_points` if
+            not provided or :code:`None` (Default value = :code:`None`).
         vmax (float):
-            Maximum of the color scale. Uses 0.7 * N for a system of N
-            particles if not provided or `None` (Default value = `None`).
+            Maximum of the color scale. Uses :code:`0.7 * N_points` if
+            not provided or :code:`None` (Default value = :code:`None`).
 
     Returns:
         :class:`matplotlib.axes.Axes`: Axes object with the diagram.
     """
     import matplotlib.colors
-    import matplotlib.pyplot as plt
+    from matplotlib.colorbar import Colorbar
     from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
 
     if vmin is None:
@@ -547,7 +548,7 @@ def diffraction_plot(
     ax_divider = make_axes_locatable(ax)
     cax = ax_divider.append_axes("right", size="7%", pad="10%")
     # ticks are placed at top and bottom of color bar
-    cb = plt.colorbar(im, cax=cax, ax=ax, ticks=[vmin, vmax])
+    cb = Colorbar(cax, im)
     cb.ax.set_yticklabels([0, N_points])
     cb.set_label(r"$S(\vec{k})$")
 
