@@ -31,11 +31,11 @@ add_library(
 # The namespaced TBB::tbb currently fails on Windows when discovered via FindTBB
 # rather than the config, and it's unclear why. It seems to be related to issues
 # with the namespacing.
-if(WIN32 AND NOT TBB_USING_CONFIG)
-  target_link_libraries(libfreud PUBLIC ${TBB_LIBRARY})
-else()
-  target_link_libraries(libfreud PUBLIC TBB::tbb)
-endif()
+#if(WIN32 AND NOT TBB_USING_CONFIG)
+#  target_link_libraries(libfreud PUBLIC ${TBB_LIBRARY})
+#else()
+target_link_libraries(libfreud PUBLIC TBB::tbb)
+#endif()
 
 # We treat the extern folder as a SYSTEM library to avoid getting any diagnostic
 # information from it. In particular, this avoids clang-tidy throwing errors due

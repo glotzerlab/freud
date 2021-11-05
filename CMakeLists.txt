@@ -61,13 +61,13 @@ add_subdirectory(CMake)
 find_package_config_first(TBB)
 
 # The TBB config doesn't define these variable, which we use later.
-if(NOT DEFINED TBB_INCLUDE_DIR OR NOT DEFINED TBB_LIBRARY)
-  get_target_property(TBB_INCLUDE_DIR TBB::tbb INTERFACE_INCLUDE_DIRECTORIES)
-  get_target_property(TBB_LIBRARY TBB::tbb IMPORTED_LOCATION_RELEASE)
-  set(TBB_USING_CONFIG "TRUE")
-else()
-  set(TBB_USING_CONFIG "FALSE")
-endif()
+#if(NOT DEFINED TBB_INCLUDE_DIR OR NOT DEFINED TBB_LIBRARY)
+#  get_target_property(TBB_INCLUDE_DIR TBB::tbb INTERFACE_INCLUDE_DIRECTORIES)
+#  get_target_property(TBB_LIBRARY TBB::tbb IMPORTED_LOCATION_RELEASE)
+#  set(TBB_USING_CONFIG "TRUE")
+#else()
+#  set(TBB_USING_CONFIG "FALSE")
+#endif()
 
 # Fail fast if users have not cloned submodules.
 if(NOT WIN32)
@@ -103,7 +103,7 @@ include_directories(
 # We treat the extern folder as a SYSTEM library to avoid getting any diagnostic
 # information from it. In particular, this avoids clang-tidy throwing errors due
 # to any issues in external code.
-include_directories(SYSTEM ${TBB_INCLUDE_DIR})
+#include_directories(SYSTEM ${TBB_INCLUDE_DIR})
 
 # Ignore unused variable warning from scikit-build
 set(ignoreMe "${SKBUILD}")
