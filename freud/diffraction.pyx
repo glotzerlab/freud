@@ -704,10 +704,11 @@ cdef class DiffractionPattern(_Compute):
         diffraction_frame = np.real(
             diffraction_fft * np.conjugate(diffraction_fft))
 
-        # Transform the image (scale, shear, zoom) and normalize S(k) by N_points
-        N_points = len(system.points)
+        # Transform the image (scale, shear, zoom) and normalize S(k) by the
+        # number of points
+        self._N_points = len(system.points)
         diffraction_frame = self._transform(
-            diffraction_frame, system.box, inv_shear, zoom) / N_points
+            diffraction_frame, system.box, inv_shear, zoom) / self._N_points
 
         # Add to the diffraction pattern and increment the frame counter
         self._diffraction += np.asarray(diffraction_frame)
@@ -731,7 +732,6 @@ cdef class DiffractionPattern(_Compute):
         self._k_scale_factor = 2 * np.pi * self.output_size / (self._box_matrix_scale_factor * zoom)
         self._k_values_cached = False
         self._k_vectors_cached = False
-        self._N_points = N_points
 
         return self
 
@@ -755,7 +755,7 @@ cdef class DiffractionPattern(_Compute):
 
     @_Compute._computed_property
     def N_points(self):
-        """int: Number of points in the system."""
+        """int: Number of points used in the last computation."""
         return self._N_points
 
     @_Compute._computed_property
