@@ -547,9 +547,7 @@ def diffraction_plot(
     )
     ax_divider = make_axes_locatable(ax)
     cax = ax_divider.append_axes("right", size="7%", pad="10%")
-    # ticks are placed at top and bottom of color bar
     cb = Colorbar(cax, im)
-    cb.ax.set_yticklabels([0, N_points])
     cb.set_label(r"$S(\vec{k})$")
 
     # Set tick locations and labels
