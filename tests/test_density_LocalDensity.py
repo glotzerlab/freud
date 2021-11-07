@@ -23,7 +23,9 @@ class TestLocalDensity:
         """Initialize a box with randomly placed particles"""
         box_size = 10
         num_points = 10000
-        self.box, self.pos = freud.data.make_random_system(box_size, num_points)
+        self.box, self.pos = freud.data.make_random_system(
+            box_size, num_points, seed=123
+        )
         self.r_max = 3
         self.diameter = 1
         self.ld = freud.density.LocalDensity(self.r_max, self.diameter)
