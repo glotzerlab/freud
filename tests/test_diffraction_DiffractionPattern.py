@@ -86,6 +86,7 @@ class TestDiffractionPattern:
         assert dp.k_values.shape == (output_size,)
         assert dp.k_vectors.shape == (output_size, output_size, 3)
         assert dp.to_image().shape == (output_size, output_size, 4)
+        assert dp.N_points == len(positions)
 
     def test_center_unordered(self):
         """Assert the center of the image is an intensity peak for an
