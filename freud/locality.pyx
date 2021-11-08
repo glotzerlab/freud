@@ -424,7 +424,7 @@ cdef class NeighborQuery:
                 :meth:`matplotlib.axes.Axes.plot`.
 
         Returns:
-            :class:`matplotlib.axes.Axes`: Axis with the plot.
+            :class:`PathCollection`: Axis with the plot.
         """
         import freud.plot
         return freud.plot.system_plot(
