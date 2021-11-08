@@ -60,12 +60,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 add_subdirectory(CMake)
 find_package_config_first(TBB)
 
-# The TBB config doesn't define these variable, which we use later. if(NOT
-# DEFINED TBB_INCLUDE_DIR OR NOT DEFINED TBB_LIBRARY)
-# get_target_property(TBB_INCLUDE_DIR TBB::tbb INTERFACE_INCLUDE_DIRECTORIES)
-# get_target_property(TBB_LIBRARY TBB::tbb IMPORTED_LOCATION_RELEASE)
-# set(TBB_USING_CONFIG "TRUE") else() set(TBB_USING_CONFIG "FALSE") endif()
-
 # Fail fast if users have not cloned submodules.
 if(NOT WIN32)
   string(ASCII 27 Esc)
