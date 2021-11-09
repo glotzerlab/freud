@@ -2,7 +2,7 @@
 # oldest version of CMake that this build script has been tested with. However,
 # the oldest CMake actively tested against will be determined by the oldest
 # CMake available on PyPI (which is 3.6.3).
-cmake_minimum_required(VERSION 3.3.0)
+cmake_minimum_required(VERSION 3.12.4)
 
 set(DEFAULT_BUILD_TYPE "ReleaseWithDocs")
 
