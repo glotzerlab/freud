@@ -94,3 +94,10 @@ class TestLocalDensity:
         ) / v_around
         correct_density = [cd0, cd1, 0]
         npt.assert_allclose(ld.density, correct_density, rtol=1e-4)
+
+    def test_invalid_radial_distances(self):
+        # make sure that invalid r_max and diameter arguments raise errrors
+        with pytest.raises(ValueError):
+            freud.density.LocalDensity(-1, 10)
+        with pytest.raises(ValueError):
+            freud.density.LocalDensity(2, 0)
