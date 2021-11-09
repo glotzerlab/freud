@@ -496,7 +496,7 @@ cdef class DiffractionPattern(_Compute):
 
     The :math:`\vec{k}=0` peak is always located at index
     ``(output_size // 2, output_size // 2)`` and is normalized to have a value
-    of :math:`S(\vec{k}=0) = 1` (not :math:`N`, a common convention). The
+    of :math:`S(\vec{k}=0) = N`, per common convention. The
     remaining :math:`\vec{k}` vectors are computed such that each peak in the
     diffraction pattern satisfies the relationship :math:`\vec{k} \cdot
     \vec{R} = 2 \pi N` for some integer :math:`N` and lattice vector of
@@ -516,6 +516,7 @@ cdef class DiffractionPattern(_Compute):
     """
     cdef int _grid_size
     cdef int _output_size
+    cdef int _N_points
     cdef double[:] _k_values_orig
     cdef double[:, :, :] _k_vectors_orig
     cdef double[:] _k_values
@@ -703,10 +704,11 @@ cdef class DiffractionPattern(_Compute):
         diffraction_frame = np.real(
             diffraction_fft * np.conjugate(diffraction_fft))
 
-        # Transform the image (scale, shear, zoom) and normalize S(k) by N^2
-        N = len(system.points)
+        # Transform the image (scale, shear, zoom) and normalize S(k) by the
+        # number of points
+        self._N_points = len(system.points)
         diffraction_frame = self._transform(
-            diffraction_frame, system.box, inv_shear, zoom) / (N*N)
+            diffraction_frame, system.box, inv_shear, zoom) / self._N_points
 
         # Add to the diffraction pattern and increment the frame counter
         self._diffraction += np.asarray(diffraction_frame)
@@ -752,6 +754,11 @@ cdef class DiffractionPattern(_Compute):
         return np.asarray(self._diffraction) / self._frame_counter
 
     @_Compute._computed_property
+    def N_points(self):
+        """int: Number of points used in the last computation."""
+        return self._N_points
+
+    @_Compute._computed_property
     def k_values(self):
         """(``output_size``, ) :class:`numpy.ndarray`: k-values."""
         if not self._k_values_cached:
@@ -779,16 +786,18 @@ cdef class DiffractionPattern(_Compute):
                     grid_size=self.grid_size,
                     output_size=self.output_size)
 
-    def to_image(self, cmap='afmhot', vmin=4e-6, vmax=0.7):
+    def to_image(self, cmap='afmhot', vmin=None, vmax=None):
         """Generates image of diffraction pattern.
 
         Args:
             cmap (str, optional):
                 Colormap name to use (Default value = :code:`'afmhot'`).
-            vmin (float, optional):
-                Minimum of the color scale (Default value = 4e-6).
-            vmax (float, optional):
-                Maximum of the color scale (Default value = 0.7).
+            vmin (float):
+                Minimum of the color scale. Uses :code:`4e-6 * N_points` if
+                not provided or :code:`None` (Default value = :code:`None`).
+            vmax (float):
+                Maximum of the color scale. Uses :code:`0.7 * N_points` if
+                not provided or :code:`None` (Default value = :code:`None`).
 
         Returns:
             ((output_size, output_size, 4) :class:`numpy.ndarray`):
@@ -796,12 +805,19 @@ cdef class DiffractionPattern(_Compute):
         """
         import matplotlib.cm
         import matplotlib.colors
+
+        if vmin is None:
+            vmin = 4e-6 * self.N_points
+
+        if vmax is None:
+            vmax = 0.7 * self.N_points
+
         norm = matplotlib.colors.LogNorm(vmin=vmin, vmax=vmax)
         cmap = matplotlib.cm.get_cmap(cmap)
         image = cmap(norm(np.clip(self.diffraction, vmin, vmax)))
         return (image * 255).astype(np.uint8)
 
-    def plot(self, ax=None, cmap='afmhot', vmin=4e-6, vmax=0.7):
+    def plot(self, ax=None, cmap='afmhot', vmin=None, vmax=None):
         """Plot Diffraction Pattern.
 
         Args:
@@ -810,17 +826,26 @@ cdef class DiffractionPattern(_Compute):
                 (Default value = :code:`None`)
             cmap (str, optional):
                 Colormap name to use (Default value = :code:`'afmhot'`).
-            vmin (float, optional):
-                Minimum of the color scale (Default value = 4e-6).
-            vmax (float, optional):
-                Maximum of the color scale (Default value = 0.7).
+            vmin (float):
+                Minimum of the color scale. Uses :code:`4e-6 * N_points` if
+                not provided or :code:`None` (Default value = :code:`None`).
+            vmax (float):
+                Maximum of the color scale. Uses :code:`0.7 * N_points` if
+                not provided or :code:`None` (Default value = :code:`None`).
 
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
+        if vmin is None:
+            vmin = 4e-6 * self.N_points
+
+        if vmax is None:
+            vmax = 0.7 * self.N_points
+
         import freud.plot
         return freud.plot.diffraction_plot(
-            self.diffraction, self.k_values, ax, cmap, vmin, vmax)
+            self.diffraction, self.k_values, self.N_points,
+            ax, cmap, vmin, vmax)
 
     def _repr_png_(self):
         try:
