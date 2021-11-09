@@ -495,7 +495,7 @@ def voronoi_plot(box, polytopes, ax=None, color_by_sides=True, cmap=None):
 
 
 def diffraction_plot(
-    diffraction, k_values, ax=None, cmap="afmhot", vmin=4e-6, vmax=0.7
+    diffraction, k_values, N_points, ax=None, cmap="afmhot", vmin=None, vmax=None
 ):
     """Helper function to plot diffraction pattern.
 
@@ -504,15 +504,19 @@ def diffraction_plot(
             Diffraction image data.
         k_values (:class:`numpy.ndarray`):
             :math:`k` value magnitudes for each bin of the diffraction image.
+        N_points (int):
+            Number of points in the system.
         ax (:class:`matplotlib.axes.Axes`):
             Axes object to plot. If :code:`None`, make a new axes and figure
             object (Default value = :code:`None`).
         cmap (str):
             Colormap name to use (Default value = :code:`'afmhot'`).
         vmin (float):
-            Minimum of the color scale (Default value = 4e-6).
+            Minimum of the color scale Uses :code:`4e-6 * N_points` if
+            not provided or :code:`None` (Default value = :code:`None`).
         vmax (float):
-            Maximum of the color scale (Default value = 0.7).
+            Maximum of the color scale. Uses :code:`0.7 * N_points` if
+            not provided or :code:`None` (Default value = :code:`None`).
 
     Returns:
         :class:`matplotlib.axes.Axes`: Axes object with the diagram.
@@ -520,6 +524,12 @@ def diffraction_plot(
     import matplotlib.colors
     from matplotlib.colorbar import Colorbar
     from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
+
+    if vmin is None:
+        vmin = 4e-6 * N_points
+
+    if vmax is None:
+        vmax = 0.7 * N_points
 
     if ax is None:
         fig = plt.figure()
