@@ -122,7 +122,7 @@ protected:
         m_local_histograms; //!< Thread local bin counts for TBB parallelism
 
     using BondHistogram = util::Histogram<unsigned int>;
-    using BHAxes = typename util::Axes;
+    using BHAxes = util::Axes;
 };
 
 }; }; // namespace freud::locality

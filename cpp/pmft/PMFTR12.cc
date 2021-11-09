@@ -32,10 +32,11 @@ PMFTR12::PMFTR12(float r_max, unsigned int n_r, unsigned int n_t1, unsigned int 
     }
 
     // Construct the Histogram object that will be used to keep track of counts of bond distances found.
-    BHAxes axes;
-    axes.push_back(std::make_shared<util::RegularAxis>(n_r, 0, r_max));
-    axes.push_back(std::make_shared<util::RegularAxis>(n_t1, 0, constants::TWO_PI));
-    axes.push_back(std::make_shared<util::RegularAxis>(n_t2, 0, constants::TWO_PI));
+    const auto axes = util::Axes {
+        std::make_shared<util::RegularAxis>(n_r, 0, r_max),
+        std::make_shared<util::RegularAxis>(n_t1, 0, constants::TWO_PI),
+        std::make_shared<util::RegularAxis>(n_t2, 0, constants::TWO_PI)
+    };
     m_histogram = BondHistogram(axes);
     m_local_histograms = BondHistogram::ThreadLocalHistogram(m_histogram);
 
