@@ -35,7 +35,7 @@ The following are **required** for installing **freud**:
 - A C++14-compliant compiler
 - `Python <https://www.python.org/>`__ (>=3.6)
 - `NumPy <https://www.numpy.org/>`__ (>=1.14)
-- `Intel Threading Building Blocks <https://www.threadingbuildingblocks.org/>`__
+- `Intel Threading Building Blocks <https://www.threadingbuildingblocks.org/>`__ (>=2017.03.R2)
 - `Cython <https://cython.org/>`__ (>=0.29.14)
 - `scikit-build <https://scikit-build.readthedocs.io/>`__ (>=0.10.0)
 - `CMake <https://cmake.org/>`__ (>=3.12.4)
