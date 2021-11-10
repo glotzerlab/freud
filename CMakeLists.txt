@@ -1,6 +1,6 @@
-# This cmake version is the oldest version that does not error out when trying to
-# link TBB to the object library _cluster. This is also the oldest cmake version
-# we test against in our CI.
+# This cmake version is the oldest version that does not error out when trying
+# to link TBB to the object library _cluster. This is also the oldest cmake
+# version we test against in our CI.
 cmake_minimum_required(VERSION 3.12.0)
 
 set(DEFAULT_BUILD_TYPE "ReleaseWithDocs")
