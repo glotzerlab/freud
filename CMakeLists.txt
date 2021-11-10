@@ -1,8 +1,7 @@
-# We use the IN_LIST operator, which is first supported in 3.3.0. This is the
-# oldest version of CMake that this build script has been tested with. However,
-# the oldest CMake actively tested against will be determined by the oldest
-# CMake available on PyPI (which is 3.6.3).
-cmake_minimum_required(VERSION 3.12.4)
+# This cmake version is the oldest version that does not error out when trying to
+# link TBB to the object library _cluster. This is also the oldest cmake version
+# we test against in our CI.
+cmake_minimum_required(VERSION 3.12.0)
 
 set(DEFAULT_BUILD_TYPE "ReleaseWithDocs")
 
