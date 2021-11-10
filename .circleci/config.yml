@@ -287,12 +287,12 @@ jobs:
       PYTHON: "python3.7"
     <<: *build_and_test_linux_with_cov
 
-  linux-python-37-oldest:
+  linux-python-36-oldest:
     docker:
-      - image: glotzerlab/ci:2021.11-gcc7_py37
+      - image: glotzerlab/ci:2021.11-gcc7_py36
     environment:
-      PYVER: "3.7"
-      PYTHON: "python3.7"
+      PYVER: "3.6"
+      PYTHON: "python3.6"
       DEPENDENCIES: "OLDEST"
     <<: *build_and_test_linux
 
@@ -337,7 +337,7 @@ workflows:
           requires:
             - check-style
             - linux-python-39
-      - linux-python-37-oldest:
+      - linux-python-36-oldest:
           requires:
             - check-style
             - linux-python-39
