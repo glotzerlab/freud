@@ -325,6 +325,7 @@ Tommy Waltmann
 * Contributed code, design, and testing for ``StaticStructureFactorDebye`` class.
 * Contributed code, design, and testing for ``StaticStructureFactorDirect`` class.
 * Refactor tests for ``StaticStructureFactor`` classes.
+* Improve CMake build system to use more modern style.
 
 Maya Martirossyan
 

@@ -256,7 +256,7 @@ void Cubatic::compute(quat<float>* orientations, unsigned int num_orientations)
 
     util::forLoopWrapper(0, m_n_replicates, [&](size_t begin, size_t end) {
         // create thread-specific rng
-        auto const thread_start = static_cast<unsigned int>(begin);
+        const auto thread_start = static_cast<unsigned int>(begin);
 
         std::vector<unsigned int> seed_seq(3);
         seed_seq[0] = m_seed;
