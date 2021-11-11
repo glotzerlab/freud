@@ -49,7 +49,7 @@ PMFTXYT::PMFTXYT(float x_max, float y_max, unsigned int n_x, unsigned int n_y, u
     m_pcf_array.prepare({n_x, n_y, n_t});
 
     // Construct the Histogram object that will be used to keep track of counts of bond distances found.
-    auto const axes = util::Axes {std::make_shared<util::RegularAxis>(n_x, -x_max, x_max),
+    const auto axes = util::Axes {std::make_shared<util::RegularAxis>(n_x, -x_max, x_max),
                                   std::make_shared<util::RegularAxis>(n_y, -y_max, y_max),
                                   std::make_shared<util::RegularAxis>(n_t, 0, constants::TWO_PI)};
     m_histogram = BondHistogram(axes);
