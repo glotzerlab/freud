@@ -100,4 +100,4 @@ class TestLocalDensity:
         with pytest.raises(ValueError):
             freud.density.LocalDensity(-1, 10)
         with pytest.raises(ValueError):
-            freud.density.LocalDensity(2, 0)
+            freud.density.LocalDensity(2, -1)
