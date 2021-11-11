@@ -1,6 +1,5 @@
-# This cmake version is the oldest version that does not error out when trying
-# to link TBB to the object library _cluster. This is also the oldest cmake
-# version we test against in our CI.
+# CMake 3.12.0 is the oldest version supported by the way freud links TBB to
+# object libraries like _cluster. This is also the oldest version tested in CI.
 cmake_minimum_required(VERSION 3.12.0)
 
 set(DEFAULT_BUILD_TYPE "ReleaseWithDocs")
