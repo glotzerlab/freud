@@ -13,6 +13,7 @@ and this project adheres to
 * Added error checking for `r_min`, `r_max` arguments in `freud.density.RDF` and `freud.locality.NeighborList`.
 * Doctests are now run with pytest.
 * Cleaned up tests for the static structure factor classes.
+* CMake build system only uses references to TBB target.
 
 ## v2.7.0 -- 2021-10-01
 
