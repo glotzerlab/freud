@@ -32,8 +32,7 @@ RDF::RDF(unsigned int bins, float r_max, float r_min, bool normalize)
     }
 
     // Construct the Histogram object that will be used to keep track of counts of bond distances found.
-    BHAxes axes;
-    axes.push_back(std::make_shared<util::RegularAxis>(bins, r_min, r_max));
+    const auto axes = util::Axes {std::make_shared<util::RegularAxis>(bins, r_min, r_max)};
     m_histogram = BondHistogram(axes);
     m_local_histograms = BondHistogram::ThreadLocalHistogram(m_histogram);
 
