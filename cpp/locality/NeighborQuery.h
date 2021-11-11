@@ -268,11 +268,11 @@ public:
     {
         if (r_max <= 0)
         {
-            throw std::invalid_argument("Neighbor queries require that r_max must be positive.");
+            throw std::invalid_argument("NeighborQuery requires r_max to be positive.");
         }
         if (r_max <= r_min)
         {
-            throw std::invalid_argument("Neighbor queries require that r_max must be greater than r_min.");
+            throw std::invalid_argument("NeighborQuery requires that r_max must be greater than r_min.");
         }
     }
 
