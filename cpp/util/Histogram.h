@@ -172,6 +172,8 @@ protected:
     float m_inverse_bin_width; //!< Inverse of bin width
 };
 
+using Axes = std::vector<std::shared_ptr<Axis>>;
+
 //! An n-dimensional histogram class.
 /*! The Histogram is designed to simplify the most common use of histograms in
  * C++ code, which is looping over a series of values and then binning them. To
@@ -273,9 +275,6 @@ public:
         tbb::enumerable_thread_specific<Histogram<T>>
             m_local_histograms; //!< The thread-local copies of m_histogram.
     };
-
-    using Axes = std::vector<std::shared_ptr<Axis>>;
-    using AxisIterator = Axes::const_iterator;
 
     //! Default constructor
     Histogram() = default;
