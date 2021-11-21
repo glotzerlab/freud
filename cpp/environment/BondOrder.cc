@@ -22,9 +22,13 @@ BondOrder::BondOrder(unsigned int n_bins_theta, unsigned int n_bins_phi, BondOrd
 {
     // sanity checks, but this is actually kinda dumb if these values are 1
     if (n_bins_theta < 2)
+    {
         throw std::invalid_argument("BondOrder requires at least 2 bins in theta.");
+    }
     if (n_bins_phi < 2)
+    {
         throw std::invalid_argument("BondOrder requires at least 2 bins in phi.");
+    }
     // calculate dt, dp
     /*
     0 < \theta < 2PI; 0 < \phi < PI
@@ -33,9 +37,13 @@ BondOrder::BondOrder(unsigned int n_bins_theta, unsigned int n_bins_phi, BondOrd
     float dp = M_PI / float(n_bins_phi);
     // this shouldn't be able to happen, but it's always better to check
     if (dt > constants::TWO_PI)
+    {
         throw std::invalid_argument("2PI must be greater than dt");
+    }
     if (dp > M_PI)
+    {
         throw std::invalid_argument("PI must be greater than dp");
+    }
 
     // precompute the surface area array
     m_sa_array.prepare({n_bins_theta, n_bins_phi});
@@ -48,9 +56,8 @@ BondOrder::BondOrder(unsigned int n_bins_theta, unsigned int n_bins_phi, BondOrd
             m_sa_array(i, j) = sa;
         }
     }
-    BHAxes axes;
-    axes.push_back(std::make_shared<util::RegularAxis>(n_bins_theta, 0, constants::TWO_PI));
-    axes.push_back(std::make_shared<util::RegularAxis>(n_bins_phi, 0, M_PI));
+    const auto axes = util::Axes {std::make_shared<util::RegularAxis>(n_bins_theta, 0, constants::TWO_PI),
+                                  std::make_shared<util::RegularAxis>(n_bins_phi, 0, M_PI)};
     m_histogram = BondHistogram(axes);
 
     m_local_histograms = BondHistogram::ThreadLocalHistogram(m_histogram);
@@ -77,10 +84,10 @@ void BondOrder::accumulate(const locality::NeighborQuery* neighbor_query, quat<f
                            freud::locality::QueryArgs qargs)
 {
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
-                      [=](const freud::locality::NeighborBond& neighbor_bond) {
-                          quat<float>& ref_q = orientations[neighbor_bond.point_idx];
+                      [&](const freud::locality::NeighborBond& neighbor_bond) {
+                          const quat<float>& ref_q(orientations[neighbor_bond.point_idx]);
                           vec3<float> v(bondVector(neighbor_bond, neighbor_query, query_points));
-                          quat<float>& q = query_orientations[neighbor_bond.query_point_idx];
+                          const quat<float>& q = query_orientations[neighbor_bond.query_point_idx];
                           if (m_mode == obcd)
                           {
                               // give bond directions of neighboring particles rotated by the matrix

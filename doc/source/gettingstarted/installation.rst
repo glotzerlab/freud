@@ -33,17 +33,17 @@ Compile from source
 The following are **required** for installing **freud**:
 
 - A C++14-compliant compiler
-- `Python <https://www.python.org/>`__ (>=Python 3.6)
-- `NumPy <https://www.numpy.org/>`__
-- `Intel Threading Building Blocks <https://www.threadingbuildingblocks.org/>`__
-- `Cython <https://cython.org/>`__ (>=0.29)
+- `Python <https://www.python.org/>`__ (>=3.6)
+- `NumPy <https://www.numpy.org/>`__ (>=1.14)
+- `Intel Threading Building Blocks <https://www.threadingbuildingblocks.org/>`__ (>=2017.03.R2)
+- `Cython <https://cython.org/>`__ (>=0.29.14)
 - `scikit-build <https://scikit-build.readthedocs.io/>`__ (>=0.10.0)
-- `CMake <https://cmake.org/>`__ (>=3.3.0)
+- `CMake <https://cmake.org/>`__ (>=3.12.0)
 
 .. note::
 
     Depending on the generator you are using, you may require a newer version of CMake.
-    In particular, on Windows Visual Studio 2017 requires at least CMake 3.7.1, while Visual Studio 2019 requires CMake 3.14.
+    In particular, Visual Studio 2019 requires CMake >= 3.14.0.
     For more information on specific generators, see the `CMake generator documentation <https://cmake.org/cmake/help/git-stage/manual/cmake-generators.7.html>`__.
 
 The **freud** library uses scikit-build and CMake to handle the build process itself, while the other requirements are required for compiling code in **freud**.
@@ -79,8 +79,6 @@ You can also build **freud** in place so that you can run from within the folder
     python setup.py build_ext --inplace
 
 Building **freud** in place has certain advantages, since it does not affect your Python behavior except within the **freud** directory itself (where **freud** can be imported after building).
-Additionally, due to limitations inherent to the distutils/setuptools infrastructure, building extension modules can only be parallelized using the build_ext subcommand of setup.py, not with install.
-As a result, it will be faster to manually run build_ext and then install (which normally calls build_ext under the hood anyway) the built packages.
 
 CMake Options
 +++++++++++++
@@ -88,6 +86,12 @@ CMake Options
 The scikit-build tool allows setup.py to accept three different sets of options separated by ``--``, where each set is provided directly to scikit-build, to CMake, or to the code generator of choice, respectively.
 For example, the command ``python setup.py build_ext --inplace -- -DCOVERAGE=ON -G Ninja -- -j 4`` tell scikit-build to perform an in-place build, it tells CMake to turn on the ``COVERAGE`` option and use Ninja for compilation, and it tells Ninja to compile with 4 parallel threads.
 For more information on these options, see the `scikit-build docs <scikit-build.readthedocs.io/>`__.
+
+.. note::
+
+    The default CMake build configuration for freud is ``ReleaseWithDocs`` (not a standard build configuration like ``Release`` or ``RelWithDebInfo``).
+    On installation, ``setup.py`` assumes ``--build-type=ReleaseWithDocs`` by default if no build type is specified.
+    Using this build configuration is a workaround for `this issue <https://github.com/scikit-build/scikit-build/issues/518>`__ with scikit-build and Cython embedding docstrings.
 
 In addition to standard CMake flags, the following CMake options are available for **freud**:
 
@@ -101,36 +105,33 @@ The **freud** CMake configuration also respects the following environment variab
 
 .. glossary::
 
-    TBB_ROOT
+    TBBROOT
       The root directory where TBB is installed.
-      Useful if TBB is installed in a non-standard location or cannot be located by Python for some other reason.
+      Useful if TBB is installed in a non-standard location or cannot be located for some other reason.
+      This variable is set by the ``tbbvars.sh`` script included with TBB when building from source.
 
-    TBB_INCLUDE
+    TBB_INCLUDE_DIR
       The directory where the TBB headers (e.g. ``tbb.h``) are located.
-      Useful if TBB is installed in a non-standard location or cannot be located by Python for some other reason.
-
-    TBB_LINK
-      The directory where the TBB shared library (e.g. ``libtbb.so`` or ``libtbb.dylib``) is located.
-      Useful if TBB is installed in a non-standard location or cannot be located by Python for some other reason.
+      Useful if TBB is installed in a non-standard location or cannot be located for some other reason.
 
 .. note::
 
-    **freud** makes use of git submodules. If you ever wish to manually update these, you can execute:
+    **freud** makes use of git submodules. To manually update git submodules, execute:
 
     .. code-block:: bash
 
-        git submodule update --init
+        git submodule update --init --recursive
 
 Unit Tests
 ==========
 
-The unit tests for **freud** are included in the repository and are configured to be run using the Python :mod:`unittest` library:
+The unit tests for **freud** are included in the repository and are configured to be run using the Python :mod:`pytest` library:
 
 .. code-block:: bash
 
     # Run tests from the tests directory
     cd tests
-    python -m unittest discover .
+    python -m pytest .
 
 Note that because **freud** is designed to require installation to run (i.e. it cannot be run directly out of the build directory), importing **freud** from the root of the repository will fail because it will try and import the package folder.
 As a result, unit tests must be run from outside the root directory if you wish to test the installed version of **freud**.

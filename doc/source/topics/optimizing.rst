@@ -48,7 +48,7 @@ If the user in fact expects to perform computations with the exact same pairs of
 
     r_max = 3
     nq = freud.locality.AABBQuery(box=box, points=points)
-    nlist = nq.query(points, dict(r_max=r_max))
+    nlist = nq.query(points, dict(r_max=r_max)).toNeighborList()
     q6_arrays = []
     for l in range(3, 6):
         ql = freud.order.Steinhardt(l=l)
@@ -65,4 +65,4 @@ Minor speedups may also be gained from passing properly structured data to **fre
 The package was originally designed for analyzing particle simulation trajectories, which are typically stored in single-precision binary formats.
 As a result, the **freud** library also operates in single precision and therefore converts all inputs to single-precision.
 However, NumPy will typically work in double precision by default, so depending on how data is streamed to **freud**, the package may be performing numerous data copies in order to ensure that all its data is in single-precision.
-To avoid this problem, make sure to specify the appropriate data types (`numpy.float32 <https://docs.scipy.org/doc/numpy/user/basics.types.html>`_) when constructing your NumPy arrays.
+To avoid this problem, make sure to specify the appropriate data types (:attr:`numpy.float32`) when constructing your NumPy arrays.

@@ -1,29 +1,30 @@
 # Copyright (c) 2010-2020 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
-R"""
+r"""
 The :class:`freud.environment` module contains functions which characterize the
 local environments of particles in the system. These methods use the positions
 and orientations of particles in the local neighborhood of a given particle to
 characterize the particle environment.
 """
 
-import numpy as np
 import warnings
+
+import numpy as np
+
 import freud.locality
 from freud.errors import NO_DEFAULT_QUERY_ARGS_MESSAGE
 
-from freud.util cimport _Compute
-from freud.locality cimport _PairCompute, _SpatialHistogram
-from freud.util cimport vec3, quat
-from libcpp.map cimport map
+cimport numpy as np
 from cython.operator cimport dereference
+from libcpp.map cimport map
 
-cimport freud.box
 cimport freud._environment
+cimport freud.box
 cimport freud.locality
 cimport freud.util
-cimport numpy as np
+from freud.locality cimport _PairCompute, _SpatialHistogram
+from freud.util cimport _Compute, quat, vec3
 
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
@@ -31,7 +32,7 @@ np.import_array()
 
 
 cdef class BondOrder(_SpatialHistogram):
-    R"""Compute the bond orientational order diagram for the system of
+    r"""Compute the bond orientational order diagram for the system of
     particles.
 
     The bond orientational order diagram (BOOD) is a way of studying the
@@ -133,7 +134,7 @@ cdef class BondOrder(_SpatialHistogram):
 
     def compute(self, system, orientations=None, query_points=None,
                 query_orientations=None, neighbors=None, reset=True):
-        R"""Calculates the correlation function and adds to the current
+        r"""Calculates the correlation function and adds to the current
         histogram.
 
         Args:
@@ -225,7 +226,7 @@ cdef class BondOrder(_SpatialHistogram):
 
 
 cdef class LocalDescriptors(_PairCompute):
-    R"""Compute a set of descriptors (a numerical "fingerprint") of a particle's
+    r"""Compute a set of descriptors (a numerical "fingerprint") of a particle's
     local environment.
 
     The resulting spherical harmonic array will be a complex-valued
@@ -275,7 +276,7 @@ cdef class LocalDescriptors(_PairCompute):
 
     def compute(self, system, query_points=None, orientations=None,
                 neighbors=None, max_num_neighbors=0):
-        R"""Calculates the local descriptors of bonds from a set of source
+        r"""Calculates the local descriptors of bonds from a set of source
         points to a set of destination points.
 
         Args:
@@ -388,7 +389,7 @@ cdef class LocalDescriptors(_PairCompute):
 
 
 def _minimize_RMSD(box, ref_points, points, registration=False):
-    R"""Get the somewhat-optimal RMSD between the set of vectors ref_points
+    r"""Get the somewhat-optimal RMSD between the set of vectors ref_points
     and the set of vectors points.
 
     Args:
@@ -434,7 +435,7 @@ def _minimize_RMSD(box, ref_points, points, registration=False):
 
 
 def _is_similar_motif(box, ref_points, points, threshold, registration=False):
-    R"""Test if the motif provided by ref_points is similar to the motif
+    r"""Test if the motif provided by ref_points is similar to the motif
     provided by points.
 
     Args:
@@ -486,7 +487,7 @@ def _is_similar_motif(box, ref_points, points, threshold, registration=False):
 
 
 cdef class _MatchEnv(_PairCompute):
-    R"""Parent for environment matching methods. """
+    r"""Parent for environment matching methods. """
     cdef freud._environment.MatchEnv * matchptr
 
     def __cinit__(self, *args, **kwargs):
@@ -507,7 +508,7 @@ cdef class _MatchEnv(_PairCompute):
 
 
 cdef class EnvironmentCluster(_MatchEnv):
-    R"""Clusters particles according to whether their local environments match
+    r"""Clusters particles according to whether their local environments match
     or not, according to various shape matching metrics.
     """
 
@@ -526,7 +527,7 @@ cdef class EnvironmentCluster(_MatchEnv):
     def compute(self, system, threshold, neighbors=None,
                 env_neighbors=None, registration=False,
                 global_search=False):
-        R"""Determine clusters of particles with matching environments.
+        r"""Determine clusters of particles with matching environments.
 
         In general, it is recommended to specify a number of neighbors rather
         than just a distance cutoff as part of your neighbor querying when
@@ -639,7 +640,7 @@ cdef class EnvironmentCluster(_MatchEnv):
         """
         import freud.plot
         try:
-            values, counts = np.unique(self.clusters, return_counts=True)
+            values, counts = np.unique(self.cluster_idx, return_counts=True)
         except ValueError:
             return None
         else:
@@ -655,7 +656,7 @@ cdef class EnvironmentCluster(_MatchEnv):
 
 
 cdef class EnvironmentMotifMatch(_MatchEnv):
-    R"""Find matches between local arrangements of a set of points and a provided motif.
+    r"""Find matches between local arrangements of a set of points and a provided motif.
 
     In general, it is recommended to specify a number of neighbors rather than
     just a distance cutoff as part of your neighbor querying when performing
@@ -677,7 +678,7 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
 
     def compute(self, system, motif, threshold, neighbors=None,
                 registration=False):
-        R"""Determine clusters of particles that match the motif provided by
+        r"""Determine clusters of particles that match the motif provided by
         motif.
 
         Args:
@@ -733,7 +734,7 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
 
 
 cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
-    R"""Find linear transformations that map the environments of points onto a
+    r"""Find linear transformations that map the environments of points onto a
     motif.
 
     In general, it is recommended to specify a number of neighbors rather than
@@ -757,7 +758,7 @@ cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
 
     def compute(self, system, motif, neighbors=None,
                 registration=False):
-        R"""Rotate (if registration=True) and permute the environments of all
+        r"""Rotate (if registration=True) and permute the environments of all
         particles to minimize their RMSD with respect to the motif provided by
         motif.
 
@@ -815,7 +816,7 @@ cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
 
 
 cdef class AngularSeparationNeighbor(_PairCompute):
-    R"""Calculates the minimum angles of separation between orientations and
+    r"""Calculates the minimum angles of separation between orientations and
     query orientations."""
     cdef freud._environment.AngularSeparationNeighbor * thisptr
 
@@ -832,7 +833,7 @@ cdef class AngularSeparationNeighbor(_PairCompute):
                 query_orientations=None,
                 equiv_orientations=np.array([[1, 0, 0, 0]]),
                 neighbors=None):
-        R"""Calculates the minimum angles of separation between :code:`orientations`
+        r"""Calculates the minimum angles of separation between :code:`orientations`
         and :code:`query_orientations`, checking for underlying symmetry as encoded
         in :code:`equiv_orientations`. The result is stored in the :code:`neighbor_angles`
         class attribute.
@@ -927,7 +928,7 @@ cdef class AngularSeparationNeighbor(_PairCompute):
 
 
 cdef class AngularSeparationGlobal(_Compute):
-    R"""Calculates the minimum angles of separation between orientations and
+    r"""Calculates the minimum angles of separation between orientations and
     global orientations."""
     cdef freud._environment.AngularSeparationGlobal * thisptr
 
@@ -942,7 +943,7 @@ cdef class AngularSeparationGlobal(_Compute):
 
     def compute(self, global_orientations, orientations,
                 equiv_orientations=np.array([[1, 0, 0, 0]])):
-        R"""Calculates the minimum angles of separation between
+        r"""Calculates the minimum angles of separation between
         :code:`global_orientations` and :code:`orientations`, checking for
         underlying symmetry as encoded in :code:`equiv_orientations`. The
         result is stored in the :code:`global_angles` class attribute.
@@ -1000,7 +1001,7 @@ cdef class AngularSeparationGlobal(_Compute):
 
 
 cdef class LocalBondProjection(_PairCompute):
-    R"""Calculates the maximal projection of nearest neighbor bonds for each
+    r"""Calculates the maximal projection of nearest neighbor bonds for each
     particle onto some set of reference vectors, defined in the particles'
     local reference frame.
     """
@@ -1018,7 +1019,7 @@ cdef class LocalBondProjection(_PairCompute):
     def compute(self, system, orientations, proj_vecs,
                 query_points=None, equiv_orientations=np.array([[1, 0, 0, 0]]),
                 neighbors=None):
-        R"""Calculates the maximal projections of nearest neighbor bonds
+        r"""Calculates the maximal projections of nearest neighbor bonds
         (between :code:`points` and :code:`query_points`) onto the set of
         reference vectors :code:`proj_vecs`, defined in the local reference
         frames of the :code:`points` as defined by the orientations

@@ -18,7 +18,7 @@ a Python interpreter.
 
 In order to achieve this goal, **freud** takes the following viewpoints:
 
-* **freud** works directly with `NumPy <http://www.numpy.org/>_`
+* **freud** works directly with `NumPy <https://numpy.org/>`__
   arrays to retain maximum flexibility. Integrations with other tools
   should be performed via the common data representations of NumPy arrays.
 * For ease of maintenance, **freud** uses Git for version control;
@@ -26,8 +26,8 @@ In order to achieve this goal, **freud** takes the following viewpoints:
   standard for code, stressing explicitly written code which is easy
   to read.
 * To ensure correctness, **freud** employs unit testing using the
-  Python unittest framework. In addition, **freud** utilizes
-  `CircleCI <https://circleci.com>`_ for continuous integration to
+  Python :mod:`pytest` framework. In addition, **freud** utilizes
+  `CircleCI <https://circleci.com>`__ for continuous integration to
   ensure that all of its code works correctly and that any changes or
   new features do not break existing functionality.
 
@@ -124,7 +124,7 @@ functions being very similar:
 While it *might* be possible to figure out a way to create a base C++
 class all such classes inherit from, run through positions, call a
 calculation, and return, this would be rather complicated. Additionally,
-any changes to the internals of the code, and may result in performance
+any changes to the internals of the code may result in performance
 penalties, difficulty in debugging, etc. As before, being explicit is
 better.
 

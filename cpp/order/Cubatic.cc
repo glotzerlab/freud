@@ -4,8 +4,6 @@
 #include <cstring>
 #include <functional>
 #include <stdexcept>
-#include <tbb/blocked_range.h>
-#include <tbb/parallel_for.h>
 
 #include "Cubatic.h"
 #include "utils.h"
@@ -16,27 +14,19 @@
 
 namespace freud { namespace order {
 
-tensor4::tensor4()
-{
-    memset((void*) &data, 0, sizeof(float) * 81);
-}
-
-tensor4::tensor4(vec3<float> vector)
+tensor4::tensor4(const vec3<float>& vector)
 {
     unsigned int cnt = 0;
-    float v[3];
-    v[0] = vector.x;
-    v[1] = vector.y;
-    v[2] = vector.z;
-    for (unsigned int i = 0; i < 3; i++)
+    std::array<float, 3> v = {vector.x, vector.y, vector.z};
+    for (float vi : v)
     {
-        for (unsigned int j = 0; j < 3; j++)
+        for (float vj : v)
         {
-            for (unsigned int k = 0; k < 3; k++)
+            for (float vk : v)
             {
-                for (unsigned int l = 0; l < 3; l++)
+                for (float vl : v)
                 {
-                    data[cnt] = v[i] * v[j] * v[k] * v[l];
+                    data[cnt] = vi * vj * vk * vl;
                     cnt++;
                 }
             }
@@ -81,7 +71,7 @@ tensor4 tensor4::operator*(const float& b) const
 
 void tensor4::copyToManagedArray(util::ManagedArray<float>& ma)
 {
-    memcpy(ma.get(), (void*) &data, sizeof(float) * 81);
+    std::copy(data.begin(), data.end(), ma.get());
 }
 
 //! Complete tensor contraction.
@@ -117,8 +107,11 @@ tensor4 genR4Tensor()
     unsigned int cnt = 0;
     tensor4 r4 = tensor4();
     for (unsigned int i = 0; i < 3; ++i)
+    {
         for (unsigned int j = 0; j < 3; ++j)
+        {
             for (unsigned int k = 0; k < 3; ++k)
+            {
                 for (unsigned int l = 0; l < 3; ++l)
                 {
                     // ijkl term
@@ -130,19 +123,30 @@ tensor4 genR4Tensor()
                     r4[cnt] *= 2.0 / 5.0;
                     ++cnt;
                 }
+            }
+        }
+    }
     return r4;
 }
 
 Cubatic::Cubatic(float t_initial, float t_final, float scale, unsigned int n_replicates, unsigned int seed)
-    : m_t_initial(t_initial), m_t_final(t_final), m_scale(scale), m_n_replicates(n_replicates), m_seed(seed),
-      m_n(0)
+    : m_t_initial(t_initial), m_t_final(t_final), m_scale(scale), m_n_replicates(n_replicates), m_seed(seed)
 {
     if (m_t_initial < m_t_final)
+    {
         throw std::invalid_argument("Cubatic requires that t_initial must be greater than t_final.");
+    }
     if (t_final < 1e-6)
+    {
         throw std::invalid_argument("Cubatic requires that t_final must be >= 1e-6.");
+    }
+    // cppcheck erroneously flags this check as redundant because it follows
+    // both branches independently.
+    // cppcheck-suppress knownConditionTrueFalse
     if ((scale >= 1) || (scale <= 0))
+    {
         throw std::invalid_argument("Cubatic requires that scale must be between 0 and 1.");
+    }
 
     m_gen_r4_tensor = genR4Tensor();
 
@@ -155,14 +159,14 @@ Cubatic::Cubatic(float t_initial, float t_final, float scale, unsigned int n_rep
 tensor4 Cubatic::calcCubaticTensor(quat<float>& orientation)
 {
     tensor4 calculated_tensor = tensor4();
-    for (unsigned int i = 0; i < 3; i++)
+    for (auto& m_system_vector : m_system_vectors)
     {
-        calculated_tensor += tensor4(rotate(orientation, m_system_vectors[i]));
+        calculated_tensor += tensor4(rotate(orientation, m_system_vector));
     }
     return calculated_tensor * float(2.0) - m_gen_r4_tensor;
 }
 
-float Cubatic::calcCubaticOrderParameter(const tensor4& cubatic_tensor, const tensor4& global_tensor) const
+float Cubatic::calcCubaticOrderParameter(const tensor4& cubatic_tensor, const tensor4& global_tensor)
 {
     tensor4 diff = global_tensor - cubatic_tensor;
     return float(1.0) - dot(diff, diff) / dot(cubatic_tensor, cubatic_tensor);
@@ -185,15 +189,15 @@ util::ManagedArray<tensor4> Cubatic::calculatePerParticleTensor(const quat<float
     util::ManagedArray<tensor4> particle_tensor(m_n);
 
     // calculate per-particle tensor
-    util::forLoopWrapper(0, m_n, [=, &particle_tensor](size_t begin, size_t end) {
+    util::forLoopWrapper(0, m_n, [&](size_t begin, size_t end) {
         for (size_t i = begin; i < end; ++i)
         {
             tensor4 l_mbar = tensor4();
-            for (unsigned int j = 0; j < 3; ++j)
+            for (const auto& m_system_vector : m_system_vectors)
             {
                 // Calculate the homogeneous tensor H for each vector then add
                 // to the per-particle value.
-                vec3<float> v_r = rotate(orientations[i], m_system_vectors[j]);
+                vec3<float> v_r = rotate(orientations[i], m_system_vector);
                 tensor4 r4_tensor(v_r);
                 l_mbar += r4_tensor;
             }
@@ -211,25 +215,24 @@ tensor4 Cubatic::calculateGlobalTensor(quat<float>* orientations) const
     util::ManagedArray<tensor4> particle_tensor = calculatePerParticleTensor(orientations);
 
     // now calculate the global tensor
-    float n_inv = 1.0 / (float) m_n;
+    float n_inv = float(1.0) / static_cast<float>(m_n);
 
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, 81),
-                      [=, &global_tensor, &n_inv, &particle_tensor](const tbb::blocked_range<size_t>& r) {
-                          for (size_t i = r.begin(); i != r.end(); i++)
-                          {
-                              float tensor_value = 0;
-                              for (unsigned int j = 0; j < m_n; j++)
-                              {
-                                  tensor_value += particle_tensor[j][i];
-                              }
-                              // Note that in the third equation in eq. 27, the prefactor of the
-                              // sum is 2/N, but the factor of 2 is already accounted for in the
-                              // calculation of per particle calculation in
-                              // calculatePerParticleTensor, so here we just need to apply the
-                              // 1/N scaling.
-                              global_tensor[i] = tensor_value * n_inv;
-                          }
-                      });
+    util::forLoopWrapper(0, 81, [&](size_t begin, size_t end) {
+        for (size_t i = begin; i < end; i++)
+        {
+            float tensor_value = 0;
+            for (unsigned int j = 0; j < m_n; j++)
+            {
+                tensor_value += particle_tensor[j][i];
+            }
+            // Note that in the third equation in eq. 27, the prefactor of the
+            // sum is 2/N, but the factor of 2 is already accounted for in the
+            // calculation of per particle calculation in
+            // calculatePerParticleTensor, so here we just need to apply the 1/N
+            // scaling.
+            global_tensor[i] = tensor_value * n_inv;
+        }
+    });
     return global_tensor - m_gen_r4_tensor;
 }
 
@@ -251,45 +254,52 @@ void Cubatic::compute(quat<float>* orientations, unsigned int num_orientations)
     util::ManagedArray<float> p_cubatic_order_parameter(m_n_replicates);
     util::ManagedArray<quat<float>> p_cubatic_orientation(m_n_replicates);
 
-    tbb::parallel_for(
-        tbb::blocked_range<size_t>(0, m_n_replicates),
-        [=, &p_cubatic_orientation, &p_cubatic_order_parameter,
-         &p_cubatic_tensor](const tbb::blocked_range<size_t>& r) {
-            // create thread-specific rng
-            unsigned int thread_start = (unsigned int) r.begin();
+    util::forLoopWrapper(0, m_n_replicates, [&](size_t begin, size_t end) {
+        // create thread-specific rng
+        const auto thread_start = static_cast<unsigned int>(begin);
 
-            std::vector<unsigned int> seed_seq(3);
-            seed_seq[0] = m_seed;
-            seed_seq[1] = thread_start;
-            seed_seq[2] = 0xffaabb;
-            std::seed_seq seed(seed_seq.begin(), seed_seq.end());
-            std::mt19937 rng(seed);
-            std::uniform_real_distribution<float> base_dist(0, 1);
-            auto dist = std::bind(base_dist, rng);
+        std::vector<unsigned int> seed_seq(3);
+        seed_seq[0] = m_seed;
+        seed_seq[1] = thread_start;
+        seed_seq[2] = 0xffaabb;
+        std::seed_seq seed(seed_seq.begin(), seed_seq.end());
+        std::mt19937 rng(seed);
+        std::uniform_real_distribution<float> base_dist(0, 1);
+        auto dist = [&]() { return base_dist(rng); };
 
-            for (size_t i = r.begin(); i != r.end(); i++)
+        for (size_t i = begin; i < end; i++)
+        {
+            // need to generate random orientation
+            quat<float> cubatic_orientation = calcRandomQuaternion(dist);
+            quat<float> new_orientation = cubatic_orientation;
+
+            // now calculate the cubatic tensor
+            tensor4 cubatic_tensor = calcCubaticTensor(cubatic_orientation);
+            float cubatic_order_parameter = calcCubaticOrderParameter(cubatic_tensor, global_tensor);
+            float new_order_parameter = cubatic_order_parameter;
+
+            // set initial temperature and count
+            float t_current = m_t_initial;
+            unsigned int loop_count = 0;
+            // simulated annealing loop; loop counter to prevent inf loops
+            while ((t_current > m_t_final) && (loop_count < 10000))
             {
-                // need to generate random orientation
-                quat<float> cubatic_orientation = calcRandomQuaternion(dist);
-                quat<float> new_orientation = cubatic_orientation;
-
+                ++loop_count;
+                new_orientation = calcRandomQuaternion(dist, 0.1) * (cubatic_orientation);
                 // now calculate the cubatic tensor
-                tensor4 cubatic_tensor = calcCubaticTensor(cubatic_orientation);
-                float cubatic_order_parameter = calcCubaticOrderParameter(cubatic_tensor, global_tensor);
-                float new_order_parameter = cubatic_order_parameter;
-
-                // set initial temperature and count
-                float t_current = m_t_initial;
-                unsigned int loop_count = 0;
-                // simulated annealing loop; loop counter to prevent inf loops
-                while ((t_current > m_t_final) && (loop_count < 10000))
+                tensor4 new_cubatic_tensor = calcCubaticTensor(new_orientation);
+                new_order_parameter = calcCubaticOrderParameter(new_cubatic_tensor, global_tensor);
+                if (new_order_parameter > cubatic_order_parameter)
                 {
-                    ++loop_count;
-                    new_orientation = calcRandomQuaternion(dist, 0.1) * (cubatic_orientation);
-                    // now calculate the cubatic tensor
-                    tensor4 new_cubatic_tensor = calcCubaticTensor(new_orientation);
-                    new_order_parameter = calcCubaticOrderParameter(new_cubatic_tensor, global_tensor);
-                    if (new_order_parameter > cubatic_order_parameter)
+                    cubatic_tensor = new_cubatic_tensor;
+                    cubatic_order_parameter = new_order_parameter;
+                    cubatic_orientation = new_orientation;
+                }
+                else
+                {
+                    float boltzmann_factor
+                        = std::exp(-(cubatic_order_parameter - new_order_parameter) / t_current);
+                    if (boltzmann_factor >= dist())
                     {
                         cubatic_tensor = new_cubatic_tensor;
                         cubatic_order_parameter = new_order_parameter;
@@ -297,28 +307,18 @@ void Cubatic::compute(quat<float>* orientations, unsigned int num_orientations)
                     }
                     else
                     {
-                        float boltzmann_factor
-                            = std::exp(-(cubatic_order_parameter - new_order_parameter) / t_current);
-                        if (boltzmann_factor >= dist())
-                        {
-                            cubatic_tensor = new_cubatic_tensor;
-                            cubatic_order_parameter = new_order_parameter;
-                            cubatic_orientation = new_orientation;
-                        }
-                        else
-                        {
-                            continue;
-                        }
+                        continue;
                     }
-                    t_current *= m_scale;
                 }
-                // set values
-                p_cubatic_tensor[i] = cubatic_tensor;
-                p_cubatic_orientation[i].s = cubatic_orientation.s;
-                p_cubatic_orientation[i].v = cubatic_orientation.v;
-                p_cubatic_order_parameter[i] = cubatic_order_parameter;
+                t_current *= m_scale;
             }
-        });
+            // set values
+            p_cubatic_tensor[i] = cubatic_tensor;
+            p_cubatic_orientation[i].s = cubatic_orientation.s;
+            p_cubatic_orientation[i].v = cubatic_orientation.v;
+            p_cubatic_order_parameter[i] = cubatic_order_parameter;
+        }
+    });
 
     // Loop over threads and choose the replicate that found the highest order.
     unsigned int max_idx = 0;
@@ -338,8 +338,8 @@ void Cubatic::compute(quat<float>* orientations, unsigned int num_orientations)
     m_cubatic_order_parameter = p_cubatic_order_parameter[max_idx];
 
     // Now calculate the per-particle order parameters
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, m_n), [=](const tbb::blocked_range<size_t>& r) {
-        for (size_t i = r.begin(); i != r.end(); i++)
+    util::forLoopWrapper(0, m_n, [&](size_t begin, size_t end) {
+        for (size_t i = begin; i < end; i++)
         {
             // The per-particle order parameter is defined as the value of the
             // cubatic order parameter if the global orientation was the

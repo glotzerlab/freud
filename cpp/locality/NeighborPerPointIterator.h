@@ -36,16 +36,16 @@ class NeighborPerPointIterator
 {
 public:
     //! Nullary constructor for Cython
-    NeighborPerPointIterator() {}
+    NeighborPerPointIterator() = default;
 
     //! Constructor
     NeighborPerPointIterator(unsigned int query_point_idx) : m_query_point_idx(query_point_idx) {}
 
     //! Empty Destructor
-    virtual ~NeighborPerPointIterator() {}
+    virtual ~NeighborPerPointIterator() = default;
 
     //! Indicate when done.
-    virtual bool end() = 0;
+    virtual bool end() const = 0;
 
     //! Get the next element.
     virtual NeighborBond next() = 0;

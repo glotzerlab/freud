@@ -1,16 +1,90 @@
 # Change Log
 The format is based on
-[Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
+[Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to
-[Semantic Versioning](http://semver.org/spec/v2.0.0.html).
+[Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## v2.x.x - 2020-0x-xx
+## next -- yyyy-mm-dd
+
+### Added
+* `freud.diffraction.StaticStructureFactorDirect` class (unstable) can be used to compute the static structure factor S(k) by sampling reciprocal space vectors.
+
+### Fixed
+* Added error checking for `r_min`, `r_max` arguments in `freud.density.RDF` and `freud.locality.NeighborList`.
+* Doctests are now run with pytest.
+* Cleaned up tests for the static structure factor classes.
+* CMake build system only uses references to TBB target.
+
+## v2.7.0 -- 2021-10-01
+
+### Added
+* `freud.diffraction.StaticStructureFactorDebye` class (unstable) can be used to compute the static structure factor S(k) using the Debye formula.
+
+### Fixed
+* Updated lambda functions to capture `this` by reference, to ensure compatibility with C++20 and above.
+* Fixed ``Box.contains`` to run in linear time, ``O(num_points)``.
+* Fixed compilation to pass compiler optimization flags when build type is ReleaseWithDocs (major perf regression since 2.4.1).
+
+## v2.6.2 -- 2021-06-26
+
+### Fixed
+* Upgrade to auditwheel 4.0.0 in cibuildwheel to ensure RPATH is patched properly for `libfreud.so` in Linux wheels.
+
+## v2.6.1 -- 2021-06-23
+
+### Fixed
+* Added missing git submodules to source distribution.
+
+## v2.6.0 - 2021-06-22
+
+### Added
+* Added `out` option for the `wrap`, `unwrap`, `make_absolute`, and `make_fractional` methods of `Box`.
+* The `Steinhardt` and `SolidLiquid` classes expose the raw `qlmi` arrays.
+* The `Steinhardt` class supports computing order parameters for multiple `l`.
+
+### Changed
+* Improvements to plotting for the `DiffractionPattern`.
+* Wheels are now built with cibuildwheel.
+
+### Fixed
+* Fixed/Improved the `k` values and vectors in the `DiffractionPattern` (more improvement needed).
+* Fixed incorrect computation of `Steinhardt` averaged quantities. Affects all previous versions of freud 2.
+* Fixed documented formulas for `Steinhardt` class.
+* Fixed broken arXiv links in bibliography.
+
+## v2.5.1 - 2021-04-06
+
+### Added
+* The `compute` method of `DiffractionPattern` class has a `reset` argument.
+
+### Fixed
+* Documentation on ReadTheDocs builds and renders.
+
+## v2.5.0 - 2021-03-16
+
+### Changed
+* NeighborList `filter` method has been optimized.
+* TBB 2021 is now supported (removed use of deprecated TBB features).
+* Added new pre-commit hooks for `black`, `isort`, and `pyupgrade`.
+* Testing framework now uses `pytest`.
+
+## v2.4.1 - 2020-11-16
+
+### Fixed
+* Python 3.8 builds with Windows MSVC were broken due to an unrecognized CMake compiler option.
+* Fixed broken documentation by overriding scikit-build options.
+* RPATH on Linux is now set correctly to find TBB libraries not on the global search path.
+* 2D box image calculations now return zero for the image z value.
+* Fixed wrong attribute name in `EnvironmentCluster.plot`.
+
+## v2.4.0 - 2020-11-09
 
 ### Added
 * The Box class has a method `contains` to determine particle membership in a box.
 * NeighborList class exposes `num_points` and `num_query_points` attributes.
 * `compute` method of `GaussianDensity` class has a `values` argument.
 * Support for pre-commit hooks.
+* Python 3.9 is supported.
 
 ### Changed
 * NeighborList raises a `ValueError` instead of a `RuntimeError` if provided invalid constructor arguments.

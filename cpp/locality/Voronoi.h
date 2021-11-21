@@ -26,7 +26,7 @@ public:
         return m_neighbor_list;
     }
 
-    const std::vector<std::vector<vec3<double>>> getPolytopes() const
+    std::vector<std::vector<vec3<double>>> getPolytopes() const
     {
         return m_polytopes;
     }

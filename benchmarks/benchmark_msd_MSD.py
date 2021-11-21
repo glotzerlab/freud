@@ -1,7 +1,8 @@
 import numpy as np
-import freud
 from benchmark import Benchmark
 from benchmarker import run_benchmarks
+
+import freud
 
 
 class BenchmarkMSDMSD(Benchmark):
@@ -14,9 +15,10 @@ class BenchmarkMSDMSD(Benchmark):
         seed = 0
         np.random.seed(seed)
         N_frames = 10
-        self.positions = np.asarray(np.random.uniform(-self.L/2, self.L/2,
-                                                      (N_frames, N, 3)),
-                                    dtype=np.float32)
+        self.positions = np.asarray(
+            np.random.uniform(-self.L / 2, self.L / 2, (N_frames, N, 3)),
+            dtype=np.float32,
+        )
         self.msd = freud.msd.MSD(box, self.mode)
 
     def bench_run(self, N):
@@ -26,14 +28,12 @@ class BenchmarkMSDMSD(Benchmark):
 def run():
     Ns = [100, 500, 1000, 5000]
     number = 100
-    name = 'freud.msd.MSD'
+    name = "freud.msd.MSD"
 
-    kwargs = {"L": 10,
-              "mode": "window"}
+    kwargs = {"L": 10, "mode": "window"}
 
-    return run_benchmarks(name, Ns, number, BenchmarkMSDMSD,
-                          **kwargs)
+    return run_benchmarks(name, Ns, number, BenchmarkMSDMSD, **kwargs)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run()

@@ -15,7 +15,11 @@ add_library(
   Wigner3j.cc
   Wigner3j.h)
 
-target_include_directories(
-  _order
-  PUBLIC ${PROJECT_SOURCE_DIR}/cpp/cluster
-  PUBLIC ${PROJECT_SOURCE_DIR}/extern/)
+target_link_libraries(_order PUBLIC TBB::tbb)
+
+# We treat the extern folder as a SYSTEM library to avoid getting any diagnostic
+# information from it. In particular, this avoids clang-tidy throwing errors due
+# to any issues in external code.
+target_include_directories(_order SYSTEM PUBLIC ${PROJECT_SOURCE_DIR}/extern/)
+
+target_include_directories(_order PUBLIC ${PROJECT_SOURCE_DIR}/cpp/cluster)

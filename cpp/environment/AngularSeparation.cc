@@ -11,10 +11,10 @@
 
 namespace freud { namespace environment {
 
-float computeSeparationAngle(const quat<float> ref_q, const quat<float> q)
+float computeSeparationAngle(const quat<float>& ref_q, const quat<float>& q)
 {
     quat<float> R = q * conj(ref_q);
-    float theta = float(2.0 * std::acos(util::clamp(R.s, -1, 1)));
+    auto theta = float(2.0 * std::acos(util::clamp(R.s, -1, 1)));
     return theta;
 }
 
@@ -22,7 +22,7 @@ float computeSeparationAngle(const quat<float> ref_q, const quat<float> q)
 // is defined to some global reference orientation. Thus, to be safe, we must include
 // a rotation by qconst as defined below when doing the calculation.
 // Important: equiv_qs must include both q and -q, for all included quaternions
-float computeMinSeparationAngle(const quat<float> ref_q, const quat<float> q, const quat<float>* equiv_qs,
+float computeMinSeparationAngle(const quat<float>& ref_q, const quat<float>& q, const quat<float>* equiv_qs,
                                 unsigned int n_equiv_quats)
 {
     quat<float> qconst = equiv_qs[0];
@@ -30,7 +30,6 @@ float computeMinSeparationAngle(const quat<float> ref_q, const quat<float> q, co
     quat<float> qtemp = q * conj(qconst);
 
     // start with the quaternion before it has been rotated by equivalent rotations
-    quat<float> min_quat = q;
     float min_angle = computeSeparationAngle(ref_q, q);
 
     // loop through all equivalent rotations and see if they have smaller angles with ref_q
@@ -44,7 +43,6 @@ float computeMinSeparationAngle(const quat<float> ref_q, const quat<float> q, co
         if (angle_test < min_angle)
         {
             min_angle = angle_test;
-            min_quat = qtest;
         }
     }
 
@@ -64,7 +62,7 @@ void AngularSeparationNeighbor::compute(const locality::NeighborQuery* nq, const
     const size_t tot_num_neigh = m_nlist.getNumBonds();
     m_angles.prepare(tot_num_neigh);
 
-    util::forLoopWrapper(0, nq->getNPoints(), [=](size_t begin, size_t end) {
+    util::forLoopWrapper(0, nq->getNPoints(), [&](size_t begin, size_t end) {
         size_t bond(m_nlist.find_first_index(begin));
         for (size_t i = begin; i < end; ++i)
         {
@@ -89,7 +87,7 @@ void AngularSeparationGlobal::compute(const quat<float>* global_orientations, un
 {
     m_angles.prepare({n_points, n_global});
 
-    util::forLoopWrapper(0, n_points, [=](size_t begin, size_t end) {
+    util::forLoopWrapper(0, n_points, [&](size_t begin, size_t end) {
         for (size_t i = begin; i < end; ++i)
         {
             quat<float> q = orientations[i];

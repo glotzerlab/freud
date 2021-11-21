@@ -2,13 +2,15 @@
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 from libcpp cimport bool
-from freud.util cimport vec3, quat
 from libcpp.complex cimport complex
 from libcpp.vector cimport vector
 
 cimport freud._box
 cimport freud._locality
 cimport freud.util
+from freud.util cimport quat, vec3
+
+ctypedef float complex fcomplex
 
 cdef extern from "Cubatic.h" namespace "freud::order":
     cdef cppclass Cubatic:
@@ -53,7 +55,7 @@ cdef extern from "HexaticTranslational.h" namespace "freud::order":
         void compute(const freud._locality.NeighborList*,
                      const freud._locality.NeighborQuery*,
                      freud._locality.QueryArgs) except +
-        const freud.util.ManagedArray[float complex] &getOrder()
+        const freud.util.ManagedArray[fcomplex] &getOrder()
         unsigned int getK()
         bool isWeighted() const
 
@@ -62,26 +64,27 @@ cdef extern from "HexaticTranslational.h" namespace "freud::order":
         void compute(const freud._locality.NeighborList*,
                      const freud._locality.NeighborQuery*,
                      freud._locality.QueryArgs) except +
-        const freud.util.ManagedArray[float complex] &getOrder() const
+        const freud.util.ManagedArray[fcomplex] &getOrder() const
         float getK() const
         bool isWeighted() const
 
 
 cdef extern from "Steinhardt.h" namespace "freud::order":
     cdef cppclass Steinhardt:
-        Steinhardt(unsigned int, bool, bool, bool, bool) except +
+        Steinhardt(vector[unsigned int], bool, bool, bool, bool) except +
         unsigned int getNP() const
         void compute(const freud._locality.NeighborList*,
                      const freud._locality.NeighborQuery*,
                      freud._locality.QueryArgs) except +
         const freud.util.ManagedArray[float] &getQl() const
+        const vector[freud.util.ManagedArray[fcomplex]] &getQlm() const
         const freud.util.ManagedArray[float] &getParticleOrder() const
-        float getOrder() const
+        vector[float] getOrder() const
         bool isAverage() const
         bool isWl() const
         bool isWeighted() const
         bool isWlNormalized() const
-        unsigned int getL() const
+        vector[unsigned int] getL() const
 
 
 cdef extern from "SolidLiquid.h" namespace "freud::order":
@@ -100,6 +103,7 @@ cdef extern from "SolidLiquid.h" namespace "freud::order":
         const freud.util.ManagedArray[unsigned int] &getNumberOfConnections() \
             const
         unsigned int getNumClusters() const
+        const freud.util.ManagedArray[float] &getQlm() const
         freud._locality.NeighborList * getNList()
         const freud.util.ManagedArray[float] &getQlij() const
 
@@ -109,6 +113,6 @@ cdef extern from "RotationalAutocorrelation.h" namespace "freud::order":
         RotationalAutocorrelation()
         RotationalAutocorrelation(unsigned int)
         unsigned int getL() const
-        const freud.util.ManagedArray[float complex] &getRAArray() const
+        const freud.util.ManagedArray[fcomplex] &getRAArray() const
         float getRotationalAutocorrelation() const
         void compute(quat[float]*, quat[float]*, unsigned int) except +

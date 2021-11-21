@@ -2,6 +2,7 @@
 #define HISTOGRAM_H
 
 #include <memory>
+#include <utility>
 #include <vector>
 #ifdef __SSE2__
 #include <emmintrin.h>
@@ -22,20 +23,22 @@ namespace freud { namespace util {
  */
 template<typename T> struct Weight
 {
-    Weight() : value(1), is_default(true) {}
-    Weight(T value) : value(value), is_default(false) {}
+    Weight() = default;
+    explicit Weight(T value) : value(value), is_default(false) {}
 
     Weight& operator=(Weight other)
     {
         if (!is_default)
+        {
             throw std::runtime_error("Weight can only be assigned once.");
+        }
         value = other.value;
         is_default = false;
         return *this;
     }
 
-    T value;
-    bool is_default;
+    T value {1};
+    bool is_default {true};
 };
 
 //! Class defining an axis of a histogram.
@@ -46,9 +49,9 @@ template<typename T> struct Weight
 class Axis
 {
 public:
-    Axis() : m_nbins(0) {}
+    Axis() = default;
 
-    virtual ~Axis() {}
+    virtual ~Axis() = default;
 
     Axis(size_t nbins, float min, float max) : m_nbins(nbins), m_min(min), m_max(max) {}
 
@@ -80,7 +83,7 @@ public:
         std::vector<float> bin_centers(m_nbins);
         for (size_t i = 0; i < m_nbins; i++)
         {
-            bin_centers[i] = (m_bin_edges[i] + m_bin_edges[i + 1]) / float(2.0);
+            bin_centers[i] = (m_bin_edges[i] + m_bin_edges[i + 1]) / static_cast<float>(2.0);
         }
         return bin_centers;
     }
@@ -98,7 +101,7 @@ public:
     static const size_t OVERFLOW_BIN = 0xffffffff;
 
 protected:
-    size_t m_nbins;                 //!< Number of bins
+    size_t m_nbins {0};             //!< Number of bins
     float m_min;                    //!< Lowest value allowed.
     float m_max;                    //!< Highest value allowed.
     std::vector<float> m_bin_edges; //!< The edges of bins.
@@ -118,17 +121,17 @@ public:
     {
         m_bin_edges.resize(m_nbins + 1);
         m_bin_width = (max - min) / static_cast<float>(m_nbins);
-        m_inverse_bin_width = float(1.0) / m_bin_width;
+        m_inverse_bin_width = static_cast<float>(1.0) / m_bin_width;
         // This must be <= because there is one more bin boundary than the number of bins.
         for (size_t i = 0; i <= nbins; i++)
         {
             // Spacing via multiplication is more numerically stable than
             // adding the bin width repeatedly
-            m_bin_edges[i] = min + i * m_bin_width;
+            m_bin_edges[i] = min + static_cast<float>(i) * m_bin_width;
         }
     }
 
-    virtual ~RegularAxis() {}
+    ~RegularAxis() override = default;
 
     //! Find the bin of a value along this axis.
     /*! The linear spacing allows the binning process to be computed especially
@@ -140,7 +143,7 @@ public:
      *
      * \return The index of the bin the value falls into.
      */
-    virtual size_t bin(const float& value) const
+    size_t bin(const float& value) const override
     {
         // Since we're using an unsigned int cast for truncation, we must
         // ensure that we will be working with a positive number or we will
@@ -154,19 +157,22 @@ public:
 #ifdef __SSE2__
         size_t bin = _mm_cvtt_ss2si(_mm_load_ss(&val));
 #else
-        size_t bin = (size_t)(val);
+        size_t bin = (size_t) (val);
 #endif
         // Avoid rounding leading to overflow.
         if (bin == m_nbins)
+        {
             return bin - 1;
-        else
-            return bin;
+        }
+        return bin;
     }
 
 protected:
     float m_bin_width;         //!< Bin width
     float m_inverse_bin_width; //!< Inverse of bin width
 };
+
+using Axes = std::vector<std::shared_ptr<Axis>>;
 
 //! An n-dimensional histogram class.
 /*! The Histogram is designed to simplify the most common use of histograms in
@@ -195,15 +201,15 @@ public:
     class ThreadLocalHistogram
     {
     public:
-        ThreadLocalHistogram() {}
+        ThreadLocalHistogram() = default;
 
-        ThreadLocalHistogram(Histogram histogram)
+        explicit ThreadLocalHistogram(const Histogram& histogram)
             : m_local_histograms([histogram]() { return Histogram(histogram.m_axes); })
         {}
 
-        typedef typename tbb::enumerable_thread_specific<Histogram>::const_iterator const_iterator;
-        typedef typename tbb::enumerable_thread_specific<Histogram>::iterator iterator;
-        typedef typename tbb::enumerable_thread_specific<Histogram>::reference reference;
+        using const_iterator = typename tbb::enumerable_thread_specific<Histogram<T>>::const_iterator;
+        using iterator = typename tbb::enumerable_thread_specific<Histogram>::iterator;
+        using reference = typename tbb::enumerable_thread_specific<Histogram>::reference;
 
         const_iterator begin() const
         {
@@ -254,7 +260,7 @@ public:
         void reduceInto(ManagedArray<T>& result)
         {
             result.reset();
-            util::forLoopWrapper(0, result.size(), [=, &result](size_t begin, size_t end) {
+            util::forLoopWrapper(0, result.size(), [&](size_t begin, size_t end) {
                 for (size_t i = begin; i < end; ++i)
                 {
                     for (auto hist = m_local_histograms.begin(); hist != m_local_histograms.end(); ++hist)
@@ -270,18 +276,15 @@ public:
             m_local_histograms; //!< The thread-local copies of m_histogram.
     };
 
-    typedef std::vector<std::shared_ptr<Axis>> Axes;
-    typedef Axes::const_iterator AxisIterator;
-
     //! Default constructor
-    Histogram() {}
+    Histogram() = default;
 
     //! Constructor
-    Histogram(std::vector<std::shared_ptr<Axis>> axes) : m_axes(axes)
+    explicit Histogram(std::vector<std::shared_ptr<Axis>> axes) : m_axes(std::move(axes))
     {
-        std::vector<size_t> sizes;
-        for (AxisIterator it = m_axes.begin(); it != m_axes.end(); it++)
-            sizes.push_back((*it)->size());
+        std::vector<size_t> sizes(m_axes.size());
+        std::transform(m_axes.begin(), m_axes.end(), sizes.begin(),
+                       [](const auto& ax) { return ax->size(); });
         m_bin_counts = ManagedArray<T>(sizes);
     }
 
@@ -304,7 +307,7 @@ public:
     }
 
     //! Destructor
-    ~Histogram() {};
+    ~Histogram() = default;
 
     //! Bin value and update the histogram count.
     template<typename... FloatsOrWeight> void operator()(FloatsOrWeight... values)
@@ -356,6 +359,12 @@ public:
         }
 
         return m_bin_counts.getIndex(ax_bins);
+    }
+
+    //! Return the axes.
+    const std::vector<std::shared_ptr<Axis>>& getAxes() const
+    {
+        return m_axes;
     }
 
     //! Get the computed histogram.
@@ -436,7 +445,7 @@ public:
     void reduceOverThreadsPerBin(ThreadLocalHistogram& local_histograms, const ComputeFunction& cf)
     {
         local_histograms.reduceInto(m_bin_counts);
-        util::forLoopWrapper(0, m_bin_counts.size(), [=](size_t begin, size_t end) {
+        util::forLoopWrapper(0, m_bin_counts.size(), [&](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
                 cf(i);

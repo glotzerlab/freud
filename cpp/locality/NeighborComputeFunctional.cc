@@ -11,7 +11,7 @@ NeighborList makeDefaultNlist(const NeighborQuery* nq, const NeighborList* nlist
                               locality::QueryArgs qargs)
 {
     bool requires_delete(false);
-    if (nlist == NULL)
+    if (nlist == nullptr)
     {
         auto nqiter(nq->query(query_points, num_query_points, qargs));
         nlist = nqiter->toNeighborList();

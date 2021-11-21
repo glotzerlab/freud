@@ -10,3 +10,5 @@ add_library(
   RDF.cc
   SphereVoxelization.h
   SphereVoxelization.cc)
+
+target_link_libraries(_density PUBLIC TBB::tbb)

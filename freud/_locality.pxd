@@ -2,12 +2,14 @@
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 from libcpp cimport bool
-from freud.util cimport vec3
 from libcpp.memory cimport shared_ptr
-from libcpp.vector cimport vector
 from libcpp.pair cimport pair
+from libcpp.vector cimport vector
+
 cimport freud._box
 cimport freud.util
+from freud.util cimport vec3
+
 
 cdef extern from "NeighborBond.h" namespace "freud::locality":
     cdef cppclass NeighborBond:
@@ -15,9 +17,9 @@ cdef extern from "NeighborBond.h" namespace "freud::locality":
         unsigned int point_idx
         float distance
         float weight
-        bool operator==(NeighborBond)
-        bool operator!=(NeighborBond)
-        bool operator<(NeighborBond)
+        bool operator==(const NeighborBond &) const
+        bool operator!=(const NeighborBond &) const
+        bool operator<(const NeighborBond &) const
 
 cdef extern from "NeighborQuery.h" namespace "freud::locality":
 
@@ -83,7 +85,7 @@ cdef extern from "NeighborList.h" namespace "freud::locality":
         unsigned int getNumPoints() const
         unsigned int getNumQueryPoints() const
         void setNumBonds(unsigned int, unsigned int, unsigned int)
-        unsigned int filter(const bool*) except +
+        unsigned int filter[Iterator](const Iterator) except +
         unsigned int filter_r(float, float) except +
 
         unsigned int find_first_index(unsigned int)

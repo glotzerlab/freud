@@ -21,7 +21,7 @@ void HexaticTranslational<T>::computeGeneral(Func func, const freud::locality::N
 
     freud::locality::loopOverNeighborsIterator(
         points, points->getPoints(), Np, qargs, nlist,
-        [=](size_t i, std::shared_ptr<freud::locality::NeighborPerPointIterator> ppiter) {
+        [&](size_t i, const std::shared_ptr<freud::locality::NeighborPerPointIterator>& ppiter) {
             float total_weight(0);
             const vec3<float> ref((*points)[i]);
 
@@ -48,22 +48,18 @@ void HexaticTranslational<T>::computeGeneral(Func func, const freud::locality::N
 
 Hexatic::Hexatic(unsigned int k, bool weighted) : HexaticTranslational<unsigned int>(k, weighted) {}
 
-Hexatic::~Hexatic() {}
-
 void Hexatic::compute(const freud::locality::NeighborList* nlist,
                       const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs)
 {
     computeGeneral(
         [this](const vec3<float>& delta) {
             const float theta_ij = std::atan2(delta.y, delta.x);
-            return std::exp(std::complex<float>(0, m_k * theta_ij));
+            return std::exp(std::complex<float>(0, static_cast<float>(m_k) * theta_ij));
         },
         nlist, points, qargs, false);
 }
 
 Translational::Translational(float k, bool weighted) : HexaticTranslational<float>(k, weighted) {}
-
-Translational::~Translational() {}
 
 void Translational::compute(const freud::locality::NeighborList* nlist,
                             const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs)

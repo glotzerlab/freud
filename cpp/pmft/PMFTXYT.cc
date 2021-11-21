@@ -15,23 +15,33 @@ namespace freud { namespace pmft {
 PMFTXYT::PMFTXYT(float x_max, float y_max, unsigned int n_x, unsigned int n_y, unsigned int n_t) : PMFT()
 {
     if (n_x < 1)
+    {
         throw std::invalid_argument("PMFTXYT requires at least 1 bin in X.");
+    }
     if (n_y < 1)
+    {
         throw std::invalid_argument("PMFTXYT requires at least 1 bin in Y.");
+    }
     if (n_t < 1)
+    {
         throw std::invalid_argument("PMFTXYT requires at least 1 bin in T.");
-    if (x_max < 0.0f)
+    }
+    if (x_max < 0)
+    {
         throw std::invalid_argument("PMFTXYT requires that x_max must be positive.");
-    if (y_max < 0.0f)
+    }
+    if (y_max < 0)
+    {
         throw std::invalid_argument("PMFTXYT requires that y_max must be positive.");
+    }
 
     // Note: There is an additional implicit volume factor of 2*pi
     // corresponding to the rotational degree of freedom in the system (i.e. dt
     // technically has 2*pi in the numerator). However, this factor is
     // implicitly canceled out since we also do not include it in the number
     // density computed for the system, see PMFT::reduce for more information.
-    const float dx = 2.0 * x_max / float(n_x);
-    const float dy = 2.0 * y_max / float(n_y);
+    const float dx = float(2.0) * x_max / float(n_x);
+    const float dy = float(2.0) * y_max / float(n_y);
     const float dt = 1 / float(n_t);
     m_jacobian = dx * dy * dt;
 
@@ -39,10 +49,9 @@ PMFTXYT::PMFTXYT(float x_max, float y_max, unsigned int n_x, unsigned int n_y, u
     m_pcf_array.prepare({n_x, n_y, n_t});
 
     // Construct the Histogram object that will be used to keep track of counts of bond distances found.
-    BondHistogram::Axes axes;
-    axes.push_back(std::make_shared<util::RegularAxis>(n_x, -x_max, x_max));
-    axes.push_back(std::make_shared<util::RegularAxis>(n_y, -y_max, y_max));
-    axes.push_back(std::make_shared<util::RegularAxis>(n_t, 0, constants::TWO_PI));
+    const auto axes = util::Axes {std::make_shared<util::RegularAxis>(n_x, -x_max, x_max),
+                                  std::make_shared<util::RegularAxis>(n_y, -y_max, y_max),
+                                  std::make_shared<util::RegularAxis>(n_t, 0, constants::TWO_PI)};
     m_histogram = BondHistogram(axes);
     m_local_histograms = BondHistogram::ThreadLocalHistogram(m_histogram);
 }
@@ -50,16 +59,17 @@ PMFTXYT::PMFTXYT(float x_max, float y_max, unsigned int n_x, unsigned int n_y, u
 void PMFTXYT::reduce()
 {
     float jacobian_factor = (float) 1.0 / m_jacobian;
-    PMFT::reduce([jacobian_factor](size_t i) { return jacobian_factor; });
+    PMFT::reduce([jacobian_factor](size_t i) { return jacobian_factor; }); // NOLINT(misc-unused-parameters)
 }
 
-void PMFTXYT::accumulate(const locality::NeighborQuery* neighbor_query, float* orientations,
-                         vec3<float>* query_points, float* query_orientations, unsigned int n_query_points,
-                         const locality::NeighborList* nlist, freud::locality::QueryArgs qargs)
+void PMFTXYT::accumulate(const locality::NeighborQuery* neighbor_query, const float* orientations,
+                         const vec3<float>* query_points, const float* query_orientations,
+                         unsigned int n_query_points, const locality::NeighborList* nlist,
+                         freud::locality::QueryArgs qargs)
 {
     neighbor_query->getBox().enforce2D();
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
-                      [=](const freud::locality::NeighborBond& neighbor_bond) {
+                      [&](const freud::locality::NeighborBond& neighbor_bond) {
                           vec3<float> delta(bondVector(neighbor_bond, neighbor_query, query_points));
 
                           // rotate interparticle vector

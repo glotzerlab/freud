@@ -2,6 +2,7 @@
 #define THREADSTORAGE_H
 
 #include "ManagedArray.h"
+#include "utils.h"
 #include <tbb/enumerable_thread_specific.h>
 #include <vector>
 
@@ -21,18 +22,18 @@ public:
     //! Constructor with specific size for thread local arrays
     /*! \param size Size of the thread local arrays
      */
-    ThreadStorage(size_t size) : ThreadStorage(std::vector<size_t> {size}) {}
+    explicit ThreadStorage(size_t size) : ThreadStorage(std::vector<size_t> {size}) {}
 
     //! Constructor with specific shape for thread local arrays
     /*! \param shape Vector of sizes in each dimension of the thread local arrays
      */
-    ThreadStorage(std::vector<size_t> shape)
+    explicit ThreadStorage(const std::vector<size_t>& shape)
         : arrays(
             tbb::enumerable_thread_specific<ManagedArray<T>>([shape]() { return ManagedArray<T>(shape); }))
     {}
 
     //! Destructor
-    ~ThreadStorage() {}
+    ~ThreadStorage() = default;
 
     //! Update size of the thread local arrays
     /*! \param size New size of the thread local arrays
@@ -60,9 +61,9 @@ public:
         }
     }
 
-    typedef typename tbb::enumerable_thread_specific<ManagedArray<T>>::const_iterator const_iterator;
-    typedef typename tbb::enumerable_thread_specific<ManagedArray<T>>::iterator iterator;
-    typedef typename tbb::enumerable_thread_specific<ManagedArray<T>>::reference reference;
+    using const_iterator = typename tbb::enumerable_thread_specific<ManagedArray<T>>::const_iterator;
+    using iterator = typename tbb::enumerable_thread_specific<ManagedArray<T>>::iterator;
+    using reference = typename tbb::enumerable_thread_specific<ManagedArray<T>>::reference;
 
     const_iterator begin() const
     {
@@ -101,7 +102,7 @@ public:
         else
         {
             // Reduce over arrays into the result array.
-            util::forLoopWrapper(0, result.size(), [=, &result](size_t begin, size_t end) {
+            util::forLoopWrapper(0, result.size(), [&](size_t begin, size_t end) {
                 for (size_t i = begin; i < end; ++i)
                 {
                     for (auto arr = arrays.begin(); arr != arrays.end(); ++arr)
