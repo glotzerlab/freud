@@ -685,7 +685,12 @@ class TestNeighborQueryLinkCell(NeighborQueryTest):
                 )
             )
         with pytest.raises(ValueError):
-            list(lc.query(points, dict(r_min=10, r_max=1, exclude_ii=True)))
+            list(
+                lc.query(
+                    points,
+                    dict(r_min=10, r_max=1, exclude_ii=True, mode="nearest", num_neighbors=2),
+                )
+            )
 
     def test_chaining(self):
         N = 500
