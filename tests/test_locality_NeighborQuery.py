@@ -688,7 +688,13 @@ class TestNeighborQueryLinkCell(NeighborQueryTest):
             list(
                 lc.query(
                     points,
-                    dict(r_min=10, r_max=1, exclude_ii=True, mode="nearest", num_neighbors=2),
+                    dict(
+                        r_min=10,
+                        r_max=1,
+                        exclude_ii=True,
+                        mode="nearest",
+                        num_neighbors=2,
+                    ),
                 )
             )
 
