@@ -677,7 +677,12 @@ class TestNeighborQueryLinkCell(NeighborQueryTest):
         box, points = freud.data.make_random_system(L, N)
         lc = freud.locality.LinkCell(box, points, 1.0)
         with pytest.raises(ValueError):
-            list(lc.query(points, dict(r_max=0, exclude_ii=True, mode="nearest", num_neighbors=2)))
+            list(
+                lc.query(
+                    points,
+                    dict(r_max=0, exclude_ii=True, mode="nearest", num_neighbors=2),
+                )
+            )
         with pytest.raises(ValueError):
             list(lc.query(points, dict(r_min=10, r_max=1, exclude_ii=True)))
 
