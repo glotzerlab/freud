@@ -603,7 +603,9 @@ class TestNeighborQueryAABB(NeighborQueryTest):
         return freud.locality.AABBQuery(box, ref_points)
 
     def test_throws(self):
-        """Test that specifying too large an r_max value throws an error"""
+        """Test that an r_max value that is too large,
+        or non-positive, and an r_max that is less
+        that r_min an error."""
         L = 5
 
         box = freud.box.Box.square(L)
@@ -611,6 +613,12 @@ class TestNeighborQueryAABB(NeighborQueryTest):
         aq = freud.locality.AABBQuery(box, points)
         with pytest.raises(RuntimeError):
             list(aq.query(points, dict(r_max=L)))
+
+        with pytest.raises(ValueError):
+            list(aq.query(points, dict(r_max=0)))
+
+        with pytest.raises(ValueError):
+            list(aq.query(points, dict(r_min=10, r_max=1)))
 
     def test_chaining(self):
         N = 500
@@ -661,6 +669,17 @@ class TestNeighborQueryLinkCell(NeighborQueryTest):
         if r_max is None:
             raise ValueError("Building LinkCells requires passing an r_max.")
         return freud.locality.LinkCell(box, ref_points, r_max)
+
+    def test_invalid_r(self):
+        N = 500
+        L = 10
+        r_max = 1
+        box, points = freud.data.make_random_system(L, N)
+        lc = freud.locality.LinkCell(box, points, 1.0)
+        with pytest.raises(ValueError):
+            list(lc.query(points, dict(r_max=0, exclude_ii=True, mode="nearest", num_neighbors=2)))
+        with pytest.raises(ValueError):
+            list(lc.query(points, dict(r_min=10, r_max=1, exclude_ii=True)))
 
     def test_chaining(self):
         N = 500
