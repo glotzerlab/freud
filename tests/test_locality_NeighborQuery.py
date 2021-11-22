@@ -671,9 +671,10 @@ class TestNeighborQueryLinkCell(NeighborQueryTest):
         return freud.locality.LinkCell(box, ref_points, r_max)
 
     def test_invalid_r(self):
+        """Check that r_max less than or equal to zero or r_min greater
+        than r_max produce ValueErrors."""
         N = 500
         L = 10
-        r_max = 1
         box, points = freud.data.make_random_system(L, N)
         lc = freud.locality.LinkCell(box, points, 1.0)
         with pytest.raises(ValueError):
