@@ -220,6 +220,33 @@ class StaticStructureFactorTest:
         )
         assert str(sf) == str(eval(repr(sf)))
 
+    def test_S_0_is_N(self):
+        L = 10
+        N = 1000
+        # The Direct method evaluates S(k) in bins. Here, we choose the binning
+        # parameters such that the first bin contains only the origin in k-space
+        # and no other k-points. Thus the smallest bin is measuring S(0) = N.
+        sf = self.build_structure_factor_object(bins=100, k_max=10)
+        box, points = freud.data.make_random_system(L, N)
+        system = freud.AABBQuery.from_system((box, points))
+        sf.compute(system)
+        assert np.isclose(sf.S_k[0], N)
+
+    def test_accumulation(self):
+        L = 10
+        N = 1000
+        sf = self.build_structure_factor_object(bins=100, k_max=10)
+        # Ensure that accumulation averages correctly over different numbers of
+        # points. We test N points, N*2 points, and N*3 points. On average, the
+        # number of points is N * 2.
+        for i in range(1, 4):
+            box, points = freud.data.make_random_system(L, N * i)
+            sf.compute((box, points), reset=False)
+        assert np.isclose(sf.S_k[0], N * 2)
+        box, points = freud.data.make_random_system(L, N * 2)
+        sf.compute((box, points), reset=True)
+        assert np.isclose(sf.S_k[0], N * 2)
+
 
 class TestStaticStructureFactorDebye(StaticStructureFactorTest):
 
@@ -330,33 +357,6 @@ class TestStaticStructureFactorDirect(StaticStructureFactorTest):
     def get_min_valid_k(cls, Lx, Ly, Lz=None):
         min_length = np.min([Lx, Ly]) if Lz is None else np.min([Lx, Ly, Lz])
         return 2 * np.pi / min_length
-
-    def test_S_0_is_N(self):
-        L = 10
-        N = 1000
-        # The Direct method evaluates S(k) in bins. Here, we choose the binning
-        # parameters such that the first bin contains only the origin in k-space
-        # and no other k-points. Thus the smallest bin is measuring S(0) = N.
-        sf = self.build_structure_factor_object(bins=100, k_max=10)
-        box, points = freud.data.make_random_system(L, N)
-        system = freud.AABBQuery.from_system((box, points))
-        sf.compute(system)
-        assert np.isclose(sf.S_k[0], N)
-
-    def test_accumulation(self):
-        L = 10
-        N = 1000
-        sf = self.build_structure_factor_object(bins=100, k_max=10)
-        # Ensure that accumulation averages correctly over different numbers of
-        # points. We test N points, N*2 points, and N*3 points. On average, the
-        # number of points is N * 2.
-        for i in range(1, 4):
-            box, points = freud.data.make_random_system(L, N * i)
-            sf.compute((box, points), reset=False)
-        assert np.isclose(sf.S_k[0], N * 2)
-        box, points = freud.data.make_random_system(L, N * 2)
-        sf.compute((box, points), reset=True)
-        assert np.isclose(sf.S_k[0], N * 2)
 
     def test_against_dynasor(self):
         """Validate the direct method agains dynasor package."""
