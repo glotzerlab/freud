@@ -31,8 +31,7 @@ StaticStructureFactor::StaticStructureFactor(unsigned int bins, float k_max, flo
         throw std::invalid_argument("StaticStructureFactor requires that k_max must be greater than k_min.");
     }
     // Construct the Histogram object that will be used to track the structure factor
-    const auto axes
-        = StructureFactorHistogram::Axes {std::make_shared<util::RegularAxis>(bins, k_min, k_max)};
+    const auto axes = util::Axes {std::make_shared<util::RegularAxis>(bins, k_min, k_max)};
     m_structure_factor = StructureFactorHistogram(axes);
     m_local_structure_factor = StructureFactorHistogram::ThreadLocalHistogram(m_structure_factor);
 }
