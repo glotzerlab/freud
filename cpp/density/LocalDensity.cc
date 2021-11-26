@@ -20,7 +20,7 @@ LocalDensity::LocalDensity(float r_max, float diameter)
 
     if (diameter < 0)
     {
-        throw std::invalid_argument("LocalDensity requires diameter to be non-negative");
+        throw std::invalid_argument("LocalDensity requires diameter to be non-negative.");
     }
 }
 
