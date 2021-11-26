@@ -597,7 +597,7 @@ class NeighborQueryTest:
         nq.plot()
 
     def test_invalid_r_max_r_min_bounds(self):
-        """Ensure that 0 <= r_min < r_max."""
+        """Ensure errors are raised if conditions 0 <= r_min < r_max are not met."""
         box = freud.box.Box(3, 4, 5, 1, 0.5, 0.1)
         points = np.array([[0, 0, 0], [1, 1, 0]])
         r_max = 1
