@@ -458,7 +458,7 @@ class NeighborQueryTest:
                 raise
 
     def test_attributes(self):
-        """Ensure that mixing old and new APIs throws an error"""
+        """Ensure that mixing old and new APIs raises an error."""
         L = 10
 
         box = freud.box.Box.cube(L)
@@ -596,16 +596,31 @@ class NeighborQueryTest:
         nq = self.build_query_object(box, points, r_max)
         nq.plot()
 
+    def test_invalid_r_max_r_min_bounds(self):
+        """Ensure that 0 <= r_min < r_max."""
+        box = freud.box.Box(3, 4, 5, 1, 0.5, 0.1)
+        points = np.array([[0, 0, 0], [1, 1, 0]])
+        r_max = 1
+        nq = self.build_query_object(box, points, r_max)
+        with pytest.raises(ValueError):
+            list(nq.query(points, dict(r_max=0)))
+        with pytest.raises(ValueError):
+            list(nq.query(points, dict(r_max=0, mode="nearest", num_neighbors=1)))
+        with pytest.raises(ValueError):
+            list(nq.query(points, dict(r_max=-0.5)))
+        with pytest.raises(ValueError):
+            list(nq.query(points, dict(r_max=0.1, r_min=0.1)))
+        with pytest.raises(ValueError):
+            list(nq.query(points, dict(r_max=0.1, r_min=0.2)))
+
 
 class TestNeighborQueryAABB(NeighborQueryTest):
     @classmethod
     def build_query_object(cls, box, ref_points, r_max=None):
         return freud.locality.AABBQuery(box, ref_points)
 
-    def test_throws(self):
-        """Test that an r_max value that is too large,
-        or non-positive, and an r_max that is less
-        that r_min an error."""
+    def test_too_large_r_max_raises(self):
+        """Test that specifying too large an r_max value raises an error."""
         L = 5
 
         box = freud.box.Box.square(L)
@@ -613,12 +628,6 @@ class TestNeighborQueryAABB(NeighborQueryTest):
         aq = freud.locality.AABBQuery(box, points)
         with pytest.raises(RuntimeError):
             list(aq.query(points, dict(r_max=L)))
-
-        with pytest.raises(ValueError):
-            list(aq.query(points, dict(r_max=0)))
-
-        with pytest.raises(ValueError):
-            list(aq.query(points, dict(r_min=10, r_max=1)))
 
     def test_chaining(self):
         N = 500
@@ -669,34 +678,6 @@ class TestNeighborQueryLinkCell(NeighborQueryTest):
         if r_max is None:
             raise ValueError("Building LinkCells requires passing an r_max.")
         return freud.locality.LinkCell(box, ref_points, r_max)
-
-    def test_invalid_r(self):
-        """Check that r_max less than or equal to zero or r_min greater
-        than r_max produce ValueErrors."""
-        N = 500
-        L = 10
-        box, points = freud.data.make_random_system(L, N)
-        lc = freud.locality.LinkCell(box, points, 1.0)
-        with pytest.raises(ValueError):
-            list(
-                lc.query(
-                    points,
-                    dict(r_max=0, exclude_ii=True, mode="nearest", num_neighbors=2),
-                )
-            )
-        with pytest.raises(ValueError):
-            list(
-                lc.query(
-                    points,
-                    dict(
-                        r_min=10,
-                        r_max=1,
-                        exclude_ii=True,
-                        mode="nearest",
-                        num_neighbors=2,
-                    ),
-                )
-            )
 
     def test_chaining(self):
         N = 500
