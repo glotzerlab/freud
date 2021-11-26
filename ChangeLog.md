@@ -11,7 +11,7 @@ and this project adheres to
 * Python 3.10 is supported.
 
 ### Fixed
-* Added error checking for `r_min`, `r_max` arguments in `freud.density.RDF` and `freud.locality.NeighborList`.
+* Added error checking for `r_min`, `r_max` arguments in `freud.density.RDF`, `freud.locality.NeighborList`, `freud.locality.NeighborQuery`, and `freud.density.LocalDensity` classes.
 * Doctests are now run with pytest.
 * Cleaned up tests for the static structure factor classes.
 * CMake build system only uses references to TBB target.
