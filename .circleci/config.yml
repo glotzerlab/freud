@@ -218,42 +218,6 @@ references:
       - *comparison
       - *store_benchmarks
 
-  build_linux_test_wheels: &build_linux_test_wheels
-    steps:
-      - *load_code
-      - *update_submodules
-      - run:
-          name: Compile Linux wheels
-          command: |
-            bash .circleci/deploy-linux.sh testpypi
-
-  build_linux_wheels: &build_linux_wheels
-    steps:
-      - *load_code
-      - *update_submodules
-      - run:
-          name: Compile Linux wheels
-          command: |
-            bash .circleci/deploy-linux.sh pypi
-
-  build_macos_test_wheels: &build_macos_test_wheels
-    steps:
-      - *load_code
-      - *update_submodules
-      - run:
-          name: Compile Mac wheels
-          command: |
-            bash .circleci/deploy-macos.sh testpypi
-
-  build_macos_wheels: &build_macos_wheels
-    steps:
-      - *load_code
-      - *update_submodules
-      - run:
-          name: Compile Mac wheels
-          command: |
-            bash .circleci/deploy-macos.sh pypi
-
 jobs:
   check-style:
     docker:

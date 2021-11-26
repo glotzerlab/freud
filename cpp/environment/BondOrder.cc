@@ -56,9 +56,8 @@ BondOrder::BondOrder(unsigned int n_bins_theta, unsigned int n_bins_phi, BondOrd
             m_sa_array(i, j) = sa;
         }
     }
-    BHAxes axes;
-    axes.push_back(std::make_shared<util::RegularAxis>(n_bins_theta, 0, constants::TWO_PI));
-    axes.push_back(std::make_shared<util::RegularAxis>(n_bins_phi, 0, M_PI));
+    const auto axes = util::Axes {std::make_shared<util::RegularAxis>(n_bins_theta, 0, constants::TWO_PI),
+                                  std::make_shared<util::RegularAxis>(n_bins_phi, 0, M_PI)};
     m_histogram = BondHistogram(axes);
 
     m_local_histograms = BondHistogram::ThreadLocalHistogram(m_histogram);
