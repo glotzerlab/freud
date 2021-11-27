@@ -170,7 +170,7 @@ public:
         {
             BiMap<T, U> t;
             return *reinterpret_cast<BiMap*>(reinterpret_cast<char*>((void*) this)
-                                             - (((size_t)(&(&t)->left) - ((size_t) &t))));
+                                             - (((size_t) (&(&t)->left) - ((size_t) &t))));
         }
 
         Pair* getPairPtr(const T* Item_in) const
@@ -243,7 +243,7 @@ public:
         {
             BiMap<T, U> t;
             return *reinterpret_cast<BiMap*>(reinterpret_cast<char*>((void*) this)
-                                             - (((size_t)(&(&t)->right) - ((size_t) &t))));
+                                             - (((size_t) (&(&t)->right) - ((size_t) &t))));
         }
 
         const char* getPairPtr_B(const U* Item_in) const

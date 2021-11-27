@@ -1,8 +1,6 @@
-# We use the IN_LIST operator, which is first supported in 3.3.0. This is the
-# oldest version of CMake that this build script has been tested with. However,
-# the oldest CMake actively tested against will be determined by the oldest
-# CMake available on PyPI (which is 3.6.3).
-cmake_minimum_required(VERSION 3.3.0)
+# CMake 3.12.0 is the oldest version supported by the way freud links TBB to
+# object libraries like _cluster. This is also the oldest version tested in CI.
+cmake_minimum_required(VERSION 3.12.0)
 
 set(DEFAULT_BUILD_TYPE "ReleaseWithDocs")
 
@@ -30,10 +28,10 @@ set(CMAKE_CONFIGURATION_TYPES
 
 # CMake looks for these variables to be defined for the custom configuration.
 set(CMAKE_CXX_FLAGS_RELEASEWITHDOCS
-    ${CMAKE_CXX_FLAGS_RELEASE}
+    "${CMAKE_CXX_FLAGS_RELEASE} -DNDEBUG -O3"
     CACHE STRING "")
 set(CMAKE_C_FLAGS_RELEASEWITHDOCS
-    ${CMAKE_C_FLAGS_RELEASE}
+    "${CMAKE_C_FLAGS_RELEASE} -DNDEBUG -O3"
     CACHE STRING "")
 set(CMAKE_EXE_LINKER_FLAGS_RELEASEWITHDOCS
     ${CMAKE_EXE_LINKER_FLAGS_RELEASE}
@@ -59,15 +57,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 add_subdirectory(CMake)
 find_package_config_first(TBB)
-
-# The TBB config doesn't define these variable, which we use later.
-if(NOT DEFINED TBB_INCLUDE_DIR OR NOT DEFINED TBB_LIBRARY)
-  get_target_property(TBB_INCLUDE_DIR TBB::tbb INTERFACE_INCLUDE_DIRECTORIES)
-  get_target_property(TBB_LIBRARY TBB::tbb IMPORTED_LOCATION_RELEASE)
-  set(TBB_USING_CONFIG "TRUE")
-else()
-  set(TBB_USING_CONFIG "FALSE")
-endif()
 
 # Fail fast if users have not cloned submodules.
 if(NOT WIN32)
@@ -102,8 +91,7 @@ include_directories(
 
 # We treat the extern folder as a SYSTEM library to avoid getting any diagnostic
 # information from it. In particular, this avoids clang-tidy throwing errors due
-# to any issues in external code.
-include_directories(SYSTEM ${TBB_INCLUDE_DIR})
+# to any issues in external code. include_directories(SYSTEM ${TBB_INCLUDE_DIR})
 
 # Ignore unused variable warning from scikit-build
 set(ignoreMe "${SKBUILD}")

@@ -29,7 +29,7 @@ jobs:
         pyver: [3.6, 3.7, 3.8, 3.9]
 
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2.3.5
         with:
           submodules: "recursive"
 
@@ -38,11 +38,11 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Build wheels
-        uses: joerick/cibuildwheel@v1.10.0
+        uses: pypa/cibuildwheel@v2.2.2
         env:
           # Build for cpython >= 3.6.
           CIBW_PROJECT_REQUIRES_PYTHON: "==${{ matrix.pyver }}.*"
-          CIBW_SKIP: pp*
+          CIBW_SKIP: "{pp*,*-musllinux_*}"
 
           # Build only on 64-bit architectures.
           CIBW_ARCHS_MACOS: x86_64
@@ -70,7 +70,7 @@ jobs:
           CIBW_TEST_COMMAND_MACOS: "cd {project}/tests && python -m pytest . -v --log-level=DEBUG --rootdir={project}/tests"
           CIBW_TEST_COMMAND_WINDOWS: "cd {project}/tests && python -c \"import freud; print(freud.__version__)\""
 
-      - uses: actions/upload-artifact@v2.2.3
+      - uses: actions/upload-artifact@v2.2.4
         with:
           name: dist
           path: ./wheelhouse/*.whl
@@ -84,7 +84,9 @@ jobs:
     name: Build source distribution
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2.3.5
+        with:
+          submodules: "recursive"
 
       - uses: actions/setup-python@v2.2.2
         name: Install Python
@@ -97,7 +99,7 @@ jobs:
       - name: Build sdist
         run: python setup.py sdist
 
-      - uses: actions/upload-artifact@v2.2.3
+      - uses: actions/upload-artifact@v2.2.4
         with:
           name: dist
           path: dist/*.tar.gz
@@ -109,7 +111,7 @@ jobs:
 
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v2.0.9
+        uses: actions/download-artifact@v2.0.10
         with:
           name: dist
           path: dist
@@ -126,8 +128,8 @@ jobs:
           password: ${{ secrets.PYPI_API_TOKEN }}
 
       - name: Upload to TestPyPI
-        # otherwise, upload to TestPyPi
-        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+        # otherwise, upload to TestPyPi when secrets are available
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') && (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]')) }}
         uses: pypa/gh-action-pypi-publish@v1.4.2
         with:
           user: __token__

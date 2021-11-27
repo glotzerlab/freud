@@ -124,7 +124,7 @@ functions being very similar:
 While it *might* be possible to figure out a way to create a base C++
 class all such classes inherit from, run through positions, call a
 calculation, and return, this would be rather complicated. Additionally,
-any changes to the internals of the code, and may result in performance
+any changes to the internals of the code may result in performance
 penalties, difficulty in debugging, etc. As before, being explicit is
 better.
 

@@ -35,15 +35,15 @@ The following are **required** for installing **freud**:
 - A C++14-compliant compiler
 - `Python <https://www.python.org/>`__ (>=3.6)
 - `NumPy <https://www.numpy.org/>`__ (>=1.14)
-- `Intel Threading Building Blocks <https://www.threadingbuildingblocks.org/>`__
+- `Intel Threading Building Blocks <https://www.threadingbuildingblocks.org/>`__ (>=2017.03.R2)
 - `Cython <https://cython.org/>`__ (>=0.29.14)
 - `scikit-build <https://scikit-build.readthedocs.io/>`__ (>=0.10.0)
-- `CMake <https://cmake.org/>`__ (>=3.6.3)
+- `CMake <https://cmake.org/>`__ (>=3.12.0)
 
 .. note::
 
     Depending on the generator you are using, you may require a newer version of CMake.
-    In particular, on Windows Visual Studio 2017 requires at least CMake 3.7.1, while Visual Studio 2019 requires CMake 3.14.
+    In particular, Visual Studio 2019 requires CMake >= 3.14.0.
     For more information on specific generators, see the `CMake generator documentation <https://cmake.org/cmake/help/git-stage/manual/cmake-generators.7.html>`__.
 
 The **freud** library uses scikit-build and CMake to handle the build process itself, while the other requirements are required for compiling code in **freud**.

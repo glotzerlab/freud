@@ -6,7 +6,7 @@ import sys
 
 from skbuild import setup as skbuild_setup
 
-version = "2.5.1"
+version = "2.7.0"
 
 # Read README for PyPI, fallback to short description if it fails.
 description = "Powerful, efficient trajectory analysis in scientific Python."
@@ -90,6 +90,7 @@ setup(
         "scipy>=1.1",
     ],
     tests_require=[
+        "ase>=3.16",
         "gsd>=2.0",
         "garnett>=0.7.1",
         "matplotlib>=3.0",

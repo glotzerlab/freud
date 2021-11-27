@@ -32,10 +32,9 @@ PMFTR12::PMFTR12(float r_max, unsigned int n_r, unsigned int n_t1, unsigned int 
     }
 
     // Construct the Histogram object that will be used to keep track of counts of bond distances found.
-    BHAxes axes;
-    axes.push_back(std::make_shared<util::RegularAxis>(n_r, 0, r_max));
-    axes.push_back(std::make_shared<util::RegularAxis>(n_t1, 0, constants::TWO_PI));
-    axes.push_back(std::make_shared<util::RegularAxis>(n_t2, 0, constants::TWO_PI));
+    const auto axes = util::Axes {std::make_shared<util::RegularAxis>(n_r, 0, r_max),
+                                  std::make_shared<util::RegularAxis>(n_t1, 0, constants::TWO_PI),
+                                  std::make_shared<util::RegularAxis>(n_t2, 0, constants::TWO_PI)};
     m_histogram = BondHistogram(axes);
     m_local_histograms = BondHistogram::ThreadLocalHistogram(m_histogram);
 
@@ -82,7 +81,7 @@ void PMFTR12::accumulate(const locality::NeighborQuery* neighbor_query, const fl
 {
     neighbor_query->getBox().enforce2D();
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
-                      [=](const freud::locality::NeighborBond& neighbor_bond) {
+                      [&](const freud::locality::NeighborBond& neighbor_bond) {
                           vec3<float> delta(bondVector(neighbor_bond, neighbor_query, query_points));
                           // calculate angles
                           float d_theta1 = std::atan2(delta.y, delta.x);

@@ -71,6 +71,8 @@ class TestRDF:
             freud.density.RDF(r_max=1, bins=0)
         with pytest.raises(ValueError):
             freud.density.RDF(r_max=1, bins=10, r_min=2)
+        with pytest.raises(ValueError):
+            freud.density.RDF(r_max=1, bins=10, r_min=-1)
 
     def test_random_point(self):
         r_max = 10.0

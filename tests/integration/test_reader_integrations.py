@@ -7,13 +7,6 @@ import pytest
 
 import freud
 
-try:
-    import MDAnalysis
-
-    MDANALYSIS = True
-except ImportError:
-    MDANALYSIS = False
-
 
 def _relative_path(*path):
     return os.path.join(os.path.dirname(__file__), *path)
@@ -37,13 +30,13 @@ class TestReaderIntegrations:
     @pytest.mark.skipif(
         sys.platform.startswith("win"), reason="Not supported on Windows."
     )
-    @pytest.mark.skipif(not MDANALYSIS, reason="MDAnalysis is not installed.")
     def test_mdanalysis_gsd(self):
+        MDAnalysis = pytest.importorskip("MDAnalysis")
         reader = MDAnalysis.coordinates.GSD.GSDReader(LJ_GSD)
         self.run_analyses(reader)
 
-    @pytest.mark.skipif(not MDANALYSIS, reason="MDAnalysis is not installed.")
     def test_mdanalysis_dcd(self):
+        MDAnalysis = pytest.importorskip("MDAnalysis")
         reader = MDAnalysis.coordinates.DCD.DCDReader(LJ_DCD)
         self.run_analyses(reader)
 
@@ -65,3 +58,9 @@ class TestReaderIntegrations:
 
         with garnett.read(LJ_DCD) as traj:
             self.run_analyses(traj)
+
+    def test_ovito_gsd(self):
+        import_file = pytest.importorskip("ovito.io").import_file
+        pipeline = import_file(LJ_GSD)
+        traj = [pipeline.compute(i) for i in range(pipeline.source.num_frames)]
+        self.run_analyses(traj)

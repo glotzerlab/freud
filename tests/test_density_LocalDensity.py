@@ -23,7 +23,9 @@ class TestLocalDensity:
         """Initialize a box with randomly placed particles"""
         box_size = 10
         num_points = 10000
-        self.box, self.pos = freud.data.make_random_system(box_size, num_points)
+        self.box, self.pos = freud.data.make_random_system(
+            box_size, num_points, seed=123
+        )
         self.r_max = 3
         self.diameter = 1
         self.ld = freud.density.LocalDensity(self.r_max, self.diameter)
@@ -92,3 +94,10 @@ class TestLocalDensity:
         ) / v_around
         correct_density = [cd0, cd1, 0]
         npt.assert_allclose(ld.density, correct_density, rtol=1e-4)
+
+    def test_invalid_radial_distances(self):
+        """Ensure that invalid r_max and diameter arguments raise errors."""
+        with pytest.raises(ValueError):
+            freud.density.LocalDensity(-1, 10)
+        with pytest.raises(ValueError):
+            freud.density.LocalDensity(2, -1)

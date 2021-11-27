@@ -112,17 +112,18 @@ class TestBox:
         points = np.array(points)
         npt.assert_allclose(box.wrap(points)[0, 0], -2, rtol=1e-6)
 
-    def test_out_default(self):
+    def test_wrap(self):
         box = freud.box.Box(2, 2, 2, 1, 0, 0)
         points = [[10, -5, -5], [0, 0.5, 0]]
         npt.assert_allclose(box.wrap(points), [[-2, -1, -1], [0, 0.5, 0]], rtol=1e-6)
 
-    def test_out_provided_with_input_array(self):
+    def test_wrap_out_provided_with_input_array(self):
         box = freud.box.Box(2, 2, 2, 1, 0, 0)
         points = [[10, -5, -5], [0, 0.5, 0]]
         points = np.array(points, dtype=np.float32)
         box.wrap(points, out=points)
         npt.assert_allclose(points, [[-2, -1, -1], [0, 0.5, 0]], rtol=1e-6)
+
         # test with read-only input array
         points = [[10, -5, -5], [0, 0.5, 0]]
         points = np.array(points, dtype=np.float32).setflags(write=0)
@@ -131,7 +132,7 @@ class TestBox:
                 box.wrap(points, out=points), [[-2, -1, -1], [0, 0.5, 0]], rtol=1e-6
             )
 
-    def test_out_provided_with_new_array(self):
+    def test_wrap_out_provided_with_new_array(self):
         box = freud.box.Box(2, 2, 2, 1, 0, 0)
         points = [[10, -5, -5], [0, 0.5, 0]]
         points = np.array(points, dtype=np.float32)
@@ -140,7 +141,7 @@ class TestBox:
         npt.assert_allclose(new_array, [[-2, -1, -1], [0, 0.5, 0]], rtol=1e-6)
         npt.assert_equal(points, [[10, -5, -5], [0, 0.5, 0]])
 
-    def test_out_provided_with_array_with_wrong_shape(self):
+    def test_wrap_out_provided_with_array_with_wrong_shape(self):
         box = freud.box.Box(2, 2, 2, 1, 0, 0)
         points = [[10, -5, -5], [0, 0.5, 0]]
         points = np.array(points, dtype=np.float32)
@@ -151,7 +152,7 @@ class TestBox:
             )
         npt.assert_equal(points, [[10, -5, -5], [0, 0.5, 0]])
 
-    def test_out_provided_with_array_with_wrong_dtype(self):
+    def test_wrap_out_provided_with_array_with_wrong_dtype(self):
         box = freud.box.Box(2, 2, 2, 1, 0, 0)
         points = [[10, -5, -5], [0, 0.5, 0]]
         points = np.array(points, dtype=np.float32)
@@ -162,7 +163,7 @@ class TestBox:
             )
         npt.assert_equal(points, [[10, -5, -5], [0, 0.5, 0]])
 
-    def test_out_provided_with_array_with_wrong_order(self):
+    def test_wrap_out_provided_with_array_with_wrong_order(self):
         box = freud.box.Box(2, 2, 2, 1, 0, 0)
         points = [[10, -5, -5], [0, 0.5, 0]]
         points = np.array(points, dtype=np.float32)
@@ -218,6 +219,22 @@ class TestBox:
         npt.assert_allclose(
             box.unwrap(points, imgs), [[20, 1, 2], [21, 1, 2]], rtol=1e-6
         )
+
+    def test_unwrap_with_out(self):
+        box = freud.box.Box(2, 2, 2, 1, 0, 0)
+
+        points = np.array([[0, -1, -1]], dtype=np.float32)
+        imgs = [1, 0, 0]
+        expected = [[2, -1, -1]]
+        npt.assert_allclose(box.unwrap(points, imgs, out=points), expected, rtol=1e-6)
+        npt.assert_allclose(points, expected, rtol=1e-6)
+
+        points = np.array([[0, -1, -1], [0, 0.5, 0]], dtype=np.float32)
+        imgs = [[1, 0, 0], [1, 1, 0]]
+        output = np.empty_like(points)
+        expected = [[2, -1, -1], [4, 2.5, 0]]
+        npt.assert_allclose(box.unwrap(points, imgs, out=output), expected, rtol=1e-6)
+        npt.assert_allclose(output, expected, rtol=1e-6)
 
     def test_images_3d(self):
         box = freud.box.Box(2, 2, 2, 0, 0, 0)
@@ -305,6 +322,20 @@ class TestBox:
 
         npt.assert_equal(testcoordinates, point)
 
+    def test_absolute_coordinates_out(self):
+        box = freud.box.Box(2, 2, 2)
+        f_point = np.array(
+            [[0.5, 0.25, 0.75], [0, 0, 0], [0.5, 0.5, 0.5]], dtype=np.float32
+        )
+        point = np.array([[0, -0.5, 0.5], [-1, -1, -1], [0, 0, 0]])
+
+        output = np.empty_like(f_point)
+        box.make_absolute(f_point, out=output)
+        npt.assert_equal(output, point)
+
+        npt.assert_equal(box.make_absolute(f_point, out=f_point), point)
+        npt.assert_equal(f_point, point)
+
     def test_fractional_coordinates(self):
         box = freud.box.Box(2, 2, 2)
         f_point = np.array([[0.5, 0.25, 0.75], [0, 0, 0], [0.5, 0.5, 0.5]])
@@ -316,6 +347,20 @@ class TestBox:
         testfraction = box.make_fractional(point)
 
         npt.assert_equal(testfraction, f_point)
+
+    def test_fractional_coordinates_out(self):
+        box = freud.box.Box(2, 2, 2)
+        f_point = np.array(
+            [[0.5, 0.25, 0.75], [0, 0, 0], [0.5, 0.5, 0.5]], dtype=np.float32
+        )
+        point = np.array([[0, -0.5, 0.5], [-1, -1, -1], [0, 0, 0]])
+
+        output = np.empty_like(f_point)
+        box.make_fractional(point, out=output)
+        npt.assert_equal(output, f_point)
+
+        npt.assert_equal(box.make_fractional(f_point, out=f_point), f_point)
+        npt.assert_equal(f_point, f_point)
 
     def test_vectors(self):
         """Test getting lattice vectors"""
@@ -359,10 +404,16 @@ class TestBox:
         npt.assert_array_equal(box.periodic, True)
 
     def test_equal(self):
-        box = freud.box.Box(2, 2, 2, 1, 0.5, 0.1)
+        box1 = freud.box.Box(2, 2, 2, 1, 0.5, 0.1)
+        box1_copy = freud.box.Box(2, 2, 2, 1, 0.5, 0.1)
+        assert box1 == box1_copy
         box2 = freud.box.Box(2, 2, 2, 1, 0, 0)
-        assert box == box
-        assert box != box2
+        assert box1 != box2
+        box1_nonperiodic = freud.box.Box(2, 2, 2, 1, 0.5, 0.1)
+        box1_nonperiodic.periodic = [False, False, False]
+        assert box1 != box1_nonperiodic
+        assert box1 != 3
+        assert 3 != box1
 
     def test_repr(self):
         box = freud.box.Box(2, 2, 2, 1, 0.5, 0.1)

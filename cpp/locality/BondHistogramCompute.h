@@ -1,5 +1,5 @@
-#ifndef HISTOGRAM_COMPUTE_H
-#define HISTOGRAM_COMPUTE_H
+#ifndef BOND_HISTOGRAM_COMPUTE_H
+#define BOND_HISTOGRAM_COMPUTE_H
 
 #include "Box.h"
 #include "Histogram.h"
@@ -25,7 +25,7 @@ public:
     //! Destructor
     virtual ~BondHistogramCompute() = default;
 
-    //! Reset the RDF array to all zeros
+    //! Reset the histogram to all zeros
     virtual void reset()
     {
         m_local_histograms.reset();
@@ -122,9 +122,8 @@ protected:
         m_local_histograms; //!< Thread local bin counts for TBB parallelism
 
     using BondHistogram = util::Histogram<unsigned int>;
-    using BHAxes = typename BondHistogram::Axes;
 };
 
 }; }; // namespace freud::locality
 
-#endif // HISTOGRAM_COMPUTE_H
+#endif // BOND_HISTOGRAM_COMPUTE_H
