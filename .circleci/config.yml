@@ -227,6 +227,14 @@ jobs:
       PYTHON: "python3.9"
     <<: *load_check_style
 
+  linux-python-310:
+    docker:
+      - image: glotzerlab/ci:2021.11-py310
+    environment:
+      PYVER: "3.10"
+      PYTHON: "python3.10"
+    <<: *build_and_test_linux_with_cov
+
   linux-python-39:
     docker:
       - image: glotzerlab/ci:2020.10-py39
@@ -260,6 +268,12 @@ jobs:
       DEPENDENCIES: "OLDEST"
     <<: *build_and_test_linux
 
+  windows-python-310:
+    environment:
+      PYVER: "3.10"
+      <<: *windows_env
+    <<: *build_and_test_windows
+
   windows-python-39:
     environment:
       PYVER: "3.9"
@@ -292,28 +306,36 @@ workflows:
   test:
     jobs:
       - check-style
-      - linux-python-39
+      - linux-python-310
+      - linux-python-39:
+          requires:
+            - check-style
+            - linux-python-310
       - linux-python-38:
           requires:
             - check-style
-            - linux-python-39
+            - linux-python-310
       - linux-python-37:
           requires:
             - check-style
-            - linux-python-39
+            - linux-python-310
       - linux-python-36-oldest:
           requires:
             - check-style
-            - linux-python-39
-      - windows-python-39
+            - linux-python-310
+      - windows-python-310
+      - windows-python-39:
+          requires:
+            - check-style
+            - windows-python-310
       - windows-python-38:
           requires:
             - check-style
-            - windows-python-39
+            - windows-python-310
       - windows-python-37:
           requires:
             - check-style
-            - windows-python-39
+            - windows-python-310
 # Disabled benchmarks on CI - they currently take too much work
 #     - benchmarks:
 #         requires:
