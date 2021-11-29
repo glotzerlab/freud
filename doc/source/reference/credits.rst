@@ -352,6 +352,10 @@ Emily Siew
 
 * Contributed documentation for ``StaticStructureFactorDebye`` class.
 
+Dylan Marx
+
+* Contributed documentation for ``NeighborQuery`` class.
+
 Source code
 -----------
 
