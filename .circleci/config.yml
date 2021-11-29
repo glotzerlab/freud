@@ -260,6 +260,12 @@ jobs:
       DEPENDENCIES: "OLDEST"
     <<: *build_and_test_linux
 
+  windows-python-310:
+    environment:
+      PYVER: "3.10"
+      <<: *windows_env
+    <<: *build_and_test_windows
+
   windows-python-39:
     environment:
       PYVER: "3.9"
@@ -305,15 +311,19 @@ workflows:
           requires:
             - check-style
             - linux-python-39
-      - windows-python-39
+      - windows-python-310
+      - windows-python-39:
+          requires:
+            - check-style
+            - windows-python-310
       - windows-python-38:
           requires:
             - check-style
-            - windows-python-39
+            - windows-python-310
       - windows-python-37:
           requires:
             - check-style
-            - windows-python-39
+            - windows-python-310
 # Disabled benchmarks on CI - they currently take too much work
 #     - benchmarks:
 #         requires:
