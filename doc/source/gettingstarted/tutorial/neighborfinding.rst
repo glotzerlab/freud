@@ -125,7 +125,7 @@ Queries can easily be used to generate :class:`NeighborList <freud.locality.Neig
 
 .. code-block:: python
 
-    query_result = aq.query(query_points, dict(num_neighbors=4, exclude_ii))
+    query_result = aq.query(query_points, dict(num_neighbors=4, exclude_ii=True))
     nlist = query_result.toNeighborList()
 
 The resulting object provides a persistent container for bond data.
