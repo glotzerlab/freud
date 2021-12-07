@@ -54,13 +54,13 @@ The primary mode of interfacing with this class (and other neighbor finding clas
     num_points = 100
 
     # We shift all points into the expected range for freud.
-    points = np.random.rand(num_points)*L - L/2
+    points = np.random.rand(num_points, 3)*L - L/2
     box = freud.box.Box.cube(L)
     aq = freud.locality.AABBQuery(box, points)
 
     # Now we generate a smaller sample of points for which we want to find
     # neighbors based on the original set.
-    query_points = np.random.rand(num_points/10)*L - L/2
+    query_points = np.random.rand(num_points/10, 3)*L - L/2
     distances = []
 
     # Here, we ask for the 4 nearest neighbors of each point in query_points.
