@@ -39,7 +39,7 @@ void HexaticTranslational<T>::computeGeneral(Func func, const freud::locality::N
             {
                 if (total_weight == 0.)
                 {
-                    m_psi_array[i] /= std::complex<float>(total_weight);
+                    m_psi_array[i]/= std::complex<float>(std::nanf);
                 }
                 else
                 {
