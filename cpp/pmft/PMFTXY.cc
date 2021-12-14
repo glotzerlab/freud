@@ -43,9 +43,8 @@ PMFTXY::PMFTXY(float x_max, float y_max, unsigned int n_x, unsigned int n_y) : P
     m_pcf_array.prepare({n_x, n_y});
 
     // Construct the Histogram object that will be used to keep track of counts of bond distances found.
-    BHAxes axes;
-    axes.push_back(std::make_shared<util::RegularAxis>(n_x, -x_max, x_max));
-    axes.push_back(std::make_shared<util::RegularAxis>(n_y, -y_max, y_max));
+    const auto axes = util::Axes {std::make_shared<util::RegularAxis>(n_x, -x_max, x_max),
+                                  std::make_shared<util::RegularAxis>(n_y, -y_max, y_max)};
     m_histogram = BondHistogram(axes);
     m_local_histograms = BondHistogram::ThreadLocalHistogram(m_histogram);
 }
@@ -62,7 +61,7 @@ void PMFTXY::accumulate(const locality::NeighborQuery* neighbor_query, const flo
 {
     neighbor_query->getBox().enforce2D();
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
-                      [=](const freud::locality::NeighborBond& neighbor_bond) {
+                      [&](const freud::locality::NeighborBond& neighbor_bond) {
                           vec3<float> delta(bondVector(neighbor_bond, neighbor_query, query_points));
 
                           // rotate interparticle vector

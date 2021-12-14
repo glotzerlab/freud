@@ -65,10 +65,9 @@ PMFTXYZ::PMFTXYZ(float x_max, float y_max, float z_max, unsigned int n_x, unsign
 
     // Construct the Histogram object that will be used to keep track of counts
     // of bond distances found.
-    BHAxes axes;
-    axes.push_back(std::make_shared<util::RegularAxis>(n_x, -x_max, x_max));
-    axes.push_back(std::make_shared<util::RegularAxis>(n_y, -y_max, y_max));
-    axes.push_back(std::make_shared<util::RegularAxis>(n_z, -z_max, z_max));
+    const auto axes = util::Axes {std::make_shared<util::RegularAxis>(n_x, -x_max, x_max),
+                                  std::make_shared<util::RegularAxis>(n_y, -y_max, y_max),
+                                  std::make_shared<util::RegularAxis>(n_z, -z_max, z_max)};
     m_histogram = BondHistogram(axes);
     m_local_histograms = BondHistogram::ThreadLocalHistogram(m_histogram);
 }
@@ -115,7 +114,7 @@ void PMFTXYZ::accumulate(const locality::NeighborQuery* neighbor_query, const qu
     }
     neighbor_query->getBox().enforce3D();
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
-                      [=](const freud::locality::NeighborBond& neighbor_bond) {
+                      [&](const freud::locality::NeighborBond& neighbor_bond) {
                           // create the reference point quaternion
                           quat<float> query_orientation(query_orientations[neighbor_bond.query_point_idx]);
                           // make sure that the particles are wrapped into the box

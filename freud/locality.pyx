@@ -1,7 +1,7 @@
 # Copyright (c) 2010-2020 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
-R"""
+r"""
 The :mod:`freud.locality` module contains data structures to efficiently
 locate points based on their proximity to other points.
 """
@@ -28,7 +28,7 @@ from freud.util cimport _Compute, vec3
 np.import_array()
 
 cdef class _QueryArgs:
-    R"""Container for query arguments.
+    r"""Container for query arguments.
 
     This class is use internally throughout freud to provide a nice interface
     between keyword- or dict-style query arguments and the C++ QueryArgs
@@ -166,7 +166,7 @@ cdef class _QueryArgs:
 
 
 cdef class NeighborQueryResult:
-    R"""Class encapsulating the output of queries of NeighborQuery objects.
+    r"""Class encapsulating the output of queries of NeighborQuery objects.
 
     .. warning::
 
@@ -231,7 +231,7 @@ cdef class NeighborQueryResult:
 
 
 cdef class NeighborQuery:
-    R"""Class representing a set of points along with the ability to query for
+    r"""Class representing a set of points along with the ability to query for
     neighbors of these points.
 
     .. warning::
@@ -267,7 +267,7 @@ cdef class NeighborQuery:
 
     @classmethod
     def from_system(cls, system, dimensions=None):
-        R"""Create a :class:`~.NeighborQuery` from any system-like object.
+        r"""Create a :class:`~.NeighborQuery` from any system-like object.
 
         The standard concept of a system in **freud** is any object that
         provides a way to access a box-like object (anything that can be
@@ -382,7 +382,7 @@ cdef class NeighborQuery:
         return np.asarray(self.points)
 
     def query(self, query_points, query_args):
-        R"""Query for nearest neighbors of the provided point.
+        r"""Query for nearest neighbors of the provided point.
 
         Args:
             query_points ((:math:`N`, 3) :class:`numpy.ndarray`):
@@ -403,7 +403,7 @@ cdef class NeighborQuery:
         return NeighborQueryResult.init(self, query_points, args)
 
     cdef freud._locality.NeighborQuery * get_ptr(self):
-        R"""Returns a pointer to the raw C++ object we are wrapping."""
+        r"""Returns a pointer to the raw C++ object we are wrapping."""
         return self.nqptr
 
     def plot(self, ax=None, title=None, *args, **kwargs):
@@ -424,7 +424,8 @@ cdef class NeighborQuery:
                 :meth:`matplotlib.axes.Axes.plot`.
 
         Returns:
-            :class:`matplotlib.axes.Axes`: Axis with the plot.
+            tuple (:class:`matplotlib.axes.Axes`, :class:`matplotlib.collections.PathCollection`):
+                Axis and point data for the plot.
         """
         import freud.plot
         return freud.plot.system_plot(
@@ -432,7 +433,7 @@ cdef class NeighborQuery:
 
 
 cdef class NeighborList:
-    R"""Class representing bonds between two sets of points.
+    r"""Class representing bonds between two sets of points.
 
     Compute classes contain a set of bonds between two sets of position
     arrays ("query points" and "points") and hold a list of index pairs
@@ -477,7 +478,7 @@ cdef class NeighborList:
     @classmethod
     def from_arrays(cls, num_query_points, num_points, query_point_indices,
                     point_indices, distances, weights=None):
-        R"""Create a NeighborList from a set of bond information arrays.
+        r"""Create a NeighborList from a set of bond information arrays.
 
         Example::
 
@@ -560,15 +561,15 @@ cdef class NeighborList:
             del self.thisptr
 
     cdef freud._locality.NeighborList * get_ptr(self):
-        R"""Returns a pointer to the raw C++ object we are wrapping."""
+        r"""Returns a pointer to the raw C++ object we are wrapping."""
         return self.thisptr
 
     cdef void copy_c(self, NeighborList other):
-        R"""Copies the contents of other into this object."""
+        r"""Copies the contents of other into this object."""
         self.thisptr.copy(dereference(other.thisptr))
 
     def copy(self, other=None):
-        R"""Create a copy. If other is given, copy its contents into this
+        r"""Create a copy. If other is given, copy its contents into this
         object. Otherwise, return a copy of this object.
 
         Args:
@@ -586,7 +587,7 @@ cdef class NeighborList:
             return new_copy
 
     def __getitem__(self, key):
-        R"""Access the bond array by index or slice."""
+        r"""Access the bond array by index or slice."""
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getNeighbors(),
             freud.util.arr_type_t.UNSIGNED_INT)[key]
@@ -640,7 +641,7 @@ cdef class NeighborList:
             freud.util.arr_type_t.UNSIGNED_INT)
 
     def __len__(self):
-        R"""Returns the number of bonds stored in this object."""
+        r"""Returns the number of bonds stored in this object."""
         return self.thisptr.getNumBonds()
 
     @property
@@ -660,7 +661,7 @@ cdef class NeighborList:
         return self.thisptr.getNumPoints()
 
     def find_first_index(self, unsigned int i):
-        R"""Returns the lowest bond index corresponding to a query particle
+        r"""Returns the lowest bond index corresponding to a query particle
         with an index :math:`\geq i`.
 
         Args:
@@ -669,7 +670,7 @@ cdef class NeighborList:
         return self.thisptr.find_first_index(i)
 
     def filter(self, filt):
-        R"""Removes bonds that satisfy a boolean criterion.
+        r"""Removes bonds that satisfy a boolean criterion.
 
         Args:
             filt (:class:`np.ndarray`):
@@ -690,7 +691,7 @@ cdef class NeighborList:
         return self
 
     def filter_r(self, float r_max, float r_min=0):
-        R"""Removes bonds that are outside of a given radius range.
+        r"""Removes bonds that are outside of a given radius range.
 
         Args:
             r_max (float):
@@ -723,7 +724,7 @@ cdef NeighborList _nlist_from_cnlist(freud._locality.NeighborList *c_nlist):
 
 
 def _make_default_nq(neighbor_query):
-    R"""Helper function to return a NeighborQuery object.
+    r"""Helper function to return a NeighborQuery object.
 
     Currently the resolution for NeighborQuery objects is such that if Python
     users pass in a NumPy array of points and a box, we always make a
@@ -757,7 +758,7 @@ def _make_default_nq(neighbor_query):
 
 
 def _make_default_nlist(system, neighbors, query_points=None):
-    R"""Helper function to return a neighbor list object if is given, or to
+    r"""Helper function to return a neighbor list object if is given, or to
     construct one using AABBQuery if it is not.
 
     Args:
@@ -793,7 +794,7 @@ def _make_default_nlist(system, neighbors, query_points=None):
 
 
 cdef class _RawPoints(NeighborQuery):
-    R"""Class containing :class:`~.box.Box` and points with no spatial data
+    r"""Class containing :class:`~.box.Box` and points with no spatial data
     structures for accelerating neighbor queries."""
 
     def __cinit__(self, box, points):
@@ -815,7 +816,7 @@ cdef class _RawPoints(NeighborQuery):
 
 
 cdef class AABBQuery(NeighborQuery):
-    R"""Use an Axis-Aligned Bounding Box (AABB) tree :cite:`howard2016` to
+    r"""Use an Axis-Aligned Bounding Box (AABB) tree :cite:`howard2016` to
     find neighbors.
 
     Also available as ``freud.AABBQuery``.
@@ -847,7 +848,7 @@ cdef class AABBQuery(NeighborQuery):
 
 
 cdef class LinkCell(NeighborQuery):
-    R"""Supports efficiently finding all points in a set within a certain
+    r"""Supports efficiently finding all points in a set within a certain
     distance from a given point.
 
     Also available as ``freud.LinkCell``.
@@ -884,7 +885,7 @@ cdef class LinkCell(NeighborQuery):
 
 
 cdef class _PairCompute(_Compute):
-    R"""Parent class for all compute classes in freud that depend on finding
+    r"""Parent class for all compute classes in freud that depend on finding
     nearest neighbors.
 
     The purpose of this class is to consolidate some of the logic for parsing
@@ -964,7 +965,7 @@ cdef class _PairCompute(_Compute):
 
 
 cdef class _SpatialHistogram(_PairCompute):
-    R"""Parent class for all compute classes in freud that perform a spatial
+    r"""Parent class for all compute classes in freud that perform a spatial
     binning of particle bonds by distance.
     """
 
@@ -1025,7 +1026,7 @@ cdef class _SpatialHistogram(_PairCompute):
 
 
 cdef class _SpatialHistogram1D(_SpatialHistogram):
-    R"""Subclasses _SpatialHistogram to provide a simplified API for
+    r"""Subclasses _SpatialHistogram to provide a simplified API for
     properties of 1-dimensional histograms.
     """
 
@@ -1054,8 +1055,7 @@ cdef class _SpatialHistogram1D(_SpatialHistogram):
 
     @property
     def bounds(self):
-        """tuple: A tuple indicating upper and lower bounds of the
-        histogram."""
+        """tuple: A tuple indicating upper and lower bounds of the histogram."""
         # Must create a local reference or Cython tries to access an rvalue by
         # reference in the list comprehension.
         vec = self.histptr.getBounds()
@@ -1068,7 +1068,7 @@ cdef class _SpatialHistogram1D(_SpatialHistogram):
 
 
 cdef class PeriodicBuffer(_Compute):
-    R"""Replicate periodic images of points inside a box."""
+    r"""Replicate periodic images of points inside a box."""
 
     def __cinit__(self):
         self.thisptr = new freud._locality.PeriodicBuffer()
@@ -1080,7 +1080,7 @@ cdef class PeriodicBuffer(_Compute):
         del self.thisptr
 
     def compute(self, system, buffer, cbool images=False):
-        R"""Compute the periodic buffer.
+        r"""Compute the periodic buffer.
 
         Args:
             system:
@@ -1137,7 +1137,7 @@ cdef class PeriodicBuffer(_Compute):
 
 
 cdef class Voronoi(_Compute):
-    R"""Computes Voronoi diagrams using voro++.
+    r"""Computes Voronoi diagrams using voro++.
 
     Voronoi diagrams (`Wikipedia
     <https://en.wikipedia.org/wiki/Voronoi_diagram>`_) are composed of convex
@@ -1159,7 +1159,7 @@ cdef class Voronoi(_Compute):
         del self.thisptr
 
     def compute(self, system):
-        R"""Compute Voronoi diagram.
+        r"""Compute Voronoi diagram.
 
         Args:
             system:
@@ -1204,7 +1204,7 @@ cdef class Voronoi(_Compute):
 
     @_Compute._computed_property
     def nlist(self):
-        R"""Returns the computed :class:`~.locality.NeighborList`.
+        r"""Returns the computed :class:`~.locality.NeighborList`.
 
         The :class:`~.locality.NeighborList` computed by this class is
         weighted. In 2D systems, the bond weight is the length of the ridge

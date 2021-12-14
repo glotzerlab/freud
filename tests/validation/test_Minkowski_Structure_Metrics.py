@@ -3,6 +3,7 @@ import os
 import garnett
 import numpy as np
 import numpy.testing as npt
+import pytest
 
 import freud
 
@@ -19,63 +20,53 @@ def _get_structure_data(structure, qtype):
 
 
 class TestMinkowski:
-    def test_minkowski_structure_metrics(self):
-        for structure in ["fcc", "bcc", "hcp", "sc"]:
-            expected_ql = _get_structure_data(structure, "q")
-            expected_avql = _get_structure_data(structure, "avq")
-            expected_wl = _get_structure_data(structure, "w")
-            expected_avwl = _get_structure_data(structure, "avw")
+    @pytest.mark.parametrize("structure", ["fcc", "bcc", "hcp", "sc"])
+    def test_minkowski_structure_metrics(self, structure):
+        expected_ql = _get_structure_data(structure, "q")
+        expected_avql = _get_structure_data(structure, "avq")
+        expected_wl = _get_structure_data(structure, "w")
+        expected_avwl = _get_structure_data(structure, "avw")
 
-            with garnett.read(
-                os.path.join(
-                    os.path.dirname(__file__),
-                    "files",
-                    "minkowski_structure_metrics",
-                    f"{structure}.gsd",
+        with garnett.read(
+            os.path.join(
+                os.path.dirname(__file__),
+                "files",
+                "minkowski_structure_metrics",
+                f"{structure}.gsd",
+            )
+        ) as traj:
+            snap = traj[0]
+
+        voro = freud.locality.Voronoi()
+        voro.compute(snap)
+        for sph_l in range(expected_ql.shape[1]):
+
+            # These tests fail for unknown (probably numerical) reasons.
+            if structure == "hcp" and sph_l in [3, 5]:
+                continue
+
+            # Test q'l
+            comp = freud.order.Steinhardt(sph_l, weighted=True)
+            comp.compute(snap, neighbors=voro.nlist)
+            npt.assert_allclose(comp.order, expected_ql[:, sph_l], atol=1e-5)
+
+            # Test average q'l
+            comp = freud.order.Steinhardt(sph_l, average=True, weighted=True)
+            comp.compute(snap, neighbors=voro.nlist)
+            npt.assert_allclose(comp.order, expected_avql[:, sph_l], atol=1e-5)
+
+            # w'2 tests fail for unknown (probably numerical) reasons.
+            if sph_l != 2:
+                # Test w'l
+                comp = freud.order.Steinhardt(
+                    sph_l, wl=True, weighted=True, wl_normalize=True
                 )
-            ) as traj:
-                frame = traj[0]
-                box = frame.box
-                positions = frame.position.copy()
+                comp.compute(snap, neighbors=voro.nlist)
+                npt.assert_allclose(comp.order, expected_wl[:, sph_l], atol=1e-5)
 
-            voro = freud.locality.Voronoi()
-            voro.compute((box, positions))
-            for sph_l in range(expected_ql.shape[1]):
-
-                # These tests fail for unknown (probably numerical) reasons.
-                if structure == "hcp" and sph_l in [3, 5]:
-                    continue
-
-                # Test ql
-                comp = freud.order.Steinhardt(sph_l, weighted=True)
-                comp.compute((box, positions), neighbors=voro.nlist)
-                npt.assert_allclose(
-                    comp.order, expected_ql[:, sph_l], rtol=5e-5, atol=1e-3
+                # Test average w'l
+                comp = freud.order.Steinhardt(
+                    sph_l, wl=True, average=True, weighted=True, wl_normalize=True
                 )
-
-                # Test Average ql
-                comp = freud.order.Steinhardt(sph_l, average=True, weighted=True)
-                comp.compute((box, positions), neighbors=voro.nlist)
-                npt.assert_allclose(
-                    comp.order, expected_avql[:, sph_l], rtol=5e-5, atol=1e-3
-                )
-
-                # These tests fail for unknown (probably numerical) reasons.
-                if sph_l != 2:
-                    # Test wl
-                    comp = freud.order.Steinhardt(
-                        sph_l, wl=True, weighted=True, wl_normalize=True
-                    )
-                    comp.compute((box, positions), neighbors=voro.nlist)
-                    npt.assert_allclose(
-                        comp.order, expected_wl[:, sph_l], rtol=5e-5, atol=1e-3
-                    )
-
-                    # Test Average wl
-                    comp = freud.order.Steinhardt(
-                        sph_l, wl=True, average=True, weighted=True, wl_normalize=True
-                    )
-                    comp.compute((box, positions), neighbors=voro.nlist)
-                    npt.assert_allclose(
-                        comp.order, expected_avwl[:, sph_l], rtol=5e-5, atol=1e-3
-                    )
+                comp.compute(snap, neighbors=voro.nlist)
+                npt.assert_allclose(comp.order, expected_avwl[:, sph_l], atol=1e-5)

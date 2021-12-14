@@ -132,7 +132,7 @@ public:
     //! Get the last calculated qlm for each particle
     const util::ManagedArray<std::complex<float>>& getQlm() const
     {
-        return m_steinhardt.getQlm();
+        return m_steinhardt.getQlm()[0];
     }
 
     //! Return the ql_ij values.

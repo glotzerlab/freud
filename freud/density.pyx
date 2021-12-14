@@ -1,7 +1,7 @@
 # Copyright (c) 2010-2020 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
-R"""
+r"""
 The :class:`freud.density` module contains various classes relating to the
 density of the system. These functions allow evaluation of particle
 distributions with respect to other particles.
@@ -34,7 +34,7 @@ np.import_array()
 ctypedef unsigned int uint
 
 cdef class CorrelationFunction(_SpatialHistogram1D):
-    R"""Computes the complex pairwise correlation function.
+    r"""Computes the complex pairwise correlation function.
 
     The correlation function is given by
     :math:`C(r) = \left\langle s^*_1(0) \cdot s_2(r) \right\rangle` between
@@ -75,7 +75,7 @@ cdef class CorrelationFunction(_SpatialHistogram1D):
 
     def compute(self, system, values, query_points=None,
                 query_values=None, neighbors=None, reset=True):
-        R"""Calculates the correlation function and adds to the current
+        r"""Calculates the correlation function and adds to the current
         histogram.
 
         Args:
@@ -184,7 +184,7 @@ cdef class CorrelationFunction(_SpatialHistogram1D):
 
 
 cdef class GaussianDensity(_Compute):
-    R"""Computes the density of a system on a grid.
+    r"""Computes the density of a system on a grid.
 
     Replaces particle positions with a Gaussian blur and calculates the
     contribution from each to the proscribed grid based upon the distance of
@@ -239,7 +239,7 @@ cdef class GaussianDensity(_Compute):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     def compute(self, system, values=None):
-        R"""Calculates the Gaussian blur for the specified points.
+        r"""Calculates the Gaussian blur for the specified points.
 
         Args:
             system:
@@ -325,7 +325,7 @@ cdef class GaussianDensity(_Compute):
 
 
 cdef class SphereVoxelization(_Compute):
-    R"""Computes a grid of voxels occupied by spheres.
+    r"""Computes a grid of voxels occupied by spheres.
 
     This class constructs a grid of voxels. From a given set of points and a
     desired radius, a set of spheres are created. The voxels are assigned a
@@ -368,7 +368,7 @@ cdef class SphereVoxelization(_Compute):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     def compute(self, system):
-        R"""Calculates the voxelization of spheres about the specified points.
+        r"""Calculates the voxelization of spheres about the specified points.
 
         Args:
             system:
@@ -434,7 +434,7 @@ cdef class SphereVoxelization(_Compute):
 
 
 cdef class LocalDensity(_PairCompute):
-    R"""Computes the local density around a particle.
+    r"""Computes the local density around a particle.
 
     The density of the local environment is computed and averaged for a given
     set of query points in a sea of data points. Providing the same points
@@ -490,7 +490,7 @@ cdef class LocalDensity(_PairCompute):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     def compute(self, system, query_points=None, neighbors=None):
-        R"""Calculates the local density for the specified points.
+        r"""Calculates the local density for the specified points.
 
         Example::
 
@@ -563,7 +563,7 @@ cdef class LocalDensity(_PairCompute):
 
 
 cdef class RDF(_SpatialHistogram1D):
-    R"""Computes the RDF :math:`g \left( r \right)` for supplied data.
+    r"""Computes the RDF :math:`g \left( r \right)` for supplied data.
 
     Note that the RDF is defined strictly according to the pair correlation
     function, i.e.
@@ -626,7 +626,7 @@ cdef class RDF(_SpatialHistogram1D):
 
     def compute(self, system, query_points=None, neighbors=None,
                 reset=True):
-        R"""Calculates the RDF and adds to the current RDF histogram.
+        r"""Calculates the RDF and adds to the current RDF histogram.
 
         Args:
             system:

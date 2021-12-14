@@ -83,14 +83,14 @@ public:
     {
         return ((this->getL() == b.getL()) && (this->getTiltFactorXY() == b.getTiltFactorXY())
                 && (this->getTiltFactorXZ() == b.getTiltFactorXZ())
-                && (this->getTiltFactorYZ() == b.getTiltFactorYZ()));
+                && (this->getTiltFactorYZ() == b.getTiltFactorYZ())
+                && (this->getPeriodicX() == b.getPeriodicX()) && (this->getPeriodicY() == b.getPeriodicY())
+                && (this->getPeriodicZ() == b.getPeriodicZ()));
     }
 
     inline bool operator!=(const Box& b) const
     {
-        return ((this->getL() != b.getL()) || (this->getTiltFactorXY() != b.getTiltFactorXY())
-                || (this->getTiltFactorXZ() != b.getTiltFactorXZ())
-                || (this->getTiltFactorYZ() != b.getTiltFactorYZ()));
+        return !(*this == b);
     }
 
     //! Set L, box lengths, inverses.  Box is also centered at zero.
@@ -228,33 +228,28 @@ public:
     /*! \param vecs Vectors of fractional coordinates between 0 and 1 within
      *         parallelepipedal box
      *  \param Nvecs Number of vectors
+     *  \param out The array in which to place the wrapped vectors.
      */
-    void makeAbsolute(vec3<float>* vecs, unsigned int Nvecs) const
+    void makeAbsolute(const vec3<float>* vecs, unsigned int Nvecs, vec3<float>* out) const
     {
-        util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
+        util::forLoopWrapper(0, Nvecs, [&](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
-                vecs[i] = makeAbsolute(vecs[i]);
+                out[i] = makeAbsolute(vecs[i]);
             }
         });
     }
 
-    //! Compute the position of the particle in box relative coordinates
-    /*! \param p point
-     *  \returns alpha
-     *
-     *  alpha.x is 0 when \a x is on the far left side of the box and
-     *  1.0 when it is on the far right. If x is outside of the box in
-     *  either direction, it will go larger than 1 or less than 0
-     *  keeping the same scaling.
+    //! Convert a point's coordinate from absolute to fractional box coordinates.
+    /*! \param v The vector of the point in absolute coordinates.
+     *  \returns The vector of the point in fractional coordinates.
      */
-    vec3<float> makeFractional(const vec3<float>& v,
-                               const vec3<float>& ghost_width = vec3<float>(0.0, 0.0, 0.0)) const
+    vec3<float> makeFractional(const vec3<float>& v) const
     {
         vec3<float> delta = v - m_lo;
         delta.x -= (m_xz - m_yz * m_xy) * v.z + m_xy * v.y;
         delta.y -= m_yz * v.z;
-        delta = (delta + ghost_width) / (m_L + float(2.0) * ghost_width);
+        delta = delta / m_L;
 
         if (m_2d)
         {
@@ -263,12 +258,17 @@ public:
         return delta;
     }
 
-    void makeFractional(vec3<float>* vecs, unsigned int Nvecs) const
+    //! Convert point coordinates from absolute to fractional box coordinates.
+    /*! \param vecs Vectors to convert
+     *  \param Nvecs Number of vectors
+     *  \param out The array in which to place the wrapped vectors.
+     */
+    void makeFractional(const vec3<float>* vecs, unsigned int Nvecs, vec3<float>* out) const
     {
-        util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
+        util::forLoopWrapper(0, Nvecs, [&](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
-                vecs[i] = makeFractional(vecs[i]);
+                out[i] = makeFractional(vecs[i]);
             }
         });
     }
@@ -296,7 +296,7 @@ public:
      */
     void getImages(vec3<float>* vecs, unsigned int Nvecs, vec3<int>* res) const
     {
-        util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
+        util::forLoopWrapper(0, Nvecs, [&](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
                 getImage(vecs[i], res[i]);
@@ -337,9 +337,9 @@ public:
      *  \param Nvecs Number of vectors
      *  \param out The array in which to place the wrapped vectors.
      */
-    void wrap(vec3<float>* vecs, unsigned int Nvecs, vec3<float>* out) const
+    void wrap(const vec3<float>* vecs, unsigned int Nvecs, vec3<float>* out) const
     {
-        util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
+        util::forLoopWrapper(0, Nvecs, [&](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
                 out[i] = wrap(vecs[i]);
@@ -351,17 +351,18 @@ public:
     /*! \param vecs Vectors of coordinates to unwrap
      *  \param images images flags for this point
         \param Nvecs Number of vectors
+     *  \param out The array in which to place the wrapped vectors.
     */
-    void unwrap(vec3<float>* vecs, const vec3<int>* images, unsigned int Nvecs) const
+    void unwrap(const vec3<float>* vecs, const vec3<int>* images, unsigned int Nvecs, vec3<float>* out) const
     {
-        util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
+        util::forLoopWrapper(0, Nvecs, [&](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
-                vecs[i] += getLatticeVector(0) * float(images[i].x);
-                vecs[i] += getLatticeVector(1) * float(images[i].y);
+                out[i] = vecs[i] + getLatticeVector(0) * float(images[i].x)
+                    + getLatticeVector(1) * float(images[i].y);
                 if (!m_2d)
                 {
-                    vecs[i] += getLatticeVector(2) * float(images[i].z);
+                    out[i] += getLatticeVector(2) * float(images[i].z);
                 }
             }
         });
@@ -403,7 +404,7 @@ public:
     void center(vec3<float>* vecs, unsigned int Nvecs, const float* masses = nullptr) const
     {
         vec3<float> com(centerOfMass(vecs, Nvecs, masses));
-        util::forLoopWrapper(0, Nvecs, [=](size_t begin, size_t end) {
+        util::forLoopWrapper(0, Nvecs, [&](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
                 vecs[i] = wrap(vecs[i] - com);
@@ -475,15 +476,12 @@ public:
     void contains(const vec3<float>* points, const unsigned int n_points, bool* contains_mask) const
     {
         util::forLoopWrapper(0, n_points, [&](size_t begin, size_t end) {
-            for (size_t i = begin; i < n_points; ++i)
-            {
-                std::transform(&points[begin], &points[end], &contains_mask[begin],
-                               [this](const vec3<float>& point) -> bool {
-                                   vec3<int> image(0, 0, 0);
-                                   getImage(point, image);
-                                   return image == vec3<int>(0, 0, 0);
-                               });
-            }
+            std::transform(&points[begin], &points[end], &contains_mask[begin],
+                           [this](const vec3<float>& point) -> bool {
+                               vec3<int> image(0, 0, 0);
+                               getImage(point, image);
+                               return image == vec3<int>(0, 0, 0);
+                           });
         });
     }
 

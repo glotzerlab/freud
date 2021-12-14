@@ -61,6 +61,7 @@ class TestDiffractionPattern:
         diff = dp.diffraction
         vals = dp.k_values
         vecs = dp.k_vectors
+        N = dp.N_points
         dp.plot()
         dp._repr_png_()
 
@@ -70,6 +71,7 @@ class TestDiffractionPattern:
         assert not np.array_equal(dp.diffraction, diff)
         assert not np.array_equal(dp.k_values, vals)
         assert not np.array_equal(dp.k_vectors, vecs)
+        assert not np.array_equal(dp.N_points, N)
 
     def test_attribute_shapes(self):
         grid_size = 234
@@ -84,6 +86,7 @@ class TestDiffractionPattern:
         assert dp.k_values.shape == (output_size,)
         assert dp.k_vectors.shape == (output_size, output_size, 3)
         assert dp.to_image().shape == (output_size, output_size, 4)
+        assert dp.N_points == len(positions)
 
     def test_center_unordered(self):
         """Assert the center of the image is an intensity peak for an
@@ -113,9 +116,9 @@ class TestDiffractionPattern:
                     center_index = (output_size // 2, output_size // 2)
                     assert max_index == center_index
 
-                    # The value at k=0 should be 1 because of normalization
-                    # by (number of points)**2
-                    npt.assert_allclose(dp.diffraction[center_index], 1)
+                    # The value at k=0 should be N_points because of
+                    # normalization by the number of points
+                    npt.assert_allclose(dp.diffraction[center_index], len(positions))
 
     def test_center_ordered(self):
         """Assert the center of the image is an intensity peak for an ordered
@@ -144,9 +147,9 @@ class TestDiffractionPattern:
                     center_index = (output_size // 2, output_size // 2)
                     assert max_index == center_index
 
-                    # The value at k=0 should be 1 because of normalization
-                    # by (number of points)**2
-                    npt.assert_allclose(dp.diffraction[center_index], 1)
+                    # The value at k=0 should be N_points because of
+                    # normalization by the number of points
+                    npt.assert_allclose(dp.diffraction[center_index], len(positions))
 
     def test_repr(self):
         dp = freud.diffraction.DiffractionPattern()
@@ -160,11 +163,125 @@ class TestDiffractionPattern:
         dp = freud.diffraction.DiffractionPattern()
 
         for size in [2, 5, 10]:
-            for npoints in [10, 20, 75]:
-                box, positions = freud.data.make_random_system(npoints, size)
-                dp.compute((box, positions))
+            box, positions = freud.data.make_random_system(size, 1)
+            zoom = 4
+            view_orientation = np.asarray([1, 0, 0, 0])
+            dp.compute((box, positions), view_orientation=view_orientation, zoom=zoom)
 
-                output_size = dp.output_size
-                npt.assert_allclose(dp.k_values[output_size // 2], 0)
-                center_index = (output_size // 2, output_size // 2)
-                npt.assert_allclose(dp.k_vectors[center_index], [0, 0, 0])
+            output_size = dp.output_size
+            npt.assert_allclose(dp.k_values[output_size // 2], 0)
+            center_index = (output_size // 2, output_size // 2)
+            npt.assert_allclose(dp.k_vectors[center_index], [0, 0, 0])
+
+            # Tests for the first and last k value bins. Uses the math for
+            # np.fft.fftfreq and the _k_scale_factor to write an expression for
+            # the first and last bins' k values and k vectors.
+
+            scale_factor = 2 * np.pi * output_size / (np.max(box.to_matrix()) * zoom)
+
+            if output_size % 2 == 0:
+                first_k_value = -0.5 * scale_factor
+                last_k_value = (0.5 - (1 / output_size)) * scale_factor
+            else:
+                first_k_value = (-0.5 + 1 / (2 * output_size)) * scale_factor
+                last_k_value = (0.5 - 1 / (2 * output_size)) * scale_factor
+
+            npt.assert_allclose(dp.k_values[0], first_k_value)
+            npt.assert_allclose(dp.k_values[-1], last_k_value)
+
+            first_k_vector = rowan.rotate(
+                view_orientation, [first_k_value, first_k_value, 0]
+            )
+            last_k_vector = rowan.rotate(
+                view_orientation, [last_k_value, last_k_value, 0]
+            )
+            top_right_k_vector = rowan.rotate(
+                view_orientation, [first_k_value, last_k_value, 0]
+            )
+            bottom_left_k_vector = rowan.rotate(
+                view_orientation, [last_k_value, first_k_value, 0]
+            )
+
+            npt.assert_allclose(dp.k_vectors[0, 0], first_k_vector)
+            npt.assert_allclose(dp.k_vectors[-1, -1], last_k_vector)
+            npt.assert_allclose(dp.k_vectors[0, -1], top_right_k_vector)
+            npt.assert_allclose(dp.k_vectors[-1, 0], bottom_left_k_vector)
+
+            center = output_size // 2
+            top_center_k_vector = rowan.rotate(view_orientation, [0, first_k_value, 0])
+            bottom_center_k_vector = rowan.rotate(
+                view_orientation, [0, last_k_value, 0]
+            )
+            left_center_k_vector = rowan.rotate(view_orientation, [first_k_value, 0, 0])
+            right_center_k_vector = rowan.rotate(view_orientation, [last_k_value, 0, 0])
+
+            npt.assert_allclose(dp.k_vectors[center, 0], top_center_k_vector)
+            npt.assert_allclose(dp.k_vectors[center, -1], bottom_center_k_vector)
+            npt.assert_allclose(dp.k_vectors[0, center], left_center_k_vector)
+            npt.assert_allclose(dp.k_vectors[-1, center], right_center_k_vector)
+
+    def test_cubic_system(self):
+        length = 1
+        box, positions = freud.data.UnitCell.sc().generate_system(
+            num_replicas=16, scale=length, sigma_noise=0.1 * length
+        )
+        # Pick a non-integer value for zoom, to ensure that peaks besides k=0
+        # are not perfectly aligned on pixels.
+        dp = freud.diffraction.DiffractionPattern(grid_size=512)
+        dp.compute((box, positions), zoom=4.123)
+
+        # Locate brightest areas of diffraction pattern
+        # (intensity > threshold), and check that the ideal
+        # diffraction peak locations, given by k * R = 2*pi*N
+        # for some lattice vector R and integer N, are contained
+        # within these regions.
+        # This test only checks N in range [-2, 2].
+        threshold = 0.2 * dp.N_points
+        xs, ys = np.nonzero(dp.diffraction > threshold)
+        xy = np.dstack((xs, ys))[0]
+
+        ideal_peaks = {i: False for i in [-2, -1, 0, 1, 2]}
+
+        lattice_vector = np.array([length, length, length])
+        for peak in ideal_peaks:
+            for x, y in xy:
+                k_vector = dp.k_vectors[x, y]
+                dot_prod = np.dot(k_vector, lattice_vector)
+
+                if np.isclose(dot_prod, peak * 2 * np.pi, atol=1e-2):
+                    ideal_peaks[peak] = True
+
+        assert all(ideal_peaks.values())
+
+    def test_cubic_system_parameterized(self):
+        length = 1
+        box, positions = freud.data.UnitCell.sc().generate_system(
+            num_replicas=16, scale=length, sigma_noise=0.1 * length
+        )
+        # Same as above test but with different grid_size,
+        # output_size, and zoom values.
+        for grid_size in (256, 1024):
+            for output_size in (255, 256, 1023, 1024):
+                for zoom in (1, 2.5, 4.123):
+                    dp = freud.diffraction.DiffractionPattern(
+                        grid_size=grid_size,
+                        output_size=output_size,
+                    )
+                    dp.compute((box, positions), zoom=zoom)
+
+                    threshold = 0.2 * dp.N_points
+                    xs, ys = np.nonzero(dp.diffraction > threshold)
+                    xy = np.dstack((xs, ys))[0]
+
+                    ideal_peaks = {i: False for i in [-2, -1, 0, 1, 2]}
+
+                    lattice_vector = np.array([length, length, length])
+                    for peak in ideal_peaks:
+                        for x, y in xy:
+                            k_vector = dp.k_vectors[x, y]
+                            dot_prod = np.dot(k_vector, lattice_vector)
+
+                            if np.isclose(dot_prod, peak * 2 * np.pi, atol=1e-2):
+                                ideal_peaks[peak] = True
+
+                    assert all(ideal_peaks.values())
