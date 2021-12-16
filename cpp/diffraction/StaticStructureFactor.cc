@@ -32,10 +32,9 @@ StaticStructureFactor::StaticStructureFactor(unsigned int bins, float k_max, flo
     }
     // Construct the Histogram object that will be used to track the structure factor
     // const auto axes = util::Axes {std::make_shared<util::RegularAxis>(bins, k_min, k_max)};
-    const auto delta_old = (k_max - k_min); // / double(bins);
-    const auto delta_new = delta_old / (double(bins - 1));
-    const auto target_k_min = k_min - delta_new * 0.5;
-    const auto target_k_max = k_max + delta_new * 0.5;
+    const auto delta = (k_max - k_min) / double(bins);
+    const auto target_k_min = k_min - delta * 0.5;
+    const auto target_k_max = k_max - delta * 0.5;
     const auto axes = util::Axes {std::make_shared<util::RegularAxis>(bins, target_k_min, target_k_max)};
     m_structure_factor = StructureFactorHistogram(axes);
     m_local_structure_factor = StructureFactorHistogram::ThreadLocalHistogram(m_structure_factor);
