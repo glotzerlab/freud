@@ -243,14 +243,6 @@ jobs:
       PYTHON: "python3.8"
     <<: *build_and_test_linux_with_cov
 
-  linux-python-37:
-    docker:
-      - image: glotzerlab/ci:2020.10-py37
-    environment:
-      PYVER: "3.7"
-      PYTHON: "python3.7"
-    <<: *build_and_test_linux_with_cov
-
   linux-python-36-oldest:
     docker:
       - image: glotzerlab/ci:2020.10-py36
@@ -278,12 +270,6 @@ jobs:
       <<: *windows_env
     <<: *build_and_test_windows
 
-  windows-python-37:
-    environment:
-      PYVER: "3.7"
-      <<: *windows_env
-    <<: *build_and_test_windows
-
   benchmarks:
     docker:
       - image: glotzerlab/ci:2020.01-py38
@@ -303,10 +289,6 @@ workflows:
           requires:
             - check-style
             - linux-python-39
-      - linux-python-37:
-          requires:
-            - check-style
-            - linux-python-39
       - linux-python-36-oldest:
           requires:
             - check-style
@@ -317,10 +299,6 @@ workflows:
             - check-style
             - windows-python-310
       - windows-python-38:
-          requires:
-            - check-style
-            - windows-python-310
-      - windows-python-37:
           requires:
             - check-style
             - windows-python-310
