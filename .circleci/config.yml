@@ -61,7 +61,12 @@ references:
         conda install python=${PYVER} pip tbb tbb-devel
         conda update --all
         ${PYTHON} -m pip install --progress-bar off scikit-build==0.10.0
-        ${PYTHON} -m pip install --progress-bar off -U -r requirements/requirements-test.txt
+        if [ "${DEPENDENCIES}" == "COMPATIBLE" ]; then
+          # Python 3.7 was dropped by NEP 29, but we still support it
+          ${PYTHON} -m pip install --progress-bar off -U -r requirements/requirements-test-compatible.txt
+        else
+          ${PYTHON} -m pip install --progress-bar off -U -r requirements/requirements-test.txt
+        fi
         # Install cmake >=3.14 to support Visual Studio 2019 generator
         ${PYTHON} -m pip install --progress-bar off -U cmake~=3.14
 
@@ -270,6 +275,13 @@ jobs:
       <<: *windows_env
     <<: *build_and_test_windows
 
+  windows-python-37:
+    environment:
+      PYVER: "3.7"
+      DEPENDENCIES: "COMPATIBLE"
+      <<: *windows_env
+    <<: *build_and_test_windows
+
   benchmarks:
     docker:
       - image: glotzerlab/ci:2020.01-py38
@@ -299,6 +311,10 @@ workflows:
             - check-style
             - windows-python-310
       - windows-python-38:
+          requires:
+            - check-style
+            - windows-python-310
+      - windows-python-37:
           requires:
             - check-style
             - windows-python-310
