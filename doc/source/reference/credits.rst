@@ -326,6 +326,7 @@ Tommy Waltmann
 * Contributed code, design, and testing for ``StaticStructureFactorDirect`` class.
 * Refactor tests for ``StaticStructureFactor`` classes.
 * Improve CMake build system to use more modern style.
+* Remove CI build configurations from CircleCI which were already covered by CIBuildWheel
 
 Maya Martirossyan
 
