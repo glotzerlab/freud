@@ -4,16 +4,6 @@ orbs:
   win: circleci/windows@2.2.0  # Enables Windows executors
 
 references:
-  container_manylinux: &container_manylinux
-    docker:
-      - image: quay.io/pypa/manylinux2010_x86_64
-    working_directory: ~/ci/freud
-
-  container_macos: &container_macos
-    macos:
-      xcode: "12.0.0"
-    working_directory: ~/ci/freud
-
   load_code: &load_code
     checkout
 
@@ -115,15 +105,6 @@ references:
         ${PYTHON} --version
         ${PYTHON} setup.py build_ext --inplace -- -G "Visual Studio 16 2019" -DCOVERAGE=ON
 
-  test: &test
-    run:
-      name: Run unit tests
-      command: |
-        if [ -d "venv" ]; then
-          . venv/bin/activate
-        fi
-        ${PYTHON} -m pytest tests/ -v
-
   test_cov: &test_cov
     run:
       name: Run unit tests with coverage
@@ -181,26 +162,6 @@ references:
       - *get_pre_commit_requirements
       - *pre-test-checks
 
-  build_and_test_linux: &build_and_test_linux
-    working_directory: ~/ci/freud
-    steps:
-      - *load_code
-      - *update_submodules
-      - *get_requirements
-      - *build
-      - *test
-      - *store
-
-  build_and_test_linux_with_cov: &build_and_test_linux_with_cov
-    <<: *build_and_test_linux
-    steps:
-      - *load_code
-      - *update_submodules
-      - *get_requirements
-      - *build
-      - *test_cov
-      - *store
-
   build_and_test_windows: &build_and_test_windows
     executor:
       name: win/default
@@ -231,31 +192,6 @@ jobs:
       PYVER: "3.9"
       PYTHON: "python3.9"
     <<: *load_check_style
-
-  linux-python-39:
-    docker:
-      - image: glotzerlab/ci:2020.10-py39
-    environment:
-      PYVER: "3.9"
-      PYTHON: "python3.9"
-    <<: *build_and_test_linux_with_cov
-
-  linux-python-38:
-    docker:
-      - image: glotzerlab/ci:2020.10-py38
-    environment:
-      PYVER: "3.8"
-      PYTHON: "python3.8"
-    <<: *build_and_test_linux_with_cov
-
-  linux-python-36-oldest:
-    docker:
-      - image: glotzerlab/ci:2020.10-py36
-    environment:
-      PYVER: "3.6"
-      PYTHON: "python3.6"
-      DEPENDENCIES: "OLDEST"
-    <<: *build_and_test_linux
 
   windows-python-310:
     environment:
@@ -296,15 +232,6 @@ workflows:
   test:
     jobs:
       - check-style
-      - linux-python-39
-      - linux-python-38:
-          requires:
-            - check-style
-            - linux-python-39
-      - linux-python-36-oldest:
-          requires:
-            - check-style
-            - linux-python-39
       - windows-python-310
       - windows-python-39:
           requires:
