@@ -32,7 +32,8 @@ public:
     ClusterProperties() = default;
 
     //! Compute properties of the point clusters
-    void compute(const freud::locality::NeighborQuery* nq, const unsigned int* cluster_idx);
+    void compute(const freud::locality::NeighborQuery* nq, const unsigned int* cluster_idx,
+                 const float* masses);
 
     //! Get a reference to the last computed cluster centers
     const util::ManagedArray<vec3<float>>& getClusterCenters() const

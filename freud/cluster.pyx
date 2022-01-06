@@ -178,7 +178,7 @@ cdef class ClusterProperties(_Compute):
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, system, cluster_idx):
+    def compute(self, system, cluster_idx, masses=None):
         r"""Compute properties of the point clusters.
         Loops over all points in the given array and determines the center of
         mass of the cluster as well as the gyration tensor. After calling
@@ -210,9 +210,17 @@ cdef class ClusterProperties(_Compute):
         cluster_idx = freud.util._convert_array(
             cluster_idx, shape=(nq.points.shape[0], ), dtype=np.uint32)
         cdef const unsigned int[::1] l_cluster_idx = cluster_idx
+
+        cdef float* l_masses_ptr = NULL
+        cdef float[::1] l_masses
+        if masses is not None:
+            l_masses = freud.util._convert_array(masses, shape=(len(vecs), ))
+            l_masses_ptr = &l_masses[0]
+
         self.thisptr.compute(
             nq.get_ptr(),
-            <unsigned int*> &l_cluster_idx[0])
+            <unsigned int*> &l_cluster_idx[0], 
+            l_masses_ptr)
         return self
 
     @_Compute._computed_property
