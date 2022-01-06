@@ -211,9 +211,16 @@ cdef class ClusterProperties(_Compute):
             cluster_idx, shape=(nq.points.shape[0], ), dtype=np.uint32)
         cdef const unsigned int[::1] l_cluster_idx = cluster_idx
 
+        cdef float* l_masses_ptr = NULL
+        cdef float[::1] l_masses
+        if masses is not None:
+            l_masses = freud.util._convert_array(masses, shape=(None, 3))
+            l_masses_ptr = &l_masses[0]
+
+
         self.thisptr.compute(
             nq.get_ptr(),
-            <unsigned int*> &l_cluster_idx[0], masses)
+            <unsigned int*> &l_cluster_idx[0], l_masses_ptr)
         return self
 
     @_Compute._computed_property
