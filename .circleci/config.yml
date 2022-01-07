@@ -61,7 +61,12 @@ references:
         conda install python=${PYVER} pip tbb tbb-devel
         conda update --all
         ${PYTHON} -m pip install --progress-bar off scikit-build==0.10.0
-        ${PYTHON} -m pip install --progress-bar off -U -r requirements/requirements-test.txt
+        if [ "${DEPENDENCIES}" == "COMPATIBLE" ]; then
+          # Python 3.7 was dropped by NEP 29, but we still support it
+          ${PYTHON} -m pip install --progress-bar off -U -r requirements/requirements-test-compatible.txt
+        else
+          ${PYTHON} -m pip install --progress-bar off -U -r requirements/requirements-test.txt
+        fi
         # Install cmake >=3.14 to support Visual Studio 2019 generator
         ${PYTHON} -m pip install --progress-bar off -U cmake~=3.14
 
@@ -243,14 +248,6 @@ jobs:
       PYTHON: "python3.8"
     <<: *build_and_test_linux_with_cov
 
-  linux-python-37:
-    docker:
-      - image: glotzerlab/ci:2020.10-py37
-    environment:
-      PYVER: "3.7"
-      PYTHON: "python3.7"
-    <<: *build_and_test_linux_with_cov
-
   linux-python-36-oldest:
     docker:
       - image: glotzerlab/ci:2020.10-py36
@@ -259,6 +256,12 @@ jobs:
       PYTHON: "python3.6"
       DEPENDENCIES: "OLDEST"
     <<: *build_and_test_linux
+
+  windows-python-310:
+    environment:
+      PYVER: "3.10"
+      <<: *windows_env
+    <<: *build_and_test_windows
 
   windows-python-39:
     environment:
@@ -275,6 +278,7 @@ jobs:
   windows-python-37:
     environment:
       PYVER: "3.7"
+      DEPENDENCIES: "COMPATIBLE"
       <<: *windows_env
     <<: *build_and_test_windows
 
@@ -297,23 +301,23 @@ workflows:
           requires:
             - check-style
             - linux-python-39
-      - linux-python-37:
-          requires:
-            - check-style
-            - linux-python-39
       - linux-python-36-oldest:
           requires:
             - check-style
             - linux-python-39
-      - windows-python-39
+      - windows-python-310
+      - windows-python-39:
+          requires:
+            - check-style
+            - windows-python-310
       - windows-python-38:
           requires:
             - check-style
-            - windows-python-39
+            - windows-python-310
       - windows-python-37:
           requires:
             - check-style
-            - windows-python-39
+            - windows-python-310
 # Disabled benchmarks on CI - they currently take too much work
 #     - benchmarks:
 #         requires:

@@ -26,15 +26,15 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-20.04, macos-10.15] #, windows-2019]
-        pyver: [3.6, 3.7, 3.8, 3.9]
+        pyver: ["3.6", "3.7", "3.8", "3.9", "3.10"]
 
     steps:
-      - uses: actions/checkout@v2.3.5
+      - uses: actions/checkout@v2.4.0
         with:
           submodules: "recursive"
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.2.2
+        uses: pypa/cibuildwheel@v2.3.1
         env:
           # Build for cpython >= 3.6.
           CIBW_PROJECT_REQUIRES_PYTHON: "==${{ matrix.pyver }}.*"
@@ -60,7 +60,7 @@ jobs:
           CIBW_BEFORE_TEST_WINDOWS: "powershell .github/workflows/cibuildwheel-before-test.ps1 {package}"
           CIBW_TEST_COMMAND: "cd {package}/tests && pytest . -v --log-level=DEBUG -n auto"
 
-      - uses: actions/upload-artifact@v2.2.4
+      - uses: actions/upload-artifact@v2.3.1
         with:
           name: dist
           path: ./wheelhouse/*.whl
@@ -69,11 +69,11 @@ jobs:
     name: Build source distribution
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.3.5
+      - uses: actions/checkout@v2.4.0
         with:
           submodules: "recursive"
 
-      - uses: actions/setup-python@v2.2.2
+      - uses: actions/setup-python@v2.3.1
         name: Install Python
         with:
           python-version: '3.9'
@@ -84,7 +84,7 @@ jobs:
       - name: Build sdist
         run: python setup.py sdist
 
-      - uses: actions/upload-artifact@v2.2.4
+      - uses: actions/upload-artifact@v2.3.1
         with:
           name: dist
           path: dist/*.tar.gz
@@ -96,7 +96,7 @@ jobs:
 
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v2.0.10
+        uses: actions/download-artifact@v2.1.0
         with:
           name: dist
           path: dist
@@ -124,7 +124,7 @@ jobs:
 
       - name: Slack notification
         if: startsWith(github.ref, 'refs/tags/v') && always()
-        uses: act10ns/slack@v1.2.2
+        uses: act10ns/slack@v1.5.1
         with:
           status: ${{ job.status }}
           channel: '#dev-freud'
