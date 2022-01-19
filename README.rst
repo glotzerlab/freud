@@ -49,7 +49,7 @@ Resources
 Related Tools
 =============
 
-- `HOOMD-blue <https://hoomd-blue.readthedocs.io/>`__: Perform MD / MC simulations that can be analyzed with freud.
+- `HOOMD-blue <https://hoomd-blue.readthedocs.io/>`__: Perform MD / MC simulations that can be analyzed with **freud**.
 - `signac <https://signac.io/>`__: Manage your workflow with **signac**.
 
 Citation
