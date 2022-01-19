@@ -49,10 +49,8 @@ Resources
 Related Tools
 =============
 
-- [HOOMD-blue](https://hoomd-blue.readthedocs.io/):
-   Analyze **HOOMD-blue** simulation results with freud.
-- [signac](https://signac.io/):
-  Manage your workflow with **signac**.
+- `HOOMD-blue <https://hoomd-blue.readthedocs.io/>`__: Perform MD / MC simulations that can be analyzed with freud.
+- `signac <https://signac.io/>`__: Manage your workflow with **signac**.
 
 Citation
 ========
