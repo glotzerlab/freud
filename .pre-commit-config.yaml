@@ -42,12 +42,12 @@ repos:
     rev: '21.12b0'
     hooks:
       - id: black
-  - repo: https://github.com/PyCQA/flake8
-    rev: '4.0.1'
+  - repo: https://github.com/kmaehashi/flake8-force
+    rev: 'v0.0.1'
     hooks:
       - id: flake8
         args:
-        - --show-source
+        - --force-check --show-source
   - repo: https://github.com/cheshirekow/cmake-format-precommit
     rev: v0.6.13
     hooks:
