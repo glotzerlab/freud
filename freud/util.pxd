@@ -3,15 +3,15 @@
 
 # Directly expose vec3 and quat since they're ubiquitous in constructing
 # arguments to interface with the C++ implementations of all methods.
-import numpy as np
-
-cimport numpy as np
 from cpython cimport Py_INCREF
 from cython.operator cimport dereference
 from libcpp cimport bool
 from libcpp.complex cimport complex
 
 from freud._util cimport ManagedArray, PyArray_SetBaseObject, quat, vec3
+import numpy as np
+
+cimport numpy as np
 
 ctypedef unsigned int uint
 ctypedef float complex fcomplex

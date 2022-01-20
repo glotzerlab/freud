@@ -8,23 +8,26 @@ and orientations of particles in the local neighborhood of a given particle to
 characterize the particle environment.
 """
 
+from freud.errors import NO_DEFAULT_QUERY_ARGS_MESSAGE
+
+from cython.operator cimport dereference
+from libcpp.map cimport map
+
+from freud.locality cimport _PairCompute, _SpatialHistogram
+from freud.util cimport _Compute, quat, vec3
+
 import warnings
 
 import numpy as np
 
 import freud.locality
-from freud.errors import NO_DEFAULT_QUERY_ARGS_MESSAGE
 
 cimport numpy as np
-from cython.operator cimport dereference
-from libcpp.map cimport map
 
 cimport freud._environment
 cimport freud.box
 cimport freud.locality
 cimport freud.util
-from freud.locality cimport _PairCompute, _SpatialHistogram
-from freud.util cimport _Compute, quat, vec3
 
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
