@@ -647,11 +647,11 @@ cdef class Steinhardt(_PairCompute):
 
     @_Compute._computed_property
     def order(self):
-        """float: The system wide normalization of the order parameter,
+        r"""float: The system wide normalization of the order parameter,
         computed by averaging the :math:`q_{lm}` values (or
         :math:`\overline{q}_{lm}` values if ``average`` is enabled) over all
         particles before computing the rotationally-invariant order
-        parameter."""  # noqa W605
+        parameter."""
         # list conversion is necessary as otherwise CI Cython complains about
         # compiling the below expression with two different types.
         order = list(self.thisptr.getOrder())
