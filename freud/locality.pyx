@@ -427,8 +427,8 @@ cdef class NeighborQuery:
                 :meth:`matplotlib.axes.Axes.plot`.
 
         Returns:
-            tuple (:class:`matplotlib.axes.Axes`,
-                   :class:`matplotlib.collections.PathCollection`):
+            tuple (:class:`matplotlib.axes.Axes`, \
+            :class:`matplotlib.collections.PathCollection`):
                 Axis and point data for the plot.
         """
         import freud.plot
