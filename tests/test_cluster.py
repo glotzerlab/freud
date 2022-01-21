@@ -98,6 +98,18 @@ class TestCluster:
         npt.assert_allclose(props.gyrations[1], g_tensor_2, rtol=1e-5, atol=1e-5)
         npt.assert_allclose(props.radii_of_gyration, [0, rg_2], rtol=1e-5, atol=1e-5)
 
+    def test_cluster_different_masses(self):
+        "Tests center of mass with varying point masses, instead of default of 1."
+        box = freud.box.Box.square(L=5)
+        positions = np.array([[0, -2, 0], [0, -2, 0], [0, 2, 0], [-0.1, 1.9, 0]])
+        masses = [2, 1, 4, 1]
+
+        clust = freud.cluster.Cluster()
+        clust.compute((box, positions), neighbors={"r_max": 0.5})
+
+        props = freud.cluster.ClusterProperties()
+        props.compute((box, positions), clust.cluster_idx, masses)
+
     def test_cluster_com_periodic(self):
         "Tests center of mass for symmetric, box-spanning clusters."
         box = freud.Box.cube(3)
