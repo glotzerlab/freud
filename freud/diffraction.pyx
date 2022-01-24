@@ -12,6 +12,11 @@ diffraction pattern of particles in systems with long range order.
 finalized in a future release.
 """
 
+from libcpp cimport bool as cbool
+from libcpp.vector cimport vector
+
+from freud.util cimport _Compute, vec3
+
 import logging
 
 import numpy as np
@@ -21,13 +26,10 @@ import scipy.ndimage
 import freud.locality
 
 cimport numpy as np
-from libcpp cimport bool as cbool
-from libcpp.vector cimport vector
 
 cimport freud._diffraction
 cimport freud.locality
 cimport freud.util
-from freud.util cimport _Compute, vec3
 
 logger = logging.getLogger(__name__)
 
@@ -173,7 +175,10 @@ cdef class StaticStructureFactorDebye(_StaticStructureFactor):
 
     def __cinit__(self, unsigned int bins, float k_max, float k_min=0):
         if type(self) == StaticStructureFactorDebye:
-            self.thisptr = self.ssfptr = new freud._diffraction.StaticStructureFactorDebye(bins, k_max, k_min)
+            self.thisptr = self.ssfptr = new \
+                freud._diffraction.StaticStructureFactorDebye(bins,
+                                                              k_max,
+                                                              k_min)
 
     def __dealloc__(self):
         if type(self) == StaticStructureFactorDebye:
@@ -299,12 +304,15 @@ cdef class StaticStructureFactorDirect(_StaticStructureFactor):
 
     .. math::
 
-        S(\vec{k}) = \frac{1}{N}  \sum_{i=0}^{N} \sum_{j=0}^N e^{i\vec{k} \cdot \vec{r}_{ij}}
+        S(\vec{k}) = \frac{1}{N}  \sum_{i=0}^{N} \sum_{j=0}^N e^{i\vec{k} \cdot
+        \vec{r}_{ij}}
 
-    where :math:`N` is the number of particles. Note that the definition requires :math:`S(0) = N`.
+    where :math:`N` is the number of particles. Note that the definition
+    requires :math:`S(0) = N`.
 
-    This implementation provides a much slower algorithm, but gives better results than the
-    :py:attr:`freud.diffraction.StaticStructureFactorDebye` method at low k values.
+    This implementation provides a much slower algorithm, but gives better
+    results than the :py:attr:`freud.diffraction.StaticStructureFactorDebye`
+    method at low k values.
 
     The :math:`\vec{k}` vectors are sampled isotropically from a grid defined by
     the box's reciprocal lattice vectors. This sampling of reciprocal space is
@@ -348,9 +356,12 @@ cdef class StaticStructureFactorDirect(_StaticStructureFactor):
 
     cdef freud._diffraction.StaticStructureFactorDirect * thisptr
 
-    def __cinit__(self, unsigned int bins, float k_max, float k_min=0, unsigned int num_sampled_k_points = 0):
+    def __cinit__(self, unsigned int bins, float k_max, float k_min=0,
+                  unsigned int num_sampled_k_points=0):
         if type(self) == StaticStructureFactorDirect:
-            self.thisptr = self.ssfptr = new freud._diffraction.StaticStructureFactorDirect(bins, k_max, k_min, num_sampled_k_points)
+            self.thisptr = self.ssfptr = \
+                new freud._diffraction.StaticStructureFactorDirect(
+                    bins, k_max, k_min, num_sampled_k_points)
 
     def __dealloc__(self):
         if type(self) == StaticStructureFactorDirect:
@@ -418,7 +429,9 @@ cdef class StaticStructureFactorDirect(_StaticStructureFactor):
             )
         # Convert points to float32 to avoid errors when float64 is passed
         temp_nq = freud.locality.NeighborQuery.from_system(system)
-        cdef freud.locality.NeighborQuery nq = freud.locality.NeighborQuery.from_system((temp_nq.box,freud.util._convert_array(temp_nq.points)))
+        cdef freud.locality.NeighborQuery nq = \
+            freud.locality.NeighborQuery.from_system(
+                (temp_nq.box, freud.util._convert_array(temp_nq.points)))
 
         if reset:
             self._reset()
@@ -456,13 +469,14 @@ cdef class StaticStructureFactorDirect(_StaticStructureFactor):
 
     @property
     def num_sampled_k_points(self):
-        r"""int: The target number of :math:`\vec{k}` points to use when constructing :math:`k` space
-        grid."""
+        r"""int: The target number of :math:`\vec{k}` points to use when
+        constructing :math:`k` space grid."""
         return self.thisptr.getNumSampledKPoints()
 
     @_Compute._computed_property
     def k_points(self):
-        r""":class:`numpy.ndarray`: The :math:`\vec{k}` points used in the calculation."""
+        r""":class:`numpy.ndarray`: The :math:`\vec{k}` points used in the
+        calculation."""
         cdef vector[vec3[float]] k_points = self.thisptr.getKPoints()
         return np.asarray([[k.x, k.y, k.z] for k in k_points])
 
@@ -729,7 +743,8 @@ cdef class DiffractionPattern(_Compute):
         # lazy evaluation of k-values and k-vectors
         self._box_matrix_scale_factor = np.max(system.box.to_matrix())
         self._view_orientation = view_orientation
-        self._k_scale_factor = 2 * np.pi * self.output_size / (self._box_matrix_scale_factor * zoom)
+        self._k_scale_factor = 2 * np.pi * self.output_size / \
+            (self._box_matrix_scale_factor * zoom)
         self._k_values_cached = False
         self._k_vectors_cached = False
 
@@ -760,7 +775,7 @@ cdef class DiffractionPattern(_Compute):
 
     @_Compute._computed_property
     def k_values(self):
-        """(``output_size``, ) :class:`numpy.ndarray`: k-values."""
+        """(``output_size``,) :class:`numpy.ndarray`: k-values."""
         if not self._k_values_cached:
             self._k_values = np.asarray(self._k_values_orig) * self._k_scale_factor
             self._k_values_cached = True
@@ -768,10 +783,8 @@ cdef class DiffractionPattern(_Compute):
 
     @_Compute._computed_property
     def k_vectors(self):
-        """
-        (``output_size``, ``output_size``, 3) :class:`numpy.ndarray`:
-            k-vectors.
-        """
+        """(``output_size``, ``output_size``, 3) :class:`numpy.ndarray`: \
+        k-vectors."""
         if not self._k_vectors_cached:
             self._k_vectors = rowan.rotate(
                 self._view_orientation,

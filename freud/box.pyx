@@ -7,6 +7,12 @@ natively supports periodicity by providing the fundamental features for
 wrapping vectors outside the box back into it.
 """
 
+from cpython.object cimport Py_EQ, Py_NE
+from cython.operator cimport dereference
+from libcpp cimport bool as cpp_bool
+
+from freud.util cimport vec3
+
 import logging
 import warnings
 
@@ -15,12 +21,8 @@ import numpy as np
 import freud.util
 
 cimport numpy as np
-from cpython.object cimport Py_EQ, Py_NE
-from cython.operator cimport dereference
-from libcpp cimport bool as cpp_bool
 
 cimport freud._box
-from freud.util cimport vec3
 
 logger = logging.getLogger(__name__)
 
@@ -203,15 +205,15 @@ cdef class Box:
         fractions = np.atleast_2d(fractions)
         fractions = freud.util._convert_array(fractions, shape=(None, 3))
         out = freud.util._convert_array(
-                out, shape=fractions.shape, allow_copy=False)
+            out, shape=fractions.shape, allow_copy=False)
 
         cdef const float[:, ::1] l_points = fractions
         cdef unsigned int Np = l_points.shape[0]
         cdef float[:, ::1] l_out = out
 
         self.thisptr.makeAbsolute(
-                <vec3[float]*> &l_points[0, 0], Np,
-                <vec3[float]*> &l_out[0, 0])
+            <vec3[float]*> &l_points[0, 0], Np,
+            <vec3[float]*> &l_out[0, 0])
 
         return np.squeeze(out) if flatten else out
 
@@ -236,15 +238,15 @@ cdef class Box:
         vecs = np.atleast_2d(vecs)
         vecs = freud.util._convert_array(vecs, shape=(None, 3))
         out = freud.util._convert_array(
-                out, shape=vecs.shape, allow_copy=False)
+            out, shape=vecs.shape, allow_copy=False)
 
         cdef const float[:, ::1] l_points = vecs
         cdef unsigned int Np = l_points.shape[0]
         cdef float[:, ::1] l_out = out
 
         self.thisptr.makeFractional(
-                <vec3[float]*> &l_points[0, 0], Np,
-                <vec3[float]*> &l_out[0, 0])
+            <vec3[float]*> &l_points[0, 0], Np,
+            <vec3[float]*> &l_out[0, 0])
 
         return np.squeeze(out) if flatten else out
 
@@ -330,7 +332,7 @@ cdef class Box:
         vecs = np.atleast_2d(vecs)
         vecs = freud.util._convert_array(vecs, shape=(None, 3))
         out = freud.util._convert_array(
-                out, shape=vecs.shape, allow_copy=False)
+            out, shape=vecs.shape, allow_copy=False)
 
         cdef const float[:, ::1] l_points = vecs
         cdef unsigned int Np = l_points.shape[0]
@@ -370,9 +372,9 @@ cdef class Box:
             vecs, imgs = np.broadcast_arrays(vecs, imgs)
         vecs = freud.util._convert_array(vecs, shape=(None, 3)).copy()
         imgs = freud.util._convert_array(
-                imgs, shape=vecs.shape, dtype=np.int32)
+            imgs, shape=vecs.shape, dtype=np.int32)
         out = freud.util._convert_array(
-                out, shape=vecs.shape, allow_copy=False)
+            out, shape=vecs.shape, allow_copy=False)
 
         cdef const float[:, ::1] l_points = vecs
         cdef const int[:, ::1] l_imgs = imgs

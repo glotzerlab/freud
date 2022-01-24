@@ -5,23 +5,26 @@ r"""
 The :mod:`freud.locality` module contains data structures to efficiently
 locate points based on their proximity to other points.
 """
-import inspect
-
-import numpy as np
-
-import freud.util
 from freud.errors import NO_DEFAULT_QUERY_ARGS_MESSAGE
 
-cimport numpy as np
 from cython.operator cimport dereference
 from libcpp cimport bool as cbool
 from libcpp.memory cimport shared_ptr
 from libcpp.vector cimport vector
 
-cimport freud._locality
-cimport freud.box
 from freud._locality cimport ITERATOR_TERMINATOR
 from freud.util cimport _Compute, vec3
+
+import inspect
+
+import numpy as np
+
+import freud.util
+
+cimport numpy as np
+
+cimport freud._locality
+cimport freud.box
 
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
@@ -424,7 +427,8 @@ cdef class NeighborQuery:
                 :meth:`matplotlib.axes.Axes.plot`.
 
         Returns:
-            tuple (:class:`matplotlib.axes.Axes`, :class:`matplotlib.collections.PathCollection`):
+            tuple (:class:`matplotlib.axes.Axes`, \
+            :class:`matplotlib.collections.PathCollection`):
                 Axis and point data for the plot.
         """
         import freud.plot

@@ -6,6 +6,11 @@ The :class:`freud.cluster` module aids in finding and computing the properties
 of clusters of points in a system.
 """
 
+from cython.operator cimport dereference
+
+from freud.locality cimport _PairCompute
+from freud.util cimport _Compute
+
 import warnings
 
 import numpy as np
@@ -14,13 +19,10 @@ import freud.locality
 import freud.util
 
 cimport numpy as np
-from cython.operator cimport dereference
 
 cimport freud._cluster
 cimport freud.locality
 cimport freud.util
-from freud.locality cimport _PairCompute
-from freud.util cimport _Compute
 
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
