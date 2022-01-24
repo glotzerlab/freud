@@ -775,7 +775,7 @@ cdef class DiffractionPattern(_Compute):
 
     @_Compute._computed_property
     def k_values(self):
-        """(``output_size``, ) :class:`numpy.ndarray`: k-values."""
+        """(``output_size``,) :class:`numpy.ndarray`: k-values."""
         if not self._k_values_cached:
             self._k_values = np.asarray(self._k_values_orig) * self._k_scale_factor
             self._k_values_cached = True
@@ -783,10 +783,8 @@ cdef class DiffractionPattern(_Compute):
 
     @_Compute._computed_property
     def k_vectors(self):
-        """
-        (``output_size``, ``output_size``, 3) :class:`numpy.ndarray`:
-            k-vectors.
-        """
+        """(``output_size``, ``output_size``, 3) :class:`numpy.ndarray`: \
+        k-vectors."""
         if not self._k_vectors_cached:
             self._k_vectors = rowan.rotate(
                 self._view_orientation,
