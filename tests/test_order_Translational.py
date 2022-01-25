@@ -40,3 +40,12 @@ class TestTranslational:
         with pytest.warns(FreudDeprecationWarning):
             trans = freud.order.Translational(4)
             assert str(trans) == str(eval(repr(trans)))
+
+    def test_no_neighbors(self):
+        box = freud.box.Box.square(10)
+        positions = [(0, 0, 0)]
+        trans = freud.order.Translational(4)
+        trans.compute((box, positions), neighbors={"r_max": 0.25})
+
+        assert np.all(np.isnan(trans.particle_order))
+        npt.assert_allclose(np.nan_to_num(trans.particle_order), 0)

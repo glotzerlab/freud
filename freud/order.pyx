@@ -286,6 +286,15 @@ cdef class Hexatic(_PairCompute):
         **2D:** :class:`freud.order.Hexatic` is only defined for 2D systems.
         The points must be passed in as :code:`[x, y, 0]`.
 
+    .. note::
+        The value of per-particle order parameter will be set to NaN for
+        particles with no neighbors. We choose this value rather than setting
+        the order parameter to 0 because in more complex order parameter
+        calculations, it is possible to observe a value of 0 for the
+        per-particle order parameter even with a finite number of neighbors.
+        If you would like to ignore this distinction, you can mask the output
+        order parameter values using NumPy: :code:`numpy.nan_to_num(particle_order)`.
+
     Args:
         k (unsigned int, optional):
             Symmetry of order parameter (Default value = :code:`6`).
@@ -422,6 +431,16 @@ cdef class Translational(_PairCompute):
 
     .. note::
         This class is slated for deprecation and will be removed in freud 3.0.
+
+    .. note::
+        The value of per-particle order parameter will be set to NaN for
+        particles with no neighbors. We choose this value rather than setting
+        the order parameter to 0 because in more complex order parameter
+        calculations, it is possible to observe a value of 0 for the
+        per-particle order parameter even with a finite number of neighbors.
+        If you would like to ignore this distinction, you can mask the output
+        order parameter values using NumPy: :code:`numpy.nan_to_num(particle_order)`.
+
 
     Args:
         k (float, optional):
@@ -810,6 +829,15 @@ cdef class SolidLiquid(_PairCompute):
     the particle is considered solid-like. Finally, solid-like particles are
     clustered.
 
+    .. note::
+        The value of :math:`q_l(i, j)` will be set to NaN for
+        particles with no neighbors. We choose this value rather than setting
+        the order parameter to 0 because in more complex order parameter
+        calculations, it is possible to observe a value of 0 for the :math:`q_l(i, j)`
+        order parameter even with a finite number of neighbors.
+        If you would like to ignore this distinction, you can mask the output order
+        parameter values using NumPy: :code:`numpy.nan_to_num(particle_order)`.
+
     Args:
         l (unsigned int):
             Spherical harmonic quantum number l.
@@ -861,6 +889,7 @@ cdef class SolidLiquid(_PairCompute):
         self.thisptr.compute(nlist.get_ptr(),
                              nq.get_ptr(),
                              dereference(qargs.thisptr))
+        return self
 
     @property
     def l(self):  # noqa: E743
