@@ -21,7 +21,7 @@ and this project adheres to
 ### Changed
 * Re-organized tests for the static structure factor classes.
 * Move `util::Histogram<T>::Axes` to `util::Axes`.
-* Use new `flake8` plugin `flake8-force` for linting cython code.
+* Use new `flake8` plugin `flake8-force` for linting Cython code.
 
 ## v2.7.0 -- 2021-10-01
 
