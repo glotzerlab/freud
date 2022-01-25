@@ -4,17 +4,24 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## next -- yyyy-mm-dd
+## v2.8.0 -- 2022-01-25
 
 ### Added
 * `freud.diffraction.StaticStructureFactorDirect` class (unstable) can be used to compute the static structure factor S(k) by sampling reciprocal space vectors.
 * Python 3.10 is supported.
+* Documentation examples are tested with pytest.
+* Use clang-format as pre-commit hook.
+* Add related tools section to the documentation.
 
 ### Fixed
+* `freud.diffraction.DiffractionPattern` normalization changed such that `S(k=0) = N`.
 * Added error checking for `r_min`, `r_max` arguments in `freud.density.RDF`, `freud.locality.NeighborList`, `freud.locality.NeighborQuery`, and `freud.density.LocalDensity` classes.
-* Doctests are now run with pytest.
-* Cleaned up tests for the static structure factor classes.
 * CMake build system only uses references to TBB target.
+
+### Changed
+* Re-organized tests for the static structure factor classes.
+* Move `util::Histogram<T>::Axes` to `util::Axes`.
+* Use new `flake8` plugin `flake8-force` for linting Cython code.
 
 ## v2.7.0 -- 2021-10-01
 
