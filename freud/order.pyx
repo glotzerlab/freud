@@ -10,6 +10,14 @@ harmonics of the bond order diagram, which are the spherical analogue of
 Fourier Transforms.
 """
 
+from freud.util cimport _Compute, quat, vec3
+
+from freud.errors import FreudDeprecationWarning
+
+from cython.operator cimport dereference
+
+from freud.locality cimport _PairCompute
+
 import collections.abc
 import logging
 import time
@@ -19,17 +27,11 @@ import numpy as np
 
 import freud.locality
 
-from freud.util cimport _Compute, quat, vec3
-
-from freud.errors import FreudDeprecationWarning
-
 cimport numpy as np
-from cython.operator cimport dereference
 
 cimport freud._order
 cimport freud.locality
 cimport freud.util
-from freud.locality cimport _PairCompute
 
 logger = logging.getLogger(__name__)
 
@@ -645,7 +647,7 @@ cdef class Steinhardt(_PairCompute):
 
     @_Compute._computed_property
     def order(self):
-        """float: The system wide normalization of the order parameter,
+        r"""float: The system wide normalization of the order parameter,
         computed by averaging the :math:`q_{lm}` values (or
         :math:`\overline{q}_{lm}` values if ``average`` is enabled) over all
         particles before computing the rotationally-invariant order
