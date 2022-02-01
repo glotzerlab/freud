@@ -101,14 +101,20 @@ class TestCluster:
     def test_cluster_different_masses(self):
         "Tests center of mass with varying point masses, instead of default of 1."
         box = freud.box.Box.square(L=5)
-        positions = np.array([[0, -2, 0], [0, -2, 0], [0, 2, 0], [-0.1, 1.9, 0]])
-        masses = [2, 1, 4, 1]
+        positions = np.array(
+            [[0, -2, 0], [0, -2, 0], [0, 2, 0], [-0.1, 1.9, 0]])
+        masses = [2, 4, 3, 2]
 
         clust = freud.cluster.Cluster()
         clust.compute((box, positions), neighbors={"r_max": 0.5})
 
         props = freud.cluster.ClusterProperties()
         props.compute((box, positions), clust.cluster_idx, masses)
+        print(props.centers)
+        x_center = (0 * 3 + -0.1 * 2) / 5
+        y_center = (2 * 3 + 1.9 * 2) / 5
+        calc = [x_center, y_center, 0]
+        npt.assert_allclose(props.centers, [[0, -2, 0], calc])
 
     def test_cluster_com_periodic(self):
         "Tests center of mass for symmetric, box-spanning clusters."

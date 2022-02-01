@@ -214,7 +214,7 @@ cdef class ClusterProperties(_Compute):
         cdef float* l_masses_ptr = NULL
         cdef float[::1] l_masses
         if masses is not None:
-            l_masses = freud.util._convert_array(masses, shape=(None, 3))
+            l_masses = freud.util._convert_array(masses, shape=(nq.points.shape[0], ))
             l_masses_ptr = &l_masses[0]
 
 
