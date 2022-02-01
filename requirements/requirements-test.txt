@@ -5,7 +5,7 @@ coverage==6.3
 cython==0.29.26
 dynasor==1.1.1; platform_system != "Windows"
 garnett==0.7.1
-GitPython==3.1.24
+GitPython==3.1.26
 gsd==2.5.1
 matplotlib>=3.0.0
 numpy==1.22.0
