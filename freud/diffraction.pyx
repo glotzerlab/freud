@@ -709,7 +709,7 @@ cdef class DiffractionPattern(_Compute):
         # Compute FFT and convolve with Gaussian
         cdef double complex[:, :] diffraction_fft
         diffraction_fft = np.fft.fft2(im)
-        diffraction_fft = scipy.ndimage.fourier.fourier_gaussian(
+        diffraction_fft = scipy.ndimage.fourier_gaussian(
             diffraction_fft, peak_width / zoom)
         diffraction_fft = np.fft.fftshift(diffraction_fft)
 
