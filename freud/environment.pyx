@@ -729,7 +729,7 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
 
     @_Compute._computed_property
     def matches(self):
-        """:math:`(N_points, )` :class:`numpy.ndarray`: A boolean array indicating
+        """(:math:`N_{points}`) :class:`numpy.ndarray`: A boolean array indicating
         whether each point matches the motif."""
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getMatches(),
