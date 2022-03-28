@@ -223,10 +223,7 @@ class StaticStructureFactorTest:
     def test_S_0_is_N(self):
         L = 10
         N = 1000
-        # The Direct method evaluates S(k) in bins. Here, we choose the binning
-        # parameters such that the first bin contains only the origin in k-space
-        # and no other k-points. Thus the smallest bin is measuring S(0) = N.
-        sf = self.build_structure_factor_object(bins=100, k_max=10)
+        sf = self.build_structure_factor_object(bins=100, k_max=0.1)
         box, points = freud.data.make_random_system(L, N)
         system = freud.AABBQuery.from_system((box, points))
         sf.compute(system)
@@ -235,7 +232,7 @@ class StaticStructureFactorTest:
     def test_accumulation(self):
         L = 10
         N = 1000
-        sf = self.build_structure_factor_object(bins=100, k_max=10)
+        sf = self.build_structure_factor_object(bins=100, k_max=0.1)
         # Ensure that accumulation averages correctly over different numbers of
         # points. We test N points, N*2 points, and N*3 points. On average, the
         # number of points is N * 2.
