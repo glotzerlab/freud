@@ -82,7 +82,7 @@ class TestLocalDensity:
         diameter = 1
         r_max = 2
 
-        v_around = 4 / 3 * (r_max ** 3) * np.pi
+        v_around = 4 / 3 * (r_max**3) * np.pi
 
         ld = freud.density.LocalDensity(r_max, diameter)
         ld.compute((box, points), query_points)
