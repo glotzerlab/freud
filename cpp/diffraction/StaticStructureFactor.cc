@@ -13,16 +13,13 @@
 namespace freud { namespace diffraction {
 
 StaticStructureFactor::StaticStructureFactor(unsigned int bins, float k_max, float k_min)
+    : m_structure_factor(std::make_shared<util::RegularAxis>(bins, k_min, k_max)),
+      m_local_structure_factor(m_structure_factor)
 {
     // Validation logic is not shared in the parent StaticStructureFactor
     // because StaticStructureFactorDebye can provide a negative k_min to this
     // class's constructor. The k_min value to that class corresponds to the
     // lowest bin center, not the lowest bin's lower edge.
-
-    // Construct the Histogram object that will be used to track the structure factor
-    const auto axes = util::Axes {std::make_shared<util::RegularAxis>(bins, k_min, k_max)};
-    m_structure_factor = StructureFactorHistogram(axes);
-    m_local_structure_factor = StructureFactorHistogram::ThreadLocalHistogram(m_structure_factor);
 }
 
 }; }; // namespace freud::diffraction
