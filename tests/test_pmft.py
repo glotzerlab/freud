@@ -25,7 +25,7 @@ def build_radii(bin_centers):
         sl = tuple(
             slice(None, None, None) if i == j else None for j in range(len(bin_centers))
         )
-        radii += (centers ** 2)[sl]
+        radii += (centers**2)[sl]
     return np.sqrt(radii)
 
 
@@ -161,7 +161,7 @@ class PMFTTestBase:
 
         def get_pmft_bydist(r_max, nbins):
             """Get a PMFT with a specified radial cutoff."""
-            limit = np.sqrt(r_max ** 2 / self.ndim)
+            limit = np.sqrt(r_max**2 / self.ndim)
             return self.pmft_cls(*(limit,) * len(self.limits), bins=nbins)
 
         L = 10
@@ -325,7 +325,7 @@ class TestPMFTXYT(PMFT2DTestBase):
         orientations = np.array([0] * len(points))
         query_orientations = np.array([0] * len(query_points))
 
-        r_max = np.sqrt(x_max ** 2 + y_max ** 2)
+        r_max = np.sqrt(x_max**2 + y_max**2)
         test_set = util.make_raw_query_nlist_test_set(
             box, points, query_points, "ball", r_max, 0, False
         )
@@ -435,7 +435,7 @@ class TestPMFTXY(PMFT2DTestBase):
 
         query_orientations = np.array([0] * len(query_points))
 
-        r_max = np.sqrt(x_max ** 2 + y_max ** 2)
+        r_max = np.sqrt(x_max**2 + y_max**2)
         test_set = util.make_raw_query_nlist_test_set(
             box, points, query_points, "ball", r_max, 0, False
         )
