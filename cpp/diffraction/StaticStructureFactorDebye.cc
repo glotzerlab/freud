@@ -19,13 +19,13 @@ namespace {
 //! Given the desired k_max bin center, find the upper edge of the bin.
 float k_max_center_to_upper_edge(unsigned int bins, float k_min, float k_max)
 {
-    return k_max + 0.5f * (k_max - k_min) / static_cast<float>(bins - 1);
+    return k_max + (k_max - k_min) / static_cast<float>(2 * (bins - 1));
 }
 
 //! Given the desired k_min bin center, find the lower edge of the bin.
 float k_min_center_to_lower_edge(unsigned int bins, float k_min, float k_max)
 {
-    return k_min - 0.5f * (k_max - k_min) / static_cast<float>(bins - 1);
+    return k_min - (k_max - k_min) / static_cast<float>(2 * (bins - 1));
 }
 } // namespace
 
