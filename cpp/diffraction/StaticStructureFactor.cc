@@ -14,22 +14,11 @@ namespace freud { namespace diffraction {
 
 StaticStructureFactor::StaticStructureFactor(unsigned int bins, float k_max, float k_min)
 {
-    if (bins == 0)
-    {
-        throw std::invalid_argument("StaticStructureFactor requires a nonzero number of bins.");
-    }
-    if (k_max <= 0)
-    {
-        throw std::invalid_argument("StaticStructureFactor requires k_max to be positive.");
-    }
-    if (k_min < 0)
-    {
-        throw std::invalid_argument("StaticStructureFactor requires k_min to be non-negative.");
-    }
-    if (k_max <= k_min)
-    {
-        throw std::invalid_argument("StaticStructureFactor requires that k_max must be greater than k_min.");
-    }
+    // Validation logic is not shared in the parent StaticStructureFactor
+    // because StaticStructureFactorDebye can provide a negative k_min to this
+    // class's constructor. The k_min value to that class corresponds to the
+    // lowest bin center, not the lowest bin's lower edge.
+
     // Construct the Histogram object that will be used to track the structure factor
     const auto axes = util::Axes {std::make_shared<util::RegularAxis>(bins, k_min, k_max)};
     m_structure_factor = StructureFactorHistogram(axes);
