@@ -128,15 +128,17 @@ cdef class StaticStructureFactorDebye(_StaticStructureFactor):
     conventions). For more information see `this Wikipedia article
     <https://en.wikipedia.org/wiki/Structure_factor>`__. For a full derivation
     see :cite:`Farrow2009`. Note that the definition requires :math:`S(0) = N`.
-    Additionally, the histogram implementation used here requires that ``k_min``
-    and ``k_max`` are leftmost edge and rightmost edge of zeroth and last bin
-    respectively. This means that in practice the requirement :math:`S(0) = N`
-    is satisfied in this implementation only in the limit when ``k_min`` :math:`= 0`
-    and ``bins`` :math:`\to \infty`.
+
+    This implementation uses ``k_min`` and ``k_max`` as bin *centers*, instead
+    of lower / upper bin *edges*, because the Debye formula is evaluated at
+    these bin centers. For this reason, this class does not expose a
+    ``bin_edges`` property like most histogram-like classes in freud. This also
+    means that if ``k_min`` is set to 0, the computed structure factor will
+    show :math:`S(0) = N`.
 
     The Debye implementation provides a much faster algorithm, but gives worse
     results than :py:attr:`freud.diffraction.StaticStructureFactorDirect`
-    at low k values.
+    at low :math:`k` values.
 
     .. note::
         This code assumes all particles have a form factor :math:`f` of 1.
