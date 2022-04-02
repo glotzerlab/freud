@@ -387,9 +387,9 @@ class NeighborQueryTest:
             all_vectors = box.wrap(all_vectors.reshape((-1, 3))).reshape(
                 all_vectors.shape
             )
-            all_rsqs = np.sum(all_vectors ** 2, axis=-1)
+            all_rsqs = np.sum(all_vectors**2, axis=-1)
             (exhaustive_i, exhaustive_j) = np.where(
-                np.logical_and(all_rsqs < r_max ** 2, all_rsqs > 0)
+                np.logical_and(all_rsqs < r_max**2, all_rsqs > 0)
             )
 
             exhaustive_ijs = set(zip(exhaustive_i, exhaustive_j))
@@ -430,9 +430,9 @@ class NeighborQueryTest:
             all_vectors = box.wrap(all_vectors.reshape((-1, 3))).reshape(
                 all_vectors.shape
             )
-            all_rsqs = np.sum(all_vectors ** 2, axis=-1)
+            all_rsqs = np.sum(all_vectors**2, axis=-1)
             (exhaustive_i, exhaustive_j) = np.where(
-                np.logical_and(all_rsqs < r_max ** 2, all_rsqs > 0)
+                np.logical_and(all_rsqs < r_max**2, all_rsqs > 0)
             )
 
             exhaustive_ijs = set(zip(exhaustive_i, exhaustive_j))

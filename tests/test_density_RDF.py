@@ -109,7 +109,7 @@ class TestRDF:
             bin_boundaries = np.array(
                 [r_min + dr * i for i in range(bins + 1) if r_min + dr * i <= r_max]
             )
-            bin_volumes = 4 / 3 * np.pi * np.diff(bin_boundaries ** 3)
+            bin_volumes = 4 / 3 * np.pi * np.diff(bin_boundaries**3)
             avg_counts = rdf.rdf * ndens * bin_volumes
             npt.assert_allclose(rdf.n_r, np.cumsum(avg_counts), rtol=tolerance)
 
