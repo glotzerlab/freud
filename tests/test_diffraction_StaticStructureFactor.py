@@ -45,7 +45,8 @@ class StaticStructureFactorTest:
         sf1.compute(system)
         sf2.compute(system)
         npt.assert_allclose(sf1.bin_centers[50:], sf2.bin_centers, rtol=1e-6, atol=1e-6)
-        npt.assert_allclose(sf1.bin_edges[50:], sf2.bin_edges, rtol=1e-6, atol=1e-6)
+        if not self.DEBYE:
+            npt.assert_allclose(sf1.bin_edges[50:], sf2.bin_edges, rtol=1e-6, atol=1e-6)
         npt.assert_allclose(sf1.S_k[50:], sf2.S_k, rtol=1e-6, atol=1e-6)
         with pytest.raises(ValueError):
             self.build_structure_factor_object(100, 10, -1)
