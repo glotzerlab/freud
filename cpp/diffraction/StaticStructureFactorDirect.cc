@@ -27,7 +27,25 @@ StaticStructureFactorDirect::StaticStructureFactorDirect(unsigned int bins, floa
     : StaticStructureFactor(bins, k_max, k_min), m_num_sampled_k_points(num_sampled_k_points),
       m_k_histogram(KBinHistogram(m_structure_factor.getAxes())),
       m_local_k_histograms(KBinHistogram::ThreadLocalHistogram(m_k_histogram))
-{}
+{
+    if (bins == 0)
+    {
+        throw std::invalid_argument("StaticStructureFactorDirect requires a nonzero number of bins.");
+    }
+    if (k_max <= 0)
+    {
+        throw std::invalid_argument("StaticStructureFactorDirect requires k_max to be positive.");
+    }
+    if (k_min < 0)
+    {
+        throw std::invalid_argument("StaticStructureFactorDirect requires k_min to be non-negative.");
+    }
+    if (k_max <= k_min)
+    {
+        throw std::invalid_argument(
+            "StaticStructureFactorDirect requires that k_max must be greater than k_min.");
+    }
+}
 
 void StaticStructureFactorDirect::accumulate(const freud::locality::NeighborQuery* neighbor_query,
                                              const vec3<float>* query_points, unsigned int n_query_points,

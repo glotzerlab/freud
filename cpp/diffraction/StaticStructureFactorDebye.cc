@@ -15,9 +15,42 @@
 
 namespace freud { namespace diffraction {
 
+namespace {
+//! Given the desired k_max bin center, find the upper edge of the bin.
+float k_max_center_to_upper_edge(unsigned int bins, float k_min, float k_max)
+{
+    return k_max + (k_max - k_min) / static_cast<float>(2 * (bins - 1));
+}
+
+//! Given the desired k_min bin center, find the lower edge of the bin.
+float k_min_center_to_lower_edge(unsigned int bins, float k_min, float k_max)
+{
+    return k_min - (k_max - k_min) / static_cast<float>(2 * (bins - 1));
+}
+} // namespace
+
 StaticStructureFactorDebye::StaticStructureFactorDebye(unsigned int bins, float k_max, float k_min)
-    : StaticStructureFactor(bins, k_max, k_min)
-{}
+    : StaticStructureFactor(bins, k_max_center_to_upper_edge(bins, k_min, k_max),
+                            k_min_center_to_lower_edge(bins, k_min, k_max))
+{
+    if (bins == 0)
+    {
+        throw std::invalid_argument("StaticStructureFactorDebye requires a nonzero number of bins.");
+    }
+    if (k_max <= 0)
+    {
+        throw std::invalid_argument("StaticStructureFactorDebye requires k_max to be positive.");
+    }
+    if (k_min < 0)
+    {
+        throw std::invalid_argument("StaticStructureFactorDebye requires k_min to be non-negative.");
+    }
+    if (k_max <= k_min)
+    {
+        throw std::invalid_argument(
+            "StaticStructureFactorDebye requires that k_max must be greater than k_min.");
+    }
+}
 
 void StaticStructureFactorDebye::accumulate(const freud::locality::NeighborQuery* neighbor_query,
                                             const vec3<float>* query_points, unsigned int n_query_points,
