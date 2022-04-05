@@ -59,6 +59,7 @@ repos:
     rev: 'v13.0.1'
     hooks:
       - id: clang-format
+        types_or: [c, c++]
 # The following pre-commit hooks should only be run manually because they have
 # dependencies that cannot be pip installed.
   - repo: local
