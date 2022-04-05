@@ -263,16 +263,16 @@ class StaticStructureFactorTest:
         assert np.isclose(sf.S_k[0], N * 2)
 
     def test_2D(self):
-        L=10
-        N=1000
+        L = 10
+        N = 1000
         sf = self.build_structure_factor_object(bins=100, k_max=10)
         box, points = freud.data.make_random_system(L, N, is2D=True)
         sf.compute((box, points))
         print(sf.min_valid_k)
         print(sf.num_sampled_k_points)
         sf2 = freud.diffraction.StaticStructureFactorDebye(bins=100, k_max=10)
-        box.dimensions=3
-        box.Lz=L*10
+        box.dimensions = 3
+        box.Lz = L * 10
         sf2.compute((box, points))
         npt.assert_allclose(sf.S_k, sf2.S_k, rtol=1e-5, atol=1e-5)
 
