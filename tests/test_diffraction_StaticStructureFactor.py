@@ -9,6 +9,7 @@ import freud
 class StaticStructureFactorTest:
 
     LARGE_K_PARAMS = {}
+    DEBYE = False
 
     @classmethod
     def build_structure_factor_object(
@@ -19,6 +20,11 @@ class StaticStructureFactorTest:
             "each inheriting class."
         )
 
+    @classmethod
+    def get_min_valid_k(cls, Lx, Ly, Lz=None):
+        min_length = np.min([Lx, Ly]) if Lz is None else np.min([Lx, Ly, Lz])
+        return (4 if cls.DEBYE else 2) * np.pi / min_length
+
     def test_compute(self):
         sf = self.build_structure_factor_object(1000, 100, 0, 80000)
         box, positions = freud.data.UnitCell.fcc().generate_system(4)
@@ -27,14 +33,20 @@ class StaticStructureFactorTest:
     def test_k_min(self):
         L = 10
         N = 1000
-        sf1 = self.build_structure_factor_object(100, 10)
-        sf2 = self.build_structure_factor_object(50, 10, k_min=5)
+        # The bin offsets are different for Direct and Debye. We add one bin to
+        # Debye compared to the Direct test so the Debye bin centers are
+        # aligned.
+        bins = 101 if self.DEBYE else 100
+        upper_bins = 51 if self.DEBYE else 50
+        sf1 = self.build_structure_factor_object(bins, 10)
+        sf2 = self.build_structure_factor_object(upper_bins, 10, k_min=5)
         box, points = freud.data.make_random_system(L, N)
         system = freud.AABBQuery.from_system((box, points))
         sf1.compute(system)
         sf2.compute(system)
         npt.assert_allclose(sf1.bin_centers[50:], sf2.bin_centers, rtol=1e-6, atol=1e-6)
-        npt.assert_allclose(sf1.bin_edges[50:], sf2.bin_edges, rtol=1e-6, atol=1e-6)
+        if not self.DEBYE:
+            npt.assert_allclose(sf1.bin_edges[50:], sf2.bin_edges, rtol=1e-6, atol=1e-6)
         npt.assert_allclose(sf1.S_k[50:], sf2.S_k, rtol=1e-6, atol=1e-6)
         with pytest.raises(ValueError):
             self.build_structure_factor_object(100, 10, -1)
@@ -61,7 +73,7 @@ class StaticStructureFactorTest:
         S_AB = sf.S_k
         sf.compute((system.box, A_points), query_points=B_points, N_total=N)
         S_BA = sf.S_k
-        npt.assert_allclose(S_AB, S_BA, atol=1e-5, rtol=1e-5)
+        npt.assert_allclose(S_AB, S_BA, rtol=1e-5, atol=1e-5)
 
     def test_partial_structure_factor_sum_normalization(self):
         """Ensure that the weighted sum of the partial structure factors is
@@ -132,7 +144,7 @@ class StaticStructureFactorTest:
         assert np.isclose(sf.k_min, k_min)
         if hasattr(sf, "num_sampled_k_points"):
             assert sf.num_sampled_k_points == num_sampled_k_points
-        npt.assert_allclose(sf.bounds, (k_min, k_max))
+        npt.assert_allclose(sf.bounds, (k_min, k_max), rtol=1e-5, atol=1e-5)
         box, positions = freud.data.UnitCell.fcc().generate_system(4)
         with pytest.raises(AttributeError):
             sf.S_k
@@ -163,15 +175,20 @@ class StaticStructureFactorTest:
         sf = self.build_structure_factor_object(
             bins, k_max, k_min, num_sampled_k_points
         )
-        expected_bin_edges = np.histogram_bin_edges(
-            np.array([0], dtype=np.float32), bins=bins, range=[k_min, k_max]
-        )
-        expected_bin_centers = (expected_bin_edges[:-1] + expected_bin_edges[1:]) / 2
-        npt.assert_allclose(sf.bin_edges, expected_bin_edges, atol=1e-5, rtol=1e-5)
-        npt.assert_allclose(sf.bin_centers, expected_bin_centers, atol=1e-5, rtol=1e-5)
+        if self.DEBYE:
+            expected_bin_centers = np.linspace(k_min, k_max, bins)
+        else:
+            expected_bin_edges = np.histogram_bin_edges(
+                np.array([0], dtype=np.float32), bins=bins, range=[k_min, k_max]
+            )
+            npt.assert_allclose(sf.bin_edges, expected_bin_edges, rtol=1e-5, atol=1e-5)
+            expected_bin_centers = (
+                expected_bin_edges[:-1] + expected_bin_edges[1:]
+            ) / 2
+        npt.assert_allclose(sf.bin_centers, expected_bin_centers, rtol=1e-5, atol=1e-5)
         npt.assert_allclose(
             sf.bounds,
-            ([expected_bin_edges[0], expected_bin_edges[-1]]),
+            ([k_min, k_max]),
             atol=1e-5,
             rtol=1e-5,
         )
@@ -204,8 +221,9 @@ class StaticStructureFactorTest:
             bins, k_max, k_min, num_sampled_k_points
         )
         assert sf.bin_centers.shape == (bins,)
-        assert sf.bin_edges.shape == (bins + 1,)
-        npt.assert_allclose(sf.bounds, (k_min, k_max))
+        if not self.DEBYE:
+            assert sf.bin_edges.shape == (bins + 1,)
+        npt.assert_allclose(sf.bounds, (k_min, k_max), rtol=1e-5, atol=1e-5)
         box, positions = freud.data.UnitCell.fcc().generate_system(4)
         sf.compute((box, positions))
         assert sf.S_k.shape == (bins,)
@@ -220,21 +238,41 @@ class StaticStructureFactorTest:
         )
         assert str(sf) == str(eval(repr(sf)))
 
+    def test_S_0_is_N(self):
+        L = 10
+        N = 1000
+        sf = self.build_structure_factor_object(bins=100, k_max=10)
+        box, points = freud.data.make_random_system(L, N)
+        system = freud.AABBQuery.from_system((box, points))
+        sf.compute(system)
+        assert np.isclose(sf.S_k[0], N)
+
+    def test_accumulation(self):
+        L = 10
+        N = 1000
+        sf = self.build_structure_factor_object(bins=100, k_max=10)
+        # Ensure that accumulation averages correctly over different numbers of
+        # points. We test N points, N*2 points, and N*3 points. On average, the
+        # number of points is N * 2.
+        for i in range(1, 4):
+            box, points = freud.data.make_random_system(L, N * i)
+            sf.compute((box, points), reset=False)
+        assert np.isclose(sf.S_k[0], N * 2)
+        box, points = freud.data.make_random_system(L, N * 2)
+        sf.compute((box, points), reset=True)
+        assert np.isclose(sf.S_k[0], N * 2)
+
 
 class TestStaticStructureFactorDebye(StaticStructureFactorTest):
 
     LARGE_K_PARAMS = {"bins": 5, "k_max": 1e6, "k_min": 1e5}
+    DEBYE = True
 
     @classmethod
     def build_structure_factor_object(
         cls, bins, k_max, k_min=0, num_sampled_k_points=None
     ):
         return freud.diffraction.StaticStructureFactorDebye(bins, k_max, k_min)
-
-    @classmethod
-    def get_min_valid_k(cls, Lx, Ly, Lz=None):
-        min_length = np.min([Lx, Ly]) if Lz is None else np.min([Lx, Ly, Lz])
-        return 4 * np.pi / min_length
 
     @staticmethod
     def _validate_debye_method(system, bins, k_max, k_min):
@@ -257,8 +295,7 @@ class TestStaticStructureFactorDebye(StaticStructureFactorTest):
         system = freud.locality.NeighborQuery.from_system(system)
         N = len(system.points)
 
-        Q = np.linspace(k_min, k_max, bins, endpoint=False)
-        Q += (k_max - k_min) / bins / 2
+        Q = np.linspace(k_min, k_max, bins)
         S = np.zeros_like(Q)
 
         # Compute all pairwise distances
@@ -281,7 +318,7 @@ class TestStaticStructureFactorDebye(StaticStructureFactorTest):
         system = freud.locality.NeighborQuery.from_system((box, points))
         sf.compute(system)
         Q, S = self._validate_debye_method(system, bins, k_max, k_min)
-        npt.assert_allclose(sf.bin_centers, Q)
+        npt.assert_allclose(sf.bin_centers, Q, rtol=1e-5, atol=1e-5)
         npt.assert_allclose(sf.S_k, S, rtol=1e-5, atol=1e-5)
 
     def test_debye_ase(self):
@@ -325,38 +362,6 @@ class TestStaticStructureFactorDirect(StaticStructureFactorTest):
         return freud.diffraction.StaticStructureFactorDirect(
             bins, k_max, k_min, num_sampled_k_points
         )
-
-    @classmethod
-    def get_min_valid_k(cls, Lx, Ly, Lz=None):
-        min_length = np.min([Lx, Ly]) if Lz is None else np.min([Lx, Ly, Lz])
-        return 2 * np.pi / min_length
-
-    def test_S_0_is_N(self):
-        L = 10
-        N = 1000
-        # The Direct method evaluates S(k) in bins. Here, we choose the binning
-        # parameters such that the first bin contains only the origin in k-space
-        # and no other k-points. Thus the smallest bin is measuring S(0) = N.
-        sf = self.build_structure_factor_object(bins=100, k_max=10)
-        box, points = freud.data.make_random_system(L, N)
-        system = freud.AABBQuery.from_system((box, points))
-        sf.compute(system)
-        assert np.isclose(sf.S_k[0], N)
-
-    def test_accumulation(self):
-        L = 10
-        N = 1000
-        sf = self.build_structure_factor_object(bins=100, k_max=10)
-        # Ensure that accumulation averages correctly over different numbers of
-        # points. We test N points, N*2 points, and N*3 points. On average, the
-        # number of points is N * 2.
-        for i in range(1, 4):
-            box, points = freud.data.make_random_system(L, N * i)
-            sf.compute((box, points), reset=False)
-        assert np.isclose(sf.S_k[0], N * 2)
-        box, points = freud.data.make_random_system(L, N * 2)
-        sf.compute((box, points), reset=True)
-        assert np.isclose(sf.S_k[0], N * 2)
 
     def test_against_dynasor(self):
         """Validate the direct method agains dynasor package."""

@@ -56,18 +56,6 @@ cdef class _StaticStructureFactor(_Compute):
         return np.array(self.ssfptr.getBinCenters(), copy=True)
 
     @property
-    def bin_edges(self):
-        """:class:`numpy.ndarray`: The edges of each bin of :math:`k`."""
-        return np.array(self.ssfptr.getBinEdges(), copy=True)
-
-    @property
-    def bounds(self):
-        """tuple: A tuple indicating upper and lower bounds of the
-        histogram."""
-        bin_edges = self.bin_edges
-        return (bin_edges[0], bin_edges[len(bin_edges)-1])
-
-    @property
     def nbins(self):
         """int: The number of bins in the histogram."""
         return len(self.bin_centers)
@@ -141,9 +129,16 @@ cdef class StaticStructureFactorDebye(_StaticStructureFactor):
     <https://en.wikipedia.org/wiki/Structure_factor>`__. For a full derivation
     see :cite:`Farrow2009`. Note that the definition requires :math:`S(0) = N`.
 
+    This implementation uses ``k_min`` and ``k_max`` as bin *centers*, instead
+    of lower / upper bin *edges*, because the Debye formula is evaluated at
+    these bin centers. For this reason, this class does not expose a
+    ``bin_edges`` property like most histogram-like classes in freud. This also
+    means that if ``k_min`` is set to 0, the computed structure factor will
+    show :math:`S(0) = N`.
+
     The Debye implementation provides a much faster algorithm, but gives worse
     results than :py:attr:`freud.diffraction.StaticStructureFactorDirect`
-    at low k values.
+    at low :math:`k` values.
 
     .. note::
         This code assumes all particles have a form factor :math:`f` of 1.
@@ -183,6 +178,13 @@ cdef class StaticStructureFactorDebye(_StaticStructureFactor):
     def __dealloc__(self):
         if type(self) == StaticStructureFactorDebye:
             del self.thisptr
+
+    @property
+    def bounds(self):
+        """tuple: A tuple indicating upper and lower bounds of the
+        histogram."""
+        bin_centers = self.bin_centers
+        return (bin_centers[0], bin_centers[len(bin_centers)-1])
 
     def compute(self, system, query_points=None, N_total=None, reset=True):
         r"""Computes static structure factor.
@@ -366,6 +368,18 @@ cdef class StaticStructureFactorDirect(_StaticStructureFactor):
     def __dealloc__(self):
         if type(self) == StaticStructureFactorDirect:
             del self.thisptr
+
+    @property
+    def bin_edges(self):
+        """:class:`numpy.ndarray`: The edges of each bin of :math:`k`."""
+        return np.array(self.ssfptr.getBinEdges(), copy=True)
+
+    @property
+    def bounds(self):
+        """tuple: A tuple indicating upper and lower bounds of the
+        histogram."""
+        bin_edges = self.bin_edges
+        return (bin_edges[0], bin_edges[len(bin_edges)-1])
 
     def compute(self, system, query_points=None, N_total=None, reset=True):
         r"""Computes static structure factor.
