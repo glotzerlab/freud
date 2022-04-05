@@ -29,7 +29,7 @@ repos:
       - id: debug-statements
       - id: requirements-txt-fixer
   - repo: https://github.com/asottile/pyupgrade
-    rev: 'v2.31.0'
+    rev: 'v2.31.1'
     hooks:
       - id: pyupgrade
         args:
@@ -56,9 +56,10 @@ repos:
     hooks:
       - id: cmake-format
   - repo: https://github.com/pre-commit/mirrors-clang-format
-    rev: 'v13.0.0'
+    rev: 'v13.0.1'
     hooks:
       - id: clang-format
+        types_or: [c, c++]
 # The following pre-commit hooks should only be run manually because they have
 # dependencies that cannot be pip installed.
   - repo: local
