@@ -194,17 +194,22 @@ class StaticStructureFactorTest:
         sf.compute((box, points))
         assert np.isclose(sf.min_valid_k, min_valid_k)
 
+    ATTRIBUTE_SHAPE_PARAMS = dict(bins=100,
+                                  k_max=123,
+                                  k_min=0.456,
+                                  num_sampled_k_points=10000)
+
     def test_attribute_shapes(self):
-        bins = 100
-        k_max = 123
-        k_min = 0.456
-        num_sampled_k_points = 10000
+        bins = self.ATTRIBUTE_SHAPE_PARAMS["bins"]
+        k_max = self.ATTRIBUTE_SHAPE_PARAMS["k_max"]
+        k_min = self.ATTRIBUTE_SHAPE_PARAMS["k_min"]
+        num_sampled_k_points = self.ATTRIBUTE_SHAPE_PARAMS["num_sampled_k_points"]
+
         sf = self.build_structure_factor_object(
             bins, k_max, k_min, num_sampled_k_points
         )
-        assert sf.bin_centers.shape == (bins,)
-        if not self.DEBYE:
-            assert sf.bin_edges.shape == (bins + 1,)
+
+        # only test the common attributes in the super implementation
         npt.assert_allclose(sf.bounds, (k_min, k_max), rtol=1e-5, atol=1e-5)
         box, positions = freud.data.UnitCell.fcc().generate_system(4)
         sf.compute((box, positions))
@@ -282,6 +287,20 @@ class TestStaticStructureFactorDebye(StaticStructureFactorTest):
             atol=1e-5,
             rtol=1e-5,
         )
+
+    def test_attribute_shapes(self):
+        super().test_attribute_shapes()
+
+        bins = self.ATTRIBUTE_SHAPE_PARAMS["bins"]
+        k_max = self.ATTRIBUTE_SHAPE_PARAMS["k_max"]
+        k_min = self.ATTRIBUTE_SHAPE_PARAMS["k_min"]
+        num_sampled_k_points = self.ATTRIBUTE_SHAPE_PARAMS["num_sampled_k_points"]
+
+        sf = self.build_structure_factor_object(
+            bins, k_max, k_min, num_sampled_k_points
+        )
+
+        assert sf.k_values.shape == (bins,)
 
     @classmethod
     def build_structure_factor_object(
@@ -413,6 +432,21 @@ class TestStaticStructureFactorDirect(StaticStructureFactorTest):
             atol=1e-5,
             rtol=1e-5,
         )
+
+    def test_attribute_shapes(self):
+        super().test_attribute_shapes()
+
+        bins = self.ATTRIBUTE_SHAPE_PARAMS["bins"]
+        k_max = self.ATTRIBUTE_SHAPE_PARAMS["k_max"]
+        k_min = self.ATTRIBUTE_SHAPE_PARAMS["k_min"]
+        num_sampled_k_points = self.ATTRIBUTE_SHAPE_PARAMS["num_sampled_k_points"]
+
+        sf = self.build_structure_factor_object(
+            bins, k_max, k_min, num_sampled_k_points
+        )
+
+        assert sf.bin_centers.shape == (bins,)
+        assert sf.bin_edges.shape == (bins + 1,)
 
     @classmethod
     def build_structure_factor_object(
