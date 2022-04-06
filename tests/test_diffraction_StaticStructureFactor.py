@@ -170,35 +170,10 @@ class StaticStructureFactorTest:
         sf.compute((box2, positions2))
         assert not np.array_equal(sf.S_k, S_k)
 
-    @pytest.mark.skipif(
-        NumpyVersion(np.__version__) < "1.15.0", reason="Requires numpy>=1.15.0."
-    )
-    def test_bin_precision(self):
-        # Ensure bin edges and bounds are precise
-        bins = 100
-        k_max = 123
-        k_min = 0.1
-        num_sampled_k_points = 10000
-        sf = self.build_structure_factor_object(
-            bins, k_max, k_min, num_sampled_k_points
-        )
-        if self.DEBYE:
-            expected_bin_centers = np.linspace(k_min, k_max, bins)
-        else:
-            expected_bin_edges = np.histogram_bin_edges(
-                np.array([0], dtype=np.float32), bins=bins, range=[k_min, k_max]
-            )
-            npt.assert_allclose(sf.bin_edges, expected_bin_edges, rtol=1e-5, atol=1e-5)
-            expected_bin_centers = (
-                expected_bin_edges[:-1] + expected_bin_edges[1:]
-            ) / 2
-        npt.assert_allclose(sf.bin_centers, expected_bin_centers, rtol=1e-5, atol=1e-5)
-        npt.assert_allclose(
-            sf.bounds,
-            ([k_min, k_max]),
-            atol=1e-5,
-            rtol=1e-5,
-        )
+    BIN_PRECISION_PARAMS = dict(bins=100,
+                                k_max=123,
+                                k_min=0.1,
+                                num_sampled_k_points=10000)
 
     def test_min_valid_k(self):
         Lx = 10
@@ -288,6 +263,25 @@ class TestStaticStructureFactorDebye(StaticStructureFactorTest):
         )
 
         assert sf.num_k_values == bins
+
+    def test_bin_precision(self):
+        # Ensure bin edges and bounds are precise
+        bins = self.BIN_PRECISION_PARAMS["bins"]
+        k_max = self.BIN_PRECISION_PARAMS["k_max"]
+        k_min = self.BIN_PRECISION_PARAMS["k_min"]
+        num_sampled_k_points = self.BIN_PRECISION_PARAMS["num_sampled_k_points"]
+
+        sf = self.build_structure_factor_object(
+            bins, k_max, k_min, num_sampled_k_points
+        )
+        expected_k_values = np.linspace(k_min, k_max, bins)
+        npt.assert_allclose(sf.k_values, expected_k_values, rtol=1e-5, atol=1e-5)
+        npt.assert_allclose(
+            sf.bounds,
+            ([k_min, k_max]),
+            atol=1e-5,
+            rtol=1e-5,
+        )
 
     @classmethod
     def build_structure_factor_object(
@@ -391,6 +385,34 @@ class TestStaticStructureFactorDirect(StaticStructureFactorTest):
         assert sf.num_sampled_k_points == num_sampled_k_points
         with pytest.raises(AttributeError):
             sf.k_points
+
+    @pytest.mark.skipif(
+        NumpyVersion(np.__version__) < "1.15.0", reason="Requires numpy>=1.15.0."
+    )
+    def test_bin_precision(self):
+        # Ensure bin edges and bounds are precise
+        bins = self.BIN_PRECISION_PARAMS["bins"]
+        k_max = self.BIN_PRECISION_PARAMS["k_max"]
+        k_min = self.BIN_PRECISION_PARAMS["k_min"]
+        num_sampled_k_points = self.BIN_PRECISION_PARAMS["num_sampled_k_points"]
+
+        sf = self.build_structure_factor_object(
+            bins, k_max, k_min, num_sampled_k_points
+        )
+        expected_bin_edges = np.histogram_bin_edges(
+            np.array([0], dtype=np.float32), bins=bins, range=[k_min, k_max]
+        )
+        npt.assert_allclose(sf.bin_edges, expected_bin_edges, rtol=1e-5, atol=1e-5)
+        expected_bin_centers = (
+            expected_bin_edges[:-1] + expected_bin_edges[1:]
+        ) / 2
+        npt.assert_allclose(sf.bin_centers, expected_bin_centers, rtol=1e-5, atol=1e-5)
+        npt.assert_allclose(
+            sf.bounds,
+            ([k_min, k_max]),
+            atol=1e-5,
+            rtol=1e-5,
+        )
 
     @classmethod
     def build_structure_factor_object(
