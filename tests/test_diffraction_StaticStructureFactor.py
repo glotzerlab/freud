@@ -131,15 +131,22 @@ class StaticStructureFactorTest:
         sf.compute(system)
         npt.assert_allclose(np.mean(sf.S_k), 1, rtol=1e-5, atol=2e-2)
 
+    ATTRIBUTE_ACCESS_PARAMS = dict(bins=100,
+                                   k_max=123,
+                                   k_min=0.1,
+                                   num_sampled_k_points=10000)
+
     def test_attribute_access(self):
-        bins = 100
-        k_max = 123
-        k_min = 0.1
-        num_sampled_k_points = 10000
+        bins = self.ATTRIBUTE_ACCESS_PARAMS['bins']
+        k_max = self.ATTRIBUTE_ACCESS_PARAMS['k_max']
+        k_min = self.ATTRIBUTE_ACCESS_PARAMS['k_min']
+        num_sampled_k_points = self.ATTRIBUTE_ACCESS_PARAMS['num_sampled_k_points']
+
         sf = self.build_structure_factor_object(
             bins, k_max, k_min, num_sampled_k_points
         )
-        assert sf.nbins == bins
+
+        # only test common attribute in the super implementation
         assert np.isclose(sf.k_max, k_max)
         assert np.isclose(sf.k_min, k_min)
         if hasattr(sf, "num_sampled_k_points"):
@@ -268,6 +275,20 @@ class TestStaticStructureFactorDebye(StaticStructureFactorTest):
     LARGE_K_PARAMS = {"bins": 5, "k_max": 1e6, "k_min": 1e5}
     DEBYE = True
 
+    def test_attribute_access(self):
+        super().test_attribute_access()
+
+        bins = self.ATTRIBUTE_ACCESS_PARAMS['bins']
+        k_max = self.ATTRIBUTE_ACCESS_PARAMS['k_max']
+        k_min = self.ATTRIBUTE_ACCESS_PARAMS['k_min']
+        num_sampled_k_points = self.ATTRIBUTE_ACCESS_PARAMS['num_sampled_k_points']
+
+        sf = self.build_structure_factor_object(
+            bins, k_max, k_min, num_sampled_k_points
+        )
+
+        assert sf.num_k_values == bins
+
     @classmethod
     def build_structure_factor_object(
         cls, bins, k_max, k_min=0, num_sampled_k_points=None
@@ -318,7 +339,7 @@ class TestStaticStructureFactorDebye(StaticStructureFactorTest):
         system = freud.locality.NeighborQuery.from_system((box, points))
         sf.compute(system)
         Q, S = self._validate_debye_method(system, bins, k_max, k_min)
-        npt.assert_allclose(sf.bin_centers, Q, rtol=1e-5, atol=1e-5)
+        npt.assert_allclose(sf.k_values, Q, rtol=1e-5, atol=1e-5)
         npt.assert_allclose(sf.S_k, S, rtol=1e-5, atol=1e-5)
 
     def test_debye_ase(self):
@@ -342,7 +363,7 @@ class TestStaticStructureFactorDebye(StaticStructureFactorTest):
             atoms=atoms, wavelength=1.0, method=None, damping=0.0, alpha=1.0
         )
         # calculate S_k for given set of k values
-        S_ase = xrd.calc_pattern(sf.bin_centers, mode="SAXS") / len(points)
+        S_ase = xrd.calc_pattern(sf.k_values, mode="SAXS") / len(points)
         npt.assert_allclose(sf.S_k, S_ase, rtol=1e-5, atol=1e-5)
 
 
@@ -354,6 +375,22 @@ class TestStaticStructureFactorDirect(StaticStructureFactorTest):
         "k_min": 400,
         "num_sampled_k_points": 200000,
     }
+
+    def test_attribute_access(self):
+        super().test_attribute_access()
+
+        bins = self.ATTRIBUTE_ACCESS_PARAMS['bins']
+        k_max = self.ATTRIBUTE_ACCESS_PARAMS['k_max']
+        k_min = self.ATTRIBUTE_ACCESS_PARAMS['k_min']
+        num_sampled_k_points = self.ATTRIBUTE_ACCESS_PARAMS['num_sampled_k_points']
+
+        sf = self.build_structure_factor_object(
+            bins, k_max, k_min, num_sampled_k_points
+        )
+
+        assert sf.num_sampled_k_points == num_sampled_k_points
+        with pytest.raises(AttributeError):
+            sf.k_points
 
     @classmethod
     def build_structure_factor_object(
