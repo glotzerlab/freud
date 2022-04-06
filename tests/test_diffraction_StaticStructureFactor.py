@@ -19,6 +19,16 @@ class StaticStructureFactorTest:
         # bins must be an even number
         return 10, 100, 100, 10
 
+    @pytest.fixture
+    def bin_precision_params(self):
+        """tuple: bins, k_max, k_min, num_sampled_k_points"""
+        return 100, 123, 0.1, 1e4
+
+    @pytest.fixture
+    def attribute_shape_params(self):
+        """tuple: bins, k_max, k_min, num_sampled_k_points."""
+        return 100, 123, 0.456, 1e4
+
     @classmethod
     def build_structure_factor_object(
         cls, bins, k_max, k_min=0, num_sampled_k_points=None
@@ -147,11 +157,6 @@ class StaticStructureFactorTest:
         sf.compute((box2, positions2))
         assert not np.array_equal(sf.S_k, S_k)
 
-    BIN_PRECISION_PARAMS = dict(bins=100,
-                                k_max=123,
-                                k_min=0.1,
-                                num_sampled_k_points=10000)
-
     def test_min_valid_k(self):
         Lx = 10
         Ly = 8
@@ -171,20 +176,10 @@ class StaticStructureFactorTest:
         sf.compute((box, points))
         assert np.isclose(sf.min_valid_k, min_valid_k)
 
-    ATTRIBUTE_SHAPE_PARAMS = dict(bins=100,
-                                  k_max=123,
-                                  k_min=0.456,
-                                  num_sampled_k_points=10000)
+    def test_attribute_shapes(self, attribute_shape_params):
+        bins, k_max, k_min, num_sampled_k_points = attribute_shape_params
 
-    def test_attribute_shapes(self):
-        bins = self.ATTRIBUTE_SHAPE_PARAMS["bins"]
-        k_max = self.ATTRIBUTE_SHAPE_PARAMS["k_max"]
-        k_min = self.ATTRIBUTE_SHAPE_PARAMS["k_min"]
-        num_sampled_k_points = self.ATTRIBUTE_SHAPE_PARAMS["num_sampled_k_points"]
-
-        sf = self.build_structure_factor_object(
-            bins, k_max, k_min, num_sampled_k_points
-        )
+        sf = self.build_structure_factor_object(*attribute_shape_params)
 
         # only test the common attributes in the super implementation
         npt.assert_allclose(sf.bounds, (k_min, k_max), rtol=1e-5, atol=1e-5)
@@ -243,6 +238,7 @@ class TestStaticStructureFactorDebye(StaticStructureFactorTest):
         super().test_k_min(k_min_params)
 
         L, N, bins, k_max = k_min_params
+        bins = bins + 1
         upper_bins = bins // 2 + 1
         k_min = k_max / 2
 
@@ -262,16 +258,10 @@ class TestStaticStructureFactorDebye(StaticStructureFactorTest):
         sf = self.build_structure_factor_object(*attribute_access_params)
         assert sf.num_k_values == bins
 
-    def test_bin_precision(self):
-        # Ensure bin edges and bounds are precise
-        bins = self.BIN_PRECISION_PARAMS["bins"]
-        k_max = self.BIN_PRECISION_PARAMS["k_max"]
-        k_min = self.BIN_PRECISION_PARAMS["k_min"]
-        num_sampled_k_points = self.BIN_PRECISION_PARAMS["num_sampled_k_points"]
-
-        sf = self.build_structure_factor_object(
-            bins, k_max, k_min, num_sampled_k_points
-        )
+    def test_bin_precision(self, bin_precision_params):
+        """Ensure bin edges and bounds are precise."""
+        bins, k_max, k_min, num_sampled_k_points = bin_precision_params
+        sf = self.build_structure_factor_object(*bin_precision_params)
         expected_k_values = np.linspace(k_min, k_max, bins)
         npt.assert_allclose(sf.k_values, expected_k_values, rtol=1e-5, atol=1e-5)
         npt.assert_allclose(
@@ -281,17 +271,11 @@ class TestStaticStructureFactorDebye(StaticStructureFactorTest):
             rtol=1e-5,
         )
 
-    def test_attribute_shapes(self):
-        super().test_attribute_shapes()
+    def test_attribute_shapes(self, attribute_shape_params):
+        super().test_attribute_shapes(attribute_shape_params)
 
-        bins = self.ATTRIBUTE_SHAPE_PARAMS["bins"]
-        k_max = self.ATTRIBUTE_SHAPE_PARAMS["k_max"]
-        k_min = self.ATTRIBUTE_SHAPE_PARAMS["k_min"]
-        num_sampled_k_points = self.ATTRIBUTE_SHAPE_PARAMS["num_sampled_k_points"]
-
-        sf = self.build_structure_factor_object(
-            bins, k_max, k_min, num_sampled_k_points
-        )
+        bins, k_max, k_min, num_sampled_k_points = attribute_shape_params
+        sf = self.build_structure_factor_object(*attribute_shape_params)
 
         assert sf.k_values.shape == (bins,)
 
@@ -409,16 +393,10 @@ class TestStaticStructureFactorDirect(StaticStructureFactorTest):
     @pytest.mark.skipif(
         NumpyVersion(np.__version__) < "1.15.0", reason="Requires numpy>=1.15.0."
     )
-    def test_bin_precision(self):
-        # Ensure bin edges and bounds are precise
-        bins = self.BIN_PRECISION_PARAMS["bins"]
-        k_max = self.BIN_PRECISION_PARAMS["k_max"]
-        k_min = self.BIN_PRECISION_PARAMS["k_min"]
-        num_sampled_k_points = self.BIN_PRECISION_PARAMS["num_sampled_k_points"]
-
-        sf = self.build_structure_factor_object(
-            bins, k_max, k_min, num_sampled_k_points
-        )
+    def test_bin_precision(self, bin_precision_params):
+        """Ensure bin edges and bounds are precise."""
+        bins, k_max, k_min, num_sampled_k_points = bin_precision_params
+        sf = self.build_structure_factor_object(*bin_precision_params)
         expected_bin_edges = np.histogram_bin_edges(
             np.array([0], dtype=np.float32), bins=bins, range=[k_min, k_max]
         )
@@ -434,17 +412,11 @@ class TestStaticStructureFactorDirect(StaticStructureFactorTest):
             rtol=1e-5,
         )
 
-    def test_attribute_shapes(self):
-        super().test_attribute_shapes()
+    def test_attribute_shapes(self, attribute_shape_params):
+        super().test_attribute_shapes(attribute_shape_params)
 
-        bins = self.ATTRIBUTE_SHAPE_PARAMS["bins"]
-        k_max = self.ATTRIBUTE_SHAPE_PARAMS["k_max"]
-        k_min = self.ATTRIBUTE_SHAPE_PARAMS["k_min"]
-        num_sampled_k_points = self.ATTRIBUTE_SHAPE_PARAMS["num_sampled_k_points"]
-
-        sf = self.build_structure_factor_object(
-            bins, k_max, k_min, num_sampled_k_points
-        )
+        bins, k_max, k_min, num_sampled_k_points = attribute_shape_params
+        sf = self.build_structure_factor_object(*attribute_shape_params)
 
         assert sf.bin_centers.shape == (bins,)
         assert sf.bin_edges.shape == (bins + 1,)
