@@ -30,24 +30,10 @@ class StaticStructureFactorTest:
         box, positions = freud.data.UnitCell.fcc().generate_system(4)
         sf.compute((box, positions))
 
+    # bins should be an even number
+    K_MIN_PARAMS = dict(L=10, N=100, bins=100, upper_bins=50, k_max=10)
+
     def test_k_min(self):
-        L = 10
-        N = 1000
-        # The bin offsets are different for Direct and Debye. We add one bin to
-        # Debye compared to the Direct test so the Debye bin centers are
-        # aligned.
-        bins = 101 if self.DEBYE else 100
-        upper_bins = 51 if self.DEBYE else 50
-        sf1 = self.build_structure_factor_object(bins, 10)
-        sf2 = self.build_structure_factor_object(upper_bins, 10, k_min=5)
-        box, points = freud.data.make_random_system(L, N)
-        system = freud.AABBQuery.from_system((box, points))
-        sf1.compute(system)
-        sf2.compute(system)
-        npt.assert_allclose(sf1.bin_centers[50:], sf2.bin_centers, rtol=1e-6, atol=1e-6)
-        if not self.DEBYE:
-            npt.assert_allclose(sf1.bin_edges[50:], sf2.bin_edges, rtol=1e-6, atol=1e-6)
-        npt.assert_allclose(sf1.S_k[50:], sf2.S_k, rtol=1e-6, atol=1e-6)
         with pytest.raises(ValueError):
             self.build_structure_factor_object(100, 10, -1)
 
@@ -255,6 +241,25 @@ class TestStaticStructureFactorDebye(StaticStructureFactorTest):
     LARGE_K_PARAMS = {"bins": 5, "k_max": 1e6, "k_min": 1e5}
     DEBYE = True
 
+    def test_k_min(self):
+        super().test_k_min()
+
+        L = self.K_MIN_PARAMS["L"]
+        N = self.K_MIN_PARAMS["N"]
+        bins = self.K_MIN_PARAMS["bins"] + 1
+        upper_bins = bins // 2 + 1
+        k_max = self.K_MIN_PARAMS["k_max"]
+        k_min = k_max / 2
+
+        sf1 = self.build_structure_factor_object(bins, k_max)
+        sf2 = self.build_structure_factor_object(upper_bins, k_max, k_min=k_min)
+        box, points = freud.data.make_random_system(L, N)
+        system = freud.AABBQuery.from_system((box, points))
+        sf1.compute(system)
+        sf2.compute(system)
+        npt.assert_allclose(sf1.k_values[bins // 2:], sf2.k_values, rtol=1e-6, atol=1e-6)
+        npt.assert_allclose(sf1.S_k[bins // 2:], sf2.S_k, rtol=1e-6, atol=1e-6)
+
     def test_attribute_access(self):
         super().test_attribute_access()
 
@@ -388,6 +393,26 @@ class TestStaticStructureFactorDirect(StaticStructureFactorTest):
         "k_min": 400,
         "num_sampled_k_points": 200000,
     }
+
+    def test_k_min(self):
+        super().test_k_min()
+
+        L = self.K_MIN_PARAMS["L"]
+        N = self.K_MIN_PARAMS["N"]
+        bins = self.K_MIN_PARAMS["bins"]
+        upper_bins = bins // 2
+        k_max = self.K_MIN_PARAMS["k_max"]
+        k_min = k_max / 2
+
+        sf1 = self.build_structure_factor_object(bins, k_max)
+        sf2 = self.build_structure_factor_object(upper_bins, k_max, k_min=k_min)
+        box, points = freud.data.make_random_system(L, N)
+        system = freud.AABBQuery.from_system((box, points))
+        sf1.compute(system)
+        sf2.compute(system)
+        npt.assert_allclose(sf1.bin_centers[bins // 2:], sf2.bin_centers, rtol=1e-6, atol=1e-6)
+        npt.assert_allclose(sf1.bin_edges[bins // 2:], sf2.bin_edges, rtol=1e-6, atol=1e-6)
+        npt.assert_allclose(sf1.S_k[bins // 2:], sf2.S_k, rtol=1e-6, atol=1e-6)
 
     def test_attribute_access(self):
         super().test_attribute_access()

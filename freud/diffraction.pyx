@@ -258,10 +258,10 @@ cdef class StaticStructureFactorDebye(_StaticStructureFactor):
         return self.thisptr.getMinValidK()
 
     def __repr__(self):
-        return ("freud.diffraction.{cls}(num_k_points={num_k_points}, "
+        return ("freud.diffraction.{cls}(num_k_values={num_k_values}, "
                 "k_max={k_max}, k_min={k_min})").format(
                     cls=type(self).__name__,
-                    num_k_points=self.num_k_points,
+                    num_k_values=self.num_k_values,
                     k_max=self.k_max,
                     k_min=self.k_min)
 
