@@ -8,9 +8,9 @@ import freud
 
 def _sf_object_params():
     params_list = []
-    params_list.append((100, 123, 0.1, 1e4))
-    params_list.append((100, 123, 0.456, 1e4))
-    params_list.append((100, 10, 0, 0))
+    params_list.append((182, 7, 0.1, 2e3))
+    params_list.append((100, 13, 0.456, 1e4))
+    params_list.append((50, 10, 0, 3e4))
     params_list.append((100, 9, 0, 8e5))
     return params_list
 
@@ -37,12 +37,6 @@ def sf_params_kmin_zero(request):
 
 
 class StaticStructureFactorTest:
-
-    @pytest.fixture
-    def k_min_params(self):
-        """tuple: L, N, bins, k_max."""
-        # bins must be an even number
-        return 10, 100, 100, 10
 
     @classmethod
     def build_structure_factor_object(
@@ -76,12 +70,12 @@ class StaticStructureFactorTest:
         with pytest.raises(ValueError):
             sf.compute((box, positions), N_total=len(positions))
 
-    def test_partial_structure_factor_symmetry(self, sf_params_kmin_zero):
+    def test_partial_structure_factor_symmetry(self, sf_object_params):
         """Compute a partial structure factor and ensure it is symmetric under
         type exchange."""
         L = 10
         N = 1000
-        sf = self.build_structure_factor_object(*sf_params_kmin_zero)
+        sf = self.build_structure_factor_object(*sf_object_params)
         box, points = freud.data.make_random_system(L, N, seed=123)
         system = freud.AABBQuery.from_system((box, points))
         A_points = system.points[: N // 3]
@@ -92,12 +86,12 @@ class StaticStructureFactorTest:
         S_BA = sf.S_k
         npt.assert_allclose(S_AB, S_BA, rtol=1e-5, atol=1e-5)
 
-    def test_partial_structure_factor_sum_normalization(self, sf_params_kmin_zero):
+    def test_partial_structure_factor_sum_normalization(self, sf_object_params):
         """Ensure that the weighted sum of the partial structure factors is
         equal to the full scattering."""
         L = 10
         N = 1000
-        sf = self.build_structure_factor_object(*sf_params_kmin_zero)
+        sf = self.build_structure_factor_object(*sf_object_params)
         box, points = freud.data.make_random_system(L, N, seed=123)
         system = freud.AABBQuery.from_system((box, points))
         A_points = system.points[: N // 3]
@@ -213,10 +207,10 @@ class StaticStructureFactorTest:
         sf.compute(system)
         assert np.isclose(sf.S_k[0], N)
 
-    def test_accumulation(self):
+    def test_accumulation(self, sf_params_kmin_zero):
         L = 10
-        N = 1000
-        sf = self.build_structure_factor_object(bins=100, k_max=10)
+        N = 100
+        sf = self.build_structure_factor_object(*sf_params_kmin_zero)
         # Ensure that accumulation averages correctly over different numbers of
         # points. We test N points, N*2 points, and N*3 points. On average, the
         # number of points is N * 2.
@@ -241,8 +235,11 @@ class TestStaticStructureFactorDebye(StaticStructureFactorTest):
         min_length = np.min([Lx, Ly]) if Lz is None else np.min([Lx, Ly, Lz])
         return 4 * np.pi / min_length
 
-    def test_k_min(self, k_min_params):
-        L, N, bins, k_max = k_min_params
+    def test_k_min(self, sf_object_params):
+        L = 10
+        N = 100
+
+        bins, k_max, _, _ = sf_object_params
         bins = bins + 1
         upper_bins = bins // 2 + 1
         k_min = k_max / 2
@@ -368,8 +365,11 @@ class TestStaticStructureFactorDirect(StaticStructureFactorTest):
         """tuple: bins, k_max, k_min, num_sampled_k_points."""
         return 100, 500, 400, 2e5
 
-    def test_k_min(self, k_min_params):
-        L, N, bins, k_max = k_min_params
+    def test_k_min(self, sf_object_params):
+        L = 10
+        N = 100
+
+        bins, k_max, _, _ = sf_object_params
         upper_bins = bins // 2
         k_min = k_max / 2
 
@@ -433,15 +433,12 @@ class TestStaticStructureFactorDirect(StaticStructureFactorTest):
             bins, k_max, k_min, num_sampled_k_points
         )
 
-    def test_against_dynasor(self):
+    def test_against_dynasor(self, sf_params_kmin_zero):
         """Validate the direct method agains dynasor package."""
         dsf_reciprocal = pytest.importorskip("dsf.reciprocal")
         binned_statistic = pytest.importorskip("scipy.stats").binned_statistic
 
-        # this test is not parametrized because dynasor does not have a k_min
-        bins = 100
-        k_max = 30
-        num_sampled_k_points = 20000
+        bins, k_max, k_min, num_sampled_k_points = sf_params_kmin_zero
 
         # Compute structure factor from freud
         sf_direct = freud.diffraction.StaticStructureFactorDirect(
