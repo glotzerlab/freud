@@ -15,7 +15,7 @@ def _sf_params():
     return params_list
 
 
-@pytest.fixture(scope='module', params=_sf_params())
+@pytest.fixture(scope="module", params=_sf_params())
 def sf_params(request):
     """tuple: bins, k_max, k_min, num_sampled_k_points."""
     return request.param
@@ -30,14 +30,13 @@ def _sf_params_kmin_zero():
     return params_list
 
 
-@pytest.fixture(scope='module', params=_sf_params_kmin_zero())
+@pytest.fixture(scope="module", params=_sf_params_kmin_zero())
 def sf_params_kmin_zero(request):
     """tuple: bins, k_max, k_min=0, num_sampled_k_points."""
     return request.param
 
 
 class StaticStructureFactorTest:
-
     @classmethod
     def build_structure_factor_object(
         cls, bins, k_max, k_min=0, num_sampled_k_points=None
@@ -224,7 +223,6 @@ class StaticStructureFactorTest:
 
 
 class TestStaticStructureFactorDebye(StaticStructureFactorTest):
-
     @pytest.fixture
     def large_k_params(self):
         """tuple: bins, k_max, k_min."""
@@ -250,8 +248,10 @@ class TestStaticStructureFactorDebye(StaticStructureFactorTest):
         system = freud.AABBQuery.from_system((box, points))
         sf1.compute(system)
         sf2.compute(system)
-        npt.assert_allclose(sf1.k_values[bins // 2:], sf2.k_values, rtol=1e-6, atol=1e-6)
-        npt.assert_allclose(sf1.S_k[bins // 2:], sf2.S_k, rtol=1e-6, atol=1e-6)
+        npt.assert_allclose(
+            sf1.k_values[bins // 2 :], sf2.k_values, rtol=1e-6, atol=1e-6
+        )
+        npt.assert_allclose(sf1.S_k[bins // 2 :], sf2.S_k, rtol=1e-6, atol=1e-6)
 
     def test_attribute_access(self, sf_params):
         """Ensure parameters are initialized properly."""
@@ -359,7 +359,6 @@ class TestStaticStructureFactorDebye(StaticStructureFactorTest):
 
 
 class TestStaticStructureFactorDirect(StaticStructureFactorTest):
-
     @pytest.fixture
     def large_k_params(self):
         """tuple: bins, k_max, k_min, num_sampled_k_points."""
@@ -379,9 +378,13 @@ class TestStaticStructureFactorDirect(StaticStructureFactorTest):
         system = freud.AABBQuery.from_system((box, points))
         sf1.compute(system)
         sf2.compute(system)
-        npt.assert_allclose(sf1.bin_centers[bins // 2:], sf2.bin_centers, rtol=1e-6, atol=1e-6)
-        npt.assert_allclose(sf1.bin_edges[bins // 2:], sf2.bin_edges, rtol=1e-6, atol=1e-6)
-        npt.assert_allclose(sf1.S_k[bins // 2:], sf2.S_k, rtol=1e-6, atol=1e-6)
+        npt.assert_allclose(
+            sf1.bin_centers[bins // 2 :], sf2.bin_centers, rtol=1e-6, atol=1e-6
+        )
+        npt.assert_allclose(
+            sf1.bin_edges[bins // 2 :], sf2.bin_edges, rtol=1e-6, atol=1e-6
+        )
+        npt.assert_allclose(sf1.S_k[bins // 2 :], sf2.S_k, rtol=1e-6, atol=1e-6)
 
     def test_attribute_access(self, sf_params):
         """Ensure parameters are initialized properly."""
@@ -404,9 +407,7 @@ class TestStaticStructureFactorDirect(StaticStructureFactorTest):
             np.array([0], dtype=np.float32), bins=bins, range=[k_min, k_max]
         )
         npt.assert_allclose(sf.bin_edges, expected_bin_edges, rtol=1e-5, atol=1e-5)
-        expected_bin_centers = (
-            expected_bin_edges[:-1] + expected_bin_edges[1:]
-        ) / 2
+        expected_bin_centers = (expected_bin_edges[:-1] + expected_bin_edges[1:]) / 2
         npt.assert_allclose(sf.bin_centers, expected_bin_centers, rtol=1e-5, atol=1e-5)
         npt.assert_allclose(
             sf.bounds,
