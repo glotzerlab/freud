@@ -167,7 +167,7 @@ cdef class StaticStructureFactorDebye(_StaticStructureFactor):
 
             >>> box, points = freud.data.make_random_system(10, 100, seed=0)
             >>> sf = freud.diffraction.StaticStructureFactorDebye(
-            ...     bins=100, k_max=10, k_min=0
+            ...     num_k_values=100, k_max=10, k_min=0
             ... )
             >>> sf.compute((box, points))
             freud.diffraction.StaticStructureFactorDebye(...)
@@ -182,7 +182,7 @@ cdef class StaticStructureFactorDebye(_StaticStructureFactor):
             >>> A_points = points[:N_particles//2]
             >>> B_points = points[N_particles//2:]
             >>> sf = freud.diffraction.StaticStructureFactorDebye(
-            ...     bins=100, k_max=10, k_min=0
+            ...     num_k_values=100, k_max=10, k_min=0
             ... )
             >>> sf.compute(
             ...     system=(box, A_points),
