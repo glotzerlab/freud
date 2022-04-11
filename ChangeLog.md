@@ -9,6 +9,9 @@ and this project adheres to
 ### Added
 * (breaking) Some `freud.diffraction.StaticStructureFactorDebye` property names changed to be more descriptive.
 
+### Changed
+* The API in the `freud.diffraction` module is now stable.
+
 ### Fixed
 * `freud.diffraction.StaticStructureFactorDebye` implementation now gives `S_k[0] = N`.
 
