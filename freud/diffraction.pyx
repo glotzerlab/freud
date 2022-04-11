@@ -4,12 +4,6 @@
 r"""
 The :class:`freud.diffraction` module provides functions for computing the
 diffraction pattern of particles in systems with long range order.
-
-.. rubric:: Stability
-
-:mod:`freud.diffraction` is **unstable**. When upgrading from version 2.x to
-2.y (y > x), existing freud scripts may need to be updated. The API will be
-finalized in a future release.
 """
 
 from libcpp cimport bool as cbool
