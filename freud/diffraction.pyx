@@ -51,16 +51,6 @@ cdef class _StaticStructureFactor(_Compute):
             freud.util.arr_type_t.FLOAT)
 
     @property
-    def bin_centers(self):
-        """:class:`numpy.ndarray`: The centers of each bin of :math:`k`."""
-        return np.array(self.ssfptr.getBinCenters(), copy=True)
-
-    @property
-    def nbins(self):
-        """int: The number of bins in the histogram."""
-        return len(self.bin_centers)
-
-    @property
     def k_max(self):
         """float: Maximum value of k at which to calculate the structure
         factor."""
@@ -75,29 +65,6 @@ cdef class _StaticStructureFactor(_Compute):
     @_Compute._computed_property
     def min_valid_k(self):
         return self.ssfptr.getMinValidK()
-
-    def plot(self, ax=None, **kwargs):
-        r"""Plot static structure factor.
-
-        .. note::
-            This function plots :math:`S(k)` for values above
-            :py:attr:`min_valid_k`.
-
-        Args:
-            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
-                :code:`None`, make a new figure and axis.
-                (Default value = :code:`None`)
-
-        Returns:
-            (:class:`matplotlib.axes.Axes`): Axis with the plot.
-        """
-        import freud.plot
-        return freud.plot.line_plot(self.bin_centers[self.bin_centers>self.min_valid_k],
-                                    self.S_k[self.bin_centers>self.min_valid_k],
-                                    title="Static Structure Factor",
-                                    xlabel=r"$k$",
-                                    ylabel=r"$S(k)$",
-                                    ax=ax)
 
     def _repr_png_(self):
         try:
@@ -129,12 +96,9 @@ cdef class StaticStructureFactorDebye(_StaticStructureFactor):
     <https://en.wikipedia.org/wiki/Structure_factor>`__. For a full derivation
     see :cite:`Farrow2009`. Note that the definition requires :math:`S(0) = N`.
 
-    This implementation uses ``k_min`` and ``k_max`` as bin *centers*, instead
-    of lower / upper bin *edges*, because the Debye formula is evaluated at
-    these bin centers. For this reason, this class does not expose a
-    ``bin_edges`` property like most histogram-like classes in freud. This also
-    means that if ``k_min`` is set to 0, the computed structure factor will
-    show :math:`S(0) = N`.
+    This implementation uses an evenly spaced number of :math:`k` points between
+    `k_min`` and ``k_max``. If ``k_min`` is set to 0 (the default behavior), the
+    computed structure factor will show :math:`S(0) = N`.
 
     The Debye implementation provides a much faster algorithm, but gives worse
     results than :py:attr:`freud.diffraction.StaticStructureFactorDirect`
@@ -156,8 +120,8 @@ cdef class StaticStructureFactorDebye(_StaticStructureFactor):
         N_{\beta}}{N_{total}^2} \left(S_{\alpha \beta}(k) - 1\right)
 
     Args:
-        bins (unsigned int):
-            Number of bins in :math:`k` space.
+        num_k_values (unsigned int):
+            Number of values to use in :math:`k` space.
         k_max (float):
             Maximum :math:`k` value to include in the calculation.
         k_min (float, optional):
@@ -168,10 +132,10 @@ cdef class StaticStructureFactorDebye(_StaticStructureFactor):
     """
     cdef freud._diffraction.StaticStructureFactorDebye * thisptr
 
-    def __cinit__(self, unsigned int bins, float k_max, float k_min=0):
+    def __cinit__(self, unsigned int num_k_values, float k_max, float k_min=0):
         if type(self) == StaticStructureFactorDebye:
             self.thisptr = self.ssfptr = new \
-                freud._diffraction.StaticStructureFactorDebye(bins,
+                freud._diffraction.StaticStructureFactorDebye(num_k_values,
                                                               k_max,
                                                               k_min)
 
@@ -180,11 +144,21 @@ cdef class StaticStructureFactorDebye(_StaticStructureFactor):
             del self.thisptr
 
     @property
+    def num_k_values(self):
+        """int: The number of k values used."""
+        return len(self.k_values)
+
+    @property
+    def k_values(self):
+        """:class:`numpy.ndarray`: The :math:`k` values for the calculation."""
+        return np.array(self.ssfptr.getBinCenters(), copy=True)
+
+    @property
     def bounds(self):
-        """tuple: A tuple indicating upper and lower bounds of the
-        histogram."""
-        bin_centers = self.bin_centers
-        return (bin_centers[0], bin_centers[len(bin_centers)-1])
+        """tuple: A tuple indicating the smallest and largest :math:`k` values
+        used."""
+        k_values = self.k_values
+        return (k_values[0], k_values[len(k_values)-1])
 
     def compute(self, system, query_points=None, N_total=None, reset=True):
         r"""Computes static structure factor.
@@ -193,7 +167,7 @@ cdef class StaticStructureFactorDebye(_StaticStructureFactor):
 
             >>> box, points = freud.data.make_random_system(10, 100, seed=0)
             >>> sf = freud.diffraction.StaticStructureFactorDebye(
-            ...     bins=100, k_max=10, k_min=0
+            ...     num_k_values=100, k_max=10, k_min=0
             ... )
             >>> sf.compute((box, points))
             freud.diffraction.StaticStructureFactorDebye(...)
@@ -208,7 +182,7 @@ cdef class StaticStructureFactorDebye(_StaticStructureFactor):
             >>> A_points = points[:N_particles//2]
             >>> B_points = points[N_particles//2:]
             >>> sf = freud.diffraction.StaticStructureFactorDebye(
-            ...     bins=100, k_max=10, k_min=0
+            ...     num_k_values=100, k_max=10, k_min=0
             ... )
             >>> sf.compute(
             ...     system=(box, A_points),
@@ -284,12 +258,35 @@ cdef class StaticStructureFactorDebye(_StaticStructureFactor):
         return self.thisptr.getMinValidK()
 
     def __repr__(self):
-        return ("freud.diffraction.{cls}(bins={bins}, "
+        return ("freud.diffraction.{cls}(num_k_values={num_k_values}, "
                 "k_max={k_max}, k_min={k_min})").format(
                     cls=type(self).__name__,
-                    bins=self.nbins,
+                    num_k_values=self.num_k_values,
                     k_max=self.k_max,
                     k_min=self.k_min)
+
+    def plot(self, ax=None, **kwargs):
+        r"""Plot static structure factor.
+
+        .. note::
+            This function plots :math:`S(k)` for values above
+            :py:attr:`min_valid_k`.
+
+        Args:
+            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
+                :code:`None`, make a new figure and axis.
+                (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes.Axes`): Axis with the plot.
+        """
+        import freud.plot
+        return freud.plot.line_plot(self.k_values[self.k_values>self.min_valid_k],
+                                    self.S_k[self.k_values>self.min_valid_k],
+                                    title="Static Structure Factor",
+                                    xlabel=r"$k$",
+                                    ylabel=r"$S(k)$",
+                                    ax=ax)
 
 
 cdef class StaticStructureFactorDirect(_StaticStructureFactor):
@@ -370,9 +367,19 @@ cdef class StaticStructureFactorDirect(_StaticStructureFactor):
             del self.thisptr
 
     @property
+    def nbins(self):
+        """float: Number of bins in the histogram."""
+        return len(self.bin_centers)
+
+    @property
     def bin_edges(self):
         """:class:`numpy.ndarray`: The edges of each bin of :math:`k`."""
         return np.array(self.ssfptr.getBinEdges(), copy=True)
+
+    @property
+    def bin_centers(self):
+        """:class:`numpy.ndarray`: The centers of each bin of :math:`k`."""
+        return np.array(self.ssfptr.getBinCenters(), copy=True)
 
     @property
     def bounds(self):
@@ -503,6 +510,29 @@ cdef class StaticStructureFactorDirect(_StaticStructureFactor):
                     k_max=self.k_max,
                     k_min=self.k_min,
                     num_sampled_k_points=self.num_sampled_k_points)
+
+    def plot(self, ax=None, **kwargs):
+        r"""Plot static structure factor.
+
+        .. note::
+            This function plots :math:`S(k)` for values above
+            :py:attr:`min_valid_k`.
+
+        Args:
+            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
+                :code:`None`, make a new figure and axis.
+                (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes.Axes`): Axis with the plot.
+        """
+        import freud.plot
+        return freud.plot.line_plot(self.bin_centers[self.bin_centers>self.min_valid_k],
+                                    self.S_k[self.bin_centers>self.min_valid_k],
+                                    title="Static Structure Factor",
+                                    xlabel=r"$k$",
+                                    ylabel=r"$S(k)$",
+                                    ax=ax)
 
 
 cdef class DiffractionPattern(_Compute):
