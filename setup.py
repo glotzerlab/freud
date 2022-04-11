@@ -2,9 +2,8 @@
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 import os
-import sys
 
-from skbuild import setup as skbuild_setup
+from skbuild import setup
 
 version = "2.8.0"
 
@@ -16,32 +15,6 @@ try:
         readme = f.read()
 except ImportError:
     readme = description
-
-
-def setup(*args, **kwargs):
-    """This wrapper exists to force the option --build-type=ReleaseWithDocs.
-
-    Neither Release nor RelWithDebInfo will work, due to hard-coded options in
-    scikit-build's UseCython.cmake that disable docstrings. The choice of
-    ReleaseWithDocs is arbitrary, as a string that won't overlap with any build
-    type handled in UseCython.cmake. See this issue for details:
-    https://github.com/scikit-build/scikit-build/issues/518
-    """
-    BUILD_TYPE = "--build-type=ReleaseWithDocs"
-    for index, arg in enumerate(sys.argv):
-        if arg == "--":
-            # Insert at the end of the options that go to scikit-build
-            break
-        elif arg.startswith("--build-type"):
-            # Don't override user-specified build type
-            index = False
-            break
-    else:
-        # Insert at the end of the provided arguments
-        index = len(sys.argv)
-    if index:
-        sys.argv.insert(index, BUILD_TYPE)
-    skbuild_setup(*args, **kwargs)
 
 
 setup(
