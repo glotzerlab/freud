@@ -11,6 +11,7 @@ and this project adheres to
 
 ### Fixed
 * `freud.diffraction.StaticStructureFactorDebye` implementation now gives `S_k[0] = N`.
+* Cython is no longer listed as an install requirement in `setup.py`.
 
 ## v2.8.0 -- 2022-01-25
 
