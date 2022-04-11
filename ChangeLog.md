@@ -12,6 +12,9 @@ and this project adheres to
 ### Fixed
 * `freud.diffraction.StaticStructureFactorDebye` implementation now gives `S_k[0] = N`.
 
+### Removed
+* Custom CMake build type `ReleaseWithDocs`.
+
 ## v2.8.0 -- 2022-01-25
 
 ### Added
