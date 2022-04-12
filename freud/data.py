@@ -87,10 +87,13 @@ class UnitCell:
             pbuff = freud.locality.PeriodicBuffer()
             abs_positions = self.box.make_absolute(self.basis_positions)
             pbuff.compute(
-                (self.box, abs_positions), buffer=(nx - 1, ny - 1, nz - 1), images=True
+                (self.box, abs_positions),
+                buffer=(nx - 1, ny - 1, nz - 1),
+                images=True,
+                include_input_points=True,
             )
             box = pbuff.buffer_box * scale
-            positions = np.concatenate((abs_positions, pbuff.buffer_points))
+            positions = pbuff.buffer_points
         else:
             box = self.box * scale
             positions = self.box.make_absolute(self.basis_positions)
