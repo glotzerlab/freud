@@ -65,6 +65,12 @@ class UnitCell:
             tuple (:class:`freud.box.Box`, :class:`np.ndarray`):
                 A system-like object (see
                 :class:`~freud.locality.NeighborQuery.from_system`).
+
+        Note:
+            Positions are generated in the order of the instance's
+            ``basis_positions``, contiguously. The first :math:`N_{replica}`
+            positions come from the first basis position, the next
+            :math:`N_{replica}` the second, etc.
         """
         try:
             nx, ny, nz = num_replicas
