@@ -68,7 +68,7 @@ class UnitCell:
 
         Note:
             Positions are generated in the order of the instance's
-            ``basis_positions``, contiguously. The first :math:`N_{replica}`
+            ``basis_positions``. The first :math:`N_{replica}`
             positions come from the first basis position, the next
             :math:`N_{replica}` the second, etc.
         """
