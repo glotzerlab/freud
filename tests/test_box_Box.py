@@ -374,18 +374,20 @@ class TestBox:
         npt.assert_allclose(box.get_box_vector(2), [xz * Lz, yz * Lz, Lz])
         npt.assert_allclose(box.v3, [xz * Lz, yz * Lz, Lz])
 
-    @pytest.mark.parametrize("box_params, answer",
-                             [(dict(Lx=1, Ly=1, Lz=1), True),
-                              (dict(Lx=2, Ly=1, Lz=4), False),
-                              (dict(Lx=1, Ly=1, Lz=1, xz=0.25), False),
-                              (dict(Lx=3, Ly=3, Lz=3), True),
-                              (dict(Lx=3, Ly=3, Lz=3, yz=0.01), False),
-                              (dict(Lx=0.01, Ly=1, Lz=10000, xy=0.75), False),
-                              ])
+    @pytest.mark.parametrize(
+        "box_params, answer",
+        [
+            (dict(Lx=1, Ly=1, Lz=1), True),
+            (dict(Lx=2, Ly=1, Lz=4), False),
+            (dict(Lx=1, Ly=1, Lz=1, xz=0.25), False),
+            (dict(Lx=3, Ly=3, Lz=3), True),
+            (dict(Lx=3, Ly=3, Lz=3, yz=0.01), False),
+            (dict(Lx=0.01, Ly=1, Lz=10000, xy=0.75), False),
+        ],
+    )
     def test_cubic(self, box_params, answer):
         box = freud.box.Box(**box_params)
         assert box.cubic is answer
-
 
     def test_periodic(self):
         box = freud.box.Box(1, 2, 3, 0, 0, 0)
