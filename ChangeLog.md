@@ -8,10 +8,10 @@ and this project adheres to
 
 ### Added
 * (breaking) Some `freud.diffraction.StaticStructureFactorDebye` property names changed to be more descriptive.
-* `freud.locality.PeriodicBuffer` now has an optional `include_input_points` to include the provided system points in the buffer. This defaults to false as to not break behavior.
+* `include_input_points` argument to `freud.locality.PeriodicBuffer`. 
 
 ### Changed
-* `freud.data.Unitcell.generate_system` now generates positions so that the same lattice site's project positions are contiguous.
+* `freud.data.Unitcell.generate_system` now generates positions in the same order as the basis positions.
 
 ### Fixed
 * `freud.diffraction.StaticStructureFactorDebye` implementation now gives `S_k[0] = N`.
