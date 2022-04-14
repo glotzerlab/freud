@@ -285,3 +285,13 @@ class TestDiffractionPattern:
                                 ideal_peaks[peak] = True
 
                     assert all(ideal_peaks.values())
+
+    @pytest.mark.parametrize(
+        "noncubic_box_params", [dict(Lx=3, Ly=4, Lz=1), dict(Lx=3, Ly=3, Lz=3, xy=0.21)]
+    )
+    def test_noncubic_system(self, noncubic_box_params):
+        box = freud.box.Box(**noncubic_box_params)
+        points = [[0, 0, 0]]
+        dp = freud.diffraction.DiffractionPattern()
+        with pytest.raises(ValueError):
+            dp.compute((box, points))
