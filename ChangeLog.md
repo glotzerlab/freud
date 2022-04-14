@@ -8,7 +8,7 @@ and this project adheres to
 
 ### Added
 * (breaking) Some `freud.diffraction.StaticStructureFactorDebye` property names changed to be more descriptive.
-* `include_input_points` argument to `freud.locality.PeriodicBuffer`. 
+* `include_input_points` argument to `freud.locality.PeriodicBuffer`.
 
 ### Changed
 * `freud.data.Unitcell.generate_system` now generates positions in the same order as the basis positions.
