@@ -1101,7 +1101,7 @@ cdef class PeriodicBuffer(_Compute):
                 (Default value = :code:`False`).
             include_input_points (bool, optional):
                 Whether the original points provided by ``system`` are
-                included in the buffer, (Defaults value = :code:`False`).
+                included in the buffer, (Default value = :code:`False`).
         """
         cdef NeighborQuery nq = _make_default_nq(system)
         cdef vec3[float] buffer_vec
