@@ -593,6 +593,12 @@ cdef class Box:
         return np.array(l_contains_mask).astype(bool)
 
     @property
+    def cubic(self):
+        """bool: Whether the box is a cube."""
+        return self.Lx == self.Ly and self.Ly == self.Lz and self.xy == self.yz\
+            and self.yz == self.xz and self.xz == 0
+
+    @property
     def periodic(self):
         r""":math:`\left(3, \right)` :class:`numpy.ndarray`: Get or set the
         periodicity of the box in each dimension."""
