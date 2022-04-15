@@ -596,7 +596,7 @@ cdef class Box:
     def cubic(self):
         """bool: Whether the box is a cube."""
         return (
-            not self.is2d
+            not self.is2D
             and np.allclose(
                 [self.Lx, self.Lx, self.Ly, self.Ly, self.Lz, self.Lz],
                 [self.Ly, self.Lz, self.Lx, self.Lz, self.Lx, self.Ly],
