@@ -595,8 +595,16 @@ cdef class Box:
     @property
     def cubic(self):
         """bool: Whether the box is a cube."""
-        return self.Lx == self.Ly and self.Ly == self.Lz and self.xy == self.yz\
-            and self.yz == self.xz and self.xz == 0
+    return (
+        not self.is2d
+        and np.allclose(
+            [self.Lx, self.Lx, self.Ly, self.Ly, self.Lz, self.Lz],
+            [self.Ly, self.Lz, self.Lx, self.Lz, self.Lx, self.Ly],
+            rtol=1e-5,
+            atol=1e-5,
+        )
+        and np.allclose(0, [self.xy, self.yz, self.xz], rtol=1e-5, atol=1e-5)
+    )
 
     @property
     def periodic(self):
