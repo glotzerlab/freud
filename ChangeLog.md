@@ -4,7 +4,7 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## vX.Y.Z -- XXXX-XX-XX
+## v2.9.0 -- 2022-04-19
 
 ### Added
 * (breaking) Some `freud.diffraction.StaticStructureFactorDebye` property names changed to be more descriptive.
