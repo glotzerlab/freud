@@ -8,6 +8,7 @@ and this project adheres to
 
 ### Added
 * (breaking) Some `freud.diffraction.StaticStructureFactorDebye` property names changed to be more descriptive.
+* `freud.diffraction.DiffractionPattern` now raises an exception when used with non-cubic boxes.
 
 ### Fixed
 * `freud.diffraction.StaticStructureFactorDebye` implementation now gives `S_k[0] = N`.
