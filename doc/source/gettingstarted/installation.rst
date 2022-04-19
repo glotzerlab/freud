@@ -30,7 +30,7 @@ The code below will install **freud** from `PyPI <https://pypi.org/project/freud
 Compile from source
 -------------------
 
-The following are **required** for installing **freud**:
+The following are **required** for building and installing **freud** from source:
 
 - A C++14-compliant compiler
 - `Python <https://www.python.org/>`__ (>=3.6)
