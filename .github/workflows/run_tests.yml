@@ -1,0 +1,53 @@
+name: Run Unit Tests
+
+on:
+  # trigger on pull requests
+  pull_request:
+
+  # trigger on all commits to master and tagged commits
+  push:
+    branches:
+      - "master"
+    tags:
+      - "v*"
+
+  # trigger on request
+  workflow_dispatch:
+
+jobs:
+  run_tests:
+    name: Run tests on ${{ matrix.os }} with python ${{ matrix.pyver-reqs.pyver }}
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+        pyver-reqs: [ {pyver: '3.6', reqs: 'requirements-oldest.txt'},
+                      {pyver: '3.7', reqs: 'requirements-compatible.txt'},
+                      {pyver: '3.8', reqs: 'requirements-test.txt'},
+                      {pyver: '3.9', reqs: 'requirements-test.txt'},
+                      {pyver: '3.10', reqs: 'requirements-test.txt'} ]
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2.3.4
+        with:
+          path: code
+          submodules: true
+
+      - name: Create Python Environment
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          python_version: ${{ matrix.pyver-reqs.pyver }}
+          environment_file: ${{ matrix.pyver-reqs.reqs }}
+          channels: conda-forge,defaults
+          activate_environment: test
+
+      - name: Build and Install freud
+        shell: bash -l {0}
+        run: |
+          python setup.py install --user
+
+      - name: Run Tests
+        shell: bash -l {0}
+        run: |
+          pytest tests/ -v
+
