@@ -4,14 +4,19 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## vX.Y.Z -- XXXX-XX-XX
+## vX.Y.Z -- YYYY-MM-DD
 
 ### Added
-* (breaking) Some `freud.diffraction.StaticStructureFactorDebye` property names changed to be more descriptive.
 * `include_input_points` argument to `freud.locality.PeriodicBuffer`.
 
 ### Changed
-* `freud.data.Unitcell.generate_system` now generates positions in the same order as the basis positions.
+* `freud.data.UnitCell.generate_system` now generates positions in the same order as the basis positions.
+
+## v2.9.0 -- 2022-04-19
+
+### Added
+* (breaking) Some `freud.diffraction.StaticStructureFactorDebye` property names changed to be more descriptive.
+* `freud.diffraction.DiffractionPattern` now raises an exception when used with non-cubic boxes.
 
 ### Fixed
 * `freud.diffraction.StaticStructureFactorDebye` implementation now gives `S_k[0] = N`.

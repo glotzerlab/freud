@@ -329,6 +329,7 @@ Tommy Waltmann
 * Remove CI build configurations from CircleCI which were already covered by CIBuildWheel.
 * Change property names in ``StaticStructureFactorDebye`` class.
 * Reformat static structure factor tests.
+* ``DiffractionPattern`` now raises an error when used with non-cubic boxes.
 
 Maya Martirossyan
 

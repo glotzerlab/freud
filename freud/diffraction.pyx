@@ -565,6 +565,9 @@ cdef class DiffractionPattern(_Compute):
     `GIXStapose application <https://github.com/cmelab/GIXStapose>`_ and its
     predecessor, diffractometer :cite:`Jankowski2017`.
 
+    Note:
+        freud only supports diffraction patterns for cubic boxes.
+
     Args:
         grid_size (unsigned int):
             Resolution of the diffraction grid (Default value = 512).
@@ -730,6 +733,10 @@ cdef class DiffractionPattern(_Compute):
             self._frame_counter = 0
 
         system = freud.locality.NeighborQuery.from_system(system)
+
+        if not system.box.cubic:
+            raise ValueError("freud.diffraction.DiffractionPattern only "
+                             "supports cubic boxes")
 
         if view_orientation is None:
             view_orientation = np.array([1., 0., 0., 0.])
