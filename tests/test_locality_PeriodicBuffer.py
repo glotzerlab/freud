@@ -1,3 +1,4 @@
+import pytest
 import numpy as np
 import numpy.testing as npt
 
@@ -203,6 +204,21 @@ class TestPeriodicBuffer:
         assert len(pbuff.buffer_points) == 3 * N
         assert len(pbuff.buffer_ids) == 3 * N
         npt.assert_array_equal(pbuff.buffer_box.L, box.L * np.array([2, 1, 2]))
+
+    @pytest.mark.parametrize("is2d, points_fac", [(True, 9), (False, 27)])
+    def test_include_input_points(self, is2d, points_fac):
+        L = 10  # Box length
+        N = 50  # Number of points
+
+        box, positions = freud.data.make_random_system(L, N, is2D=is2d)
+        positions.flags["WRITEABLE"] = False
+
+        pbuff = freud.locality.PeriodicBuffer()
+        pbuff.compute((box, positions), buffer=2, images=True,
+                      include_input_points=True)
+
+        assert len(pbuff.buffer_points) == points_fac * N
+
 
     def test_repr(self):
         pbuff = freud.locality.PeriodicBuffer()
