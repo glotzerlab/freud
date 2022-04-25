@@ -1,6 +1,6 @@
-import pytest
 import numpy as np
 import numpy.testing as npt
+import pytest
 
 import freud
 
@@ -214,11 +214,11 @@ class TestPeriodicBuffer:
         positions.flags["WRITEABLE"] = False
 
         pbuff = freud.locality.PeriodicBuffer()
-        pbuff.compute((box, positions), buffer=2, images=True,
-                      include_input_points=True)
+        pbuff.compute(
+            (box, positions), buffer=2, images=True, include_input_points=True
+        )
 
         assert len(pbuff.buffer_points) == points_fac * N
-
 
     def test_repr(self):
         pbuff = freud.locality.PeriodicBuffer()
