@@ -1,17 +1,77 @@
 # Change Log
 The format is based on
-[Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
+[Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to
-[Semantic Versioning](http://semver.org/spec/v2.0.0.html).
+[Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## v2.6.0
+## v2.9.0 -- 2022-04-19
 
 ### Added
-* Added `out` option for storing wrapped vectors in `box.Box.wrap`.
-* The Steinhardt and SolidLiquid classes expose the raw qlmi arrays.
+* (breaking) Some `freud.diffraction.StaticStructureFactorDebye` property names changed to be more descriptive.
+* `freud.diffraction.DiffractionPattern` now raises an exception when used with non-cubic boxes.
 
 ### Fixed
-* Fix broken arXiv links in bibliography.
+* `freud.diffraction.StaticStructureFactorDebye` implementation now gives `S_k[0] = N`.
+* Cython is no longer listed as an install requirement in `setup.py`.
+
+### Removed
+* Custom CMake build type `ReleaseWithDocs`.
+
+## v2.8.0 -- 2022-01-25
+
+### Added
+* `freud.diffraction.StaticStructureFactorDirect` class (unstable) can be used to compute the static structure factor S(k) by sampling reciprocal space vectors.
+* Python 3.10 is supported.
+* Documentation examples are tested with pytest.
+* Use clang-format as pre-commit hook.
+* Add related tools section to the documentation.
+
+### Fixed
+* `freud.diffraction.DiffractionPattern` normalization changed such that `S(k=0) = N`.
+* Added error checking for `r_min`, `r_max` arguments in `freud.density.RDF`, `freud.locality.NeighborList`, `freud.locality.NeighborQuery`, and `freud.density.LocalDensity` classes.
+* CMake build system only uses references to TBB target.
+
+### Changed
+* Re-organized tests for the static structure factor classes.
+* Move `util::Histogram<T>::Axes` to `util::Axes`.
+* Use new `flake8` plugin `flake8-force` for linting Cython code.
+
+## v2.7.0 -- 2021-10-01
+
+### Added
+* `freud.diffraction.StaticStructureFactorDebye` class (unstable) can be used to compute the static structure factor S(k) using the Debye formula.
+
+### Fixed
+* Updated lambda functions to capture `this` by reference, to ensure compatibility with C++20 and above.
+* Fixed ``Box.contains`` to run in linear time, ``O(num_points)``.
+* Fixed compilation to pass compiler optimization flags when build type is ReleaseWithDocs (major perf regression since 2.4.1).
+
+## v2.6.2 -- 2021-06-26
+
+### Fixed
+* Upgrade to auditwheel 4.0.0 in cibuildwheel to ensure RPATH is patched properly for `libfreud.so` in Linux wheels.
+
+## v2.6.1 -- 2021-06-23
+
+### Fixed
+* Added missing git submodules to source distribution.
+
+## v2.6.0 - 2021-06-22
+
+### Added
+* Added `out` option for the `wrap`, `unwrap`, `make_absolute`, and `make_fractional` methods of `Box`.
+* The `Steinhardt` and `SolidLiquid` classes expose the raw `qlmi` arrays.
+* The `Steinhardt` class supports computing order parameters for multiple `l`.
+
+### Changed
+* Improvements to plotting for the `DiffractionPattern`.
+* Wheels are now built with cibuildwheel.
+
+### Fixed
+* Fixed/Improved the `k` values and vectors in the `DiffractionPattern` (more improvement needed).
+* Fixed incorrect computation of `Steinhardt` averaged quantities. Affects all previous versions of freud 2.
+* Fixed documented formulas for `Steinhardt` class.
+* Fixed broken arXiv links in bibliography.
 
 ## v2.5.1 - 2021-04-06
 

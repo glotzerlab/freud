@@ -124,7 +124,7 @@ cdef class _ManagedArrayContainer:
 
 
 cdef class _Compute(object):
-    R"""Parent class for all compute classes in freud.
+    r"""Parent class for all compute classes in freud.
 
     The primary purpose of this class is to prevent access of uncomputed
     values. This is accomplished by maintaining a boolean flag to track whether
@@ -174,7 +174,7 @@ cdef class _Compute(object):
 
     @staticmethod
     def _computed_property(prop):
-        R"""Decorator that makes a class method to be a property with limited access.
+        r"""Decorator that makes a class method to be a property with limited access.
 
         Args:
             prop (callable): The property function.
@@ -210,7 +210,7 @@ def _convert_array(array, shape=None, dtype=np.float32, requirements=("C", ),
             (Default value = :code:`None`).
         dtype: :code:`dtype` to convert the array to if :code:`array.dtype`
             is different. If :code:`None`, :code:`dtype` will not be changed
-            (Default value = :class:`numpy.float32`).
+            (Default value = :attr:`numpy.float32`).
         requirements (Sequence[str]): A sequence of string flags to be passed to
             :func:`numpy.require`.
         allow_copy (bool): If :code:`False` and the input array does not already
@@ -224,6 +224,7 @@ def _convert_array(array, shape=None, dtype=np.float32, requirements=("C", ),
     if array is None:
         return np.empty(shape, dtype=dtype)
 
+    array = np.asarray(array)
     return_arr = np.require(array, dtype=dtype, requirements=requirements)
 
     if not allow_copy and return_arr is not array:

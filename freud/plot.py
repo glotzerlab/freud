@@ -11,6 +11,7 @@ import freud
 try:
     import matplotlib.pyplot as plt
     from matplotlib.backends.backend_agg import FigureCanvasAgg
+    from matplotlib.ticker import FormatStrFormatter, MaxNLocator
 except ImportError:
     raise ImportError("matplotlib must be installed for freud.plot.")
 
@@ -241,7 +242,7 @@ def clusters_plot(keys, freqs, num_clusters_to_plot=10, ax=None):
         :class:`matplotlib.axes.Axes`: Axes object with the diagram.
     """
     count_sorted = sorted(
-        [(freq, key) for key, freq in zip(keys, freqs)], key=lambda x: -x[0]
+        ((freq, key) for key, freq in zip(keys, freqs)), key=lambda x: -x[0]
     )
     sorted_freqs = [i[0] for i in count_sorted[:num_clusters_to_plot]]
     sorted_keys = [str(i[1]) for i in count_sorted[:num_clusters_to_plot]]
@@ -283,7 +284,9 @@ def line_plot(x, y, title=None, xlabel=None, ylabel=None, ax=None):
     return ax
 
 
-def histogram_plot(values, title=None, xlabel=None, ylabel=None, ax=None):
+def histogram_plot(
+    values, title=None, xlabel=None, ylabel=None, ax=None, legend_labels=None
+):
     """Helper function to draw a histogram graph.
 
     Args:
@@ -306,6 +309,8 @@ def histogram_plot(values, title=None, xlabel=None, ylabel=None, ax=None):
     ax.set_title(title)
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
+    if legend_labels is not None:
+        ax.legend(legend_labels)
     return ax
 
 
@@ -490,7 +495,7 @@ def voronoi_plot(box, polytopes, ax=None, color_by_sides=True, cmap=None):
 
 
 def diffraction_plot(
-    diffraction, k_values, ax=None, cmap="afmhot", vmin=4e-6, vmax=0.7
+    diffraction, k_values, N_points, ax=None, cmap="afmhot", vmin=None, vmax=None
 ):
     """Helper function to plot diffraction pattern.
 
@@ -499,15 +504,19 @@ def diffraction_plot(
             Diffraction image data.
         k_values (:class:`numpy.ndarray`):
             :math:`k` value magnitudes for each bin of the diffraction image.
+        N_points (int):
+            Number of points in the system.
         ax (:class:`matplotlib.axes.Axes`):
             Axes object to plot. If :code:`None`, make a new axes and figure
             object (Default value = :code:`None`).
         cmap (str):
             Colormap name to use (Default value = :code:`'afmhot'`).
         vmin (float):
-            Minimum of the color scale (Default value = 4e-6).
+            Minimum of the color scale Uses :code:`4e-6 * N_points` if
+            not provided or :code:`None` (Default value = :code:`None`).
         vmax (float):
-            Maximum of the color scale (Default value = 0.7).
+            Maximum of the color scale. Uses :code:`0.7 * N_points` if
+            not provided or :code:`None` (Default value = :code:`None`).
 
     Returns:
         :class:`matplotlib.axes.Axes`: Axes object with the diagram.
@@ -516,35 +525,37 @@ def diffraction_plot(
     from matplotlib.colorbar import Colorbar
     from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
 
+    if vmin is None:
+        vmin = 4e-6 * N_points
+
+    if vmax is None:
+        vmax = 0.7 * N_points
+
     if ax is None:
         fig = plt.figure()
         ax = fig.subplots()
 
     # Plot the diffraction image and color bar
     norm = matplotlib.colors.LogNorm(vmin=vmin, vmax=vmax)
+    extent = (np.min(k_values), np.max(k_values), np.min(k_values), np.max(k_values))
     im = ax.imshow(
-        np.clip(diffraction, vmin, vmax), interpolation="nearest", cmap=cmap, norm=norm
+        np.clip(diffraction, vmin, vmax),
+        interpolation="nearest",
+        cmap=cmap,
+        norm=norm,
+        extent=extent,
     )
     ax_divider = make_axes_locatable(ax)
     cax = ax_divider.append_axes("right", size="7%", pad="10%")
     cb = Colorbar(cax, im)
     cb.set_label(r"$S(\vec{k})$")
 
-    # Determine the number of ticks on the axis
-    grid_size = diffraction.shape[0]
-    num_ticks = len([i for i in ax.xaxis.get_ticklocs() if 0 <= i <= grid_size])
-
-    # Ensure there are an odd number of ticks, so that there is a tick at zero
-    num_ticks += 1 - num_ticks % 2
-    ticks = np.linspace(0, grid_size, num_ticks)
-
     # Set tick locations and labels
-    tick_labels = np.interp(ticks, range(grid_size), k_values)
-    tick_labels = [f"{x:.3g}" for x in tick_labels]
-    ax.xaxis.set_ticks(ticks)
-    ax.xaxis.set_ticklabels(tick_labels)
-    ax.yaxis.set_ticks(ticks)
-    ax.yaxis.set_ticklabels(tick_labels)
+    ax.xaxis.set_major_locator(MaxNLocator(nbins=6, symmetric=True, min_n_ticks=7))
+    ax.yaxis.set_major_locator(MaxNLocator(nbins=6, symmetric=True, min_n_ticks=7))
+    formatter = FormatStrFormatter("%.3g")
+    ax.xaxis.set_major_formatter(formatter)
+    ax.yaxis.set_major_formatter(formatter)
 
     # Set title, limits, aspect
     ax.set_title("Diffraction Pattern")

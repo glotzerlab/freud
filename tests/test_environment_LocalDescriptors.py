@@ -29,7 +29,7 @@ def get_ql(p, descriptors, nlist, weighted=False):
     ql = np.zeros((qbar_lm.shape[0], descriptors.l_max + 1))
     for i in range(ql.shape[0]):
         for l in range(ql.shape[1]):
-            for k in range(l ** 2, (l + 1) ** 2):
+            for k in range(l**2, (l + 1) ** 2):
                 ql[i, l] += np.absolute(qbar_lm[i, k]) ** 2
             ql[i, l] = np.sqrt(4 * np.pi / (2 * l + 1) * ql[i, l])
 
@@ -37,7 +37,7 @@ def get_ql(p, descriptors, nlist, weighted=False):
 
 
 def lm_index(l, m):
-    return l ** 2 + (m if m >= 0 else l - m)
+    return l**2 + (m if m >= 0 else l - m)
 
 
 @lru_cache(maxsize=None)
@@ -129,7 +129,7 @@ class TestLocalDescriptors:
 
         box, positions = freud.data.make_random_system(L, N)
         orientations = np.random.uniform(-1, 1, size=(N, 4)).astype(np.float32)
-        orientations /= np.sqrt(np.sum(orientations ** 2, axis=-1))[:, np.newaxis]
+        orientations /= np.sqrt(np.sum(orientations**2, axis=-1))[:, np.newaxis]
 
         comp = freud.environment.LocalDescriptors(l_max, True, mode="particle_local")
 
@@ -333,8 +333,7 @@ class TestLocalDescriptors:
     def test_ld(self):
         """Verify the behavior of LocalDescriptors by explicitly calculating
         spherical harmonics manually and verifying them."""
-        special = pytest.importorskip("scipy.special")
-        sph_harm = special.sph_harm
+        sph_harm = pytest.importorskip("scipy.special").sph_harm
 
         atol = 1e-5
         L = 8
@@ -388,8 +387,7 @@ class TestLocalDescriptors:
     def test_query_point_ne_points(self):
         """Verify the behavior of LocalDescriptors by explicitly calculating
         spherical harmonics manually and verifying them."""
-        special = pytest.importorskip("scipy.special")
-        sph_harm = special.sph_harm
+        sph_harm = pytest.importorskip("scipy.special").sph_harm
 
         atol = 1e-5
         L = 8

@@ -1,11 +1,12 @@
 # Copyright (c) 2010-2020 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
-R"""
+r"""
 The :class:`freud.msd` module provides functions for computing the
 mean-squared-displacement (MSD) of particles in periodic systems.
 """
 
+from freud.util cimport _Compute
 import logging
 
 import numpy as np
@@ -15,7 +16,6 @@ import freud.parallel
 cimport numpy as np
 
 cimport freud.box
-from freud.util cimport _Compute
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +52,7 @@ except ImportError:
 
 
 def _autocorrelation(x):
-    R"""Compute the autocorrelation of a sequence"""
+    r"""Compute the autocorrelation of a sequence"""
     N = x.shape[0]
     F = fft(x, n=2*N, axis=0)
     PSD = F * F.conjugate()
@@ -63,7 +63,7 @@ def _autocorrelation(x):
 
 
 cdef class MSD(_Compute):
-    R"""Compute the mean squared displacement.
+    r"""Compute the mean squared displacement.
 
     The mean squared displacement (MSD) measures how much particles move over
     time. The MSD plays an important role in characterizing Brownian motion,

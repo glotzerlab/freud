@@ -157,7 +157,7 @@ public:
 #ifdef __SSE2__
         size_t bin = _mm_cvtt_ss2si(_mm_load_ss(&val));
 #else
-        size_t bin = (size_t)(val);
+        size_t bin = (size_t) (val);
 #endif
         // Avoid rounding leading to overflow.
         if (bin == m_nbins)
@@ -171,6 +171,8 @@ protected:
     float m_bin_width;         //!< Bin width
     float m_inverse_bin_width; //!< Inverse of bin width
 };
+
+using Axes = std::vector<std::shared_ptr<Axis>>;
 
 //! An n-dimensional histogram class.
 /*! The Histogram is designed to simplify the most common use of histograms in
@@ -258,7 +260,7 @@ public:
         void reduceInto(ManagedArray<T>& result)
         {
             result.reset();
-            util::forLoopWrapper(0, result.size(), [=, &result](size_t begin, size_t end) {
+            util::forLoopWrapper(0, result.size(), [&](size_t begin, size_t end) {
                 for (size_t i = begin; i < end; ++i)
                 {
                     for (auto hist = m_local_histograms.begin(); hist != m_local_histograms.end(); ++hist)
@@ -273,9 +275,6 @@ public:
         tbb::enumerable_thread_specific<Histogram<T>>
             m_local_histograms; //!< The thread-local copies of m_histogram.
     };
-
-    using Axes = std::vector<std::shared_ptr<Axis>>;
-    using AxisIterator = Axes::const_iterator;
 
     //! Default constructor
     Histogram() = default;
@@ -362,6 +361,12 @@ public:
         return m_bin_counts.getIndex(ax_bins);
     }
 
+    //! Return the axes.
+    const std::vector<std::shared_ptr<Axis>>& getAxes() const
+    {
+        return m_axes;
+    }
+
     //! Get the computed histogram.
     const ManagedArray<T>& getBinCounts() const
     {
@@ -440,7 +445,7 @@ public:
     void reduceOverThreadsPerBin(ThreadLocalHistogram& local_histograms, const ComputeFunction& cf)
     {
         local_histograms.reduceInto(m_bin_counts);
-        util::forLoopWrapper(0, m_bin_counts.size(), [=](size_t begin, size_t end) {
+        util::forLoopWrapper(0, m_bin_counts.size(), [&](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
                 cf(i);

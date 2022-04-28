@@ -71,6 +71,8 @@ class TestRDF:
             freud.density.RDF(r_max=1, bins=0)
         with pytest.raises(ValueError):
             freud.density.RDF(r_max=1, bins=10, r_min=2)
+        with pytest.raises(ValueError):
+            freud.density.RDF(r_max=1, bins=10, r_min=-1)
 
     def test_random_point(self):
         r_max = 10.0
@@ -107,7 +109,7 @@ class TestRDF:
             bin_boundaries = np.array(
                 [r_min + dr * i for i in range(bins + 1) if r_min + dr * i <= r_max]
             )
-            bin_volumes = 4 / 3 * np.pi * np.diff(bin_boundaries ** 3)
+            bin_volumes = 4 / 3 * np.pi * np.diff(bin_boundaries**3)
             avg_counts = rdf.rdf * ndens * bin_volumes
             npt.assert_allclose(rdf.n_r, np.cumsum(avg_counts), rtol=tolerance)
 

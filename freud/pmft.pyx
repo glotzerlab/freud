@@ -1,7 +1,7 @@
 # Copyright (c) 2010-2020 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
-R"""
+r"""
 The :class:`freud.pmft` module allows for the calculation of the Potential of
 Mean Force and Torque (PMFT) :cite:`vanAnders:2014aa,van_Anders_2013` in a
 number of different coordinate systems. The shape of the arrays computed by
@@ -38,18 +38,20 @@ refer to the supplementary information of :cite:`vanAnders:2014aa`.
     :code:`nan`.
 """
 
+from cython.operator cimport dereference
+
+from freud.locality cimport _SpatialHistogram
+from freud.util cimport _Compute, quat, vec3
+
 import numpy as np
 import rowan
 
 import freud.locality
 
 cimport numpy as np
-from cython.operator cimport dereference
 
 cimport freud._pmft
 cimport freud.locality
-from freud.locality cimport _SpatialHistogram
-from freud.util cimport _Compute, quat, vec3
 
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
@@ -93,7 +95,7 @@ def _gen_angle_array(orientations, shape):
 
 
 cdef class _PMFT(_SpatialHistogram):
-    R"""Compute the PMFT :cite:`vanAnders:2014aa,van_Anders_2013` for a
+    r"""Compute the PMFT :cite:`vanAnders:2014aa,van_Anders_2013` for a
     given set of points.
 
     This class provides an abstract interface for computing the PMFT.
@@ -125,7 +127,7 @@ cdef class _PMFT(_SpatialHistogram):
 
 
 cdef class PMFTR12(_PMFT):
-    R"""Computes the PMFT :cite:`vanAnders:2014aa,van_Anders_2013` in a 2D
+    r"""Computes the PMFT :cite:`vanAnders:2014aa,van_Anders_2013` in a 2D
     system described by :math:`r`, :math:`\theta_1`, :math:`\theta_2`.
 
     .. note::
@@ -159,7 +161,7 @@ cdef class PMFTR12(_PMFT):
 
     def compute(self, system, orientations, query_points=None,
                 query_orientations=None, neighbors=None, reset=True):
-        R"""Calculates the PMFT.
+        r"""Calculates the PMFT.
 
         Args:
             system:
@@ -232,7 +234,7 @@ cdef class PMFTR12(_PMFT):
 
 
 cdef class PMFTXYT(_PMFT):
-    R"""Computes the PMFT :cite:`vanAnders:2014aa,van_Anders_2013` for
+    r"""Computes the PMFT :cite:`vanAnders:2014aa,van_Anders_2013` for
     systems described by coordinates :math:`x`, :math:`y`, :math:`\theta`.
 
     .. note::
@@ -268,7 +270,7 @@ cdef class PMFTXYT(_PMFT):
 
     def compute(self, system, orientations, query_points=None,
                 query_orientations=None, neighbors=None, reset=True):
-        R"""Calculates the PMFT.
+        r"""Calculates the PMFT.
 
         Args:
             system:
@@ -343,7 +345,7 @@ cdef class PMFTXYT(_PMFT):
 
 
 cdef class PMFTXY(_PMFT):
-    R"""Computes the PMFT :cite:`vanAnders:2014aa,van_Anders_2013` in
+    r"""Computes the PMFT :cite:`vanAnders:2014aa,van_Anders_2013` in
     coordinates :math:`x`, :math:`y`.
 
     There are 3 degrees of translational and rotational freedom in 2
@@ -383,7 +385,7 @@ cdef class PMFTXY(_PMFT):
 
     def compute(self, system, query_orientations, query_points=None,
                 neighbors=None, reset=True):
-        R"""Calculates the PMFT.
+        r"""Calculates the PMFT.
 
         .. note::
             The orientations of the system points are irrelevant for this
@@ -480,7 +482,7 @@ cdef class PMFTXY(_PMFT):
 
 
 cdef class PMFTXYZ(_PMFT):
-    R"""Computes the PMFT :cite:`vanAnders:2014aa,van_Anders_2013` in
+    r"""Computes the PMFT :cite:`vanAnders:2014aa,van_Anders_2013` in
     coordinates :math:`x`, :math:`y`, :math:`z`.
 
     There are 6 degrees of translational and rotational freedom in 3
@@ -529,7 +531,7 @@ cdef class PMFTXYZ(_PMFT):
 
     def compute(self, system, query_orientations, query_points=None,
                 equiv_orientations=None, neighbors=None, reset=True):
-        R"""Calculates the PMFT.
+        r"""Calculates the PMFT.
 
         .. note::
             The orientations of the system points are irrelevant for this

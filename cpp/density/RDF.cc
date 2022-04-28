@@ -22,14 +22,17 @@ RDF::RDF(unsigned int bins, float r_max, float r_min, bool normalize)
     {
         throw std::invalid_argument("RDF requires r_max to be positive.");
     }
+    if (r_min < 0)
+    {
+        throw std::invalid_argument("RDF requires r_min to be non-negative.");
+    }
     if (r_max <= r_min)
     {
         throw std::invalid_argument("RDF requires that r_max must be greater than r_min.");
     }
 
     // Construct the Histogram object that will be used to keep track of counts of bond distances found.
-    BHAxes axes;
-    axes.push_back(std::make_shared<util::RegularAxis>(bins, r_min, r_max));
+    const auto axes = util::Axes {std::make_shared<util::RegularAxis>(bins, r_min, r_max)};
     m_histogram = BondHistogram(axes);
     m_local_histograms = BondHistogram::ThreadLocalHistogram(m_histogram);
 
@@ -84,7 +87,7 @@ void RDF::accumulate(const freud::locality::NeighborQuery* neighbor_query, const
                      freud::locality::QueryArgs qargs)
 {
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
-                      [=](const freud::locality::NeighborBond& neighbor_bond) {
+                      [&](const freud::locality::NeighborBond& neighbor_bond) {
                           m_local_histograms(neighbor_bond.distance);
                       });
 }

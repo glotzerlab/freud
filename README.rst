@@ -46,6 +46,11 @@ Resources
 - `GitHub repository <https://github.com/glotzerlab/freud>`__: Download the **freud** source code.
 - `Issue tracker <https://github.com/glotzerlab/freud/issues>`__: Report issues or request features.
 
+Related Tools
+=============
+
+- `HOOMD-blue <https://hoomd-blue.readthedocs.io/>`__: Perform MD / MC simulations that can be analyzed with **freud**.
+- `signac <https://signac.io/>`__: Manage your workflow with **signac**.
 
 Citation
 ========

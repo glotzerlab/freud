@@ -30,20 +30,20 @@ The code below will install **freud** from `PyPI <https://pypi.org/project/freud
 Compile from source
 -------------------
 
-The following are **required** for installing **freud**:
+The following are **required** for building and installing **freud** from source:
 
 - A C++14-compliant compiler
 - `Python <https://www.python.org/>`__ (>=3.6)
 - `NumPy <https://www.numpy.org/>`__ (>=1.14)
-- `Intel Threading Building Blocks <https://www.threadingbuildingblocks.org/>`__
+- `Intel Threading Building Blocks <https://www.threadingbuildingblocks.org/>`__ (>=2017.03.R2)
 - `Cython <https://cython.org/>`__ (>=0.29.14)
 - `scikit-build <https://scikit-build.readthedocs.io/>`__ (>=0.10.0)
-- `CMake <https://cmake.org/>`__ (>=3.6.3)
+- `CMake <https://cmake.org/>`__ (>=3.12.0)
 
 .. note::
 
     Depending on the generator you are using, you may require a newer version of CMake.
-    In particular, on Windows Visual Studio 2017 requires at least CMake 3.7.1, while Visual Studio 2019 requires CMake 3.14.
+    In particular, Visual Studio 2019 requires CMake >= 3.14.0.
     For more information on specific generators, see the `CMake generator documentation <https://cmake.org/cmake/help/git-stage/manual/cmake-generators.7.html>`__.
 
 The **freud** library uses scikit-build and CMake to handle the build process itself, while the other requirements are required for compiling code in **freud**.
@@ -86,12 +86,6 @@ CMake Options
 The scikit-build tool allows setup.py to accept three different sets of options separated by ``--``, where each set is provided directly to scikit-build, to CMake, or to the code generator of choice, respectively.
 For example, the command ``python setup.py build_ext --inplace -- -DCOVERAGE=ON -G Ninja -- -j 4`` tell scikit-build to perform an in-place build, it tells CMake to turn on the ``COVERAGE`` option and use Ninja for compilation, and it tells Ninja to compile with 4 parallel threads.
 For more information on these options, see the `scikit-build docs <scikit-build.readthedocs.io/>`__.
-
-.. note::
-
-    The default CMake build configuration for freud is ``ReleaseWithDocs`` (not a standard build configuration like ``Release`` or ``RelWithDebInfo``).
-    On installation, ``setup.py`` assumes ``--build-type=ReleaseWithDocs`` by default if no build type is specified.
-    Using this build configuration is a workaround for `this issue <https://github.com/scikit-build/scikit-build/issues/518>`__ with scikit-build and Cython embedding docstrings.
 
 In addition to standard CMake flags, the following CMake options are available for **freud**:
 

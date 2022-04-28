@@ -4,16 +4,6 @@ orbs:
   win: circleci/windows@2.2.0  # Enables Windows executors
 
 references:
-  container_manylinux: &container_manylinux
-    docker:
-      - image: quay.io/pypa/manylinux2010_x86_64
-    working_directory: ~/ci/freud
-
-  container_macos: &container_macos
-    macos:
-      xcode: "12.0.0"
-    working_directory: ~/ci/freud
-
   load_code: &load_code
     checkout
 
@@ -61,7 +51,12 @@ references:
         conda install python=${PYVER} pip tbb tbb-devel
         conda update --all
         ${PYTHON} -m pip install --progress-bar off scikit-build==0.10.0
-        ${PYTHON} -m pip install --progress-bar off -U -r requirements/requirements-test.txt
+        if [ "${DEPENDENCIES}" == "COMPATIBLE" ]; then
+          # Python 3.7 was dropped by NEP 29, but we still support it
+          ${PYTHON} -m pip install --progress-bar off -U -r requirements/requirements-test-compatible.txt
+        else
+          ${PYTHON} -m pip install --progress-bar off -U -r requirements/requirements-test.txt
+        fi
         # Install cmake >=3.14 to support Visual Studio 2019 generator
         ${PYTHON} -m pip install --progress-bar off -U cmake~=3.14
 
@@ -86,7 +81,7 @@ references:
         # Next, run the C++ pre-commit checks.  We need to generate the
         # compile_commands.json database, which requires building.
         ${PYTHON} setup.py build_ext --inplace -- -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -- -j 4
-        ${PYTHON} -m pre_commit run -c .pre-commit-config-cpp.yaml --all-files --show-diff-on-failure
+        ${PYTHON} -m pre_commit run --all-files --hook-stage manual --show-diff-on-failure
 
   build: &build
     run:
@@ -109,15 +104,6 @@ references:
       command: |
         ${PYTHON} --version
         ${PYTHON} setup.py build_ext --inplace -- -G "Visual Studio 16 2019" -DCOVERAGE=ON
-
-  test: &test
-    run:
-      name: Run unit tests
-      command: |
-        if [ -d "venv" ]; then
-          . venv/bin/activate
-        fi
-        ${PYTHON} -m pytest tests/ -v
 
   test_cov: &test_cov
     run:
@@ -176,26 +162,6 @@ references:
       - *get_pre_commit_requirements
       - *pre-test-checks
 
-  build_and_test_linux: &build_and_test_linux
-    working_directory: ~/ci/freud
-    steps:
-      - *load_code
-      - *update_submodules
-      - *get_requirements
-      - *build
-      - *test
-      - *store
-
-  build_and_test_linux_with_cov: &build_and_test_linux_with_cov
-    <<: *build_and_test_linux
-    steps:
-      - *load_code
-      - *update_submodules
-      - *get_requirements
-      - *build
-      - *test_cov
-      - *store
-
   build_and_test_windows: &build_and_test_windows
     executor:
       name: win/default
@@ -218,42 +184,6 @@ references:
       - *comparison
       - *store_benchmarks
 
-  build_linux_test_wheels: &build_linux_test_wheels
-    steps:
-      - *load_code
-      - *update_submodules
-      - run:
-          name: Compile Linux wheels
-          command: |
-            bash .circleci/deploy-linux.sh testpypi
-
-  build_linux_wheels: &build_linux_wheels
-    steps:
-      - *load_code
-      - *update_submodules
-      - run:
-          name: Compile Linux wheels
-          command: |
-            bash .circleci/deploy-linux.sh pypi
-
-  build_macos_test_wheels: &build_macos_test_wheels
-    steps:
-      - *load_code
-      - *update_submodules
-      - run:
-          name: Compile Mac wheels
-          command: |
-            bash .circleci/deploy-macos.sh testpypi
-
-  build_macos_wheels: &build_macos_wheels
-    steps:
-      - *load_code
-      - *update_submodules
-      - run:
-          name: Compile Mac wheels
-          command: |
-            bash .circleci/deploy-macos.sh pypi
-
 jobs:
   check-style:
     docker:
@@ -263,38 +193,11 @@ jobs:
       PYTHON: "python3.9"
     <<: *load_check_style
 
-  linux-python-39:
-    docker:
-      - image: glotzerlab/ci:2020.10-py39
+  windows-python-310:
     environment:
-      PYVER: "3.9"
-      PYTHON: "python3.9"
-    <<: *build_and_test_linux_with_cov
-
-  linux-python-38:
-    docker:
-      - image: glotzerlab/ci:2020.10-py38
-    environment:
-      PYVER: "3.8"
-      PYTHON: "python3.8"
-    <<: *build_and_test_linux_with_cov
-
-  linux-python-37:
-    docker:
-      - image: glotzerlab/ci:2020.10-py37
-    environment:
-      PYVER: "3.7"
-      PYTHON: "python3.7"
-    <<: *build_and_test_linux_with_cov
-
-  linux-python-36-oldest:
-    docker:
-      - image: glotzerlab/ci:2020.10-py36
-    environment:
-      PYVER: "3.6"
-      PYTHON: "python3.6"
-      DEPENDENCIES: "OLDEST"
-    <<: *build_and_test_linux
+      PYVER: "3.10"
+      <<: *windows_env
+    <<: *build_and_test_windows
 
   windows-python-39:
     environment:
@@ -311,6 +214,7 @@ jobs:
   windows-python-37:
     environment:
       PYVER: "3.7"
+      DEPENDENCIES: "COMPATIBLE"
       <<: *windows_env
     <<: *build_and_test_windows
 
@@ -328,28 +232,19 @@ workflows:
   test:
     jobs:
       - check-style
-      - linux-python-39
-      - linux-python-38:
+      - windows-python-310
+      - windows-python-39:
           requires:
             - check-style
-            - linux-python-39
-      - linux-python-37:
-          requires:
-            - check-style
-            - linux-python-39
-      - linux-python-36-oldest:
-          requires:
-            - check-style
-            - linux-python-39
-      - windows-python-39
+            - windows-python-310
       - windows-python-38:
           requires:
             - check-style
-            - windows-python-39
+            - windows-python-310
       - windows-python-37:
           requires:
             - check-style
-            - windows-python-39
+            - windows-python-310
 # Disabled benchmarks on CI - they currently take too much work
 #     - benchmarks:
 #         requires:
