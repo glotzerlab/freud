@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
-np.import_array()
+# np.import_array()
 
 cdef class Box:
     r"""The freud Box class for simulation boxes.
