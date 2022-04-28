@@ -12,7 +12,7 @@
 namespace freud { namespace locality {
 
 void PeriodicBuffer::compute(const freud::locality::NeighborQuery* neighbor_query, const vec3<float>& buff,
-                             const bool use_images)
+                             const bool use_images, const bool include_input_points)
 {
     m_box = neighbor_query->getBox();
     if (buff.x < 0)
@@ -68,7 +68,7 @@ void PeriodicBuffer::compute(const freud::locality::NeighborQuery* neighbor_quer
                 for (int k = use_images ? 0 : -images.z; k <= images.z; k++)
                 {
                     // Skip the origin image
-                    if (i == 0 && j == 0 && k == 0)
+                    if (!include_input_points && i == 0 && j == 0 && k == 0)
                     {
                         continue;
                     }
