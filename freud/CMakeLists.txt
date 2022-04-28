@@ -35,18 +35,18 @@ endif()
 # Detect when building against a conda environment set the _using_conda variable
 # for use both in this file and in the parent
 get_filename_component(_python_bin_dir ${PYTHON_EXECUTABLE} DIRECTORY)
-if(EXISTS "${_python_bin_dir}/../conda-meta")
-  message("-- Detected conda environment, setting INSTALL_RPATH_USE_LINK_PATH")
-  set(_using_conda On)
-  set(_using_conda
-      On
-      PARENT_SCOPE)
-else()
+#if(EXISTS "${_python_bin_dir}/../conda-meta")
+#  message("-- Detected conda environment, setting INSTALL_RPATH_USE_LINK_PATH")
+#  set(_using_conda On)
+#  set(_using_conda
+#      On
+#      PARENT_SCOPE)
+#else()
   set(_using_conda Off)
   set(_using_conda
       Off
       PARENT_SCOPE)
-endif()
+#endif()
 
 set(cython_modules_with_cpp
     box
