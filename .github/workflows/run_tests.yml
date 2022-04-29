@@ -1,8 +1,9 @@
 name: Run Unit Tests
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+# Remove this for now, circleci is getting in the way with tests failing
+#concurrency:
+#  group: ${{ github.workflow }}-${{ github.ref }}
+#  cancel-in-progress: true
 
 on:
   # trigger on pull requests
