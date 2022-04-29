@@ -2,7 +2,9 @@ name: Build wheels
 
 on:
   # Trigger on pull requests.
-  pull_request:
+  # commenting this out now so we can focus on new tests
+  # TODO remove this file before merging
+  #pull_request:
 
   # Trigger on pushes to the mainline branches and version tags. This prevents building commits
   # twice when the pull request source branch is in the same repository.
