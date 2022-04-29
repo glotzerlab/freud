@@ -1,10 +1,17 @@
 # Try alternate method for creating python extensions
-function(my_python_extension_module _target)
+function(make_python_extension_module _target)
   set_target_properties(${_target} PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}")
   set_target_properties(${_target} PROPERTIES SUFFIX "${PYTHON_EXTENSION_MODULE_SUFFIX}")
 
   target_include_directories(${_target} PRIVATE "${PYTHON_INCLUDE_DIRS}")
-  target_link_options(${_target} PRIVATE "$<$<PLATFORM_ID:Darwin>:LINKER:-undefined,dynamic_lookup>")
+  if (WIN32)
+    # Link to the Python libraries on windows
+    target_link_libraries(${_target} PRIVATE ${PYTHON_LIBRARIES})
+  else()
+    # Do not link to the Python libraries on Mac/Linux - symbols are provided
+    # by the `python` executable. "-undefined dynamic_lookup" is needed on Mac
+    target_link_options(${_target} PRIVATE "$<$<PLATFORM_ID:Darwin>:LINKER:-undefined,dynamic_lookup>")
+  endif()
 endfunction()
 
 # Need to figure out coverage before CYTHON_FLAGS are set.
@@ -44,18 +51,18 @@ endif()
 # Detect when building against a conda environment set the _using_conda variable
 # for use both in this file and in the parent
 get_filename_component(_python_bin_dir ${PYTHON_EXECUTABLE} DIRECTORY)
-#if(EXISTS "${_python_bin_dir}/../conda-meta")
-#  message("-- Detected conda environment, setting INSTALL_RPATH_USE_LINK_PATH")
-#  set(_using_conda On)
-#  set(_using_conda
-#      On
-#      PARENT_SCOPE)
-#else()
+if(EXISTS "${_python_bin_dir}/../conda-meta")
+  message("-- Detected conda environment, setting INSTALL_RPATH_USE_LINK_PATH")
+  set(_using_conda On)
+  set(_using_conda
+      On
+      PARENT_SCOPE)
+else()
   set(_using_conda Off)
   set(_using_conda
       Off
       PARENT_SCOPE)
-#endif()
+endif()
 
 set(cython_modules_with_cpp
     box
@@ -73,10 +80,7 @@ set(cython_modules_without_cpp interface msd util)
 foreach(cython_module ${cython_modules_with_cpp} ${cython_modules_without_cpp})
   add_cython_target(${cython_module} PY3 CXX)
   add_library(${cython_module} SHARED ${${cython_module}})
-  # For some reason this command prints the name of the resulting module. Would
-  # be good to suppress if possible. (this is done by scikit build in
-  # _set_python_extension_symbol_visibility)
-  my_python_extension_module(${cython_module})
+  make_python_extension_module(${cython_module})
 
   target_compile_definitions(
     ${cython_module}
