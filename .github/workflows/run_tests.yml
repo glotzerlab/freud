@@ -1,5 +1,9 @@
 name: Run Unit Tests
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   # trigger on pull requests
   pull_request:
@@ -44,6 +48,7 @@ jobs:
       - name: Build and Install freud
         shell: bash -l {0}
         run: |
+          cd code/freud/
           python setup.py install --user
 
       - name: Run Tests
