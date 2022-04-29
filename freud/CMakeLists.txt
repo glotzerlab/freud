@@ -75,6 +75,7 @@ function(my_python_extension_module _target)
     endif()
 
     #target_link_libraries_with_dynamic_lookup(${_target} ${PYTHON_LIBRARIES})
+    target_link_options(${_target} PRIVATE -undefined dynamic_lookup)
 
     if(_is_module_lib)
       _set_python_extension_symbol_visibility(${_target})
@@ -149,7 +150,8 @@ foreach(cython_module ${cython_modules_with_cpp} ${cython_modules_without_cpp})
   add_cython_target(${cython_module} PY3 CXX)
   add_library(${cython_module} MODULE ${${cython_module}})
   # For some reason this command prints the name of the resulting module. Would
-  # be good to suppress if possible.
+  # be good to suppress if possible. (this is done by scikit build in
+  # _set_python_extension_symbol_visibility)
   my_python_extension_module(${cython_module})
 
   target_compile_definitions(
