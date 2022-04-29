@@ -7,7 +7,7 @@ function(make_python_extension_module _target)
   target_include_directories(${_target} PRIVATE "${PYTHON_INCLUDE_DIRS}")
   if(WIN32)
     # Link to the Python libraries on windows
-    target_link_libraries(${_target} PRIVATE ${PYTHON_LIBRARIES})
+    target_link_libraries(${_target} ${PYTHON_LIBRARIES})
   else()
     # Do not link to the Python libraries on Mac/Linux - symbols are provided by
     # the `python` executable. "-undefined dynamic_lookup" is needed on Mac
