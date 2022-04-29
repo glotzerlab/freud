@@ -1,8 +1,7 @@
 find_path(TBB_INCLUDE_DIR tbb/tbb.h HINTS $ENV{TBBROOT}/include
                                           $ENV{TBB_INCLUDE_DIR})
 
-find_library(TBB_LIBRARY tbb HINTS $ENV{TBBROOT}/lib
-                                   ${TBB_INCLUDE_DIR}/../lib)
+find_library(TBB_LIBRARY tbb HINTS $ENV{TBBROOT}/lib ${TBB_INCLUDE_DIR}/../lib)
 
 if(TBB_INCLUDE_DIR AND EXISTS "${TBB_INCLUDE_DIR}/tbb/tbb_stddef.h")
   file(STRINGS "${TBB_INCLUDE_DIR}/tbb/tbb_stddef.h" TBB_H

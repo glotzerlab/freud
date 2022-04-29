@@ -1,16 +1,19 @@
 # Try alternate method for creating python extensions
 function(make_python_extension_module _target)
   set_target_properties(${_target} PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}")
-  set_target_properties(${_target} PROPERTIES SUFFIX "${PYTHON_EXTENSION_MODULE_SUFFIX}")
+  set_target_properties(${_target}
+                        PROPERTIES SUFFIX "${PYTHON_EXTENSION_MODULE_SUFFIX}")
 
   target_include_directories(${_target} PRIVATE "${PYTHON_INCLUDE_DIRS}")
-  if (WIN32)
+  if(WIN32)
     # Link to the Python libraries on windows
     target_link_libraries(${_target} PRIVATE ${PYTHON_LIBRARIES})
   else()
-    # Do not link to the Python libraries on Mac/Linux - symbols are provided
-    # by the `python` executable. "-undefined dynamic_lookup" is needed on Mac
-    target_link_options(${_target} PRIVATE "$<$<PLATFORM_ID:Darwin>:LINKER:-undefined,dynamic_lookup>")
+    # Do not link to the Python libraries on Mac/Linux - symbols are provided by
+    # the `python` executable. "-undefined dynamic_lookup" is needed on Mac
+    target_link_options(
+      ${_target} PRIVATE
+      "$<$<PLATFORM_ID:Darwin>:LINKER:-undefined,dynamic_lookup>")
   endif()
 endfunction()
 

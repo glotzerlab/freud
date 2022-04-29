@@ -29,9 +29,11 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 add_subdirectory(CMake)
 find_package_config_first(TBB)
 
-if (TBB_FOUND)
+if(TBB_FOUND)
   include(FindPackageMessage)
-  find_package_message(tbb "Found TBB: ${TBB_DIR} ${TBB_LIBRARY} ${TBB_INCLUDE_DIR}" "[${TBB_LIBRARY}][${TBB_INCLUDE_DIR}]")
+  find_package_message(
+    tbb "Found TBB: ${TBB_DIR} ${TBB_LIBRARY} ${TBB_INCLUDE_DIR}"
+    "[${TBB_LIBRARY}][${TBB_INCLUDE_DIR}]")
 endif()
 
 # Fail fast if users have not cloned submodules.
