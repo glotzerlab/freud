@@ -23,6 +23,7 @@ on:
 jobs:
   run_tests:
     name: Run tests on ${{ matrix.os }} with python ${{ matrix.pyver-reqs.pyver }}
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
