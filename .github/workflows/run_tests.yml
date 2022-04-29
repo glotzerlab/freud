@@ -51,6 +51,7 @@ jobs:
         shell: bash -l {0}
         run: |
           cd code/freud/
+          ls
           python setup.py install --user
 
       - name: Run Tests
