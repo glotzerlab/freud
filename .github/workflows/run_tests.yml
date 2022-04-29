@@ -50,4 +50,3 @@ jobs:
         shell: bash -l {0}
         run: |
           pytest tests/ -v
-
