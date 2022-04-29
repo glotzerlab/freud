@@ -1,86 +1,10 @@
 # Try alternate method for creating python extensions
 function(my_python_extension_module _target)
-  set(one_ops LINKED_MODULES_VAR FORWARD_DECL_MODULES_VAR MODULE_SUFFIX)
-  cmake_parse_arguments(_args "" "${one_ops}" "" ${ARGN})
+  set_target_properties(${_target} PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}")
+  set_target_properties(${_target} PROPERTIES SUFFIX "${PYTHON_EXTENSION_MODULE_SUFFIX}")
 
-  set(_lib_type "NA")
-  if(TARGET ${_target})
-    get_property(_lib_type TARGET ${_target} PROPERTY TYPE)
-  endif()
-
-  set(_is_non_lib TRUE)
-
-  set(_is_static_lib FALSE)
-  if(_lib_type STREQUAL "STATIC_LIBRARY")
-      set(_is_static_lib TRUE)
-      set(_is_non_lib FALSE)
-  endif()
-
-  set(_is_shared_lib FALSE)
-  if(_lib_type STREQUAL "SHARED_LIBRARY")
-      set(_is_shared_lib TRUE)
-      set(_is_non_lib FALSE)
-  endif()
-
-  set(_is_module_lib FALSE)
-  if(_lib_type STREQUAL "MODULE_LIBRARY")
-      set(_is_module_lib TRUE)
-      set(_is_non_lib FALSE)
-  endif()
-
-  if(_is_static_lib OR _is_shared_lib OR _is_non_lib)
-
-    if(_is_static_lib OR _is_shared_lib)
-      if(_args_LINKED_MODULES_VAR)
-        set(${_args_LINKED_MODULES_VAR}
-            ${${_args_LINKED_MODULES_VAR}} ${_target} PARENT_SCOPE)
-      else()
-        set_property(GLOBAL APPEND PROPERTY PY_LINKED_MODULES_LIST ${_target})
-      endif()
-    endif()
-
-    if(_args_FORWARD_DECL_MODULES_VAR)
-      set(${_args_FORWARD_DECL_MODULES_VAR}
-          ${${_args_FORWARD_DECL_MODULES_VAR}} ${_target} PARENT_SCOPE)
-    else()
-      set_property(GLOBAL APPEND PROPERTY
-                   PY_FORWARD_DECL_MODULES_LIST ${_target})
-    endif()
-  endif()
-
-  if(NOT _is_non_lib)
-    include_directories("${PYTHON_INCLUDE_DIRS}")
-  endif()
-
-  if(_is_module_lib)
-    set_target_properties(${_target} PROPERTIES
-                          PREFIX "${PYTHON_MODULE_PREFIX}")
-  endif()
-
-  if(_is_module_lib OR _is_shared_lib)
-    if(_is_module_lib)
-
-      if(NOT _args_MODULE_SUFFIX)
-        set(_args_MODULE_SUFFIX "${PYTHON_EXTENSION_MODULE_SUFFIX}")
-      endif()
-
-      if(_args_MODULE_SUFFIX STREQUAL "" AND WIN32 AND NOT CYGWIN)
-        set(_args_MODULE_SUFFIX ".pyd")
-      endif()
-
-      if(NOT _args_MODULE_SUFFIX STREQUAL "")
-        set_target_properties(${_target}
-          PROPERTIES SUFFIX ${_args_MODULE_SUFFIX})
-      endif()
-    endif()
-
-    #target_link_libraries_with_dynamic_lookup(${_target} ${PYTHON_LIBRARIES})
-    target_link_options(${_target} PRIVATE -undefined dynamic_lookup)
-
-    if(_is_module_lib)
-      _set_python_extension_symbol_visibility(${_target})
-    endif()
-  endif()
+  target_include_directories(${_target} PRIVATE "${PYTHON_INCLUDE_DIRS}")
+  target_link_options(${_target} PRIVATE "$<$<PLATFORM_ID:Darwin>:LINKER:-undefined,dynamic_lookup>")
 endfunction()
 
 # Need to figure out coverage before CYTHON_FLAGS are set.
@@ -148,7 +72,7 @@ set(cython_modules_without_cpp interface msd util)
 
 foreach(cython_module ${cython_modules_with_cpp} ${cython_modules_without_cpp})
   add_cython_target(${cython_module} PY3 CXX)
-  add_library(${cython_module} MODULE ${${cython_module}})
+  add_library(${cython_module} SHARED ${${cython_module}})
   # For some reason this command prints the name of the resulting module. Would
   # be good to suppress if possible. (this is done by scikit build in
   # _set_python_extension_symbol_visibility)
