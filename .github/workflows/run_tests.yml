@@ -43,7 +43,7 @@ jobs:
         uses: conda-incubator/setup-miniconda@v2
         with:
           python_version: ${{ matrix.pyver-reqs.pyver }}
-          environment_file: code/freud/requirements/${{ matrix.pyver-reqs.reqs }}
+          environment_file: freud/.github/workflows/conda-envs/${{ matrix.pyver-reqs.reqs }}
           channels: conda-forge,defaults
           activate_environment: test
 
