@@ -51,7 +51,7 @@ jobs:
         shell: bash -l {0}
         run: |
           cd freud/
-          ls
+          conda list
           python setup.py install --user
 
       - name: Run Tests
