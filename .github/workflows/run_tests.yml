@@ -25,8 +25,8 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
-        pyver-reqs: [ {pyver: '3.6', reqs: 'requirements-oldest.txt'},
-                      {pyver: '3.7', reqs: 'requirements-compatible.txt'},
+        pyver-reqs: [ {pyver: '3.6', reqs: 'requirements-test-oldest.txt'},
+                      {pyver: '3.7', reqs: 'requirements-test-compatible.txt'},
                       {pyver: '3.8', reqs: 'requirements-test.txt'},
                       {pyver: '3.9', reqs: 'requirements-test.txt'},
                       {pyver: '3.10', reqs: 'requirements-test.txt'} ]
@@ -42,7 +42,7 @@ jobs:
         uses: conda-incubator/setup-miniconda@v2
         with:
           python_version: ${{ matrix.pyver-reqs.pyver }}
-          environment_file: ${{ matrix.pyver-reqs.reqs }}
+          environment_file: code/freud/requirements/${{ matrix.pyver-reqs.reqs }}
           channels: conda-forge,defaults
           activate_environment: test
 
