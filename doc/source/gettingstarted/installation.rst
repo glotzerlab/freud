@@ -95,7 +95,7 @@ In addition to standard CMake flags, the following CMake options are available f
       Build the Cython files with coverage support to check unit test coverage.
 
 
-The **freud** CMake configuration also respects the following environment variable (in addition to standards like ``CMAKE_PREFIX_PATH``).
+The **freud** CMake configuration also respects the following environment variables (in addition to standards like ``CMAKE_PREFIX_PATH``).
 
 .. glossary::
 
