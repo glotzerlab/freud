@@ -1,5 +1,5 @@
 ase==3.22.1
-cmake==3.22.3
+cmake==3.22.4
 codecov==2.1.12
 coverage==6.3.2
 cython==0.29.28
