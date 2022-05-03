@@ -30,7 +30,7 @@ jobs:
                       {pyver: '3.7', reqs: 'requirements-test-compatible.txt'},
                       {pyver: '3.8', reqs: 'requirements-test.txt'},
                       {pyver: '3.9', reqs: 'requirements-test.txt'},
-                      {pyver: '3.10', reqs: 'requirements-test.txt'} ]
+                      {pyver: '3.10', reqs: 'test_env.yaml'} ]
 
     steps:
       - name: Checkout Code
