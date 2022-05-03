@@ -25,7 +25,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        os: [macOS-latest, ubuntu-latest, windows-latest]
         pyver-reqs: [ {pyver: '3.10', reqs: 'test_env.yaml'} ]
 
     steps:

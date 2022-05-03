@@ -26,15 +26,15 @@ dependencies:
   #- tbb-dev
 
     # Base depends
-    - python
-    - pip
-    - numpy
-    - scipy
-    - coxeter
-    - rowan
-    - gsd
+  - python
+  - pip
+  - numpy
+  - scipy
+  - coxeter
+  - rowan
+  - gsd
 
     # Testing
-    - pytest
-    - pytest-cov
-    - codecov
+  - pytest
+  - pytest-cov
+  - codecov
