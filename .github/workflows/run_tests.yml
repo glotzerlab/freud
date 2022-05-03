@@ -42,6 +42,9 @@ jobs:
           environment_file: freud/.github/workflows/conda-envs/${{ matrix.pyver-reqs.reqs }}
           channels: conda-forge,defaults
           activate_environment: test
+          auto-update-conda: false
+          auto-activate-base: false
+          show-channel-urls: true
 
       - name: Build and Install freud
         shell: bash -l {0}
