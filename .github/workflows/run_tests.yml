@@ -39,7 +39,7 @@ jobs:
         uses: conda-incubator/setup-miniconda@v2
         with:
           python-version: ${{ matrix.pyver-reqs.pyver }}
-          environment-file: freud/.github/workflows/conda-envs/test_env.yaml
+          environment-file: freud/.github/workflows/conda-envs/${{ matrix.pyver-reqs.reqs }}
           channels: conda-forge,defaults
           activate-environment: test
           auto-update-conda: false
@@ -51,8 +51,6 @@ jobs:
         run: |
           cd freud/
           conda list
-          conda info --envs
-          python --version
           python setup.py install --user
 
       - name: Run Tests
