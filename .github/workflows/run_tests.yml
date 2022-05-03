@@ -51,6 +51,7 @@ jobs:
         run: |
           cd freud/
           conda list
+          conda info --envs
           python setup.py install --user
 
       - name: Run Tests
