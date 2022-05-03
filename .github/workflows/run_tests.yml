@@ -38,10 +38,10 @@ jobs:
       - name: Create Python Environment
         uses: conda-incubator/setup-miniconda@v2
         with:
-          python_version: ${{ matrix.pyver-reqs.pyver }}
-          environment_file: freud/.github/workflows/conda-envs/test_env.yaml
+          python-version: ${{ matrix.pyver-reqs.pyver }}
+          environment-file: freud/.github/workflows/conda-envs/test_env.yaml
           channels: conda-forge,defaults
-          activate_environment: test
+          activate-environment: test
           auto-update-conda: false
           auto-activate-base: false
           show-channel-urls: true
