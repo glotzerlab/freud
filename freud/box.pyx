@@ -855,8 +855,9 @@ cdef class Box:
     def from_matrix(cls, box_matrix, dimensions=None):
         r"""Initialize a Box instance from a box matrix.
 
-        For more information and the source for this code,
-        see: https://hoomd-blue.readthedocs.io/en/stable/box.html
+        For more information and the source for this code, see:
+        `HOOMD-blue's box documentation \
+        <https://hoomd-blue.readthedocs.io/en/stable/package-hoomd.html#hoomd.Box>`_.
 
         Args:
             box_matrix (array-like):

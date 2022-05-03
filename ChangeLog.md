@@ -4,6 +4,14 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## vX.Y.Z -- YYYY-MM-DD
+
+### Added
+* `include_input_points` argument to `freud.locality.PeriodicBuffer`.
+
+### Changed
+* `freud.data.UnitCell.generate_system` now generates positions in the same order as the basis positions.
+
 ## v2.9.0 -- 2022-04-19
 
 ### Added
