@@ -56,4 +56,5 @@ jobs:
       - name: Run Tests
         shell: bash -l {0}
         run: |
+          pwd
           pytest tests/ -v
