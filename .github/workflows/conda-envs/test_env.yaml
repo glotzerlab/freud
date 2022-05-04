@@ -6,6 +6,7 @@ channels:
 dependencies:
   - tbb
   - tbb-devel
+  - ninja
   - pip
   - pip:
     - -r requirements-test.txt

@@ -32,14 +32,13 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2.3.4
         with:
-          path: freud
           submodules: true
 
       - name: Create Python Environment
         uses: conda-incubator/setup-miniconda@v2
         with:
           python-version: ${{ matrix.pyver-reqs.pyver }}
-          environment-file: freud/.github/workflows/conda-envs/${{ matrix.pyver-reqs.reqs }}
+          environment-file: .github/workflows/conda-envs/${{ matrix.pyver-reqs.reqs }}
           channels: conda-forge,defaults
           activate-environment: test
           auto-update-conda: false
@@ -49,8 +48,6 @@ jobs:
       - name: Build and Install freud
         shell: bash -l {0}
         run: |
-          cd freud/
-          conda list
           python setup.py install --user
 
       - name: Run Tests
