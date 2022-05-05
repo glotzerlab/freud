@@ -9,4 +9,4 @@ dependencies:
   - ninja
   - pip
   - pip:
-    - -r requirements-test.txt
+    - -r requirements-test-oldest.txt

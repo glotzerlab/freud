@@ -21,12 +21,16 @@ on:
 
 jobs:
   run_tests:
-    name: Run tests on ${{ matrix.os }} with python ${{ matrix.pyver-reqs.pyver }}
+    name: Run tests on ${{ matrix.os }} with python ${{ matrix.pyver-env.pyver }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [macOS-latest, ubuntu-latest, windows-latest]
-        pyver-reqs: [ {pyver: '3.10', reqs: 'test_env.yaml'} ]
+        pyver-env: [ {pyver: '3.6', env: 'test-oldest_env.yaml'},
+                     {pyver: '3.7', env: 'test-compatible_env.yaml'},
+                     {pyver: '3.8', env: 'test_env.yaml'},
+                     {pyver: '3.9', env: 'test_env.yaml'},
+                     {pyver: '3.10', env: 'test_env.yaml'} ]
 
     steps:
       - name: Checkout Code
@@ -37,8 +41,8 @@ jobs:
       - name: Create Python Environment
         uses: conda-incubator/setup-miniconda@v2
         with:
-          python-version: ${{ matrix.pyver-reqs.pyver }}
-          environment-file: .github/workflows/conda-envs/${{ matrix.pyver-reqs.reqs }}
+          python-version: ${{ matrix.pyver-env.pyver }}
+          environment-file: .github/workflows/conda-envs/${{ matrix.pyver-env.env }}
           channels: conda-forge,defaults
           activate-environment: test
           auto-update-conda: false
@@ -53,5 +57,4 @@ jobs:
       - name: Run Tests
         shell: bash -l {0}
         run: |
-          pwd
           pytest tests/ -v
