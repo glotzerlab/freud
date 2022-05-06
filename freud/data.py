@@ -65,6 +65,12 @@ class UnitCell:
             tuple (:class:`freud.box.Box`, :class:`np.ndarray`):
                 A system-like object (see
                 :class:`~freud.locality.NeighborQuery.from_system`).
+
+        Note:
+            Positions are generated in the order of the instance's
+            ``basis_positions``. The first :math:`N_{replica}`
+            positions come from the first basis position, the next
+            :math:`N_{replica}` the second, etc.
         """
         try:
             nx, ny, nz = num_replicas
@@ -87,10 +93,13 @@ class UnitCell:
             pbuff = freud.locality.PeriodicBuffer()
             abs_positions = self.box.make_absolute(self.basis_positions)
             pbuff.compute(
-                (self.box, abs_positions), buffer=(nx - 1, ny - 1, nz - 1), images=True
+                (self.box, abs_positions),
+                buffer=(nx - 1, ny - 1, nz - 1),
+                images=True,
+                include_input_points=True,
             )
             box = pbuff.buffer_box * scale
-            positions = np.concatenate((abs_positions, pbuff.buffer_points))
+            positions = pbuff.buffer_points
         else:
             box = self.box * scale
             positions = self.box.make_absolute(self.basis_positions)

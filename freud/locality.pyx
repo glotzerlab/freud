@@ -1083,7 +1083,7 @@ cdef class PeriodicBuffer(_Compute):
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, system, buffer, cbool images=False):
+    def compute(self, system, buffer, cbool images=False, include_input_points=False):
         r"""Compute the periodic buffer.
 
         Args:
@@ -1099,6 +1099,9 @@ cdef class PeriodicBuffer(_Compute):
                 each side, meaning that one image doubles the box side lengths,
                 two images triples the box side lengths, and so on.
                 (Default value = :code:`False`).
+            include_input_points (bool, optional):
+                Whether the original points provided by ``system`` are
+                included in the buffer, (Default value = :code:`False`).
         """
         cdef NeighborQuery nq = _make_default_nq(system)
         cdef vec3[float] buffer_vec
@@ -1110,7 +1113,7 @@ cdef class PeriodicBuffer(_Compute):
         else:
             raise ValueError('buffer must be a scalar or have length 3.')
 
-        self.thisptr.compute(nq.get_ptr(), buffer_vec, images)
+        self.thisptr.compute(nq.get_ptr(), buffer_vec, images, include_input_points)
         return self
 
     @_Compute._computed_property
