@@ -1,10 +1,7 @@
 name: Build wheels
 
 on:
-  # Trigger on pull requests.
-  # commenting this out now so we can focus on new tests
-  # TODO remove this file before merging
-  #pull_request:
+  pull_request:
 
   # Trigger on pushes to the mainline branches and version tags. This prevents building commits
   # twice when the pull request source branch is in the same repository.
@@ -81,7 +78,7 @@ jobs:
           python-version: '3.9'
 
       - name: Install build requirements
-        run: python3 -m pip --disable-pip-version-check install scikit-build cmake -r requirements.txt --upgrade --progress-bar=off
+        run: python3 -m pip --disable-pip-version-check install scikit-build cmake -r .github/workflows/conda-envs/requirements-test.txt --upgrade --progress-bar=off
 
       - name: Build sdist
         run: python setup.py sdist
