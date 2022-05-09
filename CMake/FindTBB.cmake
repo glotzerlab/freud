@@ -1,19 +1,7 @@
 find_path(TBB_INCLUDE_DIR tbb/tbb.h HINTS $ENV{TBBROOT}/include
                                           $ENV{TBB_INCLUDE_DIR})
 
-# Check OS-specific env variables for libraries.
-if(DEFINED ENV{LD_LIBRARY_PATH})
-  # For Linux.
-  string(REPLACE ":" ";" LD_LIBRARY_DIR_LIST $ENV{LD_LIBRARY_PATH})
-elseif(DEFINED ENV{DYLD_LIBRARY_PATH})
-  # For Mac.
-  string(REPLACE ":" ";" LD_LIBRARY_DIR_LIST $ENV{DYLD_LIBRARY_PATH})
-else()
-  set(LD_LIBRARY_DIR_LIST "")
-endif()
-
-find_library(TBB_LIBRARY tbb HINTS $ENV{TBBROOT}/lib ${LD_LIBRARY_DIR_LIST}
-                                   ${TBB_INCLUDE_DIR}/../lib)
+find_library(TBB_LIBRARY tbb HINTS $ENV{TBBROOT}/lib ${TBB_INCLUDE_DIR}/../lib)
 
 if(TBB_INCLUDE_DIR AND EXISTS "${TBB_INCLUDE_DIR}/tbb/tbb_stddef.h")
   file(STRINGS "${TBB_INCLUDE_DIR}/tbb/tbb_stddef.h" TBB_H
