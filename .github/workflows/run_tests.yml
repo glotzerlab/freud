@@ -13,8 +13,6 @@ on:
   push:
     branches:
       - "master"
-    tags:
-      - "v*"
 
   # trigger on request
   workflow_dispatch:
