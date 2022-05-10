@@ -41,7 +41,7 @@ jobs:
           CIBW_SKIP: "{pp*,*-musllinux_*}"
 
           # Build only on 64-bit architectures.
-          CIBW_ARCHS_MACOS: "x86_64 arm64"
+          CIBW_ARCHS_MACOS: "arm64"
           CIBW_ARCHS_LINUX: auto64
           CIBW_ARCHS_WINDOWS: auto64
 

@@ -22,11 +22,13 @@ unzip -q "${TBB_ZIP}"
 # clean the build to rebuild for arm64
 rm -rf "${PACKAGE_DIR}/tbb"
 
+set
+
 # Move to a hard-coded path (defined by CIBW_ENVIRONMENT)
 mv "oneTBB-${TBB_VERSION}" "${PACKAGE_DIR}/tbb"
 cd "${PACKAGE_DIR}/tbb"
 mkdir -p build
 cd build
-cmake ../ -DTBB_TEST=OFF -DTBB_STRICT=OFF
+cmake ../ -DTBB_TEST=OFF -DTBB_STRICT=OFF -DCMAKE_BUILD_TYPE=Release
 cmake --build . -j
 cmake --install .
