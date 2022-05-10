@@ -1,8 +1,6 @@
 name: Build wheels
 
 on:
-  pull_request:
-
   # Trigger on pushes to the mainline branches and version tags. This prevents building commits
   # twice when the pull request source branch is in the same repository.
   push:
