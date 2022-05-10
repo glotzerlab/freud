@@ -19,16 +19,23 @@ TBB_ZIP="v${TBB_VERSION}.zip"
 curl -L -O "https://github.com/oneapi-src/oneTBB/archive/refs/tags/${TBB_ZIP}"
 unzip -q "${TBB_ZIP}"
 
+#
+EXTRA_CMAKE_ARGS=""
+if [ "${PLATFORM}" = "macos" ]; then
+    if [[ ${ARCHFLAGS} == *"arm64"* ]]; then
+        EXTRA_CMAKE_ARGS="-DCMAKE_OSX_ARCHITECTURES=arm64"
+    fi
+fi
+echo "EXTRA_CMAKE_ARGS=${EXTRA_CMAKE_ARGS}"
+
 # clean the build to rebuild for arm64
 rm -rf "${PACKAGE_DIR}/tbb"
-
-set
 
 # Move to a hard-coded path (defined by CIBW_ENVIRONMENT)
 mv "oneTBB-${TBB_VERSION}" "${PACKAGE_DIR}/tbb"
 cd "${PACKAGE_DIR}/tbb"
 mkdir -p build
 cd build
-cmake ../ -DTBB_TEST=OFF -DTBB_STRICT=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=arm64
+cmake ../ -DTBB_TEST=OFF -DTBB_STRICT=OFF -DCMAKE_BUILD_TYPE=Release ${EXTRA_CMAKE_ARGS}
 cmake --build . -j -v
 cmake --install .
