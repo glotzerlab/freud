@@ -1,0 +1,37 @@
+name: Style check
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  # Trigger on pull requests.
+  pull_request:
+
+  # Trigger on pushes master
+  push:
+    branches:
+      - "master"
+
+  # Trigger on request.
+  workflow_dispatch:
+
+jobs:
+  clang-tidy:
+    name: Check C++ Code Style
+    runs-on: ubuntu-latest
+    container:
+      image: glotzerlab/ci:2021.11-clang10_py38
+    steps:
+      - uses: actions/checkout@v2.3.4
+      - name: Execute clang-tidy and cppcheck
+        run: pre-commit run --all-files --hook-stage=manual
+
+  # This job is used to provide a single requirement for branch merge conditions.
+  #checks_complete:
+  #  name: Style check
+  #  needs: [clang-tidy]
+  #  runs-on: ubuntu-latest
+
+  #  steps:
+  #    - run: echo "Done!"
