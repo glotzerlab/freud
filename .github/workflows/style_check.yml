@@ -24,6 +24,8 @@ jobs:
       image: glotzerlab/ci:2021.11-clang10_py38
     steps:
       - uses: actions/checkout@v2.3.4
+      - name: Install pre-commit
+        run: python3 -m pip install pre-commit
       - name: Execute clang-tidy and cppcheck
         run: pre-commit run --all-files --hook-stage=manual
 
