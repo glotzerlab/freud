@@ -19,6 +19,9 @@ TBB_ZIP="v${TBB_VERSION}.zip"
 curl -L -O "https://github.com/oneapi-src/oneTBB/archive/refs/tags/${TBB_ZIP}"
 unzip -q "${TBB_ZIP}"
 
+# clean the build to rebuild for arm64
+rm -rf "${PACKAGE_DIR}/tbb"
+
 # Move to a hard-coded path (defined by CIBW_ENVIRONMENT)
 mv "oneTBB-${TBB_VERSION}" "${PACKAGE_DIR}/tbb"
 cd "${PACKAGE_DIR}/tbb"
