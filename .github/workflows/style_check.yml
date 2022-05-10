@@ -27,7 +27,9 @@ jobs:
       - name: Install pre-commit
         run: python3 -m pip install pre-commit
       - name: Build freud and export compile commands
-        run: python3 setup.py build_ext --inplace -- -DCMAKE_EXPORT_COMPILE_COMMANDS=True
+        run: |
+          python3 -m pip install scikit-build
+          python3 setup.py build_ext --inplace -- -DCMAKE_EXPORT_COMPILE_COMMANDS=True
       - name: Execute clang-tidy and cppcheck
         run: pre-commit run --all-files --hook-stage=manual
 
