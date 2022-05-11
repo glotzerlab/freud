@@ -46,7 +46,6 @@ except ImportError:
         logger.info("Using NumPy for FFTs")
 
 
-
 cdef class Autocorrelation(_Compute):
     r"""Compute the autocorrelation function.
 
@@ -59,8 +58,8 @@ cdef class Autocorrelation(_Compute):
     .. math::
 
         R(\Delta t) = \frac{1}{N_{particles}} \sum_{i=1}^{N_{particles}} \frac
-        { \sum_{t=0}^{N_{frames} - \Delta t - 1} \left(\vec{v_i}(t) - \vec{\bar{v}_i} \right)
-        \dot \left( \vec{v_i}(t + \Delta t) - \vec{\bar{v}_i} \right) }
+        { \sum_{t=0}^{N_{frames} - \Delta t - 1} \left(\vec{v_i}(t) - \vec{\bar{v}_i}
+        \right) \dot \left( \vec{v_i}(t + \Delta t) - \vec{\bar{v}_i} \right) }
         { \sum_{t=0}^{N_{frames} - 1} |\left( \vec{v_i} - \vec{\bar{v}_i} \right)|^2 }
 
     where the bar refers to an average taken over all time windows in each of
@@ -68,7 +67,8 @@ cdef class Autocorrelation(_Compute):
 
     .. math::
 
-        \vec{\bar{v}_i} = \left( \sum_{t=0}^{N_{frames}} v_{i,0}(t), \sum_{t=0}^{N_{frames}} v_{i,1}(t), ... \right)
+        \vec{\bar{v}_i} = \left( \sum_{t=0}^{N_{frames}} v_{i,0}(t),
+        \sum_{t=0}^{N_{frames}} v_{i,1}(t), ... \right)
 
     Note:
         Similar to the ``window`` method of `freud.msd.MSD` module, this
