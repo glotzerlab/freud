@@ -6,64 +6,19 @@ The :class:`freud.msd` module provides functions for computing the
 mean-squared-displacement (MSD) of particles in periodic systems.
 """
 
+import freud.util
 from freud.util cimport _Compute
 import logging
 
 import numpy as np
 
-#import freud.parallel
-
 cimport numpy as np
 
-import freud.util
 cimport freud.box
 cimport freud.correlation
 
 logger = logging.getLogger(__name__)
 
-"""
-# Use fastest available fft library
-try:
-    import pyfftw
-    logger.info("Using PyFFTW for FFTs")
-
-    pyfftw.config.NUM_THREADS = min(1, freud.parallel.get_num_threads())
-    logger.info("Setting number of threads to {}".format(
-        freud.parallel.get_num_threads()))
-
-    # Note that currently these functions are defined to match only the parts
-    # of the numpy/scipy API that are actually used below. There is no promise
-    # that other aspects of the API will be preserved.
-    def fft(x, n, axis):
-        a = pyfftw.empty_aligned(x.shape, 'complex64')
-        a[:] = x
-        fft_object = pyfftw.builders.fft(a, n=n, axis=axis)
-        return fft_object()
-
-    def ifft(x, axis):
-        a = pyfftw.empty_aligned(x.shape, 'complex64')
-        a[:] = x
-        fft_object = pyfftw.builders.ifft(a, axis=axis)
-        return fft_object()
-except ImportError:
-    try:
-        from scipy.fftpack import fft, ifft
-        logger.info("Using SciPy's fftpack for FFTs")
-    except ImportError:
-        from numpy.fft import fft, ifft
-        logger.info("Using NumPy for FFTs")
-
-
-def _autocorrelation(x):
-    r""""""Compute the autocorrelation of a sequence""""""
-    N = x.shape[0]
-    F = fft(x, n=2*N, axis=0)
-    PSD = F * F.conjugate()
-    res = ifft(PSD, axis=0)
-    res = (res[:N]).real
-    n = np.arange(1, N+1)[::-1]  # N to 1
-    return res/n[:, np.newaxis]
-"""
 
 cdef class MSD(_Compute):
     r"""Compute the mean squared displacement.
@@ -221,12 +176,6 @@ cdef class MSD(_Compute):
                 S1[m, :] = Q/(N-m)
 
             # The second term can be computed via autocorrelation
-            """
-            corrs = []
-            for i in range(positions.shape[2]):
-                corrs.append(_autocorrelation(positions[:, :, i]))
-            S2 = np.sum(corrs, axis=0)
-            """
             corr = freud.correlation.Autocorrelation()
             corr.compute(positions, reset=True)
             S2 = corr.particle_autocorrelation
