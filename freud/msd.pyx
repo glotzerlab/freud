@@ -11,14 +11,17 @@ import logging
 
 import numpy as np
 
-import freud.parallel
+#import freud.parallel
 
 cimport numpy as np
 
+import freud.util
 cimport freud.box
+cimport freud.correlation
 
 logger = logging.getLogger(__name__)
 
+"""
 # Use fastest available fft library
 try:
     import pyfftw
@@ -52,7 +55,7 @@ except ImportError:
 
 
 def _autocorrelation(x):
-    r"""Compute the autocorrelation of a sequence"""
+    r""""""Compute the autocorrelation of a sequence""""""
     N = x.shape[0]
     F = fft(x, n=2*N, axis=0)
     PSD = F * F.conjugate()
@@ -60,7 +63,7 @@ def _autocorrelation(x):
     res = (res[:N]).real
     n = np.arange(1, N+1)[::-1]  # N to 1
     return res/n[:, np.newaxis]
-
+"""
 
 cdef class MSD(_Compute):
     r"""Compute the mean squared displacement.
@@ -218,10 +221,15 @@ cdef class MSD(_Compute):
                 S1[m, :] = Q/(N-m)
 
             # The second term can be computed via autocorrelation
+            """
             corrs = []
             for i in range(positions.shape[2]):
                 corrs.append(_autocorrelation(positions[:, :, i]))
             S2 = np.sum(corrs, axis=0)
+            """
+            corr = freud.correlation.Autocorrelation()
+            corr.compute(positions, reset=True)
+            S2 = corr.particle_autocorrelation
 
             self._particle_msd.append(S1 - 2*S2)
         elif self.mode == 'direct':
