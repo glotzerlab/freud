@@ -21,7 +21,7 @@ unzip -q "${TBB_ZIP}"
 
 #
 EXTRA_CMAKE_ARGS=""
-if [ "${PLATFORM}" = "macos" ]; then
+if [[ "${PLATFORM}" == "macos" ]]; then
     if [[ ${ARCHFLAGS} == *"arm64"* ]]; then
         EXTRA_CMAKE_ARGS="-DCMAKE_OSX_ARCHITECTURES=arm64"
     fi
