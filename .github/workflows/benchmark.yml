@@ -1,0 +1,70 @@
+name: Run Benchmarks
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+    types: [labeled]
+
+jobs:
+  # start the runners on jetstream2
+  start_action_runners:
+    name: Start action runners
+    runs-on: ubuntu-latest
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'benchmark') }}
+    steps:
+      - uses: glotzerlab/jetstream2-admin/start@v1.0.0
+        with:
+          OS_APPLICATION_CREDENTIAL_ID: ${{ secrets.OS_APPLICATION_CREDENTIAL_ID }}
+          OS_APPLICATION_CREDENTIAL_SECRET: ${{ secrets.OS_APPLICATION_CREDENTIAL_SECRET }}
+
+  run_benchmarks:
+    name: Run the freud benchmarks
+    runs-on: jetstream2
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'benchmark') }}
+    steps:
+      - name: Clean workspace
+        run: |
+            rm -rf ./*
+
+      - name: Checkout Code
+      - uses: actions/checkout@v2.3.4
+        with:
+          submodules: true
+
+      - name: Create Python Environment
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: "3.10"
+          environment-file: .github/workflows/conda-envs/test_env.yaml
+          channels: conda-forge,defaults
+          activate-environment: test
+          auto-update-conda: false
+          auto-activate-base: false
+          show-channel-urls: true
+
+      - name: Build and install freud
+        shell: bash -l {0}
+        run: |
+            python setup.py install --user
+
+      - name: Run benchmarks on pull request commit
+        shell: bash -l {0}
+        run: |
+          echo "Running benchmarks on current HEAD"
+          python benchmarks/benchmarker.py run
+
+      - name: Run benchmarks on master and compare
+        shell: bash -l {0}
+        run: |
+            echo "Rebuild freud on the master branch"
+            git reset --hard origin/master
+            python setup.py install --user
+
+            echo "Run benchmarks on the master branch"
+            python benchmarks/benchmarker.py run
+            python benchmarks/benchmarker.py compare origin/master ${{ github.sha }}
+
+      # TODO old circleci script stored benchmarks as well, maybe add that here?
