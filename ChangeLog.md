@@ -8,6 +8,7 @@ and this project adheres to
 
 ### Added
 * `include_input_points` argument to `freud.locality.PeriodicBuffer`.
+* `macos-arm64` binary builds on conda-forge and PyPI.
 
 ### Changed
 * `freud.data.UnitCell.generate_system` now generates positions in the same order as the basis positions.
