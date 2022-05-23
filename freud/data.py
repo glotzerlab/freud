@@ -70,21 +70,29 @@ class UnitCell:
             Positions are generated in the order of the instance's
             ``basis_positions``. The first :math:`N_{replica}` positions come
             from the first basis position, the next :math:`N_{replica}` the
-            second, etc. A NumPy one-liner that generates the list of indices is
-            ``np.repeat(np.arange(len(uc.basis_positions)), np.product(N))``.
+            second, etc. To generate the indices use the following expression.
+
+            .. code-block:: python
+
+                if isinstance(n_repeats, int):
+                    N = n_repeats ** dimension
+                else:
+                    N = np.product(n_repeats)
+                indices = np.repeat(np.arange(len(uc.basis_positions)), N)
 
         Below is an example of expanding basis position properties such as type
         to a replicated lattice.
 
-        .. code-block:: python
+        Example::
 
-            uc = freud.data.UnitCell.bcc()
-            N = (10, 5, 4)
-            system = uc.generate_system(N)
-            indices = np.repeat(
-                np.arange(len(uc.basis_positions)), np.product(N))
-            # An array of types for all points
-            types = np.array([0, 1])[indices]
+            >>> uc = freud.data.UnitCell.bcc()
+            >>> n_repeats = (10, 5, 4)
+            >>> system = uc.generate_system(N)
+            >>> indices = np.repeat(np.arange(len(uc.basis_positions)), np.product(N))
+            >>> # An array of types for all points
+            >>> types = np.array([0, 1])[indices]
+            >>> len(types)
+            400
 
         """
         try:
