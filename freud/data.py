@@ -87,8 +87,9 @@ class UnitCell:
 
             >>> uc = freud.data.UnitCell.bcc()
             >>> n_repeats = (10, 5, 4)
-            >>> system = uc.generate_system(N)
-            >>> indices = np.repeat(np.arange(len(uc.basis_positions)), np.product(N))
+            >>> system = uc.generate_system(n_repeats)
+            >>> N = np.product(n_repeats)
+            >>> indices = np.repeat(np.arange(len(uc.basis_positions)), N)
             >>> # An array of types for all points
             >>> types = np.array([0, 1])[indices]
             >>> len(types)
