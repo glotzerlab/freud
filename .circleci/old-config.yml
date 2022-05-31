@@ -1,5 +1,10 @@
 version: 2.1
 
+# This file is only hanging around because it has the process
+# needed to run the benchmarks. All other tests run with github
+# actions. This file has been superseded by a dummy condfig file
+# which just immediately passes.
+
 orbs:
   win: circleci/windows@2.2.0  # Enables Windows executors
 

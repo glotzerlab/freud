@@ -1,0 +1,5 @@
+version: 2.1
+jobs:
+  null_test:
+    steps:
+      - run: echo "Nothing to do."
