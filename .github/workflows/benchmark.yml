@@ -55,7 +55,7 @@ jobs:
           python benchmarks/benchmarker.py run
         env:
           BENCHMARK_NPROC: 2
-          PYTHONPATH: $PYTHONPATH:./benchmarks/
+          PYTHONPATH: ./benchmarks/
 
       - name: Run benchmarks on master and compare
         shell: bash -l {0}
