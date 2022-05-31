@@ -49,9 +49,8 @@ jobs:
         shell: bash -l {0}
         run: |
           echo "Print working directory"
-          pwd
-          echo $PYTHONPATH
           cd benchmarks
+          pwd
           echo "Running benchmarks on current HEAD"
           python benchmarker.py run
         env:
