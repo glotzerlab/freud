@@ -250,7 +250,7 @@ def main_run(args):
 
     """
     results = []
-    modules = ['benchmark_msd_MSD']#list_benchmark_modules()
+    modules = ["benchmark_msd_MSD"]  # list_benchmark_modules()
     for m in modules:
         print("Module: " + m)
         m = try_importing(m)
