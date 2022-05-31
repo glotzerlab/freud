@@ -32,9 +32,9 @@ def try_importing(module):
         Module if import successful, None otherwise.
 
     """
-    #try:
+    # try:
     return importlib.import_module(module)
-    #except ImportError:
+    # except ImportError:
     #    print("{} does not exist and thus cannot" " be benchmarked".format(module))
     #    return None
 
