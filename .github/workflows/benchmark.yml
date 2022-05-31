@@ -43,6 +43,7 @@ jobs:
         shell: bash -l {0}
         run: |
             pip install -r .github/workflows/conda-envs/requirements-test.txt
+            which python
             python setup.py install --user
 
       - name: Run benchmarks on pull request commit
