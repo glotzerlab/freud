@@ -32,11 +32,11 @@ def try_importing(module):
         Module if import successful, None otherwise.
 
     """
-    try:
-        return importlib.import_module(module)
-    except ImportError:
-        print("{} does not exist and thus cannot" " be benchmarked".format(module))
-        return None
+    #try:
+    return importlib.import_module(module)
+    #except ImportError:
+    #    print("{} does not exist and thus cannot" " be benchmarked".format(module))
+    #    return None
 
 
 def benchmark_desc(name, params):
