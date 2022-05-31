@@ -42,6 +42,7 @@ jobs:
       - name: Build and install freud
         shell: bash -l {0}
         run: |
+            pip install scikit-build
             python setup.py install --user
 
       - name: Run benchmarks on pull request commit
