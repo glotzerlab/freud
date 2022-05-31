@@ -240,8 +240,8 @@ def list_benchmark_modules():
     modules = glob.glob(os.path.join(os.path.dirname(__file__), "benchmark_*"))
     print(str(prefix_path))
     print(modules)
-    prefixdir = "benchmarks/"
-    modules = [f[len(str(prefix_path) + prefixdir) : -3] for f in modules]
+    #prefixdir = "benchmarks/"
+    modules = [f[len(str(prefix_path)) + 1 : -3] for f in modules]
     return modules
 
 
