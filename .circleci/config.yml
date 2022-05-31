@@ -1,6 +1,6 @@
 version: 2.1
 jobs:
-  null_test:
+  build:
     docker:
       - image: glotzerlab/ci:2020.01-py38
     steps:
