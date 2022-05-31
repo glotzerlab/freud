@@ -6,7 +6,7 @@ concurrency:
 
 on:
   pull_request:
-    types: [labeled]
+    types: [opened, labeled, reopened, labeled]
 
   # trigger on request
   workflow_dispatch:
