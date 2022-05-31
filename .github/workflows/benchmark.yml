@@ -48,22 +48,23 @@ jobs:
       - name: Run benchmarks on pull request commit
         shell: bash -l {0}
         run: |
+          echo "Print working directory"
+          pwd
           echo "Running benchmarks on current HEAD"
           python benchmarks/benchmarker.py run
         env:
           BENCHMARK_NPROC: 2
-          PYTHONPATH: $PYTHONPATH:./benchmarks/
 
       - name: Run benchmarks on master and compare
         shell: bash -l {0}
         run: |
-            echo "Rebuild freud on the master branch"
-            git reset --hard origin/master
-            python setup.py install --user
+          echo "Rebuild freud on the master branch"
+          git reset --hard origin/master
+          python setup.py install --user
 
-            echo "Run benchmarks on the master branch"
-            python benchmarks/benchmarker.py run
-            python benchmarks/benchmarker.py compare origin/master ${{ github.sha }}
+          echo "Run benchmarks on the master branch"
+          python benchmarks/benchmarker.py run
+          python benchmarks/benchmarker.py compare origin/master ${{ github.sha }}
         env:
           BENCHMARK_NPROC: 2
           PYTHONPATH: $PYTHONPATH:./benchmarks/
