@@ -8,6 +8,9 @@ on:
   pull_request:
     types: [labeled]
 
+  # trigger on request
+  workflow_dispatch:
+
 jobs:
   # start the runners on jetstream2
   start_action_runners:
