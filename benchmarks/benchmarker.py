@@ -252,6 +252,7 @@ def main_run(args):
     results = []
     modules = list_benchmark_modules()
     for m in modules:
+        print("Module: " + m)
         m = try_importing(m)
         if m:
             try:
