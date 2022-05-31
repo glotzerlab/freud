@@ -52,6 +52,7 @@ jobs:
           python benchmarks/benchmarker.py run
         env:
           BENCHMARK_NPROC: 2
+          PYTHONPATH: $PYTHONPATH:./benchmarks/
 
       - name: Run benchmarks on master and compare
         shell: bash -l {0}
@@ -65,5 +66,6 @@ jobs:
             python benchmarks/benchmarker.py compare origin/master ${{ github.sha }}
         env:
           BENCHMARK_NPROC: 2
+          PYTHONPATH: $PYTHONPATH:./benchmarks/
 
       # TODO old circleci script stored benchmarks as well, maybe add that here?
