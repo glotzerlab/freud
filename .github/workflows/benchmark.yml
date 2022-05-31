@@ -42,7 +42,7 @@ jobs:
       - name: Build and install freud
         shell: bash -l {0}
         run: |
-            pip install scikit-build
+            pip install -r .github/workflows/conda-envs/requirements-test.txt
             python setup.py install --user
 
       - name: Run benchmarks on pull request commit
