@@ -70,7 +70,9 @@ class UnitCell:
             Positions are generated in the order of the instance's
             ``basis_positions``. The first :math:`N_{replica}` positions come
             from the first basis position, the next :math:`N_{replica}` the
-            second, etc. To generate the indices use the following expression.
+            second, etc. This behavior is analoguous to `numpy.repeat` rather
+            than `numpy.tile`. To generate the indices use the following
+            expression.
 
             .. code-block:: python
 
