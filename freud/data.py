@@ -80,8 +80,8 @@ class UnitCell:
                     N = np.product(n_repeats)
                 indices = np.repeat(np.arange(len(uc.basis_positions)), N)
 
-        Below is an example of expanding basis position properties such as type
-        to a replicated lattice.
+        Below is an example of expanding basis position properties such as (in
+        this case, types) to a replicated lattice.
 
         Example::
 
