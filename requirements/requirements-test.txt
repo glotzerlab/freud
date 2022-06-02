@@ -2,7 +2,7 @@ ase==3.22.1
 cmake==3.22.4
 codecov==2.1.12
 coverage==6.4
-cython==0.29.28
+cython==0.29.30
 dynasor==1.1.1; platform_system != "Windows"
 garnett==0.7.1
 GitPython==3.1.27
