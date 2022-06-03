@@ -71,7 +71,10 @@ class TestHexatic:
 
             npt.assert_allclose(hop.particle_order[0], 1.0 + 0.0j, atol=1e-1)
 
-    def test_weighted_random(self):
+    k = ("k", [k for k in range(0, 12)])
+
+    @pytest.mark.parametrize(*k)
+    def test_weighted_random(self, k):
         boxlen = 10
         N = 5000
         box, points = freud.data.make_random_system(boxlen, N, is2D=True, seed=100)
@@ -88,34 +91,32 @@ class TestHexatic:
         hop.compute(system=(box, points), neighbors=voro.nlist)
         npt.assert_allclose(np.absolute(hop.particle_order), 0.0, atol=1e-4)
 
-        for k in range(0, 12):
-            # Ensure that \psi'_k is between 0 and 1
-            hop = freud.order.Hexatic(k=k, weighted=True)
-            hop.compute(system=(box, points), neighbors=voro.nlist)
-            order = np.absolute(hop.particle_order)
-            assert (order >= 0).all() and (order <= 1).all()
+        # Ensure that \psi'_k is between 0 and 1
+        hop = freud.order.Hexatic(k=k, weighted=True)
+        hop.compute(system=(box, points), neighbors=voro.nlist)
+        order = np.absolute(hop.particle_order)
+        assert (order >= 0).all() and (order <= 1).all()
 
-            # Perform an explicit calculation in NumPy to verify results
-            psi_k_weighted = np.zeros(len(points), dtype=np.complex128)
-            total_weights = np.zeros(len(points))
-            rijs = box.wrap(
-                points[voro.nlist.point_indices]
-                - points[voro.nlist.query_point_indices]
-            )
-            thetas = np.arctan2(rijs[:, 1], rijs[:, 0])
-            total_weights, _ = np.histogram(
-                voro.nlist.query_point_indices,
-                bins=len(points),
-                weights=voro.nlist.weights,
-            )
-            psi_k_weighted, _ = np.histogram(
-                voro.nlist.query_point_indices,
-                bins=len(points),
-                weights=voro.nlist.weights * np.exp(thetas * k * 1.0j),
-            )
-            psi_k_weighted /= total_weights
+        # Perform an explicit calculation in NumPy to verify results
+        psi_k_weighted = np.zeros(len(points), dtype=np.complex128)
+        total_weights = np.zeros(len(points))
+        rijs = box.wrap(
+            points[voro.nlist.point_indices] - points[voro.nlist.query_point_indices]
+        )
+        thetas = np.arctan2(rijs[:, 1], rijs[:, 0])
+        total_weights, _ = np.histogram(
+            voro.nlist.query_point_indices,
+            bins=len(points),
+            weights=voro.nlist.weights,
+        )
+        psi_k_weighted, _ = np.histogram(
+            voro.nlist.query_point_indices,
+            bins=len(points),
+            weights=voro.nlist.weights * np.exp(thetas * k * 1.0j),
+        )
+        psi_k_weighted /= total_weights
 
-            npt.assert_allclose(hop.particle_order, psi_k_weighted, atol=1e-5)
+        npt.assert_allclose(hop.particle_order, psi_k_weighted, atol=1e-5)
 
     def test_weighted_square(self):
         unitcell = freud.data.UnitCell.square()
@@ -149,7 +150,8 @@ class TestHexatic:
         hop.compute(system=(box, points), neighbors=voro.nlist)
         npt.assert_allclose(np.absolute(hop.particle_order), 0.0, atol=1e-5)
 
-    def test_normalization(self):
+    @pytest.mark.parametrize(*k)
+    def test_normalization(self, k):
         """Verify normalizations for weighted and unweighted systems."""
         box = freud.Box.square(L=10)
         points = np.array(
@@ -175,20 +177,18 @@ class TestHexatic:
             distances,
             weights,
         )
-        for k in range(0, 12):
-            # Unweighted calculation - normalized by number of neighbors
-            psi_k = np.sum(np.exp(thetas * k * 1.0j)) / len(nlist)
-            hop = freud.order.Hexatic(k=k)
-            hop.compute(system=(box, points), neighbors=nlist)
-            npt.assert_allclose(psi_k, hop.particle_order[0], atol=1e-5)
-            # Weighted calculation - normalized by total neighbor weight
-            psi_k_weighted = np.sum(nlist.weights * np.exp(thetas * k * 1.0j))
-            psi_k_weighted /= np.sum(nlist.weights)
-            hop_weighted = freud.order.Hexatic(k=k, weighted=True)
-            hop_weighted.compute(system=(box, points), neighbors=nlist)
-            npt.assert_allclose(
-                psi_k_weighted, hop_weighted.particle_order[0], atol=1e-5
-            )
+
+        # Unweighted calculation - normalized by number of neighbors
+        psi_k = np.sum(np.exp(thetas * k * 1.0j)) / len(nlist)
+        hop = freud.order.Hexatic(k=k)
+        hop.compute(system=(box, points), neighbors=nlist)
+        npt.assert_allclose(psi_k, hop.particle_order[0], atol=1e-5)
+        # Weighted calculation - normalized by total neighbor weight
+        psi_k_weighted = np.sum(nlist.weights * np.exp(thetas * k * 1.0j))
+        psi_k_weighted /= np.sum(nlist.weights)
+        hop_weighted = freud.order.Hexatic(k=k, weighted=True)
+        hop_weighted.compute(system=(box, points), neighbors=nlist)
+        npt.assert_allclose(psi_k_weighted, hop_weighted.particle_order[0], atol=1e-5)
 
     def test_3d_box(self):
         boxlen = 10

@@ -508,40 +508,6 @@ class NeighborQueryTest:
         result = list(nq.query(positions[[0]], dict(mode="nearest", num_neighbors=3)))
         assert get_point_neighbors(result, 0) == {0, 1, 2}
 
-    """def test_random_system_query(self):
-        np.random.seed(0)
-        L = 10
-        box = freud.box.Box.cube(L)
-
-        # Generate random points
-        for N in [10, 100, 500]:
-            positions = box.wrap(L / 2 * np.random.rand(N, 3))
-            ks = [1, 5]
-            if N > 10:
-                ks.extend([10, 50])
-            for k in ks:
-                nq = self.build_query_object(box, positions, L / 10)
-
-                nlist = nq.query(
-                    positions, dict(num_neighbors=k, exclude_ii=True)
-                ).toNeighborList()
-                assert len(nlist) == k * N, (
-                    "Wrong nlist length for N = {}," "num_neighbors = {}, length = {}"
-                ).format(N, k, len(nlist))
-                nlist_array = nlist[:]
-                for i in range(N):
-                    assert not ([i, i] == nlist_array).all(axis=1).any()
-
-                nlist = nq.query(
-                    positions, dict(num_neighbors=k, exclude_ii=False)
-                ).toNeighborList()
-                assert len(nlist) == k * N, (
-                    "Wrong nlist length for N = {}, " "num_neighbors = {}, length = {}"
-                ).format(N, k, len(nlist))
-                nlist_array = nlist[:]
-                for i in range(N):
-                    assert ([i, i] == nlist_array).all(axis=1).any()"""
-
     @pytest.mark.parametrize("N", [N for N in [10, 50, 500]])
     def test_random_system_query(self, N):
         np.random.seed(0)
