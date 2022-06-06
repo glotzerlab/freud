@@ -36,20 +36,20 @@ class TestHexatic:
         hop.compute((box, points))
         npt.assert_allclose(np.mean(hop.particle_order), 0.0 + 0.0j, atol=1e-1)
 
-    def test_compute(self):
+    @pytest.mark.parametrize("i", [i for i in range(6)])
+    def test_compute(self, i):
         boxlen = 10
         r_max = 3
         box = freud.box.Box.square(boxlen)
         points = [[0.0, 0.0, 0.0]]
 
-        for i in range(6):
-            points.append(
-                [
-                    np.cos(float(i) * 2.0 * np.pi / 6.0),
-                    np.sin(float(i) * 2.0 * np.pi / 6.0),
-                    0.0,
-                ]
-            )
+        points.append(
+            [
+                np.cos(float(i) * 2.0 * np.pi / 6.0),
+                np.sin(float(i) * 2.0 * np.pi / 6.0),
+                0.0,
+            ]
+        )
 
         points = np.asarray(points, dtype=np.float32)
         points[:, 2] = 0.0

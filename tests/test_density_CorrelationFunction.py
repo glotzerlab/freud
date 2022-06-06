@@ -415,7 +415,8 @@ class TestCorrelationFunction:
 
                 npt.assert_allclose(ocf.correlation, correct, atol=1e-6)
 
-    def test_points_ne_query_points_real(self):
+    @pytest.mark.parametrize("rv", [rv for rv in [0, 1, 2, 7]])
+    def test_points_ne_query_points_real(self, rv):
         def value_func(_r):
             return np.sin(_r)
 
@@ -455,13 +456,12 @@ class TestCorrelationFunction:
         for nq, neighbors in test_set:
             ocf = freud.density.CorrelationFunction(bins, r_max)
             # try for different scalar values.
-            for rv in [0, 1, 2, 7]:
-                values = [rv] * 4
+            values = [rv] * 4
 
-                ocf.compute(nq, values, query_points, query_values, neighbors=neighbors)
-                correct = supposed_correlation * rv
+            ocf.compute(nq, values, query_points, query_values, neighbors=neighbors)
+            correct = supposed_correlation * rv
 
-                npt.assert_allclose(ocf.correlation, correct, atol=1e-6)
+            npt.assert_allclose(ocf.correlation, correct, atol=1e-6)
 
 
 class TestCorrelationFunctionManagedArray(ManagedArrayTestBase):

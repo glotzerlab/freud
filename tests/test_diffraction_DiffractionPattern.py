@@ -88,7 +88,7 @@ class TestDiffractionPattern:
         assert dp.to_image().shape == (output_size, output_size, 4)
         assert dp.N_points == len(positions)
 
-    @pytest.mark.parametrize(
+    vals = (
         "grid_size, output_size, view_orientation",
         [
             (grid_size, output_size, view_orientation)
@@ -97,6 +97,8 @@ class TestDiffractionPattern:
             for view_orientation in rowan.random.rand(10)
         ],
     )
+
+    @pytest.mark.parametrize(*vals)
     def test_center_unordered(self, grid_size, output_size, view_orientation):
         """Assert the center of the image is an intensity peak for an
         unordered system.
@@ -126,15 +128,7 @@ class TestDiffractionPattern:
         # normalization by the number of points
         npt.assert_allclose(dp.diffraction[center_index], len(positions))
 
-    @pytest.mark.parametrize(
-        "grid_size, output_size, view_orientation",
-        [
-            (grid_size, output_size, view_orientation)
-            for grid_size in (255, 256)
-            for output_size in (255, 256)
-            for view_orientation in rowan.random.rand(10)
-        ],
-    )
+    @pytest.mark.parametrize(*vals)
     def test_center_ordered(self, grid_size, output_size, view_orientation):
         """Assert the center of the image is an intensity peak for an ordered
         system.
@@ -172,66 +166,62 @@ class TestDiffractionPattern:
         dp = freud.diffraction.DiffractionPattern(grid_size=123, output_size=234)
         assert str(dp) == str(eval(repr(dp)))
 
-    def test_k_values_and_k_vectors(self):
+    @pytest.mark.parametrize("size", [size for size in [2, 5, 10]])
+    def test_k_values_and_k_vectors(self, size):
         dp = freud.diffraction.DiffractionPattern()
 
-        for size in [2, 5, 10]:
-            box, positions = freud.data.make_random_system(size, 1)
-            zoom = 4
-            view_orientation = np.asarray([1, 0, 0, 0])
-            dp.compute((box, positions), view_orientation=view_orientation, zoom=zoom)
+        box, positions = freud.data.make_random_system(size, 1)
+        zoom = 4
+        view_orientation = np.asarray([1, 0, 0, 0])
+        dp.compute((box, positions), view_orientation=view_orientation, zoom=zoom)
 
-            output_size = dp.output_size
-            npt.assert_allclose(dp.k_values[output_size // 2], 0)
-            center_index = (output_size // 2, output_size // 2)
-            npt.assert_allclose(dp.k_vectors[center_index], [0, 0, 0])
+        output_size = dp.output_size
+        npt.assert_allclose(dp.k_values[output_size // 2], 0)
+        center_index = (output_size // 2, output_size // 2)
+        npt.assert_allclose(dp.k_vectors[center_index], [0, 0, 0])
 
-            # Tests for the first and last k value bins. Uses the math for
-            # np.fft.fftfreq and the _k_scale_factor to write an expression for
-            # the first and last bins' k values and k vectors.
+        # Tests for the first and last k value bins. Uses the math for
+        # np.fft.fftfreq and the _k_scale_factor to write an expression for
+        # the first and last bins' k values and k vectors.
 
-            scale_factor = 2 * np.pi * output_size / (np.max(box.to_matrix()) * zoom)
+        scale_factor = 2 * np.pi * output_size / (np.max(box.to_matrix()) * zoom)
 
-            if output_size % 2 == 0:
-                first_k_value = -0.5 * scale_factor
-                last_k_value = (0.5 - (1 / output_size)) * scale_factor
-            else:
-                first_k_value = (-0.5 + 1 / (2 * output_size)) * scale_factor
-                last_k_value = (0.5 - 1 / (2 * output_size)) * scale_factor
+        if output_size % 2 == 0:
+            first_k_value = -0.5 * scale_factor
+            last_k_value = (0.5 - (1 / output_size)) * scale_factor
+        else:
+            first_k_value = (-0.5 + 1 / (2 * output_size)) * scale_factor
+            last_k_value = (0.5 - 1 / (2 * output_size)) * scale_factor
 
-            npt.assert_allclose(dp.k_values[0], first_k_value)
-            npt.assert_allclose(dp.k_values[-1], last_k_value)
+        npt.assert_allclose(dp.k_values[0], first_k_value)
+        npt.assert_allclose(dp.k_values[-1], last_k_value)
 
-            first_k_vector = rowan.rotate(
-                view_orientation, [first_k_value, first_k_value, 0]
-            )
-            last_k_vector = rowan.rotate(
-                view_orientation, [last_k_value, last_k_value, 0]
-            )
-            top_right_k_vector = rowan.rotate(
-                view_orientation, [first_k_value, last_k_value, 0]
-            )
-            bottom_left_k_vector = rowan.rotate(
-                view_orientation, [last_k_value, first_k_value, 0]
-            )
+        first_k_vector = rowan.rotate(
+            view_orientation, [first_k_value, first_k_value, 0]
+        )
+        last_k_vector = rowan.rotate(view_orientation, [last_k_value, last_k_value, 0])
+        top_right_k_vector = rowan.rotate(
+            view_orientation, [first_k_value, last_k_value, 0]
+        )
+        bottom_left_k_vector = rowan.rotate(
+            view_orientation, [last_k_value, first_k_value, 0]
+        )
 
-            npt.assert_allclose(dp.k_vectors[0, 0], first_k_vector)
-            npt.assert_allclose(dp.k_vectors[-1, -1], last_k_vector)
-            npt.assert_allclose(dp.k_vectors[0, -1], top_right_k_vector)
-            npt.assert_allclose(dp.k_vectors[-1, 0], bottom_left_k_vector)
+        npt.assert_allclose(dp.k_vectors[0, 0], first_k_vector)
+        npt.assert_allclose(dp.k_vectors[-1, -1], last_k_vector)
+        npt.assert_allclose(dp.k_vectors[0, -1], top_right_k_vector)
+        npt.assert_allclose(dp.k_vectors[-1, 0], bottom_left_k_vector)
 
-            center = output_size // 2
-            top_center_k_vector = rowan.rotate(view_orientation, [0, first_k_value, 0])
-            bottom_center_k_vector = rowan.rotate(
-                view_orientation, [0, last_k_value, 0]
-            )
-            left_center_k_vector = rowan.rotate(view_orientation, [first_k_value, 0, 0])
-            right_center_k_vector = rowan.rotate(view_orientation, [last_k_value, 0, 0])
+        center = output_size // 2
+        top_center_k_vector = rowan.rotate(view_orientation, [0, first_k_value, 0])
+        bottom_center_k_vector = rowan.rotate(view_orientation, [0, last_k_value, 0])
+        left_center_k_vector = rowan.rotate(view_orientation, [first_k_value, 0, 0])
+        right_center_k_vector = rowan.rotate(view_orientation, [last_k_value, 0, 0])
 
-            npt.assert_allclose(dp.k_vectors[center, 0], top_center_k_vector)
-            npt.assert_allclose(dp.k_vectors[center, -1], bottom_center_k_vector)
-            npt.assert_allclose(dp.k_vectors[0, center], left_center_k_vector)
-            npt.assert_allclose(dp.k_vectors[-1, center], right_center_k_vector)
+        npt.assert_allclose(dp.k_vectors[center, 0], top_center_k_vector)
+        npt.assert_allclose(dp.k_vectors[center, -1], bottom_center_k_vector)
+        npt.assert_allclose(dp.k_vectors[0, center], left_center_k_vector)
+        npt.assert_allclose(dp.k_vectors[-1, center], right_center_k_vector)
 
     @pytest.mark.parametrize(
         "grid_size, output_size, zoom",
