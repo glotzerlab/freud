@@ -35,8 +35,8 @@ def try_importing(module):
     try:
         return importlib.import_module(module)
     except ImportError:
-       print("{} does not exist and thus cannot" " be benchmarked".format(module))
-       return None
+        print("{} does not exist and thus cannot" " be benchmarked".format(module))
+        return None
 
 
 def benchmark_desc(name, params):
@@ -258,7 +258,7 @@ def main_run(args):
                 r = m.run()
                 results.append(r)
             except AttributeError:
-               print(f"Something is wrong with {m}")
+                print(f"Something is wrong with {m}")
 
     save_benchmark_result(results, args.output)
 
