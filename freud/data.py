@@ -68,9 +68,35 @@ class UnitCell:
 
         Note:
             Positions are generated in the order of the instance's
-            ``basis_positions``. The first :math:`N_{replica}`
-            positions come from the first basis position, the next
-            :math:`N_{replica}` the second, etc.
+            ``basis_positions``. The first :math:`N_{replica}` positions come
+            from the first basis position, the next :math:`N_{replica}` the
+            second, etc. This behavior is analoguous to `numpy.repeat` rather
+            than `numpy.tile`. To generate the indices use the following
+            expression.
+
+            .. code-block:: python
+
+                if isinstance(n_repeats, int):
+                    N = n_repeats ** dimension
+                else:
+                    N = np.product(n_repeats)
+                indices = np.repeat(np.arange(len(uc.basis_positions)), N)
+
+        Below is an example of expanding basis position properties (in this
+        case, types) to a replicated lattice.
+
+        Example::
+
+            >>> uc = freud.data.UnitCell.bcc()
+            >>> n_repeats = (10, 5, 4)
+            >>> system = uc.generate_system(n_repeats)
+            >>> N = np.product(n_repeats)
+            >>> indices = np.repeat(np.arange(len(uc.basis_positions)), N)
+            >>> # An array of types for all points
+            >>> types = np.array([0, 1])[indices]
+            >>> len(types)
+            400
+
         """
         try:
             nx, ny, nz = num_replicas
