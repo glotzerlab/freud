@@ -255,11 +255,11 @@ def main_run(args):
         print("Module: " + m)
         m = try_importing(m)
         if m:
-            try:
-                r = m.run()
-                results.append(r)
-            except AttributeError:
-                print(f"Something is wrong with {m}")
+            #try:
+            r = m.run()
+            results.append(r)
+            #except AttributeError:
+            #    print(f"Something is wrong with {m}")
 
     save_benchmark_result(results, args.output)
 
