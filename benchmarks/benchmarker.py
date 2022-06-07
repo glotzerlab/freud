@@ -32,11 +32,11 @@ def try_importing(module):
         Module if import successful, None otherwise.
 
     """
-    # try:
-    return importlib.import_module(module)
-    # except ImportError:
-    #    print("{} does not exist and thus cannot" " be benchmarked".format(module))
-    #    return None
+    try:
+        return importlib.import_module(module)
+    except ImportError:
+       print("{} does not exist and thus cannot" " be benchmarked".format(module))
+       return None
 
 
 def benchmark_desc(name, params):
@@ -238,7 +238,7 @@ def list_benchmark_modules():
 
     prefix_path = os.path.dirname(__file__)
     modules = glob.glob(os.path.join(prefix_path, "benchmark_*"))
-    modules = [f[len(str(prefix_path)) + 1 : -3] for f in modules]
+    modules = [f[len(str(prefix_path)) : -3] for f in modules]
     return modules
 
 
@@ -252,14 +252,13 @@ def main_run(args):
     results = []
     modules = list_benchmark_modules()
     for m in modules:
-        print("Module: " + m)
         m = try_importing(m)
         if m:
-            # try:
-            r = m.run()
-            results.append(r)
-            # except AttributeError:
-            #    print(f"Something is wrong with {m}")
+            try:
+                r = m.run()
+                results.append(r)
+            except AttributeError:
+               print(f"Something is wrong with {m}")
 
     save_benchmark_result(results, args.output)
 

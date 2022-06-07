@@ -43,20 +43,15 @@ jobs:
         shell: bash -l {0}
         run: |
             python3 -m pip install -r .github/workflows/conda-envs/requirements-test.txt
-            which python3
             python3 setup.py install
 
       - name: Run benchmarks on pull request commit
         shell: bash -l {0}
         run: |
-          echo "Print working directory"
-          pwd
-          cd benchmarks
           echo "Running benchmarks on current HEAD"
-          python3 benchmarker.py run
+          python3 benchmarks/benchmarker.py run
         env:
           BENCHMARK_NPROC: 2
-            #PYTHONPATH: /__w/freud/freud/_skbuild/linux-x86_64-3.10/cmake-install/
 
       - name: Run benchmarks on master and compare
         shell: bash -l {0}
@@ -70,6 +65,5 @@ jobs:
           python3 benchmarks/benchmarker.py compare origin/master ${{ github.sha }}
         env:
           BENCHMARK_NPROC: 2
-            #PYTHONPATH: /__w/freud/freud/_skbuild/linux-x86_64-3.10/cmake-install/
 
       # TODO old circleci script stored benchmarks as well, maybe add that here?
