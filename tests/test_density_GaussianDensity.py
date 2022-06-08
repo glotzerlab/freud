@@ -78,7 +78,7 @@ class TestGaussianDensity:
         with pytest.raises(ValueError):
             gd.compute((test_box, test_points))
 
-    num_points = ("num_points", [num_points for num_points in [1, 10, 100]])
+    num_points = ("num_points", [1, 10, 100])
 
     @pytest.mark.parametrize(*num_points)
     def test_sum_2d(self, num_points):

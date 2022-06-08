@@ -13,7 +13,7 @@ matplotlib.use("agg")
 
 
 class TestRDF:
-    @pytest.mark.parametrize("r_min", [r_min for r_min in [0, 0.05, 0.1, 1.0, 3.0]])
+    @pytest.mark.parametrize("r_min", [0, 0.05, 0.1, 1.0, 3.0])
     def test_generateR(self, r_min):
         r_max = 5
         bins = round((r_max - r_min) / 0.1)
@@ -72,7 +72,7 @@ class TestRDF:
         with pytest.raises(ValueError):
             freud.density.RDF(r_max=1, bins=10, r_min=-1)
 
-    @pytest.mark.parametrize("r_min", [r_min for r_min in (0, 0.1, 3.0)])
+    @pytest.mark.parametrize("r_min", [0, 0.1, 3.0])
     def test_random_point(self, r_min):
         r_max = 10.0
         bins = 10

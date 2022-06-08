@@ -415,7 +415,7 @@ class TestCorrelationFunction:
 
                 npt.assert_allclose(ocf.correlation, correct, atol=1e-6)
 
-    @pytest.mark.parametrize("rv", [rv for rv in [0, 1, 2, 7]])
+    @pytest.mark.parametrize("rv", [0, 1, 2, 7])
     def test_points_ne_query_points_real(self, rv):
         def value_func(_r):
             return np.sin(_r)

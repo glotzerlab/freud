@@ -33,7 +33,7 @@ class TestUnitCell:
             points, [[0, 0, -0.5], [0, -0.5, 0], [-0.5, 0, 0], [-0.5, -0.5, -0.5]]
         )
 
-    @pytest.mark.parametrize("scale", [scale for scale in [0.5, 2]])
+    @pytest.mark.parametrize("scale", [0.5, 2])
     def test_scale(self, scale):
         """Test the generation of a scaled structure."""
         box, points = freud.data.UnitCell.fcc().generate_system(scale=scale)
@@ -44,9 +44,7 @@ class TestUnitCell:
             * np.array([[0, 0, -0.5], [0, -0.5, 0], [-0.5, 0, 0], [-0.5, -0.5, -0.5]]),
         )
 
-    @pytest.mark.parametrize(
-        "num_replicas", [num_replicas for num_replicas in range(1, 10)]
-    )
+    @pytest.mark.parametrize("num_replicas", range(1, 10))
     def test_replicas(self, num_replicas):
         """Test that replication works."""
         box, points = freud.data.UnitCell.fcc().generate_system(
@@ -79,7 +77,7 @@ class TestUnitCell:
 
     @pytest.mark.parametrize(
         "num_replicas",
-        [num_replicas for num_replicas in (0, 2.5, -1, [2, 2, 0], [2, 2, 2], "abc")],
+        [0, 2.5, -1, [2, 2, 0], [2, 2, 2], "abc"],
     )
     def test_invalid_replicas(self, num_replicas):
         """Test that invalid replications raise errors."""

@@ -166,7 +166,7 @@ class TestDiffractionPattern:
         dp = freud.diffraction.DiffractionPattern(grid_size=123, output_size=234)
         assert str(dp) == str(eval(repr(dp)))
 
-    @pytest.mark.parametrize("size", [size for size in [2, 5, 10]])
+    @pytest.mark.parametrize("size", [2, 5, 10])
     def test_k_values_and_k_vectors(self, size):
         dp = freud.diffraction.DiffractionPattern()
 
