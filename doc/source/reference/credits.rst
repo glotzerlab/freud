@@ -362,7 +362,7 @@ Dylan Marx
 
 Kody Takada
 
-* Contributed refactored unit tests
+* Contributed refactored unit tests.
 
 Source code
 -----------
