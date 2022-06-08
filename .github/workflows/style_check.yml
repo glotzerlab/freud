@@ -37,11 +37,3 @@ jobs:
           pre-commit run cppcheck --all-files --hook-stage=manual
           pre-commit run clang-tidy --all-files --hook-stage=manual
 
-  # This job is used to provide a single requirement for branch merge conditions.
-  #checks_complete:
-  #  name: Style check
-  #  needs: [clang-tidy]
-  #  runs-on: ubuntu-latest
-
-  #  steps:
-  #    - run: echo "Done!"
