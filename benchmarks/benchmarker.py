@@ -179,6 +179,7 @@ def save_benchmark_result(bresults, filename):
 
     """
     repo = git.Repo(search_parent_directories=True)
+    print(str(repo.head.commit))
 
     filename = get_report_filename(filename)
     this_script_path = os.path.dirname(os.path.abspath(__file__))
@@ -190,6 +191,7 @@ def save_benchmark_result(bresults, filename):
     if os.path.exists(filename):
         with open(filename) as infile:
             data = json.load(infile)
+            print(data.keys())
             data[str(repo.head.commit)] = bresults
     else:
         data = {str(repo.head.commit): bresults}
