@@ -199,7 +199,10 @@ class TestLocalDescriptors:
         comp = freud.environment.LocalDescriptors(8, True)
         assert str(comp) == str(eval(repr(comp)))
 
-    def test_ql(self):
+    L = ["L", range(2, 13)]
+
+    @pytest.mark.parametrize(*L)
+    def test_ql(self, L):
         """Check if we can reproduce Steinhardt ql."""
         # These exact parameter values aren't important; they won't necessarily
         # give useful outputs for some of the structures, but that's fine since
@@ -207,7 +210,6 @@ class TestLocalDescriptors:
         # Steinhardt.
         num_neighbors = 6
         l_max = 12
-
         for struct_func in [
             freud.data.UnitCell.sc,
             freud.data.UnitCell.bcc,
@@ -227,22 +229,22 @@ class TestLocalDescriptors:
             ql = get_ql(points, ld, nl)
 
             # Test all allowable values of l.
-            for L in range(2, l_max + 1):
-                steinhardt = freud.order.Steinhardt(L)
-                steinhardt.compute((box, points), neighbors=nl)
-                # Some of the calculations done for Steinhardt can be imprecise
-                # in cases where there is no symmetry. Since simple cubic
-                # should have a 0 ql value in many cases, we need to set high
-                # tolerances for those specific cases.
-                atol = 1e-3 if struct_func == freud.data.UnitCell.sc else 1e-6
-                npt.assert_allclose(
-                    steinhardt.particle_order,
-                    ql[:, L],
-                    atol=atol,
-                    err_msg=f"Failed for {struct_func.__name__}, L = {L}",
-                )
+            steinhardt = freud.order.Steinhardt(L)
+            steinhardt.compute((box, points), neighbors=nl)
+            # Some of the calculations done for Steinhardt can be imprecise
+            # in cases where there is no symmetry. Since simple cubic
+            # should have a 0 ql value in many cases, we need to set high
+            # tolerances for those specific cases.
+            atol = 1e-3 if struct_func == freud.data.UnitCell.sc else 1e-6
+            npt.assert_allclose(
+                steinhardt.particle_order,
+                ql[:, L],
+                atol=atol,
+                err_msg=f"Failed for {struct_func.__name__}, L = {L}",
+            )
 
-    def test_ql_weighted(self):
+    @pytest.mark.parametrize(*L)
+    def test_ql_weighted(self, L):
         """Check if we can reproduce Steinhardt ql with bond weights."""
         np.random.seed(0)
 
@@ -252,7 +254,6 @@ class TestLocalDescriptors:
         # Steinhardt.
         num_neighbors = 6
         l_max = 12
-
         for struct_func in [
             freud.data.UnitCell.sc,
             freud.data.UnitCell.bcc,
@@ -282,22 +283,22 @@ class TestLocalDescriptors:
             ql = get_ql(points, ld, nl, True)
 
             # Test all allowable values of l.
-            for L in range(2, l_max + 1):
-                steinhardt = freud.order.Steinhardt(L, weighted=True)
-                steinhardt.compute((box, points), neighbors=nl)
-                # Some of the calculations done for Steinhardt can be imprecise
-                # in cases where there is no symmetry. Since simple cubic
-                # should have a 0 ql value in many cases, we need to set high
-                # tolerances for those specific cases.
-                atol = 1e-3 if struct_func == freud.data.UnitCell.sc else 1e-5
-                npt.assert_allclose(
-                    steinhardt.particle_order,
-                    ql[:, L],
-                    atol=atol,
-                    err_msg=f"Failed for {struct_func.__name__}, L = {L}",
-                )
+            steinhardt = freud.order.Steinhardt(L, weighted=True)
+            steinhardt.compute((box, points), neighbors=nl)
+            # Some of the calculations done for Steinhardt can be imprecise
+            # in cases where there is no symmetry. Since simple cubic
+            # should have a 0 ql value in many cases, we need to set high
+            # tolerances for those specific cases.
+            atol = 1e-3 if struct_func == freud.data.UnitCell.sc else 1e-5
+            npt.assert_allclose(
+                steinhardt.particle_order,
+                ql[:, L],
+                atol=atol,
+                err_msg=f"Failed for {struct_func.__name__}, L = {L}",
+            )
 
-    def test_wl(self):
+    @pytest.mark.parametrize(*L)
+    def test_wl(self, L):
         """Check if we can reproduce Steinhardt wl."""
         # These exact parameter values aren't important; they won't necessarily
         # give useful outputs for some of the structures, but that's fine since
@@ -325,10 +326,9 @@ class TestLocalDescriptors:
             wl = get_wl(points, ld, nl)
 
             # Test all allowable values of l.
-            for L in range(2, l_max + 1):
-                steinhardt = freud.order.Steinhardt(L, wl=True)
-                steinhardt.compute((box, points), neighbors=nl)
-                npt.assert_array_almost_equal(steinhardt.particle_order, wl[:, L])
+            steinhardt = freud.order.Steinhardt(L, wl=True)
+            steinhardt.compute((box, points), neighbors=nl)
+            npt.assert_array_almost_equal(steinhardt.particle_order, wl[:, L])
 
     def test_ld(self):
         """Verify the behavior of LocalDescriptors by explicitly calculating

@@ -39,20 +39,23 @@ class NeighborQueryTest:
             "subclass of NeighborQuery in a separate test subclass."
         )
 
-    def test_query_validate_points(self):
+    @pytest.mark.parametrize(
+        "empty_points",
+        [
+            [],
+            [[]],
+            np.zeros(0, dtype=np.float32),
+            np.zeros(shape=(0, 3), dtype=np.float32),
+        ],
+    )
+    def test_query_validate_points(self, empty_points):
         L = 10  # Box Dimensions
         r_max = 2.01  # Cutoff radius
         box = freud.box.Box.cube(L)
 
         # It's not allowed to have an empty NeighborQuery
-        for empty_points in (
-            [],
-            [[]],
-            np.zeros(0, dtype=np.float32),
-            np.zeros(shape=(0, 3), dtype=np.float32),
-        ):
-            with pytest.raises(ValueError):
-                self.build_query_object(box, empty_points, r_max)
+        with pytest.raises(ValueError):
+            self.build_query_object(box, empty_points, r_max)
 
         # It's not allowed to have one point as a 1D array
         with pytest.raises(ValueError):
@@ -375,7 +378,7 @@ class NeighborQueryTest:
 
         assert ij1 == ij2
 
-    i = ("i", [i for i in range(10)])
+    i = ("i", list(range(10)))
 
     @pytest.mark.parametrize(*i)
     def test_exhaustive_search(self, i):
@@ -643,7 +646,11 @@ class TestNeighborQueryAABB(NeighborQueryTest):
         nlist2 = abq.query(points, dict(r_max=r_max, exclude_ii=True)).toNeighborList()
         assert nlist_equal(nlist1, nlist2)
 
-    def test_r_guess_scale(self):
+    @pytest.mark.parametrize(
+        "r_guess, scale",
+        [(r_guess, scale) for r_guess in [0.5, 1, 2] for scale in [1.01, 1.1, 1.3]],
+    )
+    def test_r_guess_scale(self, r_guess, scale):
         """Ensure that r_guess and scale have no effect on query results."""
         np.random.seed(0)
         L = 10
@@ -654,22 +661,17 @@ class TestNeighborQueryAABB(NeighborQueryTest):
         nq = self.build_query_object(box, positions, L / 10)
 
         k = 10
-        r_guess_vals = [L / 20, L / 10, L / 5]
-        scales = [1.01, 1.1, 1.3]
 
         original_nlist = None
-        for r_guess in r_guess_vals:
-            for scale in scales:
-                nlist = nq.query(
-                    positions,
-                    dict(
-                        num_neighbors=k, exclude_ii=True, r_guess=r_guess, scale=scale
-                    ),
-                ).toNeighborList()
-                if original_nlist is not None:
-                    assert nlist_equal(nlist, original_nlist)
-                else:
-                    original_nlist = nlist
+
+        nlist = nq.query(
+            positions,
+            dict(num_neighbors=k, exclude_ii=True, r_guess=r_guess, scale=scale),
+        ).toNeighborList()
+        if original_nlist is not None:
+            assert nlist_equal(nlist, original_nlist)
+        else:
+            original_nlist = nlist
 
 
 class TestNeighborQueryLinkCell(NeighborQueryTest):

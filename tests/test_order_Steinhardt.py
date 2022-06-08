@@ -71,7 +71,7 @@ class TestSteinhardt:
         qlmi /= num_neighbors
         npt.assert_allclose(comp.particle_harmonics, qlmi, atol=atol)
 
-    @pytest.mark.parametrize("odd_l", [odd_l for odd_l in range(1, 20, 2)])
+    @pytest.mark.parametrize("odd_l", range(1, 20, 2))
     def test_l_axis_aligned_odd(self, odd_l):
         # This test has three points along the z-axis. By construction, the
         # points on the end should have Q_l = 1 for odd l and the central
@@ -83,7 +83,7 @@ class TestSteinhardt:
         comp.compute((box, positions), neighbors={"num_neighbors": 2})
         npt.assert_allclose(comp.particle_order, [1, 0, 1], atol=1e-5)
 
-    @pytest.mark.parametrize("even_l", [even_l for even_l in range(0, 20, 2)])
+    @pytest.mark.parametrize("even_l", range(0, 20, 2))
     def test_l_axis_aligned_even(self, even_l):
         # This test has three points along the z-axis. By construction,
         # all three points should
@@ -210,7 +210,7 @@ class TestSteinhardt:
             npt.assert_allclose(comp.particle_order, comp.particle_order[0], atol=1e-5)
             assert abs(comp.order - PERFECT_FCC_W6) < 1e-5
 
-    @pytest.mark.parametrize("wt", [wt for wt in [0, 0.1, 0.9, 1.1, 10, 1e6]])
+    @pytest.mark.parametrize("wt", [0, 0.1, 0.9, 1.1, 10, 1e6])
     def test_weighted(self, wt):
         box, positions = freud.data.UnitCell.fcc().generate_system(4)
         r_max = 1.5
@@ -282,7 +282,7 @@ class TestSteinhardt:
 
         npt.assert_array_almost_equal(first_result, second_result)
 
-    @pytest.mark.parametrize("i", [i for i in range(10)])
+    @pytest.mark.parametrize("i", range(10))
     def test_rotational_invariance(self, i):
         box = freud.box.Box.cube(10)
         positions = np.array(
