@@ -36,4 +36,3 @@ jobs:
         run: |
           pre-commit run cppcheck --all-files --hook-stage=manual
           pre-commit run clang-tidy --all-files --hook-stage=manual
-
