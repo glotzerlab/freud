@@ -199,10 +199,17 @@ class TestLocalDescriptors:
         comp = freud.environment.LocalDescriptors(8, True)
         assert str(comp) == str(eval(repr(comp)))
 
-    L = ["L", range(2, 13)]
+    struct_func = [
+        "struct_func",
+        [
+            freud.data.UnitCell.sc,
+            freud.data.UnitCell.bcc,
+            freud.data.UnitCell.fcc,
+        ],
+    ]
 
-    @pytest.mark.parametrize(*L)
-    def test_ql(self, L):
+    @pytest.mark.parametrize(*struct_func)
+    def test_ql(self, struct_func):
         """Check if we can reproduce Steinhardt ql."""
         # These exact parameter values aren't important; they won't necessarily
         # give useful outputs for some of the structures, but that's fine since
@@ -210,25 +217,22 @@ class TestLocalDescriptors:
         # Steinhardt.
         num_neighbors = 6
         l_max = 12
-        for struct_func in [
-            freud.data.UnitCell.sc,
-            freud.data.UnitCell.bcc,
-            freud.data.UnitCell.fcc,
-        ]:
-            box, points = struct_func().generate_system((5, 5, 5))
 
-            # In order to be able to access information on which particles are
-            # bonded to which ones, we precompute the neighborlist
-            lc = freud.locality.AABBQuery(box, points)
-            nl = lc.query(
-                points, dict(exclude_ii=True, num_neighbors=num_neighbors)
-            ).toNeighborList()
-            ld = freud.environment.LocalDescriptors(l_max, mode="global")
-            ld.compute((box, points), neighbors=nl)
+        box, points = struct_func().generate_system((5, 5, 5))
 
-            ql = get_ql(points, ld, nl)
+        # In order to be able to access information on which particles are
+        # bonded to which ones, we precompute the neighborlist
+        lc = freud.locality.AABBQuery(box, points)
+        nl = lc.query(
+            points, dict(exclude_ii=True, num_neighbors=num_neighbors)
+        ).toNeighborList()
+        ld = freud.environment.LocalDescriptors(l_max, mode="global")
+        ld.compute((box, points), neighbors=nl)
 
-            # Test all allowable values of l.
+        ql = get_ql(points, ld, nl)
+
+        # Test all allowable values of l.
+        for L in range(2, l_max + 1):
             steinhardt = freud.order.Steinhardt(L)
             steinhardt.compute((box, points), neighbors=nl)
             # Some of the calculations done for Steinhardt can be imprecise
@@ -243,8 +247,8 @@ class TestLocalDescriptors:
                 err_msg=f"Failed for {struct_func.__name__}, L = {L}",
             )
 
-    @pytest.mark.parametrize(*L)
-    def test_ql_weighted(self, L):
+    @pytest.mark.parametrize(*struct_func)
+    def test_ql_weighted(self, struct_func):
         """Check if we can reproduce Steinhardt ql with bond weights."""
         np.random.seed(0)
 
@@ -254,35 +258,32 @@ class TestLocalDescriptors:
         # Steinhardt.
         num_neighbors = 6
         l_max = 12
-        for struct_func in [
-            freud.data.UnitCell.sc,
-            freud.data.UnitCell.bcc,
-            freud.data.UnitCell.fcc,
-        ]:
-            box, points = struct_func().generate_system((5, 5, 5))
 
-            # In order to be able to access information on which particles are
-            # bonded to which ones, we precompute the neighborlist
-            lc = freud.locality.AABBQuery(box, points)
-            nl = lc.query(
-                points, dict(exclude_ii=True, num_neighbors=num_neighbors)
-            ).toNeighborList()
-            ld = freud.environment.LocalDescriptors(l_max, mode="global")
-            ld.compute((box, points), neighbors=nl)
+        box, points = struct_func().generate_system((5, 5, 5))
 
-            # Generate random weights for each bond
-            nl = freud.locality.NeighborList.from_arrays(
-                len(points),
-                len(points),
-                nl.query_point_indices,
-                nl.point_indices,
-                nl.distances,
-                np.random.rand(len(nl.weights)),
-            )
+        # In order to be able to access information on which particles are
+        # bonded to which ones, we precompute the neighborlist
+        lc = freud.locality.AABBQuery(box, points)
+        nl = lc.query(
+            points, dict(exclude_ii=True, num_neighbors=num_neighbors)
+        ).toNeighborList()
+        ld = freud.environment.LocalDescriptors(l_max, mode="global")
+        ld.compute((box, points), neighbors=nl)
 
-            ql = get_ql(points, ld, nl, True)
+        # Generate random weights for each bond
+        nl = freud.locality.NeighborList.from_arrays(
+            len(points),
+            len(points),
+            nl.query_point_indices,
+            nl.point_indices,
+            nl.distances,
+            np.random.rand(len(nl.weights)),
+        )
 
-            # Test all allowable values of l.
+        ql = get_ql(points, ld, nl, True)
+
+        # Test all allowable values of l.
+        for L in range(2, l_max + 1):
             steinhardt = freud.order.Steinhardt(L, weighted=True)
             steinhardt.compute((box, points), neighbors=nl)
             # Some of the calculations done for Steinhardt can be imprecise
@@ -297,8 +298,8 @@ class TestLocalDescriptors:
                 err_msg=f"Failed for {struct_func.__name__}, L = {L}",
             )
 
-    @pytest.mark.parametrize(*L)
-    def test_wl(self, L):
+    @pytest.mark.parametrize(*struct_func)
+    def test_wl(self, struct_func):
         """Check if we can reproduce Steinhardt wl."""
         # These exact parameter values aren't important; they won't necessarily
         # give useful outputs for some of the structures, but that's fine since
@@ -307,25 +308,21 @@ class TestLocalDescriptors:
         num_neighbors = 6
         l_max = 12
 
-        for struct_func in [
-            freud.data.UnitCell.sc,
-            freud.data.UnitCell.bcc,
-            freud.data.UnitCell.fcc,
-        ]:
-            box, points = struct_func().generate_system((5, 5, 5))
+        box, points = struct_func().generate_system((5, 5, 5))
 
-            # In order to be able to access information on which particles are
-            # bonded to which ones, we precompute the neighborlist
-            lc = freud.locality.AABBQuery(box, points)
-            nl = lc.query(
-                points, dict(exclude_ii=True, num_neighbors=num_neighbors)
-            ).toNeighborList()
-            ld = freud.environment.LocalDescriptors(l_max, mode="global")
-            ld.compute((box, points), neighbors=nl)
+        # In order to be able to access information on which particles are
+        # bonded to which ones, we precompute the neighborlist
+        lc = freud.locality.AABBQuery(box, points)
+        nl = lc.query(
+            points, dict(exclude_ii=True, num_neighbors=num_neighbors)
+        ).toNeighborList()
+        ld = freud.environment.LocalDescriptors(l_max, mode="global")
+        ld.compute((box, points), neighbors=nl)
 
-            wl = get_wl(points, ld, nl)
+        wl = get_wl(points, ld, nl)
 
-            # Test all allowable values of l.
+        # Test all allowable values of l.
+        for L in range(2, l_max + 1):
             steinhardt = freud.order.Steinhardt(L, wl=True)
             steinhardt.compute((box, points), neighbors=nl)
             npt.assert_array_almost_equal(steinhardt.particle_order, wl[:, L])
