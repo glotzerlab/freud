@@ -19,7 +19,7 @@ on:
 
 jobs:
   run_tests:
-    name: Run tests on ${{ matrix.os }} with python ${{ matrix.pyver-env.pyver }}
+    name: Run tests on ${{ matrix.os }} with Python ${{ matrix.pyver-env.pyver }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
