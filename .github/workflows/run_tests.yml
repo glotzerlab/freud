@@ -42,9 +42,9 @@ jobs:
           environment-file: .github/workflows/conda-envs/${{ matrix.pyver-env.env }}
           channels: conda-forge
           activate-environment: test
-          auto-update-conda: false
-          auto-activate-base: false
           show-channel-urls: true
+          miniforge-variant: Mambaforge
+          use_mamba: true
 
       - name: Build and Install freud
         shell: bash -l {0}
