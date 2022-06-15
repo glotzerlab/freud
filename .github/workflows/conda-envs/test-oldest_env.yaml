@@ -1,7 +1,6 @@
 name: test
 channels:
   - conda-forge
-  - defaults
 
 dependencies:
   - tbb=2019.7
@@ -9,4 +8,4 @@ dependencies:
   - ninja
   - pip
   - pip:
-    - -r oldest-test-requirements.txt
+    - -r oldest-test-reqs.txt
