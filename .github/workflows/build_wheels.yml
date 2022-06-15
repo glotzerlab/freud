@@ -76,7 +76,7 @@ jobs:
           python-version: '3.9'
 
       - name: Install build requirements
-        run: python3 -m pip --disable-pip-version-check install scikit-build cmake -r .github/workflows/conda-envs/requirements-test.txt --upgrade --progress-bar=off
+        run: python3 -m pip --disable-pip-version-check install scikit-build cmake -r requirements.txt --upgrade --progress-bar=off
 
       - name: Build sdist
         run: python setup.py sdist

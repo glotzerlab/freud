@@ -44,7 +44,7 @@ jobs:
           activate-environment: test
           show-channel-urls: true
           miniforge-variant: Mambaforge
-          use_mamba: true
+          use-mamba: true
 
       - name: Build and Install freud
         shell: bash -l {0}
