@@ -21,9 +21,9 @@ jobs:
     name: Check C++ Code Style
     runs-on: ubuntu-latest
     container:
-      image: glotzerlab/ci:2022.05-clang10_py38
+      image: glotzerlab/ci:2021.11-clang10_py38
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v3.0.2
         with:
           submodules: true
       - name: Install pre-commit
