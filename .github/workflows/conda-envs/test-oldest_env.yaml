@@ -4,8 +4,8 @@ channels:
   - defaults
 
 dependencies:
-  - tbb=2019.7
-  - tbb-devel=2019.7
+  - tbb=2019.6
+  - tbb-devel=2019.6
   - ninja
   - pip
   - pip:
