@@ -8,7 +8,7 @@ on:
   # trigger on pull requests
   pull_request:
 
-  # trigger on all commits to master and tagged commits
+  # trigger on all commits to master
   push:
     branches:
       - "master"
