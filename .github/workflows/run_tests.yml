@@ -1,6 +1,5 @@
 name: Run Unit Tests
 
-# Remove this for now, circleci is getting in the way with tests failing
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -41,7 +40,7 @@ jobs:
         with:
           python-version: ${{ matrix.pyver-env.pyver }}
           environment-file: .github/workflows/conda-envs/${{ matrix.pyver-env.env }}
-          channels: conda-forge,defaults
+          channels: conda-forge
           activate-environment: test
           auto-update-conda: false
           auto-activate-base: false
