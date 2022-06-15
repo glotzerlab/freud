@@ -23,13 +23,15 @@ jobs:
     container:
       image: glotzerlab/ci:2022.05-clang10_py38
     steps:
-      - uses: actions/checkout@v3.0.2
+      - uses: actions/checkout@v2.3.4
         with:
           submodules: true
       - name: Install pre-commit
         run: python3 -m pip install pre-commit
       - name: Build freud and export compile commands
         run: |
+          # glotzerlab ci containers do not come with scikit-build installed
+          # this install can be removed once scikit-build is in the container
           python3 -m pip install scikit-build
           python3 setup.py build_ext --inplace -- -DCMAKE_EXPORT_COMPILE_COMMANDS=True
       - name: Execute clang-tidy and cppcheck
