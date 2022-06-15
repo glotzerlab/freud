@@ -14,7 +14,7 @@ matplotlib.use("agg")
 
 class TestRDF:
     @pytest.mark.parametrize("r_min", [0, 0.05, 0.1, 1.0, 3.0])
-    def test_generateR(self, r_min):
+    def test_generate_bins(self, r_min):
         r_max = 5
         bins = round((r_max - r_min) / 0.1)
         dr = (r_max - r_min) / bins

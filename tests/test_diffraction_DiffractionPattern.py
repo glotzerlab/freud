@@ -88,75 +88,42 @@ class TestDiffractionPattern:
         assert dp.to_image().shape == (output_size, output_size, 4)
         assert dp.N_points == len(positions)
 
-    vals = (
-        "grid_size, output_size, view_orientation",
-        [
-            (grid_size, output_size, view_orientation)
-            for grid_size in (255, 256)
-            for output_size in (255, 256)
-            for view_orientation in rowan.random.rand(10)
-        ],
+    @pytest.mark.parametrize(
+        "box, positions",
+        (
+            freud.data.make_random_system(box_size=10, num_points=1000),
+            freud.data.UnitCell.bcc().generate_system(10),
+        ),
     )
-
-    @pytest.mark.parametrize(*vals)
-    def test_center_unordered(self, grid_size, output_size, view_orientation):
-        """Assert the center of the image is an intensity peak for an
-        unordered system.
-        """
-        box, positions = freud.data.make_random_system(box_size=10, num_points=1000)
-
-        # Test different parities (odd/even) of grid_size and output_size
-        dp = freud.diffraction.DiffractionPattern(
-            grid_size=grid_size, output_size=output_size
-        )
-
-        # Use a random view orientation and a random zoom
-        zoom = 1 + 10 * np.random.rand()
-        dp.compute(
-            system=(box, positions),
-            view_orientation=view_orientation,
-            zoom=zoom,
-        )
-
-        # Assert the pixel at the center (k=0) is the maximum value
-        diff = dp.diffraction
-        max_index = np.unravel_index(np.argmax(diff), diff.shape)
-        center_index = (output_size // 2, output_size // 2)
-        assert max_index == center_index
-
-        # The value at k=0 should be N_points because of
-        # normalization by the number of points
-        npt.assert_allclose(dp.diffraction[center_index], len(positions))
-
-    @pytest.mark.parametrize(*vals)
-    def test_center_ordered(self, grid_size, output_size, view_orientation):
+    def test_center_ordered(self, box, positions):
         """Assert the center of the image is an intensity peak for an ordered
-        system.
+        or unordered system.
         """
-        box, positions = freud.data.UnitCell.bcc().generate_system(10)
-
         # Test different parities (odd/even) of grid_size and output_size
-        dp = freud.diffraction.DiffractionPattern(
-            grid_size=grid_size, output_size=output_size
-        )
+        for grid_size in [255, 256]:
+            for output_size in [255, 256]:
+                dp = freud.diffraction.DiffractionPattern(
+                    grid_size=grid_size, output_size=output_size
+                )
 
-        # Use a random view orientation and a random zoom
-        zoom = 1 + 10 * np.random.rand()
-        dp.compute(
-            system=(box, positions),
-            view_orientation=view_orientation,
-            zoom=zoom,
-        )
+                # Use a random view orientation and a random zoom
+                for view_orientation in rowan.random.rand(10):
+                    zoom = 1 + 10 * np.random.rand()
+                    dp.compute(
+                        system=(box, positions),
+                        view_orientation=view_orientation,
+                        zoom=zoom,
+                    )
 
-        # Assert the pixel at the center (k=0) is the maximum value
-        diff = dp.diffraction
-        max_index = np.unravel_index(np.argmax(diff), diff.shape)
-        center_index = (output_size // 2, output_size // 2)
-        assert max_index == center_index
+                    # Assert the pixel at the center (k=0) is the maximum value
+                    diff = dp.diffraction
+                    max_index = np.unravel_index(np.argmax(diff), diff.shape)
+                    center_index = (output_size // 2, output_size // 2)
+                    assert max_index == center_index
 
-        # The value at k=0 should be N_points because of
-        # normalization by the number of points
-        npt.assert_allclose(dp.diffraction[center_index], len(positions))
+                    # The value at k=0 should be N_points because of
+                    # normalization by the number of points
+                    npt.assert_allclose(dp.diffraction[center_index], len(positions))
 
     def test_repr(self):
         dp = freud.diffraction.DiffractionPattern()
@@ -223,15 +190,9 @@ class TestDiffractionPattern:
         npt.assert_allclose(dp.k_vectors[0, center], left_center_k_vector)
         npt.assert_allclose(dp.k_vectors[-1, center], right_center_k_vector)
 
-    @pytest.mark.parametrize(
-        "grid_size, output_size, zoom",
-        [
-            (grid_size, output_size, zoom)
-            for grid_size in (256, 1024)
-            for output_size in (255, 256, 1023, 1024)
-            for zoom in (1, 2.5, 4.123)
-        ],
-    )
+    @pytest.mark.parametrize("grid_size", (256, 1024))
+    @pytest.mark.parametrize("output_size", (255, 256, 1023, 1024))
+    @pytest.mark.parametrize("zoom", (1, 2.5, 4.123))
     def test_cubic_system(self, grid_size, output_size, zoom):
         length = 1
         box, positions = freud.data.UnitCell.sc().generate_system(

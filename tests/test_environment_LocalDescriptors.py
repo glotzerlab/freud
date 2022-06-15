@@ -199,8 +199,8 @@ class TestLocalDescriptors:
         comp = freud.environment.LocalDescriptors(8, True)
         assert str(comp) == str(eval(repr(comp)))
 
-    struct_func = [
-        "struct_func",
+    unit_cell = [
+        "unit_cell",
         [
             freud.data.UnitCell.sc,
             freud.data.UnitCell.bcc,
@@ -208,8 +208,8 @@ class TestLocalDescriptors:
         ],
     ]
 
-    @pytest.mark.parametrize(*struct_func)
-    def test_ql(self, struct_func):
+    @pytest.mark.parametrize(*unit_cell)
+    def test_ql(self, unit_cell):
         """Check if we can reproduce Steinhardt ql."""
         # These exact parameter values aren't important; they won't necessarily
         # give useful outputs for some of the structures, but that's fine since
@@ -218,7 +218,7 @@ class TestLocalDescriptors:
         num_neighbors = 6
         l_max = 12
 
-        box, points = struct_func().generate_system((5, 5, 5))
+        box, points = unit_cell().generate_system((5, 5, 5))
 
         # In order to be able to access information on which particles are
         # bonded to which ones, we precompute the neighborlist
@@ -239,16 +239,16 @@ class TestLocalDescriptors:
             # in cases where there is no symmetry. Since simple cubic
             # should have a 0 ql value in many cases, we need to set high
             # tolerances for those specific cases.
-            atol = 1e-3 if struct_func == freud.data.UnitCell.sc else 1e-6
+            atol = 1e-3 if unit_cell == freud.data.UnitCell.sc else 1e-6
             npt.assert_allclose(
                 steinhardt.particle_order,
                 ql[:, L],
                 atol=atol,
-                err_msg=f"Failed for {struct_func.__name__}, L = {L}",
+                err_msg=f"Failed for {unit_cell.__name__}, L = {L}",
             )
 
-    @pytest.mark.parametrize(*struct_func)
-    def test_ql_weighted(self, struct_func):
+    @pytest.mark.parametrize(*unit_cell)
+    def test_ql_weighted(self, unit_cell):
         """Check if we can reproduce Steinhardt ql with bond weights."""
         np.random.seed(0)
 
@@ -259,7 +259,7 @@ class TestLocalDescriptors:
         num_neighbors = 6
         l_max = 12
 
-        box, points = struct_func().generate_system((5, 5, 5))
+        box, points = unit_cell().generate_system((5, 5, 5))
 
         # In order to be able to access information on which particles are
         # bonded to which ones, we precompute the neighborlist
@@ -290,16 +290,16 @@ class TestLocalDescriptors:
             # in cases where there is no symmetry. Since simple cubic
             # should have a 0 ql value in many cases, we need to set high
             # tolerances for those specific cases.
-            atol = 1e-3 if struct_func == freud.data.UnitCell.sc else 1e-5
+            atol = 1e-3 if unit_cell == freud.data.UnitCell.sc else 1e-5
             npt.assert_allclose(
                 steinhardt.particle_order,
                 ql[:, L],
                 atol=atol,
-                err_msg=f"Failed for {struct_func.__name__}, L = {L}",
+                err_msg=f"Failed for {unit_cell.__name__}, L = {L}",
             )
 
-    @pytest.mark.parametrize(*struct_func)
-    def test_wl(self, struct_func):
+    @pytest.mark.parametrize(*unit_cell)
+    def test_wl(self, unit_cell):
         """Check if we can reproduce Steinhardt wl."""
         # These exact parameter values aren't important; they won't necessarily
         # give useful outputs for some of the structures, but that's fine since
@@ -308,7 +308,7 @@ class TestLocalDescriptors:
         num_neighbors = 6
         l_max = 12
 
-        box, points = struct_func().generate_system((5, 5, 5))
+        box, points = unit_cell().generate_system((5, 5, 5))
 
         # In order to be able to access information on which particles are
         # bonded to which ones, we precompute the neighborlist

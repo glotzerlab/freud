@@ -48,7 +48,7 @@ class NeighborQueryTest:
             np.zeros(shape=(0, 3), dtype=np.float32),
         ],
     )
-    def test_query_validate_points(self, empty_points):
+    def test_query_empty_points(self, empty_points):
         L = 10  # Box Dimensions
         r_max = 2.01  # Cutoff radius
         box = freud.box.Box.cube(L)
@@ -56,6 +56,11 @@ class NeighborQueryTest:
         # It's not allowed to have an empty NeighborQuery
         with pytest.raises(ValueError):
             self.build_query_object(box, empty_points, r_max)
+
+    def test_query_validate_points(self):
+        L = 10  # Box Dimensions
+        r_max = 2.01  # Cutoff radius
+        box = freud.box.Box.cube(L)
 
         # It's not allowed to have one point as a 1D array
         with pytest.raises(ValueError):

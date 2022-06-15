@@ -128,9 +128,8 @@ class TestUnitCell:
 
 
 class TestRandomSystem:
-    @pytest.mark.parametrize(
-        "N, is2D", [(N, is2D) for N in (0, 1, 10, 100, 1000) for is2D in (True, False)]
-    )
+    @pytest.mark.parametrize("N", (0, 1, 10, 100, 1000))
+    @pytest.mark.parametrize("is2D", (True, False))
     def test_sizes_and_dimensions(self, N, is2D):
         box, points = freud.data.make_random_system(
             box_size=10, num_points=N, is2D=is2D
