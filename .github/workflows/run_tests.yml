@@ -39,7 +39,7 @@ jobs:
         uses: conda-incubator/setup-miniconda@v2
         with:
           python-version: ${{ matrix.pyver-env.pyver }}
-          environment-file: .github/workflows/conda-envs/${{ matrix.pyver-env.env }}
+          environment-file: .github/workflows/env-files/${{ matrix.pyver-env.env }}
           channels: conda-forge
           activate-environment: test
           show-channel-urls: true
