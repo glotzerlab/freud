@@ -14,8 +14,10 @@ namespace freud { namespace environment {
 /*****************
  * EnvDisjoinSet *
  *****************/
-EnvDisjointSet::EnvDisjointSet(unsigned int Np) : rank(std::vector<unsigned int>(Np, 0)), m_max_num_neigh(0)
-{}
+EnvDisjointSet::EnvDisjointSet(unsigned int Np) : s(std::vector<Environment>()), rank(std::vector<unsigned int>(Np, 0)), m_max_num_neigh(0)
+{
+    s.reserve(Np);
+}
 
 void EnvDisjointSet::merge(const unsigned int a, const unsigned int b,
                            BiMap<unsigned int, unsigned int> vec_map, rotmat3<float>& rotation)
