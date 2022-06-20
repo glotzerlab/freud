@@ -89,6 +89,8 @@ class TestRDF:
 
         rdf = freud.density.RDF(bins, r_max, r_min)
 
+        # If r_min != 3, then reset will explicitly be set to false to
+        # test if rdf.compute accumulates the data correctly.
         if r_min != 3.0:
             rdf.compute(nq, neighbors=neighbors, reset=False)
         else:

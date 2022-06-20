@@ -415,16 +415,13 @@ class TestCorrelationFunction:
 
                 npt.assert_allclose(ocf.correlation, correct, atol=1e-6)
 
-    @pytest.mark.parametrize("rv", [0, 1, 2, 7])
-    def test_points_ne_query_points_real(self, rv):
+    @pytest.fixture(scope="session")
+    def correlation_calc(self):
         def value_func(_r):
             return np.sin(_r)
 
         r_max = 10.0
         bins = 100
-        dr = r_max / bins
-        box_size = r_max * 5
-        box = freud.box.Box.square(box_size)
 
         ocf = freud.density.CorrelationFunction(bins, r_max)
 
@@ -445,6 +442,19 @@ class TestCorrelationFunction:
             supposed_correlation.append(value_func(r))
 
         supposed_correlation = np.array(supposed_correlation)
+        return (query_points, query_values, supposed_correlation)
+
+    @pytest.mark.parametrize("rv", [0, 1, 2, 7])
+    def test_points_ne_query_points_real(self, rv, correlation_calc):
+        r_max = 10.0
+        bins = 100
+        dr = r_max / bins
+        box_size = r_max * 5
+        box = freud.box.Box.square(box_size)
+
+        ocf = freud.density.CorrelationFunction(bins, r_max)
+
+        query_points, query_values, supposed_correlation = correlation_calc
 
         # points are within distances closer than dr, so their impact on
         # the result should be minimal.
