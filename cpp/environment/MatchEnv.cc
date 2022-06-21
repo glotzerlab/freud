@@ -684,8 +684,8 @@ void EnvironmentMotifMatch::compute(const freud::locality::NeighborQuery* nq,
     // because we're inserting the motif into it.
     EnvDisjointSet dj(Np + 1);
     auto counts = nlist.getCounts();
-    auto begin = counts.get();
-    auto end = begin + counts.size();
+    auto* begin = counts.get();
+    auto* end = begin + counts.size();
     auto max_val = *std::max_element(begin, end);
     dj.m_max_num_neigh = max_val;
 
