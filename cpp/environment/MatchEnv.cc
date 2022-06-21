@@ -686,11 +686,11 @@ void EnvironmentMotifMatch::compute(const freud::locality::NeighborQuery* nq,
     auto counts = nlist.getCounts();
     auto* begin = counts.get();
     auto* end = begin + counts.size();
-    auto max_val = *std::max_element(begin, end);
-    dj.m_max_num_neigh = max_val;
+    auto max_num_neigh = *std::max_element(begin, end);
+    dj.m_max_num_neigh = max_num_neigh;
 
     // reallocate the m_point_environments array
-    m_point_environments.prepare({Np, max_val});
+    m_point_environments.prepare({Np, max_num_neigh});
 
     // create the environment characterized by motif. Index it as 0.
     // set the IGNORE flag to true, since this is not an environment we have
