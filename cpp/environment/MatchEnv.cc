@@ -1,6 +1,7 @@
 // Copyright (c) 2010-2020 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
+#include <algorithm>
 #include <sstream>
 #include <stdexcept>
 
@@ -683,12 +684,9 @@ void EnvironmentMotifMatch::compute(const freud::locality::NeighborQuery* nq,
     // because we're inserting the motif into it.
     EnvDisjointSet dj(Np + 1);
     auto counts = nlist.getCounts();
-    unsigned int max_val = 0;
-    for (auto i = 0; i < counts.size(); ++i) {
-        if (counts[i] > max_val) {
-            max_val = counts[i];
-        }
-    }
+    auto begin = counts.get();
+    auto end = begin + counts.size();
+    auto max_val = *std::max_element(begin, end);
     dj.m_max_num_neigh = max_val;
 
     // reallocate the m_point_environments array
