@@ -682,10 +682,17 @@ void EnvironmentMotifMatch::compute(const freud::locality::NeighborQuery* nq,
     // this has to have ONE MORE environment than there are actual particles,
     // because we're inserting the motif into it.
     EnvDisjointSet dj(Np + 1);
-    dj.m_max_num_neigh = motif_size;
+    auto counts = nlist.getCounts();
+    unsigned int max_val = 0;
+    for (auto i = 0; i < counts.size(); ++i) {
+        if (counts[i] > max_val) {
+            max_val = counts[i];
+        }
+    }
+    dj.m_max_num_neigh = max_val;
 
     // reallocate the m_point_environments array
-    m_point_environments.prepare({Np, motif_size});
+    m_point_environments.prepare({Np, max_val});
 
     // create the environment characterized by motif. Index it as 0.
     // set the IGNORE flag to true, since this is not an environment we have
