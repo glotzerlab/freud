@@ -4,6 +4,8 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+* Added 2D support for `freud.diffraction.StaticStructureFactorDebye`.
+
 ## v2.10.0 -- 2022-05-18
 
 ### Added
