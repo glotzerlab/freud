@@ -53,6 +53,10 @@ void StaticStructureFactorDirect::accumulate(const freud::locality::NeighborQuer
 {
     // Compute k vectors by sampling reciprocal space.
     const auto& box = neighbor_query->getBox();
+    if (box.is2D())
+    {
+        throw std::invalid_argument("2D boxes are not currently supported.");
+    }
     const auto k_bin_edges = m_structure_factor.getBinEdges()[0];
     const auto k_min = k_bin_edges.front();
     const auto k_max = k_bin_edges.back();
@@ -162,15 +166,7 @@ inline Eigen::Matrix3f box_to_matrix(const box::Box& box)
     Eigen::Matrix3f mat;
     for (unsigned int i = 0; i < 3; i++)
     {
-        vec3<float> box_vector;
-        if (box.is2D() && i == 2)
-        {
-            box_vector = vec3<float>(0.0, 0.0, 0.0);
-        }
-        else
-        {
-            box_vector = box.getLatticeVector(i);
-        }
+        const auto box_vector = box.getLatticeVector(i);
         mat(i, 0) = box_vector.x;
         mat(i, 1) = box_vector.y;
         mat(i, 2) = box_vector.z;
@@ -211,9 +207,7 @@ std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const
     const auto dq_x = B.row(0).norm();
     const auto dq_y = B.row(1).norm();
     const auto dq_z = B.row(2).norm();
-    auto q_volume = dq_x * dq_y;
-    if (!(box.is2D()))
-        q_volume = q_volume * dq_z;
+    const auto q_volume = dq_x * dq_y * dq_z;
 
     // Above the pruning distance, the grid of k points is sampled isotropically
     // at a lower density.
@@ -225,9 +219,7 @@ std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const
     const auto bz = freud::constants::TWO_PI * vec3<float>(B(2, 0), B(2, 1), B(2, 2));
     const auto N_kx = static_cast<unsigned int>(std::ceil(q_max / dq_x));
     const auto N_ky = static_cast<unsigned int>(std::ceil(q_max / dq_y));
-    unsigned int N_kz = 1;
-    if (!(box.is2D()))
-        N_kz = static_cast<unsigned int>(std::ceil(q_max / dq_z));
+    const auto N_kz = static_cast<unsigned int>(std::ceil(q_max / dq_z));
 
     // The maximum number of k points is a guideline. The true number of sampled
     // k points can be less or greater than num_sampled_k_points, depending on the
@@ -267,20 +259,15 @@ std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const
                 // with radius k_max. We round kz_min down and kz_max up to
                 // ensure that we don't accidentally throw out valid k points in
                 // the range (k_min, k_max) due to rounding error.
-                unsigned int kz_min = 0;
-                unsigned int kz_max = 1;
-                if (!(box.is2D()))
-                {
-                    const auto coef_a = dot(bz, bz);
-                    const auto coef_b = -2 * dot(k_vec_xy, bz);
-                    const auto coef_c_min = dot(k_vec_xy, k_vec_xy) - k_min * k_min;
-                    const auto coef_c_max = dot(k_vec_xy, k_vec_xy) - k_max * k_max;
-                    const auto b_over_2a = coef_b / (2 * coef_a);
-                    kz_min = static_cast<unsigned int>(
-                        std::floor(-b_over_2a + std::sqrt(b_over_2a * b_over_2a - coef_c_min / coef_a)));
-                    kz_max = static_cast<unsigned int>(
-                        std::ceil(-b_over_2a + std::sqrt(b_over_2a * b_over_2a - coef_c_max / coef_a)));
-                }
+                const auto coef_a = dot(bz, bz);
+                const auto coef_b = -2 * dot(k_vec_xy, bz);
+                const auto coef_c_min = dot(k_vec_xy, k_vec_xy) - k_min * k_min;
+                const auto coef_c_max = dot(k_vec_xy, k_vec_xy) - k_max * k_max;
+                const auto b_over_2a = coef_b / (2 * coef_a);
+                const auto kz_min = static_cast<unsigned int>(
+                    std::floor(-b_over_2a + std::sqrt(b_over_2a * b_over_2a - coef_c_min / coef_a)));
+                const auto kz_max = static_cast<unsigned int>(
+                    std::ceil(-b_over_2a + std::sqrt(b_over_2a * b_over_2a - coef_c_max / coef_a)));
                 for (unsigned int kz = kz_min; kz < std::min(kz_max, N_kz); ++kz)
                 {
                     const auto k_vec = k_vec_xy + static_cast<float>(kz) * bz;
