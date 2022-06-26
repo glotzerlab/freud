@@ -324,6 +324,9 @@ cdef class StaticStructureFactorDirect(_StaticStructureFactor):
     For more information see :cite:`Fransson2021`.
 
     .. note::
+        Currently 2D boxes are not supported for this method. Use Debye instead.
+
+    .. note::
         This code assumes all particles have a form factor :math:`f` of 1.
 
     Partial structure factors can be computed by providing ``query_points`` and
