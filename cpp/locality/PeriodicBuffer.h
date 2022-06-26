@@ -36,7 +36,7 @@ public:
 
     //! Compute the periodic buffer
     void compute(const freud::locality::NeighborQuery* neighbor_query, const vec3<float>& buff,
-                 const bool use_images);
+                 const bool use_images, const bool include_input_points);
 
     //! Return the buffer points
     std::vector<vec3<float>> getBufferPoints() const

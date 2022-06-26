@@ -4,6 +4,28 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v2.10.0 -- 2022-05-18
+
+### Added
+* `include_input_points` argument to `freud.locality.PeriodicBuffer`.
+* `macos-arm64` binary builds on conda-forge and PyPI.
+
+### Changed
+* `freud.data.UnitCell.generate_system` now generates positions in the same order as the basis positions.
+
+## v2.9.0 -- 2022-04-19
+
+### Added
+* (breaking) Some `freud.diffraction.StaticStructureFactorDebye` property names changed to be more descriptive.
+* `freud.diffraction.DiffractionPattern` now raises an exception when used with non-cubic boxes.
+
+### Fixed
+* `freud.diffraction.StaticStructureFactorDebye` implementation now gives `S_k[0] = N`.
+* Cython is no longer listed as an install requirement in `setup.py`.
+
+### Removed
+* Custom CMake build type `ReleaseWithDocs`.
+
 ## v2.8.0 -- 2022-01-25
 
 ### Added

@@ -326,7 +326,10 @@ Tommy Waltmann
 * Contributed code, design, and testing for ``StaticStructureFactorDirect`` class.
 * Refactor tests for ``StaticStructureFactor`` classes.
 * Improve CMake build system to use more modern style.
-* Remove CI build configurations from CircleCI which were already covered by CIBuildWheel
+* Remove CI build configurations from CircleCI which were already covered by CIBuildWheel.
+* Change property names in ``StaticStructureFactorDebye`` class.
+* Reformat static structure factor tests.
+* ``DiffractionPattern`` now raises an error when used with non-cubic boxes.
 
 Maya Martirossyan
 

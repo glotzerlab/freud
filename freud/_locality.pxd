@@ -130,6 +130,7 @@ cdef extern from "PeriodicBuffer.h" namespace "freud::locality":
         void compute(
             const NeighborQuery*,
             const vec3[float],
+            const bool,
             const bool) except +
         vector[vec3[float]] getBufferPoints() const
         vector[uint] getBufferIds() const

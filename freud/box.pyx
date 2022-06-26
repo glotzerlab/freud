@@ -593,6 +593,20 @@ cdef class Box:
         return np.array(l_contains_mask).astype(bool)
 
     @property
+    def cubic(self):
+        """bool: Whether the box is a cube."""
+        return (
+            not self.is2D
+            and np.allclose(
+                [self.Lx, self.Lx, self.Ly, self.Ly, self.Lz, self.Lz],
+                [self.Ly, self.Lz, self.Lx, self.Lz, self.Lx, self.Ly],
+                rtol=1e-5,
+                atol=1e-5,
+            )
+            and np.allclose(0, [self.xy, self.yz, self.xz], rtol=1e-5, atol=1e-5)
+        )
+
+    @property
     def periodic(self):
         r""":math:`\left(3, \right)` :class:`numpy.ndarray`: Get or set the
         periodicity of the box in each dimension."""
@@ -841,8 +855,9 @@ cdef class Box:
     def from_matrix(cls, box_matrix, dimensions=None):
         r"""Initialize a Box instance from a box matrix.
 
-        For more information and the source for this code,
-        see: https://hoomd-blue.readthedocs.io/en/stable/box.html
+        For more information and the source for this code, see:
+        `HOOMD-blue's box documentation \
+        <https://hoomd-blue.readthedocs.io/en/stable/package-hoomd.html#hoomd.Box>`_.
 
         Args:
             box_matrix (array-like):
