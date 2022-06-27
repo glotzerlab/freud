@@ -535,14 +535,15 @@ cdef class EnvironmentCluster(_MatchEnv):
         Using a distance cutoff for :code:`'env_neighbors'` would
         lead to situations where the :code:`'cluster_environments'`
         contain different number of particles.
-        ..warning::
+
+        .. warning::
 
             All vectors of :code:`'cluster_environments'` are defined with
-            respect to the origin. O vectors are only used to pad the cluster
+            respect to the origin. Zero vectors are only used to pad the cluster
             vectors so that they have the same shape. In a future version of
-            freud, 0-padding will be removed.
+            freud, zero-padding will be removed.
 
-        ..warning::
+        .. warning::
             Comparison between two sets of environments is only made when both
             environments contain same number of particles.
 
@@ -574,17 +575,16 @@ cdef class EnvironmentCluster(_MatchEnv):
                 neighbor pairs to use in the calculation, or a dictionary of
                 `query arguments
                 <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
-                (Default value: None). Defines the particle neighborhoods to be
-                compared.
+                (Default value: None). Defines the particle neighborhoods for
+                comparing environments.
             env_neighbors (:class:`freud.locality.NeighborList` or dict, optional):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
                 neighbor pairs to use in the calculation, or a dictionary of
-                `query arguments
+                `query arguments.
                 <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
-                This argument is used to define the neighbors of the
-                environment that motifs are registered against. If ``None``,
-                the value provided for ``neighbors`` will be used. (Default
-                value: None).
+                This argument is used to define the environments of each particle.
+                If ``None``, the value provided for ``neighbors`` will be used.
+                (Default value: None).
             registration (bool, optional):
                 If True, first use brute force registration to orient one set
                 of environment vectors with respect to the other set such that
@@ -688,9 +688,10 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
         r"""Determine clusters of particles that match the motif provided by
         motif.
 
-        ..warning::
+        .. warning::
             Comparison between two sets of environments is only made
             when both environments contain same number of particles.
+
         Args:
             system:
                 Any object that is a valid argument to
