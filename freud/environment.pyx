@@ -512,7 +512,7 @@ cdef class _MatchEnv(_PairCompute):
 
 cdef class EnvironmentCluster(_MatchEnv):
     r"""Clusters particles according to whether their local environments match
-    or not, according to various shape matching metrics.
+    or not, according to various shape matching metrics :cite:`Teich2019`.
     """
 
     cdef freud._environment.EnvironmentCluster * thisptr
@@ -532,11 +532,19 @@ cdef class EnvironmentCluster(_MatchEnv):
                 global_search=False):
         r"""Determine clusters of particles with matching environments.
 
-        In general, it is recommended to specify a number of neighbors rather
-        than just a distance cutoff as part of your neighbor querying when
-        performing this computation. Using a distance cutoff alone could easily
-        lead to situations where a point doesn't match a cluster because a
-        required neighbor is just outside the cutoff.
+        Using a distance cutoff for :code:`'env_neighbors'` would
+        lead to situations where the :code:`'cluster_environments'`
+        contain different number of particles.
+        ..warning::
+
+            All vectors of :code:`'cluster_environments'` are defined with
+            respect to the origin. O vectors are only used to pad the cluster
+            vectors so that they have the same shape. In a future version of
+            freud, 0-padding will be removed.
+
+        ..warning::
+            Comparison between two sets of environments is only made when both
+            environments contain same number of particles.
 
         Example::
 
@@ -566,7 +574,8 @@ cdef class EnvironmentCluster(_MatchEnv):
                 neighbor pairs to use in the calculation, or a dictionary of
                 `query arguments
                 <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
-                (Default value: None).
+                (Default value: None). Defines the particle neighborhoods to be
+                compared.
             env_neighbors (:class:`freud.locality.NeighborList` or dict, optional):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
                 neighbor pairs to use in the calculation, or a dictionary of
@@ -583,8 +592,10 @@ cdef class EnvironmentCluster(_MatchEnv):
                 option incurs a significant performance penalty.
                 (Default value = :code:`False`)
             global_search (bool, optional):
-                 If True, do an exhaustive search wherein the environments of
+                If True, do an exhaustive search wherein the environments of
                 every single pair of particles in the simulation are compared.
+                Thus it is equivalent to including all particles in the system
+                in :code:`'neighbors'`.
                 If False, only compare the environments of neighboring
                 particles. Enabling this option incurs a significant
                 performance penalty. (Default value = :code:`False`)
@@ -659,15 +670,8 @@ cdef class EnvironmentCluster(_MatchEnv):
 
 
 cdef class EnvironmentMotifMatch(_MatchEnv):
-    r"""Find matches between local arrangements of a set of points and a provided motif.
-
-    In general, it is recommended to specify a number of neighbors rather than
-    just a distance cutoff as part of your neighbor querying when performing
-    this computation since it can otherwise be very sensitive. Specifically, it
-    is highly recommended that you choose a number of neighbors query that
-    requests at least as many neighbors as the size of the motif you intend to
-    test against. Otherwise, you will struggle to match the motif. However,
-    this is not currently enforced.
+    r"""Find matches between local arrangements of a set of points and
+    a provided motif :cite:`Teich2019`.
     """  # noqa: E501
 
     cdef freud._environment.EnvironmentMotifMatch * thisptr
@@ -684,6 +688,9 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
         r"""Determine clusters of particles that match the motif provided by
         motif.
 
+        ..warning::
+            Comparison between two sets of environments is only made
+            when both environments contain same number of particles.
         Args:
             system:
                 Any object that is a valid argument to
@@ -700,7 +707,8 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
                 neighbor pairs to use in the calculation, or a dictionary of
                 `query arguments
                 <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
-                (Default value: None).
+                (Default value: None). Defines the environment of the query
+                particles.
             registration (bool, optional):
                 If True, first use brute force registration to orient one set
                 of environment vectors with respect to the other set such that
