@@ -582,8 +582,8 @@ cdef class EnvironmentCluster(_MatchEnv):
                 neighbor pairs to use in the calculation, or a dictionary of
                 `query arguments
                 <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
-                (Default value: None). Defines the particle neighborhoods for
-                comparing environments.
+                Defines the particle neighborhoods for comparing
+                environments. (Default value: None). 
             env_neighbors (:class:`freud.locality.NeighborList` or dict, optional):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
                 neighbor pairs to use in the calculation, or a dictionary of
