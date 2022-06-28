@@ -512,7 +512,7 @@ cdef class _MatchEnv(_PairCompute):
 
 cdef class EnvironmentCluster(_MatchEnv):
     r"""Clusters particles according to whether their local environments match
-    or not, according to various shape matching metrics :cite:`Teich2019`.
+    or not, using various shape matching metrics defined in :cite:`Teich2019`.
     """
 
     cdef freud._environment.EnvironmentCluster * thisptr
