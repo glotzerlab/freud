@@ -550,7 +550,7 @@ cdef class EnvironmentCluster(_MatchEnv):
             freud, zero-padding will be removed.
 
         .. warning::
-        
+
             Comparison between two sets of environments is only made when both
             environments contain the same number of particles.
 
@@ -583,7 +583,7 @@ cdef class EnvironmentCluster(_MatchEnv):
                 `query arguments
                 <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
                 Defines the particle neighborhoods for comparing
-                environments. (Default value: None). 
+                environments. (Default value: None).
             env_neighbors (:class:`freud.locality.NeighborList` or dict, optional):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
                 neighbor pairs to use in the calculation, or a dictionary of
@@ -716,7 +716,7 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
                 `query arguments
                 <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
                 Defines the environment of the query particles.
-                (Default value: None). 
+                (Default value: None).
             registration (bool, optional):
                 If True, first use brute force registration to orient one set
                 of environment vectors with respect to the other set such that
