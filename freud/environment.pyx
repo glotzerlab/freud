@@ -715,8 +715,8 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
                 neighbor pairs to use in the calculation, or a dictionary of
                 `query arguments
                 <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
-                (Default value: None). Defines the environment of the query
-                particles.
+                Defines the environment of the query particles.
+                (Default value: None). 
             registration (bool, optional):
                 If True, first use brute force registration to orient one set
                 of environment vectors with respect to the other set such that
