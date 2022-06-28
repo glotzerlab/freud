@@ -513,6 +513,17 @@ cdef class _MatchEnv(_PairCompute):
 cdef class EnvironmentCluster(_MatchEnv):
     r"""Clusters particles according to whether their local environments match
     or not, using various shape matching metrics defined in :cite:`Teich2019`.
+
+    Note that two sets of neighbor lists are used. :code:`'env_neighbors'`
+    defines the query particles' environments. :code:`'neighbors'`
+    defines the neighborhood where query particles' environments are compared
+    to find the common clusters.
+
+    For example, with :code:`'env_neighbors = {num_neighbors: 12}'` and
+    :code:`'neighbors = {'num_neighbors': 15}'`, the :code:`compute` function
+    would construct an environment that contains 12 neighbors for a query
+    particle, and compare it with the environments of the particle's 15 nearest
+    neighbors.
     """
 
     cdef freud._environment.EnvironmentCluster * thisptr
