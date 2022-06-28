@@ -556,9 +556,9 @@ cdef class EnvironmentCluster(_MatchEnv):
         .. warning::
 
             All vectors of :code:`'cluster_environments'` are defined with
-            respect to the origin. Zero vectors are only used to pad the cluster
-            vectors so that they have the same shape. In a future version of
-            freud, zero-padding will be removed.
+            respect to the query particle. Zero vectors are only used to pad
+            the cluster vectors so that they have the same shape.
+            In a future version of freud, zero-padding will be removed.
 
         .. warning::
 
@@ -592,16 +592,16 @@ cdef class EnvironmentCluster(_MatchEnv):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
                 neighbor pairs to use in the calculation, or a dictionary of
                 `query arguments
-                <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
+                <https://freud.readthedocs.io/en/stable/topics/querying.html>`_.
                 Defines the particle neighborhoods for comparing
-                environments. (Default value: None).
+                environments (Default value: None).
             env_neighbors (:class:`freud.locality.NeighborList` or dict, optional):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
                 neighbor pairs to use in the calculation, or a dictionary of
-                `query arguments.
-                <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
+                `query arguments
+                <https://freud.readthedocs.io/en/stable/topics/querying.html>`_.
                 This argument is used to define the environments of each particle.
-                If ``None``, the value provided for ``neighbors`` will be used.
+                If ``None``, the value provided for ``neighbors`` will be used
                 (Default value: None).
             registration (bool, optional):
                 If True, first use brute force registration to orient one set
@@ -708,7 +708,7 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
 
         .. warning::
             Comparison between two sets of environments is only made
-            when both environments contain same number of particles.
+            when both environments contain the same number of particles.
 
         Args:
             system:
@@ -725,8 +725,8 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
                 neighbor pairs to use in the calculation, or a dictionary of
                 `query arguments
-                <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
-                Defines the environment of the query particles.
+                <https://freud.readthedocs.io/en/stable/topics/querying.html>`_.
+                Defines the environment of the query particles
                 (Default value: None).
             registration (bool, optional):
                 If True, first use brute force registration to orient one set
