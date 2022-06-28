@@ -532,9 +532,15 @@ cdef class EnvironmentCluster(_MatchEnv):
                 global_search=False):
         r"""Determine clusters of particles with matching environments.
 
-        Using a distance cutoff for :code:`'env_neighbors'` would
+        Using a distance cutoff for :code:`'env_neighbors'` could
         lead to situations where the :code:`'cluster_environments'`
-        contain different number of particles.
+        contain different numbers of particles. In this case, the
+        environments which have a number of neighbors less than
+        the environment with the maximum number of neighbors
+        :math:`k_{max}` will have their entry in `cluster_environments`
+        padded with zero vectors. For example, a cluster environment
+        with :math:`m < k`neighbors, will have :math:`k - m` zero
+        vectors at the end of its entry in `cluster_environments`.
 
         .. warning::
 
