@@ -678,7 +678,7 @@ cdef class EnvironmentCluster(_MatchEnv):
 
 cdef class EnvironmentMotifMatch(_MatchEnv):
     r"""Find matches between local arrangements of a set of points and
-    a provided motif :cite:`Teich2019`.
+    a provided motif, as done in :cite:`Teich2019`.
     """  # noqa: E501
 
     cdef freud._environment.EnvironmentMotifMatch * thisptr
