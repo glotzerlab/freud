@@ -550,8 +550,9 @@ cdef class EnvironmentCluster(_MatchEnv):
             freud, zero-padding will be removed.
 
         .. warning::
+        
             Comparison between two sets of environments is only made when both
-            environments contain same number of particles.
+            environments contain the same number of particles.
 
         Example::
 
