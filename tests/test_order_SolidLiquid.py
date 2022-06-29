@@ -35,16 +35,16 @@ class TestSolidLiquid:
 
         npt.assert_array_equal(nlist[:], comp.nlist[:])
 
-    comp_default = freud.order.SolidLiquid(6, q_threshold=0.7, solid_threshold=6)
-    comp_no_norm = freud.order.SolidLiquid(
-        6, q_threshold=0.3, solid_threshold=6, normalize_q=False
-    )
-
     @pytest.mark.parametrize(
         "comp, query_args",
         [
             (comp, query_args)
-            for comp in (comp_default, comp_no_norm)
+            for comp in (
+                freud.order.SolidLiquid(6, q_threshold=0.7, solid_threshold=6),
+                freud.order.SolidLiquid(
+                    6, q_threshold=0.3, solid_threshold=6, normalize_q=False
+                ),
+            )
             for query_args in (dict(r_max=2.0), dict(num_neighbors=12))
         ],
     )
@@ -56,6 +56,18 @@ class TestSolidLiquid:
         assert len(comp.cluster_sizes) == 1
         assert comp.cluster_sizes[0] == len(positions)
         npt.assert_array_equal(comp.num_connections, 12)
+
+    def test_identical_environments_compute(self):
+        # Covers the case where compute is called multiple times
+        box, positions = freud.data.UnitCell.fcc().generate_system(4, scale=2)
+
+        comp_default = freud.order.SolidLiquid(6, q_threshold=0.7, solid_threshold=6)
+        for query_args in (dict(r_max=2.0), dict(num_neighbors=12)):
+            comp_default.compute((box, positions), neighbors=query_args)
+            assert comp_default.largest_cluster_size == len(positions)
+            assert len(comp_default.cluster_sizes) == 1
+            assert comp_default.cluster_sizes[0] == len(positions)
+            npt.assert_array_equal(comp_default.num_connections, 12)
 
     def test_attribute_access(self):
         box, positions = freud.data.UnitCell.fcc().generate_system(4, scale=2)

@@ -97,10 +97,7 @@ class TestDiffractionPattern:
     )
     @pytest.mark.parametrize("grid_size", [255, 256])
     @pytest.mark.parametrize("output_size", [255, 256])
-    @pytest.mark.parametrize(
-        "view_orientation",
-        [view_orientation for view_orientation in rowan.random.rand(10)],
-    )
+    @pytest.mark.parametrize("view_orientation", rowan.random.rand(10))
     def test_center_ordered_unordered(
         self, box, positions, grid_size, output_size, view_orientation
     ):

@@ -40,40 +40,32 @@ class NeighborQueryTest:
         )
 
     @pytest.mark.parametrize(
-        "empty_points",
+        "points",
         [
             [],
             [[]],
             np.zeros(0, dtype=np.float32),
             np.zeros(shape=(0, 3), dtype=np.float32),
+            np.zeros(shape=(3), dtype=np.float32),
+            np.zeros(shape=(1, 2), dtype=np.float32),
+            np.zeros(shape=(1, 4), dtype=np.float32),
         ],
     )
-    def test_query_empty_points(self, empty_points):
+    def test_query_invalid_points(self, points):
         L = 10  # Box Dimensions
         r_max = 2.01  # Cutoff radius
         box = freud.box.Box.cube(L)
 
         # It's not allowed to have an empty NeighborQuery
+        # It's not allowed to have one point as a 1D array
+        # It's not allowed to have an array without shape (N, 3)
         with pytest.raises(ValueError):
-            self.build_query_object(box, empty_points, r_max)
+            self.build_query_object(box, points, r_max)
 
-    def test_query_validate_points(self):
+    def test_query_valid_points(self):
         L = 10  # Box Dimensions
         r_max = 2.01  # Cutoff radius
         box = freud.box.Box.cube(L)
-
-        # It's not allowed to have one point as a 1D array
-        with pytest.raises(ValueError):
-            points = np.zeros(shape=(3), dtype=np.float32)
-            self.build_query_object(box, points, r_max)
-
-        # It's not allowed to have an array without shape (N, 3)
-        with pytest.raises(ValueError):
-            points = np.zeros(shape=(1, 2), dtype=np.float32)
-            self.build_query_object(box, points, r_max)
-        with pytest.raises(ValueError):
-            points = np.zeros(shape=(1, 4), dtype=np.float32)
-            self.build_query_object(box, points, r_max)
 
         # Create a NeighborQuery with one point
         points = np.zeros(shape=(1, 3), dtype=np.float32)
@@ -528,10 +520,7 @@ class NeighborQueryTest:
 
         # Generate random points
         positions = box.wrap(L / 2 * np.random.rand(N, 3))
-        """ks = [1, 5]
-        if N > 10:
-            ks.extend([10, 50])
-        for k in ks:"""
+
         nq = self.build_query_object(box, positions, L / 10)
 
         nlist = nq.query(

@@ -135,6 +135,20 @@ class TestGaussianDensity:
         # This has discretization error as well as single-precision error
         assert np.isclose(np.sum(gd.density), np.sum(values), rtol=1e-4)
 
+    def test_sum_compute(self):
+        """Ensures that GaussianDensity can call compute
+        multiple times with different data"""
+        width = 20
+        r_max = 9.9
+        sigma = 2
+        gd = freud.density.GaussianDensity(width, r_max, sigma)
+
+        for num_points in [1, 10, 100]:
+            system = freud.data.make_random_system(width, num_points, is2D=False)
+            values = np.random.rand(num_points)
+            gd.compute(system, values)
+            assert np.isclose(np.sum(gd.density), np.sum(values), rtol=1e-4)
+
     def test_repr(self):
         gd = freud.density.GaussianDensity(100, 10.0, 0.1)
         assert str(gd) == str(eval(repr(gd)))
