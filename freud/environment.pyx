@@ -521,8 +521,8 @@ cdef class EnvironmentCluster(_MatchEnv):
 
     For example, with :code:`'env_neighbors = {num_neighbors: 12}'` and
     :code:`'neighbors = {'num_neighbors': 15}'`, the :code:`compute` function
-    would construct an environment that contains 12 neighbors for a query
-    particle, and compare it with the environments of the particle's 15 nearest
+    constructs an environment that contains 12 neighbors for each query
+    particle, and compares it with the environments of the particle's 15 nearest
     neighbors.
     """
 
