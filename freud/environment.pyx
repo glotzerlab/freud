@@ -600,7 +600,7 @@ cdef class EnvironmentCluster(_MatchEnv):
                 neighbor pairs to use in the calculation, or a dictionary of
                 `query arguments
                 <https://freud.readthedocs.io/en/stable/topics/querying.html>`_.
-                This argument is used to define the environments of each particle.
+                Defines the neighbors used as the environment of each particle.
                 If ``None``, the value provided for ``neighbors`` will be used
                 (Default value: None).
             registration (bool, optional):
