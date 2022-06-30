@@ -514,10 +514,10 @@ cdef class EnvironmentCluster(_MatchEnv):
     r"""Clusters particles according to whether their local environments match
     or not, using various shape matching metrics defined in :cite:`Teich2019`.
 
-    Note that two sets of neighbor lists are used. :code:`'env_neighbors'`
-    defines the query particles' environments. :code:`'neighbors'`
+    Note that two sets of neighbor lists are used: :code:`'env_neighbors'`
+    defines the query particles' environments, and :code:`'neighbors'`
     defines the neighborhood where query particles' environments are compared
-    to find the common clusters.
+    to determine the clusters.
 
     For example, with :code:`'env_neighbors = {num_neighbors: 12}'` and
     :code:`'neighbors = {'num_neighbors': 15}'`, the :code:`compute` function
