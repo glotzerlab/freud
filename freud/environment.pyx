@@ -611,7 +611,7 @@ cdef class EnvironmentCluster(_MatchEnv):
                 (Default value = :code:`False`)
             global_search (bool, optional):
                 If True, do an exhaustive search wherein the environments of
-                every single pair of particles in the simulation are compared.
+                every single pair of particles are compared.
                 Thus it is equivalent to including all particles in the system
                 in :code:`'neighbors'`.
                 If False, only compare the environments of neighboring
