@@ -562,7 +562,7 @@ cdef class EnvironmentCluster(_MatchEnv):
 
         .. warning::
 
-            Comparison between two sets of environments is only made when both
+            Comparisons between two environments are only made when both
             environments contain the same number of particles.
 
         Example::
