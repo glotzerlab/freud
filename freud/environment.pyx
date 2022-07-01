@@ -706,8 +706,9 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
         r"""Determine which particles' local environment matches given environment motif.
 
         .. warning::
-            Comparison between two sets of environments is only made
-            when both environments contain the same number of particles.
+
+            Comparisons between two environments are only made when both
+            environments contain the same number of particles.
 
         Args:
             system:
