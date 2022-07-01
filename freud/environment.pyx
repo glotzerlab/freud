@@ -703,8 +703,7 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
 
     def compute(self, system, motif, threshold, neighbors=None,
                 registration=False):
-        r"""Determine clusters of particles that match the motif provided by
-        motif.
+        r"""Determine which particles' local environment matches given environment motif.
 
         .. warning::
             Comparison between two sets of environments is only made
