@@ -532,26 +532,41 @@ cdef class EnvironmentCluster(_MatchEnv):
                 global_search=False):
         r"""Determine clusters of particles with matching environments.
 
-        Note that two sets of neighbor lists are used: :code:`env_neighbors`
-        defines the query particles' environments, and :code:`neighbors`
-        defines the neighborhood where query particles' environments are compared
-        to determine the clusters.
+        An environment is defined by the bond vectors between a particle and its
+        neighbors as defined by :code:`env_neighbors`.
+        For example, :code:`env_neighbors= {'num_neighbors': 8}` means that every
+        particle's local environment is defined by its 8 nearest neighbors.
+        Then, each particle's environment is compared to the environments of a
+        selected list of other particles in the system, controlled by the
+        :code:`neighbors` parameter. For example, :code:`neighbors={'r_max': 3.0}`
+        means that the environment of each particle will be compared to the
+        environment of every particle within a distance of 3.0.
 
-        For example, with :code:`env_neighbors = {'num_neighbors': 12}` and
-        :code:`neighbors = {'num_neighbors': 15}`, the :code:`compute` function
-        constructs an environment that contains 12 neighbors for each query
-        particle, and compares it with the environments of the particle's 15
-        nearest neighbors.
+        Two environments are compared using `point-set registration
+        <https://en.wikipedia.org/wiki/Point-set_registration)>`_.
+        Specifically, we use the `Kabsch algorithm
+        <https://en.wikipedia.org/wiki/Kabsch_algorithm>`_ to find the optimal
+        rotation matrix mapping one environment onto another. The Kabsch
+        algorithm assumes a one-to-one correspondence between points in the two
+        environments. However, we typically do not know which point in one environment
+        corresponds to a particular point in the other environment. The brute force
+        solution is to try all possible correspondences, but the resulting
+        combinatorial explosion makes this problem infeasible, so we use a tolerance
+        :code:`threshold` to terminate the search when we have found a permutation
+        of points that results in a sufficiently low RMSD.
 
-        Using a distance cutoff for :code:`env_neighbors` could
-        lead to situations where the :code:`cluster_environments`
-        contain different numbers of particles. In this case, the
-        environments which have a number of neighbors less than
-        the environment with the maximum number of neighbors
-        :math:`k_{max}` will have their entry in `cluster_environments`
-        padded with zero vectors. For example, a cluster environment
-        with :math:`m < k` neighbors, will have :math:`k - m` zero
-        vectors at the end of its entry in `cluster_environments`.
+        .. note::
+
+            Using a distance cutoff for :code:`env_neighbors` could
+            lead to situations where the :code:`cluster_environments`
+            contain different numbers of particles. In this case, the
+            environments which have a number of neighbors less than
+            the environment with the maximum number of neighbors
+            :math:`k_{max}` will have their entry in :code:`cluster_environments`
+            padded with zero vectors. For example, a cluster environment
+            with :math:`m < k` neighbors, will have :math:`k - m` zero
+            vectors at the end of its entry in :code:`cluster_environments`.
+
 
         .. warning::
 
@@ -564,6 +579,8 @@ cdef class EnvironmentCluster(_MatchEnv):
 
             Comparisons between two environments are only made when both
             environments contain the same number of particles.
+            However, this is not currently enforced, so no warning will be given
+            at runtime if such mismatched environments are provided.
 
         Example::
 
@@ -690,6 +707,13 @@ cdef class EnvironmentCluster(_MatchEnv):
 cdef class EnvironmentMotifMatch(_MatchEnv):
     r"""Find matches between local arrangements of a set of points and
     a provided motif, as done in :cite:`Teich2019`.
+
+    A particle's environment can only match the motif if it contains the
+    same number of particles as the motif. Any environment with a
+    different number of particles than the motif will always fail to match
+    the motif. See :class:`freud.environment.EnvironmentCluster.compute` for
+    the algorithm we use.
+
     """  # noqa: E501
 
     cdef freud._environment.EnvironmentMotifMatch * thisptr
@@ -709,6 +733,8 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
 
             Comparisons between two environments are only made when both
             environments contain the same number of particles.
+            However, this is not currently enforced, so no warning will be given
+            at runtime if such mismatched environments are provided.
 
         Args:
             system:
