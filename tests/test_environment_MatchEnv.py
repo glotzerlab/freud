@@ -443,6 +443,18 @@ class TestEnvironmentMotifMatch:
             assert not matches[i]
         assert matches[len(motif)]
 
+    def test_warning_motif_zeros(self):
+        """Test that using a motif containing the zero vector raises warnings."""
+        motif = [[1, 0, 0], [0, 1, 0], [-1, 0, 0], [0, -1, 0], [0, 0, 0]]
+
+        num_neighbors = 4
+
+        box = freud.box.Box.square(3)
+        match = freud.environment.EnvironmentMotifMatch()
+        query_args = dict(num_neighbors=num_neighbors)
+        with pytest.warns(RuntimeWarning):
+            match.compute((box, motif), motif, 0.1, neighbors=query_args)
+
 
 class TestEnvironmentRMSDMinimizer:
     def test_api(self):

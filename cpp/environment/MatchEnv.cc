@@ -683,6 +683,10 @@ void EnvironmentMotifMatch::compute(const freud::locality::NeighborQuery* nq,
     // this has to have ONE MORE environment than there are actual particles,
     // because we're inserting the motif into it.
     EnvDisjointSet dj(Np + 1);
+
+    // The NeighborList may contain different numbers of neighbors for each particle, so
+    // we must determine the maximum programmatically to ensure that the disjoint set
+    // operations always allocate enough memory for the largest possible local environment.
     auto counts = nlist.getCounts();
     auto* begin = counts.get();
     auto* end = begin + counts.size();
