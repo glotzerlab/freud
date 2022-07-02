@@ -550,7 +550,7 @@ cdef class EnvironmentCluster(_MatchEnv):
         the environment with the maximum number of neighbors
         :math:`k_{max}` will have their entry in `cluster_environments`
         padded with zero vectors. For example, a cluster environment
-        with :math:`m < k`neighbors, will have :math:`k - m` zero
+        with :math:`m < k` neighbors, will have :math:`k - m` zero
         vectors at the end of its entry in `cluster_environments`.
 
         .. warning::
