@@ -513,17 +513,6 @@ cdef class _MatchEnv(_PairCompute):
 cdef class EnvironmentCluster(_MatchEnv):
     r"""Clusters particles according to whether their local environments match
     or not, using various shape matching metrics defined in :cite:`Teich2019`.
-
-    Note that two sets of neighbor lists are used: :code:`'env_neighbors'`
-    defines the query particles' environments, and :code:`'neighbors'`
-    defines the neighborhood where query particles' environments are compared
-    to determine the clusters.
-
-    For example, with :code:`'env_neighbors = {num_neighbors: 12}'` and
-    :code:`'neighbors = {'num_neighbors': 15}'`, the :code:`compute` function
-    constructs an environment that contains 12 neighbors for each query
-    particle, and compares it with the environments of the particle's 15 nearest
-    neighbors.
     """
 
     cdef freud._environment.EnvironmentCluster * thisptr
@@ -543,8 +532,19 @@ cdef class EnvironmentCluster(_MatchEnv):
                 global_search=False):
         r"""Determine clusters of particles with matching environments.
 
-        Using a distance cutoff for :code:`'env_neighbors'` could
-        lead to situations where the :code:`'cluster_environments'`
+        Note that two sets of neighbor lists are used: :code:`env_neighbors`
+        defines the query particles' environments, and :code:`neighbors`
+        defines the neighborhood where query particles' environments are compared
+        to determine the clusters.
+
+        For example, with :code:`env_neighbors = {'num_neighbors': 12}` and
+        :code:`neighbors = {'num_neighbors': 15}`, the :code:`compute` function
+        constructs an environment that contains 12 neighbors for each query
+        particle, and compares it with the environments of the particle's 15
+        nearest neighbors.
+
+        Using a distance cutoff for :code:`env_neighbors` could
+        lead to situations where the :code:`cluster_environments`
         contain different numbers of particles. In this case, the
         environments which have a number of neighbors less than
         the environment with the maximum number of neighbors
@@ -555,7 +555,7 @@ cdef class EnvironmentCluster(_MatchEnv):
 
         .. warning::
 
-            All vectors of :code:`'cluster_environments'` are defined with
+            All vectors of :code:`cluster_environments` are defined with
             respect to the query particle. Zero vectors are only used to pad
             the cluster vectors so that they have the same shape.
             In a future version of freud, zero-padding will be removed.
