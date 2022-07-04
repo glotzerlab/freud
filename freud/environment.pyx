@@ -570,9 +570,10 @@ cdef class EnvironmentCluster(_MatchEnv):
 
         .. warning::
 
-            All vectors of :code:`cluster_environments` are defined with
-            respect to the query particle. Zero vectors are only used to pad
-            the cluster vectors so that they have the same shape.
+            All vectors of :code:`cluster_environments` and :code:`point_environments`
+            are defined with respect to the query particle.
+            Zero vectors are only used to pad the cluster vectors so that they
+            have the same shape.
             In a future version of freud, zero-padding will be removed.
 
         .. warning::
@@ -648,6 +649,14 @@ cdef class EnvironmentCluster(_MatchEnv):
         if env_neighbors is None:
             env_neighbors = neighbors
         env_nlist, env_qargs = self._resolve_neighbors(env_neighbors)
+
+        if global_search:
+            warnings.warn(
+                "The global search option is deprecated and will be removed in "
+                "version 3.0. If you want this behavior, use a NeighborList "
+                "composed of all pairs of particles in the system as the `neighbors`.",
+                FutureWarning
+            )
 
         self.thisptr.compute(
             nq.get_ptr(), nlist.get_ptr(), dereference(qargs.thisptr),
@@ -727,7 +736,8 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
 
     def compute(self, system, motif, threshold, neighbors=None,
                 registration=False):
-        r"""Determine which particles' local environment matches given environment motif.
+        r"""Determine which particles have local environments
+            matching the given environment motif.
 
         .. warning::
 
