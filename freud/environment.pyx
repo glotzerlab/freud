@@ -771,6 +771,19 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
             self._preprocess_arguments(system, neighbors=neighbors)
 
         motif = freud.util._convert_array(motif, shape=(None, 3))
+        if (motif == 0).all(axis=1).any():
+            warnings.warn(
+                "You are attempting to match a motif containing the zero "
+                "vector. This is likely because you are providing a motif "
+                "created using EnvironmentCluster, which ensures that all "
+                "computed environments are the same size by padding smaller "
+                "environments with the 0 vector. You should remove these "
+                "vectors from the motif before running using "
+                "EnvironmentMotifMatch.compute, since these zero vectors are "
+                "likely to prevent you from finding a match.",
+                RuntimeWarning
+            )
+
         cdef const float[:, ::1] l_motif = motif
         cdef unsigned int nRef = l_motif.shape[0]
 
