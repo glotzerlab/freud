@@ -1,6 +1,7 @@
 // Copyright (c) 2010-2020 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
+#include <algorithm>
 #include <sstream>
 #include <stdexcept>
 
@@ -682,10 +683,18 @@ void EnvironmentMotifMatch::compute(const freud::locality::NeighborQuery* nq,
     // this has to have ONE MORE environment than there are actual particles,
     // because we're inserting the motif into it.
     EnvDisjointSet dj(Np + 1);
-    dj.m_max_num_neigh = motif_size;
+
+    // The NeighborList may contain different numbers of neighbors for each particle, so
+    // we must determine the maximum programmatically to ensure that the disjoint set
+    // operations always allocate enough memory for the largest possible local environment.
+    auto counts = nlist.getCounts();
+    auto* begin = counts.get();
+    auto* end = begin + counts.size();
+    auto max_num_neigh = *std::max_element(begin, end);
+    dj.m_max_num_neigh = max_num_neigh;
 
     // reallocate the m_point_environments array
-    m_point_environments.prepare({Np, motif_size});
+    m_point_environments.prepare({Np, max_num_neigh});
 
     // create the environment characterized by motif. Index it as 0.
     // set the IGNORE flag to true, since this is not an environment we have
