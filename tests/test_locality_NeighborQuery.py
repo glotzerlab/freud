@@ -42,11 +42,14 @@ class NeighborQueryTest:
     @pytest.mark.parametrize(
         "points",
         [
+            # It's not allowed to have an empty NeighborQuery
             [],
             [[]],
             np.zeros(0, dtype=np.float32),
             np.zeros(shape=(0, 3), dtype=np.float32),
+            # It's not allowed to have one point as a 1D array
             np.zeros(shape=(3), dtype=np.float32),
+            # It's not allowed to have an array without shape (N, 3)
             np.zeros(shape=(1, 2), dtype=np.float32),
             np.zeros(shape=(1, 4), dtype=np.float32),
         ],
@@ -56,9 +59,6 @@ class NeighborQueryTest:
         r_max = 2.01  # Cutoff radius
         box = freud.box.Box.cube(L)
 
-        # It's not allowed to have an empty NeighborQuery
-        # It's not allowed to have one point as a 1D array
-        # It's not allowed to have an array without shape (N, 3)
         with pytest.raises(ValueError):
             self.build_query_object(box, points, r_max)
 
@@ -375,16 +375,13 @@ class NeighborQueryTest:
 
         assert ij1 == ij2
 
-    i = ("i", list(range(10)))
-
-    @pytest.mark.parametrize(*i)
-    def test_exhaustive_search(self, i):
+    @pytest.mark.parametrize("seed", range(10))
+    def test_exhaustive_search(self, seed):
         L, r_max, N = (10, 1.999, 32)
 
         box = freud.box.Box.cube(L)
-        seed = 0
 
-        _, points = freud.data.make_random_system(L, N, seed=seed + i)
+        _, points = freud.data.make_random_system(L, N, seed=seed)
         all_vectors = points[:, np.newaxis, :] - points[np.newaxis, :, :]
         all_vectors = box.wrap(all_vectors.reshape((-1, 3))).reshape(all_vectors.shape)
         all_rsqs = np.sum(all_vectors**2, axis=-1)
@@ -402,26 +399,16 @@ class NeighborQueryTest:
         counts = Counter([x[1] for x in result])
         counts_list = [counts[j] for j in range(N)]
 
-        try:
-            assert exhaustive_ijs == ijs
-        except AssertionError:
-            print(f"Failed neighbors, random seed: {seed} (i={i})")
-            raise
+        assert exhaustive_ijs == ijs
+        assert exhaustive_counts_list == counts_list
 
-        try:
-            assert exhaustive_counts_list == counts_list
-        except AssertionError:
-            print(f"Failed neighbor counts, random seed: {seed} (i={i})")
-            raise
-
-    @pytest.mark.parametrize(*i)
-    def test_exhaustive_search_asymmetric(self, i):
+    @pytest.mark.parametrize("seed", range(10))
+    def test_exhaustive_search_asymmetric(self, seed):
         L, r_max, N = (10, 1.999, 32)
 
         box = freud.box.Box.cube(L)
-        seed = 0
 
-        np.random.seed(seed + i)
+        np.random.seed(seed)
         points = np.random.uniform(-L / 2, L / 2, (N, 3)).astype(np.float32)
         points2 = np.random.uniform(-L / 2, L / 2, (N // 2, 3)).astype(np.float32)
         all_vectors = points[:, np.newaxis, :] - points2[np.newaxis, :, :]
@@ -441,17 +428,8 @@ class NeighborQueryTest:
         counts = Counter([x[0] for x in result])
         counts_list = [counts[j] for j in range(N)]
 
-        try:
-            assert exhaustive_ijs == ijs
-        except AssertionError:
-            print(f"Failed neighbors, random seed: {seed} (i={i})")
-            raise
-
-        try:
-            assert exhaustive_counts_list == counts_list
-        except AssertionError:
-            print(f"Failed neighbor counts, random seed: {seed} (i={i})")
-            raise
+        assert exhaustive_ijs == ijs
+        assert exhaustive_counts_list == counts_list
 
     def test_attributes(self):
         """Ensure that mixing old and new APIs raises an error."""
@@ -526,9 +504,7 @@ class NeighborQueryTest:
         nlist = nq.query(
             positions, dict(num_neighbors=k, exclude_ii=True)
         ).toNeighborList()
-        assert len(nlist) == k * N, (
-            "Wrong nlist length for N = {}," "num_neighbors = {}, length = {}"
-        ).format(N, k, len(nlist))
+        assert len(nlist) == k * N
         nlist_array = nlist[:]
         for i in range(N):
             assert not ([i, i] == nlist_array).all(axis=1).any()
@@ -536,9 +512,7 @@ class NeighborQueryTest:
         nlist = nq.query(
             positions, dict(num_neighbors=k, exclude_ii=False)
         ).toNeighborList()
-        assert len(nlist) == k * N, (
-            "Wrong nlist length for N = {}, " "num_neighbors = {}, length = {}"
-        ).format(N, k, len(nlist))
+        assert len(nlist) == k * N
         nlist_array = nlist[:]
         for i in range(N):
             assert ([i, i] == nlist_array).all(axis=1).any()

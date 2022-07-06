@@ -65,7 +65,7 @@ class TestCorrelationFunction:
         box, points = freud.data.make_random_system(box_size, num_points, is2D=True)
         ang = np.random.random_sample(num_points).astype(np.float64) * 2.0 * np.pi
         comp = np.exp(1j * ang)
-        correct = np.zeros(bins, dtype=np.complex64)
+        expected = np.zeros(bins, dtype=np.complex64)
         absolute_tolerance = 0.1
         # first bin is bad
         test_set = util.make_raw_query_nlist_test_set(
@@ -74,14 +74,14 @@ class TestCorrelationFunction:
         for nq, neighbors in test_set:
             ocf = freud.density.CorrelationFunction(bins, r_max)
             ocf.compute(nq, comp, neighbors=neighbors)
-            npt.assert_allclose(ocf.correlation, correct, atol=absolute_tolerance)
+            npt.assert_allclose(ocf.correlation, expected, atol=absolute_tolerance)
             assert box == ocf.box
 
             # Test setting that the reset flag works as expected.
             ocf.compute(nq, comp, neighbors=neighbors, reset=False)
-            npt.assert_allclose(ocf.correlation, correct, atol=absolute_tolerance)
+            npt.assert_allclose(ocf.correlation, expected, atol=absolute_tolerance)
             ocf.compute(nq, comp, neighbors=neighbors)
-            npt.assert_allclose(ocf.correlation, correct, atol=absolute_tolerance)
+            npt.assert_allclose(ocf.correlation, expected, atol=absolute_tolerance)
 
     def test_random_points_real(self):
         r_max = 10.0
@@ -90,7 +90,7 @@ class TestCorrelationFunction:
         box_size = r_max * 3.1
         box, points = freud.data.make_random_system(box_size, num_points, is2D=True)
         ang = np.random.random_sample(num_points).astype(np.float64) - 0.5
-        correct = np.zeros(bins, dtype=np.float64)
+        expected = np.zeros(bins, dtype=np.float64)
         absolute_tolerance = 0.1
         # first bin is bad
         test_set = util.make_raw_query_nlist_test_set(
@@ -99,15 +99,15 @@ class TestCorrelationFunction:
         for nq, neighbors in test_set:
             ocf = freud.density.CorrelationFunction(bins, r_max)
             ocf.compute(nq, ang, neighbors=neighbors, reset=False)
-            npt.assert_allclose(ocf.correlation, correct, atol=absolute_tolerance)
+            npt.assert_allclose(ocf.correlation, expected, atol=absolute_tolerance)
             ocf.compute(nq, ang, neighbors=neighbors)
-            npt.assert_allclose(ocf.correlation, correct, atol=absolute_tolerance)
+            npt.assert_allclose(ocf.correlation, expected, atol=absolute_tolerance)
             ocf.compute(nq, ang, points, ang, neighbors=neighbors, reset=False)
-            npt.assert_allclose(ocf.correlation, correct, atol=absolute_tolerance)
+            npt.assert_allclose(ocf.correlation, expected, atol=absolute_tolerance)
             ocf.compute(nq, ang, query_values=ang, neighbors=neighbors, reset=False)
-            npt.assert_allclose(ocf.correlation, correct, atol=absolute_tolerance)
+            npt.assert_allclose(ocf.correlation, expected, atol=absolute_tolerance)
             ocf.compute(nq, ang, neighbors=neighbors)
-            npt.assert_allclose(ocf.correlation, correct, atol=absolute_tolerance)
+            npt.assert_allclose(ocf.correlation, expected, atol=absolute_tolerance)
             assert freud.box.Box.square(box_size) == ocf.box
 
     def test_zero_points_complex(self):
@@ -126,11 +126,11 @@ class TestCorrelationFunction:
             neighbors={"r_max": r_max, "exclude_ii": True},
         )
 
-        correct = np.ones(int(r_max / dr), dtype=np.float32) + 1j * np.zeros(
+        expected = np.ones(int(r_max / dr), dtype=np.float32) + 1j * np.zeros(
             int(r_max / dr), dtype=np.float32
         )
         absolute_tolerance = 0.1
-        npt.assert_allclose(ocf.correlation, correct, atol=absolute_tolerance)
+        npt.assert_allclose(ocf.correlation, expected, atol=absolute_tolerance)
 
     def test_zero_points_real(self):
         r_max = 10.0
@@ -142,9 +142,9 @@ class TestCorrelationFunction:
         ocf = freud.density.CorrelationFunction(r_max, dr)
         ocf.compute((box, points), ang)
 
-        correct = np.zeros(int(r_max / dr), dtype=np.float32)
+        expected = np.zeros(int(r_max / dr), dtype=np.float32)
         absolute_tolerance = 0.1
-        npt.assert_allclose(ocf.correlation, correct, atol=absolute_tolerance)
+        npt.assert_allclose(ocf.correlation, expected, atol=absolute_tolerance)
 
     def test_counts(self):
         r_max = 10.0
@@ -164,14 +164,14 @@ class TestCorrelationFunction:
         )
 
         # Subtract len(points) to exclude the zero i-i distances
-        correct = np.sum(vector_lengths < r_max) - len(points)
+        expected = np.sum(vector_lengths < r_max) - len(points)
         ocf = freud.density.CorrelationFunction(bins, r_max)
         ocf.compute(
             (freud.box.Box.square(box_size), points),
             comp,
             neighbors={"r_max": r_max, "exclude_ii": True},
         )
-        assert np.sum(ocf.bin_counts) == correct
+        assert np.sum(ocf.bin_counts) == expected
 
     @pytest.mark.skip(reason="Skip slow summation test.")
     def test_summation(self):
@@ -395,7 +395,7 @@ class TestCorrelationFunction:
                 query_points.append(point)
                 query_values.append(value_func(point))
 
-        supposed_correlation = np.zeros(ocf.bin_centers.shape)
+        expected_correlation = np.zeros(ocf.bin_centers.shape)
 
         # points are within distances closer than dr, so their impact on
         # the result should be minimal.
@@ -411,9 +411,8 @@ class TestCorrelationFunction:
                 values = [rv] * 4
 
                 ocf.compute(nq, values, query_points, query_values, neighbors=neighbors)
-                correct = supposed_correlation
 
-                npt.assert_allclose(ocf.correlation, correct, atol=1e-6)
+                npt.assert_allclose(ocf.correlation, expected_correlation, atol=1e-6)
 
     @pytest.fixture(scope="session")
     def correlation_calc(self):
@@ -427,7 +426,7 @@ class TestCorrelationFunction:
 
         query_points = []
         query_values = []
-        supposed_correlation = []
+        expected_correlation = []
         N = 300
 
         # We are generating the values so that they are sine wave from 0 to 2pi
@@ -439,10 +438,10 @@ class TestCorrelationFunction:
                     [r * np.cos(2 * np.pi * k / N), r * np.sin(2 * np.pi * k / N), 0]
                 )
                 query_values.append(value_func(r))
-            supposed_correlation.append(value_func(r))
+            expected_correlation.append(value_func(r))
 
-        supposed_correlation = np.array(supposed_correlation)
-        return (query_points, query_values, supposed_correlation)
+        expected_correlation = np.array(expected_correlation)
+        return (query_points, query_values, expected_correlation)
 
     @pytest.mark.parametrize("rv", [0, 1, 2, 7])
     def test_points_ne_query_points_real(self, rv, correlation_calc):
@@ -454,7 +453,7 @@ class TestCorrelationFunction:
 
         ocf = freud.density.CorrelationFunction(bins, r_max)
 
-        query_points, query_values, supposed_correlation = correlation_calc
+        query_points, query_values, expected_correlation = correlation_calc
 
         # points are within distances closer than dr, so their impact on
         # the result should be minimal.
@@ -469,9 +468,9 @@ class TestCorrelationFunction:
             values = [rv] * 4
 
             ocf.compute(nq, values, query_points, query_values, neighbors=neighbors)
-            correct = supposed_correlation * rv
+            expected = expected_correlation * rv
 
-            npt.assert_allclose(ocf.correlation, correct, atol=1e-6)
+            npt.assert_allclose(ocf.correlation, expected, atol=1e-6)
 
 
 class TestCorrelationFunctionManagedArray(ManagedArrayTestBase):

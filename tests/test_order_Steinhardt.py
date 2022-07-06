@@ -86,8 +86,7 @@ class TestSteinhardt:
     @pytest.mark.parametrize("even_l", range(0, 20, 2))
     def test_l_axis_aligned_even(self, even_l):
         # This test has three points along the z-axis. By construction,
-        # all three points should
-        # have perfect order for even l.
+        # all three points should have perfect order for even l.
         box = freud.box.Box.cube(10)
         positions = [[0, 0, -1], [0, 0, 0], [0, 0, 1]]
 
@@ -282,8 +281,8 @@ class TestSteinhardt:
 
         npt.assert_array_almost_equal(first_result, second_result)
 
-    @pytest.mark.parametrize("i", range(10))
-    def test_rotational_invariance(self, i):
+    @pytest.mark.parametrize("seed", range(10))
+    def test_rotational_invariance(self, seed):
         box = freud.box.Box.cube(10)
         positions = np.array(
             [
@@ -320,7 +319,7 @@ class TestSteinhardt:
         w6.compute((box, positions), neighbors=nlist)
         w6_unrotated_order = w6.particle_order[0]
 
-        np.random.seed(i)
+        np.random.seed(seed)
         quat = rowan.random.rand()
         positions_rotated = rowan.rotate(quat, positions)
 
