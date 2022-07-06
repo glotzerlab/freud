@@ -78,7 +78,14 @@ void StaticStructureFactorDebye::accumulate(const freud::locality::NeighborQuery
             double S_k = 0.0;
             for (const auto& distance : distances)
             {
-                S_k += util::sinc(k * distance);
+                if (box.is2D())
+                {
+                    S_k += std::cyl_bessel_j(0, k * distance);
+                }
+                else
+                {
+                    S_k += util::sinc(k * distance);
+                }
             }
             S_k /= static_cast<double>(n_total);
             m_local_structure_factor.increment(k_index, S_k);
