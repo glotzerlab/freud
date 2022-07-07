@@ -62,17 +62,19 @@ class NeighborQueryTest:
         with pytest.raises(ValueError):
             self.build_query_object(box, points, r_max)
 
-    def test_query_valid_points(self):
+    @pytest.mark.parametrize(
+        "points",
+        [
+            # Create a NeighborQuery with one point
+            np.zeros(shape=(1, 3), dtype=np.float32),
+            # Create a NeighborQuery with ten points
+            np.zeros(shape=(10, 3), dtype=np.float32),
+        ],
+    )
+    def test_query_valid_points(self, points):
         L = 10  # Box Dimensions
         r_max = 2.01  # Cutoff radius
         box = freud.box.Box.cube(L)
-
-        # Create a NeighborQuery with one point
-        points = np.zeros(shape=(1, 3), dtype=np.float32)
-        self.build_query_object(box, points, r_max)
-
-        # Create a NeighborQuery with ten points
-        points = np.zeros(shape=(10, 3), dtype=np.float32)
         self.build_query_object(box, points, r_max)
 
     def test_query_ball(self):
@@ -486,10 +488,8 @@ class NeighborQueryTest:
         result = list(nq.query(positions[[0]], dict(mode="nearest", num_neighbors=3)))
         assert get_point_neighbors(result, 0) == {0, 1, 2}
 
-    inputs = {10: [1, 5], 100: [1, 5, 10, 50], 500: [1, 5, 10, 50]}
-
     @pytest.mark.parametrize(
-        "N, k", [(N, k) for N, value in inputs.items() for k in value]
+        "N, k", [(N, k) for N in (10, 100, 500) for k in (1, 5, 10, 50) if k < N]
     )
     def test_random_system_query(self, N, k):
         np.random.seed(0)
