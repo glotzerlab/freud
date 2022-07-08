@@ -1,7 +1,10 @@
 // Copyright (c) 2010-2020 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#include <bessel-library/bessel-library.hpp>
+#ifdef __clang__
+#include <bessel-library.hpp>
+#else
+#endif
 #include <cmath>
 #include <limits>
 #include <stdexcept>
