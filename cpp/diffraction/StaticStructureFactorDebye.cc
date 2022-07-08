@@ -87,7 +87,7 @@ void StaticStructureFactorDebye::accumulate(const freud::locality::NeighborQuery
                     // other library's implementation is unique only for complex
                     // numbers, otherwise it just tries to call
                     // std::cyl_bessel_j.
-                    S_k += bessel::cyl_j0(std::complex<double>(k * distance));
+                    S_k += std::real(bessel::cyl_j0(std::complex<double>(k * distance)));
 #else
                     S_k += std::cyl_bessel_j(0, k * distance);
 #endif
