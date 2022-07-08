@@ -10,3 +10,6 @@
 [submodule "doc/source/gettingstarted/examples"]
 	path = doc/source/gettingstarted/examples
 	url = https://github.com/glotzerlab/freud-examples.git
+[submodule "extern/bessel-library"]
+	path = extern/bessel-library
+	url = https://github.com/jodesarro/bessel-library.git
