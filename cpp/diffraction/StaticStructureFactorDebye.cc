@@ -4,6 +4,7 @@
 #include <cmath>
 #include <limits>
 #include <stdexcept>
+#include <bessel-library/bessel-library.hpp>
 
 #include "NeighborQuery.h"
 #include "StaticStructureFactorDebye.h"
@@ -80,7 +81,16 @@ void StaticStructureFactorDebye::accumulate(const freud::locality::NeighborQuery
             {
                 if (box.is2D())
                 {
+                    #ifdef __clang__
+                    // clang doesn't support the special math functions, use
+                    // other library instead. The cast is needed because the
+                    // other library's implementation is unique only for complex
+                    // numbers, otherwise it just tries to call
+                    // std::cyl_bessel_j.
+                    S_k += bessel::cyl_j0(std::complex<double>(k * distance));
+                    #else
                     S_k += std::cyl_bessel_j(0, k * distance);
+                    #endif
                 }
                 else
                 {
