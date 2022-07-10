@@ -61,6 +61,7 @@ class TestDiffractionPattern:
         diff = dp.diffraction
         vals = dp.k_values
         vecs = dp.k_vectors
+        N = dp.N_points
         dp.plot()
         dp._repr_png_()
 
@@ -70,6 +71,7 @@ class TestDiffractionPattern:
         assert not np.array_equal(dp.diffraction, diff)
         assert not np.array_equal(dp.k_values, vals)
         assert not np.array_equal(dp.k_vectors, vecs)
+        assert not np.array_equal(dp.N_points, N)
 
     def test_attribute_shapes(self):
         grid_size = 234
@@ -84,6 +86,7 @@ class TestDiffractionPattern:
         assert dp.k_values.shape == (output_size,)
         assert dp.k_vectors.shape == (output_size, output_size, 3)
         assert dp.to_image().shape == (output_size, output_size, 4)
+        assert dp.N_points == len(positions)
 
     def test_center_unordered(self):
         """Assert the center of the image is an intensity peak for an
@@ -113,9 +116,9 @@ class TestDiffractionPattern:
                     center_index = (output_size // 2, output_size // 2)
                     assert max_index == center_index
 
-                    # The value at k=0 should be 1 because of normalization
-                    # by (number of points)**2
-                    npt.assert_allclose(dp.diffraction[center_index], 1)
+                    # The value at k=0 should be N_points because of
+                    # normalization by the number of points
+                    npt.assert_allclose(dp.diffraction[center_index], len(positions))
 
     def test_center_ordered(self):
         """Assert the center of the image is an intensity peak for an ordered
@@ -144,9 +147,9 @@ class TestDiffractionPattern:
                     center_index = (output_size // 2, output_size // 2)
                     assert max_index == center_index
 
-                    # The value at k=0 should be 1 because of normalization
-                    # by (number of points)**2
-                    npt.assert_allclose(dp.diffraction[center_index], 1)
+                    # The value at k=0 should be N_points because of
+                    # normalization by the number of points
+                    npt.assert_allclose(dp.diffraction[center_index], len(positions))
 
     def test_repr(self):
         dp = freud.diffraction.DiffractionPattern()
@@ -233,7 +236,7 @@ class TestDiffractionPattern:
         # for some lattice vector R and integer N, are contained
         # within these regions.
         # This test only checks N in range [-2, 2].
-        threshold = 0.2
+        threshold = 0.2 * dp.N_points
         xs, ys = np.nonzero(dp.diffraction > threshold)
         xy = np.dstack((xs, ys))[0]
 
@@ -266,7 +269,7 @@ class TestDiffractionPattern:
                     )
                     dp.compute((box, positions), zoom=zoom)
 
-                    threshold = 0.2
+                    threshold = 0.2 * dp.N_points
                     xs, ys = np.nonzero(dp.diffraction > threshold)
                     xy = np.dstack((xs, ys))[0]
 
@@ -282,3 +285,13 @@ class TestDiffractionPattern:
                                 ideal_peaks[peak] = True
 
                     assert all(ideal_peaks.values())
+
+    @pytest.mark.parametrize(
+        "noncubic_box_params", [dict(Lx=3, Ly=4, Lz=1), dict(Lx=3, Ly=3, Lz=3, xy=0.21)]
+    )
+    def test_noncubic_system(self, noncubic_box_params):
+        box = freud.box.Box(**noncubic_box_params)
+        points = [[0, 0, 0]]
+        dp = freud.diffraction.DiffractionPattern()
+        with pytest.raises(ValueError):
+            dp.compute((box, points))

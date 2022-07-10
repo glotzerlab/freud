@@ -119,6 +119,11 @@ Bradley Dice - **Lead developer**
 * Fixed documented formulas for ``Steinhardt`` class.
 * Fixed incorrect computation of ``Steinhardt`` averaged quantities.
 * Fixed RPATH problems affecting ``libfreud.so`` in Linux wheels.
+* Updated lambda functions to capture ``this`` by reference, to ensure compatibility with C++20 and above.
+* Contributed code, design, documentation, and testing for ``StaticStructureFactorDebye`` class.
+* Fixed ``Box.contains`` to run in linear time, ``O(num_points)``.
+* Contributed code, design, documentation, and testing for ``StaticStructureFactorDirect`` class.
+* Fixed doctests to run with pytest.
 
 Eric Harper, University of Michigan - **Former lead developer**
 
@@ -279,7 +284,7 @@ Kelly Wang
 * Added methods ``compute_distances`` and ``compute_all_distances`` to Box.
 * Added method ``crop`` to Box.
 * Added 2D Box tests for ``get_image`` and ``contains``.
-* Added the `reset` argument to the `compute` method of `DiffractionPattern` class.
+* Added the ``reset`` argument to the ``compute`` method of ``DiffractionPattern`` class.
 
 Yezhi Jin
 
@@ -317,6 +322,14 @@ Tommy Waltmann
 
 * Worked with Bradley Dice to add the SphereVoxelization feature.
 * Contributed code, design, and testing for ``DiffractionPattern`` class.
+* Contributed code, design, and testing for ``StaticStructureFactorDebye`` class.
+* Contributed code, design, and testing for ``StaticStructureFactorDirect`` class.
+* Refactor tests for ``StaticStructureFactor`` classes.
+* Improve CMake build system to use more modern style.
+* Remove CI build configurations from CircleCI which were already covered by CIBuildWheel.
+* Change property names in ``StaticStructureFactorDebye`` class.
+* Reformat static structure factor tests.
+* ``DiffractionPattern`` now raises an error when used with non-cubic boxes.
 
 Maya Martirossyan
 
@@ -329,6 +342,23 @@ Pavel Buslaev
 Charlotte Zhao
 
 * Worked with Vyas Ramasubramani and Bradley Dice to add the ``out`` option for ``box.Box.wrap``.
+
+Domagoj Fijan
+
+* Contributed code, design, documentation, and testing for ``StaticStructureFactorDebye`` class.
+* Contributed code, design, documentation, and testing for ``StaticStructureFactorDirect`` class.
+
+Andrew Kerr
+
+* Contributed documentation for ``StaticStructureFactorDebye`` class.
+
+Emily Siew
+
+* Contributed documentation for ``StaticStructureFactorDebye`` class.
+
+Dylan Marx
+
+* Contributed documentation for ``NeighborQuery`` class.
 
 Source code
 -----------

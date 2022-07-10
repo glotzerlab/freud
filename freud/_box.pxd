@@ -14,6 +14,9 @@ cdef extern from "Box.h" namespace "freud::box":
         Box(float, float, float, bool)
         Box(float, float, float, float, float, float, bool)
 
+        bool operator==(const Box &) const
+        bool operator!=(const Box &) const
+
         void setL(vec3[float])
         void setL(float, float, float)
 

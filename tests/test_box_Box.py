@@ -374,6 +374,21 @@ class TestBox:
         npt.assert_allclose(box.get_box_vector(2), [xz * Lz, yz * Lz, Lz])
         npt.assert_allclose(box.v3, [xz * Lz, yz * Lz, Lz])
 
+    @pytest.mark.parametrize(
+        "box_params, answer",
+        [
+            (dict(Lx=1, Ly=1, Lz=1), True),
+            (dict(Lx=2, Ly=1, Lz=4), False),
+            (dict(Lx=1, Ly=1, Lz=1, xz=0.25), False),
+            (dict(Lx=3, Ly=3, Lz=3), True),
+            (dict(Lx=3, Ly=3, Lz=3, yz=0.01), False),
+            (dict(Lx=0.01, Ly=1, Lz=10000, xy=0.75), False),
+        ],
+    )
+    def test_cubic(self, box_params, answer):
+        box = freud.box.Box(**box_params)
+        assert box.cubic is answer
+
     def test_periodic(self):
         box = freud.box.Box(1, 2, 3, 0, 0, 0)
         npt.assert_array_equal(box.periodic, True)
@@ -404,10 +419,16 @@ class TestBox:
         npt.assert_array_equal(box.periodic, True)
 
     def test_equal(self):
-        box = freud.box.Box(2, 2, 2, 1, 0.5, 0.1)
+        box1 = freud.box.Box(2, 2, 2, 1, 0.5, 0.1)
+        box1_copy = freud.box.Box(2, 2, 2, 1, 0.5, 0.1)
+        assert box1 == box1_copy
         box2 = freud.box.Box(2, 2, 2, 1, 0, 0)
-        assert box == box
-        assert box != box2
+        assert box1 != box2
+        box1_nonperiodic = freud.box.Box(2, 2, 2, 1, 0.5, 0.1)
+        box1_nonperiodic.periodic = [False, False, False]
+        assert box1 != box1_nonperiodic
+        assert box1 != 3
+        assert 3 != box1
 
     def test_repr(self):
         box = freud.box.Box(2, 2, 2, 1, 0.5, 0.1)

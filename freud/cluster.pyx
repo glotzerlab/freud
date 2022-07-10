@@ -1,10 +1,15 @@
 # Copyright (c) 2010-2020 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
-R"""
+r"""
 The :class:`freud.cluster` module aids in finding and computing the properties
 of clusters of points in a system.
 """
+
+from cython.operator cimport dereference
+
+from freud.locality cimport _PairCompute
+from freud.util cimport _Compute
 
 import warnings
 
@@ -14,13 +19,10 @@ import freud.locality
 import freud.util
 
 cimport numpy as np
-from cython.operator cimport dereference
 
 cimport freud._cluster
 cimport freud.locality
 cimport freud.util
-from freud.locality cimport _PairCompute
-from freud.util cimport _Compute
 
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
@@ -62,7 +64,7 @@ cdef class Cluster(_PairCompute):
         del self.thisptr
 
     def compute(self, system, keys=None, neighbors=None):
-        R"""Compute the clusters for the given set of points.
+        r"""Compute the clusters for the given set of points.
 
         Args:
             system:
@@ -152,7 +154,7 @@ cdef class Cluster(_PairCompute):
 
 
 cdef class ClusterProperties(_Compute):
-    R"""Routines for computing properties of point clusters.
+    r"""Routines for computing properties of point clusters.
 
     Given a set of points and cluster ids (from :class:`~.Cluster` or another
     source), this class determines the following properties for each cluster:
@@ -179,7 +181,7 @@ cdef class ClusterProperties(_Compute):
         del self.thisptr
 
     def compute(self, system, cluster_idx):
-        R"""Compute properties of the point clusters.
+        r"""Compute properties of the point clusters.
         Loops over all points in the given array and determines the center of
         mass of the cluster as well as the gyration tensor. After calling
         this method, these properties can be accessed with the

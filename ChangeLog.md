@@ -4,6 +4,65 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v2.11.0 -- XXXX-XX-XX
+
+### Added
+* Support for 2D systems in `freud.diffraction.StaticStructureFactorDebye`.
+
+### Fixed
+* `EnvironmentMotifMatch` correctly handles `NeighborList`s with more neighbors per particle than the motif.
+
+## v2.10.0 -- 2022-05-18
+
+### Added
+* `include_input_points` argument to `freud.locality.PeriodicBuffer`.
+* `macos-arm64` binary builds on conda-forge and PyPI.
+
+### Changed
+* `freud.data.UnitCell.generate_system` now generates positions in the same order as the basis positions.
+
+## v2.9.0 -- 2022-04-19
+
+### Added
+* (breaking) Some `freud.diffraction.StaticStructureFactorDebye` property names changed to be more descriptive.
+* `freud.diffraction.DiffractionPattern` now raises an exception when used with non-cubic boxes.
+
+### Fixed
+* `freud.diffraction.StaticStructureFactorDebye` implementation now gives `S_k[0] = N`.
+* Cython is no longer listed as an install requirement in `setup.py`.
+
+### Removed
+* Custom CMake build type `ReleaseWithDocs`.
+
+## v2.8.0 -- 2022-01-25
+
+### Added
+* `freud.diffraction.StaticStructureFactorDirect` class (unstable) can be used to compute the static structure factor S(k) by sampling reciprocal space vectors.
+* Python 3.10 is supported.
+* Documentation examples are tested with pytest.
+* Use clang-format as pre-commit hook.
+* Add related tools section to the documentation.
+
+### Fixed
+* `freud.diffraction.DiffractionPattern` normalization changed such that `S(k=0) = N`.
+* Added error checking for `r_min`, `r_max` arguments in `freud.density.RDF`, `freud.locality.NeighborList`, `freud.locality.NeighborQuery`, and `freud.density.LocalDensity` classes.
+* CMake build system only uses references to TBB target.
+
+### Changed
+* Re-organized tests for the static structure factor classes.
+* Move `util::Histogram<T>::Axes` to `util::Axes`.
+* Use new `flake8` plugin `flake8-force` for linting Cython code.
+
+## v2.7.0 -- 2021-10-01
+
+### Added
+* `freud.diffraction.StaticStructureFactorDebye` class (unstable) can be used to compute the static structure factor S(k) using the Debye formula.
+
+### Fixed
+* Updated lambda functions to capture `this` by reference, to ensure compatibility with C++20 and above.
+* Fixed ``Box.contains`` to run in linear time, ``O(num_points)``.
+* Fixed compilation to pass compiler optimization flags when build type is ReleaseWithDocs (major perf regression since 2.4.1).
+
 ## v2.6.2 -- 2021-06-26
 
 ### Fixed

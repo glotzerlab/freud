@@ -35,7 +35,7 @@ cdef extern from "GaussianDensity.h" namespace "freud::density":
 
 cdef extern from "LocalDensity.h" namespace "freud::density":
     cdef cppclass LocalDensity:
-        LocalDensity(float, float)
+        LocalDensity(float, float) except +
         const freud._box.Box & getBox() const
         void compute(
             const freud._locality.NeighborQuery*,

@@ -1,7 +1,7 @@
 # Copyright (c) 2010-2020 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
-R"""
+r"""
 The :class:`freud.order` module contains functions which compute order
 parameters for the whole system or individual particles. Order parameters take
 bond order data and interpret it in some way to quantify the degree of order in
@@ -9,6 +9,14 @@ a system using a scalar value. This is often done through computing spherical
 harmonics of the bond order diagram, which are the spherical analogue of
 Fourier Transforms.
 """
+
+from freud.util cimport _Compute, quat, vec3
+
+from freud.errors import FreudDeprecationWarning
+
+from cython.operator cimport dereference
+
+from freud.locality cimport _PairCompute
 
 import collections.abc
 import logging
@@ -19,17 +27,11 @@ import numpy as np
 
 import freud.locality
 
-from freud.util cimport _Compute, quat, vec3
-
-from freud.errors import FreudDeprecationWarning
-
 cimport numpy as np
-from cython.operator cimport dereference
 
 cimport freud._order
 cimport freud.locality
 cimport freud.util
-from freud.locality cimport _PairCompute
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +40,7 @@ logger = logging.getLogger(__name__)
 np.import_array()
 
 cdef class Cubatic(_Compute):
-    R"""Compute the cubatic order parameter :cite:`Haji_Akbari_2015` for a system of
+    r"""Compute the cubatic order parameter :cite:`Haji_Akbari_2015` for a system of
     particles using simulated annealing instead of Newton-Raphson root finding.
 
     Args:
@@ -68,7 +70,7 @@ cdef class Cubatic(_Compute):
         del self.thisptr
 
     def compute(self, orientations):
-        R"""Calculates the per-particle and global order parameter.
+        r"""Calculates the per-particle and global order parameter.
 
         Args:
             orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
@@ -158,7 +160,7 @@ cdef class Cubatic(_Compute):
 
 
 cdef class Nematic(_Compute):
-    R"""Compute the nematic order parameter for a system of particles.
+    r"""Compute the nematic order parameter for a system of particles.
 
     Args:
         u (:math:`\left(3 \right)` :class:`numpy.ndarray`):
@@ -179,7 +181,7 @@ cdef class Nematic(_Compute):
         del self.thisptr
 
     def compute(self, orientations):
-        R"""Calculates the per-particle and global order parameter.
+        r"""Calculates the per-particle and global order parameter.
 
         Example::
 
@@ -245,17 +247,17 @@ cdef class Nematic(_Compute):
 
 
 cdef class Hexatic(_PairCompute):
-    R"""Calculates the :math:`k`-atic order parameter for 2D systems.
+    r"""Calculates the :math:`k`-atic order parameter for 2D systems.
 
     The :math:`k`-atic order parameter (called the hexatic order parameter for
     :math:`k = 6`) is analogous to Steinhardt order parameters, and is used to
     measure order in the bonds of 2D systems.
 
     The :math:`k`-atic order parameter for a particle :math:`i` and its
-    :math:`n` neighbors :math:`j` is given by:
+    :math:`N_b` neighbors :math:`j` is given by:
 
-    :math:`\psi_k \left( i \right) = \frac{1}{n}
-    \sum_j^n e^{i k \phi_{ij}}`
+    :math:`\psi_k \left( i \right) = \frac{1}{N_b}
+    \sum \limits_{j=1}^{N_b} e^{i k \phi_{ij}}`
 
     The parameter :math:`k` governs the symmetry of the order parameter and
     typically matches the number of neighbors to be found for each particle.
@@ -263,12 +265,12 @@ cdef class Hexatic(_PairCompute):
     vector :math:`r_{ij}` and :math:`\left(1, 0\right)`.
 
     If the weighted mode is enabled, contributions of each neighbor are
-    weighted. Neighbor weights :math:`w_j` default to 1 but are defined for a
+    weighted. Neighbor weights :math:`w_{ij}` default to 1 but are defined for a
     :class:`freud.locality.NeighborList` from :class:`freud.locality.Voronoi`
     or one with user-provided weights. The formula is modified as follows:
 
-    :math:`\psi'_k \left( i \right) = \frac{1}{\sum_j^n w_j}
-    \sum_j^n w_j e^{i k \phi_{ij}}`
+    :math:`\psi'_k \left( i \right) = \frac{1}{\sum_{j=1}^{N_b} w_{ij}}
+    \sum \limits_{j=1}^{N_b} w_{ij} e^{i k \phi_{ij}}`
 
     The hexatic order parameter as written above is **complex-valued**. The
     **magnitude** of the complex value,
@@ -303,7 +305,7 @@ cdef class Hexatic(_PairCompute):
         del self.thisptr
 
     def compute(self, system, neighbors=None):
-        R"""Calculates the hexatic order parameter.
+        r"""Calculates the hexatic order parameter.
 
         Example::
 
@@ -400,17 +402,17 @@ cdef class Hexatic(_PairCompute):
 
 
 cdef class Translational(_PairCompute):
-    R"""Compute the translational order parameter for each particle.
+    r"""Compute the translational order parameter for each particle.
 
     The translational order parameter is used to measure order in the bonds
     of 2D systems. The translational order parameter for a particle :math:`i`
-    and its :math:`n` neighbors :math:`j` is given by a sum over the
+    and its :math:`N_b` neighbors :math:`j` is given by a sum over the
     neighbors, treating the 2D vectors between each pair of particles as a
     complex number with real part corresponding to the x-component of the
     vector and imaginary part corresponding to the y-component of the vector,
     divided by a normalization constant :math:`k`:
 
-    :math:`\psi\left( i \right) = \frac{1}{k} \sum_j^n x_{ij} + y_{ij} i`
+    :math:`\psi\left( i \right) = \frac{1}{k} \sum \limits_{j=1}^{N_b} x_{ij} + y_{ij} i`
 
     The translational order parameter as written above is **complex-valued**.
 
@@ -436,7 +438,7 @@ cdef class Translational(_PairCompute):
         del self.thisptr
 
     def compute(self, system, neighbors=None):
-        R"""Calculates the local descriptors.
+        r"""Calculates the local descriptors.
 
         Args:
             system:
@@ -488,7 +490,7 @@ cdef class Translational(_PairCompute):
 
 
 cdef class Steinhardt(_PairCompute):
-    R"""Compute one or more of the rotationally invariant Steinhardt order
+    r"""Compute one or more of the rotationally invariant Steinhardt order
     parameter :math:`q_l` or :math:`w_l` for a set of points
     :cite:`Steinhardt:1983aa`.
 
@@ -501,7 +503,7 @@ cdef class Steinhardt(_PairCompute):
 
     .. math::
 
-        q_{lm}(i) = \frac{1}{N_b} \displaystyle\sum_{j=1}^{N_b}
+        q_{lm}(i) = \frac{1}{N_b} \sum \limits_{j=1}^{N_b}
         Y_{lm}(\theta(\vec{r}_{ij}), \phi(\vec{r}_{ij}))
 
     Then the :math:`q_l` order parameter is computed by combining the :math:`q_{lm}`
@@ -509,7 +511,7 @@ cdef class Steinhardt(_PairCompute):
 
     .. math::
 
-        q_l(i) = \sqrt{\frac{4\pi}{2l+1} \displaystyle\sum_{m=-l}^{l}
+        q_l(i) = \sqrt{\frac{4\pi}{2l+1} \sum \limits_{m=-l}^{l}
         |q_{lm}(i)|^2 }
 
     If the ``wl`` parameter is ``True``, this class computes the quantity
@@ -522,7 +524,7 @@ cdef class Steinhardt(_PairCompute):
 
     .. math::
 
-        w_l(i) = \sum_{m_1 + m_2 + m_3 = 0} \begin{pmatrix}
+        w_l(i) = \sum \limits_{m_1 + m_2 + m_3 = 0} \begin{pmatrix}
             l & l & l \\
             m_1 & m_2 & m_3
         \end{pmatrix}
@@ -535,12 +537,12 @@ cdef class Steinhardt(_PairCompute):
     .. math::
 
         w_l(i) = \frac{
-            \sum_{m_1 + m_2 + m_3 = 0} \begin{pmatrix}
+            \sum \limits_{m_1 + m_2 + m_3 = 0} \begin{pmatrix}
                 l & l & l \\
                 m_1 & m_2 & m_3
             \end{pmatrix}
             q_{lm_1}(i) q_{lm_2}(i) q_{lm_3}(i)}
-            {\left(\sum_{m=-l}^{l} |q_{lm}(i)|^2 \right)^{3/2}}
+            {\left(\sum \limits_{m=-l}^{l} |q_{lm}(i)|^2 \right)^{3/2}}
 
     If ``average`` is ``True``, the class computes a variant of this order
     parameter that performs an average over the first and second shell combined
@@ -553,11 +555,11 @@ cdef class Steinhardt(_PairCompute):
     of particle :math:`i`, including particle :math:`i` itself:
 
     .. math::
-        \overline{q}_{lm}(i) = \frac{1}{N_b} \displaystyle\sum_{k=0}^{N_b}
+        \overline{q}_{lm}(i) = \frac{1}{N_b} \sum \limits_{k=0}^{N_b}
         q_{lm}(k)
 
     If ``weighted`` is True, the contributions of each neighbor are weighted.
-    Neighbor weights :math:`w_j` are defined for a
+    Neighbor weights :math:`w_{ij}` are defined for a
     :class:`freud.locality.NeighborList` obtained from
     :class:`freud.locality.Voronoi` or one with user-provided weights, and
     default to 1 if not otherwise provided. The formulas are modified as
@@ -566,8 +568,9 @@ cdef class Steinhardt(_PairCompute):
 
     .. math::
 
-        q'_{lm}(i) = \frac{1}{\sum_j^n w_j} \displaystyle\sum_{j=1}^{N_b} w_j
-        Y_{lm}(\theta(\vec{r}_{ij}), \phi(\vec{r}_{ij}))
+        q'_{lm}(i) = \frac{1}{\sum_{j=1}^{N_b} w_{ij}}
+        \sum \limits_{j=1}^{N_b} w_{ij} Y_{lm}(\theta(\vec{r}_{ij}),
+        \phi(\vec{r}_{ij}))
 
     .. note::
         The value of per-particle order parameter will be set to NaN for
@@ -644,7 +647,7 @@ cdef class Steinhardt(_PairCompute):
 
     @_Compute._computed_property
     def order(self):
-        """float: The system wide normalization of the order parameter,
+        r"""float: The system wide normalization of the order parameter,
         computed by averaging the :math:`q_{lm}` values (or
         :math:`\overline{q}_{lm}` values if ``average`` is enabled) over all
         particles before computing the rotationally-invariant order
@@ -693,7 +696,7 @@ cdef class Steinhardt(_PairCompute):
         return qlm_list if len(qlm_list) > 1 else qlm_list[0]
 
     def compute(self, system, neighbors=None):
-        R"""Compute the order parameter.
+        r"""Compute the order parameter.
 
         Example::
 
@@ -786,16 +789,16 @@ cdef class Steinhardt(_PairCompute):
 
 
 cdef class SolidLiquid(_PairCompute):
-    R"""Identifies solid-like clusters using dot products of :math:`q_{lm}`.
+    r"""Identifies solid-like clusters using dot products of :math:`q_{lm}`.
 
     The solid-liquid order parameter :cite:`Wolde:1995aa,Filion_2010` uses a
     Steinhardt-like approach to identify solid-like particles. First, a bond
     parameter :math:`q_l(i, j)` is computed for each neighbor bond.
 
     If :code:`normalize_q` is true (default), the bond parameter is given by
-    :math:`q_l(i, j) = \frac{\sum_{m=-l}^{l} \text{Re}~q_{lm}(i) q_{lm}^*(j)}
-    {\sqrt{\sum_{m=-l}^{l} \lvert q_{lm}(i) \rvert^2}
-    \sqrt{\sum_{m=-l}^{l} \lvert q_{lm}(j) \rvert^2}}`
+    :math:`q_l(i, j) = \frac{\sum \limits_{m=-l}^{l} \text{Re}~q_{lm}(i) q_{lm}^*(j)}
+    {\sqrt{\sum \limits_{m=-l}^{l} \lvert q_{lm}(i) \rvert^2}
+    \sqrt{\sum \limits_{m=-l}^{l} \lvert q_{lm}(j) \rvert^2}}`
 
     If :code:`normalize_q` is false, then the denominator of the above
     expression is left out.
@@ -833,7 +836,7 @@ cdef class SolidLiquid(_PairCompute):
         del self.thisptr
 
     def compute(self, system, neighbors=None):
-        R"""Compute the order parameter.
+        r"""Compute the order parameter.
 
         Args:
             system:

@@ -1,9 +1,6 @@
 name: Build wheels
 
 on:
-  # Trigger on pull requests.
-  pull_request:
-
   # Trigger on pushes to the mainline branches and version tags. This prevents building commits
   # twice when the pull request source branch is in the same repository.
   push:
@@ -26,26 +23,22 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-20.04, macos-10.15] #, windows-2019]
-        pyver: [3.6, 3.7, 3.8, 3.9]
+        pyver: ["3.6", "3.7", "3.8", "3.9", "3.10"]
 
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v3.0.2
         with:
           submodules: "recursive"
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v1.12.0
+        uses: pypa/cibuildwheel@2.7.0
         env:
           # Build for cpython >= 3.6.
           CIBW_PROJECT_REQUIRES_PYTHON: "==${{ matrix.pyver }}.*"
-          CIBW_SKIP: pp*
-
-          # Pin to a manylinux image that contains auditwheel >=4.0.0.
-          # This pinning can be removed once cibuildwheel 2.0.0 is released, since it will use a newer image.
-          CIBW_MANYLINUX_X86_64_IMAGE: "quay.io/pypa/manylinux2010_x86_64:2021-06-07-00faba2"
+          CIBW_SKIP: "{pp*,*-musllinux_*}"
 
           # Build only on 64-bit architectures.
-          CIBW_ARCHS_MACOS: x86_64
+          CIBW_ARCHS_MACOS: "x86_64 arm64"
           CIBW_ARCHS_LINUX: auto64
           CIBW_ARCHS_WINDOWS: auto64
 
@@ -64,7 +57,7 @@ jobs:
           CIBW_BEFORE_TEST_WINDOWS: "powershell .github/workflows/cibuildwheel-before-test.ps1 {package}"
           CIBW_TEST_COMMAND: "cd {package}/tests && pytest . -v --log-level=DEBUG -n auto"
 
-      - uses: actions/upload-artifact@v2.2.4
+      - uses: actions/upload-artifact@v3
         with:
           name: dist
           path: ./wheelhouse/*.whl
@@ -73,11 +66,11 @@ jobs:
     name: Build source distribution
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v3.0.2
         with:
           submodules: "recursive"
 
-      - uses: actions/setup-python@v2.2.2
+      - uses: actions/setup-python@v4
         name: Install Python
         with:
           python-version: '3.9'
@@ -88,7 +81,7 @@ jobs:
       - name: Build sdist
         run: python setup.py sdist
 
-      - uses: actions/upload-artifact@v2.2.4
+      - uses: actions/upload-artifact@v3
         with:
           name: dist
           path: dist/*.tar.gz
@@ -100,7 +93,7 @@ jobs:
 
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v2.0.10
+        uses: actions/download-artifact@v3
         with:
           name: dist
           path: dist
@@ -111,7 +104,7 @@ jobs:
       - name: Upload to PyPI
         # upload to PyPI on every tag starting with 'v'
         if: startsWith(github.ref, 'refs/tags/v')
-        uses: pypa/gh-action-pypi-publish@v1.4.2
+        uses: pypa/gh-action-pypi-publish@v1.5.0
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
@@ -119,7 +112,7 @@ jobs:
       - name: Upload to TestPyPI
         # otherwise, upload to TestPyPi when secrets are available
         if: ${{ !startsWith(github.ref, 'refs/tags/v') && (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]')) }}
-        uses: pypa/gh-action-pypi-publish@v1.4.2
+        uses: pypa/gh-action-pypi-publish@v1.5.0
         with:
           user: __token__
           password: ${{ secrets.TEST_PYPI_API_TOKEN }}
@@ -127,8 +120,8 @@ jobs:
           skip_existing: true
 
       - name: Slack notification
-        if: startsWith(github.ref, 'refs/tags/v') && always()
-        uses: act10ns/slack@v1.2.2
+        if: startsWith(github.ref, 'refs/tags/v') || failure()
+        uses: act10ns/slack@v1.5.1
         with:
           status: ${{ job.status }}
           channel: '#dev-freud'

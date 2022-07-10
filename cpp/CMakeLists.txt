@@ -8,6 +8,7 @@ endif()
 
 add_subdirectory(cluster)
 add_subdirectory(density)
+add_subdirectory(diffraction)
 add_subdirectory(environment)
 add_subdirectory(locality)
 add_subdirectory(order)
@@ -19,6 +20,7 @@ add_library(
   libfreud SHARED
   $<TARGET_OBJECTS:_cluster>
   $<TARGET_OBJECTS:_density>
+  $<TARGET_OBJECTS:_diffraction>
   $<TARGET_OBJECTS:_environment>
   $<TARGET_OBJECTS:_locality>
   $<TARGET_OBJECTS:_order>
@@ -26,14 +28,7 @@ add_library(
   $<TARGET_OBJECTS:_pmft>
   $<TARGET_OBJECTS:_util>)
 
-# The namespaced TBB::tbb currently fails on Windows when discovered via FindTBB
-# rather than the config, and it's unclear why. It seems to be related to issues
-# with the namespacing.
-if(WIN32 AND NOT TBB_USING_CONFIG)
-  target_link_libraries(libfreud PUBLIC ${TBB_LIBRARY})
-else()
-  target_link_libraries(libfreud PUBLIC TBB::tbb)
-endif()
+target_link_libraries(libfreud PUBLIC TBB::tbb)
 
 # We treat the extern folder as a SYSTEM library to avoid getting any diagnostic
 # information from it. In particular, this avoids clang-tidy throwing errors due

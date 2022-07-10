@@ -17,9 +17,9 @@ cdef extern from "NeighborBond.h" namespace "freud::locality":
         unsigned int point_idx
         float distance
         float weight
-        bool operator==(NeighborBond)
-        bool operator!=(NeighborBond)
-        bool operator<(NeighborBond)
+        bool operator==(const NeighborBond &) const
+        bool operator!=(const NeighborBond &) const
+        bool operator<(const NeighborBond &) const
 
 cdef extern from "NeighborQuery.h" namespace "freud::locality":
 
@@ -131,6 +131,7 @@ cdef extern from "PeriodicBuffer.h" namespace "freud::locality":
         void compute(
             const NeighborQuery*,
             const vec3[float],
+            const bool,
             const bool) except +
         vector[vec3[float]] getBufferPoints() const
         vector[uint] getBufferIds() const

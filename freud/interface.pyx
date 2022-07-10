@@ -1,7 +1,7 @@
 # Copyright (c) 2010-2020 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
-R"""
+r"""
 The :class:`freud.interface` module contains functions to measure the interface
 between sets of points.
 """
@@ -22,7 +22,7 @@ cimport freud.locality
 np.import_array()
 
 cdef class Interface(_PairCompute):
-    R"""Measures the interface between two sets of points."""
+    r"""Measures the interface between two sets of points."""
     cdef const unsigned int[::1] _point_ids
     cdef const unsigned int[::1] _query_point_ids
 
@@ -31,7 +31,7 @@ cdef class Interface(_PairCompute):
         self._query_point_ids = np.empty(0, dtype=np.uint32)
 
     def compute(self, system, query_points, neighbors=None):
-        R"""Compute the particles at the interface between two sets of points.
+        r"""Compute the particles at the interface between two sets of points.
 
         Args:
             system:

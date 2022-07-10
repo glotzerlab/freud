@@ -62,7 +62,7 @@ void LocalBondProjection::compute(const locality::NeighborQuery* nq, const quat<
     m_local_bond_proj_norm.prepare({tot_num_neigh, n_proj});
 
     // compute the order parameter
-    util::forLoopWrapper(0, n_query_points, [=](size_t begin, size_t end) {
+    util::forLoopWrapper(0, n_query_points, [&](size_t begin, size_t end) {
         size_t bond(m_nlist.find_first_index(begin));
         for (size_t i = begin; i < end; ++i)
         {

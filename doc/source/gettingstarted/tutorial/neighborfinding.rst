@@ -54,13 +54,13 @@ The primary mode of interfacing with this class (and other neighbor finding clas
     num_points = 100
 
     # We shift all points into the expected range for freud.
-    points = np.random.rand(num_points)*L - L/2
+    points = np.random.rand(num_points, 3)*L - L/2
     box = freud.box.Box.cube(L)
     aq = freud.locality.AABBQuery(box, points)
 
     # Now we generate a smaller sample of points for which we want to find
     # neighbors based on the original set.
-    query_points = np.random.rand(num_points/10)*L - L/2
+    query_points = np.random.rand(num_points//10, 3)*L - L/2
     distances = []
 
     # Here, we ask for the 4 nearest neighbors of each point in query_points.
@@ -125,7 +125,7 @@ Queries can easily be used to generate :class:`NeighborList <freud.locality.Neig
 
 .. code-block:: python
 
-    query_result = aq.query(query_points, dict(num_neighbors=4, exclude_ii))
+    query_result = aq.query(query_points, dict(num_neighbors=4, exclude_ii=True))
     nlist = query_result.toNeighborList()
 
 The resulting object provides a persistent container for bond data.
@@ -139,15 +139,15 @@ Using :class:`NeighborLists <freud.locality.NeighborList>`, our original example
     L = 10
     num_points = 100
 
-    points = np.random.rand(num_points)*L - L/2
+    points = np.random.rand(num_points, 3)*L - L/2
     box = freud.box.Box.cube(L)
     aq = freud.locality.AABBQuery(box, points)
 
-    query_points = np.random.rand(num_points/10)*L - L/2
+    query_points = np.random.rand(num_points//10, 3)*L - L/2
     distances = []
 
     # Here, we ask for the 4 nearest neighbors of each point in query_points.
-    query_result = aq.query(query_points, dict(num_neighbors=4)):
+    query_result = aq.query(query_points, dict(num_neighbors=4))
     nlist = query_result.toNeighborList()
     for (i, j) in nlist:
         # Note that we have to wrap the bond vector before taking the norm;
@@ -161,7 +161,7 @@ However, the ``query_result`` contained information about distances: here's how 
 
 .. code-block:: python
 
-    assert np.all(nlist.distances == distances)
+    assert np.allclose(nlist.distances, distances)
 
 The indices are also accessible through properties, or through a NumPy-like slicing interface:
 

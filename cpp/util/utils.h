@@ -21,9 +21,23 @@ inline float clamp(float v, float lo, float hi)
     \returns The remainder of a/b, between min(0, b) and max(0, b).
     \note This is the same behavior of the modulus operator % in Python (but not C++).
 */
-template<class Scalar> inline Scalar modulusPositive(Scalar a, Scalar b)
+template<typename Scalar> inline Scalar modulusPositive(Scalar a, Scalar b)
 {
     return std::fmod(std::fmod(a, b) + b, b);
+}
+
+//! Sinc function, sin(x)/x
+/*! \param x Argument.
+    \returns Sin of x divided by x.
+    \note There is no factor of pi in this definition (some conventions include pi).
+*/
+template<typename Scalar> inline Scalar sinc(Scalar x)
+{
+    if (x == 0)
+    {
+        return 1;
+    }
+    return std::sin(x) / x;
 }
 
 //! Wrapper for for-loop to allow the execution in parallel or not.

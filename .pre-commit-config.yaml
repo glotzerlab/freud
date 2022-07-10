@@ -1,12 +1,11 @@
 ci:
   autoupdate_schedule: quarterly
-  skip: [clang-format]
 
 exclude: (?:^extern/)
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: 'v4.0.1'
+    rev: 'v4.3.0'
     hooks:
       - id: end-of-file-fixer
         exclude: |
@@ -30,44 +29,41 @@ repos:
       - id: debug-statements
       - id: requirements-txt-fixer
   - repo: https://github.com/asottile/pyupgrade
-    rev: 'v2.19.4'
+    rev: 'v2.34.0'
     hooks:
       - id: pyupgrade
         args:
           - --py36-plus
   - repo: https://github.com/PyCQA/isort
-    rev: '5.9.1'
+    rev: '5.10.1'
     hooks:
       - id: isort
   - repo: https://github.com/psf/black
-    rev: '21.6b0'
+    rev: '22.6.0'
     hooks:
       - id: black
   - repo: https://github.com/PyCQA/flake8
-    rev: '3.9.2'
+    rev: '4.0.1'
     hooks:
       - id: flake8
+        types: ["file"]
+        types_or: ["python", "cython"]
+        additional_dependencies: ["flake8-force"]
         args:
         - --show-source
   - repo: https://github.com/cheshirekow/cmake-format-precommit
     rev: v0.6.13
     hooks:
       - id: cmake-format
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: 'v14.0.6'
+    hooks:
+      - id: clang-format
+        types_or: [c, c++]
 # The following pre-commit hooks should only be run manually because they have
 # dependencies that cannot be pip installed.
   - repo: local
     hooks:
-    - id: clang-format
-      stages: [manual]  # Requires clang-format.
-      name: clang-format
-      entry: clang-format
-      language: system
-      types: [c++]
-      # Unclear if --style=file is necessary, it seems like clang-format uses
-      # .clang-format if found by default, at least for newer versions. We
-      # specify this here just in case.
-      args:
-      - --style=file
     - id: clang-tidy
       stages: [manual]  # Requires clang-tidy.
       name: clang-tidy

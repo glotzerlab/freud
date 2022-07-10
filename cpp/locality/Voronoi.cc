@@ -127,7 +127,8 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
             size_t neighbor_counter(0);
             size_t face_vertices_index(0);
             for (auto neighbor_iterator = neighbors.begin(); neighbor_iterator != neighbors.end();
-                 neighbor_iterator++, neighbor_counter++, face_vertices_index += face_vertices[face_vertices_index] + 1)
+                 neighbor_iterator++, neighbor_counter++,
+                      face_vertices_index += face_vertices[face_vertices_index] + 1)
             {
                 // Get the normal to the current face
                 const vec3<double> normal(normals[3 * neighbor_counter], normals[3 * neighbor_counter + 1],
@@ -161,8 +162,9 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
 
                 // Get the id of the vertex on this face that is most parallel to the normal
                 const auto normal_length = std::sqrt(dot(normal, normal));
-                auto cosine_vertex_to_normal = [&](const auto& vertex_id_on_face){
-                    const vec3<double> rv(vertices[3 * vertex_id_on_face], vertices[3 * vertex_id_on_face + 1],
+                auto cosine_vertex_to_normal = [&](const auto& vertex_id_on_face) {
+                    const vec3<double> rv(vertices[3 * vertex_id_on_face],
+                                          vertices[3 * vertex_id_on_face + 1],
                                           vertices[3 * vertex_id_on_face + 2]);
                     const vec3<double> riv(rv - query_point);
                     return dot(riv, normal) / std::sqrt(dot(riv, riv)) / normal_length;
@@ -171,7 +173,7 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
                 const int vertex_id_on_face = *std::max_element(
                     &(face_vertices[face_vertices_index + 1]),
                     &(face_vertices[face_vertices_index + face_vertices[face_vertices_index]]),
-                    [&](const auto& a, const auto& b){
+                    [&](const auto& a, const auto& b) {
                         return cosine_vertex_to_normal(a) < cosine_vertex_to_normal(b);
                     });
 
@@ -182,7 +184,6 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
                                       vertices[3 * vertex_id_on_face + 2]);
                 const vec3<double> riv(rv - query_point);
                 const vec3<float> vector(2.0 * dot(riv, normal) * normal);
-
 
                 // Compute the distance from query_point to point in the direction of the normal.
                 const float distance(std::sqrt(dot(vector, vector)));
@@ -202,7 +203,7 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
     m_neighbor_list->resize(num_bonds);
     m_neighbor_list->setNumBonds(num_bonds, n_points, n_points);
 
-    util::forLoopWrapper(0, num_bonds, [=](size_t begin, size_t end) {
+    util::forLoopWrapper(0, num_bonds, [&](size_t begin, size_t end) {
         for (size_t bond = begin; bond != end; ++bond)
         {
             m_neighbor_list->getNeighbors()(bond, 0) = bonds[bond].query_point_idx;

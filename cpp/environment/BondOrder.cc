@@ -56,9 +56,8 @@ BondOrder::BondOrder(unsigned int n_bins_theta, unsigned int n_bins_phi, BondOrd
             m_sa_array(i, j) = sa;
         }
     }
-    BHAxes axes;
-    axes.push_back(std::make_shared<util::RegularAxis>(n_bins_theta, 0, constants::TWO_PI));
-    axes.push_back(std::make_shared<util::RegularAxis>(n_bins_phi, 0, M_PI));
+    const auto axes = util::Axes {std::make_shared<util::RegularAxis>(n_bins_theta, 0, constants::TWO_PI),
+                                  std::make_shared<util::RegularAxis>(n_bins_phi, 0, M_PI)};
     m_histogram = BondHistogram(axes);
 
     m_local_histograms = BondHistogram::ThreadLocalHistogram(m_histogram);
@@ -85,7 +84,7 @@ void BondOrder::accumulate(const locality::NeighborQuery* neighbor_query, quat<f
                            freud::locality::QueryArgs qargs)
 {
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
-                      [=](const freud::locality::NeighborBond& neighbor_bond) {
+                      [&](const freud::locality::NeighborBond& neighbor_bond) {
                           const quat<float>& ref_q(orientations[neighbor_bond.point_idx]);
                           vec3<float> v(neighbor_bond.vector);
                           const quat<float>& q(query_orientations[neighbor_bond.query_point_idx]);
