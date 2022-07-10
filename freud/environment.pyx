@@ -550,7 +550,7 @@ cdef class EnvironmentCluster(_MatchEnv):
         for every pair of matched points between the sets, the distance between
         the matched pair is less than :code:`threshold`.
 
-        When :code:`registration=False`, environments are not rotated prior to comparison 
+        When :code:`registration=False`, environments are not rotated prior to comparison
         between them. Which pairs of vectors are compared depends on the order in
         which the vectors of the environment are traversed.
 
