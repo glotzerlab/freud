@@ -281,7 +281,8 @@ NeighborBond AABBQueryIterator::next()
             }
 
             if ((m_r_cur >= m_r_max) || (m_r_cur >= max_plane_distance)
-                || ((m_all_bonds_minimum_distance.size() - m_query_points_below_r_min.size()) >= m_num_neighbors))
+                || ((m_all_bonds_minimum_distance.size() - m_query_points_below_r_min.size())
+                    >= m_num_neighbors))
             {
                 // Once this condition is reached, either we found enough
                 // neighbors beyond the normal min_plane_distance

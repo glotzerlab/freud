@@ -19,7 +19,8 @@ struct NeighborBond
     // For now, id = query_point_idx and ref_id = point_idx (into the NeighborQuery).
     constexpr NeighborBond() = default;
 
-    constexpr NeighborBond(unsigned int query_point_idx, unsigned int point_idx, float d, float w, const vec3<float>& v)
+    constexpr NeighborBond(unsigned int query_point_idx, unsigned int point_idx, float d, float w,
+                           const vec3<float>& v)
         : query_point_idx(query_point_idx), point_idx(point_idx), distance(d), weight(w), vector(v)
     {}
 
