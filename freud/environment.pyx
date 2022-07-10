@@ -544,22 +544,32 @@ cdef class EnvironmentCluster(_MatchEnv):
 
         Two environments are compared using `point-set registration
         <https://en.wikipedia.org/wiki/Point-set_registration)>`_.
-        Specifically, we use the `Kabsch algorithm
+
+        The thresholding criterion we apply in order to determine if the two point sets
+        match is quite conservative: the two point sets match if and only if,
+        for every pair of matched points between the sets, the distance between
+        the matched pair is less than :code:`threshold`.
+
+        When :code:`registration=False`, environments are not rotated prior to comparison 
+        between them. Which pairs of vectors are compared depends on the order in
+        which the vectors of the environment are traversed.
+
+        When :code:`registration=True`, we use the `Kabsch algorithm
         <https://en.wikipedia.org/wiki/Kabsch_algorithm>`_ to find the optimal
         rotation matrix mapping one environment onto another. The Kabsch
         algorithm assumes a one-to-one correspondence between points in the two
         environments. However, we typically do not know which point in one environment
         corresponds to a particular point in the other environment. The brute force
         solution is to try all possible correspondences, but the resulting
-        combinatorial explosion makes this problem infeasible, so we use a tolerance
-        :code:`threshold` to terminate the search when we have found a permutation
+        combinatorial explosion makes this problem infeasible, so we use the thresholding
+        criterion above to terminate the search when we have found a permutation
         of points that results in a sufficiently low RMSD.
 
         .. note::
 
             Using a distance cutoff for :code:`env_neighbors` could
             lead to situations where the :code:`cluster_environments`
-            contain different numbers of particles. In this case, the
+            contain different numbers of neighbors. In this case, the
             environments which have a number of neighbors less than
             the environment with the maximum number of neighbors
             :math:`k_{max}` will have their entry in :code:`cluster_environments`
@@ -579,9 +589,9 @@ cdef class EnvironmentCluster(_MatchEnv):
         .. warning::
 
             Comparisons between two environments are only made when both
-            environments contain the same number of particles.
-            However, this is not currently enforced, so no warning will be given
-            at runtime if such mismatched environments are provided.
+            environments contain the same number of neighbors.
+            However, no warning will be given at runtime if mismatched
+            environments are provided for comparison.
 
         Example::
 
@@ -718,11 +728,10 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
     a provided motif, as done in :cite:`Teich2019`.
 
     A particle's environment can only match the motif if it contains the
-    same number of particles as the motif. Any environment with a
-    different number of particles than the motif will always fail to match
+    same number of neighbors as the motif. Any environment with a
+    different number of neighbors than the motif will always fail to match
     the motif. See :class:`freud.environment.EnvironmentCluster.compute` for
-    the algorithm we use.
-
+    the matching criterion.
     """  # noqa: E501
 
     cdef freud._environment.EnvironmentMotifMatch * thisptr
@@ -742,9 +751,9 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
         .. warning::
 
             Comparisons between two environments are only made when both
-            environments contain the same number of particles.
-            However, this is not currently enforced, so no warning will be given
-            at runtime if such mismatched environments are provided.
+            environments contain the same number of neighbors.
+            However, no warning will be given at runtime if mismatched
+            environments are provided for comparison.
 
         Args:
             system:
