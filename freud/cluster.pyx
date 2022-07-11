@@ -13,12 +13,11 @@ from freud.util cimport _Compute
 
 import warnings
 
-from freud.errors import FreudDeprecationWarning
-
 import numpy as np
 
 import freud.locality
 import freud.util
+from freud.errors import FreudDeprecationWarning
 
 cimport numpy as np
 
@@ -225,8 +224,8 @@ cdef class ClusterProperties(_Compute):
         cdef const float[::1] l_masses = masses
 
         self.thisptr.compute(nq.get_ptr(),
-                <unsigned int*> &l_cluster_idx[0],
-                <float*> &l_masses[0])
+                             <unsigned int*> &l_cluster_idx[0],
+                             <float*> &l_masses[0])
         return self
 
     @_Compute._computed_property
@@ -268,12 +267,13 @@ cdef class ClusterProperties(_Compute):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getClusterMasses(),
             freud.util.arr_type_t.FLOAT)
-    
+
     @_Compute._computed_property
     def radii_of_gyration(self):
         """(:math:`N_{clusters}`,) :class:`numpy.ndarray`: The radius of
         gyration of each cluster."""
-        return np.sqrt(np.trace(self.gyrations, axis1=-2, axis2=-1)) / np.sum(self.cluster_masses)
+        return np.sqrt(np.trace(self.gyrations, axis1=-2, axis2=-1)) \
+            / np.sum(self.cluster_masses)
 
     def __repr__(self):
         return "freud.cluster.{cls}()".format(cls=type(self).__name__)

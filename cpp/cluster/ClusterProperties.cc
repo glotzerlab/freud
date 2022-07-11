@@ -22,7 +22,7 @@ namespace freud { namespace cluster {
 */
 
 void ClusterProperties::compute(const freud::locality::NeighborQuery* nq, const unsigned int* cluster_idx,
-		                const float* masses)
+                                const float* masses)
 {
     // determine the number of clusters
     const unsigned int* max_cluster_id = std::max_element(cluster_idx, cluster_idx + nq->getNPoints());
@@ -47,15 +47,15 @@ void ClusterProperties::compute(const freud::locality::NeighborQuery* nq, const 
         const unsigned int c = cluster_idx[i];
         cluster_points[c].push_back((*nq)[i]);
         m_cluster_sizes[c]++;
-	m_cluster_masses[c] += masses[i];
+        m_cluster_masses[c] += masses[i];
     }
 
     // Now that we have located all of the cluster vectors, compute the centers
-    
+
     for (unsigned int c = 0; c < num_clusters; c++)
     {
-        m_cluster_centers[c] = nq->getBox().centerOfMass(cluster_points[c].data(), m_cluster_sizes[c],
-			                                 masses=masses);
+        m_cluster_centers[c]
+            = nq->getBox().centerOfMass(cluster_points[c].data(), m_cluster_sizes[c], masses = masses);
     }
 
     // Now that we have determined the centers of mass for each cluster, tally
