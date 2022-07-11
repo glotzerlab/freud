@@ -360,6 +360,10 @@ Dylan Marx
 
 * Contributed documentation for ``NeighborQuery`` class.
 
+Alain Kadar
+
+* Introduced mass dependence for ``ClusterProperties`` class.
+
 Source code
 -----------
 
