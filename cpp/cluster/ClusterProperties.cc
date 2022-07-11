@@ -18,7 +18,7 @@ namespace freud { namespace cluster {
     compute loops over all points in the given array and determines the center
     of mass of the cluster as well as the gyration tensor. These can be
     accessed after the call to compute with getClusterCenters() and
-    getClusterGyrations().
+    getClusterInertiaMoments().
 */
 
 void ClusterProperties::compute(const freud::locality::NeighborQuery* nq, const unsigned int* cluster_idx,
@@ -31,7 +31,7 @@ void ClusterProperties::compute(const freud::locality::NeighborQuery* nq, const 
     // allocate memory for the cluster properties and temporary arrays
     // initialize arrays to 0
     m_cluster_centers.prepare(num_clusters);
-    m_cluster_gyrations.prepare({num_clusters, 3, 3});
+    m_cluster_inertia_moments.prepare({num_clusters, 3, 3});
     m_cluster_sizes.prepare(num_clusters);
 
     // Create a vector to store cluster points, used to compute center of mass
@@ -49,6 +49,7 @@ void ClusterProperties::compute(const freud::locality::NeighborQuery* nq, const 
     }
 
     // Now that we have located all of the cluster vectors, compute the centers
+    
     for (unsigned int c = 0; c < num_clusters; c++)
     {
         m_cluster_centers[c] = nq->getBox().centerOfMass(cluster_points[c].data(), m_cluster_sizes[c],
@@ -56,7 +57,7 @@ void ClusterProperties::compute(const freud::locality::NeighborQuery* nq, const 
     }
 
     // Now that we have determined the centers of mass for each cluster, tally
-    // up the gyration tensor. This has to be done in a loop over the points.
+    // up the moment of inertia tensor. This has to be done in a loop over the points.
     for (unsigned int i = 0; i < nq->getNPoints(); i++)
     {
         unsigned int c = cluster_idx[i];
@@ -64,30 +65,30 @@ void ClusterProperties::compute(const freud::locality::NeighborQuery* nq, const 
         vec3<float> delta = nq->getBox().wrap(pos - m_cluster_centers[c]);
 
         // get the start pointer for our 3x3 matrix
-        m_cluster_gyrations(c, 0, 0) += delta.x * delta.x;
-        m_cluster_gyrations(c, 0, 1) += delta.x * delta.y;
-        m_cluster_gyrations(c, 0, 2) += delta.x * delta.z;
-        m_cluster_gyrations(c, 1, 0) += delta.y * delta.x;
-        m_cluster_gyrations(c, 1, 1) += delta.y * delta.y;
-        m_cluster_gyrations(c, 1, 2) += delta.y * delta.z;
-        m_cluster_gyrations(c, 2, 0) += delta.z * delta.x;
-        m_cluster_gyrations(c, 2, 1) += delta.z * delta.y;
-        m_cluster_gyrations(c, 2, 2) += delta.z * delta.z;
+        m_cluster_inertia_moments(c, 0, 0) += delta.x * delta.x;
+        m_cluster_inertia_moments(c, 0, 1) += delta.x * delta.y;
+        m_cluster_inertia_moments(c, 0, 2) += delta.x * delta.z;
+        m_cluster_inertia_moments(c, 1, 0) += delta.y * delta.x;
+        m_cluster_inertia_moments(c, 1, 1) += delta.y * delta.y;
+        m_cluster_inertia_moments(c, 1, 2) += delta.y * delta.z;
+        m_cluster_inertia_moments(c, 2, 0) += delta.z * delta.x;
+        m_cluster_inertia_moments(c, 2, 1) += delta.z * delta.y;
+        m_cluster_inertia_moments(c, 2, 2) += delta.z * delta.z;
     }
 
     // Normalize by the cluster size.
     for (unsigned int c = 0; c < num_clusters; c++)
     {
         auto s = static_cast<float>(m_cluster_sizes[c]);
-        m_cluster_gyrations(c, 0, 0) /= s;
-        m_cluster_gyrations(c, 0, 1) /= s;
-        m_cluster_gyrations(c, 0, 2) /= s;
-        m_cluster_gyrations(c, 1, 0) /= s;
-        m_cluster_gyrations(c, 1, 1) /= s;
-        m_cluster_gyrations(c, 1, 2) /= s;
-        m_cluster_gyrations(c, 2, 0) /= s;
-        m_cluster_gyrations(c, 2, 1) /= s;
-        m_cluster_gyrations(c, 2, 2) /= s;
+        m_cluster_inertia_moments(c, 0, 0) /= s;
+        m_cluster_inertia_moments(c, 0, 1) /= s;
+        m_cluster_inertia_moments(c, 0, 2) /= s;
+        m_cluster_inertia_moments(c, 1, 0) /= s;
+        m_cluster_inertia_moments(c, 1, 1) /= s;
+        m_cluster_inertia_moments(c, 1, 2) /= s;
+        m_cluster_inertia_moments(c, 2, 0) /= s;
+        m_cluster_inertia_moments(c, 2, 1) /= s;
+        m_cluster_inertia_moments(c, 2, 2) /= s;
     }
 }
 

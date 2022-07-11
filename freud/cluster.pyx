@@ -13,6 +13,8 @@ from freud.util cimport _Compute
 
 import warnings
 
+from freud.errors import FreudDeprecationWarning
+
 import numpy as np
 
 import freud.locality
@@ -183,9 +185,12 @@ cdef class ClusterProperties(_Compute):
     def compute(self, system, cluster_idx, masses=None):
         r"""Compute properties of the point clusters.
         Loops over all points in the given array and determines the center of
-        mass of the cluster as well as the gyration tensor. After calling
-        this method, these properties can be accessed with the
-        :code:`centers` and :code:`gyrations` attributes.
+        mass of the cluster as well as the moment of inertia tensor.
+        After callin this method, these properties can be accessed with the
+        :code:`centers` and :code:`mom_inertia` attributes.
+        The :code:`gyrations` property accounts for masses, if given,
+        but should technically be independent of mass. Hence it is
+        deprecated.
 
         Example::
 
@@ -219,7 +224,9 @@ cdef class ClusterProperties(_Compute):
 
         cdef const float[::1] l_masses = masses
 
-        self.thisptr.compute(nq.get_ptr(),<unsigned int*> &l_cluster_idx[0],<float*> &l_masses[0])
+        self.thisptr.compute(nq.get_ptr(),
+                <unsigned int*> &l_cluster_idx[0],
+                <float*> &l_masses[0])
         return self
 
     @_Compute._computed_property
@@ -234,8 +241,18 @@ cdef class ClusterProperties(_Compute):
     def gyrations(self):
         """(:math:`N_{clusters}`, 3, 3) :class:`numpy.ndarray`: The gyration
         tensors of the clusters."""
+        warnings.warn("This property is deprecated and will be removed",
+                      FreudDeprecationWarning)
         return freud.util.make_managed_numpy_array(
-            &self.thisptr.getClusterGyrations(),
+            &self.thisptr.getClusterInertiaMoments(),
+            freud.util.arr_type_t.FLOAT)
+
+    @_Compute._computed_property
+    def mom_inertia(self):
+        """(:math:`N_{clusters}`, 3, 3) :class:`numpy.ndarray`: The gyration
+        tensors of the clusters."""
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getClusterInertiaMoments(),
             freud.util.arr_type_t.FLOAT)
 
     @_Compute._computed_property
