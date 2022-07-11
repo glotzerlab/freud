@@ -27,3 +27,4 @@ cdef extern from "ClusterProperties.h" namespace "freud::cluster":
         const freud.util.ManagedArray[vec3[float]] &getClusterCenters() const
         const freud.util.ManagedArray[float] &getClusterInertiaMoments() const
         const freud.util.ManagedArray[unsigned int] &getClusterSizes() const
+        const freud.util.ManagedArray[float] &getClusterMasses() const

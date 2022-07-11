@@ -52,6 +52,12 @@ public:
     {
         return m_cluster_sizes;
     }
+    
+    //! Get a reference to the last computed cluster size
+    const util::ManagedArray<float>& getClusterMasses() const
+    {
+        return m_cluster_masses;
+    }
 
 private:
     util::ManagedArray<vec3<float>>
@@ -59,6 +65,7 @@ private:
     util::ManagedArray<float>
         m_cluster_inertia_moments; //!< Moment of inertia tensor computed for each cluster (m_num_clusters x 3 x 3 array)
     util::ManagedArray<unsigned int> m_cluster_sizes; //!< Size per cluster
+    util::ManagedArray<float> m_cluster_masses; //!< Mass per cluster
 };
 
 }; }; // end namespace freud::cluster

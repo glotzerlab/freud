@@ -33,6 +33,7 @@ void ClusterProperties::compute(const freud::locality::NeighborQuery* nq, const 
     m_cluster_centers.prepare(num_clusters);
     m_cluster_inertia_moments.prepare({num_clusters, 3, 3});
     m_cluster_sizes.prepare(num_clusters);
+    m_cluster_masses.prepare(num_clusters);
 
     // Create a vector to store cluster points, used to compute center of mass
     std::vector<std::vector<vec3<float>>> cluster_points(num_clusters, std::vector<vec3<float>>());
@@ -46,6 +47,7 @@ void ClusterProperties::compute(const freud::locality::NeighborQuery* nq, const 
         const unsigned int c = cluster_idx[i];
         cluster_points[c].push_back((*nq)[i]);
         m_cluster_sizes[c]++;
+	m_cluster_masses[c] += masses[i];
     }
 
     // Now that we have located all of the cluster vectors, compute the centers
