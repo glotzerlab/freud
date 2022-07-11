@@ -266,8 +266,9 @@ class TestCluster:
             num_neighbors,
             err_msg="two environments are not similar",
         )
-        assert freud.__version__ < '3.0.0', \
-            f"The global_search flag should be removed in version >= 3.0.0"
+        assert (
+            freud.__version__ < "3.0.0"
+        ), f"The global_search flag should be removed in version >= 3.0.0"
 
     # Test EnvironmentCluster._minimize_RMSD and registration functionality.
     # Overkill? Maybe.
@@ -436,11 +437,11 @@ class TestCluster:
         match = freud.environment.EnvironmentCluster()
         query_args = dict(num_neighbors=num_neighbors)
         with pytest.warns(FutureWarning):
-            match.compute((box, points), 0.1,
-                          neighbors=query_args, global_search=True)
+            match.compute((box, points), 0.1, neighbors=query_args, global_search=True)
 
-        assert freud.__version__ < '3.0.0', \
-            f"The global_search flag should be removed in version >= 3.0.0"
+        assert (
+            freud.__version__ < "3.0.0"
+        ), f"The global_search flag should be removed in version >= 3.0.0"
 
 
 class TestEnvironmentMotifMatch:
