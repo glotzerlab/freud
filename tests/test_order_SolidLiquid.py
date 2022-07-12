@@ -57,7 +57,7 @@ class TestSolidLiquid:
         assert comp.cluster_sizes[0] == len(positions)
         npt.assert_array_equal(comp.num_connections, 12)
 
-    def test_identical_environments_compute(self):
+    def test_multiple_compute(self):
         # Covers the case where compute is called multiple times
         box, positions = freud.data.UnitCell.fcc().generate_system(4, scale=2)
 
