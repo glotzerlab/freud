@@ -536,9 +536,9 @@ cdef class EnvironmentCluster(_MatchEnv):
         neighbors as defined by :code:`env_neighbors`.
         For example, :code:`env_neighbors= {'num_neighbors': 8}` means that every
         particle's local environment is defined by its 8 nearest neighbors.
-        Then, each particle's environment is compared to the environments of a
-        selected list of other particles in the system, controlled by the
-        :code:`neighbors` parameter. For example, :code:`neighbors={'r_max': 3.0}`
+        Then, each particle's environment is compared to the environments of
+        particles that satisfy a different cutoff parameter :code:`neighbors`.
+        For example, :code:`neighbors={'r_max': 3.0}`
         means that the environment of each particle will be compared to the
         environment of every particle within a distance of 3.0.
 
