@@ -4,6 +4,14 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v2.11.0 -- XXXX-XX-XX
+
+### Added
+* Support for 2D systems in `freud.diffraction.StaticStructureFactorDebye`.
+
+### Fixed
+* `EnvironmentMotifMatch` correctly handles `NeighborList`s with more neighbors per particle than the motif.
+
 ## v2.10.0 -- 2022-05-18
 
 ### Added

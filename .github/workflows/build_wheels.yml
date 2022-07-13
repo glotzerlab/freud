@@ -1,9 +1,6 @@
 name: Build wheels
 
 on:
-  # Trigger on pull requests.
-  pull_request:
-
   # Trigger on pushes to the mainline branches and version tags. This prevents building commits
   # twice when the pull request source branch is in the same repository.
   push:
@@ -34,7 +31,7 @@ jobs:
           submodules: "recursive"
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@2.5.0
+        uses: pypa/cibuildwheel@2.7.0
         env:
           # Build for cpython >= 3.6.
           CIBW_PROJECT_REQUIRES_PYTHON: "==${{ matrix.pyver }}.*"
@@ -73,7 +70,7 @@ jobs:
         with:
           submodules: "recursive"
 
-      - uses: actions/setup-python@v3
+      - uses: actions/setup-python@v4
         name: Install Python
         with:
           python-version: '3.9'
@@ -123,7 +120,7 @@ jobs:
           skip_existing: true
 
       - name: Slack notification
-        if: startsWith(github.ref, 'refs/tags/v') && always()
+        if: startsWith(github.ref, 'refs/tags/v') || failure()
         uses: act10ns/slack@v1.5.1
         with:
           status: ${{ job.status }}

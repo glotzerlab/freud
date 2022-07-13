@@ -357,6 +357,18 @@ class TestStaticStructureFactorDebye(StaticStructureFactorTest):
         S_ase = xrd.calc_pattern(sf.k_values, mode="SAXS") / len(points)
         npt.assert_allclose(sf.S_k, S_ase, rtol=1e-5, atol=1e-5)
 
+    def test_2D(self):
+        L = 10
+        N = 1000
+        sf = self.build_structure_factor_object(bins=100, k_max=10)
+        box, points = freud.data.make_random_system(L, N, is2D=True)
+        sf.compute((box, points))
+        sf2 = self.build_structure_factor_object(bins=100, k_max=10)
+        box.dimensions = 3
+        box.Lz = L * 10
+        sf2.compute((box, points))
+        npt.assert_allclose(sf.S_k, sf2.S_k, rtol=1e-5, atol=1e-5)
+
 
 class TestStaticStructureFactorDirect(StaticStructureFactorTest):
     @pytest.fixture

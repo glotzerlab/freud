@@ -57,11 +57,6 @@ void StaticStructureFactorDebye::accumulate(const freud::locality::NeighborQuery
                                             unsigned int n_total)
 {
     const auto& box = neighbor_query->getBox();
-    if (box.is2D())
-    {
-        throw std::invalid_argument("2D boxes are not currently supported.");
-    }
-
     // The minimum valid k value is 4 * pi / L, where L is the smallest side length.
     const auto box_L = box.getL();
     const auto min_box_length

@@ -1,0 +1,57 @@
+name: Run Unit Tests
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  # trigger on pull requests
+  pull_request:
+
+  # trigger on all commits to master
+  push:
+    branches:
+      - "master"
+
+  # trigger on request
+  workflow_dispatch:
+
+jobs:
+  run_tests:
+    name: Run tests on ${{ matrix.os }} with Python ${{ matrix.pyver-env.pyver }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macOS-latest, ubuntu-latest, windows-latest]
+        pyver-env: [ {pyver: '3.6', env: 'test-oldest_env.yaml'},
+                     {pyver: '3.7', env: 'test-compatible_env.yaml'},
+                     {pyver: '3.8', env: 'test_env.yaml'},
+                     {pyver: '3.9', env: 'test_env.yaml'},
+                     {pyver: '3.10', env: 'test_env.yaml'} ]
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2.3.4
+        with:
+          submodules: true
+
+      - name: Create Python Environment
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: ${{ matrix.pyver-env.pyver }}
+          environment-file: .github/workflows/env-files/${{ matrix.pyver-env.env }}
+          channels: conda-forge
+          activate-environment: test
+          show-channel-urls: true
+          miniforge-variant: Mambaforge
+          use-mamba: true
+
+      - name: Build and Install freud
+        shell: bash -l {0}
+        run: |
+          python setup.py install --user
+
+      - name: Run Tests
+        shell: bash -l {0}
+        run: |
+          pytest tests/ -v
