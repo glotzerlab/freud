@@ -97,15 +97,15 @@ cdef class StaticStructureFactorDebye(_StaticStructureFactor):
     see :cite:`Farrow2009`. Note that the definition requires :math:`S(0) = N`.
 
     .. note::
-        For true 2D systems the formula one should use is different to the one 
-        reported above. See this `link 
-        <http://www.scik.org/index.php/jmcs/article/viewFile/263/120>`__ 
-        for more information. For users wishing to calculate the structure 
-        factor of quasi 2D systems (when a 2D simulation is used to simulate 
-        a real system such as particles on a 2D interface or similar) the 3D 
+        For true 2D systems the formula one should use is different to the one
+        reported above. See this `link
+        <http://www.scik.org/index.php/jmcs/article/viewFile/263/120>`__
+        for more information. For users wishing to calculate the structure
+        factor of quasi 2D systems (when a 2D simulation is used to simulate
+        a real system such as particles on a 2D interface or similar) the 3D
         formula should be used. In these cases the users are advised to convert
         the 2D box to a 3D box with third dimension coordinates being set to 0.0
-        and length of third dimension being set to larger of the other two 
+        and length of third dimension being set to larger of the other two
         before using the method.
 
     This implementation uses an evenly spaced number of :math:`k` points between
