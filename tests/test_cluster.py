@@ -98,6 +98,29 @@ class TestCluster:
         npt.assert_allclose(props.gyrations[1], g_tensor_2, rtol=1e-5, atol=1e-5)
         npt.assert_allclose(props.radii_of_gyration, [0, rg_2], rtol=1e-5, atol=1e-5)
 
+    def test_cluster_weighted_props(self):
+        """Tests center of mass for mass weighted clusters."""
+        box = freud.box.Box.square(L=5)
+        positions = np.array([[0, -2, 0], [0, -2, 0], [0, 2, 0], [-0.1, 1.9, 0]])
+        masses = np.array([1, 2, 3, 4])
+        clust = freud.cluster.Cluster()
+        clust.compute((box, positions), neighbors={"r_max": 0.5})
+
+        props = freud.cluster.ClusterProperties()
+        props.compute((box, positions), clust.cluster_idx, masses=masses)
+
+        com_1 = [0, -2, 0]
+        com_2 = [-4 / 70, 68 / 35, 0]
+        g_tensor_2 = [[0.0025, 0.0025, 0], [0.0025, 0.0025, 0], [0, 0, 0]]
+        rg_2 = np.sqrt(np.trace(g_tensor_2))
+        npt.assert_allclose(props.centers[0, :], com_1, rtol=1e-5, atol=1e-5)
+        npt.assert_allclose(props.centers[1, :], com_2, rtol=1e-5, atol=1e-5)
+        npt.assert_allclose(props.gyrations[0], 0, atol=1e-5)
+        npt.assert_allclose(props.gyrations[1], g_tensor_2, rtol=1e-5, atol=1e-5)
+        npt.assert_allclose(props.radii_of_gyration, [0, rg_2], rtol=1e-5, atol=1e-5)
+
+        box = freud.Box.cube(3)
+
     def test_cluster_com_periodic(self):
         "Tests center of mass for symmetric, box-spanning clusters."
         box = freud.Box.cube(3)

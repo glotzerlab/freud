@@ -55,7 +55,7 @@ void ClusterProperties::compute(const freud::locality::NeighborQuery* nq, const 
     for (unsigned int c = 0; c < num_clusters; c++)
     {
         m_cluster_centers[c]
-            = nq->getBox().centerOfMass(cluster_points[c].data(), m_cluster_sizes[c], masses = masses);
+            = nq->getBox().centerOfMass(cluster_points[c].data(), m_cluster_sizes[c], masses);
     }
 
     // Now that we have determined the centers of mass for each cluster, tally
@@ -67,21 +67,21 @@ void ClusterProperties::compute(const freud::locality::NeighborQuery* nq, const 
         vec3<float> delta = nq->getBox().wrap(pos - m_cluster_centers[c]);
 
         // get the start pointer for our 3x3 matrix
-        m_cluster_inertia_moments(c, 0, 0) += delta.x * delta.x;
-        m_cluster_inertia_moments(c, 0, 1) += delta.x * delta.y;
-        m_cluster_inertia_moments(c, 0, 2) += delta.x * delta.z;
-        m_cluster_inertia_moments(c, 1, 0) += delta.y * delta.x;
-        m_cluster_inertia_moments(c, 1, 1) += delta.y * delta.y;
-        m_cluster_inertia_moments(c, 1, 2) += delta.y * delta.z;
-        m_cluster_inertia_moments(c, 2, 0) += delta.z * delta.x;
-        m_cluster_inertia_moments(c, 2, 1) += delta.z * delta.y;
-        m_cluster_inertia_moments(c, 2, 2) += delta.z * delta.z;
+        m_cluster_inertia_moments(c, 0, 0) += delta.x * delta.x * masses[i];
+        m_cluster_inertia_moments(c, 0, 1) += delta.x * delta.y * masses[i];
+        m_cluster_inertia_moments(c, 0, 2) += delta.x * delta.z * masses[i];
+        m_cluster_inertia_moments(c, 1, 0) += delta.y * delta.x * masses[i];
+        m_cluster_inertia_moments(c, 1, 1) += delta.y * delta.y * masses[i];
+        m_cluster_inertia_moments(c, 1, 2) += delta.y * delta.z * masses[i];
+        m_cluster_inertia_moments(c, 2, 0) += delta.z * delta.x * masses[i];
+        m_cluster_inertia_moments(c, 2, 1) += delta.z * delta.y * masses[i];
+        m_cluster_inertia_moments(c, 2, 2) += delta.z * delta.z * masses[i];
     }
 
-    // Normalize by the cluster size.
+    // Normalize by the cluster masses.
     for (unsigned int c = 0; c < num_clusters; c++)
     {
-        auto s = static_cast<float>(m_cluster_sizes[c]);
+        auto s = static_cast<float>(m_cluster_masses[c]);
         m_cluster_inertia_moments(c, 0, 0) /= s;
         m_cluster_inertia_moments(c, 0, 1) /= s;
         m_cluster_inertia_moments(c, 0, 2) /= s;
