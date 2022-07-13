@@ -8,6 +8,7 @@ and this project adheres to
 
 ### Added
 * Support for 2D systems in `freud.diffraction.StaticStructureFactorDebye`.
+* Mass dependence in `freud.cluster.ClusterProperties`.
 
 ### Fixed
 * `EnvironmentMotifMatch` correctly handles `NeighborList`s with more neighbors per particle than the motif.

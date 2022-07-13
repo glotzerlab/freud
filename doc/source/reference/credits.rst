@@ -364,6 +364,10 @@ Kody Takada
 
 * Contributed refactored unit tests.
 
+Alain Kadar
+
+* Introduced mass dependence for ``ClusterProperties`` class.
+
 Source code
 -----------
 

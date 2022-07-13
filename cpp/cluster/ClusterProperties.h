@@ -22,7 +22,7 @@ namespace freud { namespace cluster {
 
     m_cluster_centers stores the computed center of mass for each cluster,
     properly handling periodic boundary conditions.
-    m_cluster_gyrations stores a 3x3 gyration tensor for each cluster. The
+    m_cluster_inertia_moments stores a 3x3 gyration tensor for each cluster. The
     tensors are symmetric.
 */
 class ClusterProperties
@@ -32,7 +32,8 @@ public:
     ClusterProperties() = default;
 
     //! Compute properties of the point clusters
-    void compute(const freud::locality::NeighborQuery* nq, const unsigned int* cluster_idx);
+    void compute(const freud::locality::NeighborQuery* nq, const unsigned int* cluster_idx,
+                 const float* masses);
 
     //! Get a reference to the last computed cluster centers
     const util::ManagedArray<vec3<float>>& getClusterCenters() const
@@ -40,10 +41,10 @@ public:
         return m_cluster_centers;
     }
 
-    //! Get a reference to the last computed cluster gyration tensors
-    const util::ManagedArray<float>& getClusterGyrations() const
+    //! Get a reference to the last computed cluster moments of inertia
+    const util::ManagedArray<float>& getClusterInertiaMoments() const
     {
-        return m_cluster_gyrations;
+        return m_cluster_inertia_moments;
     }
 
     //! Get a reference to the last computed cluster size
@@ -52,12 +53,19 @@ public:
         return m_cluster_sizes;
     }
 
+    //! Get a reference to the last computed cluster size
+    const util::ManagedArray<float>& getClusterMasses() const
+    {
+        return m_cluster_masses;
+    }
+
 private:
     util::ManagedArray<vec3<float>>
         m_cluster_centers; //!< Center of mass computed for each cluster (length: m_num_clusters)
-    util::ManagedArray<float>
-        m_cluster_gyrations; //!< Gyration tensor computed for each cluster (m_num_clusters x 3 x 3 array)
-    util::ManagedArray<unsigned int> m_cluster_sizes; //!< Size per cluster
+    util::ManagedArray<float> m_cluster_inertia_moments; //!< Moment of inertia tensor computed for each
+                                                         //!< cluster (m_num_clusters x 3 x 3 array)
+    util::ManagedArray<unsigned int> m_cluster_sizes;    //!< Size per cluster
+    util::ManagedArray<float> m_cluster_masses;          //!< Mass per cluster
 };
 
 }; }; // end namespace freud::cluster
