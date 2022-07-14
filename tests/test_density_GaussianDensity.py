@@ -78,60 +78,75 @@ class TestGaussianDensity:
         with pytest.raises(ValueError):
             gd.compute((test_box, test_points))
 
-    def test_sum_2d(self):
+    @pytest.mark.parametrize("num_points", [1, 10, 100])
+    def test_sum_2d(self, num_points):
         # Ensure that each point's Gaussian sums to 1
         width = 20
         r_max = 9.9
         sigma = 2
         box_size = width
         gd = freud.density.GaussianDensity(width, r_max, sigma)
-        for num_points in [1, 10, 100]:
-            box, points = freud.data.make_random_system(box_size, num_points, is2D=True)
-            gd.compute(system=(box, points))
-            # This has discretization error as well as single-precision error
-            assert np.isclose(np.sum(gd.density), num_points, rtol=1e-4)
+        box, points = freud.data.make_random_system(box_size, num_points, is2D=True)
+        gd.compute(system=(box, points))
+        # This has discretization error as well as single-precision error
+        assert np.isclose(np.sum(gd.density), num_points, rtol=1e-4)
 
-    def test_sum_3d(self):
+    @pytest.mark.parametrize("num_points", [1, 10, 100])
+    def test_sum_3d(self, num_points):
         # Ensure that each point's Gaussian sums to 1
         width = 20
         r_max = 9.9
         sigma = 2
         box_size = width
         gd = freud.density.GaussianDensity(width, r_max, sigma)
-        for num_points in [1, 10, 100]:
-            box, points = freud.data.make_random_system(
-                box_size, num_points, is2D=False
-            )
-            gd.compute(system=(box, points))
-            # This has discretization error as well as single-precision error
-            assert np.isclose(np.sum(gd.density), num_points, rtol=1e-4)
 
-    def test_sum_values_2d(self):
+        box, points = freud.data.make_random_system(box_size, num_points, is2D=False)
+        gd.compute(system=(box, points))
+        # This has discretization error as well as single-precision error
+        assert np.isclose(np.sum(gd.density), num_points, rtol=1e-4)
+
+    @pytest.mark.parametrize("num_points", [1, 10, 100])
+    def test_sum_values_2d(self, num_points):
         # Ensure that the Gaussian convolution sums to the sum of the values
         width = 20
         r_max = 9.9
         sigma = 2
         box_size = width
         gd = freud.density.GaussianDensity(width, r_max, sigma)
-        for num_points in [1, 10, 100]:
-            system = freud.data.make_random_system(box_size, num_points, is2D=True)
-            values = np.random.rand(num_points)
-            gd.compute(system, values)
-            # This has discretization error as well as single-precision error
-            assert np.isclose(np.sum(gd.density), np.sum(values), rtol=1e-4)
 
-    def test_sum_values_3d(self):
+        system = freud.data.make_random_system(box_size, num_points, is2D=True)
+        values = np.random.rand(num_points)
+        gd.compute(system, values)
+        # This has discretization error as well as single-precision error
+        assert np.isclose(np.sum(gd.density), np.sum(values), rtol=1e-4)
+
+    @pytest.mark.parametrize("num_points", [1, 10, 100])
+    def test_sum_values_3d(self, num_points):
         # Ensure that the Gaussian convolution sums to the sum of the values
         width = 20
         r_max = 9.9
         sigma = 2
         box_size = width
         gd = freud.density.GaussianDensity(width, r_max, sigma)
+
+        system = freud.data.make_random_system(box_size, num_points, is2D=False)
+        values = np.random.rand(num_points)
+        gd.compute(system, values)
+        # This has discretization error as well as single-precision error
+        assert np.isclose(np.sum(gd.density), np.sum(values), rtol=1e-4)
+
+    def test_sum_compute(self):
+        """Ensures that GaussianDensity can call compute
+        multiple times with different data"""
+        width = 20
+        r_max = 9.9
+        sigma = 2
+        gd = freud.density.GaussianDensity(width, r_max, sigma)
+
         for num_points in [1, 10, 100]:
-            system = freud.data.make_random_system(box_size, num_points, is2D=False)
+            system = freud.data.make_random_system(width, num_points, is2D=False)
             values = np.random.rand(num_points)
             gd.compute(system, values)
-            # This has discretization error as well as single-precision error
             assert np.isclose(np.sum(gd.density), np.sum(values), rtol=1e-4)
 
     def test_repr(self):

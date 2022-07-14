@@ -39,40 +39,42 @@ class NeighborQueryTest:
             "subclass of NeighborQuery in a separate test subclass."
         )
 
-    def test_query_validate_points(self):
-        L = 10  # Box Dimensions
-        r_max = 2.01  # Cutoff radius
-        box = freud.box.Box.cube(L)
-
-        # It's not allowed to have an empty NeighborQuery
-        for empty_points in (
+    @pytest.mark.parametrize(
+        "points",
+        [
+            # It's not allowed to have an empty NeighborQuery
             [],
             [[]],
             np.zeros(0, dtype=np.float32),
             np.zeros(shape=(0, 3), dtype=np.float32),
-        ):
-            with pytest.raises(ValueError):
-                self.build_query_object(box, empty_points, r_max)
+            # It's not allowed to have one point as a 1D array
+            np.zeros(shape=(3), dtype=np.float32),
+            # It's not allowed to have an array without shape (N, 3)
+            np.zeros(shape=(1, 2), dtype=np.float32),
+            np.zeros(shape=(1, 4), dtype=np.float32),
+        ],
+    )
+    def test_query_invalid_points(self, points):
+        L = 10  # Box Dimensions
+        r_max = 2.01  # Cutoff radius
+        box = freud.box.Box.cube(L)
 
-        # It's not allowed to have one point as a 1D array
         with pytest.raises(ValueError):
-            points = np.zeros(shape=(3), dtype=np.float32)
             self.build_query_object(box, points, r_max)
 
-        # It's not allowed to have an array without shape (N, 3)
-        with pytest.raises(ValueError):
-            points = np.zeros(shape=(1, 2), dtype=np.float32)
-            self.build_query_object(box, points, r_max)
-        with pytest.raises(ValueError):
-            points = np.zeros(shape=(1, 4), dtype=np.float32)
-            self.build_query_object(box, points, r_max)
-
-        # Create a NeighborQuery with one point
-        points = np.zeros(shape=(1, 3), dtype=np.float32)
-        self.build_query_object(box, points, r_max)
-
-        # Create a NeighborQuery with ten points
-        points = np.zeros(shape=(10, 3), dtype=np.float32)
+    @pytest.mark.parametrize(
+        "points",
+        [
+            # Create a NeighborQuery with one point
+            np.zeros(shape=(1, 3), dtype=np.float32),
+            # Create a NeighborQuery with ten points
+            np.zeros(shape=(10, 3), dtype=np.float32),
+        ],
+    )
+    def test_query_valid_points(self, points):
+        L = 10  # Box Dimensions
+        r_max = 2.01  # Cutoff radius
+        box = freud.box.Box.cube(L)
         self.build_query_object(box, points, r_max)
 
     def test_query_ball(self):
@@ -375,87 +377,61 @@ class NeighborQueryTest:
 
         assert ij1 == ij2
 
-    def test_exhaustive_search(self):
+    @pytest.mark.parametrize("seed", range(10))
+    def test_exhaustive_search(self, seed):
         L, r_max, N = (10, 1.999, 32)
 
         box = freud.box.Box.cube(L)
-        seed = 0
 
-        for i in range(10):
-            _, points = freud.data.make_random_system(L, N, seed=seed + i)
-            all_vectors = points[:, np.newaxis, :] - points[np.newaxis, :, :]
-            all_vectors = box.wrap(all_vectors.reshape((-1, 3))).reshape(
-                all_vectors.shape
-            )
-            all_rsqs = np.sum(all_vectors**2, axis=-1)
-            (exhaustive_i, exhaustive_j) = np.where(
-                np.logical_and(all_rsqs < r_max**2, all_rsqs > 0)
-            )
+        _, points = freud.data.make_random_system(L, N, seed=seed)
+        all_vectors = points[:, np.newaxis, :] - points[np.newaxis, :, :]
+        all_vectors = box.wrap(all_vectors.reshape((-1, 3))).reshape(all_vectors.shape)
+        all_rsqs = np.sum(all_vectors**2, axis=-1)
+        (exhaustive_i, exhaustive_j) = np.where(
+            np.logical_and(all_rsqs < r_max**2, all_rsqs > 0)
+        )
 
-            exhaustive_ijs = set(zip(exhaustive_i, exhaustive_j))
-            exhaustive_counts = Counter(exhaustive_i)
-            exhaustive_counts_list = [exhaustive_counts[j] for j in range(N)]
+        exhaustive_ijs = set(zip(exhaustive_i, exhaustive_j))
+        exhaustive_counts = Counter(exhaustive_i)
+        exhaustive_counts_list = [exhaustive_counts[j] for j in range(N)]
 
-            nq = self.build_query_object(box, points, r_max)
-            result = list(
-                nq.query(points, dict(mode="ball", r_max=r_max, exclude_ii=True))
-            )
-            ijs = {(x[1], x[0]) for x in result}
-            counts = Counter([x[1] for x in result])
-            counts_list = [counts[j] for j in range(N)]
+        nq = self.build_query_object(box, points, r_max)
+        result = list(nq.query(points, dict(mode="ball", r_max=r_max, exclude_ii=True)))
+        ijs = {(x[1], x[0]) for x in result}
+        counts = Counter([x[1] for x in result])
+        counts_list = [counts[j] for j in range(N)]
 
-            try:
-                assert exhaustive_ijs == ijs
-            except AssertionError:
-                print(f"Failed neighbors, random seed: {seed} (i={i})")
-                raise
+        assert exhaustive_ijs == ijs
+        assert exhaustive_counts_list == counts_list
 
-            try:
-                assert exhaustive_counts_list == counts_list
-            except AssertionError:
-                print(f"Failed neighbor counts, random seed: {seed} (i={i})")
-                raise
-
-    def test_exhaustive_search_asymmetric(self):
+    @pytest.mark.parametrize("seed", range(10))
+    def test_exhaustive_search_asymmetric(self, seed):
         L, r_max, N = (10, 1.999, 32)
 
         box = freud.box.Box.cube(L)
-        seed = 0
 
-        for i in range(10):
-            np.random.seed(seed + i)
-            points = np.random.uniform(-L / 2, L / 2, (N, 3)).astype(np.float32)
-            points2 = np.random.uniform(-L / 2, L / 2, (N // 2, 3)).astype(np.float32)
-            all_vectors = points[:, np.newaxis, :] - points2[np.newaxis, :, :]
-            all_vectors = box.wrap(all_vectors.reshape((-1, 3))).reshape(
-                all_vectors.shape
-            )
-            all_rsqs = np.sum(all_vectors**2, axis=-1)
-            (exhaustive_i, exhaustive_j) = np.where(
-                np.logical_and(all_rsqs < r_max**2, all_rsqs > 0)
-            )
+        np.random.seed(seed)
+        points = np.random.uniform(-L / 2, L / 2, (N, 3)).astype(np.float32)
+        points2 = np.random.uniform(-L / 2, L / 2, (N // 2, 3)).astype(np.float32)
+        all_vectors = points[:, np.newaxis, :] - points2[np.newaxis, :, :]
+        all_vectors = box.wrap(all_vectors.reshape((-1, 3))).reshape(all_vectors.shape)
+        all_rsqs = np.sum(all_vectors**2, axis=-1)
+        (exhaustive_i, exhaustive_j) = np.where(
+            np.logical_and(all_rsqs < r_max**2, all_rsqs > 0)
+        )
 
-            exhaustive_ijs = set(zip(exhaustive_i, exhaustive_j))
-            exhaustive_counts = Counter(exhaustive_i)
-            exhaustive_counts_list = [exhaustive_counts[j] for j in range(N)]
+        exhaustive_ijs = set(zip(exhaustive_i, exhaustive_j))
+        exhaustive_counts = Counter(exhaustive_i)
+        exhaustive_counts_list = [exhaustive_counts[j] for j in range(N)]
 
-            nq = self.build_query_object(box, points2, r_max)
-            result = list(nq.query(points, dict(mode="ball", r_max=r_max)))
-            ijs = {(x[0], x[1]) for x in result}
-            counts = Counter([x[0] for x in result])
-            counts_list = [counts[j] for j in range(N)]
+        nq = self.build_query_object(box, points2, r_max)
+        result = list(nq.query(points, dict(mode="ball", r_max=r_max)))
+        ijs = {(x[0], x[1]) for x in result}
+        counts = Counter([x[0] for x in result])
+        counts_list = [counts[j] for j in range(N)]
 
-            try:
-                assert exhaustive_ijs == ijs
-            except AssertionError:
-                print(f"Failed neighbors, random seed: {seed} (i={i})")
-                raise
-
-            try:
-                assert exhaustive_counts_list == counts_list
-            except AssertionError:
-                print(f"Failed neighbor counts, random seed: {seed} (i={i})")
-                raise
+        assert exhaustive_ijs == ijs
+        assert exhaustive_counts_list == counts_list
 
     def test_attributes(self):
         """Ensure that mixing old and new APIs raises an error."""
@@ -512,39 +488,34 @@ class NeighborQueryTest:
         result = list(nq.query(positions[[0]], dict(mode="nearest", num_neighbors=3)))
         assert get_point_neighbors(result, 0) == {0, 1, 2}
 
-    def test_random_system_query(self):
+    @pytest.mark.parametrize(
+        "N, k", [(N, k) for N in (10, 100, 500) for k in (1, 5, 10, 50) if k < N]
+    )
+    def test_random_system_query(self, N, k):
         np.random.seed(0)
         L = 10
         box = freud.box.Box.cube(L)
 
         # Generate random points
-        for N in [10, 100, 500]:
-            positions = box.wrap(L / 2 * np.random.rand(N, 3))
-            ks = [1, 5]
-            if N > 10:
-                ks.extend([10, 50])
-            for k in ks:
-                nq = self.build_query_object(box, positions, L / 10)
+        positions = box.wrap(L / 2 * np.random.rand(N, 3))
 
-                nlist = nq.query(
-                    positions, dict(num_neighbors=k, exclude_ii=True)
-                ).toNeighborList()
-                assert len(nlist) == k * N, (
-                    "Wrong nlist length for N = {}," "num_neighbors = {}, length = {}"
-                ).format(N, k, len(nlist))
-                nlist_array = nlist[:]
-                for i in range(N):
-                    assert not ([i, i] == nlist_array).all(axis=1).any()
+        nq = self.build_query_object(box, positions, L / 10)
 
-                nlist = nq.query(
-                    positions, dict(num_neighbors=k, exclude_ii=False)
-                ).toNeighborList()
-                assert len(nlist) == k * N, (
-                    "Wrong nlist length for N = {}, " "num_neighbors = {}, length = {}"
-                ).format(N, k, len(nlist))
-                nlist_array = nlist[:]
-                for i in range(N):
-                    assert ([i, i] == nlist_array).all(axis=1).any()
+        nlist = nq.query(
+            positions, dict(num_neighbors=k, exclude_ii=True)
+        ).toNeighborList()
+        assert len(nlist) == k * N
+        nlist_array = nlist[:]
+        for i in range(N):
+            assert not ([i, i] == nlist_array).all(axis=1).any()
+
+        nlist = nq.query(
+            positions, dict(num_neighbors=k, exclude_ii=False)
+        ).toNeighborList()
+        assert len(nlist) == k * N
+        nlist_array = nlist[:]
+        for i in range(N):
+            assert ([i, i] == nlist_array).all(axis=1).any()
 
     def test_duplicate_cell_shells(self):
         box = freud.box.Box.square(5)
@@ -643,7 +614,11 @@ class TestNeighborQueryAABB(NeighborQueryTest):
         nlist2 = abq.query(points, dict(r_max=r_max, exclude_ii=True)).toNeighborList()
         assert nlist_equal(nlist1, nlist2)
 
-    def test_r_guess_scale(self):
+    @pytest.mark.parametrize(
+        "r_guess, scale",
+        [(r_guess, scale) for r_guess in [0.5, 1, 2] for scale in [1.01, 1.1, 1.3]],
+    )
+    def test_r_guess_scale(self, r_guess, scale):
         """Ensure that r_guess and scale have no effect on query results."""
         np.random.seed(0)
         L = 10
@@ -654,22 +629,17 @@ class TestNeighborQueryAABB(NeighborQueryTest):
         nq = self.build_query_object(box, positions, L / 10)
 
         k = 10
-        r_guess_vals = [L / 20, L / 10, L / 5]
-        scales = [1.01, 1.1, 1.3]
 
         original_nlist = None
-        for r_guess in r_guess_vals:
-            for scale in scales:
-                nlist = nq.query(
-                    positions,
-                    dict(
-                        num_neighbors=k, exclude_ii=True, r_guess=r_guess, scale=scale
-                    ),
-                ).toNeighborList()
-                if original_nlist is not None:
-                    assert nlist_equal(nlist, original_nlist)
-                else:
-                    original_nlist = nlist
+
+        nlist = nq.query(
+            positions,
+            dict(num_neighbors=k, exclude_ii=True, r_guess=r_guess, scale=scale),
+        ).toNeighborList()
+        if original_nlist is not None:
+            assert nlist_equal(nlist, original_nlist)
+        else:
+            original_nlist = nlist
 
 
 class TestNeighborQueryLinkCell(NeighborQueryTest):
