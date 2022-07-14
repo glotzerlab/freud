@@ -268,7 +268,7 @@ class TestCluster:
         )
         assert (
             freud.__version__ < "3.0.0"
-        ), f"The global_search flag should be removed in version >= 3.0.0"
+        ), "The global_search flag should be removed in version >= 3.0.0"
 
     # Test EnvironmentCluster._minimize_RMSD and registration functionality.
     # Overkill? Maybe.
@@ -441,7 +441,7 @@ class TestCluster:
 
         assert (
             freud.__version__ < "3.0.0"
-        ), f"The global_search flag should be removed in version >= 3.0.0"
+        ), "The global_search flag should be removed in version >= 3.0.0"
 
 
 class TestEnvironmentMotifMatch:
