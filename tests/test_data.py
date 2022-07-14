@@ -33,55 +33,56 @@ class TestUnitCell:
             points, [[0, 0, -0.5], [0, -0.5, 0], [-0.5, 0, 0], [-0.5, -0.5, -0.5]]
         )
 
-    def test_scale(self):
+    @pytest.mark.parametrize("scale", [0.5, 2])
+    def test_scale(self, scale):
         """Test the generation of a scaled structure."""
-        for scale in [0.5, 2]:
-            box, points = freud.data.UnitCell.fcc().generate_system(scale=scale)
-            assert box == freud.box.Box.cube(scale)
-            npt.assert_array_equal(
-                points,
-                scale
-                * np.array(
-                    [[0, 0, -0.5], [0, -0.5, 0], [-0.5, 0, 0], [-0.5, -0.5, -0.5]]
-                ),
-            )
+        box, points = freud.data.UnitCell.fcc().generate_system(scale=scale)
+        assert box == freud.box.Box.cube(scale)
+        npt.assert_array_equal(
+            points,
+            scale
+            * np.array([[0, 0, -0.5], [0, -0.5, 0], [-0.5, 0, 0], [-0.5, -0.5, -0.5]]),
+        )
 
-    def test_replicas(self):
+    @pytest.mark.parametrize("num_replicas", range(1, 10))
+    def test_replicas(self, num_replicas):
         """Test that replication works."""
-        for num_replicas in range(1, 10):
-            box, points = freud.data.UnitCell.fcc().generate_system(
-                num_replicas=num_replicas
-            )
-            assert box == freud.box.Box.cube(num_replicas)
+        box, points = freud.data.UnitCell.fcc().generate_system(
+            num_replicas=num_replicas
+        )
+        assert box == freud.box.Box.cube(num_replicas)
 
-            test_points = np.array(
-                [[0, 0.5, 0.5], [0.5, 0, 0.5], [0.5, 0.5, 0], [0.0, 0.0, 0.0]]
-            )
-            test_points = test_points[np.newaxis, np.newaxis, np.newaxis, ...]
-            test_points = np.tile(
-                test_points, [num_replicas, num_replicas, num_replicas, 1, 1]
-            )
-            test_points[..., 0] += np.arange(num_replicas)[
-                :, np.newaxis, np.newaxis, np.newaxis
-            ]
-            test_points[..., 1] += np.arange(num_replicas)[
-                np.newaxis, :, np.newaxis, np.newaxis
-            ]
-            test_points[..., 2] += np.arange(num_replicas)[
-                np.newaxis, np.newaxis, :, np.newaxis
-            ]
-            test_points = (test_points - (num_replicas * 0.5)).reshape(-1, 3)
+        test_points = np.array(
+            [[0, 0.5, 0.5], [0.5, 0, 0.5], [0.5, 0.5, 0], [0.0, 0.0, 0.0]]
+        )
+        test_points = test_points[np.newaxis, np.newaxis, np.newaxis, ...]
+        test_points = np.tile(
+            test_points, [num_replicas, num_replicas, num_replicas, 1, 1]
+        )
+        test_points[..., 0] += np.arange(num_replicas)[
+            :, np.newaxis, np.newaxis, np.newaxis
+        ]
+        test_points[..., 1] += np.arange(num_replicas)[
+            np.newaxis, :, np.newaxis, np.newaxis
+        ]
+        test_points[..., 2] += np.arange(num_replicas)[
+            np.newaxis, np.newaxis, :, np.newaxis
+        ]
+        test_points = (test_points - (num_replicas * 0.5)).reshape(-1, 3)
 
-            npt.assert_allclose(
-                sort_rounded_xyz_array(points),
-                sort_rounded_xyz_array(box.wrap(test_points)),
-            )
+        npt.assert_allclose(
+            sort_rounded_xyz_array(points),
+            sort_rounded_xyz_array(box.wrap(test_points)),
+        )
 
-    def test_invalid_replicas(self):
+    @pytest.mark.parametrize(
+        "num_replicas",
+        [0, 2.5, -1, [2, 2, 0], [2, 2, 2], "abc"],
+    )
+    def test_invalid_replicas(self, num_replicas):
         """Test that invalid replications raise errors."""
-        for num_replicas in (0, 2.5, -1, [2, 2, 0], [2, 2, 2], "abc"):
-            with pytest.raises(ValueError):
-                freud.data.UnitCell.square().generate_system(num_replicas=num_replicas)
+        with pytest.raises(ValueError):
+            freud.data.UnitCell.square().generate_system(num_replicas=num_replicas)
 
     def test_noise(self):
         """Test that noise generation works."""
@@ -127,14 +128,14 @@ class TestUnitCell:
 
 
 class TestRandomSystem:
-    def test_sizes_and_dimensions(self):
-        for N in (0, 1, 10, 100, 1000):
-            for is2D in (True, False):
-                box, points = freud.data.make_random_system(
-                    box_size=10, num_points=N, is2D=is2D
-                )
-                assert points.shape == (N, 3)
-                assert box.is2D == is2D
+    @pytest.mark.parametrize("N", (0, 1, 10, 100, 1000))
+    @pytest.mark.parametrize("is2D", (True, False))
+    def test_sizes_and_dimensions(self, N, is2D):
+        box, points = freud.data.make_random_system(
+            box_size=10, num_points=N, is2D=is2D
+        )
+        assert points.shape == (N, 3)
+        assert box.is2D == is2D
 
     def test_seed(self):
         """Ensure that seeding does not overwrite the global random state."""

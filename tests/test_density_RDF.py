@@ -13,25 +13,23 @@ matplotlib.use("agg")
 
 
 class TestRDF:
-    def test_generateR(self):
+    @pytest.mark.parametrize("r_min", [0, 0.05, 0.1, 1.0, 3.0])
+    def test_generate_bins(self, r_min):
         r_max = 5
-        for r_min in [0, 0.05, 0.1, 1.0, 3.0]:
-            bins = round((r_max - r_min) / 0.1)
-            dr = (r_max - r_min) / bins
+        bins = round((r_max - r_min) / 0.1)
+        dr = (r_max - r_min) / bins
 
-            # make sure the radius for each bin is generated correctly
-            r_list = np.array(
-                [
-                    r_min + dr * (i + 1 / 2)
-                    for i in range(bins)
-                    if r_min + dr * (i + 1 / 2) < r_max
-                ]
-            )
-            rdf = freud.density.RDF(bins, r_max, r_min=r_min)
-            npt.assert_allclose(rdf.bin_centers, r_list, rtol=1e-4, atol=1e-4)
-            npt.assert_allclose(
-                (rdf.bin_edges + dr / 2)[:-1], r_list, rtol=1e-4, atol=1e-4
-            )
+        # make sure the radius for each bin is generated correctly
+        r_list = np.array(
+            [
+                r_min + dr * (i + 1 / 2)
+                for i in range(bins)
+                if r_min + dr * (i + 1 / 2) < r_max
+            ]
+        )
+        rdf = freud.density.RDF(bins, r_max, r_min=r_min)
+        npt.assert_allclose(rdf.bin_centers, r_list, rtol=1e-4, atol=1e-4)
+        npt.assert_allclose((rdf.bin_edges + dr / 2)[:-1], r_list, rtol=1e-4, atol=1e-4)
 
     def test_attribute_access(self):
         r_max = 10.0
@@ -74,14 +72,52 @@ class TestRDF:
         with pytest.raises(ValueError):
             freud.density.RDF(r_max=1, bins=10, r_min=-1)
 
-    def test_random_point(self):
+    @pytest.mark.parametrize("r_min", [0, 0.1, 3.0])
+    def test_random_point(self, r_min):
         r_max = 10.0
         bins = 10
         num_points = 10000
         tolerance = 0.1
         box_size = r_max * 3.1
 
-        for r_min in (0, 0.1, 3.0):
+        box, points = freud.data.make_random_system(box_size, num_points)
+        # This test is slow, and since it's a validation of the underlying
+        # algorithm and not the API we don't need to test all possible
+        # inputs, so we only test the fastest one (AABBQuery).
+        nq = freud.locality.AABBQuery(box, points)
+        neighbors = {"mode": "ball", "r_max": r_max, "exclude_ii": True}
+
+        rdf = freud.density.RDF(bins, r_max, r_min)
+
+        rdf.compute(nq, neighbors=neighbors, reset=False)
+
+        assert rdf.box == box
+        expected = np.ones(bins, dtype=np.float32)
+        npt.assert_allclose(rdf.rdf, expected, atol=tolerance)
+
+        # Numerical integration to compute the running coordination
+        # number will be highly inaccurate, so we can only test up to
+        # a limited precision. Also, since dealing with nonzero r_min
+        # values requires extrapolation, we only test when r_min=0.
+        ndens = points.shape[0] / box.volume
+        dr = (r_max - r_min) / bins
+        bin_boundaries = np.array(
+            [r_min + dr * i for i in range(bins + 1) if r_min + dr * i <= r_max]
+        )
+        bin_volumes = 4 / 3 * np.pi * np.diff(bin_boundaries**3)
+        avg_counts = rdf.rdf * ndens * bin_volumes
+        npt.assert_allclose(rdf.n_r, np.cumsum(avg_counts), rtol=tolerance)
+
+    def test_compute_reset(self):
+        # This test is to check whether rdf.compute accumulates the data correctly
+        # when reset is set to False
+        r_max = 10.0
+        bins = 10
+        num_points = 10000
+        tolerance = 0.1
+        box_size = r_max * 3.1
+
+        for r_min in (0, 0.1):
             box, points = freud.data.make_random_system(box_size, num_points)
             # This test is slow, and since it's a validation of the underlying
             # algorithm and not the API we don't need to test all possible
@@ -91,14 +127,11 @@ class TestRDF:
 
             rdf = freud.density.RDF(bins, r_max, r_min)
 
-            if r_min != 3.0:
-                rdf.compute(nq, neighbors=neighbors, reset=False)
-            else:
-                rdf.compute(nq, neighbors=neighbors)
+            rdf.compute(nq, neighbors=neighbors, reset=False)
 
             assert rdf.box == box
-            correct = np.ones(bins, dtype=np.float32)
-            npt.assert_allclose(rdf.rdf, correct, atol=tolerance)
+            expected = np.ones(bins, dtype=np.float32)
+            npt.assert_allclose(rdf.rdf, expected, atol=tolerance)
 
             # Numerical integration to compute the running coordination
             # number will be highly inaccurate, so we can only test up to

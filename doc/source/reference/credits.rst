@@ -360,6 +360,10 @@ Dylan Marx
 
 * Contributed documentation for ``NeighborQuery`` class.
 
+Kody Takada
+
+* Contributed refactored unit tests.
+
 Source code
 -----------
 

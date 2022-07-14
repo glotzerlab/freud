@@ -152,19 +152,21 @@ def return_correlation(l, initial_q, orientations):
 class TestRotationalAutocorrelationReference:
     """Test against a reference Python implementation."""
 
-    N = 100
-    for seed in range(5):
-        for l in [4, 6, 8]:
-            np.random.seed(seed)
-            orientations = rowan.random.rand(N)
-            ref_orientations = rowan.random.rand(N)
+    @pytest.mark.parametrize(
+        "seed, l", [(seed, l) for seed in range(5) for l in [4, 6, 8]]
+    )
+    def test_reference_implementation(self, seed, l):
+        N = 100
+        np.random.seed(seed)
+        orientations = rowan.random.rand(N)
+        ref_orientations = rowan.random.rand(N)
 
-            ra = freud.order.RotationalAutocorrelation(l)
-            ra.compute(ref_orientations, orientations)
+        ra = freud.order.RotationalAutocorrelation(l)
+        ra.compute(ref_orientations, orientations)
 
-            npt.assert_allclose(
-                ra.order,
-                return_correlation(l, ref_orientations, orientations),
-                atol=1e-6,
-                rtol=1e-6,
-            )
+        npt.assert_allclose(
+            ra.order,
+            return_correlation(l, ref_orientations, orientations),
+            atol=1e-6,
+            rtol=1e-6,
+        )

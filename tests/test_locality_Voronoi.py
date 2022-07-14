@@ -252,43 +252,47 @@ class TestVoronoi:
         )
         npt.assert_allclose(wrapped_distances, vor.nlist.distances)
 
-    def test_voronoi_neighbors_wrapped(self):
+    @pytest.mark.parametrize(
+        "func, neighbors",
+        [
+            (func, neighbors)
+            for func, neighbors in {
+                "sc": (freud.data.UnitCell.sc, 6),
+                "bcc": (freud.data.UnitCell.bcc, 14),
+                "fcc": (freud.data.UnitCell.fcc, 12),
+            }.values()
+        ],
+    )
+    def test_voronoi_neighbors_wrapped(self, func, neighbors):
         # Test that voronoi neighbors in the first shell are correct for a
         # wrapped 3D system, also tests multiple compute calls
 
         n = 10
-        structure_neighbors = {
-            "sc": (freud.data.UnitCell.sc, 6),
-            "bcc": (freud.data.UnitCell.bcc, 14),
-            "fcc": (freud.data.UnitCell.fcc, 12),
-        }
         vor = freud.locality.Voronoi()
 
-        for func, neighbors in structure_neighbors.values():
-            box, points = func().generate_system(n)
-            vor.compute((box, points))
-            nlist = vor.nlist
+        box, points = func().generate_system(n)
+        vor.compute((box, points))
+        nlist = vor.nlist
 
-            # Drop the tiny facets that come from numerical imprecision
-            nlist = nlist.filter(nlist.weights > 1e-5)
+        # Drop the tiny facets that come from numerical imprecision
+        nlist = nlist.filter(nlist.weights > 1e-5)
 
-            unique_indices, counts = np.unique(
-                nlist.query_point_indices, return_counts=True
-            )
+        unique_indices, counts = np.unique(
+            nlist.query_point_indices, return_counts=True
+        )
 
-            # Every particle should have the specified number of neighbors
-            npt.assert_equal(counts, neighbors)
-            npt.assert_almost_equal(np.sum(vor.volumes), box.volume)
+        # Every particle should have the specified number of neighbors
+        npt.assert_equal(counts, neighbors)
+        npt.assert_almost_equal(np.sum(vor.volumes), box.volume)
 
-            # Verify the neighbor distances
-            wrapped_distances = np.linalg.norm(
-                box.wrap(
-                    points[vor.nlist.point_indices]
-                    - points[vor.nlist.query_point_indices]
-                ),
-                axis=-1,
-            )
-            npt.assert_allclose(wrapped_distances, vor.nlist.distances)
+        # Verify the neighbor distances
+        wrapped_distances = np.linalg.norm(
+            box.wrap(
+                points[vor.nlist.point_indices] - points[vor.nlist.query_point_indices]
+            ),
+            axis=-1,
+        )
+        npt.assert_allclose(wrapped_distances, vor.nlist.distances)
 
     def test_voronoi_weights_fcc(self):
         # Test that voronoi neighbor weights are computed properly for 3D FCC
