@@ -11,13 +11,10 @@ from cython.operator cimport dereference
 from freud.locality cimport _PairCompute
 from freud.util cimport _Compute
 
-import warnings
-
 import numpy as np
 
 import freud.locality
 import freud.util
-from freud.errors import FreudDeprecationWarning
 
 cimport numpy as np
 
@@ -184,12 +181,9 @@ cdef class ClusterProperties(_Compute):
     def compute(self, system, cluster_idx, masses=None):
         r"""Compute properties of the point clusters.
         Loops over all points in the given array and determines the center of
-        mass of the cluster as well as the moment of inertia tensor.
-        After callin this method, these properties can be accessed with the
-        :code:`centers` and :code:`mom_inertia` attributes.
-        The :code:`gyrations` property accounts for masses, if given,
-        but should technically be independent of mass. Hence it is
-        deprecated.
+        mass of the cluster, moment of inertia and gyration tensors.
+        After calling this method, these properties can be accessed with the
+        respective attributes.
 
         Example::
 
@@ -210,22 +204,25 @@ cdef class ClusterProperties(_Compute):
                 :class:`freud.locality.NeighborQuery.from_system`.
             cluster_idx ((:math:`N_{points}`,) :class:`np.ndarray`):
                 Cluster indexes for each point.
+            masses (:math:`\left(N, 3\right)` :class:`numpy.ndarray`):
+                Masses corresponding to each point, defaulting to 1 if not
+                provided or :code:`None` (Default value = :code:`None`).
         """
         cdef freud.locality.NeighborQuery nq = \
             freud.locality.NeighborQuery.from_system(system)
         cluster_idx = freud.util._convert_array(
             cluster_idx, shape=(nq.points.shape[0], ), dtype=np.uint32)
         cdef const unsigned int[::1] l_cluster_idx = cluster_idx
-        if masses is None:
-            masses = np.ones((nq.points.shape[0]), dtype=np.float32)
 
-        masses = freud.util._convert_array(masses)
-
-        cdef const float[::1] l_masses = masses
+        cdef float* l_masses_ptr = NULL
+        cdef float[::1] l_masses
+        if masses is not None:
+            l_masses = freud.util._convert_array(masses, shape=(len(masses), ))
+            l_masses_ptr = &l_masses[0]
 
         self.thisptr.compute(nq.get_ptr(),
                              <unsigned int*> &l_cluster_idx[0],
-                             <float*> &l_masses[0])
+                             l_masses_ptr)
         return self
 
     @_Compute._computed_property
@@ -237,25 +234,31 @@ cdef class ClusterProperties(_Compute):
             freud.util.arr_type_t.FLOAT, 3)
 
     @_Compute._computed_property
+    def centers_of_mass(self):
+        """(:math:`N_{clusters}`, 3) :class:`numpy.ndarray`: The centers of
+        the clusters."""
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getClusterCentersOfMass(),
+            freud.util.arr_type_t.FLOAT, 3)
+
+    @_Compute._computed_property
     def gyrations(self):
         """(:math:`N_{clusters}`, 3, 3) :class:`numpy.ndarray`: The gyration
         tensors of the clusters."""
-        warnings.warn("This property is deprecated and will be removed",
-                      FreudDeprecationWarning)
         return freud.util.make_managed_numpy_array(
-            &self.thisptr.getClusterInertiaMoments(),
+            &self.thisptr.getClusterGyrations(),
             freud.util.arr_type_t.FLOAT)
 
     @_Compute._computed_property
-    def mom_inertia(self):
-        """(:math:`N_{clusters}`, 3, 3) :class:`numpy.ndarray`: The gyration
+    def inertia_tensors(self):
+        """(:math:`N_{clusters}`, 3, 3) :class:`numpy.ndarray`: The inertia
         tensors of the clusters."""
         return freud.util.make_managed_numpy_array(
-            &self.thisptr.getClusterInertiaMoments(),
+            &self.thisptr.getClusterMomentsOfInertia(),
             freud.util.arr_type_t.FLOAT)
 
     @_Compute._computed_property
-    def sizes(self):
+    def cluster_sizes(self):
         """(:math:`N_{clusters}`) :class:`numpy.ndarray`: The cluster sizes."""
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getClusterSizes(),
@@ -272,8 +275,8 @@ cdef class ClusterProperties(_Compute):
     def radii_of_gyration(self):
         """(:math:`N_{clusters}`,) :class:`numpy.ndarray`: The radius of
         gyration of each cluster."""
-        return np.sqrt(np.trace(self.gyrations, axis1=-2, axis2=-1)) \
-            / np.sum(self.cluster_masses)
+        return np.sqrt(np.trace(self.inertia_tensors, axis1=-2, axis2=-1)
+                       /(2*self.cluster_masses))
 
     def __repr__(self):
         return "freud.cluster.{cls}()".format(cls=type(self).__name__)
