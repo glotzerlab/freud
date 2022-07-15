@@ -360,6 +360,10 @@ Dylan Marx
 
 * Contributed documentation for ``NeighborQuery`` class.
 
+Kody Takada
+
+* Contributed refactored unit tests.
+
 Alain Kadar
 
 * Introduced mass dependence for ``ClusterProperties`` class.
