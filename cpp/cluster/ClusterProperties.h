@@ -51,13 +51,13 @@ public:
         return m_cluster_centers_of_mass;
     }
 
-    //! Get a reference to the last computed cluster gyration tensors
+    //! Get a reference to the last computed cluster moments of inertia
     const util::ManagedArray<float>& getClusterMomentsOfInertia() const
     {
         return m_cluster_moments_of_inertia;
     }
 
-    //! Get a reference to the last computed cluster moments of inertia
+    //! Get a reference to the last computed cluster gyration tensors
     const util::ManagedArray<float>& getClusterGyrations() const
     {
         return m_cluster_gyrations;

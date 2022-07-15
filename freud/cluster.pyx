@@ -157,14 +157,16 @@ cdef class ClusterProperties(_Compute):
     Given a set of points and cluster ids (from :class:`~.Cluster` or another
     source), this class determines the following properties for each cluster:
 
-     - Center of mass
+     - Geometric centers
+     - Centers of mass
      - Gyration tensor
+     - Moment of inertia tensor
      - Size (number of points)
+     - Mass
 
-    The center of mass for each cluster (properly handling periodic boundary
-    conditions) can be accessed with :code:`centers` attribute.  The :math:`3
-    \times 3` symmetric gyration tensors :math:`G` can be accessed with
-    :code:`gyrations` attribute.
+    The centers for each cluster properly handle periodic boundary
+    conditions. All attributes can be accessed once :class:`compute`
+    has been called.
     """
 
     cdef freud._cluster.ClusterProperties * thisptr
@@ -180,8 +182,9 @@ cdef class ClusterProperties(_Compute):
 
     def compute(self, system, cluster_idx, masses=None):
         r"""Compute properties of the point clusters.
-        Loops over all points in the given array and determines the center of
-        mass of the cluster, moment of inertia and gyration tensors.
+        Loops over all points in the given array and determines the geometric
+        centers, centers of mass of the, moment of inertia and gyration tensors,
+        and radii of gyration :cite:`Vymetal2011`.
         After calling this method, these properties can be accessed with the
         respective attributes.
 
@@ -227,32 +230,66 @@ cdef class ClusterProperties(_Compute):
 
     @_Compute._computed_property
     def centers(self):
-        """(:math:`N_{clusters}`, 3) :class:`numpy.ndarray`: The centers of
-        mass of the clusters."""
+        r"""(:math:`N_{clusters}`, 3) :class:`numpy.ndarray`: The geometric centers
+        of the clusters, independent of mass and defined as
+
+        .. math::
+
+            \mathbf{C}_m = \frac{1}{N} \sum_{i=0}^{N} \mathbf{r_i}
+
+        where :math:`N` is the number of particles and :math:`\mathbf{r_i}` are
+        their positions.
+        """
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getClusterCenters(),
             freud.util.arr_type_t.FLOAT, 3)
 
     @_Compute._computed_property
     def centers_of_mass(self):
-        """(:math:`N_{clusters}`, 3) :class:`numpy.ndarray`: The centers of
-        the clusters."""
+        r"""(:math:`N_{clusters}`, 3) :class:`numpy.ndarray`: The centers of mass
+        of the clusters:
+
+        .. math::
+
+            \mathbf{C}_m = \frac{1}{M} \sum_{i=0}^{N} m_i \mathbf{r_i}
+
+        where :math:`M` is the total mass of particles, :math:`\mathbf{r_i}` are
+        their positions and :math:`m_i` are their masses.
+        """
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getClusterCentersOfMass(),
             freud.util.arr_type_t.FLOAT, 3)
 
     @_Compute._computed_property
     def gyrations(self):
-        """(:math:`N_{clusters}`, 3, 3) :class:`numpy.ndarray`: The gyration
-        tensors of the clusters."""
+        r"""(:math:`N_{clusters}`, 3, 3) :class:`numpy.ndarray`: The gyration
+        tensors of the clusters. Normalized by particle number:
+
+        .. math::
+
+            \mathbf{S} = \frac{1}{N} \begin{bmatrix}
+            \sum_i x_i^2    & \sum_i x_i y_i  & \sum_i x_i z_i \\
+            \sum_i y_i x_i  & \sum_i y_i^2    & \sum_i y_i z_i \\
+            \sum_i z_i x_i  & \sum_i z_i y_i  & \sum_i z_i^2   \\
+            \end{bmatrix}
+        """
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getClusterGyrations(),
             freud.util.arr_type_t.FLOAT)
 
     @_Compute._computed_property
     def inertia_tensors(self):
-        """(:math:`N_{clusters}`, 3, 3) :class:`numpy.ndarray`: The inertia
-        tensors of the clusters."""
+        r"""(:math:`N_{clusters}`, 3, 3) :class:`numpy.ndarray`: The inertia
+        tensors of the clusters. Neither normalized by mass nor number:
+
+        .. math::
+
+            \mathbf{I} = \begin{bmatrix}
+            \sum_i m_i(y_i^2+z_i^2)& \sum_i -m_i(x_iy_i)& \sum_i -m_i(x_iz_i)\\
+            \sum_i -m_i(y_ix_i)& \sum_i m_i(x_i^2+z_i^2)& \sum_i -m_i(y_iz_i)\\
+            \sum_i -m_i(z_ix_i)& \sum_i -m_i(z_iy_i)& \sum_i (y_i^2+x_i^2)\\
+            \end{bmatrix}
+        """
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getClusterMomentsOfInertia(),
             freud.util.arr_type_t.FLOAT)
@@ -273,8 +310,17 @@ cdef class ClusterProperties(_Compute):
 
     @_Compute._computed_property
     def radii_of_gyration(self):
-        """(:math:`N_{clusters}`,) :class:`numpy.ndarray`: The radius of
-        gyration of each cluster."""
+        r"""(:math:`N_{clusters}`,) :class:`numpy.ndarray`: The radius of
+        gyration of each cluster. Defined by IUPAP as
+
+        .. math::
+
+            R_g = \left(\frac{1}{M} \sum_{i=0}^{N} m_i s_i^2 \right)^{1/2}
+
+        where :math:`s_i` is the distance of particle :math:`i` from
+        the center of mass.
+
+        """
         return np.sqrt(np.trace(self.inertia_tensors, axis1=-2, axis2=-1)
                        /(2*self.cluster_masses))
 
