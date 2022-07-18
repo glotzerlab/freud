@@ -183,8 +183,8 @@ cdef class ClusterProperties(_Compute):
     def compute(self, system, cluster_idx, masses=None):
         r"""Compute properties of the point clusters.
         Loops over all points in the given array and determines the geometric
-        centers, centers of mass of the, moment of inertia and gyration tensors,
-        and radii of gyration :cite:`Vymetal2011`.
+        centers, centers of mass, moment of inertia, gyration tensors, and
+        radii of gyration :cite:`Vymetal2011`.
         After calling this method, these properties can be accessed with the
         respective attributes.
 
