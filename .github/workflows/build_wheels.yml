@@ -45,6 +45,7 @@ jobs:
           # Configure environment variables.
           CIBW_ENVIRONMENT_LINUX: "CMAKE_PREFIX_PATH=/project/tbb LD_LIBRARY_PATH=/project/tbb/lib/intel64/gcc4.8:$LD_LIBRARY_PATH"
           CIBW_ENVIRONMENT_MACOS: "CMAKE_PREFIX_PATH=/Users/runner/work/freud/freud/tbb LD_LIBRARY_PATH=/Users/runner/work/freud/freud/tbb/lib/intel64/gcc4.8:$LD_LIBRARY_PATH"
+          MACOSX_DEPLOYMENT_TARGET: "10.14"
 
           # Set up TBB.
           CIBW_BEFORE_BUILD_LINUX: "source .github/workflows/cibuildwheel-before-build.sh {package} linux"
