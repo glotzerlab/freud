@@ -1,5 +1,5 @@
 /*
- * Taken from https://gtihub.com/jodesarro/bessel-library.git, distributed under
+ * Taken from https://github.com/jodesarro/bessel-library.git, distributed under
  * the MIT license.
  *
  * */
