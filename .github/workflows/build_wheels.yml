@@ -7,8 +7,12 @@ on:
     branches:
       - "maint"
       - "master"
+      - "next"
     tags:
       - "v*"
+
+  pull_request:
+      types: [opened, labeled, reopened, synchronize]
 
   # Trigger on request.
   workflow_dispatch:
@@ -20,6 +24,7 @@ jobs:
   build_wheels:
     name: Build wheel for ${{ matrix.os }}, Python ${{ matrix.pyver }}
     runs-on: ${{ matrix.os }}
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'build_wheels') }}
     strategy:
       matrix:
         os: [ubuntu-20.04, macos-10.15] #, windows-2019]
@@ -66,6 +71,7 @@ jobs:
   build_sdist:
     name: Build source distribution
     runs-on: ubuntu-latest
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'build_wheels') }}
     steps:
       - uses: actions/checkout@v3.0.2
         with:
@@ -91,6 +97,7 @@ jobs:
     name: Publish [PyPI]
     needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'build_wheels') }}
 
     steps:
       - name: Download artifacts
