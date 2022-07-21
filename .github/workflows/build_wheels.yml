@@ -23,7 +23,7 @@ jobs:
   build_wheels:
     name: Build wheel for ${{ matrix.os }}, Python ${{ matrix.pyver }}
     runs-on: ${{ matrix.os }}
-    if: ${{ contains(github.event.pull_request.labels.*.name, 'build_wheels') || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/next' }}
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'build_wheels') || github.event_name != 'pull_request' }}
     strategy:
       matrix:
         os: [ubuntu-20.04, macos-12] #, windows-2019]
@@ -70,7 +70,7 @@ jobs:
   build_sdist:
     name: Build source distribution
     runs-on: ubuntu-latest
-    if: ${{ contains(github.event.pull_request.labels.*.name, 'build_wheels') || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/next' }}
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'build_wheels') || github.event_name != 'pull_request' }}
     steps:
       - uses: actions/checkout@v3.0.2
         with:
@@ -96,7 +96,7 @@ jobs:
     name: Publish [PyPI]
     needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
-    if: ${{ contains(github.event.pull_request.labels.*.name, 'build_wheels') || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/next' }}
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'build_wheels') || github.event_name != 'pull_request' }}
 
     steps:
       - name: Download artifacts
