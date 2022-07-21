@@ -98,15 +98,14 @@ cdef class StaticStructureFactorDebye(_StaticStructureFactor):
 
     .. note::
 
-        For 2D systems freud uses the bessel function :math:`J_0` instead of the
-        :math:`\text{sinc}` function in the equation above. See this `link
-        <http://www.scik.org/index.php/jmcs/article/viewFile/263/120>`__
-        for more information. For users wishing to calculate the structure
-        factor of quasi 2D systems (i.e. a 2D simulation is used to model a real
-        system such as particles on a 2D interface or similar) the 3D
-        formula should be used. In these cases users should use a 3D box with
-        its longest dimension being in the z-direction and particle positions of
-        the form :math:`(x, y, 0)`.
+        For 2D systems freud uses the Bessel function :math:`J_0` instead of the
+        :math:`\text{sinc}` function in the equation above. See
+        :cite:`Wieder2012` for more information. For users wishing to calculate
+        the structure factor of quasi 2D systems (i.e. a 2D simulation is used
+        to model a real system such as particles on a 2D interface or similar)
+        the 3D formula should be used. In these cases users should use a 3D box
+        with its longest dimension being in the z-direction and particle
+        positions of the form :math:`(x, y, 0)`.
 
     This implementation uses an evenly spaced number of :math:`k` points between
     `k_min`` and ``k_max``. If ``k_min`` is set to 0 (the default behavior), the
