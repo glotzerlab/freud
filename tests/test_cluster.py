@@ -69,16 +69,16 @@ class TestCluster:
         with pytest.raises(AttributeError):
             props.gyrations
         with pytest.raises(AttributeError):
-            props.cluster_sizes
+            props.sizes
 
         props.compute((box, positions), clust.cluster_idx)
 
         # Test if attributes are accessible now
         props.centers
         props.gyrations
-        props.cluster_sizes
+        props.sizes
 
-        assert np.all(props.cluster_sizes == Nrep)
+        assert np.all(props.sizes == Nrep)
 
     def test_cluster_props_advanced_unweighted(self):
         """Tests unweighted center of mass and gyration tensor calculations."""
