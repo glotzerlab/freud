@@ -121,7 +121,7 @@ jobs:
 
       - name: Slack notification
         if: startsWith(github.ref, 'refs/tags/v') || failure()
-        uses: act10ns/slack@v1.5.1
+        uses: act10ns/slack@v1.6.0
         with:
           status: ${{ job.status }}
           channel: '#dev-freud'
