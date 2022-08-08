@@ -1,5 +1,3 @@
-import math
-
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
@@ -116,8 +114,8 @@ class TestCluster:
             [-0.0171429, 0.0171429, 0],
             [0, 0, 0.0342857],
         ]
-        distances_2 = np.asarray(
-            list(math.dist(com_2, positions[clust.cluster_idx == 1][i]) for i in (0, 1))
+        distances_2 = np.linalg.norm(
+            ([com_2] * props.sizes[1] - positions[clust.cluster_idx == 1]), axis=1
         )
         rg_2 = np.sqrt(
             np.dot(masses[clust.cluster_idx == 1], distances_2**2)

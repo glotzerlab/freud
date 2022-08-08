@@ -251,7 +251,7 @@ cdef class ClusterProperties(_Compute):
 
         .. math::
 
-            \mathbf{C}_m^k = \frac{1}{M_k} \sum_{i=0}^{N} m_i \mathbf{r_i}
+            \mathbf{C}_m^k = \frac{1}{M_k} \sum_{i=0}^{N_k} m_i \mathbf{r_i}
 
         where :math:`\mathbf{C}_m^k` is the center of mass of the :math:`k` th
         cluster, :math:`M_k` is the total mass of particles in the :math:`k` th
@@ -292,7 +292,7 @@ cdef class ClusterProperties(_Compute):
             \mathbf{I}_k = \begin{bmatrix}
             \sum_i m_i(y_i^2+z_i^2)& \sum_i -m_i(x_iy_i)& \sum_i -m_i(x_iz_i)\\
             \sum_i -m_i(y_ix_i)& \sum_i m_i(x_i^2+z_i^2)& \sum_i -m_i(y_iz_i)\\
-            \sum_i -m_i(z_ix_i)& \sum_i -m_i(z_iy_i)& \sum_i (y_i^2+x_i^2)\\
+            \sum_i -m_i(z_ix_i)& \sum_i -m_i(z_iy_i)& \sum_i -m_i(y_i^2+x_i^2)\\
             \end{bmatrix}
 
         where :math:`\mathbf{I}_k` is the inertia tensor of the :math:`k` th
