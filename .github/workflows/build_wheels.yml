@@ -5,10 +5,13 @@ on:
   # twice when the pull request source branch is in the same repository.
   push:
     branches:
-      - "maint"
       - "master"
+      - "next"
     tags:
       - "v*"
+
+  pull_request:
+      types: [opened, labeled, reopened, synchronize]
 
   # Trigger on request.
   workflow_dispatch:
@@ -20,9 +23,10 @@ jobs:
   build_wheels:
     name: Build wheel for ${{ matrix.os }}, Python ${{ matrix.pyver }}
     runs-on: ${{ matrix.os }}
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'build_wheels') || github.event_name != 'pull_request' }}
     strategy:
       matrix:
-        os: [ubuntu-20.04, macos-10.15] #, windows-2019]
+        os: [ubuntu-20.04, macos-12] #, windows-2019]
         pyver: ["3.6", "3.7", "3.8", "3.9", "3.10"]
 
     steps:
@@ -45,6 +49,7 @@ jobs:
           # Configure environment variables.
           CIBW_ENVIRONMENT_LINUX: "CMAKE_PREFIX_PATH=/project/tbb LD_LIBRARY_PATH=/project/tbb/lib/intel64/gcc4.8:$LD_LIBRARY_PATH"
           CIBW_ENVIRONMENT_MACOS: "CMAKE_PREFIX_PATH=/Users/runner/work/freud/freud/tbb LD_LIBRARY_PATH=/Users/runner/work/freud/freud/tbb/lib/intel64/gcc4.8:$LD_LIBRARY_PATH"
+          MACOSX_DEPLOYMENT_TARGET: "10.14"
 
           # Set up TBB.
           CIBW_BEFORE_BUILD_LINUX: "source .github/workflows/cibuildwheel-before-build.sh {package} linux"
@@ -65,6 +70,7 @@ jobs:
   build_sdist:
     name: Build source distribution
     runs-on: ubuntu-latest
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'build_wheels') || github.event_name != 'pull_request' }}
     steps:
       - uses: actions/checkout@v3.0.2
         with:
@@ -90,6 +96,7 @@ jobs:
     name: Publish [PyPI]
     needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'build_wheels') || github.event_name != 'pull_request' }}
 
     steps:
       - name: Download artifacts
