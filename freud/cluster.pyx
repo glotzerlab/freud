@@ -234,7 +234,7 @@ cdef class ClusterProperties(_Compute):
 
         .. math::
 
-            \mathbf{C}_g^k = \frac{1}{N_k} \sum_{i=0}^{N} \mathbf{r_i}
+            \mathbf{C}_g^k = \frac{1}{N_k} \sum_{i=0}^{N_k} \mathbf{r_i}
 
         where :math:`\mathbf{C}_g^k` is the center of the :math:`k` th cluster,
         :math:`N_k` is the number of particles in the :math:`k` th cluster and
