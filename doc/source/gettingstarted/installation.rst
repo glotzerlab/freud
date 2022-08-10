@@ -32,7 +32,7 @@ Compile from source
 
 The following are **required** for building and installing **freud** from source:
 
-- A C++14-compliant compiler
+- A C++17-compliant compiler
 - `Python <https://www.python.org/>`__ (>=3.6)
 - `NumPy <https://www.numpy.org/>`__ (>=1.14)
 - `Intel Threading Building Blocks <https://www.threadingbuildingblocks.org/>`__ (>=2019.7)
