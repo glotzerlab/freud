@@ -368,7 +368,7 @@ Kody Takada
 
 Alain Kadar
 
-* Introduced mass dependence for ``ClusterProperties`` class.
+* Introduced mass dependence for ``ClusterProperties`` class, inertia tensor and radius of gyration.
 
 Source code
 -----------
