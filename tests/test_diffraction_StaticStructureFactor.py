@@ -2,6 +2,7 @@ import numpy as np
 import numpy.testing as npt
 import pytest
 from numpy.lib import NumpyVersion
+from scipy.special import j0
 
 import freud
 
@@ -358,16 +359,30 @@ class TestStaticStructureFactorDebye(StaticStructureFactorTest):
         npt.assert_allclose(sf.S_k, S_ase, rtol=1e-5, atol=1e-5)
 
     def test_2D(self):
+        """Validate the Debye method in 2D."""
+
+        # our own implementation of a 2D static structure factor, using scipy's
+        # implementation of bessel j0
+        def compute_ssf(k_points, positions, box):
+            ssf = np.zeros_like(k_points)
+            for pos1 in positions:
+                for pos2 in positions:
+                    dist = np.linalg.norm(box.wrap(pos1 - pos2))
+                    ssf += j0(dist * k_points)
+            ssf /= len(positions)
+            return ssf
+
         L = 10
-        N = 1000
-        sf = self.build_structure_factor_object(bins=100, k_max=10)
+        N = 100
+        sf = freud.diffraction.StaticStructureFactorDebye(num_k_values=100, k_max=10)
         box, points = freud.data.make_random_system(L, N, is2D=True)
         sf.compute((box, points))
-        sf2 = self.build_structure_factor_object(bins=100, k_max=10)
-        box.dimensions = 3
-        box.Lz = L * 10
-        sf2.compute((box, points))
-        npt.assert_allclose(sf.S_k, sf2.S_k, rtol=1e-5, atol=1e-5)
+
+        # compute structure factor using python implementation
+        sf2 = compute_ssf(sf.k_values, points, box)
+
+        # compare
+        npt.assert_allclose(sf.S_k, sf2, rtol=1e-5, atol=1e-5)
 
 
 class TestStaticStructureFactorDirect(StaticStructureFactorTest):
