@@ -5,7 +5,7 @@ dynasor==1.1b0; platform_system != "Windows"
 garnett==0.7.1
 gsd==2.4.2
 matplotlib==3.0.0
-numpy==1.14.0
+numpy==1.23.1
 pillow==6.2.0
 pytest==6.2.2
 rowan==1.2.1
