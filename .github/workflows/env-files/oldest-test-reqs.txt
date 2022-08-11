@@ -1,5 +1,5 @@
 ase==3.16.0
-cmake==3.24.0
+cmake==3.13.0
 cython==0.29.14
 dynasor==1.1b0; platform_system != "Windows"
 garnett==0.7.1
