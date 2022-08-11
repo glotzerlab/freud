@@ -4,6 +4,7 @@
 #ifdef __clang__
 #include <bessel-library.hpp>
 #endif
+#include <algorithm>
 #include <cmath>
 #include <limits>
 #include <stdexcept>
@@ -86,7 +87,7 @@ void StaticStructureFactorDebye::accumulate(const freud::locality::NeighborQuery
                     // floating point precision errors can cause k to be
                     // slightly negative, and make evaluating the cylindrical
                     // bessel function impossible.
-                    auto abs_k = std::abs(k);
+                    auto nonnegative_k = std::max(float(0.0), k);
 
 #ifdef __clang__
                     // clang doesn't support the special math functions in
@@ -94,9 +95,9 @@ void StaticStructureFactorDebye::accumulate(const freud::locality::NeighborQuery
                     // needed because the other library's implementation is
                     // unique only for complex numbers, otherwise it just tries
                     // to call std::cyl_bessel_j.
-                    S_k += std::real(bessel::cyl_j0(std::complex<double>(abs_k * distance)));
+                    S_k += std::real(bessel::cyl_j0(std::complex<double>(nonnegative_k * distance)));
 #else
-                    S_k += std::cyl_bessel_j(0, abs_k * distance);
+                    S_k += std::cyl_bessel_j(0, nonnegative_k * distance);
 #endif
                 }
                 else

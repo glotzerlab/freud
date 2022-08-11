@@ -12,6 +12,7 @@ on:
   push:
     branches:
       - "master"
+      - "next"
 
   # trigger on request
   workflow_dispatch:
