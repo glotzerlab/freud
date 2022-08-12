@@ -1,10 +1,5 @@
 version: 2
 updates:
-  - package-ecosystem: pip
-    directory: ".github/workflows/env-files"
-    schedule:
-      interval: "monthly"
-    open-pull-requests-limit: 10
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:

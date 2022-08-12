@@ -8,4 +8,4 @@ dependencies:
   - ninja
   - pip
   - pip:
-    - -r requirements-test-compatible.txt
+    - -r ../../../requirements-test-compatible.txt
