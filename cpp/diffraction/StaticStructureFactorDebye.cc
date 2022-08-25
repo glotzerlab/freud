@@ -1,6 +1,10 @@
 // Copyright (c) 2010-2020 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
+#ifdef __clang__
+#include <bessel-library.hpp>
+#endif
+#include <algorithm>
 #include <cmath>
 #include <limits>
 #include <stdexcept>
@@ -78,7 +82,28 @@ void StaticStructureFactorDebye::accumulate(const freud::locality::NeighborQuery
             double S_k = 0.0;
             for (const auto& distance : distances)
             {
-                S_k += util::sinc(k * distance);
+                if (box.is2D())
+                {
+                    // floating point precision errors can cause k to be
+                    // slightly negative, and make evaluating the cylindrical
+                    // bessel function impossible.
+                    auto nonnegative_k = std::max(float(0.0), k);
+
+#ifdef __clang__
+                    // clang doesn't support the special math functions in
+                    // C++17, so we use another library instead. The cast is
+                    // needed because the other library's implementation is
+                    // unique only for complex numbers, otherwise it just tries
+                    // to call std::cyl_bessel_j.
+                    S_k += std::real(bessel::cyl_j0(std::complex<double>(nonnegative_k * distance)));
+#else
+                    S_k += std::cyl_bessel_j(0, nonnegative_k * distance);
+#endif
+                }
+                else
+                {
+                    S_k += util::sinc(k * distance);
+                }
             }
             S_k /= static_cast<double>(n_total);
             m_local_structure_factor.increment(k_index, S_k);

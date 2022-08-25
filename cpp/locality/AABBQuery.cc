@@ -93,8 +93,8 @@ void AABBIterator::updateImageVectors(float r_max, bool _check_r_max)
         m_image_list.resize(m_n_images);
     }
 
-    vec3<float> latt_a = vec3<float>(box.getLatticeVector(0));
-    vec3<float> latt_b = vec3<float>(box.getLatticeVector(1));
+    auto latt_a = vec3<float>(box.getLatticeVector(0));
+    auto latt_b = vec3<float>(box.getLatticeVector(1));
     vec3<float> latt_c = vec3<float>(0.0, 0.0, 0.0);
     if (!box.is2D())
     {
