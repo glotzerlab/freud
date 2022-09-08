@@ -1,5 +1,6 @@
 name: Task
 description: A task that needs to be done
+labels: ['task']
 body:
   - type: textarea
     attributes:
