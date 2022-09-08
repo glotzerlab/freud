@@ -12,19 +12,21 @@ body:
     attributes:
       label: Steps to Reproduce
       description: Please provide a *minimal* script to reproduce the bug.
+      render: python
     validations:
       required: true
   - type: textarea
     attributes:
       label: Error Output
       description: Please indicate the output from the above script and what you expect the output to be.
+      render: shell
     validations:
       required: true
   - type: input
     attributes:
       label: freud Version
       description: What version of freud are you using?
-      placeholder: v2.10.0
+      placeholder: v2.11.0
     validations:
       required: true
   - type: input
