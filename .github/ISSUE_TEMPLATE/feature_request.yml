@@ -1,29 +1,29 @@
 name: Feature Request
 description: Suggest a new feature for freud
+labels: ['enhancement']
 body:
   - type: textarea
     attributes:
-      label: Problem
-      description: Is your feature request related to a problem? Please describe.
-    validations:
-      required: true
-  - type: textarea
-    attributes:
       label: Description
-      description: Please provide a clear and concise description of what you want to happen.
+      description: What new feature would be useful to add to freud?
     validations:
       required: true
   - type: textarea
     attributes:
-        label: Alternatives
-        description: Describe any alternatives you have considered.
+      label: Proposed Solution
+      description: How should this new feature be implemented? What should a script using this feature look like?
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+        label: Additional Context
+        description: What additional information is useful to understand this request?
   - type: dropdown
     attributes:
       label: Developer
       description: Who should implement the new feature?
       options:
-        - I can!
-        - I can, but I'll need some help/guidance.
-        - Someone else will need to implement this feature.
+        - I will submit a pull request that implements this feature.
+        - Would someone else please implement this?
     validations:
       required: true
