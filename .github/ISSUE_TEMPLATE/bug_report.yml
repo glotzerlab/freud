@@ -1,5 +1,6 @@
 name: Bug Report
-description: Report a bug to help us improve.
+description: Report a bug in freud.
+labels: ['bug']
 body:
   - type: textarea
     attributes:
@@ -38,6 +39,7 @@ body:
       options:
         - MacOS
         - Linux
+        - Windows
   - type: dropdown
     attributes:
       label: Installation method
@@ -45,14 +47,14 @@ body:
       options:
         - Download from PyPI
         - Download from conda-forge
+        - glotzerlab-software container
         - built from source
   - type: dropdown
     attributes:
       label: Developer
       description: Who should fix this?
       options:
-        - I can!
-        - I can, but I'll need some help and guidance.
-        - Someone else should fix this.
+        - I will submit a pull request that fixes this problem.
+        - Would someone else please fix this?
       validations:
         required: true
