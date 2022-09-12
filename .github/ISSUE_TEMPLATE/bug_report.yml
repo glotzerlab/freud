@@ -58,5 +58,3 @@ body:
       options:
         - I will submit a pull request that fixes this problem.
         - Would someone else please fix this?
-      validations:
-        required: true

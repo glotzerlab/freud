@@ -25,5 +25,3 @@ body:
       options:
         - I will submit a pull request that implements this feature.
         - Would someone else please implement this?
-    validations:
-      required: true
