@@ -62,7 +62,7 @@ void ClusterProperties::compute(const freud::locality::NeighborQuery* nq, const 
             = nq->getBox().centerOfMass(cluster_points[c].data(), m_cluster_sizes[c], cluster_point_masses);
         if (masses == nullptr)
         {
-            const float* cluster_point_masses = nullptr;
+            cluster_point_masses = nullptr;
         }
         else
         {
