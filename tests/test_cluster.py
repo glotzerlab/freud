@@ -78,8 +78,8 @@ class TestCluster:
 
         assert np.all(props.sizes == Nrep)
 
-    def test_cluster_props_advanced(self):
-        """Test radius of gyration and center of mass calculations"""
+    def test_cluster_props_advanced_unweighted(self):
+        """Tests unweighted center of mass and gyration tensor calculations."""
         box = freud.box.Box.square(L=5)
         positions = np.array([[0, -2, 0], [0, -2, 0], [0, 2, 0], [-0.1, 1.9, 0]])
         clust = freud.cluster.Cluster()
@@ -88,14 +88,43 @@ class TestCluster:
         props = freud.cluster.ClusterProperties()
         props.compute((box, positions), clust.cluster_idx)
 
-        com_1 = [0, -2, 0]
-        com_2 = [-0.05, 1.95, 0]
+        c_1 = [0, -2, 0]
+        c_2 = [-0.05, 1.95, 0]
         g_tensor_2 = [[0.0025, 0.0025, 0], [0.0025, 0.0025, 0], [0, 0, 0]]
-        rg_2 = np.sqrt(np.trace(g_tensor_2))
-        npt.assert_allclose(props.centers[0, :], com_1, rtol=1e-5, atol=1e-5)
-        npt.assert_allclose(props.centers[1, :], com_2, rtol=1e-5, atol=1e-5)
+        npt.assert_allclose(props.centers[0, :], c_1, rtol=1e-5, atol=1e-5)
+        npt.assert_allclose(props.centers[1, :], c_2, rtol=1e-5, atol=1e-5)
         npt.assert_allclose(props.gyrations[0], 0, atol=1e-5)
         npt.assert_allclose(props.gyrations[1], g_tensor_2, rtol=1e-5, atol=1e-5)
+
+    def test_cluster_props_advanced_weighted(self):
+        """Tests radius of gyration, center of mass and inertia tensor calculations."""
+        box = freud.box.Box.square(L=5)
+        positions = np.array([[0, -2, 0], [0, -2, 0], [0, 2, 0], [-0.1, 1.9, 0]])
+        masses = np.array([1, 2, 3, 4])
+        clust = freud.cluster.Cluster()
+        clust.compute((box, positions), neighbors={"r_max": 0.5})
+
+        props = freud.cluster.ClusterProperties()
+        props.compute((box, positions), clust.cluster_idx, masses=masses)
+
+        com_1 = [0, -2, 0]
+        com_2 = [-0.057143, 1.942857, 0]
+        i_tensor_2 = [
+            [0.0171429, -0.0171429, 0],
+            [-0.0171429, 0.0171429, 0],
+            [0, 0, 0.0342857],
+        ]
+        distances_2 = np.linalg.norm(
+            ([com_2] * props.sizes[1] - positions[clust.cluster_idx == 1]), axis=1
+        )
+        rg_2 = np.sqrt(
+            np.dot(masses[clust.cluster_idx == 1], distances_2**2)
+            / np.sum(masses[clust.cluster_idx == 1])
+        )
+        npt.assert_allclose(props.centers_of_mass[0, :], com_1, rtol=1e-5, atol=1e-5)
+        npt.assert_allclose(props.centers_of_mass[1, :], com_2, rtol=1e-5, atol=1e-5)
+        npt.assert_allclose(props.inertia_tensors[0], 0, atol=1e-5)
+        npt.assert_allclose(props.inertia_tensors[1], i_tensor_2, rtol=1e-5, atol=1e-5)
         npt.assert_allclose(props.radii_of_gyration, [0, rg_2], rtol=1e-5, atol=1e-5)
 
     def test_cluster_com_periodic(self):
