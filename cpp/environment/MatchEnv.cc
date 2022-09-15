@@ -7,7 +7,6 @@
 
 #include "MatchEnv.h"
 
-#include "NeighborBond.h"
 #include "NeighborComputeFunctional.h"
 
 namespace freud { namespace environment {
