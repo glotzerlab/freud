@@ -4,6 +4,11 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## vX.Y.Z -- YYYY-MM-DD
+
+### Added
+* Mass dependence in `freud.cluster.ClusterProperties` and calculation of inertia tensor and center of mass.
+
 ## v2.11.0 -- 2022-08-09
 
 ### Added
