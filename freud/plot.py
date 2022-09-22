@@ -444,10 +444,10 @@ def voronoi_plot(voronoi, box, ax=None, color_by=None, cmap=None):
     patches = [Polygon(poly[:, :2]) for poly in voronoi.polytopes]
     patch_collection = PatchCollection(patches, edgecolors="black", alpha=0.4)
 
-    if color_by == 'sides':
+    if color_by == "sides":
         colors = np.array([len(poly) for poly in voronoi.polytopes])
         num_colors = np.ptp(colors) + 1
-    elif color_by == 'area':
+    elif color_by == "area":
         colors = voronoi.volumes
         num_colors = None  # creates a continuous colormap
     elif color_by is None:
@@ -457,7 +457,7 @@ def voronoi_plot(voronoi, box, ax=None, color_by=None, cmap=None):
         raise RuntimeError(f"Invalid color_by option {color_by}.")
 
     # Ensure we have enough colors to uniquely identify the cells
-    continuous_colorby_options = ['area']
+    continuous_colorby_options = ["area"]
     if cmap is None and color_by not in continuous_colorby_options:
         if color_by is not None and num_colors <= 10:
             cmap = "tab10"
@@ -493,7 +493,7 @@ def voronoi_plot(voronoi, box, ax=None, color_by=None, cmap=None):
     ax.set_aspect("equal", "datalim")
 
     # Add colorbar for number of sides
-    color_by_labels = dict(sides='Number of sides', area='Polytope Area')
+    color_by_labels = dict(sides="Number of sides", area="Polytope Area")
     if color_by is not None:
         ax_divider = make_axes_locatable(ax)
         cax = ax_divider.append_axes("right", size="7%", pad="10%")
