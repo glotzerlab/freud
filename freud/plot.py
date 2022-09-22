@@ -408,21 +408,22 @@ def density_plot(density, box, ax=None):
     return ax
 
 
-def voronoi_plot(box, polytopes, ax=None, color_by_sides=True, cmap=None):
+def voronoi_plot(voronoi, box, ax=None, color_by=None, cmap=None):
     """Helper function to draw 2D Voronoi diagram.
 
     Args:
+        voronoi (:class:`freud.locality.Voronoi`):
+            Voronoi object with the data to plot.
         box (:class:`freud.box.Box`):
             Simulation box.
-        polytopes (:class:`numpy.ndarray`):
-            Array containing Voronoi polytope vertices.
         ax (:class:`matplotlib.axes.Axes`): Axes object to plot.
             If :code:`None`, make a new axes and figure object.
             (Default value = :code:`None`).
-        color_by_sides (bool):
-            If :code:`True`, color cells by the number of sides.
-            If :code:`False`, random colors are used for each cell.
-            (Default value = :code:`True`).
+        color_by (bool):
+            If :code:`'sides'`, color cells by the number of sides.
+            If :code:`'area'`, color cells by their area.
+            If :code:`None`, random colors are used for each cell.
+            (Default value = :code:`None`).
         cmap (str):
             Colormap name to use (Default value = :code:`None`).
 
@@ -440,19 +441,25 @@ def voronoi_plot(box, polytopes, ax=None, color_by_sides=True, cmap=None):
         ax = fig.subplots()
 
     # Draw Voronoi polytopes
-    patches = [Polygon(poly[:, :2]) for poly in polytopes]
+    patches = [Polygon(poly[:, :2]) for poly in voronoi.polytopes]
     patch_collection = PatchCollection(patches, edgecolors="black", alpha=0.4)
 
-    if color_by_sides:
-        colors = np.array([len(poly) for poly in polytopes])
+    if color_by == 'sides':
+        colors = np.array([len(poly) for poly in voronoi.polytopes])
         num_colors = np.ptp(colors) + 1
-    else:
+    elif color_by == 'area':
+        colors = voronoi.volumes
+        num_colors = None  # creates a continuous colormap
+    elif color_by is None:
         colors = np.random.RandomState().permutation(np.arange(len(patches)))
         num_colors = np.unique(colors).size
+    else:
+        raise RuntimeError(f"Invalid color_by option {color_by}.")
 
     # Ensure we have enough colors to uniquely identify the cells
-    if cmap is None:
-        if color_by_sides and num_colors <= 10:
+    continuous_colorby_options = ['area']
+    if cmap is None and color_by not in continuous_colorby_options:
+        if color_by is not None and num_colors <= 10:
             cmap = "tab10"
         else:
             if num_colors > 20:
@@ -463,6 +470,7 @@ def voronoi_plot(box, polytopes, ax=None, color_by_sides=True, cmap=None):
                     UserWarning,
                 )
             cmap = "tab20"
+
     cmap = cm.get_cmap(cmap, num_colors)
     bounds = np.arange(np.min(colors), np.max(colors) + 1)
 
@@ -485,11 +493,12 @@ def voronoi_plot(box, polytopes, ax=None, color_by_sides=True, cmap=None):
     ax.set_aspect("equal", "datalim")
 
     # Add colorbar for number of sides
-    if color_by_sides:
+    color_by_labels = dict(sides='Number of sides', area='Polytope Area')
+    if color_by is not None:
         ax_divider = make_axes_locatable(ax)
         cax = ax_divider.append_axes("right", size="7%", pad="10%")
         cb = Colorbar(cax, patch_collection)
-        cb.set_label("Number of sides")
+        cb.set_label(color_by_labels[color_by])
         cb.set_ticks(bounds)
     return ax
 

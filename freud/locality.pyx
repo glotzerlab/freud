@@ -1238,17 +1238,18 @@ cdef class Voronoi(_Compute):
     def __str__(self):
         return repr(self)
 
-    def plot(self, ax=None, color_by_sides=True, cmap=None):
+    def plot(self, ax=None, color_by=None, cmap=None):
         """Plot Voronoi diagram.
 
         Args:
             ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
                 :code:`None`, make a new figure and axis.
                 (Default value = :code:`None`)
-            color_by_sides (bool):
-                If :code:`True`, color cells by the number of sides.
-                If :code:`False`, random colors are used for each cell.
-                (Default value = :code:`True`)
+            color_by (bool):
+                If :code:`'sides'`, color cells by the number of sides.
+                If :code:`'area'`, color cells by their area.
+                If :code:`None`, random colors are used for each cell.
+                (Default value = :code:`None`)
             cmap (str):
                 Colormap name to use (Default value = :code:`None`).
 
@@ -1260,7 +1261,7 @@ cdef class Voronoi(_Compute):
             return None
         else:
             return freud.plot.voronoi_plot(
-                self._box, self.polytopes, ax, color_by_sides, cmap)
+                self, self._box, ax, color_by, cmap)
 
     def _repr_png_(self):
         try:
