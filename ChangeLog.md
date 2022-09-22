@@ -4,6 +4,11 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v3.0.0 -- YYYY-MM-DD
+
+### Added
+* Coloring plots by polytope area in `freud.locality.Voronoi`.
+
 ## v2.11.0 -- 2022-08-09
 
 ### Added
