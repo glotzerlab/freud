@@ -332,6 +332,7 @@ Tommy Waltmann
 * ``DiffractionPattern`` now raises an error when used with non-cubic boxes.
 * Implement ``StaticStructureFactorDebye`` for 2D systems.
 * Add support for compilation with the C++17 standard.
+* Extending plotting options for the ``Voronoi`` module.
 
 Maya Martirossyan
 
