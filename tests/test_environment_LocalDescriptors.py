@@ -239,11 +239,12 @@ class TestLocalDescriptors:
             # in cases where there is no symmetry. Since simple cubic
             # should have a 0 ql value in many cases, we need to set high
             # tolerances for those specific cases.
-            atol = 1e-3 if unit_cell == freud.data.UnitCell.sc else 1e-6
+            atol = 1e-3 if unit_cell == freud.data.UnitCell.sc else 1e-5
             npt.assert_allclose(
                 steinhardt.particle_order,
                 ql[:, L],
                 atol=atol,
+                rtol=1e-5,
                 err_msg=f"Failed for {unit_cell.__name__}, L = {L}",
             )
 
