@@ -610,10 +610,11 @@ cdef class RDF(_SpatialHistogram1D):
     cdef freud._density.RDF * thisptr
 
     def __cinit__(self, unsigned int bins, float r_max, float r_min=0,
-                  normalize=False):
+                  normalization_mode='infer'):
+        norm_mode = self._validate_normalization_mode(normalization_mode)
         if type(self) == RDF:
             self.thisptr = self.histptr = new freud._density.RDF(
-                bins, r_max, r_min, normalize)
+                bins, r_max, r_min, norm_mode)
 
             # r_max is left as an attribute rather than a property for now
             # since that change needs to happen at the _SpatialHistogram level
@@ -623,6 +624,14 @@ cdef class RDF(_SpatialHistogram1D):
     def __dealloc__(self):
         if type(self) == RDF:
             del self.thisptr
+
+    def _validate_normalization_mode(self, mode):
+        if mode == 'infer':
+            return freud._density.RDF.NormalizationMode.infer
+        elif mode == 'finite_size':
+            return freud._density.RDF.NormalizationMode.finite_size
+        else:
+            raise ValueError(f"invalid input {mode} for normalization_mode")
 
     def compute(self, system, query_points=None, neighbors=None,
                 reset=True):
