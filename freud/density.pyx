@@ -576,10 +576,17 @@ cdef class RDF(_SpatialHistogram1D):
     behavior of :math:`\lim_{r \to \infty} g(r)=1` is recovered. However, for
     very small systems the long range behavior of the radial distribution will
     instead tend to :math:`\frac{N-1}{N}`. In small systems, where this
-    deviation is noticeable, the ``normalize`` flag may be used to rescale the
-    results and force the long range behavior to 1. Note that this option will
-    have little to no effect on larger systems (for example, for systems of 100
-    particles the RDF will differ by 1%).
+    deviation is noticeable, the ``normalization_mode`` argument may be used to
+    rescale the results and force the long range behavior to 1. Note that this
+    option will have little to no effect on larger systems (for example, for
+    systems of 100 particles the RDF will differ by 1%).
+
+    .. note::
+        The ``normalization_mode`` argument should not be used if
+        :code:`query_points` is provided as a different set of points, or if
+        unusual query arguments are provided to :meth:`~.compute`, specifically
+        if :code:`exclude_ii` is set to :code:`False`. This normalization is
+        not meaningful in such cases and will simply convolute the data.
 
     .. note::
         **2D:** :class:`freud.density.RDF` properly handles 2D boxes.
@@ -593,19 +600,14 @@ cdef class RDF(_SpatialHistogram1D):
         r_min (float, optional):
             Minimum interparticle distance to include in the calculation
             (Default value = :code:`0`).
-        normalize (bool, optional):
-            Scale the RDF values by
-            :math:`\frac{N_{query\_points}}{N_{query\_points}-1}`. This
-            argument primarily exists to deal with standard RDF calculations
-            where no special ``query_points`` or ``neighbors`` are provided,
-            but where the number of ``query_points`` is small enough that the
-            long-ranged limit of :math:`g(r)` deviates significantly from
-            :math:`1`. It should not be used if :code:`query_points` is
-            provided as a different set of points, or if unusual query
-            arguments are provided to :meth:`~.compute`, specifically if
-            :code:`exclude_ii` is set to :code:`False`. This normalization is
-            not meaningful in such cases and will simply convolute the data.
-
+        normalization_mode (str, optional):
+            There are two valid string inputs for this argument. The first
+            option, ``infer``, handles the normalization as shown mathematically
+            at the beginning of this class's docstring. The other option,
+            ``finite_size``, adds an extra rescaling factor of
+            :math:`\frac{N_{query\_points}}{N_{query\_ponts} - 1}` so the RDF
+            values will tend to 1 at large :math:`r` for small systems (Default
+            value = :code:`'infer'`).
     """
     cdef freud._density.RDF * thisptr
 
@@ -626,6 +628,7 @@ cdef class RDF(_SpatialHistogram1D):
             del self.thisptr
 
     def _validate_normalization_mode(self, mode):
+        """Ensure the normalization mode is one of the approved values."""
         if mode == 'infer':
             return freud._density.RDF.NormalizationMode.infer
         elif mode == 'finite_size':
