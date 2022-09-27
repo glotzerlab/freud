@@ -59,7 +59,7 @@ void RDF::reduce()
 
     // Define prefactors with appropriate types to simplify and speed later code.
     float number_density = float(m_n_query_points) / m_box.getVolume();
-    if (m_norm_mode == NormalizationMode::infer)
+    if (m_norm_mode == NormalizationMode::finite_size)
     {
         number_density *= static_cast<float>(m_n_query_points - 1) / static_cast<float>(m_n_query_points);
     }
