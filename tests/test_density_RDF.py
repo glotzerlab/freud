@@ -71,6 +71,19 @@ class TestRDF:
             freud.density.RDF(r_max=1, bins=10, r_min=2)
         with pytest.raises(ValueError):
             freud.density.RDF(r_max=1, bins=10, r_min=-1)
+        with pytest.raises(ValueError):
+            freud.density.RDF(r_max=1, bins=10, r_min=-1, normalization_mode='blah')
+
+    @pytest.mark.parametrize("mode", ['infer', 'finite_size'])
+    def test_normalization_mode(self, mode):
+        """Make sure RDF can be computed with different normalization modes."""
+        r_max = 10.0
+        bins = 10
+        num_points = 100
+        box_size = r_max * 3.1
+        sys = freud.data.make_random_system(box_size, num_points, is2D=True)
+        rdf = freud.density.RDF(r_max=r_max, bins=bins, normalization_mode=mode)
+        rdf.compute(sys)
 
     @pytest.mark.parametrize("r_min", [0, 0.1, 3.0])
     def test_random_point(self, r_min):
