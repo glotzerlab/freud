@@ -12,7 +12,7 @@
 namespace freud { namespace density {
 
 RDF::RDF(unsigned int bins, float r_max, float r_min, NormalizationMode normalization_mode)
-    : BondHistogramCompute(), m_norm_mode(norm_mode)
+    : BondHistogramCompute(), m_norm_mode(normalization_mode)
 {
     if (bins == 0)
     {
