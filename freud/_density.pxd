@@ -51,8 +51,8 @@ cdef extern from "RDF.h" namespace "freud::density":
     cdef cppclass RDF(BondHistogramCompute):
 
         ctypedef enum NormalizationMode "NormalizationMode":
-            infer "NormalizationMode::infer"
-            finite_size "NormalizationMode::finite_size"
+            infer "freud::density::RDF::NormalizationMode::infer"
+            finite_size "freud::density::RDF::NormalizationMode::finite_size"
 
         RDF(float, float, float, NormalizationMode) except +
         const freud._box.Box & getBox() const
