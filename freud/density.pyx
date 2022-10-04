@@ -582,11 +582,15 @@ cdef class RDF(_SpatialHistogram1D):
     systems of 100 particles the RDF will differ by 1%).
 
     .. note::
-        The ``normalization_mode`` argument should not be used if
-        :code:`query_points` is provided as a different set of points, or if
-        unusual query arguments are provided to :meth:`~.compute`, specifically
-        if :code:`exclude_ii` is set to :code:`False`. This normalization is
-        not meaningful in such cases and will simply convolute the data.
+        For correct normalization behavior when using
+        ``normalization_mode='infer'``, let the set of points be either: 1) the
+        same as the set of query points or 2) completely disjoint from the set
+        of query points.
+
+    .. note::
+        For correct normalization behavior when using
+        ``normalization_mode='finite_size'``, do not allow particles to be their
+        own neighbor.
 
     .. note::
         **2D:** :class:`freud.density.RDF` properly handles 2D boxes.
