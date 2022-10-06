@@ -16,15 +16,16 @@ namespace freud { namespace density {
 class RDF : public locality::BondHistogramCompute
 {
 public:
+    //! Enum for each normalization mode
     enum NormalizationMode
     {
-        infer,
+        exact,
         finite_size
     };
 
     //! Constructor
     RDF(unsigned int bins, float r_max, float r_min = 0,
-        NormalizationMode normalization_mode = NormalizationMode::infer);
+        NormalizationMode normalization_mode = NormalizationMode::exact);
 
     //! Destructor
     ~RDF() override = default;

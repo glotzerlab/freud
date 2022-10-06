@@ -74,7 +74,7 @@ class TestRDF:
         with pytest.raises(ValueError):
             freud.density.RDF(r_max=1, bins=10, r_min=-1, normalization_mode="blah")
 
-    @pytest.mark.parametrize("mode", ["infer", "finite_size"])
+    @pytest.mark.parametrize("mode", ["exact", "finite_size"])
     def test_normalization_mode(self, mode):
         """Make sure RDF can be computed with different normalization modes."""
         r_max = 10.0

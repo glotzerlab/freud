@@ -583,7 +583,7 @@ cdef class RDF(_SpatialHistogram1D):
 
     .. note::
         For correct normalization behavior when using
-        ``normalization_mode='infer'``, let the set of points be either: 1) the
+        ``normalization_mode='exact'``, let the set of points be either: 1) the
         same as the set of query points or 2) completely disjoint from the set
         of query points.
 
@@ -606,7 +606,7 @@ cdef class RDF(_SpatialHistogram1D):
             (Default value = :code:`0`).
         normalization_mode (str, optional):
             There are two valid string inputs for this argument. The first
-            option, ``infer``, handles the normalization as shown mathematically
+            option, ``exact``, handles the normalization as shown mathematically
             at the beginning of this class's docstring. The other option,
             ``finite_size``, adds an extra rescaling factor of
             :math:`\frac{N_{query\_points}}{N_{query\_ponts} - 1}` so the RDF
@@ -616,7 +616,7 @@ cdef class RDF(_SpatialHistogram1D):
     cdef freud._density.RDF * thisptr
 
     def __cinit__(self, unsigned int bins, float r_max, float r_min=0,
-                  normalization_mode='infer'):
+                  normalization_mode='exact'):
         norm_mode = self._validate_normalization_mode(normalization_mode)
         if type(self) == RDF:
             self.thisptr = self.histptr = new freud._density.RDF(
@@ -633,8 +633,8 @@ cdef class RDF(_SpatialHistogram1D):
 
     def _validate_normalization_mode(self, mode):
         """Ensure the normalization mode is one of the approved values."""
-        if mode == 'infer':
-            return freud._density.RDF.NormalizationMode.infer
+        if mode == 'exact':
+            return freud._density.RDF.NormalizationMode.exact
         elif mode == 'finite_size':
             return freud._density.RDF.NormalizationMode.finite_size
         else:
