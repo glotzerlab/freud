@@ -611,7 +611,7 @@ cdef class RDF(_SpatialHistogram1D):
             ``finite_size``, adds an extra rescaling factor of
             :math:`\frac{N_{query\_points}}{N_{query\_ponts} - 1}` so the RDF
             values will tend to 1 at large :math:`r` for small systems (Default
-            value = :code:`'infer'`).
+            value = :code:`'exact'`).
     """
     cdef freud._density.RDF * thisptr
 
