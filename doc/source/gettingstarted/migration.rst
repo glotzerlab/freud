@@ -6,7 +6,7 @@ Migration to freud Version 3
 
 Version 3 of the freud library introduces a few breaking changes to make the API
 more intuitive and facilitate future development. This guide explains how to
-alter scripts which use freud v2 APIs so they can be used with freud version 3.
+alter scripts which use freud v2 APIs so they can be used with freud v3.
 
 Overview of API Changes
 =======================
@@ -19,7 +19,7 @@ Overview of API Changes
       - v3 API
     * - Use default RDF normalization.
       - ``freud.density.RDF(..., normalize=False)``
-      - ``freud.density.RDF(..., normalization_mode='infer')``
+      - ``freud.density.RDF(..., normalization_mode='exact')``
     * - Normalize small system RDFs to 1.
       - ``freud.density.RDF(..., normalize=True)``
       - ``freud.density.RDF(..., normalization_mode='finite_size')``
