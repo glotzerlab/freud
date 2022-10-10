@@ -582,15 +582,15 @@ cdef class RDF(_SpatialHistogram1D):
     systems of 100 particles the RDF will differ by 1%).
 
     .. note::
-        For correct normalization behavior when using
-        ``normalization_mode='exact'``, let the set of points be either: 1) the
-        same as the set of query points or 2) completely disjoint from the set
-        of query points (points shouldn't contain any particles in query points).
+        For correct normalization behavior, let the set of points be either: 1)
+        the same as the set of query points or 2) completely disjoint from the
+        set of query points (points shouldn't contain any particles in query
+        points).
 
     .. note::
         For correct normalization behavior when using
-        ``normalization_mode='finite_size'``, do not allow particles to be their
-        own neighbor (:code:`exclude_ii` must be set to :code:`False`).
+        ``normalization_mode='finite_size'``, the ``points`` _must_ be the same
+        as the ``query_points`` and ``exclude_ii`` must be set to ``False``.
 
     .. note::
         **2D:** :class:`freud.density.RDF` properly handles 2D boxes.
