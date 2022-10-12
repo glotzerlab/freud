@@ -23,3 +23,6 @@ Overview of API Changes
     * - Normalize small system RDFs to 1.
       - ``freud.density.RDF(..., normalize=True)``
       - ``freud.density.RDF(..., normalization_mode='finite_size')``
+    * - Color voronoi diagram by area of the cells.
+      - ``N/A``
+      - ``voro.plot(..., color_by='area')``
