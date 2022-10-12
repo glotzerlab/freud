@@ -9,6 +9,9 @@ and this project adheres to
 ### Added
 * Coloring plots by polytope area in `freud.locality.Voronoi`.
 
+### Changed
+* The `normalize` argument to `freud.density.RDF` is now `normalization_mode`.
+
 ## v2.11.0 -- 2022-08-09
 
 ### Added
