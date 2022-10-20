@@ -117,11 +117,11 @@ class PMFTTestBase:
     def test_two_particles(self):
         (box, points), orientations = self.make_two_particle_system()
 
-        correct_bin_counts = np.zeros(self.bins, dtype=np.int32)
-        correct_bin_counts[
+        expected_bin_counts = np.zeros(self.bins, dtype=np.int32)
+        expected_bin_counts[
             self.get_bin(points[0], points[1], orientations[0], orientations[1])
         ] = 1
-        correct_bin_counts[
+        expected_bin_counts[
             self.get_bin(points[1], points[0], orientations[1], orientations[0])
         ] = 1
         absoluteTolerance = 0.1
@@ -136,19 +136,19 @@ class PMFTTestBase:
             pmft = self.make_pmft()
             pmft.compute(nq, orientations, neighbors=neighbors, reset=False)
             npt.assert_allclose(
-                pmft.bin_counts, correct_bin_counts, atol=absoluteTolerance
+                pmft.bin_counts, expected_bin_counts, atol=absoluteTolerance
             )
 
             # Test with resetting.
             pmft.compute(nq, orientations, neighbors=neighbors)
             npt.assert_allclose(
-                pmft.bin_counts, correct_bin_counts, atol=absoluteTolerance
+                pmft.bin_counts, expected_bin_counts, atol=absoluteTolerance
             )
 
             # Test with angles.
             pmft.compute(nq, rowan.geometry.angle(orientations), neighbors=neighbors)
             npt.assert_allclose(
-                pmft.bin_counts, correct_bin_counts, atol=absoluteTolerance
+                pmft.bin_counts, expected_bin_counts, atol=absoluteTolerance
             )
 
     def test_repr(self):
@@ -343,31 +343,35 @@ class TestPMFTXYT(PMFT2DTestBase):
 
             assert len(np.unique(pmft.pmft)) == 2
 
-    def test_nontrivial_orientations(self):
+    @pytest.mark.parametrize(
+        "angles, query_angles",
+        [
+            (angles, query_angles)
+            for angles in ([0], [np.pi / 4])
+            for query_angles in ([0.01], [np.pi / 4 + 0.01])
+        ],
+    )
+    def test_nontrivial_orientations(self, angles, query_angles):
         """Ensure that orientations are applied to the right particles."""
         box = self.get_cubic_box(6)
         points = np.array([[-1.0, 0.0, 0.0]], dtype=np.float32)
         query_points = np.array([[0.9, 0.1, 0.0]], dtype=np.float32)
 
-        for angles in ([0], [np.pi / 4]):
-            for query_angles in ([0.01], [np.pi / 4 + 0.01]):
-                max_width = 2
-                nbins = 4
-                self.limits = (max_width,) * 2
-                self.bins = (nbins, nbins, nbins)
+        max_width = 2
+        nbins = 4
+        self.limits = (max_width,) * 2
+        self.bins = (nbins, nbins, nbins)
 
-                pmft = freud.pmft.PMFTXYT(max_width, max_width, nbins)
-                pmft.compute((box, points), angles, query_points, query_angles)
+        pmft = freud.pmft.PMFTXYT(max_width, max_width, nbins)
+        pmft.compute((box, points), angles, query_points, query_angles)
 
-                query_orientation = rowan.from_axis_angle([0, 0, 1], query_angles[0])
-                orientation = rowan.from_axis_angle([0, 0, 1], angles[0])
+        query_orientation = rowan.from_axis_angle([0, 0, 1], query_angles[0])
+        orientation = rowan.from_axis_angle([0, 0, 1], angles[0])
 
-                assert tuple(
-                    np.asarray(np.where(pmft.bin_counts)).flatten()
-                ) == self.get_bin(
-                    query_points[0], points[0], query_orientation, orientation
-                )
-                assert np.sum(pmft.bin_counts) == 1
+        assert tuple(np.asarray(np.where(pmft.bin_counts)).flatten()) == self.get_bin(
+            query_points[0], points[0], query_orientation, orientation
+        )
+        assert np.sum(pmft.bin_counts) == 1
 
 
 class TestPMFTXY(PMFT2DTestBase):
@@ -659,11 +663,11 @@ class TestPMFTXYZ(PMFTTestBase):
         """Override base class function to test equivalent orientations."""
         (box, points), orientations = self.make_two_particle_system()
 
-        correct_bin_counts = np.zeros(self.bins, dtype=np.int32)
-        correct_bin_counts[
+        expected_bin_counts = np.zeros(self.bins, dtype=np.int32)
+        expected_bin_counts[
             self.get_bin(points[0], points[1], orientations[0], orientations[1])
         ] = 1
-        correct_bin_counts[
+        expected_bin_counts[
             self.get_bin(points[1], points[0], orientations[1], orientations[0])
         ] = 1
         absoluteTolerance = 0.1
@@ -678,13 +682,13 @@ class TestPMFTXYZ(PMFTTestBase):
             pmft = self.make_pmft()
             pmft.compute(nq, orientations, neighbors=neighbors, reset=False)
             npt.assert_allclose(
-                pmft.bin_counts, correct_bin_counts, atol=absoluteTolerance
+                pmft.bin_counts, expected_bin_counts, atol=absoluteTolerance
             )
 
             # Test with resetting.
             pmft.compute(nq, orientations, neighbors=neighbors)
             npt.assert_allclose(
-                pmft.bin_counts, correct_bin_counts, atol=absoluteTolerance
+                pmft.bin_counts, expected_bin_counts, atol=absoluteTolerance
             )
             orig_pmft = pmft.pmft
 
@@ -696,7 +700,7 @@ class TestPMFTXYZ(PMFTTestBase):
                 equiv_orientations=[[1, 0, 0, 0]] * 2,
             )
             npt.assert_allclose(
-                pmft.bin_counts, 2 * correct_bin_counts, atol=absoluteTolerance
+                pmft.bin_counts, 2 * expected_bin_counts, atol=absoluteTolerance
             )
             npt.assert_allclose(pmft.pmft, orig_pmft, atol=absoluteTolerance)
 

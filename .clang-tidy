@@ -2,6 +2,7 @@
 # misc-no-recursion: Rewriting things like the NeighborList to avoid recursion is out of scope for now.
 # misc-non-private-member-variables-in-classes: We make extensive use of protected members, for instance in PMFT* classes from BondHistogramCompute, and the argument that this is _never_ OK is not terribly convincing.
 # modernize-return-braced-init-list: This format for returning is less readable for inexperienced C++ programmers.
+# modernize-use-nodiscard: This warning is raised for every method that has a return value, which is an excessive overuse of this syntax.
 # modernize-use-trailing-return-type: This syntax is still generally unfamiliar to many developers and will make the code harder to maintain.
 # readability-avoid-const-params-in-decls: While it may be semantically confusing, it's easier to read when declaration and definition consts match.
 # readability-function-cognitive-complexity: Some heavily nested functions trigger this, it could be possible to rewrite these but that's out of scope at the moment.
@@ -20,6 +21,7 @@ Checks: 'bugprone-*,
          -misc-no-recursion,
          -misc-non-private-member-variables-in-classes,
          -modernize-return-braced-init-list,
+         -modernize-use-nodiscard,
          -modernize-use-trailing-return-type,
          -readability-avoid-const-params-in-decls,
          -readability-function-cognitive-complexity,

@@ -71,23 +71,28 @@ class TestSteinhardt:
         qlmi /= num_neighbors
         npt.assert_allclose(comp.particle_harmonics, qlmi, atol=atol)
 
-    def test_l_axis_aligned(self):
+    @pytest.mark.parametrize("odd_l", range(1, 20, 2))
+    def test_l_axis_aligned_odd(self, odd_l):
         # This test has three points along the z-axis. By construction, the
         # points on the end should have Q_l = 1 for odd l and the central
-        # point should have Q_l = 0 for odd l. All three points should
-        # have perfect order for even l.
+        # point should have Q_l = 0 for odd l.
         box = freud.box.Box.cube(10)
         positions = [[0, 0, -1], [0, 0, 0], [0, 0, 1]]
 
-        for odd_l in range(1, 20, 2):
-            comp = freud.order.Steinhardt(odd_l)
-            comp.compute((box, positions), neighbors={"num_neighbors": 2})
-            npt.assert_allclose(comp.particle_order, [1, 0, 1], atol=1e-5)
+        comp = freud.order.Steinhardt(odd_l)
+        comp.compute((box, positions), neighbors={"num_neighbors": 2})
+        npt.assert_allclose(comp.particle_order, [1, 0, 1], atol=1e-5)
 
-        for even_l in range(0, 20, 2):
-            comp = freud.order.Steinhardt(even_l)
-            comp.compute((box, positions), neighbors={"num_neighbors": 2})
-            npt.assert_allclose(comp.particle_order, 1, atol=1e-5)
+    @pytest.mark.parametrize("even_l", range(0, 20, 2))
+    def test_l_axis_aligned_even(self, even_l):
+        # This test has three points along the z-axis. By construction,
+        # all three points should have perfect order for even l.
+        box = freud.box.Box.cube(10)
+        positions = [[0, 0, -1], [0, 0, 0], [0, 0, 1]]
+
+        comp = freud.order.Steinhardt(even_l)
+        comp.compute((box, positions), neighbors={"num_neighbors": 2})
+        npt.assert_allclose(comp.particle_order, 1, atol=1e-5)
 
     def test_identical_environments_ql(self):
         box, positions = freud.data.UnitCell.fcc().generate_system(4, scale=2)
@@ -204,7 +209,8 @@ class TestSteinhardt:
             npt.assert_allclose(comp.particle_order, comp.particle_order[0], atol=1e-5)
             assert abs(comp.order - PERFECT_FCC_W6) < 1e-5
 
-    def test_weighted(self):
+    @pytest.mark.parametrize("wt", [0, 0.1, 0.9, 1.1, 10, 1e6])
+    def test_weighted(self, wt):
         box, positions = freud.data.UnitCell.fcc().generate_system(4)
         r_max = 1.5
         n = 12
@@ -218,39 +224,36 @@ class TestSteinhardt:
         ):
             nlist = neighbors
 
-            for wt in [0, 0.1, 0.9, 1.1, 10, 1e6]:
-                # Change the weight of the first bond for each particle
-                weights = nlist.weights.copy()
-                weights[nlist.segments] = wt
-                weighted_nlist = freud.locality.NeighborList.from_arrays(
-                    len(positions),
-                    len(positions),
-                    nlist.query_point_indices,
-                    nlist.point_indices,
-                    nlist.distances,
-                    weights,
-                )
+            # Change the weight of the first bond for each particle
+            weights = nlist.weights.copy()
+            weights[nlist.segments] = wt
+            weighted_nlist = freud.locality.NeighborList.from_arrays(
+                len(positions),
+                len(positions),
+                nlist.query_point_indices,
+                nlist.point_indices,
+                nlist.distances,
+                weights,
+            )
 
-                comp = freud.order.Steinhardt(6, weighted=True)
-                comp.compute(nq, neighbors=weighted_nlist)
+            comp = freud.order.Steinhardt(6, weighted=True)
+            comp.compute(nq, neighbors=weighted_nlist)
 
-                # Unequal neighbor weighting in a perfect FCC structure
-                # appears to increase the Q6 order parameter
-                npt.assert_array_less(PERFECT_FCC_Q6, comp.particle_order)
+            # Unequal neighbor weighting in a perfect FCC structure
+            # appears to increase the Q6 order parameter
+            npt.assert_array_less(PERFECT_FCC_Q6, comp.particle_order)
+            npt.assert_allclose(comp.particle_order, comp.particle_order[0], atol=1e-5)
+            npt.assert_array_less(PERFECT_FCC_Q6, comp.order)
+
+            # Ensure that W6 values are altered by changing the weights
+            comp = freud.order.Steinhardt(6, wl=True, weighted=True)
+            comp.compute(nq, neighbors=weighted_nlist)
+            with pytest.raises(AssertionError):
                 npt.assert_allclose(
-                    comp.particle_order, comp.particle_order[0], atol=1e-5
+                    np.average(comp.particle_order), PERFECT_FCC_W6, rtol=1e-5
                 )
-                npt.assert_array_less(PERFECT_FCC_Q6, comp.order)
-
-                # Ensure that W6 values are altered by changing the weights
-                comp = freud.order.Steinhardt(6, wl=True, weighted=True)
-                comp.compute(nq, neighbors=weighted_nlist)
-                with pytest.raises(AssertionError):
-                    npt.assert_allclose(
-                        np.average(comp.particle_order), PERFECT_FCC_W6, rtol=1e-5
-                    )
-                with pytest.raises(AssertionError):
-                    npt.assert_allclose(comp.order, PERFECT_FCC_W6, rtol=1e-5)
+            with pytest.raises(AssertionError):
+                npt.assert_allclose(comp.order, PERFECT_FCC_W6, rtol=1e-5)
 
     def test_attribute_access(self):
         comp = freud.order.Steinhardt(6)
@@ -278,7 +281,8 @@ class TestSteinhardt:
 
         npt.assert_array_almost_equal(first_result, second_result)
 
-    def test_rotational_invariance(self):
+    @pytest.mark.parametrize("seed", range(10))
+    def test_rotational_invariance(self, seed):
         box = freud.box.Box.cube(10)
         positions = np.array(
             [
@@ -315,20 +319,19 @@ class TestSteinhardt:
         w6.compute((box, positions), neighbors=nlist)
         w6_unrotated_order = w6.particle_order[0]
 
-        for i in range(10):
-            np.random.seed(i)
-            quat = rowan.random.rand()
-            positions_rotated = rowan.rotate(quat, positions)
+        np.random.seed(seed)
+        quat = rowan.random.rand()
+        positions_rotated = rowan.rotate(quat, positions)
 
-            # Ensure Q6 is rotationally invariant
-            q6.compute((box, positions_rotated), neighbors=nlist)
-            npt.assert_allclose(q6.particle_order[0], q6_unrotated_order, rtol=1e-5)
-            npt.assert_allclose(q6.particle_order[0], PERFECT_FCC_Q6, rtol=1e-5)
+        # Ensure Q6 is rotationally invariant
+        q6.compute((box, positions_rotated), neighbors=nlist)
+        npt.assert_allclose(q6.particle_order[0], q6_unrotated_order, rtol=1e-5)
+        npt.assert_allclose(q6.particle_order[0], PERFECT_FCC_Q6, rtol=1e-5)
 
-            # Ensure W6 is rotationally invariant
-            w6.compute((box, positions_rotated), neighbors=nlist)
-            npt.assert_allclose(w6.particle_order[0], w6_unrotated_order, rtol=1e-5)
-            npt.assert_allclose(w6.particle_order[0], PERFECT_FCC_W6, rtol=1e-5)
+        # Ensure W6 is rotationally invariant
+        w6.compute((box, positions_rotated), neighbors=nlist)
+        npt.assert_allclose(w6.particle_order[0], w6_unrotated_order, rtol=1e-5)
+        npt.assert_allclose(w6.particle_order[0], PERFECT_FCC_W6, rtol=1e-5)
 
     def test_repr(self):
         comp = freud.order.Steinhardt(6)
