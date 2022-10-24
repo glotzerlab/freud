@@ -1270,81 +1270,70 @@ cdef class Voronoi(_Compute):
             return None
 
 cdef class RAD(_Compute):
-    r"""Computes Voronoi diagrams using voro++.
+    r"""Computes coordination shell using the RAD algorithm.
 
-    Voronoi diagrams (`Wikipedia
-    <https://en.wikipedia.org/wiki/Voronoi_diagram>`_) are composed of convex
-    polytopes (polyhedra in 3D, polygons in 2D) called cells, corresponding to
-    each input point. The cells bound a region of Euclidean space for which all
-    contained points are closer to a corresponding input point than any other
-    input point. A ridge is defined as a boundary between cells, which contains
-    points equally close to two or more input points.
+    The Relative Angular Distance (RAD) :cite:`Higham2016` algorithm defines
+    the coordination shell for a query particle as follows:
 
-    The voro++ library :cite:`Rycroft2009` is used for fast computations of the
-    Voronoi diagram.
+    A particle's coordination shell includes all particles that are not blocked
+    by any other particle and not further away than a blocked particle.
+
+    "Blocking" is determined by checking the distances between the query
+    particle and its two potential neighbors, as well as the angle formed by
+    the three particles.
     """
 
     def __cinit__(self):
-        #     self.thisptr = new freud._locality.Voronoi()
         self._nlist = NeighborList()
 
-    # def __dealloc__(self):
-    #     del self.thisptr
+    def __dealloc__(self):
+        del self.thisptr
 
-    # def compute(self, system):
-    #     r"""Compute Voronoi diagram.
+    def compute(self, system):
+        r"""RAD coordination shell
 
-    #     Args:
-    #         system:
-    #             Any object that is a valid argument to
-    #             :class:`freud.locality.NeighborQuery.from_system`.
-    #     """
-    #     aq = freud.locality.AABBQuery(box, points)
-    #     nlist = aq.query(points, dict(mode='ball',
-    #     r_max=r_max, exclude_ii=True)).toNeighborList(sort_by_distance=True)
-    #     #for neigh in aq.query(points,dict(mode='ball',r_max=r_max,exclude_ii=True)):
-    #     #    print(neigh)
-    #     sorted_neighbours=np.asarray(nlist)
-    #     list_of_neighs=[]
-    #     #loop over all particles
-    #     for i in range (0, N):
-    #         # put closest neighbours in the list of valid neighbours
-    #         i_neighbours=sorted_neighbours[sorted_neighbours[: ,0]==i,1]
-    #         list_of_neighs.append([i,i_neighbours[0]])
-    #         # loop over neighours starting from second
-    #         for jj in range(1, len(i_neighbours)):
-    #             j=i_neighbours[jj]
-    #             is_a_good_neighbour=True
-    #             # loop over all neighbours that are closer
-    #             for k in i_neighbours[:jj]:
-    #                 # check the condition
-    #                 v1=box.wrap(points[i]-points[j])
-    #                 v2=box.wrap(points[i]-points[k])
-    #                 coz=np.dot(v1, v2)/(np.linalg.norm(v1)*np.linalg.norm(v2))
-    #                 # if true add to the list
-    #                 if (1/np.dot(v1, v1)<(coz/np.dot(v2, v2))):
-    #                     is_a_good_neighbour=False
-    #                     break
-    #             if is_a_good_neighbour:
-    #                 list_of_neighs.append([i, j])
-    #         RAD_neighbours = np.asarray(list_of_neighs)
-    #         self._nlist = RAD_neighbours
+        Args:
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
+        """
+        aq = freud.locality.AABBQuery(box, points)
+        nlist = aq.query(points, dict(mode='ball',
+                         r_max=r_max,
+                         exclude_ii=True)).toNeighborList(sort_by_distance=True)
+
+        sorted_neighbors = np.asarray(nlist)
+        list_of_neighs=[]
+        #loop over all particles
+        # is N the length of sorted_neighbors
+        for i in range (0, N):
+
+            # put closest neighbors in the list of valid neighbors
+            i_neighbours = sorted_neighbors[sorted_neighbors[: ,0] == i, 1]
+            list_of_neighs.append([i, i_neighbours[0]])
+
+            # loop over neighours starting from second
+            for jj in range(1, len(i_neighbours)):
+                j = i_neighbours[jj]
+                is_a_good_neighbor = True
+                # loop over all neighbours that are closer
+                for k in i_neighbours[:jj]:
+                    # check the condition
+                    v1 = box.wrap(points[i]-points[j])
+                    v2 = box.wrap(points[i]-points[k])
+                    coz = np.dot(v1, v2)/(np.linalg.norm(v1)*np.linalg.norm(v2))
+                    # if true add to the list
+                    if (1/np.dot(v1, v1) < (coz/np.dot(v2, v2))):
+                        is_a_good_neighbour=False
+                        break
+                if is_a_good_neighbour:
+                    list_of_neighs.append([i, j])
+            RAD_neighbours = np.asarray(list_of_neighs)
+            self._nlist = RAD_neighbours
 
     @_Compute._computed_property
     def nlist(self):
         r"""Returns the computed :class:`~.locality.NeighborList`.
-
-        The :class:`~.locality.NeighborList` computed by this class is
-        weighted. In 2D systems, the bond weight is the length of the ridge
-        (boundary line) between the neighboring points' Voronoi cells. In 3D
-        systems, the bond weight is the area of the ridge (boundary polygon)
-        between the neighboring points' Voronoi cells. The weights are not
-        normalized, and the weights for each query point sum to the surface
-        area (perimeter in 2D) of the polytope.
-
-        It is possible for pairs of points to appear multiple times in the
-        neighbor list. For example, in a small unit cell, points may neighbor
-        one another on multiple sides because of periodic boundary conditions.
 
         Returns:
             :class:`~.locality.NeighborList`: Neighbor list.
@@ -1358,34 +1347,3 @@ cdef class RAD(_Compute):
 
     def __str__(self):
         return repr(self)
-
-    def plot(self, ax=None, color_by_sides=True, cmap=None):
-        """Plot Voronoi diagram.
-
-        Args:
-            ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
-                :code:`None`, make a new figure and axis.
-                (Default value = :code:`None`)
-            color_by_sides (bool):
-                If :code:`True`, color cells by the number of sides.
-                If :code:`False`, random colors are used for each cell.
-                (Default value = :code:`True`)
-            cmap (str):
-                Colormap name to use (Default value = :code:`None`).
-
-        Returns:
-            :class:`matplotlib.axes.Axes`: Axis with the plot.
-        """
-        import freud.plot
-        if not self._box.is2D:
-            return None
-        else:
-            return freud.plot.voronoi_plot(
-                self._box, self.polytopes, ax, color_by_sides, cmap)
-
-    def _repr_png_(self):
-        try:
-            import freud.plot
-            return freud.plot._ax_to_bytes(self.plot())
-        except (AttributeError, ImportError):
-            return None
