@@ -315,7 +315,11 @@ cdef class NeighborQuery:
             return system
 
         # MDAnalysis compatibility
-        elif _match_class_path(system, 'MDAnalysis.coordinates.timestep.Timestep'):
+        # base namespace for mdanalysis<2.3.0
+        # timestep namespace for mdanalysis>=2.3.0
+        elif _match_class_path(system,
+                               'MDAnalysis.coordinates.base.Timestep',
+                               'MDAnalysis.coordinates.timestep.Timestep'):
             system = (system.triclinic_dimensions, system.positions)
 
         # GSD and HOOMD-blue 3 snapshot compatibility
