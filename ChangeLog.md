@@ -9,6 +9,9 @@ and this project adheres to
 ### Added
 * Mass dependence in `freud.cluster.ClusterProperties` and calculation of inertia tensor and center of mass.
 
+### Fixed
+* Compatibility with new namespace for `MDAnalysis.coordinates.timestep.Timestep`.
+
 ## v2.11.0 -- 2022-08-09
 
 ### Added

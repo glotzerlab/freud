@@ -286,7 +286,7 @@ cdef class NeighborQuery:
         * A sequence of :code:`(box, points)` where :code:`box` is a
           :class:`~.box.Box` and :code:`points` is a :class:`numpy.ndarray`.
         * Objects with attributes :code:`box` and :code:`points`.
-        * :class:`MDAnalysis.coordinates.base.Timestep`
+        * :class:`MDAnalysis.coordinates.timestep.Timestep`
         * :class:`gsd.hoomd.Snapshot`
         * :class:`garnett.trajectory.Frame`
         * :class:`ovito.data.DataCollection`
@@ -315,7 +315,11 @@ cdef class NeighborQuery:
             return system
 
         # MDAnalysis compatibility
-        elif _match_class_path(system, 'MDAnalysis.coordinates.base.Timestep'):
+        # base namespace for mdanalysis<2.3.0
+        # timestep namespace for mdanalysis>=2.3.0
+        elif _match_class_path(system,
+                               'MDAnalysis.coordinates.base.Timestep',
+                               'MDAnalysis.coordinates.timestep.Timestep'):
             system = (system.triclinic_dimensions, system.positions)
 
         # GSD and HOOMD-blue 3 snapshot compatibility
