@@ -419,7 +419,7 @@ def voronoi_plot(voronoi, box, ax=None, color_by=None, cmap=None):
         ax (:class:`matplotlib.axes.Axes`): Axes object to plot.
             If :code:`None`, make a new axes and figure object.
             (Default value = :code:`None`).
-        color_by (bool):
+        color_by (str):
             If :code:`'sides'`, color cells by the number of sides.
             If :code:`'area'`, color cells by their area.
             If :code:`None`, random colors are used for each cell.
