@@ -30,7 +30,7 @@ jobs:
         pyver: ["3.6", "3.7", "3.8", "3.9", "3.10"]
 
     steps:
-      - uses: actions/checkout@v3.0.2
+      - uses: actions/checkout@v3.1.0
         with:
           submodules: "recursive"
 
@@ -72,7 +72,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ contains(github.event.pull_request.labels.*.name, 'build_wheels') || github.event_name != 'pull_request' }}
     steps:
-      - uses: actions/checkout@v3.0.2
+      - uses: actions/checkout@v3.1.0
         with:
           submodules: "recursive"
 
