@@ -88,11 +88,11 @@ void CorrelationFunction<T>::accumulate(const freud::locality::NeighborQuery* ne
     accumulateGeneral(
         neighbor_query, query_points, n_query_points, nlist, qargs,
         [&](const freud::locality::NeighborBond& neighbor_bond) {
-            size_t value_bin = m_histogram.bin({neighbor_bond.distance});
+            size_t value_bin = m_histogram.bin({neighbor_bond.getDistance()});
             m_local_histograms.increment(value_bin);
             m_local_correlation_function.increment(
                 value_bin,
-                product(values[neighbor_bond.point_idx], query_values[neighbor_bond.query_point_idx]));
+                product(values[neighbor_bond.getPointIdx()], query_values[neighbor_bond.getQueryPointIdx()]));
         });
 }
 

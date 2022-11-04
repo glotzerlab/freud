@@ -130,8 +130,8 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
 
             for (freud::locality::NeighborBond nb = ppiter->next(); !ppiter->end(); nb = ppiter->next())
             {
-                const vec3<float> delta = points->getBox().wrap((*points)[nb.point_idx] - ref);
-                const float weight(m_weighted ? nb.weight : float(1.0));
+                const vec3<float> delta = points->getBox().wrap((*points)[nb.getPointIdx()] - ref);
+                const float weight(m_weighted ? nb.getWeight() : float(1.0));
 
                 // phi is usually in range 0..2Pi, but
                 // it only appears in Ylm as exp(im\phi),
@@ -142,11 +142,11 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
                 // aligned along z, otherwise due to floating point error we
                 // could get delta.z/nb.distance = -1-eps, which is outside the
                 // valid range of std::acos.
-                float theta = std::acos(util::clamp(delta.z / nb.distance, -1, 1)); // 0..Pi
+                float theta = std::acos(util::clamp(delta.z / nb.getDistance(), -1, 1)); // 0..Pi
 
                 // If the points are directly on top of each other,
                 // theta should be zero instead of nan.
-                if (nb.distance == float(0))
+                if (nb.getDistance() == float(0))
                 {
                     theta = 0;
                 }
@@ -225,7 +225,7 @@ void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
                     auto& qlmiAve = m_qlmiAve[l_index];
                     auto& qlmi = m_qlmi[l_index];
                     const auto ave_index = qlmiAve.getIndex({i, 0});
-                    const auto nb_index = qlmi.getIndex({nb.point_idx, 0});
+                    const auto nb_index = qlmi.getIndex({nb.getPointIdx(), 0});
                     for (size_t k = 0; k < m_num_ms[l_index]; ++k)
                     {
                         // Adding all the qlm of the neighbors. We use the

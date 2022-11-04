@@ -88,7 +88,7 @@ void RDF::accumulate(const freud::locality::NeighborQuery* neighbor_query, const
 {
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
                       [&](const freud::locality::NeighborBond& neighbor_bond) {
-                          m_local_histograms(neighbor_bond.distance);
+                          m_local_histograms(neighbor_bond.getDistance());
                       });
 }
 

@@ -14,8 +14,9 @@ namespace freud { namespace locality {
  *  class defines the less than operator according to distance, making it
  *  possible to sort.
  */
-struct NeighborBond
+class NeighborBond
 {
+public:
     // For now, id = query_point_idx and ref_id = point_idx (into the NeighborQuery).
     constexpr NeighborBond() = default;
 
@@ -93,6 +94,53 @@ struct NeighborBond
         return weight < n.weight;
     }
 
+    unsigned int getQueryPointIdx() const
+    {
+        return query_point_idx;
+    }
+
+    void setQueryPointIdx(unsigned int new_qpidx)
+    {
+        query_point_idx = new_qpidx;
+    }
+
+    unsigned int getPointIdx() const
+    {
+        return point_idx;
+    }
+
+    void setPointIdx(unsigned int new_pidx)
+    {
+        point_idx = new_pidx;
+    }
+
+    float getWeight() const
+    {
+        return weight;
+    }
+
+    void setWeight(float new_weight)
+    {
+        weight = new_weight;
+    }
+
+    vec3<float> getVector() const
+    {
+        return vector;
+    }
+
+    void setVector(vec3<float> new_vector)
+    {
+        vector = new_vector;
+        distance = std::sqrt(dot(vector, vector));
+    }
+
+    float getDistance() const
+    {
+        return distance;
+    }
+
+private:
     unsigned int query_point_idx {0}; //! The query point index.
     unsigned int point_idx {0};       //! The reference point index.
     float distance {0};               //! The distance between the points.

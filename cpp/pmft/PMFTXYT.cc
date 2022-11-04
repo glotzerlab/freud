@@ -70,18 +70,18 @@ void PMFTXYT::accumulate(const locality::NeighborQuery* neighbor_query, const fl
     neighbor_query->getBox().enforce2D();
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
                       [&](const freud::locality::NeighborBond& neighbor_bond) {
-                          const vec3<float>& delta(neighbor_bond.vector);
+                          const vec3<float>& delta(neighbor_bond.getVector());
 
                           // rotate interparticle vector
                           const vec2<float> myVec(delta.x, delta.y);
                           const rotmat2<float> myMat(
-                              rotmat2<float>::fromAngle(-query_orientations[neighbor_bond.query_point_idx]));
+                              rotmat2<float>::fromAngle(-query_orientations[neighbor_bond.getQueryPointIdx()]));
                           const vec2<float> rotVec = myMat * myVec;
                           // calculate angle
                           const float d_theta = std::atan2(-delta.y, -delta.x);
                           // make sure that t is bounded between 0 and 2PI
                           const float t = util::modulusPositive(
-                              orientations[neighbor_bond.point_idx] - d_theta, constants::TWO_PI);
+                              orientations[neighbor_bond.getPointIdx()] - d_theta, constants::TWO_PI);
                           m_local_histograms(rotVec.x, rotVec.y, t);
                       });
 }

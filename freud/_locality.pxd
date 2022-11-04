@@ -13,10 +13,11 @@ from freud.util cimport vec3
 
 cdef extern from "NeighborBond.h" namespace "freud::locality":
     cdef cppclass NeighborBond:
-        unsigned int query_point_idx
-        unsigned int point_idx
-        float distance
-        float weight
+        unsigned int getQueryPointIdx() const
+        unsigned int getPointIdx() const
+        float getDistance() const
+        float getWeight() const
+        vec3[float] getVector() const
         bool operator==(const NeighborBond &) const
         bool operator!=(const NeighborBond &) const
         bool operator<(const NeighborBond &) const

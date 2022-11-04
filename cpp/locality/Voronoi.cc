@@ -206,11 +206,11 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
     util::forLoopWrapper(0, num_bonds, [&](size_t begin, size_t end) {
         for (size_t bond = begin; bond != end; ++bond)
         {
-            m_neighbor_list->getNeighbors()(bond, 0) = bonds[bond].query_point_idx;
-            m_neighbor_list->getNeighbors()(bond, 1) = bonds[bond].point_idx;
-            m_neighbor_list->getDistances()[bond] = bonds[bond].distance;
-            m_neighbor_list->getWeights()[bond] = bonds[bond].weight;
-            m_neighbor_list->getVectors()[bond] = bonds[bond].vector;
+            m_neighbor_list->getNeighbors()(bond, 0) = bonds[bond].getQueryPointIdx();
+            m_neighbor_list->getNeighbors()(bond, 1) = bonds[bond].getPointIdx();
+            m_neighbor_list->getDistances()[bond] = bonds[bond].getDistance();
+            m_neighbor_list->getWeights()[bond] = bonds[bond].getWeight();
+            m_neighbor_list->getVectors()[bond] = bonds[bond].getVector();
         }
     });
 }

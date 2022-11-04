@@ -117,9 +117,9 @@ void PMFTXYZ::accumulate(const locality::NeighborQuery* neighbor_query, const qu
                       [&](const freud::locality::NeighborBond& neighbor_bond) {
                           // create the reference point quaternion
                           const quat<float> query_orientation(
-                              query_orientations[neighbor_bond.query_point_idx]);
+                              query_orientations[neighbor_bond.getQueryPointIdx()]);
                           // make sure that the particles are wrapped into the box
-                          const vec3<float>& delta(neighbor_bond.vector);
+                          const vec3<float>& delta(neighbor_bond.getVector());
 
                           for (unsigned int k = 0; k < num_equiv_orientations; k++)
                           {

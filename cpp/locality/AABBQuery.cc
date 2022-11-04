@@ -243,26 +243,28 @@ NeighborBond AABBQueryIterator::next()
                     continue;
                 }
 
-                if (!m_exclude_ii || m_query_point_idx != nb.point_idx)
+                if (!m_exclude_ii || m_query_point_idx != nb.getPointIdx())
                 {
-                    nb.query_point_idx = m_query_point_idx;
+                    nb.setQueryPointIdx(m_query_point_idx);
                     // If we've expanded our search radius beyond safe
                     // distance, use the map instead of the vector.
                     if (m_search_extended)
                     {
-                        if ((m_all_bonds_minimum_distance.count(nb.point_idx) == 0)
-                            || m_all_bonds_minimum_distance[nb.point_idx].distance > nb.distance)
+                        const unsigned int nb_point_idx = nb.getPointIdx();
+                        const unsigned int nb_distance = nb.getDistance();
+                        if ((m_all_bonds_minimum_distance.count(nb_point_idx) == 0)
+                            || m_all_bonds_minimum_distance[nb_point_idx].getDistance() > nb_distance)
                         {
-                            m_all_bonds_minimum_distance[nb.point_idx] = nb;
-                            if (nb.distance < m_r_min)
+                            m_all_bonds_minimum_distance[nb_point_idx] = nb;
+                            if (nb_distance < m_r_min)
                             {
-                                m_query_points_below_r_min.insert(nb.point_idx);
+                                m_query_points_below_r_min.insert(nb_point_idx);
                             }
                         }
                     }
                     else
                     {
-                        if (nb.distance >= m_r_min)
+                        if (nb.getDistance() >= m_r_min)
                         {
                             m_current_neighbors.emplace_back(nb);
                         }
@@ -290,7 +292,7 @@ NeighborBond AABBQueryIterator::next()
                 // neighbors left in the system.
                 for (const auto& minimum_distance_bond : m_all_bonds_minimum_distance)
                 {
-                    if (minimum_distance_bond.second.distance >= m_r_min)
+                    if (minimum_distance_bond.second.getDistance() >= m_r_min)
                     {
                         m_current_neighbors.emplace_back(minimum_distance_bond.second);
                     }
@@ -320,7 +322,7 @@ NeighborBond AABBQueryIterator::next()
     while ((m_count < m_num_neighbors) && (m_count < m_current_neighbors.size()))
     {
         m_count++;
-        if (m_current_neighbors[m_count - 1].distance > m_r_max)
+        if (m_current_neighbors[m_count - 1].getDistance() > m_r_max)
         {
             m_finished = true;
             return ITERATOR_TERMINATOR;

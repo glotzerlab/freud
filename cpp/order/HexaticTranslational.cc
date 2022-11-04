@@ -28,8 +28,8 @@ void HexaticTranslational<T>::computeGeneral(Func func, const freud::locality::N
             for (freud::locality::NeighborBond nb = ppiter->next(); !ppiter->end(); nb = ppiter->next())
             {
                 // Compute vector from query_point to point
-                const vec3<float> delta = box.wrap((*points)[nb.point_idx] - ref);
-                const float weight(m_weighted ? nb.weight : 1.0);
+                const vec3<float> delta = box.wrap((*points)[nb.getPointIdx()] - ref);
+                const float weight(m_weighted ? nb.getWeight() : 1.0);
 
                 // Compute psi for this vector
                 m_psi_array[i] += weight * func(delta);
