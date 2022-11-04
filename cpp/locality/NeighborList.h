@@ -50,59 +50,49 @@ public:
     //! Update the arrays of neighbor counts and segments
     void updateSegmentCounts() const;
 
-    //! Access the neighbors array for reading and writing
-    util::ManagedArray<unsigned int>& getNeighbors()
-    {
-        return m_neighbors;
-    }
-    //! Access the distances array for reading and writing
-    util::ManagedArray<float>& getDistances()
-    {
-        return m_distances;
-    }
-    //! Access the weights array for reading and writing
-    util::ManagedArray<float>& getWeights()
-    {
-        return m_weights;
-    }
-    //! Access the vectors array for reading and writing
-    util::ManagedArray<vec3<float>>& getVectors()
-    {
-        return m_vectors;
-    }
-    //! Access the counts array for reading and writing
-    util::ManagedArray<unsigned int>& getCounts()
-    {
-        updateSegmentCounts();
-        return m_counts;
-    }
-    //! Access the segments array for reading and writing
-    util::ManagedArray<unsigned int>& getSegments()
-    {
-        updateSegmentCounts();
-        return m_segments;
-    }
-
     //! Access the neighbors array for reading
     const util::ManagedArray<unsigned int>& getNeighbors() const
     {
         return m_neighbors;
     }
+
+    void setNeighbor(size_t neighbor_index, unsigned int query_point_idx, unsigned int point_idx)
+    {
+        m_neighbors(neighbor_index, 0) = query_point_idx;
+        m_neighbors(neighbor_index, 1) = point_idx;
+    }
+
     //! Access the distances array for reading
     const util::ManagedArray<float>& getDistances() const
     {
         return m_distances;
     }
+
     //! Access the weights array for reading
     const util::ManagedArray<float>& getWeights() const
     {
         return m_weights;
     }
+
+    void setWeight(int neighbor_idx, float weight)
+    {
+        m_weights[neighbor_idx] = weight;
+    }
+
     //! Access the vectors array for reading
     const util::ManagedArray<vec3<float>>& getVectors() const
     {
         return m_vectors;
     }
+
+    void setVector(int neighbor_idx, vec3<float> vector)
+    {
+        m_vectors[neighbor_idx] = vector;
+
+        // keep distance consistent with vector
+        m_distances[neighbor_idx] = std::sqrt(dot(vector, vector));
+    }
+
     //! Access the counts array for reading
     const util::ManagedArray<unsigned int>& getCounts() const
     {
