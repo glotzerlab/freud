@@ -80,20 +80,20 @@ void PMFTR12::accumulate(const locality::NeighborQuery* neighbor_query, const fl
                          freud::locality::QueryArgs qargs)
 {
     neighbor_query->getBox().enforce2D();
-    accumulateGeneral(
-        neighbor_query, query_points, n_query_points, nlist, qargs,
-        [&](const freud::locality::NeighborBond& neighbor_bond) {
-            const vec3<float>& delta(neighbor_bond.getVector());
-            // calculate angles
-            const float d_theta1 = std::atan2(delta.y, delta.x);
-            const float d_theta2 = std::atan2(-delta.y, -delta.x);
-            // make sure that t1, t2 are bounded between 0 and 2PI
-            const float t1
-                = util::modulusPositive(orientations[neighbor_bond.getPointIdx()] - d_theta1, constants::TWO_PI);
-            const float t2 = util::modulusPositive(
-                query_orientations[neighbor_bond.getQueryPointIdx()] - d_theta2, constants::TWO_PI);
-            m_local_histograms(neighbor_bond.getDistance(), t1, t2);
-        });
+    accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
+                      [&](const freud::locality::NeighborBond& neighbor_bond) {
+                          const vec3<float>& delta(neighbor_bond.getVector());
+                          // calculate angles
+                          const float d_theta1 = std::atan2(delta.y, delta.x);
+                          const float d_theta2 = std::atan2(-delta.y, -delta.x);
+                          // make sure that t1, t2 are bounded between 0 and 2PI
+                          const float t1 = util::modulusPositive(
+                              orientations[neighbor_bond.getPointIdx()] - d_theta1, constants::TWO_PI);
+                          const float t2 = util::modulusPositive(
+                              query_orientations[neighbor_bond.getQueryPointIdx()] - d_theta2,
+                              constants::TWO_PI);
+                          m_local_histograms(neighbor_bond.getDistance(), t1, t2);
+                      });
 }
 
 }; }; // end namespace freud::pmft
