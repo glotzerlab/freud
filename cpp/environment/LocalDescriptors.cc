@@ -105,11 +105,9 @@ void LocalDescriptors::compute(const locality::NeighborQuery* nq, const vec3<flo
             {
                 const unsigned int sphCount(bond * getSphWidth());
                 const vec3<float> r_ij(m_nlist.getVectors()[bond]);
-                const float r_sq(dot(r_ij, r_ij));
+                const float magR(m_nlist.getDistances()[bond]);
                 const vec3<float> bond_ij(dot(rotation_0, r_ij), dot(rotation_1, r_ij),
                                           dot(rotation_2, r_ij));
-
-                const float magR(std::sqrt(r_sq));
 
                 // Wrap theta into [0, 2*pi]
                 float theta(std::atan2(bond_ij.y, bond_ij.x));

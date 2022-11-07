@@ -56,12 +56,6 @@ public:
         return m_neighbors;
     }
 
-    void setNeighbor(size_t neighbor_index, unsigned int query_point_idx, unsigned int point_idx)
-    {
-        m_neighbors(neighbor_index, 0) = query_point_idx;
-        m_neighbors(neighbor_index, 1) = point_idx;
-    }
-
     //! Access the distances array for reading
     const util::ManagedArray<float>& getDistances() const
     {
@@ -74,23 +68,10 @@ public:
         return m_weights;
     }
 
-    void setWeight(int neighbor_idx, float weight)
-    {
-        m_weights[neighbor_idx] = weight;
-    }
-
     //! Access the vectors array for reading
     const util::ManagedArray<vec3<float>>& getVectors() const
     {
         return m_vectors;
-    }
-
-    void setVector(int neighbor_idx, vec3<float> vector)
-    {
-        m_vectors[neighbor_idx] = vector;
-
-        // keep distance consistent with vector
-        m_distances[neighbor_idx] = std::sqrt(dot(vector, vector));
     }
 
     //! Access the counts array for reading
@@ -104,6 +85,18 @@ public:
     {
         updateSegmentCounts();
         return m_segments;
+    }
+
+    /**
+     * Set the values for the neighbor index to be that of the given neighborbond
+     * */
+    void setNeighborEntry(size_t neighbor_index, const NeighborBond& nb)
+    {
+        m_neighbors(neighbor_index, 0) = nb.getQueryPointIdx();
+        m_neighbors(neighbor_index, 1) = nb.getPointIdx();
+        m_vectors[neighbor_index] = nb.getVector();
+        m_distances[neighbor_index] = nb.getDistance();
+        m_weights[neighbor_index] = nb.getWeight();
     }
 
     //! Remove bonds in this object based on an array of boolean values. The

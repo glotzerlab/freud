@@ -421,10 +421,7 @@ public:
         util::forLoopWrapper(0, num_bonds, [&](size_t begin, size_t end) {
             for (size_t bond = begin; bond < end; ++bond)
             {
-                nl->setNeighbor(bond, linear_bonds[bond].getQueryPointIdx(),
-                                linear_bonds[bond].getPointIdx());
-                nl->setWeight(bond, linear_bonds[bond].getWeight());
-                nl->setVector(bond, linear_bonds[bond].getVector());
+                nl->setNeighborEntry(bond, linear_bonds[bond]);
             }
         });
 

@@ -49,11 +49,8 @@ NeighborList::NeighborList(unsigned int num_bonds, const unsigned int* query_poi
         {
             throw std::invalid_argument("NeighborList point_index values must be less than num_points.");
         }
-        m_neighbors(i, 0) = index;
-        m_neighbors(i, 1) = point_index[i];
-        m_vectors[i] = vectors[i];
-        m_distances[i] = std::sqrt(dot(vectors[i], vectors[i]));
-        m_weights[i] = weights[i];
+        setNeighborEntry(i,
+                NeighborBond(index, point_index[i], weights[i], vectors[i]));
         last_index = index;
     }
 }
