@@ -27,7 +27,8 @@ public:
      * the distance to know if a neighbor pair fits the query arguments and NeighborList
      * objects which have already computed the distances corresponding to their vectors.
      * */
-    constexpr NeighborBond(unsigned int query_point_idx, unsigned int point_idx, float d, float w, const vec3<float>& v)
+    constexpr NeighborBond(unsigned int query_point_idx, unsigned int point_idx, float d, float w,
+                           const vec3<float>& v)
         : query_point_idx(query_point_idx), point_idx(point_idx), distance(d), weight(w), vector(v)
     {}
 
@@ -36,7 +37,8 @@ public:
      * a NeighborBond object.
      * */
     NeighborBond(unsigned int query_point_idx, unsigned int point_idx, float w, const vec3<float>& v)
-        : query_point_idx(query_point_idx), point_idx(point_idx), distance(std::sqrt(dot(v, v))), weight(w), vector(v)
+        : query_point_idx(query_point_idx), point_idx(point_idx), distance(std::sqrt(dot(v, v))), weight(w),
+          vector(v)
     {}
 
     //! Equality checks both query_point_idx and distance.
