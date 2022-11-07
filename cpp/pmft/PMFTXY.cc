@@ -66,8 +66,8 @@ void PMFTXY::accumulate(const locality::NeighborQuery* neighbor_query, const flo
 
                           // rotate interparticle vector
                           const vec2<float> myVec(delta.x, delta.y);
-                          const rotmat2<float> myMat(
-                              rotmat2<float>::fromAngle(-query_orientations[neighbor_bond.getQueryPointIdx()]));
+                          const rotmat2<float> myMat(rotmat2<float>::fromAngle(
+                              -query_orientations[neighbor_bond.getQueryPointIdx()]));
                           const vec2<float> rotVec = myMat * myVec;
 
                           m_local_histograms(rotVec.x, rotVec.y);

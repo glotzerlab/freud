@@ -74,8 +74,8 @@ void PMFTXYT::accumulate(const locality::NeighborQuery* neighbor_query, const fl
 
                           // rotate interparticle vector
                           const vec2<float> myVec(delta.x, delta.y);
-                          const rotmat2<float> myMat(
-                              rotmat2<float>::fromAngle(-query_orientations[neighbor_bond.getQueryPointIdx()]));
+                          const rotmat2<float> myMat(rotmat2<float>::fromAngle(
+                              -query_orientations[neighbor_bond.getQueryPointIdx()]));
                           const vec2<float> rotVec = myMat * myVec;
                           // calculate angle
                           const float d_theta = std::atan2(-delta.y, -delta.x);
