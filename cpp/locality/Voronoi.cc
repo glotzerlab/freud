@@ -185,10 +185,7 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
                 const vec3<double> riv(rv - query_point);
                 const vec3<float> vector(2.0 * dot(riv, normal) * normal);
 
-                // Compute the distance from query_point to point in the direction of the normal.
-                const float distance(std::sqrt(dot(vector, vector)));
-
-                bonds.emplace_back(query_point_id, point_id, distance, weight, vector);
+                bonds.emplace_back(query_point_id, point_id, weight, vector);
             }
 
         } while (voronoi_loop.inc());

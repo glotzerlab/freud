@@ -20,11 +20,21 @@ public:
     // For now, id = query_point_idx and ref_id = point_idx (into the NeighborQuery).
     constexpr NeighborBond() = default;
 
-    // TODO decide if this needs to stay around
+    /*
+     * This constructor should only be used in cases where the correct distance/vector
+     * pair is known before instantiating this object to save time and eliminate
+     * redundancy. Common cases include NeighbQuery objects which have to compute
+     * the distance to know if a neighbor pair fits the query arguments and NeighborList
+     * objects which have already computed the distances corresponding to their vectors.
+     * */
     constexpr NeighborBond(unsigned int query_point_idx, unsigned int point_idx, float d, float w, const vec3<float>& v)
         : query_point_idx(query_point_idx), point_idx(point_idx), distance(d), weight(w), vector(v)
     {}
 
+    /**
+     * This constructor should be used for the majority of cases when instantiating
+     * a NeighborBond object.
+     * */
     NeighborBond(unsigned int query_point_idx, unsigned int point_idx, float w, const vec3<float>& v)
         : query_point_idx(query_point_idx), point_idx(point_idx), distance(std::sqrt(dot(v, v))), weight(w), vector(v)
     {}
