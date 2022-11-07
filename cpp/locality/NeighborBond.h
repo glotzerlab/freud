@@ -20,9 +20,13 @@ public:
     // For now, id = query_point_idx and ref_id = point_idx (into the NeighborQuery).
     constexpr NeighborBond() = default;
 
-    constexpr NeighborBond(unsigned int query_point_idx, unsigned int point_idx, float d, float w,
-                           const vec3<float>& v)
+    // TODO decide if this needs to stay around
+    constexpr NeighborBond(unsigned int query_point_idx, unsigned int point_idx, float d, float w, const vec3<float>& v)
         : query_point_idx(query_point_idx), point_idx(point_idx), distance(d), weight(w), vector(v)
+    {}
+
+    NeighborBond(unsigned int query_point_idx, unsigned int point_idx, float w, const vec3<float>& v)
+        : query_point_idx(query_point_idx), point_idx(point_idx), distance(std::sqrt(dot(v, v))), weight(w), vector(v)
     {}
 
     //! Equality checks both query_point_idx and distance.
@@ -124,7 +128,7 @@ public:
         weight = new_weight;
     }
 
-    vec3<float> getVector() const
+    const vec3<float>& getVector() const
     {
         return vector;
     }

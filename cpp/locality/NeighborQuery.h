@@ -395,8 +395,8 @@ public:
                     // If we're excluding ii bonds, we have to check before adding.
                     if (nb != ITERATOR_TERMINATOR)
                     {
-                        local_bonds.emplace_back(nb.getQueryPointIdx(), nb.getPointIdx(), nb.getDistance(),
-                                                 nb.getWeight(), nb.getVector());
+                        local_bonds.emplace_back(nb.getQueryPointIdx(), nb.getPointIdx(), nb.getWeight(),
+                                                 nb.getVector());
                     }
                 }
             }
