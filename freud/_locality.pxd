@@ -142,3 +142,14 @@ cdef extern from "Voronoi.h" namespace "freud::locality":
         vector[vector[vec3[double]]] getPolytopes() const
         const freud.util.ManagedArray[double] &getVolumes() const
         shared_ptr[NeighborList] getNeighborList() const
+
+cdef extern from "Filter.h" namespace "freud::locality":
+    cdef cppclass Filter
+        Filter()
+        void compute(const NeighboprQuery *,
+                     const vec3[float] *,
+                     unsigned int num_query_points,
+                     const NeighborList *,
+                     QueryArgs)
+        shared_ptr[NeighborList] getFilteredNlist() const
+        shared_ptr[NeighborList] getUnfilteredNlist() const
