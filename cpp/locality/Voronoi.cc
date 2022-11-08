@@ -127,7 +127,7 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
             size_t neighbor_counter(0);
             size_t face_vertices_index(0);
             for (auto neighbor_iterator = neighbors.begin(); neighbor_iterator != neighbors.end();
-                 neighbor_iterator++, neighbor_counter++,
+                 ++neighbor_iterator, ++neighbor_counter,
                       face_vertices_index += face_vertices[face_vertices_index] + 1)
             {
                 // Get the normal to the current face
