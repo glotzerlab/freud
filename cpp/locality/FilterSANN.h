@@ -14,11 +14,10 @@ public:
     //<! Construct with an empty NeighborList, fill it upon calling compute
     FilterSANN() : Filter() {}
 
-    void compute(const NeighborQuery *nq, const vec3<float> *query_points,
-                    unsigned int num_query_points, const NeighborList *nlist,
-                    QueryArgs qargs) override;
+    void compute(const NeighborQuery* nq, const vec3<float>* query_points, unsigned int num_query_points,
+                 const NeighborList* nlist, QueryArgs qargs) override;
 };
 
-}; };
+}; }; // namespace freud::locality
 
 #endif // __FILTERSANN_H__

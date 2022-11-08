@@ -9,13 +9,16 @@ namespace freud { namespace locality {
 class Filter
 {
 public:
-    Filter() : m_unfiltered_nlist(std::make_shared<NeighborList>()), m_filtered_nlist(std::make_shared<NeighborList>()) {}
+    Filter()
+        : m_unfiltered_nlist(std::make_shared<NeighborList>()),
+          m_filtered_nlist(std::make_shared<NeighborList>())
+    {}
 
     virtual ~Filter() {}
 
-    virtual void compute(const NeighborQuery *nq, const vec3<float> *query_points,
-            unsigned int num_query_points,
-            const NeighborList *nlist, QueryArgs qargs) = 0;
+    virtual void compute(const NeighborQuery* nq, const vec3<float>* query_points,
+                         unsigned int num_query_points, const NeighborList* nlist, QueryArgs qargs)
+        = 0;
 
     std::shared_ptr<NeighborList> getFilteredNlist() const
     {
@@ -34,6 +37,6 @@ protected:
     std::shared_ptr<NeighborList> m_filtered_nlist;
 };
 
-}; };
+}; }; // namespace freud::locality
 
 #endif // __FILTER_H__

@@ -1326,9 +1326,9 @@ cdef class Filter(_PairCompute):
             self._preprocess_arguments(system, query_points, neighbors)
 
         self._filterptr.compute(nq.get_ptr(),
-                              <vec3[float]*> &l_query_points[0, 0],
-                              num_query_points, nlist.get_ptr(),
-                              dereference(qargs.thisptr))
+                                <vec3[float]*> &l_query_points[0, 0],
+                                num_query_points, nlist.get_ptr(),
+                                dereference(qargs.thisptr))
         return self
 
     @_Compute._computed_property
@@ -1353,4 +1353,3 @@ cdef class FilterSANN(Filter):
     def __dealloc__(self):
         if type(self) == FilterSANN:
             del self._thisptr
-
