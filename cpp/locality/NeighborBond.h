@@ -145,7 +145,7 @@ public:
         return vector;
     }
 
-    void setVector(vec3<float> new_vector)
+    void setVector(const vec3<float>& new_vector)
     {
         vector = new_vector;
         distance = std::sqrt(dot(vector, vector));

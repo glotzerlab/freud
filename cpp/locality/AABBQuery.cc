@@ -251,7 +251,7 @@ NeighborBond AABBQueryIterator::next()
                     if (m_search_extended)
                     {
                         const unsigned int nb_point_idx = nb.getPointIdx();
-                        const unsigned int nb_distance = nb.getDistance();
+                        const float nb_distance = nb.getDistance();
                         if ((m_all_bonds_minimum_distance.count(nb_point_idx) == 0)
                             || m_all_bonds_minimum_distance[nb_point_idx].getDistance() > nb_distance)
                         {
