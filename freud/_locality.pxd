@@ -144,12 +144,16 @@ cdef extern from "Voronoi.h" namespace "freud::locality":
         shared_ptr[NeighborList] getNeighborList() const
 
 cdef extern from "Filter.h" namespace "freud::locality":
-    cdef cppclass Filter
+    cdef cppclass Filter:
         Filter()
-        void compute(const NeighboprQuery *,
+        void compute(const NeighborQuery *,
                      const vec3[float] *,
-                     unsigned int num_query_points,
+                     unsigned int,
                      const NeighborList *,
                      QueryArgs)
         shared_ptr[NeighborList] getFilteredNlist() const
         shared_ptr[NeighborList] getUnfilteredNlist() const
+
+cdef extern from "FilterSANN.h" namespace "freud::locality":
+    cdef cppclass FilterSANN(Filter):
+        FilterSANN()

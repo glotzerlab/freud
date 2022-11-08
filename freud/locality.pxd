@@ -73,3 +73,9 @@ cdef class Voronoi(_Compute):
     cdef freud._locality.Voronoi * thisptr
     cdef NeighborList _nlist
     cdef freud.box.Box _box
+
+cdef class Filter(_PairCompute):
+    cdef freud._locality.Filter *_filterptr
+
+cdef class FilterSANN(Filter):
+    cdef freud._locality.FilterSANN *_thisptr

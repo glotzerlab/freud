@@ -1274,7 +1274,7 @@ cdef class Voronoi(_Compute):
             return None
 
 
-cdef class Filter(_Compute):
+cdef class Filter(_PairCompute):
     """Filter an Existing :class:`.NeighborList`.
 
     This class serves as the base class for all NeighborList filtering methods
@@ -1294,32 +1294,12 @@ cdef class Filter(_Compute):
     Warning:
         This class is abstract and should not be instantiated directly.
     """
-    cdef freud._locality.Filter *_filterptr
+    def __cinit__(self):
+        self._filterptr = NULL
 
     def __dealloc__(self):
         if type(self) is Filter:
             del self._filterptr
-
-    @_Compute._computed_property
-    def filtered_nlist(self):
-        """:class:`.NeighborList`: The filtered neighbor list."""
-        return _nlist_from_cnlist(self._filterptr.getFilteredNlist().get())
-
-    @_Compute._computed_property
-    def unfiltered_nlist(self):
-        """:class:`.NeighborList`: The unfiltered neighbor list."""
-        return _nlist_from_cnlist(self._filterptr.getUnfilteredNlist().get())
-
-
-cdef class FilterSANN(Filter):
-    """Filter a :class:`.NeighborList` via the Solid Angle Nearest Neighbor method.
-
-    The SANN (citation???) method of filtering neighbors ... explain more here ...
-    """
-    cdef freud._locality.FilterSANN * _thisptr
-
-    def __cinit__(self):
-        self._filterptr = self._thisptr = new freud._locality.FilterSANN()
 
     def compute(self, system, query_points=None, neighbors=None):
         r"""Filter a :class:`.Neighborlist` with the SANN algorithm.
@@ -1338,17 +1318,40 @@ cdef class FilterSANN(Filter):
                 (Default value = :code:`None`).
         """
         cdef:
-            freud.locality.NeighborQuery nq
-            freud.locality.NeighborList nlist
-            freud.locality._QueryArgs qargs
-            const float[:, ::1] query_points
+            NeighborQuery nq
+            NeighborList nlist
+            _QueryArgs qargs
+            const float[:, ::1] l_query_points
             unsigned int num_query_points
-        nq, nlist, qargs, query_points, num_query_points = \
+        nq, nlist, qargs, l_query_points, num_query_points = \
             self._preprocess_arguments(system, query_points, neighbors)
 
-        self._thisptr.compute(nq.get_ptr(),
-                              <vec3[float]*> &query_points[0, 0],
+        self._filterptr.compute(nq.get_ptr(),
+                              <vec3[float]*> &l_query_points[0, 0],
                               num_query_points, nlist.get_ptr(),
                               dereference(qargs.thisptr))
         return self
+
+    @_Compute._computed_property
+    def filtered_nlist(self):
+        """:class:`.NeighborList`: The filtered neighbor list."""
+        return _nlist_from_cnlist(self._filterptr.getFilteredNlist().get())
+
+    @_Compute._computed_property
+    def unfiltered_nlist(self):
+        """:class:`.NeighborList`: The unfiltered neighbor list."""
+        return _nlist_from_cnlist(self._filterptr.getUnfilteredNlist().get())
+
+
+cdef class FilterSANN(Filter):
+    """Filter a :class:`.NeighborList` via the Solid Angle Nearest Neighbor method.
+
+    The SANN (citation???) method of filtering neighbors ... explain more here ...
+    """
+    def __cinit__(self):
+        self._filterptr = self._thisptr = new freud._locality.FilterSANN()
+
+    def __dealloc__(self):
+        if type(self) == FilterSANN:
+            del self._thisptr
 
