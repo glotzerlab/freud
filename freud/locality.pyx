@@ -1301,21 +1301,20 @@ cdef class Filter(_PairCompute):
         if type(self) is Filter:
             del self._filterptr
 
-    def compute(self, system, query_points=None, neighbors=None):
+    def compute(self, system, neighbors, query_points=None):
         r"""Filter a :class:`.Neighborlist` with the SANN algorithm.
 
         Args:
             system:
                 Any object that is a valid argument to
                 :class:`freud.locality.NeighborQuery.from_system`.
-            query_points ((:math:`N_{query\_points}`, 3) :class:`np.ndarray`, optional):
-                Query points used to calculate the unfiltered neighborlist. Uses
-                the system's points if :code:`None` (Default value = :code:`None`).
             neighbors (:class:`freud.locality.NeighborList` or dict, optional):
                 Either a :class:`NeighborList` of neighbor pairs to use for the
                 unfiltered neighbor list, or a dictionary of `query arguments
-                <https://freud.readthedocs.io/en/stable/topics/querying.html>`__
-                (Default value = :code:`None`).
+                <https://freud.readthedocs.io/en/stable/topics/querying.html>`__.
+            query_points ((:math:`N_{query\_points}`, 3) :class:`np.ndarray`, optional):
+                Query points used to calculate the unfiltered neighborlist. Uses
+                the system's points if :code:`None` (Default value = :code:`None`).
         """
         cdef:
             NeighborQuery nq
