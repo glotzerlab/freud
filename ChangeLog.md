@@ -4,10 +4,11 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## vX.Y.Z -- YYYY-MM-DD
+## v2.12.0 -- 2022-11-09
 
 ### Added
-* Mass dependence in `freud.cluster.ClusterProperties` and calculation of inertia tensor and center of mass.
+* Mass dependence in `freud.cluster.ClusterProperties`.
+* Inertia tensor calculation in `freud.cluster.ClusterProperties`.
 
 ### Fixed
 * Compatibility with new namespace for `MDAnalysis.coordinates.timestep.Timestep`.
