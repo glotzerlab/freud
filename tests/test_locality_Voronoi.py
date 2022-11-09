@@ -11,6 +11,22 @@ matplotlib.use("agg")
 
 
 class TestVoronoi:
+
+    def _check_vectors_and_distances(self, vor, sys):
+        """Assert the neighbor vectors/distances have the right length/direction."""
+        box = sys[0]
+        points = sys[1]
+
+        # Verify the neighbor vectors
+        wrapped_points = box.wrap(
+            points[vor.nlist.query_point_indices] + vor.nlist.vectors
+        )
+        npt.assert_allclose(wrapped_points, points[vor.nlist.point_indices], atol=1e-5)
+
+        # Verify the neighbor distances
+        vector_lengths = np.linalg.norm(vor.nlist.vectors, axis=-1)
+        npt.assert_allclose(vector_lengths, vor.nlist.distances)
+
     def test_random_2d(self):
         # Test that voronoi tessellations of random systems have the same
         # number of points and polytopes
@@ -25,15 +41,7 @@ class TestVoronoi:
         npt.assert_equal(len(vor.volumes), len(points))
         npt.assert_almost_equal(np.sum(vor.volumes), box.volume)
 
-        # Verify the neighbor vectors
-        wrapped_points = box.wrap(
-            points[vor.nlist.query_point_indices] + vor.nlist.vectors
-        )
-        npt.assert_allclose(wrapped_points, points[vor.nlist.point_indices], atol=1e-5)
-
-        # Verify the neighbor distances
-        vector_lengths = np.linalg.norm(vor.nlist.vectors, axis=-1)
-        npt.assert_allclose(vector_lengths, vor.nlist.distances)
+        self._check_vectors_and_distances(vor, (box, points))
 
         # Ensure every point has neighbors
         assert np.all(vor.nlist.neighbor_counts > 0)
@@ -63,15 +71,7 @@ class TestVoronoi:
         npt.assert_equal(len(vor.volumes), len(points))
         npt.assert_almost_equal(np.sum(vor.volumes), box.volume)
 
-        # Verify the neighbor vectors
-        wrapped_points = box.wrap(
-            points[vor.nlist.query_point_indices] + vor.nlist.vectors
-        )
-        npt.assert_allclose(wrapped_points, points[vor.nlist.point_indices], atol=1e-5)
-
-        # Verify the neighbor distances
-        vector_lengths = np.linalg.norm(vor.nlist.vectors, axis=-1)
-        npt.assert_allclose(vector_lengths, vor.nlist.distances)
+        self._check_vectors_and_distances(vor, (box, points))
 
         # Ensure every point has neighbors
         assert np.all(vor.nlist.neighbor_counts > 0)
@@ -118,15 +118,7 @@ class TestVoronoi:
             vor.nlist.weights[vor.nlist.query_point_indices == 4], 1
         )
 
-        # Verify the neighbor vectors
-        wrapped_points = box.wrap(
-            points[vor.nlist.query_point_indices] + vor.nlist.vectors
-        )
-        npt.assert_allclose(wrapped_points, points[vor.nlist.point_indices], atol=1e-5)
-
-        # Verify the neighbor distances
-        vector_lengths = np.linalg.norm(vor.nlist.vectors, axis=-1)
-        npt.assert_allclose(vector_lengths, vor.nlist.distances)
+        self._check_vectors_and_distances(vor, (box, points))
 
         # Double the points (still inside the box) and test again
         points *= 2
@@ -142,15 +134,7 @@ class TestVoronoi:
             vor.nlist.weights[vor.nlist.query_point_indices == 4], 2
         )
 
-        # Verify the neighbor vectors
-        wrapped_points = box.wrap(
-            points[vor.nlist.query_point_indices] + vor.nlist.vectors
-        )
-        npt.assert_allclose(wrapped_points, points[vor.nlist.point_indices], atol=1e-5)
-
-        # Verify the neighbor distances
-        vector_lengths = np.linalg.norm(vor.nlist.vectors, axis=-1)
-        npt.assert_allclose(vector_lengths, vor.nlist.distances)
+        self._check_vectors_and_distances(vor, (box, points))
 
     def test_voronoi_tess_3d(self):
         # Test that the voronoi polytope works for a 3D system
@@ -215,15 +199,7 @@ class TestVoronoi:
             vor.nlist.weights[vor.nlist.query_point_indices == 13], 1
         )
 
-        # Verify the neighbor vectors
-        wrapped_points = box.wrap(
-            points[vor.nlist.query_point_indices] + vor.nlist.vectors
-        )
-        npt.assert_allclose(wrapped_points, points[vor.nlist.point_indices], atol=1e-5)
-
-        # Verify the neighbor distances
-        vector_lengths = np.linalg.norm(vor.nlist.vectors, axis=-1)
-        npt.assert_allclose(vector_lengths, vor.nlist.distances)
+        self._check_vectors_and_distances(vor, (box, points))
 
         # Double the points (still inside the box) and test again
         points *= 2
@@ -248,15 +224,7 @@ class TestVoronoi:
             vor.nlist.weights[vor.nlist.query_point_indices == 13], 4
         )
 
-        # Verify the neighbor vectors
-        wrapped_points = box.wrap(
-            points[vor.nlist.query_point_indices] + vor.nlist.vectors
-        )
-        npt.assert_allclose(wrapped_points, points[vor.nlist.point_indices], atol=1e-5)
-
-        # Verify the neighbor distances
-        vector_lengths = np.linalg.norm(vor.nlist.vectors, axis=-1)
-        npt.assert_allclose(vector_lengths, vor.nlist.distances)
+        self._check_vectors_and_distances(vor, (box, points))
 
     @pytest.mark.parametrize(
         "func, neighbors",
@@ -291,14 +259,7 @@ class TestVoronoi:
         npt.assert_equal(counts, neighbors)
         npt.assert_almost_equal(np.sum(vor.volumes), box.volume)
 
-        # Verify the neighbor distances
-        wrapped_distances = np.linalg.norm(
-            box.wrap(
-                points[vor.nlist.point_indices] - points[vor.nlist.query_point_indices]
-            ),
-            axis=-1,
-        )
-        npt.assert_allclose(wrapped_distances, vor.nlist.distances, atol=1e-5)
+        self._check_vectors_and_distances(vor, (box, points))
 
     def test_voronoi_weights_fcc(self):
         # Test that voronoi neighbor weights are computed properly for 3D FCC
@@ -329,14 +290,7 @@ class TestVoronoi:
             atol=1e-5,
         )
 
-        # Verify the neighbor distances
-        wrapped_distances = np.linalg.norm(
-            box.wrap(
-                points[vor.nlist.point_indices] - points[vor.nlist.query_point_indices]
-            ),
-            axis=-1,
-        )
-        npt.assert_allclose(wrapped_distances, vor.nlist.distances)
+        self._check_vectors_and_distances(vor, (box, points))
 
     def test_diamond(self):
         box = freud.box.Box(
