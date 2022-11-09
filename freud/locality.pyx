@@ -470,8 +470,7 @@ cdef class NeighborList:
        nlist = aq.query(positions, {'r_max': 3}).toNeighborList()
 
        # Get all vectors from central particles to their neighbors
-       rijs = (positions[nlist.point_indices] -
-              positions[nlist.query_point_indices])
+       rijs = nlist.vectors
        rijs = box.wrap(rijs)
 
     The NeighborList can be indexed to access bond particle indices. Example::
