@@ -11,7 +11,6 @@ matplotlib.use("agg")
 
 
 class TestVoronoi:
-
     def _check_vectors_and_distances(self, vor, sys):
         """Assert the neighbor vectors/distances have the right length/direction."""
         box = sys[0]
