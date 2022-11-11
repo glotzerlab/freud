@@ -11,8 +11,8 @@
 
 namespace freud { namespace density {
 
-RDF::RDF(unsigned int bins, float r_max, float r_min, NormalizationMode normalization_mode)
-    : BondHistogramCompute(), m_norm_mode(normalization_mode)
+RDF::RDF(unsigned int bins, float r_max, float r_min, bool normalize)
+    : BondHistogramCompute(), m_normalize(normalize)
 {
     if (bins == 0)
     {
@@ -59,7 +59,7 @@ void RDF::reduce()
 
     // Define prefactors with appropriate types to simplify and speed later code.
     float number_density = float(m_n_query_points) / m_box.getVolume();
-    if (m_norm_mode == NormalizationMode::finite_size)
+    if (m_normalize)
     {
         number_density *= static_cast<float>(m_n_query_points - 1) / static_cast<float>(m_n_query_points);
     }

@@ -4,16 +4,10 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## v3.0.0 -- YYYY-MM-DD
-
-### Changed
-* The `normalize` argument to `freud.density.RDF` is now `normalization_mode`.
-
-## v2.12.0 -- 2022-11-09
+## vX.Y.Z -- YYYY-MM-DD
 
 ### Added
-* Mass dependence in `freud.cluster.ClusterProperties`.
-* Inertia tensor calculation in `freud.cluster.ClusterProperties`.
+* Mass dependence in `freud.cluster.ClusterProperties` and calculation of inertia tensor and center of mass.
 
 ### Fixed
 * Compatibility with new namespace for `MDAnalysis.coordinates.timestep.Timestep`.

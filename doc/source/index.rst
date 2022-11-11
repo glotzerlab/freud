@@ -10,7 +10,6 @@ Table of Contents
    gettingstarted/introduction
    gettingstarted/installation
    gettingstarted/quickstart
-   gettingstarted/migration
    gettingstarted/tutorial
    gettingstarted/examples
 

@@ -576,21 +576,10 @@ cdef class RDF(_SpatialHistogram1D):
     behavior of :math:`\lim_{r \to \infty} g(r)=1` is recovered. However, for
     very small systems the long range behavior of the radial distribution will
     instead tend to :math:`\frac{N-1}{N}`. In small systems, where this
-    deviation is noticeable, the ``normalization_mode`` argument may be used to
-    rescale the results and force the long range behavior to 1. Note that this
-    option will have little to no effect on larger systems (for example, for
-    systems of 100 particles the RDF will differ by 1%).
-
-    .. note::
-        For correct normalization behavior, let the set of points be either: 1)
-        the same as the set of query points or 2) completely disjoint from the
-        set of query points (points shouldn't contain any particles in query
-        points).
-
-    .. note::
-        For correct normalization behavior when using
-        ``normalization_mode='finite_size'``, the ``points`` _must_ be the same
-        as the ``query_points`` and ``exclude_ii`` must be set to ``False``.
+    deviation is noticeable, the ``normalize`` flag may be used to rescale the
+    results and force the long range behavior to 1. Note that this option will
+    have little to no effect on larger systems (for example, for systems of 100
+    particles the RDF will differ by 1%).
 
     .. note::
         **2D:** :class:`freud.density.RDF` properly handles 2D boxes.
@@ -604,23 +593,27 @@ cdef class RDF(_SpatialHistogram1D):
         r_min (float, optional):
             Minimum interparticle distance to include in the calculation
             (Default value = :code:`0`).
-        normalization_mode (str, optional):
-            There are two valid string inputs for this argument. The first
-            option, ``exact``, handles the normalization as shown mathematically
-            at the beginning of this class's docstring. The other option,
-            ``finite_size``, adds an extra rescaling factor of
-            :math:`\frac{N_{query\_points}}{N_{query\_ponts} - 1}` so the RDF
-            values will tend to 1 at large :math:`r` for small systems (Default
-            value = :code:`'exact'`).
+        normalize (bool, optional):
+            Scale the RDF values by
+            :math:`\frac{N_{query\_points}}{N_{query\_points}-1}`. This
+            argument primarily exists to deal with standard RDF calculations
+            where no special ``query_points`` or ``neighbors`` are provided,
+            but where the number of ``query_points`` is small enough that the
+            long-ranged limit of :math:`g(r)` deviates significantly from
+            :math:`1`. It should not be used if :code:`query_points` is
+            provided as a different set of points, or if unusual query
+            arguments are provided to :meth:`~.compute`, specifically if
+            :code:`exclude_ii` is set to :code:`False`. This normalization is
+            not meaningful in such cases and will simply convolute the data.
+
     """
     cdef freud._density.RDF * thisptr
 
     def __cinit__(self, unsigned int bins, float r_max, float r_min=0,
-                  normalization_mode='exact'):
-        norm_mode = self._validate_normalization_mode(normalization_mode)
+                  normalize=False):
         if type(self) == RDF:
             self.thisptr = self.histptr = new freud._density.RDF(
-                bins, r_max, r_min, norm_mode)
+                bins, r_max, r_min, normalize)
 
             # r_max is left as an attribute rather than a property for now
             # since that change needs to happen at the _SpatialHistogram level
@@ -630,15 +623,6 @@ cdef class RDF(_SpatialHistogram1D):
     def __dealloc__(self):
         if type(self) == RDF:
             del self.thisptr
-
-    def _validate_normalization_mode(self, mode):
-        """Ensure the normalization mode is one of the approved values."""
-        if mode == 'exact':
-            return freud._density.RDF.NormalizationMode.exact
-        elif mode == 'finite_size':
-            return freud._density.RDF.NormalizationMode.finite_size
-        else:
-            raise ValueError(f"invalid input {mode} for normalization_mode")
 
     def compute(self, system, query_points=None, neighbors=None,
                 reset=True):

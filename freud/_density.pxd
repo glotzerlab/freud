@@ -49,12 +49,7 @@ cdef extern from "LocalDensity.h" namespace "freud::density":
 
 cdef extern from "RDF.h" namespace "freud::density":
     cdef cppclass RDF(BondHistogramCompute):
-
-        ctypedef enum NormalizationMode "NormalizationMode":
-            exact "freud::density::RDF::NormalizationMode::exact"
-            finite_size "freud::density::RDF::NormalizationMode::finite_size"
-
-        RDF(float, float, float, NormalizationMode) except +
+        RDF(float, float, float, bool) except +
         const freud._box.Box & getBox() const
         void accumulate(const freud._locality.NeighborQuery*,
                         const vec3[float]*,
