@@ -1,0 +1,16 @@
+name: Task
+description: A task that needs to be done
+labels: ['task']
+body:
+  - type: textarea
+    attributes:
+      label: Description
+      description: What task needs to be done?
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Motivation and Context
+      description: Please describe why this task needs to be done.
+    validations:
+      required: true
