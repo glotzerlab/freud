@@ -8,4 +8,4 @@ dependencies:
   - ninja
   - pip
   - pip:
-    - -r oldest-test-reqs.txt
+    - -r ../oldest-test-reqs.txt

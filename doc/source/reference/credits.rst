@@ -368,6 +368,10 @@ Kody Takada
 
 * Contributed refactored unit tests.
 
+Alain Kadar
+
+* Introduced mass dependence for ``ClusterProperties`` class, inertia tensor and radius of gyration.
+
 Source code
 -----------
 

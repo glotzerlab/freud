@@ -12,6 +12,15 @@ and this project adheres to
 ### Changed
 * The `normalize` argument to `freud.density.RDF` is now `normalization_mode`.
 
+## v2.12.0 -- 2022-11-09
+
+### Added
+* Mass dependence in `freud.cluster.ClusterProperties`.
+* Inertia tensor calculation in `freud.cluster.ClusterProperties`.
+
+### Fixed
+* Compatibility with new namespace for `MDAnalysis.coordinates.timestep.Timestep`.
+
 ## v2.11.0 -- 2022-08-09
 
 ### Added
