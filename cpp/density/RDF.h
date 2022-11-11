@@ -16,8 +16,16 @@ namespace freud { namespace density {
 class RDF : public locality::BondHistogramCompute
 {
 public:
+    //! Enum for each normalization mode
+    enum NormalizationMode
+    {
+        exact,
+        finite_size
+    };
+
     //! Constructor
-    RDF(unsigned int bins, float r_max, float r_min = 0, bool normalize = false);
+    RDF(unsigned int bins, float r_max, float r_min = 0,
+        NormalizationMode normalization_mode = NormalizationMode::exact);
 
     //! Destructor
     ~RDF() override = default;
@@ -51,7 +59,7 @@ public:
     }
 
 private:
-    bool m_normalize;                //!< Whether to enforce that the RDF should tend to 1 (instead of
+    NormalizationMode m_norm_mode;   //!< Whether to enforce that the RDF should tend to 1 (instead of
                                      //!< num_query_points/num_points).
     util::ManagedArray<float> m_pcf; //!< The computed pair correlation function.
     util::ManagedArray<float>
