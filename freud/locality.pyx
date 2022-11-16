@@ -711,6 +711,20 @@ cdef class NeighborList:
         self.thisptr.filter_r(r_max, r_min)
         return self
 
+    def sort(self, cbool by_distance=False):
+        r"""Sort the entries in the neighborlist.
+
+        Args:
+            by_distance (bool):
+                If ``True``, this method sorts the neighborlist entries by
+                ``query_point_index``, then ``distance``, then ``point_index``.
+                If ``False``, this method sorts the NeighborList entries by
+                ``query_point_index``, then ``point_index``, then ``distance``
+                (Default value = ``False``).
+        """
+        self.thisptr.sort(by_distance)
+        return self
+
 
 cdef NeighborList _nlist_from_cnlist(freud._locality.NeighborList *c_nlist):
     """Create a Python NeighborList object that points to an existing C++

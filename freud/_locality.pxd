@@ -93,6 +93,7 @@ cdef extern from "NeighborList.h" namespace "freud::locality":
         void resize(unsigned int)
         void copy(const NeighborList &)
         void validate(unsigned int, unsigned int) except +
+        void sort(bool)
 
 cdef extern from "LinkCell.h" namespace "freud::locality":
     cdef cppclass LinkCell(NeighborQuery):

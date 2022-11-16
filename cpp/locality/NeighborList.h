@@ -125,10 +125,15 @@ public:
     //! Throw a runtime_error if num_points and num_query_points do not match
     //  the stored value
     void validate(unsigned int num_query_points, unsigned int num_points) const;
+    // sort the neighborlist
+    void sort(bool by_distance);
 
 private:
     //! Helper method for bisection search of the neighbor list, used in find_first_index
     unsigned int bisection_search(unsigned int val, unsigned int left, unsigned int right) const;
+
+    //! Helper method to get an equivalent list of NeighborBonds from the nlist
+    std::vector<NeighborBond> toBondVector() const;
 
     //! Number of query points
     unsigned int m_num_query_points;

@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <stdexcept>
+#include <tbb/parallel_sort.h>
 
 #include "NeighborList.h"
 
@@ -237,6 +238,52 @@ void NeighborList::validate(unsigned int num_query_points, unsigned int num_poin
     {
         throw std::runtime_error("NeighborList found inconsistent array sizes.");
     }
+}
+
+void NeighborList::sort(bool by_distance=false)
+{
+    // create a vector of NeighborBonds from the Neighborlist entries
+    auto bond_vector = std::move(toBondVector());
+    auto num_bonds = bond_vector.size();
+
+    // do parallel sort with tbb
+    if (by_distance)
+    {
+        tbb::parallel_sort(bond_vector.begin(), bond_vector.end(), compareNeighborDistance);
+    }
+    else
+    {
+        tbb::parallel_sort(bond_vector.begin(), bond_vector.end(), compareNeighborBond);
+    }
+
+    // put the results back into this neighborlist
+    util::forLoopWrapper(0, num_bonds, [&](size_t begin, size_t end) {
+        for (auto bond=begin; bond < end; ++bond)
+        {
+            auto nb = bond_vector[bond];
+            m_neighbors(bond, 0) = nb.query_point_idx;
+            m_neighbors(bond, 1) = nb.point_idx;
+            m_distances(bond) = nb.distance;
+            m_weights(bond) = nb.weight;
+        }
+    });
+}
+
+std::vector<NeighborBond> NeighborList::toBondVector() const
+{
+    auto num_bonds = m_distances.size();
+    std::vector<NeighborBond> bond_vector(num_bonds);
+    util::forLoopWrapper(0, num_bonds, [&](size_t begin, size_t end){
+        for (auto bond_idx=begin; bond_idx < end; ++bond_idx)
+        {
+            NeighborBond nb(m_neighbors(bond_idx, 0),
+                            m_neighbors(bond_idx, 1),
+                            m_distances(bond_idx),
+                            m_weights(bond_idx));
+            bond_vector[bond_idx] = nb;
+        }
+    });
+    return bond_vector;
 }
 
 unsigned int NeighborList::bisection_search(unsigned int val, unsigned int left, unsigned int right) const

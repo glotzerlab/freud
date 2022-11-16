@@ -295,3 +295,23 @@ class TestNeighborList:
         nlist = self.nq.query(self.nq.points[:-1], self.query_args).toNeighborList()
         assert nlist.num_query_points == len(self.nq.points) - 1
         assert nlist.num_points == len(self.nq.points)
+
+    def test_sort(self):
+        qp_indices    = [0, 0, 0, 0]
+        point_indices = [1, 3, 0, 2]
+        distances = np.arange(4) + 1
+
+        nlist = freud.locality.NeighborList.from_arrays(4, 4, qp_indices,
+                                                        point_indices, distances)
+
+        # first sort by point index
+        nlist.sort()
+        npt.assert_allclose(nlist.query_point_indices, qp_indices)
+        npt.assert_allclose(nlist.point_indices, np.array([0, 1, 2, 3]))
+        npt.assert_allclose(nlist.distances, np.array([3, 1, 4, 2]))
+
+        # now sort by distance
+        nlist.sort(by_distance=True)
+        npt.assert_allclose(nlist.query_point_indices, qp_indices)
+        npt.assert_allclose(nlist.point_indices, np.array([1, 3, 0, 2]))
+        npt.assert_allclose(nlist.distances, np.array([1, 2, 3, 4]))
