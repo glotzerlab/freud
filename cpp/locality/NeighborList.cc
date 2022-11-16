@@ -240,7 +240,7 @@ void NeighborList::validate(unsigned int num_query_points, unsigned int num_poin
     }
 }
 
-void NeighborList::sort(bool by_distance=false)
+void NeighborList::sort(bool by_distance = false)
 {
     // create a vector of NeighborBonds from the Neighborlist entries
     auto bond_vector = std::move(toBondVector());
@@ -258,7 +258,7 @@ void NeighborList::sort(bool by_distance=false)
 
     // put the results back into this neighborlist
     util::forLoopWrapper(0, num_bonds, [&](size_t begin, size_t end) {
-        for (auto bond=begin; bond < end; ++bond)
+        for (auto bond = begin; bond < end; ++bond)
         {
             auto nb = bond_vector[bond];
             m_neighbors(bond, 0) = nb.query_point_idx;
@@ -273,12 +273,10 @@ std::vector<NeighborBond> NeighborList::toBondVector() const
 {
     auto num_bonds = m_distances.size();
     std::vector<NeighborBond> bond_vector(num_bonds);
-    util::forLoopWrapper(0, num_bonds, [&](size_t begin, size_t end){
-        for (auto bond_idx=begin; bond_idx < end; ++bond_idx)
+    util::forLoopWrapper(0, num_bonds, [&](size_t begin, size_t end) {
+        for (auto bond_idx = begin; bond_idx < end; ++bond_idx)
         {
-            NeighborBond nb(m_neighbors(bond_idx, 0),
-                            m_neighbors(bond_idx, 1),
-                            m_distances(bond_idx),
+            NeighborBond nb(m_neighbors(bond_idx, 0), m_neighbors(bond_idx, 1), m_distances(bond_idx),
                             m_weights(bond_idx));
             bond_vector[bond_idx] = nb;
         }

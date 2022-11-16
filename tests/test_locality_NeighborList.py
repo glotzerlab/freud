@@ -297,12 +297,13 @@ class TestNeighborList:
         assert nlist.num_points == len(self.nq.points)
 
     def test_sort(self):
-        qp_indices    = [0, 0, 0, 0]
+        qp_indices = [0, 0, 0, 0]
         point_indices = [1, 3, 0, 2]
         distances = np.arange(4) + 1
 
-        nlist = freud.locality.NeighborList.from_arrays(4, 4, qp_indices,
-                                                        point_indices, distances)
+        nlist = freud.locality.NeighborList.from_arrays(
+            4, 4, qp_indices, point_indices, distances
+        )
 
         # first sort by point index
         nlist.sort()
