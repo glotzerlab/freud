@@ -10,7 +10,9 @@ void FilterSANN::compute(const NeighborQuery* nq, const vec3<float>* query_point
     m_unfiltered_nlist = std::make_shared<NeighborList>(
         std::move(makeDefaultNlist(nq, nlist, query_points, num_query_points, qargs)));
 
-    // do stuff with the unfiltered neighborlist to make the filtered neighborlist
+    // work with sorted nlist
+    NeighborList sorted_nlist(*m_unfiltered_nlist);
+    sorted_nlist.sort(true);
 };
 
 }; }; // namespace freud::locality
