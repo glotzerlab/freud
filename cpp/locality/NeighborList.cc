@@ -57,6 +57,30 @@ NeighborList::NeighborList(unsigned int num_bonds, const unsigned int* query_poi
     }
 }
 
+NeighborList::NeighborList(std::vector<NeighborBond> bonds)
+{
+    unsigned int max_idx_query = 0;
+    unsigned int max_idx_point = 0;
+    m_distances.prepare(bonds.size());
+    m_weights.prepare(bonds.size());
+    m_neighbors.prepare({bonds.size(), 2});
+    for (unsigned int i = 0; i<bonds.size();i++)
+    {
+        auto bond = bonds[i];
+        if (max_idx_point < bond.point_idx)
+            max_idx_point = bond.point_idx;
+        if (max_idx_query<bond.query_point_idx)
+            max_idx_query = bond.query_point_idx;
+        m_distances(i) = bond.distance;
+        m_weights(i) = bond.weight;
+        m_neighbors(i, 0) = bond.query_point_idx;
+        m_neighbors(i, 1) = bond.point_idx;
+    }
+    m_num_points = max_idx_point + 1;
+    m_num_query_points = max_idx_query + 1;
+    m_segments_counts_updated = false;
+}
+
 unsigned int NeighborList::getNumBonds() const
 {
     return m_neighbors.shape()[0];
