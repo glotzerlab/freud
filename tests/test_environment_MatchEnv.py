@@ -210,7 +210,9 @@ class TestCluster:
 
         # pairwise distances after wrapping
         vecs = points[:, None, :] - points[None, :, :]
-        wrapped_vecs = box.wrap(vecs.reshape((len(vecs) * len(vecs), 3))).reshape(vecs.shape)
+        wrapped_vecs = box.wrap(vecs.reshape((len(vecs) * len(vecs), 3))).reshape(
+            vecs.shape
+        )
         dists = np.linalg.norm(wrapped_vecs, axis=-1)
 
         # get point/query_point indices
@@ -253,7 +255,7 @@ class TestCluster:
         # compute neighbors for global neighborlist and call compute
         nlist = self._make_global_neighborlist((box, xyz))
         match = freud.environment.EnvironmentCluster()
-        assert False # THIS TEST IS TAKING WAYYY TOO LONG RIGHT NOW
+        assert False  # THIS TEST IS TAKING WAYYY TOO LONG RIGHT NOW
         match.compute(
             (box, xyz),
             threshold,
