@@ -513,8 +513,7 @@ Environment MatchEnv::buildEnv(const freud::locality::NeighborQuery* nq,
 void EnvironmentCluster::compute(const freud::locality::NeighborQuery* nq,
                                  const freud::locality::NeighborList* nlist_arg, locality::QueryArgs qargs,
                                  const freud::locality::NeighborList* env_nlist_arg,
-                                 locality::QueryArgs env_qargs, float threshold, bool registration,
-                                 bool global)
+                                 locality::QueryArgs env_qargs, float threshold, bool registration)
 {
     const locality::NeighborList nlist
         = locality::makeDefaultNlist(nq, nlist_arg, nq->getPoints(), nq->getNPoints(), qargs);
@@ -553,52 +552,25 @@ void EnvironmentCluster::compute(const freud::locality::NeighborQuery* nq,
     // loop through points
     for (unsigned int i = 0; i < Np; i++)
     {
-        if (!global)
+        // loop over the neighbors
+        for (; bond < nlist.getNumBonds() && nlist.getNeighbors()(bond, 0) == i; ++bond)
         {
-            // loop over the neighbors
-            for (; bond < nlist.getNumBonds() && nlist.getNeighbors()(bond, 0) == i; ++bond)
+            const size_t j(nlist.getNeighbors()(bond, 1));
+            std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>> mapping
+                = isSimilar(dj.s[i], dj.s[j], m_threshold_sq, registration);
+            rotmat3<float> rotation = mapping.first;
+            BiMap<unsigned int, unsigned int> vec_map = mapping.second;
+            // if the mapping between the vectors of the environments
+            // is NOT empty, then the environments are similar, so
+            // merge them.
+            if (!vec_map.empty())
             {
-                const size_t j(nlist.getNeighbors()(bond, 1));
-                std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>> mapping
-                    = isSimilar(dj.s[i], dj.s[j], m_threshold_sq, registration);
-                rotmat3<float> rotation = mapping.first;
-                BiMap<unsigned int, unsigned int> vec_map = mapping.second;
-                // if the mapping between the vectors of the environments
-                // is NOT empty, then the environments are similar, so
-                // merge them.
-                if (!vec_map.empty())
+                // merge the two sets using the disjoint set
+                unsigned int a = dj.find(i);
+                unsigned int b = dj.find(j);
+                if (a != b)
                 {
-                    // merge the two sets using the disjoint set
-                    unsigned int a = dj.find(i);
-                    unsigned int b = dj.find(j);
-                    if (a != b)
-                    {
-                        dj.merge(i, j, vec_map, rotation);
-                    }
-                }
-            }
-        }
-        else
-        {
-            // loop over all other particles
-            for (unsigned int j = i + 1; j < Np; j++)
-            {
-                std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>> mapping
-                    = isSimilar(dj.s[i], dj.s[j], m_threshold_sq, registration);
-                rotmat3<float> rotation = mapping.first;
-                BiMap<unsigned int, unsigned int> vec_map = mapping.second;
-                // if the mapping between the vectors of the environments
-                // is NOT empty, then the environments are similar, so
-                // merge them.
-                if (!vec_map.empty())
-                {
-                    // merge the two sets using the disjoint set
-                    unsigned int a = dj.find(i);
-                    unsigned int b = dj.find(j);
-                    if (a != b)
-                    {
-                        dj.merge(i, j, vec_map, rotation);
-                    }
+                    dj.merge(i, j, vec_map, rotation);
                 }
             }
         }

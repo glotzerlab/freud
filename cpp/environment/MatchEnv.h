@@ -263,15 +263,10 @@ public:
      * \param registration Controls whether we first use brute force registration to
      *                     orient the second set of vectors such that it
      *                     minimizes the RMSD between the two sets
-     * \param global If true, do an exhaustive search wherein you compare the
-     *               environments of every single pair of particles in the
-     *               simulation. If global is false, only compare the
-     *               environments of neighboring particles.
      */
     void compute(const freud::locality::NeighborQuery* nq, const freud::locality::NeighborList* nlist_arg,
                  locality::QueryArgs qargs, const freud::locality::NeighborList* env_nlist_arg,
-                 locality::QueryArgs env_qargs, float threshold, bool registration = false,
-                 bool global = false);
+                 locality::QueryArgs env_qargs, float threshold, bool registration = false);
 
     //! Get a reference to the particles, indexed into clusters according to their matching local environments
     const util::ManagedArray<unsigned int>& getClusters()
