@@ -12,11 +12,11 @@ void FilterSANN::compute(const NeighborQuery* nq, const vec3<float>* query_point
     // test if this copies the neighbor list.
     m_unfiltered_nlist = std::make_shared<NeighborList>(
         makeDefaultNlist(nq, nlist, query_points, num_query_points, qargs));
-    
+
     // work with sorted nlist
     NeighborList sorted_nlist(*m_unfiltered_nlist);
     sorted_nlist.sort(true);
-    
+
     auto sorted_neighbors=sorted_nlist.getNeighbors();
     auto sorted_dist=sorted_nlist.getDistances();
     auto sorted_weights=sorted_nlist.getWeights();
@@ -34,12 +34,12 @@ void FilterSANN::compute(const NeighborQuery* nq, const vec3<float>* query_point
         for (unsigned int j = 0; j < m && j < sorted_counts(i); j++)
         {
             sum += sorted_dist(first_idx + j);
-            filtered_bonds.push_back(NeighborBond(i, sorted_neighbors(1, first_idx + j), sorted_dist(first_idx + j), sorted_weights(first_idx + j)));
+            filtered_bonds.push_back(NeighborBond(i, sorted_neighbors(first_idx + j, 1), sorted_dist(first_idx + j), sorted_weights(first_idx + j)));
         }
-        while ((sum / (float(m) - 2.0)) > sorted_dist(first_idx + m) && m<sorted_counts(i))
+        while (m<sorted_counts(i) && (sum / (float(m) - 2.0)) > sorted_dist(first_idx + m))
         {
             sum += sorted_dist(first_idx + m);
-            filtered_bonds.push_back(NeighborBond(i, sorted_neighbors(1, first_idx + m),
+            filtered_bonds.push_back(NeighborBond(i, sorted_neighbors(first_idx + m, 1),
                                              sorted_dist(first_idx + m), sorted_weights(first_idx + 2)));
             m += 1;
         }

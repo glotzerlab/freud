@@ -59,7 +59,7 @@ def test_SANN_simple():
     box = freud.box.Box.cube(10)
     known_sol=compute_SANN_neighborList((box,points),r_max)
     f_SANN=freud.locality.FilterSANN()
-    f_SANN.compute((box,points),{'r_max':r_max})
+    f_SANN.compute((box,points),{'r_max':r_max, 'exclude_ii': True})
     sol=f_SANN.filtered_nlist
     npt.assert_allclose(sol.distances,known_sol.distances)
     npt.assert_allclose(sol.point_indices,known_sol.point_indices)
