@@ -176,7 +176,7 @@ class TestRDF:
         rdf = freud.density.RDF(bins, r_max)
 
         query_points = []
-        supposed_RDF = [0]
+        supposed_n_r = [0]
         N = 100
 
         # With points closely centered around the origin,
@@ -186,13 +186,15 @@ class TestRDF:
         # each other.
         dr = r_max / bins
         points = [[dr / 4, 0, 0], [-dr / 4, 0, 0], [0, dr / 4, 0], [0, -dr / 4, 0]]
+        num_points = len(points)
         for r in rdf.bin_centers:
             for k in range(N):
                 query_points.append(
                     [r * np.cos(2 * np.pi * k / N), r * np.sin(2 * np.pi * k / N), 0]
                 )
-            supposed_RDF.append(supposed_RDF[-1] + N)
-        supposed_RDF = np.array(supposed_RDF[1:])
+            supposed_n_r.append(supposed_n_r[-1] + num_points * N)
+        supposed_n_r = np.array(supposed_n_r[1:])
+        supposed_n_r = supposed_n_r / len(query_points)
 
         test_set = util.make_raw_query_nlist_test_set(
             box, points, query_points, "ball", r_max, 0, False
@@ -201,7 +203,7 @@ class TestRDF:
             rdf = freud.density.RDF(bins, r_max)
             rdf.compute(nq, query_points, neighbors=neighbors)
 
-            npt.assert_allclose(rdf.n_r, supposed_RDF, atol=1e-6)
+            npt.assert_allclose(rdf.n_r, supposed_n_r, atol=1e-5, rtol=1e-6)
 
     def test_empty_histogram(self):
         r_max = 0.5

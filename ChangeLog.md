@@ -7,6 +7,15 @@ and this project adheres to
 ## vX.Y.Z -- YYYY-MM-DD
 
 ### Added
+* Filter neighborlists with `freud.locality.FilterSANN`.
+
+### Fixed
+
+* n(r) property in `freud.density.RDF` is now properly normalized by the number of query points.
+
+## v2.12.0 -- 2022-11-09
+
+### Added
 * Mass dependence in `freud.cluster.ClusterProperties` and calculation of inertia tensor and center of mass.
 
 ### Fixed
