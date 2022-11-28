@@ -4,6 +4,12 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## vX.Y.Z -- YYYY-MM-DD
+
+### Fixed
+
+* n(r) property in `freud.density.RDF` is now properly normalized by the number of query points.
+
 ## v2.12.0 -- 2022-11-09
 
 ### Added
