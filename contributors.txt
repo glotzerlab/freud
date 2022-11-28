@@ -22,7 +22,7 @@
     25	Andrew Kerr <andrewghkerr@gmail.com>
     25	Carl Simon Adorf <csadorf@umich.edu>
     22	Jens Glaser <jsglaser@umich.edu>
-    21  Alain Kadar <alaink@umich.edu>
+    21	Alain Kadar <alaink@umich.edu>
     20	Tim Moore <mtimc@umich.edu>
     18	Kody Takada <ktakada@umich.edu>
     13	Pavel Buslaev <pbuslaev@gmail.com>
