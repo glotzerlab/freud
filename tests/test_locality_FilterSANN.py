@@ -19,7 +19,6 @@ def compute_SANN_neighborList(system,r_max):
     for i in range (0,N):
         m=3
         i_dist=sorted_dist[nlist.query_point_indices == i]
-#         while ((sum / (float(m) - 2.0)) > sorted_dist(first_idx + m) && m<sorted_counts(i))
         while (m<nlist.neighbor_counts[i] and np.sum(i_dist[:m])/(m-2)>i_dist[m]):
             m+=1
         mask[nlist.find_first_index(i):nlist.find_first_index(i)+m]=True
@@ -31,19 +30,19 @@ def compute_SANN_neighborList(system,r_max):
 
 
 
-#def test_SANN_fcc():
-#    N_reap=3
-#    r_max=3.5
-#    # generate FCC crystal
-#    uc = freud.data.UnitCell.fcc()
-#    box,points = uc.generate_system(N_reap)
-#    known_sol=compute_SANN_neighborList((box,points),r_max)
-#    f_SANN=freud.locality.FilterSANN()
-#    f_SANN.compute((box,points),{'r_max':r_max})
-#    sol=f_SANN.filtered_nlist
-#    npt.assert_allclose(sol.distances,known_sol.distances)
-#    npt.assert_allclose(sol.point_indices,known_sol.point_indices)
-#    npt.assert_allclose(sol.query_point_indices,known_sol.query_point_indices)
+def test_SANN_fcc():
+    N_reap=3
+    r_max=5.5
+    # generate FCC crystal
+    uc = freud.data.UnitCell.fcc()
+    box,points = uc.generate_system(N_reap, scale=5)
+    known_sol=compute_SANN_neighborList((box,points),r_max)
+    f_SANN=freud.locality.FilterSANN()
+    f_SANN.compute((box,points),{'r_max':r_max})
+    sol=f_SANN.filtered_nlist
+    npt.assert_allclose(sol.distances,known_sol.distances)
+    npt.assert_allclose(sol.point_indices,known_sol.point_indices)
+    npt.assert_allclose(sol.query_point_indices,known_sol.query_point_indices)
 
 def test_SANN_simple():
     r_max=1.5
