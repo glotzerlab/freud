@@ -115,9 +115,9 @@ public:
         return query_point_idx;
     }
 
-    void setQueryPointIdx(unsigned int new_qpidx)
+    void setQueryPointIdx(unsigned int idx)
     {
-        query_point_idx = new_qpidx;
+        query_point_idx = idx;
     }
 
     unsigned int getPointIdx() const
@@ -135,9 +135,9 @@ public:
         return weight;
     }
 
-    void setWeight(float new_weight)
+    void setWeight(float w)
     {
-        weight = new_weight;
+        weight = w;
     }
 
     const vec3<float>& getVector() const
@@ -145,10 +145,10 @@ public:
         return vector;
     }
 
-    void setVector(const vec3<float>& new_vector)
+    void setVector(const vec3<float>& v)
     {
-        vector = new_vector;
-        distance = std::sqrt(dot(vector, vector));
+        vector = v;
+        distance = std::sqrt(dot(v, v));
     }
 
     float getDistance() const
