@@ -58,7 +58,7 @@ void RDF::reduce()
     m_N_r.prepare(getAxisSizes()[0]);
 
     // Define prefactors with appropriate types to simplify and speed later code.
-    auto nqp = static_cast<float>(m_n_query_points);
+    auto const nqp = static_cast<float>(m_n_query_points);
     float number_density = nqp / m_box.getVolume();
     if (m_normalize)
     {
