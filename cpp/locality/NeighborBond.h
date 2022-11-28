@@ -35,7 +35,7 @@ public:
     /**
      * This constructor should be used for the majority of cases when instantiating
      * a NeighborBond object.
-     * */
+     */
     NeighborBond(unsigned int query_point_idx, unsigned int point_idx, float w, const vec3<float>& v)
         : query_point_idx(query_point_idx), point_idx(point_idx), distance(std::sqrt(dot(v, v))), weight(w),
           vector(v)
@@ -161,7 +161,7 @@ private:
     unsigned int point_idx {0};       //! The reference point index.
     float distance {0};               //! The distance between the points.
     float weight {0};                 //! The weight of this bond.
-    vec3<float> vector;               //! The directed vector from query point to reference point
+    vec3<float> vector;               //! The directed vector from query point to reference point.
 };
 
 }; }; // end namespace freud::locality

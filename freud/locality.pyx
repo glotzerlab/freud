@@ -520,7 +520,7 @@ cdef class NeighborList:
             vectors (:math:`\left(N_{bonds}, 3\right)` :class:`numpy.ndarray`):
                 Array of bond vectors from query points to corresponding
                 points.
-            weights (:math:`\left(N_{bonds} \right)` :class:`np.ndarray`):
+            weights (:math:`\left(N_{bonds} \right)` :class:`np.ndarray`, optional):
                 Array of per-bond weights (if :code:`None` is given, use a
                 value of 1 for each weight) (Default value = :code:`None`).
         """  # noqa 501
@@ -634,7 +634,7 @@ cdef class NeighborList:
 
     @property
     def vectors(self):
-        R"""(:math:`N_{bonds}`, 3) :class:`np.ndarray`: The vectors for each
+        r"""(:math:`N_{bonds}`, 3) :class:`np.ndarray`: The vectors for each
         bond."""
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getVectors(),

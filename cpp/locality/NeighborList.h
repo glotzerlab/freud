@@ -89,7 +89,7 @@ public:
 
     /**
      * Set the values for the neighbor index to be that of the given neighborbond
-     * */
+     */
     void setNeighborEntry(size_t neighbor_index, const NeighborBond& nb)
     {
         m_neighbors(neighbor_index, 0) = nb.getQueryPointIdx();
