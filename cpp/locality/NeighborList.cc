@@ -4,18 +4,19 @@
 #include <algorithm>
 #include <stdexcept>
 
+#include "ManagedArray.h"
 #include "NeighborList.h"
 
 namespace freud { namespace locality {
 
 NeighborList::NeighborList()
-    : m_num_query_points(0), m_num_points(0), m_neighbors({0, 2}), m_distances(0), m_weights(0),
+    : m_num_query_points(0), m_num_points(0), m_neighbors({0, 2}), m_distances(0), m_weights(0), m_vectors(0),
       m_segments_counts_updated(false)
 {}
 
 NeighborList::NeighborList(unsigned int num_bonds)
     : m_num_query_points(0), m_num_points(0), m_neighbors({num_bonds, 2}), m_distances(num_bonds),
-      m_weights(num_bonds), m_segments_counts_updated(false)
+      m_weights(num_bonds), m_vectors(num_bonds), m_segments_counts_updated(false)
 {}
 
 NeighborList::NeighborList(const NeighborList& other)
@@ -27,9 +28,9 @@ NeighborList::NeighborList(const NeighborList& other)
 
 NeighborList::NeighborList(unsigned int num_bonds, const unsigned int* query_point_index,
                            unsigned int num_query_points, const unsigned int* point_index,
-                           unsigned int num_points, const float* distances, const float* weights)
+                           unsigned int num_points, const vec3<float>* vectors, const float* weights)
     : m_num_query_points(num_query_points), m_num_points(num_points), m_neighbors({num_bonds, 2}),
-      m_distances(num_bonds), m_weights(num_bonds), m_segments_counts_updated(false)
+      m_distances(num_bonds), m_weights(num_bonds), m_vectors(num_bonds), m_segments_counts_updated(false)
 {
     unsigned int last_index(0);
     for (unsigned int i = 0; i < num_bonds; i++)
@@ -48,10 +49,7 @@ NeighborList::NeighborList(unsigned int num_bonds, const unsigned int* query_poi
         {
             throw std::invalid_argument("NeighborList point_index values must be less than num_points.");
         }
-        m_neighbors(i, 0) = index;
-        m_neighbors(i, 1) = point_index[i];
-        m_weights[i] = weights[i];
-        m_distances[i] = distances[i];
+        setNeighborEntry(i, NeighborBond(index, point_index[i], weights[i], vectors[i]));
         last_index = index;
     }
 }
@@ -132,6 +130,7 @@ template<typename Iterator> unsigned int NeighborList::filter(Iterator begin)
     auto new_neighbors = util::ManagedArray<unsigned int>({new_size, 2});
     auto new_distances = util::ManagedArray<float>(new_size);
     auto new_weights = util::ManagedArray<float>(new_size);
+    auto new_vectors = util::ManagedArray<vec3<float>>(new_size);
 
     auto current_element = begin;
     unsigned int num_good(0);
@@ -141,8 +140,9 @@ template<typename Iterator> unsigned int NeighborList::filter(Iterator begin)
         {
             new_neighbors(num_good, 0) = m_neighbors(i, 0);
             new_neighbors(num_good, 1) = m_neighbors(i, 1);
-            new_weights[num_good] = m_weights[i];
             new_distances[num_good] = m_distances[i];
+            new_weights[num_good] = m_weights[i];
+            new_vectors[num_good] = m_vectors[i];
             ++num_good;
         }
         ++current_element;
@@ -151,6 +151,7 @@ template<typename Iterator> unsigned int NeighborList::filter(Iterator begin)
     m_neighbors = new_neighbors;
     m_distances = new_distances;
     m_weights = new_weights;
+    m_vectors = new_vectors;
     m_segments_counts_updated = false;
     return old_size - new_size;
 }
@@ -199,6 +200,7 @@ void NeighborList::resize(unsigned int num_bonds)
     auto new_neighbors = util::ManagedArray<unsigned int>({num_bonds, 2});
     auto new_distances = util::ManagedArray<float>(num_bonds);
     auto new_weights = util::ManagedArray<float>(num_bonds);
+    auto new_vectors = util::ManagedArray<vec3<float>>(num_bonds);
 
     // On shrinking resizes, keep existing data.
     if (num_bonds <= getNumBonds())
@@ -209,12 +211,14 @@ void NeighborList::resize(unsigned int num_bonds)
             new_neighbors(i, 1) = m_neighbors(i, 1);
             new_distances[i] = m_distances[i];
             new_weights[i] = m_weights[i];
+            new_vectors[i] = m_vectors[i];
         }
     }
 
     m_neighbors = new_neighbors;
     m_distances = new_distances;
     m_weights = new_weights;
+    m_vectors = new_vectors;
     m_segments_counts_updated = false;
 }
 
@@ -222,8 +226,9 @@ void NeighborList::copy(const NeighborList& other)
 {
     setNumBonds(other.getNumBonds(), other.getNumQueryPoints(), other.getNumPoints());
     m_neighbors = other.m_neighbors.copy();
-    m_weights = other.m_weights.copy();
     m_distances = other.m_distances.copy();
+    m_weights = other.m_weights.copy();
+    m_vectors = other.m_vectors.copy();
     m_segments_counts_updated = false;
 }
 

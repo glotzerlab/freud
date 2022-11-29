@@ -48,12 +48,12 @@ class TestMinkowski:
             # Test q'l
             comp = freud.order.Steinhardt(sph_l, weighted=True)
             comp.compute(snap, neighbors=voro.nlist)
-            npt.assert_allclose(comp.order, expected_ql[:, sph_l], atol=1e-5)
+            npt.assert_allclose(comp.order, expected_ql[:, sph_l], atol=1e-4)
 
             # Test average q'l
             comp = freud.order.Steinhardt(sph_l, average=True, weighted=True)
             comp.compute(snap, neighbors=voro.nlist)
-            npt.assert_allclose(comp.order, expected_avql[:, sph_l], atol=1e-5)
+            npt.assert_allclose(comp.order, expected_avql[:, sph_l], atol=1e-4)
 
             # w'2 tests fail for unknown (probably numerical) reasons.
             if sph_l != 2:

@@ -183,7 +183,7 @@ NeighborBond AABBQueryBallIterator::next()
                         // Check ii exclusion before including the pair.
                         if (r_sq < r_max_sq && r_sq >= r_min_sq)
                         {
-                            return NeighborBond(m_query_point_idx, j, std::sqrt(r_sq));
+                            return NeighborBond(m_query_point_idx, j, std::sqrt(r_sq), 1, r_ij);
                         }
                     }
                 }
@@ -230,7 +230,7 @@ NeighborBond AABBQueryIterator::next()
             // r_min filtering because we're querying beyond the normally safe
             // bounds, so we have to do it in this class.
             m_current_neighbors.clear();
-            m_all_distances.clear();
+            m_all_bonds_minimum_distance.clear();
             m_query_points_below_r_min.clear();
             std::shared_ptr<NeighborQueryPerPointIterator> ball_it = std::make_shared<AABBQueryBallIterator>(
                 static_cast<const AABBQuery*>(m_neighbor_query), m_query_point, m_query_point_idx,
@@ -243,26 +243,28 @@ NeighborBond AABBQueryIterator::next()
                     continue;
                 }
 
-                if (!m_exclude_ii || m_query_point_idx != nb.point_idx)
+                if (!m_exclude_ii || m_query_point_idx != nb.getPointIdx())
                 {
-                    nb.query_point_idx = m_query_point_idx;
+                    nb.setQueryPointIdx(m_query_point_idx);
                     // If we've expanded our search radius beyond safe
                     // distance, use the map instead of the vector.
                     if (m_search_extended)
                     {
-                        if ((m_all_distances.count(nb.point_idx) == 0)
-                            || m_all_distances[nb.point_idx] > nb.distance)
+                        const unsigned int nb_point_idx = nb.getPointIdx();
+                        const float nb_distance = nb.getDistance();
+                        if ((m_all_bonds_minimum_distance.count(nb_point_idx) == 0)
+                            || m_all_bonds_minimum_distance[nb_point_idx].getDistance() > nb_distance)
                         {
-                            m_all_distances[nb.point_idx] = nb.distance;
-                            if (nb.distance < m_r_min)
+                            m_all_bonds_minimum_distance[nb_point_idx] = nb;
+                            if (nb_distance < m_r_min)
                             {
-                                m_query_points_below_r_min.insert(nb.point_idx);
+                                m_query_points_below_r_min.insert(nb_point_idx);
                             }
                         }
                     }
                     else
                     {
-                        if (nb.distance >= m_r_min)
+                        if (nb.getDistance() >= m_r_min)
                         {
                             m_current_neighbors.emplace_back(nb);
                         }
@@ -281,18 +283,18 @@ NeighborBond AABBQueryIterator::next()
             }
 
             if ((m_r_cur >= m_r_max) || (m_r_cur >= max_plane_distance)
-                || ((m_all_distances.size() - m_query_points_below_r_min.size()) >= m_num_neighbors))
+                || ((m_all_bonds_minimum_distance.size() - m_query_points_below_r_min.size())
+                    >= m_num_neighbors))
             {
                 // Once this condition is reached, either we found enough
                 // neighbors beyond the normal min_plane_distance
                 // condition or we conclude that there are not enough
                 // neighbors left in the system.
-                for (const auto& bond_distance : m_all_distances)
+                for (const auto& minimum_distance_bond : m_all_bonds_minimum_distance)
                 {
-                    if (bond_distance.second >= m_r_min)
+                    if (minimum_distance_bond.second.getDistance() >= m_r_min)
                     {
-                        m_current_neighbors.emplace_back(m_query_point_idx, bond_distance.first,
-                                                         bond_distance.second);
+                        m_current_neighbors.emplace_back(minimum_distance_bond.second);
                     }
                 }
                 std::sort(m_current_neighbors.begin(), m_current_neighbors.end());
@@ -320,7 +322,7 @@ NeighborBond AABBQueryIterator::next()
     while ((m_count < m_num_neighbors) && (m_count < m_current_neighbors.size()))
     {
         m_count++;
-        if (m_current_neighbors[m_count - 1].distance > m_r_max)
+        if (m_current_neighbors[m_count - 1].getDistance() > m_r_max)
         {
             m_finished = true;
             return ITERATOR_TERMINATOR;

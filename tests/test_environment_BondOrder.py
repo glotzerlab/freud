@@ -113,7 +113,7 @@ class TestBondOrder:
         r_max = 1.6
 
         num_neighbors = 12
-        n_bins_theta = 30
+        n_bins_theta = 35
         n_bins_phi = 2
         test_set = util.make_raw_query_nlist_test_set(
             box, points, query_points, "nearest", r_max, num_neighbors, False

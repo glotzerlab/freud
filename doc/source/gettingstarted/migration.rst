@@ -26,3 +26,9 @@ Overview of API Changes
     * - Color voronoi diagram by number of cell sides.
       - ``voro.plot(..., color_by_sides=True)``
       - ``voro.plot(..., color_by='sides')``
+    * - Get vectors corresponding to neighbor pairs.
+      - ``points[nlist.point_indices] - points[nlist.query_point_indices]``
+      - ``nlist.vectors``
+    * - Create a custom neighborlist from arrays.
+      - ``freud.locality.NeighborList.from_arrays(..., distances=...)``
+      - ``freud.locality.NeighborList.from_arrays(..., vectors=...)``

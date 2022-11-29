@@ -516,7 +516,7 @@ NeighborBond LinkCellQueryBallIterator::next()
 
             if (r_sq < r_max_sq && r_sq >= r_min_sq)
             {
-                return NeighborBond(m_query_point_idx, j, std::sqrt(r_sq));
+                return NeighborBond(m_query_point_idx, j, std::sqrt(r_sq), 1, r_ij);
             }
         }
 
@@ -604,7 +604,7 @@ NeighborBond LinkCellQueryIterator::next()
                     const float r_sq(dot(r_ij, r_ij));
                     if (r_sq < r_max_sq && r_sq >= r_min_sq)
                     {
-                        m_current_neighbors.emplace_back(m_query_point_idx, j, std::sqrt(r_sq));
+                        m_current_neighbors.emplace_back(m_query_point_idx, j, std::sqrt(r_sq), 1, r_ij);
                     }
                 }
             }
@@ -639,7 +639,7 @@ NeighborBond LinkCellQueryIterator::next()
             // closest possible neighbor in the new shell.
             std::sort(m_current_neighbors.begin(), m_current_neighbors.end());
             if ((m_current_neighbors.size() >= m_num_neighbors)
-                && (m_current_neighbors[m_num_neighbors - 1].distance
+                && (m_current_neighbors[m_num_neighbors - 1].getDistance()
                     < static_cast<float>(m_neigh_cell_iter.getRange() - 1) * m_linkcell->getCellWidth()))
             {
                 break;
@@ -650,7 +650,7 @@ NeighborBond LinkCellQueryIterator::next()
     while ((m_count < m_num_neighbors) && (m_count < m_current_neighbors.size()))
     {
         m_count++;
-        if (m_current_neighbors[m_count - 1].distance > m_r_max)
+        if (m_current_neighbors[m_count - 1].getDistance() > m_r_max)
         {
             m_finished = true;
             return ITERATOR_TERMINATOR;
