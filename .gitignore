@@ -22,3 +22,5 @@ freud/*.cpp
 freud/*.cxx
 freud/*.dylib
 freud/*.so
+
+.vscode/*
