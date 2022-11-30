@@ -138,10 +138,10 @@ cdef class IntermediateScattering(_StaticStructureFactor):
 
         # IntermediateScattering has two part:
         # self-part F_s(k, t) and distinct part F_d(k, t)
-        # for the self-part we do not need neighborlist because only need to substrct point position element-wisely; the distinct-part we NEED a neighborlist for rt and r0. 
+        # for the self-part we do not need neighborlist because only need to substrct point position element-wisely; the distinct-part we NEED a neighborlist for rt and r0.
 
         for t in range(num_frames):
-            
+
             # Convert points to float32 to avoid errors when float64 is passed
             temp_nq = freud.locality.NeighborQuery.from_system(system)
             cdef freud.locality.NeighborQuery nq = \
@@ -154,11 +154,11 @@ cdef class IntermediateScattering(_StaticStructureFactor):
             )
 
 
-        
+
 
     def _reset(self):
         self.thisptr.reset()
-        
+
 
 
 cdef class StaticStructureFactorDebye(_StaticStructureFactor):
