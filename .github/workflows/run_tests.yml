@@ -51,8 +51,7 @@ jobs:
       - name: Build and Install freud
         shell: bash -l {0}
         run: |
-          python setup.py build_ext --inplace
-          pip install . --ignore-installed --no-build-isolation
+          pip install . --ignore-installed --no-build-isolation --no-deps
 
       - name: Run Tests
         shell: bash -l {0}
