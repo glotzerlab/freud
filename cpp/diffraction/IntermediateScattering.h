@@ -46,7 +46,6 @@ class IntermediateScattering : public StaticStructureFactorDirect
     using KBinHistogram = util::Histogram<unsigned int>;
 
 public:
-
     //! Reset the histogram to all zeros
     void reset() override
     {
@@ -57,9 +56,7 @@ public:
         box_assigned = false;
     }
 
-
 private:
-
     // to record the position r0 of the first frame
     bool m_first_call {true};
     static const vec3<float>* m_r0;

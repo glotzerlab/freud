@@ -1,10 +1,10 @@
 // Copyright (c) 2010-2020 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
+#include "IntermediateScattering.h"
 #include "Box.h"
 #include "ManagedArray.h"
 #include "NeighborQuery.h"
-#include "IntermediateScattering.h"
 #include "utils.h"
  
 /*! \file IntermediateScattering.cc
@@ -69,7 +69,7 @@ void IntermediateScattering::accumulate(const freud::locality::NeighborQuery* ne
     // record the point at t=0
     if (m_first_all) 
     {
-        m_r0 = neighbor_query.getPoints(); 
+        m_r0 = neighbor_query.getPoints();
         m_first_call = false;
     }
     // Compute self-part
@@ -102,6 +102,10 @@ void IntermediateScattering::accumulate(const freud::locality::NeighborQuery* ne
 
     m_reduce = true;
 
+        // Compute distinct-part
+        const auto m_distinct_part
+        = IntermediateScattering::compute_distinct(neighbor_query.getPoints(), m_r0,
+                                                   neighbor_query->getNPoints(), n_total, m_k_points)
 }
 
 void IntermediateScattering::reduce()
@@ -137,7 +141,6 @@ IntermediateScattering::compute_self(const vec3<float>* rt, const vec3<float>* r
     })
 
     return IntermediateScattering::compute_F_k(r_i_t0, n_points, n_total, m_k_points);
-    
 }
 
 std::vector<std::complex<float>>
@@ -171,6 +174,4 @@ IntermediateScattering::compute_distinct(const vec3<float>* rt, const vec3<float
 
 }
 
-    }
-
-}
+}} // namespace freud::diffraction
