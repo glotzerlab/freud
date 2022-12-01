@@ -27,7 +27,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-20.04, macos-12] #, windows-2019]
-        pyver: ["3.6", "3.7", "3.8", "3.9", "3.10"]
+        pyver: ["3.6", "3.7", "3.8", "3.9", "3.10", "3.11"]
 
     steps:
       - uses: actions/checkout@v3.1.0
@@ -128,7 +128,7 @@ jobs:
 
       - name: Slack notification
         if: startsWith(github.ref, 'refs/tags/v') || failure()
-        uses: act10ns/slack@v1.6.0
+        uses: act10ns/slack@v2.0.0
         with:
           status: ${{ job.status }}
           channel: '#dev-freud'
