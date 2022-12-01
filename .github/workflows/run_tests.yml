@@ -51,7 +51,7 @@ jobs:
       - name: Build and Install freud
         shell: bash -l {0}
         run: |
-          python setup.py install --user
+          python setup.py install --user --no-build-isolation
 
       - name: Run Tests
         shell: bash -l {0}
