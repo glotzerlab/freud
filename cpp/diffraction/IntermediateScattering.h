@@ -62,7 +62,13 @@ private:
 
     // to record the position r0 of the first frame
     bool m_first_call {true};
-    static std::vector<vec3<float>> m_r0;
+    static const vec3<float>* m_r0;
+    StructureFactorHistogram m_structure_factor_distinct; //!< Histogram to hold computed structure factor
+    StructureFactorHistogram::ThreadLocalHistogram
+        m_local_structure_factor_distinct; //!< Thread local histograms for TBB parallelism
+    KBinHistogram m_k_histogram_distinct;         //!< Histogram of sampled k bins, used to normalize S(q)
+    KBinHistogram::ThreadLocalHistogram
+        m_local_k_histograms_distinct;  //!< Thread local histograms of sampled k bins for TBB parallelism    
     
 };
 

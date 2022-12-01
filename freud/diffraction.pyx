@@ -73,7 +73,7 @@ cdef class _StaticStructureFactor(_Compute):
         except (AttributeError, ImportError):
             return None
 
-cdef class IntermediateScattering(_StaticStructureFactor):
+cdef class IntermediateScattering(_StaticStructureFactorDirect):
     r"""
 
     """
@@ -145,20 +145,23 @@ cdef class IntermediateScattering(_StaticStructureFactor):
             # Convert points to float32 to avoid errors when float64 is passed
             temp_nq = freud.locality.NeighborQuery.from_system(system)
             cdef freud.locality.NeighborQuery nq = \
-                freud.locality.AABBQuery(
-                    (temp_nq.box, freud.util._convert_array(temp_nq.points)).query(r0)
+                freud.locality.NeighborQuery.from_system(
+                    (temp_nq.box, freud.util._convert_array(temp_nq.points)))
 
             self.thisptr.accumulate(
                 nq.get_ptr(),
                 l_query_points_ptr, num_query_points, N_total
             )
 
-
-        
-
     def _reset(self):
         self.thisptr.reset()
-        
+
+    @_Compute._computed_property
+    def self_function(self):
+        return freud.util.make_managed_numpy_array(
+            &self.isfptr.getSelfFunction(),
+            freud.util.arr_type_t.FLOAT)
+
 
 
 cdef class StaticStructureFactorDebye(_StaticStructureFactor):
