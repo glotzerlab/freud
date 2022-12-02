@@ -6,8 +6,10 @@ and this project adheres to
 
 ## vX.Y.Z -- YYYY-MM-DD
 
-### Fixed
+### Added
+* Support for Python 3.11.
 
+### Fixed
 * n(r) property in `freud.density.RDF` is now properly normalized by the number of query points.
 
 ## v2.12.0 -- 2022-11-09
