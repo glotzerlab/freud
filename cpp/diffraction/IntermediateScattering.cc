@@ -6,7 +6,7 @@
 #include "ManagedArray.h"
 #include "NeighborQuery.h"
 #include "utils.h"
- 
+
 /*! \file IntermediateScattering.cc
     \brief Routines for computing intermediate scattering function.
 */
@@ -33,13 +33,13 @@ IntermediateScattering::IntermediateScattering(unsigned int bins, float k_max, f
     }
     if (k_max <= k_min)
     {
-        throw std::invalid_argument(
-            "IntermediateScattering requires that k_max must be greater than k_min.");
+        throw std::invalid_argument("IntermediateScattering requires that k_max must be greater than k_min.");
     }
 }
 
-void IntermediateScattering::accumulate(const freud::locality::NeighborQuery* neighbor_query, const vec3<float>* query_points, unsigned int n_query_points,
-                                             unsigned int n_total)
+void IntermediateScattering::accumulate(const freud::locality::NeighborQuery* neighbor_query,
+                                        const vec3<float>* query_points, unsigned int n_query_points,
+                                        unsigned int n_total)
 {
     // Compute k vectors by sampling reciprocal space.
     const auto& box = neighbor_query->getBox();
@@ -119,12 +119,14 @@ void IntermediateScattering::reduce()
     m_structure_factor.reduceOverThreadsPerBin(m_local_structure_factor,
                                                [&](size_t i) { m_structure_factor[i] /= m_k_histogram[i]; });
     m_k_histogram.reduceOverThreads(m_local_k_histograms_distinct);
-    m_structure_factor.reduceOverThreadsPerBin(m_local_structure_factor_distinct,
-                                               [&](size_t i) { m_structure_factor_distinct[i] /= m_k_histogram_distinct[i]; });
+    m_structure_factor.reduceOverThreadsPerBin(m_local_structure_factor_distinct, [&](size_t i) {
+        m_structure_factor_distinct[i] /= m_k_histogram_distinct[i];
+    });
 }
 
 std::vector<std::complex<float>>
-IntermediateScattering::compute_self(const vec3<float>* rt, const vec3<float>* r0, unsigned int n_points, unsigned int n_total, const std::vector<vec3<float>>& k_points)
+IntermediateScattering::compute_self(const vec3<float>* rt, const vec3<float>* r0, unsigned int n_points,
+                                     unsigned int n_total, const std::vector<vec3<float>>& k_points)
 {
     // 
     std::vector<vec3<float>> r_i_t0(n_points);  // rt - rt0 element-wisely
@@ -139,7 +141,8 @@ IntermediateScattering::compute_self(const vec3<float>* rt, const vec3<float>* r
 }
 
 std::vector<std::complex<float>>
-IntermediateScattering::compute_distinct(const vec3<float>* rt, const vec3<float>* r0, unsigned int n_points, unsigned int n_total, const std::vector<vec3<float>>& k_points)
+IntermediateScattering::compute_distinct(const vec3<float>* rt, const vec3<float>* r0, unsigned int n_points,
+                                         unsigned int n_total, const std::vector<vec3<float>>& k_points)
 {
 
     const auto n_rij = n_points * (n_points - 1);
