@@ -492,3 +492,30 @@ class TestStaticStructureFactorDirect(StaticStructureFactorTest):
             bins=sf_direct.bin_edges,
         )
         npt.assert_allclose(sf_direct.S_k, S_k_binned, rtol=1e-5, atol=1e-5)
+
+
+class TestIntermediateScattering:
+
+    @classmethod
+    def build_structure_factor_object(
+        cls, bins, k_max, k_min=0, num_sampled_k_points=0
+    ):
+        return freud.diffraction.IntermediateScattering(bins, k_max, k_min, num_sampled_k_points)
+
+    def test_fixed_system(self, sf_params):
+
+        bins, k_max, _, _ = sf_params
+        bins = bins + 1
+        upper_bins = bins // 2 + 1
+        k_min = k_max / 2
+        L = 10
+        N = 100
+        n_frames = 10
+        box, points = freud.data.make_random_system(L, N)
+        traj = np.broadcast_to(points, (n_frames, N, 3))
+        assert traj.shape == (n_frames, N, 3)
+        isf = self.build_structure_factor_object(bins, k_max)
+        isf.compute(box, traj)
+        assert isf.self_function.shape == (n_frames, isf.nbins)
+        npt.assert_equal(isf.self_function, np.ones((n_frames, isf.nbins)))
+        

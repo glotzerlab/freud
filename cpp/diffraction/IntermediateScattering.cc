@@ -15,9 +15,7 @@ namespace freud { namespace diffraction {
 
 IntermediateScattering::IntermediateScattering(unsigned int bins, float k_max, float k_min,
                                                          unsigned int num_sampled_k_points)
-    : StaticStructureFactorDirect(bins, k_max, k_min, num_sampled_k_points), m_num_sampled_k_points(num_sampled_k_points),
-      m_k_histogram(KBinHistogram(m_structure_factor.getAxes())),
-      m_local_k_histograms(KBinHistogram::ThreadLocalHistogram(m_k_histogram)),
+    : StaticStructureFactorDirect(bins, k_max, k_min, num_sampled_k_points),
       m_k_histogram_distinct(KBinHistogram(m_structure_factor_distinct.getAxes())),
       m_local_k_histograms_distinct(KBinHistogram::ThreadLocalHistogram(m_k_histogram_distinct))
 {
@@ -67,19 +65,20 @@ void IntermediateScattering::accumulate(const freud::locality::NeighborQuery* ne
     m_min_valid_k = std::min(m_min_valid_k, freud::constants::TWO_PI / min_box_length);
 
     // record the point at t=0
-    if (m_first_all) 
+    static const vec3<float>* m_r0;
+    if (m_first_call) 
     {
-        m_r0 = neighbor_query.getPoints();
+        m_r0 = neighbor_query->getPoints();
         m_first_call = false;
     }
     // Compute self-part
     const auto self_part = IntermediateScattering::compute_self(
-        neighbor_query.getPoints(), m_r0, neighbor_query->getNPoints(), n_total, m_k_points
+        neighbor_query->getPoints(), m_r0, neighbor_query->getNPoints(), n_total, m_k_points
     );
 
     // Compute distinct-part
     const auto distinct_part = IntermediateScattering::compute_distinct(
-        neighbor_query.getPoints(), m_r0, neighbor_query->getNPoints(), n_total, m_k_points
+        neighbor_query->getPoints(), m_r0, neighbor_query->getNPoints(), n_total, m_k_points
     );
 
     std::vector<float> S_k_self_part = IntermediateScattering::compute_S_k(self_part, self_part);
@@ -98,14 +97,10 @@ void IntermediateScattering::accumulate(const freud::locality::NeighborQuery* ne
             m_local_k_histograms.increment(k_bin1);            
             m_local_k_histograms_distinct.increment(k_bin2);            
         }
-    })
+    });
 
     m_reduce = true;
 
-        // Compute distinct-part
-        const auto m_distinct_part
-        = IntermediateScattering::compute_distinct(neighbor_query.getPoints(), m_r0,
-                                                   neighbor_query->getNPoints(), n_total, m_k_points)
 }
 
 void IntermediateScattering::reduce()
@@ -138,26 +133,24 @@ IntermediateScattering::compute_self(const vec3<float>* rt, const vec3<float>* r
         {
             r_i_t0[i] = rt[i] - rt[0];
         }
-    })
+    });
 
-    return IntermediateScattering::compute_F_k(r_i_t0, n_points, n_total, m_k_points);
+    return IntermediateScattering::compute_F_k(r_i_t0.data(), n_points, n_total, m_k_points);
 }
 
 std::vector<std::complex<float>>
 IntermediateScattering::compute_distinct(const vec3<float>* rt, const vec3<float>* r0, unsigned int n_points, unsigned int n_total, const std::vector<vec3<float>>& k_points)
 {
 
-    const auto n_rt = rt.size();
-    const auto n_r0 = r0.size();
-    const auto n_rij = n_rt*(n_r0-1)
+    const auto n_rij = n_points * (n_points - 1);
     std::vector<vec3<float>> r_ij(n_rij);
-    size_t i = 0
+    size_t i = 0;
 
-    util::forLoopWrapper(0, n_rt, [&](size_t begin, size_t end){
+    util::forLoopWrapper(0, n_rij, [&](size_t begin, size_t end) {
         for (size_t rt_index = begin; rt_index < end; ++rt_index)
         {
 
-            for (size_t r0_index = 0; r0_index < n_r0; ++r0_index)
+            for (size_t r0_index = 0; r0_index < n_rij; ++r0_index)
             {
                 if (rt_index != r0_index) 
                 {
@@ -166,11 +159,11 @@ IntermediateScattering::compute_distinct(const vec3<float>* rt, const vec3<float
                 }
 
             }
-        }
-    })
+        };
+    });
 
 
-    return IntermediateScattering::compute_F_k(r_ij, n_rij, n_total, m_k_points);
+    return IntermediateScattering::compute_F_k(r_ij.data(), n_rij, n_total, m_k_points);
 
 }
 

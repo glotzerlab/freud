@@ -940,21 +940,18 @@ cdef class IntermediateScattering(StaticStructureFactorDirect):
 
     cdef freud._diffraction.IntermediateScattering * isfptr
 
-    def __cinit__(self, box, unsigned int bins, float k_max, float k_min=0, unsigned int num_sampled_k_points=0):
-        
+    def __cinit__(self, unsigned int bins, float k_max, float k_min=0, unsigned int num_sampled_k_points=0):
         if type(self) == IntermediateScattering:
             self.isfptr = self.thisptr = self.ssfptr = \
                 new freud._diffraction.IntermediateScattering(
                     bins, k_max, k_min, num_sampled_k_points
                 )  # thisptr is used by the StaticStructureFactorDirect class
-        # In the first version we assume that the box is fixed
-        self._box = freud.util._convert_box(box)
 
     def __dealloc__(self):
         if type(self) is IntermediateScattering:
             del self.isfptr
 
-    def compute(self, positions, query_points=None, N_total=None, reset=True):
+    def compute(self, box, positions, query_points=None, N_total=None, reset=True):
 
         # argument check
         positions = freud.util._convert_array(
@@ -969,8 +966,6 @@ cdef class IntermediateScattering(StaticStructureFactorDirect):
                 "partial structure factor."
             )
 
-        # Convert points to float32 to avoid errors when float64 is passed
-        temp_nq = freud.locality.NeighborQuery.from_system((self._box, positions[0].astype(np.float32)))
         cdef freud.locality.NeighborQuery nq
 
         if reset:
@@ -998,24 +993,17 @@ cdef class IntermediateScattering(StaticStructureFactorDirect):
 
         for t in range(num_frames):
 
-            nq = freud.locality.NeighborQuery.from_system((temp_nq.box, freud.util._convert_array(positions[t].astype(np.float32))))
+            nq = freud.locality.NeighborQuery.from_system((box, freud.util._convert_array(positions[t].astype(np.float32))))
 
             self.isfptr.accumulate(
                 nq.get_ptr(),
                 l_query_points_ptr, num_query_points, N_total
             )
 
-    def _reset(self):
-        self.isfptr.reset()
-
     @_Compute._computed_property
     def self_function(self):
-        return freud.util.make_managed_numpy_array(
-            &self.isfptr.getSelfFunction(),
-            freud.util.arr_type_t.FLOAT)
+        return np.array(self._self_func_data)
 
     @_Compute._computed_property
     def distinct_function(self):
-        return freud.util.make_managed_numpy_array(
-            &self.isfptr.getDistinctFunction(),
-            freud.util.arr_type_t.FLOAT)
+        return np.array(self._distinct_func_data)
