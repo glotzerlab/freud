@@ -73,96 +73,6 @@ cdef class _StaticStructureFactor(_Compute):
         except (AttributeError, ImportError):
             return None
 
-cdef class IntermediateScattering(_StaticStructureFactorDirect):
-    r"""
-
-    """
-
-    cdef freud._diffraction.IntermediateScattering * thisptr
-
-    def __cinit__(self, box, unsigned int bins, float k_max, float k_min=0, unsigned int num_sampled_k_points=0):
-
-        if type(self) == IntermediateScattering:
-            self.thisptr = self.isfptr = \
-                new freud._diffraction.IntermediateScattering(
-                    bins, k_max, k_min, num_sampled_k_points
-                )
-        # In the first version we assume that the box is fixed
-        self._box = freud.util._convert_box(box)
-
-    def __dealloc__(self):
-        if type(self) is IntermediateScattering:
-            del self.isfptr
-
-    def compute(self, positions, query_points=None, N_total=None, reset=True):
-
-        # argument check
-        positions = freud.util._convert_array(
-            positions, shape=(None, None, 3)
-        )
-        num_frames = positions.shape[0]
-
-        if (query_points is None) != (N_total is None):
-            raise ValueError(
-                "If query_points are provided, N_total must also be provided "
-                "in order to correctly compute the normalization of the "
-                "partial structure factor."
-            )
-
-        if query_points is not None:
-            l_query_points = freud.util._convert_array(query_points)
-            num_query_frames = l_query_points.shape[0]
-            num_query_points = l_query_points.shape[1]
-            l_query_points_ptr = <vec3[float]*> &l_query_points[0, 0, 0]
-
-        cdef:
-            const float[:, ::1] l_points = nq.points
-            unsigned int num_points = l_points.shape[0]
-            const vec3[float]* l_query_points_ptr = NULL
-            const float[:, ::1] l_query_points
-            unsigned int num_query_points
-
-        if reset:
-            self.thisptr.reset()
-
-        # Make sure we aren't modifying the provided array
-        if self._box is not None and images is not None:
-            unwrapped_positions = positions.copy()
-            for i in range(positions.shape[0]):
-                unwrapped_positions[i, :, :] = self._box.unwrap(
-                    unwrapped_positions[i, :, :], images[i, :, :])
-            positions = unwrapped_positions
-
-        # extract r0 = r(t=0) from positions
-        r0 = positions[0]
-
-        # IntermediateScattering has two part:
-        # self-part F_s(k, t) and distinct part F_d(k, t)
-        # for the self-part we do not need neighborlist because only need to substrct point position element-wisely; the distinct-part we NEED a neighborlist for rt and r0.
-
-        for t in range(num_frames):
-
-            # Convert points to float32 to avoid errors when float64 is passed
-            temp_nq = freud.locality.NeighborQuery.from_system(system)
-            cdef freud.locality.NeighborQuery nq = \
-                freud.locality.NeighborQuery.from_system(
-                    (temp_nq.box, freud.util._convert_array(temp_nq.points)))
-
-            self.thisptr.accumulate(
-                nq.get_ptr(),
-                l_query_points_ptr, num_query_points, N_total
-            )
-
-    def _reset(self):
-        self.thisptr.reset()
-
-    @_Compute._computed_property
-    def self_function(self):
-        return freud.util.make_managed_numpy_array(
-            &self.isfptr.getSelfFunction(),
-            freud.util.arr_type_t.FLOAT)
-
-
 
 cdef class StaticStructureFactorDebye(_StaticStructureFactor):
     r"""Computes a 1D static structure factor using the
@@ -1021,3 +931,91 @@ cdef class DiffractionPattern(_Compute):
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None
+
+
+cdef class IntermediateScattering(StaticStructureFactorDirect):
+    r"""
+
+    """
+
+    cdef freud._diffraction.IntermediateScattering * isfptr
+
+    def __cinit__(self, box, unsigned int bins, float k_max, float k_min=0, unsigned int num_sampled_k_points=0):
+        
+        if type(self) == IntermediateScattering:
+            self.isfptr = self.thisptr = self.ssfptr = \
+                new freud._diffraction.IntermediateScattering(
+                    bins, k_max, k_min, num_sampled_k_points
+                )  # thisptr is used by the StaticStructureFactorDirect class
+        # In the first version we assume that the box is fixed
+        self._box = freud.util._convert_box(box)
+
+    def __dealloc__(self):
+        if type(self) is IntermediateScattering:
+            del self.isfptr
+
+    def compute(self, positions, query_points=None, N_total=None, reset=True):
+
+        # argument check
+        positions = freud.util._convert_array(
+            positions, shape=(None, None, 3)
+        )
+        num_frames = positions.shape[0]
+
+        if (query_points is None) != (N_total is None):
+            raise ValueError(
+                "If query_points are provided, N_total must also be provided "
+                "in order to correctly compute the normalization of the "
+                "partial structure factor."
+            )
+
+        # Convert points to float32 to avoid errors when float64 is passed
+        temp_nq = freud.locality.NeighborQuery.from_system((self._box, positions[0].astype(np.float32)))
+        cdef freud.locality.NeighborQuery nq
+
+        if reset:
+            self.isfptr.reset()
+
+        cdef:
+            # const float[:, ::1] l_points  = nq.points
+            unsigned int num_points = positions.shape[1]  # (n_frames, n_particles, n_dimension)
+            const vec3[float]* l_query_points_ptr = NULL
+            const float[:, :, :] l_query_points
+            unsigned int num_query_points
+
+        if query_points is not None:
+            l_query_points = freud.util._convert_array(query_points)
+            num_query_frames = l_query_points.shape[0]
+            num_query_points = l_query_points.shape[1]
+            l_query_points_ptr = <vec3[float]*> &l_query_points[0, 0, 0]
+
+        if N_total is None:
+            N_total = num_points
+
+        # IntermediateScattering has two part:
+        # self-part F_s(k, t) and distinct part F_d(k, t)
+        # for the self-part we do not need neighborlist because only need to substrct point position element-wisely; the distinct-part we NEED a neighborlist for rt and r0.
+
+        for t in range(num_frames):
+
+            nq = freud.locality.NeighborQuery.from_system((temp_nq.box, freud.util._convert_array(positions[t].astype(np.float32))))
+
+            self.isfptr.accumulate(
+                nq.get_ptr(),
+                l_query_points_ptr, num_query_points, N_total
+            )
+
+    def _reset(self):
+        self.isfptr.reset()
+
+    @_Compute._computed_property
+    def self_function(self):
+        return freud.util.make_managed_numpy_array(
+            &self.isfptr.getSelfFunction(),
+            freud.util.arr_type_t.FLOAT)
+
+    @_Compute._computed_property
+    def distinct_function(self):
+        return freud.util.make_managed_numpy_array(
+            &self.isfptr.getDistinctFunction(),
+            freud.util.arr_type_t.FLOAT)

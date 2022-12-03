@@ -76,7 +76,7 @@ public:
         return m_k_points;
     }
 
-private:
+protected:
     //! Reduce thread-local arrays onto the primary data arrays.
     void reduce() override;
 

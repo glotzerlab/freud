@@ -31,3 +31,10 @@ cdef extern from "StaticStructureFactorDirect.h" namespace "freud::diffraction":
         void reset()
         unsigned int getNumSampledKPoints() const
         vector[vec3[float]] getKPoints() const
+
+cdef extern from "IntermediateScattering.h" namespace "freud::diffraction":
+    cdef cppclass IntermediateScattering(StaticStructureFactorDirect):
+        IntermediateScattering(unsigned int, float, float, unsigned int) except +
+        const freud.util.ManagedArray[float] &getSelfFunction() const
+        const freud.util.ManagedArray[float] &getDistinctFunction() const
+        

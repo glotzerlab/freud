@@ -46,6 +46,10 @@ class IntermediateScattering : public StaticStructureFactorDirect
     using KBinHistogram = util::Histogram<unsigned int>;
 
 public:
+    //! Constructor
+    IntermediateScattering(unsigned int bins, float k_max, float k_min = 0,
+                           unsigned int num_sampled_k_points = 0);
+
     //! Reset the histogram to all zeros
     void reset() override
     {
@@ -54,6 +58,16 @@ public:
         m_min_valid_k = std::numeric_limits<float>::infinity();
         m_reduce = true;
         box_assigned = false;
+    }
+
+    const util::ManagedArray<float>& getSelfFunction()
+    {
+        return reduceAndReturn(m_structure_factor.getBinCounts());
+    }
+
+    const util::ManagedArray<float>& getDistinctFunction()
+    {
+        return reduceAndReturn(m_structure_factor_distinct.getBinCounts());
     }
 
 private:
@@ -65,8 +79,8 @@ private:
         m_local_structure_factor_distinct; //!< Thread local histograms for TBB parallelism
     KBinHistogram m_k_histogram_distinct;         //!< Histogram of sampled k bins, used to normalize S(q)
     KBinHistogram::ThreadLocalHistogram
-        m_local_k_histograms_distinct;  //!< Thread local histograms of sampled k bins for TBB parallelism    
-    
+        m_local_k_histograms_distinct;  //!< Thread local histograms of sampled k bins for TBB parallelism
+
 };
 
 }; }; // namespace freud::diffraction

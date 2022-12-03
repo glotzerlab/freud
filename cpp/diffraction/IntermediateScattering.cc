@@ -82,8 +82,8 @@ void IntermediateScattering::accumulate(const freud::locality::NeighborQuery* ne
         neighbor_query.getPoints(), m_r0, neighbor_query->getNPoints(), n_total, m_k_points
     );
 
-    std::vector<float> S_k_self_part = IntermediateScattering::compute_S_k(m_self_part, m_self_part);
-    std::vector<float> S_k_distinct_part = IntermediateScattering::compute_S_k(m_distinct_part, m_distinct_part);
+    std::vector<float> S_k_self_part = IntermediateScattering::compute_S_k(self_part, self_part);
+    std::vector<float> S_k_distinct_part = IntermediateScattering::compute_S_k(distinct_part, distinct_part);
 
     // Bin the S_k values and track the number of k values in each bin.
     util::forLoopWrapper(0, m_k_points.size(), [&](size_t begin, size_t end) {
