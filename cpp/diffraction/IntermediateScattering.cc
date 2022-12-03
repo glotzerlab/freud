@@ -14,7 +14,7 @@
 namespace freud { namespace diffraction {
 
 IntermediateScattering::IntermediateScattering(unsigned int bins, float k_max, float k_min,
-                                                         unsigned int num_sampled_k_points)
+                                               unsigned int num_sampled_k_points)
     : StaticStructureFactorDirect(bins, k_max, k_min, num_sampled_k_points),
       m_k_histogram_distinct(KBinHistogram(m_structure_factor_distinct.getAxes())),
       m_local_k_histograms_distinct(KBinHistogram::ThreadLocalHistogram(m_k_histogram_distinct))
@@ -66,20 +66,18 @@ void IntermediateScattering::accumulate(const freud::locality::NeighborQuery* ne
 
     // record the point at t=0
     static const vec3<float>* m_r0;
-    if (m_first_call) 
+    if (m_first_call)
     {
         m_r0 = neighbor_query->getPoints();
         m_first_call = false;
     }
     // Compute self-part
     const auto self_part = IntermediateScattering::compute_self(
-        neighbor_query->getPoints(), m_r0, neighbor_query->getNPoints(), n_total, m_k_points
-    );
+        neighbor_query->getPoints(), m_r0, neighbor_query->getNPoints(), n_total, m_k_points);
 
     // Compute distinct-part
     const auto distinct_part = IntermediateScattering::compute_distinct(
-        neighbor_query->getPoints(), m_r0, neighbor_query->getNPoints(), n_total, m_k_points
-    );
+        neighbor_query->getPoints(), m_r0, neighbor_query->getNPoints(), n_total, m_k_points);
 
     std::vector<float> S_k_self_part = IntermediateScattering::compute_S_k(self_part, self_part);
     std::vector<float> S_k_distinct_part = IntermediateScattering::compute_S_k(distinct_part, distinct_part);
@@ -94,13 +92,12 @@ void IntermediateScattering::accumulate(const freud::locality::NeighborQuery* ne
             const auto k_bin2 = m_structure_factor_distinct.bin({k_magnitude});
             m_local_structure_factor.increment(k_bin1, S_k_self_part[k_index]);
             m_local_structure_factor_distinct.increment(k_bin2, S_k_distinct_part[k_index]);
-            m_local_k_histograms.increment(k_bin1);            
-            m_local_k_histograms_distinct.increment(k_bin2);            
+            m_local_k_histograms.increment(k_bin1);
+            m_local_k_histograms_distinct.increment(k_bin2);
         }
     });
 
     m_reduce = true;
-
 }
 
 void IntermediateScattering::reduce()
@@ -128,10 +125,10 @@ std::vector<std::complex<float>>
 IntermediateScattering::compute_self(const vec3<float>* rt, const vec3<float>* r0, unsigned int n_points,
                                      unsigned int n_total, const std::vector<vec3<float>>& k_points)
 {
-    // 
-    std::vector<vec3<float>> r_i_t0(n_points);  // rt - rt0 element-wisely
+    //
+    std::vector<vec3<float>> r_i_t0(n_points); // rt - rt0 element-wisely
     util::forLoopWrapper(0, n_points, [&](size_t begin, size_t end) {
-        for (size_t i = begin; i < end; ++i) 
+        for (size_t i = begin; i < end; ++i)
         {
             r_i_t0[i] = rt[i] - rt[0];
         }
@@ -144,7 +141,6 @@ std::vector<std::complex<float>>
 IntermediateScattering::compute_distinct(const vec3<float>* rt, const vec3<float>* r0, unsigned int n_points,
                                          unsigned int n_total, const std::vector<vec3<float>>& k_points)
 {
-
     const auto n_rij = n_points * (n_points - 1);
     std::vector<vec3<float>> r_ij(n_rij);
     size_t i = 0;
@@ -152,22 +148,18 @@ IntermediateScattering::compute_distinct(const vec3<float>* rt, const vec3<float
     util::forLoopWrapper(0, n_rij, [&](size_t begin, size_t end) {
         for (size_t rt_index = begin; rt_index < end; ++rt_index)
         {
-
             for (size_t r0_index = 0; r0_index < n_rij; ++r0_index)
             {
-                if (rt_index != r0_index) 
+                if (rt_index != r0_index)
                 {
                     r_ij[i] = rt[rt_index] - r0[r0_index];
                     ++i;
                 }
-
             }
         };
     });
 
-
     return IntermediateScattering::compute_F_k(r_ij.data(), n_rij, n_total, m_k_points);
-
 }
 
 }} // namespace freud::diffraction

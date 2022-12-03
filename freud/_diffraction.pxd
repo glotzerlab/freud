@@ -37,4 +37,4 @@ cdef extern from "IntermediateScattering.h" namespace "freud::diffraction":
         IntermediateScattering(unsigned int, float, float, unsigned int) except +
         const freud.util.ManagedArray[float] &getSelfFunction() const
         const freud.util.ManagedArray[float] &getDistinctFunction() const
-        
+

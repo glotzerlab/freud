@@ -495,12 +495,13 @@ class TestStaticStructureFactorDirect(StaticStructureFactorTest):
 
 
 class TestIntermediateScattering:
-
     @classmethod
     def build_structure_factor_object(
         cls, bins, k_max, k_min=0, num_sampled_k_points=0
     ):
-        return freud.diffraction.IntermediateScattering(bins, k_max, k_min, num_sampled_k_points)
+        return freud.diffraction.IntermediateScattering(
+            bins, k_max, k_min, num_sampled_k_points
+        )
 
     def test_fixed_system(self, sf_params):
 
@@ -518,4 +519,3 @@ class TestIntermediateScattering:
         isf.compute(box, traj)
         assert isf.self_function.shape == (n_frames, isf.nbins)
         npt.assert_equal(isf.self_function, np.ones((n_frames, isf.nbins)))
-        

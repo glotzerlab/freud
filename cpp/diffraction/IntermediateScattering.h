@@ -81,16 +81,17 @@ private:
         m_local_structure_factor_distinct; //!< Thread local histograms for TBB parallelism
     KBinHistogram m_k_histogram_distinct;  //!< Histogram of sampled k bins, used to normalize S(q)
     KBinHistogram::ThreadLocalHistogram
-        m_local_k_histograms_distinct;  //!< Thread local histograms of sampled k bins for TBB parallelism
+        m_local_k_histograms_distinct; //!< Thread local histograms of sampled k bins for TBB parallelism
 
-    std::vector<std::complex<float>>
-    compute_self(const vec3<float>* rt, const vec3<float>* r0, unsigned int n_points, unsigned int n_total, const std::vector<vec3<float>>& k_points);
+    std::vector<std::complex<float>> compute_self(const vec3<float>* rt, const vec3<float>* r0,
+                                                  unsigned int n_points, unsigned int n_total,
+                                                  const std::vector<vec3<float>>& k_points);
 
-    std::vector<std::complex<float>>
-    compute_distinct(const vec3<float>* rt, const vec3<float>* r0, unsigned int n_points, unsigned int n_total, const std::vector<vec3<float>>& k_points);
+    std::vector<std::complex<float>> compute_distinct(const vec3<float>* rt, const vec3<float>* r0,
+                                                      unsigned int n_points, unsigned int n_total,
+                                                      const std::vector<vec3<float>>& k_points);
 
     void reduce() override;
-
 };
 
 }; }; // namespace freud::diffraction

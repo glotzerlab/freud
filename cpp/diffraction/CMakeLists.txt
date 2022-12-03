@@ -1,8 +1,13 @@
 add_library(
   _diffraction OBJECT
-  StaticStructureFactor.h StaticStructureFactor.cc StaticStructureFactorDebye.h
-  StaticStructureFactorDebye.cc StaticStructureFactorDirect.h
-  StaticStructureFactorDirect.cc IntermediateScattering.h IntermediateScattering.cc)
+  StaticStructureFactor.h
+  StaticStructureFactor.cc
+  StaticStructureFactorDebye.h
+  StaticStructureFactorDebye.cc
+  StaticStructureFactorDirect.h
+  StaticStructureFactorDirect.cc
+  IntermediateScattering.h
+  IntermediateScattering.cc)
 
 target_link_libraries(_diffraction PUBLIC TBB::tbb)
 
