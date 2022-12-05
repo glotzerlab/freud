@@ -2,6 +2,8 @@
 #include "NeighborComputeFunctional.h"
 #include <vector>
 #include "NeighborBond.h"
+#include <tbb/enumerable_thread_specific.h>
+#include "utils.h"
 
 namespace freud { namespace locality {
 
@@ -22,31 +24,43 @@ void FilterSANN::compute(const NeighborQuery* nq, const vec3<float>* query_point
     auto sorted_weights=sorted_nlist.getWeights();
     auto sorted_counts = sorted_nlist.getCounts();
 
-    std::vector<NeighborBond> filtered_bonds;
+    //std::vector<NeighborBond> filtered_bonds;
+    tbb::enumerable_thread_specific<std::vector<NeighborBond>> filtered_bonds;
 
     // use the paralel for wrapper to loop over QP
-    for (unsigned int i = 0; i< sorted_nlist.getNumQueryPoints();i++)
+    util::forLoopWrapper(0,sorted_nlist.getNumQueryPoints(), [&](size_t begin, size_t end)
     {
-        unsigned int m=3;
-        unsigned int first_idx = sorted_nlist.find_first_index(i);
-        float sum=0.0;
-        // sum for the first three closest neighbors
-        for (unsigned int j = 0; j < m && j < sorted_counts(i); j++)
+        // missing local per core reference to the array
+        for (auto i = begin; i < end; i++)
         {
-            sum += sorted_dist(first_idx + j);
-            filtered_bonds.push_back(NeighborBond(i, sorted_neighbors(first_idx + j, 1), sorted_dist(first_idx + j), sorted_weights(first_idx + j)));
-        }
-        while (m<sorted_counts(i) && (sum / (float(m) - 2.0)) > sorted_dist(first_idx + m))
-        {
-            sum += sorted_dist(first_idx + m);
-            filtered_bonds.push_back(NeighborBond(i, sorted_neighbors(first_idx + m, 1),
-                                             sorted_dist(first_idx + m), sorted_weights(first_idx + 2)));
-            m += 1;
-        }
+            unsigned int m=3;
+            unsigned int first_idx = sorted_nlist.find_first_index(i);
+            float sum=0.0;
+            // sum for the first three closest neighbors
+            for (unsigned int j = 0; j < m && j < sorted_counts(i); j++)
+            {
+                sum += sorted_dist(first_idx + j);
+                filtered_bonds.emplace_back(i, sorted_neighbors(first_idx + j, 1), sorted_dist(first_idx + j), sorted_weights(first_idx + j));
+            }
+            while (m<sorted_counts(i) && (sum / (float(m) - 2.0)) > sorted_dist(first_idx + m))
+            {
+                sum += sorted_dist(first_idx + m);
+                filtered_bonds.emplace_back(i, sorted_neighbors(first_idx + m, 1),
+                                                 sorted_dist(first_idx + m), sorted_weights(first_idx + 2));
+                m += 1;
+            }
 
-    }
+        }
+    });
 
-    m_filtered_nlist = std::make_shared<NeighborList>(filtered_bonds);
+    tbb::flattened2d<BondVector> flat_filtered_bonds = tbb::flatten2d(filtered_bonds);
+    std::vector<NeighborBond> sann_bonds(flat_filtered_bonds.begin(), flat_filtered_bonds.end());
+    tbb::parallel_sort(sann_bonds.begin(), sann_bonds.end(), compareNeighborDistance);
+    //tbb::parallel_sort(sann_bonds.begin(), sann_bonds.end(), compareNeighborBond);
+
+    // sort by distances after paralel for loop
+
+    m_filtered_nlist = std::make_shared<NeighborList>(sann_bonds);
 };
 
 }; }; // namespace freud::locality
