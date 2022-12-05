@@ -25,12 +25,14 @@ void FilterSANN::compute(const NeighborQuery* nq, const vec3<float>* query_point
     auto sorted_counts = sorted_nlist.getCounts();
 
     //std::vector<NeighborBond> filtered_bonds;
-    tbb::enumerable_thread_specific<std::vector<NeighborBond>> filtered_bonds;
+    using BondVector = tbb::enumerable_thread_specific<std::vector<NeighborBond>>;
+    BondVector filtered_bonds;
 
     // use the paralel for wrapper to loop over QP
     util::forLoopWrapper(0,sorted_nlist.getNumQueryPoints(), [&](size_t begin, size_t end)
     {
-        // missing local per core reference to the array
+        // am i mising any other local assignments?
+        BondVector::reference local_bonds(filtered_bonds.local());
         for (auto i = begin; i < end; i++)
         {
             unsigned int m=3;
@@ -40,12 +42,12 @@ void FilterSANN::compute(const NeighborQuery* nq, const vec3<float>* query_point
             for (unsigned int j = 0; j < m && j < sorted_counts(i); j++)
             {
                 sum += sorted_dist(first_idx + j);
-                filtered_bonds.emplace_back(i, sorted_neighbors(first_idx + j, 1), sorted_dist(first_idx + j), sorted_weights(first_idx + j));
+                local_bonds.emplace_back(i, sorted_neighbors(first_idx + j, 1), sorted_dist(first_idx + j), sorted_weights(first_idx + j));
             }
             while (m<sorted_counts(i) && (sum / (float(m) - 2.0)) > sorted_dist(first_idx + m))
             {
                 sum += sorted_dist(first_idx + m);
-                filtered_bonds.emplace_back(i, sorted_neighbors(first_idx + m, 1),
+                local_bonds.emplace_back(i, sorted_neighbors(first_idx + m, 1),
                                                  sorted_dist(first_idx + m), sorted_weights(first_idx + 2));
                 m += 1;
             }
