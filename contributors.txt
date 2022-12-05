@@ -1,12 +1,12 @@
   2357	Bradley Dice <bdice@bradleydice.com>
   2146	Vyas Ramasubramani <vramasub@umich.edu>
   1030	Eric Harper <harperic@umich.edu>
-   462	Tommy Waltmann <tomwalt@umich.edu>
+   491	Tommy Waltmann <tomwalt@umich.edu>
    456	Jin Soo Ihm <jinihm@umich.edu>
    316	Joshua A. Anderson <joaander@umich.edu>
    240	Matthew Spellings <mspells@umich.edu>
+   169	dependabot <dependabot[bot]@users.noreply.github.com>
    167	Kelly Wang <kelwang@umich.edu>
-   163	dependabot <dependabot[bot]@users.noreply.github.com>
    137	DomFijan <domagoj.fijan@gmail.com>
    110	Erin Teich <erteich@umich.edu>
     97	Brandon Butler <butlerbr@umich.edu>
