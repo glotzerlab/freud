@@ -964,7 +964,8 @@ cdef class IntermediateScattering(StaticStructureFactorDirect):
 
     cdef freud._diffraction.IntermediateScattering * isfptr
 
-    def __cinit__(self, unsigned int bins, float k_max, float k_min=0, unsigned int num_sampled_k_points=0):
+    def __cinit__(self, unsigned int bins, float k_max, float k_min=0,
+        unsigned int num_sampled_k_points=0):
         if type(self) == IntermediateScattering:
             self.isfptr = self.thisptr = self.ssfptr = \
                 new freud._diffraction.IntermediateScattering(
@@ -997,7 +998,8 @@ cdef class IntermediateScattering(StaticStructureFactorDirect):
 
         cdef:
             # const float[:, ::1] l_points  = nq.points
-            unsigned int num_points = positions.shape[1]  # (n_frames, n_particles, n_dimension)
+            # (n_frames, n_particles, n_dimension)
+            unsigned int num_points = positions.shape[1]
             const vec3[float]* l_query_points_ptr = NULL
             const float[:, :, :] l_query_points
             unsigned int num_query_points
@@ -1013,11 +1015,14 @@ cdef class IntermediateScattering(StaticStructureFactorDirect):
 
         # IntermediateScattering has two part:
         # self-part F_s(k, t) and distinct part F_d(k, t)
-        # for the self-part we do not need neighborlist because only need to substrct point position element-wisely; the distinct-part we NEED a neighborlist for rt and r0.
-
+        # for the self-part we do not need neighborlist because only need to
+        # substrct point position element-wisely; the distinct-part we NEED a
+        # neighborlist for rt and r0.
         for t in range(num_frames):
 
-            nq = freud.locality.NeighborQuery.from_system((box, freud.util._convert_array(positions[t].astype(np.float32))))
+            nq = freud.locality.NeighborQuery.from_system(
+                (box, freud.util._convert_array(positions[t].astype(np.float32)))
+            )
 
             self.isfptr.accumulate(
                 nq.get_ptr(),

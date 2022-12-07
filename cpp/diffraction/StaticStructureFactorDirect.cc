@@ -22,7 +22,8 @@ namespace freud { namespace diffraction {
 
 StaticStructureFactorDirect::StaticStructureFactorDirect(unsigned int bins, float k_max, float k_min,
                                                          unsigned int num_sampled_k_points)
-    : StaticStructureFactor(bins, k_max, k_min), StructureFactorDirect(bins, k_max, k_min, num_sampled_k_points), StructureFactor(bins, k_max, k_min),
+    : StaticStructureFactor(bins, k_max, k_min),
+      StructureFactorDirect(bins, k_max, k_min, num_sampled_k_points), StructureFactor(bins, k_max, k_min),
       m_k_histogram(KBinHistogram(m_structure_factor.getAxes())),
       m_local_k_histograms(KBinHistogram::ThreadLocalHistogram(m_k_histogram))
 {
@@ -61,8 +62,7 @@ void StaticStructureFactorDirect::accumulate(const freud::locality::NeighborQuer
     if ((!box_assigned) || (box != previous_box))
     {
         previous_box = box;
-        m_k_points
-            = StructureFactorDirect::reciprocal_isotropic(box, k_max, k_min, m_num_sampled_k_points);
+        m_k_points = StructureFactorDirect::reciprocal_isotropic(box, k_max, k_min, m_num_sampled_k_points);
         box_assigned = true;
     }
 

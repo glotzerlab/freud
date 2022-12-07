@@ -78,7 +78,7 @@ protected:
     static std::vector<float> compute_S_k(const std::vector<std::complex<float>>& F_k_points,
                                           const std::vector<std::complex<float>>& F_k_query_points);
 
-    KBinHistogram m_k_histogram;         //!< Histogram of sampled k bins, used to normalize S(q)
+    KBinHistogram m_k_histogram; //!< Histogram of sampled k bins, used to normalize S(q)
     KBinHistogram::ThreadLocalHistogram
         m_local_k_histograms;  //!< Thread local histograms of sampled k bins for TBB parallelism
     box::Box previous_box;     //!< box assigned to the system

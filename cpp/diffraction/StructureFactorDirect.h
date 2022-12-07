@@ -33,8 +33,9 @@ public:
 protected:
     //!< Protected constructor makes the class abstract
     StructureFactorDirect(unsigned int bins, float k_max, float k_min = 0,
-        unsigned int num_sampled_k_points = 0) : StructureFactor(bins, k_max, k_min),
-        m_num_sampled_k_points(num_sampled_k_points) {}
+                          unsigned int num_sampled_k_points = 0)
+        : StructureFactor(bins, k_max, k_min), m_num_sampled_k_points(num_sampled_k_points)
+    {}
 
     //! Sample reciprocal space isotropically to get k points
     static std::vector<vec3<float>> reciprocal_isotropic(const box::Box& box, float k_max, float k_min,
@@ -47,6 +48,6 @@ protected:
     std::vector<vec3<float>> m_k_points;
 };
 
-};}; // namespace freud::diffraction
+}; }; // namespace freud::diffraction
 
 #endif // STRUCTURE_FACTOR_DIRECT_H

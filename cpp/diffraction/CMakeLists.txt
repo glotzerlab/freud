@@ -9,8 +9,7 @@ add_library(
   StructureFactorDirect.cc
   StaticStructureFactorDirect.h
   StaticStructureFactorDirect.cc)
-  #IntermediateScattering.h
-  #IntermediateScattering.cc)
+# IntermediateScattering.h IntermediateScattering.cc)
 
 target_link_libraries(_diffraction PUBLIC TBB::tbb)
 
