@@ -2,8 +2,9 @@
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 r"""
-The :class:`freud.diffraction` module provides functions for computing the
-diffraction pattern of particles in systems with long range order.
+The :class:`freud.diffraction` module provides classes for computing quantities
+related to the diffraction and scattering of particles in systems with long range
+order.
 
 .. rubric:: Stability
 
@@ -34,21 +35,13 @@ cimport freud.util
 logger = logging.getLogger(__name__)
 
 
-cdef class _StaticStructureFactor(_Compute):
+cdef class _StructureFactor(_Compute):
 
-    cdef freud._diffraction.StaticStructureFactor * ssfptr
+    cdef freud._diffraction.StructureFactor * sfptr
 
     def __dealloc__(self):
-        if type(self) is _StaticStructureFactor:
-            del self.ssfptr
-
-    @_Compute._computed_property
-    def S_k(self):
-        """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Static
-        structure factor :math:`S(k)` values."""
-        return freud.util.make_managed_numpy_array(
-            &self.ssfptr.getStructureFactor(),
-            freud.util.arr_type_t.FLOAT)
+        if type(self) is _StructureFactor:
+            del self.sfptr
 
     @property
     def k_max(self):
@@ -64,7 +57,7 @@ cdef class _StaticStructureFactor(_Compute):
 
     @_Compute._computed_property
     def min_valid_k(self):
-        return self.ssfptr.getMinValidK()
+        return self.sfptr.getMinValidK()
 
     def _repr_png_(self):
         try:
@@ -74,7 +67,7 @@ cdef class _StaticStructureFactor(_Compute):
             return None
 
 
-cdef class StaticStructureFactorDebye(_StaticStructureFactor):
+cdef class StaticStructureFactorDebye(_StructureFactor):
     r"""Computes a 1D static structure factor using the
     Debye scattering equation.
 
@@ -145,7 +138,7 @@ cdef class StaticStructureFactorDebye(_StaticStructureFactor):
 
     def __cinit__(self, unsigned int num_k_values, float k_max, float k_min=0):
         if type(self) == StaticStructureFactorDebye:
-            self.thisptr = self.ssfptr = new \
+            self.thisptr = self.sfptr = new \
                 freud._diffraction.StaticStructureFactorDebye(num_k_values,
                                                               k_max,
                                                               k_min)
@@ -162,7 +155,7 @@ cdef class StaticStructureFactorDebye(_StaticStructureFactor):
     @property
     def k_values(self):
         """:class:`numpy.ndarray`: The :math:`k` values for the calculation."""
-        return np.array(self.ssfptr.getBinCenters(), copy=True)
+        return np.array(self.thisptr.getBinCenters(), copy=True)
 
     @property
     def bounds(self):
@@ -262,6 +255,14 @@ cdef class StaticStructureFactorDebye(_StaticStructureFactor):
         self.thisptr.reset()
 
     @_Compute._computed_property
+    def S_k(self):
+        """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Static
+        structure factor :math:`S(k)` values."""
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getStructureFactor(),
+            freud.util.arr_type_t.FLOAT)
+
+    @_Compute._computed_property
     def min_valid_k(self):
         """float: Minimum valid value of k for the computed system box, equal
         to :math:`2\\pi/(L/2)=4\\pi/L` where :math:`L` is the minimum side length.
@@ -300,7 +301,66 @@ cdef class StaticStructureFactorDebye(_StaticStructureFactor):
                                     ax=ax)
 
 
-cdef class StaticStructureFactorDirect(_StaticStructureFactor):
+cdef class _StructureFactorDirect(_StructureFactor):
+    """Abstract class for the direct method of k-space sampling.
+
+    This class encapsulates the logic and exposed properties for classes which
+    sample vectors in k-space in a uniform isotropic distribution for the direct
+    method of computing structure factors.
+    """
+    cdef freud._diffraction.StructureFactorDirect *sfdptr
+
+    def __dealloc__(self):
+        if type(self) == _StructureFactorDirect:
+            del self.sfdptr
+
+    @property
+    def nbins(self):
+        """float: Number of bins in the histogram."""
+        return len(self.bin_centers)
+
+    @property
+    def bin_edges(self):
+        """:class:`numpy.ndarray`: The edges of each bin of :math:`k`."""
+        return np.array(self.sfdptr.getBinEdges(), copy=True)
+
+    @property
+    def bin_centers(self):
+        """:class:`numpy.ndarray`: The centers of each bin of :math:`k`."""
+        return np.array(self.sfdptr.getBinCenters(), copy=True)
+
+    @property
+    def bounds(self):
+        """tuple: A tuple indicating upper and lower bounds of the
+        histogram."""
+        bin_edges = self.bin_edges
+        return (bin_edges[0], bin_edges[len(bin_edges)-1])
+
+    @property
+    def num_sampled_k_points(self):
+        r"""int: The target number of :math:`\vec{k}` points to use when
+        constructing :math:`k` space grid."""
+        return self.sfdptr.getNumSampledKPoints()
+
+    @_Compute._computed_property
+    def k_points(self):
+        r""":class:`numpy.ndarray`: The :math:`\vec{k}` points used in the
+        calculation."""
+        cdef vector[vec3[float]] k_points = self.sfdptr.getKPoints()
+        return np.asarray([[k.x, k.y, k.z] for k in k_points])
+
+    def __repr__(self):
+        return ("freud.diffraction.{cls}(bins={bins}, "
+                "k_max={k_max}, k_min={k_min}, "
+                "num_sampled_k_points={num_sampled_k_points})").format(
+                    cls=type(self).__name__,
+                    bins=self.nbins,
+                    k_max=self.k_max,
+                    k_min=self.k_min,
+                    num_sampled_k_points=self.num_sampled_k_points)
+
+
+cdef class StaticStructureFactorDirect(_StructureFactorDirect):
     r"""Computes a 1D static structure factor by operating on a
     :math:`k` space grid.
 
@@ -372,35 +432,13 @@ cdef class StaticStructureFactorDirect(_StaticStructureFactor):
     def __cinit__(self, unsigned int bins, float k_max, float k_min=0,
                   unsigned int num_sampled_k_points=0):
         if type(self) == StaticStructureFactorDirect:
-            self.thisptr = self.ssfptr = \
+            self.thisptr = self.sfdptr = self.sfptr = \
                 new freud._diffraction.StaticStructureFactorDirect(
                     bins, k_max, k_min, num_sampled_k_points)
 
     def __dealloc__(self):
         if type(self) == StaticStructureFactorDirect:
             del self.thisptr
-
-    @property
-    def nbins(self):
-        """float: Number of bins in the histogram."""
-        return len(self.bin_centers)
-
-    @property
-    def bin_edges(self):
-        """:class:`numpy.ndarray`: The edges of each bin of :math:`k`."""
-        return np.array(self.ssfptr.getBinEdges(), copy=True)
-
-    @property
-    def bin_centers(self):
-        """:class:`numpy.ndarray`: The centers of each bin of :math:`k`."""
-        return np.array(self.ssfptr.getBinCenters(), copy=True)
-
-    @property
-    def bounds(self):
-        """tuple: A tuple indicating upper and lower bounds of the
-        histogram."""
-        bin_edges = self.bin_edges
-        return (bin_edges[0], bin_edges[len(bin_edges)-1])
 
     def compute(self, system, query_points=None, N_total=None, reset=True):
         r"""Computes static structure factor.
@@ -496,34 +534,19 @@ cdef class StaticStructureFactorDirect(_StaticStructureFactor):
         self.thisptr.reset()
 
     @_Compute._computed_property
+    def S_k(self):
+        """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Static
+        structure factor :math:`S(k)` values."""
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getStructureFactor(),
+            freud.util.arr_type_t.FLOAT)
+
+    @_Compute._computed_property
     def min_valid_k(self):
         """float: Minimum valid value of k for the computed system box, equal
         to :math:`2\\pi/L` where :math:`L` is the minimum side length.
         For more information see :cite:`Liu2016`."""
         return self.thisptr.getMinValidK()
-
-    @property
-    def num_sampled_k_points(self):
-        r"""int: The target number of :math:`\vec{k}` points to use when
-        constructing :math:`k` space grid."""
-        return self.thisptr.getNumSampledKPoints()
-
-    @_Compute._computed_property
-    def k_points(self):
-        r""":class:`numpy.ndarray`: The :math:`\vec{k}` points used in the
-        calculation."""
-        cdef vector[vec3[float]] k_points = self.thisptr.getKPoints()
-        return np.asarray([[k.x, k.y, k.z] for k in k_points])
-
-    def __repr__(self):
-        return ("freud.diffraction.{cls}(bins={bins}, "
-                "k_max={k_max}, k_min={k_min}, "
-                "num_sampled_k_points={num_sampled_k_points})").format(
-                    cls=type(self).__name__,
-                    bins=self.nbins,
-                    k_max=self.k_max,
-                    k_min=self.k_min,
-                    num_sampled_k_points=self.num_sampled_k_points)
 
     def plot(self, ax=None, **kwargs):
         r"""Plot static structure factor.
@@ -933,10 +956,11 @@ cdef class DiffractionPattern(_Compute):
             return None
 
 
+"""
 cdef class IntermediateScattering(StaticStructureFactorDirect):
-    r"""
+    r""""""
 
-    """
+    """"""
 
     cdef freud._diffraction.IntermediateScattering * isfptr
 
@@ -1007,3 +1031,4 @@ cdef class IntermediateScattering(StaticStructureFactorDirect):
     @_Compute._computed_property
     def distinct_function(self):
         return np.array(self._distinct_func_data)
+"""

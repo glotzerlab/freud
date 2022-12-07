@@ -494,6 +494,7 @@ class TestStaticStructureFactorDirect(StaticStructureFactorTest):
         npt.assert_allclose(sf_direct.S_k, S_k_binned, rtol=1e-5, atol=1e-5)
 
 
+"""
 class TestIntermediateScattering:
     @classmethod
     def build_structure_factor_object(
@@ -519,3 +520,4 @@ class TestIntermediateScattering:
         isf.compute(box, traj)
         assert isf.self_function.shape == (n_frames, isf.nbins)
         npt.assert_equal(isf.self_function, np.ones((n_frames, isf.nbins)))
+"""

@@ -7,21 +7,31 @@
 #include <limits>
 #include <vector>
 
+#include "StructureFactor.h"
 #include "Histogram.h"
 #include "ManagedArray.h"
 #include "NeighborQuery.h"
 
 /*! \file StaticStructureFactor.h
-    \brief Base class for structure factor classes.
+    \brief Base class for static tructure factor classes.
 */
 
 namespace freud { namespace diffraction {
 
-class StaticStructureFactor
+/* Abstract base class for all static structure factors.
+ *
+ * A static structure factor is a structure factor which can be computed using
+ * only the data from one frame of a simulation. A typical use case is to compute
+ * the static structure factor for each frame over many frames of a simulation,
+ * and get an average for better statistics/curve smoothness. To support this use
+ * case, all static structure factors must have logic for either continuing to
+ * accumulate histogram data or resetting the data on each successive call to
+ * accumulate().
+ *
+ * */
+class StaticStructureFactor : virtual public StructureFactor
 {
 protected:
-    using StructureFactorHistogram = util::Histogram<float>;
-
     StaticStructureFactor(unsigned int bins, float k_max, float k_min = 0);
 
 public:
@@ -41,21 +51,15 @@ public:
     }
 
     //! Get the k bin edges
-    std::vector<float> getBinEdges() const
+    std::vector<float> getBinEdges() const override
     {
         return m_structure_factor.getBinEdges()[0];
     }
 
     //! Get the k bin centers
-    std::vector<float> getBinCenters() const
+    std::vector<float> getBinCenters() const override
     {
         return m_structure_factor.getBinCenters()[0];
-    }
-
-    //! Get the minimum valid k value
-    float getMinValidK() const
-    {
-        return m_min_valid_k;
     }
 
 protected:
@@ -76,8 +80,7 @@ protected:
     StructureFactorHistogram::ThreadLocalHistogram
         m_local_structure_factor; //!< Thread local histograms for TBB parallelism
 
-    bool m_reduce {true};                                         //! Whether to reduce local histograms
-    float m_min_valid_k {std::numeric_limits<float>::infinity()}; //! Minimum valid k-vector magnitude
+    bool m_reduce {true}; //! Whether to reduce local histograms
 };
 
 }; }; // namespace freud::diffraction
