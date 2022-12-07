@@ -4,6 +4,14 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v2.12.1 -- 2022-12-05
+
+### Added
+* Support for Python 3.11.
+
+### Fixed
+* n(r) property in `freud.density.RDF` is now properly normalized by the number of query points.
+
 ## v2.12.0 -- 2022-11-09
 
 ### Added

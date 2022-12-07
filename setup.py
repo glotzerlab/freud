@@ -5,7 +5,7 @@ import os
 
 from skbuild import setup
 
-version = "2.12.0"
+version = "2.12.1"
 
 # Read README for PyPI, fallback to short description if it fails.
 description = "Powerful, efficient trajectory analysis in scientific Python."
@@ -41,6 +41,7 @@ setup(
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
     ],
     zip_safe=False,
     maintainer="freud Developers",

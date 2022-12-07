@@ -23,7 +23,7 @@ from .parallel import NumThreads, get_num_threads, set_num_threads
 # automatic selection runs, the user cannot change it.
 set_num_threads(0)
 
-__version__ = "2.12.0"
+__version__ = "2.12.1"
 
 __all__ = [
     "__version__",

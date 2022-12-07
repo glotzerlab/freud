@@ -28,7 +28,8 @@ jobs:
                      {pyver: '3.7', env: 'test-compatible_env.yaml'},
                      {pyver: '3.8', env: 'test_env.yaml'},
                      {pyver: '3.9', env: 'test_env.yaml'},
-                     {pyver: '3.10', env: 'test_env.yaml'} ]
+                     {pyver: '3.10', env: 'test_env.yaml'},
+                     {pyver: '3.11', env: 'test_env.yaml'} ]
 
     steps:
       - name: Checkout Code
@@ -50,7 +51,7 @@ jobs:
       - name: Build and Install freud
         shell: bash -l {0}
         run: |
-          python setup.py install --user
+          pip install . --ignore-installed --no-build-isolation --no-deps
 
       - name: Run Tests
         shell: bash -l {0}
