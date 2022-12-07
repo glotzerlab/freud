@@ -43,12 +43,11 @@ class IntermediateScattering : public StructureFactorDirect
 
 public:
     //! Constructor
-    IntermediateScattering(const box::Box& box, unsigned int bins, float k_max,
-            float k_min = 0, unsigned int num_sampled_k_points = 0);
+    IntermediateScattering(const box::Box& box, unsigned int bins, float k_max, float k_min = 0,
+                           unsigned int num_sampled_k_points = 0);
 
-    void compute(const vec3<float>* points, unsigned int num_points,
-                 const vec3<float>* query_points, unsigned int num_query_points,
-                    unsigned int num_frames, unsigned int n_total);
+    void compute(const vec3<float>* points, unsigned int num_points, const vec3<float>* query_points,
+                 unsigned int num_query_points, unsigned int num_frames, unsigned int n_total);
 
     /*
     const util::ManagedArray<float>& getSelfFunction()
@@ -72,14 +71,12 @@ private:
     //!< Histogram to hold computed structure factor
     StructureFactorHistogram m_structure_factor_distinct;
     //!< Thread local histograms for TBB parallelism
-    StructureFactorHistogram::ThreadLocalHistogram
-        m_local_structure_factor_distinct;
+    StructureFactorHistogram::ThreadLocalHistogram m_local_structure_factor_distinct;
 
     //!< Histogram of sampled k bins, used to normalize S(q)
     KBinHistogram m_k_histogram_distinct;
     //!< Thread local histograms of sampled k bins for TBB parallelism
-    KBinHistogram::ThreadLocalHistogram
-        m_local_k_histograms_distinct;
+    KBinHistogram::ThreadLocalHistogram m_local_k_histograms_distinct;
 
     //!< Helpers to compute self and distinct parts
     std::vector<std::complex<float>> compute_self(const vec3<float>* rt, const vec3<float>* r0,
@@ -89,7 +86,6 @@ private:
     std::vector<std::complex<float>> compute_distinct(const vec3<float>* rt, const vec3<float>* r0,
                                                       unsigned int n_points, unsigned int n_total,
                                                       const std::vector<vec3<float>>& k_points);
-
 };
 
 }; }; // namespace freud::diffraction

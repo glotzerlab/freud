@@ -4,8 +4,8 @@
 from libcpp cimport bool
 from libcpp.vector cimport vector
 
-cimport freud._locality
 cimport freud._box
+cimport freud._locality
 cimport freud.util
 from freud.util cimport vec3
 

@@ -13,8 +13,8 @@
 
 namespace freud { namespace diffraction {
 
-IntermediateScattering::IntermediateScattering(const box::Box& box, unsigned int bins,
-        float k_max, float k_min, unsigned int num_sampled_k_points)
+IntermediateScattering::IntermediateScattering(const box::Box& box, unsigned int bins, float k_max,
+                                               float k_min, unsigned int num_sampled_k_points)
     : StructureFactorDirect(bins, k_max, k_min, num_sampled_k_points), m_box(box),
       m_k_histogram_distinct(KBinHistogram(m_structure_factor_distinct.getAxes())),
       m_local_k_histograms_distinct(KBinHistogram::ThreadLocalHistogram(m_k_histogram_distinct))
@@ -60,15 +60,16 @@ void IntermediateScattering::compute(const vec3<float>* points, unsigned int num
         m_first_call = false;
     }
     // Compute self-part
-    const auto self_part = IntermediateScattering::compute_self(points, m_r0, num_points,
-            n_total, m_k_points);
+    const auto self_part
+        = IntermediateScattering::compute_self(points, m_r0, num_points, n_total, m_k_points);
 
     // Compute distinct-part
-    const auto distinct_part = IntermediateScattering::compute_distinct(points, m_r0, num_points,
-            n_total, m_k_points);
+    const auto distinct_part
+        = IntermediateScattering::compute_distinct(points, m_r0, num_points, n_total, m_k_points);
 
     std::vector<float> S_k_self_part = StaticStructureFactorDirect::compute_S_k(self_part, self_part);
-    std::vector<float> S_k_distinct_part = StaticStructureFactorDirect::compute_S_k(distinct_part, distinct_part);
+    std::vector<float> S_k_distinct_part
+        = StaticStructureFactorDirect::compute_S_k(distinct_part, distinct_part);
 
     // Bin the S_k values and track the number of k values in each bin.
     util::forLoopWrapper(0, m_k_points.size(), [&](size_t begin, size_t end) {
