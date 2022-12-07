@@ -17,23 +17,19 @@
 /*! \file IntermediateScattering.h
     \brief Routines for computing intermediate scattering function.
 
-    This computes the intermediate scattering function F(k, t) between sets of time-dependent points and
-    query points. First, k-vectors are sampled isotropically, with each radial
-    bin containing an equal density of k points. Next, the k-vectors are used to
-    compute complex scattering amplitudes F(k, t) by summing over the scattering
-    contribution of all particle positions (atomic form factors are assumed to
-    be 1) at every k-vector. The complex conjugate of the scattering amplitudes
-    of the points at each k-vector are multiplied by the scattering amplitudes
-    of the query points at each k-vector. Finally, the results are binned
-    according to their k-vector's magnitude and normalized by the number of
-    samples in each radial bin in k-space.
+    This computes the intermediate scattering function F(k, t) between sets of
+    time-dependent points and query points.
+
+    The k-vectors are used to compute complex scattering amplitudes F(k, t) by
+    summing over the scattering contribution of all particle positions (atomic
+    form factors are assumed to be 1) at every k-vector. The complex conjugate
+    of the scattering amplitudes of the points at each k-vector are multiplied
+    by the scattering amplitudes of the query points at each k-vector. Finally,
+    the results are binned according to their k-vector's magnitude and normalized
+    by the number of samples in each radial bin in k-space.
 
     Note that k-vectors are in the physics convention, and q-vectors are in the
     crystallographic convention. These conventions differ by a factor of 2\pi.
-
-    The methods in this class are based on algorithms in the MIT-licensed
-    dynasor package available here:
-    https://dynasor.materialsmodeling.org/
 
     See also:
     https://en.wikipedia.org/wiki/Reciprocal_lattice#Arbitrary_collection_of_atoms
@@ -41,48 +37,51 @@
 
 namespace freud { namespace diffraction {
 
-class IntermediateScattering : public StaticStructureFactorDirect
+class IntermediateScattering : public StructureFactorDirect
 {
     using KBinHistogram = util::Histogram<unsigned int>;
 
 public:
     //! Constructor
-    IntermediateScattering(unsigned int bins, float k_max, float k_min = 0,
-                           unsigned int num_sampled_k_points = 0);
+    IntermediateScattering(const box::Box& box, unsigned int bins, float k_max,
+            float k_min = 0, unsigned int num_sampled_k_points = 0);
 
-    //! Reset the histogram to all zeros
-    void reset() override
-    {
-        m_local_structure_factor.reset();
-        m_local_k_histograms.reset();
-        m_min_valid_k = std::numeric_limits<float>::infinity();
-        m_reduce = true;
-        box_assigned = false;
-    }
+    void compute(const vec3<float>* points, unsigned int num_points,
+                 const vec3<float>* query_points, unsigned int num_query_points,
+                    unsigned int num_frames, unsigned int n_total);
 
-    void accumulate(const freud::locality::NeighborQuery* neighbor_query, const vec3<float>* query_points,
-                    unsigned int n_query_points, unsigned int n_total) override;
-
+    /*
     const util::ManagedArray<float>& getSelfFunction()
     {
-        return reduceAndReturn(m_structure_factor.getBinCounts());
+        return m_structure_factor.getBinCounts();
     }
 
     const util::ManagedArray<float>& getDistinctFunction()
     {
         return reduceAndReturn(m_structure_factor_distinct.getBinCounts());
     }
+    */
 
 private:
+    //!< box for the calculation, we assume the box is constant over the time interval
+    box::Box m_box;
+
     // to record the position r0 of the first frame
     bool m_first_call {true};
-    StructureFactorHistogram m_structure_factor_distinct; //!< Histogram to hold computed structure factor
-    StructureFactorHistogram::ThreadLocalHistogram
-        m_local_structure_factor_distinct; //!< Thread local histograms for TBB parallelism
-    KBinHistogram m_k_histogram_distinct;  //!< Histogram of sampled k bins, used to normalize S(q)
-    KBinHistogram::ThreadLocalHistogram
-        m_local_k_histograms_distinct; //!< Thread local histograms of sampled k bins for TBB parallelism
 
+    //!< Histogram to hold computed structure factor
+    StructureFactorHistogram m_structure_factor_distinct;
+    //!< Thread local histograms for TBB parallelism
+    StructureFactorHistogram::ThreadLocalHistogram
+        m_local_structure_factor_distinct;
+
+    //!< Histogram of sampled k bins, used to normalize S(q)
+    KBinHistogram m_k_histogram_distinct;
+    //!< Thread local histograms of sampled k bins for TBB parallelism
+    KBinHistogram::ThreadLocalHistogram
+        m_local_k_histograms_distinct;
+
+    //!< Helpers to compute self and distinct parts
     std::vector<std::complex<float>> compute_self(const vec3<float>* rt, const vec3<float>* r0,
                                                   unsigned int n_points, unsigned int n_total,
                                                   const std::vector<vec3<float>>& k_points);
@@ -91,7 +90,6 @@ private:
                                                       unsigned int n_points, unsigned int n_total,
                                                       const std::vector<vec3<float>>& k_points);
 
-    void reduce() override;
 };
 
 }; }; // namespace freud::diffraction

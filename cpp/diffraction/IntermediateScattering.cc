@@ -13,9 +13,9 @@
 
 namespace freud { namespace diffraction {
 
-IntermediateScattering::IntermediateScattering(unsigned int bins, float k_max, float k_min,
-                                               unsigned int num_sampled_k_points)
-    : StaticStructureFactorDirect(bins, k_max, k_min, num_sampled_k_points),
+IntermediateScattering::IntermediateScattering(const box::Box& box, unsigned int bins,
+        float k_max, float k_min, unsigned int num_sampled_k_points)
+    : StructureFactorDirect(bins, k_max, k_min, num_sampled_k_points), m_box(box),
       m_k_histogram_distinct(KBinHistogram(m_structure_factor_distinct.getAxes())),
       m_local_k_histograms_distinct(KBinHistogram::ThreadLocalHistogram(m_k_histogram_distinct))
 {
@@ -37,50 +37,38 @@ IntermediateScattering::IntermediateScattering(unsigned int bins, float k_max, f
     }
 }
 
-void IntermediateScattering::accumulate(const freud::locality::NeighborQuery* neighbor_query,
-                                        const vec3<float>* query_points, unsigned int n_query_points,
-                                        unsigned int n_total)
+void IntermediateScattering::compute(const vec3<float>* points, unsigned int num_points,
+                                     const vec3<float>* query_points, unsigned int num_query_points,
+                                     unsigned int num_frames, unsigned int n_total)
 {
     // Compute k vectors by sampling reciprocal space.
-    const auto& box = neighbor_query->getBox();
-    if (box.is2D())
+    if (m_box.is2D())
     {
         throw std::invalid_argument("2D boxes are not currently supported.");
     }
-    const auto k_bin_edges = m_structure_factor.getBinEdges()[0];
-    const auto k_min = k_bin_edges.front();
-    const auto k_max = k_bin_edges.back();
-    if ((!box_assigned) || (box != previous_box))
-    {
-        previous_box = box;
-        m_k_points
-            = StaticStructureFactorDirect::reciprocal_isotropic(box, k_max, k_min, m_num_sampled_k_points);
-        box_assigned = true;
-    }
 
     // The minimum valid k value is 2 * pi / L, where L is the smallest side length.
-    const auto box_L = box.getL();
-    const auto min_box_length
-        = box.is2D() ? std::min(box_L.x, box_L.y) : std::min(box_L.x, std::min(box_L.y, box_L.z));
-    m_min_valid_k = std::min(m_min_valid_k, freud::constants::TWO_PI / min_box_length);
+    const auto box_L = m_box.getL();
+    const auto min_box_length = std::min(box_L.x, std::min(box_L.y, box_L.z));
+    m_min_valid_k = freud::constants::TWO_PI / min_box_length;
 
     // record the point at t=0
     static const vec3<float>* m_r0;
     if (m_first_call)
     {
-        m_r0 = neighbor_query->getPoints();
+        m_r0 = points;
         m_first_call = false;
     }
     // Compute self-part
-    const auto self_part = IntermediateScattering::compute_self(
-        neighbor_query->getPoints(), m_r0, neighbor_query->getNPoints(), n_total, m_k_points);
+    const auto self_part = IntermediateScattering::compute_self(points, m_r0, num_points,
+            n_total, m_k_points);
 
     // Compute distinct-part
-    const auto distinct_part = IntermediateScattering::compute_distinct(
-        neighbor_query->getPoints(), m_r0, neighbor_query->getNPoints(), n_total, m_k_points);
+    const auto distinct_part = IntermediateScattering::compute_distinct(points, m_r0, num_points,
+            n_total, m_k_points);
 
-    std::vector<float> S_k_self_part = IntermediateScattering::compute_S_k(self_part, self_part);
-    std::vector<float> S_k_distinct_part = IntermediateScattering::compute_S_k(distinct_part, distinct_part);
+    std::vector<float> S_k_self_part = StaticStructureFactorDirect::compute_S_k(self_part, self_part);
+    std::vector<float> S_k_distinct_part = StaticStructureFactorDirect::compute_S_k(distinct_part, distinct_part);
 
     // Bin the S_k values and track the number of k values in each bin.
     util::forLoopWrapper(0, m_k_points.size(), [&](size_t begin, size_t end) {

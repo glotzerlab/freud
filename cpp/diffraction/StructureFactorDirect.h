@@ -14,6 +14,8 @@ namespace freud { namespace diffraction {
  * taken from the MIT-licensed dyansor package located here:
  * https://dynasor.materialsmodeling.org/
  *
+ * See also:
+ * https://en.wikipedia.org/wiki/Reciprocal_lattice#Arbitrary_collection_of_atoms
  * */
 class StructureFactorDirect : virtual public StructureFactor
 {
