@@ -59,23 +59,38 @@ NeighborList::NeighborList(unsigned int num_bonds, const unsigned int* query_poi
 
 NeighborList::NeighborList(std::vector<NeighborBond> bonds)
 {
+    // keep track of maximum indices
     unsigned int max_idx_query = 0;
     unsigned int max_idx_point = 0;
+
+    // prep arrays to populate
     m_distances.prepare(bonds.size());
     m_weights.prepare(bonds.size());
     m_neighbors.prepare({bonds.size(), 2});
-    for (unsigned int i = 0; i < bonds.size(); i++)
-    {
-        auto bond = bonds[i];
-        if (max_idx_point < bond.point_idx)
-            max_idx_point = bond.point_idx;
-        if (max_idx_query < bond.query_point_idx)
-            max_idx_query = bond.query_point_idx;
-        m_distances(i) = bond.distance;
-        m_weights(i) = bond.weight;
-        m_neighbors(i, 0) = bond.query_point_idx;
-        m_neighbors(i, 1) = bond.point_idx;
-    }
+
+    // fill arrays in parallel
+    util::forLoopWrapper(0, bonds.size(), [&](size_t begin, size_t end){
+        for (auto i = begin; i < end; ++i)
+        {
+            auto bond = bonds[i];
+
+            // update max bond indices
+            // TODO this is a critical section which may have race conditions
+            // TODO use thread-local storage and find max over the threads later
+            if (max_idx_point < bond.point_idx)
+                max_idx_point = bond.point_idx;
+            if (max_idx_query < bond.query_point_idx)
+                max_idx_query = bond.query_point_idx;
+
+            // fill in array data
+            m_distances(i) = bond.distance;
+            m_weights(i) = bond.weight;
+            m_neighbors(i, 0) = bond.query_point_idx;
+            m_neighbors(i, 1) = bond.point_idx;
+        }
+    });
+
+    // set num points, query points
     m_num_points = max_idx_point + 1;
     m_num_query_points = max_idx_query + 1;
     m_segments_counts_updated = false;
