@@ -64,12 +64,12 @@ NeighborList::NeighborList(std::vector<NeighborBond> bonds)
     m_distances.prepare(bonds.size());
     m_weights.prepare(bonds.size());
     m_neighbors.prepare({bonds.size(), 2});
-    for (unsigned int i = 0; i<bonds.size();i++)
+    for (unsigned int i = 0; i < bonds.size(); i++)
     {
         auto bond = bonds[i];
         if (max_idx_point < bond.point_idx)
             max_idx_point = bond.point_idx;
-        if (max_idx_query<bond.query_point_idx)
+        if (max_idx_query < bond.query_point_idx)
             max_idx_query = bond.query_point_idx;
         m_distances(i) = bond.distance;
         m_weights(i) = bond.weight;

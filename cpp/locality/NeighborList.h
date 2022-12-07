@@ -37,7 +37,7 @@ public:
     NeighborList(unsigned int num_bonds, const unsigned int* query_point_index, unsigned int num_query_points,
                  const unsigned int* point_index, unsigned int num_points, const float* distances,
                  const float* weights);
-    
+
     //! Construct from vector of NeighborBonds
     NeighborList(std::vector<NeighborBond> bonds);
 

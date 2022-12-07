@@ -1,9 +1,9 @@
 #include "FilterSANN.h"
-#include "NeighborComputeFunctional.h"
-#include <vector>
 #include "NeighborBond.h"
-#include <tbb/enumerable_thread_specific.h>
+#include "NeighborComputeFunctional.h"
 #include "utils.h"
+#include <tbb/enumerable_thread_specific.h>
+#include <vector>
 
 namespace freud { namespace locality {
 
@@ -12,8 +12,7 @@ void FilterSANN::compute(const NeighborQuery* nq, const vec3<float>* query_point
 {
     // make the unfiltered neighborlist from the arguments
     m_unfiltered_nlist = std::make_shared<NeighborList>(
-        std::move(makeDefaultNlist(nq, nlist, query_points, num_query_points, qargs))
-    );
+        std::move(makeDefaultNlist(nq, nlist, query_points, num_query_points, qargs)));
 
     // work with nlist sorted by distance
     NeighborList sorted_nlist(*m_unfiltered_nlist);
@@ -28,8 +27,7 @@ void FilterSANN::compute(const NeighborQuery* nq, const vec3<float>* query_point
     BondVector filtered_bonds;
 
     // parallelize over query_point_index
-    util::forLoopWrapper(0, sorted_nlist.getNumQueryPoints(), [&](size_t begin, size_t end)
-    {
+    util::forLoopWrapper(0, sorted_nlist.getNumQueryPoints(), [&](size_t begin, size_t end) {
         // grab thread-local vector
         BondVector::reference local_bonds(filtered_bonds.local());
         for (auto i = begin; i < end; i++)
@@ -44,9 +42,8 @@ void FilterSANN::compute(const NeighborQuery* nq, const vec3<float>* query_point
             {
                 const unsigned int neighbor_idx = first_idx + j;
                 sum += sorted_dist(neighbor_idx);
-                local_bonds.emplace_back(i, sorted_neighbors(neighbor_idx, 1),
-                                            sorted_dist(neighbor_idx),
-                                            sorted_weights(neighbor_idx));
+                local_bonds.emplace_back(i, sorted_neighbors(neighbor_idx, 1), sorted_dist(neighbor_idx),
+                                         sorted_weights(neighbor_idx));
             }
 
             // add neighbors after adding the first three
@@ -54,9 +51,8 @@ void FilterSANN::compute(const NeighborQuery* nq, const vec3<float>* query_point
             {
                 const unsigned int neighbor_idx = first_idx + m;
                 sum += sorted_dist(neighbor_idx);
-                local_bonds.emplace_back(i, sorted_neighbors(neighbor_idx, 1),
-                                            sorted_dist(neighbor_idx),
-                                            sorted_weights(neighbor_idx));
+                local_bonds.emplace_back(i, sorted_neighbors(neighbor_idx, 1), sorted_dist(neighbor_idx),
+                                         sorted_weights(neighbor_idx));
                 m += 1;
             }
         }
@@ -68,7 +64,7 @@ void FilterSANN::compute(const NeighborQuery* nq, const vec3<float>* query_point
 
     // sort final bonds array by distance
     tbb::parallel_sort(sann_bonds.begin(), sann_bonds.end(), compareNeighborDistance);
-    //tbb::parallel_sort(sann_bonds.begin(), sann_bonds.end(), compareNeighborBond);
+    // tbb::parallel_sort(sann_bonds.begin(), sann_bonds.end(), compareNeighborBond);
 
     m_filtered_nlist = std::make_shared<NeighborList>(sann_bonds);
 };
