@@ -1,8 +1,8 @@
 #include <cmath>
-#include <vector>
-#include <random>
 #include <limits>
+#include <random>
 #include <tbb/concurrent_vector.h>
+#include <vector>
 
 #include "Eigen/Eigen/Dense"
 
@@ -11,7 +11,6 @@
 #include "utils.h"
 
 namespace freud { namespace diffraction {
-
 
 inline Eigen::Matrix3f box_to_matrix(const box::Box& box)
 {
@@ -26,7 +25,6 @@ inline Eigen::Matrix3f box_to_matrix(const box::Box& box)
     }
     return mat;
 }
-
 
 inline float get_prune_distance(unsigned int num_sampled_k_points, float q_max, float q_volume)
 {
@@ -47,10 +45,9 @@ inline float get_prune_distance(unsigned int num_sampled_k_points, float q_max, 
     return std::real(x) + q_max / 2.0F;
 }
 
-
 std::vector<vec3<float>> StructureFactorDirect::reciprocal_isotropic(const box::Box& box, float k_max,
-                                                                           float k_min,
-                                                                           unsigned int num_sampled_k_points)
+                                                                     float k_min,
+                                                                     unsigned int num_sampled_k_points)
 {
     const auto box_matrix = box_to_matrix(box);
     // B holds "crystallographic" reciprocal box vectors that lack the factor of 2 pi.

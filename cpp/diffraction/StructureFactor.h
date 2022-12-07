@@ -73,9 +73,8 @@ protected:
     //!< maximum and minimum k values
     float m_k_max;
     float m_k_min;
-
 };
 
-}; };  // namespace freud::diffraction
+}; }; // namespace freud::diffraction
 
 #endif // STRUCTURE_FACTOR_H

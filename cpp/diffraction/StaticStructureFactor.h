@@ -7,10 +7,10 @@
 #include <limits>
 #include <vector>
 
-#include "StructureFactor.h"
 #include "Histogram.h"
 #include "ManagedArray.h"
 #include "NeighborQuery.h"
+#include "StructureFactor.h"
 
 /*! \file StaticStructureFactor.h
     \brief Base class for static tructure factor classes.
