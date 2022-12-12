@@ -1357,9 +1357,17 @@ cdef class Filter(_PairCompute):
 
 
 cdef class FilterSANN(Filter):
-    """Filter a :class:`.NeighborList` via the Solid Angle Nearest Neighbor method.
+    """Filter a :class:`.NeighborList` via the SANN method.
 
-    The SANN (citation???) method of filtering neighbors ... explain more here ...
+    The Solid Angle Nearest Neighbor (SANN) method :cite:`vanMeel2012` is a
+    parameter-free algorithm for the identification of nearest neighbors. The
+    SANN method attributes to each possible neighbor a solid angle and determines
+    the cutoff radius by the requirement that the sum of the solid angles is 4π.
+
+    For performance considerations, SANN is implemented as a way of filtering
+    a pre-existing set of neighbors due to the high performance cost of sorting
+    all :math:`N^2` particle pairs by distance. For a more in-depth explanation of
+    the neighborlist filter concept in **freud**, see :class:`.Filter`.
     """
     def __cinit__(self):
         self._filterptr = self._thisptr = new freud._locality.FilterSANN()
