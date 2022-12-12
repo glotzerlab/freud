@@ -1315,7 +1315,7 @@ cdef class Filter(_PairCompute):
         if type(self) is Filter:
             del self._filterptr
 
-    def compute(self, system, neighbors, query_points=None):
+    def compute(self, system, neighbors=None, query_points=None):
         r"""Filter a :class:`.Neighborlist` with the SANN algorithm.
 
         Args:
