@@ -15,8 +15,8 @@ namespace freud { namespace diffraction {
 
 IntermediateScattering::IntermediateScattering(const box::Box& box, unsigned int bins, float k_max,
                                                float k_min, unsigned int num_sampled_k_points)
-    : StructureFactorDirect(bins, k_max, k_min, num_sampled_k_points), m_box(box),
-      m_k_histogram_distinct(KBinHistogram(m_structure_factor_distinct.getAxes())),
+    : StructureFactorDirect(bins, k_max, k_min, num_sampled_k_points), StructureFactor(bins, k_max, k_min),
+      m_box(box), m_k_histogram_distinct(initialize_histogram(bins, k_min, k_max)),
       m_local_k_histograms_distinct(KBinHistogram::ThreadLocalHistogram(m_k_histogram_distinct))
 {
     if (bins == 0)

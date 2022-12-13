@@ -39,8 +39,6 @@ namespace freud { namespace diffraction {
 
 class IntermediateScattering : public StructureFactorDirect
 {
-    using KBinHistogram = util::Histogram<unsigned int>;
-
 public:
     //! Constructor
     IntermediateScattering(const box::Box& box, unsigned int bins, float k_max, float k_min = 0,
@@ -49,7 +47,6 @@ public:
     void compute(const vec3<float>* points, unsigned int num_points, const vec3<float>* query_points,
                  unsigned int num_query_points, unsigned int num_frames, unsigned int n_total);
 
-    /*
     const util::ManagedArray<float>& getSelfFunction()
     {
         return m_structure_factor.getBinCounts();
@@ -59,14 +56,10 @@ public:
     {
         return reduceAndReturn(m_structure_factor_distinct.getBinCounts());
     }
-    */
 
 private:
     //!< box for the calculation, we assume the box is constant over the time interval
     box::Box m_box;
-
-    // to record the position r0 of the first frame
-    bool m_first_call {true};
 
     //!< Histogram to hold computed structure factor
     StructureFactorHistogram m_structure_factor_distinct;

@@ -8,33 +8,45 @@
 
 namespace freud { namespace diffraction {
 
-/* Abstract base class for all 1D structure factors
+/* Abstract base class for all structure factors
  *
  * Derived structure factors may be either static or time-dependent. They may
  * sample vectors in reciprocal space, or they may just use the magnitude of the
- * k-vectors. All structure factor calculations require an x-axis which is the
- * magnitude of the k-vector, however because some methods compute structure
- * factors in a time-dependent fashion (like the IntermediateScattering function),
- * this class does not contain a member variable related to the x-axis.
+ * k-vectors.
  *
- * All structure factors will need to get the range of k-values the x-axis is
- * plotted on, and the minimum value of k for which the calculation is valid.
- *
+ * By assumption, all structure factor calculations will compute the structure
+ * factor histogram in parallel, with each thread doing an individual calculation,
+ * then the local histograms will be reduced into a single result in the reduce
+ * method.
  * */
 class StructureFactor
 {
 public:
-    StructureFactor(unsigned int bins, float k_max, float k_min = 0)
-        : m_nbins(bins), m_k_max(k_max), m_k_min(k_min)
+    StructureFactor(unsigned int bins, float k_max, float k_min = 0,
+                    std::vector<std::shared_ptr<util::Axis>> structure_factor_axes = {})
+        : m_nbins(bins), m_k_max(k_max), m_k_min(k_min), m_structure_factor(structure_factor_axes),
+          m_local_structure_factor(m_structure_factor)
     {}
 
     virtual ~StructureFactor() = default;
 
-    //<! Get the centers of the k-vector bins
-    virtual std::vector<float> getBinCenters() const = 0;
+    //! Get the structure factor
+    const util::ManagedArray<float>& getStructureFactor()
+    {
+        return reduceAndReturn(m_structure_factor.getBinCounts());
+    }
 
-    //<! Get the edges of the k-vector bins
-    virtual std::vector<float> getBinEdges() const = 0;
+    //! Get the k bin edges
+    std::vector<float> getBinEdges() const
+    {
+        return m_structure_factor.getBinEdges()[0];
+    }
+
+    //! Get the k bin centers
+    std::vector<float> getBinCenters() const
+    {
+        return m_structure_factor.getBinCenters()[0];
+    }
 
     //<! Get the minimum valid value of k for which the calculation is valid
     float getMinValidK() const
@@ -73,6 +85,27 @@ protected:
     //!< maximum and minimum k values
     float m_k_max;
     float m_k_min;
+
+    //!< reduce thread-local histograms into a single histogram
+    virtual void reduce() = 0;
+
+    //! Return thing_to_return after reducing if necessary.
+    template<typename U> U& reduceAndReturn(U& thing_to_return)
+    {
+        if (m_reduce)
+        {
+            reduce();
+        }
+        m_reduce = false;
+        return thing_to_return;
+    }
+
+    //!< Histogram to hold computed structure factor
+    StructureFactorHistogram m_structure_factor;
+    //!< Thread local histograms for TBB parallelism
+    StructureFactorHistogram::ThreadLocalHistogram m_local_structure_factor;
+
+    bool m_reduce {true}; //! Whether to reduce local histograms
 };
 
 }; }; // namespace freud::diffraction

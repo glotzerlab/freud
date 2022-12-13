@@ -23,9 +23,8 @@ namespace freud { namespace diffraction {
 StaticStructureFactorDirect::StaticStructureFactorDirect(unsigned int bins, float k_max, float k_min,
                                                          unsigned int num_sampled_k_points)
     : StaticStructureFactor(bins, k_max, k_min),
-      StructureFactorDirect(bins, k_max, k_min, num_sampled_k_points), StructureFactor(bins, k_max, k_min),
-      m_k_histogram(KBinHistogram(m_structure_factor.getAxes())),
-      m_local_k_histograms(KBinHistogram::ThreadLocalHistogram(m_k_histogram))
+      StructureFactorDirect(bins, k_max, k_min, num_sampled_k_points),
+      StructureFactor(bins, k_max, k_min, {std::make_shared<util::RegularAxis>(bins, k_min, k_max)})
 {
     if (bins == 0)
     {

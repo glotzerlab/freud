@@ -28,6 +28,9 @@ namespace freud { namespace diffraction {
  * accumulate histogram data or resetting the data on each successive call to
  * accumulate().
  *
+ * This class does not have any members, it simply defines the interface for
+ * all static structure factors.
+ *
  * */
 class StaticStructureFactor : virtual public StructureFactor
 {
@@ -37,50 +40,14 @@ protected:
 public:
     virtual ~StaticStructureFactor() = default;
 
+    //!< do the histogram calculation, and accumulate if necessary
     virtual void accumulate(const freud::locality::NeighborQuery* neighbor_query,
                             const vec3<float>* query_points, unsigned int n_query_points,
                             unsigned int n_total)
         = 0;
 
+    //<! reset the structure factor if the user doesn't wish to accumulate
     virtual void reset() = 0;
-
-    //! Get the structure factor
-    const util::ManagedArray<float>& getStructureFactor()
-    {
-        return reduceAndReturn(m_structure_factor.getBinCounts());
-    }
-
-    //! Get the k bin edges
-    std::vector<float> getBinEdges() const override
-    {
-        return m_structure_factor.getBinEdges()[0];
-    }
-
-    //! Get the k bin centers
-    std::vector<float> getBinCenters() const override
-    {
-        return m_structure_factor.getBinCenters()[0];
-    }
-
-protected:
-    virtual void reduce() = 0;
-
-    //! Return thing_to_return after reducing if necessary.
-    template<typename U> U& reduceAndReturn(U& thing_to_return)
-    {
-        if (m_reduce)
-        {
-            reduce();
-        }
-        m_reduce = false;
-        return thing_to_return;
-    }
-
-    StructureFactorHistogram m_structure_factor; //!< Histogram to hold computed structure factor
-    StructureFactorHistogram::ThreadLocalHistogram
-        m_local_structure_factor; //!< Thread local histograms for TBB parallelism
-
-    bool m_reduce {true}; //! Whether to reduce local histograms
 };
 
 }; }; // namespace freud::diffraction
