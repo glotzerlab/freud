@@ -22,31 +22,17 @@ namespace freud { namespace diffraction {
 class StructureFactor
 {
 public:
-    StructureFactor(unsigned int bins, float k_max, float k_min = 0,
-                    std::vector<std::shared_ptr<util::Axis>> structure_factor_axes = {})
-        : m_nbins(bins), m_k_max(k_max), m_k_min(k_min), m_structure_factor(structure_factor_axes),
-          m_local_structure_factor(m_structure_factor)
+    StructureFactor(unsigned int bins, float k_max, float k_min = 0)
+        : m_nbins(bins), m_k_min(k_min), m_k_max(k_max)
     {}
 
     virtual ~StructureFactor() = default;
 
-    //! Get the structure factor
-    const util::ManagedArray<float>& getStructureFactor()
-    {
-        return reduceAndReturn(m_structure_factor.getBinCounts());
-    }
-
     //! Get the k bin edges
-    std::vector<float> getBinEdges() const
-    {
-        return m_structure_factor.getBinEdges()[0];
-    }
+    virtual std::vector<float> getBinEdges() const = 0;
 
     //! Get the k bin centers
-    std::vector<float> getBinCenters() const
-    {
-        return m_structure_factor.getBinCenters()[0];
-    }
+    virtual std::vector<float> getBinCenters() const = 0;
 
     //<! Get the minimum valid value of k for which the calculation is valid
     float getMinValidK() const
@@ -60,18 +46,6 @@ public:
         return m_nbins;
     }
 
-    //!< Get the maxmimum k-vector magnitude
-    float getKMax() const
-    {
-        return m_k_max;
-    }
-
-    //!< Get the minimum k-vector magnitude
-    float getKMin() const
-    {
-        return m_k_min;
-    }
-
 protected:
     //<! alias for the histogram class used by inheriting classes
     using StructureFactorHistogram = util::Histogram<float>;
@@ -82,9 +56,9 @@ protected:
     //!< number of k values between k_min and k_max to use
     unsigned int m_nbins;
 
-    //!< maximum and minimum k values
-    float m_k_max;
+    //!< max and min k values
     float m_k_min;
+    float m_k_max;
 
     //!< reduce thread-local histograms into a single histogram
     virtual void reduce() = 0;
@@ -99,11 +73,6 @@ protected:
         m_reduce = false;
         return thing_to_return;
     }
-
-    //!< Histogram to hold computed structure factor
-    StructureFactorHistogram m_structure_factor;
-    //!< Thread local histograms for TBB parallelism
-    StructureFactorHistogram::ThreadLocalHistogram m_local_structure_factor;
 
     bool m_reduce {true}; //! Whether to reduce local histograms
 };

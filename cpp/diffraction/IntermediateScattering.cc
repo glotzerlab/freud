@@ -15,9 +15,8 @@ namespace freud { namespace diffraction {
 
 IntermediateScattering::IntermediateScattering(const box::Box& box, unsigned int bins, float k_max,
                                                float k_min, unsigned int num_sampled_k_points)
-    : StructureFactorDirect(bins, k_max, k_min, num_sampled_k_points), StructureFactor(bins, k_max, k_min),
-      m_box(box), m_k_histogram_distinct(initialize_histogram(bins, k_min, k_max)),
-      m_local_k_histograms_distinct(KBinHistogram::ThreadLocalHistogram(m_k_histogram_distinct))
+    : StructureFactorDirect(bins, k_max, k_min, num_sampled_k_points),
+      StructureFactor(bins, k_max, k_min), m_box(box)
 {
     if (bins == 0)
     {
@@ -41,6 +40,18 @@ void IntermediateScattering::compute(const vec3<float>* points, unsigned int num
                                      const vec3<float>* query_points, unsigned int num_query_points,
                                      unsigned int num_frames, unsigned int n_total)
 {
+    // initialize the histograms, now that the size of both axes are known
+    m_self_function = StructureFactorHistogram({
+        std::make_shared<util::RegularAxis>(num_frames, -0.5, num_frames-0.5),
+        std::make_shared<util::RegularAxis>(m_nbins, m_k_min, m_k_max),
+    });
+    m_local_self_function = StructureFactorHistogram::ThreadLocalHistogram(m_self_function);
+    m_distinct_function = StructureFactorHistogram({
+        std::make_shared<util::RegularAxis>(num_frames, -0.5, num_frames-0.5),
+        std::make_shared<util::RegularAxis>(m_nbins, m_k_min, m_k_max),
+    });
+    m_local_distinct_function = StructureFactorHistogram::ThreadLocalHistogram(m_distinct_function);
+
     // Compute k vectors by sampling reciprocal space.
     if (m_box.is2D())
     {
@@ -53,19 +64,16 @@ void IntermediateScattering::compute(const vec3<float>* points, unsigned int num
     m_min_valid_k = freud::constants::TWO_PI / min_box_length;
 
     // record the point at t=0
-    static const vec3<float>* m_r0;
-    if (m_first_call)
-    {
-        m_r0 = points;
-        m_first_call = false;
-    }
+    const vec3<float>* query_r0 = &query_points[0];
+    const vec3<float>* r0 = &points[0];
+
     // Compute self-part
     const auto self_part
-        = IntermediateScattering::compute_self(points, m_r0, num_points, n_total, m_k_points);
+        = IntermediateScattering::compute_self(points, r0, num_points, n_total, m_k_points);
 
     // Compute distinct-part
     const auto distinct_part
-        = IntermediateScattering::compute_distinct(points, m_r0, num_points, n_total, m_k_points);
+        = IntermediateScattering::compute_distinct(points, query_r0, num_query_points, n_total, m_k_points);
 
     std::vector<float> S_k_self_part = StaticStructureFactorDirect::compute_S_k(self_part, self_part);
     std::vector<float> S_k_distinct_part
@@ -77,12 +85,10 @@ void IntermediateScattering::compute(const vec3<float>* points, unsigned int num
         {
             const auto& k_vec = m_k_points[k_index];
             const auto k_magnitude = std::sqrt(dot(k_vec, k_vec));
-            const auto k_bin1 = m_structure_factor.bin({k_magnitude});
-            const auto k_bin2 = m_structure_factor_distinct.bin({k_magnitude});
-            m_local_structure_factor.increment(k_bin1, S_k_self_part[k_index]);
-            m_local_structure_factor_distinct.increment(k_bin2, S_k_distinct_part[k_index]);
-            m_local_k_histograms.increment(k_bin1);
-            m_local_k_histograms_distinct.increment(k_bin2);
+            const auto k_bin = m_self_function.bin({0, k_magnitude});
+            m_local_self_function.increment(k_bin, S_k_self_part[k_index]);
+            m_local_distinct_function.increment(k_bin, S_k_distinct_part[k_index]);
+            m_local_k_histograms.increment(k_bin);
         }
     });
 
@@ -91,28 +97,27 @@ void IntermediateScattering::compute(const vec3<float>* points, unsigned int num
 
 void IntermediateScattering::reduce()
 {
-    const auto axis_size = m_structure_factor.getAxisSizes()[0];
+    const auto axis_size = m_self_function.getAxisSizes()[0];
     m_k_histogram.prepare(axis_size);
-    m_structure_factor.prepare(axis_size);
-    m_k_histogram_distinct.prepare(axis_size);
-    m_structure_factor_distinct.prepare(axis_size);
+    m_self_function.prepare(axis_size);
+    m_distinct_function.prepare(axis_size);
 
     // Reduce the bin counts over all threads, then use them to normalize the
     // structure factor when computing. This computes a binned mean over all k
     // points. Unlike some other methods in freud, no frame counter is needed
     // because the binned mean accounts for accumulation over frames.
     m_k_histogram.reduceOverThreads(m_local_k_histograms);
-    m_structure_factor.reduceOverThreadsPerBin(m_local_structure_factor,
-                                               [&](size_t i) { m_structure_factor[i] /= m_k_histogram[i]; });
-    m_k_histogram.reduceOverThreads(m_local_k_histograms_distinct);
-    m_structure_factor.reduceOverThreadsPerBin(m_local_structure_factor_distinct, [&](size_t i) {
-        m_structure_factor_distinct[i] /= m_k_histogram_distinct[i];
+    m_self_function.reduceOverThreadsPerBin(m_local_self_function,
+                                               [&](size_t i) { m_self_function[i] /= m_k_histogram[i]; });
+    m_distinct_function.reduceOverThreadsPerBin(m_local_distinct_function, [&](size_t i) {
+        m_distinct_function[i] /= m_k_histogram[i];
     });
 }
 
 std::vector<std::complex<float>>
-IntermediateScattering::compute_self(const vec3<float>* rt, const vec3<float>* r0, unsigned int n_points,
-                                     unsigned int n_total, const std::vector<vec3<float>>& k_points)
+IntermediateScattering::compute_self(const vec3<float>* rt, const vec3<float>* r0,
+                                     unsigned int n_points, unsigned int n_total,
+                                     const std::vector<vec3<float>>& k_points)
 {
     //
     std::vector<vec3<float>> r_i_t0(n_points); // rt - rt0 element-wisely
@@ -123,12 +128,12 @@ IntermediateScattering::compute_self(const vec3<float>* rt, const vec3<float>* r
         }
     });
 
-    return IntermediateScattering::compute_F_k(r_i_t0.data(), n_points, n_total, m_k_points);
+    return StructureFactorDirect::compute_F_k(r_i_t0.data(), n_points, n_total, m_k_points);
 }
 
 std::vector<std::complex<float>>
-IntermediateScattering::compute_distinct(const vec3<float>* rt, const vec3<float>* r0, unsigned int n_points,
-                                         unsigned int n_total, const std::vector<vec3<float>>& k_points)
+IntermediateScattering::compute_distinct(const vec3<float>* rt, const vec3<float>* r0,
+        unsigned int n_points, unsigned int n_total, const std::vector<vec3<float>>& k_points)
 {
     const auto n_rij = n_points * (n_points - 1);
     std::vector<vec3<float>> r_ij(n_rij);
@@ -148,7 +153,7 @@ IntermediateScattering::compute_distinct(const vec3<float>* rt, const vec3<float
         };
     });
 
-    return IntermediateScattering::compute_F_k(r_ij.data(), n_rij, n_total, m_k_points);
+    return StructureFactorDirect::compute_F_k(r_ij.data(), n_rij, n_total, m_k_points);
 }
 
 }} // namespace freud::diffraction

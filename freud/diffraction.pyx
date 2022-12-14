@@ -246,8 +246,6 @@ cdef class StaticStructureFactorDebye(_StructureFactor):
         if N_total is None:
             N_total = num_query_points
 
-        print("RIGHT BEFORE ACCUMULATE IS CALLED")
-
         self.thisptr.accumulate(
             nq.get_ptr(),
             <vec3[float]*> &l_query_points[0, 0],
@@ -575,11 +573,10 @@ cdef class StaticStructureFactorDirect(_StructureFactorDirect):
                                     ax=ax)
 
 
-"""
 cdef class IntermediateScattering(_StructureFactorDirect):
-    r""""""
+    r"""
 
-    """"""
+    """
 
     cdef freud._diffraction.IntermediateScattering * thisptr
 
@@ -646,7 +643,6 @@ cdef class IntermediateScattering(_StructureFactorDirect):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getDistinctFunction(),
             freud.util.arr_type_t.FLOAT)
-"""
 
 
 cdef class DiffractionPattern(_Compute):

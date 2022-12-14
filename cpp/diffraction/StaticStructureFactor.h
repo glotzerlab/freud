@@ -48,6 +48,32 @@ public:
 
     //<! reset the structure factor if the user doesn't wish to accumulate
     virtual void reset() = 0;
+
+    //! Get the structure factor
+    const util::ManagedArray<float>& getStructureFactor()
+    {
+        return reduceAndReturn(m_structure_factor.getBinCounts());
+    }
+
+    //! Get the k bin edges
+    std::vector<float> getBinEdges() const
+    {
+        return m_structure_factor.getBinEdges()[0];
+    }
+
+    //! Get the k bin centers
+    std::vector<float> getBinCenters() const
+    {
+        return m_structure_factor.getBinCenters()[0];
+    }
+
+protected:
+
+    //!< Histogram to hold computed structure factor
+    StructureFactorHistogram m_structure_factor;
+    //!< Thread local histograms for TBB parallelism
+    StructureFactorHistogram::ThreadLocalHistogram m_local_structure_factor;
+
 };
 
 }; }; // namespace freud::diffraction

@@ -38,9 +38,7 @@ StaticStructureFactorDebye::StaticStructureFactorDebye(unsigned int bins, float 
                             k_min_center_to_lower_edge(bins, k_min, k_max)),
       StructureFactor(
           bins, k_max_center_to_upper_edge(bins, k_min, k_max),
-          k_min_center_to_lower_edge(bins, k_min, k_max),
-          {std::make_shared<util::RegularAxis>(bins, k_min_center_to_lower_edge(bins, k_min, k_max),
-                                               k_max_center_to_upper_edge(bins, k_min, k_max))})
+          k_min_center_to_lower_edge(bins, k_min, k_max))
 {
     if (bins == 0)
     {

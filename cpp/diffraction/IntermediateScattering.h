@@ -47,29 +47,44 @@ public:
     void compute(const vec3<float>* points, unsigned int num_points, const vec3<float>* query_points,
                  unsigned int num_query_points, unsigned int num_frames, unsigned int n_total);
 
+    std::vector<float> getBinEdges() const
+    {
+        // the second axis of the histogram is the k-axis
+        return m_self_function.getBinEdges()[1];
+    }
+
+    std::vector<float> getBinCenters() const
+    {
+        // the second axis of the histogram is the k-axis
+        return m_self_function.getBinCenters()[1];
+    }
+
+    // more intuitively named alias for getStructureFactor
     const util::ManagedArray<float>& getSelfFunction()
     {
-        return m_structure_factor.getBinCounts();
+        return reduceAndReturn(m_self_function.getBinCounts());
     }
 
     const util::ManagedArray<float>& getDistinctFunction()
     {
-        return reduceAndReturn(m_structure_factor_distinct.getBinCounts());
+        return reduceAndReturn(m_distinct_function.getBinCounts());
     }
 
 private:
+    void reduce() override;
+
     //!< box for the calculation, we assume the box is constant over the time interval
     box::Box m_box;
 
-    //!< Histogram to hold computed structure factor
-    StructureFactorHistogram m_structure_factor_distinct;
+    //!< Histogram to hold self part of the ISF at each frame
+    StructureFactorHistogram m_self_function {};
     //!< Thread local histograms for TBB parallelism
-    StructureFactorHistogram::ThreadLocalHistogram m_local_structure_factor_distinct;
+    StructureFactorHistogram::ThreadLocalHistogram m_local_self_function {};
 
-    //!< Histogram of sampled k bins, used to normalize S(q)
-    KBinHistogram m_k_histogram_distinct;
-    //!< Thread local histograms of sampled k bins for TBB parallelism
-    KBinHistogram::ThreadLocalHistogram m_local_k_histograms_distinct;
+    //!< Histogram to hold distinct part of the ISF at each frame
+    StructureFactorHistogram m_distinct_function {};
+    //!< Thread local histograms for TBB parallelism
+    StructureFactorHistogram::ThreadLocalHistogram m_local_distinct_function {};
 
     //!< Helpers to compute self and distinct parts
     std::vector<std::complex<float>> compute_self(const vec3<float>* rt, const vec3<float>* r0,
