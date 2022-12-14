@@ -68,12 +68,10 @@ public:
     }
 
 protected:
-
     //!< Histogram to hold computed structure factor
     StructureFactorHistogram m_structure_factor;
     //!< Thread local histograms for TBB parallelism
     StructureFactorHistogram::ThreadLocalHistogram m_local_structure_factor;
-
 };
 
 }; }; // namespace freud::diffraction

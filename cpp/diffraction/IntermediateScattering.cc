@@ -15,8 +15,8 @@ namespace freud { namespace diffraction {
 
 IntermediateScattering::IntermediateScattering(const box::Box& box, unsigned int bins, float k_max,
                                                float k_min, unsigned int num_sampled_k_points)
-    : StructureFactorDirect(bins, k_max, k_min, num_sampled_k_points),
-      StructureFactor(bins, k_max, k_min), m_box(box)
+    : StructureFactorDirect(bins, k_max, k_min, num_sampled_k_points), StructureFactor(bins, k_max, k_min),
+      m_box(box)
 {
     if (bins == 0)
     {
@@ -42,12 +42,12 @@ void IntermediateScattering::compute(const vec3<float>* points, unsigned int num
 {
     // initialize the histograms, now that the size of both axes are known
     m_self_function = StructureFactorHistogram({
-        std::make_shared<util::RegularAxis>(num_frames, -0.5, num_frames-0.5),
+        std::make_shared<util::RegularAxis>(num_frames, -0.5, num_frames - 0.5),
         std::make_shared<util::RegularAxis>(m_nbins, m_k_min, m_k_max),
     });
     m_local_self_function = StructureFactorHistogram::ThreadLocalHistogram(m_self_function);
     m_distinct_function = StructureFactorHistogram({
-        std::make_shared<util::RegularAxis>(num_frames, -0.5, num_frames-0.5),
+        std::make_shared<util::RegularAxis>(num_frames, -0.5, num_frames - 0.5),
         std::make_shared<util::RegularAxis>(m_nbins, m_k_min, m_k_max),
     });
     m_local_distinct_function = StructureFactorHistogram::ThreadLocalHistogram(m_distinct_function);
@@ -68,8 +68,7 @@ void IntermediateScattering::compute(const vec3<float>* points, unsigned int num
     const vec3<float>* r0 = &points[0];
 
     // Compute self-part
-    const auto self_part
-        = IntermediateScattering::compute_self(points, r0, num_points, n_total, m_k_points);
+    const auto self_part = IntermediateScattering::compute_self(points, r0, num_points, n_total, m_k_points);
 
     // Compute distinct-part
     const auto distinct_part
@@ -108,16 +107,14 @@ void IntermediateScattering::reduce()
     // because the binned mean accounts for accumulation over frames.
     m_k_histogram.reduceOverThreads(m_local_k_histograms);
     m_self_function.reduceOverThreadsPerBin(m_local_self_function,
-                                               [&](size_t i) { m_self_function[i] /= m_k_histogram[i]; });
-    m_distinct_function.reduceOverThreadsPerBin(m_local_distinct_function, [&](size_t i) {
-        m_distinct_function[i] /= m_k_histogram[i];
-    });
+                                            [&](size_t i) { m_self_function[i] /= m_k_histogram[i]; });
+    m_distinct_function.reduceOverThreadsPerBin(
+        m_local_distinct_function, [&](size_t i) { m_distinct_function[i] /= m_k_histogram[i]; });
 }
 
 std::vector<std::complex<float>>
-IntermediateScattering::compute_self(const vec3<float>* rt, const vec3<float>* r0,
-                                     unsigned int n_points, unsigned int n_total,
-                                     const std::vector<vec3<float>>& k_points)
+IntermediateScattering::compute_self(const vec3<float>* rt, const vec3<float>* r0, unsigned int n_points,
+                                     unsigned int n_total, const std::vector<vec3<float>>& k_points)
 {
     //
     std::vector<vec3<float>> r_i_t0(n_points); // rt - rt0 element-wisely
@@ -132,8 +129,8 @@ IntermediateScattering::compute_self(const vec3<float>* rt, const vec3<float>* r
 }
 
 std::vector<std::complex<float>>
-IntermediateScattering::compute_distinct(const vec3<float>* rt, const vec3<float>* r0,
-        unsigned int n_points, unsigned int n_total, const std::vector<vec3<float>>& k_points)
+IntermediateScattering::compute_distinct(const vec3<float>* rt, const vec3<float>* r0, unsigned int n_points,
+                                         unsigned int n_total, const std::vector<vec3<float>>& k_points)
 {
     const auto n_rij = n_points * (n_points - 1);
     std::vector<vec3<float>> r_ij(n_rij);

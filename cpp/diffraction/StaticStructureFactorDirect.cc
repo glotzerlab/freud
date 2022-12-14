@@ -23,8 +23,7 @@ namespace freud { namespace diffraction {
 StaticStructureFactorDirect::StaticStructureFactorDirect(unsigned int bins, float k_max, float k_min,
                                                          unsigned int num_sampled_k_points)
     : StaticStructureFactor(bins, k_max, k_min),
-      StructureFactorDirect(bins, k_max, k_min, num_sampled_k_points),
-      StructureFactor(bins, k_max, k_min)
+      StructureFactorDirect(bins, k_max, k_min, num_sampled_k_points), StructureFactor(bins, k_max, k_min)
 {
     if (bins == 0)
     {

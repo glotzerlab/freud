@@ -144,9 +144,10 @@ std::vector<vec3<float>> StructureFactorDirect::reciprocal_isotropic(const box::
     return std::vector<vec3<float>>(k_points.cbegin(), k_points.cend());
 }
 
-std::vector<std::complex<float>>
-StructureFactorDirect::compute_F_k(const vec3<float>* points, unsigned int n_points,
-                                         unsigned int n_total, const std::vector<vec3<float>>& k_points)
+std::vector<std::complex<float>> StructureFactorDirect::compute_F_k(const vec3<float>* points,
+                                                                    unsigned int n_points,
+                                                                    unsigned int n_total,
+                                                                    const std::vector<vec3<float>>& k_points)
 {
     const auto n_k_points = k_points.size();
     auto F_k = std::vector<std::complex<float>>(n_k_points);
@@ -171,7 +172,7 @@ StructureFactorDirect::compute_F_k(const vec3<float>* points, unsigned int n_poi
 
 std::vector<float>
 StructureFactorDirect::compute_S_k(const std::vector<std::complex<float>>& F_k_points,
-                                         const std::vector<std::complex<float>>& F_k_query_points)
+                                   const std::vector<std::complex<float>>& F_k_query_points)
 {
     const auto n_k_points = F_k_points.size();
     auto S_k = std::vector<float>(n_k_points);
@@ -183,6 +184,5 @@ StructureFactorDirect::compute_S_k(const std::vector<std::complex<float>>& F_k_p
     });
     return S_k;
 }
-
 
 }; }; // namespace freud::diffraction

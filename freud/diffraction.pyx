@@ -581,8 +581,7 @@ cdef class IntermediateScattering(_StructureFactorDirect):
     cdef freud._diffraction.IntermediateScattering * thisptr
 
     def __cinit__(self, freud.box.Box box, unsigned int bins, float k_max,
-                  float k_min=0,
-        unsigned int num_sampled_k_points=0):
+                  float k_min=0, unsigned int num_sampled_k_points=0):
         if type(self) == IntermediateScattering:
             self.thisptr = self.sfdptr = self.sfptr = \
                 new freud._diffraction.IntermediateScattering(

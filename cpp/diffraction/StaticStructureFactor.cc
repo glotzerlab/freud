@@ -14,8 +14,8 @@ namespace freud { namespace diffraction {
 
 StaticStructureFactor::StaticStructureFactor(unsigned int bins, float k_max, float k_min)
     : StructureFactor(bins, k_max, k_min),
-    m_structure_factor({std::make_shared<util::RegularAxis>(bins, k_min, k_max)}),
-    m_local_structure_factor(m_structure_factor)
+      m_structure_factor({std::make_shared<util::RegularAxis>(bins, k_min, k_max)}),
+      m_local_structure_factor(m_structure_factor)
 {
     // Validation logic is not shared in the parent StaticStructureFactor
     // because StaticStructureFactorDebye can provide a negative k_min to this
