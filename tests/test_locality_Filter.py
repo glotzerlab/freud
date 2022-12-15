@@ -1,6 +1,7 @@
+from abc import abstractmethod
+
 import numpy as np
 import numpy.testing as npt
-from abc import abstractmethod
 
 import freud
 import freud.locality
@@ -54,9 +55,7 @@ class TestSANN(FilterTest):
                 and np.sum(i_dist[:m]) / (m - 2) > i_dist[m]
             ):
                 m += 1
-            mask[
-                nlist.find_first_index(i) : nlist.find_first_index(i) + m
-            ] = True
+            mask[nlist.find_first_index(i) : nlist.find_first_index(i) + m] = True
             sol_id.append(m)
         sol_neighbors = sorted_neighbours[mask]
         sol_dist = sorted_dist[mask]
@@ -82,9 +81,7 @@ class TestSANN(FilterTest):
         sol = f_SANN.filtered_nlist
         npt.assert_allclose(sol.distances, known_sol.distances)
         npt.assert_allclose(sol.point_indices, known_sol.point_indices)
-        npt.assert_allclose(
-            sol.query_point_indices, known_sol.query_point_indices
-        )
+        npt.assert_allclose(sol.query_point_indices, known_sol.query_point_indices)
 
     def test_SANN_simple(self):
         """Assert SANN is correct when we compute the neighbors by hand.
