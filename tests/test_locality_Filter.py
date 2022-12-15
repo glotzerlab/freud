@@ -7,6 +7,8 @@ import freud.locality
 
 
 class FilterTest:
+    """Tests which are common to all filter classes."""
+
     @abstractmethod
     def get_filters(self):
         """Return a list of filter objects to run tests on."""
@@ -26,6 +28,8 @@ class FilterTest:
 
 
 class TestSANN(FilterTest):
+    """Tests specific to the SANN filtering method."""
+
     def get_filters(self):
         return [freud.locality.FilterSANN()]
 
@@ -103,6 +107,8 @@ class TestSANN(FilterTest):
         box = freud.box.Box.cube(10)
         f_SANN = freud.locality.FilterSANN()
         f_SANN.compute((box, points), {"r_max": r_max, "exclude_ii": True})
+
+        # check the filtered nlist is right
         sol = f_SANN.filtered_nlist
         distances = [
             1,
@@ -123,11 +129,29 @@ class TestSANN(FilterTest):
         point_indices = [1, 4, 5, 0, 4, 5, 4, 0, 2, 1, 5, 0, 1, 4]
         query_point_indices = [0, 0, 0, 1, 1, 1, 2, 4, 4, 4, 4, 5, 5, 5]
         npt.assert_allclose(sol.distances, distances)
-        # print(sol.distances)
-        # print(distances)
         npt.assert_allclose(sol.point_indices, point_indices)
-        # print(sol.point_indices)
-        # print(point_indices)
         npt.assert_allclose(sol.query_point_indices, query_point_indices)
-        # print(sol.query_point_indices)
-        # print(query_point_indices)
+
+        # check the unfiltered nlist is right
+        sol = f_SANN.unfiltered_nlist
+        distances = [
+            1,
+            1,
+            1,
+            1,
+            np.sqrt(2),
+            np.sqrt(2),
+            1,
+            1,
+            np.sqrt(2),
+            1,
+            np.sqrt(2),
+            1,
+            np.sqrt(2),
+            np.sqrt(2),
+        ]
+        point_indices = [1, 4, 5, 0, 4, 5, 4, 0, 1, 2, 5, 0, 1, 4]
+        query_point_indices = [0, 0, 0, 1, 1, 1, 2, 4, 4, 4, 4, 5, 5, 5]
+        npt.assert_allclose(sol.distances, distances)
+        npt.assert_allclose(sol.point_indices, point_indices)
+        npt.assert_allclose(sol.query_point_indices, query_point_indices)
