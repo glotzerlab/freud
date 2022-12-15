@@ -35,7 +35,7 @@ public:
     NeighborList(const NeighborList& other);
     //! Construct from arrays
     NeighborList(unsigned int num_bonds, const unsigned int* query_point_index, unsigned int num_query_points,
-                 const unsigned int* point_index, unsigned int num_points, const float* distances,
+                 const unsigned int* point_index, unsigned int num_points, const vec3<float>* vectors,
                  const float* weights);
 
     //! Return the number of bonds stored in this NeighborList
@@ -50,49 +50,30 @@ public:
     //! Update the arrays of neighbor counts and segments
     void updateSegmentCounts() const;
 
-    //! Access the neighbors array for reading and writing
-    util::ManagedArray<unsigned int>& getNeighbors()
-    {
-        return m_neighbors;
-    }
-    //! Access the distances array for reading and writing
-    util::ManagedArray<float>& getDistances()
-    {
-        return m_distances;
-    }
-    //! Access the weights array for reading and writing
-    util::ManagedArray<float>& getWeights()
-    {
-        return m_weights;
-    }
-    //! Access the counts array for reading
-    util::ManagedArray<unsigned int>& getCounts()
-    {
-        updateSegmentCounts();
-        return m_counts;
-    }
-    //! Access the segments array for reading
-    util::ManagedArray<unsigned int>& getSegments()
-    {
-        updateSegmentCounts();
-        return m_segments;
-    }
-
     //! Access the neighbors array for reading
     const util::ManagedArray<unsigned int>& getNeighbors() const
     {
         return m_neighbors;
     }
+
     //! Access the distances array for reading
     const util::ManagedArray<float>& getDistances() const
     {
         return m_distances;
     }
+
     //! Access the weights array for reading
     const util::ManagedArray<float>& getWeights() const
     {
         return m_weights;
     }
+
+    //! Access the vectors array for reading
+    const util::ManagedArray<vec3<float>>& getVectors() const
+    {
+        return m_vectors;
+    }
+
     //! Access the counts array for reading
     const util::ManagedArray<unsigned int>& getCounts() const
     {
@@ -104,6 +85,18 @@ public:
     {
         updateSegmentCounts();
         return m_segments;
+    }
+
+    /**
+     * Set the values for the neighbor index to be that of the given neighborbond
+     */
+    void setNeighborEntry(size_t neighbor_index, const NeighborBond& nb)
+    {
+        m_neighbors(neighbor_index, 0) = nb.getQueryPointIdx();
+        m_neighbors(neighbor_index, 1) = nb.getPointIdx();
+        m_vectors[neighbor_index] = nb.getVector();
+        m_distances[neighbor_index] = nb.getDistance();
+        m_weights[neighbor_index] = nb.getWeight();
     }
 
     //! Remove bonds in this object based on an array of boolean values. The
@@ -140,6 +133,8 @@ private:
     util::ManagedArray<float> m_distances;
     //! Neighbor list per-bond weight array
     util::ManagedArray<float> m_weights;
+    //!< Directed vectors per-bond array
+    util::ManagedArray<vec3<float>> m_vectors;
 
     //! Track whether segments and counts are up to date
     mutable bool m_segments_counts_updated;

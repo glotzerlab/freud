@@ -39,7 +39,7 @@ constexpr float DEFAULT_R_GUESS(-1.0);                    //!< Default guess que
 constexpr float DEFAULT_SCALE(-1.0);      //!< Default scaling parameter for AABB nearest neighbor queries.
 constexpr bool DEFAULT_EXCLUDE_II(false); //!< Default for whether or not to include self-neighbors.
 constexpr auto ITERATOR_TERMINATOR
-    = NeighborBond(-1, -1, 0); //!< The object returned when iteration is complete.
+    = NeighborBond(-1, -1, 0, 0, vec3<float>()); //!< The object returned when iteration is complete.
 
 //! POD class to hold information about generic queries.
 /*! This class provides a standard method for specifying the type of query to
@@ -395,7 +395,8 @@ public:
                     // If we're excluding ii bonds, we have to check before adding.
                     if (nb != ITERATOR_TERMINATOR)
                     {
-                        local_bonds.emplace_back(nb.query_point_idx, nb.point_idx, nb.distance);
+                        local_bonds.emplace_back(nb.getQueryPointIdx(), nb.getPointIdx(), nb.getWeight(),
+                                                 nb.getVector());
                     }
                 }
             }
@@ -420,10 +421,7 @@ public:
         util::forLoopWrapper(0, num_bonds, [&](size_t begin, size_t end) {
             for (size_t bond = begin; bond < end; ++bond)
             {
-                nl->getNeighbors()(bond, 0) = linear_bonds[bond].query_point_idx;
-                nl->getNeighbors()(bond, 1) = linear_bonds[bond].point_idx;
-                nl->getDistances()[bond] = linear_bonds[bond].distance;
-                nl->getWeights()[bond] = float(1.0);
+                nl->setNeighborEntry(bond, linear_bonds[bond]);
             }
         });
 

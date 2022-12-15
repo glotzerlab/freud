@@ -124,6 +124,7 @@ Bradley Dice - **Lead developer**
 * Fixed ``Box.contains`` to run in linear time, ``O(num_points)``.
 * Contributed code, design, documentation, and testing for ``StaticStructureFactorDirect`` class.
 * Fixed doctests to run with pytest.
+* Work with Tommy Waltmann on adding neighbor vectors to ``freud.locality.NeighborList``.
 
 Eric Harper, University of Michigan - **Former lead developer**
 
@@ -332,8 +333,10 @@ Tommy Waltmann
 * ``DiffractionPattern`` now raises an error when used with non-cubic boxes.
 * Implement ``StaticStructureFactorDebye`` for 2D systems.
 * Add support for compilation with the C++17 standard.
+* Normalize n(r) in ``RDF`` class by number of query points.
 * Update and test the ``normalization_mode`` argument to ``freud.density.RDF`` class.
 * Extending plotting options for the ``Voronoi`` module.
+* Work with Bradley Dice on adding neighbor vectors to ``freud.locality.NeighborList``.
 
 Maya Martirossyan
 

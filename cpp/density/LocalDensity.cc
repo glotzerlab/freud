@@ -43,7 +43,7 @@ void LocalDensity::compute(const freud::locality::NeighborQuery* neighbor_query,
             for (freud::locality::NeighborBond nb = ppiter->next(); !ppiter->end(); nb = ppiter->next())
             {
                 // count particles that are fully in the r_max sphere
-                if (nb.distance < (m_r_max - m_diameter / float(2.0)))
+                if (nb.getDistance() < (m_r_max - m_diameter / float(2.0)))
                 {
                     num_neighbors += float(1.0);
                 }
@@ -54,7 +54,7 @@ void LocalDensity::compute(const freud::locality::NeighborQuery* neighbor_query,
                     // lots of them. It smooths out the neighbor count distributions and avoids noisy spikes
                     // that obscure data
                     num_neighbors
-                        += float(1.0) + (m_r_max - (nb.distance + m_diameter / float(2.0))) / m_diameter;
+                        += float(1.0) + (m_r_max - (nb.getDistance() + m_diameter / float(2.0))) / m_diameter;
                 }
                 m_num_neighbors_array[i] = num_neighbors;
                 if (m_box.is2D())

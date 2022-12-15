@@ -7,7 +7,6 @@
 
 #include "MatchEnv.h"
 
-#include "NeighborBond.h"
 #include "NeighborComputeFunctional.h"
 
 namespace freud { namespace environment {
@@ -488,8 +487,7 @@ MatchEnv::~MatchEnv() = default;
 
 EnvironmentCluster::~EnvironmentCluster() = default;
 
-Environment MatchEnv::buildEnv(const freud::locality::NeighborQuery* nq,
-                               const freud::locality::NeighborList* nlist, size_t num_bonds, size_t& bond,
+Environment MatchEnv::buildEnv(const freud::locality::NeighborList* nlist, size_t num_bonds, size_t& bond,
                                unsigned int i, unsigned int env_ind)
 {
     Environment ei = Environment();
@@ -502,7 +500,7 @@ Environment MatchEnv::buildEnv(const freud::locality::NeighborQuery* nq,
         const size_t j(nlist->getNeighbors()(bond, 1));
         if (i != j)
         {
-            vec3<float> delta(bondVector(locality::NeighborBond(i, j), nq, nq->getPoints()));
+            vec3<float> delta(nlist->getVectors()[bond]);
             ei.addVec(delta);
         }
     }
@@ -539,7 +537,7 @@ void EnvironmentCluster::compute(const freud::locality::NeighborQuery* nq,
     // if you don't do this, things will get screwy.
     for (unsigned int i = 0; i < Np; i++)
     {
-        Environment ei = buildEnv(nq, &env_nlist, env_num_bonds, env_bond, i, i);
+        Environment ei = buildEnv(&env_nlist, env_num_bonds, env_bond, i, i);
         dj.s.push_back(ei);
         dj.m_max_num_neigh = std::max(dj.m_max_num_neigh, ei.num_vecs);
         ;
@@ -698,7 +696,7 @@ void EnvironmentMotifMatch::compute(const freud::locality::NeighborQuery* nq,
     for (unsigned int i = 0; i < Np; i++)
     {
         unsigned int dummy = i + 1;
-        Environment ei = buildEnv(nq, &nlist, num_bonds, bond, i, dummy);
+        Environment ei = buildEnv(&nlist, num_bonds, bond, i, dummy);
         dj.s.push_back(ei);
 
         // if the environment matches e0, merge it into the e0 environment set
@@ -775,7 +773,7 @@ void EnvironmentRMSDMinimizer::compute(const freud::locality::NeighborQuery* nq,
     for (unsigned int i = 0; i < Np; i++)
     {
         unsigned int dummy = i + 1;
-        Environment ei = buildEnv(nq, &nlist, num_bonds, bond, i, dummy);
+        Environment ei = buildEnv(&nlist, num_bonds, bond, i, dummy);
         dj.s.push_back(ei);
 
         // if the environment matches e0, merge it into the e0 environment set

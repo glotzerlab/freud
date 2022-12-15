@@ -13,10 +13,11 @@ from freud.util cimport vec3
 
 cdef extern from "NeighborBond.h" namespace "freud::locality":
     cdef cppclass NeighborBond:
-        unsigned int query_point_idx
-        unsigned int point_idx
-        float distance
-        float weight
+        unsigned int getQueryPointIdx() const
+        unsigned int getPointIdx() const
+        float getDistance() const
+        float getWeight() const
+        vec3[float] getVector() const
         bool operator==(const NeighborBond &) const
         bool operator!=(const NeighborBond &) const
         bool operator<(const NeighborBond &) const
@@ -72,12 +73,13 @@ cdef extern from "NeighborList.h" namespace "freud::locality":
         NeighborList()
         NeighborList(unsigned int)
         NeighborList(unsigned int, const unsigned int*, unsigned int,
-                     const unsigned int*, unsigned int, const float*,
+                     const unsigned int*, unsigned int, const vec3[float]*,
                      const float*) except +
 
         freud.util.ManagedArray[unsigned int] &getNeighbors()
         freud.util.ManagedArray[float] &getDistances()
         freud.util.ManagedArray[float] &getWeights()
+        freud.util.ManagedArray[vec3[float]] &getVectors()
         freud.util.ManagedArray[float] &getSegments()
         freud.util.ManagedArray[float] &getCounts()
 
