@@ -1295,28 +1295,27 @@ cdef class Filter(_PairCompute):
     in **freud**. Filtering a :class:`.NeighborList` requires first computing
     the unfiltered :class:`.NeighborList` from a system and a set of query
     arguments. Then, based on the arrangement of particles, their shapes, and
-    possibly other criteria, some of the neighbors are removed from the
-    unfiltered :class:`.NeighborList`.
+    other criteria determined by the derived class, some of the neighbors are
+    removed from the unfiltered :class:`.NeighborList`.
 
     The compute method of each :class:`.Filter` class will take a system object
     along with a neighbors dictionary specifying query arguments. The
-    ``neighbors`` dictionary along with the system will be used to build the
-    unfiltered neighborlist, which will then be filtered according to the filter
-    class. After the calculation, the filtered neighborlist will be available
-    as the property ``nlist``
+    ``neighbors`` dictionary along with the system object will be used to build
+    the unfiltered neighborlist, which will then be filtered according to the
+    filter class. After the calculation, the filtered neighborlist will be
+    available as the property ``filtered_nlist``
 
     Warning:
         This class is abstract and should not be instantiated directly.
     """
     def __cinit__(self):
-        self._filterptr = NULL
-
-    def __dealloc__(self):
-        if type(self) is Filter:
-            del self._filterptr
+        if type(self) == Filter:
+            raise RuntimeError(
+                "The Filter class is abstract and should not be instantiated directly."
+            )
 
     def compute(self, system, neighbors=None, query_points=None):
-        r"""Filter a :class:`.Neighborlist` with the SANN algorithm.
+        r"""Filter a :class:`.Neighborlist`.
 
         Args:
             system:
@@ -1368,6 +1367,9 @@ cdef class FilterSANN(Filter):
     a pre-existing set of neighbors due to the high performance cost of sorting
     all :math:`N^2` particle pairs by distance. For a more in-depth explanation of
     the neighborlist filter concept in **freud**, see :class:`.Filter`.
+
+    Note:
+        The ``filtered_nlist`` computed by this class will be sorted by distance.
     """
     def __cinit__(self):
         self._filterptr = self._thisptr = new freud._locality.FilterSANN()
