@@ -80,9 +80,13 @@ NeighborList::NeighborList(std::vector<NeighborBond> bonds)
 
             // update max bond indices
             if (max_point_idx < bond.point_idx)
+            {
                 max_point_idx = bond.point_idx;
+            }
             if (max_query_idx < bond.query_point_idx)
+            {
                 max_query_idx = bond.query_point_idx;
+            }
 
             // fill in array data
             m_distances(i) = bond.distance;
