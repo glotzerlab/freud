@@ -13,6 +13,14 @@ and this project adheres to
 ### Changed
 * The `normalize` argument to `freud.density.RDF` is now `normalization_mode`.
 
+## v2.12.1 -- 2022-12-05
+
+### Added
+* Support for Python 3.11.
+
+### Fixed
+* n(r) property in `freud.density.RDF` is now properly normalized by the number of query points.
+
 ## v2.12.0 -- 2022-11-09
 
 ### Added

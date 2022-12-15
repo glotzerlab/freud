@@ -58,7 +58,8 @@ void RDF::reduce()
     m_N_r.prepare(getAxisSizes()[0]);
 
     // Define prefactors with appropriate types to simplify and speed later code.
-    float number_density = float(m_n_query_points) / m_box.getVolume();
+    auto const nqp = static_cast<float>(m_n_query_points);
+    float number_density = nqp / m_box.getVolume();
     if (m_norm_mode == NormalizationMode::finite_size)
     {
         number_density *= static_cast<float>(m_n_query_points - 1) / static_cast<float>(m_n_query_points);
@@ -74,7 +75,7 @@ void RDF::reduce()
 
     // The accumulation of the cumulative density must be performed in
     // sequence, so it is done after the reduction.
-    prefactor = float(1.0) / (np * static_cast<float>(m_frame_counter));
+    prefactor = float(1.0) / (nqp * static_cast<float>(m_frame_counter));
     m_N_r[0] = m_histogram[0] * prefactor;
     for (unsigned int i = 1; i < getAxisSizes()[0]; i++)
     {
