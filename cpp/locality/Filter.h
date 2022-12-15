@@ -6,6 +6,16 @@
 
 namespace freud { namespace locality {
 
+/* Base class for all Neigborlist filtering methods in freud.
+ *
+ * A neighborlist filter is a class which is given a neighborlist and its goal
+ * is to return a neighborlist with a number of bonds less than or equal to the
+ * given neighborlist. Each filter will use information about the system to
+ * determine which bonds need to be removed.
+ *
+ * After calling compute(), both the original Neighborlist and the new, filtered
+ * neighborlist will be made available to users on the python side.
+ * */
 class Filter
 {
 public:

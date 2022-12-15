@@ -8,6 +8,8 @@
 
 namespace freud { namespace locality {
 
+/* Class for the SANN method of filtering a neighborlist.
+ * */
 class FilterSANN : public Filter
 {
 public:
