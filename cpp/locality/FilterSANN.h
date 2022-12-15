@@ -17,7 +17,7 @@ public:
     FilterSANN() : Filter() {}
 
     void compute(const NeighborQuery* nq, const vec3<float>* query_points, unsigned int num_query_points,
-                 const NeighborList* nlist, QueryArgs qargs) override;
+                 const NeighborList* nlist, const QueryArgs& qargs) override;
 };
 
 }; }; // namespace freud::locality

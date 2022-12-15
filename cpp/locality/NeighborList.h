@@ -39,7 +39,7 @@ public:
                  const float* weights);
 
     //! Construct from vector of NeighborBonds
-    NeighborList(std::vector<NeighborBond> bonds);
+    explicit NeighborList(std::vector<NeighborBond> bonds);
 
     //! Return the number of bonds stored in this NeighborList
     unsigned int getNumBonds() const;
