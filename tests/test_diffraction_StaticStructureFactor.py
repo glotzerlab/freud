@@ -495,7 +495,6 @@ class TestStaticStructureFactorDirect(StaticStructureFactorTest):
 
 
 class TestIntermediateScattering:
-
     def test_stationary_system(self, sf_params):
 
         bins, k_max, _, _ = sf_params
@@ -508,8 +507,10 @@ class TestIntermediateScattering:
         box, points = freud.data.make_random_system(L, N)
         traj = np.broadcast_to(points, (n_frames, N, 3))
         assert traj.shape == (n_frames, N, 3)
-        isf = freud.diffraction.IntermediateScattering(box, bins=100, k_max=50, k_min=0, num_sampled_k_points=0)
+        isf = freud.diffraction.IntermediateScattering(
+            box, bins=100, k_max=50, k_min=0, num_sampled_k_points=0
+        )
         isf.compute(traj)
         print(isf.self_function)
-        assert isf.self_function.shape == (n_frames-1, isf.nbins)
+        assert isf.self_function.shape == (n_frames - 1, isf.nbins)
         # npt.assert_equal(isf.self_function, np.ones((n_frames, isf.nbins)))

@@ -36,7 +36,6 @@ IntermediateScattering::IntermediateScattering(const box::Box& box, unsigned int
     }
 
     m_k_points = IntermediateScattering::reciprocal_isotropic(box, k_max, k_min, m_num_sampled_k_points);
-
 }
 
 void IntermediateScattering::compute(const vec3<float>* points, unsigned int num_points,
@@ -72,32 +71,31 @@ void IntermediateScattering::compute(const vec3<float>* points, unsigned int num
     util::forLoopWrapper(0, num_frames, [&](size_t begin, size_t end) {
         for (size_t t = begin; t < end; t++)
         {
-        
-        size_t offset = t * num_points;
-        // Compute self-part
-        const auto self_part = IntermediateScattering::compute_self(&points[offset], r0, num_points, n_total, m_k_points);
+            size_t offset = t * num_points;
+            // Compute self-part
+            const auto self_part
+                = IntermediateScattering::compute_self(&points[offset], r0, num_points, n_total, m_k_points);
 
-        // Compute distinct-part
-        const auto distinct_part
-            = IntermediateScattering::compute_distinct(&points[offset], query_r0, num_query_points, n_total, m_k_points);
+            // Compute distinct-part
+            const auto distinct_part = IntermediateScattering::compute_distinct(
+                &points[offset], query_r0, num_query_points, n_total, m_k_points);
 
-        std::vector<float> S_k_self_part = StaticStructureFactorDirect::compute_S_k(self_part, self_part);
-        std::vector<float> S_k_distinct_part
-            = StaticStructureFactorDirect::compute_S_k(distinct_part, distinct_part);
+            std::vector<float> S_k_self_part = StaticStructureFactorDirect::compute_S_k(self_part, self_part);
+            std::vector<float> S_k_distinct_part
+                = StaticStructureFactorDirect::compute_S_k(distinct_part, distinct_part);
 
-        // Bin the S_k values and track the number of k values in each bin.
-        util::forLoopWrapper(0, m_k_points.size(), [&](size_t begin, size_t end) {
-            for (size_t k_index = begin; k_index < end; ++k_index)
-            {
-                const auto& k_vec = m_k_points[k_index];
-                const auto k_magnitude = std::sqrt(dot(k_vec, k_vec));
-                const auto k_bin = m_self_function.bin({t, k_magnitude});
-                m_local_self_function.increment(k_bin, S_k_self_part[k_index]);
-                m_local_distinct_function.increment(k_bin, S_k_distinct_part[k_index]);
-                m_local_k_histograms.increment(k_bin);
-            }
-        });
-
+            // Bin the S_k values and track the number of k values in each bin.
+            util::forLoopWrapper(0, m_k_points.size(), [&](size_t begin, size_t end) {
+                for (size_t k_index = begin; k_index < end; ++k_index)
+                {
+                    const auto& k_vec = m_k_points[k_index];
+                    const auto k_magnitude = std::sqrt(dot(k_vec, k_vec));
+                    const auto k_bin = m_self_function.bin({t, k_magnitude});
+                    m_local_self_function.increment(k_bin, S_k_self_part[k_index]);
+                    m_local_distinct_function.increment(k_bin, S_k_distinct_part[k_index]);
+                    m_local_k_histograms.increment(k_bin);
+                }
+            });
         }
     });
 
@@ -106,7 +104,6 @@ void IntermediateScattering::compute(const vec3<float>* points, unsigned int num
 
 void IntermediateScattering::reduce()
 {
-
     const auto k_axis_size = m_k_histogram.getAxisSizes();
     m_k_histogram.prepare(k_axis_size);
     const auto self_axis_size = m_self_function.getAxisSizes();
