@@ -619,7 +619,8 @@ cdef class IntermediateScattering(_StructureFactorDirect):
             unsigned int num_query_points
 
         if query_points is not None:
-            l_query_points = freud.util._convert_array(query_points)
+            l_query_points = freud.util._convert_array(query_points, shape=(None, None, 3))
+            assert l_query_points.shape[0] == num_frames, "query_points must have the same number of frames as positions."
             num_query_points = l_query_points.shape[1]
             l_query_points_ptr = <vec3[float]*> &l_query_points[0, 0, 0]
 
