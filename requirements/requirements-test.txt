@@ -1,11 +1,11 @@
 ase==3.22.1
 cmake==3.25.0
 codecov==2.1.12
-coverage==6.5.0
+coverage==7.0.1
 cython==0.29.32
 dynasor==1.1.1; platform_system != "Windows"
 garnett==0.7.1
-GitPython==3.1.29
+GitPython==3.1.30
 gsd==2.7.0
 matplotlib>=3.0.0
 numpy==1.23.5
@@ -13,6 +13,6 @@ pillow>=8.0.0 --only-binary=pillow
 pytest==7.2.0
 pytest-cov==4.0.0
 rowan==1.3.0.post1
-scikit-build==0.16.3
+scikit-build==0.16.4
 scipy==1.9.3
 sympy==1.11.1
