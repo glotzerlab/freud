@@ -90,7 +90,7 @@ void IntermediateScattering::compute(const vec3<float>* points, unsigned int num
                 {
                     const auto& k_vec = m_k_points[k_index];
                     const auto k_magnitude = std::sqrt(dot(k_vec, k_vec));
-                    const auto k_bin = m_self_function.bin({t, k_magnitude});
+                    const auto k_bin = m_k_histogram.bin({ k_magnitude });
                     m_local_self_function.increment(k_bin, S_k_self_part[k_index]);
                     m_local_distinct_function.increment(k_bin, S_k_distinct_part[k_index]);
                     m_local_k_histograms.increment(k_bin);
@@ -113,13 +113,14 @@ void IntermediateScattering::reduce()
 
     // Reduce the bin counts over all threads, then use them to normalize the
     // structure factor when computing. This computes a binned mean over all k
-    // points. Unlike some other methods in freud, no frame counter is needed
-    // because the binned mean accounts for accumulation over frames.
+    // points.
     m_k_histogram.reduceOverThreads(m_local_k_histograms);
     m_self_function.reduceOverThreadsPerBin(m_local_self_function,
-                                            [&](size_t i) { m_self_function[i] /= m_k_histogram[i]; });
-    m_distinct_function.reduceOverThreadsPerBin(
-        m_local_distinct_function, [&](size_t i) { m_distinct_function[i] /= m_k_histogram[i]; });
+        [&](size_t i) { m_self_function[i] /= m_k_histogram[util::modulusPositive(i, m_nbins)]; }
+    );
+    m_distinct_function.reduceOverThreadsPerBin(m_local_distinct_function,
+        [&](size_t i) { m_distinct_function[i] /= m_k_histogram[util::modulusPositive(i, m_nbins)]; }
+    );
 }
 
 std::vector<std::complex<float>>

@@ -22,7 +22,7 @@ namespace freud { namespace diffraction {
 class StructureFactor
 {
 public:
-    StructureFactor(unsigned int bins, float k_max, float k_min = 0)
+    StructureFactor(size_t bins, float k_max, float k_min = 0)
         : m_nbins(bins), m_k_min(k_min), m_k_max(k_max)
     {}
 
@@ -54,7 +54,7 @@ protected:
     float m_min_valid_k {std::numeric_limits<float>::infinity()};
 
     //!< number of k values between k_min and k_max to use
-    unsigned int m_nbins;
+    size_t m_nbins;
 
     //!< max and min k values
     float m_k_min;
