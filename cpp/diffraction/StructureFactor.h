@@ -22,8 +22,7 @@ namespace freud { namespace diffraction {
 class StructureFactor
 {
 public:
-    StructureFactor(size_t bins, float k_max, float k_min = 0)
-        : m_nbins(bins), m_k_min(k_min), m_k_max(k_max)
+    StructureFactor(size_t bins, float k_max, float k_min = 0) : m_nbins(bins), m_k_min(k_min), m_k_max(k_max)
     {}
 
     virtual ~StructureFactor() = default;
