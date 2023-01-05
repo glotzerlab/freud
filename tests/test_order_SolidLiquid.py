@@ -27,8 +27,9 @@ class TestSolidLiquid:
         box, positions = freud.data.make_random_system(L, N)
 
         query_args = dict(r_max=2.0, exclude_ii=True)
-        comp = freud.order.SolidLiquid(6, q_threshold=0.7, solid_threshold=6)
-        comp.compute((box, positions), neighbors=query_args)
+        comp = freud.order.SolidLiquid(6, q_threshold=0.7, solid_threshold=6).compute(
+            (box, positions), neighbors=query_args
+        )
 
         aq = freud.locality.AABBQuery(box, positions)
         nlist = aq.query(positions, query_args).toNeighborList()
