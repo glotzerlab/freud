@@ -205,7 +205,7 @@ class TestCluster:
         )
 
     def _make_global_neighborlist(self, sys):
-        """Get neighborlist where every particle is a neighbor of every other particle."""
+        """Get neighborlist where all particles are neighbors."""
         box, points = sys
 
         # pairwise distances after wrapping
@@ -217,9 +217,9 @@ class TestCluster:
 
         # get point/query_point indices
         query_point_indices, point_indices = np.nonzero(dists)
-        dists = dists[query_point_indices, point_indices]
+        wrapped_vecs = wrapped_vecs[query_point_indices, point_indices]
         return freud.locality.NeighborList.from_arrays(
-            len(points), len(points), query_point_indices, point_indices, dists
+            len(points), len(points), query_point_indices, point_indices, wrapped_vecs
         )
 
     # Test EnvironmentCluster.compute function,
@@ -255,12 +255,13 @@ class TestCluster:
         # compute neighbors for global neighborlist and call compute
         nlist = self._make_global_neighborlist((box, xyz))
         match = freud.environment.EnvironmentCluster()
-        assert False  # THIS TEST IS TAKING WAYYY TOO LONG RIGHT NOW
+        query_args = dict(r_guess=r_max, num_neighbors=num_neighbors)
         match.compute(
             (box, xyz),
             threshold,
             registration=True,
             neighbors=nlist,
+            env_neighbors=query_args,
         )
         clusters = match.cluster_idx
 
