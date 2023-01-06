@@ -64,7 +64,6 @@ void FilterSANN::compute(const NeighborQuery* nq, const vec3<float>* query_point
 
     // sort final bonds array by distance
     tbb::parallel_sort(sann_bonds.begin(), sann_bonds.end(), compareNeighborDistance);
-    // tbb::parallel_sort(sann_bonds.begin(), sann_bonds.end(), compareNeighborBond);
 
     m_filtered_nlist = std::make_shared<NeighborList>(sann_bonds);
 };

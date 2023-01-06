@@ -1303,7 +1303,7 @@ cdef class Filter(_PairCompute):
     ``neighbors`` dictionary along with the system object will be used to build
     the unfiltered neighborlist, which will then be filtered according to the
     filter class. After the calculation, the filtered neighborlist will be
-    available as the property ``filtered_nlist``
+    available as the property ``filtered_nlist`` .
 
     Warning:
         This class is abstract and should not be instantiated directly.
