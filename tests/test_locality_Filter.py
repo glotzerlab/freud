@@ -35,7 +35,7 @@ class TestSANN(FilterTest):
         return [freud.locality.FilterSANN()]
 
     @staticmethod
-    def compute_SANN_neighborList(system, r_max):
+    def compute_SANN_neighborlist(system, r_max):
         """Compute SANN in python."""
         box, points = system
         N = len(points)
@@ -68,6 +68,23 @@ class TestSANN(FilterTest):
         )
         return solution_nlist
 
+    def test_SANN_random(self):
+        """Test different implementations vs a random system."""
+        N = 100
+        L = 10
+        r_max = 4.9
+
+        sys = freud.data.make_random_system(L, N)
+        nlist_1 = self.compute_SANN_neighborlist(sys, r_max)
+        filtersann = freud.locality.FilterSANN().compute(
+            sys, dict(r_max=r_max, exclude_ii=True)
+        )
+        nlist_2 = filtersann.filtered_nlist
+
+        npt.assert_allclose(nlist_1.distances, nlist_2.distances)
+        npt.assert_allclose(nlist_1.point_indices, nlist_2.point_indices)
+        npt.assert_allclose(nlist_1.query_point_indices, nlist_2.query_point_indices)
+
     def test_SANN_fcc(self):
         """make sure python and cpp implementations agree for an FCC."""
         N_reap = 3
@@ -75,7 +92,7 @@ class TestSANN(FilterTest):
         # generate FCC crystal
         uc = freud.data.UnitCell.fcc()
         box, points = uc.generate_system(N_reap, scale=5)
-        known_sol = self.compute_SANN_neighborList((box, points), r_max)
+        known_sol = self.compute_SANN_neighborlist((box, points), r_max)
         f_SANN = freud.locality.FilterSANN()
         f_SANN.compute((box, points), {"r_max": r_max})
         sol = f_SANN.filtered_nlist
