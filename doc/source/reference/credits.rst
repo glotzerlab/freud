@@ -333,6 +333,7 @@ Tommy Waltmann
 * Implement ``StaticStructureFactorDebye`` for 2D systems.
 * Add support for compilation with the C++17 standard.
 * Normalize n(r) in ``RDF`` class by number of query points.
+* Contributed code, design, documentation, and testing for ``freud.locality.FilterSANN`` class.
 
 Maya Martirossyan
 
@@ -350,6 +351,7 @@ Domagoj Fijan
 
 * Contributed code, design, documentation, and testing for ``StaticStructureFactorDebye`` class.
 * Contributed code, design, documentation, and testing for ``StaticStructureFactorDirect`` class.
+* Contributed code, design, documentation, and testing for ``freud.locality.FilterSANN`` class.
 
 Andrew Kerr
 
