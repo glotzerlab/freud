@@ -13,6 +13,9 @@ and this project adheres to
 ### Changed
 * The `normalize` argument to `freud.density.RDF` is now `normalization_mode`.
 
+### Removed
+* The `global_search` flag in `freud.environment.EnvironmentCluster`.
+
 ## v2.12.1 -- 2022-12-05
 
 ### Added

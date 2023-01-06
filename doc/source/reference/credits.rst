@@ -337,6 +337,7 @@ Tommy Waltmann
 * Update and test the ``normalization_mode`` argument to ``freud.density.RDF`` class.
 * Extending plotting options for the ``Voronoi`` module.
 * Work with Bradley Dice on adding neighbor vectors to ``freud.locality.NeighborList``.
+* Remove `global_search` flag in ``freud.environment.EnvironmentCluster``.
 
 Maya Martirossyan
 
