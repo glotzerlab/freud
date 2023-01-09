@@ -1377,3 +1377,16 @@ cdef class FilterSANN(Filter):
     def __dealloc__(self):
         if type(self) == FilterSANN:
             del self._thisptr
+
+cdef class FilterRAD(Filter):
+    """Filter a :class:`.NeighborList` via the RAD method.
+
+    Note:
+        The ``filtered_nlist`` computed by this class will be sorted by distance.
+    """
+    def __cinit__(self):
+        self._filterptr = self._thisptr = new freud._locality.FilterRAD()
+
+    def __dealloc__(self):
+        if type(self) == FilterRAD:
+            del self._thisptr

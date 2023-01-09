@@ -158,3 +158,7 @@ cdef extern from "Filter.h" namespace "freud::locality":
 cdef extern from "FilterSANN.h" namespace "freud::locality":
     cdef cppclass FilterSANN(Filter):
         FilterSANN()
+
+cdef extern from "FilterRAD.h" namespace "freud::locality":
+    cdef cppclass FilterRAD(Filter):
+        FilterRAD()
