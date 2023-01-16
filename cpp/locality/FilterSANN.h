@@ -18,6 +18,9 @@ public:
 
     void compute(const NeighborQuery* nq, const vec3<float>* query_points, unsigned int num_query_points,
                  const NeighborList* nlist, const QueryArgs& qargs) override;
+
+private:
+    void warnAboutUnfilledSolidAngles(const std::vector<unsigned int> &unfilled_qps);
 };
 
 }; }; // namespace freud::locality
