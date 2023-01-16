@@ -2,9 +2,9 @@
 #include "NeighborBond.h"
 #include "NeighborComputeFunctional.h"
 #include "utils.h"
+#include <iostream>
 #include <tbb/enumerable_thread_specific.h>
 #include <vector>
-#include <iostream>
 
 namespace freud { namespace locality {
 
@@ -38,11 +38,11 @@ void FilterSANN::compute(const NeighborQuery* nq, const vec3<float>* query_point
         BondVector::reference local_bonds(filtered_bonds.local());
         UnfilledQP::reference local_unfilled_qp(unfilled_qp.local());
         // TODO establish a global constant for this value
-        local_unfilled_qp = -1;  // will roll over to very large number
+        local_unfilled_qp = -1; // will roll over to very large number
 
         for (auto i = begin; i < end; i++)
         {
-            unsigned int m = 0;  // count of number of neighbors
+            unsigned int m = 0; // count of number of neighbors
             const unsigned int num_unfiltered_neighbors = sorted_counts(i);
             const unsigned int first_idx = sorted_nlist.find_first_index(i);
             float sum = 0.0;
@@ -67,7 +67,9 @@ void FilterSANN::compute(const NeighborQuery* nq, const vec3<float>* query_point
             }
 
             // if neighbors don't cover the full solid angle, record this thread's query point index
-            if (m < 3 || (m == num_unfiltered_neighbors && (sum / (float(m - 1) - 2.0)) <= sorted_dist(first_idx + m - 1)))
+            if (m < 3
+                || (m == num_unfiltered_neighbors
+                    && (sum / (float(m - 1) - 2.0)) <= sorted_dist(first_idx + m - 1)))
             {
                 local_unfilled_qp = i;
             }
@@ -103,7 +105,7 @@ void FilterSANN::warnAboutUnfilledSolidAngles(const std::vector<unsigned int>& u
     if (indices.size() > 0)
     {
         std::cout << "WARNING: Query points whose neighbors do not cover the full 4*pi solid angle: "
-            << indices << ". Try using an unfiltered neighborlist with more neighbors" << std::endl;
+                  << indices << ". Try using an unfiltered neighborlist with more neighbors" << std::endl;
     }
 }
 

@@ -20,7 +20,7 @@ public:
                  const NeighborList* nlist, const QueryArgs& qargs) override;
 
 private:
-    void warnAboutUnfilledSolidAngles(const std::vector<unsigned int> &unfilled_qps);
+    void warnAboutUnfilledSolidAngles(const std::vector<unsigned int>& unfilled_qps);
 };
 
 }; }; // namespace freud::locality
