@@ -7,7 +7,7 @@
 
 namespace freud { namespace locality {
 
-void FilterSANN::compute(const NeighborQuery* nq, const vec3<float>* query_points,
+void FilterRAD::compute(const NeighborQuery* nq, const vec3<float>* query_points,
                          unsigned int num_query_points, const NeighborList* nlist, const QueryArgs& qargs)
 {
     // make the unfiltered neighborlist from the arguments
@@ -18,6 +18,8 @@ void FilterSANN::compute(const NeighborQuery* nq, const vec3<float>* query_point
     NeighborList sorted_nlist(*m_unfiltered_nlist);
     sorted_nlist.sort(true);
 
+    const auto& points = nq->getPoints();
+    const auto& box = nq->getBox();
     const auto& sorted_neighbors = sorted_nlist.getNeighbors();
     const auto& sorted_dist = sorted_nlist.getDistances();
     const auto& sorted_weights = sorted_nlist.getWeights();
@@ -38,13 +40,38 @@ void FilterSANN::compute(const NeighborQuery* nq, const vec3<float>* query_point
             // sum for the three closest neighbors
             for (unsigned int j = 0; j < num_unfiltered_neighbors; j++)
             {
+                const unsigned int first_neighbor_idx = sorted_neighbors(first_idx + j, 1);
+                bool good_neighbor = true;
                 for (unsigned int k = 0; k < j; k++)
                 {
-                    
+                    const unsigned int second_neighbor_idx = sorted_neighbors(first_idx + k, 1);
+                    const vec3 v1 = box.wrap(query_points[i] - points[first_neighbor_idx]);
+                    const vec3 v2 = box.wrap(query_points[i] - points[second_neighbor_idx]);
+
+                    const auto coz = dot(v1, v2) / sorted_dist(first_neighbor_idx)
+                        / sorted_dist(second_neighbor_idx);
+                    if (1 / dot(v1, v1) < (coz < dot(v2, v2)))
+                    {
+                        good_neighbor = false;
+                        break;
+                    }
+                }
+
+                if (good_neighbor)
+                {
+                    local_bonds.emplace_back(i, j, sorted_dist(first_idx + j));
                 }
             }
-
         }
+
+        // combine thread-local arrays
+        tbb::flattened2d<BondVector> flat_filtered_bonds = tbb::flatten2d(filtered_bonds);
+        std::vector<NeighborBond> rad_bonds(flat_filtered_bonds.begin(), flat_filtered_bonds.end());
+
+        // sort final bonds array by distance
+        tbb::parallel_sort(rad_bonds.begin(), rad_bonds.end(), compareNeighborDistance);
+
+        m_filtered_nlist = std::make_shared<NeighborList>(rad_bonds);
     });
 
 };
