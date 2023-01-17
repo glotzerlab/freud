@@ -64,9 +64,7 @@ void FilterSANN::compute(const NeighborQuery* nq, const vec3<float>* query_point
             }
 
             // if neighbors don't cover the full solid angle, record this thread's query point index
-            if (m < 3
-                || (m == num_unfiltered_neighbors
-                    && (sum / (float(m - 1) - 2.0)) <= sorted_dist(first_idx + m - 1)))
+            if (m == num_unfiltered_neighbors)
             {
                 unfilled_qps[i] = i;
             }
