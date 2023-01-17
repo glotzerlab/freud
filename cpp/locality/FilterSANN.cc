@@ -29,16 +29,13 @@ void FilterSANN::compute(const NeighborQuery* nq, const vec3<float>* query_point
     BondVector filtered_bonds;
 
     // hold index of query point for a thread if its solid angle isn't filled up to 4*pi
-    using UnfilledQP = tbb::enumerable_thread_specific<unsigned int>;
-    UnfilledQP unfilled_qp;
+    std::vector<unsigned int> unfilled_qps(sorted_nlist.getNumQueryPoints(),
+                                           std::numeric_limits<unsigned int>::max());
 
     // parallelize over query_point_index
     util::forLoopWrapper(0, sorted_nlist.getNumQueryPoints(), [&](size_t begin, size_t end) {
         // grab thread-local vector
         BondVector::reference local_bonds(filtered_bonds.local());
-        UnfilledQP::reference local_unfilled_qp(unfilled_qp.local());
-        // TODO establish a global constant for this value
-        local_unfilled_qp = -1; // will roll over to very large number
 
         for (auto i = begin; i < end; i++)
         {
@@ -71,7 +68,7 @@ void FilterSANN::compute(const NeighborQuery* nq, const vec3<float>* query_point
                 || (m == num_unfiltered_neighbors
                     && (sum / (float(m - 1) - 2.0)) <= sorted_dist(first_idx + m - 1)))
             {
-                local_unfilled_qp = i;
+                unfilled_qps[i] = i;
             }
         }
     });
@@ -81,7 +78,6 @@ void FilterSANN::compute(const NeighborQuery* nq, const vec3<float>* query_point
     std::vector<NeighborBond> sann_bonds(flat_filtered_bonds.begin(), flat_filtered_bonds.end());
 
     // print warning about query point indices with unfilled solid angles
-    std::vector<unsigned int> unfilled_qps(unfilled_qp.begin(), unfilled_qp.end());
     warnAboutUnfilledSolidAngles(unfilled_qps);
 
     // sort final bonds array by distance
@@ -92,17 +88,17 @@ void FilterSANN::compute(const NeighborQuery* nq, const vec3<float>* query_point
 
 void FilterSANN::warnAboutUnfilledSolidAngles(const std::vector<unsigned int>& unfilled_qps)
 {
-    std::string indices = "";
-    for (auto& idx : unfilled_qps)
+    std::string indices;
+    for (const auto& idx : unfilled_qps)
     {
-        if (idx != static_cast<unsigned int>(-1))
+        if (idx != std::numeric_limits<unsigned int>::max())
         {
             indices += std::to_string(idx);
             indices += ", ";
         }
     }
     indices = indices.substr(0, indices.size() - 2);
-    if (indices.size() > 0)
+    if (!indices.empty())
     {
         std::cout << "WARNING: Query points whose neighbors do not cover the full 4*pi solid angle: "
                   << indices << ". Try using an unfiltered neighborlist with more neighbors" << std::endl;

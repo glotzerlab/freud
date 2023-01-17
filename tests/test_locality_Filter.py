@@ -23,7 +23,7 @@ class FilterTest:
         sys = freud.data.make_random_system(L, N)
         filters = self.get_filters()
         for filt in filters:
-            filt.compute(sys, dict(r_max=1.5))
+            filt.compute(sys, dict(r_max=4.5))
             assert filt.unfiltered_nlist is not None
             assert filt.filtered_nlist is not None
 
