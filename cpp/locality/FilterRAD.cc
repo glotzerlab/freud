@@ -63,16 +63,16 @@ void FilterRAD::compute(const NeighborQuery* nq, const vec3<float>* query_points
                 }
             }
         }
-
-        // combine thread-local arrays
-        tbb::flattened2d<BondVector> flat_filtered_bonds = tbb::flatten2d(filtered_bonds);
-        std::vector<NeighborBond> rad_bonds(flat_filtered_bonds.begin(), flat_filtered_bonds.end());
-
-        // sort final bonds array by distance
-        tbb::parallel_sort(rad_bonds.begin(), rad_bonds.end(), compareNeighborDistance);
-
-        m_filtered_nlist = std::make_shared<NeighborList>(rad_bonds);
     });
+
+    // combine thread-local arrays
+    tbb::flattened2d<BondVector> flat_filtered_bonds = tbb::flatten2d(filtered_bonds);
+    std::vector<NeighborBond> rad_bonds(flat_filtered_bonds.begin(), flat_filtered_bonds.end());
+
+    // sort final bonds array by distance
+    tbb::parallel_sort(rad_bonds.begin(), rad_bonds.end(), compareNeighborDistance);
+
+    m_filtered_nlist = std::make_shared<NeighborList>(rad_bonds);
 
 };
 
