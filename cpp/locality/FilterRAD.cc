@@ -8,7 +8,7 @@
 namespace freud { namespace locality {
 
 void FilterRAD::compute(const NeighborQuery* nq, const vec3<float>* query_points,
-                         unsigned int num_query_points, const NeighborList* nlist, const QueryArgs& qargs)
+                        unsigned int num_query_points, const NeighborList* nlist, const QueryArgs& qargs)
 {
     // make the unfiltered neighborlist from the arguments
     m_unfiltered_nlist = std::make_shared<NeighborList>(
@@ -48,8 +48,8 @@ void FilterRAD::compute(const NeighborQuery* nq, const vec3<float>* query_points
                     const vec3 v1 = box.wrap(query_points[i] - points[first_neighbor_idx]);
                     const vec3 v2 = box.wrap(query_points[i] - points[second_neighbor_idx]);
 
-                    const auto coz = dot(v1, v2) / sorted_dist(first_neighbor_idx)
-                        / sorted_dist(second_neighbor_idx);
+                    const auto coz
+                        = dot(v1, v2) / sorted_dist(first_neighbor_idx) / sorted_dist(second_neighbor_idx);
                     if (1 / dot(v1, v1) < (coz < dot(v2, v2)))
                     {
                         good_neighbor = false;
@@ -73,7 +73,6 @@ void FilterRAD::compute(const NeighborQuery* nq, const vec3<float>* query_points
     tbb::parallel_sort(rad_bonds.begin(), rad_bonds.end(), compareNeighborDistance);
 
     m_filtered_nlist = std::make_shared<NeighborList>(rad_bonds);
-
 };
 
 }; }; // namespace freud::locality
