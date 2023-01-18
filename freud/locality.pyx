@@ -556,7 +556,7 @@ cdef class NeighborList:
         return result
 
     @classmethod
-    def all_pairs(cls, system, query_points=None):
+    def all_pairs(cls, system, query_points=None, exclude_ii=True):
         """Create a NeighborList where all pairs of points are neighbors.
 
         More explicitly, this method returns a NeighborList in which all pairs of
@@ -571,7 +571,29 @@ cdef class NeighborList:
                 Query points used to create neighbor pairs. Uses the system's
                 points if :code:`None` (Default value = :code:`None`).
         """
-        pass
+        cdef NeighborQuery nq = NeighborQuery.from_system(system)
+        cdef freud._box.Box box = nq.nqptr.getBox()
+        points = nq.points
+        if query_points is None:
+            query_points = points
+
+        points = freud.util._convert_array(
+            points, shape=points.shape, dtype=np.float32)
+        query_points = freud.util._convert_array(
+            query_points, shape=query_points.shape, dtype=np.float32)
+
+        cdef const float[:, ::1] l_points = points
+        cdef const float[:, ::1] l_query_points = query_points
+        cdef cbool l_exclude_ii = exclude_ii
+
+        cdef NeighborList result
+        result = cls()
+        result.thisptr = new freud._locality.NeighborList(
+            <vec3[float]*> &l_points[0, 0], <vec3[float]*> &l_query_points[0, 0],
+            box, l_exclude_ii, l_points.shape[0], l_query_points.shape[0]
+        )
+
+        return result
 
     def __cinit__(self, _null=False):
         # Setting _null to True will create a NeighborList with no underlying

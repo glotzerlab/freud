@@ -37,6 +37,9 @@ public:
     NeighborList(unsigned int num_bonds, const unsigned int* query_point_index, unsigned int num_query_points,
                  const unsigned int* point_index, unsigned int num_points, const float* distances,
                  const float* weights);
+    //! Make a neighborlist where all points, excluding ii, are pairs
+    NeighborList(const vec3<float> *points, const vec3<float> *query_points, const box::Box &box,
+            const bool exclude_ii, const unsigned int num_points, const unsigned int num_query_points);
 
     //! Construct from vector of NeighborBonds
     explicit NeighborList(std::vector<NeighborBond> bonds);
