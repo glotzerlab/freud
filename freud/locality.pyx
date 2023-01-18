@@ -555,6 +555,24 @@ cdef class NeighborList:
 
         return result
 
+    @classmethod
+    def all_pairs(cls, system, query_points=None):
+        """Create a NeighborList where all pairs of points are neighbors.
+
+        More explicitly, this method returns a NeighborList in which all pairs of
+        points :math:`i`, :math:`j`, :math:`i \\neq j` are neighbors. The weight
+        of all neighbors pairs in the returned list will be 1.
+
+        Args:
+            system:
+                Any object that is valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
+            query_points ((:math:`N_{query\_points}`, 3) :class:`np.ndarray`, optional):
+                Query points used to create neighbor pairs. Uses the system's
+                points if :code:`None` (Default value = :code:`None`).
+        """
+        pass
+
     def __cinit__(self, _null=False):
         # Setting _null to True will create a NeighborList with no underlying
         # C++ object. This is useful for passing NULL pointers to C++ to
@@ -1313,6 +1331,13 @@ cdef class Filter(_PairCompute):
             raise RuntimeError(
                 "The Filter class is abstract and should not be instantiated directly."
             )
+
+    def _preprocess_arguments(self, system, query_points=None, neighbors=None):
+        """Use a full neighborlist if neighbors=None."""
+        nq = NeighborQuery.from_system(system)
+        if neighbors is None:
+            neighbors = NeighborList.all_pairs(nq, query_points)
+        super()._preprocess_arguments(nq, query_points, neighbors)
 
     def compute(self, system, neighbors=None, query_points=None):
         r"""Filter a :class:`.Neighborlist`.
