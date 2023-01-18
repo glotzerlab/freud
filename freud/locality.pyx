@@ -1361,7 +1361,7 @@ cdef class Filter(_PairCompute):
         nq = NeighborQuery.from_system(system)
         if neighbors is None:
             neighbors = NeighborList.all_pairs(nq, query_points)
-        super()._preprocess_arguments(nq, query_points, neighbors)
+        return super()._preprocess_arguments(nq, query_points, neighbors)
 
     def compute(self, system, neighbors=None, query_points=None):
         r"""Filter a :class:`.Neighborlist`.

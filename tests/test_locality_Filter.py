@@ -85,6 +85,20 @@ class TestSANN(FilterTest):
         npt.assert_allclose(nlist_1.point_indices, nlist_2.point_indices)
         npt.assert_allclose(nlist_1.query_point_indices, nlist_2.query_point_indices)
 
+    def test_SANN_unfiltered_nlist(self):
+        """Test unfiltered nlist using SANN with default value for neighbors."""
+        N = 100
+        L = 10
+
+        sys = freud.data.make_random_system(L, N)
+        filtersann = freud.locality.FilterSANN().compute(sys)
+        nlist = filtersann.unfiltered_nlist
+
+        num_bonds = N * (N - 1)
+        assert len(nlist.distances) == num_bonds
+        assert len(nlist.point_indices) == num_bonds
+        assert len(nlist.query_point_indices) == num_bonds
+
     def test_SANN_fcc(self):
         """make sure python and cpp implementations agree for an FCC."""
         N_reap = 3
