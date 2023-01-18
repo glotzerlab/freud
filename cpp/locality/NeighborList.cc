@@ -71,7 +71,7 @@ NeighborList::NeighborList(const vec3<float>* points, const vec3<float>* query_p
     m_distances.prepare(num_bonds);
     m_weights.prepare(num_bonds);
 
-    util::forLoopWrapper(0, num_query_points, [&](size_t begin, size_t end){
+    util::forLoopWrapper(0, num_query_points, [&](size_t begin, size_t end) {
         for (unsigned int i = begin; i < end; ++i)
         {
             // set the starting value of the bond index
