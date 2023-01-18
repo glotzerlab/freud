@@ -58,8 +58,9 @@ NeighborList::NeighborList(unsigned int num_bonds, const unsigned int* query_poi
     }
 }
 
-NeighborList::NeighborList(const vec3<float> *points, const vec3<float> *query_points,
-        const box::Box& box, const bool exclude_ii, const unsigned int num_points, const unsigned int num_query_points)
+NeighborList::NeighborList(const vec3<float>* points, const vec3<float>* query_points, const box::Box& box,
+                           const bool exclude_ii, const unsigned int num_points,
+                           const unsigned int num_query_points)
     : m_num_points(num_points), m_num_query_points(num_query_points), m_segments_counts_updated(false)
 {
     // prepare member arrays
@@ -88,7 +89,6 @@ NeighborList::NeighborList(const vec3<float> *points, const vec3<float> *query_p
             ++bond_idx;
         }
     }
-
 }
 
 NeighborList::NeighborList(std::vector<NeighborBond> bonds)

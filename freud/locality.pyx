@@ -557,10 +557,10 @@ cdef class NeighborList:
 
     @classmethod
     def all_pairs(cls, system, query_points=None, exclude_ii=True):
-        """Create a NeighborList where all pairs of points are neighbors.
+        R"""Create a NeighborList where all pairs of points are neighbors.
 
         More explicitly, this method returns a NeighborList in which all pairs of
-        points :math:`i`, :math:`j`, :math:`i \\neq j` are neighbors. The weight
+        points :math:`i`, :math:`j`, :math:`i \neq j` are neighbors. The weight
         of all neighbors pairs in the returned list will be 1.
 
         Args:
@@ -570,6 +570,8 @@ cdef class NeighborList:
             query_points ((:math:`N_{query\_points}`, 3) :class:`np.ndarray`, optional):
                 Query points used to create neighbor pairs. Uses the system's
                 points if :code:`None` (Default value = :code:`None`).
+            exclude_ii (bool):
+                Whether to exclude ii pairs in the output neighborlist.
         """
         cdef NeighborQuery nq = NeighborQuery.from_system(system)
         cdef freud._box.Box box = nq.nqptr.getBox()
