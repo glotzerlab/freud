@@ -225,12 +225,22 @@ class TestNeighborList:
         # do one without exclude_ii and query_points
         M = 50
         box, query_points = freud.data.make_random_system(L, M)
-        nlist = freud.locality.NeighborList.all_pairs((box, points), query_points, exclude_ii=False)
+        nlist = freud.locality.NeighborList.all_pairs(
+            (box, points), query_points, exclude_ii=False
+        )
         num_bonds = N * M
         np.testing.assert_equal(nlist.query_point_indices, np.arange(M).repeat(N))
         np.testing.assert_equal(nlist.point_indices, np.asarray(list(np.arange(N)) * M))
-        np.testing.assert_equal(nlist.distances,
-                                np.linalg.norm(box.wrap(query_points[nlist.query_point_indices] - points[nlist.point_indices]), axis=-1))
+        np.testing.assert_equal(
+            nlist.distances,
+            np.linalg.norm(
+                box.wrap(
+                    query_points[nlist.query_point_indices]
+                    - points[nlist.point_indices]
+                ),
+                axis=-1,
+            ),
+        )
 
     def test_indexing_empty(self):
         # Ensure that empty NeighborLists have the right shape
