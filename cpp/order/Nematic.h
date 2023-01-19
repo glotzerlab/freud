@@ -23,13 +23,13 @@ class Nematic
 {
 public:
     //! Constructor
-    explicit Nematic(const vec3<float>& u);
+    explicit Nematic();
 
     //! Destructor
     virtual ~Nematic() = default;
 
     //! Compute the nematic order parameter
-    void compute(quat<float>* orientations, unsigned int n);
+    void compute(vec3<float>* orientations, unsigned int n);
 
     //! Get the value of the last computed nematic order parameter
     float getNematicOrderParameter() const;
@@ -42,11 +42,8 @@ public:
 
     vec3<float> getNematicDirector() const;
 
-    vec3<float> getU() const;
-
 private:
     unsigned int m_n {0};                //!< Last number of points computed
-    vec3<float> m_u;                     //!< The molecular axis
     float m_nematic_order_parameter {0}; //!< Current value of the order parameter
     vec3<float> m_nematic_director;      //!< The director (eigenvector corresponding to the OP)
 
