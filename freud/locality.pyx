@@ -560,8 +560,9 @@ cdef class NeighborList:
         R"""Create a NeighborList where all pairs of points are neighbors.
 
         More explicitly, this method returns a NeighborList in which all pairs of
-        points :math:`i`, :math:`j`, :math:`i \neq j` are neighbors. The weight
-        of all neighbors pairs in the returned list will be 1.
+        points :math:`i`, :math:`j` are neighbors. Pairs such that :math:`i = j`
+        can also be excluded using the ``exclude_ii`` option. The weight of all
+        neighbors pairs in the returned list will be 1.
 
         Args:
             system:
@@ -571,7 +572,8 @@ cdef class NeighborList:
                 Query points used to create neighbor pairs. Uses the system's
                 points if :code:`None` (Default value = :code:`None`).
             exclude_ii (bool):
-                Whether to exclude ii pairs in the output neighborlist.
+                Whether to exclude pairs of particles with the same point index in
+                the output neighborlist (Default value = ``True``).
         """
         cdef NeighborQuery nq = NeighborQuery.from_system(system)
         cdef freud._box.Box box = nq.nqptr.getBox()
@@ -1360,7 +1362,8 @@ cdef class Filter(_PairCompute):
         """Use a full neighborlist if neighbors=None."""
         nq = NeighborQuery.from_system(system)
         if neighbors is None:
-            neighbors = NeighborList.all_pairs(nq, query_points)
+            neighbors = NeighborList.all_pairs(nq, query_points,
+                                               query_points is None)
         return super()._preprocess_arguments(nq, query_points, neighbors)
 
     def compute(self, system, neighbors=None, query_points=None):
@@ -1374,6 +1377,9 @@ cdef class Filter(_PairCompute):
                 Either a :class:`NeighborList` of neighbor pairs to use for the
                 unfiltered neighbor list, or a dictionary of `query arguments
                 <https://freud.readthedocs.io/en/stable/topics/querying.html>`__.
+                If ``None``, an unfiltered neighborlist will be created such that
+                all pairs of particles are neighbors via :meth:`.NeighborList.all_pairs`
+                (Default value = ``None``).
             query_points ((:math:`N_{query\_points}`, 3) :class:`np.ndarray`, optional):
                 Query points used to calculate the unfiltered neighborlist. Uses
                 the system's points if :code:`None` (Default value = :code:`None`).
