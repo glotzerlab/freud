@@ -8,16 +8,12 @@ import freud
 
 class TestNematicOrder:
     def test_perfect(self):
-        """Test perfectly aligned systems with different molecular axes"""
+        """Test perfectly aligned systems with different alignment"""
         N = 10000
-        axes = np.zeros(shape=(N, 3), dtype=np.float32)
-        angles = np.zeros(shape=N, dtype=np.float32)
-        axes[:, 0] = 1.0
-        orientations = rowan.from_axis_angle(axes, angles)
+        u = [1, 0, 0]
+        orientations = np.array(u * N)
 
-        # Test for parallel to molecular axis
-        u = np.array([1, 0, 0])
-        op_parallel = freud.order.Nematic(u)
+        op_parallel = freud.order.Nematic()
 
         # Test access
         with pytest.raises(AttributeError):
@@ -41,12 +37,13 @@ class TestNematicOrder:
         npt.assert_equal(op_parallel.director, u)
         npt.assert_equal(op_parallel.nematic_tensor, np.diag([1, -0.5, -0.5]))
         npt.assert_equal(
-            op_parallel.nematic_tensor, np.mean(op_parallel.particle_tensor, axis=0)
+            op_parallel.nematic_tensor,
+            np.mean(op_parallel.particle_tensor, axis=0),
         )
 
-        # Test for perpendicular to molecular axis
-        u = np.array([0, 1, 0])
-        op_perp = freud.order.Nematic(u)
+        u = [0, 1, 0]
+        orientations = np.array(u * N)
+        op_perp = freud.order.Nematic()
         op_perp.compute(orientations)
 
         assert op_perp.order == 1
@@ -60,12 +57,12 @@ class TestNematicOrder:
         """
         N = 10000
         np.random.seed(0)
+        u = [1, 0, 0]
 
-        # Generate orientations close to the identity quaternion
-        orientations = rowan.interpolate.slerp([1, 0, 0, 0], rowan.random.rand(N), 0.1)
+        # Generate orientations close to the u
+        orientations = np.random.normal(np.array(u * N), 0.1)
 
-        u = np.array([1, 0, 0])
-        op = freud.order.Nematic(u)
+        op = freud.order.Nematic()
         op.compute(orientations)
 
         npt.assert_allclose(op.order, 1, atol=1e-1)
@@ -74,7 +71,9 @@ class TestNematicOrder:
         npt.assert_allclose(op.director, u, atol=1e-1)
         assert not np.all(op.director == u)
 
-        npt.assert_allclose(op.nematic_tensor, np.diag([1, -0.5, -0.5]), atol=1e-1)
+        npt.assert_allclose(
+            op.nematic_tensor, np.diag([1, -0.5, -0.5]), atol=1e-1
+        )
         assert not np.all(op.nematic_tensor == np.diag([1, -0.5, -0.5]))
 
         u = np.array([0, 1, 0])
@@ -88,10 +87,11 @@ class TestNematicOrder:
         npt.assert_allclose(np.abs(op_perp.director), u, atol=1e-1)
         assert not np.all(op_perp.director == u)
 
-        npt.assert_allclose(op_perp.nematic_tensor, np.diag([-0.5, 1, -0.5]), atol=1e-1)
+        npt.assert_allclose(
+            op_perp.nematic_tensor, np.diag([-0.5, 1, -0.5]), atol=1e-1
+        )
         assert not np.all(op_perp.nematic_tensor == np.diag([-0.5, 1, -0.5]))
 
     def test_repr(self):
-        u = np.array([1, 0, 0])
-        op = freud.order.Nematic(u)
+        op = freud.order.Nematic()
         assert str(op) == str(eval(repr(op)))
