@@ -23,7 +23,7 @@ class Nematic
 {
 public:
     //! Constructor
-    explicit Nematic();
+    Nematic() = default;
 
     //! Destructor
     virtual ~Nematic() = default;

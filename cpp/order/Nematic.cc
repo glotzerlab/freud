@@ -12,8 +12,6 @@
 
 namespace freud { namespace order {
 
-Nematic::Nematic() {}
-
 float Nematic::getNematicOrderParameter() const
 {
     return m_nematic_order_parameter;
