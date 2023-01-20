@@ -192,7 +192,7 @@ std::vector<vec3<float>> EnvDisjointSet::getAvgEnv(const unsigned int m)
 {
     bool invalid_ind = true;
 
-    std::vector<vec3<float>> env(m_max_num_neigh, vec3<float>(0.0, 0.0, 0.0));
+    std::vector<vec3<float>> env;
     unsigned int N = 0;
 
     // loop over all the environments in the set
@@ -211,7 +211,15 @@ std::vector<vec3<float>> EnvDisjointSet::getAvgEnv(const unsigned int m)
                 for (unsigned int proper_ind = 0; proper_ind < i.vecs.size(); proper_ind++)
                 {
                     unsigned int relative_ind = i.vec_ind[proper_ind];
-                    env[proper_ind] += i.proper_rot * i.vecs[relative_ind];
+                    vec3<float> proper_vec = i.proper_rot * i.vecs[relative_ind];
+                    if (proper_ind < env.size())
+                    {
+                        env[proper_ind] += proper_vec;
+                    }
+                    else
+                    {
+                        env.push_back(proper_vec);
+                    }
                 }
                 ++N;
                 invalid_ind = false;
@@ -228,7 +236,7 @@ std::vector<vec3<float>> EnvDisjointSet::getAvgEnv(const unsigned int m)
 
     // loop through the vectors in env now, dividing by the total number
     // of contributing particle environments to make an average
-    for (unsigned int n = 0; n < m_max_num_neigh; n++)
+    for (unsigned int n = 0; n < env.size(); n++)
     {
         vec3<float> normed = env[n] / static_cast<float>(N);
         env[n] = normed;
@@ -246,17 +254,13 @@ std::vector<vec3<float>> EnvDisjointSet::getIndividualEnv(const unsigned int m)
     }
 
     std::vector<vec3<float>> env;
-    for (unsigned int n = 0; n < m_max_num_neigh; n++)
-    {
-        env.emplace_back(0.0, 0.0, 0.0);
-    }
 
     // loop through the vectors, getting them properly indexed
     // add them to env
     for (unsigned int proper_ind = 0; proper_ind < s[m].vecs.size(); proper_ind++)
     {
         unsigned int relative_ind = s[m].vec_ind[proper_ind];
-        env[proper_ind] += s[m].proper_rot * s[m].vecs[relative_ind];
+        env.push_back(s[m].proper_rot * s[m].vecs[relative_ind]);
     }
 
     return env;
