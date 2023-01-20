@@ -743,7 +743,7 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
     def __init__(self):
         pass
 
-    def compute(self, system, motif, threshold, neighbors=None,
+    def compute(self, system, motif, threshold, env_neighbors=None,
                 registration=False):
         r"""Determine which particles have local environments
             matching the given environment motif.
