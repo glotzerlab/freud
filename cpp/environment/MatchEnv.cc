@@ -544,9 +544,6 @@ void EnvironmentCluster::compute(const freud::locality::NeighborQuery* nq,
         ;
     }
 
-    // reallocate the m_point_environments array
-    m_point_environments.prepare({Np, dj.m_max_num_neigh});
-
     size_t bond(0);
     // loop through points
     for (unsigned int i = 0; i < Np; i++)
@@ -640,11 +637,12 @@ unsigned int EnvironmentCluster::populateEnv(EnvDisjointSet dj)
                 label_ind = label_map[c];
             }
 
+            m_point_environments.push_back(std::vector<vec3<float>>());
             // label this particle in m_env_index
             m_env_index[particle_ind] = label_ind;
             for (unsigned int m = 0; m < part_vecs.size(); m++)
             {
-                m_point_environments(particle_ind, m) = part_vecs[m];
+                m_point_environments[particle_ind].push_back(part_vecs[m]);
             }
             particle_ind++;
         }
@@ -690,9 +688,6 @@ void EnvironmentMotifMatch::compute(const freud::locality::NeighborQuery* nq,
     auto* end = begin + counts.size();
     auto max_num_neigh = *std::max_element(begin, end);
     dj.m_max_num_neigh = max_num_neigh;
-
-    // reallocate the m_point_environments array
-    m_point_environments.prepare({Np, max_num_neigh});
 
     // create the environment characterized by motif. Index it as 0.
     // set the IGNORE flag to true, since this is not an environment we have
@@ -742,9 +737,10 @@ void EnvironmentMotifMatch::compute(const freud::locality::NeighborQuery* nq,
         // grab the set of vectors that define this individual environment
         std::vector<vec3<float>> part_vecs = dj.getIndividualEnv(dummy);
 
+        m_point_environments.push_back(std::vector<vec3<float>>());
         for (unsigned int m = 0; m < part_vecs.size(); m++)
         {
-            m_point_environments(i, m) = part_vecs[m];
+            m_point_environments[i].push_back(part_vecs[m]);
         }
     }
 }
@@ -767,9 +763,6 @@ void EnvironmentRMSDMinimizer::compute(const freud::locality::NeighborQuery* nq,
     // because we're inserting the motif into it.
     EnvDisjointSet dj(Np + 1);
     dj.m_max_num_neigh = motif_size;
-
-    // reallocate the m_point_environments array
-    m_point_environments.prepare({Np, motif_size});
 
     // create the environment characterized by motif. Index it as 0.
     // set the IGNORE flag to true, since this is not an environment we
@@ -822,12 +815,13 @@ void EnvironmentRMSDMinimizer::compute(const freud::locality::NeighborQuery* nq,
             dj.merge(0, dummy, vec_map, rotation);
         }
 
+        m_point_environments.push_back(std::vector<vec3<float>>());
         // grab the set of vectors that define this individual environment
         std::vector<vec3<float>> part_vecs = dj.getIndividualEnv(dummy);
 
         for (unsigned int m = 0; m < part_vecs.size(); m++)
         {
-            m_point_environments(i, m) = part_vecs[m];
+            m_point_environments[i].push_back(part_vecs[m]);
         }
     }
 }

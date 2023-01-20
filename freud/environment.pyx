@@ -501,9 +501,9 @@ cdef class _MatchEnv(_PairCompute):
     def point_environments(self):
         """:math:`\\left(N_{points}, N_{neighbors}, 3\\right)`
         :class:`numpy.ndarray`: All environments for all points."""
-        return freud.util.make_managed_numpy_array(
-            &self.matchptr.getPointEnvironments(),
-            freud.util.arr_type_t.FLOAT, 3)
+        envs = self.matchptr.getPointEnvironments()
+        return [np.asarray([[p.x, p.y, p.z] for p in env])
+                for env in envs]
 
     def __repr__(self):
         return ("freud.environment.{cls}()").format(

@@ -209,14 +209,14 @@ public:
                                 unsigned int i, unsigned int env_ind);
 
     //! Returns the entire Np by m_num_neighbors by 3 matrix of all environments for all particles
-    const util::ManagedArray<vec3<float>>& getPointEnvironments()
+    const std::vector<std::vector<vec3<float>>>& getPointEnvironments()
     {
         return m_point_environments;
     }
 
 protected:
-    util::ManagedArray<vec3<float>> m_point_environments; //!< m_NP by m_max_num_neighbors by 3 matrix of all
-                                                          //!< environments for all particles
+    std::vector<std::vector<vec3<float>>> m_point_environments; //!< m_NP by m_max_num_neighbors by 3 matrix of all
+                                                                //!< environments for all particles
 };
 
 //! Cluster particles with similar environments.
