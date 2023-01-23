@@ -41,7 +41,7 @@ class TestCluster:
             match.cluster_environments
 
         query_args = dict(r_guess=r_max, num_neighbors=num_neighbors)
-        match.compute((box, xyz), threshold, neighbors=query_args)
+        match.compute((box, xyz), threshold, cluster_neighbors=query_args)
 
         cluster_env = match.cluster_environments
 
@@ -85,7 +85,7 @@ class TestCluster:
 
         match = freud.environment.EnvironmentCluster()
         query_args = dict(r_guess=r_max, num_neighbors=num_neighbors)
-        match.compute((box, xyz), threshold, neighbors=query_args)
+        match.compute((box, xyz), threshold, cluster_neighbors=query_args)
 
         cluster_env = match.cluster_environments
 
@@ -130,7 +130,7 @@ class TestCluster:
 
         match = freud.environment.EnvironmentCluster()
         query_args = dict(r_guess=r_max, num_neighbors=num_neighbors)
-        match.compute((box, xyz), threshold, registration=False, neighbors=query_args)
+        match.compute((box, xyz), threshold, registration=False, cluster_neighbors=query_args)
 
         cluster_env = match.cluster_environments
 
@@ -175,7 +175,7 @@ class TestCluster:
 
         match = freud.environment.EnvironmentCluster()
         query_args = dict(r_max=r_max, num_neighbors=num_neighbors)
-        match.compute((box, xyz), threshold, registration=False, neighbors=query_args)
+        match.compute((box, xyz), threshold, registration=False, cluster_neighbors=query_args)
         cluster_env = match.cluster_environments
 
         fn = os.path.join(self.test_folder, "bcc_env.npy")
@@ -242,7 +242,7 @@ class TestCluster:
                 threshold,
                 registration=True,
                 global_search=True,
-                neighbors=query_args,
+                cluster_neighbors=query_args,
             )
         clusters = match.cluster_idx
 
@@ -423,7 +423,7 @@ class TestCluster:
         assert match._repr_png_() is None
 
         query_args = dict(r_guess=r_max, num_neighbors=num_neighbors)
-        match.compute((box, xyz), threshold, neighbors=query_args)
+        match.compute((box, xyz), threshold, cluster_neighbors=query_args)
         match._repr_png_()
         plt.close("all")
 
@@ -437,7 +437,7 @@ class TestCluster:
         match = freud.environment.EnvironmentCluster()
         query_args = dict(num_neighbors=num_neighbors)
         with pytest.warns(FutureWarning):
-            match.compute((box, points), 0.1, neighbors=query_args, global_search=True)
+            match.compute((box, points), 0.1, cluster_neighbors=query_args, global_search=True)
 
         assert (
             freud.__version__ < "3.0.0"

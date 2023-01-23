@@ -657,7 +657,7 @@ cdef class EnvironmentCluster(_MatchEnv):
             self._preprocess_arguments(system, neighbors=cluster_neighbors)
 
         if env_neighbors is None:
-            env_neighbors = neighbors
+            env_neighbors = cluster_neighbors
         env_nlist, env_qargs = self._resolve_neighbors(env_neighbors)
 
         if global_search:
