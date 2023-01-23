@@ -28,6 +28,12 @@ class FilterTest:
             assert filt.filtered_nlist is not None
 
 
+class TestRAD(FilterTest):
+
+    def get_filters(self):
+        return [freud.locality.FilterRAD()]
+
+
 class TestSANN(FilterTest):
     """Tests specific to the SANN filtering method."""
 
