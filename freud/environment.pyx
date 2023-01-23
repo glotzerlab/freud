@@ -787,7 +787,7 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
             unsigned int num_query_points
 
         nq, nlist, qargs, l_query_points, num_query_points = \
-            self._preprocess_arguments(system, neighbors=neighbors)
+            self._preprocess_arguments(system, neighbors=env_neighbors)
 
         motif = freud.util._convert_array(motif, shape=(None, 3))
         if (motif == 0).all(axis=1).any():

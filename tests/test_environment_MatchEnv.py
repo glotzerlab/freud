@@ -456,7 +456,7 @@ class TestEnvironmentMotifMatch:
         box = freud.box.Box.square(3)
         match = freud.environment.EnvironmentMotifMatch()
         query_args = dict(r_guess=r_max, num_neighbors=num_neighbors)
-        match.compute((box, points), motif, 0.1, neighbors=query_args)
+        match.compute((box, points), motif, 0.1, env_neighbors=query_args)
         matches = match.matches
 
         for i in range(len(motif)):
@@ -473,7 +473,7 @@ class TestEnvironmentMotifMatch:
         match = freud.environment.EnvironmentMotifMatch()
         query_args = dict(num_neighbors=num_neighbors)
         with pytest.warns(RuntimeWarning):
-            match.compute((box, motif), motif, 0.1, neighbors=query_args)
+            match.compute((box, motif), motif, 0.1, env_neighbors=query_args)
 
 
 class TestEnvironmentRMSDMinimizer:
