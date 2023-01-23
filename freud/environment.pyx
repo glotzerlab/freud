@@ -527,7 +527,7 @@ cdef class EnvironmentCluster(_MatchEnv):
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, system, threshold, neighbors=None,
+    def compute(self, system, threshold, cluster_neighbors=None,
                 env_neighbors=None, registration=False,
                 global_search=False):
         r"""Determine clusters of particles with matching environments.
@@ -602,7 +602,7 @@ cdef class EnvironmentCluster(_MatchEnv):
             >>> env_cluster.compute(
             ...     system = (box, points),
             ...     threshold=0.2,
-            ...     neighbors={'num_neighbors': 6},
+            ...     cluster_neighbors={'num_neighbors': 6},
             ...     registration=False,
             ...     global_search=False)
             freud.environment.EnvironmentCluster()
@@ -616,7 +616,7 @@ cdef class EnvironmentCluster(_MatchEnv):
                 below which they are "matching". Typically, a good choice is
                 between 10% and 30% of the first well in the radial
                 distribution function (this has distance units).
-            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
+            cluster_neighbors (:class:`freud.locality.NeighborList` or dict, optional):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
                 neighbor pairs to use in the calculation, or a dictionary of
                 `query arguments
@@ -654,7 +654,7 @@ cdef class EnvironmentCluster(_MatchEnv):
             unsigned int num_query_points
 
         nq, nlist, qargs, l_query_points, num_query_points = \
-            self._preprocess_arguments(system, neighbors=neighbors)
+            self._preprocess_arguments(system, neighbors=cluster_neighbors)
 
         if env_neighbors is None:
             env_neighbors = neighbors
@@ -766,7 +766,7 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
                 below which they are "matching". Typically, a good choice is
                 between 10% and 30% of the first well in the radial
                 distribution function (this has distance units).
-            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
+            env_neighbors (:class:`freud.locality.NeighborList` or dict, optional):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
                 neighbor pairs to use in the calculation, or a dictionary of
                 `query arguments
