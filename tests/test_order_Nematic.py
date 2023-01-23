@@ -11,7 +11,7 @@ class TestNematicOrder:
         """Test perfectly aligned systems with different alignment"""
         N = 10000
         u = [1, 0, 0]
-        orientations = np.array(u * N)
+        orientations = np.repeat(np.expand_dims(u, axis=0), repeats=N, axis=0)
 
         op_parallel = freud.order.Nematic()
 
@@ -25,6 +25,8 @@ class TestNematicOrder:
         with pytest.raises(AttributeError):
             op_parallel.nematic_tensor
 
+        print(orientations)
+        print(orientations.shape)
         op_parallel.compute(orientations)
 
         # Test access
@@ -42,7 +44,7 @@ class TestNematicOrder:
         )
 
         u = [0, 1, 0]
-        orientations = np.array(u * N)
+        orientations = np.repeat(np.expand_dims(u, axis=0), repeats=N, axis=0)
         op_perp = freud.order.Nematic()
         op_perp.compute(orientations)
 
@@ -60,7 +62,9 @@ class TestNematicOrder:
         u = [1, 0, 0]
 
         # Generate orientations close to the u
-        orientations = np.random.normal(np.array(u * N), 0.1)
+        orientations = np.random.normal(
+            np.repeat(np.expand_dims(u, axis=0), repeats=N, axis=0), 0.1
+        )
 
         op = freud.order.Nematic()
         op.compute(orientations)
@@ -77,13 +81,15 @@ class TestNematicOrder:
         assert not np.all(op.nematic_tensor == np.diag([1, -0.5, -0.5]))
 
         u = np.array([0, 1, 0])
-        op_perp = freud.order.Nematic(u)
+        orientations = np.random.normal(
+            np.repeat(np.expand_dims(u, axis=0), repeats=N, axis=0), 0.1
+        )
+        op_perp = freud.order.Nematic()
         op_perp.compute(orientations)
 
         npt.assert_allclose(op_perp.order, 1, atol=1e-1)
         assert op_perp.order != 1
 
-        # The director can be inverted so we compare absolute values
         npt.assert_allclose(np.abs(op_perp.director), u, atol=1e-1)
         assert not np.all(op_perp.director == u)
 
