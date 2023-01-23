@@ -59,7 +59,7 @@ void FilterRAD::compute(const NeighborQuery* nq, const vec3<float>* query_points
 
                 if (good_neighbor)
                 {
-                    local_bonds.emplace_back(i, j, sorted_dist(first_idx + j));
+                    local_bonds.emplace_back(i, first_neighbor_idx, sorted_dist(first_idx + j));
                 }
             }
         }
