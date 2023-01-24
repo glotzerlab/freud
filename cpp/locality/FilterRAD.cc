@@ -4,7 +4,6 @@
 #include "utils.h"
 #include <tbb/enumerable_thread_specific.h>
 #include <vector>
-#include <iostream>
 
 namespace freud { namespace locality {
 
@@ -51,7 +50,7 @@ void FilterRAD::compute(const NeighborQuery* nq, const vec3<float>* query_points
 
                     const auto coz
                         = dot(v1, v2) / sorted_dist(first_neighbor_idx) / sorted_dist(second_neighbor_idx);
-                    if (1 / dot(v1, v1) < (coz / dot(v2, v2)))
+                    if (1 / dot(v1, v1) < (coz < dot(v2, v2)))
                     {
                         good_neighbor = false;
                         break;
