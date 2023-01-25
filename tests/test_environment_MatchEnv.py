@@ -204,10 +204,8 @@ class TestCluster:
             err_msg="BCC Cluster Environment fail",
         )
 
-    def _make_global_neighborlist(self, sys):
+    def _make_global_neighborlist(self, box, points):
         """Get neighborlist where all particles are neighbors."""
-        box, points = sys
-
         # pairwise distances after wrapping
         vecs = points[:, None, :] - points[None, :, :]
         wrapped_vecs = box.wrap(vecs.reshape((len(vecs) * len(vecs), 3))).reshape(
@@ -253,7 +251,7 @@ class TestCluster:
         box = freud.box.Box(L, L, L, 0, 0, 0)
 
         # compute neighbors for global neighborlist and call compute
-        nlist = self._make_global_neighborlist((box, xyz))
+        nlist = self._make_global_neighborlist(box, xyz)
         match = freud.environment.EnvironmentCluster()
         query_args = dict(r_guess=r_max, num_neighbors=num_neighbors)
         match.compute(
