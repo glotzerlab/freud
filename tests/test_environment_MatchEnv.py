@@ -204,6 +204,22 @@ class TestCluster:
             err_msg="BCC Cluster Environment fail",
         )
 
+    def _make_global_neighborlist(self, box, points):
+        """Get neighborlist where all particles are neighbors."""
+        # pairwise distances after wrapping
+        vecs = points[:, None, :] - points[None, :, :]
+        wrapped_vecs = box.wrap(vecs.reshape((len(vecs) * len(vecs), 3))).reshape(
+            vecs.shape
+        )
+        dists = np.linalg.norm(wrapped_vecs, axis=-1)
+
+        # get point/query_point indices
+        query_point_indices, point_indices = np.nonzero(dists)
+        wrapped_vecs = wrapped_vecs[query_point_indices, point_indices]
+        return freud.locality.NeighborList.from_arrays(
+            len(points), len(points), query_point_indices, point_indices, wrapped_vecs
+        )
+
     # Test EnvironmentCluster.compute function,
     # hard_r=false, registration=true, global=true
     def test_cluster_registration(self):
@@ -234,16 +250,17 @@ class TestCluster:
         L = np.max(xyz) * 3.0
         box = freud.box.Box(L, L, L, 0, 0, 0)
 
+        # compute neighbors for global neighborlist and call compute
+        nlist = self._make_global_neighborlist(box, xyz)
         match = freud.environment.EnvironmentCluster()
         query_args = dict(r_guess=r_max, num_neighbors=num_neighbors)
-        with pytest.warns(FutureWarning):
-            match.compute(
-                (box, xyz),
-                threshold,
-                registration=True,
-                global_search=True,
-                neighbors=query_args,
-            )
+        match.compute(
+            (box, xyz),
+            threshold,
+            registration=True,
+            neighbors=nlist,
+            env_neighbors=query_args,
+        )
         clusters = match.cluster_idx
 
         # Get environment for each particle
@@ -266,9 +283,6 @@ class TestCluster:
             num_neighbors,
             err_msg="two environments are not similar",
         )
-        assert (
-            freud.__version__ < "3.0.0"
-        ), "The global_search flag should be removed in version >= 3.0.0"
 
     # Test EnvironmentCluster._minimize_RMSD and registration functionality.
     # Overkill? Maybe.
@@ -426,22 +440,6 @@ class TestCluster:
         match.compute((box, xyz), threshold, neighbors=query_args)
         match._repr_png_()
         plt.close("all")
-
-    def test_warning_global_search(self):
-        """Test that setting global_search = True raises warnings."""
-        points = [[1, 0, 0], [0, 1, 0], [-1, 0, 0], [0, -1, 0]]
-
-        num_neighbors = 4
-
-        box = freud.box.Box.square(3)
-        match = freud.environment.EnvironmentCluster()
-        query_args = dict(num_neighbors=num_neighbors)
-        with pytest.warns(FutureWarning):
-            match.compute((box, points), 0.1, neighbors=query_args, global_search=True)
-
-        assert (
-            freud.__version__ < "3.0.0"
-        ), "The global_search flag should be removed in version >= 3.0.0"
 
 
 class TestEnvironmentMotifMatch:
