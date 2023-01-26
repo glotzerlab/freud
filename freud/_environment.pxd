@@ -103,7 +103,6 @@ cdef extern from "MatchEnv.h" namespace "freud::environment":
                      const freud._locality.NeighborList*,
                      freud._locality.QueryArgs,
                      float,
-                     bool,
                      bool) except +
         unsigned int getNumClusters()
         const freud.util.ManagedArray[unsigned int] &getClusters()
