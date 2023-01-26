@@ -537,8 +537,8 @@ cdef class EnvironmentCluster(_MatchEnv):
         For example, :code:`env_neighbors= {'num_neighbors': 8}` means that every
         particle's local environment is defined by its 8 nearest neighbors.
         Then, each particle's environment is compared to the environments of
-        particles that satisfy a different cutoff parameter :code:`neighbors`.
-        For example, :code:`neighbors={'r_max': 3.0}`
+        particles that satisfy a different cutoff parameter :code:`cluster_neighbors`.
+        For example, :code:`cluster_neighbors={'r_max': 3.0}`
         means that the environment of each particle will be compared to the
         environment of every particle within a distance of 3.0.
 
@@ -664,7 +664,7 @@ cdef class EnvironmentCluster(_MatchEnv):
             warnings.warn(
                 "The global search option is deprecated and will be removed in "
                 "version 3.0. If you want this behavior, use a NeighborList "
-                "composed of all pairs of particles in the system as the `neighbors`.",
+                "composed of all pairs of particles in the system as the `cluster_neighbors`.",
                 FutureWarning
             )
 
