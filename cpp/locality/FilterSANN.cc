@@ -107,10 +107,7 @@ void FilterSANN::warnAboutUnfilledNeighborShells(const std::vector<unsigned int>
         {
             throw std::runtime_error(error_str.str());
         }
-        else
-        {
-            std::cout << "WARNING: " << error_str.str() << std::endl;
-        }
+        std::cout << "WARNING: " << error_str.str() << std::endl;
     }
 }
 

@@ -27,7 +27,7 @@ public:
 
 private:
     //! warn/raise exception about unfilled shells
-    void warnAboutUnfilledNeighborShells(const std::vector<unsigned int>& unfilled_qps);
+    void warnAboutUnfilledNeighborShells(const std::vector<unsigned int>& unfilled_qps) const;
 
     //! whether incomplete neighbor shell should result in a warning or error
     bool m_allow_incomplete_shell;
