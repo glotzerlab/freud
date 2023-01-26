@@ -1423,11 +1423,27 @@ cdef class FilterSANN(Filter):
     all :math:`N^2` particle pairs by distance. For a more in-depth explanation of
     the neighborlist filter concept in **freud**, see :class:`.Filter`.
 
+    Warning:
+        Due to the above design decision, it is possible that the unfiltered
+        neighborlist will not contain enough neighbors to completely fill the
+        neighbor shell of some particles in the system. The ``allow_incomplete_shell``
+        argument to :class:`.FilterSANN`'s constructor controls whether a warning
+        or exception is raised in these cases.
+
     Note:
         The ``filtered_nlist`` computed by this class will be sorted by distance.
+
+    Args:
+        allow_incomplete_shell (bool):
+            Whether particles with incomplete neighbor shells are allowed in the
+            filtered neighborlist. If True, a warning will be raised if there are
+            particles with incomplete neighbors shells in the filtered neighborlist.
+            If False, an exception will be raised in the same case (Default value =
+            :code:`False`).
     """
-    def __cinit__(self):
-        self._filterptr = self._thisptr = new freud._locality.FilterSANN()
+    def __cinit__(self, cbool allow_incomplete_shell=False):
+        self._filterptr = self._thisptr = \
+            new freud._locality.FilterSANN(allow_incomplete_shell)
 
     def __dealloc__(self):
         if type(self) == FilterSANN:

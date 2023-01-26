@@ -13,14 +13,22 @@ namespace freud { namespace locality {
 class FilterSANN : public Filter
 {
 public:
-    //<! Construct with an empty NeighborList, fill it upon calling compute
-    FilterSANN() : Filter() {}
+    //<! Construct a FilterSANN
+    /*
+     * \param allow_incomplete_shell whether incomplete neighbor shells should
+     *                               result in a warning or error
+     * */
+    FilterSANN(bool allow_incomplete_shell) : Filter(), m_allow_incomplete_shell(allow_incomplete_shell) {}
 
     void compute(const NeighborQuery* nq, const vec3<float>* query_points, unsigned int num_query_points,
                  const NeighborList* nlist, const QueryArgs& qargs) override;
 
 private:
-    static void warnAboutUnfilledSolidAngles(const std::vector<unsigned int>& unfilled_qps);
+    //! warn/raise exception about unfilled shells
+    void warnAboutUnfilledNeighborShells(const std::vector<unsigned int>& unfilled_qps);
+
+    //! whether incomplete neighbor shell should result in a warning or error
+    bool m_allow_incomplete_shell;
 };
 
 }; }; // namespace freud::locality

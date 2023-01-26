@@ -133,7 +133,7 @@ class TestSANN(FilterTest):
             ]
         )
         box = freud.box.Box.cube(10)
-        f_SANN = freud.locality.FilterSANN()
+        f_SANN = freud.locality.FilterSANN(allow_incomplete_shell=True)
         f_SANN.compute((box, points), {"r_max": r_max, "exclude_ii": True})
 
         # check the filtered nlist is right

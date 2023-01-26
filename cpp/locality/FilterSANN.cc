@@ -66,17 +66,20 @@ void FilterSANN::compute(const NeighborQuery* nq, const vec3<float>* query_point
             // if neighbors don't cover the full solid angle, record this thread's query point index
             if (m == num_unfiltered_neighbors)
             {
+                // in principle, the incomplete shell exception can be raised here,
+                // but the error is more informative if the exception raised
+                // includes each query point with an unfilled neighbor shell
                 unfilled_qps[i] = i;
             }
         }
     });
 
+    // print warning/exception about query point indices with unfilled neighbor shells
+    warnAboutUnfilledNeighborShells(unfilled_qps);
+
     // combine thread-local NeighborBond vectors into a single vector
     tbb::flattened2d<BondVector> flat_filtered_bonds = tbb::flatten2d(filtered_bonds);
     std::vector<NeighborBond> sann_bonds(flat_filtered_bonds.begin(), flat_filtered_bonds.end());
-
-    // print warning about query point indices with unfilled solid angles
-    warnAboutUnfilledSolidAngles(unfilled_qps);
 
     // sort final bonds array by distance
     tbb::parallel_sort(sann_bonds.begin(), sann_bonds.end(), compareNeighborDistance);
@@ -84,7 +87,7 @@ void FilterSANN::compute(const NeighborQuery* nq, const vec3<float>* query_point
     m_filtered_nlist = std::make_shared<NeighborList>(sann_bonds);
 };
 
-void FilterSANN::warnAboutUnfilledSolidAngles(const std::vector<unsigned int>& unfilled_qps)
+void FilterSANN::warnAboutUnfilledNeighborShells(const std::vector<unsigned int>& unfilled_qps)
 {
     std::string indices;
     for (const auto& idx : unfilled_qps)
@@ -98,8 +101,16 @@ void FilterSANN::warnAboutUnfilledSolidAngles(const std::vector<unsigned int>& u
     indices = indices.substr(0, indices.size() - 2);
     if (!indices.empty())
     {
-        std::cout << "WARNING: Query points whose neighbors do not cover the full 4*pi solid angle: "
-                  << indices << ". Try using an unfiltered neighborlist with more neighbors" << std::endl;
+        std::ostringstream error_str;
+        error_str << "Query point indices " << indices << " do not have full neighbor shells.";
+        if (!m_allow_incomplete_shell)
+        {
+            throw std::runtime_error(error_str.str());
+        }
+        else
+        {
+            std::cout << "WARNING: " << error_str.str() << std::endl;
+        }
     }
 }
 

@@ -154,10 +154,10 @@ cdef extern from "Filter.h" namespace "freud::locality":
                      const vec3[float] *,
                      unsigned int,
                      const NeighborList *,
-                     QueryArgs)
+                     QueryArgs) except +
         shared_ptr[NeighborList] getFilteredNlist() const
         shared_ptr[NeighborList] getUnfilteredNlist() const
 
 cdef extern from "FilterSANN.h" namespace "freud::locality":
     cdef cppclass FilterSANN(Filter):
-        FilterSANN()
+        FilterSANN(bool)
