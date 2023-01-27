@@ -236,10 +236,10 @@ std::vector<vec3<float>> EnvDisjointSet::getAvgEnv(const unsigned int m)
 
     // loop through the vectors in env now, dividing by the total number
     // of contributing particle environments to make an average
-    for (unsigned int n = 0; n < env.size(); n++)
+    for (auto &vec : env)
     {
-        vec3<float> normed = env[n] / static_cast<float>(N);
-        env[n] = normed;
+        vec3<float> normed = vec / static_cast<float>(N);
+        vec = normed;
     }
     return env;
 }
@@ -613,12 +613,13 @@ unsigned int EnvironmentCluster::populateEnv(EnvDisjointSet dj)
                 label_ind = label_map[c];
             }
 
-            m_point_environments.push_back(std::vector<vec3<float>>());
             // label this particle in m_env_index
             m_env_index[particle_ind] = label_ind;
-            for (unsigned int m = 0; m < part_vecs.size(); m++)
+
+            m_point_environments.emplace_back();
+            for (auto &part_vec : part_vecs)
             {
-                m_point_environments[particle_ind].push_back(part_vecs[m]);
+                m_point_environments[particle_ind].push_back(part_vec);
             }
             particle_ind++;
         }
@@ -713,10 +714,10 @@ void EnvironmentMotifMatch::compute(const freud::locality::NeighborQuery* nq,
         // grab the set of vectors that define this individual environment
         std::vector<vec3<float>> part_vecs = dj.getIndividualEnv(dummy);
 
-        m_point_environments.push_back(std::vector<vec3<float>>());
-        for (unsigned int m = 0; m < part_vecs.size(); m++)
+        m_point_environments.emplace_back();
+        for (auto &part_vec : part_vecs)
         {
-            m_point_environments[i].push_back(part_vecs[m]);
+            m_point_environments[i].push_back(part_vec);
         }
     }
 }
@@ -791,13 +792,13 @@ void EnvironmentRMSDMinimizer::compute(const freud::locality::NeighborQuery* nq,
             dj.merge(0, dummy, vec_map, rotation);
         }
 
-        m_point_environments.push_back(std::vector<vec3<float>>());
         // grab the set of vectors that define this individual environment
         std::vector<vec3<float>> part_vecs = dj.getIndividualEnv(dummy);
 
-        for (unsigned int m = 0; m < part_vecs.size(); m++)
+        m_point_environments.emplace_back();
+        for (auto &part_vec : part_vecs)
         {
-            m_point_environments[i].push_back(part_vecs[m]);
+            m_point_environments[i].push_back(part_vec);
         }
     }
 }
