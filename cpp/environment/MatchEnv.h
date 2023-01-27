@@ -215,8 +215,8 @@ public:
     }
 
 protected:
-    std::vector<std::vector<vec3<float>>> m_point_environments; //!< m_NP by m_max_num_neighbors by 3 matrix of all
-                                                                //!< environments for all particles
+    std::vector<std::vector<vec3<float>>> m_point_environments; //!< m_NP by m_max_num_neighbors by 3 matrix
+                                                                //!< of all environments for all particles
 };
 
 //! Cluster particles with similar environments.
