@@ -15,6 +15,9 @@ and this project adheres to
 * The ``neighbors`` argument to ``env_neighbors`` for ``EnvironmentMotifMatch`` class.
 * The ``neighbors`` argument to ``cluster_neighbors`` for ``EnvironmentCluster`` class.
 
+### Removed
+* The `global_search` flag in `freud.environment.EnvironmentCluster`.
+
 ## v2.12.1 -- 2022-12-05
 
 ### Added

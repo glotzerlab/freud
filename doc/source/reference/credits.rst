@@ -337,6 +337,7 @@ Tommy Waltmann
 * Update and test the ``normalization_mode`` argument to ``freud.density.RDF`` class.
 * Extending plotting options for the ``Voronoi`` module.
 * Work with Bradley Dice on adding neighbor vectors to ``freud.locality.NeighborList``.
+* Remove `global_search` flag in ``freud.environment.EnvironmentCluster``.
 
 Maya Martirossyan
 
@@ -377,7 +378,8 @@ Alain Kadar
 
 Melody Zhang
 
-* Changed ``neighbors`` argument to ``env_neighbors`` for ``EnvironmentMotifMatch`` class and to ``cluster_neighbors`` for ``EnvironmentCluster`` class. 
+* Changed ``neighbors`` argument to ``env_neighbors`` for ``EnvironmentMotifMatch`` class and to ``cluster_neighbors`` for ``EnvironmentCluster`` class.
+
 Source code
 -----------
 

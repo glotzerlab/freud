@@ -528,8 +528,7 @@ cdef class EnvironmentCluster(_MatchEnv):
         del self.thisptr
 
     def compute(self, system, threshold, cluster_neighbors=None,
-                env_neighbors=None, registration=False,
-                global_search=False):
+                env_neighbors=None, registration=False):
         r"""Determine clusters of particles with matching environments.
 
         An environment is defined by the bond vectors between a particle and its
@@ -603,8 +602,7 @@ cdef class EnvironmentCluster(_MatchEnv):
             ...     system = (box, points),
             ...     threshold=0.2,
             ...     cluster_neighbors={'num_neighbors': 6},
-            ...     registration=False,
-            ...     global_search=False)
+            ...     registration=False)
             freud.environment.EnvironmentCluster()
 
         Args:
@@ -637,14 +635,6 @@ cdef class EnvironmentCluster(_MatchEnv):
                 it minimizes the RMSD between the two sets. Enabling this
                 option incurs a significant performance penalty.
                 (Default value = :code:`False`)
-            global_search (bool, optional):
-                If True, do an exhaustive search wherein the environments of
-                every single pair of particles are compared.
-                Thus it is equivalent to including all particles in the system
-                in :code:`'neighbors'`.
-                If False, only compare the environments of neighboring
-                particles. Enabling this option incurs a significant
-                performance penalty. (Default value = :code:`False`)
         """  # noqa: E501
         cdef:
             freud.locality.NeighborQuery nq
@@ -660,18 +650,10 @@ cdef class EnvironmentCluster(_MatchEnv):
             env_neighbors = cluster_neighbors
         env_nlist, env_qargs = self._resolve_neighbors(env_neighbors)
 
-        if global_search:
-            warnings.warn(
-                "The global search option is deprecated and will be removed in "
-                "version 3.0. If you want this behavior, use a NeighborList "
-                "composed of all pairs of particles in the system as the `cluster_neighbors`.",
-                FutureWarning
-            )
-
         self.thisptr.compute(
             nq.get_ptr(), nlist.get_ptr(), dereference(qargs.thisptr),
             env_nlist.get_ptr(), dereference(env_qargs.thisptr), threshold,
-            registration, global_search)
+            registration)
         return self
 
     @_Compute._computed_property
