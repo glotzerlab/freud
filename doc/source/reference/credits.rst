@@ -379,6 +379,7 @@ Alain Kadar
 Melody Zhang
 
 * Changed ``neighbors`` argument to ``env_neighbors`` for ``EnvironmentMotifMatch`` class and to ``cluster_neighbors`` for ``EnvironmentCluster`` class.
+
 Source code
 -----------
 
