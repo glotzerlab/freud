@@ -32,3 +32,10 @@ Overview of API Changes
     * - Create a custom neighborlist from arrays.
       - ``freud.locality.NeighborList.from_arrays(..., distances=...)``
       - ``freud.locality.NeighborList.from_arrays(..., vectors=...)``
+    * - Use ``EnvironmentMotifMatch`` with a set of neighbors
+      - ``freud.environment.EnvironmentMotifMatch().compute(..., neighbors=...)``
+      - ``freud.environment.EnvironmentMotifMatch().compute(..., env_neighbors=...)``
+    * - Use ``EnvironmentCluster`` with a set of neighbors that define the cluster
+      - ``freud.environment.EnvironmentCluster().compute(..., neighbors=...)``
+      - ``freud.environment.EnvironmentCluster().compute(..., cluster_neighbors=...)``
+      
