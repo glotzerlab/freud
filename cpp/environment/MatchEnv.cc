@@ -236,7 +236,7 @@ std::vector<vec3<float>> EnvDisjointSet::getAvgEnv(const unsigned int m)
 
     // loop through the vectors in env now, dividing by the total number
     // of contributing particle environments to make an average
-    for (auto &vec : env)
+    for (auto& vec : env)
     {
         vec3<float> normed = vec / static_cast<float>(N);
         vec = normed;
@@ -617,7 +617,7 @@ unsigned int EnvironmentCluster::populateEnv(EnvDisjointSet dj)
             m_env_index[particle_ind] = label_ind;
 
             m_point_environments.emplace_back();
-            for (auto &part_vec : part_vecs)
+            for (auto& part_vec : part_vecs)
             {
                 m_point_environments[particle_ind].push_back(part_vec);
             }
@@ -715,7 +715,7 @@ void EnvironmentMotifMatch::compute(const freud::locality::NeighborQuery* nq,
         std::vector<vec3<float>> part_vecs = dj.getIndividualEnv(dummy);
 
         m_point_environments.emplace_back();
-        for (auto &part_vec : part_vecs)
+        for (auto& part_vec : part_vecs)
         {
             m_point_environments[i].push_back(part_vec);
         }
@@ -796,7 +796,7 @@ void EnvironmentRMSDMinimizer::compute(const freud::locality::NeighborQuery* nq,
         std::vector<vec3<float>> part_vecs = dj.getIndividualEnv(dummy);
 
         m_point_environments.emplace_back();
-        for (auto &part_vec : part_vecs)
+        for (auto& part_vec : part_vecs)
         {
             m_point_environments[i].push_back(part_vec);
         }
