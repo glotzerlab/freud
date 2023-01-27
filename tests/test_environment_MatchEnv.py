@@ -11,6 +11,13 @@ import freud
 matplotlib.use("agg")
 
 
+def assert_ragged_array(arr):
+    """Assert the given array is a list of numpy arrays."""
+    assert type(arr) == list
+    for a in arr:
+        assert type(a) == np.ndarray
+
+
 class TestCluster:
     # by Chrisy
     test_folder = os.path.join(os.path.dirname(__file__), "numpy_test_files")
@@ -203,6 +210,17 @@ class TestCluster:
             atol=1e-5,
             err_msg="BCC Cluster Environment fail",
         )
+
+    def test_ragged_properties(self):
+        """Assert that some properties are returned as ragged arrays."""
+        N = 100
+        L = 10
+        sys = freud.data.make_random_system(L, N)
+        env_cluster = freud.environment.EnvironmentCluster()
+        qargs = dict(r_max=2.0)  # Using r_max ensures different env sizes
+        env_cluster.compute(sys, threshold=0.8, neighbors=qargs)
+        assert_ragged_array(env_cluster.point_environments)
+        assert_ragged_array(env_cluster.cluster_environments)
 
     def _make_global_neighborlist(self, box, points):
         """Get neighborlist where all particles are neighbors."""
@@ -472,6 +490,22 @@ class TestEnvironmentMotifMatch:
         query_args = dict(num_neighbors=num_neighbors)
         with pytest.warns(RuntimeWarning):
             match.compute((box, motif), motif, 0.1, neighbors=query_args)
+
+    def test_ragged_properties(self):
+        """Assert that some properties are returned as ragged arrays."""
+        N = 100
+        L = 10
+
+        # sc motif
+        motif = np.array(
+            [[0, 1, 0], [1, 0, 0], [0, 0, 1], [0, 0, -1], [-1, 0, 0], [0, -1, 0]]
+        )
+
+        sys = freud.data.make_random_system(L, N)
+        env_mm = freud.environment.EnvironmentMotifMatch()
+        qargs = dict(r_max=2.0)  # Using r_max ensures different env sizes
+        env_mm.compute(sys, motif, threshold=0.8, neighbors=qargs)
+        assert_ragged_array(env_mm.point_environments)
 
 
 class TestEnvironmentRMSDMinimizer:
