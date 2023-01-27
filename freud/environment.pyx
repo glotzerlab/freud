@@ -672,7 +672,7 @@ cdef class EnvironmentCluster(_MatchEnv):
     @_Compute._computed_property
     def cluster_environments(self):
         """:math:`\\left(N_{clusters}, N_{neighbors}, 3\\right)`
-        list[:class:`numpy.ndarray`]): The environments for all clusters."""
+        list[:class:`numpy.ndarray`]: The environments for all clusters."""
         envs = self.thisptr.getClusterEnvironments()
         return [np.asarray([[p.x, p.y, p.z] for p in env])
                 for env in envs]
@@ -770,6 +770,14 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
 
         nq, nlist, qargs, l_query_points, num_query_points = \
             self._preprocess_arguments(system, neighbors=neighbors)
+
+        motif = freud.util._convert_array(motif, shape=(None, 3))
+        if (motif == 0).all(axis=1).any():
+            warnings.warn(
+                "Attempting to match a motif containing the zero "
+                "vector is likely to result in zero matches.",
+                RuntimeWarning
+            )
 
         cdef const float[:, ::1] l_motif = motif
         cdef unsigned int nRef = l_motif.shape[0]
