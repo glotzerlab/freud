@@ -32,3 +32,6 @@ Overview of API Changes
     * - Create a custom neighborlist from arrays.
       - ``freud.locality.NeighborList.from_arrays(..., distances=...)``
       - ``freud.locality.NeighborList.from_arrays(..., vectors=...)``
+    * - Compare environments of all particle pairs with ``EnvironmentCluster``.
+      - ``env_cluster.compute(..., global_search=True)``
+      - ``env_cluster.compute(..., neighbors=all_pairs_nlist, ...)``
