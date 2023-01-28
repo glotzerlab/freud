@@ -87,7 +87,7 @@ void FilterSANN::compute(const NeighborQuery* nq, const vec3<float>* query_point
     m_filtered_nlist = std::make_shared<NeighborList>(sann_bonds);
 };
 
-void FilterSANN::warnAboutUnfilledNeighborShells(const std::vector<unsigned int>& unfilled_qps)
+void FilterSANN::warnAboutUnfilledNeighborShells(const std::vector<unsigned int>& unfilled_qps) const
 {
     std::string indices;
     for (const auto& idx : unfilled_qps)
