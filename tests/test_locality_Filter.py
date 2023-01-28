@@ -2,6 +2,7 @@ from abc import abstractmethod
 
 import numpy as np
 import numpy.testing as npt
+import pytest
 
 import freud
 import freud.locality
@@ -133,6 +134,12 @@ class TestSANN(FilterTest):
             ]
         )
         box = freud.box.Box.cube(10)
+
+        # Verify that an exception is thrown for an incomplete shell.
+        f_SANN = freud.locality.FilterSANN(allow_incomplete_shell=False)
+        with pytest.raises(RuntimeError):
+            f_SANN.compute((box, points), {"r_max": r_max, "exclude_ii": True})
+
         f_SANN = freud.locality.FilterSANN(allow_incomplete_shell=True)
         f_SANN.compute((box, points), {"r_max": r_max, "exclude_ii": True})
 
