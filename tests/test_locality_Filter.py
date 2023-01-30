@@ -26,10 +26,9 @@ class FilterTest:
             filt.compute(sys, dict(r_max=1.5))
             assert filt.unfiltered_nlist is not None
             assert filt.filtered_nlist is not None
- 
+
 
 class TestRAD(FilterTest):
-
     def get_filters(self):
         return [freud.locality.FilterRAD()]
 
@@ -39,37 +38,48 @@ class TestRAD(FilterTest):
         box = system[0]
         points = system[1]
 
-        N=len(points)
+        N = len(points)
         aq = freud.locality.AABBQuery(*system)
-        nlist = aq.query(points, dict(mode='ball',r_max=r_max,exclude_ii=True)).toNeighborList(sort_by_distance=True)
-        sorted_neighbors=np.asarray(nlist)
-        list_of_neighs=[]
-        #loop over all particles
-        for i in range (0,N):
+        nlist = aq.query(
+            points, dict(mode="ball", r_max=r_max, exclude_ii=True)
+        ).toNeighborList(sort_by_distance=True)
+        sorted_neighbors = np.asarray(nlist)
+        list_of_neighs = []
+        # loop over all particles
+        for i in range(0, N):
             # put closest neighbors in the list of valid neighbors
-            i_neighbors=sorted_neighbors[sorted_neighbors[:,0]==i,1]
-            list_of_neighs.append([i,i_neighbors[0]])
+            i_neighbors = sorted_neighbors[sorted_neighbors[:, 0] == i, 1]
+            list_of_neighs.append([i, i_neighbors[0]])
             # loop over neighours starting from second
-            for jj in range(1,len(i_neighbors)):
-                j=i_neighbors[jj]
-                is_a_good_neighbour=True
+            for jj in range(1, len(i_neighbors)):
+                j = i_neighbors[jj]
+                is_a_good_neighbour = True
                 # loop over all neighbors that are closer
                 for k in i_neighbors[:jj]:
                     # check the condition
-                    v1=box.wrap(points[i]-points[j])
-                    v2=box.wrap(points[i]-points[k])
-                    coz=np.dot(v1,v2)/(np.linalg.norm(v1)*np.linalg.norm(v2))
+                    v1 = box.wrap(points[i] - points[j])
+                    v2 = box.wrap(points[i] - points[k])
+                    coz = np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
                     # if true add to the list
-                    if (1/np.dot(v1,v1)<(coz/np.dot(v2,v2))):
-                        is_a_good_neighbour=False
+                    if 1 / np.dot(v1, v1) < (coz / np.dot(v2, v2)):
+                        is_a_good_neighbour = False
                         break
                 if is_a_good_neighbour:
-                    list_of_neighs.append([i,j])
+                    list_of_neighs.append([i, j])
 
         # make freud nlist from list of neighbors
         sorted_neighbors = np.array(list_of_neighs)
-        dists = np.linalg.norm(box.wrap(points[sorted_neighbors[:, 0]] - points[sorted_neighbors[:, 1]]), axis=-1)
-        nlist = freud.locality.NeighborList.from_arrays(np.max(sorted_neighbors[:, 0] + 1), np.max(sorted_neighbors[:, 1]) + 1, sorted_neighbors[:, 0], sorted_neighbors[:, 1], dists)
+        dists = np.linalg.norm(
+            box.wrap(points[sorted_neighbors[:, 0]] - points[sorted_neighbors[:, 1]]),
+            axis=-1,
+        )
+        nlist = freud.locality.NeighborList.from_arrays(
+            np.max(sorted_neighbors[:, 0] + 1),
+            np.max(sorted_neighbors[:, 1]) + 1,
+            sorted_neighbors[:, 0],
+            sorted_neighbors[:, 1],
+            dists,
+        )
 
         return nlist
 
@@ -86,9 +96,25 @@ class TestRAD(FilterTest):
         )
         nlist_2 = filt.filtered_nlist
 
-        npt.assert_allclose(nlist_1.distances, nlist_2.distances,rtol=1e-5)
+        npt.assert_allclose(nlist_1.distances, nlist_2.distances, rtol=1e-5)
         npt.assert_allclose(nlist_1.point_indices, nlist_2.point_indices)
         npt.assert_allclose(nlist_1.query_point_indices, nlist_2.query_point_indices)
+
+    def test_RAD_BCC(self):
+        uc = freud.data.UnitCell.bcc()
+        N_reap = 3
+        r_max = 1.49
+        box, points = uc.generate_system(N_reap)
+        aq = freud.locality.AABBQuery(box, points)
+        startlist = aq.query(
+            points, dict(mode="ball", r_max=r_max, exclude_ii=True)
+        ).toNeighborList(sort_by_distance=True)
+        rad = freud.locality.FilterRAD()
+        rad.compute((box, points), neighbors=startlist)
+        npt.assert_array_equal(
+            rad.filtered_nlist.neighbor_counts,
+            np.ones(len(rad.filtered_nlist.neighbor_counts)) * 14,
+        )
 
 
 class TestSANN(FilterTest):
