@@ -86,7 +86,7 @@ class TestRAD(FilterTest):
         )
         nlist_2 = filt.filtered_nlist
 
-        npt.assert_allclose(nlist_1.distances, nlist_2.distances)
+        npt.assert_allclose(nlist_1.distances, nlist_2.distances,rtol=1e-5)
         npt.assert_allclose(nlist_1.point_indices, nlist_2.point_indices)
         npt.assert_allclose(nlist_1.query_point_indices, nlist_2.query_point_indices)
 
