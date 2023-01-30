@@ -88,7 +88,6 @@ struct EnvDisjointSet
 
     std::vector<Environment> s;     //!< The disjoint set data
     std::vector<unsigned int> rank; //!< The rank of each tree in the set
-    unsigned int m_max_num_neigh;   //!< The maximum number of neighbors in any environment in the set
 };
 
 /*****************************************************************************
@@ -215,8 +214,8 @@ public:
     }
 
 protected:
-    std::vector<std::vector<vec3<float>>> m_point_environments; //!< m_NP by m_max_num_neighbors by 3 matrix
-                                                                //!< of all environments for all particles
+    //!< number of particles x env size x 3 matrix to hold all particle environments
+    std::vector<std::vector<vec3<float>>> m_point_environments;
 };
 
 //! Cluster particles with similar environments.

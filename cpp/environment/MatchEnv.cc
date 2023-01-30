@@ -14,8 +14,7 @@ namespace freud { namespace environment {
 /*****************
  * EnvDisjoinSet *
  *****************/
-EnvDisjointSet::EnvDisjointSet(unsigned int Np) : rank(std::vector<unsigned int>(Np, 0)), m_max_num_neigh(0)
-{}
+EnvDisjointSet::EnvDisjointSet(unsigned int Np) : rank(std::vector<unsigned int>(Np, 0)) {}
 
 void EnvDisjointSet::merge(const unsigned int a, const unsigned int b,
                            BiMap<unsigned int, unsigned int> vec_map, rotmat3<float>& rotation)
@@ -543,8 +542,6 @@ void EnvironmentCluster::compute(const freud::locality::NeighborQuery* nq,
     {
         Environment ei = buildEnv(&env_nlist, env_num_bonds, env_bond, i, i);
         dj.s.push_back(ei);
-        dj.m_max_num_neigh = std::max(dj.m_max_num_neigh, ei.num_vecs);
-        ;
     }
 
     size_t bond(0);
@@ -657,15 +654,6 @@ void EnvironmentMotifMatch::compute(const freud::locality::NeighborQuery* nq,
     // because we're inserting the motif into it.
     EnvDisjointSet dj(Np + 1);
 
-    // The NeighborList may contain different numbers of neighbors for each particle, so
-    // we must determine the maximum programmatically to ensure that the disjoint set
-    // operations always allocate enough memory for the largest possible local environment.
-    auto counts = nlist.getCounts();
-    auto* begin = counts.get();
-    auto* end = begin + counts.size();
-    auto max_num_neigh = *std::max_element(begin, end);
-    dj.m_max_num_neigh = max_num_neigh;
-
     // create the environment characterized by motif. Index it as 0.
     // set the IGNORE flag to true, since this is not an environment we have
     // actually encountered in the simulation.
@@ -739,7 +727,6 @@ void EnvironmentRMSDMinimizer::compute(const freud::locality::NeighborQuery* nq,
     // this has to have ONE MORE environment than there are actual particles,
     // because we're inserting the motif into it.
     EnvDisjointSet dj(Np + 1);
-    dj.m_max_num_neigh = motif_size;
 
     // create the environment characterized by motif. Index it as 0.
     // set the IGNORE flag to true, since this is not an environment we
