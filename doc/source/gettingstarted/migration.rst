@@ -41,4 +41,3 @@ Overview of API Changes
     * - Use ``EnvironmentCluster`` with a set of neighbors that define the cluster
       - ``freud.environment.EnvironmentCluster().compute(..., neighbors=...)``
       - ``freud.environment.EnvironmentCluster().compute(..., cluster_neighbors=...)``
-
