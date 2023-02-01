@@ -787,6 +787,7 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
             <vec3[float]*>
             <vec3[float]*> &l_motif[0, 0], nRef,
             threshold, registration)
+        return self
 
     @_Compute._computed_property
     def matches(self):
