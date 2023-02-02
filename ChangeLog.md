@@ -15,6 +15,7 @@ and this project adheres to
 
 ### Removed
 * The `global_search` flag in `freud.environment.EnvironmentCluster`.
+* Zero padding from properties of `freud.environment.EnvironmentCluster` and `freud.environment.EnvironmentMotifMatch`.
 
 ## v2.12.1 -- 2022-12-05
 
