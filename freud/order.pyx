@@ -164,7 +164,7 @@ cdef class Nematic(_Compute):
 
     In some cases orientations are given as quaternions representing a rotation
     from the starting reference state (orientation) - such as HOOMD-blue. To
-    convert from quaternions to orientations in 3D on should apply quaternions
+    convert from quaternions to orientations in 3D one should apply quaternions
     on the initial reference orientation of the particle.
 
     Example::
@@ -192,6 +192,7 @@ cdef class Nematic(_Compute):
             >>> nematic = freud.order.Nematic()
             >>> nematic.compute(orientations)
             freud.order.Nematic()
+            >>> print(nematic.order)
 
         Args:
             orientations (:math:`\left(N_{particles}, 3 \right)` :class:`numpy.ndarray`):
