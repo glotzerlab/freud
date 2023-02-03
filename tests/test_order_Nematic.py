@@ -75,9 +75,7 @@ class TestNematicOrder:
         npt.assert_allclose(op.director, u, atol=1e-1)
         assert not np.all(op.director == u)
 
-        npt.assert_allclose(
-            op.nematic_tensor, np.diag([1, -0.5, -0.5]), atol=1e-1
-        )
+        npt.assert_allclose(op.nematic_tensor, np.diag([1, -0.5, -0.5]), atol=1e-1)
         assert not np.all(op.nematic_tensor == np.diag([1, -0.5, -0.5]))
 
         u = np.array([0, 1, 0])
@@ -93,9 +91,7 @@ class TestNematicOrder:
         npt.assert_allclose(np.abs(op_perp.director), u, atol=1e-1)
         assert not np.all(op_perp.director == u)
 
-        npt.assert_allclose(
-            op_perp.nematic_tensor, np.diag([-0.5, 1, -0.5]), atol=1e-1
-        )
+        npt.assert_allclose(op_perp.nematic_tensor, np.diag([-0.5, 1, -0.5]), atol=1e-1)
         assert not np.all(op_perp.nematic_tensor == np.diag([-0.5, 1, -0.5]))
 
     def test_repr(self):
