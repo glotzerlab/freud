@@ -12,6 +12,8 @@ and this project adheres to
 
 ### Changed
 * The `normalize` argument to `freud.density.RDF` is now `normalization_mode`.
+* The ``neighbors`` argument to ``env_neighbors`` for ``EnvironmentMotifMatch`` class.
+* The ``neighbors`` argument to ``cluster_neighbors`` for ``EnvironmentCluster`` class.
 
 ### Removed
 * The `global_search` flag in `freud.environment.EnvironmentCluster`.

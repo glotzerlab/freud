@@ -35,3 +35,9 @@ Overview of API Changes
     * - Compare environments of all particle pairs with ``EnvironmentCluster``.
       - ``env_cluster.compute(..., global_search=True)``
       - ``env_cluster.compute(..., neighbors=all_pairs_nlist, ...)``
+    * - Use ``EnvironmentMotifMatch`` with a set of neighbors
+      - ``freud.environment.EnvironmentMotifMatch().compute(..., neighbors=...)``
+      - ``freud.environment.EnvironmentMotifMatch().compute(..., env_neighbors=...)``
+    * - Use ``EnvironmentCluster`` with a set of neighbors that define the cluster
+      - ``freud.environment.EnvironmentCluster().compute(..., neighbors=...)``
+      - ``freud.environment.EnvironmentCluster().compute(..., cluster_neighbors=...)``

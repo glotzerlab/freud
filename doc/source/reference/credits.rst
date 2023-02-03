@@ -376,6 +376,10 @@ Alain Kadar
 
 * Introduced mass dependence for ``ClusterProperties`` class, inertia tensor and radius of gyration.
 
+Melody Zhang
+
+* Changed ``neighbors`` argument to ``env_neighbors`` for ``EnvironmentMotifMatch`` class and to ``cluster_neighbors`` for ``EnvironmentCluster`` class.
+
 Source code
 -----------
 
