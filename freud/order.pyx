@@ -193,6 +193,7 @@ cdef class Nematic(_Compute):
             >>> nematic.compute(orientations)
             freud.order.Nematic()
             >>> print(nematic.order)
+            1.0
 
         Args:
             orientations (:math:`\left(N_{particles}, 3 \right)` :class:`numpy.ndarray`):
