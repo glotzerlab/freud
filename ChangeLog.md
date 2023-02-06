@@ -18,6 +18,11 @@ and this project adheres to
 ### Removed
 * The `global_search` flag in `freud.environment.EnvironmentCluster`.
 
+## v2.13.0 -- YYYY-MM-DD
+
+### Added
+* Filter neighborlists with `freud.locality.FilterSANN`.
+
 ## v2.12.1 -- 2022-12-05
 
 ### Added

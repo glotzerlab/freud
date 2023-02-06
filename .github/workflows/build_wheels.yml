@@ -30,12 +30,12 @@ jobs:
         pyver: ["3.6", "3.7", "3.8", "3.9", "3.10", "3.11"]
 
     steps:
-      - uses: actions/checkout@v3.2.0
+      - uses: actions/checkout@v3.3.0
         with:
           submodules: "recursive"
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.11.4
+        uses: pypa/cibuildwheel@v2.12.0
         env:
           # Build for cpython >= 3.6.
           CIBW_PROJECT_REQUIRES_PYTHON: "==${{ matrix.pyver }}.*"
@@ -72,7 +72,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ contains(github.event.pull_request.labels.*.name, 'build_wheels') || github.event_name != 'pull_request' }}
     steps:
-      - uses: actions/checkout@v3.2.0
+      - uses: actions/checkout@v3.3.0
         with:
           submodules: "recursive"
 
