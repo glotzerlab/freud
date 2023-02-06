@@ -613,7 +613,7 @@ unsigned int EnvironmentCluster::populateEnv(EnvDisjointSet dj)
             m_env_index[particle_ind] = label_ind;
 
             m_point_environments.emplace_back();
-            for (auto& part_vec : part_vecs)
+            for (const auto& part_vec : part_vecs)
             {
                 m_point_environments[particle_ind].push_back(part_vec);
             }
@@ -702,7 +702,7 @@ void EnvironmentMotifMatch::compute(const freud::locality::NeighborQuery* nq,
         std::vector<vec3<float>> part_vecs = dj.getIndividualEnv(dummy);
 
         m_point_environments.emplace_back();
-        for (auto& part_vec : part_vecs)
+        for (const auto& part_vec : part_vecs)
         {
             m_point_environments[i].push_back(part_vec);
         }
