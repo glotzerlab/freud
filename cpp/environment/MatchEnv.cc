@@ -237,7 +237,7 @@ std::vector<vec3<float>> EnvDisjointSet::getAvgEnv(const unsigned int m)
     // of contributing particle environments to make an average
     for (auto& vec : env)
     {
-        vec = vec / static_cast<float>(N);
+        vec /= static_cast<float>(N);
     }
     return env;
 }

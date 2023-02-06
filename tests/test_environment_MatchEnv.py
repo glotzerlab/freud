@@ -13,9 +13,9 @@ matplotlib.use("agg")
 
 def assert_ragged_array(arr):
     """Assert the given array is a list of numpy arrays."""
-    assert type(arr) == list
+    assert isinstance(arr, list)
     for a in arr:
-        assert type(a) == np.ndarray
+        assert isinstance(a, np.ndarray)
 
 
 class TestCluster:
