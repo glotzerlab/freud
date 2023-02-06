@@ -67,6 +67,7 @@ NeighborList::NeighborList(const vec3<float>* points, const vec3<float>* query_p
 
     m_neighbors.prepare({num_bonds, 2});
     m_distances.prepare(num_bonds);
+    m_vectors.prepare(num_bonds);
     m_weights.prepare(num_bonds);
 
     util::forLoopWrapper(0, num_query_points, [&](size_t begin, size_t end) {
@@ -92,6 +93,7 @@ NeighborList::NeighborList(const vec3<float>* points, const vec3<float>* query_p
                 m_weights(bond_idx) = 1.0;
                 const auto dr = box.wrap(query_points[i] - points[j]);
                 m_distances(bond_idx) = sqrt(dot(dr, dr));
+                m_vectors(bond_idx) = dr;
                 ++bond_idx;
             }
         }
@@ -107,6 +109,7 @@ NeighborList::NeighborList(std::vector<NeighborBond> bonds)
 
     // prep arrays to populate
     m_distances.prepare(bonds.size());
+    m_vectors.prepare(bonds.size());
     m_weights.prepare(bonds.size());
     m_neighbors.prepare({bonds.size(), 2});
 
@@ -119,20 +122,21 @@ NeighborList::NeighborList(std::vector<NeighborBond> bonds)
             auto bond = bonds[i];
 
             // update max bond indices
-            if (max_point_idx < bond.point_idx)
+            if (max_point_idx < bond.getPointIdx())
             {
-                max_point_idx = bond.point_idx;
+                max_point_idx = bond.getPointIdx();
             }
-            if (max_query_idx < bond.query_point_idx)
+            if (max_query_idx < bond.getQueryPointIdx())
             {
-                max_query_idx = bond.query_point_idx;
+                max_query_idx = bond.getQueryPointIdx();
             }
 
             // fill in array data
-            m_distances(i) = bond.distance;
-            m_weights(i) = bond.weight;
-            m_neighbors(i, 0) = bond.query_point_idx;
-            m_neighbors(i, 1) = bond.point_idx;
+            m_distances(i) = bond.getDistance();
+            m_weights(i) = bond.getWeight();
+            m_neighbors(i, 0) = bond.getQueryPointIdx();
+            m_neighbors(i, 1) = bond.getPointIdx();
+            m_vectors(i) = bond.getVector();
         }
     });
 
@@ -353,10 +357,11 @@ void NeighborList::sort(bool by_distance = false)
         for (auto bond = begin; bond < end; ++bond)
         {
             auto nb = bond_vector[bond];
-            m_neighbors(bond, 0) = nb.query_point_idx;
-            m_neighbors(bond, 1) = nb.point_idx;
-            m_distances(bond) = nb.distance;
-            m_weights(bond) = nb.weight;
+            m_neighbors(bond, 0) = nb.getQueryPointIdx();
+            m_neighbors(bond, 1) = nb.getPointIdx();
+            m_distances(bond) = nb.getDistance();
+            m_vectors(bond) = nb.getVector();
+            m_weights(bond) = nb.getWeight();
         }
     });
 }
@@ -369,7 +374,7 @@ std::vector<NeighborBond> NeighborList::toBondVector() const
         for (auto bond_idx = begin; bond_idx < end; ++bond_idx)
         {
             NeighborBond nb(m_neighbors(bond_idx, 0), m_neighbors(bond_idx, 1), m_distances(bond_idx),
-                            m_weights(bond_idx));
+                            m_weights(bond_idx), m_vectors(bond_idx));
             bond_vector[bond_idx] = nb;
         }
     });

@@ -21,6 +21,7 @@ void FilterSANN::compute(const NeighborQuery* nq, const vec3<float>* query_point
 
     const auto& sorted_neighbors = sorted_nlist.getNeighbors();
     const auto& sorted_dist = sorted_nlist.getDistances();
+    const auto& sorted_vecs = sorted_nlist.getVectors();
     const auto& sorted_weights = sorted_nlist.getWeights();
     const auto& sorted_counts = sorted_nlist.getCounts();
 
@@ -50,7 +51,7 @@ void FilterSANN::compute(const NeighborQuery* nq, const vec3<float>* query_point
                 const unsigned int neighbor_idx = first_idx + m;
                 sum += sorted_dist(neighbor_idx);
                 local_bonds.emplace_back(i, sorted_neighbors(neighbor_idx, 1), sorted_dist(neighbor_idx),
-                                         sorted_weights(neighbor_idx));
+                                         sorted_weights(neighbor_idx), sorted_vecs(neighbor_idx));
             }
 
             // add neighbors after adding the first three
@@ -59,7 +60,7 @@ void FilterSANN::compute(const NeighborQuery* nq, const vec3<float>* query_point
                 const unsigned int neighbor_idx = first_idx + m;
                 sum += sorted_dist(neighbor_idx);
                 local_bonds.emplace_back(i, sorted_neighbors(neighbor_idx, 1), sorted_dist(neighbor_idx),
-                                         sorted_weights(neighbor_idx));
+                                         sorted_weights(neighbor_idx), sorted_vecs(neighbor_idx));
                 ++m;
             }
 

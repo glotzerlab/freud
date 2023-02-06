@@ -46,6 +46,7 @@ class TestSANN(FilterTest):
         ).toNeighborList(sort_by_distance=True)
         sorted_neighbours = np.asarray(nlist)
         sorted_dist = np.asarray(nlist.distances)
+        sorted_vecs = np.asarray(nlist.vectors)
         sol_id = []
         mask = np.zeros(len(nlist.distances), dtype=bool)
         for i in range(0, N):
@@ -60,12 +61,13 @@ class TestSANN(FilterTest):
             sol_id.append(m)
         sol_neighbors = sorted_neighbours[mask]
         sol_dist = sorted_dist[mask]
+        sol_vecs = sorted_vecs[mask]
         solution_nlist = freud.locality.NeighborList.from_arrays(
             np.max(sol_neighbors[:, 0]) + 1,
             np.max(sol_neighbors[:, 1]) + 1,
             sol_neighbors[:, 0],
             sol_neighbors[:, 1],
-            sol_dist,
+            sol_vecs,
         )
         return solution_nlist
 
