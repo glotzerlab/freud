@@ -12,10 +12,10 @@ and this project adheres to
 
 ### Changed
 * The `normalize` argument to `freud.density.RDF` is now `normalization_mode`.
+* Rmove zero-padding from arrays in `freud.environment.EnvironmentCluster` and `freud.environment.EnvironmentMotifMatch` and replace with ragged lists of NumPy arrays.
 
 ### Removed
 * The `global_search` flag in `freud.environment.EnvironmentCluster`.
-* Zero padding from properties of `freud.environment.EnvironmentCluster` and `freud.environment.EnvironmentMotifMatch`.
 
 ## v2.12.1 -- 2022-12-05
 
