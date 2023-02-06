@@ -2,6 +2,7 @@
 #include "NeighborBond.h"
 #include "NeighborComputeFunctional.h"
 #include "utils.h"
+#include <iostream>
 #include <tbb/enumerable_thread_specific.h>
 #include <vector>
 
@@ -23,24 +24,30 @@ void FilterSANN::compute(const NeighborQuery* nq, const vec3<float>* query_point
     const auto& sorted_weights = sorted_nlist.getWeights();
     const auto& sorted_counts = sorted_nlist.getCounts();
 
+    // hold set of bonds for each thread
     using BondVector = tbb::enumerable_thread_specific<std::vector<NeighborBond>>;
     BondVector filtered_bonds;
+
+    // hold index of query point for a thread if its solid angle isn't filled up to 4*pi
+    std::vector<unsigned int> unfilled_qps(sorted_nlist.getNumQueryPoints(),
+                                           std::numeric_limits<unsigned int>::max());
 
     // parallelize over query_point_index
     util::forLoopWrapper(0, sorted_nlist.getNumQueryPoints(), [&](size_t begin, size_t end) {
         // grab thread-local vector
         BondVector::reference local_bonds(filtered_bonds.local());
+
         for (auto i = begin; i < end; i++)
         {
-            unsigned int m = 3;
+            unsigned int m = 0; // count of number of neighbors
             const unsigned int num_unfiltered_neighbors = sorted_counts(i);
             const unsigned int first_idx = sorted_nlist.find_first_index(i);
             float sum = 0.0;
 
             // sum for the three closest neighbors
-            for (unsigned int j = 0; j < m && j < num_unfiltered_neighbors; j++)
+            for (; m < 3 && m < num_unfiltered_neighbors; ++m)
             {
-                const unsigned int neighbor_idx = first_idx + j;
+                const unsigned int neighbor_idx = first_idx + m;
                 sum += sorted_dist(neighbor_idx);
                 local_bonds.emplace_back(i, sorted_neighbors(neighbor_idx, 1), sorted_dist(neighbor_idx),
                                          sorted_weights(neighbor_idx));
@@ -53,10 +60,22 @@ void FilterSANN::compute(const NeighborQuery* nq, const vec3<float>* query_point
                 sum += sorted_dist(neighbor_idx);
                 local_bonds.emplace_back(i, sorted_neighbors(neighbor_idx, 1), sorted_dist(neighbor_idx),
                                          sorted_weights(neighbor_idx));
-                m += 1;
+                ++m;
+            }
+
+            // if neighbors don't cover the full solid angle, record this thread's query point index
+            if (m == num_unfiltered_neighbors)
+            {
+                // in principle, the incomplete shell exception can be raised here,
+                // but the error is more informative if the exception raised
+                // includes each query point with an unfilled neighbor shell
+                unfilled_qps[i] = i;
             }
         }
     });
+
+    // print warning/exception about query point indices with unfilled neighbor shells
+    warnAboutUnfilledNeighborShells(unfilled_qps);
 
     // combine thread-local NeighborBond vectors into a single vector
     tbb::flattened2d<BondVector> flat_filtered_bonds = tbb::flatten2d(filtered_bonds);
@@ -67,5 +86,29 @@ void FilterSANN::compute(const NeighborQuery* nq, const vec3<float>* query_point
 
     m_filtered_nlist = std::make_shared<NeighborList>(sann_bonds);
 };
+
+void FilterSANN::warnAboutUnfilledNeighborShells(const std::vector<unsigned int>& unfilled_qps) const
+{
+    std::string indices;
+    for (const auto& idx : unfilled_qps)
+    {
+        if (idx != std::numeric_limits<unsigned int>::max())
+        {
+            indices += std::to_string(idx);
+            indices += ", ";
+        }
+    }
+    indices = indices.substr(0, indices.size() - 2);
+    if (!indices.empty())
+    {
+        std::ostringstream error_str;
+        error_str << "Query point indices " << indices << " do not have full neighbor shells.";
+        if (!m_allow_incomplete_shell)
+        {
+            throw std::runtime_error(error_str.str());
+        }
+        std::cout << "WARNING: " << error_str.str() << std::endl;
+    }
+}
 
 }; }; // namespace freud::locality

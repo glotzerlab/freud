@@ -2,6 +2,7 @@ from abc import abstractmethod
 
 import numpy as np
 import numpy.testing as npt
+import pytest
 
 import freud
 import freud.locality
@@ -23,7 +24,7 @@ class FilterTest:
         sys = freud.data.make_random_system(L, N)
         filters = self.get_filters()
         for filt in filters:
-            filt.compute(sys, dict(r_max=1.5))
+            filt.compute(sys, dict(r_max=4.5))
             assert filt.unfiltered_nlist is not None
             assert filt.filtered_nlist is not None
 
@@ -174,6 +175,20 @@ class TestSANN(FilterTest):
         npt.assert_allclose(nlist_1.point_indices, nlist_2.point_indices)
         npt.assert_allclose(nlist_1.query_point_indices, nlist_2.query_point_indices)
 
+    def test_SANN_unfiltered_nlist(self):
+        """Test unfiltered nlist using SANN with default value for neighbors."""
+        N = 100
+        L = 10
+
+        sys = freud.data.make_random_system(L, N)
+        filtersann = freud.locality.FilterSANN().compute(sys)
+        nlist = filtersann.unfiltered_nlist
+
+        num_bonds = N * (N - 1)
+        assert len(nlist.distances) == num_bonds
+        assert len(nlist.point_indices) == num_bonds
+        assert len(nlist.query_point_indices) == num_bonds
+
     def test_SANN_fcc(self):
         """make sure python and cpp implementations agree for an FCC."""
         N_reap = 3
@@ -208,7 +223,13 @@ class TestSANN(FilterTest):
             ]
         )
         box = freud.box.Box.cube(10)
-        f_SANN = freud.locality.FilterSANN()
+
+        # Verify that an exception is thrown for an incomplete shell.
+        f_SANN = freud.locality.FilterSANN(allow_incomplete_shell=False)
+        with pytest.raises(RuntimeError):
+            f_SANN.compute((box, points), {"r_max": r_max, "exclude_ii": True})
+
+        f_SANN = freud.locality.FilterSANN(allow_incomplete_shell=True)
         f_SANN.compute((box, points), {"r_max": r_max, "exclude_ii": True})
 
         # check the filtered nlist is right

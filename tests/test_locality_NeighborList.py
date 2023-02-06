@@ -210,6 +210,38 @@ class TestNeighborList:
                 4, 4, query_point_indices, point_indices, distances, weights
             )
 
+    def test_all_pairs(self):
+        N = 100
+        L = 10
+        box, points = freud.data.make_random_system(L, N)
+
+        # do one with exclude_ii
+        nlist = freud.locality.NeighborList.all_pairs((box, points))
+        num_bonds = N * (N - 1)
+        assert len(nlist.point_indices) == num_bonds
+        assert len(nlist.query_point_indices) == num_bonds
+        assert len(nlist.distances) == num_bonds
+
+        # do one without exclude_ii and query_points
+        M = 50
+        box, query_points = freud.data.make_random_system(L, M)
+        nlist = freud.locality.NeighborList.all_pairs(
+            (box, points), query_points, exclude_ii=False
+        )
+        num_bonds = N * M
+        np.testing.assert_equal(nlist.query_point_indices, np.arange(M).repeat(N))
+        np.testing.assert_equal(nlist.point_indices, np.asarray(list(np.arange(N)) * M))
+        np.testing.assert_equal(
+            nlist.distances,
+            np.linalg.norm(
+                box.wrap(
+                    query_points[nlist.query_point_indices]
+                    - points[nlist.point_indices]
+                ),
+                axis=-1,
+            ),
+        )
+
     def test_indexing_empty(self):
         # Ensure that empty NeighborLists have the right shape
         nlist = self.nq.query(np.empty((0, 3)), self.query_args).toNeighborList()

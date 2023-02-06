@@ -58,6 +58,48 @@ NeighborList::NeighborList(unsigned int num_bonds, const unsigned int* query_poi
     }
 }
 
+NeighborList::NeighborList(const vec3<float>* points, const vec3<float>* query_points, const box::Box& box,
+                           const bool exclude_ii, const unsigned int num_points,
+                           const unsigned int num_query_points)
+    : m_num_points(num_points), m_num_query_points(num_query_points), m_segments_counts_updated(false)
+{
+    // prepare member arrays
+    const unsigned int num_ii = (exclude_ii ? std::min(num_points, num_query_points) : 0);
+    const unsigned int num_bonds = num_points * num_query_points - num_ii;
+
+    m_neighbors.prepare({num_bonds, 2});
+    m_distances.prepare(num_bonds);
+    m_weights.prepare(num_bonds);
+
+    util::forLoopWrapper(0, num_query_points, [&](size_t begin, size_t end) {
+        for (unsigned int i = begin; i < end; ++i)
+        {
+            // set the starting value of the bond index
+            unsigned int bond_idx = i * num_points;
+            if (exclude_ii)
+            {
+                bond_idx -= std::min(i, num_points);
+            }
+
+            // loop over points
+            for (unsigned int j = 0; j < num_points; ++j)
+            {
+                if (exclude_ii && i == j)
+                {
+                    continue;
+                }
+
+                m_neighbors(bond_idx, 0) = i;
+                m_neighbors(bond_idx, 1) = j;
+                m_weights(bond_idx) = 1.0;
+                const auto dr = box.wrap(query_points[i] - points[j]);
+                m_distances(bond_idx) = sqrt(dot(dr, dr));
+                ++bond_idx;
+            }
+        }
+    });
+}
+
 NeighborList::NeighborList(std::vector<NeighborBond> bonds)
 {
     // keep track of maximum indices

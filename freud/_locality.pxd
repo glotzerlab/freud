@@ -74,6 +74,9 @@ cdef extern from "NeighborList.h" namespace "freud::locality":
         NeighborList(unsigned int, const unsigned int*, unsigned int,
                      const unsigned int*, unsigned int, const float*,
                      const float*) except +
+        NeighborList(const vec3[float]*, const vec3[float]*,
+                     const freud._box.Box&, const bool, const unsigned int,
+                     const unsigned int)
 
         freud.util.ManagedArray[unsigned int] &getNeighbors()
         freud.util.ManagedArray[float] &getDistances()
@@ -151,13 +154,13 @@ cdef extern from "Filter.h" namespace "freud::locality":
                      const vec3[float] *,
                      unsigned int,
                      const NeighborList *,
-                     QueryArgs)
+                     QueryArgs) except +
         shared_ptr[NeighborList] getFilteredNlist() const
         shared_ptr[NeighborList] getUnfilteredNlist() const
 
 cdef extern from "FilterSANN.h" namespace "freud::locality":
     cdef cppclass FilterSANN(Filter):
-        FilterSANN()
+        FilterSANN(bool)
 
 cdef extern from "FilterRAD.h" namespace "freud::locality":
     cdef cppclass FilterRAD(Filter):
