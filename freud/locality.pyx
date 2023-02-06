@@ -1453,20 +1453,35 @@ cdef class FilterRAD(Filter):
     """Filter a :class:`.NeighborList` via the RAD method.
 
     The relative angular distance (RAD) method :cite:`Higham2016` is a
-    parameter-free algorithm for the identification of nearest neighbors. 
+    parameter-free algorithm for the identification of nearest neighbors.
     A particle’s neighbor shell is taken to be all particles that are not
-    blocked by any other particle and not further away than a blocked particle. 
+    blocked by any other particle and not further away than a blocked particle.
+
+    :class:`.FilterRAD` algorithm considers the potential neighbors of a query point
+    :math:`i` going radially outward, and filters the neighbors :math:`k` of :math:`i`
+    which are blocked by a closer neighbor :math:`j`. The RAD algorithm may filter
+    out all further neighbors of :math:`i` as soon as blocked neighbor :math:`k` is
+    found, which is the mode corresponding to ``terminate_after_blocked=True``. If
+    ``terminate_after_blocked=False``, then :class:`.FilterRAD` will continue to
+    consider neighbors further out than :math:`k`, only filtering them if they are
+    blocked by a closer neighbor.
 
     For performance considerations, RAD is implemented as a way of filtering
     a pre-existing set of neighbors due to the high performance cost of sorting
-    all :math:`N^2` particle pairs by distance. For a more in-depth explanation 
+    all :math:`N^2` particle pairs by distance. For a more in-depth explanation
     of the neighborlist filter concept in **freud**, see :class:`.Filter`.
+
+    Args:
+        terminate_after_blocked (bool):
+            Filter potential neighbors after a closer blocked particle is found.
 
     Note:
         The ``filtered_nlist`` computed by this class will be sorted by distance.
     """
-    def __cinit__(self):
-        self._filterptr = self._thisptr = new freud._locality.FilterRAD()
+    # TODO think of better argument name
+    def __cinit__(self, cbool terminate_after_blocked=True, cbool allow_incomplete_shell=False):
+        self._filterptr = self._thisptr = new freud._locality.FilterRAD(terminate_after_blocked,
+                                                                        allow_incomplete_shell)
 
     def __dealloc__(self):
         if type(self) == FilterRAD:
