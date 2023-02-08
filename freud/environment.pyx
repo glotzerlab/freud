@@ -527,7 +527,7 @@ cdef class EnvironmentCluster(_MatchEnv):
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, system, threshold, neighbors=None,
+    def compute(self, system, threshold, cluster_neighbors=None,
                 env_neighbors=None, registration=False):
         r"""Determine clusters of particles with matching environments.
 
@@ -536,8 +536,8 @@ cdef class EnvironmentCluster(_MatchEnv):
         For example, :code:`env_neighbors= {'num_neighbors': 8}` means that every
         particle's local environment is defined by its 8 nearest neighbors.
         Then, each particle's environment is compared to the environments of
-        particles that satisfy a different cutoff parameter :code:`neighbors`.
-        For example, :code:`neighbors={'r_max': 3.0}`
+        particles that satisfy a different cutoff parameter :code:`cluster_neighbors`.
+        For example, :code:`cluster_neighbors={'r_max': 3.0}`
         means that the environment of each particle will be compared to the
         environment of every particle within a distance of 3.0.
 
@@ -601,7 +601,7 @@ cdef class EnvironmentCluster(_MatchEnv):
             >>> env_cluster.compute(
             ...     system = (box, points),
             ...     threshold=0.2,
-            ...     neighbors={'num_neighbors': 6},
+            ...     cluster_neighbors={'num_neighbors': 6},
             ...     registration=False)
             freud.environment.EnvironmentCluster()
 
@@ -614,7 +614,7 @@ cdef class EnvironmentCluster(_MatchEnv):
                 below which they are "matching". Typically, a good choice is
                 between 10% and 30% of the first well in the radial
                 distribution function (this has distance units).
-            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
+            cluster_neighbors (:class:`freud.locality.NeighborList` or dict, optional):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
                 neighbor pairs to use in the calculation, or a dictionary of
                 `query arguments
@@ -644,10 +644,10 @@ cdef class EnvironmentCluster(_MatchEnv):
             unsigned int num_query_points
 
         nq, nlist, qargs, l_query_points, num_query_points = \
-            self._preprocess_arguments(system, neighbors=neighbors)
+            self._preprocess_arguments(system, neighbors=cluster_neighbors)
 
         if env_neighbors is None:
-            env_neighbors = neighbors
+            env_neighbors = cluster_neighbors
         env_nlist, env_qargs = self._resolve_neighbors(env_neighbors)
 
         self.thisptr.compute(
@@ -725,7 +725,7 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
     def __init__(self):
         pass
 
-    def compute(self, system, motif, threshold, neighbors=None,
+    def compute(self, system, motif, threshold, env_neighbors=None,
                 registration=False):
         r"""Determine which particles have local environments
             matching the given environment motif.
@@ -748,7 +748,7 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
                 below which they are "matching". Typically, a good choice is
                 between 10% and 30% of the first well in the radial
                 distribution function (this has distance units).
-            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
+            env_neighbors (:class:`freud.locality.NeighborList` or dict, optional):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
                 neighbor pairs to use in the calculation, or a dictionary of
                 `query arguments
@@ -769,7 +769,7 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
             unsigned int num_query_points
 
         nq, nlist, qargs, l_query_points, num_query_points = \
-            self._preprocess_arguments(system, neighbors=neighbors)
+            self._preprocess_arguments(system, neighbors=env_neighbors)
 
         motif = freud.util._convert_array(motif, shape=(None, 3))
         if (motif == 0).all(axis=1).any():

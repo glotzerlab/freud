@@ -48,7 +48,7 @@ class TestCluster:
             match.cluster_environments
 
         query_args = dict(r_guess=r_max, num_neighbors=num_neighbors)
-        match.compute((box, xyz), threshold, neighbors=query_args)
+        match.compute((box, xyz), threshold, cluster_neighbors=query_args)
 
         cluster_env = match.cluster_environments
 
@@ -92,7 +92,7 @@ class TestCluster:
 
         match = freud.environment.EnvironmentCluster()
         query_args = dict(r_guess=r_max, num_neighbors=num_neighbors)
-        match.compute((box, xyz), threshold, neighbors=query_args)
+        match.compute((box, xyz), threshold, cluster_neighbors=query_args)
 
         cluster_env = match.cluster_environments
 
@@ -137,7 +137,9 @@ class TestCluster:
 
         match = freud.environment.EnvironmentCluster()
         query_args = dict(r_guess=r_max, num_neighbors=num_neighbors)
-        match.compute((box, xyz), threshold, registration=False, neighbors=query_args)
+        match.compute(
+            (box, xyz), threshold, registration=False, cluster_neighbors=query_args
+        )
 
         cluster_env = match.cluster_environments
 
@@ -182,7 +184,9 @@ class TestCluster:
 
         match = freud.environment.EnvironmentCluster()
         query_args = dict(r_max=r_max, num_neighbors=num_neighbors)
-        match.compute((box, xyz), threshold, registration=False, neighbors=query_args)
+        match.compute(
+            (box, xyz), threshold, registration=False, cluster_neighbors=query_args
+        )
         cluster_env = match.cluster_environments
 
         fn = os.path.join(self.test_folder, "bcc_env.npy")
@@ -218,7 +222,7 @@ class TestCluster:
         sys = freud.data.make_random_system(L, N)
         env_cluster = freud.environment.EnvironmentCluster()
         qargs = dict(r_max=2.0)  # Using r_max ensures different env sizes
-        env_cluster.compute(sys, threshold=0.8, neighbors=qargs)
+        env_cluster.compute(sys, threshold=0.8, cluster_neighbors=qargs)
         assert_ragged_array(env_cluster.point_environments)
         assert_ragged_array(env_cluster.cluster_environments)
 
@@ -276,7 +280,7 @@ class TestCluster:
             (box, xyz),
             threshold,
             registration=True,
-            neighbors=nlist,
+            cluster_neighbors=nlist,
             env_neighbors=query_args,
         )
         clusters = match.cluster_idx
@@ -455,7 +459,7 @@ class TestCluster:
         assert match._repr_png_() is None
 
         query_args = dict(r_guess=r_max, num_neighbors=num_neighbors)
-        match.compute((box, xyz), threshold, neighbors=query_args)
+        match.compute((box, xyz), threshold, cluster_neighbors=query_args)
         match._repr_png_()
         plt.close("all")
 
@@ -472,7 +476,7 @@ class TestEnvironmentMotifMatch:
         box = freud.box.Box.square(3)
         query_args = dict(r_guess=r_max, num_neighbors=num_neighbors)
         match = freud.environment.EnvironmentMotifMatch().compute(
-            (box, points), motif, 0.1, neighbors=query_args
+            (box, points), motif, 0.1, env_neighbors=query_args
         )
         matches = match.matches
 
@@ -490,7 +494,7 @@ class TestEnvironmentMotifMatch:
         match = freud.environment.EnvironmentMotifMatch()
         query_args = dict(num_neighbors=num_neighbors)
         with pytest.warns(RuntimeWarning):
-            match.compute((box, motif), motif, 0.1, neighbors=query_args)
+            match.compute((box, motif), motif, 0.1, env_neighbors=query_args)
 
     def test_ragged_properties(self):
         """Assert that some properties are returned as ragged arrays."""
@@ -505,7 +509,7 @@ class TestEnvironmentMotifMatch:
         sys = freud.data.make_random_system(L, N)
         env_mm = freud.environment.EnvironmentMotifMatch()
         qargs = dict(r_max=2.0)  # Using r_max ensures different env sizes
-        env_mm.compute(sys, motif, threshold=0.8, neighbors=qargs)
+        env_mm.compute(sys, motif, threshold=0.8, env_neighbors=qargs)
         assert_ragged_array(env_mm.point_environments)
 
 

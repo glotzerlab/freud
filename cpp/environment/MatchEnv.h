@@ -245,14 +245,15 @@ public:
     //! Determine clusters of particles with matching environments
     /*! This is the primary interface to EnvironmentCluster. It computes particle
      * environments and then attempts to cluster nearby particles with similar
-     * environments, unless global is set true. Otherwise, it performs a
-     * pairwise comparison of all particle environments to perform the match.
-     * WARNING: A global search can be extremely slow.
-     * This is taken from Cluster.cc and SolLiq.cc and LocalQlNear.cc
+     * environments. It performs a pairwise comparison of all particle environments
+     * to perform the match.
      *
-     * \param env_nlist The NeighborList used to build the environment of every particle.
-     * \param nlist The NeighborList used to determine the neighbors against which
-     *              to compare environments for every particle, if hard_r = False.
+     * \param nq The NeighborQuery used to hold system data and query for neighbors.
+     * \param nlist_arg The NeighborList used to determine the neighbors against which to
+     *                  compare environments.
+     * \param qargs Query arguments to build the cluster neighbors.
+     * \param env_nlist_arg The NeighborList used to build the environment of every particle.
+     * \param env_qargs Query arguments to build the env neighbors.
      * \param threshold This quantity is of the maximum magnitude of the
      *                  vector difference between two vectors, below which
      *                  you call them matching. Recommended values for the
@@ -322,25 +323,18 @@ class EnvironmentMotifMatch : public MatchEnv
 {
 public:
     //! Constructor
-    /*!
-     * \param box The system box.
-     * \param num_neighbors Number of nearest neighbors taken to define the local environment of any given
-     * particle.
-     */
     EnvironmentMotifMatch() : MatchEnv() {}
 
     //! Determine whether particles match a given input motif.
     /*! Given a motif composed of vectors that represent the vectors connecting
-     * a point to the neighbors that are part of the motif, matchMotif looks at
-     * every point in points and checks if its neighbors may match this motif.
-     * Any point whose local environment matches the motif is marked as part of
-     * cluster 0 in the clusters array. All others are ignored. The
-     * tot_environments array is updated with the vectors composing the
+     * a point to the neighbors that are part of the motif, the compute method looks
+     * at every point and checks if its neighbors may match this motif. The
+     * point_environments array is updated with the vectors composing the
      * environment of every particle.
      *
-     * \param nlist A NeighborList instance.
-     * \param points The points to test against the motif.
-     * \param Np The number of points.
+     * \param nq The NeighborQuery used to hold system data and query for neighbors.
+     * \param nlist_arg The NeighborList defining particle environments.
+     * \param qargs Query arguments used to define nlist_args.
      * \param motif The vectors characterizing the motif. Note that these are
      *              vectors, so for instance given a square motif composed of
      *              points at the corners of a square, the motif should not

@@ -333,7 +333,9 @@ Tommy Waltmann
 * ``DiffractionPattern`` now raises an error when used with non-cubic boxes.
 * Implement ``StaticStructureFactorDebye`` for 2D systems.
 * Add support for compilation with the C++17 standard.
+* Update and test the ``normalization_mode`` argument to ``freud.density.RDF`` class.
 * Normalize n(r) in ``RDF`` class by number of query points.
+* Contributed code, design, documentation, and testing for ``freud.locality.FilterSANN`` class.
 * Update and test the ``normalization_mode`` argument to ``freud.density.RDF`` class.
 * Extending plotting options for the ``Voronoi`` module.
 * Work with Bradley Dice on adding neighbor vectors to ``freud.locality.NeighborList``.
@@ -356,6 +358,7 @@ Domagoj Fijan
 
 * Contributed code, design, documentation, and testing for ``StaticStructureFactorDebye`` class.
 * Contributed code, design, documentation, and testing for ``StaticStructureFactorDirect`` class.
+* Contributed code, design, documentation, and testing for ``freud.locality.FilterSANN`` class.
 
 Andrew Kerr
 
@@ -376,6 +379,10 @@ Kody Takada
 Alain Kadar
 
 * Introduced mass dependence for ``ClusterProperties`` class, inertia tensor and radius of gyration.
+
+Melody Zhang
+
+* Changed ``neighbors`` argument to ``env_neighbors`` for ``EnvironmentMotifMatch`` class and to ``cluster_neighbors`` for ``EnvironmentCluster`` class.
 
 Source code
 -----------
