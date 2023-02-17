@@ -271,6 +271,7 @@ std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const
                     for (unsigned int kz = kz_min; kz < std::min(kz_max, N_kz); ++kz)
                     {
                         const auto k_vec = k_vec_xy + static_cast<float>(kz) * bz;
+                        // POSSIBLY REFACTOR THIS INTO A FN AND USE FOR 2D and 3D?
                         const auto q_distance_sq
                             = dot(k_vec, k_vec) / freud::constants::TWO_PI / freud::constants::TWO_PI;
 
