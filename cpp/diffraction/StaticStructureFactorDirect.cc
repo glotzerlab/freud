@@ -53,10 +53,6 @@ void StaticStructureFactorDirect::accumulate(const freud::locality::NeighborQuer
 {
     // Compute k vectors by sampling reciprocal space.
     const auto& box = neighbor_query->getBox();
-    if (box.is2D())
-    {
-        throw std::invalid_argument("2D boxes are not currently supported.");
-    }
     const auto k_bin_edges = m_structure_factor.getBinEdges()[0];
     const auto k_min = k_bin_edges.front();
     const auto k_max = k_bin_edges.back();
@@ -64,7 +60,7 @@ void StaticStructureFactorDirect::accumulate(const freud::locality::NeighborQuer
     {
         previous_box = box;
         m_k_points
-            = StaticStructureFactorDirect::reciprocal_isotropic(box, k_max, k_min, m_num_sampled_k_points);
+            = StaticStructureFactorDirect::reciprocal_isotropic3D(box, k_max, k_min, m_num_sampled_k_points);
         box_assigned = true;
     }
 
@@ -207,89 +203,94 @@ std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const
     const auto dq_x = B.row(0).norm();
     const auto dq_y = B.row(1).norm();
     const auto dq_z = B.row(2).norm();
-    const auto q_volume = dq_x * dq_y * dq_z;
+    if (box.is2D()){
+        const auto q_area = dq_x * dq_y;
 
-    // Above the pruning distance, the grid of k points is sampled isotropically
-    // at a lower density.
-    const auto q_prune_distance = get_prune_distance(num_sampled_k_points, q_max, q_volume);
-    const auto q_prune_distance_sq = q_prune_distance * q_prune_distance;
+    } else {
+        const auto q_volume = dq_x * dq_y * dq_z;
 
-    const auto bx = freud::constants::TWO_PI * vec3<float>(B(0, 0), B(0, 1), B(0, 2));
-    const auto by = freud::constants::TWO_PI * vec3<float>(B(1, 0), B(1, 1), B(1, 2));
-    const auto bz = freud::constants::TWO_PI * vec3<float>(B(2, 0), B(2, 1), B(2, 2));
-    const auto N_kx = static_cast<unsigned int>(std::ceil(q_max / dq_x));
-    const auto N_ky = static_cast<unsigned int>(std::ceil(q_max / dq_y));
-    const auto N_kz = static_cast<unsigned int>(std::ceil(q_max / dq_z));
+        // Above the pruning distance, the grid of k points is sampled isotropically
+        // at a lower density.
+        const auto q_prune_distance = get_prune_distance(num_sampled_k_points, q_max, q_volume);
+        const auto q_prune_distance_sq = q_prune_distance * q_prune_distance;
 
-    // The maximum number of k points is a guideline. The true number of sampled
-    // k points can be less or greater than num_sampled_k_points, depending on the
-    // result of the random pruning procedure. Therefore, we cannot allocate a
-    // fixed size for the data. Also, reserving capacity for the concurrent
-    // vector had no measureable effect on performance.
-    tbb::concurrent_vector<vec3<float>> k_points;
+        const auto bx = freud::constants::TWO_PI * vec3<float>(B(0, 0), B(0, 1), B(0, 2));
+        const auto by = freud::constants::TWO_PI * vec3<float>(B(1, 0), B(1, 1), B(1, 2));
+        const auto bz = freud::constants::TWO_PI * vec3<float>(B(2, 0), B(2, 1), B(2, 2));
+        const auto N_kx = static_cast<unsigned int>(std::ceil(q_max / dq_x));
+        const auto N_ky = static_cast<unsigned int>(std::ceil(q_max / dq_y));
+        const auto N_kz = static_cast<unsigned int>(std::ceil(q_max / dq_z));
 
-    // This is a 3D loop but we parallelize in 1D because we only need to seed
-    // the random number generators once per block and there is no benefit of
-    // locality if we parallelize in 2D or 3D.
-    util::forLoopWrapper(0, N_kx, [&](size_t begin, size_t end) {
-        // Set up thread-local random number generator for k point pruning.
-        const auto thread_start = static_cast<unsigned int>(begin);
-        std::random_device rd;
-        std::seed_seq seed {thread_start, rd(), rd(), rd()};
-        std::mt19937 rng(seed);
-        std::uniform_real_distribution<float> base_dist(0, 1);
-        auto random_prune = [&]() { return base_dist(rng); };
+        // The maximum number of k points is a guideline. The true number of sampled
+        // k points can be less or greater than num_sampled_k_points, depending on the
+        // result of the random pruning procedure. Therefore, we cannot allocate a
+        // fixed size for the data. Also, reserving capacity for the concurrent
+        // vector had no measureable effect on performance.
+        tbb::concurrent_vector<vec3<float>> k_points;
 
-        const auto add_all_k_points = std::isinf(q_prune_distance);
+        // This is a 3D loop but we parallelize in 1D because we only need to seed
+        // the random number generators once per block and there is no benefit of
+        // locality if we parallelize in 2D or 3D.
+        util::forLoopWrapper(0, N_kx, [&](size_t begin, size_t end) {
+            // Set up thread-local random number generator for k point pruning.
+            const auto thread_start = static_cast<unsigned int>(begin);
+            std::random_device rd;
+            std::seed_seq seed {thread_start, rd(), rd(), rd()};
+            std::mt19937 rng(seed);
+            std::uniform_real_distribution<float> base_dist(0, 1);
+            auto random_prune = [&]() { return base_dist(rng); };
 
-        for (unsigned int kx = begin; kx < end; ++kx)
-        {
-            const auto k_vec_x = static_cast<float>(kx) * bx;
-            for (unsigned int ky = 0; ky < N_ky; ++ky)
+            const auto add_all_k_points = std::isinf(q_prune_distance);
+
+            for (unsigned int kx = begin; kx < end; ++kx)
             {
-                const auto k_vec_xy = k_vec_x + static_cast<float>(ky) * by;
-
-                // Solve the quadratic equation for kz to limit which kz values we must sample:
-                // k_min^2 <= |k_vec_xy|^2 + kz^2 |bz|^2 - 2 kz (k_vec_xy \cdot bz) <= k_max^2
-                // 0 <= kz^2 (|bz|^2) + kz (-2 (k_vec_xy \cdot bz)) + (|k_vec_xy|^2 - k_min^2)
-                // 0 >= kz^2 (|bz|^2) + kz (-2 (k_vec_xy \cdot bz)) + (|k_vec_xy|^2 - k_max^2)
-                // This step improves performance significantly when k_min > 0
-                // by eliminating a large portion of the search space. Likewise,
-                // it eliminates the portion of search space outside a sphere
-                // with radius k_max. We round kz_min down and kz_max up to
-                // ensure that we don't accidentally throw out valid k points in
-                // the range (k_min, k_max) due to rounding error.
-                const auto coef_a = dot(bz, bz);
-                const auto coef_b = -2 * dot(k_vec_xy, bz);
-                const auto coef_c_min = dot(k_vec_xy, k_vec_xy) - k_min * k_min;
-                const auto coef_c_max = dot(k_vec_xy, k_vec_xy) - k_max * k_max;
-                const auto b_over_2a = coef_b / (2 * coef_a);
-                const auto kz_min = static_cast<unsigned int>(
-                    std::floor(-b_over_2a + std::sqrt(b_over_2a * b_over_2a - coef_c_min / coef_a)));
-                const auto kz_max = static_cast<unsigned int>(
-                    std::ceil(-b_over_2a + std::sqrt(b_over_2a * b_over_2a - coef_c_max / coef_a)));
-                for (unsigned int kz = kz_min; kz < std::min(kz_max, N_kz); ++kz)
+                const auto k_vec_x = static_cast<float>(kx) * bx;
+                for (unsigned int ky = 0; ky < N_ky; ++ky)
                 {
-                    const auto k_vec = k_vec_xy + static_cast<float>(kz) * bz;
-                    const auto q_distance_sq
-                        = dot(k_vec, k_vec) / freud::constants::TWO_PI / freud::constants::TWO_PI;
+                    const auto k_vec_xy = k_vec_x + static_cast<float>(ky) * by;
 
-                    // The k vector is kept with probability min(1, (q_prune_distance / q_distance)^2).
-                    // This sampling scheme aims to have a constant density of k vectors with respect to
-                    // radial distance.
-                    if (q_distance_sq <= q_max_sq && q_distance_sq >= q_min_sq)
+                    // Solve the quadratic equation for kz to limit which kz values we must sample:
+                    // k_min^2 <= |k_vec_xy|^2 + kz^2 |bz|^2 - 2 kz (k_vec_xy \cdot bz) <= k_max^2
+                    // 0 <= kz^2 (|bz|^2) + kz (-2 (k_vec_xy \cdot bz)) + (|k_vec_xy|^2 - k_min^2)
+                    // 0 >= kz^2 (|bz|^2) + kz (-2 (k_vec_xy \cdot bz)) + (|k_vec_xy|^2 - k_max^2)
+                    // This step improves performance significantly when k_min > 0
+                    // by eliminating a large portion of the search space. Likewise,
+                    // it eliminates the portion of search space outside a sphere
+                    // with radius k_max. We round kz_min down and kz_max up to
+                    // ensure that we don't accidentally throw out valid k points in
+                    // the range (k_min, k_max) due to rounding error.
+                    const auto coef_a = dot(bz, bz);
+                    const auto coef_b = -2 * dot(k_vec_xy, bz);
+                    const auto coef_c_min = dot(k_vec_xy, k_vec_xy) - k_min * k_min;
+                    const auto coef_c_max = dot(k_vec_xy, k_vec_xy) - k_max * k_max;
+                    const auto b_over_2a = coef_b / (2 * coef_a);
+                    const auto kz_min = static_cast<unsigned int>(
+                        std::floor(-b_over_2a + std::sqrt(b_over_2a * b_over_2a - coef_c_min / coef_a)));
+                    const auto kz_max = static_cast<unsigned int>(
+                        std::ceil(-b_over_2a + std::sqrt(b_over_2a * b_over_2a - coef_c_max / coef_a)));
+                    for (unsigned int kz = kz_min; kz < std::min(kz_max, N_kz); ++kz)
                     {
-                        const auto prune_probability = q_prune_distance_sq / q_distance_sq;
-                        if (add_all_k_points || prune_probability > random_prune())
+                        const auto k_vec = k_vec_xy + static_cast<float>(kz) * bz;
+                        const auto q_distance_sq
+                            = dot(k_vec, k_vec) / freud::constants::TWO_PI / freud::constants::TWO_PI;
+
+                        // The k vector is kept with probability min(1, (q_prune_distance / q_distance)^2).
+                        // This sampling scheme aims to have a constant density of k vectors with respect to
+                        // radial distance.
+                        if (q_distance_sq <= q_max_sq && q_distance_sq >= q_min_sq)
                         {
-                            k_points.emplace_back(k_vec);
+                            const auto prune_probability = q_prune_distance_sq / q_distance_sq;
+                            if (add_all_k_points || prune_probability > random_prune())
+                            {
+                                k_points.emplace_back(k_vec);
+                            }
                         }
                     }
                 }
             }
-        }
-    });
-    return std::vector<vec3<float>>(k_points.cbegin(), k_points.cend());
+        });
+        return std::vector<vec3<float>>(k_points.cbegin(), k_points.cend());
+    }
 }
 
 }; }; // namespace freud::diffraction
