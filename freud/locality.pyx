@@ -1486,9 +1486,15 @@ cdef class FilterRAD(Filter):
     Note:
         The ``filtered_nlist`` computed by this class will be sorted by distance.
     """
-    def __cinit__(self, cbool terminate_after_blocked=True, cbool allow_incomplete_shell=False):
-        self._filterptr = self._thisptr = new freud._locality.FilterRAD(terminate_after_blocked,
-                                                                        allow_incomplete_shell)
+    def __cinit__(
+        self,
+        cbool terminate_after_blocked=True, 
+        cbool allow_incomplete_shell=False
+        ):
+        self._filterptr = self._thisptr = new freud._locality.FilterRAD(
+            terminate_after_blocked,
+            allow_incomplete_shell
+            )
 
     def __dealloc__(self):
         if type(self) == FilterRAD:
