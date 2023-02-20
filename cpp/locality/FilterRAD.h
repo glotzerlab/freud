@@ -14,10 +14,13 @@ class FilterRAD : public Filter
 {
 public:
     //<! Construct with an empty NeighborList, fill it upon calling compute
-    FilterRAD() : Filter() {}
+    FilterRAD(bool terminate_after_blocked, bool allow_incomplete_shell) : Filter(allow_incomplete_shell), m_terminate_after_blocked(terminate_after_blocked) {}
 
     void compute(const NeighborQuery* nq, const vec3<float>* query_points, unsigned int num_query_points,
                  const NeighborList* nlist, const QueryArgs& qargs) override;
+private:
+    //<! variable that determines if RAD open (True) or RAD closed (False) is computed
+    bool m_terminate_after_blocked;
 };
 
 }; }; // namespace freud::locality

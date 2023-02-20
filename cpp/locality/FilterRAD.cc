@@ -18,6 +18,11 @@ void FilterRAD::compute(const NeighborQuery* nq, const vec3<float>* query_points
     NeighborList sorted_nlist(*m_unfiltered_nlist);
     sorted_nlist.sort(true);
 
+    // hold index of query point for a thread if its RAD shell isn't filled 
+    std::vector<unsigned int> unfilled_qps(sorted_nlist.getNumQueryPoints(),
+                                           std::numeric_limits<unsigned int>::max());
+
+
     const auto& points = nq->getPoints();
     const auto& box = nq->getBox();
     const auto& sorted_neighbors = sorted_nlist.getNeighbors();
@@ -36,12 +41,12 @@ void FilterRAD::compute(const NeighborQuery* nq, const vec3<float>* query_points
         {
             const unsigned int num_unfiltered_neighbors = sorted_counts(i);
             const unsigned int first_idx = sorted_nlist.find_first_index(i);
+            bool good_neighbor = true;
 
-            // sum for the three closest neighbors
             for (unsigned int j = 0; j < num_unfiltered_neighbors; j++)
             {
                 const unsigned int first_neighbor_idx = sorted_neighbors(first_idx + j, 1);
-                bool good_neighbor = true;
+                good_neighbor = true;
                 for (unsigned int k = 0; k < j; k++)
                 {
                     const unsigned int second_neighbor_idx = sorted_neighbors(first_idx + k, 1);
@@ -58,10 +63,25 @@ void FilterRAD::compute(const NeighborQuery* nq, const vec3<float>* query_points
                 if (good_neighbor)
                 {
                     local_bonds.emplace_back(i, first_neighbor_idx, sorted_dist(first_idx + j));
+                } else {
+                    if (m_terminate_after_blocked) break;
                 }
             }
+            if (good_neighbor && m_terminate_after_blocked){
+                // if for closed no blocking particle is found we want to raise
+                // a warning/error, because proper RAD nlist cannot be
+                // guaranteed in that case
+                // in principle, the incomplete shell exception can be raised here,
+                // but the error is more informative if the exception raised
+                // includes each query point with an unfilled neighbor shell
+                unfilled_qps[i] = i;
+            }
+
         }
     });
+
+    // print warning/exception about query point indices with unfilled neighbor shells
+    Filter::warnAboutUnfilledNeighborShells(unfilled_qps);
 
     // combine thread-local arrays
     tbb::flattened2d<BondVector> flat_filtered_bonds = tbb::flatten2d(filtered_bonds);
