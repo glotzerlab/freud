@@ -92,7 +92,7 @@ class TestRAD(FilterTest):
 
         sys = freud.data.make_random_system(L, N)
         nlist_1 = self.compute_RAD_neighborlist(sys, r_max)
-        filt = freud.locality.FilterRAD().compute(
+        filt = freud.locality.FilterRAD(terminate_after_blocked=False).compute(
             sys, dict(r_max=r_max, exclude_ii=True)
         )
         nlist_2 = filt.filtered_nlist
