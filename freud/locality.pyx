@@ -1488,7 +1488,7 @@ cdef class FilterRAD(Filter):
     """
     def __cinit__(
                  self,
-                 cbool terminate_after_blocked=True, 
+                 cbool terminate_after_blocked=True,
                  cbool allow_incomplete_shell=False
                  ):
         self._filterptr = self._thisptr = new freud._locality.FilterRAD(
