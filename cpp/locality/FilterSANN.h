@@ -19,8 +19,7 @@ public:
      *                               result in a warning or error
      * */
     explicit FilterSANN(bool allow_incomplete_shell)
-        : Filter(), m_allow_incomplete_shell(allow_incomplete_shell)
-    {}
+        : Filter(allow_incomplete_shell) {}
 
     void compute(const NeighborQuery* nq, const vec3<float>* query_points, unsigned int num_query_points,
                  const NeighborList* nlist, const QueryArgs& qargs) override;
@@ -29,8 +28,6 @@ private:
     //! warn/raise exception about unfilled shells
     void warnAboutUnfilledNeighborShells(const std::vector<unsigned int>& unfilled_qps) const;
 
-    //! whether incomplete neighbor shell should result in a warning or error
-    bool m_allow_incomplete_shell;
 };
 
 }; }; // namespace freud::locality

@@ -2,7 +2,6 @@
 #include "NeighborBond.h"
 #include "NeighborComputeFunctional.h"
 #include "utils.h"
-#include <iostream>
 #include <tbb/enumerable_thread_specific.h>
 #include <vector>
 
@@ -75,7 +74,7 @@ void FilterSANN::compute(const NeighborQuery* nq, const vec3<float>* query_point
     });
 
     // print warning/exception about query point indices with unfilled neighbor shells
-    warnAboutUnfilledNeighborShells(unfilled_qps);
+    Filter::warnAboutUnfilledNeighborShells(unfilled_qps);
 
     // combine thread-local NeighborBond vectors into a single vector
     tbb::flattened2d<BondVector> flat_filtered_bonds = tbb::flatten2d(filtered_bonds);
@@ -86,29 +85,5 @@ void FilterSANN::compute(const NeighborQuery* nq, const vec3<float>* query_point
 
     m_filtered_nlist = std::make_shared<NeighborList>(sann_bonds);
 };
-
-void FilterSANN::warnAboutUnfilledNeighborShells(const std::vector<unsigned int>& unfilled_qps) const
-{
-    std::string indices;
-    for (const auto& idx : unfilled_qps)
-    {
-        if (idx != std::numeric_limits<unsigned int>::max())
-        {
-            indices += std::to_string(idx);
-            indices += ", ";
-        }
-    }
-    indices = indices.substr(0, indices.size() - 2);
-    if (!indices.empty())
-    {
-        std::ostringstream error_str;
-        error_str << "Query point indices " << indices << " do not have full neighbor shells.";
-        if (!m_allow_incomplete_shell)
-        {
-            throw std::runtime_error(error_str.str());
-        }
-        std::cout << "WARNING: " << error_str.str() << std::endl;
-    }
-}
 
 }; }; // namespace freud::locality
