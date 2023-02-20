@@ -64,7 +64,9 @@ void FilterRAD::compute(const NeighborQuery* nq, const vec3<float>* query_points
                 {
                     local_bonds.emplace_back(i, first_neighbor_idx, sorted_dist(first_idx + j));
                 } else {
-                    if (m_terminate_after_blocked) break;
+                    if (m_terminate_after_blocked) {
+                        break;
+                    }
                 }
             }
             if (good_neighbor && m_terminate_after_blocked){
