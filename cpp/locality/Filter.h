@@ -1,9 +1,9 @@
 #ifndef __FILTER_H__
 #define __FILTER_H__
 
-#include <iostream>
 #include "NeighborList.h"
 #include "NeighborQuery.h"
+#include <iostream>
 
 namespace freud { namespace locality {
 
@@ -22,8 +22,7 @@ class Filter
 public:
     Filter(bool allow_incomplete_shell)
         : m_unfiltered_nlist(std::make_shared<NeighborList>()),
-          m_filtered_nlist(std::make_shared<NeighborList>()),
-          m_allow_incomplete_shell(allow_incomplete_shell)
+          m_filtered_nlist(std::make_shared<NeighborList>()), m_allow_incomplete_shell(allow_incomplete_shell)
     {}
 
     virtual ~Filter() = default;
@@ -73,7 +72,6 @@ protected:
             std::cout << "WARNING: " << error_str.str() << std::endl;
         }
     }
-
 };
 
 }; }; // namespace freud::locality
