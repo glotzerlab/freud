@@ -18,10 +18,9 @@ void FilterRAD::compute(const NeighborQuery* nq, const vec3<float>* query_points
     NeighborList sorted_nlist(*m_unfiltered_nlist);
     sorted_nlist.sort(true);
 
-    // hold index of query point for a thread if its RAD shell isn't filled 
+    // hold index of query point for a thread if its RAD shell isn't filled
     std::vector<unsigned int> unfilled_qps(sorted_nlist.getNumQueryPoints(),
                                            std::numeric_limits<unsigned int>::max());
-
 
     const auto& points = nq->getPoints();
     const auto& box = nq->getBox();
@@ -63,11 +62,15 @@ void FilterRAD::compute(const NeighborQuery* nq, const vec3<float>* query_points
                 if (good_neighbor)
                 {
                     local_bonds.emplace_back(i, first_neighbor_idx, sorted_dist(first_idx + j));
-                } else {
-                    if (m_terminate_after_blocked) break;
+                }
+                else
+                {
+                    if (m_terminate_after_blocked)
+                        break;
                 }
             }
-            if (good_neighbor && m_terminate_after_blocked){
+            if (good_neighbor && m_terminate_after_blocked)
+            {
                 // if for closed no blocking particle is found we want to raise
                 // a warning/error, because proper RAD nlist cannot be
                 // guaranteed in that case
@@ -76,7 +79,6 @@ void FilterRAD::compute(const NeighborQuery* nq, const vec3<float>* query_points
                 // includes each query point with an unfilled neighbor shell
                 unfilled_qps[i] = i;
             }
-
         }
     });
 
