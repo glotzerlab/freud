@@ -1458,14 +1458,14 @@ cdef class FilterRAD(Filter):
     blocked by any other particle and not further away than a blocked particle.
 
     :class:`.FilterRAD` algorithm considers the potential neighbors of a query point
-    :math:`i` going radially outward, and filters the neighbors :math:`k` of :math:`i`
-    which are blocked by a closer neighbor :math:`j`. The RAD algorithm may filter
-    out all further neighbors of :math:`i` as soon as blocked neighbor :math:`k` is
-    found, which is the mode corresponding to ``terminate_after_blocked=True`` (which
-    corresponds to the "closed" mode in :cite:`Higham2016`). If
-    ``terminate_after_blocked=False``, then :class:`.FilterRAD` will continue to
-    consider neighbors further out than :math:`k`, only filtering them if they are
-    blocked by a closer neighbor (corrseponding to "open" mode in :cite:`Higham2016`).
+    :math:`i` going radially outward, and filters the neighbors :math:`j` of :math:`i`
+    which are blocked by a closer neighbor :math:`k`. The RAD algorithm may filter
+    out all further neighbors of :math:`i` as soon as blocked neighbor :math:`j` is
+    found. This is the mode corresponding to ``terminate_after_blocked=True`` and is
+    called "RAD-closed" in :cite:`Higham2016`. If ``terminate_after_blocked=False``,
+    then :class:`.FilterRAD` will continue to consider neighbors further away than
+    :math:`j`, only filtering them if they are blocked by a closer neighbor. This mode
+    is called "RAD-open" in :cite:`Higham2016`.
 
     For performance considerations, RAD is implemented as a way of filtering
     a pre-existing set of neighbors due to the high performance cost of sorting
@@ -1474,14 +1474,14 @@ cdef class FilterRAD(Filter):
 
     Args:
         terminate_after_blocked (bool):
-            Filter potential neighbors after a closer blocked particle is found.
+            Filter potential neighbors after a closer blocked particle is found
+            (Default value = :code:`False`).
         allow_incomplete_shell (bool):
             Whether particles with incomplete neighbor shells are allowed in the
             filtered neighborlist. If True, a warning will be raised if there are
             particles with incomplete neighbors shells in the filtered neighborlist.
             If False, an exception will be raised in the same case. Only considered
-            when "closed" mode is used (``terminate_after_blocked=True``). (Default
-            value = :code:`False`).
+            when ``terminate_after_blocked=True`` (Default value = :code:`False`).
 
     Note:
         The ``filtered_nlist`` computed by this class will be sorted by distance.

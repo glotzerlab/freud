@@ -22,7 +22,7 @@ public:
                  const NeighborList* nlist, const QueryArgs& qargs) override;
 
 private:
-    //<! variable that determines if RAD open (True) or RAD closed (False) is computed
+    //<! variable that determines if RAD-open (False) or RAD-closed (True) is computed
     bool m_terminate_after_blocked;
 };
 

@@ -44,11 +44,28 @@ public:
 protected:
     //!< The unfiltered neighborlist
     std::shared_ptr<NeighborList> m_unfiltered_nlist;
+
     //!< The filtered neighborlist
     std::shared_ptr<NeighborList> m_filtered_nlist;
-    //<! variable that determines if RAD open (True) or RAD closed (False) is computed
+
+    //<! whether a warning (true) or error (false) should be raised if the filter
+    //<! algorithm implementation cannot guarantee all neighbors have filled shells
     bool m_allow_incomplete_shell;
 
+    /*! Output the appropriate warning/error message for particles with unfilled shells
+     *
+     * In some cases, the filter concept cannot guarantee each query point will have
+     * a completely filled shell according to the implemented algorithm due to the
+     * potential for the unfiltered neighborlist to not have enough neighbors to begin
+     * with.
+     *
+     * \param unfilled_qps Vector of query points which may have unfilled neighbor shells.
+     *                     The vector should have the value
+     *                     ``unfilled_qps[i] = std::numeric_limits<unsigned int>::max()``
+     *                     for all query point indices ``i`` which have filled shells, and
+     *                     should have ``unfilled_qps[i] = i`` for all query point indices
+     *                     ``i`` which may not have a filled neighbor shell.
+     * */
     void warnAboutUnfilledNeighborShells(const std::vector<unsigned int>& unfilled_qps) const
     {
         std::string indices;

@@ -38,19 +38,24 @@ void FilterRAD::compute(const NeighborQuery* nq, const vec3<float>* query_points
         BondVector::reference local_bonds(filtered_bonds.local());
         for (auto i = begin; i < end; i++)
         {
-            const unsigned int num_unfiltered_neighbors = sorted_counts(i);
-            const unsigned int first_idx = sorted_nlist.find_first_index(i);
+            const auto num_unfiltered_neighbors = sorted_counts(i);
+            const auto first_idx = sorted_nlist.find_first_index(i);
             bool good_neighbor = true;
 
+            // loop over each potential neighbor particle j
             for (unsigned int j = 0; j < num_unfiltered_neighbors; j++)
             {
-                const unsigned int first_neighbor_idx = sorted_neighbors(first_idx + j, 1);
+                const auto first_neighbor_idx = sorted_neighbors(first_idx + j, 1);
+                const auto v1 = box.wrap(query_points[i] - points[first_neighbor_idx]);
                 good_neighbor = true;
+
+                // loop over particles which may be blocking the neighbor j
                 for (unsigned int k = 0; k < j; k++)
                 {
-                    const unsigned int second_neighbor_idx = sorted_neighbors(first_idx + k, 1);
-                    const vec3 v1 = box.wrap(query_points[i] - points[first_neighbor_idx]);
-                    const vec3 v2 = box.wrap(query_points[i] - points[second_neighbor_idx]);
+                    const auto second_neighbor_idx = sorted_neighbors(first_idx + k, 1);
+                    const auto v2 = box.wrap(query_points[i] - points[second_neighbor_idx]);
+
+                    // check if k blocks j
                     const auto coz = dot(v1, v2) / sorted_dist(first_idx + j) / sorted_dist(first_idx + k);
                     if (1 / dot(v1, v1) < (coz / dot(v2, v2)))
                     {
@@ -59,23 +64,25 @@ void FilterRAD::compute(const NeighborQuery* nq, const vec3<float>* query_points
                     }
                 }
 
+                // if no k blocks j, add a bond from i to j
                 if (good_neighbor)
                 {
                     local_bonds.emplace_back(i, first_neighbor_idx, sorted_dist(first_idx + j));
                 }
-                else
+                else if (m_terminate_after_blocked)
                 {
-                    if (m_terminate_after_blocked)
-                    {
-                        break;
-                    }
+                    // if a particle blocks j and we are doing RAD closed
+                    // stop looking for more neighbors
+                    break;
                 }
             }
+
+            // if we have searched over all potential neighbors j and still have
+            // not found one that is blocked, the neighbor shell may be incomplete.
+            // This only applies to the RAD-closed case, because RAD-open will
+            // never terminate prematurely.
             if (good_neighbor && m_terminate_after_blocked)
             {
-                // if for closed no blocking particle is found we want to raise
-                // a warning/error, because proper RAD nlist cannot be
-                // guaranteed in that case
                 // in principle, the incomplete shell exception can be raised here,
                 // but the error is more informative if the exception raised
                 // includes each query point with an unfilled neighbor shell
