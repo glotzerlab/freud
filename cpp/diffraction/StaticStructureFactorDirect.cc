@@ -210,17 +210,8 @@ inline float get_prune_distance2D(unsigned int num_sampled_k_points, float q_max
         return std::numeric_limits<float>::infinity();
     }
     // use quadratic formula to compute pruning distance
-    // TODO: fix this
-    // We use Cardano's formula to compute the pruning distance.
-    const auto p = -0.75F * q_max * q_max;
-    const auto q = 3.0F * static_cast<float>(num_sampled_k_points) * q_volume / static_cast<float>(M_PI)
-        - q_max * q_max * q_max / 4.0F;
-    const auto D = p * p * p / 27.0F + q * q / 4.0F;
-
-    const auto u = std::pow(-std::complex<float>(q / 2.0F) + std::sqrt(std::complex<float>(D)), 1.0F / 3.0F);
-    const auto v = std::pow(-std::complex<float>(q / 2.0F) - std::sqrt(std::complex<float>(D)), 1.0F / 3.0F);
-    const auto x = -(u + v) / 2.0F - std::complex<float>(0.0F, 1.0F) * (u - v) * std::sqrt(3.0F) / 2.0F;
-    return std::real(x) + q_max / 2.0F;
+    // TODO: need to reverify this is correct
+    return std::real(std::sqrt(q_max * q_max - static_cast<float>(num_sampled_k_points) * q_volume / static_cast<float>(M_PI)))
 }
 
 std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const box::Box& box, float k_max,
