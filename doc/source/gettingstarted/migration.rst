@@ -32,3 +32,6 @@ Overview of API Changes
     * - Create a custom neighborlist from arrays.
       - ``freud.locality.NeighborList.from_arrays(..., distances=...)``
       - ``freud.locality.NeighborList.from_arrays(..., vectors=...)``
+    * - Nematic API change: Nematic constructor no longer requires "nematic director" (molecular director) and compute method uses vector orientations (3D vectors) instead of quaternions (4D vectors).
+      - ``freud.order.Nematic(u=).compute(orientations = 4D_quaternions)``
+      - ``freud.order.Nematic().compute(orientations = 3D_orientation_vectors)``
