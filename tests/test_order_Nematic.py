@@ -24,8 +24,6 @@ class TestNematicOrder:
         with pytest.raises(AttributeError):
             op_parallel.nematic_tensor
 
-        print(orientations)
-        print(orientations.shape)
         op_parallel.compute(orientations)
 
         # Test access
