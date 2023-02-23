@@ -47,8 +47,8 @@ void Nematic::compute(vec3<float>* orientations, unsigned int n)
     util::forLoopWrapper(0, n, [&](size_t begin, size_t end) {
         for (size_t i = begin; i < end; ++i)
         {
-            // get the orientation of the particle
-            vec3<float> u_i = orientations[i];
+            // get the orientation of the particle and normalize it
+            vec3<float> u_i = orientations[i] / std::sqrt(dot(orientations[i], orientations[i]));
 
             util::ManagedArray<float> Q_ab({3, 3});
 
