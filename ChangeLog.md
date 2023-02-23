@@ -12,6 +12,7 @@ and this project adheres to
 
 ### Changed
 * The `normalize` argument to `freud.density.RDF` is now `normalization_mode`.
+* The `freud.order.Nematic` method no longer requires `u` ("nematic director") and uses orientation vectors instead of quaternions in the `compute` method.
 
 ## v2.12.1 -- 2022-12-05
 
