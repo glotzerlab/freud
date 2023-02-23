@@ -113,8 +113,7 @@ cdef class _PMFT(_SpatialHistogram):
     def pmft(self):
         """:class:`np.ndarray`: The discrete potential of mean force and
         torque."""
-        with np.warnings.catch_warnings():
-            np.warnings.filterwarnings('ignore')
+        with np.errstate(divide='ignore'):
             result = -np.log(np.copy(self._pcf))
         return result
 

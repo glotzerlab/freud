@@ -527,9 +527,8 @@ cdef class EnvironmentCluster(_MatchEnv):
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, system, threshold, neighbors=None,
-                env_neighbors=None, registration=False,
-                global_search=False):
+    def compute(self, system, threshold, cluster_neighbors=None,
+                env_neighbors=None, registration=False):
         r"""Determine clusters of particles with matching environments.
 
         An environment is defined by the bond vectors between a particle and its
@@ -537,8 +536,8 @@ cdef class EnvironmentCluster(_MatchEnv):
         For example, :code:`env_neighbors= {'num_neighbors': 8}` means that every
         particle's local environment is defined by its 8 nearest neighbors.
         Then, each particle's environment is compared to the environments of
-        particles that satisfy a different cutoff parameter :code:`neighbors`.
-        For example, :code:`neighbors={'r_max': 3.0}`
+        particles that satisfy a different cutoff parameter :code:`cluster_neighbors`.
+        For example, :code:`cluster_neighbors={'r_max': 3.0}`
         means that the environment of each particle will be compared to the
         environment of every particle within a distance of 3.0.
 
@@ -602,9 +601,8 @@ cdef class EnvironmentCluster(_MatchEnv):
             >>> env_cluster.compute(
             ...     system = (box, points),
             ...     threshold=0.2,
-            ...     neighbors={'num_neighbors': 6},
-            ...     registration=False,
-            ...     global_search=False)
+            ...     cluster_neighbors={'num_neighbors': 6},
+            ...     registration=False)
             freud.environment.EnvironmentCluster()
 
         Args:
@@ -616,7 +614,7 @@ cdef class EnvironmentCluster(_MatchEnv):
                 below which they are "matching". Typically, a good choice is
                 between 10% and 30% of the first well in the radial
                 distribution function (this has distance units).
-            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
+            cluster_neighbors (:class:`freud.locality.NeighborList` or dict, optional):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
                 neighbor pairs to use in the calculation, or a dictionary of
                 `query arguments
@@ -637,14 +635,6 @@ cdef class EnvironmentCluster(_MatchEnv):
                 it minimizes the RMSD between the two sets. Enabling this
                 option incurs a significant performance penalty.
                 (Default value = :code:`False`)
-            global_search (bool, optional):
-                If True, do an exhaustive search wherein the environments of
-                every single pair of particles are compared.
-                Thus it is equivalent to including all particles in the system
-                in :code:`'neighbors'`.
-                If False, only compare the environments of neighboring
-                particles. Enabling this option incurs a significant
-                performance penalty. (Default value = :code:`False`)
         """  # noqa: E501
         cdef:
             freud.locality.NeighborQuery nq
@@ -654,24 +644,16 @@ cdef class EnvironmentCluster(_MatchEnv):
             unsigned int num_query_points
 
         nq, nlist, qargs, l_query_points, num_query_points = \
-            self._preprocess_arguments(system, neighbors=neighbors)
+            self._preprocess_arguments(system, neighbors=cluster_neighbors)
 
         if env_neighbors is None:
-            env_neighbors = neighbors
+            env_neighbors = cluster_neighbors
         env_nlist, env_qargs = self._resolve_neighbors(env_neighbors)
-
-        if global_search:
-            warnings.warn(
-                "The global search option is deprecated and will be removed in "
-                "version 3.0. If you want this behavior, use a NeighborList "
-                "composed of all pairs of particles in the system as the `neighbors`.",
-                FutureWarning
-            )
 
         self.thisptr.compute(
             nq.get_ptr(), nlist.get_ptr(), dereference(qargs.thisptr),
             env_nlist.get_ptr(), dereference(env_qargs.thisptr), threshold,
-            registration, global_search)
+            registration)
         return self
 
     @_Compute._computed_property
@@ -743,7 +725,7 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
     def __init__(self):
         pass
 
-    def compute(self, system, motif, threshold, neighbors=None,
+    def compute(self, system, motif, threshold, env_neighbors=None,
                 registration=False):
         r"""Determine which particles have local environments
             matching the given environment motif.
@@ -766,7 +748,7 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
                 below which they are "matching". Typically, a good choice is
                 between 10% and 30% of the first well in the radial
                 distribution function (this has distance units).
-            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
+            env_neighbors (:class:`freud.locality.NeighborList` or dict, optional):
                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
                 neighbor pairs to use in the calculation, or a dictionary of
                 `query arguments
@@ -787,7 +769,7 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
             unsigned int num_query_points
 
         nq, nlist, qargs, l_query_points, num_query_points = \
-            self._preprocess_arguments(system, neighbors=neighbors)
+            self._preprocess_arguments(system, neighbors=env_neighbors)
 
         motif = freud.util._convert_array(motif, shape=(None, 3))
         if (motif == 0).all(axis=1).any():
@@ -811,6 +793,7 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
             <vec3[float]*>
             <vec3[float]*> &l_motif[0, 0], nRef,
             threshold, registration)
+        return self
 
     @_Compute._computed_property
     def matches(self):
