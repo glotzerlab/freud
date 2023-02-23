@@ -178,7 +178,7 @@ cdef class Nematic(_Compute):
         >>> quats = np.array([[1, 0, 0, 0]] * 100)
         >>> starting_orientation = np.array([1, 1, 0])
         >>> orientations = rowan.rotate(quats,starting_orientation)
-        >>> nematic_op = freud.order.Nematic()
+        >>> nematic = freud.order.Nematic()
         >>> nematic.compute(orientations)
         freud.order.Nematic()
 
