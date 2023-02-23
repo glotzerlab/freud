@@ -162,10 +162,12 @@ cdef class Cubatic(_Compute):
 cdef class Nematic(_Compute):
     r"""Compute the nematic order parameter for a system of particles.
 
-    In some cases orientations are given as quaternions representing a rotation
-    from the starting reference state (orientation) - such as HOOMD-blue. To
-    convert from quaternions to orientations in 3D one should apply quaternions
-    on the initial reference orientation of the particle.
+    Note:
+        In some cases, such as HOOMD-blue simulations, orientations are represented as
+        quaternions which rotate a particle from an initial reference orientation. To
+        convert from the quaternion representation to the orientation vectors taken by *freud*,
+        one should rotate the reference orientation by the particle's orientation quaternion. An example
+        of this process using the *rowan* library is shown below
 
     Example::
 
