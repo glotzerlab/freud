@@ -166,8 +166,8 @@ cdef class Nematic(_Compute):
         In some cases, such as HOOMD-blue simulations, orientations are represented as
         quaternions which rotate a particle from an initial reference orientation. To
         convert from the quaternion representation to the orientation vectors taken by *freud*,
-        one should rotate the reference orientation by the particle's orientation quaternion. An example
-        of this process using the *rowan* library is shown below
+        one should rotate the reference orientation by the particle's orientation
+        quaternion. An example of this process using the *rowan* library is shown below
 
     Example::
 
