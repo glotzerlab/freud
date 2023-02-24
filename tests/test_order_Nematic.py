@@ -7,7 +7,7 @@ import freud
 
 class TestNematicOrder:
     def test_perfect(self):
-        """Test perfectly aligned systems with different alignment"""
+        """Test different perfectly aligned systems."""
         N = 10000
         u = [1, 0, 0]
         orientations = np.repeat(np.expand_dims(u, axis=0), repeats=N, axis=0)
