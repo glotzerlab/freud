@@ -209,7 +209,7 @@ cdef class Nematic(_Compute):
         """   # noqa: E501
         if orientations.shape[1] == 4:
             raise ValueError('Since freud v3.0, Nematic.compute() API takes' 
-            'orientation vectors instead of quaternions.')
+                             'orientation vectors instead of quaternions.')
         orientations = freud.util._convert_array(
             orientations, shape=(None, 3))
 
