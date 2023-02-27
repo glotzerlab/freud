@@ -211,7 +211,7 @@ inline float get_prune_distance2D(unsigned int num_sampled_k_points, float q_max
     }
     // use quadratic formula to compute pruning distance
     // TODO: need to reverify this is correct
-    return std::real(std::sqrt(q_max * q_max - static_cast<float>(num_sampled_k_points) * q_volume / static_cast<float>(M_PI)))
+    return std::real(std::sqrt(q_max * q_max - static_cast<float>(num_sampled_k_points) * q_volume / static_cast<float>(M_PI))) + q_max * 0.5F
 }
 
 std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const box::Box& box, float k_max,
