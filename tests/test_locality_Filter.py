@@ -117,6 +117,71 @@ class TestRAD(FilterTest):
             np.ones(len(rad.filtered_nlist.neighbor_counts)) * 14,
         )
 
+    def test_RAD_simple(self):
+        r_max = 2.5
+        # generate FCC crystal
+        points = np.asarray(
+            [
+                [0.0, 0.0, 0.0],
+                [0.0, 2.0, 0.0],
+                [0.0, 0.0, 4.0],
+                [0.0, 1.0, 0.0],
+                [0.0, 0.0, 2.1],
+            ]
+        )
+        box = freud.box.Box.cube(10)
+
+        f_RAD = freud.locality.FilterRAD(
+            allow_incomplete_shell=False, terminate_after_blocked=True
+        )
+        with pytest.raises(RuntimeError):
+            f_RAD.compute((box, points), {"r_max": r_max, "exclude_ii": True})
+        # Check if terminate_after_blocked (RAD closed) gives the correct answer
+        f_RAD = freud.locality.FilterRAD(
+            allow_incomplete_shell=True, terminate_after_blocked=True
+        )
+        f_RAD.compute((box, points), {"r_max": r_max, "exclude_ii": True})
+
+        # check the filtered nlist is right
+        sol = f_RAD.filtered_nlist
+        distances = [
+            1,
+            1,
+            1.9,
+            1,
+            1,
+            1.9,
+            2.1,
+        ]
+        point_indices = [3, 3, 4, 0, 1, 2, 0]
+        query_point_indices = [0, 1, 2, 3, 3, 4, 4]
+        npt.assert_allclose(sol.distances, distances)
+        npt.assert_allclose(sol.point_indices, point_indices)
+        npt.assert_allclose(sol.query_point_indices, query_point_indices)
+
+        # check the unfiltered nlist is right
+        # Check if terminate_after_blocked=False (RAD open) gives the correct answer
+        f_RAD = freud.locality.FilterRAD(
+            allow_incomplete_shell=True, terminate_after_blocked=False
+        )
+        f_RAD.compute((box, points), {"r_max": r_max, "exclude_ii": True})
+        distances = [
+            1,
+            2.1,
+            1,
+            1.9,
+            1,
+            1,
+            1.9,
+            2.1,
+        ]
+        point_indices = [3, 4, 3, 4, 0, 1, 2, 0]
+        query_point_indices = [0, 0, 1, 2, 3, 3, 4, 4]
+        sol = f_RAD.filtered_nlist
+        npt.assert_allclose(sol.distances, distances)
+        npt.assert_allclose(sol.point_indices, point_indices)
+        npt.assert_allclose(sol.query_point_indices, query_point_indices)
+
 
 class TestSANN(FilterTest):
     """Tests specific to the SANN filtering method."""
