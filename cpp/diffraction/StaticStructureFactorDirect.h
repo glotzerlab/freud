@@ -13,6 +13,7 @@
 #include "ManagedArray.h"
 #include "NeighborQuery.h"
 #include "StaticStructureFactor.h"
+#include "DiffractionPattern.h"
 
 /*! \file StaticStructureFactorDirect.h
     \brief Routines for computing static structure factors.
@@ -41,7 +42,7 @@
 
 namespace freud { namespace diffraction {
 
-class StaticStructureFactorDirect : public StaticStructureFactor
+class StaticStructureFactorDirect : public StaticStructureFactor, public DiffractionPattern
 {
     using KBinHistogram = util::Histogram<unsigned int>;
 
@@ -79,15 +80,6 @@ public:
 private:
     //! Reduce thread-local arrays onto the primary data arrays.
     void reduce() override;
-
-    //! Compute the complex amplitude F(k) for a set of points and k points
-    static std::vector<std::complex<float>> compute_F_k(const vec3<float>* points, unsigned int n_points,
-                                                        unsigned int n_total,
-                                                        const std::vector<vec3<float>>& k_points);
-
-    //! Compute the static structure factor S(k) for all k points
-    static std::vector<float> compute_S_k(const std::vector<std::complex<float>>& F_k_points,
-                                          const std::vector<std::complex<float>>& F_k_query_points);
 
     //! Sample reciprocal space isotropically to get k points
     static std::vector<vec3<float>> reciprocal_isotropic(const box::Box& box, float k_max, float k_min,

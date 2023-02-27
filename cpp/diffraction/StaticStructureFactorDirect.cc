@@ -75,7 +75,7 @@ void StaticStructureFactorDirect::accumulate(const freud::locality::NeighborQuer
     m_min_valid_k = std::min(m_min_valid_k, freud::constants::TWO_PI / min_box_length);
 
     // Compute F_k for the points.
-    const auto F_k_points = StaticStructureFactorDirect::compute_F_k(
+    const auto F_k_points = compute_F_k(
         neighbor_query->getPoints(), neighbor_query->getNPoints(), n_total, m_k_points);
 
     // Compute F_k for the query points (if necessary) and compute the product S_k.
@@ -83,12 +83,12 @@ void StaticStructureFactorDirect::accumulate(const freud::locality::NeighborQuer
     if (query_points != nullptr)
     {
         const auto F_k_query_points
-            = StaticStructureFactorDirect::compute_F_k(query_points, n_query_points, n_total, m_k_points);
-        S_k_all_points = StaticStructureFactorDirect::compute_S_k(F_k_points, F_k_query_points);
+            = compute_F_k(query_points, n_query_points, n_total, m_k_points);
+        S_k_all_points = compute_S_k(F_k_points, F_k_query_points);
     }
     else
     {
-        S_k_all_points = StaticStructureFactorDirect::compute_S_k(F_k_points, F_k_points);
+        S_k_all_points = compute_S_k(F_k_points, F_k_points);
     }
 
     // Bin the S_k values and track the number of k values in each bin.
@@ -118,46 +118,6 @@ void StaticStructureFactorDirect::reduce()
     m_k_histogram.reduceOverThreads(m_local_k_histograms);
     m_structure_factor.reduceOverThreadsPerBin(m_local_structure_factor,
                                                [&](size_t i) { m_structure_factor[i] /= m_k_histogram[i]; });
-}
-
-std::vector<std::complex<float>>
-StaticStructureFactorDirect::compute_F_k(const vec3<float>* points, unsigned int n_points,
-                                         unsigned int n_total, const std::vector<vec3<float>>& k_points)
-{
-    const auto n_k_points = k_points.size();
-    auto F_k = std::vector<std::complex<float>>(n_k_points);
-    const std::complex<float> normalization(1.0F / std::sqrt(static_cast<float>(n_total)));
-
-    util::forLoopWrapper(0, n_k_points, [&](size_t begin, size_t end) {
-        for (size_t k_index = begin; k_index < end; ++k_index)
-        {
-            std::complex<float> F_ki(0);
-            for (size_t r_index = 0; r_index < n_points; ++r_index)
-            {
-                const auto& k_vec(k_points[k_index]);
-                const auto& r_vec(points[r_index]);
-                const auto alpha(dot(k_vec, r_vec));
-                F_ki += std::exp(std::complex<float>(0, alpha));
-            }
-            F_k[k_index] = F_ki * normalization;
-        }
-    });
-    return F_k;
-}
-
-std::vector<float>
-StaticStructureFactorDirect::compute_S_k(const std::vector<std::complex<float>>& F_k_points,
-                                         const std::vector<std::complex<float>>& F_k_query_points)
-{
-    const auto n_k_points = F_k_points.size();
-    auto S_k = std::vector<float>(n_k_points);
-    util::forLoopWrapper(0, n_k_points, [&](size_t begin, size_t end) {
-        for (size_t k_index = begin; k_index < end; ++k_index)
-        {
-            S_k[k_index] = std::real(std::conj(F_k_points[k_index]) * F_k_query_points[k_index]);
-        }
-    });
-    return S_k;
 }
 
 inline Eigen::Matrix3f box_to_matrix(const box::Box& box)

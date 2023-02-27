@@ -1,6 +1,6 @@
 add_library(
   _diffraction OBJECT
-  StaticStructureFactor.h StaticStructureFactor.cc StaticStructureFactorDebye.h
+  DiffractionPattern.h DiffractionPattern.cc StaticStructureFactor.h StaticStructureFactor.cc StaticStructureFactorDebye.h
   StaticStructureFactorDebye.cc StaticStructureFactorDirect.h
   StaticStructureFactorDirect.cc)
 

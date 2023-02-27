@@ -2,12 +2,22 @@
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 from libcpp cimport bool
+from libcpp.complex cimport complex
 from libcpp.vector cimport vector
 
 cimport freud._locality
 cimport freud.util
 from freud.util cimport vec3
 
+
+cdef extern from "DiffractionPattern.h" namespace "freud::diffraction":
+    cdef cppclass DiffractionPattern:
+        vector[complex[float]] compute_F_k(const vec3[float]*, unsigned 
+                            int, unsigned int, const vector[vec3[float]]&)
+                            except +
+        vector[float] compute_S_k(const vector[complex[float]]&,
+                            const vector[complex[float]]&, 
+                            const vector[complex[float]]&) except +
 
 cdef extern from "StaticStructureFactor.h" namespace "freud::diffraction":
     cdef cppclass StaticStructureFactor:
