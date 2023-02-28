@@ -12,9 +12,6 @@
 
 namespace freud { namespace order {
 
-// m_u is the molecular axis, normalized to a unit vector
-Nematic::Nematic(const vec3<float>& u) : m_u(u / std::sqrt(dot(u, u))) {}
-
 float Nematic::getNematicOrderParameter() const
 {
     return m_nematic_order_parameter;
@@ -40,12 +37,7 @@ vec3<float> Nematic::getNematicDirector() const
     return m_nematic_director;
 }
 
-vec3<float> Nematic::getU() const
-{
-    return m_u;
-}
-
-void Nematic::compute(quat<float>* orientations, unsigned int n)
+void Nematic::compute(vec3<float>* orientations, unsigned int n)
 {
     m_n = n;
     m_particle_tensor.prepare({m_n, 3, 3});
@@ -55,9 +47,9 @@ void Nematic::compute(quat<float>* orientations, unsigned int n)
     util::forLoopWrapper(0, n, [&](size_t begin, size_t end) {
         for (size_t i = begin; i < end; ++i)
         {
-            // get the director of the particle
-            quat<float> q = orientations[i];
-            vec3<float> u_i = rotate(q, m_u);
+            // get the orientation of the particle and normalize it
+            auto u_i = orientations[i];
+            u_i = u_i / std::sqrt(dot(u_i, u_i));
 
             util::ManagedArray<float> Q_ab({3, 3});
 

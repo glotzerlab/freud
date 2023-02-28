@@ -357,6 +357,7 @@ Domagoj Fijan
 
 * Contributed code, design, documentation, and testing for ``StaticStructureFactorDebye`` class.
 * Contributed code, design, documentation, and testing for ``StaticStructureFactorDirect`` class.
+* Refactor API for ``Nematic`` class.
 * Contributed code, design, documentation, and testing for ``freud.locality.FilterSANN`` class.
 
 Andrew Kerr

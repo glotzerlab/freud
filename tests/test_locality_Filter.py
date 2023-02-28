@@ -60,7 +60,6 @@ class TestSANN(FilterTest):
             mask[nlist.find_first_index(i) : nlist.find_first_index(i) + m] = True
             sol_id.append(m)
         sol_neighbors = sorted_neighbours[mask]
-        sol_dist = sorted_dist[mask]
         sol_vecs = sorted_vecs[mask]
         solution_nlist = freud.locality.NeighborList.from_arrays(
             np.max(sol_neighbors[:, 0]) + 1,

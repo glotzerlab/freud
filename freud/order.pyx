@@ -162,20 +162,31 @@ cdef class Cubatic(_Compute):
 cdef class Nematic(_Compute):
     r"""Compute the nematic order parameter for a system of particles.
 
-    Args:
-        u (:math:`\left(3 \right)` :class:`numpy.ndarray`):
-            The nematic director of a single particle in the reference state
-            (without any rotation applied).
+    Note:
+        In some cases, such as HOOMD-blue simulations, orientations are represented as
+        quaternions which rotate a particle from an initial reference orientation. To
+        convert from the quaternion representation to the orientation vectors taken by
+        *freud*, one should rotate the reference orientation by the particle's
+        orientation quaternion. An example of this process using the *rowan* library is
+        shown below.
+
+    Example::
+
+        >>> import rowan
+        >>> import numpy as np
+        >>> import freud
+        >>> quats = np.array([[1, 0, 0, 0]] * 100)
+        >>> starting_orientation = np.array([1, 1, 0])
+        >>> orientations = rowan.rotate(quats,starting_orientation)
+        >>> nematic = freud.order.Nematic()
+        >>> nematic.compute(orientations)
+        freud.order.Nematic()
+
     """
     cdef freud._order.Nematic *thisptr
 
-    def __cinit__(self, u):
-        # run checks
-        if len(u) != 3:
-            raise ValueError('u needs to be a three-dimensional vector')
-
-        cdef vec3[float] l_u = vec3[float](u[0], u[1], u[2])
-        self.thisptr = new freud._order.Nematic(l_u)
+    def __cinit__(self):
+        self.thisptr = new freud._order.Nematic()
 
     def __dealloc__(self):
         del self.thisptr
@@ -185,23 +196,27 @@ cdef class Nematic(_Compute):
 
         Example::
 
-            >>> orientations = np.array([[1, 0, 0, 0]] * 100)
-            >>> director = np.array([1, 1, 0])
-            >>> nematic = freud.order.Nematic(director)
+            >>> orientations = np.array([[1, 0, 0]] * 100)
+            >>> nematic = freud.order.Nematic()
             >>> nematic.compute(orientations)
-            freud.order.Nematic(u=[...])
+            freud.order.Nematic()
+            >>> print(nematic.order)
+            1.0
 
         Args:
-            orientations (:math:`\left(N_{particles}, 4 \right)` :class:`numpy.ndarray`):
-                Orientations to calculate the order parameter.
+            orientations (:math:`\left(N_{particles}, 3 \right)` :class:`numpy.ndarray`):
+                Orientation vectors for which to calculate the order parameter.
         """   # noqa: E501
+        if orientations.shape[1] == 4:
+            raise ValueError('In freud versions >=3.0.0, Nematic.compute() takes'
+                             '3d orientation vectors instead of 4d quaternions.')
         orientations = freud.util._convert_array(
-            orientations, shape=(None, 4))
+            orientations, shape=(None, 3))
 
         cdef const float[:, ::1] l_orientations = orientations
         cdef unsigned int num_particles = l_orientations.shape[0]
 
-        self.thisptr.compute(<quat[float]*> &l_orientations[0, 0],
+        self.thisptr.compute(<vec3[float]*> &l_orientations[0, 0],
                              num_particles)
         return self
 
@@ -234,16 +249,8 @@ cdef class Nematic(_Compute):
             &self.thisptr.getNematicTensor(),
             freud.util.arr_type_t.FLOAT)
 
-    @property
-    def u(self):
-        """:math:`\\left(3 \\right)` :class:`numpy.ndarray`: The normalized
-        reference director (the normalized vector provided on construction)."""
-        cdef vec3[float] u = self.thisptr.getU()
-        return np.asarray([u.x, u.y, u.z], dtype=np.float32)
-
     def __repr__(self):
-        return "freud.order.{cls}(u={u})".format(cls=type(self).__name__,
-                                                 u=self.u.tolist())
+        return "freud.order.{cls}()".format(cls=type(self).__name__)
 
 
 cdef class Hexatic(_PairCompute):

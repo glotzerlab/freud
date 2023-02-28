@@ -41,3 +41,6 @@ Overview of API Changes
     * - Use ``EnvironmentCluster`` with a set of neighbors that define the cluster
       - ``freud.environment.EnvironmentCluster().compute(..., neighbors=...)``
       - ``freud.environment.EnvironmentCluster().compute(..., cluster_neighbors=...)``
+    * - Compute nematic order parameter.
+      - ``freud.order.Nematic(u=director).compute(orientations=quaternions)``
+      - ``freud.order.Nematic().compute(orientations=orientation_vectors)``

@@ -37,16 +37,15 @@ cdef extern from "Cubatic.h" namespace "freud::order":
 
 cdef extern from "Nematic.h" namespace "freud::order":
     cdef cppclass Nematic:
-        Nematic(vec3[float])
+        Nematic()
         void reset()
-        void compute(quat[float]*,
+        void compute(vec3[float]*,
                      unsigned int) except +
         unsigned int getNumParticles() const
         float getNematicOrderParameter() const
         const freud.util.ManagedArray[float] &getParticleTensor() const
         const freud.util.ManagedArray[float] &getNematicTensor() const
         vec3[float] getNematicDirector() const
-        vec3[float] getU() const
 
 
 cdef extern from "HexaticTranslational.h" namespace "freud::order":

@@ -14,6 +14,7 @@ and this project adheres to
 * The `normalize` argument to `freud.density.RDF` is now `normalization_mode`.
 * The ``neighbors`` argument to ``env_neighbors`` for ``EnvironmentMotifMatch`` class.
 * The ``neighbors`` argument to ``cluster_neighbors`` for ``EnvironmentCluster`` class.
+* `freud.order.Nematic` uses orientation vectors instead of quaternions and a nematic director.
 
 ### Removed
 * The `global_search` flag in `freud.environment.EnvironmentCluster`.
