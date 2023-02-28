@@ -208,8 +208,8 @@ cdef class Nematic(_Compute):
                 Orientation vectors for which to calculate the order parameter.
         """   # noqa: E501
         if orientations.shape[1] == 4:
-            raise ValueError('Since freud v3.0, Nematic.compute() API takes'
-                             'orientation vectors instead of quaternions.')
+            raise ValueError('In freud versions >=3.0.0, Nematic.compute() takes'
+                             '3d orientation vectors instead of 4d quaternions.')
         orientations = freud.util._convert_array(
             orientations, shape=(None, 3))
 
