@@ -71,7 +71,7 @@ cdef extern from "MatchEnv.h" namespace "freud::environment":
 
     cdef cppclass MatchEnv:
         MatchEnv() except +
-        const freud.util.ManagedArray[vec3[float]] &getPointEnvironments()
+        vector[vector[vec3[float]]] &getPointEnvironments()
 
     cdef cppclass EnvironmentMotifMatch(MatchEnv):
         EnvironmentMotifMatch() except +

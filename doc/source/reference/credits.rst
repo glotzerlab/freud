@@ -340,6 +340,7 @@ Tommy Waltmann
 * Extending plotting options for the ``Voronoi`` module.
 * Work with Bradley Dice on adding neighbor vectors to ``freud.locality.NeighborList``.
 * Remove `global_search` flag in ``freud.environment.EnvironmentCluster``.
+* Remove zero-padding from arrays in ``freud.environment.EnvironmentCluster`` and ``freud.environment.EnvironmentMotifMatch`` and replace with ragged lists of NumPy arrays.
 
 Maya Martirossyan
 

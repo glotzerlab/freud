@@ -500,10 +500,10 @@ cdef class _MatchEnv(_PairCompute):
     @_Compute._computed_property
     def point_environments(self):
         """:math:`\\left(N_{points}, N_{neighbors}, 3\\right)`
-        :class:`numpy.ndarray`: All environments for all points."""
-        return freud.util.make_managed_numpy_array(
-            &self.matchptr.getPointEnvironments(),
-            freud.util.arr_type_t.FLOAT, 3)
+        list[:class:`numpy.ndarray`]: All environments for all points."""
+        envs = self.matchptr.getPointEnvironments()
+        return [np.asarray([[p.x, p.y, p.z] for p in env])
+                for env in envs]
 
     def __repr__(self):
         return ("freud.environment.{cls}()").format(
@@ -672,7 +672,7 @@ cdef class EnvironmentCluster(_MatchEnv):
     @_Compute._computed_property
     def cluster_environments(self):
         """:math:`\\left(N_{clusters}, N_{neighbors}, 3\\right)`
-        :class:`numpy.ndarray`): The environments for all clusters."""
+        list[:class:`numpy.ndarray`]: The environments for all clusters."""
         envs = self.thisptr.getClusterEnvironments()
         return [np.asarray([[p.x, p.y, p.z] for p in env])
                 for env in envs]
@@ -774,14 +774,8 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
         motif = freud.util._convert_array(motif, shape=(None, 3))
         if (motif == 0).all(axis=1).any():
             warnings.warn(
-                "You are attempting to match a motif containing the zero "
-                "vector. This is likely because you are providing a motif "
-                "created using EnvironmentCluster, which ensures that all "
-                "computed environments are the same size by padding smaller "
-                "environments with the 0 vector. You should remove these "
-                "vectors from the motif before running using "
-                "EnvironmentMotifMatch.compute, since these zero vectors are "
-                "likely to prevent you from finding a match.",
+                "Attempting to match a motif containing the zero "
+                "vector is likely to result in zero matches.",
                 RuntimeWarning
             )
 

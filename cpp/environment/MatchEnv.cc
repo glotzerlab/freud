@@ -14,8 +14,7 @@ namespace freud { namespace environment {
 /*****************
  * EnvDisjoinSet *
  *****************/
-EnvDisjointSet::EnvDisjointSet(unsigned int Np) : rank(std::vector<unsigned int>(Np, 0)), m_max_num_neigh(0)
-{}
+EnvDisjointSet::EnvDisjointSet(unsigned int Np) : rank(std::vector<unsigned int>(Np, 0)) {}
 
 void EnvDisjointSet::merge(const unsigned int a, const unsigned int b,
                            BiMap<unsigned int, unsigned int> vec_map, rotmat3<float>& rotation)
@@ -192,7 +191,7 @@ std::vector<vec3<float>> EnvDisjointSet::getAvgEnv(const unsigned int m)
 {
     bool invalid_ind = true;
 
-    std::vector<vec3<float>> env(m_max_num_neigh, vec3<float>(0.0, 0.0, 0.0));
+    std::vector<vec3<float>> env;
     unsigned int N = 0;
 
     // loop over all the environments in the set
@@ -211,7 +210,15 @@ std::vector<vec3<float>> EnvDisjointSet::getAvgEnv(const unsigned int m)
                 for (unsigned int proper_ind = 0; proper_ind < i.vecs.size(); proper_ind++)
                 {
                     unsigned int relative_ind = i.vec_ind[proper_ind];
-                    env[proper_ind] += i.proper_rot * i.vecs[relative_ind];
+                    vec3<float> proper_vec = i.proper_rot * i.vecs[relative_ind];
+                    if (proper_ind < env.size())
+                    {
+                        env[proper_ind] += proper_vec;
+                    }
+                    else
+                    {
+                        env.push_back(proper_vec);
+                    }
                 }
                 ++N;
                 invalid_ind = false;
@@ -228,11 +235,9 @@ std::vector<vec3<float>> EnvDisjointSet::getAvgEnv(const unsigned int m)
 
     // loop through the vectors in env now, dividing by the total number
     // of contributing particle environments to make an average
-    for (unsigned int n = 0; n < m_max_num_neigh; n++)
-    {
-        vec3<float> normed = env[n] / static_cast<float>(N);
-        env[n] = normed;
-    }
+    std::transform(env.begin(), env.end(), env.begin(),
+                   [&](const auto& vec) { return vec / static_cast<float>(N); });
+
     return env;
 }
 
@@ -246,17 +251,13 @@ std::vector<vec3<float>> EnvDisjointSet::getIndividualEnv(const unsigned int m)
     }
 
     std::vector<vec3<float>> env;
-    for (unsigned int n = 0; n < m_max_num_neigh; n++)
-    {
-        env.emplace_back(0.0, 0.0, 0.0);
-    }
 
     // loop through the vectors, getting them properly indexed
     // add them to env
     for (unsigned int proper_ind = 0; proper_ind < s[m].vecs.size(); proper_ind++)
     {
         unsigned int relative_ind = s[m].vec_ind[proper_ind];
-        env[proper_ind] += s[m].proper_rot * s[m].vecs[relative_ind];
+        env.push_back(s[m].proper_rot * s[m].vecs[relative_ind]);
     }
 
     return env;
@@ -539,12 +540,7 @@ void EnvironmentCluster::compute(const freud::locality::NeighborQuery* nq,
     {
         Environment ei = buildEnv(&env_nlist, env_num_bonds, env_bond, i, i);
         dj.s.push_back(ei);
-        dj.m_max_num_neigh = std::max(dj.m_max_num_neigh, ei.num_vecs);
-        ;
     }
-
-    // reallocate the m_point_environments array
-    m_point_environments.prepare({Np, dj.m_max_num_neigh});
 
     size_t bond(0);
     // loop through points
@@ -614,9 +610,11 @@ unsigned int EnvironmentCluster::populateEnv(EnvDisjointSet dj)
 
             // label this particle in m_env_index
             m_env_index[particle_ind] = label_ind;
-            for (unsigned int m = 0; m < part_vecs.size(); m++)
+
+            m_point_environments.emplace_back();
+            for (const auto& part_vec : part_vecs)
             {
-                m_point_environments(particle_ind, m) = part_vecs[m];
+                m_point_environments[particle_ind].push_back(part_vec);
             }
             particle_ind++;
         }
@@ -653,18 +651,6 @@ void EnvironmentMotifMatch::compute(const freud::locality::NeighborQuery* nq,
     // this has to have ONE MORE environment than there are actual particles,
     // because we're inserting the motif into it.
     EnvDisjointSet dj(Np + 1);
-
-    // The NeighborList may contain different numbers of neighbors for each particle, so
-    // we must determine the maximum programmatically to ensure that the disjoint set
-    // operations always allocate enough memory for the largest possible local environment.
-    auto counts = nlist.getCounts();
-    auto* begin = counts.get();
-    auto* end = begin + counts.size();
-    auto max_num_neigh = *std::max_element(begin, end);
-    dj.m_max_num_neigh = max_num_neigh;
-
-    // reallocate the m_point_environments array
-    m_point_environments.prepare({Np, max_num_neigh});
 
     // create the environment characterized by motif. Index it as 0.
     // set the IGNORE flag to true, since this is not an environment we have
@@ -714,9 +700,10 @@ void EnvironmentMotifMatch::compute(const freud::locality::NeighborQuery* nq,
         // grab the set of vectors that define this individual environment
         std::vector<vec3<float>> part_vecs = dj.getIndividualEnv(dummy);
 
-        for (unsigned int m = 0; m < part_vecs.size(); m++)
+        m_point_environments.emplace_back();
+        for (const auto& part_vec : part_vecs)
         {
-            m_point_environments(i, m) = part_vecs[m];
+            m_point_environments[i].push_back(part_vec);
         }
     }
 }
@@ -738,10 +725,6 @@ void EnvironmentRMSDMinimizer::compute(const freud::locality::NeighborQuery* nq,
     // this has to have ONE MORE environment than there are actual particles,
     // because we're inserting the motif into it.
     EnvDisjointSet dj(Np + 1);
-    dj.m_max_num_neigh = motif_size;
-
-    // reallocate the m_point_environments array
-    m_point_environments.prepare({Np, motif_size});
 
     // create the environment characterized by motif. Index it as 0.
     // set the IGNORE flag to true, since this is not an environment we
@@ -797,9 +780,10 @@ void EnvironmentRMSDMinimizer::compute(const freud::locality::NeighborQuery* nq,
         // grab the set of vectors that define this individual environment
         std::vector<vec3<float>> part_vecs = dj.getIndividualEnv(dummy);
 
-        for (unsigned int m = 0; m < part_vecs.size(); m++)
+        m_point_environments.emplace_back();
+        for (auto& part_vec : part_vecs)
         {
-            m_point_environments(i, m) = part_vecs[m];
+            m_point_environments[i].push_back(part_vec);
         }
     }
 }
