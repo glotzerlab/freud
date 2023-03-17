@@ -132,14 +132,6 @@ todo_include_todos = False
 html_theme = "furo"
 html_theme_options = {
     "sidebar_hide_name": True,
-    "dark_css_variables": {
-        "color-brand-primary": "#5187b2",
-        "color-brand-content": "#5187b2",
-    },
-    "light_css_variables": {
-        "color-brand-primary": "#406a8c",
-        "color-brand-content": "#406a8c",
-    },
 }
 
 # Theme options are theme-specific and customize the look and feel of a theme
