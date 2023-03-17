@@ -28,6 +28,26 @@ repos:
       - id: check-yaml
       - id: debug-statements
       - id: requirements-txt-fixer
+      - id: fix-license-header
+        name: Fix License Headers (Python)
+        exclude: |
+          (?x)(
+              ^doc/|
+              ^extern/|
+              requirements/|
+              )
+        types_or: [python, cython]
+        args:
+          - --license-file=LICENSE
+          - --add=Part of freud, released under the BSD 3-Clause License.
+          - --keep-before=#!
+      - id: fix-license-header
+        name: Fix License Headers (C++)
+        types_or: [c, c++]
+        args:
+          - --license-file=LICENSE
+          - --add=Part of freud, released under the BSD 3-Clause License.
+          - --comment-prefix=//
   - repo: https://github.com/asottile/pyupgrade
     rev: 'v3.3.1'
     hooks:
