@@ -28,33 +28,33 @@ repos:
       - id: check-yaml
       - id: debug-statements
       - id: requirements-txt-fixer
-- repo: https://github.com/glotzerlab/fix-license-header
-  rev: 43eb3ff2d02cba5e572f86af5c15337823fb2c66
-  hooks:
-    - id: fix-license-header
-      name: Fix License Headers (Python)
-      exclude: |
-        (?x)(
-            ^doc/|
-            ^extern/|
-            requirements/|
-            )
-      types_or: [python, cython]
-      args:
-        - --license-file=LICENSE
-        - --start=2
-        - --num=1
-        - --add="This file is from the freud project, released under the BSD 3-Clause License."
-        - --keep-before=#!
-    - id: fix-license-header
-      name: Fix License Headers (C++)
-      types_or: [c, c++]
-      args:
-        - --license-file=LICENSE
-        - --start=2
-        - --num=1
-        - --add="This file is from the freud project, released under the BSD 3-Clause License."
-        - --comment-prefix=//
+  - repo: https://github.com/glotzerlab/fix-license-header
+    rev: 43eb3ff2d02cba5e572f86af5c15337823fb2c66
+    hooks:
+      - id: fix-license-header
+        name: Fix License Headers (Python)
+        exclude: |
+          (?x)(
+              ^doc/|
+              ^extern/|
+              requirements/|
+              )
+        types_or: [python, cython]
+        args:
+          - --license-file=LICENSE
+          - --start=2
+          - --num=1
+          - --add="This file is from the freud project, released under the BSD 3-Clause License."
+          - --keep-before=#!
+      - id: fix-license-header
+        name: Fix License Headers (C++)
+        types_or: [c, c++]
+        args:
+          - --license-file=LICENSE
+          - --start=2
+          - --num=1
+          - --add="This file is from the freud project, released under the BSD 3-Clause License."
+          - --comment-prefix=//
   - repo: https://github.com/asottile/pyupgrade
     rev: 'v3.3.1'
     hooks:
