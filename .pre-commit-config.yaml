@@ -37,7 +37,7 @@ repos:
           (?x)(
               ^doc/|
               ^extern/|
-              requirements/|
+              ^requirements/
               )
         types_or: [python, cython]
         args:
