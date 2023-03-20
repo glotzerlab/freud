@@ -44,7 +44,7 @@ repos:
           - --license-file=LICENSE
           - --start=2
           - --num=1
-          - --add="This file is from the freud project, released under the BSD 3-Clause License."
+          - --add=This file is from the freud project, released under the BSD 3-Clause License.
           - --keep-before=#!
       - id: fix-license-header
         name: Fix License Headers (C++)
@@ -53,7 +53,7 @@ repos:
           - --license-file=LICENSE
           - --start=2
           - --num=1
-          - --add="This file is from the freud project, released under the BSD 3-Clause License."
+          - --add=This file is from the freud project, released under the BSD 3-Clause License.
           - --comment-prefix=//
   - repo: https://github.com/asottile/pyupgrade
     rev: 'v3.3.1'
