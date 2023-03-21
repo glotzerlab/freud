@@ -1,5 +1,5 @@
-// Copyright (c) 2010-2020 The Regents of the University of Michigan
-// This file is part of the freud project, released under the BSD 3-Clause License.
+// Copyright (c) 2010-2023 The Regents of the University of Michigan
+// This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef LOCAL_BOND_PROJECTION_H
 #define LOCAL_BOND_PROJECTION_H
