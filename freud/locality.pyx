@@ -1473,27 +1473,27 @@ cdef class FilterRAD(Filter):
     of the neighborlist filter concept in **freud**, see :class:`.Filter`.
 
     Args:
-        terminate_after_blocked (bool):
-            Filter potential neighbors after a closer blocked particle is found
-            (Default value = :code:`False`).
         allow_incomplete_shell (bool):
             Whether particles with incomplete neighbor shells are allowed in the
             filtered neighborlist. If True, a warning will be raised if there are
             particles with incomplete neighbors shells in the filtered neighborlist.
             If False, an exception will be raised in the same case. Only considered
             when ``terminate_after_blocked=True`` (Default value = :code:`False`).
+        terminate_after_blocked (bool):
+            Filter potential neighbors after a closer blocked particle is found
+            (Default value = :code:`False`).
 
     Note:
         The ``filtered_nlist`` computed by this class will be sorted by distance.
     """
     def __cinit__(
         self,
-        cbool terminate_after_blocked=True,
-        cbool allow_incomplete_shell=False
+        cbool allow_incomplete_shell=False,
+        cbool terminate_after_blocked=True
     ):
         self._filterptr = self._thisptr = new freud._locality.FilterRAD(
-            terminate_after_blocked,
-            allow_incomplete_shell
+            allow_incomplete_shell,
+            terminate_after_blocked
         )
 
     def __dealloc__(self):

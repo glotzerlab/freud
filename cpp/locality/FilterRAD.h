@@ -14,7 +14,7 @@ class FilterRAD : public Filter
 {
 public:
     //<! Construct with an empty NeighborList, fill it upon calling compute
-    FilterRAD(bool terminate_after_blocked, bool allow_incomplete_shell)
+    FilterRAD(bool allow_incomplete_shell, bool terminate_after_blocked)
         : Filter(allow_incomplete_shell), m_terminate_after_blocked(terminate_after_blocked)
     {}
 
