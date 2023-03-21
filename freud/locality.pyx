@@ -1452,12 +1452,12 @@ cdef class FilterSANN(Filter):
 cdef class FilterRAD(Filter):
     """Filter a :class:`.NeighborList` via the RAD method.
 
-    The relative angular distance (RAD) method :cite:`Higham2016` is a
-    parameter-free algorithm for the identification of nearest neighbors.
-    A particle’s neighbor shell is taken to be all particles that are not
-    blocked by any other particle and not further away than a blocked particle.
+    The Relative Angular Distance (RAD) method :cite:`Higham2016` is a parameter-free
+    algorithm for the identification of nearest neighbors. A particle’s neighbor shell
+    is taken to be all particles that are not blocked by any other particle and not
+    further away than a blocked particle.
 
-    :class:`.FilterRAD` algorithm considers the potential neighbors of a query point
+    The :class:`.FilterRAD` algorithm considers the potential neighbors of a query point
     :math:`i` going radially outward, and filters the neighbors :math:`j` of :math:`i`
     which are blocked by a closer neighbor :math:`k`. The RAD algorithm may filter
     out all further neighbors of :math:`i` as soon as blocked neighbor :math:`j` is

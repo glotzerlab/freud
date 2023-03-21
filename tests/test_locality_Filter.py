@@ -62,7 +62,7 @@ class FilterTest:
     def test_incomplete_shell(self):
         """Make sure error is raised when neighbor shells are incomplete."""
         L = 10
-        N = 6
+        N = 5
         sys = freud.data.make_random_system(L, N)
         filt = self.get_filter_object(allow_incomplete_shell=False)
         with pytest.raises(RuntimeError):
