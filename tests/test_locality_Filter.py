@@ -12,42 +12,122 @@ class FilterTest:
     """Tests which are common to all filter classes."""
 
     @abstractmethod
-    def get_filters(self):
-        """Return a list of filter objects to run tests on."""
+    def get_filter_object(self, allow_incomplete_shell=False, terminate_after_blocked=True):
+        """Get a filter object.
+
+        Note:
+            ``terminate_after_blocked`` is unused when called with a class`.FilterSANN`
+            object.
+        """
         pass
 
-    def test_compute_and_properties(self):
+    def compute_python_neighborlist(self, box, points, r_max, terminate_after_blocked=True):
+        """Compute the neighborlist for the system in python.
+
+        The base implementation here creates the unfiltered nlist sorted by distance,
+        which derived classes should use as a starting point for their implementations.
+
+        Note:
+            ``terminate_after_blocked`` is unused when called with a class`.FilterSANN`
+            object.
+        """
+        aq = freud.locality.AABBQuery(box, points)
+        nlist = aq.query(
+            points, dict(mode="ball", r_max=r_max, exclude_ii=True)
+        ).toNeighborList(sort_by_distance=True)
+        return nlist
+
+    @pytest.mark.parametrize("allow_incomplete_shell, terminate_after_blocked",
+                             [(True, False),
+                              (True, True),
+                              (False, False),
+                              (False, True)])
+    def test_compute_and_properties(self, allow_incomplete_shell, terminate_after_blocked):
         """Call compute and access unfiltered and filtered nlist."""
         # define system
         L = 10
         N = 100
         sys = freud.data.make_random_system(L, N)
-        filters = self.get_filters()
-        for filt in filters:
-            filt.compute(sys, dict(r_max=4.5))
-            assert filt.unfiltered_nlist is not None
-            assert filt.filtered_nlist is not None
+        filter = self.get_filter_object(allow_incomplete_shell, terminate_after_blocked)
+        filter.compute(sys, dict(r_max=4.5))
+        assert filter.unfiltered_nlist is not None
+        assert filter.filtered_nlist is not None
+
+    def test_incomplete_shell(self):
+        """Make sure error is raised when neighbor shells are incomplete."""
+        L = 10
+        N = 6
+        sys = freud.data.make_random_system(L, N)
+        filt = self.get_filter_object(allow_incomplete_shell=False)
+        with pytest.raises(RuntimeError):
+            filt.compute(sys, dict(r_max=4.9, exclude_ii=True))
+
+    def test_no_query_args(self):
+        """Test unfiltered nlist with default neighbors argument."""
+        N = 100
+        L = 10
+
+        sys = freud.data.make_random_system(L, N)
+        filt = self.get_filter_object()
+        filt.compute(sys)
+        nlist = filt.unfiltered_nlist
+
+        # unfiltered nlist should have all except ii pairs
+        num_bonds = N * (N - 1)
+        assert len(nlist.distances) == num_bonds
+        assert len(nlist.point_indices) == num_bonds
+        assert len(nlist.query_point_indices) == num_bonds
+
+    @pytest.mark.parametrize("terminate_after_blocked", [False, True])
+    @pytest.mark.parametrize("crystal_cls, num_neighbors", [("bcc", 14),
+                                                            ("fcc", 12)])
+    def test_known_crystals(self, terminate_after_blocked, crystal_cls, num_neighbors):
+        """Test against perfect crystals with known numbers of neighbors."""
+        uc = getattr(freud.data.UnitCell, crystal_cls)()
+        N_reap = 3
+        r_max = 1.49
+        sys = uc.generate_system(N_reap)
+        filt = self.get_filter_object(terminate_after_blocked=terminate_after_blocked)
+        filt.compute(sys, neighbors=dict(r_max=r_max, exclude_ii=True))
+        num_neighbors_array = filt.filtered_nlist.neighbor_counts
+        npt.assert_array_equal(
+            num_neighbors_array,
+            num_neighbors * np.ones_like(num_neighbors_array),
+        )
+
+    @pytest.mark.parametrize("terminate_after_blocked", [False, True])
+    def test_random_system(self, terminate_after_blocked):
+        """Compare freud and pure python implementations on a random system."""
+        N = 100
+        L = 10
+        r_max = 4.9
+
+        sys = freud.data.make_random_system(L, N)
+        nlist_1 = self.compute_python_neighborlist(*sys, r_max, terminate_after_blocked)
+        filt = self.get_filter_object(terminate_after_blocked=terminate_after_blocked)
+        filt.compute(sys, dict(r_max=r_max, exclude_ii=True))
+        nlist_2 = filt.filtered_nlist
+
+        npt.assert_allclose(nlist_1.distances, nlist_2.distances, rtol=1e-5)
+        npt.assert_allclose(nlist_1.point_indices, nlist_2.point_indices)
+        npt.assert_allclose(nlist_1.query_point_indices, nlist_2.query_point_indices)
 
 
 class TestRAD(FilterTest):
-    def get_filters(self):
-        return [freud.locality.FilterRAD()]
+    """Tests specific to the RAD filtering method."""
 
-    @staticmethod
-    def compute_RAD_neighborlist(system, r_max):
+    def get_filter_object(self, allow_incomplete_shell=False, terminate_after_blocked=True):
+        """Get a FilterRAD object."""
+        return freud.locality.FilterRAD(allow_incomplete_shell, terminate_after_blocked)
 
-        box = system[0]
-        points = system[1]
-
-        N = len(points)
-        aq = freud.locality.AABBQuery(*system)
-        nlist = aq.query(
-            points, dict(mode="ball", r_max=r_max, exclude_ii=True)
-        ).toNeighborList(sort_by_distance=True)
+    def compute_python_neighborlist(self, box, points, r_max, terminate_after_blocked=True):
+        """Compute the RAD neighborlist in python."""
+        nlist = super().compute_python_neighborlist(box, points, r_max, terminate_after_blocked)
         sorted_neighbors = np.asarray(nlist)
+
         list_of_neighs = []
         # loop over all particles
-        for i in range(0, N):
+        for i in range(0, len(points)):
             # put closest neighbors in the list of valid neighbors
             i_neighbors = sorted_neighbors[sorted_neighbors[:, 0] == i, 1]
             list_of_neighs.append([i, i_neighbors[0]])
@@ -67,6 +147,8 @@ class TestRAD(FilterTest):
                         break
                 if is_a_good_neighbour:
                     list_of_neighs.append([i, j])
+                elif terminate_after_blocked:
+                    break
 
         # make freud nlist from list of neighbors
         sorted_neighbors = np.array(list_of_neighs)
@@ -84,42 +166,10 @@ class TestRAD(FilterTest):
 
         return nlist
 
-    def test_RAD_random(self):
-        """Test different implementations vs a random system."""
-        N = 100
-        L = 10
-        r_max = 4.9
-
-        sys = freud.data.make_random_system(L, N)
-        nlist_1 = self.compute_RAD_neighborlist(sys, r_max)
-        filt = freud.locality.FilterRAD(terminate_after_blocked=False).compute(
-            sys, dict(r_max=r_max, exclude_ii=True)
-        )
-        nlist_2 = filt.filtered_nlist
-
-        npt.assert_allclose(nlist_1.distances, nlist_2.distances, rtol=1e-5)
-        npt.assert_allclose(nlist_1.point_indices, nlist_2.point_indices)
-        npt.assert_allclose(nlist_1.query_point_indices, nlist_2.query_point_indices)
-
-    def test_RAD_BCC(self):
-        uc = freud.data.UnitCell.bcc()
-        N_reap = 3
-        r_max = 1.49
-        box, points = uc.generate_system(N_reap)
-        aq = freud.locality.AABBQuery(box, points)
-        startlist = aq.query(
-            points, dict(mode="ball", r_max=r_max, exclude_ii=True)
-        ).toNeighborList(sort_by_distance=True)
-        rad = freud.locality.FilterRAD()
-        rad.compute((box, points), neighbors=startlist)
-        npt.assert_array_equal(
-            rad.filtered_nlist.neighbor_counts,
-            np.ones(len(rad.filtered_nlist.neighbor_counts)) * 14,
-        )
-
     def test_RAD_simple(self):
+        """Assert RAD is correct when we compute the neighbors by hand."""
         r_max = 2.5
-        # generate FCC crystal
+        neighbors = dict(r_max=r_max, exclude_ii=True)
         points = np.asarray(
             [
                 [0.0, 0.0, 0.0],
@@ -130,19 +180,13 @@ class TestRAD(FilterTest):
             ]
         )
         box = freud.box.Box.cube(10)
+        sys = (box, points)
 
-        f_RAD = freud.locality.FilterRAD(
-            allow_incomplete_shell=False, terminate_after_blocked=True
-        )
-        with pytest.raises(RuntimeError):
-            f_RAD.compute((box, points), {"r_max": r_max, "exclude_ii": True})
-        # Check if terminate_after_blocked (RAD closed) gives the correct answer
+        # Verify with terminate_after_blocked=True (RAD closed)
         f_RAD = freud.locality.FilterRAD(
             allow_incomplete_shell=True, terminate_after_blocked=True
         )
-        f_RAD.compute((box, points), {"r_max": r_max, "exclude_ii": True})
-
-        # check the filtered nlist is right
+        f_RAD.compute(sys, neighbors)
         sol = f_RAD.filtered_nlist
         distances = [
             1,
@@ -159,12 +203,12 @@ class TestRAD(FilterTest):
         npt.assert_allclose(sol.point_indices, point_indices)
         npt.assert_allclose(sol.query_point_indices, query_point_indices)
 
-        # check the unfiltered nlist is right
-        # Check if terminate_after_blocked=False (RAD open) gives the correct answer
+        # Verify with terminate_after_blocked=False (RAD open)
         f_RAD = freud.locality.FilterRAD(
             allow_incomplete_shell=True, terminate_after_blocked=False
         )
-        f_RAD.compute((box, points), {"r_max": r_max, "exclude_ii": True})
+        f_RAD.compute(sys, neighbors)
+        sol = f_RAD.filtered_nlist
         distances = [
             1,
             2.1,
@@ -177,7 +221,6 @@ class TestRAD(FilterTest):
         ]
         point_indices = [3, 4, 3, 4, 0, 1, 2, 0]
         query_point_indices = [0, 0, 1, 2, 3, 3, 4, 4]
-        sol = f_RAD.filtered_nlist
         npt.assert_allclose(sol.distances, distances)
         npt.assert_allclose(sol.point_indices, point_indices)
         npt.assert_allclose(sol.query_point_indices, query_point_indices)
@@ -186,23 +229,25 @@ class TestRAD(FilterTest):
 class TestSANN(FilterTest):
     """Tests specific to the SANN filtering method."""
 
-    def get_filters(self):
-        return [freud.locality.FilterSANN()]
+    def get_filter_object(self, allow_incomplete_shell=False, terminate_after_blocked=True):
+        """Get a FilterSANN object."""
+        return freud.locality.FilterSANN(allow_incomplete_shell)
 
-    @staticmethod
-    def compute_SANN_neighborlist(system, r_max):
-        """Compute SANN in python."""
-        box, points = system
-        N = len(points)
-        aq = freud.locality.AABBQuery(box, points)
-        nlist = aq.query(
-            points, dict(mode="ball", r_max=r_max, exclude_ii=True)
-        ).toNeighborList(sort_by_distance=True)
+    def compute_python_neighborlist(self, box, points, r_max, terminate_after_blocked=True):
+        """Compute the SANN neighborlist in python.
+
+        Note:
+            The ``terminate_after_blocked`` argument is there for API consistency
+            with other python filter implementations, it is not used by the SANN
+            algorithm.
+        """
+        nlist = super().compute_python_neighborlist(box, points, r_max, terminate_after_blocked)
         sorted_neighbors = np.asarray(nlist)
+
         sorted_dist = np.asarray(nlist.distances)
         sol_id = []
         mask = np.zeros(len(nlist.distances), dtype=bool)
-        for i in range(0, N):
+        for i in range(0, len(points)):
             m = 3
             i_dist = sorted_dist[nlist.query_point_indices == i]
             while (
@@ -223,52 +268,6 @@ class TestSANN(FilterTest):
         )
         return solution_nlist
 
-    def test_SANN_random(self):
-        """Test different implementations vs a random system."""
-        N = 100
-        L = 10
-        r_max = 4.9
-
-        sys = freud.data.make_random_system(L, N)
-        nlist_1 = self.compute_SANN_neighborlist(sys, r_max)
-        filtersann = freud.locality.FilterSANN().compute(
-            sys, dict(r_max=r_max, exclude_ii=True)
-        )
-        nlist_2 = filtersann.filtered_nlist
-
-        npt.assert_allclose(nlist_1.distances, nlist_2.distances)
-        npt.assert_allclose(nlist_1.point_indices, nlist_2.point_indices)
-        npt.assert_allclose(nlist_1.query_point_indices, nlist_2.query_point_indices)
-
-    def test_SANN_unfiltered_nlist(self):
-        """Test unfiltered nlist using SANN with default value for neighbors."""
-        N = 100
-        L = 10
-
-        sys = freud.data.make_random_system(L, N)
-        filtersann = freud.locality.FilterSANN().compute(sys)
-        nlist = filtersann.unfiltered_nlist
-
-        num_bonds = N * (N - 1)
-        assert len(nlist.distances) == num_bonds
-        assert len(nlist.point_indices) == num_bonds
-        assert len(nlist.query_point_indices) == num_bonds
-
-    def test_SANN_fcc(self):
-        """make sure python and cpp implementations agree for an FCC."""
-        N_reap = 3
-        r_max = 5.5
-        # generate FCC crystal
-        uc = freud.data.UnitCell.fcc()
-        box, points = uc.generate_system(N_reap, scale=5)
-        known_sol = self.compute_SANN_neighborlist((box, points), r_max)
-        f_SANN = freud.locality.FilterSANN()
-        f_SANN.compute((box, points), {"r_max": r_max})
-        sol = f_SANN.filtered_nlist
-        npt.assert_allclose(sol.distances, known_sol.distances)
-        npt.assert_allclose(sol.point_indices, known_sol.point_indices)
-        npt.assert_allclose(sol.query_point_indices, known_sol.query_point_indices)
-
     def test_SANN_simple(self):
         """Assert SANN is correct when we compute the neighbors by hand.
 
@@ -276,6 +275,7 @@ class TestSANN(FilterTest):
         sorted by distance, while the unfiltered nlist is sorted by point index.
         """
         r_max = 1.5
+        neighbors = dict(r_max=r_max, exclude_ii=True)
         # generate FCC crystal
         points = np.asarray(
             [
@@ -288,16 +288,12 @@ class TestSANN(FilterTest):
             ]
         )
         box = freud.box.Box.cube(10)
-
-        # Verify that an exception is thrown for an incomplete shell.
-        f_SANN = freud.locality.FilterSANN(allow_incomplete_shell=False)
-        with pytest.raises(RuntimeError):
-            f_SANN.compute((box, points), {"r_max": r_max, "exclude_ii": True})
+        sys = box, points
 
         f_SANN = freud.locality.FilterSANN(allow_incomplete_shell=True)
-        f_SANN.compute((box, points), {"r_max": r_max, "exclude_ii": True})
+        f_SANN.compute(sys, neighbors)
 
-        # check the filtered nlist is right
+        # check the filtered nlist
         sol = f_SANN.filtered_nlist
         distances = [
             1,
@@ -321,7 +317,7 @@ class TestSANN(FilterTest):
         npt.assert_allclose(sol.point_indices, point_indices)
         npt.assert_allclose(sol.query_point_indices, query_point_indices)
 
-        # check the unfiltered nlist is right
+        # check the unfiltered nlist
         sol = f_SANN.unfiltered_nlist
         distances = [
             1,
