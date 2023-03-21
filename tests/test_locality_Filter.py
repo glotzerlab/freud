@@ -15,7 +15,9 @@ class FilterTest:
     """Tests which are common to all filter classes."""
 
     @abstractmethod
-    def get_filter_object(self, allow_incomplete_shell=False, terminate_after_blocked=True):
+    def get_filter_object(
+        self, allow_incomplete_shell=False, terminate_after_blocked=True
+    ):
         """Get a filter object.
 
         Note:
@@ -24,7 +26,9 @@ class FilterTest:
         """
         pass
 
-    def compute_python_neighborlist(self, box, points, r_max, terminate_after_blocked=True):
+    def compute_python_neighborlist(
+        self, box, points, r_max, terminate_after_blocked=True
+    ):
         """Compute the neighborlist for the system in python.
 
         The base implementation here creates the unfiltered nlist sorted by distance,
@@ -40,12 +44,11 @@ class FilterTest:
         ).toNeighborList(sort_by_distance=True)
         return nlist
 
-    @pytest.mark.parametrize("allow_incomplete_shell, terminate_after_blocked",
-                             [(True, False),
-                              (True, True),
-                              (False, False),
-                              (False, True)])
-    def test_compute_and_properties(self, allow_incomplete_shell, terminate_after_blocked):
+    @pytest.mark.parametrize("allow_incomplete_shell", [True, False])
+    @pytest.mark.parametrize("terminate_after_blocked", [True, False])
+    def test_compute_and_properties(
+        self, allow_incomplete_shell, terminate_after_blocked
+    ):
         """Call compute and access unfiltered and filtered nlist."""
         # define system
         L = 10
@@ -82,8 +85,7 @@ class FilterTest:
         assert len(nlist.query_point_indices) == num_bonds
 
     @pytest.mark.parametrize("terminate_after_blocked", [False, True])
-    @pytest.mark.parametrize("crystal_cls, num_neighbors", [("bcc", 14),
-                                                            ("fcc", 12)])
+    @pytest.mark.parametrize("crystal_cls, num_neighbors", [("bcc", 14), ("fcc", 12)])
     def test_known_crystals(self, terminate_after_blocked, crystal_cls, num_neighbors):
         """Test against perfect crystals with known numbers of neighbors."""
         uc = getattr(freud.data.UnitCell, crystal_cls)()
@@ -119,13 +121,19 @@ class FilterTest:
 class TestRAD(FilterTest):
     """Tests specific to the RAD filtering method."""
 
-    def get_filter_object(self, allow_incomplete_shell=False, terminate_after_blocked=True):
+    def get_filter_object(
+        self, allow_incomplete_shell=False, terminate_after_blocked=True
+    ):
         """Get a FilterRAD object."""
         return freud.locality.FilterRAD(allow_incomplete_shell, terminate_after_blocked)
 
-    def compute_python_neighborlist(self, box, points, r_max, terminate_after_blocked=True):
+    def compute_python_neighborlist(
+        self, box, points, r_max, terminate_after_blocked=True
+    ):
         """Compute the RAD neighborlist in python."""
-        nlist = super().compute_python_neighborlist(box, points, r_max, terminate_after_blocked)
+        nlist = super().compute_python_neighborlist(
+            box, points, r_max, terminate_after_blocked
+        )
         sorted_neighbors = np.asarray(nlist)
 
         list_of_neighs = []
@@ -232,11 +240,15 @@ class TestRAD(FilterTest):
 class TestSANN(FilterTest):
     """Tests specific to the SANN filtering method."""
 
-    def get_filter_object(self, allow_incomplete_shell=False, terminate_after_blocked=True):
+    def get_filter_object(
+        self, allow_incomplete_shell=False, terminate_after_blocked=True
+    ):
         """Get a FilterSANN object."""
         return freud.locality.FilterSANN(allow_incomplete_shell)
 
-    def compute_python_neighborlist(self, box, points, r_max, terminate_after_blocked=True):
+    def compute_python_neighborlist(
+        self, box, points, r_max, terminate_after_blocked=True
+    ):
         """Compute the SANN neighborlist in python.
 
         Note:
@@ -244,7 +256,9 @@ class TestSANN(FilterTest):
             with other python filter implementations, it is not used by the SANN
             algorithm.
         """
-        nlist = super().compute_python_neighborlist(box, points, r_max, terminate_after_blocked)
+        nlist = super().compute_python_neighborlist(
+            box, points, r_max, terminate_after_blocked
+        )
         sorted_neighbors = np.asarray(nlist)
 
         sorted_dist = np.asarray(nlist.distances)
