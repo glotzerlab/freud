@@ -1472,6 +1472,16 @@ cdef class FilterRAD(Filter):
     all :math:`N^2` particle pairs by distance. For a more in-depth explanation
     of the neighborlist filter concept in **freud**, see :class:`.Filter`.
 
+    Warning:
+        Due to the above design decision, it is possible that the unfiltered
+        neighborlist will not contain enough neighbors to completely fill the
+        neighbor shell of some particles in the system. The ``allow_incomplete_shell``
+        argument to :class:`.FilterRAD`'s constructor controls whether a warning
+        or exception is raised in these cases.
+
+    Note:
+        The ``filtered_nlist`` computed by this class will be sorted by distance.
+
     Args:
         allow_incomplete_shell (bool):
             Whether particles with incomplete neighbor shells are allowed in the
@@ -1482,9 +1492,6 @@ cdef class FilterRAD(Filter):
         terminate_after_blocked (bool):
             Filter potential neighbors after a closer blocked particle is found
             (Default value = :code:`False`).
-
-    Note:
-        The ``filtered_nlist`` computed by this class will be sorted by distance.
     """
     def __cinit__(
         self,
