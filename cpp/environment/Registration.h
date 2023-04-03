@@ -146,7 +146,7 @@ inline void AlignVectorSets(matrix& P, matrix& Q, matrix* pRotation = nullptr)
     // back to its original dimensionality.
     P = (rotation * P.transpose()).transpose(); // Apply the transformation.
 
-    if (pRotation != nullptr) // optionally copy the rotation.
+    if (pRotation != nullptr)                   // optionally copy the rotation.
     {
         *pRotation = rotation;
     }
@@ -477,6 +477,6 @@ private:
                    //! those passed to Fit).
 };
 
-}; }; // end namespace freud::environment
+}; };  // end namespace freud::environment
 
 #endif // REGISTRATION_H

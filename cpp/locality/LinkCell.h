@@ -242,13 +242,13 @@ private:
     //! Helper function to compute cell neighbors
     const std::vector<unsigned int>& computeCellNeighbors(unsigned int cell) const;
 
-    float m_cell_width {0};                 //!< Minimum necessary cell width cutoff
-    vec3<unsigned int> m_celldim {0, 0, 0}; //!< Cell dimensions
-    unsigned int m_size {0};                //!< The size of cell list.
+    float m_cell_width {0};                       //!< Minimum necessary cell width cutoff
+    vec3<unsigned int> m_celldim {0, 0, 0};       //!< Cell dimensions
+    unsigned int m_size {0};                      //!< The size of cell list.
 
     util::ManagedArray<unsigned int> m_cell_list; //!< The cell list last computed
     using CellNeighbors = tbb::concurrent_hash_map<unsigned int, std::vector<unsigned int>>;
-    mutable CellNeighbors m_cell_neighbors; //!< Hash map of cell neighbors for each cell
+    mutable CellNeighbors m_cell_neighbors;       //!< Hash map of cell neighbors for each cell
 };
 
 //! Parent class of LinkCell iterators that knows how to traverse general cell-linked list structures.
@@ -271,7 +271,7 @@ public:
     ~LinkCellIterator() override = default;
 
 protected:
-    const LinkCell* m_linkcell; //!< Link to the LinkCell object
+    const LinkCell* m_linkcell;   //!< Link to the LinkCell object
     IteratorCellShell
         m_neigh_cell_iter;        //!< The shell iterator indicating how far out we're currently searching.
     IteratorLinkCell m_cell_iter; //!< The cell iterator indicating which cell we're currently searching.
@@ -334,6 +334,6 @@ public:
 protected:
     int m_extra_search_width; //!< The extra shell distance to search, always 0 or 1.
 };
-}; }; // end namespace freud::locality
+}; };                         // end namespace freud::locality
 
-#endif // LINKCELL_H
+#endif                        // LINKCELL_H

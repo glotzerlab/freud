@@ -57,6 +57,6 @@ private:
     std::vector<unsigned int> m_buffer_ids;   //!< The replicated points' original point ids
 };
 
-}; }; // end namespace freud::locality
+}; };  // end namespace freud::locality
 
 #endif // PERIODIC_BUFFER_H

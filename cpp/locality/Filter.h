@@ -50,6 +50,6 @@ protected:
     std::shared_ptr<NeighborList> m_filtered_nlist;
 };
 
-}; }; // namespace freud::locality
+}; };  // namespace freud::locality
 
 #endif // __FILTER_H__

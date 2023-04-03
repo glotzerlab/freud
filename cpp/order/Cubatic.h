@@ -167,12 +167,12 @@ private:
      */
     template<typename T> quat<float> calcRandomQuaternion(T& dist, float angle_multiplier = 1.0) const;
 
-    float m_t_initial;           //!< Initial temperature for simulated annealing.
-    float m_t_final;             //!< Final temperature for simulated annealing.
-    float m_scale;               //!< Scaling factor to reduce temperature.
-    unsigned int m_n_replicates; //!< Number of replicates.
-    unsigned int m_seed;         //!< Random seed.
-    unsigned int m_n {0};        //!< Last number of points computed.
+    float m_t_initial;                   //!< Initial temperature for simulated annealing.
+    float m_t_final;                     //!< Final temperature for simulated annealing.
+    float m_scale;                       //!< Scaling factor to reduce temperature.
+    unsigned int m_n_replicates;         //!< Number of replicates.
+    unsigned int m_seed;                 //!< Random seed.
+    unsigned int m_n {0};                //!< Last number of points computed.
 
     float m_cubatic_order_parameter {0}; //!< The value of the order parameter.
     quat<float> m_cubatic_orientation;   //!< The cubatic orientation.
@@ -189,6 +189,6 @@ private:
         m_system_vectors; //!< The global coordinate system, always use a simple Euclidean basis.
 };
 
-}; }; // end namespace freud::order
+}; };  // end namespace freud::order
 
 #endif // CUBATIC_H

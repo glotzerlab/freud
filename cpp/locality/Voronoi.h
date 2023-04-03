@@ -42,6 +42,6 @@ private:
     std::vector<std::vector<vec3<double>>> m_polytopes; //!< Voronoi polytopes
     util::ManagedArray<double> m_volumes;               //!< Voronoi cell volumes
 };
-}; }; // end namespace freud::locality
+}; };                                                   // end namespace freud::locality
 
-#endif // VORONOI_H
+#endif                                                  // VORONOI_H

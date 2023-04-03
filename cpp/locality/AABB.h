@@ -368,6 +368,6 @@ inline AABB merge(const AABB& a, const AABB& b)
     return new_aabb;
 }
 
-}; }; // end namespace freud::locality
+}; };  // end namespace freud::locality
 
 #endif // AABB_H
