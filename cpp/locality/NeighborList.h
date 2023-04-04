@@ -164,6 +164,6 @@ bool compareNeighborBond(const NeighborBond& left, const NeighborBond& right);
 bool compareNeighborDistance(const NeighborBond& left, const NeighborBond& right);
 bool compareFirstNeighborPairs(const std::vector<NeighborBond>& left, const std::vector<NeighborBond>& right);
 
-}; }; // end namespace freud::locality
+}; };  // end namespace freud::locality
 
 #endif // NEIGHBOR_LIST_H

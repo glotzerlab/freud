@@ -36,6 +36,6 @@ private:
     bool m_allow_incomplete_shell;
 };
 
-}; }; // namespace freud::locality
+}; };  // namespace freud::locality
 
 #endif // __FILTERSANN_H__

@@ -43,6 +43,6 @@ protected:
                                            //!< calls to compute.
 };
 
-}; }; // end namespace freud::pmft
+}; };  // end namespace freud::pmft
 
 #endif // PMFTXYZ_H

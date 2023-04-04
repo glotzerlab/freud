@@ -64,14 +64,14 @@ public:
     }
 
 private:
-    box::Box m_box;   //!< Simulation box where the particles belong
-    float m_r_max;    //!< Maximum neighbor distance
-    float m_diameter; //!< Diameter of the particles
+    box::Box m_box;                                  //!< Simulation box where the particles belong
+    float m_r_max;                                   //!< Maximum neighbor distance
+    float m_diameter;                                //!< Diameter of the particles
 
     util::ManagedArray<float> m_density_array;       //!< density array computed
     util::ManagedArray<float> m_num_neighbors_array; //!< number of neighbors array computed
 };
 
-}; }; // end namespace freud::density
+}; };  // end namespace freud::density
 
 #endif // LOCAL_DENSITY_H

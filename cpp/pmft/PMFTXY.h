@@ -33,6 +33,6 @@ protected:
     float m_jacobian; //!< Determinant of Jacobian, bin area
 };
 
-}; }; // end namespace freud::pmft
+}; };  // end namespace freud::pmft
 
 #endif // PMFTXY_H
