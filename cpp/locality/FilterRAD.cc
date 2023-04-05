@@ -59,7 +59,8 @@ void FilterRAD::compute(const NeighborQuery* nq, const vec3<float>* query_points
                     const auto v2 = box.wrap(query_points[i] - points[second_neighbor_idx]);
 
                     // check if k blocks j
-                    if ( (dot(v2, v2) * sorted_dist(first_idx + j) * sorted_dist(first_idx + k)) < (dot(v1,v2) * dot(v1, v1 )) )
+                    if ((dot(v2, v2) * sorted_dist(first_idx + j) * sorted_dist(first_idx + k))
+                        < (dot(v1, v2) * dot(v1, v1)))
                     {
                         good_neighbor = false;
                         break;
