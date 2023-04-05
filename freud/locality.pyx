@@ -1467,9 +1467,9 @@ cdef class FilterRAD(Filter):
     :math:`j`, only filtering them if they are blocked by a closer neighbor. This mode
     is called "RAD-open" in :cite:`Higham2016`.
 
-    RAD is implemented as a filter for pre-existing sets of neighbors due to 
-    the high performance cost of sorting all :math:`N^2` particle pairs by 
-    distance. For a more in-depth explanation of the neighborlist filter 
+    RAD is implemented as a filter for pre-existing sets of neighbors due to
+    the high performance cost of sorting all :math:`N^2` particle pairs by
+    distance. For a more in-depth explanation of the neighborlist filter
     concept in **freud**, see :class:`.Filter`.
 
     Warning:

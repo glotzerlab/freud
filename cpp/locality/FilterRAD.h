@@ -29,6 +29,6 @@ private:
     bool m_terminate_after_blocked;
 };
 
-}; }; // namespace freud::locality
+}; };  // namespace freud::locality
 
 #endif // __FILTERRAD_H__

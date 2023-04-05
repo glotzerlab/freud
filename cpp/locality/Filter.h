@@ -58,7 +58,7 @@ protected:
     /*! Output the appropriate warning/error message for particles with unfilled shells
      *
      * In general, the filter concept cannot guarantee that each query point will have
-     * a completely filled shell according to the implemented algorithm. This happens 
+     * a completely filled shell according to the implemented algorithm. This happens
      * when the initial unfiltered neighbor list doesn't have enough neighbors to
      * guarantee this criterion.
      *
