@@ -74,7 +74,7 @@ void FilterRAD::compute(const NeighborQuery* nq, const vec3<float>* query_points
                 }
                 else if (m_terminate_after_blocked)
                 {
-                    // if a particle blocks j and we are doing RAD closed
+                    // if a particle blocks j and "RAD-closed" is requested
                     // stop looking for more neighbors
                     break;
                 }

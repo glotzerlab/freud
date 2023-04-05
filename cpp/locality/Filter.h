@@ -52,15 +52,15 @@ protected:
     std::shared_ptr<NeighborList> m_filtered_nlist;
 
     //<! whether a warning (true) or error (false) should be raised if the filter
-    //<! algorithm implementation cannot guarantee all neighbors have filled shells
+    //<! algorithm implementation cannot guarantee that all neighbors have completely filled shells
     bool m_allow_incomplete_shell;
 
     /*! Output the appropriate warning/error message for particles with unfilled shells
      *
-     * In some cases, the filter concept cannot guarantee each query point will have
-     * a completely filled shell according to the implemented algorithm due to the
-     * potential for the unfiltered neighborlist to not have enough neighbors to begin
-     * with.
+     * In general, the filter concept cannot guarantee that each query point will have
+     * a completely filled shell according to the implemented algorithm. This happens 
+     * when the initial unfiltered neighbor list doesn't have enough neighbors to
+     * guarantee this criterion.
      *
      * \param unfilled_qps Vector of query points which may have unfilled neighbor shells.
      *                     The vector should have the value
