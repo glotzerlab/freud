@@ -74,6 +74,6 @@ private:
     mutable std::unique_ptr<AABBQuery> aq; //!< The AABBQuery object that will be used to perform queries.
 };
 
-}; }; // end namespace freud::locality
+}; };  // end namespace freud::locality
 
 #endif // NEIGHBOR_QUERY_H

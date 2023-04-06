@@ -94,6 +94,6 @@ protected:
     }
 };
 
-}; }; // namespace freud::locality
+}; };  // namespace freud::locality
 
 #endif // __FILTER_H__

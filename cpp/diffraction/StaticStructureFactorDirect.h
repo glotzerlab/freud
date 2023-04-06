@@ -97,11 +97,11 @@ private:
     std::vector<vec3<float>> m_k_points; //!< k-vectors used for sampling
     KBinHistogram m_k_histogram;         //!< Histogram of sampled k bins, used to normalize S(q)
     KBinHistogram::ThreadLocalHistogram
-        m_local_k_histograms;  //!< Thread local histograms of sampled k bins for TBB parallelism
-    box::Box previous_box;     //!< box assigned to the system
-    bool box_assigned {false}; //!< Whether to reuse the box
+        m_local_k_histograms;            //!< Thread local histograms of sampled k bins for TBB parallelism
+    box::Box previous_box;               //!< box assigned to the system
+    bool box_assigned {false};           //!< Whether to reuse the box
 };
 
-}; }; // namespace freud::diffraction
+}; };  // namespace freud::diffraction
 
 #endif // STATIC_STRUCTURE_FACTOR_DIRECT_H

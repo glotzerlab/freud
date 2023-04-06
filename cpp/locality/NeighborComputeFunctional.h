@@ -86,7 +86,7 @@ private:
     const NeighborList* m_nlist; //! The NeighborList being iterated over.
     size_t m_current_index;      //! The row of m_nlist where the iterator is currently located.
     size_t m_returned_point_index {
-        0xffffffff}; //! The index of the last returned point (i.e. the value of
+        0xffffffff};             //! The index of the last returned point (i.e. the value of
                      //! m_nlist.getNeighbors()(m_current_index, 0)). Initialized to an arbitrary sentinel in
                      //! case the user ever tries to access this for an iterator built from an empty nlist.
     bool m_finished; //! Flag to indicate that the iterator has been exhausted.
@@ -221,6 +221,6 @@ void loopOverNeighbors(const NeighborQuery* neighbor_query, const vec3<float>* q
     }
 }
 
-}; }; // end namespace freud::locality
+}; };  // end namespace freud::locality
 
 #endif // NEIGHBOR_COMPUTE_FUNCTIONAL_H

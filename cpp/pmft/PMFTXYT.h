@@ -34,6 +34,6 @@ protected:
     float m_jacobian;
 };
 
-}; }; // end namespace freud::pmft
+}; };  // end namespace freud::pmft
 
 #endif // PMFTXYT_H

@@ -39,7 +39,7 @@ constexpr float DEFAULT_R_GUESS(-1.0);                    //!< Default guess que
 constexpr float DEFAULT_SCALE(-1.0);      //!< Default scaling parameter for AABB nearest neighbor queries.
 constexpr bool DEFAULT_EXCLUDE_II(false); //!< Default for whether or not to include self-neighbors.
 constexpr auto ITERATOR_TERMINATOR
-    = NeighborBond(-1, -1, 0); //!< The object returned when iteration is complete.
+    = NeighborBond(-1, -1, 0);            //!< The object returned when iteration is complete.
 
 //! POD class to hold information about generic queries.
 /*! This class provides a standard method for specifying the type of query to
@@ -441,6 +441,6 @@ protected:
     unsigned int m_cur_p; //!< The current particle under consideration.
 };
 
-}; }; // end namespace freud::locality
+}; };  // end namespace freud::locality
 
 #endif // NEIGHBOR_QUERY_H

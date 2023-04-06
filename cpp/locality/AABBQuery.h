@@ -199,6 +199,6 @@ private:
     unsigned int
         cur_ref_p; //!< The current index into the reference particles in the current node of the tree.
 };
-}; }; // end namespace freud::locality
+}; };              // end namespace freud::locality
 
-#endif // AABBQUERY_H
+#endif             // AABBQUERY_H

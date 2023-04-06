@@ -57,12 +57,12 @@ public:
     }
 
 private:
-    locality::NeighborList m_nlist; //!< The NeighborList used in the last call to compute.
+    locality::NeighborList m_nlist;                   //!< The NeighborList used in the last call to compute.
 
     util::ManagedArray<float> m_local_bond_proj;      //!< Local bond projection array computed
     util::ManagedArray<float> m_local_bond_proj_norm; //!< Normalized local bond projection array computed
 };
 
-}; }; // end namespace freud::environment
+}; };  // end namespace freud::environment
 
 #endif // LOCAL_BOND_PROJECTION_H
