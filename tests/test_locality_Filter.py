@@ -31,8 +31,9 @@ class FilterTest:
     ):
         """Compute the neighborlist for the system in python.
 
-        The base implementation here creates the unfiltered nlist sorted by distance,
-        which derived classes should use as a starting point for their implementations.
+        The base implementation here creates the unfiltered nlist sorted by distance.
+        The derived classes should use this nlist as a starting point for their
+        implementations.
 
         Note:
             ``terminate_after_blocked`` is unused when called with a class`.FilterSANN`
