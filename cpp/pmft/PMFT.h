@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2020 The Regents of the University of Michigan
+// Copyright (c) 2010-2023 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef PMFT_H
@@ -79,6 +79,6 @@ protected:
     util::ManagedArray<float> m_pcf_array; //!< Array of computed pair correlation function.
 };
 
-}; }; // end namespace freud::pmft
+}; };  // end namespace freud::pmft
 
 #endif // PMFT_H

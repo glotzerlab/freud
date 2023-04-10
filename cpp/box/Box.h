@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2020 The Regents of the University of Michigan
+// Copyright (c) 2010-2023 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef BOX_H
@@ -608,6 +608,6 @@ private:
     bool m_2d;             //!< Specify whether box is 2D.
 };
 
-}; }; // end namespace freud::box
+}; };  // end namespace freud::box
 
 #endif // BOX_H

@@ -1,3 +1,6 @@
+// Copyright (c) 2010-2023 The Regents of the University of Michigan
+// This file is from the freud project, released under the BSD 3-Clause License.
+
 #ifndef NEIGHBOR_BOND_H
 #define NEIGHBOR_BOND_H
 
@@ -93,6 +96,6 @@ struct NeighborBond
     float weight {0};                 //! The weight of this bond.
 };
 
-}; }; // end namespace freud::locality
+}; };  // end namespace freud::locality
 
 #endif // NEIGHBOR_BOND_H

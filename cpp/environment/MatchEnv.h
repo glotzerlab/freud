@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2020 The Regents of the University of Michigan
+// Copyright (c) 2010-2023 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef MATCH_ENV_H
@@ -312,7 +312,7 @@ private:
     unsigned int m_num_clusters {0};              //!< Last number of local environments computed
     util::ManagedArray<unsigned int> m_env_index; //!< Cluster index determined for each particle
     std::vector<std::vector<vec3<float>>>
-        m_cluster_environments; //!< Dictionary of (cluster id, vectors) pairs
+        m_cluster_environments;                   //!< Dictionary of (cluster id, vectors) pairs
 };
 
 //! Match local point environments to a specific motif.
@@ -441,6 +441,6 @@ private:
         m_rmsds; //!< Boolean array indicating whether or not a particle's environment matches the motif.
 };
 
-}; }; // end namespace freud::environment
+}; };  // end namespace freud::environment
 
 #endif // MATCH_ENV_H

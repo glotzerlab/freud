@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2020 The Regents of the University of Michigan
+// Copyright (c) 2010-2023 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef NEIGHBOR_LIST_H
@@ -164,6 +164,6 @@ bool compareNeighborBond(const NeighborBond& left, const NeighborBond& right);
 bool compareNeighborDistance(const NeighborBond& left, const NeighborBond& right);
 bool compareFirstNeighborPairs(const std::vector<NeighborBond>& left, const std::vector<NeighborBond>& right);
 
-}; }; // end namespace freud::locality
+}; };  // end namespace freud::locality
 
 #endif // NEIGHBOR_LIST_H

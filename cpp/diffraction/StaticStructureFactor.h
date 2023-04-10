@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2020 The Regents of the University of Michigan
+// Copyright (c) 2010-2023 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef STATIC_STRUCTURE_FACTOR_H
@@ -74,12 +74,12 @@ protected:
 
     StructureFactorHistogram m_structure_factor; //!< Histogram to hold computed structure factor
     StructureFactorHistogram::ThreadLocalHistogram
-        m_local_structure_factor; //!< Thread local histograms for TBB parallelism
+        m_local_structure_factor;                //!< Thread local histograms for TBB parallelism
 
-    bool m_reduce {true};                                         //! Whether to reduce local histograms
+    bool m_reduce {true};                        //! Whether to reduce local histograms
     float m_min_valid_k {std::numeric_limits<float>::infinity()}; //! Minimum valid k-vector magnitude
 };
 
-}; }; // namespace freud::diffraction
+}; };  // namespace freud::diffraction
 
 #endif // STATIC_STRUCTURE_FACTOR_H

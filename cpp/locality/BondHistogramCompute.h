@@ -1,3 +1,6 @@
+// Copyright (c) 2010-2023 The Regents of the University of Michigan
+// This file is from the freud project, released under the BSD 3-Clause License.
+
 #ifndef BOND_HISTOGRAM_COMPUTE_H
 #define BOND_HISTOGRAM_COMPUTE_H
 
@@ -112,18 +115,18 @@ public:
 
 protected:
     box::Box m_box;
-    unsigned int m_frame_counter {0};  //!< Number of frames calculated.
-    unsigned int m_n_points {0};       //!< The number of points.
-    unsigned int m_n_query_points {0}; //!< The number of query points.
-    bool m_reduce {true};              //!< Whether or not the histogram needs to be reduced.
+    unsigned int m_frame_counter {0};          //!< Number of frames calculated.
+    unsigned int m_n_points {0};               //!< The number of points.
+    unsigned int m_n_query_points {0};         //!< The number of query points.
+    bool m_reduce {true};                      //!< Whether or not the histogram needs to be reduced.
 
     util::Histogram<unsigned int> m_histogram; //!< Histogram of interparticle distances (bond lengths).
     util::Histogram<unsigned int>::ThreadLocalHistogram
-        m_local_histograms; //!< Thread local bin counts for TBB parallelism
+        m_local_histograms;                    //!< Thread local bin counts for TBB parallelism
 
     using BondHistogram = util::Histogram<unsigned int>;
 };
 
-}; }; // namespace freud::locality
+}; };  // namespace freud::locality
 
 #endif // BOND_HISTOGRAM_COMPUTE_H

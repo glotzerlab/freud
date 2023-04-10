@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2020 The Regents of the University of Michigan
+// Copyright (c) 2010-2023 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef NEMATIC_H
@@ -55,6 +55,6 @@ private:
     util::ManagedArray<float> m_particle_tensor; //!< The per-particle tensor that is summed up to Q.
 };
 
-}; }; // end namespace freud::order
+}; };  // end namespace freud::order
 
 #endif // NEMATIC_H

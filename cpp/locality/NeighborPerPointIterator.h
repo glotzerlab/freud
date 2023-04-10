@@ -1,3 +1,6 @@
+// Copyright (c) 2010-2023 The Regents of the University of Michigan
+// This file is from the freud project, released under the BSD 3-Clause License.
+
 #ifndef NEIGHBOR_PER_POINT_ITERATOR_H
 #define NEIGHBOR_PER_POINT_ITERATOR_H
 
@@ -54,6 +57,6 @@ protected:
     unsigned int m_query_point_idx; //!< The index of the query point.
 };
 
-}; }; // end namespace freud::locality
+}; };  // end namespace freud::locality
 
 #endif // NEIGHBOR_PER_POINT_ITERATOR_H

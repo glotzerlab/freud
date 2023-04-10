@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2020 The Regents of the University of Michigan
+// Copyright (c) 2010-2023 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef PMFTXY_H
@@ -33,6 +33,6 @@ protected:
     float m_jacobian; //!< Determinant of Jacobian, bin area
 };
 
-}; }; // end namespace freud::pmft
+}; };  // end namespace freud::pmft
 
 #endif // PMFTXY_H

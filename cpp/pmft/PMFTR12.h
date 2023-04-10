@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2020 The Regents of the University of Michigan
+// Copyright (c) 2010-2023 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef PMFTR12_H
@@ -34,6 +34,6 @@ protected:
     util::ManagedArray<float> m_inv_jacobian_array; //!< Array of inverse jacobians for each bin
 };
 
-}; }; // end namespace freud::pmft
+}; };  // end namespace freud::pmft
 
 #endif // PMFTR12_H

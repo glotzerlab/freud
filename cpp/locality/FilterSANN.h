@@ -1,3 +1,6 @@
+// Copyright (c) 2010-2023 The Regents of the University of Michigan
+// This file is from the freud project, released under the BSD 3-Clause License.
+
 #ifndef __FILTERSANN_H__
 #define __FILTERSANN_H__
 
@@ -33,6 +36,6 @@ private:
     bool m_allow_incomplete_shell;
 };
 
-}; }; // namespace freud::locality
+}; };  // namespace freud::locality
 
 #endif // __FILTERSANN_H__

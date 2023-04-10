@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2020 The Regents of the University of Michigan
+// Copyright (c) 2010-2023 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef AABBQUERY_H
@@ -199,6 +199,6 @@ private:
     unsigned int
         cur_ref_p; //!< The current index into the reference particles in the current node of the tree.
 };
-}; }; // end namespace freud::locality
+}; };              // end namespace freud::locality
 
-#endif // AABBQUERY_H
+#endif             // AABBQUERY_H

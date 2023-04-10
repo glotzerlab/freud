@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2020 The Regents of the University of Michigan
+// Copyright (c) 2010-2023 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef ANGULAR_SEPARATION_H
@@ -83,6 +83,6 @@ private:
     locality::NeighborList m_nlist;     //!< The NeighborList used in the last call to compute.
 };
 
-}; }; // end namespace freud::environment
+}; };  // end namespace freud::environment
 
 #endif // ANGULAR_SEPARATION_H
