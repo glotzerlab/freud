@@ -3,10 +3,11 @@
 
 cimport freud._locality
 cimport freud.box
+from libcpp cimport bool as cbool
 from freud.util cimport _Compute
 
 
-cdef NeighborList _nlist_from_cnlist(freud._locality.NeighborList *c_nlist)
+cdef NeighborList _nlist_from_cnlist(freud._locality.NeighborList *c_nlist, cbool deepcopy)
 
 cdef class NeighborQueryResult:
     cdef NeighborQuery nq
