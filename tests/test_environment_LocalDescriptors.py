@@ -9,6 +9,7 @@ import pytest
 from sympy.physics.wigner import wigner_3j
 
 import freud
+import conftest
 
 
 def get_ql(p, descriptors, nlist, weighted=False):
@@ -123,6 +124,15 @@ class TestLocalDescriptors:
         sphs = comp.sph
 
         assert sphs.shape[0] == N * num_neighbors
+
+    def test_nlist_lifetime(self):
+        """Ensure the nlist lives past the lifetime of the LocalDescriptors object."""
+        def _get_nlist(system):
+            ld = freud.environment.LocalDescriptors(l_max=3)
+            ld.compute(system, neighbors=dict(r_max=2))
+            return ld.nlist
+        conftest.nlist_lifetime_check(_get_nlist)
+
 
     def test_particle_local(self):
         N = 1000

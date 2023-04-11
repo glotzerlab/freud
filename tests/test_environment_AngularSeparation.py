@@ -6,6 +6,7 @@ import numpy.testing as npt
 import pytest
 
 import freud
+import conftest
 
 
 class TestAngularSeparationGlobal:
@@ -50,6 +51,13 @@ class TestAngularSeparationGlobal:
         for i in [2, 3]:
             for j in [0, 1]:
                 npt.assert_allclose(ang.angles[i][j], np.pi / 16, atol=1e-6)
+
+    def test_nlist_lifetime(self):
+        def _get_nlist(sys):
+            asn = freud.environment.AngularSeparationNeighbor()
+            asn.compute(sys, orientations=np.zeros((100, 4)), neighbors=dict(r_max=2.0))
+            return asn.nlist
+        conftest.nlist_lifetime_check(_get_nlist)
 
     def test_repr(self):
         ang = freud.environment.AngularSeparationGlobal()

@@ -7,6 +7,7 @@ import pytest
 import rowan
 
 import freud
+import conftest
 
 
 class TestLocalBondProjection:
@@ -32,6 +33,14 @@ class TestLocalBondProjection:
         nlist = aq.query(query_points, query_args).toNeighborList()
 
         npt.assert_array_equal(nlist[:], ang.nlist[:])
+
+    def test_nlist_lifetime(self):
+        def _get_nlist(sys):
+            lbp = freud.environment.LocalBondProjection()
+            lbp.compute(sys, np.zeros((100, 4)), proj_vecs=np.zeros((100, 3)),
+                        neighbors=dict(r_max=2))
+            return lbp.nlist
+        conftest.nlist_lifetime_check(_get_nlist)
 
     def test_attribute_access(self):
         boxlen = 10
