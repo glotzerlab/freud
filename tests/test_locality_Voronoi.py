@@ -255,6 +255,24 @@ class TestVoronoi:
         )
         npt.assert_allclose(wrapped_distances, vor.nlist.distances)
 
+
+    def test_voronoi_neighbors_lifetime(self):
+        """Ensure the voronoi nlist lives past the lifetime of the voronoi object."""
+        L = 10
+        N = 100
+        sys = freud.data.make_random_system(L, N)
+
+        def _get_voronoi_nlist(system):
+            voro = freud.locality.Voronoi()
+            voro.compute(system)
+            return voro.nlist
+
+        nlist = _get_voronoi_nlist(sys)
+
+        assert nlist.query_point_indices is not None
+        assert nlist.point_indices is not None
+        assert nlist.neighbor_counts is not None
+
     @pytest.mark.parametrize(
         "func, neighbors",
         [
