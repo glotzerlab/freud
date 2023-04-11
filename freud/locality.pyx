@@ -770,7 +770,8 @@ cdef class NeighborList:
         return self
 
 
-cdef NeighborList _nlist_from_cnlist(freud._locality.NeighborList *c_nlist, cbool deepcopy):
+cdef NeighborList _nlist_from_cnlist(freud._locality.NeighborList *c_nlist,
+                                     cbool deepcopy):
     """Create a Python NeighborList object that points to an existing C++
     NeighborList object.
 
@@ -1297,7 +1298,8 @@ cdef class Voronoi(_Compute):
         Returns:
             :class:`~.locality.NeighborList`: Neighbor list.
         """
-        self._nlist = _nlist_from_cnlist(self.thisptr.getNeighborList().get(), deepcopy=True)
+        self._nlist = _nlist_from_cnlist(self.thisptr.getNeighborList().get(),
+                                         deepcopy=True)
         return self._nlist
 
     def __repr__(self):
@@ -1409,12 +1411,14 @@ cdef class Filter(_PairCompute):
     @_Compute._computed_property
     def filtered_nlist(self):
         """:class:`.NeighborList`: The filtered neighbor list."""
-        return _nlist_from_cnlist(self._filterptr.getFilteredNlist().get(), deepcopy=True)
+        return _nlist_from_cnlist(self._filterptr.getFilteredNlist().get(),
+                                  deepcopy=True)
 
     @_Compute._computed_property
     def unfiltered_nlist(self):
         """:class:`.NeighborList`: The unfiltered neighbor list."""
-        return _nlist_from_cnlist(self._filterptr.getUnfilteredNlist().get(), deepcopy=True)
+        return _nlist_from_cnlist(self._filterptr.getUnfilteredNlist().get(),
+                                  deepcopy=True)
 
 
 cdef class FilterSANN(Filter):

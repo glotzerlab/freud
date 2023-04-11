@@ -8,7 +8,8 @@ cimport freud.box
 from freud.util cimport _Compute
 
 
-cdef NeighborList _nlist_from_cnlist(freud._locality.NeighborList *c_nlist, cbool deepcopy)
+cdef NeighborList _nlist_from_cnlist(freud._locality.NeighborList *c_nlist,
+                                     cbool deepcopy)
 
 cdef class NeighborQueryResult:
     cdef NeighborQuery nq
