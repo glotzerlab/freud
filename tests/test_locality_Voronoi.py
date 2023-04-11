@@ -255,7 +255,6 @@ class TestVoronoi:
         )
         npt.assert_allclose(wrapped_distances, vor.nlist.distances)
 
-
     def test_voronoi_neighbors_lifetime(self):
         """Ensure the voronoi nlist lives past the lifetime of the voronoi object."""
         L = 10
