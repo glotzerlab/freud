@@ -1,12 +1,12 @@
 # Copyright (c) 2010-2023 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
+import conftest
 import numpy as np
 import numpy.testing as npt
 import pytest
 
 import freud
-import conftest
 
 
 class TestAngularSeparationGlobal:
@@ -57,6 +57,7 @@ class TestAngularSeparationGlobal:
             asn = freud.environment.AngularSeparationNeighbor()
             asn.compute(sys, orientations=np.zeros((100, 4)), neighbors=dict(r_max=2.0))
             return asn.nlist
+
         conftest.nlist_lifetime_check(_get_nlist)
 
     def test_repr(self):

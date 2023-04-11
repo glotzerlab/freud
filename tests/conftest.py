@@ -1,4 +1,8 @@
+# Copyright (c) 2010-2023 The Regents of the University of Michigan
+# This file is from the freud project, released under the BSD 3-Clause License.
+
 import freud
+
 
 def nlist_lifetime_check(get_nlist_func):
     """Ensure nlist exists past the lifetime of the compute that created it."""
@@ -11,4 +15,3 @@ def nlist_lifetime_check(get_nlist_func):
     assert nlist.point_indices is not None
     assert nlist.query_point_indices is not None
     assert nlist.neighbor_counts is not None
-
