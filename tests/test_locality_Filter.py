@@ -45,6 +45,7 @@ class TestSANN(FilterTest):
             sann = freud.locality.FilterSANN()
             sann.compute(sys)
             return getattr(sann, nlist_property)
+
         conftest.nlist_lifetime_check(_get_nlist)
 
     @staticmethod
