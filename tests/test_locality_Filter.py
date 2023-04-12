@@ -3,6 +3,7 @@
 
 from abc import abstractmethod
 
+import conftest
 import numpy as np
 import numpy.testing as npt
 import pytest
@@ -37,6 +38,14 @@ class TestSANN(FilterTest):
 
     def get_filters(self):
         return [freud.locality.FilterSANN()]
+
+    @pytest.mark.parametrize("nlist_property", ["filtered_nlist", "unfiltered_nlist"])
+    def test_nlist_lifetime(self, nlist_property):
+        def _get_nlist(sys):
+            sann = freud.locality.FilterSANN()
+            sann.compute(sys)
+            return getattr(sann, nlist_property)
+        conftest.nlist_lifetime_check(_get_nlist)
 
     @staticmethod
     def compute_SANN_neighborlist(system, r_max):
