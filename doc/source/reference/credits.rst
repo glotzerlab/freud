@@ -334,6 +334,7 @@ Tommy Waltmann
 * Add support for compilation with the C++17 standard.
 * Normalize n(r) in ``RDF`` class by number of query points.
 * Contributed code, design, documentation, and testing for ``freud.locality.FilterSANN`` class.
+* Fixed segfault in neighborlists owned by compute objects.
 
 Maya Martirossyan
 
