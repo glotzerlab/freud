@@ -376,7 +376,7 @@ Alain Kadar
 
 * Introduced mass dependence for ``ClusterProperties`` class, inertia tensor and radius of gyration.
 
-Philip Schonhofer
+Philipp Schönhöfer
 
 * Contributed code, design, documentation, and testing for ``freud.locality.FilterRAD`` class.
 
