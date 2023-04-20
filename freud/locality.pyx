@@ -1433,6 +1433,10 @@ cdef class FilterSANN(Filter):
     Note:
         The ``filtered_nlist`` computed by this class will be sorted by distance.
 
+    Note:
+        We recommend using unfiltered neighborlists in which no particles are their
+        own neighbor.
+
     Args:
         allow_incomplete_shell (bool):
             Whether particles with incomplete neighbor shells are allowed in the
@@ -1480,6 +1484,10 @@ cdef class FilterRAD(Filter):
 
     Note:
         The ``filtered_nlist`` computed by this class will be sorted by distance.
+
+    Note:
+        We recommend using unfiltered neighborlists in which no particles are their
+        own neighbor.
 
     Args:
         allow_incomplete_shell (bool):
