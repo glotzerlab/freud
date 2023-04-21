@@ -924,7 +924,9 @@ cdef class SolidLiquid(_PairCompute):
     def nlist(self):
         """:class:`freud.locality.NeighborList`: Neighbor list of solid-like
         bonds."""
-        return freud.locality._nlist_from_cnlist(self.thisptr.getNList(), deepcopy=True)
+        nlist = freud.locality._nlist_from_cnlist(self.thisptr.getNList())
+        nlist._compute = self
+        return nlist
 
     @_Compute._computed_property
     def num_connections(self):

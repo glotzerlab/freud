@@ -225,7 +225,7 @@ cdef class NeighborQueryResult:
 
         cdef freud._locality.NeighborList *cnlist = dereference(
             iterator).toNeighborList(sort_by_distance)
-        cdef NeighborList nl = _nlist_from_cnlist(cnlist, deepcopy=False)
+        cdef NeighborList nl = _nlist_from_cnlist(cnlist)
         # Explicitly manage a manually created nlist so that it will be
         # deleted when the Python object is.
         nl._managed = True
@@ -607,6 +607,7 @@ cdef class NeighborList:
         # Cython won't assign NULL without cast
         self.thisptr = <freud._locality.NeighborList *> NULL if _null \
             else new freud._locality.NeighborList()
+        self._compute = None
 
     def __dealloc__(self):
         if self._managed:
@@ -770,8 +771,7 @@ cdef class NeighborList:
         return self
 
 
-cdef NeighborList _nlist_from_cnlist(freud._locality.NeighborList *c_nlist,
-                                     cbool deepcopy):
+cdef NeighborList _nlist_from_cnlist(freud._locality.NeighborList *c_nlist):
     """Create a Python NeighborList object that points to an existing C++
     NeighborList object.
 
@@ -785,16 +785,13 @@ cdef NeighborList _nlist_from_cnlist(freud._locality.NeighborList *c_nlist,
     Args:
         c_nlist (freud._locality.NeighborList *):
             C++ neighborlist object.
-        deepcopy (bool):
-            Whether the returned neighborlist should point to a deep copy of c_nlist
-            which it owns, or a shallow copy which it does not own.
     """
     cdef NeighborList result
     result = NeighborList()
     del result.thisptr
     result._managed = False
     result.thisptr = c_nlist
-    return (result.copy() if deepcopy else result)
+    return result
 
 
 def _make_default_nq(neighbor_query):
@@ -1298,8 +1295,8 @@ cdef class Voronoi(_Compute):
         Returns:
             :class:`~.locality.NeighborList`: Neighbor list.
         """
-        self._nlist = _nlist_from_cnlist(self.thisptr.getNeighborList().get(),
-                                         deepcopy=True)
+        self._nlist = _nlist_from_cnlist(self.thisptr.getNeighborList().get())
+        self._nlist._compute = self
         return self._nlist
 
     def __repr__(self):
@@ -1411,14 +1408,16 @@ cdef class Filter(_PairCompute):
     @_Compute._computed_property
     def filtered_nlist(self):
         """:class:`.NeighborList`: The filtered neighbor list."""
-        return _nlist_from_cnlist(self._filterptr.getFilteredNlist().get(),
-                                  deepcopy=True)
+        nlist = _nlist_from_cnlist(self._filterptr.getFilteredNlist().get())
+        nlist._compute = self
+        return nlist
 
     @_Compute._computed_property
     def unfiltered_nlist(self):
         """:class:`.NeighborList`: The unfiltered neighbor list."""
-        return _nlist_from_cnlist(self._filterptr.getUnfilteredNlist().get(),
-                                  deepcopy=True)
+        nlist = _nlist_from_cnlist(self._filterptr.getUnfilteredNlist().get())
+        nlist._compute = self
+        return nlist
 
 
 cdef class FilterSANN(Filter):
