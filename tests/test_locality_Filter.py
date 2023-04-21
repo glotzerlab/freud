@@ -3,6 +3,7 @@
 
 from abc import abstractmethod
 
+import conftest
 import numpy as np
 import numpy.testing as npt
 import pytest
@@ -117,6 +118,15 @@ class FilterTest:
         npt.assert_allclose(nlist_1.distances, nlist_2.distances, rtol=1e-5)
         npt.assert_allclose(nlist_1.point_indices, nlist_2.point_indices)
         npt.assert_allclose(nlist_1.query_point_indices, nlist_2.query_point_indices)
+
+    @pytest.mark.parametrize("nlist_property", ["filtered_nlist", "unfiltered_nlist"])
+    def test_nlist_lifetime(self, nlist_property):
+        def _get_nlist(sys):
+            filt = self.get_filter_object()
+            filt.compute(sys)
+            return getattr(filt, nlist_property)
+
+        conftest.nlist_lifetime_check(_get_nlist)
 
 
 class TestRAD(FilterTest):

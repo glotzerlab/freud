@@ -341,7 +341,9 @@ cdef class LocalDescriptors(_PairCompute):
     def nlist(self):
         """:class:`freud.locality.NeighborList`: The neighbor list from the
         last compute."""
-        return freud.locality._nlist_from_cnlist(self.thisptr.getNList())
+        nlist = freud.locality._nlist_from_cnlist(self.thisptr.getNList())
+        nlist._compute = self
+        return nlist
 
     @_Compute._computed_property
     def sph(self):
@@ -1013,7 +1015,9 @@ cdef class AngularSeparationNeighbor(_PairCompute):
     def nlist(self):
         """:class:`freud.locality.NeighborList`: The neighbor list from the
         last compute."""
-        return freud.locality._nlist_from_cnlist(self.thisptr.getNList())
+        nlist = freud.locality._nlist_from_cnlist(self.thisptr.getNList())
+        nlist._compute = self
+        return nlist
 
 
 cdef class AngularSeparationGlobal(_Compute):
@@ -1183,7 +1187,9 @@ cdef class LocalBondProjection(_PairCompute):
     def nlist(self):
         """:class:`freud.locality.NeighborList`: The neighbor list from the
         last compute."""
-        return freud.locality._nlist_from_cnlist(self.thisptr.getNList())
+        nlist = freud.locality._nlist_from_cnlist(self.thisptr.getNList())
+        nlist._compute = self
+        return nlist
 
     @_Compute._computed_property
     def projections(self):

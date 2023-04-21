@@ -607,6 +607,7 @@ cdef class NeighborList:
         # Cython won't assign NULL without cast
         self.thisptr = <freud._locality.NeighborList *> NULL if _null \
             else new freud._locality.NeighborList()
+        self._compute = None
 
     def __dealloc__(self):
         if self._managed:
@@ -780,6 +781,10 @@ cdef NeighborList _nlist_from_cnlist(freud._locality.NeighborList *c_nlist):
     any compute method that requires a :class:`~.NeighborList` (i.e. cannot do
     with just a :class:`~.NeighborQuery`) should also expose the internally
     computed :class:`~.NeighborList` using this method.
+
+    Args:
+        c_nlist (freud._locality.NeighborList *):
+            C++ neighborlist object.
     """
     cdef NeighborList result
     result = NeighborList()
@@ -1291,6 +1296,7 @@ cdef class Voronoi(_Compute):
             :class:`~.locality.NeighborList`: Neighbor list.
         """
         self._nlist = _nlist_from_cnlist(self.thisptr.getNeighborList().get())
+        self._nlist._compute = self
         return self._nlist
 
     def __repr__(self):
@@ -1402,12 +1408,16 @@ cdef class Filter(_PairCompute):
     @_Compute._computed_property
     def filtered_nlist(self):
         """:class:`.NeighborList`: The filtered neighbor list."""
-        return _nlist_from_cnlist(self._filterptr.getFilteredNlist().get())
+        nlist = _nlist_from_cnlist(self._filterptr.getFilteredNlist().get())
+        nlist._compute = self
+        return nlist
 
     @_Compute._computed_property
     def unfiltered_nlist(self):
         """:class:`.NeighborList`: The unfiltered neighbor list."""
-        return _nlist_from_cnlist(self._filterptr.getUnfilteredNlist().get())
+        nlist = _nlist_from_cnlist(self._filterptr.getUnfilteredNlist().get())
+        nlist._compute = self
+        return nlist
 
 
 cdef class FilterSANN(Filter):

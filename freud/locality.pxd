@@ -40,6 +40,7 @@ cdef class NeighborQuery:
 cdef class NeighborList:
     cdef freud._locality.NeighborList * thisptr
     cdef char _managed
+    cdef freud.util._Compute _compute
 
     cdef freud._locality.NeighborList * get_ptr(self)
     cdef void copy_c(self, NeighborList other)

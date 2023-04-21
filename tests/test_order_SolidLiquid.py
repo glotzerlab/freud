@@ -1,6 +1,7 @@
 # Copyright (c) 2010-2023 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
+import conftest
 import matplotlib
 import numpy.testing as npt
 import pytest
@@ -72,6 +73,14 @@ class TestSolidLiquid:
             assert len(comp_default.cluster_sizes) == 1
             assert comp_default.cluster_sizes[0] == len(positions)
             npt.assert_array_equal(comp_default.num_connections, 12)
+
+    def test_nlist_lifetime(self):
+        def _get_nlist(sys):
+            sl = freud.order.SolidLiquid(2, 0.5, 0.2)
+            sl.compute(sys, neighbors=dict(r_max=2))
+            return sl.nlist
+
+        conftest.nlist_lifetime_check(_get_nlist)
 
     def test_attribute_access(self):
         box, positions = freud.data.UnitCell.fcc().generate_system(4, scale=2)

@@ -335,6 +335,7 @@ Tommy Waltmann
 * Normalize n(r) in ``RDF`` class by number of query points.
 * Contributed code, design, documentation, and testing for ``freud.locality.FilterSANN`` class.
 * Contributed code, design, documentation, and testing for ``freud.locality.FilterRAD`` class.
+* Fixed segfault in neighborlists owned by compute objects.
 
 Maya Martirossyan
 
