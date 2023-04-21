@@ -67,7 +67,7 @@ class FilterTest:
         sys = freud.data.make_random_system(L, N)
         filt = self.get_filter_object(allow_incomplete_shell=False)
         with pytest.raises(RuntimeError):
-            filt.compute(sys, dict(r_max=4.9, exclude_ii=True))
+            filt.compute(sys, dict(r_max=1.2, exclude_ii=True))
 
     def test_no_query_args(self):
         """Test unfiltered nlist with default neighbors argument."""
