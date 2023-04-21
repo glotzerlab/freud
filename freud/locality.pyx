@@ -1443,6 +1443,10 @@ cdef class FilterSANN(Filter):
     Note:
         The ``filtered_nlist`` computed by this class will be sorted by distance.
 
+    Note:
+        We recommend using unfiltered neighborlists in which no particles are their
+        own neighbor.
+
     Args:
         allow_incomplete_shell (bool):
             Whether particles with incomplete neighbor shells are allowed in the
@@ -1457,4 +1461,65 @@ cdef class FilterSANN(Filter):
 
     def __dealloc__(self):
         if type(self) == FilterSANN:
+            del self._thisptr
+
+cdef class FilterRAD(Filter):
+    """Filter a :class:`.NeighborList` via the RAD method.
+
+    The Relative Angular Distance (RAD) method :cite:`Higham2016` is a parameter-free
+    algorithm for the identification of nearest neighbors. A particle’s neighbor shell
+    is taken to be all particles that are not blocked by any other particle.
+
+    The :class:`.FilterRAD` algorithm considers the potential neighbors of a query point
+    :math:`i` going radially outward, and filters the neighbors :math:`j` of :math:`i`
+    which are blocked by a closer neighbor :math:`k`. The RAD algorithm may filter
+    out all further neighbors of :math:`i` as soon as blocked neighbor :math:`j` is
+    found. This is the mode corresponding to ``terminate_after_blocked=True`` and is
+    called "RAD-closed" in :cite:`Higham2016`. If ``terminate_after_blocked=False``,
+    then :class:`.FilterRAD` will continue to consider neighbors further away than
+    :math:`j`, only filtering them if they are blocked by a closer neighbor. This mode
+    is called "RAD-open" in :cite:`Higham2016`.
+
+    RAD is implemented as a filter for pre-existing sets of neighbors due to
+    the high performance cost of sorting all :math:`N^2` particle pairs by
+    distance. For a more in-depth explanation of the neighborlist filter
+    concept in **freud**, see :class:`.Filter`.
+
+    Warning:
+        Due to the above design decision, it is possible that the unfiltered
+        neighborlist will not contain enough neighbors to completely fill the
+        neighbor shell of some particles in the system. The ``allow_incomplete_shell``
+        argument to :class:`.FilterRAD`'s constructor controls whether a warning
+        or exception is raised in these cases.
+
+    Note:
+        The ``filtered_nlist`` computed by this class will be sorted by distance.
+
+    Note:
+        We recommend using unfiltered neighborlists in which no particles are their
+        own neighbor.
+
+    Args:
+        allow_incomplete_shell (bool):
+            Whether particles with incomplete neighbor shells are allowed in the
+            filtered neighborlist. If True, a warning will be raised if there are
+            particles with incomplete neighbors shells in the filtered neighborlist.
+            If False, an exception will be raised in the same case. Only considered
+            when ``terminate_after_blocked=True`` (Default value = :code:`False`).
+        terminate_after_blocked (bool):
+            Filter potential neighbors after a closer blocked particle is found
+            (Default value = :code:`False`).
+    """
+    def __cinit__(
+        self,
+        cbool allow_incomplete_shell=False,
+        cbool terminate_after_blocked=True
+    ):
+        self._filterptr = self._thisptr = new freud._locality.FilterRAD(
+            allow_incomplete_shell,
+            terminate_after_blocked
+        )
+
+    def __dealloc__(self):
+        if type(self) == FilterRAD:
             del self._thisptr

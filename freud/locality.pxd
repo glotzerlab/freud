@@ -80,3 +80,6 @@ cdef class Filter(_PairCompute):
 
 cdef class FilterSANN(Filter):
     cdef freud._locality.FilterSANN *_thisptr
+
+cdef class FilterRAD(Filter):
+    cdef freud._locality.FilterRAD *_thisptr
