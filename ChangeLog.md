@@ -7,7 +7,7 @@ and this project adheres to
 ## v2.13.0 -- YYYY-MM-DD
 
 ### Added
-* Filter neighborlists with `freud.locality.FilterSANN`.
+* Filter neighborlists with `freud.locality.FilterSANN` and `freud.locality.FilterRAD`.
 
 ## v2.12.1 -- 2022-12-05
 
