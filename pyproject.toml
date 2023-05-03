@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools", "wheel", "oldest-supported-numpy", "cython>=0.29.14", "scikit-build==0.17.1", "cmake"]
+requires = ["setuptools", "wheel", "oldest-supported-numpy", "cython>=0.29.14", "scikit-build==0.17.3", "cmake"]
 
 [tool.black]
 target-version = ['py36']
