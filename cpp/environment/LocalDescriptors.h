@@ -96,6 +96,6 @@ private:
     util::ManagedArray<std::complex<float>> m_sphArray;
 };
 
-}; };  // end namespace freud::environment
+}; }; // end namespace freud::environment
 
 #endif // LOCAL_DESCRIPTORS_H

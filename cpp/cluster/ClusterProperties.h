@@ -88,6 +88,6 @@ private:
     util::ManagedArray<float> m_cluster_masses;                //!< Mass per cluster
 };
 
-}; };  // end namespace freud::cluster
+}; }; // end namespace freud::cluster
 
 #endif // CLUSTER_PROPERTIES_H

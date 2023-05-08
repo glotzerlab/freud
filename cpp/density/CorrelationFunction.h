@@ -78,6 +78,6 @@ private:
     CFThreadHistogram m_local_correlation_function; //!< Thread local copy of the correlation function
 };
 
-}; };  // end namespace freud::density
+}; }; // end namespace freud::density
 
 #endif // CORRELATION_FUNCTION_H

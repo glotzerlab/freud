@@ -79,6 +79,6 @@ protected:
     util::ManagedArray<float> m_pcf_array; //!< Array of computed pair correlation function.
 };
 
-}; };  // end namespace freud::pmft
+}; }; // end namespace freud::pmft
 
 #endif // PMFT_H

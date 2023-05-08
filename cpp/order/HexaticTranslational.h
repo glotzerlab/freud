@@ -54,7 +54,7 @@ protected:
                         const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs,
                         bool normalize_by_k);
 
-    const T m_k;    //!< The symmetry order for Hexatic, or normalization for Translational
+    const T m_k; //!< The symmetry order for Hexatic, or normalization for Translational
     const bool
         m_weighted; //!< Whether to use neighbor weights in computing the order parameter (default false)
     util::ManagedArray<std::complex<float>> m_psi_array; //!< psi array computed
@@ -94,6 +94,6 @@ public:
                  freud::locality::QueryArgs qargs);
 };
 
-}; };  // end namespace freud::order
+}; }; // end namespace freud::order
 
 #endif // HEXATIC_TRANSLATIONAL_H

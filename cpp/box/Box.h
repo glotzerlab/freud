@@ -608,6 +608,6 @@ private:
     bool m_2d;             //!< Specify whether box is 2D.
 };
 
-}; };  // end namespace freud::box
+}; }; // end namespace freud::box
 
 #endif // BOX_H

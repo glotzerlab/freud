@@ -57,6 +57,6 @@ protected:
     unsigned int m_query_point_idx; //!< The index of the query point.
 };
 
-}; };  // end namespace freud::locality
+}; }; // end namespace freud::locality
 
 #endif // NEIGHBOR_PER_POINT_ITERATOR_H

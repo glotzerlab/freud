@@ -53,14 +53,14 @@ public:
     vec3<unsigned int> getWidth() const;
 
 private:
-    box::Box m_box;                                  //!< Simulation box containing the points.
-    vec3<unsigned int> m_width;                      //!< Number of bins in the grid in each dimension.
-    float m_r_max;                                   //!< Sphere radius used for voxelization.
-    bool m_has_computed;                             //!< Tracks whether a call to compute has been made.
+    box::Box m_box;             //!< Simulation box containing the points.
+    vec3<unsigned int> m_width; //!< Number of bins in the grid in each dimension.
+    float m_r_max;              //!< Sphere radius used for voxelization.
+    bool m_has_computed;        //!< Tracks whether a call to compute has been made.
 
     util::ManagedArray<unsigned int> m_voxels_array; //! Computed voxels array.
 };
 
-}; };  // end namespace freud::density
+}; }; // end namespace freud::density
 
 #endif // SPHERE_VOXELIZATION_H

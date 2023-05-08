@@ -55,6 +55,6 @@ private:
     util::ManagedArray<float> m_particle_tensor; //!< The per-particle tensor that is summed up to Q.
 };
 
-}; };  // end namespace freud::order
+}; }; // end namespace freud::order
 
 #endif // NEMATIC_H

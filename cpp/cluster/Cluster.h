@@ -77,6 +77,6 @@ private:
                                                     const std::vector<size_t>& min_ids);
 };
 
-}; };  // end namespace freud::cluster
+}; }; // end namespace freud::cluster
 
 #endif // CLUSTER_H

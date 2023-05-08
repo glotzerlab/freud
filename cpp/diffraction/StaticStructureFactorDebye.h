@@ -45,6 +45,6 @@ private:
     unsigned int m_frame_counter {0}; //!< Number of frames calculated
 };
 
-}; };  // namespace freud::diffraction
+}; }; // namespace freud::diffraction
 
 #endif // STATIC_STRUCTURE_FACTOR_DEBYE_H
