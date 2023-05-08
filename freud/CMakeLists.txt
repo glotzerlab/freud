@@ -13,6 +13,7 @@ if(COVERAGE)
       CACHE STRING "The directives for Cython compilation." FORCE)
 endif()
 
+find_package(PythonLibs)
 find_package(PythonExtensions REQUIRED)
 find_package(Cython REQUIRED)
 find_package(NumPy REQUIRED)
