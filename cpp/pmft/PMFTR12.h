@@ -34,6 +34,6 @@ protected:
     util::ManagedArray<float> m_inv_jacobian_array; //!< Array of inverse jacobians for each bin
 };
 
-}; };  // end namespace freud::pmft
+}; }; // end namespace freud::pmft
 
 #endif // PMFTR12_H

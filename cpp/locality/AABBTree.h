@@ -52,8 +52,8 @@ struct CACHE_ALIGN AABBNode
 
     std::array<unsigned int, NODE_CAPACITY> particles; //!< Indices of the particles contained in the node
     std::array<unsigned int, NODE_CAPACITY>
-        particle_tags;                                 //!< Corresponding particle tags for particles in node
-    unsigned int num_particles;                        //!< Number of particles contained in the node
+        particle_tags;          //!< Corresponding particle tags for particles in node
+    unsigned int num_particles; //!< Number of particles contained in the node
 };
 
 //! AABB Tree
@@ -616,6 +616,6 @@ inline unsigned int AABBTree::allocateNode()
     return m_num_nodes - 1;
 }
 
-}; };  // end namespace freud::locality
+}; }; // end namespace freud::locality
 
 #endif // AABB_TREE_H

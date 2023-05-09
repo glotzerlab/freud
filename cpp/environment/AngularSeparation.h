@@ -83,6 +83,6 @@ private:
     locality::NeighborList m_nlist;     //!< The NeighborList used in the last call to compute.
 };
 
-}; };  // end namespace freud::environment
+}; }; // end namespace freud::environment
 
 #endif // ANGULAR_SEPARATION_H

@@ -55,13 +55,13 @@ private:
                                      //!< num_query_points/num_points).
     util::ManagedArray<float> m_pcf; //!< The computed pair correlation function.
     util::ManagedArray<float>
-        m_N_r;         //!< Cumulative bin sum N(r) (the average number of points in a ball of radius r).
+        m_N_r; //!< Cumulative bin sum N(r) (the average number of points in a ball of radius r).
     util::ManagedArray<float>
         m_vol_array2D; //!< Areas of concentric rings corresponding to the histogram bins in 2D.
     util::ManagedArray<float>
         m_vol_array3D; //!< Areas of concentric spherical shells corresponding to the histogram bins in 3D.
 };
 
-}; };  // end namespace freud::density
+}; }; // end namespace freud::density
 
 #endif // RDF_H

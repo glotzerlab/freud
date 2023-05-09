@@ -60,6 +60,6 @@ private:
     BondOrderMode m_mode;                 //!< The mode to calculate with.
 };
 
-}; };  // end namespace freud::environment
+}; }; // end namespace freud::environment
 
 #endif // BOND_ORDER_H

@@ -31,6 +31,6 @@ private:
     void warnAboutUnfilledNeighborShells(const std::vector<unsigned int>& unfilled_qps) const;
 };
 
-}; };  // namespace freud::locality
+}; }; // namespace freud::locality
 
 #endif // __FILTERSANN_H__

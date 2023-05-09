@@ -96,6 +96,6 @@ struct NeighborBond
     float weight {0};                 //! The weight of this bond.
 };
 
-}; };  // end namespace freud::locality
+}; }; // end namespace freud::locality
 
 #endif // NEIGHBOR_BOND_H

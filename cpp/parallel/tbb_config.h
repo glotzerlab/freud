@@ -16,6 +16,6 @@ namespace freud { namespace parallel {
 //! Set the number of TBB threads
 void setNumThreads(unsigned int N);
 
-}; };  // end namespace freud::parallel
+}; }; // end namespace freud::parallel
 
 #endif // TBB_CONFIG_H
