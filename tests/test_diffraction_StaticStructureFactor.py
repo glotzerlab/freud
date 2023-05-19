@@ -465,7 +465,7 @@ class TestStaticStructureFactorDirect(StaticStructureFactorTest):
         )
 
     def test_against_dynasor(self, sf_params_kmin_zero):
-        """Validate the direct method agains dynasor package."""
+        """Validate the direct method against dynasor package."""
         dsf_reciprocal = pytest.importorskip("dsf.reciprocal")
         binned_statistic = pytest.importorskip("scipy.stats").binned_statistic
 
@@ -495,3 +495,27 @@ class TestStaticStructureFactorDirect(StaticStructureFactorTest):
             bins=sf_direct.bin_edges,
         )
         npt.assert_allclose(sf_direct.S_k, S_k_binned, rtol=1e-5, atol=1e-5)
+
+    def test_2D_ideal_gas(self):
+        """Test 2D direct"""
+
+        bins = 100
+        k_max = 10
+        k_min = 0
+        num_sampled_k_points = 1000
+        L = 10
+        N = 1000
+
+        # Compute structure factor from freud
+        sf_direct = freud.diffraction.StaticStructureFactorDirect(
+            bins=bins,
+            k_min=k_min,
+            k_max=k_max,
+            num_sampled_k_points=num_sampled_k_points,
+        )
+        box, points = freud.data.make_random_system(L, N, is2D=True)
+
+        system = freud.locality.NeighborQuery.from_system((box, points))
+        sf_direct.compute(system)
+
+        npt.assert_allclose(sf_direct.S_k[-1], 1, rtol=1e-5, atol=1e-5)
