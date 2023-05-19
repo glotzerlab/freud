@@ -156,29 +156,17 @@ StaticStructureFactorDirect::compute_S_k(const std::vector<std::complex<float>>&
     return S_k;
 }
 
-inline Eigen::Matrix3f box_to_matrix3D(const box::Box& box)
+template <unsigned int D>
+inline Eigen::Matrix<float, D, D> box_to_matrix(const box::Box& box)
 {
-    // Build an Eigen matrix from the provided box.
-    Eigen::Matrix3f mat;
-    for (unsigned int i = 0; i < 3; i++)
+    Eigen::Matrix<float, D, D> mat;
+    for (unsigned int i = 0; i < D; i++)
     {
         const auto box_vector = box.getLatticeVector(i);
-        mat(i, 0) = box_vector.x;
-        mat(i, 1) = box_vector.y;
-        mat(i, 2) = box_vector.z;
-    }
-    return mat;
-}
-
-inline Eigen::Matrix2f box_to_matrix2D(const box::Box& box)
-{
-    // Build an Eigen matrix from the provided 2Dbox.
-    Eigen::Matrix2f mat;
-    for (unsigned int i = 0; i < 2; i++)
-    {
-        const auto box_vector = box.getLatticeVector(i);
-        mat(i, 0) = box_vector.x;
-        mat(i, 1) = box_vector.y;
+        for (unsigned int j = 0; j < D; j++)
+        {
+            mat(i, j) = box_vector[j];
+        }
     }
     return mat;
 }
@@ -215,6 +203,7 @@ inline float get_prune_distance2D(unsigned int num_sampled_k_points, float q_max
     return std::real(std::sqrt(q_max * q_max - static_cast<float>(num_sampled_k_points) * q_area / static_cast<float>(M_PI))) 
 }
 
+
 std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const box::Box& box, float k_max,
                                                                            float k_min,
                                                                            unsigned int num_sampled_k_points)
@@ -233,7 +222,7 @@ std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const
 
     if (box.is2D()){
         // B holds "crystallographic" reciprocal box vectors that lack the factor of 2 pi.
-        const auto box_matrix = box_to_matrix2D(box);
+        const auto box_matrix = box_to_matrix(box);
         const auto B = box_matrix.transpose().inverse();
         const auto dq_x = B.row(0).norm();
         const auto dq_y = B.row(1).norm();
@@ -305,7 +294,7 @@ std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const
         });
     } else {
         // B holds "crystallographic" reciprocal box vectors that lack the factor of 2 pi.
-        const auto box_matrix = box_to_matrix3D(box);
+        const auto box_matrix = box_to_matrix(box);
         const auto B = box_matrix.transpose().inverse();
         const auto dq_x = B.row(0).norm();
         const auto dq_y = B.row(1).norm();
