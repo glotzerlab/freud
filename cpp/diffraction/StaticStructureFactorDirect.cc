@@ -204,6 +204,7 @@ inline float get_prune_distance2D(unsigned int num_sampled_k_points, float q_max
 }
 
 
+
 std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const box::Box& box, float k_max,
                                                                            float k_min,
                                                                            unsigned int num_sampled_k_points)
@@ -222,7 +223,7 @@ std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const
 
     if (box.is2D()){
         // B holds "crystallographic" reciprocal box vectors that lack the factor of 2 pi.
-        const auto box_matrix = box_to_matrix(box);
+        const auto box_matrix = box_to_matrix<2>(box);
         const auto B = box_matrix.transpose().inverse();
         const auto dq_x = B.row(0).norm();
         const auto dq_y = B.row(1).norm();
@@ -294,7 +295,7 @@ std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const
         });
     } else {
         // B holds "crystallographic" reciprocal box vectors that lack the factor of 2 pi.
-        const auto box_matrix = box_to_matrix(box);
+        const auto box_matrix = box_to_matrix<3>(box);
         const auto B = box_matrix.transpose().inverse();
         const auto dq_x = B.row(0).norm();
         const auto dq_y = B.row(1).norm();
