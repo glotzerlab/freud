@@ -156,16 +156,29 @@ StaticStructureFactorDirect::compute_S_k(const std::vector<std::complex<float>>&
     return S_k;
 }
 
-template<unsigned int D> inline Eigen::Matrix<float, D, D> box_to_matrix(const box::Box& box)
+inline Eigen::Matrix3f box_to_matrix3D(const box::Box& box)
 {
-    Eigen::Matrix<float, D, D> mat;
-    for (unsigned int i = 0; i < D; i++)
+    // Build an Eigen matrix from the provided box.
+    Eigen::Matrix3f mat;
+    for (unsigned int i = 0; i < 3; i++)
     {
         const auto box_vector = box.getLatticeVector(i);
-        for (unsigned int j = 0; j < D; j++)
-        {
-            mat(i, j) = box_vector[j];
-        }
+        mat(i, 0) = box_vector.x;
+        mat(i, 1) = box_vector.y;
+        mat(i, 2) = box_vector.z;
+    }
+    return mat;
+}
+
+inline Eigen::Matrix2f box_to_matrix2D(const box::Box& box)
+{
+    // Build an Eigen matrix from the provided 2Dbox.
+    Eigen::Matrix2f mat;
+    for (unsigned int i = 0; i < 2; i++)
+    {
+        const auto box_vector = box.getLatticeVector(i);
+        mat(i, 0) = box_vector.x;
+        mat(i, 1) = box_vector.y;
     }
     return mat;
 }
@@ -200,7 +213,37 @@ inline float get_prune_distance2D(unsigned int num_sampled_k_points, float q_max
     // use quadratic formula to compute pruning distance
     // TODO: need to reverify this is correct
     return std::real(std::sqrt(
-        q_max * q_max - static_cast<float>(num_sampled_k_points) * q_area / static_cast<float>(M_PI)))
+        q_max * q_max - static_cast<float>(num_sampled_k_points) * q_area / static_cast<float>(M_PI)));
+}
+
+// Helper function to set up random number generator
+std::mt19937 setup_rng(unsigned int seed)
+{
+    std::random_device rd;
+    std::seed_seq seed_seq {seed, rd(), rd(), rd()};
+    return std::mt19937(seed_seq);
+}
+
+// Function to evaluate quadratic equation for kz
+std::pair<unsigned int, unsigned int>
+evaluate_quadratic_equation(float coef_a, float coef_b, float coef_c_min, float coef_c_max, unsigned int N_kz)
+{
+    const auto b_over_2a = coef_b / (2 * coef_a);
+    const auto kz_min = static_cast<unsigned int>(
+        std::floor(-b_over_2a + std::sqrt(b_over_2a * b_over_2a - coef_c_min / coef_a)));
+    const auto kz_max = static_cast<unsigned int>(
+        std::ceil(-b_over_2a + std::sqrt(b_over_2a * b_over_2a - coef_c_max / coef_a)));
+    return {kz_min, std::min(kz_max, N_kz)};
+}
+
+// Function to evaluate if k_vector should be kept
+bool should_keep_k_vector(float q_distance_sq, float q_prune_distance_sq, bool add_all_k_points,
+                          float q_max_sq, float q_min_sq, std::uniform_real_distribution<float>& base_dist,
+                          std::mt19937& rng)
+{
+    const auto prune_probability = q_prune_distance_sq / q_distance_sq;
+    return (q_distance_sq <= q_max_sq && q_distance_sq >= q_min_sq)
+        && (add_all_k_points || prune_probability > base_dist(rng));
 }
 
 std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const box::Box& box, float k_max,
@@ -222,7 +265,7 @@ std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const
     if (box.is2D())
     {
         // B holds "crystallographic" reciprocal box vectors that lack the factor of 2 pi.
-        const auto box_matrix = box_to_matrix<2>(box);
+        const auto box_matrix = box_to_matrix2D(box);
         const auto B = box_matrix.transpose().inverse();
         const auto dq_x = B.row(0).norm();
         const auto dq_y = B.row(1).norm();
@@ -239,16 +282,12 @@ std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const
         // the random number generators once per block and there is no benefit of
         // locality if we parallelize in 2D.
         util::forLoopWrapper(0, N_kx, [&](size_t begin, size_t end) {
-            // Set up thread-local random number generator for k point pruning.
-            const auto thread_start = static_cast<unsigned int>(begin);
-            std::random_device rd;
-            std::seed_seq seed {thread_start, rd(), rd(), rd()};
-            std::mt19937 rng(seed);
+            // Set up thread-local random number generator for k point
+            // pruning.
+            std::mt19937 rng = setup_rng(static_cast<unsigned int>(begin));
             std::uniform_real_distribution<float> base_dist(0, 1);
             auto random_prune = [&]() { return base_dist(rng); };
-
             const auto add_all_k_points = std::isinf(q_prune_distance);
-
             for (unsigned int kx = begin; kx < end; ++kx)
             {
                 const auto k_vec_x = static_cast<float>(kx) * bx;
@@ -267,11 +306,8 @@ std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const
                 const auto coef_b = -2 * dot(k_vec_x, by);
                 const auto coef_c_min = dot(k_vec_x, k_vec_x) - k_min * k_min;
                 const auto coef_c_max = dot(k_vec_x, k_vec_x) - k_max * k_max;
-                const auto b_over_2a = coef_b / (2 * coef_a);
-                const auto ky_min = static_cast<unsigned int>(
-                    std::floor(-b_over_2a + std::sqrt(b_over_2a * b_over_2a - coef_c_min / coef_a)));
-                const auto ky_max = static_cast<unsigned int>(
-                    std::ceil(-b_over_2a + std::sqrt(b_over_2a * b_over_2a - coef_c_max / coef_a)));
+                auto [ky_min, ky_max]
+                    = evaluate_quadratic_equation(coef_a, coef_b, coef_c_min, coef_c_max, N_ky);
                 for (unsigned int ky = ky_min; ky < std::min(ky_max, N_ky); ++ky)
                 {
                     const auto k_vec = k_vec_x + static_cast<float>(ky) * by;
@@ -279,15 +315,13 @@ std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const
                         = dot(k_vec, k_vec) / freud::constants::TWO_PI / freud::constants::TWO_PI;
 
                     // The k vector is kept with probability min(1, (q_prune_distance / q_distance)^2).
-                    // This sampling scheme aims to have a constant density of k vectors with respect to
+                    // This sampling scheme aims to have a constant
+                    // density of k vectors with respect to
                     // radial distance.
-                    if (q_distance_sq <= q_max_sq && q_distance_sq >= q_min_sq)
+                    if (should_keep_k_vector(q_distance_sq, q_prune_distance_sq, add_all_k_points, q_max_sq,
+                                             q_min_sq, base_dist, rng))
                     {
-                        const auto prune_probability = q_prune_distance_sq / q_distance_sq;
-                        if (add_all_k_points || prune_probability > random_prune())
-                        {
-                            k_points.emplace_back(k_vec);
-                        }
+                        k_points.emplace_back(k_vec);
                     }
                 }
             }
@@ -296,7 +330,7 @@ std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const
     else
     {
         // B holds "crystallographic" reciprocal box vectors that lack the factor of 2 pi.
-        const auto box_matrix = box_to_matrix<3>(box);
+        const auto box_matrix = box_to_matrix3D(box);
         const auto B = box_matrix.transpose().inverse();
         const auto dq_x = B.row(0).norm();
         const auto dq_y = B.row(1).norm();
@@ -316,25 +350,18 @@ std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const
         // the random number generators once per block and there is no benefit of
         // locality if we parallelize in 2D or 3D.
         util::forLoopWrapper(0, N_kx, [&](size_t begin, size_t end) {
-            // Set up thread-local random number generator for k point pruning.
-            const auto thread_start = static_cast<unsigned int>(begin);
-            std::random_device rd;
-            std::seed_seq seed {thread_start, rd(), rd(), rd()};
-            std::mt19937 rng(seed);
+            // Set up thread-local random number generator for k point
+            // pruning.
+            std::mt19937 rng = setup_rng(static_cast<unsigned int>(begin));
             std::uniform_real_distribution<float> base_dist(0, 1);
             auto random_prune = [&]() { return base_dist(rng); };
-
             const auto add_all_k_points = std::isinf(q_prune_distance);
-
             for (unsigned int kx = begin; kx < end; ++kx)
             {
                 const auto k_vec_x = static_cast<float>(kx) * bx;
                 for (unsigned int ky = 0; ky < N_ky; ++ky)
                 {
                     const auto k_vec_xy = k_vec_x + static_cast<float>(ky) * by;
-
-                    // REFACTOR THIS OPTIMIZATION OF finding points which not to sample and reuse.
-
                     // Solve the quadratic equation for kz to limit which kz values we must sample:
                     // k_min^2 <= |k_vec_xy|^2 + kz^2 |bz|^2 - 2 kz (k_vec_xy \cdot bz) <= k_max^2
                     // 0 <= kz^2 (|bz|^2) + kz (-2 (k_vec_xy \cdot bz)) + (|k_vec_xy|^2 - k_min^2)
@@ -349,28 +376,21 @@ std::vector<vec3<float>> StaticStructureFactorDirect::reciprocal_isotropic(const
                     const auto coef_b = -2 * dot(k_vec_xy, bz);
                     const auto coef_c_min = dot(k_vec_xy, k_vec_xy) - k_min * k_min;
                     const auto coef_c_max = dot(k_vec_xy, k_vec_xy) - k_max * k_max;
-                    const auto b_over_2a = coef_b / (2 * coef_a);
-                    const auto kz_min = static_cast<unsigned int>(
-                        std::floor(-b_over_2a + std::sqrt(b_over_2a * b_over_2a - coef_c_min / coef_a)));
-                    const auto kz_max = static_cast<unsigned int>(
-                        std::ceil(-b_over_2a + std::sqrt(b_over_2a * b_over_2a - coef_c_max / coef_a)));
+                    auto [kz_min, kz_max]
+                        = evaluate_quadratic_equation(coef_a, coef_b, coef_c_min, coef_c_max, N_kz);
                     for (unsigned int kz = kz_min; kz < std::min(kz_max, N_kz); ++kz)
                     {
                         const auto k_vec = k_vec_xy + static_cast<float>(kz) * bz;
-                        // POSSIBLY REFACTOR THIS INTO A FN AND USE FOR 2D and 3D?
                         const auto q_distance_sq
                             = dot(k_vec, k_vec) / freud::constants::TWO_PI / freud::constants::TWO_PI;
 
                         // The k vector is kept with probability min(1, (q_prune_distance / q_distance)^2).
                         // This sampling scheme aims to have a constant density of k vectors with respect to
                         // radial distance.
-                        if (q_distance_sq <= q_max_sq && q_distance_sq >= q_min_sq)
+                        if (should_keep_k_vector(q_distance_sq, q_prune_distance_sq, add_all_k_points,
+                                                 q_max_sq, q_min_sq, base_dist, rng))
                         {
-                            const auto prune_probability = q_prune_distance_sq / q_distance_sq;
-                            if (add_all_k_points || prune_probability > random_prune())
-                            {
-                                k_points.emplace_back(k_vec);
-                            }
+                            k_points.emplace_back(k_vec);
                         }
                     }
                 }
