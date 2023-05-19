@@ -8,6 +8,11 @@ add_library(
   AABBTree.h
   BondHistogramCompute.h
   CMakeLists.txt
+  Filter.h
+  FilterSANN.cc
+  FilterSANN.h
+  FilterRAD.cc
+  FilterRAD.h
   LinkCell.cc
   LinkCell.h
   NeighborBond.h

@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2020 The Regents of the University of Michigan
+# Copyright (c) 2010-2023 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 r"""
@@ -555,6 +555,50 @@ cdef class NeighborList:
 
         return result
 
+    @classmethod
+    def all_pairs(cls, system, query_points=None, exclude_ii=True):
+        R"""Create a NeighborList where all pairs of points are neighbors.
+
+        More explicitly, this method returns a NeighborList in which all pairs of
+        points :math:`i`, :math:`j` are neighbors. Pairs such that :math:`i = j`
+        can also be excluded using the ``exclude_ii`` option. The weight of all
+        neighbors pairs in the returned list will be 1.
+
+        Args:
+            system:
+                Any object that is valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
+            query_points ((:math:`N_{query\_points}`, 3) :class:`np.ndarray`, optional):
+                Query points used to create neighbor pairs. Uses the system's
+                points if :code:`None` (Default value = :code:`None`).
+            exclude_ii (bool):
+                Whether to exclude pairs of particles with the same point index in
+                the output neighborlist (Default value = ``True``).
+        """
+        cdef NeighborQuery nq = NeighborQuery.from_system(system)
+        cdef freud._box.Box box = nq.nqptr.getBox()
+        points = nq.points
+        if query_points is None:
+            query_points = points
+
+        points = freud.util._convert_array(
+            points, shape=points.shape, dtype=np.float32)
+        query_points = freud.util._convert_array(
+            query_points, shape=query_points.shape, dtype=np.float32)
+
+        cdef const float[:, ::1] l_points = points
+        cdef const float[:, ::1] l_query_points = query_points
+        cdef cbool l_exclude_ii = exclude_ii
+
+        cdef NeighborList result
+        result = cls()
+        result.thisptr = new freud._locality.NeighborList(
+            <vec3[float]*> &l_points[0, 0], <vec3[float]*> &l_query_points[0, 0],
+            box, l_exclude_ii, l_points.shape[0], l_query_points.shape[0]
+        )
+
+        return result
+
     def __cinit__(self, _null=False):
         # Setting _null to True will create a NeighborList with no underlying
         # C++ object. This is useful for passing NULL pointers to C++ to
@@ -563,6 +607,7 @@ cdef class NeighborList:
         # Cython won't assign NULL without cast
         self.thisptr = <freud._locality.NeighborList *> NULL if _null \
             else new freud._locality.NeighborList()
+        self._compute = None
 
     def __dealloc__(self):
         if self._managed:
@@ -711,6 +756,20 @@ cdef class NeighborList:
         self.thisptr.filter_r(r_max, r_min)
         return self
 
+    def sort(self, cbool by_distance=False):
+        r"""Sort the entries in the neighborlist.
+
+        Args:
+            by_distance (bool):
+                If ``True``, this method sorts the neighborlist entries by
+                ``query_point_index``, then ``distance``, then ``point_index``.
+                If ``False``, this method sorts the NeighborList entries by
+                ``query_point_index``, then ``point_index``, then ``distance``
+                (Default value = ``False``).
+        """
+        self.thisptr.sort(by_distance)
+        return self
+
 
 cdef NeighborList _nlist_from_cnlist(freud._locality.NeighborList *c_nlist):
     """Create a Python NeighborList object that points to an existing C++
@@ -722,6 +781,10 @@ cdef NeighborList _nlist_from_cnlist(freud._locality.NeighborList *c_nlist):
     any compute method that requires a :class:`~.NeighborList` (i.e. cannot do
     with just a :class:`~.NeighborQuery`) should also expose the internally
     computed :class:`~.NeighborList` using this method.
+
+    Args:
+        c_nlist (freud._locality.NeighborList *):
+            C++ neighborlist object.
     """
     cdef NeighborList result
     result = NeighborList()
@@ -1233,6 +1296,7 @@ cdef class Voronoi(_Compute):
             :class:`~.locality.NeighborList`: Neighbor list.
         """
         self._nlist = _nlist_from_cnlist(self.thisptr.getNeighborList().get())
+        self._nlist._compute = self
         return self._nlist
 
     def __repr__(self):
@@ -1272,3 +1336,190 @@ cdef class Voronoi(_Compute):
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None
+
+
+cdef class Filter(_PairCompute):
+    """Filter an Existing :class:`.NeighborList`.
+
+    This class serves as the base class for all NeighborList filtering methods
+    in **freud**. Filtering a :class:`.NeighborList` requires first computing
+    the unfiltered :class:`.NeighborList` from a system and a set of query
+    arguments. Then, based on the arrangement of particles, their shapes, and
+    other criteria determined by the derived class, some of the neighbors are
+    removed from the unfiltered :class:`.NeighborList`.
+
+    The compute method of each :class:`.Filter` class will take a system object
+    along with a neighbors dictionary specifying query arguments. The
+    ``neighbors`` dictionary along with the system object will be used to build
+    the unfiltered neighborlist, which will then be filtered according to the
+    filter class. After the calculation, the filtered neighborlist will be
+    available as the property ``filtered_nlist`` .
+
+    Warning:
+        This class is abstract and should not be instantiated directly.
+    """
+    def __cinit__(self):
+        if type(self) == Filter:
+            raise RuntimeError(
+                "The Filter class is abstract and should not be instantiated directly."
+            )
+
+    def _preprocess_arguments(self, system, query_points=None, neighbors=None):
+        """Use a full neighborlist if neighbors=None."""
+        nq = NeighborQuery.from_system(system)
+        if neighbors is None:
+            neighbors = NeighborList.all_pairs(nq, query_points,
+                                               query_points is None)
+        return super()._preprocess_arguments(nq, query_points, neighbors)
+
+    def compute(self, system, neighbors=None, query_points=None):
+        r"""Filter a :class:`.Neighborlist`.
+
+        Args:
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
+            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
+                Either a :class:`NeighborList` of neighbor pairs to use for the
+                unfiltered neighbor list, or a dictionary of `query arguments
+                <https://freud.readthedocs.io/en/stable/topics/querying.html>`__.
+                If ``None``, an unfiltered neighborlist will be created such that
+                all pairs of particles are neighbors via :meth:`.NeighborList.all_pairs`
+                (Default value = ``None``).
+            query_points ((:math:`N_{query\_points}`, 3) :class:`np.ndarray`, optional):
+                Query points used to calculate the unfiltered neighborlist. Uses
+                the system's points if :code:`None` (Default value = :code:`None`).
+        """
+        cdef:
+            NeighborQuery nq
+            NeighborList nlist
+            _QueryArgs qargs
+            const float[:, ::1] l_query_points
+            unsigned int num_query_points
+        nq, nlist, qargs, l_query_points, num_query_points = \
+            self._preprocess_arguments(system, query_points, neighbors)
+
+        self._filterptr.compute(nq.get_ptr(),
+                                <vec3[float]*> &l_query_points[0, 0],
+                                num_query_points, nlist.get_ptr(),
+                                dereference(qargs.thisptr))
+        return self
+
+    @_Compute._computed_property
+    def filtered_nlist(self):
+        """:class:`.NeighborList`: The filtered neighbor list."""
+        nlist = _nlist_from_cnlist(self._filterptr.getFilteredNlist().get())
+        nlist._compute = self
+        return nlist
+
+    @_Compute._computed_property
+    def unfiltered_nlist(self):
+        """:class:`.NeighborList`: The unfiltered neighbor list."""
+        nlist = _nlist_from_cnlist(self._filterptr.getUnfilteredNlist().get())
+        nlist._compute = self
+        return nlist
+
+
+cdef class FilterSANN(Filter):
+    """Filter a :class:`.NeighborList` via the SANN method.
+
+    The Solid Angle Nearest Neighbor (SANN) method :cite:`vanMeel2012` is a
+    parameter-free algorithm for the identification of nearest neighbors. The
+    SANN method attributes to each possible neighbor a solid angle and determines
+    the cutoff radius by the requirement that the sum of the solid angles is 4π.
+
+    For performance considerations, SANN is implemented as a way of filtering
+    a pre-existing set of neighbors due to the high performance cost of sorting
+    all :math:`N^2` particle pairs by distance. For a more in-depth explanation of
+    the neighborlist filter concept in **freud**, see :class:`.Filter`.
+
+    Warning:
+        Due to the above design decision, it is possible that the unfiltered
+        neighborlist will not contain enough neighbors to completely fill the
+        neighbor shell of some particles in the system. The ``allow_incomplete_shell``
+        argument to :class:`.FilterSANN`'s constructor controls whether a warning
+        or exception is raised in these cases.
+
+    Note:
+        The ``filtered_nlist`` computed by this class will be sorted by distance.
+
+    Note:
+        We recommend using unfiltered neighborlists in which no particles are their
+        own neighbor.
+
+    Args:
+        allow_incomplete_shell (bool):
+            Whether particles with incomplete neighbor shells are allowed in the
+            filtered neighborlist. If True, a warning will be raised if there are
+            particles with incomplete neighbors shells in the filtered neighborlist.
+            If False, an exception will be raised in the same case (Default value =
+            :code:`False`).
+    """
+    def __cinit__(self, cbool allow_incomplete_shell=False):
+        self._filterptr = self._thisptr = \
+            new freud._locality.FilterSANN(allow_incomplete_shell)
+
+    def __dealloc__(self):
+        if type(self) == FilterSANN:
+            del self._thisptr
+
+cdef class FilterRAD(Filter):
+    """Filter a :class:`.NeighborList` via the RAD method.
+
+    The Relative Angular Distance (RAD) method :cite:`Higham2016` is a parameter-free
+    algorithm for the identification of nearest neighbors. A particle’s neighbor shell
+    is taken to be all particles that are not blocked by any other particle.
+
+    The :class:`.FilterRAD` algorithm considers the potential neighbors of a query point
+    :math:`i` going radially outward, and filters the neighbors :math:`j` of :math:`i`
+    which are blocked by a closer neighbor :math:`k`. The RAD algorithm may filter
+    out all further neighbors of :math:`i` as soon as blocked neighbor :math:`j` is
+    found. This is the mode corresponding to ``terminate_after_blocked=True`` and is
+    called "RAD-closed" in :cite:`Higham2016`. If ``terminate_after_blocked=False``,
+    then :class:`.FilterRAD` will continue to consider neighbors further away than
+    :math:`j`, only filtering them if they are blocked by a closer neighbor. This mode
+    is called "RAD-open" in :cite:`Higham2016`.
+
+    RAD is implemented as a filter for pre-existing sets of neighbors due to
+    the high performance cost of sorting all :math:`N^2` particle pairs by
+    distance. For a more in-depth explanation of the neighborlist filter
+    concept in **freud**, see :class:`.Filter`.
+
+    Warning:
+        Due to the above design decision, it is possible that the unfiltered
+        neighborlist will not contain enough neighbors to completely fill the
+        neighbor shell of some particles in the system. The ``allow_incomplete_shell``
+        argument to :class:`.FilterRAD`'s constructor controls whether a warning
+        or exception is raised in these cases.
+
+    Note:
+        The ``filtered_nlist`` computed by this class will be sorted by distance.
+
+    Note:
+        We recommend using unfiltered neighborlists in which no particles are their
+        own neighbor.
+
+    Args:
+        allow_incomplete_shell (bool):
+            Whether particles with incomplete neighbor shells are allowed in the
+            filtered neighborlist. If True, a warning will be raised if there are
+            particles with incomplete neighbors shells in the filtered neighborlist.
+            If False, an exception will be raised in the same case. Only considered
+            when ``terminate_after_blocked=True`` (Default value = :code:`False`).
+        terminate_after_blocked (bool):
+            Filter potential neighbors after a closer blocked particle is found
+            (Default value = :code:`False`).
+    """
+    def __cinit__(
+        self,
+        cbool allow_incomplete_shell=False,
+        cbool terminate_after_blocked=True
+    ):
+        self._filterptr = self._thisptr = new freud._locality.FilterRAD(
+            allow_incomplete_shell,
+            terminate_after_blocked
+        )
+
+    def __dealloc__(self):
+        if type(self) == FilterRAD:
+            del self._thisptr

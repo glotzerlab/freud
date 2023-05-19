@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2020 The Regents of the University of Michigan
+# Copyright (c) 2010-2023 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 cimport freud._locality
@@ -40,6 +40,7 @@ cdef class NeighborQuery:
 cdef class NeighborList:
     cdef freud._locality.NeighborList * thisptr
     cdef char _managed
+    cdef freud.util._Compute _compute
 
     cdef freud._locality.NeighborList * get_ptr(self)
     cdef void copy_c(self, NeighborList other)
@@ -73,3 +74,12 @@ cdef class Voronoi(_Compute):
     cdef freud._locality.Voronoi * thisptr
     cdef NeighborList _nlist
     cdef freud.box.Box _box
+
+cdef class Filter(_PairCompute):
+    cdef freud._locality.Filter *_filterptr
+
+cdef class FilterSANN(Filter):
+    cdef freud._locality.FilterSANN *_thisptr
+
+cdef class FilterRAD(Filter):
+    cdef freud._locality.FilterRAD *_thisptr

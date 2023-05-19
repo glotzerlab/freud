@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2020 The Regents of the University of Michigan
+# Copyright (c) 2010-2023 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 from libcpp cimport bool
@@ -74,6 +74,9 @@ cdef extern from "NeighborList.h" namespace "freud::locality":
         NeighborList(unsigned int, const unsigned int*, unsigned int,
                      const unsigned int*, unsigned int, const float*,
                      const float*) except +
+        NeighborList(const vec3[float]*, const vec3[float]*,
+                     const freud._box.Box&, const bool, const unsigned int,
+                     const unsigned int)
 
         freud.util.ManagedArray[unsigned int] &getNeighbors()
         freud.util.ManagedArray[float] &getDistances()
@@ -93,6 +96,7 @@ cdef extern from "NeighborList.h" namespace "freud::locality":
         void resize(unsigned int)
         void copy(const NeighborList &)
         void validate(unsigned int, unsigned int) except +
+        void sort(bool)
 
 cdef extern from "LinkCell.h" namespace "freud::locality":
     cdef cppclass LinkCell(NeighborQuery):
@@ -142,3 +146,22 @@ cdef extern from "Voronoi.h" namespace "freud::locality":
         vector[vector[vec3[double]]] getPolytopes() const
         const freud.util.ManagedArray[double] &getVolumes() const
         shared_ptr[NeighborList] getNeighborList() const
+
+cdef extern from "Filter.h" namespace "freud::locality":
+    cdef cppclass Filter:
+        Filter()
+        void compute(const NeighborQuery *,
+                     const vec3[float] *,
+                     unsigned int,
+                     const NeighborList *,
+                     QueryArgs) except +
+        shared_ptr[NeighborList] getFilteredNlist() const
+        shared_ptr[NeighborList] getUnfilteredNlist() const
+
+cdef extern from "FilterSANN.h" namespace "freud::locality":
+    cdef cppclass FilterSANN(Filter):
+        FilterSANN(bool)
+
+cdef extern from "FilterRAD.h" namespace "freud::locality":
+    cdef cppclass FilterRAD(Filter):
+        FilterRAD(bool, bool)

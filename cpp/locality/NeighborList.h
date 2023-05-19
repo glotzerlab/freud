@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2020 The Regents of the University of Michigan
+// Copyright (c) 2010-2023 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef NEIGHBOR_LIST_H
@@ -37,6 +37,12 @@ public:
     NeighborList(unsigned int num_bonds, const unsigned int* query_point_index, unsigned int num_query_points,
                  const unsigned int* point_index, unsigned int num_points, const float* distances,
                  const float* weights);
+    //! Make a neighborlist where all points, excluding ii, are pairs
+    NeighborList(const vec3<float>* points, const vec3<float>* query_points, const box::Box& box,
+                 const bool exclude_ii, const unsigned int num_points, const unsigned int num_query_points);
+
+    //! Construct from vector of NeighborBonds
+    explicit NeighborList(std::vector<NeighborBond> bonds);
 
     //! Return the number of bonds stored in this NeighborList
     unsigned int getNumBonds() const;
@@ -125,10 +131,15 @@ public:
     //! Throw a runtime_error if num_points and num_query_points do not match
     //  the stored value
     void validate(unsigned int num_query_points, unsigned int num_points) const;
+    // sort the neighborlist
+    void sort(bool by_distance);
 
 private:
     //! Helper method for bisection search of the neighbor list, used in find_first_index
     unsigned int bisection_search(unsigned int val, unsigned int left, unsigned int right) const;
+
+    //! Helper method to get an equivalent list of NeighborBonds from the nlist
+    std::vector<NeighborBond> toBondVector() const;
 
     //! Number of query points
     unsigned int m_num_query_points;

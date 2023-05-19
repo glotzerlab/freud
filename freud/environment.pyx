@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2020 The Regents of the University of Michigan
+# Copyright (c) 2010-2023 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 r"""
@@ -341,7 +341,9 @@ cdef class LocalDescriptors(_PairCompute):
     def nlist(self):
         """:class:`freud.locality.NeighborList`: The neighbor list from the
         last compute."""
-        return freud.locality._nlist_from_cnlist(self.thisptr.getNList())
+        nlist = freud.locality._nlist_from_cnlist(self.thisptr.getNList())
+        nlist._compute = self
+        return nlist
 
     @_Compute._computed_property
     def sph(self):
@@ -811,6 +813,7 @@ cdef class EnvironmentMotifMatch(_MatchEnv):
             <vec3[float]*>
             <vec3[float]*> &l_motif[0, 0], nRef,
             threshold, registration)
+        return self
 
     @_Compute._computed_property
     def matches(self):
@@ -1012,7 +1015,9 @@ cdef class AngularSeparationNeighbor(_PairCompute):
     def nlist(self):
         """:class:`freud.locality.NeighborList`: The neighbor list from the
         last compute."""
-        return freud.locality._nlist_from_cnlist(self.thisptr.getNList())
+        nlist = freud.locality._nlist_from_cnlist(self.thisptr.getNList())
+        nlist._compute = self
+        return nlist
 
 
 cdef class AngularSeparationGlobal(_Compute):
@@ -1182,7 +1187,9 @@ cdef class LocalBondProjection(_PairCompute):
     def nlist(self):
         """:class:`freud.locality.NeighborList`: The neighbor list from the
         last compute."""
-        return freud.locality._nlist_from_cnlist(self.thisptr.getNList())
+        nlist = freud.locality._nlist_from_cnlist(self.thisptr.getNList())
+        nlist._compute = self
+        return nlist
 
     @_Compute._computed_property
     def projections(self):

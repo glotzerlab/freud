@@ -1,8 +1,10 @@
-// Copyright (c) 2010-2020 The Regents of the University of Michigan
+// Copyright (c) 2010-2023 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <algorithm>
 #include <stdexcept>
+#include <tbb/enumerable_thread_specific.h>
+#include <tbb/parallel_sort.h>
 
 #include "NeighborList.h"
 
@@ -54,6 +56,92 @@ NeighborList::NeighborList(unsigned int num_bonds, const unsigned int* query_poi
         m_distances[i] = distances[i];
         last_index = index;
     }
+}
+
+NeighborList::NeighborList(const vec3<float>* points, const vec3<float>* query_points, const box::Box& box,
+                           const bool exclude_ii, const unsigned int num_points,
+                           const unsigned int num_query_points)
+    : m_num_points(num_points), m_num_query_points(num_query_points), m_segments_counts_updated(false)
+{
+    // prepare member arrays
+    const unsigned int num_ii = (exclude_ii ? std::min(num_points, num_query_points) : 0);
+    const unsigned int num_bonds = num_points * num_query_points - num_ii;
+
+    m_neighbors.prepare({num_bonds, 2});
+    m_distances.prepare(num_bonds);
+    m_weights.prepare(num_bonds);
+
+    util::forLoopWrapper(0, num_query_points, [&](size_t begin, size_t end) {
+        for (unsigned int i = begin; i < end; ++i)
+        {
+            // set the starting value of the bond index
+            unsigned int bond_idx = i * num_points;
+            if (exclude_ii)
+            {
+                bond_idx -= std::min(i, num_points);
+            }
+
+            // loop over points
+            for (unsigned int j = 0; j < num_points; ++j)
+            {
+                if (exclude_ii && i == j)
+                {
+                    continue;
+                }
+
+                m_neighbors(bond_idx, 0) = i;
+                m_neighbors(bond_idx, 1) = j;
+                m_weights(bond_idx) = 1.0;
+                const auto dr = box.wrap(query_points[i] - points[j]);
+                m_distances(bond_idx) = sqrt(dot(dr, dr));
+                ++bond_idx;
+            }
+        }
+    });
+}
+
+NeighborList::NeighborList(std::vector<NeighborBond> bonds)
+{
+    // keep track of maximum indices
+    using MaxIndex = tbb::enumerable_thread_specific<unsigned int>;
+    MaxIndex max_idx_query = 0;
+    MaxIndex max_idx_point = 0;
+
+    // prep arrays to populate
+    m_distances.prepare(bonds.size());
+    m_weights.prepare(bonds.size());
+    m_neighbors.prepare({bonds.size(), 2});
+
+    // fill arrays in parallel
+    util::forLoopWrapper(0, bonds.size(), [&](size_t begin, size_t end) {
+        MaxIndex::reference max_point_idx(max_idx_point.local());
+        MaxIndex::reference max_query_idx(max_idx_query.local());
+        for (auto i = begin; i < end; ++i)
+        {
+            auto bond = bonds[i];
+
+            // update max bond indices
+            if (max_point_idx < bond.point_idx)
+            {
+                max_point_idx = bond.point_idx;
+            }
+            if (max_query_idx < bond.query_point_idx)
+            {
+                max_query_idx = bond.query_point_idx;
+            }
+
+            // fill in array data
+            m_distances(i) = bond.distance;
+            m_weights(i) = bond.weight;
+            m_neighbors(i, 0) = bond.query_point_idx;
+            m_neighbors(i, 1) = bond.point_idx;
+        }
+    });
+
+    // set num points, query points as max of thread-local maxes
+    m_num_points = (*std::max_element(max_idx_point.begin(), max_idx_point.end())) + 1;
+    m_num_query_points = (*std::max_element(max_idx_query.begin(), max_idx_query.end())) + 1;
+    m_segments_counts_updated = false;
 }
 
 unsigned int NeighborList::getNumBonds() const
@@ -237,6 +325,50 @@ void NeighborList::validate(unsigned int num_query_points, unsigned int num_poin
     {
         throw std::runtime_error("NeighborList found inconsistent array sizes.");
     }
+}
+
+void NeighborList::sort(bool by_distance = false)
+{
+    // create a vector of NeighborBonds from the Neighborlist entries
+    auto bond_vector = std::move(toBondVector());
+    auto num_bonds = bond_vector.size();
+
+    // do parallel sort with tbb
+    if (by_distance)
+    {
+        tbb::parallel_sort(bond_vector.begin(), bond_vector.end(), compareNeighborDistance);
+    }
+    else
+    {
+        tbb::parallel_sort(bond_vector.begin(), bond_vector.end(), compareNeighborBond);
+    }
+
+    // put the results back into this neighborlist
+    util::forLoopWrapper(0, num_bonds, [&](size_t begin, size_t end) {
+        for (auto bond = begin; bond < end; ++bond)
+        {
+            auto nb = bond_vector[bond];
+            m_neighbors(bond, 0) = nb.query_point_idx;
+            m_neighbors(bond, 1) = nb.point_idx;
+            m_distances(bond) = nb.distance;
+            m_weights(bond) = nb.weight;
+        }
+    });
+}
+
+std::vector<NeighborBond> NeighborList::toBondVector() const
+{
+    auto num_bonds = m_distances.size();
+    std::vector<NeighborBond> bond_vector(num_bonds);
+    util::forLoopWrapper(0, num_bonds, [&](size_t begin, size_t end) {
+        for (auto bond_idx = begin; bond_idx < end; ++bond_idx)
+        {
+            NeighborBond nb(m_neighbors(bond_idx, 0), m_neighbors(bond_idx, 1), m_distances(bond_idx),
+                            m_weights(bond_idx));
+            bond_vector[bond_idx] = nb;
+        }
+    });
+    return bond_vector;
 }
 
 unsigned int NeighborList::bisection_search(unsigned int val, unsigned int left, unsigned int right) const

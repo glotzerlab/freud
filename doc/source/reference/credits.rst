@@ -333,6 +333,9 @@ Tommy Waltmann
 * Implement ``StaticStructureFactorDebye`` for 2D systems.
 * Add support for compilation with the C++17 standard.
 * Normalize n(r) in ``RDF`` class by number of query points.
+* Contributed code, design, documentation, and testing for ``freud.locality.FilterSANN`` class.
+* Contributed code, design, documentation, and testing for ``freud.locality.FilterRAD`` class.
+* Fixed segfault in neighborlists owned by compute objects.
 
 Maya Martirossyan
 
@@ -345,11 +348,14 @@ Pavel Buslaev
 Charlotte Zhao
 
 * Worked with Vyas Ramasubramani and Bradley Dice to add the ``out`` option for ``box.Box.wrap``.
+* Contributed code, design, documentation, and testing for ``freud.locality.FilterRAD`` class.
 
 Domagoj Fijan
 
 * Contributed code, design, documentation, and testing for ``StaticStructureFactorDebye`` class.
 * Contributed code, design, documentation, and testing for ``StaticStructureFactorDirect`` class.
+* Contributed code, design, documentation, and testing for ``freud.locality.FilterSANN`` class.
+* Contributed code, design, documentation, and testing for ``freud.locality.FilterRAD`` class.
 
 Andrew Kerr
 
@@ -370,6 +376,10 @@ Kody Takada
 Alain Kadar
 
 * Introduced mass dependence for ``ClusterProperties`` class, inertia tensor and radius of gyration.
+
+Philipp Schönhöfer
+
+* Contributed code, design, documentation, and testing for ``freud.locality.FilterRAD`` class.
 
 Source code
 -----------

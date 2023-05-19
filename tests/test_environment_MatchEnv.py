@@ -1,3 +1,6 @@
+# Copyright (c) 2010-2023 The Regents of the University of Michigan
+# This file is from the freud project, released under the BSD 3-Clause License.
+
 import os
 
 import matplotlib
@@ -454,9 +457,10 @@ class TestEnvironmentMotifMatch:
         num_neighbors = 4
 
         box = freud.box.Box.square(3)
-        match = freud.environment.EnvironmentMotifMatch()
         query_args = dict(r_guess=r_max, num_neighbors=num_neighbors)
-        match.compute((box, points), motif, 0.1, neighbors=query_args)
+        match = freud.environment.EnvironmentMotifMatch().compute(
+            (box, points), motif, 0.1, neighbors=query_args
+        )
         matches = match.matches
 
         for i in range(len(motif)):

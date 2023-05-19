@@ -33,7 +33,7 @@ Compile from source
 The following are **required** for building and installing **freud** from source:
 
 - A C++17-compliant compiler
-- `Python <https://www.python.org/>`__ (>=3.6)
+- `Python <https://www.python.org/>`__ (>=3.7)
 - `NumPy <https://www.numpy.org/>`__ (>=1.14)
 - `Intel Threading Building Blocks <https://www.threadingbuildingblocks.org/>`__ (>=2019.7)
 - `Cython <https://cython.org/>`__ (>=0.29.14)
@@ -150,7 +150,7 @@ Building the documentation
 The following are **required** for building **freud** documentation:
 
 - `Sphinx <http://www.sphinx-doc.org/>`_
-- `Read the Docs Sphinx Theme <https://sphinx-rtd-theme.readthedocs.io/>`_
+- `The furo Sphinx Theme <https://pradyunsg.me/furo/>`_
 - `nbsphinx <https://nbsphinx.readthedocs.io/>`_
 - `jupyter_sphinx <https://jupyter-sphinx.readthedocs.io/>`_
 - `sphinxcontrib-bibtex <https://sphinxcontrib-bibtex.readthedocs.io/>`_
@@ -159,7 +159,7 @@ You can install these dependencies using conda:
 
 .. code-block:: bash
 
-    conda install -c conda-forge sphinx sphinx_rtd_theme nbsphinx jupyter_sphinx sphinxcontrib-bibtex
+    conda install -c conda-forge sphinx furo nbsphinx jupyter_sphinx sphinxcontrib-bibtex
 
 or pip:
 
