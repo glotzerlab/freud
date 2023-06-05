@@ -1,6 +1,6 @@
 ase==3.22.1
 cmake==3.26.3
-coverage==7.2.5
+coverage==7.2.7
 cython==0.29.35
 dynasor==1.1.1; platform_system != "Windows"
 garnett==0.7.1
