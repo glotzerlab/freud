@@ -1,3 +1,6 @@
+# Copyright (c) 2010-2023 The Regents of the University of Michigan
+# This file is from the freud project, released under the BSD 3-Clause License.
+
 import os
 
 import garnett
@@ -40,7 +43,6 @@ class TestMinkowski:
         voro = freud.locality.Voronoi()
         voro.compute(snap)
         for sph_l in range(expected_ql.shape[1]):
-
             # These tests fail for unknown (probably numerical) reasons.
             if structure == "hcp" and sph_l in [3, 5]:
                 continue

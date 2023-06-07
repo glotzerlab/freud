@@ -336,6 +336,8 @@ Tommy Waltmann
 * Update and test the ``normalization_mode`` argument to ``freud.density.RDF`` class.
 * Normalize n(r) in ``RDF`` class by number of query points.
 * Contributed code, design, documentation, and testing for ``freud.locality.FilterSANN`` class.
+* Contributed code, design, documentation, and testing for ``freud.locality.FilterRAD`` class.
+* Fixed segfault in neighborlists owned by compute objects.
 * Update and test the ``normalization_mode`` argument to ``freud.density.RDF`` class.
 * Extending plotting options for the ``Voronoi`` module.
 * Work with Bradley Dice on adding neighbor vectors to ``freud.locality.NeighborList``.
@@ -353,6 +355,7 @@ Pavel Buslaev
 Charlotte Zhao
 
 * Worked with Vyas Ramasubramani and Bradley Dice to add the ``out`` option for ``box.Box.wrap``.
+* Contributed code, design, documentation, and testing for ``freud.locality.FilterRAD`` class.
 
 Domagoj Fijan
 
@@ -360,6 +363,7 @@ Domagoj Fijan
 * Contributed code, design, documentation, and testing for ``StaticStructureFactorDirect`` class.
 * Refactor API for ``Nematic`` class.
 * Contributed code, design, documentation, and testing for ``freud.locality.FilterSANN`` class.
+* Contributed code, design, documentation, and testing for ``freud.locality.FilterRAD`` class.
 
 Andrew Kerr
 
@@ -384,6 +388,10 @@ Alain Kadar
 Melody Zhang
 
 * Changed ``neighbors`` argument to ``env_neighbors`` for ``EnvironmentMotifMatch`` class and to ``cluster_neighbors`` for ``EnvironmentCluster`` class.
+
+Philipp Schönhöfer
+
+* Contributed code, design, documentation, and testing for ``freud.locality.FilterRAD`` class.
 
 Source code
 -----------

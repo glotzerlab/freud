@@ -14,7 +14,7 @@ dependencies:
   - rowan
   - scipy
   - sphinx
-  - sphinx_rtd_theme
+  - furo
   - nbsphinx
   - jupyter_sphinx
   - sphinxcontrib-bibtex

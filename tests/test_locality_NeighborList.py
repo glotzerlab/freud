@@ -1,3 +1,6 @@
+# Copyright (c) 2010-2023 The Regents of the University of Michigan
+# This file is from the freud project, released under the BSD 3-Clause License.
+
 import numpy as np
 import numpy.testing as npt
 import pytest
@@ -127,7 +130,7 @@ class TestNeighborList:
 
     def test_find_first_index(self):
         nlist = self.nlist
-        for (idx, i) in enumerate(nlist.query_point_indices):
+        for idx, i in enumerate(nlist.query_point_indices):
             assert nlist.find_first_index(i) <= idx
 
     def test_segments(self):

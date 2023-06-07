@@ -1,3 +1,7 @@
+# Copyright (c) 2010-2023 The Regents of the University of Michigan
+# This file is from the freud project, released under the BSD 3-Clause License.
+
+import conftest
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
@@ -224,6 +228,16 @@ class TestVoronoi:
         )
 
         self._check_vectors_and_distances(vor, (box, points))
+
+    def test_voronoi_neighbors_lifetime(self):
+        """Ensure the voronoi nlist lives past the lifetime of the voronoi object."""
+
+        def _get_voronoi_nlist(system):
+            voro = freud.locality.Voronoi()
+            voro.compute(system)
+            return voro.nlist
+
+        conftest.nlist_lifetime_check(_get_voronoi_nlist)
 
     @pytest.mark.parametrize(
         "func, neighbors",

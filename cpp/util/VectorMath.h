@@ -1,6 +1,5 @@
-// Copyright (c) 2010-2020 The Regents of the University of Michigan
+// Copyright (c) 2010-2023 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
-// This file is modified from the HOOMD-blue project, released under the BSD 3-Clause License.
 
 #ifndef VECTOR_MATH_H
 #define VECTOR_MATH_H

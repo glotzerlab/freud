@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2020 The Regents of the University of Michigan
+# Copyright (c) 2010-2023 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 from . import (
@@ -23,7 +23,7 @@ from .parallel import NumThreads, get_num_threads, set_num_threads
 # automatic selection runs, the user cannot change it.
 set_num_threads(0)
 
-__version__ = "2.12.1"
+__version__ = "2.13.0"
 
 __all__ = [
     "__version__",
