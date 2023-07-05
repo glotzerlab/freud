@@ -25,14 +25,14 @@ jobs:
       matrix:
         os: [macOS-latest, ubuntu-latest, windows-latest]
         pyver-env: [ {pyver: '3.7', env: 'test-oldest_env.yaml'},
-                     {pyver: '3.8', env: 'test_env.yaml'},
+                     {pyver: '3.8', env: 'test-compatible_env.yaml'},
                      {pyver: '3.9', env: 'test_env.yaml'},
                      {pyver: '3.10', env: 'test_env.yaml'},
                      {pyver: '3.11', env: 'test_env.yaml'} ]
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3.5.2
+        uses: actions/checkout@v3.5.3
         with:
           submodules: true
 
