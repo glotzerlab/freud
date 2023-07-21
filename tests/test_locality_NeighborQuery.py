@@ -1,6 +1,7 @@
 import itertools
 from collections import Counter
 
+import gsd.hoomd
 import matplotlib
 import numpy as np
 import numpy.testing as npt
@@ -700,3 +701,28 @@ class TestMultipleMethods:
                 continue
             check_nlist = nq.query(query_points, neighbors).toNeighborList()
             assert nlist_equal(nlist, check_nlist)
+
+@pytest.fixture(params=["snapshot", "frame"])
+def system(request):
+    if request.param == "snapshot":
+        # Create a snapshot with 10 particles in a cubic box of length 10
+        snap_frame_object = gsd.hoomd.Snapshot()
+    elif request.param == "frame":
+        # Create a frame with 10 particles in a cubic box of length 10
+        snap_frame_object = gsd.hoomd.Frame()
+    snap_frame_object.particles.N = 10
+    snap_frame_object.particles.position = np.random.rand(10, 3) * 10
+    snap_frame_object.configuration.box = [10, 10, 10, 0, 0, 0]
+    return snap_frame_object
+
+def test_neighbor_query_from_system(system):
+    # Create a NeighborQuery from the system
+    nq = freud.locality.NeighborQuery.from_system(system)
+
+    # Query the NeighborQuery and check that the number of neighbors is correct
+    r_max = 1.0
+    num_neighbors = 4
+    query_points = system.particles.position[:5]
+    neighbors = nq.query(query_points, {"mode": "nearest", "r_max": r_max, "num_neighbors": num_neighbors})
+    for i, n in enumerate(neighbors):
+        assert len(n) == num_neighbors
