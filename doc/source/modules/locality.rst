@@ -9,6 +9,7 @@ Locality Module
 
     freud.locality.AABBQuery
     freud.locality.Filter
+    freud.locality.FilterRAD
     freud.locality.FilterSANN
     freud.locality.LinkCell
     freud.locality.NeighborList

@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2020 The Regents of the University of Michigan
+# Copyright (c) 2010-2023 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 r"""
@@ -924,7 +924,9 @@ cdef class SolidLiquid(_PairCompute):
     def nlist(self):
         """:class:`freud.locality.NeighborList`: Neighbor list of solid-like
         bonds."""
-        return freud.locality._nlist_from_cnlist(self.thisptr.getNList())
+        nlist = freud.locality._nlist_from_cnlist(self.thisptr.getNList())
+        nlist._compute = self
+        return nlist
 
     @_Compute._computed_property
     def num_connections(self):
