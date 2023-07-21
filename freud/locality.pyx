@@ -288,6 +288,7 @@ cdef class NeighborQuery:
         * Objects with attributes :code:`box` and :code:`points`.
         * :class:`MDAnalysis.coordinates.timestep.Timestep`
         * :class:`gsd.hoomd.Snapshot`
+        * :class:`gsd.hoomd.Frame`
         * :class:`garnett.trajectory.Frame`
         * :class:`ovito.data.DataCollection`
         * :mod:`hoomd.data` snapshot
