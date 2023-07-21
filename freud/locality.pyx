@@ -324,6 +324,7 @@ cdef class NeighborQuery:
 
         # GSD and HOOMD-blue 3 snapshot compatibility
         elif _match_class_path(system,
+                               'gsd.hoomd.Frame',
                                'gsd.hoomd.Snapshot',
                                'hoomd.snapshot.Snapshot'):
             # Explicitly construct the box to silence warnings from box
