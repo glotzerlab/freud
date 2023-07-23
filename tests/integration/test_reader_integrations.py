@@ -46,7 +46,7 @@ class TestReaderIntegrations:
     def test_gsd_gsd(self):
         import gsd.hoomd
 
-        with gsd.hoomd.open(LJ_GSD, "rb") as traj:
+        with gsd.hoomd.open(LJ_GSD, "r") as traj:
             self.run_analyses(traj)
 
     def test_garnett_gsd(self):
