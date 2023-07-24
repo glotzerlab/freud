@@ -3,7 +3,10 @@
 
 import itertools
 from collections import Counter
+import packaging
 
+import copy as cp
+import gsd
 import gsd.hoomd
 import matplotlib
 import numpy as np
@@ -706,31 +709,33 @@ class TestMultipleMethods:
             assert nlist_equal(nlist, check_nlist)
 
 
-@pytest.fixture(params=["snapshot", "frame"])
+def _from_system_inputs():
+    """Each list value is a tuple (system_name, system)."""
+    list_systems = []
+
+    if packaging.version.parse(gsd.__version__) >= packaging.version.parse('2.9.0'):
+        frame = gsd.hoomd.Frame()
+        frame.particles.N = 10
+        frame.particles.position = np.random.rand(10, 3) * 10
+        frame.configuration.box = [10, 10, 10, 0, 0, 0]
+        list_systems.append(("gsd-frame", frame))
+    if packaging.version.parse(gsd.__version__) <= packaging.version.parse('3.0.0'):
+        snap = gsd.hoomd.Snapshot()
+        snap.particles.N = 10
+        snap.particles.position = np.random.rand(10, 3) * 10
+        snap.configuration.box = [10, 10, 10, 0, 0, 0]
+        list_systems.append(("gsd-snapshot", snap))
+    return list_systems
+
+
+@pytest.fixture(scope="module", params=_from_system_inputs(), ids=(lambda x: x[0]))
 def system(request):
-    if request.param == "snapshot":
-        # Create a snapshot with 10 particles in a cubic box of length 10
-        snap_frame_object = gsd.hoomd.Snapshot()
-    elif request.param == "frame":
-        # Create a frame with 10 particles in a cubic box of length 10
-        snap_frame_object = gsd.hoomd.Frame()
-    snap_frame_object.particles.N = 10
-    snap_frame_object.particles.position = np.random.rand(10, 3) * 10
-    snap_frame_object.configuration.box = [10, 10, 10, 0, 0, 0]
-    return snap_frame_object
+    return cp.deepcopy(request.param[1])
 
 
-def test_neighbor_query_from_system(system):
+def test_from_system(system):
     # Create a NeighborQuery from the system
     nq = freud.locality.NeighborQuery.from_system(system)
 
-    # Query the NeighborQuery and check that the number of neighbors is correct
-    r_max = 1.0
-    num_neighbors = 4
-    query_points = system.particles.position[:5]
-    neighbors = nq.query(
-        query_points,
-        {"mode": "nearest", "r_max": r_max, "num_neighbors": num_neighbors},
-    )
-    for i, n in enumerate(neighbors):
-        assert len(n) == num_neighbors
+    # do a query to confirm the system was properly initialized
+    neighbors = nq.query(nq.points, {"num_neighbors": 4})

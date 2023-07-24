@@ -291,7 +291,7 @@ cdef class NeighborQuery:
         * :class:`gsd.hoomd.Frame`
         * :class:`garnett.trajectory.Frame`
         * :class:`ovito.data.DataCollection`
-        * :mod:`hoomd.data` snapshot
+        * :class:`hoomd.Snapshot`
 
         Args:
             system (system-like object):
