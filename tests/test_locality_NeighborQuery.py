@@ -1,16 +1,16 @@
 # Copyright (c) 2010-2023 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
+import copy as cp
 import itertools
 from collections import Counter
-import packaging
 
-import copy as cp
 import gsd
 import gsd.hoomd
 import matplotlib
 import numpy as np
 import numpy.testing as npt
+import packaging
 import pytest
 import util
 
@@ -713,13 +713,13 @@ def _from_system_inputs():
     """Each list value is a tuple (system_name, system)."""
     list_systems = []
 
-    if packaging.version.parse(gsd.__version__) >= packaging.version.parse('2.9.0'):
+    if packaging.version.parse(gsd.__version__) >= packaging.version.parse("2.9.0"):
         frame = gsd.hoomd.Frame()
         frame.particles.N = 10
         frame.particles.position = np.random.rand(10, 3) * 10
         frame.configuration.box = [10, 10, 10, 0, 0, 0]
         list_systems.append(("gsd-frame", frame))
-    if packaging.version.parse(gsd.__version__) <= packaging.version.parse('3.0.0'):
+    if packaging.version.parse(gsd.__version__) <= packaging.version.parse("3.0.0"):
         snap = gsd.hoomd.Snapshot()
         snap.particles.N = 10
         snap.particles.position = np.random.rand(10, 3) * 10
@@ -738,4 +738,4 @@ def test_from_system(system):
     nq = freud.locality.NeighborQuery.from_system(system)
 
     # do a query to confirm the system was properly initialized
-    neighbors = nq.query(nq.points, {"num_neighbors": 4})
+    nq.query(nq.points, {"num_neighbors": 4})
