@@ -49,19 +49,6 @@ class TestReaderIntegrations:
         with gsd.hoomd.open(LJ_GSD, "rb") as traj:
             self.run_analyses(traj)
 
-    def test_garnett_gsd(self):
-        import garnett
-
-        with garnett.read(LJ_GSD) as traj:
-            self.run_analyses(traj)
-
-    @pytest.mark.filterwarnings("ignore:Failed to import dcdreader")
-    def test_garnett_dcd(self):
-        import garnett
-
-        with garnett.read(LJ_DCD) as traj:
-            self.run_analyses(traj)
-
     def test_ovito_gsd(self):
         import_file = pytest.importorskip("ovito.io").import_file
         pipeline = import_file(LJ_GSD)
