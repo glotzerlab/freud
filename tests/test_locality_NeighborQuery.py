@@ -1,7 +1,7 @@
 # Copyright (c) 2010-2023 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
-import copy as cp
+import copy
 import itertools
 from collections import Counter
 
@@ -736,7 +736,7 @@ def _from_system_inputs():
 
 @pytest.fixture(scope="module", params=_from_system_inputs(), ids=(lambda x: x[0]))
 def system(request):
-    return cp.deepcopy(request.param[1])
+    return copy.deepcopy(request.param[1])
 
 
 def test_from_system(system):
