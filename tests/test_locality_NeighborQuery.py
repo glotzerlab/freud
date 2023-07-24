@@ -21,7 +21,7 @@ matplotlib.use("agg")
 
 try:
     GSD_VERSION = gsd.version.__version__
-except:
+except AttributeError:
     GSD_VERSION = gsd.version.version
 
 """
