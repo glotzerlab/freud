@@ -10,9 +10,9 @@ import gsd.hoomd
 import matplotlib
 import numpy as np
 import numpy.testing as npt
-import packaging
 import pytest
 import util
+from packaging import version
 
 import freud
 
@@ -713,13 +713,13 @@ def _from_system_inputs():
     """Each list value is a tuple (system_name, system)."""
     list_systems = []
 
-    if packaging.version.parse(gsd.__version__) >= packaging.version.parse("2.9.0"):
+    if version.parse(gsd.__version__) >= version.parse("2.9.0"):
         frame = gsd.hoomd.Frame()
         frame.particles.N = 10
         frame.particles.position = np.random.rand(10, 3) * 10
         frame.configuration.box = [10, 10, 10, 0, 0, 0]
         list_systems.append(("gsd-frame", frame))
-    if packaging.version.parse(gsd.__version__) <= packaging.version.parse("3.0.0"):
+    if version.parse(gsd.__version__) <= version.parse("3.0.0"):
         snap = gsd.hoomd.Snapshot()
         snap.particles.N = 10
         snap.particles.position = np.random.rand(10, 3) * 10
