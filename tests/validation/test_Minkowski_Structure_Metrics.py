@@ -36,7 +36,9 @@ class TestMinkowski:
                 "files",
                 "minkowski_structure_metrics",
                 f"{structure}.gsd",
-            ), mode='rb')[0]
+            ),
+            mode="rb",
+        )[0]
 
         voro = freud.locality.Voronoi()
         voro.compute(snap)
