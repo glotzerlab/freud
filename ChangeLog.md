@@ -7,7 +7,7 @@ and this project adheres to
 ## v2.13.1 -- YYYY-MM-DD
 
 ### Added
-  - Calls to `NeighborQuery.from_system` now recognize `gsd.hoomd.Frame`.
+* The `gsd.hoomd.Frame` class is supported as a system-like input.
 
 ## v2.13.0 -- 2023-05-09
 
