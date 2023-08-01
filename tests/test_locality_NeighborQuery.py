@@ -1,18 +1,28 @@
 # Copyright (c) 2010-2023 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
+import copy
 import itertools
 from collections import Counter
 
+import gsd
+import gsd.hoomd
 import matplotlib
 import numpy as np
 import numpy.testing as npt
 import pytest
 import util
+from packaging import version
 
 import freud
 
 matplotlib.use("agg")
+
+
+try:
+    GSD_VERSION = gsd.version.__version__
+except AttributeError:
+    GSD_VERSION = gsd.version.version
 
 """
 Define helper functions for getting the neighbors of a point. Note that
@@ -703,3 +713,35 @@ class TestMultipleMethods:
                 continue
             check_nlist = nq.query(query_points, neighbors).toNeighborList()
             assert nlist_equal(nlist, check_nlist)
+
+
+def _from_system_inputs():
+    """Each list value is a tuple (system_name, system)."""
+    list_systems = []
+
+    if version.parse(GSD_VERSION) >= version.parse("2.9.0"):
+        frame = gsd.hoomd.Frame()
+        frame.particles.N = 10
+        frame.particles.position = np.random.rand(10, 3) * 10
+        frame.configuration.box = [10, 10, 10, 0, 0, 0]
+        list_systems.append(("gsd-frame", frame))
+    if version.parse(GSD_VERSION) <= version.parse("3.0.0"):
+        snap = gsd.hoomd.Snapshot()
+        snap.particles.N = 10
+        snap.particles.position = np.random.rand(10, 3) * 10
+        snap.configuration.box = [10, 10, 10, 0, 0, 0]
+        list_systems.append(("gsd-snapshot", snap))
+    return list_systems
+
+
+@pytest.fixture(scope="module", params=_from_system_inputs(), ids=(lambda x: x[0]))
+def system(request):
+    return copy.deepcopy(request.param[1])
+
+
+def test_from_system(system):
+    # Create a NeighborQuery from the system
+    nq = freud.locality.NeighborQuery.from_system(system)
+
+    # do a query to confirm the system was properly initialized
+    nq.query(nq.points, {"num_neighbors": 4})

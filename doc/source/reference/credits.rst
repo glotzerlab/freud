@@ -336,6 +336,7 @@ Tommy Waltmann
 * Contributed code, design, documentation, and testing for ``freud.locality.FilterSANN`` class.
 * Contributed code, design, documentation, and testing for ``freud.locality.FilterRAD`` class.
 * Fixed segfault in neighborlists owned by compute objects.
+* Added support for ``gsd.hoomd.Frame`` in ``NeighborQuery.from_system`` calls.
 
 Maya Martirossyan
 
@@ -356,6 +357,7 @@ Domagoj Fijan
 * Contributed code, design, documentation, and testing for ``StaticStructureFactorDirect`` class.
 * Contributed code, design, documentation, and testing for ``freud.locality.FilterSANN`` class.
 * Contributed code, design, documentation, and testing for ``freud.locality.FilterRAD`` class.
+* Added support for ``gsd.hoomd.Frame`` in ``NeighborQuery.from_system`` calls.
 
 Andrew Kerr
 
