@@ -496,26 +496,32 @@ class TestStaticStructureFactorDirect(StaticStructureFactorTest):
         )
         npt.assert_allclose(sf_direct.S_k, S_k_binned, rtol=1e-5, atol=1e-5)
 
-    def test_2D_ideal_gas(self):
-        """Test 2D direct"""
+    def test_random_system_2D(self, sf_params):
+        sf = self.build_structure_factor_object(*sf_params)
+        box, positions = freud.data.make_random_system(10, 1000, is2D=True)
+        system = freud.AABBQuery.from_system((box, positions))
+        sf.compute(system)
+        # Check that all elements in S_k are around 1
+        npt.assert_allclose(sf.S_k, 1, rtol=1e-5, atol=1e-5)
 
-        bins = 100
-        k_max = 10
-        k_min = 0
-        num_sampled_k_points = 1000
-        L = 10
-        N = 1000
+    def test_square_lattice_2D(self, sf_params):
+        sf = self.build_structure_factor_object(*sf_params)
+        box, positions = freud.data.UnitCell.square().generate_system(10)
+        system = freud.AABBQuery.from_system((box, positions))
+        sf.compute(system)
 
-        # Compute structure factor from freud
-        sf_direct = freud.diffraction.StaticStructureFactorDirect(
-            bins=bins,
-            k_min=k_min,
-            k_max=k_max,
-            num_sampled_k_points=num_sampled_k_points,
-        )
-        box, points = freud.data.make_random_system(L, N, is2D=True)
+        def find_structure_factor_peaks_for_square_lattice(k_values, a):
+            # Calculate where we expect peaks for a square lattice
+            # only considering the peaks along the kx or ky direction
+            peak_positions = np.arange(2 * np.pi / a, k_values[-1], 2 * np.pi / a)
 
-        system = freud.locality.NeighborQuery.from_system((box, points))
-        sf_direct.compute(system)
+            # We find the index in k_values closest to each expected peak position
+            peaks = [
+                np.abs(k_values - peak_position).argmin()
+                for peak_position in peak_positions
+            ]
 
-        npt.assert_allclose(sf_direct.S_k[-1], 1, rtol=1e-5, atol=1e-5)
+            return peaks
+
+        peaks = find_structure_factor_peaks_for_square_lattice(sf.bin_centers, a=1)
+        npt.assert_allclose(np.where(sf.S_k > 0), peaks)
