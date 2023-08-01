@@ -4,6 +4,11 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v2.13.1 -- YYYY-MM-DD
+
+### Added
+* The `gsd.hoomd.Frame` class is supported as a system-like input.
+
 ## v2.13.0 -- 2023-05-09
 
 ### Added
