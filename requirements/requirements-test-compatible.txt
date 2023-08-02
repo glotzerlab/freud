@@ -1,7 +1,7 @@
 ase>=3.16.0
 cmake>=3.13.0
 coverage>=6.2
-cython>=0.29.14, <3.0.0
+cython>=0.29.14, <4.0.0
 dynasor>=1.1b0; platform_system != "Windows"
 garnett>=0.7.1
 GitPython>=3.1.24
