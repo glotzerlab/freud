@@ -7,7 +7,7 @@ garnett==0.7.1
 GitPython==3.1.32
 gsd==2.9.0
 matplotlib>=3.0.0
-numpy==1.25.0
+numpy==1.25.2
 pillow>=8.0.0 --only-binary=pillow
 pytest==7.4.0
 pytest-cov==4.1.0
