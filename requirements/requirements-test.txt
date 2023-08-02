@@ -1,5 +1,5 @@
 ase==3.22.1
-cmake==3.26.4
+cmake==3.27.0
 coverage==7.2.7
 cython==0.29.35
 dynasor==1.1.1; platform_system != "Windows"
