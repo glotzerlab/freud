@@ -4,11 +4,20 @@
 import os
 import sys
 
+import gsd
+import gsd.hoomd
 import numpy as np
 import numpy.testing as npt
 import pytest
 
 import freud
+
+try:
+    GSD_VERSION = gsd.__version__
+    GSD_READ_FLAG = "rb"
+except AttributeError:
+    GSD_VERSION = gsd.version.version
+    GSD_READ_FLAG = "r"
 
 
 def _relative_path(*path):
@@ -44,9 +53,7 @@ class TestReaderIntegrations:
         self.run_analyses(reader)
 
     def test_gsd_gsd(self):
-        import gsd.hoomd
-
-        with gsd.hoomd.open(LJ_GSD, "rb") as traj:
+        with gsd.hoomd.open(LJ_GSD, GSD_READ_FLAG) as traj:
             self.run_analyses(traj)
 
     def test_ovito_gsd(self):

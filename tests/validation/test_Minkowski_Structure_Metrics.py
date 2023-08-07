@@ -3,12 +3,20 @@
 
 import os
 
+import gsd
 import gsd.hoomd
 import numpy as np
 import numpy.testing as npt
 import pytest
 
 import freud
+
+try:
+    GSD_VERSION = gsd.__version__
+    GSD_READ_FLAG = "rb"
+except AttributeError:
+    GSD_VERSION = gsd.version.version
+    GSD_READ_FLAG = "r"
 
 
 def _get_structure_data(structure, qtype):
@@ -37,7 +45,7 @@ class TestMinkowski:
                 "minkowski_structure_metrics",
                 f"{structure}.gsd",
             ),
-            mode="rb",
+            mode=GSD_READ_FLAG,
         )[0]
 
         voro = freud.locality.Voronoi()
