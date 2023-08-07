@@ -65,7 +65,6 @@ setup(
     tests_require=[
         "ase>=3.16",
         "gsd>=2.0",
-        "garnett>=0.7.1",
         "matplotlib>=3.0",
         "sympy>=1.0",
     ],
