@@ -142,7 +142,7 @@ cdef extern from "PeriodicBuffer.h" namespace "freud::locality":
 cdef extern from "Voronoi.h" namespace "freud::locality":
     cdef cppclass Voronoi:
         Voronoi()
-        void compute(const NeighborQuery*) except + nogil
+        void compute(const NeighborQuery*) nogil except +
         vector[vector[vec3[double]]] getPolytopes() const
         const freud.util.ManagedArray[double] &getVolumes() const
         shared_ptr[NeighborList] getNeighborList() const
