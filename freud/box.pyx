@@ -728,7 +728,15 @@ cdef class Box:
         else:
             raise ValueError("Box can only be multiplied by positive values.")
 
-    def __mul__(self, scale):
+    def __mul__(arg1, arg2):
+        # NOTE: cython<3.0 treats __mul__ and __rmul__ as one operation, so
+        # type checks are needed. For cython>=3.0, __rmul__ is implemented
+        if isinstance(arg1, freud.box.Box):
+            self = arg1
+            scale = arg2
+        else:
+            scale = arg1
+            self = arg2
         return self._mul_impl(scale)
 
     def __rmul__(self, scale):
