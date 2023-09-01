@@ -201,8 +201,6 @@ cdef class NeighborQueryResult:
             yield (npoint.query_point_idx, npoint.point_idx, npoint.distance)
             npoint = dereference(iterator).next()
 
-        raise StopIteration
-
     def toNeighborList(self, sort_by_distance=False):
         """Convert query result to a freud :class:`~NeighborList`.
 

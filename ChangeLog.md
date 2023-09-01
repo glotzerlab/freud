@@ -9,6 +9,9 @@ and this project adheres to
 ### Added
 * The `gsd.hoomd.Frame` class is supported as a system-like input.
 
+### Changed
+* Require building with cython>=3.0.2
+
 ## v2.13.0 -- 2023-05-09
 
 ### Added
