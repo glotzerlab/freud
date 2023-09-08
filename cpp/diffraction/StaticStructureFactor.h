@@ -10,28 +10,43 @@
 #include "Histogram.h"
 #include "ManagedArray.h"
 #include "NeighborQuery.h"
+#include "StructureFactor.h"
 
 /*! \file StaticStructureFactor.h
-    \brief Base class for structure factor classes.
+    \brief Base class for static tructure factor classes.
 */
 
 namespace freud { namespace diffraction {
 
-class StaticStructureFactor
+/* Abstract base class for all static structure factors.
+ *
+ * A static structure factor is a structure factor which can be computed using
+ * only the data from one frame of a simulation. A typical use case is to compute
+ * the static structure factor for each frame over many frames of a simulation,
+ * and get an average for better statistics/curve smoothness. To support this use
+ * case, all static structure factors must have logic for either continuing to
+ * accumulate histogram data or resetting the data on each successive call to
+ * accumulate().
+ *
+ * This class does not have any members, it simply defines the interface for
+ * all static structure factors.
+ *
+ * */
+class StaticStructureFactor : virtual public StructureFactor
 {
 protected:
-    using StructureFactorHistogram = util::Histogram<float>;
-
     StaticStructureFactor(unsigned int bins, float k_max, float k_min = 0);
 
 public:
     virtual ~StaticStructureFactor() = default;
 
+    //!< do the histogram calculation, and accumulate if necessary
     virtual void accumulate(const freud::locality::NeighborQuery* neighbor_query,
                             const vec3<float>* query_points, unsigned int n_query_points,
                             unsigned int n_total)
         = 0;
 
+    //<! reset the structure factor if the user doesn't wish to accumulate
     virtual void reset() = 0;
 
     //! Get the structure factor
@@ -52,32 +67,11 @@ public:
         return m_structure_factor.getBinCenters()[0];
     }
 
-    //! Get the minimum valid k value
-    float getMinValidK() const
-    {
-        return m_min_valid_k;
-    }
-
 protected:
-    virtual void reduce() = 0;
-
-    //! Return thing_to_return after reducing if necessary.
-    template<typename U> U& reduceAndReturn(U& thing_to_return)
-    {
-        if (m_reduce)
-        {
-            reduce();
-        }
-        m_reduce = false;
-        return thing_to_return;
-    }
-
-    StructureFactorHistogram m_structure_factor; //!< Histogram to hold computed structure factor
-    StructureFactorHistogram::ThreadLocalHistogram
-        m_local_structure_factor; //!< Thread local histograms for TBB parallelism
-
-    bool m_reduce {true};                                         //! Whether to reduce local histograms
-    float m_min_valid_k {std::numeric_limits<float>::infinity()}; //! Minimum valid k-vector magnitude
+    //!< Histogram to hold computed structure factor
+    StructureFactorHistogram m_structure_factor;
+    //!< Thread local histograms for TBB parallelism
+    StructureFactorHistogram::ThreadLocalHistogram m_local_structure_factor;
 };
 
 }; }; // namespace freud::diffraction

@@ -13,6 +13,7 @@
 #include "ManagedArray.h"
 #include "NeighborQuery.h"
 #include "StaticStructureFactor.h"
+#include "StructureFactorDirect.h"
 
 /*! \file StaticStructureFactorDirect.h
     \brief Routines for computing static structure factors.
@@ -41,10 +42,8 @@
 
 namespace freud { namespace diffraction {
 
-class StaticStructureFactorDirect : public StaticStructureFactor
+class StaticStructureFactorDirect : public StaticStructureFactor, public StructureFactorDirect
 {
-    using KBinHistogram = util::Histogram<unsigned int>;
-
 public:
     //! Constructor
     StaticStructureFactorDirect(unsigned int bins, float k_max, float k_min = 0,
@@ -64,40 +63,10 @@ public:
         box_assigned = false;
     }
 
-    //! Get the number of sampled k points
-    unsigned int getNumSampledKPoints() const
-    {
-        return m_num_sampled_k_points;
-    }
-
-    //! Get the k points last used
-    std::vector<vec3<float>> getKPoints() const
-    {
-        return m_k_points;
-    }
-
-private:
+protected:
     //! Reduce thread-local arrays onto the primary data arrays.
     void reduce() override;
 
-    //! Compute the complex amplitude F(k) for a set of points and k points
-    static std::vector<std::complex<float>> compute_F_k(const vec3<float>* points, unsigned int n_points,
-                                                        unsigned int n_total,
-                                                        const std::vector<vec3<float>>& k_points);
-
-    //! Compute the static structure factor S(k) for all k points
-    static std::vector<float> compute_S_k(const std::vector<std::complex<float>>& F_k_points,
-                                          const std::vector<std::complex<float>>& F_k_query_points);
-
-    //! Sample reciprocal space isotropically to get k points
-    static std::vector<vec3<float>> reciprocal_isotropic(const box::Box& box, float k_max, float k_min,
-                                                         unsigned int num_sampled_k_points);
-
-    unsigned int m_num_sampled_k_points; //!< Target number of k-vectors to sample
-    std::vector<vec3<float>> m_k_points; //!< k-vectors used for sampling
-    KBinHistogram m_k_histogram;         //!< Histogram of sampled k bins, used to normalize S(q)
-    KBinHistogram::ThreadLocalHistogram
-        m_local_k_histograms;  //!< Thread local histograms of sampled k bins for TBB parallelism
     box::Box previous_box;     //!< box assigned to the system
     bool box_assigned {false}; //!< Whether to reuse the box
 };
