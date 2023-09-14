@@ -56,7 +56,7 @@ repos:
           - --add=This file is from the freud project, released under the BSD 3-Clause License.
           - --comment-prefix=//
   - repo: https://github.com/asottile/pyupgrade
-    rev: 'v3.8.0'
+    rev: 'v3.10.1'
     hooks:
       - id: pyupgrade
         args:
@@ -66,11 +66,11 @@ repos:
     hooks:
       - id: isort
   - repo: https://github.com/psf/black
-    rev: '23.3.0'
+    rev: '23.9.1'
     hooks:
       - id: black
   - repo: https://github.com/PyCQA/flake8
-    rev: '6.0.0'
+    rev: '6.1.0'
     hooks:
       - id: flake8
         types: ["file"]
