@@ -4,7 +4,7 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## v2.13.1 -- YYYY-MM-DD
+## v2.13.1 -- 2023-09-14
 
 ### Added
 * The `gsd.hoomd.Frame` class is supported as a system-like input.
