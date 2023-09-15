@@ -36,7 +36,7 @@ The following are **required** for building and installing **freud** from source
 - `Python <https://www.python.org/>`__ (>=3.7)
 - `NumPy <https://www.numpy.org/>`__ (>=1.14)
 - `Intel Threading Building Blocks <https://www.threadingbuildingblocks.org/>`__ (>=2019.7)
-- `Cython <https://cython.org/>`__ (>=0.29.14)
+- `Cython <https://cython.org/>`__ (>=3.0.2)
 - `scikit-build <https://scikit-build.readthedocs.io/>`__ (>=0.10.0)
 - `CMake <https://cmake.org/>`__ (>=3.13.0)
 

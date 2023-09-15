@@ -43,7 +43,7 @@ cdef class _QueryArgs:
     def __cinit__(self, mode=None, r_min=None, r_max=None, r_guess=None,
                   num_neighbors=None, exclude_ii=None,
                   scale=None, **kwargs):
-        if type(self) == _QueryArgs:
+        if type(self) is _QueryArgs:
             self.thisptr = new freud._locality.QueryArgs()
             self.mode = mode
             if r_max is not None:
@@ -67,7 +67,7 @@ cdef class _QueryArgs:
                     err_str)
 
     def __dealloc__(self):
-        if type(self) == _QueryArgs:
+        if type(self) is _QueryArgs:
             del self.thisptr
 
     def update(self, qargs):
@@ -854,7 +854,7 @@ def _make_default_nlist(system, neighbors, query_points=None):
         NeighborQuery nq
         NeighborList nlist
 
-    if type(neighbors) == NeighborList:
+    if type(neighbors) is NeighborList:
         return neighbors
     else:
         query_args = neighbors.copy()
@@ -1008,10 +1008,10 @@ cdef class _PairCompute(_Compute):
         return (nq, nlist, qargs, l_query_points, num_query_points)
 
     def _resolve_neighbors(self, neighbors, query_points=None):
-        if type(neighbors) == NeighborList:
+        if type(neighbors) is NeighborList:
             nlist = neighbors
             qargs = _QueryArgs()
-        elif neighbors is None or type(neighbors) == dict:
+        elif neighbors is None or type(neighbors) is dict:
             # The default_query_args property must raise a NotImplementedError
             # if no query arguments were passed in and the class has no
             # reasonable choice of defaults.
@@ -1359,7 +1359,7 @@ cdef class Filter(_PairCompute):
         This class is abstract and should not be instantiated directly.
     """
     def __cinit__(self):
-        if type(self) == Filter:
+        if type(self) is Filter:
             raise RuntimeError(
                 "The Filter class is abstract and should not be instantiated directly."
             )
@@ -1460,7 +1460,7 @@ cdef class FilterSANN(Filter):
             new freud._locality.FilterSANN(allow_incomplete_shell)
 
     def __dealloc__(self):
-        if type(self) == FilterSANN:
+        if type(self) is FilterSANN:
             del self._thisptr
 
 cdef class FilterRAD(Filter):
@@ -1521,5 +1521,5 @@ cdef class FilterRAD(Filter):
         )
 
     def __dealloc__(self):
-        if type(self) == FilterRAD:
+        if type(self) is FilterRAD:
             del self._thisptr

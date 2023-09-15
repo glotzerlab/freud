@@ -144,14 +144,14 @@ cdef class StaticStructureFactorDebye(_StaticStructureFactor):
     cdef freud._diffraction.StaticStructureFactorDebye * thisptr
 
     def __cinit__(self, unsigned int num_k_values, float k_max, float k_min=0):
-        if type(self) == StaticStructureFactorDebye:
+        if type(self) is StaticStructureFactorDebye:
             self.thisptr = self.ssfptr = new \
                 freud._diffraction.StaticStructureFactorDebye(num_k_values,
                                                               k_max,
                                                               k_min)
 
     def __dealloc__(self):
-        if type(self) == StaticStructureFactorDebye:
+        if type(self) is StaticStructureFactorDebye:
             del self.thisptr
 
     @property
@@ -371,13 +371,13 @@ cdef class StaticStructureFactorDirect(_StaticStructureFactor):
 
     def __cinit__(self, unsigned int bins, float k_max, float k_min=0,
                   unsigned int num_sampled_k_points=0):
-        if type(self) == StaticStructureFactorDirect:
+        if type(self) is StaticStructureFactorDirect:
             self.thisptr = self.ssfptr = \
                 new freud._diffraction.StaticStructureFactorDirect(
                     bins, k_max, k_min, num_sampled_k_points)
 
     def __dealloc__(self):
-        if type(self) == StaticStructureFactorDirect:
+        if type(self) is StaticStructureFactorDirect:
             del self.thisptr
 
     @property
