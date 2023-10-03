@@ -56,7 +56,7 @@ repos:
           - --add=This file is from the freud project, released under the BSD 3-Clause License.
           - --comment-prefix=//
   - repo: https://github.com/asottile/pyupgrade
-    rev: 'v3.10.1'
+    rev: 'v3.13.0'
     hooks:
       - id: pyupgrade
         args:
