@@ -3,12 +3,20 @@
 
 import os
 
-import garnett
+import gsd
+import gsd.hoomd
 import numpy as np
 import numpy.testing as npt
 import pytest
 
 import freud
+
+try:
+    GSD_VERSION = gsd.__version__
+    GSD_READ_FLAG = "rb"
+except AttributeError:
+    GSD_VERSION = gsd.version.version
+    GSD_READ_FLAG = "r"
 
 
 def _get_structure_data(structure, qtype):
@@ -30,15 +38,15 @@ class TestMinkowski:
         expected_wl = _get_structure_data(structure, "w")
         expected_avwl = _get_structure_data(structure, "avw")
 
-        with garnett.read(
+        snap = gsd.hoomd.open(
             os.path.join(
                 os.path.dirname(__file__),
                 "files",
                 "minkowski_structure_metrics",
                 f"{structure}.gsd",
-            )
-        ) as traj:
-            snap = traj[0]
+            ),
+            mode=GSD_READ_FLAG,
+        )[0]
 
         voro = freud.locality.Voronoi()
         voro.compute(snap)

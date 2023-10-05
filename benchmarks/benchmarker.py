@@ -239,9 +239,9 @@ def list_benchmark_modules():
     """
     import glob
 
-    modules = glob.glob(os.path.join(os.path.dirname(__file__), "benchmark_*"))
-    prefixdir = "benchmarks/"
-    modules = [f[len(prefixdir) : -3] for f in modules]
+    dir_path = os.path.dirname(__file__)
+    modules = glob.glob(os.path.join(dir_path, "benchmark_*"))
+    modules = [f[len(dir_path) + 1 : -3] for f in modules]
     return modules
 
 

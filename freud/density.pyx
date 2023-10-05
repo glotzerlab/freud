@@ -618,7 +618,7 @@ cdef class RDF(_SpatialHistogram1D):
     def __cinit__(self, unsigned int bins, float r_max, float r_min=0,
                   normalization_mode='exact'):
         norm_mode = self._validate_normalization_mode(normalization_mode)
-        if type(self) == RDF:
+        if type(self) is RDF:
             self.thisptr = self.histptr = new freud._density.RDF(
                 bins, r_max, r_min, norm_mode)
 
@@ -628,7 +628,7 @@ cdef class RDF(_SpatialHistogram1D):
             self.r_max = r_max
 
     def __dealloc__(self):
-        if type(self) == RDF:
+        if type(self) is RDF:
             del self.thisptr
 
     def _validate_normalization_mode(self, mode):

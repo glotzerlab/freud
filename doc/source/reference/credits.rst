@@ -338,6 +338,8 @@ Tommy Waltmann
 * Contributed code, design, documentation, and testing for ``freud.locality.FilterSANN`` class.
 * Contributed code, design, documentation, and testing for ``freud.locality.FilterRAD`` class.
 * Fixed segfault in neighborlists owned by compute objects.
+* Added support for ``gsd.hoomd.Frame`` in ``NeighborQuery.from_system`` calls.
+* Added support for building with cython 3.0
 * Update and test the ``normalization_mode`` argument to ``freud.density.RDF`` class.
 * Extending plotting options for the ``Voronoi`` module.
 * Work with Bradley Dice on adding neighbor vectors to ``freud.locality.NeighborList``.
@@ -364,6 +366,7 @@ Domagoj Fijan
 * Refactor API for ``Nematic`` class.
 * Contributed code, design, documentation, and testing for ``freud.locality.FilterSANN`` class.
 * Contributed code, design, documentation, and testing for ``freud.locality.FilterRAD`` class.
+* Added support for ``gsd.hoomd.Frame`` in ``NeighborQuery.from_system`` calls.
 
 Andrew Kerr
 

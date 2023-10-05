@@ -20,6 +20,14 @@ and this project adheres to
 ### Removed
 * The `global_search` flag in `freud.environment.EnvironmentCluster`.
 
+## v2.13.1 -- 2023-09-14
+
+### Added
+* The `gsd.hoomd.Frame` class is supported as a system-like input.
+
+### Changed
+* Require building with cython>=3.0.2
+
 ## v2.13.0 -- 2023-05-09
 
 ### Added

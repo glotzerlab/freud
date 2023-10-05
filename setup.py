@@ -5,7 +5,7 @@ import os
 
 from skbuild import setup
 
-version = "2.13.0"
+version = "2.13.1"
 
 # Read README for PyPI, fallback to short description if it fails.
 description = "Powerful, efficient trajectory analysis in scientific Python."
@@ -65,7 +65,6 @@ setup(
     tests_require=[
         "ase>=3.16",
         "gsd>=2.0",
-        "garnett>=0.7.1",
         "matplotlib>=3.0",
         "sympy>=1.0",
     ],

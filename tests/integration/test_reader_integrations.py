@@ -4,11 +4,20 @@
 import os
 import sys
 
+import gsd
+import gsd.hoomd
 import numpy as np
 import numpy.testing as npt
 import pytest
 
 import freud
+
+try:
+    GSD_VERSION = gsd.__version__
+    GSD_READ_FLAG = "rb"
+except AttributeError:
+    GSD_VERSION = gsd.version.version
+    GSD_READ_FLAG = "r"
 
 
 def _relative_path(*path):
@@ -44,22 +53,7 @@ class TestReaderIntegrations:
         self.run_analyses(reader)
 
     def test_gsd_gsd(self):
-        import gsd.hoomd
-
-        with gsd.hoomd.open(LJ_GSD, "rb") as traj:
-            self.run_analyses(traj)
-
-    def test_garnett_gsd(self):
-        import garnett
-
-        with garnett.read(LJ_GSD) as traj:
-            self.run_analyses(traj)
-
-    @pytest.mark.filterwarnings("ignore:Failed to import dcdreader")
-    def test_garnett_dcd(self):
-        import garnett
-
-        with garnett.read(LJ_DCD) as traj:
+        with gsd.hoomd.open(LJ_GSD, GSD_READ_FLAG) as traj:
             self.run_analyses(traj)
 
     def test_ovito_gsd(self):
