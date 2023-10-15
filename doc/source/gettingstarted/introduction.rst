@@ -5,7 +5,7 @@ Introduction
 The **freud** library is a Python package for analyzing particle simulations.
 The package is designed to directly use numerical arrays of data, making it easy to use for a wide range of use-cases.
 The most common use-case of **freud** is for computing quantities from molecular dynamics simulation trajectories, but it can be used for analyzing any type of particle simulation.
-By operating directly on numerical arrays of data, **freud** allows users to parse custom simulation outputs into a suitable structure for input, rather than relying specific file types or data structures.
+By operating directly on numerical arrays of data, **freud** allows users to parse custom simulation outputs into a suitable structure for input, rather than relying on specific file types or data structures.
 
 The core of **freud** is analysis of periodic systems, which are represented through the :class:`freud.box.Box` class.
 The :class:`freud.box.Box` supports arbitrary triclinic systems for maximum flexibility, and is used throughout the package to ensure consistent treatment of these systems.
