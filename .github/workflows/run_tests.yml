@@ -28,7 +28,8 @@ jobs:
                      {pyver: '3.8', env: 'test-compatible_env.yaml'},
                      {pyver: '3.9', env: 'test_env.yaml'},
                      {pyver: '3.10', env: 'test_env.yaml'},
-                     {pyver: '3.11', env: 'test_env.yaml'} ]
+                     {pyver: '3.11', env: 'test_env.yaml'},
+                     {pyver: '3.12', env: 'test_env.yaml'} ]
 
     steps:
       - name: Checkout Code
