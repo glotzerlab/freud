@@ -5,7 +5,7 @@ dynasor==1.1b0; platform_system != "Windows"
 gsd==2.4.2
 matplotlib==3.2.0
 numpy==1.15.0
-pillow==6.2.0
+pillow==7.0.0
 pytest==6.2.2
 rowan==1.2.1
 scikit-build==0.13.1
