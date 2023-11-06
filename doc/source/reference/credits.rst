@@ -338,6 +338,7 @@ Tommy Waltmann
 * Fixed segfault in neighborlists owned by compute objects.
 * Added support for ``gsd.hoomd.Frame`` in ``NeighborQuery.from_system`` calls.
 * Added support for building with cython 3.0
+* Added support for python 3.12 and remove support for python 3.7
 
 Maya Martirossyan
 
