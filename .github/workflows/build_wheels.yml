@@ -27,10 +27,10 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-20.04, macos-12] #, windows-2019]
-        pyver: ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]
+        pyver: ["3.8", "3.9", "3.10", "3.11", "3.12"]
 
     steps:
-      - uses: actions/checkout@v4.1.0
+      - uses: actions/checkout@v4.1.1
         with:
           submodules: "recursive"
 
@@ -72,7 +72,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ contains(github.event.pull_request.labels.*.name, 'build_wheels') || github.event_name != 'pull_request' }}
     steps:
-      - uses: actions/checkout@v4.1.0
+      - uses: actions/checkout@v4.1.1
         with:
           submodules: "recursive"
 
