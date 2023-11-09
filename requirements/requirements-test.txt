@@ -2,7 +2,7 @@ ase==3.22.1
 cmake==3.27.7
 coverage==7.3.2
 cython==3.0.5
-dynasor==1.1.1; platform_system != "Windows"
+dynasor==2.0; platform_system != "Windows"
 GitPython==3.1.40
 gsd==3.2.0
 matplotlib>=3.0.0
