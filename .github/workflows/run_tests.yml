@@ -19,16 +19,33 @@ on:
 
 jobs:
   run_tests:
-    name: Run tests on ${{ matrix.os }} with Python ${{ matrix.pyver-env.pyver }}
+    name: Run tests on ${{ matrix.os }} with Python ${{ matrix.python }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macOS-latest, ubuntu-latest, windows-latest]
-        pyver-env: [ {pyver: '3.8', env: 'test-oldest_env.yaml'},
-                     {pyver: '3.9', env: 'test-compatible_env.yaml'},
-                     {pyver: '3.10', env: 'test_env.yaml'},
-                     {pyver: '3.11', env: 'test_env.yaml'},
-                     {pyver: '3.12', env: 'test_env.yaml'} ]
+        os: [ubuntu-latest]
+        python: ['3.8', '3.9', '3.10', '3.11', '3.12']
+        include:
+          # Default to newest dependencies
+          - env: 'test_env.yaml'
+          # Test the oldest Python with the oldest supported dependencies.
+          - python: '3.8'
+            env: 'test-oldest_env.yaml'
+          - python: '3.9'
+            env: 'test-compatible_env.yaml'
+          # Test macOS and windows on oldest and latest versions.
+          - os: 'macos-latest'
+            python: '3.12'
+            env: 'test_env.yaml'
+          - os: 'windows-latest'
+            python: '3.12'
+            env: 'test_env.yaml'
+          - os: 'windows-latest'
+            python: '3.8'
+            env: 'test-oldest_env.yaml'
+          - os: 'macos-latest'
+            python: '3.8'
+            env: 'test-oldest_env.yaml'
 
     steps:
       - name: Checkout Code
@@ -39,8 +56,8 @@ jobs:
       - name: Create Python Environment
         uses: conda-incubator/setup-miniconda@v2
         with:
-          python-version: ${{ matrix.pyver-env.pyver }}
-          environment-file: .github/workflows/env-files/${{ matrix.pyver-env.env }}
+          python-version: ${{ matrix.python }}
+          environment-file: .github/workflows/env-files/${{ matrix.env }}
           channels: conda-forge
           activate-environment: test
           show-channel-urls: true
