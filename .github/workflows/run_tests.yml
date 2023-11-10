@@ -47,7 +47,6 @@ jobs:
             python: '3.8'
             env: 'test-oldest_env.yaml'
 
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4.1.1
