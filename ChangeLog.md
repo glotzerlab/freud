@@ -4,7 +4,7 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## vX.Y.Z -- YYYY-MM-DD
+## v2.13.2 -- 2023-11-27
 
 ### Added
 * Support for python 3.12
