@@ -106,7 +106,7 @@ class TestNematicOrder:
         )
 
         # Change first orientation to zero vector
-        orientations[0] = np.array([0,0,0])
+        orientations[0] = np.array([0, 0, 0])
 
         op = freud.order.Nematic()
 

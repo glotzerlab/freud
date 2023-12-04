@@ -214,7 +214,7 @@ cdef class Nematic(_Compute):
             orientations, shape=(None, 3))
 
         if len(np.where(~orientations.any(axis=1))[0])!=0:
-            warnings.warn('You supplied a zero vector in the orientations' 
+            warnings.warn('You supplied a zero vector in the orientations'
                           'array, which causes unusual behavior.',
                           UserWarning)
         cdef const float[:, ::1] l_orientations = orientations
