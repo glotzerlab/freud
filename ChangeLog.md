@@ -20,6 +20,14 @@ and this project adheres to
 ### Removed
 * The `global_search` flag in `freud.environment.EnvironmentCluster`.
 
+## v2.13.2 -- 2023-11-27
+
+### Added
+* Support for python 3.12
+
+### Removed
+* Support for python 3.7
+
 ## v2.13.1 -- 2023-09-14
 
 ### Added
