@@ -5,7 +5,7 @@ import os
 
 from skbuild import setup
 
-version = "2.13.1"
+version = "2.13.2"
 
 # Read README for PyPI, fallback to short description if it fails.
 description = "Powerful, efficient trajectory analysis in scientific Python."
@@ -36,11 +36,11 @@ setup(
         "Topic :: Scientific/Engineering :: Physics",
         "Programming Language :: C++",
         "Programming Language :: Cython",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
     ],
     zip_safe=False,
     maintainer="freud Developers",
@@ -56,7 +56,7 @@ setup(
         "Source Code": "https://github.com/glotzerlab/freud",
         "Issue Tracker": "https://github.com/glotzerlab/freud/issues",
     },
-    python_requires=">=3.7",
+    python_requires=">=3.8",
     install_requires=[
         "numpy>=1.14",
         "rowan>=1.2.1",

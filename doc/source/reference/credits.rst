@@ -340,6 +340,7 @@ Tommy Waltmann
 * Fixed segfault in neighborlists owned by compute objects.
 * Added support for ``gsd.hoomd.Frame`` in ``NeighborQuery.from_system`` calls.
 * Added support for building with cython 3.0
+* Added support for python 3.12 and remove support for python 3.7
 * Update and test the ``normalization_mode`` argument to ``freud.density.RDF`` class.
 * Extending plotting options for the ``Voronoi`` module.
 * Work with Bradley Dice on adding neighbor vectors to ``freud.locality.NeighborList``.
