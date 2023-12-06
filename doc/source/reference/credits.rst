@@ -388,6 +388,7 @@ Kody Takada
 Alain Kadar
 
 * Introduced mass dependence for ``ClusterProperties`` class, inertia tensor and radius of gyration.
+* Added check for passing zero vector to ``Nematic`` class.
 
 Melody Zhang
 

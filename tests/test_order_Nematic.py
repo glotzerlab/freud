@@ -94,6 +94,25 @@ class TestNematicOrder:
         npt.assert_allclose(op_perp.nematic_tensor, np.diag([-0.5, 1, -0.5]), atol=1e-1)
         assert not np.all(op_perp.nematic_tensor == np.diag([-0.5, 1, -0.5]))
 
+    def test_warning(self):
+        """Test that supplying a zero orientation vector raises a warning."""
+        N = 10000
+        np.random.seed(0)
+        u = [1, 0, 0]
+
+        # Generate orientations close to the u
+        orientations = np.random.normal(
+            np.repeat(np.expand_dims(u, axis=0), repeats=N, axis=0), 0.1
+        )
+
+        # Change first orientation to zero vector
+        orientations[0] = np.array([0, 0, 0])
+
+        op = freud.order.Nematic()
+
+        with pytest.warns(UserWarning):
+            op.compute(orientations)
+
     def test_repr(self):
         op = freud.order.Nematic()
         assert str(op) == str(eval(repr(op)))

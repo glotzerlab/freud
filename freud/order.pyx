@@ -208,11 +208,15 @@ cdef class Nematic(_Compute):
                 Orientation vectors for which to calculate the order parameter.
         """   # noqa: E501
         if orientations.shape[1] == 4:
-            raise ValueError('In freud versions >=3.0.0, Nematic.compute() takes'
+            raise ValueError('In freud versions >=3.0.0, Nematic.compute() takes '
                              '3d orientation vectors instead of 4d quaternions.')
         orientations = freud.util._convert_array(
             orientations, shape=(None, 3))
 
+        if len(np.where(~orientations.any(axis=1))[0])!=0:
+            warnings.warn('Including zero vector in the orientations array '
+                          'may lead to undefined behavior.',
+                          UserWarning)
         cdef const float[:, ::1] l_orientations = orientations
         cdef unsigned int num_particles = l_orientations.shape[0]
 
