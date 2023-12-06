@@ -42,7 +42,7 @@ Resources
 
 - `Reference Documentation <https://freud.readthedocs.io/>`__: Examples, tutorials, topic guides, and package Python APIs.
 - `Installation Guide <https://freud.readthedocs.io/en/stable/gettingstarted/installation.html>`__: Instructions for installing and compiling **freud**.
-- `freud-users Google Group <https://groups.google.com/d/forum/freud-users>`__: Ask questions to the **freud** user community.
+- `freud discussion board <https://github.com/glotzerlab/freud/discussions/>`__: Ask the **freud** user community for help.
 - `GitHub repository <https://github.com/glotzerlab/freud>`__: Download the **freud** source code.
 - `Issue tracker <https://github.com/glotzerlab/freud/issues>`__: Report issues or request features.
 
@@ -119,5 +119,5 @@ Support and Contribution
 ========================
 
 Please visit our repository on `GitHub <https://github.com/glotzerlab/freud>`__ for the library source code.
-Any issues or bugs may be reported at our `issue tracker <https://github.com/glotzerlab/freud/issues>`__, while questions and discussion can be directed to our `user forum <https://groups.google.com/forum/#!forum/freud-users>`__.
+Any issues or bugs may be reported at our `issue tracker <https://github.com/glotzerlab/freud/issues>`__, while questions and discussion can be directed to our `discussion board <https://github.com/glotzerlab/freud/discussions/>`__.
 All contributions to **freud** are welcomed via pull requests!
