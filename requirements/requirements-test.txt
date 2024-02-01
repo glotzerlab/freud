@@ -6,7 +6,7 @@ dynasor==1.1.1; platform_system != "Windows"
 GitPython==3.1.41
 gsd==3.2.1
 matplotlib>=3.0.0
-numpy==1.26.2
+numpy==1.26.3
 pillow>=8.0.0 --only-binary=pillow
 pytest==7.4.4
 pytest-cov==4.1.0
