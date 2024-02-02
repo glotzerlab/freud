@@ -62,7 +62,7 @@ jobs:
           CIBW_BEFORE_TEST_WINDOWS: "powershell .github/workflows/cibuildwheel-before-test.ps1 {package}"
           CIBW_TEST_COMMAND: "cd {package}/tests && pytest . -v --log-level=DEBUG -n auto"
 
-      - uses: actions/upload-artifact@v4.1.0
+      - uses: actions/upload-artifact@v4.3.0
         with:
           name: dist-${{ matrix.os }}-${{ matrix.pyver }}
           path: ./wheelhouse/*.whl
@@ -87,7 +87,7 @@ jobs:
       - name: Build sdist
         run: python setup.py sdist
 
-      - uses: actions/upload-artifact@v4.1.0
+      - uses: actions/upload-artifact@v4.3.0
         with:
           name: dist-sdist
           path: dist/*.tar.gz
@@ -100,7 +100,7 @@ jobs:
 
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v4.1.0
+        uses: actions/download-artifact@v4.1.1
         with:
           merge-multiple: 'true'
           pattern: dist-*
