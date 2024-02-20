@@ -24,8 +24,9 @@ echo "PLATFORM=${PLATFORM}"
 echo "ARCHFLAGS=${ARCHFLAGS}"
 EXTRA_CMAKE_ARGS=""
 if [[ "${PLATFORM}" == "macos" ]]; then
+        EXTRA_CMAKE_ARGS="-DCMAKE_INSTALL_PREFIX=/Users/runner/work/tbb-install"
     if [[ ${ARCHFLAGS} == *"arm64"* ]]; then
-        EXTRA_CMAKE_ARGS="-DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_INSTALL_PREFIX=/Users/runner/work/tbb-install"
+        EXTRA_CMAKE_ARGS="-DCMAKE_OSX_ARCHITECTURES=arm64 ${EXTRA_CMAKE_ARGS}"
     fi
 fi
 echo "EXTRA_CMAKE_ARGS=${EXTRA_CMAKE_ARGS}"
