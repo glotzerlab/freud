@@ -20,6 +20,8 @@ curl -L -O "https://github.com/oneapi-src/oneTBB/archive/refs/tags/${TBB_ZIP}"
 unzip -q "${TBB_ZIP}"
 
 #
+echo "PLATFORM=${PLATFORM}"
+echo "ARCHFLAGS=${ARCHFLAGS}"
 EXTRA_CMAKE_ARGS=""
 if [[ "${PLATFORM}" == "macos" ]]; then
     if [[ ${ARCHFLAGS} == *"arm64"* ]]; then
