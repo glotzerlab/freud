@@ -1,16 +1,16 @@
 ase==3.22.1
-cmake==3.27.7
-coverage==7.3.2
-cython==3.0.6
+cmake==3.28.1
+coverage==7.4.1
+cython==3.0.8
 dynasor==1.1.1; platform_system != "Windows"
-GitPython==3.1.40
-gsd==3.2.0
+GitPython==3.1.41
+gsd==3.2.1
 matplotlib>=3.0.0
-numpy==1.26.2
+numpy==1.26.3
 pillow>=8.0.0 --only-binary=pillow
-pytest==7.4.3
+pytest==8.0.0
 pytest-cov==4.1.0
 rowan==1.3.0.post1
 scikit-build==0.17.6
-scipy==1.11.4
+scipy==1.12.0
 sympy==1.12

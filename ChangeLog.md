@@ -21,6 +21,11 @@ and this project adheres to
 ### Removed
 * The `global_search` flag in `freud.environment.EnvironmentCluster`.
 
+## vX.Y.Z -- YYYY-MM-DD
+
+### Changed
+* Provide support via GitHub discussions.
+
 ## v2.13.2 -- 2023-11-27
 
 ### Added
