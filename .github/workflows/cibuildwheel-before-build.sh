@@ -23,7 +23,7 @@ unzip -q "${TBB_ZIP}"
 EXTRA_CMAKE_ARGS=""
 if [[ "${PLATFORM}" == "macos" ]]; then
     if [[ ${ARCHFLAGS} == *"arm64"* ]]; then
-        EXTRA_CMAKE_ARGS="-DCMAKE_OSX_ARCHITECTURES=arm64"
+        EXTRA_CMAKE_ARGS="-DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_INSTALL_PREFIX=/Users/runner/work/tbb-install"
     fi
 fi
 echo "EXTRA_CMAKE_ARGS=${EXTRA_CMAKE_ARGS}"
