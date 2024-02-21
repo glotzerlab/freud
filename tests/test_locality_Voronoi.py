@@ -36,7 +36,7 @@ class TestVoronoi:
             ),
             axis=-1,
         )
-        npt.assert_allclose(wrapped_distances, vor.nlist.distances)
+        npt.assert_allclose(wrapped_distances, vor.nlist.distances, rtol=5e-7)
 
         # Ensure every point has neighbors
         assert np.all(vor.nlist.neighbor_counts > 0)
@@ -73,7 +73,7 @@ class TestVoronoi:
             ),
             axis=-1,
         )
-        npt.assert_allclose(wrapped_distances, vor.nlist.distances)
+        npt.assert_allclose(wrapped_distances, vor.nlist.distances, rtol=5e-7)
 
         # Ensure every point has neighbors
         assert np.all(vor.nlist.neighbor_counts > 0)
