@@ -4,7 +4,7 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## v3.0.0 -- YYYY-MM-DD
+## v3.0.0 -- 2024-02-22
 
 ### Added
 * Coloring plots by polytope area in `freud.locality.Voronoi`.
@@ -17,14 +17,10 @@ and this project adheres to
 * `freud.order.Nematic` uses orientation vectors instead of quaternions and a nematic director.
 * `freud.order.Nematic` raises a warning when the zero is vector passed.
 * Remove zero-padding from arrays in `freud.environment.EnvironmentCluster` and `freud.environment.EnvironmentMotifMatch` and replace with ragged lists of NumPy arrays.
+* Provide support via GitHub discussions.
 
 ### Removed
 * The `global_search` flag in `freud.environment.EnvironmentCluster`.
-
-## vX.Y.Z -- YYYY-MM-DD
-
-### Changed
-* Provide support via GitHub discussions.
 
 ## v2.13.2 -- 2023-11-27
 
