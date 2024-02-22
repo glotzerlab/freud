@@ -26,10 +26,10 @@ Resolves: #???
 ## Checklist:
 <!-- Put an `x` in all the boxes that apply. If you're unsure about any of
      these, don't hesitate to ask. We're here to help! -->
-- [ ] I have read the [**CONTRIBUTING**](https://github.com/glotzerlab/freud/blob/master/CONTRIBUTING.md) document.
+- [ ] I have read the [**CONTRIBUTING**](https://github.com/glotzerlab/freud/blob/main/CONTRIBUTING.md) document.
 - [ ] My code follows the code style of this project.
 - [ ] I have updated the documentation (if relevant).
 - [ ] I have added tests that cover my changes (if relevant).
 - [ ] All new and existing tests passed.
-- [ ] I have updated the [credits](https://github.com/glotzerlab/freud/blob/master/doc/source/reference/credits.rst).
-- [ ] I have updated the [Changelog](https://github.com/glotzerlab/freud/blob/master/ChangeLog.md).
+- [ ] I have updated the [credits](https://github.com/glotzerlab/freud/blob/main/doc/source/reference/credits.rst).
+- [ ] I have updated the [Changelog](https://github.com/glotzerlab/freud/blob/main/ChangeLog.md).

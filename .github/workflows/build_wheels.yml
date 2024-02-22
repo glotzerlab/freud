@@ -5,7 +5,7 @@ on:
   # twice when the pull request source branch is in the same repository.
   push:
     branches:
-      - "master"
+      - "main"
       - "next"
     tags:
       - "v*"
