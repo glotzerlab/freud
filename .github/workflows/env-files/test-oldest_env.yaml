@@ -3,8 +3,8 @@ channels:
   - conda-forge
 
 dependencies:
-  - tbb=2019.7
-  - tbb-devel=2019.7
+  - tbb=2020.2
+  - tbb-devel=2020.2
   - ninja
   - pip
   - pip:
