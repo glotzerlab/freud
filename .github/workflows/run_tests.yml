@@ -8,10 +8,10 @@ on:
   # trigger on pull requests
   pull_request:
 
-  # trigger on all commits to master
+  # trigger on all commits to trunk branches
   push:
     branches:
-      - "master"
+      - "main"
       - "next"
 
   # trigger on request

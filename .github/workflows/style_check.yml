@@ -8,10 +8,10 @@ on:
   # Trigger on pull requests.
   pull_request:
 
-  # Trigger on pushes master
+  # Trigger on pushes to main
   push:
     branches:
-      - "master"
+      - "main"
 
   # Trigger on request.
   workflow_dispatch:
