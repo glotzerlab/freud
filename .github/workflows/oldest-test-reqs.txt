@@ -3,8 +3,8 @@ cmake==3.20.2
 cython==3.0.2
 dynasor==1.1b0; platform_system != "Windows"
 gsd==2.5.0
-matplotlib==3.2.0
-numpy==1.18.0
+matplotlib==3.5.0
+numpy==1.21.0
 pillow==7.0.0
 pytest==6.2.2
 rowan==1.2.1
