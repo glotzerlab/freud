@@ -54,7 +54,7 @@ jobs:
           submodules: true
 
       - name: Create Python Environment
-        uses: conda-incubator/setup-miniconda@v3
+        uses: conda-incubator/setup-miniconda@v3.0.2
         with:
           python-version: ${{ matrix.python }}
           environment-file: .github/workflows/env-files/${{ matrix.env }}
