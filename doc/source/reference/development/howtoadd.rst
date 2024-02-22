@@ -90,12 +90,12 @@ The ``__init__`` method defines basic parameters of the run, the ``bench_setup``
 More examples can be found in the :code:`benchmarks` directory.
 The runtime of :code:`BenchmarkDensityRDF.bench_run` will be timed for :code:`number` of times on the input sizes of :code:`Ns`.
 Its runtime with respect to the number of threads will also be measured.
-Benchmarks are run as a part of continuous integration, with performance comparisons between the current commit and the master branch.
+Benchmarks are run as a part of continuous integration, with performance comparisons between the current commit and the main branch.
 
 Steps for Adding New Code
 =========================
 
-Once you've determined to add new code to **freud**, the first step is to create a new branch off of :code:`master`.
+Once you've determined to add new code to **freud**, the first step is to create a new branch off of :code:`main`.
 The process of adding code differs based on whether or not you are editing an existing module in **freud**.
 Adding new methods to an existing module in **freud** requires creating the new C++ files in the ``cpp`` directory, modifying the corresponding ``_MODULENAME.pxd`` file in the ``freud`` directory, and creating a wrapper class in ``freud/MODULENAME.pyx``.
 If the new methods belong in a new module, you must create the corresponding ``cpp`` directory and the ``pxd`` and ``pyx`` files accordingly.

@@ -409,20 +409,20 @@ if __name__ == "__main__":
         "git-revisions of this repository. "
         "For example, to compare the current revision "
         "(HEAD) with the "
-        "'master' branch revision, execute `{} compare "
-        "master HEAD`. In this specific "
-        "case one could omit both arguments, since 'master'"
+        "'main' branch revision, execute `{} compare "
+        "main HEAD`. In this specific "
+        "case one could omit both arguments, since 'main'"
         " and 'HEAD' are the two "
         "default arguments.".format(sys.argv[0]),
     )
     parser_compare.add_argument(
         "rev_other",
-        default="master",
+        default="main",
         nargs="?",
         help="The git revision to compare against. "
         "Valid arguments are  for example "
         "a branch name, a tag, a specific commit id, "
-        "or 'HEAD', defaults to 'master'.",
+        "or 'HEAD', defaults to 'main'.",
     )
     parser_compare.add_argument(
         "rev_this",
