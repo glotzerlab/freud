@@ -34,7 +34,7 @@ jobs:
           - python: '3.9'
             env: 'test-compatible_env.yaml'
           # Test macOS and windows on oldest and latest versions.
-          - os: 'macos-latest'
+          - os: 'macos-14'
             python: '3.12'
             env: 'test_env.yaml'
           - os: 'windows-latest'
@@ -43,7 +43,7 @@ jobs:
           - os: 'windows-latest'
             python: '3.8'
             env: 'test-oldest_env.yaml'
-          - os: 'macos-latest'
+          - os: 'macos-14'
             python: '3.8'
             env: 'test-oldest_env.yaml'
 
@@ -54,7 +54,7 @@ jobs:
           submodules: true
 
       - name: Create Python Environment
-        uses: conda-incubator/setup-miniconda@v3
+        uses: conda-incubator/setup-miniconda@v3.0.2
         with:
           python-version: ${{ matrix.python }}
           environment-file: .github/workflows/env-files/${{ matrix.env }}

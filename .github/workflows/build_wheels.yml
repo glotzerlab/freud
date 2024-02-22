@@ -26,7 +26,7 @@ jobs:
     if: ${{ contains(github.event.pull_request.labels.*.name, 'build_wheels') || github.event_name != 'pull_request' }}
     strategy:
       matrix:
-        os: [ubuntu-20.04, macos-12] #, windows-2019]
+        os: [ubuntu-20.04, macos-14] #, windows-2019]
         pyver: ["3.8", "3.9", "3.10", "3.11", "3.12"]
 
     steps:
@@ -48,7 +48,7 @@ jobs:
 
           # Configure environment variables.
           CIBW_ENVIRONMENT_LINUX: "CMAKE_PREFIX_PATH=/project/tbb LD_LIBRARY_PATH=/project/tbb/lib/intel64/gcc4.8:$LD_LIBRARY_PATH"
-          CIBW_ENVIRONMENT_MACOS: "CMAKE_PREFIX_PATH=/Users/runner/work/freud/freud/tbb LD_LIBRARY_PATH=/Users/runner/work/freud/freud/tbb/lib/intel64/gcc4.8:$LD_LIBRARY_PATH"
+          CIBW_ENVIRONMENT_MACOS: "CMAKE_PREFIX_PATH=/Users/runner/work/freud/freud/tbb:/Users/runner/work/tbb-install LD_LIBRARY_PATH=/Users/runner/work/freud/freud/tbb/lib/intel64/gcc4.8:$LD_LIBRARY_PATH"
           MACOSX_DEPLOYMENT_TARGET: "10.14"
 
           # Set up TBB.
@@ -76,7 +76,7 @@ jobs:
         with:
           submodules: "recursive"
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5.0.0
         name: Install Python
         with:
           python-version: '3.9'

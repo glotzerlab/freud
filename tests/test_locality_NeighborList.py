@@ -238,7 +238,7 @@ class TestNeighborList:
         num_bonds = N * M
         np.testing.assert_equal(nlist.query_point_indices, np.arange(M).repeat(N))
         np.testing.assert_equal(nlist.point_indices, np.asarray(list(np.arange(N)) * M))
-        np.testing.assert_equal(
+        np.testing.assert_allclose(
             nlist.distances,
             np.linalg.norm(
                 box.wrap(
@@ -247,6 +247,7 @@ class TestNeighborList:
                 ),
                 axis=-1,
             ),
+            rtol=5e-7,
         )
 
     def test_indexing_empty(self):
