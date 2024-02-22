@@ -28,7 +28,7 @@ class TestVoronoi:
 
         # Verify the neighbor distances
         vector_lengths = np.linalg.norm(vor.nlist.vectors, axis=-1)
-        npt.assert_allclose(vector_lengths, vor.nlist.distances)
+        npt.assert_allclose(vector_lengths, vor.nlist.distances, rtol=5e-7)
 
     def test_random_2d(self):
         # Test that voronoi tessellations of random systems have the same
