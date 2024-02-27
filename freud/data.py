@@ -233,6 +233,21 @@ class UnitCell:
         fractions = np.array([[0, 0, 0], [0.5, 0.5, 0]])
         return cls([1, np.sqrt(3)], fractions)
 
+    @classmethod
+    def from_lattice_vectors(cls, lattice_vectors, unique_positions):
+        """Create a unit cell from lattice vectors.
+
+        Args:
+            lattice_vectors (:math:`(3, 3)` :class:`np.ndarray
+                The lattice vectors. Lattice vector a1 is lattice_vectors[:, 0], etc.
+            unique_positions (:math:`(N_{points}, 3)` :class:`np.ndarray`):
+                The basis positions.
+
+        Returns:
+            :class:`~.UnitCell`: A unit cell with the given lattice vectors.
+        """
+        return cls(freud.box.Box.from_lattice_vectors(lattice_vectors), unique_positions)
+
 
 def make_random_system(box_size, num_points, is2D=False, seed=None):
     r"""Helper function to make random points with a cubic or square box.
