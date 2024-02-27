@@ -689,6 +689,17 @@ cdef class Box:
                            [0, self.Ly, self.yz * self.Lz],
                            [0, 0, self.Lz]])
 
+    def to_box_lengths_and_angles(self):
+        r"""Return the box lengths and angles.
+
+        Returns:
+            tuple: The box lengths and angles in radians
+        """
+        alpha = np.arccos((self.xy*self.xz+self.yz)/(np.sqrt(1+self.xy**2)*np.sqrt(1+self.xz**2+self.yz**2)))
+        beta = np.arccos(self.xz/np.sqrt(1+self.xz**2+self.yz**2))
+        gamma = np.arccos(self.xy/np.sqrt(1+self.xy**2))
+        return (self.Lx, self.Ly, self.Lz, alpha, beta, gamma)
+
     def __repr__(self):
         return ("freud.box.{cls}(Lx={Lx}, Ly={Ly}, Lz={Lz}, "
                 "xy={xy}, xz={xz}, yz={yz}, "
@@ -920,6 +931,65 @@ cdef class Box:
             raise TypeError("square() missing 1 required "
                             "positional argument: L")
         return cls(Lx=L, Ly=L, Lz=0, xy=0, xz=0, yz=0, is2D=True)
+
+    @classmethod
+    def from_lattice_vectors(cls, lattice_vectors, dimensions=None):
+        """Create a unit cell from lattice vectors.
+
+        Args:
+            lattice_vectors (:math:`(3, 3)` :class:`np.ndarray
+                The lattice vectors. Lattice vector a1 is lattice_vectors[:, 0], etc.
+            dimensions (int): The number of dimensions (Default value = :code:`None`)
+
+        Returns:
+            :class:`~.UnitCell`: A unit cell with the given lattice vectors.
+        """
+        lattice_matrix = np.asarray(lattice_vectors, dtype=np.float32)
+        v0 = lattice_matrix[:, 0]
+        v1 = lattice_matrix[:, 1]
+        v2 = lattice_matrix[:, 2]
+        Lx = np.sqrt(np.dot(v0, v0))
+        a2x = np.dot(v0, v1) / Lx
+        Ly = np.sqrt(np.dot(v1, v1) - a2x * a2x)
+        xy = a2x / Ly
+        v0xv1 = np.cross(v0, v1)
+        v0xv1mag = np.sqrt(np.dot(v0xv1, v0xv1))
+        Lz = np.dot(v2, v0xv1) / v0xv1mag
+        if Lz != 0:
+            a3x = np.dot(v0, v2) / Lx
+            xz = a3x / Lz
+            yz = (np.dot(v1, v2) - a2x * a3x) / (Ly * Lz)
+        else:
+            xz = yz = 0
+        if dimensions is None:
+            dimensions = 2 if Lz == 0 else 3
+        return cls.from_box([Lx, Ly, Lz, xy, xz, yz], dimensions=dimensions)
+
+    @classmethod
+    def from_box_lengths_and_angles(cls, Lx, Ly, Lz, alpha, beta, gamma, dimensions=None):
+        r"""Construct a box from lengths and angles.
+
+        Args:
+            Lx (float): The length in the x direction
+            Ly (float): The length in the y direction
+            Lz (float): The length in the z direction
+            alpha (float): The angle between the y and z axes in radians
+            beta (float): The angle between the x and z axes in radians
+            gamma (float): The angle between the x and y axes in radians
+            dimensions (int): The number of dimensions (Default value = :code:`None`)
+
+        Returns:
+            :class:`freud.box.Box`: The resulting box object.
+        """
+        a1 = np.array([Lx, 0, 0])
+        a2 = np.array([Ly * np.cos(gamma), Ly * np.sin(gamma), 0])
+        a3x = np.cos(beta)
+        a3y = (np.cos(alpha) - np.cos(beta) * np.cos(gamma)) / np.sin(gamma)
+        a3z = np.sqrt(1 - a3x**2 - a3y**2)
+        a3 = np.array([Lz * a3x, Lz * a3y, Lz * a3z])
+        if dimensions is None:
+            dimensions = 2 if Lz == 0 else 3
+        return cls.from_lattice_vectors(np.array([a1, a2, a3]).T, dimensions=dimensions)
 
 
 cdef BoxFromCPP(const freud._box.Box & cppbox):
