@@ -1,7 +1,6 @@
-# Copyright (c) 2010-2024 The Regents of the University of Michigan
+# Copyright (c) 2010-2023 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
-import numpy as np
 import numpy.testing as npt
 import pytest
 
@@ -23,7 +22,8 @@ class TestLocalDensity:
         self.compute_log = True
         self.compute_exp = True
         self.coord = freud.density.ContinuousCoordination(
-            self.powers, self.compute_log, self.compute_exp)
+            self.powers, self.compute_log, self.compute_exp
+        )
         self.voronoi = freud.locality.Voronoi()
 
     def compute(self, system):
@@ -42,7 +42,8 @@ class TestLocalDensity:
         self.coord.coordination
 
         npt.assert_allclose(
-            self.coord.coordination[:, 0], self.voronoi.nlist.neighbor_counts)
+            self.coord.coordination[:, 0], self.voronoi.nlist.neighbor_counts
+        )
 
     def test_coordination_fcc(self):
         system = freud.data.UnitCell.fcc().generate_system(4)

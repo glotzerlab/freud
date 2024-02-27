@@ -20,8 +20,8 @@ from freud.util cimport _Compute, vec3
 
 from collections.abc import Sequence
 
-from libcpp cimport bool
 cimport numpy as np
+from libcpp cimport bool
 
 cimport freud._density
 cimport freud.box
@@ -746,7 +746,8 @@ cdef class ContinuousCoordination(_PairCompute):
 
     .. eq::
 
-        CN_p = N^{2.0 - m} \sum_{i=1}^{k}{\left[\left(\frac{V_i}{V}\right)^{m}\right]}^{-1}
+        CN_p = N^{2.0 - m} \sum_{i=1}^{k}
+        {\left[\left(\frac{V_i}{V}\right)^{m}\right]}^{-1}
 
     Log
 
@@ -776,9 +777,9 @@ cdef class ContinuousCoordination(_PairCompute):
     """
     cdef freud._density.ContinuousCoordination* thisptr
 
-
     def __cinit__(self, powers, compute_log=False, compute_exp=False):
-        self.thisptr = new freud._density.ContinuousCoordination(powers, compute_log, compute_exp)
+        self.thisptr = new freud._density.ContinuousCoordination(
+            powers, compute_log, compute_exp)
 
     def __dealloc__(self):
         del self.thisptr
@@ -791,7 +792,8 @@ cdef class ContinuousCoordination(_PairCompute):
             >>> import freud
             >>> box, points = freud.data.make_random_system(10, 100, seed=0)
             >>> # Compute Local Density
-            >>> coord = freud.density.ContinuousCoordination(powers=[2, 4], compute_log=True)
+            >>> coord = freud.density.ContinuousCoordination(
+            >>>     powers=[2, 4], compute_log=True)
             >>> coord.compute(system=(box, points))
             freud.density.ContinuousCoordination(...)
 
@@ -820,8 +822,8 @@ cdef class ContinuousCoordination(_PairCompute):
 
     @_Compute._computed_property
     def coordination(self):
-        """(:math:`(N_{points}, N_{coord}`) :class:`numpy.ndarray`: coordination of points per
-        query point."""
+        """(:math:`(N_{points}, N_{coord}`) :class:`numpy.ndarray`: \
+                coordination of points per query point."""
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getCoordination(),
             freud.util.arr_type_t.FLOAT)
@@ -846,9 +848,12 @@ cdef class ContinuousCoordination(_PairCompute):
         return self.thisptr.getComputeExp()
 
     def __repr__(self):
-        return ("freud.density.{cls}(powers={powers}, "
-                "compute_log={compute_log}, compute_exp={compute_exp})").format(cls=type(self).__name__,
-                                               powers=self.powers,
-                                               compute_log=self.compute_log,
-                                               compute_exp=self.compute_exp,
-                                               )
+        return (
+            "freud.density.{cls}(powers={powers}, "
+            "compute_log={compute_log}, compute_exp={compute_exp})"
+        ).format(
+            cls=type(self).__name__,
+            powers=self.powers,
+            compute_log=self.compute_log,
+            compute_exp=self.compute_exp,
+        )

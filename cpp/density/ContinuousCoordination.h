@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2024 The Regents of the University of Michigan
+// Copyright (c) 2010-2023 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #pragma once
@@ -29,7 +29,8 @@ public:
     ~ContinuousCoordination() = default;
 
     //! Compute the local density
-    void compute(const freud::locality::Voronoi* voronoi, const freud::locality::NeighborList* nlist, bool is2D);
+    void compute(const freud::locality::Voronoi* voronoi, const freud::locality::NeighborList* nlist,
+                 bool is2D);
 
     //! Get the powers of the continuous coordination number to compute
     const std::vector<float>& getPowers() const
@@ -54,13 +55,12 @@ public:
     }
 
 private:
-
     //! Get the number of coordination numbers to compute.
     unsigned int getNumberOfCoordinations();
 
-    std::vector<float> m_powers;  //!< The powers to use for CNv
-    bool m_compute_log;  //!< Whether to compute CNlog
-    bool m_compute_exp;  //!< Whether to compute CNexp
+    std::vector<float> m_powers;              //!< The powers to use for CNv
+    bool m_compute_log;                       //!< Whether to compute CNlog
+    bool m_compute_exp;                       //!< Whether to compute CNexp
     util::ManagedArray<float> m_coordination; //!< number of neighbors array computed
 };
 
