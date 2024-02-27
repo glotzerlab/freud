@@ -791,9 +791,8 @@ cdef class ContinuousCoordination(_PairCompute):
 
             >>> import freud
             >>> box, points = freud.data.make_random_system(10, 100, seed=0)
-            >>> # Compute Local Density
-            >>> coord = freud.density.ContinuousCoordination(
-            >>>     powers=[2, 4], compute_log=True)
+            >>> # Compute ContinuousCoordination
+            >>> coord = freud.density.ContinuousCoordination([2, 4], True)
             >>> coord.compute(system=(box, points))
             freud.density.ContinuousCoordination(...)
 
