@@ -11,14 +11,12 @@
 #include "Voronoi.h"
 
 /*! \file ContinuousCoordination.h
-    \brief Routines for computing local density around a point.
+    \brief Routines for computing local continuous coordination numbers based on Voronoi tesselation.
 */
 
 namespace freud { namespace density {
 
-//! Compute the local density at each point
-/*!
- */
+//! Compute the continuous coordination number(s) at each point.
 class ContinuousCoordination
 {
 public:
@@ -28,7 +26,7 @@ public:
     //! Destructor
     ~ContinuousCoordination() = default;
 
-    //! Compute the local density
+    //! Compute the local continuous coordination number
     void compute(const freud::locality::Voronoi* voronoi, const freud::locality::NeighborList* nlist,
                  bool is2D);
 
