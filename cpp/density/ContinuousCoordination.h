@@ -21,7 +21,7 @@ class ContinuousCoordination
 {
 public:
     //! Constructor
-    ContinuousCoordination(const std::vector<float> powers, bool compute_log, bool compute_exp);
+    ContinuousCoordination(std::vector<float> powers, bool compute_log, bool compute_exp);
 
     //! Destructor
     ~ContinuousCoordination() = default;
