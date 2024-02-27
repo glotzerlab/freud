@@ -44,7 +44,7 @@ void ContinuousCoordination::compute(const freud::locality::Voronoi* voronoi,
             {
                 auto cn = std::transform_reduce(
                     i_volumes.begin(), i_volumes.end(), 0.0, std::plus<float>(),
-                    [*this, k](auto& volume) { return std::pow(volume, this->m_powers[k]); });
+                    [*this, k](const auto& volume) { return std::pow(volume, this->m_powers[k]); });
                 m_coordination(i, j++) = std::pow(num_neighbors_i, 2.0 - m_powers[k]) / cn;
             }
             if (m_compute_log)
@@ -57,7 +57,7 @@ void ContinuousCoordination::compute(const freud::locality::Voronoi* voronoi,
             {
                 m_coordination(i, j) = std::transform_reduce(
                     i_volumes.begin(), i_volumes.end(), 0.0, std::plus<float>(),
-                    [num_neighbors_i](auto& volume) {
+                    [num_neighbors_i](const auto& volume) {
                         return std::exp(volume - (1.0 / static_cast<float>(num_neighbors_i)));
                     });
             }
