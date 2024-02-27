@@ -83,5 +83,5 @@ cdef extern from "ContinuousCoordination.h" namespace "freud::density":
                      bool) except +
         const freud.util.ManagedArray[float] &getCoordination() const
         const vector[float] &getPowers() const
-        const bool &getComputeLog() const
-        const bool &getComputeExp() const
+        bool &getComputeLog() const
+        bool &getComputeExp() const

@@ -21,7 +21,7 @@ class ContinuousCoordination
 {
 public:
     //! Constructor
-    ContinuousCoordination(const std::vector<float>& powers, bool compute_log, bool compute_exp);
+    ContinuousCoordination(const std::vector<float> powers, bool compute_log, bool compute_exp);
 
     //! Destructor
     ~ContinuousCoordination() = default;
@@ -36,12 +36,12 @@ public:
         return m_powers;
     }
     //! Get whether to compute the log continuous coordinatio number
-    const bool getComputeLog() const
+    bool getComputeLog() const
     {
         return m_compute_log;
     }
     //! Get whether to compute the exp continuous coordinatio number
-    const bool getComputeExp() const
+    bool getComputeExp() const
     {
         return m_compute_exp;
     }

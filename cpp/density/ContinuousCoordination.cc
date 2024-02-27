@@ -14,7 +14,7 @@
 
 namespace freud { namespace density {
 
-ContinuousCoordination::ContinuousCoordination(const std::vector<float>& powers, bool compute_log,
+ContinuousCoordination::ContinuousCoordination(const std::vector<float> powers, bool compute_log,
                                                bool compute_exp)
     : m_powers(powers), m_compute_exp(compute_exp), m_compute_log(compute_log)
 {}
@@ -32,7 +32,7 @@ void ContinuousCoordination::compute(const freud::locality::Voronoi* voronoi,
         nlist, [&](size_t i, const std::shared_ptr<freud::locality::NeighborPerPointIterator>& ppiter) {
             // 1/2 comes from the distance vector since we want to measure from the pyramid
             // base to the center.
-            float prefactor = 1.0 / (volume_prefactor * 2.0 * volumes[i]);
+            const float prefactor = 1.0f / (volume_prefactor * 2.0 * volumes[i]);
             std::vector<float> i_volumes;
             for (freud::locality::NeighborBond nb = ppiter->next(); !ppiter->end(); nb = ppiter->next())
             {
@@ -43,20 +43,19 @@ void ContinuousCoordination::compute(const freud::locality::Voronoi* voronoi,
             for (size_t k {0}; k < m_powers.size(); ++k)
             {
                 auto cn = std::transform_reduce(
-                    i_volumes.begin(), i_volumes.end(), 0.0, std::plus<float>(),
+                    i_volumes.begin(), i_volumes.end(), 0.0, std::plus<>(),
                     [*this, k](const auto& volume) { return std::pow(volume, this->m_powers[k]); });
                 m_coordination(i, j++) = std::pow(num_neighbors_i, 2.0 - m_powers[k]) / cn;
             }
             if (m_compute_log)
             {
-                auto cn = std::transform_reduce(i_volumes.begin(), i_volumes.end(), 0.0, std::plus<float>(),
-                                                logf);
+                auto cn = std::transform_reduce(i_volumes.begin(), i_volumes.end(), 0.0, std::plus<>(), logf);
                 m_coordination(i, j++) = -cn / std::log(num_neighbors_i);
             }
             if (m_compute_exp)
             {
                 m_coordination(i, j) = std::transform_reduce(
-                    i_volumes.begin(), i_volumes.end(), 0.0, std::plus<float>(),
+                    i_volumes.begin(), i_volumes.end(), 0.0, std::plus<>(),
                     [num_neighbors_i](const auto& volume) {
                         return std::exp(volume - (1.0 / static_cast<float>(num_neighbors_i)));
                     });
