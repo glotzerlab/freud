@@ -20,6 +20,7 @@ from freud.util cimport _Compute, vec3
 
 from collections.abc import Sequence
 
+from libcpp cimport bool
 cimport numpy as np
 
 cimport freud._density
@@ -732,3 +733,122 @@ cdef class RDF(_SpatialHistogram1D):
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None
+
+
+cdef class ContinuousCoordination(_PairCompute):
+    r"""Computes the continuous local coordination number.
+
+    The :class:`ContinuousCoordination` impliments extensions of the Voronoi
+    discrete coordination number to the real numbers. These are motivated by the
+    dissertation <cite>. The formulas for the various implementations are:
+
+    Power
+
+    .. eq::
+
+        CN_p = N^{2.0 - m} \sum_{i=1}^{k}{\left[\left(\frac{V_i}{V}\right)^{m}\right]}^{-1}
+
+    Log
+
+    .. eq::
+
+        CN_{log} = \frac{-1}{\log{N}} \sum_{i=1}^{k}\log{\left(\frac{V_i}{V}\right)}
+
+    Exp
+
+    .. eq::
+
+        CN_{exp} = \sum_{i=1}^{k}\exp{\left(\frac{V_i}{V} - \frac{1}{N} \right)}
+
+    where :math:`k` is the number of neighbors a particle has, :math:`V_i` is
+    the volume of the pyramid (or area of the triangle) whose base is the
+    Voronoi polytope facet between the central particle and neighobor :math:`i`
+    and whose height is half the distance vector, and :math:`V` is the
+    volume/area of the Voronoi polytope.
+
+    Args:
+        powers (list[float]): The powers to compute the continuous coordination
+            number for.
+        compute_log (`bool`, optional): Whether to compute the log continuous
+            coordination number.
+        compute_exp (`bool`, optional): Whether to compute the exp continuous
+            coordination number.
+    """
+    cdef freud._density.ContinuousCoordination* thisptr
+
+
+    def __cinit__(self, powers, compute_log=False, compute_exp=False):
+        self.thisptr = new freud._density.ContinuousCoordination(powers, compute_log, compute_exp)
+
+    def __dealloc__(self):
+        del self.thisptr
+
+    def compute(self, system, voronoi=None):
+        r"""Calculates the local density for the specified points.
+
+        Example::
+
+            >>> import freud
+            >>> box, points = freud.data.make_random_system(10, 100, seed=0)
+            >>> # Compute Local Density
+            >>> coord = freud.density.ContinuousCoordination(powers=[2, 4], compute_log=True)
+            >>> coord.compute(system=(box, points))
+            freud.density.ContinuousCoordination(...)
+
+        Args:
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
+            voronoi:
+                A precomputed Voronoi compute object. If provided, the object is
+                assumed to have already been computed for the passed in system.
+                (Default value: None).
+        """  # noqa E501
+        cdef freud.locality.Voronoi cpp_voronoi
+        cdef freud.locality.NeighborList cpp_nlist
+        cdef bool is2D
+
+        neighbor_query = freud.locality.NeighborQuery.from_system(system)
+        is2D = neighbor_query.box.is2D
+
+        if voronoi is None:
+            voronoi = freud.locality.Voronoi()
+            voronoi.compute(system)
+        cpp_voronoi, cpp_nlist = (voronoi, voronoi.nlist)
+        self.thisptr.compute(cpp_voronoi.thisptr, cpp_nlist.get_ptr(), is2D)
+        return self
+
+    @_Compute._computed_property
+    def coordination(self):
+        """(:math:`(N_{points}, N_{coord}`) :class:`numpy.ndarray`: coordination of points per
+        query point."""
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getCoordination(),
+            freud.util.arr_type_t.FLOAT)
+
+    @property
+    def powers(self):
+        """list[float]: The powers to compute the continuous coordination number.
+
+        Changes to this property are not reflected when computing coordination
+        numbers.
+        """
+        return self.thisptr.getPowers()
+
+    @property
+    def compute_log(self):
+        """bool: Whether to compute the log continuous coordination number."""
+        return self.thisptr.getComputeLog()
+
+    @property
+    def compute_exp(self):
+        """bool: Whether to compute the exponential coordination number."""
+        return self.thisptr.getComputeExp()
+
+    def __repr__(self):
+        return ("freud.density.{cls}(powers={powers}, "
+                "compute_log={compute_log}, compute_exp={compute_exp})").format(cls=type(self).__name__,
+                                               powers=self.powers,
+                                               compute_log=self.compute_log,
+                                               compute_exp=self.compute_exp,
+                                               )

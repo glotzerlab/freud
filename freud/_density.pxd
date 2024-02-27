@@ -2,6 +2,7 @@
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 from libcpp cimport bool
+from libcpp.vector cimport vector
 
 cimport freud._box
 cimport freud._locality
@@ -73,3 +74,14 @@ cdef extern from "SphereVoxelization.h" namespace "freud::density":
         const freud.util.ManagedArray[unsigned int] &getVoxels() const
         vec3[unsigned int] getWidth() const
         float getRMax() const
+
+cdef extern from "ContinuousCoordination.h" namespace "freud::density":
+    cdef cppclass ContinuousCoordination:
+        ContinuousCoordination(const vector[float], bool, bool) except +
+        void compute(const freud._locality.Voronoi*,
+                     const freud._locality.NeighborList*,
+                     bool) except +
+        const freud.util.ManagedArray[float] &getCoordination() const
+        const vector[float] &getPowers() const
+        const bool &getComputeLog() const
+        const bool &getComputeExp() const
