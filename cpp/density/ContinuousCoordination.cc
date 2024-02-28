@@ -18,9 +18,9 @@ ContinuousCoordination::ContinuousCoordination(std::vector<float> powers, bool c
     : m_powers(std::move(powers)), m_compute_exp(compute_exp), m_compute_log(compute_log)
 {}
 
-void ContinuousCoordination::compute(const freud::locality::Voronoi* voronoi,
-                                     const freud::locality::NeighborList* nlist, bool is2D)
+void ContinuousCoordination::compute(const freud::locality::Voronoi* voronoi)
 {
+    auto nlist = voronoi->getNeighborList();
     size_t num_points = nlist->getNumQueryPoints();
     m_coordination.prepare({num_points, getNumberOfCoordinations()});
     const auto& volumes = voronoi->getVolumes();
@@ -30,9 +30,9 @@ void ContinuousCoordination::compute(const freud::locality::Voronoi* voronoi,
     // reference to powers directly.
     const auto& powers = getPowers();
     // 2 for triangles 3 for pyramids
-    const float volume_prefactor = is2D ? 2.0 : 3.0;
+    const float volume_prefactor = voronoi->getBox().is2D() ? 2.0 : 3.0;
     freud::locality::loopOverNeighborListIterator(
-        nlist,
+        nlist.get(),
         [&](size_t particle_index, const std::shared_ptr<freud::locality::NeighborPerPointIterator>& ppiter) {
             // 1/2 comes from the distance vector since we want to measure from the pyramid
             // base to the center.

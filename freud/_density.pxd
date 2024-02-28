@@ -78,9 +78,7 @@ cdef extern from "SphereVoxelization.h" namespace "freud::density":
 cdef extern from "ContinuousCoordination.h" namespace "freud::density":
     cdef cppclass ContinuousCoordination:
         ContinuousCoordination(const vector[float], bool, bool) except +
-        void compute(const freud._locality.Voronoi*,
-                     const freud._locality.NeighborList*,
-                     bool) except +
+        void compute(const freud._locality.Voronoi*) except +
         const freud.util.ManagedArray[float] &getCoordination() const
         const vector[float] &getPowers() const
         bool &getComputeLog() const

@@ -27,8 +27,7 @@ public:
     ~ContinuousCoordination() = default;
 
     //! Compute the local continuous coordination number
-    void compute(const freud::locality::Voronoi* voronoi, const freud::locality::NeighborList* nlist,
-                 bool is2D);
+    void compute(const freud::locality::Voronoi* voronoi);
 
     //! Get the powers of the continuous coordination number to compute
     const std::vector<float>& getPowers() const

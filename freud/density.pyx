@@ -739,25 +739,25 @@ cdef class ContinuousCoordination(_PairCompute):
     r"""Computes the continuous local coordination number.
 
     The :class:`ContinuousCoordination` class implements extensions of the Voronoi
-    discrete coordination number to the real numbers. These are motivated by the
-    dissertation <cite>. The formulas for the various implementations are:
+    discrete coordination number to the real numbers. The formulas for the
+    various implementations are:
 
     Power
 
-    .. eq::
+    .. math::
 
         CN_p = N^{2.0 - m} \sum_{i=1}^{k}
         {\left[\left(\frac{V_i}{V}\right)^{m}\right]}^{-1}
 
     Log
 
-    .. eq::
+    .. math::
 
         CN_{log} = \frac{-1}{\log{N}} \sum_{i=1}^{k}\log{\left(\frac{V_i}{V}\right)}
 
     Exp
 
-    .. eq::
+    .. math::
 
         CN_{exp} = \sum_{i=1}^{k}\exp{\left(\frac{V_i}{V} - \frac{1}{N} \right)}
 
@@ -768,23 +768,28 @@ cdef class ContinuousCoordination(_PairCompute):
     volume/area of the Voronoi polytope.
 
     Args:
-        powers (list[float]): The powers to compute the continuous coordination
-            number for.
+        powers (list[float], optional): The powers to compute the continuous
+            coordination number for.
+            (Default value: None)
         compute_log (`bool`, optional): Whether to compute the log continuous
             coordination number.
+            (Default value: False)
         compute_exp (`bool`, optional): Whether to compute the exp continuous
             coordination number.
+            (Default value: True)
     """
     cdef freud._density.ContinuousCoordination* thisptr
 
-    def __cinit__(self, powers, compute_log=False, compute_exp=False):
+    def __cinit__(self, powers=None, compute_log=False, compute_exp=False):
+        if powers is None:
+            powers = []
         self.thisptr = new freud._density.ContinuousCoordination(
             powers, compute_log, compute_exp)
 
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, system, voronoi=None):
+    def compute(self, system=None, voronoi=None):
         r"""Calculates the local density for the specified points.
 
         Example::
@@ -797,32 +802,31 @@ cdef class ContinuousCoordination(_PairCompute):
             freud.density.ContinuousCoordination(...)
 
         Args:
-            system:
+            system (optional):
                 Any object that is a valid argument to
                 :class:`freud.locality.NeighborQuery.from_system`.
-            voronoi:
+            voronoi (:class:`freud.locality.Voronoi`, optional):
                 A precomputed Voronoi compute object. If provided, the object is
-                assumed to have already been computed for the passed in system.
+                assumed to have been computed already, and system is ignored.
                 (Default value: None).
-        """  # noqa E501
+        """
         cdef freud.locality.Voronoi cpp_voronoi
-        cdef freud.locality.NeighborList cpp_nlist
-        cdef bool is2D
-
-        neighbor_query = freud.locality.NeighborQuery.from_system(system)
-        is2D = neighbor_query.box.is2D
-
+        if system is None and voronoi is None:
+            raise ValueError("Must specify system or voronoi.")
         if voronoi is None:
             voronoi = freud.locality.Voronoi()
             voronoi.compute(system)
-        cpp_voronoi, cpp_nlist = (voronoi, voronoi.nlist)
-        self.thisptr.compute(cpp_voronoi.thisptr, cpp_nlist.get_ptr(), is2D)
+        cpp_voronoi = voronoi
+        self.thisptr.compute(cpp_voronoi.thisptr)
         return self
 
     @_Compute._computed_property
     def coordination(self):
         """(:math:`(N_{points}, N_{coord}`) :class:`numpy.ndarray`: \
-                coordination of points per query point."""
+                coordination of points per query point.
+
+        Coordination numbers are in order of selected powers, log, and exp.
+        """
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getCoordination(),
             freud.util.arr_type_t.FLOAT)
@@ -845,6 +849,10 @@ cdef class ContinuousCoordination(_PairCompute):
     def compute_exp(self):
         """bool: Whether to compute the exponential coordination number."""
         return self.thisptr.getComputeExp()
+
+    @property
+    def number_of_coordinations(self):
+        """int: The number of coordination numbers computed."""
 
     def __repr__(self):
         return (
