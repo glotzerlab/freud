@@ -32,6 +32,10 @@ class TestLocalDensity:
 
     def test_attribute_access(self):
         """Test attribute access before calling compute."""
+        assert self.coord.powers == self.powers
+        assert self.coord.compute_log
+        assert self.coord.compute_exp
+        assert self.coord.number_of_coordinations == 6
         with pytest.raises(AttributeError):
             self.coord.coordination
 
