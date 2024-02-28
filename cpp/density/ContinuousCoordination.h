@@ -51,10 +51,10 @@ public:
         return m_coordination;
     }
 
-private:
     //! Get the number of coordination numbers to compute.
-    unsigned int getNumberOfCoordinations();
+    unsigned int getNumberOfCoordinations() const;
 
+private:
     std::vector<float> m_powers;              //!< The powers to use for CNv
     bool m_compute_log;                       //!< Whether to compute CNlog
     bool m_compute_exp;                       //!< Whether to compute CNexp

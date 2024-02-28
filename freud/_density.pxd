@@ -83,3 +83,4 @@ cdef extern from "ContinuousCoordination.h" namespace "freud::density":
         const vector[float] &getPowers() const
         bool &getComputeLog() const
         bool &getComputeExp() const
+        unsigned int &getNumberOfCoordinations() const

@@ -71,7 +71,7 @@ void ContinuousCoordination::compute(const freud::locality::Voronoi* voronoi)
         });
 }
 
-unsigned int ContinuousCoordination::getNumberOfCoordinations()
+unsigned int ContinuousCoordination::getNumberOfCoordinations() const
 {
     return m_powers.size() + static_cast<int>(m_compute_log) + static_cast<int>(m_compute_exp);
 }

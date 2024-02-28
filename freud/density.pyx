@@ -853,6 +853,7 @@ cdef class ContinuousCoordination(_PairCompute):
     @property
     def number_of_coordinations(self):
         """int: The number of coordination numbers computed."""
+        return self.thisptr.getNumberOfCoordinations()
 
     def __repr__(self):
         return (
