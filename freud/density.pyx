@@ -738,7 +738,7 @@ cdef class RDF(_SpatialHistogram1D):
 cdef class ContinuousCoordination(_PairCompute):
     r"""Computes the continuous local coordination number.
 
-    The :class:`ContinuousCoordination` impliments extensions of the Voronoi
+    The :class:`ContinuousCoordination` class implements extensions of the Voronoi
     discrete coordination number to the real numbers. These are motivated by the
     dissertation <cite>. The formulas for the various implementations are:
 
