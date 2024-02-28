@@ -25,6 +25,10 @@ void ContinuousCoordination::compute(const freud::locality::Voronoi* voronoi,
     m_coordination.prepare({num_points, getNumberOfCoordinations()});
     const auto& volumes = voronoi->getVolumes();
     const auto& num_neighbors = nlist->getCounts();
+    // This is necessary as the current Windows runners on GitHub actions have a
+    // compiler that doesn't support *this capture in lambdas. Thus, we need a
+    // reference to powers directly.
+    const auto& powers = getPowers();
     // 2 for triangles 3 for pyramids
     const float volume_prefactor = is2D ? 2.0 : 3.0;
     freud::locality::loopOverNeighborListIterator(
@@ -41,13 +45,13 @@ void ContinuousCoordination::compute(const freud::locality::Voronoi* voronoi,
             }
             size_t coordination_number {0};
             float num_neighbors_i {static_cast<float>(num_neighbors[particle_index])};
-            for (size_t k {0}; k < m_powers.size(); ++k)
+            for (size_t k {0}; k < powers.size(); ++k)
             {
                 float coordination = std::transform_reduce(
                     i_volumes.begin(), i_volumes.end(), 0.0F, std::plus<>(),
-                    [*this, k](const auto& volume) { return std::pow(volume, this->m_powers[k]); });
+                    [&powers, k](const auto& volume) { return std::pow(volume, powers[k]); });
                 m_coordination(particle_index, coordination_number++)
-                    = std::pow(num_neighbors_i, 2.0F - m_powers[k]) / coordination;
+                    = std::pow(num_neighbors_i, 2.0F - powers[k]) / coordination;
             }
             if (m_compute_log)
             {
