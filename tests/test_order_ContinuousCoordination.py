@@ -64,5 +64,26 @@ class TestContinuousCoordination:
         self.compute(system)
         npt.assert_allclose(self.coord.coordination, 4.0, rtol=1e-6)
 
+    @pytest.mark.parametrize("args", (([], True, False), ([2.0], False, True)))
+    def test_various_coordinates(self, args):
+        def get_coord_size(args):
+            return len(args[0]) + int(args[1]) + int(args[2])
+
+        coord = freud.order.ContinuousCoordination(*args)
+        self.voronoi.compute((self.box, self.pos))
+        coord.compute(voronoi=self.voronoi)
+        expected_size = get_coord_size(args)
+        assert coord.number_of_coordinations == expected_size
+        assert coord.coordination.shape[1] == expected_size
+
+    def test_various_computes(self):
+        self.voronoi.compute((self.box, self.pos))
+        self.coord.compute(voronoi=self.voronoi)
+        coordination = self.coord.coordination
+        self.coord.compute(system=(self.box, self.pos))
+        npt.assert_allclose(coordination, self.coord.coordination)
+        self.coord.compute(system=(self.box, self.pos), voronoi=self.voronoi)
+        npt.assert_allclose(coordination, self.coord.coordination)
+
     def test_repr(self):
         assert str(self.coord) == str(eval(repr(self.coord)))
