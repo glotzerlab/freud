@@ -84,6 +84,9 @@ class TestContinuousCoordination:
         npt.assert_allclose(coordination, self.coord.coordination)
         self.coord.compute(system=(self.box, self.pos), voronoi=self.voronoi)
         npt.assert_allclose(coordination, self.coord.coordination)
+        voronoi = freud.locality.Voronoi()
+        with pytest.raises(RuntimeError):
+            self.coord.compute(voronoi=voronoi)
 
     def test_repr(self):
         assert str(self.coord) == str(eval(repr(self.coord)))

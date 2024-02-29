@@ -1148,7 +1148,8 @@ cdef class ContinuousCoordination(_PairCompute):
         Args:
             system (optional):
                 Any object that is a valid argument to
-                :class:`freud.locality.NeighborQuery.from_system`. (Default value: None).
+                :class:`freud.locality.NeighborQuery.from_system`.
+                (Default value: None).
             voronoi (:class:`freud.locality.Voronoi`, optional):
                 A precomputed Voronoi compute object. If provided, the object is
                 assumed to have been computed already, and system is ignored.
@@ -1160,6 +1161,9 @@ cdef class ContinuousCoordination(_PairCompute):
         if voronoi is None:
             voronoi = freud.locality.Voronoi()
             voronoi.compute(system)
+        elif not hasattr(voronoi, "nlist"):
+            raise RuntimeError(
+                "Must call compute on Voronoi object prior to computing coordination.")
         cpp_voronoi = voronoi
         self.thisptr.compute(cpp_voronoi.thisptr)
         return self
