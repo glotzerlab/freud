@@ -7,7 +7,7 @@ import pytest
 import freud
 
 
-class TestLocalDensity:
+class TestContinuousCoordination:
     """Test fixture for ContinuousCoordination"""
 
     def setup_method(self):
@@ -21,7 +21,7 @@ class TestLocalDensity:
         self.powers = [0.0, 2.0, 4.0, 8.0]
         self.compute_log = True
         self.compute_exp = True
-        self.coord = freud.density.ContinuousCoordination(
+        self.coord = freud.order.ContinuousCoordination(
             self.powers, self.compute_log, self.compute_exp
         )
         self.voronoi = freud.locality.Voronoi()
