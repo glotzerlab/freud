@@ -44,3 +44,6 @@ Overview of API Changes
     * - Compute nematic order parameter.
       - ``freud.order.Nematic(u=director).compute(orientations=quaternions)``
       - ``freud.order.Nematic().compute(orientations=orientation_vectors)``
+    * Find translational order in 2D systems.
+      - Use ``freud.order.Translational`` or ``freud.order.Hexatic``.
+      - Use ``freud.order.Hexatic``.
