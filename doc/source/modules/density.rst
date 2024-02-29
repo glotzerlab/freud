@@ -7,7 +7,6 @@ Density Module
 .. autosummary::
     :nosignatures:
 
-    freud.density.ContinuousCoordination
     freud.density.CorrelationFunction
     freud.density.GaussianDensity
     freud.density.LocalDensity

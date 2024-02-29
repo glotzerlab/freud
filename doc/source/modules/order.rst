@@ -7,6 +7,7 @@ Order Module
 .. autosummary::
     :nosignatures:
 
+    freud.order.ContinuousCoordination
     freud.order.Cubatic
     freud.order.Nematic
     freud.order.Hexatic
