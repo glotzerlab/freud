@@ -1107,20 +1107,21 @@ cdef class ContinuousCoordination(_PairCompute):
 
     Args:
         powers (list[float], optional): The powers to compute the continuous
-            coordination number for.
+            coordination number for. The default value indicates only compute
+            for power 2.0.
             (Default value: None)
         compute_log (`bool`, optional): Whether to compute the log continuous
             coordination number.
-            (Default value: False)
+            (Default value: True)
         compute_exp (`bool`, optional): Whether to compute the exp continuous
             coordination number.
             (Default value: True)
     """
     cdef freud._order.ContinuousCoordination* thisptr
 
-    def __cinit__(self, powers=None, compute_log=False, compute_exp=False):
+    def __cinit__(self, powers=None, compute_log=True, compute_exp=True):
         if powers is None:
-            powers = []
+            powers = [2.0]
         self.thisptr = new freud._order.ContinuousCoordination(
             powers, compute_log, compute_exp)
 
