@@ -1165,6 +1165,15 @@ cdef class ContinuousCoordination(_PairCompute):
         return self
 
     @_Compute._computed_property
+    def particle_order(self):
+        """(:math:`(N_{points}, N_{coord}`) :class:`numpy.ndarray`: \
+                coordination of points per query point.
+
+        Coordination numbers are in order of selected powers, log, and exp.
+        """
+        return self.coordination
+
+    @_Compute._computed_property
     def coordination(self):
         """(:math:`(N_{points}, N_{coord}`) :class:`numpy.ndarray`): \
                 coordination of points per query point.
