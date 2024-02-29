@@ -1105,6 +1105,11 @@ cdef class ContinuousCoordination(_PairCompute):
     and whose height is half the distance vector, and :math:`V` is the
     volume/area of the Voronoi polytope.
 
+    Note:
+        When using multiple powers, space them out to avoid high correlations. A
+        minimum spacing of 2.0 is recommended with even larger values leading to
+        less correlation.
+
     Args:
         powers (list[float], optional): The powers to compute the continuous
             coordination number for. The default value indicates only compute
