@@ -58,15 +58,6 @@ cdef extern from "HexaticTranslational.h" namespace "freud::order":
         unsigned int getK()
         bool isWeighted() const
 
-    cdef cppclass Translational:
-        Translational(float, bool)
-        void compute(const freud._locality.NeighborList*,
-                     const freud._locality.NeighborQuery*,
-                     freud._locality.QueryArgs) except +
-        const freud.util.ManagedArray[fcomplex] &getOrder() const
-        float getK() const
-        bool isWeighted() const
-
 
 cdef extern from "Steinhardt.h" namespace "freud::order":
     cdef cppclass Steinhardt:

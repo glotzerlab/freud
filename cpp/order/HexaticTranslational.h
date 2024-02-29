@@ -77,23 +77,6 @@ public:
                  freud::locality::QueryArgs qargs);
 };
 
-//! Compute the translational order parameter for a set of points
-/*! THIS CLASS IS DEPRECATED AND WILL BE REMOVED IN THE NEXT MAJOR RELEASE OF FREUD.
- */
-class Translational : public HexaticTranslational<float>
-{
-public:
-    //! Constructor
-    Translational(float k = 6, bool weighted = false);
-
-    //! Destructor
-    ~Translational() override = default;
-
-    //! Compute the translational order parameter
-    void compute(const freud::locality::NeighborList* nlist, const freud::locality::NeighborQuery* points,
-                 freud::locality::QueryArgs qargs);
-};
-
 }; }; // end namespace freud::order
 
 #endif // HEXATIC_TRANSLATIONAL_H

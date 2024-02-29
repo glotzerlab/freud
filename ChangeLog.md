@@ -4,6 +4,11 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v3.0.1 -- YYYY-MM-DD
+
+### Removed
+* `freud.order.Translational`, should have been removed with v3.0.0.
+
 ## v3.0.0 -- 2024-02-22
 
 ### Added
