@@ -213,8 +213,8 @@ void loopOverNeighbors(const NeighborQuery* neighbor_query, const vec3<float>* q
 }
 
 //! Wrapper iterating looping over NeighborList.
-/*! This function is designed for computations that must performs some sort of
- *  pre- or post-processing on a per-point basis. The provide compute function
+/*! This function is designed for computations that must perform some sort of
+ *  pre- or post-processing on a per-point basis. The provided compute function
  *  is called in a loop, once for each query_point, allowing the user to e.g.
  *  normalize some computed quantity based on the number of neighbor points
  *  found for a given query_point. As a result, the compute function must accept

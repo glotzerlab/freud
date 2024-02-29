@@ -1080,27 +1080,27 @@ cdef class ContinuousCoordination(_PairCompute):
     discrete coordination number to the real numbers. The formulas for the
     various implementations are:
 
-    Power
+    Power:
 
     .. math::
 
         CN_p = N^{2.0 - m} \sum_{i=1}^{k}
         {\left[\left(\frac{V_i}{V}\right)^{m}\right]}^{-1}
 
-    Log
+    Log:
 
     .. math::
 
         CN_{log} = \frac{-1}{\log{N}} \sum_{i=1}^{k}\log{\left(\frac{V_i}{V}\right)}
 
-    Exp
+    Exponential:
 
     .. math::
 
         CN_{exp} = \sum_{i=1}^{k}\exp{\left(\frac{V_i}{V} - \frac{1}{N} \right)}
 
     where :math:`k` is the number of neighbors a particle has, :math:`V_i` is
-    the volume of the pyramid (or area of the triangle) whose base is the
+    the volume of the pyramid (or area of the triangle in 2D) whose base is the
     Voronoi polytope facet between the central particle and neighobor :math:`i`
     and whose height is half the distance vector, and :math:`V` is the
     volume/area of the Voronoi polytope.
@@ -1117,10 +1117,10 @@ cdef class ContinuousCoordination(_PairCompute):
             (Default value: None)
         compute_log (`bool`, optional): Whether to compute the log continuous
             coordination number.
-            (Default value: True)
+            (Default value: :code:`True`)
         compute_exp (`bool`, optional): Whether to compute the exp continuous
             coordination number.
-            (Default value: True)
+            (Default value: :code:`True`)
     """
     cdef freud._order.ContinuousCoordination* thisptr
 
@@ -1148,7 +1148,7 @@ cdef class ContinuousCoordination(_PairCompute):
         Args:
             system (optional):
                 Any object that is a valid argument to
-                :class:`freud.locality.NeighborQuery.from_system`.
+                :class:`freud.locality.NeighborQuery.from_system`. (Default value: None).
             voronoi (:class:`freud.locality.Voronoi`, optional):
                 A precomputed Voronoi compute object. If provided, the object is
                 assumed to have been computed already, and system is ignored.
@@ -1166,7 +1166,7 @@ cdef class ContinuousCoordination(_PairCompute):
 
     @_Compute._computed_property
     def coordination(self):
-        """(:math:`(N_{points}, N_{coord}`) :class:`numpy.ndarray`: \
+        """(:math:`(N_{points}, N_{coord}`) :class:`numpy.ndarray`): \
                 coordination of points per query point.
 
         Coordination numbers are in order of selected powers, log, and exp.
