@@ -1,5 +1,7 @@
 add_library(
   _order OBJECT
+  ContinuousCoordination.h
+  ContinuousCoordination.cc
   Cubatic.cc
   Cubatic.h
   HexaticTranslational.cc

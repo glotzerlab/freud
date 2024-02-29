@@ -115,3 +115,14 @@ cdef extern from "RotationalAutocorrelation.h" namespace "freud::order":
         const freud.util.ManagedArray[fcomplex] &getRAArray() const
         float getRotationalAutocorrelation() const
         void compute(quat[float]*, quat[float]*, unsigned int) except +
+
+
+cdef extern from "ContinuousCoordination.h" namespace "freud::order":
+    cdef cppclass ContinuousCoordination:
+        ContinuousCoordination(const vector[float], bool, bool) except +
+        void compute(const freud._locality.Voronoi*) except +
+        const freud.util.ManagedArray[float] &getCoordination() const
+        const vector[float] &getPowers() const
+        bool &getComputeLog() const
+        bool &getComputeExp() const
+        unsigned int &getNumberOfCoordinations() const

@@ -6,15 +6,13 @@
 #include <vector>
 
 #include "ManagedArray.h"
-#include "NeighborList.h"
-#include "VectorMath.h"
 #include "Voronoi.h"
 
 /*! \file ContinuousCoordination.h
     \brief Routines for computing local continuous coordination numbers based on Voronoi tesselation.
 */
 
-namespace freud { namespace density {
+namespace freud { namespace order {
 
 //! Compute the continuous coordination number(s) at each point.
 class ContinuousCoordination
@@ -61,4 +59,4 @@ private:
     util::ManagedArray<float> m_coordination; //!< number of neighbors array computed
 };
 
-}; }; // end namespace freud::density
+}; }; // namespace freud::order
