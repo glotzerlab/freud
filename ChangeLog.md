@@ -7,7 +7,7 @@ and this project adheres to
 ## v3.0.1 -- YYYY-MM-DD
 
 ### Removed
-* `freud.order.Translational`, should have been removed with v3.0.0.
+* `freud.order.Translational`
 
 ## v3.0.0 -- 2024-02-22
 
