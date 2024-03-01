@@ -19,7 +19,7 @@
 
 namespace freud { namespace order {
 
-//! Parent class for Hexatic and Translational
+//! Parent class for Hexatic
 /*!
  */
 template<typename T> class HexaticTranslational
