@@ -4,10 +4,13 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## v3.0.1 -- YYYY-MM-DD
+## v.3.1.0 -- 20xx-xx-xx
+
+### Added
+* New continuous coordination number compute `freud.order.ContinuousCoordination`.
 
 ### Removed
-* `freud.order.Translational`
+* `freud.order.Translational`.
 
 ## v3.0.0 -- 2024-02-22
 
