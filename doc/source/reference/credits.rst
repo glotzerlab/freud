@@ -296,6 +296,7 @@ Yezhi Jin
 
 Brandon Butler
 
+* Added the ``freud.order.ContinuousCoordination`` compute.
 * Added support for multiple ``l`` in ``Steinhardt`` along with performance improvements.
 * Rewrote Steinhardt order parameter.
 

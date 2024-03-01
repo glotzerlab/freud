@@ -19,15 +19,15 @@ namespace freud { namespace locality {
 // Voronoi calculations should be kept in double precision.
 void Voronoi::compute(const freud::locality::NeighborQuery* nq)
 {
-    const auto box = nq->getBox();
+    m_box = nq->getBox();
     const auto n_points = nq->getNPoints();
 
     m_polytopes.resize(n_points);
     m_volumes.prepare(n_points);
 
-    const vec3<float> v1 = box.getLatticeVector(0);
-    const vec3<float> v2 = box.getLatticeVector(1);
-    const vec3<float> v3 = (box.is2D() ? vec3<float>(0, 0, 1) : box.getLatticeVector(2));
+    const vec3<float> v1 = m_box.getLatticeVector(0);
+    const vec3<float> v2 = m_box.getLatticeVector(1);
+    const vec3<float> v3 = (m_box.is2D() ? vec3<float>(0, 0, 1) : m_box.getLatticeVector(2));
 
     // This heuristic for choosing blocks is based on the voro::pre_container
     // guess_optimal method. By computing the heuristic directly, we avoid
@@ -35,10 +35,10 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
     // pre_container cannot be used to set up container_periodic (only
     // non-periodic containers are compatible).
     const float block_scale
-        = std::pow(n_points / (voro::optimal_particles * box.getVolume()), float(1.0 / 3.0));
-    const int voro_blocks_x = int(box.getLx() * block_scale + 1);
-    const int voro_blocks_y = int(box.getLy() * block_scale + 1);
-    const int voro_blocks_z = int(box.getLz() * block_scale + 1);
+        = std::pow(n_points / (voro::optimal_particles * m_box.getVolume()), float(1.0 / 3.0));
+    const int voro_blocks_x = int(m_box.getLx() * block_scale + 1);
+    const int voro_blocks_y = int(m_box.getLy() * block_scale + 1);
+    const int voro_blocks_z = int(m_box.getLz() * block_scale + 1);
 
     voro::container_periodic container(v1.x, v2.x, v2.y, v3.x, v3.y, v3.z, voro_blocks_x, voro_blocks_y,
                                        voro_blocks_z, 3);
@@ -89,7 +89,7 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
 
                 // In 2D systems, only use vertices from the upper plane
                 // to prevent double-counting, and set z=0 manually
-                if (box.is2D())
+                if (m_box.is2D())
                 {
                     if (vert_z < 0)
                     {
@@ -102,7 +102,7 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
             }
 
             // Sort relative vertices by their angle in 2D systems
-            if (box.is2D())
+            if (m_box.is2D())
             {
                 std::sort(relative_vertices.begin(), relative_vertices.end(),
                           [](const vec3<double>& a, const vec3<double>& b) {
@@ -142,7 +142,7 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
                 // particles in 2D systems where the neighbors are very close.
                 // It seems like an issue of numerical imprecision but could be
                 // some other pathological case.
-                if (box.is2D() && std::abs(normal.z) > 0.5
+                if (m_box.is2D() && std::abs(normal.z) > 0.5
                     || (normal.x == 0 && normal.y == 0 && normal.z == 0))
                 {
                     continue;
