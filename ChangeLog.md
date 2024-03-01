@@ -7,7 +7,7 @@ and this project adheres to
 ## v.3.1.0 -- 20xx-xx-xx
 
 ### Added
-* New continuous coordination number compute `freud.density.ContinuousCoordination`.
+* New continuous coordination number compute `freud.order.ContinuousCoordination`.
 
 ## v3.0.0 -- 2024-02-22
 
