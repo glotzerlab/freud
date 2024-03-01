@@ -9,6 +9,9 @@ and this project adheres to
 ### Added
 * New continuous coordination number compute `freud.order.ContinuousCoordination`.
 
+### Removed
+* `freud.order.Translational`.
+
 ## v3.0.0 -- 2024-02-22
 
 ### Added

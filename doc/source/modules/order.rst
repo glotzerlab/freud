@@ -11,7 +11,6 @@ Order Module
     freud.order.Cubatic
     freud.order.Nematic
     freud.order.Hexatic
-    freud.order.Translational
     freud.order.Steinhardt
     freud.order.SolidLiquid
     freud.order.RotationalAutocorrelation
