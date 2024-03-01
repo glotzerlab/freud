@@ -1101,7 +1101,7 @@ cdef class ContinuousCoordination(_PairCompute):
 
     where :math:`k` is the number of neighbors a particle has, :math:`V_i` is
     the volume of the pyramid (or area of the triangle in 2D) whose base is the
-    Voronoi polytope facet between the central particle and neighobor :math:`i`
+    Voronoi polytope facet between the central particle and neighbor :math:`i`
     and whose height is half the distance vector, and :math:`V` is the
     volume/area of the Voronoi polytope.
 
