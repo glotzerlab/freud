@@ -1,5 +1,47 @@
 [build-system]
-requires = ["setuptools", "wheel", "oldest-supported-numpy", "cython>=3.0.2", "scikit-build>=0.17.3", "cmake"]
+requires = ["scikit-build>=0.17.3", "oldest-supported-numpy", "cython>=3.0.2", "cmake", "setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "freud"  # freud-analysis??
+version = "3.0.0"
+requires-python = ">=3.8"
+description = "Powerful, efficient trajectory analysis in scientific Python."
+readme = "README.rst"
+license = { file = "LICENSE" }
+maintainers = [
+    { name = "freud Developers", email = "freud-developers@umich.edu" }
+]
+authors = [
+    { name = "Vyas Ramasubramani et. al", email = "vramasub@umich.edu" }
+]
+classifiers=[
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: BSD License",
+    "Topic :: Scientific/Engineering :: Chemistry",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Programming Language :: C++",
+    "Programming Language :: Cython",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = ["numpy>=1.14", "rowan>=1.2.1", "scipy>=1.1"]
+keywords = ["simulation", "analysis", "molecular dynamics", "soft matter",
+            "particle", "system", "computational", "physics"]
+dynamic = ["optional-dependencies"]
+
+[project.urls]
+Documentation = "https://freud.readthedocs.io"
+Download = "https://pypi.org/project/freud-analysis/"
+Source = "https://github.com/glotzerlab/freud"
+Issues = "https://github.com/glotzerlab/freud/issues"
+
+[tool.setuptools.dynamic]
+#optional-dependencies = {tests = {file = ["requirements/requirements-test.txt"] }, doc = {file = ["doc/readthedocs-env.yml"] }}
 
 [tool.black]
 target-version = ['py36']
