@@ -1,6 +1,6 @@
 ase==3.22.1
 cmake==3.28.3
-coverage==7.4.2
+coverage==7.4.3
 cython==3.0.8
 dynasor==1.1.1; platform_system != "Windows"
 GitPython==3.1.42
