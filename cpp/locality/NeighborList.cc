@@ -420,4 +420,13 @@ bool compareFirstNeighborPairs(const std::vector<NeighborBond>& left, const std:
     return compareNeighborBond(left[0], right[0]);
 }
 
+namespace detail
+{
+void export_NeighborList(pybind11::module& m, std::string name)
+{
+    pybind11::class_<NeighborList>(m, name)
+        .def(pybind11::init<>())
+}
+};
+
 }; }; // end namespace freud::locality
