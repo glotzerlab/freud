@@ -59,13 +59,4 @@ void Hexatic::compute(const freud::locality::NeighborList* nlist,
         nlist, points, qargs, false);
 }
 
-Translational::Translational(float k, bool weighted) : HexaticTranslational<float>(k, weighted) {}
-
-void Translational::compute(const freud::locality::NeighborList* nlist,
-                            const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs)
-{
-    computeGeneral([](const vec3<float>& delta) { return std::complex<float>(delta.x, delta.y); }, nlist,
-                   points, qargs, true);
-}
-
 }; }; // namespace freud::order
