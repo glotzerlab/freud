@@ -246,7 +246,9 @@ class UnitCell:
         Returns:
             :class:`~.UnitCell`: A unit cell with the given lattice vectors.
         """
-        return cls(freud.box.Box.from_lattice_vectors(lattice_vectors), unique_positions)
+        return cls(
+            freud.box.Box.from_lattice_vectors(lattice_vectors), unique_positions
+        )
 
 
 def make_random_system(box_size, num_points, is2D=False, seed=None):
