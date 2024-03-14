@@ -26,17 +26,6 @@ namespace freud { namespace util {
  *  of freud. The array shape is stored and used to support multidimensional
  *  indexing.
  *
- *  To support resizing, a ManagedArray instances stores its data as a pointer
- *  to a pointer, and its shape as a pointer. As a result, copy-assignment or
- *  initialization will result in a new ManagedArray pointing to the same data,
- *  and any such array can resize or reallocate this data. The pointer to
- *  pointer infrastructure ensures that such changes properly propagate to all
- *  ManagedArrays referencing a given memory space. In addition, this
- *  infrastructure allows the creation of a completely new ManagedArray with a
- *  new set of pointers that also manages the same data, allowing it to keep
- *  the original array alive if the original ManagedArray instances become
- *  decoupled from it.
- *
  *  Performance notes:
  *      1. The variadic indexers may be a bottleneck if used in
  *         performance-critical code paths. In such cases, directly calling the
@@ -79,26 +68,22 @@ public:
     }
 
     //! Prepare for writing new data.
-    /*! This function always resets the array to contain zeros, but it will
-     * also reallocate if there are other ManagedArrays pointing to the data in
-     * order to ensure that those array references are not invalidated when
-     * this function clears the data.
+    /*! This function always resets the array to contain zeros.
      *
      *  \param new_shape Shape of the array to allocate.
      *  \param force Reallocate regardless of whether anything changed or needs to be persisted.
      */
     void prepare(const std::vector<size_t>& new_shape, bool force = false)
     {
-        // If we resized, or if there are outstanding references, we create a new array. No matter what,
-        // reset.
-        if (force || (m_data.use_count() > 1) || (new_shape != shape()))
+        // If we resized, we create a new array. No matter what, reset.
+        if (force || (new_shape != shape()))
         {
-            m_shape = std::make_shared<std::vector<size_t>>(new_shape);
+            m_shape = std::vector<size_t>(new_shape);
 
-            m_size = std::make_shared<size_t>(1);
-            for (unsigned int i = m_shape->size() - 1; i != static_cast<unsigned int>(-1); --i)
+            m_size = 1;
+            for (unsigned int i = m_shape.size() - 1; i != static_cast<unsigned int>(-1); --i)
             {
-                (*m_size) *= (*m_shape)[i];
+                m_size *= m_shape[i];
             }
 
             // We make use of C-style arrays here rather than any alternative
@@ -107,8 +92,7 @@ public:
             // with a different data structure like std::vector, but it would
             // require writing additional gymnastics to ensure proper reference
             // management and should be carefully considered before any rewrite.
-            m_data = std::shared_ptr<std::shared_ptr<T>>(new std::shared_ptr<T>(
-                new T[size()], std::default_delete<T[]>())); // NOLINT(modernize-avoid-c-arrays)
+            m_data = std::shared_ptr<T>(new T[size()], std::default_delete<T[]>()); // NOLINT(modernize-avoid-c-arrays)
         }
         reset();
     }
@@ -122,11 +106,10 @@ public:
         }
     }
 
-    //! Return a constant pointer to the underlying data (requires two levels of indirection).
+    //! Return a constant pointer to the underlying data
     const T* get() const
     {
-        std::shared_ptr<T>* tmp = m_data.get();
-        return (*tmp).get();
+        return m_data.get();
     }
 
     //! Return the underlying pointer (requires two levels of indirection).
@@ -141,8 +124,7 @@ public:
      */
     T* get()
     {
-        std::shared_ptr<T>* tmp = m_data.get();
-        return (*tmp).get();
+        return m_data.get();
     }
 
     //! Writeable index into array.
@@ -172,13 +154,13 @@ public:
     //! Get the size of the current array.
     size_t size() const
     {
-        return *m_size;
+        return m_size;
     }
 
     //! Get the shape of the current array.
     std::vector<size_t> shape() const
     {
-        return *m_shape;
+        return m_shape;
     }
 
     //*************************************************************************
@@ -236,7 +218,7 @@ public:
         for (unsigned int i = indices.size() - 1; i != static_cast<unsigned int>(-1); --i)
         {
             idx += indices[i] * cur_prod;
-            cur_prod *= (*m_shape)[i];
+            cur_prod *= m_shape[i];
         }
         return (*this)[idx];
     }
@@ -252,7 +234,7 @@ public:
         for (unsigned int i = indices.size() - 1; i != static_cast<unsigned int>(-1); --i)
         {
             idx += indices[i] * cur_prod;
-            cur_prod *= (*m_shape)[i];
+            cur_prod *= m_shape[i];
         }
         return (*this)[idx];
     }
@@ -311,23 +293,23 @@ public:
      */
     inline size_t getIndex(const std::vector<size_t>& indices) const
     {
-        if (indices.size() != m_shape->size())
+        if (indices.size() != m_shape.size())
         {
             throw std::invalid_argument("Incorrect number of indices for this array.");
         }
 
         for (unsigned int i = 0; i < indices.size(); ++i)
         {
-            if (indices[i] > (*m_shape)[i])
+            if (indices[i] > m_shape[i])
             {
                 std::ostringstream msg;
                 msg << "Attempted to access index " << indices[i] << " in dimension " << i
-                    << ", which has size " << (*m_shape)[i] << std::endl;
+                    << ", which has size " << m_shape[i] << std::endl;
                 throw std::invalid_argument(msg.str());
             }
         }
 
-        return getIndex(*m_shape, indices);
+        return getIndex(m_shape, indices);
     }
 
     //! Return a copy of this array.
@@ -369,9 +351,9 @@ private:
         return tmp;
     }
 
-    std::shared_ptr<std::shared_ptr<T>> m_data;   //!< Pointer to array.
-    std::shared_ptr<std::vector<size_t>> m_shape; //!< Shape of array.
-    std::shared_ptr<size_t> m_size;               //!< Size of array.
+    std::shared_ptr<T> m_data;   //!< Pointer to array.
+    std::vector<size_t> m_shape; //!< Shape of array.
+    size_t m_size;               //!< Size of array.
 };
 
 }; }; // end namespace freud::util
