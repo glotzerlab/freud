@@ -374,7 +374,7 @@ Domagoj Fijan
   ``freud.data.UnitCell.from_lattice_vectors``) and cell lengths and angles
   (``freud.box.Box.from_box_lengths_and_angles`` and
   ``freud.data.UnitCell.from_box_lengths_and_angles``), as well as a method for
-  returning cell vector lengths and angles 
+  returning cell vector lengths and angles
   (``freud.box.Box.to_box_lengths_and_angles``).
 
 Andrew Kerr

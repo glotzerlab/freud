@@ -11,7 +11,7 @@ and this project adheres to
 * New class methods for construction of `freud.box.Box` and `freud.data.UnitCell` from
   lattice vectors and box lengths and angles.
 * New `freud.box.Box.to_box_lengths_and_angles` method for computing box vector lengths
-  and angles 
+  and angles
 
 ### Removed
 * `freud.order.Translational`.
