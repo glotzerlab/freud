@@ -947,7 +947,7 @@ cdef class Box:
         Args:
             lattice_vectors (array-like):
                 The lattice vectors. The dimensions of the object should be 3x3. Lattice
-                vector a1 is lattice_vectors[0], etc. 
+                vector a1 is lattice_vectors[0], etc.
             dimensions (int): The number of dimensions (Default value = :code:`None`)
 
         Returns:
