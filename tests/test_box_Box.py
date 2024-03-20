@@ -485,6 +485,63 @@ class TestBox:
         box7 = freud.box.Box.from_matrix(box.to_matrix())
         assert np.isclose(box.to_matrix(), box7.to_matrix()).all()
 
+    def test_standard_orthogonal_box(self):
+        box = freud.box.Box.from_box((1, 2, 3, 0, 0, 0))
+        Lx, Ly, Lz, alpha, beta, gamma = box.to_box_lengths_and_angles()
+        npt.assert_allclose(
+            (Lx, Ly, Lz, alpha, beta, gamma), (1, 2, 3, np.pi / 2, np.pi / 2, np.pi / 2)
+        )
+
+    def test_to_and_from_box_lengths_and_angles(self):
+        original_box_lengths_and_angles = (
+            1,
+            2,
+            3,
+            np.pi / 3,
+            np.pi / 2.25,
+            np.pi / 2.35,
+        )
+        box = freud.box.Box.from_box_lengths_and_angles(
+            *original_box_lengths_and_angles
+        )
+        lengths_and_angles_computed = box.to_box_lengths_and_angles()
+        assert np.allclose(lengths_and_angles_computed, original_box_lengths_and_angles)
+
+    def test_from_lattice_vectors_cubic_lattice(self):
+        lattice_vectors = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+        unit_cell = freud.box.Box.from_lattice_vectors(lattice_vectors)
+        assert unit_cell.Lx == 1
+        assert unit_cell.Ly == 1
+        assert unit_cell.Lz == 1
+        assert unit_cell.xy == 0
+        assert unit_cell.xz == 0
+        assert unit_cell.yz == 0
+
+    def test_from_lattice_vectors_non_cubic_lattice(self):
+        box = freud.box.Box.from_lattice_vectors([[1, 0, 0], [0, 2, 0], [0, 0, 3]])
+        assert box.Lx == 1
+        assert box.Ly == 2
+        assert box.Lz == 3
+        assert box.xy == 0
+        assert box.xz == 0
+        assert box.yz == 0
+
+    def test_tilted_lattice(self):
+        lattice_vectors = np.array([[1, 0, 0], [0.5, np.sqrt(3) / 2, 0], [0, 0, 1]])
+        unit_cell = freud.box.Box.from_lattice_vectors(lattice_vectors)
+        assert np.isclose(unit_cell.Lx, 1.0)
+        assert np.isclose(unit_cell.Ly, np.sqrt(3) / 2)
+        assert np.isclose(unit_cell.Lz, 1.0)
+        assert np.isclose(unit_cell.xy, np.sqrt(3) / 3)
+        assert np.isclose(unit_cell.xz, 0.0)
+        assert np.isclose(unit_cell.yz, 0.0)
+
+    def test_dimensions(self):
+        lattice_vectors = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 0]])
+        unit_cell = freud.box.Box.from_lattice_vectors(lattice_vectors, dimensions=2)
+        assert unit_cell.dimensions == 2
+        assert np.isclose(unit_cell.Lz, 0)
+
     def test_matrix(self):
         box = freud.box.Box(2, 2, 2, 1, 0.5, 0.1)
         box2 = freud.box.Box.from_matrix(box.to_matrix())
