@@ -702,7 +702,7 @@ cdef class Box:
         beta = np.arccos(self.xz/np.sqrt(1+self.xz**2+self.yz**2))
         gamma = np.arccos(self.xy/np.sqrt(1+self.xy**2))
         L1 = self.Lx
-        a2 = [self.Ly*self.xy, self.Ly,0] 
+        a2 = [self.Ly*self.xy, self.Ly,0]
         a3 = [self.Lz*self.xz, self.Lz*self.yz, self.Lz]
         L2 = np.linalg.norm(a2)
         L3 = np.linalg.norm(a3)
@@ -947,7 +947,7 @@ cdef class Box:
         Args:
             lattice_vectors (array-like):
                 The lattice vectors. The dimensions of the object should be 3x3. Lattice
-                vector a1 is lattice_vectors[:, 0], etc. 
+                vector a1 is lattice_vectors[:, 0], etc.
             dimensions (int): The number of dimensions (Default value = :code:`None`)
 
         Returns:
