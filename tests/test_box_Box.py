@@ -536,9 +536,10 @@ class TestBox:
         assert np.isclose(unit_cell.xz, 0.0)
         assert np.isclose(unit_cell.yz, 0.0)
 
-    def test_dimensions(self):
+    @pytest.mark.parametrize("dim", [2, None])
+    def test_dimensions(self, dim):
         lattice_vectors = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 0]])
-        unit_cell = freud.box.Box.from_lattice_vectors(lattice_vectors, dimensions=2)
+        unit_cell = freud.box.Box.from_lattice_vectors(lattice_vectors, dimensions=dim)
         assert unit_cell.dimensions == 2
         assert np.isclose(unit_cell.Lz, 0)
 
