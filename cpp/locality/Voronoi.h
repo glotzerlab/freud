@@ -36,6 +36,11 @@ public:
         return m_volumes;
     }
 
+    box::Box getBox() const
+    {
+        return m_box;
+    }
+
 private:
     box::Box m_box;
     std::shared_ptr<NeighborList> m_neighbor_list;      //!< Stored neighbor list

@@ -249,7 +249,9 @@ class UnitCell:
             :class:`~.UnitCell`: A unit cell with the given lattice vectors.
         """
         return cls(
+            
             freud.box.Box.from_lattice_vectors(lattice_vectors), unique_positions
+        
         )
 
     @classmethod
