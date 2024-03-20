@@ -234,7 +234,9 @@ class UnitCell:
         return cls([1, np.sqrt(3)], fractions)
 
     @classmethod
-    def from_lattice_vectors(cls, lattice_vectors, unique_positions):
+    def from_lattice_vectors(
+        cls, lattice_vectors: np.ndarray, unique_positions: np.ndarray
+    ):
         """Create a unit cell from lattice vectors.
 
         Args:
@@ -246,7 +248,40 @@ class UnitCell:
         Returns:
             :class:`~.UnitCell`: A unit cell with the given lattice vectors.
         """
-        return cls(freud.box.Box.from_lattice_vectors(lattice_vectors), unique_positions)
+        return cls(
+            freud.box.Box.from_lattice_vectors(lattice_vectors), unique_positions
+        )
+
+    @classmethod
+    def from_box_lengths_and_angles(
+        cls,
+        Lx: float,
+        Ly: float,
+        Lz: float,
+        alpha: float,
+        beta: float,
+        gamma: float,
+        unique_positions: np.ndarray,
+    ):
+        """Create a unit cell from box lengths and angles.
+
+        Args:
+            Lx (float): The length of the box in the x direction.
+            Ly (float): The length of the box in the y direction.
+            Lz (float): The length of the box in the z direction.
+            alpha (float): The angle between the x and y lattice vectors.
+            beta (float): The angle between the x and z lattice vectors.
+            gamma (float): The angle between the y and z lattice vectors.
+            unique_positions (:math:`(N_{points}, 3)` :class:`np.ndarray
+                The basis positions.
+
+        Returns:
+            :class:`~.UnitCell`: A unit cell with the given box lengths and angles.
+        """
+        return cls(
+            freud.box.Box.from_box_lengths_and_angles(Lx, Ly, Lz, alpha, beta, gamma),
+            unique_positions,
+        )
 
 
 def make_random_system(box_size, num_points, is2D=False, seed=None):
