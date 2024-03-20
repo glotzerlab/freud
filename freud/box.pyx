@@ -695,7 +695,10 @@ cdef class Box:
         Returns:
             tuple: The box lengths and angles in radians
         """
-        alpha = np.arccos((self.xy*self.xz+self.yz)/(np.sqrt(1+self.xy**2)*np.sqrt(1+self.xz**2+self.yz**2)))
+        alpha = np.arccos(
+            (self.xy * self.xz + self.yz)
+            / (np.sqrt(1 + self.xy**2) * np.sqrt(1 + self.xz**2 + self.yz**2))
+        )
         beta = np.arccos(self.xz/np.sqrt(1+self.xz**2+self.yz**2))
         gamma = np.arccos(self.xy/np.sqrt(1+self.xy**2))
         return (self.Lx, self.Ly, self.Lz, alpha, beta, gamma)
@@ -966,8 +969,16 @@ cdef class Box:
         return cls.from_box([Lx, Ly, Lz, xy, xz, yz], dimensions=dimensions)
 
     @classmethod
-    def from_box_lengths_and_angles(cls, Lx: float, Ly: float, Lz: float, alpha: float,
-    beta: float, gamma: float, dimensions: int = None):
+    def from_box_lengths_and_angles(
+        cls,
+        Lx: float,
+        Ly: float,
+        Lz: float,
+        alpha: float,
+        beta: float,
+        gamma: float,
+        dimensions: int = None,
+    ):
         r"""Construct a box from lengths and angles.
 
         Args:
