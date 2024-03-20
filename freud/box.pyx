@@ -933,7 +933,7 @@ cdef class Box:
         return cls(Lx=L, Ly=L, Lz=0, xy=0, xz=0, yz=0, is2D=True)
 
     @classmethod
-    def from_lattice_vectors(cls, lattice_vectors:np.ndarray, dimensions:int=None):
+    def from_lattice_vectors(cls, lattice_vectors: np.ndarray, dimensions: int = None):
         """Create a unit cell from lattice vectors.
 
         Args:
@@ -966,7 +966,8 @@ cdef class Box:
         return cls.from_box([Lx, Ly, Lz, xy, xz, yz], dimensions=dimensions)
 
     @classmethod
-    def from_box_lengths_and_angles(cls, Lx:float, Ly:float, Lz:float, alpha:float, beta:float, gamma:float, dimensions:int=None):
+    def from_box_lengths_and_angles(cls, Lx: float, Ly: float, Lz: float, alpha: float,
+    beta: float, gamma: float, dimensions: int = None):
         r"""Construct a box from lengths and angles.
 
         Args:
