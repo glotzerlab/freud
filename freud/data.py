@@ -241,7 +241,7 @@ class UnitCell:
 
         Args:
             lattice_vectors (:math:`(3, 3)` :class:`np.ndarray
-                The lattice vectors. Lattice vector a1 is lattice_vectors[:, 0], etc.
+                The lattice vectors. Lattice vector a1 is lattice_vectors[0], etc.
             unique_positions (:math:`(N_{points}, 3)` :class:`np.ndarray`):
                 The basis positions.
 
@@ -255,9 +255,9 @@ class UnitCell:
     @classmethod
     def from_box_lengths_and_angles(
         cls,
-        Lx: float,
-        Ly: float,
-        Lz: float,
+        L1: float,
+        L2: float,
+        L3: float,
         alpha: float,
         beta: float,
         gamma: float,
@@ -266,9 +266,9 @@ class UnitCell:
         """Create a unit cell from box lengths and angles.
 
         Args:
-            Lx (float): The length of the box in the x direction.
-            Ly (float): The length of the box in the y direction.
-            Lz (float): The length of the box in the z direction.
+            L1 (float): The length of the first box vector.
+            L2 (float): The length of the second box vector.
+            L3 (float): The length of the third box vector.
             alpha (float): The angle between the x and y lattice vectors.
             beta (float): The angle between the x and z lattice vectors.
             gamma (float): The angle between the y and z lattice vectors.
@@ -279,7 +279,7 @@ class UnitCell:
             :class:`~.UnitCell`: A unit cell with the given box lengths and angles.
         """
         return cls(
-            freud.box.Box.from_box_lengths_and_angles(Lx, Ly, Lz, alpha, beta, gamma),
+            freud.box.Box.from_box_lengths_and_angles(L1, L2, L3, alpha, beta, gamma),
             unique_positions,
         )
 
