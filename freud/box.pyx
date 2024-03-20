@@ -693,7 +693,7 @@ cdef class Box:
         r"""Return the box lengths and angles.
 
         Returns:
-            tuple: The box lengths and angles in radians
+            tuple: The box vector lengths and angles in radians
         """
         alpha = np.arccos(
             (self.xy * self.xz + self.yz)
@@ -701,7 +701,12 @@ cdef class Box:
         )
         beta = np.arccos(self.xz/np.sqrt(1+self.xz**2+self.yz**2))
         gamma = np.arccos(self.xy/np.sqrt(1+self.xy**2))
-        return (self.Lx, self.Ly, self.Lz, alpha, beta, gamma)
+        L1 = self.Lx
+        a2 = [self.Ly*self.xy, self.Ly,0] 
+        a3 = [self.Lz*self.xz, self.Lz*self.yz, self.Lz]
+        L2 = np.linalg.norm(a2)
+        L3 = np.linalg.norm(a3)
+        return (L1, L2, L3, alpha, beta, gamma)
 
     def __repr__(self):
         return ("freud.box.{cls}(Lx={Lx}, Ly={Ly}, Lz={Lz}, "
@@ -936,21 +941,22 @@ cdef class Box:
         return cls(Lx=L, Ly=L, Lz=0, xy=0, xz=0, yz=0, is2D=True)
 
     @classmethod
-    def from_lattice_vectors(cls, lattice_vectors: np.ndarray, dimensions: int = None):
+    def from_lattice_vectors(cls, lattice_vectors, dimensions: int = None):
         """Create a unit cell from lattice vectors.
 
         Args:
-            lattice_vectors (:math:`(3, 3)` :class:`np.ndarray
-                The lattice vectors. Lattice vector a1 is lattice_vectors[:, 0], etc.
+            lattice_vectors (array-like):
+                The lattice vectors. The dimensions of the object should be 3x3. Lattice
+                vector a1 is lattice_vectors[:, 0], etc. 
             dimensions (int): The number of dimensions (Default value = :code:`None`)
 
         Returns:
             :class:`~.UnitCell`: A unit cell with the given lattice vectors.
         """
         lattice_matrix = np.asarray(lattice_vectors, dtype=np.float32)
-        v0 = lattice_matrix[:, 0]
-        v1 = lattice_matrix[:, 1]
-        v2 = lattice_matrix[:, 2]
+        v0 = lattice_matrix[0]
+        v1 = lattice_matrix[1]
+        v2 = lattice_matrix[2]
         Lx = np.sqrt(np.dot(v0, v0))
         a2x = np.dot(v0, v1) / Lx
         Ly = np.sqrt(np.dot(v1, v1) - a2x * a2x)
@@ -971,9 +977,9 @@ cdef class Box:
     @classmethod
     def from_box_lengths_and_angles(
         cls,
-        Lx: float,
-        Ly: float,
-        Lz: float,
+        L1: float,
+        L2: float,
+        L3: float,
         alpha: float,
         beta: float,
         gamma: float,
@@ -982,9 +988,9 @@ cdef class Box:
         r"""Construct a box from lengths and angles.
 
         Args:
-            Lx (float): The length in the x direction
-            Ly (float): The length in the y direction
-            Lz (float): The length in the z direction
+            L1 (float): The length of the first lattice vector
+            L2 (float): The length of the second lattice vector
+            L3 (float): The length of the third lattice vector
             alpha (float): The angle between the y and z axes in radians
             beta (float): The angle between the x and z axes in radians
             gamma (float): The angle between the x and y axes in radians
@@ -993,15 +999,15 @@ cdef class Box:
         Returns:
             :class:`freud.box.Box`: The resulting box object.
         """
-        a1 = np.array([Lx, 0, 0])
-        a2 = np.array([Ly * np.cos(gamma), Ly * np.sin(gamma), 0])
+        a1 = np.array([L1, 0, 0])
+        a2 = np.array([L2 * np.cos(gamma), L2 * np.sin(gamma), 0])
         a3x = np.cos(beta)
         a3y = (np.cos(alpha) - np.cos(beta) * np.cos(gamma)) / np.sin(gamma)
         a3z = np.sqrt(1 - a3x**2 - a3y**2)
-        a3 = np.array([Lz * a3x, Lz * a3y, Lz * a3z])
+        a3 = np.array([L3 * a3x, L3 * a3y, L3 * a3z])
         if dimensions is None:
-            dimensions = 2 if Lz == 0 else 3
-        return cls.from_lattice_vectors(np.array([a1, a2, a3]).T, dimensions=dimensions)
+            dimensions = 2 if L3 == 0 else 3
+        return cls.from_lattice_vectors(np.array([a1, a2, a3]), dimensions=dimensions)
 
 
 cdef BoxFromCPP(const freud._box.Box & cppbox):
