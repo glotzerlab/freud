@@ -977,13 +977,13 @@ cdef class Box:
     @classmethod
     def from_box_lengths_and_angles(
         cls,
-        L1: float,
-        L2: float,
-        L3: float,
-        alpha: float,
-        beta: float,
-        gamma: float,
-        dimensions: int = None,
+        L1,
+        L2,
+        L3,
+        alpha,
+        beta,
+        gamma,
+        dimensions = None,
     ):
         r"""Construct a box from lengths and angles.
 
@@ -991,9 +991,9 @@ cdef class Box:
             L1 (float): The length of the first lattice vector
             L2 (float): The length of the second lattice vector
             L3 (float): The length of the third lattice vector
-            alpha (float): The angle between the y and z axes in radians
-            beta (float): The angle between the x and z axes in radians
-            gamma (float): The angle between the x and y axes in radians
+            alpha (float): The angle between second and third lattice vector in radians
+            beta (float): The angle between first and third lattice vector in radians
+            gamma (float): The angle between the first and second lattice vector in radians
             dimensions (int): The number of dimensions (Default value = :code:`None`)
 
         Returns:
