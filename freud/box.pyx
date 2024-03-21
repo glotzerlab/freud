@@ -950,17 +950,17 @@ cdef class Box:
 
         Args:
             L1 (float):
-                The length of the first lattice vector
+                The length of the first lattice vector.
             L2 (float):
-                The length of the second lattice vector
+                The length of the second lattice vector.
             L3 (float):
-                The length of the third lattice vector
+                The length of the third lattice vector.
             alpha (float):
-                The angle between second and third lattice vector in radians
+                The angle between second and third lattice vector in radians.
             beta (float):
-                The angle between first and third lattice vector in radians
+                The angle between first and third lattice vector in radians.
             gamma (float):
-                The angle between the first and second lattice vector in radians
+                The angle between the first and second lattice vector in radians.
             dimensions (int):
                 The number of dimensions (Default value = :code:`None`).
 
