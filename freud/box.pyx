@@ -693,7 +693,7 @@ cdef class Box:
         r"""Return the box lengths and angles.
 
         Returns:
-            tuple: The box vector lengths and angles in radians
+            tuple: The box vector lengths and angles in radians :math:`(L_1, L_2, L_3, \alpha, \beta, \gamma)`.
         """
         alpha = np.arccos(
             (self.xy * self.xz + self.yz)
