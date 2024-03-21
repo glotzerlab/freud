@@ -7,8 +7,9 @@ import numpy as np
 
 import freud.box
 
+"""
 cdef class _ManagedArrayContainer:
-    """Class responsible for synchronizing ownership between two ManagedArray
+    """"""Class responsible for synchronizing ownership between two ManagedArray
     instances.
 
     The purpose of this container is to minimize memory copies while avoiding
@@ -30,7 +31,7 @@ cdef class _ManagedArrayContainer:
     :meth:`~_ManagedArrayContainer.init` method, which creates the Python copy
     of a ManagedArray provided the instance member of the underlying C++
     compute class.
-    """
+    """"""
 
     def __cinit__(self, arr_type, typenum, element_size):
         # This class should generally be initialized via the factory "init"
@@ -74,13 +75,13 @@ cdef class _ManagedArrayContainer:
             del self.thisptr.bool_ptr
 
     cdef void set_as_base(self, arr):
-        """Sets the base of arr to be this object and increases the
-        reference count."""
+        """"""Sets the base of arr to be this object and increases the
+        reference count.""""""
         PyArray_SetBaseObject(arr, self)
         Py_INCREF(self)
 
     cdef void *get(self):
-        """Return a constant raw pointer to the underlying data array."""
+        """"""Return a constant raw pointer to the underlying data array.""""""
         if self.data_type == arr_type_t.UNSIGNED_INT:
             return self.thisptr.uint_ptr.get()
         elif self.data_type == arr_type_t.FLOAT:
@@ -95,13 +96,13 @@ cdef class _ManagedArrayContainer:
             return self.thisptr.bool_ptr.get()
 
     def __array__(self):
-        """Convert the underlying data array into a read-only numpy array.
+        """"""Convert the underlying data array into a read-only numpy array.
 
         To simplify the code, we allocate a single linear array and then
         reshape it on return. The reshape is just a view on the arr array
         created below, so it creates a chain reshaped_array->arr->self that
         ensures proper garbage collection.
-        """
+        """"""
         cdef np.npy_intp size[1]
         cdef np.ndarray arr
         size[0] = np.prod(self.shape) * self.element_size
@@ -114,6 +115,7 @@ cdef class _ManagedArrayContainer:
         return np.reshape(
             arr, self.shape if self.element_size == 1
             else self.shape + (self.element_size, ))
+"""
 
 
 class _Compute(object):
@@ -141,7 +143,7 @@ class _Compute(object):
             Flag representing whether the compute method has been called.
     """
 
-    def __cinit__(self):
+    def __init__(self):
         self._called_compute = False
 
     def __getattribute__(self, attr):

@@ -31,7 +31,7 @@ class _QueryArgs:
     calls.
     """
 
-    def __cinit__(self, mode=None, r_min=None, r_max=None, r_guess=None,
+    def __init__(self, mode=None, r_min=None, r_max=None, r_guess=None,
                   num_neighbors=None, exclude_ii=None,
                   scale=None, **kwargs):
         self._cpp_obj = freud._locality.QueryArgs()
@@ -172,21 +172,21 @@ class NeighborQueryResult:
     object.
     """
 
-    def init(self, nq, points, query_args):
+    def __init__(self, nq, points, query_args):
         self._nq = nq
         self._points = np.array(points, dtype=np.float32)
         self._query_args = query_args
 
     def __iter__(self):
-        iterator = self._nq._cpp_obj.query(
+        iterator_cpp = self._nq._cpp_obj.query(
             self._points, self._query_args._cpp_obj
         )
 
-        npoint = iterator.next()
+        npoint = iterator_cpp.next()
         while npoint != ITERATOR_TERMINATOR:
             yield (npoint.getQueryPointIdx(), npoint.getPointIdx(),
                    npoint.getDistance())
-            npoint = iterator.next()
+            npoint = iterator_cpp.next()
 
     def toNeighborList(self, sort_by_distance=False):
         """Convert query result to a freud :class:`~NeighborList`.
@@ -201,9 +201,9 @@ class NeighborQueryResult:
             :class:`~NeighborList`: A :class:`~NeighborList` containing all
             neighbor pairs found by the query generating this result object.
         """
-        iterator = self._nq._cpp_obj.query(self._points, self._query_args._cpp_obj)
+        iterator_cpp = self._nq._cpp_obj.query(self._points, self._query_args._cpp_obj)
 
-        nlist_cpp = iterator.toNeighborList(sort_by_distance)
+        nlist_cpp = iterator_cpp.toNeighborList(sort_by_distance)
         nl = _nlist_from_cnlist(nlist_cpp)
         return nl
 
@@ -380,7 +380,7 @@ class NeighborQuery:
             output of this query.
         """
         args = _QueryArgs.from_dict(query_args)
-        return NeighborQueryResult.init(self, query_points, args)
+        return NeighborQueryResult(self, query_points, args)
 
     def plot(self, ax=None, title=None, *args, **kwargs):
         """Plot system box and points.
@@ -823,10 +823,6 @@ def _make_default_nlist(system, neighbors, query_points=None):
         :class:`freud.locality.NeighborList`:
             The neighbor list.
     """  # noqa: E501
-    cdef:
-        NeighborQuery nq
-        NeighborList nlist
-
     if type(neighbors) is NeighborList:
         return neighbors
     else:
