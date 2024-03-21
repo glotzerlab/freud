@@ -369,12 +369,9 @@ Domagoj Fijan
 * Contributed code, design, documentation, and testing for ``freud.locality.FilterSANN`` class.
 * Contributed code, design, documentation, and testing for ``freud.locality.FilterRAD`` class.
 * Added support for ``gsd.hoomd.Frame`` in ``NeighborQuery.from_system`` calls.
-* Added support for ``freud.box.Box`` class methods for construction of boxes and unit
-  cells from lattice vectors (``freud.box.Box.from_lattice_vectors`` and
-  ``freud.data.UnitCell.from_lattice_vectors``) and cell lengths and angles
-  (``freud.box.Box.from_box_lengths_and_angles`` and
-  ``freud.data.UnitCell.from_box_lengths_and_angles``), as well as a method for
-  returning cell vector lengths and angles
+* Added support for ``freud.box.Box`` class methods for construction of boxes from cell
+  lengths and angles (``freud.box.Box.from_box_lengths_and_angles``), as well as a
+  method for returning box vector lengths and angles
   (``freud.box.Box.to_box_lengths_and_angles``).
 
 Andrew Kerr
