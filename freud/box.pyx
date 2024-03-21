@@ -693,7 +693,8 @@ cdef class Box:
         r"""Return the box lengths and angles.
 
         Returns:
-            tuple: The box vector lengths and angles in radians :math:`(L_1, L_2, L_3, \alpha, \beta, \gamma)`.
+            tuple: The box vector lengths and angles in radians
+            :math:`(L_1, L_2, L_3, \alpha, \beta, \gamma)`.
         """
         alpha = np.arccos(
             (self.xy * self.xz + self.yz)
@@ -940,50 +941,10 @@ cdef class Box:
                             "positional argument: L")
         return cls(Lx=L, Ly=L, Lz=0, xy=0, xz=0, yz=0, is2D=True)
 
-    @classmethod
-    def from_lattice_vectors(cls, lattice_vectors, dimensions: int = None):
-        """Create a unit cell from lattice vectors.
-
-        Args:
-            lattice_vectors (array-like):
-                The lattice vectors. The dimensions of the object should be 3x3. Lattice
-                vector a1 is lattice_vectors[0], etc.
-            dimensions (int): The number of dimensions (Default value = :code:`None`)
-
-        Returns:
-            :class:`~.UnitCell`: A unit cell with the given lattice vectors.
-        """
-        lattice_matrix = np.asarray(lattice_vectors, dtype=np.float32)
-        v0 = lattice_matrix[0]
-        v1 = lattice_matrix[1]
-        v2 = lattice_matrix[2]
-        Lx = np.sqrt(np.dot(v0, v0))
-        a2x = np.dot(v0, v1) / Lx
-        Ly = np.sqrt(np.dot(v1, v1) - a2x * a2x)
-        xy = a2x / Ly
-        v0xv1 = np.cross(v0, v1)
-        v0xv1mag = np.sqrt(np.dot(v0xv1, v0xv1))
-        Lz = np.dot(v2, v0xv1) / v0xv1mag
-        if Lz != 0:
-            a3x = np.dot(v0, v2) / Lx
-            xz = a3x / Lz
-            yz = (np.dot(v1, v2) - a2x * a3x) / (Ly * Lz)
-        else:
-            xz = yz = 0
-        if dimensions is None:
-            dimensions = 2 if Lz == 0 else 3
-        return cls.from_box([Lx, Ly, Lz, xy, xz, yz], dimensions=dimensions)
 
     @classmethod
     def from_box_lengths_and_angles(
-        cls,
-        L1,
-        L2,
-        L3,
-        alpha,
-        beta,
-        gamma,
-        dimensions = None,
+        cls, L1, L2, L3, alpha, beta, gamma, dimensions = None,
     ):
         r"""Construct a box from lengths and angles.
 

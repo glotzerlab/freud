@@ -233,56 +233,6 @@ class UnitCell:
         fractions = np.array([[0, 0, 0], [0.5, 0.5, 0]])
         return cls([1, np.sqrt(3)], fractions)
 
-    @classmethod
-    def from_lattice_vectors(
-        cls, lattice_vectors: np.ndarray, unique_positions: np.ndarray
-    ):
-        """Create a unit cell from lattice vectors.
-
-        Args:
-            lattice_vectors (:math:`(3, 3)` :class:`np.ndarray
-                The lattice vectors. Lattice vector a1 is lattice_vectors[0], etc.
-            unique_positions (:math:`(N_{points}, 3)` :class:`np.ndarray`):
-                The basis positions.
-
-        Returns:
-            :class:`~.UnitCell`: A unit cell with the given lattice vectors.
-        """
-        return cls(
-            freud.box.Box.from_lattice_vectors(lattice_vectors), unique_positions
-        )
-
-    @classmethod
-    def from_box_lengths_and_angles(
-        cls,
-        L1: float,
-        L2: float,
-        L3: float,
-        alpha: float,
-        beta: float,
-        gamma: float,
-        unique_positions: np.ndarray,
-    ):
-        """Create a unit cell from box lengths and angles.
-
-        Args:
-            L1 (float): The length of the first box vector.
-            L2 (float): The length of the second box vector.
-            L3 (float): The length of the third box vector.
-            alpha (float): The angle between the x and y lattice vectors.
-            beta (float): The angle between the x and z lattice vectors.
-            gamma (float): The angle between the y and z lattice vectors.
-            unique_positions (:math:`(N_{points}, 3)` :class:`np.ndarray
-                The basis positions.
-
-        Returns:
-            :class:`~.UnitCell`: A unit cell with the given box lengths and angles.
-        """
-        return cls(
-            freud.box.Box.from_box_lengths_and_angles(L1, L2, L3, alpha, beta, gamma),
-            unique_positions,
-        )
-
 
 def make_random_system(box_size, num_points, is2D=False, seed=None):
     r"""Helper function to make random points with a cubic or square box.
