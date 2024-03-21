@@ -962,7 +962,7 @@ cdef class Box:
             gamma (float):
                 The angle between the first and second lattice vector in radians
             dimensions (int):
-                The number of dimensions (Default value = :code:`None`)
+                The number of dimensions (Default value = :code:`None`).
 
         Returns:
             :class:`freud.box.Box`: The resulting box object.
