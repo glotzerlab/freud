@@ -975,7 +975,7 @@ cdef class Box:
         a3 = np.array([L3 * a3x, L3 * a3y, L3 * a3z])
         if dimensions is None:
             dimensions = 2 if L3 == 0 else 3
-        return cls.from_lattice_vectors(np.array([a1, a2, a3]), dimensions=dimensions)
+        return cls.from_matrix(np.array([a1, a2, a3]).T, dimensions=dimensions)
 
 
 cdef BoxFromCPP(const freud._box.Box & cppbox):
