@@ -693,7 +693,7 @@ cdef class Box:
         r"""Return the box lengths and angles.
 
         Returns:
-            tuple: 
+            tuple:
                 The box vector lengths and angles in radians
                 :math:`(L_1, L_2, L_3, \alpha, \beta, \gamma)`.
         """
@@ -957,9 +957,9 @@ cdef class Box:
                 The length of the third lattice vector
             alpha (float):
                 The angle between second and third lattice vector in radians
-            beta (float): 
+            beta (float):
                 The angle between first and third lattice vector in radians
-            gamma (float): 
+            gamma (float):
                 The angle between the first and second lattice vector in radians
             dimensions (int):
                 The number of dimensions (Default value = :code:`None`)
