@@ -941,10 +941,9 @@ cdef class Box:
                             "positional argument: L")
         return cls(Lx=L, Ly=L, Lz=0, xy=0, xz=0, yz=0, is2D=True)
 
-
     @classmethod
     def from_box_lengths_and_angles(
-        cls, L1, L2, L3, alpha, beta, gamma, dimensions = None,
+        cls, L1, L2, L3, alpha, beta, gamma, dimensions=None,
     ):
         r"""Construct a box from lengths and angles.
 
