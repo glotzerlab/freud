@@ -8,9 +8,7 @@ and this project adheres to
 
 ### Added
 * New continuous coordination number compute `freud.order.ContinuousCoordination`.
-* New class methods for construction of `freud.box.Box` from box lengths and angles.
-* New `freud.box.Box.to_box_lengths_and_angles` method for computing box vector lengths
-  and angles.
+* New methods for conversion of box lengths and angles to/from `freud.box.Box`.
 
 ### Removed
 * `freud.order.Translational`.
