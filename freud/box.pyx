@@ -948,6 +948,8 @@ cdef class Box:
     ):
         r"""Construct a box from lengths and angles.
 
+        All the angles provided must be between 0 and :math:`\pi`.
+
         Args:
             L1 (float):
                 The length of the first lattice vector.
