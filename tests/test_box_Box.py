@@ -494,18 +494,19 @@ class TestBox:
 
     def test_to_and_from_box_lengths_and_angles(self):
         original_box_lengths_and_angles = (
-            1,
-            2,
-            3,
-            np.pi / 3,
-            np.pi / 2.25,
-            np.pi / 2.35,
+            np.random.uniform(0, 100000),
+            np.random.uniform(0, 100000),
+            np.random.uniform(0, 100000),
+            np.random.uniform(0, np.pi),
+            np.random.uniform(0, np.pi),
+            np.random.uniform(0, np.pi),
         )
         box = freud.box.Box.from_box_lengths_and_angles(
             *original_box_lengths_and_angles
         )
         lengths_and_angles_computed = box.to_box_lengths_and_angles()
-        assert np.allclose(lengths_and_angles_computed, original_box_lengths_and_angles)
+        np.testing.assert_allclose(lengths_and_angles_computed,
+                                   original_box_lengths_and_angles, rtol=1e-6)
 
     def test_matrix(self):
         box = freud.box.Box(2, 2, 2, 1, 0.5, 0.1)
