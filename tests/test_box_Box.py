@@ -505,8 +505,9 @@ class TestBox:
             *original_box_lengths_and_angles
         )
         lengths_and_angles_computed = box.to_box_lengths_and_angles()
-        np.testing.assert_allclose(lengths_and_angles_computed,
-                                   original_box_lengths_and_angles, rtol=1e-6)
+        np.testing.assert_allclose(
+            lengths_and_angles_computed, original_box_lengths_and_angles, rtol=1e-6
+        )
 
     def test_matrix(self):
         box = freud.box.Box(2, 2, 2, 1, 0.5, 0.1)
