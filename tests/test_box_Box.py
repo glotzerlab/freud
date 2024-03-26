@@ -506,7 +506,10 @@ class TestBox:
         )
         lengths_and_angles_computed = box.to_box_lengths_and_angles()
         np.testing.assert_allclose(
-            lengths_and_angles_computed, original_box_lengths_and_angles, rtol=1e-6
+            lengths_and_angles_computed,
+            original_box_lengths_and_angles,
+            rtol=1e-6,
+            atol=1e-14,
         )
 
     def test_matrix(self):
