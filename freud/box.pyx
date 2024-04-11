@@ -985,7 +985,7 @@ cdef class Box:
         under_sqrt = 1 - a3x**2 - a3y**2
         if under_sqrt < 0:
             raise ValueError("The provided angles can not form a valid box.")
-        a3z = np.sqrt()
+        a3z = np.sqrt(under_sqrt)
         a3 = np.array([L3 * a3x, L3 * a3y, L3 * a3z])
         if dimensions is None:
             dimensions = 2 if L3 == 0 else 3
