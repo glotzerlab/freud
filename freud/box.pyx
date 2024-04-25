@@ -689,6 +689,27 @@ cdef class Box:
                            [0, self.Ly, self.yz * self.Lz],
                            [0, 0, self.Lz]])
 
+    def to_box_lengths_and_angles(self):
+        r"""Return the box lengths and angles.
+
+        Returns:
+            tuple:
+                The box vector lengths and angles in radians
+                :math:`(L_1, L_2, L_3, \alpha, \beta, \gamma)`.
+        """
+        alpha = np.arccos(
+            (self.xy * self.xz + self.yz)
+            / (np.sqrt(1 + self.xy**2) * np.sqrt(1 + self.xz**2 + self.yz**2))
+        )
+        beta = np.arccos(self.xz/np.sqrt(1+self.xz**2+self.yz**2))
+        gamma = np.arccos(self.xy/np.sqrt(1+self.xy**2))
+        L1 = self.Lx
+        a2 = [self.Ly*self.xy, self.Ly, 0]
+        a3 = [self.Lz*self.xz, self.Lz*self.yz, self.Lz]
+        L2 = np.linalg.norm(a2)
+        L3 = np.linalg.norm(a3)
+        return (L1, L2, L3, alpha, beta, gamma)
+
     def __repr__(self):
         return ("freud.box.{cls}(Lx={Lx}, Ly={Ly}, Lz={Lz}, "
                 "xy={xy}, xz={xz}, yz={yz}, "
@@ -920,6 +941,55 @@ cdef class Box:
             raise TypeError("square() missing 1 required "
                             "positional argument: L")
         return cls(Lx=L, Ly=L, Lz=0, xy=0, xz=0, yz=0, is2D=True)
+
+    @classmethod
+    def from_box_lengths_and_angles(
+        cls, L1, L2, L3, alpha, beta, gamma, dimensions=None,
+    ):
+        r"""Construct a box from lengths and angles (in radians).
+
+        All the angles provided must be between 0 and :math:`\pi`.
+
+        Args:
+            L1 (float):
+                The length of the first lattice vector.
+            L2 (float):
+                The length of the second lattice vector.
+            L3 (float):
+                The length of the third lattice vector.
+            alpha (float):
+                The angle between second and third lattice vector in radians (must be
+                between 0 and :math:`\pi`).
+            beta (float):
+                The angle between first and third lattice vector in radians (must be
+                between 0 and :math:`\pi`).
+            gamma (float):
+                The angle between the first and second lattice vector in radians (must
+                be between 0 and :math:`\pi`).
+            dimensions (int):
+                The number of dimensions (Default value = :code:`None`).
+
+        Returns:
+            :class:`freud.box.Box`: The resulting box object.
+        """
+        if not 0 < alpha < np.pi:
+            raise ValueError("alpha must be between 0 and pi.")
+        if not 0 < beta < np.pi:
+            raise ValueError("beta must be between 0 and pi.")
+        if not 0 < gamma < np.pi:
+            raise ValueError("gamma must be between 0 and pi.")
+        a1 = np.array([L1, 0, 0])
+        a2 = np.array([L2 * np.cos(gamma), L2 * np.sin(gamma), 0])
+        a3x = np.cos(beta)
+        a3y = (np.cos(alpha) - np.cos(beta) * np.cos(gamma)) / np.sin(gamma)
+        under_sqrt = 1 - a3x**2 - a3y**2
+        if under_sqrt < 0:
+            raise ValueError("The provided angles can not form a valid box.")
+        a3z = np.sqrt(under_sqrt)
+        a3 = np.array([L3 * a3x, L3 * a3y, L3 * a3z])
+        if dimensions is None:
+            dimensions = 2 if L3 == 0 else 3
+        return cls.from_matrix(np.array([a1, a2, a3]).T, dimensions=dimensions)
 
 
 cdef BoxFromCPP(const freud._box.Box & cppbox):
