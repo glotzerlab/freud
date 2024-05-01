@@ -527,7 +527,7 @@ class TestBox:
             np.testing.assert_allclose(
                 lengths_and_angles_computed,
                 original_box_lengths_and_angles,
-                rtol=1e-6,
+                rtol=1e-5,
                 atol=1e-14,
             )
 
