@@ -32,7 +32,7 @@ public:
      */
     explicit ThreadStorage(const std::vector<size_t>& shape)
         : arrays(
-            tbb::enumerable_thread_specific<ManagedArray<T>>([shape]() { return ManagedArray<T>(shape); }))
+              tbb::enumerable_thread_specific<ManagedArray<T>>([shape]() { return ManagedArray<T>(shape); }))
     {}
 
     //! Destructor
