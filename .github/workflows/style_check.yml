@@ -23,7 +23,7 @@ jobs:
     container:
       image: glotzerlab/ci:2021.11-clang10_py38
     steps:
-      - uses: actions/checkout@v4.1.2
+      - uses: actions/checkout@v4.1.4
         with:
           submodules: true
       - name: Install pre-commit
