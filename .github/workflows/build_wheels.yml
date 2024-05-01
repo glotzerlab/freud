@@ -30,7 +30,7 @@ jobs:
         pyver: ["3.8", "3.9", "3.10", "3.11", "3.12"]
 
     steps:
-      - uses: actions/checkout@v4.1.2
+      - uses: actions/checkout@v4.1.4
         with:
           submodules: "recursive"
 
@@ -62,7 +62,7 @@ jobs:
           CIBW_BEFORE_TEST_WINDOWS: "powershell .github/workflows/cibuildwheel-before-test.ps1 {package}"
           CIBW_TEST_COMMAND: "cd {package}/tests && pytest . -v --log-level=DEBUG -n auto"
 
-      - uses: actions/upload-artifact@v4.3.1
+      - uses: actions/upload-artifact@v4.3.3
         with:
           name: dist-${{ matrix.os }}-${{ matrix.pyver }}
           path: ./wheelhouse/*.whl
@@ -72,7 +72,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ contains(github.event.pull_request.labels.*.name, 'build_wheels') || github.event_name != 'pull_request' }}
     steps:
-      - uses: actions/checkout@v4.1.2
+      - uses: actions/checkout@v4.1.4
         with:
           submodules: "recursive"
 
@@ -87,7 +87,7 @@ jobs:
       - name: Build sdist
         run: python setup.py sdist
 
-      - uses: actions/upload-artifact@v4.3.1
+      - uses: actions/upload-artifact@v4.3.3
         with:
           name: dist-sdist
           path: dist/*.tar.gz
@@ -100,7 +100,7 @@ jobs:
 
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v4.1.4
+        uses: actions/download-artifact@v4.1.7
         with:
           merge-multiple: 'true'
           pattern: dist-*
@@ -129,7 +129,7 @@ jobs:
 
       - name: Slack notification
         if: startsWith(github.ref, 'refs/tags/v') || failure()
-        uses: act10ns/slack@v2.0.0
+        uses: act10ns/slack@v2.1.0
         with:
           status: ${{ job.status }}
           channel: '#dev-freud'
