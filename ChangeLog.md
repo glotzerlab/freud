@@ -10,6 +10,9 @@ and this project adheres to
 * New continuous coordination number compute `freud.order.ContinuousCoordination`.
 * New methods for conversion of box lengths and angles to/from `freud.box.Box`.
 
+### Fixed
+* Default value for `terminate_after_blocked` in `FilterRAD`.
+
 ### Removed
 * `freud.order.Translational`.
 
