@@ -485,6 +485,52 @@ class TestBox:
         box7 = freud.box.Box.from_matrix(box.to_matrix())
         assert np.isclose(box.to_matrix(), box7.to_matrix()).all()
 
+    def test_standard_orthogonal_box(self):
+        box = freud.box.Box.from_box((1, 2, 3, 0, 0, 0))
+        Lx, Ly, Lz, alpha, beta, gamma = box.to_box_lengths_and_angles()
+        npt.assert_allclose(
+            (Lx, Ly, Lz, alpha, beta, gamma), (1, 2, 3, np.pi / 2, np.pi / 2, np.pi / 2)
+        )
+
+    def test_to_and_from_box_lengths_and_angles(self):
+        original_box_lengths_and_angles = (
+            np.random.uniform(0, 100000),
+            np.random.uniform(0, 100000),
+            np.random.uniform(0, 100000),
+            np.random.uniform(0, np.pi),
+            np.random.uniform(0, np.pi),
+            np.random.uniform(0, np.pi),
+        )
+        if (
+            1
+            - np.cos(original_box_lengths_and_angles[4]) ** 2
+            - (
+                (
+                    np.cos(original_box_lengths_and_angles[3])
+                    - np.cos(original_box_lengths_and_angles[4])
+                    * np.cos(original_box_lengths_and_angles[5])
+                )
+                / np.sin(original_box_lengths_and_angles[5])
+            )
+            ** 2
+            < 0
+        ):
+            with pytest.raises(ValueError):
+                freud.box.Box.from_box_lengths_and_angles(
+                    *original_box_lengths_and_angles
+                )
+        else:
+            box = freud.box.Box.from_box_lengths_and_angles(
+                *original_box_lengths_and_angles
+            )
+            lengths_and_angles_computed = box.to_box_lengths_and_angles()
+            np.testing.assert_allclose(
+                lengths_and_angles_computed,
+                original_box_lengths_and_angles,
+                rtol=1e-5,
+                atol=1e-14,
+            )
+
     def test_matrix(self):
         box = freud.box.Box(2, 2, 2, 1, 0.5, 0.1)
         box2 = freud.box.Box.from_matrix(box.to_matrix())
