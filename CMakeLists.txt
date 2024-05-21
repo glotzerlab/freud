@@ -36,6 +36,9 @@ if(TBB_FOUND)
     "[${TBB_LIBRARY}][${TBB_INCLUDE_DIR}]")
 endif()
 
+# go find pybind11
+find_package(pybind11 CONFIG REQUIRED)
+
 # Fail fast if users have not cloned submodules.
 if(NOT WIN32)
   string(ASCII 27 Esc)
