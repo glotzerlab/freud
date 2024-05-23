@@ -24,12 +24,12 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        python: ['3.8', '3.9', '3.10', '3.11', '3.12']
+        python: ['3.9', '3.10', '3.11', '3.12']
         include:
           # Default to newest dependencies
           - env: 'test_env.yaml'
           # Test the oldest Python with the oldest supported dependencies.
-          - python: '3.8'
+          - python: '3.9'
             env: 'test-oldest_env.yaml'
           - python: '3.9'
             env: 'test-compatible_env.yaml'
@@ -41,10 +41,10 @@ jobs:
             python: '3.12'
             env: 'test_env.yaml'
           - os: 'windows-latest'
-            python: '3.8'
+            python: '3.9'
             env: 'test-oldest_env.yaml'
           - os: 'macos-14'
-            python: '3.8'
+            python: '3.9'
             env: 'test-oldest_env.yaml'
 
     steps:

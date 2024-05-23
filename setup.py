@@ -60,12 +60,12 @@ setup(
     install_requires=[
         "numpy>=1.19.0",
         "rowan>=1.2.1",
-        "scipy>=1.1",
+        "scipy>=1.7.3",
     ],
     tests_require=[
         "ase>=3.16",
-        "gsd>=2.0",
-        "matplotlib>=3.0",
-        "sympy>=1.0",
+        "gsd>=2.5.0",
+        "matplotlib>=3.5.0",
+        "sympy>=1.10",
     ],
 )
