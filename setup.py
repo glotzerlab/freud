@@ -56,9 +56,9 @@ setup(
         "Source Code": "https://github.com/glotzerlab/freud",
         "Issue Tracker": "https://github.com/glotzerlab/freud/issues",
     },
-    python_requires=">=3.8",
+    python_requires=">=3.9",
     install_requires=[
-        "numpy>=1.14",
+        "numpy>=1.19.0",
         "rowan>=1.2.1",
         "scipy>=1.1",
     ],

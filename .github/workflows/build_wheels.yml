@@ -21,30 +21,66 @@ env:
 
 jobs:
   build_wheels:
-    name: Build wheel for ${{ matrix.os }}, Python ${{ matrix.pyver }}
-    runs-on: ${{ matrix.os }}
+    name: Build wheels [${{ matrix.python.version }}, ${{ matrix.os.base }}-${{ matrix.os.arch }}]
+    runs-on: ${{ matrix.os.base }}-${{ matrix.os.version }}
     if: ${{ contains(github.event.pull_request.labels.*.name, 'build_wheels') || github.event_name != 'pull_request' }}
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-20.04, macos-14] #, windows-2019]
-        pyver: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+        os:
+        - base: ubuntu
+          version: latest
+          arch: 'x86_64'
+        # - base: windows
+        #   version: latest
+        #   arch: 'amd64'
+        - base: macos
+          version: 14
+          arch: 'arm64'
+        - base: macos
+          version: 13
+          arch: 'x86_64'
+
+        python:
+        # Pinned versions installed in CIBW_TEST_REQIURES are kept. Those defined installed in
+        # CIBW_BEFORE_TEST are often upgraded when the wheel is installed. This means we can't
+        # store the pinned requirements in a requirements file.
+        # Generate these version sets with commands like this:
+        # echo -e "numpy==1.21.6\nscipy\ngsd\nmatplotlib\nsympy" | uv pip compile --python-platform linux --python-version 3.9 --only-binary :all: - --resolution=lowest --no-deps
+        - version: 'cp39'
+          oldest_numpy: '1.22.4'
+          oldest_scipy: '1.7.3'
+          oldest_gsd: '2.5.0'
+          oldest_matplotlib: '3.5.0'
+        - version: 'cp310'
+          oldest_numpy: '1.22.4'
+          oldest_scipy: '1.7.3'
+          oldest_gsd: '2.7.0'
+          oldest_matplotlib: '3.5.0'
+        - version: 'cp311'
+          oldest_numpy: '1.23.2'
+          oldest_scipy: '1.9.2'
+          oldest_gsd: '2.7.0'
+          oldest_matplotlib: '3.6.0'
+        - version: 'cp312'
+          oldest_numpy: '1.26.2'
+          oldest_scipy: '1.11.2'
+          oldest_gsd: '3.2.0'
+          oldest_matplotlib: '3.7.3'
 
     steps:
-      - uses: actions/checkout@v4.1.4
+      - uses: actions/checkout@v4.1.6
         with:
           submodules: "recursive"
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.17.0
+        uses: pypa/cibuildwheel@v2.18.1
         env:
-          # Build for cpython >= 3.6.
-          CIBW_PROJECT_REQUIRES_PYTHON: "==${{ matrix.pyver }}.*"
+          CIBW_BUILD: "${{ matrix.python.version }}-*"
           CIBW_SKIP: "{pp*,*-musllinux_*}"
 
           # Build only on 64-bit architectures.
-          CIBW_ARCHS_MACOS: "x86_64 arm64"
-          CIBW_ARCHS_LINUX: auto64
-          CIBW_ARCHS_WINDOWS: auto64
+          CIBW_ARCHS: auto64
 
           # Configure environment variables.
           CIBW_ENVIRONMENT_LINUX: "CMAKE_PREFIX_PATH=/project/tbb LD_LIBRARY_PATH=/project/tbb/lib/intel64/gcc4.8:$LD_LIBRARY_PATH"
@@ -57,14 +93,12 @@ jobs:
           CIBW_BEFORE_BUILD_WINDOWS: "powershell .github/workflows/cibuildwheel-before-build.ps1 {package}"
 
           # Test the wheels.
-          CIBW_BEFORE_TEST_LINUX: "source .github/workflows/cibuildwheel-before-test.sh {package}"
-          CIBW_BEFORE_TEST_MACOS: "source .github/workflows/cibuildwheel-before-test.sh {package}"
-          CIBW_BEFORE_TEST_WINDOWS: "powershell .github/workflows/cibuildwheel-before-test.ps1 {package}"
-          CIBW_TEST_COMMAND: "cd {package}/tests && pytest . -v --log-level=DEBUG -n auto"
+          CIBW_TEST_REQUIRES: pytest==8.2.1 sympy==1.10 numpy==${{ matrix.python.oldest_numpy }} scipy==${{ matrix.python.oldest_scipy }} gsd==${{ matrix.python.oldest_gsd }} matplotlib==${{ matrix.python.oldest_matplotlib }}
+          CIBW_TEST_COMMAND: "cd {package}/tests && pytest . -v --log-level=DEBUG"
 
       - uses: actions/upload-artifact@v4.3.3
         with:
-          name: dist-${{ matrix.os }}-${{ matrix.pyver }}
+          name: dist-${{ matrix.os.base }}-${{ matrix.os.version }}-${{ matrix.python.version }}
           path: ./wheelhouse/*.whl
 
   build_sdist:
