@@ -70,4 +70,4 @@ jobs:
     steps:
     - run: jq --exit-status 'all(.result == "success")' <<< '${{ toJson(needs) }}'
     - name: Done
-      run: exit 0
+      run: echo "Done."
