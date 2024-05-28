@@ -1,5 +1,9 @@
 name: Build wheels
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   # Trigger on pushes to the mainline branches and version tags. This prevents building commits
   # twice when the pull request source branch is in the same repository.
