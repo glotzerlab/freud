@@ -1,0 +1,22 @@
+name: test
+channels:
+  - conda-forge
+
+dependencies:
+  - python==3.12
+  - tbb
+  - tbb-devel
+  - ninja
+  - cmake
+  - cython
+  - dynasor
+  - gsd
+  - matplotlib
+  - numpy
+  - pillow
+  - pytest
+  - rowan
+  - scikit-build
+  - scipy
+  - sympy
+  - uv
