@@ -17,6 +17,7 @@ on:
   workflow_dispatch:
 
 env:
+  UV_VERSION: 0.2.2
   SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
 jobs:
@@ -106,20 +107,23 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ contains(github.event.pull_request.labels.*.name, 'build_wheels') || github.event_name != 'pull_request' }}
     steps:
-      - uses: actions/checkout@v4.1.4
+      - uses: actions/checkout@v4.1.6
         with:
           submodules: "recursive"
 
       - uses: actions/setup-python@v5.1.0
         name: Install Python
         with:
-          python-version: '3.9'
+          python-version: '3.12'
 
-      - name: Install build requirements
-        run: python3 -m pip --disable-pip-version-check install scikit-build cmake -r requirements.txt --upgrade --progress-bar=off
+      - name: Install uv
+        run: curl --proto '=https' --tlsv1.2 -LsSf https://github.com/astral-sh/uv/releases/download/${{ env.UV_VERSION }}/uv-installer.sh | bash
+
+      - name: Install build
+        run: 'uv pip install -r .github/requirements-build-sdist.txt --only-binary :all: --system --reinstall'
 
       - name: Build sdist
-        run: python setup.py sdist
+        run: python -m build --sdist --outdir dist/ .
 
       - uses: actions/upload-artifact@v4.3.3
         with:
