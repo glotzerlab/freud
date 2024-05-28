@@ -1,5 +1,6 @@
 # create the target and add the needed properties
 pybind11_add_module(box SHARED module-box.cc)
+target_link_libraries(box PUBLIC TBB::tbb)
 # this probably isn't needed for box, but may be needed by other modules
 #target_compile_definitions(
 #    box
