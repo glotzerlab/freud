@@ -23,7 +23,7 @@ defaults:
 
 jobs:
   run_tests:
-    name: Run tests on ${{ matrix.os }} with Python ${{ matrix.python }}
+    name: Unit test [py${{ matrix.python }} ${{ matrix.os }}]
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -60,3 +60,14 @@ jobs:
       - name: Run Tests
         run: |
           pytest tests/ -v
+
+  tests_complete:
+    name: All tests
+    if: always()
+    needs: [run_tests]
+    runs-on: ubuntu-latest
+
+    steps:
+    - run: jq --exit-status 'all(.result == "success")' <<< '${{ toJson(needs) }}'
+    - name: Done
+      run: exit 0
