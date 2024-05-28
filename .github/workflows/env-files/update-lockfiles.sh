@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Execute this script to update all lock files to the latest versions of dependencies.
+
 rm *-conda-lock.yml
 
 for python_version in 3.9 3.10. 3.11 3.12
