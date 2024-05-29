@@ -152,6 +152,7 @@ jobs:
     name: Publish [PyPI]
     needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
+    concurrency: upload
     if: ${{ contains(github.event.pull_request.labels.*.name, 'build_wheels') || github.event_name != 'pull_request' }}
 
     steps:
