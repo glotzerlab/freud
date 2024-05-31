@@ -62,25 +62,25 @@ When using **freud** to process data for publication, please `use this citation
 Installation
 ============
 
-The easiest ways to install **freud** are using pip:
+**freud** is available on conda_forge_ for the *linux-64*, *osx-64*, *osx-arm64* and *win-64*
+architectures. Install with:
 
 .. code:: bash
 
-   pip install freud-analysis
+   mamba install freud
 
-or conda:
+**freud** is also available on PyPI_:
 
 .. code:: bash
 
-   conda install -c conda-forge freud
+   python3 -m pip install freud-analysis
 
-**freud** is also available via containers for `Docker
-<https://hub.docker.com/r/glotzerlab/software>`__ or `Singularity
-<https://glotzerlab.engin.umich.edu/downloads/glotzerlab>`__.  If you need more detailed
-information or wish to install **freud** from source, please refer to the
-`Installation Guide
-<https://freud.readthedocs.io/en/stable/gettingstarted/installation.html>`__ to compile
-**freud** from source.
+.. _conda-forge: https://conda-forge.org/
+.. _PyPI: https://pypi.org/
+
+If you need more detailed information or wish to install **freud** from source, please refer to the
+`Installation Guide <https://freud.readthedocs.io/en/stable/gettingstarted/installation.html>`__ to
+compile **freud** from source.
 
 
 Examples
