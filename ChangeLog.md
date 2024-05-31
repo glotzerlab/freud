@@ -11,6 +11,9 @@ and this project adheres to
 * New methods for conversion of box lengths and angles to/from `freud.box.Box`.
 * Support Numpy 2.0.
 
+### Changed
+* Add copy button to documentation code snippets.
+
 ### Fixed
 * Default value for `terminate_after_blocked` in `FilterRAD`.
 
