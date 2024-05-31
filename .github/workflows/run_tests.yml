@@ -17,59 +17,57 @@ on:
   # trigger on request
   workflow_dispatch:
 
+defaults:
+  run:
+    shell: bash -leo pipefail {0}
+
 jobs:
   run_tests:
-    name: Run tests on ${{ matrix.os }} with Python ${{ matrix.python }}
+    name: Unit test [py${{ matrix.python }} ${{ matrix.os }}]
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest]
-        python: ['3.8', '3.9', '3.10', '3.11', '3.12']
+        python: ['39', '310', '311', '312']
         include:
-          # Default to newest dependencies
-          - env: 'test_env.yaml'
-          # Test the oldest Python with the oldest supported dependencies.
-          - python: '3.8'
-            env: 'test-oldest_env.yaml'
-          - python: '3.9'
-            env: 'test-compatible_env.yaml'
           # Test macOS and windows on oldest and latest versions.
           - os: 'macos-14'
-            python: '3.12'
-            env: 'test_env.yaml'
+            python: '312'
           - os: 'windows-latest'
-            python: '3.12'
-            env: 'test_env.yaml'
+            python: '312'
           - os: 'windows-latest'
-            python: '3.8'
-            env: 'test-oldest_env.yaml'
+            python: '39'
           - os: 'macos-14'
-            python: '3.8'
-            env: 'test-oldest_env.yaml'
+            python: '39'
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4.1.4
+        uses: actions/checkout@v4.1.6
         with:
           submodules: true
 
       - name: Create Python Environment
-        uses: conda-incubator/setup-miniconda@v3.0.4
+        uses: mamba-org/setup-micromamba@v1.8.1
         with:
-          python-version: ${{ matrix.python }}
-          environment-file: .github/workflows/env-files/${{ matrix.env }}
-          channels: conda-forge
-          activate-environment: test
-          show-channel-urls: true
-          miniforge-variant: Mambaforge
-          use-mamba: true
+          micromamba-version: '1.5.8-0'
+          environment-name: test
+          environment-file: .github/workflows/env-files/py${{ matrix.python }}-conda-lock.yml
 
       - name: Build and Install freud
-        shell: bash -l {0}
         run: |
-          pip install . --ignore-installed --no-build-isolation --no-deps
+          uv pip install . --no-build-isolation --no-deps -v
 
       - name: Run Tests
-        shell: bash -l {0}
         run: |
           pytest tests/ -v
+
+  tests_complete:
+    name: All tests
+    if: always()
+    needs: [run_tests]
+    runs-on: ubuntu-latest
+
+    steps:
+    - run: jq --exit-status 'all(.result == "success")' <<< '${{ toJson(needs) }}'
+    - name: Done
+      run: echo "Done."

@@ -4,17 +4,19 @@ The format is based on
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## v.3.1.0 -- 20xx-xx-xx
+## v3.1.0 -- 20xx-xx-xx
 
 ### Added
 * New continuous coordination number compute `freud.order.ContinuousCoordination`.
 * New methods for conversion of box lengths and angles to/from `freud.box.Box`.
+* Support Numpy 2.0.
 
 ### Fixed
 * Default value for `terminate_after_blocked` in `FilterRAD`.
 
 ### Removed
 * `freud.order.Translational`.
+* Support for Python 3.8.
 
 ## v3.0.0 -- 2024-02-22
 
