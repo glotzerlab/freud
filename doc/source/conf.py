@@ -42,7 +42,12 @@ extensions = [
     "nbsphinx",
     "jupyter_sphinx",
     "sphinxcontrib.bibtex",
+    'sphinx_copybutton',
 ]
+
+if os.getenv('READTHEDOCS'):
+    extensions.append('sphinxcontrib.googleanalytics')
+    googleanalytics_id = 'G-27ETTPK0X1'
 
 # For sphinxcontrib.bibtex (as of v2.0).
 bibtex_bibfiles = ["reference/freud.bib"]
@@ -135,6 +140,11 @@ html_theme = "furo"
 html_theme_options = {
     "sidebar_hide_name": True,
 }
+
+copybutton_prompt_text = r'>>> |\.\.\. |\$ |In \[\d*\]: | {2,5}\.\.\.: | {5,8}: '
+copybutton_prompt_is_regexp = True
+copybutton_remove_prompts = True
+copybutton_line_continuation_character = '\\'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
