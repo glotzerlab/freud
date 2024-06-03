@@ -49,7 +49,7 @@ class Box:
             if :code:`None`. (Default value = :code:`None`)
     """  # noqa: E501
 
-    def __cinit__(self, Lx, Ly, Lz=0, xy=0, xz=0, yz=0, is2D=None):
+    def __init__(self, Lx, Ly, Lz=0, xy=0, xz=0, yz=0, is2D=None):
         if is2D is None:
             is2D = (Lz == 0)
         if is2D:
@@ -162,8 +162,8 @@ class Box:
     def L_inv(self):
         r""":math:`\left(3, \right)` :class:`numpy.ndarray`: The inverse box
         lengths."""
-        cdef vec3[float] result = self._cpp_obj.getLinv()
-        return np.asarray([result.x, result.y, result.z])
+        result = self._cpp_obj.getLinv()
+        return np.asarray(result)
 
     @property
     def volume(self):
@@ -194,13 +194,9 @@ class Box:
         out = freud.util._convert_array(
             out, shape=fractions.shape, allow_copy=False)
 
-        cdef const float[:, ::1] l_points = fractions
-        cdef unsigned int Np = l_points.shape[0]
-        cdef float[:, ::1] l_out = out
+        Np = fractions.shape[0]
 
-        self._cpp_obj.makeAbsolute(
-            <vec3[float]*> &l_points[0, 0], Np,
-            <vec3[float]*> &l_out[0, 0])
+        self._cpp_obj.makeAbsolute(fractions, Np, out)
 
         return np.squeeze(out) if flatten else out
 
@@ -227,13 +223,9 @@ class Box:
         out = freud.util._convert_array(
             out, shape=vecs.shape, allow_copy=False)
 
-        cdef const float[:, ::1] l_points = vecs
-        cdef unsigned int Np = l_points.shape[0]
-        cdef float[:, ::1] l_out = out
+        Np = vecs.shape[0]
 
-        self._cpp_obj.makeFractional(
-            <vec3[float]*> &l_points[0, 0], Np,
-            <vec3[float]*> &l_out[0, 0])
+        self._cpp_obj.makeFractional(vecs, Np, out)
 
         return np.squeeze(out) if flatten else out
 

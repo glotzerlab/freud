@@ -4,13 +4,15 @@
 #ifndef BOX_H
 #define BOX_H
 
-#include "utils.h"
 #include <algorithm>
 #include <complex>
 #include <sstream>
 #include <stdexcept>
 
+#include "utils.h"
 #include "VectorMath.h"
+
+#include <pybind11/numpy.h>
 
 /*! \file Box.h
     \brief Represents simulation boxes and contains helpful wrapping functions.
@@ -22,6 +24,8 @@ constexpr float TWO_PI = 2.0 * M_PI;
 }; }; // end namespace freud::constants
 
 namespace freud { namespace box {
+
+using pybind11::array_t<float, pybind11::array::c_style | pybind11::array::forcecast> = pybind11_array;
 
 //! Stores box dimensions and provides common routines for wrapping vectors back into the box
 /*! Box stores a standard HOOMD simulation box that goes from -L/2 to L/2 in each dimension, allowing Lx, Ly,
@@ -156,9 +160,9 @@ public:
     }
 
     //! Get current stored inverse of L
-    vec3<float> getLinv() const
+    std::array<float, 3> getLinv() const
     {
-        return m_Linv;
+        return { m_Linv.x, m_linv.y, m_Linv.z };
     }
 
     //! Get tilt factor xy
@@ -230,12 +234,14 @@ public:
      *  \param Nvecs Number of vectors
      *  \param out The array in which to place the wrapped vectors.
      */
-    void makeAbsolute(const vec3<float>* vecs, unsigned int Nvecs, vec3<float>* out) const
+    void makeAbsolute(pybind11_array vecs, unsigned int Nvecs, pybind11_array out) const
     {
+        vec3<float> *vecs_data = static_cast<vec3<float> *>(vecs.data());
+        vec3<float> *out_data = static_cast<vec3<float> *>(out.data());
         util::forLoopWrapper(0, Nvecs, [&](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
-                out[i] = makeAbsolute(vecs[i]);
+                out_data[i] = makeAbsolute(vecs_data[i]);
             }
         });
     }
@@ -263,12 +269,14 @@ public:
      *  \param Nvecs Number of vectors
      *  \param out The array in which to place the wrapped vectors.
      */
-    void makeFractional(const vec3<float>* vecs, unsigned int Nvecs, vec3<float>* out) const
+    void makeFractional(pybind11_array vecs, unsigned int Nvecs, pybind11_array out) const
     {
+        vec3<float> *vecs_data = static_cast<vec3<float> *>(vecs.data());
+        vec3<float> *out_data = static_cast<vec3<float> *>(out.data());
         util::forLoopWrapper(0, Nvecs, [&](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
-                out[i] = makeFractional(vecs[i]);
+                out_data[i] = makeFractional(vecs_data[i]);
             }
         });
     }

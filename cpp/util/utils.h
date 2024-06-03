@@ -10,6 +10,7 @@
 #include <tbb/blocked_range2d.h>
 #include <tbb/parallel_for.h>
 
+
 namespace freud { namespace util {
 
 //! Clip v if it is outside the range [lo, hi].
