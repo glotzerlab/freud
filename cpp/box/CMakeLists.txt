@@ -1,6 +1,6 @@
 # create the target and add the needed properties
-pybind11_add_module(box SHARED module-box.cc)
-target_link_libraries(box PUBLIC TBB::tbb)
+pybind11_add_module(_box SHARED module-box.cc)
+target_link_libraries(_box PUBLIC TBB::tbb)
 # this probably isn't needed for box, but may be needed by other modules
 #target_compile_definitions(
 #    box
@@ -10,15 +10,16 @@ target_link_libraries(box PUBLIC TBB::tbb)
 #    # Default voro++ verbosity is high.
 #    PRIVATE "VOROPP_VERBOSE=1")
 
-# install
-install(TARGETS box DESTINATION freud)
 if(APPLE)
-    set_target_properties(box PROPERTIES INSTALL_RPATH "@loader_path")
+    set_target_properties(_box PROPERTIES INSTALL_RPATH "@loader_path")
 else()
-    set_target_properties(box PROPERTIES INSTALL_RPATH "\$ORIGIN")
+    set_target_properties(_box PROPERTIES INSTALL_RPATH "\$ORIGIN")
 endif()
 
 if(_using_conda OR DEFINED ENV{CIBUILDWHEEL})
-    set_target_properties(box
+    set_target_properties(_box
                           PROPERTIES INSTALL_RPATH_USE_LINK_PATH True)
 endif()
+
+# install
+install(TARGETS _box DESTINATION freud)

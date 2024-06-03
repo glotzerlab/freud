@@ -1,7 +1,10 @@
 
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 
 #include "Box.h"
+
+using namespace freud::box;
 
 PYBIND11_MODULE(_box, m)
 {
@@ -13,6 +16,7 @@ PYBIND11_MODULE(_box, m)
         .def("getLy", &Box::getLy)
         .def("getLz", &Box::getLz)
         .def("setL", &Box::setL)
+        .def("getLinv", &Box::getLinv)
         .def("getTiltFactorXY", &Box::getTiltFactorXY)
         .def("getTiltFactorXZ", &Box::getTiltFactorXZ)
         .def("getTiltFactorYZ", &Box::getTiltFactorYZ)
@@ -26,16 +30,17 @@ PYBIND11_MODULE(_box, m)
         .def("setPeriodicX", &Box::setPeriodicX)
         .def("setPeriodicY", &Box::setPeriodicY)
         .def("setPeriodicZ", &Box::setPeriodicZ)
-        .def("get2D", &Box::get2D)
+        .def("is2D", &Box::is2D)
         .def("set2D", &Box::set2D)
         .def("getVolume", &Box::getVolume)
         .def("center", &Box::center)
-        .def("centerOfMass", &Box::centerOfMass)
+        .def("centerOfMass", &Box::centerOfMassPython)
         // other stuff
-        .def("makeAbsolute", &Box::makeAbsolute)
-        .def("makeFractional", &Box::makeFractional)
-        .def("wrap", &Box::wrap)
+        .def("makeAbsolute", &Box::makeAbsolutePython)
+        .def("makeFractional", &Box::makeFractionalPython)
+        .def("wrap", &Box::wrapPython)
         .def("unwrap", &Box::unwrap)
+        .def("getImages", &Box::getImages)
         .def("computeDistances", &Box::computeDistances)
         .def("computeAllDistances", &Box::computeAllDistances)
         .def("contains", &Box::contains);

@@ -80,6 +80,3 @@ set(ignoreMe "${SKBUILD}")
 add_subdirectory(cpp)
 add_subdirectory(freud)
 
-if(_using_conda OR DEFINED ENV{CIBUILDWHEEL})
-  set_target_properties(libfreud PROPERTIES INSTALL_RPATH_USE_LINK_PATH True)
-endif()

@@ -21,7 +21,8 @@ if(${PYTHON_VERSION_MAJOR} EQUAL 3
 endif()
 
 set(python_files
-    box.py)
+    box.py
+    util.py)
     #cluster.py
     #density.py
     #diffraction.py
@@ -31,7 +32,7 @@ set(python_files
     #parallel.py
     #pmft.py)
 
-install(FILES python_files DESTINATION freud)
+install(FILES ${python_files} DESTINATION freud)
 
 # THIS WILL NEED TO BE MOVED TO THE BUILD OF THE ORDER MODULE
 # The SolidLiquid class has an instance of cluster::Cluster as a member, so

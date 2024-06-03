@@ -143,6 +143,14 @@ class Box:
     def yz(self, value):
         self._cpp_obj.setTiltFactorYZ(value)
 
+    def __eq__(self, other):
+        if type(other) != freud.box.Box:
+            return False
+        return self.Lx == other.Lx and self.Ly == other.Ly and self.Lz == other.Lz \
+            and self.xy == other.xy and self.xz == other.xz and self.yz == other.yz \
+            and self.is2D == other.is2D and self.periodic_x == other.periodic_x and \
+            self.periodic_y == other.periodic_y and self.periodic_z == other.periodic_z
+
     @property
     def dimensions(self):
         """int: Get or set the number of dimensions (2 or 3)."""
@@ -156,7 +164,7 @@ class Box:
     @property
     def is2D(self):
         """bool: Whether the box is 2D."""
-        return self._cpp_obj.get2D()
+        return self._cpp_obj.is2D()
 
     @property
     def L_inv(self):
@@ -246,11 +254,8 @@ class Box:
         vecs = freud.util._convert_array(vecs, shape=(None, 3))
 
         images = np.zeros(vecs.shape, dtype=np.int32)
-        cdef const float[:, ::1] l_points = vecs
-        cdef const int[:, ::1] l_result = images
-        cdef unsigned int Np = l_points.shape[0]
-        self._cpp_obj.getImages(<vec3[float]*> &l_points[0, 0], Np,
-                               <vec3[int]*> &l_result[0, 0])
+        Np = vecs.shape[0]
+        self._cpp_obj.getImages(vecs, Np, images)
 
         return np.squeeze(images) if flatten else images
 
@@ -313,12 +318,8 @@ class Box:
         out = freud.util._convert_array(
             out, shape=vecs.shape, allow_copy=False)
 
-        cdef const float[:, ::1] l_points = vecs
-        cdef unsigned int Np = l_points.shape[0]
-        cdef float[:, ::1] l_out = out
-
-        self._cpp_obj.wrap(<vec3[float]*> &l_points[0, 0],
-                          Np, <vec3[float]*> &l_out[0, 0])
+        Np = vecs.shape[0]
+        self._cpp_obj.wrap(vecs, Np, out)
 
         return np.squeeze(out) if flatten else out
 
@@ -355,14 +356,8 @@ class Box:
         out = freud.util._convert_array(
             out, shape=vecs.shape, allow_copy=False)
 
-        cdef const float[:, ::1] l_points = vecs
-        cdef const int[:, ::1] l_imgs = imgs
-        cdef unsigned int Np = l_points.shape[0]
-        cdef float[:, ::1] l_out = out
-
-        self._cpp_obj.unwrap(<vec3[float]*> &l_points[0, 0],
-                            <vec3[int]*> &l_imgs[0, 0], Np,
-                            <vec3[float]*> &l_out[0, 0])
+        Np = vecs.shape[0]
+        self._cpp_obj.unwrap(vecs, imgs, Np, out)
 
         return np.squeeze(out) if flatten else out
 
@@ -396,18 +391,15 @@ class Box:
                 Center of mass.
         """  # noqa: E501
         vecs = freud.util._convert_array(vecs, shape=(None, 3))
-        cdef const float[:, ::1] l_points = vecs
+        Np = vecs.shape[0]
 
-        cdef float* l_masses_ptr = NULL
-        cdef float[::1] l_masses
         if masses is not None:
-            l_masses = freud.util._convert_array(masses, shape=(len(vecs), ))
-            l_masses_ptr = &l_masses[0]
+            masses = freud.util._convert_array(masses, shape=(len(vecs), ))
+        else:
+            masses = np.ones(Np)
 
-        cdef size_t Np = l_points.shape[0]
-        cdef vec3[float] result = self._cpp_obj.centerOfMass(
-            <vec3[float]*> &l_points[0, 0], Np, l_masses_ptr)
-        return np.asarray([result.x, result.y, result.z])
+        result = self._cpp_obj.centerOfMass(vecs, Np, masses)
+        return np.asarray(result)
 
     def center(self, vecs, masses=None):
         r"""Subtract center of mass from an array of vectors, using periodic boundaries.
@@ -438,16 +430,14 @@ class Box:
                 Vectors with center of mass subtracted.
         """  # noqa: E501
         vecs = freud.util._convert_array(vecs, shape=(None, 3)).copy()
-        cdef const float[:, ::1] l_points = vecs
+        Np = vecs.shape[0]
 
-        cdef float* l_masses_ptr = NULL
-        cdef float[::1] l_masses
         if masses is not None:
-            l_masses = freud.util._convert_array(masses, shape=(len(vecs), ))
-            l_masses_ptr = &l_masses[0]
+            masses = freud.util._convert_array(masses, shape=(len(vecs), ))
+        else:
+            masses = np.ones(Np)
 
-        cdef size_t Np = l_points.shape[0]
-        self._cpp_obj.center(<vec3[float]*> &l_points[0, 0], Np, l_masses_ptr)
+        self._cpp_obj.center(vecs, Np, masses)
         return vecs
 
     def compute_distances(self, query_points, points):
@@ -472,18 +462,12 @@ class Box:
         points = freud.util._convert_array(
             np.atleast_2d(points), shape=(None, 3))
 
-        cdef:
-            const float[:, ::1] l_query_points = query_points
-            const float[:, ::1] l_points = points
-            size_t n_query_points = query_points.shape[0]
-            size_t n_points = points.shape[0]
-            float[::1] distances = np.empty(
-                n_query_points, dtype=np.float32)
+        n_query_points = query_points.shape[0]
+        n_points = points.shape[0]
+        distances = np.empty(n_query_points, dtype=np.float32)
 
-        self._cpp_obj.computeDistances(
-            <vec3[float]*> &l_query_points[0, 0], n_query_points,
-            <vec3[float]*> &l_points[0, 0], n_points,
-            <float *> &distances[0])
+        self._cpp_obj.computeDistances(query_points, n_query_points, points,
+                                       n_points, distances)
         return np.asarray(distances)
 
     def compute_all_distances(self, query_points, points):
@@ -507,18 +491,12 @@ class Box:
         points = freud.util._convert_array(
             np.atleast_2d(points), shape=(None, 3))
 
-        cdef:
-            const float[:, ::1] l_query_points = query_points
-            const float[:, ::1] l_points = points
-            size_t n_query_points = query_points.shape[0]
-            size_t n_points = points.shape[0]
-            float[:, ::1] distances = np.empty(
-                [n_query_points, n_points], dtype=np.float32)
+        n_query_points = query_points.shape[0]
+        n_points = points.shape[0]
+        distances = np.empty([n_query_points, n_points], dtype=np.float32)
 
-        self._cpp_obj.computeAllDistances(
-            <vec3[float]*> &l_query_points[0, 0], n_query_points,
-            <vec3[float]*> &l_points[0, 0], n_points,
-            <float *> &distances[0, 0])
+        self._cpp_obj.computeAllDistances(query_points, n_query_points,
+                                          points, n_points, distances)
 
         return np.asarray(distances)
 
@@ -557,19 +535,14 @@ class Box:
         points = freud.util._convert_array(
             np.atleast_2d(points), shape=(None, 3))
 
-        cdef:
-            const float[:, ::1] l_points = points
-            size_t n_points = points.shape[0]
+        n_points = points.shape[0]
 
         contains_mask = freud.util._convert_array(
             np.ones(n_points), dtype=bool)
-        cdef cpp_bool[::1] l_contains_mask = contains_mask
 
-        self._cpp_obj.contains(
-            <vec3[float]*> &l_points[0, 0], n_points,
-            <cpp_bool*> &l_contains_mask[0])
+        self._cpp_obj.contains(points, n_points, contains_mask)
 
-        return np.array(l_contains_mask).astype(bool)
+        return np.array(contains_mask).astype(bool)
 
     @property
     def cubic(self):
@@ -704,20 +677,6 @@ class Box:
 
     def __str__(self):
         return repr(self)
-
-    def __richcmp__(self, other, int op):
-        r"""Implement all comparisons for Cython extension classes"""
-        cdef Box c_other
-        try:
-            c_other = <Box?> other
-            if op == Py_EQ:
-                return dereference(self._cpp_obj) == dereference(c_other._cpp_obj)
-            if op == Py_NE:
-                return dereference(self._cpp_obj) != dereference(c_other._cpp_obj)
-        except TypeError:
-            # Cython cast to Box failed
-            pass
-        return NotImplemented
 
     def __mul__(self, scale):
         if scale > 0:
@@ -972,7 +931,7 @@ class Box:
         return cls.from_matrix(np.array([a1, a2, a3]).T, dimensions=dimensions)
 
 
-cdef BoxFromCPP(const freud._box.Box & cppbox):
+def BoxFromCPP(cppbox):
     b = Box(cppbox.getLx(), cppbox.getLy(), cppbox.getLz(),
             cppbox.getTiltFactorXY(), cppbox.getTiltFactorXZ(),
             cppbox.getTiltFactorYZ(), cppbox.is2D())
