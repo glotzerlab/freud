@@ -20,23 +20,14 @@ if(${PYTHON_VERSION_MAJOR} EQUAL 3
   add_compile_options("-Wno-deprecated-declarations")
 endif()
 
-set(python_files
-    box.py
-    util.py)
-    #cluster.py
-    #density.py
-    #diffraction.py
-    #environment.py
-    #locality.py
-    #order.py
-    #parallel.py
-    #pmft.py)
+set(python_files box.py util.py)
+# cluster.py density.py diffraction.py environment.py locality.py order.py
+# parallel.py pmft.py)
 
 install(FILES ${python_files} DESTINATION freud)
 
-# THIS WILL NEED TO BE MOVED TO THE BUILD OF THE ORDER MODULE
-# The SolidLiquid class has an instance of cluster::Cluster as a member, so
-# including the header requires the Cluster.h header. Would prefer to inherit
-# this information from the _order library, but that's not possible since we're
-# linking to libfreud.
-#target_include_directories(order PUBLIC ${PROJECT_SOURCE_DIR}/cpp/cluster)
+# THIS WILL NEED TO BE MOVED TO THE BUILD OF THE ORDER MODULE The SolidLiquid
+# class has an instance of cluster::Cluster as a member, so including the header
+# requires the Cluster.h header. Would prefer to inherit this information from
+# the _order library, but that's not possible since we're linking to libfreud.
+# target_include_directories(order PUBLIC ${PROJECT_SOURCE_DIR}/cpp/cluster)

@@ -8,7 +8,7 @@ import numpy as np
 import freud.box
 
 
-class _Compute(object):
+class _Compute:
     r"""Parent class for all compute classes in freud.
 
     The primary purpose of this class is to prevent access of uncomputed
@@ -40,7 +40,7 @@ class _Compute(object):
         """Compute methods set a flag to indicate that quantities have been
         computed. Compute must be called before plotting."""
         attribute = object.__getattribute__(self, attr)
-        if attr == 'compute':
+        if attr == "compute":
             # Set the attribute *after* computing. This enables
             # self._called_compute to be used in the compute method itself.
             compute = attribute
@@ -50,11 +50,13 @@ class _Compute(object):
                 return_value = compute(*args, **kwargs)
                 self._called_compute = True
                 return return_value
+
             return compute_wrapper
-        elif attr == 'plot':
+        elif attr == "plot":
             if not self._called_compute:
                 raise AttributeError(
-                    "The compute method must be called before calling plot.")
+                    "The compute method must be called before calling plot."
+                )
         return attribute
 
     @staticmethod
@@ -72,17 +74,18 @@ class _Compute(object):
         @wraps(prop)
         def wrapper(self, *args, **kwargs):
             if not self._called_compute:
-                raise AttributeError(
-                    "Property not computed. Call compute first.")
+                raise AttributeError("Property not computed. Call compute first.")
             return prop(self, *args, **kwargs)
+
         return wrapper
 
     def __str__(self):
         return repr(self)
 
 
-def _convert_array(array, shape=None, dtype=np.float32, requirements=("C", ),
-                   allow_copy=True):
+def _convert_array(
+    array, shape=None, dtype=np.float32, requirements=("C",), allow_copy=True
+):
     """Function which takes a given array, checks the dimensions and shape,
     and converts to a supplied dtype.
 
@@ -113,21 +116,32 @@ def _convert_array(array, shape=None, dtype=np.float32, requirements=("C", ),
     return_arr = np.require(array, dtype=dtype, requirements=requirements)
 
     if not allow_copy and return_arr is not array:
-        raise ValueError("The provided output array must have dtype "
-                         f"{dtype}, and have the following array flags: "
-                         f"{', '.join(requirements)}.")
+        raise ValueError(
+            "The provided output array must have dtype "
+            f"{dtype}, and have the following array flags: "
+            f"{', '.join(requirements)}."
+        )
 
     if shape is not None:
         if return_arr.ndim != len(shape):
-            raise ValueError("array.ndim = {}; expected ndim = {}".format(
-                return_arr.ndim, len(shape)))
+            raise ValueError(
+                "array.ndim = {}; expected ndim = {}".format(
+                    return_arr.ndim, len(shape)
+                )
+            )
 
         for i, s in enumerate(shape):
             if s is not None and return_arr.shape[i] != s:
-                shape_str = "(" + ", ".join(str(i) if i is not None
-                                            else "..." for i in shape) + ")"
-                raise ValueError('array.shape= {}; expected shape = {}'.format(
-                    return_arr.shape, shape_str))
+                shape_str = (
+                    "("
+                    + ", ".join(str(i) if i is not None else "..." for i in shape)
+                    + ")"
+                )
+                raise ValueError(
+                    "array.shape= {}; expected shape = {}".format(
+                        return_arr.shape, shape_str
+                    )
+                )
 
     return return_arr
 
@@ -153,6 +167,6 @@ def _convert_box(box, dimensions=None):
             raise
 
     if dimensions is not None and box.dimensions != dimensions:
-        raise ValueError("The box must be {}-dimensional.".format(dimensions))
+        raise ValueError(f"The box must be {dimensions}-dimensional.")
 
     return box

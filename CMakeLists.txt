@@ -79,4 +79,3 @@ set(ignoreMe "${SKBUILD}")
 
 add_subdirectory(cpp)
 add_subdirectory(freud)
-

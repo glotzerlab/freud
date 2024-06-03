@@ -25,15 +25,10 @@ endif()
 add_subdirectory(box)
 
 # commented out for now, uncomment them as the conversion to pybind11 progresses
-#add_subdirectory(cluster)
-#add_subdirectory(density)
-#add_subdirectory(diffraction)
-#add_subdirectory(environment)
-#add_subdirectory(locality)
-#add_subdirectory(order)
-#add_subdirectory(parallel)
-#add_subdirectory(pmft)
-#add_subdirectory(util)
+# add_subdirectory(cluster) add_subdirectory(density)
+# add_subdirectory(diffraction) add_subdirectory(environment)
+# add_subdirectory(locality) add_subdirectory(order) add_subdirectory(parallel)
+# add_subdirectory(pmft) add_subdirectory(util)
 
 #[[
 add_library(
@@ -74,4 +69,3 @@ if(CMAKE_EXPORT_COMPILE_COMMANDS)
             ${PROJECT_SOURCE_DIR})
 endif()
 ]]
-

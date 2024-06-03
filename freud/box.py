@@ -12,9 +12,8 @@ import warnings
 
 import numpy as np
 
-import freud.util
-
 import freud._box
+import freud.util
 
 logger = logging.getLogger(__name__)
 
@@ -51,42 +50,42 @@ class Box:
 
     def __init__(self, Lx, Ly, Lz=0, xy=0, xz=0, yz=0, is2D=None):
         if is2D is None:
-            is2D = (Lz == 0)
+            is2D = Lz == 0
         if is2D:
             if not (Lx and Ly):
                 raise ValueError("Lx and Ly must be nonzero for 2D boxes.")
             elif Lz != 0 or xz != 0 or yz != 0:
                 warnings.warn(
-                    "Specifying z-dimensions in a 2-dimensional box "
-                    "has no effect!")
+                    "Specifying z-dimensions in a 2-dimensional box " "has no effect!"
+                )
         else:
             if not (Lx and Ly and Lz):
-                raise ValueError(
-                    "Lx, Ly, and Lz must be nonzero for 3D boxes.")
+                raise ValueError("Lx, Ly, and Lz must be nonzero for 3D boxes.")
         self._cpp_obj = freud._box.Box(Lx, Ly, Lz, xy, xz, yz, is2D)
 
     @property
     def L(self):
         r""":math:`\left(3, \right)` :class:`numpy.ndarray`: Get or set the
         box lengths along x, y, and z."""
-        return np.asarray([self._cpp_obj.getLx(),
-                           self._cpp_obj.getLy(),
-                           self._cpp_obj.getLz()])
+        return np.asarray(
+            [self._cpp_obj.getLx(), self._cpp_obj.getLy(), self._cpp_obj.getLz()]
+        )
 
     @L.setter
     def L(self, value):
         try:
             if len(value) != 3:
-                raise ValueError('setL must be called with a scalar or a list '
-                                 'of length 3.')
+                raise ValueError(
+                    "setL must be called with a scalar or a list " "of length 3."
+                )
         except TypeError:
             # Will fail if object has no length
             value = (value, value, value)
 
         if self.is2D and value[2] != 0:
             warnings.warn(
-                "Specifying z-dimensions in a 2-dimensional box "
-                "has no effect!")
+                "Specifying z-dimensions in a 2-dimensional box " "has no effect!"
+            )
         self._cpp_obj.setL(value[0], value[1], value[2])
 
     @property
@@ -146,10 +145,18 @@ class Box:
     def __eq__(self, other):
         if type(other) != freud.box.Box:
             return False
-        return self.Lx == other.Lx and self.Ly == other.Ly and self.Lz == other.Lz \
-            and self.xy == other.xy and self.xz == other.xz and self.yz == other.yz \
-            and self.is2D == other.is2D and self.periodic_x == other.periodic_x and \
-            self.periodic_y == other.periodic_y and self.periodic_z == other.periodic_z
+        return (
+            self.Lx == other.Lx
+            and self.Ly == other.Ly
+            and self.Lz == other.Lz
+            and self.xy == other.xy
+            and self.xz == other.xz
+            and self.yz == other.yz
+            and self.is2D == other.is2D
+            and self.periodic_x == other.periodic_x
+            and self.periodic_y == other.periodic_y
+            and self.periodic_z == other.periodic_z
+        )
 
     @property
     def dimensions(self):
@@ -199,8 +206,7 @@ class Box:
         flatten = fractions.ndim == 1
         fractions = np.atleast_2d(fractions)
         fractions = freud.util._convert_array(fractions, shape=(None, 3))
-        out = freud.util._convert_array(
-            out, shape=fractions.shape, allow_copy=False)
+        out = freud.util._convert_array(out, shape=fractions.shape, allow_copy=False)
 
         Np = fractions.shape[0]
 
@@ -228,8 +234,7 @@ class Box:
         flatten = vecs.ndim == 1
         vecs = np.atleast_2d(vecs)
         vecs = freud.util._convert_array(vecs, shape=(None, 3))
-        out = freud.util._convert_array(
-            out, shape=vecs.shape, allow_copy=False)
+        out = freud.util._convert_array(out, shape=vecs.shape, allow_copy=False)
 
         Np = vecs.shape[0]
 
@@ -315,8 +320,7 @@ class Box:
         flatten = vecs.ndim == 1
         vecs = np.atleast_2d(vecs)
         vecs = freud.util._convert_array(vecs, shape=(None, 3))
-        out = freud.util._convert_array(
-            out, shape=vecs.shape, allow_copy=False)
+        out = freud.util._convert_array(out, shape=vecs.shape, allow_copy=False)
 
         Np = vecs.shape[0]
         self._cpp_obj.wrap(vecs, Np, out)
@@ -351,10 +355,8 @@ class Box:
             # Broadcasts (1, 3) to (N, 3) for both arrays
             vecs, imgs = np.broadcast_arrays(vecs, imgs)
         vecs = freud.util._convert_array(vecs, shape=(None, 3)).copy()
-        imgs = freud.util._convert_array(
-            imgs, shape=vecs.shape, dtype=np.int32)
-        out = freud.util._convert_array(
-            out, shape=vecs.shape, allow_copy=False)
+        imgs = freud.util._convert_array(imgs, shape=vecs.shape, dtype=np.int32)
+        out = freud.util._convert_array(out, shape=vecs.shape, allow_copy=False)
 
         Np = vecs.shape[0]
         self._cpp_obj.unwrap(vecs, imgs, Np, out)
@@ -394,7 +396,7 @@ class Box:
         Np = vecs.shape[0]
 
         if masses is not None:
-            masses = freud.util._convert_array(masses, shape=(len(vecs), ))
+            masses = freud.util._convert_array(masses, shape=(len(vecs),))
         else:
             masses = np.ones(Np)
 
@@ -433,7 +435,7 @@ class Box:
         Np = vecs.shape[0]
 
         if masses is not None:
-            masses = freud.util._convert_array(masses, shape=(len(vecs), ))
+            masses = freud.util._convert_array(masses, shape=(len(vecs),))
         else:
             masses = np.ones(Np)
 
@@ -455,19 +457,20 @@ class Box:
         Returns:
             :math:`\left(N, \right)` :class:`numpy.ndarray`:
                 Array of distances between query points and points.
-        """   # noqa: E501
+        """  # noqa: E501
 
         query_points = freud.util._convert_array(
-            np.atleast_2d(query_points), shape=(None, 3))
-        points = freud.util._convert_array(
-            np.atleast_2d(points), shape=(None, 3))
+            np.atleast_2d(query_points), shape=(None, 3)
+        )
+        points = freud.util._convert_array(np.atleast_2d(points), shape=(None, 3))
 
         n_query_points = query_points.shape[0]
         n_points = points.shape[0]
         distances = np.empty(n_query_points, dtype=np.float32)
 
-        self._cpp_obj.computeDistances(query_points, n_query_points, points,
-                                       n_points, distances)
+        self._cpp_obj.computeDistances(
+            query_points, n_query_points, points, n_points, distances
+        )
         return np.asarray(distances)
 
     def compute_all_distances(self, query_points, points):
@@ -487,16 +490,17 @@ class Box:
                 Array of distances between query points and points.
         """  # noqa: E501
         query_points = freud.util._convert_array(
-            np.atleast_2d(query_points), shape=(None, 3))
-        points = freud.util._convert_array(
-            np.atleast_2d(points), shape=(None, 3))
+            np.atleast_2d(query_points), shape=(None, 3)
+        )
+        points = freud.util._convert_array(np.atleast_2d(points), shape=(None, 3))
 
         n_query_points = query_points.shape[0]
         n_points = points.shape[0]
         distances = np.empty([n_query_points, n_points], dtype=np.float32)
 
-        self._cpp_obj.computeAllDistances(query_points, n_query_points,
-                                          points, n_points, distances)
+        self._cpp_obj.computeAllDistances(
+            query_points, n_query_points, points, n_points, distances
+        )
 
         return np.asarray(distances)
 
@@ -532,13 +536,11 @@ class Box:
                 the box, and ``False`` corresponds to points outside the box.
         """  # noqa: E501
 
-        points = freud.util._convert_array(
-            np.atleast_2d(points), shape=(None, 3))
+        points = freud.util._convert_array(np.atleast_2d(points), shape=(None, 3))
 
         n_points = points.shape[0]
 
-        contains_mask = freud.util._convert_array(
-            np.ones(n_points), dtype=bool)
+        contains_mask = freud.util._convert_array(np.ones(n_points), dtype=bool)
 
         self._cpp_obj.contains(points, n_points, contains_mask)
 
@@ -562,9 +564,13 @@ class Box:
     def periodic(self):
         r""":math:`\left(3, \right)` :class:`numpy.ndarray`: Get or set the
         periodicity of the box in each dimension."""
-        return np.asarray([self._cpp_obj.getPeriodicX(),
-                           self._cpp_obj.getPeriodicY(),
-                           self._cpp_obj.getPeriodicZ()])
+        return np.asarray(
+            [
+                self._cpp_obj.getPeriodicX(),
+                self._cpp_obj.getPeriodicY(),
+                self._cpp_obj.getPeriodicZ(),
+            ]
+        )
 
     @periodic.setter
     def periodic(self, periodic):
@@ -616,13 +622,14 @@ class Box:
           dict: Box parameters
         """
         return {
-            'Lx': self.Lx,
-            'Ly': self.Ly,
-            'Lz': self.Lz,
-            'xy': self.xy,
-            'xz': self.xz,
-            'yz': self.yz,
-            'dimensions': self.dimensions}
+            "Lx": self.Lx,
+            "Ly": self.Ly,
+            "Lz": self.Lz,
+            "xy": self.xy,
+            "xz": self.xz,
+            "yz": self.yz,
+            "dimensions": self.dimensions,
+        }
 
     def to_matrix(self):
         r"""Returns the box matrix (3x3).
@@ -638,9 +645,13 @@ class Box:
         Returns:
             :math:`\left(3, 3\right)` :class:`numpy.ndarray`: Box matrix
         """
-        return np.asarray([[self.Lx, self.xy * self.Ly, self.xz * self.Lz],
-                           [0, self.Ly, self.yz * self.Lz],
-                           [0, 0, self.Lz]])
+        return np.asarray(
+            [
+                [self.Lx, self.xy * self.Ly, self.xz * self.Lz],
+                [0, self.Ly, self.yz * self.Lz],
+                [0, 0, self.Lz],
+            ]
+        )
 
     def to_box_lengths_and_angles(self):
         r"""Return the box lengths and angles.
@@ -654,37 +665,45 @@ class Box:
             (self.xy * self.xz + self.yz)
             / (np.sqrt(1 + self.xy**2) * np.sqrt(1 + self.xz**2 + self.yz**2))
         )
-        beta = np.arccos(self.xz/np.sqrt(1+self.xz**2+self.yz**2))
-        gamma = np.arccos(self.xy/np.sqrt(1+self.xy**2))
+        beta = np.arccos(self.xz / np.sqrt(1 + self.xz**2 + self.yz**2))
+        gamma = np.arccos(self.xy / np.sqrt(1 + self.xy**2))
         L1 = self.Lx
-        a2 = [self.Ly*self.xy, self.Ly, 0]
-        a3 = [self.Lz*self.xz, self.Lz*self.yz, self.Lz]
+        a2 = [self.Ly * self.xy, self.Ly, 0]
+        a3 = [self.Lz * self.xz, self.Lz * self.yz, self.Lz]
         L2 = np.linalg.norm(a2)
         L3 = np.linalg.norm(a3)
         return (L1, L2, L3, alpha, beta, gamma)
 
     def __repr__(self):
-        return ("freud.box.{cls}(Lx={Lx}, Ly={Ly}, Lz={Lz}, "
-                "xy={xy}, xz={xz}, yz={yz}, "
-                "is2D={is2D})").format(cls=type(self).__name__,
-                                       Lx=self.Lx,
-                                       Ly=self.Ly,
-                                       Lz=self.Lz,
-                                       xy=self.xy,
-                                       xz=self.xz,
-                                       yz=self.yz,
-                                       is2D=self.is2D)
+        return (
+            "freud.box.{cls}(Lx={Lx}, Ly={Ly}, Lz={Lz}, "
+            "xy={xy}, xz={xz}, yz={yz}, "
+            "is2D={is2D})"
+        ).format(
+            cls=type(self).__name__,
+            Lx=self.Lx,
+            Ly=self.Ly,
+            Lz=self.Lz,
+            xy=self.xy,
+            xz=self.xz,
+            yz=self.yz,
+            is2D=self.is2D,
+        )
 
     def __str__(self):
         return repr(self)
 
     def __mul__(self, scale):
         if scale > 0:
-            return self.__class__(Lx=self.Lx*scale,
-                                  Ly=self.Ly*scale,
-                                  Lz=self.Lz*scale,
-                                  xy=self.xy, xz=self.xz, yz=self.yz,
-                                  is2D=self.is2D)
+            return self.__class__(
+                Lx=self.Lx * scale,
+                Ly=self.Ly * scale,
+                Lz=self.Lz * scale,
+                xy=self.xy,
+                xz=self.xz,
+                yz=self.yz,
+                is2D=self.is2D,
+            )
         else:
             raise ValueError("Box can only be multiplied by positive values.")
 
@@ -712,8 +731,10 @@ class Box:
                 :meth:`matplotlib.axes.Axes.plot`.
         """
         import freud.plot
-        return freud.plot.box_plot(self, title=title, ax=ax, image=image,
-                                   *args, **kwargs)
+
+        return freud.plot.box_plot(
+            self, title=title, ax=ax, image=image, *args, **kwargs
+        )
 
     @classmethod
     def from_box(cls, box, dimensions=None):
@@ -758,52 +779,54 @@ class Box:
             # Handles freud.box.Box and objects with attributes
             Lx = box.Lx
             Ly = box.Ly
-            Lz = getattr(box, 'Lz', 0)
-            xy = getattr(box, 'xy', 0)
-            xz = getattr(box, 'xz', 0)
-            yz = getattr(box, 'yz', 0)
+            Lz = getattr(box, "Lz", 0)
+            xy = getattr(box, "xy", 0)
+            xz = getattr(box, "xz", 0)
+            yz = getattr(box, "yz", 0)
             if dimensions is None:
-                dimensions = getattr(box, 'dimensions', None)
-            elif dimensions != getattr(box, 'dimensions', dimensions):
+                dimensions = getattr(box, "dimensions", None)
+            elif dimensions != getattr(box, "dimensions", dimensions):
                 raise ValueError(
                     "The provided dimensions argument conflicts with the "
-                    "dimensions attribute of the provided box object.")
+                    "dimensions attribute of the provided box object."
+                )
         except AttributeError:
             try:
                 # Handle dictionary-like
-                Lx = box['Lx']
-                Ly = box['Ly']
-                Lz = box.get('Lz', 0)
-                xy = box.get('xy', 0)
-                xz = box.get('xz', 0)
-                yz = box.get('yz', 0)
+                Lx = box["Lx"]
+                Ly = box["Ly"]
+                Lz = box.get("Lz", 0)
+                xy = box.get("xy", 0)
+                xz = box.get("xz", 0)
+                yz = box.get("yz", 0)
                 if dimensions is None:
-                    dimensions = box.get('dimensions', None)
+                    dimensions = box.get("dimensions", None)
                 else:
-                    if dimensions != box.get('dimensions', dimensions):
+                    if dimensions != box.get("dimensions", dimensions):
                         raise ValueError(
                             "The provided dimensions argument conflicts with "
                             "the dimensions attribute of the provided box "
-                            "object.")
+                            "object."
+                        )
             except (IndexError, KeyError, TypeError):
                 if not len(box) in [2, 3, 6]:
                     raise ValueError(
                         "List-like objects must have length 2, 3, or 6 to be "
-                        "converted to freud.box.Box.")
+                        "converted to freud.box.Box."
+                    )
                 # Handle list-like
                 Lx = box[0]
                 Ly = box[1]
                 Lz = box[2] if len(box) > 2 else 0
                 xy, xz, yz = box[3:6] if len(box) == 6 else (0, 0, 0)
         except:  # noqa
-            logger.debug('Supplied box cannot be converted to type '
-                         'freud.box.Box.')
+            logger.debug("Supplied box cannot be converted to type " "freud.box.Box.")
             raise
 
         # Infer dimensions if not provided.
         if dimensions is None:
             dimensions = 2 if Lz == 0 else 3
-        is2D = (dimensions == 2)
+        is2D = dimensions == 2
         return cls(Lx=Lx, Ly=Ly, Lz=Lz, xy=xy, xz=xz, yz=yz, is2D=is2D)
 
     @classmethod
@@ -842,9 +865,8 @@ class Box:
             xz = yz = 0
         if dimensions is None:
             dimensions = 2 if Lz == 0 else 3
-        is2D = (dimensions == 2)
-        return cls(Lx=Lx, Ly=Ly, Lz=Lz,
-                   xy=xy, xz=xz, yz=yz, is2D=is2D)
+        is2D = dimensions == 2
+        return cls(Lx=Lx, Ly=Ly, Lz=Lz, xy=xy, xz=xz, yz=yz, is2D=is2D)
 
     @classmethod
     def cube(cls, L=None):
@@ -877,13 +899,19 @@ class Box:
         # named access to positional arguments, so we keep this to
         # recover the behavior
         if L is None:
-            raise TypeError("square() missing 1 required "
-                            "positional argument: L")
+            raise TypeError("square() missing 1 required " "positional argument: L")
         return cls(Lx=L, Ly=L, Lz=0, xy=0, xz=0, yz=0, is2D=True)
 
     @classmethod
     def from_box_lengths_and_angles(
-        cls, L1, L2, L3, alpha, beta, gamma, dimensions=None,
+        cls,
+        L1,
+        L2,
+        L3,
+        alpha,
+        beta,
+        gamma,
+        dimensions=None,
     ):
         r"""Construct a box from lengths and angles (in radians).
 
@@ -932,10 +960,14 @@ class Box:
 
 
 def BoxFromCPP(cppbox):
-    b = Box(cppbox.getLx(), cppbox.getLy(), cppbox.getLz(),
-            cppbox.getTiltFactorXY(), cppbox.getTiltFactorXZ(),
-            cppbox.getTiltFactorYZ(), cppbox.is2D())
-    b.periodic = [cppbox.getPeriodicX(),
-                  cppbox.getPeriodicY(),
-                  cppbox.getPeriodicZ()]
+    b = Box(
+        cppbox.getLx(),
+        cppbox.getLy(),
+        cppbox.getLz(),
+        cppbox.getTiltFactorXY(),
+        cppbox.getTiltFactorXZ(),
+        cppbox.getTiltFactorYZ(),
+        cppbox.is2D(),
+    )
+    b.periodic = [cppbox.getPeriodicX(), cppbox.getPeriodicY(), cppbox.getPeriodicZ()]
     return b

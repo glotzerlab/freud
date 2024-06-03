@@ -6,12 +6,12 @@
 
 #include <algorithm>
 #include <complex>
+#include <iostream>
 #include <sstream>
 #include <stdexcept>
-#include <iostream>
 
-#include "utils.h"
 #include "VectorMath.h"
+#include "utils.h"
 
 #include <pybind11/numpy.h>
 
@@ -158,7 +158,7 @@ public:
     //! Get current stored inverse of L
     std::array<float, 3> getLinv() const
     {
-        return { m_Linv.x, m_Linv.y, m_Linv.z };
+        return {m_Linv.x, m_Linv.y, m_Linv.z};
     }
 
     //! Get tilt factor xy
@@ -232,8 +232,8 @@ public:
      */
     void makeAbsolutePython(pybind11_array<float> vecs, unsigned int Nvecs, pybind11_array<float> out) const
     {
-        vec3<float> *vecs_data = (vec3<float> *)(vecs.data());
-        vec3<float> *out_data = (vec3<float> *)(out.data());
+        vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
+        vec3<float>* out_data = (vec3<float>*) (out.data());
         util::forLoopWrapper(0, Nvecs, [&](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
@@ -267,8 +267,8 @@ public:
      */
     void makeFractionalPython(pybind11_array<float> vecs, unsigned int Nvecs, pybind11_array<float> out) const
     {
-        vec3<float> *vecs_data = (vec3<float> *)(vecs.data());
-        vec3<float> *out_data = (vec3<float> *)(out.data());
+        vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
+        vec3<float>* out_data = (vec3<float>*) (out.data());
         util::forLoopWrapper(0, Nvecs, [&](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
@@ -298,11 +298,10 @@ public:
      *  \param Nvecs Number of vectors
         \param res Array to save the images
      */
-    void getImages(pybind11_array<float> vecs, unsigned int Nvecs,
-            pybind11::array_t<int> res) const
+    void getImages(pybind11_array<float> vecs, unsigned int Nvecs, pybind11::array_t<int> res) const
     {
-        vec3<float> *vecs_data = (vec3<float> *)(vecs.data());
-        vec3<int> *out_data = (vec3<int> *)(res.data());
+        vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
+        vec3<int>* out_data = (vec3<int>*) (res.data());
         util::forLoopWrapper(0, Nvecs, [&](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
@@ -346,8 +345,8 @@ public:
      */
     void wrapPython(pybind11_array<float> vecs, unsigned int Nvecs, pybind11_array<float> out) const
     {
-        vec3<float> *vecs_data = (vec3<float> *)(vecs.data());
-        vec3<float> *out_data = (vec3<float> *)(out.data());
+        vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
+        vec3<float>* out_data = (vec3<float>*) (out.data());
         util::forLoopWrapper(0, Nvecs, [&](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
@@ -363,11 +362,11 @@ public:
      *  \param out The array in which to place the wrapped vectors.
     */
     void unwrap(pybind11_array<float> vecs, pybind11_array<int> images, unsigned int Nvecs,
-            pybind11_array<float> out) const
+                pybind11_array<float> out) const
     {
-        vec3<float> *vecs_data = (vec3<float> *)(vecs.data());
-        vec3<int> *images_data = (vec3<int> *)(images.data());
-        vec3<float> *out_data = (vec3<float> *)(out.data());
+        vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
+        vec3<int>* images_data = (vec3<int>*) (images.data());
+        vec3<float>* out_data = (vec3<float>*) (out.data());
         util::forLoopWrapper(0, Nvecs, [&](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
@@ -387,7 +386,7 @@ public:
      *  \param masses Optional array of masses, of length Nvecs
      *  \return Center of mass as a vec3<float>
      */
-    vec3<float> centerOfMass(vec3<float> *vecs, size_t Nvecs, const float *masses) const
+    vec3<float> centerOfMass(vec3<float>* vecs, size_t Nvecs, const float* masses) const
     {
         // This roughly follows the implementation in
         // https://en.wikipedia.org/wiki/Center_of_mass#Systems_with_periodic_boundary_conditions
@@ -397,8 +396,7 @@ public:
         for (size_t i = 0; i < Nvecs; ++i)
         {
             vec3<float> phase(constants::TWO_PI * makeFractional(vecs[i]));
-            vec3<std::complex<float>> xi(std::polar(float(1.0), phase.x),
-                                         std::polar(float(1.0), phase.y),
+            vec3<std::complex<float>> xi(std::polar(float(1.0), phase.x), std::polar(float(1.0), phase.y),
                                          std::polar(float(1.0), phase.z));
             float mass = masses[i];
             total_mass += mass;
@@ -406,18 +404,17 @@ public:
         }
         xi_mean /= std::complex<float>(total_mass, 0);
 
-        return wrap(makeAbsolute(vec3<float>(std::arg(xi_mean.x),
-                                             std::arg(xi_mean.y),
-                                             std::arg(xi_mean.z))
+        return wrap(makeAbsolute(vec3<float>(std::arg(xi_mean.x), std::arg(xi_mean.y), std::arg(xi_mean.z))
                                  / constants::TWO_PI));
     }
 
-    std::array<float, 3> centerOfMassPython(pybind11_array<float> vecs, size_t Nvecs, pybind11_array<float> masses) const
+    std::array<float, 3> centerOfMassPython(pybind11_array<float> vecs, size_t Nvecs,
+                                            pybind11_array<float> masses) const
     {
-        vec3<float> *vecs_data = (vec3<float> *)(vecs.data());
-        float *masses_data = (float *)(masses.data());
+        vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
+        float* masses_data = (float*) (masses.data());
         auto com = centerOfMass(vecs_data, Nvecs, masses_data);
-        return { com.x, com.y, com.z };
+        return {com.x, com.y, com.z};
     }
 
     //! Subtract center of mass from vectors
@@ -427,8 +424,8 @@ public:
      */
     void center(pybind11_array<float> vecs, unsigned int Nvecs, pybind11_array<float> masses) const
     {
-        vec3<float> *vecs_data = (vec3<float> *)(vecs.data());
-        float *masses_data = (float *)(masses.data());
+        vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
+        float* masses_data = (float*) (masses.data());
 
         vec3<float> com(centerOfMass(vecs_data, Nvecs, masses_data));
         util::forLoopWrapper(0, Nvecs, [&](size_t begin, size_t end) {
@@ -461,9 +458,9 @@ public:
                           pybind11_array<float> points, const unsigned int n_points,
                           pybind11_array<float> distances) const
     {
-        vec3<float> *query_points_data = (vec3<float> *)(query_points.data());
-        vec3<float> *points_data = (vec3<float> *)(points.data());
-        float *distances_data = (float *)(distances.data());
+        vec3<float>* query_points_data = (vec3<float>*) (query_points.data());
+        vec3<float>* points_data = (vec3<float>*) (points.data());
+        float* distances_data = (float*) (distances.data());
 
         if (n_query_points != n_points)
         {
@@ -489,21 +486,21 @@ public:
                              pybind11_array<float> points, const unsigned int n_points,
                              pybind11_array<float> distances) const
     {
-        vec3<float> *query_points_data = (vec3<float> *)(query_points.data());
-        vec3<float> *points_data = (vec3<float> *)(points.data());
-        float *distances_data = (float *)(distances.data());
+        vec3<float>* query_points_data = (vec3<float>*) (query_points.data());
+        vec3<float>* points_data = (vec3<float>*) (points.data());
+        float* distances_data = (float*) (distances.data());
 
-        util::forLoopWrapper2D(
-            0, n_query_points, 0, n_points, [&](size_t begin_n, size_t end_n, size_t begin_m, size_t end_m) {
-                for (size_t i = begin_n; i < end_n; ++i)
-                {
-                    for (size_t j = begin_m; j < end_m; ++j)
-                    {
-                        distances_data[i * n_points + j] = computeDistance(
-                                query_points_data[i], points_data[j]);
-                    }
-                }
-            });
+        util::forLoopWrapper2D(0, n_query_points, 0, n_points,
+                               [&](size_t begin_n, size_t end_n, size_t begin_m, size_t end_m) {
+                                   for (size_t i = begin_n; i < end_n; ++i)
+                                   {
+                                       for (size_t j = begin_m; j < end_m; ++j)
+                                       {
+                                           distances_data[i * n_points + j]
+                                               = computeDistance(query_points_data[i], points_data[j]);
+                                       }
+                                   }
+                               });
     }
 
     //! Get mask of points that fit inside the box.
@@ -512,10 +509,10 @@ public:
         \param contains_mask Mask of points inside the box.
     */
     void contains(pybind11_array<float> points, const unsigned int n_points,
-        pybind11_array<bool> contains_mask) const
+                  pybind11_array<bool> contains_mask) const
     {
-        vec3<float> *points_data = (vec3<float> *)(points.data());
-        bool *contains_mask_data = (bool *)(contains_mask.data());
+        vec3<float>* points_data = (vec3<float>*) (points.data());
+        bool* contains_mask_data = (bool*) (contains_mask.data());
 
         util::forLoopWrapper(0, n_points, [&](size_t begin, size_t end) {
             std::transform(&points_data[begin], &points_data[end], &contains_mask_data[begin],
