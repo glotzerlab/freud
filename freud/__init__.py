@@ -8,11 +8,11 @@ from . import ( # cluster,; data,; density,; diffraction,; environment,; interfa
 from .box import Box
 
 # from .locality import AABBQuery, LinkCell, NeighborList
-# from .parallel import NumThreads, get_num_threads, set_num_threads
+from .parallel import NumThreads, get_num_threads, set_num_threads
 
 # Override TBB's default autoselection. This is necessary because once the
 # automatic selection runs, the user cannot change it.
-# set_num_threads(0)
+set_num_threads(0)
 
 __version__ = "3.0.0"
 
@@ -34,9 +34,9 @@ __all__ = [
     # "AABBQuery",
     # "LinkCell",
     # "NeighborList",
-    # "get_num_threads",
-    # "set_num_threads",
-    # "NumThreads",
+    "get_num_threads",
+    "set_num_threads",
+    "NumThreads",
 ]
 
 __citation__ = """@article{freud2020,

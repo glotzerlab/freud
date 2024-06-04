@@ -20,8 +20,8 @@ if(${PYTHON_VERSION_MAJOR} EQUAL 3
   add_compile_options("-Wno-deprecated-declarations")
 endif()
 
-set(python_files box.py util.py parallel.py)
-# cluster.py density.py diffraction.py environment.py locality.py order.py
+set(python_files box.py errors.py parallel.py plot.py util.py)
+# cluster.py data.py density.py diffraction.py environment.py locality.py order.py
 # pmft.py)
 
 install(FILES ${python_files} DESTINATION freud)
