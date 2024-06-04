@@ -17,3 +17,6 @@ dependencies:
   - nbsphinx==0.9.4
   - jupyter_sphinx==0.5.3
   - sphinxcontrib-bibtex==2.6.2
+  - sphinx-copybutton==0.5.2
+  - pip:
+    - sphinxcontrib-googleanalytics==0.4
