@@ -1,18 +1,18 @@
 // Copyright (c) 2010-2023 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/vector.h>
 
 #include "Box.h"
 
 using namespace freud::box;
 
-PYBIND11_MODULE(_box, m)
+NB_MODULE(_box, m)
 {
-    pybind11::class_<Box, std::shared_ptr<Box>>(m, "Box")
+    nanobind::class_<Box>(m, "Box")
         // constructors
-        .def(pybind11::init<float, float, float, float, float, float, bool>())
+        .def(nanobind::init<float, float, float, float, float, float, bool>())
         // getters and setters
         .def("getLx", &Box::getLx)
         .def("getLy", &Box::getLy)

@@ -13,12 +13,12 @@ include_directories(${NumPy_INCLUDE_DIRS})
 # versions concurrently so it shouldn't hide any real issues. For backwards
 # compatibility with older CMake, I'm using PythonInterp; when we drop support
 # for CMake < 3.12, we should switch to find_package(Python).
-find_package(PythonInterp REQUIRED)
-if(${PYTHON_VERSION_MAJOR} EQUAL 3
-   AND ${PYTHON_VERSION_MINOR} EQUAL 8
-   AND NOT WIN32)
-  add_compile_options("-Wno-deprecated-declarations")
-endif()
+#find_package(PythonInterp REQUIRED)
+#if(${PYTHON_VERSION_MAJOR} EQUAL 3
+#   AND ${PYTHON_VERSION_MINOR} EQUAL 8
+#   AND NOT WIN32)
+#  add_compile_options("-Wno-deprecated-declarations")
+#endif()
 
 set(python_files box.py util.py)
 # cluster.py density.py diffraction.py environment.py locality.py order.py
