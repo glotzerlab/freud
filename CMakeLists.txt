@@ -29,13 +29,16 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 add_subdirectory(CMake)
 
 # find python
-if (CMAKE_VERSION VERSION_LESS 3.18)
+if(CMAKE_VERSION VERSION_LESS 3.18)
   set(DEV_MODULE Development)
 else()
   set(DEV_MODULE Development.Module)
 endif()
 
-find_package(Python 3.8 COMPONENTS Interpreter ${DEV_MODULE} REQUIRED)
+find_package(
+  Python 3.8
+  COMPONENTS Interpreter ${DEV_MODULE}
+  REQUIRED)
 
 find_package_config_first(TBB)
 
@@ -49,7 +52,8 @@ endif()
 # go find nanobind
 execute_process(
   COMMAND ${Python_EXECUTABLE} "-m" "nanobind" "--cmake_dir"
-  OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE NB_DIR)
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+  OUTPUT_VARIABLE NB_DIR)
 list(APPEND CMAKE_PREFIX_PATH "${NB_DIR}")
 message(STATUS ${CMAKE_PREFIX_PATH})
 find_package(nanobind CONFIG REQUIRED)

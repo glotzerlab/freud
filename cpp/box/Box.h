@@ -231,7 +231,7 @@ public:
      *  \param out The array in which to place the wrapped vectors.
      */
     void makeAbsolutePython(nb_array<float, nb::shape<-1, 3>> vecs, unsigned int Nvecs,
-            nb_array<float, nb::shape<-1, 3>> out) const
+                            nb_array<float, nb::shape<-1, 3>> out) const
     {
         vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
         vec3<float>* out_data = (vec3<float>*) (out.data());
@@ -267,7 +267,7 @@ public:
      *  \param out The array in which to place the wrapped vectors.
      */
     void makeFractionalPython(nb_array<float, nb::shape<-1, 3>> vecs, unsigned int Nvecs,
-            nb_array<float, nb::shape<-1, 3>> out) const
+                              nb_array<float, nb::shape<-1, 3>> out) const
     {
         vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
         vec3<float>* out_data = (vec3<float>*) (out.data());
@@ -301,7 +301,7 @@ public:
         \param res Array to save the images
      */
     void getImages(nb_array<float, nb::shape<-1, 3>> vecs, unsigned int Nvecs,
-            nb_array<int, nb::shape<-1, 3>> res) const
+                   nb_array<int, nb::shape<-1, 3>> res) const
     {
         vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
         vec3<int>* out_data = (vec3<int>*) (res.data());
@@ -347,7 +347,7 @@ public:
      *  \param out The array in which to place the wrapped vectors.
      */
     void wrapPython(nb_array<float, nb::shape<-1, 3>> vecs, unsigned int Nvecs,
-            nb_array<float, nb::shape<-1, 3>> out) const
+                    nb_array<float, nb::shape<-1, 3>> out) const
     {
         vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
         vec3<float>* out_data = (vec3<float>*) (out.data());
@@ -365,8 +365,7 @@ public:
         \param Nvecs Number of vectors
      *  \param out The array in which to place the wrapped vectors.
     */
-    void unwrap(nb_array<float> vecs, nb_array<int> images, unsigned int Nvecs,
-                nb_array<float> out) const
+    void unwrap(nb_array<float> vecs, nb_array<int> images, unsigned int Nvecs, nb_array<float> out) const
     {
         vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
         vec3<int>* images_data = (vec3<int>*) (images.data());
@@ -413,7 +412,7 @@ public:
     }
 
     std::vector<float> centerOfMassPython(nb_array<float> vecs, size_t Nvecs,
-                                            nb_array<float, nb::shape<-1>> masses) const
+                                          nb_array<float, nb::shape<-1>> masses) const
     {
         vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
         float* masses_data = (float*) (masses.data());
