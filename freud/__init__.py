@@ -1,8 +1,9 @@
 # Copyright (c) 2010-2023 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
-from . import ( # cluster,; data,; density,; diffraction,; environment,; interface,; locality,; msd,; order,; pmft,
+from . import ( # cluster,; data,; density,; diffraction,; environment,; interface,; msd,; order,; pmft,
     box,
+    locality,
     parallel,
 )
 from .box import Box
@@ -25,7 +26,7 @@ __all__ = [
     # "diffraction",
     # "environment",
     # "interface",
-    # "locality",
+    "locality",
     # "msd",
     # "order",
     "parallel",

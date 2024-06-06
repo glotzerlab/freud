@@ -15,11 +15,8 @@ import freud.box
 
 from freud.errors import NO_DEFAULT_QUERY_ARGS_MESSAGE
 from freud._locality import ITERATOR_TERMINATOR
-from freud.util import _Compute, vec3
+from freud.util import _Compute
 
-# numpy must be initialized. When using numpy from C or Cython you must
-# _always_ do that, or you will have segfaults
-np.import_array()
 
 class _QueryArgs:
     r"""Container for query arguments.
@@ -409,7 +406,7 @@ class NeighborQuery:
             self, ax=ax, title=title, *args, **kwargs)
 
 
-cdef class NeighborList:
+class NeighborList:
     r"""Class representing bonds between two sets of points.
 
     Compute classes contain a set of bonds between two sets of position
@@ -505,21 +502,12 @@ cdef class NeighborList:
         weights = freud.util._convert_array(
             weights, shape=query_point_indices.shape)
 
-        cdef const unsigned int[::1] l_query_point_indices = \
-            query_point_indices
-        cdef const unsigned int[::1] l_point_indices = point_indices
-        cdef const float[:, ::1] l_vectors = vectors
-        cdef const float[::1] l_weights = weights
-        cdef unsigned int l_num_bonds = l_query_point_indices.shape[0]
-        cdef unsigned int l_num_query_points = num_query_points
-        cdef unsigned int l_num_points = num_points
+        num_bonds = query_point_indices.shape[0]
 
-        cdef NeighborList result
         result = cls()
-        result.thisptr = new freud._locality.NeighborList(
-            l_num_bonds, &l_query_point_indices[0], l_num_query_points,
-            &l_point_indices[0], l_num_points, <vec3[float]*> &l_vectors[0, 0],
-            &l_weights[0])
+        result._cpp_obj = freud._locality.NeighborList(num_bonds,
+            query_point_indices, num_query_points, point_indices, num_points,
+            vectors, weights)
 
         return result
 
@@ -543,8 +531,8 @@ cdef class NeighborList:
                 Whether to exclude pairs of particles with the same point index in
                 the output neighborlist (Default value = ``True``).
         """
-        cdef NeighborQuery nq = NeighborQuery.from_system(system)
-        cdef freud._box.Box box = nq.nqptr.getBox()
+        nq = NeighborQuery.from_system(system)
+        box = nq._cpp_obj.getBox()
         points = nq.points
         if query_points is None:
             query_points = points
@@ -554,40 +542,28 @@ cdef class NeighborList:
         query_points = freud.util._convert_array(
             query_points, shape=query_points.shape, dtype=np.float32)
 
-        cdef const float[:, ::1] l_points = points
-        cdef const float[:, ::1] l_query_points = query_points
-        cdef cbool l_exclude_ii = exclude_ii
-
-        cdef NeighborList result
         result = cls()
-        result.thisptr = new freud._locality.NeighborList(
-            <vec3[float]*> &l_points[0, 0], <vec3[float]*> &l_query_points[0, 0],
-            box, l_exclude_ii, l_points.shape[0], l_query_points.shape[0]
+        result._cpp_obj = freud._locality.NeighborList(points, query_points,
+            box, exclude_ii, points.shape[0], query_points.shape[0]
         )
 
         return result
 
-    def __cinit__(self, _null=False):
+    def __init__(self, _null=False):
         # Setting _null to True will create a NeighborList with no underlying
         # C++ object. This is useful for passing NULL pointers to C++ to
         # indicate the lack of a NeighborList
         self._managed = not _null
-        # Cython won't assign NULL without cast
-        self.thisptr = <freud._locality.NeighborList *> NULL if _null \
-            else new freud._locality.NeighborList()
+        self._cpp_obj = None if _null else freud._locality.NeighborList()
         self._compute = None
 
-    def __dealloc__(self):
-        if self._managed:
-            del self.thisptr
-
-    cdef freud._locality.NeighborList * get_ptr(self):
+    def get_ptr(self):
         r"""Returns a pointer to the raw C++ object we are wrapping."""
-        return self.thisptr
+        return self._cpp_obj
 
-    cdef void copy_c(self, NeighborList other):
-        r"""Copies the contents of other into this object."""
-        self.thisptr.copy(dereference(other.thisptr))
+    def void copy_c(self, other):
+        r"""Copies the contents of other NeighborList into this object."""
+        self._cpp_obj.copy(other._cpp_obj)
 
     def copy(self, other=None):
         r"""Create a copy. If other is given, copy its contents into this
@@ -609,9 +585,7 @@ cdef class NeighborList:
 
     def __getitem__(self, key):
         r"""Access the bond array by index or slice."""
-        return freud.util.make_managed_numpy_array(
-            &self.thisptr.getNeighbors(),
-            freud.util.arr_type_t.UNSIGNED_INT)[key]
+        return self._cpp_obj.getNeighbors()[key]
 
     @property
     def query_point_indices(self):
@@ -633,45 +607,35 @@ cdef class NeighborList:
     def weights(self):
         """(:math:`N_{bonds}`) :class:`np.ndarray`: The weights for each bond.
         By default, bonds have a weight of 1."""
-        return freud.util.make_managed_numpy_array(
-            &self.thisptr.getWeights(),
-            freud.util.arr_type_t.FLOAT)
+        return self._cpp_obj.getWeights()
 
     @property
     def distances(self):
         """(:math:`N_{bonds}`) :class:`np.ndarray`: The distances for each
         bond."""
-        return freud.util.make_managed_numpy_array(
-            &self.thisptr.getDistances(),
-            freud.util.arr_type_t.FLOAT)
+        return self._cpp_obj.getDistances()
 
     @property
     def vectors(self):
         r"""(:math:`N_{bonds}`, 3) :class:`np.ndarray`: The vectors for each
         bond."""
-        return freud.util.make_managed_numpy_array(
-            &self.thisptr.getVectors(),
-            freud.util.arr_type_t.FLOAT, 3)
+        return self._cpp_obj.getVectors()
 
     @property
     def segments(self):
         """(:math:`N_{query\\_points}`) :class:`np.ndarray`: A segment array
         indicating the first bond index for each query point."""
-        return freud.util.make_managed_numpy_array(
-            &self.thisptr.getSegments(),
-            freud.util.arr_type_t.UNSIGNED_INT)
+        return self._cpp_obj.getSegments()
 
     @property
     def neighbor_counts(self):
         """(:math:`N_{query\\_points}`) :class:`np.ndarray`: A neighbor count
         array indicating the number of neighbors for each query point."""
-        return freud.util.make_managed_numpy_array(
-            &self.thisptr.getCounts(),
-            freud.util.arr_type_t.UNSIGNED_INT)
+        return self._cpp_obj.getCounts()
 
     def __len__(self):
         r"""Returns the number of bonds stored in this object."""
-        return self.thisptr.getNumBonds()
+        return self._cpp_obj.getNumBonds()
 
     @property
     def num_query_points(self):
@@ -679,7 +643,7 @@ cdef class NeighborList:
 
         All query point indices are less than this value.
         """
-        return self.thisptr.getNumQueryPoints()
+        return self._cpp_obj.getNumQueryPoints()
 
     @property
     def num_points(self):
@@ -687,16 +651,16 @@ cdef class NeighborList:
 
         All point indices are less than this value.
         """
-        return self.thisptr.getNumPoints()
+        return self._cpp_obj.getNumPoints()
 
-    def find_first_index(self, unsigned int i):
+    def find_first_index(self, i):
         r"""Returns the lowest bond index corresponding to a query particle
         with an index :math:`\geq i`.
 
         Args:
             i (unsigned int): The particle index.
         """
-        return self.thisptr.find_first_index(i)
+        return self._cpp_obj.find_first_index(i)
 
     def filter(self, filt):
         r"""Removes bonds that satisfy a boolean criterion.
@@ -714,12 +678,10 @@ cdef class NeighborList:
             nlist.filter(types[nlist.query_point_indices] != types[nlist.point_indices])
         """  # noqa E501
         filt = np.ascontiguousarray(filt, dtype=bool)
-        cdef np.ndarray[np.uint8_t, ndim=1, cast=True] filt_c = filt
-        cdef const cbool * filt_ptr = <cbool*> &filt_c[0]
-        self.thisptr.filter(filt_ptr)
+        self._cpp_obj.filter(filt)
         return self
 
-    def filter_r(self, float r_max, float r_min=0):
+    def filter_r(self, r_max, r_min=0):
         r"""Removes bonds that are outside of a given radius range.
 
         Args:
@@ -729,10 +691,10 @@ cdef class NeighborList:
                 Minimum bond distance in the resulting neighbor list
                 (Default value = :code:`0`).
         """
-        self.thisptr.filter_r(r_max, r_min)
+        self._cpp_obj.filter_r(r_max, r_min)
         return self
 
-    def sort(self, cbool by_distance=False):
+    def sort(self, by_distance=False):
         r"""Sort the entries in the neighborlist.
 
         Args:
@@ -743,7 +705,7 @@ cdef class NeighborList:
                 ``query_point_index``, then ``point_index``, then ``distance``
                 (Default value = ``False``).
         """
-        self.thisptr.sort(by_distance)
+        self._cpp_obj.sort(by_distance)
         return self
 
 
@@ -795,7 +757,7 @@ def _make_default_nq(neighbor_query):
             :code:`points`.
     """
     if not isinstance(neighbor_query, NeighborQuery):
-        nq = _RawPoints(*neighbor_query)
+        nq = _RawPoints(neighbor_query)
     else:
         nq = neighbor_query
     return nq
@@ -898,7 +860,7 @@ class LinkCell(NeighborQuery):
         return self._cpp_obj.getCellWidth()
 
 
-cdef class _PairCompute(_Compute):
+class _PairCompute(_Compute):
     r"""Parent class for all compute classes in freud that depend on finding
     nearest neighbors.
 
@@ -932,13 +894,10 @@ cdef class _PairCompute(_Compute):
                 :class:`~.locality.NeighborList` or dictionary of query
                 arguments to use to find bonds (Default value = :code:`None`).
         """  # noqa E501
-        cdef NeighborQuery nq = NeighborQuery.from_system(system)
+        nq = NeighborQuery.from_system(system)
 
         # Resolve the two possible ways of passing neighbors (query arguments
         # or neighbor lists) based on the type of the neighbors argument.
-        cdef NeighborList nlist
-        cdef _QueryArgs qargs
-
         nlist, qargs = self._resolve_neighbors(neighbors, query_points)
 
         if query_points is None:
@@ -946,9 +905,8 @@ cdef class _PairCompute(_Compute):
         else:
             query_points = freud.util._convert_array(
                 query_points, shape=(None, 3))
-        cdef const float[:, ::1] l_query_points = query_points
-        cdef unsigned int num_query_points = l_query_points.shape[0]
-        return (nq, nlist, qargs, l_query_points, num_query_points)
+        num_query_points = query_points.shape[0]
+        return (nq, nlist, qargs, query_points, num_query_points)
 
     def _resolve_neighbors(self, neighbors, query_points=None):
         if type(neighbors) is NeighborList:
@@ -978,12 +936,12 @@ cdef class _PairCompute(_Compute):
             NO_DEFAULT_QUERY_ARGS_MESSAGE.format(type(self).__name__))
 
 
-cdef class _SpatialHistogram(_PairCompute):
+class _SpatialHistogram(_PairCompute):
     r"""Parent class for all compute classes in freud that perform a spatial
     binning of particle bonds by distance.
     """
 
-    def __cinit__(self):
+    def __init__(self):
         # Abstract class
         pass
 
@@ -997,20 +955,18 @@ cdef class _SpatialHistogram(_PairCompute):
     def box(self):
         """:class:`freud.box.Box`: The box object used in the last
         computation."""
-        return freud.box.BoxFromCPP(self.histptr.getBox())
+        return freud.box.BoxFromCPP(self._cpp_obj.getBox())
 
     @_Compute._computed_property
     def bin_counts(self):
         """:class:`numpy.ndarray`: The bin counts in the histogram."""
-        return freud.util.make_managed_numpy_array(
-            &self.histptr.getBinCounts(),
-            freud.util.arr_type_t.UNSIGNED_INT)
+        return self._cpp_obj.getBinCounts()
 
     @property
     def bin_centers(self):
         """:class:`numpy.ndarray`: The centers of each bin in the histogram
         (has the same shape as the histogram itself)."""
-        vec = self.histptr.getBinCenters()
+        vec = self._cpp_obj.getBinCenters()
         return [np.array(b, copy=True) for b in vec]
 
     @property
@@ -1018,33 +974,33 @@ cdef class _SpatialHistogram(_PairCompute):
         """:class:`numpy.ndarray`: The edges of each bin in the histogram (is
         one element larger in each dimension than the histogram because each
         bin has a lower and upper bound)."""
-        vec = self.histptr.getBinEdges()
+        vec = self._cpp_obj.getBinEdges()
         return [np.array(b, copy=True) for b in vec]
 
     @property
     def bounds(self):
         """:class:`list` (:class:`tuple`): A list of tuples indicating upper and
         lower bounds of each axis of the histogram."""
-        vec = self.histptr.getBounds()
+        vec = self._cpp_obj.getBounds()
         return [tuple(b) for b in vec]
 
     @property
     def nbins(self):
         """:class:`list`: The number of bins in each dimension of the
         histogram."""
-        return list(self.histptr.getAxisSizes())
+        return list(self._cpp_obj.getAxisSizes())
 
     def _reset(self):
         # Resets the values of RDF in memory.
-        self.histptr.reset()
+        self._cpp_obj.reset()
 
 
-cdef class _SpatialHistogram1D(_SpatialHistogram):
+class _SpatialHistogram1D(_SpatialHistogram):
     r"""Subclasses _SpatialHistogram to provide a simplified API for
     properties of 1-dimensional histograms.
     """
 
-    def __cinit__(self):
+    def __init__(self):
         # Abstract class
         pass
 
@@ -1052,48 +1008,33 @@ cdef class _SpatialHistogram1D(_SpatialHistogram):
     def bin_centers(self):
         """:math:`(N_{bins}, )` :class:`numpy.ndarray`: The centers of each bin
         in the histogram."""
-        # Must create a local reference or Cython tries to access an rvalue by
-        # reference in the list comprehension.
-        vec = self.histptr.getBinCenters()
-        return np.array(vec[0], copy=True)
+        return np.array(self._cpp_obj.getBinCenters(), copy=True)
 
     @property
     def bin_edges(self):
         """:math:`(N_{bins}+1, )` :class:`numpy.ndarray`: The edges of each bin
         in the histogram. It is one element larger because each bin has a lower
         and an upper bound."""
-        # Must create a local reference or Cython tries to access an rvalue by
-        # reference in the list comprehension.
-        vec = self.histptr.getBinEdges()
-        return np.array(vec[0], copy=True)
+        return np.array(self._cpp_obj.getBinEdges(), copy=True)
 
     @property
     def bounds(self):
         """tuple: A tuple indicating upper and lower bounds of the histogram."""
-        # Must create a local reference or Cython tries to access an rvalue by
-        # reference in the list comprehension.
-        vec = self.histptr.getBounds()
-        return vec[0]
+        return self._cpp_obj.getBounds()
 
     @property
     def nbins(self):
         """int: The number of bins in the histogram."""
-        return self.histptr.getAxisSizes()[0]
+        return self._cpp_obj.getAxisSizes()[0]
 
 
-cdef class PeriodicBuffer(_Compute):
+class PeriodicBuffer(_Compute):
     r"""Replicate periodic images of points inside a box."""
 
-    def __cinit__(self):
-        self.thisptr = new freud._locality.PeriodicBuffer()
-
     def __init__(self):
-        pass
+        self._cpp_obj = freud._locality.PeriodicBuffer()
 
-    def __dealloc__(self):
-        del self.thisptr
-
-    def compute(self, system, buffer, cbool images=False, include_input_points=False):
+    def compute(self, system, buffer, images=False, include_input_points=False):
         r"""Compute the periodic buffer.
 
         Args:
@@ -1113,38 +1054,36 @@ cdef class PeriodicBuffer(_Compute):
                 Whether the original points provided by ``system`` are
                 included in the buffer, (Default value = :code:`False`).
         """
-        cdef NeighborQuery nq = _make_default_nq(system)
-        cdef vec3[float] buffer_vec
+        NeighborQuery nq = _make_default_nq(system)
         if np.ndim(buffer) == 0:
             # catches more cases than np.isscalar
-            buffer_vec = vec3[float](buffer, buffer, buffer)
+            buffer_vec = [buffer, buffer, buffer]
         elif len(buffer) == 3:
-            buffer_vec = vec3[float](buffer[0], buffer[1], buffer[2])
+            buffer_vec = [buffer[0], buffer[1], buffer[2]]
         else:
             raise ValueError('buffer must be a scalar or have length 3.')
 
-        self.thisptr.compute(nq.get_ptr(), buffer_vec, images, include_input_points)
+        self._cpp_obj.compute(nq._cpp_obj, buffer_vec, images, include_input_points)
         return self
 
     @_Compute._computed_property
     def buffer_points(self):
         """:math:`\\left(N_{buffer}, 3\\right)` :class:`numpy.ndarray`: The
         buffer point positions."""
-        points = self.thisptr.getBufferPoints()
+        points = self._cpp_obj.getBufferPoints()
         return np.asarray([[p.x, p.y, p.z] for p in points])
 
     @_Compute._computed_property
     def buffer_ids(self):
         """:math:`\\left(N_{buffer}\\right)` :class:`numpy.ndarray`: The buffer
         point ids."""
-        return np.asarray(self.thisptr.getBufferIds())
+        return np.asarray(self._cpp_obj.getBufferIds())
 
     @_Compute._computed_property
     def buffer_box(self):
         """:class:`freud.box.Box`: The buffer box, expanded to hold the
         replicated points."""
-        return freud.box.BoxFromCPP(
-            <freud._box.Box> self.thisptr.getBufferBox())
+        return freud.box.BoxFromCPP(self._cpp_obj.getBufferBox())
 
     def __repr__(self):
         return "freud.locality.{cls}()".format(cls=type(self).__name__)
@@ -1212,9 +1151,7 @@ class Voronoi(_Compute):
     def volumes(self):
         """:math:`\\left(N_{points} \\right)` :class:`numpy.ndarray`: Returns
         an array of Voronoi cell volumes (areas in 2D)."""
-        return freud.util.make_managed_numpy_array(
-            &self.thisptr.getVolumes(),
-            freud.util.arr_type_t.DOUBLE)
+        return self._cpp_obj.getVolumes()
 
     @_Compute._computed_property
     def nlist(self):
@@ -1278,7 +1215,7 @@ class Voronoi(_Compute):
             return None
 
 
-cdef class Filter(_PairCompute):
+class Filter(_PairCompute):
     """Filter an Existing :class:`.NeighborList`.
 
     This class serves as the base class for all NeighborList filtering methods
@@ -1298,11 +1235,10 @@ cdef class Filter(_PairCompute):
     Warning:
         This class is abstract and should not be instantiated directly.
     """
-    def __cinit__(self):
-        if type(self) is Filter:
-            raise RuntimeError(
-                "The Filter class is abstract and should not be instantiated directly."
-            )
+    def __init__(self):
+        raise RuntimeError(
+            "The Filter class is abstract and should not be instantiated directly."
+        )
 
     def _preprocess_arguments(self, system, query_points=None, neighbors=None):
         """Use a full neighborlist if neighbors=None."""
@@ -1330,19 +1266,11 @@ cdef class Filter(_PairCompute):
                 Query points used to calculate the unfiltered neighborlist. Uses
                 the system's points if :code:`None` (Default value = :code:`None`).
         """
-        cdef:
-            NeighborQuery nq
-            NeighborList nlist
-            _QueryArgs qargs
-            const float[:, ::1] l_query_points
-            unsigned int num_query_points
-        nq, nlist, qargs, l_query_points, num_query_points = \
+        nq, nlist, qargs, query_points, num_query_points = \
             self._preprocess_arguments(system, query_points, neighbors)
 
-        self._filterptr.compute(nq.get_ptr(),
-                                <vec3[float]*> &l_query_points[0, 0],
-                                num_query_points, nlist.get_ptr(),
-                                dereference(qargs.thisptr))
+        self._filterptr.compute(nq.get_ptr(), query_points, num_query_points,
+                                nlist.get_ptr(), qargs._cpp_obj)
         return self
 
     @_Compute._computed_property
@@ -1360,7 +1288,7 @@ cdef class Filter(_PairCompute):
         return nlist
 
 
-cdef class FilterSANN(Filter):
+class FilterSANN(Filter):
     """Filter a :class:`.NeighborList` via the SANN method.
 
     The Solid Angle Nearest Neighbor (SANN) method :cite:`vanMeel2012` is a
@@ -1395,15 +1323,11 @@ cdef class FilterSANN(Filter):
             If False, an exception will be raised in the same case (Default value =
             :code:`False`).
     """
-    def __cinit__(self, cbool allow_incomplete_shell=False):
-        self._filterptr = self._thisptr = \
-            new freud._locality.FilterSANN(allow_incomplete_shell)
+    def __init__(self, allow_incomplete_shell=False):
+        self._cpp_obj = freud._locality.FilterSANN(allow_incomplete_shell)
 
-    def __dealloc__(self):
-        if type(self) is FilterSANN:
-            del self._thisptr
 
-cdef class FilterRAD(Filter):
+class FilterRAD(Filter):
     """Filter a :class:`.NeighborList` via the RAD method.
 
     The Relative Angular Distance (RAD) method :cite:`Higham2016` is a parameter-free
@@ -1450,16 +1374,7 @@ cdef class FilterRAD(Filter):
             Filter potential neighbors after a closer blocked particle is found
             (Default value = :code:`False`).
     """
-    def __cinit__(
-        self,
-        cbool allow_incomplete_shell=False,
-        cbool terminate_after_blocked=True
-    ):
-        self._filterptr = self._thisptr = new freud._locality.FilterRAD(
-            allow_incomplete_shell,
-            terminate_after_blocked
-        )
+    def __init__(self, allow_incomplete_shell=False, terminate_after_blocked=True):
+        self._cpp_obj = freud._locality.FilterRAD(allow_incomplete_shell,
+                                                  terminate_after_blocked)
 
-    def __dealloc__(self):
-        if type(self) is FilterRAD:
-            del self._thisptr
