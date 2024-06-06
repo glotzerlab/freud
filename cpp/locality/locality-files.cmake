@@ -1,0 +1,28 @@
+set(locality_sources
+    AABBQuery.cc
+    FilterRAD.cc
+    FilterSANN.cc
+    LinkCell.cc
+    NeighborComputeFunctional.cc
+    NeighborList.cc
+    PeriodicBuffer.cc
+    Voronoi.cc
+    )
+
+set(locality_headers
+    AABB.h
+    AABBQuery.h
+    AABBTree.h
+    BondHistogramCompute.h
+    Filter.h
+    FilterRAD.h
+    FilterSANN.h
+    LinkCell.h
+    NeighborBond.h
+    NeighborList.h
+    NeighborPerPointIterator.h
+    NeighborQuery.h
+    PeriodicBuffer.h
+    RawPoints.h
+    Voronoi.h
+    )
