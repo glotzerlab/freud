@@ -398,7 +398,7 @@ class Box:
         if masses is not None:
             masses = freud.util._convert_array(masses, shape=(len(vecs),))
         else:
-            masses = np.ones(Np)
+            masses = np.ones(Np, dtype=np.float32)
 
         result = self._cpp_obj.centerOfMass(vecs, Np, masses)
         return np.asarray(result)

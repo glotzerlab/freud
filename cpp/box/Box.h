@@ -6,14 +6,14 @@
 
 #include <algorithm>
 #include <complex>
-#include <iostream>
 #include <sstream>
 #include <stdexcept>
 
 #include "VectorMath.h"
 #include "utils.h"
 
-#include <pybind11/numpy.h>
+#include <nanobind/ndarray.h>
+namespace nb = nanobind;
 
 /*! \file Box.h
     \brief Represents simulation boxes and contains helpful wrapping functions.
@@ -26,8 +26,8 @@ constexpr float TWO_PI = 2.0 * M_PI;
 
 namespace freud { namespace box {
 
-template<typename T>
-using pybind11_array = pybind11::array_t<T, pybind11::array::c_style | pybind11::array::forcecast>;
+template<typename T, typename shape = nb::shape<-1, 3>>
+using nb_array = nb::ndarray<T, shape, nb::device::cpu, nb::c_contig>;
 
 //! Stores box dimensions and provides common routines for wrapping vectors back into the box
 /*! Box stores a standard HOOMD simulation box that goes from -L/2 to L/2 in each dimension, allowing Lx, Ly,
@@ -156,7 +156,7 @@ public:
     }
 
     //! Get current stored inverse of L
-    std::array<float, 3> getLinv() const
+    std::vector<float> getLinv() const
     {
         return {m_Linv.x, m_Linv.y, m_Linv.z};
     }
@@ -228,9 +228,10 @@ public:
     /*! \param vecs Vectors of fractional coordinates between 0 and 1 within
      *         parallelepipedal box
      *  \param Nvecs Number of vectors
-     *  \param out The array in which to place the wrapped vectors.
+     *  \param out_data The array in which to place the wrapped vectors.
      */
-    void makeAbsolutePython(pybind11_array<float> vecs, unsigned int Nvecs, pybind11_array<float> out) const
+    void makeAbsolutePython(nb_array<float, nb::shape<-1, 3>> vecs, unsigned int Nvecs,
+                            nb_array<float, nb::shape<-1, 3>> out) const
     {
         vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
         vec3<float>* out_data = (vec3<float>*) (out.data());
@@ -265,7 +266,8 @@ public:
      *  \param Nvecs Number of vectors
      *  \param out The array in which to place the wrapped vectors.
      */
-    void makeFractionalPython(pybind11_array<float> vecs, unsigned int Nvecs, pybind11_array<float> out) const
+    void makeFractionalPython(nb_array<float, nb::shape<-1, 3>> vecs, unsigned int Nvecs,
+                              nb_array<float, nb::shape<-1, 3>> out) const
     {
         vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
         vec3<float>* out_data = (vec3<float>*) (out.data());
@@ -298,7 +300,8 @@ public:
      *  \param Nvecs Number of vectors
         \param res Array to save the images
      */
-    void getImages(pybind11_array<float> vecs, unsigned int Nvecs, pybind11::array_t<int> res) const
+    void getImages(nb_array<float, nb::shape<-1, 3>> vecs, unsigned int Nvecs,
+                   nb_array<int, nb::shape<-1, 3>> res) const
     {
         vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
         vec3<int>* out_data = (vec3<int>*) (res.data());
@@ -343,7 +346,8 @@ public:
      *  \param Nvecs Number of vectors
      *  \param out The array in which to place the wrapped vectors.
      */
-    void wrapPython(pybind11_array<float> vecs, unsigned int Nvecs, pybind11_array<float> out) const
+    void wrapPython(nb_array<float, nb::shape<-1, 3>> vecs, unsigned int Nvecs,
+                    nb_array<float, nb::shape<-1, 3>> out) const
     {
         vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
         vec3<float>* out_data = (vec3<float>*) (out.data());
@@ -361,8 +365,7 @@ public:
         \param Nvecs Number of vectors
      *  \param out The array in which to place the wrapped vectors.
     */
-    void unwrap(pybind11_array<float> vecs, pybind11_array<int> images, unsigned int Nvecs,
-                pybind11_array<float> out) const
+    void unwrap(nb_array<float> vecs, nb_array<int> images, unsigned int Nvecs, nb_array<float> out) const
     {
         vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
         vec3<int>* images_data = (vec3<int>*) (images.data());
@@ -408,8 +411,8 @@ public:
                                  / constants::TWO_PI));
     }
 
-    std::array<float, 3> centerOfMassPython(pybind11_array<float> vecs, size_t Nvecs,
-                                            pybind11_array<float> masses) const
+    std::vector<float> centerOfMassPython(nb_array<float> vecs, size_t Nvecs,
+                                          nb_array<float, nb::shape<-1>> masses) const
     {
         vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
         float* masses_data = (float*) (masses.data());
@@ -422,7 +425,7 @@ public:
      *  \param Nvecs Number of vectors
      *  \param masses Optional array of masses, of length Nvecs
      */
-    void center(pybind11_array<float> vecs, unsigned int Nvecs, pybind11_array<float> masses) const
+    void center(nb_array<float> vecs, unsigned int Nvecs, nb_array<float, nb::shape<-1>> masses) const
     {
         vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
         float* masses_data = (float*) (masses.data());
@@ -454,9 +457,9 @@ public:
         \param distances Pointer to array of length n_query_points containing distances between each point and
        query_point (overwritten in place).
     */
-    void computeDistances(pybind11_array<float> query_points, const unsigned int n_query_points,
-                          pybind11_array<float> points, const unsigned int n_points,
-                          pybind11_array<float> distances) const
+    void computeDistances(nb_array<float> query_points, const unsigned int n_query_points,
+                          nb_array<float> points, const unsigned int n_points,
+                          nb_array<float, nb::shape<-1>> distances) const
     {
         vec3<float>* query_points_data = (vec3<float>*) (query_points.data());
         vec3<float>* points_data = (vec3<float>*) (points.data());
@@ -482,9 +485,9 @@ public:
         \param distances Pointer to array of length n_query_points*n_points containing distances between
        points and query_points (overwritten in place).
     */
-    void computeAllDistances(pybind11_array<float> query_points, const unsigned int n_query_points,
-                             pybind11_array<float> points, const unsigned int n_points,
-                             pybind11_array<float> distances) const
+    void computeAllDistances(nb_array<float> query_points, const unsigned int n_query_points,
+                             nb_array<float> points, const unsigned int n_points,
+                             nb_array<float, nb::ndim<2>> distances) const
     {
         vec3<float>* query_points_data = (vec3<float>*) (query_points.data());
         vec3<float>* points_data = (vec3<float>*) (points.data());
@@ -508,8 +511,8 @@ public:
         \param n_points The number of points.
         \param contains_mask Mask of points inside the box.
     */
-    void contains(pybind11_array<float> points, const unsigned int n_points,
-                  pybind11_array<bool> contains_mask) const
+    void contains(nb_array<float> points, const unsigned int n_points,
+                  nb_array<bool, nb::shape<-1>> contains_mask) const
     {
         vec3<float>* points_data = (vec3<float>*) (points.data());
         bool* contains_mask_data = (bool*) (contains_mask.data());

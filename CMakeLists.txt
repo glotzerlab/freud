@@ -27,6 +27,19 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # https://stackoverflow.com/questions/50600708/combining-cmake-object-libraries-with-shared-libraries
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 add_subdirectory(CMake)
+
+# find python
+if(CMAKE_VERSION VERSION_LESS 3.18)
+  set(DEV_MODULE Development)
+else()
+  set(DEV_MODULE Development.Module)
+endif()
+
+find_package(
+  Python 3.8
+  COMPONENTS Interpreter ${DEV_MODULE}
+  REQUIRED)
+
 find_package_config_first(TBB)
 
 if(TBB_FOUND)
@@ -36,8 +49,14 @@ if(TBB_FOUND)
     "[${TBB_LIBRARY}][${TBB_INCLUDE_DIR}]")
 endif()
 
-# go find pybind11
-find_package(pybind11 CONFIG REQUIRED)
+# go find nanobind
+execute_process(
+  COMMAND ${Python_EXECUTABLE} "-m" "nanobind" "--cmake_dir"
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+  OUTPUT_VARIABLE NB_DIR)
+list(APPEND CMAKE_PREFIX_PATH "${NB_DIR}")
+message(STATUS ${CMAKE_PREFIX_PATH})
+find_package(nanobind CONFIG REQUIRED)
 
 # Fail fast if users have not cloned submodules.
 if(NOT WIN32)
