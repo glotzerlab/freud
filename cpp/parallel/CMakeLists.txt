@@ -1,6 +1,6 @@
-pybind11_add_module(_parallel SHARED module-parallel.cc tbb_config.h tbb_config.cc)
+nanobind_add_module(_parallel SHARED module-parallel.cc)
 
-target_link_libraries(_parallel PUBLIC TBB::tbb)
+target_link_libraries(_parallel PUBLIC libfreud)
 
 if(APPLE)
   set_target_properties(_parallel PROPERTIES INSTALL_RPATH "@loader_path")

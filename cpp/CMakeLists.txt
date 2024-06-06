@@ -22,27 +22,15 @@ else()
       PARENT_SCOPE)
 endif()
 
-add_subdirectory(box)
-add_subdirectory(parallel)
+# get the sources/header files for building libfreud.so
+include(box/box-files.cmake)
+include(parallel/parallel-files.cmake)
 
-# commented out for now, uncomment them as the conversion to pybind11 progresses
-# add_subdirectory(cluster) add_subdirectory(density)
-# add_subdirectory(diffraction) add_subdirectory(environment)
-# add_subdirectory(locality) add_subdirectory(order)
-# add_subdirectory(pmft) add_subdirectory(util)
-
-#[[
+# make libfreud.so
 add_library(
   libfreud SHARED
-  $<TARGET_OBJECTS:_cluster>
-  $<TARGET_OBJECTS:_density>
-  $<TARGET_OBJECTS:_diffraction>
-  $<TARGET_OBJECTS:_environment>
-  $<TARGET_OBJECTS:_locality>
-  $<TARGET_OBJECTS:_order>
-  $<TARGET_OBJECTS:_parallel>
-  $<TARGET_OBJECTS:_pmft>
-  $<TARGET_OBJECTS:_util>)
+  ${box_sources}
+  ${parallel_sources})
 
 target_link_libraries(libfreud PUBLIC TBB::tbb)
 
@@ -69,4 +57,14 @@ if(CMAKE_EXPORT_COMPILE_COMMANDS)
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/compile_commands.json
             ${PROJECT_SOURCE_DIR})
 endif()
-]]
+
+# now build the python extension modules
+add_subdirectory(box)
+add_subdirectory(parallel)
+
+# commented out for now, uncomment them as the conversion to pybind11 progresses
+# add_subdirectory(cluster) add_subdirectory(density)
+# add_subdirectory(diffraction) add_subdirectory(environment)
+# add_subdirectory(locality) add_subdirectory(order)
+# add_subdirectory(pmft) add_subdirectory(util)
+
