@@ -64,7 +64,7 @@ master_doc = "index"
 # General information about the project.
 project = "freud"
 year = datetime.date.today().year
-copyright = f"2010-{ year } The Regents of the University of Michigan"
+copyright = f"2010-{year} The Regents of the University of Michigan"
 author = "The Regents of the University of Michigan"
 
 # The version info for the project you're documenting, acts as replacement for

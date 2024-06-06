@@ -7,7 +7,7 @@ freud, determining how many threads the TBB-enabled parts of freud will use.
 freud uses all available threads for parallelization unless directed otherwise.
 """
 
-cimport freud._parallel
+import freud._parallel
 
 _num_threads = 0
 
@@ -36,8 +36,7 @@ def set_num_threads(nthreads=None):
 
     _num_threads = nthreads
 
-    cdef unsigned int cNthreads = nthreads
-    freud._parallel.setNumThreads(cNthreads)
+    freud._parallel.setNumThreads(nthreads)
 
 
 class NumThreads:

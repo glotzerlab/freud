@@ -6,27 +6,31 @@ if(WIN32)
   add_compile_options(/DNOMINMAX)
 endif()
 
-add_subdirectory(cluster)
-add_subdirectory(density)
-add_subdirectory(diffraction)
-add_subdirectory(environment)
-add_subdirectory(locality)
-add_subdirectory(order)
-add_subdirectory(parallel)
-add_subdirectory(pmft)
-add_subdirectory(util)
+# Detect when building against a conda environment set the _using_conda variable
+# for use both in this file and in the parent
+get_filename_component(_python_bin_dir ${PYTHON_EXECUTABLE} DIRECTORY)
+if(EXISTS "${_python_bin_dir}/../conda-meta")
+  message("-- Detected conda environment, setting INSTALL_RPATH_USE_LINK_PATH")
+  set(_using_conda On)
+  set(_using_conda
+      On
+      PARENT_SCOPE)
+else()
+  set(_using_conda Off)
+  set(_using_conda
+      Off
+      PARENT_SCOPE)
+endif()
 
+# get the sources/header files for building libfreud.so
+include(box/box-files.cmake)
+include(parallel/parallel-files.cmake)
+
+# make libfreud.so
 add_library(
   libfreud SHARED
-  $<TARGET_OBJECTS:_cluster>
-  $<TARGET_OBJECTS:_density>
-  $<TARGET_OBJECTS:_diffraction>
-  $<TARGET_OBJECTS:_environment>
-  $<TARGET_OBJECTS:_locality>
-  $<TARGET_OBJECTS:_order>
-  $<TARGET_OBJECTS:_parallel>
-  $<TARGET_OBJECTS:_pmft>
-  $<TARGET_OBJECTS:_util>)
+  ${box_sources}
+  ${parallel_sources})
 
 target_link_libraries(libfreud PUBLIC TBB::tbb)
 
@@ -53,3 +57,14 @@ if(CMAKE_EXPORT_COMPILE_COMMANDS)
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/compile_commands.json
             ${PROJECT_SOURCE_DIR})
 endif()
+
+# now build the python extension modules
+add_subdirectory(box)
+add_subdirectory(parallel)
+
+# commented out for now, uncomment them as the conversion to pybind11 progresses
+# add_subdirectory(cluster) add_subdirectory(density)
+# add_subdirectory(diffraction) add_subdirectory(environment)
+# add_subdirectory(locality) add_subdirectory(order)
+# add_subdirectory(pmft) add_subdirectory(util)
+
