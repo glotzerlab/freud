@@ -228,7 +228,7 @@ public:
     /*! \param vecs Vectors of fractional coordinates between 0 and 1 within
      *         parallelepipedal box
      *  \param Nvecs Number of vectors
-     *  \param out The array in which to place the wrapped vectors.
+     *  \param out_data The array in which to place the wrapped vectors.
      */
     void makeAbsolutePython(nb_array<float, nb::shape<-1, 3>> vecs, unsigned int Nvecs,
                             nb_array<float, nb::shape<-1, 3>> out) const
