@@ -321,8 +321,7 @@ public:
      *  \param Nvecs Number of vectors
         \param res Array to save the images
      */
-    void getImagesPython(nb_array<float, nb::shape<-1, 3>> vecs,
-                         nb_array<int, nb::shape<-1, 3>> images) const
+    void getImagesPython(nb_array<float, nb::shape<-1, 3>> vecs, nb_array<int, nb::shape<-1, 3>> images) const
     {
         const unsigned int Nvecs = vecs.shape(0);
         vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
@@ -373,8 +372,7 @@ public:
      *  \param Nvecs Number of vectors
      *  \param out The array in which to place the wrapped vectors.
      */
-    void wrapPython(nb_array<float, nb::shape<-1, 3>> vecs,
-                    nb_array<float, nb::shape<-1, 3>> out) const
+    void wrapPython(nb_array<float, nb::shape<-1, 3>> vecs, nb_array<float, nb::shape<-1, 3>> out) const
     {
         const unsigned int Nvecs = vecs.shape(0);
         vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
@@ -440,8 +438,7 @@ public:
                                  / constants::TWO_PI));
     }
 
-    std::vector<float> centerOfMassPython(nb_array<float> vecs,
-                                          nb_array<float, nb::shape<-1>> masses) const
+    std::vector<float> centerOfMassPython(nb_array<float> vecs, nb_array<float, nb::shape<-1>> masses) const
     {
         const unsigned int Nvecs = vecs.shape(0);
         vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
@@ -485,8 +482,7 @@ public:
     }
 
     void computeDistances(const vec3<float>* query_points, const unsigned int n_query_points,
-                          const vec3<float>* points, const unsigned int n_points,
-                          float* distances) const
+                          const vec3<float>* points, const unsigned int n_points, float* distances) const
     {
         util::forLoopWrapper(0, n_query_points, [&](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
@@ -505,7 +501,7 @@ public:
        query_point (overwritten in place).
     */
     void computeDistancesPython(nb_array<float> query_points, nb_array<float> points,
-            nb_array<float, nb::ndim<1>> distances) const
+                                nb_array<float, nb::ndim<1>> distances) const
     {
         const unsigned int n_query_points = query_points.shape(0);
         vec3<float>* query_points_data = (vec3<float>*) (query_points.data());
@@ -520,20 +516,18 @@ public:
     }
 
     void computeAllDistances(const vec3<float>* query_points, const unsigned int n_query_points,
-                             const vec3<float>* points, const unsigned int n_points,
-                             float* distances) const
+                             const vec3<float>* points, const unsigned int n_points, float* distances) const
     {
-        util::forLoopWrapper2D(0, n_query_points, 0, n_points,
-                               [&](size_t begin_n, size_t end_n, size_t begin_m, size_t end_m) {
-                                   for (size_t i = begin_n; i < end_n; ++i)
-                                   {
-                                       for (size_t j = begin_m; j < end_m; ++j)
-                                       {
-                                           distances[i * n_points + j]
-                                               = computeDistance(query_points[i], points[j]);
-                                       }
-                                   }
-                               });
+        util::forLoopWrapper2D(
+            0, n_query_points, 0, n_points, [&](size_t begin_n, size_t end_n, size_t begin_m, size_t end_m) {
+                for (size_t i = begin_n; i < end_n; ++i)
+                {
+                    for (size_t j = begin_m; j < end_m; ++j)
+                    {
+                        distances[i * n_points + j] = computeDistance(query_points[i], points[j]);
+                    }
+                }
+            });
     }
     //! Calculate all pairwise distances between a set of query points and points.
     /*! \param query_points Query point positions.
@@ -544,7 +538,7 @@ public:
        points and query_points (overwritten in place).
     */
     void computeAllDistancesPython(nb_array<float> query_points, nb_array<float> points,
-            nb_array<float, nb::ndim<2>> distances) const
+                                   nb_array<float, nb::ndim<2>> distances) const
     {
         const unsigned int n_query_points = query_points.shape(0);
         vec3<float>* query_points_data = (vec3<float>*) (query_points.data());
@@ -554,8 +548,7 @@ public:
         computeAllDistances(query_points_data, n_query_points, points_data, n_points, distances_data);
     }
 
-    void contains(vec3<float>* points, const unsigned int n_points,
-                  bool* contains_mask) const
+    void contains(vec3<float>* points, const unsigned int n_points, bool* contains_mask) const
     {
         util::forLoopWrapper(0, n_points, [&](size_t begin, size_t end) {
             std::transform(&points[begin], &points[end], &contains_mask[begin],

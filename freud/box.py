@@ -460,9 +460,7 @@ class Box:
         n_query_points = query_points.shape[0]
         distances = np.empty(n_query_points, dtype=np.float32)
 
-        self._cpp_obj.computeDistances(
-            query_points, points, distances
-        )
+        self._cpp_obj.computeDistances(query_points, points, distances)
         return np.asarray(distances)
 
     def compute_all_distances(self, query_points, points):
@@ -490,9 +488,7 @@ class Box:
         n_points = points.shape[0]
         distances = np.empty([n_query_points, n_points], dtype=np.float32)
 
-        self._cpp_obj.computeAllDistances(
-            query_points, points, distances
-        )
+        self._cpp_obj.computeAllDistances(query_points, points, distances)
 
         return np.asarray(distances)
 
