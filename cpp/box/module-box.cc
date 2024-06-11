@@ -35,15 +35,15 @@ NB_MODULE(_box, m)
         .def("is2D", &Box::is2D)
         .def("set2D", &Box::set2D)
         .def("getVolume", &Box::getVolume)
-        .def("center", &Box::center)
+        .def("center", &Box::centerPython)
         .def("centerOfMass", &Box::centerOfMassPython)
         // other stuff
         .def("makeAbsolute", &Box::makeAbsolutePython)
         .def("makeFractional", &Box::makeFractionalPython)
         .def("wrap", &Box::wrapPython)
-        .def("unwrap", &Box::unwrap)
-        .def("getImages", &Box::getImages)
-        .def("computeDistances", &Box::computeDistances)
-        .def("computeAllDistances", &Box::computeAllDistances)
-        .def("contains", &Box::contains);
+        .def("unwrap", &Box::unwrapPython)
+        .def("getImages", &Box::getImagesPython)
+        .def("computeDistances", &Box::computeDistancesPython)
+        .def("computeAllDistances", &Box::computeAllDistancesPython)
+        .def("contains", &Box::containsPython);
 }

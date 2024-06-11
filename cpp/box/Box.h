@@ -224,23 +224,28 @@ public:
         return v;
     }
 
-    //! Convert fractional coordinates into absolute coordinates in place
-    /*! \param vecs Vectors of fractional coordinates between 0 and 1 within
-     *         parallelepipedal box
-     *  \param Nvecs Number of vectors
-     *  \param out_data The array in which to place the wrapped vectors.
-     */
-    void makeAbsolutePython(nb_array<float, nb::shape<-1, 3>> vecs, unsigned int Nvecs,
-                            nb_array<float, nb::shape<-1, 3>> out) const
+    void makeAbsolute(const vec3<float>* vecs, const unsigned int Nvecs, vec3<float>* out) const
     {
-        vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
-        vec3<float>* out_data = (vec3<float>*) (out.data());
         util::forLoopWrapper(0, Nvecs, [&](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
-                out_data[i] = makeAbsolute(vecs_data[i]);
+                out[i] = makeAbsolute(vecs[i]);
             }
         });
+    }
+
+    //! Convert fractional coordinates into absolute coordinates in place
+    /*! \param vecs Vectors of fractional coordinates between 0 and 1 within
+     *         parallelepipedal box
+     *  \param out_data The array in which to place the wrapped vectors.
+     */
+    void makeAbsolutePython(nb_array<float, nb::shape<-1, 3>> vecs,
+                            nb_array<float, nb::shape<-1, 3>> out) const
+    {
+        unsigned int Nvecs = vecs.shape(0);
+        vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
+        vec3<float>* out_data = (vec3<float>*) (out.data());
+        makeAbsolute(vecs_data, Nvecs, out_data);
     }
 
     //! Convert a point's coordinate from absolute to fractional box coordinates.
@@ -261,22 +266,28 @@ public:
         return delta;
     }
 
+    void makeFractional(const vec3<float>* vecs, unsigned int Nvecs, vec3<float>* out) const
+    {
+        util::forLoopWrapper(0, Nvecs, [&](size_t begin, size_t end) {
+            for (size_t i = begin; i < end; ++i)
+            {
+                out[i] = makeFractional(vecs[i]);
+            }
+        });
+    }
+
     //! Convert point coordinates from absolute to fractional box coordinates.
     /*! \param vecs Vectors to convert
      *  \param Nvecs Number of vectors
      *  \param out The array in which to place the wrapped vectors.
      */
-    void makeFractionalPython(nb_array<float, nb::shape<-1, 3>> vecs, unsigned int Nvecs,
+    void makeFractionalPython(nb_array<float, nb::shape<-1, 3>> vecs,
                               nb_array<float, nb::shape<-1, 3>> out) const
     {
+        unsigned int Nvecs = vecs.shape(0);
         vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
         vec3<float>* out_data = (vec3<float>*) (out.data());
-        util::forLoopWrapper(0, Nvecs, [&](size_t begin, size_t end) {
-            for (size_t i = begin; i < end; ++i)
-            {
-                out_data[i] = makeFractional(vecs_data[i]);
-            }
-        });
+        makeFractional(vecs_data, Nvecs, out_data);
     }
 
     //! Get periodic image of a vector.
@@ -295,22 +306,28 @@ public:
         image.z = (int) ((f.z >= float(0.0)) ? f.z + float(0.5) : f.z - float(0.5));
     }
 
+    void getImages(const vec3<float>* vecs, unsigned int Nvecs, vec3<int>* images) const
+    {
+        util::forLoopWrapper(0, Nvecs, [&](size_t begin, size_t end) {
+            for (size_t i = begin; i < end; ++i)
+            {
+                getImage(vecs[i], images[i]);
+            }
+        });
+    }
+
     //! Get the periodic image vectors belongs to
     /*! \param vecs The vectors to check
      *  \param Nvecs Number of vectors
         \param res Array to save the images
      */
-    void getImages(nb_array<float, nb::shape<-1, 3>> vecs, unsigned int Nvecs,
-                   nb_array<int, nb::shape<-1, 3>> res) const
+    void getImagesPython(nb_array<float, nb::shape<-1, 3>> vecs,
+                         nb_array<int, nb::shape<-1, 3>> images) const
     {
+        const unsigned int Nvecs = vecs.shape(0);
         vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
-        vec3<int>* out_data = (vec3<int>*) (res.data());
-        util::forLoopWrapper(0, Nvecs, [&](size_t begin, size_t end) {
-            for (size_t i = begin; i < end; ++i)
-            {
-                getImage(vecs_data[i], out_data[i]);
-            }
-        });
+        vec3<int>* images_data = (vec3<int>*) (images.data());
+        getImages(vecs_data, Nvecs, images_data);
     }
 
     //! Wrap a vector back into the box
@@ -341,20 +358,41 @@ public:
         return makeAbsolute(v_frac);
     }
 
+    void wrap(const vec3<float>* vecs, unsigned int Nvecs, vec3<float>* out) const
+    {
+        util::forLoopWrapper(0, Nvecs, [&](size_t begin, size_t end) {
+            for (size_t i = begin; i < end; ++i)
+            {
+                out[i] = wrap(vecs[i]);
+            }
+        });
+    }
+
     //! Wrap vectors back into the box in place
     /*! \param vecs Vectors to wrap, updated to the minimum image obeying the periodic settings
      *  \param Nvecs Number of vectors
      *  \param out The array in which to place the wrapped vectors.
      */
-    void wrapPython(nb_array<float, nb::shape<-1, 3>> vecs, unsigned int Nvecs,
+    void wrapPython(nb_array<float, nb::shape<-1, 3>> vecs,
                     nb_array<float, nb::shape<-1, 3>> out) const
     {
+        const unsigned int Nvecs = vecs.shape(0);
         vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
         vec3<float>* out_data = (vec3<float>*) (out.data());
+        wrap(vecs_data, Nvecs, out_data);
+    }
+
+    void unwrap(const vec3<float>* vecs, const vec3<int>* images, unsigned int Nvecs, vec3<float>* out) const
+    {
         util::forLoopWrapper(0, Nvecs, [&](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
-                out_data[i] = wrap(vecs_data[i]);
+                out[i] = vecs[i] + getLatticeVector(0) * float(images[i].x)
+                    + getLatticeVector(1) * float(images[i].y);
+                if (!m_2d)
+                {
+                    out[i] += getLatticeVector(2) * float(images[i].z);
+                }
             }
         });
     }
@@ -365,22 +403,13 @@ public:
         \param Nvecs Number of vectors
      *  \param out The array in which to place the wrapped vectors.
     */
-    void unwrap(nb_array<float> vecs, nb_array<int> images, unsigned int Nvecs, nb_array<float> out) const
+    void unwrapPython(nb_array<float> vecs, nb_array<int> images, nb_array<float> out) const
     {
+        const unsigned int Nvecs = vecs.shape(0);
         vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
         vec3<int>* images_data = (vec3<int>*) (images.data());
         vec3<float>* out_data = (vec3<float>*) (out.data());
-        util::forLoopWrapper(0, Nvecs, [&](size_t begin, size_t end) {
-            for (size_t i = begin; i < end; ++i)
-            {
-                out_data[i] = vecs_data[i] + getLatticeVector(0) * float(images_data[i].x)
-                    + getLatticeVector(1) * float(images_data[i].y);
-                if (!m_2d)
-                {
-                    out_data[i] += getLatticeVector(2) * float(images_data[i].z);
-                }
-            }
-        });
+        unwrap(vecs_data, images_data, Nvecs, out_data);
     }
 
     //! Compute center of mass for vectors
@@ -411,13 +440,25 @@ public:
                                  / constants::TWO_PI));
     }
 
-    std::vector<float> centerOfMassPython(nb_array<float> vecs, size_t Nvecs,
+    std::vector<float> centerOfMassPython(nb_array<float> vecs,
                                           nb_array<float, nb::shape<-1>> masses) const
     {
+        const unsigned int Nvecs = vecs.shape(0);
         vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
         float* masses_data = (float*) (masses.data());
         auto com = centerOfMass(vecs_data, Nvecs, masses_data);
         return {com.x, com.y, com.z};
+    }
+
+    void center(vec3<float>* vecs, unsigned int Nvecs, const float* masses) const
+    {
+        vec3<float> com(centerOfMass(vecs, Nvecs, masses));
+        util::forLoopWrapper(0, Nvecs, [&](size_t begin, size_t end) {
+            for (size_t i = begin; i < end; ++i)
+            {
+                vecs[i] = wrap(vecs[i] - com);
+            }
+        });
     }
 
     //! Subtract center of mass from vectors
@@ -425,18 +466,12 @@ public:
      *  \param Nvecs Number of vectors
      *  \param masses Optional array of masses, of length Nvecs
      */
-    void center(nb_array<float> vecs, unsigned int Nvecs, nb_array<float, nb::shape<-1>> masses) const
+    void centerPython(nb_array<float> vecs, nb_array<float, nb::ndim<1>> masses) const
     {
+        const unsigned int Nvecs = vecs.shape(0);
         vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
         float* masses_data = (float*) (masses.data());
-
-        vec3<float> com(centerOfMass(vecs_data, Nvecs, masses_data));
-        util::forLoopWrapper(0, Nvecs, [&](size_t begin, size_t end) {
-            for (size_t i = begin; i < end; ++i)
-            {
-                vecs_data[i] = wrap(vecs_data[i] - com);
-            }
-        });
+        center(vecs_data, Nvecs, masses_data);
     }
 
     //! Calculate distance between two points using boundary conditions
@@ -449,6 +484,18 @@ public:
         return std::sqrt(dot(r_ij, r_ij));
     }
 
+    void computeDistances(const vec3<float>* query_points, const unsigned int n_query_points,
+                          const vec3<float>* points, const unsigned int n_points,
+                          float* distances) const
+    {
+        util::forLoopWrapper(0, n_query_points, [&](size_t begin, size_t end) {
+            for (size_t i = begin; i < end; ++i)
+            {
+                distances[i] = computeDistance(query_points[i], points[i]);
+            }
+        });
+    }
+
     //! Calculate distances between a set of query points and points.
     /*! \param query_points Query point positions.
         \param n_query_points The number of query points.
@@ -457,26 +504,37 @@ public:
         \param distances Pointer to array of length n_query_points containing distances between each point and
        query_point (overwritten in place).
     */
-    void computeDistances(nb_array<float> query_points, const unsigned int n_query_points,
-                          nb_array<float> points, const unsigned int n_points,
-                          nb_array<float, nb::shape<-1>> distances) const
+    void computeDistancesPython(nb_array<float> query_points, nb_array<float> points,
+            nb_array<float, nb::ndim<1>> distances) const
     {
+        const unsigned int n_query_points = query_points.shape(0);
         vec3<float>* query_points_data = (vec3<float>*) (query_points.data());
+        const unsigned int n_points = points.shape(0);
         vec3<float>* points_data = (vec3<float>*) (points.data());
         float* distances_data = (float*) (distances.data());
-
         if (n_query_points != n_points)
         {
             throw std::invalid_argument("The number of query points and points must match.");
         }
-        util::forLoopWrapper(0, n_query_points, [&](size_t begin, size_t end) {
-            for (size_t i = begin; i < end; ++i)
-            {
-                distances_data[i] = computeDistance(query_points_data[i], points_data[i]);
-            }
-        });
+        computeDistances(query_points_data, n_query_points, points_data, n_points, distances_data);
     }
 
+    void computeAllDistances(const vec3<float>* query_points, const unsigned int n_query_points,
+                             const vec3<float>* points, const unsigned int n_points,
+                             float* distances) const
+    {
+        util::forLoopWrapper2D(0, n_query_points, 0, n_points,
+                               [&](size_t begin_n, size_t end_n, size_t begin_m, size_t end_m) {
+                                   for (size_t i = begin_n; i < end_n; ++i)
+                                   {
+                                       for (size_t j = begin_m; j < end_m; ++j)
+                                       {
+                                           distances[i * n_points + j]
+                                               = computeDistance(query_points[i], points[j]);
+                                       }
+                                   }
+                               });
+    }
     //! Calculate all pairwise distances between a set of query points and points.
     /*! \param query_points Query point positions.
         \param n_query_points The number of query points.
@@ -485,25 +543,28 @@ public:
         \param distances Pointer to array of length n_query_points*n_points containing distances between
        points and query_points (overwritten in place).
     */
-    void computeAllDistances(nb_array<float> query_points, const unsigned int n_query_points,
-                             nb_array<float> points, const unsigned int n_points,
-                             nb_array<float, nb::ndim<2>> distances) const
+    void computeAllDistancesPython(nb_array<float> query_points, nb_array<float> points,
+            nb_array<float, nb::ndim<2>> distances) const
     {
+        const unsigned int n_query_points = query_points.shape(0);
         vec3<float>* query_points_data = (vec3<float>*) (query_points.data());
+        const unsigned int n_points = points.shape(0);
         vec3<float>* points_data = (vec3<float>*) (points.data());
         float* distances_data = (float*) (distances.data());
+        computeAllDistances(query_points_data, n_query_points, points_data, n_points, distances_data);
+    }
 
-        util::forLoopWrapper2D(0, n_query_points, 0, n_points,
-                               [&](size_t begin_n, size_t end_n, size_t begin_m, size_t end_m) {
-                                   for (size_t i = begin_n; i < end_n; ++i)
-                                   {
-                                       for (size_t j = begin_m; j < end_m; ++j)
-                                       {
-                                           distances_data[i * n_points + j]
-                                               = computeDistance(query_points_data[i], points_data[j]);
-                                       }
-                                   }
-                               });
+    void contains(vec3<float>* points, const unsigned int n_points,
+                  bool* contains_mask) const
+    {
+        util::forLoopWrapper(0, n_points, [&](size_t begin, size_t end) {
+            std::transform(&points[begin], &points[end], &contains_mask[begin],
+                           [this](const vec3<float>& point) -> bool {
+                               vec3<int> image(0, 0, 0);
+                               getImage(point, image);
+                               return image == vec3<int>(0, 0, 0);
+                           });
+        });
     }
 
     //! Get mask of points that fit inside the box.
@@ -511,20 +572,12 @@ public:
         \param n_points The number of points.
         \param contains_mask Mask of points inside the box.
     */
-    void contains(nb_array<float> points, const unsigned int n_points,
-                  nb_array<bool, nb::shape<-1>> contains_mask) const
+    void containsPython(nb_array<float> points, nb_array<bool, nb::ndim<1>> contains_mask) const
     {
+        const unsigned int n_points = points.shape(0);
         vec3<float>* points_data = (vec3<float>*) (points.data());
         bool* contains_mask_data = (bool*) (contains_mask.data());
-
-        util::forLoopWrapper(0, n_points, [&](size_t begin, size_t end) {
-            std::transform(&points_data[begin], &points_data[end], &contains_mask_data[begin],
-                           [this](const vec3<float>& point) -> bool {
-                               vec3<int> image(0, 0, 0);
-                               getImage(point, image);
-                               return image == vec3<int>(0, 0, 0);
-                           });
-        });
+        contains(points_data, n_points, contains_mask_data);
     }
 
     //! Get the shortest distance between opposite boundary planes of the box
