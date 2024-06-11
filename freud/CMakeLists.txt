@@ -3,4 +3,3 @@ set(python_files box.py util.py)
 # parallel.py pmft.py)
 
 install(FILES ${python_files} DESTINATION freud)
-
