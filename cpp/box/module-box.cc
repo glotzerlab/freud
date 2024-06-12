@@ -5,6 +5,7 @@
 #include <nanobind/stl/vector.h>
 
 #include "Box.h"
+#include "export-box.h"
 
 using namespace freud::box;
 
@@ -35,15 +36,15 @@ NB_MODULE(_box, m)
         .def("is2D", &Box::is2D)
         .def("set2D", &Box::set2D)
         .def("getVolume", &Box::getVolume)
-        .def("center", &Box::centerPython)
-        .def("centerOfMass", &Box::centerOfMassPython)
+        .def("center", &centerPython)
+        .def("centerOfMass", &centerOfMassPython)
         // other stuff
-        .def("makeAbsolute", &Box::makeAbsolutePython)
-        .def("makeFractional", &Box::makeFractionalPython)
-        .def("wrap", &Box::wrapPython)
-        .def("unwrap", &Box::unwrapPython)
-        .def("getImages", &Box::getImagesPython)
-        .def("computeDistances", &Box::computeDistancesPython)
-        .def("computeAllDistances", &Box::computeAllDistancesPython)
-        .def("contains", &Box::containsPython);
+        .def("makeAbsolute", &makeAbsolutePython)
+        .def("makeFractional", &makeFractionalPython)
+        .def("wrap", &wrapPython)
+        .def("unwrap", &unwrapPython)
+        .def("getImages", &getImagesPython)
+        .def("computeDistances", &computeDistancesPython)
+        .def("computeAllDistances", &computeAllDistancesPython)
+        .def("contains", &containsPython);
 }

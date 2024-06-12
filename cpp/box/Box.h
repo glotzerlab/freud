@@ -12,9 +12,6 @@
 #include "VectorMath.h"
 #include "utils.h"
 
-#include <nanobind/ndarray.h>
-namespace nb = nanobind;
-
 /*! \file Box.h
     \brief Represents simulation boxes and contains helpful wrapping functions.
 */
@@ -25,9 +22,6 @@ constexpr float TWO_PI = 2.0 * M_PI;
 }; }; // end namespace freud::constants
 
 namespace freud { namespace box {
-
-template<typename T, typename shape = nb::shape<-1, 3>>
-using nb_array = nb::ndarray<T, shape, nb::device::cpu, nb::c_contig>;
 
 //! Stores box dimensions and provides common routines for wrapping vectors back into the box
 /*! Box stores a standard HOOMD simulation box that goes from -L/2 to L/2 in each dimension, allowing Lx, Ly,
@@ -224,6 +218,11 @@ public:
         return v;
     }
 
+    //! Convert fractional coordinates into absolute coordinates in place
+    /*! \param vecs Vectors of fractional coordinates between 0 and 1 within
+     *         parallelepipedal box
+     *  \param out_data The array in which to place the wrapped vectors.
+     */
     void makeAbsolute(const vec3<float>* vecs, const unsigned int Nvecs, vec3<float>* out) const
     {
         util::forLoopWrapper(0, Nvecs, [&](size_t begin, size_t end) {
@@ -232,20 +231,6 @@ public:
                 out[i] = makeAbsolute(vecs[i]);
             }
         });
-    }
-
-    //! Convert fractional coordinates into absolute coordinates in place
-    /*! \param vecs Vectors of fractional coordinates between 0 and 1 within
-     *         parallelepipedal box
-     *  \param out_data The array in which to place the wrapped vectors.
-     */
-    void makeAbsolutePython(nb_array<float, nb::shape<-1, 3>> vecs,
-                            nb_array<float, nb::shape<-1, 3>> out) const
-    {
-        unsigned int Nvecs = vecs.shape(0);
-        vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
-        vec3<float>* out_data = (vec3<float>*) (out.data());
-        makeAbsolute(vecs_data, Nvecs, out_data);
     }
 
     //! Convert a point's coordinate from absolute to fractional box coordinates.
@@ -266,6 +251,11 @@ public:
         return delta;
     }
 
+    //! Convert point coordinates from absolute to fractional box coordinates.
+    /*! \param vecs Vectors to convert
+     *  \param Nvecs Number of vectors
+     *  \param out The array in which to place the wrapped vectors.
+     */
     void makeFractional(const vec3<float>* vecs, unsigned int Nvecs, vec3<float>* out) const
     {
         util::forLoopWrapper(0, Nvecs, [&](size_t begin, size_t end) {
@@ -274,20 +264,6 @@ public:
                 out[i] = makeFractional(vecs[i]);
             }
         });
-    }
-
-    //! Convert point coordinates from absolute to fractional box coordinates.
-    /*! \param vecs Vectors to convert
-     *  \param Nvecs Number of vectors
-     *  \param out The array in which to place the wrapped vectors.
-     */
-    void makeFractionalPython(nb_array<float, nb::shape<-1, 3>> vecs,
-                              nb_array<float, nb::shape<-1, 3>> out) const
-    {
-        unsigned int Nvecs = vecs.shape(0);
-        vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
-        vec3<float>* out_data = (vec3<float>*) (out.data());
-        makeFractional(vecs_data, Nvecs, out_data);
     }
 
     //! Get periodic image of a vector.
@@ -306,6 +282,11 @@ public:
         image.z = (int) ((f.z >= float(0.0)) ? f.z + float(0.5) : f.z - float(0.5));
     }
 
+    //! Get the periodic image vectors belongs to
+    /*! \param vecs The vectors to check
+     *  \param Nvecs Number of vectors
+        \param res Array to save the images
+     */
     void getImages(const vec3<float>* vecs, unsigned int Nvecs, vec3<int>* images) const
     {
         util::forLoopWrapper(0, Nvecs, [&](size_t begin, size_t end) {
@@ -314,19 +295,6 @@ public:
                 getImage(vecs[i], images[i]);
             }
         });
-    }
-
-    //! Get the periodic image vectors belongs to
-    /*! \param vecs The vectors to check
-     *  \param Nvecs Number of vectors
-        \param res Array to save the images
-     */
-    void getImagesPython(nb_array<float, nb::shape<-1, 3>> vecs, nb_array<int, nb::shape<-1, 3>> images) const
-    {
-        const unsigned int Nvecs = vecs.shape(0);
-        vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
-        vec3<int>* images_data = (vec3<int>*) (images.data());
-        getImages(vecs_data, Nvecs, images_data);
     }
 
     //! Wrap a vector back into the box
@@ -357,6 +325,11 @@ public:
         return makeAbsolute(v_frac);
     }
 
+    //! Wrap vectors back into the box in place
+    /*! \param vecs Vectors to wrap, updated to the minimum image obeying the periodic settings
+     *  \param Nvecs Number of vectors
+     *  \param out The array in which to place the wrapped vectors.
+     */
     void wrap(const vec3<float>* vecs, unsigned int Nvecs, vec3<float>* out) const
     {
         util::forLoopWrapper(0, Nvecs, [&](size_t begin, size_t end) {
@@ -367,19 +340,12 @@ public:
         });
     }
 
-    //! Wrap vectors back into the box in place
-    /*! \param vecs Vectors to wrap, updated to the minimum image obeying the periodic settings
-     *  \param Nvecs Number of vectors
+    //! Unwrap given positions to their absolute location in place
+    /*! \param vecs Vectors of coordinates to unwrap
+     *  \param images images flags for this point
+        \param Nvecs Number of vectors
      *  \param out The array in which to place the wrapped vectors.
-     */
-    void wrapPython(nb_array<float, nb::shape<-1, 3>> vecs, nb_array<float, nb::shape<-1, 3>> out) const
-    {
-        const unsigned int Nvecs = vecs.shape(0);
-        vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
-        vec3<float>* out_data = (vec3<float>*) (out.data());
-        wrap(vecs_data, Nvecs, out_data);
-    }
-
+    */
     void unwrap(const vec3<float>* vecs, const vec3<int>* images, unsigned int Nvecs, vec3<float>* out) const
     {
         util::forLoopWrapper(0, Nvecs, [&](size_t begin, size_t end) {
@@ -393,21 +359,6 @@ public:
                 }
             }
         });
-    }
-
-    //! Unwrap given positions to their absolute location in place
-    /*! \param vecs Vectors of coordinates to unwrap
-     *  \param images images flags for this point
-        \param Nvecs Number of vectors
-     *  \param out The array in which to place the wrapped vectors.
-    */
-    void unwrapPython(nb_array<float> vecs, nb_array<int> images, nb_array<float> out) const
-    {
-        const unsigned int Nvecs = vecs.shape(0);
-        vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
-        vec3<int>* images_data = (vec3<int>*) (images.data());
-        vec3<float>* out_data = (vec3<float>*) (out.data());
-        unwrap(vecs_data, images_data, Nvecs, out_data);
     }
 
     //! Compute center of mass for vectors
@@ -438,15 +389,11 @@ public:
                                  / constants::TWO_PI));
     }
 
-    std::vector<float> centerOfMassPython(nb_array<float> vecs, nb_array<float, nb::shape<-1>> masses) const
-    {
-        const unsigned int Nvecs = vecs.shape(0);
-        vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
-        float* masses_data = (float*) (masses.data());
-        auto com = centerOfMass(vecs_data, Nvecs, masses_data);
-        return {com.x, com.y, com.z};
-    }
-
+    //! Subtract center of mass from vectors
+    /*! \param vecs Vectors to center
+     *  \param Nvecs Number of vectors
+     *  \param masses Optional array of masses, of length Nvecs
+     */
     void center(vec3<float>* vecs, unsigned int Nvecs, const float* masses) const
     {
         vec3<float> com(centerOfMass(vecs, Nvecs, masses));
@@ -456,19 +403,6 @@ public:
                 vecs[i] = wrap(vecs[i] - com);
             }
         });
-    }
-
-    //! Subtract center of mass from vectors
-    /*! \param vecs Vectors to center
-     *  \param Nvecs Number of vectors
-     *  \param masses Optional array of masses, of length Nvecs
-     */
-    void centerPython(nb_array<float> vecs, nb_array<float, nb::ndim<1>> masses) const
-    {
-        const unsigned int Nvecs = vecs.shape(0);
-        vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
-        float* masses_data = (float*) (masses.data());
-        center(vecs_data, Nvecs, masses_data);
     }
 
     //! Calculate distance between two points using boundary conditions
@@ -481,6 +415,14 @@ public:
         return std::sqrt(dot(r_ij, r_ij));
     }
 
+    //! Calculate distances between a set of query points and points.
+    /*! \param query_points Query point positions.
+        \param n_query_points The number of query points.
+        \param points Point positions.
+        \param n_points The number of points.
+        \param distances Pointer to array of length n_query_points containing distances between each point and
+       query_point (overwritten in place).
+    */
     void computeDistances(const vec3<float>* query_points, const unsigned int n_query_points,
                           const vec3<float>* points, const unsigned int n_points, float* distances) const
     {
@@ -492,29 +434,14 @@ public:
         });
     }
 
-    //! Calculate distances between a set of query points and points.
+    //! Calculate all pairwise distances between a set of query points and points.
     /*! \param query_points Query point positions.
         \param n_query_points The number of query points.
         \param points Point positions.
         \param n_points The number of points.
-        \param distances Pointer to array of length n_query_points containing distances between each point and
-       query_point (overwritten in place).
+        \param distances Pointer to array of length n_query_points*n_points containing distances between
+       points and query_points (overwritten in place).
     */
-    void computeDistancesPython(nb_array<float> query_points, nb_array<float> points,
-                                nb_array<float, nb::ndim<1>> distances) const
-    {
-        const unsigned int n_query_points = query_points.shape(0);
-        vec3<float>* query_points_data = (vec3<float>*) (query_points.data());
-        const unsigned int n_points = points.shape(0);
-        vec3<float>* points_data = (vec3<float>*) (points.data());
-        float* distances_data = (float*) (distances.data());
-        if (n_query_points != n_points)
-        {
-            throw std::invalid_argument("The number of query points and points must match.");
-        }
-        computeDistances(query_points_data, n_query_points, points_data, n_points, distances_data);
-    }
-
     void computeAllDistances(const vec3<float>* query_points, const unsigned int n_query_points,
                              const vec3<float>* points, const unsigned int n_points, float* distances) const
     {
@@ -529,25 +456,12 @@ public:
                 }
             });
     }
-    //! Calculate all pairwise distances between a set of query points and points.
-    /*! \param query_points Query point positions.
-        \param n_query_points The number of query points.
-        \param points Point positions.
-        \param n_points The number of points.
-        \param distances Pointer to array of length n_query_points*n_points containing distances between
-       points and query_points (overwritten in place).
-    */
-    void computeAllDistancesPython(nb_array<float> query_points, nb_array<float> points,
-                                   nb_array<float, nb::ndim<2>> distances) const
-    {
-        const unsigned int n_query_points = query_points.shape(0);
-        vec3<float>* query_points_data = (vec3<float>*) (query_points.data());
-        const unsigned int n_points = points.shape(0);
-        vec3<float>* points_data = (vec3<float>*) (points.data());
-        float* distances_data = (float*) (distances.data());
-        computeAllDistances(query_points_data, n_query_points, points_data, n_points, distances_data);
-    }
 
+    //! Get mask of points that fit inside the box.
+    /*! \param points Point positions.
+        \param n_points The number of points.
+        \param contains_mask Mask of points inside the box.
+    */
     void contains(vec3<float>* points, const unsigned int n_points, bool* contains_mask) const
     {
         util::forLoopWrapper(0, n_points, [&](size_t begin, size_t end) {
@@ -558,19 +472,6 @@ public:
                                return image == vec3<int>(0, 0, 0);
                            });
         });
-    }
-
-    //! Get mask of points that fit inside the box.
-    /*! \param points Point positions.
-        \param n_points The number of points.
-        \param contains_mask Mask of points inside the box.
-    */
-    void containsPython(nb_array<float> points, nb_array<bool, nb::ndim<1>> contains_mask) const
-    {
-        const unsigned int n_points = points.shape(0);
-        vec3<float>* points_data = (vec3<float>*) (points.data());
-        bool* contains_mask_data = (bool*) (contains_mask.data());
-        contains(points_data, n_points, contains_mask_data);
     }
 
     //! Get the shortest distance between opposite boundary planes of the box
