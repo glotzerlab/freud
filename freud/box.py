@@ -202,7 +202,7 @@ class Box:
                 Absolute coordinate vector(s). If ``out`` is provided, a
                 reference to it is returned.
         """  # noqa: E501
-        fractions = np.asarray(fractional_coordinates).copy()
+        fractions = np.asarray(fractional_coordinates)
         flatten = fractions.ndim == 1
         fractions = np.atleast_2d(fractions)
         fractions = freud.util._convert_array(fractions, shape=(None, 3))
@@ -228,7 +228,7 @@ class Box:
                 Fractional coordinate vector(s). If ``out`` is provided, a
                 reference to it is returned.
         """  # noqa: E501
-        vecs = np.asarray(absolute_coordinates).copy()
+        vecs = np.asarray(absolute_coordinates)
         flatten = vecs.ndim == 1
         vecs = np.atleast_2d(vecs)
         vecs = freud.util._convert_array(vecs, shape=(None, 3))
@@ -253,8 +253,8 @@ class Box:
         flatten = vecs.ndim == 1
         vecs = np.atleast_2d(vecs)
         vecs = freud.util._convert_array(vecs, shape=(None, 3))
-
         images = np.zeros(vecs.shape, dtype=np.int32)
+
         self._cpp_obj.getImages(vecs, images)
 
         return np.squeeze(images) if flatten else images
@@ -386,12 +386,11 @@ class Box:
                 Center of mass.
         """  # noqa: E501
         vecs = freud.util._convert_array(vecs, shape=(None, 3))
-        Np = vecs.shape[0]
 
         if masses is not None:
             masses = freud.util._convert_array(masses, shape=(len(vecs),))
         else:
-            masses = np.ones(Np, dtype=np.float32)
+            masses = np.ones(vecs.shape[0], dtype=np.float32)
 
         result = self._cpp_obj.centerOfMass(vecs, masses)
         return np.asarray(result)
@@ -425,12 +424,11 @@ class Box:
                 Vectors with center of mass subtracted.
         """  # noqa: E501
         vecs = freud.util._convert_array(vecs, shape=(None, 3)).copy()
-        Np = vecs.shape[0]
 
         if masses is not None:
             masses = freud.util._convert_array(masses, shape=(len(vecs),))
         else:
-            masses = np.ones(Np)
+            masses = np.ones(vecs.shape[0], dtype=np.float32)
 
         self._cpp_obj.center(vecs, masses)
         return vecs
@@ -457,11 +455,10 @@ class Box:
         )
         points = freud.util._convert_array(np.atleast_2d(points), shape=(None, 3))
 
-        n_query_points = query_points.shape[0]
-        distances = np.empty(n_query_points, dtype=np.float32)
+        distances = np.empty(query_points.shape[0], dtype=np.float32)
 
         self._cpp_obj.computeDistances(query_points, points, distances)
-        return np.asarray(distances)
+        return distances
 
     def compute_all_distances(self, query_points, points):
         r"""Calculate distances between all pairs of query points and points, using periodic boundaries.
@@ -490,7 +487,7 @@ class Box:
 
         self._cpp_obj.computeAllDistances(query_points, points, distances)
 
-        return np.asarray(distances)
+        return distances
 
     def contains(self, points):
         r"""Compute a boolean array (mask) corresponding to point membership in a box.
@@ -525,14 +522,11 @@ class Box:
         """  # noqa: E501
 
         points = freud.util._convert_array(np.atleast_2d(points), shape=(None, 3))
-
-        n_points = points.shape[0]
-
-        contains_mask = freud.util._convert_array(np.ones(n_points), dtype=bool)
+        contains_mask = freud.util._convert_array(np.ones(points.shape[0]), dtype=bool)
 
         self._cpp_obj.contains(points, contains_mask)
 
-        return np.array(contains_mask).astype(bool)
+        return contains_mask
 
     @property
     def cubic(self):
