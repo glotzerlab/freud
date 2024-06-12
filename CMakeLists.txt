@@ -1,6 +1,4 @@
-# CMake 3.12.0 is the oldest version supported by the way freud links TBB to
-# object libraries like _cluster. This is also the oldest version tested in CI.
-cmake_minimum_required(VERSION 3.12.0)
+cmake_minimum_required(VERSION 3.15...3.30)
 
 project(freud)
 
@@ -53,9 +51,7 @@ endif()
 execute_process(
   COMMAND ${Python_EXECUTABLE} "-m" "nanobind" "--cmake_dir"
   OUTPUT_STRIP_TRAILING_WHITESPACE
-  OUTPUT_VARIABLE NB_DIR)
-list(APPEND CMAKE_PREFIX_PATH "${NB_DIR}")
-message(STATUS ${CMAKE_PREFIX_PATH})
+  OUTPUT_VARIABLE nanobind_ROOT)
 find_package(nanobind CONFIG REQUIRED)
 
 # Fail fast if users have not cloned submodules.
