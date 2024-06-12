@@ -121,10 +121,10 @@ void export_PeriodicBuffer(nb::module& m)
     nb::class_<PeriodicBuffer>(m, "PeriodicBuffer")
         .def(nb::init<>())
         .def("compute", &PeriodicBuffer::compute)
-        .def("getBufferPoints", &PeriodicBuffer::getBufferPointsPython,
-                nb::rv_policy::reference_internal);
-        .def("getBufferIds", &PeriodicBuffer::getBufferIdsPython,
-                nb::rv_policy::reference_internal);
+        .def("getBufferPoints", &PeriodicBuffer::getBufferPointsPython)
+//                nb::rv_policy::reference_internal)
+        .def("getBufferIds", &PeriodicBuffer::getBufferIdsPython)
+//                nb::rv_policy::reference_internal)
 };
 };
 

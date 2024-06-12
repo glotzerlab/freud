@@ -35,6 +35,9 @@ add_library(
   ${parallel_sources})
 
 target_link_libraries(libfreud PUBLIC TBB::tbb)
+#target_link_libraries(libfreud PUBLIC nanobind)
+# HACKING THE NANOBIND HEADERS LOCATION
+target_include_directories(libfreud PUBLIC /Users/tomwalt/miniforge3/envs/freud-nanobind/lib/python3.12/site-packages/nanobind/include)
 
 # We treat the extern folder as a SYSTEM library to avoid getting any diagnostic
 # information from it. In particular, this avoids clang-tidy throwing errors due
