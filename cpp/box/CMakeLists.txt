@@ -1,5 +1,5 @@
 # create the target and add the needed properties
-nanobind_add_module(_box SHARED module-box.cc)
+nanobind_add_module(_box SHARED module-box.cc export-box.h)
 target_link_libraries(_box PUBLIC libfreud)
 
 # this probably isn't needed for box, but may be needed by other modules
