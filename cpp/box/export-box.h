@@ -1,3 +1,6 @@
+// Copyright (c) 2010-2023 The Regents of the University of Michigan
+// This file is from the freud project, released under the BSD 3-Clause License.
+
 #ifndef EXPORT_BOX_H
 #define EXPORT_BOX_H
 
@@ -6,12 +9,10 @@
 #include <nanobind/ndarray.h>
 namespace nb = nanobind;
 
-
 namespace freud { namespace box {
 
 template<typename T, typename shape = nb::shape<-1, 3>>
 using nb_array = nb::ndarray<T, shape, nb::device::cpu, nb::c_contig>;
-
 
 void makeAbsolutePython(Box box, nb_array<float, nb::shape<-1, 3>> vecs,
                         nb_array<float, nb::shape<-1, 3>> out)
@@ -22,7 +23,6 @@ void makeAbsolutePython(Box box, nb_array<float, nb::shape<-1, 3>> vecs,
     box.makeAbsolute(vecs_data, Nvecs, out_data);
 }
 
-
 void makeFractionalPython(Box box, nb_array<float, nb::shape<-1, 3>> vecs,
                           nb_array<float, nb::shape<-1, 3>> out)
 {
@@ -32,7 +32,6 @@ void makeFractionalPython(Box box, nb_array<float, nb::shape<-1, 3>> vecs,
     box.makeFractional(vecs_data, Nvecs, out_data);
 }
 
-
 void getImagesPython(Box box, nb_array<float, nb::shape<-1, 3>> vecs, nb_array<int, nb::shape<-1, 3>> images)
 {
     const unsigned int Nvecs = vecs.shape(0);
@@ -41,7 +40,6 @@ void getImagesPython(Box box, nb_array<float, nb::shape<-1, 3>> vecs, nb_array<i
     box.getImages(vecs_data, Nvecs, images_data);
 }
 
-
 void wrapPython(Box box, nb_array<float, nb::shape<-1, 3>> vecs, nb_array<float, nb::shape<-1, 3>> out)
 {
     const unsigned int Nvecs = vecs.shape(0);
@@ -49,7 +47,6 @@ void wrapPython(Box box, nb_array<float, nb::shape<-1, 3>> vecs, nb_array<float,
     vec3<float>* out_data = (vec3<float>*) (out.data());
     box.wrap(vecs_data, Nvecs, out_data);
 }
-
 
 void unwrapPython(Box box, nb_array<float> vecs, nb_array<int> images, nb_array<float> out)
 {
@@ -60,7 +57,6 @@ void unwrapPython(Box box, nb_array<float> vecs, nb_array<int> images, nb_array<
     box.unwrap(vecs_data, images_data, Nvecs, out_data);
 }
 
-
 std::vector<float> centerOfMassPython(Box box, nb_array<float> vecs, nb_array<float, nb::shape<-1>> masses)
 {
     const unsigned int Nvecs = vecs.shape(0);
@@ -70,7 +66,6 @@ std::vector<float> centerOfMassPython(Box box, nb_array<float> vecs, nb_array<fl
     return {com.x, com.y, com.z};
 }
 
-
 void centerPython(Box box, nb_array<float> vecs, nb_array<float, nb::ndim<1>> masses)
 {
     const unsigned int Nvecs = vecs.shape(0);
@@ -78,7 +73,6 @@ void centerPython(Box box, nb_array<float> vecs, nb_array<float, nb::ndim<1>> ma
     float* masses_data = (float*) (masses.data());
     box.center(vecs_data, Nvecs, masses_data);
 }
-
 
 void computeDistancesPython(Box box, nb_array<float> query_points, nb_array<float> points,
                             nb_array<float, nb::ndim<1>> distances)
@@ -95,7 +89,6 @@ void computeDistancesPython(Box box, nb_array<float> query_points, nb_array<floa
     box.computeDistances(query_points_data, n_query_points, points_data, n_points, distances_data);
 }
 
-
 void computeAllDistancesPython(Box box, nb_array<float> query_points, nb_array<float> points,
                                nb_array<float, nb::ndim<2>> distances)
 {
@@ -104,10 +97,8 @@ void computeAllDistancesPython(Box box, nb_array<float> query_points, nb_array<f
     const unsigned int n_points = points.shape(0);
     vec3<float>* points_data = (vec3<float>*) (points.data());
     float* distances_data = (float*) (distances.data());
-    box.computeAllDistances(query_points_data, n_query_points, points_data, n_points,
-            distances_data);
+    box.computeAllDistances(query_points_data, n_query_points, points_data, n_points, distances_data);
 }
-
 
 void containsPython(Box box, nb_array<float> points, nb_array<bool, nb::ndim<1>> contains_mask)
 {
@@ -117,7 +108,6 @@ void containsPython(Box box, nb_array<float> points, nb_array<bool, nb::ndim<1>>
     box.contains(points_data, n_points, contains_mask_data);
 }
 
-}; };  // end namespace freud::box
+}; }; // end namespace freud::box
 
 #endif
-
