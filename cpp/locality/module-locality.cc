@@ -12,7 +12,7 @@
 
 #include "PeriodicBuffer.h"
 
-using namespace freud::locality::detail;
+using namespace freud::locality;
 
 NB_MODULE(_locality, m)
 {
