@@ -5,7 +5,6 @@
 #define NEIGHBOR_LIST_H
 
 #include <vector>
-#include <pybind11/pybind11.h>
 
 #include "Box.h"
 #include "ManagedArray.h"
@@ -159,11 +158,6 @@ private:
 bool compareNeighborBond(const NeighborBond& left, const NeighborBond& right);
 bool compareNeighborDistance(const NeighborBond& left, const NeighborBond& right);
 bool compareFirstNeighborPairs(const std::vector<NeighborBond>& left, const std::vector<NeighborBond>& right);
-
-namespace detail
-{
-export_NeighborList(pybind11::module& m, const std::string& name);
-};
 
 }; }; // end namespace freud::locality
 

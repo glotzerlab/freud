@@ -14,7 +14,7 @@ import freud._locality
 import freud.box
 
 from freud.errors import NO_DEFAULT_QUERY_ARGS_MESSAGE
-from freud._locality import ITERATOR_TERMINATOR
+#from freud._locality import ITERATOR_TERMINATOR
 from freud.util import _Compute
 
 
@@ -359,7 +359,7 @@ class NeighborQuery:
     @property
     def points(self):
         """:class:`np.ndarray`: The array of points in this data structure."""
-        return np.asarray(self.points)
+        return np.asarray(self._points)
 
     def query(self, query_points, query_args):
         r"""Query for nearest neighbors of the provided point.
@@ -561,7 +561,7 @@ class NeighborList:
         r"""Returns a pointer to the raw C++ object we are wrapping."""
         return self._cpp_obj
 
-    def void copy_c(self, other):
+    def copy_c(self, other):
         r"""Copies the contents of other NeighborList into this object."""
         self._cpp_obj.copy(other._cpp_obj)
 
@@ -757,7 +757,7 @@ def _make_default_nq(neighbor_query):
             :code:`points`.
     """
     if not isinstance(neighbor_query, NeighborQuery):
-        nq = _RawPoints(neighbor_query)
+        nq = _RawPoints(*neighbor_query)
     else:
         nq = neighbor_query
     return nq
@@ -802,7 +802,7 @@ class _RawPoints(NeighborQuery):
     def __init__(self, box, points):
         # Assume valid set of arguments is passed
         b = freud.util._convert_box(box)
-        self.points = np.array(points, dtype=np.float32)
+        self._points = freud.util._convert_array(points, dtype=np.float32)
         self._cpp_obj = freud._locality.RawPoints(
             b._cpp_obj, self.points
         )
@@ -824,7 +824,7 @@ class AABBQuery(NeighborQuery):
     def __init__(self, box, points):
         # Assume valid set of arguments is passed
         b = freud.util._convert_box(box)
-        self.points = np.array(points, dtype=np.float32)
+        self._points = np.array(points, dtype=np.float32)
         self._cpp_obj = freud._locality.AABBQuery(
             b._cpp_obj, points
         )
@@ -849,7 +849,7 @@ class LinkCell(NeighborQuery):
 
     def __init__(self, box, points, cell_width=0):
         b = freud.util._convert_box(box)
-        self.points = np.array(points, dtype=np.float32, copy=True)
+        self._points = np.array(points, dtype=np.float32, copy=True)
         self._cpp_obj = freud._locality.LinkCell(
             b._cpp_obj, self.points, cell_width
         )
@@ -1054,7 +1054,7 @@ class PeriodicBuffer(_Compute):
                 Whether the original points provided by ``system`` are
                 included in the buffer, (Default value = :code:`False`).
         """
-        NeighborQuery nq = _make_default_nq(system)
+        nq = _make_default_nq(system)
         if np.ndim(buffer) == 0:
             # catches more cases than np.isscalar
             buffer_vec = [buffer, buffer, buffer]
@@ -1071,7 +1071,8 @@ class PeriodicBuffer(_Compute):
         """:math:`\\left(N_{buffer}, 3\\right)` :class:`numpy.ndarray`: The
         buffer point positions."""
         points = self._cpp_obj.getBufferPoints()
-        return np.asarray([[p.x, p.y, p.z] for p in points])
+        return np.asarray(points)
+        #return np.asarray([[p.x, p.y, p.z] for p in points])
 
     @_Compute._computed_property
     def buffer_ids(self):
@@ -1129,21 +1130,15 @@ class Voronoi(_Compute):
         """list[:class:`numpy.ndarray`]: A list of :class:`numpy.ndarray`
         defining Voronoi polytope vertices for each cell."""
         polytopes = []
-        cdef vector[vector[vec3[double]]] raw_polytopes = \
-            self.thisptr.getPolytopes()
-        cdef size_t i
-        cdef size_t j
-        cdef size_t num_verts
-        cdef vector[vec3[double]] raw_vertices
-        cdef double[:, ::1] polytope_vertices
+        raw_polytopes = self.thisptr.getPolytopes()
         for i in range(raw_polytopes.size()):
             raw_vertices = raw_polytopes[i]
             num_verts = raw_vertices.size()
             polytope_vertices = np.empty((num_verts, 3), dtype=np.float64)
             for j in range(num_verts):
-                polytope_vertices[j, 0] = raw_vertices[j].x
-                polytope_vertices[j, 1] = raw_vertices[j].y
-                polytope_vertices[j, 2] = raw_vertices[j].z
+                polytope_vertices[j, 0] = raw_vertices[j][0]
+                polytope_vertices[j, 1] = raw_vertices[j][1]
+                polytope_vertices[j, 2] = raw_vertices[j][2]
             polytopes.append(np.asarray(polytope_vertices))
         return polytopes
 

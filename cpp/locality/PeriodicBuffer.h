@@ -35,7 +35,7 @@ public:
     }
 
     //! Compute the periodic buffer
-    void compute(const NeighborQuery& neighbor_query, const std::list<float, 3>& buff,
+    void compute(std::shared_ptr<NeighborQuery> neighbor_query, std::vector<float> buff_vec,
                  const bool use_images, const bool include_input_points);
 
     //! Return the buffer points

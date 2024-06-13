@@ -1,18 +1,8 @@
 #include <nanobind/nanobind.h>
 
-#include "NeighborList.h"
-#include "NeighborQuery.h"
-#include "AABBQuery.h"
-#include "LinkCell.h"
-#include "Voronoi.h"
+#include "export_PeriodicBuffer.h"
 
-#include "Filter.h"
-#include "FilterRAD.h"
-#include "FilterSANN.h"
-
-#include "PeriodicBuffer.h"
-
-using namespace freud::locality;
+using namespace freud::locality::detail;
 
 NB_MODULE(_locality, m)
 {

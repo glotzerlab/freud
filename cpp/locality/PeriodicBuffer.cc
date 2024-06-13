@@ -11,9 +11,10 @@
 
 namespace freud { namespace locality {
 
-void PeriodicBuffer::compute(const freud::locality::NeighborQuery* neighbor_query, const vec3<float>& buff,
+void PeriodicBuffer::compute(std::shared_ptr<NeighborQuery> neighbor_query, std::vector<float> buff_vec,
                              const bool use_images, const bool include_input_points)
 {
+    vec3<float> buff(buff_vec[0], buff_vec[1], buff_vec[2]);
     m_box = neighbor_query->getBox();
     if (buff.x < 0)
     {

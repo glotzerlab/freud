@@ -328,16 +328,6 @@ public:
         return newarray;
     }
 
-    static inline getNumpyArray(pybind11::object self_py)
-    {
-        auto self_cpp = self_py.cast<ManagedArray<T> *>();
-        return pybind11::array(
-            (std::vector<size_t>) self_cpp->shape(),
-            (T *) &self_cpp->get()[0],
-            self_py
-        )
-    }
-
 private:
     //! The base case for building up the index.
     /*! These argument building functions are templated on two types, one that
