@@ -26,7 +26,7 @@ body:
     attributes:
       label: freud Version
       description: What version of freud are you using?
-      placeholder: v3.0.0
+      placeholder: v3.1.0
     validations:
       required: true
   - type: input
