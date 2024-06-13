@@ -1,5 +1,6 @@
 #include <nanobind/nanobind.h>
 
+#include "export_NeighborQuery.h"
 #include "export_PeriodicBuffer.h"
 
 using namespace freud::locality::detail;
@@ -8,7 +9,7 @@ NB_MODULE(_locality, m)
 {
     // Neighbor finding stuff
     //export_NeighborList(m, "NeighborList");
-    //export_NeighborQuery(m, "NeighborQuery");
+    export_NeighborQuery(m);
     //export_AABBQuery(m, "AABBQuery");
     //export_LinkCell(m, "LinkCell");
     //export_Voronoi(m, "Voronoi");
