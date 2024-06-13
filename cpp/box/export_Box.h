@@ -15,7 +15,7 @@ template<typename T, typename shape = nb::shape<-1, 3>>
 using nb_array = nb::ndarray<T, shape, nb::device::cpu, nb::c_contig>;
 
 void makeAbsolute(std::shared_ptr<Box> box, nb_array<float, nb::shape<-1, 3>> vecs,
-                        nb_array<float, nb::shape<-1, 3>> out)
+                  nb_array<float, nb::shape<-1, 3>> out)
 {
     unsigned int Nvecs = vecs.shape(0);
     vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
@@ -24,7 +24,7 @@ void makeAbsolute(std::shared_ptr<Box> box, nb_array<float, nb::shape<-1, 3>> ve
 }
 
 void makeFractional(std::shared_ptr<Box> box, nb_array<float, nb::shape<-1, 3>> vecs,
-                          nb_array<float, nb::shape<-1, 3>> out)
+                    nb_array<float, nb::shape<-1, 3>> out)
 {
     unsigned int Nvecs = vecs.shape(0);
     vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
@@ -32,7 +32,8 @@ void makeFractional(std::shared_ptr<Box> box, nb_array<float, nb::shape<-1, 3>> 
     box->makeFractional(vecs_data, Nvecs, out_data);
 }
 
-void getImages(std::shared_ptr<Box> box, nb_array<float, nb::shape<-1, 3>> vecs, nb_array<int, nb::shape<-1, 3>> images)
+void getImages(std::shared_ptr<Box> box, nb_array<float, nb::shape<-1, 3>> vecs,
+               nb_array<int, nb::shape<-1, 3>> images)
 {
     const unsigned int Nvecs = vecs.shape(0);
     vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
@@ -40,7 +41,8 @@ void getImages(std::shared_ptr<Box> box, nb_array<float, nb::shape<-1, 3>> vecs,
     box->getImages(vecs_data, Nvecs, images_data);
 }
 
-void wrap(std::shared_ptr<Box> box, nb_array<float, nb::shape<-1, 3>> vecs, nb_array<float, nb::shape<-1, 3>> out)
+void wrap(std::shared_ptr<Box> box, nb_array<float, nb::shape<-1, 3>> vecs,
+          nb_array<float, nb::shape<-1, 3>> out)
 {
     const unsigned int Nvecs = vecs.shape(0);
     vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
@@ -57,7 +59,8 @@ void unwrap(std::shared_ptr<Box> box, nb_array<float> vecs, nb_array<int> images
     box->unwrap(vecs_data, images_data, Nvecs, out_data);
 }
 
-std::vector<float> centerOfMass(std::shared_ptr<Box> box, nb_array<float> vecs, nb_array<float, nb::shape<-1>> masses)
+std::vector<float> centerOfMass(std::shared_ptr<Box> box, nb_array<float> vecs,
+                                nb_array<float, nb::shape<-1>> masses)
 {
     const unsigned int Nvecs = vecs.shape(0);
     vec3<float>* vecs_data = (vec3<float>*) (vecs.data());
@@ -75,7 +78,7 @@ void center(std::shared_ptr<Box> box, nb_array<float> vecs, nb_array<float, nb::
 }
 
 void computeDistances(std::shared_ptr<Box> box, nb_array<float> query_points, nb_array<float> points,
-                            nb_array<float, nb::ndim<1>> distances)
+                      nb_array<float, nb::ndim<1>> distances)
 {
     const unsigned int n_query_points = query_points.shape(0);
     vec3<float>* query_points_data = (vec3<float>*) (query_points.data());
@@ -90,7 +93,7 @@ void computeDistances(std::shared_ptr<Box> box, nb_array<float> query_points, nb
 }
 
 void computeAllDistances(std::shared_ptr<Box> box, nb_array<float> query_points, nb_array<float> points,
-                               nb_array<float, nb::ndim<2>> distances)
+                         nb_array<float, nb::ndim<2>> distances)
 {
     const unsigned int n_query_points = query_points.shape(0);
     vec3<float>* query_points_data = (vec3<float>*) (query_points.data());
@@ -108,6 +111,6 @@ void contains(std::shared_ptr<Box> box, nb_array<float> points, nb_array<bool, n
     box->contains(points_data, n_points, contains_mask_data);
 }
 
-}; }; }; // end namespace freud::box
+}; }; }; // namespace freud::box::wrap
 
 #endif
