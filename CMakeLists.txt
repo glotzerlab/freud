@@ -53,6 +53,11 @@ execute_process(
   OUTPUT_STRIP_TRAILING_WHITESPACE
   OUTPUT_VARIABLE nanobind_ROOT)
 find_package(nanobind CONFIG REQUIRED)
+if(nanobind_FOUND)
+  find_package_message(
+    nanobind "Found nanobind: ${nanobind_DIR} ${nanobind_VERSION}"
+    "[${nanobind_DIR},${nanobind_VERSION}]")
+endif()
 
 # Fail fast if users have not cloned submodules.
 if(NOT WIN32)

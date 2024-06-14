@@ -2,10 +2,11 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <nanobind/nanobind.h>
+#include <nanobind/stl/shared_ptr.h>
 #include <nanobind/stl/vector.h>
 
 #include "Box.h"
-#include "export-box.h"
+#include "export_Box.h"
 
 using namespace freud::box;
 
@@ -36,15 +37,15 @@ NB_MODULE(_box, m)
         .def("is2D", &Box::is2D)
         .def("set2D", &Box::set2D)
         .def("getVolume", &Box::getVolume)
-        .def("center", &centerPython)
-        .def("centerOfMass", &centerOfMassPython)
+        .def("center", &wrap::center)
+        .def("centerOfMass", &wrap::centerOfMass)
         // other stuff
-        .def("makeAbsolute", &makeAbsolutePython)
-        .def("makeFractional", &makeFractionalPython)
-        .def("wrap", &wrapPython)
-        .def("unwrap", &unwrapPython)
-        .def("getImages", &getImagesPython)
-        .def("computeDistances", &computeDistancesPython)
-        .def("computeAllDistances", &computeAllDistancesPython)
-        .def("contains", &containsPython);
+        .def("makeAbsolute", &wrap::makeAbsolute)
+        .def("makeFractional", &wrap::makeFractional)
+        .def("wrap", &wrap::wrap)
+        .def("unwrap", &wrap::unwrap)
+        .def("getImages", &wrap::getImages)
+        .def("computeDistances", &wrap::computeDistances)
+        .def("computeAllDistances", &wrap::computeAllDistances)
+        .def("contains", &wrap::contains);
 }
