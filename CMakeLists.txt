@@ -58,6 +58,7 @@ if(nanobind_FOUND)
     nanobind "Found nanobind: ${nanobind_DIR} ${nanobind_VERSION}"
     "[${nanobind_DIR},${nanobind_VERSION}]")
 endif()
+
 # Fail fast if users have not cloned submodules.
 if(NOT WIN32)
   string(ASCII 27 Esc)
