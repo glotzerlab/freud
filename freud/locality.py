@@ -354,7 +354,7 @@ class NeighborQuery:
     def box(self):
         """:class:`freud.box.Box`: The box object used by this data
         structure."""
-        return self._cpp_obj.getBox()
+        return freud.box.BoxFromCPP(self._cpp_obj.getBox())
 
     @property
     def points(self):

@@ -17,17 +17,6 @@ using nb_array = nanobind::ndarray<T, shape, nanobind::device::cpu, nanobind::c_
 namespace wrap
 {
 
-nb::ndarray<nb::numpy, float, nb::shape<-1, 3>> getPoints(std::shared_ptr<NeighborQuery> nq)
-{
-    const vec3<float>* points = nq->getPoints();
-    const unsigned int num_points = nq->getNPoints();
-    return nb::ndarray<nb::numpy, float, nb::shape<-1, 3>>(
-        (float *)&points[0],
-        { num_points, 3 },
-        nb::handle()
-    );
-}
-
 std::shared_ptr<NeighborQueryIterator> query(std::shared_ptr<NeighborQuery> nq,
         nb_array<float> query_points, const QueryArgs& qargs)
 {
@@ -50,6 +39,13 @@ void LinkCellConstructor(LinkCell* nq, const box::Box& box, nb_array<float> poin
     new (nq) LinkCell(box, points_data, n_points, cell_width);
 }
 
+void RawPointsConstructor(LinkCell* nq, const box::Box& box, nb_array<float> points)
+{
+    unsigned int n_points = points.shape(0);
+    vec3<float>* points_data = (vec3<float>*)points.data();
+    new (nq) RawPoints(box, points_data, n_points);
+}
+
 };
 
 namespace detail
@@ -59,8 +55,6 @@ void export_NeighborQuery(nb::module_& m)
     nb::class_<NeighborQuery>(m, "NeighborQuery")
         .def("query", &wrap::query)
         .def("getBox", &NeighborQuery::getBox)
-        .def("getPoints", &wrap::getPoints)
-        .def("getNPoints", &NeighborQuery::getNPoints);
 }
 
 void export_AABBQuery(nb::module_& m)
@@ -74,6 +68,12 @@ void export_LinkCell(nb::module_& m)
     nb::class_<LinkCell, NeighborQuery>(m, "LinkCell")
         .def("__init__", &wrap::LinkCellConstructor)
         .def("GetCellWidth", &LinkCell::getCellWidth);
+}
+
+void export_RawPoints(nb::module_& m)
+{
+    nb::class_<RawPoints, NeighborQuery>(m, "LinkCell")
+        .def("__init__", &wrap::RawPointsConstructor);
 }
 };
 
