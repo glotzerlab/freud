@@ -71,3 +71,4 @@ add_subdirectory(parallel)
 # add_subdirectory(order)
 # add_subdirectory(pmft) add_subdirectory(util)
 
+install(TARGETS nanobind DESTINATION freud)
