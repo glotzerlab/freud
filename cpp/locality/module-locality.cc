@@ -10,8 +10,8 @@ NB_MODULE(_locality, m)
     // Neighbor finding stuff
     //export_NeighborList(m, "NeighborList");
     export_NeighborQuery(m);
-    //export_AABBQuery(m, "AABBQuery");
-    //export_LinkCell(m, "LinkCell");
+    export_AABBQuery(m);
+    export_LinkCell(m);
     //export_Voronoi(m, "Voronoi");
 
     // filters
@@ -20,5 +20,5 @@ NB_MODULE(_locality, m)
     //export_FilterSANN(m, "FilterSANN");
 
     // others
-    export_PeriodicBuffer(m);
+    //export_PeriodicBuffer(m);
 }
