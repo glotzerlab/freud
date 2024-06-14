@@ -105,4 +105,3 @@ void contains(std::shared_ptr<Box> box, nb_array<float> points, nb_array<bool, n
 }
 
 }; }; }; // namespace freud::box::wrap
-

@@ -39,7 +39,7 @@ void computeAllDistances(std::shared_ptr<Box> box, nb_array<float> query_points,
                          nb_array<float, nanobind::ndim<2>> distances);
 
 void contains(std::shared_ptr<Box> box, nb_array<float> points,
-        nb_array<bool, nanobind::ndim<1>> contains_mask);
+              nb_array<bool, nanobind::ndim<1>> contains_mask);
 
 }; }; }; // namespace freud::box::wrap
 
