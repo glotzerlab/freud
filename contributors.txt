@@ -1,17 +1,17 @@
   2373	Bradley Dice <bdice@bradleydice.com>
   2148	Vyas Ramasubramani <vramasub@umich.edu>
   1030	Eric Harper <harperic@umich.edu>
-  1000	Tommy Waltmann <tomwalt@umich.edu>
+  1030	Tommy Waltmann <tomwalt@umich.edu>
    456	Jin Soo Ihm <jinihm@umich.edu>
-   328	Joshua A. Anderson <joaander@umich.edu>
-   275	dependabot <dependabot[bot]@users.noreply.github.com>
+   366	Joshua A. Anderson <joaander@umich.edu>
+   294	dependabot <dependabot[bot]@users.noreply.github.com>
    240	Matthew Spellings <mspells@umich.edu>
-   202	DomFijan <domagoj.fijan@gmail.com>
+   230	DomFijan <domagoj.fijan@gmail.com>
    167	Kelly Wang <kelwang@umich.edu>
+   126	Brandon Butler <butlerbr@umich.edu>
    110	Erin Teich <erteich@umich.edu>
-    98	Brandon Butler <butlerbr@umich.edu>
+   105	pre-commit-ci[bot] <66853113+pre-commit-ci[bot]@users.noreply.github.com>
     94	Charlotte Shiqi Zhao <zshiqi@umich.edu>
-    94	pre-commit-ci[bot] <66853113+pre-commit-ci[bot]@users.noreply.github.com>
     66	M. Eric Irrgang <eirrgang@umich.edu>
     53	Chrisy Du <xiyudu@umich.edu>
     41	Yezhi Jin <jinyezhi@umich.edu>
@@ -47,6 +47,7 @@
      4	Mayank Agrawal <amayank@umich.edu>
      4	William Zygmunt <wzygmunt@umich.edu>
      3	Greg van Anders <grva@umich.edu>
+     3	Jen Bradley <55467578+janbridley@users.noreply.github.com>
      3	Rose Cersonsky <rosecers@umich.edu>
      3	Wenbo Shen <shenwb@umich.edu>
      2	Emily Siew <esiew@umich.edu>
