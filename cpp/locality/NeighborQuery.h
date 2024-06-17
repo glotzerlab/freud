@@ -379,7 +379,7 @@ public:
      *  the primary use-case is to have this object be managed by instances
      *  of the Cython NeighborList class.
      */
-    NeighborList* toNeighborList(bool sort_by_distance = false)
+    std::shared_ptr<NeighborList> toNeighborList(bool sort_by_distance = false)
     {
         using BondVector = tbb::enumerable_thread_specific<std::vector<NeighborBond>>;
         BondVector bonds;
@@ -415,7 +415,7 @@ public:
 
         unsigned int num_bonds = linear_bonds.size();
 
-        auto* nl = new NeighborList();
+        auto nl = std::make_shared<NeighborList>();
         nl->setNumBonds(num_bonds, m_num_query_points, m_neighbor_query->getNPoints());
 
         util::forLoopWrapper(0, num_bonds, [&](size_t begin, size_t end) {

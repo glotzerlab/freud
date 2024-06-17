@@ -10,12 +10,13 @@
 
 namespace freud { namespace locality {
 
-void FilterRAD::compute(const NeighborQuery* nq, const vec3<float>* query_points,
-                        unsigned int num_query_points, const NeighborList* nlist, const QueryArgs& qargs)
+void FilterRAD::compute(std::shared_ptr<NeighborQuery> nq, const vec3<float>* query_points,
+                        unsigned int num_query_points, std::shared_ptr<NeighborList> nlist,
+                        const QueryArgs& qargs)
 {
     // make the unfiltered neighborlist from the arguments
-    m_unfiltered_nlist = std::make_shared<NeighborList>(
-        std::move(makeDefaultNlist(nq, nlist, query_points, num_query_points, qargs)));
+    makeDefaultNlist(nq, nlist, query_points, num_query_points, qargs);
+    m_unfiltered_nlist = nlist;
 
     // work with nlist sorted by distance
     NeighborList sorted_nlist(*m_unfiltered_nlist);

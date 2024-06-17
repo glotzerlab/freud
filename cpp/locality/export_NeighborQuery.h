@@ -93,6 +93,13 @@ void export_QueryArgs(nb::module_& m)
         .def_rw("scale", &QueryArgs::scale)
         .def_rw("exclude_ii", &QueryArgs::exclude_ii);
 }
+
+void export_NeighborQueryIterator(nb::module_& m)
+{
+    nb::class_<NeighborQueryIterator>(m, "NeighborQueryIterator")
+        .def("next", &NeighborQueryIterator::next)
+        .def("toNeighborList", &NeighborQueryIterator::toNeighborList);
+}
 };
 
 }; };
