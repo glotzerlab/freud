@@ -13,6 +13,7 @@ NB_MODULE(_locality, m)
     export_AABBQuery(m);
     export_LinkCell(m);
     export_RawPoints(m);
+    export_QueryArgs(m);
     //export_Voronoi(m, "Voronoi");
 
     // filters

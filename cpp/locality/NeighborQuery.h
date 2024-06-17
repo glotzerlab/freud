@@ -24,7 +24,7 @@
 namespace freud { namespace locality {
 
 //! Enumeration for types of queries.
-enum QueryType
+enum class QueryType
 {
     none,    //! Default query type to avoid implicit default types.
     ball,    //! Query based on distance cutoff.

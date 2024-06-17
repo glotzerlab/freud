@@ -4,6 +4,7 @@
 #include "NeighborQuery.h"
 #include "AABBQuery.h"
 #include "LinkCell.h"
+#include "RawPoints.h"
 
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
@@ -39,7 +40,7 @@ void LinkCellConstructor(LinkCell* nq, const box::Box& box, nb_array<float> poin
     new (nq) LinkCell(box, points_data, n_points, cell_width);
 }
 
-void RawPointsConstructor(LinkCell* nq, const box::Box& box, nb_array<float> points)
+void RawPointsConstructor(RawPoints* nq, const box::Box& box, nb_array<float> points)
 {
     unsigned int n_points = points.shape(0);
     vec3<float>* points_data = (vec3<float>*)points.data();
@@ -54,7 +55,7 @@ void export_NeighborQuery(nb::module_& m)
 {
     nb::class_<NeighborQuery>(m, "NeighborQuery")
         .def("query", &wrap::query)
-        .def("getBox", &NeighborQuery::getBox)
+        .def("getBox", &NeighborQuery::getBox);
 }
 
 void export_AABBQuery(nb::module_& m)
@@ -74,6 +75,23 @@ void export_RawPoints(nb::module_& m)
 {
     nb::class_<RawPoints, NeighborQuery>(m, "LinkCell")
         .def("__init__", &wrap::RawPointsConstructor);
+}
+
+void export_QueryArgs(nb::module_& m)
+{
+    nb::enum_<QueryType>(m, "QueryType")
+        .value("none", QueryType::none)
+        .value("ball", QueryType::ball)
+        .value("nearest", QueryType::nearest);
+    nb::class_<QueryArgs>(m, "QueryArgs")
+        .def(nb::init<>())
+        .def_rw("mode", &QueryArgs::mode)
+        .def_rw("num_neighbors", &QueryArgs::num_neighbors)
+        .def_rw("r_max", &QueryArgs::r_max)
+        .def_rw("r_min", &QueryArgs::r_min)
+        .def_rw("r_guess", &QueryArgs::r_guess)
+        .def_rw("scale", &QueryArgs::scale)
+        .def_rw("exclude_ii", &QueryArgs::exclude_ii);
 }
 };
 
