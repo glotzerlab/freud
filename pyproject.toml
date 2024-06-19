@@ -1,5 +1,5 @@
 [build-system]
-requires = ["scikit-build>=0.17.3", "oldest-supported-numpy", "cython>=3.0.2", "cmake", "setuptools", "wheel"]
+requires = ["setuptools", "wheel", "numpy>=2.0.0rc1", "cython>=3.0.2", "scikit-build>=0.17.3", "cmake"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -41,7 +41,7 @@ Source = "https://github.com/glotzerlab/freud"
 Issues = "https://github.com/glotzerlab/freud/issues"
 
 [tool.setuptools.dynamic]
-#optional-dependencies = {tests = {file = ["requirements/requirements-test.txt"] }, doc = {file = ["doc/readthedocs-env.yml"] }}
+#optional-dependencies = { doc = {file = ["doc/readthedocs-env.yml"] }}
 
 [tool.black]
 target-version = ['py36']
