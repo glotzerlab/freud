@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2023 The Regents of the University of Michigan
+# Copyright (c) 2010-2024 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 from . import ( # cluster,; data,; density,; diffraction,; environment,; interface,; locality,; msd,; order,; pmft,
@@ -14,7 +14,7 @@ from .parallel import NumThreads, get_num_threads, set_num_threads
 # automatic selection runs, the user cannot change it.
 set_num_threads(0)
 
-__version__ = "3.0.0"
+__version__ = "3.1.0"
 
 __all__ = [
     "__version__",
