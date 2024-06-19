@@ -7,25 +7,37 @@ Installation
 Installing freud
 ================
 
-The **freud** library can be installed via `conda <https://conda.io/projects/conda/>`_ or pip, or compiled from source.
+**freud** binaries are available on conda-forge_ and PyPI_. You can also compile **freud** from
+source.
 
 Install via conda
 -----------------
 
-The code below will install **freud** from `conda-forge <https://anaconda.org/conda-forge/freud>`_.
+**freud** is available on conda-forge_ for the *linux-64*, *osx-64*, *osx-arm64* and *win-64*
+architectures. Install with:
 
-.. code-block:: bash
+.. code:: bash
 
-    conda install -c conda-forge freud
+   mamba install freud
 
 Install via pip
 -----------------
 
-The code below will install **freud** from `PyPI <https://pypi.org/project/freud-analysis/>`_.
+To install **freud** is also available from PyPI_. To install **freud** into a *non-conda* virtual
+environment, execute:
 
-.. code-block:: bash
+.. code:: bash
 
-    pip install freud-analysis
+   uv pip install freud-analysis
+
+or
+
+.. code:: bash
+
+   python3 -m pip install freud-analysis
+
+.. _conda-forge: https://conda-forge.org/
+.. _PyPI: https://pypi.org/
 
 Compile from source
 -------------------
@@ -33,8 +45,8 @@ Compile from source
 The following are **required** for building and installing **freud** from source:
 
 - A C++17-compliant compiler
-- `Python <https://www.python.org/>`__ (>=3.8)
-- `NumPy <https://www.numpy.org/>`__ (>=1.14)
+- `Python <https://www.python.org/>`__ (>=3.9)
+- `NumPy <https://www.numpy.org/>`__ (>=1.19)
 - `Intel Threading Building Blocks <https://www.threadingbuildingblocks.org/>`__ (>=2019.7)
 - `Cython <https://cython.org/>`__ (>=3.0.2)
 - `scikit-build <https://scikit-build.readthedocs.io/>`__ (>=0.10.0)
@@ -51,13 +63,13 @@ These requirements can be met by installing the following packages from the `con
 
 .. code-block:: bash
 
-    conda install -c conda-forge tbb tbb-devel numpy cython scikit-build cmake
+    mamba install conda-forge tbb tbb-devel numpy cython scikit-build cmake
 
 All requirements other than TBB can also be installed via the `Python Package Index <https://pypi.org/>`__
 
 .. code-block:: bash
 
-    pip install numpy cython scikit-build cmake
+    uv pip install numpy cython scikit-build cmake
 
 Wheels for tbb and tbb-devel exist on PyPI, but only for certain operating systems, so your mileage may vary.
 For non-conda users, we recommend using OS-specific package managers (e.g. `Homebrew <https://brew.sh/>`__ for Mac) to install TBB.
@@ -69,16 +81,7 @@ The code that follows builds **freud** and installs it for all users (append ``-
 
     git clone --recurse-submodules https://github.com/glotzerlab/freud.git
     cd freud
-    python setup.py install
-
-You can also build **freud** in place so that you can run from within the folder:
-
-.. code-block:: bash
-
-    # Run tests from the tests directory
-    python setup.py build_ext --inplace
-
-Building **freud** in place has certain advantages, since it does not affect your Python behavior except within the **freud** directory itself (where **freud** can be imported after building).
+    uv pip install .
 
 CMake Options
 +++++++++++++
@@ -154,18 +157,19 @@ The following are **required** for building **freud** documentation:
 - `nbsphinx <https://nbsphinx.readthedocs.io/>`_
 - `jupyter_sphinx <https://jupyter-sphinx.readthedocs.io/>`_
 - `sphinxcontrib-bibtex <https://sphinxcontrib-bibtex.readthedocs.io/>`_
+- `sphinx-copybutton <https://sphinx-copybutton.readthedocs.io/en/latest/>`_
 
 You can install these dependencies using conda:
 
 .. code-block:: bash
 
-    conda install -c conda-forge sphinx furo nbsphinx jupyter_sphinx sphinxcontrib-bibtex
+    mamba install sphinx furo nbsphinx jupyter_sphinx sphinxcontrib-bibtex sphinx-copybutton
 
 or pip:
 
 .. code-block:: bash
 
-    pip install sphinx sphinx-rtd-theme nbsphinx jupyter-sphinx sphinxcontrib-bibtex
+    uv pip install sphinx sphinx-rtd-theme nbsphinx jupyter-sphinx sphinxcontrib-bibtex sphinx-copybutton
 
 To build the documentation, run the following commands in the source directory:
 

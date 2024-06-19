@@ -1,11 +1,11 @@
-# Copyright (c) 2010-2023 The Regents of the University of Michigan
+# Copyright (c) 2010-2024 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 import os
 
 from skbuild import setup
 
-version = "3.0.0"
+version = "3.1.0"
 
 # Read README for PyPI, fallback to short description if it fails.
 description = "Powerful, efficient trajectory analysis in scientific Python."
@@ -56,16 +56,16 @@ setup(
         "Source Code": "https://github.com/glotzerlab/freud",
         "Issue Tracker": "https://github.com/glotzerlab/freud/issues",
     },
-    python_requires=">=3.8",
+    python_requires=">=3.9",
     install_requires=[
-        "numpy>=1.14",
+        "numpy>=1.19.0",
         "rowan>=1.2.1",
-        "scipy>=1.1",
+        "scipy>=1.7.3",
     ],
     tests_require=[
         "ase>=3.16",
-        "gsd>=2.0",
-        "matplotlib>=3.0",
-        "sympy>=1.0",
+        "gsd>=2.5.0",
+        "matplotlib>=3.5.0",
+        "sympy>=1.10",
     ],
 )
