@@ -2,12 +2,15 @@
 
 #include "export_NeighborQuery.h"
 #include "export_NeighborList.h"
-#include "export_PeriodicBuffer.h"
+//#include "export_PeriodicBuffer.h"
 
 using namespace freud::locality::detail;
 
 NB_MODULE(_locality, m)
 {
+    // for using ITERATOR_TERMINATOR at the python level
+    m.def("get_iterator_terminator", []() { return freud::locality::ITERATOR_TERMINATOR; });
+
     // Neighbor finding stuff
     export_NeighborQuery(m);
     export_AABBQuery(m);

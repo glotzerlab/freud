@@ -14,8 +14,9 @@ import freud._locality
 import freud.box
 
 from freud.errors import NO_DEFAULT_QUERY_ARGS_MESSAGE
-#from freud._locality import ITERATOR_TERMINATOR
 from freud.util import _Compute
+
+ITERATOR_TERMINATOR = freud._locality.get_iterator_terminator()
 
 
 class _QueryArgs:
@@ -505,9 +506,10 @@ class NeighborList:
         num_bonds = query_point_indices.shape[0]
 
         result = cls()
-        result._cpp_obj = freud._locality.NeighborList(num_bonds,
+        result._cpp_obj = freud._locality.NeighborList.fromArrays(
             query_point_indices, num_query_points, point_indices, num_points,
-            vectors, weights)
+            vectors, weights
+        )
 
         return result
 
@@ -543,8 +545,8 @@ class NeighborList:
             query_points, shape=query_points.shape, dtype=np.float32)
 
         result = cls()
-        result._cpp_obj = freud._locality.NeighborList(points, query_points,
-            box, exclude_ii, points.shape[0], query_points.shape[0]
+        result._cpp_obj = freud._locality.NeighborList.allPairs(
+            points, query_points, box, exclude_ii
         )
 
         return result
