@@ -1,8 +1,15 @@
-add_library(_util OBJECT diagonalize.h diagonalize.cc)
+nanobind_add_module(_util NB_SHARED module-util.cc)
+target_link_libraries(_util PUBLIC libfreud)
 
-target_link_libraries(_util PUBLIC TBB::tbb)
+if(APPLE)
+  set_target_properties(_util PROPERTIES INSTALL_RPATH "@loader_path")
+else()
+  set_target_properties(_util PROPERTIES INSTALL_RPATH "\$ORIGIN")
+endif()
 
-# We treat the extern folder as a SYSTEM library to avoid getting any diagnostic
-# information from it. In particular, this avoids clang-tidy throwing errors due
-# to any issues in external code.
-target_include_directories(_util SYSTEM PUBLIC ${PROJECT_SOURCE_DIR}/extern/)
+if(_using_conda OR DEFINED ENV{CIBUILDWHEEL})
+  set_target_properties(_util PROPERTIES INSTALL_RPATH_USE_LINK_PATH True)
+endif()
+
+# install
+install(TARGETS _util DESTINATION freud)
