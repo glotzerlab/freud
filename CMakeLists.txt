@@ -1,6 +1,4 @@
-# CMake 3.12.0 is the oldest version supported by the way freud links TBB to
-# object libraries like _cluster. This is also the oldest version tested in CI.
-cmake_minimum_required(VERSION 3.12.0)
+cmake_minimum_required(VERSION 3.15...3.30)
 
 project(freud)
 
@@ -27,6 +25,19 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # https://stackoverflow.com/questions/50600708/combining-cmake-object-libraries-with-shared-libraries
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 add_subdirectory(CMake)
+
+# find python
+if(CMAKE_VERSION VERSION_LESS 3.18)
+  set(DEV_MODULE Development)
+else()
+  set(DEV_MODULE Development.Module)
+endif()
+
+find_package(
+  Python 3.8
+  COMPONENTS Interpreter ${DEV_MODULE}
+  REQUIRED)
+
 find_package_config_first(TBB)
 
 if(TBB_FOUND)
@@ -34,6 +45,18 @@ if(TBB_FOUND)
   find_package_message(
     tbb "Found TBB: ${TBB_DIR} ${TBB_LIBRARY} ${TBB_INCLUDE_DIR}"
     "[${TBB_LIBRARY}][${TBB_INCLUDE_DIR}]")
+endif()
+
+# go find nanobind
+execute_process(
+  COMMAND ${Python_EXECUTABLE} "-m" "nanobind" "--cmake_dir"
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+  OUTPUT_VARIABLE nanobind_ROOT)
+find_package(nanobind CONFIG REQUIRED)
+if(nanobind_FOUND)
+  find_package_message(
+    nanobind "Found nanobind: ${nanobind_DIR} ${nanobind_VERSION}"
+    "[${nanobind_DIR},${nanobind_VERSION}]")
 endif()
 
 # Fail fast if users have not cloned submodules.
@@ -76,7 +99,3 @@ set(ignoreMe "${SKBUILD}")
 
 add_subdirectory(cpp)
 add_subdirectory(freud)
-
-if(_using_conda OR DEFINED ENV{CIBUILDWHEEL})
-  set_target_properties(libfreud PROPERTIES INSTALL_RPATH_USE_LINK_PATH True)
-endif()

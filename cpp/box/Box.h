@@ -4,13 +4,13 @@
 #ifndef BOX_H
 #define BOX_H
 
-#include "utils.h"
 #include <algorithm>
 #include <complex>
 #include <sstream>
 #include <stdexcept>
 
 #include "VectorMath.h"
+#include "utils.h"
 
 /*! \file Box.h
     \brief Represents simulation boxes and contains helpful wrapping functions.
@@ -94,12 +94,6 @@ public:
     }
 
     //! Set L, box lengths, inverses.  Box is also centered at zero.
-    void setL(const vec3<float>& L)
-    {
-        setL(L.x, L.y, L.z);
-    }
-
-    //! Set L, box lengths, inverses.  Box is also centered at zero.
     void setL(const float Lx, const float Ly, const float Lz)
     {
         if (m_2d)
@@ -156,9 +150,9 @@ public:
     }
 
     //! Get current stored inverse of L
-    vec3<float> getLinv() const
+    std::vector<float> getLinv() const
     {
-        return m_Linv;
+        return {m_Linv.x, m_Linv.y, m_Linv.z};
     }
 
     //! Get tilt factor xy
@@ -227,10 +221,9 @@ public:
     //! Convert fractional coordinates into absolute coordinates in place
     /*! \param vecs Vectors of fractional coordinates between 0 and 1 within
      *         parallelepipedal box
-     *  \param Nvecs Number of vectors
-     *  \param out The array in which to place the wrapped vectors.
+     *  \param out_data The array in which to place the wrapped vectors.
      */
-    void makeAbsolute(const vec3<float>* vecs, unsigned int Nvecs, vec3<float>* out) const
+    void makeAbsolute(const vec3<float>* vecs, const unsigned int Nvecs, vec3<float>* out) const
     {
         util::forLoopWrapper(0, Nvecs, [&](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
@@ -294,12 +287,12 @@ public:
      *  \param Nvecs Number of vectors
         \param res Array to save the images
      */
-    void getImages(vec3<float>* vecs, unsigned int Nvecs, vec3<int>* res) const
+    void getImages(const vec3<float>* vecs, unsigned int Nvecs, vec3<int>* images) const
     {
         util::forLoopWrapper(0, Nvecs, [&](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
-                getImage(vecs[i], res[i]);
+                getImage(vecs[i], images[i]);
             }
         });
     }
@@ -374,7 +367,7 @@ public:
      *  \param masses Optional array of masses, of length Nvecs
      *  \return Center of mass as a vec3<float>
      */
-    vec3<float> centerOfMass(vec3<float>* vecs, size_t Nvecs, const float* masses = nullptr) const
+    vec3<float> centerOfMass(vec3<float>* vecs, size_t Nvecs, const float* masses) const
     {
         // This roughly follows the implementation in
         // https://en.wikipedia.org/wiki/Center_of_mass#Systems_with_periodic_boundary_conditions
@@ -386,7 +379,7 @@ public:
             vec3<float> phase(constants::TWO_PI * makeFractional(vecs[i]));
             vec3<std::complex<float>> xi(std::polar(float(1.0), phase.x), std::polar(float(1.0), phase.y),
                                          std::polar(float(1.0), phase.z));
-            float mass = (masses != nullptr) ? masses[i] : float(1.0);
+            float mass = masses[i];
             total_mass += mass;
             xi_mean += std::complex<float>(mass, 0) * xi;
         }
@@ -401,7 +394,7 @@ public:
      *  \param Nvecs Number of vectors
      *  \param masses Optional array of masses, of length Nvecs
      */
-    void center(vec3<float>* vecs, unsigned int Nvecs, const float* masses = nullptr) const
+    void center(vec3<float>* vecs, unsigned int Nvecs, const float* masses) const
     {
         vec3<float> com(centerOfMass(vecs, Nvecs, masses));
         util::forLoopWrapper(0, Nvecs, [&](size_t begin, size_t end) {
@@ -433,10 +426,6 @@ public:
     void computeDistances(const vec3<float>* query_points, const unsigned int n_query_points,
                           const vec3<float>* points, const unsigned int n_points, float* distances) const
     {
-        if (n_query_points != n_points)
-        {
-            throw std::invalid_argument("The number of query points and points must match.");
-        }
         util::forLoopWrapper(0, n_query_points, [&](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
@@ -473,7 +462,7 @@ public:
         \param n_points The number of points.
         \param contains_mask Mask of points inside the box.
     */
-    void contains(const vec3<float>* points, const unsigned int n_points, bool* contains_mask) const
+    void contains(vec3<float>* points, const unsigned int n_points, bool* contains_mask) const
     {
         util::forLoopWrapper(0, n_points, [&](size_t begin, size_t end) {
             std::transform(&points[begin], &points[end], &contains_mask[begin],
@@ -528,11 +517,6 @@ public:
     /*! \param periodic Flags to set
      *  \post Period flags are set to \a periodic
      */
-    void setPeriodic(vec3<bool> periodic)
-    {
-        m_periodic = periodic;
-    }
-
     void setPeriodic(bool x, bool y, bool z)
     {
         m_periodic = vec3<bool>(x, y, z);
