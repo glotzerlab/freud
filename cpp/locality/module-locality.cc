@@ -1,4 +1,5 @@
 #include <nanobind/nanobind.h>
+#include <nanobind/stl/shared_ptr.h>
 
 #include "export_NeighborQuery.h"
 #include "export_NeighborList.h"

@@ -377,6 +377,8 @@ class NeighborQuery:
             :class:`~.NeighborQueryResult`: Results object containing the
             output of this query.
         """
+        query_points = freud.util._convert_array(
+            np.atleast_2d(query_points), shape=(None, 3))
         args = _QueryArgs.from_dict(query_args)
         return NeighborQueryResult(self, query_points, args)
 
@@ -826,9 +828,9 @@ class AABBQuery(NeighborQuery):
     def __init__(self, box, points):
         # Assume valid set of arguments is passed
         b = freud.util._convert_box(box)
-        self._points = np.array(points, dtype=np.float32)
+        self._points = freud.util._convert_array(points, shape=(None, 3)).copy()
         self._cpp_obj = freud._locality.AABBQuery(
-            b._cpp_obj, points
+            b._cpp_obj, self._points
         )
 
 
@@ -851,9 +853,9 @@ class LinkCell(NeighborQuery):
 
     def __init__(self, box, points, cell_width=0):
         b = freud.util._convert_box(box)
-        self._points = np.array(points, dtype=np.float32, copy=True)
+        self._points = freud.util._convert_array(points, shape=(None, 3)).copy()
         self._cpp_obj = freud._locality.LinkCell(
-            b._cpp_obj, self.points, cell_width
+            b._cpp_obj, self._points, cell_width
         )
 
     @property

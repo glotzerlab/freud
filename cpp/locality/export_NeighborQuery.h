@@ -73,7 +73,7 @@ void export_LinkCell(nb::module_& m)
 
 void export_RawPoints(nb::module_& m)
 {
-    nb::class_<RawPoints, NeighborQuery>(m, "LinkCell")
+    nb::class_<RawPoints, NeighborQuery>(m, "RawPoints")
         .def("__init__", &wrap::RawPointsConstructor);
 }
 
