@@ -531,7 +531,7 @@ class NeighborList:
         )
 
         vectors = freud.util._convert_array(
-            vectors, shape=(len(query_point_indices), 3)
+            vectors, shape=(len(query_point_indices), 3), dtype=np.float32
         )
 
         if weights is None:
@@ -539,7 +539,7 @@ class NeighborList:
         weights = freud.util._convert_array(weights, shape=query_point_indices.shape)
 
         result = cls()
-        result._cpp_obj = freud._locality.NeighborList.fromArrays(
+        result._cpp_obj = freud._locality.NeighborList(
             query_point_indices,
             num_query_points,
             point_indices,
@@ -582,7 +582,7 @@ class NeighborList:
         )
 
         result = cls()
-        result._cpp_obj = freud._locality.NeighborList.allPairs(
+        result._cpp_obj = freud._locality.NeighborList(
             points, query_points, box, exclude_ii
         )
 
@@ -646,31 +646,31 @@ class NeighborList:
     def weights(self):
         """(:math:`N_{bonds}`) :class:`np.ndarray`: The weights for each bond.
         By default, bonds have a weight of 1."""
-        return self._cpp_obj.getWeights()
+        return self._cpp_obj.getWeights().toNumpyArray()
 
     @property
     def distances(self):
         """(:math:`N_{bonds}`) :class:`np.ndarray`: The distances for each
         bond."""
-        return self._cpp_obj.getDistances()
+        return self._cpp_obj.getDistances().toNumpyArray()
 
     @property
     def vectors(self):
         r"""(:math:`N_{bonds}`, 3) :class:`np.ndarray`: The vectors for each
         bond."""
-        return self._cpp_obj.getVectors()
+        return self._cpp_obj.getVectors().toNumpyArray()
 
     @property
     def segments(self):
         """(:math:`N_{query\\_points}`) :class:`np.ndarray`: A segment array
         indicating the first bond index for each query point."""
-        return self._cpp_obj.getSegments()
+        return self._cpp_obj.getSegments().toNumpyArray()
 
     @property
     def neighbor_counts(self):
         """(:math:`N_{query\\_points}`) :class:`np.ndarray`: A neighbor count
         array indicating the number of neighbors for each query point."""
-        return self._cpp_obj.getCounts()
+        return self._cpp_obj.getCounts().toNumpyArray()
 
     def __len__(self):
         r"""Returns the number of bonds stored in this object."""

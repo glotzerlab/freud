@@ -37,7 +37,7 @@ template<typename T> nanobind::ndarray<nanobind::numpy, const T> toNumpyArrayVec
     ndim++;
 
     // now return the array
-    return nanobind::ndarray<nanobind::numpy, const T>((void*) data_ptr, ndim + 1, &dims[0], self);
+    return nanobind::ndarray<nanobind::numpy, const T>((void*) data_ptr, ndim, &dims[0], self);
 }
 
 template<typename T> void export_ManagedArray(nanobind::module_& m, const std::string& name)

@@ -18,11 +18,6 @@ using nb_array = nb::ndarray<T, shape, nb::device::cpu, nb::c_contig>;
 
 namespace wrap {
 
-std::shared_ptr<NeighborList> fromNumBonds(unsigned int num_bonds)
-{
-    return std::make_shared<NeighborList>(num_bonds);
-}
-
 void ConstructFromArrays(NeighborList* nlist, nb_array<unsigned int, nb::ndim<1>> query_point_indices,
                          unsigned int num_query_points, nb_array<unsigned int, nb::ndim<1>> point_indices,
                          unsigned int num_points, nb_array<float, nb::shape<-1, 3>> vectors,
