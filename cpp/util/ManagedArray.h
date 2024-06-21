@@ -11,6 +11,8 @@
 #include <sstream>
 #include <vector>
 
+#include "VectorMath.h"
+
 /*! \file ManagedArray.h
     \brief Defines the standard array class to be used throughout freud.
 */
@@ -355,6 +357,12 @@ private:
     std::vector<size_t> m_shape; //!< Shape of array.
     size_t m_size;               //!< Size of array.
 };
+
+// explicit instantiations for python extension modules
+template class ManagedArray<float>;
+template class ManagedArray<double>;
+template class ManagedArray<unsigned int>;
+template class ManagedArray<vec3<float>>;
 
 }; }; // end namespace freud::util
 

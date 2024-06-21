@@ -15,6 +15,7 @@ import freud.box
 
 from freud.errors import NO_DEFAULT_QUERY_ARGS_MESSAGE
 from freud.util import _Compute
+from freud._util import ManagedArray_float, ManagedArray_double, ManagedArray_unsignedint, ManagedArrayVec3_float
 
 ITERATOR_TERMINATOR = freud._locality.get_iterator_terminator()
 
@@ -589,7 +590,7 @@ class NeighborList:
 
     def __getitem__(self, key):
         r"""Access the bond array by index or slice."""
-        return self._cpp_obj.getNeighbors()[key]
+        return self._cpp_obj.getNeighbors().toNumpyArray()[key]
 
     @property
     def query_point_indices(self):
