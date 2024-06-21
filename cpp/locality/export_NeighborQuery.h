@@ -1,9 +1,12 @@
+// Copyright (c) 2010-2024 The Regents of the University of Michigan
+// This file is from the freud project, released under the BSD 3-Clause License.
+
 #ifndef EXPORT_NEIGHBOR_QUERY_H
 #define EXPORT_NEIGHBOR_QUERY_H
 
-#include "NeighborQuery.h"
 #include "AABBQuery.h"
 #include "LinkCell.h"
+#include "NeighborQuery.h"
 #include "RawPoints.h"
 
 #include <nanobind/nanobind.h>
@@ -15,11 +18,10 @@ namespace freud { namespace locality {
 template<typename T, typename shape = nanobind::shape<-1, 3>>
 using nb_array = nanobind::ndarray<T, shape, nanobind::device::cpu, nanobind::c_contig>;
 
-namespace wrap
-{
+namespace wrap {
 
-std::shared_ptr<NeighborQueryIterator> query(std::shared_ptr<NeighborQuery> nq,
-        nb_array<float> query_points, const QueryArgs& qargs)
+std::shared_ptr<NeighborQueryIterator> query(std::shared_ptr<NeighborQuery> nq, nb_array<float> query_points,
+                                             const QueryArgs& qargs)
 {
     unsigned int n_query_points = query_points.shape(0);
     const vec3<float>* query_points_data = (vec3<float>*) query_points.data();
@@ -29,28 +31,27 @@ std::shared_ptr<NeighborQueryIterator> query(std::shared_ptr<NeighborQuery> nq,
 void AABBQueryConstructor(AABBQuery* nq, const box::Box& box, nb_array<float> points)
 {
     unsigned int n_points = points.shape(0);
-    vec3<float>* points_data = (vec3<float>*)points.data();
+    vec3<float>* points_data = (vec3<float>*) points.data();
     new (nq) AABBQuery(box, points_data, n_points);
 }
 
 void LinkCellConstructor(LinkCell* nq, const box::Box& box, nb_array<float> points, float cell_width)
 {
     unsigned int n_points = points.shape(0);
-    vec3<float>* points_data = (vec3<float>*)points.data();
+    vec3<float>* points_data = (vec3<float>*) points.data();
     new (nq) LinkCell(box, points_data, n_points, cell_width);
 }
 
 void RawPointsConstructor(RawPoints* nq, const box::Box& box, nb_array<float> points)
 {
     unsigned int n_points = points.shape(0);
-    vec3<float>* points_data = (vec3<float>*)points.data();
+    vec3<float>* points_data = (vec3<float>*) points.data();
     new (nq) RawPoints(box, points_data, n_points);
 }
 
-};
+}; // namespace wrap
 
-namespace detail
-{
+namespace detail {
 void export_NeighborQuery(nb::module_& m)
 {
     nb::class_<NeighborQuery>(m, "NeighborQuery")
@@ -60,8 +61,7 @@ void export_NeighborQuery(nb::module_& m)
 
 void export_AABBQuery(nb::module_& m)
 {
-    nb::class_<AABBQuery, NeighborQuery>(m, "AABBQuery")
-        .def("__init__", &wrap::AABBQueryConstructor);
+    nb::class_<AABBQuery, NeighborQuery>(m, "AABBQuery").def("__init__", &wrap::AABBQueryConstructor);
 }
 
 void export_LinkCell(nb::module_& m)
@@ -73,8 +73,7 @@ void export_LinkCell(nb::module_& m)
 
 void export_RawPoints(nb::module_& m)
 {
-    nb::class_<RawPoints, NeighborQuery>(m, "RawPoints")
-        .def("__init__", &wrap::RawPointsConstructor);
+    nb::class_<RawPoints, NeighborQuery>(m, "RawPoints").def("__init__", &wrap::RawPointsConstructor);
 }
 
 void export_QueryArgs(nb::module_& m)
@@ -100,8 +99,8 @@ void export_NeighborQueryIterator(nb::module_& m)
         .def("next", &NeighborQueryIterator::next)
         .def("toNeighborList", &NeighborQueryIterator::toNeighborList);
 }
-};
+}; // namespace detail
 
-}; };
+}; }; // namespace freud::locality
 
 #endif

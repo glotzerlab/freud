@@ -94,7 +94,8 @@ public:
             // with a different data structure like std::vector, but it would
             // require writing additional gymnastics to ensure proper reference
             // management and should be carefully considered before any rewrite.
-            m_data = std::shared_ptr<T>(new T[size()], std::default_delete<T[]>()); // NOLINT(modernize-avoid-c-arrays)
+            m_data = std::shared_ptr<T>(new T[size()],
+                                        std::default_delete<T[]>()); // NOLINT(modernize-avoid-c-arrays)
         }
         reset();
     }

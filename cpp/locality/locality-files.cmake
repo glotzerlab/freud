@@ -19,8 +19,7 @@ set(locality_sources
     ${VOROPP_SOURCE_DIR}/v_base.cc
     ${VOROPP_SOURCE_DIR}/wall.cc
     ${VOROPP_SOURCE_DIR}/pre_container.cc
-    ${VOROPP_SOURCE_DIR}/container_prd.cc
-    )
+    ${VOROPP_SOURCE_DIR}/container_prd.cc)
 
 set(locality_headers
     locality/AABB.h
@@ -37,5 +36,4 @@ set(locality_headers
     locality/NeighborQuery.h
     locality/PeriodicBuffer.h
     locality/RawPoints.h
-    locality/Voronoi.h
-    )
+    locality/Voronoi.h)

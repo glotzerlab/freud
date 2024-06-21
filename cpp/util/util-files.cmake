@@ -1,5 +1,4 @@
-set(util_sources
-    util/diagonalize.cc)
+set(util_sources util/diagonalize.cc)
 
 set(util_headers
     util/BiMap.h
@@ -9,4 +8,3 @@ set(util_headers
     util/VectorMath.h
     util/utils.h
     util/diagonalize.h)
-

@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2023 The Regents of the University of Michigan
+# Copyright (c) 2010-2024 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 r"""
@@ -9,13 +9,17 @@ import inspect
 
 import numpy as np
 
-import freud.util
 import freud._locality
 import freud.box
-
+import freud.util
+from freud._util import (  # noqa F401
+    ManagedArray_double,
+    ManagedArray_float,
+    ManagedArray_unsignedint,
+    ManagedArrayVec3_float,
+)
 from freud.errors import NO_DEFAULT_QUERY_ARGS_MESSAGE
 from freud.util import _Compute
-from freud._util import ManagedArray_float, ManagedArray_double, ManagedArray_unsignedint, ManagedArrayVec3_float
 
 ITERATOR_TERMINATOR = freud._locality.get_iterator_terminator()
 
@@ -30,9 +34,17 @@ class _QueryArgs:
     calls.
     """
 
-    def __init__(self, mode=None, r_min=None, r_max=None, r_guess=None,
-                  num_neighbors=None, exclude_ii=None,
-                  scale=None, **kwargs):
+    def __init__(
+        self,
+        mode=None,
+        r_min=None,
+        r_max=None,
+        r_guess=None,
+        num_neighbors=None,
+        exclude_ii=None,
+        scale=None,
+        **kwargs,
+    ):
         self._cpp_obj = freud._locality.QueryArgs()
         self._mode = mode
         if r_max is not None:
@@ -48,12 +60,10 @@ class _QueryArgs:
         if scale is not None:
             self.scale = scale
         if len(kwargs):
-            err_str = ", ".join(
-                "{} = {}".format(k, v) for k, v in kwargs.items())
+            err_str = ", ".join(f"{k} = {v}" for k, v in kwargs.items())
             raise ValueError(
-                "The following invalid query "
-                "arguments were provided: " +
-                err_str)
+                "The following invalid query " "arguments were provided: " + err_str
+            )
 
     def update(self, qargs):
         if qargs is None:
@@ -74,19 +84,19 @@ class _QueryArgs:
         if self._cpp_obj.mode == freud._locality.QueryType.none:
             return None
         elif self._cpp_obj.mode == freud._locality.QueryType.ball:
-            return 'ball'
+            return "ball"
         elif self._cpp_obj.mode == freud._locality.QueryType.nearest:
-            return 'nearest'
+            return "nearest"
         else:
-            raise ValueError("Unknown mode {} set!".format(self._cpp_obj.mode))
+            raise ValueError(f"Unknown mode {self._cpp_obj.mode} set!")
 
     @mode.setter
     def mode(self, value):
-        if value == 'none' or value is None:
+        if value == "none" or value is None:
             self._cpp_obj.mode = freud._locality.QueryType.none
-        elif value == 'ball':
+        elif value == "ball":
             self._cpp_obj.mode = freud._locality.QueryType.ball
-        elif value == 'nearest':
+        elif value == "nearest":
             self._cpp_obj.mode = freud._locality.QueryType.nearest
         else:
             raise ValueError("An invalid mode was provided.")
@@ -140,14 +150,18 @@ class _QueryArgs:
         self._cpp_obj.scale = value
 
     def __repr__(self):
-        return ("freud.locality.{cls}(mode={mode}, r_max={r_max}, "
-                "num_neighbors={num_neighbors}, exclude_ii={exclude_ii}, "
-                "scale={scale})").format(
-                    cls=type(self).__name__,
-                    mode=self.mode, r_max=self.r_max,
-                    num_neighbors=self.num_neighbors,
-                    exclude_ii=self.exclude_ii,
-                    scale=self.scale)
+        return (
+            "freud.locality.{cls}(mode={mode}, r_max={r_max}, "
+            "num_neighbors={num_neighbors}, exclude_ii={exclude_ii}, "
+            "scale={scale})"
+        ).format(
+            cls=type(self).__name__,
+            mode=self.mode,
+            r_max=self.r_max,
+            num_neighbors=self.num_neighbors,
+            exclude_ii=self.exclude_ii,
+            scale=self.scale,
+        )
 
     def __str__(self):
         return repr(self)
@@ -177,14 +191,15 @@ class NeighborQueryResult:
         self._query_args = query_args
 
     def __iter__(self):
-        iterator_cpp = self._nq._cpp_obj.query(
-            self._points, self._query_args._cpp_obj
-        )
+        iterator_cpp = self._nq._cpp_obj.query(self._points, self._query_args._cpp_obj)
 
         npoint = iterator_cpp.next()
         while npoint != ITERATOR_TERMINATOR:
-            yield (npoint.getQueryPointIdx(), npoint.getPointIdx(),
-                   npoint.getDistance())
+            yield (
+                npoint.getQueryPointIdx(),
+                npoint.getPointIdx(),
+                npoint.getDistance(),
+            )
             npoint = iterator_cpp.next()
 
     def toNeighborList(self, sort_by_distance=False):
@@ -282,8 +297,10 @@ class NeighborQuery:
         """
 
         def _match_class_path(obj, *matches):
-            return any(cls.__module__ + '.' + cls.__name__ in matches
-                       for cls in inspect.getmro(type(obj)))
+            return any(
+                cls.__module__ + "." + cls.__name__ in matches
+                for cls in inspect.getmro(type(obj))
+            )
 
         if isinstance(system, cls):
             return system
@@ -291,16 +308,17 @@ class NeighborQuery:
         # MDAnalysis compatibility
         # base namespace for mdanalysis<2.3.0
         # timestep namespace for mdanalysis>=2.3.0
-        elif _match_class_path(system,
-                               'MDAnalysis.coordinates.base.Timestep',
-                               'MDAnalysis.coordinates.timestep.Timestep'):
+        elif _match_class_path(
+            system,
+            "MDAnalysis.coordinates.base.Timestep",
+            "MDAnalysis.coordinates.timestep.Timestep",
+        ):
             system = (system.triclinic_dimensions, system.positions)
 
         # GSD and HOOMD-blue 3 snapshot compatibility
-        elif _match_class_path(system,
-                               'gsd.hoomd.Frame',
-                               'gsd.hoomd.Snapshot',
-                               'hoomd.snapshot.Snapshot'):
+        elif _match_class_path(
+            system, "gsd.hoomd.Frame", "gsd.hoomd.Snapshot", "hoomd.snapshot.Snapshot"
+        ):
             # Explicitly construct the box to silence warnings from box
             # constructor, HOOMD simulations often have Lz=1 for 2D boxes.
             box = np.array(system.configuration.box)
@@ -309,7 +327,7 @@ class NeighborQuery:
             system = (box, system.particles.position)
 
         # garnett compatibility (garnett >=0.5)
-        elif _match_class_path(system, 'garnett.trajectory.Frame'):
+        elif _match_class_path(system, "garnett.trajectory.Frame"):
             try:
                 # garnett >= 0.7
                 position = system.position
@@ -320,18 +338,22 @@ class NeighborQuery:
 
         # OVITO compatibility
         elif _match_class_path(
-                system,
-                'ovito.data.DataCollection',
-                'ovito.plugins.PyScript.DataCollection',
-                'PyScript.DataCollection'):
+            system,
+            "ovito.data.DataCollection",
+            "ovito.plugins.PyScript.DataCollection",
+            "PyScript.DataCollection",
+        ):
             box = freud.Box.from_box(
-                system.cell.matrix[:, :3],
-                dimensions=2 if system.cell.is2D else 3)
+                system.cell.matrix[:, :3], dimensions=2 if system.cell.is2D else 3
+            )
             system = (box, system.particles.positions)
 
         # HOOMD-blue 2 snapshot compatibility
-        elif (hasattr(system, 'box') and hasattr(system, 'particles') and
-              hasattr(system.particles, 'position')):
+        elif (
+            hasattr(system, "box")
+            and hasattr(system, "particles")
+            and hasattr(system.particles, "position")
+        ):
             # Explicitly construct the box to silence warnings from box
             # constructor because HOOMD sets Lz=1 rather than 0 for 2D boxes.
             if system.box.dimensions == 2:
@@ -341,7 +363,7 @@ class NeighborQuery:
             system = (box, system.particles.position)
 
         # Duck type systems with attributes into a (box, points) tuple
-        elif hasattr(system, 'box') and hasattr(system, 'points'):
+        elif hasattr(system, "box") and hasattr(system, "points"):
             system = (system.box, system.points)
 
         if cls == NeighborQuery:
@@ -379,7 +401,8 @@ class NeighborQuery:
             output of this query.
         """
         query_points = freud.util._convert_array(
-            np.atleast_2d(query_points), shape=(None, 3))
+            np.atleast_2d(query_points), shape=(None, 3)
+        )
         args = _QueryArgs.from_dict(query_args)
         return NeighborQueryResult(self, query_points, args)
 
@@ -406,8 +429,8 @@ class NeighborQuery:
                 Axis and point data for the plot.
         """
         import freud.plot
-        return freud.plot.system_plot(
-            self, ax=ax, title=title, *args, **kwargs)
+
+        return freud.plot.system_plot(self, ax=ax, title=title, *args, **kwargs)
 
 
 class NeighborList:
@@ -453,8 +476,15 @@ class NeighborList:
     """
 
     @classmethod
-    def from_arrays(cls, num_query_points, num_points, query_point_indices,
-                    point_indices, vectors, weights=None):
+    def from_arrays(
+        cls,
+        num_query_points,
+        num_points,
+        query_point_indices,
+        point_indices,
+        vectors,
+        weights=None,
+    ):
         r"""Create a NeighborList from a set of bond information arrays.
 
         Example::
@@ -494,24 +524,28 @@ class NeighborList:
                 value of 1 for each weight) (Default value = :code:`None`).
         """  # noqa 501
         query_point_indices = freud.util._convert_array(
-            query_point_indices, shape=(None,), dtype=np.uint32)
+            query_point_indices, shape=(None,), dtype=np.uint32
+        )
         point_indices = freud.util._convert_array(
-            point_indices, shape=query_point_indices.shape, dtype=np.uint32)
+            point_indices, shape=query_point_indices.shape, dtype=np.uint32
+        )
 
         vectors = freud.util._convert_array(
-            vectors, shape=(len(query_point_indices), 3))
+            vectors, shape=(len(query_point_indices), 3)
+        )
 
         if weights is None:
             weights = np.ones(query_point_indices.shape, dtype=np.float32)
-        weights = freud.util._convert_array(
-            weights, shape=query_point_indices.shape)
-
-        num_bonds = query_point_indices.shape[0]
+        weights = freud.util._convert_array(weights, shape=query_point_indices.shape)
 
         result = cls()
         result._cpp_obj = freud._locality.NeighborList.fromArrays(
-            query_point_indices, num_query_points, point_indices, num_points,
-            vectors, weights
+            query_point_indices,
+            num_query_points,
+            point_indices,
+            num_points,
+            vectors,
+            weights,
         )
 
         return result
@@ -542,10 +576,10 @@ class NeighborList:
         if query_points is None:
             query_points = points
 
-        points = freud.util._convert_array(
-            points, shape=points.shape, dtype=np.float32)
+        points = freud.util._convert_array(points, shape=points.shape, dtype=np.float32)
         query_points = freud.util._convert_array(
-            query_points, shape=query_points.shape, dtype=np.float32)
+            query_points, shape=query_points.shape, dtype=np.float32
+        )
 
         result = cls()
         result._cpp_obj = freud._locality.NeighborList.allPairs(
@@ -794,7 +828,7 @@ def _make_default_nlist(system, neighbors, query_points=None):
         return neighbors
     else:
         query_args = neighbors.copy()
-        query_args.setdefault('exclude_ii', query_points is None)
+        query_args.setdefault("exclude_ii", query_points is None)
         nq = _make_default_nq(system)
         qp = query_points if query_points is not None else nq.points
         return nq.query(qp, query_args).toNeighborList()
@@ -808,9 +842,7 @@ class _RawPoints(NeighborQuery):
         # Assume valid set of arguments is passed
         b = freud.util._convert_box(box)
         self._points = freud.util._convert_array(points, dtype=np.float32)
-        self._cpp_obj = freud._locality.RawPoints(
-            b._cpp_obj, self.points
-        )
+        self._cpp_obj = freud._locality.RawPoints(b._cpp_obj, self.points)
 
 
 class AABBQuery(NeighborQuery):
@@ -830,9 +862,7 @@ class AABBQuery(NeighborQuery):
         # Assume valid set of arguments is passed
         b = freud.util._convert_box(box)
         self._points = freud.util._convert_array(points, shape=(None, 3)).copy()
-        self._cpp_obj = freud._locality.AABBQuery(
-            b._cpp_obj, self._points
-        )
+        self._cpp_obj = freud._locality.AABBQuery(b._cpp_obj, self._points)
 
 
 class LinkCell(NeighborQuery):
@@ -855,9 +885,7 @@ class LinkCell(NeighborQuery):
     def __init__(self, box, points, cell_width=0):
         b = freud.util._convert_box(box)
         self._points = freud.util._convert_array(points, shape=(None, 3)).copy()
-        self._cpp_obj = freud._locality.LinkCell(
-            b._cpp_obj, self._points, cell_width
-        )
+        self._cpp_obj = freud._locality.LinkCell(b._cpp_obj, self._points, cell_width)
 
     @property
     def cell_width(self):
@@ -876,9 +904,8 @@ class _PairCompute(_Compute):
     well as dealing with boxes and query arguments.
     """
 
-    def _preprocess_arguments(self, system, query_points=None,
-                              neighbors=None):
-        """Process standard compute arguments into freud's internal types by
+    def _preprocess_arguments(self, system, query_points=None, neighbors=None):
+        r"""Process standard compute arguments into freud's internal types by
         calling all the required internal functions.
 
         This function handles the preprocessing of boxes and points into
@@ -908,8 +935,7 @@ class _PairCompute(_Compute):
         if query_points is None:
             query_points = nq.points
         else:
-            query_points = freud.util._convert_array(
-                query_points, shape=(None, 3))
+            query_points = freud.util._convert_array(query_points, shape=(None, 3))
         num_query_points = query_points.shape[0]
         return (nq, nlist, qargs, query_points, num_query_points)
 
@@ -922,23 +948,27 @@ class _PairCompute(_Compute):
             # if no query arguments were passed in and the class has no
             # reasonable choice of defaults.
             try:
-                query_args = self.default_query_args if neighbors is None \
-                    else neighbors.copy()
-                query_args.setdefault('exclude_ii', query_points is None)
+                query_args = (
+                    self.default_query_args if neighbors is None else neighbors.copy()
+                )
+                query_args.setdefault("exclude_ii", query_points is None)
                 qargs = _QueryArgs.from_dict(query_args)
                 nlist = NeighborList(_null=True)
             except NotImplementedError:
                 raise
         else:
-            raise ValueError('An invalid value was provided for neighbors, '
-                             'which must be a dict or NeighborList object.')
+            raise ValueError(
+                "An invalid value was provided for neighbors, "
+                "which must be a dict or NeighborList object."
+            )
         return nlist, qargs
 
     @property
     def default_query_args(self):
         """No default query arguments."""
         raise NotImplementedError(
-            NO_DEFAULT_QUERY_ARGS_MESSAGE.format(type(self).__name__))
+            NO_DEFAULT_QUERY_ARGS_MESSAGE.format(type(self).__name__)
+        )
 
 
 class _SpatialHistogram(_PairCompute):
@@ -1066,7 +1096,7 @@ class PeriodicBuffer(_Compute):
         elif len(buffer) == 3:
             buffer_vec = [buffer[0], buffer[1], buffer[2]]
         else:
-            raise ValueError('buffer must be a scalar or have length 3.')
+            raise ValueError("buffer must be a scalar or have length 3.")
 
         self._cpp_obj.compute(nq._cpp_obj, buffer_vec, images, include_input_points)
         return self
@@ -1077,7 +1107,7 @@ class PeriodicBuffer(_Compute):
         buffer point positions."""
         points = self._cpp_obj.getBufferPoints()
         return np.asarray(points)
-        #return np.asarray([[p.x, p.y, p.z] for p in points])
+        # return np.asarray([[p.x, p.y, p.z] for p in points])
 
     @_Compute._computed_property
     def buffer_ids(self):
@@ -1092,7 +1122,7 @@ class PeriodicBuffer(_Compute):
         return freud.box.BoxFromCPP(self._cpp_obj.getBufferBox())
 
     def __repr__(self):
-        return "freud.locality.{cls}()".format(cls=type(self).__name__)
+        return f"freud.locality.{type(self).__name__}()"
 
     def __str__(self):
         return repr(self)
@@ -1176,8 +1206,7 @@ class Voronoi(_Compute):
         return self._nlist
 
     def __repr__(self):
-        return "freud.locality.{cls}()".format(
-            cls=type(self).__name__)
+        return f"freud.locality.{type(self).__name__}()"
 
     def __str__(self):
         return repr(self)
@@ -1201,15 +1230,16 @@ class Voronoi(_Compute):
             :class:`matplotlib.axes.Axes`: Axis with the plot.
         """
         import freud.plot
+
         if not self._box.is2D:
             return None
         else:
-            return freud.plot.voronoi_plot(
-                self, self._box, ax, color_by, cmap)
+            return freud.plot.voronoi_plot(self, self._box, ax, color_by, cmap)
 
     def _repr_png_(self):
         try:
             import freud.plot
+
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None
@@ -1235,6 +1265,7 @@ class Filter(_PairCompute):
     Warning:
         This class is abstract and should not be instantiated directly.
     """
+
     def __init__(self):
         raise RuntimeError(
             "The Filter class is abstract and should not be instantiated directly."
@@ -1244,8 +1275,7 @@ class Filter(_PairCompute):
         """Use a full neighborlist if neighbors=None."""
         nq = NeighborQuery.from_system(system)
         if neighbors is None:
-            neighbors = NeighborList.all_pairs(nq, query_points,
-                                               query_points is None)
+            neighbors = NeighborList.all_pairs(nq, query_points, query_points is None)
         return super()._preprocess_arguments(nq, query_points, neighbors)
 
     def compute(self, system, neighbors=None, query_points=None):
@@ -1266,11 +1296,17 @@ class Filter(_PairCompute):
                 Query points used to calculate the unfiltered neighborlist. Uses
                 the system's points if :code:`None` (Default value = :code:`None`).
         """
-        nq, nlist, qargs, query_points, num_query_points = \
-            self._preprocess_arguments(system, query_points, neighbors)
+        nq, nlist, qargs, query_points, num_query_points = self._preprocess_arguments(
+            system, query_points, neighbors
+        )
 
-        self._filterptr.compute(nq.get_ptr(), query_points, num_query_points,
-                                nlist.get_ptr(), qargs._cpp_obj)
+        self._filterptr.compute(
+            nq.get_ptr(),
+            query_points,
+            num_query_points,
+            nlist.get_ptr(),
+            qargs._cpp_obj,
+        )
         return self
 
     @_Compute._computed_property
@@ -1323,6 +1359,7 @@ class FilterSANN(Filter):
             If False, an exception will be raised in the same case (Default value =
             :code:`False`).
     """
+
     def __init__(self, allow_incomplete_shell=False):
         self._cpp_obj = freud._locality.FilterSANN(allow_incomplete_shell)
 
@@ -1374,7 +1411,8 @@ class FilterRAD(Filter):
             Filter potential neighbors after a closer blocked particle is found
             (Default value = :code:`False`).
     """
-    def __init__(self, allow_incomplete_shell=False, terminate_after_blocked=True):
-        self._cpp_obj = freud._locality.FilterRAD(allow_incomplete_shell,
-                                                  terminate_after_blocked)
 
+    def __init__(self, allow_incomplete_shell=False, terminate_after_blocked=True):
+        self._cpp_obj = freud._locality.FilterRAD(
+            allow_incomplete_shell, terminate_after_blocked
+        )

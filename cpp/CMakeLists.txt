@@ -29,12 +29,8 @@ include(parallel/parallel-files.cmake)
 include(util/util-files.cmake)
 
 # make libfreud.so
-add_library(
-  libfreud SHARED
-  ${box_sources}
-  ${locality_sources}
-  ${parallel_sources}
-  ${util-sources})
+add_library(libfreud SHARED ${box_sources} ${locality_sources}
+                            ${parallel_sources} ${util-sources})
 
 target_link_libraries(libfreud PUBLIC TBB::tbb)
 
@@ -71,7 +67,6 @@ add_subdirectory(util)
 # commented out for now, uncomment them as the conversion to pybind11 progresses
 # add_subdirectory(cluster) add_subdirectory(density)
 # add_subdirectory(diffraction) add_subdirectory(environment)
-# add_subdirectory(order)
-# add_subdirectory(pmft)
+# add_subdirectory(order) add_subdirectory(pmft)
 
 install(TARGETS nanobind DESTINATION freud)

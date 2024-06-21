@@ -1,9 +1,12 @@
+// Copyright (c) 2010-2024 The Regents of the University of Michigan
+// This file is from the freud project, released under the BSD 3-Clause License.
+
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/shared_ptr.h>
 
-#include "export_NeighborQuery.h"
 #include "export_NeighborList.h"
-//#include "export_PeriodicBuffer.h"
+#include "export_NeighborQuery.h"
+// #include "export_PeriodicBuffer.h"
 
 using namespace freud::locality::detail;
 
@@ -21,13 +24,13 @@ NB_MODULE(_locality, m)
     export_NeighborQueryIterator(m);
     export_NeighborList(m);
     export_NeighborBond(m);
-    //export_Voronoi(m, "Voronoi");
+    // export_Voronoi(m, "Voronoi");
 
     // filters
-    //export_Filter(m);
-    //export_FilterRAD(m);
-    //export_FilterSANN(m);
+    // export_Filter(m);
+    // export_FilterRAD(m);
+    // export_FilterSANN(m);
 
     // others
-    //export_PeriodicBuffer(m);
+    // export_PeriodicBuffer(m);
 }
