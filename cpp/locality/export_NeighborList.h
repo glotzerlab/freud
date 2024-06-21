@@ -13,8 +13,8 @@ namespace nb = nanobind;
 
 namespace freud { namespace locality {
 
-// template<typename T, typename shape = nb::shape<-1, 3>>
-// using nb_array = nb::ndarray<T, shape, nb::device::cpu, nb::c_contig>;
+template<typename T, typename shape>
+using nb_array = nb::ndarray<T, shape, nb::device::cpu, nb::c_contig>;
 
 namespace wrap {
 
@@ -25,7 +25,7 @@ std::shared_ptr<NeighborList> fromNumBonds(unsigned int num_bonds)
 
 void ConstructFromArrays(NeighborList* nlist, nb_array<unsigned int, nb::ndim<1>> query_point_indices,
                          unsigned int num_query_points, nb_array<unsigned int, nb::ndim<1>> point_indices,
-                         unsigned int num_points, nb_array<float> vectors,
+                         unsigned int num_points, nb_array<float, nb::shape<-1, 3>> vectors,
                          nb_array<float, nb::ndim<1>> weights)
 {
     const unsigned int num_bonds = query_point_indices.shape(0);
@@ -37,7 +37,7 @@ void ConstructFromArrays(NeighborList* nlist, nb_array<unsigned int, nb::ndim<1>
                              num_points, vectors_data, weights_data);
 }
 
-void ConstructAllPairs(NeighborList* nlist, nb_array<float> points, nb_array<float> query_points,
+void ConstructAllPairs(NeighborList* nlist, nb_array<float, nb::shape<-1, 3>> points, nb_array<float, nb::shape<-1, 3>> query_points,
                        const box::Box& box, const bool exclude_ii)
 {
     const unsigned int num_points = points.shape(0);
@@ -51,22 +51,6 @@ unsigned int filter(std::shared_ptr<NeighborList> nlist, nb_array<bool, nb::ndim
 {
     const bool* filter_data = (const bool*) filter.data();
     return nlist->filter(filter_data);
-}
-
-nb::ndarray<nb::numpy, float, nb::ndim<1>> getDistances(std::shared_ptr<NeighborList> nlist)
-{
-    // get the array info
-    const unsigned int num_bonds = nlist->getNumBonds();
-    const auto& distances = nlist->getDistances();
-    const float* distances_ptr = &distances(0);
-
-    // create a python object to tie the lifetime of the array to
-    nb::handle py_class = nb::type<NeighborList>();
-    nb::object py_instance = nb::inst_alloc(py_class);
-    nb::inst_zero(py_instance);
-
-    // return an array with the lifetime tied to the python instance
-    return nb::ndarray<nb::numpy, float, nb::ndim<1>>((void*) distances_ptr, {num_bonds}, py_instance);
 }
 
 }; // end namespace wrap

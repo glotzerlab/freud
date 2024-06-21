@@ -46,7 +46,7 @@ class _QueryArgs:
         **kwargs,
     ):
         self._cpp_obj = freud._locality.QueryArgs()
-        self._mode = mode
+        self.mode = mode
         if r_max is not None:
             self.r_max = r_max
         if r_min is not None:
