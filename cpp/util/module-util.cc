@@ -1,11 +1,13 @@
-
 #include <nanobind/nanobind.h>
 
 #include "export_ManagedArray.h"
 
-using namespace freud::util
+using namespace freud::util::detail;
 
 NB_MODULE(_util, m)
 {
     export_ManagedArray<float>(m, "ManagedArray_float");
+    export_ManagedArray<double>(m, "ManagedArray_double");
+    export_ManagedArray<unsigned int>(m, "ManagedArray_unsignedint");
+    export_ManagedArrayVec3<float>(m, "ManagedArrayVec3_float");
 }
