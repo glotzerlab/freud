@@ -23,8 +23,10 @@ namespace freud { namespace locality {
  * if the provided NeighborList is NULL. Otherwise, it simply returns a copy of
  * the provided NeighborList.
  */
-std::shared_ptr<NeighborList> makeDefaultNlist(std::shared_ptr<NeighborQuery> nq, std::shared_ptr<NeighborList> nlist,
-                      const vec3<float>* query_points, unsigned int num_query_points, QueryArgs qargs);
+std::shared_ptr<NeighborList> makeDefaultNlist(std::shared_ptr<NeighborQuery> nq,
+                                               std::shared_ptr<NeighborList> nlist,
+                                               const vec3<float>* query_points, unsigned int num_query_points,
+                                               QueryArgs qargs);
 
 //! Implementation of per-point finding logic for NeighborList objects.
 /*! This class provides a concrete implementation of the per-point neighbor

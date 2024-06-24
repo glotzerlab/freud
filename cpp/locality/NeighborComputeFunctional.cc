@@ -9,8 +9,10 @@
 
 namespace freud { namespace locality {
 
-std::shared_ptr<NeighborList> makeDefaultNlist(std::shared_ptr<NeighborQuery> nq, std::shared_ptr<NeighborList> nlist,
-                      const vec3<float>* query_points, unsigned int num_query_points, QueryArgs qargs)
+std::shared_ptr<NeighborList> makeDefaultNlist(std::shared_ptr<NeighborQuery> nq,
+                                               std::shared_ptr<NeighborList> nlist,
+                                               const vec3<float>* query_points, unsigned int num_query_points,
+                                               QueryArgs qargs)
 {
     std::shared_ptr<NeighborList> return_nlist;
     if (nlist == nullptr)
