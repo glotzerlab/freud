@@ -33,7 +33,9 @@ jobs:
           environment-file: .github/workflows/env-files/py312-conda-lock.yml
       - name: Build freud and export compile commands
         run: |
-          uv pip install --no-build-isolation --no-deps -ve .
+          python3 setup.py build_ext --inplace
+          # TODO: switch to this command after migrating to scikit-build-core
+          # uv pip install --no-build-isolation --no-deps -ve .
         env:
           CMAKE_ARGS: "-DCMAKE_EXPORT_COMPILE_COMMANDS=True"
       - run: ls -lR
