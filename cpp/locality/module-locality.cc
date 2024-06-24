@@ -6,6 +6,7 @@
 
 #include "export_NeighborList.h"
 #include "export_NeighborQuery.h"
+#include "export_Filter.h"
 // #include "export_PeriodicBuffer.h"
 
 using namespace freud::locality::detail;
@@ -27,9 +28,9 @@ NB_MODULE(_locality, m)
     // export_Voronoi(m, "Voronoi");
 
     // filters
-    // export_Filter(m);
-    // export_FilterRAD(m);
-    // export_FilterSANN(m);
+    export_Filter(m);
+    export_FilterRAD(m);
+    export_FilterSANN(m);
 
     // others
     // export_PeriodicBuffer(m);

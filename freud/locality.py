@@ -589,12 +589,7 @@ class NeighborList:
         return result
 
     def __init__(self, _null=False):
-        # Setting _null to True will create a NeighborList with no underlying
-        # C++ object. This is useful for passing NULL pointers to C++ to
-        # indicate the lack of a NeighborList
-        self._managed = not _null
         self._cpp_obj = None if _null else freud._locality.NeighborList()
-        self._compute = None
 
     def get_ptr(self):
         r"""Returns a pointer to the raw C++ object we are wrapping."""
@@ -1300,27 +1295,19 @@ class Filter(_PairCompute):
             system, query_points, neighbors
         )
 
-        self._filterptr.compute(
-            nq.get_ptr(),
-            query_points,
-            num_query_points,
-            nlist.get_ptr(),
-            qargs._cpp_obj,
-        )
+        self._cpp_obj.compute(nq._cpp_obj, query_points, nlist._cpp_obj, qargs._cpp_obj)
         return self
 
     @_Compute._computed_property
     def filtered_nlist(self):
         """:class:`.NeighborList`: The filtered neighbor list."""
-        nlist = _nlist_from_cnlist(self._filterptr.getFilteredNlist().get())
-        nlist._compute = self
+        nlist = _nlist_from_cnlist(self._cpp_obj.getFilteredNlist())
         return nlist
 
     @_Compute._computed_property
     def unfiltered_nlist(self):
         """:class:`.NeighborList`: The unfiltered neighbor list."""
-        nlist = _nlist_from_cnlist(self._filterptr.getUnfilteredNlist().get())
-        nlist._compute = self
+        nlist = _nlist_from_cnlist(self._cpp_obj.getUnfilteredNlist())
         return nlist
 
 

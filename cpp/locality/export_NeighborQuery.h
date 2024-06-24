@@ -15,12 +15,12 @@ namespace nb = nanobind;
 
 namespace freud { namespace locality {
 
-template<typename T, typename shape = nanobind::shape<-1, 3>>
+template<typename T, typename shape>
 using nb_array = nanobind::ndarray<T, shape, nanobind::device::cpu, nanobind::c_contig>;
 
 namespace wrap {
 
-std::shared_ptr<NeighborQueryIterator> query(std::shared_ptr<NeighborQuery> nq, nb_array<float> query_points,
+std::shared_ptr<NeighborQueryIterator> query(std::shared_ptr<NeighborQuery> nq, nb_array<float, nb::shape<-1, 3>> query_points,
                                              const QueryArgs& qargs)
 {
     unsigned int n_query_points = query_points.shape(0);
@@ -28,21 +28,21 @@ std::shared_ptr<NeighborQueryIterator> query(std::shared_ptr<NeighborQuery> nq, 
     return nq->query(query_points_data, n_query_points, qargs);
 }
 
-void AABBQueryConstructor(AABBQuery* nq, const box::Box& box, nb_array<float> points)
+void AABBQueryConstructor(AABBQuery* nq, const box::Box& box, nb_array<float, nb::shape<-1, 3>> points)
 {
     unsigned int n_points = points.shape(0);
     vec3<float>* points_data = (vec3<float>*) points.data();
     new (nq) AABBQuery(box, points_data, n_points);
 }
 
-void LinkCellConstructor(LinkCell* nq, const box::Box& box, nb_array<float> points, float cell_width)
+void LinkCellConstructor(LinkCell* nq, const box::Box& box, nb_array<float, nb::shape<-1, 3>> points, float cell_width)
 {
     unsigned int n_points = points.shape(0);
     vec3<float>* points_data = (vec3<float>*) points.data();
     new (nq) LinkCell(box, points_data, n_points, cell_width);
 }
 
-void RawPointsConstructor(RawPoints* nq, const box::Box& box, nb_array<float> points)
+void RawPointsConstructor(RawPoints* nq, const box::Box& box, nb_array<float, nb::shape<-1, 3>> points)
 {
     unsigned int n_points = points.shape(0);
     vec3<float>* points_data = (vec3<float>*) points.data();

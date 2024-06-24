@@ -15,8 +15,7 @@ void FilterSANN::compute(std::shared_ptr<NeighborQuery> nq, const vec3<float>* q
                          const QueryArgs& qargs)
 {
     // make the unfiltered neighborlist from the arguments
-    makeDefaultNlist(nq, nlist, query_points, num_query_points, qargs);
-    m_unfiltered_nlist = nlist;
+    m_unfiltered_nlist = makeDefaultNlist(nq, nlist, query_points, num_query_points, qargs);
 
     // work with nlist sorted by distance
     NeighborList sorted_nlist(*m_unfiltered_nlist);
