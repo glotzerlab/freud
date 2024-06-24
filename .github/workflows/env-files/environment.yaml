@@ -13,6 +13,7 @@ dependencies:
   - dynasor
   - gsd
   - matplotlib
+  - nanobind>=2.0
   - numpy
   - pillow
   - pre-commit

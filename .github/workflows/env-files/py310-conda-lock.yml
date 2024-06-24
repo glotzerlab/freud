@@ -13,10 +13,10 @@
 version: 1
 metadata:
   content_hash:
-    osx-arm64: b2fdeadd9ed5dbd5c262d4e9c376956d0476d9b758cd6580abb33b128578d328
-    osx-64: d366e360b586a25b7cc49a97fedcd21d1637f029e3205b98fc90f324bf85be36
-    linux-64: a612ead1977362480a28f653de0d16f52fe697efc73b1401714f96e1e0518547
-    win-64: efee86db5c17064c57d30a7215c7728301b914849081f51fc24b2eb2ef19e259
+    osx-arm64: c8b6ea3602dde99b079b3c95e7b46b1ce7c84b8ac86318db69397caa790a1dbf
+    osx-64: c6229e72813a938805730c03fc8afb49827d24cf07b43554953b123e41aeca60
+    linux-64: 891f63143875788728a60dc22321d2a128a5786b273d9dab68efd466846b4c2b
+    win-64: 9fdc6d38c76d0a95ab4377a6abb1b6d2c801018273b2cc5bae5b80eabe541983
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -6176,6 +6176,54 @@ package:
   hash:
     md5: 1b50eebe2a738a3146c154d2eceaa8b6
     sha256: c39cdd1a5829aeffc611f789bdfd4dbd4ce1aa829c73d728defec180b5265d91
+  category: main
+  optional: false
+- name: nanobind
+  version: 2.0.0
+  manager: conda
+  platform: linux-64
+  dependencies:
+    python: '>=3.8'
+  url: https://conda.anaconda.org/conda-forge/noarch/nanobind-2.0.0-pyhd8ed1ab_1.conda
+  hash:
+    md5: eb27b425a215c7ddfb03f1547897e467
+    sha256: e98e30de46985b78c34083e00b4accf2fb7ebb382f58f8d0f10125cfdc1d3f48
+  category: main
+  optional: false
+- name: nanobind
+  version: 2.0.0
+  manager: conda
+  platform: osx-64
+  dependencies:
+    python: '>=3.8'
+  url: https://conda.anaconda.org/conda-forge/noarch/nanobind-2.0.0-pyhd8ed1ab_1.conda
+  hash:
+    md5: eb27b425a215c7ddfb03f1547897e467
+    sha256: e98e30de46985b78c34083e00b4accf2fb7ebb382f58f8d0f10125cfdc1d3f48
+  category: main
+  optional: false
+- name: nanobind
+  version: 2.0.0
+  manager: conda
+  platform: osx-arm64
+  dependencies:
+    python: '>=3.8'
+  url: https://conda.anaconda.org/conda-forge/noarch/nanobind-2.0.0-pyhd8ed1ab_1.conda
+  hash:
+    md5: eb27b425a215c7ddfb03f1547897e467
+    sha256: e98e30de46985b78c34083e00b4accf2fb7ebb382f58f8d0f10125cfdc1d3f48
+  category: main
+  optional: false
+- name: nanobind
+  version: 2.0.0
+  manager: conda
+  platform: win-64
+  dependencies:
+    python: '>=3.8'
+  url: https://conda.anaconda.org/conda-forge/noarch/nanobind-2.0.0-pyhd8ed1ab_1.conda
+  hash:
+    md5: eb27b425a215c7ddfb03f1547897e467
+    sha256: e98e30de46985b78c34083e00b4accf2fb7ebb382f58f8d0f10125cfdc1d3f48
   category: main
   optional: false
 - name: ncurses
