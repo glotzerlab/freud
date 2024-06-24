@@ -426,7 +426,7 @@ public:
     void computeDistances(const vec3<float>* query_points, const unsigned int n_query_points,
                           const vec3<float>* points, const unsigned int n_points, float* distances) const
     {
-        assert(query_points == n_points);
+        assert(n_query_points == n_points);
         util::forLoopWrapper(0, n_query_points, [&](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {

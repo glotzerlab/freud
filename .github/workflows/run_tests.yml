@@ -26,6 +26,7 @@ jobs:
     name: Unit test [py${{ matrix.python }} ${{ matrix.os }}]
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest]
         python: ['39', '310', '311', '312']
