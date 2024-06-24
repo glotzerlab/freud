@@ -143,7 +143,7 @@ class Box:
         self._cpp_obj.setTiltFactorYZ(value)
 
     def __eq__(self, other):
-        if type(other) != freud.box.Box:
+        if type(other) is not freud.box.Box:
             return False
         return (
             self.Lx == other.Lx
