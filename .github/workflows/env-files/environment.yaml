@@ -4,6 +4,7 @@ channels:
 
 dependencies:
   - python==3.12
+  - cppcheck
   - tbb
   - tbb-devel
   - ninja
@@ -14,6 +15,7 @@ dependencies:
   - matplotlib
   - numpy
   - pillow
+  - pre-commit
   - pytest
   - rowan
   - scikit-build
