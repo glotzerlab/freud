@@ -36,5 +36,5 @@ jobs:
           python3 setup.py build_ext --inplace -- -DCMAKE_EXPORT_COMPILE_COMMANDS=True
       - name: Execute clang-tidy and cppcheck
         run: |
-          pre-commit run cppcheck --all-files --hook-stage=manual
-          pre-commit run clang-tidy --all-files --hook-stage=manual
+          pre-commit run cppcheck --all-files --hook-stage=manual -v
+          pre-commit run clang-tidy --all-files --hook-stage=manual -v
