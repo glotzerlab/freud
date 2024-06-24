@@ -1,5 +1,5 @@
 # create the target and add the needed properties
-nanobind_add_module(_box NB_SHARED module-box.cc export_Box.cc)
+nanobind_add_module(_box ${freud_nanobind_linking} module-box.cc export_Box.cc)
 target_link_libraries(_box PUBLIC libfreud)
 
 if(APPLE)
