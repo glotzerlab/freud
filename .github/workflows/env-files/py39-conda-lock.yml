@@ -13,10 +13,10 @@
 version: 1
 metadata:
   content_hash:
-    osx-arm64: af731f8638eaf6b7f659152d4e3a0d5d46f19e96696406c2e074c539bd113665
-    osx-64: 5da231147307e982a771a260ca07a38b7da9c1ddcce0d405ff24122ffe988c1f
-    linux-64: 1f6c632a66654379374a193c7dade5c56a24ae1153c939904d81f26787538384
-    win-64: 4e70d13b6f4c25c629e0a5a375c523a7d78ada2290aa1543b85c12248a6b3a5a
+    osx-arm64: e889e9fc38f3f75d268003939e516b4da6e3cdef306aec9785893e723db8fb17
+    osx-64: b20b12b6cf39c19778587d2355ee381c46d74d7bbdaee45bec0c6a7830217632
+    linux-64: d825bed4574bd7c94cc610bac641ec12020ee9799b72a0903713820773d15faa
+    win-64: 2f3af8d49a9c5ee977e6cdd0d6ae4175eead5f0c95cad9f0f1cd5896c2a69d55
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -1155,76 +1155,17 @@ package:
   category: main
   optional: false
 - name: cppcheck
-  version: 2.14.2
+  version: '1.90'
   manager: conda
   platform: linux-64
   dependencies:
-    libgcc-ng: '>=12'
-    libstdcxx-ng: '>=12'
-    pcre: '>=8.45,<9.0a0'
-    pygments: ''
-    python: '>=3.9,<3.10.0a0'
-    python_abi: 3.9.*
-    tinyxml2: '>=10.0.0,<11.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/cppcheck-2.14.2-py39h886a56d_0.conda
+    libgcc-ng: '>=7.3.0'
+    libstdcxx-ng: '>=7.3.0'
+    pcre: '>=8.43,<9.0a0'
+  url: https://conda.anaconda.org/conda-forge/linux-64/cppcheck-1.90-he1b5a44_0.tar.bz2
   hash:
-    md5: 6f0428c78c76416f81f03f3128a51793
-    sha256: 7911fb97b1afa15b08b8d61c28d1b36e443756c58235842edb151b32bd862c68
-  category: main
-  optional: false
-- name: cppcheck
-  version: 2.14.2
-  manager: conda
-  platform: osx-64
-  dependencies:
-    __osx: '>=10.13'
-    libcxx: '>=16'
-    pcre: '>=8.45,<9.0a0'
-    pygments: ''
-    python: '>=3.9,<3.10.0a0'
-    python_abi: 3.9.*
-    tinyxml2: '>=10.0.0,<11.0a0'
-  url: https://conda.anaconda.org/conda-forge/osx-64/cppcheck-2.14.2-py39h96a5d01_0.conda
-  hash:
-    md5: 2a82191a72d781c341873945cd5de2a4
-    sha256: 71a199ad890d47b900def2a37105ff6af627e9cc59565e2b64b4db1b0a291af4
-  category: main
-  optional: false
-- name: cppcheck
-  version: 2.14.2
-  manager: conda
-  platform: osx-arm64
-  dependencies:
-    __osx: '>=11.0'
-    libcxx: '>=16'
-    pcre: '>=8.45,<9.0a0'
-    pygments: ''
-    python: '>=3.9,<3.10.0a0'
-    python_abi: 3.9.*
-    tinyxml2: '>=10.0.0,<11.0a0'
-  url: https://conda.anaconda.org/conda-forge/osx-arm64/cppcheck-2.14.2-py39had7e514_0.conda
-  hash:
-    md5: 19a4cf154825786811acde71ed44c898
-    sha256: c8e9fd0610024d6b83f49ec3a87a4719a33c7f8360e54c5dce283228423bbfce
-  category: main
-  optional: false
-- name: cppcheck
-  version: 2.14.2
-  manager: conda
-  platform: win-64
-  dependencies:
-    pcre: '>=8.45,<9.0a0'
-    pygments: ''
-    python: '>=3.9,<3.10.0a0'
-    python_abi: 3.9.*
-    tinyxml2: '>=10.0.0,<11.0a0'
-    ucrt: '>=10.0.20348.0'
-    vc: '>=14.2,<15'
-    vc14_runtime: '>=14.29.30139'
-  url: https://conda.anaconda.org/conda-forge/win-64/cppcheck-2.14.2-py39hcedeee9_0.conda
-  hash:
-    md5: 854dccc0c1409a114d5b88497134b88d
-    sha256: 4e22cab6e6322456ee4558b682b768cf6729c8889ca9320167ee54dcd22e7a0c
+    md5: d61bba75ab4825d84f0d90b6ebc98681
+    sha256: 75174a05c0ffbe5f86fdc02f5c18594c0871605d3975ecf0857689c4c1147e4e
   category: main
   optional: false
 - name: cycler
@@ -7307,43 +7248,6 @@ package:
     sha256: 8f35c244b1631a4f31fb1d66ab6e1d9bfac0ca9b679deced1112c7225b3ad138
   category: main
   optional: false
-- name: pcre
-  version: '8.45'
-  manager: conda
-  platform: osx-64
-  dependencies:
-    libcxx: '>=11.1.0'
-  url: https://conda.anaconda.org/conda-forge/osx-64/pcre-8.45-he49afe7_0.tar.bz2
-  hash:
-    md5: 0526850419e04ac003bc0b65a78dc4cc
-    sha256: 8002279cf4084fbf219f137c2bdef2825d076a5a57a14d1d922d7c5fa7872a5c
-  category: main
-  optional: false
-- name: pcre
-  version: '8.45'
-  manager: conda
-  platform: osx-arm64
-  dependencies:
-    libcxx: '>=11.1.0'
-  url: https://conda.anaconda.org/conda-forge/osx-arm64/pcre-8.45-hbdafb3b_0.tar.bz2
-  hash:
-    md5: 500758f2515ae07c640d255c11afc19f
-    sha256: f2e0c4ae3306f94851eea2318c6d26d24f8e191e329ddd256a612cd1184c5737
-  category: main
-  optional: false
-- name: pcre
-  version: '8.45'
-  manager: conda
-  platform: win-64
-  dependencies:
-    vc: '>=14.1,<15.0a0'
-    vs2015_runtime: '>=14.16.27012'
-  url: https://conda.anaconda.org/conda-forge/win-64/pcre-8.45-h0e60522_0.tar.bz2
-  hash:
-    md5: 3cd3948bb5de74ebef93b6be6d8cf0d5
-    sha256: 2ee62337b921b2d60a87aa9a91bf34bc855a0bbf6a5642ec66a7a175a772be6d
-  category: main
-  optional: false
 - name: pcre2
   version: '10.44'
   manager: conda
@@ -7849,54 +7753,6 @@ package:
   hash:
     md5: 4c694e6239817f896a668f4f09283e19
     sha256: 88429d3c889604dc4be9133a82a3e9857e34f76fa2d28f91fadfeb8f030ff09e
-  category: main
-  optional: false
-- name: pygments
-  version: 2.18.0
-  manager: conda
-  platform: linux-64
-  dependencies:
-    python: '>=3.8'
-  url: https://conda.anaconda.org/conda-forge/noarch/pygments-2.18.0-pyhd8ed1ab_0.conda
-  hash:
-    md5: b7f5c092b8f9800150d998a71b76d5a1
-    sha256: 78267adf4e76d0d64ea2ffab008c501156c108bb08fecb703816fb63e279780b
-  category: main
-  optional: false
-- name: pygments
-  version: 2.18.0
-  manager: conda
-  platform: osx-64
-  dependencies:
-    python: '>=3.8'
-  url: https://conda.anaconda.org/conda-forge/noarch/pygments-2.18.0-pyhd8ed1ab_0.conda
-  hash:
-    md5: b7f5c092b8f9800150d998a71b76d5a1
-    sha256: 78267adf4e76d0d64ea2ffab008c501156c108bb08fecb703816fb63e279780b
-  category: main
-  optional: false
-- name: pygments
-  version: 2.18.0
-  manager: conda
-  platform: osx-arm64
-  dependencies:
-    python: '>=3.8'
-  url: https://conda.anaconda.org/conda-forge/noarch/pygments-2.18.0-pyhd8ed1ab_0.conda
-  hash:
-    md5: b7f5c092b8f9800150d998a71b76d5a1
-    sha256: 78267adf4e76d0d64ea2ffab008c501156c108bb08fecb703816fb63e279780b
-  category: main
-  optional: false
-- name: pygments
-  version: 2.18.0
-  manager: conda
-  platform: win-64
-  dependencies:
-    python: '>=3.8'
-  url: https://conda.anaconda.org/conda-forge/noarch/pygments-2.18.0-pyhd8ed1ab_0.conda
-  hash:
-    md5: b7f5c092b8f9800150d998a71b76d5a1
-    sha256: 78267adf4e76d0d64ea2ffab008c501156c108bb08fecb703816fb63e279780b
   category: main
   optional: false
 - name: pyparsing
@@ -9587,57 +9443,6 @@ package:
   hash:
     md5: 65c4a41516c0de46449e9d4b18c5c8f3
     sha256: 15dcf503b5c5968913e390405a4e05f618dc7a369c951006f802d99a2be9b27f
-  category: main
-  optional: false
-- name: tinyxml2
-  version: 10.0.0
-  manager: conda
-  platform: linux-64
-  dependencies:
-    libgcc-ng: '>=12'
-    libstdcxx-ng: '>=12'
-  url: https://conda.anaconda.org/conda-forge/linux-64/tinyxml2-10.0.0-h59595ed_0.conda
-  hash:
-    md5: 5e27e4a780264caed4be372ded70a9e9
-    sha256: e89306d01999f629a329ddb2e2ca9b8fbfe7c483d13f9805f0c6891a24a6e9c8
-  category: main
-  optional: false
-- name: tinyxml2
-  version: 10.0.0
-  manager: conda
-  platform: osx-64
-  dependencies:
-    libcxx: '>=15'
-  url: https://conda.anaconda.org/conda-forge/osx-64/tinyxml2-10.0.0-h73e2aa4_0.conda
-  hash:
-    md5: d231eb9a3f0033f278e9493064df6724
-    sha256: 647cf2e5e862ce7d9970a83c816da56c7d3a13484b38a10ce579369ac0349988
-  category: main
-  optional: false
-- name: tinyxml2
-  version: 10.0.0
-  manager: conda
-  platform: osx-arm64
-  dependencies:
-    libcxx: '>=15'
-  url: https://conda.anaconda.org/conda-forge/osx-arm64/tinyxml2-10.0.0-hebf3989_0.conda
-  hash:
-    md5: f5c3be2ff74793fc072a9462ace0bdc1
-    sha256: 80fa29e6a631e51a6cad94f83a60437e26c61be940dd456cd4ef571f8b5de0a6
-  category: main
-  optional: false
-- name: tinyxml2
-  version: 10.0.0
-  manager: conda
-  platform: win-64
-  dependencies:
-    ucrt: '>=10.0.20348.0'
-    vc: '>=14.2,<15'
-    vc14_runtime: '>=14.29.30139'
-  url: https://conda.anaconda.org/conda-forge/win-64/tinyxml2-10.0.0-h63175ca_0.conda
-  hash:
-    md5: 353cf648e0d3165c9f9c8adbe7c9d05d
-    sha256: 76ba12053a358d5c4b07ac3a8eb1cc3282df5cada273fc625fc2211e48082036
   category: main
   optional: false
 - name: tk
