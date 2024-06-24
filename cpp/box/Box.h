@@ -5,7 +5,6 @@
 #define BOX_H
 
 #include <algorithm>
-#include <cassert>
 #include <complex>
 #include <sstream>
 #include <stdexcept>
@@ -425,9 +424,8 @@ public:
        query_point (overwritten in place).
     */
     void computeDistances(const vec3<float>* query_points, const unsigned int n_query_points,
-                          const vec3<float>* points, const unsigned int n_points, float* distances) const
+                          const vec3<float>* points, float* distances) const
     {
-        assert(n_query_points == n_points);
         util::forLoopWrapper(0, n_query_points, [&](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {

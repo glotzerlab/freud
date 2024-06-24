@@ -82,7 +82,7 @@ void computeDistances(const std::shared_ptr<Box>& box, nb_array<float> query_poi
     {
         throw std::invalid_argument("The number of query points and points must match.");
     }
-    box->computeDistances(query_points_data, n_query_points, points_data, n_points, distances_data);
+    box->computeDistances(query_points_data, n_query_points, points_data, distances_data);
 }
 
 void computeAllDistances(const std::shared_ptr<Box>& box, nb_array<float> query_points,
