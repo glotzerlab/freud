@@ -8,7 +8,7 @@ else()
   set_target_properties(_box PROPERTIES INSTALL_RPATH "\$ORIGIN")
 endif()
 
-if(_using_conda OR DEFINED ENV{CIBUILDWHEEL})
+if(_using_conda)
   set_target_properties(_box PROPERTIES INSTALL_RPATH_USE_LINK_PATH True)
 endif()
 
