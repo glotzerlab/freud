@@ -5,6 +5,7 @@
 #define BOX_H
 
 #include <algorithm>
+#include <cassert>
 #include <complex>
 #include <sstream>
 #include <stdexcept>
