@@ -1143,7 +1143,6 @@ class Voronoi(_Compute):
 
     def __init__(self):
         self._cpp_obj = freud._locality.Voronoi()
-        self._nlist = NeighborList()
 
     def compute(self, system):
         r"""Compute Voronoi diagram.
@@ -1163,10 +1162,10 @@ class Voronoi(_Compute):
         """list[:class:`numpy.ndarray`]: A list of :class:`numpy.ndarray`
         defining Voronoi polytope vertices for each cell."""
         polytopes = []
-        raw_polytopes = self.thisptr.getPolytopes()
-        for i in range(raw_polytopes.size()):
+        raw_polytopes = self._cpp_obj.getPolytopes()
+        for i in range(len(raw_polytopes)):
             raw_vertices = raw_polytopes[i]
-            num_verts = raw_vertices.size()
+            num_verts = len(raw_vertices)
             polytope_vertices = np.empty((num_verts, 3), dtype=np.float64)
             for j in range(num_verts):
                 polytope_vertices[j, 0] = raw_vertices[j][0]
@@ -1179,7 +1178,7 @@ class Voronoi(_Compute):
     def volumes(self):
         """:math:`\\left(N_{points} \\right)` :class:`numpy.ndarray`: Returns
         an array of Voronoi cell volumes (areas in 2D)."""
-        return self._cpp_obj.getVolumes()
+        return self._cpp_obj.getVolumes().toNumpyArray()
 
     @_Compute._computed_property
     def nlist(self):
@@ -1200,8 +1199,8 @@ class Voronoi(_Compute):
         Returns:
             :class:`~.locality.NeighborList`: Neighbor list.
         """
-        self._nlist = _nlist_from_cnlist(self._cpp_obj.getNeighborList())
-        return self._nlist
+        nlist = _nlist_from_cnlist(self._cpp_obj.getNeighborList())
+        return nlist
 
     def __repr__(self):
         return f"freud.locality.{type(self).__name__}()"

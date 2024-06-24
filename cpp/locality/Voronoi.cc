@@ -17,7 +17,7 @@
 namespace freud { namespace locality {
 
 // Voronoi calculations should be kept in double precision.
-void Voronoi::compute(const freud::locality::NeighborQuery* nq)
+void Voronoi::compute(std::shared_ptr<freud::locality::NeighborQuery> nq)
 {
     m_box = nq->getBox();
     const auto n_points = nq->getNPoints();
