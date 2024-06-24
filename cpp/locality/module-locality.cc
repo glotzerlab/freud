@@ -3,11 +3,12 @@
 
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/shared_ptr.h>
+#include <nanobind/stl/array.h>
 
 #include "export_Filter.h"
 #include "export_NeighborList.h"
 #include "export_NeighborQuery.h"
-// #include "export_PeriodicBuffer.h"
+#include "export_PeriodicBuffer.h"
 
 using namespace freud::locality::detail;
 
@@ -33,5 +34,5 @@ NB_MODULE(_locality, m)
     export_FilterSANN(m);
 
     // others
-    // export_PeriodicBuffer(m);
+    export_PeriodicBuffer(m);
 }

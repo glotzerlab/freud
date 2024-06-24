@@ -17,6 +17,10 @@ from freud._util import (  # noqa F401
     ManagedArray_float,
     ManagedArray_unsignedint,
     ManagedArrayVec3_float,
+    Vector_double,
+    Vector_float,
+    Vector_unsignedint,
+    VectorVec3_float,
 )
 from freud.errors import NO_DEFAULT_QUERY_ARGS_MESSAGE
 from freud.util import _Compute
@@ -525,18 +529,18 @@ class NeighborList:
         """  # noqa 501
         query_point_indices = freud.util._convert_array(
             query_point_indices, shape=(None,), dtype=np.uint32
-        )
+        ).copy()
         point_indices = freud.util._convert_array(
             point_indices, shape=query_point_indices.shape, dtype=np.uint32
-        )
+        ).copy()
 
         vectors = freud.util._convert_array(
             vectors, shape=(len(query_point_indices), 3), dtype=np.float32
-        )
+        ).copy()
 
         if weights is None:
             weights = np.ones(query_point_indices.shape, dtype=np.float32)
-        weights = freud.util._convert_array(weights, shape=query_point_indices.shape)
+        weights = freud.util._convert_array(weights, shape=query_point_indices.shape).copy()
 
         result = cls()
         result._cpp_obj = freud._locality.NeighborList(
@@ -836,8 +840,8 @@ class _RawPoints(NeighborQuery):
     def __init__(self, box, points):
         # Assume valid set of arguments is passed
         b = freud.util._convert_box(box)
-        self._points = freud.util._convert_array(points, dtype=np.float32)
-        self._cpp_obj = freud._locality.RawPoints(b._cpp_obj, self.points)
+        self._points = freud.util._convert_array(points, shape=(None, 3), dtype=np.float32).copy()
+        self._cpp_obj = freud._locality.RawPoints(b._cpp_obj, self._points)
 
 
 class AABBQuery(NeighborQuery):
@@ -1100,15 +1104,14 @@ class PeriodicBuffer(_Compute):
     def buffer_points(self):
         """:math:`\\left(N_{buffer}, 3\\right)` :class:`numpy.ndarray`: The
         buffer point positions."""
-        points = self._cpp_obj.getBufferPoints()
-        return np.asarray(points)
+        return self._cpp_obj.getBufferPoints().toNumpyArray()
         # return np.asarray([[p.x, p.y, p.z] for p in points])
 
     @_Compute._computed_property
     def buffer_ids(self):
         """:math:`\\left(N_{buffer}\\right)` :class:`numpy.ndarray`: The buffer
         point ids."""
-        return np.asarray(self._cpp_obj.getBufferIds())
+        return self._cpp_obj.getBufferIds().toNumpyArray()
 
     @_Compute._computed_property
     def buffer_box(self):
