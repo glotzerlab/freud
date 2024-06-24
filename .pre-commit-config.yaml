@@ -94,7 +94,7 @@ repos:
     - id: clang-tidy
       stages: [manual]  # Requires clang-tidy.
       name: clang-tidy
-      entry: clang-tidy
+      entry: clang-tidy-10
       language: system
       types: [c++]
       # Exclude external files. Also exclude AABB.h because it uses intrinsics
