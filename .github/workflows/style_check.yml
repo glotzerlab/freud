@@ -34,6 +34,8 @@ jobs:
           # this install can be removed once scikit-build is in the container
           python3 -m pip install scikit-build
           python3 setup.py build_ext --inplace -- -DCMAKE_EXPORT_COMPILE_COMMANDS=True
+      - name: Inspect directory
+        run: ls -lR
       - name: Execute clang-tidy and cppcheck
         run: |
           pre-commit run cppcheck --all-files --hook-stage=manual -v
