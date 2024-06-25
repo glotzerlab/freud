@@ -6,8 +6,8 @@
 
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "VectorMath.h"
 
@@ -18,7 +18,7 @@ namespace wrap {
 template<typename T> nanobind::ndarray<nanobind::numpy, const T> vectorToNumpyArray(nanobind::object self)
 {
     std::vector<T>* self_cpp = nanobind::cast<std::vector<T>*>(self);
-    auto dims = { self_cpp->size() };
+    auto dims = {self_cpp->size()};
     auto ndim = 1;
     auto data_ptr = self_cpp->data();
     return nanobind::ndarray<nanobind::numpy, const T>((void*) data_ptr, dims, self);
@@ -31,7 +31,7 @@ template<typename T> nanobind::ndarray<nanobind::numpy, const T> vectorToNumpyAr
 
     // get array data like before
     size_t size = self_cpp->size();
-    std::initializer_list<size_t> dims = { size, 3 };
+    std::initializer_list<size_t> dims = {size, 3};
     auto ndim = 2;
     auto data_ptr = self_cpp->data();
 
@@ -39,14 +39,13 @@ template<typename T> nanobind::ndarray<nanobind::numpy, const T> vectorToNumpyAr
     return nanobind::ndarray<nanobind::numpy, const T>((void*) data_ptr, dims, self);
 }
 
-};  // namespace wrap
+}; // namespace wrap
 
 namespace detail {
 
 template<typename T> void export_Vector(nanobind::module_& m, const std::string& name)
 {
-    nanobind::class_<std::vector<T>>(m, name.c_str())
-        .def("toNumpyArray", &wrap::vectorToNumpyArray<T>);
+    nanobind::class_<std::vector<T>>(m, name.c_str()).def("toNumpyArray", &wrap::vectorToNumpyArray<T>);
 }
 
 template<typename T> void export_VectorVec3(nanobind::module_& m, const std::string& name)
@@ -55,7 +54,7 @@ template<typename T> void export_VectorVec3(nanobind::module_& m, const std::str
         .def("toNumpyArray", &wrap::vectorToNumpyArrayVec3<T>);
 }
 
-};  // namespace detail
+}; // namespace detail
 
 }; }; // namespace freud::util
 

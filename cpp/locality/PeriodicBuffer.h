@@ -4,8 +4,8 @@
 #ifndef PERIODIC_BUFFER_H
 #define PERIODIC_BUFFER_H
 
-#include <vector>
 #include <array>
+#include <vector>
 
 #include "Box.h"
 #include "NeighborQuery.h"

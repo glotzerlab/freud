@@ -8,14 +8,10 @@
 
 #include <nanobind/nanobind.h>
 
-namespace freud { namespace locality {
-
-namespace detail {
+namespace freud { namespace locality { namespace detail {
 
 void export_PeriodicBuffer(nanobind::module_& m);
 
-};  // namespace detail
-
-}; };  // namespace freud::locality
+}; }; }; // namespace freud::locality::detail
 
 #endif

@@ -42,7 +42,7 @@ template<typename T> nanobind::ndarray<nanobind::numpy, const T> toNumpyArrayVec
     return nanobind::ndarray<nanobind::numpy, const T>((void*) data_ptr, ndim, &dims[0], self);
 }
 
-};  // namespace wrap
+}; // namespace wrap
 
 namespace detail {
 

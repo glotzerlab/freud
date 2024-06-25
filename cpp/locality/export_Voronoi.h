@@ -20,8 +20,8 @@ namespace detail {
 
 void export_Voronoi(nanobind::module_& m);
 
-};  // namespace detail
+}; // namespace detail
 
-}; };  // namespace freud::locality
+}; }; // namespace freud::locality
 
 #endif

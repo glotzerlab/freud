@@ -38,7 +38,7 @@ nb::object getPolytopes(std::shared_ptr<Voronoi> voro)
     return polytopes_python;
 }
 
-};
+}; // namespace wrap
 
 namespace detail {
 
@@ -56,4 +56,3 @@ void export_Voronoi(nb::module_& m)
 }; // namespace detail
 
 }; }; // namespace freud::locality
-

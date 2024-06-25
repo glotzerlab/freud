@@ -13,8 +13,7 @@ namespace freud { namespace locality {
 
 namespace wrap {
 
-std::shared_ptr<NeighborQueryIterator> query(std::shared_ptr<NeighborQuery> nq,
-                                             nb_array<float> query_points,
+std::shared_ptr<NeighborQueryIterator> query(std::shared_ptr<NeighborQuery> nq, nb_array<float> query_points,
                                              const QueryArgs& qargs)
 {
     unsigned int n_query_points = query_points.shape(0);
@@ -29,8 +28,7 @@ void AABBQueryConstructor(AABBQuery* nq, const box::Box& box, nb_array<float> po
     new (nq) AABBQuery(box, points_data, n_points);
 }
 
-void LinkCellConstructor(LinkCell* nq, const box::Box& box, nb_array<float> points,
-                         float cell_width)
+void LinkCellConstructor(LinkCell* nq, const box::Box& box, nb_array<float> points, float cell_width)
 {
     unsigned int n_points = points.shape(0);
     vec3<float>* points_data = (vec3<float>*) points.data();
@@ -98,4 +96,3 @@ void export_NeighborQueryIterator(nb::module_& m)
 }; // namespace detail
 
 }; }; // namespace freud::locality
-
