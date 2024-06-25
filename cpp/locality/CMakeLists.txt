@@ -1,9 +1,6 @@
 set(locality_extension_sources
-    export_NeighborQuery.cc
-    export_NeighborList.cc
-    export_Filter.cc
-    export_PeriodicBuffer.cc
-    export_Voronoi.cc)
+    export_NeighborQuery.cc export_NeighborList.cc export_Filter.cc
+    export_PeriodicBuffer.cc export_Voronoi.cc)
 
 # create the target and add the needed properties
 nanobind_add_module(_locality SHARED module-locality.cc

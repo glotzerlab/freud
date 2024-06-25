@@ -540,7 +540,9 @@ class NeighborList:
 
         if weights is None:
             weights = np.ones(query_point_indices.shape, dtype=np.float32)
-        weights = freud.util._convert_array(weights, shape=query_point_indices.shape).copy()
+        weights = freud.util._convert_array(
+            weights, shape=query_point_indices.shape
+        ).copy()
 
         result = cls()
         result._cpp_obj = freud._locality.NeighborList(
@@ -840,7 +842,9 @@ class _RawPoints(NeighborQuery):
     def __init__(self, box, points):
         # Assume valid set of arguments is passed
         b = freud.util._convert_box(box)
-        self._points = freud.util._convert_array(points, shape=(None, 3), dtype=np.float32).copy()
+        self._points = freud.util._convert_array(
+            points, shape=(None, 3), dtype=np.float32
+        ).copy()
         self._cpp_obj = freud._locality.RawPoints(b._cpp_obj, self._points)
 
 
