@@ -96,8 +96,8 @@ jobs:
           CIBW_ARCHS: auto64
 
           # Configure environment variables.
-          CIBW_ENVIRONMENT_LINUX: "CMAKE_PREFIX_PATH=/project/tbb LD_LIBRARY_PATH=/project/tbb/lib/intel64/gcc4.8:$LD_LIBRARY_PATH"
-          CIBW_ENVIRONMENT_MACOS: "CMAKE_PREFIX_PATH=/Users/runner/work/freud/freud/tbb:/Users/runner/work/tbb-install LD_LIBRARY_PATH=/Users/runner/work/freud/freud/tbb/lib/intel64/gcc4.8:$LD_LIBRARY_PATH"
+          CIBW_ENVIRONMENT_LINUX: "CMAKE_PREFIX_PATH=/project/tbb LD_LIBRARY_PATH=/project/tbb/lib/intel64/gcc4.8:$LD_LIBRARY_PATH CMAKE_ARGS=-DCMAKE_INSTALL_RPATH_USE_LINK_PATH=True"
+          CIBW_ENVIRONMENT_MACOS: "CMAKE_PREFIX_PATH=/Users/runner/work/freud/freud/tbb:/Users/runner/work/tbb-install CMAKE_ARGS=-DCMAKE_INSTALL_RPATH_USE_LINK_PATH=True"
           MACOSX_DEPLOYMENT_TARGET: "10.14"
 
           # Set up TBB.
@@ -113,7 +113,9 @@ jobs:
             scipy==${{ matrix.python.oldest_scipy }}
             gsd==${{ matrix.python.oldest_gsd }}
             matplotlib==${{ matrix.python.oldest_matplotlib }}
-          CIBW_TEST_COMMAND: "cd {package}/tests && pytest . -v --log-level=DEBUG"
+          # Test only the currently ported modules
+          CIBW_TEST_COMMAND: "cd {package}/tests && pytest test_box_Box.py test_parallel.py -v --log-level=DEBUG"
+          # CIBW_TEST_COMMAND: "cd {package}/tests && pytest . -v --log-level=DEBUG"
 
       - uses: actions/upload-artifact@v4.3.3
         with:

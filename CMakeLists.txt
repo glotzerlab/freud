@@ -59,6 +59,13 @@ if(nanobind_FOUND)
     "[${nanobind_DIR},${nanobind_VERSION}]")
 endif()
 
+# shared nanobind linking seems broken on windows for unknown reasons
+if(WIN32)
+  set(freud_nanobind_linking "NB_STATIC")
+else()
+  set(freud_nanobind_linking "NB_SHARED")
+endif()
+
 # Fail fast if users have not cloned submodules.
 if(NOT WIN32)
   string(ASCII 27 Esc)

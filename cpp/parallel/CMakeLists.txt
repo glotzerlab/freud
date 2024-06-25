@@ -1,4 +1,4 @@
-nanobind_add_module(_parallel NB_SHARED module-parallel.cc)
+nanobind_add_module(_parallel ${freud_nanobind_linking} module-parallel.cc)
 target_link_libraries(_parallel PUBLIC libfreud)
 
 target_set_install_rpath(_parallel)

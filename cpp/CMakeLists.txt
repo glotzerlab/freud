@@ -69,4 +69,6 @@ add_subdirectory(util)
 # add_subdirectory(diffraction) add_subdirectory(environment)
 # add_subdirectory(order) add_subdirectory(pmft)
 
-install(TARGETS nanobind DESTINATION freud)
+if(NOT WIN32)
+  install(TARGETS nanobind DESTINATION freud)
+endif()
