@@ -6,21 +6,11 @@
 
 #include "PeriodicBuffer.h"
 
-#include <nanobind/ndarray.h>
-namespace nb = nanobind;
+#include <nanobind/nanobind.h>
 
 namespace freud { namespace locality { namespace detail {
 
-void export_PeriodicBuffer(nb::module_& m)
-{
-    nb::class_<PeriodicBuffer>(m, "PeriodicBuffer")
-        .def(nb::init<>())
-        .def("compute", &PeriodicBuffer::compute)
-        .def("getBox", &PeriodicBuffer::getBox)
-        .def("getBufferBox", &PeriodicBuffer::getBufferBox)
-        .def("getBufferPoints", &PeriodicBuffer::getBufferPoints)
-        .def("getBufferIds", &PeriodicBuffer::getBufferIds);
-};
+void export_PeriodicBuffer(nanobind::module_& m);
 
 }; }; };  // namespace freud::locality::detail
 

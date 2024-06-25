@@ -1,8 +1,13 @@
-set(locality_extension_headers export_PeriodicBuffer.h export_NeighborQuery.h)
+set(locality_extension_sources
+    export_NeighborQuery.cc
+    export_NeighborList.cc
+    export_Filter.cc
+    export_PeriodicBuffer.cc
+    export_Voronoi.cc)
 
 # create the target and add the needed properties
 nanobind_add_module(_locality SHARED module-locality.cc
-                    ${locality_extension_headers})
+                    ${locality_extension_sources})
 target_link_libraries(_locality PUBLIC libfreud)
 
 if(APPLE)
