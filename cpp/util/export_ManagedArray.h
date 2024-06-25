@@ -11,7 +11,9 @@
 #include "ManagedArray.h"
 #include "VectorMath.h"
 
-namespace freud { namespace util { namespace detail {
+namespace freud { namespace util {
+
+namespace wrap {
 
 template<typename T> nanobind::ndarray<nanobind::numpy, const T> toNumpyArray(nanobind::object self)
 {
@@ -40,16 +42,22 @@ template<typename T> nanobind::ndarray<nanobind::numpy, const T> toNumpyArrayVec
     return nanobind::ndarray<nanobind::numpy, const T>((void*) data_ptr, ndim, &dims[0], self);
 }
 
+};  // namespace wrap
+
+namespace detail {
+
 template<typename T> void export_ManagedArray(nanobind::module_& m, const std::string& name)
 {
-    nanobind::class_<ManagedArray<T>>(m, name.c_str()).def("toNumpyArray", &toNumpyArray<T>);
+    nanobind::class_<ManagedArray<T>>(m, name.c_str()).def("toNumpyArray", &wrap::toNumpyArray<T>);
 }
 
 template<typename T> void export_ManagedArrayVec3(nanobind::module_& m, const std::string& name)
 {
-    nanobind::class_<ManagedArray<vec3<T>>>(m, name.c_str()).def("toNumpyArray", &toNumpyArrayVec3<T>);
+    nanobind::class_<ManagedArray<vec3<T>>>(m, name.c_str()).def("toNumpyArray", &wrap::toNumpyArrayVec3<T>);
 }
 
-}; }; }; // namespace freud::util::detail
+}; // namespace detail
+
+}; }; // namespace freud::util
 
 #endif

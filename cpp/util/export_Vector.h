@@ -11,7 +11,9 @@
 
 #include "VectorMath.h"
 
-namespace freud { namespace util { namespace detail {
+namespace freud { namespace util {
+
+namespace wrap {
 
 template<typename T> nanobind::ndarray<nanobind::numpy, const T> vectorToNumpyArray(nanobind::object self)
 {
@@ -37,16 +39,24 @@ template<typename T> nanobind::ndarray<nanobind::numpy, const T> vectorToNumpyAr
     return nanobind::ndarray<nanobind::numpy, const T>((void*) data_ptr, dims, self);
 }
 
+};  // namespace wrap
+
+namespace detail {
+
 template<typename T> void export_Vector(nanobind::module_& m, const std::string& name)
 {
-    nanobind::class_<std::vector<T>>(m, name.c_str()).def("toNumpyArray", &vectorToNumpyArray<T>);
+    nanobind::class_<std::vector<T>>(m, name.c_str())
+        .def("toNumpyArray", &wrap::vectorToNumpyArray<T>);
 }
 
 template<typename T> void export_VectorVec3(nanobind::module_& m, const std::string& name)
 {
-    nanobind::class_<std::vector<vec3<T>>>(m, name.c_str()).def("toNumpyArray", &vectorToNumpyArrayVec3<T>);
+    nanobind::class_<std::vector<vec3<T>>>(m, name.c_str())
+        .def("toNumpyArray", &wrap::vectorToNumpyArrayVec3<T>);
 }
 
-}; }; }; // namespace freud::util::detail
+};  // namespace detail
+
+}; }; // namespace freud::util
 
 #endif
