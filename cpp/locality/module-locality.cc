@@ -2,8 +2,6 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <nanobind/nanobind.h>
-#include <nanobind/stl/shared_ptr.h>
-#include <nanobind/stl/array.h>
 
 #include "export_Filter.h"
 #include "export_NeighborList.h"

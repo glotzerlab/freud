@@ -3,9 +3,14 @@
 
 #include "export_PeriodicBuffer.h"
 
+#include <nanobind/stl/shared_ptr.h>
+#include <nanobind/stl/array.h>
+
 namespace nb = nanobind;
 
-namespace freud { namespace locality { namespace detail {
+namespace freud { namespace locality {
+
+namespace detail {
 
 void export_PeriodicBuffer(nb::module_& m)
 {

@@ -5,6 +5,8 @@
 
 #include <nanobind/ndarray.h>
 #include <nanobind/operators.h>
+#include <nanobind/stl/shared_ptr.h>
+
 namespace nb = nanobind;
 
 namespace freud { namespace locality {

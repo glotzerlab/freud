@@ -3,6 +3,9 @@
 
 #include "export_Voronoi.h"
 
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/shared_ptr.h>
+
 namespace nb = nanobind;
 
 namespace freud { namespace locality {
