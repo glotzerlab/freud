@@ -5,36 +5,40 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  # Trigger on pull requests.
   pull_request:
 
-  # Trigger on pushes to main
   push:
     branches:
       - "main"
 
-  # Trigger on request.
   workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash -leo pipefail {0}
 
 jobs:
   clang-tidy:
     name: Check C++ Code Style
-    runs-on: ubuntu-latest
-    container:
-      image: glotzerlab/ci:2021.11-clang10_py38
+    runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v4.1.6
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: true
-      - name: Install pre-commit
-        run: python3 -m pip install pre-commit
+      - name: Create Python Environment
+        uses: mamba-org/setup-micromamba@f8b8a1e23a26f60a44c853292711bacfd3eac822 # v1.9.0
+        with:
+          micromamba-version: '1.5.8-0'
+          environment-name: test
+          environment-file: .github/workflows/env-files/py312-conda-lock.yml
       - name: Build freud and export compile commands
         run: |
-          # glotzerlab ci containers do not come with scikit-build installed
-          # this install can be removed once scikit-build is in the container
-          python3 -m pip install scikit-build
-          python3 setup.py build_ext --inplace -- -DCMAKE_EXPORT_COMPILE_COMMANDS=True
-      - name: Execute clang-tidy and cppcheck
-        run: |
-          pre-commit run cppcheck --all-files --hook-stage=manual
-          pre-commit run clang-tidy --all-files --hook-stage=manual
+          python3 setup.py build_ext --inplace
+          # TODO: switch to this command after migrating to scikit-build-core
+          # uv pip install --no-build-isolation --no-deps -ve .
+        env:
+          CMAKE_ARGS: "-DCMAKE_EXPORT_COMPILE_COMMANDS=True"
+      - name: cppcheck
+        run: pre-commit run cppcheck --all-files --hook-stage=manual -v
+      - name: clang-tidy
+        run: pre-commit run clang-tidy --all-files --hook-stage=manual -v

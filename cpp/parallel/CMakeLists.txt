@@ -1,4 +1,4 @@
-nanobind_add_module(_parallel NB_SHARED module-parallel.cc)
+nanobind_add_module(_parallel ${freud_nanobind_linking} module-parallel.cc)
 target_link_libraries(_parallel PUBLIC libfreud)
 
 if(APPLE)
@@ -7,7 +7,7 @@ else()
   set_target_properties(_parallel PROPERTIES INSTALL_RPATH "\$ORIGIN")
 endif()
 
-if(_using_conda OR DEFINED ENV{CIBUILDWHEEL})
+if(_using_conda)
   set_target_properties(_parallel PROPERTIES INSTALL_RPATH_USE_LINK_PATH True)
 endif()
 

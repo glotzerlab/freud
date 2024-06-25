@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools", "wheel", "numpy>=2.0.0rc1", "cython>=3.0.2", "scikit-build>=0.17.3", "cmake"]
+requires = ["setuptools", "wheel", "numpy>=2.0.0rc1", "cython>=3.0.2", "scikit-build>=0.17.3", "cmake", "nanobind>=2.0.0"]
 build-backend = "setuptools.build_meta"
 
 [project]

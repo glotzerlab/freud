@@ -1,10 +1,10 @@
 # Copyright (c) 2010-2024 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
-from . import (  # cluster,; data,; density,; diffraction,; environment,; interface,; locality,; msd,; order,; pmft,
-    box,
-    parallel,
-)
+
+# cluster,; data,; density,; diffraction,; environment,; interface,; locality,;; msd,;
+# order,; pmft,
+from . import box, parallel
 from .box import Box
 
 # from .locality import AABBQuery, LinkCell, NeighborList

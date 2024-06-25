@@ -367,7 +367,7 @@ public:
      *  \param masses Optional array of masses, of length Nvecs
      *  \return Center of mass as a vec3<float>
      */
-    vec3<float> centerOfMass(vec3<float>* vecs, size_t Nvecs, const float* masses) const
+    vec3<float> centerOfMass(vec3<float>* vecs, size_t Nvecs, const float* masses = nullptr) const
     {
         // This roughly follows the implementation in
         // https://en.wikipedia.org/wiki/Center_of_mass#Systems_with_periodic_boundary_conditions
@@ -379,7 +379,7 @@ public:
             vec3<float> phase(constants::TWO_PI * makeFractional(vecs[i]));
             vec3<std::complex<float>> xi(std::polar(float(1.0), phase.x), std::polar(float(1.0), phase.y),
                                          std::polar(float(1.0), phase.z));
-            float mass = masses[i];
+            float mass = (masses != nullptr) ? masses[i] : float(1.0);
             total_mass += mass;
             xi_mean += std::complex<float>(mass, 0) * xi;
         }
@@ -424,7 +424,7 @@ public:
        query_point (overwritten in place).
     */
     void computeDistances(const vec3<float>* query_points, const unsigned int n_query_points,
-                          const vec3<float>* points, const unsigned int n_points, float* distances) const
+                          const vec3<float>* points, float* distances) const
     {
         util::forLoopWrapper(0, n_query_points, [&](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)

@@ -8,7 +8,7 @@
 #include <iterator>
 #include <vector>
 
-#include "Cluster.h"
+#include "../cluster/Cluster.h"
 #include "ManagedArray.h"
 #include "NeighborList.h"
 #include "Steinhardt.h"

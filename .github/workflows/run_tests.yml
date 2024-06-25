@@ -26,6 +26,7 @@ jobs:
     name: Unit test [py${{ matrix.python }} ${{ matrix.os }}]
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest]
         python: ['39', '310', '311', '312']
@@ -59,7 +60,10 @@ jobs:
 
       - name: Run Tests
         run: |
-          pytest tests/ -v
+          # Enable tests only for nanobind-converted modules
+          pytest tests/test_box_Box.py -v
+          pytest tests/test_parallel.py -v
+          # pytest tests/ -v
 
   tests_complete:
     name: All tests
