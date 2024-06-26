@@ -27,8 +27,9 @@ void ConstructFromArrays(NeighborList* nlist, nb_array<unsigned int, nb::ndim<1>
                              num_points, vectors_data, weights_data);
 }
 
-void ConstructAllPairs(NeighborList* nlist, nb_array<float, nb::shape<-1, 3>> points, nb_array<float, nb::shape<-1, 3>> query_points,
-                       const box::Box& box, const bool exclude_ii)
+void ConstructAllPairs(NeighborList* nlist, nb_array<float, nb::shape<-1, 3>> points,
+                       nb_array<float, nb::shape<-1, 3>> query_points, const box::Box& box,
+                       const bool exclude_ii)
 {
     const unsigned int num_points = points.shape(0);
     const auto* points_data = (const vec3<float>*) points.data();

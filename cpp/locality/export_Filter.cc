@@ -13,8 +13,9 @@ namespace freud { namespace locality {
 
 namespace wrap {
 
-void compute(std::shared_ptr<Filter> filter, std::shared_ptr<NeighborQuery> nq, nb_array<float, nb::shape<-1, 3>> query_points,
-             std::shared_ptr<NeighborList> nlist, const QueryArgs& qargs)
+void compute(std::shared_ptr<Filter> filter, std::shared_ptr<NeighborQuery> nq,
+             nb_array<float, nb::shape<-1, 3>> query_points, std::shared_ptr<NeighborList> nlist,
+             const QueryArgs& qargs)
 {
     const auto num_query_points = query_points.shape(0);
     const auto* query_points_data = (vec3<float>*) query_points.data();

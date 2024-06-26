@@ -18,8 +18,9 @@ namespace wrap {
 template<typename T, typename shape>
 using nb_array = nanobind::ndarray<T, shape, nanobind::device::cpu, nanobind::c_contig>;
 
-void compute(std::shared_ptr<Filter> filter, std::shared_ptr<NeighborQuery> nq, nb_array<float, nanobind::shape<-1, 3>> query_points,
-             std::shared_ptr<NeighborList> nlist, const QueryArgs& qargs);
+void compute(std::shared_ptr<Filter> filter, std::shared_ptr<NeighborQuery> nq,
+             nb_array<float, nanobind::shape<-1, 3>> query_points, std::shared_ptr<NeighborList> nlist,
+             const QueryArgs& qargs);
 
 }; // namespace wrap
 
