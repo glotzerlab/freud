@@ -42,7 +42,7 @@ function(target_set_install_rpath _target)
     set_target_properties(${_target} PROPERTIES INSTALL_RPATH "\$ORIGIN")
   endif()
 
-  if(_using_conda OR DEFINED ENV{CIBUILDWHEEL})
+  if(_using_conda)
     set_target_properties(${_target} PROPERTIES INSTALL_RPATH_USE_LINK_PATH
                                                 True)
   endif()

@@ -9,7 +9,7 @@ set(locality_sources
     locality/NeighborList.cc
     locality/PeriodicBuffer.cc
     locality/Voronoi.cc
-    # For now, compile voro++ object in directly.
+    # Compile voro++ object in directly.
     ${VOROPP_SOURCE_DIR}/cell.cc
     ${VOROPP_SOURCE_DIR}/common.cc
     ${VOROPP_SOURCE_DIR}/container.cc
