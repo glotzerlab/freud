@@ -16,17 +16,17 @@ namespace freud { namespace locality {
 
 namespace wrap {
 
-template<typename T, typename shape = nanobind::shape<-1, 3>>
+template<typename T, typename shape>
 using nb_array = nanobind::ndarray<T, shape, nanobind::device::cpu, nanobind::c_contig>;
 
-std::shared_ptr<NeighborQueryIterator> query(std::shared_ptr<NeighborQuery> nq, nb_array<float> query_points,
+std::shared_ptr<NeighborQueryIterator> query(std::shared_ptr<NeighborQuery> nq, nb_array<float, nanobind::shape<-1, 3>> query_points,
                                              const QueryArgs& qargs);
 
-void AABBQueryConstructor(AABBQuery* nq, const box::Box& box, nb_array<float> points);
+void AABBQueryConstructor(AABBQuery* nq, const box::Box& box, nb_array<float, nanobind::shape<-1, 3>> points);
 
-void LinkCellConstructor(LinkCell* nq, const box::Box& box, nb_array<float> points, float cell_width);
+void LinkCellConstructor(LinkCell* nq, const box::Box& box, nb_array<float, nanobind::shape<-1, 3>> points, float cell_width);
 
-void RawPointsConstructor(RawPoints* nq, const box::Box& box, nb_array<float> points);
+void RawPointsConstructor(RawPoints* nq, const box::Box& box, nb_array<float, nanobind::shape<-1, 3>> points);
 
 }; // namespace wrap
 
