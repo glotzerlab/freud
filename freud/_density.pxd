@@ -1,10 +1,11 @@
 # Copyright (c) 2010-2024 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
+from libcpp.memory cimport shared_ptr
 cimport freud._box
 cimport freud._locality
 cimport freud.util
-from freud._locality cimport BondHistogramCompute
+from freud._locality cimport BondHistogramCompute, NeighborList
 from freud.util cimport vec3
 
 ctypedef unsigned int uint
@@ -42,6 +43,7 @@ cdef extern from "LocalDensity.h" namespace "freud::density":
             freud._locality.QueryArgs) except +
         const freud.util.ManagedArray[float] &getDensity() const
         const freud.util.ManagedArray[float] &getNumNeighbors() const
+        shared_ptr[NeighborList] getDensityNlist() const
         float getRMax() const
         float getDiameter() const
 
