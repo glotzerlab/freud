@@ -63,13 +63,13 @@ public:
         return m_num_neighbors_array;
     }
 
-    std::shared_ptr<NeighborList> getDensityNlist() const
+    std::shared_ptr<freud::locality::NeighborList> getDensityNlist() const
     {
         return m_density_nlist;
     }
 
 protected:
-    std::shared_ptr<NeighborList> m_density_nlist;
+    std::shared_ptr<freud::locality::NeighborList> m_density_nlist;
 
 
 private:

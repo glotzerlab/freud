@@ -5,7 +5,7 @@
 #include "NeighborComputeFunctional.h"
 #include "NeighborBond.h"
 #include <tbb/enumerable_thread_specific.h>
-#include "<vector>"
+#include <vector>
 
 /*! \file LocalDensity.cc
     \brief Routines for computing local density around a point.
@@ -32,7 +32,7 @@ void LocalDensity::compute(const freud::locality::NeighborQuery* neighbor_query,
                            const freud::locality::NeighborList* nlist, freud::locality::QueryArgs qargs)
 {
     m_box = neighbor_query->getBox();
-    using BondVector = tbb::enumerable_thread_specific<std::vector<NeighborBond>>;
+    using BondVector = tbb::enumerable_thread_specific<std::vector<freud::locality::NeighborBond>>;
     BondVector new_bonds;
 
     m_density_array.prepare(n_query_points);
@@ -46,6 +46,8 @@ void LocalDensity::compute(const freud::locality::NeighborQuery* neighbor_query,
         [&](size_t i, const std::shared_ptr<freud::locality::NeighborPerPointIterator>& ppiter) {
             float weight;
             float num_neighbors = 0;
+            BondVector::reference local_bonds(new_bonds.local());
+
             for (freud::locality::NeighborBond nb = ppiter->next(); !ppiter->end(); nb = ppiter->next())
             {
                 // count particles that are fully in the r_max sphere
@@ -61,7 +63,7 @@ void LocalDensity::compute(const freud::locality::NeighborQuery* neighbor_query,
                     // that obscure data
                     weight = float(1.0) + (m_r_max - (nb.getDistance() + m_diameter / float(2.0))) / m_diameter;
                 }
-                new_bonds.emplace_back(i, nb.getPointIdx(),nb.getDistance(),weight,nb.getVector())
+                local_bonds.emplace_back(i, nb.getPointIdx(),nb.getDistance(),weight,nb.getVector());
                 num_neighbors += weight;
                 m_num_neighbors_array[i] = num_neighbors;
                 if (m_box.is2D())
@@ -77,9 +79,9 @@ void LocalDensity::compute(const freud::locality::NeighborQuery* neighbor_query,
             }
         });
         tbb::flattened2d<BondVector> flat_density_bonds = tbb::flatten2d(new_bonds);
-        std::vector<NeighborBond> density_bonds(flat_density_bonds.begin(), flat_density_bonds.end());
+        std::vector<freud::locality::NeighborBond> density_bonds(flat_density_bonds.begin(), flat_density_bonds.end());
 
-        m_density_nlist = std::make_shared<NeighborList>(density_bonds);
+        m_density_nlist = std::make_shared<freud::locality::NeighborList>(density_bonds);
 }
 
 }; }; // end namespace freud::density
