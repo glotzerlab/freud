@@ -3,12 +3,7 @@
 
 
 # cluster,; density,; diffraction,; environment,; interface,; msd,; order,; pmft,
-from . import (
-    box,
-    data,
-    locality,
-    parallel,
-)
+from . import box, data, locality, parallel
 from .box import Box
 
 # from .locality import AABBQuery, LinkCell, NeighborList
