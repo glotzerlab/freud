@@ -56,8 +56,8 @@ void PeriodicBuffer::compute(std::shared_ptr<NeighborQuery> neighbor_query, std:
         images.z = 0;
     }
 
-    m_buffer_points.clear();
-    m_buffer_ids.clear();
+    m_buffer_points = std::make_shared<std::vector<vec3<float>>>();
+    m_buffer_ids = std::make_shared<std::vector<unsigned int>>();
 
     // for each point
     for (unsigned int point_id = 0; point_id < neighbor_query->getNPoints(); point_id++)
@@ -92,8 +92,8 @@ void PeriodicBuffer::compute(std::shared_ptr<NeighborQuery> neighbor_query, std:
                         // have the correct number of points instead of
                         // relying on the floating point precision of the
                         // fractional check below.
-                        m_buffer_points.push_back(m_buffer_box.wrap(point_image));
-                        m_buffer_ids.push_back(point_id);
+                        m_buffer_points->push_back(m_buffer_box.wrap(point_image));
+                        m_buffer_ids->push_back(point_id);
                     }
                     else
                     {
@@ -105,8 +105,8 @@ void PeriodicBuffer::compute(std::shared_ptr<NeighborQuery> neighbor_query, std:
                         if (0 <= buff_frac.x && buff_frac.x < 1 && 0 <= buff_frac.y && buff_frac.y < 1
                             && (is2D || (0 <= buff_frac.z && buff_frac.z < 1)))
                         {
-                            m_buffer_points.push_back(point_image);
-                            m_buffer_ids.push_back(point_id);
+                            m_buffer_points->push_back(point_image);
+                            m_buffer_ids->push_back(point_id);
                         }
                     }
                 }

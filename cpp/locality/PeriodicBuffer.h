@@ -40,13 +40,13 @@ public:
                  const bool use_images, const bool include_input_points);
 
     //! Return the buffer points
-    const std::vector<vec3<float>>& getBufferPoints() const
+    std::shared_ptr<std::vector<vec3<float>>> getBufferPoints() const
     {
         return m_buffer_points;
     }
 
     //! Return the buffer ids
-    const std::vector<unsigned int>& getBufferIds() const
+    std::shared_ptr<std::vector<unsigned int>> getBufferIds() const
     {
         return m_buffer_ids;
     }
@@ -54,8 +54,8 @@ public:
 private:
     freud::box::Box m_box;                    //!< Simulation box of the original points
     freud::box::Box m_buffer_box;             //!< Simulation box of the replicated points
-    std::vector<vec3<float>> m_buffer_points; //!< The replicated points
-    std::vector<unsigned int> m_buffer_ids;   //!< The replicated points' original point ids
+    std::shared_ptr<std::vector<vec3<float>>> m_buffer_points; //!< The replicated points
+    std::shared_ptr<std::vector<unsigned int>> m_buffer_ids;   //!< The replicated points' original point ids
 };
 
 }; }; // end namespace freud::locality

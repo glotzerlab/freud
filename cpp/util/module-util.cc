@@ -20,5 +20,5 @@ NB_MODULE(_util, m)
     export_Vector<float>(m, "Vector_float");
     export_Vector<double>(m, "Vector_double");
     export_Vector<unsigned int>(m, "Vector_unsignedint");
-    export_VectorVec3<float>(m, "VectorVec3_float");
+    export_Vector<vec3<float>>(m, "VectorVec3_float");
 }
