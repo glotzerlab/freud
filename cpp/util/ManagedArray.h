@@ -48,7 +48,7 @@ public:
     explicit ManagedArray(const std::array<size_t, Ndim>& shape = {0}) : m_shape(shape)
     {
         m_size = 1;
-        # pragma unroll
+#pragma unroll
         for (unsigned int i = 0; i < Ndim; ++i)
         {
             m_size *= m_shape[i];
@@ -184,10 +184,10 @@ public:
     {
         size_t cur_prod = 1;
         size_t idx = 0;
-        // In getting the linear bin, we must iterate over bins in reverse
-        // order to build up the value of cur_prod because each subsequent axis
-        // contributes less according to row-major ordering.
-        # pragma unroll
+// In getting the linear bin, we must iterate over bins in reverse
+// order to build up the value of cur_prod because each subsequent axis
+// contributes less according to row-major ordering.
+#pragma unroll
         for (unsigned int i = Ndim - 1; i != static_cast<unsigned int>(-1); --i)
         {
             idx += indices[i] * cur_prod;
@@ -201,10 +201,10 @@ public:
     {
         size_t cur_prod = 1;
         size_t idx = 0;
-        // In getting the linear bin, we must iterate over bins in reverse
-        // order to build up the value of cur_prod because each subsequent axis
-        // contributes less according to row-major ordering.
-        # pragma unroll
+// In getting the linear bin, we must iterate over bins in reverse
+// order to build up the value of cur_prod because each subsequent axis
+// contributes less according to row-major ordering.
+#pragma unroll
         for (unsigned int i = Ndim - 1; i != static_cast<unsigned int>(-1); --i)
         {
             idx += indices[i] * cur_prod;
@@ -226,7 +226,7 @@ public:
 
         std::array<size_t, Ndim> indices(shape.size());
 
-        # pragma unroll
+#pragma unroll
         for (unsigned int i = 0; i < Ndim; ++i)
         {
             index_size /= shape[i];
@@ -244,14 +244,15 @@ public:
      *  \param shape The shape to map indexes to.
      *  \param indices The index in each dimension.
      */
-    static inline size_t getIndex(const std::array<size_t, Ndim>& shape, const std::array<size_t, Ndim>& indices)
+    static inline size_t getIndex(const std::array<size_t, Ndim>& shape,
+                                  const std::array<size_t, Ndim>& indices)
     {
         size_t cur_prod = 1;
         size_t idx = 0;
-        // In getting the linear bin, we must iterate over bins in reverse
-        // order to build up the value of cur_prod because each subsequent axis
-        // contributes less according to row-major ordering.
-        # pragma unroll
+// In getting the linear bin, we must iterate over bins in reverse
+// order to build up the value of cur_prod because each subsequent axis
+// contributes less according to row-major ordering.
+#pragma unroll
         for (unsigned int i = Ndim - 1; i != static_cast<unsigned int>(-1); --i)
         {
             idx += indices[i] * cur_prod;
@@ -270,7 +271,7 @@ public:
      */
     inline size_t getIndex(const std::array<size_t, Ndim>& indices) const
     {
-        # pragma unroll
+#pragma unroll
         for (unsigned int i = 0; i < Ndim; ++i)
         {
             if (indices[i] > m_shape[i])

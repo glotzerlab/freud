@@ -51,8 +51,7 @@ template<typename T, size_t Ndim> struct ManagedArrayWrapper<vec3<T>, Ndim>
 
 namespace detail {
 
-template<typename T, size_t Ndim>
-void export_ManagedArray(nanobind::module_& m, const std::string& name)
+template<typename T, size_t Ndim> void export_ManagedArray(nanobind::module_& m, const std::string& name)
 {
     nanobind::class_<ManagedArray<T, Ndim>>(m, name.c_str())
         .def("toNumpyArray", &wrap::ManagedArrayWrapper<T, Ndim>::toNumpyArray);
