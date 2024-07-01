@@ -2,9 +2,8 @@
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 
-# cluster,; data,; density,; diffraction,; environment,; interface,; locality,;; msd,;
-# order,; pmft,
-from . import box, parallel
+# cluster,; density,; diffraction,; environment,; interface,; msd,; order,; pmft,
+from . import box, data, locality, parallel
 from .box import Box
 
 # from .locality import AABBQuery, LinkCell, NeighborList
@@ -20,20 +19,20 @@ __all__ = [
     "__version__",
     "box",
     # "cluster",
-    # "data",
+    "data",
     # "density",
     # "diffraction",
     # "environment",
     # "interface",
-    # "locality",
+    "locality",
     # "msd",
     # "order",
     "parallel",
     # "pmft",
     "Box",
-    # "AABBQuery",
-    # "LinkCell",
-    # "NeighborList",
+    "AABBQuery",
+    "LinkCell",
+    "NeighborList",
     "get_num_threads",
     "set_num_threads",
     "NumThreads",

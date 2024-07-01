@@ -11,9 +11,10 @@
 
 namespace freud { namespace locality {
 
-void PeriodicBuffer::compute(const freud::locality::NeighborQuery* neighbor_query, const vec3<float>& buff,
+void PeriodicBuffer::compute(std::shared_ptr<NeighborQuery> neighbor_query, std::array<float, 3> buff_vec,
                              const bool use_images, const bool include_input_points)
 {
+    vec3<float> buff(buff_vec[0], buff_vec[1], buff_vec[2]);
     m_box = neighbor_query->getBox();
     if (buff.x < 0)
     {
@@ -55,8 +56,8 @@ void PeriodicBuffer::compute(const freud::locality::NeighborQuery* neighbor_quer
         images.z = 0;
     }
 
-    m_buffer_points.clear();
-    m_buffer_ids.clear();
+    m_buffer_points = std::make_shared<std::vector<vec3<float>>>();
+    m_buffer_ids = std::make_shared<std::vector<unsigned int>>();
 
     // for each point
     for (unsigned int point_id = 0; point_id < neighbor_query->getNPoints(); point_id++)
@@ -91,8 +92,8 @@ void PeriodicBuffer::compute(const freud::locality::NeighborQuery* neighbor_quer
                         // have the correct number of points instead of
                         // relying on the floating point precision of the
                         // fractional check below.
-                        m_buffer_points.push_back(m_buffer_box.wrap(point_image));
-                        m_buffer_ids.push_back(point_id);
+                        m_buffer_points->push_back(m_buffer_box.wrap(point_image));
+                        m_buffer_ids->push_back(point_id);
                     }
                     else
                     {
@@ -104,8 +105,8 @@ void PeriodicBuffer::compute(const freud::locality::NeighborQuery* neighbor_quer
                         if (0 <= buff_frac.x && buff_frac.x < 1 && 0 <= buff_frac.y && buff_frac.y < 1
                             && (is2D || (0 <= buff_frac.z && buff_frac.z < 1)))
                         {
-                            m_buffer_points.push_back(point_image);
-                            m_buffer_ids.push_back(point_id);
+                            m_buffer_points->push_back(point_image);
+                            m_buffer_ids->push_back(point_id);
                         }
                     }
                 }

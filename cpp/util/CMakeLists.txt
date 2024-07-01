@@ -1,8 +1,10 @@
-add_library(_util OBJECT diagonalize.h diagonalize.cc)
+set(util_extension_headers export_ManagedArray.h export_Vector.h)
 
-target_link_libraries(_util PUBLIC TBB::tbb)
+nanobind_add_module(_util ${freud_nanobind_linking} module-util.cc
+                    ${util_extension_headers})
+target_link_libraries(_util PUBLIC libfreud)
 
-# We treat the extern folder as a SYSTEM library to avoid getting any diagnostic
-# information from it. In particular, this avoids clang-tidy throwing errors due
-# to any issues in external code.
-target_include_directories(_util SYSTEM PUBLIC ${PROJECT_SOURCE_DIR}/extern/)
+target_set_install_rpath(_util)
+
+# install
+install(TARGETS _util DESTINATION freud)

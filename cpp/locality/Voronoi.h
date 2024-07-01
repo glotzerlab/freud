@@ -19,7 +19,7 @@ public:
     // default constructor
     Voronoi() : m_neighbor_list(std::make_shared<NeighborList>()) {}
 
-    void compute(const freud::locality::NeighborQuery* nq);
+    void compute(std::shared_ptr<freud::locality::NeighborQuery> nq);
 
     std::shared_ptr<NeighborList> getNeighborList() const
     {
@@ -36,7 +36,7 @@ public:
         return m_volumes;
     }
 
-    box::Box getBox() const
+    const box::Box& getBox() const
     {
         return m_box;
     }

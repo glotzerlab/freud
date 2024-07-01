@@ -63,6 +63,8 @@ jobs:
           # Enable tests only for nanobind-converted modules
           pytest tests/test_box_Box.py -v
           pytest tests/test_parallel.py -v
+          pytest tests/test_locality_*.py -v
+          pytest tests/test_data.py -v
           # pytest tests/ -v
 
   tests_complete:

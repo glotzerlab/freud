@@ -13,17 +13,13 @@ namespace freud { namespace box { namespace wrap {
 template<typename T, typename shape = nanobind::shape<-1, 3>>
 using nb_array = nanobind::ndarray<T, shape, nanobind::device::cpu, nanobind::c_contig>;
 
-void makeAbsolute(const std::shared_ptr<Box>& box, nb_array<float, nanobind::shape<-1, 3>> vecs,
-                  nb_array<float, nanobind::shape<-1, 3>> out);
+void makeAbsolute(const std::shared_ptr<Box>& box, nb_array<float> vecs, nb_array<float> out);
 
-void makeFractional(const std::shared_ptr<Box>& box, nb_array<float, nanobind::shape<-1, 3>> vecs,
-                    nb_array<float, nanobind::shape<-1, 3>> out);
+void makeFractional(const std::shared_ptr<Box>& box, nb_array<float> vecs, nb_array<float> out);
 
-void getImages(const std::shared_ptr<Box>& box, nb_array<float, nanobind::shape<-1, 3>> vecs,
-               nb_array<int, nanobind::shape<-1, 3>> images);
+void getImages(const std::shared_ptr<Box>& box, nb_array<float> vecs, nb_array<int> images);
 
-void wrap(const std::shared_ptr<Box>& box, nb_array<float, nanobind::shape<-1, 3>> vecs,
-          nb_array<float, nanobind::shape<-1, 3>> out);
+void wrap(const std::shared_ptr<Box>& box, nb_array<float> vecs, nb_array<float> out);
 
 void unwrap(const std::shared_ptr<Box>& box, nb_array<float> vecs, nb_array<int> images, nb_array<float> out);
 

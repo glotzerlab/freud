@@ -24,10 +24,13 @@ endif()
 
 # get the sources/header files for building libfreud.so
 include(box/box-files.cmake)
+include(locality/locality-files.cmake)
 include(parallel/parallel-files.cmake)
+include(util/util-files.cmake)
 
 # make libfreud.so
-add_library(libfreud SHARED ${box_sources} ${parallel_sources})
+add_library(libfreud SHARED ${box_sources} ${locality_sources}
+                            ${parallel_sources} ${util-sources})
 
 target_link_libraries(libfreud PUBLIC TBB::tbb)
 
@@ -57,13 +60,14 @@ endif()
 
 # now build the python extension modules
 add_subdirectory(box)
+add_subdirectory(locality)
 add_subdirectory(parallel)
+add_subdirectory(util)
 
 # commented out for now, uncomment them as the conversion to pybind11 progresses
 # add_subdirectory(cluster) add_subdirectory(density)
 # add_subdirectory(diffraction) add_subdirectory(environment)
-# add_subdirectory(locality) add_subdirectory(order) add_subdirectory(pmft)
-# add_subdirectory(util)
+# add_subdirectory(order) add_subdirectory(pmft)
 
 if(NOT WIN32)
   install(TARGETS nanobind DESTINATION freud)
