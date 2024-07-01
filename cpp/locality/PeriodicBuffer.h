@@ -52,8 +52,8 @@ public:
     }
 
 private:
-    freud::box::Box m_box;                    //!< Simulation box of the original points
-    freud::box::Box m_buffer_box;             //!< Simulation box of the replicated points
+    freud::box::Box m_box;                                     //!< Simulation box of the original points
+    freud::box::Box m_buffer_box;                              //!< Simulation box of the replicated points
     std::shared_ptr<std::vector<vec3<float>>> m_buffer_points; //!< The replicated points
     std::shared_ptr<std::vector<unsigned int>> m_buffer_ids;   //!< The replicated points' original point ids
 };
