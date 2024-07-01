@@ -36,7 +36,7 @@ namespace freud { namespace util {
  *         indexed into, the index may be computed once using the getIndex
  *         function and reused to avoid recomputing it each time.
  */
-template<typename T> class ManagedArray
+template<typename T, size_t Ndim> class ManagedArray
 {
 public:
     //! Constructor based on a shape tuple.
@@ -45,9 +45,17 @@ public:
      *
      *  \param shape Shape of the array to allocate.
      */
-    ManagedArray(const std::vector<size_t>& shape = {0})
+    explicit ManagedArray(const std::array<size_t, Ndim>& shape = {0}) : m_shape(shape)
     {
-        prepare(shape, true);
+        m_size = 1;
+        # pragma unroll
+        for (unsigned int i = 0; i < Ndim; ++i)
+        {
+            m_size *= m_shape[i];
+        }
+
+        m_data = std::vector<T>(size());
+        reset();
     }
 
     //! Constructor based on a shape tuple.
@@ -56,49 +64,10 @@ public:
      *
      *  \param shape Shape of the array to allocate.
      */
-    explicit ManagedArray(size_t size) : ManagedArray(std::vector<size_t> {size}) {}
+    explicit ManagedArray(size_t size) : ManagedArray(std::array<size_t, 1> {size}) {}
 
     //! Destructor (currently empty because data is managed by shared pointer).
     ~ManagedArray() = default;
-
-    //! Simple convenience for 1D arrays that calls through to the shape based `prepare` function.
-    /*! \param new_size Size of the 1D array to allocate.
-     */
-    void prepare(size_t new_size)
-    {
-        prepare(std::vector<size_t> {new_size});
-    }
-
-    //! Prepare for writing new data.
-    /*! This function always resets the array to contain zeros.
-     *
-     *  \param new_shape Shape of the array to allocate.
-     *  \param force Reallocate regardless of whether anything changed or needs to be persisted.
-     */
-    void prepare(const std::vector<size_t>& new_shape, bool force = false)
-    {
-        // If we resized, we create a new array. No matter what, reset.
-        if (force || (new_shape != shape()))
-        {
-            m_shape = std::vector<size_t>(new_shape);
-
-            m_size = 1;
-            for (unsigned int i = m_shape.size() - 1; i != static_cast<unsigned int>(-1); --i)
-            {
-                m_size *= m_shape[i];
-            }
-
-            // We make use of C-style arrays here rather than any alternative
-            // because we need the underlying data representation to be
-            // compatible with numpy on the Python side. We _could_ do this
-            // with a different data structure like std::vector, but it would
-            // require writing additional gymnastics to ensure proper reference
-            // management and should be carefully considered before any rewrite.
-            m_data = std::shared_ptr<T>(new T[size()],
-                                        std::default_delete<T[]>()); // NOLINT(modernize-avoid-c-arrays)
-        }
-        reset();
-    }
 
     //! Reset the contents of array to be 0.
     void reset()
@@ -110,9 +79,9 @@ public:
     }
 
     //! Return a constant pointer to the underlying data
-    const T* get() const
+    const T* data() const
     {
-        return m_data.get();
+        return m_data.data();
     }
 
     //! Return the underlying pointer (requires two levels of indirection).
@@ -125,9 +94,9 @@ public:
      * about overusing calls to get() rather than using the various operators
      * provided by the class.
      */
-    T* get()
+    T* data()
     {
-        return m_data.get();
+        return m_data.data();
     }
 
     //! Writeable index into array.
@@ -139,7 +108,7 @@ public:
             msg << "Attempted to access index " << index << " in an array of size " << size() << std::endl;
             throw std::invalid_argument(msg.str());
         }
-        return get()[index];
+        return m_data[index];
     }
 
     //! Read-only index into array.
@@ -151,7 +120,7 @@ public:
             msg << "Attempted to access index " << index << " in an array of size " << size() << std::endl;
             throw std::invalid_argument(msg.str());
         }
-        return get()[index];
+        return m_data[index];
     }
 
     //! Get the size of the current array.
@@ -161,7 +130,7 @@ public:
     }
 
     //! Get the shape of the current array.
-    std::vector<size_t> shape() const
+    std::array<size_t, Ndim> shape() const
     {
         return m_shape;
     }
@@ -189,7 +158,7 @@ public:
         // cppcheck generates a false positive here on old machines (CI),
         // probably due to limited template support on those compilers.
         // cppcheck-suppress returnTempReference
-        return (*this)(buildIndex(indices...));
+        return (*this)(std::array<size_t, Ndim> {indices});
     }
 
     //! Constant implementation of variadic indexing function.
@@ -198,7 +167,7 @@ public:
         // cppcheck generates a false positive here on old machines (CI),
         // probably due to limited template support on those compilers.
         // cppcheck-suppress returnTempReference
-        return (*this)(buildIndex(indices...));
+        return (*this)(std::array<size_t, Ndim> {indices});
     }
 
     //! Core function for multidimensional indexing.
@@ -211,14 +180,15 @@ public:
      * become a performance bottleneck when used in highly performance critical
      * code paths.
      */
-    inline T& operator()(const std::vector<size_t>& indices)
+    inline T& operator()(const std::array<size_t, Ndim>& indices)
     {
         size_t cur_prod = 1;
         size_t idx = 0;
         // In getting the linear bin, we must iterate over bins in reverse
         // order to build up the value of cur_prod because each subsequent axis
         // contributes less according to row-major ordering.
-        for (unsigned int i = indices.size() - 1; i != static_cast<unsigned int>(-1); --i)
+        # pragma unroll
+        for (unsigned int i = Ndim - 1; i != static_cast<unsigned int>(-1); --i)
         {
             idx += indices[i] * cur_prod;
             cur_prod *= m_shape[i];
@@ -227,14 +197,15 @@ public:
     }
 
     //! Const version of core function for multidimensional indexing.
-    inline const T& operator()(const std::vector<size_t>& indices) const
+    inline const T& operator()(const std::array<size_t, Ndim>& indices) const
     {
         size_t cur_prod = 1;
         size_t idx = 0;
         // In getting the linear bin, we must iterate over bins in reverse
         // order to build up the value of cur_prod because each subsequent axis
         // contributes less according to row-major ordering.
-        for (unsigned int i = indices.size() - 1; i != static_cast<unsigned int>(-1); --i)
+        # pragma unroll
+        for (unsigned int i = Ndim - 1; i != static_cast<unsigned int>(-1); --i)
         {
             idx += indices[i] * cur_prod;
             cur_prod *= m_shape[i];
@@ -249,12 +220,14 @@ public:
      *  \param shape The shape to map indexes to.
      *  \param indices The index in each dimension.
      */
-    static inline std::vector<size_t> getMultiIndex(const std::vector<size_t>& shape, size_t index)
+    static inline std::array<size_t, Ndim> getMultiIndex(const std::array<size_t, Ndim>& shape, size_t index)
     {
         size_t index_size = std::accumulate(shape.cbegin(), shape.cend(), 1, std::multiplies<>());
 
-        std::vector<size_t> indices(shape.size());
-        for (unsigned int i = 0; i < shape.size(); ++i)
+        std::array<size_t, Ndim> indices(shape.size());
+
+        # pragma unroll
+        for (unsigned int i = 0; i < Ndim; ++i)
         {
             index_size /= shape[i];
             // Integer division should cast away extras.
@@ -271,14 +244,15 @@ public:
      *  \param shape The shape to map indexes to.
      *  \param indices The index in each dimension.
      */
-    static inline size_t getIndex(const std::vector<size_t>& shape, const std::vector<size_t>& indices)
+    static inline size_t getIndex(const std::array<size_t, Ndim>& shape, const std::array<size_t, Ndim>& indices)
     {
         size_t cur_prod = 1;
         size_t idx = 0;
         // In getting the linear bin, we must iterate over bins in reverse
         // order to build up the value of cur_prod because each subsequent axis
         // contributes less according to row-major ordering.
-        for (unsigned int i = indices.size() - 1; i != static_cast<unsigned int>(-1); --i)
+        # pragma unroll
+        for (unsigned int i = Ndim - 1; i != static_cast<unsigned int>(-1); --i)
         {
             idx += indices[i] * cur_prod;
             cur_prod *= shape[i];
@@ -294,14 +268,10 @@ public:
      *
      *  \param indices The index in each dimension.
      */
-    inline size_t getIndex(const std::vector<size_t>& indices) const
+    inline size_t getIndex(const std::array<size_t, Ndim>& indices) const
     {
-        if (indices.size() != m_shape.size())
-        {
-            throw std::invalid_argument("Incorrect number of indices for this array.");
-        }
-
-        for (unsigned int i = 0; i < indices.size(); ++i)
+        # pragma unroll
+        for (unsigned int i = 0; i < Ndim; ++i)
         {
             if (indices[i] > m_shape[i])
             {
@@ -326,44 +296,22 @@ public:
         ManagedArray newarray(shape());
         for (unsigned int i = 0; i < size(); ++i)
         {
-            newarray[i] = get()[i];
+            newarray[i] = m_data[i];
         }
         return newarray;
     }
 
 private:
-    //! The base case for building up the index.
-    /*! These argument building functions are templated on two types, one that
-     *  encapsulates the current object being operated on and the other being
-     *  the list of remaining arguments. Since users may provide both signed and
-     *  unsigned ints to the function, we perform the appropriate check on each
-     *  Int object. The second function is used for template recursion in
-     *  unwrapping the list of arguments.
-     */
-    template<typename Int> inline static std::vector<size_t> buildIndex(Int index)
-    {
-        return {static_cast<size_t>(index)};
-    }
-
-    //! The recursive case for building up the index (see above).
-    template<typename Int, typename... Ints>
-    inline static std::vector<size_t> buildIndex(Int index, Ints... indices)
-    {
-        std::vector<size_t> tmp = buildIndex(indices...);
-        tmp.insert(tmp.begin(), static_cast<size_t>(index));
-        return tmp;
-    }
-
-    std::shared_ptr<T> m_data;   //!< Pointer to array.
-    std::vector<size_t> m_shape; //!< Shape of array.
-    size_t m_size;               //!< Size of array.
+    std::vector<T> m_data;            //!< array data.
+    std::array<size_t, Ndim> m_shape; //!< Shape of array.
+    size_t m_size;                    //!< number of array elements.
 };
 
 // explicit instantiations for python extension modules
-template class ManagedArray<float>;
-template class ManagedArray<double>;
-template class ManagedArray<unsigned int>;
-template class ManagedArray<vec3<float>>;
+template class ManagedArray<float, 1>;
+template class ManagedArray<double, 1>;
+template class ManagedArray<unsigned int, 1>;
+template class ManagedArray<vec3<float>, 1>;
 
 }; }; // end namespace freud::util
 
