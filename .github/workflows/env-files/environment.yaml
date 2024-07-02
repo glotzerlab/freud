@@ -12,7 +12,8 @@ dependencies:
   - dynasor
   - gsd
   - matplotlib
-  - numpy
+  # TODO: remove specific numpy version after mdanalysis supports numpy 2.0.
+  - numpy<2
   - pillow
   - pytest
   - rowan
