@@ -71,7 +71,6 @@ public:
 protected:
     std::shared_ptr<freud::locality::NeighborList> m_density_nlist;
 
-
 private:
     box::Box m_box;   //!< Simulation box where the particles belong
     float m_r_max;    //!< Maximum neighbor distance
@@ -79,7 +78,6 @@ private:
 
     util::ManagedArray<float> m_density_array;       //!< density array computed
     util::ManagedArray<float> m_num_neighbors_array; //!< number of neighbors array computed
-
 };
 
 }; }; // end namespace freud::density

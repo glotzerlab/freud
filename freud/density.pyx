@@ -15,7 +15,7 @@ import freud.locality
 
 from cython.operator cimport dereference
 
-from freud.locality cimport _PairCompute, _SpatialHistogram1D, _nlist_from_cnlist
+from freud.locality cimport _nlist_from_cnlist, _PairCompute, _SpatialHistogram1D
 from freud.util cimport _Compute, vec3
 
 from collections.abc import Sequence
@@ -554,7 +554,7 @@ cdef class LocalDensity(_PairCompute):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getNumNeighbors(),
             freud.util.arr_type_t.FLOAT)
-        
+
     @_Compute._computed_property
     def densityNlist(self):
         """:class:`.NeighborList`: The neighbor list used for computing local density

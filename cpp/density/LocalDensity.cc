@@ -2,8 +2,8 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include "LocalDensity.h"
-#include "NeighborComputeFunctional.h"
 #include "NeighborBond.h"
+#include "NeighborComputeFunctional.h"
 #include <tbb/enumerable_thread_specific.h>
 #include <vector>
 
@@ -61,9 +61,10 @@ void LocalDensity::compute(const freud::locality::NeighborQuery* neighbor_query,
                     // this is not particularly accurate for a single particle, but works well on average for
                     // lots of them. It smooths out the neighbor count distributions and avoids noisy spikes
                     // that obscure data
-                    weight = float(1.0) + (m_r_max - (nb.getDistance() + m_diameter / float(2.0))) / m_diameter;
+                    weight
+                        = float(1.0) + (m_r_max - (nb.getDistance() + m_diameter / float(2.0))) / m_diameter;
                 }
-                local_bonds.emplace_back(i, nb.getPointIdx(),nb.getDistance(),weight,nb.getVector());
+                local_bonds.emplace_back(i, nb.getPointIdx(), nb.getDistance(), weight, nb.getVector());
                 num_neighbors += weight;
                 m_num_neighbors_array[i] = num_neighbors;
                 if (m_box.is2D())
@@ -78,10 +79,11 @@ void LocalDensity::compute(const freud::locality::NeighborQuery* neighbor_query,
                 }
             }
         });
-        tbb::flattened2d<BondVector> flat_density_bonds = tbb::flatten2d(new_bonds);
-        std::vector<freud::locality::NeighborBond> density_bonds(flat_density_bonds.begin(), flat_density_bonds.end());
+    tbb::flattened2d<BondVector> flat_density_bonds = tbb::flatten2d(new_bonds);
+    std::vector<freud::locality::NeighborBond> density_bonds(flat_density_bonds.begin(),
+                                                             flat_density_bonds.end());
 
-        m_density_nlist = std::make_shared<freud::locality::NeighborList>(density_bonds);
+    m_density_nlist = std::make_shared<freud::locality::NeighborList>(density_bonds);
 }
 
 }; }; // end namespace freud::density
