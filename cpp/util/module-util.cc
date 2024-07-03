@@ -14,6 +14,7 @@ NB_MODULE(_util, m)
     export_ManagedArray<float, 1>(m, "ManagedArray1d_float");
     export_ManagedArray<double, 1>(m, "ManagedArray1d_double");
     export_ManagedArray<unsigned int, 1>(m, "ManagedArray1d_unsignedint");
+    export_ManagedArray<unsigned int, 2>(m, "ManagedArray2d_unsignedint");
     export_ManagedArray<vec3<float>, 1>(m, "ManagedArray1dVec3_float");
 
     // python wrapper class for Vector

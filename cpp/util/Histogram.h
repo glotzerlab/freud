@@ -187,7 +187,7 @@ using Axes = std::vector<std::shared_ptr<Axis>>;
  * to operate on the histogram directly. The underlying data is handled using a
  * ManagedArray, allowing dispatch of the multi-dimensional indexing.
  */
-template<typename T> class Histogram
+template<typename T, size_t Ndim> class Histogram
 {
 public:
     //! A container for thread-local copies of a provided histogram.
@@ -210,7 +210,7 @@ public:
             : m_local_histograms([histogram]() { return Histogram(histogram.m_axes); })
         {}
 
-        using const_iterator = typename tbb::enumerable_thread_specific<Histogram<T>>::const_iterator;
+        using const_iterator = typename tbb::enumerable_thread_specific<Histogram>::const_iterator;
         using iterator = typename tbb::enumerable_thread_specific<Histogram>::iterator;
         using reference = typename tbb::enumerable_thread_specific<Histogram>::reference;
 
@@ -260,7 +260,7 @@ public:
         }
 
         // Reduce over histograms into the result array.
-        void reduceInto(ManagedArray<T>& result)
+        void reduceInto(ManagedArray<T, Ndim>& result)
         {
             result.reset();
             util::forLoopWrapper(0, result.size(), [&](size_t begin, size_t end) {
@@ -275,7 +275,7 @@ public:
         }
 
     protected:
-        tbb::enumerable_thread_specific<Histogram<T>>
+        tbb::enumerable_thread_specific<Histogram<T, Ndim>>
             m_local_histograms; //!< The thread-local copies of m_histogram.
     };
 
@@ -283,30 +283,12 @@ public:
     Histogram() = default;
 
     //! Constructor
-    explicit Histogram(std::vector<std::shared_ptr<Axis>> axes) : m_axes(std::move(axes))
+    explicit Histogram(std::array<std::shared_ptr<Axis>, Ndim> axes) : m_axes(std::move(axes))
     {
-        std::vector<size_t> sizes(m_axes.size());
+        std::array<size_t, Ndim> sizes;
         std::transform(m_axes.begin(), m_axes.end(), sizes.begin(),
                        [](const auto& ax) { return ax->size(); });
-        m_bin_counts = ManagedArray<T>(sizes);
-    }
-
-    //! Simple convenience for 1D arrays that calls through to the shape based `prepare` function.
-    /*! \param new_size Size of the 1D array to allocate.
-     */
-    void prepare(size_t new_size)
-    {
-        prepare(std::vector<size_t> {new_size});
-    }
-
-    //! Prepare the underlying bin counts array.
-    /*! Reallocate memory if needed.
-     *
-     *  \param new_shape Shape of the array to allocate.
-     */
-    void prepare(std::vector<size_t> new_shape)
-    {
-        m_bin_counts.prepare(new_shape);
+        m_bin_counts = std::make_shared<ManagedArray<T, Ndim>>(sizes);
     }
 
     //! Destructor
@@ -320,7 +302,7 @@ public:
         // Check for sentinel to avoid overflow.
         if (value_bin != Axis::OVERFLOW_BIN)
         {
-            m_bin_counts[value_bin] += value_vector.second.value;
+            (*m_bin_counts)[value_bin] += value_vector.second.value;
         }
     }
 
@@ -330,7 +312,7 @@ public:
         // Check for sentinel to avoid overflow.
         if (value_bin != Axis::OVERFLOW_BIN)
         {
-            m_bin_counts[value_bin] += weight;
+            (*m_bin_counts)[value_bin] += weight;
         }
     }
 
@@ -339,18 +321,12 @@ public:
      *  are then combined into a single linear index using the underlying
      *  ManagedArray.
      */
-    size_t bin(std::vector<float> values) const
+    size_t bin(std::array<float, Ndim> values) const
     {
-        if (values.size() != m_axes.size())
-        {
-            std::ostringstream msg;
-            msg << "This Histogram is " << m_axes.size() << "-dimensional, but " << values.size()
-                << " values were provided in bin" << std::endl;
-            throw std::invalid_argument(msg.str());
-        }
         // First bin the values along each axis.
-        std::vector<size_t> ax_bins;
-        for (unsigned int ax_idx = 0; ax_idx < m_axes.size(); ++ax_idx)
+        std::array<size_t, Ndim> ax_bins;
+        # pragma unroll
+        for (unsigned int ax_idx = 0; ax_idx < Ndim; ++ax_idx)
         {
             size_t bin_i = m_axes[ax_idx]->bin(values[ax_idx]);
             // Immediately return sentinel if any bin is out of bounds.
@@ -358,43 +334,44 @@ public:
             {
                 return Axis::OVERFLOW_BIN;
             }
-            ax_bins.push_back(bin_i);
+            ax_bins[ax_idx] = bin_i;
         }
 
-        return m_bin_counts.getIndex(ax_bins);
+        return m_bin_counts->getIndex(ax_bins);
     }
 
     //! Return the axes.
-    const std::vector<std::shared_ptr<Axis>>& getAxes() const
+    const std::array<std::shared_ptr<Axis>, Ndim>& getAxes() const
     {
         return m_axes;
     }
 
     //! Get the computed histogram.
-    const ManagedArray<T>& getBinCounts() const
+    std::shared_ptr<ManagedArray<T, Ndim>> getBinCounts() const
     {
         return m_bin_counts;
     }
 
     //! Get the shape of the computed histogram.
-    std::vector<size_t> shape() const
+    std::array<size_t, Ndim> shape() const
     {
-        return m_bin_counts.shape();
+        return m_bin_counts->shape();
     }
 
     //! Reset the histogram.
     void reset()
     {
-        m_bin_counts.reset();
+        m_bin_counts->reset();
     }
 
     //! Return the edges of bins.
     /*! This vector will be of size axis.size()+1 for each axis.
      */
-    std::vector<std::vector<float>> getBinEdges() const
+    std::array<std::vector<float>, Ndim> getBinEdges() const
     {
-        std::vector<std::vector<float>> bins(m_axes.size());
-        for (unsigned int i = 0; i < m_axes.size(); ++i)
+        std::array<std::vector<float>, Ndim> bins;
+        # pragma unroll
+        for (unsigned int i = 0; i < Ndim; ++i)
         {
             bins[i] = m_axes[i]->getBinEdges();
         }
@@ -404,10 +381,11 @@ public:
     //! Return the bin centers.
     /*! This vector will be of size axis.size() for each axis.
      */
-    std::vector<std::vector<float>> getBinCenters() const
+    std::array<std::vector<float>, Ndim> getBinCenters() const
     {
-        std::vector<std::vector<float>> bins(m_axes.size());
-        for (unsigned int i = 0; i < m_axes.size(); ++i)
+        std::array<std::vector<float>, Ndim> bins;
+        # pragma unroll
+        for (unsigned int i = 0; i < Ndim; ++i)
         {
             bins[i] = m_axes[i]->getBinCenters();
         }
@@ -415,10 +393,11 @@ public:
     }
 
     //! Return a vector of tuples (min, max) indicating the bounds of each axis.
-    std::vector<std::pair<float, float>> getBounds() const
+    std::array<std::pair<float, float>, Ndim> getBounds() const
     {
-        std::vector<std::pair<float, float>> bounds(m_axes.size());
-        for (unsigned int i = 0; i < m_axes.size(); ++i)
+        std::array<std::pair<float, float>, Ndim> bounds;
+        # pragma unroll
+        for (unsigned int i = 0; i < Ndim; ++i)
         {
             bounds[i] = std::pair<float, float>(m_axes[i]->getMin(), m_axes[i]->getMax());
         }
@@ -426,10 +405,11 @@ public:
     }
 
     //! Return a vector indicating the number of bins in each axis.
-    std::vector<size_t> getAxisSizes() const
+    std::array<size_t, Ndim> getAxisSizes() const
     {
-        std::vector<size_t> sizes(m_axes.size());
-        for (unsigned int i = 0; i < m_axes.size(); ++i)
+        std::array<size_t, Ndim> sizes;
+        # pragma unroll
+        for (unsigned int i = 0; i < Ndim; ++i)
         {
             sizes[i] = m_axes[i]->size();
         }
@@ -448,7 +428,7 @@ public:
     void reduceOverThreadsPerBin(ThreadLocalHistogram& local_histograms, const ComputeFunction& cf)
     {
         local_histograms.reduceInto(m_bin_counts);
-        util::forLoopWrapper(0, m_bin_counts.size(), [&](size_t begin, size_t end) {
+        util::forLoopWrapper(0, m_bin_counts->size(), [&](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
                 cf(i);
@@ -474,23 +454,23 @@ public:
     //! Writeable index into array.
     T& operator[](size_t i)
     {
-        return m_bin_counts[i];
+        return (*m_bin_counts)[i];
     }
 
     //! Read-only index into array.
     const T& operator[](size_t i) const
     {
-        return m_bin_counts[i];
+        return (*m_bin_counts)[i];
     }
 
     size_t size() const
     {
-        return m_bin_counts.size();
+        return m_bin_counts->size();
     }
 
 protected:
-    std::vector<std::shared_ptr<Axis>> m_axes; //!< The axes.
-    ManagedArray<T> m_bin_counts;              //!< Counts for each bin
+    std::array<std::shared_ptr<Axis>, Ndim> m_axes; //!< The axes.
+    std::shared_ptr<ManagedArray<T, Ndim>> m_bin_counts;              //!< Counts for each bin
 
     //! The base case for type float when constructing a vector of values provided to operator().
     /*! This function and the accompanying recursive function below employ

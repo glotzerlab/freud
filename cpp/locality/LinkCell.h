@@ -54,7 +54,7 @@ class IteratorLinkCell
 public:
     IteratorLinkCell() = default;
 
-    IteratorLinkCell(const util::ManagedArray<unsigned int>& cell_list, unsigned int Np, unsigned int Nc,
+    IteratorLinkCell(const util::ManagedArray<unsigned int, 1>& cell_list, unsigned int Np, unsigned int Nc,
                      unsigned int cell)
         : m_cell_list(cell_list), m_Np(Np), m_Nc(Nc)
     {
@@ -75,7 +75,7 @@ public:
     unsigned int begin();
 
 private:
-    util::ManagedArray<unsigned int> m_cell_list;  //!< The cell list
+    util::ManagedArray<unsigned int, 1> m_cell_list;  //!< The cell list
     unsigned int m_Np {0};                         //!< Number of particles in the cell list
     unsigned int m_Nc {0};                         //!< Number of cells in the cell list
     unsigned int m_cur_idx {LINK_CELL_TERMINATOR}; //!< Current index
@@ -246,7 +246,7 @@ private:
     vec3<unsigned int> m_celldim {0, 0, 0}; //!< Cell dimensions
     unsigned int m_size {0};                //!< The size of cell list.
 
-    util::ManagedArray<unsigned int> m_cell_list; //!< The cell list last computed
+    util::ManagedArray<unsigned int, 1> m_cell_list; //!< The cell list last computed
     using CellNeighbors = tbb::concurrent_hash_map<unsigned int, std::vector<unsigned int>>;
     mutable CellNeighbors m_cell_neighbors; //!< Hash map of cell neighbors for each cell
 };

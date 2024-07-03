@@ -21,11 +21,11 @@ void FilterSANN::compute(std::shared_ptr<NeighborQuery> nq, const vec3<float>* q
     NeighborList sorted_nlist(*m_unfiltered_nlist);
     sorted_nlist.sort(true);
 
-    const auto& sorted_neighbors = sorted_nlist.getNeighbors();
-    const auto& sorted_dist = sorted_nlist.getDistances();
-    const auto& sorted_vecs = sorted_nlist.getVectors();
-    const auto& sorted_weights = sorted_nlist.getWeights();
-    const auto& sorted_counts = sorted_nlist.getCounts();
+    const auto& sorted_neighbors = *sorted_nlist.getNeighbors();
+    const auto& sorted_dist = *sorted_nlist.getDistances();
+    const auto& sorted_vecs = *sorted_nlist.getVectors();
+    const auto& sorted_weights = *sorted_nlist.getWeights();
+    const auto& sorted_counts = *sorted_nlist.getCounts();
 
     // hold set of bonds for each thread
     using BondVector = tbb::enumerable_thread_specific<std::vector<NeighborBond>>;

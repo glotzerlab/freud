@@ -39,13 +39,23 @@ namespace freud { namespace util {
 template<typename T, size_t Ndim> class ManagedArray
 {
 public:
+
+    constexpr ManagedArray() : m_size(0), m_data()
+    {
+        # pragma unroll
+        for (size_t i=0; i<Ndim; ++i)
+        {
+            m_shape[i] = 0;
+        }
+    }
+
     //! Constructor based on a shape tuple.
     /*! Including a default value for the shape allows the usage of this
      *  constructor as the default constructor.
      *
      *  \param shape Shape of the array to allocate.
      */
-    explicit ManagedArray(const std::array<size_t, Ndim>& shape = {0}) : m_shape(shape)
+    explicit ManagedArray(const std::array<size_t, Ndim>& shape) : m_shape(shape)
     {
         m_size = 1;
 #pragma unroll
@@ -66,6 +76,20 @@ public:
      */
     explicit ManagedArray(size_t size) : ManagedArray(std::array<size_t, 1> {size}) {}
 
+    /**
+     * Copy constructor
+     * */
+    ManagedArray(const ManagedArray& other)
+    {
+        m_shape = other.m_shape;
+        m_size = other.m_size;
+        m_data = std::vector<T>(other.m_size);
+        for (unsigned int i = 0; i < m_size; ++i)
+        {
+            m_data[i] = other.m_data[i];
+        }
+    }
+
     //! Destructor (currently empty because data is managed by shared pointer).
     ~ManagedArray() = default;
 
@@ -74,7 +98,7 @@ public:
     {
         if (size() != 0)
         {
-            memset((void*) get(), 0, sizeof(T) * size());
+            memset((void*) data(), 0, sizeof(T) * size());
         }
     }
 
@@ -158,7 +182,7 @@ public:
         // cppcheck generates a false positive here on old machines (CI),
         // probably due to limited template support on those compilers.
         // cppcheck-suppress returnTempReference
-        return (*this)(std::array<size_t, Ndim> {indices});
+        return (*this)(std::array<size_t, Ndim> {indices...});
     }
 
     //! Constant implementation of variadic indexing function.
@@ -167,7 +191,7 @@ public:
         // cppcheck generates a false positive here on old machines (CI),
         // probably due to limited template support on those compilers.
         // cppcheck-suppress returnTempReference
-        return (*this)(std::array<size_t, Ndim> {indices});
+        return (*this)(std::array<size_t, Ndim> {indices...});
     }
 
     //! Core function for multidimensional indexing.
@@ -224,7 +248,7 @@ public:
     {
         size_t index_size = std::accumulate(shape.cbegin(), shape.cend(), 1, std::multiplies<>());
 
-        std::array<size_t, Ndim> indices(shape.size());
+        std::array<size_t, Ndim> indices;
 
 #pragma unroll
         for (unsigned int i = 0; i < Ndim; ++i)

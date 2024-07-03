@@ -19,7 +19,7 @@ namespace freud { namespace locality {
  * of accumulating histograms over many frames, assuming that computations must
  * be performed on a per-NeighborBond basis.
  */
-class BondHistogramCompute
+template<size_t Ndim> class BondHistogramCompute
 {
 public:
     //! Default constructor
@@ -57,7 +57,7 @@ public:
     }
 
     //! Get a reference to the bin counts array
-    const util::ManagedArray<unsigned int>& getBinCounts()
+    std::shared_ptr<util::ManagedArray<unsigned int, Ndim>> getBinCounts()
     {
         return reduceAndReturn(m_histogram.getBinCounts());
     }
@@ -73,19 +73,19 @@ public:
     //! Return the edges of bins.
     /*! This vector will be of size axis.size()+1 for each axis.
      */
-    std::vector<std::vector<float>> getBinEdges() const
+    std::array<std::vector<float>, Ndim> getBinEdges() const
     {
         return m_histogram.getBinEdges();
     }
 
     //! Return a vector of tuples (min, max) indicating the bounds of each axis.
-    std::vector<std::pair<float, float>> getBounds() const
+    std::array<std::pair<float, float>, Ndim> getBounds() const
     {
         return m_histogram.getBounds();
     }
 
     //! Return a vector indicating the number of bins in each axis.
-    std::vector<size_t> getAxisSizes() const
+    std::array<size_t, Ndim> getAxisSizes() const
     {
         return m_histogram.getAxisSizes();
     }
@@ -120,11 +120,11 @@ protected:
     unsigned int m_n_query_points {0}; //!< The number of query points.
     bool m_reduce {true};              //!< Whether or not the histogram needs to be reduced.
 
-    util::Histogram<unsigned int> m_histogram; //!< Histogram of interparticle distances (bond lengths).
-    util::Histogram<unsigned int>::ThreadLocalHistogram
+    util::Histogram<unsigned int, Ndim> m_histogram; //!< Histogram of interparticle distances (bond lengths).
+    util::Histogram<unsigned int, Ndim>::ThreadLocalHistogram
         m_local_histograms; //!< Thread local bin counts for TBB parallelism
 
-    using BondHistogram = util::Histogram<unsigned int>;
+    using BondHistogram = util::Histogram<unsigned int, Ndim>;
 };
 
 }; }; // namespace freud::locality

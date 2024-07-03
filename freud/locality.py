@@ -13,10 +13,11 @@ import freud._locality
 import freud.box
 import freud.util
 from freud._util import (  # noqa F401
-    ManagedArray_double,
-    ManagedArray_float,
-    ManagedArray_unsignedint,
-    ManagedArrayVec3_float,
+    ManagedArray1d_double,
+    ManagedArray1d_float,
+    ManagedArray1d_unsignedint,
+    ManagedArray2d_unsignedint,
+    ManagedArray1dVec3_float,
     Vector_double,
     Vector_float,
     Vector_unsignedint,

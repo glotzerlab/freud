@@ -27,10 +27,10 @@ void FilterRAD::compute(std::shared_ptr<NeighborQuery> nq, const vec3<float>* qu
 
     const auto& points = nq->getPoints();
     const auto& box = nq->getBox();
-    const auto& sorted_neighbors = sorted_nlist.getNeighbors();
-    const auto& sorted_dist = sorted_nlist.getDistances();
-    const auto& sorted_weights = sorted_nlist.getWeights();
-    const auto& sorted_counts = sorted_nlist.getCounts();
+    const auto& sorted_neighbors = *sorted_nlist.getNeighbors();
+    const auto& sorted_dist = *sorted_nlist.getDistances();
+    const auto& sorted_weights = *sorted_nlist.getWeights();
+    const auto& sorted_counts = *sorted_nlist.getCounts();
 
     using BondVector = tbb::enumerable_thread_specific<std::vector<NeighborBond>>;
     BondVector filtered_bonds;
