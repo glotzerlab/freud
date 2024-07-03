@@ -60,10 +60,8 @@ public:
         }
 
         NeighborBond nb = NeighborBond(
-            (*m_nlist->getNeighbors())(m_current_index, 0),
-            (*m_nlist->getNeighbors())(m_current_index, 1),
-            (*m_nlist->getDistances())[m_current_index],
-            (*m_nlist->getWeights())[m_current_index],
+            (*m_nlist->getNeighbors())(m_current_index, 0), (*m_nlist->getNeighbors())(m_current_index, 1),
+            (*m_nlist->getDistances())[m_current_index], (*m_nlist->getWeights())[m_current_index],
             (*m_nlist->getVectors())[m_current_index]);
         ++m_current_index;
         m_returned_point_index = nb.getQueryPointIdx();
@@ -183,10 +181,8 @@ void loopOverNeighbors(const NeighborQuery* neighbor_query, const vec3<float>* q
                 for (size_t bond = begin; bond != end; ++bond)
                 {
                     const NeighborBond nb((*nlist->getNeighbors())(bond, 0),
-                            (*nlist->getNeighbors())(bond, 1),
-                            (*nlist->getDistances())[bond],
-                            (*nlist->getWeights())[bond],
-                            (*nlist->getVectors())[bond]);
+                                          (*nlist->getNeighbors())(bond, 1), (*nlist->getDistances())[bond],
+                                          (*nlist->getWeights())[bond], (*nlist->getVectors())[bond]);
                     cf(nb);
                 }
             },

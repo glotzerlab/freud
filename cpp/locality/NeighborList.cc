@@ -11,8 +11,7 @@
 
 namespace freud { namespace locality {
 
-NeighborList::NeighborList()
-    : m_num_query_points(0), m_num_points(0), m_segments_counts_updated(false)
+NeighborList::NeighborList() : m_num_query_points(0), m_num_points(0), m_segments_counts_updated(false)
 {
     m_neighbors = std::make_shared<util::ManagedArray<unsigned int, 2>>();
     m_distances = std::make_shared<util::ManagedArray<float, 1>>();
@@ -130,7 +129,8 @@ NeighborList::NeighborList(std::vector<NeighborBond> bonds)
     m_distances = std::make_shared<util::ManagedArray<float, 1>>(bonds.size());
     m_vectors = std::make_shared<util::ManagedArray<vec3<float>, 1>>(bonds.size());
     m_weights = std::make_shared<util::ManagedArray<float, 1>>(bonds.size());
-    m_neighbors = std::make_shared<util::ManagedArray<unsigned int, 2>>(std::array<size_t, 2> {bonds.size(), 2});
+    m_neighbors
+        = std::make_shared<util::ManagedArray<unsigned int, 2>>(std::array<size_t, 2> {bonds.size(), 2});
 
     // fill arrays in parallel
     util::forLoopWrapper(0, bonds.size(), [&](size_t begin, size_t end) {
@@ -240,7 +240,8 @@ template<typename Iterator> unsigned int NeighborList::filter(Iterator begin)
 
     // Arrays to hold filtered data - we use new arrays instead of writing over
     // existing data to avoid requiring a second pass in resize().
-    auto new_neighbors = std::make_shared<util::ManagedArray<unsigned int, 2>>(std::array<size_t, 2>{new_size, 2});
+    auto new_neighbors
+        = std::make_shared<util::ManagedArray<unsigned int, 2>>(std::array<size_t, 2> {new_size, 2});
     auto new_distances = std::make_shared<util::ManagedArray<float, 1>>(new_size);
     auto new_weights = std::make_shared<util::ManagedArray<float, 1>>(new_size);
     auto new_vectors = std::make_shared<util::ManagedArray<vec3<float>, 1>>(new_size);
@@ -310,7 +311,8 @@ unsigned int NeighborList::find_first_index(unsigned int i) const
 
 void NeighborList::resize(unsigned int num_bonds)
 {
-    auto new_neighbors = std::make_shared<util::ManagedArray<unsigned int, 2>>(std::array<size_t, 2> {num_bonds, 2});
+    auto new_neighbors
+        = std::make_shared<util::ManagedArray<unsigned int, 2>>(std::array<size_t, 2> {num_bonds, 2});
     auto new_distances = std::make_shared<util::ManagedArray<float, 1>>(num_bonds);
     auto new_weights = std::make_shared<util::ManagedArray<float, 1>>(num_bonds);
     auto new_vectors = std::make_shared<util::ManagedArray<vec3<float>, 1>>(num_bonds);
@@ -397,8 +399,8 @@ std::vector<NeighborBond> NeighborList::toBondVector() const
     util::forLoopWrapper(0, num_bonds, [&](size_t begin, size_t end) {
         for (auto bond_idx = begin; bond_idx < end; ++bond_idx)
         {
-            NeighborBond nb((*m_neighbors)(bond_idx, 0), (*m_neighbors)(bond_idx, 1), (*m_distances)(bond_idx),
-                            (*m_weights)(bond_idx), (*m_vectors)(bond_idx));
+            NeighborBond nb((*m_neighbors)(bond_idx, 0), (*m_neighbors)(bond_idx, 1),
+                            (*m_distances)(bond_idx), (*m_weights)(bond_idx), (*m_vectors)(bond_idx));
             bond_vector[bond_idx] = nb;
         }
     });

@@ -39,11 +39,10 @@ namespace freud { namespace util {
 template<typename T, size_t Ndim> class ManagedArray
 {
 public:
-
     constexpr ManagedArray() : m_size(0), m_data()
     {
-        # pragma unroll
-        for (size_t i=0; i<Ndim; ++i)
+#pragma unroll
+        for (size_t i = 0; i < Ndim; ++i)
         {
             m_shape[i] = 0;
         }

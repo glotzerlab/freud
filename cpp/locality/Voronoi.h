@@ -43,9 +43,9 @@ public:
 
 private:
     box::Box m_box;
-    std::shared_ptr<NeighborList> m_neighbor_list;      //!< Stored neighbor list
-    std::vector<std::vector<vec3<double>>> m_polytopes; //!< Voronoi polytopes
-    std::shared_ptr<util::ManagedArray<double, 1>> m_volumes;            //!< Voronoi cell volumes
+    std::shared_ptr<NeighborList> m_neighbor_list;            //!< Stored neighbor list
+    std::vector<std::vector<vec3<double>>> m_polytopes;       //!< Voronoi polytopes
+    std::shared_ptr<util::ManagedArray<double, 1>> m_volumes; //!< Voronoi cell volumes
 };
 }; }; // end namespace freud::locality
 

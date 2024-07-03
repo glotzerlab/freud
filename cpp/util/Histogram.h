@@ -325,7 +325,7 @@ public:
     {
         // First bin the values along each axis.
         std::array<size_t, Ndim> ax_bins;
-        # pragma unroll
+#pragma unroll
         for (unsigned int ax_idx = 0; ax_idx < Ndim; ++ax_idx)
         {
             size_t bin_i = m_axes[ax_idx]->bin(values[ax_idx]);
@@ -370,7 +370,7 @@ public:
     std::array<std::vector<float>, Ndim> getBinEdges() const
     {
         std::array<std::vector<float>, Ndim> bins;
-        # pragma unroll
+#pragma unroll
         for (unsigned int i = 0; i < Ndim; ++i)
         {
             bins[i] = m_axes[i]->getBinEdges();
@@ -384,7 +384,7 @@ public:
     std::array<std::vector<float>, Ndim> getBinCenters() const
     {
         std::array<std::vector<float>, Ndim> bins;
-        # pragma unroll
+#pragma unroll
         for (unsigned int i = 0; i < Ndim; ++i)
         {
             bins[i] = m_axes[i]->getBinCenters();
@@ -396,7 +396,7 @@ public:
     std::array<std::pair<float, float>, Ndim> getBounds() const
     {
         std::array<std::pair<float, float>, Ndim> bounds;
-        # pragma unroll
+#pragma unroll
         for (unsigned int i = 0; i < Ndim; ++i)
         {
             bounds[i] = std::pair<float, float>(m_axes[i]->getMin(), m_axes[i]->getMax());
@@ -408,7 +408,7 @@ public:
     std::array<size_t, Ndim> getAxisSizes() const
     {
         std::array<size_t, Ndim> sizes;
-        # pragma unroll
+#pragma unroll
         for (unsigned int i = 0; i < Ndim; ++i)
         {
             sizes[i] = m_axes[i]->size();
@@ -469,8 +469,8 @@ public:
     }
 
 protected:
-    std::array<std::shared_ptr<Axis>, Ndim> m_axes; //!< The axes.
-    std::shared_ptr<ManagedArray<T, Ndim>> m_bin_counts;              //!< Counts for each bin
+    std::array<std::shared_ptr<Axis>, Ndim> m_axes;      //!< The axes.
+    std::shared_ptr<ManagedArray<T, Ndim>> m_bin_counts; //!< Counts for each bin
 
     //! The base case for type float when constructing a vector of values provided to operator().
     /*! This function and the accompanying recursive function below employ
