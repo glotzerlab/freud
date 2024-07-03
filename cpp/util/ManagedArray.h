@@ -153,7 +153,7 @@ public:
     }
 
     //! Get the shape of the current array.
-    std::array<size_t, Ndim> shape() const
+    const std::array<size_t, Ndim>& shape() const
     {
         return m_shape;
     }
