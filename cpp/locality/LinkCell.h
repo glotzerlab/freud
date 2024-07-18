@@ -75,11 +75,11 @@ public:
     unsigned int begin();
 
 private:
-    util::ManagedArray<unsigned int> m_cell_list; //!< The cell list
-    unsigned int m_Np {0};                           //!< Number of particles in the cell list
-    unsigned int m_Nc {0};                           //!< Number of cells in the cell list
-    unsigned int m_cur_idx {LINK_CELL_TERMINATOR};   //!< Current index
-    unsigned int m_cell {0};                         //!< Cell being considered
+    util::ManagedArray<unsigned int> m_cell_list;  //!< The cell list
+    unsigned int m_Np {0};                         //!< Number of particles in the cell list
+    unsigned int m_Nc {0};                         //!< Number of cells in the cell list
+    unsigned int m_cur_idx {LINK_CELL_TERMINATOR}; //!< Current index
+    unsigned int m_cell {0};                       //!< Cell being considered
 };
 
 //! Iterates over sets of shells in a cell list

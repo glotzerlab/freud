@@ -129,8 +129,7 @@ NeighborList::NeighborList(std::vector<NeighborBond> bonds)
     m_distances = std::make_shared<util::ManagedArray<float>>(bonds.size());
     m_vectors = std::make_shared<util::ManagedArray<vec3<float>>>(bonds.size());
     m_weights = std::make_shared<util::ManagedArray<float>>(bonds.size());
-    m_neighbors
-        = std::make_shared<util::ManagedArray<unsigned int>>(std::vector<size_t> {bonds.size(), 2});
+    m_neighbors = std::make_shared<util::ManagedArray<unsigned int>>(std::vector<size_t> {bonds.size(), 2});
 
     // fill arrays in parallel
     util::forLoopWrapper(0, bonds.size(), [&](size_t begin, size_t end) {

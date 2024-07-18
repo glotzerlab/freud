@@ -252,8 +252,7 @@ public:
      *  \param shape The shape to map indexes to.
      *  \param indices The index in each dimension.
      */
-    static inline size_t getIndex(const std::vector<size_t>& shape,
-                                  const std::vector<size_t>& indices)
+    static inline size_t getIndex(const std::vector<size_t>& shape, const std::vector<size_t>& indices)
     {
         size_t cur_prod = 1;
         size_t idx = 0;
@@ -309,9 +308,9 @@ public:
     }
 
 private:
-    std::vector<T> m_data;            //!< array data.
+    std::vector<T> m_data;       //!< array data.
     std::vector<size_t> m_shape; //!< Shape of array.
-    size_t m_size;                    //!< number of array elements.
+    size_t m_size;               //!< number of array elements.
 };
 
 }; }; // end namespace freud::util

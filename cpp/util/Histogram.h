@@ -472,7 +472,7 @@ public:
     }
 
 protected:
-    std::vector<std::shared_ptr<Axis>> m_axes;      //!< The axes.
+    std::vector<std::shared_ptr<Axis>> m_axes;     //!< The axes.
     std::shared_ptr<ManagedArray<T>> m_bin_counts; //!< Counts for each bin
 
     //! The base case for type float when constructing a vector of values provided to operator().

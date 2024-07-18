@@ -19,8 +19,7 @@ template<typename T> class ThreadStorage
 public:
     //! Default constructor
     ThreadStorage()
-        : arrays(tbb::enumerable_thread_specific<ManagedArray<T>>(
-              []() { return ManagedArray<T>(); }))
+        : arrays(tbb::enumerable_thread_specific<ManagedArray<T>>([]() { return ManagedArray<T>(); }))
     {}
 
     //! Constructor with specific size for thread local arrays
@@ -32,8 +31,8 @@ public:
     /*! \param shape Vector of sizes in each dimension of the thread local arrays
      */
     explicit ThreadStorage(const std::vector<size_t>& shape)
-        : arrays(tbb::enumerable_thread_specific<ManagedArray<T>>(
-              [shape]() { return ManagedArray<T>(shape); }))
+        : arrays(
+              tbb::enumerable_thread_specific<ManagedArray<T>>([shape]() { return ManagedArray<T>(shape); }))
     {}
 
     //! Destructor
@@ -52,8 +51,8 @@ public:
      */
     void resize(std::vector<size_t> shape)
     {
-        arrays = tbb::enumerable_thread_specific<ManagedArray<T>>(
-            [shape]() { return ManagedArray<T>(shape); });
+        arrays
+            = tbb::enumerable_thread_specific<ManagedArray<T>>([shape]() { return ManagedArray<T>(shape); });
     }
 
     //! Reset the contents of thread local arrays to be 0
