@@ -169,7 +169,7 @@ public:
         // cppcheck generates a false positive here on old machines (CI),
         // probably due to limited template support on those compilers.
         // cppcheck-suppress returnTempReference
-        return (*this)(std::vector<size_t> {indices...});
+        return (*this)(buildIndex(indices...));
     }
 
     //! Constant implementation of variadic indexing function.
@@ -178,7 +178,7 @@ public:
         // cppcheck generates a false positive here on old machines (CI),
         // probably due to limited template support on those compilers.
         // cppcheck-suppress returnTempReference
-        return (*this)(std::vector<size_t> {indices...});
+        return (*this)(buildIndex(indices...));
     }
 
     //! Core function for multidimensional indexing.
@@ -234,7 +234,6 @@ public:
         size_t index_size = std::accumulate(shape.cbegin(), shape.cend(), 1, std::multiplies<>());
 
         std::vector<size_t> indices(shape.size());
-
         for (unsigned int i = 0; i < shape.size(); ++i)
         {
             index_size /= shape[i];
@@ -277,6 +276,11 @@ public:
      */
     inline size_t getIndex(const std::vector<size_t>& indices) const
     {
+        if (indices.size() != m_shape.size())
+        {
+            throw std::invalid_argument("Incorrect number of indices for this array.");
+        }
+
         for (unsigned int i = 0; i < indices.size(); ++i)
         {
             if (indices[i] > m_shape[i])
@@ -308,6 +312,30 @@ public:
     }
 
 private:
+    //! The base case for building up the index.
+    /*! These argument building functions are templated on two types, one that
+    std::vector<size_t> m_shape; //!< Shape of array.
+     *  encapsulates the current object being operated on and the other being
+    size_t m_size;               //!< number of array elements.
+     *  the list of remaining arguments. Since users may provide both signed and
+     *  unsigned ints to the function, we perform the appropriate check on each
+     *  Int object. The second function is used for template recursion in
+     *  unwrapping the list of arguments.
+     */
+    template<typename Int> inline static std::vector<size_t> buildIndex(Int index)
+    {
+        return {static_cast<size_t>(index)};
+    }
+
+    //! The recursive case for building up the index (see above).
+    template<typename Int, typename... Ints>
+    inline static std::vector<size_t> buildIndex(Int index, Ints... indices)
+    {
+        std::vector<size_t> tmp = buildIndex(indices...);
+        tmp.insert(tmp.begin(), static_cast<size_t>(index));
+        return tmp;
+    }
+
     std::vector<T> m_data;       //!< array data.
     std::vector<size_t> m_shape; //!< Shape of array.
     size_t m_size;               //!< number of array elements.
