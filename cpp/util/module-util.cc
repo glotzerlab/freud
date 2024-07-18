@@ -11,11 +11,10 @@ using namespace freud::util::detail;
 NB_MODULE(_util, m)
 {
     // python wrapper classes for ManagedArray
-    export_ManagedArray<float, 1>(m, "ManagedArray1d_float");
-    export_ManagedArray<double, 1>(m, "ManagedArray1d_double");
-    export_ManagedArray<unsigned int, 1>(m, "ManagedArray1d_unsignedint");
-    export_ManagedArray<unsigned int, 2>(m, "ManagedArray2d_unsignedint");
-    export_ManagedArray<vec3<float>, 1>(m, "ManagedArray1dVec3_float");
+    export_ManagedArray<float>(m, "ManagedArray_float");
+    export_ManagedArray<double>(m, "ManagedArray_double");
+    export_ManagedArray<unsigned int>(m, "ManagedArray_unsignedint");
+    export_ManagedArray<vec3<float>>(m, "ManagedArrayVec3_float");
 
     // python wrapper class for Vector
     export_Vector<float>(m, "Vector_float");

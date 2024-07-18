@@ -187,7 +187,7 @@ using Axes = std::vector<std::shared_ptr<Axis>>;
  * to operate on the histogram directly. The underlying data is handled using a
  * ManagedArray, allowing dispatch of the multi-dimensional indexing.
  */
-template<typename T, size_t Ndim> class Histogram
+template<typename T> class Histogram
 {
 public:
     //! A container for thread-local copies of a provided histogram.
@@ -260,7 +260,7 @@ public:
         }
 
         // Reduce over histograms into the result array.
-        void reduceInto(ManagedArray<T, Ndim>& result)
+        void reduceInto(ManagedArray<T>& result)
         {
             result.reset();
             util::forLoopWrapper(0, result.size(), [&](size_t begin, size_t end) {
@@ -283,12 +283,12 @@ public:
     Histogram() = default;
 
     //! Constructor
-    explicit Histogram(std::array<std::shared_ptr<Axis>, Ndim> axes) : m_axes(std::move(axes))
+    explicit Histogram(std::vector<std::shared_ptr<Axis>> axes) : m_axes(std::move(axes))
     {
-        std::array<size_t, Ndim> sizes;
+        std::vector<size_t> sizes(m_axes.size());
         std::transform(m_axes.begin(), m_axes.end(), sizes.begin(),
                        [](const auto& ax) { return ax->size(); });
-        m_bin_counts = std::make_shared<ManagedArray<T, Ndim>>(sizes);
+        m_bin_counts = std::make_shared<ManagedArray<T>>(sizes);
     }
 
     //! Destructor
@@ -321,12 +321,19 @@ public:
      *  are then combined into a single linear index using the underlying
      *  ManagedArray.
      */
-    size_t bin(std::array<float, Ndim> values) const
+    size_t bin(std::vector<float> values) const
     {
+        if (values.size() != m_axes.size())
+        {
+            std::ostringstream msg;
+            msg << "This Histogram is " << m_axes.size() << "-dimensional, but " << values.size()
+                << " values were provided in bin" << std::endl;
+            throw std::invalid_argument(msg.str());
+        }
+
         // First bin the values along each axis.
-        std::array<size_t, Ndim> ax_bins;
-#pragma unroll
-        for (unsigned int ax_idx = 0; ax_idx < Ndim; ++ax_idx)
+        std::vector<size_t> ax_bins;
+        for (unsigned int ax_idx = 0; ax_idx < m_axes->size(); ++ax_idx)
         {
             size_t bin_i = m_axes[ax_idx]->bin(values[ax_idx]);
             // Immediately return sentinel if any bin is out of bounds.
@@ -334,26 +341,26 @@ public:
             {
                 return Axis::OVERFLOW_BIN;
             }
-            ax_bins[ax_idx] = bin_i;
+            ax_bins.push_back(bin_i);
         }
 
         return m_bin_counts->getIndex(ax_bins);
     }
 
     //! Return the axes.
-    const std::array<std::shared_ptr<Axis>, Ndim>& getAxes() const
+    const std::vector<std::shared_ptr<Axis>>& getAxes() const
     {
         return m_axes;
     }
 
     //! Get the computed histogram.
-    std::shared_ptr<ManagedArray<T, Ndim>> getBinCounts() const
+    std::shared_ptr<ManagedArray<T>> getBinCounts() const
     {
         return m_bin_counts;
     }
 
     //! Get the shape of the computed histogram.
-    std::array<size_t, Ndim> shape() const
+    std::vector<size_t> shape() const
     {
         return m_bin_counts->shape();
     }
@@ -367,11 +374,10 @@ public:
     //! Return the edges of bins.
     /*! This vector will be of size axis.size()+1 for each axis.
      */
-    std::array<std::vector<float>, Ndim> getBinEdges() const
+    std::vector<std::vector<float>> getBinEdges() const
     {
-        std::array<std::vector<float>, Ndim> bins;
-#pragma unroll
-        for (unsigned int i = 0; i < Ndim; ++i)
+        std::vector<std::vector<float>> bins(m_axes.size());
+        for (unsigned int i = 0; i < m_axes.size(); ++i)
         {
             bins[i] = m_axes[i]->getBinEdges();
         }
@@ -381,11 +387,10 @@ public:
     //! Return the bin centers.
     /*! This vector will be of size axis.size() for each axis.
      */
-    std::array<std::vector<float>, Ndim> getBinCenters() const
+    std::vector<std::vector<float>> getBinCenters() const
     {
-        std::array<std::vector<float>, Ndim> bins;
-#pragma unroll
-        for (unsigned int i = 0; i < Ndim; ++i)
+        std::vector<std::vector<float>> bins(m_axes.size());
+        for (unsigned int i = 0; i < m_axes.size(); ++i)
         {
             bins[i] = m_axes[i]->getBinCenters();
         }
@@ -393,11 +398,10 @@ public:
     }
 
     //! Return a vector of tuples (min, max) indicating the bounds of each axis.
-    std::array<std::pair<float, float>, Ndim> getBounds() const
+    std::vector<std::pair<float, float>> getBounds() const
     {
-        std::array<std::pair<float, float>, Ndim> bounds;
-#pragma unroll
-        for (unsigned int i = 0; i < Ndim; ++i)
+        std::vector<std::pair<float, float>, Ndim> bounds(m_axes.size());
+        for (unsigned int i = 0; i < m_axes.size(); ++i)
         {
             bounds[i] = std::pair<float, float>(m_axes[i]->getMin(), m_axes[i]->getMax());
         }
@@ -407,9 +411,8 @@ public:
     //! Return a vector indicating the number of bins in each axis.
     std::array<size_t, Ndim> getAxisSizes() const
     {
-        std::array<size_t, Ndim> sizes;
-#pragma unroll
-        for (unsigned int i = 0; i < Ndim; ++i)
+        std::vector<size_t> sizes(m_axes.size());
+        for (unsigned int i = 0; i < m_axes.size(); ++i)
         {
             sizes[i] = m_axes[i]->size();
         }
@@ -469,8 +472,8 @@ public:
     }
 
 protected:
-    std::array<std::shared_ptr<Axis>, Ndim> m_axes;      //!< The axes.
-    std::shared_ptr<ManagedArray<T, Ndim>> m_bin_counts; //!< Counts for each bin
+    std::vector<std::shared_ptr<Axis>> m_axes;      //!< The axes.
+    std::shared_ptr<ManagedArray<T>> m_bin_counts; //!< Counts for each bin
 
     //! The base case for type float when constructing a vector of values provided to operator().
     /*! This function and the accompanying recursive function below employ

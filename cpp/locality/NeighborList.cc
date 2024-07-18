@@ -13,23 +13,23 @@ namespace freud { namespace locality {
 
 NeighborList::NeighborList() : m_num_query_points(0), m_num_points(0), m_segments_counts_updated(false)
 {
-    m_neighbors = std::make_shared<util::ManagedArray<unsigned int, 2>>();
-    m_distances = std::make_shared<util::ManagedArray<float, 1>>();
-    m_weights = std::make_shared<util::ManagedArray<float, 1>>();
-    m_vectors = std::make_shared<util::ManagedArray<vec3<float>, 1>>();
-    m_segments = std::make_shared<util::ManagedArray<unsigned int, 1>>();
-    m_counts = std::make_shared<util::ManagedArray<unsigned int, 1>>();
+    m_neighbors = std::make_shared<util::ManagedArray<unsigned int>>();
+    m_distances = std::make_shared<util::ManagedArray<float>>();
+    m_weights = std::make_shared<util::ManagedArray<float>>();
+    m_vectors = std::make_shared<util::ManagedArray<vec3<float>>>();
+    m_segments = std::make_shared<util::ManagedArray<unsigned int>>();
+    m_counts = std::make_shared<util::ManagedArray<unsigned int>>();
 }
 
 NeighborList::NeighborList(unsigned int num_bonds)
     : m_num_query_points(0), m_num_points(0), m_segments_counts_updated(false)
 {
-    m_neighbors = std::make_shared<util::ManagedArray<unsigned int, 2>>(std::array<size_t, 2> {num_bonds, 2});
-    m_distances = std::make_shared<util::ManagedArray<float, 1>>(num_bonds);
-    m_weights = std::make_shared<util::ManagedArray<float, 1>>(num_bonds);
-    m_vectors = std::make_shared<util::ManagedArray<vec3<float>, 1>>(num_bonds);
-    m_segments = std::make_shared<util::ManagedArray<unsigned int, 1>>();
-    m_counts = std::make_shared<util::ManagedArray<unsigned int, 1>>();
+    m_neighbors = std::make_shared<util::ManagedArray<unsigned int>>(std::vector<size_t> {num_bonds, 2});
+    m_distances = std::make_shared<util::ManagedArray<float>>(num_bonds);
+    m_weights = std::make_shared<util::ManagedArray<float>>(num_bonds);
+    m_vectors = std::make_shared<util::ManagedArray<vec3<float>>>(num_bonds);
+    m_segments = std::make_shared<util::ManagedArray<unsigned int>>();
+    m_counts = std::make_shared<util::ManagedArray<unsigned int>>();
 }
 
 NeighborList::NeighborList(const NeighborList& other)
@@ -44,12 +44,12 @@ NeighborList::NeighborList(unsigned int num_bonds, const unsigned int* query_poi
                            unsigned int num_points, const vec3<float>* vectors, const float* weights)
     : m_num_query_points(num_query_points), m_num_points(num_points), m_segments_counts_updated(false)
 {
-    m_neighbors = std::make_shared<util::ManagedArray<unsigned int, 2>>(std::array<size_t, 2> {num_bonds, 2});
-    m_distances = std::make_shared<util::ManagedArray<float, 1>>(num_bonds);
-    m_weights = std::make_shared<util::ManagedArray<float, 1>>(num_bonds);
-    m_vectors = std::make_shared<util::ManagedArray<vec3<float>, 1>>(num_bonds);
-    m_segments = std::make_shared<util::ManagedArray<unsigned int, 1>>(num_query_points);
-    m_counts = std::make_shared<util::ManagedArray<unsigned int, 1>>(num_query_points);
+    m_neighbors = std::make_shared<util::ManagedArray<unsigned int>>(std::vector<size_t> {num_bonds, 2});
+    m_distances = std::make_shared<util::ManagedArray<float>>(num_bonds);
+    m_weights = std::make_shared<util::ManagedArray<float>>(num_bonds);
+    m_vectors = std::make_shared<util::ManagedArray<vec3<float>>>(num_bonds);
+    m_segments = std::make_shared<util::ManagedArray<unsigned int>>(num_query_points);
+    m_counts = std::make_shared<util::ManagedArray<unsigned int>>(num_query_points);
     unsigned int last_index(0);
     for (unsigned int i = 0; i < num_bonds; i++)
     {
@@ -81,12 +81,12 @@ NeighborList::NeighborList(const vec3<float>* points, const vec3<float>* query_p
     const unsigned int num_ii = (exclude_ii ? std::min(num_points, num_query_points) : 0);
     const unsigned int num_bonds = num_points * num_query_points - num_ii;
 
-    m_neighbors = std::make_shared<util::ManagedArray<unsigned int, 2>>(std::array<size_t, 2> {num_bonds, 2});
-    m_distances = std::make_shared<util::ManagedArray<float, 1>>(num_bonds);
-    m_weights = std::make_shared<util::ManagedArray<float, 1>>(num_bonds);
-    m_vectors = std::make_shared<util::ManagedArray<vec3<float>, 1>>(num_bonds);
-    m_segments = std::make_shared<util::ManagedArray<unsigned int, 1>>(num_query_points);
-    m_counts = std::make_shared<util::ManagedArray<unsigned int, 1>>(num_query_points);
+    m_neighbors = std::make_shared<util::ManagedArray<unsigned int>>(std::vector<size_t> {num_bonds, 2});
+    m_distances = std::make_shared<util::ManagedArray<float>>(num_bonds);
+    m_weights = std::make_shared<util::ManagedArray<float>>(num_bonds);
+    m_vectors = std::make_shared<util::ManagedArray<vec3<float>>>(num_bonds);
+    m_segments = std::make_shared<util::ManagedArray<unsigned int>>(num_query_points);
+    m_counts = std::make_shared<util::ManagedArray<unsigned int>>(num_query_points);
 
     util::forLoopWrapper(0, num_query_points, [&](size_t begin, size_t end) {
         for (unsigned int i = begin; i < end; ++i)
@@ -126,11 +126,11 @@ NeighborList::NeighborList(std::vector<NeighborBond> bonds)
     MaxIndex max_idx_point = 0;
 
     // prep arrays to populate
-    m_distances = std::make_shared<util::ManagedArray<float, 1>>(bonds.size());
-    m_vectors = std::make_shared<util::ManagedArray<vec3<float>, 1>>(bonds.size());
-    m_weights = std::make_shared<util::ManagedArray<float, 1>>(bonds.size());
+    m_distances = std::make_shared<util::ManagedArray<float>>(bonds.size());
+    m_vectors = std::make_shared<util::ManagedArray<vec3<float>>>(bonds.size());
+    m_weights = std::make_shared<util::ManagedArray<float>>(bonds.size());
     m_neighbors
-        = std::make_shared<util::ManagedArray<unsigned int, 2>>(std::array<size_t, 2> {bonds.size(), 2});
+        = std::make_shared<util::ManagedArray<unsigned int>>(std::vector<size_t> {bonds.size(), 2});
 
     // fill arrays in parallel
     util::forLoopWrapper(0, bonds.size(), [&](size_t begin, size_t end) {
@@ -162,8 +162,8 @@ NeighborList::NeighborList(std::vector<NeighborBond> bonds)
     // set num points, query points as max of thread-local maxes
     m_num_points = (*std::max_element(max_idx_point.begin(), max_idx_point.end())) + 1;
     m_num_query_points = (*std::max_element(max_idx_query.begin(), max_idx_query.end())) + 1;
-    m_segments = std::make_shared<util::ManagedArray<unsigned int, 1>>(m_num_query_points);
-    m_counts = std::make_shared<util::ManagedArray<unsigned int, 1>>(m_num_query_points);
+    m_segments = std::make_shared<util::ManagedArray<unsigned int>>(m_num_query_points);
+    m_counts = std::make_shared<util::ManagedArray<unsigned int>>(m_num_query_points);
     m_segments_counts_updated = false;
 }
 
@@ -194,8 +194,8 @@ void NeighborList::updateSegmentCounts() const
 {
     if (!m_segments_counts_updated)
     {
-        m_counts = std::make_shared<util::ManagedArray<unsigned int, 1>>(m_num_query_points);
-        m_segments = std::make_shared<util::ManagedArray<unsigned int, 1>>(m_num_query_points);
+        m_counts = std::make_shared<util::ManagedArray<unsigned int>>(m_num_query_points);
+        m_segments = std::make_shared<util::ManagedArray<unsigned int>>(m_num_query_points);
         const unsigned int INDEX_TERMINATOR(0xffffffff);
         unsigned int last_index(INDEX_TERMINATOR);
         unsigned int counter(0);
@@ -241,10 +241,10 @@ template<typename Iterator> unsigned int NeighborList::filter(Iterator begin)
     // Arrays to hold filtered data - we use new arrays instead of writing over
     // existing data to avoid requiring a second pass in resize().
     auto new_neighbors
-        = std::make_shared<util::ManagedArray<unsigned int, 2>>(std::array<size_t, 2> {new_size, 2});
-    auto new_distances = std::make_shared<util::ManagedArray<float, 1>>(new_size);
-    auto new_weights = std::make_shared<util::ManagedArray<float, 1>>(new_size);
-    auto new_vectors = std::make_shared<util::ManagedArray<vec3<float>, 1>>(new_size);
+        = std::make_shared<util::ManagedArray<unsigned int>>(std::vector<size_t> {new_size, 2});
+    auto new_distances = std::make_shared<util::ManagedArray<float>>(new_size);
+    auto new_weights = std::make_shared<util::ManagedArray<float>>(new_size);
+    auto new_vectors = std::make_shared<util::ManagedArray<vec3<float>>>(new_size);
 
     auto current_element = begin;
     unsigned int num_good(0);
@@ -312,10 +312,10 @@ unsigned int NeighborList::find_first_index(unsigned int i) const
 void NeighborList::resize(unsigned int num_bonds)
 {
     auto new_neighbors
-        = std::make_shared<util::ManagedArray<unsigned int, 2>>(std::array<size_t, 2> {num_bonds, 2});
-    auto new_distances = std::make_shared<util::ManagedArray<float, 1>>(num_bonds);
-    auto new_weights = std::make_shared<util::ManagedArray<float, 1>>(num_bonds);
-    auto new_vectors = std::make_shared<util::ManagedArray<vec3<float>, 1>>(num_bonds);
+        = std::make_shared<util::ManagedArray<unsigned int>>(std::vector<size_t> {num_bonds, 2});
+    auto new_distances = std::make_shared<util::ManagedArray<float>>(num_bonds);
+    auto new_weights = std::make_shared<util::ManagedArray<float>>(num_bonds);
+    auto new_vectors = std::make_shared<util::ManagedArray<vec3<float>>>(num_bonds);
 
     // On shrinking resizes, keep existing data.
     if (num_bonds <= getNumBonds())
@@ -342,12 +342,12 @@ void NeighborList::copy(const NeighborList& other)
     m_num_query_points = other.m_num_query_points;
     m_num_points = other.m_num_points;
     m_segments_counts_updated = other.m_segments_counts_updated;
-    m_neighbors = std::make_shared<util::ManagedArray<unsigned int, 2>>(*other.m_neighbors);
-    m_distances = std::make_shared<util::ManagedArray<float, 1>>(*other.m_distances);
-    m_weights = std::make_shared<util::ManagedArray<float, 1>>(*other.m_weights);
-    m_vectors = std::make_shared<util::ManagedArray<vec3<float>, 1>>(*other.m_vectors);
-    m_segments = std::make_shared<util::ManagedArray<unsigned int, 1>>(*other.m_segments);
-    m_counts = std::make_shared<util::ManagedArray<unsigned int, 1>>(*other.m_counts);
+    m_neighbors = std::make_shared<util::ManagedArray<unsigned int>>(*other.m_neighbors);
+    m_distances = std::make_shared<util::ManagedArray<float>>(*other.m_distances);
+    m_weights = std::make_shared<util::ManagedArray<float>>(*other.m_weights);
+    m_vectors = std::make_shared<util::ManagedArray<vec3<float>>>(*other.m_vectors);
+    m_segments = std::make_shared<util::ManagedArray<unsigned int>>(*other.m_segments);
+    m_counts = std::make_shared<util::ManagedArray<unsigned int>>(*other.m_counts);
 }
 
 void NeighborList::validate(unsigned int num_query_points, unsigned int num_points) const

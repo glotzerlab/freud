@@ -15,26 +15,28 @@ namespace freud { namespace util {
 
 namespace wrap {
 
-template<typename T, size_t Ndim> struct ManagedArrayWrapper
+template<typename T> struct ManagedArrayWrapper
 {
     static nanobind::ndarray<nanobind::numpy, const T> toNumpyArray(nanobind::object self)
     {
-        ManagedArray<T, Ndim>* self_cpp = nanobind::cast<ManagedArray<T, Ndim>*>(self);
+        ManagedArray<T>* self_cpp = nanobind::cast<ManagedArray<T>*>(self);
         auto dims = self_cpp->shape();
+        auto ndim = dims.size();
         auto data_ptr = self_cpp->data();
-        return nanobind::ndarray<nanobind::numpy, const T>((void*) data_ptr, Ndim, &dims[0], self);
+        return nanobind::ndarray<nanobind::numpy, const T>((void*) data_ptr, ndim, &dims[0], self);
     }
 };
 
 /* Need to alter array dimensions when returning an array of vec3*/
-template<typename T, size_t Ndim> struct ManagedArrayWrapper<vec3<T>, Ndim>
+template<typename T> struct ManagedArrayWrapper<vec3<T>>
 {
     static nanobind::ndarray<nanobind::numpy, const T> toNumpyArray(nanobind::object self)
     {
-        ManagedArray<vec3<T>, Ndim>* self_cpp = nanobind::cast<ManagedArray<vec3<T>, Ndim>*>(self);
+        ManagedArray<vec3<T>>* self_cpp = nanobind::cast<ManagedArray<vec3<T>>*>(self);
 
         // get array data like before
         auto dims = self_cpp->shape();
+        auto Ndim = dims.size();
         auto data_ptr = self_cpp->data();
 
         // update the dimensions so it gets exposed to python the right way
@@ -51,10 +53,10 @@ template<typename T, size_t Ndim> struct ManagedArrayWrapper<vec3<T>, Ndim>
 
 namespace detail {
 
-template<typename T, size_t Ndim> void export_ManagedArray(nanobind::module_& m, const std::string& name)
+template<typename T> void export_ManagedArray(nanobind::module_& m, const std::string& name)
 {
-    nanobind::class_<ManagedArray<T, Ndim>>(m, name.c_str())
-        .def("toNumpyArray", &wrap::ManagedArrayWrapper<T, Ndim>::toNumpyArray);
+    nanobind::class_<ManagedArray<T>>(m, name.c_str())
+        .def("toNumpyArray", &wrap::ManagedArrayWrapper<T>::toNumpyArray);
 }
 
 }; // namespace detail
