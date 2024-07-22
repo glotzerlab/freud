@@ -57,37 +57,37 @@ public:
     void updateSegmentCounts() const;
 
     //! Access the neighbors array for reading
-    std::shared_ptr<util::ManagedArray<unsigned int, 2>> getNeighbors() const
+    std::shared_ptr<util::ManagedArray<unsigned int>> getNeighbors() const
     {
         return m_neighbors;
     }
 
     //! Access the distances array for reading
-    std::shared_ptr<util::ManagedArray<float, 1>> getDistances() const
+    std::shared_ptr<util::ManagedArray<float>> getDistances() const
     {
         return m_distances;
     }
 
     //! Access the weights array for reading
-    std::shared_ptr<util::ManagedArray<float, 1>> getWeights() const
+    std::shared_ptr<util::ManagedArray<float>> getWeights() const
     {
         return m_weights;
     }
 
     //! Access the vectors array for reading
-    std::shared_ptr<util::ManagedArray<vec3<float>, 1>> getVectors() const
+    std::shared_ptr<util::ManagedArray<vec3<float>>> getVectors() const
     {
         return m_vectors;
     }
 
     //! Access the counts array for reading
-    std::shared_ptr<util::ManagedArray<unsigned int, 1>> getCounts() const
+    std::shared_ptr<util::ManagedArray<unsigned int>> getCounts() const
     {
         updateSegmentCounts();
         return m_counts;
     }
     //! Access the segments array for reading
-    std::shared_ptr<util::ManagedArray<unsigned int, 1>> getSegments() const
+    std::shared_ptr<util::ManagedArray<unsigned int>> getSegments() const
     {
         updateSegmentCounts();
         return m_segments;
@@ -139,20 +139,20 @@ private:
     //! Number of points
     unsigned int m_num_points;
     //! Neighbor list indices array
-    std::shared_ptr<util::ManagedArray<unsigned int, 2>> m_neighbors;
+    std::shared_ptr<util::ManagedArray<unsigned int>> m_neighbors;
     //! Neighbor list per-bond distance array
-    std::shared_ptr<util::ManagedArray<float, 1>> m_distances;
+    std::shared_ptr<util::ManagedArray<float>> m_distances;
     //! Neighbor list per-bond weight array
-    std::shared_ptr<util::ManagedArray<float, 1>> m_weights;
+    std::shared_ptr<util::ManagedArray<float>> m_weights;
     //!< Directed vectors per-bond array
-    std::shared_ptr<util::ManagedArray<vec3<float>, 1>> m_vectors;
+    std::shared_ptr<util::ManagedArray<vec3<float>>> m_vectors;
 
     //! Track whether segments and counts are up to date
     mutable bool m_segments_counts_updated;
     //! Neighbor counts for each query point
-    mutable std::shared_ptr<util::ManagedArray<unsigned int, 1>> m_counts;
+    mutable std::shared_ptr<util::ManagedArray<unsigned int>> m_counts;
     //! Neighbor segments for each query point
-    mutable std::shared_ptr<util::ManagedArray<unsigned int, 1>> m_segments;
+    mutable std::shared_ptr<util::ManagedArray<unsigned int>> m_segments;
 };
 
 bool compareNeighborBond(const NeighborBond& left, const NeighborBond& right);

@@ -21,7 +21,6 @@ template<typename T> struct VectorWrapper
     {
         std::vector<T>* self_cpp = nanobind::cast<std::vector<T>*>(self);
         auto dims = {self_cpp->size()};
-        auto ndim = 1;
         auto data_ptr = self_cpp->data();
         return nanobind::ndarray<nanobind::numpy, const T>((void*) data_ptr, dims, self);
     }
@@ -37,7 +36,6 @@ template<typename T> struct VectorWrapper<vec3<T>>
         // get array data like before
         size_t size = self_cpp->size();
         std::initializer_list<size_t> dims = {size, 3};
-        auto ndim = 2;
         auto data_ptr = self_cpp->data();
 
         // now return the array

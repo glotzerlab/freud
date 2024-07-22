@@ -14,26 +14,25 @@ namespace freud { namespace util {
 //! Wrapper class for enumerable_thread_specific<T*>
 /*! It is expected that default value for T is 0.
  */
-template<typename T, size_t Ndim> class ThreadStorage
+template<typename T> class ThreadStorage
 {
 public:
     //! Default constructor
     ThreadStorage()
-        : arrays(tbb::enumerable_thread_specific<ManagedArray<T, Ndim>>(
-              []() { return ManagedArray<T, Ndim>(); }))
+        : arrays(tbb::enumerable_thread_specific<ManagedArray<T>>([]() { return ManagedArray<T>(); }))
     {}
 
     //! Constructor with specific size for thread local arrays
     /*! \param size Size of the thread local arrays
      */
-    explicit ThreadStorage(size_t size) : ThreadStorage(std::array<size_t, Ndim> {size}) {}
+    explicit ThreadStorage(size_t size) : ThreadStorage(std::vector<size_t> {size}) {}
 
     //! Constructor with specific shape for thread local arrays
     /*! \param shape Vector of sizes in each dimension of the thread local arrays
      */
-    explicit ThreadStorage(const std::array<size_t, Ndim>& shape)
-        : arrays(tbb::enumerable_thread_specific<ManagedArray<T, Ndim>>(
-              [shape]() { return ManagedArray<T, Ndim>(shape); }))
+    explicit ThreadStorage(const std::vector<size_t>& shape)
+        : arrays(
+              tbb::enumerable_thread_specific<ManagedArray<T>>([shape]() { return ManagedArray<T>(shape); }))
     {}
 
     //! Destructor
@@ -44,16 +43,16 @@ public:
      */
     void resize(size_t size)
     {
-        resize(std::array<size_t, 1> {size});
+        resize(std::vector<size_t> {size});
     }
 
     //! Update size of the thread local arrays
     /*! \param size New size of the thread local arrays
      */
-    void resize(std::array<size_t, Ndim> shape)
+    void resize(std::vector<size_t> shape)
     {
-        arrays = tbb::enumerable_thread_specific<ManagedArray<T, Ndim>>(
-            [shape]() { return ManagedArray<T, Ndim>(shape); });
+        arrays
+            = tbb::enumerable_thread_specific<ManagedArray<T>>([shape]() { return ManagedArray<T>(shape); });
     }
 
     //! Reset the contents of thread local arrays to be 0
@@ -94,7 +93,7 @@ public:
         return arrays.local();
     }
 
-    void reduceInto(ManagedArray<T, Ndim>& result)
+    void reduceInto(ManagedArray<T>& result)
     {
         if (arrays.size() == 0)
         {
@@ -119,7 +118,7 @@ public:
     }
 
 private:
-    tbb::enumerable_thread_specific<ManagedArray<T, Ndim>> arrays; //!< thread local arrays
+    tbb::enumerable_thread_specific<ManagedArray<T>> arrays; //!< thread local arrays
 };
 
 }; }; // end namespace freud::util

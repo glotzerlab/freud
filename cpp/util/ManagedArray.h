@@ -36,29 +36,19 @@ namespace freud { namespace util {
  *         indexed into, the index may be computed once using the getIndex
  *         function and reused to avoid recomputing it each time.
  */
-template<typename T, size_t Ndim> class ManagedArray
+template<typename T> class ManagedArray
 {
 public:
-    constexpr ManagedArray() : m_size(0), m_data()
-    {
-#pragma unroll
-        for (size_t i = 0; i < Ndim; ++i)
-        {
-            m_shape[i] = 0;
-        }
-    }
-
     //! Constructor based on a shape tuple.
     /*! Including a default value for the shape allows the usage of this
      *  constructor as the default constructor.
      *
      *  \param shape Shape of the array to allocate.
      */
-    explicit ManagedArray(const std::array<size_t, Ndim>& shape) : m_shape(shape)
+    explicit ManagedArray(const std::vector<size_t>& shape = {0}) : m_shape(shape)
     {
         m_size = 1;
-#pragma unroll
-        for (unsigned int i = 0; i < Ndim; ++i)
+        for (unsigned int i = 0; i < shape.size(); ++i)
         {
             m_size *= m_shape[i];
         }
@@ -73,16 +63,14 @@ public:
      *
      *  \param shape Shape of the array to allocate.
      */
-    explicit ManagedArray(size_t size) : ManagedArray(std::array<size_t, 1> {size}) {}
+    explicit ManagedArray(size_t size) : ManagedArray(std::vector<size_t> {size}) {}
 
     /**
      * Copy constructor
      * */
     ManagedArray(const ManagedArray& other)
+        : m_shape(other.m_shape), m_size(other.m_size), m_data(std::vector<T>(other.m_size))
     {
-        m_shape = other.m_shape;
-        m_size = other.m_size;
-        m_data = std::vector<T>(other.m_size);
         for (unsigned int i = 0; i < m_size; ++i)
         {
             m_data[i] = other.m_data[i];
@@ -153,7 +141,7 @@ public:
     }
 
     //! Get the shape of the current array.
-    const std::array<size_t, Ndim>& shape() const
+    const std::vector<size_t>& shape() const
     {
         return m_shape;
     }
@@ -181,7 +169,7 @@ public:
         // cppcheck generates a false positive here on old machines (CI),
         // probably due to limited template support on those compilers.
         // cppcheck-suppress returnTempReference
-        return (*this)(std::array<size_t, Ndim> {indices...});
+        return (*this)(buildIndex(indices...));
     }
 
     //! Constant implementation of variadic indexing function.
@@ -190,7 +178,7 @@ public:
         // cppcheck generates a false positive here on old machines (CI),
         // probably due to limited template support on those compilers.
         // cppcheck-suppress returnTempReference
-        return (*this)(std::array<size_t, Ndim> {indices...});
+        return (*this)(buildIndex(indices...));
     }
 
     //! Core function for multidimensional indexing.
@@ -203,15 +191,14 @@ public:
      * become a performance bottleneck when used in highly performance critical
      * code paths.
      */
-    inline T& operator()(const std::array<size_t, Ndim>& indices)
+    inline T& operator()(const std::vector<size_t>& indices)
     {
         size_t cur_prod = 1;
         size_t idx = 0;
-// In getting the linear bin, we must iterate over bins in reverse
-// order to build up the value of cur_prod because each subsequent axis
-// contributes less according to row-major ordering.
-#pragma unroll
-        for (unsigned int i = Ndim - 1; i != static_cast<unsigned int>(-1); --i)
+        // In getting the linear bin, we must iterate over bins in reverse
+        // order to build up the value of cur_prod because each subsequent axis
+        // contributes less according to row-major ordering.
+        for (unsigned int i = indices.size() - 1; i != static_cast<unsigned int>(-1); --i)
         {
             idx += indices[i] * cur_prod;
             cur_prod *= m_shape[i];
@@ -220,15 +207,14 @@ public:
     }
 
     //! Const version of core function for multidimensional indexing.
-    inline const T& operator()(const std::array<size_t, Ndim>& indices) const
+    inline const T& operator()(const std::vector<size_t>& indices) const
     {
         size_t cur_prod = 1;
         size_t idx = 0;
-// In getting the linear bin, we must iterate over bins in reverse
-// order to build up the value of cur_prod because each subsequent axis
-// contributes less according to row-major ordering.
-#pragma unroll
-        for (unsigned int i = Ndim - 1; i != static_cast<unsigned int>(-1); --i)
+        // In getting the linear bin, we must iterate over bins in reverse
+        // order to build up the value of cur_prod because each subsequent axis
+        // contributes less according to row-major ordering.
+        for (unsigned int i = indices.size() - 1; i != static_cast<unsigned int>(-1); --i)
         {
             idx += indices[i] * cur_prod;
             cur_prod *= m_shape[i];
@@ -243,14 +229,12 @@ public:
      *  \param shape The shape to map indexes to.
      *  \param indices The index in each dimension.
      */
-    static inline std::array<size_t, Ndim> getMultiIndex(const std::array<size_t, Ndim>& shape, size_t index)
+    static inline std::vector<size_t> getMultiIndex(const std::vector<size_t>& shape, size_t index)
     {
         size_t index_size = std::accumulate(shape.cbegin(), shape.cend(), 1, std::multiplies<>());
 
-        std::array<size_t, Ndim> indices;
-
-#pragma unroll
-        for (unsigned int i = 0; i < Ndim; ++i)
+        std::vector<size_t> indices(shape.size());
+        for (unsigned int i = 0; i < shape.size(); ++i)
         {
             index_size /= shape[i];
             // Integer division should cast away extras.
@@ -267,16 +251,14 @@ public:
      *  \param shape The shape to map indexes to.
      *  \param indices The index in each dimension.
      */
-    static inline size_t getIndex(const std::array<size_t, Ndim>& shape,
-                                  const std::array<size_t, Ndim>& indices)
+    static inline size_t getIndex(const std::vector<size_t>& shape, const std::vector<size_t>& indices)
     {
         size_t cur_prod = 1;
         size_t idx = 0;
-// In getting the linear bin, we must iterate over bins in reverse
-// order to build up the value of cur_prod because each subsequent axis
-// contributes less according to row-major ordering.
-#pragma unroll
-        for (unsigned int i = Ndim - 1; i != static_cast<unsigned int>(-1); --i)
+        // In getting the linear bin, we must iterate over bins in reverse
+        // order to build up the value of cur_prod because each subsequent axis
+        // contributes less according to row-major ordering.
+        for (unsigned int i = indices.size() - 1; i != static_cast<unsigned int>(-1); --i)
         {
             idx += indices[i] * cur_prod;
             cur_prod *= shape[i];
@@ -292,10 +274,14 @@ public:
      *
      *  \param indices The index in each dimension.
      */
-    inline size_t getIndex(const std::array<size_t, Ndim>& indices) const
+    inline size_t getIndex(const std::vector<size_t>& indices) const
     {
-#pragma unroll
-        for (unsigned int i = 0; i < Ndim; ++i)
+        if (indices.size() != m_shape.size())
+        {
+            throw std::invalid_argument("Incorrect number of indices for this array.");
+        }
+
+        for (unsigned int i = 0; i < indices.size(); ++i)
         {
             if (indices[i] > m_shape[i])
             {
@@ -326,16 +312,34 @@ public:
     }
 
 private:
-    std::vector<T> m_data;            //!< array data.
-    std::array<size_t, Ndim> m_shape; //!< Shape of array.
-    size_t m_size;                    //!< number of array elements.
-};
+    //! The base case for building up the index.
+    /*! These argument building functions are templated on two types, one that
+    std::vector<size_t> m_shape; //!< Shape of array.
+     *  encapsulates the current object being operated on and the other being
+    size_t m_size;               //!< number of array elements.
+     *  the list of remaining arguments. Since users may provide both signed and
+     *  unsigned ints to the function, we perform the appropriate check on each
+     *  Int object. The second function is used for template recursion in
+     *  unwrapping the list of arguments.
+     */
+    template<typename Int> inline static std::vector<size_t> buildIndex(Int index)
+    {
+        return {static_cast<size_t>(index)};
+    }
 
-// explicit instantiations for python extension modules
-template class ManagedArray<float, 1>;
-template class ManagedArray<double, 1>;
-template class ManagedArray<unsigned int, 1>;
-template class ManagedArray<vec3<float>, 1>;
+    //! The recursive case for building up the index (see above).
+    template<typename Int, typename... Ints>
+    inline static std::vector<size_t> buildIndex(Int index, Ints... indices)
+    {
+        std::vector<size_t> tmp = buildIndex(indices...);
+        tmp.insert(tmp.begin(), static_cast<size_t>(index));
+        return tmp;
+    }
+
+    std::vector<T> m_data;       //!< array data.
+    std::vector<size_t> m_shape; //!< Shape of array.
+    size_t m_size;               //!< number of array elements.
+};
 
 }; }; // end namespace freud::util
 

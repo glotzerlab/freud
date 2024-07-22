@@ -309,7 +309,7 @@ void LinkCell::computeCellList(const vec3<float>* points, unsigned int n_points)
 {
     // determine the number of cells and allocate memory
     unsigned int Nc = getNumCells();
-    m_cell_list = util::ManagedArray<unsigned int, 1>(n_points + Nc);
+    m_cell_list = util::ManagedArray<unsigned int>(n_points + Nc);
     m_n_points = n_points;
 
     // initialize memory
@@ -329,8 +329,8 @@ void LinkCell::computeCellList(const vec3<float>* points, unsigned int n_points)
 
 vec3<unsigned int> LinkCell::indexToCoord(unsigned int x) const
 {
-    std::array<size_t, 3> coord
-        = util::ManagedArray<unsigned int, 3>::getMultiIndex({m_celldim.x, m_celldim.y, m_celldim.z}, x);
+    std::vector<size_t> coord
+        = util::ManagedArray<unsigned int>::getMultiIndex({m_celldim.x, m_celldim.y, m_celldim.z}, x);
     // For backwards compatibility with the Index1D layout, the indices and
     // the dimensions are passed in reverse to the indexer. Changing this would
     // also require updating the logic in IteratorCellShell.
@@ -342,7 +342,7 @@ unsigned int LinkCell::coordToIndex(unsigned int x, unsigned int y, unsigned int
     // For backwards compatibility with the Index1D layout, the indices and
     // the dimensions are passed in reverse to the indexer. Changing this would
     // also require updating the logic in IteratorCellShell.
-    return util::ManagedArray<unsigned int, 3>::getIndex(
+    return util::ManagedArray<unsigned int>::getIndex(
         {m_celldim.z, m_celldim.y, m_celldim.x},
         {static_cast<unsigned int>(z), static_cast<unsigned int>(y), static_cast<unsigned int>(x)});
 }

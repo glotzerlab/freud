@@ -23,7 +23,7 @@ void Voronoi::compute(std::shared_ptr<freud::locality::NeighborQuery> nq)
     const auto n_points = nq->getNPoints();
 
     m_polytopes.resize(n_points);
-    m_volumes = std::make_shared<util::ManagedArray<double, 1>>(n_points);
+    m_volumes = std::make_shared<util::ManagedArray<double>>(n_points);
 
     const vec3<float> v1 = m_box.getLatticeVector(0);
     const vec3<float> v2 = m_box.getLatticeVector(1);
