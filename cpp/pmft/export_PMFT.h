@@ -12,9 +12,9 @@ namespace freud { namespace pmft {
 namespace detail
 {
 
-void export_PMFT(nanobind::module& m, const std::string& name)
+void export_PMFT(nanobind::module_& m)
 {
-    nanobind::class_<PMFT, BondHistogramCompute>(m, name)
+    nanobind::class_<PMFT, locality::BondHistogramCompute>(m, "PMFT")
         .def("getPCF", &PMFT::getPCF);
 }
 

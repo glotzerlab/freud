@@ -1,4 +1,4 @@
-set(pmft_extension_sources export_PMFT.cc)
+set(pmft_extension_sources export_PMFT.h)
 
 nanobind_add_module(_pmft ${freud_nanobind_linking} module-pmft.cc
   ${pmft_extension_sources})

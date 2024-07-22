@@ -46,7 +46,7 @@ public:
     }
 
     //! Return thing_to_return after reducing if necessary.
-    template<typename U> U& reduceAndReturn(U& thing_to_return)
+    template<typename U> std::shared_ptr<U> reduceAndReturn(std::shared_ptr<U> thing_to_return)
     {
         if (m_reduce)
         {

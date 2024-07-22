@@ -24,8 +24,7 @@ namespace freud { namespace pmft {
  *  subclasses that account for the proper set of dimensions.The required functions are implemented as pure
  *  virtual functions here to enforce this.
  */
-template<size_t Ndim>
-class PMFT : public locality::BondHistogramCompute<Ndim>
+class PMFT : public locality::BondHistogramCompute
 {
 public:
     //! Constructor
@@ -35,7 +34,7 @@ public:
     ~PMFT() override = default;
 
     //! Get a reference to the PCF array
-    std::shared_ptr<util::ManagedArray<float, Ndim>> getPCF()
+    std::shared_ptr<util::ManagedArray<float>> getPCF()
     {
         return reduceAndReturn(m_pcf_array);
     }
@@ -64,8 +63,8 @@ protected:
      */
     template<typename JacobFactor> void reduce(JacobFactor jf)
     {
-        m_pcf_array = std::make_shared<util::ManagedArray<float, Ndim>>(m_histogram.shape());
-        m_histogram = util::Histogram<unsigned int, Ndim>(m_histogram.getAxes());
+        m_pcf_array = std::make_shared<util::ManagedArray<float>>(m_histogram.shape());
+        m_histogram = util::Histogram<unsigned int>(m_histogram.getAxes());
 
         float inv_num_dens = m_box.getVolume() / static_cast<float>(m_n_query_points);
         float norm_factor
@@ -73,11 +72,11 @@ protected:
         float prefactor = inv_num_dens * norm_factor;
 
         m_histogram.reduceOverThreadsPerBin(m_local_histograms, [this, &prefactor, &jf](size_t i) {
-            (*m_pcf_array)[i] = static_cast<float>((*m_histogram)[i]) * prefactor * jf(i);
+            (*m_pcf_array)[i] = static_cast<float>(m_histogram[i]) * prefactor * jf(i);
         });
     }
 
-    std::shared_ptr<util::ManagedArray<float, Ndim>> m_pcf_array; //!< Array of computed pair correlation function.
+    std::shared_ptr<util::ManagedArray<float>> m_pcf_array; //!< Array of computed pair correlation function.
 };
 
 }; }; // end namespace freud::pmft

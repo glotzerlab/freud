@@ -275,7 +275,7 @@ public:
         }
 
     protected:
-        tbb::enumerable_thread_specific<Histogram<T, Ndim>>
+        tbb::enumerable_thread_specific<Histogram<T>>
             m_local_histograms; //!< The thread-local copies of m_histogram.
     };
 
@@ -333,7 +333,7 @@ public:
 
         // First bin the values along each axis.
         std::vector<size_t> ax_bins;
-        for (unsigned int ax_idx = 0; ax_idx < m_axes->size(); ++ax_idx)
+        for (unsigned int ax_idx = 0; ax_idx < m_axes.size(); ++ax_idx)
         {
             size_t bin_i = m_axes[ax_idx]->bin(values[ax_idx]);
             // Immediately return sentinel if any bin is out of bounds.
@@ -400,7 +400,7 @@ public:
     //! Return a vector of tuples (min, max) indicating the bounds of each axis.
     std::vector<std::pair<float, float>> getBounds() const
     {
-        std::vector<std::pair<float, float>, Ndim> bounds(m_axes.size());
+        std::vector<std::pair<float, float>> bounds(m_axes.size());
         for (unsigned int i = 0; i < m_axes.size(); ++i)
         {
             bounds[i] = std::pair<float, float>(m_axes[i]->getMin(), m_axes[i]->getMax());
@@ -409,7 +409,7 @@ public:
     }
 
     //! Return a vector indicating the number of bins in each axis.
-    std::array<size_t, Ndim> getAxisSizes() const
+    std::vector<size_t> getAxisSizes() const
     {
         std::vector<size_t> sizes(m_axes.size());
         for (unsigned int i = 0; i < m_axes.size(); ++i)
