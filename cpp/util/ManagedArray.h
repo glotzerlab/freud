@@ -68,9 +68,9 @@ public:
     /**
      * Copy constructor
      * */
-    ManagedArray(const ManagedArray& other) : m_shape(other.m_shape), m_size(other.m_size)
+    ManagedArray(const ManagedArray& other) : m_shape(other.m_shape), m_size(other.m_size),
+    m_data(std::vector<T>(other.m_size))
     {
-        m_data = std::vector<T>(other.m_size);
         for (unsigned int i = 0; i < m_size; ++i)
         {
             m_data[i] = other.m_data[i];
