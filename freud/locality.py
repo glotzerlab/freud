@@ -998,35 +998,34 @@ class _SpatialHistogram(_PairCompute):
     @_Compute._computed_property
     def bin_counts(self):
         """:class:`numpy.ndarray`: The bin counts in the histogram."""
-        return self._cpp_obj.getBinCounts()
+        return self._cpp_obj.getBinCounts().toNumpyArray()
 
     @property
     def bin_centers(self):
         """:class:`numpy.ndarray`: The centers of each bin in the histogram
         (has the same shape as the histogram itself)."""
-        vec = self._cpp_obj.getBinCenters()
-        return [np.array(b, copy=True) for b in vec]
+        centers = self._cpp_obj.getBinCenters()
+        return [np.array(c) for c in centers]
 
     @property
     def bin_edges(self):
         """:class:`numpy.ndarray`: The edges of each bin in the histogram (is
         one element larger in each dimension than the histogram because each
         bin has a lower and upper bound)."""
-        vec = self._cpp_obj.getBinEdges()
-        return [np.array(b, copy=True) for b in vec]
+        edges = self._cpp_obj.getBinEdges()
+        return [np.array(e) for e in edges]
 
     @property
     def bounds(self):
         """:class:`list` (:class:`tuple`): A list of tuples indicating upper and
         lower bounds of each axis of the histogram."""
-        vec = self._cpp_obj.getBounds()
-        return [tuple(b) for b in vec]
+        return self._cpp_obj.getBounds()  # this returns from cpp with the right type
 
     @property
     def nbins(self):
         """:class:`list`: The number of bins in each dimension of the
         histogram."""
-        return list(self._cpp_obj.getAxisSizes())
+        return self._cpp_obj.getAxisSizes()
 
     def _reset(self):
         # Resets the values of RDF in memory.
@@ -1046,19 +1045,19 @@ class _SpatialHistogram1D(_SpatialHistogram):
     def bin_centers(self):
         """:math:`(N_{bins}, )` :class:`numpy.ndarray`: The centers of each bin
         in the histogram."""
-        return np.array(self._cpp_obj.getBinCenters(), copy=True)
+        return np.array(self._cpp_obj.getBinCenters()[0])
 
     @property
     def bin_edges(self):
         """:math:`(N_{bins}+1, )` :class:`numpy.ndarray`: The edges of each bin
         in the histogram. It is one element larger because each bin has a lower
         and an upper bound."""
-        return np.array(self._cpp_obj.getBinEdges(), copy=True)
+        return np.array(self._cpp_obj.getBinEdges()[0])
 
     @property
     def bounds(self):
         """tuple: A tuple indicating upper and lower bounds of the histogram."""
-        return self._cpp_obj.getBounds()
+        return self._cpp_obj.getBounds()[0]
 
     @property
     def nbins(self):
