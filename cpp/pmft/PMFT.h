@@ -63,13 +63,6 @@ protected:
      */
     template<typename JacobFactor> void reduce(JacobFactor jf)
     {
-        // TODO fully consider when we need to re-allocate the array data with PMFT classes
-        // TODO array sizes are static (i.e. set on object construction), but may need
-        // TODO re-allocations based on python object references
-        // TODO tests still pass, so I think there are implicit copies being made right now
-        //m_pcf_array = std::make_shared<util::ManagedArray<float>>(m_histogram.shape());
-        //m_histogram = util::Histogram<unsigned int>(m_histogram.getAxes());
-
         float inv_num_dens = m_box.getVolume() / static_cast<float>(m_n_query_points);
         float norm_factor
             = float(1.0) / (static_cast<float>(m_frame_counter) * static_cast<float>(m_n_points));
