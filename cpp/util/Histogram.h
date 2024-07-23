@@ -260,15 +260,15 @@ public:
         }
 
         // Reduce over histograms into the result array.
-        void reduceInto(ManagedArray<T>& result)
+        void reduceInto(std::shared_ptr<ManagedArray<T>> result)
         {
-            result.reset();
-            util::forLoopWrapper(0, result.size(), [&](size_t begin, size_t end) {
+            result->reset();
+            util::forLoopWrapper(0, result->size(), [&](size_t begin, size_t end) {
                 for (size_t i = begin; i < end; ++i)
                 {
                     for (auto hist = m_local_histograms.begin(); hist != m_local_histograms.end(); ++hist)
                     {
-                        result[i] += hist->m_bin_counts[i];
+                        (*result)[i] += (*hist->m_bin_counts)[i];
                     }
                 }
             });

@@ -101,8 +101,8 @@ public:
         \param cf An object with operator(NeighborBond) as input.
     */
     template<typename Func>
-    void accumulateGeneral(const locality::NeighborQuery* neighbor_query, const vec3<float>* query_points,
-                           unsigned int n_query_points, const locality::NeighborList* nlist,
+    void accumulateGeneral(std::shared_ptr<locality::NeighborQuery> neighbor_query, const vec3<float>* query_points,
+                           unsigned int n_query_points, std::shared_ptr<locality::NeighborList> nlist,
                            locality::QueryArgs qargs, Func cf)
     {
         m_box = neighbor_query->getBox();

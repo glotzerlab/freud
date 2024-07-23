@@ -40,7 +40,7 @@ PMFTXY::PMFTXY(float x_max, float y_max, unsigned int n_x, unsigned int n_y) : P
     m_jacobian = dx * dy;
 
     // Create the PCF array.
-    m_pcf_array.prepare({n_x, n_y});
+    m_pcf_array = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {n_x, n_y});
 
     // Construct the Histogram object that will be used to keep track of counts of bond distances found.
     const auto axes = util::Axes {std::make_shared<util::RegularAxis>(n_x, -x_max, x_max),
@@ -55,9 +55,10 @@ void PMFTXY::reduce()
     PMFT::reduce([jacobian_factor](size_t i) { return jacobian_factor; }); // NOLINT (misc-unused-parameters)
 }
 
-void PMFTXY::accumulate(const locality::NeighborQuery* neighbor_query, const float* query_orientations,
-                        const vec3<float>* query_points, unsigned int n_query_points,
-                        const locality::NeighborList* nlist, freud::locality::QueryArgs qargs)
+void PMFTXY::accumulate(std::shared_ptr<locality::NeighborQuery> neighbor_query,
+        const float* query_orientations, const vec3<float>* query_points,
+        unsigned int n_query_points, std::shared_ptr<locality::NeighborList> nlist,
+        const freud::locality::QueryArgs& qargs)
 {
     neighbor_query->getBox().enforce2D();
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
