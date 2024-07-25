@@ -93,10 +93,11 @@ void PMFTXYZ::reset()
     m_num_equiv_orientations = 0xffffffff;
 }
 
-void PMFTXYZ::accumulate(std::shared_ptr<locality::NeighborQuery> neighbor_query, const quat<float>* query_orientations,
-                         const vec3<float>* query_points, unsigned int n_query_points,
-                         const quat<float>* equiv_orientations, unsigned int num_equiv_orientations,
-                         std::shared_ptr<locality::NeighborList> nlist, const freud::locality::QueryArgs& qargs)
+void PMFTXYZ::accumulate(std::shared_ptr<locality::NeighborQuery> neighbor_query,
+                         const quat<float>* query_orientations, const vec3<float>* query_points,
+                         unsigned int n_query_points, const quat<float>* equiv_orientations,
+                         unsigned int num_equiv_orientations, std::shared_ptr<locality::NeighborList> nlist,
+                         const freud::locality::QueryArgs& qargs)
 {
     // Set the number of equivalent orientations the first time we compute
     // (after a reset), then error on subsequent calls if it changes.
