@@ -1,48 +1,13 @@
-set(VOROPP_SOURCE_DIR "${PROJECT_SOURCE_DIR}/extern/voro++/src")
+set(locality_extension_sources
+    export_NeighborQuery.cc export_NeighborList.cc export_Filter.cc
+    export_PeriodicBuffer.cc export_Voronoi.cc)
 
-add_library(
-  _locality OBJECT
-  AABB.h
-  AABBQuery.cc
-  AABBQuery.h
-  AABBTree.h
-  BondHistogramCompute.h
-  CMakeLists.txt
-  Filter.h
-  FilterSANN.cc
-  FilterSANN.h
-  FilterRAD.cc
-  FilterRAD.h
-  LinkCell.cc
-  LinkCell.h
-  NeighborBond.h
-  NeighborComputeFunctional.cc
-  NeighborComputeFunctional.h
-  NeighborList.cc
-  NeighborList.h
-  NeighborPerPointIterator.h
-  NeighborQuery.h
-  PeriodicBuffer.cc
-  PeriodicBuffer.h
-  RawPoints.h
-  Voronoi.cc
-  Voronoi.h
-  # For now, compile voro++ object in directly.
-  ${VOROPP_SOURCE_DIR}/cell.cc
-  ${VOROPP_SOURCE_DIR}/common.cc
-  ${VOROPP_SOURCE_DIR}/container.cc
-  ${VOROPP_SOURCE_DIR}/unitcell.cc
-  ${VOROPP_SOURCE_DIR}/v_compute.cc
-  ${VOROPP_SOURCE_DIR}/c_loops.cc
-  ${VOROPP_SOURCE_DIR}/v_base.cc
-  ${VOROPP_SOURCE_DIR}/wall.cc
-  ${VOROPP_SOURCE_DIR}/pre_container.cc
-  ${VOROPP_SOURCE_DIR}/container_prd.cc)
+# create the target and add the needed properties
+nanobind_add_module(_locality ${freud_nanobind_linking} module-locality.cc
+                    ${locality_extension_sources})
+target_link_libraries(_locality PUBLIC libfreud)
 
-target_link_libraries(_locality PUBLIC TBB::tbb)
+target_set_install_rpath(_locality)
 
-# We treat the extern folder as a SYSTEM library to avoid getting any diagnostic
-# information from it. In particular, this avoids clang-tidy throwing errors due
-# to any issues in external code.
-target_include_directories(_locality SYSTEM
-                           PUBLIC ${PROJECT_SOURCE_DIR}/extern/)
+# install
+install(TARGETS _locality DESTINATION freud)

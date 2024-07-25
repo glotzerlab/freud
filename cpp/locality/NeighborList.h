@@ -57,37 +57,37 @@ public:
     void updateSegmentCounts() const;
 
     //! Access the neighbors array for reading
-    const util::ManagedArray<unsigned int>& getNeighbors() const
+    std::shared_ptr<util::ManagedArray<unsigned int>> getNeighbors() const
     {
         return m_neighbors;
     }
 
     //! Access the distances array for reading
-    const util::ManagedArray<float>& getDistances() const
+    std::shared_ptr<util::ManagedArray<float>> getDistances() const
     {
         return m_distances;
     }
 
     //! Access the weights array for reading
-    const util::ManagedArray<float>& getWeights() const
+    std::shared_ptr<util::ManagedArray<float>> getWeights() const
     {
         return m_weights;
     }
 
     //! Access the vectors array for reading
-    const util::ManagedArray<vec3<float>>& getVectors() const
+    std::shared_ptr<util::ManagedArray<vec3<float>>> getVectors() const
     {
         return m_vectors;
     }
 
     //! Access the counts array for reading
-    const util::ManagedArray<unsigned int>& getCounts() const
+    std::shared_ptr<util::ManagedArray<unsigned int>> getCounts() const
     {
         updateSegmentCounts();
         return m_counts;
     }
     //! Access the segments array for reading
-    const util::ManagedArray<unsigned int>& getSegments() const
+    std::shared_ptr<util::ManagedArray<unsigned int>> getSegments() const
     {
         updateSegmentCounts();
         return m_segments;
@@ -98,11 +98,11 @@ public:
      */
     void setNeighborEntry(size_t neighbor_index, const NeighborBond& nb)
     {
-        m_neighbors(neighbor_index, 0) = nb.getQueryPointIdx();
-        m_neighbors(neighbor_index, 1) = nb.getPointIdx();
-        m_vectors[neighbor_index] = nb.getVector();
-        m_distances[neighbor_index] = nb.getDistance();
-        m_weights[neighbor_index] = nb.getWeight();
+        (*m_neighbors)(neighbor_index, 0) = nb.getQueryPointIdx();
+        (*m_neighbors)(neighbor_index, 1) = nb.getPointIdx();
+        (*m_vectors)[neighbor_index] = nb.getVector();
+        (*m_distances)[neighbor_index] = nb.getDistance();
+        (*m_weights)[neighbor_index] = nb.getWeight();
     }
 
     //! Remove bonds in this object based on an array of boolean values. The
@@ -139,20 +139,20 @@ private:
     //! Number of points
     unsigned int m_num_points;
     //! Neighbor list indices array
-    util::ManagedArray<unsigned int> m_neighbors;
+    std::shared_ptr<util::ManagedArray<unsigned int>> m_neighbors;
     //! Neighbor list per-bond distance array
-    util::ManagedArray<float> m_distances;
+    std::shared_ptr<util::ManagedArray<float>> m_distances;
     //! Neighbor list per-bond weight array
-    util::ManagedArray<float> m_weights;
+    std::shared_ptr<util::ManagedArray<float>> m_weights;
     //!< Directed vectors per-bond array
-    util::ManagedArray<vec3<float>> m_vectors;
+    std::shared_ptr<util::ManagedArray<vec3<float>>> m_vectors;
 
     //! Track whether segments and counts are up to date
     mutable bool m_segments_counts_updated;
     //! Neighbor counts for each query point
-    mutable util::ManagedArray<unsigned int> m_counts;
+    mutable std::shared_ptr<util::ManagedArray<unsigned int>> m_counts;
     //! Neighbor segments for each query point
-    mutable util::ManagedArray<unsigned int> m_segments;
+    mutable std::shared_ptr<util::ManagedArray<unsigned int>> m_segments;
 };
 
 bool compareNeighborBond(const NeighborBond& left, const NeighborBond& right);

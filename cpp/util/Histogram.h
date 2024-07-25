@@ -210,7 +210,7 @@ public:
             : m_local_histograms([histogram]() { return Histogram(histogram.m_axes); })
         {}
 
-        using const_iterator = typename tbb::enumerable_thread_specific<Histogram<T>>::const_iterator;
+        using const_iterator = typename tbb::enumerable_thread_specific<Histogram>::const_iterator;
         using iterator = typename tbb::enumerable_thread_specific<Histogram>::iterator;
         using reference = typename tbb::enumerable_thread_specific<Histogram>::reference;
 
@@ -275,7 +275,7 @@ public:
         }
 
     protected:
-        tbb::enumerable_thread_specific<Histogram<T>>
+        tbb::enumerable_thread_specific<Histogram<T, Ndim>>
             m_local_histograms; //!< The thread-local copies of m_histogram.
     };
 
@@ -288,25 +288,7 @@ public:
         std::vector<size_t> sizes(m_axes.size());
         std::transform(m_axes.begin(), m_axes.end(), sizes.begin(),
                        [](const auto& ax) { return ax->size(); });
-        m_bin_counts = ManagedArray<T>(sizes);
-    }
-
-    //! Simple convenience for 1D arrays that calls through to the shape based `prepare` function.
-    /*! \param new_size Size of the 1D array to allocate.
-     */
-    void prepare(size_t new_size)
-    {
-        prepare(std::vector<size_t> {new_size});
-    }
-
-    //! Prepare the underlying bin counts array.
-    /*! Reallocate memory if needed.
-     *
-     *  \param new_shape Shape of the array to allocate.
-     */
-    void prepare(std::vector<size_t> new_shape)
-    {
-        m_bin_counts.prepare(new_shape);
+        m_bin_counts = std::make_shared<ManagedArray<T>>(sizes);
     }
 
     //! Destructor
@@ -320,7 +302,7 @@ public:
         // Check for sentinel to avoid overflow.
         if (value_bin != Axis::OVERFLOW_BIN)
         {
-            m_bin_counts[value_bin] += value_vector.second.value;
+            (*m_bin_counts)[value_bin] += value_vector.second.value;
         }
     }
 
@@ -330,7 +312,7 @@ public:
         // Check for sentinel to avoid overflow.
         if (value_bin != Axis::OVERFLOW_BIN)
         {
-            m_bin_counts[value_bin] += weight;
+            (*m_bin_counts)[value_bin] += weight;
         }
     }
 
@@ -348,9 +330,10 @@ public:
                 << " values were provided in bin" << std::endl;
             throw std::invalid_argument(msg.str());
         }
+
         // First bin the values along each axis.
         std::vector<size_t> ax_bins;
-        for (unsigned int ax_idx = 0; ax_idx < m_axes.size(); ++ax_idx)
+        for (unsigned int ax_idx = 0; ax_idx < m_axes->size(); ++ax_idx)
         {
             size_t bin_i = m_axes[ax_idx]->bin(values[ax_idx]);
             // Immediately return sentinel if any bin is out of bounds.
@@ -361,7 +344,7 @@ public:
             ax_bins.push_back(bin_i);
         }
 
-        return m_bin_counts.getIndex(ax_bins);
+        return m_bin_counts->getIndex(ax_bins);
     }
 
     //! Return the axes.
@@ -371,7 +354,7 @@ public:
     }
 
     //! Get the computed histogram.
-    const ManagedArray<T>& getBinCounts() const
+    std::shared_ptr<ManagedArray<T>> getBinCounts() const
     {
         return m_bin_counts;
     }
@@ -379,13 +362,13 @@ public:
     //! Get the shape of the computed histogram.
     std::vector<size_t> shape() const
     {
-        return m_bin_counts.shape();
+        return m_bin_counts->shape();
     }
 
     //! Reset the histogram.
     void reset()
     {
-        m_bin_counts.reset();
+        m_bin_counts->reset();
     }
 
     //! Return the edges of bins.
@@ -417,7 +400,7 @@ public:
     //! Return a vector of tuples (min, max) indicating the bounds of each axis.
     std::vector<std::pair<float, float>> getBounds() const
     {
-        std::vector<std::pair<float, float>> bounds(m_axes.size());
+        std::vector<std::pair<float, float>, Ndim> bounds(m_axes.size());
         for (unsigned int i = 0; i < m_axes.size(); ++i)
         {
             bounds[i] = std::pair<float, float>(m_axes[i]->getMin(), m_axes[i]->getMax());
@@ -426,7 +409,7 @@ public:
     }
 
     //! Return a vector indicating the number of bins in each axis.
-    std::vector<size_t> getAxisSizes() const
+    std::array<size_t, Ndim> getAxisSizes() const
     {
         std::vector<size_t> sizes(m_axes.size());
         for (unsigned int i = 0; i < m_axes.size(); ++i)
@@ -448,7 +431,7 @@ public:
     void reduceOverThreadsPerBin(ThreadLocalHistogram& local_histograms, const ComputeFunction& cf)
     {
         local_histograms.reduceInto(m_bin_counts);
-        util::forLoopWrapper(0, m_bin_counts.size(), [&](size_t begin, size_t end) {
+        util::forLoopWrapper(0, m_bin_counts->size(), [&](size_t begin, size_t end) {
             for (size_t i = begin; i < end; ++i)
             {
                 cf(i);
@@ -474,23 +457,23 @@ public:
     //! Writeable index into array.
     T& operator[](size_t i)
     {
-        return m_bin_counts[i];
+        return (*m_bin_counts)[i];
     }
 
     //! Read-only index into array.
     const T& operator[](size_t i) const
     {
-        return m_bin_counts[i];
+        return (*m_bin_counts)[i];
     }
 
     size_t size() const
     {
-        return m_bin_counts.size();
+        return m_bin_counts->size();
     }
 
 protected:
-    std::vector<std::shared_ptr<Axis>> m_axes; //!< The axes.
-    ManagedArray<T> m_bin_counts;              //!< Counts for each bin
+    std::vector<std::shared_ptr<Axis>> m_axes;     //!< The axes.
+    std::shared_ptr<ManagedArray<T>> m_bin_counts; //!< Counts for each bin
 
     //! The base case for type float when constructing a vector of values provided to operator().
     /*! This function and the accompanying recursive function below employ

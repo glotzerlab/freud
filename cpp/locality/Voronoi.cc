@@ -17,13 +17,13 @@
 namespace freud { namespace locality {
 
 // Voronoi calculations should be kept in double precision.
-void Voronoi::compute(const freud::locality::NeighborQuery* nq)
+void Voronoi::compute(std::shared_ptr<freud::locality::NeighborQuery> nq)
 {
     m_box = nq->getBox();
     const auto n_points = nq->getNPoints();
 
     m_polytopes.resize(n_points);
-    m_volumes.prepare(n_points);
+    m_volumes = std::make_shared<util::ManagedArray<double>>(n_points);
 
     const vec3<float> v1 = m_box.getLatticeVector(0);
     const vec3<float> v2 = m_box.getLatticeVector(1);
@@ -121,7 +121,7 @@ void Voronoi::compute(const freud::locality::NeighborQuery* nq)
             m_polytopes[query_point_id] = system_vertices;
 
             // Save cell volume
-            m_volumes[query_point_id] = cell.volume();
+            (*m_volumes)[query_point_id] = cell.volume();
 
             // Compute cell neighbors
             size_t neighbor_counter(0);

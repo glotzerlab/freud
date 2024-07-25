@@ -125,7 +125,7 @@ class UnitCell:
                 include_input_points=True,
             )
             box = pbuff.buffer_box * scale
-            positions = pbuff.buffer_points
+            positions = np.copy(pbuff.buffer_points)
         else:
             box = self.box * scale
             positions = self.box.make_absolute(self.basis_positions)

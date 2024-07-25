@@ -10,22 +10,22 @@
 
 namespace freud { namespace locality {
 
-void FilterSANN::compute(const NeighborQuery* nq, const vec3<float>* query_points,
-                         unsigned int num_query_points, const NeighborList* nlist, const QueryArgs& qargs)
+void FilterSANN::compute(std::shared_ptr<NeighborQuery> nq, const vec3<float>* query_points,
+                         unsigned int num_query_points, std::shared_ptr<NeighborList> nlist,
+                         const QueryArgs& qargs)
 {
     // make the unfiltered neighborlist from the arguments
-    m_unfiltered_nlist = std::make_shared<NeighborList>(
-        std::move(makeDefaultNlist(nq, nlist, query_points, num_query_points, qargs)));
+    m_unfiltered_nlist = makeDefaultNlist(nq, nlist, query_points, num_query_points, qargs);
 
     // work with nlist sorted by distance
     NeighborList sorted_nlist(*m_unfiltered_nlist);
     sorted_nlist.sort(true);
 
-    const auto& sorted_neighbors = sorted_nlist.getNeighbors();
-    const auto& sorted_dist = sorted_nlist.getDistances();
-    const auto& sorted_vecs = sorted_nlist.getVectors();
-    const auto& sorted_weights = sorted_nlist.getWeights();
-    const auto& sorted_counts = sorted_nlist.getCounts();
+    const auto& sorted_neighbors = *sorted_nlist.getNeighbors();
+    const auto& sorted_dist = *sorted_nlist.getDistances();
+    const auto& sorted_vecs = *sorted_nlist.getVectors();
+    const auto& sorted_weights = *sorted_nlist.getWeights();
+    const auto& sorted_counts = *sorted_nlist.getCounts();
 
     // hold set of bonds for each thread
     using BondVector = tbb::enumerable_thread_specific<std::vector<NeighborBond>>;

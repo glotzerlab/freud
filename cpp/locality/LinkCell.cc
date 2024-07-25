@@ -309,7 +309,7 @@ void LinkCell::computeCellList(const vec3<float>* points, unsigned int n_points)
 {
     // determine the number of cells and allocate memory
     unsigned int Nc = getNumCells();
-    m_cell_list.prepare(n_points + Nc);
+    m_cell_list = util::ManagedArray<unsigned int>(n_points + Nc);
     m_n_points = n_points;
 
     // initialize memory

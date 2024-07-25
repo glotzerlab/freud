@@ -4,6 +4,7 @@
 #ifndef PERIODIC_BUFFER_H
 #define PERIODIC_BUFFER_H
 
+#include <array>
 #include <vector>
 
 #include "Box.h"
@@ -35,26 +36,26 @@ public:
     }
 
     //! Compute the periodic buffer
-    void compute(const freud::locality::NeighborQuery* neighbor_query, const vec3<float>& buff,
+    void compute(std::shared_ptr<NeighborQuery> neighbor_query, std::array<float, 3> buff_vec,
                  const bool use_images, const bool include_input_points);
 
     //! Return the buffer points
-    std::vector<vec3<float>> getBufferPoints() const
+    std::shared_ptr<std::vector<vec3<float>>> getBufferPoints() const
     {
         return m_buffer_points;
     }
 
     //! Return the buffer ids
-    std::vector<unsigned int> getBufferIds() const
+    std::shared_ptr<std::vector<unsigned int>> getBufferIds() const
     {
         return m_buffer_ids;
     }
 
 private:
-    freud::box::Box m_box;                    //!< Simulation box of the original points
-    freud::box::Box m_buffer_box;             //!< Simulation box of the replicated points
-    std::vector<vec3<float>> m_buffer_points; //!< The replicated points
-    std::vector<unsigned int> m_buffer_ids;   //!< The replicated points' original point ids
+    freud::box::Box m_box;                                     //!< Simulation box of the original points
+    freud::box::Box m_buffer_box;                              //!< Simulation box of the replicated points
+    std::shared_ptr<std::vector<vec3<float>>> m_buffer_points; //!< The replicated points
+    std::shared_ptr<std::vector<unsigned int>> m_buffer_ids;   //!< The replicated points' original point ids
 };
 
 }; }; // end namespace freud::locality

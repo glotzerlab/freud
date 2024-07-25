@@ -12,13 +12,23 @@
 namespace freud { namespace locality {
 
 NeighborList::NeighborList()
-    : m_num_query_points(0), m_num_points(0), m_neighbors({0, 2}), m_distances(0), m_weights(0), m_vectors(0),
-      m_segments_counts_updated(false)
+    : m_num_query_points(0), m_num_points(0), m_segments_counts_updated(false),
+      m_neighbors(std::make_shared<util::ManagedArray<unsigned int>>()),
+      m_distances(std::make_shared<util::ManagedArray<float>>()),
+      m_weights(std::make_shared<util::ManagedArray<float>>()),
+      m_vectors(std::make_shared<util::ManagedArray<vec3<float>>>()),
+      m_segments(std::make_shared<util::ManagedArray<unsigned int>>()),
+      m_counts(std::make_shared<util::ManagedArray<unsigned int>>())
 {}
 
 NeighborList::NeighborList(unsigned int num_bonds)
-    : m_num_query_points(0), m_num_points(0), m_neighbors({num_bonds, 2}), m_distances(num_bonds),
-      m_weights(num_bonds), m_vectors(num_bonds), m_segments_counts_updated(false)
+    : m_num_query_points(0), m_num_points(0), m_segments_counts_updated(false),
+      m_neighbors(std::make_shared<util::ManagedArray<unsigned int>>(std::vector<size_t> {num_bonds, 2})),
+      m_distances(std::make_shared<util::ManagedArray<float>>(num_bonds)),
+      m_weights(std::make_shared<util::ManagedArray<float>>(num_bonds)),
+      m_vectors(std::make_shared<util::ManagedArray<vec3<float>>>(num_bonds)),
+      m_segments(std::make_shared<util::ManagedArray<unsigned int>>()),
+      m_counts(std::make_shared<util::ManagedArray<unsigned int>>())
 {}
 
 NeighborList::NeighborList(const NeighborList& other)
@@ -31,8 +41,13 @@ NeighborList::NeighborList(const NeighborList& other)
 NeighborList::NeighborList(unsigned int num_bonds, const unsigned int* query_point_index,
                            unsigned int num_query_points, const unsigned int* point_index,
                            unsigned int num_points, const vec3<float>* vectors, const float* weights)
-    : m_num_query_points(num_query_points), m_num_points(num_points), m_neighbors({num_bonds, 2}),
-      m_distances(num_bonds), m_weights(num_bonds), m_vectors(num_bonds), m_segments_counts_updated(false)
+    : m_num_query_points(num_query_points), m_num_points(num_points), m_segments_counts_updated(false),
+      m_neighbors(std::make_shared<util::ManagedArray<unsigned int>>(std::vector<size_t> {num_bonds, 2})),
+      m_distances(std::make_shared<util::ManagedArray<float>>(num_bonds)),
+      m_weights(std::make_shared<util::ManagedArray<float>>(num_bonds)),
+      m_vectors(std::make_shared<util::ManagedArray<vec3<float>>>(num_bonds)),
+      m_segments(std::make_shared<util::ManagedArray<unsigned int>>(num_query_points)),
+      m_counts(std::make_shared<util::ManagedArray<unsigned int>>(num_query_points))
 {
     unsigned int last_index(0);
     for (unsigned int i = 0; i < num_bonds; i++)
@@ -59,16 +74,18 @@ NeighborList::NeighborList(unsigned int num_bonds, const unsigned int* query_poi
 NeighborList::NeighborList(const vec3<float>* points, const vec3<float>* query_points, const box::Box& box,
                            const bool exclude_ii, const unsigned int num_points,
                            const unsigned int num_query_points)
-    : m_num_points(num_points), m_num_query_points(num_query_points), m_segments_counts_updated(false)
+    : m_num_points(num_points), m_num_query_points(num_query_points), m_segments_counts_updated(false),
+      m_segments(std::make_shared<util::ManagedArray<unsigned int>>(num_query_points)),
+      m_counts(std::make_shared<util::ManagedArray<unsigned int>>(num_query_points))
 {
     // prepare member arrays
     const unsigned int num_ii = (exclude_ii ? std::min(num_points, num_query_points) : 0);
     const unsigned int num_bonds = num_points * num_query_points - num_ii;
 
-    m_neighbors.prepare({num_bonds, 2});
-    m_distances.prepare(num_bonds);
-    m_vectors.prepare(num_bonds);
-    m_weights.prepare(num_bonds);
+    m_neighbors = std::make_shared<util::ManagedArray<unsigned int>>(std::vector<size_t> {num_bonds, 2});
+    m_distances = std::make_shared<util::ManagedArray<float>>(num_bonds);
+    m_weights = std::make_shared<util::ManagedArray<float>>(num_bonds);
+    m_vectors = std::make_shared<util::ManagedArray<vec3<float>>>(num_bonds);
 
     util::forLoopWrapper(0, num_query_points, [&](size_t begin, size_t end) {
         for (unsigned int i = begin; i < end; ++i)
@@ -88,12 +105,12 @@ NeighborList::NeighborList(const vec3<float>* points, const vec3<float>* query_p
                     continue;
                 }
 
-                m_neighbors(bond_idx, 0) = i;
-                m_neighbors(bond_idx, 1) = j;
-                m_weights(bond_idx) = 1.0;
+                (*m_neighbors)(bond_idx, 0) = i;
+                (*m_neighbors)(bond_idx, 1) = j;
+                (*m_weights)(bond_idx) = 1.0;
                 const auto dr = box.wrap(query_points[i] - points[j]);
-                m_distances(bond_idx) = sqrt(dot(dr, dr));
-                m_vectors(bond_idx) = dr;
+                (*m_distances)(bond_idx) = sqrt(dot(dr, dr));
+                (*m_vectors)(bond_idx) = dr;
                 ++bond_idx;
             }
         }
@@ -101,17 +118,15 @@ NeighborList::NeighborList(const vec3<float>* points, const vec3<float>* query_p
 }
 
 NeighborList::NeighborList(std::vector<NeighborBond> bonds)
+    : m_distances(std::make_shared<util::ManagedArray<float>>(bonds.size())),
+      m_vectors(std::make_shared<util::ManagedArray<vec3<float>>>(bonds.size())),
+      m_weights(std::make_shared<util::ManagedArray<float>>(bonds.size())),
+      m_neighbors(std::make_shared<util::ManagedArray<unsigned int>>(std::vector<size_t> {bonds.size(), 2}))
 {
     // keep track of maximum indices
     using MaxIndex = tbb::enumerable_thread_specific<unsigned int>;
     MaxIndex max_idx_query = 0;
     MaxIndex max_idx_point = 0;
-
-    // prep arrays to populate
-    m_distances.prepare(bonds.size());
-    m_vectors.prepare(bonds.size());
-    m_weights.prepare(bonds.size());
-    m_neighbors.prepare({bonds.size(), 2});
 
     // fill arrays in parallel
     util::forLoopWrapper(0, bonds.size(), [&](size_t begin, size_t end) {
@@ -132,23 +147,25 @@ NeighborList::NeighborList(std::vector<NeighborBond> bonds)
             }
 
             // fill in array data
-            m_distances(i) = bond.getDistance();
-            m_weights(i) = bond.getWeight();
-            m_neighbors(i, 0) = bond.getQueryPointIdx();
-            m_neighbors(i, 1) = bond.getPointIdx();
-            m_vectors(i) = bond.getVector();
+            (*m_distances)(i) = bond.getDistance();
+            (*m_weights)(i) = bond.getWeight();
+            (*m_neighbors)(i, 0) = bond.getQueryPointIdx();
+            (*m_neighbors)(i, 1) = bond.getPointIdx();
+            (*m_vectors)(i) = bond.getVector();
         }
     });
 
     // set num points, query points as max of thread-local maxes
     m_num_points = (*std::max_element(max_idx_point.begin(), max_idx_point.end())) + 1;
     m_num_query_points = (*std::max_element(max_idx_query.begin(), max_idx_query.end())) + 1;
+    m_segments = std::make_shared<util::ManagedArray<unsigned int>>(m_num_query_points);
+    m_counts = std::make_shared<util::ManagedArray<unsigned int>>(m_num_query_points);
     m_segments_counts_updated = false;
 }
 
 unsigned int NeighborList::getNumBonds() const
 {
-    return m_neighbors.shape()[0];
+    return m_neighbors->shape()[0];
 }
 
 unsigned int NeighborList::getNumQueryPoints() const
@@ -173,22 +190,22 @@ void NeighborList::updateSegmentCounts() const
 {
     if (!m_segments_counts_updated)
     {
-        m_counts.prepare(m_num_query_points);
-        m_segments.prepare(m_num_query_points);
+        m_counts = std::make_shared<util::ManagedArray<unsigned int>>(m_num_query_points);
+        m_segments = std::make_shared<util::ManagedArray<unsigned int>>(m_num_query_points);
         const unsigned int INDEX_TERMINATOR(0xffffffff);
         unsigned int last_index(INDEX_TERMINATOR);
         unsigned int counter(0);
         for (unsigned int i = 0; i < getNumBonds(); i++)
         {
-            const unsigned int index(m_neighbors(i, 0));
+            const unsigned int index((*m_neighbors)(i, 0));
             if (index != last_index)
             {
-                m_segments[index] = i;
+                (*m_segments)[index] = i;
                 if (index > 0)
                 {
                     if (last_index != INDEX_TERMINATOR)
                     {
-                        m_counts[last_index] = counter;
+                        (*m_counts)[last_index] = counter;
                     }
                     counter = 0;
                 }
@@ -198,7 +215,7 @@ void NeighborList::updateSegmentCounts() const
         }
         if (last_index != INDEX_TERMINATOR)
         {
-            m_counts[last_index] = counter;
+            (*m_counts)[last_index] = counter;
         }
         m_segments_counts_updated = true;
     }
@@ -219,10 +236,11 @@ template<typename Iterator> unsigned int NeighborList::filter(Iterator begin)
 
     // Arrays to hold filtered data - we use new arrays instead of writing over
     // existing data to avoid requiring a second pass in resize().
-    auto new_neighbors = util::ManagedArray<unsigned int>({new_size, 2});
-    auto new_distances = util::ManagedArray<float>(new_size);
-    auto new_weights = util::ManagedArray<float>(new_size);
-    auto new_vectors = util::ManagedArray<vec3<float>>(new_size);
+    auto new_neighbors
+        = std::make_shared<util::ManagedArray<unsigned int>>(std::vector<size_t> {new_size, 2});
+    auto new_distances = std::make_shared<util::ManagedArray<float>>(new_size);
+    auto new_weights = std::make_shared<util::ManagedArray<float>>(new_size);
+    auto new_vectors = std::make_shared<util::ManagedArray<vec3<float>>>(new_size);
 
     auto current_element = begin;
     unsigned int num_good(0);
@@ -230,11 +248,11 @@ template<typename Iterator> unsigned int NeighborList::filter(Iterator begin)
     {
         if (*current_element)
         {
-            new_neighbors(num_good, 0) = m_neighbors(i, 0);
-            new_neighbors(num_good, 1) = m_neighbors(i, 1);
-            new_distances[num_good] = m_distances[i];
-            new_weights[num_good] = m_weights[i];
-            new_vectors[num_good] = m_vectors[i];
+            (*new_neighbors)(num_good, 0) = (*m_neighbors)(i, 0);
+            (*new_neighbors)(num_good, 1) = (*m_neighbors)(i, 1);
+            (*new_distances)[num_good] = (*m_distances)[i];
+            (*new_weights)[num_good] = (*m_weights)[i];
+            (*new_vectors)[num_good] = (*m_vectors)[i];
             ++num_good;
         }
         ++current_element;
@@ -248,8 +266,8 @@ template<typename Iterator> unsigned int NeighborList::filter(Iterator begin)
     return old_size - new_size;
 }
 
-// Explicit template instantiation required for usage in dynamically linked
-// Cython code.
+// Explicit template instantiation required for
+// TODO not sure if explicitly instantiation is needed for nanobind
 template unsigned int NeighborList::filter(std::vector<bool>::const_iterator);
 template unsigned int NeighborList::filter(std::vector<bool>::iterator);
 template unsigned int NeighborList::filter(const bool*);
@@ -273,7 +291,7 @@ unsigned int NeighborList::filter_r(float r_max, float r_min)
     std::vector<bool> dist_filter(getNumBonds());
     for (unsigned int i(0); i < getNumBonds(); ++i)
     {
-        dist_filter[i] = (m_distances[i] >= r_min && m_distances[i] < r_max);
+        dist_filter[i] = ((*m_distances)[i] >= r_min && (*m_distances)[i] < r_max);
     }
     return filter(dist_filter.cbegin());
 }
@@ -282,28 +300,29 @@ unsigned int NeighborList::find_first_index(unsigned int i) const
 {
     if (getNumBonds() != 0)
     {
-        return bisection_search(i, 0, getNumBonds()) + (i > m_neighbors(0, 0) ? 1 : 0);
+        return bisection_search(i, 0, getNumBonds()) + (i > (*m_neighbors)(0, 0) ? 1 : 0);
     }
     return 0;
 }
 
 void NeighborList::resize(unsigned int num_bonds)
 {
-    auto new_neighbors = util::ManagedArray<unsigned int>({num_bonds, 2});
-    auto new_distances = util::ManagedArray<float>(num_bonds);
-    auto new_weights = util::ManagedArray<float>(num_bonds);
-    auto new_vectors = util::ManagedArray<vec3<float>>(num_bonds);
+    auto new_neighbors
+        = std::make_shared<util::ManagedArray<unsigned int>>(std::vector<size_t> {num_bonds, 2});
+    auto new_distances = std::make_shared<util::ManagedArray<float>>(num_bonds);
+    auto new_weights = std::make_shared<util::ManagedArray<float>>(num_bonds);
+    auto new_vectors = std::make_shared<util::ManagedArray<vec3<float>>>(num_bonds);
 
     // On shrinking resizes, keep existing data.
     if (num_bonds <= getNumBonds())
     {
         for (unsigned int i = 0; i < num_bonds; i++)
         {
-            new_neighbors(i, 0) = m_neighbors(i, 0);
-            new_neighbors(i, 1) = m_neighbors(i, 1);
-            new_distances[i] = m_distances[i];
-            new_weights[i] = m_weights[i];
-            new_vectors[i] = m_vectors[i];
+            (*new_neighbors)(i, 0) = (*m_neighbors)(i, 0);
+            (*new_neighbors)(i, 1) = (*m_neighbors)(i, 1);
+            (*new_distances)[i] = (*m_distances)[i];
+            (*new_weights)[i] = (*m_weights)[i];
+            (*new_vectors)[i] = (*m_vectors)[i];
         }
     }
 
@@ -316,12 +335,15 @@ void NeighborList::resize(unsigned int num_bonds)
 
 void NeighborList::copy(const NeighborList& other)
 {
-    setNumBonds(other.getNumBonds(), other.getNumQueryPoints(), other.getNumPoints());
-    m_neighbors = other.m_neighbors.copy();
-    m_distances = other.m_distances.copy();
-    m_weights = other.m_weights.copy();
-    m_vectors = other.m_vectors.copy();
-    m_segments_counts_updated = false;
+    m_num_query_points = other.m_num_query_points;
+    m_num_points = other.m_num_points;
+    m_segments_counts_updated = other.m_segments_counts_updated;
+    m_neighbors = std::make_shared<util::ManagedArray<unsigned int>>(*other.m_neighbors);
+    m_distances = std::make_shared<util::ManagedArray<float>>(*other.m_distances);
+    m_weights = std::make_shared<util::ManagedArray<float>>(*other.m_weights);
+    m_vectors = std::make_shared<util::ManagedArray<vec3<float>>>(*other.m_vectors);
+    m_segments = std::make_shared<util::ManagedArray<unsigned int>>(*other.m_segments);
+    m_counts = std::make_shared<util::ManagedArray<unsigned int>>(*other.m_counts);
 }
 
 void NeighborList::validate(unsigned int num_query_points, unsigned int num_points) const
@@ -357,24 +379,24 @@ void NeighborList::sort(bool by_distance = false)
         for (auto bond = begin; bond < end; ++bond)
         {
             auto nb = bond_vector[bond];
-            m_neighbors(bond, 0) = nb.getQueryPointIdx();
-            m_neighbors(bond, 1) = nb.getPointIdx();
-            m_distances(bond) = nb.getDistance();
-            m_vectors(bond) = nb.getVector();
-            m_weights(bond) = nb.getWeight();
+            (*m_neighbors)(bond, 0) = nb.getQueryPointIdx();
+            (*m_neighbors)(bond, 1) = nb.getPointIdx();
+            (*m_distances)(bond) = nb.getDistance();
+            (*m_vectors)(bond) = nb.getVector();
+            (*m_weights)(bond) = nb.getWeight();
         }
     });
 }
 
 std::vector<NeighborBond> NeighborList::toBondVector() const
 {
-    auto num_bonds = m_distances.size();
+    auto num_bonds = m_distances->size();
     std::vector<NeighborBond> bond_vector(num_bonds);
     util::forLoopWrapper(0, num_bonds, [&](size_t begin, size_t end) {
         for (auto bond_idx = begin; bond_idx < end; ++bond_idx)
         {
-            NeighborBond nb(m_neighbors(bond_idx, 0), m_neighbors(bond_idx, 1), m_distances(bond_idx),
-                            m_weights(bond_idx), m_vectors(bond_idx));
+            NeighborBond nb((*m_neighbors)(bond_idx, 0), (*m_neighbors)(bond_idx, 1),
+                            (*m_distances)(bond_idx), (*m_weights)(bond_idx), (*m_vectors)(bond_idx));
             bond_vector[bond_idx] = nb;
         }
     });
@@ -390,7 +412,7 @@ unsigned int NeighborList::bisection_search(unsigned int val, unsigned int left,
 
     unsigned int middle((left + right) / 2);
 
-    if (m_neighbors(middle, 0) < val)
+    if ((*m_neighbors)(middle, 0) < val)
     {
         return bisection_search(val, middle, right);
     }
