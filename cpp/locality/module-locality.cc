@@ -3,6 +3,7 @@
 
 #include <nanobind/nanobind.h>
 
+#include "export_BondHistogramCompute.h"
 #include "export_Filter.h"
 #include "export_NeighborList.h"
 #include "export_NeighborQuery.h"
@@ -34,4 +35,5 @@ NB_MODULE(_locality, m)
 
     // others
     export_PeriodicBuffer(m);
+    export_BondHistogramCompute(m);
 }

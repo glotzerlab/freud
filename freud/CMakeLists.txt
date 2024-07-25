@@ -4,8 +4,9 @@ set(python_files
     errors.py
     locality.py
     parallel.py
+    pmft.py
     plot.py
     util.py)
-# cluster.py density.py diffraction.py environment.py order.py pmft.py)
+# cluster.py density.py diffraction.py environment.py order.py)
 
 install(FILES ${python_files} DESTINATION freud)

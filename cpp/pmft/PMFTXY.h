@@ -21,9 +21,9 @@ public:
     /*! Compute the PCF for the passed in set of points. The result will
      *  be added to previous values of the PCF.
      */
-    void accumulate(const locality::NeighborQuery* neighbor_query, const float* query_orientations,
+    void accumulate(std::shared_ptr<locality::NeighborQuery> neighbor_query, const float* query_orientations,
                     const vec3<float>* query_points, unsigned int n_query_points,
-                    const locality::NeighborList* nlist, freud::locality::QueryArgs qargs);
+                    std::shared_ptr<locality::NeighborList> nlist, const freud::locality::QueryArgs& qargs);
 
 protected:
     //! \internal
