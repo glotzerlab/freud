@@ -56,9 +56,9 @@ void PMFTXY::reduce()
 }
 
 void PMFTXY::accumulate(std::shared_ptr<locality::NeighborQuery> neighbor_query,
-        const float* query_orientations, const vec3<float>* query_points,
-        unsigned int n_query_points, std::shared_ptr<locality::NeighborList> nlist,
-        const freud::locality::QueryArgs& qargs)
+                        const float* query_orientations, const vec3<float>* query_points,
+                        unsigned int n_query_points, std::shared_ptr<locality::NeighborList> nlist,
+                        const freud::locality::QueryArgs& qargs)
 {
     neighbor_query->getBox().enforce2D();
 

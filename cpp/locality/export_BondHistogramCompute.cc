@@ -5,8 +5,8 @@
 
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
-#include <nanobind/stl/vector.h>
 #include <nanobind/stl/shared_ptr.h>
+#include <nanobind/stl/vector.h>
 
 namespace nb = nanobind;
 
@@ -20,7 +20,6 @@ namespace wrap {
 template<typename T>
 inline nb::object vectorVectorsToListLists(const std::vector<std::vector<T>>& vectorOfVectors)
 {
-
     nb::list outer_python_list;
     for (const auto& vector : vectorOfVectors)
     {
