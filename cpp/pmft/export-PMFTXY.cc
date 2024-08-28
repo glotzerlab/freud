@@ -1,15 +1,11 @@
 // Copyright (c) 2010-2024 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#ifndef EXPORT_PMFT_H
-#define EXPORT_PMFT_H
-
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
 #include <nanobind/stl/shared_ptr.h>
 
 #include "BondHistogramCompute.h"
-#include "PMFT.h"
 #include "PMFTXY.h"
 
 namespace freud { namespace pmft {
@@ -50,5 +46,3 @@ void export_PMFTXY(nanobind::module_& m)
 } // namespace detail
 
 }; }; // end namespace freud::pmft
-
-#endif

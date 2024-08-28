@@ -3,7 +3,11 @@
 
 #include <nanobind/nanobind.h>
 
-#include "export_PMFT.h"
+namespace freud::pmft::detail {
+    
+void export_PMFT(nanobind::module_& m);
+void export_PMFTXY(nanobind::module_& m);
+}
 
 using namespace freud::pmft::detail;
 
