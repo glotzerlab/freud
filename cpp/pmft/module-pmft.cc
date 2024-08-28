@@ -4,13 +4,13 @@
 #include <nanobind/nanobind.h>
 
 namespace freud::pmft::detail {
-    
+
 void export_PMFT(nanobind::module_& m);
 void export_PMFTXY(nanobind::module_& m);
 void export_PMFTXYZ(nanobind::module_& m);
 void export_PMFTR12(nanobind::module_& m);
 void export_PMFTXYT(nanobind::module_& m);
-}
+} // namespace freud::pmft::detail
 
 using namespace freud::pmft::detail;
 

@@ -21,10 +21,11 @@ public:
     /*! Compute the PCF for the passed in set of points. The function will be added to previous values
         of the pcf
     */
-    void accumulate(std::shared_ptr<locality::NeighborQuery> neighbor_query, const quat<float>* query_orientations,
-                    const vec3<float>* query_points, unsigned int n_query_points,
-                    const quat<float>* equiv_orientations, unsigned int num_equiv_orientations,
-                    std::shared_ptr<locality::NeighborList> nlist, const freud::locality::QueryArgs& qargs);
+    void accumulate(std::shared_ptr<locality::NeighborQuery> neighbor_query,
+                    const quat<float>* query_orientations, const vec3<float>* query_points,
+                    unsigned int n_query_points, const quat<float>* equiv_orientations,
+                    unsigned int num_equiv_orientations, std::shared_ptr<locality::NeighborList> nlist,
+                    const freud::locality::QueryArgs& qargs);
 
     //! Reset the PMFT
     /*! Override the parent method to also reset the number of equivalent orientations.
