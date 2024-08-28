@@ -65,7 +65,7 @@ jobs:
           pytest tests/test_parallel.py -v
           pytest tests/test_locality_*.py -v
           pytest tests/test_data.py -v
-          pytest tests/test_pmft.py::TestPMFTXY -v
+          pytest tests/test_pmft.py -v
           # pytest tests/ -v
 
   tests_complete:
