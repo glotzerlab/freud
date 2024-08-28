@@ -31,6 +31,11 @@ public:
     //! Reset the histogram to all zeros
     virtual void reset()
     {
+        // Allocate a new histogram in memory so that we do not invalidate references the user has
+        // to previous results.
+        m_histogram = BondHistogram(m_histogram.getAxes());
+
+        // clear the per-thread running averages
         m_local_histograms.reset();
         m_frame_counter = 0;
         m_reduce = true;

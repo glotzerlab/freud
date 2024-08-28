@@ -75,10 +75,6 @@ PMFTXYZ::PMFTXYZ(float x_max, float y_max, float z_max, unsigned int n_x, unsign
 // in this class also includes the number of equivalent orientations.
 void PMFTXYZ::reduce()
 {
-    // reallocate the data arrays so we don't overwrite copies of the data the user may have made
-    m_pcf_array = std::make_shared<util::ManagedArray<float>>(m_pcf_array->shape());
-    m_histogram = BondHistogram(m_histogram.getAxes());
-    
     float inv_num_dens = m_box.getVolume() / (float) m_n_query_points;
     float norm_factor
         = (float) 1.0 / ((float) m_frame_counter * (float) m_n_points * (float) m_num_equiv_orientations);
@@ -92,7 +88,7 @@ void PMFTXYZ::reduce()
 
 void PMFTXYZ::reset()
 {
-    BondHistogramCompute::reset();
+    PMFT::reset();
     m_num_equiv_orientations = 0xffffffff;
 }
 

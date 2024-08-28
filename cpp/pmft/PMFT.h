@@ -39,6 +39,15 @@ public:
         return reduceAndReturn(m_pcf_array);
     }
 
+    void reset() override
+        {
+        BondHistogramCompute::reset();
+
+        // Reallocate the PCF array so we do not invalidate references that the user has to
+        // previous results.
+        m_pcf_array = std::make_shared<util::ManagedArray<float>>(m_pcf_array->shape());
+        }
+
 protected:
     //! Reduce the thread local histogram into the total pair correlation function.
     /*! The pair correlation function is computed by reducing the bin counts in
