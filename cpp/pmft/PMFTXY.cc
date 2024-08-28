@@ -51,6 +51,10 @@ PMFTXY::PMFTXY(float x_max, float y_max, unsigned int n_x, unsigned int n_y) : P
 
 void PMFTXY::reduce()
 {
+    // reallocate the data arrays so we don't overwrite copies of the data the user may have made
+    m_pcf_array = std::make_shared<util::ManagedArray<float>>(m_pcf_array->shape());
+    m_histogram = BondHistogram(m_histogram.getAxes());
+
     float jacobian_factor = (float) 1.0 / m_jacobian;
     PMFT::reduce([jacobian_factor](size_t i) { return jacobian_factor; }); // NOLINT (misc-unused-parameters)
 }
@@ -61,10 +65,6 @@ void PMFTXY::accumulate(std::shared_ptr<locality::NeighborQuery> neighbor_query,
                         const freud::locality::QueryArgs& qargs)
 {
     neighbor_query->getBox().enforce2D();
-
-    // reallocate the data arrays so we don't overwrite previous data
-    m_pcf_array = std::make_shared<util::ManagedArray<float>>(m_pcf_array->shape());
-    m_histogram = BondHistogram(m_histogram.getAxes());
 
     // now accumulate
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,

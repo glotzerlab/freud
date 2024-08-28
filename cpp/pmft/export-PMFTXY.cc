@@ -14,7 +14,7 @@ using nb_array = nanobind::ndarray<T, shape, nanobind::device::cpu, nanobind::c_
 
 namespace wrap {
 
-void accumulateXY(std::shared_ptr<PMFTXY> pmftxy, std::shared_ptr<locality::NeighborQuery> nq,
+void accumulateXY(std::shared_ptr<PMFTXY> self, std::shared_ptr<locality::NeighborQuery> nq,
                   nb_array<float, nanobind::shape<-1>> query_orientations,
                   nb_array<float, nanobind::shape<-1, 3>> query_points,
                   std::shared_ptr<locality::NeighborList> nlist, const locality::QueryArgs& qargs)
@@ -22,7 +22,7 @@ void accumulateXY(std::shared_ptr<PMFTXY> pmftxy, std::shared_ptr<locality::Neig
     unsigned int num_query_points = query_points.shape(0);
     auto* query_orientations_data = reinterpret_cast<float*>(query_orientations.data());
     auto* query_points_data = reinterpret_cast<vec3<float>*>(query_points.data());
-    pmftxy->accumulate(nq, query_orientations_data, query_points_data, num_query_points, nlist, qargs);
+    self->accumulate(nq, query_orientations_data, query_points_data, num_query_points, nlist, qargs);
 }
 
 }; // namespace wrap
