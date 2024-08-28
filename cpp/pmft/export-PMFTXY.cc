@@ -5,7 +5,6 @@
 #include <nanobind/ndarray.h>
 #include <nanobind/stl/shared_ptr.h>
 
-#include "BondHistogramCompute.h"
 #include "PMFTXY.h"
 
 namespace freud { namespace pmft {

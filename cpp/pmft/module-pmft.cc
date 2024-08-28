@@ -7,6 +7,7 @@ namespace freud::pmft::detail {
     
 void export_PMFT(nanobind::module_& m);
 void export_PMFTXY(nanobind::module_& m);
+void export_PMFTXYZ(nanobind::module_& m);
 }
 
 using namespace freud::pmft::detail;
@@ -15,7 +16,7 @@ NB_MODULE(_pmft, m)
 {
     export_PMFT(m);
     export_PMFTXY(m);
+    export_PMFTXYZ(m);
     // export_PMFTR12(m);
     // export_PMFTXYT(m);
-    // export_PMFTXYZ(m);
 }

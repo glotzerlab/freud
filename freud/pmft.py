@@ -480,7 +480,7 @@ class PMFTXYZ(_PMFT):
             n_x = n_y = n_z = bins
 
         self._cpp_obj = freud._pmft.PMFTXYZ(
-            x_max, y_max, z_max, n_x, n_y, n_z, shiftvec
+            x_max, y_max, z_max, n_x, n_y, n_z,
         )
         self.shiftvec = np.array(shiftvec, dtype=np.float32)
         self.r_max = np.sqrt(x_max**2 + y_max**2 + z_max**2)
@@ -517,7 +517,7 @@ class PMFTXYZ(_PMFT):
                 Orientations to be treated as equivalent to account for
                 symmetry of the points. For instance, if the
                 :code:`query_points` are rectangular prisms with the long axis
-                corresponding to the x-axis, then a point at :math:`(1, 0, 0)`
+ &               corresponding to the x-axis, then a point at :math:`(1, 0, 0)`
                 and a point at :math:`(-1, 0, 0)` are symmetrically equivalent
                 and can be counted towards both the positive and negative bins.
                 If not supplied by user or :code:`None`, a unit quaternion will
@@ -552,7 +552,7 @@ class PMFTXYZ(_PMFT):
                 equiv_orientations, shape=(None, 4)
             )
 
-        self.pmftxyzptr.accumulate(
+        self._cpp_obj.accumulate(
             nq._cpp_obj,
             query_orientations,
             query_points,
