@@ -1,4 +1,5 @@
 set(python_files
+    __init__.py
     box.py
     data.py
     errors.py

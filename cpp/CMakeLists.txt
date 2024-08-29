@@ -71,6 +71,6 @@ add_subdirectory(util)
 # add_subdirectory(diffraction) add_subdirectory(environment)
 # add_subdirectory(order) add_subdirectory(pmft)
 
-if(NOT WIN32)
+if(${freud_nanobind_linking} STREQUAL "NB_SHARED")
   install(TARGETS nanobind DESTINATION freud)
 endif()

@@ -19,23 +19,11 @@ endif()
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# This setting is required when building shared libraries from object libraries.
-# CMake intentionally chooses not to infer such information, so we should expect
-# to specify this.
-# https://stackoverflow.com/questions/50600708/combining-cmake-object-libraries-with-shared-libraries
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 add_subdirectory(CMake)
 
-# find python
-if(CMAKE_VERSION VERSION_LESS 3.18)
-  set(DEV_MODULE Development)
-else()
-  set(DEV_MODULE Development.Module)
-endif()
-
 find_package(
-  Python 3.8
-  COMPONENTS Interpreter ${DEV_MODULE}
+  Python 3.9
+  COMPONENTS Interpreter Development.Module
   REQUIRED)
 
 find_package_config_first(TBB)
@@ -52,7 +40,7 @@ execute_process(
   COMMAND ${Python_EXECUTABLE} "-m" "nanobind" "--cmake_dir"
   OUTPUT_STRIP_TRAILING_WHITESPACE
   OUTPUT_VARIABLE nanobind_ROOT)
-find_package(nanobind CONFIG REQUIRED)
+find_package(nanobind CONFIG REQUIRED 2.0)
 if(nanobind_FOUND)
   find_package_message(
     nanobind "Found nanobind: ${nanobind_DIR} ${nanobind_VERSION}"
@@ -96,13 +84,6 @@ endif()
 include_directories(
   ${PROJECT_SOURCE_DIR}/cpp/util ${PROJECT_SOURCE_DIR}/cpp/locality
   ${PROJECT_SOURCE_DIR}/cpp/box)
-
-# We treat the extern folder as a SYSTEM library to avoid getting any diagnostic
-# information from it. In particular, this avoids clang-tidy throwing errors due
-# to any issues in external code. include_directories(SYSTEM ${TBB_INCLUDE_DIR})
-
-# Ignore unused variable warning from scikit-build
-set(ignoreMe "${SKBUILD}")
 
 add_subdirectory(cpp)
 add_subdirectory(freud)

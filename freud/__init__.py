@@ -3,15 +3,15 @@
 
 
 # cluster,; density,; diffraction,; environment,; interface,; msd,; order,
-from . import box, data, locality, parallel, pmft
-from .box import Box
+# from . import box, data, locality, parallel, pmft
+# from .box import Box
 
 # from .locality import AABBQuery, LinkCell, NeighborList
-from .parallel import NumThreads, get_num_threads, set_num_threads
+# from .parallel import NumThreads, get_num_threads, set_num_threads
 
 # Override TBB's default autoselection. This is necessary because once the
 # automatic selection runs, the user cannot change it.
-set_num_threads(0)
+# set_num_threads(0)
 
 __version__ = "3.1.0"
 
