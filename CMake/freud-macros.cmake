@@ -14,11 +14,3 @@ macro(find_package_config_first package)
     endif()
   endif()
 endmacro()
-
-# set the rpath for installing python extension modules
-function(target_set_install_rpath _target)
-  if(_using_conda)
-    set_target_properties(${_target} PROPERTIES INSTALL_RPATH_USE_LINK_PATH
-                                                True)
-  endif()
-endfunction()

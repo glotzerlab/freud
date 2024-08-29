@@ -47,13 +47,6 @@ if(nanobind_FOUND)
     "[${nanobind_DIR},${nanobind_VERSION}]")
 endif()
 
-# shared nanobind linking seems broken on windows for unknown reasons
-if(WIN32)
-  set(freud_nanobind_linking "NB_STATIC")
-else()
-  set(freud_nanobind_linking "NB_STATIC")
-endif()
-
 # Fail fast if users have not cloned submodules.
 if(NOT WIN32)
   string(ASCII 27 Esc)
@@ -81,9 +74,27 @@ if(WIN32)
   add_compile_options(/DNOMINMAX)
 endif()
 
-include_directories(
-  ${PROJECT_SOURCE_DIR}/cpp/util ${PROJECT_SOURCE_DIR}/cpp/locality
-  ${PROJECT_SOURCE_DIR}/cpp/box)
+# Detect when building against a conda environment set the _using_conda variable
+# for use both in this file and in the parent
+get_filename_component(_python_bin_dir ${Python_EXECUTABLE} DIRECTORY)
+if(EXISTS "${_python_bin_dir}/../conda-meta")
+  message(STATUS "Detected conda environment, setting INSTALL_RPATH_USE_LINK_PATH")
+  set(_using_conda On)
+else()
+  set(_using_conda Off)
+endif()
 
-add_subdirectory(cpp)
+include_directories(
+  ${PROJECT_SOURCE_DIR}/freud/box
+  ${PROJECT_SOURCE_DIR}/freud/cluster
+  ${PROJECT_SOURCE_DIR}/freud/density
+  ${PROJECT_SOURCE_DIR}/freud/diffraction
+  ${PROJECT_SOURCE_DIR}/freud/environment
+  ${PROJECT_SOURCE_DIR}/freud/locality
+  ${PROJECT_SOURCE_DIR}/freud/order
+  ${PROJECT_SOURCE_DIR}/freud/parallel
+  ${PROJECT_SOURCE_DIR}/freud/pmft
+  ${PROJECT_SOURCE_DIR}/freud/util
+  )
+
 add_subdirectory(freud)
