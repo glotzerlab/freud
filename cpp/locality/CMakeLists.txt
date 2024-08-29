@@ -4,9 +4,9 @@ set(locality_extension_sources
     export_Voronoi.cc)
 
 # create the target and add the needed properties
-nanobind_add_module(_locality ${freud_nanobind_linking} module-locality.cc
+nanobind_add_module(_locality module-locality.cc
                     ${locality_extension_sources})
-target_link_libraries(_locality PUBLIC libfreud)
+target_link_libraries(_locality PUBLIC freud TBB::tbb)
 
 target_set_install_rpath(_locality)
 

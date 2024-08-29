@@ -8,7 +8,7 @@ endif()
 
 # Detect when building against a conda environment set the _using_conda variable
 # for use both in this file and in the parent
-get_filename_component(_python_bin_dir ${PYTHON_EXECUTABLE} DIRECTORY)
+get_filename_component(_python_bin_dir ${Python_EXECUTABLE} DIRECTORY)
 if(EXISTS "${_python_bin_dir}/../conda-meta")
   message("-- Detected conda environment, setting INSTALL_RPATH_USE_LINK_PATH")
   set(_using_conda On)
@@ -22,42 +22,22 @@ else()
       PARENT_SCOPE)
 endif()
 
-# get the sources/header files for building libfreud.so
 include(box/box-files.cmake)
 include(locality/locality-files.cmake)
 include(parallel/parallel-files.cmake)
 include(pmft/pmft-files.cmake)
 include(util/util-files.cmake)
 
-# make libfreud.so
-add_library(libfreud SHARED ${box_sources} ${locality_sources}
+# Use a static library for the main code. A Dynamic library would be more
+# disk space efficient, but I was unable to resolve a RPATH issue where
+# any use of `INSTALL_RPATH` would result in "terminated by signal SIGKILL"
+# the moment Python attempts to load the library.
+add_library(freud STATIC ${box_sources} ${locality_sources}
                             ${parallel_sources} ${pmft_sources} ${util_sources})
+set_target_properties(freud PROPERTIES POSITION_INDEPENDENT_CODE ON)
+target_link_libraries(freud PUBLIC TBB::tbb)
 
-target_link_libraries(libfreud PUBLIC TBB::tbb)
-
-# We treat the extern folder as a SYSTEM library to avoid getting any diagnostic
-# information from it. In particular, this avoids clang-tidy throwing errors due
-# to any issues in external code.
-target_include_directories(libfreud SYSTEM PUBLIC ${PROJECT_SOURCE_DIR}/extern/)
-
-# CMake will automatically prepend any library name with "lib" when creating
-# shared libraries, so a CMake library named libfreud will result in
-# liblibfreud.so object. This rename gives the more expected name of
-# libfreud.so. Note that we choose not to name the CMake target "freud" to avoid
-# conflicting with the project name.
-set_target_properties(libfreud PROPERTIES OUTPUT_NAME freud)
-
-# Copy the C++ library into the built version.
-install(TARGETS libfreud DESTINATION freud)
-
-if(CMAKE_EXPORT_COMPILE_COMMANDS)
-  # Copy the compile commands into the root of the project.
-  add_custom_command(
-    TARGET libfreud
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/compile_commands.json
-            ${PROJECT_SOURCE_DIR})
-endif()
+target_include_directories(freud SYSTEM PUBLIC ${PROJECT_SOURCE_DIR}/extern/)
 
 # now build the python extension modules
 add_subdirectory(box)
@@ -70,7 +50,3 @@ add_subdirectory(util)
 # add_subdirectory(cluster) add_subdirectory(density)
 # add_subdirectory(diffraction) add_subdirectory(environment)
 # add_subdirectory(order) add_subdirectory(pmft)
-
-if(${freud_nanobind_linking} STREQUAL "NB_SHARED")
-  install(TARGETS nanobind DESTINATION freud)
-endif()
