@@ -6,7 +6,7 @@
 #include <nanobind/stl/vector.h>
 
 #include "Box.h"
-#include "export_Box.h"
+#include "export-Box.h"
 
 using namespace freud::box;
 

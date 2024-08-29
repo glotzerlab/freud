@@ -3,8 +3,8 @@
 
 #include <nanobind/nanobind.h>
 
-#include "export_ManagedArray.h"
-#include "export_Vector.h"
+#include "export-ManagedArray.h"
+#include "export-Vector.h"
 
 using namespace freud::util::detail;
 

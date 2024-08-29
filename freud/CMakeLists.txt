@@ -163,18 +163,18 @@ target_include_directories(freud SYSTEM PUBLIC ${PROJECT_SOURCE_DIR}/extern/)
 # target_set_install_rpath(_environment)
 
 # box
-nanobind_add_module(_box box/module-box.cc box/export_Box.cc)
+nanobind_add_module(_box box/module-box.cc box/export-Box.cc)
 target_link_libraries(_box PUBLIC TBB::tbb)
 target_set_install_rpath(_box)
 
 # locality
 nanobind_add_module(_locality locality/module-locality.cc
-                        locality/export_BondHistogramCompute.cc
-                        locality/export_NeighborQuery.cc
-                        locality/export_NeighborList.cc
-                        locality/export_Filter.cc
-                        locality/export_PeriodicBuffer.cc
-    locality/export_Voronoi.cc
+                        locality/export-BondHistogramCompute.cc
+                        locality/export-NeighborQuery.cc
+                        locality/export-NeighborList.cc
+                        locality/export-Filter.cc
+                        locality/export-PeriodicBuffer.cc
+    locality/export-Voronoi.cc
     )
 target_link_libraries(_locality PUBLIC freud TBB::tbb)
 target_set_install_rpath(_locality)
@@ -201,9 +201,7 @@ target_link_libraries(_pmft PUBLIC freud)
 target_set_install_rpath(_pmft)
 
 # util
-nanobind_add_module(_util util/module-util.cc 
-    util/export_ManagedArray.h
-    util/export_Vector.h)
+nanobind_add_module(_util util/module-util.cc util/export_ManagedArray.h util/export_Vector.h)
 target_link_libraries(_util PUBLIC freud)
 target_set_install_rpath(_util)
 
@@ -220,6 +218,8 @@ set(python_files
     plot.py
     util.py)
 # cluster.py density.py diffraction.py environment.py order.py interface.py msd.py)
+
+copy_files_to_build("${python_files}" "freud" "*.py")
 
 # install
 if (SKBUILD)

@@ -1,12 +1,12 @@
 // Copyright (c) 2010-2024 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#include "export_BondHistogramCompute.h"
-
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
 #include <nanobind/stl/shared_ptr.h>
 #include <nanobind/stl/vector.h>
+
+#include "BondHistogramCompute.h"
 
 namespace nb = nanobind;
 

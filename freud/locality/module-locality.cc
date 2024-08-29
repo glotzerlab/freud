@@ -3,14 +3,28 @@
 
 #include <nanobind/nanobind.h>
 
-#include "export_BondHistogramCompute.h"
-#include "export_Filter.h"
-#include "export_NeighborList.h"
-#include "export_NeighborQuery.h"
-#include "export_PeriodicBuffer.h"
-#include "export_Voronoi.h"
+#include "NeighborQuery.h"
+
+namespace freud::locality::detail {
+
+void export_Voronoi(nanobind::module_& m);
+void export_PeriodicBuffer(nanobind::module_& m);
+void export_NeighborQuery(nanobind::module_& m);
+void export_AABBQuery(nanobind::module_& m);
+void export_LinkCell(nanobind::module_& m);
+void export_RawPoints(nanobind::module_& m);
+void export_QueryArgs(nanobind::module_& m);
+void export_NeighborQueryIterator(nanobind::module_& m);
+void export_NeighborList(nanobind::module_& m);
+void export_NeighborBond(nanobind::module_& m);
+void export_BondHistogramCompute(nanobind::module_& m);
+void export_Filter(nanobind::module_& m);
+void export_FilterRAD(nanobind::module_& m);
+void export_FilterSANN(nanobind::module_& m);
+}
 
 using namespace freud::locality::detail;
+namespace nb = nanobind;
 
 NB_MODULE(_locality, m)
 {
