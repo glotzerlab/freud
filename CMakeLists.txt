@@ -51,7 +51,7 @@ endif()
 if(WIN32)
   set(freud_nanobind_linking "NB_STATIC")
 else()
-  set(freud_nanobind_linking "NB_SHARED")
+  set(freud_nanobind_linking "NB_STATIC")
 endif()
 
 # Fail fast if users have not cloned submodules.

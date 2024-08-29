@@ -15,35 +15,16 @@ macro(find_package_config_first package)
   endif()
 endmacro()
 
-# Convert shared libraries to python extensions
-function(make_python_extension_module _target)
-  set_target_properties(${_target} PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}")
-  set_target_properties(${_target}
-                        PROPERTIES SUFFIX "${PYTHON_EXTENSION_MODULE_SUFFIX}")
-
-  target_include_directories(${_target} PRIVATE "${PYTHON_INCLUDE_DIRS}")
-  if(WIN32)
-    # Link to the Python libraries on windows
-    target_link_libraries(${_target} ${PYTHON_LIBRARIES})
-  else()
-    # Do not link to the Python libraries on Mac/Linux - symbols are provided by
-    # the `python` executable. "-undefined dynamic_lookup" is needed on Mac
-    target_link_options(
-      ${_target} PRIVATE
-      "$<$<PLATFORM_ID:Darwin>:LINKER:-undefined,dynamic_lookup>")
-  endif()
-endfunction()
-
 # set the rpath for installing python extension modules
 function(target_set_install_rpath _target)
-  # if(APPLE)
-  #   set_target_properties(${_target} PROPERTIES INSTALL_RPATH "@loader_path")
-  # else()
-  #   set_target_properties(${_target} PROPERTIES INSTALL_RPATH "\$ORIGIN")
-  # endif()
+  if(APPLE)
+    set_target_properties(${_target} PROPERTIES INSTALL_RPATH "@loader_path")
+  else()
+    set_target_properties(${_target} PROPERTIES INSTALL_RPATH "\$ORIGIN")
+  endif()
 
-  # if(_using_conda)
-  #   set_target_properties(${_target} PROPERTIES INSTALL_RPATH_USE_LINK_PATH
-  #                                               True)
-  # endif()
+  if(_using_conda)
+    set_target_properties(${_target} PROPERTIES INSTALL_RPATH_USE_LINK_PATH
+                                                True)
+  endif()
 endfunction()
