@@ -69,7 +69,7 @@ To build **freud** from source:
       micromamba install cmake ninja numpy python tbb-devel nanobind scikit-build-core gsd matplotlib pytest rowan scipy sympy
 
    .. code-block:: bash
-    
+
       cmake -B build -S . -GNinja
       cd build
       ninja
@@ -92,7 +92,7 @@ To build the documentation from source:
    .. code-block:: bash
 
       cd {{ path/to/freud/repository }}
-   
+
    .. code-block:: bash
 
       sphinx-build -b html doc html
@@ -166,7 +166,7 @@ Use **uv** to install the Python module into your virtual environment:
 To perform incremental builds, `install the prerequisites first <Install prerequisites>`_, then run:
 
 .. code-block:: bash
-    
+
    uv pip install --no-deps --no-build-isolation --force-reinstall -C build-dir=$PWD/build .
 
 You may find using `CMake`_ directly more effective for incremental builds (see the next section).

@@ -21,7 +21,7 @@ void export_BondHistogramCompute(nanobind::module_& m);
 void export_Filter(nanobind::module_& m);
 void export_FilterRAD(nanobind::module_& m);
 void export_FilterSANN(nanobind::module_& m);
-}
+} // namespace freud::locality::detail
 
 using namespace freud::locality::detail;
 namespace nb = nanobind;

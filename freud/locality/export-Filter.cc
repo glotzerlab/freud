@@ -5,9 +5,9 @@
 #include <nanobind/ndarray.h>
 #include <nanobind/stl/shared_ptr.h>
 
-#include "NeighborQuery.h"
 #include "FilterRAD.h"
 #include "FilterSANN.h"
+#include "NeighborQuery.h"
 
 namespace nb = nanobind;
 

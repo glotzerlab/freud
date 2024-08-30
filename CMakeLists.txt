@@ -62,7 +62,8 @@ endif()
 # for use both in this file and in the parent
 get_filename_component(_python_bin_dir ${Python_EXECUTABLE} DIRECTORY)
 if(EXISTS "${_python_bin_dir}/../conda-meta")
-  message(STATUS "Detected conda environment, setting INSTALL_RPATH_USE_LINK_PATH")
+  message(
+    STATUS "Detected conda environment, setting INSTALL_RPATH_USE_LINK_PATH")
   set(_using_conda On)
 else()
   set(_using_conda Off)
@@ -78,7 +79,6 @@ include_directories(
   ${PROJECT_SOURCE_DIR}/freud/order
   ${PROJECT_SOURCE_DIR}/freud/parallel
   ${PROJECT_SOURCE_DIR}/freud/pmft
-  ${PROJECT_SOURCE_DIR}/freud/util
-  )
+  ${PROJECT_SOURCE_DIR}/freud/util)
 
 add_subdirectory(freud)
