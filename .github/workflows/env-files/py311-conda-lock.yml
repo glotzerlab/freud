@@ -13,10 +13,10 @@
 version: 1
 metadata:
   content_hash:
-    osx-arm64: f5699f6752384c5d9a19bf60999421aa2ad6c015949126e202ac50adec1a2883
-    osx-64: 82392e0e06ef49ebeb284665d8a92e70a34fa96dc67916b49c6257dee780a7e2
-    linux-64: 147c7e4164d04fb7a158d6cc8fc1cdd89b92cfa686eb0784b157e98873ba4850
-    win-64: 40a6db80935c05f272b04a1392b10e866a787d61c98a8c4a885300bd9ff33e1b
+    osx-arm64: f5c19f5451988b99abcd7c1543f23acef327293c689689a9eef72104c3cc0543
+    osx-64: ed55bf7547f1dd3cc5063e9e2dd68c1667aca9fbc0fcce9ca3d903229318b76c
+    linux-64: d4db3fad8938b26b09d81e1ea0a95f55b4ee5fac77c1dd389000e3296da3d828
+    win-64: 7c18d2ee9cbb9243a48e7108118a2c7f18c8e07a9c5658b276b84fd2f61221c8
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -1017,68 +1017,6 @@ package:
   hash:
     md5: 5cd86562580f274031ede6aa6aa24441
     sha256: f221233f21b1d06971792d491445fd548224641af9443739b4b7b6d5d72954a8
-  category: main
-  optional: false
-- name: cython
-  version: 3.0.11
-  manager: conda
-  platform: linux-64
-  dependencies:
-    __glibc: '>=2.17,<3.0.a0'
-    libgcc: '>=13'
-    libstdcxx: '>=13'
-    python: '>=3.11,<3.12.0a0'
-    python_abi: 3.11.*
-  url: https://conda.anaconda.org/conda-forge/linux-64/cython-3.0.11-py311hfdbb021_1.conda
-  hash:
-    md5: a2a2d0cd9a5ffef300f2898b12c6d328
-    sha256: 5c929fdc9b61a34c75c8a03dae8cd76749c8306d4d94a6cf36254a64e3c61daf
-  category: main
-  optional: false
-- name: cython
-  version: 3.0.11
-  manager: conda
-  platform: osx-64
-  dependencies:
-    __osx: '>=10.13'
-    libcxx: '>=17'
-    python: '>=3.11,<3.12.0a0'
-    python_abi: 3.11.*
-  url: https://conda.anaconda.org/conda-forge/osx-64/cython-3.0.11-py311hd89902b_1.conda
-  hash:
-    md5: b0d0387ab15b68c66c4fe5fb5521471e
-    sha256: 63fc07dc88e2559f6b6cfaa9486346d05abb970d39e3e8fc02774defb5cfbcb3
-  category: main
-  optional: false
-- name: cython
-  version: 3.0.11
-  manager: conda
-  platform: osx-arm64
-  dependencies:
-    __osx: '>=11.0'
-    libcxx: '>=17'
-    python: '>=3.11,<3.12.0a0'
-    python_abi: 3.11.*
-  url: https://conda.anaconda.org/conda-forge/osx-arm64/cython-3.0.11-py311h3f08180_1.conda
-  hash:
-    md5: a8b9335ee6ec16cde3fd608ce83ca8c6
-    sha256: 148ba99743f5c22a1609f23450749c02f2d725a0c185d44f6ac57b35fef8e602
-  category: main
-  optional: false
-- name: cython
-  version: 3.0.11
-  manager: conda
-  platform: win-64
-  dependencies:
-    python: '>=3.11,<3.12.0a0'
-    python_abi: 3.11.*
-    ucrt: '>=10.0.20348.0'
-    vc: '>=14.2,<15'
-    vc14_runtime: '>=14.29.30139'
-  url: https://conda.anaconda.org/conda-forge/win-64/cython-3.0.11-py311hda3d55a_1.conda
-  hash:
-    md5: fd793243893b7442d7c54f30d3b309b6
-    sha256: f21836aa2eccea47b6f1e2f622e078ff6309848ec9f039f4ae2c29d9333c81e7
   category: main
   optional: false
 - name: dbus
