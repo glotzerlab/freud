@@ -47,22 +47,6 @@ if(nanobind_FOUND)
     "[${nanobind_DIR},${nanobind_VERSION}]")
 endif()
 
-# Fail fast if users have not cloned submodules.
-if(NOT WIN32)
-  string(ASCII 27 Esc)
-  set(Red "${Esc}[31m")
-  set(DefaultColor "${Esc}[m")
-endif()
-set(submodules Eigen fsph voro++)
-foreach(submodule ${submodules})
-  if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/${submodule}/.git")
-    message(
-      FATAL_ERROR
-        "${Red}Not all git submodules are available. Please run git submodule update --init --recursive.${DefaultColor}"
-    )
-  endif()
-endforeach()
-
 # Define preprocessor directives for Windows
 if(WIN32)
   # Export all symbols (forces creation of .def file)
