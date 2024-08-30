@@ -139,6 +139,9 @@ jobs:
       - name: Build sdist
         run: python -m build --sdist --outdir dist/ .
 
+      - name: Check sdist size
+        run: du -hs dist/*
+
       - uses: actions/upload-artifact@834a144ee995460fba8ed112a2fc961b36a5ec5a # v4.3.6
         with:
           name: dist-sdist

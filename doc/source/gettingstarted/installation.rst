@@ -254,3 +254,6 @@ Open the file :file:`html/index.html` in your web browser to view the documentat
 
 .. _Sphinx: https://www.sphinx-doc.org/
 
+.. important::
+
+    You must clone the freud GitHub repository to build the documentation.
