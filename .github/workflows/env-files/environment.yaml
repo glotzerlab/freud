@@ -20,7 +20,7 @@ dependencies:
   - pre-commit
   - pytest
   - rowan
-  - scikit-build
+  - scikit-build-core
   - scipy
   - sympy
   - uv
