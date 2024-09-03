@@ -2,7 +2,7 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <nanobind/stl/array.h>
-#include <nanobind/stl/shared_ptr.h>
+#include <nanobind/stl/shared_ptr.h>  // NOLINT(misc-include-cleaner): used implicitly
 
 #include "PeriodicBuffer.h"
 

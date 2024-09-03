@@ -2,17 +2,18 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <nanobind/nanobind.h>
-#include <nanobind/stl/shared_ptr.h>
-#include <nanobind/stl/vector.h>
+#include <nanobind/nb_defs.h>
+#include <nanobind/stl/shared_ptr.h>  // NOLINT(misc-include-cleaner): used implicitly
+#include <nanobind/stl/vector.h>  // NOLINT(misc-include-cleaner): used implicitly
 
 #include "Box.h"
 #include "export-Box.h"
 
 using namespace freud::box;
 
-NB_MODULE(_box, m)
+NB_MODULE(_box, module) // NOLINT(misc-use-anonymous-namespace): We have no control over nanobind module definitions.
 {
-    nanobind::class_<Box>(m, "Box")
+    nanobind::class_<Box>(module, "Box")
         // constructors
         .def(nanobind::init<float, float, float, float, float, float, bool>())
         // getters and setters

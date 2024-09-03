@@ -3,7 +3,7 @@
 
 #include <nanobind/ndarray.h>
 #include <nanobind/operators.h>
-#include <nanobind/stl/shared_ptr.h>
+#include <nanobind/stl/shared_ptr.h>  // NOLINT(misc-include-cleaner): used implicitly
 
 #include "NeighborList.h"
 
