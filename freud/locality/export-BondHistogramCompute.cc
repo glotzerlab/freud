@@ -63,9 +63,9 @@ nb::object getBounds(std::shared_ptr<BondHistogramCompute> bondHist)
 
 namespace detail {
 
-void export_BondHistogramCompute(nb::module_& m)
+void export_BondHistogramCompute(nb::module_& module)
 {
-    nb::class_<BondHistogramCompute>(m, "BondHistogramCompute")
+    nb::class_<BondHistogramCompute>(module, "BondHistogramCompute")
         .def("getBox", &BondHistogramCompute::getBox)
         .def("reset", &BondHistogramCompute::reset)
         .def("getBinCounts", &BondHistogramCompute::getBinCounts)

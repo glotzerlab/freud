@@ -8,6 +8,7 @@
 # readability-function-cognitive-complexity: Some heavily nested functions trigger this, it could be possible to rewrite these but that's out of scope at the moment.
 # readability-magic-numbers: Wigner3j contains (necessary) magic numbers.
 # readability-redundant-member-init: If the constructor changes or if there are multiple constructor signatures, prefer to be explicit.
+# readability-identifier-length: We use short identifiers sparingly and in places where they are more readable than long ones.
 
 Checks: 'bugprone-*,
          cert-*,
@@ -26,4 +27,6 @@ Checks: 'bugprone-*,
          -readability-avoid-const-params-in-decls,
          -readability-function-cognitive-complexity,
          -readability-magic-numbers,
-         -readability-redundant-member-init'
+         -readability-redundant-member-init,
+         -readability-identifier-length
+         '

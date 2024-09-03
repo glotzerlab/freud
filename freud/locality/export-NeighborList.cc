@@ -51,9 +51,9 @@ unsigned int filter(std::shared_ptr<NeighborList> nlist, nb_array<bool, nb::ndim
 
 namespace detail {
 
-void export_NeighborList(nb::module_& m)
+void export_NeighborList(nb::module_& module)
 {
-    nb::class_<NeighborList>(m, "NeighborList")
+    nb::class_<NeighborList>(module, "NeighborList")
         // export constructors, wrap some as static factory methods
         .def(nb::init<>())
         .def(nb::init<unsigned int>())
@@ -77,9 +77,9 @@ void export_NeighborList(nb::module_& m)
         .def("sort", &NeighborList::sort);
 };
 
-void export_NeighborBond(nb::module_& m)
+void export_NeighborBond(nb::module_& module)
 {
-    nb::class_<NeighborBond>(m, "NeighborBond")
+    nb::class_<NeighborBond>(module, "NeighborBond")
         .def(nb::init<>())
         .def("getQueryPointIdx", &NeighborBond::getQueryPointIdx)
         .def("getPointIdx", &NeighborBond::getPointIdx)

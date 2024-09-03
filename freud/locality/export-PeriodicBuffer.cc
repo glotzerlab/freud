@@ -10,9 +10,9 @@ namespace nb = nanobind;
 
 namespace freud { namespace locality { namespace detail {
 
-void export_PeriodicBuffer(nb::module_& m)
+void export_PeriodicBuffer(nb::module_& module)
 {
-    nb::class_<PeriodicBuffer>(m, "PeriodicBuffer")
+    nb::class_<PeriodicBuffer>(module, "PeriodicBuffer")
         .def(nb::init<>())
         .def("compute", &PeriodicBuffer::compute)
         .def("getBox", &PeriodicBuffer::getBox)

@@ -31,23 +31,23 @@ void compute(std::shared_ptr<Filter> filter, std::shared_ptr<NeighborQuery> nq,
 
 namespace detail {
 
-void export_Filter(nb::module_& m)
+void export_Filter(nb::module_& module)
 {
-    nb::class_<Filter>(m, "Filter")
+    nb::class_<Filter>(module, "Filter")
         .def("compute", &wrap::compute, nb::arg("nq"), nb::arg("query_points"), nb::arg("nlist").none(),
              nb::arg("qargs"))
         .def("getFilteredNlist", &Filter::getFilteredNlist)
         .def("getUnfilteredNlist", &Filter::getUnfilteredNlist);
 }
 
-void export_FilterRAD(nb::module_& m)
+void export_FilterRAD(nb::module_& module)
 {
-    nb::class_<FilterRAD, Filter>(m, "FilterRAD").def(nb::init<bool, bool>());
+    nb::class_<FilterRAD, Filter>(module, "FilterRAD").def(nb::init<bool, bool>());
 }
 
-void export_FilterSANN(nb::module_& m)
+void export_FilterSANN(nb::module_& module)
 {
-    nb::class_<FilterSANN, Filter>(m, "FilterSANN").def(nb::init<bool>());
+    nb::class_<FilterSANN, Filter>(module, "FilterSANN").def(nb::init<bool>());
 }
 
 }; // namespace detail

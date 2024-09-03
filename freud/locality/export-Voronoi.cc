@@ -42,9 +42,9 @@ nb::object getPolytopes(std::shared_ptr<Voronoi> voro)
 
 namespace detail {
 
-void export_Voronoi(nb::module_& m)
+void export_Voronoi(nb::module_& module)
 {
-    nb::class_<Voronoi>(m, "Voronoi")
+    nb::class_<Voronoi>(module, "Voronoi")
         .def(nb::init<>())
         .def("compute", &Voronoi::compute)
         .def("getBox", &Voronoi::getBox)
