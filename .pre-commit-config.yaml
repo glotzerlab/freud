@@ -95,8 +95,7 @@ repos:
     - id: clang-tidy
       stages: [manual]  # Requires clang-tidy.
       name: clang-tidy
-      # TODO: Update to a newer clang-tidy and adjust all C++ code to meet the new style guidlines.
-      entry: clang-tidy-10
+      entry: clang-tidy-18
       language: system
       types: [c++]
       # Exclude external files. Also exclude AABB.h because it uses intrinsics
