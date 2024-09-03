@@ -4,15 +4,21 @@
 #ifndef AABBQUERY_H
 #define AABBQUERY_H
 
+#include <algorithm>
 #include <cmath>
 #include <map>
+#include <math.h> // NOLINT(modernize-deprecated-headers): Use std::numbers when c++20 is default.
 #include <memory>
+#include <stdexcept>
 #include <unordered_set>
 #include <vector>
 
+#include "AABB.h"
 #include "AABBTree.h"
 #include "Box.h"
+#include "NeighborBond.h"
 #include "NeighborQuery.h"
+#include "VectorMath.h"
 
 /*! \file AABBQuery.h
  *  \brief Build an AABB tree from points and query it for neighbors.
@@ -78,12 +84,13 @@ protected:
                 // the number of particles and V is the box volume, and it
                 // calculates the radius of a sphere that will contain the
                 // desired number of neighbors.
-                float r_guess = std::cbrtf(
+
+                float const r_guess = std::cbrtf(
                     (float(3.0) * static_cast<float>(args.num_neighbors) * m_box.getVolume())
                     / (float(4.0) * static_cast<float>(M_PI) * static_cast<float>(getNPoints())));
 
                 // The upper bound is set by the minimum nearest plane distances.
-                vec3<float> nearest_plane_distance = m_box.getNearestPlaneDistance();
+                vec3<float> const nearest_plane_distance = m_box.getNearestPlaneDistance();
                 float min_plane_distance = std::min(nearest_plane_distance.x, nearest_plane_distance.y);
                 if (!m_box.is2D())
                 {
@@ -145,8 +152,8 @@ public:
     AABBQueryIterator(const AABBQuery* neighbor_query, const vec3<float>& query_point,
                       unsigned int query_point_idx, unsigned int num_neighbors, float r_guess, float r_max,
                       float r_min, float scale, bool exclude_ii)
-        : AABBIterator(neighbor_query, query_point, query_point_idx, r_max, r_min, exclude_ii), m_count(0),
-          m_num_neighbors(num_neighbors), m_search_extended(false), m_r_cur(r_guess), m_scale(scale),
+        : AABBIterator(neighbor_query, query_point, query_point_idx, r_max, r_min, exclude_ii), 
+          m_num_neighbors(num_neighbors),  m_r_cur(r_guess), m_scale(scale),
           m_all_bonds_minimum_distance(), m_query_points_below_r_min()
     {
         updateImageVectors(0);
@@ -159,10 +166,10 @@ public:
     NeighborBond next() override;
 
 protected:
-    unsigned int m_count;                          //!< Number of neighbors returned for the current point.
+    unsigned int m_count{0};                          //!< Number of neighbors returned for the current point.
     unsigned int m_num_neighbors;                  //!< Number of nearest neighbors to find
     std::vector<NeighborBond> m_current_neighbors; //!< The current set of found neighbors.
-    bool m_search_extended; //!< Flag to see whether we've gone past the safe cutoff distance and have to be
+    bool m_search_extended{false}; //!< Flag to see whether we've gone past the safe cutoff distance and have to be
                             //!< worried about finding duplicates.
     float
         m_r_cur; //!< Current search ball cutoff distance in use for the current particle (expands as needed).
@@ -182,8 +189,7 @@ public:
     AABBQueryBallIterator(const AABBQuery* neighbor_query, const vec3<float>& query_point,
                           unsigned int query_point_idx, float r_max, float r_min, bool exclude_ii,
                           bool _check_r_max = true)
-        : AABBIterator(neighbor_query, query_point, query_point_idx, r_max, r_min, exclude_ii), cur_image(0),
-          cur_node_idx(0), cur_ref_p(0)
+        : AABBIterator(neighbor_query, query_point, query_point_idx, r_max, r_min, exclude_ii) 
     {
         updateImageVectors(m_r_max, _check_r_max);
     }
@@ -195,10 +201,10 @@ public:
     NeighborBond next() override;
 
 private:
-    unsigned int cur_image;    //!< The current node in the tree.
-    unsigned int cur_node_idx; //!< The current node in the tree.
+    unsigned int cur_image{0};    //!< The current node in the tree.
+    unsigned int cur_node_idx{0}; //!< The current node in the tree.
     unsigned int
-        cur_ref_p; //!< The current index into the reference particles in the current node of the tree.
+        cur_ref_p{0}; //!< The current index into the reference particles in the current node of the tree.
 };
 }; }; // end namespace freud::locality
 

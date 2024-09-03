@@ -2,9 +2,18 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include "FilterSANN.h"
+#include "Filter.h"
 #include "NeighborBond.h"
 #include "NeighborComputeFunctional.h"
+#include "NeighborQuery.h"
+#include "VectorMath.h"
+#include "NeighborList.h"
 #include "utils.h"
+#include <memory>
+#include <oneapi/tbb/enumerable_thread_specific.h>
+#include <limits>
+#include <cstddef>
+#include <oneapi/tbb/parallel_sort.h>
 #include <tbb/enumerable_thread_specific.h>
 #include <vector>
 

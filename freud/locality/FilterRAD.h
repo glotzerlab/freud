@@ -1,13 +1,14 @@
 // Copyright (c) 2010-2024 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#ifndef __FILTERRAD_H__
-#define __FILTERRAD_H__
+#pragma once
 
 #include "Filter.h"
 
 #include "NeighborList.h"
 #include "NeighborQuery.h"
+#include <memory>
+#include "VectorMath.h"
 
 namespace freud { namespace locality {
 
@@ -31,5 +32,3 @@ private:
 };
 
 }; }; // namespace freud::locality
-
-#endif // __FILTERRAD_H__

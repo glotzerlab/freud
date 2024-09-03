@@ -106,7 +106,8 @@ struct CACHE_ALIGN AABB
     */
     AABB(const vec3<float>& _position, float radius) : tag(0)
     {
-        vec3<float> new_lower, new_upper;
+        vec3<float> new_lower;
+        vec3<float> new_upper;
         new_lower.x = _position.x - radius;
         new_lower.y = _position.y - radius;
         new_lower.z = _position.z - radius;
@@ -291,8 +292,8 @@ inline bool overlap(const AABB& a, const AABB& b)
     return !(r0 || r1);
 
 #else
-    return !(b.upper.x < a.lower.x || b.lower.x > a.upper.x || b.upper.y < a.lower.y || b.lower.y > a.upper.y
-             || b.upper.z < a.lower.z || b.lower.z > a.upper.z);
+    return b.upper.x >= a.lower.x && b.lower.x <= a.upper.x && b.upper.y >= a.lower.y && b.lower.y <= a.upper.y
+             && b.upper.z >= a.lower.z && b.lower.z <= a.upper.z;
 
 #endif
 }
@@ -315,10 +316,10 @@ inline bool overlap(const AABB& a, const AABBSphere& b)
     return _mm_cvtss_f32(sums) < b.radius * b.radius;
 
 #else
-    vec3<float> dr = vec3<float>(std::min(std::max(b.position.x, a.lower.x), a.upper.x) - b.position.x,
+    vec3<float> const dr = vec3<float>(std::min(std::max(b.position.x, a.lower.x), a.upper.x) - b.position.x,
                                  std::min(std::max(b.position.y, a.lower.y), a.upper.y) - b.position.y,
                                  std::min(std::max(b.position.z, a.lower.z), a.upper.z) - b.position.z);
-    float dr2 = dot(dr, dr);
+    float const dr2 = dot(dr, dr);
     return dr2 < b.radius * b.radius;
 
 #endif

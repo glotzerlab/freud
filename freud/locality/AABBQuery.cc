@@ -2,9 +2,16 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <algorithm>
+#include <memory>
+#include <cmath>
 #include <stdexcept>
 
 #include "AABBQuery.h"
+#include "Box.h"
+#include "VectorMath.h"
+#include "NeighborQuery.h"
+#include "NeighborBond.h"
+#include "AABB.h"
 
 namespace freud { namespace locality {
 
@@ -63,9 +70,9 @@ void AABBQuery::buildTree(const vec3<float>* points, unsigned int Np)
 
 void AABBIterator::updateImageVectors(float r_max, bool _check_r_max)
 {
-    box::Box box = m_neighbor_query->getBox();
-    vec3<float> nearest_plane_distance = box.getNearestPlaneDistance();
-    vec3<bool> periodic = box.getPeriodic();
+    box::Box const box = m_neighbor_query->getBox();
+    vec3<float> const nearest_plane_distance = box.getNearestPlaneDistance();
+    vec3<bool> const periodic = box.getPeriodic();
     if (_check_r_max)
     {
         if ((periodic.x && nearest_plane_distance.x <= r_max * 2.0)
@@ -78,7 +85,7 @@ void AABBIterator::updateImageVectors(float r_max, bool _check_r_max)
 
     // Now compute the image vectors
     // Each dimension increases by one power of 3
-    unsigned int n_dim_periodic = static_cast<unsigned int>(periodic.x)
+    unsigned int const n_dim_periodic = static_cast<unsigned int>(periodic.x)
         + static_cast<unsigned int>(periodic.y)
         + static_cast<unsigned int>(!box.is2D()) * static_cast<unsigned int>(periodic.z);
     m_n_images = 1;
@@ -112,7 +119,7 @@ void AABBIterator::updateImageVectors(float r_max, bool _check_r_max)
         {
             for (int k = -1; k <= 1 && n_images < m_n_images; ++k)
             {
-                if (!(i == 0 && j == 0 && k == 0))
+                if (i != 0 || j != 0 || k != 0)
                 {
                     // Skip any periodic images if we don't have periodicity
                     if ((i != 0 && !periodic.x) || (j != 0 && !periodic.y)
@@ -131,8 +138,8 @@ void AABBIterator::updateImageVectors(float r_max, bool _check_r_max)
 
 NeighborBond AABBQueryBallIterator::next()
 {
-    float r_max_sq = m_r_max * m_r_max;
-    float r_min_sq = m_r_min * m_r_min;
+    float const r_max_sq = m_r_max * m_r_max;
+    float const r_min_sq = m_r_min * m_r_min;
 
     // Read in the position of current point
     vec3<float> pos_i(m_query_point);
@@ -145,8 +152,8 @@ NeighborBond AABBQueryBallIterator::next()
     while (cur_image < m_n_images)
     {
         // Make an AABB for the image of this point
-        vec3<float> pos_i_image = pos_i + m_image_list[cur_image];
-        AABBSphere asphere = AABBSphere(pos_i_image, m_r_max);
+        vec3<float> const pos_i_image = pos_i + m_image_list[cur_image];
+        AABBSphere const asphere = AABBSphere(pos_i_image, m_r_max);
 
         // Stackless traversal of the tree
         while (cur_node_idx < m_aabb_query->m_aabb_tree.getNumNodes())
@@ -206,7 +213,7 @@ NeighborBond AABBQueryBallIterator::next()
 
 NeighborBond AABBQueryIterator::next()
 {
-    vec3<float> plane_distance = m_neighbor_query->getBox().getNearestPlaneDistance();
+    vec3<float> const plane_distance = m_neighbor_query->getBox().getNearestPlaneDistance();
     float min_plane_distance = std::min(plane_distance.x, plane_distance.y);
     float max_plane_distance = std::max(plane_distance.x, plane_distance.y);
     if (!m_neighbor_query->getBox().is2D())
@@ -232,7 +239,7 @@ NeighborBond AABBQueryIterator::next()
             m_current_neighbors.clear();
             m_all_bonds_minimum_distance.clear();
             m_query_points_below_r_min.clear();
-            std::shared_ptr<NeighborQueryPerPointIterator> ball_it = std::make_shared<AABBQueryBallIterator>(
+            std::shared_ptr<NeighborQueryPerPointIterator> const ball_it = std::make_shared<AABBQueryBallIterator>(
                 static_cast<const AABBQuery*>(m_neighbor_query), m_query_point, m_query_point_idx,
                 std::min(m_r_cur, m_r_max), 0, m_exclude_ii, false);
             while (!ball_it->end())

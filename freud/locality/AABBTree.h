@@ -4,10 +4,13 @@
 #ifndef AABB_TREE_H
 #define AABB_TREE_H
 
+#include <algorithm>
 #include <array>
+#include <cstdlib>
 #include <cstring>
-#include <stack>
+#include <malloc/_malloc.h>
 #include <stdexcept>
+#include <utility>
 #include <vector>
 
 #include "AABB.h"
@@ -109,7 +112,7 @@ public:
             // or no longer arises on newer machines, but we observe this
             // failure on our CI rigs.
             // cppcheck-suppress AssignmentAddressToInteger
-            int retval = posix_memalign((void**) &m_nodes, 32, m_node_capacity * sizeof(AABBNode));
+            int const retval = posix_memalign((void**) &m_nodes, 32, m_node_capacity * sizeof(AABBNode));
             if (retval != 0)
             {
                 throw std::runtime_error("Error allocating AABBTree memory");
@@ -143,7 +146,7 @@ public:
         {
             // allocate memory
             // cppcheck-suppress AssignmentAddressToInteger
-            int retval = posix_memalign((void**) &m_nodes, 32, m_node_capacity * sizeof(AABBNode));
+            int const retval = posix_memalign((void**) &m_nodes, 32, m_node_capacity * sizeof(AABBNode));
             if (retval != 0)
             {
                 throw std::runtime_error("Error allocating AABBTree memory");
@@ -168,7 +171,7 @@ public:
     inline unsigned int height(unsigned int idx);
 
     //! Get the number of nodes
-    inline unsigned int getNumNodes() const
+    unsigned int getNumNodes() const
     {
         return m_num_nodes;
     }
@@ -176,7 +179,7 @@ public:
     //! Test if a given index is a leaf node
     /*! \param node Index of the node (not the particle) to query
      */
-    inline bool isNodeLeaf(unsigned int node) const
+    bool isNodeLeaf(unsigned int node) const
     {
         return (m_nodes[node].left == INVALID_NODE);
     }
@@ -184,7 +187,7 @@ public:
     //! Get the AABBNode
     /*! \param node Index of the node (not the particle) to query
      */
-    inline const AABBNode& getNode(unsigned int node) const
+    const AABBNode& getNode(unsigned int node) const
     {
         return m_nodes[node];
     }
@@ -192,7 +195,7 @@ public:
     //! Get the AABB of a given node
     /*! \param node Index of the node (not the particle) to query
      */
-    inline const AABB& getNodeAABB(unsigned int node) const
+    const AABB& getNodeAABB(unsigned int node) const
     {
         return (m_nodes[node].aabb);
     }
@@ -200,7 +203,7 @@ public:
     //! Get the skip of a given node
     /*! \param node Index of the node (not the particle) to query
      */
-    inline unsigned int getNodeSkip(unsigned int node) const
+    unsigned int getNodeSkip(unsigned int node) const
     {
         return (m_nodes[node].skip);
     }
@@ -208,7 +211,7 @@ public:
     //! Get the left child of a given node
     /*! \param node Index of the node (not the particle) to query
      */
-    inline unsigned int getNodeLeft(unsigned int node) const
+    unsigned int getNodeLeft(unsigned int node) const
     {
         return (m_nodes[node].left);
     }
@@ -216,7 +219,7 @@ public:
     //! Get the number of particles in a given node
     /*! \param node Index of the node (not the particle) to query
      */
-    inline unsigned int getNodeNumParticles(unsigned int node) const
+    unsigned int getNodeNumParticles(unsigned int node) const
     {
         return (m_nodes[node].num_particles);
     }
@@ -224,7 +227,7 @@ public:
     //! Get the particles in a given node
     /*! \param node Index of the node (not the particle) to query
      */
-    inline unsigned int getNodeParticle(unsigned int node, unsigned int j) const
+    unsigned int getNodeParticle(unsigned int node, unsigned int j) const
     {
         return (m_nodes[node].particles[j]);
     }
@@ -233,7 +236,7 @@ public:
     /*! \param node Index of the node (not the particle) to query
      *  \param j Local index in particle array for node
      */
-    inline unsigned int getNodeParticleTag(unsigned int node, unsigned int j) const
+    unsigned int getNodeParticleTag(unsigned int node, unsigned int j) const
     {
         return (m_nodes[node].particle_tags[j]);
     }
@@ -329,7 +332,7 @@ inline unsigned int AABBTree::query(std::vector<unsigned int>& hits, const AABB&
 inline void AABBTree::update(unsigned int idx, const AABB& aabb)
 {
     // find the node this particle is in
-    unsigned int node_idx = m_mapping[idx];
+    unsigned int const node_idx = m_mapping[idx];
 
     // grow its AABB if needed
     if (!contains(m_nodes[node_idx].aabb, aabb))
@@ -340,8 +343,8 @@ inline void AABBTree::update(unsigned int idx, const AABB& aabb)
         unsigned int current_node = m_nodes[node_idx].parent;
         while (current_node != INVALID_NODE)
         {
-            unsigned int left_idx = m_nodes[current_node].left;
-            unsigned int right_idx = m_nodes[current_node].right;
+            unsigned int const left_idx = m_nodes[current_node].left;
+            unsigned int const right_idx = m_nodes[current_node].right;
 
             m_nodes[current_node].aabb = merge(m_nodes[left_idx].aabb, m_nodes[right_idx].aabb);
             current_node = m_nodes[current_node].parent;
@@ -355,7 +358,7 @@ inline void AABBTree::update(unsigned int idx, const AABB& aabb)
 inline unsigned int AABBTree::height(unsigned int idx)
 {
     // find the node this particle is in
-    unsigned int node_idx = m_mapping[idx];
+    unsigned int const node_idx = m_mapping[idx];
 
     // handle invalid nodes
     if (node_idx == INVALID_NODE)
@@ -420,12 +423,12 @@ inline unsigned int AABBTree::buildNode(AABB* aabbs, std::vector<unsigned int>& 
     {
         my_aabb = merge(my_aabb, aabbs[start + i]);
     }
-    vec3<float> my_radius = my_aabb.getUpper() - my_aabb.getLower();
+    vec3<float> const my_radius = my_aabb.getUpper() - my_aabb.getLower();
 
     // handle the case of a leaf node creation
     if (len <= NODE_CAPACITY)
     {
-        unsigned int new_node = allocateNode();
+        unsigned int const new_node = allocateNode();
         m_nodes[new_node].aabb = my_aabb;
         m_nodes[new_node].parent = parent;
         m_nodes[new_node].num_particles = len;
@@ -444,10 +447,10 @@ inline unsigned int AABBTree::buildNode(AABB* aabbs, std::vector<unsigned int>& 
     }
 
     // otherwise, we are creating an internal node - allocate an index
-    unsigned int my_idx = allocateNode();
+    unsigned int const my_idx = allocateNode();
 
     // need to split the list of aabbs into two sets for left and right
-    unsigned int start_left = 0;
+    unsigned int const start_left = 0;
     unsigned int start_right = len;
 
     // if there are only 2 aabbs, put one on each side
@@ -541,8 +544,8 @@ inline unsigned int AABBTree::buildNode(AABB* aabbs, std::vector<unsigned int>& 
 
     // note: calling buildNode has side effects, the m_nodes array may be reallocated. So we need to determine
     // the left and right children, then build our node (can't say m_nodes[my_idx].left = buildNode(...))
-    unsigned int new_left = buildNode(aabbs, idx, start + start_left, start_right - start_left, my_idx);
-    unsigned int new_right = buildNode(aabbs, idx, start + start_right, len - start_right, my_idx);
+    unsigned int const new_left = buildNode(aabbs, idx, start + start_left, start_right - start_left, my_idx);
+    unsigned int const new_right = buildNode(aabbs, idx, start + start_right, len - start_right, my_idx);
 
     // now, create the children and connect them up
     m_nodes[my_idx].aabb = my_aabb;
@@ -568,10 +571,10 @@ inline unsigned int AABBTree::updateSkip(unsigned int idx)
         return 1;
     }
     // node idx needs to skip all the nodes underneath it (determined recursively)
-    unsigned int left_idx = m_nodes[idx].left;
-    unsigned int right_idx = m_nodes[idx].right;
+    unsigned int const left_idx = m_nodes[idx].left;
+    unsigned int const right_idx = m_nodes[idx].right;
 
-    unsigned int skip = updateSkip(left_idx) + updateSkip(right_idx);
+    unsigned int const skip = updateSkip(left_idx) + updateSkip(right_idx);
     m_nodes[idx].skip = skip;
     return skip + 1;
 }
@@ -593,7 +596,7 @@ inline unsigned int AABBTree::allocateNode()
 
         // allocate new memory
         // cppcheck-suppress AssignmentAddressToInteger
-        int retval = posix_memalign((void**) &m_new_nodes, 32, m_new_node_capacity * sizeof(AABBNode));
+        int const retval = posix_memalign((void**) &m_new_nodes, 32, m_new_node_capacity * sizeof(AABBNode));
         if (retval != 0)
         {
             throw std::runtime_error("Error allocating AABBTree memory");

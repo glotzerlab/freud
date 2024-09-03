@@ -1,10 +1,11 @@
 // Copyright (c) 2010-2024 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
+#include <memory>
 #include <nanobind/nanobind.h>
-#include <nanobind/ndarray.h>
 #include <nanobind/stl/shared_ptr.h>  // NOLINT(misc-include-cleaner): used implicitly
 #include <nanobind/stl/vector.h>  // NOLINT(misc-include-cleaner): used implicitly
+#include <vector>
 
 #include "BondHistogramCompute.h"
 
@@ -33,19 +34,19 @@ inline nb::object vectorVectorsToListLists(const std::vector<std::vector<T>>& ve
     return outer_python_list;
 }
 
-nb::object getBinCenters(std::shared_ptr<BondHistogramCompute> bondHist)
+nb::object getBinCenters(const std::shared_ptr<BondHistogramCompute>& bondHist)
 {
     auto bin_centers_cpp = bondHist->getBinCenters();
     return vectorVectorsToListLists(bin_centers_cpp);
 }
 
-nb::object getBinEdges(std::shared_ptr<BondHistogramCompute> bondHist)
+nb::object getBinEdges(const std::shared_ptr<BondHistogramCompute>& bondHist)
 {
     auto bin_edges_cpp = bondHist->getBinEdges();
     return vectorVectorsToListLists(bin_edges_cpp);
 }
 
-nb::object getBounds(std::shared_ptr<BondHistogramCompute> bondHist)
+nb::object getBounds(const std::shared_ptr<BondHistogramCompute>& bondHist)
 {
     auto bounds_cpp = bondHist->getBounds();
 

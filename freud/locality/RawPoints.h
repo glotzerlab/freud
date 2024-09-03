@@ -8,7 +8,9 @@
 #include <stdexcept>
 
 #include "AABBQuery.h"
+#include "Box.h"
 #include "NeighborQuery.h"
+#include "VectorMath.h"
 
 /*! \file RawPoints.h
     \brief Defines a simplest NeighborQuery object that actually farms out

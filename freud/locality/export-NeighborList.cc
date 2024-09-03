@@ -1,11 +1,16 @@
 // Copyright (c) 2010-2024 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
+#include <memory>
 #include <nanobind/ndarray.h>
 #include <nanobind/operators.h>
 #include <nanobind/stl/shared_ptr.h>  // NOLINT(misc-include-cleaner): used implicitly
+#include <nanobind/nanobind.h>
 
+#include "Box.h"
+#include "NeighborBond.h"
 #include "NeighborList.h"
+#include "VectorMath.h"
 
 namespace nb = nanobind;
 
@@ -16,10 +21,10 @@ using nb_array = nanobind::ndarray<T, shape, nanobind::device::cpu, nanobind::c_
 
 namespace wrap {
 
-void ConstructFromArrays(NeighborList* nlist, nb_array<unsigned int, nb::ndim<1>> query_point_indices,
-                         unsigned int num_query_points, nb_array<unsigned int, nb::ndim<1>> point_indices,
-                         unsigned int num_points, nb_array<float, nb::shape<-1, 3>> vectors,
-                         nb_array<float, nb::ndim<1>> weights)
+void ConstructFromArrays(NeighborList* nlist, const nb_array<unsigned int, nb::ndim<1>>& query_point_indices,
+                         unsigned int num_query_points, const nb_array<unsigned int, nb::ndim<1>>& point_indices,
+                         unsigned int num_points, const nb_array<float, nb::shape<-1, 3>>& vectors,
+                         const nb_array<float, nb::ndim<1>>& weights)
 {
     const unsigned int num_bonds = query_point_indices.shape(0);
     const auto* query_point_indices_data = (const unsigned int*) query_point_indices.data();
@@ -30,8 +35,8 @@ void ConstructFromArrays(NeighborList* nlist, nb_array<unsigned int, nb::ndim<1>
                              num_points, vectors_data, weights_data);
 }
 
-void ConstructAllPairs(NeighborList* nlist, nb_array<float, nb::shape<-1, 3>> points,
-                       nb_array<float, nb::shape<-1, 3>> query_points, const box::Box& box,
+void ConstructAllPairs(NeighborList* nlist, const nb_array<float, nb::shape<-1, 3>>& points,
+                       const nb_array<float, nb::shape<-1, 3>>& query_points, const box::Box& box,
                        const bool exclude_ii)
 {
     const unsigned int num_points = points.shape(0);
@@ -41,7 +46,7 @@ void ConstructAllPairs(NeighborList* nlist, nb_array<float, nb::shape<-1, 3>> po
     new (nlist) NeighborList(points_data, query_points_data, box, exclude_ii, num_points, num_query_points);
 }
 
-unsigned int filter(std::shared_ptr<NeighborList> nlist, nb_array<bool, nb::ndim<1>> filter)
+unsigned int filter(const std::shared_ptr<NeighborList>& nlist, const nb_array<bool, nb::ndim<1>>& filter)
 {
     const bool* filter_data = (const bool*) filter.data();
     return nlist->filter(filter_data);
@@ -84,9 +89,9 @@ void export_NeighborBond(nb::module_& module)
         .def("getQueryPointIdx", &NeighborBond::getQueryPointIdx)
         .def("getPointIdx", &NeighborBond::getPointIdx)
         .def("getDistance", &NeighborBond::getDistance)
-        .def(nb::self == nb::self)
-        .def(nb::self != nb::self);
-};
+        .def(nb::self == nb::self)  // NOLINT(misc-redundant-expression): valid nanobind syntax
+        .def(nb::self != nb::self); // NOLINT(misc-redundant-expression): valid nanobind syntax
+    };
 
 }; // namespace detail
 

@@ -3,9 +3,17 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
+#include <memory>
 #include <stdexcept>
+#include <vector>
 
 #include "LinkCell.h"
+#include "NeighborQuery.h"
+#include "Box.h"
+#include "VectorMath.h"
+#include "ManagedArray.h"
+#include "NeighborBond.h"
 
 /*! \file LinkCell.cc
     \brief Build a cell list from a set of points.
@@ -230,7 +238,7 @@ LinkCell::LinkCell(const box::Box& box, const vec3<float>* points, unsigned int 
     m_celldim = computeDimensions(box, m_cell_width);
 
     // Check if box is too small!
-    vec3<float> nearest_plane_distance = box.getNearestPlaneDistance();
+    vec3<float> const nearest_plane_distance = box.getNearestPlaneDistance();
     if ((m_cell_width * 2.0 > nearest_plane_distance.x) || (m_cell_width * 2.0 > nearest_plane_distance.y)
         || (!box.is2D() && m_cell_width * 2.0 > nearest_plane_distance.z))
     {
@@ -253,9 +261,9 @@ LinkCell::LinkCell(const box::Box& box, const vec3<float>* points, unsigned int 
 
 unsigned int LinkCell::getCellIndex(const vec3<int> cellCoord) const
 {
-    int w = static_cast<int>(m_celldim.x);
-    int h = static_cast<int>(m_celldim.y);
-    int d = static_cast<int>(m_celldim.z);
+    int const w = static_cast<int>(m_celldim.x);
+    int const h = static_cast<int>(m_celldim.y);
+    int const d = static_cast<int>(m_celldim.z);
 
     int x = cellCoord.x % w;
     x += (x < 0 ? w : 0);
@@ -271,7 +279,7 @@ vec3<unsigned int> LinkCell::computeDimensions(const box::Box& box, float cell_w
 {
     vec3<unsigned int> dim;
 
-    vec3<float> L = box.getNearestPlaneDistance();
+    vec3<float> const L = box.getNearestPlaneDistance();
     dim.x = (unsigned int) ((L.x) / (cell_width));
     dim.y = (unsigned int) ((L.y) / (cell_width));
 
@@ -308,7 +316,7 @@ vec3<unsigned int> LinkCell::computeDimensions(const box::Box& box, float cell_w
 void LinkCell::computeCellList(const vec3<float>* points, unsigned int n_points)
 {
     // determine the number of cells and allocate memory
-    unsigned int Nc = getNumCells();
+    unsigned int const Nc = getNumCells();
     m_cell_list = util::ManagedArray<unsigned int>(n_points + Nc);
     m_n_points = n_points;
 
@@ -321,7 +329,7 @@ void LinkCell::computeCellList(const vec3<float>* points, unsigned int n_points)
     // Generate the cell list.
     for (unsigned int i = n_points - 1; i != static_cast<unsigned int>(-1); --i)
     {
-        unsigned int cell = getCell(points[i]);
+        unsigned int const cell = getCell(points[i]);
         m_cell_list[i] = m_cell_list[n_points + cell];
         m_cell_list[n_points + cell] = i;
     }
@@ -344,12 +352,12 @@ unsigned int LinkCell::coordToIndex(unsigned int x, unsigned int y, unsigned int
     // also require updating the logic in IteratorCellShell.
     return util::ManagedArray<unsigned int>::getIndex(
         {m_celldim.z, m_celldim.y, m_celldim.x},
-        {static_cast<unsigned int>(z), static_cast<unsigned int>(y), static_cast<unsigned int>(x)});
+        {z, y, x});
 }
 
 vec3<unsigned int> LinkCell::getCellCoord(const vec3<float>& p) const
 {
-    vec3<float> alpha = m_box.makeFractional(p);
+    vec3<float> const alpha = m_box.makeFractional(p);
     vec3<unsigned int> c;
     c.x = (unsigned int) std::floor(alpha.x * float(m_celldim.x));
     c.x %= m_celldim.x;
@@ -376,7 +384,7 @@ const std::vector<unsigned int>& LinkCell::getCellNeighbors(unsigned int cell) c
 const std::vector<unsigned int>& LinkCell::computeCellNeighbors(unsigned int cur_cell) const
 {
     std::vector<unsigned int> neighbor_cells;
-    vec3<unsigned int> l_idx = indexToCoord(cur_cell);
+    vec3<unsigned int> const l_idx = indexToCoord(cur_cell);
     const int i = static_cast<int>(l_idx.x);
     const int j = static_cast<int>(l_idx.y);
     const int k = static_cast<int>(l_idx.z);
@@ -449,11 +457,11 @@ const std::vector<unsigned int>& LinkCell::computeCellNeighbors(unsigned int cur
             for (int neighi = starti; neighi <= endi; neighi++)
             {
                 // wrap back into the box
-                unsigned int wrapi = (m_celldim.x + neighi) % m_celldim.x;
-                unsigned int wrapj = (m_celldim.y + neighj) % m_celldim.y;
-                unsigned int wrapk = (m_celldim.z + neighk) % m_celldim.z;
+                unsigned int const wrapi = (m_celldim.x + neighi) % m_celldim.x;
+                unsigned int const wrapj = (m_celldim.y + neighj) % m_celldim.y;
+                unsigned int const wrapk = (m_celldim.z + neighk) % m_celldim.z;
 
-                unsigned int neigh_cell = coordToIndex(wrapi, wrapj, wrapk);
+                unsigned int const neigh_cell = coordToIndex(wrapi, wrapj, wrapk);
                 // add to the list
                 neighbor_cells.push_back(neigh_cell);
             }
@@ -489,12 +497,14 @@ LinkCell::querySingle(const vec3<float> query_point, unsigned int query_point_id
 
 NeighborBond LinkCellQueryBallIterator::next()
 {
-    float r_max_sq = m_r_max * m_r_max;
-    float r_min_sq = m_r_min * m_r_min;
+    float const r_max_sq = m_r_max * m_r_max;
+    float const r_min_sq = m_r_min * m_r_min;
 
-    vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_query_point));
+    vec3<unsigned int> const point_cell(m_linkcell->getCellCoord(m_query_point));
+    // NOLINTBEGIN(bugprone-narrowing-conversions): narrowing coversion is working as expected
     const unsigned int point_cell_index = m_linkcell->getCellIndex(
         vec3<int>(point_cell.x, point_cell.y, point_cell.z) + (*m_neigh_cell_iter));
+    // NOLINTEND(bugprone-narrowing-conversions)
     m_searched_cells.insert(point_cell_index);
 
     // Loop over cell list neighbor shells relative to this point's cell.
@@ -537,8 +547,11 @@ NeighborBond LinkCellQueryBallIterator::next()
                 break;
             }
 
+            // NOLINTBEGIN(bugprone-narrowing-conversions): narrowing coversion working as expected
             const unsigned int neighbor_cell_index = m_linkcell->getCellIndex(
                 vec3<int>(point_cell.x, point_cell.y, point_cell.z) + (*m_neigh_cell_iter));
+            // NOLINTEND(bugprone-narrowing-conversions)
+            
             // Insertion to an unordered set returns a pair, the second
             // element indicates insertion success or failure (if it
             // already exists)
@@ -563,21 +576,23 @@ NeighborBond LinkCellQueryBallIterator::next()
 
 NeighborBond LinkCellQueryIterator::next()
 {
-    float r_max_sq = m_r_max * m_r_max;
-    float r_min_sq = m_r_min * m_r_min;
+    float const r_max_sq = m_r_max * m_r_max;
+    float const r_min_sq = m_r_min * m_r_min;
 
-    vec3<float> plane_distance = m_neighbor_query->getBox().getNearestPlaneDistance();
+    vec3<float> const plane_distance = m_neighbor_query->getBox().getNearestPlaneDistance();
     float min_plane_distance = std::min(plane_distance.x, plane_distance.y);
     if (!m_neighbor_query->getBox().is2D())
     {
         min_plane_distance = std::min(min_plane_distance, plane_distance.z);
     }
-    unsigned int max_range
+    unsigned int const max_range
         = static_cast<unsigned int>(std::ceil(min_plane_distance / (2 * m_linkcell->getCellWidth()))) + 1;
 
-    vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_query_point));
+    vec3<unsigned int> const point_cell(m_linkcell->getCellCoord(m_query_point));
+    // NOLINTBEGIN(bugprone-narrowing-conversions): narrowing coversion is working as expected
     const unsigned int point_cell_index = m_linkcell->getCellIndex(
         vec3<int>(point_cell.x, point_cell.y, point_cell.z) + (*m_neigh_cell_iter));
+    // NOLINTEND(bugprone-narrowing-conversions)
     m_searched_cells.insert(point_cell_index);
 
     // Loop over cell list neighbor shells relative to this point's cell.
@@ -618,8 +633,11 @@ NeighborBond LinkCellQueryIterator::next()
                     break;
                 }
 
+                // NOLINTBEGIN(bugprone-narrowing-conversions): narrowing coversion is working
                 const unsigned int neighbor_cell_index = m_linkcell->getCellIndex(
                     vec3<int>(point_cell.x, point_cell.y, point_cell.z) + (*m_neigh_cell_iter));
+                // NOLINTEND(bugprone-narrowing-conversions)
+                
                 // Insertion to an unordered set returns a pair, the second
                 // element indicates insertion success or failure (if it
                 // already exists)

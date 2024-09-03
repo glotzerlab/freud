@@ -10,6 +10,7 @@
 # readability-redundant-member-init: If the constructor changes or if there are multiple constructor signatures, prefer to be explicit.
 # readability-identifier-length: We use short identifiers sparingly and in places where they are more readable than long ones.
 # bugprone-easily-swappable-parameters: Many methods unavoidably take multiple float parameters.
+# performance-enum-size: There is little to be gained switching from 4-byt ints to 1 byte enums.
 
 Checks: 'bugprone-*,
          cert-*,
@@ -30,5 +31,6 @@ Checks: 'bugprone-*,
          -readability-magic-numbers,
          -readability-redundant-member-init,
          -readability-identifier-length,
-         -bugprone-easily-swappable-parameters
+         -bugprone-easily-swappable-parameters,
+         -performance-enum-size,
          '

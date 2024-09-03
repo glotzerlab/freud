@@ -8,6 +8,7 @@
 #include <cmath>
 #include <complex>
 #include <cstddef>
+#include "math.h" // NOLINT(modernize-deprecated-headers): Use std::numbers when c++20 is default.
 #include <stdexcept>
 #include <vector>
 
@@ -20,8 +21,7 @@
 
 namespace freud { namespace constants {
 // Constant 2*pi for convenient use everywhere.
-// TODO: Use std::numbers::pi when C++20 is the minimum requirement.
-constexpr float TWO_PI = 2.0 * M_PI; // NOLINT(misc-include-cleaner): math.h is deprecated
+constexpr float TWO_PI = 2.0 * M_PI;
 }; }; // end namespace freud::constants
 
 namespace freud { namespace box {

@@ -5,6 +5,7 @@
 #define NEIGHBOR_BOND_H
 
 #include "VectorMath.h"
+#include <cmath>
 
 namespace freud { namespace locality {
 

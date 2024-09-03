@@ -98,11 +98,9 @@ repos:
       entry: clang-tidy-18
       language: system
       types: [c++]
-      # Exclude external files. Also exclude AABB.h because it uses intrinsics
-      # heavily and these are not considered portable.
+      # Exclude external files.
       exclude: |
         (?x)^(
-          ^freud/locality/AABB\.h|
           ^extern/
         )
       args:

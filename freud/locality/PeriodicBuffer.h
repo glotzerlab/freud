@@ -5,6 +5,7 @@
 #define PERIODIC_BUFFER_H
 
 #include <array>
+#include <memory>
 #include <vector>
 
 #include "Box.h"
@@ -36,7 +37,7 @@ public:
     }
 
     //! Compute the periodic buffer
-    void compute(std::shared_ptr<NeighborQuery> neighbor_query, std::array<float, 3> buff_vec,
+    void compute(const std::shared_ptr<NeighborQuery>& neighbor_query, std::array<float, 3> buff_vec,
                  const bool use_images, const bool include_input_points);
 
     //! Return the buffer points
