@@ -9,6 +9,7 @@
 # readability-magic-numbers: Wigner3j contains (necessary) magic numbers.
 # readability-redundant-member-init: If the constructor changes or if there are multiple constructor signatures, prefer to be explicit.
 # readability-identifier-length: We use short identifiers sparingly and in places where they are more readable than long ones.
+# bugprone-easily-swappable-parameters: Many methods unavoidably take multiple float parameters.
 
 Checks: 'bugprone-*,
          cert-*,
@@ -28,5 +29,6 @@ Checks: 'bugprone-*,
          -readability-function-cognitive-complexity,
          -readability-magic-numbers,
          -readability-redundant-member-init,
-         -readability-identifier-length
+         -readability-identifier-length,
+         -bugprone-easily-swappable-parameters
          '
