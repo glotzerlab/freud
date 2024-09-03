@@ -103,7 +103,7 @@ repos:
       # heavily and these are not considered portable.
       exclude: |
         (?x)^(
-          ^cpp/locality/AABB\.h|
+          ^freud/locality/AABB\.h|
           ^extern/
         )
       args:
@@ -119,7 +119,7 @@ repos:
       # heavily and these are not considered portable.
       exclude: |
         (?x)^(
-          ^cpp/locality/AABB\.h|
+          ^freud/locality/AABB\.h|
           ^extern/
         )
       args:
@@ -128,6 +128,6 @@ repos:
       - --std=c++14
       - --language=c++ # Force C++ for .h header files.
       - --inline-suppr # Enable inline suppresions of warnings.
-      - --suppress=*:cpp/locality/AABB.h
+      - --suppress=*:freud/locality/AABB.h
       - --suppress=*:extern/*
       - --error-exitcode=1
