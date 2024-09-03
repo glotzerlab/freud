@@ -5,11 +5,12 @@
 #define BIMAP_H
 
 #include <algorithm>
-#include <cstddef> // Needed for offsetof
+#include <cstddef>
 #include <map>
 #include <set>
 #include <stdexcept>
 #include <vector>
+#include <utility>
 
 /* BiMap container modelled after Boost::BiMap with templatization.
  *
@@ -172,7 +173,7 @@ public:
         BiMap<T, U>& b() const
         {
             BiMap<T, U> t;
-            return *reinterpret_cast<BiMap*>(reinterpret_cast<char*>((void*) this)
+            return *reinterpret_cast<BiMap*>(reinterpret_cast<char*>(this)
                                              - (((size_t) (&(&t)->left) - ((size_t) &t))));
         }
 
@@ -245,7 +246,7 @@ public:
         BiMap<T, U>& b() const
         {
             BiMap<T, U> t;
-            return *reinterpret_cast<BiMap*>(reinterpret_cast<char*>((void*) this)
+            return *reinterpret_cast<BiMap*>(reinterpret_cast<char*>(this)
                                              - (((size_t) (&(&t)->right) - ((size_t) &t))));
         }
 

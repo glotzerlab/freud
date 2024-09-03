@@ -6,12 +6,11 @@
 
 #include <cstring>
 #include <functional>
-#include <memory>
 #include <numeric>
 #include <sstream>
+#include <stdexcept>
 #include <vector>
 
-#include "VectorMath.h"
 
 /*! \file ManagedArray.h
     \brief Defines the standard array class to be used throughout freud.
@@ -164,7 +163,7 @@ public:
     //*************************************************************************
 
     //! Implementation of variadic indexing function.
-    template<typename... Ints> inline T& operator()(Ints... indices)
+    template<typename... Ints> T& operator()(Ints... indices)
     {
         // cppcheck generates a false positive here on old machines (CI),
         // probably due to limited template support on those compilers.
@@ -173,7 +172,7 @@ public:
     }
 
     //! Constant implementation of variadic indexing function.
-    template<typename... Ints> inline const T& operator()(Ints... indices) const
+    template<typename... Ints> const T& operator()(Ints... indices) const
     {
         // cppcheck generates a false positive here on old machines (CI),
         // probably due to limited template support on those compilers.
@@ -191,7 +190,7 @@ public:
      * become a performance bottleneck when used in highly performance critical
      * code paths.
      */
-    inline T& operator()(const std::vector<size_t>& indices)
+    T& operator()(const std::vector<size_t>& indices)
     {
         size_t cur_prod = 1;
         size_t idx = 0;
@@ -207,7 +206,7 @@ public:
     }
 
     //! Const version of core function for multidimensional indexing.
-    inline const T& operator()(const std::vector<size_t>& indices) const
+    const T& operator()(const std::vector<size_t>& indices) const
     {
         size_t cur_prod = 1;
         size_t idx = 0;
@@ -229,7 +228,7 @@ public:
      *  \param shape The shape to map indexes to.
      *  \param indices The index in each dimension.
      */
-    static inline std::vector<size_t> getMultiIndex(const std::vector<size_t>& shape, size_t index)
+    static std::vector<size_t> getMultiIndex(const std::vector<size_t>& shape, size_t index)
     {
         size_t index_size = std::accumulate(shape.cbegin(), shape.cend(), 1, std::multiplies<>());
 
@@ -251,7 +250,7 @@ public:
      *  \param shape The shape to map indexes to.
      *  \param indices The index in each dimension.
      */
-    static inline size_t getIndex(const std::vector<size_t>& shape, const std::vector<size_t>& indices)
+    static size_t getIndex(const std::vector<size_t>& shape, const std::vector<size_t>& indices)
     {
         size_t cur_prod = 1;
         size_t idx = 0;
@@ -274,7 +273,7 @@ public:
      *
      *  \param indices The index in each dimension.
      */
-    inline size_t getIndex(const std::vector<size_t>& indices) const
+    size_t getIndex(const std::vector<size_t>& indices) const
     {
         if (indices.size() != m_shape.size())
         {
@@ -287,7 +286,7 @@ public:
             {
                 std::ostringstream msg;
                 msg << "Attempted to access index " << indices[i] << " in dimension " << i
-                    << ", which has size " << m_shape[i] << std::endl;
+                    << ", which has size " << m_shape[i] << '\n';
                 throw std::invalid_argument(msg.str());
             }
         }
@@ -322,14 +321,14 @@ private:
      *  Int object. The second function is used for template recursion in
      *  unwrapping the list of arguments.
      */
-    template<typename Int> inline static std::vector<size_t> buildIndex(Int index)
+    template<typename Int> static std::vector<size_t> buildIndex(Int index)
     {
         return {static_cast<size_t>(index)};
     }
 
     //! The recursive case for building up the index (see above).
     template<typename Int, typename... Ints>
-    inline static std::vector<size_t> buildIndex(Int index, Ints... indices)
+    static std::vector<size_t> buildIndex(Int index, Ints... indices)
     {
         std::vector<size_t> tmp = buildIndex(indices...);
         tmp.insert(tmp.begin(), static_cast<size_t>(index));

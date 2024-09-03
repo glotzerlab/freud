@@ -4,7 +4,11 @@
 #ifndef HISTOGRAM_H
 #define HISTOGRAM_H
 
+#include <cstddef>
 #include <memory>
+#include <stdexcept>
+#include <oneapi/tbb/enumerable_thread_specific.h>
+#include <ostream>
 #include <utility>
 #include <vector>
 #ifdef __SSE2__
@@ -12,7 +16,6 @@
 #endif
 #include <sstream>
 #include <tbb/enumerable_thread_specific.h>
-#include <utility>
 
 #include "ManagedArray.h"
 #include "utils.h"
@@ -155,12 +158,12 @@ public:
         {
             return OVERFLOW_BIN;
         }
-        float val = (value - m_min) * m_inverse_bin_width;
+        float const val = (value - m_min) * m_inverse_bin_width;
         // fast float to int conversion with truncation
 #ifdef __SSE2__
         size_t bin = _mm_cvtt_ss2si(_mm_load_ss(&val));
 #else
-        size_t bin = (size_t) (val);
+        auto const bin = (size_t) (val);
 #endif
         // Avoid rounding leading to overflow.
         if (bin == m_nbins)
@@ -327,7 +330,7 @@ public:
         {
             std::ostringstream msg;
             msg << "This Histogram is " << m_axes.size() << "-dimensional, but " << values.size()
-                << " values were provided in bin" << std::endl;
+                << " values were provided in bin" << '\n';
             throw std::invalid_argument(msg.str());
         }
 

@@ -4,12 +4,14 @@
 #ifndef EXPORT_MANAGED_ARRAY_H
 #define EXPORT_MANAGED_ARRAY_H
 
+#include "ManagedArray.h"
+#include "VectorMath.h"
+
+#include <cstddef>
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
 #include <string>
-
-#include "ManagedArray.h"
-#include "VectorMath.h"
+#include <vector>
 
 namespace freud { namespace util {
 
@@ -45,7 +47,7 @@ template<typename T> struct ManagedArrayWrapper<vec3<T>>
         auto ndim = Ndim + 1;
 
         // now return the array
-        return nanobind::ndarray<nanobind::numpy, const T>((void*) data_ptr, ndim, &new_dims[0], self);
+        return nanobind::ndarray<nanobind::numpy, const T>((void*) data_ptr, ndim, new_dims.data(), self);
     }
 };
 
@@ -53,9 +55,9 @@ template<typename T> struct ManagedArrayWrapper<vec3<T>>
 
 namespace detail {
 
-template<typename T> void export_ManagedArray(nanobind::module_& m, const std::string& name)
+template<typename T> void export_ManagedArray(nanobind::module_& module, const std::string& name)
 {
-    nanobind::class_<ManagedArray<T>>(m, name.c_str())
+    nanobind::class_<ManagedArray<T>>(module, name.c_str())
         .def("toNumpyArray", &wrap::ManagedArrayWrapper<T>::toNumpyArray);
 }
 

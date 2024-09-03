@@ -4,10 +4,12 @@
 #ifndef EXPORT_VECTOR_H
 #define EXPORT_VECTOR_H
 
+#include <cstddef>
+#include <initializer_list>
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
-#include <string>
 #include <vector>
+#include <string>
 
 #include "VectorMath.h"
 

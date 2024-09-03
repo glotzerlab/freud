@@ -150,7 +150,7 @@ target_include_directories(freud SYSTEM PUBLIC ${PROJECT_SOURCE_DIR}/extern/)
 # target_set_install_rpath(_environment)
 
 # box
-nanobind_add_module(_box box/module-box.cc box/export-Box.cc)
+nanobind_add_module(_box box/module-box.cc box/export-Box.cc box/export-Box.h)
 target_link_libraries(_box PUBLIC TBB::tbb)
 target_set_install_rpath(_box)
 
@@ -183,7 +183,7 @@ target_link_libraries(_pmft PUBLIC freud)
 target_set_install_rpath(_pmft)
 
 # util
-nanobind_add_module(_util util/module-util.cc util/export-ManagedArray.h
+nanobind_add_module(_util util/module-util.cc util/export-ManagedArray.cc util/export-Vector.cc
                     util/export-Vector.h)
 target_link_libraries(_util PUBLIC freud)
 target_set_install_rpath(_util)

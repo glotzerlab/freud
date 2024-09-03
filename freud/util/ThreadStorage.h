@@ -6,6 +6,8 @@
 
 #include "ManagedArray.h"
 #include "utils.h"
+#include <oneapi/tbb/enumerable_thread_specific.h>
+#include <cstddef>
 #include <tbb/enumerable_thread_specific.h>
 #include <vector>
 

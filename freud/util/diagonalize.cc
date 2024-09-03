@@ -2,6 +2,11 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include "diagonalize.h"
+#include "ManagedArray.h"
+#include <Eigen/Eigen/src/Core/Matrix.h>
+#include <Eigen/Eigen/src/Core/Map.h>
+#include <Eigen/Eigen/src/Eigenvalues/SelfAdjointEigenSolver.h>
+#include <Eigen/Eigen/src/Core/util/Constants.h>
 
 namespace freud { namespace util {
 
@@ -16,7 +21,7 @@ void diagonalize33SymmetricMatrix(const util::ManagedArray<float>& mat, util::Ma
     if (es.info() != Eigen::Success)
     {
         // numerical issue, return identity matrix
-        Eigen::Matrix3f id = Eigen::Matrix3f::Identity();
+        Eigen::Matrix3f const id = Eigen::Matrix3f::Identity();
         Eigen::Map<Eigen::Matrix3f>(eigen_vecs.data(), 3, 3) = id;
         // set eigenvalues to zero so it's easily detectable
         eigen_vals[0] = eigen_vals[1] = eigen_vals[2] = 0.0;
