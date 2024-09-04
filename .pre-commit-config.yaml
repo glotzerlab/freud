@@ -95,16 +95,24 @@ repos:
     - id: clang-tidy
       stages: [manual]  # Requires clang-tidy.
       name: clang-tidy
-      entry: clang-tidy-18
+      # entry: clang-tidy-18
+      entry: /opt/homebrew/opt/llvm/bin/clang-tidy
       language: system
       types: [c++]
       # Exclude external files.
+      # TODO: remove exlcusions for modules as they are ported to nanobind
       exclude: |
         (?x)^(
-          ^extern/
+          ^extern/|
+          ^freud/cluster/|
+          ^freud/density/|
+          ^freud/diffraction/|
+          ^freud/environment/|
+          ^freud/order/
         )
       args:
       - --warnings-as-errors=*
+      # TODO: remove cppcheck and replace with clang-tidy
     - id: cppcheck
       stages: [manual]  # Requires cppcheck.
       # Ignore external files and those taken verbatim from HOOMD.

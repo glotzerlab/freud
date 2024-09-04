@@ -8,7 +8,7 @@
 #include <cmath>
 #include <complex>
 #include <cstddef>
-#include "math.h" // NOLINT(modernize-deprecated-headers): Use std::numbers when c++20 is default.
+#include <math.h> // NOLINT(modernize-deprecated-headers): Use std::numbers when c++20 is default.
 #include <stdexcept>
 #include <vector>
 

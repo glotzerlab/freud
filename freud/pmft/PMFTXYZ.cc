@@ -2,7 +2,18 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include "PMFTXYZ.h"
+#include "PMFT.h"
+#include <memory>
+#include "ManagedArray.h"
+#include <cstddef>
+#include "Histogram.h"
+#include "NeighborQuery.h"
+#include "VectorMath.h"
+#include "NeighborList.h"
+#include "NeighborBond.h"
 #include <stdexcept>
+#include <vector>
+#include <utility>
 
 /*! \file PMFTXYZ.cc
     \brief Routines for computing 3D potential of mean force in XYZ coordinates
@@ -75,8 +86,8 @@ PMFTXYZ::PMFTXYZ(float x_max, float y_max, float z_max, unsigned int n_x, unsign
 // in this class also includes the number of equivalent orientations.
 void PMFTXYZ::reduce()
 {
-    float inv_num_dens = m_box.getVolume() / (float) m_n_query_points;
-    float norm_factor
+    float const inv_num_dens = m_box.getVolume() / (float) m_n_query_points;
+    float const norm_factor
         = (float) 1.0 / ((float) m_frame_counter * (float) m_n_points * (float) m_num_equiv_orientations);
     float prefactor = inv_num_dens * norm_factor;
 
@@ -92,7 +103,7 @@ void PMFTXYZ::reset()
     m_num_equiv_orientations = 0xffffffff;
 }
 
-void PMFTXYZ::accumulate(std::shared_ptr<locality::NeighborQuery> neighbor_query,
+void PMFTXYZ::accumulate(const std::shared_ptr<locality::NeighborQuery>& neighbor_query,
                          const quat<float>* query_orientations, const vec3<float>* query_points,
                          unsigned int n_query_points, const quat<float>* equiv_orientations,
                          unsigned int num_equiv_orientations, std::shared_ptr<locality::NeighborList> nlist,
@@ -112,7 +123,7 @@ void PMFTXYZ::accumulate(std::shared_ptr<locality::NeighborQuery> neighbor_query
     neighbor_query->getBox().enforce3D();
 
     // accumulate thread-local arrays
-    accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
+    accumulateGeneral(neighbor_query, query_points, n_query_points, std::move(nlist), qargs,
                       [&](const freud::locality::NeighborBond& neighbor_bond) {
                           // create the reference point quaternion
                           const quat<float> query_orientation(

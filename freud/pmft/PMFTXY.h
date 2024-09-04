@@ -4,7 +4,11 @@
 #ifndef PMFTXY_H
 #define PMFTXY_H
 
+#include "NeighborQuery.h"
+#include "NeighborList.h"
 #include "PMFT.h"
+#include <memory>
+#include "VectorMath.h"
 
 /*! \file PMFTXY.h
     \brief Routines for computing 2D potential of mean force in XY coordinates
@@ -21,7 +25,7 @@ public:
     /*! Compute the PCF for the passed in set of points. The result will
      *  be added to previous values of the PCF.
      */
-    void accumulate(std::shared_ptr<locality::NeighborQuery> neighbor_query, const float* query_orientations,
+    void accumulate(const std::shared_ptr<locality::NeighborQuery>& neighbor_query, const float* query_orientations,
                     const vec3<float>* query_points, unsigned int n_query_points,
                     std::shared_ptr<locality::NeighborList> nlist, const freud::locality::QueryArgs& qargs);
 

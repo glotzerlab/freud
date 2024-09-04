@@ -4,7 +4,11 @@
 #ifndef PMFTXYT_H
 #define PMFTXYT_H
 
+#include "NeighborQuery.h"
+#include "NeighborList.h"
 #include "PMFT.h"
+#include <memory>
+#include "VectorMath.h"
 
 /*! \file PMFTXYT.h
     \brief Routines for computing potential of mean force and torque in XYT coordinates
@@ -21,7 +25,7 @@ public:
     /*! Compute the PCF for the passed in set of points. The function will be added to previous values
         of the PCF
     */
-    void accumulate(std::shared_ptr<locality::NeighborQuery> neighbor_query, const float* orientations,
+    void accumulate(const std::shared_ptr<locality::NeighborQuery>& neighbor_query, const float* orientations,
                     const vec3<float>* query_points, const float* query_orientations,
                     unsigned int n_query_points, std::shared_ptr<locality::NeighborList> nlist,
                     const freud::locality::QueryArgs& qargs);

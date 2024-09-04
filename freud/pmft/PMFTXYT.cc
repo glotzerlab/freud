@@ -1,9 +1,22 @@
 // Copyright (c) 2010-2024 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
+#include <memory>
+#include <cstddef>
+#include <cmath>
 #include <stdexcept>
+#include <vector>
+#include <utility>
 
 #include "PMFTXYT.h"
+#include "PMFT.h"
+#include "ManagedArray.h"
+#include "Histogram.h"
+#include "Box.h"
+#include "NeighborQuery.h"
+#include "VectorMath.h"
+#include "NeighborList.h"
+#include "NeighborBond.h"
 #include "utils.h"
 
 /*! \file PMFTXYT.cc
@@ -58,17 +71,17 @@ PMFTXYT::PMFTXYT(float x_max, float y_max, unsigned int n_x, unsigned int n_y, u
 
 void PMFTXYT::reduce()
 {
-    float jacobian_factor = (float) 1.0 / m_jacobian;
+    float const jacobian_factor = (float) 1.0 / m_jacobian;
     PMFT::reduce([jacobian_factor](size_t i) { return jacobian_factor; }); // NOLINT(misc-unused-parameters)
 }
 
-void PMFTXYT::accumulate(std::shared_ptr<locality::NeighborQuery> neighbor_query, const float* orientations,
+void PMFTXYT::accumulate(const std::shared_ptr<locality::NeighborQuery>& neighbor_query, const float* orientations,
                          const vec3<float>* query_points, const float* query_orientations,
                          unsigned int n_query_points, std::shared_ptr<locality::NeighborList> nlist,
                          const freud::locality::QueryArgs& qargs)
 {
     neighbor_query->getBox().enforce2D();
-    accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
+    accumulateGeneral(neighbor_query, query_points, n_query_points, std::move(nlist), qargs,
                       [&](const freud::locality::NeighborBond& neighbor_bond) {
                           const vec3<float>& delta(neighbor_bond.getVector());
 
