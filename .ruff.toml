@@ -1,0 +1,34 @@
+target-version = "py39"
+
+lint.extend-select = [
+    "A",
+    "B",
+    # "D", # TODO: Enable documentation checks and document undocumented classes/methods
+    "E501",
+    "EM",
+    "I",
+    "ICN",
+    "ISC",
+    "N",
+    "NPY",
+    "PL",
+    "PT",
+    "RET",
+    "RUF",
+    "UP",
+    "W",
+]
+
+lint.ignore = [
+  "N806", "N803",  # Allow occasional use of uppercase variable and argument names (e.g. N).
+  "PLR2004", # Allow hard coded test results.
+  "PLR09", # Allow "too many" statements/arguments/etc...
+  "RUF012", # gsd does not use typing hints
+]
+
+[lint.flake8-import-conventions]
+# Prefer no import aliases
+aliases = {}
+
+[lint.pydocstyle]
+convention = "google"
