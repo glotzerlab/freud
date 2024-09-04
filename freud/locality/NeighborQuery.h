@@ -321,7 +321,7 @@ class NeighborQueryIterator
 public:
     //! Constructor
     NeighborQueryIterator(const NeighborQuery* neighbor_query, const vec3<float>* query_points,
-                          unsigned int num_query_points, QueryArgs& qargs)
+                          unsigned int num_query_points, const QueryArgs& qargs)
         : m_neighbor_query(neighbor_query), m_query_points(query_points),
           m_num_query_points(num_query_points), m_qargs(qargs) 
     {

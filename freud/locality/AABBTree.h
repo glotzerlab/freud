@@ -8,7 +8,6 @@
 #include <array>
 #include <cstdlib>
 #include <cstring>
-#include <malloc/_malloc.h>
 #include <stdexcept>
 #include <utility>
 #include <vector>
@@ -111,8 +110,10 @@ public:
             // This problem has either been fixed in newer versions of cppcheck
             // or no longer arises on newer machines, but we observe this
             // failure on our CI rigs.
+            // NOLINTBEGIN(misc-include-cleaner): clang-tidy identifies the incorrect header
             // cppcheck-suppress AssignmentAddressToInteger
             int const retval = posix_memalign((void**) &m_nodes, 32, m_node_capacity * sizeof(AABBNode));
+            // NOLINTEND(misc-include-cleaner)
             if (retval != 0)
             {
                 throw std::runtime_error("Error allocating AABBTree memory");

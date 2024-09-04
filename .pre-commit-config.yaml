@@ -95,8 +95,7 @@ repos:
     - id: clang-tidy
       stages: [manual]  # Requires clang-tidy.
       name: clang-tidy
-      # entry: clang-tidy-18
-      entry: /opt/homebrew/opt/llvm/bin/clang-tidy
+      entry: clang-tidy-18
       language: system
       types: [c++]
       # Exclude external files.
