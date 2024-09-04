@@ -15,9 +15,7 @@ void export_PMFTXYT(nanobind::module_& m);
 
 using namespace freud::pmft::detail;
 
-NB_MODULE(
-    _pmft,
-    module) // NOLINT(misc-use-anonymous-namespace): We have no control over nanobind module definitions.
+NB_MODULE(_pmft, module) // NOLINT(misc-use-anonymous-namespace): caused by nanobind
 {
     export_PMFT(module);
     export_PMFTXY(module);

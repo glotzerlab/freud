@@ -11,9 +11,7 @@
 
 using namespace freud::box;
 
-NB_MODULE(
-    _box,
-    module) // NOLINT(misc-use-anonymous-namespace): We have no control over nanobind module definitions.
+NB_MODULE(_box, module) // NOLINT(misc-use-anonymous-namespace): caused by nanobind
 {
     nanobind::class_<Box>(module, "Box")
         // constructors
