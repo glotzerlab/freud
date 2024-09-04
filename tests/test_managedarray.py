@@ -8,19 +8,22 @@ import numpy.testing as npt
 class ManagedArrayTestBase:
     def build_object(self):
         """Define how the compute class is built."""
+        msg = "Subclasses must define how the compute object is built."
         raise NotImplementedError(
-            "Subclasses must define how the compute object is built."
+            msg
         )
 
     def compute(self):
         """Define how the compute class's compute method is called."""
-        raise NotImplementedError("Subclasses must define how compute is called.")
+        msg = "Subclasses must define how compute is called."
+        raise NotImplementedError(msg)
 
     @property
     def computed_properties(self):
         """A list of strings indicating the computed properties to test."""
+        msg = "Subclasses must define the list of computed properties."
         raise NotImplementedError(
-            "Subclasses must define the list of computed properties."
+            msg
         )
 
     def test_saved_values(self):
@@ -37,7 +40,7 @@ class ManagedArrayTestBase:
             accessed[prop] = []
 
         num_tests = 25
-        for i in range(num_tests):
+        for _i in range(num_tests):
             self.compute()
 
             for prop in self.computed_properties:

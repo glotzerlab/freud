@@ -471,7 +471,7 @@ class TestEnvironmentMotifMatch:
     def test_square(self):
         """Test that a simple square motif correctly matches."""
         motif = [[1, 0, 0], [0, 1, 0], [-1, 0, 0], [0, -1, 0]]
-        points = motif + [[0, 0, 0]]
+        points = [*motif, [0, 0, 0]]
 
         r_max = 1.5
         num_neighbors = 4
@@ -520,7 +520,7 @@ class TestEnvironmentRMSDMinimizer:
     def test_api(self):
         """This test simply verifies functional code, but not correctness."""
         motif = [[1, 0, 0], [0, 1, 0], [-1, 0, 0], [0, -1, 0]]
-        points = motif + [[0, 0, 0]]
+        points = [*motif, [0, 0, 0]]
 
         r_max = 1.5
         num_neighbors = 4

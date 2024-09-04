@@ -156,7 +156,7 @@ class TestRotationalAutocorrelationReference:
     """Test against a reference Python implementation."""
 
     @pytest.mark.parametrize(
-        "seed, l", [(seed, l) for seed in range(5) for l in [4, 6, 8]]
+        ("seed", "l"), [(seed, l) for seed in range(5) for l in [4, 6, 8]]
     )
     def test_reference_implementation(self, seed, l):
         N = 100

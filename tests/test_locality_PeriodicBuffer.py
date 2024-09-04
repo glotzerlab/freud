@@ -208,7 +208,7 @@ class TestPeriodicBuffer:
         assert len(pbuff.buffer_ids) == 3 * N
         npt.assert_array_equal(pbuff.buffer_box.L, box.L * np.array([2, 1, 2]))
 
-    @pytest.mark.parametrize("is2d, points_fac", [(True, 9), (False, 27)])
+    @pytest.mark.parametrize(("is2d", "points_fac"), [(True, 9), (False, 27)])
     def test_include_input_points(self, is2d, points_fac):
         L = 10  # Box length
         N = 50  # Number of points

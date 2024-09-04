@@ -19,8 +19,7 @@ def _read_gsd_snapshot(filename):
         filename,
     )
     with gsd.hoomd.open(filename) as traj:
-        gsd_frame = traj[-1]
-    return gsd_frame
+        return traj[-1]
 
 
 def _get_reference_data(name):
@@ -143,7 +142,7 @@ class TestSteinhardtReferenceValues:
             assert np.sum(close_values) > (0.985 * len(freud_data)), f"{name} failed"
 
     @pytest.mark.parametrize(
-        "reference,average,wl",
+        ("reference", "average", "wl"),
         [
             ("q", False, False),
             ("w", False, True),

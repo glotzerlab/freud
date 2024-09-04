@@ -11,7 +11,7 @@ import freud
 
 def fetch_doctests():
     finder = doctest.DocTestFinder()
-    for name, member in inspect.getmembers(freud):
+    for _name, member in inspect.getmembers(freud):
         if inspect.ismodule(member):
             for docstring in finder.find(member):
                 if docstring.examples:

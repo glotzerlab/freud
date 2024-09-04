@@ -1,7 +1,7 @@
 # Copyright (c) 2010-2024 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
-from functools import lru_cache
+from functools import cache
 
 import conftest
 import numpy as np
@@ -44,7 +44,7 @@ def lm_index(l, m):
     return l**2 + (m if m >= 0 else l - m)
 
 
-@lru_cache(maxsize=None)
+@cache
 def get_wigner3j(l, m1, m2, m3):
     return float(wigner_3j(l, l, l, m1, m2, m3))
 
@@ -383,8 +383,8 @@ class TestLocalDescriptors:
                     scipy_val = sph_harm(m, l, phi, theta)
                     ld_val = (-1) ** abs(m) * ld.sph[idx, count]
                     assert np.isclose(scipy_val, ld_val, atol=atol), (
-                        "Failed for l={}, m={}, x={}, y={}, theta={}, phi={}"
-                    ).format(l, m, scipy_val, ld_val, theta, phi)
+                        f"Failed for l={l}, m={m}, x={scipy_val}, y={ld_val}, theta={theta}, phi={phi}"
+                    )
                     count += 1
 
                 for neg_m in range(1, l + 1):
@@ -392,8 +392,8 @@ class TestLocalDescriptors:
                     scipy_val = sph_harm(m, l, phi, theta)
                     ld_val = ld.sph[idx, count]
                     assert np.isclose(scipy_val, ld_val, atol=atol), (
-                        "Failed for l={}, m={}, x={}, y={}, theta={}, phi={}"
-                    ).format(l, m, scipy_val, ld_val, theta, phi)
+                        f"Failed for l={l}, m={m}, x={scipy_val}, y={ld_val}, theta={theta}, phi={phi}"
+                    )
                     count += 1
 
     def test_query_point_ne_points(self):
@@ -437,8 +437,8 @@ class TestLocalDescriptors:
                     scipy_val = sph_harm(m, l, phi, theta)
                     ld_val = (-1) ** abs(m) * ld.sph[idx, count]
                     assert np.isclose(scipy_val, ld_val, atol=atol), (
-                        "Failed for l={}, m={}, x={}, y={}, theta={}, phi={}"
-                    ).format(l, m, scipy_val, ld_val, theta, phi)
+                        f"Failed for l={l}, m={m}, x={scipy_val}, y={ld_val}, theta={theta}, phi={phi}"
+                    )
                     count += 1
 
                 for neg_m in range(1, l + 1):
@@ -446,6 +446,6 @@ class TestLocalDescriptors:
                     scipy_val = sph_harm(m, l, phi, theta)
                     ld_val = ld.sph[idx, count]
                     assert np.isclose(scipy_val, ld_val, atol=atol), (
-                        "Failed for l={}, m={}, x={}, y={}, theta={}, phi={}"
-                    ).format(l, m, scipy_val, ld_val, theta, phi)
+                        f"Failed for l={l}, m={m}, x={scipy_val}, y={ld_val}, theta={theta}, phi={phi}"
+                    )
                     count += 1

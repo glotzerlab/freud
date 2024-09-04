@@ -25,6 +25,7 @@ lint.ignore = [
   "PLR09", # Allow "too many" statements/arguments/etc...
   "RUF012", # freud does not use typing hints
   "N802", # Allow names like Lx
+  "NPY002", # TODO: Refactor benchmarks and tests to use numpy.random.Generator
 ]
 
 [lint.flake8-import-conventions]
@@ -32,8 +33,16 @@ lint.ignore = [
 aliases = {}
 
 [lint.per-file-ignores]
-"benchmarks/*.py" = ["NPY002", # TODO: Refactor benchmarks to use numpy.random.Generator
+"tests/*.py" = ["PLR6301", # methods defined this way are used by pytest.
+  "E741", # l is an appropriate variable name for Qlm order parameters.
+  "PLW2901", # TODO: Enable this check and fix after tests can be executed.
+  "B018", # TODO: Enable this check and fix after tests can be executed.
+  "PT011", # TODO: Enable this check and fix after tests can be executed.
+  "PT012", # TODO: Enable this check and fix after tests can be executed.
+  "E501", # TODO: Enable this check and fix after tests can be executed.
 ]
+
+
 
 [lint.pydocstyle]
 convention = "google"

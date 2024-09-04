@@ -57,8 +57,7 @@ class PMFTTestBase:
 
         if ndim == 2:
             return freud.box.Box.square(L)
-        else:
-            return freud.box.Box.cube(L)
+        return freud.box.Box.cube(L)
 
     @classmethod
     def make_pmft(cls):
@@ -73,7 +72,7 @@ class PMFTTestBase:
 
         # Ensure expected errors are raised
         box = self.get_cubic_box(self.L, ndim=2 if self.ndim == 3 else 3)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="only supports 2D systems"):
             pmft.compute((box, points), orientations)
 
     def get_bin_centers(self):
@@ -96,26 +95,26 @@ class PMFTTestBase:
         orientations = np.array([[1, 0, 0, 0], [1, 0, 0, 0]], dtype=np.float32)
 
         with pytest.raises(AttributeError):
-            pmft.bin_counts
+            _ = pmft.bin_counts
         with pytest.raises(AttributeError):
-            pmft.box
+            _ = pmft.box
         with pytest.raises(AttributeError):
-            pmft.pmft
+            _ = pmft.pmft
 
         box = self.get_cubic_box(self.L)
         points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.1, 0.0]], dtype=np.float32)
-        pmft.compute((box, points), orientations, reset=False)
-        pmft.bin_counts
-        pmft.pmft
-        pmft.box
+        _ = pmft.compute((box, points), orientations, reset=False)
+        _ = pmft.bin_counts
+        _ = pmft.pmft
+        _ = pmft.box
         npt.assert_equal(pmft.bin_counts.shape, self.bins)
         npt.assert_equal(pmft.pmft.shape, self.bins)
 
         # Test computing wihth reset
         pmft.compute((box, points), orientations)
-        pmft.bin_counts
-        pmft.pmft
-        pmft.box
+        _ = pmft.bin_counts
+        _ = pmft.pmft
+        _ = pmft.box
 
     def test_two_particles(self):
         (box, points), orientations = self.make_two_particle_system()
@@ -183,8 +182,7 @@ class PMFTTestBase:
         def get_bin_centers(pmft):
             if len(self.limits) > 1:
                 return pmft.bin_centers[: len(self.limits)]
-            else:
-                return [pmft.bin_centers[0]]
+            return [pmft.bin_centers[0]]
 
         radii = build_radii(get_bin_centers(pmft))
         rdf = pmft_to_rdf(pmft, radii)
@@ -198,7 +196,7 @@ class PMFT2DTestBase(PMFTTestBase):
         (box, points), orientations = self.make_two_particle_system()
         points[:, 2] = 1
         pmft = self.make_pmft()
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="with z != 0"):
             pmft.compute(
                 (box, points),
                 orientations,
@@ -312,7 +310,7 @@ class TestPMFTXYT(PMFT2DTestBase):
             * self.bins[2]
             / TWO_PI
         ).astype(np.int32)
-        return xy_bins + (angle_bin,)
+        return (*xy_bins, angle_bin)
 
     def test_points_ne_query_points(self):
         x_max = 2.5
@@ -347,7 +345,7 @@ class TestPMFTXYT(PMFT2DTestBase):
             assert len(np.unique(pmft.pmft)) == 2
 
     @pytest.mark.parametrize(
-        "angles, query_angles",
+        ("angles", "query_angles"),
         [
             (angles, query_angles)
             for angles in ([0], [np.pi / 4])

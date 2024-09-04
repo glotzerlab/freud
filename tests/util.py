@@ -34,7 +34,7 @@ def make_raw_query_nlist_test_set(
             Contains points or :class:`freud.locality.NeighborQuery`,
             :class:`freud.locality.NeighborList` or :code:`None`,
             query_args :class:`dict` or :code:`None`.
-    """  # noqa: E501
+    """
     test_set = []
     query_args = {"mode": mode, "exclude_ii": exclude_ii}
     if mode == "ball":
@@ -82,7 +82,7 @@ def make_alternating_lattice(lattice_size, angle=0, extra_shell=2):
         tuple ((:math:`\left(N_1`, 3\right)` :class:`numpy.ndarray`),
             (:math:`\left(N_2`, 3\right)` :class:`numpy.ndarray`):
             Generated sets of points.
-    """  # noqa: E501
+    """
     points_1 = []
     points_2 = []
 

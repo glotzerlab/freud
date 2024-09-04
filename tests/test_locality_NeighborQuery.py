@@ -47,9 +47,12 @@ def nlist_equal(nlist1, nlist2):
 class NeighborQueryTest:
     @classmethod
     def build_query_object(cls, box, ref_points, r_max=None):
-        raise RuntimeError(
+        msg = (
             "The build_query_object function must be defined for every "
             "subclass of NeighborQuery in a separate test subclass."
+        )
+        raise RuntimeError(
+            msg
         )
 
     @pytest.mark.parametrize(
@@ -502,7 +505,7 @@ class NeighborQueryTest:
         assert get_point_neighbors(result, 0) == {0, 1, 2}
 
     @pytest.mark.parametrize(
-        "N, k", [(N, k) for N in (10, 100, 500) for k in (1, 5, 10, 50) if k < N]
+        ("N", "k"), [(N, k) for N in (10, 100, 500) for k in (1, 5, 10, 50) if k < N]
     )
     def test_random_system_query(self, N, k):
         np.random.seed(0)
@@ -628,7 +631,7 @@ class TestNeighborQueryAABB(NeighborQueryTest):
         assert nlist_equal(nlist1, nlist2)
 
     @pytest.mark.parametrize(
-        "r_guess, scale",
+        ("r_guess", "scale"),
         [(r_guess, scale) for r_guess in [0.5, 1, 2] for scale in [1.01, 1.1, 1.3]],
     )
     def test_r_guess_scale(self, r_guess, scale):
@@ -659,7 +662,8 @@ class TestNeighborQueryLinkCell(NeighborQueryTest):
     @classmethod
     def build_query_object(cls, box, ref_points, r_max=None):
         if r_max is None:
-            raise ValueError("Building LinkCells requires passing an r_max.")
+            msg = "Building LinkCells requires passing an r_max."
+            raise ValueError(msg)
         return freud.locality.LinkCell(box, ref_points, r_max)
 
     def test_chaining(self):
