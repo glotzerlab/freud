@@ -5,6 +5,7 @@ r"""
 The :mod:`freud.locality` module contains data structures to efficiently
 locate points based on their proximity to other points.
 """
+
 import inspect
 
 import numpy as np
@@ -66,7 +67,7 @@ class _QueryArgs:
         if len(kwargs):
             err_str = ", ".join(f"{k} = {v}" for k, v in kwargs.items())
             raise ValueError(
-                "The following invalid query " "arguments were provided: " + err_str
+                "The following invalid query arguments were provided: " + err_str
             )
 
     def update(self, qargs):
@@ -76,7 +77,8 @@ class _QueryArgs:
             if hasattr(self, arg):
                 setattr(self, arg, qargs[arg])
             else:
-                raise ValueError("An invalid query argument was provided.")
+                msg = "An invalid query argument was provided."
+                raise ValueError(msg)
 
     @classmethod
     def from_dict(cls, mapping):
@@ -87,12 +89,12 @@ class _QueryArgs:
     def mode(self):
         if self._cpp_obj.mode == freud._locality.QueryType.none:
             return None
-        elif self._cpp_obj.mode == freud._locality.QueryType.ball:
+        if self._cpp_obj.mode == freud._locality.QueryType.ball:
             return "ball"
-        elif self._cpp_obj.mode == freud._locality.QueryType.nearest:
+        if self._cpp_obj.mode == freud._locality.QueryType.nearest:
             return "nearest"
-        else:
-            raise ValueError(f"Unknown mode {self._cpp_obj.mode} set!")
+        msg = f"Unknown mode {self._cpp_obj.mode} set!"
+        raise ValueError(msg)
 
     @mode.setter
     def mode(self, value):
@@ -103,7 +105,8 @@ class _QueryArgs:
         elif value == "nearest":
             self._cpp_obj.mode = freud._locality.QueryType.nearest
         else:
-            raise ValueError("An invalid mode was provided.")
+            msg = "An invalid mode was provided."
+            raise ValueError(msg)
 
     @property
     def r_guess(self):
@@ -155,16 +158,10 @@ class _QueryArgs:
 
     def __repr__(self):
         return (
-            "freud.locality.{cls}(mode={mode}, r_max={r_max}, "
-            "num_neighbors={num_neighbors}, exclude_ii={exclude_ii}, "
-            "scale={scale})"
-        ).format(
-            cls=type(self).__name__,
-            mode=self.mode,
-            r_max=self.r_max,
-            num_neighbors=self.num_neighbors,
-            exclude_ii=self.exclude_ii,
-            scale=self.scale,
+            f"freud.locality.{type(self).__name__}"
+            f"(mode={self.mode}, r_max={self.r_max}, "
+            f"num_neighbors={self.num_neighbors}, exclude_ii={self.exclude_ii}, "
+            f"scale={self.scale})"
         )
 
     def __str__(self):
@@ -222,8 +219,7 @@ class NeighborQueryResult:
         iterator_cpp = self._nq._cpp_obj.query(self._points, self._query_args._cpp_obj)
 
         nlist_cpp = iterator_cpp.toNeighborList(sort_by_distance)
-        nl = _nlist_from_cnlist(nlist_cpp)
-        return nl
+        return _nlist_from_cnlist(nlist_cpp)
 
 
 class NeighborQuery:
@@ -255,10 +251,11 @@ class NeighborQuery:
     """
 
     def __init__(self):
-        raise RuntimeError(
+        msg = (
             "The NeighborQuery class is abstract, and should not be "
             "directly instantiated"
         )
+        raise RuntimeError(msg)
 
     @classmethod
     def from_system(cls, system, dimensions=None):
@@ -312,7 +309,7 @@ class NeighborQuery:
         # MDAnalysis compatibility
         # base namespace for mdanalysis<2.3.0
         # timestep namespace for mdanalysis>=2.3.0
-        elif _match_class_path(
+        if _match_class_path(
             system,
             "MDAnalysis.coordinates.base.Timestep",
             "MDAnalysis.coordinates.timestep.Timestep",
@@ -374,9 +371,8 @@ class NeighborQuery:
             # If called from this abstract parent class, always make
             # :class:`~._RawPoints`.
             return _RawPoints(*system)
-        else:
-            # Otherwise, use the current class.
-            return cls(*system)
+        # Otherwise, use the current class.
+        return cls(*system)
 
     @property
     def box(self):
@@ -434,7 +430,7 @@ class NeighborQuery:
         """
         import freud.plot
 
-        return freud.plot.system_plot(self, ax=ax, title=title, *args, **kwargs)
+        return freud.plot.system_plot(self, ax=ax, title=title, *args, **kwargs)  # noqa: B026 - it works
 
 
 class NeighborList:
@@ -618,10 +614,9 @@ class NeighborList:
             assert isinstance(other, NeighborList)
             self.copy_c(other)
             return self
-        else:
-            new_copy = NeighborList()
-            new_copy.copy(self)
-            return new_copy
+        new_copy = NeighborList()
+        new_copy.copy(self)
+        return new_copy
 
     def __getitem__(self, key):
         r"""Access the bond array by index or slice."""
@@ -716,7 +711,7 @@ class NeighborList:
 
             # Keep only the bonds between particles of type A and type B
             nlist.filter(types[nlist.query_point_indices] != types[nlist.point_indices])
-        """  # noqa E501
+        """  # E501
         filt = np.ascontiguousarray(filt, dtype=bool)
         self._cpp_obj.filter(filt)
         return self
@@ -824,15 +819,14 @@ def _make_default_nlist(system, neighbors, query_points=None):
     Returns:
         :class:`freud.locality.NeighborList`:
             The neighbor list.
-    """  # noqa: E501
+    """
     if type(neighbors) is NeighborList:
         return neighbors
-    else:
-        query_args = neighbors.copy()
-        query_args.setdefault("exclude_ii", query_points is None)
-        nq = _make_default_nq(system)
-        qp = query_points if query_points is not None else nq.points
-        return nq.query(qp, query_args).toNeighborList()
+    query_args = neighbors.copy()
+    query_args.setdefault("exclude_ii", query_points is None)
+    nq = _make_default_nq(system)
+    qp = query_points if query_points is not None else nq.points
+    return nq.query(qp, query_args).toNeighborList()
 
 
 class _RawPoints(NeighborQuery):
@@ -960,10 +954,11 @@ class _PairCompute(_Compute):
             except NotImplementedError:
                 raise
         else:
-            raise ValueError(
+            msg = (
                 "An invalid value was provided for neighbors, "
                 "which must be a dict or NeighborList object."
             )
+            raise ValueError(msg)
         return nlist, qargs
 
     @property
@@ -1098,7 +1093,8 @@ class PeriodicBuffer(_Compute):
         elif len(buffer) == 3:
             buffer_vec = [buffer[0], buffer[1], buffer[2]]
         else:
-            raise ValueError("buffer must be a scalar or have length 3.")
+            msg = "buffer must be a scalar or have length 3."
+            raise ValueError(msg)
 
         self._cpp_obj.compute(nq._cpp_obj, buffer_vec, images, include_input_points)
         return self
@@ -1202,8 +1198,7 @@ class Voronoi(_Compute):
         Returns:
             :class:`~.locality.NeighborList`: Neighbor list.
         """
-        nlist = _nlist_from_cnlist(self._cpp_obj.getNeighborList())
-        return nlist
+        return _nlist_from_cnlist(self._cpp_obj.getNeighborList())
 
     def __repr__(self):
         return f"freud.locality.{type(self).__name__}()"
@@ -1233,8 +1228,7 @@ class Voronoi(_Compute):
 
         if not self._box.is2D:
             return None
-        else:
-            return freud.plot.voronoi_plot(self, self._box, ax, color_by, cmap)
+        return freud.plot.voronoi_plot(self, self._box, ax, color_by, cmap)
 
     def _repr_png_(self):
         try:
@@ -1267,9 +1261,8 @@ class Filter(_PairCompute):
     """
 
     def __init__(self):
-        raise RuntimeError(
-            "The Filter class is abstract and should not be instantiated directly."
-        )
+        msg = "The Filter class is abstract and should not be instantiated directly."
+        raise RuntimeError(msg)
 
     def _preprocess_arguments(self, system, query_points=None, neighbors=None):
         """Use a full neighborlist if neighbors=None."""
@@ -1306,14 +1299,12 @@ class Filter(_PairCompute):
     @_Compute._computed_property
     def filtered_nlist(self):
         """:class:`.NeighborList`: The filtered neighbor list."""
-        nlist = _nlist_from_cnlist(self._cpp_obj.getFilteredNlist())
-        return nlist
+        return _nlist_from_cnlist(self._cpp_obj.getFilteredNlist())
 
     @_Compute._computed_property
     def unfiltered_nlist(self):
         """:class:`.NeighborList`: The unfiltered neighbor list."""
-        nlist = _nlist_from_cnlist(self._cpp_obj.getUnfilteredNlist())
-        return nlist
+        return _nlist_from_cnlist(self._cpp_obj.getUnfilteredNlist())
 
 
 class FilterSANN(Filter):
@@ -1360,7 +1351,7 @@ class FilterRAD(Filter):
     """Filter a :class:`.NeighborList` via the RAD method.
 
     The Relative Angular Distance (RAD) method :cite:`Higham2016` is a parameter-free
-    algorithm for the identification of nearest neighbors. A particle’s neighbor shell
+    algorithm for the identification of nearest neighbors. A particle's neighbor shell
     is taken to be all particles that are not blocked by any other particle.
 
     The :class:`.FilterRAD` algorithm considers the potential neighbors of a query point

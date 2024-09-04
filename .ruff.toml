@@ -23,7 +23,8 @@ lint.ignore = [
   "N806", "N803",  # Allow occasional use of uppercase variable and argument names (e.g. N).
   "PLR2004", # Allow hard coded test results.
   "PLR09", # Allow "too many" statements/arguments/etc...
-  "RUF012", # gsd does not use typing hints
+  "RUF012", # freud does not use typing hints
+  "N802", # Allow names like Lx
 ]
 
 [lint.flake8-import-conventions]

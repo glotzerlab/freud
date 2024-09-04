@@ -303,21 +303,15 @@ def main_compare(args):
         }
         if _thread:
             info["threads"] = _thread
-            print(
-                f"Threads: {_thread!s}, N: {_N}, ratio: {ratio:0.2f}"
-            )
+            print(f"Threads: {_thread!s}, N: {_N}, ratio: {ratio:0.2f}")
         else:
             print(f"N: {_N}, ratio: {ratio:0.2f}")
 
         if ratio < 1:
-            print(
-                f"\t{rt:6.6} is {ratio:0.2f} times slower than {ro:6.6}"
-            )
+            print(f"\t{rt:6.6} is {ratio:0.2f} times slower than {ro:6.6}")
             slowers.append(info)
         if ratio > 1:
-            print(
-                f"\t{rt:6.6} is {ratio:0.2f} times faster than {ro:6.6}"
-            )
+            print(f"\t{rt:6.6} is {ratio:0.2f} times faster than {ro:6.6}")
             fasters.append(info)
         if ratio == 1:
             print(f"\t{rt:6.6} and {ro:6.6} have the same speed")

@@ -52,11 +52,10 @@ class _Compute:
                 return return_value
 
             return compute_wrapper
-        elif attr == "plot":
+        if attr == "plot":
             if not self._called_compute:
-                raise AttributeError(
-                    "The compute method must be called before calling plot."
-                )
+                msg = "The compute method must be called before calling plot."
+                raise AttributeError(msg)
         return attribute
 
     @staticmethod
@@ -72,9 +71,10 @@ class _Compute:
 
         @property
         @wraps(prop)
-        def wrapper(self, *args, **kwargs):
+        def wrapper(self, *args, **kwargs):  # noqa: PLR0206 - it works...
             if not self._called_compute:
-                raise AttributeError("Property not computed. Call compute first.")
+                msg = "Property not computed. Call compute first."
+                raise AttributeError(msg)
             return prop(self, *args, **kwargs)
 
         return wrapper
@@ -116,19 +116,17 @@ def _convert_array(
     return_arr = np.require(array, dtype=dtype, requirements=requirements)
 
     if not allow_copy and return_arr is not array:
-        raise ValueError(
+        msg = (
             "The provided output array must have dtype "
             f"{dtype}, and have the following array flags: "
             f"{', '.join(requirements)}."
         )
+        raise ValueError(msg)
 
     if shape is not None:
         if return_arr.ndim != len(shape):
-            raise ValueError(
-                "array.ndim = {}; expected ndim = {}".format(
-                    return_arr.ndim, len(shape)
-                )
-            )
+            msg = f"array.ndim = {return_arr.ndim}; expected ndim = {len(shape)}"
+            raise ValueError(msg)
 
         for i, s in enumerate(shape):
             if s is not None and return_arr.shape[i] != s:
@@ -137,11 +135,8 @@ def _convert_array(
                     + ", ".join(str(i) if i is not None else "..." for i in shape)
                     + ")"
                 )
-                raise ValueError(
-                    "array.shape= {}; expected shape = {}".format(
-                        return_arr.shape, shape_str
-                    )
-                )
+                msg = f"array.shape= {return_arr.shape}; expected shape = {shape_str}"
+                raise ValueError(msg)
 
     return return_arr
 
@@ -167,6 +162,7 @@ def _convert_box(box, dimensions=None):
             raise
 
     if dimensions is not None and box.dimensions != dimensions:
-        raise ValueError(f"The box must be {dimensions}-dimensional.")
+        msg = f"The box must be {dimensions}-dimensional."
+        raise ValueError(msg)
 
     return box

@@ -53,14 +53,16 @@ class Box:
             is2D = Lz == 0
         if is2D:
             if not (Lx and Ly):
-                raise ValueError("Lx and Ly must be nonzero for 2D boxes.")
-            elif Lz != 0 or xz != 0 or yz != 0:
+                msg = "Lx and Ly must be nonzero for 2D boxes."
+                raise ValueError(msg)
+            if Lz != 0 or xz != 0 or yz != 0:
                 warnings.warn(
-                    "Specifying z-dimensions in a 2-dimensional box " "has no effect!"
+                    "Specifying z-dimensions in a 2-dimensional box has no effect!",
+                    stacklevel=2,
                 )
-        else:
-            if not (Lx and Ly and Lz):
-                raise ValueError("Lx, Ly, and Lz must be nonzero for 3D boxes.")
+        elif not (Lx and Ly and Lz):
+            msg = "Lx, Ly, and Lz must be nonzero for 3D boxes."
+            raise ValueError(msg)
         self._cpp_obj = freud._box.Box(Lx, Ly, Lz, xy, xz, yz, is2D)
 
     @property
@@ -75,16 +77,16 @@ class Box:
     def L(self, value):
         try:
             if len(value) != 3:
-                raise ValueError(
-                    "setL must be called with a scalar or a list " "of length 3."
-                )
+                msg = "setL must be called with a scalar or a list of length 3."
+                raise ValueError(msg)
         except TypeError:
             # Will fail if object has no length
             value = (value, value, value)
 
         if self.is2D and value[2] != 0:
             warnings.warn(
-                "Specifying z-dimensions in a 2-dimensional box " "has no effect!"
+                "Specifying z-dimensions in a 2-dimensional box has no effect!",
+                stacklevel=2,
             )
         self._cpp_obj.setL(value[0], value[1], value[2])
 
@@ -165,7 +167,7 @@ class Box:
 
     @dimensions.setter
     def dimensions(self, value):
-        assert value == 2 or value == 3
+        assert value in (2, 3)
         self._cpp_obj.set2D(bool(value == 2))
 
     @property
@@ -384,7 +386,7 @@ class Box:
         Returns:
             :math:`\left(3, \right)` :class:`numpy.ndarray`:
                 Center of mass.
-        """  # noqa: E501
+        """
         vecs = freud.util._convert_array(vecs, shape=(None, 3))
 
         if masses is not None:
@@ -422,7 +424,7 @@ class Box:
         Returns:
             :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
                 Vectors with center of mass subtracted.
-        """  # noqa: E501
+        """
         vecs = freud.util._convert_array(vecs, shape=(None, 3)).copy()
 
         if masses is not None:
@@ -448,7 +450,7 @@ class Box:
         Returns:
             :math:`\left(N, \right)` :class:`numpy.ndarray`:
                 Array of distances between query points and points.
-        """  # noqa: E501
+        """
 
         query_points = freud.util._convert_array(
             np.atleast_2d(query_points), shape=(None, 3)
@@ -519,7 +521,7 @@ class Box:
             :math:`\left(N, \right)` :class:`numpy.ndarray`:
                 Array of booleans, where ``True`` corresponds to points within
                 the box, and ``False`` corresponds to points outside the box.
-        """  # noqa: E501
+        """
 
         points = freud.util._convert_array(np.atleast_2d(points), shape=(None, 3))
         contains_mask = freud.util._convert_array(np.ones(points.shape[0]), dtype=bool)
@@ -658,18 +660,10 @@ class Box:
 
     def __repr__(self):
         return (
-            "freud.box.{cls}(Lx={Lx}, Ly={Ly}, Lz={Lz}, "
-            "xy={xy}, xz={xz}, yz={yz}, "
-            "is2D={is2D})"
-        ).format(
-            cls=type(self).__name__,
-            Lx=self.Lx,
-            Ly=self.Ly,
-            Lz=self.Lz,
-            xy=self.xy,
-            xz=self.xz,
-            yz=self.yz,
-            is2D=self.is2D,
+            f"freud.box.{type(self).__name__}"
+            f"(Lx={self.Lx}, Ly={self.Ly}, Lz={self.Lz}, "
+            f"xy={self.xy}, xz={self.xz}, yz={self.yz}, "
+            f"is2D={self.is2D})"
         )
 
     def __str__(self):
@@ -686,13 +680,13 @@ class Box:
                 yz=self.yz,
                 is2D=self.is2D,
             )
-        else:
-            raise ValueError("Box can only be multiplied by positive values.")
+        msg = "Box can only be multiplied by positive values."
+        raise ValueError(msg)
 
     def __rmul__(self, scale):
         return self * scale
 
-    def plot(self, title=None, ax=None, image=[0, 0, 0], *args, **kwargs):
+    def plot(self, title=None, ax=None, image=None, *args, **kwargs):
         """Plot a :class:`~.box.Box` object.
 
         Args:
@@ -714,8 +708,15 @@ class Box:
         """
         import freud.plot
 
+        if image is None:
+            image = [0, 0, 0]
         return freud.plot.box_plot(
-            self, title=title, ax=ax, image=image, *args, **kwargs
+            self,
+            title=title,
+            ax=ax,
+            image=image,
+            *args,  # noqa: B026 - it works
+            **kwargs,
         )
 
     @classmethod
@@ -768,10 +769,11 @@ class Box:
             if dimensions is None:
                 dimensions = getattr(box, "dimensions", None)
             elif dimensions != getattr(box, "dimensions", dimensions):
-                raise ValueError(
+                msg = (
                     "The provided dimensions argument conflicts with the "
                     "dimensions attribute of the provided box object."
                 )
+                raise ValueError(msg)
         except AttributeError:
             try:
                 # Handle dictionary-like
@@ -783,26 +785,27 @@ class Box:
                 yz = box.get("yz", 0)
                 if dimensions is None:
                     dimensions = box.get("dimensions", None)
-                else:
-                    if dimensions != box.get("dimensions", dimensions):
-                        raise ValueError(
-                            "The provided dimensions argument conflicts with "
-                            "the dimensions attribute of the provided box "
-                            "object."
-                        )
-            except (IndexError, KeyError, TypeError):
-                if not len(box) in [2, 3, 6]:
-                    raise ValueError(
+                elif dimensions != box.get("dimensions", dimensions):
+                    msg = (
+                        "The provided dimensions argument conflicts with "
+                        "the dimensions attribute of the provided box "
+                        "object."
+                    )
+                    raise ValueError(msg)
+            except (IndexError, KeyError, TypeError) as exc:
+                if len(box) not in {2, 3, 6}:
+                    msg = (
                         "List-like objects must have length 2, 3, or 6 to be "
                         "converted to freud.box.Box."
                     )
+                    raise ValueError(msg) from exc
                 # Handle list-like
                 Lx = box[0]
                 Ly = box[1]
                 Lz = box[2] if len(box) > 2 else 0
                 xy, xz, yz = box[3:6] if len(box) == 6 else (0, 0, 0)
-        except:  # noqa
-            logger.debug("Supplied box cannot be converted to type " "freud.box.Box.")
+        except:
+            logger.debug("Supplied box cannot be converted to type freud.box.Box.")
             raise
 
         # Infer dimensions if not provided.
@@ -864,7 +867,8 @@ class Box:
         # named access to positional arguments, so we keep this to
         # recover the behavior
         if L is None:
-            raise TypeError("cube() missing 1 required positional argument: L")
+            msg = "cube() missing 1 required positional argument: L"
+            raise TypeError(msg)
         return cls(Lx=L, Ly=L, Lz=L, xy=0, xz=0, yz=0, is2D=False)
 
     @classmethod
@@ -881,7 +885,8 @@ class Box:
         # named access to positional arguments, so we keep this to
         # recover the behavior
         if L is None:
-            raise TypeError("square() missing 1 required " "positional argument: L")
+            msg = "square() missing 1 required positional argument: L"
+            raise TypeError(msg)
         return cls(Lx=L, Ly=L, Lz=0, xy=0, xz=0, yz=0, is2D=True)
 
     @classmethod
@@ -922,18 +927,22 @@ class Box:
             :class:`freud.box.Box`: The resulting box object.
         """
         if not 0 < alpha < np.pi:
-            raise ValueError("alpha must be between 0 and pi.")
+            msg = "alpha must be between 0 and pi."
+            raise ValueError(msg)
         if not 0 < beta < np.pi:
-            raise ValueError("beta must be between 0 and pi.")
+            msg = "beta must be between 0 and pi."
+            raise ValueError(msg)
         if not 0 < gamma < np.pi:
-            raise ValueError("gamma must be between 0 and pi.")
+            msg = "gamma must be between 0 and pi."
+            raise ValueError(msg)
         a1 = np.array([L1, 0, 0])
         a2 = np.array([L2 * np.cos(gamma), L2 * np.sin(gamma), 0])
         a3x = np.cos(beta)
         a3y = (np.cos(alpha) - np.cos(beta) * np.cos(gamma)) / np.sin(gamma)
         under_sqrt = 1 - a3x**2 - a3y**2
         if under_sqrt < 0:
-            raise ValueError("The provided angles can not form a valid box.")
+            msg = "The provided angles can not form a valid box."
+            raise ValueError(msg)
         a3z = np.sqrt(under_sqrt)
         a3 = np.array([L3 * a3x, L3 * a3y, L3 * a3z])
         if dimensions is None:
