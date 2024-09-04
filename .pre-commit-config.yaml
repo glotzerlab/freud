@@ -30,7 +30,7 @@ repos:
       - id: debug-statements
       - id: requirements-txt-fixer
   - repo: https://github.com/glotzerlab/fix-license-header
-    rev: v0.3.2
+    rev: v0.4.0
     hooks:
       - id: fix-license-header
         name: Fix License Headers (Python)
@@ -40,22 +40,13 @@ repos:
               ^extern/|
               ^requirements/
               )
-        types_or: [python, cython]
+        types_or: [c, c++, python]
         args:
           - --license-file=LICENSE
           - --start=2
           - --num=1
           - --add=This file is from the freud project, released under the BSD 3-Clause License.
           - --keep-before=#!
-      - id: fix-license-header
-        name: Fix License Headers (C++)
-        types_or: [c, c++]
-        args:
-          - --license-file=LICENSE
-          - --start=2
-          - --num=1
-          - --add=This file is from the freud project, released under the BSD 3-Clause License.
-          - --comment-prefix=//
   - repo: https://github.com/asottile/pyupgrade
     rev: 'v3.16.0'
     hooks:
