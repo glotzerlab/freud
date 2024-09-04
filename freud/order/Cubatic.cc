@@ -140,9 +140,6 @@ Cubatic::Cubatic(float t_initial, float t_final, float scale, unsigned int n_rep
     {
         throw std::invalid_argument("Cubatic requires that t_final must be >= 1e-6.");
     }
-    // cppcheck erroneously flags this check as redundant because it follows
-    // both branches independently.
-    // cppcheck-suppress knownConditionTrueFalse
     if ((scale >= 1) || (scale <= 0))
     {
         throw std::invalid_argument("Cubatic requires that scale must be between 0 and 1.");

@@ -15,7 +15,7 @@ metadata:
   content_hash:
     osx-arm64: f5c19f5451988b99abcd7c1543f23acef327293c689689a9eef72104c3cc0543
     osx-64: ed55bf7547f1dd3cc5063e9e2dd68c1667aca9fbc0fcce9ca3d903229318b76c
-    linux-64: b20f4ad3fc43ac74d3e12e36fd704f9a996c7842f743eea75ef9cfe036ecb30a
+    linux-64: 639fce5e8c286a8d20e8de46d22baa5898be4a9ac377d9ffc9c5cdd16e979c84
     win-64: 7c18d2ee9cbb9243a48e7108118a2c7f18c8e07a9c5658b276b84fd2f61221c8
   channels:
   - url: conda-forge
@@ -961,24 +961,6 @@ package:
   hash:
     md5: c292c0b5a186a4afec16b4ef52488e9f
     sha256: daf43d9605cce61781196422338aec3d2c5e8c7941665c73a6c071c31345fe0e
-  category: main
-  optional: false
-- name: cppcheck
-  version: 2.14.2
-  manager: conda
-  platform: linux-64
-  dependencies:
-    libgcc-ng: '>=12'
-    libstdcxx-ng: '>=12'
-    pcre: '>=8.45,<9.0a0'
-    pygments: ''
-    python: '>=3.11,<3.12.0a0'
-    python_abi: 3.11.*
-    tinyxml2: '>=10.0.0,<11.0a0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/cppcheck-2.14.2-py311hdd5f75e_0.conda
-  hash:
-    md5: f43b7253f2fec6cc3805048aae3c6871
-    sha256: 05dcfc29e117e752920436e349fdf3be85c00797da812fe47314ba194f23469d
   category: main
   optional: false
 - name: cycler
@@ -6027,19 +6009,6 @@ package:
     sha256: 35ad5cab1d9c08cf98576044bf28f75e62f8492afe6d1a89c94bbe93dc8d7258
   category: main
   optional: false
-- name: pcre
-  version: '8.45'
-  manager: conda
-  platform: linux-64
-  dependencies:
-    libgcc-ng: '>=9.3.0'
-    libstdcxx-ng: '>=9.3.0'
-  url: https://conda.anaconda.org/conda-forge/linux-64/pcre-8.45-h9c3ff4c_0.tar.bz2
-  hash:
-    md5: c05d1820a6d34ff07aaaab7a9b7eddaa
-    sha256: 8f35c244b1631a4f31fb1d66ab6e1d9bfac0ca9b679deced1112c7225b3ad138
-  category: main
-  optional: false
 - name: pcre2
   version: '10.44'
   manager: conda
@@ -6518,18 +6487,6 @@ package:
   hash:
     md5: 4c694e6239817f896a668f4f09283e19
     sha256: 88429d3c889604dc4be9133a82a3e9857e34f76fa2d28f91fadfeb8f030ff09e
-  category: main
-  optional: false
-- name: pygments
-  version: 2.18.0
-  manager: conda
-  platform: linux-64
-  dependencies:
-    python: '>=3.8'
-  url: https://conda.anaconda.org/conda-forge/noarch/pygments-2.18.0-pyhd8ed1ab_0.conda
-  hash:
-    md5: b7f5c092b8f9800150d998a71b76d5a1
-    sha256: 78267adf4e76d0d64ea2ffab008c501156c108bb08fecb703816fb63e279780b
   category: main
   optional: false
 - name: pyparsing
@@ -7940,19 +7897,6 @@ package:
   hash:
     md5: 65c4a41516c0de46449e9d4b18c5c8f3
     sha256: 15dcf503b5c5968913e390405a4e05f618dc7a369c951006f802d99a2be9b27f
-  category: main
-  optional: false
-- name: tinyxml2
-  version: 10.0.0
-  manager: conda
-  platform: linux-64
-  dependencies:
-    libgcc-ng: '>=12'
-    libstdcxx-ng: '>=12'
-  url: https://conda.anaconda.org/conda-forge/linux-64/tinyxml2-10.0.0-h59595ed_0.conda
-  hash:
-    md5: 5e27e4a780264caed4be372ded70a9e9
-    sha256: e89306d01999f629a329ddb2e2ca9b8fbfe7c483d13f9805f0c6891a24a6e9c8
   category: main
   optional: false
 - name: tk

@@ -165,18 +165,12 @@ public:
     //! Implementation of variadic indexing function.
     template<typename... Ints> T& operator()(Ints... indices)
     {
-        // cppcheck generates a false positive here on old machines (CI),
-        // probably due to limited template support on those compilers.
-        // cppcheck-suppress returnTempReference
         return (*this)(buildIndex(indices...));
     }
 
     //! Constant implementation of variadic indexing function.
     template<typename... Ints> const T& operator()(Ints... indices) const
     {
-        // cppcheck generates a false positive here on old machines (CI),
-        // probably due to limited template support on those compilers.
-        // cppcheck-suppress returnTempReference
         return (*this)(buildIndex(indices...));
     }
 

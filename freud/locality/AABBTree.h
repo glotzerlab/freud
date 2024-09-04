@@ -106,12 +106,7 @@ public:
         if (from.m_nodes != nullptr)
         {
             // allocate memory
-            // cppcheck doesn't understand posix_memalign very well and thinks it returns a pointer.
-            // This problem has either been fixed in newer versions of cppcheck
-            // or no longer arises on newer machines, but we observe this
-            // failure on our CI rigs.
             // NOLINTBEGIN(misc-include-cleaner): clang-tidy identifies the incorrect header
-            // cppcheck-suppress AssignmentAddressToInteger
             int const retval = posix_memalign((void**) &m_nodes, 32, m_node_capacity * sizeof(AABBNode));
             // NOLINTEND(misc-include-cleaner)
             if (retval != 0)
@@ -146,7 +141,6 @@ public:
         if (from.m_nodes != nullptr)
         {
             // allocate memory
-            // cppcheck-suppress AssignmentAddressToInteger
             int const retval = posix_memalign((void**) &m_nodes, 32, m_node_capacity * sizeof(AABBNode));
             if (retval != 0)
             {
@@ -455,10 +449,6 @@ inline unsigned int AABBTree::buildNode(AABB* aabbs, std::vector<unsigned int>& 
     unsigned int start_right = len;
 
     // if there are only 2 aabbs, put one on each side
-    // cppcheck knows that NODE_CAPACITY is defined as 16, so it sees this
-    // check as redundant. However, if we ever defined NODE_CAPACITY to be 1
-    // then this check would be meaningful, so it's safer to leave it.
-    // cppcheck-suppress knownConditionTrueFalse
     if (len != 2)
     {
         // otherwise, we need to split them based on a heuristic. split the longest dimension in half
@@ -596,7 +586,6 @@ inline unsigned int AABBTree::allocateNode()
         }
 
         // allocate new memory
-        // cppcheck-suppress AssignmentAddressToInteger
         int const retval = posix_memalign((void**) &m_new_nodes, 32, m_new_node_capacity * sizeof(AABBNode));
         if (retval != 0)
         {
@@ -606,8 +595,6 @@ inline unsigned int AABBTree::allocateNode()
         // if we have old memory, copy it over
         if (m_nodes != nullptr)
         {
-            // cppcheck doesn't recognize that posix_memalign allocates memory for m_new_nodes above.
-            // cppcheck-suppress nullPointer
             std::memcpy((void*) m_new_nodes, (void*) m_nodes, sizeof(AABBNode) * m_num_nodes);
             posix_memalign_free(m_nodes);
         }

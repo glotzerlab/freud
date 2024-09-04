@@ -49,7 +49,7 @@ Please refer to the `clang-format documentation <https://clang.llvm.org/docs/Cla
 The :code:`clang-format` style will be automatically enforced by pre-commit via CI.
 When in doubt, run :code:`clang-format -style=file FILE_WITH_YOUR_CODE` in the top directory of the **freud** repository.
 
-The :code:`check-style` step of continuous integration (CI) runs :code:`clang-tidy` and :code:`cppcheck`.
+The :code:`check-style` step of continuous integration (CI) runs :code:`clang-tidy`.
 If the :code:`check-style` CI fails, please read the output log for information on what to fix.
 
 Additionally, all CMake code is tested using `cmakelang's cmake-format <https://cmake-format.readthedocs.io/en/latest/index.html>`__.

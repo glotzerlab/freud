@@ -111,27 +111,3 @@ repos:
         )
       args:
       - --warnings-as-errors=*
-      # TODO: remove cppcheck and replace with clang-tidy
-    - id: cppcheck
-      stages: [manual]  # Requires cppcheck.
-      # Ignore external files and those taken verbatim from HOOMD.
-      name: cppcheck
-      entry: cppcheck
-      language: system
-      types: [c++]
-      # Exclude external files. Also exclude AABB.h because it uses intrinsics
-      # heavily and these are not considered portable.
-      exclude: |
-        (?x)^(
-          ^freud/locality/AABB\.h|
-          ^extern/
-        )
-      args:
-      - cpp/
-      - --enable=warning,style,performance,portability # Ignore unused (could be used by Cython).
-      - --std=c++14
-      - --language=c++ # Force C++ for .h header files.
-      - --inline-suppr # Enable inline suppresions of warnings.
-      - --suppress=*:freud/locality/AABB.h
-      - --suppress=*:extern/*
-      - --error-exitcode=1
