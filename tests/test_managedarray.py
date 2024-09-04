@@ -9,9 +9,7 @@ class ManagedArrayTestBase:
     def build_object(self):
         """Define how the compute class is built."""
         msg = "Subclasses must define how the compute object is built."
-        raise NotImplementedError(
-            msg
-        )
+        raise NotImplementedError(msg)
 
     def compute(self):
         """Define how the compute class's compute method is called."""
@@ -22,9 +20,7 @@ class ManagedArrayTestBase:
     def computed_properties(self):
         """A list of strings indicating the computed properties to test."""
         msg = "Subclasses must define the list of computed properties."
-        raise NotImplementedError(
-            msg
-        )
+        raise NotImplementedError(msg)
 
     def test_saved_values(self):
         """Check that saved output don't get overwritten by later calls to

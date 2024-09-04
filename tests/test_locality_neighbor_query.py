@@ -51,9 +51,7 @@ class NeighborQueryTest:
             "The build_query_object function must be defined for every "
             "subclass of NeighborQuery in a separate test subclass."
         )
-        raise RuntimeError(
-            msg
-        )
+        raise RuntimeError(msg)
 
     @pytest.mark.parametrize(
         "points",

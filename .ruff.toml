@@ -42,7 +42,7 @@ aliases = {}
   "E501", # TODO: Enable this check and fix after tests can be executed.
 ]
 
-
+"doc/source/conf.py" = ["A001"]
 
 [lint.pydocstyle]
 convention = "google"

@@ -55,7 +55,9 @@ class FilterTest:
         L = 10
         N = 100
         sys = freud.data.make_random_system(L, N)
-        filter_ = self.get_filter_object(allow_incomplete_shell, terminate_after_blocked)
+        filter_ = self.get_filter_object(
+            allow_incomplete_shell, terminate_after_blocked
+        )
         filter_.compute(sys, dict(r_max=4.5))
         assert filter_.unfiltered_nlist is not None
         assert filter_.filtered_nlist is not None
@@ -86,7 +88,9 @@ class FilterTest:
         assert len(nlist.query_point_indices) == num_bonds
 
     @pytest.mark.parametrize("terminate_after_blocked", [False, True])
-    @pytest.mark.parametrize(("crystal_cls", "num_neighbors"), [("bcc", 14), ("fcc", 12)])
+    @pytest.mark.parametrize(
+        ("crystal_cls", "num_neighbors"), [("bcc", 14), ("fcc", 12)]
+    )
     def test_known_crystals(self, terminate_after_blocked, crystal_cls, num_neighbors):
         """Test against perfect crystals with known numbers of neighbors."""
         uc = getattr(freud.data.UnitCell, crystal_cls)()
@@ -181,7 +185,6 @@ class TestRAD(FilterTest):
             sorted_neighbors[:, 1],
             vecs,
         )
-
 
     def test_RAD_simple(self):
         """Assert RAD is correct when we compute the neighbors by hand."""
