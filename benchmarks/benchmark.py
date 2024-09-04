@@ -138,9 +138,8 @@ class Benchmark:
         """
         if self._N is not None:
             print(
-                "{:8.3f} ms | {:8.3f} ns per item".format(
-                    self._t / 1e-3, self._t / self._N / 1e-9
-                )
+                f"{self._t / 1e-3:8.3f} ms | {self._t / self._N / 1e-9:8.3f}"
+                " ns per item"
             )
         else:
             print(f"{self._t / 1e-3:8.3f} ms")
@@ -189,7 +188,8 @@ class Benchmark:
             list of float: A list of average runtimes following N (in seconds)
         """
         if len(N_list) == 0:
-            raise TypeError("N_list must be iterable")
+            msg = "N_list must be iterable"
+            raise TypeError(msg)
 
         # Compute benchmark size
         size = number * N_list[0]
@@ -231,9 +231,10 @@ class Benchmark:
             :math:`(N_{cores}, len(N_{list}))` :class:`numpy.ndarray`:
                 All the per iteration timings with respect to the number of
                 cores used (in seconds).
-        """  # noqa: E501
+        """
         if len(N_list) == 0:
-            raise TypeError("N_list must be iterable")
+            msg = "N_list must be iterable"
+            raise TypeError(msg)
 
         # compute benchmark size
         size = number * N_list[0]

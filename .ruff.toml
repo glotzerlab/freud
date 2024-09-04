@@ -30,5 +30,9 @@ lint.ignore = [
 # Prefer no import aliases
 aliases = {}
 
+[lint.per-file-ignores]
+"benchmarks/*.py" = ["NPY002", # TODO: Refactor benchmarks to use numpy.random.Generator
+]
+
 [lint.pydocstyle]
 convention = "google"
