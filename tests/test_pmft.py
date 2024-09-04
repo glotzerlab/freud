@@ -72,7 +72,7 @@ class PMFTTestBase:
 
         # Ensure expected errors are raised
         box = self.get_cubic_box(self.L, ndim=2 if self.ndim == 3 else 3)
-        with pytest.raises(ValueError, match="only supports 2D systems"):
+        with pytest.raises(ValueError, match="only supports"):
             pmft.compute((box, points), orientations)
 
     def get_bin_centers(self):
