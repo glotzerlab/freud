@@ -11,6 +11,7 @@
 # readability-identifier-length: We use short identifiers sparingly and in places where they are more readable than long ones.
 # bugprone-easily-swappable-parameters: Many methods unavoidably take multiple float parameters.
 # performance-enum-size: There is little to be gained switching from 4-byt ints to 1 byte enums.
+# portability-simd-intrinsics: Allow intrinsics to improve performance.
 
 Checks: 'bugprone-*,
          cert-*,
@@ -33,4 +34,5 @@ Checks: 'bugprone-*,
          -readability-identifier-length,
          -bugprone-easily-swappable-parameters,
          -performance-enum-size,
+         -portability-simd-intrinsics,
          '

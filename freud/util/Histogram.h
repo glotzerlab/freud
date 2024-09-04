@@ -161,7 +161,7 @@ public:
         float const val = (value - m_min) * m_inverse_bin_width;
         // fast float to int conversion with truncation
 #ifdef __SSE2__
-        size_t bin = _mm_cvtt_ss2si(_mm_load_ss(&val));
+        const size_t bin = _mm_cvtt_ss2si(_mm_load_ss(&val));
 #else
         auto const bin = (size_t) (val);
 #endif
