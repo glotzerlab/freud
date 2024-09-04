@@ -2,10 +2,10 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <memory>
+#include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
 #include <nanobind/operators.h>
-#include <nanobind/stl/shared_ptr.h>  // NOLINT(misc-include-cleaner): used implicitly
-#include <nanobind/nanobind.h>
+#include <nanobind/stl/shared_ptr.h> // NOLINT(misc-include-cleaner): used implicitly
 
 #include "Box.h"
 #include "NeighborBond.h"
@@ -22,8 +22,9 @@ using nb_array = nanobind::ndarray<T, shape, nanobind::device::cpu, nanobind::c_
 namespace wrap {
 
 void ConstructFromArrays(NeighborList* nlist, const nb_array<unsigned int, nb::ndim<1>>& query_point_indices,
-                         unsigned int num_query_points, const nb_array<unsigned int, nb::ndim<1>>& point_indices,
-                         unsigned int num_points, const nb_array<float, nb::shape<-1, 3>>& vectors,
+                         unsigned int num_query_points,
+                         const nb_array<unsigned int, nb::ndim<1>>& point_indices, unsigned int num_points,
+                         const nb_array<float, nb::shape<-1, 3>>& vectors,
                          const nb_array<float, nb::ndim<1>>& weights)
 {
     const unsigned int num_bonds = query_point_indices.shape(0);
@@ -91,7 +92,7 @@ void export_NeighborBond(nb::module_& module)
         .def("getDistance", &NeighborBond::getDistance)
         .def(nb::self == nb::self)  // NOLINT(misc-redundant-expression): valid nanobind syntax
         .def(nb::self != nb::self); // NOLINT(misc-redundant-expression): valid nanobind syntax
-    };
+};
 
 }; // namespace detail
 

@@ -292,8 +292,8 @@ inline bool overlap(const AABB& a, const AABB& b)
     return (r0 == 0 && r1 == 0);
 
 #else
-    return b.upper.x >= a.lower.x && b.lower.x <= a.upper.x && b.upper.y >= a.lower.y && b.lower.y <= a.upper.y
-             && b.upper.z >= a.lower.z && b.lower.z <= a.upper.z;
+    return b.upper.x >= a.lower.x && b.lower.x <= a.upper.x && b.upper.y >= a.lower.y
+        && b.lower.y <= a.upper.y && b.upper.z >= a.lower.z && b.lower.z <= a.upper.z;
 
 #endif
 }
@@ -317,8 +317,8 @@ inline bool overlap(const AABB& a, const AABBSphere& b)
 
 #else
     vec3<float> const dr = vec3<float>(std::min(std::max(b.position.x, a.lower.x), a.upper.x) - b.position.x,
-                                 std::min(std::max(b.position.y, a.lower.y), a.upper.y) - b.position.y,
-                                 std::min(std::max(b.position.z, a.lower.z), a.upper.z) - b.position.z);
+                                       std::min(std::max(b.position.y, a.lower.y), a.upper.y) - b.position.y,
+                                       std::min(std::max(b.position.z, a.lower.z), a.upper.z) - b.position.z);
     float const dr2 = dot(dr, dr);
     return dr2 < b.radius * b.radius;
 

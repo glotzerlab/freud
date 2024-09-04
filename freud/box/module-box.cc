@@ -3,15 +3,17 @@
 
 #include <nanobind/nanobind.h>
 #include <nanobind/nb_defs.h>
-#include <nanobind/stl/shared_ptr.h>  // NOLINT(misc-include-cleaner): used implicitly
-#include <nanobind/stl/vector.h>  // NOLINT(misc-include-cleaner): used implicitly
+#include <nanobind/stl/shared_ptr.h> // NOLINT(misc-include-cleaner): used implicitly
+#include <nanobind/stl/vector.h>     // NOLINT(misc-include-cleaner): used implicitly
 
 #include "Box.h"
 #include "export-Box.h"
 
 using namespace freud::box;
 
-NB_MODULE(_box, module) // NOLINT(misc-use-anonymous-namespace): We have no control over nanobind module definitions.
+NB_MODULE(
+    _box,
+    module) // NOLINT(misc-use-anonymous-namespace): We have no control over nanobind module definitions.
 {
     nanobind::class_<Box>(module, "Box")
         // constructors

@@ -9,8 +9,8 @@
 #include <map>
 #include <set>
 #include <stdexcept>
-#include <vector>
 #include <utility>
+#include <vector>
 
 /* BiMap container modelled after Boost::BiMap with templatization.
  *

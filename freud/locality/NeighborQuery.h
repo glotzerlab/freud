@@ -4,9 +4,9 @@
 #ifndef NEIGHBOR_QUERY_H
 #define NEIGHBOR_QUERY_H
 
+#include <cstddef>
 #include <cstdlib>
 #include <limits>
-#include <cstddef>
 #include <memory>
 #include <oneapi/tbb/enumerable_thread_specific.h>
 #include <oneapi/tbb/parallel_sort.h>
@@ -323,7 +323,7 @@ public:
     NeighborQueryIterator(const NeighborQuery* neighbor_query, const vec3<float>* query_points,
                           unsigned int num_query_points, const QueryArgs& qargs)
         : m_neighbor_query(neighbor_query), m_query_points(query_points),
-          m_num_query_points(num_query_points), m_qargs(qargs) 
+          m_num_query_points(num_query_points), m_qargs(qargs)
     {
         m_iter = this->query(m_cur_p);
     }
@@ -442,8 +442,9 @@ protected:
     const QueryArgs m_qargs;                               //!< The query arguments
     std::shared_ptr<NeighborQueryPerPointIterator> m_iter; //!< The per-point iterator being used.
 
-    bool m_finished{false}; //!< Flag to indicate that iteration is complete (must be set by next on termination).
-    unsigned int m_cur_p{0}; //!< The current particle under consideration.
+    bool m_finished {
+        false}; //!< Flag to indicate that iteration is complete (must be set by next on termination).
+    unsigned int m_cur_p {0}; //!< The current particle under consideration.
 };
 
 }; }; // end namespace freud::locality

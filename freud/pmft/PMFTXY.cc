@@ -1,20 +1,20 @@
 // Copyright (c) 2010-2024 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#include <memory>
 #include <cstddef>
+#include <memory>
 #include <stdexcept>
-#include <vector>
 #include <utility>
+#include <vector>
 
-#include "PMFTXY.h"
-#include "PMFT.h"
-#include "ManagedArray.h"
 #include "Histogram.h"
-#include "NeighborQuery.h"
-#include "VectorMath.h"
-#include "NeighborList.h"
+#include "ManagedArray.h"
 #include "NeighborBond.h"
+#include "NeighborList.h"
+#include "NeighborQuery.h"
+#include "PMFT.h"
+#include "PMFTXY.h"
+#include "VectorMath.h"
 
 /*! \file PMFTXY.cc
     \brief Routines for computing 2D potential of mean force in XY coordinates

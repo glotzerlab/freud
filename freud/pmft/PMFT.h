@@ -8,8 +8,8 @@
 #include "Box.h"
 #include "Histogram.h"
 #include "ManagedArray.h"
-#include <memory>
 #include <cstddef>
+#include <memory>
 
 /*! \internal
     \file PMFT.h

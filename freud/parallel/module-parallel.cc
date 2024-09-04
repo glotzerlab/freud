@@ -8,7 +8,9 @@
 
 using namespace freud::parallel;
 
-NB_MODULE(_parallel, module) // NOLINT(misc-use-anonymous-namespace): We have no control over nanobind module definitions.
+NB_MODULE(
+    _parallel,
+    module) // NOLINT(misc-use-anonymous-namespace): We have no control over nanobind module definitions.
 {
     module.def("setNumThreads", &setNumThreads);
 }

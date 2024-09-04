@@ -291,7 +291,7 @@ public:
                           unsigned int query_point_idx, unsigned int num_neighbors, float r_max, float r_min,
                           bool exclude_ii)
         : LinkCellIterator(neighbor_query, query_point, query_point_idx, r_max, r_min, exclude_ii),
-           m_num_neighbors(num_neighbors)
+          m_num_neighbors(num_neighbors)
     {}
 
     //! Empty Destructor
@@ -301,7 +301,7 @@ public:
     NeighborBond next() override;
 
 protected:
-    unsigned int m_count{0};                          //!< Number of neighbors returned for the current point.
+    unsigned int m_count {0};                      //!< Number of neighbors returned for the current point.
     unsigned int m_num_neighbors;                  //!< Number of nearest neighbors to find
     std::vector<NeighborBond> m_current_neighbors; //!< The current set of found neighbors.
 };

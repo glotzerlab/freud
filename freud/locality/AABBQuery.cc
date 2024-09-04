@@ -2,16 +2,16 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <algorithm>
-#include <memory>
 #include <cmath>
+#include <memory>
 #include <stdexcept>
 
+#include "AABB.h"
 #include "AABBQuery.h"
 #include "Box.h"
-#include "VectorMath.h"
-#include "NeighborQuery.h"
 #include "NeighborBond.h"
-#include "AABB.h"
+#include "NeighborQuery.h"
+#include "VectorMath.h"
 
 namespace freud { namespace locality {
 
@@ -239,9 +239,10 @@ NeighborBond AABBQueryIterator::next()
             m_current_neighbors.clear();
             m_all_bonds_minimum_distance.clear();
             m_query_points_below_r_min.clear();
-            std::shared_ptr<NeighborQueryPerPointIterator> const ball_it = std::make_shared<AABBQueryBallIterator>(
-                static_cast<const AABBQuery*>(m_neighbor_query), m_query_point, m_query_point_idx,
-                std::min(m_r_cur, m_r_max), 0, m_exclude_ii, false);
+            std::shared_ptr<NeighborQueryPerPointIterator> const ball_it
+                = std::make_shared<AABBQueryBallIterator>(static_cast<const AABBQuery*>(m_neighbor_query),
+                                                          m_query_point, m_query_point_idx,
+                                                          std::min(m_r_cur, m_r_max), 0, m_exclude_ii, false);
             while (!ball_it->end())
             {
                 NeighborBond nb = ball_it->next();

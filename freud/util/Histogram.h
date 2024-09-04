@@ -6,9 +6,9 @@
 
 #include <cstddef>
 #include <memory>
-#include <stdexcept>
 #include <oneapi/tbb/enumerable_thread_specific.h>
 #include <ostream>
+#include <stdexcept>
 #include <utility>
 #include <vector>
 #ifdef __SSE2__

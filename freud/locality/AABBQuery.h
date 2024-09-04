@@ -152,9 +152,9 @@ public:
     AABBQueryIterator(const AABBQuery* neighbor_query, const vec3<float>& query_point,
                       unsigned int query_point_idx, unsigned int num_neighbors, float r_guess, float r_max,
                       float r_min, float scale, bool exclude_ii)
-        : AABBIterator(neighbor_query, query_point, query_point_idx, r_max, r_min, exclude_ii), 
-          m_num_neighbors(num_neighbors),  m_r_cur(r_guess), m_scale(scale),
-          m_all_bonds_minimum_distance(), m_query_points_below_r_min()
+        : AABBIterator(neighbor_query, query_point, query_point_idx, r_max, r_min, exclude_ii),
+          m_num_neighbors(num_neighbors), m_r_cur(r_guess), m_scale(scale), m_all_bonds_minimum_distance(),
+          m_query_points_below_r_min()
     {
         updateImageVectors(0);
     }
@@ -166,11 +166,11 @@ public:
     NeighborBond next() override;
 
 protected:
-    unsigned int m_count{0};                          //!< Number of neighbors returned for the current point.
+    unsigned int m_count {0};                      //!< Number of neighbors returned for the current point.
     unsigned int m_num_neighbors;                  //!< Number of nearest neighbors to find
     std::vector<NeighborBond> m_current_neighbors; //!< The current set of found neighbors.
-    bool m_search_extended{false}; //!< Flag to see whether we've gone past the safe cutoff distance and have to be
-                            //!< worried about finding duplicates.
+    bool m_search_extended {false}; //!< Flag to see whether we've gone past the safe cutoff distance and have
+                                    //!< to be worried about finding duplicates.
     float
         m_r_cur; //!< Current search ball cutoff distance in use for the current particle (expands as needed).
     float m_scale; //!< The amount to scale m_r by when the current ball is too small.
@@ -189,7 +189,7 @@ public:
     AABBQueryBallIterator(const AABBQuery* neighbor_query, const vec3<float>& query_point,
                           unsigned int query_point_idx, float r_max, float r_min, bool exclude_ii,
                           bool _check_r_max = true)
-        : AABBIterator(neighbor_query, query_point, query_point_idx, r_max, r_min, exclude_ii) 
+        : AABBIterator(neighbor_query, query_point, query_point_idx, r_max, r_min, exclude_ii)
     {
         updateImageVectors(m_r_max, _check_r_max);
     }
@@ -201,10 +201,10 @@ public:
     NeighborBond next() override;
 
 private:
-    unsigned int cur_image{0};    //!< The current node in the tree.
-    unsigned int cur_node_idx{0}; //!< The current node in the tree.
-    unsigned int
-        cur_ref_p{0}; //!< The current index into the reference particles in the current node of the tree.
+    unsigned int cur_image {0};    //!< The current node in the tree.
+    unsigned int cur_node_idx {0}; //!< The current node in the tree.
+    unsigned int cur_ref_p {
+        0}; //!< The current index into the reference particles in the current node of the tree.
 };
 }; }; // end namespace freud::locality
 

@@ -23,15 +23,17 @@ void getImages(const std::shared_ptr<Box>& box, const nb_array<float>& vecs, con
 
 void wrap(const std::shared_ptr<Box>& box, const nb_array<float>& vecs, const nb_array<float>& out);
 
-void unwrap(const std::shared_ptr<Box>& box, const nb_array<float>& vecs, const nb_array<int>& images, const nb_array<float>& out);
+void unwrap(const std::shared_ptr<Box>& box, const nb_array<float>& vecs, const nb_array<int>& images,
+            const nb_array<float>& out);
 
 std::vector<float> centerOfMass(const std::shared_ptr<Box>& box, const nb_array<float>& vecs,
                                 const nb_array<float, nanobind::shape<-1>>& masses);
 
-void center(const std::shared_ptr<Box>& box, const nb_array<float>& vecs, const nb_array<float, nanobind::ndim<1>>& masses);
+void center(const std::shared_ptr<Box>& box, const nb_array<float>& vecs,
+            const nb_array<float, nanobind::ndim<1>>& masses);
 
-void computeDistances(const std::shared_ptr<Box>& box, const nb_array<float>& query_points, const nb_array<float>& points,
-                      const nb_array<float, nanobind::ndim<1>>& distances);
+void computeDistances(const std::shared_ptr<Box>& box, const nb_array<float>& query_points,
+                      const nb_array<float>& points, const nb_array<float, nanobind::ndim<1>>& distances);
 
 void computeAllDistances(const std::shared_ptr<Box>& box, const nb_array<float>& query_points,
                          const nb_array<float>& points, const nb_array<float, nanobind::ndim<2>>& distances);

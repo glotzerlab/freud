@@ -11,7 +11,6 @@
 #include <stdexcept>
 #include <vector>
 
-
 /*! \file ManagedArray.h
     \brief Defines the standard array class to be used throughout freud.
 */
@@ -321,8 +320,7 @@ private:
     }
 
     //! The recursive case for building up the index (see above).
-    template<typename Int, typename... Ints>
-    static std::vector<size_t> buildIndex(Int index, Ints... indices)
+    template<typename Int, typename... Ints> static std::vector<size_t> buildIndex(Int index, Ints... indices)
     {
         std::vector<size_t> tmp = buildIndex(indices...);
         tmp.insert(tmp.begin(), static_cast<size_t>(index));

@@ -7,8 +7,8 @@
 
 #include "NeighborList.h"
 #include "NeighborQuery.h"
-#include <memory>
 #include "VectorMath.h"
+#include <memory>
 #include <vector>
 
 namespace freud { namespace locality {

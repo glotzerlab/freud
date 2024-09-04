@@ -380,8 +380,9 @@ public:
         for (size_t i = 0; i < Nvecs; ++i)
         {
             vec3<float> const phase(constants::TWO_PI * makeFractional(vecs[i]));
-            vec3<std::complex<float>> const xi(std::polar(float(1.0), phase.x), std::polar(float(1.0), phase.y),
-                                         std::polar(float(1.0), phase.z));
+            vec3<std::complex<float>> const xi(std::polar(float(1.0), phase.x),
+                                               std::polar(float(1.0), phase.y),
+                                               std::polar(float(1.0), phase.z));
             float const mass = (masses != nullptr) ? masses[i] : float(1.0);
             total_mass += mass;
             xi_mean += std::complex<float>(mass, 0) * xi;

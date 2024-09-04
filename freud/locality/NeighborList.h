@@ -4,8 +4,8 @@
 #ifndef NEIGHBOR_LIST_H
 #define NEIGHBOR_LIST_H
 
-#include <memory>
 #include <cstddef>
+#include <memory>
 #include <vector>
 
 #include "Box.h"

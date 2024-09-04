@@ -183,8 +183,8 @@ target_link_libraries(_pmft PUBLIC freud)
 target_set_install_rpath(_pmft)
 
 # util
-nanobind_add_module(_util util/module-util.cc util/export-ManagedArray.cc util/export-Vector.cc
-                    util/export-Vector.h)
+nanobind_add_module(_util util/module-util.cc util/export-ManagedArray.cc
+                    util/export-Vector.cc util/export-Vector.h)
 target_link_libraries(_util PUBLIC freud)
 target_set_install_rpath(_util)
 

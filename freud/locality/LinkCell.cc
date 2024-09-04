@@ -8,12 +8,12 @@
 #include <stdexcept>
 #include <vector>
 
-#include "LinkCell.h"
-#include "NeighborQuery.h"
 #include "Box.h"
-#include "VectorMath.h"
+#include "LinkCell.h"
 #include "ManagedArray.h"
 #include "NeighborBond.h"
+#include "NeighborQuery.h"
+#include "VectorMath.h"
 
 /*! \file LinkCell.cc
     \brief Build a cell list from a set of points.
@@ -350,9 +350,7 @@ unsigned int LinkCell::coordToIndex(unsigned int x, unsigned int y, unsigned int
     // For backwards compatibility with the Index1D layout, the indices and
     // the dimensions are passed in reverse to the indexer. Changing this would
     // also require updating the logic in IteratorCellShell.
-    return util::ManagedArray<unsigned int>::getIndex(
-        {m_celldim.z, m_celldim.y, m_celldim.x},
-        {z, y, x});
+    return util::ManagedArray<unsigned int>::getIndex({m_celldim.z, m_celldim.y, m_celldim.x}, {z, y, x});
 }
 
 vec3<unsigned int> LinkCell::getCellCoord(const vec3<float>& p) const
@@ -551,7 +549,7 @@ NeighborBond LinkCellQueryBallIterator::next()
             const unsigned int neighbor_cell_index = m_linkcell->getCellIndex(
                 vec3<int>(point_cell.x, point_cell.y, point_cell.z) + (*m_neigh_cell_iter));
             // NOLINTEND(bugprone-narrowing-conversions)
-            
+
             // Insertion to an unordered set returns a pair, the second
             // element indicates insertion success or failure (if it
             // already exists)
@@ -637,7 +635,7 @@ NeighborBond LinkCellQueryIterator::next()
                 const unsigned int neighbor_cell_index = m_linkcell->getCellIndex(
                     vec3<int>(point_cell.x, point_cell.y, point_cell.z) + (*m_neigh_cell_iter));
                 // NOLINTEND(bugprone-narrowing-conversions)
-                
+
                 // Insertion to an unordered set returns a pair, the second
                 // element indicates insertion success or failure (if it
                 // already exists)

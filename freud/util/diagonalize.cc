@@ -3,10 +3,10 @@
 
 #include "diagonalize.h"
 #include "ManagedArray.h"
-#include <Eigen/Eigen/src/Core/Matrix.h>
 #include <Eigen/Eigen/src/Core/Map.h>
-#include <Eigen/Eigen/src/Eigenvalues/SelfAdjointEigenSolver.h>
+#include <Eigen/Eigen/src/Core/Matrix.h>
 #include <Eigen/Eigen/src/Core/util/Constants.h>
+#include <Eigen/Eigen/src/Eigenvalues/SelfAdjointEigenSolver.h>
 
 namespace freud { namespace util {
 

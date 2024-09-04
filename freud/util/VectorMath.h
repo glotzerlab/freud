@@ -43,8 +43,8 @@ template<class Real> struct vec3
     constexpr vec3() = default;
 
     //! Swap with another vector
-    void swap(vec3<Real>& v)
- noexcept     {
+    void swap(vec3<Real>& v) noexcept
+    {
         std::swap(x, v.x);
         std::swap(y, v.y);
         std::swap(z, v.z);
@@ -314,8 +314,8 @@ template<class Real> struct vec2
     constexpr vec2(const vec2<float>& a) : x(a.x), y(a.y) {}
 
     //! Swap with another vector
-    void swap(vec2<Real>& v)
- noexcept     {
+    void swap(vec2<Real>& v) noexcept
+    {
         Real tx;
         Real ty;
         tx = v.x;

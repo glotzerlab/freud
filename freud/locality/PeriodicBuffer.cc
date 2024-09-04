@@ -1,14 +1,14 @@
 // Copyright (c) 2010-2024 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#include <memory>
 #include <array>
 #include <cmath>
+#include <memory>
 #include <stdexcept>
 #include <vector>
 
-#include "PeriodicBuffer.h"
 #include "NeighborQuery.h"
+#include "PeriodicBuffer.h"
 #include "VectorMath.h"
 
 /*! \file PeriodicBuffer.cc
@@ -17,8 +17,9 @@
 
 namespace freud { namespace locality {
 
-void PeriodicBuffer::compute(const std::shared_ptr<NeighborQuery>& neighbor_query, std::array<float, 3> buff_vec,
-                             const bool use_images, const bool include_input_points)
+void PeriodicBuffer::compute(const std::shared_ptr<NeighborQuery>& neighbor_query,
+                             std::array<float, 3> buff_vec, const bool use_images,
+                             const bool include_input_points)
 {
     vec3<float> const buff(buff_vec[0], buff_vec[1], buff_vec[2]);
     m_box = neighbor_query->getBox();

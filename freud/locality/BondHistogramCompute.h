@@ -10,11 +10,11 @@
 #include "NeighborComputeFunctional.h"
 #include "NeighborList.h"
 #include "NeighborQuery.h"
-#include <memory>
-#include <vector>
-#include <utility>
-#include <cstddef>
 #include "VectorMath.h"
+#include <cstddef>
+#include <memory>
+#include <utility>
+#include <vector>
 
 namespace freud { namespace locality {
 

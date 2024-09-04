@@ -3,8 +3,8 @@
 
 #include <memory>
 #include <nanobind/nanobind.h>
-#include <nanobind/stl/shared_ptr.h>  // NOLINT(misc-include-cleaner): used implicitly
-#include <nanobind/stl/vector.h>  // NOLINT(misc-include-cleaner): used implicitly
+#include <nanobind/stl/shared_ptr.h> // NOLINT(misc-include-cleaner): used implicitly
+#include <nanobind/stl/vector.h>     // NOLINT(misc-include-cleaner): used implicitly
 #include <vector>
 
 #include "BondHistogramCompute.h"

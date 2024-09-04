@@ -2,18 +2,18 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include "PMFTXYZ.h"
-#include "PMFT.h"
-#include <memory>
-#include "ManagedArray.h"
-#include <cstddef>
 #include "Histogram.h"
-#include "NeighborQuery.h"
-#include "VectorMath.h"
-#include "NeighborList.h"
+#include "ManagedArray.h"
 #include "NeighborBond.h"
+#include "NeighborList.h"
+#include "NeighborQuery.h"
+#include "PMFT.h"
+#include "VectorMath.h"
+#include <cstddef>
+#include <memory>
 #include <stdexcept>
-#include <vector>
 #include <utility>
+#include <vector>
 
 /*! \file PMFTXYZ.cc
     \brief Routines for computing 3D potential of mean force in XYZ coordinates

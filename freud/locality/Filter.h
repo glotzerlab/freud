@@ -7,12 +7,12 @@
 #include "NeighborQuery.h"
 #include "VectorMath.h"
 #include <iostream>
-#include <memory>
-#include <vector>
-#include <string>
 #include <limits>
+#include <memory>
 #include <sstream>
 #include <stdexcept>
+#include <string>
+#include <vector>
 
 namespace freud { namespace locality {
 

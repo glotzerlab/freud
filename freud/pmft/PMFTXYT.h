@@ -4,11 +4,11 @@
 #ifndef PMFTXYT_H
 #define PMFTXYT_H
 
-#include "NeighborQuery.h"
 #include "NeighborList.h"
+#include "NeighborQuery.h"
 #include "PMFT.h"
-#include <memory>
 #include "VectorMath.h"
+#include <memory>
 
 /*! \file PMFTXYT.h
     \brief Routines for computing potential of mean force and torque in XYT coordinates

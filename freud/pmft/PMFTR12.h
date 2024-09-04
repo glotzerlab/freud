@@ -4,12 +4,12 @@
 #ifndef PMFTR12_H
 #define PMFTR12_H
 
-#include "NeighborQuery.h"
-#include "NeighborList.h"
 #include "ManagedArray.h"
+#include "NeighborList.h"
+#include "NeighborQuery.h"
 #include "PMFT.h"
-#include <memory>
 #include "VectorMath.h"
+#include <memory>
 
 /*! \file PMFTR12.h
     \brief Routines for computing potential of mean force and torque in R12 coordinates

@@ -26,7 +26,9 @@ void export_FilterSANN(nanobind::module_& module);
 
 using namespace freud::locality::detail;
 
-NB_MODULE(_locality, module) // NOLINT(misc-use-anonymous-namespace): We have no control over nanobind module definitions.
+NB_MODULE(
+    _locality,
+    module) // NOLINT(misc-use-anonymous-namespace): We have no control over nanobind module definitions.
 {
     // for using ITERATOR_TERMINATOR at the python level
     module.def("get_iterator_terminator", []() { return freud::locality::ITERATOR_TERMINATOR; });

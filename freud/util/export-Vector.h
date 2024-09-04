@@ -8,8 +8,8 @@
 #include <initializer_list>
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "VectorMath.h"
 

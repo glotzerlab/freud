@@ -4,14 +4,14 @@
 #include <memory>
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
-#include <nanobind/stl/shared_ptr.h>  // NOLINT(misc-include-cleaner): used implicitly
+#include <nanobind/stl/shared_ptr.h> // NOLINT(misc-include-cleaner): used implicitly
 
 #include <utility>
 
-#include "NeighborQuery.h"
-#include "NeighborList.h"
-#include "PMFT.h"
 #include "BondHistogramCompute.h"
+#include "NeighborList.h"
+#include "NeighborQuery.h"
+#include "PMFT.h"
 #include "PMFTXY.h"
 #include "VectorMath.h"
 
@@ -30,7 +30,8 @@ void accumulateXY(const std::shared_ptr<PMFTXY>& self, const std::shared_ptr<loc
     unsigned int const num_query_points = query_points.shape(0);
     auto* query_orientations_data = reinterpret_cast<float*>(query_orientations.data());
     auto* query_points_data = reinterpret_cast<vec3<float>*>(query_points.data());
-    self->accumulate(nq, query_orientations_data, query_points_data, num_query_points, std::move(nlist), qargs);
+    self->accumulate(nq, query_orientations_data, query_points_data, num_query_points, std::move(nlist),
+                     qargs);
 }
 
 }; // namespace wrap

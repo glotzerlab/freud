@@ -9,17 +9,17 @@
 #include <oneapi/tbb/parallel_sort.h>
 #include <tbb/parallel_sort.h>
 #include <vector>
+#include <voro++/src/c_loops.hh>
+#include <voro++/src/cell.hh>
 #include <voro++/src/config.hh>
 #include <voro++/src/container_prd.hh>
-#include <voro++/src/cell.hh>
-#include <voro++/src/c_loops.hh>
 
 #include "ManagedArray.h"
 #include "NeighborBond.h"
 #include "NeighborQuery.h"
 #include "VectorMath.h"
-#include "utils.h"
 #include "Voronoi.h"
+#include "utils.h"
 
 /*! \file Voronoi.cc
     \brief Computes Voronoi neighbors for a set of points.
@@ -45,8 +45,8 @@ void Voronoi::compute(const std::shared_ptr<freud::locality::NeighborQuery>& nq)
     // having to create a pre_container. This saves time because the
     // pre_container cannot be used to set up container_periodic (only
     // non-periodic containers are compatible).
-    const float block_scale
-        = std::pow(static_cast<float>(n_points / (voro::optimal_particles * m_box.getVolume())), float(1.0 / 3.0));
+    const float block_scale = std::pow(
+        static_cast<float>(n_points / (voro::optimal_particles * m_box.getVolume())), float(1.0 / 3.0));
     const int voro_blocks_x = int(m_box.getLx() * block_scale + 1);
     const int voro_blocks_y = int(m_box.getLy() * block_scale + 1);
     const int voro_blocks_z = int(m_box.getLz() * block_scale + 1);

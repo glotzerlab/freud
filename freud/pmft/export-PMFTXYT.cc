@@ -4,12 +4,12 @@
 #include <memory>
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
-#include <nanobind/stl/shared_ptr.h>  // NOLINT(misc-include-cleaner): used implicitly
+#include <nanobind/stl/shared_ptr.h> // NOLINT(misc-include-cleaner): used implicitly
 
 #include <utility>
 
-#include "NeighborQuery.h"
 #include "NeighborList.h"
+#include "NeighborQuery.h"
 #include "PMFT.h"
 #include "PMFTXYT.h"
 #include "VectorMath.h"

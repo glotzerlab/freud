@@ -5,14 +5,14 @@
 #include "Filter.h"
 #include "NeighborBond.h"
 #include "NeighborComputeFunctional.h"
+#include "NeighborList.h"
 #include "NeighborQuery.h"
 #include "VectorMath.h"
-#include "NeighborList.h"
 #include "utils.h"
+#include <cstddef>
+#include <limits>
 #include <memory>
 #include <oneapi/tbb/enumerable_thread_specific.h>
-#include <limits>
-#include <cstddef>
 #include <oneapi/tbb/parallel_sort.h>
 #include <tbb/enumerable_thread_specific.h>
 #include <vector>

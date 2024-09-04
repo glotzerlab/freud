@@ -2,22 +2,22 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <algorithm>
-#include <memory>
-#include <cstddef>
 #include <cmath>
+#include <cstddef>
+#include <memory>
 #include <oneapi/tbb/enumerable_thread_specific.h>
 #include <oneapi/tbb/parallel_sort.h>
 #include <stdexcept>
 #include <tbb/enumerable_thread_specific.h>
 #include <tbb/parallel_sort.h>
-#include <vector>
 #include <utility>
+#include <vector>
 
 #include "Box.h"
 #include "ManagedArray.h"
+#include "NeighborList.h"
 #include "VectorMath.h"
 #include "utils.h"
-#include "NeighborList.h"
 
 namespace freud { namespace locality {
 
@@ -406,7 +406,7 @@ std::vector<NeighborBond> NeighborList::toBondVector() const
         for (auto bond_idx = begin; bond_idx < end; ++bond_idx)
         {
             NeighborBond const nb((*m_neighbors)(bond_idx, 0), (*m_neighbors)(bond_idx, 1),
-                            (*m_distances)(bond_idx), (*m_weights)(bond_idx), (*m_vectors)(bond_idx));
+                                  (*m_distances)(bond_idx), (*m_weights)(bond_idx), (*m_vectors)(bond_idx));
             bond_vector[bond_idx] = nb;
         }
     });

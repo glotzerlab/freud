@@ -4,11 +4,11 @@
 #ifndef PMFTXYZ_H
 #define PMFTXYZ_H
 
-#include "NeighborQuery.h"
 #include "NeighborList.h"
+#include "NeighborQuery.h"
 #include "PMFT.h"
-#include <memory>
 #include "VectorMath.h"
+#include <memory>
 
 /*! \file PMFTXYZ.h
     \brief Routines for computing 3D potential of mean force in XYZ coordinates

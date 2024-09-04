@@ -6,8 +6,8 @@
 #include <vector>
 
 #include "Box.h"
-#include "export-Box.h"
 #include "VectorMath.h"
+#include "export-Box.h"
 #include "nanobind/ndarray.h"
 
 namespace nb = nanobind;
@@ -46,7 +46,8 @@ void wrap(const std::shared_ptr<Box>& box, const nb_array<float>& vecs, const nb
     box->wrap(vecs_data, Nvecs, out_data);
 }
 
-void unwrap(const std::shared_ptr<Box>& box, const nb_array<float>& vecs, const nb_array<int>& images, const nb_array<float>& out)
+void unwrap(const std::shared_ptr<Box>& box, const nb_array<float>& vecs, const nb_array<int>& images,
+            const nb_array<float>& out)
 {
     const unsigned int Nvecs = vecs.shape(0);
     auto* vecs_data = reinterpret_cast<vec3<float>*>(vecs.data());
@@ -65,7 +66,8 @@ std::vector<float> centerOfMass(const std::shared_ptr<Box>& box, const nb_array<
     return {com.x, com.y, com.z};
 }
 
-void center(const std::shared_ptr<Box>& box, const nb_array<float>& vecs, const nb_array<float, nb::ndim<1>>& masses)
+void center(const std::shared_ptr<Box>& box, const nb_array<float>& vecs,
+            const nb_array<float, nb::ndim<1>>& masses)
 {
     const unsigned int Nvecs = vecs.shape(0);
     auto* vecs_data = reinterpret_cast<vec3<float>*>(vecs.data());
@@ -73,8 +75,8 @@ void center(const std::shared_ptr<Box>& box, const nb_array<float>& vecs, const 
     box->center(vecs_data, Nvecs, masses_data);
 }
 
-void computeDistances(const std::shared_ptr<Box>& box, const nb_array<float>& query_points, const nb_array<float>& points,
-                      const nb_array<float, nb::ndim<1>>& distances)
+void computeDistances(const std::shared_ptr<Box>& box, const nb_array<float>& query_points,
+                      const nb_array<float>& points, const nb_array<float, nb::ndim<1>>& distances)
 {
     const unsigned int n_query_points = query_points.shape(0);
     auto* query_points_data = reinterpret_cast<vec3<float>*>(query_points.data());
