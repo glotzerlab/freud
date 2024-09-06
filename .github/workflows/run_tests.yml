@@ -5,16 +5,13 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  # trigger on pull requests
   pull_request:
 
-  # trigger on all commits to trunk branches
   push:
     branches:
       - "main"
       - "next"
 
-  # trigger on request
   workflow_dispatch:
 
 defaults:
@@ -43,12 +40,12 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4.1.6
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: true
 
       - name: Create Python Environment
-        uses: mamba-org/setup-micromamba@v1.9.0
+        uses: mamba-org/setup-micromamba@f8b8a1e23a26f60a44c853292711bacfd3eac822 # v1.9.0
         with:
           micromamba-version: '1.5.8-0'
           environment-name: test

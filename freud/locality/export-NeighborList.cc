@@ -1,15 +1,18 @@
 // Copyright (c) 2010-2024 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#include "export_NeighborList.h"
-
 #include <nanobind/ndarray.h>
 #include <nanobind/operators.h>
 #include <nanobind/stl/shared_ptr.h>
 
+#include "NeighborList.h"
+
 namespace nb = nanobind;
 
 namespace freud { namespace locality {
+
+template<typename T, typename shape>
+using nb_array = nanobind::ndarray<T, shape, nanobind::device::cpu, nanobind::c_contig>;
 
 namespace wrap {
 

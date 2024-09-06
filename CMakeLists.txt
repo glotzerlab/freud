@@ -19,23 +19,11 @@ endif()
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# This setting is required when building shared libraries from object libraries.
-# CMake intentionally chooses not to infer such information, so we should expect
-# to specify this.
-# https://stackoverflow.com/questions/50600708/combining-cmake-object-libraries-with-shared-libraries
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 add_subdirectory(CMake)
 
-# find python
-if(CMAKE_VERSION VERSION_LESS 3.18)
-  set(DEV_MODULE Development)
-else()
-  set(DEV_MODULE Development.Module)
-endif()
-
 find_package(
-  Python 3.8
-  COMPONENTS Interpreter ${DEV_MODULE}
+  Python 3.9
+  COMPONENTS Interpreter Development.Module
   REQUIRED)
 
 find_package_config_first(TBB)
@@ -52,35 +40,12 @@ execute_process(
   COMMAND ${Python_EXECUTABLE} "-m" "nanobind" "--cmake_dir"
   OUTPUT_STRIP_TRAILING_WHITESPACE
   OUTPUT_VARIABLE nanobind_ROOT)
-find_package(nanobind CONFIG REQUIRED)
+find_package(nanobind CONFIG REQUIRED 2.0)
 if(nanobind_FOUND)
   find_package_message(
     nanobind "Found nanobind: ${nanobind_DIR} ${nanobind_VERSION}"
     "[${nanobind_DIR},${nanobind_VERSION}]")
 endif()
-
-# shared nanobind linking seems broken on windows for unknown reasons
-if(WIN32)
-  set(freud_nanobind_linking "NB_STATIC")
-else()
-  set(freud_nanobind_linking "NB_SHARED")
-endif()
-
-# Fail fast if users have not cloned submodules.
-if(NOT WIN32)
-  string(ASCII 27 Esc)
-  set(Red "${Esc}[31m")
-  set(DefaultColor "${Esc}[m")
-endif()
-set(submodules Eigen fsph voro++)
-foreach(submodule ${submodules})
-  if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/${submodule}/.git")
-    message(
-      FATAL_ERROR
-        "${Red}Not all git submodules are available. Please run git submodule update --init --recursive.${DefaultColor}"
-    )
-  endif()
-endforeach()
 
 # Define preprocessor directives for Windows
 if(WIN32)
@@ -93,16 +58,27 @@ if(WIN32)
   add_compile_options(/DNOMINMAX)
 endif()
 
+# Detect when building against a conda environment set the _using_conda variable
+# for use both in this file and in the parent
+get_filename_component(_python_bin_dir ${Python_EXECUTABLE} DIRECTORY)
+if(EXISTS "${_python_bin_dir}/../conda-meta")
+  message(
+    STATUS "Detected conda environment, setting INSTALL_RPATH_USE_LINK_PATH")
+  set(_using_conda On)
+else()
+  set(_using_conda Off)
+endif()
+
 include_directories(
-  ${PROJECT_SOURCE_DIR}/cpp/util ${PROJECT_SOURCE_DIR}/cpp/locality
-  ${PROJECT_SOURCE_DIR}/cpp/box)
+  ${PROJECT_SOURCE_DIR}/freud/box
+  ${PROJECT_SOURCE_DIR}/freud/cluster
+  ${PROJECT_SOURCE_DIR}/freud/density
+  ${PROJECT_SOURCE_DIR}/freud/diffraction
+  ${PROJECT_SOURCE_DIR}/freud/environment
+  ${PROJECT_SOURCE_DIR}/freud/locality
+  ${PROJECT_SOURCE_DIR}/freud/order
+  ${PROJECT_SOURCE_DIR}/freud/parallel
+  ${PROJECT_SOURCE_DIR}/freud/pmft
+  ${PROJECT_SOURCE_DIR}/freud/util)
 
-# We treat the extern folder as a SYSTEM library to avoid getting any diagnostic
-# information from it. In particular, this avoids clang-tidy throwing errors due
-# to any issues in external code. include_directories(SYSTEM ${TBB_INCLUDE_DIR})
-
-# Ignore unused variable warning from scikit-build
-set(ignoreMe "${SKBUILD}")
-
-add_subdirectory(cpp)
 add_subdirectory(freud)

@@ -1,19 +1,19 @@
 [build-system]
-requires = ["setuptools", "wheel", "numpy>=2.0.0rc1", "cython>=3.0.2", "scikit-build>=0.17.3", "cmake", "nanobind>=2.0.0"]
-build-backend = "setuptools.build_meta"
+requires = ["numpy>=2.0.0rc1", "scikit-build-core", "nanobind>=2.0.0"]
+build-backend = "scikit_build_core.build"
 
 [project]
 name = "freud-analysis"
-version = "3.0.0"
-requires-python = ">=3.8"
+version = "3.1.0"
+requires-python = ">=3.9"
 description = "Powerful, efficient trajectory analysis in scientific Python."
 readme = "README.rst"
 license = { file = "LICENSE" }
-maintainers = [
-    { name = "freud Developers", email = "freud-developers@umich.edu" }
-]
 authors = [
-    { name = "Vyas Ramasubramani et. al", email = "vramasub@umich.edu" }
+    { name = "The Glotzer Lab" }
+]
+maintainers = [
+    { name = "freud Developers" }
 ]
 classifiers=[
     "Development Status :: 5 - Production/Stable",
@@ -23,16 +23,14 @@ classifiers=[
     "Topic :: Scientific/Engineering :: Physics",
     "Programming Language :: C++",
     "Programming Language :: Cython",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
 ]
-dependencies = ["numpy>=1.14", "rowan>=1.2.1", "scipy>=1.1"]
+dependencies = ["numpy>=1.19", "rowan>=1.2.1", "scipy>=1.1"]
 keywords = ["simulation", "analysis", "molecular dynamics", "soft matter",
             "particle", "system", "computational", "physics"]
-dynamic = ["optional-dependencies"]
 
 [project.urls]
 Documentation = "https://freud.readthedocs.io"
@@ -40,11 +38,11 @@ Download = "https://pypi.org/project/freud-analysis/"
 Source = "https://github.com/glotzerlab/freud"
 Issues = "https://github.com/glotzerlab/freud/issues"
 
-[tool.setuptools.dynamic]
-#optional-dependencies = { doc = {file = ["doc/readthedocs-env.yml"] }}
-
 [tool.black]
-target-version = ['py36']
+target-version = ['py39']
 
 [tool.isort]
 profile = 'black'
+
+[tool.scikit-build]
+sdist.exclude = [".github", "doc"]

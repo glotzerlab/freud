@@ -10,7 +10,6 @@ dependencies:
   - tbb-devel
   - ninja
   - cmake
-  - cython
   - dynasor
   - gsd
   - matplotlib
@@ -20,7 +19,7 @@ dependencies:
   - pre-commit
   - pytest
   - rowan
-  - scikit-build
+  - scikit-build-core
   - scipy
   - sympy
   - uv

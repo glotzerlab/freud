@@ -20,7 +20,7 @@ defaults:
 jobs:
   clang-tidy:
     name: Check C++ Code Style
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
@@ -31,13 +31,11 @@ jobs:
           micromamba-version: '1.5.8-0'
           environment-name: test
           environment-file: .github/workflows/env-files/py312-conda-lock.yml
-      - name: Build freud and export compile commands
+      - name: Configure compile_commands.json
         run: |
-          python3 setup.py build_ext --inplace
-          # TODO: switch to this command after migrating to scikit-build-core
-          # uv pip install --no-build-isolation --no-deps -ve .
-        env:
-          CMAKE_ARGS: "-DCMAKE_EXPORT_COMPILE_COMMANDS=True"
+          cmake -S . -B build -GNinja -DCMAKE_EXPORT_COMPILE_COMMANDS=True
+          ls build
+          cp build/compile_commands.json .
       - name: cppcheck
         run: pre-commit run cppcheck --all-files --hook-stage=manual -v
       - name: clang-tidy

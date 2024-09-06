@@ -5,30 +5,24 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  # Trigger on pushes to the mainline branches and version tags. This prevents building commits
-  # twice when the pull request source branch is in the same repository.
   push:
     branches:
       - "main"
       - "next"
     tags:
-      - "v*"
+      - "*"
 
   pull_request:
-      types: [opened, labeled, reopened, synchronize]
 
-  # Trigger on request.
   workflow_dispatch:
 
 env:
-  UV_VERSION: 0.2.2
   SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
 jobs:
   build_wheels:
     name: Build wheels [${{ matrix.python.version }}, ${{ matrix.os.base }}-${{ matrix.os.arch }}]
     runs-on: ${{ matrix.os.base }}-${{ matrix.os.version }}
-    if: ${{ contains(github.event.pull_request.labels.*.name, 'build_wheels') || github.event_name != 'pull_request' }}
     strategy:
       fail-fast: false
       matrix:
@@ -82,12 +76,13 @@ jobs:
           oldest_sympy: '1.10'
 
     steps:
-      - uses: actions/checkout@v4.1.6
+      - name: checkout
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: "recursive"
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.18.1
+        uses: pypa/cibuildwheel@bd033a44476646b606efccdd5eed92d5ea1d77ad # v2.20.0
         env:
           CIBW_BUILD: "${{ matrix.python.version }}-*"
           CIBW_SKIP: "{pp*,*-musllinux_*}"
@@ -117,7 +112,7 @@ jobs:
           CIBW_TEST_COMMAND: "cd {package}/tests && pytest test_box_Box.py test_parallel.py -v --log-level=DEBUG"
           # CIBW_TEST_COMMAND: "cd {package}/tests && pytest . -v --log-level=DEBUG"
 
-      - uses: actions/upload-artifact@v4.3.3
+      - uses: actions/upload-artifact@834a144ee995460fba8ed112a2fc961b36a5ec5a # v4.3.6
         with:
           name: dist-${{ matrix.os.base }}-${{ matrix.os.version }}-${{ matrix.python.version }}
           path: ./wheelhouse/*.whl
@@ -125,27 +120,29 @@ jobs:
   build_sdist:
     name: Build source distribution
     runs-on: ubuntu-latest
-    if: ${{ contains(github.event.pull_request.labels.*.name, 'build_wheels') || github.event_name != 'pull_request' }}
     steps:
-      - uses: actions/checkout@v4.1.6
+      - name: checkout
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           submodules: "recursive"
 
-      - uses: actions/setup-python@v5.1.0
-        name: Install Python
+      - name: Set up Python
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
         with:
-          python-version: '3.12'
+          python-version: "3.12"
 
-      - name: Install uv
-        run: curl --proto '=https' --tlsv1.2 -LsSf https://github.com/astral-sh/uv/releases/download/${{ env.UV_VERSION }}/uv-installer.sh | bash
-
-      - name: Install build
-        run: 'uv pip install -r .github/requirements-build-sdist.txt --only-binary :all: --system --reinstall'
+      - name: Set up Python environment
+        uses: glotzerlab/workflows/setup-uv@ae7e7c6931098a313ef8069ef04b88a55c3a40f6 # 0.3.0
+        with:
+          lockfile: ".github/requirements-build-sdist.txt"
 
       - name: Build sdist
         run: python -m build --sdist --outdir dist/ .
 
-      - uses: actions/upload-artifact@v4.3.3
+      - name: Check sdist size
+        run: du -hs dist/*
+
+      - uses: actions/upload-artifact@834a144ee995460fba8ed112a2fc961b36a5ec5a # v4.3.6
         with:
           name: dist-sdist
           path: dist/*.tar.gz
@@ -155,11 +152,10 @@ jobs:
     needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
     concurrency: upload
-    if: ${{ contains(github.event.pull_request.labels.*.name, 'build_wheels') || github.event_name != 'pull_request' }}
 
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v4.1.7
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
         with:
           merge-multiple: 'true'
           pattern: dist-*
@@ -171,14 +167,14 @@ jobs:
       - name: Upload to PyPI
         # upload to PyPI on every tag starting with 'v'
         if: startsWith(github.ref, 'refs/tags/v')
-        uses: pypa/gh-action-pypi-publish@v1.8.14
+        uses: pypa/gh-action-pypi-publish@ec4db0b4ddc65acdf4bff5fa45ac92d78b56bdf0 # v1.9.0
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
 
       - name: Slack notification
         if: startsWith(github.ref, 'refs/tags/v') || failure()
-        uses: act10ns/slack@v2.1.0
+        uses: act10ns/slack@44541246747a30eb3102d87f7a4cc5471b0ffb7d # v2.1.0
         with:
           status: ${{ job.status }}
           channel: '#dev-freud'
