@@ -1,12 +1,13 @@
-add_library(
-  _pmft OBJECT
-  PMFTR12.h
-  PMFTR12.cc
-  PMFTXY.h
-  PMFTXY.cc
-  PMFTXYT.h
-  PMFTXYT.cc
-  PMFTXYZ.h
-  PMFTXYZ.cc)
+nanobind_add_module(
+  _pmft
+  ${freud_nanobind_linking}
+  module-pmft.cc
+  export-PMFTXY.cc
+  export-PMFTXYZ.cc
+  export-PMFTR12.cc
+  export-PMFTXYT.cc)
+target_link_libraries(_pmft PUBLIC libfreud)
 
-target_link_libraries(_pmft PUBLIC TBB::tbb)
+target_set_install_rpath(_pmft)
+
+install(TARGETS _pmft DESTINATION freud)

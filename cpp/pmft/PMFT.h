@@ -34,9 +34,18 @@ public:
     ~PMFT() override = default;
 
     //! Get a reference to the PCF array
-    const util::ManagedArray<float>& getPCF()
+    std::shared_ptr<util::ManagedArray<float>> getPCF()
     {
         return reduceAndReturn(m_pcf_array);
+    }
+
+    void reset() override
+    {
+        BondHistogramCompute::reset();
+
+        // Reallocate the PCF array so we do not invalidate references that the user has to
+        // previous results.
+        m_pcf_array = std::make_shared<util::ManagedArray<float>>(m_pcf_array->shape());
     }
 
 protected:
@@ -63,20 +72,17 @@ protected:
      */
     template<typename JacobFactor> void reduce(JacobFactor jf)
     {
-        m_pcf_array.prepare(m_histogram.shape());
-        m_histogram.prepare(m_histogram.shape());
-
         float inv_num_dens = m_box.getVolume() / static_cast<float>(m_n_query_points);
         float norm_factor
             = float(1.0) / (static_cast<float>(m_frame_counter) * static_cast<float>(m_n_points));
         float prefactor = inv_num_dens * norm_factor;
 
         m_histogram.reduceOverThreadsPerBin(m_local_histograms, [this, &prefactor, &jf](size_t i) {
-            m_pcf_array[i] = static_cast<float>(m_histogram[i]) * prefactor * jf(i);
+            (*m_pcf_array)[i] = static_cast<float>(m_histogram[i]) * prefactor * jf(i);
         });
     }
 
-    util::ManagedArray<float> m_pcf_array; //!< Array of computed pair correlation function.
+    std::shared_ptr<util::ManagedArray<float>> m_pcf_array; //!< Array of computed pair correlation function.
 };
 
 }; }; // end namespace freud::pmft

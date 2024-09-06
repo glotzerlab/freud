@@ -47,7 +47,7 @@ PMFTR12::PMFTR12(float r_max, unsigned int n_r, unsigned int n_t1, unsigned int 
     // central particle, see PMFT::reduce for more information.
     //
     // The array is computed as the inverse for faster use later.
-    m_inv_jacobian_array.prepare({n_r, n_t1, n_t2});
+    m_inv_jacobian_array = util::ManagedArray<float>(std::vector<size_t> {n_r, n_t1, n_t2});
     std::vector<float> bins_r = m_histogram.getBinCenters()[0];
     float dr = r_max / float(n_r);
     float dt1 = constants::TWO_PI / float(n_t1);
@@ -66,7 +66,7 @@ PMFTR12::PMFTR12(float r_max, unsigned int n_r, unsigned int n_t1, unsigned int 
     }
 
     // Create the PCF array.
-    m_pcf_array.prepare({n_r, n_t1, n_t2});
+    m_pcf_array = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {n_r, n_t1, n_t2});
 }
 
 void PMFTR12::reduce()
@@ -74,10 +74,10 @@ void PMFTR12::reduce()
     PMFT::reduce([this](size_t i) { return m_inv_jacobian_array[i]; });
 }
 
-void PMFTR12::accumulate(const locality::NeighborQuery* neighbor_query, const float* orientations,
+void PMFTR12::accumulate(std::shared_ptr<locality::NeighborQuery> neighbor_query, const float* orientations,
                          const vec3<float>* query_points, const float* query_orientations,
-                         unsigned int n_query_points, const locality::NeighborList* nlist,
-                         freud::locality::QueryArgs qargs)
+                         unsigned int n_query_points, std::shared_ptr<locality::NeighborList> nlist,
+                         const freud::locality::QueryArgs& qargs)
 {
     neighbor_query->getBox().enforce2D();
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,

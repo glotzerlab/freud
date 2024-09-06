@@ -10,9 +10,8 @@
 
 namespace freud { namespace pmft {
 
-PMFTXYZ::PMFTXYZ(float x_max, float y_max, float z_max, unsigned int n_x, unsigned int n_y, unsigned int n_z,
-                 const vec3<float>& shiftvec)
-    : PMFT(), m_shiftvec(shiftvec), m_num_equiv_orientations(0xffffffff)
+PMFTXYZ::PMFTXYZ(float x_max, float y_max, float z_max, unsigned int n_x, unsigned int n_y, unsigned int n_z)
+    : PMFT(), m_num_equiv_orientations(0xffffffff)
 {
     if (n_x < 1)
     {
@@ -61,7 +60,7 @@ PMFTXYZ::PMFTXYZ(float x_max, float y_max, float z_max, unsigned int n_x, unsign
     m_jacobian = dx * dy * dz;
 
     // Create the PCF array.
-    m_pcf_array.prepare({n_x, n_y, n_z});
+    m_pcf_array = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {n_x, n_y, n_z});
 
     // Construct the Histogram object that will be used to keep track of counts
     // of bond distances found.
@@ -76,9 +75,6 @@ PMFTXYZ::PMFTXYZ(float x_max, float y_max, float z_max, unsigned int n_x, unsign
 // in this class also includes the number of equivalent orientations.
 void PMFTXYZ::reduce()
 {
-    m_pcf_array.prepare(m_histogram.shape());
-    m_histogram.prepare(m_histogram.shape());
-
     float inv_num_dens = m_box.getVolume() / (float) m_n_query_points;
     float norm_factor
         = (float) 1.0 / ((float) m_frame_counter * (float) m_n_points * (float) m_num_equiv_orientations);
@@ -86,20 +82,21 @@ void PMFTXYZ::reduce()
 
     float jacobian_factor = (float) 1.0 / m_jacobian;
     m_histogram.reduceOverThreadsPerBin(m_local_histograms, [this, &prefactor, &jacobian_factor](size_t i) {
-        m_pcf_array[i] = static_cast<float>(m_histogram[i]) * prefactor * jacobian_factor;
+        (*m_pcf_array)[i] = static_cast<float>(m_histogram[i]) * prefactor * jacobian_factor;
     });
 }
 
 void PMFTXYZ::reset()
 {
-    BondHistogramCompute::reset();
+    PMFT::reset();
     m_num_equiv_orientations = 0xffffffff;
 }
 
-void PMFTXYZ::accumulate(const locality::NeighborQuery* neighbor_query, const quat<float>* query_orientations,
-                         const vec3<float>* query_points, unsigned int n_query_points,
-                         const quat<float>* equiv_orientations, unsigned int num_equiv_orientations,
-                         const locality::NeighborList* nlist, freud::locality::QueryArgs qargs)
+void PMFTXYZ::accumulate(std::shared_ptr<locality::NeighborQuery> neighbor_query,
+                         const quat<float>* query_orientations, const vec3<float>* query_points,
+                         unsigned int n_query_points, const quat<float>* equiv_orientations,
+                         unsigned int num_equiv_orientations, std::shared_ptr<locality::NeighborList> nlist,
+                         const freud::locality::QueryArgs& qargs)
 {
     // Set the number of equivalent orientations the first time we compute
     // (after a reset), then error on subsequent calls if it changes.
@@ -113,6 +110,8 @@ void PMFTXYZ::accumulate(const locality::NeighborQuery* neighbor_query, const qu
             "The number of equivalent orientations must be constant while accumulating data into PMFTXYZ.");
     }
     neighbor_query->getBox().enforce3D();
+
+    // accumulate thread-local arrays
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
                       [&](const freud::locality::NeighborBond& neighbor_bond) {
                           // create the reference point quaternion

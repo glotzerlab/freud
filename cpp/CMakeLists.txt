@@ -26,11 +26,12 @@ endif()
 include(box/box-files.cmake)
 include(locality/locality-files.cmake)
 include(parallel/parallel-files.cmake)
+include(pmft/pmft-files.cmake)
 include(util/util-files.cmake)
 
 # make libfreud.so
 add_library(libfreud SHARED ${box_sources} ${locality_sources}
-                            ${parallel_sources} ${util-sources})
+                            ${parallel_sources} ${pmft_sources} ${util_sources})
 
 target_link_libraries(libfreud PUBLIC TBB::tbb)
 
@@ -62,6 +63,7 @@ endif()
 add_subdirectory(box)
 add_subdirectory(locality)
 add_subdirectory(parallel)
+add_subdirectory(pmft)
 add_subdirectory(util)
 
 # commented out for now, uncomment them as the conversion to pybind11 progresses

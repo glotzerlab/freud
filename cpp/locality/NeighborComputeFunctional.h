@@ -168,8 +168,8 @@ void loopOverNeighborsIterator(const NeighborQuery* neighbor_query, const vec3<f
  * given qargs. \param cf An object with operator(NeighborBond) as input.
  */
 template<typename ComputePairType>
-void loopOverNeighbors(const NeighborQuery* neighbor_query, const vec3<float>* query_points,
-                       unsigned int n_query_points, QueryArgs qargs, const NeighborList* nlist,
+void loopOverNeighbors(std::shared_ptr<NeighborQuery> neighbor_query, const vec3<float>* query_points,
+                       unsigned int n_query_points, QueryArgs qargs, std::shared_ptr<NeighborList> nlist,
                        const ComputePairType& cf, bool parallel = true)
 {
     // check if nlist exists

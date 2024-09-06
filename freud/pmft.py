@@ -24,13 +24,13 @@ refer to the supplementary information of :cite:`vanAnders:2014aa`.
     * 2D particle coordinates (position: [:math:`x`, :math:`y`, :math:`0`],
       orientation: :math:`\theta`):
 
-        * :math:`r`, :math:`\theta_1`, :math:`\theta_2`.
-        * :math:`x`, :math:`y`.
-        * :math:`x`, :math:`y`, :math:`\theta`.
+      * :math:`r`, :math:`\theta_1`, :math:`\theta_2`.
+      * :math:`x`, :math:`y`.
+      * :math:`x`, :math:`y`, :math:`\theta`.
 
     * 3D particle coordinates:
 
-        * :math:`x`, :math:`y`, :math:`z`.
+      * :math:`x`, :math:`y`, :math:`z`.
 
 .. note::
     For any bins where the histogram is zero (i.e. no observations were made
@@ -38,24 +38,13 @@ refer to the supplementary information of :cite:`vanAnders:2014aa`.
     :code:`nan`.
 """
 
-from cython.operator cimport dereference
-
-from freud.locality cimport _SpatialHistogram
-from freud.util cimport _Compute, quat, vec3
-
 import numpy as np
 import rowan
 
+import freud._pmft
 import freud.locality
-
-cimport numpy as np
-
-cimport freud._pmft
-cimport freud.locality
-
-# numpy must be initialized. When using numpy from C or Cython you must
-# _always_ do that, or you will have segfaults
-np.import_array()
+from freud.locality import _SpatialHistogram
+from freud.util import _Compute
 
 
 def _quat_to_z_angle(orientations, num_points):
@@ -70,16 +59,16 @@ def _quat_to_z_angle(orientations, num_points):
     # Either we have a 1D array of length 4 (and we don't have exactly 4
     # points), or we have a 2D array with the second dimension having length 4.
     is_quat = (
-        (len(orientations.shape) == 1 and orientations.shape[0] == 4 and
-            num_points != 4) or
-        (len(orientations.shape) == 2 and orientations.shape[1] == 4)
-    )
+        len(orientations.shape) == 1 and orientations.shape[0] == 4 and num_points != 4
+    ) or (len(orientations.shape) == 2 and orientations.shape[1] == 4)
 
     if is_quat:
         axes, orientations = rowan.to_axis_angle(orientations)
         if not (np.allclose(orientations, 0) or np.allclose(axes, [0, 0, 1])):
-            raise ValueError("Orientations provided as quaternions "
-                             "must represent rotations about the z-axis.")
+            raise ValueError(
+                "Orientations provided as quaternions "
+                "must represent rotations about the z-axis."
+            )
     return orientations
 
 
@@ -90,11 +79,13 @@ def _gen_angle_array(orientations, shape):
     orientations. It performs the conversion of quaternion inputs if needed and
     ensures that singleton arrays are treated correctly."""
 
-    return freud.util._convert_array(np.atleast_1d(_quat_to_z_angle(
-        np.asarray(orientations).squeeze(), shape[0])), shape=shape)
+    return freud.util._convert_array(
+        np.atleast_1d(_quat_to_z_angle(np.asarray(orientations).squeeze(), shape[0])),
+        shape=shape,
+    )
 
 
-cdef class _PMFT(_SpatialHistogram):
+class _PMFT(_SpatialHistogram):
     r"""Compute the PMFT :cite:`vanAnders:2014aa,van_Anders_2013` for a
     given set of points.
 
@@ -103,29 +94,26 @@ cdef class _PMFT(_SpatialHistogram):
     principle the PMFT is coordinate independent, the binning process must be
     performed in a particular coordinate system.
     """
-    cdef freud._pmft.PMFT * pmftptr
 
-    def __dealloc__(self):
-        if type(self) is _PMFT:
-            del self.pmftptr
+    def __init__(self):
+        # abstract class
+        pass
 
     @_Compute._computed_property
     def pmft(self):
         """:class:`np.ndarray`: The discrete potential of mean force and
         torque."""
-        with np.errstate(divide='ignore'):
+        with np.errstate(divide="ignore"):
             result = -np.log(np.copy(self._pcf))
         return result
 
     @_Compute._computed_property
     def _pcf(self):
         """:class:`np.ndarray`: The discrete pair correlation function."""
-        return freud.util.make_managed_numpy_array(
-            &self.pmftptr.getPCF(),
-            freud.util.arr_type_t.FLOAT)
+        return self._cpp_obj.getPCF().toNumpyArray()
 
 
-cdef class PMFTR12(_PMFT):
+class PMFTR12(_PMFT):
     r"""Computes the PMFT :cite:`vanAnders:2014aa,van_Anders_2013` in a 2D
     system described by :math:`r`, :math:`\theta_1`, :math:`\theta_2`.
 
@@ -142,24 +130,24 @@ cdef class PMFTR12(_PMFT):
             integers, interpreted as :code:`(num_bins_r, num_bins_t1,
             num_bins_t2)`.
     """  # noqa: E501
-    cdef freud._pmft.PMFTR12 * pmftr12ptr
 
-    def __cinit__(self, r_max, bins):
-        if type(self) is PMFTR12:
-            try:
-                n_r, n_t1, n_t2 = bins
-            except TypeError:
-                n_r = n_t1 = n_t2 = bins
-            self.pmftr12ptr = self.pmftptr = self.histptr = \
-                new freud._pmft.PMFTR12(r_max, n_r, n_t1, n_t2)
-            self.r_max = r_max
+    def __init__(self, r_max, bins):
+        try:
+            n_r, n_t1, n_t2 = bins
+        except TypeError:
+            n_r = n_t1 = n_t2 = bins
+        self._cpp_obj = freud._pmft.PMFTR12(r_max, n_r, n_t1, n_t2)
+        self.r_max = r_max
 
-    def __dealloc__(self):
-        if type(self) is PMFTR12:
-            del self.pmftr12ptr
-
-    def compute(self, system, orientations, query_points=None,
-                query_orientations=None, neighbors=None, reset=True):
+    def compute(
+        self,
+        system,
+        orientations,
+        query_points=None,
+        query_orientations=None,
+        neighbors=None,
+        reset=True,
+    ):
         r"""Calculates the PMFT.
 
         Args:
@@ -195,44 +183,37 @@ cdef class PMFTR12(_PMFT):
         if reset:
             self._reset()
 
-        cdef:
-            freud.locality.NeighborQuery nq
-            freud.locality.NeighborList nlist
-            freud.locality._QueryArgs qargs
-            const float[:, ::1] l_query_points
-            unsigned int num_query_points
+        nq, nlist, qargs, query_points, num_query_points = self._preprocess_arguments(
+            system, query_points, neighbors
+        )
 
-        nq, nlist, qargs, l_query_points, num_query_points = \
-            self._preprocess_arguments(
-                system, query_points, neighbors)
-
-        orientations = _gen_angle_array(
-            orientations, shape=(nq.points.shape[0], ))
+        orientations = _gen_angle_array(orientations, shape=(nq.points.shape[0],))
         if query_orientations is None:
             query_orientations = orientations
         else:
             query_orientations = _gen_angle_array(
-                query_orientations, shape=(l_query_points.shape[0], ))
-        cdef const float[::1] l_orientations = orientations
-        cdef const float[::1] l_query_orientations = query_orientations
+                query_orientations, shape=(query_points.shape[0],)
+            )
 
-        self.pmftr12ptr.accumulate(nq.get_ptr(),
-                                   <float*> &l_orientations[0],
-                                   <vec3[float]*> &l_query_points[0, 0],
-                                   <float*> &l_query_orientations[0],
-                                   num_query_points, nlist.get_ptr(),
-                                   dereference(qargs.thisptr))
+        self._cpp_obj.accumulate(
+            nq._cpp_obj,
+            orientations,
+            query_points,
+            query_orientations,
+            nlist._cpp_obj,
+            qargs._cpp_obj,
+        )
         return self
 
     def __repr__(self):
-        bounds = self.bounds
         return ("freud.pmft.{cls}(r_max={r_max}, bins=({bins}))").format(
             cls=type(self).__name__,
             r_max=self.r_max,
-            bins=', '.join([str(b) for b in self.nbins]))
+            bins=", ".join([str(b) for b in self.nbins]),
+        )
 
 
-cdef class PMFTXYT(_PMFT):
+class PMFTXYT(_PMFT):
     r"""Computes the PMFT :cite:`vanAnders:2014aa,van_Anders_2013` for
     systems described by coordinates :math:`x`, :math:`y`, :math:`\theta`.
 
@@ -250,25 +231,25 @@ cdef class PMFTXYT(_PMFT):
             :math:`t`. If a sequence of three integers, interpreted as
             :code:`(num_bins_x, num_bins_y, num_bins_t)`.
     """  # noqa: E501
-    cdef freud._pmft.PMFTXYT * pmftxytptr
 
-    def __cinit__(self, x_max, y_max, bins):
-        if type(self) is PMFTXYT:
-            try:
-                n_x, n_y, n_t = bins
-            except TypeError:
-                n_x = n_y = n_t = bins
+    def __init__(self, x_max, y_max, bins):
+        try:
+            n_x, n_y, n_t = bins
+        except TypeError:
+            n_x = n_y = n_t = bins
 
-            self.pmftxytptr = self.pmftptr = self.histptr = \
-                new freud._pmft.PMFTXYT(x_max, y_max, n_x, n_y, n_t)
-            self.r_max = np.sqrt(x_max**2 + y_max**2)
+        self._cpp_obj = freud._pmft.PMFTXYT(x_max, y_max, n_x, n_y, n_t)
+        self.r_max = np.sqrt(x_max**2 + y_max**2)
 
-    def __dealloc__(self):
-        if type(self) is PMFTXYT:
-            del self.pmftxytptr
-
-    def compute(self, system, orientations, query_points=None,
-                query_orientations=None, neighbors=None, reset=True):
+    def compute(
+        self,
+        system,
+        orientations,
+        query_points=None,
+        query_orientations=None,
+        neighbors=None,
+        reset=True,
+    ):
         r"""Calculates the PMFT.
 
         Args:
@@ -304,46 +285,41 @@ cdef class PMFTXYT(_PMFT):
         if reset:
             self._reset()
 
-        cdef:
-            freud.locality.NeighborQuery nq
-            freud.locality.NeighborList nlist
-            freud.locality._QueryArgs qargs
-            const float[:, ::1] l_query_points
-            unsigned int num_query_points
+        nq, nlist, qargs, query_points, num_query_points = self._preprocess_arguments(
+            system, query_points, neighbors
+        )
 
-        nq, nlist, qargs, l_query_points, num_query_points = \
-            self._preprocess_arguments(
-                system, query_points, neighbors)
-
-        orientations = _gen_angle_array(
-            orientations, shape=(nq.points.shape[0], ))
+        orientations = _gen_angle_array(orientations, shape=(nq.points.shape[0],))
         if query_orientations is None:
             query_orientations = orientations
         else:
             query_orientations = _gen_angle_array(
-                query_orientations, shape=(l_query_points.shape[0], ))
-        cdef const float[::1] l_orientations = orientations
-        cdef const float[::1] l_query_orientations = query_orientations
+                query_orientations, shape=(query_points.shape[0],)
+            )
 
-        self.pmftxytptr.accumulate(nq.get_ptr(),
-                                   <float*> &l_orientations[0],
-                                   <vec3[float]*> &l_query_points[0, 0],
-                                   <float*> &l_query_orientations[0],
-                                   num_query_points, nlist.get_ptr(),
-                                   dereference(qargs.thisptr))
+        self._cpp_obj.accumulate(
+            nq._cpp_obj,
+            orientations,
+            query_points,
+            query_orientations,
+            nlist._cpp_obj,
+            qargs._cpp_obj,
+        )
         return self
 
     def __repr__(self):
         bounds = self.bounds
-        return ("freud.pmft.{cls}(x_max={x_max}, y_max={y_max}, "
-                "bins=({bins}))").format(cls=type(self).__name__,
-                                         x_max=bounds[0][1],
-                                         y_max=bounds[1][1],
-                                         bins=', '.join(
-                                             [str(b) for b in self.nbins]))
+        return (
+            "freud.pmft.{cls}(x_max={x_max}, y_max={y_max}, " "bins=({bins}))"
+        ).format(
+            cls=type(self).__name__,
+            x_max=bounds[0][1],
+            y_max=bounds[1][1],
+            bins=", ".join([str(b) for b in self.nbins]),
+        )
 
 
-cdef class PMFTXY(_PMFT):
+class PMFTXY(_PMFT):
     r"""Computes the PMFT :cite:`vanAnders:2014aa,van_Anders_2013` in
     coordinates :math:`x`, :math:`y`.
 
@@ -365,25 +341,19 @@ cdef class PMFTXY(_PMFT):
             If a sequence of two integers, interpreted as
             :code:`(num_bins_x, num_bins_y)`.
     """  # noqa: E501
-    cdef freud._pmft.PMFTXY * pmftxyptr
 
-    def __cinit__(self, x_max, y_max, bins):
-        if type(self) is PMFTXY:
-            try:
-                n_x, n_y = bins
-            except TypeError:
-                n_x = n_y = bins
+    def __init__(self, x_max, y_max, bins):
+        try:
+            n_x, n_y = bins
+        except TypeError:
+            n_x = n_y = bins
 
-            self.pmftxyptr = self.pmftptr = self.histptr = \
-                new freud._pmft.PMFTXY(x_max, y_max, n_x, n_y)
-            self.r_max = np.sqrt(x_max**2 + y_max**2)
+        self._cpp_obj = freud._pmft.PMFTXY(x_max, y_max, n_x, n_y)
+        self.r_max = np.sqrt(x_max**2 + y_max**2)
 
-    def __dealloc__(self):
-        if type(self) is PMFTXY:
-            del self.pmftxyptr
-
-    def compute(self, system, query_orientations, query_points=None,
-                neighbors=None, reset=True):
+    def compute(
+        self, system, query_orientations, query_points=None, neighbors=None, reset=True
+    ):
         r"""Calculates the PMFT.
 
         .. note::
@@ -419,26 +389,21 @@ cdef class PMFTXY(_PMFT):
         if reset:
             self._reset()
 
-        cdef:
-            freud.locality.NeighborQuery nq
-            freud.locality.NeighborList nlist
-            freud.locality._QueryArgs qargs
-            const float[:, ::1] l_query_points
-            unsigned int num_query_points
-
-        nq, nlist, qargs, l_query_points, num_query_points = \
-            self._preprocess_arguments(
-                system, query_points, neighbors)
+        nq, nlist, qargs, query_points, num_query_points = self._preprocess_arguments(
+            system, query_points, neighbors
+        )
 
         query_orientations = _gen_angle_array(
-            query_orientations, shape=(num_query_points, ))
-        cdef const float[::1] l_query_orientations = query_orientations
+            query_orientations, shape=(num_query_points,)
+        )
 
-        self.pmftxyptr.accumulate(nq.get_ptr(),
-                                  <float*> &l_query_orientations[0],
-                                  <vec3[float]*> &l_query_points[0, 0],
-                                  num_query_points, nlist.get_ptr(),
-                                  dereference(qargs.thisptr))
+        self._cpp_obj.accumulate(
+            nq._cpp_obj,
+            query_orientations,
+            query_points,
+            nlist._cpp_obj,
+            qargs._cpp_obj,
+        )
         return self
 
     @_Compute._computed_property
@@ -447,20 +412,23 @@ cdef class PMFTXY(_PMFT):
         # Currently the parent function returns a 3D array that must be
         # squeezed due to the internal choices in the histogramming; this will
         # be fixed in future changes.
-        return np.squeeze(super(PMFTXY, self).bin_counts)
+        return np.squeeze(super().bin_counts)
 
     def __repr__(self):
         bounds = self.bounds
-        return ("freud.pmft.{cls}(x_max={x_max}, y_max={y_max}, "
-                "bins=({bins}))").format(cls=type(self).__name__,
-                                         x_max=bounds[0][1],
-                                         y_max=bounds[1][1],
-                                         bins=', '.join(
-                                             [str(b) for b in self.nbins]))
+        return (
+            "freud.pmft.{cls}(x_max={x_max}, y_max={y_max}, " "bins=({bins}))"
+        ).format(
+            cls=type(self).__name__,
+            x_max=bounds[0][1],
+            y_max=bounds[1][1],
+            bins=", ".join([str(b) for b in self.nbins]),
+        )
 
     def _repr_png_(self):
         try:
             import freud.plot
+
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None
@@ -477,10 +445,11 @@ cdef class PMFTXY(_PMFT):
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         import freud.plot
+
         return freud.plot.pmft_plot(self, ax)
 
 
-cdef class PMFTXYZ(_PMFT):
+class PMFTXYZ(_PMFT):
     r"""Computes the PMFT :cite:`vanAnders:2014aa,van_Anders_2013` in
     coordinates :math:`x`, :math:`y`, :math:`z`.
 
@@ -503,33 +472,33 @@ cdef class PMFTXYZ(_PMFT):
         shiftvec (list):
             Vector pointing from ``[0, 0, 0]`` to the center of the PMFT.
     """  # noqa: E501
-    cdef freud._pmft.PMFTXYZ * pmftxyzptr
-    cdef shiftvec
 
-    def __cinit__(self, x_max, y_max, z_max, bins,
-                  shiftvec=[0, 0, 0]):
-        cdef vec3[float] c_shiftvec
-
+    def __init__(self, x_max, y_max, z_max, bins, shiftvec=[0, 0, 0]):
         try:
             n_x, n_y, n_z = bins
         except TypeError:
             n_x = n_y = n_z = bins
 
-        if type(self) is PMFTXYZ:
-            c_shiftvec = vec3[float](
-                shiftvec[0], shiftvec[1], shiftvec[2])
-            self.pmftxyzptr = self.pmftptr = self.histptr = \
-                new freud._pmft.PMFTXYZ(
-                    x_max, y_max, z_max, n_x, n_y, n_z, c_shiftvec)
-            self.shiftvec = np.array(shiftvec, dtype=np.float32)
-            self.r_max = np.sqrt(x_max**2 + y_max**2 + z_max**2)
+        self._cpp_obj = freud._pmft.PMFTXYZ(
+            x_max,
+            y_max,
+            z_max,
+            n_x,
+            n_y,
+            n_z,
+        )
+        self.shiftvec = np.array(shiftvec, dtype=np.float32)
+        self.r_max = np.sqrt(x_max**2 + y_max**2 + z_max**2)
 
-    def __dealloc__(self):
-        if type(self) is PMFTXYZ:
-            del self.pmftxyzptr
-
-    def compute(self, system, query_orientations, query_points=None,
-                equiv_orientations=None, neighbors=None, reset=True):
+    def compute(
+        self,
+        system,
+        query_orientations,
+        query_points=None,
+        equiv_orientations=None,
+        neighbors=None,
+        reset=True,
+    ):
         r"""Calculates the PMFT.
 
         .. note::
@@ -572,50 +541,43 @@ cdef class PMFTXYZ(_PMFT):
         if reset:
             self._reset()
 
-        cdef:
-            freud.locality.NeighborQuery nq
-            freud.locality.NeighborList nlist
-            freud.locality._QueryArgs qargs
-            const float[:, ::1] l_query_points
-            unsigned int num_query_points
-
-        nq, nlist, qargs, l_query_points, num_query_points = \
-            self._preprocess_arguments(
-                system, query_points, neighbors)
-        l_query_points = l_query_points - self.shiftvec.reshape(1, 3)
+        nq, nlist, qargs, query_points, num_query_points = self._preprocess_arguments(
+            system, query_points, neighbors
+        )
+        query_points = query_points - self.shiftvec.reshape(1, 3)
 
         query_orientations = freud.util._convert_array(
-            np.atleast_1d(query_orientations), shape=(num_query_points, 4))
-
-        cdef const float[:, ::1] l_query_orientations = query_orientations
+            np.atleast_1d(query_orientations), shape=(num_query_points, 4)
+        )
 
         if equiv_orientations is None:
             equiv_orientations = np.array([[1, 0, 0, 0]], dtype=np.float32)
         else:
             equiv_orientations = freud.util._convert_array(
-                equiv_orientations, shape=(None, 4))
+                equiv_orientations, shape=(None, 4)
+            )
 
-        cdef const float[:, ::1] l_equiv_orientations = equiv_orientations
-        cdef unsigned int num_equiv_orientations = \
-            l_equiv_orientations.shape[0]
-        self.pmftxyzptr.accumulate(
-            nq.get_ptr(),
-            <quat[float]*> &l_query_orientations[0, 0],
-            <vec3[float]*> &l_query_points[0, 0],
-            num_query_points,
-            <quat[float]*> &l_equiv_orientations[0, 0],
-            num_equiv_orientations, nlist.get_ptr(),
-            dereference(qargs.thisptr))
+        self._cpp_obj.accumulate(
+            nq._cpp_obj,
+            query_orientations,
+            query_points,
+            equiv_orientations,
+            nlist._cpp_obj,
+            qargs._cpp_obj,
+        )
         return self
 
     def __repr__(self):
         bounds = self.bounds
-        return ("freud.pmft.{cls}(x_max={x_max}, y_max={y_max}, "
-                "z_max={z_max}, bins=({bins}), "
-                "shiftvec={shiftvec})").format(
-                    cls=type(self).__name__,
-                    x_max=bounds[0][1],
-                    y_max=bounds[1][1],
-                    z_max=bounds[2][1],
-                    bins=', '.join([str(b) for b in self.nbins]),
-                    shiftvec=self.shiftvec.tolist())
+        return (
+            "freud.pmft.{cls}(x_max={x_max}, y_max={y_max}, "
+            "z_max={z_max}, bins=({bins}), "
+            "shiftvec={shiftvec})"
+        ).format(
+            cls=type(self).__name__,
+            x_max=bounds[0][1],
+            y_max=bounds[1][1],
+            z_max=bounds[2][1],
+            bins=", ".join([str(b) for b in self.nbins]),
+            shiftvec=self.shiftvec.tolist(),
+        )
