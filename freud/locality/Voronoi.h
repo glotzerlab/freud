@@ -9,7 +9,8 @@
 #include "NeighborList.h"
 #include "NeighborQuery.h"
 #include "VectorMath.h"
-#include <voro++/src/voro++.hh>
+#include <memory>
+#include <vector>
 
 namespace freud { namespace locality {
 
@@ -19,7 +20,7 @@ public:
     // default constructor
     Voronoi() : m_neighbor_list(std::make_shared<NeighborList>()) {}
 
-    void compute(std::shared_ptr<freud::locality::NeighborQuery> nq);
+    void compute(const std::shared_ptr<freud::locality::NeighborQuery>& nq);
 
     std::shared_ptr<NeighborList> getNeighborList() const
     {

@@ -4,12 +4,14 @@
 #ifndef NEIGHBOR_COMPUTE_FUNCTIONAL_H
 #define NEIGHBOR_COMPUTE_FUNCTIONAL_H
 
+#include <cstddef>
 #include <memory>
 
-#include "AABBQuery.h"
+#include "NeighborBond.h"
 #include "NeighborList.h"
 #include "NeighborPerPointIterator.h"
 #include "NeighborQuery.h"
+#include "VectorMath.h"
 #include "utils.h"
 
 /*! \file NeighborComputeFunctional.h
@@ -23,8 +25,8 @@ namespace freud { namespace locality {
  * if the provided NeighborList is NULL. Otherwise, it simply returns a copy of
  * the provided NeighborList.
  */
-std::shared_ptr<NeighborList> makeDefaultNlist(std::shared_ptr<NeighborQuery> nq,
-                                               std::shared_ptr<NeighborList> nlist,
+std::shared_ptr<NeighborList> makeDefaultNlist(const std::shared_ptr<NeighborQuery>& nq,
+                                               const std::shared_ptr<NeighborList>& nlist,
                                                const vec3<float>* query_points, unsigned int num_query_points,
                                                QueryArgs qargs);
 
@@ -129,7 +131,7 @@ void loopOverNeighborsIterator(const NeighborQuery* neighbor_query, const vec3<f
     }
     else
     {
-        std::shared_ptr<NeighborQueryIterator> iter
+        std::shared_ptr<NeighborQueryIterator> const iter
             = neighbor_query->query(query_points, n_query_points, qargs);
 
         // iterate over the query object in parallel
@@ -168,9 +170,10 @@ void loopOverNeighborsIterator(const NeighborQuery* neighbor_query, const vec3<f
  * given qargs. \param cf An object with operator(NeighborBond) as input.
  */
 template<typename ComputePairType>
-void loopOverNeighbors(std::shared_ptr<NeighborQuery> neighbor_query, const vec3<float>* query_points,
-                       unsigned int n_query_points, QueryArgs qargs, std::shared_ptr<NeighborList> nlist,
-                       const ComputePairType& cf, bool parallel = true)
+void loopOverNeighbors(const std::shared_ptr<NeighborQuery>& neighbor_query, const vec3<float>* query_points,
+                       unsigned int n_query_points, QueryArgs qargs,
+                       const std::shared_ptr<NeighborList>& nlist, const ComputePairType& cf,
+                       bool parallel = true)
 {
     // check if nlist exists
     if (nlist != nullptr)
@@ -200,7 +203,7 @@ void loopOverNeighbors(std::shared_ptr<NeighborQuery> neighbor_query, const vec3
                 NeighborBond nb;
                 for (size_t i = begin; i != end; ++i)
                 {
-                    std::shared_ptr<NeighborQueryPerPointIterator> it = iter->query(i);
+                    std::shared_ptr<NeighborQueryPerPointIterator> const it = iter->query(i);
                     nb = it->next();
                     while (!it->end())
                     {

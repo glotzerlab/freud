@@ -92,11 +92,11 @@ class TestDiffractionPattern:
         assert dp.N_points == len(positions)
 
     @pytest.mark.parametrize(
-        "box, positions",
-        (
+        ("box", "positions"),
+        [
             freud.data.make_random_system(box_size=10, num_points=1000),
             freud.data.UnitCell.bcc().generate_system(10),
-        ),
+        ],
     )
     @pytest.mark.parametrize("grid_size", [255, 256])
     @pytest.mark.parametrize("output_size", [255, 256])

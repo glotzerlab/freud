@@ -1,9 +1,22 @@
 // Copyright (c) 2010-2024 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
+#include <cmath>
+#include <cstddef>
+#include <memory>
 #include <stdexcept>
+#include <utility>
+#include <vector>
 
+#include "Box.h"
+#include "Histogram.h"
+#include "ManagedArray.h"
+#include "NeighborBond.h"
+#include "NeighborList.h"
+#include "NeighborQuery.h"
+#include "PMFT.h"
 #include "PMFTR12.h"
+#include "VectorMath.h"
 #include "utils.h"
 
 /*! \file PMFTR12.cc
@@ -49,13 +62,13 @@ PMFTR12::PMFTR12(float r_max, unsigned int n_r, unsigned int n_t1, unsigned int 
     // The array is computed as the inverse for faster use later.
     m_inv_jacobian_array = util::ManagedArray<float>(std::vector<size_t> {n_r, n_t1, n_t2});
     std::vector<float> bins_r = m_histogram.getBinCenters()[0];
-    float dr = r_max / float(n_r);
-    float dt1 = constants::TWO_PI / float(n_t1);
-    float dt2 = 1 / float(n_t2);
-    float product = dr * dt1 * dt2;
+    float const dr = r_max / float(n_r);
+    float const dt1 = constants::TWO_PI / float(n_t1);
+    float const dt2 = 1 / float(n_t2);
+    float const product = dr * dt1 * dt2;
     for (unsigned int i = 0; i < n_r; i++)
     {
-        float r = bins_r[i];
+        float const r = bins_r[i];
         for (unsigned int j = 0; j < n_t1; j++)
         {
             for (unsigned int k = 0; k < n_t2; k++)
@@ -74,13 +87,14 @@ void PMFTR12::reduce()
     PMFT::reduce([this](size_t i) { return m_inv_jacobian_array[i]; });
 }
 
-void PMFTR12::accumulate(std::shared_ptr<locality::NeighborQuery> neighbor_query, const float* orientations,
-                         const vec3<float>* query_points, const float* query_orientations,
-                         unsigned int n_query_points, std::shared_ptr<locality::NeighborList> nlist,
+void PMFTR12::accumulate(const std::shared_ptr<locality::NeighborQuery>& neighbor_query,
+                         const float* orientations, const vec3<float>* query_points,
+                         const float* query_orientations, unsigned int n_query_points,
+                         std::shared_ptr<locality::NeighborList> nlist,
                          const freud::locality::QueryArgs& qargs)
 {
     neighbor_query->getBox().enforce2D();
-    accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
+    accumulateGeneral(neighbor_query, query_points, n_query_points, std::move(nlist), qargs,
                       [&](const freud::locality::NeighborBond& neighbor_bond) {
                           const vec3<float>& delta(neighbor_bond.getVector());
                           // calculate angles

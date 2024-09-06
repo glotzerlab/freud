@@ -65,10 +65,11 @@ def _quat_to_z_angle(orientations, num_points):
     if is_quat:
         axes, orientations = rowan.to_axis_angle(orientations)
         if not (np.allclose(orientations, 0) or np.allclose(axes, [0, 0, 1])):
-            raise ValueError(
+            msg = (
                 "Orientations provided as quaternions "
                 "must represent rotations about the z-axis."
             )
+            raise ValueError(msg)
     return orientations
 
 
@@ -104,8 +105,7 @@ class _PMFT(_SpatialHistogram):
         """:class:`np.ndarray`: The discrete potential of mean force and
         torque."""
         with np.errstate(divide="ignore"):
-            result = -np.log(np.copy(self._pcf))
-        return result
+            return -np.log(np.copy(self._pcf))
 
     @_Compute._computed_property
     def _pcf(self):
@@ -129,7 +129,7 @@ class PMFTR12(_PMFT):
             :math:`\theta_1`, and :math:`\theta_2`. If a sequence of three
             integers, interpreted as :code:`(num_bins_r, num_bins_t1,
             num_bins_t2)`.
-    """  # noqa: E501
+    """
 
     def __init__(self, r_max, bins):
         try:
@@ -230,7 +230,7 @@ class PMFTXYT(_PMFT):
             If an unsigned int, the number of bins in :math:`x`, :math:`y`, and
             :math:`t`. If a sequence of three integers, interpreted as
             :code:`(num_bins_x, num_bins_y, num_bins_t)`.
-    """  # noqa: E501
+    """
 
     def __init__(self, x_max, y_max, bins):
         try:
@@ -309,9 +309,7 @@ class PMFTXYT(_PMFT):
 
     def __repr__(self):
         bounds = self.bounds
-        return (
-            "freud.pmft.{cls}(x_max={x_max}, y_max={y_max}, " "bins=({bins}))"
-        ).format(
+        return ("freud.pmft.{cls}(x_max={x_max}, y_max={y_max}, bins=({bins}))").format(
             cls=type(self).__name__,
             x_max=bounds[0][1],
             y_max=bounds[1][1],
@@ -340,7 +338,7 @@ class PMFTXY(_PMFT):
             If an unsigned int, the number of bins in :math:`x` and :math:`y`.
             If a sequence of two integers, interpreted as
             :code:`(num_bins_x, num_bins_y)`.
-    """  # noqa: E501
+    """
 
     def __init__(self, x_max, y_max, bins):
         try:
@@ -416,9 +414,7 @@ class PMFTXY(_PMFT):
 
     def __repr__(self):
         bounds = self.bounds
-        return (
-            "freud.pmft.{cls}(x_max={x_max}, y_max={y_max}, " "bins=({bins}))"
-        ).format(
+        return ("freud.pmft.{cls}(x_max={x_max}, y_max={y_max}, bins=({bins}))").format(
             cls=type(self).__name__,
             x_max=bounds[0][1],
             y_max=bounds[1][1],
@@ -471,9 +467,11 @@ class PMFTXYZ(_PMFT):
             :code:`(num_bins_x, num_bins_y, num_bins_z)`.
         shiftvec (list):
             Vector pointing from ``[0, 0, 0]`` to the center of the PMFT.
-    """  # noqa: E501
+    """
 
-    def __init__(self, x_max, y_max, z_max, bins, shiftvec=[0, 0, 0]):
+    def __init__(self, x_max, y_max, z_max, bins, shiftvec=None):
+        if shiftvec is None:
+            shiftvec = [0, 0, 0]
         try:
             n_x, n_y, n_z = bins
         except TypeError:

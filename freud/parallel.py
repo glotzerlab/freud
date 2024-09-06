@@ -18,7 +18,6 @@ def get_num_threads():
     Returns:
         (int): Number of threads.
     """
-    global _num_threads
     return _num_threads
 
 
@@ -30,7 +29,7 @@ def set_num_threads(nthreads=None):
             Number of threads to use. If :code:`None`, use all threads
             available. (Default value = :code:`None`).
     """
-    global _num_threads
+    global _num_threads  # noqa: PLW0603 - freud needs to maintain the state
     if nthreads is None or nthreads < 0:
         nthreads = 0
 
@@ -49,7 +48,6 @@ class NumThreads:
     """
 
     def __init__(self, N=None):
-        global _num_threads
         self.restore_N = _num_threads
         self.N = N
 

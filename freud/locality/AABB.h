@@ -4,8 +4,6 @@
 #ifndef AABB_H
 #define AABB_H
 
-#include <algorithm>
-
 #include "VectorMath.h"
 
 /*! \file AABB.h
@@ -25,16 +23,18 @@
 #if defined(__SSE__)
 inline __m128 sse_load_vec3_float(const vec3<float>& value)
 {
+    // NOLINTNEXTLINE(modernize-avoid-c-arrays): low level code.
     float in[4];
     in[0] = value.x;
     in[1] = value.y;
     in[2] = value.z;
-    in[3] = 0.0f;
+    in[3] = 0.0F;
     return _mm_loadu_ps(in);
 }
 
 inline vec3<float> sse_unload_vec3_float(const __m128& v)
 {
+    // NOLINTNEXTLINE(modernize-avoid-c-arrays): low level code.
     float out[4];
     _mm_storeu_ps(out, v);
     return vec3<float>(out[0], out[1], out[2]);
@@ -75,7 +75,7 @@ struct CACHE_ALIGN AABB
     AABB() : tag(0)
     {
 #if defined(__SSE__)
-        float in = 0.0f;
+        const float in = 0.0F;
         lower_v = _mm_load_ps1(&in);
         upper_v = _mm_load_ps1(&in);
 
@@ -106,7 +106,8 @@ struct CACHE_ALIGN AABB
     */
     AABB(const vec3<float>& _position, float radius) : tag(0)
     {
-        vec3<float> new_lower, new_upper;
+        vec3<float> new_lower;
+        vec3<float> new_upper;
         new_lower.x = _position.x - radius;
         new_lower.y = _position.y - radius;
         new_lower.z = _position.z - radius;
@@ -146,9 +147,9 @@ struct CACHE_ALIGN AABB
     vec3<float> getPosition() const
     {
 #if defined(__SSE__)
-        float half = 0.5f;
-        __m128 half_v = _mm_load_ps1(&half);
-        __m128 pos_v = _mm_mul_ps(half_v, _mm_add_ps(lower_v, upper_v));
+        const float half = 0.5F;
+        const __m128 half_v = _mm_load_ps1(&half);
+        const __m128 pos_v = _mm_mul_ps(half_v, _mm_add_ps(lower_v, upper_v));
         return sse_unload_vec3_float(pos_v);
 
 #else
@@ -185,7 +186,7 @@ struct CACHE_ALIGN AABB
     void translate(const vec3<float>& v)
     {
 #if defined(__SSE__)
-        __m128 v_v = sse_load_vec3_float(v);
+        const __m128 v_v = sse_load_vec3_float(v);
         lower_v = _mm_add_ps(lower_v, v_v);
         upper_v = _mm_add_ps(upper_v, v_v);
 
@@ -214,7 +215,7 @@ struct CACHE_ALIGN AABBSphere
     AABBSphere() : radius(0), tag(0)
     {
 #if defined(__SSE__)
-        float in = 0.0f;
+        const float in = 0.0F;
         position_v = _mm_load_ps1(&in);
 
 #endif
@@ -268,7 +269,7 @@ struct CACHE_ALIGN AABBSphere
     void translate(const vec3<float>& v)
     {
 #if defined(__SSE__)
-        __m128 v_v = sse_load_vec3_float(v);
+        const __m128 v_v = sse_load_vec3_float(v);
         position_v = _mm_add_ps(position_v, v_v);
 
 #else
@@ -286,13 +287,13 @@ struct CACHE_ALIGN AABBSphere
 inline bool overlap(const AABB& a, const AABB& b)
 {
 #if defined(__SSE__)
-    int r0 = _mm_movemask_ps(_mm_cmplt_ps(b.upper_v, a.lower_v));
-    int r1 = _mm_movemask_ps(_mm_cmpgt_ps(b.lower_v, a.upper_v));
-    return !(r0 || r1);
+    const int r0 = _mm_movemask_ps(_mm_cmplt_ps(b.upper_v, a.lower_v));
+    const int r1 = _mm_movemask_ps(_mm_cmpgt_ps(b.lower_v, a.upper_v));
+    return (r0 == 0 && r1 == 0);
 
 #else
-    return !(b.upper.x < a.lower.x || b.lower.x > a.upper.x || b.upper.y < a.lower.y || b.lower.y > a.upper.y
-             || b.upper.z < a.lower.z || b.lower.z > a.upper.z);
+    return b.upper.x >= a.lower.x && b.lower.x <= a.upper.x && b.upper.y >= a.lower.y
+        && b.lower.y <= a.upper.y && b.upper.z >= a.lower.z && b.lower.z <= a.upper.z;
 
 #endif
 }
@@ -305,8 +306,8 @@ inline bool overlap(const AABB& a, const AABB& b)
 inline bool overlap(const AABB& a, const AABBSphere& b)
 {
 #if defined(__SSE__)
-    __m128 dr_v = _mm_sub_ps(_mm_min_ps(_mm_max_ps(b.position_v, a.lower_v), a.upper_v), b.position_v);
-    __m128 dr2_v = _mm_mul_ps(dr_v, dr_v);
+    const __m128 dr_v = _mm_sub_ps(_mm_min_ps(_mm_max_ps(b.position_v, a.lower_v), a.upper_v), b.position_v);
+    const __m128 dr2_v = _mm_mul_ps(dr_v, dr_v);
     // See https://stackoverflow.com/questions/6996764/fastest-way-to-do-horizontal-float-vector-sum-on-x86
     __m128 shuf = _mm_shuffle_ps(dr2_v, dr2_v, _MM_SHUFFLE(2, 3, 0, 1));
     __m128 sums = _mm_add_ps(dr2_v, shuf);
@@ -315,10 +316,10 @@ inline bool overlap(const AABB& a, const AABBSphere& b)
     return _mm_cvtss_f32(sums) < b.radius * b.radius;
 
 #else
-    vec3<float> dr = vec3<float>(std::min(std::max(b.position.x, a.lower.x), a.upper.x) - b.position.x,
-                                 std::min(std::max(b.position.y, a.lower.y), a.upper.y) - b.position.y,
-                                 std::min(std::max(b.position.z, a.lower.z), a.upper.z) - b.position.z);
-    float dr2 = dot(dr, dr);
+    vec3<float> const dr = vec3<float>(std::min(std::max(b.position.x, a.lower.x), a.upper.x) - b.position.x,
+                                       std::min(std::max(b.position.y, a.lower.y), a.upper.y) - b.position.y,
+                                       std::min(std::max(b.position.z, a.lower.z), a.upper.z) - b.position.z);
+    float const dr2 = dot(dr, dr);
     return dr2 < b.radius * b.radius;
 
 #endif
@@ -332,8 +333,8 @@ inline bool overlap(const AABB& a, const AABBSphere& b)
 inline bool contains(const AABB& a, const AABB& b)
 {
 #if defined(__SSE__)
-    int r0 = _mm_movemask_ps(_mm_cmpge_ps(b.lower_v, a.lower_v));
-    int r1 = _mm_movemask_ps(_mm_cmple_ps(b.upper_v, a.upper_v));
+    const int r0 = _mm_movemask_ps(_mm_cmpge_ps(b.lower_v, a.lower_v));
+    const int r1 = _mm_movemask_ps(_mm_cmple_ps(b.upper_v, a.upper_v));
     return ((r0 & r1) == 0xF);
 
 #else

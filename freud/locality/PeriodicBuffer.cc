@@ -1,9 +1,15 @@
 // Copyright (c) 2010-2024 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
+#include <array>
+#include <cmath>
+#include <memory>
 #include <stdexcept>
+#include <vector>
 
+#include "NeighborQuery.h"
 #include "PeriodicBuffer.h"
+#include "VectorMath.h"
 
 /*! \file PeriodicBuffer.cc
     \brief Replicates points across periodic boundaries.
@@ -11,10 +17,11 @@
 
 namespace freud { namespace locality {
 
-void PeriodicBuffer::compute(std::shared_ptr<NeighborQuery> neighbor_query, std::array<float, 3> buff_vec,
-                             const bool use_images, const bool include_input_points)
+void PeriodicBuffer::compute(const std::shared_ptr<NeighborQuery>& neighbor_query,
+                             std::array<float, 3> buff_vec, const bool use_images,
+                             const bool include_input_points)
 {
-    vec3<float> buff(buff_vec[0], buff_vec[1], buff_vec[2]);
+    vec3<float> const buff(buff_vec[0], buff_vec[1], buff_vec[2]);
     m_box = neighbor_query->getBox();
     if (buff.x < 0)
     {
@@ -30,11 +37,11 @@ void PeriodicBuffer::compute(std::shared_ptr<NeighborQuery> neighbor_query, std:
     }
 
     // Get the box dimensions
-    vec3<float> L(m_box.getL());
-    float xy = m_box.getTiltFactorXY();
-    float xz = m_box.getTiltFactorXZ();
-    float yz = m_box.getTiltFactorYZ();
-    bool is2D = m_box.is2D();
+    vec3<float> const L(m_box.getL());
+    float const xy = m_box.getTiltFactorXY();
+    float const xz = m_box.getTiltFactorXZ();
+    float const yz = m_box.getTiltFactorYZ();
+    bool const is2D = m_box.is2D();
     vec3<int> images;
 
     if (use_images)
@@ -101,7 +108,7 @@ void PeriodicBuffer::compute(std::shared_ptr<NeighborQuery> neighbor_query, std:
                         // fractional coordinates to see if the points are
                         // inside the buffer box. Unexpected results may occur
                         // due to numerical imprecision in this check!
-                        vec3<float> buff_frac = m_buffer_box.makeFractional(point_image);
+                        vec3<float> const buff_frac = m_buffer_box.makeFractional(point_image);
                         if (0 <= buff_frac.x && buff_frac.x < 1 && 0 <= buff_frac.y && buff_frac.y < 1
                             && (is2D || (0 <= buff_frac.z && buff_frac.z < 1)))
                         {

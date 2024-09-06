@@ -3,12 +3,23 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <iterator>
+#include <memory>
+#include <oneapi/tbb/parallel_sort.h>
 #include <tbb/parallel_sort.h>
 #include <vector>
+#include <voro++/src/c_loops.hh>
+#include <voro++/src/cell.hh>
+#include <voro++/src/config.hh>
+#include <voro++/src/container_prd.hh>
 
+#include "ManagedArray.h"
 #include "NeighborBond.h"
+#include "NeighborQuery.h"
+#include "VectorMath.h"
 #include "Voronoi.h"
+#include "utils.h"
 
 /*! \file Voronoi.cc
     \brief Computes Voronoi neighbors for a set of points.
@@ -17,7 +28,7 @@
 namespace freud { namespace locality {
 
 // Voronoi calculations should be kept in double precision.
-void Voronoi::compute(std::shared_ptr<freud::locality::NeighborQuery> nq)
+void Voronoi::compute(const std::shared_ptr<freud::locality::NeighborQuery>& nq)
 {
     m_box = nq->getBox();
     const auto n_points = nq->getNPoints();
@@ -34,8 +45,8 @@ void Voronoi::compute(std::shared_ptr<freud::locality::NeighborQuery> nq)
     // having to create a pre_container. This saves time because the
     // pre_container cannot be used to set up container_periodic (only
     // non-periodic containers are compatible).
-    const float block_scale
-        = std::pow(n_points / (voro::optimal_particles * m_box.getVolume()), float(1.0 / 3.0));
+    const float block_scale = std::pow(
+        static_cast<float>(n_points / (voro::optimal_particles * m_box.getVolume())), float(1.0 / 3.0));
     const int voro_blocks_x = int(m_box.getLx() * block_scale + 1);
     const int voro_blocks_y = int(m_box.getLy() * block_scale + 1);
     const int voro_blocks_z = int(m_box.getLz() * block_scale + 1);
@@ -45,8 +56,8 @@ void Voronoi::compute(std::shared_ptr<freud::locality::NeighborQuery> nq)
 
     for (size_t query_point_id = 0; query_point_id < n_points; query_point_id++)
     {
-        vec3<double> query_point((*nq)[query_point_id]);
-        container.put(query_point_id, query_point.x, query_point.y, query_point.z);
+        vec3<double> const query_point((*nq)[query_point_id]);
+        container.put(static_cast<int>(query_point_id), query_point.x, query_point.y, query_point.z);
     }
 
     voro::voronoicell_neighbor cell;
@@ -80,9 +91,9 @@ void Voronoi::compute(std::shared_ptr<freud::locality::NeighborQuery> nq)
             auto vertex_iterator = vertices.begin();
             while (vertex_iterator != vertices.end())
             {
-                double vert_x = *vertex_iterator;
+                double const vert_x = *vertex_iterator;
                 vertex_iterator++;
-                double vert_y = *vertex_iterator;
+                double const vert_y = *vertex_iterator;
                 vertex_iterator++;
                 double vert_z = *vertex_iterator;
                 vertex_iterator++;
@@ -97,7 +108,7 @@ void Voronoi::compute(std::shared_ptr<freud::locality::NeighborQuery> nq)
                     }
                     vert_z = 0;
                 }
-                vec3<double> delta = vec3<double>(vert_x, vert_y, vert_z) - query_point;
+                vec3<double> const delta = vec3<double>(vert_x, vert_y, vert_z) - query_point;
                 relative_vertices.push_back(delta);
             }
 
@@ -150,7 +161,7 @@ void Voronoi::compute(std::shared_ptr<freud::locality::NeighborQuery> nq)
 
                 // Fetch neighbor information
                 const int point_id = *neighbor_iterator;
-                const float weight(face_areas[neighbor_counter]);
+                const auto weight(static_cast<float>(face_areas[neighbor_counter]));
 
                 // Find a vertex on the current face: this leverages the
                 // structure of face_vertices, which has a count of the
@@ -170,7 +181,7 @@ void Voronoi::compute(std::shared_ptr<freud::locality::NeighborQuery> nq)
                     return dot(riv, normal) / std::sqrt(dot(riv, riv)) / normal_length;
                 };
 
-                const int vertex_id_on_face = *std::max_element(
+                const size_t vertex_id_on_face = *std::max_element(
                     &(face_vertices[face_vertices_index + 1]),
                     &(face_vertices[face_vertices_index + face_vertices[face_vertices_index]]),
                     [&](const auto& a, const auto& b) {
@@ -195,7 +206,7 @@ void Voronoi::compute(std::shared_ptr<freud::locality::NeighborQuery> nq)
         return n1.less_id_ref_weight(n2);
     });
 
-    unsigned int num_bonds = bonds.size();
+    unsigned int const num_bonds = bonds.size();
 
     m_neighbor_list->resize(num_bonds);
     m_neighbor_list->setNumBonds(num_bonds, n_points, n_points);

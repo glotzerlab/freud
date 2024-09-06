@@ -41,7 +41,7 @@ class TestSolidLiquid:
         npt.assert_array_equal(nlist[:], comp.nlist[:])
 
     @pytest.mark.parametrize(
-        "comp, query_args",
+        ("comp", "query_args"),
         [
             (comp, query_args)
             for comp in (

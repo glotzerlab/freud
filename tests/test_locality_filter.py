@@ -41,10 +41,9 @@ class FilterTest:
             object.
         """
         aq = freud.locality.AABBQuery(box, points)
-        nlist = aq.query(
+        return aq.query(
             points, dict(mode="ball", r_max=r_max, exclude_ii=True)
         ).toNeighborList(sort_by_distance=True)
-        return nlist
 
     @pytest.mark.parametrize("allow_incomplete_shell", [True, False])
     @pytest.mark.parametrize("terminate_after_blocked", [True, False])
@@ -56,10 +55,12 @@ class FilterTest:
         L = 10
         N = 100
         sys = freud.data.make_random_system(L, N)
-        filter = self.get_filter_object(allow_incomplete_shell, terminate_after_blocked)
-        filter.compute(sys, dict(r_max=4.5))
-        assert filter.unfiltered_nlist is not None
-        assert filter.filtered_nlist is not None
+        filter_ = self.get_filter_object(
+            allow_incomplete_shell, terminate_after_blocked
+        )
+        filter_.compute(sys, dict(r_max=4.5))
+        assert filter_.unfiltered_nlist is not None
+        assert filter_.filtered_nlist is not None
 
     def test_incomplete_shell(self):
         """Make sure error is raised when neighbor shells are incomplete."""
@@ -87,7 +88,9 @@ class FilterTest:
         assert len(nlist.query_point_indices) == num_bonds
 
     @pytest.mark.parametrize("terminate_after_blocked", [False, True])
-    @pytest.mark.parametrize("crystal_cls, num_neighbors", [("bcc", 14), ("fcc", 12)])
+    @pytest.mark.parametrize(
+        ("crystal_cls", "num_neighbors"), [("bcc", 14), ("fcc", 12)]
+    )
     def test_known_crystals(self, terminate_after_blocked, crystal_cls, num_neighbors):
         """Test against perfect crystals with known numbers of neighbors."""
         uc = getattr(freud.data.UnitCell, crystal_cls)()
@@ -175,15 +178,13 @@ class TestRAD(FilterTest):
         # make freud nlist from list of neighbors
         sorted_neighbors = np.array(list_of_neighs)
         vecs = box.wrap(points[sorted_neighbors[:, 0]] - points[sorted_neighbors[:, 1]])
-        nlist = freud.locality.NeighborList.from_arrays(
+        return freud.locality.NeighborList.from_arrays(
             np.max(sorted_neighbors[:, 0] + 1),
             np.max(sorted_neighbors[:, 1]) + 1,
             sorted_neighbors[:, 0],
             sorted_neighbors[:, 1],
             vecs,
         )
-
-        return nlist
 
     def test_RAD_simple(self):
         """Assert RAD is correct when we compute the neighbors by hand."""
@@ -285,14 +286,13 @@ class TestSANN(FilterTest):
             sol_id.append(m)
         sol_neighbors = sorted_neighbors[mask]
         sol_vecs = sorted_vecs[mask]
-        solution_nlist = freud.locality.NeighborList.from_arrays(
+        return freud.locality.NeighborList.from_arrays(
             np.max(sol_neighbors[:, 0]) + 1,
             np.max(sol_neighbors[:, 1]) + 1,
             sol_neighbors[:, 0],
             sol_neighbors[:, 1],
             sol_vecs,
         )
-        return solution_nlist
 
     def test_SANN_simple(self):
         """Assert SANN is correct when we compute the neighbors by hand.

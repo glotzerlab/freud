@@ -86,7 +86,8 @@ class TestHexatic:
         hop = freud.order.Hexatic(k=k, weighted=True)
         hop.compute(system=(box, points), neighbors=voro.nlist)
         order = np.absolute(hop.particle_order)
-        assert (order >= 0).all() and (order <= 1).all()
+        assert (order >= 0).all()
+        assert (order <= 1).all()
 
         # Perform an explicit calculation in NumPy to verify results
         psi_k_weighted = np.zeros(len(points), dtype=np.complex128)

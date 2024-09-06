@@ -4,16 +4,23 @@
 #ifndef NEIGHBOR_QUERY_H
 #define NEIGHBOR_QUERY_H
 
+#include <cstddef>
+#include <cstdlib>
+#include <limits>
 #include <memory>
+#include <oneapi/tbb/enumerable_thread_specific.h>
+#include <oneapi/tbb/parallel_sort.h>
 #include <stdexcept>
 #include <tbb/enumerable_thread_specific.h>
 #include <tbb/parallel_sort.h>
 #include <utility>
+#include <vector>
 
 #include "Box.h"
 #include "NeighborBond.h"
 #include "NeighborList.h"
 #include "NeighborPerPointIterator.h"
+#include "VectorMath.h"
 #include "utils.h"
 
 /*! \file NeighborQuery.h
@@ -121,7 +128,7 @@ public:
     query(const vec3<float>* query_points, unsigned int n_query_points, QueryArgs query_args) const
     {
         // pair calculations using non-periodic boxes should fail
-        vec3<bool> periodic = m_box.getPeriodic();
+        vec3<bool> const periodic = m_box.getPeriodic();
         if (!(periodic.x && periodic.y && periodic.z))
         {
             throw std::domain_error("Pair queries in a non-periodic box are not implemented.");
@@ -314,9 +321,9 @@ class NeighborQueryIterator
 public:
     //! Constructor
     NeighborQueryIterator(const NeighborQuery* neighbor_query, const vec3<float>* query_points,
-                          unsigned int num_query_points, QueryArgs& qargs)
+                          unsigned int num_query_points, const QueryArgs& qargs)
         : m_neighbor_query(neighbor_query), m_query_points(query_points),
-          m_num_query_points(num_query_points), m_qargs(qargs), m_finished(false), m_cur_p(0)
+          m_num_query_points(num_query_points), m_qargs(qargs)
     {
         m_iter = this->query(m_cur_p);
     }
@@ -388,7 +395,7 @@ public:
             NeighborBond nb;
             for (size_t i = begin; i < end; ++i)
             {
-                std::shared_ptr<NeighborQueryPerPointIterator> it = this->query(i);
+                std::shared_ptr<NeighborQueryPerPointIterator> const it = this->query(i);
                 while (!it->end())
                 {
                     nb = it->next();
@@ -413,7 +420,7 @@ public:
             tbb::parallel_sort(linear_bonds.begin(), linear_bonds.end(), compareNeighborBond);
         }
 
-        unsigned int num_bonds = linear_bonds.size();
+        unsigned int const num_bonds = linear_bonds.size();
 
         auto nl = std::make_shared<NeighborList>();
         nl->setNumBonds(num_bonds, m_num_query_points, m_neighbor_query->getNPoints());
@@ -435,8 +442,9 @@ protected:
     const QueryArgs m_qargs;                               //!< The query arguments
     std::shared_ptr<NeighborQueryPerPointIterator> m_iter; //!< The per-point iterator being used.
 
-    bool m_finished; //!< Flag to indicate that iteration is complete (must be set by next on termination).
-    unsigned int m_cur_p; //!< The current particle under consideration.
+    bool m_finished {
+        false}; //!< Flag to indicate that iteration is complete (must be set by next on termination).
+    unsigned int m_cur_p {0}; //!< The current particle under consideration.
 };
 
 }; }; // end namespace freud::locality

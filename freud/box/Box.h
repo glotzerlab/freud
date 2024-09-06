@@ -5,9 +5,12 @@
 #define BOX_H
 
 #include <algorithm>
+#include <cmath>
 #include <complex>
-#include <sstream>
+#include <cstddef>
+#include <math.h> // NOLINT(modernize-deprecated-headers): Use std::numbers when c++20 is default.
 #include <stdexcept>
+#include <vector>
 
 #include "VectorMath.h"
 #include "utils.h"
@@ -79,7 +82,7 @@ public:
         m_yz = yz;
     }
 
-    inline bool operator==(const Box& b) const
+    bool operator==(const Box& b) const
     {
         return ((this->getL() == b.getL()) && (this->getTiltFactorXY() == b.getTiltFactorXY())
                 && (this->getTiltFactorXZ() == b.getTiltFactorXZ())
@@ -88,7 +91,7 @@ public:
                 && (this->getPeriodicZ() == b.getPeriodicZ()));
     }
 
-    inline bool operator!=(const Box& b) const
+    bool operator!=(const Box& b) const
     {
         return !(*this == b);
     }
@@ -270,7 +273,7 @@ public:
     /*! \param v The vector to check.
      *  \param image The image of a given point.
      */
-    inline void getImage(const vec3<float>& v, vec3<int>& image) const
+    void getImage(const vec3<float>& v, vec3<int>& image) const
     {
         vec3<float> f = makeFractional(v) - vec3<float>(0.5, 0.5, 0.5);
         if (m_2d)
@@ -376,10 +379,11 @@ public:
 
         for (size_t i = 0; i < Nvecs; ++i)
         {
-            vec3<float> phase(constants::TWO_PI * makeFractional(vecs[i]));
-            vec3<std::complex<float>> xi(std::polar(float(1.0), phase.x), std::polar(float(1.0), phase.y),
-                                         std::polar(float(1.0), phase.z));
-            float mass = (masses != nullptr) ? masses[i] : float(1.0);
+            vec3<float> const phase(constants::TWO_PI * makeFractional(vecs[i]));
+            vec3<std::complex<float>> const xi(std::polar(float(1.0), phase.x),
+                                               std::polar(float(1.0), phase.y),
+                                               std::polar(float(1.0), phase.z));
+            float const mass = (masses != nullptr) ? masses[i] : float(1.0);
             total_mass += mass;
             xi_mean += std::complex<float>(mass, 0) * xi;
         }
@@ -409,7 +413,7 @@ public:
     /*! \param r_i Position of first point
         \param r_j Position of second point
     */
-    inline float computeDistance(const vec3<float>& r_i, const vec3<float>& r_j) const
+    float computeDistance(const vec3<float>& r_i, const vec3<float>& r_j) const
     {
         const vec3<float> r_ij = wrap(r_j - r_i);
         return std::sqrt(dot(r_ij, r_ij));

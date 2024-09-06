@@ -3,6 +3,8 @@
 
 #include "tbb_config.h"
 
+#include <memory>
+#include <oneapi/tbb/global_control.h>
 #include <thread>
 
 /*! \file tbb_config.cc

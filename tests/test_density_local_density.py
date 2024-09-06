@@ -15,8 +15,7 @@ def get_fraction(dist, r_max, diameter):
         return 1
     if dist > r_max + diameter / 2:
         return 0
-    else:
-        return -dist / diameter + r_max / diameter + 0.5
+    return -dist / diameter + r_max / diameter + 0.5
 
 
 class TestLocalDensity:

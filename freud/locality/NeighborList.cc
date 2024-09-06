@@ -2,12 +2,22 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <algorithm>
+#include <cmath>
+#include <cstddef>
+#include <memory>
+#include <oneapi/tbb/enumerable_thread_specific.h>
+#include <oneapi/tbb/parallel_sort.h>
 #include <stdexcept>
 #include <tbb/enumerable_thread_specific.h>
 #include <tbb/parallel_sort.h>
+#include <utility>
+#include <vector>
 
+#include "Box.h"
 #include "ManagedArray.h"
 #include "NeighborList.h"
+#include "VectorMath.h"
+#include "utils.h"
 
 namespace freud { namespace locality {
 
@@ -52,7 +62,7 @@ NeighborList::NeighborList(unsigned int num_bonds, const unsigned int* query_poi
     unsigned int last_index(0);
     for (unsigned int i = 0; i < num_bonds; i++)
     {
-        unsigned int index = query_point_index[i];
+        unsigned int const index = query_point_index[i];
         if (index < last_index)
         {
             throw std::invalid_argument("NeighborList query_point_index must be sorted.");
@@ -395,8 +405,8 @@ std::vector<NeighborBond> NeighborList::toBondVector() const
     util::forLoopWrapper(0, num_bonds, [&](size_t begin, size_t end) {
         for (auto bond_idx = begin; bond_idx < end; ++bond_idx)
         {
-            NeighborBond nb((*m_neighbors)(bond_idx, 0), (*m_neighbors)(bond_idx, 1),
-                            (*m_distances)(bond_idx), (*m_weights)(bond_idx), (*m_vectors)(bond_idx));
+            NeighborBond const nb((*m_neighbors)(bond_idx, 0), (*m_neighbors)(bond_idx, 1),
+                                  (*m_distances)(bond_idx), (*m_weights)(bond_idx), (*m_vectors)(bond_idx));
             bond_vector[bond_idx] = nb;
         }
     });
@@ -410,7 +420,7 @@ unsigned int NeighborList::bisection_search(unsigned int val, unsigned int left,
         return left;
     }
 
-    unsigned int middle((left + right) / 2);
+    unsigned int const middle((left + right) / 2);
 
     if ((*m_neighbors)(middle, 0) < val)
     {

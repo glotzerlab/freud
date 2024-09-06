@@ -240,7 +240,7 @@ class TestVoronoi:
         conftest.nlist_lifetime_check(_get_voronoi_nlist)
 
     @pytest.mark.parametrize(
-        "func, neighbors",
+        ("func", "neighbors"),
         [
             (func, neighbors)
             for func, neighbors in {

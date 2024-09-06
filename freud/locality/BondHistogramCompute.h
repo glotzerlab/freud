@@ -6,8 +6,15 @@
 
 #include "Box.h"
 #include "Histogram.h"
+#include "ManagedArray.h"
 #include "NeighborComputeFunctional.h"
+#include "NeighborList.h"
 #include "NeighborQuery.h"
+#include "VectorMath.h"
+#include <cstddef>
+#include <memory>
+#include <utility>
+#include <vector>
 
 namespace freud { namespace locality {
 

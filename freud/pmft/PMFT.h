@@ -8,7 +8,8 @@
 #include "Box.h"
 #include "Histogram.h"
 #include "ManagedArray.h"
-#include "VectorMath.h"
+#include <cstddef>
+#include <memory>
 
 /*! \internal
     \file PMFT.h
@@ -72,8 +73,8 @@ protected:
      */
     template<typename JacobFactor> void reduce(JacobFactor jf)
     {
-        float inv_num_dens = m_box.getVolume() / static_cast<float>(m_n_query_points);
-        float norm_factor
+        float const inv_num_dens = m_box.getVolume() / static_cast<float>(m_n_query_points);
+        float const norm_factor
             = float(1.0) / (static_cast<float>(m_frame_counter) * static_cast<float>(m_n_points));
         float prefactor = inv_num_dens * norm_factor;
 

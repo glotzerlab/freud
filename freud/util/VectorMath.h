@@ -34,18 +34,16 @@ template<class Real> struct vec3
     constexpr vec3(const Real& _x, const Real& _y, const Real& _z) : x(_x), y(_y), z(_z) {}
 
     //! Implicit cast from vec3<double> to the current Real
-    // cppcheck-suppress noExplicitConstructor
     constexpr vec3(const vec3<double>& a) : x(a.x), y(a.y), z(a.z) {}
 
     //! Implicit cast from vec3<float> to the current Real
-    // cppcheck-suppress noExplicitConstructor
     constexpr vec3(const vec3<float>& a) : x(a.x), y(a.y), z(a.z) {}
 
     //! Default construct a 0 vector
     constexpr vec3() = default;
 
     //! Swap with another vector
-    void swap(vec3<Real>& v)
+    void swap(vec3<Real>& v) noexcept
     {
         std::swap(x, v.x);
         std::swap(y, v.y);
@@ -316,7 +314,7 @@ template<class Real> struct vec2
     constexpr vec2(const vec2<float>& a) : x(a.x), y(a.y) {}
 
     //! Swap with another vector
-    void swap(vec2<Real>& v)
+    void swap(vec2<Real>& v) noexcept
     {
         Real tx;
         Real ty;

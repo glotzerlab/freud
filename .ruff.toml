@@ -1,0 +1,48 @@
+target-version = "py39"
+
+lint.extend-select = [
+    "A",
+    "B",
+    # "D", # TODO: Enable documentation checks and document undocumented classes/methods
+    "E501",
+    "EM",
+    "I",
+    "ICN",
+    "ISC",
+    "N",
+    "NPY",
+    "PL",
+    "PT",
+    "RET",
+    "RUF",
+    "UP",
+    "W",
+]
+
+lint.ignore = [
+  "N806", "N803",  # Allow occasional use of uppercase variable and argument names (e.g. N).
+  "PLR2004", # Allow hard coded test results.
+  "PLR09", # Allow "too many" statements/arguments/etc...
+  "RUF012", # freud does not use typing hints
+  "N802", # Allow names like Lx
+  "NPY002", # TODO: Refactor benchmarks and tests to use numpy.random.Generator
+]
+
+[lint.flake8-import-conventions]
+# Prefer no import aliases
+aliases = {}
+
+[lint.per-file-ignores]
+"tests/*.py" = ["PLR6301", # methods defined this way are used by pytest.
+  "E741", # l is an appropriate variable name for Qlm order parameters.
+  "PLW2901", # TODO: Enable this check and fix after tests can be executed.
+  "B018", # TODO: Enable this check and fix after tests can be executed.
+  "PT011", # TODO: Enable this check and fix after tests can be executed.
+  "PT012", # TODO: Enable this check and fix after tests can be executed.
+  "E501", # TODO: Enable this check and fix after tests can be executed.
+]
+
+"doc/source/conf.py" = ["A001"]
+
+[lint.pydocstyle]
+convention = "google"

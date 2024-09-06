@@ -45,10 +45,11 @@ class StaticStructureFactorTest:
     def build_structure_factor_object(
         cls, bins, k_max, k_min=0, num_sampled_k_points=None
     ):
-        raise RuntimeError(
+        msg = (
             "The build_structure_factor_object method must be implemented for "
             "each inheriting class."
         )
+        raise RuntimeError(msg)
 
     @classmethod
     def get_min_valid_k(cls, Lx, Ly, Lz=None):

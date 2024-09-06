@@ -4,8 +4,6 @@ channels:
 
 dependencies:
   - python==3.12
-  # TODO: Update to a newer cppcheck and adjust all C++ code to meet the new style guidlines
-  - cppcheck<2.0.0  # [linux64]
   - tbb
   - tbb-devel
   - ninja

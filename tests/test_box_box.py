@@ -378,7 +378,7 @@ class TestBox:
         npt.assert_allclose(box.v3, [xz * Lz, yz * Lz, Lz])
 
     @pytest.mark.parametrize(
-        "box_params, answer",
+        ("box_params", "answer"),
         [
             (dict(Lx=1, Ly=1, Lz=1), True),
             (dict(Lx=2, Ly=1, Lz=4), False),

@@ -1,12 +1,18 @@
 // Copyright (c) 2010-2024 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#ifndef __FILTER_H__
-#define __FILTER_H__
+#pragma once
 
 #include "NeighborList.h"
 #include "NeighborQuery.h"
+#include "VectorMath.h"
 #include <iostream>
+#include <limits>
+#include <memory>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <vector>
 
 namespace freud { namespace locality {
 
@@ -90,11 +96,9 @@ protected:
             {
                 throw std::runtime_error(error_str.str());
             }
-            std::cout << "WARNING: " << error_str.str() << std::endl;
+            std::cout << "WARNING: " << error_str.str() << '\n';
         }
     }
 };
 
 }; }; // namespace freud::locality
-
-#endif // __FILTER_H__

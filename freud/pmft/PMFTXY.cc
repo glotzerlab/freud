@@ -1,9 +1,20 @@
 // Copyright (c) 2010-2024 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
+#include <cstddef>
+#include <memory>
 #include <stdexcept>
+#include <utility>
+#include <vector>
 
+#include "Histogram.h"
+#include "ManagedArray.h"
+#include "NeighborBond.h"
+#include "NeighborList.h"
+#include "NeighborQuery.h"
+#include "PMFT.h"
 #include "PMFTXY.h"
+#include "VectorMath.h"
 
 /*! \file PMFTXY.cc
     \brief Routines for computing 2D potential of mean force in XY coordinates
@@ -51,11 +62,11 @@ PMFTXY::PMFTXY(float x_max, float y_max, unsigned int n_x, unsigned int n_y) : P
 
 void PMFTXY::reduce()
 {
-    float jacobian_factor = (float) 1.0 / m_jacobian;
+    float const jacobian_factor = (float) 1.0 / m_jacobian;
     PMFT::reduce([jacobian_factor](size_t i) { return jacobian_factor; }); // NOLINT (misc-unused-parameters)
 }
 
-void PMFTXY::accumulate(std::shared_ptr<locality::NeighborQuery> neighbor_query,
+void PMFTXY::accumulate(const std::shared_ptr<locality::NeighborQuery>& neighbor_query,
                         const float* query_orientations, const vec3<float>* query_points,
                         unsigned int n_query_points, std::shared_ptr<locality::NeighborList> nlist,
                         const freud::locality::QueryArgs& qargs)
@@ -63,7 +74,7 @@ void PMFTXY::accumulate(std::shared_ptr<locality::NeighborQuery> neighbor_query,
     neighbor_query->getBox().enforce2D();
 
     // now accumulate
-    accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
+    accumulateGeneral(neighbor_query, query_points, n_query_points, std::move(nlist), qargs,
                       [&](const freud::locality::NeighborBond& neighbor_bond) {
                           const vec3<float>& delta(neighbor_bond.getVector());
 

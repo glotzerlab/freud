@@ -64,7 +64,7 @@ class TestContinuousCoordination:
         self.compute(system)
         npt.assert_allclose(self.coord.coordination, 4.0, rtol=1e-6)
 
-    @pytest.mark.parametrize("args", (([], True, False), ([2.0], False, True)))
+    @pytest.mark.parametrize("args", [([], True, False), ([2.0], False, True)])
     def test_various_coordinates(self, args):
         def get_coord_size(args):
             return len(args[0]) + int(args[1]) + int(args[2])

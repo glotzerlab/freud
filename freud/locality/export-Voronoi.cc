@@ -1,8 +1,9 @@
 // Copyright (c) 2010-2024 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
+#include <memory>
 #include <nanobind/nanobind.h>
-#include <nanobind/stl/shared_ptr.h>
+#include <nanobind/stl/shared_ptr.h> // NOLINT(misc-include-cleaner): used implicitly
 
 #include "Voronoi.h"
 
@@ -15,7 +16,7 @@ namespace wrap {
 // TODO this is very inefficient, we are converting data both on the
 // C++ and python side, it would be better to find an efficient way to pass
 // ragged data back and forth that other modules could use as well
-nb::object getPolytopes(std::shared_ptr<Voronoi> voro)
+nb::object getPolytopes(const std::shared_ptr<Voronoi>& voro)
 {
     // get cpp data
     auto polytopes_cpp = voro->getPolytopes();
@@ -42,9 +43,9 @@ nb::object getPolytopes(std::shared_ptr<Voronoi> voro)
 
 namespace detail {
 
-void export_Voronoi(nb::module_& m)
+void export_Voronoi(nb::module_& module)
 {
-    nb::class_<Voronoi>(m, "Voronoi")
+    nb::class_<Voronoi>(module, "Voronoi")
         .def(nb::init<>())
         .def("compute", &Voronoi::compute)
         .def("getBox", &Voronoi::getBox)

@@ -36,7 +36,5 @@ jobs:
           cmake -S . -B build -GNinja -DCMAKE_EXPORT_COMPILE_COMMANDS=True
           ls build
           cp build/compile_commands.json .
-      - name: cppcheck
-        run: pre-commit run cppcheck --all-files --hook-stage=manual -v
       - name: clang-tidy
         run: pre-commit run clang-tidy --all-files --hook-stage=manual -v

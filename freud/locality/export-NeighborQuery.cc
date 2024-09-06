@@ -1,13 +1,17 @@
 // Copyright (c) 2010-2024 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
+#include <memory>
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
-#include <nanobind/stl/shared_ptr.h>
+#include <nanobind/stl/shared_ptr.h> // NOLINT(misc-include-cleaner): used implicitly
 
 #include "AABBQuery.h"
+#include "Box.h"
 #include "LinkCell.h"
+#include "NeighborQuery.h"
 #include "RawPoints.h"
+#include "VectorMath.h"
 
 namespace nb = nanobind;
 
@@ -18,34 +22,34 @@ namespace freud { namespace locality {
 
 namespace wrap {
 
-std::shared_ptr<NeighborQueryIterator> query(std::shared_ptr<NeighborQuery> nq,
-                                             nb_array<float, nb::shape<-1, 3>> query_points,
+std::shared_ptr<NeighborQueryIterator> query(const std::shared_ptr<NeighborQuery>& nq,
+                                             const nb_array<float, nb::shape<-1, 3>>& query_points,
                                              const QueryArgs& qargs)
 {
-    unsigned int n_query_points = query_points.shape(0);
+    unsigned int const n_query_points = query_points.shape(0);
     const vec3<float>* query_points_data = (vec3<float>*) query_points.data();
     return nq->query(query_points_data, n_query_points, qargs);
 }
 
-void AABBQueryConstructor(AABBQuery* nq, const box::Box& box, nb_array<float, nb::shape<-1, 3>> points)
+void AABBQueryConstructor(AABBQuery* nq, const box::Box& box, const nb_array<float, nb::shape<-1, 3>>& points)
 {
-    unsigned int n_points = points.shape(0);
-    vec3<float>* points_data = (vec3<float>*) points.data();
+    unsigned int const n_points = points.shape(0);
+    auto* points_data = (vec3<float>*) points.data();
     new (nq) AABBQuery(box, points_data, n_points);
 }
 
-void LinkCellConstructor(LinkCell* nq, const box::Box& box, nb_array<float, nb::shape<-1, 3>> points,
+void LinkCellConstructor(LinkCell* nq, const box::Box& box, const nb_array<float, nb::shape<-1, 3>>& points,
                          float cell_width)
 {
-    unsigned int n_points = points.shape(0);
-    vec3<float>* points_data = (vec3<float>*) points.data();
+    unsigned int const n_points = points.shape(0);
+    auto* points_data = (vec3<float>*) points.data();
     new (nq) LinkCell(box, points_data, n_points, cell_width);
 }
 
-void RawPointsConstructor(RawPoints* nq, const box::Box& box, nb_array<float, nb::shape<-1, 3>> points)
+void RawPointsConstructor(RawPoints* nq, const box::Box& box, const nb_array<float, nb::shape<-1, 3>>& points)
 {
-    unsigned int n_points = points.shape(0);
-    vec3<float>* points_data = (vec3<float>*) points.data();
+    unsigned int const n_points = points.shape(0);
+    auto* points_data = (vec3<float>*) points.data();
     new (nq) RawPoints(box, points_data, n_points);
 }
 
@@ -53,37 +57,37 @@ void RawPointsConstructor(RawPoints* nq, const box::Box& box, nb_array<float, nb
 
 namespace detail {
 
-void export_NeighborQuery(nb::module_& m)
+void export_NeighborQuery(nb::module_& module)
 {
-    nb::class_<NeighborQuery>(m, "NeighborQuery")
+    nb::class_<NeighborQuery>(module, "NeighborQuery")
         .def("query", &wrap::query)
         .def("getBox", &NeighborQuery::getBox);
 }
 
-void export_AABBQuery(nb::module_& m)
+void export_AABBQuery(nb::module_& module)
 {
-    nb::class_<AABBQuery, NeighborQuery>(m, "AABBQuery").def("__init__", &wrap::AABBQueryConstructor);
+    nb::class_<AABBQuery, NeighborQuery>(module, "AABBQuery").def("__init__", &wrap::AABBQueryConstructor);
 }
 
-void export_LinkCell(nb::module_& m)
+void export_LinkCell(nb::module_& module)
 {
-    nb::class_<LinkCell, NeighborQuery>(m, "LinkCell")
+    nb::class_<LinkCell, NeighborQuery>(module, "LinkCell")
         .def("__init__", &wrap::LinkCellConstructor)
         .def("GetCellWidth", &LinkCell::getCellWidth);
 }
 
-void export_RawPoints(nb::module_& m)
+void export_RawPoints(nb::module_& module)
 {
-    nb::class_<RawPoints, NeighborQuery>(m, "RawPoints").def("__init__", &wrap::RawPointsConstructor);
+    nb::class_<RawPoints, NeighborQuery>(module, "RawPoints").def("__init__", &wrap::RawPointsConstructor);
 }
 
-void export_QueryArgs(nb::module_& m)
+void export_QueryArgs(nb::module_& module)
 {
-    nb::enum_<QueryType>(m, "QueryType")
+    nb::enum_<QueryType>(module, "QueryType")
         .value("none", QueryType::none)
         .value("ball", QueryType::ball)
         .value("nearest", QueryType::nearest);
-    nb::class_<QueryArgs>(m, "QueryArgs")
+    nb::class_<QueryArgs>(module, "QueryArgs")
         .def(nb::init<>())
         .def_rw("mode", &QueryArgs::mode)
         .def_rw("num_neighbors", &QueryArgs::num_neighbors)
@@ -94,9 +98,9 @@ void export_QueryArgs(nb::module_& m)
         .def_rw("exclude_ii", &QueryArgs::exclude_ii);
 }
 
-void export_NeighborQueryIterator(nb::module_& m)
+void export_NeighborQueryIterator(nb::module_& module)
 {
-    nb::class_<NeighborQueryIterator>(m, "NeighborQueryIterator")
+    nb::class_<NeighborQueryIterator>(module, "NeighborQueryIterator")
         .def("next", &NeighborQueryIterator::next)
         .def("toNeighborList", &NeighborQueryIterator::toNeighborList);
 }
