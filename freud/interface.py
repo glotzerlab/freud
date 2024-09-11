@@ -17,7 +17,7 @@ import numpy as np
 
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
-np.import_array()
+# np.import_array()
 
 class Interface(_PairCompute):
     r"""Measures the interface between two sets of points."""
@@ -43,7 +43,7 @@ class Interface(_PairCompute):
                 <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
                 (Default value: None).
         """  # noqa E501
-        
+
         # freud.locality.
         nlist = _make_default_nlist(
             system, neighbors, query_points)
