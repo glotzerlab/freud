@@ -145,10 +145,6 @@ target_include_directories(freud SYSTEM PUBLIC ${PROJECT_SOURCE_DIR}/extern/)
 # target_link_libraries(_diffraction PUBLIC freud TBB::tbb)
 # target_set_install_rpath(_diffraction)
 
-# environment nanobind_add_module(_environment environment/...)
-# target_link_libraries(_environment PUBLIC freud TBB::tbb)
-# target_set_install_rpath(_environment)
-
 # box
 nanobind_add_module(_box box/module-box.cc box/export-Box.cc box/export-Box.h)
 target_link_libraries(_box PUBLIC TBB::tbb)
@@ -159,9 +155,8 @@ nanobind_add_module(
     _environment
     environment/module-environment.cc
     environment/export-AngularSeparationNeighbor.cc
-    #environment/export-AngularSeparationGlobal.cc
-)
-target_link_libraries(_environment PUBLIC freud TBB:tbb)
+    environment/export-AngularSeparationGlobal.cc)
+target_link_libraries(_environment PUBLIC freud TBB::tbb)
 target_set_install_rpath(_environment)
 
 
@@ -222,7 +217,7 @@ if(SKBUILD)
   install(TARGETS _box DESTINATION freud)
   # install(TARGETS _cluster DESTINATION freud) install(TARGETS _density
   # DESTINATION freud) install(TARGETS _diffraction DESTINATION freud)
-  # install(TARGETS _environment DESTINATION freud)
+  install(TARGETS _environment DESTINATION freud)
   install(TARGETS _locality DESTINATION freud)
   # install(TARGETS _order DESTINATION freud)
   install(TARGETS _parallel DESTINATION freud)

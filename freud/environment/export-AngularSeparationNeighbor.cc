@@ -9,12 +9,13 @@
 
 #include "AngularSeparation.h"
 
-namespace nb = nanobind {
+namespace nb = nanobind;
 
 namespace freud { namespace environment {
 
 namespace wrap {
 
+}
 
 namespace detail {
 
@@ -28,4 +29,4 @@ void export_AngularSeparationNeighbor(nb::module_& module)
 
 }; // namespace detail
 
-}; }; }; }; // namespace freud::locality
+}; }; // namespace freud::locality
