@@ -882,19 +882,11 @@ cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
             freud.util.arr_type_t.FLOAT)
 
 
-cdef class AngularSeparationNeighbor(_PairCompute):
+class AngularSeparationNeighbor(_PairCompute):
     r"""Calculates the minimum angles of separation between orientations and
     query orientations."""
-    cdef freud._environment.AngularSeparationNeighbor * thisptr
-
-    def __cinit__(self):
-        self.thisptr = new freud._environment.AngularSeparationNeighbor()
-
     def __init__(self):
-        pass
-
-    def __dealloc__(self):
-        del self.thisptr
+        self._cpp_obj = freud._environment.AngularSeparationNeighbor()
 
     def compute(self, system, orientations, query_points=None,
                 query_orientations=None,
@@ -935,14 +927,8 @@ cdef class AngularSeparationNeighbor(_PairCompute):
                 <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
                 (Default value: None).
         """  # noqa: E501
-        cdef:
-            freud.locality.NeighborQuery nq
-            freud.locality.NeighborList nlist
-            freud.locality._QueryArgs qargs
-            const float[:, ::1] l_query_points
-            unsigned int num_query_points
 
-        nq, nlist, qargs, l_query_points, num_query_points = \
+        nq, nlist, qargs, query_points, num_query_points = \
             self._preprocess_arguments(system, query_points, neighbors)
 
         orientations = freud.util._convert_array(
@@ -956,22 +942,16 @@ cdef class AngularSeparationNeighbor(_PairCompute):
         equiv_orientations = freud.util._convert_array(
             equiv_orientations, shape=(None, 4))
 
-        cdef const float[:, ::1] l_orientations = orientations
-        cdef const float[:, ::1] l_query_orientations = query_orientations
-        cdef const float[:, ::1] l_equiv_orientations = equiv_orientations
-
         cdef unsigned int n_equiv_orientations = l_equiv_orientations.shape[0]
 
-        self.thisptr.compute(
-            nq.get_ptr(),
-            <quat[float]*> &l_orientations[0, 0],
-            <vec3[float]*> &l_query_points[0, 0],
-            <quat[float]*> &l_query_orientations[0, 0],
-            num_query_points,
-            <quat[float]*> &l_equiv_orientations[0, 0],
-            n_equiv_orientations,
-            nlist.get_ptr(),
-            dereference(qargs.thisptr))
+        self._cpp_obj.compute(
+            nq._cpp_obj,
+            l_orientations,
+            query_points,
+            query_orientations,
+            equiv_orientations,
+            nlist._cpp_obj,
+            qargs._cpp_obj)
         return self
 
     @_Compute._computed_property
@@ -979,9 +959,7 @@ cdef class AngularSeparationNeighbor(_PairCompute):
         """:math:`\\left(N_{bonds}\\right)` :class:`numpy.ndarray`: The
         neighbor angles in radians. The angles are stored in the order of the
         neighborlist object."""
-        return freud.util.make_managed_numpy_array(
-            &self.thisptr.getAngles(),
-            freud.util.arr_type_t.FLOAT)
+        return self._cpp_obj.getAngles().toNumpyArray()
 
     def __repr__(self):
         return "freud.environment.{cls}()".format(
@@ -991,24 +969,16 @@ cdef class AngularSeparationNeighbor(_PairCompute):
     def nlist(self):
         """:class:`freud.locality.NeighborList`: The neighbor list from the
         last compute."""
-        nlist = freud.locality._nlist_from_cnlist(self.thisptr.getNList())
+        nlist = freud.locality._nlist_from_cnlist(self._cpp_obj.getNList())
         nlist._compute = self
         return nlist
 
 
-cdef class AngularSeparationGlobal(_Compute):
+class AngularSeparationGlobal(_Compute):
     r"""Calculates the minimum angles of separation between orientations and
     global orientations."""
-    cdef freud._environment.AngularSeparationGlobal * thisptr
-
-    def __cinit__(self):
-        self.thisptr = new freud._environment.AngularSeparationGlobal()
-
     def __init__(self):
-        pass
-
-    def __dealloc__(self):
-        del self.thisptr
+       self._cpp_obj = freud._environment.AngularSeparationGlobal()
 
     def compute(self, global_orientations, orientations,
                 equiv_orientations=np.array([[1, 0, 0, 0]])):
@@ -1039,30 +1009,14 @@ cdef class AngularSeparationGlobal(_Compute):
         equiv_orientations = freud.util._convert_array(
             equiv_orientations, shape=(None, 4))
 
-        cdef const float[:, ::1] l_global_orientations = global_orientations
-        cdef const float[:, ::1] l_orientations = orientations
-        cdef const float[:, ::1] l_equiv_orientations = equiv_orientations
-
-        cdef unsigned int n_global = l_global_orientations.shape[0]
-        cdef unsigned int n_points = l_orientations.shape[0]
-        cdef unsigned int n_equiv_orientations = l_equiv_orientations.shape[0]
-
-        self.thisptr.compute(
-            <quat[float]*> &l_global_orientations[0, 0],
-            n_global,
-            <quat[float]*> &l_orientations[0, 0],
-            n_points,
-            <quat[float]*> &l_equiv_orientations[0, 0],
-            n_equiv_orientations)
+        self._cpp_obj.compute( global_orientations, orientations, equiv_orientations)
         return self
 
     @_Compute._computed_property
     def angles(self):
         """:math:`\\left(N_{orientations}, N_{global\\_orientations}\\right)` :class:`numpy.ndarray`:
         The global angles in radians."""  # noqa: E501
-        return freud.util.make_managed_numpy_array(
-            &self.thisptr.getAngles(),
-            freud.util.arr_type_t.FLOAT)
+        return self._cpp_obj.getAngles().toNumpyArray()
 
     def __repr__(self):
         return "freud.environment.{cls}()".format(
