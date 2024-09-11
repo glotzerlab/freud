@@ -8,23 +8,19 @@ between sets of points.
 
 import numpy as np
 
-from freud.locality import _PairCompute
+from freud.locality import _PairCompute, _make_default_nlist
 from freud.util import _Compute
 
-import freud.locality
+# import freud.locality
 
 import numpy as np
-
-import freud.locality
 
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
 np.import_array()
 
-cdef class Interface(_PairCompute):
+class Interface(_PairCompute):
     r"""Measures the interface between two sets of points."""
-    cdef const unsigned int[::1] _point_ids
-    cdef const unsigned int[::1] _query_point_ids
 
     def __init__(self):
         self._point_ids = np.empty(0, dtype=np.uint32)
@@ -47,14 +43,9 @@ cdef class Interface(_PairCompute):
                 <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
                 (Default value: None).
         """  # noqa E501
-        cdef:
-            freud.locality.NeighborQuery nq
-            freud.locality.NeighborList nlist
-            freud.locality._QueryArgs qargs
-            const float[:, ::1] l_query_points
-            unsigned int num_query_points
-
-        nlist = freud.locality._make_default_nlist(
+        
+        # freud.locality.
+        nlist = _make_default_nlist(
             system, neighbors, query_points)
 
         self._point_ids = np.unique(nlist.point_indices)
