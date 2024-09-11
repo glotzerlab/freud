@@ -6,18 +6,10 @@ The :class:`freud.interface` module contains functions to measure the interface
 between sets of points.
 """
 
-import numpy as np
-
 from freud.locality import _PairCompute, _make_default_nlist
 from freud.util import _Compute
 
-# import freud.locality
-
 import numpy as np
-
-# numpy must be initialized. When using numpy from C or Cython you must
-# _always_ do that, or you will have segfaults
-# np.import_array()
 
 
 class Interface(_PairCompute):
