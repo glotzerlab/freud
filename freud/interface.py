@@ -6,10 +6,10 @@ The :class:`freud.interface` module contains functions to measure the interface
 between sets of points.
 """
 
-from freud.locality import _PairCompute, _make_default_nlist
-from freud.util import _Compute
-
 import numpy as np
+
+from freud.locality import _make_default_nlist, _PairCompute
+from freud.util import _Compute
 
 
 class Interface(_PairCompute):
