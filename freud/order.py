@@ -235,13 +235,13 @@ class Nematic(_Compute):
         """:math:`\\left(N_{particles}, 3, 3 \\right)` :class:`numpy.ndarray`:
             One 3x3 matrix per-particle corresponding to each individual
             particle orientation."""
-        return self._cpp_obj.getParticleTensor()
+        return self._cpp_obj.getParticleTensor().toNumpyArray()
 
     @_Compute._computed_property
     def nematic_tensor(self):
         """:math:`\\left(3, 3 \\right)` :class:`numpy.ndarray`: 3x3 matrix
         corresponding to the average particle orientation."""
-        return self._cpp_obj.getNematicTensor()
+        return self._cpp_obj.getNematicTensor().toNumpyArray()
 
     def __repr__(self):
         return f"freud.order.{type(self).__name__}()"
