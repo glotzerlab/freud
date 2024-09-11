@@ -30,12 +30,12 @@ void ClusterProperties::compute(const freud::locality::NeighborQuery* nq, const 
 
     // allocate memory for the cluster properties and temporary arrays
     // initialize arrays to 0
-    m_cluster_centers.prepare(num_clusters);
-    m_cluster_centers_of_mass.prepare(num_clusters);
-    m_cluster_moments_of_inertia.prepare({num_clusters, 3, 3});
-    m_cluster_gyrations.prepare({num_clusters, 3, 3});
-    m_cluster_sizes.prepare(num_clusters);
-    m_cluster_masses.prepare(num_clusters);
+    m_cluster_centers = std::make_shared<util::ManagedArray<vec3<float>>>(num_clusters);
+    m_cluster_centers_of_mass = std::make_shared<util::ManagedArray<vec3<float>>>(num_clusters);
+    m_cluster_moments_of_inertia = std::make_shared<util::ManagedArray<float>>(std::vector<size_t>{num_clusters, 3, 3});
+    m_cluster_gyrations = std::make_shared<util::ManagedArray<float>>(std::vector<size_t>{num_clusters, 3, 3});
+    m_cluster_sizes = std::make_shared<util::ManagedArray<unsigned int>>(num_clusters);
+    m_cluster_masses = std::make_shared<util::ManagedArray<float>>(num_clusters);
 
     // Create a vector to store cluster points, used to compute center of mass
     std::vector<std::vector<vec3<float>>> cluster_points(num_clusters, std::vector<vec3<float>>());

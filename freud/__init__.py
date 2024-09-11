@@ -17,7 +17,7 @@ __version__ = "3.1.0"
 __all__ = [
     "__version__",
     "box",
-    # "cluster",
+    "cluster",
     "data",
     # "density",
     # "diffraction",

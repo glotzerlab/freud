@@ -22,8 +22,8 @@ add_library(
   # cluster
   # cluster/Cluster.h
   # cluster/Cluster.cc
-  # cluster/ClusterProperties.h
-  # cluster/ClusterProperties.cc
+  cluster/ClusterProperties.h
+  cluster/ClusterProperties.cc
   # density
   # density/CorrelationFunction.h
   # density/CorrelationFunction.cc
@@ -133,9 +133,10 @@ set_target_properties(freud PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_link_libraries(freud PUBLIC TBB::tbb)
 target_include_directories(freud SYSTEM PUBLIC ${PROJECT_SOURCE_DIR}/extern/)
 
-# cluster nanobind_add_module(_cluster cluster/...)
-# target_link_libraries(_cluster PUBLIC freud TBB::tbb)
-# target_set_install_rpath(_cluster)
+# cluster 
+nanobind_add_module(_cluster cluster/module-Cluster.cc cluster/export-ClusterProperties.cc)#cluster/export-Cluster.cc)
+target_link_libraries(_cluster PUBLIC freud TBB::tbb)
+target_set_install_rpath(_cluster)
 
 # density nanobind_add_module(_density density/...)
 # target_link_libraries(_density PUBLIC freud TBB::tbb)
