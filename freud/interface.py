@@ -19,6 +19,7 @@ import numpy as np
 # _always_ do that, or you will have segfaults
 # np.import_array()
 
+
 class Interface(_PairCompute):
     r"""Measures the interface between two sets of points."""
 
@@ -45,8 +46,7 @@ class Interface(_PairCompute):
         """  # noqa E501
 
         # freud.locality.
-        nlist = _make_default_nlist(
-            system, neighbors, query_points)
+        nlist = _make_default_nlist(system, neighbors, query_points)
 
         self._point_ids = np.unique(nlist.point_indices)
         self._query_point_ids = np.unique(nlist.query_point_indices)
@@ -74,4 +74,4 @@ class Interface(_PairCompute):
         return np.asarray(self._query_point_ids)
 
     def __repr__(self):
-        return "freud.interface.{cls}()".format(cls=type(self).__name__)
+        return f"freud.interface.{type(self).__name__}()"
