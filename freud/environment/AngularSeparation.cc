@@ -49,32 +49,33 @@ float computeMinSeparationAngle(const quat<float>& ref_q, const quat<float>& q, 
     return min_angle;
 }
 
-void AngularSeparationNeighbor::compute(const locality::NeighborQuery* nq, const quat<float>* orientations,
+void AngularSeparationNeighbor::compute(const std::shared_ptr<locality::NeighborQuery> &nq, const quat<float>* orientations,
                                         const vec3<float>* query_points,
                                         const quat<float>* query_orientations, unsigned int n_query_points,
                                         const quat<float>* equiv_orientations,
                                         unsigned int n_equiv_orientations,
-                                        const freud::locality::NeighborList* nlist, locality::QueryArgs qargs)
+                                        const std::shared_ptr<locality::NeighborList> &nlist, locality::QueryArgs qargs)
 {
     // This function requires a NeighborList object, so we always make one and store it locally.
+
     m_nlist = locality::makeDefaultNlist(nq, nlist, query_points, n_query_points, qargs);
 
-    const size_t tot_num_neigh = m_nlist.getNumBonds();
-    m_angles.prepare(tot_num_neigh);
+    const size_t tot_num_neigh = m_nlist->getNumBonds();
+    m_angles = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {tot_num_neigh});
 
     util::forLoopWrapper(0, nq->getNPoints(), [&](size_t begin, size_t end) {
-        size_t bond(m_nlist.find_first_index(begin));
+        size_t bond(m_nlist->find_first_index(begin));
         for (size_t i = begin; i < end; ++i)
         {
             quat<float> q = orientations[i];
 
-            for (; bond < tot_num_neigh && m_nlist.getNeighbors()(bond, 0) == i; ++bond)
+            for (; bond < tot_num_neigh && (*m_nlist->getNeighbors())(bond, 0) == i; ++bond)
             {
-                const size_t j(m_nlist.getNeighbors()(bond, 1));
+                const size_t j((*m_nlist->getNeighbors())(bond, 1));
                 quat<float> query_q = query_orientations[j];
 
                 float theta = computeMinSeparationAngle(q, query_q, equiv_orientations, n_equiv_orientations);
-                m_angles[bond] = theta;
+                (*m_angles)[bond] = theta;
             }
         }
     });
@@ -85,7 +86,7 @@ void AngularSeparationGlobal::compute(const quat<float>* global_orientations, un
                                       const quat<float>* equiv_orientations,
                                       unsigned int n_equiv_orientations)
 {
-    m_angles.prepare({n_points, n_global});
+    m_angles = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {n_points, n_global});
 
     util::forLoopWrapper(0, n_points, [&](size_t begin, size_t end) {
         for (size_t i = begin; i < end; ++i)
@@ -96,7 +97,7 @@ void AngularSeparationGlobal::compute(const quat<float>* global_orientations, un
                 quat<float> global_q = global_orientations[j];
                 float theta
                     = computeMinSeparationAngle(q, global_q, equiv_orientations, n_equiv_orientations);
-                m_angles(i, j) = theta;
+                (*m_angles)(i, j) = theta;
             }
         }
     });

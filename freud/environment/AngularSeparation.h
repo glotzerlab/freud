@@ -36,13 +36,13 @@ public:
                  const quat<float>* equiv_orientations, unsigned int n_equiv_orientations);
 
     //! Returns the last computed global angle array
-    const util::ManagedArray<float>& getAngles() const
+    std::shared_ptr<util::ManagedArray<float>> getAngles() const
     {
         return m_angles;
     }
 
 private:
-    util::ManagedArray<float> m_angles; //!< Global angle array computed
+    std::shared_ptr<util::ManagedArray<float>> m_angles; //!< Global angle array computed
 };
 
 //! Compute the difference in orientation between pairs of points.
@@ -60,27 +60,27 @@ public:
     ~AngularSeparationNeighbor() = default;
 
     //! Compute the angular separation between neighbors
-    void compute(const locality::NeighborQuery* nq, const quat<float>* orientations,
+    void compute(const std::shared_ptr<locality::NeighborQuery> &nq, const quat<float>* orientations,
                  const vec3<float>* query_points, const quat<float>* query_orientations,
                  unsigned int n_query_points, const quat<float>* equiv_orientations,
-                 unsigned int n_equiv_orientations, const freud::locality::NeighborList* nlist,
+                 unsigned int n_equiv_orientations, const std::shared_ptr<locality::NeighborList> &nlist,
                  locality::QueryArgs qargs);
 
     //! Returns the last computed neighbor angle array
-    const util::ManagedArray<float>& getAngles() const
+    std::shared_ptr<util::ManagedArray<float>> getAngles() const
     {
         return m_angles;
     }
 
     //! Return a pointer to the NeighborList used in the last call to compute.
-    locality::NeighborList* getNList()
+    std::shared_ptr<locality::NeighborList> getNList()
     {
-        return &m_nlist;
+        return m_nlist;
     }
 
 private:
-    util::ManagedArray<float> m_angles; //!< neighbor angle array computed
-    locality::NeighborList m_nlist;     //!< The NeighborList used in the last call to compute.
+    std::shared_ptr<util::ManagedArray<float>> m_angles; //!< neighbor angle array computed
+    std::shared_ptr<locality::NeighborList> m_nlist;     //!< The NeighborList used in the last call to compute.
 };
 
 }; }; // end namespace freud::environment

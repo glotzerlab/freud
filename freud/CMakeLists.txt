@@ -43,8 +43,8 @@ add_library(
   # diffraction/StaticStructureFactorDirect.h
   # diffraction/StaticStructureFactorDirect.cc
   # environment
-  # environment/AngularSeparation.h
-  # environment/AngularSeparation.cc
+  environment/AngularSeparation.h
+  environment/AngularSeparation.cc
   # environment/BondOrder.h
   # environment/BondOrder.cc
   # environment/LocalBondProjection.h
@@ -153,6 +153,17 @@ target_include_directories(freud SYSTEM PUBLIC ${PROJECT_SOURCE_DIR}/extern/)
 nanobind_add_module(_box box/module-box.cc box/export-Box.cc box/export-Box.h)
 target_link_libraries(_box PUBLIC TBB::tbb)
 target_set_install_rpath(_box)
+
+# environment
+nanobind_add_module(
+    _environment
+    environment/module-environment.cc
+    environment/export-AngularSeparationNeighbor.cc
+    #environment/export-AngularSeparationGlobal.cc
+)
+target_link_libraries(_environment PUBLIC freud TBB:tbb)
+target_set_install_rpath(_environment)
+
 
 # locality
 nanobind_add_module(
