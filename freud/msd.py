@@ -243,9 +243,7 @@ class MSD(_Compute):
         return np.concatenate(self._particle_msd, axis=1)
 
     def __repr__(self):
-        return (
-            f"freud.msd.{type(self).__name__}(box={self._box}, mode={self.mode!r})"
-        )
+        return f"freud.msd.{type(self).__name__}(box={self._box}, mode={self.mode!r})"
 
     def plot(self, ax=None):
         """Plot MSD.
