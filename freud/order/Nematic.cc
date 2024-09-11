@@ -1,6 +1,9 @@
 // Copyright (c) 2010-2024 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
+// #include <nanobind/stl/shared_ptr.h>
+
+#include <memory>
 #include <stdexcept>
 
 #include "Nematic.h"
@@ -17,12 +20,12 @@ float Nematic::getNematicOrderParameter() const
     return m_nematic_order_parameter;
 }
 
-const util::ManagedArray<float>& Nematic::getParticleTensor() const
+const std::shared_ptr<util::ManagedArray<float>> Nematic::getParticleTensor() const
 {
     return m_particle_tensor;
 }
 
-const util::ManagedArray<float>& Nematic::getNematicTensor() const
+const std::shared_ptr<util::ManagedArray<float>> Nematic::getNematicTensor() const
 {
     return m_nematic_tensor;
 }
@@ -40,8 +43,8 @@ vec3<float> Nematic::getNematicDirector() const
 void Nematic::compute(vec3<float>* orientations, unsigned int n)
 {
     m_n = n;
-    m_particle_tensor.prepare({m_n, 3, 3});
-    m_nematic_tensor_local.reset();
+    m_particle_tensor = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {m_n, 3, 3} );
+    m_nematic_tensor_local->reset();
 
     // calculate per-particle tensor
     util::forLoopWrapper(0, n, [&](size_t begin, size_t end) {
@@ -68,28 +71,28 @@ void Nematic::compute(vec3<float>* orientations, unsigned int n)
             {
                 for (unsigned int k = 0; k < 3; k++)
                 {
-                    m_particle_tensor(i, j, k) += Q_ab(j, k);
-                    m_nematic_tensor_local.local()(j, k) += Q_ab(j, k);
+                    (*m_particle_tensor)(i, j, k) += Q_ab(j, k);
+                    m_nematic_tensor_local->local()(j, k) += Q_ab(j, k);
                 }
             }
         }
     });
 
     // Now calculate the sum of Q_ab's
-    m_nematic_tensor.prepare({3, 3});
-    m_nematic_tensor_local.reduceInto(m_nematic_tensor);
+    m_nematic_tensor = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {3,3});
+    m_nematic_tensor_local->reduceInto(*m_nematic_tensor);
 
     // Normalize by the number of particles
-    for (unsigned int i = 0; i < m_nematic_tensor.size(); ++i)
+    for (unsigned int i = 0; i < m_nematic_tensor->size(); ++i)
     {
-        m_nematic_tensor[i] /= static_cast<float>(m_n);
+        (*m_nematic_tensor)[i] /= static_cast<float>(m_n);
     }
 
     // the order parameter is the eigenvector belonging to the largest eigenvalue
     util::ManagedArray<float> eval = util::ManagedArray<float>(3);
     util::ManagedArray<float> evec = util::ManagedArray<float>({3, 3});
 
-    freud::util::diagonalize33SymmetricMatrix(m_nematic_tensor, eval, evec);
+    freud::util::diagonalize33SymmetricMatrix(*m_nematic_tensor, eval, evec);
     m_nematic_director = vec3<float>(evec(2, 0), evec(2, 1), evec(2, 2));
     m_nematic_order_parameter = eval[2];
 }
