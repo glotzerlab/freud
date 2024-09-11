@@ -12,10 +12,10 @@ diffraction pattern of particles in systems with long range order.
 finalized in a future release.
 """
 
-from libcpp cimport bool as cbool
-from libcpp.vector cimport vector
+from libcpp import bool as cbool
+from libcpp.vector import vector
 
-from freud.util cimport _Compute, vec3
+from freud.util import _Compute, vec3
 
 import logging
 
@@ -25,18 +25,18 @@ import scipy.ndimage
 
 import freud.locality
 
-cimport numpy as np
+import numpy as np
 
-cimport freud._diffraction
-cimport freud.locality
-cimport freud.util
+import freud._diffraction
+import freud.locality
+import freud.util
 
 logger = logging.getLogger(__name__)
 
 
-cdef class _StaticStructureFactor(_Compute):
+class _StaticStructureFactor(_Compute):
 
-    cdef freud._diffraction.StaticStructureFactor * ssfptr
+    def freud._diffraction.StaticStructureFactor * ssfptr
 
     def __dealloc__(self):
         if type(self) is _StaticStructureFactor:
