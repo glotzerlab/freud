@@ -27,17 +27,20 @@ protected:
 public:
     virtual ~StaticStructureFactor() = default;
 
-    virtual void accumulate(const freud::locality::NeighborQuery* neighbor_query,
+    virtual void accumulate(std::shared_ptr<locality::NeighborQuery> neighbor_query,
                             const vec3<float>* query_points, unsigned int n_query_points,
                             unsigned int n_total)
-        = 0;
+        {}; // Note: this should be pure
 
-    virtual void reset() = 0;
+    virtual void reset() {}; // Note: this should be pure
 
     //! Get the structure factor
-    const util::ManagedArray<float>& getStructureFactor()
+    std::shared_ptr<util::ManagedArray<float>> getStructureFactor()
     {
-        return reduceAndReturn(m_structure_factor.getBinCounts());
+        // reduceAndReturn requires a reference, but can't get it from an unnamed temporary variable
+        auto bin_counts = m_structure_factor.getBinCounts();
+
+        return reduceAndReturn(bin_counts);
     }
 
     //! Get the k bin edges
@@ -59,7 +62,7 @@ public:
     }
 
 protected:
-    virtual void reduce() = 0;
+    virtual void reduce() {};
 
     //! Return thing_to_return after reducing if necessary.
     template<typename U> U& reduceAndReturn(U& thing_to_return)

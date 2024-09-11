@@ -36,8 +36,8 @@ add_library(
   # density/SphereVoxelization.h
   # density/SphereVoxelization.cc
   # diffraction
-  # diffraction/StaticStructureFactor.h
-  # diffraction/StaticStructureFactor.cc
+  diffraction/StaticStructureFactor.h
+  diffraction/StaticStructureFactor.cc
   # diffraction/StaticStructureFactorDebye.h
   # diffraction/StaticStructureFactorDebye.cc
   # diffraction/StaticStructureFactorDirect.h
@@ -167,6 +167,16 @@ nanobind_add_module(
 target_link_libraries(_locality PUBLIC freud TBB::tbb)
 target_set_install_rpath(_locality)
 
+# diffraction
+nanobind_add_module(
+  _diffraction
+  diffraction/module-diffraction.cc
+  diffraction/export-StaticStructureFactor.cc)
+  # diffraction/export-StaticStructureFactorDebye.cc)
+  # diffraction/export-StaticStructureFactorDirect.cc)
+target_link_libraries(_diffraction PUBLIC freud TBB::tbb)
+target_set_install_rpath(_diffraction)
+
 # order nanobind_add_module(_order order/...) target_link_libraries(_order
 # PUBLIC freud TBB::tbb) target_set_install_rpath(_order)
 
@@ -194,6 +204,7 @@ set(python_files
     __init__.py
     box.py
     data.py
+    diffraction.py
     errors.py
     locality.py
     parallel.py
