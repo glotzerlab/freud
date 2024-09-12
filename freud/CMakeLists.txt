@@ -31,8 +31,8 @@ add_library(
   # density/GaussianDensity.cc
   # density/LocalDensity.h
   # density/LocalDensity.cc
-  # density/RDF.h
-  # density/RDF.cc
+  density/RDF.h
+  density/RDF.cc
   # density/SphereVoxelization.h
   # density/SphereVoxelization.cc
   # diffraction
@@ -182,6 +182,12 @@ nanobind_add_module(
 target_link_libraries(_pmft PUBLIC freud)
 target_set_install_rpath(_pmft)
 
+# density
+nanobind_add_module(
+  _density density/module-density.cc density/export-RDF.cc)
+target_link_libraries(_density PUBLIC freud)
+target_set_install_rpath(_density)
+
 # util
 nanobind_add_module(_util util/module-util.cc util/export-ManagedArray.cc
                     util/export-Vector.cc util/export-Vector.h)
@@ -194,6 +200,7 @@ set(python_files
     __init__.py
     box.py
     data.py
+    density.py
     errors.py
     locality.py
     parallel.py

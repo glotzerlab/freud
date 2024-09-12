@@ -11,8 +11,8 @@
 
 namespace freud { namespace density {
 
-RDF::RDF(unsigned int bins, float r_max, float r_min, NormalizationMode normalization_mode)
-    : BondHistogramCompute(), m_norm_mode(normalization_mode)
+RDF::RDF(unsigned int bins, float r_max, float r_min)
+    : BondHistogramCompute()
 {
     if (bins == 0)
     {
@@ -37,8 +37,8 @@ RDF::RDF(unsigned int bins, float r_max, float r_min, NormalizationMode normaliz
     m_local_histograms = BondHistogram::ThreadLocalHistogram(m_histogram);
 
     // Precompute the cell volumes to speed up later calculations.
-    m_vol_array2D.prepare(bins);
-    m_vol_array3D.prepare(bins);
+    m_vol_array2D = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {bins, bins});
+    m_vol_array3D = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {bins, bins, bins});
     float volume_prefactor = (float(4.0) / float(3.0)) * M_PI;
     std::vector<float> bin_boundaries = getBinEdges()[0];
 
@@ -46,21 +46,22 @@ RDF::RDF(unsigned int bins, float r_max, float r_min, NormalizationMode normaliz
     {
         float r = bin_boundaries[i];
         float nextr = bin_boundaries[i + 1];
-        m_vol_array2D[i] = M_PI * (nextr * nextr - r * r);
-        m_vol_array3D[i] = volume_prefactor * (nextr * nextr * nextr - r * r * r);
+        (* m_vol_array2D)[i] = M_PI * (nextr * nextr - r * r);
+        (* m_vol_array3D)[i] = volume_prefactor * (nextr * nextr * nextr - r * r * r);
     }
 }
 
 void RDF::reduce()
 {
-    m_pcf.prepare(getAxisSizes()[0]);
-    m_histogram.prepare(getAxisSizes()[0]);
-    m_N_r.prepare(getAxisSizes()[0]);
+    m_pcf = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {getAxisSizes()[0]});
+    // util::ManagedArray<float> m_histogram;
+    // m_histogram = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {getAxisSizes()[0]});
+    m_N_r = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {getAxisSizes()[0]});
 
     // Define prefactors with appropriate types to simplify and speed later code.
     auto const nqp = static_cast<float>(m_n_query_points);
     float number_density = nqp / m_box.getVolume();
-    if (m_norm_mode == NormalizationMode::finite_size)
+    if (mode == NormalizationMode::finite_size)
     {
         number_density *= static_cast<float>(m_n_query_points - 1) / static_cast<float>(m_n_query_points);
     }
@@ -68,24 +69,24 @@ void RDF::reduce()
     auto nf = static_cast<float>(m_frame_counter);
     float prefactor = float(1.0) / (np * number_density * nf);
 
-    util::ManagedArray<float> vol_array = m_box.is2D() ? m_vol_array2D : m_vol_array3D;
+    std::shared_ptr<util::ManagedArray<float>> vol_array = m_box.is2D() ? m_vol_array2D : m_vol_array3D;
     m_histogram.reduceOverThreadsPerBin(m_local_histograms, [this, &prefactor, &vol_array](size_t i) {
-        m_pcf[i] = m_histogram[i] * prefactor / vol_array[i];
+        (* m_pcf)[i] = m_histogram[i] * prefactor / (* vol_array)[i];
     });
 
     // The accumulation of the cumulative density must be performed in
     // sequence, so it is done after the reduction.
     prefactor = float(1.0) / (nqp * static_cast<float>(m_frame_counter));
-    m_N_r[0] = m_histogram[0] * prefactor;
+    (* m_N_r)[0] = m_histogram[0] * prefactor;
     for (unsigned int i = 1; i < getAxisSizes()[0]; i++)
     {
-        m_N_r[i] = m_N_r[i - 1] + m_histogram[i] * prefactor;
+        (* m_N_r)[i] = (* m_N_r)[i - 1] + m_histogram[i] * prefactor;
     }
 }
 
-void RDF::accumulate(const freud::locality::NeighborQuery* neighbor_query, const vec3<float>* query_points,
-                     unsigned int n_query_points, const freud::locality::NeighborList* nlist,
-                     freud::locality::QueryArgs qargs)
+void RDF::accumulate(const std::shared_ptr<freud::locality::NeighborQuery> neighbor_query, const vec3<float>* query_points,
+                     unsigned int n_query_points, std::shared_ptr<freud::locality::NeighborList> nlist,
+                     const freud::locality::QueryArgs& qargs)
 {
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
                       [&](const freud::locality::NeighborBond& neighbor_bond) {

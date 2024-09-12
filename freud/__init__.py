@@ -3,10 +3,11 @@
 
 
 # cluster,; density,; diffraction,; environment,; interface,; msd,; order,
-from . import box, data, locality, parallel, pmft
+from . import box, data, locality, parallel, pmft, density
 from .box import Box
 from .locality import AABBQuery, LinkCell, NeighborList
 from .parallel import NumThreads, get_num_threads, set_num_threads
+
 
 # Override TBB's default autoselection. This is necessary because once the
 # automatic selection runs, the user cannot change it.
@@ -19,7 +20,7 @@ __all__ = [
     "box",
     # "cluster",
     "data",
-    # "density",
+    "density",
     # "diffraction",
     # "environment",
     # "interface",
