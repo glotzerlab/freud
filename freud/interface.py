@@ -37,7 +37,6 @@ class Interface(_PairCompute):
                 (Default value: None).
         """  # noqa E501
 
-        # freud.locality.
         nlist = _make_default_nlist(system, neighbors, query_points)
 
         self._point_ids = np.unique(nlist.point_indices)
