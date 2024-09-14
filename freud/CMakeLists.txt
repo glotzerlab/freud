@@ -20,8 +20,8 @@ add_library(
   # box
   box/Box.h
   # cluster
-  # cluster/Cluster.h
-  # cluster/Cluster.cc
+  cluster/Cluster.h
+  cluster/Cluster.cc
   cluster/ClusterProperties.h
   cluster/ClusterProperties.cc
   # density
@@ -134,7 +134,7 @@ target_link_libraries(freud PUBLIC TBB::tbb)
 target_include_directories(freud SYSTEM PUBLIC ${PROJECT_SOURCE_DIR}/extern/)
 
 # cluster 
-nanobind_add_module(_cluster cluster/module-Cluster.cc cluster/export-ClusterProperties.cc)#cluster/export-Cluster.cc)
+nanobind_add_module(_cluster cluster/module-Cluster.cc cluster/export-Cluster.cc cluster/export-ClusterProperties.cc)
 target_link_libraries(_cluster PUBLIC freud TBB::tbb)
 target_set_install_rpath(_cluster)
 
@@ -194,6 +194,7 @@ target_set_install_rpath(_util)
 set(python_files
     __init__.py
     box.py
+    cluster.py
     data.py
     errors.py
     locality.py
@@ -201,7 +202,7 @@ set(python_files
     pmft.py
     plot.py
     util.py)
-# cluster.py density.py diffraction.py environment.py order.py interface.py
+# density.py diffraction.py environment.py order.py interface.py
 # msd.py)
 
 copy_files_to_build("${python_files}" "freud" "*.py")

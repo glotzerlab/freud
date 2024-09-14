@@ -16,7 +16,7 @@ void Cluster::compute(const std::shared_ptr<locality::NeighborQuery> nq, const s
                       const locality::QueryArgs& qargs, const unsigned int* keys)
 {
     const unsigned int num_points = nq->getNPoints();
-    m_cluster_idx = std::make_shared<util::ManagedArray<unsigned int>>(std::vector<size_t> {num_points});
+    m_cluster_idx = std::make_shared<util::ManagedArray<unsigned int>>(num_points);
     DisjointSets dj(num_points);
 
     freud::locality::loopOverNeighbors(
