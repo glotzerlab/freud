@@ -19,9 +19,9 @@ using nb_array = nanobind::ndarray<T, shape, nanobind::device::cpu, nanobind::c_
 
 namespace wrap {
         void compute(std::shared_ptr<Cluster> self, std::shared_ptr<locality::NeighborQuery> nq, std::shared_ptr<locality::NeighborList> nlist,
-                const locality::QueryArgs& qargs, nb_array<unsigned int, nanobind::shape<-1>> keys)
+                const locality::QueryArgs& qargs, nb_array<const unsigned int, nanobind::shape<-1>> keys)
 {
-        unsigned int* keys_data = reinterpret_cast<unsigned int*>(keys.data());
+        const auto* keys_data = reinterpret_cast<const unsigned int*>(keys.data());
         self->compute(nq, nlist, qargs, keys_data);
 }
 }; //end namespace wrap
@@ -31,7 +31,7 @@ namespace detail {
     {
         nanobind::class_<Cluster>(module, "Cluster")
             .def(nb::init<>())
-            .def("compute", &wrap::compute, nanobind::arg("nq"), nanobind::arg("nlist"), nanobind::arg("qargs"), nanobind::arg("keys").none())
+            .def("compute", &wrap::compute, nanobind::arg("nq"), nanobind::arg("nlist").none(), nanobind::arg("qargs"), nanobind::arg("keys").none())
             .def("getNumClusters", &Cluster::getNumClusters)
             .def("getClusterIdx", &Cluster::getClusterIdx)
             .def("getClusterKeys", &Cluster::getClusterKeys);
@@ -40,4 +40,3 @@ namespace detail {
 }; //end namespace detail
 
 }; };
-//m.def("func", &func, "arg"_a.none());

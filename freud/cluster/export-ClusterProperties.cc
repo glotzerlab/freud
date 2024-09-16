@@ -18,11 +18,11 @@ template<typename T, typename shape>
 using nb_array = nanobind::ndarray<T, shape, nanobind::device::cpu, nanobind::c_contig>;
 
 namespace wrap {
-        void compute(std::shared_ptr<ClusterProperties> & self, std::shared_ptr<locality::NeighborQuery> nq, nb_array<unsigned int, nanobind::shape<-1>> cluster_idx,
-                 nb_array<float, nanobind::shape<-1>> masses)
+        void compute(std::shared_ptr<ClusterProperties> self, std::shared_ptr<locality::NeighborQuery> nq, nb_array<const uint32_t, nanobind::shape<-1>> cluster_idx,
+                 nb_array<const float, nanobind::shape<-1>> masses)
 {
-        float* masses_data = reinterpret_cast<float*>(masses.data());
-        unsigned int* cluster_idx_data = reinterpret_cast<unsigned int*>(cluster_idx.data());
+        const auto* masses_data = reinterpret_cast<const float*>(masses.data());
+        const auto* cluster_idx_data = reinterpret_cast<const uint32_t*>(cluster_idx.data());
         self->compute(nq, cluster_idx_data, masses_data);
 }
 }; //end namespace wrap
@@ -44,4 +44,3 @@ namespace detail {
 }; //end namespace detail
 
 }; };
-//m.def("func", &func, "arg"_a.none());
