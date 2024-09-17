@@ -12,11 +12,12 @@
 //! Finds clusters using a network of neighbors.
 namespace freud { namespace cluster {
 
-void Cluster::compute(const freud::locality::NeighborQuery* nq, const freud::locality::NeighborList* nlist,
-                      freud::locality::QueryArgs qargs, const unsigned int* keys)
+void Cluster::compute(const std::shared_ptr<locality::NeighborQuery> nq,
+                      const std::shared_ptr<locality::NeighborList> nlist, const locality::QueryArgs& qargs,
+                      const unsigned int* keys)
 {
     const unsigned int num_points = nq->getNPoints();
-    m_cluster_idx.prepare(num_points);
+    m_cluster_idx = std::make_shared<util::ManagedArray<unsigned int>>(num_points);
     DisjointSets dj(num_points);
 
     freud::locality::loopOverNeighbors(
@@ -80,7 +81,7 @@ void Cluster::compute(const freud::locality::NeighborQuery* nq, const freud::loc
     {
         size_t s = dj.find(i);
         size_t cluster_idx = cluster_reindex[cluster_label[s]];
-        m_cluster_idx[i] = cluster_idx;
+        (*m_cluster_idx)[i] = cluster_idx;
         unsigned int key = i;
         if (keys != nullptr)
         {
