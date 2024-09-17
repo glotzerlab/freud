@@ -6,12 +6,13 @@ The :class:`freud.cluster` module aids in finding and computing the properties
 of clusters of points in a system.
 """
 import numpy as np
-from freud.locality import _PairCompute
-from freud.util import _Compute
 
 import freud._cluster
 import freud.locality
 import freud.util
+from freud.locality import _PairCompute
+from freud.util import _Compute
+
 
 class Cluster(_PairCompute):
     """Finds clusters using a network of neighbors.
@@ -85,11 +86,10 @@ class Cluster(_PairCompute):
     def cluster_keys(self):
         """list(list): A list of lists of the keys contained in each
         cluster."""
-        cluster_keys = self._cpp_obj.getClusterKeys()
-        return cluster_keys
+        return self._cpp_obj.getClusterKeys()
 
     def __repr__(self):
-        return "freud.cluster.{cls}()".format(cls=type(self).__name__)
+        return f"freud.cluster.{type(self).__name__}()"
 
     def plot(self, ax=None):
         """Plot cluster distribution.
@@ -127,8 +127,7 @@ class ClusterProperties(_Compute):
      - Geometric center
      - Center of mass
      - Gyration tensor
-     - Moment of 
-inertia tensor
+     - Moment of inertia tensor
      - Size (number of points)
      - Mass (total mass of each cluster)
 
@@ -281,4 +280,4 @@ inertia tensor
                        /(2*self.cluster_masses))
 
     def __repr__(self):
-        return "freud.cluster.{cls}()".format(cls=type(self).__name__)
+        return f"freud.cluster.{type(self).__name__}()"
