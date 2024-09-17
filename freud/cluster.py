@@ -123,12 +123,12 @@ class ClusterProperties(_Compute):
     Given a set of points and cluster ids (from :class:`~.Cluster` or another
     source), this class determines the following properties for each cluster:
 
-     - Geometric center
-     - Center of mass
-     - Gyration tensor
-     - Moment of inertia tensor
-     - Size (number of points)
-     - Mass (total mass of each cluster)
+    - Geometric center
+    - Center of mass
+    - Gyration tensor
+    - Moment of inertia tensor
+    - Size (number of points)
+    - Mass (total mass of each cluster)
 
     Note:
         The center of mass and geometric center for each cluster are computed
