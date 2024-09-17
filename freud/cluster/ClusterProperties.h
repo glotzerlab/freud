@@ -76,16 +76,20 @@ public:
     }
 
 private:
-    std::shared_ptr<util::ManagedArray<vec3<float>>> m_cluster_centers; //!< Unweighted center of mass computed for each
-                                                       //!< cluster (length: m_num_clusters)
-    std::shared_ptr<util::ManagedArray<vec3<float>>> m_cluster_centers_of_mass; //!< Center of mass computed for each cluster
-                                                               //!< (length: m_num_clusters)
-    std::shared_ptr<util::ManagedArray<float>> m_cluster_moments_of_inertia;    //!< Moment of inertia tensor computed for each
-                                                               //!< cluster (m_num_clusters x 3 x 3 array)
-    std::shared_ptr<util::ManagedArray<float>> m_cluster_gyrations;             //!< Gyration tensor computed for each
-                                                               //!< cluster (m_num_clusters x 3 x 3 array)
-    std::shared_ptr<util::ManagedArray<unsigned int>> m_cluster_sizes;          //!< Size per cluster
-    std::shared_ptr<util::ManagedArray<float>> m_cluster_masses;                //!< Mass per cluster
+    std::shared_ptr<util::ManagedArray<vec3<float>>>
+        m_cluster_centers; //!< Unweighted center of mass computed for each
+                           //!< cluster (length: m_num_clusters)
+    std::shared_ptr<util::ManagedArray<vec3<float>>>
+        m_cluster_centers_of_mass; //!< Center of mass computed for each cluster
+                                   //!< (length: m_num_clusters)
+    std::shared_ptr<util::ManagedArray<float>>
+        m_cluster_moments_of_inertia; //!< Moment of inertia tensor computed for each
+                                      //!< cluster (m_num_clusters x 3 x 3 array)
+    std::shared_ptr<util::ManagedArray<float>>
+        m_cluster_gyrations; //!< Gyration tensor computed for each
+                             //!< cluster (m_num_clusters x 3 x 3 array)
+    std::shared_ptr<util::ManagedArray<unsigned int>> m_cluster_sizes; //!< Size per cluster
+    std::shared_ptr<util::ManagedArray<float>> m_cluster_masses;       //!< Mass per cluster
 };
 
 }; }; // end namespace freud::cluster

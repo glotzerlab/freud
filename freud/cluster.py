@@ -5,6 +5,7 @@ r"""
 The :class:`freud.cluster` module aids in finding and computing the properties
 of clusters of points in a system.
 """
+
 import numpy as np
 
 import freud._cluster
@@ -37,6 +38,7 @@ class Cluster(_PairCompute):
     provided, every point is assigned a key corresponding to its index, and
     :code:`cluster_keys` contains the point ids present in each cluster.
     """
+
     def __init__(self):
         self._cpp_obj = freud._cluster.Cluster()
 
@@ -56,19 +58,15 @@ class Cluster(_PairCompute):
                 <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
                 (Default value: None).
         """
-        nq, nlist, qargs, query_points, num_query_points  = self._preprocess_arguments(
+        nq, nlist, qargs, query_points, num_query_points = self._preprocess_arguments(
             system, neighbors=neighbors
         )
         if keys is not None:
             keys = freud.util._convert_array(
-                keys, shape = (num_query_points, ), dtype = np.uint32
-                )
+                keys, shape=(num_query_points,), dtype=np.uint32
+            )
 
-        self._cpp_obj.compute(
-                    nq._cpp_obj,
-                    nlist._cpp_obj,
-                    qargs._cpp_obj,
-                    keys)
+        self._cpp_obj.compute(nq._cpp_obj, nlist._cpp_obj, qargs._cpp_obj, keys)
         return self
 
     @_Compute._computed_property
@@ -103,16 +101,17 @@ class Cluster(_PairCompute):
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         import freud.plot
+
         try:
             values, counts = np.unique(self.cluster_idx, return_counts=True)
         except ValueError:
             return None
-        return freud.plot.clusters_plot(
-            values, counts, num_clusters_to_plot=10, ax=ax)
+        return freud.plot.clusters_plot(values, counts, num_clusters_to_plot=10, ax=ax)
 
     def _repr_png_(self):
         try:
             import freud.plot
+
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None
@@ -172,16 +171,13 @@ class ClusterProperties(_Compute):
         nq = freud.locality.NeighborQuery.from_system(system)
 
         cluster_idx = freud.util._convert_array(
-            cluster_idx, shape = (nq.points.shape[0], ), dtype = np.uint32
+            cluster_idx, shape=(nq.points.shape[0],), dtype=np.uint32
         )
         if masses is not None:
-            masses = freud.util._convert_array(masses, shape = (len(masses), )
-        )
+            masses = freud.util._convert_array(masses, shape=(len(masses),))
         print(type(self._cpp_obj), type(nq._cpp_obj), type(cluster_idx), type(masses))
-        print(cluster_idx,cluster_idx.shape, cluster_idx.dtype)
-        self._cpp_obj.compute(nq._cpp_obj,
-                              cluster_idx,
-                              masses)
+        print(cluster_idx, cluster_idx.shape, cluster_idx.dtype)
+        self._cpp_obj.compute(nq._cpp_obj, cluster_idx, masses)
         return self
 
     @_Compute._computed_property
@@ -276,8 +272,10 @@ class ClusterProperties(_Compute):
         the center of mass.
 
         """
-        return np.sqrt(np.trace(self.inertia_tensors, axis1=-2, axis2=-1)
-                       /(2*self.cluster_masses))
+        return np.sqrt(
+            np.trace(self.inertia_tensors, axis1=-2, axis2=-1)
+            / (2 * self.cluster_masses)
+        )
 
     def __repr__(self):
         return f"freud.cluster.{type(self).__name__}()"

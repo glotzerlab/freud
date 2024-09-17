@@ -11,7 +11,7 @@ namespace nb = nanobind;
 namespace freud::cluster::detail {
 void export_Cluster(nb::module_& module);
 void export_ClusterProperties(nb::module_& module);
-} // freud::Cluster::detail
+} // namespace freud::cluster::detail
 
 using namespace freud::cluster::detail;
 

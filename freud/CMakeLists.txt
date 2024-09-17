@@ -133,8 +133,10 @@ set_target_properties(freud PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_link_libraries(freud PUBLIC TBB::tbb)
 target_include_directories(freud SYSTEM PUBLIC ${PROJECT_SOURCE_DIR}/extern/)
 
-# cluster 
-nanobind_add_module(_cluster cluster/module-Cluster.cc cluster/export-Cluster.cc cluster/export-ClusterProperties.cc)
+# cluster
+nanobind_add_module(
+  _cluster cluster/module-Cluster.cc cluster/export-Cluster.cc
+  cluster/export-ClusterProperties.cc)
 target_link_libraries(_cluster PUBLIC freud TBB::tbb)
 target_set_install_rpath(_cluster)
 
@@ -213,9 +215,8 @@ if(SKBUILD)
   install(FILES ${python_files} DESTINATION freud)
   install(TARGETS _box DESTINATION freud)
   install(TARGETS _cluster DESTINATION freud)
-  # install(TARGETS _density DESTINATION freud)
-  # install(TARGETS _diffraction DESTINATION freud)
-  # install(TARGETS _environment DESTINATION freud)
+  # install(TARGETS _density DESTINATION freud) install(TARGETS _diffraction
+  # DESTINATION freud) install(TARGETS _environment DESTINATION freud)
   install(TARGETS _locality DESTINATION freud)
   # install(TARGETS _order DESTINATION freud)
   install(TARGETS _parallel DESTINATION freud)
