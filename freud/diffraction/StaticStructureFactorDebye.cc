@@ -56,7 +56,7 @@ StaticStructureFactorDebye::StaticStructureFactorDebye(unsigned int bins, float 
     }
 }
 
-void StaticStructureFactorDebye::accumulate(const freud::locality::NeighborQuery* neighbor_query,
+void StaticStructureFactorDebye::accumulate(std::shared_ptr<locality::NeighborQuery> neighbor_query,
                                             const vec3<float>* query_points, unsigned int n_query_points,
                                             unsigned int n_total)
 {
@@ -115,7 +115,7 @@ void StaticStructureFactorDebye::accumulate(const freud::locality::NeighborQuery
 
 void StaticStructureFactorDebye::reduce()
 {
-    m_structure_factor.prepare(m_structure_factor.getAxisSizes()[0]);
+    m_structure_factor = StructureFactorHistogram(m_structure_factor.getAxes());
     m_structure_factor.reduceOverThreadsPerBin(m_local_structure_factor, [&](size_t i) {
         m_structure_factor[i] /= static_cast<float>(m_frame_counter);
     });
