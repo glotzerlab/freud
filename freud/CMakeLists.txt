@@ -198,12 +198,13 @@ set(python_files
     data.py
     errors.py
     locality.py
+    msd.py
     parallel.py
     pmft.py
+    interface.py
     plot.py
     util.py)
-# density.py diffraction.py environment.py order.py interface.py
-# msd.py)
+# density.py diffraction.py environment.py order.py)
 
 copy_files_to_build("${python_files}" "freud" "*.py")
 

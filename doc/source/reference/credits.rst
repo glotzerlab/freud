@@ -373,6 +373,7 @@ Domagoj Fijan
   lengths and angles (``freud.box.Box.from_box_lengths_and_angles``), as well as a
   method for returning box vector lengths and angles
   (``freud.box.Box.to_box_lengths_and_angles``).
+* Ported ``MSD`` to pure python.
 
 Andrew Kerr
 
@@ -402,6 +403,10 @@ Melody Zhang
 Philipp Schönhöfer
 
 * Contributed code, design, documentation, and testing for ``freud.locality.FilterRAD`` class.
+
+Suraj Kannur
+
+* Ported ``Interface`` to pure python with Corwin Kerr.
 
 Source code
 -----------
