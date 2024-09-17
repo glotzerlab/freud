@@ -199,6 +199,7 @@ set(python_files
     msd.py
     parallel.py
     pmft.py
+    interface.py
     plot.py
     util.py)
 # cluster.py density.py diffraction.py environment.py order.py interface.py)

@@ -64,6 +64,7 @@ jobs:
           pytest tests/test_data.py -v
           pytest tests/test_pmft.py -v
           pytest tests/test_util.py -v
+          pytest tests/test_interface.py -v
           pytest tests/test_msd_msd.py -v
           # pytest tests/ -v
 
