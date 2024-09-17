@@ -71,7 +71,7 @@ class Cluster(_PairCompute):
 
     @_Compute._computed_property
     def num_clusters(self):
-        """in0t: The number of clusters."""
+        """int: The number of clusters."""
         return self._cpp_obj.getNumClusters()
 
     @_Compute._computed_property
@@ -175,8 +175,6 @@ class ClusterProperties(_Compute):
         )
         if masses is not None:
             masses = freud.util._convert_array(masses, shape=(len(masses),))
-        print(type(self._cpp_obj), type(nq._cpp_obj), type(cluster_idx), type(masses))
-        print(cluster_idx, cluster_idx.shape, cluster_idx.dtype)
         self._cpp_obj.compute(nq._cpp_obj, cluster_idx, masses)
         return self
 
