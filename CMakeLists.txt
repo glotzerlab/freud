@@ -82,3 +82,13 @@ include_directories(
   ${PROJECT_SOURCE_DIR}/freud/util)
 
 add_subdirectory(freud)
+
+# enable compile_commands.json
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+if (NOT WIN32)
+  file(CREATE_LINK
+    "${CMAKE_BINARY_DIR}/compile_commands.json"
+    "${CMAKE_SOURCE_DIR}/compile_commands.json"
+    SYMBOLIC
+  )
+endif()
