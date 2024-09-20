@@ -120,19 +120,19 @@ class Cluster(_PairCompute):
 class ClusterProperties(_Compute):
     r"""Routines for computing properties of point clusters.
 
-        Given a set of points and cluster ids (from :class:`~.Cluster` or another
-        source), this class determines the following properties for each cluster:
+    Given a set of points and cluster ids (from :class:`~.Cluster` or another
+    source), this class determines the following properties for each cluster:
 
-        - Geometric center
-        - Center of mass
-        - Gyration tensor
-        - Moment of inertia tensor
-        - Size (number of points)
-        - Mass (total mass of each cluster)
+    - Geometric center
+    - Center of mass
+    - Gyration tensor
+    - Moment of inertia tensor
+    - Size (number of points)
+    - Mass (total mass of each cluster)
 
-        Note:
-            The center of mass and geometric center for each cluster are computed
-            using the minimum image convention
+    Note:
+        The center of mass and geometric center for each cluster are computed
+        using the minimum image convention
     """
 
     def __init__(self):
@@ -175,11 +175,6 @@ class ClusterProperties(_Compute):
         )
         if masses is not None:
             masses = freud.util._convert_array(masses, shape=(len(masses),))
-<<<<<<< HEAD
-=======
-        print(type(self._cpp_obj), type(nq._cpp_obj), type(cluster_idx), type(masses))
-        print(cluster_idx, cluster_idx.shape, cluster_idx.dtype)
->>>>>>> b612fe80 (Configured build_wheels and tests for cluster module.)
         self._cpp_obj.compute(nq._cpp_obj, cluster_idx, masses)
         return self
 
