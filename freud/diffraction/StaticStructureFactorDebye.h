@@ -32,6 +32,7 @@ public:
     //! Reset the histogram to all zeros
     void reset() override
     {
+        m_structure_factor = StructureFactorHistogram(m_structure_factor.getAxes());
         m_local_structure_factor.reset();
         m_frame_counter = 0;
         m_min_valid_k = std::numeric_limits<float>::infinity();

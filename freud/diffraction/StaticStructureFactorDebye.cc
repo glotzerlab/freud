@@ -115,7 +115,6 @@ void StaticStructureFactorDebye::accumulate(std::shared_ptr<locality::NeighborQu
 
 void StaticStructureFactorDebye::reduce()
 {
-    m_structure_factor = StructureFactorHistogram(m_structure_factor.getAxes());
     m_structure_factor.reduceOverThreadsPerBin(m_local_structure_factor, [&](size_t i) {
         m_structure_factor[i] /= static_cast<float>(m_frame_counter);
     });
