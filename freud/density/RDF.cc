@@ -35,6 +35,8 @@ RDF::RDF(unsigned int bins, float r_max, float r_min)
     const auto axes = util::Axes {std::make_shared<util::RegularAxis>(bins, r_min, r_max)};
     m_histogram = BondHistogram(axes);
     m_local_histograms = BondHistogram::ThreadLocalHistogram(m_histogram);
+    m_pcf = std::make_shared<util::ManagedArray<float>>(m_histogram.shape());
+    m_N_r = std::make_shared<util::ManagedArray<float>>(m_histogram.shape());
 
     // Precompute the cell volumes to speed up later calculations.
     m_vol_array2D = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {bins, bins});
@@ -51,13 +53,15 @@ RDF::RDF(unsigned int bins, float r_max, float r_min)
     }
 }
 
+void RDF::reset()
+{
+    BondHistogramCompute::reset();
+    m_pcf = std::make_shared<util::ManagedArray<float>>(m_pcf->shape());
+    m_N_r = std::make_shared<util::ManagedArray<float>>(m_N_r->shape());
+}
+
 void RDF::reduce()
 {
-    m_pcf = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {getAxisSizes()[0]});
-    // util::ManagedArray<float> m_histogram;
-    // m_histogram = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {getAxisSizes()[0]});
-    m_N_r = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {getAxisSizes()[0]});
-
     // Define prefactors with appropriate types to simplify and speed later code.
     auto const nqp = static_cast<float>(m_n_query_points);
     float number_density = nqp / m_box.getVolume();

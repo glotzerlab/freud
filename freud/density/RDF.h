@@ -48,6 +48,9 @@ public:
     //! Reduce thread-local arrays onto the primary data arrays.
     void reduce() override;
 
+    //! Clear the running averages.
+    void reset() override;
+
     //! Get the positional correlation function.
     std::shared_ptr<util::ManagedArray<float>> getRDF()
     {
