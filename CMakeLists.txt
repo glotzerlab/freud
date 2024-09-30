@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.15...3.30)
 
 project(freud)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(DEFAULT_BUILD_TYPE "Release")
 
@@ -84,7 +85,6 @@ include_directories(
 add_subdirectory(freud)
 
 # enable compile_commands.json
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 if (NOT WIN32)
   file(CREATE_LINK
     "${CMAKE_BINARY_DIR}/compile_commands.json"
