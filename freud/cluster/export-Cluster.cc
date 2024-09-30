@@ -5,12 +5,11 @@
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
 #include <nanobind/stl/shared_ptr.h> // NOLINT(misc-include-cleaner): used implicitly
-#include <nanobind/stl/vector.h> // NOLINT(misc-include-cleaner): used implicitly
-
+#include <nanobind/stl/vector.h>     // NOLINT(misc-include-cleaner): used implicitly
 
 #include "Cluster.h"
-#include "NeighborQuery.h"
 #include "NeighborList.h"
+#include "NeighborQuery.h"
 
 namespace nb = nanobind;
 
@@ -19,7 +18,7 @@ template<typename T, typename shape>
 using nb_array = nanobind::ndarray<T, shape, nanobind::device::cpu, nanobind::c_contig>;
 
 namespace {
-void compute(const std::shared_ptr<Cluster>& self,const std::shared_ptr<locality::NeighborQuery>& nq,
+void compute(const std::shared_ptr<Cluster>& self, const std::shared_ptr<locality::NeighborQuery>& nq,
              std::shared_ptr<locality::NeighborList>& nlist, const locality::QueryArgs& qargs,
              const nb_array<const unsigned int, nanobind::shape<-1>>& keys)
 {
@@ -34,8 +33,8 @@ void export_Cluster(nb::module_& module)
 {
     nanobind::class_<Cluster>(module, "Cluster")
         .def(nb::init<>())
-        .def("compute", &compute, nanobind::arg("nq"), nanobind::arg("nlist").none(),
-             nanobind::arg("qargs"), nanobind::arg("keys").none())
+        .def("compute", &compute, nanobind::arg("nq"), nanobind::arg("nlist").none(), nanobind::arg("qargs"),
+             nanobind::arg("keys").none())
         .def("getNumClusters", &Cluster::getNumClusters)
         .def("getClusterIdx", &Cluster::getClusterIdx)
         .def("getClusterKeys", &Cluster::getClusterKeys);

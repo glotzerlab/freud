@@ -4,8 +4,8 @@
 #ifndef CLUSTER_H
 #define CLUSTER_H
 
-#include <memory>
 #include <cstddef>
+#include <memory>
 #include <vector>
 
 #include "ManagedArray.h"
@@ -45,8 +45,9 @@ public:
     Cluster() = default;
 
     //! Compute the point clusters.
-    void compute(const std::shared_ptr<locality::NeighborQuery>& nq, const std::shared_ptr<locality::NeighborList>& nlist,
-                 const locality::QueryArgs& qargs, const unsigned int* keys = nullptr);
+    void compute(const std::shared_ptr<locality::NeighborQuery>& nq,
+                 const std::shared_ptr<locality::NeighborList>& nlist, const locality::QueryArgs& qargs,
+                 const unsigned int* keys = nullptr);
     //! Get the total number of clusters.
     unsigned int getNumClusters() const
     {

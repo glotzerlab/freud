@@ -3,8 +3,8 @@
 
 #include <algorithm>
 #include <cstddef>
-#include <numeric>
 #include <memory>
+#include <numeric>
 #include <vector>
 
 #include "Cluster.h"

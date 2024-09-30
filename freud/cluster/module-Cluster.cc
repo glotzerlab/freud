@@ -4,7 +4,6 @@
 #include <nanobind/nanobind.h>
 #include <nanobind/nb_defs.h>
 
-
 namespace nb = nanobind;
 
 namespace freud::cluster::detail {
@@ -14,7 +13,7 @@ void export_ClusterProperties(nb::module_& module);
 // NOLINTEND(misc-use-internal-linkage)
 } // namespace freud::cluster::detail
 
-using namespace freud::cluster::detail; 
+using namespace freud::cluster::detail;
 
 NB_MODULE(_cluster, module) // NOLINT(misc-use-anonymous-namespace): caused by nanobind
 {

@@ -7,7 +7,6 @@
 #include <nanobind/ndarray.h>
 #include <nanobind/stl/shared_ptr.h> // NOLINT(misc-include-cleaner): used implicitly
 
-
 #include "ClusterProperties.h"
 #include "NeighborQuery.h"
 
@@ -18,7 +17,8 @@ template<typename T, typename shape>
 using nb_array = nanobind::ndarray<T, shape, nanobind::device::cpu, nanobind::c_contig>;
 
 namespace {
-void compute(const std::shared_ptr<ClusterProperties>& self, const std::shared_ptr<locality::NeighborQuery>& nq,
+void compute(const std::shared_ptr<ClusterProperties>& self,
+             const std::shared_ptr<locality::NeighborQuery>& nq,
              const nb_array<const uint32_t, nanobind::shape<-1>>& cluster_idx,
              const nb_array<const float, nanobind::shape<-1>>& masses)
 {

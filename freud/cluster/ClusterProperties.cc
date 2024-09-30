@@ -1,9 +1,9 @@
 // Copyright (c) 2010-2024 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#include <memory>
 #include <algorithm>
 #include <cstddef>
+#include <memory>
 #include <vector>
 
 #include "ClusterProperties.h"
@@ -26,8 +26,8 @@ namespace freud { namespace cluster {
     getClusterInertiaMoments().
 */
 
-void ClusterProperties::compute(const std::shared_ptr<locality::NeighborQuery>& nq, const unsigned int* cluster_idx,
-                                const float* masses)
+void ClusterProperties::compute(const std::shared_ptr<locality::NeighborQuery>& nq,
+                                const unsigned int* cluster_idx, const float* masses)
 {
     // determine the number of clusters
     const unsigned int* max_cluster_id = std::max_element(cluster_idx, cluster_idx + nq->getNPoints());

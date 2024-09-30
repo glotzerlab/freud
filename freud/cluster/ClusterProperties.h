@@ -4,10 +4,10 @@
 #ifndef CLUSTER_PROPERTIES_H
 #define CLUSTER_PROPERTIES_H
 
-#include <memory>
-#include "VectorMath.h"
 #include "ManagedArray.h"
 #include "NeighborQuery.h"
+#include "VectorMath.h"
+#include <memory>
 
 /*! \file ClusterProperties.h
     \brief Routines for computing properties of point clusters.
