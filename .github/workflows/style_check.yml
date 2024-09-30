@@ -34,7 +34,5 @@ jobs:
       - name: Configure compile_commands.json
         run: |
           cmake -S . -B build -GNinja -DCMAKE_EXPORT_COMPILE_COMMANDS=True
-          ls build
-          cp build/compile_commands.json .
       - name: clang-tidy
         run: pre-commit run clang-tidy --all-files --hook-stage=manual -v

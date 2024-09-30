@@ -4,18 +4,18 @@
 #include <nanobind/nanobind.h>
 #include <nanobind/nb_defs.h>
 
-#include "NeighborQuery.h"
-
 namespace nb = nanobind;
 
 namespace freud::cluster::detail {
+// NOLINTBEGIN(misc-use-internal-linkage)
 void export_Cluster(nb::module_& module);
 void export_ClusterProperties(nb::module_& module);
+// NOLINTEND(misc-use-internal-linkage)
 } // namespace freud::cluster::detail
 
 using namespace freud::cluster::detail;
 
-NB_MODULE(_cluster, module)
+NB_MODULE(_cluster, module) // NOLINT(misc-use-anonymous-namespace): caused by nanobind
 {
     export_Cluster(module);
     export_ClusterProperties(module);

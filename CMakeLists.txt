@@ -85,10 +85,7 @@ include_directories(
 add_subdirectory(freud)
 
 # enable compile_commands.json
-if (NOT WIN32)
-  file(CREATE_LINK
-    "${CMAKE_BINARY_DIR}/compile_commands.json"
-    "${CMAKE_SOURCE_DIR}/compile_commands.json"
-    SYMBOLIC
-  )
+if(NOT WIN32)
+  file(CREATE_LINK "${CMAKE_BINARY_DIR}/compile_commands.json"
+       "${CMAKE_SOURCE_DIR}/compile_commands.json" SYMBOLIC)
 endif()

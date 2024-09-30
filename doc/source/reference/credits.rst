@@ -408,6 +408,9 @@ Suraj Kannur
 
 * Ported ``Interface`` to pure python with Corwin Kerr.
 
+Trevor Teague
+Kate Jensen
+
 Source code
 -----------
 

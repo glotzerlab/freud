@@ -4,12 +4,13 @@
 #ifndef CLUSTER_H
 #define CLUSTER_H
 
+#include <cstddef>
+#include <memory>
 #include <vector>
 
 #include "ManagedArray.h"
 #include "NeighborList.h"
 #include "NeighborQuery.h"
-#include "VectorMath.h"
 
 /*! \file Cluster.h
     \brief Routines for clustering points.
@@ -44,8 +45,9 @@ public:
     Cluster() = default;
 
     //! Compute the point clusters.
-    void compute(std::shared_ptr<locality::NeighborQuery> nq, std::shared_ptr<locality::NeighborList> nlist,
-                 const locality::QueryArgs& qargs, const unsigned int* keys = nullptr);
+    void compute(const std::shared_ptr<locality::NeighborQuery>& nq,
+                 const std::shared_ptr<locality::NeighborList>& nlist, const locality::QueryArgs& qargs,
+                 const unsigned int* keys = nullptr);
     //! Get the total number of clusters.
     unsigned int getNumClusters() const
     {

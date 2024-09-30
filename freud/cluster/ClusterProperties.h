@@ -6,6 +6,8 @@
 
 #include "ManagedArray.h"
 #include "NeighborQuery.h"
+#include "VectorMath.h"
+#include <memory>
 
 /*! \file ClusterProperties.h
     \brief Routines for computing properties of point clusters.
@@ -36,7 +38,7 @@ public:
     ClusterProperties() = default;
 
     //! Compute properties of the point clusters
-    void compute(const std::shared_ptr<locality::NeighborQuery> nq, const unsigned int* cluster_idx,
+    void compute(const std::shared_ptr<locality::NeighborQuery>& nq, const unsigned int* cluster_idx,
                  const float* masses = nullptr);
 
     //! Get a reference to the last computed cluster centers
