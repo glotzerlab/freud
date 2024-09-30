@@ -1,10 +1,15 @@
 // Copyright (c) 2010-2024 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
+#include <memory>
+#include <algorithm>
+#include <cstddef>
 #include <vector>
 
 #include "ClusterProperties.h"
-#include "NeighborComputeFunctional.h"
+#include "ManagedArray.h"
+#include "NeighborQuery.h"
+#include "VectorMath.h"
 
 /*! \file ClusterProperties.cc
     \brief Routines for computing properties of point clusters.
@@ -21,7 +26,7 @@ namespace freud { namespace cluster {
     getClusterInertiaMoments().
 */
 
-void ClusterProperties::compute(std::shared_ptr<locality::NeighborQuery> nq, const unsigned int* cluster_idx,
+void ClusterProperties::compute(const std::shared_ptr<locality::NeighborQuery>& nq, const unsigned int* cluster_idx,
                                 const float* masses)
 {
     // determine the number of clusters
@@ -51,7 +56,7 @@ void ClusterProperties::compute(std::shared_ptr<locality::NeighborQuery> nq, con
         const unsigned int c = cluster_idx[i];
         cluster_points[c].push_back((*nq)[i]);
         (*m_cluster_sizes)[c]++;
-        float mass = (masses != nullptr) ? masses[i] : float(1.0);
+        float const mass = (masses != nullptr) ? masses[i] : float(1.0);
         (*m_cluster_masses)[c] += mass;
     }
 
@@ -76,25 +81,25 @@ void ClusterProperties::compute(std::shared_ptr<locality::NeighborQuery> nq, con
     // up the moment of inertia tensor. This has to be done in a loop over the points.
     for (unsigned int i = 0; i < nq->getNPoints(); i++)
     {
-        float mass = (masses != nullptr) ? masses[i] : float(1.0);
-        unsigned int c = cluster_idx[i];
-        vec3<float> pos = (*nq)[i];
-        vec3<float> mass_delta = nq->getBox().wrap(pos - (*m_cluster_centers_of_mass)[c]);
-        vec3<float> delta = nq->getBox().wrap(pos - (*m_cluster_centers)[c]);
+        float const mass = (masses != nullptr) ? masses[i] : float(1.0);
+        unsigned int const c = cluster_idx[i];
+        vec3<float> const pos = (*nq)[i];
+        vec3<float> const mass_delta = nq->getBox().wrap(pos - (*m_cluster_centers_of_mass)[c]);
+        vec3<float> const delta = nq->getBox().wrap(pos - (*m_cluster_centers)[c]);
 
         // get the start pointer for our 3x3 matrix
         (*m_cluster_moments_of_inertia)(c, 0, 0)
-            += (std::pow(mass_delta.y, 2) + std::pow(mass_delta.z, 2)) * mass;
+            += (mass_delta.y * mass_delta.y + mass_delta.z * mass_delta.z) * mass;
         (*m_cluster_moments_of_inertia)(c, 0, 1) -= mass_delta.x * mass_delta.y * mass;
         (*m_cluster_moments_of_inertia)(c, 0, 2) -= mass_delta.x * mass_delta.z * mass;
         (*m_cluster_moments_of_inertia)(c, 1, 0) -= mass_delta.y * mass_delta.x * mass;
         (*m_cluster_moments_of_inertia)(c, 1, 1)
-            += (std::pow(mass_delta.x, 2) + std::pow(mass_delta.z, 2)) * mass;
+            += (mass_delta.x * mass_delta.x + mass_delta.z * mass_delta.z) * mass;
         (*m_cluster_moments_of_inertia)(c, 1, 2) -= mass_delta.y * mass_delta.z * mass;
         (*m_cluster_moments_of_inertia)(c, 2, 0) -= mass_delta.z * mass_delta.x * mass;
         (*m_cluster_moments_of_inertia)(c, 2, 1) -= mass_delta.z * mass_delta.y * mass;
         (*m_cluster_moments_of_inertia)(c, 2, 2)
-            += (std::pow(mass_delta.x, 2) + std::pow(mass_delta.y, 2)) * mass;
+            += (mass_delta.x * mass_delta.x + mass_delta.y * mass_delta.y) * mass;
 
         // get the start pointer for our 3x3 matrix
         (*m_cluster_gyrations)(c, 0, 0) += delta.x * delta.x;
