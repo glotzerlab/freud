@@ -98,8 +98,8 @@ add_library(
   # order/HexaticTranslational.h
   order/Nematic.cc
   order/Nematic.h
-  # order/RotationalAutocorrelation.cc
-  # order/RotationalAutocorrelation.h
+  order/RotationalAutocorrelation.cc
+  order/RotationalAutocorrelation.h
   # order/SolidLiquid.cc
   # order/SolidLiquid.h
   # order/Steinhardt.cc
@@ -174,12 +174,10 @@ target_set_install_rpath(_locality)
 # PUBLIC freud TBB::tbb) target_set_install_rpath(_order)
 
 # order
-nanobind_add_module(
-  _order order/module-order.cc order/export-Nematic.cc 
-)
+nanobind_add_module(_order order/module-order.cc order/export-Nematic.cc
+                    order/export-RotationalAutocorrelation.cc)
 target_link_libraries(_order PUBLIC freud)
 target_set_install_rpath(_order)
-
 
 # parallel
 nanobind_add_module(_parallel parallel/module-parallel.cc)
@@ -215,8 +213,7 @@ set(python_files
     interface.py
     plot.py
     util.py)
-# cluster.py density.py diffraction.py environment.py interface.py
-# msd.py)
+# cluster.py density.py diffraction.py environment.py interface.py msd.py)
 
 copy_files_to_build("${python_files}" "freud" "*.py")
 
