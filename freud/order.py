@@ -10,7 +10,7 @@ harmonics of the bond order diagram, which are the spherical analogue of
 Fourier Transforms.
 """
 
-from freud.util import _Compute #, quat, vec3
+from freud.util import _Compute  # , quat, vec3
 
 from freud.errors import FreudDeprecationWarning
 
@@ -185,9 +185,9 @@ class Nematic(_Compute):
         freud.order.Nematic()
 
     """
+
     def __init__(self):
         self._cpp_obj = freud._order.Nematic()
-
 
     def compute(self, orientations):
         r"""Calculates the per-particle and global order parameter.
@@ -204,17 +204,20 @@ class Nematic(_Compute):
         Args:
             orientations (:math:`\left(N_{particles}, 3 \right)` :class:`numpy.ndarray`):
                 Orientation vectors for which to calculate the order parameter.
-        """   # noqa: E501
+        """  # noqa: E501
         if orientations.shape[1] == 4:
-            raise ValueError('In freud versions >=3.0.0, Nematic.compute() takes '
-                             '3d orientation vectors instead of 4d quaternions.')
-        orientations = freud.util._convert_array(
-            orientations, shape=(None, 3))
+            raise ValueError(
+                "In freud versions >=3.0.0, Nematic.compute() takes "
+                "3d orientation vectors instead of 4d quaternions."
+            )
+        orientations = freud.util._convert_array(orientations, shape=(None, 3))
 
-        if len(np.where(~orientations.any(axis=1))[0])!=0:
-            warnings.warn('Including zero vector in the orientations array '
-                          'may lead to undefined behavior.',
-                          UserWarning)
+        if len(np.where(~orientations.any(axis=1))[0]) != 0:
+            warnings.warn(
+                "Including zero vector in the orientations array "
+                "may lead to undefined behavior.",
+                UserWarning,
+            )
 
         self._cpp_obj.compute(orientations)
         return self
@@ -233,8 +236,8 @@ class Nematic(_Compute):
     @_Compute._computed_property
     def particle_tensor(self):
         """:math:`\\left(N_{particles}, 3, 3 \\right)` :class:`numpy.ndarray`:
-            One 3x3 matrix per-particle corresponding to each individual
-            particle orientation."""
+        One 3x3 matrix per-particle corresponding to each individual
+        particle orientation."""
         return self._cpp_obj.getParticleTensor().toNumpyArray()
 
     @_Compute._computed_property

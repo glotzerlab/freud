@@ -43,7 +43,7 @@ vec3<float> Nematic::getNematicDirector() const
 void Nematic::compute(vec3<float>* orientations, unsigned int n)
 {
     m_n = n;
-    m_particle_tensor = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {m_n, 3, 3} );
+    m_particle_tensor = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {m_n, 3, 3});
     m_nematic_tensor_local->reset();
 
     // calculate per-particle tensor
@@ -79,7 +79,7 @@ void Nematic::compute(vec3<float>* orientations, unsigned int n)
     });
 
     // Now calculate the sum of Q_ab's
-    m_nematic_tensor = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {3,3});
+    m_nematic_tensor = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {3, 3});
     m_nematic_tensor_local->reduceInto(*m_nematic_tensor);
 
     // Normalize by the number of particles

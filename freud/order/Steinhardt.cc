@@ -2,6 +2,7 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include "Steinhardt.h"
+#include "ManagedArray.h"
 #include "NeighborComputeFunctional.h"
 #include "utils.h"
 #include <vector>
@@ -40,14 +41,14 @@ void Steinhardt::reallocateArrays(unsigned int Np)
 
     const auto num_ls = m_ls.size();
 
-    m_qli.prepare({Np, num_ls});
+    m_qli = std::make_shared<util::ManagedArray<float>> {Np, num_ls};
     if (m_average)
     {
-        m_qliAve.prepare({Np, num_ls});
+        m_qliAve = std::make_shared<util::ManagedArray<float>> {Np, num_ls};
     }
     if (m_wl)
     {
-        m_wli.prepare({Np, num_ls});
+        m_wli = std::make_shared<util::ManagedArray<float>> {Np, num_ls};
     }
 
     for (size_t l_index = 0; l_index < m_ls.size(); ++l_index)

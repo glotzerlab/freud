@@ -23,11 +23,11 @@ class Nematic
 {
 public:
     //! Constructor
-    Nematic() {
-        m_nematic_tensor = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {3,3} );        
-        m_nematic_tensor_local = std::make_shared<util::ThreadStorage<float>>( std::vector<size_t> {3,3} );        
+    Nematic()
+    {
+        m_nematic_tensor = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {3, 3});
+        m_nematic_tensor_local = std::make_shared<util::ThreadStorage<float>>(std::vector<size_t> {3, 3});
     }
-    
 
     //! Destructor
     virtual ~Nematic() = default;
@@ -53,7 +53,8 @@ private:
 
     std::shared_ptr<util::ManagedArray<float>> m_nematic_tensor;        //!< The computed nematic tensor.
     std::shared_ptr<util::ThreadStorage<float>> m_nematic_tensor_local; //!< Thread-specific nematic tensor.
-    std::shared_ptr<util::ManagedArray<float>> m_particle_tensor; //!< The per-particle tensor that is summed up to Q.
+    std::shared_ptr<util::ManagedArray<float>>
+        m_particle_tensor; //!< The per-particle tensor that is summed up to Q.
 };
 
 }; }; // end namespace freud::order

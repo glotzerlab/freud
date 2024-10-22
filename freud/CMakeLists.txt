@@ -102,10 +102,10 @@ add_library(
   order/RotationalAutocorrelation.h
   # order/SolidLiquid.cc
   # order/SolidLiquid.h
-  # order/Steinhardt.cc
-  # order/Steinhardt.h
-  # order/Wigner3j.cc
-  # order/Wigner3j.h
+  order/Steinhardt.cc
+  order/Steinhardt.h
+  order/Wigner3j.cc
+  order/Wigner3j.h
   # parallel
   parallel/tbb_config.h
   parallel/tbb_config.cc
