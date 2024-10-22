@@ -24,7 +24,7 @@ __all__ = [
     "interface",
     "locality",
     # "msd",
-    # "order",
+    "order",
     "parallel",
     "pmft",
     "Box",
