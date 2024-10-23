@@ -327,11 +327,11 @@ void Steinhardt::aggregatewl(std::shared_ptr<util::ManagedArray<float>>& target,
                 const auto wigner3j_values = getWigner3j(l);
 
                 (*target)[target_particle_index + l_index]
-                    = reduceWigner3j(&(source_l({i, 0})), l, wigner3j_values);
+                    = reduceWigner3j(&(*source_l)({i, 0}), l, wigner3j_values);
                 if (m_wl_normalize)
                 {
                     const float normalization = std::sqrt(normalizationfactor)
-                        / normalization_source[norm_particle_index + l_index];
+                        / (*normalization_source)[norm_particle_index + l_index];
                     (*target)[target_particle_index + l_index] *= normalization * normalization * normalization;
                 }
             }
