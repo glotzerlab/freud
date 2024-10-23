@@ -1,6 +1,6 @@
 # Copyright (c) 2010-2024 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
-
+# ruff: noqa: E731
 r"""
 The :class:`freud.order` module contains functions which compute order
 parameters for the whole system or individual particles. Order parameters take
@@ -527,26 +527,26 @@ class Steinhardt(_PairCompute):
         self._cpp_obj = freud._order.Steinhardt(l, average, wl, weighted, wl_normalize)
 
 
-#     @property
-#     def average(self):
-#         """bool: Whether the averaged Steinhardt order parameter was
-#         calculated."""
-#         return self.thisptr.isAverage()
+    @property
+    def average(self):
+        """bool: Whether the averaged Steinhardt order parameter was
+        calculated."""
+        return self._cpp_obj.isAverage()
 
-#     @property
-#     def wl(self):
-#         """bool: Whether the :math:`w_l` version of the Steinhardt order
-#         parameter was used."""
-#         return self.thisptr.isWl()
+    @property
+    def wl(self):
+        """bool: Whether the :math:`w_l` version of the Steinhardt order
+        parameter was used."""
+        return self._cpp_obj.isWl()
 
-#     @property
-#     def weighted(self):
-#         """bool: Whether neighbor weights were used in the computation."""
-#         return self.thisptr.isWeighted()
+    @property
+    def weighted(self):
+        """bool: Whether neighbor weights were used in the computation."""
+        return self._cpp_obj.isWeighted()
 
-#     @property
-#     def wl_normalize(self):
-#         return self.thisptr.isWlNormalized()
+    @property
+    def wl_normalize(self):
+        return self._cpp_obj.isWlNormalized()
 
     @property
     def l(self):  # noqa: E743
@@ -640,15 +640,10 @@ class Steinhardt(_PairCompute):
 #                              dereference(qargs.thisptr))
 #         return self
 
-#     def __repr__(self):
-#         return ("freud.order.{cls}(l={l}, average={average}, wl={wl}, "
-#                 "weighted={weighted}, wl_normalize={wl_normalize})").format(
-#                     cls=type(self).__name__,
-#                     l=self.l, # noqa: 743
-#                     average=self.average,
-#                     wl=self.wl,
-#                     weighted=self.weighted,
-#                     wl_normalize=self.wl_normalize)
+    def __repr__(self):
+        return (f"freud.order.{type(self).__name__}(l={self.l}, "
+                f"average={self.average}, wl={self.wl}, weighted={self.weighted}, "
+                f"wl_normalize={self.wl_normalize})")
 
 #     def plot(self, ax=None):
 #         """Plot order parameter distribution.
@@ -689,12 +684,12 @@ class Steinhardt(_PairCompute):
 #             ax=ax,
 #             legend_labels=legend_labels)
 
-#     def _repr_png_(self):
-#         try:
-#             import freud.plot
-#             return freud.plot._ax_to_bytes(self.plot())
-#         except (AttributeError, ImportError):
-#             return None
+    def _repr_png_(self):
+        try:
+            import freud.plot
+            return freud.plot._ax_to_bytes(self.plot())
+        except (AttributeError, ImportError):
+            return None
 
 
 # cdef class SolidLiquid(_PairCompute):
