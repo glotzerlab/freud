@@ -887,92 +887,78 @@ class Nematic(_Compute):
 #             return None
 
 
-# cdef class RotationalAutocorrelation(_Compute):
-#     """Calculates a measure of total rotational autocorrelation.
+class RotationalAutocorrelation(_Compute):
+    """Calculates a measure of total rotational autocorrelation.
 
-#     For any calculation of rotational correlations of extended (i.e. non-point)
-#     particles, encoding the symmetries of these particles is crucial to
-#     appropriately determining correlations. For systems of anisotropic
-#     particles in three dimensions, representing such equivalence can be quite
-#     mathematically challenging. This calculation is based on the hyperspherical
-#     harmonics as laid out in :cite:`Karas2019`. Generalizations of spherical
-#     harmonics to four dimensions, hyperspherical harmonics provide a natural
-#     basis for periodic functions in 4 dimensions just as harmonic functions
-#     (sines and cosines) or spherical harmonics do in lower dimensions. The idea
-#     behind this calculation is to embed orientation quaternions into a
-#     4-dimensional space and then use hyperspherical harmonics to find
-#     correlations in a symmetry-aware fashion.
+    For any calculation of rotational correlations of extended (i.e. non-point)
+    particles, encoding the symmetries of these particles is crucial to
+    appropriately determining correlations. For systems of anisotropic
+    particles in three dimensions, representing such equivalence can be quite
+    mathematically challenging. This calculation is based on the hyperspherical
+    harmonics as laid out in :cite:`Karas2019`. Generalizations of spherical
+    harmonics to four dimensions, hyperspherical harmonics provide a natural
+    basis for periodic functions in 4 dimensions just as harmonic functions
+    (sines and cosines) or spherical harmonics do in lower dimensions. The idea
+    behind this calculation is to embed orientation quaternions into a
+    4-dimensional space and then use hyperspherical harmonics to find
+    correlations in a symmetry-aware fashion.
 
-#     The choice of the hyperspherical harmonic parameter :math:`l` determines
-#     the symmetry of the functions. The output is not a correlation function,
-#     but rather a scalar value that measures total system orientational
-#     correlation with an initial state. As such, the output can be treated as an
-#     order parameter measuring degrees of rotational (de)correlation. For
-#     analysis of a trajectory, the compute call needs to be
-#     done at each trajectory frame.
+    The choice of the hyperspherical harmonic parameter :math:`l` determines
+    the symmetry of the functions. The output is not a correlation function,
+    but rather a scalar value that measures total system orientational
+    correlation with an initial state. As such, the output can be treated as an
+    order parameter measuring degrees of rotational (de)correlation. For
+    analysis of a trajectory, the compute call needs to be
+    done at each trajectory frame.
 
-#     Args:
-#         l (int):
-#             Order of the hyperspherical harmonic. Must be a positive, even
-#             integer.
-#     """
-#     cdef freud._order.RotationalAutocorrelation * thisptr
+    Args:
+        l (int):
+            Order of the hyperspherical harmonic. Must be a positive, even
+            integer.
+    """
 
-#     def __cinit__(self, l):
-#         if l % 2 or l < 0:
-#             raise ValueError(
-#                 "The quantum number must be a positive, even integer.")
-#         self.thisptr = new freud._order.RotationalAutocorrelation(l)
+    def __init__(self, l):  # noqa: E741
+        if l % 2 or l < 0:
+            raise ValueError("The quantum number must be a positive, even integer.")  # noqa: EM101
+        self._cpp_obj = freud._order.RotationalAutocorrelation(l)
 
-#     def __dealloc__(self):
-#         del self.thisptr
+    def compute(self, ref_orientations, orientations):
+        """Calculates the rotational autocorrelation function for a single frame.
 
-#     def compute(self, ref_orientations, orientations):
-#         """Calculates the rotational autocorrelation function for a single frame.
+        Args:
+            ref_orientations ((:math:`N_{orientations}`, 4) :class:`numpy.ndarray`):
+                Orientations for the initial frame.
+            orientations ((:math:`N_{orientations}`, 4) :class:`numpy.ndarray`):
+                Orientations for the frame of interest.
+        """
+        assert len(ref_orientations) == len(
+            orientations
+        ), "orientations and ref_orientations must have the same shape."
+        self._cpp_obj.compute(ref_orientations, orientations)
+        return self
 
-#         Args:
-#             ref_orientations ((:math:`N_{orientations}`, 4) :class:`numpy.ndarray`):
-#                 Orientations for the initial frame.
-#             orientations ((:math:`N_{orientations}`, 4) :class:`numpy.ndarray`):
-#                 Orientations for the frame of interest.
-#         """  # noqa
-#         ref_orientations = freud.util._convert_array(
-#             ref_orientations, shape=(None, 4))
-#         orientations = freud.util._convert_array(
-#             orientations, shape=ref_orientations.shape)
+    @_Compute._computed_property
+    def order(self):
+        """float: Autocorrelation of the system."""
+        return self._cpp_obj.getRotationalAutocorrelation()
 
-#         cdef const float[:, ::1] l_ref_orientations = ref_orientations
-#         cdef const float[:, ::1] l_orientations = orientations
-#         cdef unsigned int nP = orientations.shape[0]
+    @_Compute._computed_property
+    def particle_order(self):
+        """(:math:`N_{orientations}`) :class:`numpy.ndarray`: Rotational
+        autocorrelation values calculated for each orientation."""
+        return self._cpp_obj.getRAArray().toNumpyArray()
+        # freud.util.make_managed_numpy_array(
+        #     &self.thisptr.getRAArray(),
+        #     freud.util.arr_type_t.COMPLEX_FLOAT)
 
-#         self.thisptr.compute(
-#             <quat[float]*> &l_ref_orientations[0, 0],
-#             <quat[float]*> &l_orientations[0, 0],
-#             nP)
-#         return self
+    @property
+    def l(self):  # noqa: E743
+        """int: The azimuthal quantum number, which defines the order of the
+        hyperspherical harmonic."""
+        return self._cpp_obj.getL()
 
-#     @_Compute._computed_property
-#     def order(self):
-#         """float: Autocorrelation of the system."""
-#         return self.thisptr.getRotationalAutocorrelation()
-
-#     @_Compute._computed_property
-#     def particle_order(self):
-#         """(:math:`N_{orientations}`) :class:`numpy.ndarray`: Rotational
-#         autocorrelation values calculated for each orientation."""
-#         return freud.util.make_managed_numpy_array(
-#             &self.thisptr.getRAArray(),
-#             freud.util.arr_type_t.COMPLEX_FLOAT)
-
-#     @property
-#     def l(self):  # noqa: E743
-#         """int: The azimuthal quantum number, which defines the order of the
-#         hyperspherical harmonic."""
-#         return self.thisptr.getL()
-
-#     def __repr__(self):
-#         return "freud.order.{cls}(l={sph_l})".format(cls=type(self).__name__,
-#                                                      sph_l=self.l)
+    def __repr__(self):
+        return f"freud.order.{type(self).__name__}(l={self.l})"
 
 
 # cdef class ContinuousCoordination(_PairCompute):
