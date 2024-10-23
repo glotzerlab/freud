@@ -604,41 +604,33 @@ class Steinhardt(_PairCompute):
 #             for i in range(qlm_arrays.size())]
 #         return qlm_list if len(qlm_list) > 1 else qlm_list[0]
 
-#     def compute(self, system, neighbors=None):
-#         r"""Compute the order parameter.
+    def compute(self, system, neighbors=None):
+        r"""Compute the order parameter.
 
-#         Example::
+        Example::
 
-#             >>> box, points = freud.data.make_random_system(10, 100, seed=0)
-#             >>> ql = freud.order.Steinhardt(l=6)
-#             >>> ql.compute((box, points), {'r_max':3})
-#             freud.order.Steinhardt(l=6, ...)
+            >>> box, points = freud.data.make_random_system(10, 100, seed=0)
+            >>> ql = freud.order.Steinhardt(l=6)
+            >>> ql.compute((box, points), {'r_max':3})
+            freud.order.Steinhardt(l=6, ...)
 
-#         Args:
-#             system:
-#                 Any object that is a valid argument to
-#                 :class:`freud.locality.NeighborQuery.from_system`.
-#             neighbors (:class:`freud.locality.NeighborList` or dict, optional):
-#                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
-#                 neighbor pairs to use in the calculation, or a dictionary of
-#                 `query arguments
-#                 <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
-#                 (Default value: None).
-#         """   # noqa: E501
-#         cdef:
-#             freud.locality.NeighborQuery nq
-#             freud.locality.NeighborList nlist
-#             freud.locality._QueryArgs qargs
-#             const float[:, ::1] l_query_points
-#             unsigned int num_query_points
+        Args:
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
+            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
+                Either a :class:`NeighborList <freud.locality.NeighborList>` of
+                neighbor pairs to use in the calculation, or a dictionary of
+                `query arguments
+                <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
+                (Default value: None).
+        """
 
-#         nq, nlist, qargs, l_query_points, num_query_points = \
-#             self._preprocess_arguments(system, neighbors=neighbors)
+        # Call the pair compute setup function
+        nq, nlist, qargs, l_query_points, num_query_points = self._preprocess_arguments(system, neighbors=neighbors)
 
-#         self.thisptr.compute(nlist.get_ptr(),
-#                              nq.get_ptr(),
-#                              dereference(qargs.thisptr))
-#         return self
+        self._cpp_obj.compute(nlist, nq, qargs._cpp_obj)
+        return self
 
     def __repr__(self):
         return (f"freud.order.{type(self).__name__}(l={self.l}, "

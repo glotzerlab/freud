@@ -35,6 +35,7 @@ void export_Steinhardt(nanobind::module_& m)
 {
     nanobind::class_<Steinhardt>(m, "Steinhardt")
         .def(nanobind::init<std::vector<unsigned int>, bool, bool, bool, bool>())
+        .def("compute", &Steinhardt::compute) // TODO: may require preprocessing?
         .def("isAverage", &Steinhardt::isAverage)
         .def("isWl", &Steinhardt::isWl)
         .def("isWeighted", &Steinhardt::isWeighted)
