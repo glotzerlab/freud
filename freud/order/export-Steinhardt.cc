@@ -33,7 +33,8 @@ namespace detail {
 
 void export_Steinhardt(nanobind::module_& m)
 {
-    nanobind::class_<Steinhardt>(m, "Steinhardt").def(nanobind::init<>());
+    nanobind::class_<Steinhardt>(m, "Steinhardt").def(nanobind::init<unsigned int, bool, bool, bool, bool>())
+    ;
 }
 
 } // namespace detail

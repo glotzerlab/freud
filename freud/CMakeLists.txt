@@ -175,7 +175,8 @@ target_set_install_rpath(_locality)
 
 # order
 nanobind_add_module(_order order/module-order.cc order/export-Nematic.cc
-                    order/export-RotationalAutocorrelation.cc)
+                    order/export-RotationalAutocorrelation.cc
+                    order/export-Steinhardt.cc)
 target_link_libraries(_order PUBLIC freud)
 target_set_install_rpath(_order)
 
