@@ -288,7 +288,8 @@ std::vector<float> Steinhardt::normalizeSystem()
         if (m_wl)
         {
             const auto wigner3j_values = getWigner3j(l);
-            float wl_system_norm = reduceWigner3j(qlm.get(), l, wigner3j_values);
+            float wl_system_norm = reduceWigner3j(qlm.get()->data(), l, wigner3j_values);
+            // float wl_system_norm = reduceWigner3j(qlm.get(), l, wigner3j_values);
 
             // The normalization factor of wl is calculated using qli, which is
             // equivalent to calculate the normalization factor from qlmi
