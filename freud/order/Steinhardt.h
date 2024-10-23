@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <complex>
+#include <memory>
 
 #include "Box.h"
 #include "ManagedArray.h"
@@ -201,14 +202,14 @@ private:
     bool m_weighted;     //!< Whether to use neighbor weights in computing qlmi (default false)
     bool m_wl_normalize; //!< Whether to normalize the third-order invariant wl (default false)
 
-    std::vector<util::ManagedArray<std::complex<float>>> m_qlmi; //!< qlm for each particle i
+    std::vector<std::shared_ptr<util::ManagedArray<std::complex<float>>>> m_qlmi; //!< qlm for each particle i
     // std::vector<std::shared_ptr<util::ManagedArray<std::complex<float>>>> m_qlmi; //!< qlm for each particle i
-    std::vector<util::ManagedArray<std::complex<float>>> m_qlm;  //!< Normalized qlm(Ave) for the whole system
+    std::vector<std::shared_ptr<util::ManagedArray<std::complex<float>>>> m_qlm;  //!< Normalized qlm(Ave) for the whole system
     std::vector<util::ThreadStorage<std::complex<float>>>
         m_qlm_local;                    //!< Thread-specific m_qlm(Ave) for each l
     std::shared_ptr<util::ManagedArray<float>> m_qli;    //!< ql locally invariant order parameter for each particle i
     std::shared_ptr<util::ManagedArray<float>> m_qliAve; //!< Averaged ql with 2nd neighbor shell for each particle i
-    std::vector<util::ManagedArray<std::complex<float>>>
+    std::vector<std::shared_ptr<util::ManagedArray<std::complex<float>>>>
         m_qlmiAve; //!< Averaged qlm with 2nd neighbor shell for each particle i
     std::vector<std::shared_ptr<util::ManagedArray<std::complex<float>>>>
         m_qlmAve;                  //!< Normalized qlmiAve for the whole system
