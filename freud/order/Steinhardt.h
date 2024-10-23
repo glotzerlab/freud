@@ -94,7 +94,7 @@ public:
     }
 
     //! Get the last calculated order parameter for each l
-    const util::ManagedArray<float>& getParticleOrder() const
+    const std::shared_ptr<util::ManagedArray<float>>& getParticleOrder() const
     {
         if (m_wl)
         {
@@ -104,7 +104,7 @@ public:
     }
 
     //! Get the last calculated ql for each l
-    const util::ManagedArray<float>& getQl() const
+    const std::shared_ptr<util::ManagedArray<float>>& getQl() const
     {
         if (m_average)
         {
@@ -205,14 +205,14 @@ private:
     std::vector<util::ManagedArray<std::complex<float>>> m_qlm;  //!< Normalized qlm(Ave) for the whole system
     std::vector<util::ThreadStorage<std::complex<float>>>
         m_qlm_local;                    //!< Thread-specific m_qlm(Ave) for each l
-    util::ManagedArray<float> m_qli;    //!< ql locally invariant order parameter for each particle i
-    util::ManagedArray<float> m_qliAve; //!< Averaged ql with 2nd neighbor shell for each particle i
+    std::shared_ptr<util::ManagedArray<float>> m_qli;    //!< ql locally invariant order parameter for each particle i
+    std::shared_ptr<util::ManagedArray<float>> m_qliAve; //!< Averaged ql with 2nd neighbor shell for each particle i
     std::vector<util::ManagedArray<std::complex<float>>>
         m_qlmiAve; //!< Averaged qlm with 2nd neighbor shell for each particle i
     std::vector<util::ManagedArray<std::complex<float>>>
         m_qlmAve;                  //!< Normalized qlmiAve for the whole system
     std::vector<float> m_norm {0}; //!< System normalized order parameter
-    util::ManagedArray<float>
+    std::shared_ptr<util::ManagedArray<float>>
         m_wli; //!< wl order parameter for each particle i, also used for wl averaged data
 };
 

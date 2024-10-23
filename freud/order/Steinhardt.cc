@@ -41,14 +41,14 @@ void Steinhardt::reallocateArrays(unsigned int Np)
 
     const auto num_ls = m_ls.size();
 
-    m_qli = std::make_shared<util::ManagedArray<float>> {Np, num_ls};
+    m_qli = std::shared_ptr<util::ManagedArray<float>>(std::vector<size_t> {Np, num_ls});
     if (m_average)
     {
-        m_qliAve = std::make_shared<util::ManagedArray<float>> {Np, num_ls};
+        m_qliAve = std::shared_ptr<util::ManagedArray<float>>(std::vector<size_t>{Np, num_ls});
     }
     if (m_wl)
     {
-        m_wli = std::make_shared<util::ManagedArray<float>> {Np, num_ls};
+        m_wli = std::shared_ptr<util::ManagedArray<float>>(std::vector<size_t>{Np, num_ls});
     }
 
     for (size_t l_index = 0; l_index < m_ls.size(); ++l_index)
@@ -240,7 +240,7 @@ void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
 
             // Normalize!
 
-            const size_t qliAve_i_start = m_qliAve.getIndex({i, 0});
+            const size_t qliAve_i_start = m_qliAve->getIndex({i, 0});
             for (size_t l_index = 0; l_index < m_ls.size(); ++l_index)
             {
                 auto& qlmiAve = m_qlmiAve[l_index];
