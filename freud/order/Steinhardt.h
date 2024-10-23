@@ -115,7 +115,7 @@ public:
     }
 
     //! Get the last calculated qlm for each particle and l
-    const std::vector<util::ManagedArray<std::complex<float>>>& getQlm() const
+    const std::vector<std::shared_ptr<util::ManagedArray<std::complex<float>>>>& getQlm() const
     {
         return m_qlmi;
     }

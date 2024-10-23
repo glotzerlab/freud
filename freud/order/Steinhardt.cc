@@ -83,7 +83,7 @@ void Steinhardt::compute(const freud::locality::NeighborList* nlist,
     // Reduce qlm
     for (size_t l_index = 0; l_index < m_ls.size(); ++l_index)
     {
-        m_qlm_local[l_index].reduceInto(m_qlm[l_index]);
+        m_qlm_local[l_index].reduceInto((*m_qlm[l_index]));
     }
 
     if (m_wl)
