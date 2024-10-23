@@ -202,6 +202,7 @@ private:
     bool m_wl_normalize; //!< Whether to normalize the third-order invariant wl (default false)
 
     std::vector<util::ManagedArray<std::complex<float>>> m_qlmi; //!< qlm for each particle i
+    // std::vector<std::shared_ptr<util::ManagedArray<std::complex<float>>>> m_qlmi; //!< qlm for each particle i
     std::vector<util::ManagedArray<std::complex<float>>> m_qlm;  //!< Normalized qlm(Ave) for the whole system
     std::vector<util::ThreadStorage<std::complex<float>>>
         m_qlm_local;                    //!< Thread-specific m_qlm(Ave) for each l
@@ -209,7 +210,7 @@ private:
     std::shared_ptr<util::ManagedArray<float>> m_qliAve; //!< Averaged ql with 2nd neighbor shell for each particle i
     std::vector<util::ManagedArray<std::complex<float>>>
         m_qlmiAve; //!< Averaged qlm with 2nd neighbor shell for each particle i
-    std::vector<util::ManagedArray<std::complex<float>>>
+    std::vector<std::shared_ptr<util::ManagedArray<std::complex<float>>>>
         m_qlmAve;                  //!< Normalized qlmiAve for the whole system
     std::vector<float> m_norm {0}; //!< System normalized order parameter
     std::shared_ptr<util::ManagedArray<float>>

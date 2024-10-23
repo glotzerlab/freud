@@ -54,11 +54,14 @@ void Steinhardt::reallocateArrays(unsigned int Np)
     for (size_t l_index = 0; l_index < m_ls.size(); ++l_index)
     {
         const auto num_ms = m_num_ms[l_index];
-        m_qlmi[l_index].prepare({Np, num_ms});
-        m_qlm[l_index].prepare(num_ms);
+        // m_qlmi[l_index].prepare({Np, num_ms});
+        m_qlmi[l_index] = std::make_shared<util::ManagedArray<std::complex<float>>>(std::vector<size_t>{Np, num_ms});
+        // m_qlm[l_index].prepare(num_ms);
+        m_qlm[l_index] = std::make_shared<util::ManagedArray<std::complex<float>>>(std::vector<size_t>{num_ms});
         if (m_average)
         {
-            m_qlmiAve[l_index].prepare({Np, num_ms});
+            // m_qlmiAve[l_index].prepare({Np, num_ms});
+            m_qlmAve[l_index] = std::make_shared<util::ManagedArray<std::complex<float>>>(std::vector<size_t>{Np, num_ms});
         }
     }
 }
@@ -305,6 +308,7 @@ std::vector<float> Steinhardt::normalizeSystem()
 }
 
 void Steinhardt::aggregatewl(util::ManagedArray<float>& target,
+// void Steinhardt::aggregatewl(std::shared_ptr<util::ManagedArray<float>> target,
                              const std::vector<util::ManagedArray<std::complex<float>>>& source,
                              const util::ManagedArray<float>& normalization_source) const
 {
