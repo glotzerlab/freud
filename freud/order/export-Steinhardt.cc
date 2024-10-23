@@ -4,8 +4,8 @@
 #include <memory>
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
-#include <nanobind/stl/shared_ptr.h> // NOLINT(misc-include-cleaner): used implicitly
-#include <nanobind/stl/tuple.h>      // NOLINT(misc-include-cleaner): used implicitly
+// #include <nanobind/stl/list.h>      // NOLINT(misc-include-cleaner): used implicitly
+#include <nanobind/stl/vector.h>
 #include <utility>
 
 #include "Steinhardt.h"
@@ -33,8 +33,10 @@ namespace detail {
 
 void export_Steinhardt(nanobind::module_& m)
 {
-    nanobind::class_<Steinhardt>(m, "Steinhardt").def(nanobind::init<unsigned int, bool, bool, bool, bool>())
-    ;
+    nanobind::class_<Steinhardt>(m, "Steinhardt")
+        .def(nanobind::init<std::vector<unsigned int>, bool, bool, bool, bool>())
+        .def("getL", &Steinhardt::getL)
+        ;
 }
 
 } // namespace detail

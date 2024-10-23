@@ -16,7 +16,7 @@ from freud.errors import FreudDeprecationWarning
 
 # from cython.operator cimport dereference
 
-# from freud.locality cimport _PairCompute
+from freud.locality import _PairCompute
 
 import collections.abc
 import logging
@@ -405,132 +405,127 @@ class Nematic(_Compute):
 #             return None
 
 
-# cdef class Steinhardt(_PairCompute):
-#     r"""Compute one or more of the rotationally invariant Steinhardt order
-#     parameter :math:`q_l` or :math:`w_l` for a set of points
-#     :cite:`Steinhardt:1983aa`.
+class Steinhardt(_PairCompute):
+    r"""Compute one or more of the rotationally invariant Steinhardt order
+    parameter :math:`q_l` or :math:`w_l` for a set of points
+    :cite:`Steinhardt:1983aa`.
 
-#     Implements the local rotationally invariant :math:`q_l` or :math:`w_l`
-#     order parameter described by Steinhardt.
+    Implements the local rotationally invariant :math:`q_l` or :math:`w_l`
+    order parameter described by Steinhardt.
 
-#     First, we describe the computation of :math:`q_l(i)`.  For a particle :math:`i`,
-#     we calculate the quantity :math:`q_{lm}` by summing the spherical harmonics
-#     between particle :math:`i` and its neighbors :math:`j` in a local region:
+    First, we describe the computation of :math:`q_l(i)`.  For a particle :math:`i`,
+    we calculate the quantity :math:`q_{lm}` by summing the spherical harmonics
+    between particle :math:`i` and its neighbors :math:`j` in a local region:
 
-#     .. math::
+    .. math::
 
-#         q_{lm}(i) = \frac{1}{N_b} \sum \limits_{j=1}^{N_b}
-#         Y_{lm}(\theta(\vec{r}_{ij}), \phi(\vec{r}_{ij}))
+        q_{lm}(i) = \frac{1}{N_b} \sum \limits_{j=1}^{N_b}
+        Y_{lm}(\theta(\vec{r}_{ij}), \phi(\vec{r}_{ij}))
 
-#     Then the :math:`q_l` order parameter is computed by combining the :math:`q_{lm}`
-#     in a rotationally invariant fashion to remove local orientational order:
+    Then the :math:`q_l` order parameter is computed by combining the :math:`q_{lm}`
+    in a rotationally invariant fashion to remove local orientational order:
 
-#     .. math::
+    .. math::
 
-#         q_l(i) = \sqrt{\frac{4\pi}{2l+1} \sum \limits_{m=-l}^{l}
-#         |q_{lm}(i)|^2 }
+        q_l(i) = \sqrt{\frac{4\pi}{2l+1} \sum \limits_{m=-l}^{l}
+        |q_{lm}(i)|^2 }
 
-#     If the ``wl`` parameter is ``True``, this class computes the quantity
-#     :math:`w_l`, defined as a weighted average over the
-#     :math:`q_{lm}(i)` values using `Wigner 3-j symbols
-#     <https://en.wikipedia.org/wiki/3-j_symbol>`__ (related to `Clebsch-Gordan
-#     coefficients
-#     <https://en.wikipedia.org/wiki/Clebsch%E2%80%93Gordan_coefficients>`__).
-#     The resulting combination is rotationally invariant:
+    If the ``wl`` parameter is ``True``, this class computes the quantity
+    :math:`w_l`, defined as a weighted average over the
+    :math:`q_{lm}(i)` values using `Wigner 3-j symbols
+    <https://en.wikipedia.org/wiki/3-j_symbol>`__ (related to `Clebsch-Gordan
+    coefficients
+    <https://en.wikipedia.org/wiki/Clebsch%E2%80%93Gordan_coefficients>`__).
+    The resulting combination is rotationally invariant:
 
-#     .. math::
+    .. math::
 
-#         w_l(i) = \sum \limits_{m_1 + m_2 + m_3 = 0} \begin{pmatrix}
-#             l & l & l \\
-#             m_1 & m_2 & m_3
-#         \end{pmatrix}
-#         q_{lm_1}(i) q_{lm_2}(i) q_{lm_3}(i)
+        w_l(i) = \sum \limits_{m_1 + m_2 + m_3 = 0} \begin{pmatrix}
+            l & l & l \\
+            m_1 & m_2 & m_3
+        \end{pmatrix}
+        q_{lm_1}(i) q_{lm_2}(i) q_{lm_3}(i)
 
-#     If ``wl`` is ``True``, then setting the ``wl_normalize`` parameter to ``True`` will
-#     normalize the :math:`w_l` order parameter as follows (if ``wl=False``,
-#     ``wl_normalize`` has no effect):
+    If ``wl`` is ``True``, then setting the ``wl_normalize`` parameter to ``True`` will
+    normalize the :math:`w_l` order parameter as follows (if ``wl=False``,
+    ``wl_normalize`` has no effect):
 
-#     .. math::
+    .. math::
 
-#         w_l(i) = \frac{
-#             \sum \limits_{m_1 + m_2 + m_3 = 0} \begin{pmatrix}
-#                 l & l & l \\
-#                 m_1 & m_2 & m_3
-#             \end{pmatrix}
-#             q_{lm_1}(i) q_{lm_2}(i) q_{lm_3}(i)}
-#             {\left(\sum \limits_{m=-l}^{l} |q_{lm}(i)|^2 \right)^{3/2}}
+        w_l(i) = \frac{
+            \sum \limits_{m_1 + m_2 + m_3 = 0} \begin{pmatrix}
+                l & l & l \\
+                m_1 & m_2 & m_3
+            \end{pmatrix}
+            q_{lm_1}(i) q_{lm_2}(i) q_{lm_3}(i)}
+            {\left(\sum \limits_{m=-l}^{l} |q_{lm}(i)|^2 \right)^{3/2}}
 
-#     If ``average`` is ``True``, the class computes a variant of this order
-#     parameter that performs an average over the first and second shell combined
-#     :cite:`Lechner_2008`. To compute this parameter, we perform a second
-#     averaging over the first neighbor shell of the particle to implicitly
-#     include information about the second neighbor shell. This averaging is
-#     performed by replacing the value :math:`q_{lm}(i)` in the original
-#     definition by :math:`\overline{q}_{lm}(i)`, the average value of
-#     :math:`q_{lm}(k)` over all the :math:`N_b` neighbors :math:`k`
-#     of particle :math:`i`, including particle :math:`i` itself:
+    If ``average`` is ``True``, the class computes a variant of this order
+    parameter that performs an average over the first and second shell combined
+    :cite:`Lechner_2008`. To compute this parameter, we perform a second
+    averaging over the first neighbor shell of the particle to implicitly
+    include information about the second neighbor shell. This averaging is
+    performed by replacing the value :math:`q_{lm}(i)` in the original
+    definition by :math:`\overline{q}_{lm}(i)`, the average value of
+    :math:`q_{lm}(k)` over all the :math:`N_b` neighbors :math:`k`
+    of particle :math:`i`, including particle :math:`i` itself:
 
-#     .. math::
-#         \overline{q}_{lm}(i) = \frac{1}{N_b} \sum \limits_{k=0}^{N_b}
-#         q_{lm}(k)
+    .. math::
+        \overline{q}_{lm}(i) = \frac{1}{N_b} \sum \limits_{k=0}^{N_b}
+        q_{lm}(k)
 
-#     If ``weighted`` is True, the contributions of each neighbor are weighted.
-#     Neighbor weights :math:`w_{ij}` are defined for a
-#     :class:`freud.locality.NeighborList` obtained from
-#     :class:`freud.locality.Voronoi` or one with user-provided weights, and
-#     default to 1 if not otherwise provided. The formulas are modified as
-#     follows, replacing :math:`q_{lm}(i)` with the weighted value
-#     :math:`q'_{lm}(i)`:
+    If ``weighted`` is True, the contributions of each neighbor are weighted.
+    Neighbor weights :math:`w_{ij}` are defined for a
+    :class:`freud.locality.NeighborList` obtained from
+    :class:`freud.locality.Voronoi` or one with user-provided weights, and
+    default to 1 if not otherwise provided. The formulas are modified as
+    follows, replacing :math:`q_{lm}(i)` with the weighted value
+    :math:`q'_{lm}(i)`:
 
-#     .. math::
+    .. math::
 
-#         q'_{lm}(i) = \frac{1}{\sum_{j=1}^{N_b} w_{ij}}
-#         \sum \limits_{j=1}^{N_b} w_{ij} Y_{lm}(\theta(\vec{r}_{ij}),
-#         \phi(\vec{r}_{ij}))
+        q'_{lm}(i) = \frac{1}{\sum_{j=1}^{N_b} w_{ij}}
+        \sum \limits_{j=1}^{N_b} w_{ij} Y_{lm}(\theta(\vec{r}_{ij}),
+        \phi(\vec{r}_{ij}))
 
-#     .. note::
-#         The value of per-particle order parameter will be set to NaN for
-#         particles with no neighbors. We choose this value rather than setting
-#         the order parameter to 0 because in more complex order parameter
-#         calculations (such as when computing the :math:`w_l`), it is possible
-#         to observe a value of 0 for the per-particle order parameter even with
-#         a finite number of neighbors. If you would like to ignore this
-#         distinction, you can mask the output order parameter values using
-#         NumPy: :code:`numpy.nan_to_num(particle_order)`.
+    .. note::
+        The value of per-particle order parameter will be set to NaN for
+        particles with no neighbors. We choose this value rather than setting
+        the order parameter to 0 because in more complex order parameter
+        calculations (such as when computing the :math:`w_l`), it is possible
+        to observe a value of 0 for the per-particle order parameter even with
+        a finite number of neighbors. If you would like to ignore this
+        distinction, you can mask the output order parameter values using
+        NumPy: :code:`numpy.nan_to_num(particle_order)`.
 
-#     Args:
-#         l (unsigned int or sequence of unsigned int):
-#             One or more spherical harmonic quantum number l's used to compute
-#             the Steinhardt order parameter.
-#         average (bool, optional):
-#             Determines whether to calculate the averaged Steinhardt order
-#             parameter (Default value = :code:`False`).
-#         wl (bool, optional):
-#             Determines whether to use the :math:`w_l` version of the Steinhardt
-#             order parameter (Default value = :code:`False`).
-#         weighted (bool, optional):
-#             Determines whether to use neighbor weights in the computation of
-#             spherical harmonics over neighbors. If enabled and used with a
-#             Voronoi neighbor list, this results in the 3D Minkowski Structure
-#             Metrics :math:`q'_l` :cite:`Mickel2013` (Default value =
-#             :code:`False`).
-#         wl_normalize (bool, optional):
-#             Determines whether to normalize the :math:`w_l` version
-#             of the Steinhardt order parameter (Default value = :code:`False`).
-#     """  # noqa: E501
-#     cdef freud._order.Steinhardt * thisptr
+    Args:
+        l (unsigned int or sequence of unsigned int):
+            One or more spherical harmonic quantum number l's used to compute
+            the Steinhardt order parameter.
+        average (bool, optional):
+            Determines whether to calculate the averaged Steinhardt order
+            parameter (Default value = :code:`False`).
+        wl (bool, optional):
+            Determines whether to use the :math:`w_l` version of the Steinhardt
+            order parameter (Default value = :code:`False`).
+        weighted (bool, optional):
+            Determines whether to use neighbor weights in the computation of
+            spherical harmonics over neighbors. If enabled and used with a
+            Voronoi neighbor list, this results in the 3D Minkowski Structure
+            Metrics :math:`q'_l` :cite:`Mickel2013` (Default value =
+            :code:`False`).
+        wl_normalize (bool, optional):
+            Determines whether to normalize the :math:`w_l` version
+            of the Steinhardt order parameter (Default value = :code:`False`).
+    """
 
-#     def __cinit__(self, l, average=False, wl=False, weighted=False,
-#                   wl_normalize=False):
-#         if not isinstance(l, collections.abc.Sequence):
-#             l = [l]
-#         if len(l) == 0:
-#             raise ValueError("At least one l must be specified.")
-#         self.thisptr = new freud._order.Steinhardt(l, average, wl, weighted,
-#                                                    wl_normalize)
+    def __init__(self, l, average=False, wl=False, weighted=False, wl_normalize=False):
+        if not isinstance(l, collections.abc.Sequence):
+            l = [l]
+        if len(l) == 0:
+            raise ValueError("At least one l must be specified.")
+        self._cpp_obj = freud._order.Steinhardt(l, average, wl, weighted, wl_normalize)
 
-#     def __dealloc__(self):
-#         del self.thisptr
 
 #     @property
 #     def average(self):
@@ -553,13 +548,11 @@ class Nematic(_Compute):
 #     def wl_normalize(self):
 #         return self.thisptr.isWlNormalized()
 
-#     @property
-#     def l(self):  # noqa: E743
-#         """unsigned int: Spherical harmonic quantum number l."""
-#         # list conversion is necessary as otherwise CI Cython complains about
-#         # compiling the below expression with two different types.
-#         ls = list(self.thisptr.getL())
-#         return ls[0] if len(ls) == 1 else ls
+    @property
+    def l(self):  # noqa: E743
+        """unsigned int: Spherical harmonic quantum number l."""
+        ls = self._cpp_obj.getL()
+        return ls[0] if len(ls) == 1 else ls
 
 #     @_Compute._computed_property
 #     def order(self):
