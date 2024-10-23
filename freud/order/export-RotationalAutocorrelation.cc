@@ -11,6 +11,8 @@
 #include "RotationalAutocorrelation.h"
 #include "VectorMath.h"
 
+namespace nb = nanobind;
+
 namespace freud { namespace order {
 
 template<typename T, typename shape>
@@ -22,12 +24,16 @@ void computeRotationalAutocorrelation(const std::shared_ptr<RotationalAutocorrel
                                       const nb_array<float, nanobind::shape<-1, 4>>& ref_orientations,
                                       const nb_array<float, nanobind::shape<-1, 4>>& orientations)
 {
-    // TODO: raise error on python level if orientations and ref_orientations dont match N
     unsigned int const num_orientations = orientations.shape(0);
     auto* ref_orientations_data = reinterpret_cast<quat<float>*>(ref_orientations.data());
     auto* orientations_data = reinterpret_cast<quat<float>*>(orientations.data());
 
     self->compute(ref_orientations_data, orientations_data, num_orientations);
+}
+
+void getRAArray(const std::shared_ptr<RotationalAutocorrelation>& self)
+{
+    auto raarray = self->getRAArray(); // TODO: convert to std::vector then nb list?
 }
 
 }; // namespace wrap
@@ -37,12 +43,12 @@ namespace detail {
 void export_RotationalAutocorrelation(nanobind::module_& m)
 {
     nanobind::class_<RotationalAutocorrelation>(m, "RotationalAutocorrelation")
-        .def(nanobind::init<>())
+        .def(nanobind::init<unsigned int>())
         .def("compute", &wrap::computeRotationalAutocorrelation, nanobind::arg("ref_orientations"),
              nanobind::arg("orientations"))
-        // .def("getNematicOrderParameter", &Nematic::getNematicOrderParameter)
-        // .def("getNematicDirector",&wrap::getNematicDirector)
-        ;
+        .def("getL", &RotationalAutocorrelation::getL)
+        .def("getRotationalAutocorrelation", &RotationalAutocorrelation::getRotationalAutocorrelation)
+        .def("getRAArray", &wrap::getRAArray);
 }
 
 } // namespace detail
