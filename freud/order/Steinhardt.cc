@@ -190,11 +190,11 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
 
                     (*qlmi)[qlmi_index] /= total_weight;
                     // Add the norm, which is the (complex) squared magnitude
-                    (*m_qli)[qli_index] += norm(qlmi[qlmi_index]);
+                    (*m_qli)[qli_index] += norm((*qlmi)[qlmi_index]);
                     // This array gets populated by computeAve in the averaging case.
                     if (!m_average)
                     {
-                        qlm_local.local()[k] += qlmi[qlmi_index] / float(m_Np);
+                        qlm_local.local()[k] += (*qlmi)[qlmi_index] / float(m_Np);
                     }
                 }
                 (*m_qli)[qli_index] *= normalizationfactor[l_index];
@@ -235,7 +235,7 @@ void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
                         // Adding all the qlm of the neighbors. We use the
                         // vector function signature for indexing into the
                         // arrays for speed.
-                        qlmiAve[ave_index + k] += qlmi[nb_index + k];
+                        (*qlmiAve)[ave_index + k] += (*qlmi)[nb_index + k];
                     }
                 }
                 neighborcount++;
@@ -281,7 +281,7 @@ std::vector<float> Steinhardt::normalizeSystem()
         for (size_t k = 0; k < m_num_ms[l_index]; ++k)
         {
             // Add the norm, which is the complex squared magnitude
-            calc_norm += norm(qlm[k]);
+            calc_norm += norm((*qlm)[k]);
         }
         const float ql_system_norm = std::sqrt(calc_norm * normalizationfactor);
 
