@@ -163,7 +163,7 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
                     const auto& Ylm = Ylms[l_index];
                     // Get the initial index and iterate using ++ for faster iteration
                     // Profiling showed using operator() to slow the code significantly.
-                    const size_t index = qlmi.getIndex({i, 0});
+                    const size_t index = qlmi->getIndex({i, 0});
                     for (size_t k = 0; k < m_num_ms[l_index]; ++k)
                     {
                         (*qlmi)[index + k] += weight * Ylm[k];
@@ -180,7 +180,7 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
                 // get l specific vectors/arrays
                 auto& qlmi = m_qlmi[l_index];
                 auto& qlm_local = m_qlm_local[l_index];
-                const size_t first_qlmi_index = qlmi.getIndex({i, 0});
+                const size_t first_qlmi_index = qlmi->getIndex({i, 0});
                 const size_t qli_index = qli_i_start + l_index;
 
                 for (size_t k = 0; k < m_num_ms[l_index]; ++k)
@@ -228,8 +228,8 @@ void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
                 {
                     auto& qlmiAve = m_qlmiAve[l_index];
                     auto& qlmi = m_qlmi[l_index];
-                    const auto ave_index = qlmiAve.getIndex({i, 0});
-                    const auto nb_index = qlmi.getIndex({nb.getPointIdx(), 0});
+                    const auto ave_index = qlmiAve->getIndex({i, 0});
+                    const auto nb_index = qlmi->getIndex({nb.getPointIdx(), 0});
                     for (size_t k = 0; k < m_num_ms[l_index]; ++k)
                     {
                         // Adding all the qlm of the neighbors. We use the
@@ -249,7 +249,7 @@ void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
                 auto& qlmiAve = m_qlmiAve[l_index];
                 auto& qlmi = m_qlmi[l_index];
                 auto& qlm_local = m_qlm_local[l_index];
-                const size_t first_qlmi_index = qlmiAve.getIndex({i, 0});
+                const size_t first_qlmi_index = qlmiAve->getIndex({i, 0});
                 const size_t qliAve_index = qliAve_i_start + l_index;
 
                 for (size_t k = 0; k < m_num_ms[l_index]; ++k)
