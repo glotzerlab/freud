@@ -308,16 +308,16 @@ std::vector<float> Steinhardt::normalizeSystem()
     return system_norms;
 }
 
-void Steinhardt::aggregatewl(util::ManagedArray<float>& target,
-// void Steinhardt::aggregatewl(std::shared_ptr<util::ManagedArray<float>> target,
-                             const std::vector<util::ManagedArray<std::complex<float>>>& source,
-                             const util::ManagedArray<float>& normalization_source) const
+// void Steinhardt::aggregatewl(util::ManagedArray<float>& target,
+void Steinhardt::aggregatewl(std::shared_ptr<util::ManagedArray<float>>& target,
+                             const std::vector<std::shared_ptr<util::ManagedArray<std::complex<float>>>>& source,
+                             const std::shared_ptr<util::ManagedArray<float>>& normalization_source) const
 {
     util::forLoopWrapper(0, m_Np, [&](size_t begin, size_t end) {
         for (size_t i = begin; i < end; ++i)
         {
-            const auto target_particle_index = target.getIndex({i, 0});
-            const auto norm_particle_index = normalization_source.getIndex({i, 0});
+            const auto target_particle_index = target->getIndex({i, 0});
+            const auto norm_particle_index = normalization_source->getIndex({i, 0});
             for (size_t l_index = 0; l_index < m_ls.size(); ++l_index)
             {
                 const auto l = m_ls[l_index];
@@ -326,13 +326,13 @@ void Steinhardt::aggregatewl(util::ManagedArray<float>& target,
                 const auto normalizationfactor = static_cast<float>(4.0 * M_PI / m_num_ms[l_index]);
                 const auto wigner3j_values = getWigner3j(l);
 
-                target[target_particle_index + l_index]
+                (*target)[target_particle_index + l_index]
                     = reduceWigner3j(&(source_l({i, 0})), l, wigner3j_values);
                 if (m_wl_normalize)
                 {
                     const float normalization = std::sqrt(normalizationfactor)
                         / normalization_source[norm_particle_index + l_index];
-                    target[target_particle_index + l_index] *= normalization * normalization * normalization;
+                    (*target)[target_particle_index + l_index] *= normalization * normalization * normalization;
                 }
             }
         }
