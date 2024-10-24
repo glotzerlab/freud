@@ -23,7 +23,11 @@ class Nematic
 {
 public:
     //! Constructor
-    Nematic() = default;
+    Nematic()
+    {
+        m_nematic_tensor = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {3, 3});
+        m_nematic_tensor_local = std::make_shared<util::ThreadStorage<float>>(std::vector<size_t> {3, 3});
+    }
 
     //! Destructor
     virtual ~Nematic() = default;
@@ -34,9 +38,9 @@ public:
     //! Get the value of the last computed nematic order parameter
     float getNematicOrderParameter() const;
 
-    const util::ManagedArray<float>& getParticleTensor() const;
+    const std::shared_ptr<util::ManagedArray<float>> getParticleTensor() const;
 
-    const util::ManagedArray<float>& getNematicTensor() const;
+    const std::shared_ptr<util::ManagedArray<float>> getNematicTensor() const;
 
     unsigned int getNumParticles() const;
 
@@ -47,9 +51,10 @@ private:
     float m_nematic_order_parameter {0}; //!< Current value of the order parameter
     vec3<float> m_nematic_director;      //!< The director (eigenvector corresponding to the OP)
 
-    util::ManagedArray<float> m_nematic_tensor {{3, 3}};        //!< The computed nematic tensor.
-    util::ThreadStorage<float> m_nematic_tensor_local {{3, 3}}; //!< Thread-specific nematic tensor.
-    util::ManagedArray<float> m_particle_tensor; //!< The per-particle tensor that is summed up to Q.
+    std::shared_ptr<util::ManagedArray<float>> m_nematic_tensor;        //!< The computed nematic tensor.
+    std::shared_ptr<util::ThreadStorage<float>> m_nematic_tensor_local; //!< Thread-specific nematic tensor.
+    std::shared_ptr<util::ManagedArray<float>>
+        m_particle_tensor; //!< The per-particle tensor that is summed up to Q.
 };
 
 }; }; // end namespace freud::order

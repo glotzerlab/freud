@@ -3,6 +3,7 @@
 
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/shared_ptr.h> // NOLINT(misc-include-cleaner): used implicitly
+#include <complex>
 
 #include "VectorMath.h"
 #include "export-ManagedArray.h"
@@ -14,6 +15,7 @@ void export_ManagedArray(nanobind::module_& module)
     export_ManagedArray<double>(module, "ManagedArray_double");
     export_ManagedArray<unsigned int>(module, "ManagedArray_unsignedint");
     export_ManagedArray<vec3<float>>(module, "ManagedArrayVec3_float");
+    export_ManagedArray<std::complex<float>>(module, "ManagedArray_complexfloat");
 };
 
 }; // namespace freud::util::detail

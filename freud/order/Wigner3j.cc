@@ -6,6 +6,7 @@
 
 #include "Wigner3j.h"
 
+
 /*! \file Wigner3j.cc
  *  \brief Stores and reduces over Wigner 3j coefficients for l from 0 to 20
  */
@@ -18,6 +19,7 @@ inline int lmIndex(int l, int m)
 }
 
 float reduceWigner3j(const std::complex<float>* source, unsigned int l_, const std::vector<double>& wigner3j)
+// float reduceWigner3j(const util::ManagedArray<std::complex<float>>* source, unsigned int l_, const std::vector<double>& wigner3j)
 {
     /*
      * Wigner 3j coefficients:

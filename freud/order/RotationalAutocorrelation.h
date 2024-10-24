@@ -5,6 +5,7 @@
 #define ROTATIONAL_AUTOCORRELATION_H
 
 #include <complex>
+#include <memory>
 
 #include "ManagedArray.h"
 #include "VectorMath.h"
@@ -54,11 +55,11 @@ public:
     {
         // For efficiency, we precompute all required factorials for use during
         // the per-particle computation.
-        m_factorials.prepare(m_l + 1);
-        m_factorials[0] = 1;
+        m_factorials = std::make_shared<util::ManagedArray<unsigned int>>(m_l + 1);
+        (*m_factorials)[0] = 1;
         for (unsigned int i = 1; i <= m_l; i++)
         {
-            m_factorials[i] = i * m_factorials[i - 1];
+            (*m_factorials)[i] = i * (*m_factorials)[i - 1];
         }
     }
 
@@ -72,7 +73,7 @@ public:
     }
 
     //! Get a reference to the last computed rotational autocorrelation array.
-    const util::ManagedArray<std::complex<float>>& getRAArray() const
+    const std::shared_ptr<util::ManagedArray<std::complex<float>>>& getRAArray() const
     {
         return m_RA_array;
     }
@@ -120,8 +121,8 @@ private:
     unsigned int m_l; //!< Order of the hyperspherical harmonic.
     float m_Ft {0};   //!< Real value of calculated RA function.
 
-    util::ManagedArray<std::complex<float>> m_RA_array; //!< Array of RA values per particle
-    util::ManagedArray<unsigned int> m_factorials;      //!< Array of cached factorials
+    std::shared_ptr<util::ManagedArray<std::complex<float>>> m_RA_array; //!< Array of RA values per particle
+    std::shared_ptr<util::ManagedArray<unsigned int>> m_factorials;      //!< Array of cached factorials
 };
 
 }; }; // end namespace freud::order

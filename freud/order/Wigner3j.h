@@ -7,6 +7,9 @@
 #include <complex>
 #include <vector>
 
+#include "VectorMath.h"
+#include "ManagedArray.h"
+
 /*! \file Wigner3j.h
  *  \brief Stores and reduces over Wigner 3j coefficients for l from 0 to 20
  */
@@ -21,6 +24,7 @@ int lmIndex(int l, int m);
 //  third-order rotational invariant quantity.
 //  source array must be indexed by m, like [0, 1, ..., l, -1, -2, ..., -l].
 float reduceWigner3j(const std::complex<float>* source, unsigned int l_, const std::vector<double>& wigner3j);
+// float reduceWigner3j(const util::ManagedArray<std::complex<float>>* source, unsigned int l_, const std::vector<double>& wigner3j);
 
 std::vector<double> getWigner3j(unsigned int l);
 // All Wigner 3j coefficients created using sympy
