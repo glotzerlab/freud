@@ -40,7 +40,7 @@ std::shared_ptr<NeighborList> makeDefaultNlist(const std::shared_ptr<NeighborQue
 class NeighborListPerPointIterator : public NeighborPerPointIterator
 {
 public:
-    NeighborListPerPointIterator(const NeighborList* nlist, size_t point_index)
+    NeighborListPerPointIterator(const std::shared_ptr<NeighborList> nlist, size_t point_index)
         : NeighborPerPointIterator(point_index), m_nlist(nlist)
     {
         m_current_index = m_nlist->find_first_index(point_index);
@@ -76,7 +76,7 @@ public:
     }
 
 private:
-    const NeighborList* m_nlist; //! The NeighborList being iterated over.
+    const std::shared_ptr<NeighborList> m_nlist; //! The NeighborList being iterated over.
     size_t m_current_index;      //! The row of m_nlist where the iterator is currently located.
     size_t m_returned_point_index {
         0xffffffff}; //! The index of the last returned point (i.e. the value of
@@ -110,8 +110,8 @@ private:
  * input. It should implement iteration logic over the iterator.
  */
 template<typename ComputePairType>
-void loopOverNeighborsIterator(const NeighborQuery* neighbor_query, const vec3<float>* query_points,
-                               unsigned int n_query_points, QueryArgs qargs, const NeighborList* nlist,
+void loopOverNeighborsIterator(const std::shared_ptr<NeighborQuery>& neighbor_query, const vec3<float>* query_points,
+                               unsigned int n_query_points, QueryArgs qargs, const std::shared_ptr<NeighborList>& nlist,
                                const ComputePairType& cf, bool parallel = true)
 {
     // check if nlist exists
@@ -122,8 +122,7 @@ void loopOverNeighborsIterator(const NeighborQuery* neighbor_query, const vec3<f
             [&](size_t begin, size_t end) {
                 for (size_t i = begin; i != end; ++i)
                 {
-                    std::shared_ptr<NeighborListPerPointIterator> niter
-                        = std::make_shared<NeighborListPerPointIterator>(nlist, i);
+                    NeighborListPerPointIterator niter = NeighborListPerPointIterator(nlist, i);
                     cf(i, niter);
                 }
             },
