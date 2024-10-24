@@ -8,6 +8,7 @@
 #include <nanobind/stl/tuple.h>      // NOLINT(misc-include-cleaner): used implicitly
 #include <utility>
 
+#include "ManagedArray.h"
 #include "RotationalAutocorrelation.h"
 #include "VectorMath.h"
 
@@ -31,11 +32,6 @@ void computeRotationalAutocorrelation(const std::shared_ptr<RotationalAutocorrel
     self->compute(ref_orientations_data, orientations_data, num_orientations);
 }
 
-void getRAArray(const std::shared_ptr<RotationalAutocorrelation>& self)
-{
-    auto raarray = self->getRAArray(); // TODO: convert to std::vector then nb list?
-}
-
 }; // namespace wrap
 
 namespace detail {
@@ -48,7 +44,7 @@ void export_RotationalAutocorrelation(nanobind::module_& m)
              nanobind::arg("orientations"))
         .def("getL", &RotationalAutocorrelation::getL)
         .def("getRotationalAutocorrelation", &RotationalAutocorrelation::getRotationalAutocorrelation)
-        .def("getRAArray", &wrap::getRAArray);
+        .def("getRAArray", &RotationalAutocorrelation::getRAArray);
 }
 
 } // namespace detail
