@@ -627,9 +627,10 @@ class Steinhardt(_PairCompute):
         """
 
         # Call the pair compute setup function
+        print(neighbors)
         nq, nlist, qargs, l_query_points, num_query_points = self._preprocess_arguments(system, neighbors=neighbors)
 
-        self._cpp_obj.compute(nlist, nq, qargs._cpp_obj)
+        self._cpp_obj.compute(nlist._cpp_obj, nq, qargs._cpp_obj)
         return self
 
     def __repr__(self):
@@ -930,9 +931,6 @@ class RotationalAutocorrelation(_Compute):
         """(:math:`N_{orientations}`) :class:`numpy.ndarray`: Rotational
         autocorrelation values calculated for each orientation."""
         return self._cpp_obj.getRAArray().toNumpyArray()
-        # freud.util.make_managed_numpy_array(
-        #     &self.thisptr.getRAArray(),
-        #     freud.util.arr_type_t.COMPLEX_FLOAT)
 
     @property
     def l(self):  # noqa: E743

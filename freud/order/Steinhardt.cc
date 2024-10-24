@@ -66,8 +66,9 @@ void Steinhardt::reallocateArrays(unsigned int Np)
     }
 }
 
-void Steinhardt::compute(const freud::locality::NeighborList* nlist,
-                         const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs)
+void Steinhardt::compute(const std::shared_ptr<freud::locality::NeighborList>& nlist,
+                         const std::shared_ptr<freud::locality::NeighborQuery>& points, 
+                         const freud::locality::QueryArgs& qargs)
 {
     // Allocate and zero out arrays as necessary.
     reallocateArrays(points->getNPoints());
@@ -100,8 +101,8 @@ void Steinhardt::compute(const freud::locality::NeighborList* nlist,
     m_norm = normalizeSystem();
 }
 
-void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
-                             const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs)
+void Steinhardt::baseCompute(const std::shared_ptr<freud::locality::NeighborList>& nlist,
+                             const std::shared_ptr<freud::locality::NeighborQuery>& points, const freud::locality::QueryArgs& qargs)
 {
     std::vector<float> normalizationfactor(m_ls.size());
     for (size_t l_index = 0; l_index < m_ls.size(); ++l_index)
@@ -203,8 +204,9 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
         });
 }
 
-void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
-                            const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs)
+void Steinhardt::computeAve(const std::shared_ptr<freud::locality::NeighborList>& nlist,
+                            const std::shared_ptr<freud::locality::NeighborQuery>& points, 
+                            const freud::locality::QueryArgs& qargs)
 {
     std::shared_ptr<locality::NeighborQueryIterator> iter;
     if (nlist == nullptr)

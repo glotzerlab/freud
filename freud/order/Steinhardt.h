@@ -151,8 +151,9 @@ public:
     }
 
     //! Compute the order parameter
-    void compute(const freud::locality::NeighborList* nlist, const freud::locality::NeighborQuery* points,
-                 freud::locality::QueryArgs qargs);
+    void compute(const std::shared_ptr<freud::locality::NeighborList>& nlist, 
+                 const std::shared_ptr<freud::locality::NeighborQuery>& points,
+                 const freud::locality::QueryArgs& qargs);
 
     std::vector<unsigned int> getL() const
     {
@@ -174,12 +175,12 @@ private:
     void reallocateArrays(unsigned int Np);
 
     //! Calculates qlms and the ql order parameter before any further modifications
-    void baseCompute(const freud::locality::NeighborList* nlist, const freud::locality::NeighborQuery* points,
-                     freud::locality::QueryArgs qargs);
+    void baseCompute(const std::shared_ptr<freud::locality::NeighborList>& nlist, const std::shared_ptr<freud::locality::NeighborQuery>& points,
+                     const freud::locality::QueryArgs& qargs);
 
     //! Calculates the neighbor average ql order parameter
-    void computeAve(const freud::locality::NeighborList* nlist, const freud::locality::NeighborQuery* points,
-                    freud::locality::QueryArgs qargs);
+    void computeAve(const std::shared_ptr<freud::locality::NeighborList>& nlist, const std::shared_ptr<freud::locality::NeighborQuery>& points,
+                    const freud::locality::QueryArgs& qargs);
 
     //! Compute the system-wide order by averaging over particles, then
     //  reducing over the m values to produce a single scalar.
