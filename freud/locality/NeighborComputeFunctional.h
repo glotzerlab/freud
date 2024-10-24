@@ -122,7 +122,8 @@ void loopOverNeighborsIterator(const std::shared_ptr<NeighborQuery>& neighbor_qu
             [&](size_t begin, size_t end) {
                 for (size_t i = begin; i != end; ++i)
                 {
-                    NeighborListPerPointIterator niter = NeighborListPerPointIterator(nlist, i);
+                    std::shared_ptr<NeighborListPerPointIterator> niter
+                        = std::make_shared<NeighborListPerPointIterator>(nlist, i);
                     cf(i, niter);
                 }
             },
