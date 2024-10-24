@@ -6,6 +6,8 @@
 #include <nanobind/ndarray.h>
 // #include <nanobind/stl/list.h>      // NOLINT(misc-include-cleaner): used implicitly
 #include <nanobind/stl/vector.h>
+#include <nanobind/stl/shared_ptr.h> // NOLINT(misc-include-cleaner): used implicitly
+
 #include <utility>
 
 #include "Steinhardt.h"
@@ -35,7 +37,7 @@ void export_Steinhardt(nanobind::module_& m)
 {
     nanobind::class_<Steinhardt>(m, "Steinhardt")
         .def(nanobind::init<std::vector<unsigned int>, bool, bool, bool, bool>())
-        .def("compute", &Steinhardt::compute) // TODO: may require preprocessing?
+        .def("compute", &Steinhardt::compute, nanobind::arg("nlist").none(), nanobind::arg("points"), nanobind::arg("qargs"))
         .def("isAverage", &Steinhardt::isAverage)
         .def("isWl", &Steinhardt::isWl)
         .def("isWeighted", &Steinhardt::isWeighted)
