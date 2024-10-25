@@ -5,7 +5,6 @@
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
 #include <nanobind/stl/shared_ptr.h> // NOLINT(misc-include-cleaner): used implicitly
-// #include <nanobind/stl/tuple.h>      // NOLINT(misc-include-cleaner): used implicitly
 #include <utility>
 
 // #include "ManagedArray.h"
@@ -23,7 +22,7 @@ void export_SolidLiquid(nanobind::module_& m)
 {
     nanobind::class_<SolidLiquid>(m, "SolidLiquid")
         .def(nanobind::init<unsigned int, float, unsigned int, bool>())
-        // .def("getRAArray", &RotationalAutocorrelation::getRAArray)
+        .def("compute", &SolidLiquid::compute, nanobind::arg("nlist").none(), nanobind::arg("points"), nanobind::arg("qargs"))
         ;
 }
 

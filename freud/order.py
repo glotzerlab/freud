@@ -1,5 +1,5 @@
 # Copyright (c) 2010-2024 The Regents of the University of Michigan
-# This file is from the freud project, released under the BSD 3-Clause License.
+# This file is from the freud project, released under the BSD 3-Clause License->
 # ruff: noqa: E741
 r"""
 The :class:`freud.order` module contains functions which compute order
@@ -669,80 +669,68 @@ class Steinhardt(_PairCompute):
             return None
 
 
-# cdef class SolidLiquid(_PairCompute):
-#     r"""Identifies solid-like clusters using dot products of :math:`q_{lm}`.
+class SolidLiquid(_PairCompute):
+    r"""Identifies solid-like clusters using dot products of :math:`q_{lm}`.
 
-#     The solid-liquid order parameter :cite:`Wolde:1995aa,Filion_2010` uses a
-#     Steinhardt-like approach to identify solid-like particles. First, a bond
-#     parameter :math:`q_l(i, j)` is computed for each neighbor bond.
+    The solid-liquid order parameter :cite:`Wolde:1995aa,Filion_2010` uses a
+    Steinhardt-like approach to identify solid-like particles. First, a bond
+    parameter :math:`q_l(i, j)` is computed for each neighbor bond.
 
-#     If :code:`normalize_q` is true (default), the bond parameter is given by
-#     :math:`q_l(i, j) = \frac{\sum \limits_{m=-l}^{l} \text{Re}~q_{lm}(i) q_{lm}^*(j)}
-#     {\sqrt{\sum \limits_{m=-l}^{l} \lvert q_{lm}(i) \rvert^2}
-#     \sqrt{\sum \limits_{m=-l}^{l} \lvert q_{lm}(j) \rvert^2}}`
+    If :code:`normalize_q` is true (default), the bond parameter is given by
+    :math:`q_l(i, j) = \frac{\sum \limits_{m=-l}^{l} \text{Re}~q_{lm}(i) q_{lm}^*(j)}
+    {\sqrt{\sum \limits_{m=-l}^{l} \lvert q_{lm}(i) \rvert^2}
+    \sqrt{\sum \limits_{m=-l}^{l} \lvert q_{lm}(j) \rvert^2}}`
 
-#     If :code:`normalize_q` is false, then the denominator of the above
-#     expression is left out.
+    If :code:`normalize_q` is false, then the denominator of the above
+    expression is left out.
 
-#     Next, the bonds are filtered to keep only "solid-like" bonds with
-#     :math:`q_l(i, j)` above a cutoff value :math:`q_{threshold}`.
+    Next, the bonds are filtered to keep only "solid-like" bonds with
+    :math:`q_l(i, j)` above a cutoff value :math:`q_{threshold}`.
 
-#     If a particle has more than :math:`S_{threshold}` solid-like bonds, then
-#     the particle is considered solid-like. Finally, solid-like particles are
-#     clustered.
+    If a particle has more than :math:`S_{threshold}` solid-like bonds, then
+    the particle is considered solid-like. Finally, solid-like particles are
+    clustered.
 
-#     Args:
-#         l (unsigned int):
-#             Spherical harmonic quantum number l.
-#         q_threshold (float):
-#             Value of dot product threshold when evaluating
-#             :math:`q_l(i, j)` to determine if a bond is solid-like. For
-#             :math:`l=6`, 0.7 is generally good for FCC or BCC structures
-#             :cite:`Filion_2010`.
-#         solid_threshold (unsigned int):
-#             Minimum required number of adjacent solid-like bonds for a particle
-#             to be considered solid-like for clustering. For :math:`l=6`, 6-8
-#             is generally good for FCC or BCC structures.
-#         normalize_q (bool):
-#             Whether to normalize the dot product (Default value =
-#             :code:`True`).
-#     """  # noqa: E501
-#     cdef freud._order.SolidLiquid * thisptr
+    Args:
+        l (unsigned int):
+            Spherical harmonic quantum number l.
+        q_threshold (float):
+            Value of dot product threshold when evaluating
+            :math:`q_l(i, j)` to determine if a bond is solid-like. For
+            :math:`l=6`, 0.7 is generally good for FCC or BCC structures
+            :cite:`Filion_2010`.
+        solid_threshold (unsigned int):
+            Minimum required number of adjacent solid-like bonds for a particle
+            to be considered solid-like for clustering. For :math:`l=6`, 6-8
+            is generally good for FCC or BCC structures.
+        normalize_q (bool):
+            Whether to normalize the dot product (Default value =
+            :code:`True`).
+    """
 
-#     def __cinit__(self, l, q_threshold, solid_threshold, normalize_q=True):
-#         self.thisptr = new freud._order.SolidLiquid(
-#             l, q_threshold, solid_threshold, normalize_q)
+    def __init__(self, l, q_threshold, solid_threshold, normalize_q=True):
+        self._cpp_obj = freud._order.SolidLiquid(l, q_threshold, solid_threshold, normalize_q)
 
-#     def __dealloc__(self):
-#         del self.thisptr
 
-#     def compute(self, system, neighbors=None):
-#         r"""Compute the order parameter.
+    def compute(self, system, neighbors=None):
+        r"""Compute the order parameter.
 
-#         Args:
-#             system:
-#                 Any object that is a valid argument to
-#                 :class:`freud.locality.NeighborQuery.from_system`.
-#             neighbors (:class:`freud.locality.NeighborList` or dict, optional):
-#                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
-#                 neighbor pairs to use in the calculation, or a dictionary of
-#                 `query arguments
-#                 <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
-#                 (Default value: None).
-#         """
-#         cdef:
-#             freud.locality.NeighborQuery nq
-#             freud.locality.NeighborList nlist
-#             freud.locality._QueryArgs qargs
-#             const float[:, ::1] l_query_points
-#             unsigned int num_query_points
+        Args:
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
+            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
+                Either a :class:`NeighborList <freud.locality.NeighborList>` of
+                neighbor pairs to use in the calculation, or a dictionary of
+                `query arguments
+                <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
+                (Default value: None).
+        """
 
-#         nq, nlist, qargs, l_query_points, num_query_points = \
-#             self._preprocess_arguments(system, neighbors=neighbors)
-#         self.thisptr.compute(nlist.get_ptr(),
-#                              nq.get_ptr(),
-#                              dereference(qargs.thisptr))
-#         return self
+        nq, nlist, qargs, l_query_points, num_query_points = \
+            self._preprocess_arguments(system, neighbors=neighbors)
+        self._cpp_obj.compute(nlist._cpp_obj, nq._cpp_obj, qargs._cpp_obj)
+        return self
 
 #     @property
 #     def l(self):  # noqa: E743
