@@ -566,16 +566,15 @@ class Steinhardt(_PairCompute):
 #         order = list(self.thisptr.getOrder())
 #         return order[0] if len(order) == 1 else order
 
-#     @_Compute._computed_property
-#     def particle_order(self):
-#         """:math:`\\left(N_{particles}, N_l \\right)` :class:`numpy.ndarray`:
-#         Variant of the Steinhardt order parameter for each particle (filled with
-#         :code:`nan` for particles with no neighbors)."""
-#         array = freud.util.make_managed_numpy_array(
-#             &self.thisptr.getParticleOrder(), freud.util.arr_type_t.FLOAT)
-#         if array.shape[1] == 1:
-#             return np.ravel(array)
-#         return array
+    @_Compute._computed_property
+    def particle_order(self):
+        """:math:`\\left(N_{particles}, N_l \\right)` :class:`numpy.ndarray`:
+        Variant of the Steinhardt order parameter for each particle (filled with
+        :code:`nan` for particles with no neighbors)."""
+        particle_orders = self._cpp_obj.getParticleOrder().toNumpyArray()
+        if particle_orders.shape[1] == 1:
+            return np.ravel(particle_orders)
+        return particle_orders
 
 #     @_Compute._computed_property
 #     def ql(self):
@@ -591,18 +590,13 @@ class Steinhardt(_PairCompute):
 #             return np.ravel(array)
 #         return array
 
-#     @_Compute._computed_property
-#     def particle_harmonics(self):
-#         """:math:`\\left(N_{particles}, 2l+1\\right)` :class:`numpy.ndarray`:
-#         The raw array of :math:`q_{lm}(i)`. The array is provided in the
-#         order given by fsph: :math:`m = 0, 1, ..., l, -1, ..., -l`."""
-#         qlm_arrays = self.thisptr.getQlm()
-#         # Since Cython does not really support const iteration, we must iterate
-#         # using range and not use the for array in qlm_arrays style for loop.
-#         qlm_list = [freud.util.make_managed_numpy_array(
-#             &qlm_arrays[i], freud.util.arr_type_t.COMPLEX_FLOAT)
-#             for i in range(qlm_arrays.size())]
-#         return qlm_list if len(qlm_list) > 1 else qlm_list[0]
+    @_Compute._computed_property
+    def particle_harmonics(self):
+        """:math:`\\left(N_{particles}, 2l+1\\right)` :class:`numpy.ndarray`:
+        The raw array of :math:`q_{lm}(i)`. The array is provided in the
+        order given by fsph: :math:`m = 0, 1, ..., l, -1, ..., -l`."""
+        qlm_list = [qlm.toNumpyArray() for qlm in self._cpp_obj.getQlm()]
+        return qlm_list if len(qlm_list) > 1 else qlm_list[0]
 
     def compute(self, system, neighbors=None):
         r"""Compute the order parameter.
