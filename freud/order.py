@@ -1,6 +1,6 @@
 # Copyright (c) 2010-2024 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
-# ruff: noqa: E731
+# ruff: noqa: E741
 r"""
 The :class:`freud.order` module contains functions which compute order
 parameters for the whole system or individual particles. Order parameters take
@@ -523,7 +523,7 @@ class Steinhardt(_PairCompute):
         if not isinstance(l, collections.abc.Sequence):
             l = [l]
         if len(l) == 0:
-            raise ValueError("At least one l must be specified.")
+            raise ValueError("At least one l must be specified.") # noqa: EM101
         self._cpp_obj = freud._order.Steinhardt(l, average, wl, weighted, wl_normalize)
 
 
@@ -561,8 +561,6 @@ class Steinhardt(_PairCompute):
         :math:`\overline{q}_{lm}` values if ``average`` is enabled) over all
         particles before computing the rotationally-invariant order
         parameter."""
-        # list conversion is necessary as otherwise CI Cython complains about
-        # compiling the below expression with two different types.
         order = self._cpp_obj.getOrder()
         return order[0] if len(order) == 1 else order
 
@@ -571,10 +569,8 @@ class Steinhardt(_PairCompute):
         """:math:`\\left(N_{particles}, N_l \\right)` :class:`numpy.ndarray`:
         Variant of the Steinhardt order parameter for each particle (filled with
         :code:`nan` for particles with no neighbors)."""
-        particle_orders = self._cpp_obj.getParticleOrder().toNumpyArray()
-        if particle_orders.shape[1] == 1:
-            return np.ravel(particle_orders)
-        return particle_orders
+        p_orders = self._cpp_obj.getParticleOrder().toNumpyArray()
+        return np.ravel(p_orders) if p_orders.shape[1] == 1 else p_orders 
 
     @_Compute._computed_property
     def ql(self):
@@ -586,11 +582,6 @@ class Steinhardt(_PairCompute):
         ``average``, ``wl``, ``wl_normalize``."""
         ql = self._cpp_obj.getQl().toNumpyArray()
         return np.ravel(ql) if ql.shape[1] == 1 else ql
-        # array = freud.util.make_managed_numpy_array(
-        #     &self.thisptr.getQl(), freud.util.arr_type_t.FLOAT)
-        # if array.shape[1] == 1:
-        #     return np.ravel(array)
-        # return ql
 
     @_Compute._computed_property
     def particle_harmonics(self):
@@ -633,44 +624,42 @@ class Steinhardt(_PairCompute):
                 f"average={self.average}, wl={self.wl}, weighted={self.weighted}, "
                 f"wl_normalize={self.wl_normalize})")
 
-#     def plot(self, ax=None):
-#         """Plot order parameter distribution.
+    def plot(self, ax=None):
+        """Plot order parameter distribution.
 
-#         Args:
-#             ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
-#                 :code:`None`, make a new figure and axis
-#                 (Default value = :code:`None`).
+        Args:
+            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
+                :code:`None`, make a new figure and axis
+                (Default value = :code:`None`).
 
-#         Returns:
-#             (:class:`matplotlib.axes.Axes`): Axis with the plot.
-#         """
-#         import freud.plot
+        Returns:
+            (:class:`matplotlib.axes.Axes`): Axis with the plot.
+        """
+        import freud.plot
 
-#         ls = self.l
-#         if not isinstance(ls, list):
-#             ls = [ls]
+        ls = self.l
+        if not isinstance(ls, list):
+            ls = [ls]
 
-#         legend_labels = [
-#             r"${mode_letter}{prime}_{{{sph_l}{average}}}$".format(
-#                 mode_letter='w' if self.wl else 'q',
-#                 prime='\'' if self.weighted else '',
-#                 sph_l=sph_l,
-#                 average=',ave' if self.average else '')
-#             for sph_l in ls
-#         ]
-#         xlabel = ', '.join(legend_labels)
+        legend_labels = [
+            (
+                fr"${'w' if self.wl else 'q'}{'\'' if self.weighted else ''}_"
+                f"{{{sph_l}{',ave' if self.average else ''}}}$"
+            ) for sph_l in ls
+        ]
+        xlabel = ', '.join(legend_labels)
 
-#         # Don't print legend if only one l requested.
-#         if len(legend_labels) == 1:
-#             legend_labels = None
+        # Don't print legend if only one l requested.
+        if len(legend_labels) == 1:
+            legend_labels = None
 
-#         return freud.plot.histogram_plot(
-#             self.particle_order,
-#             title="Steinhardt Order Parameter " + xlabel,
-#             xlabel=xlabel,
-#             ylabel=r"Number of particles",
-#             ax=ax,
-#             legend_labels=legend_labels)
+        return freud.plot.histogram_plot(
+            self.particle_order,
+            title="Steinhardt Order Parameter " + xlabel,
+            xlabel=xlabel,
+            ylabel=r"Number of particles",
+            ax=ax,
+            legend_labels=legend_labels)
 
     def _repr_png_(self):
         try:
