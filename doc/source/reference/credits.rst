@@ -403,6 +403,12 @@ Philipp Schönhöfer
 
 * Contributed code, design, documentation, and testing for ``freud.locality.FilterRAD`` class.
 
+
+Jen Bradley
+
+* Updated CMake to color error messages for build systems that buffer output.
+
+
 Source code
 -----------
 
