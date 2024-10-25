@@ -39,7 +39,6 @@ void SolidLiquid::compute(const std::shared_ptr<freud::locality::NeighborList>& 
     // Compute (normalized) dot products for each bond in the neighbor list
     const auto normalizationfactor = float(4.0 * M_PI / m_num_ms);
     const unsigned int num_bonds(m_nlist->getNumBonds());
-    // m_ql_ij.prepare(num_bonds);
     m_ql_ij = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {num_bonds});
 
     util::forLoopWrapper(
@@ -81,7 +80,6 @@ void SolidLiquid::compute(const std::shared_ptr<freud::locality::NeighborList>& 
     solid_nlist.filter(solid_filter.cbegin());
 
     // Save the neighbor counts of solid-like bonds for each query point
-    // m_number_of_connections.prepare(num_query_points);
     m_number_of_connections = std::make_shared<util::ManagedArray<unsigned int>>(std::vector<size_t> {num_query_points});
     
     for (unsigned int i(0); i < num_query_points; i++)
