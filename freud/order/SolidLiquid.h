@@ -124,9 +124,9 @@ public:
     }
 
     //! Return a pointer to the NeighborList used in the last call to compute.
-    locality::NeighborList* getNList()
+    std::shared_ptr<locality::NeighborList> getNList()
     {
-        return &m_nlist;
+        return m_nlist;
     }
 
     //! Get the last calculated qlm for each particle
@@ -147,7 +147,7 @@ private:
     float m_q_threshold;            //!< Dot product cutoff
     unsigned int m_solid_threshold; //!< Solid-like num connections cutoff
     bool m_normalize_q;             //!< Whether to normalize the qlmi dot products.
-    locality::NeighborList m_nlist; //!< The NeighborList used in the last call to compute.
+    std::shared_ptr<locality::NeighborList> m_nlist; //!< The NeighborList used in the last call to compute.
 
     freud::order::Steinhardt m_steinhardt; //!< Steinhardt class used to compute qlm
     freud::cluster::Cluster m_cluster;     //!< Cluster class used to cluster solid-like bonds
