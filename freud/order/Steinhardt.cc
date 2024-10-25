@@ -61,7 +61,7 @@ void Steinhardt::reallocateArrays(unsigned int Np)
         if (m_average)
         {
             // m_qlmiAve[l_index].prepare({Np, num_ms});
-            m_qlmAve[l_index] = std::make_shared<util::ManagedArray<std::complex<float>>>(std::vector<size_t>{Np, num_ms});
+            m_qlmiAve[l_index] = std::make_shared<util::ManagedArray<std::complex<float>>>(std::vector<size_t>{Np, num_ms});
         }
     }
 }

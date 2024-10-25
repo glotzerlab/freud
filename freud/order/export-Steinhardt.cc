@@ -43,6 +43,7 @@ void export_Steinhardt(nanobind::module_& m)
         .def("isWeighted", &Steinhardt::isWeighted)
         .def("isWlNormalized", &Steinhardt::isWlNormalized)
         .def("getL", &Steinhardt::getL)
+        .def("getOrder", &Steinhardt::getOrder)
         .def("getParticleOrder", &Steinhardt::getParticleOrder)
         .def("getQlm", &Steinhardt::getQlm)
         ;
