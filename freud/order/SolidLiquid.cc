@@ -4,6 +4,7 @@
 #include <stdexcept>
 
 #include "NeighborComputeFunctional.h"
+#include "NeighborList.h"
 #include "SolidLiquid.h"
 
 namespace freud { namespace order {
@@ -47,15 +48,15 @@ void SolidLiquid::compute(const std::shared_ptr<freud::locality::NeighborList>& 
             for (unsigned int i = begin; i != end; ++i)
             {
                 unsigned int bond(m_nlist.find_first_index(i));
-                for (; bond < num_bonds && m_nlist.getNeighbors()(bond, 0) == i; ++bond)
+                for (; bond < num_bonds && (*m_nlist.getNeighbors())(bond, 0) == i; ++bond)
                 {
-                    const unsigned int j(m_nlist.getNeighbors()(bond, 1));
+                    const unsigned int j((*m_nlist.getNeighbors())(bond, 1));
 
                     // Accumulate the dot product over m of qlmi and qlmj vectors
                     std::complex<float> bond_ql_ij = 0;
                     for (unsigned int k = 0; k < m_num_ms; k++)
                     {
-                        bond_ql_ij += qlm(i, k) * std::conj(qlm(j, k));
+                        bond_ql_ij += (*qlm)(i, k) * std::conj((*qlm)(j, k));
                     }
 
                     // Optionally normalize dot products by points' ql values,
@@ -94,16 +95,16 @@ void SolidLiquid::compute(const std::shared_ptr<freud::locality::NeighborList>& 
     std::vector<bool> neighbor_count_filter(num_solid_bonds);
     for (unsigned int bond(0); bond < num_solid_bonds; bond++)
     {
-        const unsigned int i(solid_nlist.getNeighbors()(bond, 0));
-        const unsigned int j(solid_nlist.getNeighbors()(bond, 1));
+        const unsigned int i((*solid_nlist.getNeighbors())(bond, 0));
+        const unsigned int j((*solid_nlist.getNeighbors())(bond, 1));
         neighbor_count_filter[bond] = ((*m_number_of_connections)[i] >= m_solid_threshold
                                        && (*m_number_of_connections)[j] >= m_solid_threshold);
     }
-    freud::locality::NeighborList& solid_neighbor_nlist(solid_nlist);
+    freud::locality::NeighborList solid_neighbor_nlist(solid_nlist);
     solid_neighbor_nlist.filter(neighbor_count_filter.cbegin());
 
     // Find clusters of solid-like particles
-    m_cluster.compute(points, solid_neighbor_nlist, qargs);
+    m_cluster.compute(points, std::make_shared<freud::locality::NeighborList>(solid_neighbor_nlist), qargs);
 }
 
 }; }; // end namespace freud::order
