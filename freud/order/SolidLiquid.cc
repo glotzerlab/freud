@@ -31,7 +31,7 @@ void SolidLiquid::compute(const std::shared_ptr<freud::locality::NeighborList>& 
     const unsigned int num_query_points(m_nlist.getNumQueryPoints());
 
     // Compute Steinhardt using neighbor list (also gets ql for normalization)
-    m_steinhardt.compute(&m_nlist, points, qargs);
+    m_steinhardt.compute(std::make_shared<freud::locality::NeighborList>(m_nlist), points, qargs);
     // SolidLiquid only has one l value so we index the 2D array from Steinhardt.
     const auto& qlm = m_steinhardt.getQlm()[0];
     const auto& ql = m_steinhardt.getQl();
