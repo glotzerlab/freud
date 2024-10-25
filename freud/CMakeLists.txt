@@ -100,8 +100,8 @@ add_library(
   order/Nematic.h
   order/RotationalAutocorrelation.cc
   order/RotationalAutocorrelation.h
-  # order/SolidLiquid.cc
-  # order/SolidLiquid.h
+  order/SolidLiquid.cc
+  order/SolidLiquid.h
   order/Steinhardt.cc
   order/Steinhardt.h
   order/Wigner3j.cc
@@ -175,8 +175,8 @@ target_set_install_rpath(_locality)
 
 # order
 nanobind_add_module(_order order/module-order.cc order/export-Nematic.cc
-                    order/export-RotationalAutocorrelation.cc
-                    order/export-Steinhardt.cc)
+                    order/export-RotationalAutocorrelation.cc order/export-Steinhardt.cc
+                    order/export-SolidLiquid.cc)
 target_link_libraries(_order PUBLIC freud)
 target_set_install_rpath(_order)
 
