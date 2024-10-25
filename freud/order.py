@@ -576,19 +576,21 @@ class Steinhardt(_PairCompute):
             return np.ravel(particle_orders)
         return particle_orders
 
-#     @_Compute._computed_property
-#     def ql(self):
-#         """:math:`\\left(N_{particles}, N_l\\right)` :class:`numpy.ndarray`:
-#         :math:`q_l` Steinhardt order parameter for each particle (filled with
-#         :code:`nan` for particles with no neighbors). This is always available,
-#         no matter which other options are selected. It obeys the ``weighted``
-#         argument but otherwise returns the "plain" :math:`q_l` regardless of
-#         ``average``, ``wl``, ``wl_normalize``."""
-#         array = freud.util.make_managed_numpy_array(
-#             &self.thisptr.getQl(), freud.util.arr_type_t.FLOAT)
-#         if array.shape[1] == 1:
-#             return np.ravel(array)
-#         return array
+    @_Compute._computed_property
+    def ql(self):
+        """:math:`\\left(N_{particles}, N_l\\right)` :class:`numpy.ndarray`:
+        :math:`q_l` Steinhardt order parameter for each particle (filled with
+        :code:`nan` for particles with no neighbors). This is always available,
+        no matter which other options are selected. It obeys the ``weighted``
+        argument but otherwise returns the "plain" :math:`q_l` regardless of
+        ``average``, ``wl``, ``wl_normalize``."""
+        ql = self._cpp_obj.getQl().toNumpyArray()
+        return np.ravel(ql) if ql.shape[1] == 1 else ql
+        # array = freud.util.make_managed_numpy_array(
+        #     &self.thisptr.getQl(), freud.util.arr_type_t.FLOAT)
+        # if array.shape[1] == 1:
+        #     return np.ravel(array)
+        # return ql
 
     @_Compute._computed_property
     def particle_harmonics(self):
@@ -621,7 +623,6 @@ class Steinhardt(_PairCompute):
         """
 
         # Call the pair compute setup function
-        # breakpoint()
         nq, nlist, qargs, l_query_points, num_query_points = self._preprocess_arguments(system, neighbors=neighbors)
 
         self._cpp_obj.compute(nlist._cpp_obj, nq._cpp_obj, qargs._cpp_obj)

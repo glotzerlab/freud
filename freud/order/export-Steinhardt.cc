@@ -46,6 +46,7 @@ void export_Steinhardt(nanobind::module_& m)
         .def("getOrder", &Steinhardt::getOrder)
         .def("getParticleOrder", &Steinhardt::getParticleOrder)
         .def("getQlm", &Steinhardt::getQlm)
+        .def("getQl", &Steinhardt::getQl)
         ;
 }
 
