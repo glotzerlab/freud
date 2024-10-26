@@ -10,6 +10,8 @@ harmonics of the bond order diagram, which are the spherical analogue of
 Fourier Transforms.
 """
 
+from math import floor
+
 from freud.util import _Compute  # , quat, vec3
 
 from freud.errors import FreudDeprecationWarning
@@ -709,6 +711,13 @@ class SolidLiquid(_PairCompute):
     """
 
     def __init__(self, l, q_threshold, solid_threshold, normalize_q=True):
+        if not isinstance(solid_threshold, int):
+            warning_text =  (
+                "solid_threshold should be an integer, and will be rounded down"
+                f" (got {solid_threshold})"
+            )
+            warnings.warn(warning_text, RuntimeWarning, stacklevel=2)
+            solid_threshold = floor(solid_threshold)
         self._cpp_obj = freud._order.SolidLiquid(l, q_threshold, solid_threshold, normalize_q)
 
 
@@ -732,115 +741,107 @@ class SolidLiquid(_PairCompute):
         self._cpp_obj.compute(nlist._cpp_obj, nq._cpp_obj, qargs._cpp_obj)
         return self
 
-#     @property
-#     def l(self):  # noqa: E743
-#         """unsigned int: Spherical harmonic quantum number l."""
-#         return self.thisptr.getL()
+    @property
+    def l(self):  # noqa: E743
+        """unsigned int: Spherical harmonic quantum number l."""
+        return self._cpp_obj.getL()
 
-#     @property
-#     def q_threshold(self):
-#         """float: Value of dot product threshold."""
-#         return self.thisptr.getQThreshold()
+    @property
+    def q_threshold(self):
+        """float: Value of dot product threshold."""
+        return self._cpp_obj.getQThreshold()
 
-#     @property
-#     def solid_threshold(self):
-#         """float: Value of number-of-bonds threshold."""
-#         return self.thisptr.getSolidThreshold()
+    @property
+    def solid_threshold(self):
+        """float: Value of number-of-bonds threshold."""
+        return self._cpp_obj.getSolidThreshold()
 
-#     @property
-#     def normalize_q(self):
-#         """bool: Whether the dot product is normalized."""
-#         return self.thisptr.getNormalizeQ()
+    @property
+    def normalize_q(self):
+        """bool: Whether the dot product is normalized."""
+        return self._cpp_obj.getNormalizeQ()
 
-#     @_Compute._computed_property
-#     def cluster_idx(self):
-#         """:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:
-#         Solid-like cluster indices for each particle."""
-#         return freud.util.make_managed_numpy_array(
-#             &self.thisptr.getClusterIdx(),
-#             freud.util.arr_type_t.UNSIGNED_INT)
+    @_Compute._computed_property
+    def cluster_idx(self):
+        """:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:
+        Solid-like cluster indices for each particle."""
+        return self._cpp_obj.getClusterIdx().toNumpyArray()
 
-#     @_Compute._computed_property
-#     def ql_ij(self):
-#         """:math:`\\left(N_{bonds}\\right)` :class:`numpy.ndarray`: Bond dot
-#         products :math:`q_l(i, j)`. Indexed by the elements of
-#         :code:`self.nlist`."""
-#         return freud.util.make_managed_numpy_array(
-#             &self.thisptr.getQlij(),
-#             freud.util.arr_type_t.FLOAT)
+    @_Compute._computed_property
+    def ql_ij(self):
+        """:math:`\\left(N_{bonds}\\right)` :class:`numpy.ndarray`: Bond dot
+        products :math:`q_l(i, j)`. Indexed by the elements of
+        :code:`self.nlist`."""
+        return self._cpp_obj.getQlij().toNumpyArray()
 
-#     @_Compute._computed_property
-#     def particle_harmonics(self):
-#         """:math:`\\left(N_{particles}, 2*l+1\\right)` :class:`numpy.ndarray`:
-#         The raw array of \\overline{q}_{lm}(i). The array is provided in the
-#         order given by fsph: :math:`m = 0, 1, ..., l, -1, ..., -l`."""
-#         return freud.util.make_managed_numpy_array(
-#             &self.thisptr.getQlm(),
-#             freud.util.arr_type_t.COMPLEX_FLOAT)
+    @_Compute._computed_property
+    def particle_harmonics(self):
+        """:math:`\\left(N_{particles}, 2*l+1\\right)` :class:`numpy.ndarray`:
+        The raw array of \\overline{q}_{lm}(i). The array is provided in the
+        order given by fsph: :math:`m = 0, 1, ..., l, -1, ..., -l`."""
+        return self._cpp_obj.getQlm().toNumpyArray()
 
-#     @_Compute._computed_property
-#     def cluster_sizes(self):
-#         """:math:`(N_{clusters}, )` :class:`np.ndarray`: The sizes of all
-#         clusters."""
-#         return np.asarray(self.thisptr.getClusterSizes())
+    @_Compute._computed_property
+    def cluster_sizes(self):
+        """:math:`(N_{clusters}, )` :class:`np.ndarray`: The sizes of all
+        clusters."""
+        # return np.asarray(self.thisptr.getClusterSizes())
+        return self._cpp_obj.getClusterSizes().toNumpyArray()
 
-#     @_Compute._computed_property
-#     def largest_cluster_size(self):
-#         """unsigned int: The largest cluster size."""
-#         return self.thisptr.getLargestClusterSize()
+    @_Compute._computed_property
+    def largest_cluster_size(self):
+        """unsigned int: The largest cluster size."""
+        # return self.thisptr.getLargestClusterSize()
+        return self._cpp_obj.getLargestClusterSize()
 
-#     @_Compute._computed_property
-#     def nlist(self):
-#         """:class:`freud.locality.NeighborList`: Neighbor list of solid-like
-#         bonds."""
-#         nlist = freud.locality._nlist_from_cnlist(self.thisptr.getNList())
-#         nlist._compute = self
-#         return nlist
+    @_Compute._computed_property
+    def nlist(self):
+        """:class:`freud.locality.NeighborList`: Neighbor list of solid-like
+        bonds."""
+        # nlist = freud.locality._nlist_from_cnlist(self._cpp_obj.getNList())
+        # nlist._compute = self
+        # return nlist
+        return freud.locality._nlist_from_cnlist(self._cpp_obj.getNList())
 
-#     @_Compute._computed_property
-#     def num_connections(self):
-#         """:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`: The
-#         number of solid-like bonds for each particle."""
-#         return freud.util.make_managed_numpy_array(
-#             &self.thisptr.getNumberOfConnections(),
-#             freud.util.arr_type_t.UNSIGNED_INT)
+    @_Compute._computed_property
+    def num_connections(self):
+        """:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`: The
+        number of solid-like bonds for each particle."""
+        return self._cpp_obj.getNumberOfConnections().toNumpyArray()
 
-#     def __repr__(self):
-#         return ("freud.order.{cls}(l={sph_l}, q_threshold={q_threshold}, "
-#                 "solid_threshold={solid_threshold}, "
-#                 "normalize_q={normalize_q})").format(
-#                     cls=type(self).__name__,
-#                     sph_l=self.l,
-#                     q_threshold=self.q_threshold,
-#                     solid_threshold=self.solid_threshold,
-#                     normalize_q=self.normalize_q)
+    def __repr__(self):
+        return (
+            f"freud.order.{type(self).__name__}(l={self.l}, "
+            f"q_threshold={self.q_threshold}, solid_threshold={self.solid_threshold}, "
+            f"normalize_q={self.normalize_q})"
+        )
 
-#     def plot(self, ax=None):
-#         """Plot solid-like cluster distribution.
+    def plot(self, ax=None):
+        """Plot solid-like cluster distribution.
 
-#         Args:
-#             ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
-#                 :code:`None`, make a new figure and axis
-#                 (Default value = :code:`None`).
+        Args:
+            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
+                :code:`None`, make a new figure and axis
+                (Default value = :code:`None`).
 
-#         Returns:
-#             (:class:`matplotlib.axes.Axes`): Axis with the plot.
-#         """
-#         import freud.plot
-#         try:
-#             values, counts = np.unique(self.cluster_idx, return_counts=True)
-#         except ValueError:
-#             return None
-#         else:
-#             return freud.plot.clusters_plot(
-#                 values, counts, num_clusters_to_plot=10, ax=ax)
+        Returns:
+            (:class:`matplotlib.axes.Axes`): Axis with the plot.
+        """
+        import freud.plot
+        try:
+            values, counts = np.unique(self.cluster_idx, return_counts=True)
+        except ValueError:
+            return None
+        else:
+            return freud.plot.clusters_plot(
+                values, counts, num_clusters_to_plot=10, ax=ax)
 
-#     def _repr_png_(self):
-#         try:
-#             import freud.plot
-#             return freud.plot._ax_to_bytes(self.plot())
-#         except (AttributeError, ImportError):
-#             return None
+    def _repr_png_(self):
+        try:
+            import freud.plot
+            return freud.plot._ax_to_bytes(self.plot())
+        except (AttributeError, ImportError):
+            return None
 
 
 class RotationalAutocorrelation(_Compute):
