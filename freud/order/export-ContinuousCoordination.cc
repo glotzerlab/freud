@@ -4,8 +4,8 @@
 #include <memory>
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
-// #include <nanobind/stl/vector.h>
-// #include <nanobind/stl/shared_ptr.h> // NOLINT(misc-include-cleaner): used implicitly
+#include <nanobind/stl/vector.h>
+#include <nanobind/stl/shared_ptr.h> // NOLINT(misc-include-cleaner): used implicitly
 
 #include <utility>
 
@@ -23,7 +23,11 @@ void export_ContinuousCoordination(nanobind::module_& m)
     nanobind::class_<ContinuousCoordination>(m, "ContinuousCoordination")
         .def(nanobind::init<std::vector<float>, bool, bool>())
         .def("compute", &ContinuousCoordination::compute, nanobind::arg("voronoi"))
-        // .def("isAverage", &Steinhardt::isAverage)
+        .def("getCoordination", &ContinuousCoordination::getCoordination)
+        .def("getPowers", &ContinuousCoordination::getPowers)
+        .def("getComputeLog", &ContinuousCoordination::getComputeLog)
+        .def("getComputeExp", &ContinuousCoordination::getComputeExp)
+        .def("getNumberOfCoordinations", &ContinuousCoordination::getNumberOfCoordinations)
         ;
 }
 

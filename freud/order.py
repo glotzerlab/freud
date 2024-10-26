@@ -915,152 +915,138 @@ class RotationalAutocorrelation(_Compute):
         return f"freud.order.{type(self).__name__}(l={self.l})"
 
 
-# cdef class ContinuousCoordination(_PairCompute):
-#     r"""Computes the continuous local coordination number.
+class ContinuousCoordination(_PairCompute):
+    r"""Computes the continuous local coordination number.
 
-#     The :class:`ContinuousCoordination` class implements extensions of the Voronoi
-#     discrete coordination number to the real numbers. The formulas for the
-#     various implementations are:
+    The :class:`ContinuousCoordination` class implements extensions of the Voronoi
+    discrete coordination number to the real numbers. The formulas for the
+    various implementations are:
 
-#     Power:
+    Power:
 
-#     .. math::
+    .. math::
 
-#         CN_p = N^{2.0 - m} \sum_{i=1}^{k}
-#         {\left[\left(\frac{V_i}{V}\right)^{m}\right]}^{-1}
+        CN_p = N^{2.0 - m} \sum_{i=1}^{k}
+        {\left[\left(\frac{V_i}{V}\right)^{m}\right]}^{-1}
 
-#     Log:
+    Log:
 
-#     .. math::
+    .. math::
 
-#         CN_{log} = \frac{-1}{\log{N}} \sum_{i=1}^{k}\log{\left(\frac{V_i}{V}\right)}
+        CN_{log} = \frac{-1}{\log{N}} \sum_{i=1}^{k}\log{\left(\frac{V_i}{V}\right)}
 
-#     Exponential:
+    Exponential:
 
-#     .. math::
+    .. math::
 
-#         CN_{exp} = \sum_{i=1}^{k}\exp{\left(\frac{V_i}{V} - \frac{1}{N} \right)}
+        CN_{exp} = \sum_{i=1}^{k}\exp{\left(\frac{V_i}{V} - \frac{1}{N} \right)}
 
-#     where :math:`k` is the number of neighbors a particle has, :math:`V_i` is
-#     the volume of the pyramid (or area of the triangle in 2D) whose base is the
-#     Voronoi polytope facet between the central particle and neighbor :math:`i`
-#     and whose height is half the distance vector, and :math:`V` is the
-#     volume/area of the Voronoi polytope.
+    where :math:`k` is the number of neighbors a particle has, :math:`V_i` is
+    the volume of the pyramid (or area of the triangle in 2D) whose base is the
+    Voronoi polytope facet between the central particle and neighbor :math:`i`
+    and whose height is half the distance vector, and :math:`V` is the
+    volume/area of the Voronoi polytope.
 
-#     Note:
-#         When using multiple powers, space them out to avoid high correlations. A
-#         minimum spacing of 2.0 is recommended with even larger values leading to
-#         less correlation.
+    Note:
+        When using multiple powers, space them out to avoid high correlations. A
+        minimum spacing of 2.0 is recommended with even larger values leading to
+        less correlation.
 
-#     Args:
-#         powers (list[float], optional): The powers to compute the continuous
-#             coordination number for. The default value indicates only compute
-#             for power 2.0.
-#             (Default value: None)
-#         compute_log (`bool`, optional): Whether to compute the log continuous
-#             coordination number.
-#             (Default value: :code:`True`)
-#         compute_exp (`bool`, optional): Whether to compute the exp continuous
-#             coordination number.
-#             (Default value: :code:`True`)
-#     """
-#     cdef freud._order.ContinuousCoordination* thisptr
+    Args:
+        powers (list[float], optional): The powers to compute the continuous
+            coordination number for. The default value indicates only compute
+            for power 2.0.
+            (Default value: None)
+        compute_log (`bool`, optional): Whether to compute the log continuous
+            coordination number.
+            (Default value: :code:`True`)
+        compute_exp (`bool`, optional): Whether to compute the exp continuous
+            coordination number.
+            (Default value: :code:`True`)
+    """
+    def __init__(self, powers=None, compute_log=True, compute_exp=True):
+        if powers is None:
+            powers = [2.0]
+        self._cpp_obj = freud._order.ContinuousCoordination(powers, compute_log, compute_exp)
 
-#     def __cinit__(self, powers=None, compute_log=True, compute_exp=True):
-#         if powers is None:
-#             powers = [2.0]
-#         self.thisptr = new freud._order.ContinuousCoordination(
-#             powers, compute_log, compute_exp)
+    def compute(self, system=None, voronoi=None):
+        r"""Calculates the local coordination number for the specified points.
 
-#     def __dealloc__(self):
-#         del self.thisptr
+        Example::
 
-#     def compute(self, system=None, voronoi=None):
-#         r"""Calculates the local coordination number for the specified points.
+            >>> import freud
+            >>> box, points = freud.data.make_random_system(10, 100, seed=0)
+            >>> # Compute ContinuousCoordination
+            >>> coord = freud.order.ContinuousCoordination([2, 4], True)
+            >>> coord.compute(system=(box, points))
+            freud.order.ContinuousCoordination(...)
 
-#         Example::
+        Args:
+            system (optional):
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
+                (Default value: None).
+            voronoi (:class:`freud.locality.Voronoi`, optional):
+                A precomputed Voronoi compute object. If provided, the object is
+                assumed to have been computed already, and system is ignored.
+                (Default value: None).
+        """
+        if system is None and voronoi is None:
+            raise ValueError("Must specify system or voronoi.") # noqa: EM101
+        if voronoi is None:
+            voronoi = freud.locality.Voronoi()
+            voronoi.compute(system)
+        elif not hasattr(voronoi, "nlist"):
+            raise RuntimeError(
+                "Must call compute on Voronoi object prior to computing coordination.") # noqa: EM101
+        cpp_voronoi = voronoi
+        self._cpp_obj.compute(cpp_voronoi._cpp_obj)
+        return self
 
-#             >>> import freud
-#             >>> box, points = freud.data.make_random_system(10, 100, seed=0)
-#             >>> # Compute ContinuousCoordination
-#             >>> coord = freud.order.ContinuousCoordination([2, 4], True)
-#             >>> coord.compute(system=(box, points))
-#             freud.order.ContinuousCoordination(...)
+    @_Compute._computed_property
+    def particle_order(self):
+        """(:math:`(N_{points}, N_{coord}`) :class:`numpy.ndarray`: \
+                coordination of points per query point.
 
-#         Args:
-#             system (optional):
-#                 Any object that is a valid argument to
-#                 :class:`freud.locality.NeighborQuery.from_system`.
-#                 (Default value: None).
-#             voronoi (:class:`freud.locality.Voronoi`, optional):
-#                 A precomputed Voronoi compute object. If provided, the object is
-#                 assumed to have been computed already, and system is ignored.
-#                 (Default value: None).
-#         """
-#         cdef freud.locality.Voronoi cpp_voronoi
-#         if system is None and voronoi is None:
-#             raise ValueError("Must specify system or voronoi.")
-#         if voronoi is None:
-#             voronoi = freud.locality.Voronoi()
-#             voronoi.compute(system)
-#         elif not hasattr(voronoi, "nlist"):
-#             raise RuntimeError(
-#                 "Must call compute on Voronoi object prior to computing coordination.")
-#         cpp_voronoi = voronoi
-#         self.thisptr.compute(cpp_voronoi.thisptr)
-#         return self
+        Coordination numbers are in order of selected powers, log, and exp.
+        """
+        return self.coordination
 
-#     @_Compute._computed_property
-#     def particle_order(self):
-#         """(:math:`(N_{points}, N_{coord}`) :class:`numpy.ndarray`: \
-#                 coordination of points per query point.
+    @_Compute._computed_property
+    def coordination(self):
+        """(:math:`(N_{points}, N_{coord}`) :class:`numpy.ndarray`): \
+                coordination of points per query point.
 
-#         Coordination numbers are in order of selected powers, log, and exp.
-#         """
-#         return self.coordination
+        Coordination numbers are in order of selected powers, log, and exp.
+        """
+        return self._cpp_obj.getCoordination().toNumpyArray()
 
-#     @_Compute._computed_property
-#     def coordination(self):
-#         """(:math:`(N_{points}, N_{coord}`) :class:`numpy.ndarray`): \
-#                 coordination of points per query point.
+    @property
+    def powers(self):
+        """list[float]: The powers to compute the continuous coordination number.
 
-#         Coordination numbers are in order of selected powers, log, and exp.
-#         """
-#         return freud.util.make_managed_numpy_array(
-#             &self.thisptr.getCoordination(),
-#             freud.util.arr_type_t.FLOAT)
+        Changes to this property are not reflected when computing coordination
+        numbers.
+        """
+        return self._cpp_obj.getPowers()
 
-#     @property
-#     def powers(self):
-#         """list[float]: The powers to compute the continuous coordination number.
+    @property
+    def compute_log(self):
+        """bool: Whether to compute the log continuous coordination number."""
+        return self._cpp_obj.getComputeLog()
 
-#         Changes to this property are not reflected when computing coordination
-#         numbers.
-#         """
-#         return self.thisptr.getPowers()
+    @property
+    def compute_exp(self):
+        """bool: Whether to compute the exponential coordination number."""
+        return self._cpp_obj.getComputeExp()
 
-#     @property
-#     def compute_log(self):
-#         """bool: Whether to compute the log continuous coordination number."""
-#         return self.thisptr.getComputeLog()
+    @property
+    def number_of_coordinations(self):
+        """int: The number of coordination numbers computed."""
+        return self._cpp_obj.getNumberOfCoordinations()
 
-#     @property
-#     def compute_exp(self):
-#         """bool: Whether to compute the exponential coordination number."""
-#         return self.thisptr.getComputeExp()
-
-#     @property
-#     def number_of_coordinations(self):
-#         """int: The number of coordination numbers computed."""
-#         return self.thisptr.getNumberOfCoordinations()
-
-#     def __repr__(self):
-#         return (
-#             "freud.order.{cls}(powers={powers}, "
-#             "compute_log={compute_log}, compute_exp={compute_exp})"
-#         ).format(
-#             cls=type(self).__name__,
-#             powers=self.powers,
-#             compute_log=self.compute_log,
-#             compute_exp=self.compute_exp,
-#         )
+    def __repr__(self):
+        return (
+            f"freud.order.{type(self).__name__}(powers={self.powers}, "
+            f"compute_log={self.compute_log}, compute_exp={self.compute_exp})"
+        )
