@@ -236,11 +236,13 @@ tensor4 Cubatic::calculateGlobalTensor(quat<float>* orientations) const
 void Cubatic::compute(quat<float>* orientations, unsigned int num_orientations)
 {
     m_n = num_orientations;
-    m_particle_order_parameter.prepare(m_n);
+    // m_particle_order_parameter.prepare(m_n);
+    m_particle_order_parameter = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {m_n});
 
     // Calculate the per-particle tensor
     tensor4 global_tensor = calculateGlobalTensor(orientations);
-    m_global_tensor.prepare({3, 3, 3, 3});
+    // m_global_tensor.prepare({3, 3, 3, 3});
+    m_global_tensor = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {3, 3, 3, 3});
     global_tensor.copyToManagedArray(m_global_tensor);
 
     // The paper recommends using a Newton-Raphson scheme to optimize the order
@@ -329,7 +331,8 @@ void Cubatic::compute(quat<float>* orientations, unsigned int num_orientations)
         }
     }
 
-    m_cubatic_tensor.prepare({3, 3, 3, 3});
+    // m_cubatic_tensor.prepare({3, 3, 3, 3});
+    m_cubatic_tensor = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {3, 3, 3, 3});
     p_cubatic_tensor[max_idx].copyToManagedArray(m_cubatic_tensor);
     m_cubatic_orientation = p_cubatic_orientation[max_idx];
     m_cubatic_order_parameter = p_cubatic_order_parameter[max_idx];
