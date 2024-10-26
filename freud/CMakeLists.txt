@@ -92,8 +92,8 @@ add_library(
   order
   order/ContinuousCoordination.h
   order/ContinuousCoordination.cc
-  # order/Cubatic.cc
-  # order/Cubatic.h
+  order/Cubatic.cc
+  order/Cubatic.h
   # order/HexaticTranslational.cc
   # order/HexaticTranslational.h
   order/Nematic.cc
@@ -176,7 +176,9 @@ target_set_install_rpath(_locality)
 # order
 nanobind_add_module(_order order/module-order.cc order/export-Nematic.cc
                     order/export-RotationalAutocorrelation.cc order/export-Steinhardt.cc
-                    order/export-SolidLiquid.cc order/export-ContinuousCoordination.cc)
+                    order/export-SolidLiquid.cc order/export-ContinuousCoordination.cc
+                    order/export-Cubatic.cc
+)
 target_link_libraries(_order PUBLIC freud)
 target_set_install_rpath(_order)
 

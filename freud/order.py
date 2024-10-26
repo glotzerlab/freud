@@ -41,37 +41,30 @@ logger = logging.getLogger(__name__)
 # _always_ do that, or you will have segfaults
 # np.import_array()
 
-print("ADFHAFGJAKFHAJ")
+class Cubatic(_Compute):
+    r"""Compute the cubatic order parameter :cite:`Haji_Akbari_2015` for a system of
+    particles using simulated annealing instead of Newton-Raphson root finding.
 
-# cdef class Cubatic(_Compute):
-#     r"""Compute the cubatic order parameter :cite:`Haji_Akbari_2015` for a system of
-#     particles using simulated annealing instead of Newton-Raphson root finding.
+    Args:
+        t_initial (float):
+            Starting temperature.
+        t_final (float):
+            Final temperature.
+        scale (float):
+            Scaling factor to reduce temperature.
+        n_replicates (unsigned int, optional):
+            Number of replicate simulated annealing runs.
+            (Default value = :code:`1`).
+        seed (unsigned int, optional):
+            Random seed to use in calculations. If :code:`None`, system time is used.
+            (Default value = :code:`None`).
+    """
 
-#     Args:
-#         t_initial (float):
-#             Starting temperature.
-#         t_final (float):
-#             Final temperature.
-#         scale (float):
-#             Scaling factor to reduce temperature.
-#         n_replicates (unsigned int, optional):
-#             Number of replicate simulated annealing runs.
-#             (Default value = :code:`1`).
-#         seed (unsigned int, optional):
-#             Random seed to use in calculations. If :code:`None`, system time is used.
-#             (Default value = :code:`None`).
-#     """  # noqa: E501
-#     cdef freud._order.Cubatic * thisptr
+    def __init__(self, t_initial, t_final, scale, n_replicates=1, seed=None):
+        if seed is None:
+            seed = int(time.time())
 
-#     def __cinit__(self, t_initial, t_final, scale, n_replicates=1, seed=None):
-#         if seed is None:
-#             seed = int(time.time())
-
-#         self.thisptr = new freud._order.Cubatic(
-#             t_initial, t_final, scale, n_replicates, seed)
-
-#     def __dealloc__(self):
-#         del self.thisptr
+        self._cpp_obj = freud._order.Cubatic(t_initial, t_final, scale, n_replicates, seed)
 
 #     def compute(self, orientations):
 #         r"""Calculates the per-particle and global order parameter.
