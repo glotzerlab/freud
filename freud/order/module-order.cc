@@ -9,6 +9,7 @@ void export_Nematic(nanobind::module_& m);
 void export_RotationalAutocorrelation(nanobind::module_& m);
 void export_Steinhardt(nanobind::module_& m);
 void export_SolidLiquid(nanobind::module_& m);
+void export_ContinuousCoordination(nanobind::module_& m);
 } // namespace freud::order::detail
 
 using namespace freud::order::detail;
@@ -19,4 +20,5 @@ NB_MODULE(_order, module) // NOLINT(misc-use-anonymous-namespace): caused by nan
     export_RotationalAutocorrelation(module);
     export_Steinhardt(module);
     export_SolidLiquid(module);
+    export_ContinuousCoordination(module);
 }

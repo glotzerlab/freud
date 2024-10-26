@@ -90,8 +90,8 @@ add_library(
   ${VOROPP_SOURCE_DIR}/pre_container.cc
   ${VOROPP_SOURCE_DIR}/container_prd.cc
   order
-  # order/ContinuousCoordination.h
-  # order/ContinuousCoordination.cc
+  order/ContinuousCoordination.h
+  order/ContinuousCoordination.cc
   # order/Cubatic.cc
   # order/Cubatic.h
   # order/HexaticTranslational.cc
@@ -176,7 +176,7 @@ target_set_install_rpath(_locality)
 # order
 nanobind_add_module(_order order/module-order.cc order/export-Nematic.cc
                     order/export-RotationalAutocorrelation.cc order/export-Steinhardt.cc
-                    order/export-SolidLiquid.cc)
+                    order/export-SolidLiquid.cc order/export-ContinuousCoordination.cc)
 target_link_libraries(_order PUBLIC freud)
 target_set_install_rpath(_order)
 
