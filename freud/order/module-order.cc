@@ -21,5 +21,6 @@ NB_MODULE(_order, module) // NOLINT(misc-use-anonymous-namespace): caused by nan
     export_RotationalAutocorrelation(module);
     export_Steinhardt(module);
     export_SolidLiquid(module);
+    export_ContinuousCoordination(module);
     export_Cubatic(module);
 }
