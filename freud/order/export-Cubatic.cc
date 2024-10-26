@@ -49,8 +49,7 @@ void export_Cubatic(nanobind::module_& m)
         .def("getCubaticOrientation", &wrap::getCubaticOrientation)
         .def("getParticleOrderParameter", &Cubatic::getParticleOrderParameter)
         .def("getGlobalTensor", &Cubatic::getGlobalTensor)
-        .def("getCubaticTensor", &Cubatic::getCubaticTensor)
-        ;
+        .def("getCubaticTensor", &Cubatic::getCubaticTensor);
 }
 
 } // namespace detail
