@@ -4,14 +4,12 @@
 #include <memory>
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
-// #include <nanobind/stl/list.h>      // NOLINT(misc-include-cleaner): used implicitly
 #include <nanobind/stl/vector.h>
 #include <nanobind/stl/shared_ptr.h> // NOLINT(misc-include-cleaner): used implicitly
 
 #include <utility>
 
 #include "Steinhardt.h"
-// #include "VectorMath.h"
 
 namespace freud { namespace order {
 

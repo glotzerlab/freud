@@ -3,20 +3,13 @@
 
 #include <memory>
 #include <nanobind/nanobind.h>
-#include <nanobind/ndarray.h>
 #include <nanobind/stl/shared_ptr.h> // NOLINT(misc-include-cleaner): used implicitly
 #include <utility>
 
-// #include "ManagedArray.h"
 #include "SolidLiquid.h"
-// #include "VectorMath.h"
 
 
-namespace freud { namespace order {
-
-namespace wrap {}; // namespace wrap
-
-namespace detail {
+namespace freud { namespace order { namespace detail {
 
 void export_SolidLiquid(nanobind::module_& m)
 {

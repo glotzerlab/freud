@@ -8,9 +8,6 @@
 #include <nanobind/stl/tuple.h>      // NOLINT(misc-include-cleaner): used implicitly
 #include <utility>
 
-// #include "BondHistogramCompute.h"
-// #include "NeighborList.h"
-// #include "NeighborQuery.h"
 #include "Nematic.h"
 #include "VectorMath.h"
 
@@ -38,11 +35,6 @@ nanobind::tuple getNematicDirector(const std::shared_ptr<Nematic>& self)
 }; // namespace wrap
 
 namespace detail {
-
-// void export_PMFT(nanobind::module_& m)
-// {
-//     nanobind::class_<PMFT, locality::BondHistogramCompute>(m, "PMFT").def("getPCF", &PMFT::getPCF);
-// }
 
 void export_Nematic(nanobind::module_& m)
 {

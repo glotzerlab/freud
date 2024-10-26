@@ -12,8 +12,6 @@
 #include "RotationalAutocorrelation.h"
 #include "VectorMath.h"
 
-namespace nb = nanobind;
-
 namespace freud { namespace order {
 
 template<typename T, typename shape>
