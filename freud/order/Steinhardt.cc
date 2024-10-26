@@ -41,33 +41,36 @@ void Steinhardt::reallocateArrays(unsigned int Np)
 
     const auto num_ls = m_ls.size();
 
-    m_qli = std::make_shared<util::ManagedArray<float>>(std::vector<size_t>{Np, num_ls});
+    m_qli = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {Np, num_ls});
     if (m_average)
     {
-        m_qliAve = std::make_shared<util::ManagedArray<float>>(std::vector<size_t>{Np, num_ls});
+        m_qliAve = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {Np, num_ls});
     }
     if (m_wl)
     {
-        m_wli = std::make_shared<util::ManagedArray<float>>(std::vector<size_t>{Np, num_ls});
+        m_wli = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {Np, num_ls});
     }
 
     for (size_t l_index = 0; l_index < m_ls.size(); ++l_index)
     {
         const auto num_ms = m_num_ms[l_index];
         // m_qlmi[l_index].prepare({Np, num_ms});
-        m_qlmi[l_index] = std::make_shared<util::ManagedArray<std::complex<float>>>(std::vector<size_t>{Np, num_ms});
+        m_qlmi[l_index]
+            = std::make_shared<util::ManagedArray<std::complex<float>>>(std::vector<size_t> {Np, num_ms});
         // m_qlm[l_index].prepare(num_ms);
-        m_qlm[l_index] = std::make_shared<util::ManagedArray<std::complex<float>>>(std::vector<size_t>{num_ms});
+        m_qlm[l_index]
+            = std::make_shared<util::ManagedArray<std::complex<float>>>(std::vector<size_t> {num_ms});
         if (m_average)
         {
             // m_qlmiAve[l_index].prepare({Np, num_ms});
-            m_qlmiAve[l_index] = std::make_shared<util::ManagedArray<std::complex<float>>>(std::vector<size_t>{Np, num_ms});
+            m_qlmiAve[l_index]
+                = std::make_shared<util::ManagedArray<std::complex<float>>>(std::vector<size_t> {Np, num_ms});
         }
     }
 }
 
 void Steinhardt::compute(const std::shared_ptr<freud::locality::NeighborList>& nlist,
-                         const std::shared_ptr<freud::locality::NeighborQuery>& points, 
+                         const std::shared_ptr<freud::locality::NeighborQuery>& points,
                          const freud::locality::QueryArgs& qargs)
 {
     // Allocate and zero out arrays as necessary.
@@ -102,7 +105,8 @@ void Steinhardt::compute(const std::shared_ptr<freud::locality::NeighborList>& n
 }
 
 void Steinhardt::baseCompute(const std::shared_ptr<freud::locality::NeighborList>& nlist,
-                             const std::shared_ptr<freud::locality::NeighborQuery>& points, const freud::locality::QueryArgs& qargs)
+                             const std::shared_ptr<freud::locality::NeighborQuery>& points,
+                             const freud::locality::QueryArgs& qargs)
 {
     std::vector<float> normalizationfactor(m_ls.size());
     for (size_t l_index = 0; l_index < m_ls.size(); ++l_index)
@@ -205,7 +209,7 @@ void Steinhardt::baseCompute(const std::shared_ptr<freud::locality::NeighborList
 }
 
 void Steinhardt::computeAve(const std::shared_ptr<freud::locality::NeighborList>& nlist,
-                            const std::shared_ptr<freud::locality::NeighborQuery>& points, 
+                            const std::shared_ptr<freud::locality::NeighborQuery>& points,
                             const freud::locality::QueryArgs& qargs)
 {
     std::shared_ptr<locality::NeighborQueryIterator> iter;
@@ -311,9 +315,10 @@ std::vector<float> Steinhardt::normalizeSystem()
 }
 
 // void Steinhardt::aggregatewl(util::ManagedArray<float>& target,
-void Steinhardt::aggregatewl(std::shared_ptr<util::ManagedArray<float>>& target,
-                             const std::vector<std::shared_ptr<util::ManagedArray<std::complex<float>>>>& source,
-                             const std::shared_ptr<util::ManagedArray<float>>& normalization_source) const
+void Steinhardt::aggregatewl(
+    std::shared_ptr<util::ManagedArray<float>>& target,
+    const std::vector<std::shared_ptr<util::ManagedArray<std::complex<float>>>>& source,
+    const std::shared_ptr<util::ManagedArray<float>>& normalization_source) const
 {
     util::forLoopWrapper(0, m_Np, [&](size_t begin, size_t end) {
         for (size_t i = begin; i < end; ++i)
@@ -334,7 +339,8 @@ void Steinhardt::aggregatewl(std::shared_ptr<util::ManagedArray<float>>& target,
                 {
                     const float normalization = std::sqrt(normalizationfactor)
                         / (*normalization_source)[norm_particle_index + l_index];
-                    (*target)[target_particle_index + l_index] *= normalization * normalization * normalization;
+                    (*target)[target_particle_index + l_index]
+                        *= normalization * normalization * normalization;
                 }
             }
         }

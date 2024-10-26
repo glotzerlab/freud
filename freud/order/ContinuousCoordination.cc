@@ -22,7 +22,8 @@ void ContinuousCoordination::compute(const std::shared_ptr<freud::locality::Voro
 {
     auto nlist = voronoi->getNeighborList();
     size_t num_points = nlist->getNumQueryPoints();
-    m_coordination = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {num_points, getNumberOfCoordinations()});
+    m_coordination = std::make_shared<util::ManagedArray<float>>(
+        std::vector<size_t> {num_points, getNumberOfCoordinations()});
     const auto& volumes = voronoi->getVolumes();
     const auto& num_neighbors = nlist->getCounts();
     // This is necessary as the current Windows runners on GitHub actions have a

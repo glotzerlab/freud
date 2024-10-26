@@ -8,14 +8,14 @@
 
 #include "SolidLiquid.h"
 
-
 namespace freud { namespace order { namespace detail {
 
 void export_SolidLiquid(nanobind::module_& m)
 {
     nanobind::class_<SolidLiquid>(m, "SolidLiquid")
         .def(nanobind::init<unsigned int, float, unsigned int, bool>())
-        .def("compute", &SolidLiquid::compute, nanobind::arg("nlist").none(), nanobind::arg("points"), nanobind::arg("qargs"))
+        .def("compute", &SolidLiquid::compute, nanobind::arg("nlist").none(), nanobind::arg("points"),
+             nanobind::arg("qargs"))
         .def("getL", &SolidLiquid::getL)
         .def("getQThreshold", &SolidLiquid::getQThreshold)
         .def("getSolidThreshold", &SolidLiquid::getSolidThreshold)
@@ -26,10 +26,7 @@ void export_SolidLiquid(nanobind::module_& m)
         .def("getClusterSizes", &SolidLiquid::getClusterSizes)
         .def("getLargestClusterSize", &SolidLiquid::getLargestClusterSize)
         .def("getNList", &SolidLiquid::getNList)
-        .def("getNumberOfConnections", &SolidLiquid::getNumberOfConnections)
-        ;
+        .def("getNumberOfConnections", &SolidLiquid::getNumberOfConnections);
 }
 
-} // namespace detail
-
-}; }; // namespace freud::order
+}}; }; // namespace freud::order::detail

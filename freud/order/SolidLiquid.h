@@ -85,7 +85,8 @@ public:
     }
 
     //! Compute the Solid-Liquid Order Parameter
-    void compute(const std::shared_ptr<freud::locality::NeighborList>& nlist, const std::shared_ptr<freud::locality::NeighborQuery>& points,
+    void compute(const std::shared_ptr<freud::locality::NeighborList>& nlist,
+                 const std::shared_ptr<freud::locality::NeighborQuery>& points,
                  freud::locality::QueryArgs& qargs);
 
     //! Returns largest cluster size.
@@ -142,19 +143,20 @@ public:
     }
 
 private:
-    unsigned int m_l;               //!< Value of l for the spherical harmonic.
-    unsigned int m_num_ms;          //!< The number of magnetic quantum numbers (2*m_l+1).
-    float m_q_threshold;            //!< Dot product cutoff
-    unsigned int m_solid_threshold; //!< Solid-like num connections cutoff
-    bool m_normalize_q;             //!< Whether to normalize the qlmi dot products.
+    unsigned int m_l;                                //!< Value of l for the spherical harmonic.
+    unsigned int m_num_ms;                           //!< The number of magnetic quantum numbers (2*m_l+1).
+    float m_q_threshold;                             //!< Dot product cutoff
+    unsigned int m_solid_threshold;                  //!< Solid-like num connections cutoff
+    bool m_normalize_q;                              //!< Whether to normalize the qlmi dot products.
     std::shared_ptr<locality::NeighborList> m_nlist; //!< The NeighborList used in the last call to compute.
 
     freud::order::Steinhardt m_steinhardt; //!< Steinhardt class used to compute qlm
     freud::cluster::Cluster m_cluster;     //!< Cluster class used to cluster solid-like bonds
 
-    std::shared_ptr<util::ManagedArray<float>> m_ql_ij;                        //!< All of the qlmi dot qlmj's computed
-    std::shared_ptr<util::ManagedArray<unsigned int>> m_number_of_connections; //! Number of connections for each particle with
-                                                              //! dot product above q_threshold
+    std::shared_ptr<util::ManagedArray<float>> m_ql_ij; //!< All of the qlmi dot qlmj's computed
+    std::shared_ptr<util::ManagedArray<unsigned int>>
+        m_number_of_connections; //! Number of connections for each particle with
+                                 //! dot product above q_threshold
 };
 
 }; }; // end namespace freud::order

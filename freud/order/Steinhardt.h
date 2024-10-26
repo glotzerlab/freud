@@ -151,7 +151,7 @@ public:
     }
 
     //! Compute the order parameter
-    void compute(const std::shared_ptr<freud::locality::NeighborList>& nlist, 
+    void compute(const std::shared_ptr<freud::locality::NeighborList>& nlist,
                  const std::shared_ptr<freud::locality::NeighborQuery>& points,
                  const freud::locality::QueryArgs& qargs);
 
@@ -175,11 +175,13 @@ private:
     void reallocateArrays(unsigned int Np);
 
     //! Calculates qlms and the ql order parameter before any further modifications
-    void baseCompute(const std::shared_ptr<freud::locality::NeighborList>& nlist, const std::shared_ptr<freud::locality::NeighborQuery>& points,
+    void baseCompute(const std::shared_ptr<freud::locality::NeighborList>& nlist,
+                     const std::shared_ptr<freud::locality::NeighborQuery>& points,
                      const freud::locality::QueryArgs& qargs);
 
     //! Calculates the neighbor average ql order parameter
-    void computeAve(const std::shared_ptr<freud::locality::NeighborList>& nlist, const std::shared_ptr<freud::locality::NeighborQuery>& points,
+    void computeAve(const std::shared_ptr<freud::locality::NeighborList>& nlist,
+                    const std::shared_ptr<freud::locality::NeighborQuery>& points,
                     const freud::locality::QueryArgs& qargs);
 
     //! Compute the system-wide order by averaging over particles, then
@@ -204,12 +206,16 @@ private:
     bool m_wl_normalize; //!< Whether to normalize the third-order invariant wl (default false)
 
     std::vector<std::shared_ptr<util::ManagedArray<std::complex<float>>>> m_qlmi; //!< qlm for each particle i
-    // std::vector<std::shared_ptr<util::ManagedArray<std::complex<float>>>> m_qlmi; //!< qlm for each particle i
-    std::vector<std::shared_ptr<util::ManagedArray<std::complex<float>>>> m_qlm;  //!< Normalized qlm(Ave) for the whole system
+    // std::vector<std::shared_ptr<util::ManagedArray<std::complex<float>>>> m_qlmi; //!< qlm for each
+    // particle i
+    std::vector<std::shared_ptr<util::ManagedArray<std::complex<float>>>>
+        m_qlm; //!< Normalized qlm(Ave) for the whole system
     std::vector<util::ThreadStorage<std::complex<float>>>
-        m_qlm_local;                    //!< Thread-specific m_qlm(Ave) for each l
-    std::shared_ptr<util::ManagedArray<float>> m_qli;    //!< ql locally invariant order parameter for each particle i
-    std::shared_ptr<util::ManagedArray<float>> m_qliAve; //!< Averaged ql with 2nd neighbor shell for each particle i
+        m_qlm_local; //!< Thread-specific m_qlm(Ave) for each l
+    std::shared_ptr<util::ManagedArray<float>>
+        m_qli; //!< ql locally invariant order parameter for each particle i
+    std::shared_ptr<util::ManagedArray<float>>
+        m_qliAve; //!< Averaged ql with 2nd neighbor shell for each particle i
     std::vector<std::shared_ptr<util::ManagedArray<std::complex<float>>>>
         m_qlmiAve; //!< Averaged qlm with 2nd neighbor shell for each particle i
     std::vector<std::shared_ptr<util::ManagedArray<std::complex<float>>>>

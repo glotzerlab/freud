@@ -54,9 +54,9 @@ public:
     unsigned int getNumberOfCoordinations() const;
 
 private:
-    std::vector<float> m_powers;              //!< The powers to use for CNv
-    bool m_compute_log;                       //!< Whether to compute CNlog
-    bool m_compute_exp;                       //!< Whether to compute CNexp
+    std::vector<float> m_powers;                               //!< The powers to use for CNv
+    bool m_compute_log;                                        //!< Whether to compute CNlog
+    bool m_compute_exp;                                        //!< Whether to compute CNexp
     std::shared_ptr<util::ManagedArray<float>> m_coordination; //!< number of neighbors array computed
 };
 

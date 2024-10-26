@@ -21,9 +21,11 @@ SolidLiquid::SolidLiquid(unsigned int l, float q_threshold, unsigned int solid_t
 }
 
 // void SolidLiquid::compute(const std::shared_ptr<freud::locality::NeighborList>& nlist,
-//                           const std::shared_ptr<freud::locality::NeighborQuery>& points, freud::locality::QueryArgs& qargs)
+//                           const std::shared_ptr<freud::locality::NeighborQuery>& points,
+//                           freud::locality::QueryArgs& qargs)
 void SolidLiquid::compute(const std::shared_ptr<freud::locality::NeighborList>& nlist,
-                          const std::shared_ptr<freud::locality::NeighborQuery>& points, freud::locality::QueryArgs& qargs)
+                          const std::shared_ptr<freud::locality::NeighborQuery>& points,
+                          freud::locality::QueryArgs& qargs)
 {
     // This function requires a NeighborList object, so we always make one and store it locally.
     m_nlist = locality::makeDefaultNlist(points, nlist, points->getPoints(), points->getNPoints(), qargs);
@@ -80,8 +82,9 @@ void SolidLiquid::compute(const std::shared_ptr<freud::locality::NeighborList>& 
     solid_nlist.filter(solid_filter.cbegin());
 
     // Save the neighbor counts of solid-like bonds for each query point
-    m_number_of_connections = std::make_shared<util::ManagedArray<unsigned int>>(std::vector<size_t> {num_query_points});
-    
+    m_number_of_connections
+        = std::make_shared<util::ManagedArray<unsigned int>>(std::vector<size_t> {num_query_points});
+
     for (unsigned int i(0); i < num_query_points; i++)
     {
         (*m_number_of_connections)[i] = (*solid_nlist.getCounts())[i];
