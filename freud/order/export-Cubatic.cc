@@ -4,8 +4,7 @@
 #include <memory>
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
-// #include <nanobind/stl/shared_ptr.h> // NOLINT(misc-include-cleaner): used implicitly
-// #include <nanobind/stl/tuple.h>      // NOLINT(misc-include-cleaner): used implicitly
+#include <nanobind/stl/shared_ptr.h> // NOLINT(misc-include-cleaner): used implicitly
 #include <utility>
 
 #include "Cubatic.h"
@@ -27,24 +26,31 @@ void computeCubatic(const std::shared_ptr<Cubatic>& self,
     self->compute(orientations_data, num_orientations);
 }
 
-// nanobind::tuple getNematicDirector(const std::shared_ptr<Cubatic>& self)
-// {
-//     vec3<float> nem_d_cpp = self->getNematicDirector();
-//     return nanobind::make_tuple(nem_d_cpp.x, nem_d_cpp.y, nem_d_cpp.z);
-// }
+nanobind::tuple getCubaticOrientation(const std::shared_ptr<Cubatic>& self)
+{
+    quat<float> q = self->getCubaticOrientation();
+    return nanobind::make_tuple(q.s, q.v.x, q.v.y, q.v.z);
+}
 }; // namespace wrap
 
 namespace detail {
 
-void export_Nematic(nanobind::module_& m)
+void export_Cubatic(nanobind::module_& m)
 {
     nanobind::class_<Cubatic>(m, "Cubatic")
         .def(nanobind::init<float, float, float, unsigned int, unsigned int>())
         .def("compute", &wrap::computeCubatic, nanobind::arg("orientations"))
-        // .def("getNematicOrderParameter", &Nematic::getNematicOrderParameter)
-        // .def("getNematicDirector", &wrap::getNematicDirector)
-        // .def("getParticleTensor", &Nematic::getParticleTensor)
-        // .def("getNematicTensor", &Nematic::getNematicTensor);
+        .def("getTInitial", &Cubatic::getTInitial)
+        .def("getTFinal", &Cubatic::getTFinal)
+        .def("getScale", &Cubatic::getScale)
+        .def("getNReplicates", &Cubatic::getNReplicates)
+        .def("getSeed", &Cubatic::getSeed)
+        .def("getCubaticOrderParameter", &Cubatic::getCubaticOrderParameter)
+        .def("getCubaticOrientation", &wrap::getCubaticOrientation)
+        .def("getParticleOrderParameter", &Cubatic::getParticleOrderParameter)
+        .def("getGlobalTensor", &Cubatic::getGlobalTensor)
+        .def("getCubaticTensor", &Cubatic::getCubaticTensor)
+        ;
 }
 
 } // namespace detail

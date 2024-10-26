@@ -78,17 +78,17 @@ public:
         return m_cubatic_order_parameter;
     }
 
-    const util::ManagedArray<float>& getParticleOrderParameter() const
+    const std::shared_ptr<util::ManagedArray<float>>& getParticleOrderParameter() const
     {
         return m_particle_order_parameter;
     }
 
-    const util::ManagedArray<float>& getGlobalTensor() const
+    const std::shared_ptr<util::ManagedArray<float>>& getGlobalTensor() const
     {
         return m_global_tensor;
     }
 
-    const util::ManagedArray<float>& getCubaticTensor() const
+    const std::shared_ptr<util::ManagedArray<float>>& getCubaticTensor() const
     {
         return m_cubatic_tensor;
     }

@@ -66,94 +66,79 @@ class Cubatic(_Compute):
 
         self._cpp_obj = freud._order.Cubatic(t_initial, t_final, scale, n_replicates, seed)
 
-#     def compute(self, orientations):
-#         r"""Calculates the per-particle and global order parameter.
+    def compute(self, orientations):
+        r"""Calculates the per-particle and global order parameter.
 
-#         Args:
-#             orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
-#                 Orientations as angles to use in computation.
-#         """
-#         orientations = freud.util._convert_array(
-#             orientations, shape=(None, 4))
+        Args:
+            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
+                Orientations as angles to use in computation.
+        """
+        orientations = freud.util._convert_array(orientations, shape=(None, 4))
+        self._cpp_obj.compute(orientations)
+        return self
 
-#         cdef const float[:, ::1] l_orientations = orientations
-#         cdef unsigned int num_particles = l_orientations.shape[0]
+    @property
+    def t_initial(self):
+        """float: The value of the initial temperature."""
+        return self._cpp_obj.getTInitial()
 
-#         self.thisptr.compute(
-#             <quat[float]*> &l_orientations[0, 0], num_particles)
-#         return self
+    @property
+    def t_final(self):
+        """float: The value of the final temperature."""
+        return self._cpp_obj.getTFinal()
 
-#     @property
-#     def t_initial(self):
-#         """float: The value of the initial temperature."""
-#         return self.thisptr.getTInitial()
+    @property
+    def scale(self):
+        """float: The scale."""
+        return self._cpp_obj.getScale()
 
-#     @property
-#     def t_final(self):
-#         """float: The value of the final temperature."""
-#         return self.thisptr.getTFinal()
+    @property
+    def n_replicates(self):
+        """unsigned int: Number of replicate simulated annealing runs."""
+        return self._cpp_obj.getNReplicates()
 
-#     @property
-#     def scale(self):
-#         """float: The scale."""
-#         return self.thisptr.getScale()
+    @property
+    def seed(self):
+        """unsigned int: Random seed to use in calculations."""
+        return self._cpp_obj.getSeed()
 
-#     @property
-#     def n_replicates(self):
-#         """unsigned int: Number of replicate simulated annealing runs."""
-#         return self.thisptr.getNReplicates()
+    @_Compute._computed_property
+    def order(self):
+        """float: Cubatic order parameter of the system."""
+        return self._cpp_obj.getCubaticOrderParameter()
 
-#     @property
-#     def seed(self):
-#         """unsigned int: Random seed to use in calculations."""
-#         return self.thisptr.getSeed()
+    @_Compute._computed_property
+    def orientation(self):
+        """:math:`\\left(4 \\right)` :class:`numpy.ndarray`: The quaternion of
+        global orientation."""
+        q = self._cpp_obj.getCubaticOrientation()
+        return np.asarray(q, dtype=np.float32)
 
-#     @_Compute._computed_property
-#     def order(self):
-#         """float: Cubatic order parameter of the system."""
-#         return self.thisptr.getCubaticOrderParameter()
+    @_Compute._computed_property
+    def particle_order(self):
+        """:math:`\\left(N_{particles} \\right)` :class:`numpy.ndarray`: Order
+        parameter."""
+        return self._cpp_obj.getParticleOrderParameter().toNumpyArray()
 
-#     @_Compute._computed_property
-#     def orientation(self):
-#         """:math:`\\left(4 \\right)` :class:`numpy.ndarray`: The quaternion of
-#         global orientation."""
-#         cdef quat[float] q = self.thisptr.getCubaticOrientation()
-#         return np.asarray([q.s, q.v.x, q.v.y, q.v.z], dtype=np.float32)
+    @_Compute._computed_property
+    def global_tensor(self):
+        """:math:`\\left(3, 3, 3, 3 \\right)` :class:`numpy.ndarray`: Rank 4
+        tensor corresponding to the global orientation. Computed from all
+        orientations."""
+        return self._cpp_obj.getGlobalTensor().toNumpyArray()
 
-#     @_Compute._computed_property
-#     def particle_order(self):
-#         """:math:`\\left(N_{particles} \\right)` :class:`numpy.ndarray`: Order
-#         parameter."""
-#         return freud.util.make_managed_numpy_array(
-#             &self.thisptr.getParticleOrderParameter(),
-#             freud.util.arr_type_t.FLOAT)
+    @_Compute._computed_property
+    def cubatic_tensor(self):
+        """:math:`\\left(3, 3, 3, 3 \\right)` :class:`numpy.ndarray`: Rank 4
+        homogeneous tensor representing the optimal system-wide coordinates."""
+        return self._cpp_obj.getCubaticTensor().toNumpyArray()
 
-#     @_Compute._computed_property
-#     def global_tensor(self):
-#         """:math:`\\left(3, 3, 3, 3 \\right)` :class:`numpy.ndarray`: Rank 4
-#         tensor corresponding to the global orientation. Computed from all
-#         orientations."""
-#         return freud.util.make_managed_numpy_array(
-#             &self.thisptr.getGlobalTensor(),
-#             freud.util.arr_type_t.FLOAT)
-
-#     @_Compute._computed_property
-#     def cubatic_tensor(self):
-#         """:math:`\\left(3, 3, 3, 3 \\right)` :class:`numpy.ndarray`: Rank 4
-#         homogeneous tensor representing the optimal system-wide coordinates."""
-#         return freud.util.make_managed_numpy_array(
-#             &self.thisptr.getCubaticTensor(),
-#             freud.util.arr_type_t.FLOAT)
-
-#     def __repr__(self):
-#         return ("freud.order.{cls}(t_initial={t_initial}, t_final={t_final}, "
-#                 "scale={scale}, n_replicates={n_replicates}, "
-#                 "seed={seed})").format(cls=type(self).__name__,
-#                                        t_initial=self.t_initial,
-#                                        t_final=self.t_final,
-#                                        scale=self.scale,
-#                                        n_replicates=self.n_replicates,
-#                                        seed=self.seed)
+    def __repr__(self):
+        return (
+            f"freud.order.{type(self).__name__}(t_initial={self.t_initial}, "
+            f"t_final={self.t_final}, scale={self.scale}, "
+            f"n_replicates={self.n_replicates}, seed={self.seed})"
+        )
 
 
 class Nematic(_Compute):
@@ -565,7 +550,7 @@ class Steinhardt(_PairCompute):
         Variant of the Steinhardt order parameter for each particle (filled with
         :code:`nan` for particles with no neighbors)."""
         p_orders = self._cpp_obj.getParticleOrder().toNumpyArray()
-        return np.ravel(p_orders) if p_orders.shape[1] == 1 else p_orders 
+        return np.ravel(p_orders) if p_orders.shape[1] == 1 else p_orders
 
     @_Compute._computed_property
     def ql(self):
