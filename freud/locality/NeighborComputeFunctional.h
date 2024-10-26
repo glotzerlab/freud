@@ -235,7 +235,7 @@ void loopOverNeighbors(const std::shared_ptr<NeighborQuery>& neighbor_query, con
  * input. It should implement iteration logic over the iterator.
  */
 template<typename ComputePairType>
-void loopOverNeighborListIterator(const NeighborList* nlist, const ComputePairType& cf, bool parallel = true)
+void loopOverNeighborListIterator(const std::shared_ptr<NeighborList> nlist, const ComputePairType& cf, bool parallel = true)
 {
     util::forLoopWrapper(
         0, nlist->getNumQueryPoints(),

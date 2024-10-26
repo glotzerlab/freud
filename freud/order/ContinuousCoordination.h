@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <memory>
 #include <vector>
 
 #include "ManagedArray.h"
@@ -25,7 +26,7 @@ public:
     ~ContinuousCoordination() = default;
 
     //! Compute the local continuous coordination number
-    void compute(const freud::locality::Voronoi* voronoi);
+    void compute(const std::shared_ptr<freud::locality::Voronoi>& voronoi);
 
     //! Get the powers of the continuous coordination number to compute
     const std::vector<float>& getPowers() const
@@ -43,8 +44,8 @@ public:
         return m_compute_exp;
     }
 
-    //! Get a reference to the last computed number of neighbors
-    const util::ManagedArray<float>& getCoordination() const
+    //! Get a shared pointer to the last computed number of neighbors
+    const std::shared_ptr<util::ManagedArray<float>> getCoordination() const
     {
         return m_coordination;
     }
@@ -56,7 +57,7 @@ private:
     std::vector<float> m_powers;              //!< The powers to use for CNv
     bool m_compute_log;                       //!< Whether to compute CNlog
     bool m_compute_exp;                       //!< Whether to compute CNexp
-    util::ManagedArray<float> m_coordination; //!< number of neighbors array computed
+    std::shared_ptr<util::ManagedArray<float>> m_coordination; //!< number of neighbors array computed
 };
 
 }; }; // namespace freud::order
