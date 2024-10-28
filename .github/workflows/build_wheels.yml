@@ -77,9 +77,9 @@ jobs:
           oldest_sympy: '1.10'
         - version: 'cp313'
           oldest_numpy: '2.1.2'
-          oldest_scipy: '1.11.2'
-          oldest_gsd: '3.2.0'
-          oldest_matplotlib: '3.7.3'
+          oldest_scipy: '1.14.1'
+          oldest_gsd: '3.4.1'
+          oldest_matplotlib: '3.9.2'
           oldest_pytest: '8.2.1'
           oldest_sympy: '1.10'
 
