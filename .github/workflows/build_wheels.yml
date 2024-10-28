@@ -146,7 +146,7 @@ jobs:
           lockfile: ".github/workflows/environments/requirements-build-sdist.txt"
 
       - name: Build sdist
-        run: python -m build --sdist --outdir dist/ .
+        run: python -m build --installer uv --sdist --outdir dist/ .
 
       - name: Check sdist size
         run: du -hs dist/*
