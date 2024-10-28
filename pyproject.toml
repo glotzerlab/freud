@@ -38,11 +38,5 @@ Download = "https://pypi.org/project/freud-analysis/"
 Source = "https://github.com/glotzerlab/freud"
 Issues = "https://github.com/glotzerlab/freud/issues"
 
-[tool.black]
-target-version = ['py39']
-
-[tool.isort]
-profile = 'black'
-
 [tool.scikit-build]
 sdist.exclude = [".github", "doc"]
