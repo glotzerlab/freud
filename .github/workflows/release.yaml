@@ -216,8 +216,8 @@ jobs:
     - name: Remove .git
       run: rm -rf "${name}-${ref}/.git"
 
-    - name: Remove example data
-      run: rm -rf "${name}-${ref}/doc/source/gettingstarted/examples/data" && ls -laR "${name}-${ref}"
+    - name: Remove examples data
+      run: rm -rf "${name}-${ref}/doc/source/gettingstarted/examples" && ls -laR "${name}-${ref}"
 
     - name: Tar/zstd source
       run: tar --zstd -cvf "${name}-${ref}.tar.zst" "${name}-${ref}"
