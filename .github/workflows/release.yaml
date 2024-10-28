@@ -196,6 +196,38 @@ jobs:
           status: ${{ job.status }}
           channel: '#dev-freud'
 
+  source:
+    name: Build source tarball
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+      with:
+        path: code
+        submodules: true
+
+    - name: Determine filename-safe ref from GITHUB_REF_NAME
+      run: echo ref="$(echo "${GITHUB_REF_NAME}" | sed  -e 's/\//-/g')" >> "$GITHUB_ENV"
+
+    - name: Copy source
+      run: cp -R code "${name}-${ref}"
+
+    - name: Remove .git
+      run: rm -rf "${name}-${ref}/.git"
+
+    - name: Remove example data
+      run: rm -rf "${name}-${ref}/doc/source/gettingstarted/examples/data" && ls -laR "${name}-${ref}"
+
+    - name: Tar/zstd source
+      run: tar --zstd -cvf "${name}-${ref}.tar.zst" "${name}-${ref}"
+
+    - uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+      with:
+        name: source
+        path: |
+          *.tar.*
+
   release-notes:
     name: Extract release notes
     runs-on: ubuntu-latest
@@ -229,7 +261,7 @@ jobs:
 
   publish_github:
     name: Publish [GitHub]
-    needs: [release-notes]
+    needs: [release-notes, source]
     runs-on: ubuntu-latest
 
     steps:
