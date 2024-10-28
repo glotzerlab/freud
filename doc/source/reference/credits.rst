@@ -405,11 +405,9 @@ Philipp Schönhöfer
 * Contributed code, design, documentation, and testing for ``freud.locality.FilterRAD`` class.
 
 Suraj Kannur
-
-* Ported ``Interface`` to pure python with Corwin Kerr.
-
 Trevor Teague
 Kate Jensen
+Jen Bradley
 
 Source code
 -----------
