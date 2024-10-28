@@ -27,7 +27,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        python: ['39', '310', '311', '312']
+        python: ['39', '310', '311', '312', '313']
         include:
           # Test macOS and windows on oldest and latest versions.
           - os: 'macos-14'

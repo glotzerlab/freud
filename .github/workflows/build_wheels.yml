@@ -75,6 +75,13 @@ jobs:
           oldest_matplotlib: '3.7.3'
           oldest_pytest: '8.2.1'
           oldest_sympy: '1.10'
+        - version: 'cp313'
+          oldest_numpy: '2.1.2'
+          oldest_scipy: '1.11.2'
+          oldest_gsd: '3.2.0'
+          oldest_matplotlib: '3.7.3'
+          oldest_pytest: '8.2.1'
+          oldest_sympy: '1.10'
 
     steps:
       - name: checkout
@@ -131,7 +138,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
         with:
-          python-version: "3.12"
+          python-version: "3.13"
 
       - name: Set up Python environment
         uses: glotzerlab/workflows/setup-uv@e130dd2814c7db5635babe4427dedcbd5aab76d4 # 0.5.0
