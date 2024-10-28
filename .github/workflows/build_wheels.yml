@@ -134,9 +134,9 @@ jobs:
           python-version: "3.12"
 
       - name: Set up Python environment
-        uses: glotzerlab/workflows/setup-uv@ae7e7c6931098a313ef8069ef04b88a55c3a40f6 # 0.3.0
+        uses: glotzerlab/workflows/setup-uv@e130dd2814c7db5635babe4427dedcbd5aab76d4 # 0.5.0
         with:
-          lockfile: ".github/requirements-build-sdist.txt"
+          lockfile: ".github/workflows/environments/requirements-build-sdist.txt"
 
       - name: Build sdist
         run: python -m build --sdist --outdir dist/ .
