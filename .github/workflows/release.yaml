@@ -25,6 +25,7 @@ defaults:
     shell: bash
 
 env:
+  name: freud
   SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
 jobs:
