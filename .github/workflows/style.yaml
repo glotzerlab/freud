@@ -1,4 +1,4 @@
-name: Style check
+name: style
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
