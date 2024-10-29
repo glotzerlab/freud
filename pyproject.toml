@@ -27,6 +27,7 @@ classifiers=[
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 dependencies = ["numpy>=1.19", "rowan>=1.2.1", "scipy>=1.1"]
 keywords = ["simulation", "analysis", "molecular dynamics", "soft matter",
@@ -37,12 +38,6 @@ Documentation = "https://freud.readthedocs.io"
 Download = "https://pypi.org/project/freud-analysis/"
 Source = "https://github.com/glotzerlab/freud"
 Issues = "https://github.com/glotzerlab/freud/issues"
-
-[tool.black]
-target-version = ['py39']
-
-[tool.isort]
-profile = 'black'
 
 [tool.scikit-build]
 sdist.exclude = [".github", "doc"]

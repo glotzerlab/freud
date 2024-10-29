@@ -1,4 +1,4 @@
-name: Style check
+name: style
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -31,7 +31,7 @@ jobs:
         with:
           micromamba-version: '1.5.8-0'
           environment-name: test
-          environment-file: .github/workflows/env-files/py312-conda-lock.yml
+          environment-file: .github/workflows/environments/py313-conda-lock.yml
       - name: Configure compile_commands.json
         run: |
           cmake -S . -B build -GNinja -DCMAKE_EXPORT_COMPILE_COMMANDS=True
