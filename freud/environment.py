@@ -378,171 +378,155 @@ class AngularSeparationGlobal(_Compute):
 #                return key
 #
 #
-# cdef class LocalDescriptors(_PairCompute):
-#    r"""Compute a set of descriptors (a numerical "fingerprint") of a particle's
-#    local environment.
-#
-#    The resulting spherical harmonic array will be a complex-valued
-#    array of shape :code:`(num_bonds, num_sphs)`. Spherical harmonic
-#    calculation can be restricted to some number of nearest neighbors
-#    through the :code:`max_num_neighbors` argument; if a particle has more
-#    bonds than this number, the last one or more rows of bond spherical
-#    harmonics for each particle will not be set. This feature is useful for
-#    computing descriptors on the same system but with different subsets of
-#    neighbors; a :class:`freud.locality.NeighborList` with the correct
-#    ordering can then be reused in multiple calls to :meth:`~.compute`
-#    with different values of :code:`max_num_neighbors` to compute descriptors
-#    for different local neighborhoods with maximum efficiency.
-#
-#    Args:
-#        l_max (unsigned int):
-#            Maximum spherical harmonic :math:`l` to consider.
-#        negative_m (bool, optional):
-#            True if we should also calculate :math:`Y_{lm}` for negative
-#            :math:`m`. (Default value = :code:`True`)
-#        mode (str, optional):
-#            Orientation mode to use for environments, either
-#            :code:`'neighborhood'` to use the orientation of the local
-#            neighborhood, :code:`'particle_local'` to use the given
-#            particle orientations, or :code:`'global'` to not rotate
-#            environments (Default value = :code:`'neighborhood'`).
-#    """  # noqa: E501
-#    cdef freud._environment.LocalDescriptors * thisptr
-#
-#    known_modes = {'neighborhood': freud._environment.LocalNeighborhood,
-#                   'global': freud._environment.Global,
-#                   'particle_local': freud._environment.ParticleLocal}
-#
-#    def __cinit__(self, l_max, negative_m=True, mode='neighborhood'):
-#        cdef freud._environment.LocalDescriptorOrientation l_mode
-#        try:
-#            l_mode = self.known_modes[mode]
-#        except KeyError:
-#            raise ValueError(
-#                'Unknown LocalDescriptors orientation mode: {}'.format(mode))
-#
-#        self.thisptr = new freud._environment.LocalDescriptors(
-#            l_max, negative_m, l_mode)
-#
-#    def __dealloc__(self):
-#        del self.thisptr
-#
-#    def compute(self, system, query_points=None, orientations=None,
-#                neighbors=None, max_num_neighbors=0):
-#        r"""Calculates the local descriptors of bonds from a set of source
-#        points to a set of destination points.
-#
-#        Args:
-#            system:
-#                Any object that is a valid argument to
-#                :class:`freud.locality.NeighborQuery.from_system`.
-#            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
-#                Query points used to calculate the correlation function.  Uses
-#                the system's points if :code:`None` (Default
-#                value = :code:`None`).
-#            orientations ((:math:`N_{points}`, 4) :class:`numpy.ndarray`):
-#                Orientations associated with system points that are used to
-#                calculate bonds.
-#            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
-#                Either a :class:`NeighborList <freud.locality.NeighborList>` of
-#                neighbor pairs to use in the calculation, or a dictionary of
-#                `query arguments
-#                <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
-#                (Default value: None).
-#            max_num_neighbors (unsigned int, optional):
-#                Hard limit on the maximum number of neighbors to use for each
-#                particle for the given neighbor-finding algorithm. Uses
-#                all neighbors if set to 0 (Default value = 0).
-#        """  # noqa: E501
-#        cdef:
-#            freud.locality.NeighborQuery nq
-#            freud.locality.NeighborList nlist
-#            freud.locality._QueryArgs qargs
-#            const float[:, ::1] l_query_points
-#            unsigned int num_query_points
-#
-#        nq, nlist, qargs, l_query_points, num_query_points = \
-#            self._preprocess_arguments(system, query_points, neighbors)
-#
-#        # The l_orientations_ptr is only used for 'particle_local' mode.
-#        cdef const float[:, ::1] l_orientations
-#        cdef quat[float] *l_orientations_ptr = NULL
-#        if self.mode == 'particle_local':
-#            if orientations is None:
-#                raise RuntimeError(
-#                    ('Orientations must be given to orient LocalDescriptors '
-#                        'with particles\' orientations'))
-#
-#            orientations = freud.util._convert_array(
-#                orientations, shape=(nq.points.shape[0], 4))
-#
-#            l_orientations = orientations
-#            l_orientations_ptr = <quat[float]*> &l_orientations[0, 0]
-#
-#        self.thisptr.compute(
-#            nq.get_ptr(),
-#            <vec3[float]*> &l_query_points[0, 0], num_query_points,
-#            l_orientations_ptr,
-#            nlist.get_ptr(), dereference(qargs.thisptr),
-#            max_num_neighbors)
-#        return self
-#
-#    @_Compute._computed_property
-#    def nlist(self):
-#        """:class:`freud.locality.NeighborList`: The neighbor list from the
-#        last compute."""
-#        nlist = freud.locality._nlist_from_cnlist(self.thisptr.getNList())
-#        nlist._compute = self
-#        return nlist
-#
-#    @_Compute._computed_property
-#    def sph(self):
-#        """:math:`\\left(N_{bonds}, \\text{SphWidth} \\right)`
-#        :class:`numpy.ndarray`: The last computed spherical harmonic array."""
-#        return freud.util.make_managed_numpy_array(
-#            &self.thisptr.getSph(),
-#            freud.util.arr_type_t.COMPLEX_FLOAT)
-#
-#    @_Compute._computed_property
-#    def num_sphs(self):
-#        """unsigned int: The last number of spherical harmonics computed. This
-#        is equal to the number of bonds in the last computation, which is at
-#        most the number of :code:`points` multiplied by the lower of the
-#        :code:`num_neighbors` arguments passed to the last compute call or the
-#        constructor (it may be less if there are not enough neighbors for every
-#        particle)."""
-#        return self.thisptr.getNSphs()
-#
-#    @property
-#    def l_max(self):
-#        """unsigned int: The maximum spherical harmonic :math:`l` calculated
-#        for."""
-#        return self.thisptr.getLMax()
-#
-#    @property
-#    def negative_m(self):
-#        """bool: True if we also calculated :math:`Y_{lm}` for negative
-#        :math:`m`."""
-#        return self.thisptr.getNegativeM()
-#
-#    @property
-#    def mode(self):
-#        """str: Orientation mode to use for environments, either
-#        :code:`'neighborhood'` to use the orientation of the local
-#        neighborhood, :code:`'particle_local'` to use the given particle
-#        orientations, or :code:`'global'` to not rotate environments."""
-#        mode = self.thisptr.getMode()
-#        for key, value in self.known_modes.items():
-#            if value == mode:
-#                return key
-#
-#    def __repr__(self):
-#        return ("freud.environment.{cls}(l_max={l_max}, "
-#                "negative_m={negative_m}, mode='{mode}')").format(
-#                    cls=type(self).__name__, l_max=self.l_max,
-#                    negative_m=self.negative_m, mode=self.mode)
-#
-#
+class LocalDescriptors(_PairCompute):
+    r"""Compute a set of descriptors (a numerical "fingerprint") of a particle's
+    local environment.
+
+    The resulting spherical harmonic array will be a complex-valued
+    array of shape :code:`(num_bonds, num_sphs)`. Spherical harmonic
+    calculation can be restricted to some number of nearest neighbors
+    through the :code:`max_num_neighbors` argument; if a particle has more
+    bonds than this number, the last one or more rows of bond spherical
+    harmonics for each particle will not be set. This feature is useful for
+    computing descriptors on the same system but with different subsets of
+    neighbors; a :class:`freud.locality.NeighborList` with the correct
+    ordering can then be reused in multiple calls to :meth:`~.compute`
+    with different values of :code:`max_num_neighbors` to compute descriptors
+    for different local neighborhoods with maximum efficiency.
+
+    Args:
+        l_max (unsigned int):
+            Maximum spherical harmonic :math:`l` to consider.
+        negative_m (bool, optional):
+            True if we should also calculate :math:`Y_{lm}` for negative
+            :math:`m`. (Default value = :code:`True`)
+        mode (str, optional):
+            Orientation mode to use for environments, either
+            :code:`'neighborhood'` to use the orientation of the local
+            neighborhood, :code:`'particle_local'` to use the given
+            particle orientations, or :code:`'global'` to not rotate
+            environments (Default value = :code:`'neighborhood'`).
+    """  # noqa: E501
+
+    known_modes = {'neighborhood': freud._environment.LocalNeighborhood,
+                   'global': freud._environment.Global,
+                   'particle_local': freud._environment.ParticleLocal}
+
+    def __init__(self, l_max, negative_m=True, mode='neighborhood'):
+        try:
+            l_mode = self.known_modes[mode]
+        except KeyError:
+            msg = f'Unknown LocalDescriptors orientation mode: {mode}'
+            raise ValueError(msg) from None
+
+        self._cpp_obj = freud._environment.LocalDescriptors(l_max, negative_m, l_mode)
+
+    def compute(self, system, query_points=None, orientations=None,
+                neighbors=None, max_num_neighbors=0):
+        r"""Calculates the local descriptors of bonds from a set of source
+        points to a set of destination points.
+
+        Args:
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
+            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
+                Query points used to calculate the correlation function.  Uses
+                the system's points if :code:`None` (Default
+                value = :code:`None`).
+            orientations ((:math:`N_{points}`, 4) :class:`numpy.ndarray`):
+                Orientations associated with system points that are used to
+                calculate bonds.
+            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
+                Either a :class:`NeighborList <freud.locality.NeighborList>` of
+                neighbor pairs to use in the calculation, or a dictionary of
+                `query arguments
+                <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
+                (Default value: None).
+            max_num_neighbors (unsigned int, optional):
+                Hard limit on the maximum number of neighbors to use for each
+                particle for the given neighbor-finding algorithm. Uses
+                all neighbors if set to 0 (Default value = 0).
+        """  # noqa: E501
+        nq, nlist, qargs, query_points, num_query_points = \
+            self._preprocess_arguments(system, query_points, neighbors)
+
+        # The l_orientations_ptr is only used for 'particle_local' mode.
+        if self.mode == 'particle_local':
+            if orientations is None:
+                msg = (
+                    'Orientations must be given to orient LocalDescriptors '
+                        'with particles\' orientations'
+                )
+                raise RuntimeError(msg)
+
+            orientations = freud.util._convert_array(
+                orientations, shape=(nq.points.shape[0], 4))
+
+        self._cpp_obj.compute(
+            nq._cpp_obj,
+            query_points,
+            num_query_points,
+            orientations,
+            nlist._cpp_obj,
+            qargs._cpp_obj,
+            max_num_neighbors
+        )
+        return self
+
+    @_Compute._computed_property
+    def nlist(self):
+        """:class:`freud.locality.NeighborList`: The neighbor list from the
+        last compute."""
+        nlist = freud.locality._nlist_from_cnlist(self._cpp_obj.getNList())
+        nlist._compute = self
+        return nlist
+
+    @_Compute._computed_property
+    def sph(self):
+        """:math:`\\left(N_{bonds}, \\text{SphWidth} \\right)`
+        :class:`numpy.ndarray`: The last computed spherical harmonic array."""
+        return self._cpp_obj.getSph().toNumpyArray()
+
+    @_Compute._computed_property
+    def num_sphs(self):
+        """unsigned int: The last number of spherical harmonics computed. This
+        is equal to the number of bonds in the last computation, which is at
+        most the number of :code:`points` multiplied by the lower of the
+        :code:`num_neighbors` arguments passed to the last compute call or the
+        constructor (it may be less if there are not enough neighbors for every
+        particle)."""
+        return self._cpp_obj.getNSphs()
+
+    @property
+    def l_max(self):
+        """unsigned int: The maximum spherical harmonic :math:`l` calculated
+        for."""
+        return self._cpp_obj.getLMax()
+
+    @property
+    def negative_m(self):
+        """bool: True if we also calculated :math:`Y_{lm}` for negative
+        :math:`m`."""
+        return self._cpp_obj.getNegativeM()
+
+    @property
+    def mode(self):
+        """str: Orientation mode to use for environments, either
+        :code:`'neighborhood'` to use the orientation of the local
+        neighborhood, :code:`'particle_local'` to use the given particle
+        orientations, or :code:`'global'` to not rotate environments."""
+        mode = self._cpp_obj.getMode()
+        for key, value in self.known_modes.items():
+            if value == mode:
+                return key
+        return None
+
+    def __repr__(self):
+        return (f"freud.environment.{type(self).__name__}(l_max={self.l_max}, "
+                f"negative_m={self.negative_m}, mode='{self.mode}')")
+
+
 # def _minimize_RMSD(box, ref_points, points, registration=False):
 #    r"""Get the somewhat-optimal RMSD between the set of vectors ref_points
 #    and the set of vectors points.
