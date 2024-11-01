@@ -18,10 +18,10 @@ template<typename T, typename shape>
 using nb_array = nanobind::ndarray<T, shape, nanobind::device::cpu, nanobind::c_contig>;
 
 namespace wrap {
-void compute(const std::shared_ptr<AngularSeparationGlobal> &self, 
-        const nb_array<float, nanobind::shape<-1, 4>> &global_orientations,
-             const nb_array<float, nanobind::shape<-1, 4>> & orientations,
-             const nb_array<float, nanobind::shape<-1, 4>> & equiv_orientations)
+void compute(const std::shared_ptr<AngularSeparationGlobal>& angular_separation, 
+        const nb_array<float, nanobind::shape<-1, 4>>& global_orientations,
+             const nb_array<float, nanobind::shape<-1, 4>>& orientations,
+             const nb_array<float, nanobind::shape<-1, 4>>& equiv_orientations)
     {
     unsigned int const n_global = global_orientations.shape(0);
     unsigned int const n_points = orientations.shape(0);
@@ -29,7 +29,7 @@ void compute(const std::shared_ptr<AngularSeparationGlobal> &self,
     auto* global_orientations_data = reinterpret_cast<quat<float>*>(global_orientations.data());
     auto* orientations_data = reinterpret_cast<quat<float>*>(orientations.data());
     auto* equiv_orientations_data = reinterpret_cast<quat<float>*>(equiv_orientations.data());
-    self->compute(global_orientations_data, n_global, orientations_data, n_points, equiv_orientations_data, n_equiv_orientations);
+    angular_separation->compute(global_orientations_data, n_global, orientations_data, n_points, equiv_orientations_data, n_equiv_orientations);
     }
 
 };
@@ -41,7 +41,8 @@ void export_AngularSeparationGlobal(nb::module_& module)
     nb::class_<AngularSeparationGlobal>(module, "AngularSeparationGlobal")
         .def(nb::init<>())
         .def("getAngles", &AngularSeparationGlobal::getAngles)
-        .def("compute", &AngularSeparationGlobal::compute);
+        .def("compute", &wrap::compute, nb::arg("global_orientations"), nb::arg("orientations"), 
+             nb::arg("equiv_orientations"));
 }
 
 }; }; // namespace detail
