@@ -1,9 +1,8 @@
 # Copyright (c) 2010-2024 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
-
-# cluster,; density,; diffraction,; environment,; interface,; msd,; order,
-from . import box, data, environment, locality, parallel, pmft
+# density,; diffraction,; order,
+from . import box, cluster, data, environment, interface, locality, msd, parallel, pmft
 from .box import Box
 from .locality import AABBQuery, LinkCell, NeighborList
 from .parallel import NumThreads, get_num_threads, set_num_threads
@@ -17,14 +16,14 @@ __version__ = "3.1.0"
 __all__ = [
     "__version__",
     "box",
-    # "cluster",
+    "cluster",
     "data",
     # "density",
     # "diffraction",
     "environment",
-    # "interface",
+    "interface",
     "locality",
-    # "msd",
+    "msd",
     # "order",
     "parallel",
     "pmft",

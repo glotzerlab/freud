@@ -13,23 +13,8 @@ Resolves: #???
 <!-- Include details of your testing environment, and the tests you ran to
      see how your changes affect other areas of the code, etc. -->
 
-## Screenshots
-<!-- (if appropriate) -->
-
-## Types of changes
-<!-- What types of changes does your code introduce? Put an `x` in all the boxes that apply: -->
-- [ ] Bug fix (non-breaking change which fixes an issue)
-- [ ] New feature (non-breaking change which adds or improves functionality)
-- [ ] Breaking change (fix or feature that would cause existing functionality to change)
-- [ ] Documentation improvement (updates to user guides, docstrings, or developer docs)
-
 ## Checklist:
-<!-- Put an `x` in all the boxes that apply. If you're unsure about any of
-     these, don't hesitate to ask. We're here to help! -->
-- [ ] I have read the [**CONTRIBUTING**](https://github.com/glotzerlab/freud/blob/main/CONTRIBUTING.md) document.
-- [ ] My code follows the code style of this project.
-- [ ] I have updated the documentation (if relevant).
-- [ ] I have added tests that cover my changes (if relevant).
-- [ ] All new and existing tests passed.
-- [ ] I have updated the [credits](https://github.com/glotzerlab/freud/blob/main/doc/source/reference/credits.rst).
-- [ ] I have updated the [Changelog](https://github.com/glotzerlab/freud/blob/main/ChangeLog.md).
+- [ ] I have reviewed the [**Contributor Guidelines**](https://github.com/glotzerlab/freud/blob/main/CONTRIBUTING.md).
+- [ ] I agree with the terms of the [**Freud Contributor Agreement**](https://github.com/glotzerlab/freud/blob/main/ContributorAgreement.md).
+- [ ] My name is on the [list of contributors](https://github.com/glotzerlab/freud/blob/main/doc/source/reference/credits.rst) in the pull request source branch.
+- [ ] I have updated the [Change log](https://github.com/glotzerlab/freud/blob/main/ChangeLog.md).

@@ -82,7 +82,6 @@ repos:
       exclude: |
         (?x)^(
           ^extern/|
-          ^freud/cluster/|
           ^freud/density/|
           ^freud/diffraction/|
           ^freud/environment/|

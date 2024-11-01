@@ -20,10 +20,10 @@ add_library(
   # box
   box/Box.h
   # cluster
-  # cluster/Cluster.h
-  # cluster/Cluster.cc
-  # cluster/ClusterProperties.h
-  # cluster/ClusterProperties.cc
+  cluster/Cluster.h
+  cluster/Cluster.cc
+  cluster/ClusterProperties.h
+  cluster/ClusterProperties.cc
   # density
   # density/CorrelationFunction.h
   # density/CorrelationFunction.cc
@@ -133,9 +133,12 @@ set_target_properties(freud PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_link_libraries(freud PUBLIC TBB::tbb)
 target_include_directories(freud SYSTEM PUBLIC ${PROJECT_SOURCE_DIR}/extern/)
 
-# cluster nanobind_add_module(_cluster cluster/...)
-# target_link_libraries(_cluster PUBLIC freud TBB::tbb)
-# target_set_install_rpath(_cluster)
+# cluster
+nanobind_add_module(
+  _cluster cluster/module-Cluster.cc cluster/export-Cluster.cc
+  cluster/export-ClusterProperties.cc)
+target_link_libraries(_cluster PUBLIC freud TBB::tbb)
+target_set_install_rpath(_cluster)
 
 # density nanobind_add_module(_density density/...)
 # target_link_libraries(_density PUBLIC freud TBB::tbb)
@@ -199,15 +202,17 @@ target_set_install_rpath(_util)
 set(python_files
     __init__.py
     box.py
+    cluster.py
     data.py
     errors.py
     locality.py
+    msd.py
     parallel.py
     pmft.py
+    interface.py
     plot.py
     util.py)
-# cluster.py density.py diffraction.py environment.py order.py interface.py
-# msd.py)
+# density.py diffraction.py environment.py order.py)
 
 copy_files_to_build("${python_files}" "freud" "*.py")
 
@@ -215,8 +220,9 @@ copy_files_to_build("${python_files}" "freud" "*.py")
 if(SKBUILD)
   install(FILES ${python_files} DESTINATION freud)
   install(TARGETS _box DESTINATION freud)
-  # install(TARGETS _cluster DESTINATION freud) install(TARGETS _density
-  # DESTINATION freud) install(TARGETS _diffraction DESTINATION freud)
+  install(TARGETS _cluster DESTINATION freud)
+  # install(TARGETS _density DESTINATION freud)
+  # install(TARGETS _diffraction DESTINATION freud) 
   install(TARGETS _environment DESTINATION freud)
   install(TARGETS _locality DESTINATION freud)
   # install(TARGETS _order DESTINATION freud)

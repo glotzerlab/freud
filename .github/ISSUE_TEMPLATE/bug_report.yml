@@ -5,43 +5,59 @@ body:
   - type: textarea
     attributes:
       label: Description
-      description: A clear and concise description of the bug.
+      description: Describe the problem.
     validations:
       required: true
   - type: textarea
     attributes:
-      label: Steps to Reproduce
-      description: Please provide a *minimal* script to reproduce the bug.
+      label: Script
+      description: |
+        The *minimal* script that demonstrates the problem. The script should depend only on
+        freud and its dependencies so that developers can run it.
+      placeholder: |
+        import freud
+        ...
       render: python
     validations:
       required: true
   - type: textarea
     attributes:
-      label: Error Output
-      description: Please indicate the output from the above script and what you expect the output to be.
+      label: Input files
+      description: Attach any input files needed to run the script.
+  - type: textarea
+    attributes:
+      label: Output
+      description: |
+        What output did you get?
       render: shell
     validations:
       required: true
+  - type: textarea
+    attributes:
+      label: Expected output
+      description: What output do you expect?
   - type: input
     attributes:
       label: freud Version
       description: What version of freud are you using?
-      placeholder: v3.1.0
+      placeholder: 3.1.0
     validations:
       required: true
   - type: input
     attributes:
       label: Python Version
       description: What version of python are you using?
-      placeholder: v3.8.2
+      placeholder: 3.13.0
   - type: dropdown
     attributes:
-      label: System Platform
-      description: What platform are you using?
+      label: Platform
+      description: What platform are you using? Select all that apply.
+      multiple: true
       options:
-        - MacOS
+        - CPU
+        - GPU
         - Linux
-        - Windows
+        - macOS
   - type: dropdown
     attributes:
       label: Installation method
@@ -49,12 +65,4 @@ body:
       options:
         - Download from PyPI
         - Download from conda-forge
-        - glotzerlab-software container
         - built from source
-  - type: dropdown
-    attributes:
-      label: Developer
-      description: Who should fix this?
-      options:
-        - I will submit a pull request that fixes this problem.
-        - Would someone else please fix this?

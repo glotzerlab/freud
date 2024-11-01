@@ -1,0 +1,15 @@
+name: Update uv lockfiles
+
+on:
+  schedule:
+    - cron: '0 12 1 * *'
+
+  workflow_dispatch:
+
+jobs:
+  update:
+    uses: glotzerlab/workflows/.github/workflows/update-uv-lockfiles.yaml@e130dd2814c7db5635babe4427dedcbd5aab76d4 # 0.5.0
+    secrets: inherit
+    with:
+      command: ./update-uv-lockfiles.sh
+      branch: main
