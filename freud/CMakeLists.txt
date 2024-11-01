@@ -204,6 +204,7 @@ set(python_files
     box.py
     cluster.py
     data.py
+    environment.py
     errors.py
     locality.py
     msd.py
@@ -212,7 +213,7 @@ set(python_files
     interface.py
     plot.py
     util.py)
-# density.py diffraction.py environment.py order.py)
+# density.py diffraction.py order.py)
 
 copy_files_to_build("${python_files}" "freud" "*.py")
 
