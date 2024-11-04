@@ -230,159 +230,146 @@ class Nematic(_Compute):
         return f"freud.order.{type(self).__name__}()"
 
 
-# cdef class Hexatic(_PairCompute):
-#     r"""Calculates the :math:`k`-atic order parameter for 2D systems.
+class Hexatic(_PairCompute):
+    r"""Calculates the :math:`k`-atic order parameter for 2D systems.
 
-#     The :math:`k`-atic order parameter (called the hexatic order parameter for
-#     :math:`k = 6`) is analogous to Steinhardt order parameters, and is used to
-#     measure order in the bonds of 2D systems.
+    The :math:`k`-atic order parameter (called the hexatic order parameter for
+    :math:`k = 6`) is analogous to Steinhardt order parameters, and is used to
+    measure order in the bonds of 2D systems.
 
-#     The :math:`k`-atic order parameter for a particle :math:`i` and its
-#     :math:`N_b` neighbors :math:`j` is given by:
+    The :math:`k`-atic order parameter for a particle :math:`i` and its
+    :math:`N_b` neighbors :math:`j` is given by:
 
-#     :math:`\psi_k \left( i \right) = \frac{1}{N_b}
-#     \sum \limits_{j=1}^{N_b} e^{i k \phi_{ij}}`
+    :math:`\psi_k \left( i \right) = \frac{1}{N_b}
+    \sum \limits_{j=1}^{N_b} e^{i k \phi_{ij}}`
 
-#     The parameter :math:`k` governs the symmetry of the order parameter and
-#     typically matches the number of neighbors to be found for each particle.
-#     The quantity :math:`\phi_{ij}` is the angle between the
-#     vector :math:`r_{ij}` and :math:`\left(1, 0\right)`.
+    The parameter :math:`k` governs the symmetry of the order parameter and
+    typically matches the number of neighbors to be found for each particle.
+    The quantity :math:`\phi_{ij}` is the angle between the
+    vector :math:`r_{ij}` and :math:`\left(1, 0\right)`.
 
-#     If the weighted mode is enabled, contributions of each neighbor are
-#     weighted. Neighbor weights :math:`w_{ij}` default to 1 but are defined for a
-#     :class:`freud.locality.NeighborList` from :class:`freud.locality.Voronoi`
-#     or one with user-provided weights. The formula is modified as follows:
+    If the weighted mode is enabled, contributions of each neighbor are
+    weighted. Neighbor weights :math:`w_{ij}` default to 1 but are defined for a
+    :class:`freud.locality.NeighborList` from :class:`freud.locality.Voronoi`
+    or one with user-provided weights. The formula is modified as follows:
 
-#     :math:`\psi'_k \left( i \right) = \frac{1}{\sum_{j=1}^{N_b} w_{ij}}
-#     \sum \limits_{j=1}^{N_b} w_{ij} e^{i k \phi_{ij}}`
+    :math:`\psi'_k \left( i \right) = \frac{1}{\sum_{j=1}^{N_b} w_{ij}}
+    \sum \limits_{j=1}^{N_b} w_{ij} e^{i k \phi_{ij}}`
 
-#     The hexatic order parameter as written above is **complex-valued**. The
-#     **magnitude** of the complex value,
-#     :code:`np.abs(hex_order.particle_order)`, is frequently what is desired
-#     when determining the :math:`k`-atic order for each particle. The complex
-#     phase angle :code:`np.angle(hex_order.particle_order)` indicates the
-#     orientation of the bonds as an angle measured counterclockwise from the
-#     vector :math:`\left(1, 0\right)`. The complex valued order parameter is
-#     not rotationally invariant because of this phase angle, but the magnitude
-#     *is* rotationally invariant.
+    The hexatic order parameter as written above is **complex-valued**. The
+    **magnitude** of the complex value,
+    :code:`np.abs(hex_order.particle_order)`, is frequently what is desired
+    when determining the :math:`k`-atic order for each particle. The complex
+    phase angle :code:`np.angle(hex_order.particle_order)` indicates the
+    orientation of the bonds as an angle measured counterclockwise from the
+    vector :math:`\left(1, 0\right)`. The complex valued order parameter is
+    not rotationally invariant because of this phase angle, but the magnitude
+    *is* rotationally invariant.
 
-#     .. note::
-#         **2D:** :class:`freud.order.Hexatic` is only defined for 2D systems.
-#         The points must be passed in as :code:`[x, y, 0]`.
+    .. note::
+        **2D:** :class:`freud.order.Hexatic` is only defined for 2D systems.
+        The points must be passed in as :code:`[x, y, 0]`.
 
-#     Args:
-#         k (unsigned int, optional):
-#             Symmetry of order parameter (Default value = :code:`6`).
-#         weighted (bool, optional):
-#             Determines whether to use neighbor weights in the computation of
-#             spherical harmonics over neighbors. If enabled and used with a
-#             Voronoi neighbor list, this results in the 2D Minkowski Structure
-#             Metrics :math:`\psi'_k` :cite:`Mickel2013` (Default value =
-#             :code:`False`).
-#     """  # noqa: E501
-#     cdef freud._order.Hexatic * thisptr
+    Args:
+        k (unsigned int, optional):
+            Symmetry of order parameter (Default value = :code:`6`).
+        weighted (bool, optional):
+            Determines whether to use neighbor weights in the computation of
+            spherical harmonics over neighbors. If enabled and used with a
+            Voronoi neighbor list, this results in the 2D Minkowski Structure
+            Metrics :math:`\psi'_k` :cite:`Mickel2013` (Default value =
+            :code:`False`).
+    """
 
-#     def __cinit__(self, k=6, weighted=False):
-#         self.thisptr = new freud._order.Hexatic(k, weighted)
+    def __init__(self, k=6, weighted=False):
+        self._cpp_obj= freud._order.Hexatic(k, weighted)
 
-#     def __dealloc__(self):
-#         del self.thisptr
+    def compute(self, system, neighbors=None):
+        r"""Calculates the hexatic order parameter.
 
-#     def compute(self, system, neighbors=None):
-#         r"""Calculates the hexatic order parameter.
+        Example::
 
-#         Example::
+            >>> box, points = freud.data.make_random_system(
+            ...     box_size=10, num_points=100, is2D=True, seed=0)
+            >>> # Compute the hexatic (6-fold) order for the 2D system
+            >>> hex_order = freud.order.Hexatic(k=6)
+            >>> hex_order.compute(system=(box, points))
+            freud.order.Hexatic(...)
+            >>> print(hex_order.particle_order)
+            [...]
 
-#             >>> box, points = freud.data.make_random_system(
-#             ...     box_size=10, num_points=100, is2D=True, seed=0)
-#             >>> # Compute the hexatic (6-fold) order for the 2D system
-#             >>> hex_order = freud.order.Hexatic(k=6)
-#             >>> hex_order.compute(system=(box, points))
-#             freud.order.Hexatic(...)
-#             >>> print(hex_order.particle_order)
-#             [...]
+        Args:
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
+            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
+                Either a :class:`NeighborList <freud.locality.NeighborList>` of
+                neighbor pairs to use in the calculation, or a dictionary of
+                `query arguments
+                <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
+                (Default value: None).
+        """   # noqa: E501
 
-#         Args:
-#             system:
-#                 Any object that is a valid argument to
-#                 :class:`freud.locality.NeighborQuery.from_system`.
-#             neighbors (:class:`freud.locality.NeighborList` or dict, optional):
-#                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
-#                 neighbor pairs to use in the calculation, or a dictionary of
-#                 `query arguments
-#                 <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
-#                 (Default value: None).
-#         """   # noqa: E501
-#         cdef:
-#             freud.locality.NeighborQuery nq
-#             freud.locality.NeighborList nlist
-#             freud.locality._QueryArgs qargs
-#             const float[:, ::1] l_query_points
-#             unsigned int num_query_points
+        nq, nlist, qargs, l_query_points, num_query_points = \
+            self._preprocess_arguments(system, neighbors=neighbors)
+        self._cpp_obj.compute(nlist._cpp_obj, nq._cpp_obj, qargs._cpp_obj)
+        return self
 
-#         nq, nlist, qargs, l_query_points, num_query_points = \
-#             self._preprocess_arguments(system, neighbors=neighbors)
-#         self.thisptr.compute(nlist.get_ptr(),
-#                              nq.get_ptr(), dereference(qargs.thisptr))
-#         return self
+    @property
+    def default_query_args(self):
+        """The default query arguments are
+        :code:`{'mode': 'nearest', 'num_neighbors': self.k}`."""
+        return dict(mode="nearest", num_neighbors=self.k)
 
-#     @property
-#     def default_query_args(self):
-#         """The default query arguments are
-#         :code:`{'mode': 'nearest', 'num_neighbors': self.k}`."""
-#         return dict(mode="nearest", num_neighbors=self.k)
+    @_Compute._computed_property
+    def particle_order(self):
+        """:math:`\\left(N_{particles} \\right)` :class:`numpy.ndarray`: Order
+        parameter."""
+        return self._cpp_obj.getOrder().toNumpyArray()
 
-#     @_Compute._computed_property
-#     def particle_order(self):
-#         """:math:`\\left(N_{particles} \\right)` :class:`numpy.ndarray`: Order
-#         parameter."""
-#         return freud.util.make_managed_numpy_array(
-#             &self.thisptr.getOrder(),
-#             freud.util.arr_type_t.COMPLEX_FLOAT)
+    @property
+    def k(self):
+        """unsigned int: Symmetry of the order parameter."""
+        return self._cpp_obj.getK()
 
-#     @property
-#     def k(self):
-#         """unsigned int: Symmetry of the order parameter."""
-#         return self.thisptr.getK()
+    @property
+    def weighted(self):
+        """bool: Whether neighbor weights were used in the computation."""
+        return self._cpp_obj.isWeighted()
 
-#     @property
-#     def weighted(self):
-#         """bool: Whether neighbor weights were used in the computation."""
-#         return self.thisptr.isWeighted()
+    def __repr__(self):
+        return "freud.order.{cls}(k={k}, weighted={weighted})".format(
+            cls=type(self).__name__, k=self.k, weighted=self.weighted)
 
-#     def __repr__(self):
-#         return "freud.order.{cls}(k={k}, weighted={weighted})".format(
-#             cls=type(self).__name__, k=self.k, weighted=self.weighted)
+    def plot(self, ax=None):
+        """Plot order parameter distribution.
 
-#     def plot(self, ax=None):
-#         """Plot order parameter distribution.
+        Args:
+            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
+                :code:`None`, make a new figure and axis
+                (Default value = :code:`None`).
 
-#         Args:
-#             ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
-#                 :code:`None`, make a new figure and axis
-#                 (Default value = :code:`None`).
+        Returns:
+            (:class:`matplotlib.axes.Axes`): Axis with the plot.
+        """
+        import freud.plot
+        xlabel = r"$\left|\psi{prime}_{k}\right|$".format(
+            prime='\'' if self.weighted else '',
+            k=self.k)
 
-#         Returns:
-#             (:class:`matplotlib.axes.Axes`): Axis with the plot.
-#         """
-#         import freud.plot
-#         xlabel = r"$\left|\psi{prime}_{k}\right|$".format(
-#             prime='\'' if self.weighted else '',
-#             k=self.k)
+        return freud.plot.histogram_plot(
+            np.absolute(self.particle_order),
+            title="Hexatic Order Parameter " + xlabel,
+            xlabel=xlabel,
+            ylabel=r"Number of particles",
+            ax=ax)
 
-#         return freud.plot.histogram_plot(
-#             np.absolute(self.particle_order),
-#             title="Hexatic Order Parameter " + xlabel,
-#             xlabel=xlabel,
-#             ylabel=r"Number of particles",
-#             ax=ax)
-
-#     def _repr_png_(self):
-#         try:
-#             import freud.plot
-#             return freud.plot._ax_to_bytes(self.plot())
-#         except (AttributeError, ImportError):
-#             return None
+    def _repr_png_(self):
+        try:
+            import freud.plot
+            return freud.plot._ax_to_bytes(self.plot())
+        except (AttributeError, ImportError):
+            return None
 
 
 class Steinhardt(_PairCompute):

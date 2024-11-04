@@ -42,7 +42,7 @@ public:
     }
 
     //! Get a reference to the order parameter array
-    const util::ManagedArray<std::complex<float>>& getOrder() const
+    const std::shared_ptr<util::ManagedArray<std::complex<float>>> getOrder() const
     {
         return m_psi_array;
     }

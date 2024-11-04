@@ -11,6 +11,7 @@ void export_Steinhardt(nanobind::module_& m);
 void export_SolidLiquid(nanobind::module_& m);
 void export_ContinuousCoordination(nanobind::module_& m);
 void export_Cubatic(nanobind::module_& m);
+void export_HexaticTranslational(nanobind::module_& m);
 } // namespace freud::order::detail
 
 using namespace freud::order::detail;
@@ -23,4 +24,5 @@ NB_MODULE(_order, module) // NOLINT(misc-use-anonymous-namespace): caused by nan
     export_SolidLiquid(module);
     export_ContinuousCoordination(module);
     export_Cubatic(module);
+    export_HexaticTranslational(module);
 }

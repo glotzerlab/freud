@@ -27,7 +27,7 @@ void HexaticTranslational<T>::computeGeneral(Func func, const std::shared_ptr<lo
     m_psi_array = std::make_shared<util::ManagedArray<std::complex<float>>>(std::vector<size_t>{Np});
 
     freud::locality::loopOverNeighborsIterator(
-        &*points, points->getPoints(), Np, qargs, &*nlist,
+        points, points->getPoints(), Np, qargs, nlist,
         [&](size_t i, const std::shared_ptr<freud::locality::NeighborPerPointIterator>& ppiter) {
             float total_weight(0);
             const vec3<float> ref((*points)[i]);
