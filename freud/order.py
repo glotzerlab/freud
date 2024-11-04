@@ -10,22 +10,18 @@ harmonics of the bond order diagram, which are the spherical analogue of
 Fourier Transforms.
 """
 
-from math import floor
-
-from freud.util import _Compute
-
-
-from freud.locality import _PairCompute
-
 import collections.abc
 import logging
 import time
 import warnings
+from math import floor
 
 import numpy as np
 
-import freud.locality
 import freud._order
+import freud.locality
+from freud.locality import _PairCompute
+from freud.util import _Compute
 
 logger = logging.getLogger(__name__)
 
