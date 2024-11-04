@@ -12,11 +12,8 @@ Fourier Transforms.
 
 from math import floor
 
-from freud.util import _Compute  # , quat, vec3
+from freud.util import _Compute
 
-from freud.errors import FreudDeprecationWarning
-
-# from cython.operator cimport dereference
 
 from freud.locality import _PairCompute
 
@@ -28,12 +25,7 @@ import warnings
 import numpy as np
 
 import freud.locality
-
-import numpy as np
-
 import freud._order
-# cimport freud.locality
-# cimport freud.util
 
 logger = logging.getLogger(__name__)
 
@@ -190,7 +182,7 @@ class Nematic(_Compute):
         """  # noqa: E501
         if orientations.shape[1] == 4:
             raise ValueError(
-                "In freud versions >=3.0.0, Nematic.compute() takes "
+                "In freud versions >=3.0.0, Nematic.compute() takes "  # noqa: EM101
                 "3d orientation vectors instead of 4d quaternions."
             )
         orientations = freud.util._convert_array(orientations, shape=(None, 3))
@@ -200,6 +192,7 @@ class Nematic(_Compute):
                 "Including zero vector in the orientations array "
                 "may lead to undefined behavior.",
                 UserWarning,
+                stacklevel=2,
             )
 
         self._cpp_obj.compute(orientations)
@@ -311,7 +304,7 @@ class Hexatic(_PairCompute):
                 `query arguments
                 <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
                 (Default value: None).
-        """  # noqa: E501
+        """
 
         nq, nlist, qargs, l_query_points, num_query_points = self._preprocess_arguments(
             system, neighbors=neighbors
@@ -342,8 +335,9 @@ class Hexatic(_PairCompute):
         return self._cpp_obj.isWeighted()
 
     def __repr__(self):
-        return "freud.order.{cls}(k={k}, weighted={weighted})".format(
-            cls=type(self).__name__, k=self.k, weighted=self.weighted
+        return (
+            f"freud.order.{type(self).__name__}(k={self.k}, "
+            f"weighted={self.weighted})"
         )
 
     def plot(self, ax=None):
@@ -494,9 +488,9 @@ class Steinhardt(_PairCompute):
             of the Steinhardt order parameter (Default value = :code:`False`).
     """
 
-    def __init__(self, l, average=False, wl=False, weighted=False, wl_normalize=False):
+    def __init__(self, l, average=False, wl=False, weighted=False, wl_normalize=False):  # noqa: E741
         if not isinstance(l, collections.abc.Sequence):
-            l = [l]
+            l = [l]  # noqa: E741
         if len(l) == 0:
             raise ValueError("At least one l must be specified.")  # noqa: EM101
         self._cpp_obj = freud._order.Steinhardt(l, average, wl, weighted, wl_normalize)
@@ -689,7 +683,7 @@ class SolidLiquid(_PairCompute):
             :code:`True`).
     """
 
-    def __init__(self, l, q_threshold, solid_threshold, normalize_q=True):
+    def __init__(self, l, q_threshold, solid_threshold, normalize_q=True):  # noqa: E741
         if not isinstance(solid_threshold, int):
             warning_text = (
                 "solid_threshold should be an integer, and will be rounded down"
@@ -985,8 +979,8 @@ class ContinuousCoordination(_PairCompute):
             voronoi.compute(system)
         elif not hasattr(voronoi, "nlist"):
             raise RuntimeError(
-                "Must call compute on Voronoi object prior to computing coordination."
-            )  # noqa: EM101
+                "Must call compute on Voronoi object prior to computing coordination."  # noqa: EM101
+            )
         cpp_voronoi = voronoi
         self._cpp_obj.compute(cpp_voronoi._cpp_obj)
         return self
