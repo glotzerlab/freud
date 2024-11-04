@@ -611,7 +611,7 @@ class Steinhardt(_PairCompute):
 
         legend_labels = [
             (
-                f"${'w' if self.wl else 'q'}{'\'' if self.weighted else ''}_"
+                f'${"w" if self.wl else "q"}{"'" if self.weighted else ""}_'
                 f"{{{sph_l}{',ave' if self.average else ''}}}$"
             )
             for sph_l in ls
