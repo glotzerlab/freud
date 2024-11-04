@@ -1,6 +1,6 @@
 # Copyright (c) 2010-2024 The Regents of the University of Michigan
-# This file is from the freud project, released under the BSD 3-Clause License->
-# ruff: noqa: E741
+# This file is from the freud project, released under the BSD 3-Clause License.
+
 r"""
 The :class:`freud.order` module contains functions which compute order
 parameters for the whole system or individual particles. Order parameters take
@@ -41,6 +41,7 @@ logger = logging.getLogger(__name__)
 # _always_ do that, or you will have segfaults
 # np.import_array()
 
+
 class Cubatic(_Compute):
     r"""Compute the cubatic order parameter :cite:`Haji_Akbari_2015` for a system of
     particles using simulated annealing instead of Newton-Raphson root finding.
@@ -64,7 +65,9 @@ class Cubatic(_Compute):
         if seed is None:
             seed = int(time.time())
 
-        self._cpp_obj = freud._order.Cubatic(t_initial, t_final, scale, n_replicates, seed)
+        self._cpp_obj = freud._order.Cubatic(
+            t_initial, t_final, scale, n_replicates, seed
+        )
 
     def compute(self, orientations):
         r"""Calculates the per-particle and global order parameter.
@@ -282,7 +285,7 @@ class Hexatic(_PairCompute):
     """
 
     def __init__(self, k=6, weighted=False):
-        self._cpp_obj= freud._order.Hexatic(k, weighted)
+        self._cpp_obj = freud._order.Hexatic(k, weighted)
 
     def compute(self, system, neighbors=None):
         r"""Calculates the hexatic order parameter.
@@ -308,10 +311,11 @@ class Hexatic(_PairCompute):
                 `query arguments
                 <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
                 (Default value: None).
-        """   # noqa: E501
+        """  # noqa: E501
 
-        nq, nlist, qargs, l_query_points, num_query_points = \
-            self._preprocess_arguments(system, neighbors=neighbors)
+        nq, nlist, qargs, l_query_points, num_query_points = self._preprocess_arguments(
+            system, neighbors=neighbors
+        )
         self._cpp_obj.compute(nlist._cpp_obj, nq._cpp_obj, qargs._cpp_obj)
         return self
 
@@ -339,7 +343,8 @@ class Hexatic(_PairCompute):
 
     def __repr__(self):
         return "freud.order.{cls}(k={k}, weighted={weighted})".format(
-            cls=type(self).__name__, k=self.k, weighted=self.weighted)
+            cls=type(self).__name__, k=self.k, weighted=self.weighted
+        )
 
     def plot(self, ax=None):
         """Plot order parameter distribution.
@@ -353,20 +358,23 @@ class Hexatic(_PairCompute):
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         import freud.plot
+
         xlabel = r"$\left|\psi{prime}_{k}\right|$".format(
-            prime='\'' if self.weighted else '',
-            k=self.k)
+            prime="'" if self.weighted else "", k=self.k
+        )
 
         return freud.plot.histogram_plot(
             np.absolute(self.particle_order),
             title="Hexatic Order Parameter " + xlabel,
             xlabel=xlabel,
             ylabel=r"Number of particles",
-            ax=ax)
+            ax=ax,
+        )
 
     def _repr_png_(self):
         try:
             import freud.plot
+
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None
@@ -490,9 +498,8 @@ class Steinhardt(_PairCompute):
         if not isinstance(l, collections.abc.Sequence):
             l = [l]
         if len(l) == 0:
-            raise ValueError("At least one l must be specified.") # noqa: EM101
+            raise ValueError("At least one l must be specified.")  # noqa: EM101
         self._cpp_obj = freud._order.Steinhardt(l, average, wl, weighted, wl_normalize)
-
 
     @property
     def average(self):
@@ -581,15 +588,19 @@ class Steinhardt(_PairCompute):
         """
 
         # Call the pair compute setup function
-        nq, nlist, qargs, l_query_points, num_query_points = self._preprocess_arguments(system, neighbors=neighbors)
+        nq, nlist, qargs, l_query_points, num_query_points = self._preprocess_arguments(
+            system, neighbors=neighbors
+        )
 
         self._cpp_obj.compute(nlist._cpp_obj, nq._cpp_obj, qargs._cpp_obj)
         return self
 
     def __repr__(self):
-        return (f"freud.order.{type(self).__name__}(l={self.l}, "
-                f"average={self.average}, wl={self.wl}, weighted={self.weighted}, "
-                f"wl_normalize={self.wl_normalize})")
+        return (
+            f"freud.order.{type(self).__name__}(l={self.l}, "
+            f"average={self.average}, wl={self.wl}, weighted={self.weighted}, "
+            f"wl_normalize={self.wl_normalize})"
+        )
 
     def plot(self, ax=None):
         """Plot order parameter distribution.
@@ -610,11 +621,12 @@ class Steinhardt(_PairCompute):
 
         legend_labels = [
             (
-                fr"${'w' if self.wl else 'q'}{'\'' if self.weighted else ''}_"
+                rf"${'w' if self.wl else 'q'}{'\'' if self.weighted else ''}_"
                 f"{{{sph_l}{',ave' if self.average else ''}}}$"
-            ) for sph_l in ls
+            )
+            for sph_l in ls
         ]
-        xlabel = ', '.join(legend_labels)
+        xlabel = ", ".join(legend_labels)
 
         # Don't print legend if only one l requested.
         if len(legend_labels) == 1:
@@ -626,11 +638,13 @@ class Steinhardt(_PairCompute):
             xlabel=xlabel,
             ylabel=r"Number of particles",
             ax=ax,
-            legend_labels=legend_labels)
+            legend_labels=legend_labels,
+        )
 
     def _repr_png_(self):
         try:
             import freud.plot
+
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None
@@ -677,14 +691,15 @@ class SolidLiquid(_PairCompute):
 
     def __init__(self, l, q_threshold, solid_threshold, normalize_q=True):
         if not isinstance(solid_threshold, int):
-            warning_text =  (
+            warning_text = (
                 "solid_threshold should be an integer, and will be rounded down"
                 f" (got {solid_threshold})"
             )
             warnings.warn(warning_text, RuntimeWarning, stacklevel=2)
             solid_threshold = floor(solid_threshold)
-        self._cpp_obj = freud._order.SolidLiquid(l, q_threshold, solid_threshold, normalize_q)
-
+        self._cpp_obj = freud._order.SolidLiquid(
+            l, q_threshold, solid_threshold, normalize_q
+        )
 
     def compute(self, system, neighbors=None):
         r"""Compute the order parameter.
@@ -701,8 +716,9 @@ class SolidLiquid(_PairCompute):
                 (Default value: None).
         """
 
-        nq, nlist, qargs, l_query_points, num_query_points = \
-            self._preprocess_arguments(system, neighbors=neighbors)
+        nq, nlist, qargs, l_query_points, num_query_points = self._preprocess_arguments(
+            system, neighbors=neighbors
+        )
         self._cpp_obj.compute(nlist._cpp_obj, nq._cpp_obj, qargs._cpp_obj)
         return self
 
@@ -793,17 +809,20 @@ class SolidLiquid(_PairCompute):
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         import freud.plot
+
         try:
             values, counts = np.unique(self.cluster_idx, return_counts=True)
         except ValueError:
             return None
         else:
             return freud.plot.clusters_plot(
-                values, counts, num_clusters_to_plot=10, ax=ax)
+                values, counts, num_clusters_to_plot=10, ax=ax
+            )
 
     def _repr_png_(self):
         try:
             import freud.plot
+
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None
@@ -929,10 +948,13 @@ class ContinuousCoordination(_PairCompute):
             coordination number.
             (Default value: :code:`True`)
     """
+
     def __init__(self, powers=None, compute_log=True, compute_exp=True):
         if powers is None:
             powers = [2.0]
-        self._cpp_obj = freud._order.ContinuousCoordination(powers, compute_log, compute_exp)
+        self._cpp_obj = freud._order.ContinuousCoordination(
+            powers, compute_log, compute_exp
+        )
 
     def compute(self, system=None, voronoi=None):
         r"""Calculates the local coordination number for the specified points.
@@ -957,13 +979,14 @@ class ContinuousCoordination(_PairCompute):
                 (Default value: None).
         """
         if system is None and voronoi is None:
-            raise ValueError("Must specify system or voronoi.") # noqa: EM101
+            raise ValueError("Must specify system or voronoi.")  # noqa: EM101
         if voronoi is None:
             voronoi = freud.locality.Voronoi()
             voronoi.compute(system)
         elif not hasattr(voronoi, "nlist"):
             raise RuntimeError(
-                "Must call compute on Voronoi object prior to computing coordination.") # noqa: EM101
+                "Must call compute on Voronoi object prior to computing coordination."
+            )  # noqa: EM101
         cpp_voronoi = voronoi
         self._cpp_obj.compute(cpp_voronoi._cpp_obj)
         return self

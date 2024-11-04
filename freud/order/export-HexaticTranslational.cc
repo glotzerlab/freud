@@ -1,12 +1,15 @@
+// Copyright (c) 2010-2024 The Regents of the University of Michigan
+// This file is from the freud project, released under the BSD 3-Clause License.
+
 #include <memory>
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
 #include <nanobind/stl/shared_ptr.h> // NOLINT(misc-include-cleaner): used implicitly
 #include <utility>
 
+#include "HexaticTranslational.h"
 #include "NeighborList.h"
 #include "NeighborQuery.h"
-#include "HexaticTranslational.h"
 
 namespace freud { namespace order {
 
@@ -15,17 +18,15 @@ using nb_array = nanobind::ndarray<T, shape, nanobind::device::cpu, nanobind::c_
 
 namespace wrap {
 
-void computeHexaticTranslational(const std::shared_ptr<Hexatic>& self, 
-                    std::shared_ptr<locality::NeighborList> nlist,
-                    std::shared_ptr<locality::NeighborQuery>& points,
-                    const locality::QueryArgs& qargs
-                    )
+void computeHexaticTranslational(const std::shared_ptr<Hexatic>& self,
+                                 std::shared_ptr<locality::NeighborList> nlist,
+                                 std::shared_ptr<locality::NeighborQuery>& points,
+                                 const locality::QueryArgs& qargs)
 {
-  self->compute(std::move(nlist), points, qargs);
+    self->compute(std::move(nlist), points, qargs);
 }
 
 }; // namespace wrap
-
 
 namespace detail {
 
@@ -33,13 +34,13 @@ void export_HexaticTranslational(nanobind::module_& m)
 {
     nanobind::class_<Hexatic>(m, "Hexatic")
         .def(nanobind::init<unsigned int, bool>())
-        .def("compute", &wrap::computeHexaticTranslational, nanobind::arg("nlist").none(), nanobind::arg("points"), nanobind::arg("qargs"))
+        .def("compute", &wrap::computeHexaticTranslational, nanobind::arg("nlist").none(),
+             nanobind::arg("points"), nanobind::arg("qargs"))
         .def("getK", &HexaticTranslational<unsigned int>::getK)
         .def("getOrder", &HexaticTranslational<unsigned int>::getOrder)
-        .def("isWeighted", &HexaticTranslational<unsigned int>::isWeighted)
-        ;
+        .def("isWeighted", &HexaticTranslational<unsigned int>::isWeighted);
 }
 
 } // namespace detail
 
-}; }; // end namespace freud::pmft
+}; }; // namespace freud::order

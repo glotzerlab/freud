@@ -51,15 +51,14 @@ protected:
     //! Compute the order parameter
     template<typename Func>
     void computeGeneral(Func func, const std::shared_ptr<locality::NeighborList> nlist,
-                        //const vec3<float>* points,
-                        const std::shared_ptr<locality::NeighborQuery>& points, 
-                        const freud::locality::QueryArgs qargs, 
-                        bool normalize_by_k);
+                        // const vec3<float>* points,
+                        const std::shared_ptr<locality::NeighborQuery>& points,
+                        const freud::locality::QueryArgs qargs, bool normalize_by_k);
 
-    //void computeGeneral(Func func, const freud::locality::NeighborList* nlist,
-    //                    const freud::locality::NeighborQuery* points, 
-    //                    freud::locality::QueryArgs qargs,
-    //                    bool normalize_by_k);
+    // void computeGeneral(Func func, const freud::locality::NeighborList* nlist,
+    //                     const freud::locality::NeighborQuery* points,
+    //                     freud::locality::QueryArgs qargs,
+    //                     bool normalize_by_k);
 
     const T m_k; //!< The symmetry order for Hexatic, or normalization for Translational
     const bool
@@ -82,11 +81,11 @@ public:
     //! Compute the hexatic order parameter
 
     void compute(std::shared_ptr<locality::NeighborList> nlist,
-                      const std::shared_ptr<locality::NeighborQuery>& points,
-                      //const vec3<float>* points, 
-                      const freud::locality::QueryArgs& qargs);
-    //void compute(const freud::locality::NeighborList* nlist, const freud::locality::NeighborQuery* points,
-    //             freud::locality::QueryArgs qargs);
+                 const std::shared_ptr<locality::NeighborQuery>& points,
+                 // const vec3<float>* points,
+                 const freud::locality::QueryArgs& qargs);
+    // void compute(const freud::locality::NeighborList* nlist, const freud::locality::NeighborQuery* points,
+    //              freud::locality::QueryArgs qargs);
 };
 
 }; }; // end namespace freud::order

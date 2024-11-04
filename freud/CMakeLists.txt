@@ -174,11 +174,16 @@ target_set_install_rpath(_locality)
 # PUBLIC freud TBB::tbb) target_set_install_rpath(_order)
 
 # order
-nanobind_add_module(_order order/module-order.cc order/export-Nematic.cc
-                    order/export-RotationalAutocorrelation.cc order/export-Steinhardt.cc
-                    order/export-SolidLiquid.cc order/export-ContinuousCoordination.cc
-                    order/export-Cubatic.cc order/export-HexaticTranslational.cc
-)
+nanobind_add_module(
+  _order
+  order/module-order.cc
+  order/export-Nematic.cc
+  order/export-RotationalAutocorrelation.cc
+  order/export-Steinhardt.cc
+  order/export-SolidLiquid.cc
+  order/export-ContinuousCoordination.cc
+  order/export-Cubatic.cc
+  order/export-HexaticTranslational.cc)
 target_link_libraries(_order PUBLIC freud)
 target_set_install_rpath(_order)
 
