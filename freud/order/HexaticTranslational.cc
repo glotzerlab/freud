@@ -2,25 +2,32 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include "HexaticTranslational.h"
+#include "ManagedArray.h"
+#include "NeighborList.h"
+#include "NeighborQuery.h"
+#include "NeighborPerPointIterator.h"
 
 namespace freud { namespace order {
 
 //! Compute the order parameter
 template<typename T>
 template<typename Func>
-void HexaticTranslational<T>::computeGeneral(Func func, const freud::locality::NeighborList* nlist,
-                                             const freud::locality::NeighborQuery* points,
-                                             freud::locality::QueryArgs qargs, bool normalize_by_k)
+void HexaticTranslational<T>::computeGeneral(Func func, const std::shared_ptr<locality::NeighborList> nlist,
+                                             const std::shared_ptr<locality::NeighborQuery>& points,
+                                             //const vec3<float>* points,
+                                             const freud::locality::QueryArgs qargs, 
+                                             bool normalize_by_k)
 {
     const auto box = points->getBox();
     box.enforce2D();
 
     const unsigned int Np = points->getNPoints();
 
-    m_psi_array.prepare(Np);
+    //m_psi_array.prepare(Np);
+    m_psi_array = std::make_shared<util::ManagedArray<std::complex<float>>>(std::vector<size_t>{Np});
 
     freud::locality::loopOverNeighborsIterator(
-        points, points->getPoints(), Np, qargs, nlist,
+        &*points, points->getPoints(), Np, qargs, &*nlist,
         [&](size_t i, const std::shared_ptr<freud::locality::NeighborPerPointIterator>& ppiter) {
             float total_weight(0);
             const vec3<float> ref((*points)[i]);
@@ -32,24 +39,28 @@ void HexaticTranslational<T>::computeGeneral(Func func, const freud::locality::N
                 const float weight(m_weighted ? nb.getWeight() : 1.0);
 
                 // Compute psi for this vector
-                m_psi_array[i] += weight * func(delta);
+                (* m_psi_array)[i] += weight * func(delta);
                 total_weight += weight;
             }
             if (normalize_by_k)
             {
-                m_psi_array[i] /= std::complex<float>(m_k);
+                (* m_psi_array)[i] /= std::complex<float>(m_k);
             }
             else
             {
-                m_psi_array[i] /= std::complex<float>(total_weight);
+                (* m_psi_array)[i] /= std::complex<float>(total_weight);
             }
         });
 }
 
 Hexatic::Hexatic(unsigned int k, bool weighted) : HexaticTranslational<unsigned int>(k, weighted) {}
 
-void Hexatic::compute(const freud::locality::NeighborList* nlist,
-                      const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs)
+//void Hexatic::compute(const freud::locality::NeighborList* nlist,
+void Hexatic::compute(std::shared_ptr<locality::NeighborList> nlist,
+                      const std::shared_ptr<locality::NeighborQuery>& points,
+                      //const vec3<float>* points, 
+                      const freud::locality::QueryArgs& qargs)
+                      //const freud::locality::NeighborQuery* points, 
 {
     computeGeneral(
         [this](const vec3<float>& delta) {
