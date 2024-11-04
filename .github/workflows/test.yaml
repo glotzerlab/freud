@@ -68,6 +68,7 @@ jobs:
           pytest tests/test_interface.py -v
           pytest tests/test_msd_msd.py -v
           pytest tests/test_cluster.py -v
+          pytest tests/test_order_*.py -v
           # pytest tests/ -v
 
   tests_complete:

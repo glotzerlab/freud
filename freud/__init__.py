@@ -2,7 +2,7 @@
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 # cluster,; density,; diffraction,; environment,; interface,; msd,;
-from . import box, data, locality, order, parallel, pmft
+from . import box, data, interface, locality, order, parallel, pmft
 from .box import Box
 from .locality import AABBQuery, LinkCell, NeighborList
 from .parallel import NumThreads, get_num_threads, set_num_threads
