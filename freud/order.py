@@ -609,9 +609,10 @@ class Steinhardt(_PairCompute):
         if not isinstance(ls, list):
             ls = [ls]
 
+        weighted_label = "'" if self.weighted else ""
         legend_labels = [
             (
-                rf"${'w' if self.wl else 'q'}{'\'' if self.weighted else ''}_"
+                rf"${'w' if self.wl else 'q'}{weighted_label}_"
                 f"{{{sph_l}{',ave' if self.average else ''}}}$"
             )
             for sph_l in ls
