@@ -7,6 +7,7 @@
 #include "ManagedArray.h"
 #include "VectorMath.h"
 #include <array>
+#include <memory>
 #include <random>
 
 /*! \file Cubatic.h
