@@ -40,7 +40,7 @@ std::shared_ptr<NeighborList> makeDefaultNlist(const std::shared_ptr<NeighborQue
 class NeighborListPerPointIterator : public NeighborPerPointIterator
 {
 public:
-    NeighborListPerPointIterator(const std::shared_ptr<NeighborList> nlist, size_t point_index)
+    NeighborListPerPointIterator(const std::shared_ptr<NeighborList>& nlist, size_t point_index)
         : NeighborPerPointIterator(point_index), m_nlist(nlist)
     {
         m_current_index = m_nlist->find_first_index(point_index);
@@ -236,7 +236,7 @@ void loopOverNeighbors(const std::shared_ptr<NeighborQuery>& neighbor_query, con
  * input. It should implement iteration logic over the iterator.
  */
 template<typename ComputePairType>
-void loopOverNeighborListIterator(const std::shared_ptr<NeighborList> nlist, const ComputePairType& cf,
+void loopOverNeighborListIterator(const std::shared_ptr<NeighborList>& nlist, const ComputePairType& cf,
                                   bool parallel = true)
 {
     util::forLoopWrapper(
