@@ -753,7 +753,6 @@ class SolidLiquid(_PairCompute):
     def cluster_sizes(self):
         """:math:`(N_{clusters}, )` :class:`np.ndarray`: The sizes of all
         clusters."""
-        # return np.asarray(self.thisptr.getClusterSizes())
         return self._cpp_obj.getClusterSizes().toNumpyArray()
 
     @_Compute._computed_property
