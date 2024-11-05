@@ -8,7 +8,6 @@
 #include "VectorMath.h"
 #include <array>
 #include <memory>
-#include <random>
 
 /*! \file Cubatic.h
     \brief Compute the cubatic order parameter for each particle.

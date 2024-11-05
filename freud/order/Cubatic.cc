@@ -2,7 +2,7 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <cstring>
-#include <functional>
+#include <random>
 #include <stdexcept>
 
 #include "Cubatic.h"
@@ -71,11 +71,7 @@ tensor4 tensor4::operator*(const float& b) const
 
 void tensor4::copyToManagedArray(util::ManagedArray<float>& ma)
 {
-    // TODO: this may be possible with std::copy but this works as well.
-    for (unsigned int i = 0; i < 81; i++)
-    {
-        ma[i] = data[i];
-    }
+    std::copy(data.begin(), data.end(), ma.data());
 }
 
 //! Complete tensor contraction.

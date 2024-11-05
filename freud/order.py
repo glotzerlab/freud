@@ -25,10 +25,6 @@ from freud.util import _Compute
 
 logger = logging.getLogger(__name__)
 
-# numpy must be initialized. When using numpy from C or Cython you must
-# _always_ do that, or you will have segfaults
-# np.import_array()
-
 
 class Cubatic(_Compute):
     r"""Compute the cubatic order parameter :cite:`Haji_Akbari_2015` for a system of
