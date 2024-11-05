@@ -173,9 +173,12 @@ class Nematic(_Compute):
                 Orientation vectors for which to calculate the order parameter.
         """  # noqa: E501
         if orientations.shape[1] == 4:
-            raise ValueError(
-                "In freud versions >=3.0.0, Nematic.compute() takes "  # noqa: EM101
+            msg = (
+                "In freud versions >=3.0.0, Nematic.compute() takes "
                 "3d orientation vectors instead of 4d quaternions."
+            )
+            raise ValueError(
+                msg
             )
         orientations = freud.util._convert_array(orientations, shape=(None, 3))
 
@@ -484,7 +487,8 @@ class Steinhardt(_PairCompute):
         if not isinstance(l, collections.abc.Sequence):
             l = [l]  # noqa: E741
         if len(l) == 0:
-            raise ValueError("At least one l must be specified.")  # noqa: EM101
+            msg = "At least one l must be specified."
+            raise ValueError(msg)
         self._cpp_obj = freud._order.Steinhardt(l, average, wl, weighted, wl_normalize)
 
     @property
@@ -846,7 +850,8 @@ class RotationalAutocorrelation(_Compute):
 
     def __init__(self, l):  # noqa: E741
         if l % 2 or l < 0:
-            raise ValueError("The quantum number must be a positive, even integer.")  # noqa: EM101
+            msg = "The quantum number must be a positive, even integer."
+            raise ValueError(msg)
         self._cpp_obj = freud._order.RotationalAutocorrelation(l)
 
     def compute(self, ref_orientations, orientations):
@@ -965,13 +970,15 @@ class ContinuousCoordination(_PairCompute):
                 (Default value: None).
         """
         if system is None and voronoi is None:
-            raise ValueError("Must specify system or voronoi.")  # noqa: EM101
+            msg = "Must specify system or voronoi."
+            raise ValueError(msg)
         if voronoi is None:
             voronoi = freud.locality.Voronoi()
             voronoi.compute(system)
         elif not hasattr(voronoi, "nlist"):
+            msg = "Must call compute on Voronoi object prior to computing coordination."
             raise RuntimeError(
-                "Must call compute on Voronoi object prior to computing coordination."  # noqa: EM101
+                msg
             )
         cpp_voronoi = voronoi
         self._cpp_obj.compute(cpp_voronoi._cpp_obj)
