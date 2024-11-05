@@ -47,15 +47,15 @@ void export_LocalDescriptors(nb::module_& module)
         .export_values();
 
     nb::class_<LocalDescriptors>(module, "LocalDescriptors")
-        .def(nb::init<>())
+        .def(nb::init<unsigned int, bool, LocalDescriptorOrientation>())
         .def("getNList", &LocalDescriptors::getNList)
-        .def("getSphArray", &LocalDescriptors::getSphArray)
+        .def("getSph", &LocalDescriptors::getSph)
         .def("getNSphs", &LocalDescriptors::getNSphs)
         .def("getLMax", &LocalDescriptors::getLMax)
         .def("getNegativeM", &LocalDescriptors::getNegativeM)
         .def("getMode", &LocalDescriptors::getMode)
         .def("compute", &wrap::compute,nb::arg("nq"),  
-             nb::arg("query_points"), nb::arg("n_query_points"),  nb::arg("orientations"),
+             nb::arg("query_points"), nb::arg("n_query_points"),  nb::arg("orientations").none(),
              nb::arg("nlist").none(),
              nb::arg("qargs"), nb::arg("max_num_neighbors"));
 }
