@@ -483,9 +483,9 @@ class Steinhardt(_PairCompute):
             of the Steinhardt order parameter (Default value = :code:`False`).
     """
 
-    def __init__(self, l, average=False, wl=False, weighted=False, wl_normalize=False):  # noqa: E741
+    def __init__(self, l, average=False, wl=False, weighted=False, wl_normalize=False):
         if not isinstance(l, collections.abc.Sequence):
-            l = [l]  # noqa: E741
+            l = [l]
         if len(l) == 0:
             msg = "At least one l must be specified."
             raise ValueError(msg)
@@ -680,7 +680,7 @@ class SolidLiquid(_PairCompute):
             :code:`True`).
     """
 
-    def __init__(self, l, q_threshold, solid_threshold, normalize_q=True):  # noqa: E741
+    def __init__(self, l, q_threshold, solid_threshold, normalize_q=True):
         if not isinstance(solid_threshold, int):
             warning_text = (
                 "solid_threshold should be an integer, and will be rounded down"
@@ -848,7 +848,7 @@ class RotationalAutocorrelation(_Compute):
             integer.
     """
 
-    def __init__(self, l):  # noqa: E741
+    def __init__(self, l):
         if l % 2 or l < 0:
             msg = "The quantum number must be a positive, even integer."
             raise ValueError(msg)
