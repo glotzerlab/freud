@@ -206,8 +206,6 @@ private:
     bool m_wl_normalize; //!< Whether to normalize the third-order invariant wl (default false)
 
     std::vector<std::shared_ptr<util::ManagedArray<std::complex<float>>>> m_qlmi; //!< qlm for each particle i
-    // std::vector<std::shared_ptr<util::ManagedArray<std::complex<float>>>> m_qlmi; //!< qlm for each
-    // particle i
     std::vector<std::shared_ptr<util::ManagedArray<std::complex<float>>>>
         m_qlm; //!< Normalized qlm(Ave) for the whole system
     std::vector<util::ThreadStorage<std::complex<float>>>
