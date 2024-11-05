@@ -169,9 +169,10 @@ class Nematic(_Compute):
             1.0
 
         Args:
-            orientations (:math:`\left(N_{particles}, 3 \right)` :class:`numpy.ndarray`):
+            orientations \
+            (:math:`\left(N_{particles}, 3 \right)` :class:`numpy.ndarray`):
                 Orientation vectors for which to calculate the order parameter.
-        """  # noqa: E501
+        """
         if orientations.shape[1] == 4:
             msg = (
                 "In freud versions >=3.0.0, Nematic.compute() takes "
@@ -511,7 +512,7 @@ class Steinhardt(_PairCompute):
         return self._cpp_obj.isWlNormalized()
 
     @property
-    def l(self):  # noqa: E743
+    def l(self):
         """unsigned int: Spherical harmonic quantum number l."""
         ls = self._cpp_obj.getL()
         return ls[0] if len(ls) == 1 else ls
@@ -712,7 +713,7 @@ class SolidLiquid(_PairCompute):
         return self
 
     @property
-    def l(self):  # noqa: E743
+    def l(self):
         """unsigned int: Spherical harmonic quantum number l."""
         return self._cpp_obj.getL()
 
@@ -879,7 +880,7 @@ class RotationalAutocorrelation(_Compute):
         return self._cpp_obj.getRAArray().toNumpyArray()
 
     @property
-    def l(self):  # noqa: E743
+    def l(self):
         """int: The azimuthal quantum number, which defines the order of the
         hyperspherical harmonic."""
         return self._cpp_obj.getL()

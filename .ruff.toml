@@ -26,7 +26,8 @@ lint.ignore = [
   "RUF012", # freud does not use typing hints
   "N802", # Allow names like Lx
   "NPY002", # TODO: Refactor benchmarks and tests to use numpy.random.Generator
-  "E741"
+  "E741",
+  "E743"
 ]
 
 [lint.flake8-import-conventions]
