@@ -177,9 +177,7 @@ class Nematic(_Compute):
                 "In freud versions >=3.0.0, Nematic.compute() takes "
                 "3d orientation vectors instead of 4d quaternions."
             )
-            raise ValueError(
-                msg
-            )
+            raise ValueError(msg)
         orientations = freud.util._convert_array(orientations, shape=(None, 3))
 
         if len(np.where(~orientations.any(axis=1))[0]) != 0:
@@ -977,9 +975,7 @@ class ContinuousCoordination(_PairCompute):
             voronoi.compute(system)
         elif not hasattr(voronoi, "nlist"):
             msg = "Must call compute on Voronoi object prior to computing coordination."
-            raise RuntimeError(
-                msg
-            )
+            raise RuntimeError(msg)
         cpp_voronoi = voronoi
         self._cpp_obj.compute(cpp_voronoi._cpp_obj)
         return self
