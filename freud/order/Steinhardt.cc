@@ -313,7 +313,6 @@ std::vector<float> Steinhardt::normalizeSystem()
     return system_norms;
 }
 
-// void Steinhardt::aggregatewl(util::ManagedArray<float>& target,
 void Steinhardt::aggregatewl(
     std::shared_ptr<util::ManagedArray<float>>& target,
     const std::vector<std::shared_ptr<util::ManagedArray<std::complex<float>>>>& source,
