@@ -18,8 +18,6 @@ inline int lmIndex(int l, int m)
 }
 
 float reduceWigner3j(const std::complex<float>* source, unsigned int l_, const std::vector<double>& wigner3j)
-// float reduceWigner3j(const util::ManagedArray<std::complex<float>>* source, unsigned int l_, const
-// std::vector<double>& wigner3j)
 {
     /*
      * Wigner 3j coefficients:
