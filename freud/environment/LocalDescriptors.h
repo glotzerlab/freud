@@ -61,7 +61,7 @@ public:
                  unsigned int max_num_neighbor);
 
     //! Get a reference to the last computed spherical harmonic array
-    std::shared_ptr<util::ManagedArray<std::complex<float>>> getSph()
+    std::shared_ptr<util::ManagedArray<std::complex<float>>> getSph() const
     {
         return m_sphArray;
     }
