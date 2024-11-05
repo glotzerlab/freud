@@ -127,8 +127,7 @@ void LocalDescriptors::compute(const std::shared_ptr<locality::NeighborQuery> nq
                 }
 
                 sph_eval.compute(phi, theta);
-
-                std::copy(sph_eval.begin(m_negative_m), sph_eval.end(), (*m_sphArray)[sphCount]);
+                std::copy(sph_eval.begin(m_negative_m), sph_eval.end(), m_sphArray->data() + sphCount);
             }
         }
     });
