@@ -157,7 +157,7 @@ class Nematic(_Compute):
         self._cpp_obj = freud._order.Nematic()
 
     def compute(self, orientations):
-        r"""Calculates the per-particle and global order parameter.
+        """Calculates the per-particle and global order parameter.
 
         Example::
 
@@ -170,7 +170,7 @@ class Nematic(_Compute):
 
         Args:
             orientations \
-            (:math:`\left(N_{particles}, 3 \right)` :class:`numpy.ndarray`):
+            (:math:`\\left(N_{particles}, 3 \\right)` :class:`numpy.ndarray`):
                 Orientation vectors for which to calculate the order parameter.
         """
         if orientations.shape[1] == 4:
