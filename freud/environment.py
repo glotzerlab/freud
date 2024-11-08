@@ -8,6 +8,7 @@ and orientations of particles in the local neighborhood of a given particle to
 characterize the particle environment.
 """
 
+import collections.abc
 import warnings
 
 import numpy as np
@@ -184,200 +185,196 @@ class AngularSeparationGlobal(_Compute):
         return f"freud.environment.{type(self).__name__}()"
 
 
-# class BondOrder(_SpatialHistogram):
-#    r"""Compute the bond orientational order diagram for the system of
-#    particles.
-#
-#    The bond orientational order diagram (BOOD) is a way of studying the
-#    average local environments experienced by particles. In a BOOD, a particle
-#    and its nearest neighbors (determined by either a prespecified number of
-#    neighbors or simply a cutoff distance) are treated as connected by a bond
-#    joining their centers. All of the bonds in the system are then binned by
-#    their azimuthal (:math:`\theta`) and polar (:math:`\phi`) angles to
-#    indicate the location of a particle's neighbors relative to itself. The
-#    distance between the particle and its neighbor is only important when
-#    determining whether it is counted as a neighbor, but is not part of the
-#    BOOD; as such, the BOOD can be viewed as a projection of all bonds onto the
-#    unit sphere. The resulting 2D histogram provides insight into how particles
-#    are situated relative to one-another in a system.
-#
-#    This class provides access to the classical BOOD as well as a few useful
-#    variants. These variants can be accessed via the :code:`mode` arguments to
-#    the :meth:`~BondOrder.compute` method. Available modes of calculation are:
-#
-#    * :code:`'bod'` (Bond Order Diagram, *default*):
-#      This mode constructs the default BOOD, which is the 2D histogram
-#      containing the number of bonds formed through each azimuthal
-#      :math:`\left( \theta \right)` and polar :math:`\left( \phi \right)`
-#      angle.
-#
-#    * :code:`'lbod'` (Local Bond Order Diagram):
-#      In this mode, a particle's neighbors are rotated into the local frame of
-#      the particle before the BOOD is calculated, *i.e.* the directions of
-#      bonds are determined relative to the orientation of the particle rather
-#      than relative to the global reference frame. An example of when this mode
-#      would be useful is when a system is composed of multiple grains of the
-#      same crystal; the normal BOOD would show twice as many peaks as expected,
-#      but using this mode, the bonds would be superimposed.
-#
-#    * :code:`'obcd'` (Orientation Bond Correlation Diagram):
-#      This mode aims to quantify the degree of orientational as well as
-#      translational ordering. As a first step, the rotation that would align a
-#      particle's neighbor with the particle is calculated. Then, the neighbor
-#      is rotated **around the central particle** by that amount, which actually
-#      changes the direction of the bond. One example of how this mode could be
-#      useful is in identifying plastic crystals, which exhibit translational
-#      but not orientational ordering. Normally, the BOOD for a plastic crystal
-#      would exhibit clear structure since there is translational order, but
-#      with this mode, the neighbor positions would actually be modified,
-#      resulting in an isotropic (disordered) BOOD.
-#
-#    * :code:`'oocd'` (Orientation Orientation Correlation Diagram):
-#      This mode is substantially different from the other modes. Rather than
-#      compute the histogram of neighbor bonds, this mode instead computes a
-#      histogram of the directors of neighboring particles, where the director
-#      is defined as the basis vector :math:`\hat{z}` rotated by the neighbor's
-#      quaternion. The directors are then rotated into the central particle's
-#      reference frame. This mode provides insight into the local orientational
-#      environment of particles, indicating, on average, how a particle's
-#      neighbors are oriented.
-#
-#    Args:
-#        bins (unsigned int or sequence of length 2):
-#            If an unsigned int, the number of bins in :math:`\theta` and
-#            :math:`\phi`. If a sequence of two integers, interpreted as
-#            :code:`(num_bins_theta, num_bins_phi)`.
-#        mode (str, optional):
-#            Mode to calculate bond order. Options are :code:`'bod'`,
-#            :code:`'lbod'`, :code:`'obcd'`, or :code:`'oocd'`
-#            (Default value = :code:`'bod'`).
-#    """  # noqa: E501
-#    cdef freud._environment.BondOrder * thisptr
-#
-#    known_modes = {'bod': freud._environment.bod,
-#                   'lbod': freud._environment.lbod,
-#                   'obcd': freud._environment.obcd,
-#                   'oocd': freud._environment.oocd}
-#
-#    def __cinit__(self, bins, str mode="bod"):
-#        try:
-#            n_bins_theta, n_bins_phi = bins
-#        except TypeError:
-#            n_bins_theta = n_bins_phi = bins
-#
-#        cdef freud._environment.BondOrderMode l_mode
-#        try:
-#            l_mode = self.known_modes[mode]
-#        except KeyError:
-#            raise ValueError(
-#                'Unknown BondOrder mode: {}'.format(mode))
-#
-#        self.thisptr = self.histptr = new freud._environment.BondOrder(
-#            n_bins_theta, n_bins_phi, l_mode)
-#
-#    def __dealloc__(self):
-#        del self.thisptr
-#
-#    @property
-#    def default_query_args(self):
-#        """No default query arguments."""
-#        # Must override the generic histogram's defaults.
-#        raise NotImplementedError(
-#            NO_DEFAULT_QUERY_ARGS_MESSAGE.format(type(self).__name__))
-#
-#    def compute(self, system, orientations=None, query_points=None,
-#                query_orientations=None, neighbors=None, reset=True):
-#        r"""Calculates the correlation function and adds to the current
-#        histogram.
-#
-#        Args:
-#            system:
-#                Any object that is a valid argument to
-#                :class:`freud.locality.NeighborQuery.from_system`.
-#            orientations ((:math:`N_{points}`, 4) :class:`numpy.ndarray`):
-#                Orientations associated with system points that are used to
-#                calculate bonds. Uses identity quaternions if :code:`None`
-#                (Default value = :code:`None`).
-#            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
-#                Query points used to calculate the correlation function.  Uses
-#                the system's points if :code:`None` (Default
-#                value = :code:`None`).
-#            query_orientations ((:math:`N_{query\_points}`, 4) :class:`numpy.ndarray`, optional):
-#                Query orientations used to calculate bonds. Uses
-#                :code:`orientations` if :code:`None`.  (Default
-#                value = :code:`None`).
-#            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
-#                Either a :class:`NeighborList <freud.locality.NeighborList>` of
-#                neighbor pairs to use in the calculation, or a dictionary of
-#                `query arguments
-#                <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
-#                (Default value: None).
-#            reset (bool):
-#                Whether to erase the previously computed values before adding
-#                the new computation; if False, will accumulate data (Default
-#                value: True).
-#        """  # noqa: E501
-#        if reset:
-#            self._reset()
-#
-#        cdef:
-#            freud.locality.NeighborQuery nq
-#            freud.locality.NeighborList nlist
-#            freud.locality._QueryArgs qargs
-#            const float[:, ::1] l_query_points
-#            unsigned int num_query_points
-#
-#        nq, nlist, qargs, l_query_points, num_query_points = \
-#            self._preprocess_arguments(system, query_points, neighbors)
-#        if orientations is None:
-#            orientations = np.array([[1, 0, 0, 0]] * nq.points.shape[0])
-#        if query_orientations is None:
-#            query_orientations = orientations
-#
-#        orientations = freud.util._convert_array(
-#            orientations, shape=(nq.points.shape[0], 4))
-#        query_orientations = freud.util._convert_array(
-#            query_orientations, shape=(num_query_points, 4))
-#
-#        cdef const float[:, ::1] l_orientations = orientations
-#        cdef const float[:, ::1] l_query_orientations = query_orientations
-#
-#        self.thisptr.accumulate(
-#            nq.get_ptr(),
-#            <quat[float]*> &l_orientations[0, 0],
-#            <vec3[float]*> &l_query_points[0, 0],
-#            <quat[float]*> &l_query_orientations[0, 0],
-#            num_query_points,
-#            nlist.get_ptr(), dereference(qargs.thisptr))
-#        return self
-#
-#    @_Compute._computed_property
-#    def bond_order(self):
-#        """:math:`\\left(N_{\\phi}, N_{\\theta} \\right)` :class:`numpy.ndarray`: Bond order."""  # noqa: E501
-#        return freud.util.make_managed_numpy_array(
-#            &self.thisptr.getBondOrder(),
-#            freud.util.arr_type_t.FLOAT)
-#
-#    @_Compute._computed_property
-#    def box(self):
-#        """:class:`freud.box.Box`: Box used in the calculation."""
-#        return freud.box.BoxFromCPP(self.thisptr.getBox())
-#
-#    def __repr__(self):
-#        return ("freud.environment.{cls}(bins=({bins}), mode='{mode}')".format(
-#            cls=type(self).__name__,
-#            bins=', '.join([str(b) for b in self.nbins]),
-#            mode=self.mode))
-#
-#    @property
-#    def mode(self):
-#        """str: Bond order mode."""
-#        mode = self.thisptr.getMode()
-#        for key, value in self.known_modes.items():
-#            if value == mode:
-#                return key
-#
-#
+class BondOrder(_SpatialHistogram):
+    r"""Compute the bond orientational order diagram for the system of
+    particles.
+
+    The bond orientational order diagram (BOOD) is a way of studying the
+    average local environments experienced by particles. In a BOOD, a particle
+    and its nearest neighbors (determined by either a prespecified number of
+    neighbors or simply a cutoff distance) are treated as connected by a bond
+    joining their centers. All of the bonds in the system are then binned by
+    their azimuthal (:math:`\theta`) and polar (:math:`\phi`) angles to
+    indicate the location of a particle's neighbors relative to itself. The
+    distance between the particle and its neighbor is only important when
+    determining whether it is counted as a neighbor, but is not part of the
+    BOOD; as such, the BOOD can be viewed as a projection of all bonds onto the
+    unit sphere. The resulting 2D histogram provides insight into how particles
+    are situated relative to one-another in a system.
+
+    This class provides access to the classical BOOD as well as a few useful
+    variants. These variants can be accessed via the :code:`mode` arguments to
+    the :meth:`~BondOrder.compute` method. Available modes of calculation are:
+
+    * :code:`'bod'` (Bond Order Diagram, *default*):
+      This mode constructs the default BOOD, which is the 2D histogram
+      containing the number of bonds formed through each azimuthal
+      :math:`\left( \theta \right)` and polar :math:`\left( \phi \right)`
+      angle.
+
+    * :code:`'lbod'` (Local Bond Order Diagram):
+      In this mode, a particle's neighbors are rotated into the local frame of
+      the particle before the BOOD is calculated, *i.e.* the directions of
+      bonds are determined relative to the orientation of the particle rather
+      than relative to the global reference frame. An example of when this mode
+      would be useful is when a system is composed of multiple grains of the
+      same crystal; the normal BOOD would show twice as many peaks as expected,
+      but using this mode, the bonds would be superimposed.
+
+    * :code:`'obcd'` (Orientation Bond Correlation Diagram):
+      This mode aims to quantify the degree of orientational as well as
+      translational ordering. As a first step, the rotation that would align a
+      particle's neighbor with the particle is calculated. Then, the neighbor
+      is rotated **around the central particle** by that amount, which actually
+      changes the direction of the bond. One example of how this mode could be
+      useful is in identifying plastic crystals, which exhibit translational
+      but not orientational ordering. Normally, the BOOD for a plastic crystal
+      would exhibit clear structure since there is translational order, but
+      with this mode, the neighbor positions would actually be modified,
+      resulting in an isotropic (disordered) BOOD.
+
+    * :code:`'oocd'` (Orientation Orientation Correlation Diagram):
+      This mode is substantially different from the other modes. Rather than
+      compute the histogram of neighbor bonds, this mode instead computes a
+      histogram of the directors of neighboring particles, where the director
+      is defined as the basis vector :math:`\hat{z}` rotated by the neighbor's
+      quaternion. The directors are then rotated into the central particle's
+      reference frame. This mode provides insight into the local orientational
+      environment of particles, indicating, on average, how a particle's
+      neighbors are oriented.
+
+    Args:
+        bins (unsigned int or sequence of length 2):
+            If an unsigned int, the number of bins in :math:`\theta` and
+            :math:`\phi`. If a sequence of two integers, interpreted as
+            :code:`(num_bins_theta, num_bins_phi)`.
+        mode (str, optional):
+            Mode to calculate bond order. Options are :code:`'bod'`,
+            :code:`'lbod'`, :code:`'obcd'`, or :code:`'oocd'`
+            (Default value = :code:`'bod'`).
+    """
+
+    known_modes = {'bod': freud._environment.bod,
+                   'lbod': freud._environment.lbod,
+                   'obcd': freud._environment.obcd,
+                   'oocd': freud._environment.oocd}
+
+    def __init__(self, bins, mode="bod"):
+        if isinstance(bins, collections.abc.Sequence):
+            n_bins_theta, n_bins_phi = bins
+        else:
+            n_bins_theta = n_bins_phi = bins
+
+        try:
+            l_mode = self.known_modes[mode]
+        except KeyError as err:
+            msg = f"Unknown BondOrder mode: {mode}"
+            raise ValueError(msg) from err
+
+        self._cpp_obj = freud._environment.BondOrder(n_bins_theta, n_bins_phi, l_mode)
+
+
+    @property
+    def default_query_args(self):
+        """No default query arguments."""
+        # Must override the generic histogram's defaults.
+        raise NotImplementedError(
+            NO_DEFAULT_QUERY_ARGS_MESSAGE.format(type(self).__name__)
+        )
+
+    def compute(self, system, orientations=None, query_points=None,
+                query_orientations=None, neighbors=None, reset=True):
+        r"""Calculates the correlation function and adds to the current
+        histogram.
+
+        Args:
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
+            orientations ((:math:`N_{points}`, 4) :class:`numpy.ndarray`):
+                Orientations associated with system points that are used to
+                calculate bonds. Uses identity quaternions if :code:`None`
+                (Default value = :code:`None`).
+            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
+                Query points used to calculate the correlation function.  Uses
+                the system's points if :code:`None` (Default
+                value = :code:`None`).
+            query_orientations ((:math:`N_{query\_points}`, 4) :class:`numpy.ndarray`, optional):
+                Query orientations used to calculate bonds. Uses
+                :code:`orientations` if :code:`None`.  (Default
+                value = :code:`None`).
+            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
+                Either a :class:`NeighborList <freud.locality.NeighborList>` of
+                neighbor pairs to use in the calculation, or a dictionary of
+                `query arguments
+                <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
+                (Default value: None).
+            reset (bool):
+                Whether to erase the previously computed values before adding
+                the new computation; if False, will accumulate data (Default
+                value: True).
+        """
+        if reset:
+            self._reset()
+
+        nq, nlist, qargs, l_query_points, num_query_points = \
+            self._preprocess_arguments(system, query_points, neighbors)
+        if orientations is None:
+            orientations = np.array([[1, 0, 0, 0]] * nq.points.shape[0])
+        if query_orientations is None:
+            query_orientations = orientations
+
+        orientations = freud.util._convert_array(orientations, shape=(nq.points.shape[0], 4))
+        query_orientations = freud.util._convert_array(query_orientations, shape=(num_query_points, 4))
+
+        # print(f"orientations {orientations}")
+        print(f"qp {query_points}")
+        # print(f"qo {query_orientations}")
+
+        
+        self._cpp_obj.accumulate(
+            # <quat[float]*> &l_orientations[0, 0],
+            # <vec3[float]*> &l_query_points[0, 0],
+            # <quat[float]*> &l_query_orientations[0, 0],
+            nq._cpp_obj,
+            orientations,
+            query_points,
+            query_orientations,
+            # num_query_points,
+            nlist._cpp_obj,
+            qargs._cpp_obj
+        )
+        return self
+
+    @_Compute._computed_property
+    def bond_order(self):
+        """:math:`\\left(N_{\\phi}, N_{\\theta} \\right)` :class:`numpy.ndarray`: Bond order."""  # noqa: E501
+        # return freud.util.make_managed_numpy_array(
+        #     &self.thisptr.getBondOrder(),
+        #     freud.util.arr_type_t.FLOAT)
+        return self._cpp_obj.getBondOrder().toNumpyArray()
+
+    @_Compute._computed_property
+    def box(self):
+        """:class:`freud.box.Box`: Box used in the calculation."""
+        return freud.box.BoxFromCPP(self._cpp_obj.getBox())
+
+    def __repr__(self):
+        return ("freud.environment.{cls}(bins=({bins}), mode='{mode}')".format(
+            cls=type(self).__name__,
+            bins=', '.join([str(b) for b in self.nbins]),
+            mode=self.mode))
+
+    @property
+    def mode(self):
+        """str: Bond order mode."""
+        mode = self._cpp_obj.getMode()
+        # for key, value in self.known_modes.items():
+        #     if value == mode:
+        #         return key
+        return mode
+
+
 class LocalDescriptors(_PairCompute):
     r"""Compute a set of descriptors (a numerical "fingerprint") of a particle's
     local environment.
