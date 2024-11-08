@@ -20,9 +20,6 @@ SolidLiquid::SolidLiquid(unsigned int l, float q_threshold, unsigned int solid_t
     }
 }
 
-// void SolidLiquid::compute(const std::shared_ptr<freud::locality::NeighborList>& nlist,
-//                           const std::shared_ptr<freud::locality::NeighborQuery>& points,
-//                           freud::locality::QueryArgs& qargs)
 void SolidLiquid::compute(const std::shared_ptr<freud::locality::NeighborList>& nlist,
                           const std::shared_ptr<freud::locality::NeighborQuery>& points,
                           freud::locality::QueryArgs& qargs)

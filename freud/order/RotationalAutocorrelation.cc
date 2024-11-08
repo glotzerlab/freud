@@ -5,7 +5,7 @@
 
 #include "utils.h"
 #include <cmath>
-// quat imported from VectorMath in rotationalautocorrelation.h
+#include "VectorMath.h"
 
 /*! \file RotationalAutocorrelation.cc
     \brief Implements the RotationalAutocorrelation class.

@@ -761,16 +761,12 @@ class SolidLiquid(_PairCompute):
     @_Compute._computed_property
     def largest_cluster_size(self):
         """unsigned int: The largest cluster size."""
-        # return self.thisptr.getLargestClusterSize()
         return self._cpp_obj.getLargestClusterSize()
 
     @_Compute._computed_property
     def nlist(self):
         """:class:`freud.locality.NeighborList`: Neighbor list of solid-like
         bonds."""
-        # nlist = freud.locality._nlist_from_cnlist(self._cpp_obj.getNList())
-        # nlist._compute = self
-        # return nlist
         return freud.locality._nlist_from_cnlist(self._cpp_obj.getNList())
 
     @_Compute._computed_property

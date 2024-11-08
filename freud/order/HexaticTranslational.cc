@@ -14,7 +14,6 @@ template<typename T>
 template<typename Func>
 void HexaticTranslational<T>::computeGeneral(Func func, const std::shared_ptr<locality::NeighborList> nlist,
                                              const std::shared_ptr<locality::NeighborQuery>& points,
-                                             // const vec3<float>* points,
                                              const freud::locality::QueryArgs qargs, bool normalize_by_k)
 {
     const auto box = points->getBox();
@@ -22,7 +21,6 @@ void HexaticTranslational<T>::computeGeneral(Func func, const std::shared_ptr<lo
 
     const unsigned int Np = points->getNPoints();
 
-    // m_psi_array.prepare(Np);
     m_psi_array = std::make_shared<util::ManagedArray<std::complex<float>>>(std::vector<size_t> {Np});
 
     freud::locality::loopOverNeighborsIterator(
@@ -54,12 +52,9 @@ void HexaticTranslational<T>::computeGeneral(Func func, const std::shared_ptr<lo
 
 Hexatic::Hexatic(unsigned int k, bool weighted) : HexaticTranslational<unsigned int>(k, weighted) {}
 
-// void Hexatic::compute(const freud::locality::NeighborList* nlist,
 void Hexatic::compute(std::shared_ptr<locality::NeighborList> nlist,
                       const std::shared_ptr<locality::NeighborQuery>& points,
-                      // const vec3<float>* points,
                       const freud::locality::QueryArgs& qargs)
-// const freud::locality::NeighborQuery* points,
 {
     computeGeneral(
         [this](const vec3<float>& delta) {
