@@ -45,8 +45,8 @@ add_library(
   # environment
   environment/AngularSeparation.h
   environment/AngularSeparation.cc
-  # environment/BondOrder.h
-  # environment/BondOrder.cc
+  environment/BondOrder.h
+  environment/BondOrder.cc
   environment/LocalBondProjection.h
   environment/LocalBondProjection.cc
   environment/LocalDescriptors.h
@@ -161,6 +161,7 @@ nanobind_add_module(
     environment/export-AngularSeparationGlobal.cc
     environment/export-LocalBondProjection.cc
     environment/export-LocalDescriptors.cc
+    environment/export-BondOrder.cc
 )
 target_link_libraries(_environment PUBLIC freud TBB::tbb)
 target_set_install_rpath(_environment)
