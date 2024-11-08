@@ -57,18 +57,21 @@ BondOrder::BondOrder(unsigned int n_bins_theta, unsigned int n_bins_phi, BondOrd
             (*m_sa_array)(i, j) = sa;
         }
     }
-    const auto axes = util::Axes {std::make_shared<util::RegularAxis>(n_bins_theta, 0, constants::TWO_PI),
-                                  std::make_shared<util::RegularAxis>(n_bins_phi, 0, M_PI)};
-    m_histogram = BondHistogram(axes);
+    const auto axes = util::Axes {
+        std::make_shared<util::RegularAxis>(n_bins_theta, 0, constants::TWO_PI),
+        std::make_shared<util::RegularAxis>(n_bins_phi, 0, M_PI)
+    };
+    // m_histogram = BondHistogram(axes);
 
     m_local_histograms = BondHistogram::ThreadLocalHistogram(m_histogram);
 }
 
 void BondOrder::reduce()
 {
+    // TODO: previously, we could prepare the histogram: but not anymore?
     // m_histogram.prepare(m_histogram.shape());
-    // m_histogram = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {m_histogram.shape()});
-    // m_bo_array.prepare(m_histogram.shape());
+    // m_histogram = std::make_shared<util::ManagedArray<unsigned int>>(std::vector<size_t> {m_histogram.shape()});
+    
     m_bo_array = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {m_histogram.shape()});
 
 

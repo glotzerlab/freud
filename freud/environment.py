@@ -323,24 +323,19 @@ class BondOrder(_SpatialHistogram):
             orientations = np.array([[1, 0, 0, 0]] * nq.points.shape[0])
         if query_orientations is None:
             query_orientations = orientations
+        if query_points is None:
+            query_points = nq.points
 
         orientations = freud.util._convert_array(orientations, shape=(nq.points.shape[0], 4))
         query_orientations = freud.util._convert_array(query_orientations, shape=(num_query_points, 4))
+        query_points = freud.util._convert_array(query_points, shape=(num_query_points, 3))
 
-        # print(f"orientations {orientations}")
-        print(f"qp {query_points}")
-        # print(f"qo {query_orientations}")
 
-        
         self._cpp_obj.accumulate(
-            # <quat[float]*> &l_orientations[0, 0],
-            # <vec3[float]*> &l_query_points[0, 0],
-            # <quat[float]*> &l_query_orientations[0, 0],
             nq._cpp_obj,
             orientations,
             query_points,
             query_orientations,
-            # num_query_points,
             nlist._cpp_obj,
             qargs._cpp_obj
         )
@@ -352,7 +347,7 @@ class BondOrder(_SpatialHistogram):
         # return freud.util.make_managed_numpy_array(
         #     &self.thisptr.getBondOrder(),
         #     freud.util.arr_type_t.FLOAT)
-        return self._cpp_obj.getBondOrder().toNumpyArray()
+        return self._cpp_obj.getBondOrder()#.toNumpyArray()
 
     @_Compute._computed_property
     def box(self):
@@ -369,9 +364,9 @@ class BondOrder(_SpatialHistogram):
     def mode(self):
         """str: Bond order mode."""
         mode = self._cpp_obj.getMode()
-        # for key, value in self.known_modes.items():
-        #     if value == mode:
-        #         return key
+        for key, value in self.known_modes.items():
+            if value == mode:
+                return key
         return mode
 
 
