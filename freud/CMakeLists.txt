@@ -89,23 +89,23 @@ add_library(
   ${VOROPP_SOURCE_DIR}/wall.cc
   ${VOROPP_SOURCE_DIR}/pre_container.cc
   ${VOROPP_SOURCE_DIR}/container_prd.cc
-  # order
-  # order/ContinuousCoordination.h
-  # order/ContinuousCoordination.cc
-  # order/Cubatic.cc
-  # order/Cubatic.h
-  # order/HexaticTranslational.cc
-  # order/HexaticTranslational.h
-  # order/Nematic.cc
-  # order/Nematic.h
-  # order/RotationalAutocorrelation.cc
-  # order/RotationalAutocorrelation.h
-  # order/SolidLiquid.cc
-  # order/SolidLiquid.h
-  # order/Steinhardt.cc
-  # order/Steinhardt.h
-  # order/Wigner3j.cc
-  # order/Wigner3j.h
+  order
+  order/ContinuousCoordination.h
+  order/ContinuousCoordination.cc
+  order/Cubatic.cc
+  order/Cubatic.h
+  order/HexaticTranslational.cc
+  order/HexaticTranslational.h
+  order/Nematic.cc
+  order/Nematic.h
+  order/RotationalAutocorrelation.cc
+  order/RotationalAutocorrelation.h
+  order/SolidLiquid.cc
+  order/SolidLiquid.h
+  order/Steinhardt.cc
+  order/Steinhardt.h
+  order/Wigner3j.cc
+  order/Wigner3j.h
   # parallel
   parallel/tbb_config.h
   parallel/tbb_config.cc
@@ -173,6 +173,20 @@ target_set_install_rpath(_locality)
 # order nanobind_add_module(_order order/...) target_link_libraries(_order
 # PUBLIC freud TBB::tbb) target_set_install_rpath(_order)
 
+# order
+nanobind_add_module(
+  _order
+  order/module-order.cc
+  order/export-Nematic.cc
+  order/export-RotationalAutocorrelation.cc
+  order/export-Steinhardt.cc
+  order/export-SolidLiquid.cc
+  order/export-ContinuousCoordination.cc
+  order/export-Cubatic.cc
+  order/export-HexaticTranslational.cc)
+target_link_libraries(_order PUBLIC freud)
+target_set_install_rpath(_order)
+
 # parallel
 nanobind_add_module(_parallel parallel/module-parallel.cc)
 target_link_libraries(_parallel PUBLIC freud TBB::tbb)
@@ -201,12 +215,13 @@ set(python_files
     errors.py
     locality.py
     msd.py
+    order.py
     parallel.py
     pmft.py
     interface.py
     plot.py
     util.py)
-# density.py diffraction.py environment.py order.py)
+# cluster.py density.py diffraction.py environment.py interface.py msd.py)
 
 copy_files_to_build("${python_files}" "freud" "*.py")
 
@@ -218,7 +233,7 @@ if(SKBUILD)
   # install(TARGETS _density DESTINATION freud) install(TARGETS _diffraction
   # DESTINATION freud) install(TARGETS _environment DESTINATION freud)
   install(TARGETS _locality DESTINATION freud)
-  # install(TARGETS _order DESTINATION freud)
+  install(TARGETS _order DESTINATION freud)
   install(TARGETS _parallel DESTINATION freud)
   install(TARGETS _pmft DESTINATION freud)
   install(TARGETS _util DESTINATION freud)
