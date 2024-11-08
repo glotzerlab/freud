@@ -3,9 +3,9 @@
 
 #include "RotationalAutocorrelation.h"
 
+#include "VectorMath.h"
 #include "utils.h"
 #include <cmath>
-#include "VectorMath.h"
 
 /*! \file RotationalAutocorrelation.cc
     \brief Implements the RotationalAutocorrelation class.

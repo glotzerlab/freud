@@ -55,7 +55,6 @@ protected:
                         const std::shared_ptr<locality::NeighborQuery>& points,
                         const freud::locality::QueryArgs qargs, bool normalize_by_k);
 
-
     const T m_k; //!< The symmetry order for Hexatic, or normalization for Translational
     const bool
         m_weighted; //!< Whether to use neighbor weights in computing the order parameter (default false)
