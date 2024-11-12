@@ -7,15 +7,12 @@
 
 #include "StaticStructureFactorDebye.h"
 
-namespace freud { namespace diffraction {
+namespace freud { namespace diffraction { namespace detail {
 
-    namespace detail {
+void export_StaticStructureFactorDebye(nanobind::module_& m)
+{
+    nanobind::class_<StaticStructureFactorDebye, StaticStructureFactor>(m, "StaticStructureFactorDebye")
+        .def(nanobind::init<unsigned int, float, float>());
+}
 
-        void export_StaticStructureFactorDebye(nanobind::module_& m)
-        {
-            nanobind::class_<StaticStructureFactorDebye, StaticStructureFactor>(m, "StaticStructureFactorDebye")
-                .def(nanobind::init<unsigned int, float, float>());
-        }
-
-    } // namespace detail
-}}
+}}} // namespace freud::diffraction::detail

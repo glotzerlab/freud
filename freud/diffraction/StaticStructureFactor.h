@@ -29,8 +29,7 @@ public:
 
     virtual void accumulate(std::shared_ptr<locality::NeighborQuery> neighbor_query,
                             const vec3<float>* query_points, unsigned int n_query_points,
-                            unsigned int n_total)
-        {}; // Note: this should be pure
+                            unsigned int n_total) {}; // Note: this should be pure
 
     virtual void reset() {}; // Note: this should be pure
 

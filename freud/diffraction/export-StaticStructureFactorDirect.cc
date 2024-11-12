@@ -7,16 +7,13 @@
 
 #include "StaticStructureFactorDirect.h"
 
-namespace freud { namespace diffraction {
+namespace freud { namespace diffraction { namespace detail {
 
-    namespace detail {
+void export_StaticStructureFactorDirect(nanobind::module_& m)
+{
+    nanobind::class_<StaticStructureFactorDirect, StaticStructureFactor>(m, "StaticStructureFactorDirect")
+        .def(nanobind::init<unsigned int, float, float, unsigned int>())
+        .def("getNumSampledKPoints", &StaticStructureFactorDirect::getNumSampledKPoints);
+}
 
-        void export_StaticStructureFactorDirect(nanobind::module_& m)
-        {
-            nanobind::class_<StaticStructureFactorDirect, StaticStructureFactor>(m, "StaticStructureFactorDirect")
-                .def(nanobind::init<unsigned int, float, float, unsigned int>())
-                .def("getNumSampledKPoints", &StaticStructureFactorDirect::getNumSampledKPoints);
-        }
-
-    } // namespace detail
-}}
+}}} // namespace freud::diffraction::detail

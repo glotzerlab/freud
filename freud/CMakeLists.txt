@@ -143,7 +143,8 @@ target_set_install_rpath(_cluster)
 # target_link_libraries(_density PUBLIC freud TBB::tbb)
 # target_set_install_rpath(_density)
 
-diffraction nanobind_add_module(_diffraction
+nanobind_add_module(
+  _diffraction
   diffraction/module-diffraction.cc
   diffraction/export-StaticStructureFactor.cc
   diffraction/export-StaticStructureFactorDebye.cc
@@ -232,8 +233,8 @@ if(SKBUILD)
   install(TARGETS _box DESTINATION freud)
   install(TARGETS _cluster DESTINATION freud)
   install(TARGETS _diffraction DESTINATION freud)
-  # install(TARGETS _density DESTINATION freud)
-  # install(TARGETS _environment DESTINATION freud)
+  # install(TARGETS _density DESTINATION freud) install(TARGETS _environment
+  # DESTINATION freud)
   install(TARGETS _locality DESTINATION freud)
   install(TARGETS _order DESTINATION freud)
   install(TARGETS _parallel DESTINATION freud)
