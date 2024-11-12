@@ -1,5 +1,7 @@
 target-version = "py39"
 
+extend-exclude = [ 'extern', 'doc/source/gettingstarted/examples' ]
+
 lint.extend-select = [
     "A",
     "B",

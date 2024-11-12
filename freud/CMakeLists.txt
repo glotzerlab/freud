@@ -35,13 +35,12 @@ add_library(
   # density/RDF.cc
   # density/SphereVoxelization.h
   # density/SphereVoxelization.cc
-  # diffraction
-  # diffraction/StaticStructureFactor.h
-  # diffraction/StaticStructureFactor.cc
-  # diffraction/StaticStructureFactorDebye.h
-  # diffraction/StaticStructureFactorDebye.cc
-  # diffraction/StaticStructureFactorDirect.h
-  # diffraction/StaticStructureFactorDirect.cc
+  diffraction/StaticStructureFactor.h
+  diffraction/StaticStructureFactor.cc
+  diffraction/StaticStructureFactorDebye.h
+  diffraction/StaticStructureFactorDebye.cc
+  diffraction/StaticStructureFactorDirect.h
+  diffraction/StaticStructureFactorDirect.cc
   # environment
   # environment/AngularSeparation.h
   # environment/AngularSeparation.cc
@@ -144,9 +143,14 @@ target_set_install_rpath(_cluster)
 # target_link_libraries(_density PUBLIC freud TBB::tbb)
 # target_set_install_rpath(_density)
 
-# diffraction nanobind_add_module(_diffraction diffraction/...)
-# target_link_libraries(_diffraction PUBLIC freud TBB::tbb)
-# target_set_install_rpath(_diffraction)
+nanobind_add_module(
+  _diffraction
+  diffraction/module-diffraction.cc
+  diffraction/export-StaticStructureFactor.cc
+  diffraction/export-StaticStructureFactorDebye.cc
+  diffraction/export-StaticStructureFactorDirect.cc)
+target_link_libraries(_diffraction PUBLIC freud TBB::tbb)
+target_set_install_rpath(_diffraction)
 
 # environment nanobind_add_module(_environment environment/...)
 # target_link_libraries(_environment PUBLIC freud TBB::tbb)
@@ -169,9 +173,6 @@ nanobind_add_module(
   locality/export-Voronoi.cc)
 target_link_libraries(_locality PUBLIC freud TBB::tbb)
 target_set_install_rpath(_locality)
-
-# order nanobind_add_module(_order order/...) target_link_libraries(_order
-# PUBLIC freud TBB::tbb) target_set_install_rpath(_order)
 
 # order
 nanobind_add_module(
@@ -212,6 +213,7 @@ set(python_files
     box.py
     cluster.py
     data.py
+    diffraction.py
     errors.py
     locality.py
     msd.py
@@ -230,8 +232,9 @@ if(SKBUILD)
   install(FILES ${python_files} DESTINATION freud)
   install(TARGETS _box DESTINATION freud)
   install(TARGETS _cluster DESTINATION freud)
-  # install(TARGETS _density DESTINATION freud) install(TARGETS _diffraction
-  # DESTINATION freud) install(TARGETS _environment DESTINATION freud)
+  install(TARGETS _diffraction DESTINATION freud)
+  # install(TARGETS _density DESTINATION freud) install(TARGETS _environment
+  # DESTINATION freud)
   install(TARGETS _locality DESTINATION freud)
   install(TARGETS _order DESTINATION freud)
   install(TARGETS _parallel DESTINATION freud)

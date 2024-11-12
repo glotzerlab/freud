@@ -125,7 +125,7 @@ jobs:
             gsd==${{ matrix.python.oldest_gsd }}
             matplotlib==${{ matrix.python.oldest_matplotlib }}
           # Test only the currently ported modules
-          CIBW_TEST_COMMAND: "cd {package}/tests && pytest test_box_box.py test_parallel.py test_locality_*.py test_data.py test_pmft.py test_util.py test_msd_msd.py test_interface.py test_order_*.py test_cluster.py -v --log-level=DEBUG"
+          CIBW_TEST_COMMAND: "cd {package}/tests && pytest test_box_box.py test_parallel.py test_locality_*.py test_data.py test_pmft.py test_util.py test_msd_msd.py test_interface.py test_order_*.py test_cluster.py test_diffraction_*.py -v --log-level=DEBUG"
 
           # CIBW_TEST_COMMAND: "cd {package}/tests && pytest . -v --log-level=DEBUG"
 
