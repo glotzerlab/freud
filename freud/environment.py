@@ -775,7 +775,7 @@ class EnvironmentCluster(_MatchEnv):
     def cluster_idx(self):
         """:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`: The
         per-particle index indicating cluster membership."""
-        return self._cpp_obj.getClusterIdx().toNumpyArray()
+        return self._cpp_obj.getClusters().toNumpyArray()
 
     @_Compute._computed_property
     def num_clusters(self):
