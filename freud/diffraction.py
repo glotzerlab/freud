@@ -12,24 +12,16 @@ diffraction pattern of particles in systems with long range order.
 finalized in a future release.
 """
 
-# from libcpp import bool as cbool
-# from libcpp.vector import vector
-
-from freud.util import _Compute  # , vec3
-
 import logging
 
 import numpy as np
 import rowan
 import scipy.ndimage
 
-import freud.locality
-
-import numpy as np
-
 import freud._diffraction
 import freud.locality
 import freud.util
+from freud.util import _Compute
 
 logger = logging.getLogger(__name__)
 
@@ -214,11 +206,12 @@ class StaticStructureFactorDebye(_StaticStructureFactor):
                 value: True).
         """  # noqa E501
         if (query_points is None) != (N_total is None):
-            raise ValueError(
+            msg = (
                 "If query_points are provided, N_total must also be provided "
                 "in order to correctly compute the normalization of the "
                 "partial structure factor."
             )
+            raise ValueError(msg)
 
         if reset:
             self._reset()
@@ -248,13 +241,8 @@ class StaticStructureFactorDebye(_StaticStructureFactor):
 
     def __repr__(self):
         return (
-            "freud.diffraction.{cls}(num_k_values={num_k_values}, "
-            "k_max={k_max}, k_min={k_min})"
-        ).format(
-            cls=type(self).__name__,
-            num_k_values=self.num_k_values,
-            k_max=self.k_max,
-            k_min=self.k_min,
+            f"freud.diffraction.{type(self).__name__}(num_k_values={self.num_k_values},"
+            f" k_max={self.k_max}, k_min={self.k_min})"
         )
 
     def plot(self, ax=None, **kwargs):
@@ -433,11 +421,12 @@ class StaticStructureFactorDirect(_StaticStructureFactor):
                 value = True).
         """  # noqa E501
         if (query_points is None) != (N_total is None):
-            raise ValueError(
+            msg = (
                 "If query_points are provided, N_total must also be provided "
                 "in order to correctly compute the normalization of the "
                 "partial structure factor."
             )
+            raise ValueError(msg)
         if reset:
             self._reset()
 
@@ -480,15 +469,9 @@ class StaticStructureFactorDirect(_StaticStructureFactor):
 
     def __repr__(self):
         return (
-            "freud.diffraction.{cls}(bins={bins}, "
-            "k_max={k_max}, k_min={k_min}, "
-            "num_sampled_k_points={num_sampled_k_points})"
-        ).format(
-            cls=type(self).__name__,
-            bins=self.nbins,
-            k_max=self.k_max,
-            k_min=self.k_min,
-            num_sampled_k_points=self.num_sampled_k_points,
+            f"freud.diffraction.{type(self).__name__}(bins={self.nbins}, "
+            f"k_max={self.k_max}, k_min={self.k_min}, "
+            f"num_sampled_k_points={self.num_sampled_k_points})"
         )
 
     def plot(self, ax=None, **kwargs):
@@ -611,8 +594,7 @@ class DiffractionPattern(_Compute):
         shear = box_matrix[np.ix_([0, 1], secondary_axes)]
 
         # Return the inverse shear matrix
-        inv_shear = np.linalg.inv(shear)
-        return inv_shear
+        return np.linalg.inv(shear)
 
     def _transform(self, img, box, inv_shear, zoom):
         """Zoom, shear, and scale diffraction intensities.
@@ -630,7 +612,7 @@ class DiffractionPattern(_Compute):
         Returns:
             (``output_size, output_size``) :class:`numpy.ndarray`:
                 Transformed array of diffraction intensities.
-        """  # noqa: E501
+        """
 
         # The adjustments to roll and roll_shift ensure that the peak
         # corresponding to k=0 is located at exactly
@@ -667,14 +649,13 @@ class DiffractionPattern(_Compute):
         # transforms 2D points and adds an offset.
         inverse_transform = np.linalg.inv(zoom_matrix @ shear_matrix @ shift_matrix)
 
-        img = scipy.ndimage.affine_transform(
+        return scipy.ndimage.affine_transform(
             input=img,
             matrix=inverse_transform,
             output_shape=(self.output_size, self.output_size),
             order=1,
             mode="constant",
         )
-        return img
 
     def compute(self, system, view_orientation=None, zoom=4, peak_width=1, reset=True):
         r"""Computes diffraction pattern.
@@ -703,9 +684,8 @@ class DiffractionPattern(_Compute):
         system = freud.locality.NeighborQuery.from_system(system)
 
         if not system.box.cubic:
-            raise ValueError(
-                "freud.diffraction.DiffractionPattern only " "supports cubic boxes"
-            )
+            msg = "freud.diffraction.DiffractionPattern only supports cubic boxes"
+            raise ValueError(msg)
 
         if view_orientation is None:
             view_orientation = np.array([1.0, 0.0, 0.0, 0.0])
@@ -816,12 +796,8 @@ class DiffractionPattern(_Compute):
 
     def __repr__(self):
         return (
-            "freud.diffraction.{cls}(grid_size={grid_size}, "
-            "output_size={output_size})"
-        ).format(
-            cls=type(self).__name__,
-            grid_size=self.grid_size,
-            output_size=self.output_size,
+            f"freud.diffraction.{type(self).__name__}(grid_size={self.grid_size}, "
+            f"output_size={self.output_size})"
         )
 
     def to_image(self, cmap="afmhot", vmin=None, vmax=None):
