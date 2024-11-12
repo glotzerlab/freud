@@ -51,12 +51,13 @@ public:
                                 unsigned int num_sampled_k_points = 0);
 
     //! Compute the structure factor S(k) using the direct formula
-    void accumulate(const freud::locality::NeighborQuery* neighbor_query, const vec3<float>* query_points,
+    void accumulate(std::shared_ptr<locality::NeighborQuery> neighbor_query, const vec3<float>* query_points,
                     unsigned int n_query_points, unsigned int n_total) override;
 
     //! Reset the histogram to all zeros
     void reset() override
     {
+        m_structure_factor = StructureFactorHistogram(m_structure_factor.getAxes());
         m_local_structure_factor.reset();
         m_local_k_histograms.reset();
         m_min_valid_k = std::numeric_limits<float>::infinity();

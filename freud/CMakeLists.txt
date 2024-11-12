@@ -40,8 +40,8 @@ add_library(
   diffraction/StaticStructureFactor.cc
   diffraction/StaticStructureFactorDebye.h
   diffraction/StaticStructureFactorDebye.cc
-  # diffraction/StaticStructureFactorDirect.h
-  # diffraction/StaticStructureFactorDirect.cc
+  diffraction/StaticStructureFactorDirect.h
+  diffraction/StaticStructureFactorDirect.cc
   # environment
   # environment/AngularSeparation.h
   # environment/AngularSeparation.cc
@@ -172,8 +172,8 @@ nanobind_add_module(
   _diffraction
   diffraction/module-diffraction.cc
   diffraction/export-StaticStructureFactor.cc
-  diffraction/export-StaticStructureFactorDebye.cc)
-  # diffraction/export-StaticStructureFactorDirect.cc)
+  diffraction/export-StaticStructureFactorDebye.cc
+  diffraction/export-StaticStructureFactorDirect.cc)
 target_link_libraries(_diffraction PUBLIC freud TBB::tbb)
 target_set_install_rpath(_diffraction)
 

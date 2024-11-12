@@ -8,6 +8,7 @@ namespace freud::diffraction::detail {
 
 void export_StaticStructureFactor(nanobind::module_& m);
 void export_StaticStructureFactorDebye(nanobind::module_& m);
+void export_StaticStructureFactorDirect(nanobind::module_& m);
 } // namespace freud::diffraction::detail
 
 using namespace freud::diffraction::detail;
@@ -16,4 +17,5 @@ NB_MODULE(_diffraction, module) // NOLINT(misc-use-anonymous-namespace): caused 
 {
     export_StaticStructureFactor(module);
     export_StaticStructureFactorDebye(module);
+    export_StaticStructureFactorDirect(module);
 }

@@ -279,176 +279,169 @@ class StaticStructureFactorDebye(_StaticStructureFactor):
                                     ax=ax)
 
 
-# cdef class StaticStructureFactorDirect(_StaticStructureFactor):
-#     r"""Computes a 1D static structure factor by operating on a
-#     :math:`k` space grid.
+class StaticStructureFactorDirect(_StaticStructureFactor):
+    r"""Computes a 1D static structure factor by operating on a
+    :math:`k` space grid.
 
-#     This computes the static `structure factor
-#     <https://en.wikipedia.org/wiki/Structure_factor>`__ :math:`S(k)` at given
-#     :math:`k` values by averaging over all :math:`\vec{k}` vectors directions of
-#     the same magnitude. Note that freud employs the physics convention in which
-#     :math:`k` is used, as opposed to the crystallographic one where :math:`q` is
-#     used. The relation is :math:`k=2 \pi q`. This is implemented using the
-#     following formula:
+    This computes the static `structure factor
+    <https://en.wikipedia.org/wiki/Structure_factor>`__ :math:`S(k)` at given
+    :math:`k` values by averaging over all :math:`\vec{k}` vectors directions of
+    the same magnitude. Note that freud employs the physics convention in which
+    :math:`k` is used, as opposed to the crystallographic one where :math:`q` is
+    used. The relation is :math:`k=2 \pi q`. This is implemented using the
+    following formula:
 
-#     .. math::
+    .. math::
 
-#         S(\vec{k}) = \frac{1}{N}  \sum_{i=0}^{N} \sum_{j=0}^N e^{i\vec{k} \cdot
-#         \vec{r}_{ij}}
+        S(\vec{k}) = \frac{1}{N}  \sum_{i=0}^{N} \sum_{j=0}^N e^{i\vec{k} \cdot
+        \vec{r}_{ij}}
 
-#     where :math:`N` is the number of particles. Note that the definition
-#     requires :math:`S(0) = N`.
+    where :math:`N` is the number of particles. Note that the definition
+    requires :math:`S(0) = N`.
 
-#     This implementation provides a much slower algorithm, but gives better
-#     results than the :py:attr:`freud.diffraction.StaticStructureFactorDebye`
-#     method at low k values.
+    This implementation provides a much slower algorithm, but gives better
+    results than the :py:attr:`freud.diffraction.StaticStructureFactorDebye`
+    method at low k values.
 
-#     The :math:`\vec{k}` vectors are sampled isotropically from a grid defined by
-#     the box's reciprocal lattice vectors. This sampling of reciprocal space is
-#     based on the MIT licensed `Dynasor library
-#     <https://gitlab.com/materials-modeling/dynasor/>`__, modified to use
-#     parallelized C++ and to support larger ranges of :math:`k` values.
-#     For more information see :cite:`Fransson2021`.
+    The :math:`\vec{k}` vectors are sampled isotropically from a grid defined by
+    the box's reciprocal lattice vectors. This sampling of reciprocal space is
+    based on the MIT licensed `Dynasor library
+    <https://gitlab.com/materials-modeling/dynasor/>`__, modified to use
+    parallelized C++ and to support larger ranges of :math:`k` values.
+    For more information see :cite:`Fransson2021`.
 
-#     .. note::
-#         Currently 2D boxes are not supported for this method. Use Debye instead.
+    .. note::
+        Currently 2D boxes are not supported for this method. Use Debye instead.
 
-#     .. note::
-#         This code assumes all particles have a form factor :math:`f` of 1.
+    .. note::
+        This code assumes all particles have a form factor :math:`f` of 1.
 
-#     Partial structure factors can be computed by providing ``query_points`` and
-#     total number of points in the system ``N_total`` to the :py:meth:`compute`
-#     method. The normalization criterion is based on the Faber-Ziman formalism.
-#     For particle types :math:`\alpha` and :math:`\beta`, we compute the total
-#     scattering function as a sum of the partial scattering functions as:
+    Partial structure factors can be computed by providing ``query_points`` and
+    total number of points in the system ``N_total`` to the :py:meth:`compute`
+    method. The normalization criterion is based on the Faber-Ziman formalism.
+    For particle types :math:`\alpha` and :math:`\beta`, we compute the total
+    scattering function as a sum of the partial scattering functions as:
 
-#     .. math::
+    .. math::
 
-#         S(k) - 1 = \sum_{\alpha}\sum_{\beta} \frac{N_{\alpha}
-#         N_{\beta}}{N_{total}^2} \left(S_{\alpha \beta}(k) - 1\right)
+        S(k) - 1 = \sum_{\alpha}\sum_{\beta} \frac{N_{\alpha}
+        N_{\beta}}{N_{total}^2} \left(S_{\alpha \beta}(k) - 1\right)
 
-#     Args:
-#         bins (unsigned int):
-#             Number of bins in :math:`k` space.
-#         k_max (float):
-#             Maximum :math:`k` value to include in the calculation.
-#         k_min (float, optional):
-#             Minimum :math:`k` value included in the calculation. Note that
-#             there are practical restrictions on the validity of the
-#             calculation in the long wavelength regime, see :py:attr:`min_valid_k`
-#             (Default value = 0).
-#         num_sampled_k_points (unsigned int, optional):
-#             The desired number of :math:`\vec{k}` vectors to sample from the
-#             reciprocal lattice grid. If set to 0, all :math:`\vec{k}` vectors
-#             are used. If greater than 0, the :math:`\vec{k}` vectors are sampled
-#             from the full grid with uniform radial density, resulting in a
-#             sample of ``num_sampled_k_points`` vectors on average (Default
-#             value = 0).
-#     """
+    Args:
+        bins (unsigned int):
+            Number of bins in :math:`k` space.
+        k_max (float):
+            Maximum :math:`k` value to include in the calculation.
+        k_min (float, optional):
+            Minimum :math:`k` value included in the calculation. Note that
+            there are practical restrictions on the validity of the
+            calculation in the long wavelength regime, see :py:attr:`min_valid_k`
+            (Default value = 0).
+        num_sampled_k_points (unsigned int, optional):
+            The desired number of :math:`\vec{k}` vectors to sample from the
+            reciprocal lattice grid. If set to 0, all :math:`\vec{k}` vectors
+            are used. If greater than 0, the :math:`\vec{k}` vectors are sampled
+            from the full grid with uniform radial density, resulting in a
+            sample of ``num_sampled_k_points`` vectors on average (Default
+            value = 0).
+    """
 
 #     cdef freud._diffraction.StaticStructureFactorDirect * thisptr
 
-#     def __cinit__(self, unsigned int bins, float k_max, float k_min=0,
-#                   unsigned int num_sampled_k_points=0):
-#         if type(self) is StaticStructureFactorDirect:
-#             self.thisptr = self.ssfptr = \
-#                 new freud._diffraction.StaticStructureFactorDirect(
-#                     bins, k_max, k_min, num_sampled_k_points)
+    def __init__(self, bins, k_max, k_min=0, num_sampled_k_points=0):
+        self.cpp_obj = freud._diffraction.StaticStructureFactorDirect(
+                    bins, k_max, k_min, num_sampled_k_points)
 
-#     def __dealloc__(self):
-#         if type(self) is StaticStructureFactorDirect:
-#             del self.thisptr
+    @property
+    def nbins(self):
+        """float: Number of bins in the histogram."""
+        return len(self.bin_centers)
 
-#     @property
-#     def nbins(self):
-#         """float: Number of bins in the histogram."""
-#         return len(self.bin_centers)
+    @property
+    def bin_edges(self):
+        """:class:`numpy.ndarray`: The edges of each bin of :math:`k`."""
+        return self._cpp_obj.getBinEdges().toNumpyArray()
 
-#     @property
-#     def bin_edges(self):
-#         """:class:`numpy.ndarray`: The edges of each bin of :math:`k`."""
-#         return np.array(self.ssfptr.getBinEdges(), copy=True)
+    @property
+    def bin_centers(self):
+        """:class:`numpy.ndarray`: The centers of each bin of :math:`k`."""
+        return self._cpp_obj.getBinCenters().toNumpyArray()
 
-#     @property
-#     def bin_centers(self):
-#         """:class:`numpy.ndarray`: The centers of each bin of :math:`k`."""
-#         return np.array(self.ssfptr.getBinCenters(), copy=True)
+    @property
+    def bounds(self):
+        """tuple: A tuple indicating upper and lower bounds of the
+        histogram."""
+        bin_edges = self.bin_edges
+        return (bin_edges[0], bin_edges[len(bin_edges)-1])
 
-#     @property
-#     def bounds(self):
-#         """tuple: A tuple indicating upper and lower bounds of the
-#         histogram."""
-#         bin_edges = self.bin_edges
-#         return (bin_edges[0], bin_edges[len(bin_edges)-1])
+    def compute(self, system, query_points=None, N_total=None, reset=True):
+        r"""Computes static structure factor.
 
-#     def compute(self, system, query_points=None, N_total=None, reset=True):
-#         r"""Computes static structure factor.
+        Example for a single component system::
 
-#         Example for a single component system::
+            >>> box, points = freud.data.make_random_system(10, 100, seed=0)
+            >>> sf = freud.diffraction.StaticStructureFactorDirect(
+            ...     bins=100, k_max=10, k_min=0
+            ... )
+            >>> sf.compute((box, points))
+            freud.diffraction.StaticStructureFactorDirect(...)
 
-#             >>> box, points = freud.data.make_random_system(10, 100, seed=0)
-#             >>> sf = freud.diffraction.StaticStructureFactorDirect(
-#             ...     bins=100, k_max=10, k_min=0
-#             ... )
-#             >>> sf.compute((box, points))
-#             freud.diffraction.StaticStructureFactorDirect(...)
+        Example for partial mixed structure factor for multiple component
+        system with types A and B::
 
-#         Example for partial mixed structure factor for multiple component
-#         system with types A and B::
+            >>> N_particles = 100
+            >>> box, points = freud.data.make_random_system(
+            ...     10, N_particles, seed=0
+            ... )
+            >>> A_points = points[:N_particles//2]
+            >>> B_points = points[N_particles//2:]
+            >>> sf = freud.diffraction.StaticStructureFactorDirect(
+            ...     bins=100, k_max=10, k_min=0
+            ... )
+            >>> sf.compute(
+            ...     (box, A_points),
+            ...     query_points=B_points,
+            ...     N_total=N_particles
+            ... )
+            freud.diffraction.StaticStructureFactorDirect(...)
 
-#             >>> N_particles = 100
-#             >>> box, points = freud.data.make_random_system(
-#             ...     10, N_particles, seed=0
-#             ... )
-#             >>> A_points = points[:N_particles//2]
-#             >>> B_points = points[N_particles//2:]
-#             >>> sf = freud.diffraction.StaticStructureFactorDirect(
-#             ...     bins=100, k_max=10, k_min=0
-#             ... )
-#             >>> sf.compute(
-#             ...     (box, A_points),
-#             ...     query_points=B_points,
-#             ...     N_total=N_particles
-#             ... )
-#             freud.diffraction.StaticStructureFactorDirect(...)
-
-#         Args:
-#             system:
-#                 Any object that is a valid argument to
-#                 :class:`freud.locality.NeighborQuery.from_system`. Note that box is
-#                 allowed to change when accumulating average static structure factor.
-#                 For non-orthorhombic boxes the points are wrapped into a orthorhombic
-#                 box.
-#             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
-#                 Query points used to calculate the partial structure factor.
-#                 Uses the system's points if :code:`None`. See class
-#                 documentation for information about the normalization of partial
-#                 structure factors. If :code:`None`, the full scattering is
-#                 computed. (Default value = :code:`None`).
-#             N_total (int, optional):
-#                 Total number of points in the system. This is required if
-#                 ``query_points`` are provided. See class documentation for
-#                 information about the normalization of partial structure
-#                 factors.
-#             reset (bool, optional):
-#                 Whether to erase the previously computed values before adding
-#                 the new computation; if False, will accumulate data (Default
-#                 value = True).
-#         """  # noqa E501
-#         if (query_points is None) != (N_total is None):
-#             raise ValueError(
-#                 "If query_points are provided, N_total must also be provided "
-#                 "in order to correctly compute the normalization of the "
-#                 "partial structure factor."
-#             )
-#         # Convert points to float32 to avoid errors when float64 is passed
-#         temp_nq = freud.locality.NeighborQuery.from_system(system)
+        Args:
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`. Note that box is
+                allowed to change when accumulating average static structure factor.
+                For non-orthorhombic boxes the points are wrapped into a orthorhombic
+                box.
+            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
+                Query points used to calculate the partial structure factor.
+                Uses the system's points if :code:`None`. See class
+                documentation for information about the normalization of partial
+                structure factors. If :code:`None`, the full scattering is
+                computed. (Default value = :code:`None`).
+            N_total (int, optional):
+                Total number of points in the system. This is required if
+                ``query_points`` are provided. See class documentation for
+                information about the normalization of partial structure
+                factors.
+            reset (bool, optional):
+                Whether to erase the previously computed values before adding
+                the new computation; if False, will accumulate data (Default
+                value = True).
+        """  # noqa E501
+        if (query_points is None) != (N_total is None):
+            raise ValueError(
+                "If query_points are provided, N_total must also be provided "
+                "in order to correctly compute the normalization of the "
+                "partial structure factor."
+            )
+        # Convert points to float32 to avoid errors when float64 is passed
+        temp_nq = freud.locality.NeighborQuery.from_system(system)
 #         cdef freud.locality.NeighborQuery nq = \
 #             freud.locality.NeighborQuery.from_system(
 #                 (temp_nq.box, freud.util._convert_array(temp_nq.points)))
 
-#         if reset:
-#             self._reset()
+        if reset:
+            self._reset()
 
 #         cdef:
 #             const float[:, ::1] l_points = nq.points
@@ -457,75 +450,74 @@ class StaticStructureFactorDebye(_StaticStructureFactor):
 #             const float[:, ::1] l_query_points
 #             unsigned int num_query_points
 
-#         if query_points is not None:
-#             l_query_points = freud.util._convert_array(query_points)
-#             num_query_points = l_query_points.shape[0]
-#             l_query_points_ptr = <vec3[float]*> &l_query_points[0, 0]
+        if query_points is not None:
+            l_query_points = freud.util._convert_array(query_points)
+            num_query_points = l_query_points.shape[0]
 
-#         if N_total is None:
-#             N_total = num_points
+        if N_total is None:
+            N_total = num_points
 
-#         self.thisptr.accumulate(
-#             nq.get_ptr(),
-#             l_query_points_ptr, num_query_points, N_total
-#         )
-#         return self
+        self._cpp_obj.accumulate(
+            nq._cpp_obj, 
+            num_query_points, N_total
+        )
+        return self
 
-#     def _reset(self):
-#         self.thisptr.reset()
+    def _reset(self):
+        self._cpp_obj.reset()
 
-#     @_Compute._computed_property
-#     def min_valid_k(self):
-#         """float: Minimum valid value of k for the computed system box, equal
-#         to :math:`2\\pi/L` where :math:`L` is the minimum side length.
-#         For more information see :cite:`Liu2016`."""
-#         return self.thisptr.getMinValidK()
+    @_Compute._computed_property
+    def min_valid_k(self):
+        """float: Minimum valid value of k for the computed system box, equal
+        to :math:`2\\pi/L` where :math:`L` is the minimum side length.
+        For more information see :cite:`Liu2016`."""
+        return self._cpp_obj.getMinValidK()
 
-#     @property
-#     def num_sampled_k_points(self):
-#         r"""int: The target number of :math:`\vec{k}` points to use when
-#         constructing :math:`k` space grid."""
-#         return self.thisptr.getNumSampledKPoints()
+    @property
+    def num_sampled_k_points(self):
+        r"""int: The target number of :math:`\vec{k}` points to use when
+        constructing :math:`k` space grid."""
+        return self._cpp_obj.getNumSampledKPoints()
 
-#     @_Compute._computed_property
-#     def k_points(self):
-#         r""":class:`numpy.ndarray`: The :math:`\vec{k}` points used in the
-#         calculation."""
-#         cdef vector[vec3[float]] k_points = self.thisptr.getKPoints()
-#         return np.asarray([[k.x, k.y, k.z] for k in k_points])
+    @_Compute._computed_property
+    def k_points(self):
+        r""":class:`numpy.ndarray`: The :math:`\vec{k}` points used in the
+        calculation."""
+        # cdef vector[vec3[float]] k_points = self.thisptr.getKPoints()
+        return np.asarray([[k.x, k.y, k.z] for k in k_points])
 
-#     def __repr__(self):
-#         return ("freud.diffraction.{cls}(bins={bins}, "
-#                 "k_max={k_max}, k_min={k_min}, "
-#                 "num_sampled_k_points={num_sampled_k_points})").format(
-#                     cls=type(self).__name__,
-#                     bins=self.nbins,
-#                     k_max=self.k_max,
-#                     k_min=self.k_min,
-#                     num_sampled_k_points=self.num_sampled_k_points)
+    def __repr__(self):
+        return ("freud.diffraction.{cls}(bins={bins}, "
+                "k_max={k_max}, k_min={k_min}, "
+                "num_sampled_k_points={num_sampled_k_points})").format(
+                    cls=type(self).__name__,
+                    bins=self.nbins,
+                    k_max=self.k_max,
+                    k_min=self.k_min,
+                    num_sampled_k_points=self.num_sampled_k_points)
 
-#     def plot(self, ax=None, **kwargs):
-#         r"""Plot static structure factor.
+    def plot(self, ax=None, **kwargs):
+        r"""Plot static structure factor.
 
-#         .. note::
-#             This function plots :math:`S(k)` for values above
-#             :py:attr:`min_valid_k`.
+        .. note::
+            This function plots :math:`S(k)` for values above
+            :py:attr:`min_valid_k`.
 
-#         Args:
-#             ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
-#                 :code:`None`, make a new figure and axis.
-#                 (Default value = :code:`None`)
+        Args:
+            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
+                :code:`None`, make a new figure and axis.
+                (Default value = :code:`None`)
 
-#         Returns:
-#             (:class:`matplotlib.axes.Axes`): Axis with the plot.
-#         """
-#         import freud.plot
-#         return freud.plot.line_plot(self.bin_centers[self.bin_centers>self.min_valid_k],
-#                                     self.S_k[self.bin_centers>self.min_valid_k],
-#                                     title="Static Structure Factor",
-#                                     xlabel=r"$k$",
-#                                     ylabel=r"$S(k)$",
-#                                     ax=ax)
+        Returns:
+            (:class:`matplotlib.axes.Axes`): Axis with the plot.
+        """
+        import freud.plot
+        return freud.plot.line_plot(self.bin_centers[self.bin_centers>self.min_valid_k],
+                                    self.S_k[self.bin_centers>self.min_valid_k],
+                                    title="Static Structure Factor",
+                                    xlabel=r"$k$",
+                                    ylabel=r"$S(k)$",
+                                    ax=ax)
 
 
 class DiffractionPattern(_Compute):
