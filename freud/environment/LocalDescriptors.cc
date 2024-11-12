@@ -34,7 +34,7 @@ void LocalDescriptors::compute(const std::shared_ptr<locality::NeighborQuery> nq
         max_num_neighbors = std::numeric_limits<unsigned int>::max();
     }
     m_sphArray = std::make_shared<util::ManagedArray<std::complex<float>>>(
-        m_nlist->getNumBonds() * getSphWidth());
+    std::vector<size_t>{m_nlist->getNumBonds(), getSphWidth()});
 
     util::forLoopWrapper(0, nq->getNPoints(), [&](size_t begin, size_t end) {
         fsph::PointSPHEvaluator<float> sph_eval(m_l_max);
@@ -127,6 +127,7 @@ void LocalDescriptors::compute(const std::shared_ptr<locality::NeighborQuery> nq
                 }
 
                 sph_eval.compute(phi, theta);
+                // copy results from sph_eval to the sphArray
                 std::copy(sph_eval.begin(m_negative_m), sph_eval.end(), m_sphArray->data() + sphCount);
             }
         }
