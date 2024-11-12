@@ -26,12 +26,13 @@ public:
     StaticStructureFactorDebye(unsigned int bins, float k_max, float k_min = 0);
 
     //! Compute the structure factor S(k) using the Debye formula
-    void accumulate(const freud::locality::NeighborQuery* neighbor_query, const vec3<float>* query_points,
+    void accumulate(std::shared_ptr<locality::NeighborQuery> neighbor_query, const vec3<float>* query_points,
                     unsigned int n_query_points, unsigned int n_total) override;
 
     //! Reset the histogram to all zeros
     void reset() override
     {
+        m_structure_factor = StructureFactorHistogram(m_structure_factor.getAxes());
         m_local_structure_factor.reset();
         m_frame_counter = 0;
         m_min_valid_k = std::numeric_limits<float>::infinity();

@@ -1,5 +1,7 @@
 target-version = "py39"
 
+extend-exclude = [ 'extern', 'doc/source/gettingstarted/examples' ]
+
 lint.extend-select = [
     "A",
     "B",
@@ -26,6 +28,8 @@ lint.ignore = [
   "RUF012", # freud does not use typing hints
   "N802", # Allow names like Lx
   "NPY002", # TODO: Refactor benchmarks and tests to use numpy.random.Generator
+  "E741",
+  "E743"
 ]
 
 [lint.flake8-import-conventions]
@@ -34,7 +38,6 @@ aliases = {}
 
 [lint.per-file-ignores]
 "tests/*.py" = ["PLR6301", # methods defined this way are used by pytest.
-  "E741", # l is an appropriate variable name for Qlm order parameters.
   "PLW2901", # TODO: Enable this check and fix after tests can be executed.
   "B018", # TODO: Enable this check and fix after tests can be executed.
   "PT011", # TODO: Enable this check and fix after tests can be executed.

@@ -1,6 +1,7 @@
 // Copyright (c) 2010-2024 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
+#include <complex>
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/shared_ptr.h> // NOLINT(misc-include-cleaner): used implicitly
 
@@ -15,6 +16,7 @@ void export_ManagedArray(nanobind::module_& module)
     export_ManagedArray<std::complex<float>>(module, "ManagedArray_complexfloat");
     export_ManagedArray<unsigned int>(module, "ManagedArray_unsignedint");
     export_ManagedArray<vec3<float>>(module, "ManagedArrayVec3_float");
+    export_ManagedArray<std::complex<float>>(module, "ManagedArray_complexfloat");
 };
 
 }; // namespace freud::util::detail

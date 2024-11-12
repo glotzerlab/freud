@@ -47,7 +47,7 @@ StaticStructureFactorDirect::StaticStructureFactorDirect(unsigned int bins, floa
     }
 }
 
-void StaticStructureFactorDirect::accumulate(const freud::locality::NeighborQuery* neighbor_query,
+void StaticStructureFactorDirect::accumulate(std::shared_ptr<locality::NeighborQuery> neighbor_query,
                                              const vec3<float>* query_points, unsigned int n_query_points,
                                              unsigned int n_total)
 {
@@ -107,9 +107,7 @@ void StaticStructureFactorDirect::accumulate(const freud::locality::NeighborQuer
 
 void StaticStructureFactorDirect::reduce()
 {
-    const auto axis_size = m_structure_factor.getAxisSizes()[0];
-    m_k_histogram.prepare(axis_size);
-    m_structure_factor.prepare(axis_size);
+    m_k_histogram = KBinHistogram(m_k_histogram.getAxes());
 
     // Reduce the bin counts over all threads, then use them to normalize the
     // structure factor when computing. This computes a binned mean over all k

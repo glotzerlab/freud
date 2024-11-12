@@ -85,8 +85,9 @@ public:
     }
 
     //! Compute the Solid-Liquid Order Parameter
-    void compute(const freud::locality::NeighborList* nlist, const freud::locality::NeighborQuery* points,
-                 freud::locality::QueryArgs qargs);
+    void compute(const std::shared_ptr<freud::locality::NeighborList>& nlist,
+                 const std::shared_ptr<freud::locality::NeighborQuery>& points,
+                 freud::locality::QueryArgs& qargs);
 
     //! Returns largest cluster size.
     unsigned int getLargestClusterSize() const
@@ -107,13 +108,13 @@ public:
 
     //! Get a reference to the last computed set of solid-like cluster
     //  indices for each particle
-    const util::ManagedArray<unsigned int>& getClusterIdx() const
+    const std::shared_ptr<util::ManagedArray<unsigned int>> getClusterIdx() const
     {
         return m_cluster.getClusterIdx();
     }
 
     //! Get a reference to the number of connections per particle
-    const util::ManagedArray<unsigned int>& getNumberOfConnections() const
+    const std::shared_ptr<util::ManagedArray<unsigned int>> getNumberOfConnections() const
     {
         return m_number_of_connections;
     }
@@ -124,37 +125,38 @@ public:
     }
 
     //! Return a pointer to the NeighborList used in the last call to compute.
-    locality::NeighborList* getNList()
+    std::shared_ptr<locality::NeighborList> getNList()
     {
-        return &m_nlist;
+        return m_nlist;
     }
 
     //! Get the last calculated qlm for each particle
-    const util::ManagedArray<std::complex<float>>& getQlm() const
+    const std::shared_ptr<util::ManagedArray<std::complex<float>>> getQlm() const
     {
         return m_steinhardt.getQlm()[0];
     }
 
     //! Return the ql_ij values.
-    const util::ManagedArray<float>& getQlij() const
+    const std::shared_ptr<util::ManagedArray<float>> getQlij() const
     {
         return m_ql_ij;
     }
 
 private:
-    unsigned int m_l;               //!< Value of l for the spherical harmonic.
-    unsigned int m_num_ms;          //!< The number of magnetic quantum numbers (2*m_l+1).
-    float m_q_threshold;            //!< Dot product cutoff
-    unsigned int m_solid_threshold; //!< Solid-like num connections cutoff
-    bool m_normalize_q;             //!< Whether to normalize the qlmi dot products.
-    locality::NeighborList m_nlist; //!< The NeighborList used in the last call to compute.
+    unsigned int m_l;                                //!< Value of l for the spherical harmonic.
+    unsigned int m_num_ms;                           //!< The number of magnetic quantum numbers (2*m_l+1).
+    float m_q_threshold;                             //!< Dot product cutoff
+    unsigned int m_solid_threshold;                  //!< Solid-like num connections cutoff
+    bool m_normalize_q;                              //!< Whether to normalize the qlmi dot products.
+    std::shared_ptr<locality::NeighborList> m_nlist; //!< The NeighborList used in the last call to compute.
 
     freud::order::Steinhardt m_steinhardt; //!< Steinhardt class used to compute qlm
     freud::cluster::Cluster m_cluster;     //!< Cluster class used to cluster solid-like bonds
 
-    util::ManagedArray<float> m_ql_ij;                        //!< All of the qlmi dot qlmj's computed
-    util::ManagedArray<unsigned int> m_number_of_connections; //! Number of connections for each particle with
-                                                              //! dot product above q_threshold
+    std::shared_ptr<util::ManagedArray<float>> m_ql_ij; //!< All of the qlmi dot qlmj's computed
+    std::shared_ptr<util::ManagedArray<unsigned int>>
+        m_number_of_connections; //! Number of connections for each particle with
+                                 //! dot product above q_threshold
 };
 
 }; }; // end namespace freud::order

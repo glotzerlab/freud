@@ -12,43 +12,30 @@ diffraction pattern of particles in systems with long range order.
 finalized in a future release.
 """
 
-from libcpp cimport bool as cbool
-from libcpp.vector cimport vector
-
-from freud.util cimport _Compute, vec3
-
 import logging
 
 import numpy as np
 import rowan
 import scipy.ndimage
 
+import freud._diffraction
 import freud.locality
-
-cimport numpy as np
-
-cimport freud._diffraction
-cimport freud.locality
-cimport freud.util
+import freud.util
+from freud.util import _Compute
 
 logger = logging.getLogger(__name__)
 
 
-cdef class _StaticStructureFactor(_Compute):
-
-    cdef freud._diffraction.StaticStructureFactor * ssfptr
-
-    def __dealloc__(self):
-        if type(self) is _StaticStructureFactor:
-            del self.ssfptr
+class _StaticStructureFactor(_Compute):
+    def __init__(self):
+        # abstract class
+        pass
 
     @_Compute._computed_property
     def S_k(self):
         """(:math:`N_{bins}`,) :class:`numpy.ndarray`: Static
         structure factor :math:`S(k)` values."""
-        return freud.util.make_managed_numpy_array(
-            &self.ssfptr.getStructureFactor(),
-            freud.util.arr_type_t.FLOAT)
+        return self._cpp_obj.getStructureFactor().toNumpyArray()
 
     @property
     def k_max(self):
@@ -64,17 +51,18 @@ cdef class _StaticStructureFactor(_Compute):
 
     @_Compute._computed_property
     def min_valid_k(self):
-        return self.ssfptr.getMinValidK()
+        return self._cpp_obj.getMinValidK()
 
     def _repr_png_(self):
         try:
             import freud.plot
+
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None
 
 
-cdef class StaticStructureFactorDebye(_StaticStructureFactor):
+class StaticStructureFactorDebye(_StaticStructureFactor):
     r"""Computes a 1D static structure factor using the
     Debye scattering equation.
 
@@ -141,18 +129,11 @@ cdef class StaticStructureFactorDebye(_StaticStructureFactor):
             long wavelength regime, see :py:attr:`min_valid_k` (Default value =
             0).
     """
-    cdef freud._diffraction.StaticStructureFactorDebye * thisptr
 
-    def __cinit__(self, unsigned int num_k_values, float k_max, float k_min=0):
-        if type(self) is StaticStructureFactorDebye:
-            self.thisptr = self.ssfptr = new \
-                freud._diffraction.StaticStructureFactorDebye(num_k_values,
-                                                              k_max,
-                                                              k_min)
-
-    def __dealloc__(self):
-        if type(self) is StaticStructureFactorDebye:
-            del self.thisptr
+    def __init__(self, num_k_values, k_max, k_min=0):
+        self._cpp_obj = freud._diffraction.StaticStructureFactorDebye(
+            num_k_values, k_max, k_min
+        )
 
     @property
     def num_k_values(self):
@@ -162,14 +143,14 @@ cdef class StaticStructureFactorDebye(_StaticStructureFactor):
     @property
     def k_values(self):
         """:class:`numpy.ndarray`: The :math:`k` values for the calculation."""
-        return np.array(self.ssfptr.getBinCenters(), copy=True)
+        return self._cpp_obj.getBinCenters().toNumpyArray()
 
     @property
     def bounds(self):
         """tuple: A tuple indicating the smallest and largest :math:`k` values
         used."""
         k_values = self.k_values
-        return (k_values[0], k_values[len(k_values)-1])
+        return (k_values[0], k_values[len(k_values) - 1])
 
     def compute(self, system, query_points=None, N_total=None, reset=True):
         r"""Computes static structure factor.
@@ -225,56 +206,44 @@ cdef class StaticStructureFactorDebye(_StaticStructureFactor):
                 value: True).
         """  # noqa E501
         if (query_points is None) != (N_total is None):
-            raise ValueError(
+            msg = (
                 "If query_points are provided, N_total must also be provided "
                 "in order to correctly compute the normalization of the "
                 "partial structure factor."
             )
+            raise ValueError(msg)
 
         if reset:
             self._reset()
-
-        cdef:
-            freud.locality.NeighborQuery nq
-            const float[:, ::1] l_query_points
-            unsigned int num_query_points
 
         nq = freud.locality.NeighborQuery.from_system(system)
 
         if query_points is None:
             query_points = nq.points
         else:
-            query_points = freud.util._convert_array(
-                query_points, shape=(None, 3))
-        l_query_points = query_points
-        num_query_points = l_query_points.shape[0]
+            query_points = freud.util._convert_array(query_points, shape=(None, 3))
 
         if N_total is None:
-            N_total = num_query_points
+            N_total = query_points.shape[0]
 
-        self.thisptr.accumulate(
-            nq.get_ptr(),
-            <vec3[float]*> &l_query_points[0, 0],
-            num_query_points, N_total)
+        self._cpp_obj.accumulate(nq._cpp_obj, query_points, N_total)
         return self
 
     def _reset(self):
-        self.thisptr.reset()
+        self._cpp_obj.reset()
 
     @_Compute._computed_property
     def min_valid_k(self):
         """float: Minimum valid value of k for the computed system box, equal
         to :math:`2\\pi/(L/2)=4\\pi/L` where :math:`L` is the minimum side length.
         For more information see :cite:`Liu2016`."""
-        return self.thisptr.getMinValidK()
+        return self._cpp_obj.getMinValidK()
 
     def __repr__(self):
-        return ("freud.diffraction.{cls}(num_k_values={num_k_values}, "
-                "k_max={k_max}, k_min={k_min})").format(
-                    cls=type(self).__name__,
-                    num_k_values=self.num_k_values,
-                    k_max=self.k_max,
-                    k_min=self.k_min)
+        return (
+            f"freud.diffraction.{type(self).__name__}(num_k_values={self.num_k_values},"
+            f" k_max={self.k_max}, k_min={self.k_min})"
+        )
 
     def plot(self, ax=None, **kwargs):
         r"""Plot static structure factor.
@@ -292,15 +261,18 @@ cdef class StaticStructureFactorDebye(_StaticStructureFactor):
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         import freud.plot
-        return freud.plot.line_plot(self.k_values[self.k_values>self.min_valid_k],
-                                    self.S_k[self.k_values>self.min_valid_k],
-                                    title="Static Structure Factor",
-                                    xlabel=r"$k$",
-                                    ylabel=r"$S(k)$",
-                                    ax=ax)
+
+        return freud.plot.line_plot(
+            self.k_values[self.k_values > self.min_valid_k],
+            self.S_k[self.k_values > self.min_valid_k],
+            title="Static Structure Factor",
+            xlabel=r"$k$",
+            ylabel=r"$S(k)$",
+            ax=ax,
+        )
 
 
-cdef class StaticStructureFactorDirect(_StaticStructureFactor):
+class StaticStructureFactorDirect(_StaticStructureFactor):
     r"""Computes a 1D static structure factor by operating on a
     :math:`k` space grid.
 
@@ -367,18 +339,10 @@ cdef class StaticStructureFactorDirect(_StaticStructureFactor):
             value = 0).
     """
 
-    cdef freud._diffraction.StaticStructureFactorDirect * thisptr
-
-    def __cinit__(self, unsigned int bins, float k_max, float k_min=0,
-                  unsigned int num_sampled_k_points=0):
-        if type(self) is StaticStructureFactorDirect:
-            self.thisptr = self.ssfptr = \
-                new freud._diffraction.StaticStructureFactorDirect(
-                    bins, k_max, k_min, num_sampled_k_points)
-
-    def __dealloc__(self):
-        if type(self) is StaticStructureFactorDirect:
-            del self.thisptr
+    def __init__(self, bins, k_max, k_min=0, num_sampled_k_points=0):
+        self._cpp_obj = freud._diffraction.StaticStructureFactorDirect(
+            int(bins), float(k_max), float(k_min), int(num_sampled_k_points)
+        )
 
     @property
     def nbins(self):
@@ -388,19 +352,19 @@ cdef class StaticStructureFactorDirect(_StaticStructureFactor):
     @property
     def bin_edges(self):
         """:class:`numpy.ndarray`: The edges of each bin of :math:`k`."""
-        return np.array(self.ssfptr.getBinEdges(), copy=True)
+        return self._cpp_obj.getBinEdges().toNumpyArray()
 
     @property
     def bin_centers(self):
         """:class:`numpy.ndarray`: The centers of each bin of :math:`k`."""
-        return np.array(self.ssfptr.getBinCenters(), copy=True)
+        return self._cpp_obj.getBinCenters().toNumpyArray()
 
     @property
     def bounds(self):
         """tuple: A tuple indicating upper and lower bounds of the
         histogram."""
         bin_edges = self.bin_edges
-        return (bin_edges[0], bin_edges[len(bin_edges)-1])
+        return (bin_edges[0], bin_edges[len(bin_edges) - 1])
 
     def compute(self, system, query_points=None, N_total=None, reset=True):
         r"""Computes static structure factor.
@@ -457,73 +421,58 @@ cdef class StaticStructureFactorDirect(_StaticStructureFactor):
                 value = True).
         """  # noqa E501
         if (query_points is None) != (N_total is None):
-            raise ValueError(
+            msg = (
                 "If query_points are provided, N_total must also be provided "
                 "in order to correctly compute the normalization of the "
                 "partial structure factor."
             )
-        # Convert points to float32 to avoid errors when float64 is passed
-        temp_nq = freud.locality.NeighborQuery.from_system(system)
-        cdef freud.locality.NeighborQuery nq = \
-            freud.locality.NeighborQuery.from_system(
-                (temp_nq.box, freud.util._convert_array(temp_nq.points)))
-
+            raise ValueError(msg)
         if reset:
             self._reset()
 
-        cdef:
-            const float[:, ::1] l_points = nq.points
-            unsigned int num_points = l_points.shape[0]
-            const vec3[float]* l_query_points_ptr = NULL
-            const float[:, ::1] l_query_points
-            unsigned int num_query_points
+        # Convert points to float32 to avoid errors when float64 is passed
+        nq = freud.locality.NeighborQuery.from_system(system)
 
         if query_points is not None:
-            l_query_points = freud.util._convert_array(query_points)
-            num_query_points = l_query_points.shape[0]
-            l_query_points_ptr = <vec3[float]*> &l_query_points[0, 0]
+            query_points = freud.util._convert_array(query_points)
+        else:
+            query_points = nq.points
 
         if N_total is None:
-            N_total = num_points
+            N_total = nq.points.shape[0]
 
-        self.thisptr.accumulate(
-            nq.get_ptr(),
-            l_query_points_ptr, num_query_points, N_total
-        )
+        self._cpp_obj.accumulate(nq._cpp_obj, query_points, N_total)
         return self
 
     def _reset(self):
-        self.thisptr.reset()
+        self._cpp_obj.reset()
 
     @_Compute._computed_property
     def min_valid_k(self):
         """float: Minimum valid value of k for the computed system box, equal
         to :math:`2\\pi/L` where :math:`L` is the minimum side length.
         For more information see :cite:`Liu2016`."""
-        return self.thisptr.getMinValidK()
+        return self._cpp_obj.getMinValidK()
 
     @property
     def num_sampled_k_points(self):
         r"""int: The target number of :math:`\vec{k}` points to use when
         constructing :math:`k` space grid."""
-        return self.thisptr.getNumSampledKPoints()
+        return self._cpp_obj.getNumSampledKPoints()
 
     @_Compute._computed_property
     def k_points(self):
         r""":class:`numpy.ndarray`: The :math:`\vec{k}` points used in the
         calculation."""
-        cdef vector[vec3[float]] k_points = self.thisptr.getKPoints()
+        k_points = self._cpp_obj.getKPoints()
         return np.asarray([[k.x, k.y, k.z] for k in k_points])
 
     def __repr__(self):
-        return ("freud.diffraction.{cls}(bins={bins}, "
-                "k_max={k_max}, k_min={k_min}, "
-                "num_sampled_k_points={num_sampled_k_points})").format(
-                    cls=type(self).__name__,
-                    bins=self.nbins,
-                    k_max=self.k_max,
-                    k_min=self.k_min,
-                    num_sampled_k_points=self.num_sampled_k_points)
+        return (
+            f"freud.diffraction.{type(self).__name__}(bins={self.nbins}, "
+            f"k_max={self.k_max}, k_min={self.k_min}, "
+            f"num_sampled_k_points={self.num_sampled_k_points})"
+        )
 
     def plot(self, ax=None, **kwargs):
         r"""Plot static structure factor.
@@ -541,15 +490,18 @@ cdef class StaticStructureFactorDirect(_StaticStructureFactor):
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         import freud.plot
-        return freud.plot.line_plot(self.bin_centers[self.bin_centers>self.min_valid_k],
-                                    self.S_k[self.bin_centers>self.min_valid_k],
-                                    title="Static Structure Factor",
-                                    xlabel=r"$k$",
-                                    ylabel=r"$S(k)$",
-                                    ax=ax)
+
+        return freud.plot.line_plot(
+            self.bin_centers[self.bin_centers > self.min_valid_k],
+            self.S_k[self.bin_centers > self.min_valid_k],
+            title="Static Structure Factor",
+            xlabel=r"$k$",
+            ylabel=r"$S(k)$",
+            ax=ax,
+        )
 
 
-cdef class DiffractionPattern(_Compute):
+class DiffractionPattern(_Compute):
     r"""Computes a 2D diffraction pattern.
 
     The diffraction image represents the scattering of incident radiation,
@@ -589,30 +541,15 @@ cdef class DiffractionPattern(_Compute):
             Resolution of the output diffraction image, uses ``grid_size`` if
             not provided or ``None`` (Default value = :code:`None`).
     """
-    cdef int _grid_size
-    cdef int _output_size
-    cdef int _N_points
-    cdef double[:] _k_values_orig
-    cdef double[:, :, :] _k_vectors_orig
-    cdef double[:] _k_values
-    cdef double[:, :, :] _k_vectors
-    cdef double[:, :] _diffraction
-    cdef unsigned int _frame_counter
-    cdef double _box_matrix_scale_factor
-    cdef double[:] _view_orientation
-    cdef double _k_scale_factor
-    cdef cbool _k_values_cached
-    cdef cbool _k_vectors_cached
 
     def __init__(self, grid_size=512, output_size=None):
+        super().__init__()
         self._grid_size = int(grid_size)
-        self._output_size = int(grid_size) if output_size is None \
-            else int(output_size)
+        self._output_size = int(grid_size) if output_size is None else int(output_size)
 
         # Cache these because they are system-independent.
         self._k_values_orig = np.empty(self.output_size)
-        self._k_vectors_orig = np.empty((
-            self.output_size, self.output_size, 3))
+        self._k_vectors_orig = np.empty((self.output_size, self.output_size, 3))
 
         # Store these computed arrays which are exposed as properties.
         self._k_values = np.empty_like(self._k_values_orig)
@@ -640,25 +577,24 @@ cdef class DiffractionPattern(_Compute):
         # Compute normals for each box face.
         # The area of the face is the length of the vector.
         box_face_normals = np.cross(
-            np.roll(box_matrix, 1, axis=-1),
-            np.roll(box_matrix, -1, axis=-1),
-            axis=0)
+            np.roll(box_matrix, 1, axis=-1), np.roll(box_matrix, -1, axis=-1), axis=0
+        )
 
         # Compute view axis projections.
-        projections = np.abs(box_face_normals.T @ np.array([0., 0., 1.]))
+        projections = np.abs(box_face_normals.T @ np.array([0.0, 0.0, 1.0]))
 
         # Determine the largest projection area along the view axis and use
         # that face for the projection into 2D.
         best_projection_axis = np.argmax(projections)
-        secondary_axes = np.array([
-            best_projection_axis + 1, best_projection_axis + 2]) % 3
+        secondary_axes = (
+            np.array([best_projection_axis + 1, best_projection_axis + 2]) % 3
+        )
 
         # Figure out appropriate shear matrix
         shear = box_matrix[np.ix_([0, 1], secondary_axes)]
 
         # Return the inverse shear matrix
-        inv_shear = np.linalg.inv(shear)
-        return inv_shear
+        return np.linalg.inv(shear)
 
     def _transform(self, img, box, inv_shear, zoom):
         """Zoom, shear, and scale diffraction intensities.
@@ -676,7 +612,7 @@ cdef class DiffractionPattern(_Compute):
         Returns:
             (``output_size, output_size``) :class:`numpy.ndarray`:
                 Transformed array of diffraction intensities.
-        """  # noqa: E501
+        """
 
         # The adjustments to roll and roll_shift ensure that the peak
         # corresponding to k=0 is located at exactly
@@ -695,32 +631,31 @@ cdef class DiffractionPattern(_Compute):
         box_matrix = box.to_matrix()
         ss = np.max(box_matrix) * inv_shear
 
-        shift_matrix = np.array(
-            [[1, 0, -roll],
-             [0, 1, -roll],
-             [0, 0, 1]])
+        shift_matrix = np.array([[1, 0, -roll], [0, 1, -roll], [0, 0, 1]])
 
         # Translation for [roll_shift, roll_shift]
         # Then shift using ss
         shear_matrix = np.array(
-            [[ss[1, 0], ss[0, 0], roll_shift],
-             [ss[1, 1], ss[0, 1], roll_shift],
-             [0, 0, 1]])
+            [
+                [ss[1, 0], ss[0, 0], roll_shift],
+                [ss[1, 1], ss[0, 1], roll_shift],
+                [0, 0, 1],
+            ]
+        )
 
         zoom_matrix = np.diag((zoom, zoom, 1))
 
         # This matrix uses homogeneous coordinates. It is a 3x3 matrix that
         # transforms 2D points and adds an offset.
-        inverse_transform = np.linalg.inv(
-            zoom_matrix @ shear_matrix @ shift_matrix)
+        inverse_transform = np.linalg.inv(zoom_matrix @ shear_matrix @ shift_matrix)
 
-        img = scipy.ndimage.affine_transform(
+        return scipy.ndimage.affine_transform(
             input=img,
             matrix=inverse_transform,
             output_shape=(self.output_size, self.output_size),
             order=1,
-            mode="constant")
-        return img
+            mode="constant",
+        )
 
     def compute(self, system, view_orientation=None, zoom=4, peak_width=1, reset=True):
         r"""Computes diffraction pattern.
@@ -749,13 +684,12 @@ cdef class DiffractionPattern(_Compute):
         system = freud.locality.NeighborQuery.from_system(system)
 
         if not system.box.cubic:
-            raise ValueError("freud.diffraction.DiffractionPattern only "
-                             "supports cubic boxes")
+            msg = "freud.diffraction.DiffractionPattern only supports cubic boxes"
+            raise ValueError(msg)
 
         if view_orientation is None:
-            view_orientation = np.array([1., 0., 0., 0.])
-        view_orientation = freud.util._convert_array(
-            view_orientation, (4,), np.double)
+            view_orientation = np.array([1.0, 0.0, 0.0, 0.0])
+        view_orientation = freud.util._convert_array(view_orientation, (4,), np.double)
 
         # Compute the box projection matrix
         inv_shear = self._calc_proj(view_orientation, system.box)
@@ -769,25 +703,26 @@ cdef class DiffractionPattern(_Compute):
         xy += 0.5
         xy %= 1
         im, _, _ = np.histogram2d(
-            xy[:, 0], xy[:, 1], bins=np.linspace(0, 1, self.grid_size+1))
+            xy[:, 0], xy[:, 1], bins=np.linspace(0, 1, self.grid_size + 1)
+        )
 
         # Compute FFT and convolve with Gaussian
-        cdef double complex[:, :] diffraction_fft
         diffraction_fft = np.fft.fft2(im)
         diffraction_fft = scipy.ndimage.fourier_gaussian(
-            diffraction_fft, peak_width / zoom)
+            diffraction_fft, peak_width / zoom
+        )
         diffraction_fft = np.fft.fftshift(diffraction_fft)
 
         # Compute the squared modulus of the FFT, which is S(k)
-        cdef double[:, :] diffraction_frame
-        diffraction_frame = np.real(
-            diffraction_fft * np.conjugate(diffraction_fft))
+        diffraction_frame = np.real(diffraction_fft * np.conjugate(diffraction_fft))
 
         # Transform the image (scale, shear, zoom) and normalize S(k) by the
         # number of points
         self._N_points = len(system.points)
-        diffraction_frame = self._transform(
-            diffraction_frame, system.box, inv_shear, zoom) / self._N_points
+        diffraction_frame = (
+            self._transform(diffraction_frame, system.box, inv_shear, zoom)
+            / self._N_points
+        )
 
         # Add to the diffraction pattern and increment the frame counter
         self._diffraction += np.asarray(diffraction_frame)
@@ -796,20 +731,21 @@ cdef class DiffractionPattern(_Compute):
         # Compute a cached array of k-vectors that can be rotated and scaled
         if not self._called_compute:
             # Create a 1D axis of k-vector magnitudes
-            self._k_values_orig = np.fft.fftshift(np.fft.fftfreq(
-                n=self.output_size))
+            self._k_values_orig = np.fft.fftshift(np.fft.fftfreq(n=self.output_size))
 
             # Create a 3D meshgrid of k-vectors with shape
             # (output_size, output_size, 3)
-            self._k_vectors_orig = np.asarray(np.meshgrid(
-                self._k_values_orig, self._k_values_orig, [0])).T[0]
+            self._k_vectors_orig = np.asarray(
+                np.meshgrid(self._k_values_orig, self._k_values_orig, [0])
+            ).T[0]
 
         # Cache the view orientation and box matrix scale factor for
         # lazy evaluation of k-values and k-vectors
         self._box_matrix_scale_factor = np.max(system.box.to_matrix())
         self._view_orientation = view_orientation
-        self._k_scale_factor = 2 * np.pi * self.output_size / \
-            (self._box_matrix_scale_factor * zoom)
+        self._k_scale_factor = (
+            2 * np.pi * self.output_size / (self._box_matrix_scale_factor * zoom)
+        )
         self._k_values_cached = False
         self._k_vectors_cached = False
 
@@ -851,20 +787,20 @@ cdef class DiffractionPattern(_Compute):
         """(``output_size``, ``output_size``, 3) :class:`numpy.ndarray`: \
         k-vectors."""
         if not self._k_vectors_cached:
-            self._k_vectors = rowan.rotate(
-                self._view_orientation,
-                self._k_vectors_orig) * self._k_scale_factor
+            self._k_vectors = (
+                rowan.rotate(self._view_orientation, self._k_vectors_orig)
+                * self._k_scale_factor
+            )
             self._k_vectors_cached = True
         return np.asarray(self._k_vectors)
 
     def __repr__(self):
-        return ("freud.diffraction.{cls}(grid_size={grid_size}, "
-                "output_size={output_size})").format(
-                    cls=type(self).__name__,
-                    grid_size=self.grid_size,
-                    output_size=self.output_size)
+        return (
+            f"freud.diffraction.{type(self).__name__}(grid_size={self.grid_size}, "
+            f"output_size={self.output_size})"
+        )
 
-    def to_image(self, cmap='afmhot', vmin=None, vmax=None):
+    def to_image(self, cmap="afmhot", vmin=None, vmax=None):
         """Generates image of diffraction pattern.
 
         Args:
@@ -895,7 +831,7 @@ cdef class DiffractionPattern(_Compute):
         image = cmap(norm(np.clip(self.diffraction, vmin, vmax)))
         return (image * 255).astype(np.uint8)
 
-    def plot(self, ax=None, cmap='afmhot', vmin=None, vmax=None):
+    def plot(self, ax=None, cmap="afmhot", vmin=None, vmax=None):
         """Plot Diffraction Pattern.
 
         Args:
@@ -921,13 +857,15 @@ cdef class DiffractionPattern(_Compute):
             vmax = 0.7 * self.N_points
 
         import freud.plot
+
         return freud.plot.diffraction_plot(
-            self.diffraction, self.k_values, self.N_points,
-            ax, cmap, vmin, vmax)
+            self.diffraction, self.k_values, self.N_points, ax, cmap, vmin, vmax
+        )
 
     def _repr_png_(self):
         try:
             import freud.plot
+
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None

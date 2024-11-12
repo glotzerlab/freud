@@ -35,13 +35,12 @@ add_library(
   # density/RDF.cc
   # density/SphereVoxelization.h
   # density/SphereVoxelization.cc
-  # diffraction
-  # diffraction/StaticStructureFactor.h
-  # diffraction/StaticStructureFactor.cc
-  # diffraction/StaticStructureFactorDebye.h
-  # diffraction/StaticStructureFactorDebye.cc
-  # diffraction/StaticStructureFactorDirect.h
-  # diffraction/StaticStructureFactorDirect.cc
+  diffraction/StaticStructureFactor.h
+  diffraction/StaticStructureFactor.cc
+  diffraction/StaticStructureFactorDebye.h
+  diffraction/StaticStructureFactorDebye.cc
+  diffraction/StaticStructureFactorDirect.h
+  diffraction/StaticStructureFactorDirect.cc
   # environment
   environment/AngularSeparation.h
   environment/AngularSeparation.cc
@@ -89,23 +88,23 @@ add_library(
   ${VOROPP_SOURCE_DIR}/wall.cc
   ${VOROPP_SOURCE_DIR}/pre_container.cc
   ${VOROPP_SOURCE_DIR}/container_prd.cc
-  # order
-  # order/ContinuousCoordination.h
-  # order/ContinuousCoordination.cc
-  # order/Cubatic.cc
-  # order/Cubatic.h
-  # order/HexaticTranslational.cc
-  # order/HexaticTranslational.h
-  # order/Nematic.cc
-  # order/Nematic.h
-  # order/RotationalAutocorrelation.cc
-  # order/RotationalAutocorrelation.h
-  # order/SolidLiquid.cc
-  # order/SolidLiquid.h
-  # order/Steinhardt.cc
-  # order/Steinhardt.h
-  # order/Wigner3j.cc
-  # order/Wigner3j.h
+  order
+  order/ContinuousCoordination.h
+  order/ContinuousCoordination.cc
+  order/Cubatic.cc
+  order/Cubatic.h
+  order/HexaticTranslational.cc
+  order/HexaticTranslational.h
+  order/Nematic.cc
+  order/Nematic.h
+  order/RotationalAutocorrelation.cc
+  order/RotationalAutocorrelation.h
+  order/SolidLiquid.cc
+  order/SolidLiquid.h
+  order/Steinhardt.cc
+  order/Steinhardt.h
+  order/Wigner3j.cc
+  order/Wigner3j.h
   # parallel
   parallel/tbb_config.h
   parallel/tbb_config.cc
@@ -144,9 +143,14 @@ target_set_install_rpath(_cluster)
 # target_link_libraries(_density PUBLIC freud TBB::tbb)
 # target_set_install_rpath(_density)
 
-# diffraction nanobind_add_module(_diffraction diffraction/...)
-# target_link_libraries(_diffraction PUBLIC freud TBB::tbb)
-# target_set_install_rpath(_diffraction)
+nanobind_add_module(
+  _diffraction
+  diffraction/module-diffraction.cc
+  diffraction/export-StaticStructureFactor.cc
+  diffraction/export-StaticStructureFactorDebye.cc
+  diffraction/export-StaticStructureFactorDirect.cc)
+target_link_libraries(_diffraction PUBLIC freud TBB::tbb)
+target_set_install_rpath(_diffraction)
 
 # box
 nanobind_add_module(_box box/module-box.cc box/export-Box.cc box/export-Box.h)
@@ -180,8 +184,19 @@ nanobind_add_module(
 target_link_libraries(_locality PUBLIC freud TBB::tbb)
 target_set_install_rpath(_locality)
 
-# order nanobind_add_module(_order order/...) target_link_libraries(_order
-# PUBLIC freud TBB::tbb) target_set_install_rpath(_order)
+# order
+nanobind_add_module(
+  _order
+  order/module-order.cc
+  order/export-Nematic.cc
+  order/export-RotationalAutocorrelation.cc
+  order/export-Steinhardt.cc
+  order/export-SolidLiquid.cc
+  order/export-ContinuousCoordination.cc
+  order/export-Cubatic.cc
+  order/export-HexaticTranslational.cc)
+target_link_libraries(_order PUBLIC freud)
+target_set_install_rpath(_order)
 
 # parallel
 nanobind_add_module(_parallel parallel/module-parallel.cc)
@@ -209,15 +224,17 @@ set(python_files
     cluster.py
     data.py
     environment.py
+    diffraction.py
     errors.py
     locality.py
     msd.py
+    order.py
     parallel.py
     pmft.py
     interface.py
     plot.py
     util.py)
-# density.py diffraction.py order.py)
+# density.py)
 
 copy_files_to_build("${python_files}" "freud" "*.py")
 
@@ -227,10 +244,10 @@ if(SKBUILD)
   install(TARGETS _box DESTINATION freud)
   install(TARGETS _cluster DESTINATION freud)
   # install(TARGETS _density DESTINATION freud)
-  # install(TARGETS _diffraction DESTINATION freud) 
   install(TARGETS _environment DESTINATION freud)
+  install(TARGETS _diffraction DESTINATION freud)
   install(TARGETS _locality DESTINATION freud)
-  # install(TARGETS _order DESTINATION freud)
+  install(TARGETS _order DESTINATION freud)
   install(TARGETS _parallel DESTINATION freud)
   install(TARGETS _pmft DESTINATION freud)
   install(TARGETS _util DESTINATION freud)
