@@ -64,6 +64,7 @@ jobs:
           pytest tests/test_data.py -v
           pytest tests/test_pmft.py -v
           pytest tests/test_util.py -v
+          pytest tests/test_diffraction*.py -v
           # pytest tests/ -v
 
   tests_complete:
