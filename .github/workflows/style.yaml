@@ -1,4 +1,4 @@
-name: Style check
+name: style
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -10,6 +10,7 @@ on:
   push:
     branches:
       - "main"
+      - "nanobind"
 
   workflow_dispatch:
 
@@ -26,15 +27,13 @@ jobs:
         with:
           submodules: true
       - name: Create Python Environment
-        uses: mamba-org/setup-micromamba@f8b8a1e23a26f60a44c853292711bacfd3eac822 # v1.9.0
+        uses: mamba-org/setup-micromamba@617811f69075e3fd3ae68ca64220ad065877f246 # v2.0.0
         with:
-          micromamba-version: '1.5.8-0'
+          micromamba-version: '2.0.2-2'
           environment-name: test
-          environment-file: .github/workflows/env-files/py312-conda-lock.yml
+          environment-file: .github/workflows/environments/py313-conda-lock.yml
       - name: Configure compile_commands.json
         run: |
           cmake -S . -B build -GNinja -DCMAKE_EXPORT_COMPILE_COMMANDS=True
-          ls build
-          cp build/compile_commands.json .
       - name: clang-tidy
         run: pre-commit run clang-tidy --all-files --hook-stage=manual -v

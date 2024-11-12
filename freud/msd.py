@@ -6,63 +6,62 @@ The :class:`freud.msd` module provides functions for computing the
 mean-squared-displacement (MSD) of particles in periodic systems.
 """
 
-from freud.util cimport _Compute
 import logging
 
 import numpy as np
 
+import freud.box
 import freud.parallel
-
-cimport numpy as np
-
-cimport freud.box
+from freud.util import _Compute
 
 logger = logging.getLogger(__name__)
 
 # Use fastest available fft library
 try:
     import pyfftw
+
     logger.info("Using PyFFTW for FFTs")
 
     pyfftw.config.NUM_THREADS = min(1, freud.parallel.get_num_threads())
-    logger.info("Setting number of threads to {}".format(
-        freud.parallel.get_num_threads()))
+    logger.info(f"Setting number of threads to {freud.parallel.get_num_threads()}")
 
     # Note that currently these functions are defined to match only the parts
     # of the numpy/scipy API that are actually used below. There is no promise
     # that other aspects of the API will be preserved.
     def fft(x, n, axis):
-        a = pyfftw.empty_aligned(x.shape, 'complex64')
+        a = pyfftw.empty_aligned(x.shape, "complex64")
         a[:] = x
         fft_object = pyfftw.builders.fft(a, n=n, axis=axis)
         return fft_object()
 
     def ifft(x, axis):
-        a = pyfftw.empty_aligned(x.shape, 'complex64')
+        a = pyfftw.empty_aligned(x.shape, "complex64")
         a[:] = x
         fft_object = pyfftw.builders.ifft(a, axis=axis)
         return fft_object()
 except ImportError:
     try:
         from scipy.fftpack import fft, ifft
+
         logger.info("Using SciPy's fftpack for FFTs")
     except ImportError:
         from numpy.fft import fft, ifft
+
         logger.info("Using NumPy for FFTs")
 
 
 def _autocorrelation(x):
     r"""Compute the autocorrelation of a sequence"""
     N = x.shape[0]
-    F = fft(x, n=2*N, axis=0)
+    F = fft(x, n=2 * N, axis=0)
     PSD = F * F.conjugate()
     res = ifft(PSD, axis=0)
     res = (res[:N]).real
-    n = np.arange(1, N+1)[::-1]  # N to 1
-    return res/n[:, np.newaxis]
+    n = np.arange(1, N + 1)[::-1]  # N to 1
+    return res / n[:, np.newaxis]
 
 
-cdef class MSD(_Compute):
+class MSD(_Compute):
     r"""Compute the mean squared displacement.
 
     The mean squared displacement (MSD) measures how much particles move over
@@ -140,12 +139,9 @@ cdef class MSD(_Compute):
         mode (str, optional):
             Mode of calculation. Options are :code:`'window'` and
             :code:`'direct'`.  (Default value = :code:`'window'`).
-    """   # noqa: E501
-    cdef freud.box.Box _box
-    cdef _particle_msd
-    cdef str mode
+    """  # noqa: E501
 
-    def __cinit__(self, box=None, mode='window'):
+    def __init__(self, box=None, mode="window"):
         if box is not None:
             self._box = freud.util._convert_box(box)
         else:
@@ -153,8 +149,9 @@ cdef class MSD(_Compute):
 
         self._particle_msd = []
 
-        if mode not in ['window', 'direct']:
-            raise ValueError("Invalid mode")
+        if mode not in ["window", "direct"]:
+            msg = "Invalid mode"
+            raise ValueError(msg)
         self.mode = mode
 
     def compute(self, positions, images=None, reset=True):
@@ -192,30 +189,27 @@ cdef class MSD(_Compute):
 
         self._called_compute = True
 
-        positions = freud.util._convert_array(
-            positions, shape=(None, None, 3))
+        positions = freud.util._convert_array(positions, shape=(None, None, 3))
         if images is not None:
             images = freud.util._convert_array(
-                images, shape=positions.shape, dtype=np.int32)
+                images, shape=positions.shape, dtype=np.int32
+            )
 
         # Make sure we aren't modifying the provided array
         if self._box is not None and images is not None:
             unwrapped_positions = positions.copy()
-            for i in range(positions.shape[0]):
-                unwrapped_positions[i, :, :] = self._box.unwrap(
-                    unwrapped_positions[i, :, :], images[i, :, :])
-            positions = unwrapped_positions
+            positions = self._box.wrap(unwrapped_positions, images)
 
-        if self.mode == 'window':
+        if self.mode == "window":
             # First compute the first term r^2(k+m) - r^2(k)
             N = positions.shape[0]
             D = np.square(positions).sum(axis=2)
             D = np.append(D, np.zeros(positions.shape[:2]), axis=0)
-            Q = 2*D.sum(axis=0)
+            Q = 2 * D.sum(axis=0)
             S1 = np.zeros(positions.shape[:2])
             for m in range(N):
-                Q -= (D[m-1, :] + D[N-m, :])
-                S1[m, :] = Q/(N-m)
+                Q -= D[m - 1, :] + D[N - m, :]
+                S1[m, :] = Q / (N - m)
 
             # The second term can be computed via autocorrelation
             corrs = []
@@ -223,11 +217,11 @@ cdef class MSD(_Compute):
                 corrs.append(_autocorrelation(positions[:, :, i]))
             S2 = np.sum(corrs, axis=0)
 
-            self._particle_msd.append(S1 - 2*S2)
-        elif self.mode == 'direct':
+            self._particle_msd.append(S1 - 2 * S2)
+        elif self.mode == "direct":
             self._particle_msd.append(
-                np.linalg.norm(
-                    positions - positions[[0], :, :], axis=-1)**2)
+                np.linalg.norm(positions - positions[[0], :, :], axis=-1) ** 2
+            )
 
         return self
 
@@ -249,8 +243,7 @@ cdef class MSD(_Compute):
         return np.concatenate(self._particle_msd, axis=1)
 
     def __repr__(self):
-        return "freud.msd.{cls}(box={box}, mode={mode})".format(
-            cls=type(self).__name__, box=self._box, mode=repr(self.mode))
+        return f"freud.msd.{type(self).__name__}(box={self._box}, mode={self.mode!r})"
 
     def plot(self, ax=None):
         """Plot MSD.
@@ -264,19 +257,24 @@ cdef class MSD(_Compute):
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         import freud.plot
+
         if self.mode == "window":
             xlabel = "Window size"
         else:
             xlabel = "Frame number"
-        return freud.plot.line_plot(list(range(len(self.msd))), self.msd,
-                                    title="MSD",
-                                    xlabel=xlabel,
-                                    ylabel="MSD",
-                                    ax=ax)
+        return freud.plot.line_plot(
+            list(range(len(self.msd))),
+            self.msd,
+            title="MSD",
+            xlabel=xlabel,
+            ylabel="MSD",
+            ax=ax,
+        )
 
     def _repr_png_(self):
         try:
             import freud.plot
+
             return freud.plot._ax_to_bytes(self.plot())
         except (AttributeError, ImportError):
             return None

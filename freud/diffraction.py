@@ -835,7 +835,7 @@ class DiffractionPattern(_Compute):
             vmax = 0.7 * self.N_points
 
         norm = matplotlib.colors.LogNorm(vmin=vmin, vmax=vmax)
-        cmap = matplotlib.colormaps.get_cmap(cmap)
+        cmap = matplotlib.colormaps[cmap]
         image = cmap(norm(np.clip(self.diffraction, vmin, vmax)))
         return (image * 255).astype(np.uint8)
 

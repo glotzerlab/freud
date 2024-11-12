@@ -81,7 +81,7 @@ class UnitCell:
                 if isinstance(n_repeats, int):
                     N = n_repeats ** dimension
                 else:
-                    N = np.product(n_repeats)
+                    N = np.prod(n_repeats)
                 indices = np.repeat(np.arange(len(uc.basis_positions)), N)
 
         Below is an example of expanding basis position properties (in this
@@ -92,7 +92,7 @@ class UnitCell:
             >>> uc = freud.data.UnitCell.bcc()
             >>> n_repeats = (10, 5, 4)
             >>> system = uc.generate_system(n_repeats)
-            >>> N = np.product(n_repeats)
+            >>> N = np.prod(n_repeats)
             >>> indices = np.repeat(np.arange(len(uc.basis_positions)), N)
             >>> # An array of types for all points
             >>> types = np.array([0, 1])[indices]
