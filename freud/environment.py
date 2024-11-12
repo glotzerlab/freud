@@ -398,7 +398,7 @@ class LocalDescriptors(_PairCompute):
             neighborhood, :code:`'particle_local'` to use the given
             particle orientations, or :code:`'global'` to not rotate
             environments (Default value = :code:`'neighborhood'`).
-    """  # noqa: E501
+    """
 
     known_modes = {'neighborhood': freud._environment.LocalNeighborhood,
                    'global': freud._environment.Global,
@@ -519,496 +519,452 @@ class LocalDescriptors(_PairCompute):
                 f"negative_m={self.negative_m}, mode='{self.mode}')")
 
 
-# def _minimize_RMSD(box, ref_points, points, registration=False):
-#    r"""Get the somewhat-optimal RMSD between the set of vectors ref_points
-#    and the set of vectors points.
-#
-#    Args:
-#        ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-#            Vectors that make up motif 1.
-#        points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-#            Vectors that make up motif 2.
-#        registration (bool, optional):
-#            If true, first use brute force registration to orient one set
-#            of environment vectors with respect to the other set such that
-#            it minimizes the RMSD between the two sets
-#            (Default value = :code:`False`).
-#
-#    Returns:
-#        tuple (float, (:math:`\left(N_{particles}, 3\right)` :class:`numpy.ndarray`), map[int, int]):
-#            A triplet that gives the associated min_rmsd, rotated (or not)
-#            set of points, and the mapping between the vectors of
-#            ref_points and points that somewhat minimizes the RMSD.
-#    """  # noqa: E501
-#    cdef freud.box.Box b = freud.util._convert_box(box)
-#
-#    ref_points = freud.util._convert_array(ref_points, shape=(None, 3))
-#    points = freud.util._convert_array(points, shape=(None, 3))
-#
-#    cdef const float[:, ::1] l_ref_points = ref_points
-#    cdef const float[:, ::1] l_points = points
-#    cdef unsigned int nRef1 = l_ref_points.shape[0]
-#    cdef unsigned int nRef2 = l_points.shape[0]
-#
-#    if nRef1 != nRef2:
-#        raise ValueError(
-#            ("The number of vectors in ref_points must MATCH"
-#                "the number of vectors in points"))
-#
-#    cdef float min_rmsd = -1
-#    cdef map[unsigned int, unsigned int] results_map = \
-#        freud._environment.minimizeRMSD(
-#            dereference(b.thisptr),
-#            <vec3[float]*> &l_ref_points[0, 0],
-#            <vec3[float]*> &l_points[0, 0],
-#            nRef1, min_rmsd, registration)
-#    return [min_rmsd, np.asarray(l_points), results_map]
-#
-#
-# def _is_similar_motif(box, ref_points, points, threshold, registration=False):
-#    r"""Test if the motif provided by ref_points is similar to the motif
-#    provided by points.
-#
-#    Args:
-#        ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-#            Vectors that make up motif 1.
-#        points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-#            Vectors that make up motif 2.
-#        threshold (float):
-#            Maximum magnitude of the vector difference between two vectors,
-#            below which they are "matching". Typically, a good choice is
-#            between 10% and 30% of the first well in the radial
-#            distribution function (this has distance units).
-#        registration (bool, optional):
-#            If True, first use brute force registration to orient one set
-#            of environment vectors with respect to the other set such that
-#            it minimizes the RMSD between the two sets
-#            (Default value = :code:`False`).
-#
-#    Returns:
-#        tuple ((:math:`\left(N_{particles}, 3\right)` :class:`numpy.ndarray`), map[int, int]):
-#            A doublet that gives the rotated (or not) set of
-#            :code:`points`, and the mapping between the vectors of
-#            :code:`ref_points` and :code:`points` that will make them
-#            correspond to each other. Empty if they do not correspond to
-#            each other.
-#    """  # noqa: E501
-#    cdef freud.box.Box b = freud.util._convert_box(box)
-#
-#    ref_points = freud.util._convert_array(ref_points, shape=(None, 3))
-#    points = freud.util._convert_array(points, shape=(None, 3))
-#
-#    cdef const float[:, ::1] l_ref_points = ref_points
-#    cdef const float[:, ::1] l_points = points
-#    cdef unsigned int nRef1 = l_ref_points.shape[0]
-#    cdef unsigned int nRef2 = l_points.shape[0]
-#    cdef float threshold_sq = threshold*threshold
-#
-#    if nRef1 != nRef2:
-#        raise ValueError(
-#            ("The number of vectors in ref_points must match"
-#                "the number of vectors in points"))
-#
-#    cdef map[unsigned int, unsigned int] vec_map = \
-#        freud._environment.isSimilar(
-#            dereference(b.thisptr), <vec3[float]*> &l_ref_points[0, 0],
-#            <vec3[float]*> &l_points[0, 0], nRef1, threshold_sq,
-#            registration)
-#    return [np.asarray(l_points), vec_map]
-#
-#
-# cdef class _MatchEnv(_PairCompute):
-#    r"""Parent for environment matching methods. """
-#    cdef freud._environment.MatchEnv * matchptr
-#
-#    def __cinit__(self, *args, **kwargs):
-#        # Abstract class
-#        pass
-#
-#    @_Compute._computed_property
-#    def point_environments(self):
-#        """:math:`\\left(N_{points}, N_{neighbors}, 3\\right)`
-#        list[:class:`numpy.ndarray`]: All environments for all points."""
-#        envs = self.matchptr.getPointEnvironments()
-#        return [np.asarray([[p.x, p.y, p.z] for p in env])
-#                for env in envs]
-#
-#    def __repr__(self):
-#        return ("freud.environment.{cls}()").format(
-#            cls=type(self).__name__)
-#
-#
-# cdef class EnvironmentCluster(_MatchEnv):
-#    r"""Clusters particles according to whether their local environments match
-#    or not, using various shape matching metrics defined in :cite:`Teich2019`.
-#    """
-#
-#    cdef freud._environment.EnvironmentCluster * thisptr
-#
-#    def __cinit__(self):
-#        self.thisptr = self.matchptr = \
-#            new freud._environment.EnvironmentCluster()
-#
-#    def __init__(self):
-#        pass
-#
-#    def __dealloc__(self):
-#        del self.thisptr
-#
-#    def compute(self, system, threshold, cluster_neighbors=None,
-#                env_neighbors=None, registration=False):
-#        r"""Determine clusters of particles with matching environments.
-#
-#        An environment is defined by the bond vectors between a particle and its
-#        neighbors as defined by :code:`env_neighbors`.
-#        For example, :code:`env_neighbors= {'num_neighbors': 8}` means that every
-#        particle's local environment is defined by its 8 nearest neighbors.
-#        Then, each particle's environment is compared to the environments of
-#        particles that satisfy a different cutoff parameter :code:`cluster_neighbors`.
-#        For example, :code:`cluster_neighbors={'r_max': 3.0}`
-#        means that the environment of each particle will be compared to the
-#        environment of every particle within a distance of 3.0.
-#
-#        Two environments are compared using `point-set registration
-#        <https://en.wikipedia.org/wiki/Point-set_registration)>`_.
-#
-#        The thresholding criterion we apply in order to determine if the two point sets
-#        match is quite conservative: the two point sets match if and only if,
-#        for every pair of matched points between the sets, the distance between
-#        the matched pair is less than :code:`threshold`.
-#
-#        When :code:`registration=False`, environments are not rotated prior to comparison
-#        between them. Which pairs of vectors are compared depends on the order in
-#        which the vectors of the environment are traversed.
-#
-#        When :code:`registration=True`, we use the `Kabsch algorithm
-#        <https://en.wikipedia.org/wiki/Kabsch_algorithm>`_ to find the optimal
-#        rotation matrix mapping one environment onto another. The Kabsch
-#        algorithm assumes a one-to-one correspondence between points in the two
-#        environments. However, we typically do not know which point in one environment
-#        corresponds to a particular point in the other environment. The brute force
-#        solution is to try all possible correspondences, but the resulting
-#        combinatorial explosion makes this problem infeasible, so we use the thresholding
-#        criterion above to terminate the search when we have found a permutation
-#        of points that results in a sufficiently low RMSD.
-#
-#        .. note::
-#
-#            Using a distance cutoff for :code:`env_neighbors` could
-#            lead to situations where the :code:`cluster_environments`
-#            contain different numbers of neighbors. In this case, the
-#            environments which have a number of neighbors less than
-#            the environment with the maximum number of neighbors
-#            :math:`k_{max}` will have their entry in :code:`cluster_environments`
-#            padded with zero vectors. For example, a cluster environment
-#            with :math:`m < k` neighbors, will have :math:`k - m` zero
-#            vectors at the end of its entry in :code:`cluster_environments`.
-#
-#
-#        .. warning::
-#
-#            All vectors of :code:`cluster_environments` and :code:`point_environments`
-#            are defined with respect to the query particle.
-#            Zero vectors are only used to pad the cluster vectors so that they
-#            have the same shape.
-#            In a future version of freud, zero-padding will be removed.
-#
-#        .. warning::
-#
-#            Comparisons between two environments are only made when both
-#            environments contain the same number of neighbors.
-#            However, no warning will be given at runtime if mismatched
-#            environments are provided for comparison.
-#
-#        Example::
-#
-#            >>> import freud
-#            >>> # Compute clusters of particles with matching environments
-#            >>> box, points = freud.data.make_random_system(10, 100, seed=0)
-#            >>> env_cluster = freud.environment.EnvironmentCluster()
-#            >>> env_cluster.compute(
-#            ...     system = (box, points),
-#            ...     threshold=0.2,
-#            ...     cluster_neighbors={'num_neighbors': 6},
-#            ...     registration=False)
-#            freud.environment.EnvironmentCluster()
-#
-#        Args:
-#            system:
-#                Any object that is a valid argument to
-#                :class:`freud.locality.NeighborQuery.from_system`.
-#            threshold (float):
-#                Maximum magnitude of the vector difference between two vectors,
-#                below which they are "matching". Typically, a good choice is
-#                between 10% and 30% of the first well in the radial
-#                distribution function (this has distance units).
-#            cluster_neighbors (:class:`freud.locality.NeighborList` or dict, optional):
-#                Either a :class:`NeighborList <freud.locality.NeighborList>` of
-#                neighbor pairs to use in the calculation, or a dictionary of
-#                `query arguments
-#                <https://freud.readthedocs.io/en/stable/topics/querying.html>`_.
-#                Defines the neighbors used for comparing different particle
-#                environments (Default value: None).
-#            env_neighbors (:class:`freud.locality.NeighborList` or dict, optional):
-#                Either a :class:`NeighborList <freud.locality.NeighborList>` of
-#                neighbor pairs to use in the calculation, or a dictionary of
-#                `query arguments
-#                <https://freud.readthedocs.io/en/stable/topics/querying.html>`_.
-#                Defines the neighbors used as the environment of each particle.
-#                If ``None``, the value provided for ``neighbors`` will be used
-#                (Default value: None).
-#            registration (bool, optional):
-#                If True, first use brute force registration to orient one set
-#                of environment vectors with respect to the other set such that
-#                it minimizes the RMSD between the two sets. Enabling this
-#                option incurs a significant performance penalty.
-#                (Default value = :code:`False`)
-#        """  # noqa: E501
-#        cdef:
-#            freud.locality.NeighborQuery nq
-#            freud.locality.NeighborList nlist, env_nlist
-#            freud.locality._QueryArgs qargs, env_qargs
-#            const float[:, ::1] l_query_points
-#            unsigned int num_query_points
-#
-#        nq, nlist, qargs, l_query_points, num_query_points = \
-#            self._preprocess_arguments(system, neighbors=cluster_neighbors)
-#
-#        if env_neighbors is None:
-#            env_neighbors = cluster_neighbors
-#        env_nlist, env_qargs = self._resolve_neighbors(env_neighbors)
-#
-#        self.thisptr.compute(
-#            nq.get_ptr(), nlist.get_ptr(), dereference(qargs.thisptr),
-#            env_nlist.get_ptr(), dereference(env_qargs.thisptr), threshold,
-#            registration)
-#        return self
-#
-#    @_Compute._computed_property
-#    def cluster_idx(self):
-#        """:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`: The
-#        per-particle index indicating cluster membership."""
-#        return freud.util.make_managed_numpy_array(
-#            &self.thisptr.getClusters(),
-#            freud.util.arr_type_t.UNSIGNED_INT)
-#
-#    @_Compute._computed_property
-#    def num_clusters(self):
-#        """unsigned int: The number of clusters."""
-#        return self.thisptr.getNumClusters()
-#
-#    @_Compute._computed_property
-#    def cluster_environments(self):
-#        """:math:`\\left(N_{clusters}, N_{neighbors}, 3\\right)`
-#        list[:class:`numpy.ndarray`]: The environments for all clusters."""
-#        envs = self.thisptr.getClusterEnvironments()
-#        return [np.asarray([[p.x, p.y, p.z] for p in env])
-#                for env in envs]
-#
-#    def plot(self, ax=None):
-#        """Plot cluster distribution.
-#
-#        Args:
-#            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
-#                :code:`None`, make a new figure and axis.
-#                (Default value = :code:`None`)
-#
-#        Returns:
-#            (:class:`matplotlib.axes.Axes`): Axis with the plot.
-#        """
-#        import freud.plot
-#        try:
-#            values, counts = np.unique(self.cluster_idx, return_counts=True)
-#        except ValueError:
-#            return None
-#        else:
-#            return freud.plot.clusters_plot(
-#                values, counts, num_clusters_to_plot=10, ax=ax)
-#
-#    def _repr_png_(self):
-#        try:
-#            import freud.plot
-#            return freud.plot._ax_to_bytes(self.plot())
-#        except (AttributeError, ImportError):
-#            return None
-#
-#
-# cdef class EnvironmentMotifMatch(_MatchEnv):
-#    r"""Find matches between local arrangements of a set of points and
-#    a provided motif, as done in :cite:`Teich2019`.
-#
-#    A particle's environment can only match the motif if it contains the
-#    same number of neighbors as the motif. Any environment with a
-#    different number of neighbors than the motif will always fail to match
-#    the motif. See :class:`freud.environment.EnvironmentCluster.compute` for
-#    the matching criterion.
-#    """  # noqa: E501
-#
-#    cdef freud._environment.EnvironmentMotifMatch * thisptr
-#
-#    def __cinit__(self):
-#        self.thisptr = self.matchptr = \
-#            new freud._environment.EnvironmentMotifMatch()
-#
-#    def __init__(self):
-#        pass
-#
-#    def compute(self, system, motif, threshold, env_neighbors=None,
-#                registration=False):
-#        r"""Determine which particles have local environments
-#            matching the given environment motif.
-#
-#        .. warning::
-#
-#            Comparisons between two environments are only made when both
-#            environments contain the same number of neighbors.
-#            However, no warning will be given at runtime if mismatched
-#            environments are provided for comparison.
-#
-#        Args:
-#            system:
-#                Any object that is a valid argument to
-#                :class:`freud.locality.NeighborQuery.from_system`.
-#            motif ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
-#                Vectors that make up the motif against which we are matching.
-#            threshold (float):
-#                Maximum magnitude of the vector difference between two vectors,
-#                below which they are "matching". Typically, a good choice is
-#                between 10% and 30% of the first well in the radial
-#                distribution function (this has distance units).
-#            env_neighbors (:class:`freud.locality.NeighborList` or dict, optional):
-#                Either a :class:`NeighborList <freud.locality.NeighborList>` of
-#                neighbor pairs to use in the calculation, or a dictionary of
-#                `query arguments
-#                <https://freud.readthedocs.io/en/stable/topics/querying.html>`_.
-#                Defines the environment of the query particles
-#                (Default value: None).
-#            registration (bool, optional):
-#                If True, first use brute force registration to orient one set
-#                of environment vectors with respect to the other set such that
-#                it minimizes the RMSD between the two sets
-#                (Default value = False).
-#        """
-#        cdef:
-#            freud.locality.NeighborQuery nq
-#            freud.locality.NeighborList nlist
-#            freud.locality._QueryArgs qargs
-#            const float[:, ::1] l_query_points
-#            unsigned int num_query_points
-#
-#        nq, nlist, qargs, l_query_points, num_query_points = \
-#            self._preprocess_arguments(system, neighbors=env_neighbors)
-#
-#        motif = freud.util._convert_array(motif, shape=(None, 3))
-#        if (motif == 0).all(axis=1).any():
-#            warnings.warn(
-#                "Attempting to match a motif containing the zero "
-#                "vector is likely to result in zero matches.",
-#                RuntimeWarning
-#            )
-#
-#        cdef const float[:, ::1] l_motif = motif
-#        cdef unsigned int nRef = l_motif.shape[0]
-#
-#        self.thisptr.compute(
-#            nq.get_ptr(), nlist.get_ptr(), dereference(qargs.thisptr),
-#            <vec3[float]*>
-#            <vec3[float]*> &l_motif[0, 0], nRef,
-#            threshold, registration)
-#        return self
-#
-#    @_Compute._computed_property
-#    def matches(self):
-#        """(:math:`N_{points}`) :class:`numpy.ndarray`: A boolean array indicating
-#        whether each point matches the motif."""
-#        return freud.util.make_managed_numpy_array(
-#            &self.thisptr.getMatches(),
-#            freud.util.arr_type_t.BOOL)
-#
-#
-# cdef class _EnvironmentRMSDMinimizer(_MatchEnv):
-#    r"""Find linear transformations that map the environments of points onto a
-#    motif.
-#
-#    In general, it is recommended to specify a number of neighbors rather than
-#    just a distance cutoff as part of your neighbor querying when performing
-#    this computation since it can otherwise be very sensitive. Specifically, it
-#    is highly recommended that you choose a number of neighbors that you
-#    specify a number of neighbors query that requests at least as many
-#    neighbors as the size of the motif you intend to test against. Otherwise,
-#    you will struggle to match the motif. However, this is not currently
-#    enforced (but we could add a warning to the compute...).
-#    """
-#
-#    cdef freud._environment.EnvironmentRMSDMinimizer * thisptr
-#
-#    def __cinit__(self):
-#        self.thisptr = self.matchptr = \
-#            new freud._environment.EnvironmentRMSDMinimizer()
-#
-#    def __init__(self):
-#        pass
-#
-#    def compute(self, system, motif, neighbors=None,
-#                registration=False):
-#        r"""Rotate (if registration=True) and permute the environments of all
-#        particles to minimize their RMSD with respect to the motif provided by
-#        motif.
-#
-#        Args:
-#            system:
-#                Any object that is a valid argument to
-#                :class:`freud.locality.NeighborQuery.from_system`.
-#            motif ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-#                Vectors that make up the motif against which we are matching.
-#            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
-#                Either a :class:`NeighborList <freud.locality.NeighborList>` of
-#                neighbor pairs to use in the calculation, or a dictionary of
-#                `query arguments
-#                <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
-#                (Default value: None).
-#            registration (bool, optional):
-#                If True, first use brute force registration to orient one set
-#                of environment vectors with respect to the other set such that
-#                it minimizes the RMSD between the two sets
-#                (Default value = :code:`False`).
-#        Returns:
-#            :math:`\left(N_{particles}\right)` :class:`numpy.ndarray`:
-#                Vector of minimal RMSD values, one value per particle.
-#
-#        """
-#        cdef:
-#            freud.locality.NeighborQuery nq
-#            freud.locality.NeighborList nlist
-#            freud.locality._QueryArgs qargs
-#            const float[:, ::1] l_query_points
-#            unsigned int num_query_points
-#
-#        nq, nlist, qargs, l_query_points, num_query_points = \
-#            self._preprocess_arguments(system, neighbors=neighbors)
-#
-#        motif = freud.util._convert_array(motif, shape=(None, 3))
-#        cdef const float[:, ::1] l_motif = motif
-#        cdef unsigned int nRef = l_motif.shape[0]
-#
-#        self.thisptr.compute(
-#            nq.get_ptr(), nlist.get_ptr(), dereference(qargs.thisptr),
-#            <vec3[float]*>
-#            <vec3[float]*> &l_motif[0, 0], nRef,
-#            registration)
-#
-#        return self
-#
-#    @_Compute._computed_property
-#    def rmsds(self):
-#        """:math:`(N_p, )` :class:`numpy.ndarray`: A boolean array of the RMSDs
-#        found for each point's environment."""
-#        return freud.util.make_managed_numpy_array(
-#            &self.thisptr.getRMSDs(),
-#            freud.util.arr_type_t.FLOAT)
-#
-#
-#
+def _minimize_RMSD(box, ref_points, points, registration=False):
+    r"""Get the somewhat-optimal RMSD between the set of vectors ref_points
+    and the set of vectors points.
+
+    Args:
+        ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            Vectors that make up motif 1.
+        points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            Vectors that make up motif 2.
+        registration (bool, optional):
+            If true, first use brute force registration to orient one set
+            of environment vectors with respect to the other set such that
+            it minimizes the RMSD between the two sets
+            (Default value = :code:`False`).
+
+    Returns:
+        tuple (float, (:math:`\left(N_{particles}, 3\right)` :class:`numpy.ndarray`), map[int, int]):
+            A triplet that gives the associated min_rmsd, rotated (or not)
+            set of points, and the mapping between the vectors of
+            ref_points and points that somewhat minimizes the RMSD.
+    """  # noqa: E501
+    b = freud.util._convert_box(box)
+
+    ref_points = freud.util._convert_array(ref_points, shape=(None, 3))
+    points = freud.util._convert_array(points, shape=(None, 3))
+
+    nRef1 = ref_points.shape[0]
+    nRef2 = points.shape[0]
+
+    if nRef1 != nRef2:
+        msg = (
+            "The number of vectors in ref_points must MATCH"
+                "the number of vectors in points"
+        )
+        raise ValueError(msg)
+
+    min_rmsd = -1
+    results_map = \
+        freud._environment.minimizeRMSD(
+            b._cpp_obj,
+            ref_points,
+            points,
+            nRef1, min_rmsd, registration)
+    return [min_rmsd, np.asarray(points), results_map]
+
+
+def _is_similar_motif(box, ref_points, points, threshold, registration=False):
+    r"""Test if the motif provided by ref_points is similar to the motif
+    provided by points.
+
+    Args:
+        ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            Vectors that make up motif 1.
+        points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            Vectors that make up motif 2.
+        threshold (float):
+            Maximum magnitude of the vector difference between two vectors,
+            below which they are "matching". Typically, a good choice is
+            between 10% and 30% of the first well in the radial
+            distribution function (this has distance units).
+        registration (bool, optional):
+            If True, first use brute force registration to orient one set
+            of environment vectors with respect to the other set such that
+            it minimizes the RMSD between the two sets
+            (Default value = :code:`False`).
+
+    Returns:
+        tuple ((:math:`\left(N_{particles}, 3\right)` :class:`numpy.ndarray`), map[int, int]):
+            A doublet that gives the rotated (or not) set of
+            :code:`points`, and the mapping between the vectors of
+            :code:`ref_points` and :code:`points` that will make them
+            correspond to each other. Empty if they do not correspond to
+            each other.
+    """  # noqa: E501
+    b = freud.util._convert_box(box)
+
+    ref_points = freud.util._convert_array(ref_points, shape=(None, 3))
+    points = freud.util._convert_array(points, shape=(None, 3))
+
+    nRef1 = ref_points.shape[0]
+    nRef2 = points.shape[0]
+    threshold_sq = threshold*threshold
+
+    if nRef1 != nRef2:
+        msg = (
+            "The number of vectors in ref_points must match"
+            "the number of vectors in points"
+        )
+        raise ValueError(msg)
+
+    vec_map = freud._environment.isSimilar(
+            b._cpp_obj,
+            ref_points,
+            points,
+            nRef1,
+            threshold_sq,
+            registration)
+    return [np.asarray(points), vec_map]
+
+
+class _MatchEnv(_PairCompute):
+    r"""Parent for environment matching methods. """
+
+    def __init__(self, *args, **kwargs):
+        # Abstract class
+        self._cpp_obj = freud._environment.MatchEnv()
+
+    @_Compute._computed_property
+    def point_environments(self):
+        """:math:`\\left(N_{points}, N_{neighbors}, 3\\right)`
+        list[:class:`numpy.ndarray`]: All environments for all points."""
+        envs = self._cpp_obj.getPointEnvironments()
+        return [np.asarray([[p.x, p.y, p.z] for p in env])
+                for env in envs]
+
+    def __repr__(self):
+        return (f"freud.environment.{type(self).__name__}()")
+
+
+class EnvironmentCluster(_MatchEnv):
+    r"""Clusters particles according to whether their local environments match
+    or not, using various shape matching metrics defined in :cite:`Teich2019`.
+    """
+
+    def __init__(self):
+        self._cpp_obj = freud._environment.EnvironmentCluster()
+
+    def compute(self, system, threshold, cluster_neighbors=None,
+                env_neighbors=None, registration=False):
+        r"""Determine clusters of particles with matching environments.
+
+        An environment is defined by the bond vectors between a particle and its
+        neighbors as defined by :code:`env_neighbors`.
+        For example, :code:`env_neighbors= {'num_neighbors': 8}` means that every
+        particle's local environment is defined by its 8 nearest neighbors.
+        Then, each particle's environment is compared to the environments of
+        particles that satisfy a different cutoff parameter :code:`cluster_neighbors`.
+        For example, :code:`cluster_neighbors={'r_max': 3.0}`
+        means that the environment of each particle will be compared to the
+        environment of every particle within a distance of 3.0.
+
+        Two environments are compared using `point-set registration
+        <https://en.wikipedia.org/wiki/Point-set_registration)>`_.
+
+        The thresholding criterion we apply in order to determine if the two point sets
+        match is quite conservative: the two point sets match if and only if,
+        for every pair of matched points between the sets, the distance between
+        the matched pair is less than :code:`threshold`.
+
+        When :code:`registration=False`, environments are not rotated prior to comparison
+        between them. Which pairs of vectors are compared depends on the order in
+        which the vectors of the environment are traversed.
+
+        When :code:`registration=True`, we use the `Kabsch algorithm
+        <https://en.wikipedia.org/wiki/Kabsch_algorithm>`_ to find the optimal
+        rotation matrix mapping one environment onto another. The Kabsch
+        algorithm assumes a one-to-one correspondence between points in the two
+        environments. However, we typically do not know which point in one environment
+        corresponds to a particular point in the other environment. The brute force
+        solution is to try all possible correspondences, but the resulting
+        combinatorial explosion makes this problem infeasible, so we use the thresholding
+        criterion above to terminate the search when we have found a permutation
+        of points that results in a sufficiently low RMSD.
+
+        .. note::
+
+            Using a distance cutoff for :code:`env_neighbors` could
+            lead to situations where the :code:`cluster_environments`
+            contain different numbers of neighbors. In this case, the
+            environments which have a number of neighbors less than
+            the environment with the maximum number of neighbors
+            :math:`k_{max}` will have their entry in :code:`cluster_environments`
+            padded with zero vectors. For example, a cluster environment
+            with :math:`m < k` neighbors, will have :math:`k - m` zero
+            vectors at the end of its entry in :code:`cluster_environments`.
+
+
+        .. warning::
+
+            All vectors of :code:`cluster_environments` and :code:`point_environments`
+            are defined with respect to the query particle.
+            Zero vectors are only used to pad the cluster vectors so that they
+            have the same shape.
+            In a future version of freud, zero-padding will be removed.
+
+        .. warning::
+
+            Comparisons between two environments are only made when both
+            environments contain the same number of neighbors.
+            However, no warning will be given at runtime if mismatched
+            environments are provided for comparison.
+
+        Example::
+
+            >>> import freud
+            >>> # Compute clusters of particles with matching environments
+            >>> box, points = freud.data.make_random_system(10, 100, seed=0)
+            >>> env_cluster = freud.environment.EnvironmentCluster()
+            >>> env_cluster.compute(
+            ...     system = (box, points),
+            ...     threshold=0.2,
+            ...     cluster_neighbors={'num_neighbors': 6},
+            ...     registration=False)
+            freud.environment.EnvironmentCluster()
+
+        Args:
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
+            threshold (float):
+                Maximum magnitude of the vector difference between two vectors,
+                below which they are "matching". Typically, a good choice is
+                between 10% and 30% of the first well in the radial
+                distribution function (this has distance units).
+            cluster_neighbors (:class:`freud.locality.NeighborList` or dict, optional):
+                Either a :class:`NeighborList <freud.locality.NeighborList>` of
+                neighbor pairs to use in the calculation, or a dictionary of
+                `query arguments
+                <https://freud.readthedocs.io/en/stable/topics/querying.html>`_.
+                Defines the neighbors used for comparing different particle
+                environments (Default value: None).
+            env_neighbors (:class:`freud.locality.NeighborList` or dict, optional):
+                Either a :class:`NeighborList <freud.locality.NeighborList>` of
+                neighbor pairs to use in the calculation, or a dictionary of
+                `query arguments
+                <https://freud.readthedocs.io/en/stable/topics/querying.html>`_.
+                Defines the neighbors used as the environment of each particle.
+                If ``None``, the value provided for ``neighbors`` will be used
+                (Default value: None).
+            registration (bool, optional):
+                If True, first use brute force registration to orient one set
+                of environment vectors with respect to the other set such that
+                it minimizes the RMSD between the two sets. Enabling this
+                option incurs a significant performance penalty.
+                (Default value = :code:`False`)
+        """  # noqa: E501
+        nq, nlist, qargs, l_query_points, num_query_points = \
+            self._preprocess_arguments(system, neighbors=cluster_neighbors)
+
+        if env_neighbors is None:
+            env_neighbors = cluster_neighbors
+        env_nlist, env_qargs = self._resolve_neighbors(env_neighbors)
+
+        self._cpp_obj.compute(
+            nq._cpp_obj,
+            qargs._cpp_obj,
+            env_nlist._cpp_obj,
+            env_qargs._cpp_obj,
+            threshold,
+            registration)
+        return self
+
+    @_Compute._computed_property
+    def cluster_idx(self):
+        """:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`: The
+        per-particle index indicating cluster membership."""
+        return self._cpp_obj.getClusterIdx().toNumpyArray()
+
+    @_Compute._computed_property
+    def num_clusters(self):
+        """unsigned int: The number of clusters."""
+        return self._cpp_obj.getNumClusters()
+
+    @_Compute._computed_property
+    def cluster_environments(self):
+        """:math:`\\left(N_{clusters}, N_{neighbors}, 3\\right)`
+        list[:class:`numpy.ndarray`]: The environments for all clusters."""
+        envs = self._cpp_obj.getClusterEnvironments()
+        return [np.asarray([[p.x, p.y, p.z] for p in env])
+                for env in envs]
+
+    def plot(self, ax=None):
+        """Plot cluster distribution.
+
+        Args:
+            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
+                :code:`None`, make a new figure and axis.
+                (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes.Axes`): Axis with the plot.
+        """
+        import freud.plot
+        try:
+            values, counts = np.unique(self.cluster_idx, return_counts=True)
+        except ValueError:
+            return None
+        else:
+            return freud.plot.clusters_plot(
+                values, counts, num_clusters_to_plot=10, ax=ax)
+
+    def _repr_png_(self):
+        try:
+            import freud.plot
+            return freud.plot._ax_to_bytes(self.plot())
+        except (AttributeError, ImportError):
+            return None
+
+
+class EnvironmentMotifMatch(_MatchEnv):
+    r"""Find matches between local arrangements of a set of points and
+    a provided motif, as done in :cite:`Teich2019`.
+
+    A particle's environment can only match the motif if it contains the
+    same number of neighbors as the motif. Any environment with a
+    different number of neighbors than the motif will always fail to match
+    the motif. See :class:`freud.environment.EnvironmentCluster.compute` for
+    the matching criterion.
+    """
+
+    def __init__(self):
+        self._cpp_obj = freud._environment.EnvironmentMotifMatch()
+
+    def compute(self, system, motif, threshold, env_neighbors=None,
+                registration=False):
+        r"""Determine which particles have local environments
+            matching the given environment motif.
+
+        .. warning::
+
+            Comparisons between two environments are only made when both
+            environments contain the same number of neighbors.
+            However, no warning will be given at runtime if mismatched
+            environments are provided for comparison.
+
+        Args:
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
+            motif ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
+                Vectors that make up the motif against which we are matching.
+            threshold (float):
+                Maximum magnitude of the vector difference between two vectors,
+                below which they are "matching". Typically, a good choice is
+                between 10% and 30% of the first well in the radial
+                distribution function (this has distance units).
+            env_neighbors (:class:`freud.locality.NeighborList` or dict, optional):
+                Either a :class:`NeighborList <freud.locality.NeighborList>` of
+                neighbor pairs to use in the calculation, or a dictionary of
+                `query arguments
+                <https://freud.readthedocs.io/en/stable/topics/querying.html>`_.
+                Defines the environment of the query particles
+                (Default value: None).
+            registration (bool, optional):
+                If True, first use brute force registration to orient one set
+                of environment vectors with respect to the other set such that
+                it minimizes the RMSD between the two sets
+                (Default value = False).
+        """
+        nq, nlist, qargs, l_query_points, num_query_points = \
+            self._preprocess_arguments(system, neighbors=env_neighbors)
+
+        motif = freud.util._convert_array(motif, shape=(None, 3))
+        if (motif == 0).all(axis=1).any():
+            warnings.warn(
+                "Attempting to match a motif containing the zero "
+                "vector is likely to result in zero matches.",
+                RuntimeWarning,
+                stacklevel=2
+            )
+        nRef = motif.shape[0]
+
+        self._cpp_obj.compute(
+            nq._cpp_obj,
+            nlist._cpp_obj,
+            qargs._cpp_obj,
+            motif,
+            nRef,
+            threshold,
+            registration)
+        return self
+
+    @_Compute._computed_property
+    def matches(self):
+        """(:math:`N_{points}`) :class:`numpy.ndarray`: A boolean array indicating
+        whether each point matches the motif."""
+        return self._cpp_obj.getMatches().toNumpyArray()
+
+
+class _EnvironmentRMSDMinimizer(_MatchEnv):
+    r"""Find linear transformations that map the environments of points onto a
+    motif.
+
+    In general, it is recommended to specify a number of neighbors rather than
+    just a distance cutoff as part of your neighbor querying when performing
+    this computation since it can otherwise be very sensitive. Specifically, it
+    is highly recommended that you choose a number of neighbors that you
+    specify a number of neighbors query that requests at least as many
+    neighbors as the size of the motif you intend to test against. Otherwise,
+    you will struggle to match the motif. However, this is not currently
+    enforced (but we could add a warning to the compute...).
+    """
+
+    def __init__(self):
+        self._cpp_obj = freud._environment.EnvironmentRMSDMinimizer()
+
+    def compute(self, system, motif, neighbors=None,
+                registration=False):
+        r"""Rotate (if registration=True) and permute the environments of all
+        particles to minimize their RMSD with respect to the motif provided by
+        motif.
+
+        Args:
+            system:
+                Any object that is a valid argument to
+                :class:`freud.locality.NeighborQuery.from_system`.
+            motif ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Vectors that make up the motif against which we are matching.
+            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
+                Either a :class:`NeighborList <freud.locality.NeighborList>` of
+                neighbor pairs to use in the calculation, or a dictionary of
+                `query arguments
+                <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
+                (Default value: None).
+            registration (bool, optional):
+                If True, first use brute force registration to orient one set
+                of environment vectors with respect to the other set such that
+                it minimizes the RMSD between the two sets
+                (Default value = :code:`False`).
+        Returns:
+            :math:`\left(N_{particles}\right)` :class:`numpy.ndarray`:
+                Vector of minimal RMSD values, one value per particle.
+
+        """
+        nq, nlist, qargs, l_query_points, num_query_points = \
+            self._preprocess_arguments(system, neighbors=neighbors)
+
+        motif = freud.util._convert_array(motif, shape=(None, 3))
+        nRef = motif.shape[0]
+
+        self._cpp_obj.compute(
+            nq._cpp_obj,
+            nlist._cpp_obj,
+            qargs._cpp_obj,
+            motif,
+            nRef,
+            registration)
+        return self
+
+    @_Compute._computed_property
+    def rmsds(self):
+        """:math:`(N_p, )` :class:`numpy.ndarray`: A boolean array of the RMSDs
+        found for each point's environment."""
+        return self._cpp_obj.getRMSDs().toNumpyArray()
+
+
 class LocalBondProjection(_PairCompute):
    r"""Calculates the maximal projection of nearest neighbor bonds for each
    particle onto some set of reference vectors, defined in the particles'

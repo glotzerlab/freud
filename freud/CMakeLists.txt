@@ -50,9 +50,9 @@ add_library(
   environment/LocalBondProjection.cc
   environment/LocalDescriptors.h
   environment/LocalDescriptors.cc
-  # environment/MatchEnv.h
-  # environment/MatchEnv.cc
-  # environment/Registration.h
+  environment/MatchEnv.h
+  environment/MatchEnv.cc
+  environment/Registration.h
   # locality
   locality/AABB.h
   locality/AABBQuery.cc
@@ -166,6 +166,7 @@ nanobind_add_module(
     environment/export-LocalBondProjection.cc
     environment/export-LocalDescriptors.cc
     environment/export-BondOrder.cc
+    environment/export-MatchEnv.cc
 )
 target_link_libraries(_environment PUBLIC freud TBB::tbb)
 target_set_install_rpath(_environment)

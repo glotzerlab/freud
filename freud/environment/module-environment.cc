@@ -11,6 +11,7 @@ void export_AngularSeparationGlobal(nanobind::module_& m);
 void export_LocalBondProjection(nanobind::module_& m);
 void export_LocalDescriptors(nanobind::module_& m);
 void export_BondOrder(nanobind::module_& m);
+void export_MatchEnv(nanobind::module_& m);
 }; // namespace freud::environment::detail
 using namespace freud::environment::detail;
 
@@ -21,4 +22,5 @@ NB_MODULE(_environment, module) // NOLINT(misc-use-anonymous-namespace): caused 
     export_LocalBondProjection(module);
     export_LocalDescriptors(module);
     export_BondOrder(module);
+    export_MatchEnv(module);
 }
