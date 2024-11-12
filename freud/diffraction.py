@@ -346,11 +346,9 @@ class StaticStructureFactorDirect(_StaticStructureFactor):
             value = 0).
     """
 
-#     cdef freud._diffraction.StaticStructureFactorDirect * thisptr
-
     def __init__(self, bins, k_max, k_min=0, num_sampled_k_points=0):
-        self.cpp_obj = freud._diffraction.StaticStructureFactorDirect(
-                    bins, k_max, k_min, num_sampled_k_points)
+            self._cpp_obj = freud._diffraction.StaticStructureFactorDirect(
+                int(bins), float(k_max), float(k_min), int(num_sampled_k_points))
 
     @property
     def nbins(self):
@@ -434,32 +432,22 @@ class StaticStructureFactorDirect(_StaticStructureFactor):
                 "in order to correctly compute the normalization of the "
                 "partial structure factor."
             )
-        # Convert points to float32 to avoid errors when float64 is passed
-        temp_nq = freud.locality.NeighborQuery.from_system(system)
-#         cdef freud.locality.NeighborQuery nq = \
-#             freud.locality.NeighborQuery.from_system(
-#                 (temp_nq.box, freud.util._convert_array(temp_nq.points)))
-
         if reset:
-            self._reset()
-
-#         cdef:
-#             const float[:, ::1] l_points = nq.points
-#             unsigned int num_points = l_points.shape[0]
-#             const vec3[float]* l_query_points_ptr = NULL
-#             const float[:, ::1] l_query_points
-#             unsigned int num_query_points
+            self._reset()        
+            
+        # Convert points to float32 to avoid errors when float64 is passed
+        nq = freud.locality.NeighborQuery.from_system(system)
 
         if query_points is not None:
-            l_query_points = freud.util._convert_array(query_points)
-            num_query_points = l_query_points.shape[0]
+            query_points = freud.util._convert_array(query_points)
+        else:
+            query_points = nq.points
 
         if N_total is None:
-            N_total = num_points
+            N_total = nq.points.shape[0]
 
         self._cpp_obj.accumulate(
-            nq._cpp_obj, 
-            num_query_points, N_total
+            nq._cpp_obj, query_points, N_total
         )
         return self
 
@@ -483,7 +471,7 @@ class StaticStructureFactorDirect(_StaticStructureFactor):
     def k_points(self):
         r""":class:`numpy.ndarray`: The :math:`\vec{k}` points used in the
         calculation."""
-        # cdef vector[vec3[float]] k_points = self.thisptr.getKPoints()
+        k_points = self._cpp_obj.getKPoints()
         return np.asarray([[k.x, k.y, k.z] for k in k_points])
 
     def __repr__(self):
@@ -847,7 +835,7 @@ class DiffractionPattern(_Compute):
             vmax = 0.7 * self.N_points
 
         norm = matplotlib.colors.LogNorm(vmin=vmin, vmax=vmax)
-        cmap = matplotlib.cm.get_cmap(cmap)
+        cmap = matplotlib.colormaps.get_cmap(cmap)
         image = cmap(norm(np.clip(self.diffraction, vmin, vmax)))
         return (image * 255).astype(np.uint8)
 
