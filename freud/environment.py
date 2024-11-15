@@ -344,9 +344,6 @@ class BondOrder(_SpatialHistogram):
     @_Compute._computed_property
     def bond_order(self):
         """:math:`\\left(N_{\\phi}, N_{\\theta} \\right)` :class:`numpy.ndarray`: Bond order."""  # noqa: E501
-        # return freud.util.make_managed_numpy_array(
-        #     &self.thisptr.getBondOrder(),
-        #     freud.util.arr_type_t.FLOAT)
         return self._cpp_obj.getBondOrder().toNumpyArray()
 
     @_Compute._computed_property
@@ -363,11 +360,7 @@ class BondOrder(_SpatialHistogram):
     @property
     def mode(self):
         """str: Bond order mode."""
-        mode = self._cpp_obj.getMode()
-        for key, value in self.known_modes.items():
-            if value == mode:
-                return key
-        return mode
+        return self._cpp_obj.getMode().name
 
 
 class LocalDescriptors(_PairCompute):
