@@ -1,7 +1,6 @@
 // Copyright (c) 2010-2024 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#include <iostream>
 #include <memory>
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
@@ -50,6 +49,7 @@ void accumulateBondOrder(const std::shared_ptr<BondOrder>& self,
     );
 }
 
+
 }; // namespace wrap
 
 namespace detail {
@@ -68,7 +68,8 @@ void export_BondOrder(nb::module_& module)
         .def(nb::init<unsigned int, unsigned int, BondOrderMode>())
         .def("getBondOrder", &BondOrder::getBondOrder)
         .def("getBinCounts", &BondOrder::getBinCounts)
-        // .def("getBinCenters", &BondOrder::getBinCenters)
+        .def("getBinCenters", &BondOrder::getBinCenters)
+        .def("getBinEdges", &BondOrder::getBinEdges)
         .def("getBox", &BondOrder::getBox)
         .def("getAxisSizes", &BondOrder::getAxisSizes)
         .def("getMode", &BondOrder::getMode)

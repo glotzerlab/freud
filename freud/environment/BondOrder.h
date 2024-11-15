@@ -46,6 +46,7 @@ public:
 
     void reduce() override;
     void reset() override;
+    std::vector<std::vector<float>> getBinCenters();
 
     //! Get a shared_ptr to the last computed bond order
     const std::shared_ptr<util::ManagedArray<float>> getBondOrder();
