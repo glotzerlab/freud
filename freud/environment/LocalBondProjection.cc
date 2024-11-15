@@ -46,45 +46,46 @@ float computeMaxProjection(const vec3<float>& proj_vec, const vec3<float>& local
     return max_proj;
 }
 
-void LocalBondProjection::compute(const locality::NeighborQuery* nq, const quat<float>* orientations,
+void LocalBondProjection::compute(const std::shared_ptr<locality::NeighborQuery> nq, const quat<float>* orientations,
                                   const vec3<float>* query_points, unsigned int n_query_points,
                                   const vec3<float>* proj_vecs, unsigned int n_proj,
                                   const quat<float>* equiv_orientations, unsigned int n_equiv_orientations,
-                                  const freud::locality::NeighborList* nlist, locality::QueryArgs qargs)
+                                  const std::shared_ptr<freud::locality::NeighborList> nlist, const locality::QueryArgs& qargs)
 {
     // This function requires a NeighborList object, so we always make one and store it locally.
     m_nlist = locality::makeDefaultNlist(nq, nlist, query_points, n_query_points, qargs);
 
     // Get the maximum total number of bonds in the neighbor list
-    const unsigned int tot_num_neigh = m_nlist.getNumBonds();
+    const unsigned int tot_num_neigh = m_nlist->getNumBonds();
+    const auto& neighbors = m_nlist->getNeighbors();
 
-    m_local_bond_proj.prepare({tot_num_neigh, n_proj});
-    m_local_bond_proj_norm.prepare({tot_num_neigh, n_proj});
+    m_local_bond_proj = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {tot_num_neigh, n_proj});
+    m_local_bond_proj_norm = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {tot_num_neigh, n_proj});
 
     // compute the order parameter
     util::forLoopWrapper(0, n_query_points, [&](size_t begin, size_t end) {
-        size_t bond(m_nlist.find_first_index(begin));
+        size_t bond(m_nlist->find_first_index(begin));
         for (size_t i = begin; i < end; ++i)
         {
-            for (; bond < tot_num_neigh && m_nlist.getNeighbors()(bond, 0) == i; ++bond)
+            for (; bond < tot_num_neigh && (* neighbors)(bond, 0) == i; ++bond)
             {
-                const size_t j(m_nlist.getNeighbors()(bond, 1));
+                const size_t j( (* neighbors)(bond, 1));
 
                 // compute bond vector between the two particles
-                vec3<float> local_bond(m_nlist.getVectors()[bond]);
+                vec3<float> local_bond((* m_nlist->getVectors())(bond));
 
                 // rotate bond vector into the local frame of particle p
                 local_bond = rotate(conj(orientations[j]), local_bond);
                 // store the length of this local bond
-                float local_bond_len = m_nlist.getDistances()[bond];
+                float local_bond_len = (* m_nlist->getDistances())(bond);
 
                 for (unsigned int k = 0; k < n_proj; k++)
                 {
                     vec3<float> proj_vec = proj_vecs[k];
                     float max_proj = computeMaxProjection(proj_vec, local_bond, equiv_orientations,
                                                           n_equiv_orientations);
-                    m_local_bond_proj(bond, k) = max_proj;
-                    m_local_bond_proj_norm(bond, k) = max_proj / local_bond_len;
+                    (*m_local_bond_proj)(bond, k) = max_proj;
+                    (*m_local_bond_proj_norm)(bond, k) = max_proj / local_bond_len;
                 }
             }
         }

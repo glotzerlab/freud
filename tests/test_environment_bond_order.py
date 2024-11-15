@@ -40,6 +40,9 @@ class TestBondOrder:
         # Test access
         bo.box
         bo.bond_order
+        bo.bin_counts
+        bo.bin_edges
+        bo.bin_centers
 
         # Test all the basic attributes.
         assert bo.nbins[0] == n_bins_theta
@@ -57,8 +60,7 @@ class TestBondOrder:
             box, positions, positions, "nearest", r_max, num_neighbors, True
         )
         for nq, neighbors in test_set:
-            # Test that lbod gives identical results when orientations are the
-            # same.
+            # Test that lbod gives identical results when orientations are the same.
             # TODO: Find a way to test a rotated system to ensure that lbod gives
             # the desired results.
             bo = freud.environment.BondOrder(nbins, mode="lbod")
