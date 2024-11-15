@@ -347,7 +347,7 @@ class BondOrder(_SpatialHistogram):
         # return freud.util.make_managed_numpy_array(
         #     &self.thisptr.getBondOrder(),
         #     freud.util.arr_type_t.FLOAT)
-        return self._cpp_obj.getBondOrder()#.toNumpyArray()
+        return self._cpp_obj.getBondOrder().toNumpyArray()
 
     @_Compute._computed_property
     def box(self):

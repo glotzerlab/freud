@@ -68,6 +68,8 @@ void export_BondOrder(nb::module_& module)
         .def(nb::init<unsigned int, unsigned int, BondOrderMode>())
         .def("getBondOrder", &BondOrder::getBondOrder)
         .def("getBinCounts", &BondOrder::getBinCounts)
+        // .def("getBinCenters", &BondOrder::getBinCenters)
+        .def("getBox", &BondOrder::getBox)
         .def("getAxisSizes", &BondOrder::getAxisSizes)
         .def("getMode", &BondOrder::getMode)
         .def("accumulate", &wrap::accumulateBondOrder,

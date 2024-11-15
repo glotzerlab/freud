@@ -1,6 +1,6 @@
 // Copyright (c) 2010-2024 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
-
+#include <iostream>
 #include <cmath>
 #include <stdexcept>
 #ifdef __SSE2__
@@ -61,20 +61,20 @@ BondOrder::BondOrder(unsigned int n_bins_theta, unsigned int n_bins_phi, BondOrd
         std::make_shared<util::RegularAxis>(n_bins_theta, 0, constants::TWO_PI),
         std::make_shared<util::RegularAxis>(n_bins_phi, 0, M_PI)
     };
-    // m_histogram = BondHistogram(axes);
+    m_histogram = BondHistogram(axes);
 
     m_local_histograms = BondHistogram::ThreadLocalHistogram(m_histogram);
+
+}
+
+
+void BondOrder::reset() {
+    BondHistogramCompute::reset();
+    m_bo_array = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {m_histogram.shape()});
 }
 
 void BondOrder::reduce()
 {
-    // TODO: previously, we could prepare the histogram: but not anymore?
-    // m_histogram.prepare(m_histogram.shape());
-    // m_histogram = std::make_shared<util::ManagedArray<unsigned int>>(std::vector<size_t> {m_histogram.shape()});
-    
-    m_bo_array = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {m_histogram.shape()});
-
-
     m_histogram.reduceOverThreadsPerBin(m_local_histograms, [&](size_t i) {
         (*m_bo_array)[i] = m_histogram[i] / (*m_sa_array)[i] / static_cast<float>(m_frame_counter);
     });

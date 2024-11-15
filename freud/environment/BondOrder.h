@@ -45,6 +45,7 @@ public:
                     const std::shared_ptr<freud::locality::NeighborList>& nlist, freud::locality::QueryArgs qargs);
 
     void reduce() override;
+    void reset() override;
 
     //! Get a shared_ptr to the last computed bond order
     const std::shared_ptr<util::ManagedArray<float>> getBondOrder();
