@@ -1,5 +1,6 @@
 // Copyright (c) 2010-2024 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
+
 #include <cmath>
 #include <stdexcept>
 #ifdef __SSE2__
@@ -56,19 +57,16 @@ BondOrder::BondOrder(unsigned int n_bins_theta, unsigned int n_bins_phi, BondOrd
             (*m_sa_array)(i, j) = sa;
         }
     }
-    const auto axes = util::Axes {
-        std::make_shared<util::RegularAxis>(n_bins_theta, 0, constants::TWO_PI),
-        std::make_shared<util::RegularAxis>(n_bins_phi, 0, M_PI)
-    };
+    const auto axes = util::Axes {std::make_shared<util::RegularAxis>(n_bins_theta, 0, constants::TWO_PI),
+                                  std::make_shared<util::RegularAxis>(n_bins_phi, 0, M_PI)};
     m_histogram = BondHistogram(axes);
     m_bo_array = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {m_histogram.shape()});
 
     m_local_histograms = BondHistogram::ThreadLocalHistogram(m_histogram);
-
 }
 
-
-void BondOrder::reset() {
+void BondOrder::reset()
+{
     BondHistogramCompute::reset();
     m_bo_array = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {m_histogram.shape()});
 }
@@ -90,9 +88,10 @@ const std::shared_ptr<util::ManagedArray<float>> BondOrder::getBondOrder()
     return reduceAndReturn(m_bo_array);
 }
 
-void BondOrder::accumulate(const std::shared_ptr<locality::NeighborQuery>& neighbor_query, quat<float>* orientations,
-                           vec3<float>* query_points, quat<float>* query_orientations,
-                           unsigned int n_query_points, const std::shared_ptr<freud::locality::NeighborList>& nlist,
+void BondOrder::accumulate(const std::shared_ptr<locality::NeighborQuery>& neighbor_query,
+                           quat<float>* orientations, vec3<float>* query_points,
+                           quat<float>* query_orientations, unsigned int n_query_points,
+                           const std::shared_ptr<freud::locality::NeighborList>& nlist,
                            freud::locality::QueryArgs qargs)
 {
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,

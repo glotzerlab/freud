@@ -42,7 +42,8 @@ public:
     //! Accumulate the bond order
     void accumulate(const std::shared_ptr<locality::NeighborQuery>& neighbor_query, quat<float>* orientations,
                     vec3<float>* query_points, quat<float>* query_orientations, unsigned int n_query_points,
-                    const std::shared_ptr<freud::locality::NeighborList>& nlist, freud::locality::QueryArgs qargs);
+                    const std::shared_ptr<freud::locality::NeighborList>& nlist,
+                    freud::locality::QueryArgs qargs);
 
     void reduce() override;
     void reset() override;
@@ -59,7 +60,7 @@ public:
 private:
     std::shared_ptr<util::ManagedArray<float>> m_bo_array; //!< bond order array computed
     std::shared_ptr<util::ManagedArray<float>> m_sa_array; //!< surface area array computed
-    BondOrderMode m_mode;                 //!< The mode to calculate with.
+    BondOrderMode m_mode;                                  //!< The mode to calculate with.
 };
 
 }; }; // end namespace freud::environment
