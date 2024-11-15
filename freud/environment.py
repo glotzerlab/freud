@@ -254,10 +254,12 @@ class BondOrder(_SpatialHistogram):
             (Default value = :code:`'bod'`).
     """
 
-    known_modes = {'bod': freud._environment.bod,
-                   'lbod': freud._environment.lbod,
-                   'obcd': freud._environment.obcd,
-                   'oocd': freud._environment.oocd}
+    known_modes = {
+        "bod": freud._environment.bod,
+        "lbod": freud._environment.lbod,
+        "obcd": freud._environment.obcd,
+        "oocd": freud._environment.oocd,
+    }
 
     def __init__(self, bins, mode="bod"):
         if isinstance(bins, collections.abc.Sequence):
@@ -273,7 +275,6 @@ class BondOrder(_SpatialHistogram):
 
         self._cpp_obj = freud._environment.BondOrder(n_bins_theta, n_bins_phi, l_mode)
 
-
     @property
     def default_query_args(self):
         """No default query arguments."""
@@ -282,8 +283,15 @@ class BondOrder(_SpatialHistogram):
             NO_DEFAULT_QUERY_ARGS_MESSAGE.format(type(self).__name__)
         )
 
-    def compute(self, system, orientations=None, query_points=None,
-                query_orientations=None, neighbors=None, reset=True):
+    def compute(
+        self,
+        system,
+        orientations=None,
+        query_points=None,
+        query_orientations=None,
+        neighbors=None,
+        reset=True,
+    ):
         r"""Calculates the correlation function and adds to the current
         histogram.
 
@@ -317,8 +325,9 @@ class BondOrder(_SpatialHistogram):
         if reset:
             self._reset()
 
-        nq, nlist, qargs, l_query_points, num_query_points = \
-            self._preprocess_arguments(system, query_points, neighbors)
+        nq, nlist, qargs, l_query_points, num_query_points = self._preprocess_arguments(
+            system, query_points, neighbors
+        )
         if orientations is None:
             orientations = np.array([[1, 0, 0, 0]] * nq.points.shape[0])
         if query_orientations is None:
@@ -326,10 +335,15 @@ class BondOrder(_SpatialHistogram):
         if query_points is None:
             query_points = nq.points
 
-        orientations = freud.util._convert_array(orientations, shape=(nq.points.shape[0], 4))
-        query_orientations = freud.util._convert_array(query_orientations, shape=(num_query_points, 4))
-        query_points = freud.util._convert_array(query_points, shape=(num_query_points, 3))
-
+        orientations = freud.util._convert_array(
+            orientations, shape=(nq.points.shape[0], 4)
+        )
+        query_orientations = freud.util._convert_array(
+            query_orientations, shape=(num_query_points, 4)
+        )
+        query_points = freud.util._convert_array(
+            query_points, shape=(num_query_points, 3)
+        )
 
         self._cpp_obj.accumulate(
             nq._cpp_obj,
@@ -337,7 +351,7 @@ class BondOrder(_SpatialHistogram):
             query_points,
             query_orientations,
             nlist._cpp_obj,
-            qargs._cpp_obj
+            qargs._cpp_obj,
         )
         return self
 
@@ -352,10 +366,11 @@ class BondOrder(_SpatialHistogram):
         return freud.box.BoxFromCPP(self._cpp_obj.getBox())
 
     def __repr__(self):
-        return ("freud.environment.{cls}(bins=({bins}), mode='{mode}')".format(
+        return "freud.environment.{cls}(bins=({bins}), mode='{mode}')".format(
             cls=type(self).__name__,
-            bins=', '.join([str(b) for b in self.nbins]),
-            mode=self.mode))
+            bins=", ".join([str(b) for b in self.nbins]),
+            mode=self.mode,
+        )
 
     @property
     def mode(self):
