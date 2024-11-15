@@ -57,27 +57,30 @@ BondOrder::BondOrder(unsigned int n_bins_theta, unsigned int n_bins_phi, BondOrd
             (*m_sa_array)(i, j) = sa;
         }
     }
-    const auto axes = util::Axes {
-        std::make_shared<util::RegularAxis>(n_bins_theta, 0, constants::TWO_PI),
-        std::make_shared<util::RegularAxis>(n_bins_phi, 0, M_PI)
-    };
-    // m_histogram = BondHistogram(axes);
+    const auto axes = util::Axes {std::make_shared<util::RegularAxis>(n_bins_theta, 0, constants::TWO_PI),
+                                  std::make_shared<util::RegularAxis>(n_bins_phi, 0, M_PI)};
+    m_histogram = BondHistogram(axes);
+    m_bo_array = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {m_histogram.shape()});
 
     m_local_histograms = BondHistogram::ThreadLocalHistogram(m_histogram);
 }
 
+void BondOrder::reset()
+{
+    BondHistogramCompute::reset();
+    m_bo_array = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {m_histogram.shape()});
+}
+
 void BondOrder::reduce()
 {
-    // TODO: previously, we could prepare the histogram: but not anymore?
-    // m_histogram.prepare(m_histogram.shape());
-    // m_histogram = std::make_shared<util::ManagedArray<unsigned int>>(std::vector<size_t> {m_histogram.shape()});
-    
-    m_bo_array = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {m_histogram.shape()});
-
-
     m_histogram.reduceOverThreadsPerBin(m_local_histograms, [&](size_t i) {
         (*m_bo_array)[i] = m_histogram[i] / (*m_sa_array)[i] / static_cast<float>(m_frame_counter);
     });
+}
+
+std::vector<std::vector<float>> BondOrder::getBinCenters()
+{
+    return m_histogram.getBinCenters();
 }
 
 const std::shared_ptr<util::ManagedArray<float>> BondOrder::getBondOrder()
@@ -85,9 +88,10 @@ const std::shared_ptr<util::ManagedArray<float>> BondOrder::getBondOrder()
     return reduceAndReturn(m_bo_array);
 }
 
-void BondOrder::accumulate(const std::shared_ptr<locality::NeighborQuery>& neighbor_query, quat<float>* orientations,
-                           vec3<float>* query_points, quat<float>* query_orientations,
-                           unsigned int n_query_points, const std::shared_ptr<freud::locality::NeighborList>& nlist,
+void BondOrder::accumulate(const std::shared_ptr<locality::NeighborQuery>& neighbor_query,
+                           quat<float>* orientations, vec3<float>* query_points,
+                           quat<float>* query_orientations, unsigned int n_query_points,
+                           const std::shared_ptr<freud::locality::NeighborList>& nlist,
                            freud::locality::QueryArgs qargs)
 {
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
