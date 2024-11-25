@@ -7,18 +7,15 @@ density of the system. These functions allow evaluation of particle
 distributions with respect to other particles.
 """
 
-import warnings
-import numpy as np
-
-
-from freud.locality import _PairCompute, _SpatialHistogram1D
-from freud.util import _Compute
-
 from collections.abc import Sequence
+
+import numpy as np
 
 import freud
 import freud._density
 import freud.util
+from freud.locality import _PairCompute, _SpatialHistogram1D
+from freud.util import _Compute
 
 
 class CorrelationFunction(_SpatialHistogram1D):
@@ -48,7 +45,7 @@ class CorrelationFunction(_SpatialHistogram1D):
             The number of bins in the correlation function.
         r_max (float):
             Maximum pointwise distance to include in the calculation.
-    """  # noqa E501
+    """
 
     def __init__(self, bins, r_max):
         self._cpp_obj = freud._density.CorrelationFunction(bins, r_max)
@@ -137,9 +134,7 @@ class CorrelationFunction(_SpatialHistogram1D):
         return output if self.is_complex else np.real(output)
 
     def __repr__(self):
-        return ("freud.density.{cls}(bins={bins}, r_max={r_max})").format(
-            cls=type(self).__name__, bins=self.nbins, r_max=self.r_max
-        )
+        return (f"freud.density.{type(self).__name__}(bins={self.nbins}, r_max={self.r_max})")
 
     def plot(self, ax=None):
         """Plot complex correlation function.
@@ -200,7 +195,7 @@ class GaussianDensity(_Compute):
             Distance over which to blur.
         sigma (float):
             Sigma parameter for Gaussian.
-    """  # noqa: E501
+    """
 
     def __init__(self, width, r_max, sigma):
         if isinstance(width, int):
@@ -254,10 +249,9 @@ class GaussianDensity(_Compute):
                     self._cpp_obj.getDensity(), freud.util.arr_type_t.FLOAT
                 )
             )
-        else:
-            return freud.util.make_managed_numpy_array(
-                self._cpp_obj.getDensity(), freud.util.arr_type_t.FLOAT
-            )
+        return freud.util.make_managed_numpy_array(
+            self._cpp_obj.getDensity(), freud.util.arr_type_t.FLOAT
+        )
 
     @property
     def r_max(self):
@@ -277,12 +271,7 @@ class GaussianDensity(_Compute):
         return (width.x, width.y, width.z)
 
     def __repr__(self):
-        return ("freud.density.{cls}({width}, " "{r_max}, {sigma})").format(
-            cls=type(self).__name__,
-            width=self.width,
-            r_max=self.r_max,
-            sigma=self.sigma,
-        )
+        return (f"freud.density.{type(self).__name__}({self.width}, {self.r_max}, {self.sigma})")
 
     def plot(self, ax=None):
         """Plot Gaussian Density.
@@ -370,8 +359,7 @@ class SphereVoxelization(_Compute):
         )
         if self.box.is2D:
             return np.squeeze(data)
-        else:
-            return data
+        return data
 
     @property
     def r_max(self):
@@ -386,9 +374,7 @@ class SphereVoxelization(_Compute):
         return (width.x, width.y, width.z)
 
     def __repr__(self):
-        return ("freud.density.{cls}({width}, {r_max})").format(
-            cls=type(self).__name__, width=self.width, r_max=self.r_max
-        )
+        return (f"freud.density.{type(self).__name__}({self.width}, {self.r_max})")
 
     def plot(self, ax=None):
         """Plot voxelization.
@@ -530,9 +516,7 @@ class LocalDensity(_PairCompute):
         return self._cpp_obj.num_neighbors().toNumpyArray()
 
     def __repr__(self):
-        return ("freud.density.{cls}(r_max={r_max}, " "diameter={diameter})").format(
-            cls=type(self).__name__, r_max=self.r_max, diameter=self.diameter
-        )
+        return (f"freud.density.{type(self).__name__}(r_max={self.r_max}, diameter={self.diameter})")
 
 
 class RDF(_SpatialHistogram1D):
@@ -675,12 +659,7 @@ class RDF(_SpatialHistogram1D):
 
     def __repr__(self):
         return (
-            "freud.density.{cls}(bins={bins}, r_max={r_max}, " "r_min={r_min})"
-        ).format(
-            cls=type(self).__name__,
-            bins=len(self.bin_centers),
-            r_max=self.bounds[1],
-            r_min=self.bounds[0],
+            f"freud.density.{type(self).__name__}(bins={len(self.bin_centers)}, r_max={self.bounds[1]}, r_min={self.bounds[0]})"
         )
 
     def plot(self, ax=None):
