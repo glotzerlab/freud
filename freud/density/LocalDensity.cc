@@ -24,14 +24,14 @@ LocalDensity::LocalDensity(float r_max, float diameter)
     }
 }
 
-void LocalDensity::compute(const freud::locality::NeighborQuery* neighbor_query,
+void LocalDensity::compute(const std::shared_ptr<locality::NeighborQuery>& neighbor_query,
                            const vec3<float>* query_points, unsigned int n_query_points,
-                           const freud::locality::NeighborList* nlist, freud::locality::QueryArgs qargs)
+                           const std::shared_ptr<locality::NeighborList> nlist, const freud::locality::QueryArgs& qargs)
 {
     m_box = neighbor_query->getBox();
 
-    m_density_array.prepare(n_query_points);
-    m_num_neighbors_array.prepare(n_query_points);
+    m_density_array = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {n_query_points});
+    m_num_neighbors_array = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {n_query_points});
 
     const float area = M_PI * m_r_max * m_r_max;
     const float volume = static_cast<float>(4.0 / 3.0 * M_PI) * m_r_max * m_r_max * m_r_max;
@@ -56,16 +56,16 @@ void LocalDensity::compute(const freud::locality::NeighborQuery* neighbor_query,
                     num_neighbors
                         += float(1.0) + (m_r_max - (nb.getDistance() + m_diameter / float(2.0))) / m_diameter;
                 }
-                m_num_neighbors_array[i] = num_neighbors;
+                (*m_num_neighbors_array)[i] = num_neighbors;
                 if (m_box.is2D())
                 {
                     // local density is area of particles divided by the area of the circle
-                    m_density_array[i] = m_num_neighbors_array[i] / area;
+                    (*m_density_array)[i] = (*m_num_neighbors_array)[i] / area;
                 }
                 else
                 {
                     // local density is volume of particles divided by the volume of the sphere
-                    m_density_array[i] = m_num_neighbors_array[i] / volume;
+                    (*m_density_array)[i] = (*m_num_neighbors_array)[i] / volume;
                 }
             }
         });

@@ -29,8 +29,8 @@ add_library(
   # density/CorrelationFunction.cc
   # density/GaussianDensity.h
   # density/GaussianDensity.cc
-  # density/LocalDensity.h
-  # density/LocalDensity.cc
+  density/LocalDensity.h
+  density/LocalDensity.cc
   density/RDF.h
   density/RDF.cc
   # density/SphereVoxelization.h
@@ -184,7 +184,7 @@ target_set_install_rpath(_pmft)
 
 # density
 nanobind_add_module(
-  _density density/module-density.cc density/export-RDF.cc)
+  _density density/module-density.cc density/export-RDF.cc density/export-LocalDensity.cc)
 target_link_libraries(_density PUBLIC freud)
 target_set_install_rpath(_density)
 

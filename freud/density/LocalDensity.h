@@ -47,18 +47,18 @@ public:
     }
 
     //! Compute the local density
-    void compute(const freud::locality::NeighborQuery* neighbor_query, const vec3<float>* query_points,
-                 unsigned int n_query_points, const freud::locality::NeighborList* nlist,
-                 freud::locality::QueryArgs qargs);
+    void compute(const std::shared_ptr<locality::NeighborQuery>& neighbor_query, const vec3<float>* query_points,
+                 unsigned int n_query_points, const std::shared_ptr<locality::NeighborList> nlist,
+                 const freud::locality::QueryArgs& qargs);
 
-    //! Get a reference to the last computed density
-    const util::ManagedArray<float>& getDensity() const
+    //! Get a shared pointer to the last computed density
+    const std::shared_ptr<util::ManagedArray<float>> getDensity() const
     {
         return m_density_array;
     }
 
-    //! Get a reference to the last computed number of neighbors
-    const util::ManagedArray<float>& getNumNeighbors() const
+    //! Get a shared pointer to the last computed number of neighbors
+    const std::shared_ptr<util::ManagedArray<float>> getNumNeighbors() const
     {
         return m_num_neighbors_array;
     }
@@ -68,8 +68,8 @@ private:
     float m_r_max;    //!< Maximum neighbor distance
     float m_diameter; //!< Diameter of the particles
 
-    util::ManagedArray<float> m_density_array;       //!< density array computed
-    util::ManagedArray<float> m_num_neighbors_array; //!< number of neighbors array computed
+    std::shared_ptr<util::ManagedArray<float>> m_density_array;       //!< density array computed
+    std::shared_ptr<util::ManagedArray<float>> m_num_neighbors_array; //!< number of neighbors array computed
 };
 
 }; }; // end namespace freud::density
