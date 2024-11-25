@@ -201,8 +201,8 @@ target_link_libraries(_pmft PUBLIC freud)
 target_set_install_rpath(_pmft)
 
 # density
-nanobind_add_module(
-  _density density/module-density.cc density/export-RDF.cc density/export-LocalDensity.cc)
+nanobind_add_module(_density density/module-density.cc density/export-RDF.cc
+                    density/export-LocalDensity.cc)
 target_link_libraries(_density PUBLIC freud)
 target_set_install_rpath(_density)
 

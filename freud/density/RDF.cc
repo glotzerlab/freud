@@ -11,8 +11,7 @@
 
 namespace freud { namespace density {
 
-RDF::RDF(unsigned int bins, float r_max, float r_min)
-    : BondHistogramCompute()
+RDF::RDF(unsigned int bins, float r_max, float r_min) : BondHistogramCompute()
 {
     if (bins == 0)
     {
@@ -48,8 +47,8 @@ RDF::RDF(unsigned int bins, float r_max, float r_min)
     {
         float r = bin_boundaries[i];
         float nextr = bin_boundaries[i + 1];
-        (* m_vol_array2D)[i] = M_PI * (nextr * nextr - r * r);
-        (* m_vol_array3D)[i] = volume_prefactor * (nextr * nextr * nextr - r * r * r);
+        (*m_vol_array2D)[i] = M_PI * (nextr * nextr - r * r);
+        (*m_vol_array3D)[i] = volume_prefactor * (nextr * nextr * nextr - r * r * r);
     }
 }
 
@@ -75,21 +74,22 @@ void RDF::reduce()
 
     std::shared_ptr<util::ManagedArray<float>> vol_array = m_box.is2D() ? m_vol_array2D : m_vol_array3D;
     m_histogram.reduceOverThreadsPerBin(m_local_histograms, [this, &prefactor, &vol_array](size_t i) {
-        (* m_pcf)[i] = m_histogram[i] * prefactor / (* vol_array)[i];
+        (*m_pcf)[i] = m_histogram[i] * prefactor / (*vol_array)[i];
     });
 
     // The accumulation of the cumulative density must be performed in
     // sequence, so it is done after the reduction.
     prefactor = float(1.0) / (nqp * static_cast<float>(m_frame_counter));
-    (* m_N_r)[0] = m_histogram[0] * prefactor;
+    (*m_N_r)[0] = m_histogram[0] * prefactor;
     for (unsigned int i = 1; i < getAxisSizes()[0]; i++)
     {
-        (* m_N_r)[i] = (* m_N_r)[i - 1] + m_histogram[i] * prefactor;
+        (*m_N_r)[i] = (*m_N_r)[i - 1] + m_histogram[i] * prefactor;
     }
 }
 
-void RDF::accumulate(const std::shared_ptr<freud::locality::NeighborQuery> neighbor_query, const vec3<float>* query_points,
-                     unsigned int n_query_points, std::shared_ptr<freud::locality::NeighborList> nlist,
+void RDF::accumulate(const std::shared_ptr<freud::locality::NeighborQuery> neighbor_query,
+                     const vec3<float>* query_points, unsigned int n_query_points,
+                     std::shared_ptr<freud::locality::NeighborList> nlist,
                      const freud::locality::QueryArgs& qargs)
 {
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,

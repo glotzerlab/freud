@@ -1,3 +1,6 @@
+// Copyright (c) 2010-2024 The Regents of the University of Michigan
+// This file is from the freud project, released under the BSD 3-Clause License.
+
 #include <nanobind/nanobind.h>
 #include <nanobind/nb_defs.h>
 
@@ -5,7 +8,7 @@ namespace freud::density::detail {
 
 void export_RDF(nanobind::module_& m);
 void export_LocalDensity(nanobind::module_& m);
-}
+} // namespace freud::density::detail
 
 using namespace freud::density::detail;
 

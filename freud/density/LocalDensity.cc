@@ -26,7 +26,8 @@ LocalDensity::LocalDensity(float r_max, float diameter)
 
 void LocalDensity::compute(const std::shared_ptr<locality::NeighborQuery>& neighbor_query,
                            const vec3<float>* query_points, unsigned int n_query_points,
-                           const std::shared_ptr<locality::NeighborList> nlist, const freud::locality::QueryArgs& qargs)
+                           const std::shared_ptr<locality::NeighborList> nlist,
+                           const freud::locality::QueryArgs& qargs)
 {
     m_box = neighbor_query->getBox();
 
