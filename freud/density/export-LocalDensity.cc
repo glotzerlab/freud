@@ -22,10 +22,11 @@ namespace wrap {
 void computeLocalDensity(const std::shared_ptr<LocalDensity>& self,
                                  std::shared_ptr<locality::NeighborQuery>& points,
                                  nb_array<float, nanobind::shape<-1, 3>>& query_points,
+                                 const unsigned int num_query_points,
                                  std::shared_ptr<locality::NeighborList> nlist,
                                  const locality::QueryArgs& qargs)
 {
-    unsigned int const num_query_points = query_points.shape(0);
+    // unsigned int const num_query_points = query_points.shape(0);
     auto* query_points_data = reinterpret_cast<vec3<float>*>(query_points.data());
     self->compute(points, query_points_data, num_query_points, std::move(nlist), qargs);
 }
@@ -38,8 +39,10 @@ void export_LocalDensity(nanobind::module_& m)
 {
     nanobind::class_<LocalDensity>(m, "LocalDensity")
         .def(nanobind::init<float, float>())
-        .def("compute", &wrap::computeLocalDensity, nanobind::arg("points"), nanobind::arg("query_points").none(), 
+        .def("compute", &wrap::computeLocalDensity, nanobind::arg("points"), nanobind::arg("query_points").none(), nanobind::arg("num_query_points").none(),
              nanobind::arg("nlist").none(), nanobind::arg("qargs").none())
+        .def("getRMax", &LocalDensity::getRMax)
+        .def("getDiameter", &LocalDensity::getDiameter)
         .def("density", &LocalDensity::getDensity)
         .def("num_neighbors", &LocalDensity::getNumNeighbors);
 }
