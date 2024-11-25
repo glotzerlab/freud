@@ -219,6 +219,7 @@ if(SKBUILD)
   # install(TARGETS _cluster DESTINATION freud) install(TARGETS _density
   # DESTINATION freud) install(TARGETS _diffraction DESTINATION freud)
   # install(TARGETS _environment DESTINATION freud)
+  install(TARGETS _density DESTINATION freud)
   install(TARGETS _locality DESTINATION freud)
   # install(TARGETS _order DESTINATION freud)
   install(TARGETS _parallel DESTINATION freud)
