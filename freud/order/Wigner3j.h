@@ -7,6 +7,9 @@
 #include <complex>
 #include <vector>
 
+#include "ManagedArray.h"
+#include "VectorMath.h"
+
 /*! \file Wigner3j.h
  *  \brief Stores and reduces over Wigner 3j coefficients for l from 0 to 20
  */

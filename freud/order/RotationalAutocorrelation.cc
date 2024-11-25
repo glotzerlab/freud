@@ -3,6 +3,7 @@
 
 #include "RotationalAutocorrelation.h"
 
+#include "VectorMath.h"
 #include "utils.h"
 #include <cmath>
 
@@ -43,9 +44,9 @@ inline std::complex<float> RotationalAutocorrelation::hypersphere_harmonic(const
     std::complex<float> sum_tracker(0, 0);
     for (unsigned int k = (m1 + m2 < m_l ? 0 : m1 + m2 - m_l); k <= std::min(m1, m2); k++)
     {
-        float fact_product = static_cast<float>(m_factorials[k])
-            * static_cast<float>(m_factorials[m_l + k - m1 - m2]) * static_cast<float>(m_factorials[m1 - k])
-            * static_cast<float>(m_factorials[m2 - k]);
+        float fact_product = static_cast<float>((*m_factorials)[k])
+            * static_cast<float>((*m_factorials)[m_l + k - m1 - m2])
+            * static_cast<float>((*m_factorials)[m1 - k]) * static_cast<float>((*m_factorials)[m2 - k]);
         sum_tracker += cpow(xi_conj, k) * cpow(zeta, m2 - k) * cpow(zeta_conj, m1 - k)
             * cpow(-xi, m_l + k - m1 - m2) / fact_product;
     }
@@ -55,7 +56,7 @@ inline std::complex<float> RotationalAutocorrelation::hypersphere_harmonic(const
 void RotationalAutocorrelation::compute(const quat<float>* ref_orientations, const quat<float>* orientations,
                                         unsigned int N)
 {
-    m_RA_array.prepare(N);
+    m_RA_array = std::make_shared<util::ManagedArray<std::complex<float>>>(N);
 
     // Precompute the hyperspherical harmonics for the unit quaternion. The
     // default quaternion constructor gives a unit quaternion. We will assume
@@ -70,8 +71,8 @@ void RotationalAutocorrelation::compute(const quat<float>* ref_orientations, con
         for (unsigned int b = 0; b <= m_l; b++)
         {
             unit_harmonics.push_back(std::conj(hypersphere_harmonic(xi, zeta, a, b)));
-            prefactors[a][b] = static_cast<float>(m_factorials[a] * m_factorials[m_l - a] * m_factorials[b]
-                                                  * m_factorials[m_l - b])
+            prefactors[a][b] = static_cast<float>((*m_factorials)[a] * (*m_factorials)[m_l - a]
+                                                  * (*m_factorials)[b] * (*m_factorials)[m_l - b])
                 / (static_cast<float>(m_l + 1));
         }
     }
@@ -86,7 +87,7 @@ void RotationalAutocorrelation::compute(const quat<float>* ref_orientations, con
             std::complex<float> zeta = std::complex<float>(qq_1.v.z, qq_1.s);
 
             // Loop through the valid quantum numbers.
-            m_RA_array[i] = std::complex<float>(0, 0);
+            (*m_RA_array)[i] = std::complex<float>(0, 0);
             unsigned int uh_index = 0;
             for (unsigned int a = 0; a <= m_l; a++)
             {
@@ -94,7 +95,7 @@ void RotationalAutocorrelation::compute(const quat<float>* ref_orientations, con
                 {
                     std::complex<float> combined_value
                         = unit_harmonics[uh_index] * hypersphere_harmonic(xi, zeta, a, b);
-                    m_RA_array[i] += prefactors[a][b] * combined_value;
+                    (*m_RA_array)[i] += prefactors[a][b] * combined_value;
                     uh_index += 1;
                 }
             }
@@ -104,7 +105,7 @@ void RotationalAutocorrelation::compute(const quat<float>* ref_orientations, con
     float RA_sum(0);
     for (unsigned int i = 0; i < N; i++)
     {
-        RA_sum += std::real(m_RA_array[i]);
+        RA_sum += std::real((*m_RA_array)[i]);
     }
     m_Ft = RA_sum / static_cast<float>(N);
 };

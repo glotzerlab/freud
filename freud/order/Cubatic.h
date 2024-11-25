@@ -7,7 +7,7 @@
 #include "ManagedArray.h"
 #include "VectorMath.h"
 #include <array>
-#include <random>
+#include <memory>
 
 /*! \file Cubatic.h
     \brief Compute the cubatic order parameter for each particle.
@@ -78,17 +78,17 @@ public:
         return m_cubatic_order_parameter;
     }
 
-    const util::ManagedArray<float>& getParticleOrderParameter() const
+    const std::shared_ptr<util::ManagedArray<float>>& getParticleOrderParameter() const
     {
         return m_particle_order_parameter;
     }
 
-    const util::ManagedArray<float>& getGlobalTensor() const
+    const std::shared_ptr<util::ManagedArray<float>>& getGlobalTensor() const
     {
         return m_global_tensor;
     }
 
-    const util::ManagedArray<float>& getCubaticTensor() const
+    const std::shared_ptr<util::ManagedArray<float>>& getCubaticTensor() const
     {
         return m_cubatic_tensor;
     }
@@ -180,10 +180,12 @@ private:
     tensor4 m_gen_r4_tensor; //!< The sum of various products of Kronecker deltas that is stored as a member
                              //!< for convenient reuse.
 
-    util::ManagedArray<float> m_particle_order_parameter; //!< The per-particle value of the order parameter.
-    util::ManagedArray<float>
+    std::shared_ptr<util::ManagedArray<float>>
+        m_particle_order_parameter; //!< The per-particle value of the order parameter.
+    std::shared_ptr<util::ManagedArray<float>>
         m_global_tensor; //!< The system-averaged homogeneous tensor encoding all particle orientations.
-    util::ManagedArray<float> m_cubatic_tensor; //!< The output tensor computed via simulated annealing.
+    std::shared_ptr<util::ManagedArray<float>>
+        m_cubatic_tensor; //!< The output tensor computed via simulated annealing.
 
     std::array<vec3<float>, 3>
         m_system_vectors; //!< The global coordinate system, always use a simple Euclidean basis.

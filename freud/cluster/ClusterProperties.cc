@@ -1,10 +1,15 @@
 // Copyright (c) 2010-2024 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
+#include <algorithm>
+#include <cstddef>
+#include <memory>
 #include <vector>
 
 #include "ClusterProperties.h"
-#include "NeighborComputeFunctional.h"
+#include "ManagedArray.h"
+#include "NeighborQuery.h"
+#include "VectorMath.h"
 
 /*! \file ClusterProperties.cc
     \brief Routines for computing properties of point clusters.
@@ -21,8 +26,8 @@ namespace freud { namespace cluster {
     getClusterInertiaMoments().
 */
 
-void ClusterProperties::compute(const freud::locality::NeighborQuery* nq, const unsigned int* cluster_idx,
-                                const float* masses)
+void ClusterProperties::compute(const std::shared_ptr<locality::NeighborQuery>& nq,
+                                const unsigned int* cluster_idx, const float* masses)
 {
     // determine the number of clusters
     const unsigned int* max_cluster_id = std::max_element(cluster_idx, cluster_idx + nq->getNPoints());
@@ -30,12 +35,14 @@ void ClusterProperties::compute(const freud::locality::NeighborQuery* nq, const 
 
     // allocate memory for the cluster properties and temporary arrays
     // initialize arrays to 0
-    m_cluster_centers.prepare(num_clusters);
-    m_cluster_centers_of_mass.prepare(num_clusters);
-    m_cluster_moments_of_inertia.prepare({num_clusters, 3, 3});
-    m_cluster_gyrations.prepare({num_clusters, 3, 3});
-    m_cluster_sizes.prepare(num_clusters);
-    m_cluster_masses.prepare(num_clusters);
+    m_cluster_centers = std::make_shared<util::ManagedArray<vec3<float>>>(num_clusters);
+    m_cluster_centers_of_mass = std::make_shared<util::ManagedArray<vec3<float>>>(num_clusters);
+    m_cluster_moments_of_inertia
+        = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {num_clusters, 3, 3});
+    m_cluster_gyrations
+        = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {num_clusters, 3, 3});
+    m_cluster_sizes = std::make_shared<util::ManagedArray<unsigned int>>(num_clusters);
+    m_cluster_masses = std::make_shared<util::ManagedArray<float>>(num_clusters);
 
     // Create a vector to store cluster points, used to compute center of mass
     std::vector<std::vector<vec3<float>>> cluster_points(num_clusters, std::vector<vec3<float>>());
@@ -48,25 +55,25 @@ void ClusterProperties::compute(const freud::locality::NeighborQuery* nq, const 
     {
         const unsigned int c = cluster_idx[i];
         cluster_points[c].push_back((*nq)[i]);
-        m_cluster_sizes[c]++;
-        float mass = (masses != nullptr) ? masses[i] : float(1.0);
-        m_cluster_masses[c] += mass;
+        (*m_cluster_sizes)[c]++;
+        float const mass = (masses != nullptr) ? masses[i] : float(1.0);
+        (*m_cluster_masses)[c] += mass;
     }
 
     // Now that we have located all of the cluster vectors, compute the centers
     const float* cluster_point_masses = masses;
     for (unsigned int c = 0; c < num_clusters; c++)
     {
-        m_cluster_centers[c] = nq->getBox().centerOfMass(cluster_points[c].data(), m_cluster_sizes[c]);
-        m_cluster_centers_of_mass[c]
-            = nq->getBox().centerOfMass(cluster_points[c].data(), m_cluster_sizes[c], cluster_point_masses);
+        (*m_cluster_centers)[c] = nq->getBox().centerOfMass(cluster_points[c].data(), (*m_cluster_sizes)[c]);
+        (*m_cluster_centers_of_mass)[c] = nq->getBox().centerOfMass(
+            cluster_points[c].data(), (*m_cluster_sizes)[c], cluster_point_masses);
         if (masses == nullptr)
         {
             cluster_point_masses = nullptr;
         }
         else
         {
-            cluster_point_masses = cluster_point_masses + m_cluster_sizes[c];
+            cluster_point_masses = cluster_point_masses + (*m_cluster_sizes)[c];
         }
     }
 
@@ -74,51 +81,51 @@ void ClusterProperties::compute(const freud::locality::NeighborQuery* nq, const 
     // up the moment of inertia tensor. This has to be done in a loop over the points.
     for (unsigned int i = 0; i < nq->getNPoints(); i++)
     {
-        float mass = (masses != nullptr) ? masses[i] : float(1.0);
-        unsigned int c = cluster_idx[i];
-        vec3<float> pos = (*nq)[i];
-        vec3<float> mass_delta = nq->getBox().wrap(pos - m_cluster_centers_of_mass[c]);
-        vec3<float> delta = nq->getBox().wrap(pos - m_cluster_centers[c]);
+        float const mass = (masses != nullptr) ? masses[i] : float(1.0);
+        unsigned int const c = cluster_idx[i];
+        vec3<float> const pos = (*nq)[i];
+        vec3<float> const mass_delta = nq->getBox().wrap(pos - (*m_cluster_centers_of_mass)[c]);
+        vec3<float> const delta = nq->getBox().wrap(pos - (*m_cluster_centers)[c]);
 
         // get the start pointer for our 3x3 matrix
-        m_cluster_moments_of_inertia(c, 0, 0)
-            += (std::pow(mass_delta.y, 2) + std::pow(mass_delta.z, 2)) * mass;
-        m_cluster_moments_of_inertia(c, 0, 1) -= mass_delta.x * mass_delta.y * mass;
-        m_cluster_moments_of_inertia(c, 0, 2) -= mass_delta.x * mass_delta.z * mass;
-        m_cluster_moments_of_inertia(c, 1, 0) -= mass_delta.y * mass_delta.x * mass;
-        m_cluster_moments_of_inertia(c, 1, 1)
-            += (std::pow(mass_delta.x, 2) + std::pow(mass_delta.z, 2)) * mass;
-        m_cluster_moments_of_inertia(c, 1, 2) -= mass_delta.y * mass_delta.z * mass;
-        m_cluster_moments_of_inertia(c, 2, 0) -= mass_delta.z * mass_delta.x * mass;
-        m_cluster_moments_of_inertia(c, 2, 1) -= mass_delta.z * mass_delta.y * mass;
-        m_cluster_moments_of_inertia(c, 2, 2)
-            += (std::pow(mass_delta.x, 2) + std::pow(mass_delta.y, 2)) * mass;
+        (*m_cluster_moments_of_inertia)(c, 0, 0)
+            += (mass_delta.y * mass_delta.y + mass_delta.z * mass_delta.z) * mass;
+        (*m_cluster_moments_of_inertia)(c, 0, 1) -= mass_delta.x * mass_delta.y * mass;
+        (*m_cluster_moments_of_inertia)(c, 0, 2) -= mass_delta.x * mass_delta.z * mass;
+        (*m_cluster_moments_of_inertia)(c, 1, 0) -= mass_delta.y * mass_delta.x * mass;
+        (*m_cluster_moments_of_inertia)(c, 1, 1)
+            += (mass_delta.x * mass_delta.x + mass_delta.z * mass_delta.z) * mass;
+        (*m_cluster_moments_of_inertia)(c, 1, 2) -= mass_delta.y * mass_delta.z * mass;
+        (*m_cluster_moments_of_inertia)(c, 2, 0) -= mass_delta.z * mass_delta.x * mass;
+        (*m_cluster_moments_of_inertia)(c, 2, 1) -= mass_delta.z * mass_delta.y * mass;
+        (*m_cluster_moments_of_inertia)(c, 2, 2)
+            += (mass_delta.x * mass_delta.x + mass_delta.y * mass_delta.y) * mass;
 
         // get the start pointer for our 3x3 matrix
-        m_cluster_gyrations(c, 0, 0) += delta.x * delta.x;
-        m_cluster_gyrations(c, 0, 1) += delta.x * delta.y;
-        m_cluster_gyrations(c, 0, 2) += delta.x * delta.z;
-        m_cluster_gyrations(c, 1, 0) += delta.y * delta.x;
-        m_cluster_gyrations(c, 1, 1) += delta.y * delta.y;
-        m_cluster_gyrations(c, 1, 2) += delta.y * delta.z;
-        m_cluster_gyrations(c, 2, 0) += delta.z * delta.x;
-        m_cluster_gyrations(c, 2, 1) += delta.z * delta.y;
-        m_cluster_gyrations(c, 2, 2) += delta.z * delta.z;
+        (*m_cluster_gyrations)(c, 0, 0) += delta.x * delta.x;
+        (*m_cluster_gyrations)(c, 0, 1) += delta.x * delta.y;
+        (*m_cluster_gyrations)(c, 0, 2) += delta.x * delta.z;
+        (*m_cluster_gyrations)(c, 1, 0) += delta.y * delta.x;
+        (*m_cluster_gyrations)(c, 1, 1) += delta.y * delta.y;
+        (*m_cluster_gyrations)(c, 1, 2) += delta.y * delta.z;
+        (*m_cluster_gyrations)(c, 2, 0) += delta.z * delta.x;
+        (*m_cluster_gyrations)(c, 2, 1) += delta.z * delta.y;
+        (*m_cluster_gyrations)(c, 2, 2) += delta.z * delta.z;
     }
 
     // Normalize by the cluster sizes.
     for (unsigned int c = 0; c < num_clusters; c++)
     {
-        auto s = static_cast<float>(m_cluster_sizes[c]);
-        m_cluster_gyrations(c, 0, 0) /= s;
-        m_cluster_gyrations(c, 0, 1) /= s;
-        m_cluster_gyrations(c, 0, 2) /= s;
-        m_cluster_gyrations(c, 1, 0) /= s;
-        m_cluster_gyrations(c, 1, 1) /= s;
-        m_cluster_gyrations(c, 1, 2) /= s;
-        m_cluster_gyrations(c, 2, 0) /= s;
-        m_cluster_gyrations(c, 2, 1) /= s;
-        m_cluster_gyrations(c, 2, 2) /= s;
+        auto s = static_cast<float>((*m_cluster_sizes)[c]);
+        (*m_cluster_gyrations)(c, 0, 0) /= s;
+        (*m_cluster_gyrations)(c, 0, 1) /= s;
+        (*m_cluster_gyrations)(c, 0, 2) /= s;
+        (*m_cluster_gyrations)(c, 1, 0) /= s;
+        (*m_cluster_gyrations)(c, 1, 1) /= s;
+        (*m_cluster_gyrations)(c, 1, 2) /= s;
+        (*m_cluster_gyrations)(c, 2, 0) /= s;
+        (*m_cluster_gyrations)(c, 2, 1) /= s;
+        (*m_cluster_gyrations)(c, 2, 2) /= s;
     }
 }
 

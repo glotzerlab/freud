@@ -1,4 +1,4 @@
-name: Run Unit Tests
+name: test
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -10,6 +10,7 @@ on:
   push:
     branches:
       - "main"
+      - "nanobind"
       - "next"
 
   workflow_dispatch:
@@ -26,7 +27,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        python: ['39', '310', '311', '312']
+        python: ['39', '310', '311', '312', '313']
         include:
           # Test macOS and windows on oldest and latest versions.
           - os: 'macos-14'
@@ -45,11 +46,11 @@ jobs:
           submodules: true
 
       - name: Create Python Environment
-        uses: mamba-org/setup-micromamba@f8b8a1e23a26f60a44c853292711bacfd3eac822 # v1.9.0
+        uses: mamba-org/setup-micromamba@617811f69075e3fd3ae68ca64220ad065877f246 # v2.0.0
         with:
-          micromamba-version: '1.5.8-0'
+          micromamba-version: '2.0.2-2'
           environment-name: test
-          environment-file: .github/workflows/env-files/py${{ matrix.python }}-conda-lock.yml
+          environment-file: .github/workflows/environments/py${{ matrix.python }}-conda-lock.yml
 
       - name: Build and Install freud
         run: |
@@ -64,6 +65,11 @@ jobs:
           pytest tests/test_data.py -v
           pytest tests/test_pmft.py -v
           pytest tests/test_util.py -v
+          pytest tests/test_diffraction*.py -v
+          pytest tests/test_interface.py -v
+          pytest tests/test_msd_msd.py -v
+          pytest tests/test_cluster.py -v
+          pytest tests/test_order_*.py -v
           # pytest tests/ -v
 
   tests_complete:
