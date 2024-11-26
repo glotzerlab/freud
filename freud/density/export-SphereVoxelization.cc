@@ -33,8 +33,8 @@ void export_SphereVoxelization(nanobind::module_& m)
         .def("compute", &SphereVoxelization::compute, nanobind::arg("points"))
         .def("getWidth", &wrap::get_width)
         .def("getRMax", &SphereVoxelization::getRMax)
-        .def("getBox", &SphereVoxelization::getBox)
-        .def("getVoxels", &SphereVoxelization::getVoxels);
+        .def_prop_ro("box", &SphereVoxelization::getBox)
+        .def_prop_ro("voxels", &SphereVoxelization::getVoxels);
 }
 
 } // namespace detail

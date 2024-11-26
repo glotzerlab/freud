@@ -336,7 +336,7 @@ class SphereVoxelization(_Compute):
     @_Compute._computed_property
     def box(self):
         """:class:`freud.box.Box`: Box used in the calculation."""
-        return freud.box.BoxFromCPP(self._cpp_obj.getBox())
+        return freud.box.BoxFromCPP(self._cpp_obj.box)
 
     def compute(self, system):
         r"""Calculates the voxelization of spheres about the specified points.
@@ -354,7 +354,7 @@ class SphereVoxelization(_Compute):
     def voxels(self):
         """(:math:`w_x`, :math:`w_y`, :math:`w_z`) :class:`numpy.ndarray`: The
         voxel grid indicating overlap with the computed spheres."""
-        data = self._cpp_obj.getVoxels().toNumpyArray()
+        data = self._cpp_obj.voxels.toNumpyArray()
         if self.box.is2D:
             return np.squeeze(data)
         return data
@@ -449,7 +449,7 @@ class LocalDensity(_PairCompute):
     @_Compute._computed_property
     def box(self):
         """:class:`freud.box.Box`: Box used in the calculation."""
-        return freud.box.BoxFromCPP(self._cpp_obj.getBox())
+        return freud.box.BoxFromCPP(self._cpp_obj.box)
 
     def compute(self, system, query_points=None, neighbors=None):
         r"""Calculates the local density for the specified points.
