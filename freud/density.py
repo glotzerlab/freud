@@ -331,7 +331,7 @@ class SphereVoxelization(_Compute):
                 "dimension (length 2 in 2D, length 3 in 3D)."
             )
 
-        self._cpp_obj = freud._density.SphereVoxelization(width_vector, r_max)
+        self._cpp_obj = freud._density.make_sphere_voxelization(width_vector[0], width_vector[1], width_vector[2], r_max)
 
     @_Compute._computed_property
     def box(self):
@@ -354,9 +354,7 @@ class SphereVoxelization(_Compute):
     def voxels(self):
         """(:math:`w_x`, :math:`w_y`, :math:`w_z`) :class:`numpy.ndarray`: The
         voxel grid indicating overlap with the computed spheres."""
-        data = freud.util.make_managed_numpy_array(
-            self._cpp_obj.getVoxels(), freud.util.arr_type_t.UNSIGNED_INT
-        )
+        data = self._cpp_obj.getVoxels().toNumpyArray()
         if self.box.is2D:
             return np.squeeze(data)
         return data
@@ -370,8 +368,7 @@ class SphereVoxelization(_Compute):
     def width(self):
         """tuple[int]: The number of bins in the grid in each dimension
         (identical in all dimensions if a single integer value is provided)."""
-        width = self._cpp_obj.getWidth()
-        return (width.x, width.y, width.z)
+        return self._cpp_obj.getWidth()
 
     def __repr__(self):
         return (f"freud.density.{type(self).__name__}({self.width}, {self.r_max})")
@@ -504,7 +501,7 @@ class LocalDensity(_PairCompute):
     def density(self):
         """(:math:`N_{points}`) :class:`numpy.ndarray`: Density of points per
         query point."""
-        return self._cpp_obj.density().toNumpyArray()
+        return self._cpp_obj.density.toNumpyArray()
         # return freud.util.make_managed_numpy_array(
         #     self._cpp_obj.getDensity(), freud.util.arr_type_t.FLOAT
         # )
@@ -513,7 +510,7 @@ class LocalDensity(_PairCompute):
     def num_neighbors(self):
         """(:math:`N_{points}`) :class:`numpy.ndarray`: Number of neighbor
         points for each query point."""
-        return self._cpp_obj.num_neighbors().toNumpyArray()
+        return self._cpp_obj.num_neighbors.toNumpyArray()
 
     def __repr__(self):
         return (f"freud.density.{type(self).__name__}(r_max={self.r_max}, diameter={self.diameter})")

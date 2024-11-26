@@ -42,8 +42,8 @@ void export_LocalDensity(nanobind::module_& m)
         .def("getRMax", &LocalDensity::getRMax)
         .def("getDiameter", &LocalDensity::getDiameter)
         .def("getBox", &LocalDensity::getBox)
-        .def("density", &LocalDensity::getDensity)
-        .def("num_neighbors", &LocalDensity::getNumNeighbors);
+        .def_prop_ro("density", &LocalDensity::getDensity)
+        .def_prop_ro("num_neighbors", &LocalDensity::getNumNeighbors);
 }
 
 } // namespace detail
