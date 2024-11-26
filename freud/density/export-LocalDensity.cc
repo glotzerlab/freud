@@ -9,8 +9,6 @@
 #include <utility>
 
 #include "LocalDensity.h"
-#include "NeighborList.h"
-#include "NeighborQuery.h"
 
 namespace freud { namespace density {
 
