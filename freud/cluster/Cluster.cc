@@ -2,21 +2,28 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <algorithm>
+#include <cstddef>
+#include <memory>
 #include <numeric>
+#include <vector>
 
 #include "Cluster.h"
+#include "ManagedArray.h"
 #include "NeighborBond.h"
 #include "NeighborComputeFunctional.h"
+#include "NeighborList.h"
+#include "NeighborQuery.h"
 #include "dset/dset.h"
 
 //! Finds clusters using a network of neighbors.
 namespace freud { namespace cluster {
 
-void Cluster::compute(const freud::locality::NeighborQuery* nq, const freud::locality::NeighborList* nlist,
-                      freud::locality::QueryArgs qargs, const unsigned int* keys)
+void Cluster::compute(const std::shared_ptr<locality::NeighborQuery>& nq,
+                      const std::shared_ptr<locality::NeighborList>& nlist, const locality::QueryArgs& qargs,
+                      const unsigned int* keys)
 {
     const unsigned int num_points = nq->getNPoints();
-    m_cluster_idx.prepare(num_points);
+    m_cluster_idx = std::make_shared<util::ManagedArray<unsigned int>>(num_points);
     DisjointSets dj(num_points);
 
     freud::locality::loopOverNeighbors(
@@ -42,7 +49,7 @@ void Cluster::compute(const freud::locality::NeighborQuery* nq, const freud::loc
     m_num_clusters = 0;
     for (size_t i = 0; i < num_points; i++)
     {
-        size_t s = dj.find(i);
+        size_t const s = dj.find(i);
 
         // Label this cluster if we haven't seen it yet.
         if (cluster_label[s] == num_points)
@@ -78,9 +85,9 @@ void Cluster::compute(const freud::locality::NeighborQuery* nq, const freud::loc
      */
     for (size_t i = 0; i < num_points; i++)
     {
-        size_t s = dj.find(i);
-        size_t cluster_idx = cluster_reindex[cluster_label[s]];
-        m_cluster_idx[i] = cluster_idx;
+        size_t const s = dj.find(i);
+        size_t const cluster_idx = cluster_reindex[cluster_label[s]];
+        (*m_cluster_idx)[i] = cluster_idx;
         unsigned int key = i;
         if (keys != nullptr)
         {

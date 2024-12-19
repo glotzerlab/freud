@@ -4,12 +4,13 @@
 #ifndef CLUSTER_H
 #define CLUSTER_H
 
+#include <cstddef>
+#include <memory>
 #include <vector>
 
 #include "ManagedArray.h"
 #include "NeighborList.h"
 #include "NeighborQuery.h"
-#include "VectorMath.h"
 
 /*! \file Cluster.h
     \brief Routines for clustering points.
@@ -44,9 +45,9 @@ public:
     Cluster() = default;
 
     //! Compute the point clusters.
-    void compute(const freud::locality::NeighborQuery* nq, const freud::locality::NeighborList* nlist,
-                 freud::locality::QueryArgs qargs, const unsigned int* keys = nullptr);
-
+    void compute(const std::shared_ptr<locality::NeighborQuery>& nq,
+                 const std::shared_ptr<locality::NeighborList>& nlist, const locality::QueryArgs& qargs,
+                 const unsigned int* keys = nullptr);
     //! Get the total number of clusters.
     unsigned int getNumClusters() const
     {
@@ -54,7 +55,7 @@ public:
     }
 
     //! Get a reference to the cluster ids.
-    const util::ManagedArray<unsigned int>& getClusterIdx() const
+    std::shared_ptr<util::ManagedArray<unsigned int>> getClusterIdx() const
     {
         return m_cluster_idx;
     }
@@ -66,9 +67,9 @@ public:
     }
 
 private:
-    unsigned int m_num_clusters;                           //!< Number of clusters found
-    util::ManagedArray<unsigned int> m_cluster_idx;        //!< Cluster index for each point
-    std::vector<std::vector<unsigned int>> m_cluster_keys; //!< List of keys in each cluster
+    unsigned int m_num_clusters;                                     //!< Number of clusters found
+    std::shared_ptr<util::ManagedArray<unsigned int>> m_cluster_idx; //!< Cluster index for each point
+    std::vector<std::vector<unsigned int>> m_cluster_keys;           //!< List of keys in each cluster
 
     // Returns inverse permutation of cluster indices, sorted from largest to
     // smallest. Adapted from

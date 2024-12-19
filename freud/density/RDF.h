@@ -14,11 +14,11 @@
 
 namespace freud { namespace density {
 
-    enum class NormalizationMode
-    {
-        exact,
-        finite_size
-    };
+enum class NormalizationMode
+{
+    exact,
+    finite_size
+};
 class RDF : public locality::BondHistogramCompute
 {
 public:
@@ -41,8 +41,9 @@ public:
      * in parallel on thread-local copies of the data, which are reduced into
      * the primary data arrays when the user requests outputs.
      */
-    void accumulate(const std::shared_ptr<freud::locality::NeighborQuery> neighbor_query, const vec3<float>* query_points,
-                    unsigned int n_query_points, std::shared_ptr<freud::locality::NeighborList> nlist,
+    void accumulate(const std::shared_ptr<freud::locality::NeighborQuery> neighbor_query,
+                    const vec3<float>* query_points, unsigned int n_query_points,
+                    std::shared_ptr<freud::locality::NeighborList> nlist,
                     const freud::locality::QueryArgs& qargs);
 
     //! Reduce thread-local arrays onto the primary data arrays.

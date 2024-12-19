@@ -8,7 +8,8 @@ dependencies:
   - tbb-devel
   - ninja
   - cmake
-  - dynasor
+  # TODO: Enable after dynasor and all transitive dependencies support Python 3.13
+  # - dynasor
   - gsd
   - matplotlib
   - nanobind>=2.0

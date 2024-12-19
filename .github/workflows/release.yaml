@@ -1,4 +1,7 @@
-name: Build wheels
+name: release
+
+permissions:
+  contents: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -8,6 +11,7 @@ on:
   push:
     branches:
       - "main"
+      - "nanobind"
       - "next"
     tags:
       - "*"
@@ -16,7 +20,12 @@ on:
 
   workflow_dispatch:
 
+defaults:
+  run:
+    shell: bash
+
 env:
+  name: freud
   SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
 jobs:
@@ -74,6 +83,13 @@ jobs:
           oldest_matplotlib: '3.7.3'
           oldest_pytest: '8.2.1'
           oldest_sympy: '1.10'
+        - version: 'cp313'
+          oldest_numpy: '2.1.2'
+          oldest_scipy: '1.14.1'
+          oldest_gsd: '3.4.1'
+          oldest_matplotlib: '3.9.2'
+          oldest_pytest: '8.2.1'
+          oldest_sympy: '1.10'
 
     steps:
       - name: checkout
@@ -93,7 +109,7 @@ jobs:
           # Configure environment variables.
           CIBW_ENVIRONMENT_LINUX: "CMAKE_PREFIX_PATH=/project/tbb LD_LIBRARY_PATH=/project/tbb/lib/intel64/gcc4.8:$LD_LIBRARY_PATH CMAKE_ARGS=-DCMAKE_INSTALL_RPATH_USE_LINK_PATH=True"
           CIBW_ENVIRONMENT_MACOS: "CMAKE_PREFIX_PATH=/Users/runner/work/freud/freud/tbb:/Users/runner/work/tbb-install CMAKE_ARGS=-DCMAKE_INSTALL_RPATH_USE_LINK_PATH=True"
-          MACOSX_DEPLOYMENT_TARGET: "10.14"
+          MACOSX_DEPLOYMENT_TARGET: "11.0"
 
           # Set up TBB.
           CIBW_BEFORE_BUILD_LINUX: "source .github/workflows/cibuildwheel-before-build.sh {package} linux"
@@ -109,7 +125,8 @@ jobs:
             gsd==${{ matrix.python.oldest_gsd }}
             matplotlib==${{ matrix.python.oldest_matplotlib }}
           # Test only the currently ported modules
-          CIBW_TEST_COMMAND: "cd {package}/tests && pytest test_box_box.py test_parallel.py test_locality_*.py test_data.py test_pmft.py test_util.py -v --log-level=DEBUG"
+          CIBW_TEST_COMMAND: "cd {package}/tests && pytest test_box_box.py test_parallel.py test_locality_*.py test_data.py test_pmft.py test_util.py test_msd_msd.py test_interface.py test_order_*.py test_cluster.py test_diffraction_*.py -v --log-level=DEBUG"
+
           # CIBW_TEST_COMMAND: "cd {package}/tests && pytest . -v --log-level=DEBUG"
 
       - uses: actions/upload-artifact@834a144ee995460fba8ed112a2fc961b36a5ec5a # v4.3.6
@@ -129,15 +146,15 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
         with:
-          python-version: "3.12"
+          python-version: "3.13"
 
       - name: Set up Python environment
-        uses: glotzerlab/workflows/setup-uv@ae7e7c6931098a313ef8069ef04b88a55c3a40f6 # 0.3.0
+        uses: glotzerlab/workflows/setup-uv@e130dd2814c7db5635babe4427dedcbd5aab76d4 # 0.5.0
         with:
-          lockfile: ".github/requirements-build-sdist.txt"
+          lockfile: ".github/workflows/environments/requirements-build-sdist.txt"
 
       - name: Build sdist
-        run: python -m build --sdist --outdir dist/ .
+        run: python -m build --installer uv --sdist --outdir dist/ .
 
       - name: Check sdist size
         run: du -hs dist/*
@@ -178,3 +195,91 @@ jobs:
         with:
           status: ${{ job.status }}
           channel: '#dev-freud'
+
+  source:
+    name: Build source tarball
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+      with:
+        path: code
+        submodules: true
+
+    - name: Determine filename-safe ref from GITHUB_REF_NAME
+      run: echo ref="$(echo "${GITHUB_REF_NAME}" | sed  -e 's/\//-/g')" >> "$GITHUB_ENV"
+
+    - name: Copy source
+      run: cp -R code "${name}-${ref}"
+
+    - name: Remove .git
+      run: rm -rf "${name}-${ref}/.git"
+
+    - name: Remove examples data
+      run: rm -rf "${name}-${ref}/doc/source/gettingstarted/examples" && ls -laR "${name}-${ref}"
+
+    - name: Tar/zstd source
+      run: tar --zstd -cvf "${name}-${ref}.tar.zst" "${name}-${ref}"
+
+    - uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+      with:
+        name: source
+        path: |
+          *.tar.*
+
+  release-notes:
+    name: Extract release notes
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+      with:
+        path: code
+
+    - name: Write release-notes.md
+      # 1. Search for the content from the start of the file to the 2nd version heading.
+      # 2. Remove the 2nd version heading.
+      # 3. Search for the content after the first version heading (removes any description at the
+      #    start of the file.
+      # 4. Remove the 1st version heading.
+      # This leaves the content of the release notes for the current release.
+      run: >
+        grep -P -m 2 -B 10000 "^## v*\d*\.\d*\.\d*" ChangeLog.md |
+        sed '$d' |
+        grep -P -A 10000 "^## v*\d*\.\d*\.\d*" |
+        sed '1d' |
+        tee "${GITHUB_WORKSPACE}/release-notes.md"
+      working-directory: code
+
+    - uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+      with:
+        name: release-notes
+        path: |
+          release-notes.md
+
+  publish_github:
+    name: Publish [GitHub]
+    needs: [release-notes, source]
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Download artifacts
+      uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+      with:
+        merge-multiple: true
+
+    - name: List files
+      run: ls -lR
+
+    - name: Create release
+      uses: softprops/action-gh-release@c062e08bd532815e2082a85e87e3ef29c3e6d191 # v2.0.8
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: |
+          *.zst
+        body_path: release-notes.md
+        make_latest: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

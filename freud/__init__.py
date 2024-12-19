@@ -1,13 +1,22 @@
 # Copyright (c) 2010-2024 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
-
-# cluster,; density,; diffraction,; environment,; interface,; msd,; order,
-from . import box, data, locality, parallel, pmft, density
+from . import (
+    box,
+    cluster,
+    data,
+    density,
+    diffraction,
+    interface,
+    locality,
+    msd,
+    order,
+    parallel,
+    pmft,
+)
 from .box import Box
 from .locality import AABBQuery, LinkCell, NeighborList
 from .parallel import NumThreads, get_num_threads, set_num_threads
-
 
 # Override TBB's default autoselection. This is necessary because once the
 # automatic selection runs, the user cannot change it.
@@ -16,26 +25,26 @@ set_num_threads(0)
 __version__ = "3.1.0"
 
 __all__ = [
-    "__version__",
-    "box",
-    # "cluster",
-    "data",
-    "density",
-    # "diffraction",
-    # "environment",
-    # "interface",
-    "locality",
-    # "msd",
-    # "order",
-    "parallel",
-    "pmft",
-    "Box",
     "AABBQuery",
+    "Box",
     "LinkCell",
     "NeighborList",
-    "get_num_threads",
-    "set_num_threads",
     "NumThreads",
+    "__version__",
+    "box",
+    "cluster",
+    "data",
+    "density",
+    "diffraction",
+    "get_num_threads",
+    # "environment",
+    "interface",
+    "locality",
+    "msd",
+    "order",
+    "parallel",
+    "pmft",
+    "set_num_threads",
 ]
 
 __citation__ = """@article{freud2020,
