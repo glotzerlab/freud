@@ -25,10 +25,10 @@ add_library(
   # cluster/ClusterProperties.h
   # cluster/ClusterProperties.cc
   # density
-  # density/CorrelationFunction.h
-  # density/CorrelationFunction.cc
-  # density/GaussianDensity.h
-  # density/GaussianDensity.cc
+  density/CorrelationFunction.h
+  density/CorrelationFunction.cc
+  density/GaussianDensity.h
+  density/GaussianDensity.cc
   # density/LocalDensity.h
   # density/LocalDensity.cc
   density/RDF.h
@@ -184,7 +184,11 @@ target_set_install_rpath(_pmft)
 
 # density
 nanobind_add_module(
-  _density density/module-density.cc density/export-RDF.cc)
+  _density 
+  density/module-density.cc 
+  density/export-CorrelationFunction.cc
+  density/export-GaussianDensity.cc 
+  density/export-RDF.cc)
 target_link_libraries(_density PUBLIC freud)
 target_set_install_rpath(_density)
 

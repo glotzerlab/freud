@@ -21,6 +21,7 @@ import freud._density
 import freud.util
 
 
+
 class CorrelationFunction(_SpatialHistogram1D):
     r"""Computes the complex pairwise correlation function.
 
@@ -203,6 +204,24 @@ class GaussianDensity(_Compute):
         self._cpp_obj = freud._density.GaussianDensity(
             width_vector, r_max, sigma)
 
+    # def __init__(self, width, r_max, sigma):
+    #     # Convert width to a tuple of integers, which matches vec3<unsigned int>
+    #     if isinstance(width, int):
+    #         width_vector = (width, width, width)
+    #     elif isinstance(width, Sequence) and len(width) == 2:
+    #         width_vector = (width[0], width[1], 1)
+    #     elif isinstance(width, Sequence) and len(width) == 3:
+    #         width_vector = (width[0], width[1], width[2])
+    #     else:
+    #         raise ValueError("The width must be either a number of bins or a "
+    #                         "sequence indicating the widths in each spatial "
+    #                         "dimension (length 2 in 2D, length 3 in 3D).")
+
+
+    #     # Pass the width vector as a tuple, which matches vec3<unsigned int>
+    #     self._cpp_obj = freud._density.GaussianDensity(width_vector, r_max, sigma)
+
+
 
     @_Compute._computed_property
     def box(self):
@@ -237,11 +256,9 @@ class GaussianDensity(_Compute):
         """(:math:`w_x`, :math:`w_y`, :math:`w_z`) :class:`numpy.ndarray`: The
         grid with the Gaussian density contributions from each point."""
         if self.box.is2D:
-            return np.squeeze(freud.util.make_managed_numpy_array(
-                self._cpp_obj.getDensity(), freud.util.arr_type_t.FLOAT))
+            return self._cpp_obj.getDensity().toNumpyArray()
         else:
-            return freud.util.make_managed_numpy_array(
-                self._cpp_obj.getDensity(), freud.util.arr_type_t.FLOAT)
+            return self._cpp_obj.getDensity().toNumpyArray()
 
     @property
     def r_max(self):
@@ -346,8 +363,7 @@ class SphereVoxelization(_Compute):
     def voxels(self):
         """(:math:`w_x`, :math:`w_y`, :math:`w_z`) :class:`numpy.ndarray`: The
         voxel grid indicating overlap with the computed spheres."""
-        data = freud.util.make_managed_numpy_array(
-            self._cpp_obj.getVoxels(), freud.util.arr_type_t.UNSIGNED_INT)
+        data = self._cpp_obj.getVoxels().toNumpyArray()
         if self.box.is2D:
             return np.squeeze(data)
         else:
@@ -496,9 +512,7 @@ class LocalDensity(_PairCompute):
     def density(self):
         """(:math:`N_{points}`) :class:`numpy.ndarray`: Density of points per
         query point."""
-        return freud.util.make_managed_numpy_array(
-            self._cpp_obj.getDensity(),
-            freud.util.arr_type_t.FLOAT)
+        return self._cpp_obj.getDensity().toNumpyArray()
 
     @_Compute._computed_property
     def num_neighbors(self):

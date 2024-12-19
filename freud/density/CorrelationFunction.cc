@@ -44,8 +44,8 @@ CorrelationFunction<T>::CorrelationFunction(unsigned int bins, float r_max) : Bo
 //! helper function to reduce the thread specific arrays into one array
 template<typename T> void CorrelationFunction<T>::reduce()
 {
-    m_histogram.prepare(getAxisSizes()[0]);
-    m_correlation_function.prepare(getAxisSizes()[0]);
+    m_histogram = std::make_shared<util::ManagedArray<float>>(std::vector<size_t>getAxisSizes()[0]);
+    m_correlation_function = std::make_shared<util::ManagedArray<float>>(std::vector<size_t>getAxisSizes()[0]);
 
     // Reduce the bin counts over all threads, then use them to normalize the
     // RDF when computing.
@@ -79,11 +79,11 @@ inline double product(double x, double y)
 }
 
 template<typename T>
-void CorrelationFunction<T>::accumulate(const freud::locality::NeighborQuery* neighbor_query, const T* values,
+void CorrelationFunction<T>::accumulate(std::shared_ptr<freud::locality::NeighborQuery> neighbor_query, const T* values,
                                         const vec3<float>* query_points, const T* query_values,
                                         unsigned int n_query_points,
-                                        const freud::locality::NeighborList* nlist,
-                                        freud::locality::QueryArgs qargs)
+                                        std::shared_ptr<freud::locality::NeighborList> nlist,
+                                        const freud::locality::QueryArgs& qargs)
 {
     accumulateGeneral(
         neighbor_query, query_points, n_query_points, nlist, qargs,

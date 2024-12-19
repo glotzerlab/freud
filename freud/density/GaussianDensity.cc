@@ -12,7 +12,9 @@
 
 namespace freud { namespace density {
 
-GaussianDensity::GaussianDensity(vec3<unsigned int> width, float r_max, float sigma)
+// GaussianDensity::GaussianDensity(vec3<unsigned int> width, float r_max, float sigma)
+GaussianDensity::GaussianDensity(float width, float r_max, float sigma);
+    // : m_box(), m_width(width), m_r_max(r_max), m_sigma(sigma), m_has_computed(false)
     : m_box(), m_width(width), m_r_max(r_max), m_sigma(sigma), m_has_computed(false)
 {
     if (r_max <= 0)
@@ -22,13 +24,14 @@ GaussianDensity::GaussianDensity(vec3<unsigned int> width, float r_max, float si
 }
 
 //! Get a reference to the last computed Density
-const util::ManagedArray<float>& GaussianDensity::getDensity() const
+std::shared_ptr<util::ManagedArray<float>> GaussianDensity::getDensity() const
 {
     return m_density_array;
 }
 
 //! Get width.
-vec3<unsigned int> GaussianDensity::getWidth()
+// vec3<unsigned int> GaussianDensity::getWidth()
+float GaussianDensity::getWidth()
 {
     return m_width;
 }
@@ -58,7 +61,7 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq, const fl
         m_width.z = 1;
     }
 
-    m_density_array.prepare({m_width.x, m_width.y, m_width.z});
+    m_density_array= std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {m_width.x, m_width.y, m_width.z});
     util::ThreadStorage<float> local_bin_counts({m_width.x, m_width.y, m_width.z});
 
     // set up some constants first
@@ -142,9 +145,14 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq, const fl
 
                             // Assure that out of range indices are corrected for storage
                             // in the array i.e. bin -1 is actually bin 29 for nbins = 30
-                            const unsigned int ni = (i + m_width.x) % m_width.x;
-                            const unsigned int nj = (j + m_width.y) % m_width.y;
-                            const unsigned int nk = (k + m_width.z) % m_width.z;
+                            // const unsigned int ni = (i + m_width.x) % m_width.x;
+                            // const unsigned int nj = (j + m_width.y) % m_width.y;
+                            // const unsigned int nk = (k + m_width.z) % m_width.z;
+
+                            const float ni = (i + m_width.x) % m_width.x;
+                            const float nj = (j + m_width.y) % m_width.y;
+                            const float nk = (k + m_width.z) % m_width.z;
+
 
                             // Store the gaussian contribution
                             local_bin_counts.local()(ni, nj, nk) += gaussian;
@@ -156,7 +164,7 @@ void GaussianDensity::compute(const freud::locality::NeighborQuery* nq, const fl
     });
 
     // Parallel reduction over thread storage
-    local_bin_counts.reduceInto(m_density_array);
+    local_bin_counts.reduceInto(*m_density_array);
 }
 
 }; }; // end namespace freud::density

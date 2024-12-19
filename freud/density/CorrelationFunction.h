@@ -56,16 +56,16 @@ public:
     void reset() override;
 
     //! accumulate the correlation function
-    void accumulate(const freud::locality::NeighborQuery* neighbor_query, const T* values,
+    void accumulate(std::shared_ptr<freud::locality::NeighborQuery> neighbor_query, const T* values,
                     const vec3<float>* query_points, const T* query_values, unsigned int n_query_points,
-                    const freud::locality::NeighborList* nlist, freud::locality::QueryArgs qargs);
+                    std::shared_ptr<freud::locality::NeighborList> nlist, const freud::locality::QueryArgs& qargs);
 
     //! \internal
     //! helper function to reduce the thread specific arrays into one array
     void reduce() override;
 
     //! Get a reference to the last computed correlation function.
-    const util::ManagedArray<T>& getCorrelation()
+    std::shared_ptr<util::ManagedArray<T>> getCorrelation()
     {
         return reduceAndReturn(m_correlation_function.getBinCounts());
     }
