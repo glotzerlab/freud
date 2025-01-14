@@ -6,6 +6,7 @@
 #include <nanobind/ndarray.h>
 #include <nanobind/stl/shared_ptr.h> // NOLINT(misc-include-cleaner): used implicitly
 #include <nanobind/stl/function.h> // NOLINT(misc-include-cleaner): used implicitly
+#include <nanobind/stl/map.h> 
 #include <nanobind/stl/vector.h>     // NOLINT(misc-include-cleaner): used implicitly
 
 #include "MatchEnv.h"
@@ -53,12 +54,52 @@ void compute_env_rmsd_min(const std::shared_ptr<EnvironmentRMSDMinimizer>& env_r
 
 namespace detail {
 
+// 1. Define the function pointer type for the overload that returns a std::map<unsigned int, unsigned int>.
+using MinimizeRMSD_Coords = std::map<unsigned int, unsigned int> (*)(
+    const box::Box&,
+    const vec3<float>*,
+    vec3<float>*,
+    unsigned int,
+    float&, 
+    bool);
+
+using IsSimilar_Coords = std::map<unsigned int, unsigned int> (*)(
+    const box::Box&,
+    const vec3<float>*,
+    vec3<float>*,
+    unsigned int,
+    float,
+    bool);
+
 void export_MatchEnv(nb::module_& module)
 {
-    // export minimizeRMSD function, move convenience to wrap? TODO
-    // module.def("minimizeRMSD", &minimizeRMSD); //carefull ths fn is overloaded for easier python interactivity. You should use the one that takes box etc in.
-    // export isSimilar function, move convenience to wrap? TODO
-    // module.def("isSimilar", &isSimilar); //carefull ths fn is overloaded for easier python interactivity. You should use the one that takes box etc in.
+    module.def("minimizeRMSD", (MinimizeRMSD_Coords) &minimizeRMSD,        "Compute a map of matching indices between two sets of points. This overload also potentially\n"
+        "modifies the second set of points in-place if registration=True.\n\n"
+        "Args:\n"
+        "    box (Box): Simulation box.\n"
+        "    refPoints1 (array of vec3<float>): Points in the first environment.\n"
+        "    refPoints2 (array of vec3<float>): Points in the second environment (modified if registration=True).\n"
+        "    numRef (int): Number of points.\n"
+        "    min_rmsd (float): Updated by reference to the final RMSD.\n"
+        "    registration (bool): If True, perform a brute-force alignment.\n\n"
+        "Returns:\n"
+        "    dict(int->int): Index mapping from the first set of points to the second set.");
+    
+    module.def(
+        "isSimilar",
+        (IsSimilar_Coords) &isSimilar,
+        "Check if two sets of points can be matched (i.e., are 'similar') within a given distance threshold.\n"
+        "Potentially modifies the second set in-place if registration=True.\n\n"
+        "Args:\n"
+        "    box (Box): Simulation box.\n"
+        "    refPoints1 (array of vec3<float>): Points in the first environment.\n"
+        "    refPoints2 (array of vec3<float>): Points in the second environment.\n"
+        "    numRef (int): Number of points.\n"
+        "    threshold_sq (float): Square of the max distance allowed to consider points matching.\n"
+        "    registration (bool): If True, attempt brute force alignment.\n\n"
+        "Returns:\n"
+        "    dict(int->int): Index mapping if the environments match, else an empty map."
+    );
 
     nb::class_<MatchEnv>(module, "MatchEnv")
         .def(nb::init<>())
