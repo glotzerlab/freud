@@ -539,7 +539,7 @@ void EnvironmentCluster::compute(const std::shared_ptr<freud::locality::Neighbor
     // if you don't do this, things will get screwy.
     for (unsigned int i = 0; i < Np; i++)
     {
-        Environment ei = buildEnv(&env_nlist, env_num_bonds, env_bond, i, i);
+        Environment ei = buildEnv(env_nlist, env_num_bonds, env_bond, i, i);
         dj.s.push_back(ei);
     }
 
@@ -551,9 +551,9 @@ void EnvironmentCluster::compute(const std::shared_ptr<freud::locality::Neighbor
         for (; bond < nlist->getNumBonds() && (*nlist->getNeighbors())(bond, 0) == i; ++bond)
         {
             const size_t j((*nlist->getNeighbors())(bond, 1));
-            std:(*):pair<rotmat3<floa)t>, BiMap<unsigned int, unsigned int>> mapping
-                = isSimilar(dj.s[i], dj.s[j], m_threshold_sq(*), registration);
- )           rotmat3<float> rotation = mapping.first;
+            std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>> mapping
+                = isSimilar(dj.s[i], dj.s[j], m_threshold_sq, registration);
+            rotmat3<float> rotation = mapping.first;
             BiMap<unsigned int, unsigned int> vec_map = mapping.second;
             // if the mapping between the vectors of the environments
             // is NOT empty, then the environments are similar, so
@@ -758,7 +758,7 @@ void EnvironmentRMSDMinimizer::compute(const std::shared_ptr<freud::locality::Ne
     for (unsigned int i = 0; i < Np; i++)
     {
         unsigned int dummy = i + 1;
-        Environment ei = buildEnv(&nlist, num_bonds, bond, i, dummy);
+        Environment ei = buildEnv(nlist, num_bonds, bond, i, dummy);
         dj.s.push_back(ei);
 
         // if the environment matches e0, merge it into the e0 environment set
