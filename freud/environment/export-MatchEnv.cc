@@ -73,7 +73,10 @@ using IsSimilar_Coords = std::map<unsigned int, unsigned int> (*)(
 
 void export_MatchEnv(nb::module_& module)
 {
-    module.def("minimizeRMSD", (MinimizeRMSD_Coords) &minimizeRMSD,        "Compute a map of matching indices between two sets of points. This overload also potentially\n"
+    module.def(
+        "minimizeRMSD",
+        (MinimizeRMSD_Coords) &minimizeRMSD,
+        "Compute a map of matching indices between two sets of points. This overload also potentially\n"
         "modifies the second set of points in-place if registration=True.\n\n"
         "Args:\n"
         "    box (Box): Simulation box.\n"
