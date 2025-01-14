@@ -418,13 +418,13 @@ public:
 
     //! Return the array indicating whether or not a successful mapping was found between each particle and
     //! the provided motif.
-    const util::ManagedArray<float>& getRMSDs()
+    const std::shared_ptr<util::ManagedArray<float>>& getRMSDs()
     {
         return m_rmsds;
     }
 
 private:
-    util::ManagedArray<float>
+    std::shared_ptr<util::ManagedArray<float>>
         m_rmsds; //!< Boolean array indicating whether or not a particle's environment matches the motif.
 };
 

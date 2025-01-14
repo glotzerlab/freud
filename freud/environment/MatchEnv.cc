@@ -746,8 +746,8 @@ void EnvironmentRMSDMinimizer::compute(const std::shared_ptr<freud::locality::Ne
 
     size_t bond(0);
     const size_t num_bonds(nlist.getNumBonds());
-
-    m_rmsds.prepare(Np);
+    m_rmsds = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {Np});
+    // m_rmsds.prepare(Np);
 
     // loop through the particles and add their environments to the set
     // take care, here: set things up s.t. the env_ind of every environment
@@ -766,7 +766,7 @@ void EnvironmentRMSDMinimizer::compute(const std::shared_ptr<freud::locality::Ne
         rotmat3<float> rotation = mapping.first;
         BiMap<unsigned int, unsigned int> vec_map = mapping.second;
         // populate the min_rmsd vector
-        m_rmsds[i] = min_rmsd;
+        (*m_rmsds)[i] = min_rmsd;
 
         // if the mapping between the vectors of the environments is NOT
         // empty, then the environments are similar.

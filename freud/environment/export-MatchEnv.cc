@@ -45,7 +45,8 @@ void compute_env_rmsd_min(const std::shared_ptr<EnvironmentRMSDMinimizer>& env_r
 )
 {
     auto* motif_data = reinterpret_cast<vec3<float>*>(motif.data());
-    env_rmsd_min->compute(nq, nlist, qargs, motif_data, motif_size, threshold, registration);
+    // TODO: where should threshold go?
+    env_rmsd_min->compute(nq, nlist, qargs, motif_data, motif_size, registration);
 }
 
 };
