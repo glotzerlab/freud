@@ -355,13 +355,13 @@ public:
                  float threshold, bool registration = false);
 
     //! Return the array indicating whether each particle matched the motif or not.
-    const std::shared_ptr<util::ManagedArray<bool>>& getMatches()
+    const std::shared_ptr<util::ManagedArray<char>>& getMatches()
     {
         return m_matches;
     }
 
 private:
-    std::shared_ptr<util::ManagedArray<bool>>
+    std::shared_ptr<util::ManagedArray<char>>
         m_matches; //!< Boolean array indicating whether or not a particle's environment matches the motif.
 };
 

@@ -674,7 +674,7 @@ void EnvironmentMotifMatch::compute(const std::shared_ptr<freud::locality::Neigh
     size_t bond(0);
     const size_t num_bonds(nlist->getNumBonds());
 
-    m_matches = std::make_shared<util::ManagedArray<bool>>(std::vector<size_t> {Np});
+    m_matches = std::make_shared<util::ManagedArray<char>>(std::vector<size_t> {Np});
     // m_matches.prepare(Np);
 
     // loop through the particles and add their environments to the set
