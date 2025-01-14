@@ -509,9 +509,9 @@ Environment MatchEnv::buildEnv(const freud::locality::NeighborList* nlist, size_
     return ei;
 }
 
-void EnvironmentCluster::compute(const freud::locality::NeighborQuery* nq,
-                                 const freud::locality::NeighborList* nlist_arg, locality::QueryArgs qargs,
-                                 const freud::locality::NeighborList* env_nlist_arg,
+void EnvironmentCluster::compute(const std::shared_ptr<freud::locality::NeighborQuery>& nq,
+                                 const std::shared_ptr<freud::locality::NeighborList>& nlist_arg, locality::QueryArgs qargs,
+                                 const std::shared_ptr<freud::locality::NeighborList>& env_nlist_arg,
                                  locality::QueryArgs env_qargs, float threshold, bool registration)
 {
     const locality::NeighborList nlist
@@ -520,7 +520,8 @@ void EnvironmentCluster::compute(const freud::locality::NeighborQuery* nq,
         = locality::makeDefaultNlist(nq, env_nlist_arg, nq->getPoints(), nq->getNPoints(), env_qargs);
 
     unsigned int Np = nq->getNPoints();
-    m_env_index.prepare(Np);
+    m_env_index = std::make_shared<util::ManagedArray<unsigned int>>(std::vector<size_t> {Np});
+    // m_env_index.prepare(Np);
 
     float m_threshold_sq = threshold * threshold;
 
@@ -609,7 +610,7 @@ unsigned int EnvironmentCluster::populateEnv(EnvDisjointSet dj)
             }
 
             // label this particle in m_env_index
-            m_env_index[particle_ind] = label_ind;
+            (*m_env_index[particle_ind]) = label_ind;
 
             m_point_environments.emplace_back();
             for (const auto& part_vec : part_vecs)
@@ -634,8 +635,8 @@ unsigned int EnvironmentCluster::populateEnv(EnvDisjointSet dj)
 /*************************
  * EnvironmentMotifMatch *
  *************************/
-void EnvironmentMotifMatch::compute(const freud::locality::NeighborQuery* nq,
-                                    const freud::locality::NeighborList* nlist_arg, locality::QueryArgs qargs,
+void EnvironmentMotifMatch::compute(const std::shared_ptr<freud::locality::NeighborQuery>& nq,
+                                    const std::shared_ptr<freud::locality::NeighborList>& nlist_arg, locality::QueryArgs qargs,
                                     const vec3<float>* motif, unsigned int motif_size, float threshold,
                                     bool registration)
 {
@@ -673,7 +674,8 @@ void EnvironmentMotifMatch::compute(const freud::locality::NeighborQuery* nq,
     size_t bond(0);
     const size_t num_bonds(nlist.getNumBonds());
 
-    m_matches.prepare(Np);
+    m_matches = std::make_shared<util::ManagedArray<bool>>(std::vector<size_t> {Np});
+    // m_matches.prepare(Np);
 
     // loop through the particles and add their environments to the set
     // take care, here: set things up s.t. the env_ind of every environment
@@ -695,7 +697,7 @@ void EnvironmentMotifMatch::compute(const freud::locality::NeighborQuery* nq,
         if (!vec_map.empty())
         {
             dj.merge(0, dummy, vec_map, rotation);
-            m_matches[i] = true;
+            (*m_matches)[i] = true;
         }
         // grab the set of vectors that define this individual environment
         std::vector<vec3<float>> part_vecs = dj.getIndividualEnv(dummy);

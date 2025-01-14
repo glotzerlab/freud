@@ -268,7 +268,7 @@ public:
                  locality::QueryArgs env_qargs, float threshold, bool registration = false);
 
     //! Get a reference to the particles, indexed into clusters according to their matching local environments
-    const util::ManagedArray<unsigned int>& getClusters()
+    const std::shared_ptr<util::ManagedArray<unsigned int>>& getClusters()
     {
         return m_env_index;
     }
@@ -304,7 +304,7 @@ private:
     unsigned int populateEnv(EnvDisjointSet dj);
 
     unsigned int m_num_clusters {0};              //!< Last number of local environments computed
-    util::ManagedArray<unsigned int> m_env_index; //!< Cluster index determined for each particle
+    std::shared_ptr<util::ManagedArray<unsigned int>> m_env_index; //!< Cluster index determined for each particle
     std::vector<std::vector<vec3<float>>>
         m_cluster_environments; //!< Dictionary of (cluster id, vectors) pairs
 };
@@ -355,13 +355,13 @@ public:
                  float threshold, bool registration = false);
 
     //! Return the array indicating whether each particle matched the motif or not.
-    const util::ManagedArray<bool>& getMatches()
+    const std::shared_ptr<util::ManagedArray<bool>>& getMatches()
     {
         return m_matches;
     }
 
 private:
-    util::ManagedArray<bool>
+    std::shared_ptr<util::ManagedArray<bool>>
         m_matches; //!< Boolean array indicating whether or not a particle's environment matches the motif.
 };
 
