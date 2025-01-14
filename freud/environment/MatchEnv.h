@@ -204,7 +204,7 @@ public:
 
     //! Construct and return a local environment surrounding the particle indexed by i. Set the environment
     //! index to env_ind.
-    static Environment buildEnv(const freud::locality::NeighborList* nlist, size_t num_bonds, size_t& bond,
+    static Environment buildEnv(const std::shared_ptr<freud::locality::NeighborList>& nlist, size_t num_bonds, size_t& bond,
                                 unsigned int i, unsigned int env_ind);
 
     //! Returns the entire Np by m_num_neighbors by 3 matrix of all environments for all particles
@@ -264,7 +264,7 @@ public:
      *                     minimizes the RMSD between the two sets
      */
     void compute(const std::shared_ptr<freud::locality::NeighborQuery>& nq, const std::shared_ptr<freud::locality::NeighborList>& nlist_arg,
-                 locality::QueryArgs qargs, const freud::locality::NeighborList* env_nlist_arg,
+                 locality::QueryArgs qargs, const std::shared_ptr<freud::locality::NeighborList>& env_nlist_arg,
                  locality::QueryArgs env_qargs, float threshold, bool registration = false);
 
     //! Get a reference to the particles, indexed into clusters according to their matching local environments
@@ -350,7 +350,7 @@ public:
      *                     orient the second set of vectors such that it
      *                     minimizes the RMSD between the two sets
      */
-    void compute(const std::shared_ptr<freud::locality::NeighborQuery> nq, const std::shared_ptr<freud::locality::NeighborList> nlist_arg,
+    void compute(const std::shared_ptr<freud::locality::NeighborQuery>& nq, const std::shared_ptr<freud::locality::NeighborList>& nlist_arg,
                  locality::QueryArgs qargs, const vec3<float>* motif, unsigned int motif_size,
                  float threshold, bool registration = false);
 

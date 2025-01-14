@@ -488,20 +488,20 @@ MatchEnv::~MatchEnv() = default;
 
 EnvironmentCluster::~EnvironmentCluster() = default;
 
-Environment MatchEnv::buildEnv(const freud::locality::NeighborList* nlist, size_t num_bonds, size_t& bond,
+Environment MatchEnv::buildEnv(const std::shared_ptr<freud::locality::NeighborList>& nlist, size_t num_bonds, size_t& bond,
                                unsigned int i, unsigned int env_ind)
 {
     Environment ei = Environment();
     // set the environment index equal to the particle index
     ei.env_ind = env_ind;
 
-    for (; bond < num_bonds && nlist->getNeighbors()(bond, 0) == i; ++bond)
+    for (; bond < num_bonds && (*nlist->getNeighbors())(bond, 0) == i; ++bond)
     {
         // compute vec{r} between the two particles
-        const size_t j(nlist->getNeighbors()(bond, 1));
+        const size_t j((*nlist->getNeighbors())(bond, 1));
         if (i != j)
         {
-            vec3<float> delta(nlist->getVectors()[bond]);
+            vec3<float> delta((*nlist->getVectors())[bond]);
             ei.addVec(delta);
         }
     }
@@ -514,9 +514,9 @@ void EnvironmentCluster::compute(const std::shared_ptr<freud::locality::Neighbor
                                  const std::shared_ptr<freud::locality::NeighborList>& env_nlist_arg,
                                  locality::QueryArgs env_qargs, float threshold, bool registration)
 {
-    const locality::NeighborList nlist
+    std::shared_ptr<locality::NeighborList> nlist
         = locality::makeDefaultNlist(nq, nlist_arg, nq->getPoints(), nq->getNPoints(), qargs);
-    const locality::NeighborList env_nlist
+    std::shared_ptr<locality::NeighborList> env_nlist
         = locality::makeDefaultNlist(nq, env_nlist_arg, nq->getPoints(), nq->getNPoints(), env_qargs);
 
     unsigned int Np = nq->getNPoints();
@@ -525,10 +525,10 @@ void EnvironmentCluster::compute(const std::shared_ptr<freud::locality::Neighbor
 
     float m_threshold_sq = threshold * threshold;
 
-    nlist.validate(Np, Np);
-    env_nlist.validate(Np, Np);
+    nlist->validate(Np, Np);
+    env_nlist->validate(Np, Np);
     size_t env_bond(0);
-    const size_t env_num_bonds(env_nlist.getNumBonds());
+    const size_t env_num_bonds(env_nlist->getNumBonds());
 
     // create a disjoint set where all particles belong in their own cluster
     EnvDisjointSet dj(Np);
@@ -548,12 +548,12 @@ void EnvironmentCluster::compute(const std::shared_ptr<freud::locality::Neighbor
     for (unsigned int i = 0; i < Np; i++)
     {
         // loop over the neighbors
-        for (; bond < nlist.getNumBonds() && nlist.getNeighbors()(bond, 0) == i; ++bond)
+        for (; bond < nlist->getNumBonds() && (*nlist->getNeighbors())(bond, 0) == i; ++bond)
         {
-            const size_t j(nlist.getNeighbors()(bond, 1));
-            std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>> mapping
-                = isSimilar(dj.s[i], dj.s[j], m_threshold_sq, registration);
-            rotmat3<float> rotation = mapping.first;
+            const size_t j((*nlist->getNeighbors())(bond, 1));
+            std:(*):pair<rotmat3<floa)t>, BiMap<unsigned int, unsigned int>> mapping
+                = isSimilar(dj.s[i], dj.s[j], m_threshold_sq(*), registration);
+ )           rotmat3<float> rotation = mapping.first;
             BiMap<unsigned int, unsigned int> vec_map = mapping.second;
             // if the mapping between the vectors of the environments
             // is NOT empty, then the environments are similar, so
@@ -610,7 +610,7 @@ unsigned int EnvironmentCluster::populateEnv(EnvDisjointSet dj)
             }
 
             // label this particle in m_env_index
-            (*m_env_index[particle_ind]) = label_ind;
+            (*m_env_index)[particle_ind] = label_ind;
 
             m_point_environments.emplace_back();
             for (const auto& part_vec : part_vecs)
@@ -640,13 +640,13 @@ void EnvironmentMotifMatch::compute(const std::shared_ptr<freud::locality::Neigh
                                     const vec3<float>* motif, unsigned int motif_size, float threshold,
                                     bool registration)
 {
-    const locality::NeighborList nlist
+    std::shared_ptr<locality::NeighborList> nlist
         = locality::makeDefaultNlist(nq, nlist_arg, nq->getPoints(), nq->getNPoints(), qargs);
 
     unsigned int Np = nq->getNPoints();
     float m_threshold_sq = threshold * threshold;
 
-    nlist.validate(Np, Np);
+    nlist->validate(Np, Np);
 
     // create a disjoint set where all particles belong in their own cluster.
     // this has to have ONE MORE environment than there are actual particles,
@@ -672,7 +672,7 @@ void EnvironmentMotifMatch::compute(const std::shared_ptr<freud::locality::Neigh
     dj.s.push_back(e0);
 
     size_t bond(0);
-    const size_t num_bonds(nlist.getNumBonds());
+    const size_t num_bonds(nlist->getNumBonds());
 
     m_matches = std::make_shared<util::ManagedArray<bool>>(std::vector<size_t> {Np});
     // m_matches.prepare(Np);
@@ -684,7 +684,7 @@ void EnvironmentMotifMatch::compute(const std::shared_ptr<freud::locality::Neigh
     for (unsigned int i = 0; i < Np; i++)
     {
         unsigned int dummy = i + 1;
-        Environment ei = buildEnv(&nlist, num_bonds, bond, i, dummy);
+        Environment ei = buildEnv(nlist, num_bonds, bond, i, dummy);
         dj.s.push_back(ei);
 
         // if the environment matches e0, merge it into the e0 environment set
@@ -718,7 +718,7 @@ void EnvironmentRMSDMinimizer::compute(const std::shared_ptr<freud::locality::Ne
                                        locality::QueryArgs qargs, const vec3<float>* motif,
                                        unsigned int motif_size, bool registration)
 {
-    const locality::NeighborList nlist
+    std::shared_ptr<locality::NeighborList> nlist
         = locality::makeDefaultNlist(nq, nlist_arg, nq->getPoints(), nq->getNPoints(), qargs);
 
     unsigned int Np = nq->getNPoints();
@@ -747,7 +747,7 @@ void EnvironmentRMSDMinimizer::compute(const std::shared_ptr<freud::locality::Ne
     dj.s.push_back(e0);
 
     size_t bond(0);
-    const size_t num_bonds(nlist.getNumBonds());
+    const size_t num_bonds(nlist->getNumBonds());
     m_rmsds = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {Np});
     // m_rmsds.prepare(Np);
 
