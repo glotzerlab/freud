@@ -263,7 +263,7 @@ public:
      *                     orient the second set of vectors such that it
      *                     minimizes the RMSD between the two sets
      */
-    void compute(const freud::locality::NeighborQuery* nq, const freud::locality::NeighborList* nlist_arg,
+    void compute(const std::shared_ptr<freud::locality::NeighborQuery>& nq, const std::shared_ptr<freud::locality::NeighborList>& nlist_arg,
                  locality::QueryArgs qargs, const freud::locality::NeighborList* env_nlist_arg,
                  locality::QueryArgs env_qargs, float threshold, bool registration = false);
 
@@ -350,7 +350,7 @@ public:
      *                     orient the second set of vectors such that it
      *                     minimizes the RMSD between the two sets
      */
-    void compute(const freud::locality::NeighborQuery* nq, const freud::locality::NeighborList* nlist_arg,
+    void compute(const std::shared_ptr<freud::locality::NeighborQuery> nq, const std::shared_ptr<freud::locality::NeighborList> nlist_arg,
                  locality::QueryArgs qargs, const vec3<float>* motif, unsigned int motif_size,
                  float threshold, bool registration = false);
 
@@ -412,7 +412,7 @@ public:
      *                     orient the second set of vectors such that it
      *                     minimizes the RMSD between the two sets
      */
-    void compute(const freud::locality::NeighborQuery* nq, const freud::locality::NeighborList* nlist_arg,
+    void compute(const std::shared_ptr<freud::locality::NeighborQuery>& nq, const std::shared_ptr<freud::locality::NeighborList>& nlist_arg,
                  locality::QueryArgs qargs, const vec3<float>* motif, unsigned int motif_size,
                  bool registration = false);
 

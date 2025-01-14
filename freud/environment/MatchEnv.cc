@@ -711,8 +711,8 @@ void EnvironmentMotifMatch::compute(const freud::locality::NeighborQuery* nq,
 /****************************
  * EnvironmentRMSDMinimizer *
  ****************************/
-void EnvironmentRMSDMinimizer::compute(const freud::locality::NeighborQuery* nq,
-                                       const freud::locality::NeighborList* nlist_arg,
+void EnvironmentRMSDMinimizer::compute(const std::shared_ptr<freud::locality::NeighborQuery>& nq,
+                                       const std::shared_ptr<freud::locality::NeighborList>& nlist_arg,
                                        locality::QueryArgs qargs, const vec3<float>* motif,
                                        unsigned int motif_size, bool registration)
 {

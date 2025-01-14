@@ -5,6 +5,7 @@
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
 #include <nanobind/stl/shared_ptr.h> // NOLINT(misc-include-cleaner): used implicitly
+#include <nanobind/stl/function.h> // NOLINT(misc-include-cleaner): used implicitly
 #include <nanobind/stl/vector.h>     // NOLINT(misc-include-cleaner): used implicitly
 
 #include "MatchEnv.h"
@@ -54,30 +55,30 @@ namespace detail {
 void export_MatchEnv(nb::module_& module)
 {
     // export minimizeRMSD function, move convenience to wrap? TODO
-    nb::function("minimizeRMSD", &minimizeRMSD);//carefull ths fn is overloaded for easier python interactivity. You should use the one that takes box etc in.
+    // module.def("minimizeRMSD", &minimizeRMSD); //carefull ths fn is overloaded for easier python interactivity. You should use the one that takes box etc in.
     // export isSimilar function, move convenience to wrap? TODO
-    nb::function("isSimilar", &isSimilar); //carefull ths fn is overloaded for easier python interactivity. You should use the one that takes box etc in.
+    // module.def("isSimilar", &isSimilar); //carefull ths fn is overloaded for easier python interactivity. You should use the one that takes box etc in.
 
     nb::class_<MatchEnv>(module, "MatchEnv")
-        .def(nb::init<>)
-        .def("getPointEnvironments", &MatchEnv::getPointEnvironments)
+        .def(nb::init<>())
+        .def("getPointEnvironments", &MatchEnv::getPointEnvironments);
 
     nb::class_<EnvironmentCluster>(module, "EnvironmentCluster")
         .def(nb::init<>())
         .def("compute", &EnvironmentCluster::compute)
-        .def("getClusters", &EnvironmentCluster::getClusterIdx)
+        // .def("getClusters", &EnvironmentCluster::getClusterIdx) // TODO: should be there
         .def("getClusterEnvironments", &EnvironmentCluster::getClusterEnvironments)
-        .def("getNumClusters", &EnvironmentCluster::getNumClusters)
+        .def("getNumClusters", &EnvironmentCluster::getNumClusters);
 
     nb::class_<EnvironmentMotifMatch>(module, "EnvironmentMotifMatch")
         .def(nb::init<>())
         .def("compute", &wrap::compute_env_motif_match, nb::arg("nq"), nb::arg("nlist"), nb::arg("qargs"), nb::arg("motif"), nb::arg("motif_size"), nb::arg("threshold"), nb::arg("registration"))
-        .def("getMatches", &EnvironmentMotifMatch::getMatches)
+        .def("getMatches", &EnvironmentMotifMatch::getMatches);
 
     nb::class_<EnvironmentRMSDMinimizer>(module, "EnvironmentRMSDMinimizer")
         .def(nb::init<>())
         .def("compute", &wrap::compute_env_rmsd_min, nb::arg("nq"), nb::arg("nlist"), nb::arg("qargs"), nb::arg("motif"), nb::arg("motif_size"), nb::arg("threshold"), nb::arg("registration"))
-        .def("getRMSDs", &EnvironmentRMSDMinimizer::getRMSDs)
+        .def("getRMSDs", &EnvironmentRMSDMinimizer::getRMSDs);
 
 }
 
