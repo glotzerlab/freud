@@ -25,8 +25,8 @@ add_library(
   cluster/ClusterProperties.h
   cluster/ClusterProperties.cc
   # density
-  density/CorrelationFunction.h
-  density/CorrelationFunction.cc
+  # density/CorrelationFunction.h
+  # density/CorrelationFunction.cc
   density/GaussianDensity.h
   density/GaussianDensity.cc
   density/LocalDensity.h
@@ -205,7 +205,7 @@ nanobind_add_module(
   _density 
   
   density/module-density.cc 
-  density/export-CorrelationFunction.cc
+  # density/export-CorrelationFunction.cc
   density/export-GaussianDensity.cc 
   
   density/export-RDF.cc

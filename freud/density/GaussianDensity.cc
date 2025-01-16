@@ -13,7 +13,7 @@
 namespace freud { namespace density {
 
 // GaussianDensity::GaussianDensity(vec3<unsigned int> width, float r_max, float sigma)
-GaussianDensity::GaussianDensity(float width, float r_max, float sigma);
+GaussianDensity::GaussianDensity(vec3<unsigned int> width, float r_max, float sigma)
     // : m_box(), m_width(width), m_r_max(r_max), m_sigma(sigma), m_has_computed(false)
     : m_box(), m_width(width), m_r_max(r_max), m_sigma(sigma), m_has_computed(false)
 {
@@ -31,7 +31,7 @@ std::shared_ptr<util::ManagedArray<float>> GaussianDensity::getDensity() const
 
 //! Get width.
 // vec3<unsigned int> GaussianDensity::getWidth()
-float GaussianDensity::getWidth()
+vec3<unsigned int> GaussianDensity::getWidth()
 {
     return m_width;
 }

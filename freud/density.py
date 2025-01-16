@@ -18,153 +18,153 @@ from freud.locality import _PairCompute, _SpatialHistogram1D
 from freud.util import _Compute
 
 
-class CorrelationFunction(_SpatialHistogram1D):
-    r"""Computes the complex pairwise correlation function.
+# class CorrelationFunction(_SpatialHistogram1D):
+#     r"""Computes the complex pairwise correlation function.
 
-    The correlation function is given by
-    :math:`C(r) = \left\langle s^*_1(0) \cdot s_2(r) \right\rangle` between
-    two sets of points :math:`p_1` (:code:`points`) and :math:`p_2`
-    (:code:`query_points`) with associated values :math:`s_1` (:code:`values`)
-    and :math:`s_2` (:code:`query_values`). Computing the correlation function
-    results in an array of the expected (average) product of all values at a
-    given radial distance :math:`r`.
-    The values of :math:`r` where the correlation function is computed are
-    controlled by the :code:`bins` and :code:`r_max` parameters to the
-    constructor, and the spacing between the bins is given by
-    :code:`dr = r_max / bins`.
+#     The correlation function is given by
+#     :math:`C(r) = \left\langle s^*_1(0) \cdot s_2(r) \right\rangle` between
+#     two sets of points :math:`p_1` (:code:`points`) and :math:`p_2`
+#     (:code:`query_points`) with associated values :math:`s_1` (:code:`values`)
+#     and :math:`s_2` (:code:`query_values`). Computing the correlation function
+#     results in an array of the expected (average) product of all values at a
+#     given radial distance :math:`r`.
+#     The values of :math:`r` where the correlation function is computed are
+#     controlled by the :code:`bins` and :code:`r_max` parameters to the
+#     constructor, and the spacing between the bins is given by
+#     :code:`dr = r_max / bins`.
 
-    .. note::
-        **Self-correlation:** It is often the case that we wish to compute the
-        correlation function of a set of points with itself. If
-        :code:`query_points` is the same as :code:`points`, not provided, or
-        :code:`None`, we omit accumulating the self-correlation value in the
-        first bin.
+#     .. note::
+#         **Self-correlation:** It is often the case that we wish to compute the
+#         correlation function of a set of points with itself. If
+#         :code:`query_points` is the same as :code:`points`, not provided, or
+#         :code:`None`, we omit accumulating the self-correlation value in the
+#         first bin.
 
-    Args:
-        bins (unsigned int):
-            The number of bins in the correlation function.
-        r_max (float):
-            Maximum pointwise distance to include in the calculation.
-    """
+#     Args:
+#         bins (unsigned int):
+#             The number of bins in the correlation function.
+#         r_max (float):
+#             Maximum pointwise distance to include in the calculation.
+#     """
 
-    def __init__(self, bins, r_max):
-        self._cpp_obj = freud._density.CorrelationFunction(bins, r_max)
-        self.r_max = r_max
-        self.is_complex = False
+#     def __init__(self, bins, r_max):
+#         self._cpp_obj = freud._density.CorrelationFunction(bins, r_max)
+#         self.r_max = r_max
+#         self.is_complex = False
 
-    def compute(
-        self,
-        system,
-        values,
-        query_points=None,
-        query_values=None,
-        neighbors=None,
-        reset=True,
-    ):
-        r"""Calculates the correlation function and adds to the current
-        histogram.
+#     def compute(
+#         self,
+#         system,
+#         values,
+#         query_points=None,
+#         query_values=None,
+#         neighbors=None,
+#         reset=True,
+#     ):
+#         r"""Calculates the correlation function and adds to the current
+#         histogram.
 
-        Args:
-            system:
-                Any object that is a valid argument to
-                :class:`freud.locality.NeighborQuery.from_system`.
-            values ((:math:`N_{points}`) :class:`numpy.ndarray`):
-                Values associated with the system points used to calculate the
-                correlation function.
-            query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
-                Query points used to calculate the correlation function.  Uses
-                the system's points if :code:`None` (Default value =
-                :code:`None`).
-            query_values ((:math:`N_{query\_points}`) :class:`numpy.ndarray`, optional):
-                Query values used to calculate the correlation function.  Uses
-                :code:`values` if :code:`None`.  (Default value
-                = :code:`None`).
-            neighbors (:class:`freud.locality.NeighborList` or dict, optional):
-                Either a :class:`NeighborList <freud.locality.NeighborList>` of
-                neighbor pairs to use in the calculation, or a dictionary of
-                `query arguments
-                <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
-                (Default value: None).
-            reset (bool):
-                Whether to erase the previously computed values before adding
-                the new computation; if False, will accumulate data (Default
-                value: True).
-        """  # noqa E501
-        if reset:
-            self.is_complex = False
-            self._reset()
+#         Args:
+#             system:
+#                 Any object that is a valid argument to
+#                 :class:`freud.locality.NeighborQuery.from_system`.
+#             values ((:math:`N_{points}`) :class:`numpy.ndarray`):
+#                 Values associated with the system points used to calculate the
+#                 correlation function.
+#             query_points ((:math:`N_{query\_points}`, 3) :class:`numpy.ndarray`, optional):
+#                 Query points used to calculate the correlation function.  Uses
+#                 the system's points if :code:`None` (Default value =
+#                 :code:`None`).
+#             query_values ((:math:`N_{query\_points}`) :class:`numpy.ndarray`, optional):
+#                 Query values used to calculate the correlation function.  Uses
+#                 :code:`values` if :code:`None`.  (Default value
+#                 = :code:`None`).
+#             neighbors (:class:`freud.locality.NeighborList` or dict, optional):
+#                 Either a :class:`NeighborList <freud.locality.NeighborList>` of
+#                 neighbor pairs to use in the calculation, or a dictionary of
+#                 `query arguments
+#                 <https://freud.readthedocs.io/en/stable/topics/querying.html>`_
+#                 (Default value: None).
+#             reset (bool):
+#                 Whether to erase the previously computed values before adding
+#                 the new computation; if False, will accumulate data (Default
+#                 value: True).
+#         """  # noqa E501
+#         if reset:
+#             self.is_complex = False
+#             self._reset()
 
-        nq, nlist, qargs, l_query_points, num_query_points = self._preprocess_arguments(
-            system, query_points, neighbors
-        )
+#         nq, nlist, qargs, l_query_points, num_query_points = self._preprocess_arguments(
+#             system, query_points, neighbors
+#         )
 
-        # Save if any inputs have been complex so far.
-        self.is_complex = (
-            self.is_complex
-            or np.any(np.iscomplex(values))
-            or np.any(np.iscomplex(query_values))
-        )
+#         # Save if any inputs have been complex so far.
+#         self.is_complex = (
+#             self.is_complex
+#             or np.any(np.iscomplex(values))
+#             or np.any(np.iscomplex(query_values))
+#         )
 
-        values = freud.util._convert_array(
-            values, shape=(nq.points.shape[0],), dtype=np.complex128
-        )
-        if query_values is None:
-            query_values = values
-        else:
-            query_values = freud.util._convert_array(
-                query_values, shape=(l_query_points.shape[0],), dtype=np.complex128
-            )
+#         values = freud.util._convert_array(
+#             values, shape=(nq.points.shape[0],), dtype=np.complex128
+#         )
+#         if query_values is None:
+#             query_values = values
+#         else:
+#             query_values = freud.util._convert_array(
+#                 query_values, shape=(l_query_points.shape[0],), dtype=np.complex128
+#             )
 
-        self._cpp_obj.accumulate(
-            nq._cpp_obj,
-            values,
-            l_query_points,
-            query_values,
-            num_query_points,
-            nlist._cpp_obj,
-            qargs._cpp_obj,
-        )
-        return self
+#         self._cpp_obj.accumulate(
+#             nq._cpp_obj,
+#             values,
+#             l_query_points,
+#             query_values,
+#             num_query_points,
+#             nlist._cpp_obj,
+#             qargs._cpp_obj,
+#         )
+#         return self
 
-    @_Compute._computed_property
-    def correlation(self):
-        """(:math:`N_{bins}`) :class:`numpy.ndarray`: Expected (average)
-        product of all values at a given radial distance."""
-        output = self._cpp_obj.getCorrelation().toNumpyArray()
-        return output if self.is_complex else np.real(output)
+#     @_Compute._computed_property
+#     def correlation(self):
+#         """(:math:`N_{bins}`) :class:`numpy.ndarray`: Expected (average)
+#         product of all values at a given radial distance."""
+#         output = self._cpp_obj.getCorrelation().toNumpyArray()
+#         return output if self.is_complex else np.real(output)
 
-    def __repr__(self):
-        return (f"freud.density.{type(self).__name__}(bins={self.nbins}, r_max={self.r_max})")
+#     def __repr__(self):
+#         return (f"freud.density.{type(self).__name__}(bins={self.nbins}, r_max={self.r_max})")
 
-    def plot(self, ax=None):
-        """Plot complex correlation function.
+#     def plot(self, ax=None):
+#         """Plot complex correlation function.
 
-        Args:
-            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
-                :code:`None`, make a new figure and axis.
-                (Default value = :code:`None`)
+#         Args:
+#             ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
+#                 :code:`None`, make a new figure and axis.
+#                 (Default value = :code:`None`)
 
-        Returns:
-            (:class:`matplotlib.axes.Axes`): Axis with the plot.
-        """
-        import freud.plot
+#         Returns:
+#             (:class:`matplotlib.axes.Axes`): Axis with the plot.
+#         """
+#         import freud.plot
 
-        return freud.plot.line_plot(
-            self.bin_centers,
-            np.real(self.correlation),
-            title="Correlation Function",
-            xlabel=r"$r$",
-            ylabel=r"$\operatorname{Re}(C(r))$",
-            ax=ax,
-        )
+#         return freud.plot.line_plot(
+#             self.bin_centers,
+#             np.real(self.correlation),
+#             title="Correlation Function",
+#             xlabel=r"$r$",
+#             ylabel=r"$\operatorname{Re}(C(r))$",
+#             ax=ax,
+#         )
 
-    def _repr_png_(self):
-        try:
-            import freud.plot
+#     def _repr_png_(self):
+#         try:
+#             import freud.plot
 
-            return freud.plot._ax_to_bytes(self.plot())
-        except (AttributeError, ImportError):
-            return None
+#             return freud.plot._ax_to_bytes(self.plot())
+#         except (AttributeError, ImportError):
+#             return None
 
 
 class GaussianDensity(_Compute):
@@ -211,7 +211,7 @@ class GaussianDensity(_Compute):
                 "dimension (length 2 in 2D, length 3 in 3D)."
             )
 
-        self._cpp_obj = freud._density.GaussianDensity(width_vector, r_max, sigma)
+        self._cpp_obj = freud._density.make_gaussian_density(width_vector[0], width_vector[1], width_vector[2], r_max, sigma)
 
     @_Compute._computed_property
     def box(self):
@@ -235,6 +235,8 @@ class GaussianDensity(_Compute):
 
         if values is not None:
             l_values = freud.util._convert_array(values, shape=(nq.points.shape[0],))
+        else:
+            l_values = None
 
         self._cpp_obj.compute(nq._cpp_obj, l_values)
         return self
@@ -245,13 +247,9 @@ class GaussianDensity(_Compute):
         grid with the Gaussian density contributions from each point."""
         if self.box.is2D:
             return np.squeeze(
-                freud.util.make_managed_numpy_array(
-                    self._cpp_obj.getDensity(), freud.util.arr_type_t.FLOAT
-                )
+                self._cpp_obj.density.toNumpyArray()
             )
-        return freud.util.make_managed_numpy_array(
-            self._cpp_obj.getDensity(), freud.util.arr_type_t.FLOAT
-        )
+        return self._cpp_obj.density.toNumpyArray()
 
     @property
     def r_max(self):
@@ -267,8 +265,7 @@ class GaussianDensity(_Compute):
     def width(self):
         """tuple[int]: The number of bins in the grid in each dimension
         (identical in all dimensions if a single integer value is provided)."""
-        width = self._cpp_obj.getWidth()
-        return (width.x, width.y, width.z)
+        return self._cpp_obj.getWidth()
 
     def __repr__(self):
         return (f"freud.density.{type(self).__name__}({self.width}, {self.r_max}, {self.sigma})")

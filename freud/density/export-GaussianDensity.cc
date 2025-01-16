@@ -21,13 +21,23 @@ template<typename T, typename shape>
 using nb_array = nanobind::ndarray<T, shape, nanobind::device::cpu, nanobind::c_contig>;
 
 namespace wrap {
+    std::shared_ptr<GaussianDensity> make_gaussian_density(unsigned int width_x, unsigned int width_y, unsigned int width_z, float r_max, float sigma)
+    {
+        return std::make_shared<GaussianDensity>(vec3<unsigned int>(width_x, width_y, width_z), r_max, sigma);
+    }
 
-void computeDensity(const std::shared_ptr<GaussianDensity>& self, const std::shared_ptr<locality::NeighborQuery>& nq,
-                    const nb_array<float, nanobind::shape<-1>>& values)
-{
-    const float* values_data = values.is_valid() ? reinterpret_cast<float*>(values.data()) : nullptr;
-    self->compute(nq.get(), values_data);
-}
+    nanobind::tuple get_width(std::shared_ptr<GaussianDensity> self)
+    {
+        auto width = self->getWidth();
+        return nanobind::make_tuple(width.x, width.y, width.z);
+    }
+
+    void computeDensity(const std::shared_ptr<GaussianDensity>& self, const std::shared_ptr<locality::NeighborQuery>& nq,
+                        const nb_array<float, nanobind::shape<-1>>& values)
+    {
+        const auto* values_data = values.is_valid() ? reinterpret_cast<const float*>(values.data()) : nullptr;
+        self->compute(nq.get(), values_data);
+    }
 
 }; // namespace wrap
 
@@ -35,12 +45,13 @@ namespace detail {
 
 void export_GaussianDensity(nanobind::module_& m)
 {
+    m.def("make_gaussian_density", &wrap::make_gaussian_density);
     nanobind::class_<GaussianDensity>(m, "GaussianDensity")
         .def(nanobind::init<vec3<unsigned int>, float, float>())
         .def("compute", &wrap::computeDensity, nanobind::arg("nq"), nanobind::arg("values") = nullptr)
-        .def("getDensity", &GaussianDensity::getDensity)
+        .def_prop_ro("density", &GaussianDensity::getDensity)
         .def("getBox", &GaussianDensity::getBox)
-        .def("getWidth", &GaussianDensity::getWidth)
+        .def("getWidth", &wrap::get_width)
         .def("getSigma", &GaussianDensity::getSigma)
         .def("getRMax", &GaussianDensity::getRMax);
 }
