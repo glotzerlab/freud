@@ -9,7 +9,6 @@
 
 #include "LocalBondProjection.h"
 
-
 namespace nb = nanobind;
 
 namespace freud { namespace environment {
@@ -19,17 +18,14 @@ using nb_array = nanobind::ndarray<T, shape, nanobind::device::cpu, nanobind::c_
 
 namespace wrap {
 
-void compute(
-    std::shared_ptr<LocalBondProjection>& local_bond_projection,
-    std::shared_ptr<locality::NeighborQuery> nq,
-    nb_array<float, nanobind::shape<-1, 4>>& orientations,
-    nb_array<float, nanobind::shape<-1, 3>>& query_points,
-    nb_array<float, nanobind::shape<-1, 3>>& projected_vectors,
-    nb_array<float, nanobind::shape<-1, 4>>& equiv_orientations,
-    std::shared_ptr<locality::NeighborList> nlist,
-    const locality::QueryArgs& qargs
-)
-    {
+void compute(std::shared_ptr<LocalBondProjection>& local_bond_projection,
+             std::shared_ptr<locality::NeighborQuery> nq,
+             nb_array<float, nanobind::shape<-1, 4>>& orientations,
+             nb_array<float, nanobind::shape<-1, 3>>& query_points,
+             nb_array<float, nanobind::shape<-1, 3>>& projected_vectors,
+             nb_array<float, nanobind::shape<-1, 4>>& equiv_orientations,
+             std::shared_ptr<locality::NeighborList> nlist, const locality::QueryArgs& qargs)
+{
     auto* orientations_data = reinterpret_cast<quat<float>*>(orientations.data());
     auto* query_points_data = reinterpret_cast<vec3<float>*>(query_points.data());
     auto* proj_vectors_data = reinterpret_cast<vec3<float>*>(projected_vectors.data());
@@ -37,10 +33,12 @@ void compute(
     unsigned int n_proj_vec = projected_vectors.shape(0);
     unsigned int n_query_points = query_points.shape(0);
     unsigned int n_equiv_orientations = equiv_orientations.shape(0);
-    local_bond_projection->compute(nq, orientations_data, query_points_data, n_query_points, proj_vectors_data, n_proj_vec, equiv_orientations_data, n_equiv_orientations, nlist, qargs);
-    }
+    local_bond_projection->compute(nq, orientations_data, query_points_data, n_query_points,
+                                   proj_vectors_data, n_proj_vec, equiv_orientations_data,
+                                   n_equiv_orientations, nlist, qargs);
+}
 
-}; 
+}; // namespace wrap
 
 namespace detail {
 
@@ -51,11 +49,10 @@ void export_LocalBondProjection(nb::module_& module)
         .def("getNList", &LocalBondProjection::getNList)
         .def("getProjections", &LocalBondProjection::getProjections)
         .def("getNormedProjections", &LocalBondProjection::getNormedProjections)
-        .def("compute", &wrap::compute, nb::arg("nq"), nb::arg("orientations"), 
-             nb::arg("query_points"), nb::arg("projected_vectors"),  
-             nb::arg("equiv_orientations"), nb::arg("nlist").none(),
+        .def("compute", &wrap::compute, nb::arg("nq"), nb::arg("orientations"), nb::arg("query_points"),
+             nb::arg("projected_vectors"), nb::arg("equiv_orientations"), nb::arg("nlist").none(),
              nb::arg("qargs"));
 }
 
-}; }; // namespace detail
-}; // namespace freud::locality
+}; // namespace detail
+}; }; // namespace freud::environment

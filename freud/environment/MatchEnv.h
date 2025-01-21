@@ -204,8 +204,8 @@ public:
 
     //! Construct and return a local environment surrounding the particle indexed by i. Set the environment
     //! index to env_ind.
-    static Environment buildEnv(const std::shared_ptr<freud::locality::NeighborList>& nlist, size_t num_bonds, size_t& bond,
-                                unsigned int i, unsigned int env_ind);
+    static Environment buildEnv(const std::shared_ptr<freud::locality::NeighborList>& nlist, size_t num_bonds,
+                                size_t& bond, unsigned int i, unsigned int env_ind);
 
     //! Returns the entire Np by m_num_neighbors by 3 matrix of all environments for all particles
     const std::vector<std::vector<vec3<float>>>& getPointEnvironments()
@@ -263,8 +263,9 @@ public:
      *                     orient the second set of vectors such that it
      *                     minimizes the RMSD between the two sets
      */
-    void compute(const std::shared_ptr<freud::locality::NeighborQuery>& nq, const std::shared_ptr<freud::locality::NeighborList>& nlist_arg,
-                 locality::QueryArgs qargs, const std::shared_ptr<freud::locality::NeighborList>& env_nlist_arg,
+    void compute(const std::shared_ptr<freud::locality::NeighborQuery>& nq,
+                 const std::shared_ptr<freud::locality::NeighborList>& nlist_arg, locality::QueryArgs qargs,
+                 const std::shared_ptr<freud::locality::NeighborList>& env_nlist_arg,
                  locality::QueryArgs env_qargs, float threshold, bool registration = false);
 
     //! Get a reference to the particles, indexed into clusters according to their matching local environments
@@ -303,8 +304,9 @@ private:
      */
     unsigned int populateEnv(EnvDisjointSet dj);
 
-    unsigned int m_num_clusters {0};              //!< Last number of local environments computed
-    std::shared_ptr<util::ManagedArray<unsigned int>> m_env_index; //!< Cluster index determined for each particle
+    unsigned int m_num_clusters {0}; //!< Last number of local environments computed
+    std::shared_ptr<util::ManagedArray<unsigned int>>
+        m_env_index; //!< Cluster index determined for each particle
     std::vector<std::vector<vec3<float>>>
         m_cluster_environments; //!< Dictionary of (cluster id, vectors) pairs
 };
@@ -350,9 +352,10 @@ public:
      *                     orient the second set of vectors such that it
      *                     minimizes the RMSD between the two sets
      */
-    void compute(const std::shared_ptr<freud::locality::NeighborQuery>& nq, const std::shared_ptr<freud::locality::NeighborList>& nlist_arg,
-                 locality::QueryArgs qargs, const vec3<float>* motif, unsigned int motif_size,
-                 float threshold, bool registration = false);
+    void compute(const std::shared_ptr<freud::locality::NeighborQuery>& nq,
+                 const std::shared_ptr<freud::locality::NeighborList>& nlist_arg, locality::QueryArgs qargs,
+                 const vec3<float>* motif, unsigned int motif_size, float threshold,
+                 bool registration = false);
 
     //! Return the array indicating whether each particle matched the motif or not.
     const std::shared_ptr<util::ManagedArray<char>>& getMatches()
@@ -412,9 +415,9 @@ public:
      *                     orient the second set of vectors such that it
      *                     minimizes the RMSD between the two sets
      */
-    void compute(const std::shared_ptr<freud::locality::NeighborQuery>& nq, const std::shared_ptr<freud::locality::NeighborList>& nlist_arg,
-                 locality::QueryArgs qargs, const vec3<float>* motif, unsigned int motif_size,
-                 bool registration = false);
+    void compute(const std::shared_ptr<freud::locality::NeighborQuery>& nq,
+                 const std::shared_ptr<freud::locality::NeighborList>& nlist_arg, locality::QueryArgs qargs,
+                 const vec3<float>* motif, unsigned int motif_size, bool registration = false);
 
     //! Return the array indicating whether or not a successful mapping was found between each particle and
     //! the provided motif.

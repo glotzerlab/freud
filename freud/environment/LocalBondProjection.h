@@ -35,7 +35,8 @@ public:
     void compute(const std::shared_ptr<locality::NeighborQuery> nq, const quat<float>* orientations,
                  const vec3<float>* query_points, unsigned int n_query_points, const vec3<float>* proj_vecs,
                  unsigned int n_proj, const quat<float>* equiv_orientations,
-                 unsigned int n_equiv_orientations, const std::shared_ptr<freud::locality::NeighborList> nlist,
+                 unsigned int n_equiv_orientations,
+                 const std::shared_ptr<freud::locality::NeighborList> nlist,
                  const locality::QueryArgs& qargs);
 
     //! Get a reference to the last computed maximal local bond projection array
@@ -59,8 +60,9 @@ public:
 private:
     std::shared_ptr<locality::NeighborList> m_nlist; //!< The NeighborList used in the last call to compute.
 
-    std::shared_ptr<util::ManagedArray<float>> m_local_bond_proj;      //!< Local bond projection array computed
-    std::shared_ptr<util::ManagedArray<float>> m_local_bond_proj_norm; //!< Normalized local bond projection array computed
+    std::shared_ptr<util::ManagedArray<float>> m_local_bond_proj; //!< Local bond projection array computed
+    std::shared_ptr<util::ManagedArray<float>>
+        m_local_bond_proj_norm; //!< Normalized local bond projection array computed
 };
 
 }; }; // end namespace freud::environment

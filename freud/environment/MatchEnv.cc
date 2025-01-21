@@ -488,8 +488,8 @@ MatchEnv::~MatchEnv() = default;
 
 EnvironmentCluster::~EnvironmentCluster() = default;
 
-Environment MatchEnv::buildEnv(const std::shared_ptr<freud::locality::NeighborList>& nlist, size_t num_bonds, size_t& bond,
-                               unsigned int i, unsigned int env_ind)
+Environment MatchEnv::buildEnv(const std::shared_ptr<freud::locality::NeighborList>& nlist, size_t num_bonds,
+                               size_t& bond, unsigned int i, unsigned int env_ind)
 {
     Environment ei = Environment();
     // set the environment index equal to the particle index
@@ -510,7 +510,8 @@ Environment MatchEnv::buildEnv(const std::shared_ptr<freud::locality::NeighborLi
 }
 
 void EnvironmentCluster::compute(const std::shared_ptr<freud::locality::NeighborQuery>& nq,
-                                 const std::shared_ptr<freud::locality::NeighborList>& nlist_arg, locality::QueryArgs qargs,
+                                 const std::shared_ptr<freud::locality::NeighborList>& nlist_arg,
+                                 locality::QueryArgs qargs,
                                  const std::shared_ptr<freud::locality::NeighborList>& env_nlist_arg,
                                  locality::QueryArgs env_qargs, float threshold, bool registration)
 {
@@ -636,9 +637,9 @@ unsigned int EnvironmentCluster::populateEnv(EnvDisjointSet dj)
  * EnvironmentMotifMatch *
  *************************/
 void EnvironmentMotifMatch::compute(const std::shared_ptr<freud::locality::NeighborQuery>& nq,
-                                    const std::shared_ptr<freud::locality::NeighborList>& nlist_arg, locality::QueryArgs qargs,
-                                    const vec3<float>* motif, unsigned int motif_size, float threshold,
-                                    bool registration)
+                                    const std::shared_ptr<freud::locality::NeighborList>& nlist_arg,
+                                    locality::QueryArgs qargs, const vec3<float>* motif,
+                                    unsigned int motif_size, float threshold, bool registration)
 {
     std::shared_ptr<locality::NeighborList> nlist
         = locality::makeDefaultNlist(nq, nlist_arg, nq->getPoints(), nq->getNPoints(), qargs);

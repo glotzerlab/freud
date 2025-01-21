@@ -9,7 +9,6 @@
 
 #include "LocalDescriptors.h"
 
-
 namespace nb = nanobind;
 
 namespace freud { namespace environment {
@@ -18,28 +17,25 @@ template<typename T, typename shape>
 using nb_array = nanobind::ndarray<T, shape, nanobind::device::cpu, nanobind::c_contig>;
 
 namespace wrap {
-void compute(const std::shared_ptr<LocalDescriptors>& local_descriptors, 
+void compute(const std::shared_ptr<LocalDescriptors>& local_descriptors,
              std::shared_ptr<locality::NeighborQuery> nq,
-             const nb_array<float, nanobind::shape<-1, 3>>& query_points,
-             const unsigned int n_query_points,
+             const nb_array<float, nanobind::shape<-1, 3>>& query_points, const unsigned int n_query_points,
              const nb_array<float, nanobind::shape<-1, 4>>& orientations,
-             std::shared_ptr<locality::NeighborList> nlist,
-             const locality::QueryArgs& qargs,
-             const unsigned int max_num_neighbors
-)
-    {
+             std::shared_ptr<locality::NeighborList> nlist, const locality::QueryArgs& qargs,
+             const unsigned int max_num_neighbors)
+{
     auto* query_points_data = reinterpret_cast<vec3<float>*>(query_points.data());
     auto* orientations_data = reinterpret_cast<quat<float>*>(orientations.data());
-    local_descriptors->compute(nq, query_points_data, n_query_points, orientations_data, nlist, qargs, max_num_neighbors);
-    }
+    local_descriptors->compute(nq, query_points_data, n_query_points, orientations_data, nlist, qargs,
+                               max_num_neighbors);
+}
 
-};
+}; // namespace wrap
 
 namespace detail {
 
 void export_LocalDescriptors(nb::module_& module)
 {
-
     nb::enum_<LocalDescriptorOrientation>(module, "LocalDescriptorOrientation")
         .value("LocalNeighborhood", LocalDescriptorOrientation::LocalNeighborhood)
         .value("Global", LocalDescriptorOrientation::Global)
@@ -54,11 +50,10 @@ void export_LocalDescriptors(nb::module_& module)
         .def("getLMax", &LocalDescriptors::getLMax)
         .def("getNegativeM", &LocalDescriptors::getNegativeM)
         .def("getMode", &LocalDescriptors::getMode)
-        .def("compute", &wrap::compute,nb::arg("nq"),  
-             nb::arg("query_points"), nb::arg("n_query_points"),  nb::arg("orientations").none(),
-             nb::arg("nlist").none(),
-             nb::arg("qargs"), nb::arg("max_num_neighbors"));
+        .def("compute", &wrap::compute, nb::arg("nq"), nb::arg("query_points"), nb::arg("n_query_points"),
+             nb::arg("orientations").none(), nb::arg("nlist").none(), nb::arg("qargs"),
+             nb::arg("max_num_neighbors"));
 }
 
-}; }; // namespace detail
-}; // namespace freud::locality
+}; // namespace detail
+}; }; // namespace freud::environment

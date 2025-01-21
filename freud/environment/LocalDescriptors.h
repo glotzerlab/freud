@@ -52,12 +52,9 @@ public:
 
     //! Compute the local neighborhood descriptors given some
     //! positions and the number of particles
-    void compute(const std::shared_ptr<locality::NeighborQuery> nq,
-                 const vec3<float>* query_points,
-                 unsigned int n_query_points,
-                 const quat<float>* orientations,
-                 const std::shared_ptr<locality::NeighborList> nlist,
-                 const locality::QueryArgs& qargs,
+    void compute(const std::shared_ptr<locality::NeighborQuery> nq, const vec3<float>* query_points,
+                 unsigned int n_query_points, const quat<float>* orientations,
+                 const std::shared_ptr<locality::NeighborList> nlist, const locality::QueryArgs& qargs,
                  unsigned int max_num_neighbor);
 
     //! Get a reference to the last computed spherical harmonic array
@@ -89,11 +86,11 @@ public:
     }
 
 private:
-    unsigned int m_l_max;                     //!< Maximum spherical harmonic l to calculate
-    bool m_negative_m;                        //!< true if we should compute Ylm for negative m
-    unsigned int m_nSphs;                     //!< Last number of bond spherical harmonics computed
-    std::shared_ptr<locality::NeighborList> m_nlist;           //!< The NeighborList used in the last call to compute.
-    LocalDescriptorOrientation m_orientation; //!< The orientation mode to compute with.
+    unsigned int m_l_max;                            //!< Maximum spherical harmonic l to calculate
+    bool m_negative_m;                               //!< true if we should compute Ylm for negative m
+    unsigned int m_nSphs;                            //!< Last number of bond spherical harmonics computed
+    std::shared_ptr<locality::NeighborList> m_nlist; //!< The NeighborList used in the last call to compute.
+    LocalDescriptorOrientation m_orientation;        //!< The orientation mode to compute with.
 
     //! Spherical harmonics for each neighbor
     std::shared_ptr<util::ManagedArray<std::complex<float>>> m_sphArray;

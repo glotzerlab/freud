@@ -80,7 +80,7 @@ public:
 
 private:
     std::shared_ptr<util::ManagedArray<float>> m_angles; //!< neighbor angle array computed
-    std::shared_ptr<locality::NeighborList> m_nlist;     //!< The NeighborList used in the last call to compute.
+    std::shared_ptr<locality::NeighborList> m_nlist; //!< The NeighborList used in the last call to compute.
 };
 
 }; }; // end namespace freud::environment

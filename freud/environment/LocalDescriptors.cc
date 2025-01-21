@@ -19,12 +19,10 @@ LocalDescriptors::LocalDescriptors(unsigned int l_max, bool negative_m,
 {}
 
 void LocalDescriptors::compute(const std::shared_ptr<locality::NeighborQuery> nq,
-                               const vec3<float>* query_points,
-                               unsigned int n_query_points,
+                               const vec3<float>* query_points, unsigned int n_query_points,
                                const quat<float>* orientations,
                                const std::shared_ptr<locality::NeighborList> nlist,
-                               const locality::QueryArgs& qargs,
-                               unsigned int max_num_neighbors)
+                               const locality::QueryArgs& qargs, unsigned int max_num_neighbors)
 {
     // This function requires a NeighborList object, so we always make one and store it locally.
     m_nlist = locality::makeDefaultNlist(nq, nlist, query_points, n_query_points, qargs);
@@ -34,7 +32,7 @@ void LocalDescriptors::compute(const std::shared_ptr<locality::NeighborQuery> nq
         max_num_neighbors = std::numeric_limits<unsigned int>::max();
     }
     m_sphArray = std::make_shared<util::ManagedArray<std::complex<float>>>(
-    std::vector<size_t>{m_nlist->getNumBonds(), getSphWidth()});
+        std::vector<size_t> {m_nlist->getNumBonds(), getSphWidth()});
 
     util::forLoopWrapper(0, nq->getNPoints(), [&](size_t begin, size_t end) {
         fsph::PointSPHEvaluator<float> sph_eval(m_l_max);
@@ -55,7 +53,7 @@ void LocalDescriptors::compute(const std::shared_ptr<locality::NeighborQuery> nq
                      && (*m_nlist->getNeighbors())(bond_copy, 0) == i && neighbor_count < max_num_neighbors;
                      ++bond_copy, ++neighbor_count)
                 {
-                    const vec3<float> r_ij((* m_nlist->getVectors())(bond_copy));
+                    const vec3<float> r_ij((*m_nlist->getVectors())(bond_copy));
                     const float r_sq(dot(r_ij, r_ij));
 
                     for (size_t ii(0); ii < 3; ++ii)
@@ -107,8 +105,8 @@ void LocalDescriptors::compute(const std::shared_ptr<locality::NeighborQuery> nq
                  ++bond, ++neighbor_count)
             {
                 const unsigned int sphCount(bond * getSphWidth());
-                const vec3<float> r_ij((* m_nlist->getVectors())(bond));
-                const float magR((* m_nlist->getDistances())(bond));
+                const vec3<float> r_ij((*m_nlist->getVectors())(bond));
+                const float magR((*m_nlist->getDistances())(bond));
                 const vec3<float> bond_ij(dot(rotation_0, r_ij), dot(rotation_1, r_ij),
                                           dot(rotation_2, r_ij));
 

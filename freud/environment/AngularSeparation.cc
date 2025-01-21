@@ -49,12 +49,13 @@ float computeMinSeparationAngle(const quat<float>& ref_q, const quat<float>& q, 
     return min_angle;
 }
 
-void AngularSeparationNeighbor::compute(const std::shared_ptr<locality::NeighborQuery> nq, const quat<float>* orientations,
-                                        const vec3<float>* query_points,
+void AngularSeparationNeighbor::compute(const std::shared_ptr<locality::NeighborQuery> nq,
+                                        const quat<float>* orientations, const vec3<float>* query_points,
                                         const quat<float>* query_orientations, unsigned int n_query_points,
                                         const quat<float>* equiv_orientations,
                                         unsigned int n_equiv_orientations,
-                                        const std::shared_ptr<locality::NeighborList> nlist, const locality::QueryArgs& qargs)
+                                        const std::shared_ptr<locality::NeighborList> nlist,
+                                        const locality::QueryArgs& qargs)
 {
     // This function requires a NeighborList object, so we always make one and store it locally.
 
