@@ -639,8 +639,7 @@ class _MatchEnv(_PairCompute):
         """:math:`\\left(N_{points}, N_{neighbors}, 3\\right)`
         list[:class:`numpy.ndarray`]: All environments for all points."""
         envs = self._cpp_obj.getPointEnvironments()
-        return [np.asarray([[p.x, p.y, p.z] for p in env])
-                for env in envs]
+        return [np.asarray(env) for env in envs]
 
     def __repr__(self):
         return (f"freud.environment.{type(self).__name__}()")
@@ -772,6 +771,7 @@ class EnvironmentCluster(_MatchEnv):
 
         self._cpp_obj.compute(
             nq._cpp_obj,
+            nlist._cpp_obj,
             qargs._cpp_obj,
             env_nlist._cpp_obj,
             env_qargs._cpp_obj,
@@ -795,8 +795,7 @@ class EnvironmentCluster(_MatchEnv):
         """:math:`\\left(N_{clusters}, N_{neighbors}, 3\\right)`
         list[:class:`numpy.ndarray`]: The environments for all clusters."""
         envs = self._cpp_obj.getClusterEnvironments()
-        return [np.asarray([[p.x, p.y, p.z] for p in env])
-                for env in envs]
+        return [np.asarray(env) for env in envs]
 
     def plot(self, ax=None):
         """Plot cluster distribution.
