@@ -50,7 +50,7 @@ Related Tools
 =============
 
 - `HOOMD-blue <https://hoomd-blue.readthedocs.io/>`__: Perform MD / MC simulations that can be analyzed with **freud**.
-- `signac <https://signac.io/>`__: Manage your workflow with **signac**.
+- `signac <https://signac.readthedocs.io/>`__: Manage your workflow with **signac**.
 
 Citation
 ========
