@@ -42,12 +42,12 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v4.2.2
         with:
           submodules: true
 
       - name: Create Python Environment
-        uses: mamba-org/setup-micromamba@v1.9.0
+        uses: mamba-org/setup-micromamba@v2.0.4
         with:
           micromamba-version: '1.5.8-0'
           environment-name: test
