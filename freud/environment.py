@@ -581,7 +581,7 @@ def _minimize_RMSD(box, ref_points, points, registration=False):
         raise ValueError(msg)
 
     min_rmsd = -1
-    results_map = freud._environment.minimizeRMSD(
+    min_rmsd, results_map = freud._environment.minimizeRMSD(
         b._cpp_obj, ref_points, points, nRef1, min_rmsd, registration
     )
     return [min_rmsd, np.asarray(points), results_map]

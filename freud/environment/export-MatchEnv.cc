@@ -8,6 +8,7 @@
 #include <nanobind/stl/map.h>
 #include <nanobind/stl/shared_ptr.h> // NOLINT(misc-include-cleaner): used implicitly
 #include <nanobind/stl/vector.h>     // NOLINT(misc-include-cleaner): used implicitly
+#include <nanobind/stl/pair.h>     // NOLINT(misc-include-cleaner): used implicitly
 
 #include "MatchEnv.h"
 #include "Registration.h"
@@ -40,14 +41,15 @@ void compute_env_rmsd_min(const std::shared_ptr<EnvironmentRMSDMinimizer>& env_r
     env_rmsd_min->compute(nq, nlist, qargs, motif_data, motif_size, registration);
 }
 
-std::map<unsigned int, unsigned int>
+std::pair<float, std::map<unsigned int, unsigned int>>
 compute_minimize_RMSD(const box::Box& box, const nb_array<float, nanobind::shape<-1, 3>>& refPoints1,
                       nb_array<float, nanobind::shape<-1, 3>>& refPoints2, unsigned int numRef,
-                      float& min_rmsd, bool registration)
+                      float min_rmsd, bool registration)
 {
+    float min_rmsd_modified = min_rmsd;
     auto* refPoints1_data = reinterpret_cast<vec3<float>*>(refPoints1.data());
     auto* refPoints2_data = reinterpret_cast<vec3<float>*>(refPoints2.data());
-    return minimizeRMSD(box, refPoints1_data, refPoints2_data, numRef, min_rmsd, registration);
+    return std::make_pair(min_rmsd_modified, minimizeRMSD(box, refPoints1_data, refPoints2_data, numRef, min_rmsd_modified, registration));
 }
 
 std::map<unsigned int, unsigned int>
