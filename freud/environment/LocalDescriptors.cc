@@ -1,11 +1,24 @@
 // Copyright (c) 2010-2024 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
+#include <algorithm>
+#include <cmath>
+#include <complex>
+#include <limits>
+#include <math.h> // NOLINT(modernize-deprecated-headers): Use std::numbers when c++20 is default.
+#include <memory>
+#include <stdexcept>
 #include <vector>
 
+#include "Box.h"
 #include "LocalDescriptors.h"
+#include "ManagedArray.h"
 #include "NeighborComputeFunctional.h"
+#include "NeighborList.h"
+#include "NeighborQuery.h"
+#include "VectorMath.h"
 #include "diagonalize.h"
+#include "utils.h"
 
 /*! \file LocalDescriptors.cc
   \brief Computes local descriptors.
@@ -18,10 +31,10 @@ LocalDescriptors::LocalDescriptors(unsigned int l_max, bool negative_m,
     : m_l_max(l_max), m_negative_m(negative_m), m_nSphs(0), m_orientation(orientation)
 {}
 
-void LocalDescriptors::compute(const std::shared_ptr<locality::NeighborQuery> nq,
+void LocalDescriptors::compute(const std::shared_ptr<locality::NeighborQuery>& nq,
                                const vec3<float>* query_points, unsigned int n_query_points,
                                const quat<float>* orientations,
-                               const std::shared_ptr<locality::NeighborList> nlist,
+                               const std::shared_ptr<locality::NeighborList>& nlist,
                                const locality::QueryArgs& qargs, unsigned int max_num_neighbors)
 {
     // This function requires a NeighborList object, so we always make one and store it locally.

@@ -60,10 +60,10 @@ public:
     ~AngularSeparationNeighbor() = default;
 
     //! Compute the angular separation between neighbors
-    void compute(const std::shared_ptr<locality::NeighborQuery> nq, const quat<float>* orientations,
+    void compute(const std::shared_ptr<locality::NeighborQuery>& nq, const quat<float>* orientations,
                  const vec3<float>* query_points, const quat<float>* query_orientations,
                  unsigned int n_query_points, const quat<float>* equiv_orientations,
-                 unsigned int n_equiv_orientations, const std::shared_ptr<locality::NeighborList> nlist,
+                 unsigned int n_equiv_orientations, const std::shared_ptr<locality::NeighborList>& nlist,
                  const locality::QueryArgs& qargs);
 
     //! Returns the last computed neighbor angle array

@@ -52,9 +52,9 @@ public:
 
     //! Compute the local neighborhood descriptors given some
     //! positions and the number of particles
-    void compute(const std::shared_ptr<locality::NeighborQuery> nq, const vec3<float>* query_points,
+    void compute(const std::shared_ptr<locality::NeighborQuery>& nq, const vec3<float>* query_points,
                  unsigned int n_query_points, const quat<float>* orientations,
-                 const std::shared_ptr<locality::NeighborList> nlist, const locality::QueryArgs& qargs,
+                 const std::shared_ptr<locality::NeighborList>& nlist, const locality::QueryArgs& qargs,
                  unsigned int max_num_neighbor);
 
     //! Get a reference to the last computed spherical harmonic array
