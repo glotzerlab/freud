@@ -5,8 +5,8 @@
 #define LOCAL_DESCRIPTORS_H
 
 #include <complex>
+#include <memory>
 
-#include "Box.h"
 #include "ManagedArray.h"
 #include "NeighborList.h"
 #include "NeighborQuery.h"

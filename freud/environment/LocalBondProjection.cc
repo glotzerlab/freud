@@ -1,8 +1,16 @@
 // Copyright (c) 2010-2024 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
+#include <memory>
+#include <vector>
+
 #include "LocalBondProjection.h"
+#include "ManagedArray.h"
 #include "NeighborComputeFunctional.h"
+#include "NeighborList.h"
+#include "NeighborQuery.h"
+#include "VectorMath.h"
+#include "utils.h"
 
 /*! \file LocalBondProjection.h
     \brief Compute the projection of nearest neighbor bonds for each particle onto some
@@ -22,7 +30,7 @@ namespace freud { namespace environment {
 float computeMaxProjection(const vec3<float>& proj_vec, const vec3<float>& local_bond,
                            const quat<float>* equiv_qs, unsigned int n_equiv_qs)
 {
-    quat<float> qconst = equiv_qs[0];
+    const quat<float> qconst = equiv_qs[0];
 
     // start with the reference vector before it has been rotated by equivalent quaternions
     float max_proj = dot(proj_vec, local_bond);
@@ -30,12 +38,12 @@ float computeMaxProjection(const vec3<float>& proj_vec, const vec3<float>& local
     // loop through all equivalent rotations and see if they have a larger projection onto local_bond
     for (unsigned int i = 0; i < n_equiv_qs; i++)
     {
-        quat<float> qe = equiv_qs[i];
+        const quat<float> qe = equiv_qs[i];
         // here we undo a rotation represented by one of the equivalent orientations
-        quat<float> qtest = conj(qconst) * qe;
-        vec3<float> equiv_proj_vec = rotate(qtest, proj_vec);
+        const quat<float> qtest = conj(qconst) * qe;
+        const vec3<float> equiv_proj_vec = rotate(qtest, proj_vec);
 
-        float proj_test = dot(equiv_proj_vec, local_bond);
+        const float proj_test = dot(equiv_proj_vec, local_bond);
 
         if (proj_test > max_proj)
         {
@@ -46,12 +54,12 @@ float computeMaxProjection(const vec3<float>& proj_vec, const vec3<float>& local
     return max_proj;
 }
 
-void LocalBondProjection::compute(const std::shared_ptr<locality::NeighborQuery> nq,
+void LocalBondProjection::compute(const std::shared_ptr<locality::NeighborQuery>& nq,
                                   const quat<float>* orientations, const vec3<float>* query_points,
                                   unsigned int n_query_points, const vec3<float>* proj_vecs,
                                   unsigned int n_proj, const quat<float>* equiv_orientations,
                                   unsigned int n_equiv_orientations,
-                                  const std::shared_ptr<freud::locality::NeighborList> nlist,
+                                  const std::shared_ptr<freud::locality::NeighborList>& nlist,
                                   const locality::QueryArgs& qargs)
 {
     // This function requires a NeighborList object, so we always make one and store it locally.
@@ -81,13 +89,13 @@ void LocalBondProjection::compute(const std::shared_ptr<locality::NeighborQuery>
                 // rotate bond vector into the local frame of particle p
                 local_bond = rotate(conj(orientations[j]), local_bond);
                 // store the length of this local bond
-                float local_bond_len = (*m_nlist->getDistances())(bond);
+                const float local_bond_len = (*m_nlist->getDistances())(bond);
 
                 for (unsigned int k = 0; k < n_proj; k++)
                 {
-                    vec3<float> proj_vec = proj_vecs[k];
-                    float max_proj = computeMaxProjection(proj_vec, local_bond, equiv_orientations,
-                                                          n_equiv_orientations);
+                    const vec3<float> proj_vec = proj_vecs[k];
+                    const float max_proj = computeMaxProjection(proj_vec, local_bond, equiv_orientations,
+                                                                n_equiv_orientations);
                     (*m_local_bond_proj)(bond, k) = max_proj;
                     (*m_local_bond_proj_norm)(bond, k) = max_proj / local_bond_len;
                 }
