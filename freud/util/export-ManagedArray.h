@@ -7,7 +7,6 @@
 #include "ManagedArray.h"
 #include "VectorMath.h"
 
-#include <complex>
 #include <cstddef>
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
