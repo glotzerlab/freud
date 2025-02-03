@@ -6,9 +6,9 @@
 #include <nanobind/ndarray.h>
 #include <nanobind/stl/function.h> // NOLINT(misc-include-cleaner): used implicitly
 #include <nanobind/stl/map.h>
+#include <nanobind/stl/pair.h>       // NOLINT(misc-include-cleaner): used implicitly
 #include <nanobind/stl/shared_ptr.h> // NOLINT(misc-include-cleaner): used implicitly
 #include <nanobind/stl/vector.h>     // NOLINT(misc-include-cleaner): used implicitly
-#include <nanobind/stl/pair.h>     // NOLINT(misc-include-cleaner): used implicitly
 
 #include "MatchEnv.h"
 #include "Registration.h"
@@ -49,7 +49,9 @@ compute_minimize_RMSD(const box::Box& box, const nb_array<float, nanobind::shape
     float min_rmsd_modified = min_rmsd;
     auto* refPoints1_data = reinterpret_cast<vec3<float>*>(refPoints1.data());
     auto* refPoints2_data = reinterpret_cast<vec3<float>*>(refPoints2.data());
-    return std::make_pair(min_rmsd_modified, minimizeRMSD(box, refPoints1_data, refPoints2_data, numRef, min_rmsd_modified, registration));
+    return std::make_pair(
+        min_rmsd_modified,
+        minimizeRMSD(box, refPoints1_data, refPoints2_data, numRef, min_rmsd_modified, registration));
 }
 
 std::map<unsigned int, unsigned int>
