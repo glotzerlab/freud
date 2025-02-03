@@ -84,7 +84,6 @@ repos:
           ^extern/|
           ^freud/density/|
           ^freud/diffraction/|
-          ^freud/environment/|
           ^freud/order/
         )
       args:
