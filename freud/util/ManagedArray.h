@@ -90,7 +90,7 @@ public:
     //! Return a constant pointer to the underlying data
     const T* data() const
     {
-        return m_data.data(); // TODO: not valid for std::vector<bool>
+        return m_data.data();
     }
 
     //! Return the underlying pointer (requires two levels of indirection).
