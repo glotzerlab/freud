@@ -922,7 +922,8 @@ class EnvironmentMotifMatch(_MatchEnv):
     def matches(self):
         """(:math:`N_{points}`) :class:`numpy.ndarray`: A boolean array indicating
         whether each point matches the motif."""
-        return self._cpp_obj.getMatches().toNumpyArray()
+        # NOTE: Numpy stores bools as a byte each, so this cast should be free
+        return self._cpp_obj.getMatches().toNumpyArray().astype(bool)
 
 
 class _EnvironmentRMSDMinimizer(_MatchEnv):
