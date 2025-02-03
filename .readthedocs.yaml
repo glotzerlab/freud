@@ -12,3 +12,5 @@ python:
 submodules:
     include: all
     recursive: true
+sphinx:
+  configuration: doc/source/conf.py
