@@ -82,7 +82,7 @@ repos:
       exclude: |
         (?x)^(
           ^extern/|
-          ^freud/density/|
+          ^freud/density/
         )
       args:
       - --warnings-as-errors=*
