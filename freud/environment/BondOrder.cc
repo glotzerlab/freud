@@ -11,6 +11,7 @@
 #include <memory>
 #include <vector>
 
+#include "BondHistogramCompute.h"
 #include "BondOrder.h"
 #include "Box.h"
 #include "Histogram.h"

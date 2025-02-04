@@ -796,7 +796,7 @@ void EnvironmentRMSDMinimizer::compute(const std::shared_ptr<freud::locality::Ne
         const std::vector<vec3<float>> part_vecs = dj.getIndividualEnv(dummy);
 
         m_point_environments.emplace_back();
-        for (auto& part_vec : part_vecs)
+        for (const auto& part_vec : part_vecs)
         {
             m_point_environments[i].push_back(part_vec);
         }
