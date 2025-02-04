@@ -56,7 +56,7 @@ void ContinuousCoordination::compute(const std::shared_ptr<freud::locality::Voro
             const float num_neighbors_i {static_cast<float>((*num_neighbors)[particle_index])};
             for (size_t k {0}; k < powers.size(); ++k)
             {
-                float coordination = std::transform_reduce(
+                const float coordination = std::transform_reduce(
                     i_volumes.begin(), i_volumes.end(), 0.0F, std::plus<>(),
                     [&powers, k](const auto& volume) { return std::pow(volume, powers[k]); });
                 (*m_coordination)(particle_index, coordination_number++)

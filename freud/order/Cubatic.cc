@@ -1,6 +1,8 @@
 // Copyright (c) 2010-2025 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
+#include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstring>
 #include <math.h> // NOLINT(modernize-deprecated-headers): Use std::numbers when c++20 is default.
@@ -300,7 +302,7 @@ void Cubatic::compute(quat<float>* orientations, unsigned int num_orientations)
                 }
                 else
                 {
-                    float boltzmann_factor
+                    const float boltzmann_factor
                         = std::exp(-(cubatic_order_parameter - new_order_parameter) / t_current);
                     if (boltzmann_factor >= dist())
                     {
