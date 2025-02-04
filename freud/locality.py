@@ -992,21 +992,21 @@ class _SpatialHistogram(_PairCompute):
 
     @_Compute._computed_property
     def bin_counts(self):
-        """:class:`numpy.ndarray`: The bin counts in the histogram."""
+        """:math:`\\left(N_0, N_1 \\right)` :class:`numpy.ndarray`: The bin counts in the histogram."""  # noqa: E501
         return self._cpp_obj.getBinCounts().toNumpyArray()
 
     @property
     def bin_centers(self):
-        """:class:`numpy.ndarray`: The centers of each bin in the histogram
-        (has the same shape as the histogram itself)."""
+        """:class:`list` (:class:`numpy.ndarray`): The centers of each bin in the
+        histogram (has the same shape in each dimension as the histogram itself)."""
         centers = self._cpp_obj.getBinCenters()
         return [np.array(c) for c in centers]
 
     @property
     def bin_edges(self):
-        """:class:`numpy.ndarray`: The edges of each bin in the histogram (is
-        one element larger in each dimension than the histogram because each
-        bin has a lower and upper bound)."""
+        """:class:`list` (:class:`numpy.ndarray`): The edges of each bin in the
+        histogram (is one element larger in each dimension than the histogram
+        because each bin has a lower and upper bound)."""
         edges = self._cpp_obj.getBinEdges()
         return [np.array(e) for e in edges]
 

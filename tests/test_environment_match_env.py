@@ -483,6 +483,8 @@ class TestEnvironmentMotifMatch:
         )
         matches = match.matches
 
+        assert matches.dtype == bool
+
         for i in range(len(motif)):
             assert not matches[i]
         assert matches[len(motif)]

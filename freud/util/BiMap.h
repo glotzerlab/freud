@@ -170,19 +170,19 @@ public:
         friend BiMap;
 
     private:
-        BiMap<T, U>& b() const
+        BiMap<T, U>& b()
         {
             BiMap<T, U> t;
             return *reinterpret_cast<BiMap*>(reinterpret_cast<char*>(this)
                                              - (((size_t) (&(&t)->left) - ((size_t) &t))));
         }
 
-        Pair* getPairPtr(const T* Item_in) const
+        Pair* getPairPtr(const T* Item_in)
         {
             return b().getPairVal(Item_in);
         }
 
-        U& getVal(const T* Item_in) const
+        U& getVal(const T* Item_in)
         {
             return getPairPtr(Item_in)->second;
         }
@@ -198,7 +198,7 @@ public:
             return getVal(*itr);
         }
 
-        U& operator[](const T& Key_in) const
+        U& operator[](const T& Key_in)
         {
             if (!this->has(Key_in))
             {
@@ -209,17 +209,17 @@ public:
             return getVal(*(this->b().set_A.find(&Key_in)));
         }
 
-        auto find(const T& Key_in) const -> decltype(this->b().set_A.find(&Key_in))
+        auto find(const T& Key_in) -> decltype(this->b().set_A.find(&Key_in))
         {
             return this->b().set_A.find(&Key_in);
         }
 
-        int count(const T& Key_in) const
+        int count(const T& Key_in)
         {
             return this->b().set_A.count(&Key_in);
         }
 
-        bool has(const T& Key_in) const
+        bool has(const T& Key_in)
         {
             return find(Key_in) != std::end(this->b().set_A);
         }
@@ -243,7 +243,7 @@ public:
         friend BiMap;
 
     private:
-        BiMap<T, U>& b() const
+        BiMap<T, U>& b()
         {
             BiMap<T, U> t;
             return *reinterpret_cast<BiMap*>(reinterpret_cast<char*>(this)
@@ -255,18 +255,18 @@ public:
             return reinterpret_cast<const char*>(Item_in) - offsetof(Pair, second);
         }
 
-        Pair* getPairPtr(const U* Item_in) const
+        Pair* getPairPtr(const U* Item_in)
         {
             return b().getPairVal(getPairPtr_B(Item_in));
         }
 
-        T& getVal(const U* Item_in) const
+        T& getVal(const U* Item_in)
         {
             return getPairPtr(Item_in)->first;
         }
 
     public:
-        const T& at(const U& Key_in) const
+        const T& at(const U& Key_in)
         {
             const auto& itr(this->b().set_B.find(&Key_in));
             if (itr == std::end(this->b().set_B))
@@ -287,17 +287,17 @@ public:
             return getVal(*(this->b().set_B.find(&Key_in)));
         }
 
-        auto find(const U& Key_in) const -> decltype(this->b().set_B.find(&Key_in))
+        auto find(const U& Key_in) -> decltype(this->b().set_B.find(&Key_in))
         {
             return this->b().set_B.find(&Key_in);
         }
 
-        int count(const U& Key_in) const
+        int count(const U& Key_in)
         {
             return this->b().set_B.count(&Key_in);
         }
 
-        bool has(const U& Key_in) const
+        bool has(const U& Key_in)
         {
             return find(Key_in) != std::end(this->b().set_B);
         }

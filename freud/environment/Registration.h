@@ -4,10 +4,16 @@
 #ifndef REGISTRATION_H
 #define REGISTRATION_H
 
+#include <algorithm>
 #include <chrono>
+#include <cmath>
+#include <cstddef>
 #include <iostream>
 #include <random>
+#include <set>
 #include <sstream>
+#include <stdexcept>
+#include <utility>
 #include <vector>
 
 #ifdef _WIN32
@@ -18,21 +24,21 @@
 #include <unistd.h>
 #endif
 
-#include "Eigen/Eigen/Dense"
-#include "Eigen/Eigen/Sparse"
+#include <Eigen/Eigen/Dense>
 
 #include "BiMap.h"
 #include "VectorMath.h"
 
 namespace freud { namespace environment {
 
+// NOLINTNEXTLINE(misc-include-cleaner) - Eigen's include structure confuses clang-tidy
 using matrix = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>;
 
 inline matrix makeEigenMatrix(const std::vector<vec3<float>>& vecs)
 {
     // build the Eigen matrix
     matrix mat;
-    unsigned int size = vecs.size();
+    const unsigned int size = vecs.size();
     // we know the dimension is 3 bc we're dealing with a vector of vec3's.
     mat.resize(size, 3);
     for (unsigned int i = 0; i < size; i++)
@@ -54,8 +60,7 @@ inline std::vector<vec3<float>> makeVec3Matrix(const matrix& m)
     if (m.cols() != 3)
     {
         std::ostringstream msg;
-        msg << "makeVec3Matrix requires the input matrix to have 3 columns, not " << m.cols() << "!"
-            << std::endl;
+        msg << "makeVec3Matrix requires the input matrix to have 3 columns, not " << m.cols() << "!\n";
         throw std::invalid_argument(msg.str());
     }
     std::vector<vec3<float>> vecs;
@@ -98,7 +103,7 @@ inline matrix Rotate(const matrix& R, const matrix& P)
     {
         std::ostringstream msg;
         msg << "Rotation matrix has " << R.cols() << " columns and point matrix has " << P.rows()
-            << " rows. These must be equal to perform the rotation." << std::endl;
+            << " rows. These must be equal to perform the rotation.\n";
         throw std::invalid_argument(msg.str());
     }
     // Apply the rotation R.
@@ -111,14 +116,15 @@ inline matrix Rotate(const matrix& R, const matrix& P)
 inline void KabschAlgorithm(const matrix& P, const matrix& Q, matrix& Rotation)
 {
     // Preconditions: P and Q have been translated to have the same center of mass.
-    matrix A = P.transpose() * Q;
+    const matrix A = P.transpose() * Q;
     // singular value decomposition (~ eigen decomposition)
-    Eigen::JacobiSVD<matrix> svd(A, Eigen::ComputeFullU | Eigen::ComputeFullV);
+    // NOLINTNEXTLINE(misc-include-cleaner) - Eigen's include structure confuses clang-tidy
+    const Eigen::JacobiSVD<matrix> svd(A, Eigen::ComputeFullU | Eigen::ComputeFullV);
     // A = USV^T
     matrix U = svd.matrixU();
     matrix V = svd.matrixV();
 
-    double det = (V * U.transpose()).determinant();
+    const double det = (V * U.transpose()).determinant();
 
     // if the rotation as we've found it, rot=VU^T, is IMPROPER, find the next best
     // (proper) rotation by reflecting the smallest principal axis in rot:
@@ -169,13 +175,12 @@ public:
         points = makeEigenMatrix(pts);
         int num_pts;
 
-        int N = points.rows();
+        const size_t N = points.rows();
         if (N != m_ref_points.rows())
         {
             std::ostringstream msg;
             msg << "There are " << m_ref_points.rows() << " reference points and " << N << " points. ";
-            msg << "Brute force matching requires the same number of reference points and points!"
-                << std::endl;
+            msg << "Brute force matching requires the same number of reference points and points!\n";
             throw std::invalid_argument(msg.str());
         }
 
@@ -188,14 +193,14 @@ public:
             int p2 = 0;
             while (p0 == p1 || p0 == p2 || p1 == p2)
             {
-                p0 = rng.random_int(0, N - 1);
+                p0 = rng.random_int(0, int(N - 1));
                 if (N == 1)
                 {
                     p1 = -2;
                 }
                 else
                 {
-                    p1 = rng.random_int(0, N - 1);
+                    p1 = rng.random_int(0, int(N - 1));
                 }
 
                 if (N == 2 || N == 1)
@@ -204,7 +209,7 @@ public:
                 }
                 else
                 {
-                    p2 = rng.random_int(0, N - 1);
+                    p2 = rng.random_int(0, int(N - 1));
                 }
             }
 
@@ -220,7 +225,7 @@ public:
                 p.row(1) = m_ref_points.row(p1);
                 q.resize(num_pts, m_ref_points.cols());
             }
-            else if (N == int(1))
+            else if (N == 1)
             {
                 num_pts = 1;
                 p.resize(num_pts, m_ref_points.cols());
@@ -240,20 +245,20 @@ public:
             {
                 do
                 {
-                    if (N == int(2))
+                    if (N == 2)
                     {
-                        q.row(0) = points.row(comb[0]);
-                        q.row(1) = points.row(comb[1]);
+                        q.row(0) = points.row(int(comb[0]));
+                        q.row(1) = points.row(int(comb[1]));
                     }
-                    else if (N == int(1))
+                    else if (N == 1)
                     {
-                        q.row(0) = points.row(comb[0]);
+                        q.row(0) = points.row(int(comb[0]));
                     }
                     else
                     {
-                        q.row(0) = points.row(comb[0]);
-                        q.row(1) = points.row(comb[1]);
-                        q.row(2) = points.row(comb[2]);
+                        q.row(0) = points.row(int(comb[0]));
+                        q.row(1) = points.row(int(comb[1]));
+                        q.row(2) = points.row(int(comb[2]));
                     }
 
                     // finds the optimal rotation of the FIRST input set
@@ -268,7 +273,7 @@ public:
                     // feed back in the TRANSPOSE of rot_points such that
                     // the input matrix is (Nx3).
                     BiMap<unsigned int, unsigned int> vec_map;
-                    float rmsd = AlignedRMSDTree(rot_points.transpose(), vec_map);
+                    const float rmsd = AlignedRMSDTree(rot_points.transpose(), vec_map);
                     if (rmsd < rmsd_min || rmsd_min < 0.0)
                     {
                         m_rmsd = rmsd;
@@ -287,7 +292,7 @@ public:
                         }
                     }
                 } while (std::next_permutation(comb, comb + num_pts));
-            } while (NextCombination(comb, N, num_pts));
+            } while (NextCombination(comb, int(N), num_pts));
         } // end for loop over shuffles
         // The rotation that we've found from the KabschAlgorithm
         // actually acts on P^T.
@@ -299,13 +304,13 @@ public:
 
     std::vector<vec3<float>> getRotation()
     {
-        matrix R = m_rotation;
+        const matrix R = m_rotation;
         return makeVec3Matrix(R);
     }
 
     std::vector<vec3<float>> getTranslation()
     {
-        matrix T = m_translation;
+        const matrix T = m_translation;
         return makeVec3Matrix(T);
     }
 
@@ -357,14 +362,14 @@ public:
         for (int r = 0; r < points.rows(); r++)
         {
             // get the rotated point
-            vec3<float> pfit = make_point(points.row(r));
+            const vec3<float> pfit = make_point(points.row(r));
             // compute squared distances to all unused reference points
             std::vector<std::pair<unsigned int, float>> ref_distances;
             for (auto ref_index : unused_indices)
             {
-                vec3<float> ref_point = make_point(m_ref_points.row(ref_index));
-                vec3<float> delta = ref_point - pfit;
-                float r_sq = dot(delta, delta);
+                const vec3<float> ref_point = make_point(m_ref_points.row(ref_index));
+                const vec3<float> delta = ref_point - pfit;
+                const float r_sq = dot(delta, delta);
                 ref_distances.emplace_back(ref_index, r_sq);
             }
             // sort the ref_distances from nearest to farthest
@@ -386,11 +391,11 @@ private:
     {
         if (row.rows() == 2)
         {
-            return vec3<float>(row[0], row[1], 0.0);
+            return vec3<float>(float(row[0]), float(row[1]), 0.0);
         }
         if (row.rows() == 3)
         {
-            return vec3<float>(row[0], row[1], row[2]);
+            return vec3<float>(float(row[0]), float(row[1]), float(row[2]));
         }
         throw(std::runtime_error("points must 2 or 3 dimensions"));
     }
@@ -401,7 +406,7 @@ private:
         return (a.second < b.second);
     }
 
-    static inline bool NextCombination(size_t* comb, int N, int k)
+    static bool NextCombination(size_t* comb, int N, int k)
     {
         // returns next combination.
         if (k == 0 || N == 0 || (comb == nullptr))
@@ -437,12 +442,13 @@ private:
         }
         int random_int(int a, int b)
         {
+            // NOLINTNEXTLINE(misc-const-correctness) - const causes a compile error
             std::uniform_int_distribution<int> distribution(a, b);
             return distribution(m_generator);
         }
 
     private:
-        inline void seed_generator(const size_t& n = 100)
+        void seed_generator(const size_t& n = 100)
         {
             std::vector<size_t> seeds;
             try
@@ -455,7 +461,7 @@ private:
             }
             catch (...)
             {
-                std::cerr << "random_device is not available..." << std::endl;
+                std::cerr << "random_device is not available...\n";
                 seeds.push_back(size_t(std::chrono::system_clock::now().time_since_epoch().count()));
                 seeds.push_back(size_t(getpid()));
             }

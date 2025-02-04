@@ -6,9 +6,20 @@
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
+#include <cstddef>
+#include <math.h> // NOLINT(modernize-deprecated-headers): Use std::numbers when c++20 is default.
+#include <memory>
+#include <vector>
 
+#include "BondHistogramCompute.h"
 #include "BondOrder.h"
-#include "NeighborComputeFunctional.h"
+#include "Box.h"
+#include "Histogram.h"
+#include "ManagedArray.h"
+#include "NeighborBond.h"
+#include "NeighborList.h"
+#include "NeighborQuery.h"
+#include "VectorMath.h"
 #include "utils.h"
 
 /*! \file BondOrder.h
@@ -33,8 +44,8 @@ BondOrder::BondOrder(unsigned int n_bins_theta, unsigned int n_bins_phi, BondOrd
     /*
     0 < \theta < 2PI; 0 < \phi < PI
     */
-    float dt = constants::TWO_PI / float(n_bins_theta);
-    float dp = M_PI / float(n_bins_phi);
+    const float dt = constants::TWO_PI / float(n_bins_theta);
+    const float dp = M_PI / float(n_bins_phi);
     // this shouldn't be able to happen, but it's always better to check
     if (dt > constants::TWO_PI)
     {
@@ -46,41 +57,52 @@ BondOrder::BondOrder(unsigned int n_bins_theta, unsigned int n_bins_phi, BondOrd
     }
 
     // precompute the surface area array
-    m_sa_array.prepare({n_bins_theta, n_bins_phi});
+    // m_sa_array.prepare({n_bins_theta, n_bins_phi});
+    m_sa_array = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {n_bins_theta, n_bins_phi});
     for (unsigned int i = 0; i < n_bins_theta; i++)
     {
         for (unsigned int j = 0; j < n_bins_phi; j++)
         {
-            float phi = (float) j * dp;
-            float sa = dt * (std::cos(phi) - std::cos(phi + dp));
-            m_sa_array(i, j) = sa;
+            const float phi = (float) j * dp;
+            const float sa = dt * (std::cos(phi) - std::cos(phi + dp));
+            (*m_sa_array)(i, j) = sa;
         }
     }
     const auto axes = util::Axes {std::make_shared<util::RegularAxis>(n_bins_theta, 0, constants::TWO_PI),
                                   std::make_shared<util::RegularAxis>(n_bins_phi, 0, M_PI)};
     m_histogram = BondHistogram(axes);
+    m_bo_array = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {m_histogram.shape()});
 
     m_local_histograms = BondHistogram::ThreadLocalHistogram(m_histogram);
 }
 
+void BondOrder::reset()
+{
+    BondHistogramCompute::reset();
+    m_bo_array = std::make_shared<util::ManagedArray<float>>(std::vector<size_t> {m_histogram.shape()});
+}
+
 void BondOrder::reduce()
 {
-    m_histogram.prepare(m_histogram.shape());
-    m_bo_array.prepare(m_histogram.shape());
-
     m_histogram.reduceOverThreadsPerBin(m_local_histograms, [&](size_t i) {
-        m_bo_array[i] = m_histogram[i] / m_sa_array[i] / static_cast<float>(m_frame_counter);
+        (*m_bo_array)[i] = float(m_histogram[i]) / (*m_sa_array)[i] / static_cast<float>(m_frame_counter);
     });
 }
 
-const util::ManagedArray<float>& BondOrder::getBondOrder()
+std::vector<std::vector<float>> BondOrder::getBinCenters()
+{
+    return m_histogram.getBinCenters();
+}
+
+std::shared_ptr<util::ManagedArray<float>> BondOrder::getBondOrder()
 {
     return reduceAndReturn(m_bo_array);
 }
 
-void BondOrder::accumulate(const locality::NeighborQuery* neighbor_query, quat<float>* orientations,
-                           vec3<float>* query_points, quat<float>* query_orientations,
-                           unsigned int n_query_points, const freud::locality::NeighborList* nlist,
+void BondOrder::accumulate(const std::shared_ptr<locality::NeighborQuery>& neighbor_query,
+                           quat<float>* orientations, vec3<float>* query_points,
+                           quat<float>* query_orientations, unsigned int n_query_points,
+                           const std::shared_ptr<freud::locality::NeighborList>& nlist,
                            freud::locality::QueryArgs qargs)
 {
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
@@ -121,7 +143,7 @@ void BondOrder::accumulate(const locality::NeighborQuery* neighbor_query, quat<f
                           theta = util::modulusPositive(theta, constants::TWO_PI);
 
                           // NOTE that the below has replaced the commented out expression for phi.
-                          float phi = std::acos(v.z / std::sqrt(dot(v, v))); // 0..Pi
+                          const float phi = std::acos(v.z / std::sqrt(dot(v, v))); // 0..Pi
 
                           m_local_histograms(theta, phi);
                       });
