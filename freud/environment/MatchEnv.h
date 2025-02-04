@@ -4,7 +4,10 @@
 #ifndef MATCH_ENV_H
 #define MATCH_ENV_H
 
+#include <cstddef>
 #include <map>
+#include <memory>
+#include <utility>
 #include <vector>
 
 #include "BiMap.h"
@@ -12,7 +15,6 @@
 #include "ManagedArray.h"
 #include "NeighborList.h"
 #include "NeighborQuery.h"
-#include "Registration.h"
 #include "VectorMath.h"
 
 /*! \file MatchEnv.h

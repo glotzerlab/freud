@@ -8,6 +8,7 @@
 #include <nanobind/stl/vector.h>     // NOLINT(misc-include-cleaner): used implicitly
 
 #include "AngularSeparation.h"
+#include "VectorMath.h"
 
 namespace nb = nanobind;
 

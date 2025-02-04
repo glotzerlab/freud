@@ -6,9 +6,11 @@
 #include <nanobind/ndarray.h>
 #include <nanobind/stl/shared_ptr.h> // NOLINT(misc-include-cleaner): used implicitly
 #include <nanobind/stl/vector.h>     // NOLINT(misc-include-cleaner): used implicitly
-#include <vector>
 
 #include "BondOrder.h"
+#include "NeighborList.h"
+#include "NeighborQuery.h"
+#include "VectorMath.h"
 
 namespace nb = nanobind;
 
@@ -23,7 +25,8 @@ void accumulateBondOrder(const std::shared_ptr<BondOrder>& self,
                          const nb_array<float, nb::shape<-1, 4>>& orientations,
                          const nb_array<float, nb::shape<-1, 3>>& query_points,
                          const nb_array<float, nb::shape<-1, 4>>& query_orientations,
-                         std::shared_ptr<locality::NeighborList> nlist, const locality::QueryArgs& qargs)
+                         const std::shared_ptr<locality::NeighborList>& nlist,
+                         const locality::QueryArgs& qargs)
 {
     unsigned int const n_query_points = query_points.shape(0);
     // std::cout << n_query_points << std::endl;

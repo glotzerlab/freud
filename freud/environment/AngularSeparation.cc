@@ -2,12 +2,14 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <cmath>
+#include <cstddef>
 #include <memory>
 #include <vector>
 
 #include "AngularSeparation.h"
 #include "ManagedArray.h"
 #include "NeighborComputeFunctional.h"
+#include "NeighborList.h"
 #include "NeighborQuery.h"
 #include "VectorMath.h"
 #include "utils.h"

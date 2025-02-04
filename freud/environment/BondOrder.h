@@ -4,9 +4,10 @@
 #ifndef BOND_ORDER_H
 #define BOND_ORDER_H
 
+#include <memory>
+#include <vector>
+
 #include "BondHistogramCompute.h"
-#include "Box.h"
-#include "Histogram.h"
 #include "ManagedArray.h"
 #include "NeighborList.h"
 #include "NeighborQuery.h"
@@ -50,7 +51,7 @@ public:
     std::vector<std::vector<float>> getBinCenters();
 
     //! Get a shared_ptr to the last computed bond order
-    const std::shared_ptr<util::ManagedArray<float>> getBondOrder();
+    std::shared_ptr<util::ManagedArray<float>> getBondOrder();
 
     BondOrderMode getMode() const
     {

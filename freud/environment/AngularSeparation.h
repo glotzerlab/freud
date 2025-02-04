@@ -4,6 +4,9 @@
 #ifndef ANGULAR_SEPARATION_H
 #define ANGULAR_SEPARATION_H
 
+#include <memory>
+
+#include "ManagedArray.h"
 #include "NeighborList.h"
 #include "NeighborQuery.h"
 #include "VectorMath.h"

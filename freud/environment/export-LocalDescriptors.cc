@@ -8,6 +8,9 @@
 #include <nanobind/stl/vector.h>     // NOLINT(misc-include-cleaner): used implicitly
 
 #include "LocalDescriptors.h"
+#include "NeighborList.h"
+#include "NeighborQuery.h"
+#include "VectorMath.h"
 
 namespace nb = nanobind;
 
@@ -18,10 +21,10 @@ using nb_array = nanobind::ndarray<T, shape, nanobind::device::cpu, nanobind::c_
 
 namespace wrap {
 void compute(const std::shared_ptr<LocalDescriptors>& local_descriptors,
-             std::shared_ptr<locality::NeighborQuery> nq,
+             const std::shared_ptr<locality::NeighborQuery>& nq,
              const nb_array<float, nanobind::shape<-1, 3>>& query_points, const unsigned int n_query_points,
              const nb_array<float, nanobind::shape<-1, 4>>& orientations,
-             std::shared_ptr<locality::NeighborList> nlist, const locality::QueryArgs& qargs,
+             const std::shared_ptr<locality::NeighborList>& nlist, const locality::QueryArgs& qargs,
              const unsigned int max_num_neighbors)
 {
     auto* query_points_data = reinterpret_cast<vec3<float>*>(query_points.data());

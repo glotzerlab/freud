@@ -4,7 +4,8 @@
 #ifndef LOCAL_BOND_PROJECTION_H
 #define LOCAL_BOND_PROJECTION_H
 
-#include "Box.h"
+#include <memory>
+
 #include "ManagedArray.h"
 #include "NeighborList.h"
 #include "NeighborQuery.h"

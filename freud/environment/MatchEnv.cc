@@ -2,18 +2,22 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <algorithm>
+#include <cstddef>
 #include <map>
 #include <memory>
 #include <sstream>
 #include <stdexcept>
 #include <tuple>
 #include <utility>
+#include <vector>
 
 #include "BiMap.h"
 #include "Box.h"
 #include "ManagedArray.h"
 #include "MatchEnv.h"
 #include "NeighborComputeFunctional.h"
+#include "NeighborList.h"
+#include "NeighborQuery.h"
 #include "Registration.h"
 #include "VectorMath.h"
 
@@ -706,7 +710,7 @@ void EnvironmentMotifMatch::compute(const std::shared_ptr<freud::locality::Neigh
         if (!vec_map.empty())
         {
             dj.merge(0, dummy, vec_map, rotation);
-            (*m_matches)[i] = true;
+            (*m_matches)[i] = 1;
         }
         // grab the set of vectors that define this individual environment
         const std::vector<vec3<float>> part_vecs = dj.getIndividualEnv(dummy);
@@ -730,7 +734,7 @@ void EnvironmentRMSDMinimizer::compute(const std::shared_ptr<freud::locality::Ne
     const std::shared_ptr<locality::NeighborList> nlist
         = locality::makeDefaultNlist(nq, nlist_arg, nq->getPoints(), nq->getNPoints(), qargs);
 
-    unsigned int Np = nq->getNPoints();
+    const unsigned int Np = nq->getNPoints();
 
     // create a disjoint set where all particles belong in their own cluster.
     // this has to have ONE MORE environment than there are actual particles,
@@ -748,7 +752,7 @@ void EnvironmentRMSDMinimizer::compute(const std::shared_ptr<freud::locality::Ne
     // be wrapped into the box as well.
     for (unsigned int i = 0; i < motif_size; i++)
     {
-        vec3<float> p = nq->getBox().wrap(motif[i]);
+        const vec3<float> p = nq->getBox().wrap(motif[i]);
         e0.addVec(p);
     }
 
@@ -766,16 +770,16 @@ void EnvironmentRMSDMinimizer::compute(const std::shared_ptr<freud::locality::Ne
     // if you don't do this, things will get screwy.
     for (unsigned int i = 0; i < Np; i++)
     {
-        unsigned int dummy = i + 1;
-        Environment ei = buildEnv(nlist, num_bonds, bond, i, dummy);
+        const unsigned int dummy = i + 1;
+        const Environment ei = buildEnv(nlist, num_bonds, bond, i, dummy);
         dj.s.push_back(ei);
 
         // if the environment matches e0, merge it into the e0 environment set
         float min_rmsd = -1.0;
-        std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>> mapping
+        const std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>> mapping
             = minimizeRMSD(dj.s[0], dj.s[dummy], min_rmsd, registration);
         rotmat3<float> rotation = mapping.first;
-        BiMap<unsigned int, unsigned int> vec_map = mapping.second;
+        const BiMap<unsigned int, unsigned int> vec_map = mapping.second;
         // populate the min_rmsd vector
         (*m_rmsds)[i] = min_rmsd;
 
@@ -789,7 +793,7 @@ void EnvironmentRMSDMinimizer::compute(const std::shared_ptr<freud::locality::Ne
         }
 
         // grab the set of vectors that define this individual environment
-        std::vector<vec3<float>> part_vecs = dj.getIndividualEnv(dummy);
+        const std::vector<vec3<float>> part_vecs = dj.getIndividualEnv(dummy);
 
         m_point_environments.emplace_back();
         for (auto& part_vec : part_vecs)

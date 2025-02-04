@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cmath>
 #include <complex>
+#include <cstddef>
 #include <limits>
 #include <math.h> // NOLINT(modernize-deprecated-headers): Use std::numbers when c++20 is default.
 #include <memory>
@@ -139,6 +140,7 @@ void LocalDescriptors::compute(const std::shared_ptr<locality::NeighborQuery>& n
 
                 sph_eval.compute(phi, theta);
                 // copy results from sph_eval to the sphArray
+                // NOLINTNEXTLINE - fsph uses deprecated C++ features
                 std::copy(sph_eval.begin(m_negative_m), sph_eval.end(), m_sphArray->data() + sphCount);
             }
         }
