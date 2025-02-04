@@ -250,7 +250,7 @@ public:
                         q.row(0) = points.row(int(comb[0]));
                         q.row(1) = points.row(int(comb[1]));
                     }
-                    else if (N == int(1))
+                    else if (N == 1)
                     {
                         q.row(0) = points.row(int(comb[0]));
                     }
@@ -362,7 +362,7 @@ public:
         for (int r = 0; r < points.rows(); r++)
         {
             // get the rotated point
-            vec3<float> pfit = make_point(points.row(r));
+            const vec3<float> pfit = make_point(points.row(r));
             // compute squared distances to all unused reference points
             std::vector<std::pair<unsigned int, float>> ref_distances;
             for (auto ref_index : unused_indices)
@@ -442,6 +442,7 @@ private:
         }
         int random_int(int a, int b)
         {
+            // NOLINTNEXTLINE(misc-const-correctness) - const causes a compile error
             std::uniform_int_distribution<int> distribution(a, b);
             return distribution(m_generator);
         }
